@@ -6894,7 +6894,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_returned"
       },
-      "source_sha256": "73142308023513e100d341e32b432a84707865d184776b2f1dbfc011f78f8779"
+      "source_sha256": "73142308023513e100d341e32b432a84707865d184776b2f1dbfc011f78f8779",
+      "english": "Uu... Remilia's headwear! I'll take good care of it."
     },
     {
       "id": "remilia.adult.o_unknown",
@@ -6910,7 +6911,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_unknown"
       },
-      "source_sha256": "1b3a73a9b632df8f8ec07bc7e8a4f742ddd6acad42ab0ad62c45777721152b9b"
+      "source_sha256": "1b3a73a9b632df8f8ec07bc7e8a4f742ddd6acad42ab0ad62c45777721152b9b",
+      "english": "Uu... yu? Who's there?"
     },
     {
       "id": "remilia.adult.o_play",
@@ -6927,7 +6929,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_play"
       },
-      "source_sha256": "64b59371665e514905b65d0dcbea485712820e1fb58fc34d2405f9cdaa077d27"
+      "source_sha256": "64b59371665e514905b65d0dcbea485712820e1fb58fc34d2405f9cdaa077d27",
+      "english": "Uu... let's move about and play. Want to join me?"
     },
     {
       "id": "remilia.adult.o_refuse",
@@ -7012,7 +7015,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_busy"
       },
-      "source_sha256": "ce74bdcbd622ca954829076defa00fa1528c232f6a6a62821619dd359c1d525a"
+      "source_sha256": "ce74bdcbd622ca954829076defa00fa1528c232f6a6a62821619dd359c1d525a",
+      "english": "Uu... I'm busy now. Later, okay?"
     },
     {
       "id": "remilia.adult.o_heard",
@@ -7028,7 +7032,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_heard"
       },
-      "source_sha256": "198bf5af34dea4157ce203e44ac82068b6720401dfe2763b04f8983b0f150178"
+      "source_sha256": "198bf5af34dea4157ce203e44ac82068b6720401dfe2763b04f8983b0f150178",
+      "english": "Uu... I heard you."
     },
     {
       "id": "remilia.adult.o_newborn",
@@ -7061,7 +7066,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_grown"
       },
-      "source_sha256": "bef5d233f346abc5607741bc58239d77cb1e8cb32f434d8f2d3bad49ca7c653c"
+      "source_sha256": "bef5d233f346abc5607741bc58239d77cb1e8cb32f434d8f2d3bad49ca7c653c",
+      "english": "Uu... I've grown a little!"
     },
     {
       "id": "remilia.adult.o_courtship",
@@ -7077,7 +7083,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_courtship"
       },
-      "source_sha256": "5e10339f4ad5cb54f5ab97310ca1ad893b496187bd06ff65b2621e7cfe78396b"
+      "source_sha256": "5e10339f4ad5cb54f5ab97310ca1ad893b496187bd06ff65b2621e7cfe78396b",
+      "english": "Uu... I want to take it easy with you..."
     },
     {
       "id": "remilia.adult.o_brood",
@@ -7094,7 +7101,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_brood"
       },
-      "source_sha256": "cee2579d4411a16637b945643684559d1cea206522a109970544123bac1ca789"
+      "source_sha256": "cee2579d4411a16637b945643684559d1cea206522a109970544123bac1ca789",
+      "english": "Uu... little one... it won't be long..."
     },
     {
       "id": "remilia.adult.o_wait_family",
@@ -7110,7 +7118,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_wait_family"
       },
-      "source_sha256": "87e3e0df16f3983a1dfc8f87cdc57af1e8ec03f706fd5976c3395967d6a9cb59"
+      "source_sha256": "87e3e0df16f3983a1dfc8f87cdc57af1e8ec03f706fd5976c3395967d6a9cb59",
+      "english": "Uu... my family's still not back... I'll wait a little longer..."
     },
     {
       "id": "remilia.adult.o_parent",
@@ -7126,7 +7135,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_parent"
       },
-      "source_sha256": "79d4f15b02b1eacfb6b83b8047516ba506f66a2189ac51e5675a8eaaf151878f"
+      "source_sha256": "79d4f15b02b1eacfb6b83b8047516ba506f66a2189ac51e5675a8eaaf151878f",
+      "english": "Uu... I wonder where my parent is..."
     },
     {
       "id": "remilia.adult.o_grief",
@@ -7142,7 +7152,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_grief"
       },
-      "source_sha256": "3a3a23e957e5badfc46dd4e9c3673c7f25037748282148f7a99910befa389deb"
+      "source_sha256": "3a3a23e957e5badfc46dd4e9c3673c7f25037748282148f7a99910befa389deb",
+      "english": "Uu... hey... wake up... let's rub cheeks one more time..."
     },
     {
       "id": "remilia.adult.o_nuzzle",
@@ -7159,7 +7170,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_nuzzle"
       },
-      "source_sha256": "7c4a687ffcb1858b5f5d3a0fe58749b9eb361c5a4ac308548b969b845a7858ed"
+      "source_sha256": "7c4a687ffcb1858b5f5d3a0fe58749b9eb361c5a4ac308548b969b845a7858ed",
+      "english": "Uu... I'll rub against you for a bit."
     },
     {
       "id": "remilia.adult.o_content",
@@ -7176,7 +7188,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_content"
       },
-      "source_sha256": "a7e8cd01cae89f942ef569aa101810a6faf3939240fc477a71aaf53e2346caa1"
+      "source_sha256": "a7e8cd01cae89f942ef569aa101810a6faf3939240fc477a71aaf53e2346caa1",
+      "english": "Uu... phew... I can take it easy..."
     },
     {
       "id": "remilia.adult.o_puff",
@@ -7192,7 +7205,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_puff"
       },
-      "source_sha256": "c10eb580e6f0af611eeb6bf343c20dc1669bdc97832c01b215b0e576268c6f22"
+      "source_sha256": "c10eb580e6f0af611eeb6bf343c20dc1669bdc97832c01b215b0e576268c6f22",
+      "english": "Uu! Remilia's right here!"
     },
     {
       "id": "remilia.young.o_hello",
@@ -7211,7 +7225,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_hello"
       },
-      "source_sha256": "60166ba13cd8cd01509775bd80e1d2bcc6b374da4c4755cf5803708bad00a164"
+      "source_sha256": "60166ba13cd8cd01509775bd80e1d2bcc6b374da4c4755cf5803708bad00a164",
+      "english": "Uu... Wemi wants to join too!"
     },
     {
       "id": "remilia.young.o_idle",
@@ -7227,7 +7242,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_idle"
       },
-      "source_sha256": "8a05654f9a35c3832b4f6091aa1141330c3020b1df3bfb2d574cd51e82e65ad5"
+      "source_sha256": "8a05654f9a35c3832b4f6091aa1141330c3020b1df3bfb2d574cd51e82e65ad5",
+      "english": "Uu... gonna west here."
     },
     {
       "id": "remilia.young.o_hungry",
@@ -7243,7 +7259,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_hungry"
       },
-      "source_sha256": "c1f1c70d4e94720899510838937a45e2f0dd168c2bc8bc9506283de7c203d556"
+      "source_sha256": "c1f1c70d4e94720899510838937a45e2f0dd168c2bc8bc9506283de7c203d556",
+      "english": "Uu... Mishter Tummy's rumbling..."
     },
     {
       "id": "remilia.young.o_food",
@@ -7259,7 +7276,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_food"
       },
-      "source_sha256": "1a91fb9bee67bc67036a9c75ce4388e96c2033fe8aaef9d58e595574dc48f77b"
+      "source_sha256": "1a91fb9bee67bc67036a9c75ce4388e96c2033fe8aaef9d58e595574dc48f77b",
+      "english": "Uu... found food!"
     },
     {
       "id": "remilia.young.o_eat",
@@ -7276,7 +7294,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_eat"
       },
-      "source_sha256": "edb2bdb3b43870739f667f147b57e7280e0e26a60f857491bfef7b30980868cf"
+      "source_sha256": "edb2bdb3b43870739f667f147b57e7280e0e26a60f857491bfef7b30980868cf",
+      "english": "Uu... munch, munch!"
     },
     {
       "id": "remilia.young.o_fed",
@@ -7309,7 +7328,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_share"
       },
-      "source_sha256": "3df05be38d50fdcb5c617810dd9acac905e9abad771b63e79697445071ca2af6"
+      "source_sha256": "3df05be38d50fdcb5c617810dd9acac905e9abad771b63e79697445071ca2af6",
+      "english": "Uu... here! Let's munch together!"
     },
     {
       "id": "remilia.young.o_wait_turn",
@@ -7325,7 +7345,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_wait_turn"
       },
-      "source_sha256": "05a29251f20fb6a9b4a87edf4268afed861133e3eee0b53228f7bfec3453801a"
+      "source_sha256": "05a29251f20fb6a9b4a87edf4268afed861133e3eee0b53228f7bfec3453801a",
+      "english": "Uu... is it my turn yet?"
     },
     {
       "id": "remilia.young.o_mine",
@@ -7341,7 +7362,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_mine"
       },
-      "source_sha256": "cbf52ca63fdf7cc22160718c1021336cb722f380c33a9a9637e86b47ddfe6d73"
+      "source_sha256": "cbf52ca63fdf7cc22160718c1021336cb722f380c33a9a9637e86b47ddfe6d73",
+      "english": "Dis is Wemi's share!"
     },
     {
       "id": "remilia.young.o_toilet",
@@ -7357,7 +7379,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_toilet"
       },
-      "source_sha256": "01392b2f752d3844665d96fa67eaa60ab4f07714d0b89620c82b4fb69a2b7da6"
+      "source_sha256": "01392b2f752d3844665d96fa67eaa60ab4f07714d0b89620c82b4fb69a2b7da6",
+      "english": "Uu... where's the potty?"
     },
     {
       "id": "remilia.young.o_clean",
@@ -7374,7 +7397,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_clean"
       },
-      "source_sha256": "3fdef2c69957b8d0e281d65e11287554c049cab94eb5740a104b87da51c9836c"
+      "source_sha256": "3fdef2c69957b8d0e281d65e11287554c049cab94eb5740a104b87da51c9836c",
+      "english": "Clean, clean. Feels nice!"
     },
     {
       "id": "remilia.young.o_sleep",
@@ -7390,7 +7414,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_sleep"
       },
-      "source_sha256": "b8e0a820faacd3db3fcfc129471554a8b65230d4ffa253ba283ccb5f8eee804b"
+      "source_sha256": "b8e0a820faacd3db3fcfc129471554a8b65230d4ffa253ba283ccb5f8eee804b",
+      "english": "Uu... sleepy... night-night."
     },
     {
       "id": "remilia.young.o_awake",
@@ -7406,7 +7431,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_awake"
       },
-      "source_sha256": "1a15ad2d36e83d41e219225c2a5acb6cdf5e608954bc36b37908c6a3e7783c53"
+      "source_sha256": "1a15ad2d36e83d41e219225c2a5acb6cdf5e608954bc36b37908c6a3e7783c53",
+      "english": "Uu... I'm awake!"
     },
     {
       "id": "remilia.young.o_gentle",
@@ -7423,7 +7449,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_gentle"
       },
-      "source_sha256": "13eac90713ffeaf472f8b3d1fae48669a4782cbc8d00997c809f7b6d9106fb95"
+      "source_sha256": "13eac90713ffeaf472f8b3d1fae48669a4782cbc8d00997c809f7b6d9106fb95",
+      "english": "Uu... stay a little longer... I wanna be close..."
     },
     {
       "id": "remilia.young.o_shy",
@@ -7440,7 +7467,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_shy"
       },
-      "source_sha256": "0cad2f8f6a7dbbfdbe232b240c0afabe1fe44ce9dd319a2ead5b8b5dfe25d237"
+      "source_sha256": "0cad2f8f6a7dbbfdbe232b240c0afabe1fe44ce9dd319a2ead5b8b5dfe25d237",
+      "english": "Uu... yuu... gonna tuck in..."
     },
     {
       "id": "remilia.young.o_afraid",
@@ -7456,7 +7484,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_afraid"
       },
-      "source_sha256": "c8166fe8081545be168b9304b88aace3d51fcafa36498537dcd656d3b58d6258"
+      "source_sha256": "c8166fe8081545be168b9304b88aace3d51fcafa36498537dcd656d3b58d6258",
+      "english": "Uu... scawy!"
     },
     {
       "id": "remilia.young.o_hurt",
@@ -7472,7 +7501,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_hurt"
       },
-      "source_sha256": "7dc1577fd5a4a8634b65dc5802dbea295c948bd35645ad5963414f30e0c194ed"
+      "source_sha256": "7dc1577fd5a4a8634b65dc5802dbea295c948bd35645ad5963414f30e0c194ed",
+      "english": "Uu... it huwts, it huwts!"
     },
     {
       "id": "remilia.young.o_treated",
@@ -7505,7 +7535,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_lost"
       },
-      "source_sha256": "cdab2d151f7ac26efc71a4940b7f4e7db768e2eb405b749e367c6c71661906aa"
+      "source_sha256": "cdab2d151f7ac26efc71a4940b7f4e7db768e2eb405b749e367c6c71661906aa",
+      "english": "My headwear's gone..."
     },
     {
       "id": "remilia.young.o_returned",
@@ -7521,7 +7552,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_returned"
       },
-      "source_sha256": "a2f063177d4cc0c2526e8a0a41a98d11115a5901a735d22c12934773b5bd3dc2"
+      "source_sha256": "a2f063177d4cc0c2526e8a0a41a98d11115a5901a735d22c12934773b5bd3dc2",
+      "english": "Uu... Wemi's headwear!"
     },
     {
       "id": "remilia.young.o_unknown",
@@ -7537,7 +7569,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_unknown"
       },
-      "source_sha256": "d098efcb33405310a5030c98c76d1884716d29b12692d26e9cb3ca181695a8ba"
+      "source_sha256": "d098efcb33405310a5030c98c76d1884716d29b12692d26e9cb3ca181695a8ba",
+      "english": "Uu... yu? Who's dat?"
     },
     {
       "id": "remilia.young.o_play",
@@ -7554,7 +7587,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_play"
       },
-      "source_sha256": "a6ac8343eb13885d27052d52cdf93d94a1636e86a62a2df11dba28c4db42e4e8"
+      "source_sha256": "a6ac8343eb13885d27052d52cdf93d94a1636e86a62a2df11dba28c4db42e4e8",
+      "english": "Uu... let's pway! Together!"
     },
     {
       "id": "remilia.young.o_refuse",
@@ -7639,7 +7673,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_busy"
       },
-      "source_sha256": "37fb49927f6fc5eefd38e86c7d8a412e5eeaa25845f9bdf869229c38fcf418d4"
+      "source_sha256": "37fb49927f6fc5eefd38e86c7d8a412e5eeaa25845f9bdf869229c38fcf418d4",
+      "english": "Uu... I'm busy wight now..."
     },
     {
       "id": "remilia.young.o_heard",
@@ -7655,7 +7690,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_heard"
       },
-      "source_sha256": "19b713a6442a3b69f5acbebfe0512d3b44711b704c9b3852da6b07683cfdf8d9"
+      "source_sha256": "19b713a6442a3b69f5acbebfe0512d3b44711b704c9b3852da6b07683cfdf8d9",
+      "english": "Uu... I heard you!"
     },
     {
       "id": "remilia.young.o_newborn",
@@ -7671,7 +7707,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_newborn"
       },
-      "source_sha256": "47447f4826420dbb5c9f9d4d05806a598f737120bc9557c19fb38d5ded9d40b4"
+      "source_sha256": "47447f4826420dbb5c9f9d4d05806a598f737120bc9557c19fb38d5ded9d40b4",
+      "english": "Uu... Wemi was born!"
     },
     {
       "id": "remilia.young.o_grown",
@@ -7687,7 +7724,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_grown"
       },
-      "source_sha256": "188f715ab05622aa663ed1de60ab0ab87a024920e2d87b34118848544183f1d8"
+      "source_sha256": "188f715ab05622aa663ed1de60ab0ab87a024920e2d87b34118848544183f1d8",
+      "english": "Uu... I got bigger!"
     },
     {
       "id": "remilia.young.o_courtship",
@@ -7703,7 +7741,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_courtship"
       },
-      "source_sha256": "6523c574ecbbec9c8ee2ad67f1e01026bc6d836c635242bf5ad177a6c09ddc18"
+      "source_sha256": "6523c574ecbbec9c8ee2ad67f1e01026bc6d836c635242bf5ad177a6c09ddc18",
+      "english": "Uu... I wanna chake it eashy together..."
     },
     {
       "id": "remilia.young.o_brood",
@@ -7720,7 +7759,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_brood"
       },
-      "source_sha256": "8edcfbf5e89d7e98b5f4c9532337d8b279e7f5f3e5f5283c9acb04ebc28f0be7"
+      "source_sha256": "8edcfbf5e89d7e98b5f4c9532337d8b279e7f5f3e5f5283c9acb04ebc28f0be7",
+      "english": "Uu... little one... soon..."
     },
     {
       "id": "remilia.young.o_wait_family",
@@ -7736,7 +7776,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_wait_family"
       },
-      "source_sha256": "7d33ccba88329dc78370ba53cd7f002e82b0d9b6fb3bb2a62ca3960950a285fc"
+      "source_sha256": "7d33ccba88329dc78370ba53cd7f002e82b0d9b6fb3bb2a62ca3960950a285fc",
+      "english": "Uu... my family's still not back... I'll wait a bit more..."
     },
     {
       "id": "remilia.young.o_parent",
@@ -7752,7 +7793,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_parent"
       },
-      "source_sha256": "734cca5844dc9bf6ec14d3005cc6e301ff5f5908c2d8e6ab11048c7ed8ad1686"
+      "source_sha256": "734cca5844dc9bf6ec14d3005cc6e301ff5f5908c2d8e6ab11048c7ed8ad1686",
+      "english": "Uu... where's my parent...?"
     },
     {
       "id": "remilia.young.o_grief",
@@ -7768,7 +7810,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_grief"
       },
-      "source_sha256": "8875dc670cd1c2f3285cecb1539a11ca1497dce57aed4b21827cc0a753902df8"
+      "source_sha256": "8875dc670cd1c2f3285cecb1539a11ca1497dce57aed4b21827cc0a753902df8",
+      "english": "Uu... wake up... pwease wake up..."
     },
     {
       "id": "remilia.young.o_nuzzle",
@@ -7785,7 +7828,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_nuzzle"
       },
-      "source_sha256": "28fe75273786b40ea065ca2b4ff21383005b5439b1fdcdc2e2e0b9ab20444137"
+      "source_sha256": "28fe75273786b40ea065ca2b4ff21383005b5439b1fdcdc2e2e0b9ab20444137",
+      "english": "Uu... wub cheeks with me."
     },
     {
       "id": "remilia.young.o_content",
@@ -7802,7 +7846,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_content"
       },
-      "source_sha256": "b961b821998ea4eacc9c11993f6ceba958eaca54ebee61d6c5e679aad5b056b8"
+      "source_sha256": "b961b821998ea4eacc9c11993f6ceba958eaca54ebee61d6c5e679aad5b056b8",
+      "english": "Uu... phew... I can chake it eashy..."
     },
     {
       "id": "remilia.young.o_puff",
@@ -7818,7 +7863,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_puff"
       },
-      "source_sha256": "187f09f19a800a95080b88de07c4b980509af2c7e221470a6c9119049e5d1053"
+      "source_sha256": "187f09f19a800a95080b88de07c4b980509af2c7e221470a6c9119049e5d1053",
+      "english": "Uu! Wemi's here!"
     },
     {
       "id": "flandre.adult.o_hello",
@@ -7837,7 +7883,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_hello"
       },
-      "source_sha256": "685289a9bfe602f0a18263fe85a7a8dd05f3d455f77f6fc1c983b035c3b5049b"
+      "source_sha256": "685289a9bfe602f0a18263fe85a7a8dd05f3d455f77f6fc1c983b035c3b5049b",
+      "english": "Uu... can Flandre join you too?"
     },
     {
       "id": "flandre.adult.o_idle",
@@ -7853,7 +7900,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_idle"
       },
-      "source_sha256": "a428f700ae7875a0f72dd6cd7a9e4121a5de79b0bd2e2223e138320e96c91f57"
+      "source_sha256": "a428f700ae7875a0f72dd6cd7a9e4121a5de79b0bd2e2223e138320e96c91f57",
+      "english": "Uu... what should I play today?"
     },
     {
       "id": "flandre.adult.o_hungry",
@@ -7869,7 +7917,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_hungry"
       },
-      "source_sha256": "1bfc5c7f6cbfcc24b4ef9726312bafb60c9bf074a1d50ae53f4a2994778304f3"
+      "source_sha256": "1bfc5c7f6cbfcc24b4ef9726312bafb60c9bf074a1d50ae53f4a2994778304f3",
+      "english": "Uu... I'm hungry... where's the food?"
     },
     {
       "id": "flandre.adult.o_food",
@@ -7885,7 +7934,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_food"
       },
-      "source_sha256": "90703d17fb40cb30de794243466ff2e5244dfd75eac6c9a4a43637cfe18db385"
+      "source_sha256": "90703d17fb40cb30de794243466ff2e5244dfd75eac6c9a4a43637cfe18db385",
+      "english": "Uu... can I eat this? Let's have a look."
     },
     {
       "id": "flandre.adult.o_eat",
@@ -7902,7 +7952,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_eat"
       },
-      "source_sha256": "acb5f32c4df3e4f85080b1f924d687a1f2808874cb5994221a1e7b161db9921b"
+      "source_sha256": "acb5f32c4df3e4f85080b1f924d687a1f2808874cb5994221a1e7b161db9921b",
+      "english": "Uu... munch, munch. What does it taste like?"
     },
     {
       "id": "flandre.adult.o_fed",
@@ -7918,7 +7969,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_fed"
       },
-      "source_sha256": "8baca6ec9b58130e37bb788ba65fa60c2c533471692076b0aa0d03fa32b2dfb8"
+      "source_sha256": "8baca6ec9b58130e37bb788ba65fa60c2c533471692076b0aa0d03fa32b2dfb8",
+      "english": "Uu... delicious! I'm so happy!"
     },
     {
       "id": "flandre.adult.o_share",
@@ -7934,7 +7986,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_share"
       },
-      "source_sha256": "cb54c720d35ff86284e0731dc3d919c228819523cc6aac76677150eec218e230"
+      "source_sha256": "cb54c720d35ff86284e0731dc3d919c228819523cc6aac76677150eec218e230",
+      "english": "Uu... here! Let's share!"
     },
     {
       "id": "flandre.adult.o_wait_turn",
@@ -7950,7 +8003,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_wait_turn"
       },
-      "source_sha256": "8d293f040509e5ca3c257e67b23e316f169b3109fca7b1d6164257daa134b513"
+      "source_sha256": "8d293f040509e5ca3c257e67b23e316f169b3109fca7b1d6164257daa134b513",
+      "english": "Uu... is it Flandre's turn yet?"
     },
     {
       "id": "flandre.adult.o_mine",
@@ -8162,7 +8216,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_unknown"
       },
-      "source_sha256": "1b3a73a9b632df8f8ec07bc7e8a4f742ddd6acad42ab0ad62c45777721152b9b"
+      "source_sha256": "1b3a73a9b632df8f8ec07bc7e8a4f742ddd6acad42ab0ad62c45777721152b9b",
+      "english": "Uu... yu? Who's there?"
     },
     {
       "id": "flandre.adult.o_play",
@@ -8394,7 +8449,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_grief"
       },
-      "source_sha256": "3a3a23e957e5badfc46dd4e9c3673c7f25037748282148f7a99910befa389deb"
+      "source_sha256": "3a3a23e957e5badfc46dd4e9c3673c7f25037748282148f7a99910befa389deb",
+      "english": "Uu... hey... wake up... let's rub cheeks one more time..."
     },
     {
       "id": "flandre.adult.o_nuzzle",
@@ -8495,7 +8551,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_hungry"
       },
-      "source_sha256": "c1f1c70d4e94720899510838937a45e2f0dd168c2bc8bc9506283de7c203d556"
+      "source_sha256": "c1f1c70d4e94720899510838937a45e2f0dd168c2bc8bc9506283de7c203d556",
+      "english": "Uu... Mishter Tummy's rumbling..."
     },
     {
       "id": "flandre.young.o_food",
@@ -8561,7 +8618,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_share"
       },
-      "source_sha256": "3df05be38d50fdcb5c617810dd9acac905e9abad771b63e79697445071ca2af6"
+      "source_sha256": "3df05be38d50fdcb5c617810dd9acac905e9abad771b63e79697445071ca2af6",
+      "english": "Uu... here! Let's munch together!"
     },
     {
       "id": "flandre.young.o_wait_turn",
@@ -8577,7 +8635,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_wait_turn"
       },
-      "source_sha256": "05a29251f20fb6a9b4a87edf4268afed861133e3eee0b53228f7bfec3453801a"
+      "source_sha256": "05a29251f20fb6a9b4a87edf4268afed861133e3eee0b53228f7bfec3453801a",
+      "english": "Uu... is it my turn yet?"
     },
     {
       "id": "flandre.young.o_mine",
@@ -8789,7 +8848,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_unknown"
       },
-      "source_sha256": "d098efcb33405310a5030c98c76d1884716d29b12692d26e9cb3ca181695a8ba"
+      "source_sha256": "d098efcb33405310a5030c98c76d1884716d29b12692d26e9cb3ca181695a8ba",
+      "english": "Uu... yu? Who's dat?"
     },
     {
       "id": "flandre.young.o_play",

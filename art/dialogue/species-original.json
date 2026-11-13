@@ -1910,7 +1910,8 @@
         "returned_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Remilia's headwear! I'll take good care of it."
     },
     {
       "id": "remilia.adult.o_unknown",
@@ -1922,7 +1923,8 @@
         "unrecognized"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yu? Who's there?"
     },
     {
       "id": "remilia.adult.o_play",
@@ -1935,7 +1937,8 @@
         "exercise"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... let's move about and play. Want to join me?"
     },
     {
       "id": "remilia.adult.o_refuse",
@@ -2000,7 +2003,8 @@
         "busy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm busy now. Later, okay?"
     },
     {
       "id": "remilia.adult.o_heard",
@@ -2012,7 +2016,8 @@
         "heard"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I heard you."
     },
     {
       "id": "remilia.adult.o_newborn",
@@ -2037,7 +2042,8 @@
         "grown"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I've grown a little!"
     },
     {
       "id": "remilia.adult.o_courtship",
@@ -2049,7 +2055,8 @@
         "courtship"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I want to take it easy with you..."
     },
     {
       "id": "remilia.adult.o_brood",
@@ -2062,7 +2069,8 @@
         "birth"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... little one... it won't be long..."
     },
     {
       "id": "remilia.adult.o_wait_family",
@@ -2074,7 +2082,8 @@
         "wait_family"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... my family's still not back... I'll wait a little longer..."
     },
     {
       "id": "remilia.adult.o_parent",
@@ -2086,7 +2095,8 @@
         "lost_parent"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I wonder where my parent is..."
     },
     {
       "id": "remilia.adult.o_grief",
@@ -2098,7 +2108,8 @@
         "family_died"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... hey... wake up... let's rub cheeks one more time..."
     },
     {
       "id": "remilia.adult.o_nuzzle",
@@ -2111,7 +2122,8 @@
         "want_nuzzle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'll rub against you for a bit."
     },
     {
       "id": "remilia.adult.o_content",
@@ -2124,7 +2136,8 @@
         "leisure_done"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... phew... I can take it easy..."
     },
     {
       "id": "remilia.adult.o_puff",
@@ -2136,7 +2149,8 @@
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu! Remilia's right here!"
     },
     {
       "id": "remilia.young.o_hello",
@@ -2151,7 +2165,8 @@
         "known_peer"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Wemi wants to join too!"
     },
     {
       "id": "remilia.young.o_idle",
@@ -2163,7 +2178,8 @@
         "idle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... gonna west here."
     },
     {
       "id": "remilia.young.o_hungry",
@@ -2175,7 +2191,8 @@
         "hungry"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Mishter Tummy's rumbling..."
     },
     {
       "id": "remilia.young.o_food",
@@ -2187,7 +2204,8 @@
         "food_found"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... found food!"
     },
     {
       "id": "remilia.young.o_eat",
@@ -2200,7 +2218,8 @@
         "chew"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... munch, munch!"
     },
     {
       "id": "remilia.young.o_fed",
@@ -2225,7 +2244,8 @@
         "share"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... here! Let's munch together!"
     },
     {
       "id": "remilia.young.o_wait_turn",
@@ -2237,7 +2257,8 @@
         "wait_turn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... is it my turn yet?"
     },
     {
       "id": "remilia.young.o_mine",
@@ -2249,7 +2270,8 @@
         "mine"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Dis is Wemi's share!"
     },
     {
       "id": "remilia.young.o_toilet",
@@ -2261,7 +2283,8 @@
         "need_toilet"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... where's the potty?"
     },
     {
       "id": "remilia.young.o_clean",
@@ -2274,7 +2297,8 @@
         "washed"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Clean, clean. Feels nice!"
     },
     {
       "id": "remilia.young.o_sleep",
@@ -2286,7 +2310,8 @@
         "sleep"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... sleepy... night-night."
     },
     {
       "id": "remilia.young.o_awake",
@@ -2298,7 +2323,8 @@
         "awake"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm awake!"
     },
     {
       "id": "remilia.young.o_gentle",
@@ -2311,7 +2337,8 @@
         "caregiver"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... stay a little longer... I wanna be close..."
     },
     {
       "id": "remilia.young.o_shy",
@@ -2324,7 +2351,8 @@
         "shy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yuu... gonna tuck in..."
     },
     {
       "id": "remilia.young.o_afraid",
@@ -2336,7 +2364,8 @@
         "afraid"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... scawy!"
     },
     {
       "id": "remilia.young.o_hurt",
@@ -2348,7 +2377,8 @@
         "wounded"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it huwts, it huwts!"
     },
     {
       "id": "remilia.young.o_treated",
@@ -2373,7 +2403,8 @@
         "lost_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "My headwear's gone..."
     },
     {
       "id": "remilia.young.o_returned",
@@ -2385,7 +2416,8 @@
         "returned_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Wemi's headwear!"
     },
     {
       "id": "remilia.young.o_unknown",
@@ -2397,7 +2429,8 @@
         "unrecognized"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yu? Who's dat?"
     },
     {
       "id": "remilia.young.o_play",
@@ -2410,7 +2443,8 @@
         "exercise"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... let's pway! Together!"
     },
     {
       "id": "remilia.young.o_refuse",
@@ -2475,7 +2509,8 @@
         "busy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm busy wight now..."
     },
     {
       "id": "remilia.young.o_heard",
@@ -2487,7 +2522,8 @@
         "heard"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I heard you!"
     },
     {
       "id": "remilia.young.o_newborn",
@@ -2499,7 +2535,8 @@
         "newborn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Wemi was born!"
     },
     {
       "id": "remilia.young.o_grown",
@@ -2511,7 +2548,8 @@
         "grown"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I got bigger!"
     },
     {
       "id": "remilia.young.o_courtship",
@@ -2523,7 +2561,8 @@
         "courtship"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I wanna chake it eashy together..."
     },
     {
       "id": "remilia.young.o_brood",
@@ -2536,7 +2575,8 @@
         "birth"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... little one... soon..."
     },
     {
       "id": "remilia.young.o_wait_family",
@@ -2548,7 +2588,8 @@
         "wait_family"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... my family's still not back... I'll wait a bit more..."
     },
     {
       "id": "remilia.young.o_parent",
@@ -2560,7 +2601,8 @@
         "lost_parent"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... where's my parent...?"
     },
     {
       "id": "remilia.young.o_grief",
@@ -2572,7 +2614,8 @@
         "family_died"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... wake up... pwease wake up..."
     },
     {
       "id": "remilia.young.o_nuzzle",
@@ -2585,7 +2628,8 @@
         "want_nuzzle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... wub cheeks with me."
     },
     {
       "id": "remilia.young.o_content",
@@ -2598,7 +2642,8 @@
         "leisure_done"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... phew... I can chake it eashy..."
     },
     {
       "id": "remilia.young.o_puff",
@@ -2610,7 +2655,8 @@
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu! Wemi's here!"
     },
     {
       "id": "flandre.adult.o_hello",
@@ -2625,7 +2671,8 @@
         "known_peer"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... can Flandre join you too?"
     },
     {
       "id": "flandre.adult.o_idle",
@@ -2637,7 +2684,8 @@
         "idle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... what should I play today?"
     },
     {
       "id": "flandre.adult.o_hungry",
@@ -2649,7 +2697,8 @@
         "hungry"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm hungry... where's the food?"
     },
     {
       "id": "flandre.adult.o_food",
@@ -2661,7 +2710,8 @@
         "food_found"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... can I eat this? Let's have a look."
     },
     {
       "id": "flandre.adult.o_eat",
@@ -2674,7 +2724,8 @@
         "chew"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... munch, munch. What does it taste like?"
     },
     {
       "id": "flandre.adult.o_fed",
@@ -2686,7 +2737,8 @@
         "fed"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... delicious! I'm so happy!"
     },
     {
       "id": "flandre.adult.o_share",
@@ -2698,7 +2750,8 @@
         "share"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... here! Let's share!"
     },
     {
       "id": "flandre.adult.o_wait_turn",
@@ -2710,7 +2763,8 @@
         "wait_turn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... is it Flandre's turn yet?"
     },
     {
       "id": "flandre.adult.o_mine",
@@ -2870,7 +2924,8 @@
         "unrecognized"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yu? Who's there?"
     },
     {
       "id": "flandre.adult.o_play",
@@ -3046,7 +3101,8 @@
         "family_died"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... hey... wake up... let's rub cheeks one more time..."
     },
     {
       "id": "flandre.adult.o_nuzzle",
@@ -3123,7 +3179,8 @@
         "hungry"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Mishter Tummy's rumbling..."
     },
     {
       "id": "flandre.young.o_food",
@@ -3173,7 +3230,8 @@
         "share"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... here! Let's munch together!"
     },
     {
       "id": "flandre.young.o_wait_turn",
@@ -3185,7 +3243,8 @@
         "wait_turn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... is it my turn yet?"
     },
     {
       "id": "flandre.young.o_mine",
@@ -3345,7 +3404,8 @@
         "unrecognized"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yu? Who's dat?"
     },
     {
       "id": "flandre.young.o_play",
