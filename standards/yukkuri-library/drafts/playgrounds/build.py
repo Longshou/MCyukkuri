@@ -26,7 +26,7 @@ def prism(corners,z0,z1,color):
 
 def bounds(points):return [min(p[i] for p in points) for i in range(3)]+[max(p[i] for p in points) for i in range(3)]
 
-for name,color in (('paper_tunnel',0),('ceramic_tunnel',3)):
+for name,color in (('ceramic_tunnel',3),):
     shapes=[];physical=[]
     # Eight open-sided panels, with a flat floor and a broad clear bore.
     outer=[(-9,0),(9,0),(14,5),(14,23),(9,28),(-9,28),(-14,23),(-14,5)]
@@ -34,11 +34,8 @@ for name,color in (('paper_tunnel',0),('ceramic_tunnel',3)):
     for i in range(8):
         j=(i+1)%8;shape=prism([outer[i],outer[j],inner[j],inner[i]],-22,22,color)
         shapes.append(shape);physical.append(bounds(shape['poly'][0]))
-    if name=='paper_tunnel':
-        shapes += [box([-9,28,-22],[9,28.15,22],1),box([-14.1,5,-22],[-13.9,23,-20.5],2)]
-    else:
-        for z in (-22,20.5):
-            for x in (-14.4,13.8):shapes.append(box([x,5,z],[x+.6,23,z+1.5],4))
+    for z in (-22,20.5):
+        for x in (-14.4,13.8):shapes.append(box([x,5,z],[x+.6,23,z+1.5],4))
     RECIPES[name]=shapes;COLLISION[name]=physical
 
 slide=[];solid=[]
@@ -78,9 +75,9 @@ for x in (-11,8):add_box(pool,solid,[x,1,-11],[x+3,6,11],11)
 for z in (-11,8):add_box(pool,solid,[-8,1,z],[8,6,z+3],11)
 for x in (-23,11):add_box(pool,solid,[x,0,-11],[x+12,6,11],7)
 RECIPES['yukkuri_pool']=pool;COLLISION['yukkuri_pool']=solid
-LABELS={'paper_tunnel':['纸筒','Paper tunnel'],'ceramic_tunnel':['陶管','Ceramic tunnel'],'yukkuri_slide':['油库里滑梯','Yukkuri slide'],
+LABELS={'ceramic_tunnel':['陶管','Ceramic tunnel'],'yukkuri_slide':['油库里滑梯','Yukkuri slide'],
         'yukkuri_trampoline':['油库里蹦床','Yukkuri trampoline'],'yukkuri_pool':['油库里水池','Yukkuri pool']}
-INGREDIENTS={'paper_tunnel':['paper']*6,'ceramic_tunnel':['brick']*6,'yukkuri_slide':['iron_ingot']*4+['stick']*2,
+INGREDIENTS={'ceramic_tunnel':['brick']*6,'yukkuri_slide':['iron_ingot']*4+['stick']*2,
              'yukkuri_trampoline':['string']*4+['slime_ball','iron_ingot'],'yukkuri_pool':['brick']*4+['cyan_dye']}
 
 def outputs():

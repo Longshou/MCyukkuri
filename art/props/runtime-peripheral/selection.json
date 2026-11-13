@@ -634,66 +634,6 @@
       "sha256": "e7e177fd3abff6e7576b4c8054fcbf2b5df7909618db7f94846379b4c5428cf5",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
-    "generated:art/props/runtime-peripheral/selected/ceramic_toilet_polka/ceramic_toilet_polka.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/ceramic_toilet_polka/ceramic_toilet_polka.mesh.json",
-      "sha256": "0a87a7c41b01cafe18c8c99152f9437b696de2e9bc6817f21856bfbe636b5aee",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/ceramic_toilet_polka/ceramic_toilet_polka.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/ceramic_toilet_polka/ceramic_toilet_polka.bbmodel",
-      "sha256": "5c132f61a20ebf6dc30890dfb829e444b92c43f90a81c2758bd56d806db5c152",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/ceramic_toilet_polka/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/ceramic_toilet_polka/texture.png",
-      "sha256": "2a8282f7ba9bd24a296a3fe12c54153eb1894a2c46d9c382e92f21dbfe5eb1c1",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/ceramic_toilet_sailor/ceramic_toilet_sailor.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/ceramic_toilet_sailor/ceramic_toilet_sailor.mesh.json",
-      "sha256": "d64640f6a246c1e71d2f38e26bdec4ab5a2f5a728f820ea23e7844384146e12c",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/ceramic_toilet_sailor/ceramic_toilet_sailor.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/ceramic_toilet_sailor/ceramic_toilet_sailor.bbmodel",
-      "sha256": "d729f4fd03485a7b6b2b3deb09331150e9c933d0dc773f5427d507821783d62c",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/ceramic_toilet_sailor/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/ceramic_toilet_sailor/texture.png",
-      "sha256": "1e0dfaf0f9d82a0fb279895c21c8d51dea43b82010fab5fff05cdddb2b09954b",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/covered_toilet_pink/covered_toilet_pink.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_pink/covered_toilet_pink.mesh.json",
-      "sha256": "8062f47d050610ebf0ab096a752601154f2f6accacd42b81a694cff5e613d0ab",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/covered_toilet_pink/covered_toilet_pink.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_pink/covered_toilet_pink.bbmodel",
-      "sha256": "6c4e1699aec6c8f784df37e8729da4d1a77cf6988c21bf91362cbbb54a1e1842",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/covered_toilet_pink/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_pink/texture.png",
-      "sha256": "314bce2912a091536d40aa8c1e9d82f96f7d9727fb29508d5dc383cbe7d69ef5",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/covered_toilet_navy/covered_toilet_navy.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_navy/covered_toilet_navy.mesh.json",
-      "sha256": "0fb740db3ad68d0f7ea051a916f889751783719823e63ca73a70e0f5d47f7a28",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/covered_toilet_navy/covered_toilet_navy.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_navy/covered_toilet_navy.bbmodel",
-      "sha256": "b7c3e13df303326ac03c2e274b4cf69fe5d3fa0f5500cba2b842d139ea1073a4",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/covered_toilet_navy/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_navy/texture.png",
-      "sha256": "5dfdf6444f73465feae74f263d19608fed0129b2689a0ed0615c7d30a20c9f9b",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json",
       "sha256": "f9168a5007fb582041130e0c8e061b01203af8a807e57ad27e0608cd4d2dd4d7",

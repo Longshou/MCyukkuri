@@ -34,7 +34,7 @@ import net.minecraft.util.RandomSource;
 
 public final class PlayBlock extends Block implements EntityBlock {
     public enum Kind {
-        PAPER("paper_tunnel",1),CERAMIC("ceramic_tunnel",1),SLIDE("yukkuri_slide",2),TRAMPOLINE("yukkuri_trampoline",1),POOL("yukkuri_pool",1);
+        CERAMIC("ceramic_tunnel",1),SLIDE("yukkuri_slide",2),TRAMPOLINE("yukkuri_trampoline",1),POOL("yukkuri_pool",1);
         public final String id;public final int depth;
         Kind(String id,int depth){this.id=id;this.depth=depth;}
     }

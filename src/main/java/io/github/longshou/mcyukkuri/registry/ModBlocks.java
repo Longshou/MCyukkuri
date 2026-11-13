@@ -19,7 +19,6 @@ import io.github.longshou.mcyukkuri.house.HouseNestBlock;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPileBlock;
 import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
-import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.PoopBlock;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.DenBarrierBlock;
@@ -88,9 +87,7 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<PoopBlockEntity>> POOP_ENTITY=BLOCK_ENTITIES.register("poop",
             ()->BlockEntityType.Builder.of(PoopBlockEntity::new,POOP.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CareBlockEntity>> CARE = BLOCK_ENTITIES.register("care",
-            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get(),
-                    Facilities.NEWSPAPER.get(),Facilities.SOIL.get(),Facilities.SANDPAPER.get(),
-                    Facilities.CERAMIC_TOILET.get(),Facilities.COVERED_TOILET.get()).build(null));
+            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get()).build(null));
 
     private static DeferredBlock<CareBlock> register(String id, CareBlock.Kind kind, SoundType sound) {
         return BLOCKS.register(id, () -> new CareBlock(kind, BlockBehaviour.Properties.of().strength(.6f).sound(sound).noOcclusion()));

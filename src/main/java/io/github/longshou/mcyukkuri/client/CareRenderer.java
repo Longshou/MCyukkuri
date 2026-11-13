@@ -25,7 +25,6 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
             case BOWL -> "food_bowl";
             case NEST -> "yukkuri_nest";
             case TOILET -> "yukkuri_toilet";
-            case MAT -> ((CareBlock)care.getBlockState().getBlock()).style();
         };
         String style=((CareBlock)care.getBlockState().getBlock()).style();
         if(!style.isEmpty())model=style;
@@ -47,7 +46,7 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         if(fill!=null)PropModels.render(fill,units,pose,buffers,light,overlay);
         pose.popPose();
         if(care.kind()==CareBlock.Kind.TOILET&&care.waste()>0){
-            pose.pushPose();pose.translate(.5,style.equals("covered_toilet")?.094:.0625,.5);
+            pose.pushPose();pose.translate(.5,.0625,.5);
             WastePresentation.render(care.waste(),pose,buffers,light,overlay);pose.popPose();
         }
         if(care.kind()!=CareBlock.Kind.BOWL||grain||grass||wheat)return;

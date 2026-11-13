@@ -56,7 +56,7 @@ public final class PlayLife {
                 ||target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump()
                 ||entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81||target.kind()==PlayBlock.Kind.POOL&&target.water()==0)return false;
         var local=switch(target.kind()){
-            case PAPER,CERAMIC->List.of(new Vec3(0,0,-2),new Vec3(0,.125,-1),new Vec3(0,.125,0),new Vec3(0,.125,1),new Vec3(0,0,2));
+            case CERAMIC->List.of(new Vec3(0,0,-2),new Vec3(0,.125,-1),new Vec3(0,.125,0),new Vec3(0,.125,1),new Vec3(0,0,2));
             case SLIDE->List.of(new Vec3(0,0,-2.8),new Vec3(0,.25,-1.9),new Vec3(0,.5,-1.4),new Vec3(0,.75,-.9),new Vec3(0,1,-.4),new Vec3(0,1,0),new Vec3(0,0,2.8));
             case TRAMPOLINE->List.of(new Vec3(0,0,-1.7),new Vec3(0,.3125,0),new Vec3(0,0,1.7));
             case POOL->List.of(new Vec3(-.95,0,-1.2),new Vec3(-.95,.375,0),new Vec3(-.95,0,1.2),new Vec3(0,0,1.5));

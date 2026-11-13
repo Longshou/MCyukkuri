@@ -266,7 +266,7 @@ def street_alley():
 # Cutting is done with vanilla shears (they hang with the tools).
 TOOLS = ['pin_tool', 'care_mallet', 'care_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook', 'care_vibrator',
          'iron_enclosure', 'minecraft:shears']
-CONSUMABLES = ['spicy_grain', 'sleep_spray', 'stimulant', 'sandpaper_mat']
+CONSUMABLES = ['spicy_grain', 'sleep_spray', 'stimulant']
 GROCERY = ['oil_grain_budget', 'minecraft:bread', 'minecraft:candle', 'minecraft:paper']
 # Scummy stock: intelligence, friendliness, boldness, attachment, self-control. Arrogant and rude (gesu) or dull and timid; underfed and dirty.
 GESU = (25, 15, 90, 30, 10)

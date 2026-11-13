@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.body;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
-import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,6 @@ public final class InjuryModel {
         if (underfoot(source)) return WoundShape.SOLE_BURN;
         if (source.is(DamageTypes.LIGHTNING_BOLT)) return WoundShape.NONE;
         if (source.is(DamageTypeTags.IS_FIRE)) return WoundShape.WHOLE_BURN;
-        if (source.is(Facilities.ABRASION)) return WoundShape.ABRASION;
         boolean melee = source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK) || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO);
         if (melee && entity.operations().settlingDamage()) return entity.operations().settlingShape();
         if (melee && source.getEntity() instanceof LivingEntity attacker) {
@@ -91,7 +89,7 @@ public final class InjuryModel {
         WoundShape shape = bite ? WoundShape.BITE : shape(entity, source);
         if (shape == WoundShape.NONE) return null;
         boolean plant=source.is(DamageTypes.CACTUS)||source.is(DamageTypes.SWEET_BERRY_BUSH);
-        boolean ground=shape==WoundShape.ABRASION&&(source.is(Facilities.ABRASION)||entity.operations().settlingDamage());
+        boolean ground=shape==WoundShape.ABRASION&&entity.operations().settlingDamage();
         var hit = underfoot(source) ? soleSite(entity) : plant ? plantSite(entity,source)
                 : ground ? WoundPlacement.groundContact(entity) : WoundPlacement.hit(entity, source, false);
         boolean aimed = hit != null && !underfoot(source) && !plant && !ground && source.getDirectEntity() != null;

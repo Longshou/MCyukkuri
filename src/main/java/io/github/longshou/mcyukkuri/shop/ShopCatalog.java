@@ -55,9 +55,7 @@ public final class ShopCatalog {
         good("swaddle_cloth", 4, () -> new ItemStack(ModItems.SWADDLE_CLOTH.get()), 3, 3, 1, 0),
         // The other real toys (life/Facilities): cheap rolling marbles up to the plush dolls, which need a bronze badge in the buyer's keeping.
         good("glass_marble", 2, () -> new ItemStack(Facilities.ITEMS.get("glass_marble").get()), 1, 6, 3, 0),
-        good("rubber_ball", 2, () -> new ItemStack(Facilities.ITEMS.get("rubber_ball").get()), 2, 4, 2, 0),
         good("pretty_stone", 2, () -> new ItemStack(Facilities.ITEMS.get("pretty_stone").get()), 2, 4, 2, 0),
-        good("clear_dice", 2, () -> new ItemStack(Facilities.ITEMS.get("clear_dice").get()), 3, 3, 1, 0),
         good("reimu_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("reimu_doll").get()), 5, 2, 1, 1),
         good("marisa_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("marisa_doll").get()), 5, 2, 1, 1));
 
@@ -71,7 +69,6 @@ public final class ShopCatalog {
             goods.add(good(tool.id, TOOL_CATEGORY, () -> new ItemStack(tool.item()), 4, 3, 1, 0));
         // Every cut (hair, accessory, stem, sterilizing) is made with vanilla shears.
         goods.add(good("shears", TOOL_CATEGORY, () -> new ItemStack(Items.SHEARS), 2, 3, 1, 0));
-        goods.add(good("sandpaper_mat", 1, () -> new ItemStack(Facilities.SANDPAPER.get()), 2, 3, 1, 0));
         for (var dose : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT))
             goods.add(good(dose.id, 1, () -> new ItemStack(Consumables.ITEMS.get(dose).get()), 2, 6, 3, 0));
         goods.addAll(List.of(BUDGET_GRAIN,

@@ -34,8 +34,6 @@ LABELS = {
                      'teddy': '小熊绒（棕）', 'stars': '星夜（蓝）'},
     'large_yukkuri_nest': {'': '草莓编织（红）', 'wicker': '原色藤编（棕）', 'mint': '薄荷格纹（青）', 'lavender': '薰衣草（紫）'},
     'yukkuri_toilet': {'': '薄荷（青）', 'pink': '樱粉（粉红）', 'lemon': '柠檬（黄）', 'sky': '天蓝（淡蓝）'},
-    'ceramic_toilet': {'': '奶油薄荷（白）', 'polka': '樱粉波点（粉红）', 'sailor': '水手条纹（淡蓝）'},
-    'covered_toilet': {'': '薄荷盖（青）', 'pink': '粉点盖（粉红）', 'navy': '星夜盖（蓝）'},
 }
 
 
@@ -178,7 +176,7 @@ def vanilla():
     feed = line(one(POT), one('food_bowl'), [('food_bowl_hearts', 0, 0, 0, 0, 1), ('food_bowl_regular', 8, 0, 0, 0, 1)], one(CAULDRON))
     beds = line(one(COMPOSTER), [('yukkuri_nest', 0, 0, 0, 0, 1), sit(REIMU, 'yukkuri_nest', 0, 0, 1.0, 340)],
                 [('yukkuri_nest_teddy', 0, 0, 0, 0, 1), sit(MARISA, 'yukkuri_nest', 0, 0, .5, 20)], one(CAULDRON))
-    loos = line(one('yukkuri_toilet'), one('ceramic_toilet_sailor'), one('covered_toilet'), one(COMPOSTER))
+    loos = line(one('yukkuri_toilet'), one('yukkuri_toilet_sky'), one(COMPOSTER))
     big = [g(30), ('large_yukkuri_nest', 0, 0, 0, 0, 1), (CAULDRON, 0, -26, 0, -8, 1), (COMPOSTER, 0, 26, 0, -8, 1),
            sit(REIMU, 'large_yukkuri_nest', -5.8, -5, 1.0, 175), sit(MARISA, 'large_yukkuri_nest', 5.6, .4, 1.0, 210),
            sit(REIMU, 'large_yukkuri_nest', -1.6, 6, .32, 205), sit(MARISA, 'large_yukkuri_nest', 1.8, 8.6, .32, 172)]
@@ -241,14 +239,9 @@ def large():
 def toilets():
     SZ = (340, 270)
     sand = styles('yukkuri_toilet')
-    dirty = lambda floor, style='': [('toilet_waste', 0, -4 + 2.56 * (i % 4), floor, -2.4 + 3.68 * (i // 4), .5) for i in range(6)]
     rows = [[tile([g(8), (n, 0, 0, 0, 0, 1)], '沙厕 ' + l, SZ, 26) for n, l in sand],
-            [tile([g(8), (n + '_dirty', 0, 0, 0, 0, 1)], '沙厕 脏 ' + l.split('（')[0], SZ, 26, el=42) for n, l in sand],
-            [tile([g(8), (n, 0, 0, 0, 0, 1)], '陶厕 ' + l, SZ, 24) for n, l in styles('ceramic_toilet')] +
-            [tile([g(8), ('ceramic_toilet', 0, 0, 0, 0, 1)] + dirty(1.0), '陶厕 脏 6 份', SZ, 24, az=200, el=45)],
-            [tile([g(8), (n, 0, 0, 0, 0, 1)], '带盖厕 ' + l, SZ, 24) for n, l in styles('covered_toilet')] +
-            [tile([g(8), ('covered_toilet_pink', 0, 0, 0, 0, 1)] + dirty(1.5), '带盖厕 脏 6 份（前开口）', SZ, 24, az=200, el=40)]]
-    sheet(rows, 'toilets.png', '厕所款式：沙厕 14.4×12（沙面 y 2，成体可坐进）、陶厕与带盖厕 14×14（底面 y 1 / 1.5，前侧缺口）；染料右键切换', SZ)
+            [tile([g(8), (n + '_dirty', 0, 0, 0, 0, 1)], '沙厕 脏 ' + l.split('（')[0], SZ, 26, el=42) for n, l in sand]]
+    sheet(rows, 'toilets.png', '沙厕款式：14.4×12（沙面 y 2，成体可坐进）；染料右键切换', SZ)
 
 
 def before():
@@ -263,8 +256,7 @@ def before():
         rows.append([tile([g(9), ('food_bowl', 0, 0, 0, 0, 1)], f'{tag} 食盆', SZ, 24, src=src),
                      tile([g(9)] + bowl_fill, f'{tag} 短草 8 份', SZ, 24, el=38, src=src),
                      tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 软垫窝', SZ, 17, src=src),
-                     tile([g(18), ('large_yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 编织大窝', SZ, 9, az=30, src=src),
-                     tile([g(8), ('covered_toilet', 0, 0, 0, 0, 1)], f'{tag} 带盖厕', SZ, 24, src=src)])
+                     tile([g(18), ('large_yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 编织大窝', SZ, 9, az=30, src=src)])
     sheet(rows, 'before_after.png', '上一版与当前（软垫窝放大、编织大窝 32 宽、沙厕放大）', SZ)
 
 

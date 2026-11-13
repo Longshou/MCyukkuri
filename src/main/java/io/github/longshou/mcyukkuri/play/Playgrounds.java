@@ -23,9 +23,12 @@ public final class Playgrounds {
     static {
         for(var kind:PlayBlock.Kind.values()){
             BLOCKS.put(kind,BLOCK_TYPES.register(kind.id,()->new PlayBlock(kind,BlockBehaviour.Properties.of()
-                    .strength(.8f).sound(kind==PlayBlock.Kind.PAPER?SoundType.WOOL:SoundType.METAL).noOcclusion())));
+                    .strength(.8f).sound(SoundType.METAL).noOcclusion())));
             ITEMS.put(kind,ITEM_TYPES.register(kind.id,()->new PlayItem(kind,new Item.Properties().stacksTo(16))));
         }
+        // The paper tube was the clay pipe with another texture (item cleanup, 2026-11-13): old saves load it as the clay pipe.
+        BLOCK_TYPES.addAlias(MCYukkuri.id("paper_tunnel"),MCYukkuri.id(PlayBlock.Kind.CERAMIC.id));
+        ITEM_TYPES.addAlias(MCYukkuri.id("paper_tunnel"),MCYukkuri.id(PlayBlock.Kind.CERAMIC.id));
     }
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<PlayBlockEntity>> ENTITY=BLOCK_ENTITY_TYPES.register("playground",
             ()->BlockEntityType.Builder.of(PlayBlockEntity::new,BLOCKS.values().stream().map(DeferredBlock::get).toArray(PlayBlock[]::new)).build(null));

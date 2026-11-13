@@ -49,8 +49,6 @@ STYLES = {
     'yukkuri_nest': ['', 'gingham', 'polka', 'floral', 'lavender', 'teddy', 'stars'],
     'large_yukkuri_nest': ['', 'wicker', 'mint', 'lavender'],
     'yukkuri_toilet': ['', 'pink', 'lemon', 'sky'],
-    'ceramic_toilet': ['', 'polka', 'sailor'],
-    'covered_toilet': ['', 'pink', 'navy'],
 }
 
 
@@ -59,7 +57,7 @@ def model_name(base, style):
 
 
 # =====================================================================================================================
-# Glazed ceramics (bowl and ceramic / covered toilet trays): one band runs from the floor edge up the inside wall, over the
+# Glazed ceramic bowl: one band runs from the floor edge up the inside wall, over the
 # rim and down the outside. Rows: 0-2 inside wall (floor upward), 3 rim top, 4 rolled lip, 5-7 belly (pattern), 8 foot.
 GLAZES = {
     #             belly  step  lip    inside foot   floor motif
@@ -70,8 +68,6 @@ GLAZES = {
     'paws':       (LEMON, 2, BROWN, CREAM, BROWN, 'paw'),
     'terracotta': (TERRA, 2, CREAM, CREAM, TERRA, 'flower'),
     'steel':      (STEEL, 3, STEEL, STEEL, STEEL, 'brushed'),
-    'pink':       (PINK, 2, WHITE, WHITE, CLAY, 'heart'),
-    'navy':       (NAVY, 2, LEMON, WHITE, NAVY, 'star'),
 }
 GLAZE_ROWS = 9
 
@@ -84,7 +80,6 @@ MOTIFS = {      # 16 px floor prints (top view, -z at the top)
     'paw': (['..xx.xx..', '..xx.xx..', 'xx.....xx', 'xx.....xx', '...xxx...', '..xxxxx..', '..xxxxx..', '...xxx...'], {'x': BROWN[1]}),
     'clover': (['x.x', '.s.', 'x.x'], {'x': MINT[3], 's': MINT[2]}),
     'flower': (['.p.', 'pcp', '.p.'], {'p': TERRA[3], 'c': LEMON[3]}),
-    'star': (['..x..', 'xxxxx', '.xxx.', '.x.x.'], {'x': LEMON[3]}),
 }
 
 
@@ -681,103 +676,8 @@ def toilet_waste():
 
 
 # =====================================================================================================================
-# Ceramic and covered toilets: rounded-square glazed trays 14 x 14 with a notch down to the floor at the front (-z).
-# Floors stay where CareRenderer draws the droppings: ceramic y 1, covered y 1.5. The covered toilet adds a domed hood
-# over the back half resting on the rim, so the front stays open.
-POTTY = Outline(7.0, 7.0, 3.0, arc=6, step=3.0)
-
-
-def potty_profile(floor, rim):
-    return [(-.4, 0.0, 9), (0.0, .45, 8), (0.0, rim - .5, 5), (-.12, rim - .1, 4.4), (-.35, rim, 4), (-.9, rim, 3),
-            (-1.15, rim - .45, 2), (-1.2, floor + .3, 1), (-1.35, floor, 0)]
-
-
-def potty_notch(floor):
-    def ymap(x, z, y):
-        if z >= 0 or y <= floor:
-            return y
-        return floor + (y - floor) * smoothstep(2.6, 6.2, abs(x))
-    return ymap
-
-
-def potty(b, style, floor, rim, glaze=None):
-    glaze = style if glaze is None else glaze
-    part = b.part('tray')
-    notch = potty_notch(floor)
-    revolve(b, part, POTTY, potty_profile(floor, rim), 'glaze', glaze_band(glaze, 48, 'potty' + glaze), smooth=(3, 4, 6, 7),
-            ymap=notch, ref=-.6, facet=True)
-    cap(b, part, POTTY, [(-1.35, floor)], 'floor', glaze_floor(glaze, motif=False, radius=5.6), centre=floor)
-    cap(b, part, POTTY, [(-.4, 0.0)], 'foot', canvas(4, 4, GLAZES[glaze][4][1]), down=True, centre=0.0)
-
-
-def ceramic_toilet(style=''):
-    b = Build(model_name('ceramic_toilet', style))
-    potty(b, style, 1.0, 3.0)
-    return b.finish()
-
-
-HOODS = {'': (MINT, CREAM, ''), 'pink': (PINK, WHITE, 'pink'), 'navy': (NAVY, LEMON, 'navy')}
-HOOD_OUT = [(.35, 3.0, 0), (.35, 3.9, 1), (-.4, 4.8, 2.5), (-1.7, 5.3, 4), (-3.0, 5.5, 6)]
-
-
-def hood_band(style, w, h):
-    """Hood: row 0 the lower edge resting on the rim (shaded), rows up to the crown lighter, with the style's print."""
-    ramp, trim, _ = HOODS[style]
-    img = canvas(w, h, ramp[2])
-    for x in range(w):
-        put(img, x, 0, ramp[1])
-        put(img, x, 1, ramp[2])
-        for y in range(3, h):
-            put(img, x, y, ramp[3])
-    if style == 'pink':
-        for y in range(2, h):
-            for x in range(w):
-                if (x + 2 * (y % 2)) % 4 == 0 and y % 2 == 0:
-                    put(img, x, y, WHITE[4])
-    elif style == 'navy':
-        r = rng('hoodstars')
-        for y in range(1, h):
-            for x in range(w):
-                if r.random() < .06:
-                    put(img, x, y, LEMON[4])
-    return grain(img, ramp, 'hood' + style, .08)
-
-
-def covered_toilet(style=''):
-    """Glazed tray (floor y 1.5, rim 3.5) and a hood: outer and inner dome over the back half, a lit front edge."""
-    b = Build(model_name('covered_toilet', style))
-    ramp, trim, glaze = HOODS[style]
-    potty(b, style, 1.5, 3.5, glaze='' if style == '' else ('pink' if style == 'pink' else 'navy'))
-    part = b.part('hood')
-    cols = POTTY.select(lambda x, z: z >= -1e-6)
-    revolve(b, part, POTTY, HOOD_OUT, 'hood', hood_band(style, 24, 6), smooth=(1, 2, 3), cols=cols, ref=-.5)
-    inner = [(o - .45, y - .45, v) for o, y, v in HOOD_OUT]
-    revolve(b, part, POTTY, inner, 'hood_in', canvas(8, 5, ramp[1]), cols=cols, ref=-.9, inward=True)
-    def hood_paint(x, z, r):
-        u, v = math.floor(x), math.floor(z)
-        if style == 'pink' and (u + 3 * (v % 2)) % 6 == 0 and v % 2:
-            return WHITE[4]
-        if style == 'navy' and (u * 7 + v * 5) % 13 == 0:
-            return LEMON[4]
-        return ramp[3]
-    hood_top = grain(top_view(16, hood_paint), ramp, 'hoodtop' + style, .05)
-    cap(b, part, POTTY, [(-3.0, 5.5)], 'hood_top', hood_top, cols=cols, centre=5.5)
-    cap(b, part, POTTY, [(-3.45, 5.05)], 'hood_in_top', canvas(4, 4, ramp[1]), down=True, cols=cols, centre=5.05)
-    # front edge where the hood is cut at z = 0: a strip from the outer to the inner profile on both sides and the top
-    edge = b.part('hood')
-    for sx in (-1, 1):
-        for (o0, y0, _), (o1, y1, _) in zip(HOOD_OUT, HOOD_OUT[1:]):
-            xa, xb = sx * (7.0 + o0), sx * (7.0 + o1)
-            pts = [[xa, y0, 0.0], [xb, y1, 0.0], [xb - sx * .45, y1 - .45, 0.0], [xa - sx * .45, y0 - .45, 0.0]]
-            sprite(b, edge, pts, 'hood_edge', canvas(2, 2, ramp[1]), normal=[0, 0, -1])
-    sprite(b, edge, [[-4.0, 5.5, 0.0], [4.0, 5.5, 0.0], [4.0, 5.05, 0.0], [-4.0, 5.05, 0.0]], 'hood_edge', canvas(2, 2, ramp[1]),
-           normal=[0, 0, -1])
-    return b.finish()
-
-
-# =====================================================================================================================
 FACTORIES = {'food_bowl': food_bowl, 'yukkuri_nest': yukkuri_nest, 'large_yukkuri_nest': large_yukkuri_nest,
-             'yukkuri_toilet': yukkuri_toilet, 'ceramic_toilet': ceramic_toilet, 'covered_toilet': covered_toilet}
+             'yukkuri_toilet': yukkuri_toilet}
 
 
 def variants():

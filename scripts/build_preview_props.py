@@ -19,8 +19,7 @@ GROUPS = {
                 ('food_bowl+food_bowl_wheat', '食盆 · 小麦'), ('food_bowl+food_bowl_forage', '食盆 · 短草')],
     'nests': [('yukkuri_nest', '宠物软垫窝'), ('large_yukkuri_nest', '大编织窝'),
               ('large_wild_nest', '野生大草窝'), ('personal_leaf_nest', '个人叶巢')],
-    'toilets': [('yukkuri_toilet', '沙厕 · 干净'), ('yukkuri_toilet_dirty', '沙厕 · 脏'),
-                ('ceramic_toilet', '陶厕'), ('covered_toilet', '带盖厕')],
+    'toilets': [('yukkuri_toilet', '沙厕 · 干净'), ('yukkuri_toilet_dirty', '沙厕 · 脏')],
 }
 
 

@@ -25,8 +25,6 @@ public final class CareStyles {
                 DyeColor.PURPLE, "lavender", "薰衣草");
         add("yukkuri_toilet", DyeColor.CYAN, "", "薄荷", DyeColor.PINK, "pink", "樱粉", DyeColor.YELLOW, "lemon", "柠檬",
                 DyeColor.LIGHT_BLUE, "sky", "天蓝");
-        add("ceramic_toilet", DyeColor.WHITE, "", "奶油薄荷", DyeColor.PINK, "polka", "樱粉波点", DyeColor.LIGHT_BLUE, "sailor", "水手条纹");
-        add("covered_toilet", DyeColor.CYAN, "", "薄荷盖", DyeColor.PINK, "pink", "粉点盖", DyeColor.BLUE, "navy", "星夜盖");
     }
     private static void add(String block, Object... entries) {
         var styles = new LinkedHashMap<DyeColor, Style>();

@@ -52,7 +52,6 @@ import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.SpeciesLife;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.life.SurfaceLife;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -186,7 +185,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public SelfOffering offering() { return offering; }
     private final GroupInteractionGoal groupInteraction = new GroupInteractionGoal(this);
     private final PlayLife playLife=new PlayLife(this);
-    private final SurfaceLife surfaceLife=new SurfaceLife(this);
     private final FamilyLife family;
     private final ChildhoodLife childhood;
     private final CareApproach careApproach = new CareApproach(this);
@@ -462,7 +460,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public Kindness kindness() { return goals.kindness(); }
     public GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public PlayLife playLife(){return playLife;}
-    public SurfaceLife surfaceLife(){return surfaceLife;}
     public void frightenFrom(YukkuriEntity threat) {
         if(level().isClientSide||!isAlive()||life.isSleeping()||hurtCrying()||hurtCrying())return;
         if(grief.protecting())return;

@@ -194,7 +194,7 @@ def main():
     shutil.rmtree(out / '_work', ignore_errors=True)
     labels = {'pin_tool': '大头针', 'care_mallet': '护理锤', 'care_awl': '锥子', 'restraint_frame': '仰卧固定台',
               'wrap_sling': '包裹吊带', 'hanging_hook': '悬吊鱼钩', 'care_vibrator': '振动器', 'iron_enclosure': '铁箱', 'shears': '剪刀',
-              'spicy_grain': '超辣油粮', 'sleep_spray': '弹珠汽水喷雾', 'stimulant': '兴奋药', 'sandpaper_mat': '砂纸垫',
+              'spicy_grain': '超辣油粮', 'sleep_spray': '弹珠汽水喷雾', 'stimulant': '兴奋药',
               'oil_grain_budget': '廉价油粮', 'bread': '面包', 'candle': '蜡烛', 'paper': '纸'}
     rows = ''.join(f'<li><b>{i}</b> {html.escape(labels.get(g, g))}</li>' for i, g in enumerate(goods, 1))
     (out / 'index.html').write_bytes(PAGE.replace('{{GOODS}}', rows).encode('utf-8'))

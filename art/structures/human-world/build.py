@@ -305,7 +305,7 @@ def shop():
     wall_line(15,4,15,8); wall_line(16,8,22,8,door=(19,8))
     b.box((16,2,4),(22,2,7),'purple_wool',over=True)
     for x in (16,22): b.block(x,3,4,'mcyukkuri:predator_nest')
-    b.bowl(16,7,grain=4); b.block(22,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(19.5,3,6.5,'rubber_ball')
+    b.bowl(16,7,grain=4); b.block(22,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(19.5,3,6.5,'yarn_ball')
     register_pen(b,'predator',(16,4,22,7),(16,7),[(16,4),(22,4)],(5,3),hatch=(19,8))
     b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60))
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
@@ -322,7 +322,7 @@ def shop():
     for y,items in rows:
         for x,item in zip(range(8,17),items): frame(b,x,y,16,item)
     # Side-wall frames stop a cell short of the back wall, so each hangs on exactly one wall.
-    for z,item in zip(range(11,16),['yarn_ball','glass_marble','rubber_ball','pretty_stone','clear_dice']): frame(b,2,4,z,item)
+    for z,item in zip(range(11,16),['yarn_ball','glass_marble','pretty_stone']): frame(b,2,4,z,item)
     for z,item in zip(range(11,16),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
     for z,item in zip(range(11,15),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
     # Windows from the west goods corner into the backyard arcade.
@@ -345,7 +345,7 @@ def shop():
     for x,z,flower in [(4,22,'dandelion'),(10,27,'poppy'),(13,23,'cornflower'),(6,28,'oxeye_daisy'),(14,26,'allium')]: b.block(x,3,z,flower)
     b.block(8,3,25,'flowering_azalea')
     for x,z in [(5,24),(11,24),(5,28),(11,28)]: b.block(x,7,z,'light',{'level':'12','waterlogged':'false'})
-    for x,z,item in [(7.5,26.5,'yarn_ball'),(11.5,22.5,'glass_marble'),(4.5,26.5,'rubber_ball')]: b.toy(x,3,z,item)
+    for x,z,item in [(7.5,26.5,'yarn_ball'),(11.5,22.5,'glass_marble'),(4.5,26.5,'pretty_stone')]: b.toy(x,3,z,item)
     register_pen(b,'yard',(2,18,15,29),(13,18),[(2,18),(5,18),(8,18),(11,18)],(10,10),hatch=(16,21))
     b.pet(4.5,24.5,'marisa','shopkeeper','stock',0,traits=(70,75,60,65,70),age=230000)
     b.pet(9.5,23.5,'patchouli','shopkeeper','stock',0,traits=(80,70,40,60,75),age=180000)

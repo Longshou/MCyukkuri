@@ -249,7 +249,7 @@ def wild():
 
 def lineup():
     """Every placed block in a row, with the growth stages standing in front."""
-    things = [('food_bowl', 0, 14, '食盆'), ('yukkuri_toilet', 0, 15, '沙厕'), ('ceramic_toilet', 0, 15, '陶厕'), ('covered_toilet', 0, 15, '带盖厕'),
+    things = [('food_bowl', 0, 14, '食盆'), ('yukkuri_toilet', 0, 15, '沙厕'),
               ('yukkuri_nest', 0, 23, '软垫窝'), ('large_yukkuri_nest', 0, 32, '编织大窝'),
               ('forest_burrow', ('mask', 1 | 2 | 4 | 8 | 16 | (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8)), 26, '叶床'),
               ('personal_leaf_nest', ('mask', 7), 24, '个人小叶巢'), ('large_wild_nest', 0, 32, '野生大窝'), ('forage_pile', 4, 14, '储粮堆')]

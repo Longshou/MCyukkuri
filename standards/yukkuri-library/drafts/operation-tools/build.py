@@ -10,8 +10,10 @@ import io
 import json
 import math
 from pathlib import Path
+import sys
 import uuid
 from PIL import Image
+sys.path.insert(0, str(Path(__file__).resolve().parent))   # care-expansion, playgrounds and consumables load this file with runpy
 import held
 import icons
 

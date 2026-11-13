@@ -9,7 +9,7 @@
 | [冷冻收容柜](cold-storage/README.md) | 冷冻收容设施草稿 |
 | [照料道具](care-props/README.md) | 食盆、窝、厕所等照料道具共用制作源 |
 | [操作器具](operation-tools/README.md) | 接触操作器具模型 |
-| [大型游具](playgrounds/README.md) | 纸筒、滑梯、蹦床、水池 |
+| [大型游具](playgrounds/README.md) | 陶管、滑梯、蹦床、水池 |
 | `consumables/` | 消耗品模型制作源（`build.py`、`recipe.json`） |
 | [成体流程适配](rapem-alice/README.md) | 成体外形适配与离线查看工具 |
 | [遗体造型](remains/README.md) | 按死因的遗体形态与水中溶化 |

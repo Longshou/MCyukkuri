@@ -43,7 +43,7 @@ import java.util.List;
 
 /** Small survival facilities. Inventory and residence are owned by the block entity. */
 public class CareBlock extends Block implements EntityBlock {
-    public enum Kind { BOWL, NEST, TOILET, MAT }
+    public enum Kind { BOWL, NEST, TOILET }
     private final Kind kind;
     private final String style;
     private final int capacity;
@@ -113,7 +113,6 @@ public class CareBlock extends Block implements EntityBlock {
             case NEST -> box(-5.5,0,-5.5,21.5,NEST_TOP,21.5);
             // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x.
             case TOILET -> box(.77,0,2.21,15.23,2.35,13.79);
-            case MAT -> box(0,0,0,16,.15,16);
         };
     }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -159,7 +158,6 @@ public class CareBlock extends Block implements EntityBlock {
         return ItemInteractionResult.SUCCESS;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if(kind==Kind.MAT)return InteractionResult.PASS;
         if (!level.isClientSide && level.getBlockEntity(owner(state, pos)) instanceof CareBlockEntity care) {
             if (kind == Kind.BOWL) {
                 player.openMenu(new SimpleMenuProvider((id, inventory, owner) ->

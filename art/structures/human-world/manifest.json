@@ -7,7 +7,7 @@
       33
     ],
     "blocks": 11938,
-    "entities": 57,
+    "entities": 55,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -18,7 +18,7 @@
       41
     ],
     "blocks": 12299,
-    "entities": 57,
+    "entities": 55,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -84,7 +84,7 @@
       26
     ],
     "blocks": 9031,
-    "entities": 44,
+    "entities": 43,
     "source": "art/structures/human-world/author_street.py"
   },
   {
@@ -95,7 +95,7 @@
       34
     ],
     "blocks": 9247,
-    "entities": 44,
+    "entities": 43,
     "source": "art/structures/human-world/author_street.py"
   }
 ]

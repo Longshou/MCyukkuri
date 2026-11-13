@@ -45,7 +45,6 @@ import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.body.BodyLife;
-import io.github.longshou.mcyukkuri.life.SurfaceLife;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.family.CareApproach;
@@ -103,7 +102,6 @@ public final class YukkuriComponents {
     public static final ComponentKey<MindLife> MIND = new ComponentKey<>("mind", MindLife.class);
     public static final ComponentKey<IndependenceLife> INDEPENDENCE = new ComponentKey<>("independence", IndependenceLife.class);
     public static final ComponentKey<BodyLife> BODY = new ComponentKey<>("body", BodyLife.class);
-    public static final ComponentKey<SurfaceLife> SURFACE_LIFE = new ComponentKey<>("surfaceLife", SurfaceLife.class);
     public static final ComponentKey<Sanction> SANCTION = new ComponentKey<>("sanction", Sanction.class);
     public static final ComponentKey<ForageTrip> FORAGE_TRIP = new ComponentKey<>("forageTrip", ForageTrip.class);
     public static final ComponentKey<CareApproach> CARE_APPROACH = new ComponentKey<>("careApproach", CareApproach.class);
@@ -294,10 +292,6 @@ public final class YukkuriComponents {
                 .save(220, (c, tag) -> tag.put("YukkuriBody", c.save()))
                 .load(210, (c, ctx) -> { if (ctx.root().contains("YukkuriBody")) c.load(ctx.root().getCompound("YukkuriBody")); })
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 70, (c, ctx) -> c.died(ctx.source(), ctx.stemDepletion(), ctx.sukkiriExhaustion(), ctx.stem())).build(),
-        ComponentSpec.ready(SURFACE_LIFE, YukkuriEntity::surfaceLife)
-                .tick(380, SurfaceLife::tick)
-                .save(130, (c, tag) -> tag.put("YukkuriSurface", c.save()))
-                .load(130, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSurface"))).build(),
         ComponentSpec.ready(SANCTION, YukkuriEntity::sanction)
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 10, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip)

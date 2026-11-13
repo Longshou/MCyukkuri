@@ -2260,7 +2260,7 @@ add('wound_sources','body','用真实武器和环境造成伤','用真实武器�
     env=DAY,vantage=(0,17),give=['minecraft:wooden_sword','minecraft:stick','minecraft:bow','minecraft:arrow 16',
         'minecraft:trident','minecraft:sand 4','minecraft:cactus 4','minecraft:pointed_dripstone 4','minecraft:tnt 2','minecraft:redstone_torch 2',
         'minecraft:flint_and_steel','minecraft:magma_block 4','mcyukkuri:orange_juice 12',
-        'mcyukkuri:pin_tool','mcyukkuri:hanging_hook','minecraft:shears','mcyukkuri:iron_enclosure','mcyukkuri:care_awl','mcyukkuri:sandpaper_mat'],
+        'mcyukkuri:pin_tool','mcyukkuri:hanging_hook','minecraft:shears','mcyukkuri:iron_enclosure','mcyukkuri:care_awl'],
     reads=[(f'读{label}',f'yukkuri status {sel(name)} raw') for name,_,_,label in _source_cases]
         + [('读真实咬伤',f'yukkuri status {sel("bite_target")} raw'),('读捕食交接',f'yukkuri status {sel("bite_hunter")} raw')])
 

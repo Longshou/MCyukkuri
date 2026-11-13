@@ -163,11 +163,6 @@
       "yukkuri_toilet",
       "yukkuri_toilet_dirty",
       "toilet_waste",
-      "ceramic_toilet",
-      "covered_toilet",
-      "newspaper_mat",
-      "soil_mat",
-      "sandpaper_mat",
       "yukkuri_carrier",
       "wash_cloth",
       "yarn_ball",
@@ -177,12 +172,10 @@
       "bedding_bundle"
     ],
     "palette_only": [
-      "rubber_ball",
       "glass_marble",
       "marisa_doll",
       "reimu_doll",
-      "pretty_stone",
-      "clear_dice"
+      "pretty_stone"
     ],
     "removed": [
       "food_bowl_garbage"
@@ -216,8 +209,6 @@
         "yukkuri_toilet",
         "yukkuri_toilet_dirty",
         "toilet_waste",
-        "ceramic_toilet",
-        "covered_toilet",
         "large_yukkuri_nest"
       ],
       "styles": [
@@ -241,20 +232,16 @@
         "yukkuri_toilet_lemon",
         "yukkuri_toilet_lemon_dirty",
         "yukkuri_toilet_sky",
-        "yukkuri_toilet_sky_dirty",
-        "ceramic_toilet_polka",
-        "ceramic_toilet_sailor",
-        "covered_toilet_pink",
-        "covered_toilet_navy"
+        "yukkuri_toilet_sky_dirty"
       ],
       "author": "standards/yukkuri-library/drafts/care-props/placed.py",
       "kit": "standards/yukkuri-library/drafts/care-props/shapes.py",
-      "registry": "standards/yukkuri-library/drafts/care-props/vanilla_props.py (PROPS, LARGE, TRAYS, VARIANTS)",
+      "registry": "standards/yukkuri-library/drafts/care-props/vanilla_props.py (PROPS, LARGE, VARIANTS)",
       "preview_source": "standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py",
       "style": "rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit; several dye-selected colour / pattern styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; footprints are unchanged except the pet cushion nest (26.6 across, a 23 square level pad so a full-term 1.2x adult lies in it); the two pet nests collide along their visible top surface",
       "styles_table": "life/CareStyles.java (dye -> style) mirrors placed.STYLES; non-default styles ship as runtime-peripheral attachments named <block id>_<style>",
       "status": "pending_user_confirmation",
-      "runtime_hook": "client/CareRenderer draws <model>[_<style>] from CareBlockEntity Pattern, then the fill mesh for bowls, and toilet_waste (half scale, on the floor at y 1 / 1.5) once per stored dropping in ceramic_toilet and covered_toilet",
+      "runtime_hook": "client/CareRenderer draws <model>[_<style>] from CareBlockEntity Pattern, then the fill mesh for bowls, and the stored droppings on the sand toilet floor",
       "collision": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json (placed.collision(), written by build.py; life/CareBlock builds the yukkuri_nest and large_yukkuri_nest collision and selection height from it)"
     }
   },
