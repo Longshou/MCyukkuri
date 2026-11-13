@@ -1564,7 +1564,7 @@ public final class FamilyLife {
                 else {
                     entity.getNavigation().stop();
                     var care=FamilyNest.care(entity);
-                    var out=care!=null?care.origin().add(NestDoorway.shape(care).offset(0,2)):shelter!=null?Vec3.atCenterOf(shelter.entrance()):null;
+                    var out=care!=null?care.centre().add(NestDoorway.shape(care).offset(0,2)):shelter!=null?Vec3.atCenterOf(shelter.entrance()):null;
                     if(out!=null)entity.getLookControl().setLookAt(out.x,entity.getEyeY(),out.z,10,10);
                 }
             }

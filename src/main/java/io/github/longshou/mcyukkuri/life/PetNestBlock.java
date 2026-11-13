@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -40,14 +39,12 @@ public final class PetNestBlock extends CareBlock {
     private static final double LEVEL_ROUND = 11.5 / 16, LEVEL_FLAT = (8 - 1.8 * .3) / 16,
             HOLLOW_ROUND = 11.1 / 16, HOLLOW_FLAT = (8 - 2.2 * .3) / 16;
     private static final VoxelShape[][] COLLISION = new VoxelShape[4][16];
-    private static final Fit[] FITS = new Fit[16];
     /** Top of the roll's collision, in blocks. */
     private static final double TOP = authoredTop("pet_nest_0") / 16;
     static {
         for (int mask = 0; mask < 16; mask++) {
             var local = authoredShape("pet_nest_" + mask, 8);
             for (int turns = 0; turns < 4; turns++) COLLISION[turns][mask] = turn(local, .5, .5, turns);
-            FITS[mask] = fit(mask);
         }
     }
     private final int grade;
@@ -138,20 +135,13 @@ public final class PetNestBlock extends CareBlock {
         return COLLISION[turns(Direction.NORTH, state.getValue(FACING))][localWalls(state)];
     }
 
-    /** Where bodies rest: the middle of the level pad (moved off flattened sides) and the square that fits inside it. */
-    public record Fit(Vec3 offset, NestResting.Bed bed) {}
-    public static Fit fit(BlockState state) { return FITS[walls(state)]; }
+    /**
+     * Where bodies rest, around the block centre (routes arrive at cell centres): the level pad and visible hollow reach of its
+     * nearest side. A round bed keeps NestResting.CUSHION; one flattened side bounds the square to LEVEL_FLAT, which an adult
+     * (12.8) still fits, also between two walls of a one-block alcove; larger bodies (from about 1.15x) find no place.
+     */
+    public static NestResting.Bed bed(BlockState state) { return BEDS[walls(state) == 0 ? 0 : 1]; }
+    private static final NestResting.Bed[] BEDS = {NestResting.CUSHION, new NestResting.Bed(LEVEL_FLAT, HOLLOW_FLAT, HOLLOW_FLAT, true, false)};
     /** How far the level pad reaches from the block centre toward the entrance (the doorway's inner edge). */
     public static double entranceReach(BlockState state) { return state.getValue(side(state.getValue(FACING))) ? LEVEL_FLAT : LEVEL_ROUND; }
-    private static Fit fit(int walls) {
-        if (walls == 0) return new Fit(Vec3.ZERO, NestResting.CUSHION);
-        double n = (walls & 1) != 0 ? LEVEL_FLAT : LEVEL_ROUND, e = (walls & 2) != 0 ? LEVEL_FLAT : LEVEL_ROUND,
-                s = (walls & 4) != 0 ? LEVEL_FLAT : LEVEL_ROUND, w = (walls & 8) != 0 ? LEVEL_FLAT : LEVEL_ROUND;
-        double cx = (e - w) / 2, cz = (s - n) / 2;
-        double box = Math.min(e + w, s + n) / 2;
-        double hn = (walls & 1) != 0 ? HOLLOW_FLAT : HOLLOW_ROUND, he = (walls & 2) != 0 ? HOLLOW_FLAT : HOLLOW_ROUND,
-                hs = (walls & 4) != 0 ? HOLLOW_FLAT : HOLLOW_ROUND, hw = (walls & 8) != 0 ? HOLLOW_FLAT : HOLLOW_ROUND;
-        double half = Math.min(Math.min(he - cx, hw + cx), Math.min(hs - cz, hn + cz));
-        return new Fit(new Vec3(cx, 0, cz), new NestResting.Bed(box, half, half, true, false));
-    }
 }

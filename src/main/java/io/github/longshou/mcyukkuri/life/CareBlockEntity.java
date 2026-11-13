@@ -47,14 +47,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public boolean owns(UUID id){return residents.containsKey(id);}
     public List<UUID> residentIds(){return List.copyOf(residents.keySet());}
     public boolean largeNest(){return ((CareBlock)getBlockState().getBlock()).style().startsWith("large_");}
-    /** Ground origin of the bed's shape: this block's centre, or for a 2x2 nest the shared corner of its four cells. The
-     *  doorway is measured from here. */
-    public Vec3 origin(){return largeNest()?Vec3.atLowerCornerOf(worldPosition).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
-    /** Ground centre of the resting floor: the origin, moved off the sides a pet bed has flattened against blocks. */
-    public Vec3 centre(){return getBlockState().getBlock() instanceof PetNestBlock?origin().add(PetNestBlock.fit(getBlockState()).offset()):origin();}
+    /** Ground centre of the bed: this block's centre, or for a 2x2 nest the shared corner of its four cells. */
+    public Vec3 centre(){return largeNest()?Vec3.atLowerCornerOf(worldPosition).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
     /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting), around {@link #centre()}. */
     public NestResting.Bed bed(){
-        if(getBlockState().getBlock() instanceof PetNestBlock)return PetNestBlock.fit(getBlockState()).bed();
+        if(getBlockState().getBlock() instanceof PetNestBlock)return PetNestBlock.bed(getBlockState());
         return largeNest()?NestResting.LARGE:NestResting.LEDGE;
     }
     /** The side the entrance (the low lip) faces; the predator's ledge has none and reports north. */

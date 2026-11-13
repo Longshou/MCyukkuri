@@ -93,13 +93,13 @@ def native(look):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     adult = [(ADULT, 0, 0, 1.0, 20)]
-    back, corner = [(ADULT, 0, -2.0, 1.0, 20)], [(ADULT, -2.0, -2.0, 1.0, 20)]   # the resting middle moves off the walls
+    back = corner = [(ADULT, 0, 0, 1.0, 20)]   # bodies rest round the block centre
     grades = [[tile(scene(look, 0, adult), f'{label}（空地，圆形）') for look, label in GRADES],
               [tile(scene(look, 4, back), f'{label}（背靠墙）') for look, label in GRADES],
               [tile(scene(look, 6, corner), f'{label}（墙角）') for look, label in GRADES]]
     sheet(grades, '三档宠物窝：同一形体，草编 / 软垫 / 丝绒；入口（低卷边）朝镜头左前').save(OUT / 'grades.png')
-    shapes = [(2, '一侧贴墙（D 形，平背）', [(ADULT, -2.0, 0, 1.0, 20)]), (6, '墙角', [(ADULT, -2.0, -2.0, 1.0, 20)]),
-              (10, '一格宽走廊（两侧都贴墙）', [(ADULT, 0, 0, 1.0, 20)]), (14, '一格宽凹槽（三面墙，只剩入口）', [(ADULT, 0, -2.0, 1.0, 20)]),
+    shapes = [(2, '一侧贴墙（D 形，平背）', [(ADULT, 0, 0, 1.0, 20)]), (6, '墙角', [(ADULT, 0, 0, 1.0, 20)]),
+              (10, '一格宽走廊（两侧都贴墙）', [(ADULT, 0, 0, 1.0, 20)]), (14, '一格宽凹槽（三面墙，只剩入口）', [(ADULT, 0, 0, 1.0, 20)]),
               (14, '凹槽里的子油', [(CHILD, 0, -1, .55, 20)]), (15, '四面都挡（放不下；放好后被围住则走不进）', [])]
     rows = [[tile(scene('yukkuri_nest', m, s), label) for m, label, s in shapes[:3]],
             [tile(scene('yukkuri_nest', m, s), label) for m, label, s in shapes[3:]],

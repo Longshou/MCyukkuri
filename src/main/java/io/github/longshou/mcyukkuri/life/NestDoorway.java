@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 public final class NestDoorway {
     private NestDoorway() {}
     /**
-     * The opening in the nest's own frame, measured from {@link CareBlockEntity#origin()}: depth runs toward the entrance
+     * The opening in the nest's own frame, measured from {@link CareBlockEntity#centre()}: depth runs toward the entrance
      * ({@code facing}), lateral along its edge. {@code inner}: where the level floor ends toward the entrance; {@code outer}:
      * the shell's reach on the entrance side; {@code opening}: half width of the low lip; {@code reach}: the shell's widest
      * reach on any side (a conservative square for route checks).
@@ -65,7 +65,7 @@ public final class NestDoorway {
      *  the low lip is where the rim beyond the level floor stays below half rim height on both sides of the middle. */
     public static Doorway shape(CareBlockEntity bed) {
         return SHAPES.computeIfAbsent(bed.getBlockState(), state -> {
-            var origin = bed.origin();
+            var origin = bed.centre();
             var frame = new Doorway(bed.entrance(), 0, 0, 0, 0);
             var boxes = new ArrayList<AABB>();
             double reach = 0;
@@ -123,7 +123,7 @@ public final class NestDoorway {
                 BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
             var bed = bed(actor, pos);
             if (bed == null || bed == interior) continue;
-            var origin = bed.origin();
+            var origin = bed.centre();
             double outer = shape(bed).reach() + radius;
             if (point.y >= origin.y - 1 && point.y < origin.y + 1
                     && Math.abs(point.x - origin.x) < outer && Math.abs(point.z - origin.z) < outer) return bed;
@@ -132,7 +132,7 @@ public final class NestDoorway {
     }
 
     private static boolean opening(YukkuriEntity actor, CareBlockEntity bed, Vec3 point) {
-        var d=shape(bed);var p=point.subtract(bed.origin());
+        var d=shape(bed);var p=point.subtract(bed.centre());
         double depth=d.depth(p);
         return Math.abs(d.lateral(p))+passFoot(actor)<=d.opening()+SurfaceApproach.ARRIVAL
                 &&depth>0&&depth<=d.outer()+actor.getBbWidth()*.5+.05+SurfaceApproach.ARRIVAL;
@@ -181,7 +181,7 @@ public final class NestDoorway {
 
     private static boolean blocksLine(YukkuriEntity actor, CareBlockEntity bed, Vec3 from, Vec3 to, double foot) {
         if (bed == null) return false;
-        var c = bed.origin();
+        var c = bed.centre();
         double r = shape(bed).reach() + foot;
         double minX = c.x - r, maxX = c.x + r, minY = c.y - 1, maxY = c.y + 1, minZ = c.z - r, maxZ = c.z + r;
         if (Math.max(from.x, to.x) < minX - CLIP_PADDING || Math.min(from.x, to.x) > maxX + CLIP_PADDING
@@ -226,7 +226,7 @@ public final class NestDoorway {
 
     /** Align inside the hollow before the one straight crossing: level with the stand across the opening, at the origin's depth. */
     public static Vec3 inner(YukkuriEntity actor, CareBlockEntity bed, Vec3 stand) {
-        var d = shape(bed); var origin = bed.origin();
+        var d = shape(bed); var origin = bed.centre();
         return SurfaceApproach.surface(actor,origin.add(d.offset(d.lateral(stand.subtract(origin)),0)));
     }
 
@@ -242,7 +242,7 @@ public final class NestDoorway {
                     bed.getBlockPos(), shape.opening(), passFoot(actor), actor.getBbWidth());
             return null;
         }
-        var origin = bed.origin();
+        var origin = bed.centre();
         double preferred = Math.clamp(shape.lateral(destination.subtract(origin)), -room, room);
         for (double x : new double[]{preferred, -room, room, 0}) {
             var at = SurfaceApproach.restingFloor(actor, origin.add(shape.offset(x, shape.outer() + actor.getBbWidth() * .5 + .05)));

@@ -294,7 +294,7 @@ public final class Release implements Action, MotorOwner {
         if (cushion == null || !(cushion.getBlockState().getBlock() instanceof PetNestBlock)
                 || !cushion.owns(carrier.getUUID()) || cushion.owns(child.getUUID())) return null;
         var door = NestDoorway.shape(cushion);
-        var origin = cushion.origin();
+        var origin = cushion.centre();
         double foot = Occupancy.foot(child.getBbWidth()), half = door.opening() + foot;
         double outer = door.outer() + carrier.getBbWidth() / 2 + foot;
         return new AABB(origin.add(door.offset(-half, -foot)).add(0, -1, 0), origin.add(door.offset(half, outer)).add(0, 1, 0));
