@@ -1279,6 +1279,40 @@ add('night_sleep', 'family', '夜里睡到天亮，惊扰才醒', '夜里睡到�
                readout=[f'yukkuri status {sel("mother")} raw'], verify=_night_sleep_verify),
     reads=[('读一家四口的睡眠与精力', f'yukkuri status @e[tag=scn,distance=..48] raw')])
 
+# Four owned pets, one bed each under one roof; the beds stand against stone bricks, so their rolls flatten on those sides and
+# the one whose north side is walled turns its entrance east. Night makes all four go to bed at once (rest time).
+_GRADE_BEDS = [('proud', 'mcyukkuri:straw_nest', -5, 1, [(-6, 1)]), ('plain', 'mcyukkuri:yukkuri_nest', -2, 1, []),
+               ('humble', 'mcyukkuri:velvet_nest', 1, 1, [(0, 1), (2, 1)]), ('outcast', 'mcyukkuri:velvet_nest', 4, 0, [(4, -1), (4, 1)])]
+_GRADE_PETS = {'proud': dict(x=-5, z=-1, label='傲慢', boldness=95, friendliness=5),
+               'plain': dict(x=-2, z=-1, label='平常', boldness=55, friendliness=70),
+               'humble': dict(x=1, z=-1, label='谦卑', boldness=20, friendliness=90),
+               'outcast': dict(x=6, z=-1, label='落魄', boldness=20, friendliness=90, accessory=False)}
+add('nest_grades', 'family', '三档宠物窝：贴墙变形，按自尊各有反应', '三档宠物窝：贴墙变形，按自尊各有反应',
+    '夜里四只宠物各回自己的窝：墙角的草窝、背靠墙的软垫窝、两侧夹墙的丝绒窝、南北夹墙的丝绒窝（入口自动转到东侧）。贴墙一侧的软卷压平不穿墙，入口朝空着的一侧。'
+    '戴金章、自尊高的「傲慢」嫌草窝鼓脸不肯睡（日志 bed settle verdict=refuse），半分钟后回来认命睡下（give_in）；普通的「平常」在软垫窝照常睡；'
+    '自尊低的「谦卑」进丝绒窝开心（多为 delighted）；没了头饰、自尊跌到底的「落魄」在丝绒窝里四下张望不自在（uneasy）。睡着后读 mind.causes 的 bed 项看各自的不安增减',
+    '入夜后约 1 分钟', [
+        *[box(-6, 0, 2, 6, 1, 2, 'minecraft:stone_bricks')],
+        *[block(x, 0, z, 'minecraft:stone_bricks') for _, _, _, _, walls in _GRADE_BEDS for x, z in walls],
+        box(-6, 0, -3, -6, 2, -3, 'minecraft:oak_log'), box(6, 0, -3, 6, 2, -3, 'minecraft:oak_log'),
+        box(-6, 2, 2, 6, 2, 2, 'minecraft:stone_bricks'), box(-6, 3, -3, 6, 3, 2, 'minecraft:oak_planks'),
+        *[block(x, 0, z, bed) for _, bed, x, z, _ in _GRADE_BEDS],
+        *[yk('reimu', p['x'], p['z'], name, label=p['label'], boldness=p['boldness'], friendliness=p['friendliness'],
+             accessory=p.get('accessory', True), self_control=95, intelligence=90, energy=95, rest_wait=60, yaw=180,
+             lead=name == 'proud', extra='YukkuriPet:{SkillExperience:{bedtime:9999}}')
+          for name, p in _GRADE_PETS.items()],
+        *[line for name in _GRADE_PETS for line in own(name)],
+        f'yukkuri scenario badge {sel("proud")} gold false',
+        *[home(name, x, z) for name, _, x, z, _ in _GRADE_BEDS]],
+    env={'time': 'night'}, spot='pet_birth', vantage=(0, -9),
+    smoke=dict(ticks=2400,
+               expect=[r'\[home\][^\n]*bed settle verdict=refuse[^\n]*grade=1',
+                       r'\[home\][^\n]*bed settle verdict=give_in[^\n]*grade=1',
+                       r'\[home\][^\n]*bed settle verdict=uneasy[^\n]*grade=3',
+                       r'\[sleep\] [^\n]*begin source=life[^\n]*reason=rest_time'],
+               readout=[f'yukkuri status {sel(name)} raw' for name in _GRADE_PETS]),
+    reads=[('读四只宠物的自尊、睡眠与不安来源', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24] raw')])
+
 _night_feed_ids = {name: uid('night_hungry_child', name) for name in ('mother', 'baby')}
 add('night_hungry_child', 'family', '夜里赤油饿了，睡着的亲油起来喂', '夜里赤油饿了，睡着的亲油起来喂',
     '夜里：亲油精力耗尽，就地躺下睡（这本是睡几百 tick 就自己醒的一觉，现在一直睡）；赤油不困、守在旁边。约 10 秒后孩子饿到 12 开始求食，睡着的亲油因为自家孩子等着喂而醒来（日志 cause=child_hungry），再照常找粮、嚼糜、递到孩子嘴里。看亲油有没有自己提前醒、是否真弄到粮并真喂进去',
@@ -4525,7 +4559,7 @@ TOPICS = {
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5',
-    'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5',
