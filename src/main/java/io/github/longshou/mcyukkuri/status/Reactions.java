@@ -789,7 +789,7 @@ public final class Reactions {
         private void logStreetCover(ServerLevel level) {
             var at = y.blockPosition();
             var roof = FoundShelter.roofKind(level, at);
-            if (roof != null && y.onGround() && Sky.at(level, at) == Sky.CLEAR)
+            if (roof != null && FoundShelter.streetUser(y) && y.onGround() && Sky.at(level, at) == Sky.CLEAR)
                 GameplayLog.event(y, "weather", "street rain cover reached spot={} at={}", roof, at.toShortString());
         }
 

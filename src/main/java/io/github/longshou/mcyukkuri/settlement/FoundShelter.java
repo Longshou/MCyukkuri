@@ -161,10 +161,10 @@ public final class FoundShelter implements MotorOwner {
                         && SurfaceApproach.canApproach(body, Vec3.atBottomCenterOf(pos))).findFirst().orElse(null);
     }
 
-    /** A roofed public stand has no saved residents. The current rest action is its single owner. */
+    /** A roofed public stand has no saved residents: whoever rests there owns it. Ordinary cover stays open to every body. */
     public static boolean streetCoverFree(YukkuriEntity body, BlockPos pos) {
         if (roofKind((ServerLevel)body.level(), pos) == null) return true;
-        return streetUser(body) && !streetOccupied(body, pos);
+        return !streetOccupied(body, pos);
     }
 
     private static boolean streetOccupied(YukkuriEntity body, BlockPos pos) {
