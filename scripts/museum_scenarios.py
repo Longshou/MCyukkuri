@@ -4992,8 +4992,7 @@ _smoke('street_furniture', 900, [
     rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH [^\n]* stand=(?:seat|foot)\b',
     rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
     rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
-    rf'\[weather\][^\n]* uuid={_barrel_stray}\b[^\n]* street rain cover reached spot=BARREL ',
-    rf'\[weather\][^\n]* uuid={_awning_stray}\b[^\n]* street rain cover reached spot=AWNING ',
+    rf'\[weather\][^\n]* uuid=(?:{_barrel_stray}|{_awning_stray})\b[^\n]* street rain cover reached spot=(?:BARREL|AWNING) ',
 ], readout=_street_health_reads('bench_stray', 'water_stray', 'barrel_stray', 'awning_stray'))
 
 
@@ -5005,6 +5004,23 @@ def _street_bench_rest(log):
     if not re.search(rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street bench {release}\b', log[rest.end():]):
         return f'the stray did not release the bench after resting at its {rest[1]}'
     return None
+
+
+def _street_rain_covers(log):
+    """Whichever stray takes which stand: both street covers are reached, one eastern stray each."""
+    reached = re.findall(rf'\[weather\][^\n]* uuid=({_barrel_stray}|{_awning_stray})\b[^\n]* '
+                         r'street rain cover reached spot=(BARREL|AWNING) ', log)
+    spots = {spot for _, spot in reached}
+    if spots != {'BARREL', 'AWNING'}:
+        return f'the eastern strays reached street covers {sorted(spots)}, not both BARREL and AWNING'
+    strays = {stray for stray, _ in reached}
+    if len(strays) != 2:
+        return f'both street covers were reached by {len(strays)} stray(s), not one each'
+    return None
+
+
+def _street_furniture_result(log):
+    return _street_bench_rest(log) or _street_rain_covers(log)
 
 
 def _crop_warning_retreat(log):
@@ -5021,7 +5037,7 @@ def _crop_warning_retreat(log):
 
 
 next(s for s in S if s.id == 'street_crops').smoke['verify'] = _crop_warning_retreat
-next(s for s in S if s.id == 'street_furniture').smoke['verify'] = _street_bench_rest
+next(s for s in S if s.id == 'street_furniture').smoke['verify'] = _street_furniture_result
 _smoke('oni_street_scrap', 1300, [
     r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=mcyukkuri:trimmed_hair count=1',
     r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=mcyukkuri:trimmed_hair count=1',
