@@ -3,15 +3,12 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
-import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
-import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.settlement.CommonStore;
 import io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity;
@@ -27,16 +24,15 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/** One response owner for voluntary, non-kin help. The mouth and bed retain their own transfer authority. */
+/** One response owner for voluntary, non-kin help. Food transfers through mouth occupancy. */
 public final class Kindness extends Goal {
     private static final int CUE = 20, RECEIVER_REST = 2400, GIVER_REST = 1200, ATTEMPT = 1200;
-    private enum Act { BITE, COMPANY, BED, ADOPT }
+    private enum Act { BITE, COMPANY, ADOPT }
     private enum Decision { GIVE, IGNORE, REFUSE }
     private final YukkuriEntity giver;
     private final PileContact pileContact;
     private YukkuriEntity guest;
     private Act act;
-    private CareBlockEntity bed;
     private ForagePileBlockEntity pile;
     private Vec3 stand, guestAt, companyAt;
     private int ticks, contact, cooldown, received, nextScan;
@@ -119,19 +115,6 @@ public final class Kindness extends Goal {
                 && target.life().canReceiveCareFood();
     }
 
-    private boolean wetOrCold(YukkuriEntity body) {
-        return body.life().wetness() > 0 || body.life().temperature().cold();
-    }
-
-    private boolean waitingAtBed(YukkuriEntity target, CareBlockEntity candidate) {
-        if (candidate == null || candidate.isRemoved() || candidate.owns(target.getUUID())
-                || target.family().adult() || !(wetOrCold(target) || target.body().condition().needsPainExpression())
-                || level().isRaining() || wetOrCold(giver)) return false;
-        var opening = NestDoorway.stand(target, candidate);
-        return opening != null && target.distanceToSqr(opening) <= .64
-                && (level().isDay() || target.life().homeStand() != null);
-    }
-
     private Decision decide(YukkuriEntity target, Act request) {
         if (relations().fear(target.getUUID(), giver.getUUID()) >= (request == Act.ADOPT ? 30 : 25)) return Decision.REFUSE;
         double willingness = SocialDisposition.ramp(giver.life().personality().friendliness(), 60, 90);
@@ -186,18 +169,11 @@ public final class Kindness extends Goal {
         if (cooldown > 0 || nextScan > 0 || giver.life().mealTicks() > 0 || !ready()
                 || SocialDisposition.ramp(giver.life().personality().friendliness(), 60, 90) == 0) return false;
         nextScan = 40;
-        var nest = FamilyNest.care(giver);
-        if (nest != null && FamilyNest.bedOccupancy(giver, nest.getBlockPos()) != Occupancy.INSIDE_SUPPORTED) nest = null;
         var peers = level().getEntitiesOfClass(YukkuriEntity.class, giver.getBoundingBox().inflate(8), this::peer);
         for (var target : peers.stream().sorted(Comparator.comparingDouble(giver::distanceToSqr)).toList()) {
             if (giver.family().canAdopt(target) && of(target).prefersFoster(giver)) {
                 if (reserve(target, Act.ADOPT)) return true;
                 return false;
-            }
-            if (waitingAtBed(target, nest)) {
-                if (!reserve(target, Act.BED)) return false;
-                bed = nest;
-                return true;
             }
             if (hungry(target) && giver.component(YukkuriComponents.MOUTH).freeForExternalWork()) {
                 var available = source(target);
@@ -244,7 +220,6 @@ public final class Kindness extends Goal {
         if (giver.life().mealTicks() > 0) return false;
         return switch (act) {
             case BITE -> hungry(guest) && (pile != null || giver.component(YukkuriComponents.MOUTH).purpose() == Purpose.KINDNESS);
-            case BED -> waitingAtBed(guest, bed) && bed.owns(giver.getUUID());
             case COMPANY -> lonely(guest) && guest.distanceToSqr(companyAt == null ? guestAt : companyAt) <= 2.25;
             case ADOPT -> giver.family().canAdopt(guest) && of(guest).prefersFoster(giver);
         };
@@ -258,7 +233,6 @@ public final class Kindness extends Goal {
 
     private void step() {
         ticks++;
-        if (act == Act.BED) { yieldBed(); return; }
         if (pile != null) {
             if (!hasFood(pile, guest) || !giver.component(YukkuriComponents.MOUTH).freeForExternalWork()) { finished = true; return; }
             if (pileContact.tick(pile)) {
@@ -297,7 +271,6 @@ public final class Kindness extends Goal {
                 giver.family().adopt(guest);
                 finished = true;
             }
-            case BED -> throw new IllegalStateException("Bed yield uses its doorway");
         }
     }
 
@@ -321,24 +294,12 @@ public final class Kindness extends Goal {
         if (donor != null && donor.equals(mealDonor)) mealSwallowed = true;
     }
 
-    private void yieldBed() {
-        if (ticks <= CUE) { giver.getLookControl().setLookAt(guest, 30, 30); return; }
-        if (stand == null) stand = NestDoorway.stand(giver, bed, giver.position().add(giver.position().subtract(guest.position())));
-        if (stand == null || !withinPetRange(stand)) { finished = true; return; }
-        var result = SurfaceApproach.walkResult(giver, stand, null, .85);
-        if (result == SurfaceApproach.Result.BLOCKED) { finished = true; return; }
-        if (result == SurfaceApproach.Result.ARRIVED && FamilyNest.bedOccupancy(giver, bed.getBlockPos()) != Occupancy.INSIDE_SUPPORTED) {
-            if (bed.yieldTo(giver, guest)) GameplayLog.event(giver, "kindness", "nest yielded peer={} pos={}", guest.getUUID(), bed.getBlockPos());
-            finished = true;
-        }
-    }
-
     @Override public void stop() {
         if (act == null) return;
         cooldown = Math.max(cooldown, act == Act.COMPANY ? RECEIVER_REST : act == Act.BITE && finished ? CUE : GIVER_REST);
         if (running) SurfaceApproach.halt(giver);
         running = finished = false;
-        guest = null; bed = null; pile = null; act = null; stand = null; guestAt = null; companyAt = null;
+        guest = null; pile = null; act = null; stand = null; guestAt = null; companyAt = null;
         ticks = contact = 0;
         pileContact.reset();
     }

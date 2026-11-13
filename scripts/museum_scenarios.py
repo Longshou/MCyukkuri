@@ -4400,29 +4400,12 @@ add('kindness_adoption', 'family', '孤儿分食与认养亲', '孤儿分食与�
     ], env=DAY, spot='pet_birth', vantage=(1, 8, 100), reads=[
         ('读赤油营养', f'yukkuri status {sel("orphan")} raw'), ('读邻居照护', f'yukkuri status {sel("foster")} raw')])
 
-_yield_adult = uid('kindness_bed', 'resident')
-_yield_child = uid('kindness_bed', 'wet_child')
-_yield_x, _yield_z = BY_ID['family'].spots['pet_birth']
-_yield_home = ((_yield_x & 0x3ffffff) << 38) | ((_yield_z & 0x3ffffff) << 12) | (FEET & 0xfff)
-if _yield_home >= 1 << 63:
-    _yield_home -= 1 << 64
-add('kindness_bed', 'family', '给淋湿的子油让窝', '给淋湿的子油让窝',
-    '天已放晴，一只子油还湿着，在邻居的窝口等。看原住者是否会先看看它、走出窝口，让子油自己进窝休息。',
-    '约 10 秒', [
-        *shed(0, 0, half=4), f'data merge block ~ ~ ~ {{Resident:{uuid_nbt(_yield_adult)},ResidentStage:2}}',
-        yk_on_nest('reimu', 0, 0, 'resident', uuid=_yield_adult, friendliness=100, lead=True),
-        'execute align xz run ' + yk('marisa', .47, -1.15, 'wet_child', uuid=_yield_child, stage='child', boldness=15, yaw=0),
-        f'data merge entity {sel("resident")} {{YukkuriLife:{{HomeDimension:"minecraft:overworld",HomePos:{_yield_home}L}}}}',
-        f'data merge entity {sel("wet_child")} {{YukkuriLife:{{Wetness:38f}}}}',
-    ], env=DAY, spot='pet_birth', vantage=(1, 8, 100), reads=[
-        ('读子油的新住处', f'yukkuri status {sel("wet_child")} raw')])
-
 _number_scenes()
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
-    'kindness_adoption': 'F4', 'kindness_bed': 'F4',
+    'kindness_adoption': 'F4',
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
@@ -4469,9 +4452,6 @@ _smoke('kindness_adoption', 720, [
     rf'\[kindness\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*bite handed peer={_uuid_text("kindness_adoption", "orphan")}\b',
     rf'\[meal\][^\n]*uuid={_uuid_text("kindness_adoption", "orphan")} [^\n]*swallowed item=[^\n]*feeder={_uuid_text("kindness_adoption", "foster")}\b',
     rf'\[family\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*foster accepted child={_uuid_text("kindness_adoption", "orphan")}\b',
-])
-_smoke('kindness_bed', 420, [
-    rf'\[kindness\][^\n]*uuid={_uuid_text("kindness_bed", "resident")} [^\n]*nest yielded peer={_uuid_text("kindness_bed", "wet_child")}\b',
 ])
 next(s for s in S if s.id == 'hurt').smoke['verify'] = _two_lickers
 _smoke('birth_nest_safe', 3000, [r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])
