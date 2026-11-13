@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 流浪使用街面设施；村民对偷吃作物的反应；街桶补给 | `.worktrees/wp-ir-street-use-crops` | street furniture use, HumanStreet crop reaction, bin refill |
 
 ## 玩法待办
 
