@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 纸箱返工、垃圾桶方块与垃圾闭环 | `.worktrees/wp-art-box-bin` | settlement/ShelterBlock, cardboard_shelter assets, wild-shelters source, new trash bin block |
-| 魔理沙后发穿模与捕食种走路遮眼 | `.worktrees/wp-art-body-fix` | yukkuri model/rig sources for marisa hair and predator species, exported runtime models, walk clips |
 | 窝适配墙角与宠物窝三档 | `.worktrees/wp-art-nests` | life nest blocks (yukkuri_nest, large nests), nest models/sources, sleep recovery hooks, shop stock |
 | 摆设专用方块：替换简陋的原版拼装体 | `.worktrees/wp-art-decor` | museum/street/shop/settlement structure authoring, new decor blocks and models |
 
