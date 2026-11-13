@@ -15,8 +15,8 @@ PALETTES = {
     'silver': {'outline': '#2c3642', 'shade': ['#8c98a6', '#bec8d2', '#e8eef3'], 'light': '#f4f8fb', 'spec': '#ffffff', 'engrave': '#5a6676'},
     'gold':   {'outline': '#5c340e', 'shade': ['#ba781e', '#e8aa2e', '#fad258'], 'light': '#ffe58a', 'spec': '#fff8d0', 'engrave': '#8a5414'},
     'platinum': {'outline': '#283150', 'outline_lit': '#56658c', 'shade': ['#b9c2d6', '#e3e8f2', '#ffffff'],
-                 'ring': ['#7d8aab', '#9aa6c3'], 'face': ['#c3cbdc', '#e2e7f1', '#f6f8fc'], 'light': '#ffffff', 'spec': '#ffffff',
-                 'engrave': '#3c4a70'},
+                 'ring': ['#a3aec8', '#bdc6da'], 'face': ['#c3cbdc', '#e2e7f1', '#f6f8fc'], 'light': '#ffffff', 'spec': '#ffffff',
+                 'engrave': '#6a7898'},
 }
 TIERS = ('bronze', 'silver', 'gold', 'platinum')
 

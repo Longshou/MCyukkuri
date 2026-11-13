@@ -151,9 +151,9 @@ def paper_box():
         paint.put(tx0 + 14 - i // 2, ty0 + i, card[1])
     flx0, fly0, flw, flh = A['flap']
     for x in range(flx0, flx0 + flw):
-        paint.put(x, fly0, H('paper', 3))                            # torn edge: the light paper core
+        paint.put(x, fly0, card[3])                                  # torn edge: the lighter core of the board
         if paint.rng.random() < .5:
-            paint.put(x, fly0 + 1, H('paper', 2))
+            paint.put(x, fly0 + 1, card[3])
         paint.put(x, fly0 + flh - 1, card[1])
 
     def deform(p):
@@ -197,9 +197,9 @@ def paper_box():
     flaps = prop.part('box_flaps')
     fuv = lambda s, r: (flx0 + s * (flw - 1), fly0 + r * (flh - 1))
     a, b = deform([-hx, 0, -2.4]), deform([-hx, 0, 2.2])
-    out = kit.unit([-1, .85, .05])
     tear = [(0.0, .55), (.22, .95), (.4, .7), (.58, 1.0), (.8, .62), (1.0, .4)]
-    edge_pts = [([a[k] + (b[k] - a[k]) * s + out[k] * 2.2 * cut for k in range(3)], fuv(s, 1 - cut)) for s, cut in tear]
+    twist = lambda s: kit.unit([-1 + .5 * s, .7 + .5 * s, 0])      # the torn flap twists, so it never shows only its edge
+    edge_pts = [([a[k] + (b[k] - a[k]) * s + twist(s)[k] * 2.2 * cut for k in range(3)], fuv(s, 1 - cut)) for s, cut in tear]
     for i in range(len(tear) - 1):
         s0, s1 = tear[i][0], tear[i + 1][0]
         h0 = [a[k] + (b[k] - a[k]) * s0 for k in range(3)]

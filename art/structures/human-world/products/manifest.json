@@ -30,7 +30,7 @@
     "platinum_yukkuri_badge": {
       "source": "art/structures/human-world/products/platinum_yukkuri_badge.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/item/platinum_yukkuri_badge.png",
-      "sha256": "481095b0c0bfada16b045e975eaa8ec54e3a754c069a469407914c559b315c75"
+      "sha256": "5473157860774862c7f447922c3972a639faa937df635e3118f028c399439716"
     },
     "labor_bench": {
       "source": "art/structures/human-world/products/labor_bench.png",
