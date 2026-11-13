@@ -4563,9 +4563,11 @@ next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
 ]
 
 def _wound_tool_binding(window):
-    wounds = set(re.findall(r'\[body\][^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
-    attachments = dict(re.findall(r'\[interaction\][^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window))
-    if attachments.keys() != {'PIN', 'HOOK'} or len(set(attachments.values())) != 2 or not wounds.issuperset(attachments.values()):
+    wounds = set(re.findall(r'\[body\][^\n]* uuid=([\w-]+) [^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
+    attachments = re.findall(r'\[interaction\][^\n]* uuid=([\w-]+) [^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window)
+    if (len(attachments) != 2 or {pose for _, pose, _ in attachments} != {'PIN', 'HOOK'}
+            or len({wound for _, _, wound in attachments}) != 2
+            or any((actor, wound) not in wounds for actor, _, wound in attachments)):
         return 'pin and hook must each bind to their own committed puncture'
 
 next(s for s in S if s.id == 'wound_sources').smoke['verify'] = _wound_tool_binding
