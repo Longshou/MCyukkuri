@@ -12,6 +12,7 @@
 | 魔理沙后发穿模与捕食种走路遮眼 | `.worktrees/wp-art-body-fix` | yukkuri model/rig sources for marisa hair and predator species, exported runtime models, walk clips |
 | 窝适配墙角与宠物窝三档 | `.worktrees/wp-art-nests` | life nest blocks (yukkuri_nest, large nests), nest models/sources, sleep recovery hooks, shop stock |
 | 服务端热点：FamilyNest.contactHeight 拖慢一家六口场景 | `.worktrees/wp-perf-nest-contact` | family/FamilyNest.java and its callers |
+| 摆设专用方块：替换简陋的原版拼装体 | `.worktrees/wp-art-decor` | museum/street/shop/settlement structure authoring, new decor blocks and models |
 
 ## 玩法待办
 
