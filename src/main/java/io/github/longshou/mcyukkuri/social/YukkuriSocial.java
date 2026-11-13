@@ -30,6 +30,7 @@ import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -268,6 +269,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     private boolean tryHuman(LivingEntity person, YukkuriWorldData.Relation relation, boolean ask) {
+        if(ask&&LearnedFear.waryOf(entity,person))return false;
         double wariness = SocialDisposition.humanWariness(entity, person, relation);
         // Watching or backing away needs no route toward the person.
         if (wariness < .50 && !atHumanContact(person) && humanStand(person) == null) {
@@ -530,6 +532,7 @@ public final class YukkuriSocial implements MotorOwner {
 
     private void tickHumanContact() {
         var relation = personality().relation(target.getUUID());
+        if(humanMayAsk&&LearnedFear.waryOf(entity,target)){stop();return;}
         double wariness = SocialDisposition.humanWariness(entity, target, relation);
         if (!retreat && (humanRetreatRoll < SocialDisposition.ramp(wariness, .62, .80)
                 || elapsed == 1 && visitor(target) && !entity.pet().lessons().attempt(PetSkill.GREETING))) {

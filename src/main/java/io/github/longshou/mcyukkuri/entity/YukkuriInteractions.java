@@ -53,6 +53,10 @@ final class YukkuriInteractions {
         }
         if (Consumables.kind(stack) == Consumables.Kind.SPICY
                 && !InteractionDispatch.requireHarmContact(player, owner, 3, "spicy_feed")) return InteractionResult.FAIL;
+        if(!InteractionDispatch.gentleOwnerContact(player,owner)){
+            InteractionDispatch.refuse(player,owner,"food","fear");
+            return InteractionResult.FAIL;
+        }
 
         boolean prepared = owner.family().needsMash() && InfantFood.isMash(stack);
         if (!prepared && Toxins.dose(stack) > 0 && !owner.life().acceptsFood(stack)) { // bitter or poisonous: refused unless starving

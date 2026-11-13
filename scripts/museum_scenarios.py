@@ -2320,6 +2320,38 @@ add('magma_sole', 'body', '踩岩浆块烫脚，跳着逃开', '踩岩浆块烫�
     env=DAY, give=['mcyukkuri:orange_juice 4'], note=NEW, vantage=(0, 10),
     reads=[('读脚底灼伤', f'yukkuri status {sel("hot")} raw'), ('读普通地面对照', f'yukkuri status {sel("cool")} raw')])
 
+add('learned_holder', 'body', '目击工具后躲开持用者', '目击工具后躲开持用者',
+    '在个体面前使用固定板，间隔十秒再让它看见一次。空手靠近目击者也会引起退避。隔墙对照看不到工具接触。可把食物放在离持用者八格以外，观察极饿时恢复觅食。',
+    '站在目标前使用固定板，读旁观者的对象关系', [
+        yk('reimu',0,0,'target',label='工具接触对象',lead=True,extra='NoAI:1b'),
+        yk('reimu',2,1,'witness',label='看得见的旁观者',boldness=0,uuid=uid('learned_holder','witness')),
+        box(-3,0,-2,-3,2,4,'minecraft:stone'),
+        yk('reimu',-4,1,'screened',label='隔墙对照',boldness=0,uuid=uid('learned_holder','screened')),
+    ], env=DAY,vantage=(0,8),give=['mcyukkuri:restraint_frame 2','minecraft:apple 4'],
+    reads=[('读旁观者关系',f'yukkuri status {sel("witness")} raw'),('读隔墙对照',f'yukkuri status {sel("screened")} raw')])
+
+_hook_scene = 'hook_kin_rescue'
+add(_hook_scene, 'body', '亲属走近吊钩尝试救援', '亲属走近吊钩尝试救援',
+    '在透明顶板下的孩子身上使用吊钩，然后留在五格内并给亲油让开通路。亲油会先看向孩子，再按胆量、恐惧与友善决定是否上前。够到钩身才会放下孩子，钩子成为真实掉落物。',
+    '用吊钩挂起孩子，观察亲油能否走到接触点', [
+        box(-1,2,-1,1,2,1,'minecraft:glass'),
+        yk('reimu',0,0,'hook_child',label='孩子',lead=True,extra='NoAI:1b',
+           uuid=uid(_hook_scene,'hook_child'),kin=f'Mother:{uuid_nbt(uid(_hook_scene,"hook_parent"))}'),
+        yk('reimu',2,0,'hook_parent',label='亲油',uuid=uid(_hook_scene,'hook_parent'),boldness=100,friendliness=100),
+    ], env=DAY,vantage=(0,8),give=['mcyukkuri:hanging_hook'],
+    reads=[('读孩子状态',f'yukkuri status {sel("hook_child")} raw'),('读亲油状态',f'yukkuri status {sel("hook_parent")} raw')])
+
+add('learned_fire', 'body', '烫伤后看见火会退开', '烫伤后看见火会退开',
+    '左边先踩一小块岩浆块，右边从普通地面开始。等左边跳离后，在安全地面的边上点燃营火。比较两个个体会不会在接触营火前退开。',
+    '等左边脱离热地板，再点燃旁边的营火', [
+        block(-5,-1,0,'minecraft:magma_block'),
+        block(-3,0,0,'minecraft:campfire[lit=false]'),
+        block(5,0,0,'minecraft:campfire[lit=false]'),
+        yk('reimu',-5,0,'burnt',label='先烫伤',lead=True,uuid=uid('learned_fire','burnt'),**pair_ready()),
+        yk('reimu',7,0,'unburnt',label='未烫伤对照',uuid=uid('learned_fire','unburnt'),**pair_ready()),
+    ],env=DAY,vantage=(0,8),give=['minecraft:flint_and_steel','mcyukkuri:orange_juice'],
+    reads=[('读烫伤',f'yukkuri status {sel("burnt")} raw'),('读对照',f'yukkuri status {sel("unburnt")} raw')])
+
 add('core_filling', 'body', '遗体取出中枢馅，伤者吃下', '遗体取出中枢馅，伤者吃下',
     '一只有正面深伤的灵梦身体耗尽（核心完好）留下空壳，2 秒后割出独立中枢馅，遗体创腔保留但不再画核心；旁边重伤又饿的魔理沙吃下它：血 +4、营养 +10、不安下降。普通食用量为零仍可取一次核心，搬起放下不能让核心重新出现',
     '约 10–30 秒', [
@@ -4424,7 +4456,7 @@ TOPICS = {
     'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
-    'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
@@ -4781,6 +4813,42 @@ def _wound_tool_binding(window):
 next(s for s in S if s.id == 'wound_sources').smoke['verify'] = _wound_tool_binding
 next(s for s in S if s.id == 'wound_sources').smoke['readout'] = [
     f'data get entity {sel("thorn")} YukkuriBody.HairLoss',
+]
+
+_fear_holder = '2d4c7192-2a6d-4da4-9f94-c82721b9de87'
+_smoke('learned_holder', 500, [
+    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=fix_supine fear=0 -> 15',
+    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=fix_supine fear=15 -> 30',
+    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* learned retreat end result=away holder={_fear_holder}',
+], forbid=[r'\[body\][^\n]* death settled',rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","screened")} [^\n]* fear learned'])
+next(s for s in S if s.id == 'learned_holder').smoke['commands'] = [
+    (4, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (6, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} fix_supine'),
+    (7, 'yukkuri scenario tool_operator leave'),
+    (209, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (211, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} fix_supine'),
+    (450, 'yukkuri scenario tool_operator leave'),
+]
+
+_smoke('hook_kin_rescue', 380, [
+    rf'\[interaction\][^\n]* uuid={_uuid_text(_hook_scene,"hook_child")} [^\n]* binding wound; pose=HOOK ',
+    rf'\[social\][^\n]* uuid={_uuid_text(_hook_scene,"hook_parent")} [^\n]* hook rescue end target={_uuid_text(_hook_scene,"hook_child")} [^\n]*result=released',
+    r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:hanging_hook count=1',
+], forbid=[r'\[body\][^\n]* death settled'])
+next(s for s in S if s.id == 'hook_kin_rescue').smoke['commands'] = [
+    (4, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_operator enter'),
+    (6, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_click {sel("hook_child")} hook_hang'),
+    (340, 'yukkuri scenario tool_operator leave'),
+]
+
+_smoke('learned_fire', 450, [
+    r'\[body\][^\n]* burn remembered cause=hotFloor',
+    r'\[body\][^\n]* hot floor escaped',
+    rf'\[threat\][^\n]* uuid={_uuid_text("learned_fire","burnt")} [^\n]* learned retreat end result=away holder=null fire=',
+], forbid=[r'\[body\][^\n]* death settled',rf'\[threat\][^\n]* uuid={_uuid_text("learned_fire","unburnt")} [^\n]* learned retreat'])
+next(s for s in S if s.id == 'learned_fire').smoke['commands'] = [
+    (125, f'execute at {sel("burnt")} run setblock ~2 ~ ~ minecraft:campfire'),
+    (125, f'execute at {sel("unburnt")} run setblock ~2 ~ ~ minecraft:campfire'),
 ]
 _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
                                  rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target='])

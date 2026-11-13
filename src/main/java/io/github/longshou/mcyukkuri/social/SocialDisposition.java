@@ -78,6 +78,11 @@ public final class SocialDisposition {
                 .45 * (1 - ramp(entity.body().healthRatio(), .30, .65))));
     }
 
+    /** Learned avoidance grows through the existing cautious and high-fear bands. */
+    public static double learnedRetreatRadius(Relation relation) {
+        return relation.fearBand()==0?0:2+ramp(relation.fear(),30,60);
+    }
+
     public static double confidence(double esteem) { return ramp(esteem, 44, 56); }
 
     public static double insistence(YukkuriPersonality personality, double esteem, double wariness, Relation relation) {

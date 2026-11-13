@@ -199,6 +199,12 @@ public final class ContactGeometry {
         return at.add(mouth(body).subtract(body.position()).yRot((float) Math.toRadians(body.yBodyRot - yaw)));
     }
 
+    /** Contact with a small prop at a real point, from this stance and facing. */
+    public static boolean mouthReachesPoint(YukkuriEntity body, Vec3 at, float yaw, Vec3 point) {
+        var tip=mouth(body,at,yaw);
+        return tip.distanceToSqr(point)<=GRAB_MARGIN*GRAB_MARGIN && sight(body,tip,point);
+    }
+
     private static double gripGap(YukkuriEntity body, Vec3 at, float yaw, Vec3 point, boolean sighted) {
         Vec3 mouth = mouth(body, at, yaw), root = braid(body, at, yaw, BRAID[0]);
         double gap = !sighted || sight(body, mouth, point) ? mouth.distanceTo(point) - GRAB_MARGIN : Double.POSITIVE_INFINITY;

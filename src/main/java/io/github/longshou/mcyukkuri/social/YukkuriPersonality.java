@@ -264,7 +264,10 @@ public final class YukkuriPersonality {
     /** The common behavior-event entry point; this writes the world relation authority exactly once. */
     public void relationshipChanged(UUID object, int closenessChange, int fearChange) {
         YukkuriWorldData data = relations();
-        if (data != null && object != null) data.interact(owner.getUUID(), object, closenessChange, fearChange);
+        if (data != null && object != null) {
+            protectOwnerRelation();
+            data.interact(owner.getUUID(), object, closenessChange, fearChange);
+        }
     }
     public void protectRelation(UUID object) {
         YukkuriWorldData data = relations();
@@ -304,7 +307,11 @@ public final class YukkuriPersonality {
         relationshipChanged(object, gentle ? 3 : -6, gentle ? -2 : 8);
         return true;
     }
-    public void fed(UUID object) { relationshipChanged(object, 8, -5); }
+    private int gentleFearChange(UUID object, int ordinary) {
+        return owner.pet().isPet()&&owner.pet().ownedBy(object)?-((fear(object)+1)/2):ordinary;
+    }
+    public void petted(UUID object) { relationshipChanged(object, 0, gentleFearChange(object,0)); }
+    public void fed(UUID object) { relationshipChanged(object, 8, gentleFearChange(object,-5)); }
     public void answeredRequest(UUID object) { relationshipChanged(object, 3, -2); }
     public void washed(UUID object) { relationshipChanged(object, 4, -3); }
     public void hurt(UUID object) { attacked(object, false); }

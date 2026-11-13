@@ -44,6 +44,12 @@ public final class InteractionDispatch {
         refuse(player,target,"reach",reason);
         return false;
     }
+    /** A badly frightened pet can still take care from a nearby keeper who approaches gently. */
+    public static boolean gentleOwnerContact(Player player,YukkuriEntity target){
+        if(!target.pet().isPet()||!target.pet().owned(player)||target.life().personality().fear(player.getUUID())<=60)return true;
+        return reachRefusal(player,target,1.5)==null
+                && (player.isSecondaryUseActive() || player.getKnownMovement().horizontalDistanceSqr()<=.0025);
+    }
     public static void refuse(Player player,YukkuriEntity target,String action,String reason){
         if(target!=null)GameplayLog.limited(target,"interaction",action+":"+reason,20,
                 "interaction refused; player={} action={} reason={}",player.getUUID(),action,reason);
@@ -198,7 +204,8 @@ public final class InteractionDispatch {
         var personality=life.personality();
         return switch(action){
             case LIFT -> target.isPanicking()||!Bonds.acceptsLift(target,player.getUUID())?"fear":null;
-            case RUB -> target.isPanicking()||personality.fear(player.getUUID())>=BondLevels.AFFECTION_FEAR_LIMIT?"fear"
+            case RUB -> target.isPanicking()||!gentleOwnerContact(player,target)
+                    ||!target.pet().owned(player)&&personality.fear(player.getUUID())>=BondLevels.AFFECTION_FEAR_LIMIT?"fear"
                     : life.hasUrgentNeed()||life.isSleeping()||life.mealTicks()>0||!personality.canTalk()?"busy":null;
             case COLD -> target.social().busyForTalk()||!personality.canTalk()?"busy":null;
             case FAVOR, DISLIKE -> personality.canTalk()?null:"busy";

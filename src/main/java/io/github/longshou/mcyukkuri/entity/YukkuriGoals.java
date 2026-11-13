@@ -24,6 +24,8 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Kindness;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
+import io.github.longshou.mcyukkuri.social.HookRescueGoal;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +83,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.HEADWEAR, owner.headwear()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.SOCIAL, new AccessoryGoal()));
         goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.THREAT, new Reactions.ThreatGoal(owner)));
+        goalSelector.addGoal(2, new LearnedFear.RetreatGoal(owner));
+        goalSelector.addGoal(2, new HookRescueGoal(owner));
         goalSelector.addGoal(2, landBinding(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
         goalSelector.addGoal(1, landBinding(PresentationGoals.LIFE, new FatigueGoal()));
         goalSelector.addGoal(1, new ShellGoal());
@@ -104,7 +108,7 @@ final class YukkuriGoals {
             @Override public boolean canUse() {
                 return !owner.isPassenger() && owner.life().canEat() && super.canUse()
                         && owner.life().seeksOfferedFood(player)
-                        && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT
+                        && (LearnedFear.hungerOverrides(owner)||owner.life().personality().fear(player.getUUID())<BondLevels.SOCIAL_FEAR_LIMIT)
                         && !owner.social().takeFoodApproach(player);
             }
             @Override public boolean canContinueToUse() {

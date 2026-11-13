@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.command;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -58,6 +59,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 /**
  * Operator tools of the playground (试玩场): scenario starting conditions that need code, forced field clearing and the
@@ -169,6 +172,9 @@ public final class ScenarioCommands {
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
                 .then(Commands.literal("care_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
+                .then(Commands.literal("tool_operator").requires(source->source.hasPermission(2))
+                        .then(Commands.literal("enter").executes(context->toolOperator(context.getSource(),true)))
+                        .then(Commands.literal("leave").executes(context->toolOperator(context.getSource(),false))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fear").then(Commands.argument("target", EntityArgument.entity())
@@ -364,12 +370,32 @@ public final class ScenarioCommands {
     }
 
     /** The smoke operator uses normal held-item dispatch with a real stack. */
+    private static final UUID TOOL_OPERATOR=UUID.fromString("2d4c7192-2a6d-4da4-9f94-c82721b9de87");
+
+    private static int toolOperator(CommandSourceStack source,boolean enter){
+        var level=source.getLevel();
+        if(source.getEntity()!=null||level.players().stream().anyMatch(player->!player.isFakePlayer()))return 0;
+        var current=level.getPlayerByUUID(TOOL_OPERATOR);
+        if(!enter){
+            if(!(current instanceof FakePlayer player))return 0;
+            level.removePlayerImmediately(player,Entity.RemovalReason.DISCARDED);
+            return 1;
+        }
+        if(current!=null)return 0;
+        var player=new FakePlayer(level,new GameProfile(TOOL_OPERATOR,"MuseumOperator"));
+        player.setPos(source.getPosition());
+        level.addNewPlayer(player);
+        return level.getPlayerByUUID(TOOL_OPERATOR)==player?1:0;
+    }
+
     private static int toolClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var target = yukkuri(c, "target");
         String key = StringArgumentType.getString(c, "action");
         var action = Arrays.stream(CareAction.values()).filter(value -> value.key().equals(key)).findFirst().orElse(null);
         if (target == null || action == null || action.tool == null && !action.shears()) return 0;
-        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        var level=c.getSource().getLevel();
+        var present=level.getPlayerByUUID(TOOL_OPERATOR);
+        var player=present instanceof FakePlayer operator?operator:FakePlayerFactory.getMinecraft(level);
         player.setPos(c.getSource().getPosition());
         player.lookAt(EntityAnchorArgument.Anchor.EYES,target.getBoundingBox().getCenter());
         var previous = player.getMainHandItem();

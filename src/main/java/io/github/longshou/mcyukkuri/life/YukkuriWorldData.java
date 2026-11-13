@@ -65,6 +65,8 @@ public final class YukkuriWorldData extends SavedData {
         public int strength() { return Math.abs(closeness) + fear; }
     }
     public static final int MAX_RELATIONS_PER_SOURCE = 64;
+    public static final int OWNER_FEAR_CAP = 85;
+    public static final long GAME_DAY = 24_000;
     /** A one-shot physical-loss notice; the owner's matching token decides whether it still applies. */
     public record AccessoryLoss(UUID token, UUID player, String destroyedBy) {}
     /** A consumed whole accessory retires this old capability before its former owner can recover a duplicate. */
@@ -182,7 +184,14 @@ public final class YukkuriWorldData extends SavedData {
     public int fear(UUID from, UUID to) { return relation(from, to).fear(); }
     public Relation relation(UUID from, UUID to) {
         if (from == null || to == null) return Relation.NONE;
-        return relations.getOrDefault(new Edge(from, to), Relation.NONE);
+        var edge = new Edge(from, to);
+        return currentRelation(edge, relations.getOrDefault(edge, Relation.NONE));
+    }
+    private Relation currentRelation(Edge edge, Relation stored) {
+        long elapsed = custodyLevel == null ? 0 : Math.max(0, custodyLevel.getGameTime() - stored.lastInteraction());
+        int fear = (int) Math.max(0, stored.fear() - elapsed / GAME_DAY);
+        if (edge.to.equals(ownerRelations.get(edge.from))) fear = Math.min(fear, OWNER_FEAR_CAP);
+        return fear == stored.fear() ? stored : new Relation(stored.closeness(), fear, stored.lastInteraction(), stored.fearBand());
     }
     /**
      * Marks a target as non-evictable while it is an owner or a live interaction target.
@@ -238,19 +247,21 @@ public final class YukkuriWorldData extends SavedData {
     public Relation interact(UUID from, UUID to, int closenessChange, int fearChange) {
         if (from == null || to == null || from.equals(to) || closenessChange == 0 && fearChange == 0) return relation(from, to);
         Edge edge = new Edge(from, to);
-        Relation before = relations.get(edge);
-        if (before == null && !makeRelationRoom(from)) return Relation.NONE;
+        Relation stored = relations.get(edge);
+        if (stored == null && !makeRelationRoom(from)) return Relation.NONE;
+        Relation before = currentRelation(edge, stored == null ? Relation.NONE : stored);
         long now = custodyLevel == null ? 0 : custodyLevel.getGameTime();
+        int fearCap = to.equals(ownerRelations.get(from)) ? OWNER_FEAR_CAP : 100;
         Relation after = new Relation(
-                Math.clamp((before == null ? 0 : before.closeness()) + closenessChange, -100, 100),
-                Math.clamp((before == null ? 0 : before.fear()) + fearChange, 0, 100),
-                now, before == null ? 0 : before.fearBand());
-        if (before == null) relationsIndexDirty = true;
+                Math.clamp(before.closeness() + closenessChange, -100, 100),
+                Math.clamp(before.fear() + fearChange, 0, fearCap),
+                now, before.fearBand());
+        if (stored == null) relationsIndexDirty = true;
         relations.put(edge, after);
         cleanupEdges.add(edge);
         if (!relationsIndexDirty) relationsBySource.computeIfAbsent(from, ignored -> new LinkedHashMap<>()).put(to, after);
-        if (before == null || after.closeness() != before.closeness())
-            StatusEvents.relationChanged(from, to, before == null ? 0 : before.closeness(), after.closeness());
+        if (stored == null || after.closeness() != before.closeness())
+            StatusEvents.relationChanged(from, to, before.closeness(), after.closeness());
         setDirty();
         return after;
     }
@@ -276,9 +287,9 @@ public final class YukkuriWorldData extends SavedData {
         if (count < MAX_RELATIONS_PER_SOURCE) return true;
         Edge candidate = relations.entrySet().stream()
                 .filter(entry -> entry.getKey().from.equals(from) && !relationProtected(from, entry.getKey().to))
-                .min(Comparator.comparingInt((Map.Entry<Edge, Relation> entry) -> entry.getValue().strength() <= 30 ? 0 : 1)
+                .min(Comparator.comparingInt((Map.Entry<Edge, Relation> entry) -> currentRelation(entry.getKey(),entry.getValue()).strength() <= 30 ? 0 : 1)
                         .thenComparingLong(entry -> entry.getValue().lastInteraction())
-                        .thenComparingInt(entry -> entry.getValue().strength())
+                        .thenComparingInt(entry -> currentRelation(entry.getKey(),entry.getValue()).strength())
                         .thenComparing(entry -> entry.getKey().to))
                 .map(Map.Entry::getKey).orElse(null);
         if (candidate == null) return false;
@@ -294,7 +305,10 @@ public final class YukkuriWorldData extends SavedData {
     public Map<UUID, Relation> relationsFrom(UUID from) {
         if (relationsIndexDirty) rebuildRelationsIndex();
         var outgoing = relationsBySource.get(from);
-        return outgoing == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(outgoing));
+        if (outgoing == null) return Map.of();
+        var current = new LinkedHashMap<UUID, Relation>();
+        outgoing.forEach((to, stored) -> current.put(to, currentRelation(new Edge(from,to), stored)));
+        return Collections.unmodifiableMap(current);
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
     public AccessoryLoss consumeAccessoryLoss(UUID owner, UUID token) {

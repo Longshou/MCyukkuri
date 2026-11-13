@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
@@ -21,10 +22,13 @@ import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +53,8 @@ public final class OperationLife {
     private static final int BOX_BEAT = 80, ROTOR_PLEA = 100;
     /** Below this nutrition the gentle sling no longer soothes: it wants to come down (MindLife). */
     public static final float SLING_HUNGER = 20;
+    /** Exposed shank beside the embedded tip, in blocks at adult render scale. */
+    private static final double HOOK_GRIP_OFFSET = .08;
     private final YukkuriEntity entity;
     private Pose pose=Pose.NONE;
     private UUID operator;
@@ -76,6 +82,24 @@ public final class OperationLife {
     public boolean controlling(){return active()&&pose!=Pose.SLIDE;}
     public Pose pose(){return pose;}
     public UUID operator(){return operator;}
+    public UUID hookWound(){return pose==Pose.HOOK?attachedWound:null;}
+    public Vec3 hookContact(){
+        if(hookWound()==null)return null;
+        for(var wound:entity.body().wounds())if(attachedWound.equals(wound.id()))
+            return WoundPlacement.outlet(entity,wound)
+                    .add(WoundPlacement.outward(entity,wound).scale(HOOK_GRIP_OFFSET*entity.getScale()*entity.growthScale()));
+        return null;
+    }
+    /** The same release as a player uses, with the helper's own supported mouth contact. */
+    public boolean releaseHook(YukkuriEntity helper, UUID wound){
+        if(!wound.equals(hookWound())||!entity.isAlive()||!helper.onGround()||helper.isPassenger()
+                ||helper.component(YukkuriComponents.MOUTH).purpose()!=null
+                ||!SurfaceApproach.supportedGround(helper,helper.position()))return false;
+        var point=hookContact();
+        if(point==null||!ContactGeometry.mouthReachesPoint(helper,helper.position(),helper.yBodyRot,point))return false;
+        end();
+        return true;
+    }
     public ItemStack inserted(){return inserted.copy();}
     public void damaged(DamageSource source){if(active()&&!ownDamage)end();}
     boolean canRelease(){return active()||!inserted.isEmpty();}
@@ -100,8 +124,9 @@ public final class OperationLife {
             case LIFT -> begin(player,Pose.LIFT,160,null);
             case GRIP -> begin(player,Pose.GRIP,100,null);
             case RUB -> {
+                if(!begin(player,Pose.RUB,40,null))yield false;
                 entity.life().personality().talk(player.getUUID(),true);
-                entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",100);yield begin(player,Pose.RUB,40,null);
+                entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",100);yield true;
             }
             case FLICK,PUNCH,SLAP -> {
                 float damage=action==CareAction.PUNCH?2:action==CareAction.FLICK?.5f:1;
@@ -143,12 +168,16 @@ public final class OperationLife {
             }
         };
         if(done&&action!=CareAction.RELEASE){
+            // The strike actions report their accepted damage transaction, including lethal strikes.
+            if(action.shears()&&action!=CareAction.STERILIZE||switch(action){
+                case FIX_SUPINE, WRAP_HANG, VIBRATE, ENCLOSE -> true;
+                default -> false;
+            })LearnedFear.witnessed(entity,player,action.key());
             if(action==CareAction.COLD||action==CareAction.FLICK){
                 entity.pet().lessons().reprimand(player,action);
                 entity.pet().care().reprimand(player,action);
                 entity.mind().spike(ExcitedLeak.Stimulus.SCOLD);
             }
-            if(action==CareAction.RUB)entity.pet().care().affection(player);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
             entity.pet().contact(player.getUUID(), action.positiveContact());
             if(action.tool!=null&&!action.tool.inserted||action.shears())player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
@@ -250,7 +279,11 @@ public final class OperationLife {
         }
         if(pose==Pose.RUB){
             if(player.distanceToSqr(entity)>2.25||entity.life().hasUrgentNeed()||entity.isPanicking()){end();return;}
-            if(elapsed==30)entity.dailyLife().comfort(25);
+            if(elapsed==30){
+                entity.life().personality().petted(player.getUUID());
+                entity.pet().care().affection(player);
+                entity.dailyLife().comfort(25);
+            }
         }
         if(pose==Pose.WRAPPED||pose==Pose.HOOK){
             if(ceiling==null||entity.level().getBlockState(ceiling).getCollisionShape(entity.level(),ceiling).isEmpty()){end();return;}

@@ -48,6 +48,10 @@ public final class TreatmentItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
         if(!(target instanceof YukkuriEntity entity))return InteractionResult.PASS;
         if(!player.level().isClientSide){
+            if(!InteractionDispatch.gentleOwnerContact(player,entity)){
+                InteractionDispatch.refuse(player,entity,"treatment","fear");
+                return InteractionResult.FAIL;
+            }
             int before=stack.getCount();
             boolean applied=apply(entity,kind);
             if(!applied){

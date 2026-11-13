@@ -15,12 +15,14 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /** One synchronous hurt/death transaction owner; public entity overrides delegate once. */
@@ -80,6 +82,8 @@ final class YukkuriDamage {
                 owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             }
             var result=settle(transaction,accepted);
+            if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof LivingEntity attacker)
+                LearnedFear.witnessed(owner,attacker,"hurt");
             if(result.loss()>0&&YukkuriLife.isWaterDamage(source))
                 GameplayLog.event(owner,"water","damage cause={} health={} -> {} loss={}",
                         source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss());

@@ -96,13 +96,6 @@ public final class Reactions {
         threat.attackedBy(attacker);
         threat.warnKin(attacker);
         if (attacker instanceof Player player) HumanNpc.witnessedStreetHurt(entity, player);
-        if (!(attacker instanceof Player || attacker instanceof HumanNpc)) return;
-        long now = entity.level().getGameTime();
-        for (var witness : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8, 4, 8),
-                y -> y != entity && alarmable(y) && y.distanceToSqr(entity) <= 64
-                        && y.hasLineOfSight(entity) && y.hasLineOfSight(attacker))) {
-            witness.status().reactions().threat().heard(attacker, now);
-        }
     }
 
     // ---- shared predicates -------------------------------------------------------------------------------------

@@ -56,6 +56,7 @@ public final class BodyLife {
     /** Filling the body still held when external wounds took it to the weak line; -1 while it is above it. */
     private float entryFood = -1;
     private long lastWitness = Long.MIN_VALUE;
+    private long lastBurnAt = -1;
     private Boolean observedWeak;
     /** Core damage is irreversible; an intact core no longer supplies a second life bar. */
     private boolean coreHurt;
@@ -126,6 +127,9 @@ public final class BodyLife {
     public int infection(){return infection;}
     public int mold(){return mold;}
     public int burns(){return burns;}
+    public boolean remembersBurn(){
+        return burns>0||lastBurnAt>=0&&entity.level().getGameTime()-lastBurnAt<2*YukkuriWorldData.GAME_DAY;
+    }
     /** Derived readout, never a second thermal state. House bodies select grade-three art independently of health loss. */
     public String thermalState(){
         int sole=wounds.stream().filter(w->w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.SOLE_BURN).mapToInt(BodyWound::severity).max().orElse(0);
@@ -337,6 +341,10 @@ public final class BodyLife {
     public HurtResult onHurt(BodyHit hit,boolean accepted,float lost){
         float loss=accepted&&Float.isFinite(lost)?Math.clamp(lost,0,Math.max(0,hit.healthBefore())):0;
         if(loss<=0)return new HurtResult(accepted,0,hit.part(),BodyFood.Bite.EMPTY);
+        if(hit.source().is(DamageTypeTags.IS_FIRE)||InjuryModel.underfoot(hit.source())){
+            if(!remembersBurn())GameplayLog.event(entity,"body","burn remembered cause={}",hit.source().getMsgId());
+            lastBurnAt=entity.level().getGameTime();
+        }
         if(hit.kind()==BodyHit.Kind.TERMINAL)return new HurtResult(true,loss,null,BodyFood.Bite.EMPTY);
         if(InjuryModel.destroysBody(hit.source(),loss,hit.healthBefore(),hit.incoming())){deathFood=0;coreHurt=true;}
         if(hit.strike()!=null&&!hit.dyingBefore()&&deathFood<0)trackTraumaFood(hit,loss);
@@ -635,6 +643,7 @@ public final class BodyLife {
         if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
         if(entryFood>=0)tag.putFloat("EntryFood",entryFood);
         tag.putBoolean("FaceMarks",faceMarks);
+        if(lastBurnAt>=0)tag.putLong("LastBurnAt",lastBurnAt);
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
@@ -653,6 +662,7 @@ public final class BodyLife {
         // Old Bandage time is deliberately ignored: loading a save must not restore the removed treatment.
         infection=Math.clamp(tag.getInt("Infection"),0,8);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         faceMarks=tag.getBoolean("FaceMarks");
+        lastBurnAt=tag.contains("LastBurnAt")?tag.getLong("LastBurnAt"):-1;
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         // Saves from before the centre filling existed carry no flag: their core is unhurt.
