@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 演出夸张化与玻璃挤脸 | `.worktrees/wp-ii-exaggerate-glass` | standards/yukkuri-library/motions, motion exports, shop pen glass trigger |
 | 导出脚本写出 CRLF 造成无变化改动 | `.worktrees/wp-ij-export-eol` | scripts/export_human_world.py, scripts/export helpers |
+| shop_window 场景：橱窗看见客人却无反应 | `.worktrees/wp-ik-shop-window-flake` | shop/ShopWindow, scripts/museum_scenarios.py shop_window |
 
 ## 玩法待办
 
