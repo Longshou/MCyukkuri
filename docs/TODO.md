@@ -12,6 +12,7 @@
 | 街道地形不再破坏观察台 | `.worktrees/wp-street-deck` | scripts/museum_scenarios.py street field, observation deck |
 | 魔理沙后发穿模与捕食种走路遮眼 | `.worktrees/wp-art-body-fix` | yukkuri model/rig sources for marisa hair and predator species, exported runtime models, walk clips |
 | 窝适配墙角与宠物窝三档 | `.worktrees/wp-art-nests` | life nest blocks (yukkuri_nest, large nests), nest models/sources, sleep recovery hooks, shop stock |
+| 服务端热点：FamilyNest.contactHeight 拖慢一家六口场景 | `.worktrees/wp-perf-nest-contact` | family/FamilyNest.java and its callers |
 
 ## 玩法待办
 
