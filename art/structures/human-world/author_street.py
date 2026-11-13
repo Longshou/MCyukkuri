@@ -259,8 +259,9 @@ def street_alley():
 
 # ---------------------------------------------------------------------------------------------------------- oni-san shop
 # Tools on the wall, consumables and goods on the two shelves (docs/FEATURES.md 鬼威惨工具; wiki shops-factory-npcs R7/R8).
-TOOLS = ['pin_tool', 'care_mallet', 'care_awl', 'heated_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook',
-         'hair_clippers', 'cutting_knife', 'care_vibrator', 'sterilizing_shears', 'iron_enclosure', 'stem_shears', 'bottle_stem_shears']
+# Cutting is done with vanilla shears (they hang with the tools).
+TOOLS = ['pin_tool', 'care_mallet', 'care_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook', 'care_vibrator',
+         'iron_enclosure', 'minecraft:shears']
 CONSUMABLES = ['spicy_grain', 'sleep_spray', 'stimulant', 'sandpaper_mat']
 GROCERY = ['oil_grain_budget', 'minecraft:bread', 'minecraft:candle', 'minecraft:paper']
 # Scummy stock: intelligence, friendliness, boldness, attachment, self-control. Arrogant and rude (gesu) or dull and timid; underfed and dirty.
@@ -429,7 +430,7 @@ def oni_shop():
     b.block(11, 4, 23, 'brewing_stand', {'has_bottle_0': 'true', 'has_bottle_1': 'false', 'has_bottle_2': 'true'})
     b.block(13, 3, 23, 'water_cauldron', {'level': '2'})
     b.block(9, 3, 23, 'grindstone', {'face': 'floor', 'facing': 'north'})
-    ground_display(b, 10, 4, 23, 'mcyukkuri:heated_awl', yaw=60.); ground_display(b, 12, 4, 23, 'mcyukkuri:hair_clippers', yaw=-30.)
+    ground_display(b, 10, 4, 23, 'mcyukkuri:care_awl', yaw=60.); ground_display(b, 12, 4, 23, 'minecraft:shears', yaw=-30.)
     for x in (16, 17, 18):
         barrel(b, x, 3, 23, 'up')
         if x != 17: barrel(b, x, 4, 23, 'up')

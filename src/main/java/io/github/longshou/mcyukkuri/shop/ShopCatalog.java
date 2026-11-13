@@ -69,6 +69,8 @@ public final class ShopCatalog {
         List<Good> goods = new ArrayList<>();
         for (var tool : OperationToolItem.Tool.values())
             goods.add(good(tool.id, TOOL_CATEGORY, () -> new ItemStack(tool.item()), 4, 3, 1, 0));
+        // Every cut (hair, accessory, stem, sterilizing) is made with vanilla shears.
+        goods.add(good("shears", TOOL_CATEGORY, () -> new ItemStack(Items.SHEARS), 2, 3, 1, 0));
         goods.add(good("sandpaper_mat", 1, () -> new ItemStack(Facilities.SANDPAPER.get()), 2, 3, 1, 0));
         for (var dose : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT))
             goods.add(good(dose.id, 1, () -> new ItemStack(Consumables.ITEMS.get(dose).get()), 2, 6, 3, 0));
