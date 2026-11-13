@@ -337,7 +337,7 @@ public final class YukkuriModel {
     private final Map<Integer,Part> puffAttachments=new HashMap<>();
     private final Map<String,String> expressionAliases=new HashMap<>();
     private HouseNormals puffNormals;
-    /** One shared lighting normal per expression card, so its flat strips do not shade as separate pieces. */
+    /** Model-owned normal slots. Every draw recomputes their values from that body's pose. */
     private final Map<String,Vector3f> cardNormals=new HashMap<>();
     /** The shared normal of an expression card part, or null when the part keeps per-triangle normals. */
     Vector3f woundCardNormal(String part){return cardNormals.get(part);}
@@ -367,7 +367,11 @@ public final class YukkuriModel {
     private final Matrix4f featureParentInverse = new Matrix4f();
     private final float[] triangleUv = new float[6];
 
-    record Part(String name, int start, int count, String anatomy) {}
+    record Part(String name, int start, int count, String anatomy, boolean face, String anatomyAction, Vector3f cardNormal) {
+        Part(String name,int start,int count,String anatomy,Vector3f cardNormal){
+            this(name,start,count,anatomy,name.startsWith("face_"),"anatomy_"+anatomy+"_",cardNormal);
+        }
+    }
     /** Share light across a deforming skin plane, while preserving authored hard edges. */
     private static final class HouseNormals {
         final int[] groups;
@@ -679,7 +683,9 @@ public final class YukkuriModel {
             int start = part.get("start").getAsInt(), count = part.get("count").getAsInt();
             if (start < 0 || count < 0 || count % 3 != 0 || start + count > bindings.length)
                 throw new IllegalArgumentException("Invalid triangle range");
-            parts.add(new Part(part.get("name").getAsString(), start, count, part.get("anatomy").getAsString()));
+            String name = part.get("name").getAsString(), anatomy = part.get("anatomy").getAsString();
+            var card = !id.startsWith("house_") && name.startsWith("face_") && anatomy.isEmpty() ? new Vector3f() : null;
+            parts.add(new Part(name, start, count, anatomy, card));
             if(part.has("feature_bone")){
                 int bone=part.get("feature_bone").getAsInt();if(bone<0||bone>=bones.length)throw new IllegalArgumentException("Invalid face feature bone");
                 Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
@@ -844,7 +850,7 @@ public final class YukkuriModel {
         float[] offsets=floats(source.getAsJsonArray("offsets"));
         if(start<0||count<0||count%3!=0||start+count>vertexCount||offsets.length!=count*3)throw new IllegalArgumentException("Invalid puff mesh range");
         System.arraycopy(offsets,0,puffOffsets,start*3,offsets.length);
-        return new Part(original.name,start,count,original.anatomy);
+        return new Part(original.name,start,count,original.anatomy,original.cardNormal);
     }
 
     JsonObject badgeMount(){return badgeMount;}
@@ -1043,14 +1049,14 @@ public final class YukkuriModel {
         if(skinNormals!=null)updateAngleNormals(skinNormals);
         if(puffSkinNormals!=null&&puffAmount>0)updateAngleNormals(puffSkinNormals);
         cardNormals.clear();
-        if(!id.startsWith("house_"))for(var card:parts)if(card.name.startsWith("face_")&&card.anatomy.isEmpty()){
-            var sum=cardNormals.computeIfAbsent(card.name,ignored->new Vector3f()).zero();
+        for(var card:parts)if(card.cardNormal!=null){
+            var sum=card.cardNormal.zero();
             for(int first=card.start;first<card.start+card.count;first+=3){
                 if(vertices[first*8+7]>=-.15f)continue;
                 for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);
                 normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);sum.add(normal.cross(edge));
             }
-            if(sum.lengthSquared()>1e-16f)sum.normalize();else cardNormals.remove(card.name);
+            if(sum.lengthSquared()>1e-16f)cardNormals.put(card.name,sum.normalize());else cardNormals.remove(card.name);
         }
         var pregnantSurface=pregnancyBelly>.001f?pregnancySurface.begin():null;
         if(pregnancyBelly>.001f)for(int index=0;index<parts.size();index++)if(bodySurface(parts.get(index).name)){
@@ -1072,7 +1078,7 @@ public final class YukkuriModel {
             boolean hatPart=(hatDamageDraw.level()>0||hatDamageDraw.fit()<.999f)&&accessoryPart(part);
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
-            boolean explicitAnatomy=action.startsWith("anatomy_" + part.anatomy + "_");
+            boolean explicitAnatomy=action.startsWith(part.anatomyAction);
             boolean layeredAnatomy=part.anatomy.equals(reproductiveAnatomy)&&reproductiveAmount>.001f;
             boolean rearAnatomy=layeredAnatomy&&part.anatomy.equals("mamu")&&rearTransform!=null;
             if (!part.anatomy.isEmpty() && (delivery!=null || !explicitAnatomy&&!layeredAnatomy)) continue;
@@ -1086,17 +1092,16 @@ public final class YukkuriModel {
             }
             int tint=woundDisplay!=null?woundDisplay.tint(part.name):drainTint(part.name);
             var curled=tailCurl==null?null:tailCurl.part(partIndex);
+            var lifted=cardNormals.get(part.name);
+            boolean projectFace=pregnancyBelly>.001f&&part.face;
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 if(woundDisplay!=null&&woundDisplay.triangle(first,stack,buffer,light,overlay))continue;
                 // House expression cards overlap on the curved face. Their opaque
                 // backs can hide neighbouring eyes with the no-cull entity material.
                 // Keep the authored front ink; the head already supplies the skin.
                 // Back and side faces of box cards are skipped on every model for the same reason.
-                if(part.name.startsWith("face_")&&vertices[first*8+7]>=-.15f)continue;
-                if(pregnancyBelly>.001f&&part.name.startsWith("face_")){
-                    // The thin sprite boxes have opaque skin-coloured backs. On a curved face those backs
-                    // receive inverted lighting through transparent pixels; the underlying head supplies skin.
-                    if(vertices[first*8+7]>=-.15f)continue;
+                if(part.face&&vertices[first*8+7]>=-.15f)continue;
+                if(projectFace){
                     float[] uv=triangleUv;
                     for(int corner=0;corner<3;corner++){skinBase(first+corner,triangle[corner]);uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
@@ -1104,7 +1109,6 @@ public final class YukkuriModel {
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
                 if(rearAnatomy)for(int corner=0;corner<3;corner++)rearTransform.transformPosition(triangle[corner]);
                 if(curled!=null)for(int corner=0;corner<3;corner++)curled.transformPosition(triangle[corner]);
-                var lifted=cardNormals.get(part.name);
                 if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(CARD_LIFT,lifted);
                 if(hatPart&&hatDamageDraw.fit()<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
                 normal.set(triangle[1]).sub(triangle[0]);
@@ -1136,7 +1140,7 @@ public final class YukkuriModel {
                     if(angled!=null)vertexNormal=smoothBase;
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[vertex]>=0)
                         vertexNormal=puffBlendedNormal.set(smoothBase).lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
-                    var card=cardNormals.get(part.name);if(card!=null)vertexNormal=card;
+                    if(lifted!=null)vertexNormal=lifted;
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
                             .setColor(tint>>16&255, tint>>8&255, tint&255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
@@ -1180,7 +1184,17 @@ public final class YukkuriModel {
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
             drawingSurfaceMarks=WoundRenderer.active(entity);
             int leakOpacity=WoundRenderer.leakOpacity(entity);
-            boolean compatible=woundGeometryCompatible();
+            boolean floorBurn=(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0;
+            var injuries=entity.visibleWounds();
+            var marks=entity.visibleMarks();
+            var contactWound=entity.contactWound();
+            List<BodyWound> wounds=injuries;
+            for(var mark:marks)if(mark.kind()==WoundKind.SCAR){
+                if(wounds==injuries)wounds=new ArrayList<>(injuries);
+                wounds.add(mark);
+            }
+            boolean compatible=(drawingSurfaceMarks||leakOpacity>0||contactWound!=null||floorBurn||!wounds.isEmpty())
+                    &&woundGeometryCompatible();
             if((drawingSurfaceMarks||leakOpacity>0)&&!compatible){
                 leakOpacity=0;
                 drawingSurfaceMarks=false;if(!warnedWoundMismatch){
@@ -1190,8 +1204,6 @@ public final class YukkuriModel {
             setExpression(expression);
             drain=entity.aftermathDrain();
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
-            var wounds=new ArrayList<>(entity.visibleWounds());
-            for(var mark:entity.visibleMarks())if(mark.kind()==WoundKind.SCAR)wounds.add(mark);
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
@@ -1202,7 +1214,7 @@ public final class YukkuriModel {
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
             boolean pieces=hatDamageDraw.level()==3;
             long perfStart=WoundLod.start();
-            if(compatible&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0))
+            if(compatible&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||floorBurn))
                 woundDisplay=HairWoundRenderer.prepare(entity,this,id,expression,wounds,entity.visibleSigns(),health,hairLoss,
                         hatProp==null&&(accessory||pieces||hatMotion.equals("HAT_REMOVE")),headwear,true,cameraDistanceSquared(stack));
             if(woundDisplay!=null)WoundLod.time(WoundLod.PREPARE,perfStart);
@@ -1222,7 +1234,7 @@ public final class YukkuriModel {
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
             // The puff uses a different skin mesh; keep its clip instead of pinning the body to the sole decal.
             int soleOpacity=puffAmount>0?0:leakOpacity;
-            var contact=compatible&&(drawingSurfaceMarks||soleOpacity>0||entity.contactWound()!=null)
+            var contact=compatible&&(drawingSurfaceMarks||soleOpacity>0||contactWound!=null)
                     ?WoundRenderer.render(entity,expression,soleOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence):null;
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
@@ -1407,6 +1419,7 @@ public final class YukkuriModel {
         // A revision may carry its own named patch; otherwise borrow the alias's geometry.
         if(!expressionPatches.containsKey(name))name=geometryExpression(name);
         var next=expressionPatches.getOrDefault(name,List.of());
+        if(next==activePatches)return;
         Skin.expression(restVertices,vertices,activePatches,next);
         activePatches=next;
     }

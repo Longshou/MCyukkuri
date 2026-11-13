@@ -48,9 +48,17 @@ public final class WoundPlacement {
         boolean open=!e.profile().houseBody()&&e.body()!=null&&e.body().wounds().stream().anyMatch(BodySigns::open);
         float health=e.getMaxHealth()<=0?1:e.getHealth()/e.getMaxHealth();
         m.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
-        String behavior=e.getBehaviorId();float t=Math.max(0,e.level().getGameTime()-e.getBehaviorStartTick());
-        float y=WoundSurface.get(e.subspecies().assetId()).hasClip("sleep")?1:switch(behavior){
-                case Behaviors.SLEEP_ENTER->1-Math.min(1,t/20)*.04f;case Behaviors.SLEEP->.96f;case Behaviors.WAKE->.96f+Math.min(1,t/20)*.04f;default->1;};
+        String behavior=e.getBehaviorId();
+        float y=1;
+        if ((behavior.equals(Behaviors.SLEEP_ENTER) || behavior.equals(Behaviors.SLEEP) || behavior.equals(Behaviors.WAKE))
+                && !WoundSurface.get(e.subspecies().assetId()).hasClip("sleep")) {
+            float t=Math.max(0,e.level().getGameTime()-e.getBehaviorStartTick());
+            y = switch (behavior) {
+                case Behaviors.SLEEP_ENTER -> 1-Math.min(1,t/20)*.04f;
+                case Behaviors.SLEEP -> .96f;
+                default -> .96f+Math.min(1,t/20)*.04f;
+            };
+        }
         return m.scale(1,y,1).scale(1f/16);
     }
     private record PoseFrame(String action,float seconds) {}

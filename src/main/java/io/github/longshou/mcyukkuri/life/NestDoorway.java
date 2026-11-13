@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -18,12 +18,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /** Physical nest openings, independent of residency. Routes end outside; a straight step crosses the low lip. */
 public final class NestDoorway {
     private NestDoorway() {}
     public record Doorway(double inner, double outer, double opening, int side) {}
     private static final Map<Block, Doorway> SHAPES = new HashMap<>();
+    private static final Predicate<BlockState> NEST = state -> state.getBlock() instanceof CareBlock care
+            && care.kind() == CareBlock.Kind.NEST;
 
     public static CareBlockEntity bed(YukkuriEntity actor, BlockPos pos) {
         var level = actor.level();
@@ -32,7 +35,11 @@ public final class NestDoorway {
     }
 
     private static CareBlockEntity bed(Level level, BlockState state, BlockPos pos) {
-        if (!(state.getBlock() instanceof CareBlock)) return null;
+        if (!NEST.test(state)) return null;
+        return nest(level, state, pos);
+    }
+
+    private static CareBlockEntity nest(Level level, BlockState state, BlockPos pos) {
         var origin = state.getBlock() instanceof LargeNestBlock ? LargeNestBlock.origin(state, pos) : pos;
         return level.getBlockEntity(origin) instanceof CareBlockEntity bed && bed.kind() == CareBlock.Kind.NEST
                 && bed.bed() != NestResting.LEDGE ? bed : null;
@@ -118,30 +125,54 @@ public final class NestDoorway {
 
     /** One exclusion for yukkuri route nodes, edges and ordinary last steps; other mobs keep vanilla pathing. */
     public static boolean blocksLine(YukkuriEntity actor, Vec3 from, Vec3 to) {
-        var area=new AABB(from,to).inflate(actor.getBbWidth()*.5+1,0,actor.getBbWidth()*.5+1);
+        double foot = actor.getBbWidth() * .5;
+        double padding = foot + 1;
+        var min = BlockPos.containing(Math.min(from.x, to.x) - padding, Math.min(from.y, to.y) - 1, Math.min(from.z, to.z) - padding);
+        var max = BlockPos.containing(Math.max(from.x, to.x) + padding, Math.max(from.y, to.y), Math.max(from.z, to.z) + padding);
         var level = actor.level();
-        ChunkAccess chunk = null;
-        int chunkX = Integer.MIN_VALUE, chunkZ = Integer.MIN_VALUE;
-        for(var pos:BlockPos.betweenClosed(BlockPos.containing(area.minX,area.minY-1,area.minZ),BlockPos.containing(area.maxX,area.maxY,area.maxZ))){
-            int cx = pos.getX() >> 4, cz = pos.getZ() >> 4;
-            if (cx != chunkX || cz != chunkZ) {
-                chunk = level.getChunk(cx, cz, ChunkStatus.FULL, false);
-                chunkX = cx;
-                chunkZ = cz;
+        int firstY = Math.max(min.getY(), level.getMinBuildHeight());
+        int lastY = Math.min(max.getY(), level.getMaxBuildHeight() - 1);
+        if (firstY > lastY) return false;
+        var pos = new BlockPos.MutableBlockPos();
+        for (int cx = min.getX() >> 4; cx <= max.getX() >> 4; cx++) {
+            for (int cz = min.getZ() >> 4; cz <= max.getZ() >> 4; cz++) {
+                var chunk = level.getChunk(cx, cz, ChunkStatus.FULL, false);
+                if (chunk == null) continue;
+                for (int sy = firstY >> 4; sy <= lastY >> 4; sy++) {
+                    LevelChunkSection section = chunk.getSection(level.getSectionIndexFromSectionY(sy));
+                    // A palette without nest blocks cannot contribute an opening. Query it live so edits
+                    // and chunk reloads need no separate invalidation. Keep the section for the cell reads.
+                    if (!section.maybeHas(NEST)) continue;
+                    for (int y = Math.max(firstY, sy << 4); y <= Math.min(lastY, (sy << 4) + 15); y++)
+                        for (int z = Math.max(min.getZ(), cz << 4); z <= Math.min(max.getZ(), (cz << 4) + 15); z++)
+                            for (int x = Math.max(min.getX(), cx << 4); x <= Math.min(max.getX(), (cx << 4) + 15); x++) {
+                                var state = section.getBlockState(x & 15, y & 15, z & 15);
+                                if (NEST.test(state) && blocksLine(actor, nest(level, state, pos.set(x, y, z)), from, to, foot))
+                                    return true;
+                            }
+                }
             }
-            if (chunk == null) continue;
-            var bed = bed(level, chunk.getBlockState(pos), pos);
-            if (bed == null) continue;
-            var c=bed.centre();double r=shape(bed).outer()+actor.getBbWidth()*.5;
-            var box=new AABB(c.x-r,c.y-1,c.z-r,c.x+r,c.y+1,c.z+r);
-            // A pushed/placed body on the rim can walk outward from the overlap, never further into the bed.
-            if(box.contains(from)&&!inside(actor,bed,from)){
-                double x=from.x-c.x,z=from.z-c.z;
-                if(Math.abs(x)>=Math.abs(z)?(to.x-from.x)*x>0:(to.z-from.z)*z>0)continue;
-            }
-            if(box.contains(from)||box.contains(to)||box.clip(from,to).isPresent())return true;
         }
         return false;
+    }
+
+    private static boolean blocksLine(YukkuriEntity actor, CareBlockEntity bed, Vec3 from, Vec3 to, double foot) {
+        if (bed == null) return false;
+        var c = bed.centre();
+        double r = shape(bed).outer() + foot;
+        double minX = c.x - r, maxX = c.x + r, minY = c.y - 1, maxY = c.y + 1, minZ = c.z - r, maxZ = c.z + r;
+        if (Math.max(from.x, to.x) < minX || Math.min(from.x, to.x) > maxX
+                || Math.max(from.y, to.y) < minY || Math.min(from.y, to.y) > maxY
+                || Math.max(from.z, to.z) < minZ || Math.min(from.z, to.z) > maxZ) return false;
+        var box = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+        boolean startsInside = box.contains(from);
+        // A body pushed onto the rim may take an outward step from the overlap.
+        if (startsInside) {
+            double x = from.x-c.x, z = from.z-c.z;
+            boolean outward = Math.abs(x)>=Math.abs(z) ? (to.x-from.x)*x>0 : (to.z-from.z)*z>0;
+            if (outward && !inside(actor, bed, from)) return false;
+        }
+        return startsInside || box.contains(to) || box.clip(from, to).isPresent();
     }
 
     /** Observe a real ground crossing; planning never emits a crossing event. */

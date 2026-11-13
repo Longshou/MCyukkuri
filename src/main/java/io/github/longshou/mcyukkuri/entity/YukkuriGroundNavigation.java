@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -288,12 +289,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         nodeEvaluator = new WalkNodeEvaluator() {
             private boolean keepDry, keepHome;
             private List<BlockPos> avoidedPit;
+            private final Long2ObjectOpenHashMap<PathType> pathTypes = new Long2ObjectOpenHashMap<>();
             @Override public void prepare(PathNavigationRegion region, Mob mob) {
                 super.prepare(region, mob);
                 keepDry = mob instanceof YukkuriEntity animal && Reactions.Weather.keepDry(animal);
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
                 setCanPassDoors(!(mob instanceof YukkuriEntity animal && TravelRange.staysBehindDoors(animal)));
                 avoidedPit = mob instanceof YukkuriEntity animal ? GroupPits.avoidedCells(animal) : List.of();
+            }
+            @Override public void done() {
+                pathTypes.clear();
+                super.done();
             }
             @Override public Node getStart(){
                 if(surveyStart!=null)return getStartNode(surveyStart);
@@ -323,6 +329,15 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 return best==null?start:getStartNode(best);
             }
             @Override protected PathType getCachedPathType(int x, int y, int z) {
+                long key = BlockPos.asLong(x, y, z);
+                var type = pathTypes.get(key);
+                if (type != null) return type;
+                type = pathType(x, y, z);
+                pathTypes.put(key, type);
+                return type;
+            }
+
+            private PathType pathType(int x, int y, int z) {
                 PathType type = super.getCachedPathType(x, y, z);
                 var feet=new Vec3(x+entityWidth*.5,y,z+entityDepth*.5);
                 if(mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,feet,feet))return PathType.FENCE;
