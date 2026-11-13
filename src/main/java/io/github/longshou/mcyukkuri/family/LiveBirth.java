@@ -30,6 +30,7 @@ import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -439,14 +440,15 @@ final class LiveBirth extends Choreography {
     private Intent site(){
         if(receiver instanceof Cabin)return null;
         var m=o.entity();var care=FamilyNest.care(m);var shelter=m.habitat().shelter();
+        BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(m.getUUID()):null;
         if(!live&&receiver instanceof Nest){
             var centre=FamilyNest.largeCentre(m);var brood=brood();
-            if(centre!=null&&brood!=null){
-                var stand=stemNestStand(m,brood,centre);
+            var support=BedContainer.of(m,bed);
+            if(centre!=null&&brood!=null&&support!=null){
+                var stand=stemNestStand(m,brood,centre,support);
                 if(stand!=null)return new GoTo("birth_site",m,stand.at(),now()+Math.max(NEST_GRACE,toTerm())).facing(stand.yaw());
             }
         }
-        BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(m.getUUID()):null;
         boolean helped=receiver instanceof PlacedHat&&catcher()!=null&&!self(),cushion=live&&care!=null&&!care.largeNest();
         Vec3 target=null;
         if((helped||cushion)&&bed!=null){if(m.distanceToSqr(Vec3.atBottomCenterOf(bed))<=4)target=leaveNest(m,bed,helped?"catcher":"one_body_cushion_nest");}
@@ -493,7 +495,7 @@ final class LiveBirth extends Choreography {
     private record StemStand(Vec3 at,float yaw,double error,double span,double tossSpan,double axisLength){}
 
     /** Centre the full-size fruit row on a long diagonal of the rounded square. Only the mother's stand is moved. */
-    private static StemStand stemNestStand(YukkuriEntity mother,FamilyData.Brood brood,Vec3 centre){
+    private static StemStand stemNestStand(YukkuriEntity mother,FamilyData.Brood brood,Vec3 centre,BedContainer support){
         var bed=NestResting.LARGE;
         double halfAxis=(bed.half()-bed.corner())*Math.sqrt(2)+bed.corner();
         var local=new ArrayList<Vec3>();
@@ -521,11 +523,15 @@ final class LiveBirth extends Choreography {
                 tossedLow=Math.min(tossedLow,along-radius-toss);tossedHigh=Math.max(tossedHigh,along+radius+toss);
             }
             Vec3 ideal=centre.subtract(axis.scale((high+low)*.5)).subtract(across.scale((right+left)*.5));
-            // If the centred row puts her feet on an unsupported lip, retain the axis and use the nearest reachable stand inward.
+            // The floor probe trims the body for terrain planning. A real walk can touch the higher rim with that trim
+            // or finish anywhere within the arrival tolerance, so require room for the whole body over the level pad.
             int steps=Math.max(1,(int)Math.ceil(ideal.distanceTo(centre)/Walk.STAND_ARRIVED));
             for(int i=0;i<=steps;i++){
                 Vec3 at=SurfaceApproach.restingFloor(mother,ideal.lerp(centre,i/(double)steps));
-                if(at==null)continue;
+                if(at==null||at.y!=support.floorY()||!support.standsInside(at.x-centre.x,at.z-centre.z,mother.getBbWidth()))continue;
+                double slack=SurfaceApproach.ARRIVAL;
+                var body=mother.getBoundingBox().move(at.subtract(mother.position())).inflate(slack,0,slack);
+                if(mother.level().getBlockCollisions(mother,body).iterator().hasNext())continue;
                 double error=at.subtract(ideal).horizontalDistance();
                 if(best!=null&&error>best.error()+1e-6)break;
                 double route=SurfaceApproach.at(mother,at)?0:SurfaceApproach.routeLength(mother,at,null);
