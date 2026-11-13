@@ -82,7 +82,7 @@ __VIEW_BUTTONS__
 <div id="info"></div>
 </div>
 <div class="grid" id="grid"></div>
-<footer>动作源：standards/yukkuri-library/motions/variants/lore。正面视图中 +X 显示在右侧，与 Minecraft 一致。生成于 __DATE__。离线页面只供查看动作，不代表游戏运行验收；游戏中可用 <code>/yukkuri action &lt;目标&gt; &lt;动作&gt;</code> 查看。</footer>
+<footer>动作源：standards/yukkuri-library/motions/variants/lore。正面视图中 +X 显示在左侧，与 Minecraft 一致。生成于 __DATE__。离线页面只供查看动作，不代表游戏运行验收；游戏中可用 <code>/yukkuri action &lt;目标&gt; &lt;动作&gt;</code> 查看。</footer>
 </main>
 <script>
 const PANELS=__PANELS__,RECIPE=__RECIPE__,FACE=__FACE__,ORDER=__ORDER__;
@@ -151,7 +151,7 @@ requestAnimationFrame(tick);
 </script></html>
 '''
 
-VIEWS = [('正面', 0, .12), ('右前', .5, .18), ('右侧', 1.5707963, .05), ('左侧', -1.5707963, .05), ('背面', 3.1415927, .12)]
+VIEWS = [('正面', 0, .12), ('右前', -.5, .18), ('右侧', -1.5707963, .05), ('左侧', 1.5707963, .05), ('背面', 3.1415927, .12)]
 
 
 def build(corrections):

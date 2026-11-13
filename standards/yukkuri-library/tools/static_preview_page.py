@@ -65,7 +65,7 @@ __VIEW_BUTTONS__
 <label><input id="sync" type="checkbox" checked> 同步旋转</label>
 </div>
 <div class="grid" id="grid"></div>
-<footer>拖动画面旋转，滚轮或滑块缩放；视角与缩放默认对所有模型同步。正面视图中 +X 显示在右侧，与素材库完整预览和 Minecraft 一致。生成于 __DATE__，来源导出（SHA-256 前 12 位）：<span id="sources"></span>。本页只供造型查看，不代表浏览器、Blockbench 或游戏运行验收。</footer>
+<footer>拖动画面旋转，滚轮或滑块缩放；视角与缩放默认对所有模型同步。正面视图中 +X 显示在左侧，与素材库完整预览和 Minecraft 一致。生成于 __DATE__，来源导出（SHA-256 前 12 位）：<span id="sources"></span>。本页只供造型查看，不代表浏览器、Blockbench 或游戏运行验收。</footer>
 </main>
 <script>
 const PANELS=__PANELS__;
