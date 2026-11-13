@@ -263,8 +263,8 @@ public final class YukkuriLife {
      *  when it is not asleep in its own graded bed. Not saved: a reloaded sleep reads its bed again at the next check. */
     private NestComfort.Read bedRead;
     public NestComfort.Read bedRead() { return bedRead; }
-    /** The last time it looked over its own bed on lying down, and whether it refused it then (NestComfort.settle). Not saved. */
-    private record BedLook(long tick, boolean refused) {}
+    /** The last bed it looked over on lying down, and whether it refused it then (NestComfort.settle). Not saved. */
+    private record BedLook(BlockPos bed, int grade, long tick, boolean refused) {}
     private BedLook bedLook;
     /** A look this recent is not repeated when it lies down again (woken and back, a nap after the night). */
     private static final int BED_LOOK_MEMORY = 6000;
@@ -904,10 +904,11 @@ public final class YukkuriLife {
         var bed = FamilyNest.care(entity);
         if (bed == null || !bed.getBlockPos().equals(targetBlock) || bed.grade() == 0) return false;
         long now = level().getGameTime();
-        boolean recent = bedLook != null && now - bedLook.tick() < BED_LOOK_MEMORY;
+        boolean recent = bedLook != null && bedLook.bed().equals(bed.getBlockPos())
+                && bedLook.grade() == bed.grade() && now - bedLook.tick() < BED_LOOK_MEMORY;
         if (recent && !bedLook.refused()) return false;
         var look = NestComfort.settle(entity, bed, recent, energy, entity.pet().lessons().practicing(PetSkill.BEDTIME));
-        bedLook = new BedLook(now, look.refused());
+        bedLook = new BedLook(bed.getBlockPos(), bed.grade(), now, look.refused());
         if (look.delay() == 0) return false;
         restWait = look.delay();
         targetBlock = null;
@@ -1140,14 +1141,15 @@ public final class YukkuriLife {
                 // A nest admits only a whole footprint inside it: rolling or being pushed onto the rim ends the sleep.
                 // Sampled once a second, not every tick, so a sleeping body costs no geometry work per tick.
                 var site = targetBlock != null ? targetBlock : entity.blockPosition();
-                var nestOccupancy = sleepTicks % 20 == 0 ? FamilyNest.bedOccupancy(entity, site) : null;
+                boolean sampleBed = sleepTicks % 20 == 0;
+                var nestOccupancy = sampleBed ? FamilyNest.bedOccupancy(entity, site) : null;
                 if (nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED) {
                     GameplayLog.limited(entity, "home", "nest_not_inside", 200,
                             "sleep stopped reason=nest_not_inside nest={} occupancy={} ticks={}", site, nestOccupancy, sleepTicks);
                     stopGoal(); break;
                 }
-                if (nestOccupancy != null) {
-                    var bed = FamilyNest.care(entity);
+                if (sampleBed) {
+                    var bed = nestOccupancy == null ? null : FamilyNest.care(entity);
                     bedRead = bed != null && bed.getBlockPos().equals(site) && bed.grade() > 0 ? NestComfort.read(entity, bed.grade()) : null;
                 }
                 if (sleepTicks == 20) {
