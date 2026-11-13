@@ -8,10 +8,9 @@ box. Uses the care-props software renderer; reads the current exported resources
     python preview_held.py [--topic oni-tools-v2] [--forms reimu,marisa,...]
 """
 import argparse
-import html
 import io
 import json
-import math
+import os
 import sys
 from pathlib import Path
 
@@ -137,17 +136,28 @@ def contact_tile(src_root, form, scale_of):
     return image
 
 
+PAGE = """<!doctype html><meta charset="utf-8"><title>鬼威惨工具 2：手持与身上的立体模型</title>
+<style>body{font-family:sans-serif;background:#e8e4da;margin:24px;color:#253c35}img{image-rendering:pixelated;max-width:100%}</style>
+<h1>鬼威惨工具 2：手持与身上的立体模型</h1>
+<p>剪刀类（理发器、裁剪刀、去势剪、两种剪茎剪刀）并入原版剪刀，加热锥子是锥子烧热后的样子。剩下八种工具：物品栏里仍是图标，
+手里换成同样配色的立体模型；大头针、振动器、鱼钩束缚时身上是同一个模型，固定台、吊带、铁箱按体型贴合并用同一套材质。</p>
+<p>请决定：手里的立体模型和身上的模型方向是否可用。</p>
+<h2>图标与手持模型（三视角）</h2><img src="hand.png">
+<h2>身上：各形态的大头针、振动器、吊带与铁箱（静止姿态）</h2><img src="contact.png">
+"""
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--topic', default='oni-tools-v2')
     parser.add_argument('--forms', default='')
     args = parser.parse_args()
-    out = ROOT / '.local/previews' / args.topic
+    out = Path(os.environ.get('MCYUKKURI_PREVIEWS', ROOT / '.local/previews')) / args.topic
     out.mkdir(parents=True, exist_ok=True)
     src = HeldSource(ROOT)
     hand_sheet(src).save(out / 'hand.png')
-    forms = [f for f in args.forms.split(',') if f] or sorted(json.loads((ASSETS / 'yukkuri_props/operations-index.json').read_text())
-                                                              and [p.stem[len('iron_enclosure_'):] for p in (ASSETS / 'yukkuri_props').glob('iron_enclosure_*.json')])
+    forms = [f for f in args.forms.split(',') if f] or sorted(p.stem[len('iron_enclosure_'):]
+                                                              for p in (ASSETS / 'yukkuri_props').glob('iron_enclosure_*.json'))
     tiles = []
     for form in forms:
         row = []
@@ -172,6 +182,7 @@ def main():
     for tile in tiles:
         sheet.paste(tile, (0, y)); y += tile.height + 4
     sheet.save(out / 'contact.png')
+    (out / 'index.html').write_text(PAGE, encoding='utf-8')
     print(f'Wrote {out / "hand.png"} and {out / "contact.png"} ({len(forms)} forms)')
 
 

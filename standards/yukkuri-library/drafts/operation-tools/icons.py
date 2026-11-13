@@ -1,8 +1,8 @@
 """Operation and abuse tools drawn as vanilla-style 16x16 item sprites (same look as care-props/supplies.py: flour paste etc.).
 
-These items use the plain item/generated path, so the sprite is the single art for GUI, hand (extruded), ground, item frames,
-the shop shelf and NPC hands. The in-world attachments (pin in the skin, hook, rotor, fitted restraint board, sling and iron box)
-stay meshes from build.py. Style: light from the top left, each material has its own hue-shifted ramp (dark -> light), the
+The sprite is the art for the GUI, the ground and item frames (and the cut hair lock everywhere); both hands show the 3D
+model from held.py, and the pin, hook and rotor on the body are the same model (see build.py). Cutting is vanilla shears;
+care_awl_hot is the awl's heated look. Style: light from the top left, each material has its own hue-shifted ramp (dark -> light), the
 outline is the darkest step of the material it bounds (no black), no anti-aliasing and no partial alpha. Tools lie on the
 vanilla tool diagonal: grip at the bottom left, working end at the top right. Shapes keep the Hakkei references of build.py
 (pink-headed pin, black drum hammer, wooden awl, red tailor shears, pink rotor, iron box); materials stay pre-modern.
