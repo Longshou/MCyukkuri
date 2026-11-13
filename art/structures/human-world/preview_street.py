@@ -8,7 +8,7 @@ of the main checkout (or MCYUKKURI_PREVIEWS); no source or runtime file is modif
 from pathlib import Path
 import argparse, html, os, shutil, sys
 import numpy as np
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw
 sys.path.insert(0, str(Path(__file__).parent))
 import preview_shop as ps
 import build, author_street as street
@@ -38,20 +38,21 @@ def mesh(a, layout, offset=(0, 0, 0), cut=None):
 
 
 def view(a, vertices, out, name, *args):
-    """A 3/4 render in true orientation (the shared renderer draws the mirror image: its screen right is the camera's left)."""
-    im = ImageOps.mirror(ps.render(a, vertices, out, name, *args).convert('RGB')); im.save(out / f'{name}.png'); return im
+    """A 3/4 render from the shared camera."""
+    im = ps.render(a, vertices, out, name, *args).convert('RGB')
+    im.save(out / f'{name}.png')
+    return im
 
 
 class Plan:
-    """A top-down map (north up, east right: the street at the top) with a cell -> pixel mapping for overlays. The renderer looks straight
-    down with +z up the screen; flipping that vertically gives the true map."""
+    """A top-down map (north up, east right) with a cell-to-pixel mapping for overlays."""
     def __init__(self, a, out, name, parts, cut, px=22, margin=2):
         xs = [o[0] + x for b, o in parts for x in (0, b.size[0])]; zs = [o[2] + z for b, o in parts for z in (0, b.size[2])]
         self.x0, self.x1, self.z0, self.z1 = min(xs) - margin, max(xs) + margin, min(zs) - margin, max(zs) + margin
         self.px = px; w = (self.x1 - self.x0) * px; h = (self.z1 - self.z0) * px
         cx, cz = (self.x0 + self.x1) / 2, (self.z0 + self.z1) / 2
         vertices = np.concatenate([mesh(a, b, (o[0] - cx, o[1], o[2] - cz), cut) for b, o in parts])
-        self.image = ImageOps.flip(ps.render(a, vertices, out, name, w, h, 0., 1.5707963, h / (2 * px), 0).convert('RGBA'))
+        self.image = ps.render(a, vertices, out, name, w, h, np.pi, np.pi / 2, h / (2 * px), 0).convert('RGBA')
         self.draw = ImageDraw.Draw(self.image, 'RGBA')
 
     def at(self, x, z):
