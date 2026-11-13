@@ -1310,6 +1310,7 @@ add('nest_grades', 'family', '三档宠物窝：贴墙变形，按自尊各有�
                        r'\[home\][^\n]*bed settle verdict=give_in[^\n]*grade=1',
                        r'\[home\][^\n]*bed settle verdict=uneasy[^\n]*grade=3',
                        r'\[sleep\] [^\n]*begin source=life[^\n]*reason=rest_time'],
+               forbid=[r'nest doorway too narrow', r'nest exit stopped reason=doorway_unreachable'],
                readout=[f'yukkuri status {sel(name)} raw' for name in _GRADE_PETS]),
     reads=[('读四只宠物的自尊、睡眠与不安来源', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24] raw')])
 
