@@ -15,7 +15,7 @@ catalog=json.loads((DATA/'preview-data.json').read_text(encoding='utf-8'))
 js=(ROOT/'art/source/standard-runtime/preview.js').read_text(encoding='utf-8')
 js=js.replace('textureSize:128','textureSize:model.texture_size||128')
 js=js.replace("const labels={","const labels={predator_fly:'振翅飞行',predator_dive:'俯冲',predator_land:'降落收翅',predator_bite:'咬取',")
-(OUT/'preview.js').write_text(js,encoding='utf-8')
+(OUT/'preview.js').write_text(js,encoding='utf-8',newline='\n')
 html=(ROOT/'art/source/standard-runtime/preview.html').read_text(encoding='utf-8')
 html=html.replace('../../../.local/previews/standard-runtime/preview-data.js','../../../.local/previews/predator-runtime/preview-data.js')
 start=html.index('<select id="subject">');end=html.index('</select>',start)
@@ -25,7 +25,7 @@ start=html.index('<p>');end=html.index('</p>',start)
 html=html[:start]+'<p>蕾米莉亚与弗兰。拖动旋转、滚轮缩放，可暂停逐帧查看飞行、俯冲与收翅。'+html[end:]
 start=html.index('<p class="note">');end=html.index('</p>',start)
 html=html[:start]+'<p class="note">本页使用当前游戏导出的三角面、混合骨骼绑定与动作数据。造型待用户确认；离线预览不代替游戏行为验收。'+html[end:]
-(OUT/'preview.html').write_text(html,encoding='utf-8')
+(OUT/'preview.html').write_text(html,encoding='utf-8',newline='\n')
 core=js[js.index('const clamp='):js.index('function groundVertices')]
 renderer=(ROOT/'standards/yukkuri-library/runtime/render.js').read_text(encoding='utf-8')
 views=[('front','idle',0,0,.12),('oblique','idle',0,.7,.2),('side','idle',0,1.5708,.12),('back','idle',0,3.14159,.18),

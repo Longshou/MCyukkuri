@@ -29,7 +29,7 @@ def save(path, value):
     data = json.dumps(value, ensure_ascii=False, indent=2 if pretty else None,
                       separators=None if pretty else (',', ':'), allow_nan=False)
     temporary = path.with_name(path.name+'.house-face.tmp')
-    temporary.write_text(data, encoding='utf-8')
+    temporary.write_text(data, encoding='utf-8', newline='\n')
     temporary.replace(path)
 
 

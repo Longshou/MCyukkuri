@@ -57,7 +57,7 @@ def main():
               'profiles': {'reimu': 'f1', 'marisa': 'f2'},
               'attribution': 'Original MCyukkuri melody; behavior inspired by documented おうた. Not an original-game recording.'}
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / 'recipe.json').write_text(json.dumps(recipe, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    (OUT / 'recipe.json').write_text(json.dumps(recipe, ensure_ascii=False, indent=2)+'\n', encoding='utf-8', newline='\n')
     preset = tool / 'AquesTalkPlayer.preset'
     rows = list(csv.reader(io.StringIO(preset.read_text(encoding='cp932'))))
     rows = [row for row in rows if not row[0].startswith('MCY-Ecology-')]
@@ -93,12 +93,12 @@ def main():
                        'master_sha256': digest(master), 'runtime_sha256': digest(runtime), 'duration_seconds': 8}
     manifest = {'recipe_sha256':digest(OUT/'recipe.json'),'tool_sha256':digest(tool/'AquesTalkPlayer.exe'),
                 'engine_sha256':{voice:digest(tool/f'aqtk1/{voice}/AquesTalk.dll') for voice in recipe['profiles'].values()},'clips':clips}
-    (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     # Merge at the final write so concurrent native-dialogue entries stay intact.
     sounds_path=ASSETS/'sounds.json'; sounds=json.loads(sounds_path.read_text(encoding='utf-8'))
     for name in recipe['profiles']:
         sounds['ecology.song.'+name]={'subtitle':'subtitles.mcyukkuri.ecology_song','sounds':[{'name':'mcyukkuri:ecology/'+name+'_song','attenuation_distance':12}]}
-    sounds_path.write_text(json.dumps(sounds,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    sounds_path.write_text(json.dumps(sounds,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('Original ecology songs exported; listening review pending')
 
 

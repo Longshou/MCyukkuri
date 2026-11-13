@@ -28,7 +28,7 @@ def read(path):
 
 def save(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':'))+'\n', encoding='utf-8')
+    path.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':'))+'\n', encoding='utf-8', newline='\n')
 
 
 def sha(path):
@@ -112,7 +112,7 @@ def render(models):
       if(vertices.some(x=>!Number.isFinite(x)))throw new Error(id+' '+action+' contains nonfinite posed coordinates');
       checks.push({id,action,phase:i/12,finite:true});
     }fs.writeFileSync(dir+'/pose-checks.json',JSON.stringify(checks));'''
-    (TMP/'render.cjs').write_text(code, encoding='utf-8')
+    (TMP/'render.cjs').write_text(code, encoding='utf-8', newline='\n')
     subprocess.run(['node', str(TMP/'render.cjs')], check=True)
     output = PACKAGE/'previews/current'
     output.mkdir(parents=True, exist_ok=True)

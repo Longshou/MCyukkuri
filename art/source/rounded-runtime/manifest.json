@@ -1,7 +1,7 @@
 {
   "version": 1,
   "exporter": "scripts/export_rounded_runtime.py",
-  "exporter_sha256": "4eddad6bb5f3e092e4a1503d088f6d57a1b99431ad9985ce724208b6bc341b36",
+  "exporter_sha256": "800079d2756134e208168b12a92aac19e08bb5d6a54f5e0a9f3d96416f0b0479",
   "standard_recipe": "standards/yukkuri-library/body-standard/recipe.json",
   "standard_recipe_sha256": "7806e426031917b35fec519c4caa1bcb585a265d55783fe769e68c7f9542dd9c",
   "models": {

@@ -36,7 +36,7 @@ def put(path,data):
 def put_json(path,value,pretty=False):
     text=json.dumps(value,ensure_ascii=False,indent=2 if pretty else None,separators=None if pretty else (',',':'),allow_nan=False)
     if CHECK:assert path.read_text(encoding='utf-8')==text,'Outdated predator export: '+relative(path)
-    else:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8')
+    else:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8',newline='\n')
 
 
 def export(ident):

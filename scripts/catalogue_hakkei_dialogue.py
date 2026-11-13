@@ -63,11 +63,11 @@ def build(original, mod):
         'files':files,'groups':groups,'entries':entries,'mod_files':mod_files,'mod_entries':additions,
         'boundary':'Mod TSVs are comparison references, excluded from native corpus and runtime selection. Inline Mod code dialogue is not exhaustively indexed.'}
     OUT.mkdir(parents=True,exist_ok=True)
-    (OUT/'catalogue-data.js').write_text('window.HAKKEI_DIALOGUE='+json.dumps(result,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
+    (OUT/'catalogue-data.js').write_text('window.HAKKEI_DIALOGUE='+json.dumps(result,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8',newline='\n')
     summary={k:v for k,v in result.items() if k not in ['entries','mod_entries','groups']}
     summary.update({'native_entries':len(entries),'native_groups':len(groups),'mod_entries':len(additions),
         'catalogue_sha256':sha(OUT/'catalogue-data.js')})
-    (OUT/'sources.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (OUT/'sources.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print(f'Indexed {len(entries)} native rows / {len(groups)} groups / {len(files)} files; {len(additions)} separate Mod TSV rows.')
 
 

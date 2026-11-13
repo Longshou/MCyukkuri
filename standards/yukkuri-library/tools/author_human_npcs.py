@@ -19,7 +19,7 @@ def export():
               'geometry':'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',
               'rig':'Minecraft HumanoidModel: head, hat, body, right_arm, left_arm, right_leg, left_leg; long_hair and mohawk parent=head',
               'texture_size':[64,64],'animation':'Native humanoid walking, head look and arm swing; resting pose override','textures':result}
-    p=LIB/'provenance/human-npcs.json';p.write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
-    p=ROOT/'art/source/human-runtime/manifest.json';p.write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
+    p=LIB/'provenance/human-npcs.json';p.write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8',newline='\n')
+    p=ROOT/'art/source/human-runtime/manifest.json';p.write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8',newline='\n')
     return result
 if __name__=='__main__':print(json.dumps(export()))

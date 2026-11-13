@@ -37,7 +37,7 @@ def main():
     # Replace a completed file on the same volume so readers never see a truncated ledger.
     pending=legacy.ROOT/'.local/bean-hair-export/runtime-sources.json'
     pending.parent.mkdir(parents=True,exist_ok=True)
-    pending.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(pending,ledger)
+    pending.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8',newline='\n');os.replace(pending,ledger)
     legacy.save(legacy.OWN/'hair-fit-manifest.json',{'status':'pending_user_confirmation','models':records,
         'recipe_sha256':legacy.sha(legacy.OWN/'recipes.json'),'exporter_sha256':legacy.sha(legacy.ROOT/'scripts/export_bean_assets.py')})
 

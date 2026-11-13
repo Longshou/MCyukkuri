@@ -39,12 +39,12 @@ def main(check=False):
     problems=checks.check_shop()+checks.check_street()
     if problems: raise SystemExit('Shop structure checks failed: '+'; '.join(problems))
     p=ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(exam.language('ja_jp'))
-    p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     for lang in ['zh_cn','en_us']:
         p=ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(language(lang=='zh_cn'))
-        p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     for id in ['oniisan','caretaker_brother','caretaker_sister']:
-        p=ROOT/f'src/main/resources/assets/mcyukkuri/models/item/{id}_spawn_egg.json';p.write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8')
+        p=ROOT/f'src/main/resources/assets/mcyukkuri/models/item/{id}_spawn_egg.json';p.write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8',newline='\n')
     patterns=['src/main/resources/data/mcyukkuri/structure/yukkuri_*.nbt','src/main/resources/data/mcyukkuri/worldgen/*/yukkuri_*.json',
               'src/main/resources/data/mcyukkuri/structure/village/*.nbt','src/main/resources/data/mcyukkuri/worldgen/template_pool/village/**/*.json',
               'src/main/resources/assets/mcyukkuri/textures/entity/human/*.png','standards/yukkuri-library/textures/human/*.png',
@@ -76,7 +76,7 @@ def main(check=False):
         recorded=previous['files'].get(relative)
         files[relative]=recorded if recorded and matches_fingerprint(p,content,recorded) else hashlib.sha256(content).hexdigest()
     data={'files':files}
-    manifest.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+    manifest.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('Human world: village shop, factory templates, NPC outfits and original products exported.')
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');main(parser.parse_args().check)

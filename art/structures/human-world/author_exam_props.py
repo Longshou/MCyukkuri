@@ -101,7 +101,7 @@ def mat(kind):
     return image(px)
 
 def write(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
 def write_bytes(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.is_file() or path.read_bytes() != data: path.write_bytes(data)

@@ -549,12 +549,12 @@ def export():
         data = {'name': f'mcyukkuri:{pool}', 'fallback': f'minecraft:village/{style}/streets', 'elements': [
             {'weight': 1, 'element': {'element_type': 'mcyukkuri:levelled', 'location': 'mcyukkuri:village/yukkuri_shop',
                                      'processors': 'minecraft:empty', 'projection': 'rigid'}}]}
-        path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
+        path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8', newline='\n')
     p=OUT/'tags/worldgen/biome/human_buildings.json';p.parent.mkdir(parents=True,exist_ok=True)
-    p.write_text(json.dumps({'replace':False,'values':['minecraft:plains','minecraft:sunflower_plains','minecraft:meadow','minecraft:savanna']},indent=2)+'\n',encoding='utf-8')
+    p.write_text(json.dumps({'replace':False,'values':['minecraft:plains','minecraft:sunflower_plains','minecraft:meadow','minecraft:savanna']},indent=2)+'\n',encoding='utf-8',newline='\n')
     p=OUT/'neoforge/biome_modifier/human_spawns.json'
-    p.write_text(json.dumps({'type':'neoforge:add_spawns','biomes':'#mcyukkuri:human_buildings','spawners':[{'type':'mcyukkuri:'+v,'weight':1,'minCount':1,'maxCount':1} for v in ['oniisan','caretaker_brother','caretaker_sister']]},indent=2)+'\n',encoding='utf-8')
-    (Path(__file__).parent/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    p.write_text(json.dumps({'type':'neoforge:add_spawns','biomes':'#mcyukkuri:human_buildings','spawners':[{'type':'mcyukkuri:'+v,'weight':1,'minCount':1,'maxCount':1} for v in ['oniisan','caretaker_brother','caretaker_sister']]},indent=2)+'\n',encoding='utf-8',newline='\n')
+    (Path(__file__).parent/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     return summary
 
 if __name__=='__main__': print(json.dumps(export(),ensure_ascii=False))

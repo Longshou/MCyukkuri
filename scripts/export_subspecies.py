@@ -19,7 +19,7 @@ from export_ecology_expressions import IDS as ECOLOGY_EXPRESSIONS
 def read(p): return json.loads(p.read_text(encoding='utf-8-sig'))
 def save(p, value):
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(value, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+    p.write_text(json.dumps(value, ensure_ascii=False, separators=(',', ':')), encoding='utf-8', newline='\n')
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def rel(p): return p.relative_to(ROOT).as_posix()
 

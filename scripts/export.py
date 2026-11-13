@@ -242,7 +242,7 @@ def run(row, check, logs):
             command += list(row['check'])
         logs.mkdir(parents=True, exist_ok=True)
         log = logs/(re.sub(r'[^a-zA-Z0-9_-]', '_', row['id'])+'.log')
-        with log.open('w', encoding='utf-8') as stream:
+        with log.open('w', encoding='utf-8', newline='\n') as stream:
             try:
                 environment = {**os.environ, 'PYTHONUTF8': '1', 'PYTHONDONTWRITEBYTECODE': '1'}
                 if 'pythonpath' in row:
@@ -434,8 +434,8 @@ def motion(args, rows):
         result = subprocess.run([sys.executable, 'scripts/pose_check.py', '--serve'], cwd=ROOT,
                                 input=''.join(json.dumps(r, allow_nan=False)+'\n' for r in requests),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-        (folder/'metrics.jsonl').write_text(result.stdout, encoding='utf-8')
-        (folder/'stderr.log').write_text(result.stderr, encoding='utf-8')
+        (folder/'metrics.jsonl').write_text(result.stdout, encoding='utf-8', newline='\n')
+        (folder/'stderr.log').write_text(result.stderr, encoding='utf-8', newline='\n')
         if result.returncode:
             print(f'{clip}/{model}: pose input/check error; see {folder}', flush=True)
             failed = 2

@@ -8,11 +8,11 @@
     "art/source/human-runtime/textures/oniisan.png": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd",
     "art/source/human-runtime/textures/shopkeeper.png": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40",
     "art/source/human-runtime/textures/sister.png": "b381308c3a3d19c60935c977100cab1e584c8231f982f77a067a382d364147c2",
-    "art/structures/human-world/author_exam_props.py": "f4f755be70fb2c8c802a064122e1dffeaac17730f0a5870ba0a435e3393a7049",
-    "art/structures/human-world/author_pipeline.py": "3e77a874fb0580006cd297da0246e0a38856daeb4d938b0fb79210f436b0ef2e",
-    "art/structures/human-world/author_products.py": "dedf1369c25d78805f9f62d618bfb6a8870ecd9ce62b9b6eb994a5fd96325958",
+    "art/structures/human-world/author_exam_props.py": "f0da921b153e6b80e5597af4024aa69d7c6f9ddcd128859ab31f9b2a08ae7692",
+    "art/structures/human-world/author_pipeline.py": "8aef7bc68cc542a0fbc9bcbcfc909d55b14a9e37567d701888e93d3bdfc65e10",
+    "art/structures/human-world/author_products.py": "f6deffdd1f8c7f27acccdebe679b534216cfd4bff97d584a9da119cac32ec5a8",
     "art/structures/human-world/author_street.py": "6b1bd2c799978abe50bbb8e7a86219376d6e8e9563256a0335e8dbad1a81ad89",
-    "art/structures/human-world/build.py": "ed37401f2d102fc10379d86e6e9663f4e6b3d1d9ae1406c4b5c16e888e6ea144",
+    "art/structures/human-world/build.py": "af6fe12a2a7bbd2341cf2fa22f377e670ce1c9336f70f71ae9ed8933e38a791a",
     "art/structures/human-world/check_structure.py": "8f2d5817fbf6947f2bad96b5b105584fc5c8898c0de8ea206fa198dd40f6e47a",
     "art/structures/human-world/language.json": "2f269c498f82658fdcd3476280db0704216e1a7e59aa96cce11ab7454e5d000a",
     "art/structures/human-world/pipeline_language.py": "1c9b9574d5fbeeecbe56998dead294b296a843a0967abe60938304d07035ebe5",
@@ -45,7 +45,7 @@
     "art/structures/human-world/products/silver_yukkuri_badge.png": "db37e04b6b296858c0d7fa224720f454159608b579feff16169ef47bea23c54d",
     "art/structures/human-world/products/workshop_casing.png": "0432bdd3a0f2974d4659cb38f1c924bb043c3f1c7d56544abb362242539168af",
     "art/structures/human-world/products/yukkuri_manju.png": "89b8b0cf0b695a55fce265ab367828df4e6c7f4df905ecbc0b8529f0eee42981",
-    "scripts/export_human_world.py": "627ae3202aff74c9be6e5484e39146a8b1a600da24bcb474a197ddc14d841564",
+    "scripts/export_human_world.py": "be9dfad705ff51034bef878af82f391e5732b9e59ff606a636f3e1a5c7b7c558",
     "src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java": "3f547f8211e0cb53559cc15bad0b6b7f6adb3a5f79a4352295c5f9ca09f8c5c3",
     "src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java": "e0ac3eefe7e240f4e0623c54b413664f9807614d4a1d2ff4715a572897ebfc35",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamHideBoxBlock.java": "02e9f81a891650134db2f4dc7138977f5b6eaee5069d779cca9b7f4249abe7a6",
@@ -166,7 +166,7 @@
     "standards/yukkuri-library/textures/human/oniisan.png": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd",
     "standards/yukkuri-library/textures/human/shopkeeper.png": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40",
     "standards/yukkuri-library/textures/human/sister.png": "b381308c3a3d19c60935c977100cab1e584c8231f982f77a067a382d364147c2",
-    "standards/yukkuri-library/tools/author_human_npcs.py": "2a94ba6ffe76b40982594c9c3ed808da61ac0b588192093d1805e0688e99b5b0",
+    "standards/yukkuri-library/tools/author_human_npcs.py": "38bc02ed8f852f96893796d9022a95a7aec19115abf63b0f6b681d2fcff12610",
     "standards/yukkuri-library/tools/author_staff_skins.py": "9913d7624b4aa5eee66a60e25ea187dd303108876ff00feab7dc886a1bd08634"
   }
 }

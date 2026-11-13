@@ -9,7 +9,7 @@ ART=Path(__file__).parent/'products'
 ASSET=ROOT/'src/main/resources/assets/mcyukkuri'
 NAMES=['factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray']
 def write(path,data):
-    path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 def write_bytes(path,data):
     path.parent.mkdir(parents=True,exist_ok=True)
     if not path.is_file() or path.read_bytes()!=data:path.write_bytes(data)

@@ -12,7 +12,7 @@ def read(p):return json.loads(p.read_text(encoding='utf-8'))
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def save(p,d,pretty=False):
     p.parent.mkdir(parents=True,exist_ok=True)
-    p.write_text(json.dumps(d,ensure_ascii=False,indent=2 if pretty else None,separators=None if pretty else (',',':'),allow_nan=False),encoding='utf-8')
+    p.write_text(json.dumps(d,ensure_ascii=False,indent=2 if pretty else None,separators=None if pretty else (',',':'),allow_nan=False),encoding='utf-8',newline='\n')
 def rel(p):return p.relative_to(ROOT).as_posix()
 def flatten(rig,names):
     return {key:{'duration':c['duration'],'loop':c['loop'],'tracks':[

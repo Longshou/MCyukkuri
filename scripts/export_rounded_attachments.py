@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 OUT=ROOT/'art/source/rounded-runtime'
 def read(p):return json.loads(p.read_text(encoding='utf-8'))
-def save(p,d):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+def save(p,d):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 def bounds(v):return [[min(v[k::8]),max(v[k::8])]for k in range(3)]
 def part(model,name):
     p=next(p for p in model['parts']if p['name']==name)

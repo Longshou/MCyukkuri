@@ -170,7 +170,7 @@ def main():
         # Legacy clips inherited these global hashes. Keep that provenance unchanged; newly
         # synthesized clips carry their own hashes and subsequent cache checks prefer them.
         manifest = prior | {'clips':clips}
-    (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     cards = [card(line) for line in source['lines'] if line['id'] in clips]
     page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>油库里对白 · AquesTalk 试听</title>
 <style>body{font:16px/1.6 system-ui;background:#f4f0e6;color:#29271f;margin:32px auto;max-width:1100px;padding:0 20px}input{padding:12px;width:90%;font:inherit}#clips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}article{padding:18px;background:#fffdf5;border:1px solid #d4cbbc;border-radius:8px}p{margin:8px 0}small{display:block;color:#71634d}audio{width:100%;margin-top:12px}</style>
@@ -179,7 +179,7 @@ def main():
 document.getElementById('search').addEventListener('input',e=>{for(const card of document.querySelectorAll('article'))card.hidden=!card.textContent.toLowerCase().includes(e.target.value.toLowerCase())});
 document.addEventListener('play',e=>{if(e.target.tagName==='AUDIO')for(const a of document.querySelectorAll('audio'))if(a!==e.target)a.pause()},true);
 </script></html>'''
-    (OUT/'index.html').write_text(page,encoding='utf-8')
+    (OUT/'index.html').write_text(page,encoding='utf-8',newline='\n')
     print(f'Processed {len(selected)} selected lines; manifest contains {len(clips)} clips. Run scripts/export_dialogue.py to install them.')
 
 

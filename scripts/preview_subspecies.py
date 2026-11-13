@@ -21,7 +21,7 @@ for ident,record in manifest['models'].items():
 (TMP/'catalog.json').write_text(json.dumps(catalog,separators=(',',':')),encoding='utf-8')
 js=(ROOT/'art/source/standard-runtime/preview.js').read_text(encoding='utf-8').replace('textureSize:128','textureSize:model.texture_size||128')
 js=js.replace("const labels={","const labels={still:'静止',shell_sway:'壳体轻摆',shell_retract:'缩壳探出',fur_sway:'鬓毛轻摆',")
-(OUT/'preview.js').write_text(js,encoding='utf-8')
+(OUT/'preview.js').write_text(js,encoding='utf-8',newline='\n')
 html=(ROOT/'art/source/standard-runtime/preview.html').read_text(encoding='utf-8')
 html=html.replace('../../../.local/previews/standard-runtime/preview-data.js','../../../.local/previews/subspecies-runtime/preview-data.js')
 labels={'marisa_tsumuri':'螺壳魔理沙','reimu_wasa':'多毛灵梦','reimu_sparse':'灵梦 · 稀疏毛发','reimu_face':'灵梦 · 面部不足','reimu_bean':'灵梦 · 豆形细长','marisa_sparse':'魔理沙 · 稀疏毛发','marisa_face':'魔理沙 · 面部不足','marisa_bean':'魔理沙 · 豆形细长'}
@@ -34,7 +34,7 @@ start=html.index('<p>');end=html.index('</p>',start)
 html=html[:start]+'<p>螺壳复用已有确认造型。其余为待确认适配。拖动旋转、滚轮缩放，可暂停检查动作。'+html[end:]
 start=html.index('<p class="note">');end=html.index('</p>',start)
 html=html[:start]+'<p class="note">使用本轮运行三角面、骨架和贴图。生长、乘船和受伤以真实客户端验收为准。'+html[end:]
-(OUT/'preview.html').write_text(html,encoding='utf-8')
+(OUT/'preview.html').write_text(html,encoding='utf-8',newline='\n')
 core=js[js.index('const clamp='):js.index('function groundVertices')]
 renderer=(ROOT/'standards/yukkuri-library/runtime/render.js').read_text(encoding='utf-8')
 views=[('front','idle',0,0,.08),('oblique','idle',0,.7,.16),('side','idle',0,1.5708,.10),('back','idle',0,3.14159,.14),('walk','waddle',.2,.6,.14),('bend','side_bend',.7,.65,.12)]

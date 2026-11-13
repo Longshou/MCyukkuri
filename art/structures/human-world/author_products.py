@@ -8,7 +8,7 @@ from PIL import Image,ImageDraw
 from asset_export_checks import preserve_equivalent_png
 ART=Path(__file__).parent/'products'
 ASSET=ROOT/'src/main/resources/assets/mcyukkuri'
-def write(path,data):path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+def write(path,data):path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8',newline='\n')
 def write_bytes(path,data):
     path.parent.mkdir(parents=True,exist_ok=True)
     if not path.is_file() or path.read_bytes()!=data:path.write_bytes(data)

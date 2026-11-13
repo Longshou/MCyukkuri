@@ -35,7 +35,7 @@ def read(path):
 def save(path, value, *, pretty=False):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2 if pretty else None,
-                               separators=None if pretty else (',', ':'), allow_nan=False), encoding='utf-8')
+                               separators=None if pretty else (',', ':'), allow_nan=False), encoding='utf-8', newline='\n')
 
 
 def fingerprint(path):
