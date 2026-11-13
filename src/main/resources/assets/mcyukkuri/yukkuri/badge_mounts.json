@@ -485,7 +485,7 @@
       "diameter": 0.09375
     },
     "marisa_kotatsu": {
-      "model_sha256": "30dfa1a81299960f87149cfa1655c59455b8bfe1acb31b6a92191f0809f4d032",
+      "model_sha256": "cbcd8df19828d2da1a438328c3492d327d14f3515d247c8fb08bdb3b734c5007",
       "part": "brim_front",
       "triangle": 13977,
       "weights": [

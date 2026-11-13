@@ -26,11 +26,11 @@
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
   "braid_rescue_author_sha256": "f076bc22f9d8e17051182f318b7eee96b58d2622b355caadc278ee2a384cc244",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "98ff9ee119d2a2358b27980857835fa9d9f1a8bd95635abd9ccb139d5eaa9b53",
+  "braid_rescue_geometry_sha256": "c3ba5ecc71059583b7f614332e1b101205319f8857d30ef3042e63b6c86c6fb3",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "6f4c6d43ab74174a1d0222ac0291ea61bd6966a06b71874204a5b4879c583de3",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "1e081dd3dff626236205ed9b0f143c2ca17ca384e5dd05f1b9591d097f27724d",
+  "placement_fit_sha256": "fcabd1c5ebbf0f4397c23fb05bca7eef3cfab025551fb697e13f17c8dfc85fed",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
   "runtime_sha256": "edde279311b3f8ea9da7d65bd6389ac8c070054bb91420bc43a1449712fe050e",
   "models": {
@@ -196,7 +196,7 @@
     },
     "marisa_kotatsu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "sha256": "30dfa1a81299960f87149cfa1655c59455b8bfe1acb31b6a92191f0809f4d032",
+      "sha256": "cbcd8df19828d2da1a438328c3492d327d14f3515d247c8fb08bdb3b734c5007",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/angry.png",

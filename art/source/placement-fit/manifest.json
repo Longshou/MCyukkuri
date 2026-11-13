@@ -1809,7 +1809,7 @@
     },
     "marisa_kotatsu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "base_sha256": "30dfa1a81299960f87149cfa1655c59455b8bfe1acb31b6a92191f0809f4d032",
+      "base_sha256": "cbcd8df19828d2da1a438328c3492d327d14f3515d247c8fb08bdb3b734c5007",
       "derived_from": "marisa",
       "parts": [
         "crown",
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "1e081dd3dff626236205ed9b0f143c2ca17ca384e5dd05f1b9591d097f27724d"
+  "runtime_sha256": "fcabd1c5ebbf0f4397c23fb05bca7eef3cfab025551fb697e13f17c8dfc85fed"
 }
