@@ -22,15 +22,18 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -66,8 +69,8 @@ public final class ShopStaff {
         ItemEntity loose;
         final Set<BlockPos> tried = new HashSet<>();
         BlockPos approach;
-        boolean askedWay;
-        int leg, stall, timer; double best = Double.MAX_VALUE;
+        int leg, stall, timer, waypoint = -1;
+        double best = Double.MAX_VALUE;
         Job(UUID staff, UUID shop, Kind kind) { this.staff = staff; this.shop = shop; this.kind = kind; }
     }
     private static final class HatchApproach implements PetLife.Director, MotorOwner {
@@ -92,8 +95,9 @@ public final class ShopStaff {
     private static final Map<UUID, Job> JOBS = new HashMap<>();
     /** Animals and blocks a staff member could not reach: nobody tries them again before the deadline (transient, at most 64 keys). */
     private static final DeadlineMap<Object> UNREACHABLE = new DeadlineMap<>();
-    /** Ticks a leg may take, ticks without getting closer, ticks of handling at reach, and how long an unreachable target is left alone. */
-    private static final int LEG = 600, STALL = 140, WORK = 16, RETRY = 1200, BLOCKED = 20;
+    /** Keep the full leg budget. A stalled route gets a second to clear after each short request to step aside. */
+    private static final int LEG = 600, BLOCKED = 20, STALL = 3 * BLOCKED, WORK = 16, RETRY = 1200;
+    private static final int MAX_APPROACHES = 8;
     /** A bowl holding fewer portions than this is refilled with one serving of regular grain. */
     private static final int BOWL_LOW = 2, SERVING = 4;
     /** Hand's reach from the staff member's feet to the target's centre, with a clear line from its eyes. */
@@ -120,8 +124,9 @@ public final class ShopStaff {
         if (shop == null) return;
         ShopRestock.tick(level, shop);
         reviewOrders(level, shop);
+        if (staff.isTrading() || staff.hurtTime > 0) return;
         if (resume(level, staff, shop)) return;
-        if (staff.isTrading() || staff.resting() || staff.hurtTime > 0 || !staff.getMainHandItem().isEmpty()) return;
+        if (staff.resting() || !staff.getMainHandItem().isEmpty()) return;
         pick(level, staff, shop);
     }
 
@@ -265,13 +270,24 @@ public final class ShopStaff {
         if (job == null || !(staff.level() instanceof ServerLevel level)) return;
         var shop = ShopRegistry.get(level).shop(job.shop);
         if (shop == null || shop.closed()) { end(staff, job, "shop_closed"); return; }
-        if (staff.hurtTime > 0) { staff.getNavigation().stop(); return; } // it flinches, then goes on
+        if (staff.isTrading() || staff.hurtTime > 0) {
+            if (job.approach != null || !staff.getNavigation().isDone()) interrupt(staff);
+            return;
+        }
         if (++job.leg > LEG) { fail(level, staff, shop, job, "leg_timeout"); return; }
         switch (job.phase) {
             case GO -> go(level, staff, shop, job);
             case WORK -> work(level, staff, shop, job);
             case CARRY -> carry(level, staff, shop, job);
         }
+    }
+
+    /** Keep the job and anything in hand while a player opens the menu or another goal briefly takes movement. */
+    public static void interrupt(HumanNpc staff) {
+        var job = JOBS.get(staff.getUUID());
+        if (job == null) return;
+        staff.getNavigation().stop();
+        clearApproach(job);
     }
 
     private static YukkuriEntity animal(ServerLevel level, Job job) {
@@ -323,7 +339,7 @@ public final class ShopStaff {
         staff.getLookControl().setLookAt(point.x, point.y, point.z, 30, 30);
         if (!reaches(staff, point, block)) { walk(level, staff, shop, job, point); return; }
         staff.getNavigation().stop();
-        job.phase = Phase.WORK; job.timer = 0;
+        job.phase = Phase.WORK;
         staff.swing(InteractionHand.MAIN_HAND);
         if (y != null) {
             y.life().wakeForService(); // a sleeping animal is woken: the order or the move goes on
@@ -363,7 +379,11 @@ public final class ShopStaff {
         if (why != null) { end(staff, job, why); return; }
         var y = animal(level, job);
         Vec3 point = job.loose != null ? job.loose.position() : y != null ? centre(y) : job.target.getCenter();
-        if (!reaches(staff, point, job.loose != null || y != null ? null : job.target)) { job.phase = Phase.GO; return; } // it moved out of reach
+        if (!reaches(staff, point, job.loose != null || y != null ? null : job.target)) {
+            job.phase = Phase.GO;
+            clearApproach(job);
+            return;
+        }
         staff.getNavigation().stop();
         staff.getLookControl().setLookAt(point.x, point.y, point.z, 30, 30);
         if (++job.timer < WORK) return;
@@ -431,8 +451,9 @@ public final class ShopStaff {
     }
 
     private static void carryTo(Job job, BlockPos where) {
-        job.phase = Phase.CARRY; job.target = where; job.leg = 0; job.stall = 0; job.best = Double.MAX_VALUE;
-        job.tried.clear(); job.approach = null; job.pursued = null; job.askedWay = false;
+        job.phase = Phase.CARRY; job.target = where; job.leg = 0; job.timer = 0;
+        job.tried.clear(); job.pursued = null;
+        clearApproach(job);
     }
     /** The free nest for the held basket, else the arrivals barrel to wait there for one. */
     private static BlockPos destinationOr(ServerLevel level, ShopRegistry.Entry shop, HumanNpc staff) {
@@ -471,6 +492,7 @@ public final class ShopStaff {
             end(staff, job, "stored");
             return;
         }
+        if (job.kind == Kind.CLEAN) { fail(level, staff, shop, job, "no_destination"); return; }
         if (shop.legacy() && job.target.equals(shop.counter())) {
             if (ShopRegistry.releaseBasketNear(level, job.token, staff.blockPosition(), false) == null) {
                 fail(level, staff, shop, job, "set_down_blocked"); return;
@@ -495,49 +517,88 @@ public final class ShopStaff {
         end(staff, job, "released");
     }
 
-    /** Walks toward the point; a block target is approached on a free floor cell beside it (never by climbing onto a barrel or into a bowl). */
+    /** The active path owns progress around corners. Distance to the faraway work site can increase on a good route. */
     private static void walk(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, Vec3 point) {
         var target = BlockPos.containing(point);
+        var navigation = staff.getNavigation();
         if (job.pursued == null || job.pursued.distSqr(target) > 4) {
             job.pursued = target;
             job.tried.clear();
+            navigation.stop();
+            clearApproach(job);
         }
-        double d = staff.position().distanceToSqr(job.approach == null ? point : Vec3.atBottomCenterOf(job.approach));
-        if (d < job.best - .25) { job.best = d; job.stall = 0; } else job.stall++;
-        if (job.stall > BLOCKED && !job.askedWay) {
-            job.askedWay = true;
-            for (var y : level.getEntitiesOfClass(YukkuriEntity.class, staff.getBoundingBox().inflate(.6, 0, .6), YukkuriEntity::isAlive))
-                if (YukkuriGroundNavigation.giveWay(y, staff))
-                    GameplayLog.limited(staff, "shop", "give_way", 100, "action=job result=asked_way kind={} animal={}", job.kind, y.getUUID());
+        LivingEntity obstruction = null;
+        if (job.approach != null && !navigation.isDone()) {
+            var path = navigation.getPath();
+            var toward = path.getNextEntityPos(staff);
+            int next = path.getNextNodeIndex();
+            double distance = staff.position().distanceTo(toward);
+            if (next != job.waypoint || distance < job.best - .08) {
+                job.waypoint = next;
+                job.best = distance;
+                job.stall = 0;
+            } else job.stall++;
+            if (job.stall > 0 && job.stall % BLOCKED == 0) {
+                obstruction = blocker(level, staff, toward);
+                if (obstruction instanceof YukkuriEntity animal && ShopTrade.stockOf(animal, shop.id)
+                        && YukkuriGroundNavigation.giveWay(animal, staff, toward))
+                    GameplayLog.limited(staff, "shop", "give_way", 100, "action=job result=asked_way kind={} animal={} waypoint={}",
+                            job.kind, animal.getUUID(), path.getNextNodePos().toShortString());
+            }
+            if (job.stall < STALL) return;
         }
-        if (job.approach != null && job.stall <= STALL && !staff.getNavigation().isDone()) return;
         if (!staff.onGround() && !staff.isInWater()) return;
-        if (job.approach != null) staff.getNavigation().stop();
-        job.approach = null;
-        job.stall = 0; job.best = Double.MAX_VALUE; job.askedWay = false;
+        var previous = job.approach;
+        navigation.stop();
+        clearApproach(job);
+        boolean detourToSameStand = obstruction != null && previous != null && !job.tried.contains(previous);
+        if (previous != null) job.tried.add(previous);
+        if (job.tried.size() >= MAX_APPROACHES) { fail(level, staff, shop, job, "unreachable"); return; }
         boolean counter = job.phase == Phase.CARRY && job.kind == Kind.BUY;
-        var candidates = new ArrayList<BlockPos>();
+        var touched = job.phase == Phase.CARRY || job.loose == null && job.animal == null ? job.target : null;
+        var candidates = new LinkedHashSet<BlockPos>();
         for (var cell : BlockPos.withinManhattan(target, 2, 1, 2)) {
             if (!level.hasChunkAt(cell)) continue;
             var stand = Vec3.atBottomCenterOf(cell);
-            if (counter && !atCounter(stand, point) || job.tried.contains(cell)
-                    || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), net.minecraft.core.Direction.UP)) continue;
+            if (counter && !atCounter(stand, point) || job.tried.contains(cell) && !(detourToSameStand && cell.equals(previous))
+                    || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) continue;
             var box = staff.getBoundingBox().move(stand.subtract(staff.position()));
-            if (!level.noCollision(staff, box) || !level.getEntities(staff, box, e -> e instanceof net.minecraft.world.entity.LivingEntity living && living.isAlive()).isEmpty()) continue;
-            if (!counter && !reaches(staff, stand, point, job.loose == null && job.animal == null || job.phase == Phase.CARRY ? job.target : null)) continue;
+            if (!level.noCollision(staff, box)
+                    || !level.getEntitiesOfClass(LivingEntity.class, box, e -> e != staff && e.isAlive() && !e.isSpectator()).isEmpty()) continue;
+            if (!counter && !reaches(staff, stand, point, touched)) continue;
             candidates.add(cell.immutable());
         }
-        candidates.sort(java.util.Comparator.comparingDouble(cell -> cell.distToCenterSqr(staff.position())));
-        for (var cell : candidates) {
-            if (job.tried.size() >= 8) break;
-            job.tried.add(cell);
-            var path = staff.shopPath(cell);
-            if (path != null && path.canReach() && staff.getNavigation().moveTo(path, SPEED)) {
-                job.approach = cell;
-                return;
-            }
+        var path = candidates.isEmpty() ? null : staff.shopPath(candidates, obstruction == null ? null : obstruction.getBoundingBox());
+        if (path != null && path.canReach() && navigation.moveTo(path, SPEED)) {
+            job.approach = path.getTarget();
+            if (obstruction != null)
+                GameplayLog.limited(staff, "shop", "carry_detour", 100, "action=job result=detour kind={} phase={} blocker={} stand={}",
+                        job.kind, job.phase, obstruction.getUUID(), job.approach.toShortString());
+            return;
         }
+        if (obstruction != null && job.kind == Kind.CLEAN && job.phase == Phase.CARRY)
+            GameplayLog.limited(staff, "shop", "waste_blocked", 100,
+                    "action=dispose_waste result=route_blocked blocker={} barrel={}", obstruction.getUUID(), job.target.toShortString());
         fail(level, staff, shop, job, "unreachable");
+    }
+
+    private static void clearApproach(Job job) {
+        job.approach = null;
+        job.waypoint = -1;
+        job.stall = 0;
+        job.best = Double.MAX_VALUE;
+    }
+
+    /** Look for a real body in the next pace, including one already pressing into the walker. */
+    private static LivingEntity blocker(ServerLevel level, HumanNpc staff, Vec3 toward) {
+        var direction = toward.subtract(staff.position()).multiply(1, 0, 1);
+        if (direction.lengthSqr() < 1e-6) return null;
+        var step = direction.normalize().scale(Math.min(staff.getBbWidth(), direction.length()));
+        var body = staff.getBoundingBox();
+        var ahead = body.move(step);
+        return level.getEntitiesOfClass(LivingEntity.class, body.expandTowards(step),
+                        e -> e != staff && e.isAlive() && !e.isSpectator() && e.getBoundingBox().intersects(ahead))
+                .stream().min(java.util.Comparator.comparingDouble(staff::distanceToSqr)).orElse(null);
     }
 
     private static boolean atCounter(Vec3 stand, Vec3 counter) {

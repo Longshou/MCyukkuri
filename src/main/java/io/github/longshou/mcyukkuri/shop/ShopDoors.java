@@ -45,12 +45,18 @@ public final class ShopDoors {
 
     public static void enter(HumanNpc staff, BlockPos at) {
         if (!(staff.level() instanceof ServerLevel level)) return;
-        leave(staff);
         var door = new Door(level, leaves(level, at));
+        if (door.equals(STAFF.get(staff.getUUID()))) return;
+        leave(staff);
         STAFF.put(staff.getUUID(), door);
         PASSING.computeIfAbsent(door, key -> new HashSet<>()).add(staff.getUUID());
         ShopRegistry.get(level).openedDoors(level, door.leaves());
         set(door, staff, true);
+    }
+
+    public static boolean holds(HumanNpc staff, BlockPos at) {
+        var door = STAFF.get(staff.getUUID());
+        return at != null && door != null && door.leaves().contains(at);
     }
 
     public static void leave(HumanNpc staff) {

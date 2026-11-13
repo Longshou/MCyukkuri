@@ -638,6 +638,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
+    private static final double YIELD_PACE = .16;
 
     /**
      * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
@@ -649,19 +650,32 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 side = right(heading);
         double away = Math.signum((body.getX() - other.getX()) * side.x + (body.getZ() - other.getZ()) * side.z);
         if (away == 0) away = 1;
-        return Motor.move(body, new Vec3(side.x * away * .16, 0, side.z * away * .16), "give_way").lengthSqr() > 1e-6;
+        return Motor.move(body, side.scale(away * YIELD_PACE), "give_way").lengthSqr() > 1e-6;
     }
 
     /**
-     * A person held up by this body (shop staff squeezing past it in a doorway or aisle) asks it to make way: an idle, awake body takes the
-     * same short pace off the person's line as for another yukkuri. True when it really moved.
+     * Shop stock can give a worker the same short pace as a peer, including while walking toward a bowl.
+     * Check both sides of the worker's current line for a clear, supported place to step.
      */
-    public static boolean giveWay(YukkuriEntity blocker, Entity walker) {
-        if (!blocker.getNavigation().isDone() || blocker.isCommandPlaying() || blocker.operations().active()
-                || blocker.life().isSleeping() || !blocker.nudgeable()) return false;
-        var heading = new Vec3(blocker.getX() - walker.getX(), 0, blocker.getZ() - walker.getZ());
-        if (heading.lengthSqr() < 1e-6) return false;
-        return stepAside(blocker, walker, heading.normalize());
+    public static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 toward) {
+        if (blocker.isNoAi() || blocker.isCommandPlaying() || blocker.operations().active() || blocker.life().isSleeping()
+                || !blocker.nudgeable() || blocker.isPanicking() || blocker.pet().busy() || blocker.life().protectsStep()) return false;
+        var line = toward.subtract(walker.position()).multiply(1, 0, 1);
+        if (line.lengthSqr() < 1e-6) return false;
+        var side = right(line.normalize());
+        if (blocker.position().subtract(walker.position()).dot(side) < 0) side = side.reverse();
+        // Check the space needed to pass, then take one pace toward it.
+        double clearance = (walker.getBbWidth() + blocker.getBbWidth()) / 2 + .1;
+        for (var direction : List.of(side, side.reverse())) {
+            double distance = clearance - blocker.position().subtract(walker.position()).dot(direction);
+            if (distance <= 0) continue;
+            var stand = blocker.position().add(direction.scale(distance));
+            if (!SurfaceApproach.clearLastStep(blocker, stand) || !blocker.level().noCollision(blocker,
+                    blocker.getBoundingBox().move(stand.subtract(blocker.position())))) continue;
+            SurfaceApproach.stopWalking(blocker);
+            return Motor.move(blocker, direction.scale(Math.min(distance, YIELD_PACE)), "give_way").lengthSqr() > 1e-6;
+        }
+        return false;
     }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */

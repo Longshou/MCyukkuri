@@ -26,6 +26,7 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
@@ -180,25 +181,48 @@ public final class HumanNpc extends PathfinderMob {
         return new HumanNavigation(level);
     }
 
-    public Path shopPath(BlockPos stand) { return ((HumanNavigation) getNavigation()).shopPath(stand); }
+    public Path shopPath(BlockPos stand) { return shopPath(Set.of(stand), null); }
+
+    public Path shopPath(Set<BlockPos> stands, AABB blocker) {
+        return ((HumanNavigation) getNavigation()).shopPath(stands, blocker);
+    }
 
     private final class HumanNavigation extends GroundPathNavigation {
+        private AABB shopBlocker;
+
         private HumanNavigation(Level level) { super(HumanNpc.this, level); }
 
         @Override public Path createPath(BlockPos target, int accuracy) {
-            return ShopStaff.active(HumanNpc.this) && accuracy == 0 ? shopPath(target) : super.createPath(target, accuracy);
+            return ShopStaff.active(HumanNpc.this) && accuracy == 0
+                    ? shopPath(Set.of(target), null) : super.createPath(target, accuracy);
         }
 
-        private Path shopPath(BlockPos stand) {
+        private Path shopPath(Set<BlockPos> stands, AABB blocker) {
             // A route between opposite rooms can be longer than the ordinary NPC follow range.
             float range = TravelRange.PATH_RANGE;
             setMaxVisitedNodesMultiplier(range / (float) HumanNpc.this.getAttributeValue(Attributes.FOLLOW_RANGE));
-            try { return createPath(java.util.Set.of(stand), 8, false, 0, range); }
-            finally { resetMaxVisitedNodesMultiplier(); }
+            shopBlocker = blocker;
+            try { return createPath(stands, 8, false, 0, range); }
+            finally { shopBlocker = null; resetMaxVisitedNodesMultiplier(); }
+        }
+
+        @Override public boolean shouldRecomputePath(BlockPos at) {
+            // Opening or closing an authorized leaf leaves its path traversable.
+            if (!ShopStaff.active(HumanNpc.this)) return super.shouldRecomputePath(at);
+            var state = level.getBlockState(at);
+            return !(state.getBlock() instanceof DoorBlock door && !door.type().canOpenByHand()
+                    && ShopStaff.opensDoor(HumanNpc.this, at)) && super.shouldRecomputePath(at);
         }
 
         @Override protected PathFinder createPathFinder(int maxVisitedNodes) {
             nodeEvaluator = new WalkNodeEvaluator() {
+                @Override public PathType getPathTypeOfMob(PathfindingContext context, int x, int y, int z, Mob mob) {
+                    // An overlapping body must not mark the worker's own departure node blocked.
+                    if (shopBlocker != null && !mob.blockPosition().equals(new BlockPos(x, y, z)) && mob.getDimensions(mob.getPose())
+                            .makeBoundingBox(x + .5, y, z + .5).intersects(shopBlocker)) return PathType.BLOCKED;
+                    return super.getPathTypeOfMob(context, x, y, z, mob);
+                }
+
                 @Override public PathType getPathType(PathfindingContext context, int x, int y, int z) {
                     var pos = new BlockPos(x, y, z); var state = context.getBlockState(pos);
                     if (state.getBlock() instanceof DoorBlock door && !door.type().canOpenByHand() && !state.getValue(DoorBlock.OPEN)
@@ -341,6 +365,7 @@ public final class HumanNpc extends PathfinderMob {
         @Override public boolean canContinueToUse() { return canUse(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { ShopStaff.step(HumanNpc.this); }
+        @Override public void stop() { ShopStaff.interrupt(HumanNpc.this); }
     }
     /**
      * On a job, shop staff open the iron staff door of their own shop that lies on their path and shut it once they are through
@@ -348,38 +373,28 @@ public final class HumanNpc extends PathfinderMob {
      */
     private final class StaffDoorGoal extends Goal {
         private BlockPos door;
-        private float dirX, dirZ;
-        private int closeIn, held;
-        private boolean passed;
         @Override public boolean canUse() {
-            if (!ShopStaff.active(HumanNpc.this)) return false;
+            door = doorAhead();
+            return door != null;
+        }
+        private BlockPos doorAhead() {
+            if (!ShopStaff.active(HumanNpc.this) || isTrading() || hurtTime > 0) return null;
             var path = getNavigation().getPath();
-            if (path == null || path.isDone()) return false;
+            if (path == null || path.isDone()) return null;
             for (int i = path.getNextNodeIndex(); i < Math.min(path.getNextNodeIndex() + 2, path.getNodeCount()); i++) {
-                var node = path.getNode(i); var pos = new BlockPos(node.x, node.y, node.z);
+                var pos = path.getNodePos(i);
                 if (distanceToSqr(pos.getX() + .5, getY(), pos.getZ() + .5) > 2.25) continue;
                 var state = level().getBlockState(pos);
-                if (state.getBlock() instanceof DoorBlock d && !d.type().canOpenByHand() && ShopStaff.opensDoor(HumanNpc.this, pos)) { door = pos; return true; }
+                if (state.getBlock() instanceof DoorBlock d && !d.type().canOpenByHand() && ShopStaff.opensDoor(HumanNpc.this, pos)) return pos;
             }
-            return false;
+            return null;
         }
-        /** Done once through and a moment past, or after it gave up on this door; never while it still stands in the doorway. */
-        @Override public boolean canContinueToUse() { return ShopStaff.active(HumanNpc.this) && ((passed ? closeIn > 0 : held < 200) || inDoorway(HumanNpc.this)); }
-        @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void start() {
-            dirX = (float) (door.getX() + .5 - getX()); dirZ = (float) (door.getZ() + .5 - getZ()); closeIn = 10; held = 0; passed = false;
-            ShopDoors.enter(HumanNpc.this, door);
+        @Override public boolean canContinueToUse() {
+            return ShopStaff.active(HumanNpc.this)
+                    && (ShopDoors.inDoorway(HumanNpc.this, door) || ShopDoors.holds(HumanNpc.this, doorAhead()));
         }
-        @Override public void tick() {
-            held++;
-            float along = (float) (door.getX() + .5 - getX()) * dirX + (float) (door.getZ() + .5 - getZ()) * dirZ;
-            if (!passed && along < 0) passed = true; // through the doorway: shut it a moment later
-            else if (passed && closeIn > 0) closeIn--;
-        }
+        @Override public void start() { ShopDoors.enter(HumanNpc.this, door); }
         @Override public void stop() { closeShopDoor(); }
-        private boolean inDoorway(HumanNpc npc) {
-            return ShopDoors.inDoorway(npc, door);
-        }
     }
     public void closeShopDoor() { ShopDoors.leave(this); }
     private final class RoutineGoal extends Goal {
