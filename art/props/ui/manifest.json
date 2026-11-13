@@ -3,7 +3,7 @@
   "source": "art/props/ui/author_shop_ui.py",
   "palette_source": "art/props/badges/author_badges.py PALETTES (gold accents, grade chips)",
   "outputs": {
-    "art/props/ui/shop_ui.png": "1301badd87502074904112afdec4c6575c25838d3834d48aae5652da3326fb5e",
-    "src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png": "1301badd87502074904112afdec4c6575c25838d3834d48aae5652da3326fb5e"
+    "art/props/ui/shop_ui.png": "184d108b5bec30f1756f296202ad1aa7dc51eac2cfd2585346c6c6f1b78f320e",
+    "src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png": "184d108b5bec30f1756f296202ad1aa7dc51eac2cfd2585346c6c6f1b78f320e"
   }
 }

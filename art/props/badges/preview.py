@@ -41,38 +41,44 @@ def badge_vertices(model, matrices, mount):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--node', default='node')
+    parser.add_argument('--model', default='marisa_tsumuri', help='runtime model wearing the badge')
+    parser.add_argument('--tiers', help='comma-separated grade ids (bronze,silver,gold,platinum): one right-front panel each')
+    parser.add_argument('--out', type=Path, help='output directory (default .local/previews/tsumuri-badge)')
     args = parser.parse_args()
-    out = ROOT/'.local/previews/tsumuri-badge'; out.mkdir(parents=True, exist_ok=True)
+    out = args.out or ROOT/'.local/previews/tsumuri-badge'; out.mkdir(parents=True, exist_ok=True)
     corrections = json.loads((ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
-    posed = Posed('marisa_tsumuri', corrections)
-    mount = json.loads((ASSETS/'yukkuri/badge_mounts.json').read_text(encoding='utf-8'))['variants']['marisa_tsumuri']
-    panels = [('金章 · 正面','gold','idle',0,0),('金章 · 右前','gold','idle',0,.7),
-              ('银章 · 右侧','silver','idle',0,1.1),('金章 · 缩壳','gold','shell_retract',1.4,.7)]
+    posed = Posed(args.model, corrections)
+    mount = json.loads((ASSETS/'yukkuri/badge_mounts.json').read_text(encoding='utf-8'))['variants'][args.model]
+    names = {'bronze': '铜章', 'silver': '银章', 'gold': '金章', 'platinum': '钻石章'}
+    panels = ([(names[t]+' · 右前', t, 'idle', 0, .6) for t in args.tiers.split(',')] if args.tiers else
+              [('金章 · 正面','gold','idle',0,0),('金章 · 右前','gold','idle',0,.7),
+               ('银章 · 右侧','silver','idle',0,1.1),('金章 · 缩壳','gold','shell_retract',1.4,.7)])
     for i, (_, tier, clip, time, _) in enumerate(panels):
         tri, uv, normal = posed.frame(clip,time)
         vertices = np.c_[tri.reshape(-1,3), uv.reshape(-1,2)*.5, np.repeat(normal,3,axis=0)]
         vertices = np.r_[vertices, badge_vertices(posed.model,posed.last_matrices,mount)]
         atlas = Image.new('RGBA',(1024,1024))
-        atlas.paste(Image.fromarray(posed.texture(posed.face(clip,time))),(0,0))
+        atlas.paste(Image.fromarray(posed.texture(posed.face(clip,time))).resize((512,512),Image.Resampling.NEAREST),(0,0))
         badge = Image.open(ASSETS/f'textures/item/{tier}_yukkuri_badge.png').convert('RGBA')
         atlas.paste(badge.resize((64,64),Image.Resampling.NEAREST),(512,0))
         (out/f'{i}.json').write_text(json.dumps(vertices.flatten().tolist()),encoding='utf-8')
         (out/f'{i}-texture.rgba').write_bytes(atlas.tobytes())
     code = "const fs=require('fs');\n"+(ROOT/'standards/yukkuri-library/runtime/render.js').read_text(encoding='utf-8')+'\n'
-    code += 'const dir='+json.dumps(str(out))+';const angles=[0,.7,1.1,.7];\n'
-    code += "for(let i=0;i<4;i++){const v=JSON.parse(fs.readFileSync(dir+'/'+i+'.json'));const t=fs.readFileSync(dir+'/'+i+'-texture.rgba');fs.writeFileSync(dir+'/'+i+'-render.rgba',renderModel(v,t,540,540,angles[i],.15,16,{centerY:12,textureSize:1024}));}"
+    code += 'const dir='+json.dumps(str(out))+';const angles='+json.dumps([p[4] for p in panels])+';\n'
+    code += "for(let i=0;i<angles.length;i++){const v=JSON.parse(fs.readFileSync(dir+'/'+i+'.json'));const t=fs.readFileSync(dir+'/'+i+'-texture.rgba');fs.writeFileSync(dir+'/'+i+'-render.rgba',renderModel(v,t,540,540,angles[i],.15,16,{centerY:12,textureSize:1024}));}"
     runner = out/'render.cjs'; runner.write_text(code,encoding='utf-8')
     subprocess.run([args.node,str(runner)],check=True)
-    sheet = Image.new('RGB',(1080,1240),(240,238,230)); draw = ImageDraw.Draw(sheet)
+    rows = (len(panels)+1)//2
+    sheet = Image.new('RGB',(1080,56+rows*580),(240,238,230)); draw = ImageDraw.Draw(sheet)
     font = preview_font(24)
-    draw.text((20,12),'螺壳魔理沙 · 当前运行模型徽章挂点（离线 / 待用户确认）',font=font,fill='#34362c')
+    draw.text((20,12),args.model+' · 当前运行模型徽章挂点（离线 / 待用户确认）',font=font,fill='#34362c')
     for i,(label,*_) in enumerate(panels):
         x,y=i%2*540,56+i//2*580
         draw.text((x+20,y),label,font=font,fill='#34362c')
         image=Image.frombytes('RGBA',(540,540),(out/f'{i}-render.rgba').read_bytes())
         image.save(out/f'panel-{i + 1}.png')
         sheet.paste(image,(x,y+32),image)
-    result=out/'tsumuri-badge.png'; sheet.save(result); print(result)
+    result=out/('worn.png' if args.tiers else 'tsumuri-badge.png'); sheet.save(result); print(result)
 
 
 if __name__ == '__main__': main()

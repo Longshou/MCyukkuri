@@ -7,13 +7,13 @@ Atlas map (x, y, w, h):
   panel 9-slice   (0,0,24,24) corner 4      card (24,0,16,16) corner 3      card_selected (40,0,16,16) corner 3
   tab normal/hover/selected (56|72|88,0,16,16) corner 3                       star full/empty (104|113,0,9,9)
   bar track (0,24,8,6) caps 2                bar fills (8+8*i,24,8,4) i = manners, academics, wits, poise
-  grade chips (0|9|18|27|36,48,9,9) bronze, silver, gold, expired, platinum
+  grade chips (0|9|18|27|36,48,9,9) bronze, silver, gold, expired, diamond (grade id platinum)
   icons 16x16 at (16*i,32): live, goods, buyback, consult, exam, profile, keeper, status sprig
   action buttons (0|16|32|48,64,16,16) corner 3: normal, hover, pressed, disabled
   identity chips (0|16|32|48|64,80,16,16) corner 3: pet, stray, settlement, family, neutral
   status backing (80,80,16,16) corner 3
 """
-import hashlib, json, shutil, sys
+import hashlib, io, json, math, sys
 from pathlib import Path
 from PIL import Image
 
@@ -126,7 +126,7 @@ def fill_pattern(i, x, y):  # y 0..3 ; returns shade index 0 light 1 base 2 dark
 for n, cols in enumerate(FILLS):
     for y in range(4):
         for x in range(8): put(8 + n * 8 + x, 24 + y, rgb(cols[fill_pattern(n, x, y)]))
-# --- grade chips (9x9) from the locked palette: bronze plain disc, silver double ring, gold toothed disc
+# --- grade chips (9x9) from the locked palette: bronze plain disc, silver double ring, gold toothed disc, diamond faceted ring
 def chip(x0, tier):
     p = PALETTES[tier]; o, s0, s1, s2, li = rgb(p['outline']), rgb(p['shade'][0]), rgb(p['shade'][1]), rgb(p['shade'][2]), rgb(p['light'])
     for j in range(9):
@@ -146,26 +146,19 @@ def chip(x0, tier):
                 if 2.2 < d <= 3.3: put(x0 + i, 48 + j, rgb(PALETTES['silver']['engrave']) if (i + j) >= 7 else s1)
     if tier == 'gold':
         for i, j in ((4, 0), (4, 8), (0, 4), (8, 4)): put(x0 + i, 48 + j, o)
+    if tier == 'platinum':  # diamond: the ring cut into eight alternating facets, a white glint on the lit side
+        for j in range(9):
+            for i in range(9):
+                d = ((i - 4) ** 2 + (j - 4) ** 2) ** .5
+                if 2.2 < d <= 3.3:
+                    k = round((math.atan2(j - 4, i - 4) - math.atan2(-1, -1)) / (math.pi / 4)) % 8
+                    lit = math.cos(k * math.pi / 4)
+                    put(x0 + i, 48 + j, rgb(p['facet'][(2 if lit > .3 else 1 if lit > -.5 else 0) + k % 2]))
+        put(x0 + 3, 48 + 2, rgb(p['spec'])); put(x0 + 2, 48 + 3, rgb(p['spec']))
     if tier == 'bronze':
         put(x0 + 3, 48 + 3, rgb(p['spec']))
 for n, t in enumerate(('bronze', 'silver', 'gold')): chip(n * 9, t)
-
-# platinum chip (after the expired chip): near-white filled octagon, edge lit on the upper left, light inner ring
-def platinum_chip(x0):
-    p = PALETTES['platinum']
-    def octagon(level, i, j):
-        dx, dy = abs(i - 4), abs(j - 4)
-        return max(dx, dy) <= 4 - level and dx + dy <= 6 - level
-    for j in range(9):
-        for i in range(9):
-            if not octagon(0, i, j): continue
-            d = -(i - 4 + j - 4)
-            if not octagon(1, i, j): c = p['outline_lit'] if d > 0 else p['outline']
-            elif not octagon(2, i, j): c = p['ring'][1] if d > 0 else p['ring'][0]
-            else: c = p['face'][2] if d > 0 else p['face'][1] if d > -3 else p['face'][0]
-            put(x0 + i, 48 + j, rgb(c))
-    put(x0 + 3, 48 + 3, rgb(p['spec']))
-platinum_chip(36)
+chip(36, 'platinum')  # the diamond chip sits after the expired chip
 
 # expired grade chip: desaturated disc with a 2px dark red cross (no 1px-only cue)
 def expired_chip(x0):
@@ -236,13 +229,17 @@ OUTPUTS = {
     'art/props/ui/shop_ui.png': HERE / 'shop_ui.png',
     'src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png': ROOT / 'src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png',
 }
-if __name__ == '__main__':
-    HERE.joinpath('shop_ui.png').parent.mkdir(exist_ok=True)
-    atlas.save(HERE / 'shop_ui.png')
-    runtime = OUTPUTS['src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png']
-    runtime.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(HERE / 'shop_ui.png', runtime)
+if __name__ == '__main__':  # --check: compare the atlas copies and manifest without writing
+    buffer = io.BytesIO(); atlas.save(buffer, format='PNG'); data = buffer.getvalue()
     manifest = {'status': 'pending_user_confirmation', 'source': 'art/props/ui/author_shop_ui.py',
                 'palette_source': 'art/props/badges/author_badges.py PALETTES (gold accents, grade chips)',
-                'outputs': {k: hashlib.sha256(v.read_bytes()).hexdigest() for k, v in OUTPUTS.items()}}
-    (HERE / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    print('ok')
+                'outputs': {k: hashlib.sha256(data).hexdigest() for k in OUTPUTS}}
+    text = json.dumps(manifest, indent=2) + '\n'
+    if '--check' in sys.argv[1:]:
+        for path in OUTPUTS.values(): assert path.is_file() and path.read_bytes() == data, 'Outdated shop UI atlas: ' + str(path)
+        assert (HERE / 'manifest.json').read_text(encoding='utf-8') == text, 'Outdated shop UI manifest'
+        print('shop UI atlas matches its source')
+    else:
+        for path in OUTPUTS.values(): path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+        (HERE / 'manifest.json').write_text(text, encoding='utf-8', newline='\n')
+        print('ok')

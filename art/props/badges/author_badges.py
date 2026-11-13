@@ -1,22 +1,22 @@
-"""Single pixel source for the bronze/silver/gold/platinum pin badge (item icon, worn decal, handbook medallions).
+"""Single pixel source for the bronze/silver/gold/diamond pin badge (item icon, worn decal, handbook medallions).
 
-16x16, domed metal pin, top-left light. Tiers differ by value AND outline shape:
-bronze = darker value, plain single rim; silver = plain double rim; gold = scalloped (notched) rim;
-platinum = near-white octagon (14 wide, like bronze and gold) with a deep blue-grey edge and an engraved inner ring.
-Original design; bronze to gold carry a simplified yukkuri head silhouette, platinum a pair of opposing
-dialogue arcs (two speech waves meeting) for its explanation-and-consideration exam.
+16x16, domed metal pin, top-left light, simplified yukkuri head emblem engraved in the face. Tiers differ by value AND
+outline shape: bronze = darker value, plain single rim; silver = plain double rim; gold = scalloped (notched) rim;
+diamond = ice-blue cut-gem disc (14 wide, like bronze and gold) whose rim is cut into eight facets with a white glint.
+The fourth grade keeps its internal id `platinum` (grade enum, item id, texture names, lang keys) so existing saves,
+stacks and commands keep working; only its art and player-facing name are the diamond badge. Original design.
 """
 import math
 from PIL import Image
 
-# Locked palettes: outline, shade (dark -> light), specular. Reuse these for GUI/handbook.
+# Locked palettes: outline, shade (dark -> light), specular. Reuse these for GUI/handbook. Key = internal grade id.
 PALETTES = {
     'bronze': {'outline': '#3a1d0f', 'shade': ['#8f5428', '#b6713a', '#d08e52'], 'light': '#e8a868', 'spec': '#f6d2a8', 'engrave': '#4a2814'},
     'silver': {'outline': '#2c3642', 'shade': ['#8c98a6', '#bec8d2', '#e8eef3'], 'light': '#f4f8fb', 'spec': '#ffffff', 'engrave': '#5a6676'},
     'gold':   {'outline': '#5c340e', 'shade': ['#ba781e', '#e8aa2e', '#fad258'], 'light': '#ffe58a', 'spec': '#fff8d0', 'engrave': '#8a5414'},
-    'platinum': {'outline': '#283150', 'outline_lit': '#56658c', 'shade': ['#b9c2d6', '#e3e8f2', '#ffffff'],
-                 'ring': ['#a3aec8', '#bdc6da'], 'face': ['#c3cbdc', '#e2e7f1', '#f6f8fc'], 'light': '#ffffff', 'spec': '#ffffff',
-                 'engrave': '#6a7898'},
+    # Diamond (grade id platinum): cool cyan-white gem, deep sea-blue edge, facet tones from shadow to fire-white.
+    'platinum': {'outline': '#16324e', 'shade': ['#4f9cc6', '#8fd2ec', '#d4f4ff'], 'light': '#f0fcff', 'spec': '#ffffff',
+                 'engrave': '#1f5478', 'facet': ['#3d82ad', '#73bfe0', '#b6e9fa', '#ecfbff']},
 }
 TIERS = ('bronze', 'silver', 'gold', 'platinum')
 
@@ -33,13 +33,25 @@ GROOVE = {'silver': '#667383'}  # silver inner groove between the two rims (name
 # Gold teeth: 4 cardinal teeth 2x1 and 4 diagonal teeth stepping 1px (no 2x2 lumps), on the 14px disc.
 GOLD_TEETH = {(7, 0), (8, 0), (7, 15), (8, 15), (0, 7), (0, 8), (15, 7), (15, 8),
               (3, 2), (2, 3), (12, 2), (13, 3), (3, 13), (2, 12), (12, 13), (13, 12)}
+FACETS = 8  # diamond rim facets, the first centred on the top-left light
+
 
 def _radius(tier, a):
-    return 7.05 if tier in ('bronze', 'gold') else 7.95  # bronze/gold: 14px disc; silver: 16px circle
+    return 7.95 if tier == 'silver' else 7.05  # bronze/gold/diamond: 14px disc; silver: 16px circle
+
+
+def _facet(p, dx, dy):
+    """Diamond rim tone: the facet a pixel lies in, lit by how squarely that facet faces the top-left light;
+    neighbouring facets alternate a step so the cut reads even on the shadow side."""
+    step = 2*math.pi/FACETS
+    light = math.atan2(-1, -1)
+    k = round((math.atan2(dy, dx)-light)/step) % FACETS
+    lit = math.cos(k*step)
+    tone = 2 if lit > .3 else 1 if lit > -.5 else 0
+    return p['facet'][tone+k % 2]
+
 
 def badge(tier):
-    if tier == 'platinum':
-        return _platinum()
     p = PALETTES[tier]
     im = Image.new('RGBA', (SIZE, SIZE), (0, 0, 0, 0))
     info = {}
@@ -49,8 +61,7 @@ def badge(tier):
             r = math.hypot(dx, dy)
             info[x, y] = (r <= _radius(tier, math.atan2(dy, dx)) or (tier == 'gold' and (x, y) in GOLD_TEETH), r, dx, dy)
     inside = lambda x, y: info.get((x, y), (False,))[0]
-    base = {'bronze': 7.05, 'silver': 7.95, 'gold': 6.95}[tier]
-    face_r = {'bronze': 5.2, 'silver': 4.1, 'gold': 5.1}[tier]
+    face_r = {'bronze': 5.2, 'silver': 4.1, 'gold': 5.1, 'platinum': 4.6}[tier]
     for (x, y), (ins, r, dx, dy) in info.items():
         if not ins: continue
         d = (dx + dy) * -.7071  # + toward the top-left light
@@ -58,9 +69,12 @@ def badge(tier):
             c = p['outline']
         elif tier == 'silver' and 5.0 <= r < 6.0:
             c = GROOVE['silver']
-        elif r > face_r:  # raised rim
-            lit = d / max(r, .01)
-            c = p['shade'][2] if lit > .3 else p['shade'][1] if lit > -.4 else p['shade'][0]
+        elif r > face_r:  # raised rim; the diamond's is cut into facets
+            if tier == 'platinum':
+                c = _facet(p, dx, dy)
+            else:
+                lit = d / max(r, .01)
+                c = p['shade'][2] if lit > .3 else p['shade'][1] if lit > -.4 else p['shade'][0]
         else:  # domed face
             c = p['shade'][2] if d > 1.6 else p['shade'][1] if d > -1.2 else p['shade'][0]
         im.putpixel((x, y), _rgba(c))
@@ -76,44 +90,9 @@ def badge(tier):
         im.putpixel(xy, _rgba(p['spec']))
     return im
 
-SPEC = {'bronze': ((3, 3), (4, 2)), 'silver': ((3, 2), (2, 3)), 'gold': ((3, 3), (4, 2)), 'platinum': ((5, 4), (4, 5))}
-
-# Platinum emblem: two 5-pixel arcs bulging toward each other, ")(" with a 2-pixel gap.
-DIALOGUE_ARCS = ((5, 5), (6, 6), (6, 7), (6, 8), (5, 9), (10, 5), (9, 6), (9, 7), (9, 8), (10, 9))
-
-
-def octagon(level, x, y):
-    """The platinum octagon inset by `level` pixels: 14 wide like the bronze and gold discs, 6-pixel straight edges."""
-    dx, dy = abs(x + .5 - 8), abs(y + .5 - 8)
-    return max(dx, dy) <= 6.5 - level and dx + dy <= 9 - level
-
-
-def _platinum():
-    p = PALETTES['platinum']
-    im = Image.new('RGBA', (SIZE, SIZE), (0, 0, 0, 0))
-    for y in range(SIZE):
-        for x in range(SIZE):
-            if not octagon(0, x, y): continue
-            d = -(x + .5 - 8) - (y + .5 - 8)  # + toward the top-left light
-            if not octagon(1, x, y):  # edge, lighter where the light falls so the badge reads bright, not dark-rimmed
-                c = p['outline_lit'] if d > 1 else p['outline']
-            elif not octagon(2, x, y):  # bright rim
-                c = p['shade'][2] if d > 2 else p['shade'][1] if d > -3 else p['shade'][0]
-            elif not octagon(3, x, y):  # engraved inner ring
-                c = p['ring'][1] if d > 2 else p['ring'][0]
-            else:  # near-white domed face
-                c = p['face'][2] if d > 1.5 else p['face'][1] if d > -2.5 else p['face'][0]
-            im.putpixel((x, y), _rgba(c))
-    arcs = set(DIALOGUE_ARCS)
-    for x, y in arcs:  # lit lower-right emboss edge, as on the other tiers' emblem
-        for ex, ey in ((x + 1, y), (x, y + 1), (x + 1, y + 1)):
-            if (ex, ey) not in arcs and octagon(3, ex, ey):
-                im.putpixel((ex, ey), _rgba(p['light']))
-    for xy in arcs:
-        im.putpixel(xy, _rgba(p['engrave']))
-    for xy in SPEC['platinum']:
-        im.putpixel(xy, _rgba(p['spec']))
-    return im
+# Diamond: a four-point glint on the lit rim plus a small fire spark on the shadow side.
+SPEC = {'bronze': ((3, 3), (4, 2)), 'silver': ((3, 2), (2, 3)), 'gold': ((3, 3), (4, 2)),
+        'platinum': ((4, 2), (3, 3), (4, 3), (5, 3), (4, 4), (11, 12))}
 
 def _rgba(h):
     h = h.lstrip('#'); return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255)

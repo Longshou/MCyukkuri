@@ -126,6 +126,10 @@ STEM_GROWTH = 'art/props/family-life/stem_growth.py'
 TABLE.append(exporter('source:'+STEM_GROWTH, STEM_GROWTH, ['art/props/family-life/', 'standards/yukkuri-v1/components/common/stem.json',
              'standards/yukkuri-library/drafts/remains/recipe.json', 'src/main/resources/assets/mcyukkuri/yukkuri/'],
              note='Clearance check only; writes nothing.'))
+# Menu and shop GUI atlas: its grade chips read the locked badge palettes.
+SHOP_UI = 'art/props/ui/author_shop_ui.py'
+TABLE.append(exporter('source:'+SHOP_UI, SHOP_UI, ['art/props/ui/', 'art/props/badges/author_badges.py'],
+             note='Writes the shop/menu GUI atlas and its runtime copy.'))
 # Junk headwear: three props seated on every runtime form with its accessory hidden, plus the item icon.
 JUNK_HEADWEAR = 'art/props/junk-headwear/build.py'
 TABLE.append(exporter('source:'+JUNK_HEADWEAR, JUNK_HEADWEAR, [

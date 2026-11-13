@@ -1,6 +1,6 @@
 # 菜单与状态条界面套件
 
-制作源 [`author_shop_ui.py`](author_shop_ui.py) 生成一张 256×256 图集 `shop_ui.png`（本目录）并复制到运行资源 `src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png`，`manifest.json` 记录二者哈希。`preview_ui.py` 用同一图集离线拼出各界面（zh_cn／en_us）GUI ×2 与 1080p 自动档 480×270 视口的版面（有 `.local/tools/art-review/mcfont.py` 时用真实原版字体，并打印溢出；输出到 `.local/previews/shop-ui/`，不入库）。
+制作源 [`author_shop_ui.py`](author_shop_ui.py) 生成一张 256×256 图集 `shop_ui.png`（本目录）并复制到运行资源 `src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png`，`manifest.json` 记录二者哈希；经 `scripts/export.py --family source:art/props/ui/author_shop_ui.py` 运行，`--check` 只读核对图集与清单。`preview_ui.py` 用同一图集离线拼出各界面（zh_cn／en_us）GUI ×2 与 1080p 自动档 480×270 视口的版面（有 `.local/tools/art-review/mcfont.py` 时用真实原版字体，并打印溢出；输出到 `.local/previews/shop-ui/`，不入库）。
 
 风格：原版式斜面（1 像素深色描边，左上亮边，右下暗边），暖灰羊皮纸底；每种材质 3–4 级明暗，光自左上；无只靠 1 像素线表达的关键信息。金色强调（选中行边框、星）和等级章直接读 [`badges/author_badges.py`](../badges/author_badges.py) 的 `PALETTES`。界面中等级名文字色：铜 `#8f5428`（shade[0]），银 `#5a6676`（engrave），金 `#9a6214`（`#ba781e` 加深以保证对比），无章用灰绿；文字色与等级章并用，不单靠色相。
 
@@ -11,7 +11,7 @@
 | 页签 普通／悬停／选中 | 56 / 72 / 88,0（16×16，角 3） | 选中页签更亮并带青色底线（灰度可辨） |
 | 餡統星 | 104,0 满／113,0 空（9×9） | 每 20 点一颗，满 5 颗 |
 | 能力条 | 轨道 0,24（8×6，端 2）；填充 8+8i,24（8×4） | 规矩、学力、知力、应对：实色／斜纹／点／竖纹，灰度下靠纹理与固定位置区分 |
-| 等级章 | 0／9／18／27／36,48（9×9） | 铜圆盘、银双环、金齿边；27 为过期灰章带红叉；36 为铂金近白实心八边形带浅色内环 |
+| 等级章 | 0／9／18／27／36,48（9×9） | 铜圆盘、银双环、金齿边；27 为过期灰章带红叉；36 为钻石章（等级 id platinum）冰蓝圆盘、外圈八个明暗交替的刻面与左上白色闪光 |
 | 页签图标 16×16 | 16i,32 | 活体（灵梦头）、用品（食盆与油粮）、收购（金币＋回箭头）、咨询（对话框）、考试（奖章讲台）、手帖（即 `badge_handbook.png` 物品贴图本身）、饲养员（心＋巢） |
 | 操作按钮 | 0／16／32／48,64（16×16，角 3） | 普通、悬停或键盘焦点、按下、禁用 |
 | 身份标签 | 0／16／32／48／64,80（16×16，角 3） | 宠物、流浪、野生聚落、野生家庭、其他，颜色与身份文字并用 |

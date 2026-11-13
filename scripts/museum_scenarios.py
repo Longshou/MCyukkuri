@@ -1390,7 +1390,7 @@ add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的�
     f'yukkuri scenario badge {sel("pet")} silver false', item('minecraft:apple', 1, 1, 0),
     yk('marisa', 4, 0, 'wild', nutrition=32, yaw=90, boldness=25)], env=DAY, vantage=(1, 9))
 
-add('badge', 'town', '铂金章灵梦遇到嫉妒的野油', '铂金章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的铂金章，鼓脸或闹别扭。看灵梦按自尊与关系友善回礼、得意展示或退缩。', '约 1 分钟', [
+add('badge', 'town', '钻石章灵梦遇到嫉妒的野油', '钻石章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的钻石章，鼓脸或闹别扭。看灵梦按自尊与关系友善回礼、得意展示或退缩。', '约 1 分钟', [
     *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-1, 4) for z in range(-2, 3)
       if x in (-1, 3) or abs(z) == 2),
     yk('reimu', 0, 0, 'pet', yaw=-90, lead=True, friendliness=53, boldness=35), *own('pet'),
@@ -1507,7 +1507,7 @@ add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考�
                        exam_promotion_expectation('SILVER', 'GOLD', 'help')],
                forbid=[r'action=interrupt']))
 
-add('exam_platinum', 'town', '铂金章考试：说明与分享', '铂金章考试：说明与分享',
+add('exam_platinum', 'town', '钻石章考试：说明与分享', '钻石章考试：说明与分享',
     '右键考官选晋级。听考官请考生从数堆改为一份一份数。宣布第二部分后，若考生向你求助，就把自己的一份食物喂给报名时选中的同伴。',
     '约 1 分钟', [*exam_hall(), *exam_study(pickup_delay=900),
                   *exam_candidate('gold', 90),
@@ -1637,7 +1637,7 @@ _window_flandre = BOOTH.format('flandre', 0)
 _window_west = sel('customer_west', 80)
 _window_wary = sel('customer_wary', 80)
 add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭',
-    '沿临街展舱和捕食种房慢慢走。子油灵梦会卖力展示，爱丽丝可亮出铂金章，没徽章的芙兰也能昂首。'
+    '沿临街展舱和捕食种房慢慢走。子油灵梦会卖力展示，爱丽丝可亮出钻石章，没徽章的芙兰也能昂首。'
     '注意橙面对熟悉顾客时的鞠躬、面对害怕的人时的退藏，以及上架 17 天的蕾米莉亚转身失落。向仍在恳求的个体挥别时，看它的反应',
     '建筑几秒；走到展舱 8 格内，1–2 秒内回应',
     ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
