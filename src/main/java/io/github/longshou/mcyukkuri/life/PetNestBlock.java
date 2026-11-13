@@ -96,7 +96,10 @@ public final class PetNestBlock extends CareBlock {
         return intrudes(level, cell, Shapes.box(x, .125, z, x + OVERHANG, TOP, z + OVERHANG));
     }
     private static boolean intrudes(BlockGetter level, BlockPos cell, VoxelShape band) {
-        var shape = level.getBlockState(cell).getCollisionShape(level, cell);
+        var state = level.getBlockState(cell);
+        // Each bed owns its cell. Its transient fit must not change how a neighbouring bed fits.
+        if (state.getBlock() instanceof PetNestBlock || state.getBlock() instanceof LargeNestBlock) return true;
+        var shape = state.getCollisionShape(level, cell);
         return !shape.isEmpty() && Shapes.joinIsNotEmpty(shape, band, BooleanOp.AND);
     }
     /** Whether a body can stand in the cell outside that side (nothing above floor coverings there; the walking clearance of
@@ -136,11 +139,10 @@ public final class PetNestBlock extends CareBlock {
             context.getPlayer().displayClientMessage(Component.literal("窝没有入口：至少留出一侧能走进来的空格"), true);
         return state;
     }
-    /** A block set beside it refits the bed (flattened sides, entrance turned to an open side if its own is closed). An
-     *  enclosed bed keeps its entrance and only flattens. Diagonal neighbours do not notify a block; NestFit schedules a tick. */
+    /** Schedule one refit for a cardinal change, just like the diagonal notification. */
     @Override protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour, LevelAccessor level,
             BlockPos pos, BlockPos neighbourPos) {
-        if (side.getAxis().isHorizontal()) state = refit(state, level, pos);
+        if (side.getAxis().isHorizontal() && !level.isClientSide()) level.scheduleTick(pos, this, 1);
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
     }
     private static BlockState refit(BlockState state, BlockGetter level, BlockPos pos) {
@@ -155,7 +157,7 @@ public final class PetNestBlock extends CareBlock {
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!level.isAreaLoaded(pos, 1)) return;
         var fitted = refit(state, level, pos);
-        if (fitted != state) level.setBlock(pos, fitted, 3);
+        if (fitted != state) level.setBlock(pos, fitted, UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
     }
     /** A block changed at {@code changed}: beds diagonal to it refit on the next tick (cardinal ones get updateShape). */
     public static void nearbyChanged(LevelAccessor level, BlockPos changed) {

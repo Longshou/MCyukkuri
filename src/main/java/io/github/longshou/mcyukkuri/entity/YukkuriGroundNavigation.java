@@ -455,7 +455,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var door=NestDoorway.stand(actor,bed);
         if(door==null){stop();GameplayLog.limited(actor,"home","exit_blocked",200,"nest exit stopped reason=doorway_unreachable nest={}",bed.getBlockPos());return true;}
         if(SurfaceApproach.at(actor,door))return false;
-        step(inside&&Math.abs(actor.getX()-door.x)>SurfaceApproach.ARRIVAL?NestDoorway.inner(actor,bed,door):door,speed);
+        double lateral=NestDoorway.shape(bed).lateral(door.subtract(actor.position()));
+        step(inside&&Math.abs(lateral)>SurfaceApproach.ARRIVAL?NestDoorway.inner(actor,bed,door):door,speed);
         return true;
     }
 

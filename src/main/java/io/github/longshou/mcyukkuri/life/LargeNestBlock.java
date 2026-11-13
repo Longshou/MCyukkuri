@@ -139,7 +139,10 @@ public final class LargeNestBlock extends CareBlock {
             return neighbour.is(this) && neighbour.getValue(PART) == expected ? state : Blocks.AIR.defaultBlockState();
         }
         // Anything else beside the footprint: the north-west part checks the entrance on the next tick (all four parts turn together).
-        if (side.getAxis().isHorizontal()) level.scheduleTick(origin(state, pos), this, 1);
+        if (side.getAxis().isHorizontal() && !level.isClientSide()) {
+            var root = origin(state, pos);
+            if (level.hasChunkAt(root)) level.scheduleTick(root, this, 1);
+        }
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
     }
     /** The entrance walled off (or a load from an older save): turn all four parts to the next open side clockwise; with no
@@ -152,7 +155,7 @@ public final class LargeNestBlock extends CareBlock {
         for (int part = 0; part < 4; part++) {
             var cell = at(pos, part);
             var other = level.getBlockState(cell);
-            if (other.is(this)) level.setBlock(cell, other.setValue(FACING, entrance), 2);
+            if (other.is(this)) level.setBlock(cell, other.setValue(FACING, entrance), UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
         }
         GameplayLog.world(level, "home", "large nest entrance turned nest={} from={} to={}", pos.toShortString(), facing.getName(), entrance.getName());
     }
