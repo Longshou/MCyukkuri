@@ -77,8 +77,8 @@ LINES = {
         'adult': ('{t}！ のらは、あっちいけ！', '{t}！野良，到那边去！', '{t}! Strays, go away!'),
         'young': ('{t}！ のらは、あっちいっちぇ！', '{t}！野良去那边！', '{t}! Stway, go away!')},
     'badge_share_offer': {
-        'adult': ('はんぶんこ。{t}。ゆっくりたべて。', '分一半。{t}。慢慢吃吧。', 'Half each. {t}. Eat slowly.'),
-        'young': ('はんぶんこ！ {t}！ ゆっくち たべちぇ！', '分一半！{t}！慢慢吃！', 'Half each! {t}! Eat swowly!')},
+        'adult': ('はんぶんこ。{t}。ゆっくりたべて。', '分一半。{t}。油库里地吃吧。', 'Half each. {t}. Eat slowly.'),
+        'young': ('はんぶんこ！ {t}！ ゆっくち たべちぇ！', '分一半！{t}！油库气地粗！', 'Half each! {t}! Eat swowly!')},
     'badge_share_refuse': {
         'adult': ('これは、わたしのごはん。だめ。{t}。', '这是妖梦的饭。不行。{t}。', 'This is my food. No. {t}.'),
         'young': ('これ、わたちの ごはん！ らめ！ {t}！', '这是窝的饭！不给！{t}！', 'Dis my food! No! {t}!')},
@@ -93,7 +93,7 @@ LINES = {
         'young': ('ありがちょう……{t}。ゆっくち できりゅ。', '谢谢……{t}。能油库气了。', 'Fank you... {t}. Can wewax now.')},
     'basket_enter': {
         'adult': ('{t}！ わかった、はいる！', '{t}！知道了，进去！', '{t}! Okay, going in!'),
-        'young': ('{t}！ はいりゅ！ ゆっくち はいりゅ！', '{t}！进去！慢慢进去！', '{t}! Goin in! Swowly!')},
+        'young': ('{t}！ はいりゅ！ ゆっくち はいりゅ！', '{t}！进去！油库气地进去！', '{t}! Goin in! Swowly!')},
     'basket_exit': {
         'adult': ("ゆっ、ここ、どこ？ {t}……", "油，这里是哪儿？{t}……", "Yu, where am I? {t}..."),
         'young': ("きょきょ、どこ……？ {t}？", "介里是哪儿……？{t}？", "Where am I...? {t}?")},

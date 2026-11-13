@@ -22243,7 +22243,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "はんぶんこ しようね。ゆっくり たべてね。",
-      "chinese": "咱们分一半吧。慢慢吃哦。",
+      "chinese": "咱们分一半吧。油库里地吃哦。",
       "events": [
         "badge_share_offer"
       ],
@@ -22260,7 +22260,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "はんぶんこ ちようにぇ。ゆっくち たべちぇにぇ。",
-      "chinese": "分一半惹哟。慢慢吃惹哟。",
+      "chinese": "分一半惹哟。油库气地粗惹哟。",
       "events": [
         "badge_share_offer"
       ],
@@ -22277,7 +22277,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "はんぶんこ なのぜ。ゆっくり たべるのぜ。",
-      "chinese": "分一半贼。慢慢吃贼。",
+      "chinese": "分一半贼。油库里地吃贼。",
       "events": [
         "badge_share_offer"
       ],
@@ -22294,7 +22294,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "はんぶんこ なのじぇ。ゆっくち たべるのじぇ。",
-      "chinese": "分一半惹杰。慢慢吃惹杰。",
+      "chinese": "分一半惹杰。油库气地粗惹杰。",
       "events": [
         "badge_share_offer"
       ],
@@ -22311,7 +22311,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "はんぶんこ しましょう。ゆっくり めしあがれ。",
-      "chinese": "分一半吧哇。请慢慢享用哇。",
+      "chinese": "分一半吧哇。油库里地享用哇。",
       "events": [
         "badge_share_offer"
       ],
@@ -22328,7 +22328,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "はんぶんこ ちましょ。ゆっくち たべちぇね。",
-      "chinese": "分一半吧哇。慢慢吃哇。",
+      "chinese": "分一半吧哇。油库气地粗哇。",
       "events": [
         "badge_share_offer"
       ],
@@ -22345,7 +22345,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "はんぶんこ だよー。ゆっくり たべてねー。",
-      "chinese": "分一半哟——。慢慢吃哦——。",
+      "chinese": "分一半哟——。油库里地吃哦——。",
       "events": [
         "badge_share_offer"
       ],
@@ -22362,7 +22362,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "はんぶんこ だよー。ゆっくち たべちぇねー。",
-      "chinese": "分一半哟——。慢慢吃哦——。",
+      "chinese": "分一半哟——。油库气地粗哦——。",
       "events": [
         "badge_share_offer"
       ],
@@ -22379,7 +22379,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、はんぶんこ しましょう。ゆっくり おあがりなさい。",
-      "chinese": "姆啾，分一半吧。请慢慢吃。",
+      "chinese": "姆啾，分一半吧。油库里地吃。",
       "events": [
         "badge_share_offer"
       ],
@@ -22396,7 +22396,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ、はんぶんこ ちましょ。ゆっくち たべちぇ。",
-      "chinese": "姆啾，分一半吧。慢慢吃。",
+      "chinese": "姆啾，分一半吧。油库气地粗。",
       "events": [
         "badge_share_offer"
       ],
@@ -22413,7 +22413,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、はんぶんこ なのだ。ゆっくり たべるのだ。",
-      "chinese": "呜——，分一半呀。慢慢吃呀。",
+      "chinese": "呜——，分一半呀。油库里地吃呀。",
       "events": [
         "badge_share_offer"
       ],
@@ -22430,7 +22430,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、はんぶんこ なのだ。ゆっくち たべるのだ。",
-      "chinese": "呜——，分一半呀。慢慢吃呀。",
+      "chinese": "呜——，分一半呀。油库气地粗呀。",
       "events": [
         "badge_share_offer"
       ],
@@ -22447,7 +22447,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、はんぶんこ しよう。ゆっくり たべてね。",
-      "chinese": "呜——，分一半吧。慢慢吃哦。",
+      "chinese": "呜——，分一半吧。油库里地吃哦。",
       "events": [
         "badge_share_offer"
       ],
@@ -22464,7 +22464,7 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー、はんぶんこ ちよう。ゆっくち たべちぇね。",
-      "chinese": "呜——，分一半吧。慢慢吃哦。",
+      "chinese": "呜——，分一半吧。油库气地粗哦。",
       "events": [
         "badge_share_offer"
       ],
@@ -28432,7 +28432,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆっくり！ゆっくりっ！！",
-      "chinese": "慢慢！慢慢！！",
+      "chinese": "油库里！油库里！！",
       "source": {
         "file": "yukkuri/reimu/sei_serifu.csv",
         "line": 3566,
@@ -28452,7 +28452,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆ……ゆふー！",
-      "chinese": "慢慢……呼——！",
+      "chinese": "油……油呼——！",
       "source": {
         "file": "yukkuri/reimu/sei_serifu.csv",
         "line": 3571,
@@ -28692,7 +28692,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆっくり！ゆっくりっ！！",
-      "chinese": "慢慢！慢慢！！",
+      "chinese": "油库里！油库里！！",
       "source": {
         "file": "yukkuri/marisa/sei_serifu.csv",
         "line": 3566,
@@ -28712,7 +28712,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆ……ゆふー！",
-      "chinese": "慢慢……呼——！",
+      "chinese": "油……油呼——！",
       "source": {
         "file": "yukkuri/marisa/sei_serifu.csv",
         "line": 3571,
@@ -28952,7 +28952,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ゆっくり！ゆっくりっ！！",
-      "chinese": "慢慢！慢慢！！",
+      "chinese": "油库里！油库里！！",
       "source": {
         "file": "yukkuri/arisu/sei_serifu.csv",
         "line": 3566,
@@ -28972,7 +28972,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ゆ……ゆふー！",
-      "chinese": "慢慢……呼——！",
+      "chinese": "油……油呼——！",
       "source": {
         "file": "yukkuri/arisu/sei_serifu.csv",
         "line": 3571,
@@ -30023,7 +30023,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "にげるわ…… ゆっくり にげるわ……！",
-      "chinese": "要逃了哇……慢慢地逃……！",
+      "chinese": "要逃了哇……油库里地逃……！",
       "source": {
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_rapem_flee"
