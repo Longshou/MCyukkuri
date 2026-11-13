@@ -1,0 +1,10 @@
+{
+  "id": "street-bin",
+  "prefixes": [
+    "art/props/street-bin/",
+    "src/main/resources/assets/mcyukkuri/models/block/garbage_bin",
+    "src/main/resources/assets/mcyukkuri/models/item/garbage_bin",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_"
+  ],
+  "_order": 1
+}

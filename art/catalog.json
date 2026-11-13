@@ -426,6 +426,7 @@
           ],
           "ids": [
             "cardboard_shelter",
+            "crate_shelter",
             "nest_boundary",
             "nest_lining",
             "shelters-index"
@@ -665,6 +666,15 @@
             "standards/yukkuri-library/characters/humans.json",
             "standards/yukkuri-library/textures/humans/",
             "src/main/resources/assets/mcyukkuri/textures/entity/human/"
+          ]
+        },
+        {
+          "id": "street-bin",
+          "prefixes": [
+            "art/props/street-bin/",
+            "src/main/resources/assets/mcyukkuri/models/block/garbage_bin",
+            "src/main/resources/assets/mcyukkuri/models/item/garbage_bin",
+            "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_"
           ]
         }
       ]
