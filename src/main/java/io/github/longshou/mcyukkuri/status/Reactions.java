@@ -705,9 +705,10 @@ public final class Reactions {
             if (startledNow() && stage != Stage.SHAKE) { SurfaceApproach.halt(y); return; }
             // Reaching any roof ends the run, whether or not it was the chosen one. A soaked body shakes the rain off first.
             if ((stage == Stage.RUN || stage == Stage.SEARCH) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
-                    && life.covered(y.blockPosition()) && ticks > 20) {
+                    && life.covered(y.blockPosition()) && FoundShelter.streetCoverFree(y, y.blockPosition()) && ticks > 20) {
                 y.getNavigation().stop();
                 y.family().carry().reachedCover();
+                logStreetCover(level);
                 stage = life.wetness() >= SHAKE_WETNESS ? Stage.SHAKE : Stage.WAIT;
                 ticks = 0;
                 if (stage == Stage.SHAKE) GameplayLog.limited(y, "weather", "shake.arrival", 1200,
@@ -730,11 +731,15 @@ public final class Reactions {
                     }
                 }
                 case RUN -> {
-                    if (cover == null || !life.dryStand(cover)) { searchOnFoot(); return; }
+                    if (cover == null || !life.dryStand(cover) || !FoundShelter.streetCoverFree(y, cover)) {
+                        searchOnFoot(); return;
+                    }
                     Vec3 spot = Vec3.atBottomCenterOf(cover);
                     double reach = y.distanceToSqr(spot);
                     // The path stops up to half a block short; the last step is walked on the supported surface.
-                    if (reach < .16 || reach < 2.25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR) {
+                    if ((reach < .16 || reach < 2.25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR)
+                            && FoundShelter.streetCoverFree(y, y.blockPosition())) {
+                        logStreetCover(level);
                         SurfaceApproach.halt(y); y.family().carry().reachedCover(); stage = Stage.WAIT; ticks = 0; return;
                     }
                     if (reach < 6.25) SurfaceApproach.walk(y, spot, 1.3);
@@ -779,6 +784,13 @@ public final class Reactions {
                 case HUDDLE -> huddle(level);
                 default -> { }
             }
+        }
+
+        private void logStreetCover(ServerLevel level) {
+            var at = y.blockPosition();
+            var roof = FoundShelter.roofKind(level, at);
+            if (roof != null && y.onGround() && Sky.at(level, at) == Sky.CLEAR)
+                GameplayLog.event(y, "weather", "street rain cover reached spot={} at={}", roof, at.toShortString());
         }
 
         // ---- huddle --------------------------------------------------------------------------------------------------

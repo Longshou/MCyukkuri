@@ -256,6 +256,7 @@ final class HumanStreet {
         npc.getLookControl().setLookAt(y, 30, 30);
         if (beatUntil != 0) {
             if (chasing) return chaseContinues(y);
+            if (cropWarning && !warning.seen && y.hasLineOfSight(npc)) y.getLookControl().setLookAt(npc, 30, 30);
             if (now() < beatUntil && npc.distanceToSqr(y) <= (activeCrop == null ? CONTACT_SQ : 144)
                     && y.hasLineOfSight(npc) && aheadOf(y, npc)) {
                 if (!warning.seen && activeCrop != null) y.status().reactions().threat().cropWarning(npc);
@@ -303,7 +304,12 @@ final class HumanStreet {
         var stand = BlockPos.containing(destination);
         if (stand.equals(npc.blockPosition()) || !dryStreet(y, Vec3.atBottomCenterOf(stand), away)) return false;
         var path = nav.createPath(stand, 0);
-        if (path == null || !path.canReach() || path.getNodeCount() > 2 || !nav.moveTo(path, .85)) return false;
+        if (path == null || !path.canReach() || path.getNodeCount() > 2) return false;
+        if (activeCrop != null) {
+            for (int i = 0; i < path.getNodeCount(); i++)
+                if (npc.level().getBlockState(path.getNodePos(i).below()).is(Blocks.FARMLAND)) return false;
+        }
+        if (!nav.moveTo(path, .85)) return false;
         beatUntil = now() + ROUTE_TICKS;
         chasing = true;
         chaseStand = Vec3.atBottomCenterOf(stand);

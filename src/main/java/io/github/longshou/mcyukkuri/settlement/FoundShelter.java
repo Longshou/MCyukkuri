@@ -40,7 +40,7 @@ public final class FoundShelter {
     private final LinkedHashMap<BlockPos, Long> refused = new LinkedHashMap<>();
     private ShelterBlockEntity shelter;
     private BlockPos gap;
-    private enum StreetSpot { BENCH, BARREL, AWNING }
+    public enum StreetSpot { BENCH, BARREL, AWNING }
     private StreetSpot streetSpot;
     private long streetAfter;
     private Vec3 aim;
@@ -163,10 +163,11 @@ public final class FoundShelter {
 
     private static boolean streetOccupied(YukkuriEntity body, BlockPos pos) {
         return !body.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(1),
-                other -> other != body && other.isAlive() && other.life().ownsStreetCover(pos)).isEmpty();
+                other -> other != body && other.isAlive()
+                        && (other.blockPosition().equals(pos) || other.life().ownsStreetCover(pos))).isEmpty();
     }
 
-    private static StreetSpot roofKind(ServerLevel level, BlockPos pos) {
+    public static StreetSpot roofKind(ServerLevel level, BlockPos pos) {
         if (!level.hasChunkAt(pos)) return null;
         var overhead = level.getBlockState(pos.above());
         if (overhead.getBlock() instanceof BarrelBlock && level.getBlockEntity(pos.above()) instanceof BarrelBlockEntity barrel

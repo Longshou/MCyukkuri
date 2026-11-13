@@ -405,7 +405,8 @@ public final class ShopStaff {
             }
             case STREET_SCRAP -> {
                 if (!level.isDay() || level.isRaining()) return "outdoor_closed";
-                if (job.loose != null ? !job.loose.isAlive() || !shop.contains(job.loose.position()) || !scrap(job.loose.getItem())
+                if (job.loose != null ? !job.loose.isAlive() || !job.loose.onGround()
+                        || !shop.contains(job.loose.position()) || !scrap(job.loose.getItem())
                         : !(level.getBlockEntity(job.target) instanceof Container source) || scrapSlot(source) < 0) return "no_scrap";
             }
             case SETTLE -> {

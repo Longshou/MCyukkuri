@@ -96,7 +96,7 @@ public final class Grazing {
     }
 
     public static boolean streetForager(YukkuriEntity body) {
-        return FoundShelter.streetUser(body) && !body.settlement().settlementMember();
+        return FoundShelter.streetUser(body);
     }
 
     /** Free street foragers use the same crop and bite as home claimants. No POI is needed for a real cultivated plot. */

@@ -1807,23 +1807,30 @@ add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', 
         block(2, -1, 0, 'minecraft:farmland[moisture=7]'),
         block(2, 0, 0, 'minecraft:carrots[age=0]'),
         street_trial('street_crops', 'reimu', 0, 0, 'crop_eater', nutrition=25, yaw=-90, lead=True),
-        human('caretaker_brother', -2, -2, 'crop_witness', 0, attitude=2, yaw=-45, label='看得见田的居民'),
+        human('caretaker_brother', 3, -1, 'crop_witness', 0, attitude=2, yaw=65, label='看得见田的居民'),
     ], env=DAY, vantage=(0, 8), reads=[('读血量', f'data get entity {sel("crop_eater")} Health')])
 
 add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐下躲雨', '流浪油：长椅歇息、饮水、木桶檐下躲雨',
-    '西边困倦的魔理沙有一张干燥的长椅。东边口渴的灵梦能站在岸边饮水。试用下雨按钮，观察长椅、抬高木桶和遮篷的干地。', '约半分钟', [
+    '西边困倦的魔理沙有一张屋檐下的长椅。口渴的灵梦能在干岸饮水。东边两只流浪油附近各有一处遮雨地，分别是抬高木桶和遮篷。', '约半分钟', [
         box(-11, -1, -4, 12, -1, 4, 'minecraft:polished_andesite'),
+        box(-9, 3, -2, -3, 3, 2, 'minecraft:spruce_planks'),
+        box(-1, 3, -3, 3, 3, 1, 'minecraft:spruce_planks'),
         block(-7, 0, 0, 'minecraft:oak_stairs[facing=south]'),
         block(-6, 0, 0, 'minecraft:oak_slab[type=bottom]'),
         block(-5, 0, 0, 'minecraft:oak_stairs[facing=south]'),
-        block(6, -1, 0, 'minecraft:water[level=0]'),
-        block(10, 1, 0, 'minecraft:barrel[facing=west]'),
-        'data merge block ~10 ~1 ~ {NeoForgeData:{StreetShelter:1b}}',
+        block(2, -1, 0, 'minecraft:water[level=0]'),
+        block(10, 1, -3, 'minecraft:barrel[facing=west]'),
+        block(11, 0, -3, 'minecraft:spruce_fence'),
+        block(11, 1, -3, 'minecraft:spruce_planks'),
+        'data merge block ~10 ~1 ~-3 {NeoForgeData:{StreetShelter:1b}}',
         box(9, 2, 2, 11, 2, 3, 'minecraft:orange_wool'),
-        street_trial('street_furniture', 'marisa', -6, 0, 'bench_stray', dy=.5, energy=19, rest_wait=0, lead=True),
-        street_trial('street_furniture', 'reimu', 5, 0, 'water_stray', hygiene=45),
+        street_trial('street_furniture', 'marisa', -6, -1, 'bench_stray', energy=19, rest_wait=0, lead=True),
+        street_trial('street_furniture', 'reimu', 1, 0, 'water_stray', hygiene=45),
+        street_trial('street_furniture', 'alice', 9, -3, 'barrel_stray'),
+        street_trial('street_furniture', 'chen', 9, 1, 'awning_stray'),
         f'data merge entity {sel("water_stray")} {{YukkuriLife:{{Dryness:55f}}}}',
-    ], env=DAY, vantage=(0, 14), reads=[('读饮水', f'yukkuri status {sel("water_stray")} raw')])
+    ], env={'time': 'noon', 'weather': 'rain'}, vantage=(0, 14),
+    reads=[('读饮水', f'yukkuri status {sel("water_stray")} raw')])
 
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
@@ -4914,6 +4921,8 @@ _boxed = _uuid_text('oniisan_prey', 'street_box')
 _crop_eater = _uuid_text('street_crops', 'crop_eater')
 _bench_stray = _uuid_text('street_furniture', 'bench_stray')
 _water_stray = _uuid_text('street_furniture', 'water_stray')
+_barrel_stray = _uuid_text('street_furniture', 'barrel_stray')
+_awning_stray = _uuid_text('street_furniture', 'awning_stray')
 _street_protected = [_uuid_text('oniisan_prey', name) for _, name, _ in _street_trials
                      if name not in ('street_free', 'street_chewing', 'street_box')]
 _mixed_protected = [_uuid_text('street_mixed', name) for name in ('street_intervened', 'street_door', 'street_trust')]
@@ -4975,14 +4984,18 @@ _smoke('street_crops', 240, [
     rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
     rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*crop=BlockPos',
     rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot',
+    rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source={_uuid_text("street_crops", "crop_witness")}\b',
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))
-_smoke('street_furniture', 420, [
+_smoke('street_furniture', 780, [
     rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH ',
     rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
     rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
-], readout=_street_health_reads('bench_stray', 'water_stray'))
+    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street bench exit ',
+    rf'\[weather\][^\n]* uuid={_barrel_stray}\b[^\n]* street rain cover reached spot=BARREL ',
+    rf'\[weather\][^\n]* uuid={_awning_stray}\b[^\n]* street rain cover reached spot=AWNING ',
+], readout=_street_health_reads('bench_stray', 'water_stray', 'barrel_stray', 'awning_stray'))
 _smoke('oni_street_scrap', 1300, [
     r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=mcyukkuri:trimmed_hair count=1',
     r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=mcyukkuri:trimmed_hair count=1',
