@@ -150,7 +150,7 @@ def chip(x0, tier):
         put(x0 + 3, 48 + 3, rgb(p['spec']))
 for n, t in enumerate(('bronze', 'silver', 'gold')): chip(n * 9, t)
 
-# platinum chip (after the expired chip): cold white octagon, bright rim, engraved inner ring, white core
+# platinum chip (after the expired chip): near-white filled octagon, edge lit on the upper left, light inner ring
 def platinum_chip(x0):
     p = PALETTES['platinum']
     def octagon(level, i, j):
@@ -160,11 +160,11 @@ def platinum_chip(x0):
         for i in range(9):
             if not octagon(0, i, j): continue
             d = -(i - 4 + j - 4)
-            if not octagon(1, i, j): c = p['outline']
-            elif not octagon(2, i, j): c = p['shade'][2] if d > 0 else p['shade'][1] if d > -3 else p['shade'][0]
-            elif not octagon(3, i, j): c = p['engrave']
-            else: c = p['light'] if d > 0 else p['shade'][2] if d > -2 else p['shade'][1]
+            if not octagon(1, i, j): c = p['outline_lit'] if d > 0 else p['outline']
+            elif not octagon(2, i, j): c = p['ring'][1] if d > 0 else p['ring'][0]
+            else: c = p['face'][2] if d > 0 else p['face'][1] if d > -3 else p['face'][0]
             put(x0 + i, 48 + j, rgb(c))
+    put(x0 + 3, 48 + 3, rgb(p['spec']))
 platinum_chip(36)
 
 # expired grade chip: desaturated disc with a 2px dark red cross (no 1px-only cue)

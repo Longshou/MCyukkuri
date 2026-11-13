@@ -2,7 +2,7 @@
 
 16x16, domed metal pin, top-left light. Tiers differ by value AND outline shape:
 bronze = darker value, plain single rim; silver = plain double rim; gold = scalloped (notched) rim;
-platinum = cold white octagon with a deep blue-grey edge and an engraved inner ring (a double line border).
+platinum = near-white octagon (14 wide, like bronze and gold) with a deep blue-grey edge and an engraved inner ring.
 Original design; bronze to gold carry a simplified yukkuri head silhouette, platinum a pair of opposing
 dialogue arcs (two speech waves meeting) for its explanation-and-consideration exam.
 """
@@ -14,7 +14,9 @@ PALETTES = {
     'bronze': {'outline': '#3a1d0f', 'shade': ['#8f5428', '#b6713a', '#d08e52'], 'light': '#e8a868', 'spec': '#f6d2a8', 'engrave': '#4a2814'},
     'silver': {'outline': '#2c3642', 'shade': ['#8c98a6', '#bec8d2', '#e8eef3'], 'light': '#f4f8fb', 'spec': '#ffffff', 'engrave': '#5a6676'},
     'gold':   {'outline': '#5c340e', 'shade': ['#ba781e', '#e8aa2e', '#fad258'], 'light': '#ffe58a', 'spec': '#fff8d0', 'engrave': '#8a5414'},
-    'platinum': {'outline': '#283150', 'shade': ['#a9b3cb', '#d6dcea', '#f1f4fa'], 'light': '#ffffff', 'spec': '#ffffff', 'engrave': '#3c4a70'},
+    'platinum': {'outline': '#283150', 'outline_lit': '#56658c', 'shade': ['#b9c2d6', '#e3e8f2', '#ffffff'],
+                 'ring': ['#7d8aab', '#9aa6c3'], 'face': ['#c3cbdc', '#e2e7f1', '#f6f8fc'], 'light': '#ffffff', 'spec': '#ffffff',
+                 'engrave': '#3c4a70'},
 }
 TIERS = ('bronze', 'silver', 'gold', 'platinum')
 
@@ -74,17 +76,16 @@ def badge(tier):
         im.putpixel(xy, _rgba(p['spec']))
     return im
 
-SPEC = {'bronze': ((3, 3), (4, 2)), 'silver': ((3, 2), (2, 3)), 'gold': ((3, 3), (4, 2)), 'platinum': ((4, 4), (5, 4), (4, 5))}
+SPEC = {'bronze': ((3, 3), (4, 2)), 'silver': ((3, 2), (2, 3)), 'gold': ((3, 3), (4, 2)), 'platinum': ((5, 4), (4, 5))}
 
 # Platinum emblem: two 5-pixel arcs bulging toward each other, ")(" with a 2-pixel gap.
 DIALOGUE_ARCS = ((5, 5), (6, 6), (6, 7), (6, 8), (5, 9), (10, 5), (9, 6), (9, 7), (9, 8), (10, 9))
 
 
-def octagon(level, x, y, size=SIZE):
-    """Octagon inset by `level` pixels: straight edges half the width, 45-degree corner cuts (8-wide top on 16)."""
-    half = size / 2
-    dx, dy = abs(x + .5 - half), abs(y + .5 - half)
-    return max(dx, dy) <= half - .5 - level and dx + dy <= size * 11 / 16 - level
+def octagon(level, x, y):
+    """The platinum octagon inset by `level` pixels: 14 wide like the bronze and gold discs, 6-pixel straight edges."""
+    dx, dy = abs(x + .5 - 8), abs(y + .5 - 8)
+    return max(dx, dy) <= 6.5 - level and dx + dy <= 9 - level
 
 
 def _platinum():
@@ -94,14 +95,14 @@ def _platinum():
         for x in range(SIZE):
             if not octagon(0, x, y): continue
             d = -(x + .5 - 8) - (y + .5 - 8)  # + toward the top-left light
-            if not octagon(1, x, y):
-                c = p['outline']
+            if not octagon(1, x, y):  # edge, lighter where the light falls so the badge reads bright, not dark-rimmed
+                c = p['outline_lit'] if d > 1 else p['outline']
             elif not octagon(2, x, y):  # bright rim
                 c = p['shade'][2] if d > 2 else p['shade'][1] if d > -3 else p['shade'][0]
             elif not octagon(3, x, y):  # engraved inner ring
-                c = p['engrave']
-            else:  # domed face
-                c = p['shade'][2] if d > 2 else p['shade'][1] if d > -2.5 else p['shade'][0]
+                c = p['ring'][1] if d > 2 else p['ring'][0]
+            else:  # near-white domed face
+                c = p['face'][2] if d > 1.5 else p['face'][1] if d > -2.5 else p['face'][0]
             im.putpixel((x, y), _rgba(c))
     arcs = set(DIALOGUE_ARCS)
     for x, y in arcs:  # lit lower-right emboss edge, as on the other tiers' emblem
