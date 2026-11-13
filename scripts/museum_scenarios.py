@@ -5200,8 +5200,8 @@ _window_smoke['commands'] = [
     (270, f'tp {_window_west} ~16.5 ~ ~25.5'),
     (330, _window_customer(16.5, 'customer_wary')),
     (330, f'yukkuri status fear {BOOTH.format("chen", 0)} {_window_wary} 60')]
-# The tool wall has eight operation tools and vanilla shears, alongside eight shelf goods.
-_smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=17\b',
+# The tool wall has eight operation tools and vanilla shears, alongside seven shelf goods.
+_smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=16\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI '])
