@@ -180,13 +180,16 @@ def connect_panes(b):
         b.blocks[x,y,z]=(n,props,None)
 def marker(b,x,y,z,tag,data=None,yaw=180.):
     """A vanilla marker entity read once by the shop register (shop/ShopRegistry): footprint corners, counter, barrels, item-frame spots.
-    Its yaw turns with the template, so a marker can carry a direction (street shelter openings)."""
+    Its yaw turns with the template, so a frame marker can carry its facing."""
     extra={'Tags':sequence(8,[tag])}
     if data: extra['data']=compound(data)
     b.entity(x,y,z,'minecraft:marker',extra,yaw)
-def frame(b,x,y,z,item):
+def frame(b,x,y,z,item,facing=None):
     """An item frame showing one good, hung on the wall behind this air cell (the register turns the marker into a fixed vanilla frame)."""
-    marker(b,x+.5,y+.5,z+.5,'mcy_shop_frame',{'Item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)})})
+    data = {'Item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)})}
+    if facing is not None: data['Facing'] = byte(1)
+    yaw = {'south': 0., 'west': 90., 'north': 180., 'east': 270.}[facing or 'north']
+    marker(b,x+.5,y+.5,z+.5,'mcy_shop_frame',data,yaw)
 def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3,hatch=None):
     """y is the cell the animals stand in (the floor block is below it); hatch is the (x, z) of its service door in the wall ring."""
     b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y,'hatch':hatch})

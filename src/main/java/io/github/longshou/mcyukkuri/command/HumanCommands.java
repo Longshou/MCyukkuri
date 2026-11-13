@@ -136,11 +136,11 @@ public final class HumanCommands {
         for (var shop : registry.shops()) {
             n++;
             long staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), s -> s.isAlive() && registry.of(s) == shop).size();
-            say(c, "shop id=" + shop.id + " post=" + shop.pos.toShortString() + " dim=" + shop.dimension + " staffLoaded=" + staff
+            say(c, "shop id=" + shop.id + " kind=" + shop.kind + " post=" + shop.pos.toShortString() + " dim=" + shop.dimension + " staffLoaded=" + staff
                     + " authored=" + shop.authored() + " counter=" + shop.counter().toShortString());
             for (var y : ShopRegistry.liveStock(level, shop))
                 say(c, "  stock " + y.getType().getDescriptionId().replace("entity.mcyukkuri.", "") + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " owner=" + HumanCommercePeek.owner(y)
-                        + " price=" + ShopPricing.price(y));
+                        + " price=" + ShopPricing.price(shop.kind, y));
         }
         say(c, n + " shop(s)");
         return n;
@@ -153,7 +153,8 @@ public final class HumanCommands {
         var pos = BlockPosArgument.getLoadedBlockPos(c, "pos");
         var y = HumanScenes.addStock(c.getSource().getLevel(), keeper, v, Vec3.atBottomCenterOf(pos));
         if (y == null) { say(c, "could not add stock"); return 0; }
-        say(c, "stock " + at(y) + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " price=" + ShopPricing.price(y));
+        var shop = ShopRegistry.get(c.getSource().getLevel()).of(keeper);
+        say(c, "stock " + at(y) + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " price=" + ShopPricing.price(shop.kind, y));
         return 1;
     }
 

@@ -204,7 +204,7 @@ public final class ShopStaff {
     private static boolean graduate(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop) {
         if (staff.tickCount % 100 != 3) return false;
         for (var animal : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds().inflate(16), ShopStaff::readyNursery)) {
-            if (!free(animal.getUUID(), level.getGameTime())
+            if (!shop.kind.accepts(animal) || !free(animal.getUUID(), level.getGameTime())
                     || freeNest(level, shop, animal.profile().dangerToYukkuri(), animal.position()) == null) continue;
             var job = new Job(staff.getUUID(), shop.id, Kind.NURSERY);
             job.animal = animal.getUUID();
@@ -383,6 +383,7 @@ public final class ShopStaff {
                 job.token = YukkuriWorldData.get(level).capture(y, () -> {
                     y.life().releaseHome();
                     Custody.assign(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK);
+                    shop.kind.prepareStock(y);
                 });
                 if (job.token == null) { end(staff, job, "capture_refused"); return; }
                 staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), job.token));
@@ -400,7 +401,7 @@ public final class ShopStaff {
                 var bowl = (CareBlockEntity) level.getBlockEntity(job.target);
                 for (int slot = 0; slot < bowl.getContainerSize(); slot++) if (bowl.getItem(slot).isEmpty()) {
                     int served = staff.drawCareFood(SERVING);
-                    bowl.setItem(slot, new ItemStack(ModItems.GRAIN_REGULAR.get(), served));
+                    bowl.setItem(slot, new ItemStack(shop.kind.grain(), served));
                     GameplayLog.event(staff, "npc-care", "action=refill_bowl target={} transferred={} food_left={}", job.target.toShortString(), served, staff.careFood());
                     break;
                 }

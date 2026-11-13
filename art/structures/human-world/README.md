@@ -21,7 +21,7 @@
 - 地块沿车道接续。东端接口名 `mcyukkuri:street_west`，西端名 `mcyukkuri:street_east`，各自以对方名称为目标、以 `village/street_sites` 为池；拼图只能不转向地接上，建筑总在车道远离村路的一侧，空着的一端继续向外抽选，长度由原版距离与碰撞检查决定。接口在车道中线（z4、y1），下方一格铺路，`final_state` 为空气。
 - 宠物店西端抽 `village/street_sites`（集市摊位、后巷、空），东端抽 `village/street_east`（鬼威惨商店优先，其次集市摊位、空），所以每座村庄至多一家鬼威惨商店。
 - 集市摊位 `village/street_stall`：条纹遮阳篷、农产品柜台、摊后板架下的挡风缝、木箱位和集市垃圾桶。后巷 `village/street_alley`：两间原版风格小屋夹出的死胡同，两只垃圾桶（一开一合）、披檐下的挡风缝、尽头的纸箱位和墙头灯。宠物店前的两只垃圾桶也是垃圾点，人行道有路灯。
-- 流浪物件按流浪系统的读取方式放置（玩法见[功能说明](../../../docs/FEATURES.md)的临时避风与翻垃圾）。垃圾点是带 `NeoForgeData.YukkuriGarbage` 的木桶，正面朝向取物格，取物格上方的橡木活板门是盖子，桶里是有限的真实物品。挡风缝是上方有碰撞、侧面有整方块的干燥地面格，地上放一张不消失的纸。纸箱／木箱位是 `mcy_street_shelter` 标记，`data.Kind` 为 `mcyukkuri:cardboard_shelter` 或 `mcyukkuri:crate_shelter`，标记朝向即开口方向，中心格与 3×3×2 占地随模板旋转；箱体由代码按现有放置规则生成，因为结构旋转不会改写多方块箱体的部件编号。
+- 流浪物件按流浪系统的读取方式放置（玩法见[功能说明](../../../docs/FEATURES.md)的临时避风与翻垃圾）。垃圾点是带 `NeoForgeData.YukkuriGarbage` 的木桶，正面朝向取物格，取物格上方的橡木活板门是盖子，桶里是有限的真实物品。挡风缝是上方有碰撞、侧面有整方块的干燥地面格，地上放一张不消失的纸。纸箱与木箱直接使用 3×3×2 的共享箱体，只有中心格有方块实体。旋转时部件编号和开口方向一起转。
 - 增加地块：写一个函数（`street_band` 铺街、`street_ends` 放两端接口），加入 `pieces()`，并在 `export()` 的池里加一项。
 
 试玩时用种子 `42` 新建默认世界。在原点附近运行 `/locate structure minecraft:village_plains` 可定位到 `(656, -304)`；也可用 `/tp @s 651 80 -302` 直接到临街步道，再沿步道上正门台阶。
@@ -48,7 +48,7 @@
 | `mcy_oni_trash` | 废物桶 |
 | `mcy_shop_frame` | 展示框，与宠物店共用：所在店铺登记时变成固定展示框 |
 
-店主 `oniisan`（岗位 1、CRUEL、`SiteRole=oni_shopkeeper`）在柜台后，店员 `caretaker_brother`（岗位 1、CRUEL、`oni_staff`）在后屋。在售个体 `PendingRole=oni_shopkeeper`、`Use=stock`，性格偏骄横或迟钝，营养和清洁偏低，子油写真实年龄。角点等标记不用宠物店前缀：两店相邻时宠物店会读取 32 格内全部 `mcy_shop_*` 角点，同名会让它登记失败。代码接入前，这两位店员不属于任何店铺，不营业也不施虐，库存由店主名下保护。
+店主 `oniisan`（岗位 1、CRUEL、`SiteRole=oni_shopkeeper`）在柜台后，店员 `caretaker_brother`（岗位 1、CRUEL、`oni_staff`）在后屋。在售个体 `PendingRole=oni_shopkeeper`、`Use=stock`，性格偏骄横或迟钝，营养和清洁偏低，子油写真实年龄。角点、交接和货桶标记按店铺类型读取，共用的展示框标记按店铺边界读取。
 
 ## 宠物店
 

@@ -39,10 +39,14 @@ public final class ShopOrders {
     private ShopOrders() {}
 
     /** Pool indexes of today three orders for this shopkeeper. */
-    public static int[] today(ServerLevel level, UUID shopId) {
+    public static int[] today(ServerLevel level, ShopRegistry.Entry shop) {
+        UUID shopId = shop.id;
         long seed = shopId.getMostSignificantBits() * 31 + shopId.getLeastSignificantBits() + ShopStock.today(level) * 0x9E3779B97F4A7C15L;
         List<Integer> all = new ArrayList<>();
-        for (int i = 0; i < POOL.size(); i++) all.add(i);
+        for (int i = 0; i < POOL.size(); i++) {
+            var good = POOL.get(i).good();
+            if (good.isEmpty() || ShopCatalog.find(shop.kind, good) != null) all.add(i);
+        }
         Collections.shuffle(all, new Random(seed));
         return new int[] {all.get(0), all.get(1), all.get(2)};
     }
@@ -56,7 +60,8 @@ public final class ShopOrders {
     }
 
     /** Delivers today order in this slot (0..2): takes the goods, pays the reward, refills the shelf. False when done already or not enough goods. */
-    public static boolean deliver(ServerLevel level, UUID shopId, Player player, int slot) {
+    public static boolean deliver(ServerLevel level, ShopRegistry.Entry shop, Player player, int slot) {
+        UUID shopId = shop.id;
         if (slot < 0 || slot >= PER_DAY) {
             GameplayLog.event(player,"shop","action=deliver_order result=refused shop={} slot={} reason=invalid_slot",shopId,slot);
             return false;
@@ -66,7 +71,7 @@ public final class ShopOrders {
             GameplayLog.event(player,"shop","action=deliver_order result=refused shop={} slot={} reason=already_done",shopId,slot);
             return false;
         }
-        var order = order(today(level, shopId)[slot]); Item item = order.item().get();
+        var order = order(today(level, shop)[slot]); Item item = order.item().get();
         if (count(player, item) < order.count()) {
             GameplayLog.event(player,"shop","action=deliver_order result=refused shop={} slot={} reason=insufficient_goods item={} required={} held={}",shopId,slot,item,order.count(),count(player,item));
             return false;
@@ -76,9 +81,8 @@ public final class ShopOrders {
             var pay = new ItemStack(Items.EMERALD, Math.min(64, left));
             if (!player.getInventory().add(pay)) player.drop(pay, false);
         }
-        int index = ShopCatalog.indexOf(order.good());
-        if (index >= 0) {
-            var good = ShopCatalog.at(index);
+        var good = ShopCatalog.find(shop.kind, order.good());
+        if (good != null) {
             stock.add(level, shopId, good, order.count() / Math.max(1, good.stack().getCount()));
         }
         stock.orderDone(level, shopId, player.getUUID(), slot);

@@ -72,6 +72,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> WOUND=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> WOUNDS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> BODY_SIGNS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> SYNDROME_PREVENTED = YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> CARRYING=YukkuriEntity.defineSyncedValue(EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<String> CONTACT_POSE=YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Float> CONTACT_TURN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
@@ -206,11 +207,13 @@ final class YukkuriSync {
         }
         setChanged(HAIR_LOSS, owner.body().hairLoss());
         setChanged(BODY_SIGNS, owner.body().signs());
+        setChanged(SYNDROME_PREVENTED, owner.mind().preventionRemaining() > 0);
     }
     <T> void setChanged(EntityDataAccessor<T> key, T value) {
         if (!Objects.equals(owner.getEntityData().get(key), value)) owner.getEntityData().set(key, value);
     }
     int visibleSigns(){return owner.getEntityData().get(BODY_SIGNS);}
+    boolean visibleSyndromePrevention() { return owner.getEntityData().get(SYNDROME_PREVENTED); }
     float growthScale() { return owner.getEntityData().get(GROWTH_SCALE)*((subspeciesFlags()&SubspeciesLife.DEIBU_FLAG)!=0?1.5f:1); }
     int lifeStage() { return owner.getEntityData().get(LIFE_STAGE); }
     int broodCount() { return owner.getEntityData().get(BROOD_COUNT); }
@@ -377,6 +380,7 @@ final class YukkuriSync {
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);
         builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);
+        builder.define(SYNDROME_PREVENTED, false);
         builder.define(CONTACT_POSE,"NONE");builder.define(CONTACT_TURN,0f);builder.define(HAIR_LOSS,0);builder.define(CONTACT_ANCHOR,Optional.empty());
         builder.define(GROWTH_SCALE,1f);builder.define(LIFE_STAGE,FamilyLife.Stage.ADULT.ordinal());
         builder.define(BROOD_COUNT,0);builder.define(BROOD_BORN,0);builder.define(BROOD_TYPES,0);

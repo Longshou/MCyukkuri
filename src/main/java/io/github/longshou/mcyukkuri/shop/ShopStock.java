@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup;
@@ -37,14 +38,18 @@ public final class ShopStock extends SavedData {
         Shop shop = shops.computeIfAbsent(id, k -> new Shop());
         int today = today(level);
         if (shop.day < 0) {
-            for (var good : ShopCatalog.GOODS) shop.stock.put(good.id(), good.cap());
+            for (var good : goods(level, id)) shop.stock.put(good.id(), good.cap());
             shop.day = today; setDirty();
         } else if (shop.day < today) {
             int days = Math.min(today - shop.day, MAX_CATCH_UP);
-            for (var good : ShopCatalog.GOODS) { Integer old = shop.stock.get(good.id()); shop.stock.put(good.id(), old == null ? good.cap() : Math.min(good.cap(), old + good.restock() * days)); }
+            for (var good : goods(level, id)) { Integer old = shop.stock.get(good.id()); shop.stock.put(good.id(), old == null ? good.cap() : Math.min(good.cap(), old + good.restock() * days)); }
             shop.day = today; setDirty();
         }
         return shop;
+    }
+    private static List<ShopCatalog.Good> goods(ServerLevel level, UUID id) {
+        var site = ShopRegistry.get(level).shop(id);
+        return ShopCatalog.goods(site == null ? ShopKind.PET : site.kind);
     }
     private Visit visit(ServerLevel level, UUID shopId, UUID player) {
         Visit visit = shop(level, shopId).visits.computeIfAbsent(player, k -> new Visit());

@@ -1655,6 +1655,14 @@ add('shop_buy', 'shop', '买下金章爱丽丝：店员开铁门进展舱抱她�
     '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 14, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
+add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
+    '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
+    '沿着橱窗慢慢走，看个体怎样回应；试着购买、预订，或者带自己的宠物来询问收购价。',
+    '建筑几秒，展舱附近等片刻', [
+        'yukkuri human build oni_shop ~8 ~ ~17 south',
+        'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
+    ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 17, 180, 8),
+    reads=[('读店铺与库存', 'yukkuri human shop list'), ('读库存体况与预防', f'yukkuri status {STOCK} raw')])
 add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的子油进窝', '三天补货：多余的成体装篮送走，新到的子油进窝',
     '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里只留两只成体，最久没卖出去的两只被店员装篮送进后屋的进出货桶；'
     '新到的子油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。交了定金预订的个体不会被送走。下一次补货在三天后',
@@ -4183,6 +4191,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
+    'oni_shop': 'M1',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -4636,6 +4645,10 @@ _window_smoke['commands'] = [
     (330, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
     (330, _window_customer(16.5, 'customer_wary')),
     (330, f'yukkuri status fear {BOOTH.format("chen", 0)} {_window_wary} 60')]
+_smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=22\b',
+                          r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
+                          r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
+                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI '])
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
                           r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',

@@ -643,6 +643,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncBody() { sync().syncBody(); }
     private <T> void setChanged(EntityDataAccessor<T> key, T value) { sync().setChanged(key, value); }
     public int visibleSigns(){ return sync().visibleSigns(); }
+    public boolean visibleSyndromePrevention() { return sync().visibleSyndromePrevention(); }
     /** Vanilla would reject this hit as a repeat inside the hurt cooldown (LivingEntity.hurt); the body must not analyse it. */
     public boolean repeatHitIgnored(DamageSource source,float amount){ return damage().repeatHitIgnored(source, amount); }
     public float growthScale() { return sync().growthScale(); }

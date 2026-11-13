@@ -67,7 +67,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class Data {
-        public static final int COUNT = 74;
+        public static final int COUNT = 75;
         public static final int TAB = 0;
         public static final int TRADES_LEFT = 1;
         public static final int DAYTIME = 2;
@@ -99,6 +99,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int STANDING = 71;
         public static final int SUBJECT_MOTHER_BADGE = 72;
         public static final int SUBJECT_FATHER_BADGE = 73;
+        public static final int ONI_SHOP = 74;
         private Data() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -127,10 +128,11 @@ public final class ShopMenu extends AbstractContainerMenu {
         private Flags() {}
     }
     /** Sell state codes (slot 34): the refusal the sell button would meet. */
-    public static final List<String> SELL_STATES = List.of("ok", "closed", "unsuited", "outside", "busy", "no_nest", "gone");
+    public static final List<String> SELL_STATES = List.of("ok", "closed", "unsuited", "outside", "busy", "no_nest", "gone", "oni_predator");
     /** Live row slot MOOD: 0 nothing to show, 1 pleading at the window, 2 posing proudly, 3 hiding shyly, 4 sulking, 5 let down, 6 asleep, 7 eating, 8 greeting politely. */
     public static final class Mood {
-        public static final int NONE = 0, APPEAL = 1, PROUD = 2, SHY = 3, SULK = 4, LETDOWN = 5, ASLEEP = 6, EATING = 7, POLITE = 8;
+        public static final int NONE = 0, APPEAL = 1, PROUD = 2, SHY = 3, SULK = 4, LETDOWN = 5, ASLEEP = 6, EATING = 7, POLITE = 8,
+                INSOLENT = 9, NUMB = 10;
         private Mood() {}
     }
     /** What the row shows of the animal's real state; never starts or probes a behaviour. */
@@ -145,14 +147,22 @@ public final class ShopMenu extends AbstractContainerMenu {
             case PROUD -> Mood.PROUD;
             case SHY -> Mood.SHY;
             case SULK -> Mood.SULK;
+            case INSOLENT -> Mood.INSOLENT;
+            case NUMB -> Mood.NUMB;
         };
         return window.letDown() ? Mood.LETDOWN : Mood.NONE;
     }
     public static final int GOODS_ROWS = 4;
-    public static int goodsPages() { return ShopCatalog.pages(); }
-    public static int goodsCategory(int page) { return ShopCatalog.category(page); }
-    public static ItemStack goodsStack(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? ItemStack.EMPTY : good.stack(); }
-    public static int goodsPrice(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? 0 : good.price(); }
+    public boolean oniShop() { return shop == null ? value(Data.ONI_SHOP) != 0 : shop.kind == ShopKind.ONI; }
+    private List<List<ShopCatalog.Good>> goodsPages() { return ShopCatalog.pages(oniShop() ? ShopKind.ONI : ShopKind.PET); }
+    private List<ShopCatalog.Good> goodsPage(int page) { return goodsPages().get(Math.floorMod(page, goodsPages().size())); }
+    public int goodsCategory(int page) { return goodsPage(page).getFirst().category(); }
+    private ShopCatalog.Good good(int page, int row) {
+        var goods = goodsPage(page);
+        return row >= 0 && row < goods.size() ? goods.get(row) : null;
+    }
+    public ItemStack goodsStack(int page, int row) { var good = good(page, row); return good == null ? ItemStack.EMPTY : good.stack(); }
+    public int goodsPrice(int page, int row) { var good = good(page, row); return good == null ? 0 : good.price(); }
     /** The deposit that reserves an animal at this price (shown on the reserve button). */
     public static int deposit(int price) { return ShopTrade.deposit(price); }
 
@@ -231,7 +241,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         return mask;
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
-    private int pageCount() { return tab == LIVE ? Math.max(1, (roster.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
+    private int pageCount() { return tab == LIVE ? Math.max(1, (roster.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages().size() : 1; }
 
     /** The current physical roster, best badges first. */
     private void rebuildRoster() {
@@ -263,6 +273,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         rebuildRoster();
         page = Math.min(page, pageCount() - 1);
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
+        put(Data.ONI_SHOP, oniShop() ? 1 : 0);
         put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.id, viewer.getUUID()));
         put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
         if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
@@ -270,12 +281,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (tab == GOODS) {
             var stocks = ShopStock.get(level);
             for (int row = 0; row < GOODS_ROWS; row++) {
-                var good = ShopCatalog.at(ShopCatalog.index(page, row)); if (good == null) continue;
+                var good = good(page, row); if (good == null) continue;
                 put(Data.GOODS_STOCK_BASE + row, stocks.stock(level, shop.id, good)); put(Data.GOODS_UNLOCK_BASE + row, good.unlock());
             }
         }
         if (tab == ORDERS) {
-            var orders = ShopOrders.today(level, shop.id);
+            var orders = ShopOrders.today(level, shop);
             for (int i = 0; i < ShopOrders.PER_DAY; i++) put(Data.ORDER_BASE + i, orders[i] + 1);
             put(Data.ORDERS_DONE, ShopStock.get(level).ordersDone(level, shop.id, viewer.getUUID()));
         }
@@ -288,7 +299,7 @@ public final class ShopMenu extends AbstractContainerMenu {
                 put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y)); put(k + LiveRow.SKILLS, skills(y));
                 put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION, Math.round(y.life().nutrition()));
                 var d = shop.deposit(y.getUUID());
-                put(k + LiveRow.PRICE, d != null && d.buyer().equals(viewer.getUUID()) ? d.price() - d.paid() : ShopPricing.price(y));
+                put(k + LiveRow.PRICE, d != null && d.buyer().equals(viewer.getUUID()) ? d.price() - d.paid() : ShopPricing.price(shop.kind, y));
                 put(k + LiveRow.ENTITY_LOW, (short) y.getId()); put(k + LiveRow.ENTITY_HIGH, (short) (y.getId() >>> 16));
                 put(k + LiveRow.DAYS, Math.max(0, CommodityLife.forSaleDays(y))); put(k + LiveRow.MOOD, mood(y));
             }
@@ -306,7 +317,8 @@ public final class ShopMenu extends AbstractContainerMenu {
             if (b.expired()) advice.add(9);
             if (b.unauthorizedBirths() > 0) advice.add(10);
             for (int i = 0; i < Math.min(3, advice.size()); i++) put(Data.ADVICE_BASE + i, advice.get(i));
-            put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(y) : ShopPricing.price(y)); put(Data.BUYBACK_RATE, ShopPricing.rate(y)); put(Data.BUYBACK_PENALTY, ShopPricing.penalty(y));
+            put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(shop.kind, y) : ShopPricing.price(shop.kind, y));
+            put(Data.BUYBACK_RATE, ShopPricing.rate(y)); put(Data.BUYBACK_PENALTY, ShopPricing.penalty(y));
             if (tab == BUYBACK) { String why = ShopTrade.sellRefusal(level, shop, y, viewer); put(Data.SELL_STATE, why == null ? 0 : SELL_STATES.indexOf(why)); }
             put(Data.SUBJECT_TAGS, t[0] | t[1] << 4); put(Data.TITLE, b.title());
         }
@@ -315,7 +327,7 @@ public final class ShopMenu extends AbstractContainerMenu {
 
     // actions
     private boolean buyGood(ServerLevel level, Player p, int row) {
-        var good = ShopCatalog.at(ShopCatalog.index(page, row));
+        var good = good(page, row);
         if (good == null) return false;
         int price = good.price(); var stack = good.stack(); var stocks = ShopStock.get(level);
         String why = !level.isDay() ? "closed" : !PetPrivileges.allows(p, good.unlock()) ? "locked." + good.unlock()
@@ -396,7 +408,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);
         else if (id == ButtonId.SELL) { ok = tab == BUYBACK && ShopTrade.sell(level, shop, subject(), player); if (ok) rescan(); }
         else if (id >= ButtonId.DELIVER_ORDER_BASE) {
-            ok = tab == ORDERS && level.isDay() && ShopOrders.deliver(level, shop.id, p, id - ButtonId.DELIVER_ORDER_BASE);
+            ok = tab == ORDERS && level.isDay() && ShopOrders.deliver(level, shop, p, id - ButtonId.DELIVER_ORDER_BASE);
             ShopTrade.say(p, ok ? "order.delivered" : level.isDay() ? "order.unavailable" : "goods.refused.closed");
         }
         else ok = false;

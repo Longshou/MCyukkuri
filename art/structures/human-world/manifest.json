@@ -62,7 +62,7 @@
       16
     ],
     "blocks": 1920,
-    "entities": 8,
+    "entities": 7,
     "source": "art/structures/human-world/author_street.py"
   },
   {
@@ -73,7 +73,7 @@
       20
     ],
     "blocks": 3060,
-    "entities": 2,
+    "entities": 1,
     "source": "art/structures/human-world/author_street.py"
   },
   {

@@ -8,9 +8,8 @@ from the village road. The free connector continues the street in the same direc
 
 Stray objects are the ones the stray systems read (docs/FEATURES.md 流浪): a garbage point is a vanilla barrel marked `YukkuriGarbage`,
 facing its stand cell, with an oak trapdoor over the stand as its lid (settlement/GarbageSearch); a wind gap is a dry floor cell with a
-collision block right above and a full block beside it, with a real paper on it (settlement/FoundShelter); a cardboard box or crate is a
-`mcy_street_shelter` marker whose yaw is the opening's direction (a structure turns block-entity shells wrongly, so the code places the shell
-from the marker; see README).
+collision block right above and a full block beside it, with a real paper on it (settlement/FoundShelter); cardboard boxes and crates
+use the normal rotating shelter blocks.
 """
 from pathlib import Path
 import json, math, sys
@@ -21,7 +20,6 @@ from build import Building, stairs, slab, barrel, marker, frame, register_pen, n
 OUT = build.OUT
 OPP = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
 STEP = {'north': (0, -1), 'south': (0, 1), 'east': (1, 0), 'west': (-1, 0)}
-YAW = {'south': 0., 'west': 90., 'north': 180., 'east': 270.}
 LOG = {'axis': 'y'}
 SITES = 'mcyukkuri:village/street_sites'
 EAST_SITES = 'mcyukkuri:village/street_east'
@@ -49,7 +47,7 @@ def garbage(b, x, y, z, facing, items, lid_open=True):
     """A stray garbage point: a marked barrel turned toward its stand cell, a finite real stock, and the lid over the stand."""
     records(b)
     nbt = {'id': string('minecraft:barrel'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(items)]),
-           'NeoForgeData': compound({'YukkuriGarbage': byte(1)})}
+           'NeoForgeData': compound({'YukkuriGarbage': byte(1), 'VillageBin': byte(1)})}
     b.block(x, y, z, 'barrel', {'facing': facing, 'open': 'false'}, nbt)
     dx, dz = STEP[facing]
     b.block(x + dx, y + 1, z + dz, 'oak_trapdoor', {'facing': OPP[facing], 'half': 'top', 'open': 'true' if lid_open else 'false',
@@ -66,9 +64,14 @@ def wind_gap(b, x, y, z, paper=True):
 
 
 def shelter_spot(b, x, y, z, kind, facing):
-    """Where the code puts a found shelter (kind cardboard_shelter / crate_shelter, 3x3 cells, 2 high, centre here, open toward facing)."""
+    """A regular 3×3×2 found shelter with a single block entity at its floor centre."""
     records(b).shelters.append(((x, y, z), kind, facing))
-    marker(b, x + .5, y, z + .5, 'mcy_street_shelter', {'Kind': string('mcyukkuri:' + kind)}, yaw=YAW[facing])
+    for dy in range(2):
+        for dz in range(-1, 2):
+            for dx in range(-1, 2):
+                part = dx + 2 + 5 * (dz + 2) + 25 * dy
+                core = {'id': string('mcyukkuri:wild_shelter')} if part == 12 else None
+                b.block(x + dx, y + dy, z + dz, 'mcyukkuri:' + kind, {'part': str(part), 'facing': facing}, core)
 
 
 def lamp(b, x, y, z, height=3, post='spruce_fence'):
@@ -254,11 +257,13 @@ DULL = (15, 40, 20, 45, 30)
 WHINY = (30, 25, 55, 70, 15)
 
 
-def oni_stock(b, x, z, kind, traits, nutrition, hygiene, age=None):
+def oni_stock(b, x, z, kind, traits, nutrition, hygiene, age=None, form='NORMAL', shape='NORMAL'):
     data = {'PendingRole': string('oni_shopkeeper'), 'Use': string('stock'), 'FactoryGroup': integer(0)}
-    life = {'Nutrition': real(float(nutrition)), 'Hygiene': real(float(hygiene)),
+    life = {'Nutrition': real(float(nutrition)), 'Hygiene': real(float(min(hygiene, 44))),
             'Personality': compound({'Version': integer(1), 'Innate': integers(list(traits))})}
     extra = {'NeoForgeData': compound({'HumanCommerce': compound(data)}), 'YukkuriLife': compound(life)}
+    if form != 'NORMAL' or shape != 'NORMAL':
+        extra['YukkuriSubspecies'] = compound({'Kind': string(form), 'Congenital': string(shape), 'Initialized': byte(1)})
     if age is not None:   # a young individual of this real age (ticks) that has not eaten well: the growth clock recomputes its size
         extra['YukkuriFamily'] = compound({'Version': integer(3), 'Age': long_(age), 'Nourishment': long_(150000), 'Initialized': byte(1),
                                           'AdultScale': real(1.0), 'Scale': real(0.8), 'Stage': string('JUVENILE')})
@@ -355,9 +360,9 @@ def oni_shop():
     for x, z in [(2, 4), (6, 4)]: b.block(x, 3, z, 'mcyukkuri:yukkuri_nest')
     b.bowl(6, 6, grain=3)
     register_pen(b, 'window', (2, 4, 6, 6), (6, 6), [(2, 4), (6, 4)], (5, 3), hatch=(4, 7))
-    oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45)
+    oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45, form='WASA_REIMU')
     oni_stock(b, 5.5, 4.5, 'marisa', GESU, 42, 40)
-    oni_stock(b, 2.5, 5.5, 'reimu', WHINY, 30, 50, age=180000)
+    oni_stock(b, 2.5, 5.5, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
     # Stock cages (interiors x16..19): full bars to the customers (x15), iron staff doors on the corridor side (x20).
     b.box((21, 3, 7), (22, 6, 7), 'spruce_planks')     # closes the staff corridor off from the nook
     for name, z0, stock in [('cage_a', 8, [('marisa', GESU, 35, 40, None), ('marisa', DULL, 30, 45, 160000)]),
@@ -368,15 +373,16 @@ def oni_shop():
         b.bowl(18, z0 + 2, grain=2)
         register_pen(b, name, (16, z0, 19, z0 + 2), (18, z0 + 2), [(16, z0), (16, z0 + 2)], (4, 3), hatch=(20, z0))
         for i, (kind, traits, nutrition, hygiene, age) in enumerate(stock):
-            oni_stock(b, 17.5 + (i % 2), z0 + .5 + (i // 2) + (i % 2), kind, traits, nutrition, hygiene, age)
+            shape = 'FACE_ASYMMETRY' if name == 'cage_c' and i == 2 else 'NORMAL'
+            oni_stock(b, 17.5 + (i % 2), z0 + .5 + (i // 2) + (i % 2), kind, traits, nutrition, hygiene, age, shape=shape)
     # Tool wall (west, x2 against x1): fourteen tools in two rows of fixed frames.
-    for i, item in enumerate(TOOLS): frame(b, 2, 5 - i // 7, 9 + i % 7, item)
+    for i, item in enumerate(TOOLS): frame(b, 2, 5 - i // 7, 9 + i % 7, item, facing='east')
     # Two goods shelves of stacked barrels: consumables on the first, grain and household goods on the second; frames on their east faces.
     for z in range(10, 14):
         for x in (4, 5, 8, 9):
             barrel(b, x, 3, z, 'up'); barrel(b, x, 4, z, 'east' if x in (5, 9) else 'west')
-    for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item)
-    for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item)
+    for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item, facing='east')
+    for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item, facing='east')
     # Counter (customers on z15, staff on z16..18 behind it); its west end is open 3 wide for the staff.
     b.box((5, 3, 16), (14, 3, 16), 'stripped_dark_oak_log', {'axis': 'x'})
     b.block(9, 3, 16, 'lectern', {'facing': 'north', 'has_book': 'false', 'powered': 'false'}, over=True)

@@ -25,6 +25,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.Rotation;
@@ -44,9 +46,7 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class ShopRegistry extends SavedData {
     private static final String NAME = "mcyukkuri_shop_register";
-    static final String OWNER_ROLE = "shopkeeper";
-    private static final String CORNER = "mcy_shop_corner", COUNTER = "mcy_shop_counter", DOCK = "mcy_shop_dock", TRASH = "mcy_shop_trash",
-            FRAME = "mcy_shop_frame";
+    private static final String FRAME = "mcy_shop_frame";
     /** Footprint around the founding post when a shop has no authored corners (a staff member placed by egg or command). */
     private static final int LOOSE_RADIUS = 12;
     /** A reservation: who paid, the locked price, the deposit, and when (it lapses one restock period later, ShopRestock). */
@@ -56,6 +56,7 @@ public final class ShopRegistry extends SavedData {
         public final UUID id;
         public final String dimension;
         public final BlockPos pos;
+        public final ShopKind kind;
         private BlockPos first, second, counter, dock, trash;
         private AABB protection;
         private Direction legacyFront;
@@ -67,7 +68,9 @@ public final class ShopRegistry extends SavedData {
         final Map<UUID, Integer> refunds = new LinkedHashMap<>();
         final Map<UUID, Integer> proceeds = new LinkedHashMap<>();
         final Map<UUID, Order> orders = new LinkedHashMap<>();
-        Entry(UUID id, String dimension, BlockPos pos) { this.id = id; this.dimension = dimension; this.pos = pos; }
+        Entry(UUID id, String dimension, BlockPos pos, ShopKind kind) {
+            this.id = id; this.dimension = dimension; this.pos = pos; this.kind = kind;
+        }
         public AABB bounds() {
             return first == null ? new AABB(pos).inflate(LOOSE_RADIUS, 4, LOOSE_RADIUS) : AABB.encapsulatingFullBlocks(first, second);
         }
@@ -91,15 +94,17 @@ public final class ShopRegistry extends SavedData {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(ShopRegistry::new, ShopRegistry::load), NAME);
     }
 
-    /** A new shop founded at this staff member's post (the template's counter clerk, or a lone staff member), its markers read once. */
+    /** A new shop founded at this staff member's post, once its authored fixtures are available. */
     private Entry found(ServerLevel level, HumanNpc founder) {
         var dim = level.dimension().location().toString();
-        var shop = new Entry(ModRandom.identity(ModRandom.world(level)), dim, founder.home().immutable());
+        var kind = ShopKind.forStaff(founder);
+        var shop = new Entry(ModRandom.identity(ModRandom.world(level)), dim, founder.home().immutable(), kind);
         readMarkers(level, shop);
-        if (!shop.authored() && founder.siteRole().equals(OWNER_ROLE)) {
-            var previous = new Entry(founder.getUUID(), dim, founder.home().immutable());
+        if (!shop.authored() && kind == ShopKind.PET && founder.siteRole().equals(kind.clerkRole)) {
+            var previous = new Entry(founder.getUUID(), dim, founder.home().immutable(), kind);
             if (readLegacyBounds(level, previous)) shop = previous;
         }
+        if (!shop.authored() && kind == ShopKind.ONI) return null;
         shops.put(shop.id, shop);
         shop.staff.add(founder.getUUID());
         setDirty();
@@ -115,12 +120,13 @@ public final class ShopRegistry extends SavedData {
             if (entry.legacy && entry.legacyFront == null) readLegacyBounds(level, entry);
             return entry;
         }
-        var shop = shopAt(level, staff.home().getCenter());
+        var kind = ShopKind.forStaff(staff);
+        var shop = shopAt(level, staff.home().getCenter(), kind);
         if (shop != null) { enroll(shop, staff); return shop; }
-        if (staff.siteRole().isEmpty() || staff.siteRole().equals(OWNER_ROLE)) return found(level, staff);
+        if (staff.siteRole().isEmpty() || staff.siteRole().equals(kind.clerkRole)) return found(level, staff);
         for (var clerk : level.getEntitiesOfClass(HumanNpc.class, new AABB(staff.home()).inflate(32),
-                n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER && n.siteRole().equals(OWNER_ROLE))) of(clerk);
-        shop = shopAt(level, staff.home().getCenter());
+                n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER && n.siteRole().equals(kind.clerkRole))) of(clerk);
+        shop = shopAt(level, staff.home().getCenter(), kind);
         if (shop != null) enroll(shop, staff);
         return shop;
     }
@@ -136,7 +142,7 @@ public final class ShopRegistry extends SavedData {
         for (var entry : shops.values())
             if (entry.legacy && !entry.closed && entry.legacyFront == null && entry.pos.distSqr(npc.home()) < 32 * 32
                     && entry.dimension.equals(level.dimension().location().toString())) readLegacyBounds(level, entry);
-        var shop = shopAt(level, npc.home().getCenter());
+        var shop = shopAt(level, npc.home().getCenter(), ShopKind.PET);
         if (shop == null || !shop.legacy) return;
         npc.setJob(HumanNpc.Job.SHOPKEEPER);
         enroll(shop, npc);
@@ -151,7 +157,7 @@ public final class ShopRegistry extends SavedData {
         if (shop == null) { Custody.ownerDied(dead); return; }
         for (var npc : level.getEntitiesOfClass(HumanNpc.class, shop.bounds().inflate(8), n -> n != dead && n.isAlive())) {
             adoptLegacy(level, npc);
-            if (npc.job() == HumanNpc.Job.SHOPKEEPER && shop.contains(npc.home().getCenter())) enroll(shop, npc);
+            if (npc.job() == HumanNpc.Job.SHOPKEEPER && ShopKind.forStaff(npc) == shop.kind && shop.contains(npc.home().getCenter())) enroll(shop, npc);
         }
         shop.releases.addAll(YukkuriWorldData.get(level).captiveTokens(view -> view.role() == Custody.Role.STOCK && view.ownedBy(dead.getUUID())
                 && !view.ownedBy(shop.id)));
@@ -182,8 +188,13 @@ public final class ShopRegistry extends SavedData {
 
     /** The shop whose footprint holds this point, in this dimension. */
     public Entry shopAt(ServerLevel level, Vec3 at) {
+        return shopAt(level, at, null);
+    }
+
+    private Entry shopAt(ServerLevel level, Vec3 at, ShopKind kind) {
         String dim = level.dimension().location().toString();
-        for (var shop : shops.values()) if (!shop.closed && shop.dimension.equals(dim) && shop.contains(at)) return shop;
+        for (var shop : shops.values())
+            if (!shop.closed && (kind == null || shop.kind == kind) && shop.dimension.equals(dim) && shop.contains(at)) return shop;
         return null;
     }
 
@@ -238,7 +249,7 @@ public final class ShopRegistry extends SavedData {
             if (shop.closing && ShopRestock.shopLoaded(level, shop)) {
                 for (var npc : level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), HumanNpc::isAlive)) {
                     registry.adoptLegacy(level, npc);
-                    if (npc.job() == HumanNpc.Job.SHOPKEEPER && shop.contains(npc.home().getCenter())) registry.enroll(shop, npc);
+                    if (npc.job() == HumanNpc.Job.SHOPKEEPER && ShopKind.forStaff(npc) == shop.kind && shop.contains(npc.home().getCenter())) registry.enroll(shop, npc);
                 }
                 if (shop.staff.isEmpty()) registry.close(level, shop);
                 else { shop.closing = false; registry.setDirty(); }
@@ -272,21 +283,21 @@ public final class ShopRegistry extends SavedData {
             setDirty();
         }
         for (var shop : shops.values()) {
-            int paid = payOwed(shop.refunds, player);
+            int paid = payOwed(shop.refunds, player, Items.EMERALD);
             if (paid > 0) {
                 player.sendSystemMessage(Component.translatable("shop.mcyukkuri.reserve.refunded", paid));
                 GameplayLog.event(player, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.id, paid);
             }
-            int proceeds = payOwed(shop.proceeds, player);
-            if (proceeds > 0) ShopTrade.say(player, "sell.proceeds", proceeds);
+            int proceeds = payOwed(shop.proceeds, player, shop.kind.buybackCurrency());
+            if (proceeds > 0) ShopTrade.say(player, shop.kind == ShopKind.ONI ? "sell.proceeds_oni" : "sell.proceeds", proceeds);
         }
     }
 
-    private int payOwed(Map<UUID, Integer> ledger, ServerPlayer player) {
+    private int payOwed(Map<UUID, Integer> ledger, ServerPlayer player, Item currency) {
         var id = player.getUUID();
         int owed = ledger.getOrDefault(id, 0);
         if (owed == 0) return 0;
-        int unpaid = ShopTrade.pay(player, owed);
+        int unpaid = ShopTrade.pay(player, owed, currency);
         if (unpaid == 0) ledger.remove(id); else ledger.put(id, unpaid);
         if (unpaid != owed) setDirty();
         return owed - unpaid;
@@ -314,21 +325,38 @@ public final class ShopRegistry extends SavedData {
     }
 
     private void readMarkers(ServerLevel level, Entry shop) {
-        var markers = level.getEntitiesOfClass(Marker.class, new AABB(shop.pos).inflate(32, 16, 32), m -> m.getTags().stream().anyMatch(t -> t.startsWith("mcy_shop_")));
-        var corners = new ArrayList<BlockPos>();
-        for (var m : markers) {
-            var at = m.blockPosition();
-            if (m.getTags().contains(CORNER)) corners.add(at);
-            else if (m.getTags().contains(COUNTER)) shop.counter = at;
-            else if (m.getTags().contains(DOCK)) shop.dock = at;
-            else if (m.getTags().contains(TRASH)) shop.trash = at;
+        var prefix = shop.kind.markers;
+        var markers = level.getEntitiesOfClass(Marker.class, new AABB(shop.pos).inflate(32, 16, 32),
+                m -> m.getTags().contains(FRAME) || m.getTags().stream().anyMatch(t -> t.startsWith(prefix)));
+        var cornerTag = prefix + "corner";
+        var corners = markers.stream().filter(m -> m.getTags().contains(cornerTag)).map(Marker::blockPosition).toList();
+        for (var rotation : Rotation.values()) {
+            var front = shop.pos.offset(shop.kind.frontCorner.rotate(rotation));
+            var back = shop.pos.offset(shop.kind.backCorner.rotate(rotation));
+            var first = corners.stream().filter(pos -> sameColumn(pos, front)).findFirst().orElse(null);
+            var second = corners.stream().filter(pos -> sameColumn(pos, back)).findFirst().orElse(null);
+            if (first == null || second == null) continue;
+            shop.first = first; shop.second = second;
+            break;
         }
-        if (corners.size() != 2) return;
-        shop.first = corners.getFirst(); shop.second = corners.getLast();
+        if (!shop.authored()) return;
+        if (shop.kind == ShopKind.ONI && !ShopRestock.shopLoaded(level, shop)) {
+            shop.first = null;
+            shop.second = null;
+            return;
+        }
+        var footprint = shop.bounds();
+        for (var m : markers) {
+            if (!footprint.contains(m.position())) continue;
+            if (m.getTags().contains(prefix + "counter")) shop.counter = m.blockPosition();
+            else if (m.getTags().contains(prefix + "dock")) shop.dock = m.blockPosition();
+            else if (m.getTags().contains(prefix + "trash")) shop.trash = m.blockPosition();
+            else if (m.getTags().contains(FRAME)) hangFrame(level, m);
+        }
         shop.protection = authoredProtection(shop);
-        for (var m : markers) if (m.getTags().contains(FRAME) && shop.contains(m.position())) hangFrame(level, m);
-        GameplayLog.world(level, "shop", "action=register shop={} corners={}..{} counter={} dock={} trash={}", shop.id,
-                shop.first.toShortString(), shop.second.toShortString(), shop.counter, shop.dock, shop.trash);
+        GameplayLog.world(level, "shop", "action=register shop={} kind={} corners={}..{} counter={} dock={} trash={} frames={}", shop.id,
+                shop.kind, shop.first.toShortString(), shop.second.toShortString(), shop.counter, shop.dock, shop.trash,
+                markers.stream().filter(m -> m.getTags().contains(FRAME) && m.isRemoved()).count());
         setDirty();
     }
 
@@ -354,13 +382,16 @@ public final class ShopRegistry extends SavedData {
 
     private static AABB authoredProtection(Entry shop) {
         var rotation = authoredRotation(shop);
+        if (shop.kind == ShopKind.ONI && rotation != null)
+            return AABB.encapsulatingFullBlocks(shop.pos.offset(new BlockPos(-9, -3, -16).rotate(rotation)),
+                    shop.pos.offset(new BlockPos(15, 10, 7).rotate(rotation)));
         return rotation == null ? shop.bounds() : shell(shop.pos, rotation, 12);
     }
 
     private static Rotation authoredRotation(Entry shop) {
         if (shop.first == null || shop.second == null) return null;
         for (var rotation : Rotation.values()) {
-            var first = shop.pos.offset(new BlockPos(-11, -3, -11).rotate(rotation));
+            var first = shop.pos.offset(shop.kind.frontCorner.rotate(rotation));
             if (sameColumn(first, shop.first) || sameColumn(first, shop.second)) return rotation;
         }
         return null;
@@ -398,20 +429,32 @@ public final class ShopRegistry extends SavedData {
     static BlockPos departure(ServerLevel level, Entry shop) {
         var rotation = authoredRotation(shop);
         if (rotation != null) {
-            var outside = shop.pos.offset(new BlockPos(0, 0, -20).rotate(rotation));
+            var outside = shop.pos.offset(shop.kind.departure.rotate(rotation));
             if (!level.hasChunkAt(outside)) return null;
             return level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, outside);
         }
         return shop.dock();
     }
 
+    static BlockPos oniCounterTop(Entry shop) {
+        var rotation = authoredRotation(shop);
+        return rotation == null ? null : shop.counter().offset(new BlockPos(1, 1, -1).rotate(rotation));
+    }
+
     /** A fixed vanilla item frame on the wall behind the marker's cell, showing the marker's good; the marker is used up. */
     private static void hangFrame(ServerLevel level, Marker marker) {
         var at = marker.blockPosition();
         Direction facing = null;
-        for (var d : Direction.Plane.HORIZONTAL)
-            if (level.getBlockState(at.relative(d.getOpposite())).isSolid() && !level.getBlockState(at.relative(d)).isSolid()) { facing = d; break; }
         var data = marker.saveWithoutId(new CompoundTag()).getCompound("data");
+        if (data.contains("Facing")) facing = Direction.fromYRot(marker.getYRot());
+        else {
+            for (var d : Direction.Plane.HORIZONTAL) {
+                if (level.getBlockState(at.relative(d.getOpposite())).isSolid() && !level.getBlockState(at.relative(d)).isSolid()) {
+                    facing = d;
+                    break;
+                }
+            }
+        }
         if (facing == null || !data.contains("Item", 10)) return;
         var tag = new CompoundTag();
         tag.putString("id", "minecraft:item_frame");
@@ -474,6 +517,7 @@ public final class ShopRegistry extends SavedData {
         var list = new ListTag();
         for (var shop : shops.values()) {
             var c = new CompoundTag(); c.putUUID("Id", shop.id); c.putString("Dim", shop.dimension); c.put("Pos", NbtUtils.writeBlockPos(shop.pos));
+            c.putString("ShopKind", shop.kind.name());
             c.putLong("NextRestock", shop.nextRestock);
             c.putBoolean("Legacy", shop.legacy);
             if (shop.legacyFront != null) c.putString("LegacyFront", shop.legacyFront.getName());
@@ -544,7 +588,8 @@ public final class ShopRegistry extends SavedData {
             var c = (CompoundTag) item;
             boolean converted = !c.hasUUID("Id") && c.hasUUID("Keeper");
             if (!converted && !c.hasUUID("Id")) continue;
-            var shop = new Entry(c.getUUID(converted ? "Keeper" : "Id"), c.getString("Dim"), NbtUtils.readBlockPos(c, "Pos").orElse(BlockPos.ZERO));
+            var kind = c.getString("ShopKind").equals(ShopKind.ONI.name()) ? ShopKind.ONI : ShopKind.PET;
+            var shop = new Entry(c.getUUID(converted ? "Keeper" : "Id"), c.getString("Dim"), NbtUtils.readBlockPos(c, "Pos").orElse(BlockPos.ZERO), kind);
             shop.legacy = converted || c.getBoolean("Legacy");
             shop.legacyFront = Direction.byName(c.getString("LegacyFront"));
             shop.closed = c.getBoolean("Closed");

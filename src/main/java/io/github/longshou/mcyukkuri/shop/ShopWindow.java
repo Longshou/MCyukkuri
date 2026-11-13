@@ -37,7 +37,7 @@ import net.minecraft.world.phys.Vec3;
  * the customer is a motor Walk, facing is the look control, and the clips and faces are the moment rows of the reported activity.
  */
 public final class ShopWindow implements MotorOwner {
-    public enum Mode { APPEAL, SHOW_OFF, POLITE, PROUD, SHY, SULK }
+    public enum Mode { APPEAL, SHOW_OFF, POLITE, PROUD, SHY, SULK, INSOLENT, NUMB }
     public enum Witness { FAREWELL, ENVY, ME_TOO, WATCH }
     private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS }
     private enum After { LETDOWN, HMPH }
@@ -94,6 +94,8 @@ public final class ShopWindow implements MotorOwner {
                 case PROUD -> Behaviors.WINDOW_PROUD;
                 case SHY -> Behaviors.WINDOW_SHY;
                 case SULK -> Behaviors.WINDOW_SULK;
+                case INSOLENT -> Behaviors.WINDOW_HMPH;
+                case NUMB -> Behaviors.WINDOW_WATCH;
             };
             case AFTER -> after == After.LETDOWN ? Behaviors.WINDOW_LETDOWN : Behaviors.WINDOW_HMPH;
             // Envy and "me too" burst out while the neighbour is being fetched, a farewell when it climbs into the basket; otherwise it watches.
@@ -245,6 +247,16 @@ public final class ShopWindow implements MotorOwner {
         double warmth = SocialDisposition.ramp(p.friendliness(), 30, 80);
         double familiar = SocialDisposition.ramp(bond.closeness(), 0, 20);
         double hope = hope();
+        var shop = ShopRegistry.get((ServerLevel) entity.level()).shop(Custody.view(entity).owner());
+        if (shop != null && shop.kind == ShopKind.ONI) {
+            double insolence = .45 * p.boldness() + .55 * (100 - p.friendliness()) - 35 * wary + variation();
+            double sulk = .5 * p.attachment() + .5 * (100 - p.selfControl()) + 15 * (1 - hope) + variation();
+            double numb = .65 * (100 - p.intelligence()) + .35 * (100 - p.boldness()) + variation();
+            var chosen = insolence >= sulk && insolence >= numb ? Mode.INSOLENT : sulk >= numb ? Mode.SULK : Mode.NUMB;
+            GameplayLog.event(entity, "shop", "window start mode={} customer={} shop_kind=ONI insolence={} sulk={} numb={}",
+                    chosen, c.getUUID(), insolence, sulk, numb);
+            return chosen;
+        }
         // The existing performances compete on comparable weights. Attention-seeking needs hope,
         // good manners and familiarity favour a bow, and wariness can outweigh both.
         double appeal = 32 * hope + 30 * warmth + 24 * confidence - 35 * wary - 18 * familiar + variation();
@@ -286,6 +298,7 @@ public final class ShopWindow implements MotorOwner {
             case PROUD -> { if (BadgeSocial.visibleRank(entity).id() > 0) entity.speak("badge_proud"); beginPerformance(now); }
             case SHY -> { entity.speak("shy"); if (!retreat(now)) beginPerformance(now); }
             case SULK -> { entity.speak("request_sulk"); beginPerformance(now); }
+            case INSOLENT, NUMB -> beginPerformance(now);
         }
     }
 

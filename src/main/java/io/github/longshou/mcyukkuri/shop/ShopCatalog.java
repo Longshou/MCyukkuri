@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
@@ -14,18 +16,19 @@ import net.minecraft.world.item.Items;
  * (0 none, 1 bronze, 2 silver) checked against {@code PetPrivileges}. Pure data, safe on both sides.
  */
 public final class ShopCatalog {
-    public static final int CATEGORIES = 5;
+    private static final int TOOL_CATEGORY = 5;
     /** unlock: 0 free, 1 needs a bronze badge in the owner's keeping, 2 needs silver. */
     public record Good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) {
         public ItemStack stack() { return supplier.get(); }
     }
     private static Good good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) { return new Good(id,
             category, supplier, price, cap, restock, unlock); }
+    private static final Good BUDGET_GRAIN = good("oil_grain_budget", 0, () -> new ItemStack(ModItems.GRAIN_BUDGET.get(), 16), 2, 6, 3, 0);
 
     /** Categories: 0 food and sweets, 1 care, 2 toys and accessories, 3 training and outings, 4 breeding and nursery. */
-    public static final List<Good> GOODS = List.of(
+    private static final List<Good> GOODS = List.of(
         good("oil_grain_regular", 0, () -> new ItemStack(ModItems.GRAIN_REGULAR.get(), 8), 1, 8, 4, 0),
-        good("oil_grain_budget", 0, () -> new ItemStack(ModItems.GRAIN_BUDGET.get(), 16), 2, 6, 3, 0),
+        BUDGET_GRAIN,
         good("oil_grain_premium", 0, () -> new ItemStack(ModItems.GRAIN_PREMIUM.get(), 8), 3, 3, 1, 2),
         good("orange_juice", 0, () -> new ItemStack(ModItems.ORANGE_JUICE.get()), 2, 4, 2, 0),
         good("carrier", 1, () -> new ItemStack(ModItems.CARRIER.get()), 3, 3, 1, 0),
@@ -58,29 +61,40 @@ public final class ShopCatalog {
         good("reimu_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("reimu_doll").get()), 5, 2, 1, 1),
         good("marisa_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("marisa_doll").get()), 5, 2, 1, 1));
 
-    /** Each page: category followed by up to four catalog indexes. */
-    private static final List<int[]> PAGES = new ArrayList<>();
-    static {
-        for (int c = 0; c < CATEGORIES; c++) {
-            List<Integer> in = new ArrayList<>();
-            for (int i = 0; i < GOODS.size(); i++) if (GOODS.get(i).category() == c) in.add(i);
-            for (int s = 0; s < in.size(); s += 4) {
-                int n = Math.min(4, in.size() - s); int[] page = new int[n + 1]; page[0] = c;
-                for (int k = 0; k < n; k++) page[k + 1] = in.get(s + k);
-                PAGES.add(page);
-            }
-        }
-    }
-    private ShopCatalog() {}
+    private static final List<Good> ONI_GOODS = oniGoods();
+    private static final List<List<Good>> PET_PAGES = pages(GOODS);
+    private static final List<List<Good>> ONI_PAGES = pages(ONI_GOODS);
 
-    public static int pages() { return PAGES.size(); }
-    private static int[] page(int page) { return PAGES.get(Math.floorMod(page, PAGES.size())); }
-    public static int category(int page) { return page(page)[0]; }
-    /** Catalog index of the good in this row of the page, or -1 for an empty row. */
-    public static int index(int page, int row) { var p = page(page); return row >= 0 && row + 1 < p.length ? p[row + 1] : -1; }
-    public static Good at(int index) { return index >= 0 && index < GOODS.size() ? GOODS.get(index) : null; }
-    public static int indexOf(String id) {
-        for (int i = 0; i < GOODS.size(); i++) if (GOODS.get(i).id().equals(id)) return i;
-        return -1;
+    private static List<Good> oniGoods() {
+        List<Good> goods = new ArrayList<>();
+        for (var tool : OperationToolItem.Tool.values())
+            goods.add(good(tool.id, TOOL_CATEGORY, () -> new ItemStack(tool.item()), 4, 3, 1, 0));
+        goods.add(good("sandpaper_mat", 1, () -> new ItemStack(Facilities.SANDPAPER.get()), 2, 3, 1, 0));
+        for (var dose : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT))
+            goods.add(good(dose.id, 1, () -> new ItemStack(Consumables.ITEMS.get(dose).get()), 2, 6, 3, 0));
+        goods.addAll(List.of(BUDGET_GRAIN,
+                good("bread", 0, () -> new ItemStack(Items.BREAD, 4), 1, 6, 3, 0),
+                good("candle", 0, () -> new ItemStack(Items.CANDLE, 4), 1, 6, 3, 0),
+                good("paper", 0, () -> new ItemStack(Items.PAPER, 4), 1, 6, 3, 0)));
+        return List.copyOf(goods);
     }
+
+    private static List<List<Good>> pages(List<Good> goods) {
+        List<List<Good>> result = new ArrayList<>();
+        for (int category = 0; category <= TOOL_CATEGORY; category++) {
+            int selected = category;
+            var rows = goods.stream().filter(g -> g.category() == selected).toList();
+            for (int start = 0; start < rows.size(); start += ShopMenu.GOODS_ROWS)
+                result.add(rows.subList(start, Math.min(rows.size(), start + ShopMenu.GOODS_ROWS)));
+        }
+        return List.copyOf(result);
+    }
+
+    static List<List<Good>> pages(ShopKind kind) { return kind == ShopKind.ONI ? ONI_PAGES : PET_PAGES; }
+    static List<Good> goods(ShopKind kind) { return kind == ShopKind.ONI ? ONI_GOODS : GOODS; }
+    static Good find(ShopKind kind, String id) {
+        return goods(kind).stream().filter(g -> g.id().equals(id)).findFirst().orElse(null);
+    }
+
+    private ShopCatalog() {}
 }

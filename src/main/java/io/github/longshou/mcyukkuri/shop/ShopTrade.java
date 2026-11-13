@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -41,7 +42,7 @@ public final class ShopTrade {
     /** The price still due from this buyer: the reserved price less the deposit for its reserver, else today's quote. */
     static int due(ShopRegistry.Entry shop, YukkuriEntity y) {
         var d = shop.deposit(y.getUUID());
-        return d == null ? ShopPricing.price(y) : d.price() - d.paid();
+        return d == null ? ShopPricing.price(shop.kind, y) : d.price() - d.paid();
     }
     /** A quarter of the price, at least one emerald. */
     static int deposit(int price) { return Math.max(1, (price + 3) / 4); }
@@ -52,10 +53,10 @@ public final class ShopTrade {
     static void debit(Player p, int amount) {
         for (ItemStack stack : p.getInventory().items) if (stack.is(Items.EMERALD)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
     }
-    static int pay(Player p, int amount) {
+    static int pay(Player p, int amount, Item currency) {
         int unpaid = 0;
         for (; amount > 0; amount -= 64) {
-            var stack = new ItemStack(Items.EMERALD, Math.min(64, amount));
+            var stack = new ItemStack(currency, Math.min(64, amount));
             p.getInventory().add(stack);
             if (!stack.isEmpty() && p.drop(stack, false) == null) unpaid += stack.getCount();
         }
@@ -199,6 +200,10 @@ public final class ShopTrade {
     /** The top of the counter block beside the staff member (the counter faces the customer side), else its own feet. */
     private static Vec3 counterTop(ServerLevel level, ShopRegistry.Entry shop) {
         var at = shop.counter();
+        if (shop.kind == ShopKind.ONI) {
+            var cell = ShopRegistry.oniCounterTop(shop);
+            if (cell != null && level.getBlockState(cell).isAir()) return Vec3.atBottomCenterOf(cell);
+        }
         for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL) {
             var c = at.relative(d);
             if (level.getBlockState(c).isSolid() && level.getBlockState(c.above()).isAir()) return Vec3.atBottomCenterOf(c.above());
@@ -210,7 +215,7 @@ public final class ShopTrade {
 
     /** The player pays a deposit to keep this animal: no one else may buy it, and the three-day restock never ships it out. */
     static boolean reserve(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, ServerPlayer p) {
-        int price = y == null ? 0 : ShopPricing.price(y), paid = deposit(price);
+        int price = y == null ? 0 : ShopPricing.price(shop.kind, y), paid = deposit(price);
         String why = y != null && shop.deposit(y.getUUID()) != null && shop.deposit(y.getUUID()).buyer().equals(p.getUUID()) ? "own"
                 : buyRefusal(level, shop, y, p, paid);
         if (why != null) {
@@ -235,6 +240,7 @@ public final class ShopTrade {
         if (y == null || !y.isAlive() || !y.pet().ownedBy(p.getUUID())) return "gone";
         // The shop has land pens only: no water for an aquatic Marisa, and house yukkuri are not pets.
         if (y.profile().aquatic() || y.profile().houseBody()) return "unsuited";
+        if (!shop.kind.accepts(y)) return "oni_predator";
         if (!shop.contains(y.position())) return "outside";
         if (y.pet().busy() || shop.orders.containsKey(y.getUUID()) || y.isPassenger() || y.isVehicle()) return "busy";
         return !shop.legacy() && ShopStaff.freeNest(level, shop, SpeciesProfile.of(y.getVariant()).dangerToYukkuri(), y.position()) == null ? "no_nest" : null;
@@ -249,7 +255,7 @@ public final class ShopTrade {
             return false;
         }
         y.pet().lock(SELL, p.getUUID());
-        int price = ShopPricing.buyback(y);
+        int price = ShopPricing.buyback(shop.kind, y);
         ShopRegistry.get(level).order(shop, y.getUUID(), new ShopRegistry.Order(SELL, p.getUUID(), price, null));
         var personality = y.life().personality();
         var bond = personality.relation(p.getUUID());
@@ -264,7 +270,7 @@ public final class ShopTrade {
         if (sad) { y.playAction("droop"); y.showReaction("cry", "shop_sold_sad", 80); }
         else if (aloof) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", 80); }
         else { y.playAction("bow"); y.showReaction(wary >= .4 ? "flushed_smile" : "closed_smile", "", 40); }
-        say(p, "sell.accepted", y.getDisplayName(), price);
+        say(p, shop.kind == ShopKind.ONI ? "sell.accepted_oni" : "sell.accepted", y.getDisplayName(), price);
         GameplayLog.event(y, "shop", "action=sell_live result=accepted shop={} seller={} offer={} reaction={} esteem={} wariness={} closeness={} fear={}",
                 shop.id, p.getUUID(), price, sad ? "sad" : aloof ? "aloof" : "bow", esteem, wary, bond.closeness(), bond.fear());
         return true;
@@ -289,6 +295,7 @@ public final class ShopTrade {
             y.pet().unlock(SELL);
             y.life().releaseHome();
             Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
+            shop.kind.prepareStock(y);
             y.pet().rotateSerial();
         });
         if (token == null) {
@@ -297,12 +304,13 @@ public final class ShopTrade {
         }
         staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
         ShopRegistry.get(level).endOrder(shop, y.getUUID());
-        int unpaid = pay(player, price);
+        int unpaid = pay(player, price, shop.kind.buybackCurrency());
         if (unpaid > 0) ShopRegistry.get(level).owe(shop, seller, unpaid, false);
         SurvivalProgress.award(player, "pet_sold");
-        say(player, unpaid == 0 ? "sell.paid" : "sell.owed", price - unpaid, y.getDisplayName(), unpaid);
-        GameplayLog.event(staff, "shop", "action=sell_live result=committed shop={} seller={} target={} token={} emeralds_received={}",
-                shop.id, seller, y.getUUID(), token, price - unpaid);
+        var receipt = unpaid == 0 ? "sell.paid" : "sell.owed";
+        say(player, shop.kind == ShopKind.ONI ? receipt + "_oni" : receipt, price - unpaid, y.getDisplayName(), unpaid);
+        GameplayLog.event(staff, "shop", "action=sell_live result=committed shop={} seller={} target={} token={} {}_received={}",
+                shop.id, seller, y.getUUID(), token, shop.kind == ShopKind.ONI ? "gold_nuggets" : "emeralds", price - unpaid);
         return token;
     }
 

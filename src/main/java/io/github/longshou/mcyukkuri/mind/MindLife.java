@@ -56,12 +56,14 @@ public final class MindLife {
     public static final float UNEASY = 35, SWEETENED = 60, BREAKING = 95, RECOVERED = 70;
     /** Ticks at the top before the mind breaks, the recoverable frenzy, and the whole course to death. */
     public static final int ONSET_TICKS = 1200, FRENZY_TICKS = 24000, FATAL_TICKS = 72000;
+    private static final long PREVENTION_TICKS = 72000;
     private static final int SAMPLE = 100;
     private static final float PER_SAMPLE = SAMPLE / 1200f; // rates below are "per minute" (1200 ticks)
 
     private final YukkuriEntity entity;
     private float unease, sweetness;
     private int breakingTicks, courseTicks, namings, shoutClock, fitClock, moanClock, witherClock;
+    private long preventionUntil;
     private Course course = Course.NONE;
     private String heldAction = "";
     private int heldTicks;
@@ -93,6 +95,7 @@ public final class MindLife {
         return e == null ? "" : e.zh() + "/" + e.ja() + "/" + e.en();
     }
     public boolean nonYukkuri() { return course != Course.NONE; }
+    public long preventionRemaining() { return Math.max(0, preventionUntil - entity.level().getGameTime()); }
     public Stage stage() {
         if (course != Course.NONE) return Stage.NON_YUKKURI;
         return unease >= SWEETENED ? Stage.SWEETENED : unease >= UNEASY ? Stage.UNEASY : Stage.CALM;
@@ -113,6 +116,12 @@ public final class MindLife {
     public double preyAppeal() { return nonYukkuri() ? -80 : sweetness * .6; }
 
     // ---- writes ---------------------------------------------------------------------------------------------------
+    /** Prevents onset for three game days; an existing course continues under its normal rules. */
+    public void preventSyndrome() {
+        preventionUntil = entity.level().getGameTime() + PREVENTION_TICKS;
+        breakingTicks = 0;
+    }
+
     /** Direct change (pet systems, commands, naming). Relief works at half strength once the mind has broken. */
     public void add(float delta, String cause) {
         if (entity.level().isClientSide) return;
@@ -228,7 +237,7 @@ public final class MindLife {
         if (entity.isNoAi()) return;
         releaseAction();
         if (nonYukkuri()) courseTick();
-        else if (unease >= BREAKING) { if ((breakingTicks += 1) >= ONSET_TICKS) begin(); }
+        else if (preventionRemaining() == 0 && unease >= BREAKING) { if ((breakingTicks += 1) >= ONSET_TICKS) begin(); }
         else breakingTicks = 0;
         if (entity.tickCount % SAMPLE == 37) sample();
         if (entity.tickCount % 24000 == 23999) namings = Math.max(0, namings - 1); // one naming forgiven per game day
@@ -397,11 +406,13 @@ public final class MindLife {
         var tag = new CompoundTag();
         tag.putFloat("Unease", unease); tag.putFloat("Sweetness", sweetness);
         tag.putString("Course", course.name()); tag.putInt("CourseTicks", courseTicks); tag.putInt("BreakingTicks", breakingTicks);
+        if (preventionUntil > 0) tag.putLong("PreventionUntil", preventionUntil);
         tag.putInt("Namings", namings); tag.putString("GivenName", givenName); tag.putBoolean("Migrated", true);
         return tag;
     }
     /** {@code pet}: the old PetLife tag, whose Stress seeds unease once for saves written before the mind existed. */
     public void load(CompoundTag tag, CompoundTag pet) {
+        preventionUntil = tag.getLong("PreventionUntil");
         if (tag.getBoolean("Migrated")) {
             unease = Math.clamp(tag.getFloat("Unease"), 0f, 100f); sweetness = Math.clamp(tag.getFloat("Sweetness"), 0f, 100f);
             try { course = Course.valueOf(tag.getString("Course")); } catch (IllegalArgumentException ex) { course = Course.NONE; }

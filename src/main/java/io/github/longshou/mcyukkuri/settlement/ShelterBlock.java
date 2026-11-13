@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -57,6 +59,18 @@ public final class ShelterBlock extends Block implements EntityBlock {
     public static BlockPos offset(int part) { return new BlockPos(part % 5 - 2, part / 25, (part % 25) / 5 - 2); }
     public static int part(int x, int y, int z) { return x + 2 + 5 * (z + 2) + 25 * y; }
     public static BlockPos root(BlockPos pos, BlockState state) { return pos.subtract(offset(state.getValue(PART))); }
+    @Override protected BlockState rotate(BlockState state, Rotation rotation) {
+        return orient(state, offset(state.getValue(PART)).rotate(rotation), rotation.rotate(state.getValue(FACING)));
+    }
+    @Override protected BlockState mirror(BlockState state, Mirror mirror) {
+        var offset = offset(state.getValue(PART));
+        if (mirror == Mirror.LEFT_RIGHT) offset = new BlockPos(offset.getX(), offset.getY(), -offset.getZ());
+        if (mirror == Mirror.FRONT_BACK) offset = new BlockPos(-offset.getX(), offset.getY(), offset.getZ());
+        return orient(state, offset, mirror.mirror(state.getValue(FACING)));
+    }
+    private static BlockState orient(BlockState state, BlockPos offset, Direction facing) {
+        return state.setValue(PART, part(offset.getX(), offset.getY(), offset.getZ())).setValue(FACING, facing);
+    }
     public static ShelterBlockEntity shelter(BlockGetter level, BlockPos pos) {
         if(level instanceof Level world&&!world.hasChunkAt(pos))return null;
         var state=level.getBlockState(pos);

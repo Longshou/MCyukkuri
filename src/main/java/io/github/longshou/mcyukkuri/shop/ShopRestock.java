@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.List;
@@ -72,6 +73,12 @@ public final class ShopRestock {
         for (var y : ShopRegistry.liveStock(level, shop)) {
             var tag = HumanCommerce.data(y);
             if (tag.contains(ShopTrade.FOR_SALE_SINCE)) continue;
+            if (shop.kind == ShopKind.ONI) {
+                if (y.mind().preventionRemaining() == 0) shop.kind.prepareStock(y);
+                GameplayLog.event(y, "shop", "action=oni_stock shop={} form={} nutrition={} hygiene={} prevention={} price={}",
+                        shop.id, y.subspecies().assetId(), y.life().nutrition(), y.life().hygiene(),
+                        y.mind().preventionRemaining(), ShopPricing.price(shop.kind, y));
+            }
             tag = tag.copy(); tag.putLong(ShopTrade.FOR_SALE_SINCE, now); HumanCommerce.set(y, tag);
         }
     }
@@ -193,15 +200,17 @@ public final class ShopRestock {
     /** All chunks of the footprint hold their entities: only then is an absent reserved animal really gone. */
     static boolean shopLoaded(ServerLevel level, ShopRegistry.Entry shop) {
         var box = shop.bounds();
-        for (int cx = (int) Math.floor(box.minX) >> 4; cx <= (int) Math.floor(box.maxX) >> 4; cx++)
-            for (int cz = (int) Math.floor(box.minZ) >> 4; cz <= (int) Math.floor(box.maxZ) >> 4; cz++)
+        int lastChunkX = ((int) Math.ceil(box.maxX) - 1) >> 4;
+        int lastChunkZ = ((int) Math.ceil(box.maxZ) - 1) >> 4;
+        for (int cx = (int) Math.floor(box.minX) >> 4; cx <= lastChunkX; cx++)
+            for (int cz = (int) Math.floor(box.minZ) >> 4; cz <= lastChunkZ; cz++)
                 if (!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(cx, cz))) return false;
         return true;
     }
 
     /**
-     * A new individual from the wholesaler, packed in a basket: a well-raised one (the shop sells mostly good individuals, so its temperament
-     * leans friendly and self-controlled), young unless an adult was asked for. It joins the world at the barrel for the tick of packing.
+     * A new individual from the wholesaler, packed in a basket, young unless an adult was asked for.
+     * The temperament and condition reflect the shop's stock. It joins the world at the barrel for the tick of packing.
      */
     private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, boolean adult, RandomSource random) {
         var y = ModEntities.forVariant(variant).create(level);
@@ -214,7 +223,17 @@ public final class ShopRestock {
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(shop.dock()), MobSpawnType.COMMAND, null);
         y.setPersistenceRequired();
         y.family().initializeGrowthAge(adult ? GrowthTiming.ADULT_START + random.nextInt(48_000) : YOUNG_MIN + (long) (random.nextDouble() * (YOUNG_MAX - YOUNG_MIN)));
-        y.life().personality().applyBirthProfile(new YukkuriPersonality.BirthProfile(between(random, 45, 85), between(random, 55, 90),
+        if (shop.kind == ShopKind.ONI) {
+            if (variant == YukkuriVariant.REIMU && random.nextInt(3) == 0)
+                y.subspecies().set(SubspeciesLife.Kind.WASA_REIMU, SubspeciesLife.Congenital.NORMAL);
+            else if ((variant == YukkuriVariant.REIMU || variant == YukkuriVariant.MARISA) && random.nextInt(4) == 0)
+                y.subspecies().set(SubspeciesLife.Kind.NORMAL, SubspeciesLife.Congenital.values()[1 + random.nextInt(3)]);
+            y.life().personality().applyBirthProfile(new YukkuriPersonality.BirthProfile(between(random, 10, 40), between(random, 10, 45),
+                    between(random, 15, 90), between(random, 25, 75), between(random, 5, 35)));
+            y.life().setNeed("nutrition", between(random, 28, 42));
+            y.life().setNeed("hygiene", between(random, 30, 44));
+            shop.kind.prepareStock(y);
+        } else y.life().personality().applyBirthProfile(new YukkuriPersonality.BirthProfile(between(random, 45, 85), between(random, 55, 90),
                 between(random, 25, 80), between(random, 45, 85), between(random, 55, 90)));
         Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         if (!level.addFreshEntity(y)) return null;

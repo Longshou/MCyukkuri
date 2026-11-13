@@ -83,7 +83,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                             : "shop.mcyukkuri.reserve_price", ShopMenu.deposit(price)));
                 }
             }
-            var stack = ShopMenu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); int price = ShopMenu.goodsPrice(menu.value(ShopMenu.Data.PAGE), i);
+            var stack = menu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); int price = menu.goodsPrice(menu.value(ShopMenu.Data.PAGE), i);
             actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].visible = tab == ShopMenu.GOODS && !stack.isEmpty();
             int left = menu.value(ShopMenu.Data.GOODS_STOCK_BASE + i), need = menu.value(ShopMenu.Data.GOODS_UNLOCK_BASE + i), standing = menu.value(ShopMenu.Data.STANDING);
             boolean soldOut = left <= 0, locked = standing < need;
@@ -118,7 +118,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             if (drewModel) RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         } else if (tab == ShopMenu.GOODS) {
             for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
-                var stack = ShopMenu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); if (stack.isEmpty()) continue;
+                var stack = menu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); if (stack.isEmpty()) continue;
                 card(g, leftPos + 8, topPos + 46 + i * 34, 324, 30, false);
                 g.renderItem(stack, leftPos + 14, topPos + 53 + i * 34);
             }
@@ -197,7 +197,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             }
             g.drawString(font, Component.translatable("shop.mcyukkuri.page", menu.value(ShopMenu.Data.PAGE) + 1, menu.value(ShopMenu.Data.PAGE_COUNT)), 100, FOOT + 6, SOFT, false);
         } else if (tab == ShopMenu.GOODS) {
-            line(g, 36, INK, Component.translatable("shop.mcyukkuri.category." + ShopMenu.goodsCategory(menu.value(ShopMenu.Data.PAGE))));
+            line(g, 36, INK, Component.translatable("shop.mcyukkuri.category." + menu.goodsCategory(menu.value(ShopMenu.Data.PAGE))));
             line(g, 184, SOFT, Component.translatable("shop.mcyukkuri.trades_left", menu.value(ShopMenu.Data.TRADES_LEFT)));
             line(g, 196, SOFT, Component.translatable("shop.mcyukkuri.restock_hint"));
             g.drawString(font, Component.translatable("shop.mcyukkuri.page", menu.value(ShopMenu.Data.PAGE) + 1, menu.value(ShopMenu.Data.PAGE_COUNT)), 100, FOOT + 6, SOFT, false);
@@ -224,9 +224,11 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", level(Math.min(100, menu.value(ShopMenu.Data.SUBJECT_HEALTH) * 10)),
                     level(menu.value(ShopMenu.Data.SUBJECT_NUTRITION)), level(menu.value(ShopMenu.Data.SUBJECT_HYGIENE))));
             if (buy) {
-                line(g, 104, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(ShopMenu.Data.PRICE)));
-                line(g, 116, menu.value(ShopMenu.Data.BUYBACK_PENALTY) > 0 ? WARN : SOFT, Component.translatable("shop.mcyukkuri.offer_detail",
-                        menu.value(ShopMenu.Data.BUYBACK_RATE), menu.value(ShopMenu.Data.BUYBACK_PENALTY)));
+                line(g, 104, INK, Component.translatable(menu.oniShop() ? "shop.mcyukkuri.offer_nuggets" : "shop.mcyukkuri.offer",
+                        menu.value(ShopMenu.Data.PRICE)));
+                line(g, 116, menu.value(ShopMenu.Data.BUYBACK_PENALTY) > 0 && !menu.oniShop() ? WARN : SOFT, menu.oniShop()
+                        ? Component.translatable("shop.mcyukkuri.offer_oni")
+                        : Component.translatable("shop.mcyukkuri.offer_detail", menu.value(ShopMenu.Data.BUYBACK_RATE), menu.value(ShopMenu.Data.BUYBACK_PENALTY)));
                 int sellState = menu.value(ShopMenu.Data.SELL_STATE);
                 line(g, 128, sellState == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + ShopMenu.SELL_STATES.get(Math.clamp(sellState, 0, ShopMenu.SELL_STATES.size() - 1))));
                 line(g, 140, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));

@@ -132,6 +132,7 @@ public interface YukkuriView {
     int visibleWound();
     int visibleFilling();
     int visibleSigns();
+    boolean visibleSyndromePrevention();
     List<BodyWound> visibleWounds();
     List<BodyWound> visibleMarks();
     String contactPose();

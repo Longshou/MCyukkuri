@@ -18,7 +18,10 @@ public final class ShopPricing {
     /** Each learned skill adds this many emeralds to the buyback value. */
     private static final int SKILL = 2;
 
-    public static int price(YukkuriEntity y) { return Math.max(1, (int) Math.round(value(y))); }
+    public static int price(ShopKind kind, YukkuriEntity animal) {
+        double value = value(animal);
+        return Math.max(1, (int) Math.round(kind == ShopKind.PET ? value : value / 4));
+    }
 
     private static double value(YukkuriEntity y) {
         var v = y.getVariant();
@@ -36,11 +39,17 @@ public final class ShopPricing {
         if (pet.stress() > BondLevels.UNEASE_SWEETENED) p += 5 * ((pet.stress() - 51) / 10);
         return Math.min(30, p);
     }
-    public static int buyback(YukkuriEntity y) {
+    static int buyback(ShopKind kind, YukkuriEntity animal) {
+        double quality = qualityQuote(animal);
+        if (kind == ShopKind.PET) return Math.max(1, (int) Math.round(quality));
+        return 1 + (int) Math.round(7 * (1 - Math.clamp(quality / 40, 0, 1)));
+    }
+
+    private static double qualityQuote(YukkuriEntity y) {
         int skills = 0;
         for (var skill : PetSkill.values()) if (y.pet().lessons().knows(skill)) skills++;
         double health = y.getHealth() / Math.max(1, y.getMaxHealth());
-        return Math.max(1, (int) Math.round((value(y) + skills * SKILL) * (.5 + .5 * health) * (rate(y) / 100.0) * ((100 - penalty(y)) / 100.0)));
+        return (value(y) + skills * SKILL) * (.5 + .5 * health) * (rate(y) / 100.0) * ((100 - penalty(y)) / 100.0);
     }
     private ShopPricing() {}
 }

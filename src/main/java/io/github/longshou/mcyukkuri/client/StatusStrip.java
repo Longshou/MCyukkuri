@@ -30,6 +30,8 @@ public final class StatusStrip {
         if (view.liveChildCount() > Integer.bitCount(view.liveBornMask())) {
             readouts.append(" · ").append(Component.translatable("magnifier.mcyukkuri.pregnant"));
         }
+        if (view.visibleSyndromePrevention())
+            readouts.append(" · ").append(Component.translatable("magnifier.mcyukkuri.syndrome_prevention"));
         return new Readout(Component.literal(view.getDisplayName().getString()), stage(view), view.identityTranslationKey(), readouts);
     }
 

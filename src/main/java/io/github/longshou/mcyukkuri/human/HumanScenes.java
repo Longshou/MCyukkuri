@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +36,7 @@ public final class HumanScenes {
     private HumanScenes() {}
 
     public enum Kind {
-        SHOP("yukkuri_shop", 12);
+        SHOP("yukkuri_shop", 12), ONI_SHOP("yukkuri_oni_shop", 11);
         public final ResourceLocation template;
         final int entranceX;
         Kind(String id, int entranceX) { this.template = MCYukkuri.id(id); this.entranceX = entranceX; }
@@ -111,7 +112,7 @@ public final class HumanScenes {
         if (shop == null) return null;
         var y = ModEntities.forVariant(variant).create(level);
         if (y == null) return null;
-        y.moveTo(at.x, at.y, at.z, 0, 0);
+        Motor.relocate(y, at, 0, "shop_stock");
         y.setPersistenceRequired();
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(y.blockPosition()), MobSpawnType.COMMAND, null);
         Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());

@@ -80,6 +80,7 @@ public enum StatusKey {
         return v != null && y.mind().setSweetness(v) ? null : "need a number 0-100";
     }),
     NON_YUKKURI_TICKS("mood", "non_yukkuri_ticks", 1200, y -> y.mind().nonYukkuri() ? y.mind().courseTicks() : 0, null),
+    SYNDROME_PREVENTION("mood", "syndrome_prevention", 1200, y -> y.mind().preventionRemaining(), null),
     /** Current pressures and reliefs, per minute (1200 ticks), from the last sample. */
     UNEASE_CAUSES("mood", "unease_causes", 0, y -> y.mind().causesText(), null),
     NAMINGS("mood", "namings", 0, y -> y.mind().namings(), null),
