@@ -2325,7 +2325,7 @@ add('learned_holder', 'body', '目击工具后躲开持用者', '目击工具后
     '站在目标前使用转子，读旁观者的对象关系', [
         yk('reimu',0,0,'target',label='工具接触对象',lead=True,extra='NoAI:1b'),
         yk('reimu',2,1,'witness',label='看得见的旁观者',boldness=0,uuid=uid('learned_holder','witness')),
-        box(-8,0,-1,-4,3,3,'minecraft:stone','hollow'),
+        box(-8,-1,-1,-4,3,3,'minecraft:stone','hollow'),
         block(-6,3,1,'minecraft:sea_lantern'),
         yk('reimu',-6,1,'screened',label='隔墙对照',boldness=0,uuid=uid('learned_holder','screened')),
     ], env=DAY,vantage=(0,8),give=['mcyukkuri:care_vibrator 2','minecraft:apple 4'],
