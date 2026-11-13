@@ -4746,7 +4746,9 @@ def _shop_window_verify(window, trace):
             shown = {tick: sample for tick, sample in samples.get(actor, ()) if tick >= start and (end is None or tick < end[0])}
             if set(shown.values()) - {mode}:
                 return f'window presentation differs from {mode} for {actor} at {start}: {sorted(set(shown.values()))}'
-            # Notice and approach can be interrupted before the pose. A still-open session can use both their budgets.
+            # Notice and approach can be interrupted before the pose. A still-open session can use both budgets
+            # (ShopWindow NOTICE_TICKS 20 + APPROACH_TICKS 120), and a closed one that never entered the pose says so
+            # with perform_ticks=0.
             if not shown:
                 if end is None:
                     if window_end - start > 20 + 120:
