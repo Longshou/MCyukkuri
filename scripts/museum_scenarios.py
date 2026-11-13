@@ -307,6 +307,16 @@ add('graze', 'forage', '野生：饿了先吃苹果，只有草就啃草', '野�
         yk('reimu', -6, 0, 'a', nutrition=28, yaw=180, lead=True), item('minecraft:apple', 1, -4, 0, name='apple'),
         yk('marisa', 6, 0, 'b', nutrition=34, yaw=180)], env=DAY, spot='graze', vantage=(0, 12))
 
+_glass_food_eater = uid('food_behind_glass', 'glass_food_eater')
+add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看见苹果',
+    '饥饿的灵梦隔着玻璃板看见苹果。看它走到玻璃前挤脸一次，退开继续找食，苹果留在窗内。',
+    '约 10 秒', [box(-2, -1, -2, 2, 2, 2, 'minecraft:stone_bricks', 'hollow'),
+        block(0, 0, 2, 'minecraft:glass_pane'), block(0, 1, 2, 'minecraft:glass_pane'),
+        yk('reimu', 0, 5, 'glass_food_eater', uuid=_glass_food_eater, nutrition=22, yaw=180, lead=True),
+        item('minecraft:apple', 1, 0, 1, name='glass_apple')],
+    env=DAY, spot='forage', vantage=(4, 7, 155),
+    reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
+
 
 def found_shell(kind, x, z):
     return [block(x + dx, dy, z + dz, f'mcyukkuri:{kind}[facing=south,part={dx + 2 + 5*(dz + 2) + 25*dy}]')
@@ -1046,6 +1056,8 @@ def _family_pane_verify(log):
     parent, child = _fsp['parent'], _fsp['child']
     return _family_search_order(log, [
         (parent, 'glass approach'),
+        (parent, 'start id=glass_press'),
+        (parent, 'end id=glass_press outcome=DONE'),
         (parent, 'glass vigil started'),
         (parent, 'glass call .*spoken=true'),
         (child, 'glass answer .*spoken=true'),
@@ -1055,7 +1067,7 @@ def _family_pane_verify(log):
         (parent, 'break id=bash'),
         (parent, 'glass crossed'),
         (parent, 'child search reunited'),
-    ], [(parent, 'glass vigil started'), (parent, 'break id=bash')], [(parent, 'parent dismissed')])
+    ], [(parent, 'start id=glass_press'), (parent, 'glass vigil started'), (parent, 'break id=bash')], [(parent, 'parent dismissed')])
 
 
 add('family_search', 'family', '走散亲子：绕墙重逢，隔整块玻璃道别', '走散亲子：绕墙重逢，隔整块玻璃道别',
@@ -1080,7 +1092,7 @@ add('family_search', 'family', '走散亲子：绕墙重逢，隔整块玻璃道
            ('读蹲守与寻亲记忆', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
 
 add('family_search_pane', 'family', '走散亲子：撞碎玻璃板后重逢', '走散亲子：撞碎玻璃板后重逢',
-    '胆量 100 的成年魔理沙与子油隔着铁栏窗中间的一列玻璃板相望。亲油在窗外呼唤，孩子回应并贴近内侧；亲油转正撞板，玻璃板碎后走过开口重逢。',
+    '成年魔理沙隔着玻璃板看见子油，走到窗边挤脸后呼唤。孩子回应并贴近内侧。亲油退到撞板站位，撞开玻璃后穿过开口重逢。',
     '约 10–30 秒', [
         box(-3, -1, -3, 3, 2, 3, 'minecraft:stone_bricks', 'hollow'),
         box(-2, 0, 3, 1, 1, 3, 'minecraft:iron_bars'),
@@ -4241,7 +4253,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
-    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
+    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'oni_shop': 'M1',
@@ -4410,6 +4422,12 @@ _smoke('family_absence', 6000, [rf'\[family\][^\n]* kin overdue kin={_absent_uui
 for _sid in ('forage', 'family_absence'):
     next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
 _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
+_smoke('food_behind_glass', 260, [r'\[action\][^\n]* end id=glass_press outcome=DONE', r'MCYGLASS_APPLE_REMAINS'],
+       forbid=[rf'\[meal\][^\n]* uuid={_uuid_of(_glass_food_eater)} [^\n]* pickup '],
+       readout=[f'execute if entity @e[type=minecraft:item,tag={tag("glass_apple")},nbt={{Item:{{id:"minecraft:apple",count:1}}}}] run say MCYGLASS_APPLE_REMAINS'])
+next(s for s in S if s.id == 'food_behind_glass').smoke['verify'] = lambda log: _family_search_order(log, [
+    (_glass_food_eater, 'start id=glass_press'), (_glass_food_eater, 'end id=glass_press outcome=DONE'),
+], [(_glass_food_eater, 'start id=glass_press')])
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
@@ -4929,6 +4947,8 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+_scene_end('food_behind_glass', [('glass_food_eater', _DRY)])
 
 for _exile_scene, _witnesses in (('colony_mold_exile', ['leader', 'witness']),
                                  ('den_mold_exile', ['healthy', 'grandparent', 'baby'])):

@@ -21,9 +21,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 
-/** The land family search's one stop at a visible barrier. Only Walk, Face and Bash drive either body. */
+/** The land family search's one stop at a visible barrier. The motor owns the press and the ram. */
 final class GlassVigil implements MotorOwner {
-    private enum Phase { APPROACH, PRESS, WAIT, SQUARE, RAM, CROSS, FAREWELL }
+    private enum Phase { APPROACH, PRESS, WAIT, RAM_APPROACH, SQUARE, RAM, CROSS, FAREWELL }
     private final FamilyLife family;
     private final YukkuriEntity parent;
     private YukkuriEntity child;
@@ -39,7 +39,7 @@ final class GlassVigil implements MotorOwner {
     @Override public boolean active() { return child!=null; }
     boolean tracks(YukkuriEntity target) { return child==target; }
     boolean callingTo(YukkuriEntity target) { return child==target && phase==Phase.WAIT; }
-    boolean finishing() { return active() && (phase==Phase.RAM || phase==Phase.CROSS || phase==Phase.FAREWELL); }
+    boolean finishing() { return active() && (phase==Phase.RAM_APPROACH || phase==Phase.RAM || phase==Phase.CROSS || phase==Phase.FAREWELL); }
     String activity() {
         if (phase==Phase.FAREWELL) return Behaviors.INDEPENDENCE_FAREWELL;
         return phase==Phase.WAIT ? Behaviors.CALL_LISTEN : Behaviors.SEARCH_FAMILY;
@@ -55,9 +55,8 @@ final class GlassVigil implements MotorOwner {
         if (stand==null) { farewell("no_glass_stand"); return true; }
         var normal=Direction.getNearest(stand.x-glass.getX()-.5,0,stand.z-glass.getZ()-.5);
         opening=parent.level().getBlockState(glass).is(Tags.Blocks.GLASS_PANES) ? PaneOpening.at(parent,glass,normal) : null;
-        GameplayLog.event(parent,"family","glass approach child={} block={} stand={}",child.getUUID(),glass,
-                GameplayLog.at(opening==null?stand:opening.stand()));
-        run(Phase.APPROACH,Walk.stand(opening==null?stand:opening.stand(),1));
+        GameplayLog.event(parent,"family","glass approach child={} block={} stand={}",child.getUUID(),glass,GameplayLog.at(stand));
+        run(Phase.APPROACH,new Walk(stand));
         return true;
     }
 
@@ -81,7 +80,7 @@ final class GlassVigil implements MotorOwner {
             var outcome=parent.motor().last();
             action=null;
             if (!(outcome instanceof Outcome.Done)) {
-                if (phase==Phase.SQUARE || phase==Phase.RAM) decline(outcome);
+                if (phase==Phase.RAM_APPROACH || phase==Phase.SQUARE || phase==Phase.RAM) decline(outcome);
                 else if (phase==Phase.CROSS) { release(); return false; }
                 else if (phase==Phase.PRESS) arrive(now);
                 else farewell("stand_blocked");
@@ -95,6 +94,7 @@ final class GlassVigil implements MotorOwner {
                     else run(Phase.PRESS,press);
                 }
                 case PRESS -> arrive(now);
+                case RAM_APPROACH -> run(Phase.SQUARE,new Face(Bash.squareYaw(parent,glass)));
                 case SQUARE -> run(Phase.RAM,new Bash(glass,new Bash.Damage(0,0),parent.getId()));
                 case RAM -> {
                     GameplayLog.event(parent,"family","glass pane opened child={} block={}",child.getUUID(),glass);
@@ -143,7 +143,7 @@ final class GlassVigil implements MotorOwner {
         if (!chosen) { opening=null; return; }
         family.call().stop();
         parent.speak("glass_ram");
-        run(Phase.SQUARE,new Face(Bash.squareYaw(parent,glass)));
+        run(Phase.RAM_APPROACH,Walk.stand(opening.stand(),1));
     }
 
     private void run(Phase next,Action move) {
