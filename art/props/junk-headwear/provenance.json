@@ -2,7 +2,7 @@
   "status": "pending_user_confirmation",
   "source": "art/props/junk-headwear/build.py",
   "inputs": {
-    "art/props/junk-headwear/build.py": "b44957ad3ec71384b20db5fda0ac7e15d4b562a6ba68d7db5055e7bfad2b3611",
+    "art/props/junk-headwear/build.py": "64f6a90fb48cb46e07617e123c0356955761ca56ccba04b492f0746d022967d4",
     "standards/yukkuri-library/drafts/care-props/kit.py": "d2f0968a59062a8d0c6d230bf3091a2844d09de59b7fcc63334739e60015a702",
     "art/props/palette.json": "2c0fa3c1f31f2069048f6c3e76b4f39622568515c3f52243bd3ed22ef52bc634",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "3b3dd7ee82ac22998f4f18bd0c02afa6ed789c89e44501661f5e3105d5346b1b",
@@ -45,8 +45,8 @@
     "src/main/resources/assets/mcyukkuri/textures/props/junk_ice_cream_cone.png": "29396d74c05935ffd4ae4162bfe9ccdfd316ebe723f28a618f046107081a0413",
     "art/props/junk-headwear/assembled/junk_ice_cream_cone.bbmodel": "fce5b26b63a209b28ac266c98f0a8c5cbba8c02705f9c8526a7701f0d8581734",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/junk-index.json": "64718d9c064454dd2a94731f068f98b306cd384304318a05668341b85a095b96",
-    "art/props/junk-headwear/junk_headwear.png": "3609e5c68aed274992d3a8000c82ccfc1f3403fc338d674073f93ffe373779c1",
-    "src/main/resources/assets/mcyukkuri/textures/item/junk_headwear.png": "3609e5c68aed274992d3a8000c82ccfc1f3403fc338d674073f93ffe373779c1",
+    "art/props/junk-headwear/junk_headwear.png": "f8b94b896ee3442cc7c101f7079b58ba2c06b128e89a31701c667e09179258ea",
+    "src/main/resources/assets/mcyukkuri/textures/item/junk_headwear.png": "f8b94b896ee3442cc7c101f7079b58ba2c06b128e89a31701c667e09179258ea",
     "src/main/resources/assets/mcyukkuri/models/item/junk_headwear.json": "ad589055056a6b051f2e821a421078d313ceb9ceac9607b19d50ea75ddcf96c9"
   }
 }

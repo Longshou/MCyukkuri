@@ -126,6 +126,13 @@ STEM_GROWTH = 'art/props/family-life/stem_growth.py'
 TABLE.append(exporter('source:'+STEM_GROWTH, STEM_GROWTH, ['art/props/family-life/', 'standards/yukkuri-v1/components/common/stem.json',
              'standards/yukkuri-library/drafts/remains/recipe.json', 'src/main/resources/assets/mcyukkuri/yukkuri/'],
              note='Clearance check only; writes nothing.'))
+# Junk headwear: three props seated on every runtime form with its accessory hidden, plus the item icon.
+JUNK_HEADWEAR = 'art/props/junk-headwear/build.py'
+TABLE.append(exporter('source:'+JUNK_HEADWEAR, JUNK_HEADWEAR, [
+    'art/props/junk-headwear/', 'standards/yukkuri-library/drafts/care-props/kit.py', 'art/props/palette.json',
+    'scripts/placement_fit.py', 'src/main/resources/assets/mcyukkuri/yukkuri/',
+    *['src/main/resources/assets/mcyukkuri/yukkuri_presentation/'+p+'.json' for p in ('placement_fit', 'living', 'subspecies', 'hat_vessel')],
+], note='Junk headwear props, their seats on every runtime form and the item icon.'))
 
 # Authoring prerequisites order only the selected builders; selecting a runtime
 # owner alone must not silently rebuild its previously accepted source geometry.
@@ -162,6 +169,8 @@ def table():
             row['sources'].append('standards/yukkuri-library/assembled/')
         if row['id'] == 'badges':
             row['after'].append('rounded-attachments')
+        if row['id'] == 'source:'+JUNK_HEADWEAR:
+            row['after'] += MODEL_OWNERS+['placement-fit']
         if row['id'] == 'runtime-models':
             row['auto'] = False  # historical recipe refuses the selected rounded models
         if row['id'] == 'ecology-audio':

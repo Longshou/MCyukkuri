@@ -457,28 +457,28 @@ BUILDERS = {'paper_box': paper_box, 'bottle_cap': bottle_cap, 'ice_cream_cone': 
 ICON_LEGEND = {
     'c': '#5e3d1e', 'C': '#8a5f33', 'b': '#b0844d', 'B': '#cfa86c', 'p': '#e6c98f',      # cardboard (darkest is the outline)
     'r': '#8e3a35', 'R': '#b0584c',                                                      # faded print band
-    'w': '#8a5428', 'W': '#b0783c', 'f': '#cf9a52', 'F': '#e6bb72',                      # wafer
+    'w': '#8a5428', 'W': '#b0783c', 'f': '#cf9a52', 'F': '#e6bb72', 'd': '#5a3418',      # wafer, the empty inside
     'k': '#a8546a', 'K': '#cd8191',                                                      # dried ice cream
     's': '#4f5d60', 'S': '#7d8e90', 'e': '#b7c3c4', 'E': '#e4eae8',                      # cap steel
     'x': '#6b2a2a', 'X': '#a8524a', 'u': '#7a4a22',                                      # cap paint and rust
 }
 ICON = [
     '................',
-    '...........w....',
-    '..........wFw...',
-    '..cccccc..wfFw..',
-    '.cBpBBpBc.wWfw..',
-    '.cbbbBBbBcwfFfw.',
-    '.cRrRRrRbcwWfWw.',
-    '.cbRbbRbbcwfFfw.',
-    '.cbbbbbbbcKwWfWw',
-    '.cbbbbsssssskKKw',
-    '.cCbbsSEEeESskkw',
-    '.cCCsSxXXXxxSs..',
-    '..ccsexXuXXxxes.',
-    '....sSexxxxuxSs.',
-    '.....sSSeSeSSs..',
-    '.......ssssss...',
+    '................',
+    '.........wwddww.',
+    '.........wddddKw',
+    '....cc...wkKkKw.',
+    'ccccpBcccwWWfWw.',
+    'cCCBbbbbcwFFWfw.',
+    'cCCCbbbbc.wWfWw.',
+    'crrrRRRRc.wWfw..',
+    'crrrRRRRc.wFWw..',
+    'cCCCbbbbc.wWfw..',
+    'cCsXXXXXs..ww...',
+    '.sXEEXXuXs.ww...',
+    '.seSeSeSes.ww...',
+    '..s.s.s.s...w...',
+    '................',
 ]
 
 

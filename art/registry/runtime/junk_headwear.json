@@ -1,0 +1,10 @@
+{
+  "builder": "art/props/junk-headwear/build.py",
+  "runtime_models": "src/main/resources/assets/mcyukkuri/yukkuri_props/junk_{paper_box,bottle_cap,ice_cream_cone}.json",
+  "runtime_index": "src/main/resources/assets/mcyukkuri/yukkuri_props/junk-index.json",
+  "runtime_textures": "src/main/resources/assets/mcyukkuri/textures/props/junk_{paper_box,bottle_cap,ice_cream_cone}.png",
+  "item_texture": "src/main/resources/assets/mcyukkuri/textures/item/junk_headwear.png",
+  "use": "junk headwear worn on the bare crown of every runtime form and on remains (client/YukkuriModel.renderJunkHat), each prop's anchors holding its seat per form; generic junk_headwear item sprite",
+  "origin": "project original; no external reference image",
+  "standard_status": "pending_user_confirmation"
+}

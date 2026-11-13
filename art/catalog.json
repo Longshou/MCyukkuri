@@ -213,6 +213,20 @@
           "prefixes": [
             "standards/yukkuri-library/interactions/marisa-braids/"
           ]
+        },
+        {
+          "id": "junk-headwear",
+          "label": "垃圾头饰",
+          "prefixes": [
+            "art/props/junk-headwear/"
+          ],
+          "registry": [
+            "junk_headwear"
+          ],
+          "ids": [
+            "junk-index",
+            "junk_*"
+          ]
         }
       ]
     },
