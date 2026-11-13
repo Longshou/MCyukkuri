@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 流浪使用街面设施；村民对偷吃作物的反应；街桶补给 | `.worktrees/wp-ir-street-use-crops` | street furniture use, HumanStreet crop reaction, bin refill |
-| 学会的恐惧：见过工具与伤害、亲属救援、怕火 | `.worktrees/wp-is-learned-fear` | Relation fear, witness, OperationLife bystanders |
 
 ## 玩法待办
 
