@@ -36,9 +36,9 @@ public final class PetNestBlock extends CareBlock {
     /** How far the roll reaches past its block (NEST_ROLL outer radius 13.3, collision cells to 13.5). */
     private static final double OVERHANG = 5.5 / 16;
     /** Level pad reach and the roll's inner side at body height, from the block centre, on a round and on a flattened side
-     *  (placed.py NEST_LEVEL 11.5 and NEST_ROLL row 11.1; a flat side keeps NEST_KEEP .55 of the depth inside NEST_FLAT 8). */
-    private static final double LEVEL_ROUND = 11.5 / 16, LEVEL_FLAT = (8 - 1.8 * .55) / 16,
-            HOLLOW_ROUND = 11.1 / 16, HOLLOW_FLAT = (8 - 2.2 * .55) / 16;
+     *  (placed.py NEST_LEVEL 11.5 and NEST_ROLL row 11.1; a flat side keeps NEST_KEEP .3 of the depth inside NEST_FLAT 8). */
+    private static final double LEVEL_ROUND = 11.5 / 16, LEVEL_FLAT = (8 - 1.8 * .3) / 16,
+            HOLLOW_ROUND = 11.1 / 16, HOLLOW_FLAT = (8 - 2.2 * .3) / 16;
     private static final VoxelShape[][] COLLISION = new VoxelShape[4][16];
     private static final Fit[] FITS = new Fit[16];
     /** Top of the roll's collision, in blocks. */

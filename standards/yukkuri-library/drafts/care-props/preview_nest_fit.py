@@ -93,13 +93,14 @@ def native(look):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     adult = [(ADULT, 0, 0, 1.0, 20)]
+    back, corner = [(ADULT, 0, -2.0, 1.0, 20)], [(ADULT, -2.0, -2.0, 1.0, 20)]   # the resting middle moves off the walls
     grades = [[tile(scene(look, 0, adult), f'{label}（空地，圆形）') for look, label in GRADES],
-              [tile(scene(look, 4, adult), f'{label}（背靠墙）') for look, label in GRADES],
-              [tile(scene(look, 6, adult), f'{label}（墙角）') for look, label in GRADES]]
+              [tile(scene(look, 4, back), f'{label}（背靠墙）') for look, label in GRADES],
+              [tile(scene(look, 6, corner), f'{label}（墙角）') for look, label in GRADES]]
     sheet(grades, '三档宠物窝：同一形体，草编 / 软垫 / 丝绒；入口（低卷边）朝镜头左前').save(OUT / 'grades.png')
-    shapes = [(2, '一侧贴墙（D 形，平背）', [(ADULT, -2.3, 0, 1.0, 20)]), (6, '墙角', [(ADULT, -2.3, -2.3, 1.0, 20)]),
-              (10, '一格宽走廊（两侧都贴墙）', [(ADULT, 0, 0, 1.0, 20)]), (14, '三面墙（只剩入口）', [(CHILD, 0, -2, .55, 20)]),
-              (1, '入口被挡（入口一侧也压平，不能走进）', []), (15, '四面都挡', [])]
+    shapes = [(2, '一侧贴墙（D 形，平背）', [(ADULT, -2.0, 0, 1.0, 20)]), (6, '墙角', [(ADULT, -2.0, -2.0, 1.0, 20)]),
+              (10, '一格宽走廊（两侧都贴墙）', [(ADULT, 0, 0, 1.0, 20)]), (14, '一格宽凹槽（三面墙，只剩入口）', [(ADULT, 0, -2.0, 1.0, 20)]),
+              (14, '凹槽里的子油', [(CHILD, 0, -1, .55, 20)]), (15, '四面都挡（放不下；放好后被围住则走不进）', [])]
     rows = [[tile(scene('yukkuri_nest', m, s), label) for m, label, s in shapes[:3]],
             [tile(scene('yukkuri_nest', m, s), label) for m, label, s in shapes[3:]],
             [tile(scene('yukkuri_nest', m, s), label + '（俯视）', az=180, el=80) for m, label, s in shapes[:3]]]
@@ -111,6 +112,15 @@ def main():
         strip.paste(n, (i * 150 + (150 - n.width) // 2, 22 + (98 - n.height) // 2), n)
         d.text((i * 150 + 6, 4), label, font=FONT, fill=(0, 0, 0, 255))
     strip.convert('RGB').save(OUT / 'native.png')
+    (OUT / 'index.html').write_text('''<!doctype html><meta charset="utf-8"><title>三档宠物窝与贴墙变形</title>
+<style>body{font-family:sans-serif;background:#e2e4de;margin:16px}img{display:block;margin:8px 0 20px;image-rendering:pixelated}</style>
+<h1>三档宠物窝与贴墙变形</h1>
+<p>要你决定：三档（草窝 / 软垫窝 / 丝绒窝）一眼能否分出高低、风格是否和现有物品一致；贴墙压平的形状（D 形平背、墙角、走廊）是否自然。</p>
+<h2>1 倍大小（默认视距约 16 像素一格，放大 3 倍显示）</h2><img src="native.png" alt="三档 1 倍">
+<h2>物品栏图标（16×16，放大 8 倍）</h2><img src="icons.png" alt="图标">
+<h2>三档：空地、背靠墙、墙角</h2><img src="grades.png" alt="三档">
+<h2>贴墙变形：一侧、墙角、走廊、凹槽、四面（入口被挡时自动转到下一个空着的一侧）</h2><img src="fit.png" alt="贴墙">
+''', encoding='utf-8')
     print(OUT)
 
 

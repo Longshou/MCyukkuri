@@ -376,11 +376,12 @@ NEST_LEVEL = 11.5          # the level pad reaches this far on a round side (blo
 
 # Fitted against blocks (life/PetNestBlock): a side whose neighbouring block reaches into the overhang band is flattened so
 # nothing pokes into that block. The roll keeps its height and order of rows but runs straight along the block face (outer
-# edge at NEST_FLAT, the block face) with NEST_KEEP of its depth, pressed thinner like a soft roll pushed against a wall;
+# edge at NEST_FLAT, the block face) with NEST_KEEP of its depth, pressed thin like a soft roll pushed against a wall (so an
+# adult still lies between two walls of a one-block alcove);
 # corners between a flat and a round side round off with radius 8, corners between two flat sides with radius 3. Masks are in
 # the nest's own frame, entrance to -z: bit 1 north (entrance), 2 east, 4 south (back), 8 west; the block rotates them.
 NEST_FLAT = 8.0
-NEST_KEEP = .55
+NEST_KEEP = .3
 NEST_CORNER = {0: NEST_OUTER, 1: 8.0, 2: 3.0}
 
 
@@ -872,7 +873,7 @@ def variants():
 # beyond each side, clipped to the outline grown by 0.45, radius 13.75 there, so no pad reaches past the visible roll at the
 # diagonals): a body box resting anywhere inside it touches only the pad, never the roll, so an adult (to 1.2x at full term)
 # sits down in the nest instead of hanging on the rim; the roll keeps its collision outside the pad (NestResting keeps
-# resting bodies inside it). A flattened side keeps NEST_KEEP of that reach inside its flat roll (7.0 from the centre).
+# resting bodies inside it). A flattened side keeps NEST_KEEP of that reach inside its flat roll (7.46 from the centre).
 # Every grade has the same shape, so the shells are per fitted mask: pet_nest_<mask> (mask 0 = round).
 NEST_SHELL = (13.5, .5, .5)                 # half extent, cell, step
 

@@ -1067,7 +1067,10 @@ public final class YukkuriLife {
                 }
                 if (restingHere || inside && entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
-                    if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
+                    if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())) {
+                        // Arrived to sleep: it looks its own bed over first (it may stay up a while, see settleIntoBed).
+                        if (settleIntoBed()) { task = Task.NONE; planWait = 0; } else { task = Task.SLEEP; resetSleep(); }
+                    }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
