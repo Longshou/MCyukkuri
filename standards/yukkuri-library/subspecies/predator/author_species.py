@@ -36,10 +36,14 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+# The rump mark and scalp hair follow the bending body like Marisa's (hair-contact body_follow); no clip poses these bones.
+BODY_FOLLOW_BONES=('hair','bangs','rear_hair')
+
+
 def weights_for(element, group, names, geometry):
     result=[]
     for i in range(0,len(geometry),8):
-        if element['name']=='predator_body_surface':
+        if element['name'] in ('predator_body_surface','rounded_rump_mark') or group in BODY_FOLLOW_BONES:
             q=min(31,max(0,geometry[i+1]/9.328*32-.5));lo=int(q);hi=min(31,lo+1)
             result.append([names[f'soft_head_slice_{lo}_bend'],names[f'soft_head_slice_{hi}_bend'],round(q-lo,7)])
         else:result.append([names[group],names[group],0])
@@ -176,6 +180,26 @@ def wings(config, spec, uv):
     return out,bones
 
 
+def skin_shift(tracks, slice_bones, point):
+    """Per key, how far the head slices around this height carry a skin point (bone pose: translate by
+    pivot+position, rotate Z·Y·X, translate back), blended between the two nearest slices."""
+    heights=[b['pivot'][1] for b in slice_bones]
+    k=max(0,min(len(heights)-2,sum(1 for h in heights if h<=point[1])-1))
+    share=max(0,min(1,(point[1]-heights[k])/(heights[k+1]-heights[k])))
+    def moved(bone,t):
+        channels=tracks[bone['name']];p=bone['pivot']
+        rx,ry,rz=(math.radians(a) for a in channels.get('rotation',{}).get(t,[0,0,0]))
+        offset=channels.get('position',{}).get(t,[0,0,0])
+        v=[point[i]-p[i] for i in range(3)]
+        v=[v[0],v[1]*math.cos(rx)-v[2]*math.sin(rx),v[1]*math.sin(rx)+v[2]*math.cos(rx)]
+        v=[v[0]*math.cos(ry)+v[2]*math.sin(ry),v[1],-v[0]*math.sin(ry)+v[2]*math.cos(ry)]
+        v=[v[0]*math.cos(rz)-v[1]*math.sin(rz),v[0]*math.sin(rz)+v[1]*math.cos(rz),v[2]]
+        return [v[i]+p[i]+offset[i]-point[i] for i in range(3)]
+    low,high=slice_bones[k],slice_bones[k+1]
+    times=sorted({t for b in (low,high) for c in tracks[b['name']].values() for t in c},key=float)
+    return {t:[round(a+(b-a)*share,7) for a,b in zip(moved(low,t),moved(high,t))] for t in times}
+
+
 def rig_for(original, config, added_bones):
     rig=copy.deepcopy(original)
     # Marisa's single-braid chain is hers alone; inherited, the braid pose and compilers would bend predator side locks.
@@ -192,11 +216,28 @@ def rig_for(original, config, added_bones):
             for key,v in channels.get('position',{}).items():
                 if name=='world_motion': channels['position'][key]=[0,v[1],0]
             if name=='world_motion':channels.pop('rotation',None)
+    # The face rides its skin anchors (Marisa's face is skinned to the slices instead). Each anchor shares a head
+    # slice's pivot, so a clip that bends the slices without posing the anchors (the walk) moves it identically;
+    # held still, the swaying skin covered one eye.
+    slices={tuple(b['pivot']):b['name'] for b in rig['bones'] if b['name'].startswith('soft_head_slice_')}
+    anchors={b['name']:slices[tuple(b['pivot'])] for b in rig['bones']
+             if b['name'].endswith('_skin_anchor') and tuple(b['pivot']) in slices}
+    for clip in rig['clips'].values():
+        for anchor,slice_bone in anchors.items():
+            if anchor not in clip['tracks'] and slice_bone in clip['tracks']:
+                clip['tracks'][anchor]=copy.deepcopy(clip['tracks'][slice_bone])
     rig['bones'].extend(added_bones)
     # Resting wings stay tucked. One hinge carries each complete membrane, so it cannot tear between fingers.
     for clip in rig['clips'].values():
         for side,sign in [('left',-1),('right',1)]:
             clip['tracks']['predator_wing_'+side]={'rotation':{'0':[0,sign*config['wing']['fold_yaw'],-sign*config['wing']['fold_roll']]}}
+    # The walk sways the head slices without the features frame; each wing root rides the back skin at its height.
+    slice_bones=sorted((b for b in rig['bones'] if b['name'].startswith('soft_head_slice_')),key=lambda b:b['pivot'][1])
+    for clip in rig['clips'].values():
+        if 'features_lift' in clip['tracks'] or slice_bones[0]['name'] not in clip['tracks']:continue
+        for b in added_bones:
+            if b['parent']=='features_squash':
+                clip['tracks'][b['name']]['position']=skin_shift(clip['tracks'],slice_bones,b['pivot'])
     for name,duration,amp,tilt,loop in [('predator_fly',.6,28,-6,True),('predator_dive',.6,13,-18,True),
                                          ('predator_land',.8,36,10,False),('predator_bite',.8,9,-14,False)]:
         tracks={'body_motion':{'rotation':{'0':[tilt,0,0]}},'world_motion':{'position':{'0':[0,0,0]}}}

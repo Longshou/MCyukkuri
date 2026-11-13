@@ -26,6 +26,12 @@ def fit(elements, ident, config, profile, profile_at, mesh, vertices, atlas_size
 
     result = []
     for e in elements:
+        if e['bone'] == 'rear_hair':
+            # Marisa's lower back hem and locks lie on the body-following back
+            # hair. No clip poses rear_hair, so they take the same continuous
+            # body binding unchanged; held rigid, the walk's rear sway slid the
+            # back hair through them.
+            e['body_follow'] = True
         if e['bone'] not in ('hair', 'bangs'):
             result.append(e)
             continue
