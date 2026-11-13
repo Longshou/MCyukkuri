@@ -4706,7 +4706,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_clean"
       },
-      "source_sha256": "b25b190bc2f7d7f84b80708f1193eec2cfa628a6d07b648ce8bb6f7bec38c4a6"
+      "source_sha256": "b25b190bc2f7d7f84b80708f1193eec2cfa628a6d07b648ce8bb6f7bec38c4a6",
+      "english": "All bettah!"
     },
     {
       "id": "chen.young.o_sleep",
@@ -4722,7 +4723,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_sleep"
       },
-      "source_sha256": "5a21d4d5a7e2f14750a6f39d3c1ce684ca0970892fc34407b5784f932cf0e21c"
+      "source_sha256": "5a21d4d5a7e2f14750a6f39d3c1ce684ca0970892fc34407b5784f932cf0e21c",
+      "english": "Zzz... zzz."
     },
     {
       "id": "chen.young.o_awake",
@@ -4738,7 +4740,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_awake"
       },
-      "source_sha256": "b1544795fcd6104481d144913a38077e18c361eb2c0e2714da202c9c2d29c856"
+      "source_sha256": "b1544795fcd6104481d144913a38077e18c361eb2c0e2714da202c9c2d29c856",
+      "english": "It's morning. G'morning!"
     },
     {
       "id": "chen.young.o_thanks",
@@ -4754,7 +4757,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_thanks"
       },
-      "source_sha256": "898b6ee09e706c9018133ecabe9e181e5531aa9df67d32b5aae7b04f0f0e5a96"
+      "source_sha256": "898b6ee09e706c9018133ecabe9e181e5531aa9df67d32b5aae7b04f0f0e5a96",
+      "english": "Fank you!"
     },
     {
       "id": "chen.young.o_understood",
@@ -4770,7 +4774,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_understood"
       },
-      "source_sha256": "2690f9de69bdc067e12c5db77848384c0af4d3d51c9a8e12eb29819e5a8d027d"
+      "source_sha256": "2690f9de69bdc067e12c5db77848384c0af4d3d51c9a8e12eb29819e5a8d027d",
+      "english": "I got it!"
     },
     {
       "id": "chen.young.o_wait",
@@ -4786,7 +4791,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_wait"
       },
-      "source_sha256": "2ef052e5eeffeee5c0fbd672145d317a473732cfcbfa63b185db580fd2ced516"
+      "source_sha256": "2ef052e5eeffeee5c0fbd672145d317a473732cfcbfa63b185db580fd2ced516",
+      "english": "I'll wait right here!"
     },
     {
       "id": "chen.young.o_praise",
@@ -4838,7 +4844,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_lost"
       },
-      "source_sha256": "baf01814c935c90b28fb3a57d0d36d799e99221b000daad87bfa00a627878b64"
+      "source_sha256": "baf01814c935c90b28fb3a57d0d36d799e99221b000daad87bfa00a627878b64",
+      "english": "Pwease give my headwear back!"
     },
     {
       "id": "chen.young.o_returned",
@@ -4854,7 +4861,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_returned"
       },
-      "source_sha256": "9ac47c79a4b70d351a96dbeb8d549939982ff3494159a7737dab5eb8733caf21"
+      "source_sha256": "9ac47c79a4b70d351a96dbeb8d549939982ff3494159a7737dab5eb8733caf21",
+      "english": "My headwear came back!"
     },
     {
       "id": "chen.young.o_play",
@@ -4870,7 +4878,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_play"
       },
-      "source_sha256": "ed244cf5f2ec1565e0609a7bc50fb7731391dd153b301375e0269e3c1da6bf9d"
+      "source_sha256": "ed244cf5f2ec1565e0609a7bc50fb7731391dd153b301375e0269e3c1da6bf9d",
+      "english": "Let's pway together!"
     },
     {
       "id": "chen.young.o_puff",
@@ -4888,7 +4897,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_puff"
       },
-      "source_sha256": "f6157d8e206650f7f8d5b7ed101caf36a1fdff7f1713abe6a97ea8e662860574"
+      "source_sha256": "f6157d8e206650f7f8d5b7ed101caf36a1fdff7f1713abe6a97ea8e662860574",
+      "english": "Puff! I don't wanna!"
     },
     {
       "id": "chen.young.o_confused",
@@ -4904,7 +4914,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_confused"
       },
-      "source_sha256": "edc469e5390ef75c3ffc4ccde88443669ab16cdee1378c0d77c5ae707204e1e1"
+      "source_sha256": "edc469e5390ef75c3ffc4ccde88443669ab16cdee1378c0d77c5ae707204e1e1",
+      "english": "I don't get it!"
     },
     {
       "id": "chen.young.o_birth",
@@ -4920,7 +4931,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_birth"
       },
-      "source_sha256": "c26f01cacb36b4128f16c2c38bdc9b4e8691cd608d6d7bdf41be51e2ab3c60bd"
+      "source_sha256": "c26f01cacb36b4128f16c2c38bdc9b4e8691cd608d6d7bdf41be51e2ab3c60bd",
+      "english": "The baby's coming!"
     },
     {
       "id": "chen.young.o_nuzzle",
@@ -4936,7 +4948,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_nuzzle"
       },
-      "source_sha256": "39b07e5eca52a0ab81ebf4971406e2ed87a753b2f04e4a5ba1b9aa489ad9df8d"
+      "source_sha256": "39b07e5eca52a0ab81ebf4971406e2ed87a753b2f04e4a5ba1b9aa489ad9df8d",
+      "english": "Wub, wub. That feels good!"
     },
     {
       "id": "chen.young.o_want_nuzzle",
@@ -4952,7 +4965,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_want_nuzzle"
       },
-      "source_sha256": "a01fd5154a702bc166746356fd95744d382f95a9cedaf2e8911a92655eccd1db"
+      "source_sha256": "a01fd5154a702bc166746356fd95744d382f95a9cedaf2e8911a92655eccd1db",
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "patchouli.adult.o_hungry",
@@ -4968,7 +4982,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_hungry"
       },
-      "source_sha256": "9e80adaffec8c00c250f95ff22a5e6e6644f7026ab28e443b7c7b1c8898015f4"
+      "source_sha256": "9e80adaffec8c00c250f95ff22a5e6e6644f7026ab28e443b7c7b1c8898015f4",
+      "english": "Mukyu. I'm hungry."
     },
     {
       "id": "patchouli.adult.o_food",
@@ -4984,7 +4999,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_food"
       },
-      "source_sha256": "165989399b0b478628c506812922b9fb399ed45d037404d5059e45f054f76086"
+      "source_sha256": "165989399b0b478628c506812922b9fb399ed45d037404d5059e45f054f76086",
+      "english": "Mukyu. It's Mr. Food."
     },
     {
       "id": "patchouli.adult.o_eat",
@@ -5001,7 +5017,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_eat"
       },
-      "source_sha256": "9365fddb96e6e12b54f09d5b8996253276f7d163d7417a8f5740ee94f08e335f"
+      "source_sha256": "9365fddb96e6e12b54f09d5b8996253276f7d163d7417a8f5740ee94f08e335f",
+      "english": "Mukyu. Munch, munch."
     },
     {
       "id": "patchouli.adult.o_happy",
@@ -5020,7 +5037,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_happy"
       },
-      "source_sha256": "4cee4bf76042fb7356beadfe93cc6dfc596bf80066a98cac4663882b7f45e2db"
+      "source_sha256": "4cee4bf76042fb7356beadfe93cc6dfc596bf80066a98cac4663882b7f45e2db",
+      "english": "Mukyu. So happy."
     },
     {
       "id": "patchouli.adult.o_toilet",
@@ -5036,7 +5054,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_toilet"
       },
-      "source_sha256": "532396404c045ca15ed243f255da8119a43ff87828280b735ad02b0a70ce01a0"
+      "source_sha256": "532396404c045ca15ed243f255da8119a43ff87828280b735ad02b0a70ce01a0",
+      "english": "Mukyu. Time to poop."
     },
     {
       "id": "patchouli.adult.o_clean",
@@ -5053,7 +5072,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_clean"
       },
-      "source_sha256": "0cebbc01c8bb92030e57384597701747730dd6a606c0b6423c2f69c9ca69b2ad"
+      "source_sha256": "0cebbc01c8bb92030e57384597701747730dd6a606c0b6423c2f69c9ca69b2ad",
+      "english": "Mukyu. What a relief."
     },
     {
       "id": "patchouli.adult.o_sleep",
@@ -5069,7 +5089,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_sleep"
       },
-      "source_sha256": "38ea06a38f3ba9f17bdceebbba4303a7e67ccde8be3a231ff4642fcf5abb7f85"
+      "source_sha256": "38ea06a38f3ba9f17bdceebbba4303a7e67ccde8be3a231ff4642fcf5abb7f85",
+      "english": "Mukyu. Zzz... zzz."
     },
     {
       "id": "patchouli.adult.o_awake",
@@ -5085,7 +5106,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_awake"
       },
-      "source_sha256": "c1a9682a2b8afd17fa286de549ef4c1f7f09434990e976db88478c52b5c97c28"
+      "source_sha256": "c1a9682a2b8afd17fa286de549ef4c1f7f09434990e976db88478c52b5c97c28",
+      "english": "Mukyu. Good morning."
     },
     {
       "id": "patchouli.adult.o_thanks",
@@ -5101,7 +5123,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_thanks"
       },
-      "source_sha256": "6790a8498b33aea3cb544b2c82fa6e18e848bf36a33ac6f3f923764cc9c75a40"
+      "source_sha256": "6790a8498b33aea3cb544b2c82fa6e18e848bf36a33ac6f3f923764cc9c75a40",
+      "english": "Mukyu. Thank you."
     },
     {
       "id": "patchouli.adult.o_understood",
@@ -5117,7 +5140,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_understood"
       },
-      "source_sha256": "f8f59b2ab358832659e1021f1253543b05145b0b6571fc1d69317316679970e4"
+      "source_sha256": "f8f59b2ab358832659e1021f1253543b05145b0b6571fc1d69317316679970e4",
+      "english": "Mukyu. I understand."
     },
     {
       "id": "patchouli.adult.o_wait",
@@ -5133,7 +5157,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_wait"
       },
-      "source_sha256": "791c77d674d926832c008967aa4f5b1a4d23b72209fa328df9eb73b57af3f98e"
+      "source_sha256": "791c77d674d926832c008967aa4f5b1a4d23b72209fa328df9eb73b57af3f98e",
+      "english": "Mukyu. I'll wait here."
     },
     {
       "id": "patchouli.adult.o_praise",
@@ -5185,7 +5210,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_lost"
       },
-      "source_sha256": "594163df75affa410cedf64d46e97cd14e1ca4ca917e5a1fe0280df1faf45ae4"
+      "source_sha256": "594163df75affa410cedf64d46e97cd14e1ca4ca917e5a1fe0280df1faf45ae4",
+      "english": "Mukyu. Please give my hat back."
     },
     {
       "id": "patchouli.adult.o_returned",
@@ -5201,7 +5227,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_returned"
       },
-      "source_sha256": "b20da8f53e39a187a884923eb6d415438c3824b656c41b27d35d6f1b975d97b2"
+      "source_sha256": "b20da8f53e39a187a884923eb6d415438c3824b656c41b27d35d6f1b975d97b2",
+      "english": "Mukyu. My hat is back."
     },
     {
       "id": "patchouli.adult.o_play",
@@ -5217,7 +5244,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_play"
       },
-      "source_sha256": "e25b650191b5076f482d91461e93785c3823a052312fd4098d71187820ae4f71"
+      "source_sha256": "e25b650191b5076f482d91461e93785c3823a052312fd4098d71187820ae4f71",
+      "english": "Mukyu. Let's play together."
     },
     {
       "id": "patchouli.adult.o_puff",
@@ -5235,7 +5263,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_puff"
       },
-      "source_sha256": "f68945a052d7b3f11effce1bc6eb4b9eea0cc9824f2b923839cc6e311461cf4e"
+      "source_sha256": "f68945a052d7b3f11effce1bc6eb4b9eea0cc9824f2b923839cc6e311461cf4e",
+      "english": "Mukyu. Puff!"
     },
     {
       "id": "patchouli.adult.o_confused",
@@ -5251,7 +5280,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_confused"
       },
-      "source_sha256": "2ae562823219ca86607aac8ec5f97dfde71e15488d2d974e562fcd73ebe23b79"
+      "source_sha256": "2ae562823219ca86607aac8ec5f97dfde71e15488d2d974e562fcd73ebe23b79",
+      "english": "Mukyu. I don't quite understand."
     },
     {
       "id": "patchouli.adult.o_birth",
@@ -5267,7 +5297,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_birth"
       },
-      "source_sha256": "27ce130333f52b463d025ec00fca60bf95847785747e2d6d440457c9811a5ec9"
+      "source_sha256": "27ce130333f52b463d025ec00fca60bf95847785747e2d6d440457c9811a5ec9",
+      "english": "Mukyu. The baby's coming."
     },
     {
       "id": "patchouli.adult.o_nuzzle",
@@ -5283,7 +5314,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_nuzzle"
       },
-      "source_sha256": "36d6ac42fd53460c2bb33c7361a80cb269f65427d8d97db03f4a91324e26d406"
+      "source_sha256": "36d6ac42fd53460c2bb33c7361a80cb269f65427d8d97db03f4a91324e26d406",
+      "english": "Mukyu. Rub, rub."
     },
     {
       "id": "patchouli.adult.o_want_nuzzle",
@@ -5299,7 +5331,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_want_nuzzle"
       },
-      "source_sha256": "26aa474c60cfba15ad4553bdfe01eb9bf75a29f742d75eea85cfc5ff461df928"
+      "source_sha256": "26aa474c60cfba15ad4553bdfe01eb9bf75a29f742d75eea85cfc5ff461df928",
+      "english": "Mukyu. I want to rub cheeks."
     },
     {
       "id": "patchouli.young.o_hungry",
@@ -5315,7 +5348,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_hungry"
       },
-      "source_sha256": "58ece1b9098d06989e9569cec59bc7e4cf55001f2fba7871f7315ac4ab71d446"
+      "source_sha256": "58ece1b9098d06989e9569cec59bc7e4cf55001f2fba7871f7315ac4ab71d446",
+      "english": "Mukyu. My tummy's hungry."
     },
     {
       "id": "patchouli.young.o_food",
@@ -5331,7 +5365,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_food"
       },
-      "source_sha256": "384c8cba8bc7b20b8734fbebb14a961f4150c128e2842ea1aee9063abf1cc15f"
+      "source_sha256": "384c8cba8bc7b20b8734fbebb14a961f4150c128e2842ea1aee9063abf1cc15f",
+      "english": "Mukyu. It's Mishter Food."
     },
     {
       "id": "patchouli.young.o_eat",
@@ -5348,7 +5383,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_eat"
       },
-      "source_sha256": "9365fddb96e6e12b54f09d5b8996253276f7d163d7417a8f5740ee94f08e335f"
+      "source_sha256": "9365fddb96e6e12b54f09d5b8996253276f7d163d7417a8f5740ee94f08e335f",
+      "english": "Mukyu. Munch, munch."
     },
     {
       "id": "patchouli.young.o_happy",
@@ -5367,7 +5403,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_happy"
       },
-      "source_sha256": "5e968bdd55be5d906e783bba18916cebda9f33ca0c72f712a590e8f58da47ddc"
+      "source_sha256": "5e968bdd55be5d906e783bba18916cebda9f33ca0c72f712a590e8f58da47ddc",
+      "english": "Mukyu. Sho happy."
     },
     {
       "id": "patchouli.young.o_toilet",
@@ -5383,7 +5420,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_toilet"
       },
-      "source_sha256": "7557b91b086e94891784f43233890bb170412bd63982828dce659cab02b9cd36"
+      "source_sha256": "7557b91b086e94891784f43233890bb170412bd63982828dce659cab02b9cd36",
+      "english": "Mukyu. Gonna go poo-poo."
     },
     {
       "id": "patchouli.young.o_clean",
@@ -5400,7 +5438,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_clean"
       },
-      "source_sha256": "182c282bf73c840cc8b6b543879b410d25d63436465e9da518e13ec8bda08c8f"
+      "source_sha256": "182c282bf73c840cc8b6b543879b410d25d63436465e9da518e13ec8bda08c8f",
+      "english": "Mukyu. All bettah."
     },
     {
       "id": "patchouli.young.o_sleep",
@@ -5416,7 +5455,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_sleep"
       },
-      "source_sha256": "f362632d25c0198ca961b97f0272b9eafe53eb0eb9f4362c966025e0d3f25e97"
+      "source_sha256": "f362632d25c0198ca961b97f0272b9eafe53eb0eb9f4362c966025e0d3f25e97",
+      "english": "Mukyu. Zzz... zzz."
     },
     {
       "id": "patchouli.young.o_awake",
@@ -5432,7 +5472,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_awake"
       },
-      "source_sha256": "c1a9682a2b8afd17fa286de549ef4c1f7f09434990e976db88478c52b5c97c28"
+      "source_sha256": "c1a9682a2b8afd17fa286de549ef4c1f7f09434990e976db88478c52b5c97c28",
+      "english": "Mukyu. Good morning."
     },
     {
       "id": "patchouli.young.o_thanks",
@@ -5448,7 +5489,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_thanks"
       },
-      "source_sha256": "082e003b961cbc7a55e48022d6e332e0ad45df782e97c93e32aaa5436778a8d8"
+      "source_sha256": "082e003b961cbc7a55e48022d6e332e0ad45df782e97c93e32aaa5436778a8d8",
+      "english": "Mukyu. Fank you."
     },
     {
       "id": "patchouli.young.o_understood",
@@ -5464,7 +5506,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_understood"
       },
-      "source_sha256": "91aaf91d1dd3db45ac4e580cccdd8578911a0415827ac0c382469f50b114142f"
+      "source_sha256": "91aaf91d1dd3db45ac4e580cccdd8578911a0415827ac0c382469f50b114142f",
+      "english": "Mukyu. I got it."
     },
     {
       "id": "patchouli.young.o_wait",
@@ -5480,7 +5523,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_wait"
       },
-      "source_sha256": "e496f38223cabeba47c97b4a3a3f1c68945ad2ef29739d0810e63f866824db5b"
+      "source_sha256": "e496f38223cabeba47c97b4a3a3f1c68945ad2ef29739d0810e63f866824db5b",
+      "english": "Mukyu. I'll wait here."
     },
     {
       "id": "patchouli.young.o_praise",
@@ -5532,7 +5576,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_lost"
       },
-      "source_sha256": "c32658313047fae90423ae20ef344a4a519d2f5b5db55c95ea43f2a9f0235423"
+      "source_sha256": "c32658313047fae90423ae20ef344a4a519d2f5b5db55c95ea43f2a9f0235423",
+      "english": "Mukyu. Pwease give my hat back."
     },
     {
       "id": "patchouli.young.o_returned",
@@ -5548,7 +5593,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_returned"
       },
-      "source_sha256": "d7bd194c504e41fa1648766370cb7453efdd72777a60e38ec071c0992da1425b"
+      "source_sha256": "d7bd194c504e41fa1648766370cb7453efdd72777a60e38ec071c0992da1425b",
+      "english": "Mukyu. My hat came back."
     },
     {
       "id": "patchouli.young.o_play",
@@ -5564,7 +5610,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_play"
       },
-      "source_sha256": "233e3d74a712e1edf3307cdfec1e8b545e744760c22864a6e35baba40379d069"
+      "source_sha256": "233e3d74a712e1edf3307cdfec1e8b545e744760c22864a6e35baba40379d069",
+      "english": "Mukyu. Let's pway together."
     },
     {
       "id": "patchouli.young.o_puff",
@@ -5582,7 +5629,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_puff"
       },
-      "source_sha256": "30835a44dda0b6cdd8ab3fb72507368bd04c9c56541ccdb75ee99ea020ec6aa1"
+      "source_sha256": "30835a44dda0b6cdd8ab3fb72507368bd04c9c56541ccdb75ee99ea020ec6aa1",
+      "english": "Mukyu. Puff!"
     },
     {
       "id": "patchouli.young.o_confused",
@@ -5598,7 +5646,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_confused"
       },
-      "source_sha256": "e1444f7655ee726ceedf8906e273cb029ce61f4864be2fd3974c255d6fa9bb81"
+      "source_sha256": "e1444f7655ee726ceedf8906e273cb029ce61f4864be2fd3974c255d6fa9bb81",
+      "english": "Mukyu. I don't get it."
     },
     {
       "id": "patchouli.young.o_birth",
@@ -5614,7 +5663,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_birth"
       },
-      "source_sha256": "61076ce7897640595cabad75a484426d359124942cdca674a40412fbd4948173"
+      "source_sha256": "61076ce7897640595cabad75a484426d359124942cdca674a40412fbd4948173",
+      "english": "Mukyu. The baby's coming."
     },
     {
       "id": "patchouli.young.o_nuzzle",
@@ -5630,7 +5680,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_nuzzle"
       },
-      "source_sha256": "b3bc3c9c1a780942b8859a78579e7fe461e6f995ceaa7ea2bcd58d6bd6c8ba8d"
+      "source_sha256": "b3bc3c9c1a780942b8859a78579e7fe461e6f995ceaa7ea2bcd58d6bd6c8ba8d",
+      "english": "Mukyu. Wub, wub."
     },
     {
       "id": "patchouli.young.o_want_nuzzle",
@@ -5646,7 +5697,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_want_nuzzle"
       },
-      "source_sha256": "8a999837f77d081774af6d43b53f6576b0a0f56093e3c9fb1113103f30e824a3"
+      "source_sha256": "8a999837f77d081774af6d43b53f6576b0a0f56093e3c9fb1113103f30e824a3",
+      "english": "Mukyu. I wanna wub cheeks."
     },
     {
       "id": "reimu.adult.o_settlement_shun",
@@ -5662,7 +5714,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_settlement_shun"
       },
-      "source_sha256": "475787cca65eb3fdadc050c017549bcf82b1e0b87da23fca81806ef43c7d0834"
+      "source_sha256": "475787cca65eb3fdadc050c017549bcf82b1e0b87da23fca81806ef43c7d0834",
+      "english": "Who are you? Don't come any closer!"
     },
     {
       "id": "reimu.adult.o_settlement_drive",
@@ -5678,7 +5731,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_settlement_drive"
       },
-      "source_sha256": "37f581a217b0ce2900bb27046bb740c1fea0e4a0feb0ea5be60c1190e7dea3a2"
+      "source_sha256": "37f581a217b0ce2900bb27046bb740c1fea0e4a0feb0ea5be60c1190e7dea3a2",
+      "english": "Get out of here!"
     },
     {
       "id": "reimu.adult.o_settlement_assign",
@@ -5694,7 +5748,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_settlement_assign"
       },
-      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5"
+      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "reimu.adult.o_settlement_submit",
@@ -5710,7 +5765,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_settlement_submit"
       },
-      "source_sha256": "d5483d6b8f0b1caf9e3f46e9cb6fd2af046ece2d71243c6c311fc0bea8b53f1f"
+      "source_sha256": "d5483d6b8f0b1caf9e3f46e9cb6fd2af046ece2d71243c6c311fc0bea8b53f1f",
+      "english": "I'll clean Mr. Toilet... please let me stay..."
     },
     {
       "id": "reimu.adult.o_settlement_hurt",
@@ -5726,7 +5782,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_settlement_hurt"
       },
-      "source_sha256": "8bbace82558edc63ab941bbae4486557597134366051cd9c34745f1942982f8c"
+      "source_sha256": "8bbace82558edc63ab941bbae4486557597134366051cd9c34745f1942982f8c",
+      "english": "Yuu... I want to stay with everyone too..."
     },
     {
       "id": "reimu.young.o_settlement_shun",
@@ -5854,7 +5911,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_settlement_assign"
       },
-      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5"
+      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "marisa.adult.o_settlement_submit",
@@ -6014,7 +6072,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_settlement_assign"
       },
-      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5"
+      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "alice.adult.o_settlement_submit",
@@ -6174,7 +6233,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_settlement_assign"
       },
-      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5"
+      "source_sha256": "73aa63252dec8f0c78798f59fd8470e5b4349c620dec1c47488804a0f0a81fb5",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "chen.adult.o_settlement_submit",

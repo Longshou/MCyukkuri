@@ -337,7 +337,8 @@
         "toilet_done",
         "washed"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "All bettah!"
     },
     {
       "id": "chen.young.o_sleep",
@@ -348,7 +349,8 @@
       "events": [
         "sleep"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Zzz... zzz."
     },
     {
       "id": "chen.young.o_awake",
@@ -359,7 +361,8 @@
       "events": [
         "awake"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "It's morning. G'morning!"
     },
     {
       "id": "chen.young.o_thanks",
@@ -370,7 +373,8 @@
       "events": [
         "treated"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Fank you!"
     },
     {
       "id": "chen.young.o_understood",
@@ -381,7 +385,8 @@
       "events": [
         "wait_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I got it!"
     },
     {
       "id": "chen.young.o_wait",
@@ -392,7 +397,8 @@
       "events": [
         "wait_turn"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I'll wait right here!"
     },
     {
       "id": "chen.young.o_praise",
@@ -429,7 +435,8 @@
       "events": [
         "lost_accessory"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Pwease give my headwear back!"
     },
     {
       "id": "chen.young.o_returned",
@@ -440,7 +447,8 @@
       "events": [
         "returned_accessory"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "My headwear came back!"
     },
     {
       "id": "chen.young.o_play",
@@ -451,7 +459,8 @@
       "events": [
         "toy"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Let's pway together!"
     },
     {
       "id": "chen.young.o_puff",
@@ -464,7 +473,8 @@
         "mine",
         "lesson_refused"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Puff! I don't wanna!"
     },
     {
       "id": "chen.young.o_confused",
@@ -475,7 +485,8 @@
       "events": [
         "unrecognized"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I don't get it!"
     },
     {
       "id": "chen.young.o_birth",
@@ -486,7 +497,8 @@
       "events": [
         "birth"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "The baby's coming!"
     },
     {
       "id": "chen.young.o_nuzzle",
@@ -497,7 +509,8 @@
       "events": [
         "nuzzle"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Wub, wub. That feels good!"
     },
     {
       "id": "chen.young.o_want_nuzzle",
@@ -508,7 +521,8 @@
       "events": [
         "want_nuzzle"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "patchouli.adult.o_hungry",
@@ -519,7 +533,8 @@
       "events": [
         "hungry"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I'm hungry."
     },
     {
       "id": "patchouli.adult.o_food",
@@ -530,7 +545,8 @@
       "events": [
         "food_found"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. It's Mr. Food."
     },
     {
       "id": "patchouli.adult.o_eat",
@@ -542,7 +558,8 @@
         "take_food",
         "chew"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Munch, munch."
     },
     {
       "id": "patchouli.adult.o_happy",
@@ -556,7 +573,8 @@
         "nuzzle_done",
         "leisure_done"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. So happy."
     },
     {
       "id": "patchouli.adult.o_toilet",
@@ -567,7 +585,8 @@
       "events": [
         "need_toilet"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Time to poop."
     },
     {
       "id": "patchouli.adult.o_clean",
@@ -579,7 +598,8 @@
         "toilet_done",
         "washed"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. What a relief."
     },
     {
       "id": "patchouli.adult.o_sleep",
@@ -590,7 +610,8 @@
       "events": [
         "sleep"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Zzz... zzz."
     },
     {
       "id": "patchouli.adult.o_awake",
@@ -601,7 +622,8 @@
       "events": [
         "awake"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Good morning."
     },
     {
       "id": "patchouli.adult.o_thanks",
@@ -612,7 +634,8 @@
       "events": [
         "treated"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Thank you."
     },
     {
       "id": "patchouli.adult.o_understood",
@@ -623,7 +646,8 @@
       "events": [
         "wait_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I understand."
     },
     {
       "id": "patchouli.adult.o_wait",
@@ -634,7 +658,8 @@
       "events": [
         "wait_turn"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I'll wait here."
     },
     {
       "id": "patchouli.adult.o_praise",
@@ -671,7 +696,8 @@
       "events": [
         "lost_accessory"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Please give my hat back."
     },
     {
       "id": "patchouli.adult.o_returned",
@@ -682,7 +708,8 @@
       "events": [
         "returned_accessory"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. My hat is back."
     },
     {
       "id": "patchouli.adult.o_play",
@@ -693,7 +720,8 @@
       "events": [
         "toy"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Let's play together."
     },
     {
       "id": "patchouli.adult.o_puff",
@@ -706,7 +734,8 @@
         "mine",
         "lesson_refused"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Puff!"
     },
     {
       "id": "patchouli.adult.o_confused",
@@ -717,7 +746,8 @@
       "events": [
         "unrecognized"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I don't quite understand."
     },
     {
       "id": "patchouli.adult.o_birth",
@@ -728,7 +758,8 @@
       "events": [
         "birth"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. The baby's coming."
     },
     {
       "id": "patchouli.adult.o_nuzzle",
@@ -739,7 +770,8 @@
       "events": [
         "nuzzle"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Rub, rub."
     },
     {
       "id": "patchouli.adult.o_want_nuzzle",
@@ -750,7 +782,8 @@
       "events": [
         "want_nuzzle"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I want to rub cheeks."
     },
     {
       "id": "patchouli.young.o_hungry",
@@ -761,7 +794,8 @@
       "events": [
         "hungry"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. My tummy's hungry."
     },
     {
       "id": "patchouli.young.o_food",
@@ -772,7 +806,8 @@
       "events": [
         "food_found"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. It's Mishter Food."
     },
     {
       "id": "patchouli.young.o_eat",
@@ -784,7 +819,8 @@
         "take_food",
         "chew"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Munch, munch."
     },
     {
       "id": "patchouli.young.o_happy",
@@ -798,7 +834,8 @@
         "nuzzle_done",
         "leisure_done"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Sho happy."
     },
     {
       "id": "patchouli.young.o_toilet",
@@ -809,7 +846,8 @@
       "events": [
         "need_toilet"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Gonna go poo-poo."
     },
     {
       "id": "patchouli.young.o_clean",
@@ -821,7 +859,8 @@
         "toilet_done",
         "washed"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. All bettah."
     },
     {
       "id": "patchouli.young.o_sleep",
@@ -832,7 +871,8 @@
       "events": [
         "sleep"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Zzz... zzz."
     },
     {
       "id": "patchouli.young.o_awake",
@@ -843,7 +883,8 @@
       "events": [
         "awake"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Good morning."
     },
     {
       "id": "patchouli.young.o_thanks",
@@ -854,7 +895,8 @@
       "events": [
         "treated"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Fank you."
     },
     {
       "id": "patchouli.young.o_understood",
@@ -865,7 +907,8 @@
       "events": [
         "wait_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I got it."
     },
     {
       "id": "patchouli.young.o_wait",
@@ -876,7 +919,8 @@
       "events": [
         "wait_turn"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I'll wait here."
     },
     {
       "id": "patchouli.young.o_praise",
@@ -913,7 +957,8 @@
       "events": [
         "lost_accessory"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Pwease give my hat back."
     },
     {
       "id": "patchouli.young.o_returned",
@@ -924,7 +969,8 @@
       "events": [
         "returned_accessory"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. My hat came back."
     },
     {
       "id": "patchouli.young.o_play",
@@ -935,7 +981,8 @@
       "events": [
         "toy"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Let's pway together."
     },
     {
       "id": "patchouli.young.o_puff",
@@ -948,7 +995,8 @@
         "mine",
         "lesson_refused"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Puff!"
     },
     {
       "id": "patchouli.young.o_confused",
@@ -959,7 +1007,8 @@
       "events": [
         "unrecognized"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I don't get it."
     },
     {
       "id": "patchouli.young.o_birth",
@@ -970,7 +1019,8 @@
       "events": [
         "birth"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. The baby's coming."
     },
     {
       "id": "patchouli.young.o_nuzzle",
@@ -981,7 +1031,8 @@
       "events": [
         "nuzzle"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. Wub, wub."
     },
     {
       "id": "patchouli.young.o_want_nuzzle",
@@ -992,7 +1043,8 @@
       "events": [
         "want_nuzzle"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu. I wanna wub cheeks."
     },
     {
       "id": "reimu.adult.o_settlement_shun",
@@ -1003,7 +1055,8 @@
       "events": [
         "settlement_shun"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Who are you? Don't come any closer!"
     },
     {
       "id": "reimu.adult.o_settlement_drive",
@@ -1014,7 +1067,8 @@
       "events": [
         "settlement_drive"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Get out of here!"
     },
     {
       "id": "reimu.adult.o_settlement_assign",
@@ -1025,7 +1079,8 @@
       "events": [
         "settlement_assign"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "reimu.adult.o_settlement_submit",
@@ -1036,7 +1091,8 @@
       "events": [
         "settlement_submit"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "I'll clean Mr. Toilet... please let me stay..."
     },
     {
       "id": "reimu.adult.o_settlement_hurt",
@@ -1047,7 +1103,8 @@
       "events": [
         "settlement_hurt"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Yuu... I want to stay with everyone too..."
     },
     {
       "id": "reimu.young.o_settlement_shun",
@@ -1135,7 +1192,8 @@
       "events": [
         "settlement_assign"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "marisa.adult.o_settlement_submit",
@@ -1245,7 +1303,8 @@
       "events": [
         "settlement_assign"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "alice.adult.o_settlement_submit",
@@ -1355,7 +1414,8 @@
       "events": [
         "settlement_assign"
       ],
-      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。"
+      "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文；仅字幕，尚未配音。",
+      "english": "Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "chen.adult.o_settlement_submit",
