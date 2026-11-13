@@ -13,9 +13,11 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'standards/yukkuri-library/motions/variants/lore'))
+sys.path.insert(0, str(ROOT / 'scripts'))
+from furniture_placement import joined
 import preview_shop as ps
 
-SOURCES = ['build.py', 'author_street.py', 'check_structure.py', 'author_furniture.py']
+SOURCES = ['build.py', 'author_street.py', 'check_structure.py']
 DUMP = """import json, sys
 sys.path.insert(0, sys.argv[1]); import build, author_street
 pieces = {'lot': build.village_shop(build.shop()), 'stall': author_street.street_stall(), 'oni': author_street.oni_shop()}
@@ -34,6 +36,8 @@ def old_sources(ref, into):
     for name in SOURCES:
         shown = subprocess.run(['git', '-C', str(ROOT), 'show', f'{ref}:art/structures/human-world/{name}'], capture_output=True)
         if shown.returncode == 0: (into / name).write_bytes(shown.stdout)
+    joined_source = subprocess.run(['git', '-C', str(ROOT), 'show', f'{ref}:scripts/furniture_placement.py'], capture_output=True)
+    if joined_source.returncode == 0: (into / 'furniture_placement.py').write_bytes(joined_source.stdout)
     # The old build reads OUT only when saving; nothing is written here.
     return into
 
@@ -108,13 +112,12 @@ def floor(blocks, x0, x1, z0, z1, y, name):
 
 def house_mock(new):
     """The museum house's table (museum_fields.House): oak floor, the table between two seats, a hanging lantern above."""
-    import author_furniture
     b = {}; floor(b, -3, 3, -2, 2, -1, 'minecraft:oak_planks')
     for x in range(-3, 4): b[x, 0, -2] = b[x, 1, -2] = ('minecraft:oak_planks', {})
     if new:
-        for (x, z), p in author_furniture.joined('wooden_table', [(0, 0)]).items(): b[x, 0, z] = ('mcyukkuri:wooden_table', p)
+        for (x, z), p in joined('wooden_table', [(0, 0)]).items(): b[x, 0, z] = ('mcyukkuri:wooden_table', p)
         for cx in (-1, 1):
-            for (x, z), p in author_furniture.joined('wooden_bench', [(cx, 0)], 'z').items(): b[x, 0, z] = ('mcyukkuri:wooden_bench', p)
+            for (x, z), p in joined('wooden_bench', [(cx, 0)], 'z').items(): b[x, 0, z] = ('mcyukkuri:wooden_bench', p)
     else:
         b[0, 0, 0] = ('minecraft:oak_fence', {}); b[0, 1, 0] = ('minecraft:oak_pressure_plate', {'powered': 'false'})
         b[-1, 0, 0] = ('minecraft:oak_stairs', {'facing': 'east', 'half': 'bottom', 'shape': 'straight'})
@@ -124,12 +127,11 @@ def house_mock(new):
 
 def closeup(new):
     """A lone stool, a three-piece bench and a 2x2 table on grass."""
-    import author_furniture
     b = {}; floor(b, -4, 4, -3, 3, -1, 'minecraft:grass_block')
     if new:
         for cells, axis, kind in [([(-3, -1)], 'x', 'wooden_bench'), ([(-1, -1), (0, -1), (1, -1)], 'x', 'wooden_bench'),
                                   ([(-1, 1), (0, 1), (-1, 2), (0, 2)], 'x', 'wooden_table')]:
-            for (x, z), p in author_furniture.joined(kind, cells, axis).items(): b[x, 0, z] = ('mcyukkuri:' + kind, p)
+            for (x, z), p in joined(kind, cells, axis).items(): b[x, 0, z] = ('mcyukkuri:' + kind, p)
     else:
         stair = lambda f: ('minecraft:oak_stairs', {'facing': f, 'half': 'bottom', 'shape': 'straight'})
         b[-3, 0, -1] = stair('north'); b[-1, 0, -1] = stair('north'); b[0, 0, -1] = ('minecraft:oak_slab', {'type': 'bottom'}); b[1, 0, -1] = stair('north')

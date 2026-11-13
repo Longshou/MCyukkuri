@@ -196,24 +196,6 @@ def turned(element, quarter):
     return e
 
 
-# ---------------------------------------------------------------------------------------------------------- placement
-def joined(kind, cells, axis='x'):
-    """Block properties of a wooden bench or table over `cells` ((x, z) pairs) with the joins the block computes itself
-    (human/WoodenBenchBlock, WoodenTableBlock). Templates keep stored shapes and commands do not update the placed block, so generators
-    write them out. A bench lies along `axis` (one cell is a stool); tables join every neighbouring cell."""
-    cells, out = set(cells), {}
-    for x, z in sorted(cells):
-        near = {'north': (x, z - 1), 'south': (x, z + 1), 'west': (x - 1, z), 'east': (x + 1, z)}
-        props = {d: str(c in cells and (kind == 'wooden_table' or (d in ('west', 'east')) == (axis == 'x'))).lower() for d, c in near.items()}
-        if kind == 'wooden_bench': props['axis'] = axis
-        out[x, z] = props
-    return out
-
-
-def state(props):
-    return '[' + ','.join(f'{k}={v}' for k, v in sorted(props.items())) + ']'
-
-
 # ---------------------------------------------------------------------------------------------------------- export
 def language(lang):
     i = ['zh_cn', 'en_us', 'ja_jp'].index(lang)

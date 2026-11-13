@@ -4988,11 +4988,15 @@ _smoke('street_crops', 240, [
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))
+_street_cover_arrival = (
+    rf'\[(?:weather|habitat)\][^\n]* uuid=({_barrel_stray}|{_awning_stray})\b[^\n]* '
+    r'(?:street rain cover reached|street rest) spot=(BARREL|AWNING) '
+)
 _smoke('street_furniture', 900, [
     rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH [^\n]* stand=(?:seat|foot)\b',
     rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
     rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
-    rf'\[weather\][^\n]* uuid=(?:{_barrel_stray}|{_awning_stray})\b[^\n]* street rain cover reached spot=(?:BARREL|AWNING) ',
+    _street_cover_arrival,
 ], readout=_street_health_reads('bench_stray', 'water_stray', 'barrel_stray', 'awning_stray'))
 
 
@@ -5007,15 +5011,13 @@ def _street_bench_rest(log):
 
 
 def _street_rain_covers(log):
-    """Whichever stray takes which stand: both street covers are reached, one eastern stray each."""
-    reached = re.findall(rf'\[weather\][^\n]* uuid=({_barrel_stray}|{_awning_stray})\b[^\n]* '
-                         r'street rain cover reached spot=(BARREL|AWNING) ', log)
+    """Both stands are reached by different eastern strays, via rain flight or a settled shelter."""
+    reached = re.findall(_street_cover_arrival, log)
     spots = {spot for _, spot in reached}
     if spots != {'BARREL', 'AWNING'}:
         return f'the eastern strays reached street covers {sorted(spots)}, not both BARREL and AWNING'
-    strays = {stray for stray, _ in reached}
-    if len(strays) != 2:
-        return f'both street covers were reached by {len(strays)} stray(s), not one each'
+    if not any(a != b and first != second for a, first in reached for b, second in reached):
+        return 'both street covers were reached by the same stray'
     return None
 
 

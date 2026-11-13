@@ -69,6 +69,7 @@ def main(check=False):
     paths.extend([ROOT/'art/structures/human-world/author_exam_props.py',ROOT/'art/structures/human-world/check_structure.py',ROOT/'art/structures/human-world/author_street.py'])
     paths.extend(ROOT.glob('src/main/java/io/github/longshou/mcyukkuri/human/Exam*Block.java'))
     paths.append(ROOT/'art/structures/human-world/author_furniture.py')
+    paths.append(ROOT/'scripts/furniture_placement.py')
     paths.extend(ROOT/f'src/main/java/io/github/longshou/mcyukkuri/human/{n}.java' for n in ('JoinedFurnitureBlock','WoodenBenchBlock','WoodenTableBlock'))
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')

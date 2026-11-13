@@ -5,6 +5,8 @@ sys.path.insert(0,str(Path(__file__).parent))
 
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / 'src/main/resources/data/mcyukkuri'
+sys.path.insert(0, str(ROOT / 'scripts'))
+from furniture_placement import joined
 
 # Small typed NBT writer: no external package or Minecraft installation needed.
 def byte(v): return (1, v)
@@ -154,9 +156,8 @@ def slab(b,x,y,z,name,kind='bottom'):
     b.block(x,y,z,name+'_slab',{'type':kind,'waterlogged':'false'})
 def barrel(b,x,y,z,facing='up'): b.block(x,y,z,'barrel',{'facing':facing,'open':'false'})
 def furniture(b,kind,y,cells,axis='x'):
-    """A wooden bench (along axis; one cell is a stool) or table over the (x, z) cells, joined as the blocks join (author_furniture.py)."""
-    import author_furniture
-    for (x,z),props in author_furniture.joined('wooden_'+kind,cells,axis).items(): b.block(x,y,z,'mcyukkuri:wooden_'+kind,props)
+    """A wooden bench (along axis; one cell is a stool) or table over the joined (x, z) cells."""
+    for (x,z),props in joined('wooden_'+kind,cells,axis).items(): b.block(x,y,z,'mcyukkuri:wooden_'+kind,props)
 def mark(b,x,z,kind): b.block(x,3,z,'mcyukkuri:exam_mark',{'kind':kind})
 def glass(b,a,c,y0=3,y1=7,full=False,top=5):
     """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..top)."""
