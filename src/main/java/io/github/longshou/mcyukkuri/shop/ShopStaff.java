@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -556,19 +557,27 @@ public final class ShopStaff {
         if (job.tried.size() >= MAX_APPROACHES) { fail(level, staff, shop, job, "unreachable"); return; }
         boolean counter = job.phase == Phase.CARRY && job.kind == Kind.BUY;
         var touched = job.phase == Phase.CARRY || job.loose == null && job.animal == null ? job.target : null;
-        var candidates = new LinkedHashSet<BlockPos>();
+        var free = new LinkedHashSet<BlockPos>();
+        var occupiedByStock = new LinkedHashSet<BlockPos>();
         for (var cell : BlockPos.withinManhattan(target, 2, 1, 2)) {
             if (!level.hasChunkAt(cell)) continue;
             var stand = Vec3.atBottomCenterOf(cell);
             if (counter && !atCounter(stand, point) || job.tried.contains(cell) && !(detourToSameStand && cell.equals(previous))
                     || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) continue;
             var box = staff.getBoundingBox().move(stand.subtract(staff.position()));
-            if (!level.noCollision(staff, box)
-                    || !level.getEntitiesOfClass(LivingEntity.class, box, e -> e != staff && e.isAlive() && !e.isSpectator()).isEmpty()) continue;
+            if (level.getBlockCollisions(staff, box).iterator().hasNext()) continue;
             if (!counter && !reaches(staff, stand, point, touched)) continue;
-            candidates.add(cell.immutable());
+            var occupants = level.getEntitiesOfClass(LivingEntity.class, box, e -> e != staff && e.isAlive() && !e.isSpectator());
+            if (occupants.isEmpty()) free.add(cell.immutable());
+            else if (job.kind == Kind.FEED && occupants.stream().allMatch(e -> e instanceof YukkuriEntity animal && ShopTrade.stockOf(animal, shop.id)))
+                occupiedByStock.add(cell.immutable());
         }
-        var path = candidates.isEmpty() ? null : staff.shopPath(candidates, obstruction == null ? null : obstruction.getBoundingBox());
+        var obstacle = obstruction == null ? null : obstruction.getBoundingBox();
+        var path = free.isEmpty() ? null : staff.shopPath(free, obstacle);
+        // A crowded bowl still needs service. If there is no route to a free stand,
+        // approach the waiting stock and ask it to yield when actually in the way.
+        if ((path == null || !path.canReach()) && !occupiedByStock.isEmpty())
+            path = staff.shopPath(occupiedByStock, obstacle);
         if (path != null && path.canReach() && navigation.moveTo(path, SPEED)) {
             job.approach = path.getTarget();
             if (obstruction != null)
@@ -576,9 +585,10 @@ public final class ShopStaff {
                         job.kind, job.phase, obstruction.getUUID(), job.approach.toShortString());
             return;
         }
-        if (obstruction != null && job.kind == Kind.CLEAN && job.phase == Phase.CARRY)
-            GameplayLog.limited(staff, "shop", "waste_blocked", 100,
-                    "action=dispose_waste result=route_blocked blocker={} barrel={}", obstruction.getUUID(), job.target.toShortString());
+        if (obstruction != null || job.kind == Kind.FEED)
+            GameplayLog.limited(staff, "shop", "approach_blocked." + job.kind, 100,
+                    "action=job result=no_route kind={} phase={} blocker={} free_stands={} stock_stands={}",
+                    job.kind, job.phase, obstruction == null ? null : obstruction.getUUID(), free.size(), occupiedByStock.size());
         fail(level, staff, shop, job, "unreachable");
     }
 
@@ -598,7 +608,7 @@ public final class ShopStaff {
         var ahead = body.move(step);
         return level.getEntitiesOfClass(LivingEntity.class, body.expandTowards(step),
                         e -> e != staff && e.isAlive() && !e.isSpectator() && e.getBoundingBox().intersects(ahead))
-                .stream().min(java.util.Comparator.comparingDouble(staff::distanceToSqr)).orElse(null);
+                .stream().min(Comparator.comparingDouble(staff::distanceToSqr)).orElse(null);
     }
 
     private static boolean atCounter(Vec3 stand, Vec3 counter) {
