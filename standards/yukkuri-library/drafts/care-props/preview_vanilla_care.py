@@ -182,7 +182,7 @@ def vanilla():
            sit(REIMU, 'large_yukkuri_nest', -1.6, 6, .32, 205), sit(MARISA, 'large_yukkuri_nest', 1.8, 8.6, .32, 172)]
     rows = [[tile(feed, '花盆｜食盆（奶油薄荷）｜红心食盆盛油粮 8 份｜炼药锅', SZ, 11, az=200, el=28),
              tile(beds, '堆肥桶｜软垫窝 + 灵梦｜小熊绒软垫窝 + 子体魔理沙｜炼药锅', SZ, 11, az=200, el=28)],
-            [tile(loos, '沙厕｜水手条纹陶厕｜带盖厕（盖在后半，前侧开口）｜堆肥桶', SZ, 11, az=200, el=28),
+            [tile(loos, '沙厕（薄荷）｜沙厕（天蓝）｜堆肥桶', SZ, 11, az=200, el=28),
              tile(big, '2×2 编织大窝（入口 +z）与炼药锅、堆肥桶；亲油两只、新生两只', SZ, 10, az=30)]]
     sheet(rows, 'vanilla.png', '宠物照料用品与原版方块并排：圆润低多边形 + 1 像素／单位手绘材质（离线渲染）', SZ)
 
