@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 街道布局与鬼威惨商店建筑 | `.worktrees/wp-hz-street-oni-layout` | art/structures/human-world/, village street templates |
-| 离线渲染左右镜像 | `.worktrees/wp-ia-render-mirror` | standards/yukkuri-library/runtime/render.js, preview renderers |
 
 ## 玩法待办
 
