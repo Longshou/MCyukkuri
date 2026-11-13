@@ -1,5 +1,5 @@
 {
-  "recipe_sha256": "3d548a244fc59e63601323a770f8d46c2356291cc8405831eb73db549897976a",
+  "recipe_sha256": "acccb31d028cf547bae73d5ebe966441ccff1bc5624c20d55210369fce89bd4d",
   "builder_sha256": "94e5489e2978896634a824580e362c6a4fc70aba681330f48ff283cd1702689f",
   "standard_confirmation": "standards/yukkuri-library/provenance/standard-expressions.json",
   "atlases": {
@@ -57,7 +57,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
-        "sha256": "58a71abb116d808b254ce585a0b604350dc2ec44f5e63e3d4f54cc70688a80a7"
+        "sha256": "7428fba7123df5001e8fcf528c1c03c6702da7f545ea6cbee73849f908b197ec"
       }
     },
     "marisa": {
@@ -114,7 +114,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/marisa/textures/sleep.png",
-        "sha256": "a732cdfc14531b46f7c309c2ecefd88621916d6023c80b6751a2937d2a131a1b"
+        "sha256": "9d2c576b095fd2ed275a1aaaaf673cd50fde825faaf59d44d2a0a8666777cced"
       }
     },
     "chen": {
@@ -171,7 +171,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/chen/textures/sleep.png",
-        "sha256": "080d85c0f6a9ec300b8f736a828a539e7290f01452b86a17af728b159da5ea5a"
+        "sha256": "2605a01bc9847b09f46ee0bcccca39ae83130fbcca5bd444b9e3683b8c224b33"
       }
     },
     "alice": {
@@ -228,7 +228,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/alice/textures/sleep.png",
-        "sha256": "73dfb2fed5166a721115188a3cdcb5da7ce2d1b974d65d7e1f5e2fccae37f078"
+        "sha256": "0c961460ef280482d597246a3eb5452cc5d7267fc9bfcaf75c57aaf7a0081148"
       }
     },
     "patchouli": {
@@ -285,7 +285,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/patchouli/textures/sleep.png",
-        "sha256": "cbdbebfb447a492421f1140162e73b2f3239f338183569064f48841b8127cec1"
+        "sha256": "291ca5c24d056ad790d6e7717294580464a3ac15f84f23974c903166f28b8ab6"
       }
     },
     "marisa_tsumuri": {
@@ -342,7 +342,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/sleep.png",
-        "sha256": "2936398872fee3b2a20195abe250150677d82acaa30ece3e2f396b1277e40989"
+        "sha256": "a46ef2e28ce11f3b12dd3e9e7c4bd9a06e9fd8b3c3b137cc8a1dd3b7bed3c27e"
       }
     },
     "reimu_wasa": {
@@ -399,7 +399,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
-        "sha256": "6198916c9da955f020c18571e50443e45fdbb7d97bf0d18180e242067165927b"
+        "sha256": "8e4c2324c949cdfd095b0f36feb7963e6d7dcccf4f980718f6e429c763c3ed56"
       }
     },
     "reimu_deibu": {
@@ -456,7 +456,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
-        "sha256": "55cea1ed12fea8b667e12a3711686c40ba0a49b0ae2ee1086305686347860f40"
+        "sha256": "38496370543acc0a47dbbec565c7513d67f7003055a5b7bf099670b8cec7e69b"
       }
     },
     "reimu_wasa_deibu": {
@@ -513,7 +513,7 @@
       "stem_fruit": {
         "face": "sleep",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
-        "sha256": "6198916c9da955f020c18571e50443e45fdbb7d97bf0d18180e242067165927b"
+        "sha256": "8e4c2324c949cdfd095b0f36feb7963e6d7dcccf4f980718f6e429c763c3ed56"
       }
     }
   },

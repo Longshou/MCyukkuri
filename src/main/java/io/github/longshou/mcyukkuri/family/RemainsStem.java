@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.RemainsWater;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -64,19 +65,27 @@ public record RemainsStem(UUID brood, float progress, float variation, YukkuriVa
     public YukkuriVariant child(int index) { return VARIANTS[Math.min(VARIANTS.length - 1, (types >> (4 * index)) & 15)]; }
     public float birthScale(int index) { return sizes[index] / 10000f; }
 
-    /** Conservative envelope used only at placement and by frustum culling. */
+    /** Conservative envelope used only at placement and by frustum culling. The withered stalk (RemainsRenderer) stays
+     *  below the living full arc and, lying forward along the ground, within its own length ahead of the root; fruit
+     *  and limp pedicels lie within the margin. */
     public AABB extent(Vec3 at, float yaw) {
-        float growth = FamilyGeometry.stalk(progress);
-        var arc = FamilyGeometry.arc(count(), growth, growthScale, variation, mother);
+        var arc = FamilyGeometry.arc(count(), growthScale, variation, mother);
+        double length = 0;
+        for (int i = 1; i < arc.size(); i++) length += arc.get(i).distanceTo(arc.get(i - 1));
+        var root = arc.getFirst();
         AABB bounds = new AABB(at, at);
-        for (Vec3 point : arc) {
+        var reach = new ArrayList<>(arc);
+        reach.add(new Vec3(root.x, 0, root.z - length));
+        for (Vec3 point : reach) {
             Vec3 world = FamilyGeometry.toWorld(at, yaw, entityScale, point);
             bounds = bounds.minmax(new AABB(world, world));
         }
         double radius = .04;
         for (int i = 0; i < count(); i++) {
-            if (attached(i)) radius = Math.max(radius, FamilyGeometry.fruitScale(progress, birthScale(i)));
+            if (attached(i)) radius = Math.max(radius, FamilyGeometry.fruitScale(progress, count(), i, birthScale(i)));
         }
+        // The limp pedicel's slack (remains_forms stem.pedicel_slack, below 2) lays a fruit out beside the stalk.
+        radius += 2 * FamilyGeometry.pendant(growthScale) * entityScale;
         return new AABB(bounds.minX - radius, at.y + .01, bounds.minZ - radius,
                 bounds.maxX + radius, bounds.maxY + radius, bounds.maxZ + radius);
     }

@@ -57,7 +57,7 @@ def outputs():
     runtime = {'format': 1,
                'forms': {name: entry(spec) for name, spec in recipe['forms'].items()},
                'water': {name: entry(spec) for name, spec in recipe['water'].items()},
-               'stem': {key: recipe['stem'][key] for key in ('sag', 'pedicel_slack', 'colour')},
+               'stem': {key: recipe['stem'][key] for key in ('droop_degrees', 'steepest_degrees', 'thickness', 'pedicel_slack', 'pedicel_splay_degrees', 'fruit_shrivel', 'colour')},
                'atlases': {ident: sorted(atlases) for ident, atlases in built['atlases'].items()}}
     runtime_path = ASSETS / 'yukkuri_presentation/remains_forms.json'
     files[runtime_path] = (json.dumps(runtime, ensure_ascii=False, indent=2) + '\n').encode('utf-8')

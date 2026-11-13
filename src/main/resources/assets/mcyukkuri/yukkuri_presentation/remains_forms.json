@@ -122,11 +122,19 @@
     }
   },
   "stem": {
-    "sag": 0.8,
-    "pedicel_slack": 1.1,
+    "droop_degrees": 90,
+    "steepest_degrees": 55,
+    "thickness": 0.62,
+    "pedicel_slack": 1.35,
+    "pedicel_splay_degrees": 50,
+    "fruit_shrivel": [
+      0.84,
+      0.64,
+      0.84
+    ],
     "colour": [
-      124,
-      128,
+      112,
+      92,
       62
     ]
   },

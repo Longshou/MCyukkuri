@@ -25,7 +25,7 @@ public final class DetachedStemGeometry {
         }catch(IOException error){throw new UncheckedIOException(error);}
     }
     public static Vec3 offset(int count,float variation,YukkuriVariant parent,boolean bottle){
-        var root=FamilyGeometry.arc(count,1,1,variation,parent).getFirst();
+        var root=FamilyGeometry.arc(count,1,variation,parent).getFirst();
         if(bottle)return BOTTLE_MOUTH.subtract(root);
         double height=GROUND_ROOT.y;
         // Reserve the mature envelope, including mixed-species children. The transform stays fixed

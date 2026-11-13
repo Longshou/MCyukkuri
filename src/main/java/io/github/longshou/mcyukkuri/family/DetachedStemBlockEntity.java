@@ -96,7 +96,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
             var pos=center.offset(x,y,z);if(!level.hasChunkAt(pos)||!level.isEmptyBlock(pos))return false;
         }
         var offset=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.offset(brood.children.size(),brood.variation,parent,bottled));
-        for(var point:FamilyGeometry.arc(brood.children.size(),1,1,brood.variation,parent)){
+        for(var point:FamilyGeometry.arc(brood.children.size(),1,brood.variation,parent)){
             var world=point.add(offset);var bounds=new AABB(world.x-.035,Math.max(center.getY()+.001,world.y-.035),world.z-.035,
                     world.x+.035,world.y+.035,world.z+.035);if(!clearBox(level,bounds))return false;
         }
@@ -104,7 +104,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
             var child=brood.children.get(i);if(child.born)continue;
             float physical=GrowthSize.physicalBirth(brood.kind,child);
             var point=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.childBase(brood.children.size(),i,progress,brood.variation,parent,child.variant,bottled,physical));
-            var box=LiveBirthGeometry.childDimensions(child,1).scale(FamilyGeometry.fruitScale(progress,physical)/physical).makeBoundingBox(point).inflate(.04);
+            var box=LiveBirthGeometry.childDimensions(child,1).scale(FamilyGeometry.fruitScale(progress,brood.children.size(),i,physical)/physical).makeBoundingBox(point).inflate(.04);
             if(!clearBox(level,box))return false;
         }
         return true;

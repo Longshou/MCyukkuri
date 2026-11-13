@@ -23,11 +23,11 @@ public final class DetachedStemRenderer implements BlockEntityRenderer<DetachedS
             var offset=DetachedStemGeometry.offset(stem.count(),stem.variation(),stem.source(),stem.bottled());
             {
                 var bottom=stem.bottled()?DetachedStemGeometry.BOTTLE_ROOT:DetachedStemGeometry.GROUND_ROOT;
-                float growth=FamilyGeometry.stalk(progress);
-                var arc=FamilyGeometry.arc(stem.count(),growth,1,stem.variation(),stem.source());
+                // Cutting needs a grown stalk, so the cut end always joins the full stalk's root.
+                var arc=FamilyGeometry.arc(stem.count(),1,stem.variation(),stem.source());
                 Vec3 mouth=arc.getFirst().add(offset),onward=arc.get(1).subtract(arc.getFirst()).normalize();
                 var material=buffers.getBuffer(RenderType.entityCutoutNoCull(ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png")));
-                double radius=FamilyGeometry.radius(stem.count(),0,stem.variation())*FamilyGeometry.thickness(growth);
+                double radius=FamilyGeometry.radius(stem.count(),0,stem.variation());
                 int[] color=!stem.bottled()&&stem.born()==(1<<stem.count())-1?new int[]{157,135,79}:new int[]{66,186,57};
                 // Rise straight from the cut end, then turn smoothly into the stalk's own first direction (no crease at the join).
                 double bend=mouth.subtract(bottom).length()*.45;

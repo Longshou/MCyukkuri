@@ -75,14 +75,18 @@
   },
   "stem": {
     "label": "带茎遗体（茎上未熟实子）",
-    "note": "A mother that dies with an unfinished stem keeps it: the living pose at the death progress, rooted where the corpse pose carries the living root, the stalk unsquashed and sagging: a point at arc fraction u drops sag x the stalk's rise x u^2, pedicels plumb and pedicel_slack longer, fruit frozen at their size and resting on the ground if they reach it. Geometry: art/props/family-life/stem_growth.py.",
-    "sag": 0.8,
-    "pedicel_slack": 1.1,
-    "colour": [124, 128, 62],
+    "note": "A mother that dies with an unfinished stem keeps it withered: the part grown by the death progress, rooted where the corpse pose carries the living root, unsquashed but shrivelled to thickness of its living radius. It wilts along its length: each segment's pitch is lowered by droop_degrees x the litter's stalk length scale (count_length_scale x variation, so a longer stalk bends further) x its arc fraction of the full stalk, never steeper than steepest_degrees below level (so the sockets along a falling stalk stay spread out), and a segment that would go under the ground lies along it. Pedicels hang limp, pedicel_slack longer, splayed pedicel_splay_degrees from plumb to alternate sides from the root, so neighbouring fruit and the stalk stay apart; a fruit that reaches the ground lies out beside the stalk on its slack; the unripe fruit keep their death size shrunk by fruit_shrivel (x, y, z). Stalk and pedicels take colour. Geometry: art/props/family-life/stem_growth.py.",
+    "droop_degrees": 90,
+    "steepest_degrees": 55,
+    "pedicel_splay_degrees": 50,
+    "thickness": 0.62,
+    "pedicel_slack": 1.35,
+    "fruit_shrivel": [0.84, 0.64, 0.84],
+    "colour": [112, 92, 62],
     "fruit": {
       "label": "未熟实子", "face": "sleep", "face_code": "睡脸（未睁眼即死）",
-      "skin": {"toward": [214, 196, 160], "amount": 0.3, "desaturate": 0.3, "darken": 0.06}, "hair": {"desaturate": 0.3, "darken": 0.06},
-      "accessory": {"desaturate": 0.3, "darken": 0.04}, "blush_fade": 1.0
+      "skin": {"toward": [168, 146, 112], "amount": 0.5, "desaturate": 0.45, "darken": 0.14}, "hair": {"desaturate": 0.5, "darken": 0.14},
+      "accessory": {"desaturate": 0.5, "darken": 0.1}, "blush_fade": 1.0
     }
   },
   "palette": {

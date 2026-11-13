@@ -1,12 +1,12 @@
 {
   "role": "game integration; source models unchanged; new procedural presentation pending user review",
   "inputs": {
-    "art/props/family-life/recipe.json": "83aed4090bfdf8f986489998ef1cf3687d2d2c4f88f4984a437aab5c3e3498e9",
+    "art/props/family-life/recipe.json": "6c59bb50c3fac1501094373208f5a422f1d13f80d03e179ce349e9072b9a5688",
     "standards/yukkuri-v1/components/common/stem.json": "96f9a4f12c692fcf3138b145c2602378348b148dbdbab2d716077d2dacc54836",
     "standards/yukkuri-v1/profiles/growth.json": "29ccf95cffa6a4317a9bf945132165fa18a74ac9102178a17daad7e30d9763ae",
     "standards/yukkuri-v1/behaviors/stem-birth.json": "33e61ed5dce715940eab8de7eaa041ddb641b8f5b9be1af32ca7643399511069"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "56181b741aed948b22e06c5d8547ff79a6986c08b863d7d878346a22475c7d6a"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "2e26c3d6087a2fb91da563b086c26cfd94ebe8f5bdccb770bfea0ba561a8cca0"
   }
 }

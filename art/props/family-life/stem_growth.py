@@ -1,37 +1,44 @@
 #!/usr/bin/env python3
-"""Reference geometry of the growing stem and of the stem kept on remains, with the clearance check.
+"""Reference geometry of the growing stem and of the withered stem kept on remains, with the order and clearance check.
 
 This is the data contract the game follows (FamilyGeometry / FamilyRenderer / RemainsRenderer), at mother scale 1 in
 model units (16 per block, ground y=0, forward -Z). Inputs: recipe.json "growth" (curves), the stem component
 (standards/yukkuri-v1/components/common/stem.json: arc, sockets, radius, pendant), and the remains recipe "stem" block
-(standards/yukkuri-library/drafts/remains/recipe.json: sag, pedicel slack, colour).
+(standards/yukkuri-library/drafts/remains/recipe.json: droop, thickness, slack, shrivel, colour).
 
-Living, at gestation progress p:
-- g = stalk(p). Arc points and sockets are FamilyGeometry.point with length(count, variance) * g (rise and reach
-  shrink; the depth clearance still ramps with the actual rise over clearance_rise, so the young stalk already leans out
-  over the brow and brim); the pendant (pedicel) length is * g^2 so buds stay close under the young stalk.
-  Replaces the current root->point lerp in arc(); socket() takes the same g.
-- stalk and pedicel radius *= thickness_min + (1-thickness_min)*g.
-- fruit size s = emerge(p) * lerp(min(bud_scale, b), b, ripen(p)) for a child of birth size b; not drawn while s = 0.
-- the fruit hangs plumb: its hanging anchor (registered, else crown top) at socket - (0, pendant*g^2, 0), as childBase.
+Living, at gestation progress p (the stem grows by extension, never by scaling):
+- the stalk is always the full-length ripe arc (FamilyGeometry.arc, smoothed as FamilyRenderer.smooth); its final radius
+  runs from the root radius to the tip radius along the smoothed points. Only the part up to arc length
+  extend(p) x total is drawn; within tip_taper (x maternal scale) behind the growing end the radius narrows smoothly to
+  the stalk's tip radius, so the shoot is pointed while the grown part keeps its final width;
+- a socket sits at arc fraction u (its closest point on the smoothed line). Its pedicel starts when the growing tip
+  reaches u (the first p with extend(p) >= u) and extends straight down to its full pendant over pedicel_grow of p;
+- the fruit of socket i emerges after the whole stalk and its own pedicel: fruit_emerge shifted by fruit_stagger per
+  place from the root (index count-1 is nearest the root), size s = emerge * lerp(min(bud_scale, b), b, ripen(p)) for a
+  child of birth size b; not drawn while s = 0. It hangs plumb with its hanging anchor (registered, else crown top) at the
+  pedicel end, as FamilyGeometry.childBase.
 
-Remains (frozen at the death progress): the living pose at that p, then
+Remains (frozen at the death progress): the grown part of the living pose at that p, withered:
 - root' = remains pose (form scale x fullness/rot factors, roll about the ground contact) applied to the living root,
   which stays on the squashed crown because the living root sits on the living crown;
-- the stalk keeps its own size (not squashed). Living arc point i, relative to the living root, is turned by the corpse
-  roll and lowered by sag * rise * u^2, where u is its arc-length fraction along the living arc and rise the living arc's
-  highest point above the root: a limp sag that keeps horizontal reach and fruit spacing. A socket takes the u of its
-  closest point on the living arc polyline;
-- pedicels hang plumb, length * pedicel_slack; a fruit whose base would go below the ground rests on it (y = 0) and its
-  pedicel shortens to reach;
+- the stalk keeps its length (not squashed) but is turned by the corpse roll and wilts: walking from the root, each
+  segment keeps its length and heading, its pitch lowered by droop_degrees x the litter's length scale (count_length_scale
+  x variation, so a longer stalk bends further) x the segment's arc fraction of the full stalk, never steeper than
+  steepest_degrees below level (sockets along a falling stalk stay spread out); a segment that would go under the ground
+  (its radius above y = 0) bends to lie along it. Radius x thickness;
+- a pedicel hangs from its socket's wilted point, pedicel_slack longer than in life, splayed pedicel_splay_degrees from
+  plumb across the stalk's vertical plane, to alternate sides from the root; when the fruit's base would reach the
+  ground the rest of its length lays the fruit out beside the stalk, and the pedicel sags between them. Fruit keep their
+  death size, shrunk per axis by fruit_shrivel;
 - stalk and pedicels take the remains stem colour; fruit use remains_stem_fruit.png where the model has it, else sleep.png.
 
-  python stem_growth.py --check     # clearance over counts 1-5, Reimu/Marisa mothers, every child kind, p every 1%
+  python stem_growth.py --check     # order, and clearance over counts 1-5, Reimu/Marisa mothers, every child kind, p every 1%
 """
 from pathlib import Path
 import argparse
 from itertools import product
 import json
+import math
 import sys
 
 import numpy as np
@@ -54,6 +61,7 @@ FIRM = ['reimu', 'marisa']
 # Allowed: fruit skin grazing hair by LIMIT['mother'], the stalk root embedded within ROOT_EMBED of the root.
 LIMIT = {'mother': 0.15, 'fruit': 0.0, 'ground': 0.0, 'stalk': 0.0, 'body': 0.15}
 ROOT_EMBED = 3.0  # arc length from the root where the stalk may still run through hair or a hat brim
+SUBDIVISIONS = 4  # FamilyRenderer.STALK_SUBDIVISIONS
 
 
 def curve(knots, p):
@@ -75,16 +83,25 @@ class Growth:
         self.units = self.stem_data['reference_units_to_model']
 
     # ------------------------------------------------------------ curves
-    def stalk(self, p):
-        return curve(self.g['stalk'], p) if p > 0 else 0.0
+    def extension(self, p):
+        """Grown arc-length fraction of the stalk."""
+        return curve(self.g['extend'], p) if p > 0 else 0.0
 
-    def thickness(self, p):
-        t = self.g['thickness_min']
-        return t+(1-t)*self.stalk(p)
+    def reached(self, u):
+        """The first progress at which the growing tip reaches arc fraction u (extend knots strictly rise)."""
+        k = np.asarray(self.g['extend'], float)
+        return float(np.interp(u, k[:, 1], k[:, 0]))
 
-    def fruit(self, p, birth):
-        emerge = curve(self.g['fruit_emerge'], p)
-        return emerge*(min(self.g['bud_scale'], birth)+(birth-min(self.g['bud_scale'], birth))*curve(self.g['fruit_ripen'], p))
+    def pedicel_growth(self, p, u):
+        return float(np.clip((p-self.reached(u))/self.g['pedicel_grow'], 0, 1)) if p > 0 else 0.0
+
+    def emerge_start(self, count, index):
+        return self.g['fruit_emerge'][0][0]+self.g['fruit_stagger']*(count-1-index)
+
+    def fruit(self, p, count, index, birth):
+        emerge = curve(self.g['fruit_emerge'], p-self.g['fruit_stagger']*(count-1-index))
+        bud = min(self.g['bud_scale'], birth)
+        return emerge*(bud+(birth-bud)*curve(self.g['fruit_ripen'], p))
 
     # ------------------------------------------------------------ living geometry (mother scale 1, model units)
     def length(self, count, variance):
@@ -93,22 +110,32 @@ class Growth:
     def root(self, mother):
         return np.asarray(self.recipe['variants'][mother]['root'], float)
 
-    def arc(self, count, p, mother, variance=1.0):
-        """Authored centerline points (FamilyGeometry.point) with the length scale times g: rise and reach shrink,
-        the early depth clearance still follows the actual rise, so even a sprout leans out over the brow first."""
-        L = self.length(count, variance)*self.stalk(p)
+    def arc(self, count, mother, variance=1.0):
+        """The authored centerline points of the full-length stalk (FamilyGeometry.arc)."""
+        L = self.length(count, variance)
         return np.asarray([self.stem.point(zy, L, mother) for zy in self.stem_data['centerline']])
 
-    def radius(self, count, along, p, variance=1.0):
+    def radius(self, count, along, variance=1.0):
         r = self.stem_data['radius']
-        return (r[0]+(r[1]-r[0])*along)*self.recipe['count_radius_scale'][count-1]*variance*self.thickness(p)
+        return (r[0]+(r[1]-r[0])*along)*self.recipe['count_radius_scale'][count-1]*variance
 
-    def sockets(self, count, p, mother, variance=1.0):
-        L = self.length(count, variance)*self.stalk(p)
+    def line(self, count, mother, variance=1.0):
+        """The smoothed full stalk, its final radius per point and the arc length at each point."""
+        pts = smooth(self.arc(count, mother, variance))
+        radii = np.linspace(self.radius(count, 0, variance), self.radius(count, 1, variance), len(pts))
+        return pts, radii, np.r_[0, np.cumsum(np.linalg.norm(np.diff(pts, axis=0), axis=1))]
+
+    def grown(self, count, p, mother, variance=1.0, scale=1.0):
+        """The drawn part of the stalk: points, radii (tapered behind the growing end) and their arc lengths."""
+        pts, radii, s = self.line(count, mother, variance)
+        return grow(pts, radii, s, self.extension(p), self.g['tip_taper']*scale)
+
+    def sockets(self, count, mother, variance=1.0):
+        L = self.length(count, variance)
         return np.asarray([self.stem.point(zy, L, mother) for zy in self.stem_data['socket_layouts'][str(count)]])
 
-    def pendant(self, p):
-        return self.stem_data['pendant_length_reference']*self.units*self.stalk(p)**2
+    def pendant(self):
+        return self.stem_data['pendant_length_reference']*self.units
 
     def anchor(self, kind, size):
         var = self.recipe['variants'][kind]
@@ -120,16 +147,21 @@ class Growth:
         return var.get('hang_clearance_height', var['crown_height'])*size
 
     def living(self, count, p, mother, kinds, births, variance=1.0):
-        """The whole living pose: arc, radii, and per fruit (socket, pedicel tip, fruit base, size, kind)."""
-        arc = self.arc(count, p, mother, variance)
+        """The whole living pose: grown stalk, and per socket its arc fraction, pedicel growth, tip, fruit base and size."""
+        full, _, s = self.line(count, mother, variance)
+        arc, radii, along = self.grown(count, p, mother, variance)
         fruit = []
-        for i, socket in enumerate(self.sockets(count, p, mother, variance)):
-            size = self.fruit(p, births[i])
+        for i, socket in enumerate(self.sockets(count, mother, variance)):
+            u = fraction(full, s, socket)
+            q = self.pedicel_growth(p, u)
+            size = self.fruit(p, count, i, births[i])
             a = self.anchor(kinds[i], size)
-            drop = self.pendant(p)+self.hang_clear(kinds[i], size)-a[1]
+            drop = q*self.pendant()+(self.hang_clear(kinds[i], size)-a[1] if size > 0 else 0)
             tip = socket-[0, drop, 0]
-            fruit.append(dict(socket=socket, tip=tip, base=tip-a, size=size, kind=kinds[i]))
-        return dict(arc=arc, fruit=fruit, root=self.root(mother), count=count, p=p, variance=variance)
+            fruit.append(dict(index=i, socket=socket, u=u, q=q, tip=tip, base=tip-a, size=size, shrivel=np.ones(3), kind=kinds[i],
+                              path=np.asarray([socket, tip])))
+        return dict(arc=arc, radii=radii, along=along, length=float(s[-1]), fruit=fruit, root=self.root(mother), count=count, p=p,
+                    variance=variance)
 
     # ------------------------------------------------------------ remains
     def remains_root(self, mother, form):
@@ -139,31 +171,94 @@ class Growth:
         return roll(r, form.get('roll', 0))
 
     def remains_pose(self, living, mother, form):
-        """The frozen living pose carried by the corpse: rooted at the carried root, turned by the corpse roll, and sagged:
-        a point at arc fraction u drops sag * rise * u^2 (rise = the living stalk's highest point above its root), so the
-        limp stalk keeps its horizontal reach and fruit spacing while its outer part hangs down."""
-        arc, root, turn = living['arc'], living['root'], form.get('roll', 0)
-        rel = np.asarray([roll(q-root, turn) for q in arc])
-        u = np.r_[0, np.cumsum(np.linalg.norm(np.diff(rel, axis=0), axis=1))]
-        u = u/(u[-1] or 1)
-        drop = self.remains['sag']*max(0.0, float(rel[:, 1].max()))
+        """The frozen living pose carried by the corpse and withered (module docstring)."""
+        R = self.remains
         start = self.remains_root(mother, form)
-        out = start+rel-np.outer(u**2, [0, drop, 0])
+        rel = np.asarray([roll(q-living['root'], form.get('roll', 0)) for q in living['arc']])
+        radii = living['radii']*R['thickness']
+        droop = math.radians(R['droop_degrees'])*self.length(living['count'], living['variance'])
+        arc = wilt(start, rel, living['along'], living['length'], radii, droop, math.radians(R['steepest_degrees']))
+        shrivel = np.asarray(R['fruit_shrivel'], float)
         fruit = []
-        for f in living['fruit']:
-            q = roll(f['socket']-root, turn)
-            k, w = along(rel, q)
-            at = u[k]+(u[k+1]-u[k])*w
-            socket = start+q-[0, drop*at**2, 0]
+        for index, f in enumerate(living['fruit']):
+            if f['q'] <= 0:
+                continue
+            at = f['u']*living['length']
+            socket = point_at(arc, living['along'], at)
+            side = 1 if (living['count']-1-index) % 2 == 0 else -1
             size = f['size']
-            a = self.anchor(f['kind'], size)
-            hang = (self.pendant(living['p'])+self.hang_clear(f['kind'], size)-a[1])*self.remains['pedicel_slack']
-            tip = socket-[0, hang, 0]
-            base = tip-a
-            if base[1] < 0:  # resting on the ground: the pedicel shortens to reach
-                tip, base = tip-[0, base[1], 0], base-[0, base[1], 0]
-            fruit.append(dict(socket=socket, tip=tip, base=base, size=size, kind=f['kind']))
-        return dict(arc=out, fruit=fruit, root=start, count=living['count'], p=living['p'], variance=living['variance'])
+            a = self.anchor(f['kind'], size)*shrivel
+            length = (f['q']*self.pendant()+(self.hang_clear(f['kind'], size)*shrivel[1]-a[1] if size > 0 else 0))*R['pedicel_slack']
+            tip, path = limp(socket, length, a[1], side, math.radians(R['pedicel_splay_degrees']))
+            fruit.append(dict(index=index, socket=socket, u=f['u'], q=f['q'], tip=tip, base=tip-a, size=size, shrivel=shrivel, kind=f['kind'], path=path))
+        return dict(arc=arc, radii=radii, along=living['along'], length=living['length'], fruit=fruit, root=start,
+                    count=living['count'], p=living['p'], variance=living['variance'])
+
+
+def grow(pts, radii, s, extension, taper):
+    """FamilyRenderer.grown: the line cut at extension x its length, radii narrowing to the tip radius behind the cut."""
+    if extension <= 0:
+        return pts[:0], radii[:0], s[:0]
+    end = extension*s[-1]
+    keep = int(np.searchsorted(s, end, side='left'))
+    if keep >= len(s):
+        P_, R_, S_ = pts.copy(), radii.copy(), s.copy()
+    else:
+        w = (end-s[keep-1])/max(1e-12, s[keep]-s[keep-1])
+        P_ = np.r_[pts[:keep], [pts[keep-1]+(pts[keep]-pts[keep-1])*w]]
+        R_ = np.r_[radii[:keep], [radii[keep-1]+(radii[keep]-radii[keep-1])*w]]
+        S_ = np.r_[s[:keep], [end]]
+    tip = radii[-1]
+    k = np.clip((end-S_)/taper, 0, 1)
+    k = k*k*(3-2*k)
+    return P_, np.where(R_ > tip, tip+(R_-tip)*k, R_), S_
+
+
+def wilt(start, rel, along, total, radii, droop, steepest):
+    """FamilyRenderer.wilt: from the root, each segment keeps its length and heading, its pitch lowered by
+    droop x its arc fraction of the full stalk, never past straight down; it lies along the ground rather than under it."""
+    out = [start+rel[0]]
+    heading = np.array([0.0, 0.0, -1.0])
+    for k in range(len(rel)-1):
+        d = rel[k+1]-rel[k]
+        n = float(np.linalg.norm(d))
+        h = np.array([d[0], 0.0, d[2]])
+        hl = float(np.linalg.norm(h))
+        if hl > 1e-9:
+            heading = h/hl
+        pitch = max(-steepest, math.atan2(d[1], hl)-droop*(along[k]+along[k+1])/2/total)
+        floor = radii[k+1]
+        if n > 1e-12 and out[-1][1]+n*math.sin(pitch) < floor:
+            pitch = math.asin(float(np.clip((floor-out[-1][1])/n, -1, 1)))
+        out.append(out[-1]+n*(math.cos(pitch)*heading+[0, math.sin(pitch), 0]))
+    return np.asarray(out)
+
+
+def point_at(points, along, at):
+    k = int(np.clip(np.searchsorted(along, at), 1, len(along)-1))
+    w = (at-along[k-1])/max(1e-12, along[k]-along[k-1])
+    return points[k-1]+(points[k]-points[k-1])*float(np.clip(w, 0, 1))
+
+
+def limp(socket, length, rest, side, splay):
+    """FamilyRenderer.limp: a slack pedicel of this length from the socket, splayed from plumb to one side of the stalk;
+    when the fruit's base (rest below the pedicel end) would reach the ground the rest of its length lays the fruit out
+    beside the stalk. Returns the end and the sagging path (a quadratic Bezier)."""
+    drop = min(length*math.cos(splay), max(0.0, float(socket[1]-rest)))
+    out = math.sqrt(max(0.0, length*length-drop*drop))
+    tip = socket+[side*out, -drop, 0]  # across the stalk's vertical plane, which wilting keeps
+    tip[1] = max(tip[1], rest)
+    chord = float(np.linalg.norm(tip-socket))
+    control = (socket+tip)/2-[0, 0.2*chord+0.5*max(0.0, length-chord), 0]
+    control[1] = max(control[1], 0.0)
+    t = np.linspace(0, 1, 8)[:, None]
+    return tip, (1-t)**2*socket+2*(1-t)*t*control+t*t*tip
+
+
+def fraction(line, s, q):
+    """Arc fraction of the point of a polyline closest to q."""
+    k, w = along_segment(line, q)
+    return float((s[k]+(s[k+1]-s[k])*w)/s[-1])
 
 
 def roll(v, degrees):
@@ -172,7 +267,7 @@ def roll(v, degrees):
     return np.asarray([v[0]*c-v[1]*s, v[0]*s+v[1]*c, v[2]])
 
 
-def along(points, q):
+def along_segment(points, q):
     """Nearest segment of a polyline to q and the parameter (0-1) of the closest point on it."""
     best, index, param = 1e18, 0, 0.0
     for i in range(len(points)-1):
@@ -262,33 +357,38 @@ class Checker:
 
     def check(self, pose, mother, form=None):
         """Worst values of one pose: fruit inside the mother (depth), fruit-fruit box overlap, lowest fruit point,
-        stalk through a fruit, stalk inside the mother away from its root."""
+        stalk or another pedicel through a fruit, stalk inside the mother away from its root."""
         solid = self.mother(mother, form)
         worst = dict(mother=0.0, fruit=0.0, ground=9e9, stalk=0.0, body=0.0)
         boxes = []
         for f in pose['fruit']:
             if f['size'] <= 0:
                 continue
-            pts = self.points[f['kind']]*f['size']+f['base']
+            scale = f['size']*f['shrivel']
+            pts = self.points[f['kind']]*scale+f['base']
             worst['mother'] = max(worst['mother'], float(solid.depth(pts).max()))
             worst['ground'] = min(worst['ground'], float(pts[:, 1].min()))
             lo, hi = pts.min(0), pts.max(0)
             c, h = (lo+hi)/2, (hi-lo)/2*0.85  # rounded bodies: shrink the box away from its empty corners
-            boxes.append((c-h, c+h, f))
+            boxes.append((c-h, c+h, f, scale))
         for i in range(len(boxes)):
             for j in range(i+1, len(boxes)):
                 overlap = np.minimum(boxes[i][1], boxes[j][1])-np.maximum(boxes[i][0], boxes[j][0])
                 worst['fruit'] = max(worst['fruit'], float(max(0, overlap.min())))
-        line = smooth(pose['arc'])
-        for _, _, f in boxes:  # the stalk through a fruit's own mesh (its local frame, depth back in model units)
-            worst['stalk'] = max(worst['stalk'], float(self.body[f['kind']].depth((line-f['base'])/f['size']).max())*f['size'])
-        along = np.r_[0, np.cumsum(np.linalg.norm(np.diff(line, axis=0), axis=1))]
-        away = line[along > ROOT_EMBED]
-        worst['body'] = float(solid.depth(away).max()) if len(away) else 0.0
+        line = pose['arc']  # already the smoothed stalk
+        for _, _, f, scale in boxes:  # the stalk and the other pedicels through a fruit's own mesh (its local frame, depth in model units)
+            others = [g['path'] for g in pose['fruit'] if g is not f]
+            through = np.concatenate([line, *others]) if others or len(line) else line
+            if len(through):
+                worst['stalk'] = max(worst['stalk'], float(self.body[f['kind']].depth((through-f['base'])/scale).max())*float(scale.max()))
+        if len(line) > 1:
+            along = np.r_[0, np.cumsum(np.linalg.norm(np.diff(line, axis=0), axis=1))]
+            away = line[along > ROOT_EMBED]
+            worst['body'] = float(solid.depth(away).max()) if len(away) else 0.0
         return worst
 
 
-def smooth(points, sub=4):
+def smooth(points, sub=SUBDIVISIONS):
     """FamilyRenderer.smooth: uniform Catmull-Rom through the points, ends clamped."""
     n = len(points)
     if n < 3:
@@ -303,12 +403,30 @@ def smooth(points, sub=4):
     return np.asarray(out)
 
 
+def order(G):
+    """Every fruit emerges only after the whole stalk has grown and its own pedicel is complete."""
+    stalk_done = G.reached(1.0)
+    bad = []
+    for count in range(1, 6):
+        for mother, variance in product(MOTHERS, (0.93, 1.0, 1.07)):
+            full, _, s = G.line(count, mother, variance)
+            for i, socket in enumerate(G.sockets(count, mother, variance)):
+                done = G.reached(fraction(full, s, socket))+G.g['pedicel_grow']
+                start = G.emerge_start(count, i)
+                if start < max(stalk_done, done)-1e-9:
+                    bad.append((count, mother, variance, i, round(start, 4), round(max(stalk_done, done), 4)))
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--check', action='store_true', help='accepted for scripts/export.py; the script never writes and always exits non-zero on a collision')
+    ap.add_argument('--check', action='store_true', help='accepted for scripts/export.py; the script never writes and always exits non-zero on a failure')
     ap.add_argument('--step', type=float, default=0.01)
     args = ap.parse_args()
     G, form = Growth(), read(REMAINS)['forms']['starved']
+    misordered = order(G)
+    for row in misordered:
+        print('ORDER count/mother/variance/index emerges', row[4], 'before stalk and pedicel are done at', row[5], row[:4])
     C = Checker(G)
     progress = [float(p) for p in np.round(np.arange(args.step, 1+1e-9, args.step), 4)]
     worst, failures, soft = {}, {}, {}
@@ -337,8 +455,9 @@ def main():
     for label, table in (('SOFT', soft), ('FAIL', failures)):
         for key, rec in sorted(table.items()):
             print(label, *key, 'worst', round(rec['worst'], 2), 'p', rec['p'], 'at variance/birth/kind/p', rec['at'])
+    print('order', 'ok' if not misordered else f'{len(misordered)} fruit too early')
     print('clearance', 'ok' if not failures else f'{len(failures)} failing groups')
-    if failures:
+    if failures or misordered:
         raise SystemExit(1)
 
 

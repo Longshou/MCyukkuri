@@ -14,6 +14,7 @@ import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -28,7 +29,10 @@ final class RemainsAssets {
                 ResourceLocation decal,float decalRadius){}
     private static final Map<String,Entry> FORMS=new HashMap<>(),WATER=new HashMap<>();
     private static final Map<String,Set<String>> ATLASES=new HashMap<>();
-    record StemLook(float sag,float slack,int[] colour) {}
+    /** The withered stem kept on remains (art/props/family-life/stem_growth.py): pitch lowered by droop (radians) x the
+     *  stalk length scale x arc fraction down to steepest (radians) below level, radius x thickness, pedicels slack times longer and splayed (radians) from plumb,
+     *  fruit shrunk per axis by shrivel. */
+    record StemLook(float droop,float steepest,float thickness,float slack,float splay,Vec3 shrivel,int[] colour) {}
     private static StemLook stem;
 
     static void reload(ResourceManager manager){
@@ -37,8 +41,11 @@ final class RemainsAssets {
             var data=JsonParser.parseReader(reader).getAsJsonObject();
             if(data.get("format").getAsInt()!=1)throw new IllegalArgumentException("Unsupported remains forms");
             var geometry=data.getAsJsonObject("stem");
-            var rgb=geometry.getAsJsonArray("colour");
-            stem=new StemLook(geometry.get("sag").getAsFloat(),geometry.get("pedicel_slack").getAsFloat(),
+            var rgb=geometry.getAsJsonArray("colour");var shrivel=geometry.getAsJsonArray("fruit_shrivel");
+            stem=new StemLook((float)Math.toRadians(geometry.get("droop_degrees").getAsFloat()),
+                    (float)Math.toRadians(geometry.get("steepest_degrees").getAsFloat()),geometry.get("thickness").getAsFloat(),
+                    geometry.get("pedicel_slack").getAsFloat(),(float)Math.toRadians(geometry.get("pedicel_splay_degrees").getAsFloat()),
+                    new Vec3(shrivel.get(0).getAsDouble(),shrivel.get(1).getAsDouble(),shrivel.get(2).getAsDouble()),
                     new int[]{rgb.get(0).getAsInt(),rgb.get(1).getAsInt(),rgb.get(2).getAsInt()});
             for(var entry:data.getAsJsonObject("forms").entrySet())FORMS.put(entry.getKey(),entry(entry.getValue().getAsJsonObject()));
             for(var entry:data.getAsJsonObject("water").entrySet())WATER.put(entry.getKey(),entry(entry.getValue().getAsJsonObject()));

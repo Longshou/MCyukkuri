@@ -21,13 +21,15 @@
   "pedicel_side": 0.0,
   "pedicel_drop_degrees": 90,
   "growth": {
-    "note": "One continuous stem and fruit pose per gestation progress p (0-1, about 20 s nominal). Curves are [p, value] knots read with linear interpolation and clamped at the ends. stalk: extent g of the whole authored arc, sockets and pedicels, scaled about the forehead root. thickness_min: stalk and pedicel radius factor at g=0, rising linearly to 1 at g=1. fruit_emerge: bud swelling factor 0-1. fruit_ripen: 0 at bud size, 1 at the child's own birth size. bud_scale: fruit size (adult = 1) once emerged; a child born smaller uses its own size. stem_growth.py --check verifies clearance at every percent of p.",
-    "stalk": [[0, 0], [0.01, 0.16], [0.025, 0.4], [0.04, 0.56], [0.06, 0.7], [0.1, 0.85], [0.15, 0.95], [0.2, 1]],
-    "thickness_min": 0.45,
-    "fruit_emerge": [[0.03, 0], [0.045, 0.55], [0.06, 1]],
-    "bud_scale": 0.05,
-    "fruit_ripen": [[0.05, 0], [0.12, 0.1], [0.25, 0.28], [0.4, 0.47], [0.55, 0.64], [0.7, 0.8], [0.82, 0.92], [0.92, 1]],
-    "samples": {"sprout": 0.02, "small_fruit": 0.08, "half_ripe": 0.45, "full_ripe": 1}
+    "note": "One continuous stem and fruit pose per gestation progress p (0-1, about 20 s nominal). Curves are [p, value] knots read with linear interpolation and clamped at the ends. The stem grows by extension: the full-length ripe stalk is revealed from the forehead root toward its tip; extend gives the grown arc-length fraction. The grown part keeps its final width; over the last tip_taper model units behind the growing tip (times maternal scale) the radius narrows to the stalk's own tip radius. Each pedicel starts when the growing tip passes its socket and reaches its full length over pedicel_grow of progress, so pedicels bud from root to tip. Fruit then appear at the pedicel ends: fruit_emerge (bud swelling factor 0-1) is the curve of the fruit nearest the root, each further fruit toward the tip starts fruit_stagger later. fruit_ripen: 0 at bud size, 1 at the child's own birth size. bud_scale: fruit size (adult = 1) once emerged; a child born smaller uses its own size. stem_growth.py --check verifies the order (every fruit after the whole stalk and its own pedicel) and clearance at every percent of p.",
+    "extend": [[0, 0], [0.01, 0.07], [0.03, 0.26], [0.06, 0.56], [0.09, 0.84], [0.11, 1]],
+    "tip_taper": 2.5,
+    "pedicel_grow": 0.025,
+    "fruit_emerge": [[0.13, 0], [0.145, 0.6], [0.16, 1]],
+    "fruit_stagger": 0.01,
+    "bud_scale": 0.06,
+    "fruit_ripen": [[0.145, 0], [0.25, 0.18], [0.4, 0.42], [0.55, 0.62], [0.7, 0.79], [0.82, 0.92], [0.92, 1]],
+    "samples": {"sprout": 0.03, "stem_grown": 0.12, "small_fruit": 0.25, "half_ripe": 0.5, "full_ripe": 1}
   },
   "variants": {
     "reimu": {

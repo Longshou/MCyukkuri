@@ -979,7 +979,7 @@ public final class FamilyLife {
     }
     public boolean stemDepletionWarning() {
         var b=brood();
-        return attachedStem(b)&&b.fastStem&&FamilyGeometry.fruitScale(b.progress(),GrowthSize.STEM)>0
+        return attachedStem(b)&&b.fastStem&&FamilyGeometry.fruitScale(b.progress(),b.children.size(),b.children.size()-1,GrowthSize.STEM)>0
                 &&wouldDeplete(b);
     }
     private static boolean attachedStem(FamilyData.Brood b){
