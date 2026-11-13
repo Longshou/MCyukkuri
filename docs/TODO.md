@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 工具 2：并入原版物品、实际使用模型与效果 | `.worktrees/wp-id-tools-v2` | item/OperationToolItem, interaction/OperationLife, art/props operation-tools, recipes, lang |
-| 街道生活：爱派、虐派与路人（单步可见反应） | `.worktrees/wp-ig-human-npc` | human/HumanNpc, human/Custody, social (reactions), museum street scenes, docs/FEATURES.md |
 | 演出夸张化与玻璃挤脸 | `.worktrees/wp-ii-exaggerate-glass` | standards/yukkuri-library/motions, motion exports, shop pen glass trigger |
 | 导出脚本写出 CRLF 造成无变化改动 | `.worktrees/wp-ij-export-eol` | scripts/export_human_world.py, scripts/export helpers |
 
