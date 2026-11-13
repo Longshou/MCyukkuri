@@ -71,8 +71,7 @@ public final class GuiKit {
     /** Little badge, 9x9; grade 0 draws nothing. */
     public static void chip(GuiGraphics g, int x, int y, int grade) {
         if (grade >= 1 && grade <= BadgeGrade.GOLD.id()) blit(g, x, y, (grade - 1) * 9, 48, 9, 9);
-        else if (grade == BadgeGrade.PLATINUM.id())
-            g.blit(MCYukkuri.id("textures/item/platinum_yukkuri_badge.png"), x, y, 9, 9, 0, 0, 16, 16, 16, 16);
+        else if (grade == BadgeGrade.PLATINUM.id()) blit(g, x, y, 36, 48, 9, 9);
     }
     /** Grey chip with a red cross for a badge that has expired. */
     public static void expiredChip(GuiGraphics g, int x, int y) { blit(g, x, y, 27, 48, 9, 9); }

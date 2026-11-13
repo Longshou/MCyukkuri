@@ -7,7 +7,7 @@ Atlas map (x, y, w, h):
   panel 9-slice   (0,0,24,24) corner 4      card (24,0,16,16) corner 3      card_selected (40,0,16,16) corner 3
   tab normal/hover/selected (56|72|88,0,16,16) corner 3                       star full/empty (104|113,0,9,9)
   bar track (0,24,8,6) caps 2                bar fills (8+8*i,24,8,4) i = manners, academics, wits, poise
-  grade chips (0|9|18|27,48,9,9) bronze, silver, gold, expired
+  grade chips (0|9|18|27|36,48,9,9) bronze, silver, gold, expired, platinum
   icons 16x16 at (16*i,32): live, goods, buyback, consult, exam, profile, keeper, status sprig
   action buttons (0|16|32|48,64,16,16) corner 3: normal, hover, pressed, disabled
   identity chips (0|16|32|48|64,80,16,16) corner 3: pet, stray, settlement, family, neutral
@@ -149,6 +149,23 @@ def chip(x0, tier):
     if tier == 'bronze':
         put(x0 + 3, 48 + 3, rgb(p['spec']))
 for n, t in enumerate(('bronze', 'silver', 'gold')): chip(n * 9, t)
+
+# platinum chip (after the expired chip): cold white octagon, bright rim, engraved inner ring, white core
+def platinum_chip(x0):
+    p = PALETTES['platinum']
+    def octagon(level, i, j):
+        dx, dy = abs(i - 4), abs(j - 4)
+        return max(dx, dy) <= 4 - level and dx + dy <= 6 - level
+    for j in range(9):
+        for i in range(9):
+            if not octagon(0, i, j): continue
+            d = -(i - 4 + j - 4)
+            if not octagon(1, i, j): c = p['outline']
+            elif not octagon(2, i, j): c = p['shade'][2] if d > 0 else p['shade'][1] if d > -3 else p['shade'][0]
+            elif not octagon(3, i, j): c = p['engrave']
+            else: c = p['light'] if d > 0 else p['shade'][2] if d > -2 else p['shade'][1]
+            put(x0 + i, 48 + j, rgb(c))
+platinum_chip(36)
 
 # expired grade chip: desaturated disc with a 2px dark red cross (no 1px-only cue)
 def expired_chip(x0):
