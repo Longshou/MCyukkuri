@@ -2691,7 +2691,8 @@
       "source_sha256": "43869a7fd3c3c9b4c651599473f28c92e04fec50758ba2bb1edfe03a89346cc7",
       "events": [
         "awake"
-      ]
+      ],
+      "english": "Take it easy! Good morning!"
     },
     {
       "id": "alice.adult.l0596",
@@ -2734,7 +2735,8 @@
       "source_sha256": "205be7a90e841a1b44d07f90f7f4d9fd9a31148294db41dc0346c3e365baa985",
       "events": [
         "treated"
-      ]
+      ],
+      "english": "Thank you, Mr. Human!"
     },
     {
       "id": "alice.adult.l1916",
@@ -2773,7 +2775,8 @@
       "source_sha256": "e49fd8305e11e5c32eadb61a7d2626dc73bb077441ff08d1e44c2e9f651f01e2",
       "events": [
         "wait_turn"
-      ]
+      ],
+      "english": "Take it easy... okay, I get it..."
     },
     {
       "id": "alice.adult.l1940",
@@ -2792,7 +2795,8 @@
       "source_sha256": "29e14a25c5c9d3e53dd9fecf9cf5da392af36a622b6db24c4b705a0131a6c478",
       "events": [
         "lesson_learned"
-      ]
+      ],
+      "english": "I did my best! Praise me!"
     },
     {
       "id": "alice.adult.l1982",
@@ -2813,7 +2817,8 @@
         "exercise",
         "lesson_progress",
         "lesson_start"
-      ]
+      ],
+      "english": "I'll do my best and take it easy!"
     },
     {
       "id": "alice.adult.l2444",
@@ -2832,7 +2837,8 @@
       "source_sha256": "11efc26285ed4b8e8033203b9dca72611fdf115935ccad915acf4357a8156512",
       "events": [
         "lost_accessory"
-      ]
+      ],
+      "english": "Give Alice back her headband!"
     },
     {
       "id": "alice.adult.l2455",
@@ -2851,7 +2857,8 @@
       "source_sha256": "87be1f470a3a2fef848092a8d89326ec203234978fe22a391cb2a20141817b21",
       "events": [
         "returned_accessory"
-      ]
+      ],
+      "english": "Welcome back, Alice's headband!"
     },
     {
       "id": "alice.adult.l2598",
@@ -2895,7 +2902,8 @@
         "caregiver",
         "courtship",
         "share"
-      ]
+      ],
+      "english": "Toh! ♪"
     },
     {
       "id": "alice.adult.l3896",
@@ -2956,7 +2964,8 @@
       "source_sha256": "b2aa1eb37e82048ca95187c6d4e580789f0286d869411f07d3f374676724b237",
       "events": [
         "toy"
-      ]
+      ],
+      "english": "Alice wants to play too!"
     },
     {
       "id": "alice.adult.l5832",
@@ -2997,7 +3006,8 @@
       "source_sha256": "1834fa3b46742db06a7179b799e0e438fa02701403a79d9925596ba88f30d323",
       "events": [
         "unrecognized"
-      ]
+      ],
+      "english": "What was that?"
     },
     {
       "id": "alice.adult.l3291",
@@ -3036,7 +3046,8 @@
       "source_sha256": "01b6140126e52450926045cb522e9b43ea784a4737ea0ecc55b0a0136a68f4d4",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I want to rub cheeks!"
     },
     {
       "id": "alice.young.l0013",
@@ -3082,7 +3093,8 @@
         "house_arrival",
         "house_deposit",
         "idle"
-      ]
+      ],
+      "english": "Gonna chake it eashy!"
     },
     {
       "id": "alice.young.l0025",
@@ -3306,7 +3318,8 @@
       "source_sha256": "2fac4186457f0c3d4c696517427a25ace334876d8e10e8e39fbcc3d8fa31c9bd",
       "events": [
         "awake"
-      ]
+      ],
+      "english": "Chake it eashy! G'morning!"
     },
     {
       "id": "alice.young.l0596",
@@ -3349,7 +3362,8 @@
       "source_sha256": "15165e3b737cfd4f8c712c9c2c26fd91754e2f23d0d2c8e1e6e33a041c1435e9",
       "events": [
         "treated"
-      ]
+      ],
+      "english": "Fank you, Mishter Human!"
     },
     {
       "id": "alice.young.l1916",
@@ -3388,7 +3402,8 @@
       "source_sha256": "206293d1521b58d84a6aa7a403ca2c7b5dc63a842cfca3935de121b10d9aa730",
       "events": [
         "wait_turn"
-      ]
+      ],
+      "english": "Chake it eashy... I got it..."
     },
     {
       "id": "alice.young.l1940",
@@ -3407,7 +3422,8 @@
       "source_sha256": "82a6715e0563184f1bdd7600a0ef066759233715925b6052a4a7205da0b842c3",
       "events": [
         "lesson_learned"
-      ]
+      ],
+      "english": "I twied hard! Say I did good!"
     },
     {
       "id": "alice.young.l1982",
@@ -3428,7 +3444,8 @@
         "exercise",
         "lesson_progress",
         "lesson_start"
-      ]
+      ],
+      "english": "I'll twy my best!"
     },
     {
       "id": "alice.young.l2444",
@@ -3447,7 +3464,8 @@
       "source_sha256": "720460424cb20bcee8e25c133ae2e2c6f0d0ede25070d73ded6538fc61a405b4",
       "events": [
         "lost_accessory"
-      ]
+      ],
+      "english": "Give Awice her headband back!"
     },
     {
       "id": "alice.young.l2455",
@@ -3466,7 +3484,8 @@
       "source_sha256": "4ca27ef757bab73cfee99cd01a25f7938608644f51dde1b398811f190bab36d7",
       "events": [
         "returned_accessory"
-      ]
+      ],
+      "english": "Welcome back, Awice's headband!"
     },
     {
       "id": "alice.young.l2598",
@@ -3510,7 +3529,8 @@
         "caregiver",
         "courtship",
         "share"
-      ]
+      ],
+      "english": "Toh! ♪"
     },
     {
       "id": "alice.young.l3896",
@@ -3571,7 +3591,8 @@
       "source_sha256": "69c8858fb69ae67de11669043fd6a809e4ac080cdbc70b8b3f6cc4d90de87698",
       "events": [
         "toy"
-      ]
+      ],
+      "english": "Awice wants to play too!"
     },
     {
       "id": "alice.young.l5832",
@@ -3612,7 +3633,8 @@
       "source_sha256": "cddcdb43088dd7018bf624f6abf866561d78912165086b392d3f57d23b05491a",
       "events": [
         "unrecognized"
-      ]
+      ],
+      "english": "What was dat?"
     },
     {
       "id": "alice.young.l3291",
@@ -3651,7 +3673,8 @@
       "source_sha256": "74b0a3e57ca4c951dbed4de879f53395d5ac0db0d931631c894353e52dcf0574",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "chen.adult.l0013",
@@ -3697,7 +3720,8 @@
         "house_arrival",
         "house_deposit",
         "idle"
-      ]
+      ],
+      "english": "I'm taking it easy! Got that?"
     },
     {
       "id": "chen.adult.l0025",
@@ -3765,7 +3789,8 @@
       "source_sha256": "61439448d6d2726b1a95a45096dac90b7b8cb597ee4267dff0a50a0100368803",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "It hurts! Do you get it?!"
     },
     {
       "id": "chen.adult.l0080",
@@ -3788,7 +3813,8 @@
         "family_died",
         "lost_parent",
         "wait_family"
-      ]
+      ],
+      "english": "Take it easy..."
     },
     {
       "id": "chen.young.l0013",
@@ -3834,7 +3860,8 @@
         "house_arrival",
         "house_deposit",
         "idle"
-      ]
+      ],
+      "english": "Gonna chake it eashy! Got dat?"
     },
     {
       "id": "chen.young.l0025",
@@ -3902,7 +3929,8 @@
       "source_sha256": "0f455341bf7c6568555996d52c0287a069be193bd5107b08b647e4ed1f30969c",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "It huwts! Do you get it?!"
     },
     {
       "id": "chen.young.l0080",
@@ -3925,7 +3953,8 @@
         "family_died",
         "lost_parent",
         "wait_family"
-      ]
+      ],
+      "english": "Chake it eashy..."
     },
     {
       "id": "patchouli.adult.l0013",
@@ -3971,7 +4000,8 @@
         "house_arrival",
         "house_deposit",
         "idle"
-      ]
+      ],
+      "english": "I'm going to take it easy!"
     },
     {
       "id": "patchouli.adult.l0025",
@@ -3996,7 +4026,8 @@
         "house_pickup",
         "laid_eggs",
         "share"
-      ]
+      ],
+      "english": "Mukyu! ♪"
     },
     {
       "id": "patchouli.adult.l0002",
@@ -4038,7 +4069,8 @@
       "source_sha256": "2842db29175630b50d4d37f30e96d31306f034de569361010cf695c0924533da",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Mukyu! It hurts!"
     },
     {
       "id": "patchouli.adult.l0080",
@@ -4061,7 +4093,8 @@
         "family_died",
         "lost_parent",
         "wait_family"
-      ]
+      ],
+      "english": "Take it easy..."
     },
     {
       "id": "patchouli.young.l0013",
@@ -4107,7 +4140,8 @@
         "house_arrival",
         "house_deposit",
         "idle"
-      ]
+      ],
+      "english": "Gonna chake it eashy!"
     },
     {
       "id": "patchouli.young.l0025",
@@ -4132,7 +4166,8 @@
         "house_pickup",
         "laid_eggs",
         "share"
-      ]
+      ],
+      "english": "Mukyu, mukyu."
     },
     {
       "id": "patchouli.young.l0002",
@@ -4174,7 +4209,8 @@
       "source_sha256": "669595c2606c03b6fa267ea3975df55a5d75b076fd15e9356c25cbbf308fd025",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Mukyu! It huwts!"
     },
     {
       "id": "patchouli.young.l0080",
@@ -4197,7 +4233,8 @@
         "family_died",
         "lost_parent",
         "wait_family"
-      ]
+      ],
+      "english": "Chake it eashy..."
     },
     {
       "id": "chen.adult.o_hungry",
@@ -4230,7 +4267,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_food"
       },
-      "source_sha256": "03d3a09c4f27c65bd676a04a8a4f81a1c9424107c29221dfbef1bf6054d5a609"
+      "source_sha256": "03d3a09c4f27c65bd676a04a8a4f81a1c9424107c29221dfbef1bf6054d5a609",
+      "english": "It's Mr. Food!"
     },
     {
       "id": "chen.adult.o_eat",
@@ -4247,7 +4285,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_eat"
       },
-      "source_sha256": "20ed02592ae3205ed751824114a92baaf33db0f2678598be5d109968af3b5545"
+      "source_sha256": "20ed02592ae3205ed751824114a92baaf33db0f2678598be5d109968af3b5545",
+      "english": "Munch, munch. It's yummy!"
     },
     {
       "id": "chen.adult.o_happy",
@@ -4266,7 +4305,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_happy"
       },
-      "source_sha256": "2b79739db0e5793c8fd215c637dbaa114106f5eb016833acbc409cebb0164636"
+      "source_sha256": "2b79739db0e5793c8fd215c637dbaa114106f5eb016833acbc409cebb0164636",
+      "english": "Nice and warm. So happy!"
     },
     {
       "id": "chen.adult.o_toilet",
@@ -4282,7 +4322,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_toilet"
       },
-      "source_sha256": "ce393797231c8757b122c4a67ba4f9f863dcdb9cb5ea80cffdaeecec0fa502ed"
+      "source_sha256": "ce393797231c8757b122c4a67ba4f9f863dcdb9cb5ea80cffdaeecec0fa502ed",
+      "english": "Time to poop!"
     },
     {
       "id": "chen.adult.o_clean",
@@ -4299,7 +4340,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_clean"
       },
-      "source_sha256": "c8c20aaf365704f841db9f786e18a7cbc16e137a5d34cd8d1c4e7f102df3cc7b"
+      "source_sha256": "c8c20aaf365704f841db9f786e18a7cbc16e137a5d34cd8d1c4e7f102df3cc7b",
+      "english": "I feel much better!"
     },
     {
       "id": "chen.adult.o_sleep",
@@ -4315,7 +4357,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_sleep"
       },
-      "source_sha256": "42ff08feb82f0ee1bccdea93eece05a9174362689dd3628f9e3567b8c9806da2"
+      "source_sha256": "42ff08feb82f0ee1bccdea93eece05a9174362689dd3628f9e3567b8c9806da2",
+      "english": "Zzz... zzz."
     },
     {
       "id": "chen.adult.o_awake",
@@ -4331,7 +4374,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_awake"
       },
-      "source_sha256": "54daaffd68c28b9931fb09db910da71ff46191a2a56939df8827cc035b249ca2"
+      "source_sha256": "54daaffd68c28b9931fb09db910da71ff46191a2a56939df8827cc035b249ca2",
+      "english": "It's morning. Good morning!"
     },
     {
       "id": "chen.adult.o_thanks",
@@ -4347,7 +4391,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_thanks"
       },
-      "source_sha256": "6e4393c6c92ac21cadd8f21444c1f6095bca188c2a6fd219f6f2ac5c78fa1e85"
+      "source_sha256": "6e4393c6c92ac21cadd8f21444c1f6095bca188c2a6fd219f6f2ac5c78fa1e85",
+      "english": "Thank you!"
     },
     {
       "id": "chen.adult.o_understood",
@@ -4363,7 +4408,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_understood"
       },
-      "source_sha256": "45779ba96769d5adef0fc3ef0a59cae45c60883e6a99df85105222bcf96016c7"
+      "source_sha256": "45779ba96769d5adef0fc3ef0a59cae45c60883e6a99df85105222bcf96016c7",
+      "english": "I get it!"
     },
     {
       "id": "chen.adult.o_wait",
@@ -4379,7 +4425,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_wait"
       },
-      "source_sha256": "5cebb575b63ae57bb1f694a3b2a854ec72a33c62aebbaf0b27452f02a8902c8e"
+      "source_sha256": "5cebb575b63ae57bb1f694a3b2a854ec72a33c62aebbaf0b27452f02a8902c8e",
+      "english": "I'll wait here!"
     },
     {
       "id": "chen.adult.o_praise",
@@ -4431,7 +4478,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_lost"
       },
-      "source_sha256": "f17497c34c2130a7427a70e31745d73a497b37563908c7283f2bd4b8cc34951f"
+      "source_sha256": "f17497c34c2130a7427a70e31745d73a497b37563908c7283f2bd4b8cc34951f",
+      "english": "Please give my headwear back!"
     },
     {
       "id": "chen.adult.o_returned",
@@ -4447,7 +4495,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_returned"
       },
-      "source_sha256": "88d1a76877a0ec3ff6fc76741e30b34e389ca4775f1d205c85a42c535e68d241"
+      "source_sha256": "88d1a76877a0ec3ff6fc76741e30b34e389ca4775f1d205c85a42c535e68d241",
+      "english": "My headwear came back!"
     },
     {
       "id": "chen.adult.o_play",
@@ -4463,7 +4512,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_play"
       },
-      "source_sha256": "08ef7f954f6e6632a2cb9849013f03a828b6942e9b10921746a9b63ec1e15c3f"
+      "source_sha256": "08ef7f954f6e6632a2cb9849013f03a828b6942e9b10921746a9b63ec1e15c3f",
+      "english": "Let's play together!"
     },
     {
       "id": "chen.adult.o_puff",
@@ -4481,7 +4531,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_puff"
       },
-      "source_sha256": "99f839dea82dd51ebb9fb5fd570d32d7cca61010b3c7d3a1570bf0f3b752474d"
+      "source_sha256": "99f839dea82dd51ebb9fb5fd570d32d7cca61010b3c7d3a1570bf0f3b752474d",
+      "english": "Puff! I don't want to!"
     },
     {
       "id": "chen.adult.o_confused",
@@ -4497,7 +4548,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_confused"
       },
-      "source_sha256": "dd4b08b97eb085937641f2fbea41adfa8dee70c0f146d9ecad465437b8bee975"
+      "source_sha256": "dd4b08b97eb085937641f2fbea41adfa8dee70c0f146d9ecad465437b8bee975",
+      "english": "I don't get it!"
     },
     {
       "id": "chen.adult.o_birth",
@@ -4513,7 +4565,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_birth"
       },
-      "source_sha256": "214112f7611d5bd3445651e645852b1fc999eb841659b11be13aa78d91024d49"
+      "source_sha256": "214112f7611d5bd3445651e645852b1fc999eb841659b11be13aa78d91024d49",
+      "english": "The baby's coming!"
     },
     {
       "id": "chen.adult.o_nuzzle",
@@ -4529,7 +4582,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_nuzzle"
       },
-      "source_sha256": "283f039ddce8f95eb4a5ebe62a1a8951daff08cf60b1f0f2c5d2391ea649ecb2"
+      "source_sha256": "283f039ddce8f95eb4a5ebe62a1a8951daff08cf60b1f0f2c5d2391ea649ecb2",
+      "english": "Rub, rub. That feels good!"
     },
     {
       "id": "chen.adult.o_want_nuzzle",
@@ -4545,7 +4599,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_want_nuzzle"
       },
-      "source_sha256": "f2dc9ef6aab0e4e2b8b695fedc2fc088f768de687a56a5e2d395415abfacffa9"
+      "source_sha256": "f2dc9ef6aab0e4e2b8b695fedc2fc088f768de687a56a5e2d395415abfacffa9",
+      "english": "I want to rub cheeks!"
     },
     {
       "id": "chen.young.o_hungry",
@@ -4561,7 +4616,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_hungry"
       },
-      "source_sha256": "7c4eda47875a921c34b8c95beacbe16831be45e34d6e0b6be0e6ef1b52c2e0ba"
+      "source_sha256": "7c4eda47875a921c34b8c95beacbe16831be45e34d6e0b6be0e6ef1b52c2e0ba",
+      "english": "My tummy's rumbling!"
     },
     {
       "id": "chen.young.o_food",
@@ -4577,7 +4633,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_food"
       },
-      "source_sha256": "2bdcd62eda63b78145ddf7a1745dd26f9fc779fa7b8ba8eab59f40c4e5ac6503"
+      "source_sha256": "2bdcd62eda63b78145ddf7a1745dd26f9fc779fa7b8ba8eab59f40c4e5ac6503",
+      "english": "It's Mishter Food!"
     },
     {
       "id": "chen.young.o_eat",
@@ -4594,7 +4651,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_eat"
       },
-      "source_sha256": "1622201490e8e78c53f6274810328ead3ef0d135e4a273b006bdbae0a6b69822"
+      "source_sha256": "1622201490e8e78c53f6274810328ead3ef0d135e4a273b006bdbae0a6b69822",
+      "english": "Munch, munch. Yummy!"
     },
     {
       "id": "chen.young.o_happy",
@@ -4613,7 +4671,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_happy"
       },
-      "source_sha256": "9262ba0880e98a49c65a50319a9bfa8dfab6bc579fc9d472f697be8e8af7805f"
+      "source_sha256": "9262ba0880e98a49c65a50319a9bfa8dfab6bc579fc9d472f697be8e8af7805f",
+      "english": "Nice and warm. Sho happy!"
     },
     {
       "id": "chen.young.o_toilet",
@@ -4629,7 +4688,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_toilet"
       },
-      "source_sha256": "1afea8968bc5f97f89f59766e27d6d1bbdaf9cb5e6b1d436e01e24f92cb916d8"
+      "source_sha256": "1afea8968bc5f97f89f59766e27d6d1bbdaf9cb5e6b1d436e01e24f92cb916d8",
+      "english": "Gonna go poo-poo!"
     },
     {
       "id": "chen.young.o_clean",
