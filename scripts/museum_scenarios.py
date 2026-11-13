@@ -1588,19 +1588,69 @@ add('harness_walk', 'town', '亲手给宠物系胴带牵着走', '亲手给宠�
     give=['mcyukkuri:pet_harness 1', 'minecraft:lead 1', 'minecraft:apple 6'],
     reads=[('读牵引宠物', f'yukkuri status {sel("harness_pet")} raw')], vantage=(0, 8))
 
-add('feed_wild', 'town', '居民牵宠散步，喂饿坏的野油', '居民牵宠散步，喂饿坏的野油',
-    '爱派居民（哥哥和姐姐）牵着拴了绳的宠物灵梦在街上散步，遇到饿坏的野生魔理沙：会拿出食物喂它', '约 1–3 分钟', [
-    'yukkuri human walker ~ ~ ~ brother', 'yukkuri human walker ~-6 ~ ~ sister', yk('marisa', 6, 3, 'wild', nutrition=20, yaw=90, lead=True)],
-    vantage=(0, 12))
+def street_trial(scene, kind, x, z, name, *, pet='', extra='', **kwargs):
+    return yk(kind, x, z, name, uuid=uid(scene, name), boldness=90,
+              extra=f'YukkuriPet:{{TownRoots:1b{pet}}}' + (',' + extra if extra else ''), **kwargs)
 
-_oniisan_victim = uid('oniisan_prey', 'victim')
-add('oniisan_prey', 'town', '鬼威惨在街上，灵梦母女与旁观者见了就逃', '鬼威惨在街上，灵梦母女与旁观者见了就逃',
-    '鬼威惨照常在街上走动，东侧有野生灵梦，她的孩子与陌生魔理沙都在旁边；看见威胁会逃，附近目击伤害也会受惊', '持续', [
-    'yukkuri human oniisan ~ ~ ~',
-    yk('reimu', 5, 0, 'oniisan_victim', uuid=_oniisan_victim, label='被盯上的灵梦', lead=True, **pair_ready()),
-    yk('reimu', 9, 1, 'oniisan_child', stage='child', label='她的孩子', kin=f'Mother:{uuid_nbt(_oniisan_victim)}', **pair_ready()),
-    yk('marisa', 8, -4, 'oniisan_witness', label='陌生旁观者', **pair_ready())], vantage=(0, 12),
-    reads=[('读猎物反应', f'yukkuri status {sel("oniisan_victim")} raw'), ('读旁观反应', f'yukkuri status {sel("oniisan_witness")} raw')])
+
+def street_abuser(x, z, name, **kwargs):
+    return human('oniisan', x, z, name, 0, attitude=0, yaw=-90, **kwargs)
+
+
+add('feed_wild', 'town', '爱派居民：一份粮与空手摸头', '爱派居民：一份粮与空手摸头',
+    '东边的爱派有一份粮，西边的爱派空手。两只饿的流浪油都能靠近，另有居民牵宠散步。看粮从手中交到嘴里，吃完后可给空手的爱派捐粮。',
+    '约半分钟', [
+        human('caretaker_sister', 5, 0, 'street_lover', 0, grain=1, yaw=-90, label='有一份粮的爱派'),
+        human('caretaker_brother', -6, 0, 'street_empty', 0, yaw=-90, label='空手的爱派'),
+        street_trial('feed_wild', 'marisa', 6, 0, 'street_hungry', nutrition=34, yaw=90, lead=True),
+        street_trial('feed_wild', 'reimu', -5, 0, 'street_nofood', nutrition=34, yaw=90),
+        'yukkuri human walker ~ ~ ~-10 brother',
+    ], env=DAY, vantage=(0, 11), give=['mcyukkuri:oil_grain_regular 8'],
+    reads=[('读递粮者存量', f'data get entity {sel("street_lover")} CareFood'),
+           ('读流浪油进食', f'yukkuri status {sel("street_hungry")} raw')])
+
+_street_trials = [
+    (-16, 'street_badge', '帕秋莉：仍戴作废的章'),
+    (-9, 'street_chewing', '橙：正在吃饭'),
+    (-2, 'street_box', '魔理沙：在纸箱里'),
+    (7, 'street_colony', '灵梦：聚落成员'),
+    (15, 'street_free', '爱丽丝：独行且挡路'),
+]
+_street_badge_owner = uuid_nbt(uid('oniisan_prey', 'former_owner'))
+add('oniisan_prey', 'town', '虐派居民：警告与四种豁免', '虐派居民：警告与四种豁免',
+    '路上的成年独行爱丽丝会遇到警告。旁边是戴作废章的前宠物、正在吃饭的流浪油、箱里的流浪油和聚落成员。看谁会被针对，再用读数核对血量。',
+    '约半分钟', [
+        *[street_abuser(x, 0, name + '_npc', label=label) for x, name, label in _street_trials],
+        street_trial('oniisan_prey', 'patchouli', -15, 0, 'street_badge', yaw=90,
+                     pet=f',Grade:1,Worn:1b,VoidBadge:1b,FormerOwner:{_street_badge_owner}'),
+        street_trial('oniisan_prey', 'chen', -8, 0, 'street_chewing', yaw=90, nutrition=24,
+                     extra='YukkuriMouth:{Purpose:"MEAL",Items:[{id:"mcyukkuri:oil_grain_regular",count:1}]}'),
+        f'data merge entity {sel("street_chewing")} {{YukkuriLife:{{MealTicks:1,SharedMeal:1b}}}}',
+        *found_shell('cardboard_shelter', -1, 0),
+        street_trial('oniisan_prey', 'marisa', -1, 0, 'street_box', yaw=90, energy=30),
+        street_trial('oniisan_prey', 'reimu', 8, 0, 'street_colony', yaw=90),
+        f'yukkuri scenario community {sel("street_colony")} {sel("street_colony")}',
+        street_trial('oniisan_prey', 'alice', 16, 0, 'street_free', yaw=90, lead=True),
+    ], env=DAY, vantage=(0, 13),
+    reads=[(label, f'data get entity {sel(name)} Health') for _, name, label in _street_trials])
+
+add('street_mixed', 'town', '街道对照：爱派喝止、玩家喂熟、店门保护', '街道对照：爱派喝止、玩家喂熟、店门保护',
+    '西边爱派看得见虐派和独行灵梦。另有已吃过玩家两份粮的橙，以及鬼威惨商店门口的一只流浪油。看爱派喝止、店员留岗与个体继续各自活动。',
+    '约半分钟', [
+        'yukkuri human build oni_shop ~10 ~ ~-8 south',
+        street_abuser(-16, 0, 'street_stopped', label='被喝止的虐派'),
+        human('caretaker_sister', -15, 3, 'street_helper', 0, label='目击的爱派'),
+        street_trial('street_mixed', 'reimu', -15, 0, 'street_intervened', yaw=90, lead=True),
+        street_abuser(-10, 6, 'street_trust_npc', label='路过的虐派'),
+        street_trial('street_mixed', 'chen', -9, 6, 'street_trust', yaw=90, nutrition=66),
+        'execute if entity @s[type=minecraft:player] run ' + f'yukkuri status relate {sel("street_trust")} @s 16',
+        street_abuser(9, -12, 'street_door_npc', dy=2, label='店门附近的居民'),
+        street_trial('street_mixed', 'marisa', 10, -12, 'street_door', dy=2, yaw=90),
+        human('caretaker_brother', 7, 0, 'street_passer', 0, attitude=2, label='普通路人'),
+    ], env=DAY, vantage=(-4, 14), give=['mcyukkuri:oil_grain_regular 8'],
+    reads=[('读吃过玩家粮的橙', f'yukkuri status {sel("street_trust")} raw'),
+           ('读店门流浪油血量', f'data get entity {sel("street_door")} Health'),
+           ('读商店库存与店员', 'yukkuri human shop list')])
 
 add('attack_witness', 'town', '你打灵梦：看见的逃，墙后的不知', '你打灵梦：看见的逃，墙后的不知',
     '徒手打一下中间的灵梦：右侧陌生油能看见现场，会受惊逃开；左侧被实墙遮住的陌生油不会隔墙感知。个体仍会自由移动', '靠近后直接操作', [
@@ -4198,7 +4248,7 @@ TOPICS = {
     'excited_leak': 'D1',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
     'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
@@ -4503,7 +4553,22 @@ next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
 _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
                                  rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target='])
 _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[contempt\][^\n]* scorn target='])
-_smoke('feed_wild', 2400, [r'\[npc-care\][^\n]* action=begin_meal '])
+_fed = _uuid_text('feed_wild', 'street_hungry')
+_empty = _uuid_text('feed_wild', 'street_nofood')
+_free = _uuid_text('oniisan_prey', 'street_free')
+_stopped = _uuid_text('street_mixed', 'street_intervened')
+_street_protected = [_uuid_text('oniisan_prey', name) for _, name, _ in _street_trials if name != 'street_free']
+_smoke('feed_wild', 400, [
+    rf'\[npc-care\][^\n]* action=begin_meal target={_fed} food=1->0\b',
+    rf'\[npc-care\][^\n]* action=street_pet target={_empty} food=0\b',
+    rf'\[meal\][^\n]* uuid={_fed}[^\n]* swallowed item=[^\n]*oil_grain_regular',
+])
+_smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_free}\b'],
+       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_street_protected)})\b',
+        r'\[npc-care\][^\n]* action=street_kick [^\n]*health=(?!([\d.]+)->\1\b)'])
+_smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
+       r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
+       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{_stopped}|{_uuid_text("street_mixed", "street_door")})\b'])
 _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
                             r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',
                             r'\[interaction\][^\n]* action=pin reason=shop'],

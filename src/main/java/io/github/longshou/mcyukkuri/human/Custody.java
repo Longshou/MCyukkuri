@@ -321,12 +321,11 @@ public final class Custody {
         if (custody.owner() != null || custody.hasPendingStaffRole()
                 || animal.life().home() != null && !animal.life().naturalHome() && !releaseQueued(tag.getCompound(PENDING_RELEASE))) return true;
         if (animal.pet().abandoned() || animal.pet().voidBadge()) return false; // abandoned or registry-void: no keeper stands behind it
-        for (var v : animal.life().personality().save().getList("Players", 10)) {
-            var memory = (CompoundTag)v;
-            if (memory.getInt("Trust") >= 10 && !(memory.hasUUID("Player") && animal.level() instanceof ServerLevel level
-                    && CustodyData.get(level).deadNpc(memory.getUUID("Player")))) return true;
-        }
-        return false;
+        if (!(animal.level() instanceof ServerLevel level)) return false;
+        var server = level.getServer();
+        return YukkuriWorldData.get(level).relationsFrom(animal.getUUID()).entrySet().stream().anyMatch(memory ->
+                memory.getValue().closeness() >= 10 && (server.getPlayerList().getPlayer(memory.getKey()) != null
+                        || server.getProfileCache().get(memory.getKey()).isPresent()));
     }
 
     public static boolean mayCapture(Player player, YukkuriEntity animal) {

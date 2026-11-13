@@ -6655,5 +6655,10 @@
   "shop.mcyukkuri.protect.frame": "The frames hold samples; ask the staff to buy.",
   "shop.mcyukkuri.protect.stock": "This is the shop’s stock; you cannot handle it before buying it.",
   "shop.mcyukkuri.reserve.expired": "Your reservation of %s lapsed after three days; it is on sale again and the deposit of %s emeralds is kept.",
-  "shop.mcyukkuri.reserve.animal": "the animal you reserved"
+  "shop.mcyukkuri.reserve.animal": "the animal you reserved",
+  "human.mcyukkuri.talk.passing.0": "Excuse me. I'm heading down the street.",
+  "human.mcyukkuri.street.warning": "Back away.",
+  "human.mcyukkuri.street.chase": "Move!",
+  "human.mcyukkuri.street.stop": "Stop. Let it go.",
+  "human.mcyukkuri.street.player_frown": "Don't hit it."
 }

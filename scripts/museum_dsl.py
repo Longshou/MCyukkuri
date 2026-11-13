@@ -140,12 +140,13 @@ def remains(dx, dz, name, *, variant='reimu', food=6, capacity=6, rot=0, ident=N
             'Remains:{id:"mcyukkuri:yukkuri_remains",count:1,components:{"minecraft:custom_data":{' + ','.join(data) + '}}}}')
 
 
-def human(kind, dx, dz, name, job, *, yaw=180, label=None):
+def human(kind, dx, dz, name, job, *, yaw=180, label=None, attitude=1, grain=0, dy=0):
     tags = ','.join(f'"{t}"' for t in (SCN, tag(name)))
-    parts = [f'Tags:[{tags}]', 'PersistenceRequired:1b', f'Rotation:[{float(yaw)}f,0f]', f'HumanJob:{job}', 'HumanAttitude:1', 'HumanInitialized:1b']
+    parts = [f'Tags:[{tags}]', 'PersistenceRequired:1b', f'Rotation:[{float(yaw)}f,0f]', f'HumanJob:{job}',
+             f'HumanAttitude:{attitude}', 'HumanInitialized:1b', f'CareFood:{grain}']
     if label:
         parts += [f'CustomName:{_q(_text(label))}', 'CustomNameVisible:1b']
-    return f'summon mcyukkuri:{kind} ~{dx + .5} ~ ~{dz + .5} {{' + ','.join(parts) + '}'
+    return f'summon mcyukkuri:{kind} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'
 
 
 def item(item_id, count, dx, dz, name='item', dy=.05):

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
@@ -14,15 +15,18 @@ final class HumanFolk {
 
     static void interact(Player player, HumanNpc npc) {
         var hand = player.getMainHandItem();
-        if (hand.is(ModItems.GRAIN_REGULAR.get()) && hand.getCount() >= 8) {
+        if (npc.streetResident() && npc.attitude() == HumanNpc.Attitude.CARING && hand.is(ModItems.GRAIN_REGULAR.get()) && hand.getCount() >= 8) {
             if (npc.donateFood()) {
                 if (!player.getAbilities().instabuild) hand.shrink(8);
                 player.displayClientMessage(Component.translatable("human.mcyukkuri.talk.grain"), true);
+                GameplayLog.event(npc, "npc-care", "action=street_donation player={} count=8 food={}",
+                        player.getUUID(), npc.careFood());
                 return;
             }
         }
-        String mood = npc.attitude() == HumanNpc.Attitude.CRUEL ? "cruel" : npc.walking() ? "walk" : npc.walkPetId() != null ? "pet" : "friendly";
-        int variants = mood.equals("cruel") ? 2 : 3;
+        String mood = npc.attitude() == HumanNpc.Attitude.CRUEL ? "cruel" : npc.attitude() == HumanNpc.Attitude.NEUTRAL ? "passing"
+                : npc.walking() ? "walk" : npc.walkPetId() != null ? "pet" : "friendly";
+        int variants = mood.equals("passing") ? 1 : mood.equals("cruel") ? 2 : 3;
         player.sendSystemMessage(Component.translatable("human.mcyukkuri.talk.say", npc.getDisplayName(),
                 Component.translatable("human.mcyukkuri.talk." + mood + "." + npc.getRandom().nextInt(variants))));
     }

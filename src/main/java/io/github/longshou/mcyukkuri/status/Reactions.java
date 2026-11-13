@@ -95,6 +95,7 @@ public final class Reactions {
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
         threat.attackedBy(attacker);
         threat.warnKin(attacker);
+        if (attacker instanceof Player player) HumanNpc.witnessedStreetHurt(entity, player);
         if (!(attacker instanceof Player || attacker instanceof HumanNpc)) return;
         long now = entity.level().getGameTime();
         for (var witness : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8, 4, 8),
@@ -182,10 +183,9 @@ public final class Reactions {
             if (p.predator().obedient() && HumanCommerce.protectedAnimal(y)) return false;   // an educated predator honours a protected pet
             return p.distanceToSqr(y) < 36 || y.hasLineOfSight(p);
         }
-        /** A cruel resident is frightening only while its existing torment rules permit harm to this individual. */
+        /** Observe a real street act, independent of the resident's appearance or attitude alone. */
         private boolean menacing(HumanNpc person) {
-            return person.isAlive() && person.canTorment(y)
-                    && (person.distanceToSqr(y) < 36 || y.hasLineOfSight(person));
+            return person.streetThreatTo(y);
         }
         private double alarmRange() {
             var source = source();
@@ -261,11 +261,11 @@ public final class Reactions {
 
         boolean wants() {
             var s = source();
-            if (s == null || !free(y) || y.hurtCrying() || y.grief().protecting() || y.myon().fighting() || y.isPanicking()
+            if (s == null || !free(y) || s instanceof HumanNpc && y.isLeashed() || y.hurtCrying() || y.grief().protecting() || y.myon().fighting() || y.isPanicking()
                     || y.family().carry().shelteredFrom(s) || y.level().getGameTime() < cooldownUntil) return false;
             return stage != Stage.NONE || s.distanceToSqr(y) <= 256 || s == heard;
         }
-        boolean keeps() { return stage != Stage.NONE && free(y) && !y.hurtCrying() && !y.grief().protecting() && !y.myon().fighting()
+        boolean keeps() { return stage != Stage.NONE && free(y) && !(source() instanceof HumanNpc && y.isLeashed()) && !y.hurtCrying() && !y.grief().protecting() && !y.myon().fighting()
                 && !y.isPanicking() && !y.family().carry().shelteredFrom(source()); }
         void start() {
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.

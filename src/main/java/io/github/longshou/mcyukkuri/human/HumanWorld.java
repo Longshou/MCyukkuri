@@ -88,9 +88,9 @@ public final class HumanWorld {
     static {
         var b = new ModConfigSpec.Builder();
         ROAMING = b.comment("Allow rare daylight human encounters; structure residents are independent.").define("roamingResidents", true);
-        CRUELTY = b.comment("Oniisan may harm unclaimed wild yukkuri. Factory processing requires a delivered input.").define("oniisanCruelty", true);
+        CRUELTY = b.comment("Allow cruel residents to shoo or lightly nudge eligible street animals without injury. Off permits a warning only.").define("oniisanCruelty", true);
         TRADE_DAY_LIMIT = b.comment("Goods a single player can buy from one shopkeeper per game day (shelf stock is limited separately).").defineInRange("supplyTradesPerDay", 24, 1, 64);
-        CARE_SUPPLIES = b.defineInRange("initialCareFood", 32, 0, 256);
+        CARE_SUPPLIES = b.comment("Initial grain; caring residents receive at most eight portions once.").defineInRange("initialCareFood", 32, 0, 256);
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
         COMMODITY_HARSHNESS = b
                 .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales factory-parent wear and punishment after a failed exam.")

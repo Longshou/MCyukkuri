@@ -2,13 +2,19 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.human.*;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Locale;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.*;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.*;
 
 /** Vanilla humanoid rig, original pixel clothing, and head-bound hair. No player skin downloads. */
@@ -17,6 +23,16 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
     public HumanRenderer(EntityRendererProvider.Context context) {
         super(context, new Model(context.bakeLayer(LAYER)), .35f);
         addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+        addLayer(new ItemInHandLayer<HumanNpc, Model>(this, context.getItemInHandRenderer()) {
+            @Override public void render(PoseStack pose, MultiBufferSource buffers, int light, HumanNpc npc,
+                    float swing, float amount, float partial, float age, float yaw, float pitch) {
+                if (!npc.showsStreetGrain() || !npc.getOffhandItem().isEmpty()) return;
+                var arm = npc.getMainArm().getOpposite();
+                renderArmWithItem(npc, new ItemStack(ModItems.GRAIN_REGULAR.get()),
+                        arm == HumanoidArm.LEFT ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                        arm, pose, buffers, light);
+            }
+        });
     }
     @Override public ResourceLocation getTextureLocation(HumanNpc npc) {
         // EXAMINER/KEEPER are matched by name so this compiles before those Job constants land.
@@ -45,6 +61,10 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             if (n.resting() && n.getDeltaMovement().horizontalDistanceSqr() < .002) {
                 head.xRot = .15f; hat.copyFrom(head); rightArm.xRot = leftArm.xRot = -.25f;
             }
+            if (n.showsStreetGrain() && n.getOffhandItem().isEmpty())
+                (n.getMainArm() == HumanoidArm.RIGHT ? leftArm : rightArm).xRot -= .5f;
+            if (n.kicking()) rightLeg.xRot = -.8f;
+            if (n.frowning()) { head.zRot = -.13f; head.xRot += .25f; hat.copyFrom(head); }
         }
     }
     public static final class Events {

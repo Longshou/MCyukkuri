@@ -200,6 +200,7 @@
     "exam_obstructed": "TN-16",
     "exam_silver": "TN-17",
     "exam_gold": "TN-18",
-    "exam_platinum": "TN-19"
+    "exam_platinum": "TN-19",
+    "street_mixed": "TN-20"
   }
 }

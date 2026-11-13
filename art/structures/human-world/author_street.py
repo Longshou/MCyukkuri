@@ -104,6 +104,16 @@ def street_band(b, x0, x1):
             b.block(x, 0, z, 'gravel' if 3 <= z <= 5 else pave(x, z))
 
 
+def street_residents(b, first, second):
+    """Two resident home stands on the lot. Only the second slot can roll a non-neutral attitude."""
+    for (x, z), kind, tags in [
+        (first, 'caretaker_brother', ['mcy_street_local']),
+        (second, 'oniisan', ['mcy_street_local', 'mcy_street_special']),
+    ]:
+        b.entity(x + .5, 1, z + .5, f'mcyukkuri:{kind}',
+                 {'HumanJob': integer(0), 'HumanAttitude': integer(2), 'Tags': sequence(8, tags)})
+
+
 def fence_row(b, x0, x1, y, z, kind='oak_fence'):
     for x in range(x0, x1 + 1):
         b.block(x, y, z, kind, {'east': 'true' if x < x1 else 'false', 'west': 'true' if x > x0 else 'false',
@@ -198,6 +208,7 @@ def street_stall():
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
     for x in (4, 5, 6): stairs(b, x, 1, 1, 'oak', 'north')
     for x, plant in [(3, 'potted_poppy'), (7, 'potted_dandelion')]: b.block(x, 1, 1, plant)
+    street_residents(b, (5, 2), (8, 7))
     street_ends(b, W)
     connect_bars(b)
     return b
@@ -240,6 +251,7 @@ def street_alley():
     lamp(b, 6, 1, 7); lamp(b, 12, 1, 1)
     b.block(3, 1, 1, 'water_cauldron', {'level': '3'}); b.block(4, 1, 1, 'hay_block', LOG)
     for x, plant in [(8, 'potted_oxeye_daisy'), (9, 'potted_fern')]: b.block(x, 1, 1, plant)
+    street_residents(b, (5, 2), (9, 7))
     street_ends(b, W)
     connect_bars(b)
     return b

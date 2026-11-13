@@ -66,6 +66,7 @@ public final class YukkuriSocial implements MotorOwner {
     private double humanRetreatRoll;
     private int humanWatchUntil;
     private long replyUntil;
+    private boolean foodDemand;
     private Vec3 humanEscapeStand;
     /** A loose-accessory retrieval: one budget for the whole trip (the walk to a bank stand, the step in and the swim), since a
      *  route round a bank corner is longer than the social tasks' short beat. */
@@ -123,6 +124,7 @@ public final class YukkuriSocial implements MotorOwner {
             case TOY -> Behaviors.TOY; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; case STUDY -> Behaviors.TEACH; }; }
     public boolean active() { return task != Task.NONE; }
     public boolean humanContact() { return task == Task.PLAYER; }
+    public boolean contactWith(Entity person) { return humanContact() && target == person && !retreat; }
     /** The actual completed contact in the current social goal, without probing eligibility. */
     public UUID observedGreeting() {
         return (task == Task.PLAYER || task == Task.PEER) && greeted && !retreat ? target.getUUID() : null;
@@ -554,7 +556,7 @@ public final class YukkuriSocial implements MotorOwner {
             EcologyMovement.halt(entity);
             return;
         }
-        if (wariness >= .50) {
+        if (wariness > .50) {
             stop();
             return;
         }
@@ -609,16 +611,20 @@ public final class YukkuriSocial implements MotorOwner {
             return;
         }
         lastFoodRequest = entity.life().nutrition();
+        foodDemand = demand;
         // Allow three to six seconds to respond after the actual line, with more patience at higher self-control.
         replyUntil = entity.speechEnd() + 60 + Math.round(.60 * personality().selfControl());
         GameplayLog.event(entity, "social", "human food request target={} nutrition={} esteem={} wariness={} chance={} line={} replyUntil={}",
                 target.getUUID(), lastFoodRequest, esteem, wariness, chance, line, replyUntil);
     }
 
-    public boolean canDismissFoodRequest(Player player) {
-        return humanContact() && target == player && replyUntil > entity.level().getGameTime()
-                && canContinue() && atHumanContact(player);
+    private boolean foodRequestTo(Entity person) {
+        return contactWith(person) && replyUntil > entity.level().getGameTime()
+                && canContinue() && atHumanContact(person);
     }
+
+    public boolean demandingFoodFrom(Entity person) { return foodDemand && foodRequestTo(person); }
+    public boolean canDismissFoodRequest(Player player) { return foodRequestTo(player); }
 
     public boolean dismissFoodRequest(Player player) {
         if (!canDismissFoodRequest(player)) return false;
@@ -834,7 +840,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         if (protectedContact != null) { personality().releaseRelation(protectedContact); protectedContact = null; }
         task = Task.NONE; target = null; exercise = null; elapsed = 0; greeted = false; retreat = false; cautious = false; greetWhy = null;
-        humanWatchUntil = 0; replyUntil = 0;
+        humanWatchUntil = 0; replyUntil = 0; foodDemand = false;
         humanEscapeStand = null;
         triedStands.clear();
         entity.getNavigation().stop();
