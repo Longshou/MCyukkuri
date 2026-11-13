@@ -168,7 +168,7 @@ def props_sheet(out):
         mesh = json.loads((ASSETS / f'yukkuri_props/junk_{variant}.json').read_text(encoding='utf-8'))
         s = Scene(); s.add('junk', np.array(mesh['vertices']).reshape(-1, 8), ASSETS / f'textures/props/junk_{variant}.png')
         for col, (az, el) in enumerate(views):
-            image = panel(s, [('junk', 99, 0, 0, 0, 1)], (W, Hh), az, el, 34, centre_y=3)
+            image = panel(s, [('junk', 99, 0, 0, 0, 1)], (W, Hh), az, el, 24 if variant == 'paper_box' else 34, centre_y=3)
             label(image, f'{LABELS[variant]} · {az}°/{el}°', font); sheet.paste(image, (col * W, row * Hh))
     sheet.save(out / 'props.png')
 

@@ -2,7 +2,7 @@
 
 Each prop is a low-poly mesh on the care-prop kit (standards/yukkuri-library/drafts/care-props/kit.py) with its own painted
 texture, origin at the contact point on the crown, +Y up, front toward -Z, 16 units per block. The meshes are shabby on
-purpose: crushed and stained cardboard with a torn flap, a bent and rusty crimped cap, a bitten wafer with dried ice cream.
+purpose: crushed, taped and water-stained cardboard with a torn flap, a bent and rusty crimped cap, a bitten wafer with dried ice cream.
 
 Seats: YukkuriModel.renderJunkHat draws the prop in the features frame of the wearer (at rest equal to the model frame) and
 applies the prop's anchor named after the runtime model. The anchor is fitted here against every runtime model with its
@@ -109,78 +109,83 @@ def paper_box():
     paint = Painter(prop, 'paper_box')
     hx, hz, h, t = BOX['hx'], BOX['hz'], BOX['h'], BOX['wall']
     card = kit._palette['ramps']['cardboard']
+    print_blue = ['#3f5f78', '#5f8098', '#8eaabb']                    # faded printing
+    tape = ['#b8a26a', '#d8c690', '#ece0b4']                          # old packing tape
     # Decal areas (x, y, w, h) at TEX texels per unit.
     A = dict(front=(16, 0, 15, 9), back=(32, 0, 15, 9), left=(16, 10, 12, 9), right=(29, 10, 12, 9), top=(16, 20, 15, 12),
              flap=(32, 20, 10, 6), inner=(48, 0, 12, 12))
     for key in ('front', 'back', 'left', 'right', 'top'):
-        paint.rect(*A[key], card, noise=.07)
-    paint.rect(*A['inner'], card, base=1, noise=.3)
-    paint.rect(*A['flap'], card, base=2, noise=.07)
-    # Faded red band round the sides (a sweets box), scuffed through to the board in places.
-    band = ['#7e3b36', '#9a4e45', '#b06a5a']
+        paint.rect(*A[key], card, noise=.03)
+    paint.rect(*A['inner'], card, base=1, noise=.1)
+    paint.rect(*A['flap'], card, base=2, noise=.03)
+    # The old bottom, now on top: the two flaps' seam under a strip of packing tape, one end peeled up.
+    tx0, ty0, tw, th = A['top']
+    for x in range(tx0, tx0 + tw):
+        paint.put(x, ty0 + 5, tape[0])
+        paint.put(x, ty0 + 6, tape[1] if x < tx0 + tw - 3 else card[1])
+        paint.put(x, ty0 + 7, tape[2] if x < tx0 + tw - 3 else card[0])
+    for x in range(tx0 + 2, tx0 + tw - 2, 3):
+        paint.put(x, ty0 + 6, tape[2])
+    # Printed sides: a faded blue sweets label with clear edges on the front, a thin printed line round the box.
+    fx0, fy0, fw, fh = A['front']
+    for y in range(fy0 + 2, fy0 + 6):
+        for x in range(fx0 + 3, fx0 + 11):
+            edge = y in (fy0 + 2, fy0 + 5) or x in (fx0 + 3, fx0 + 10)
+            paint.put(x, y, print_blue[0] if edge else print_blue[1])
+    for x, y in ((fx0 + 5, fy0 + 3), (fx0 + 6, fy0 + 3), (fx0 + 8, fy0 + 3), (fx0 + 5, fy0 + 4), (fx0 + 7, fy0 + 4), (fx0 + 8, fy0 + 4)):
+        paint.put(x, y, H('paper', 2))
+    for x, y in ((fx0 + 9, fy0 + 4), (fx0 + 9, fy0 + 3), (fx0 + 10, fy0 + 4)):
+        paint.put(x, y, card[2])                                      # label scuffed off at one corner
     for key in ('front', 'back', 'left', 'right'):
         x0, y0, w, hh = A[key]
         for x in range(x0, x0 + w):
-            for y in (y0 + 3, y0 + 4, y0 + 5):
-                if paint.rng.random() < .82:
-                    paint.put(x, y, band[1 if paint.rng.random() < .7 else (0 if y == y0 + 5 else 2)])
-    # A pale round label on the front, half rubbed off.
-    fx, fy = A['front'][0] + 7, A['front'][1] + 4
-    for y in range(fy - 2, fy + 3):
-        for x in range(fx - 2, fx + 3):
-            if (x - fx) ** 2 + (y - fy) ** 2 <= 5 and not (x > fx and y < fy):
-                paint.put(x, y, H('paper', 2) if (x + y) % 4 else H('paper', 1))
-    # Water stains, darker rims, the crushed corner crease and grime toward the open edge.
-    paint.blot(A['top'][0] + 10, A['top'][1] + 4, 3.5, 2.6, card[1], A['top'])
-    paint.blot(A['top'][0] + 10, A['top'][1] + 4, 2.2, 1.5, card[0], A['top'], .5)
-    paint.blot(A['left'][0] + 4, A['left'][1] + 6, 2.5, 2.2, card[1], A['left'])
-    paint.blot(A['back'][0] + 3, A['back'][1] + 2, 2.4, 1.8, card[1], A['back'])
-    for key in ('front', 'back', 'left', 'right'):
-        x0, y0, w, hh = A[key]
-        for x in range(x0, x0 + w):
-            paint.put(x, y0 + hh - 1, card[1] if paint.rng.random() < .7 else card[0])
-            if paint.rng.random() < .25:
-                paint.put(x, y0 + hh - 2, card[1])
+            if paint.rng.random() < .85:
+                paint.put(x, y0 + 1, print_blue[2])
+            paint.put(x, y0 + hh - 1, card[1])                      # grime along the open edge
+    # A water stain, the crease of the crushed corner and a scuff.
+    paint.blot(A['left'][0] + 4, A['left'][1] + 5, 2.6, 2.2, card[1], A['left'])
+    paint.blot(A['back'][0] + 10, A['back'][1] + 3, 2.2, 1.6, card[1], A['back'])
+    paint.blot(tx0 + 4, ty0 + 9, 2.2, 1.6, card[1], A['top'])
     for i in range(5):
-        paint.put(A['front'][0] + 13 - i, A['front'][1] + i, card[0])
-        paint.put(A['top'][0] + 14 - i, A['top'][1] + 11 - i // 2, card[1])
-    fx0, fy0, fw, fh = A['flap']
-    for x in range(fx0, fx0 + fw):
-        paint.put(x, fy0, H('paper', 3))          # torn edge: lighter paper core
+        paint.put(fx0 + 14 - i, fy0 + i, card[0])
+        paint.put(tx0 + 14 - i // 2, ty0 + i, card[1])
+    flx0, fly0, flw, flh = A['flap']
+    for x in range(flx0, flx0 + flw):
+        paint.put(x, fly0, H('paper', 3))                            # torn edge: the light paper core
         if paint.rng.random() < .5:
-            paint.put(x, fy0 + 1, H('paper', 3))
+            paint.put(x, fly0 + 1, H('paper', 2))
+        paint.put(x, fly0 + flh - 1, card[1])
 
     def deform(p):
         x, y, z = p
         u = max(0.0, x / hx); v = max(0.0, -z / hz)
-        y -= .9 * (y / h) * u * v                                              # crushed front-right top corner
+        y -= .9 * (y / h) * u * v                                    # crushed front-right top corner
         x -= .25 * (y / h) * u * v
-        if x > hx - t - .01:                                                   # dented right side
-            x -= .65 * max(0.0, 1 - ((y - 2.0) / 1.9) ** 2 - (z / 2.3) ** 2)
-        if y > h - t - .01:                                                    # sagging top
-            y -= .3 * max(0.0, 1 - (x / hx) ** 2) * max(0.0, 1 - (z / hz) ** 2)
+        if y > h - t - .01:                                          # the old bottom sags a little
+            y -= .18 * max(0.0, 1 - (x / hx) ** 2) * max(0.0, 1 - (z / hz) ** 2)
         return [x + .12 * y / h, y, z]
 
     def planar(area, ax, ay, origin_a, origin_b, sa, sb):
         x0, y0 = area[0], area[1]
         return lambda p: (x0 + (p[ax] - origin_a) * sa * TEX, y0 + (p[ay] - origin_b) * sb * TEX)
 
+    # Every face uses the same 3 x 3 split so shared edges keep identical vertices after the crush (no cracks).
     outer = prop.part('box')
     grid_face(outer, [-hx, 0, -hz], [2 * hx, 0, 0], [0, h, 0], 3, 3, planar(A['front'], 0, 1, -hx, h, 1, -1), deform, [0, 0, -1])
     grid_face(outer, [hx, 0, hz], [-2 * hx, 0, 0], [0, h, 0], 3, 3, planar(A['back'], 0, 1, hx, h, -1, -1), deform, [0, 0, 1])
     grid_face(outer, [-hx, 0, hz], [0, 0, -2 * hz], [0, h, 0], 3, 3, planar(A['left'], 2, 1, hz, h, -1, -1), deform, [-1, 0, 0])
-    grid_face(outer, [hx, 0, -hz], [0, 0, 2 * hz], [0, h, 0], 4, 4, planar(A['right'], 2, 1, -hz, h, 1, -1), deform, [1, 0, 0])
+    grid_face(outer, [hx, 0, -hz], [0, 0, 2 * hz], [0, h, 0], 3, 3, planar(A['right'], 2, 1, -hz, h, 1, -1), deform, [1, 0, 0])
     grid_face(outer, [-hx, h, -hz], [2 * hx, 0, 0], [0, 0, 2 * hz], 3, 3, planar(A['top'], 0, 2, -hx, -hz, 1, 1), deform, [0, 1, 0])
-    # Inside (seen only from below or past the flaps) and the board edge round the open end.
+    # Inside (seen only from below or past the flap) and the board edge round the open end.
     ix, iz, ih = hx - t, hz - t, h - t
     inner_uv = lambda p: (A['inner'][0] + (p[0] + ix) * 1.4, A['inner'][1] + (p[2] + iz) * 1.8 + p[1] * .3)
     inside = prop.part('box_inside')
-    grid_face(inside, [-ix, 0, -iz], [2 * ix, 0, 0], [0, ih, 0], 2, 2, inner_uv, deform, [0, 0, 1])
-    grid_face(inside, [ix, 0, iz], [-2 * ix, 0, 0], [0, ih, 0], 2, 2, inner_uv, deform, [0, 0, -1])
-    grid_face(inside, [-ix, 0, iz], [0, 0, -2 * iz], [0, ih, 0], 2, 2, inner_uv, deform, [1, 0, 0])
-    grid_face(inside, [ix, 0, -iz], [0, 0, 2 * iz], [0, ih, 0], 2, 2, inner_uv, deform, [-1, 0, 0])
-    grid_face(inside, [-ix, ih, -iz], [2 * ix, 0, 0], [0, 0, 2 * iz], 2, 2, inner_uv, deform, [0, -1, 0])
-    edge = prop.swatch_uv('cardboard', 3)
+    grid_face(inside, [-ix, 0, -iz], [2 * ix, 0, 0], [0, ih, 0], 3, 3, inner_uv, deform, [0, 0, 1])
+    grid_face(inside, [ix, 0, iz], [-2 * ix, 0, 0], [0, ih, 0], 3, 3, inner_uv, deform, [0, 0, -1])
+    grid_face(inside, [-ix, 0, iz], [0, 0, -2 * iz], [0, ih, 0], 3, 3, inner_uv, deform, [1, 0, 0])
+    grid_face(inside, [ix, 0, -iz], [0, 0, 2 * iz], [0, ih, 0], 3, 3, inner_uv, deform, [-1, 0, 0])
+    grid_face(inside, [-ix, ih, -iz], [2 * ix, 0, 0], [0, 0, 2 * iz], 3, 3, inner_uv, deform, [0, -1, 0])
+    edge = prop.swatch_uv('cardboard', 1)
     ring = [(-hx, -hz), (hx, -hz), (hx, hz), (-hx, hz)]
     iring = [(-ix, -iz), (ix, -iz), (ix, iz), (-ix, iz)]
     for k in range(4):
@@ -188,25 +193,22 @@ def paper_box():
         P = [deform([a[0], 0, a[1]]), deform([b[0], 0, b[1]]), deform([ib[0], 0, ib[1]]), deform([ia[0], 0, ia[1]])]
         add_tri(inside, [P[0], P[2], P[1]], [edge] * 3, [0, -1, 0])
         add_tri(inside, [P[0], P[3], P[2]], [edge] * 3, [0, -1, 0])
-    # Torn flaps of the old lid: the left one sticks out sideways and up, the back one half folded out.
+    # The old lid's left flap, torn, sticking out sideways and up off the head.
     flaps = prop.part('box_flaps')
-    fuv = lambda s, r: (A['flap'][0] + s * (A['flap'][2] - 1), A['flap'][1] + r * (A['flap'][3] - 1))
-    def flap(hinge_a, hinge_b, out, length, tear):
-        """Double-sided strip from the hinge (a -> b) to a torn outline [(position along the hinge, reach 0..1)]."""
-        a, b = deform(hinge_a), deform(hinge_b)
-        edge = [([a[k] + (b[k] - a[k]) * s + out[k] * length * cut for k in range(3)], fuv(s, 1 - cut)) for s, cut in tear]
-        for i in range(len(edge) - 1):
-            s0, s1 = tear[i][0], tear[i + 1][0]
-            h0 = [a[k] + (b[k] - a[k]) * s0 for k in range(3)]
-            h1 = [a[k] + (b[k] - a[k]) * s1 for k in range(3)]
-            for P, uv in (([h0, h1, edge[i + 1][0]], [fuv(s0, 1), fuv(s1, 1), edge[i + 1][1]]),
-                          ([h0, edge[i + 1][0], edge[i][0]], [fuv(s0, 1), edge[i + 1][1], edge[i][1]])):
-                add_tri(flaps, P, uv)
-                add_tri(flaps, [P[0], P[2], P[1]], [uv[0], uv[2], uv[1]])
-    side = kit.unit([-1, .42, .1])
-    flap([-hx, 0, -2.4], [-hx, 0, 2.2], side, 2.3, [(0.0, .55), (.22, .95), (.4, .7), (.58, 1.0), (.8, .62), (1.0, .4)])
-    back = kit.unit([0, -.15, 1])
-    flap([2.9, 0, hz], [-2.6, 0, hz], back, 1.3, [(0.0, .5), (.35, .9), (.6, .55), (1.0, .8)])
+    fuv = lambda s, r: (flx0 + s * (flw - 1), fly0 + r * (flh - 1))
+    a, b = deform([-hx, 0, -2.4]), deform([-hx, 0, 2.2])
+    out = kit.unit([-1, .85, .05])
+    tear = [(0.0, .55), (.22, .95), (.4, .7), (.58, 1.0), (.8, .62), (1.0, .4)]
+    edge_pts = [([a[k] + (b[k] - a[k]) * s + out[k] * 2.2 * cut for k in range(3)], fuv(s, 1 - cut)) for s, cut in tear]
+    for i in range(len(tear) - 1):
+        s0, s1 = tear[i][0], tear[i + 1][0]
+        h0 = [a[k] + (b[k] - a[k]) * s0 for k in range(3)]
+        h1 = [a[k] + (b[k] - a[k]) * s1 for k in range(3)]
+        for P, uv in (([h0, h1, edge_pts[i + 1][0]], [fuv(s0, 1), fuv(s1, 1), edge_pts[i + 1][1]]),
+                      ([h0, edge_pts[i + 1][0], edge_pts[i][0]], [fuv(s0, 1), edge_pts[i + 1][1], edge_pts[i][1]])):
+            if flat_normal(P)[1] < 0:                                # one face, lit from above; drawn on both sides
+                P, uv = [P[0], P[2], P[1]], [uv[0], uv[2], uv[1]]
+            add_tri(flaps, P, uv)
     return prop
 
 
@@ -455,30 +457,30 @@ BUILDERS = {'paper_box': paper_box, 'bottle_cap': bottle_cap, 'ice_cream_cone': 
 
 # ---------------------------------------------------------------- item icon
 ICON_LEGEND = {
-    'c': '#5e3d1e', 'C': '#8a5f33', 'b': '#b0844d', 'B': '#cfa86c', 'p': '#e6c98f',      # cardboard (darkest is the outline)
-    'r': '#8e3a35', 'R': '#b0584c',                                                      # faded print band
+    'c': '#5e3d1e', 'C': '#8a5f33', 'b': '#b0844d', 'B': '#cfa86c',                      # cardboard (darkest is the outline)
+    't': '#d8c690', 'T': '#ece0b4', 'l': '#3f5f78', 'L': '#5f8098',                      # packing tape, faded blue label
     'w': '#8a5428', 'W': '#b0783c', 'f': '#cf9a52', 'F': '#e6bb72', 'd': '#5a3418',      # wafer, the empty inside
     'k': '#a8546a', 'K': '#cd8191',                                                      # dried ice cream
-    's': '#4f5d60', 'S': '#7d8e90', 'e': '#b7c3c4', 'E': '#e4eae8',                      # cap steel
-    'x': '#6b2a2a', 'X': '#a8524a', 'u': '#7a4a22',                                      # cap paint and rust
+    's': '#4f5d60', 'S': '#7d8e90', 'e': '#b7c3c4',                                      # cap steel
+    'x': '#8e2f2a', 'X': '#c8463c', 'Y': '#e0645a',                                      # cap paint (white print uses the tape tone)
 }
 ICON = [
-    '................',
-    '................',
-    '.........wwddww.',
-    '.........wddddKw',
-    '....cc...wkKkKw.',
-    'ccccpBcccwWWfWw.',
-    'cCCBbbbbcwFFWfw.',
-    'cCCCbbbbc.wWfWw.',
-    'crrrRRRRc.wWfw..',
-    'crrrRRRRc.wFWw..',
-    'cCCCbbbbc.wWfw..',
-    'cCsXXXXXs..ww...',
-    '.sXEEXXuXs.ww...',
-    '.seSeSeSes.ww...',
-    '..s.s.s.s...w...',
-    '................',
+    '...........wwww.',
+    '..........wKkKKw',
+    '.........wKddddw',
+    '.........wkdddKw',
+    '........wFKKKKw.',
+    '........wfWFfw..',
+    '.......wFfWFw...',
+    '.ccccc.wWfFw....',
+    'cTtttTcwFWw.....',
+    'cBBBBBCcww......',
+    'cbllllCc........',
+    'cblLLlCc.sssss..',
+    'cbllllCcsYYXXXs.',
+    'cbbbbbCsXTTXXXxs',
+    '.cccccsseSeSeSes',
+    '.......sssssss..',
 ]
 
 
