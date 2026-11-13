@@ -82,7 +82,8 @@ final class YukkuriDamage {
                 owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             }
             var result=settle(transaction,accepted);
-            if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof LivingEntity attacker)
+            if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&kind!=BodyHit.Kind.ATTACHMENT
+                    &&source.getEntity() instanceof LivingEntity attacker)
                 LearnedFear.witnessed(owner,attacker,"hurt");
             if(result.loss()>0&&YukkuriLife.isWaterDamage(source))
                 GameplayLog.event(owner,"water","damage cause={} health={} -> {} loss={}",

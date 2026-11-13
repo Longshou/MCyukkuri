@@ -64,6 +64,7 @@ public final class OperationLife {
     private int remaining,elapsed,cooldown;
     private float turn,abrasion;
     private boolean ownDamage;
+    private boolean strikingHook;
     private UUID attachedWound;
     private WoundShape settlingShape=WoundShape.NONE;
     /** The dose occupies the same durable reservation slot as a physical tool. */
@@ -78,6 +79,7 @@ public final class OperationLife {
     public boolean active(){return pose!=Pose.NONE;}
     /** True only inside this operation's accepted damage transaction, never for an unrelated incoming attack. */
     public boolean settlingDamage(){return ownDamage;}
+    public boolean strikingHook(){return strikingHook;}
     public WoundShape settlingShape(){return settlingShape;}
     public boolean controlling(){return active()&&pose!=Pose.SLIDE;}
     public Pose pose(){return pose;}
@@ -168,9 +170,9 @@ public final class OperationLife {
             }
         };
         if(done&&action!=CareAction.RELEASE){
-            // The strike actions report their accepted damage transaction, including lethal strikes.
+            // Most strike actions report their accepted damage transaction, including lethal strikes.
             if(action.shears()&&action!=CareAction.STERILIZE||switch(action){
-                case FIX_SUPINE, WRAP_HANG, VIBRATE, ENCLOSE -> true;
+                case PIN, HOOK_HANG, FIX_SUPINE, WRAP_HANG, VIBRATE, ENCLOSE -> true;
                 default -> false;
             })LearnedFear.witnessed(entity,player,action.key());
             if(action==CareAction.COLD||action==CareAction.FLICK){
@@ -215,13 +217,16 @@ public final class OperationLife {
     private boolean punctureAndBind(Player player,Pose next,int duration,Tool tool,BlockPos support){
         if(next==Pose.HOOK&&support==null)return false;
         BodyWound wound;
-        ownDamage=true;settlingShape=WoundShape.PUNCTURE;
+        ownDamage=true;settlingShape=WoundShape.PUNCTURE;strikingHook=next==Pose.HOOK;
         try {
             wound=entity.hurtForAttachment(entity.damageSources().playerAttack(player),1);
         } finally {
-            ownDamage=false;settlingShape=WoundShape.NONE;
+            ownDamage=false;settlingShape=WoundShape.NONE;strikingHook=false;
         }
-        return wound!=null&&!entity.body().dying()&&begin(player,next,duration,tool,support,wound);
+        if(wound==null)return false;
+        if(!entity.body().dying()&&begin(player,next,duration,tool,support,wound))return true;
+        LearnedFear.witnessed(entity,player,"hurt");
+        return false;
     }
     private boolean begin(Player player,Pose next,int duration,Tool binding){
         return begin(player,next,duration,binding,null,null);

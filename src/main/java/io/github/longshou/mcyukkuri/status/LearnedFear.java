@@ -149,7 +149,7 @@ public final class LearnedFear {
                 body.getLookControl().setLookAt(danger.x,danger.y,danger.z);
                 if(ticks<WARNING_TICKS)return;
                 if(body.distanceToSqr(danger)>9){ticks=RETREAT_BUDGET;return;}
-                stand=holder==null?Reactions.awayFrom(body,5,danger):Reactions.escapeStand(body,holder,5,Set.of());
+                stand=Reactions.escapeStand(body,danger,holder,5,Set.of());
                 if(stand==null){finish("no_route");return;}
             }
             var result=SurfaceApproach.walkResult(body,stand,holder,1.2);

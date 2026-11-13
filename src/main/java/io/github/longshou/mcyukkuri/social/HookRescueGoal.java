@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -17,7 +19,8 @@ public final class HookRescueGoal extends Goal {
     private static final int RANGE=8, WARNING_TICKS=20, BUDGET=600;
     private final YukkuriEntity helper;
     private YukkuriEntity target;
-    private UUID wound, attemptedWound;
+    private UUID wound;
+    private final Set<UUID> attemptedWounds = new HashSet<>();
     private Vec3 contact, stand;
     private int ticks;
     private long nextScan;
@@ -44,10 +47,13 @@ public final class HookRescueGoal extends Goal {
         if(now<nextScan||!available())return false;
         nextScan=now+WARNING_TICKS;
         double best=RANGE*RANGE;
-        for(var kin:helper.level().getEntitiesOfClass(YukkuriEntity.class,helper.getBoundingBox().inflate(RANGE))){
+        var nearby=helper.level().getEntitiesOfClass(YukkuriEntity.class,helper.getBoundingBox().inflate(RANGE),
+                kin->kin.operations().hookWound()!=null);
+        attemptedWounds.retainAll(nearby.stream().map(kin->kin.operations().hookWound()).toList());
+        for(var kin:nearby){
             var candidate=kin.operations().hookWound();
             double distance=helper.distanceToSqr(kin);
-            if(kin==helper||candidate==null||candidate.equals(attemptedWound)||distance>best||!kin.isAlive()
+            if(kin==helper||attemptedWounds.contains(candidate)||distance>best||!kin.isAlive()
                     ||kin.subspecies().kind().aquatic()!=helper.subspecies().kind().aquatic()
                     ||!helper.hasLineOfSight(kin)||!helper.life().canRecognize(kin)
                     ||!(Bonds.directParentChild(helper,kin)||Bonds.eitherMate(helper,kin)))continue;
@@ -57,7 +63,7 @@ public final class HookRescueGoal extends Goal {
     }
 
     @Override public void start() {
-        ticks=0;result=null;attemptedWound=wound;
+        ticks=0;result=null;attemptedWounds.add(wound);
         helper.showReaction("teary","afraid",60);
         var personality=helper.life().personality();
         int fear=personality.fear(target.operations().operator());

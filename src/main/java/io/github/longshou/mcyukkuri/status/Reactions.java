@@ -94,7 +94,8 @@ public final class Reactions {
         threat.seal.abort("attacked");
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
         threat.attackedBy(attacker);
-        threat.warnKin(attacker);
+        // The binding transaction is synchronous. Its close witnesses react to the hook that actually starts.
+        if(!entity.operations().strikingHook())threat.warnKin(attacker);
         if (attacker instanceof Player player) HumanNpc.witnessedStreetHurt(entity, player);
     }
 
@@ -428,9 +429,12 @@ public final class Reactions {
 
     /** A short retreat to a supported stand, with a local search for cover and side exits when the usual flee point fails. */
     public static Vec3 escapeStand(YukkuriEntity body, Entity danger, int distance, Set<BlockPos> tried) {
-        var obstacle = danger.getBoundingBox();
-        var dangerAt = danger.position();
-        double currentDistance = body.distanceTo(danger);
+        return escapeStand(body,danger.position(),danger,distance,tried);
+    }
+
+    static Vec3 escapeStand(YukkuriEntity body, Vec3 dangerAt, Entity danger, int distance, Set<BlockPos> tried) {
+        var obstacle = danger==null?null:danger.getBoundingBox();
+        double currentDistance = body.position().distanceTo(dangerAt);
         var away = awayFrom(body, distance, dangerAt);
         if (away != null) {
             var stand = SurfaceApproach.floor(body, away);
@@ -451,7 +455,7 @@ public final class Reactions {
             if (stand == null || tried.contains(BlockPos.containing(stand)) || body.distanceToSqr(stand) < 1
                     || !TravelRange.babyDestination(body, BlockPos.containing(stand))) continue;
             var eye = stand.add(0, body.getEyeHeight(), 0);
-            boolean screened = level.clip(new ClipContext(danger.getEyePosition(), eye,
+            boolean screened = danger!=null&&level.clip(new ClipContext(danger.getEyePosition(), eye,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, danger)).getType() != HitResult.Type.MISS;
             double separation = stand.distanceTo(dangerAt);
             if (screened && separation >= currentDistance) cover.add(stand);

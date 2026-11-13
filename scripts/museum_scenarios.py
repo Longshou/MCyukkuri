@@ -2321,13 +2321,13 @@ add('magma_sole', 'body', '踩岩浆块烫脚，跳着逃开', '踩岩浆块烫�
     reads=[('读脚底灼伤', f'yukkuri status {sel("hot")} raw'), ('读普通地面对照', f'yukkuri status {sel("cool")} raw')])
 
 add('learned_holder', 'body', '目击工具后躲开持用者', '目击工具后躲开持用者',
-    '在个体面前使用固定板，间隔十秒再让它看见一次。空手靠近目击者也会引起退避。隔墙对照看不到工具接触。可把食物放在离持用者八格以外，观察极饿时恢复觅食。',
-    '站在目标前使用固定板，读旁观者的对象关系', [
+    '在个体面前使用转子，间隔十秒再让它看见一次。空手靠近目击者也会引起退避。隔墙对照看不到工具接触。可把食物放在离持用者八格以外，观察极饿时恢复觅食。',
+    '站在目标前使用转子，读旁观者的对象关系', [
         yk('reimu',0,0,'target',label='工具接触对象',lead=True,extra='NoAI:1b'),
         yk('reimu',2,1,'witness',label='看得见的旁观者',boldness=0,uuid=uid('learned_holder','witness')),
         box(-3,0,-2,-3,2,4,'minecraft:stone'),
         yk('reimu',-4,1,'screened',label='隔墙对照',boldness=0,uuid=uid('learned_holder','screened')),
-    ], env=DAY,vantage=(0,8),give=['mcyukkuri:restraint_frame 2','minecraft:apple 4'],
+    ], env=DAY,vantage=(0,8),give=['mcyukkuri:care_vibrator 2','minecraft:apple 4'],
     reads=[('读旁观者关系',f'yukkuri status {sel("witness")} raw'),('读隔墙对照',f'yukkuri status {sel("screened")} raw')])
 
 _hook_scene = 'hook_kin_rescue'
@@ -4817,16 +4817,17 @@ next(s for s in S if s.id == 'wound_sources').smoke['readout'] = [
 
 _fear_holder = '2d4c7192-2a6d-4da4-9f94-c82721b9de87'
 _smoke('learned_holder', 500, [
-    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=fix_supine fear=0 -> 15',
-    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=fix_supine fear=15 -> 30',
+    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=vibrate fear=0 -> 15',
+    rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=vibrate fear=15 -> 30',
     rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* learned retreat end result=away holder={_fear_holder}',
 ], forbid=[r'\[body\][^\n]* death settled',rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","screened")} [^\n]* fear learned'])
 next(s for s in S if s.id == 'learned_holder').smoke['commands'] = [
-    (4, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
-    (6, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} fix_supine'),
-    (7, 'yukkuri scenario tool_operator leave'),
-    (209, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
-    (211, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} fix_supine'),
+    (44, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (46, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} vibrate'),
+    (47, 'yukkuri scenario tool_operator leave'),
+    (249, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (251, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} vibrate'),
+    (255, f'execute at {sel("witness")} positioned ~ ~ ~1.2 run yukkuri scenario tool_operator move'),
     (450, 'yukkuri scenario tool_operator leave'),
 ]
 
@@ -4836,9 +4837,9 @@ _smoke('hook_kin_rescue', 380, [
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:hanging_hook count=1',
 ], forbid=[r'\[body\][^\n]* death settled'])
 next(s for s in S if s.id == 'hook_kin_rescue').smoke['commands'] = [
-    (4, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_operator enter'),
-    (6, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_click {sel("hook_child")} hook_hang'),
-    (340, 'yukkuri scenario tool_operator leave'),
+    (44, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_operator enter'),
+    (46, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_click {sel("hook_child")} hook_hang'),
+    (365, 'yukkuri scenario tool_operator leave'),
 ]
 
 _smoke('learned_fire', 450, [

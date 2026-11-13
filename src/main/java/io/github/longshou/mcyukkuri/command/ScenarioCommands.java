@@ -174,6 +174,7 @@ public final class ScenarioCommands {
                         .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
                 .then(Commands.literal("tool_operator").requires(source->source.hasPermission(2))
                         .then(Commands.literal("enter").executes(context->toolOperator(context.getSource(),true)))
+                        .then(Commands.literal("move").executes(context->moveToolOperator(context.getSource())))
                         .then(Commands.literal("leave").executes(context->toolOperator(context.getSource(),false))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
@@ -386,6 +387,12 @@ public final class ScenarioCommands {
         player.setPos(source.getPosition());
         level.addNewPlayer(player);
         return level.getPlayerByUUID(TOOL_OPERATOR)==player?1:0;
+    }
+
+    private static int moveToolOperator(CommandSourceStack source){
+        if(source.getEntity()!=null||!(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player))return 0;
+        player.setPos(source.getPosition());
+        return 1;
     }
 
     private static int toolClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
