@@ -4,17 +4,23 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
+import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
+import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
+import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.Toxins;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -22,21 +28,22 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.BarrelBlock;
-import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
-/** One real serving from a marked barrel. The adjacent trapdoor is its physical lid. */
+/**
+ * One real serving from a street bin. A standing bin keeps its contents out of reach: the body shoves it from one side and it
+ * falls the other way only if the shove beats its load. A fallen bin is rummaged at its open mouth.
+ */
 public final class GarbageSearch {
-    public static final String MARKER = "YukkuriGarbage";
     private static final String RAM = "lunge_ram";
-    private static final int RADIUS = 8, DAILY_LIMIT = 4;
+    private static final int RADIUS = 8, RAMS = 3;
+    /** Width of the selected adult body export (12.8 units, body_geometry.json): a shove's mass is relative to it. */
+    private static final double ADULT_WIDTH = .8;
     private enum Phase { WALK, SNIFF, RAM, NOSE_IN, CARRY, RETREAT }
 
-    private record Point(BarrelBlockEntity barrel, BlockPos stand, BlockPos lid) {}
+    /** The stand to work from; {@code fall} is where a standing bin goes when shoved from {@code stand}, null at a fallen bin's mouth. */
+    private record Point(GarbageBinBlockEntity bin, BlockPos stand, Direction fall) {}
     private final YukkuriEntity body;
     private final LinkedHashMap<BlockPos, Long> refused = new LinkedHashMap<>();
     private Point point;
@@ -48,7 +55,7 @@ public final class GarbageSearch {
     public GarbageSearch(YukkuriEntity body) { this.body = body; }
     private ServerLevel level() { return (ServerLevel)body.level(); }
     private long now() { return level().getGameTime(); }
-    public boolean targeting(BlockPos pos) { return point != null && point.barrel().getBlockPos().equals(pos) && phase != Phase.RETREAT && phase != Phase.CARRY; }
+    public boolean targeting(BlockPos pos) { return point != null && point.bin().getBlockPos().equals(pos) && phase != Phase.RETREAT && phase != Phase.CARRY; }
 
     private boolean eligible() {
         var identity = body.status().identity();
@@ -83,26 +90,29 @@ public final class GarbageSearch {
                 var chunk = level().getChunkSource().getChunkNow(x, z);
                 if (chunk == null) continue;
                 for (var candidate : chunk.getBlockEntities().values()) {
-                    if (!(candidate instanceof BarrelBlockEntity barrel) || barrel.isRemoved()
-                            || !barrel.getPersistentData().getBoolean(MARKER)) continue;
-                    var pos = barrel.getBlockPos();
-                    if (here.distSqr(pos) > RADIUS * RADIUS || refused.getOrDefault(pos, 0L) > now()) continue;
-                    var facing = barrel.getBlockState().getValue(BarrelBlock.FACING);
-                    if (!facing.getAxis().isHorizontal()) continue;
-                    var stand = pos.relative(facing);
-                    var lid = stand.above();
-                    if (allowedByFamily(stand) && level().hasChunkAt(lid) && body.life().dryStand(stand)
-                            && level().getBlockState(lid).getBlock() instanceof TrapDoorBlock
-                            && remaining(barrel) > 0 && serving(barrel) >= 0) options.add(new Point(barrel, stand, lid));
+                    if (!(candidate instanceof GarbageBinBlockEntity bin) || bin.isRemoved()) continue;
+                    var pos = bin.getBlockPos();
+                    if (here.distSqr(pos) > RADIUS * RADIUS || refused.getOrDefault(pos, 0L) > now() || serving(bin) < 0) continue;
+                    for (var point : points(bin)) if (allowedByFamily(point.stand()) && body.life().dryStand(point.stand())) options.add(point);
                 }
             }
         point = options.stream().sorted(Comparator.comparingDouble(p -> here.distSqr(p.stand()))).limit(4)
                 .filter(p -> SurfaceApproach.canApproach(body, Vec3.atBottomCenterOf(p.stand()))).findFirst().orElse(null);
         if (point == null) return false;
         aim = Vec3.atBottomCenterOf(point.stand());
-        phase = Phase.WALK; deadline = now() + 280;
-        GameplayLog.event(body, "forage", "garbage approach point={}", point.barrel().getBlockPos());
+        phase = Phase.WALK; deadline = now() + 280; rams = 0;
+        GameplayLog.event(body, "forage", "garbage approach point={} tipped={}", point.bin().getBlockPos(), point.fall() == null);
         return true;
+    }
+
+    /** A fallen bin is worked at its mouth; a standing one from any side whose opposite side is open for it to fall into. */
+    private ArrayList<Point> points(GarbageBinBlockEntity bin) {
+        var out = new ArrayList<Point>();
+        var pos = bin.getBlockPos();
+        if (bin.tipped()) out.add(new Point(bin, pos.relative(bin.getBlockState().getValue(GarbageBinBlock.FACING)), null));
+        else for (var side : Direction.Plane.HORIZONTAL)
+            if (GarbageBinBlock.canFall(level(), pos, side.getOpposite())) out.add(new Point(bin, pos.relative(side), side.getOpposite()));
+        return out;
     }
 
     private boolean allowedByFamily(BlockPos target) {
@@ -113,23 +123,24 @@ public final class GarbageSearch {
         return true;
     }
 
-    private long day() { return level().getDayTime() / 24000; }
-    private int remaining(BarrelBlockEntity barrel) {
-        var data = barrel.getPersistentData();
-        return data.getLong("YukkuriGarbageDay") == day() ? DAILY_LIMIT - data.getInt("YukkuriGarbageTaken") : DAILY_LIMIT;
-    }
-
-    private int serving(BarrelBlockEntity barrel) {
-        for (int slot = 0; slot < barrel.getContainerSize(); slot++) {
-            var stack = barrel.getItem(slot);
-            if (junk(stack) || edible(stack)) return slot;
+    /** Food first; a junk headwear only for a bare head that would wear it; then loose scraps a stray carries off. */
+    private int serving(GarbageBinBlockEntity bin) {
+        int junk = -1, scrap = -1;
+        for (int slot = 0; slot < bin.getContainerSize(); slot++) {
+            var stack = bin.getItem(slot);
+            if (edible(stack)) return slot;
+            if (junk < 0 && JunkHeadwear.isItem(stack) && wantsJunk()) junk = slot;
+            if (scrap < 0 && scrap(stack)) scrap = slot;
         }
-        return -1;
+        return junk >= 0 ? junk : scrap;
     }
     private boolean edible(ItemStack stack) {
         return !stack.isEmpty() && !stack.is(Items.ROTTEN_FLESH) && Toxins.dose(stack) == 0 && body.life().acceptsFood(stack);
     }
-    private static boolean junk(ItemStack stack) { return stack.is(Items.PAPER) || stack.is(Items.STICK) || stack.is(Items.FEATHER); }
+    private boolean wantsJunk() {
+        return JunkHeadwear.fits(body) && JunkHeadwear.available(body) && JunkHeadwear.accepts(body, SocialDisposition.contact(body, null));
+    }
+    private static boolean scrap(ItemStack stack) { return stack.is(Items.PAPER) || stack.is(Items.STICK) || stack.is(Items.FEATHER); }
 
     public boolean tick() {
         if (point == null) return false;
@@ -140,22 +151,26 @@ public final class GarbageSearch {
             }
             stop(); return false;
         }
-        var barrel = point.barrel();
-        var pos = barrel.getBlockPos();
-        if (!level().hasChunkAt(pos) || level().getBlockEntity(pos) != barrel || serving(barrel) < 0) {
+        var bin = point.bin();
+        var pos = bin.getBlockPos();
+        if (!level().hasChunkAt(pos) || level().getBlockEntity(pos) != bin || serving(bin) < 0) {
             retreat(Vec3.atCenterOf(pos), "emptied_or_broken"); return true;
         }
-        var lid = level().getBlockState(point.lid());
-        if (!(lid.getBlock() instanceof TrapDoorBlock)) { retreat(Vec3.atCenterOf(pos), "lid_removed"); return true; }
-        boolean open = lid.getValue(BlockStateProperties.OPEN);
-        if (phase == Phase.NOSE_IN && !open) { retreat(Vec3.atCenterOf(pos), "lid_closed"); return true; }
         if (body.life().personality().boldness() < 45) {
             var person = level().getEntitiesOfClass(LivingEntity.class, body.getBoundingBox().inflate(3),
                     y -> (y instanceof AbstractVillager || y instanceof Player && !y.isSpectator()) && body.distanceToSqr(y) <= 9
                             && body.hasLineOfSight(y)).stream().findFirst().orElse(null);
             if (person != null) { retreat(person.position(), "person_near"); return true; }
         }
-        if (!eligible() || remaining(barrel) <= 0 || !allowedByFamily(point.stand())) { stop(); return false; }
+        if (!eligible() || !allowedByFamily(point.stand())) { stop(); return false; }
+        // Someone stood the bin up, or it fell meanwhile: work from where the bin now is.
+        if (bin.tipped() != (point.fall() == null)) {
+            var next = points(bin).stream().filter(p -> body.life().dryStand(p.stand()))
+                    .min(Comparator.comparingDouble(p -> body.distanceToSqr(Vec3.atBottomCenterOf(p.stand())))).orElse(null);
+            if (next == null) { decline("bin_blocked"); return false; }
+            walkTo(next, "bin_changed");
+            return true;
+        }
         if (phase == Phase.WALK) {
             var winner = level().getEntitiesOfClass(YukkuriEntity.class, new AABB(point.stand()).inflate(1),
                     y -> y != body && y.life().usingGarbage(pos) && y.distanceToSqr(aim) <= 1
@@ -167,46 +182,67 @@ public final class GarbageSearch {
             SurfaceApproach.halt(body);
             SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), Vec3.atCenterOf(pos)));
             phase = Phase.SNIFF; deadline = now() + clip(Behaviors.HOUSE_SNIFF);
-            GameplayLog.event(body, "forage", "garbage sniff point={} open={}", pos, open);
+            GameplayLog.event(body, "forage", "garbage sniff point={} tipped={}", pos, bin.tipped());
             return true;
         }
         if (body.distanceToSqr(aim) > .25) { retreat(Vec3.atCenterOf(pos), "lost_contact"); return true; }
         if (now() < deadline) return true;
-        if (phase == Phase.NOSE_IN) return take(barrel);
-        if (open) {
+        if (phase == Phase.NOSE_IN) return take(bin);
+        if (bin.tipped()) {
             phase = Phase.NOSE_IN; deadline = now() + clip(Behaviors.HOUSE_SCAVENGE);
             GameplayLog.event(body, "forage", "garbage nose_in point={}", pos);
             return true;
         }
-        if (rams == 3) { decline("closed"); return false; }
-        phase = Phase.RAM; deadline = now() + clip(RAM);
-        GameplayLog.event(body, "forage", "garbage ram point={} count={}", pos, ++rams);
+        if (phase == Phase.RAM && shove(bin)) return true;
+        if (rams == RAMS) { decline("too_heavy"); return false; }
+        phase = Phase.RAM; deadline = now() + clip(RAM); rams++;
         return true;
     }
 
-    private boolean take(BarrelBlockEntity barrel) {
-        int slot = serving(barrel);
-        if (slot < 0) { retreat(Vec3.atCenterOf(barrel.getBlockPos()), "emptied"); return true; }
-        var one = barrel.getItem(slot).copyWithCount(1);
-        boolean food = edible(one);
-        if (!(food ? body.life().beginMeal(one, null, false) : body.habitat().receiveMouthLoad(one))) { decline("mouth_busy"); return false; }
-        barrel.removeItem(slot, 1);
-        int left = remaining(barrel) - 1;
-        var data = barrel.getPersistentData();
-        data.putLong("YukkuriGarbageDay", day());
-        data.putInt("YukkuriGarbageTaken", DAILY_LIMIT - left);
-        barrel.setChanged();
+    /**
+     * Resolves the ram that just landed. The shove is the body's mass (width squared, an adult is 1) times its effort (boldness),
+     * varied ±10% per ram, plus the rocking left by earlier rams; the bin resists with its own weight and its load. So a big bold
+     * stray topples a half-empty bin at once, an ordinary one after rocking it, and a small or timid one gives up.
+     */
+    private boolean shove(GarbageBinBlockEntity bin) {
+        double mass = Math.pow(body.getBbWidth() / ADULT_WIDTH, 2);
+        double push = mass * (.5 + body.life().personality().boldness() / 100.) * (.9 + .2 * body.getRandom().nextDouble()) + .15 * (rams - 1);
+        double resist = 1 + .05 * bin.load();
+        boolean falls = push >= resist && GarbageBinBlock.canFall(level(), bin.getBlockPos(), point.fall());
+        GameplayLog.event(body, "forage", "garbage ram point={} count={} push={} resist={} tipped={}", bin.getBlockPos(), rams,
+                String.format(Locale.ROOT, "%.2f", push), String.format(Locale.ROOT, "%.2f", resist), falls);
+        if (!falls) return false;
+        GarbageBinBlock.knockOver(level(), bin.getBlockPos(), point.fall());
+        body.showReaction("surprise", "", 30);
+        walkTo(new Point(bin, bin.getBlockPos().relative(point.fall()), null), "knocked_over");
+        return true;
+    }
+
+    private void walkTo(Point next, String why) {
+        point = next;
+        aim = Vec3.atBottomCenterOf(next.stand());
+        phase = Phase.WALK; deadline = now() + 280;
+        GameplayLog.event(body, "forage", "garbage reroute point={} to={} why={}", next.bin().getBlockPos(), next.stand().toShortString(), why);
+    }
+
+    private boolean take(GarbageBinBlockEntity bin) {
+        int slot = serving(bin);
+        if (slot < 0) { retreat(Vec3.atCenterOf(bin.getBlockPos()), "emptied"); return true; }
+        var one = bin.getItem(slot).copyWithCount(1);
+        boolean food = edible(one), wear = !food && JunkHeadwear.isItem(one);
+        // Contact commit: the bin loses the piece in the same tick the mouth or the head takes it.
+        boolean taken = food ? body.life().beginMeal(one, null, false)
+                : wear ? JunkHeadwear.equip(body, null, SocialDisposition.contact(body, null))
+                : body.habitat().receiveMouthLoad(one);
+        if (!taken) { decline(wear ? "head_busy" : "mouth_busy"); return false; }
+        bin.removeItem(slot, 1);
         nextTake = now() + 1200;
-        GameplayLog.event(body, "forage", "garbage pickup item={} count=1 source={} holder=mouth daily_left={} food={}",
-                one.getItem(), barrel.getBlockPos(), left, food);
-        if (barrel.isEmpty()) {
-            var lid = level().getBlockState(point.lid());
-            level().setBlock(point.lid(), lid.setValue(BlockStateProperties.OPEN, false), 3);
-        }
-        if (food) { stop(); return false; }
+        GameplayLog.event(body, "forage", "garbage pickup item={} count=1 source={} holder={} food={} left={}",
+                one.getItem(), bin.getBlockPos(), wear ? "head" : "mouth", food, bin.load());
+        if (food || wear) { stop(); return false; }
         phase = Phase.CARRY;
         deadline = now() + 100;
-        aim = DefaultRandomPos.getPosAway(body, 3, 1, Vec3.atCenterOf(barrel.getBlockPos()));
+        aim = DefaultRandomPos.getPosAway(body, 3, 1, Vec3.atCenterOf(bin.getBlockPos()));
         return true;
     }
 
@@ -218,7 +254,7 @@ public final class GarbageSearch {
     }
     private void decline(String reason) { remember(reason); stop(); }
     private void remember(String reason) {
-        var pos = point.barrel().getBlockPos();
+        var pos = point.bin().getBlockPos();
         if (refused.size() >= 16) refused.pollFirstEntry();
         refused.put(pos, now() + 2400);
         GameplayLog.event(body, "forage", "garbage gave_up point={} reason={} rams={} cooldown=2400", pos, reason, rams);

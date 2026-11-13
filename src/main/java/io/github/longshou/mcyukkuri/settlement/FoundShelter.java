@@ -180,7 +180,7 @@ public final class FoundShelter implements MotorOwner {
         if (!level.hasChunkAt(pos)) return null;
         var overhead = level.getBlockState(pos.above());
         if (overhead.getBlock() instanceof BarrelBlock && level.getBlockEntity(pos.above()) instanceof BarrelBlockEntity barrel
-                && barrel.getPersistentData().getBoolean("StreetShelter") && !barrel.getPersistentData().getBoolean(GarbageSearch.MARKER))
+                && barrel.getPersistentData().getBoolean("StreetShelter"))
             return StreetSpot.BARREL;
         for (int height = 1; height <= 3; height++) {
             var roof = pos.above(height);

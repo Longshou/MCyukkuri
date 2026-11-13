@@ -328,12 +328,11 @@ def street_stray(scene, kind, x, z, name, **kwargs):
     return yk(kind, x, z, name, uuid=uid(scene, name), extra=f'YukkuriPet:{{FormerOwner:{former}}}', **kwargs)
 
 
-def garbage_barrel(x, z, food, opened):
-    return [
-        block(x, 0, z, 'minecraft:barrel[facing=south,open=false]'),
-        f'data merge block ~{x} ~ ~{z} {{NeoForgeData:{{YukkuriGarbage:1b}},Items:[{{Slot:0b,id:"{food}",count:1}}]}}',
-        block(x, 1, z+1, f'minecraft:oak_trapdoor[facing=north,half=top,open={str(opened).lower()}]'),
-    ]
+def garbage_bin(x, z, items, tipped):
+    """A street bin with real contents; a tipped one lies with its mouth toward +z (south)."""
+    stock = ','.join(f'{{Slot:{i}b,id:"{item}",count:{n}}}' for i, (item, n) in enumerate(items))
+    return [block(x, 0, z, f'mcyukkuri:garbage_bin[facing=south,tipped={str(tipped).lower()}]'),
+            f'data merge block ~{x} ~ ~{z} {{Items:[{stock}]}}']
 
 
 _stray_mother = uid('stray_boxes', 'mother')
@@ -363,22 +362,33 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
                                   r'\[habitat\][^\n]* found exited ',
                                   r'\[habitat\][^\n]* found removed .*reason=rain_collapse']))
 
-add('stray_rubbish', 'forage', '流浪：翻一口垃圾，盖住就放弃', '流浪：翻一口垃圾，盖住就放弃',
-    '开盖桶里有苹果或废纸。看进食和衔纸放下。盖住的桶撞几下就放弃，可以手动开关盖板。',
+_rubbish_stock = [('minecraft:apple', 1), ('minecraft:paper', 2), ('minecraft:stick', 2)]
+add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小的放弃', '流浪：翻垃圾桶，撞倒或放弃',
+    '西边两只倒着的桶里有苹果和废纸：看钻进去吃、衔纸走开放下。东边两只立着、装得一样满的桶前，胆大的魔理沙撞倒桶再绕到桶口吃，'
+    '胆小的撞几下推不动就放弃。中间倒着的桶里只有一件垃圾头饰，失饰的低自尊灵梦会直接戴上。立着的桶可右键打开，倒着的右键扶起。',
     '约半分钟', [
-        *garbage_barrel(-12, -1, 'minecraft:apple', True),
-        *garbage_barrel(-26, -1, 'minecraft:paper', True),
-        *garbage_barrel(12, -1, 'minecraft:apple', False),
+        *garbage_bin(-12, -1, [('minecraft:apple', 1)], True),
+        *garbage_bin(-26, -1, [('minecraft:paper', 1)], True),
+        *garbage_bin(0, -1, [('mcyukkuri:junk_headwear', 1)], True),
+        *garbage_bin(12, -1, _rubbish_stock, False),
+        *garbage_bin(26, -1, _rubbish_stock, False),
         street_stray('stray_rubbish', 'reimu', -12, 3, 'open_stray', nutrition=24, boldness=80, lead=True),
         street_stray('stray_rubbish', 'reimu', -26, 3, 'paper_stray', nutrition=24, boldness=80),
-        street_stray('stray_rubbish', 'marisa', 12, 3, 'closed_stray', nutrition=24, boldness=80),
-    ], env=DAY, spot='street', vantage=(0, 10),
-    smoke=dict(ticks=600, forbid=[r'\[forage\][^\n]* garbage ram .*count=4'],
+        street_stray('stray_rubbish', 'reimu', 0, 3, 'junk_stray', nutrition=24, accessory=False, boldness=0, friendliness=100,
+                     label='失饰的低自尊者'),
+        set_status('junk_stray', 'marks.dirt', 3),
+        street_stray('stray_rubbish', 'marisa', 12, 3, 'timid_stray', nutrition=24, boldness=25, label='胆小的'),
+        street_stray('stray_rubbish', 'marisa', 26, 3, 'bold_stray', nutrition=24, boldness=90, label='胆大的'),
+    ], env=DAY, spot='street', vantage=(0, 12),
+    smoke=dict(ticks=700, forbid=[r'\[forage\][^\n]* garbage ram .*count=4'],
                expect=[r'\[forage\][^\n]* garbage pickup item=[^\n]* food=true',
                                   r'\[meal\][^\n]* swallowed item=',
                                   r'\[forage\][^\n]* garbage pickup item=minecraft:paper [^\n]*food=false',
                                   r'\[habitat\][^\n]* drop item=minecraft:paper count=1 holder=mouth',
-                                  r'\[forage\][^\n]* garbage gave_up .*reason=closed rams=3']))
+                                  r'\[forage\][^\n]* garbage pickup item=mcyukkuri:junk_headwear [^\n]*holder=head',
+                                  r'\[headwear\][^\n]* junk equipped variant=\S+ source=ground',
+                                  r'\[forage\][^\n]* garbage ram [^\n]*tipped=true',
+                                  r'\[forage\][^\n]* garbage gave_up .*reason=too_heavy rams=3']))
 
 _junk_scene = 'stray_junk_headwear'
 add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
@@ -1903,8 +1913,7 @@ add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到�
     '废物桶里有一份剪落的头发。看店员从后屋拿出，走到门外街桶投放。桶里的头发可以读数。', '约一分钟', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         'data merge block ~17 ~2 ~-6 {Items:[{Slot:0b,id:"mcyukkuri:trimmed_hair",count:1}]}',
-        *garbage_barrel(5, 18, 'minecraft:stick', True),
-        'data merge block ~5 ~ ~18 {NeoForgeData:{YukkuriGarbage:1b,VillageBin:1b}}',
+        *garbage_bin(5, 18, [('minecraft:stick', 1)], False),
     ], env=DAY, vantage=(4, 20, 180, 10),
     reads=[('读店内废物桶', 'data get block ~17 ~2 ~-6 Items'),
            ('读门外街桶', 'data get block ~5 ~ ~18 Items')])

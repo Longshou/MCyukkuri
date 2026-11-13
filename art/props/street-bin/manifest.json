@@ -1,0 +1,18 @@
+{
+  "authoring": "art/props/street-bin/build.py",
+  "status": "pending_user_confirmation",
+  "exports": {
+    "src/main/resources/assets/mcyukkuri/blockstates/garbage_bin.json": "1665049564b1c044c75368f91713e321c2c41e83ffec523d2531bcea3b70983c",
+    "src/main/resources/assets/mcyukkuri/models/block/garbage_bin.json": "ac0ad29055f519c058788ff2c7baf80be8e3873af66284e65e9e717708ca3ae2",
+    "src/main/resources/assets/mcyukkuri/models/block/garbage_bin_tipped.json": "5755d201a1cc6c864c18f13fd6e320b213956158d6f47209d1652495a1b636cc",
+    "src/main/resources/assets/mcyukkuri/models/item/garbage_bin.json": "191a9cb7d82369eae189ab8c6fea948ac948663e8d84cdb1fb48ad650e1d72eb",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_band.png": "16bb0992ba4ca5369eee73e21760f868e70cec9d30a4299392ab42279fc42432",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_bottom.png": "4a4f349532f8f7e0e501ac0efc83990f4a2e5ed617ea17189ebca56ee0a02b6b",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_lid.png": "527958b067703f59e8291902b0a5a746c9a888fc7dfb5f94e8d11f0decee5ad8",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_litter.png": "6b20007f1365e00f9410cb6edd90434647220e8dd3b5d0b15e2075c8ac87d4c7",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_mouth.png": "d2e7635ec9f786e0646b8ec6c5c4e70ae4fb94b1aef28b9a0b9be4a50fc3357c",
+    "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_side.png": "8f9e9692b12a049b7dd2de7e5cf25aa1ee8cf5e2dcb52d6b1950bdf25592cf0d",
+    "src/main/resources/data/mcyukkuri/loot_table/blocks/garbage_bin.json": "3a0f9f651e90cbdc96a3859269d8cc5c98a12538dc4e4bc34390bd66f52a3abb",
+    "src/main/resources/data/mcyukkuri/recipe/garbage_bin.json": "b56ad8a3512eef7e7b89a490aaef6a7658a5c065d8d229de0dff96eaef536a36"
+  }
+}

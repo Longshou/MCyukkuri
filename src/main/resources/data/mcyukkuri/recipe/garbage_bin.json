@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ini",
+    "i i",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "n": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "id": "mcyukkuri:garbage_bin",
+    "count": 1
+  }
+}

@@ -526,6 +526,7 @@
   "item.mcyukkuri.cardboard_shelter": "Cardboard Shelter",
   "block.mcyukkuri.crate_shelter": "Shelter Crate",
   "item.mcyukkuri.crate_shelter": "Shelter Crate",
+  "block.mcyukkuri.garbage_bin": "Street Garbage Bin",
   "block.mcyukkuri.forage_pile": "Forage Pile",
   "block.mcyukkuri.den_barrier": "Den Barrier",
   "shelter.mcyukkuri.pile.inspect": "Forage pile: %s portions stored (room for %s). Sneak with an empty hand to take one.",

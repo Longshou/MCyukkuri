@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=south,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin"
+    },
+    "facing=south,tipped=true": {
+      "model": "mcyukkuri:block/garbage_bin_tipped"
+    },
+    "facing=west,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin",
+      "y": 90
+    },
+    "facing=west,tipped=true": {
+      "model": "mcyukkuri:block/garbage_bin_tipped",
+      "y": 90
+    },
+    "facing=north,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin",
+      "y": 180
+    },
+    "facing=north,tipped=true": {
+      "model": "mcyukkuri:block/garbage_bin_tipped",
+      "y": 180
+    },
+    "facing=east,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin",
+      "y": 270
+    },
+    "facing=east,tipped=true": {
+      "model": "mcyukkuri:block/garbage_bin_tipped",
+      "y": 270
+    }
+  }
+}

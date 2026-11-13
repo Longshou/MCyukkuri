@@ -526,6 +526,7 @@
   "item.mcyukkuri.cardboard_shelter": "流浪油纸箱",
   "block.mcyukkuri.crate_shelter": "避风木箱",
   "item.mcyukkuri.crate_shelter": "避风木箱",
+  "block.mcyukkuri.garbage_bin": "街边垃圾桶",
   "block.mcyukkuri.forage_pile": "储粮堆",
   "block.mcyukkuri.den_barrier": "洞口结界",
   "shelter.mcyukkuri.pile.inspect": "储粮堆：现存 %s 份（容量 %s）。潜行空手使用可取走一份。",

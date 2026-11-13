@@ -266,17 +266,25 @@ def corridor_errors(b, y, x0, z0, x1, z1):
         if (n and s and not e and not w) or (e and w and not n and not s): out.append((x, z))
     return [f'{b.name}: 1-wide corridor cells {out[:8]}'] if out else []
 
+STEPS = ((1, 0), (-1, 0), (0, 1), (0, -1))
+
+
 def stray_errors(b, lane):
     """Garbage points, wind gaps and shelter spots as the stray systems read them, each reachable by a stray (1-high body) from the lane."""
     errors = []
     strays = reach_from(b, lane, 1, body=1, doors=False)
     for (x, yy, z), facing, (sx, sy, sz) in b.garbage:
         state = b.blocks.get((x, yy, z))
-        if not state or state[0] != 'minecraft:barrel' or state[1].get('facing') != facing or 'NeoForgeData' not in (state[2] or {}):
-            errors.append(f'{b.name}: garbage {(x, yy, z)} is not a marked barrel facing {facing}')
+        if not state or state[0] != 'mcyukkuri:garbage_bin' or state[1].get('facing') != facing or 'Items' not in (state[2] or {}):
+            errors.append(f'{b.name}: garbage {(x, yy, z)} is not a stocked garbage bin facing {facing}')
+            continue
         if not free(name_at(b, sx, sy, sz)) or not full_block(name_at(b, sx, sy - 1, sz)): errors.append(f'{b.name}: garbage stand {(sx, sy, sz)} is not a dry floor cell')
-        if not name_at(b, sx, sy + 1, sz).endswith('_trapdoor'): errors.append(f'{b.name}: garbage {(x, yy, z)} has no lid over its stand')
         if (sx, sz) not in strays: errors.append(f'{b.name}: garbage stand {(sx, sz)} unreachable from the lane')
+        if state[1].get('tipped') == 'false':
+            # A standing bin needs a side to be shoved from whose far side is open, and that far cell is then its mouth stand.
+            shoves = [(dx, dz) for dx, dz in STEPS if (x + dx, z + dz) in strays and free(name_at(b, x - dx, yy, z - dz))
+                      and full_block(name_at(b, x - dx, yy - 1, z - dz)) and (x - dx, z - dz) in strays]
+            if not shoves: errors.append(f'{b.name}: standing garbage {(x, yy, z)} cannot be shoved over toward a reachable mouth')
     for x, yy, z in b.gaps:
         above = name_at(b, x, yy + 1, z)
         if not free(name_at(b, x, yy, z)) or not full_block(name_at(b, x, yy - 1, z)): errors.append(f'{b.name}: wind gap {(x, yy, z)} is not a free floor cell')

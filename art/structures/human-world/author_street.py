@@ -6,8 +6,8 @@ sidewalks on z0..2 and z6..7, buildings south of the lane (z >= 8). A piece join
 `mcyukkuri:street_east`; with these names jigsaw can only attach a piece unrotated, so its buildings always stand on the far side of the lane
 from the village road. The free connector continues the street in the same direction.
 
-Stray objects are the ones the stray systems read (docs/FEATURES.md 流浪): a garbage point is a vanilla barrel marked `YukkuriGarbage`,
-facing its stand cell, with an oak trapdoor over the stand as its lid (settlement/GarbageSearch); a wind gap is a dry floor cell with a
+Stray objects are the ones the stray systems read (docs/FEATURES.md 流浪): a garbage point is a `mcyukkuri:garbage_bin` with a finite real
+stock, standing or already knocked over with its mouth toward its stand cell (settlement/GarbageSearch); a wind gap is a dry floor cell with a
 collision block right above and a full block beside it, with a real paper on it (settlement/FoundShelter); cardboard boxes and crates
 use the normal rotating shelter blocks.
 """
@@ -43,15 +43,13 @@ def item_stack(slot, item, count):
     return {'Slot': byte(slot), 'id': string(item if ':' in item else 'minecraft:' + item), 'count': integer(count)}
 
 
-def garbage(b, x, y, z, facing, items, lid_open=True):
-    """A stray garbage point: a marked barrel turned toward its stand cell, a finite real stock, and the lid over the stand."""
+def garbage(b, x, y, z, facing, items, tipped=False):
+    """A stray garbage point: a street bin with a finite real stock. A tipped bin's mouth faces its stand cell; a standing one
+    faces that cell too and is shoved over from any side whose far side is open."""
     records(b)
-    nbt = {'id': string('minecraft:barrel'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(items)]),
-           'NeoForgeData': compound({'YukkuriGarbage': byte(1), 'VillageBin': byte(1)})}
-    b.block(x, y, z, 'barrel', {'facing': facing, 'open': 'false'}, nbt)
+    nbt = {'id': string('mcyukkuri:garbage_bin'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(items)])}
+    b.block(x, y, z, 'mcyukkuri:garbage_bin', {'facing': facing, 'tipped': 'true' if tipped else 'false'}, nbt)
     dx, dz = STEP[facing]
-    b.block(x + dx, y + 1, z + dz, 'oak_trapdoor', {'facing': OPP[facing], 'half': 'top', 'open': 'true' if lid_open else 'false',
-                                                    'powered': 'false', 'waterlogged': 'false'})
     b.garbage.append(((x, y, z), facing, (x + dx, y, z + dz)))
 
 
@@ -202,7 +200,7 @@ def street_stall():
     for x in (5, 6, 7, 8): wind_gap(b, x, 1, 15, paper=(x == 6))
     # Old crates beside the booth, opening toward the lane; the market bin by the west post; a composter next to it.
     shelter_spot(b, 13, 1, 12, 'crate_shelter', 'north')
-    garbage(b, 1, 1, 9, 'north', [('carrot', 2), ('potato', 2), ('beetroot', 1), ('paper', 1), ('stick', 1), ('rotten_flesh', 1)])
+    garbage(b, 1, 1, 9, 'north', [('carrot', 2), ('potato', 2), ('beetroot', 1), ('paper', 1), ('stick', 1), ('rotten_flesh', 1), ('mcyukkuri:junk_headwear', 1)])
     b.block(2, 1, 9, 'composter', {'level': '3'})
     # Sidewalks: lamps and a bench facing the lane.
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
@@ -236,10 +234,10 @@ def street_alley():
     b.box((10, 2, 12), (10, 2, 14), 'spruce_planks')
     b.box((10, 1, 15), (10, 2, 15), 'oak_log', {'axis': 'z'})
     for z in (12, 13, 14): wind_gap(b, 10, 1, z, paper=(z == 13))
-    # Bins against the storehouse wall (one lid left open, one shut), a composter between them.
-    garbage(b, 6, 1, 11, 'east', [('bread', 1), ('apple', 1), ('paper', 2), ('feather', 1), ('rotten_flesh', 2)], lid_open=True)
-    b.block(6, 1, 12, 'composter', {'level': '5'})
-    garbage(b, 6, 1, 13, 'east', [('potato', 1), ('cookie', 1), ('stick', 2), ('paper', 1)], lid_open=False)
+    # Bins along the storehouse wall: one already knocked over, one standing with room behind it to fall; a composter further on.
+    garbage(b, 6, 1, 11, 'east', [('bread', 1), ('apple', 1), ('paper', 2), ('feather', 1), ('rotten_flesh', 2), ('mcyukkuri:junk_headwear', 1)], tipped=True)
+    garbage(b, 6, 1, 13, 'east', [('potato', 1), ('cookie', 1), ('stick', 2), ('paper', 1)])
+    b.block(6, 1, 15, 'composter', {'level': '5'})
     # Dead end: low wall with a fence, a lantern on its west post; a cardboard spot facing back up the alley.
     for x in range(6, 11): b.block(x, 1, 19, 'mossy_cobblestone' if x % 2 else 'cobblestone')
     fence_row(b, 6, 10, 2, 19)
@@ -485,7 +483,7 @@ def village_oni_shop(original):
     lot = shifted(original, 'village/oni_shop', 8)
     street_band(lot, 0, original.size[0] - 1)
     # Staff carry actual scraps to the pavement bin. There is no prefilled paper or hair to mask that transfer.
-    garbage(lot, 1, 1, 7, 'north', [('stick', 2), ('bread', 1)], lid_open=False)
+    garbage(lot, 1, 1, 7, 'north', [('stick', 2), ('bread', 1)])
     lamp(lot, 16, 1, 7); lamp(lot, 6, 1, 1); lamp(lot, 20, 1, 1)
     jigsaw(lot, 0, 1, 4, 'west', 'mcyukkuri:street_east')
     jigsaw(lot, original.size[0] - 1, 1, 4, 'east', 'minecraft:empty', 'mcyukkuri:street_east', SITES)
@@ -496,7 +494,8 @@ def dress_shop_apron(lot):
     """The pet shop's 8-row apron (build.village_shop): its two bins become garbage points, lamps on both sidewalks, sockets at both ends."""
     width = lot.size[0]
     for x in (4, 34):
-        garbage(lot, x + 3, 1, 7, 'north', [('paper', 2), ('apple', 1), ('cookie', 1), ('stick', 1)], lid_open=(x == 4))
+        # Wedged between the bench and the shop wall a standing bin cannot be shoved over: both start knocked over.
+        garbage(lot, x + 3, 1, 7, 'north', [('paper', 2), ('apple', 1), ('cookie', 1), ('stick', 1)], tipped=True)
     lamp(lot, 1, 1, 7); lamp(lot, 20, 1, 7); lamp(lot, width - 2, 1, 7); lamp(lot, 6, 1, 1); lamp(lot, width - 7, 1, 1)
     jigsaw(lot, 0, 1, 4, 'west', 'minecraft:empty', 'mcyukkuri:street_west', SITES)
     jigsaw(lot, width - 1, 1, 4, 'east', 'minecraft:empty', 'mcyukkuri:street_east', EAST_SITES)

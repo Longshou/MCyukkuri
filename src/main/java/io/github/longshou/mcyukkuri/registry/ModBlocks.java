@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
+import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -58,6 +60,10 @@ public final class ModBlocks {
                     .pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ShelterBlockEntity>> SHELTER_ENTITY=BLOCK_ENTITIES.register("wild_shelter",
             ()->BlockEntityType.Builder.of(ShelterBlockEntity::new,FOREST_BURROW.get(),CARDBOARD_SHELTER.get(),CRATE_SHELTER.get()).build(null));
+    public static final DeferredBlock<GarbageBinBlock> GARBAGE_BIN=BLOCKS.register("garbage_bin",
+            ()->new GarbageBinBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.LANTERN).noOcclusion()));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<GarbageBinBlockEntity>> GARBAGE_BIN_ENTITY=BLOCK_ENTITIES.register("garbage_bin",
+            ()->BlockEntityType.Builder.of(GarbageBinBlockEntity::new,GARBAGE_BIN.get()).build(null));
     public static final DeferredBlock<ForagePileBlock> FORAGE_PILE=BLOCKS.register("forage_pile",
             ()->new ForagePileBlock(BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GRASS).noCollission().noOcclusion()
                     .pushReaction(PushReaction.DESTROY)));
