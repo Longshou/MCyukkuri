@@ -172,7 +172,7 @@ def main():
     # Exam hall: the examiner desk facing the answering podium, the waiting bench by the west wall.
     view = (1100, 700, .5, .85, 6.0, 1.5)
     box, origin = ((23, 2, 3), (38, 6, 11)), (30, 2, 7)
-    folks = lambda: [bodies.at('reimu', 34.5 - 30, 3.4375 - 2, 5.5 - 7, 0)]
+    folks = lambda: [bodies.at('reimu', 34.5 - 30, 3.4375 - 2, 5.5 - 7, 180)]
     cards.append(pair(a, out, 'exam-desk', np.concatenate([region_mesh(a, old['lot'], ((23, 2, 12), (38, 6, 19)), (30, 2, 15))] + folks()),
                       np.concatenate([region_mesh(a, new['lot'], ((23, 2, 12), (38, 6, 19)), (30, 2, 15))] + folks()), view,
                       '宠物店考场 · 考官桌与候考长椅', '考生站在答题台上面对考官桌；西墙边是候考长椅'))
