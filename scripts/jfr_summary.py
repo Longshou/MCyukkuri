@@ -14,7 +14,10 @@ PACKAGE = 'io.github.longshou.mcyukkuri.'
 CPU = ('jdk.ExecutionSample', 'jdk.NativeMethodSample')
 MARKERS = ('mcyukkuri.ClientWound', 'mcyukkuri.ClientFrames')
 PAUSES = ('jdk.GCPhasePause', 'jdk.ClassLoad')
-EVENTS = (*CPU, 'jdk.ObjectAllocationSample', *PAUSES, *MARKERS)
+SERVER_TICK = 'minecraft.ServerTickTime'
+SECTIONS = ('Client and other threads', 'Server thread')
+METRICS = ('CPU', 'allocation')
+EVENTS = (*CPU, 'jdk.ObjectAllocationSample', *PAUSES, *MARKERS, SERVER_TICK)
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -69,8 +72,8 @@ def nearest_marker(markers, at, window):
 
 
 def summarize(stream, top, window, slow_ms):
-    cpu, allocation = Counter(), Counter()
-    samples, pauses, wounds, frames = [], [], [], []
+    counts = {section: {metric: Counter() for metric in METRICS} for section in SECTIONS}
+    samples, pauses, wounds, frames, ticks = [], [], [], [], []
     for event in events(stream):
         kind = event.attrib['type']
         at = datetime.fromisoformat(value(event, 'startTime')).timestamp()
@@ -91,12 +94,14 @@ def summarize(stream, top, window, slow_ms):
             if duration >= slow_ms:
                 pauses.append((at, duration, 'GC pause', ''))
             continue
+        if kind == SERVER_TICK:
+            ticks.append((at, milliseconds(value(event, 'averageTickDuration'))))
+            continue
         thread = event.find("struct[@name='sampledThread']")
         if thread is None:
             thread = event.find("struct[@name='eventThread']")
         thread_name = value(thread, 'javaName') if thread is not None else ''
-        if thread_name == 'Server thread':
-            continue
+        section = 'Server thread' if thread_name == 'Server thread' else 'Client and other threads'
         stack = methods(event)
         mod = next((method for method in stack if method.startswith(PACKAGE)), None)
         if kind == 'jdk.ClassLoad':
@@ -112,19 +117,20 @@ def summarize(stream, top, window, slow_ms):
         # The leaf can be a JVM or graphics method invoked by the first visible mod frame.
         site = stack[0] if stack[0] == mod else f'{stack[0]} via {mod}'
         weight = int(value(event, 'weight')) if kind == 'jdk.ObjectAllocationSample' else 1
-        (cpu if kind in CPU else allocation)[site] += weight
-        samples.append((at, kind, site, weight))
+        metric = 'CPU' if kind in CPU else 'allocation'
+        counts[section][metric][site] += weight
+        samples.append((at, section, metric, site, weight))
 
     markers = sorted([*wounds, *frames])
-    cpu_near, allocation_near = Counter(), Counter()
+    near = {section: {metric: Counter() for metric in METRICS} for section in SECTIONS}
     if markers:
         # Samples are ordered here because the JFR printer groups events by thread/chunk.
         i = 0
-        for at, kind, site, weight in sorted(samples):
+        for at, section, metric, site, weight in sorted(samples):
             while i < len(markers) and markers[i][0] < at - window:
                 i += 1
             if i < len(markers) and markers[i][0] <= at + window:
-                (cpu_near if kind in CPU else allocation_near)[site] += weight
+                near[section][metric][site] += weight
 
     def totals(title, counts, unit):
         print(f'\n{title}')
@@ -133,21 +139,33 @@ def summarize(stream, top, window, slow_ms):
         if not counts:
             print('  No matching samples.')
 
-    totals('Mod CPU hot methods (excluding the integrated Server thread)', cpu, 'samples')
-    totals('Mod allocation sites', allocation, 'sampled bytes')
     print(f'\nMarkers: {len(wounds)} first wounds, {len(frames)} frame windows at or above {slow_ms:g} ms')
     for label, group in (('First wound', sorted(wounds)[:top]), ('Slow frame', sorted(frames)[-top:])):
         for at, detail in group:
             print(f'  {timestamp(at)} {label}: {detail}')
-    if markers:
-        totals(f'Mod CPU within ±{window:g} s of a marker', cpu_near, 'samples')
-        totals(f'Mod allocation within ±{window:g} s of a marker', allocation_near, 'sampled bytes')
+    for section in SECTIONS:
+        print(f'\n=== {section} ===')
+        totals('Mod CPU hot methods', counts[section]['CPU'], 'samples')
+        totals('Mod allocation sites', counts[section]['allocation'], 'sampled bytes')
+        if markers:
+            totals(f'Mod CPU within ±{window:g} s of a marker', near[section]['CPU'], 'samples')
+            totals(f'Mod allocation within ±{window:g} s of a marker', near[section]['allocation'], 'sampled bytes')
+
+    def context(at):
+        marker = nearest_marker(markers, at, window)
+        return f" [{at - marker[0]:+.3f} s from {marker[1]}]" if marker else ''
+
+    print(f'\nLong server tick averages (at or above {slow_ms:g} ms, sampled once per second)')
+    long_ticks = [(at, average) for at, average in ticks if average >= slow_ms]
+    for at, average in sorted(long_ticks, key=lambda row: -row[1])[:top]:
+        print(f'  {timestamp(at)} {average:8.2f} ms average{context(at)}')
+    if not long_ticks:
+        print(f'  {len(ticks)} recorded averages, none at or above threshold.'
+              if ticks else '  No server tick time events recorded.')
 
     print(f'\nLongest GC pauses and relevant class loads (at or above {slow_ms:g} ms)')
     for at, duration, kind, name in sorted(pauses, key=lambda row: -row[1])[:top]:
-        marker = nearest_marker(markers, at, window)
-        context = f" [{at - marker[0]:+.3f} s from {marker[1]}]" if marker else ''
-        print(f'  {timestamp(at)} {duration:8.2f} ms  {kind} {name}{context}')
+        print(f'  {timestamp(at)} {duration:8.2f} ms  {kind} {name}{context(at)}')
     if not pauses:
         print('  No matching events.')
 
@@ -162,7 +180,7 @@ def main():
     parser.add_argument('--jfr', help='Path to the JDK jfr executable')
     parser.add_argument('--top', type=int, default=12)
     parser.add_argument('--window', type=float, default=0.5, help='Seconds on either side of each marker')
-    parser.add_argument('--slow-ms', type=float, default=20, help='Minimum frame interval or pause to report')
+    parser.add_argument('--slow-ms', type=float, default=20, help='Minimum frame interval, tick average or pause to report')
     args = parser.parse_args()
     if args.top < 1 or not 0 <= args.window < float('inf') or not 0 <= args.slow_ms < float('inf'):
         parser.error('top must be positive and window/slow-ms must be finite and nonnegative')
@@ -172,7 +190,8 @@ def main():
     if not jfr:
         parser.error('JDK jfr not found. Set JAVA_HOME or pass --jfr.')
     try:
-        with subprocess.Popen([jfr, 'print', '--xml', '--stack-depth', '64', '--events', ','.join(EVENTS),
+        # The JDK XML writer buffers formatted output. Limit depth so dense allocation stacks fit.
+        with subprocess.Popen([jfr, 'print', '--xml', '--stack-depth', '8', '--events', ','.join(EVENTS),
                                str(args.recording.resolve())], stdout=subprocess.PIPE) as process, process.stdout:
             summarize(process.stdout, args.top, args.window, args.slow_ms)
             if process.wait():
