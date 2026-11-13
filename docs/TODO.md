@@ -13,6 +13,7 @@
 | 走失找孩改读第一手目击 | `.worktrees/wp-io-lost-child-sight` | family separation / lost child search owner |
 | 没学会的技能有日常后果 | `.worktrees/wp-ip-training-consequences` | pet training / neglect counters, daily routines |
 | 对非亲缘的善意与孤儿收养 | `.worktrees/wp-iq-kindness-adoption` | social kindness, family adoption, genealogy foster mark |
+| 流浪使用街面设施；村民对偷吃作物的反应；街桶补给 | `.worktrees/wp-ir-street-use-crops` | street furniture use, HumanStreet crop reaction, bin refill |
 
 ## 玩法待办
 
