@@ -1826,8 +1826,8 @@ add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐�
         box(9, 2, 2, 11, 2, 3, 'minecraft:orange_wool'),
         street_trial('street_furniture', 'marisa', -6, -1, 'bench_stray', energy=19, rest_wait=0, lead=True),
         street_trial('street_furniture', 'reimu', 1, 0, 'water_stray', hygiene=45),
-        street_trial('street_furniture', 'alice', 9, -3, 'barrel_stray'),
-        street_trial('street_furniture', 'chen', 9, 1, 'awning_stray'),
+        street_trial('street_furniture', 'alice', 8, -3, 'barrel_stray'),
+        street_trial('street_furniture', 'chen', 9, 0, 'awning_stray'),
         f'data merge entity {sel("water_stray")} {{YukkuriLife:{{Dryness:55f}}}}',
     ], env={'time': 'noon', 'weather': 'rain'}, vantage=(0, 14),
     reads=[('读饮水', f'yukkuri status {sel("water_stray")} raw')])
@@ -4984,7 +4984,7 @@ _smoke('street_crops', 240, [
     rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
     rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*crop=BlockPos',
     rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot',
-    rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source={_uuid_text("street_crops", "crop_witness")}\b',
+    rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source=[\w-]+ stage=RETREAT',
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))
@@ -4992,10 +4992,26 @@ _smoke('street_furniture', 780, [
     rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH ',
     rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
     rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
-    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street bench exit ',
+    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street bench exited ',
     rf'\[weather\][^\n]* uuid={_barrel_stray}\b[^\n]* street rain cover reached spot=BARREL ',
     rf'\[weather\][^\n]* uuid={_awning_stray}\b[^\n]* street rain cover reached spot=AWNING ',
 ], readout=_street_health_reads('bench_stray', 'water_stray', 'barrel_stray', 'awning_stray'))
+
+
+def _crop_warning_retreat(log):
+    warning = re.search(rf'\[npc-care\][^\n]* uuid=([\w-]+) [^\n]* action=street_warn target={_crop_eater}\b', log)
+    if warning is None:
+        return 'the crop eater received no resident warning'
+    swallowed = re.search(rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot', log[warning.end():])
+    if swallowed is None:
+        return 'the crop eater did not swallow the carrot after the warning'
+    if not re.search(rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source={warning[1]}\b stage=RETREAT',
+                     log[warning.end() + swallowed.end():]):
+        return 'the crop eater did not begin retreat from the resident who warned it after it swallowed'
+    return None
+
+
+next(s for s in S if s.id == 'street_crops').smoke['verify'] = _crop_warning_retreat
 _smoke('oni_street_scrap', 1300, [
     r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=mcyukkuri:trimmed_hair count=1',
     r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=mcyukkuri:trimmed_hair count=1',

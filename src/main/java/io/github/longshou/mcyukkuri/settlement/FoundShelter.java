@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Temporary cover competes in the life plan. Only the shelter core records occupants. */
-public final class FoundShelter {
+public final class FoundShelter implements MotorOwner {
     private static final int RADIUS = 8, CONTEST_REST = 1200, BLOCKED_REST = 2400;
     private static final float LEAVE_HUNGRY = 25, SEEK_HUNGRY = 30;
     private static final double SNIFF_REACH = .4;
@@ -42,6 +44,9 @@ public final class FoundShelter {
     private BlockPos gap;
     public enum StreetSpot { BENCH, BARREL, AWNING }
     private StreetSpot streetSpot;
+    private Vec3 benchLaunch;
+    private Hop benchHop;
+    private boolean benchStepBlocked;
     private long streetAfter;
     private Vec3 aim;
     private Phase phase;
@@ -53,7 +58,8 @@ public final class FoundShelter {
     public FoundShelter(YukkuriEntity body) { this.body = body; }
     private ServerLevel level() { return (ServerLevel)body.level(); }
     private long now() { return level().getGameTime(); }
-    public boolean active() { return shelter != null || gap != null; }
+    @Override public boolean active() { return shelter != null || gap != null; }
+    @Override public String ownerId() { return Behaviors.SEEK_WARMTH; }
     public boolean targeting(BlockPos at) { return shelter != null && shelter.getBlockPos().equals(at); }
     public boolean exiting() { return phase == Phase.EXIT || phase == Phase.STEP_DOWN; }
     public boolean readyToSleep() { return phase == Phase.REST && now() >= deadline && !body.life().temperature().unsafeSleep(); }
@@ -216,9 +222,15 @@ public final class FoundShelter {
             if (streetOccupied(body, pos)) continue;
             Vec3 stand = kind == StreetSpot.BENCH
                     ? SurfaceApproach.floor(body, Vec3.atBottomCenterOf(pos).add(0, .5, 0)) : Vec3.atBottomCenterOf(pos);
-            if (stand == null || !availableStand(stand) || !SurfaceApproach.canApproach(body, stand)) continue;
+            if (stand == null || !availableStand(stand)) continue;
+            Vec3 launch = null;
+            if (kind == StreetSpot.BENCH && !SurfaceApproach.at(body, stand)) {
+                launch = benchSide(pos, stand, true);
+                if (launch == null) continue;
+            } else if (kind != StreetSpot.BENCH && !SurfaceApproach.canApproach(body, stand)) continue;
             gap = pos;
             streetSpot = kind;
+            benchLaunch = launch;
             aim = stand;
             phase = Phase.ENTER;
             began = now();
@@ -248,8 +260,14 @@ public final class FoundShelter {
         if (!active()) return Step.ENDED;
         if (phase == Phase.STEP_DOWN) {
             if (now() < deadline) {
-                var result = walk();
+                var result = benchStepBlocked ? hopToBenchAim() : walk();
                 if (result == SurfaceApproach.Result.MOVING || result == SurfaceApproach.Result.WAITING) return Step.ACTIVE;
+                if (result == SurfaceApproach.Result.BLOCKED && !benchStepBlocked) {
+                    benchStepBlocked = true;
+                    return Step.ACTIVE;
+                }
+                if (result == SurfaceApproach.Result.ARRIVED)
+                    GameplayLog.event(body, "habitat", "street bench exited to={}", body.blockPosition().toShortString());
             }
             stop();
             return Step.ENDED;
@@ -287,7 +305,7 @@ public final class FoundShelter {
         }
         if (phase == Phase.APPROACH && body.distanceToSqr(aim) <= SNIFF_REACH * SNIFF_REACH
                 && SurfaceApproach.stands(body, body.position())) return sniff();
-        var result = walk();
+        var result = benchLaunch == null ? walk() : climbBench();
         if (result == SurfaceApproach.Result.BLOCKED || now() - began > 320
                 || result == SurfaceApproach.Result.ARRIVED && phase == Phase.ENTER && shelter != null
                         && !shelter.contains(body.blockPosition())) {
@@ -376,6 +394,40 @@ public final class FoundShelter {
                 && level().getEntitiesOfClass(YukkuriEntity.class, box, y -> y != body && y.isAlive()).isEmpty();
     }
 
+    private Vec3 benchSide(BlockPos seat, Vec3 top, boolean climbing) {
+        var facing = benchFacing(seat);
+        if (facing == null) return null;
+        Vec3 best = null;
+        for (var side : new Direction[]{facing, facing.getOpposite()}) {
+            var stand = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(seat.relative(side)));
+            if (stand == null || !availableStand(stand) || best != null && body.distanceToSqr(stand) >= body.distanceToSqr(best))
+                continue;
+            if (climbing ? SurfaceApproach.canApproach(body, stand) && Hop.reaches(body, stand, top)
+                    : SurfaceApproach.canApproach(body, stand) || Hop.reaches(body, body.position(), stand)) best = stand;
+        }
+        return best;
+    }
+
+    private SurfaceApproach.Result climbBench() {
+        if (benchHop != null) return hopToBenchAim();
+        var approach = SurfaceApproach.walkResult(body, benchLaunch, null, 1);
+        if (approach != SurfaceApproach.Result.ARRIVED) return approach;
+        if (now() - began < 20) {
+            SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), aim));
+            return SurfaceApproach.Result.WAITING;
+        }
+        return hopToBenchAim();
+    }
+
+    private SurfaceApproach.Result hopToBenchAim() {
+        if (benchHop == null) {
+            benchHop = new Hop(aim);
+            return body.motor().run(this, benchHop) ? SurfaceApproach.Result.MOVING : SurfaceApproach.Result.BLOCKED;
+        }
+        if (body.motor().current() == benchHop) return SurfaceApproach.Result.MOVING;
+        return body.onGround() && SurfaceApproach.at(body, aim) ? SurfaceApproach.Result.ARRIVED : SurfaceApproach.Result.BLOCKED;
+    }
+
     private void settle() {
         SurfaceApproach.halt(body);
         phase = Phase.REST;
@@ -424,19 +476,14 @@ public final class FoundShelter {
     public boolean leaveBench() {
         if (!onBench()) return false;
         var seat = gap;
-        var facing = benchFacing(seat);
-        if (facing == null) return false;
-        for (var side : new Direction[]{facing, facing.getOpposite()}) {
-            var at = seat.relative(side);
-            var stand = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(at));
-            if (stand == null || !availableStand(stand) || !SurfaceApproach.canApproach(body, stand)) continue;
-            phase = Phase.STEP_DOWN;
-            aim = stand;
-            deadline = now() + 100;
-            GameplayLog.event(body, "habitat", "street bench exit at={} to={}", seat.toShortString(), at.toShortString());
-            return true;
-        }
-        return false;
+        var stand = benchSide(seat, aim, false);
+        if (stand == null) return false;
+        phase = Phase.STEP_DOWN;
+        aim = stand;
+        benchHop = null;
+        deadline = now() + 100;
+        GameplayLog.event(body, "habitat", "street bench exit at={} to={}", seat.toShortString(), BlockPos.containing(stand).toShortString());
+        return true;
     }
 
     private void leave(String reason) {
@@ -466,9 +513,11 @@ public final class FoundShelter {
 
     public void stop() {
         if (!active()) return;
+        body.motor().cancel(this, "found_cover_ended");
         if (shelter != null && !shelter.isRemoved() && (exiting() || !shelter.contains(body.blockPosition())))
             shelter.release(body.getUUID());
         shelter = null; gap = null; aim = null; phase = null; streetSpot = null; yieldingRival = null; failures = 0; warnUntil = 0;
+        benchLaunch = null; benchHop = null; benchStepBlocked = false;
         SurfaceApproach.stopWalking(body);
     }
 
