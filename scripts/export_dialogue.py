@@ -96,8 +96,9 @@ def outputs():
                             ticks=ticks, sound=sound_id if clip else ''))
         locales['zh_cn'][key] = line['chinese']
         locales['ja_jp'][key] = line['japanese']
-        # Lines without a reviewed 'english' field retain the original Japanese.
-        locales['en_us'][key] = line.get('english', line['japanese'])
+        english = line.get('english', '')
+        assert english.strip(), f'Missing English subtitle: {ident}'
+        locales['en_us'][key] = english
     # Speech tiers (baby / juvenile / adult), forms of address, counting and the Myon tics: unvoiced project originals.
     tiers_path = ROOT / 'art/dialogue/speech-tiers.json'
     for line in (json.loads(tiers_path.read_text(encoding='utf-8'))['lines'] if tiers_path.exists() else []):

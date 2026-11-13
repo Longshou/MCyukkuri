@@ -7195,8 +7195,8 @@
       "id": "remilia.adult.o_puff",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー！ れみりあはここにいるのだ！",
-      "chinese": "呜——！蕾米莉亚在这里呀！",
+      "japanese": "うー！ れみりあも ぷくーって できるのだ！",
+      "chinese": "呜——！蕾米莉亚也会噗咕呀！",
       "events": [
         "puff"
       ],
@@ -7205,8 +7205,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_puff"
       },
-      "source_sha256": "c10eb580e6f0af611eeb6bf343c20dc1669bdc97832c01b215b0e576268c6f22",
-      "english": "Uu! Remilia's right here!"
+      "source_sha256": "283b8dfdb3bb00dd5b04faf6fbe9a98144414b04f81a574e3d85ceed63464b90",
+      "english": "Uu! Remilia can puff too!"
     },
     {
       "id": "remilia.young.o_hello",
@@ -7853,8 +7853,8 @@
       "id": "remilia.young.o_puff",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー！ れみりゃ、ここ！",
-      "chinese": "呜——！蕾米呀，在介里！",
+      "japanese": "うー！ れみりゃも ぷきゅーって できるのだ！",
+      "chinese": "呜——！蕾米呀也会噗啾呀！",
       "events": [
         "puff"
       ],
@@ -7863,8 +7863,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_puff"
       },
-      "source_sha256": "187f09f19a800a95080b88de07c4b980509af2c7e221470a6c9119049e5d1053",
-      "english": "Uu! Wemi's here!"
+      "source_sha256": "5a643128ad0cbba9a929983324a7f979b3a469ff9c07c9c0d76c4ba2a5af1fcb",
+      "english": "Uu! Wemi can puff too!"
     },
     {
       "id": "flandre.adult.o_hello",
@@ -8200,8 +8200,8 @@
       "id": "flandre.adult.o_returned",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、戻ってきた！ 探してくれてありがとう。",
-      "chinese": "呜——回来啦！谢谢你帮忙找。",
+      "japanese": "うー、おかざりさんが もどってきたよ！",
+      "chinese": "呜——头饰先生回来啦！",
       "events": [
         "returned_accessory"
       ],
@@ -8210,8 +8210,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_returned"
       },
-      "source_sha256": "bb600c2f189578338b0b0b5fffdc2e9941f1b457023460367bf7379962d8a834",
-      "english": "Uu... it's back! Thank you for looking!"
+      "source_sha256": "2b30a6a75d629a302143569e2a10a7bd5165bed4a2d5765543977b502db34a9d",
+      "english": "Uu... my headwear's back!"
     },
     {
       "id": "flandre.adult.o_unknown",
@@ -8511,8 +8511,8 @@
       "id": "flandre.adult.o_puff",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー！ ふらんだってここにいるよ！",
-      "chinese": "呜——！芙兰也在这里哟！",
+      "japanese": "うー！ ふらんも ぷくーって できるよ！",
+      "chinese": "呜——！芙兰也会噗咕哟！",
       "events": [
         "puff"
       ],
@@ -8521,8 +8521,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_puff"
       },
-      "source_sha256": "5328410ed4f2c358b78742ce315d826ef40fbb1d136a43696d07595d2c35c802",
-      "english": "Uu! Flandre's here too!"
+      "source_sha256": "2b056535ee5c04fe84150d27d2782aebc2b7538decaa96593dd146c04f34622c",
+      "english": "Uu! Flandre can puff too!"
     },
     {
       "id": "flandre.young.o_hello",
@@ -8858,8 +8858,8 @@
       "id": "flandre.young.o_returned",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、かえってきた！ ありがと！",
-      "chinese": "呜——回来啦！谢谢！",
+      "japanese": "うー、おかじゃり、かえっちぇきたよぅ！",
+      "chinese": "呜——饰饰肥来惹！",
       "events": [
         "returned_accessory"
       ],
@@ -8868,8 +8868,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_returned"
       },
-      "source_sha256": "2e1de06913b9d6265348c14361da48d3b358904779255d61b573cc594e03ea4b",
-      "english": "Uu... it came back! Fank you!"
+      "source_sha256": "978b16dcbd51bff0a2292c2e797928225c01ce632c96376cf6e54071841378de",
+      "english": "Uu... my headwear came back!"
     },
     {
       "id": "flandre.young.o_unknown",
@@ -9169,8 +9169,8 @@
       "id": "flandre.young.o_puff",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー！ ふりゃんもここ！",
-      "chinese": "呜——！芙呀也在介里！",
+      "japanese": "うー！ ふりゃんも ぷきゅーって できるよ！",
+      "chinese": "呜——！芙呀也会噗啾哟！",
       "events": [
         "puff"
       ],
@@ -9179,15 +9179,15 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_puff"
       },
-      "source_sha256": "31993fabf178f2d8153eff28eb1c4606d323182805bf38e44ce4e6f5fe396fc7",
-      "english": "Uu! Fwan's here too!"
+      "source_sha256": "123f538120d2567bfde3257b32d46eba2a864eec6fa39b756e337d8811154da5",
+      "english": "Uu! Fwan can puff too!"
     },
     {
       "id": "reimu.adult.o_house_listen",
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆっ？ たまごさん、うごいたよ？",
-      "chinese": "油？卵先生，动了哟？",
+      "chinese": "油？蛋先生动了哟？",
       "events": [
         "house_listen"
       ],
@@ -9204,7 +9204,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆっ？ たまごさん、うごいたのぜ？",
-      "chinese": "油？卵先生，动了贼？",
+      "chinese": "油？蛋先生动了贼？",
       "events": [
         "house_listen"
       ],

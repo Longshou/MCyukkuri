@@ -4,7 +4,7 @@
 
 游戏选句源为 [runtime-lines.json](runtime-lines.json)，项目原创条目与角色补写见 [species-original.json](species-original.json) 和 [speech-tiers.json](speech-tiers.json)。[分轴语料](corpus/README.md)按共同／种族／阶段／特殊形态／情境维护，其中标记 `shared_runtime` 的情境句直接导出。来源类型、字幕键和声音键分别登记，模组只打包已选中的台词。
 
-《油库里八景》ver1.12 原句从本机参考包的 `text/` 取日文，旧汉化从 `translate/` 按种族、年龄和日文原句配对。选句的 `source` 和 `translation` 分别记录出处和行号，核对过的同句汉化也可用于已有日文录音的字幕。缺少英语的选句由导出器沿用日文。
+《油库里八景》ver1.12 原句从本机参考包的 `text/` 取日文，旧汉化从 `translate/` 按种族、年龄和日文原句配对。选句的 `source` 和 `translation` 分别记录出处和行号，核对过的同句汉化也可用于已有日文录音的字幕。运行选句提供中、日、英三语字幕。
 
 原创台词先对准说话者此刻看见的东西和想做的事。角色会把物件和身体部位当作能搭话的对象。赤油用少量近音和短词，嘴里有吃的时可以更含混。重复留给固定说法或当下的情绪，比如躲藏时小声反复说「没有发现窝」。道别可以多给几拍，每拍仍说一件事。身体用语、自称和夸耀见[共通语料](corpus/common.json)。
 

@@ -4798,7 +4798,7 @@
     "events": [
       "puff"
     ],
-    "ticks": 83,
+    "ticks": 103,
     "sound": ""
   },
   {
@@ -5266,7 +5266,7 @@
     "events": [
       "puff"
     ],
-    "ticks": 63,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -5513,7 +5513,7 @@
     "events": [
       "returned_accessory"
     ],
-    "ticks": 103,
+    "ticks": 91,
     "sound": ""
   },
   {
@@ -5734,7 +5734,7 @@
     "events": [
       "puff"
     ],
-    "ticks": 83,
+    "ticks": 95,
     "sound": ""
   },
   {
@@ -5981,7 +5981,7 @@
     "events": [
       "returned_accessory"
     ],
-    "ticks": 79,
+    "ticks": 91,
     "sound": ""
   },
   {
@@ -6202,7 +6202,7 @@
     "events": [
       "puff"
     ],
-    "ticks": 63,
+    "ticks": 103,
     "sound": ""
   },
   {
@@ -22706,7 +22706,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -23150,7 +23150,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 159,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -23714,7 +23714,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 119,
+    "ticks": 91,
     "sound": ""
   },
   {
@@ -24842,7 +24842,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -25286,7 +25286,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 163,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -25850,7 +25850,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 123,
+    "ticks": 95,
     "sound": ""
   },
   {
@@ -26978,7 +26978,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -27422,7 +27422,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 159,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -27986,7 +27986,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 119,
+    "ticks": 91,
     "sound": ""
   },
   {
@@ -29114,7 +29114,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -29558,7 +29558,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 159,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -30122,7 +30122,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 123,
+    "ticks": 95,
     "sound": ""
   },
   {
@@ -31250,7 +31250,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -31694,7 +31694,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 171,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -32546,7 +32546,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 135,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -33962,7 +33962,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -34406,7 +34406,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 175,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -34970,7 +34970,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 135,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -36098,7 +36098,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 151,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -36542,7 +36542,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 171,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -37106,7 +37106,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 131,
+    "ticks": 103,
     "sound": ""
   },
   {
@@ -38284,7 +38284,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 155,
+    "ticks": 131,
     "sound": "",
     "quirk": "miyo"
   },
@@ -38765,7 +38765,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 175,
+    "ticks": 135,
     "sound": "",
     "quirk": "miyo"
   },
@@ -39376,7 +39376,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 135,
+    "ticks": 107,
     "sound": "",
     "quirk": "miyo"
   },
@@ -40598,7 +40598,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 159,
+    "ticks": 135,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -41079,7 +41079,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 179,
+    "ticks": 139,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -41690,7 +41690,7 @@
     "events": [
       "offer_grief"
     ],
-    "ticks": 139,
+    "ticks": 111,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -43594,7 +43594,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 99,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -43966,7 +43966,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 103,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -44338,7 +44338,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 99,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -44710,7 +44710,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 95,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -45082,7 +45082,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 107,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -45454,7 +45454,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 115,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -45826,7 +45826,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 111,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -46199,7 +46199,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 111,
+    "ticks": 123,
     "sound": "",
     "quirk": "miyo"
   },
@@ -46602,7 +46602,7 @@
     "events": [
       "hunt_join"
     ],
-    "ticks": 115,
+    "ticks": 127,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -46992,7 +46992,7 @@
     "events": [
       "hatless_scorn"
     ],
-    "ticks": 123,
+    "ticks": 115,
     "sound": "",
     "quirk": "miyo"
   },
@@ -47018,7 +47018,7 @@
     "events": [
       "hatless_scorn"
     ],
-    "ticks": 127,
+    "ticks": 119,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -47044,7 +47044,7 @@
     "events": [
       "hatless_scorn"
     ],
-    "ticks": 127,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -47068,7 +47068,7 @@
     "events": [
       "hatless_scorn"
     ],
-    "ticks": 119,
+    "ticks": 111,
     "sound": ""
   },
   {

@@ -676,9 +676,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……ゆっ、ゆっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……油、油……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Yu, yu... sowwy... I will live...",
+   "japanese": "ゆっ、ゆっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "油、油……亲亲油……对不起……会活下去……",
+   "english": "Yu, yu... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -938,7 +938,7 @@
    ],
    "japanese": "おやしゃん！ どこにいるにぇ……？",
    "chinese": "亲亲油！在哪儿捏……？",
-   "english": "Where are you...?",
+   "english": "Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -1157,9 +1157,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくにぇ……",
-   "chinese": "好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "So sweet... sowwy... I will go on living...",
+   "japanese": "おやしゃん……ごめん……ちゃんと いきていくにぇ……",
+   "chinese": "亲亲油……对不起……窝会好好活下去捏……",
+   "english": "Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -1768,9 +1768,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あまかった……ごめんね……ちゃんと いきていくよ……",
-   "chinese": "好甜……对不起……会好好活下去哦……",
-   "english": "So sweet... I am sorry... I will go on living...",
+   "japanese": "ごめんね……ちゃんと いきていくよ……",
+   "chinese": "对不起……会好好活下去哦……",
+   "english": "I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -2990,9 +2990,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……ゆっ、ゆっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……油、油……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Yu, yu... sowwy... I will live...",
+   "japanese": "ゆっ、ゆっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "油、油……亲亲油……对不起……会活下去……",
+   "english": "Yu, yu... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -3252,7 +3252,7 @@
    ],
    "japanese": "おやしゃん！ どこにいるのじぇ……？",
    "chinese": "亲亲油！在哪儿惹杰……？",
-   "english": "Where are you...?",
+   "english": "Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -3471,9 +3471,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくのじぇ……",
-   "chinese": "好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "So sweet... sowwy... I will go on living...",
+   "japanese": "おやしゃん……ごめん……ちゃんと いきていくのじぇ……",
+   "chinese": "亲亲油……对不起……窝会好好活下去惹杰……",
+   "english": "Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -4082,9 +4082,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あまかった……ごめんね……ちゃんと いきていくのぜ……",
-   "chinese": "好甜……对不起……会好好活下去贼……",
-   "english": "So sweet... I am sorry... I will go on living...",
+   "japanese": "ごめんね……ちゃんと いきていくのぜ……",
+   "chinese": "对不起……会好好活下去贼……",
+   "english": "I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -5304,9 +5304,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……ゆっ、ゆっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……油、油……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Yu, yu... sowwy... I will live...",
+   "japanese": "ゆっ、ゆっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "油、油……亲亲油……对不起……会活下去……",
+   "english": "Yu, yu... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -5566,7 +5566,7 @@
    ],
    "japanese": "おやしゃん！ どこにいるにょ……？",
    "chinese": "亲亲油！在哪儿哟……？",
-   "english": "Where are you...?",
+   "english": "Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -5785,9 +5785,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくにょ……",
-   "chinese": "好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "So sweet... sowwy... I will go on living...",
+   "japanese": "おやしゃん……ごめん……ちゃんと いきていくにょ……",
+   "chinese": "亲亲油……对不起……窝会好好活下去哟……",
+   "english": "Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -6396,9 +6396,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あまかった……ごめんね……ちゃんと いきていくわ……",
-   "chinese": "好甜……对不起……会好好活下去呢……",
-   "english": "So sweet... I am sorry... I will go on living...",
+   "japanese": "ごめんね……ちゃんと いきていくわ……",
+   "chinese": "对不起……会好好活下去呢……",
+   "english": "I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -7618,9 +7618,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……ゆ、にゃっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……油、喵……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Yu, nya... sowwy... I will live...",
+   "japanese": "ゆ、にゃっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "油、喵……亲亲油……对不起……会活下去……",
+   "english": "Yu, nya... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -7880,7 +7880,7 @@
    ],
    "japanese": "おやしゃん！ どこにいるよぅ……？",
    "chinese": "亲亲油！在哪儿哟——……？",
-   "english": "Where are you...?",
+   "english": "Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -8099,9 +8099,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくよぅ……",
-   "chinese": "好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "So sweet... sowwy... I will go on living...",
+   "japanese": "おやしゃん……ごめん……ちゃんと いきていくよぅ……",
+   "chinese": "亲亲油……对不起……窝会好好活下去哟——……",
+   "english": "Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -8710,9 +8710,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あまかった……ごめんね……ちゃんと いきていくよー……",
-   "chinese": "好甜……对不起……会好好活下去哟——……",
-   "english": "So sweet... I am sorry... I will go on living...",
+   "japanese": "ごめんね……ちゃんと いきていくよー……",
+   "chinese": "对不起……会好好活下去哟——……",
+   "english": "I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -9932,9 +9932,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……む、きゅっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……姆、啾……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Mu, kyu... sowwy... I will live...",
+   "japanese": "む、きゅっ……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "姆、啾……亲亲油……对不起……会活下去……",
+   "english": "Mu, kyu... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -10194,7 +10194,7 @@
    ],
    "japanese": "むきゅ。おやしゃん！ どこにいるわ……？",
    "chinese": "姆啾。亲亲油！在哪儿惹哇……？",
-   "english": "Mukyu. Where are you...?",
+   "english": "Mukyu. Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -10413,9 +10413,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "むきゅ。あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくわ……",
-   "chinese": "姆啾。好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "Mukyu. So sweet... sowwy... I will go on living...",
+   "japanese": "むきゅ。おやしゃん……ごめん……ちゃんと いきていくわ……",
+   "chinese": "姆啾。亲亲油……对不起……窝会好好活下去惹哇……",
+   "english": "Mukyu. Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -11336,9 +11336,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "むきゅ。あまかった……ごめんね……ちゃんと いきていくわ……",
-   "chinese": "姆啾。好甜……对不起……会好好活下去哇……",
-   "english": "Mukyu. So sweet... I am sorry... I will go on living...",
+   "japanese": "むきゅ。ごめんね……ちゃんと いきていくわ……",
+   "chinese": "姆啾。对不起……会好好活下去哇……",
+   "english": "Mukyu. I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -12870,9 +12870,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……うー、うー……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……呜——、呜——……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Uu, uu... sowwy... I will live...",
+   "japanese": "うー、うー……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "呜——、呜——……亲亲油……对不起……会活下去……",
+   "english": "Uu, uu... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -13132,7 +13132,7 @@
    ],
    "japanese": "うー、おやしゃん！ どこにいるなのだ……？",
    "chinese": "呜——亲亲油！在哪儿呀……？",
-   "english": "Uu... Where are you...?",
+   "english": "Uu... Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -13351,9 +13351,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "うー、あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくなのだ……",
-   "chinese": "呜——好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "Uu... So sweet... sowwy... I will go on living...",
+   "japanese": "うー、おやしゃん……ごめん……ちゃんと いきていくなのだ……",
+   "chinese": "呜——亲亲油……对不起……窝会好好活下去呀……",
+   "english": "Uu... Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -13962,9 +13962,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "うー、あまかった……ごめんね……ちゃんと いきていくのだ……",
-   "chinese": "呜——好甜……对不起……会好好活下去呀……",
-   "english": "Uu... So sweet... I am sorry... I will go on living...",
+   "japanese": "うー、ごめんね……ちゃんと いきていくのだ……",
+   "chinese": "呜——对不起……会好好活下去呀……",
+   "english": "Uu... I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -15184,9 +15184,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……うー、うー……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……呜——、呜——……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Uu, uu... sowwy... I will live...",
+   "japanese": "うー、うー……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "呜——、呜——……亲亲油……对不起……会活下去……",
+   "english": "Uu, uu... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -15446,7 +15446,7 @@
    ],
    "japanese": "うー、おやしゃん！ どこにいるよぅ……？",
    "chinese": "呜——亲亲油！在哪儿哦……？",
-   "english": "Uu... Where are you...?",
+   "english": "Uu... Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -15665,9 +15665,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "うー、あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくよぅ……",
-   "chinese": "呜——好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "Uu... So sweet... sowwy... I will go on living...",
+   "japanese": "うー、おやしゃん……ごめん……ちゃんと いきていくよぅ……",
+   "chinese": "呜——亲亲油……对不起……窝会好好活下去哦……",
+   "english": "Uu... Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -16276,9 +16276,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "うー、あまかった……ごめんね……ちゃんと いきていくよ……",
-   "chinese": "呜——好甜……对不起……会好好活下去哦……",
-   "english": "Uu... So sweet... I am sorry... I will go on living...",
+   "japanese": "うー、ごめんね……ちゃんと いきていくよ……",
+   "chinese": "呜——对不起……会好好活下去哦……",
+   "english": "Uu... I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -17549,9 +17549,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……みょ、みょん……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……咪、咪呦……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Myo, myon... sowwy... I will live...",
+   "japanese": "みょ、みょん……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "咪、咪呦……亲亲油……对不起……会活下去……",
+   "english": "Myo, myon... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -17831,7 +17831,7 @@
    ],
    "japanese": "みょん！おやしゃん！ どこにいるみょ……？",
    "chinese": "咪呦！亲亲油！在哪儿哦……？",
-   "english": "Myon! Where are you...?",
+   "english": "Myon! Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -18067,9 +18067,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "みょん！あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくみょ……",
-   "chinese": "咪呦！好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "Myon! So sweet... sowwy... I will go on living...",
+   "japanese": "みょん！おやしゃん……ごめん……ちゃんと いきていくみょ……",
+   "chinese": "咪呦！亲亲油……对不起……窝会好好活下去哦……",
+   "english": "Myon! Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -18725,9 +18725,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "みょん！あまかった……ごめんね……ちゃんと いきていくよ……",
-   "chinese": "咪呦！好甜……对不起……会好好活下去哦……",
-   "english": "Myon! So sweet... I am sorry... I will go on living...",
+   "japanese": "みょん！ごめんね……ちゃんと いきていくよ……",
+   "chinese": "咪呦！对不起……会好好活下去哦……",
+   "english": "Myon! I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -20041,9 +20041,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "あみゃい……ちん、ちーんぽ……おやしゃ……ごめにゃしゃい……いきりゅ……",
-   "chinese": "好甜……金、金寶……亲亲油……对不起捏……会活下去……",
-   "english": "So sweet... Chin, chinpo... sowwy... I will live...",
+   "japanese": "ちん、ちーんぽ……おやしゃ……ごめにゃしゃい……いきりゅ……",
+   "chinese": "金、金寶……亲亲油……对不起……会活下去……",
+   "english": "Chin, chinpo... Mama, Papa... sowwy... I will live...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -20323,7 +20323,7 @@
    ],
    "japanese": "ちーんぽ！おやしゃん！ どこにいるよぅ……？",
    "chinese": "金寶！亲亲油！在哪儿哦……？",
-   "english": "Chinpo! Where are you...?",
+   "english": "Chinpo! Mama, Papa! Where are you...?",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -20559,9 +20559,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "ちーんぽ！あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていくよぅ……",
-   "chinese": "金寶！好甜……亲亲油……对不起捏……一定废好好地活下去的……",
-   "english": "Chinpo! So sweet... sowwy... I will go on living...",
+   "japanese": "ちーんぽ！おやしゃん……ごめん……ちゃんと いきていくよぅ……",
+   "chinese": "金寶！亲亲油……对不起……窝会好好活下去哦……",
+   "english": "Chinpo! Mama, Papa... sowwy... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -21217,9 +21217,9 @@
    "events": [
     "offer_grief"
    ],
-   "japanese": "ちーんぽ！あまかった……ごめんね……ちゃんと いきていくよ……",
-   "chinese": "金寶！好甜……对不起……会好好活下去哦……",
-   "english": "Chinpo! So sweet... I am sorry... I will go on living...",
+   "japanese": "ちーんぽ！ごめんね……ちゃんと いきていくよ……",
+   "chinese": "金寶！对不起……会好好活下去哦……",
+   "english": "Chinpo! I am sorry... I will go on living...",
    "origin": "project-original",
    "basis": "komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); project-original wording, unvoiced"
   },
@@ -23273,9 +23273,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "れいみゅもいくにぇ！ ゆっくりついていく！",
-   "chinese": "灵梦也去捏！会慢慢跟着的！",
-   "english": "Reimu will go too! I will follow slowly!",
+   "japanese": "れいみゅもいくにぇ！ みんなに ついていくにぇ！",
+   "chinese": "灵梦也去捏！窝跟着大家走捏！",
+   "english": "Reimu will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -23676,9 +23676,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "まりちゃもいくのじぇ！ ゆっくりついていく！",
-   "chinese": "魔理沙也去惹杰！会慢慢跟着的！",
-   "english": "Marisa will go too! I will follow slowly!",
+   "japanese": "まりちゃもいくのじぇ！ みんなに ついていくのじぇ！",
+   "chinese": "魔理沙也去惹杰！窝跟着大家走惹杰！",
+   "english": "Marisa will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24079,9 +24079,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "ありちゅもいくにょ！ ゆっくりついていく！",
-   "chinese": "爱丽丝也去哟！会慢慢跟着的！",
-   "english": "Alice will go too! I will follow slowly!",
+   "japanese": "ありちゅもいくにょ！ みんなに ついていくにょ！",
+   "chinese": "爱丽丝也去哟！窝跟着大家走哟！",
+   "english": "Alice will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24482,9 +24482,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "ちぇんもいくよぅ！ ゆっくりついていく！",
-   "chinese": "橙也去哟——！会慢慢跟着的！",
-   "english": "Chen will go too! I will follow slowly!",
+   "japanese": "ちぇんもいくよぅ！ みんなに ついていくよぅ！",
+   "chinese": "橙也去哟——！窝跟着大家走哟——！",
+   "english": "Chen will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24885,9 +24885,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "むきゅ。ぱちゅもいくわ！ ゆっくりついていく！",
-   "chinese": "姆啾。帕秋莉也去惹哇！会慢慢跟着的！",
-   "english": "Mukyu. Patchouli will go too! I will follow slowly!",
+   "japanese": "むきゅ。ぱちゅもいくわ！ みんなに ついていくわ！",
+   "chinese": "姆啾。帕秋莉也去惹哇！窝跟着大家走惹哇！",
+   "english": "Mukyu. Patchouli will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25288,9 +25288,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "うー、れみりゃもいくなのだ！ ゆっくりついていく！",
-   "chinese": "呜——蕾米莉亚也去呀！会慢慢跟着的！",
-   "english": "Uu... Remilia will go too! I will follow slowly!",
+   "japanese": "うー、れみりゃもいくなのだ！ みんなに ついていくなのだ！",
+   "chinese": "呜——蕾米莉亚也去呀！窝跟着大家走呀！",
+   "english": "Uu... Remilia will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25691,9 +25691,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "うー、ふりゃんもいくよぅ！ ゆっくりついていく！",
-   "chinese": "呜——芙兰也去哦！会慢慢跟着的！",
-   "english": "Uu... Flandre will go too! I will follow slowly!",
+   "japanese": "うー、ふりゃんもいくよぅ！ みんなに ついていくよぅ！",
+   "chinese": "呜——芙兰也去哦！窝跟着大家走哦！",
+   "english": "Uu... Flandre will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26096,9 +26096,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "みょん！みょんもいくみょ！ ゆっくりついていく！",
-   "chinese": "咪呦！妖梦也去哦！会慢慢跟着的！",
-   "english": "Myon! Myon will go too! I will follow slowly!",
+   "japanese": "みょん！みょんもいくみょ！ みんなに ついていくみょ！",
+   "chinese": "咪呦！妖梦也去哦！窝跟着大家走哦！",
+   "english": "Myon! Myon will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26530,9 +26530,9 @@
    "events": [
     "hunt_join"
    ],
-   "japanese": "ちーんぽ！ようむもいくよぅ！ ゆっくりついていく！",
-   "chinese": "金寶！妖梦也去哦！会慢慢跟着的！",
-   "english": "Chinpo! Youmu will go too! I will follow slowly!",
+   "japanese": "ちーんぽ！ようむもいくよぅ！ みんなに ついていくよぅ！",
+   "chinese": "金寶！妖梦也去哦！窝跟着大家走哦！",
+   "english": "Chinpo! Youmu will go too! I will follow everyone!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26950,9 +26950,9 @@
    "events": [
     "hatless_scorn"
    ],
-   "japanese": "みょん！かざりのないみょんなんて、ゆっくりじゃないよ！",
+   "japanese": "みょん！かざりも ないなんて、ゆっくりじゃないよ！",
    "chinese": "咪呦！没有头饰的家伙，才不是油库里哦！",
-   "english": "Myon! Someone with no hair thing is no yukkuri!",
+   "english": "Myon! Someone with no headwear is no yukkuri!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26978,9 +26978,9 @@
    "events": [
     "hatless_scorn"
    ],
-   "japanese": "ちーんぽ！かざりのないようむなんて、ゆっくりじゃないよ！",
+   "japanese": "ちーんぽ！かざりも ないなんて、ゆっくりじゃないよ！",
    "chinese": "金寶！没有头饰的家伙，才不是油库里哦！",
-   "english": "Chinpo! Someone with no hair thing is no yukkuri!",
+   "english": "Chinpo! Someone with no headwear is no yukkuri!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -27005,9 +27005,9 @@
    "events": [
     "hatless_scorn"
    ],
-   "japanese": "うー、かざりのないれみりあなんて、ゆっくりじゃないのだ！",
+   "japanese": "うー、かざりも ないなんて、ゆっくりじゃないのだ！",
    "chinese": "呜——没有头饰的家伙，才不是油库里呀！",
-   "english": "Uu... Someone with no hair thing is no yukkuri!",
+   "english": "Uu... Someone with no headwear is no yukkuri!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -27031,9 +27031,9 @@
    "events": [
     "hatless_scorn"
    ],
-   "japanese": "うー、かざりのないふらんなんて、ゆっくりじゃないよ！",
+   "japanese": "うー、かざりも ないなんて、ゆっくりじゃないよ！",
    "chinese": "呜——没有头饰的家伙，才不是油库里哦！",
-   "english": "Uu... Someone with no hair thing is no yukkuri!",
+   "english": "Uu... Someone with no headwear is no yukkuri!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },

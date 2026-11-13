@@ -128,9 +128,9 @@ BABY.update({
     # "please eat me" (social/SelfOffering): the child's side
     'offer_refuse': ("{c}ーっ！ やー！ おやしゃ、たべにゃいー！", "{c}——！亲亲油！窝不嚼……！", "{c}! No! I won't eat you!"),
     'offer_eat': ("ごめにゃしゃ……むーちゃ……", "对不起……嚼、嚼……", "Sowwy... munch..."),
-    'offer_grief': ('あみゃい……{c}……おやしゃ……ごめにゃしゃい……いきりゅ……',
-                    '好甜……{c}……亲亲油……对不起捏……会活下去……',
-                    'So sweet... {c}... sowwy... I will live...'),
+    'offer_grief': ('{c}……おやしゃ……ごめにゃしゃい……いきりゅ……',
+                    '{c}……亲亲油……对不起……会活下去……',
+                    '{c}... Mama, Papa... sowwy... I will live...'),
 })
 # baby counting frames: S is the counted sequence
 BABY_COUNT = {
@@ -150,7 +150,7 @@ JUVENILE = {
     'awake': ("{p}ふわぁ……おきちゃ{e}……", "{p}呼啊……醒了{e}……", "{p}Yawn... I'm awake..."),
     'afraid': ('{p}ゆわぁ！ こあい{e}！', '{p}呜哇！好口怕{e}！', '{p}Waaah! Scawy!'),
     'wounded': ('{p}ゆぅ……いちゃい{e}！', '{p}油呜……好痛{e}！', '{p}Yuu... it hurts!'),
-    'lost_parent': ("{p}おやしゃん！ どこにいる{e}……？", "{p}亲亲油！在哪儿{e}……？", "{p}Where are you...?"),
+    'lost_parent': ("{p}おやしゃん！ どこにいる{e}……？", "{p}亲亲油！在哪儿{e}……？", "{p}Mama, Papa! Where are you...?"),
     'caregiver': ("{p}もうちょっと そばに いて{e}……くっちゅいて いたいの……", "{p}陪窝一会儿{e}……窝想挨着你……", "{p}Stay with me a little longer... I wanna be close to you..."),
     'food_found': ("{p}ゆっ！ ごはんしゃん みつけた{e}！", "{p}油！找到饭鲜笋{e}！", "{p}Yu! Found Mr. Food!"),
     'share': ("{p}はい、はんぶんこ{e}！", "{p}给！一油一点{e}！", "{p}Here! A bit for each!"),
@@ -176,14 +176,14 @@ DEATH = {
     # "please eat me": the child's side
     'offer_refuse': ("{p}たべたくない……いかないで{e}……！", "{p}不想嚼……别走{e}……！", "{p}I don't want to eat you... don't go...!"),
     'offer_eat': ("{p}ごめんね……むーしゃ……", "{p}对不起……嚼、嚼……", "{p}I'm sorry... munch..."),
-    'offer_grief': ('{p}あまかった……ごめんね……ちゃんと いきていく{e}……',
-                    '{p}好甜……对不起……会好好活下去{e}……',
-                    '{p}So sweet... I am sorry... I will go on living...'),
+    'offer_grief': ('{p}ごめんね……ちゃんと いきていく{e}……',
+                    '{p}对不起……会好好活下去{e}……',
+                    '{p}I am sorry... I will go on living...'),
 }
 JUVENILE_OFFER_GRIEF = (
-    '{p}あみゃかった……おやしゃん……ごめんにぇ……ちゃんと いきていく{e}……',
-    '{p}好甜……亲亲油……对不起捏……一定废好好地活下去的……',
-    '{p}So sweet... sowwy... I will go on living...')
+    '{p}おやしゃん……ごめん……ちゃんと いきていく{e}……',
+    '{p}亲亲油……对不起……窝会好好活下去{e}……',
+    '{p}Mama, Papa... sowwy... I will go on living...')
 DEATH_ADULT = {
     'eat_kin': ("{p}くさい……おなか、すいた{e}……ごめんね……", "{p}好臭……好饿{e}……对不起……", "{p}It stinks... I'm hungry... I'm sorry..."),
     'hunt_sweet': ('{p}かいぶつ{e}……でも、おなか すいた{e}……', '{p}是怪物{e}……可彭彭好饿{e}……', '{p}A monster... but I am so hungry...'),
@@ -292,7 +292,7 @@ SETTLE = {
     'hunt_call': {
         'adult': ("{p}みんな、こっち{e}！ ごはんさん、さがす{e}！", "{p}大家，这边{e}！找饭先生去{e}！", "{p}Everyone, over here! Let's find Mr. Food!")},
     'hunt_join': {
-        'juvenile': ('{p}{n}もいく{e}！ ゆっくりついていく！', '{p}{n}也去{e}！会慢慢跟着的！', '{p}{N} will go too! I will follow slowly!'),
+        'juvenile': ('{p}{n}もいく{e}！ みんなに ついていく{e}！', '{p}{n}也去{e}！窝跟着大家走{e}！', '{p}{N} will go too! I will follow everyone!'),
         'adult': ('{p}わかった{e}。{n}もてつだう{e}。', '{p}知道了{e}。{n}也来帮忙{e}。', '{p}Got it. {N} will help too.')},
     'hunt_refuse': {
         'juvenile': ('{p}いやだ{e}！ {n}はいかない！', '{p}不要{e}！{n}不去！', '{p}No! {N} is not going!'),
@@ -339,7 +339,7 @@ SETTLE = {
 # hatless scorn / monster for the species that had no line yet
 HATLESS = {
     'hatless_scorn': {
-        'adult': ('{p}かざりのない{n}なんて、ゆっくりじゃない{e}！', '{p}没有头饰的家伙，才不是油库里{e}！', '{p}Someone with no hair thing is no yukkuri!')},
+        'adult': ('{p}かざりも ないなんて、ゆっくりじゃない{e}！', '{p}没有头饰的家伙，才不是油库里{e}！', '{p}Someone with no headwear is no yukkuri!')},
     'hatless_monster': {
         'adult': ('{p}かざりのないかいぶつ{e}……！ ちかづかないで{e}！', '{p}没有头饰的怪物{e}……！别过来{e}！', '{p}A monster with no hair thing...! Stay away!')},
 }

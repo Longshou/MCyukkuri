@@ -2143,14 +2143,14 @@
       "id": "remilia.adult.o_puff",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー！ れみりあはここにいるのだ！",
-      "chinese": "呜——！蕾米莉亚在这里呀！",
+      "japanese": "うー！ れみりあも ぷくーって できるのだ！",
+      "chinese": "呜——！蕾米莉亚也会噗咕呀！",
       "events": [
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Uu! Remilia's right here!"
+      "english": "Uu! Remilia can puff too!"
     },
     {
       "id": "remilia.young.o_hello",
@@ -2649,14 +2649,14 @@
       "id": "remilia.young.o_puff",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー！ れみりゃ、ここ！",
-      "chinese": "呜——！蕾米呀，在介里！",
+      "japanese": "うー！ れみりゃも ぷきゅーって できるのだ！",
+      "chinese": "呜——！蕾米呀也会噗啾呀！",
       "events": [
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Uu! Wemi's here!"
+      "english": "Uu! Wemi can puff too!"
     },
     {
       "id": "flandre.adult.o_hello",
@@ -2916,14 +2916,14 @@
       "id": "flandre.adult.o_returned",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、戻ってきた！ 探してくれてありがとう。",
-      "chinese": "呜——回来啦！谢谢你帮忙找。",
+      "japanese": "うー、おかざりさんが もどってきたよ！",
+      "chinese": "呜——头饰先生回来啦！",
       "events": [
         "returned_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Uu... it's back! Thank you for looking!"
+      "english": "Uu... my headwear's back!"
     },
     {
       "id": "flandre.adult.o_unknown",
@@ -3155,14 +3155,14 @@
       "id": "flandre.adult.o_puff",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー！ ふらんだってここにいるよ！",
-      "chinese": "呜——！芙兰也在这里哟！",
+      "japanese": "うー！ ふらんも ぷくーって できるよ！",
+      "chinese": "呜——！芙兰也会噗咕哟！",
       "events": [
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Uu! Flandre's here too!"
+      "english": "Uu! Flandre can puff too!"
     },
     {
       "id": "flandre.young.o_hello",
@@ -3422,14 +3422,14 @@
       "id": "flandre.young.o_returned",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、かえってきた！ ありがと！",
-      "chinese": "呜——回来啦！谢谢！",
+      "japanese": "うー、おかじゃり、かえっちぇきたよぅ！",
+      "chinese": "呜——饰饰肥来惹！",
       "events": [
         "returned_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Uu... it came back! Fank you!"
+      "english": "Uu... my headwear came back!"
     },
     {
       "id": "flandre.young.o_unknown",
@@ -3661,21 +3661,21 @@
       "id": "flandre.young.o_puff",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー！ ふりゃんもここ！",
-      "chinese": "呜——！芙呀也在介里！",
+      "japanese": "うー！ ふりゃんも ぷきゅーって できるよ！",
+      "chinese": "呜——！芙呀也会噗啾哟！",
       "events": [
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Uu! Fwan's here too!"
+      "english": "Uu! Fwan can puff too!"
     },
     {
       "id": "reimu.adult.o_house_listen",
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆっ？ たまごさん、うごいたよ？",
-      "chinese": "油？卵先生，动了哟？",
+      "chinese": "油？蛋先生动了哟？",
       "events": [
         "house_listen"
       ],
@@ -3687,7 +3687,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆっ？ たまごさん、うごいたのぜ？",
-      "chinese": "油？卵先生，动了贼？",
+      "chinese": "油？蛋先生动了贼？",
       "events": [
         "house_listen"
       ],
