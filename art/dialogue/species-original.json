@@ -18809,7 +18809,8 @@
       "events": [
         "rapem_alarm"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu?! An attacker?!"
     },
     {
       "id": "patchouli.adult.o_rapem_flee",
@@ -18820,7 +18821,8 @@
       "events": [
         "rapem_flee"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Run... I've got to get away...!"
     },
     {
       "id": "patchouli.adult.o_rapem_victim",
@@ -18831,7 +18833,8 @@
       "events": [
         "rapem_victim"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Stop... please stop...!"
     },
     {
       "id": "patchouli.adult.o_rapem_victim_climax",
@@ -18842,7 +18845,8 @@
       "events": [
         "rapem_victim_climax"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Is it going to make me...?!"
     },
     {
       "id": "patchouli.adult.o_rapem_victim_safe",
@@ -18853,7 +18857,8 @@
       "events": [
         "rapem_victim_safe"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I'm safe... at last..."
     },
     {
       "id": "chen.adult.o_rapem_alarm",
@@ -18864,7 +18869,8 @@
       "events": [
         "rapem_alarm"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Meow?! An attacker?!"
     },
     {
       "id": "chen.adult.o_rapem_flee",
@@ -18875,7 +18881,8 @@
       "events": [
         "rapem_flee"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Run! Quick, quick!"
     },
     {
       "id": "chen.adult.o_rapem_victim",
@@ -18886,7 +18893,8 @@
       "events": [
         "rapem_victim"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Stop it! Meow!"
     },
     {
       "id": "chen.adult.o_rapem_victim_climax",
@@ -18897,7 +18905,8 @@
       "events": [
         "rapem_victim_climax"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Is it going to make me...?!"
     },
     {
       "id": "chen.adult.o_rapem_victim_safe",
@@ -18908,7 +18917,8 @@
       "events": [
         "rapem_victim_safe"
       ],
-      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "1.12包无该种台词表；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Meow... I'm safe..."
     },
     {
       "id": "reimu.adult.o_hatless_scorn",

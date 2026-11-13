@@ -29799,7 +29799,8 @@
       "source_sha256": "382353d068f4d2d5c50d98652cb9a544bbdb5cbe336a7d0fa4c58ffca59e2187",
       "events": [
         "rapem_alarm"
-      ]
+      ],
+      "english": "An attacker?!"
     },
     {
       "id": "reimu.adult.o_rapem_flee",
@@ -29816,7 +29817,8 @@
       "source_sha256": "43303ae127d26a0df025414e72e78803833fbc578bda87022729c512de6ec520",
       "events": [
         "rapem_flee"
-      ]
+      ],
+      "english": "That attacker doesn't know how to take it easy!"
     },
     {
       "id": "reimu.adult.o_rapem_victim",
@@ -29833,7 +29835,8 @@
       "source_sha256": "aece4efdcf042523a343fdef816815841fb06d7069bf9aab7ed1ba74b696952a",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "Stooop!"
     },
     {
       "id": "reimu.adult.o_rapem_victim_2",
@@ -29850,7 +29853,8 @@
       "source_sha256": "41952b457d34e90bed9b4a0513fb9dc8153fb05624e0097ea64dd6cf80c03301",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "I feel sick!"
     },
     {
       "id": "marisa.adult.o_rapem_alarm",
@@ -29867,7 +29871,8 @@
       "source_sha256": "382353d068f4d2d5c50d98652cb9a544bbdb5cbe336a7d0fa4c58ffca59e2187",
       "events": [
         "rapem_alarm"
-      ]
+      ],
+      "english": "An attacker?!"
     },
     {
       "id": "marisa.adult.o_rapem_flee",
@@ -29884,7 +29889,8 @@
       "source_sha256": "21701dfd159b52bc12d583a5bf1e6a228b1c644ee28846b20a04e0215cf9134e",
       "events": [
         "rapem_flee"
-      ]
+      ],
+      "english": "That attacker doesn't know how to take it easy!"
     },
     {
       "id": "marisa.adult.o_rapem_victim",
@@ -29901,7 +29907,8 @@
       "source_sha256": "aece4efdcf042523a343fdef816815841fb06d7069bf9aab7ed1ba74b696952a",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "Stooop!"
     },
     {
       "id": "marisa.adult.o_rapem_victim_2",
@@ -29918,7 +29925,8 @@
       "source_sha256": "867ebf2c3e6d599d2a4bfd4c6182d4b3845a11a65741ae79539406662c5061bd",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "I feel sick!"
     },
     {
       "id": "alice.adult.o_rapem_alarm",
@@ -29935,7 +29943,8 @@
       "source_sha256": "382353d068f4d2d5c50d98652cb9a544bbdb5cbe336a7d0fa4c58ffca59e2187",
       "events": [
         "rapem_alarm"
-      ]
+      ],
+      "english": "An attacker?!"
     },
     {
       "id": "alice.adult.o_rapem_flee",
@@ -29952,7 +29961,8 @@
       "source_sha256": "0b4bd648d4d8bdcf45b0524046edbf878b7da17ba38a1f28e0149925b50911ac",
       "events": [
         "rapem_flee"
-      ]
+      ],
+      "english": "That attacker doesn't know how to take it easy!"
     },
     {
       "id": "alice.adult.o_rapem_victim",
@@ -29969,7 +29979,8 @@
       "source_sha256": "aece4efdcf042523a343fdef816815841fb06d7069bf9aab7ed1ba74b696952a",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "Stooop!"
     },
     {
       "id": "alice.adult.o_rapem_victim_2",
@@ -29986,7 +29997,8 @@
       "source_sha256": "72e2594a824b3eca2c62447512e901123e8ef5dccacbb0337ffe8c21e44002cc",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "I feel sick!"
     },
     {
       "id": "patchouli.adult.o_rapem_alarm",
@@ -30002,7 +30014,8 @@
       "source_sha256": "0d1968a11c701f28155a1ec3bad99c0f2f60dcce44e6fbd408438d529ebe01dd",
       "events": [
         "rapem_alarm"
-      ]
+      ],
+      "english": "Mukyu?! An attacker?!"
     },
     {
       "id": "patchouli.adult.o_rapem_flee",
@@ -30018,7 +30031,8 @@
       "source_sha256": "bd613bfd1705aa9dfd97148bcb85afa9538db536f0c2496c8e7eae2837b6ab3b",
       "events": [
         "rapem_flee"
-      ]
+      ],
+      "english": "Run... I've got to get away...!"
     },
     {
       "id": "patchouli.adult.o_rapem_victim",
@@ -30034,7 +30048,8 @@
       "source_sha256": "92de8c0c543f3d56005b4fcec36ab7427db74de9bdf8c37f277ef65d1b5361ba",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "Stop... please stop...!"
     },
     {
       "id": "patchouli.adult.o_rapem_victim_climax",
@@ -30050,7 +30065,8 @@
       "source_sha256": "11e4cb3a31b4fdeeb2694a01c9de8e6f15c33caa160ed79d56a295b6813e3fd2",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "Is it going to make me...?!"
     },
     {
       "id": "patchouli.adult.o_rapem_victim_safe",
@@ -30066,7 +30082,8 @@
       "source_sha256": "22044d76bd5d1b1fee18de8f7d55a382cea1ec26fb05c3a7aef860e2e527dee6",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I'm safe... at last..."
     },
     {
       "id": "chen.adult.o_rapem_alarm",
@@ -30082,7 +30099,8 @@
       "source_sha256": "5503327fdc85784c69ac8d50f498eec3232c00d957eff436dbba465c700a2aec",
       "events": [
         "rapem_alarm"
-      ]
+      ],
+      "english": "Meow?! An attacker?!"
     },
     {
       "id": "chen.adult.o_rapem_flee",
@@ -30098,7 +30116,8 @@
       "source_sha256": "1cd53bfc9995ad4cd9f89f7b70e8092bbc82fb252aaf2db6ef2ceb5b1e616ad9",
       "events": [
         "rapem_flee"
-      ]
+      ],
+      "english": "Run! Quick, quick!"
     },
     {
       "id": "chen.adult.o_rapem_victim",
@@ -30114,7 +30133,8 @@
       "source_sha256": "5c5ca510f92d75442305c9ac5069ddc64a8573dfff411dd2530a662cee6eb918",
       "events": [
         "rapem_victim"
-      ]
+      ],
+      "english": "Stop it! Meow!"
     },
     {
       "id": "chen.adult.o_rapem_victim_climax",
@@ -30130,7 +30150,8 @@
       "source_sha256": "c61af07629a2ac9a922f98061f23de2107e76fbc13828da0e2ca6d9763ed09c8",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "Is it going to make me...?!"
     },
     {
       "id": "chen.adult.o_rapem_victim_safe",
@@ -30146,7 +30167,8 @@
       "source_sha256": "d7f57204e7aa0ecc7296b8360eb8b0139a3450849527f932a56dd82cd9c823a8",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "Meow... I'm safe..."
     },
     {
       "id": "reimu.adult.l3632",
@@ -30165,7 +30187,8 @@
       "source_sha256": "aca66257c31ded6c6cb0ea9e81b749124e90d117a0af3ce64c0721a2e6441b46",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "Is it going to happen?!"
     },
     {
       "id": "reimu.adult.l3639",
@@ -30184,7 +30207,8 @@
       "source_sha256": "c3e98599b42fbc14251f8b47467e3e44a6e2d5035a72e0f018e55d6b2a3cb114",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "I'll die! If it happens, I'll die!"
     },
     {
       "id": "marisa.adult.l3632",
@@ -30203,7 +30227,8 @@
       "source_sha256": "37c4e59915492dde85bfc16a1200514982bf0567c648a8149a0c2909794c7564",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "Is it going to happen?!"
     },
     {
       "id": "marisa.adult.l3639",
@@ -30222,7 +30247,8 @@
       "source_sha256": "c3e98599b42fbc14251f8b47467e3e44a6e2d5035a72e0f018e55d6b2a3cb114",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "I'll die! If it happens, I'll die!"
     },
     {
       "id": "alice.adult.l3632",
@@ -30241,7 +30267,8 @@
       "source_sha256": "ba5745bfae34dc2ef5f444acfd48f27bff9e732c6992810af897c465514166de",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "Is it going to happen?!"
     },
     {
       "id": "alice.adult.l3639",
@@ -30260,7 +30287,8 @@
       "source_sha256": "c3e98599b42fbc14251f8b47467e3e44a6e2d5035a72e0f018e55d6b2a3cb114",
       "events": [
         "rapem_victim_climax"
-      ]
+      ],
+      "english": "I'll die! If it happens, I'll die!"
     },
     {
       "id": "reimu.adult.l3655",
@@ -30279,7 +30307,8 @@
       "source_sha256": "252014b92f49482e29e0e2155282cf05c1b3446cb5d0c4e0e480a1a6dade1fdb",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I held out!"
     },
     {
       "id": "reimu.adult.l3657",
@@ -30298,7 +30327,8 @@
       "source_sha256": "e7c1d4811fc85981ea41b95ffe62fd45cae89ef470eaf0ba1588e6db63349796",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I didn't give in!"
     },
     {
       "id": "reimu.adult.l3667",
@@ -30317,7 +30347,8 @@
       "source_sha256": "2c20cc94dbef7978824e1a15cce775bebcbb79bdf5fa858f2f6d113bdd0586e5",
       "events": [
         "heat_refuse"
-      ]
+      ],
+      "english": "Don't stop shaking!"
     },
     {
       "id": "marisa.adult.l3655",
@@ -30336,7 +30367,8 @@
       "source_sha256": "e1d350a5f6e0e174ef05a613d74191f66d7837fa626ff7f3e924fe6681818c42",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I held out!"
     },
     {
       "id": "marisa.adult.l3657",
@@ -30355,7 +30387,8 @@
       "source_sha256": "50b3cfb8e7c5ad3a046cd6e3e070b81ccad2e31ad35ac27b6e45f1079c36d86a",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I didn't give in!"
     },
     {
       "id": "marisa.adult.l3667",
@@ -30374,7 +30407,8 @@
       "source_sha256": "49732113bb268a364a37cedc543e3d2bf9c03e2c03aa7e3bf2672b163e44920d",
       "events": [
         "heat_refuse"
-      ]
+      ],
+      "english": "Don't stop shaking!"
     },
     {
       "id": "alice.adult.l3655",
@@ -30393,7 +30427,8 @@
       "source_sha256": "cff36249f64156fd65b576e4cc84a5d82b53079ed6fc73507ebff85b74bed44b",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I held out!"
     },
     {
       "id": "alice.adult.l3657",
@@ -30412,7 +30447,8 @@
       "source_sha256": "7462d044c2e033976a8cfdf5deaab5f490199b9f4663673688cd9733beb55997",
       "events": [
         "rapem_victim_safe"
-      ]
+      ],
+      "english": "I didn't give in!"
     },
     {
       "id": "alice.adult.l3667",
@@ -30431,7 +30467,8 @@
       "source_sha256": "a50d851c8e7db2c6f443d4bb72e78edf0687b13dc7a098283b3ae067fc2e156c",
       "events": [
         "heat_refuse"
-      ]
+      ],
+      "english": "Don't stop shaking!"
     },
     {
       "id": "reimu.adult.o_hatless_scorn",
@@ -30886,7 +30923,8 @@
       "source_sha256": "ff2e21882a99642989de2ea2d90f6b5828e1a5dfcb6a6ed00e0e47808a59bf0b",
       "events": [
         "bitter"
-      ]
+      ],
+      "english": "Bittah... it doesn't taste good..."
     },
     {
       "id": "reimu.baby.h112_1986",
@@ -30977,7 +31015,8 @@
       "source_sha256": "3f4a86890759c75c574d6ba5711ce51c5de615781bd6359d2c3917bdbd18953e",
       "events": [
         "toilet_done"
-      ]
+      ],
+      "english": "All bettah!"
     },
     {
       "id": "reimu.baby.h112_1128",
@@ -31022,7 +31061,8 @@
       "source_sha256": "e28c334f24e9bd905a97e9a8eb45c29c9c407a84de962304bb21f49fb8f0d705",
       "events": [
         "afraid"
-      ]
+      ],
+      "english": "Yupeee! It's scawy!"
     },
     {
       "id": "reimu.baby.h112_6619",
@@ -31044,7 +31084,8 @@
       "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
       "events": [
         "water_help"
-      ]
+      ],
+      "english": "Yububububu...!"
     },
     {
       "id": "reimu.baby.h112_0892",
@@ -31066,7 +31107,8 @@
       "source_sha256": "051c8a1db85145ad80d3935473e277214aa06cc96692fafac972b8bd4b5332eb",
       "events": [
         "lost_parent"
-      ]
+      ],
+      "english": "Mama! Papa! Where are you?!"
     },
     {
       "id": "reimu.baby.h112_0984",
@@ -31088,7 +31130,8 @@
       "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
       "events": [
         "dying"
-      ]
+      ],
+      "english": "Yu... yu..."
     },
     {
       "id": "marisa.baby.h112_0017",
@@ -31203,7 +31246,8 @@
       "source_sha256": "efde65d7058251e6a75a82817e4d58688ad8525d9312208e9afbe31adcd84a4d",
       "events": [
         "bitter"
-      ]
+      ],
+      "english": "Bittah... it doesn't taste good..."
     },
     {
       "id": "marisa.baby.h112_1991",
@@ -31294,7 +31338,8 @@
       "source_sha256": "3f4a86890759c75c574d6ba5711ce51c5de615781bd6359d2c3917bdbd18953e",
       "events": [
         "toilet_done"
-      ]
+      ],
+      "english": "All bettah!"
     },
     {
       "id": "marisa.baby.h112_1133",
@@ -31339,7 +31384,8 @@
       "source_sha256": "0b0fb2833f77f09ea02a7c399b72368877fa3f4c03f7f72deef281435f8cf98a",
       "events": [
         "afraid"
-      ]
+      ],
+      "english": "Yupeee! It's scawy!"
     },
     {
       "id": "marisa.baby.h112_6609",
@@ -31361,7 +31407,8 @@
       "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
       "events": [
         "water_help"
-      ]
+      ],
+      "english": "Yububububu...!"
     },
     {
       "id": "marisa.baby.h112_0896",
@@ -31383,7 +31430,8 @@
       "source_sha256": "a6126526020a9330bdc82fe4cdae06577f24595f562f5f3667328eb870f772cd",
       "events": [
         "lost_parent"
-      ]
+      ],
+      "english": "Mama! Papa! Where are you?!"
     },
     {
       "id": "marisa.baby.h112_0988",
@@ -31405,7 +31453,8 @@
       "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
       "events": [
         "dying"
-      ]
+      ],
+      "english": "Yu... yu..."
     },
     {
       "id": "alice.baby.h112_0017",
@@ -31450,7 +31499,8 @@
       "source_sha256": "9b4a91588addf7bb6e1fb92cf893e717c58de5ace1d913ff89b39e5335851766",
       "events": [
         "narrate_flee"
-      ]
+      ],
+      "english": "Gotta get away... gotta run...!"
     },
     {
       "id": "alice.baby.h112_0175",
@@ -31472,7 +31522,8 @@
       "source_sha256": "d25554e36ed2aa57e126cd68f27b3e39d99a75751b0e3763ce73a65b02966d64",
       "events": [
         "wait_turn"
-      ]
+      ],
+      "english": "I'll wait and chake it eashy!"
     },
     {
       "id": "reimu.adult.h112_3060",
@@ -31494,7 +31545,8 @@
       "source_sha256": "12e0f4521d68d56d85685ce8fbd3602043a6a9a3ee38f1794821f7e2c6d227d0",
       "events": [
         "bitter"
-      ]
+      ],
+      "english": "It's bitter... it tastes bad..."
     },
     {
       "id": "reimu.adult.h112_2099",
@@ -31516,7 +31568,8 @@
       "source_sha256": "85a7a3e3c3df8959220ff1e072d5589d5b1350e7f7d89fb7a91910409be04a85",
       "events": [
         "puff"
-      ]
+      ],
+      "english": "Puff! What is it?!"
     },
     {
       "id": "reimu.adult.h112_4957",
@@ -31538,7 +31591,8 @@
       "source_sha256": "33b58aaeaa26b412fa7c9a4b9b54769b4cd2c048c0b9b3b4afd271aecd84f84c",
       "events": [
         "toilet_done"
-      ]
+      ],
+      "english": "What a relief!"
     },
     {
       "id": "reimu.adult.h112_4264",
@@ -31582,7 +31636,8 @@
       "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
       "events": [
         "water_help"
-      ]
+      ],
+      "english": "Yububububu...!"
     },
     {
       "id": "reimu.adult.h112_0892",
@@ -31604,7 +31659,8 @@
       "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
       "events": [
         "dying"
-      ]
+      ],
+      "english": "Yu... yu..."
     },
     {
       "id": "reimu.adult.h112_2655",
@@ -31781,7 +31837,8 @@
       "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
       "events": [
         "water_help"
-      ]
+      ],
+      "english": "Yububububu...!"
     },
     {
       "id": "marisa.adult.h112_0893",
@@ -31803,7 +31860,8 @@
       "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
       "events": [
         "dying"
-      ]
+      ],
+      "english": "Yu... yu..."
     },
     {
       "id": "marisa.adult.h112_2656",
@@ -32024,7 +32082,8 @@
       "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
       "events": [
         "water_help"
-      ]
+      ],
+      "english": "Yububububu...!"
     },
     {
       "id": "alice.adult.h112_0892",
@@ -32046,7 +32105,8 @@
       "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
       "events": [
         "dying"
-      ]
+      ],
+      "english": "Yu... yu..."
     },
     {
       "id": "alice.adult.h112_1869",
