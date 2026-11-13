@@ -3918,7 +3918,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "いちゃいよぉぉぉ！わかっちぇにぇぇぇ！",
-      "chinese": "好痛痛哟——！要懂呀——！",
+      "chinese": "好痛痛哟——！听懂惹捏——！",
       "source": {
         "file": "yukkuri/tilen/serifu.csv",
         "line": 101,
@@ -19693,7 +19693,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……放下去贼……",
+      "chinese": "帽帽……抖掉……。",
       "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
@@ -19982,7 +19982,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……放下去惹杰……",
+      "chinese": "帽帽……抖掉……。",
       "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"

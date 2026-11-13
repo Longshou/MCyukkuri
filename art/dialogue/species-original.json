@@ -11691,7 +11691,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……放下去贼……",
+      "chinese": "帽帽……抖掉……。",
       "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
@@ -11895,7 +11895,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……放下去惹杰……",
+      "chinese": "帽帽……抖掉……。",
       "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
