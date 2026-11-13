@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 物品画风统一与清理（玩具、装置、药，删重复与无用） | `.worktrees/wp-it-item-style-cleanup` | item registry, item models/textures, art/props, recipes, lang, creative tab |
 
 ## 玩法待办
 
