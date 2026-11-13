@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.HouseholdEcology;
@@ -51,9 +52,15 @@ public final class WashClothItem extends Item {
     }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
+        stack = player.getItemInHand(hand);
         if (water(stack)==0) { player.displayClientMessage(Component.translatable("care.mcyukkuri.cloth.dry"),true); return InteractionResult.FAIL; }
-        if (!player.level().isClientSide) {
-            if(entity.life().wash(player.getUUID()))useWater(stack);
+        if (player.level() instanceof ServerLevel level) {
+            if (!InteractionDispatch.requireReach(player, entity, 3)) return InteractionResult.FAIL;
+            if (ShopRegistry.get(level).protectedAt(level, entity.blockPosition())) {
+                InteractionDispatch.refuse(player, entity, "wash", "shop");
+                return InteractionResult.FAIL;
+            }
+            if(entity.life().wash(player))useWater(stack);
             else InteractionDispatch.refuse(player,entity,"wash","condition");
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);

@@ -52,6 +52,13 @@ public final class Marks {
         return Math.max(grime, fromHygiene);
     }
 
+    public void washed() {
+        grime = Math.max(0, grime - 1);
+        soil = 0;
+        lastHygiene = entity.life().hygiene();
+        entity.syncMarks(write(visible()));
+    }
+
     /** Controlled writes (commands, scenarios). Returns false when the request is out of range. */
     public boolean setGrime(int level) {
         if (level < 0 || level > 3) return false;

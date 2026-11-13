@@ -204,6 +204,8 @@
     "exam_platinum": "TN-19",
     "street_mixed": "TN-20",
     "street_give_way": "TN-21",
-    "shop_care": "SP-06"
+    "shop_care": "SP-06",
+    "care_attitude": "MD-19",
+    "basket_attitude": "TN-22"
   }
 }

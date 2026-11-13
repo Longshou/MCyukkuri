@@ -33,11 +33,14 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -164,6 +167,8 @@ public final class ScenarioCommands {
                 .then(Commands.literal("exam_step_owner").then(Commands.argument("step", Vec3Argument.vec3()).executes(ScenarioCommands::stepExamOwner)))
                 .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
+                .then(Commands.literal("care_click").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
@@ -374,6 +379,32 @@ public final class ScenarioCommands {
                 return menu.clickMenuButton(player, action.id()) ? 1 : 0;
             }
             return tool.interactLivingEntity(player, target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
+        } finally {
+            player.setItemInHand(InteractionHand.MAIN_HAND, previous);
+        }
+    }
+
+    /** Drives the real held-item boundary on a dedicated smoke server. */
+    private static int careClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var target = yukkuri(c, "target");
+        if (target == null) return 0;
+        var stack = switch (StringArgumentType.getString(c, "item")) {
+            case "wet_cloth" -> new ItemStack(ModItems.WASH_CLOTH.get());
+            case "junk" -> new ItemStack(ModItems.JUNK_HEADWEAR.get());
+            case "budget_grain" -> new ItemStack(ModItems.GRAIN_BUDGET.get());
+            case "premium_grain" -> new ItemStack(ModItems.GRAIN_PREMIUM.get());
+            default -> ItemStack.EMPTY;
+        };
+        if (stack.isEmpty()) return 0;
+        if (stack.is(ModItems.WASH_CLOTH.get())) CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt("Water", 1));
+        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        player.setPos(target.getX() + 1, target.getY(), target.getZ());
+        var previous = player.getMainHandItem();
+        try {
+            player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+            var result = stack.interactLivingEntity(player, target, InteractionHand.MAIN_HAND);
+            if (result == InteractionResult.PASS) result = target.interact(player, InteractionHand.MAIN_HAND);
+            return result.consumesAction() ? 1 : 0;
         } finally {
             player.setItemInHand(InteractionHand.MAIN_HAND, previous);
         }

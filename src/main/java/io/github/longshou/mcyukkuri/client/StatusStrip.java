@@ -45,6 +45,10 @@ public final class StatusStrip {
         }
 
         Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h) {
+            return renderCard(g, font, x, y, w, h, Component.empty());
+        }
+
+        private Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h, Component outlook) {
             GuiKit.statusCard(g, x, y, w, h);
             GuiKit.icon(g, x + 5, y + 1, GuiKit.ICON_STATUS);
             Component identity = Component.translatable(identityKey);
@@ -57,15 +61,20 @@ public final class StatusStrip {
             for (int line = 0; line < lines.size(); line++) {
                 g.drawString(font, lines.get(line), x + PAD, y + STATUS_TOP + line * font.lineHeight, GuiKit.INK, false);
             }
+            if (!outlook.getString().isEmpty())
+                g.drawString(font, outlook, x + PAD, y + STATUS_TOP + lines.size() * font.lineHeight, GuiKit.INK, false);
             return shortName == name ? null : title(name);
         }
 
-        void renderHud(GuiGraphics g, Font font, int bottom) {
+        void renderHud(GuiGraphics g, Font font, int bottom, String outlookId) {
+            Component outlook = outlookId.isEmpty() ? Component.empty() : Component.translatable("magnifier.mcyukkuri.outlook." + outlookId);
             int chip = chipWidth(font, Component.translatable(identityKey));
             int w = Math.min(g.guiWidth() - 16,
-                    Math.max(font.width(status) + 2 * PAD, font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
+                    Math.max(Math.max(font.width(status), font.width(outlook)) + 2 * PAD,
+                            font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
             int h = STATUS_TOP + font.split(status, w - 2 * PAD).size() * font.lineHeight + 4;
-            renderCard(g, font, (g.guiWidth() - w) / 2, bottom - h, w, h);
+            if (!outlookId.isEmpty()) h += font.lineHeight;
+            renderCard(g, font, (g.guiWidth() - w) / 2, bottom - h, w, h, outlook);
         }
     }
 

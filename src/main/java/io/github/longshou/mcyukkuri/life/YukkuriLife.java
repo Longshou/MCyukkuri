@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
+
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
@@ -42,6 +45,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
@@ -407,6 +412,8 @@ public final class YukkuriLife {
     public boolean canRecognize(YukkuriEntity target) { return Recognition.recognizes(entity, target); }
     public boolean needsFood(){ return meal.needsFood(); }
     private boolean edible(ItemStack food){ return meal.edible(food); }
+    boolean seeksFood(ItemStack food) { return meal.seeksFood(food); }
+    public boolean refuseOfferedGrain(ItemStack food, Player giver) { return meal.refuseOfferedGrain(food, giver); }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
     private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
@@ -590,7 +597,7 @@ public final class YukkuriLife {
     public void eatAtStand() {
         if (entity.tickCount % 10 != 0 || !canEat() || !EventHooks.canEntityGrief(level(), entity)) return;
         var items = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(.5), item ->
-                acceptsFood(item.getItem()) && ItemContact.reaches(entity,item) && WildCards.mayTakeFood(entity,item));
+                seeksFood(item.getItem()) && ItemContact.reaches(entity,item) && WildCards.mayTakeFood(entity,item));
         var food = items.stream().min(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                 .thenComparingDouble(entity::distanceToSqr)).orElse(null);
         if (food != null) takeGroundFood(food);
@@ -634,9 +641,34 @@ public final class YukkuriLife {
         planWait = 20; entity.getNavigation().stop();
     }
     public boolean wash(UUID player) {
-        if (hygiene >= 99 || entity.isInWaterOrBubble() || entity.isOnFire()) return false;
+        var actor = level().getEntity(player);
+        if (actor == null) actor = level().getPlayerByUUID(player);
+        return wash(player, actor);
+    }
+
+    public boolean wash(Player player) { return wash(player.getUUID(), player); }
+
+    private boolean wash(UUID player, Entity actor) {
+        var marks = entity.status().marks();
+        int dirt = marks.dirt();
+        if ((hygiene >= 99 && marks.grime() == 0) || entity.isInWaterOrBubble() || entity.isOnFire()
+                || isSleeping() || entity.isPanicking() || entity.operations().active() || entity.isCommandPlaying()
+                || entity.family().birthDuty() || entity.body().dying()) return false;
+        var contact = SocialDisposition.contact(entity, actor);
+        var response = contact.response(true);
+        float before = hygiene;
         hygiene = Math.min(100, hygiene + 40); wetness = Math.min(100, wetness + 5);
-        personality.washed(player); entity.showReaction("happy", "washed", 60); return true;
+        marks.washed();
+        personality.washed(player);
+        switch (response) {
+            case GUARDED -> entity.showReaction(YukkuriAction.TREMBLE, "teary", "");
+            case DEFIANT -> entity.showReaction(YukkuriAction.STRUGGLE, "angry", "refuse");
+            case GRATEFUL -> entity.showReaction(YukkuriAction.BOW, "closed_smile", "request_thanks");
+            default -> entity.showReaction("happy", "washed", 60);
+        }
+        GameplayLog.event(entity, "interaction", "wash player={} response={} esteem={} wariness={} hygiene={}->{} dirt={}->{}",
+                player, response.id(), contact.esteem(), contact.wariness(), before, hygiene, dirt, marks.dirt());
+        return true;
     }
     /** The worn hat leaves the head as the placed hat {@code hat}; returns the custody token it carries. */
     public UUID stowAccessory(UUID hat){ return accessory.stowAccessory(hat); }
@@ -730,7 +762,7 @@ public final class YukkuriLife {
         }
         if (!penned && canEat() && !entity.forageTrip().provisioningFirst() && EventHooks.canEntityGrief(level(), entity)) {
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
-                    item.isAlive() && acceptsFood(item.getItem()));
+                    item.isAlive() && seeksFood(item.getItem()));
             // One pass in the species' own order (taste, then nearness): the first portion it can really walk to is the meal, and
             // when none is, the same pass has already counted why each was passed over for the readout below.
             boolean ignoresScraps = entity.pet().care().walk().ignoresScraps();
@@ -1112,7 +1144,7 @@ public final class YukkuriLife {
 
     private void seekFoodAtGlass() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240 || !targetFood.isAlive()
-                || targetFood.hasPickUpDelay() || !acceptsFood(targetFood.getItem())
+                || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem())
                 || GlassSight.glassBetween(entity, entity.getEyePosition(), targetFood) == null) {
             stopGoal();
             replanNow();
@@ -1140,7 +1172,7 @@ public final class YukkuriLife {
 
     private void seekFood() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240) { stopGoal(); return; }
-        if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !acceptsFood(targetFood.getItem()))) targetFood = null;
+        if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem()))) targetFood = null;
         if (targetFood != null) {
             entity.getLookControl().setLookAt(targetFood, 20, 20);
             if (ItemContact.reaches(entity, targetFood)) {
@@ -1167,7 +1199,7 @@ public final class YukkuriLife {
                 Vec3 source = targetFood.position();
                 approachFood(source, ItemContact.approach(entity, source), source);
             }
-        } else if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::acceptsFood)) {
+        } else if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
             Vec3 source = Vec3.atBottomCenterOf(targetBlock);
             if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
             if (bowlStand == null) {
@@ -1177,14 +1209,14 @@ public final class YukkuriLife {
             if (ItemContact.reaches(entity, bowlStand.contact(), .06)) {
                 boolean manners = followsRule(PetSkill.FOOD_BOWL);
                 if (manners) {
-                    boolean taken = bowl.handFood(this::acceptsFood, one -> {
+                    boolean taken = bowl.handFood(this::seeksFood, one -> {
                         if (!beginMeal(one, null, false)) return false;
                         meal.bowlMeal();
                         GameplayLog.event(entity, "meal", "pickup item={} count={} source={} holder=mouth", one.getItem(), one.getCount(), bowl.getBlockPos());
                         return true;
                     });
                     if (!taken) stopGoal();
-                } else if (bowl.handFood(this::acceptsFood, one -> {
+                } else if (bowl.handFood(this::seeksFood, one -> {
                     var dropped = ItemContact.release(entity, one, 0);
                     if (dropped == null) return false;
                     targetFood = dropped;

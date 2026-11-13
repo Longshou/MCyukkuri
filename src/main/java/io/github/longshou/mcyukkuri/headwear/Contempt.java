@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -62,11 +63,34 @@ public final class Contempt {
         boolean mocks = harsh(observer);
         var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
                         y -> y != observer && y.isAlive() && !y.profile().dangerToYukkuri()
-                                && (Recognition.unrecognizedHatless(observer, y) || mocks && Recognition.junkCovered(y))
+                                && (Recognition.unrecognizedHatless(observer, y) || mocks && Recognition.junkCovered(y)
+                                || rejectsDirt(observer, y))
                                 && observer.headwear().readyForHatlessContact(y) && observer.hasLineOfSight(y))
                 .stream().min(Comparator.comparingDouble(observer::distanceToSqr)).orElse(null);
         if (target == null) return IDLE_WAIT;
-        return Recognition.junkCovered(target) ? mock(level, observer, target) : react(level, observer, target);
+        if (Recognition.unrecognizedHatless(observer, target)) return react(level, observer, target);
+        if (mocks && Recognition.junkCovered(target)) return mock(level, observer, target);
+        return snubDirt(observer, target);
+    }
+
+    private static boolean rejectsDirt(YukkuriEntity observer, YukkuriEntity target) {
+        if (target.status().marks().dirt() < 2 || target.settlement().society().slave()) return false;
+        var relation = observer.life().personality().relation(target.getUUID());
+        double patience = SocialDisposition.ramp(observer.life().personality().friendliness(), 25, 80);
+        return SocialDisposition.dirtAversion(target, relation) * (1 - .6 * patience) >= .45;
+    }
+
+    private static int snubDirt(YukkuriEntity observer, YukkuriEntity target) {
+        if (!observer.showReaction("pursed", "", 60)) return IDLE_WAIT;
+        observer.getLookControl().setLookAt(target, 30, 30);
+        var personality = observer.life().personality();
+        int closeness = personality.trust(target.getUUID());
+        if (closeness > -10) personality.relationshipChanged(target.getUUID(), -1, 0);
+        observer.headwear().coolHatlessContact(target, AFTER_SCORN);
+        if (!target.life().isSleeping()) target.showReaction("look_down", "", 60);
+        GameplayLog.event(observer, "contempt", "dirt snub target={} dirt={} affinity={}->{}", target.getUUID(),
+                target.status().marks().dirt(), closeness, personality.trust(target.getUUID()));
+        return AFTER_SCORN;
     }
 
     private static int mock(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {

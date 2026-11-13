@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import net.minecraft.world.entity.player.Player;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -71,6 +72,33 @@ final class LifeMeal {
             ||food.is(ModItems.WASTE.get())&&o.entity().settlement().duties().pit().eatsWaste();}
 
     boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(o.entity(),food));}
+
+    /** Budget grain is still ordinary edible food. A refusal is a choice at acquisition, never mid-chew. */
+    private boolean judgesBudgetGrain(ItemStack food) {
+        var eater = o.entity();
+        if (!food.is(ModItems.GRAIN_BUDGET.get()) || !eater.family().adult() || eater.profile().dangerToYukkuri()
+                || o.nutrition() < 50 || eater.settlement().society().slave()) return false;
+        return !eater.pet().isPet() || o.personality().selfControl() < 45 && eater.mind().unease() >= 50;
+    }
+
+    private boolean declinesBudgetGrain(SocialDisposition.Contact contact) {
+        return contact.insistence() >= 1 - SocialDisposition.ramp(o.nutrition(), 50, FULL) * .65;
+    }
+
+    boolean seeksFood(ItemStack food) {
+        return acceptsFood(food) && (!judgesBudgetGrain(food) || !declinesBudgetGrain(SocialDisposition.contact(o.entity(), null)));
+    }
+
+    boolean refuseOfferedGrain(ItemStack food, Player giver) {
+        if (!judgesBudgetGrain(food)) return false;
+        var contact = SocialDisposition.contact(o.entity(), giver);
+        if (!declinesBudgetGrain(contact)) return false;
+        o.entity().showReaction("pursed", "refuse", 45);
+        GameplayLog.limited(o.entity(), "meal", "budget_refused", 40,
+                "grain refused item={} player={} nutrition={} esteem={} wariness={} insistence={} reason=quality",
+                food.getItem(), giver.getUUID(), o.nutrition(), contact.esteem(), contact.wariness(), contact.insistence());
+        return true;
+    }
 
     private boolean mouthForMeal() {
         return !occupancy().kitInMouth() && !o.entity().family().carry().mouthBusy();
@@ -301,6 +329,7 @@ final class LifeMeal {
                 double esteem = SocialDisposition.selfEsteem(eater);
                 double wariness = SocialDisposition.wariness(eater, bond);
                 boolean ordinaryAdult = eater.family().adult() && !preparedMeal && !filling && !scrap && !sweet;
+                boolean premium = mouth.is(ModItems.GRAIN_PREMIUM.get());
                 boolean guarded = ordinaryAdult && pleasant && wariness >= .4;
                 boolean defiant = ordinaryAdult && pleasant && feeder != null && !guarded
                         && SocialDisposition.insistence(o.personality(), esteem, wariness, bond) >= .52;
@@ -315,7 +344,8 @@ final class LifeMeal {
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
                 if (feeder != null) ExamSession.fed(o.entity(), feeder);
                 boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);
-                boolean grateful = ordinaryAdult && feeder != null && bond.closeness() >= 10 && !guarded && !defiant;
+                boolean grateful = ordinaryAdult && feeder != null && (bond.closeness() >= 10
+                        || premium && o.personality().friendliness() >= 55) && !guarded && !defiant;
                 String fedLine = answered ? "request_thanks" : grateful
                         ? (o.level().getEntity(bondTarget) instanceof HumanNpc ? "badge_thanks" : "request_thanks") : "fed";
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;

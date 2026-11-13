@@ -362,6 +362,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public long leakTraceAt() { return sync().leakTraceAt(); }
     public void syncLeakTrace(long at) { sync().leakTrace(at); }
     @Override public String identityTranslationKey() { return componentData(StatusLife.IDENTITY); }
+    @Override public String outlookId() { return componentData(StatusLife.OUTLOOK); }
     public String getBehaviorId() { return sync().getBehaviorId(); }
     public long getBehaviorStartTick() { return sync().getBehaviorStartTick(); }
     public int nuzzlePartnerId() { return sync().nuzzlePartnerId(); }
@@ -836,11 +837,21 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
         if (level().isClientSide || held() && !urgent(event)) return;
+        reactionAction = null;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = event == null ? "" : event;
         pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
 
     public boolean hasReaction() { return reactionTicks > 0; }
+    private YukkuriAction reactionAction;
+    public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
+
+    /** An ordinary reaction pose. Movement, active contact and danger can still take priority. */
+    public boolean showReaction(YukkuriAction action, String expression, String dialogue) {
+        if (!showReaction(expression, dialogue, Math.max(1, (int) Math.ceil(action.duration() * 20)))) return false;
+        reactionAction = action;
+        return true;
+    }
     /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
     /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}).
@@ -854,6 +865,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */
     public void forceReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
+        reactionAction = null;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(reactionEvent);
     }

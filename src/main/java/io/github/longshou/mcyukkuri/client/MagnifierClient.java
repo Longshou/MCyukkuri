@@ -87,7 +87,7 @@ public final class MagnifierClient {
         // Match Gui.renderSelectedItemName after the health, hunger and vehicle layers set their heights.
         int inset = Math.max(ITEM_NAME_INSET, Math.max(minecraft.gui.leftHeight, minecraft.gui.rightHeight));
         int itemNameTop = g.guiHeight() - inset + (minecraft.gameMode.canHurtPlayer() ? 0 : ITEM_NAME_NO_HEALTH_SHIFT);
-        StatusStrip.of(aim).renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP);
+        StatusStrip.of(aim).renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
     }
 
     private static YukkuriView pick(LocalPlayer player, Camera camera) {

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -340,12 +342,19 @@ public final class OperationLife {
     private boolean takeAccessory(Player player,boolean confiscated){
         var custody = entity.life().custody();
         if (!confiscated && custody.junk() != null) {
+            var contact = SocialDisposition.contact(entity, player);
             if (!custody.releaseJunk(variant -> {
                 var junk = JunkHeadwear.item();
                 return player.getInventory().add(junk) && junk.isEmpty();
             }) && !custody.putDownJunk()) return false;
-            entity.showReaction("surprise", "", 40);
-            GameplayLog.event(entity, "headwear", "junk removed player={}", player.getUUID());
+            var response = contact.response(false);
+            switch (response) {
+                case GUARDED -> entity.showReaction(YukkuriAction.TREMBLE, "teary", "");
+                case DEFIANT -> entity.showReaction("cheek_puff", "puff", 45);
+                default -> entity.showReaction("look_down", "", 45);
+            }
+            GameplayLog.event(entity, "headwear", "junk removed player={} response={} esteem={} wariness={}",
+                    player.getUUID(), response.id(), contact.esteem(), contact.wariness());
             return true;
         }
         var stack=new ItemStack(ModItems.accessoryFor(entity));

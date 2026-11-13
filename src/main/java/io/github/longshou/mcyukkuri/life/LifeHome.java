@@ -209,7 +209,7 @@ final class LifeHome {
         BlockPos best = null; double distance = Double.MAX_VALUE;
         for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
             if (!TravelRange.babyDestination(o.entity(),scan) || !o.level().hasChunkAt(scan) || !(o.level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
-            if (requireFood && (!care.hasFood(o::acceptsFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
+            if (requireFood && (!care.hasFood(o::seeksFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
                     || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
                     || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));

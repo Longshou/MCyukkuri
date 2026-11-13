@@ -3,12 +3,16 @@ package io.github.longshou.mcyukkuri.item;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +24,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -129,11 +132,15 @@ public final class CarrierItem extends Item {
             return;
         }
         GameplayLog.event(player,"carrier","action=capture result=accepted target={} completion=pending",entity.getUUID());
-        entity.playAction("basket_in"); entity.speak("basket_enter");
+        var contact = SocialDisposition.contact(entity, player);
+        var response = contact.response(true);
+        entity.playAction("basket_in");
+        entity.showReaction(response == SocialDisposition.Response.GUARDED ? "teary" : "closed_smile",
+                response == SocialDisposition.Response.GRATEFUL ? "request_thanks" : "basket_enter", SCENE_WINDOW);
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 16) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
-            var reason=InteractionDispatch.rangeRefusal(player,entity,6);
+            var reason=InteractionDispatch.reachRefusal(player,entity,4);
             if(reason==null&&!willing(player,entity)&&!entity.life().sedated())reason=entity.isPanicking()?"fear":"condition";
             if(reason==null)reason=capture(level,player,hand,stack,entity);
             if(reason!=null)InteractionDispatch.refuse(player,entity,"capture",reason);
@@ -148,17 +155,34 @@ public final class CarrierItem extends Item {
             player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
             return;
         }
-        entity.playAction("struggle"); entity.showReaction("teary", "basket_refuse", 60);
-        Vec3 from = player.position();
+        var contact = SocialDisposition.contact(entity, player);
+        var response = contact.response(false);
+        boolean mobile = canReact(entity);
+        if (mobile && entity.life().nutrition() >= 20 && response != SocialDisposition.Response.SULKY) {
+            entity.showReaction(response == SocialDisposition.Response.GUARDED ? YukkuriAction.TREMBLE : YukkuriAction.STRUGGLE,
+                    response == SocialDisposition.Response.GUARDED ? "teary" : "angry", "basket_refuse");
+        } else if (mobile) entity.showReaction("look_down", "basket_refuse", SCENE_WINDOW);
+        player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
+        GameplayLog.event(entity, "carrier", "capture reaction player={} response={} esteem={} wariness={} insistence={} nutrition={} mobile={}",
+                player.getUUID(), !mobile ? "busy" : entity.life().nutrition() < 20 ? "weary" : response.id(),
+                contact.esteem(), contact.wariness(), contact.insistence(), entity.life().nutrition(), mobile);
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 20) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
-            if (!entity.isAlive()) return true;
-            if (entity.isCommandPlaying() && "struggle".equals(entity.getAnimationId())) entity.playAction("idle");
-            Vec3 away = entity.isPanicking() ? null : DefaultRandomPos.getPosAway(entity, 6, 3, from);
-            if (away != null) entity.getNavigation().moveTo(away.x, away.y, away.z, 1.1);
+            if (mobile && canReact(entity) && entity.life().nutrition() >= 20
+                    && InteractionDispatch.reachRefusal(player, entity, 4) == null) {
+                var away = Reactions.escapeStand(entity, player, 5, Set.of());
+                if (away != null) SurfaceApproach.walk(entity, away, 1.1);
+            }
             return true;
         });
+    }
+
+    private static boolean canReact(YukkuriEntity entity) {
+        return entity.isAlive() && !entity.isPanicking() && !entity.isPassenger() && !entity.isVehicle() && entity.onGround()
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isCommandPlaying()
+                && !entity.operations().active() && !entity.family().active() && !entity.life().isSleeping()
+                && entity.life().mealTicks() == 0 && !entity.body().dying() && entity.hurtTime == 0;
     }
     /** A voluntary entry rechecks the original basket and its current room at handoff. */
     private String capture(ServerLevel level, Player player, InteractionHand hand, ItemStack stack, YukkuriEntity entity) {

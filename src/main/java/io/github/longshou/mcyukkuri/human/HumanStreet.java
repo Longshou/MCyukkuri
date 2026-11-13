@@ -61,6 +61,7 @@ final class HumanStreet {
     private Vec3 chaseStand;
     private YukkuriEntity activeTarget;
     private YukkuriEntity lastPetted;
+    private long nextDirtLook;
     int kickPose, frownPose;
 
     private static final class Warning {
@@ -307,6 +308,19 @@ final class HumanStreet {
     }
 
     void tick() {
+        if (now() >= nextDirtLook && npc.streetActive() && observable()) {
+            nextDirtLook = now() + 60;
+            var dirty = nearest(4, y -> y.status().identity() == Identity.STRAY && y.status().marks().dirt() >= 2
+                    && y.isAlive() && aheadOf(npc, y) && npc.hasLineOfSight(y)
+                    && SocialDisposition.dirtAversion(y, y.life().personality().relation(npc.getUUID()))
+                    >= (npc.attitude() == HumanNpc.Attitude.CARING ? 1 : .5));
+            if (dirty != null) {
+                nextDirtLook = now() + 600;
+                npc.getLookControl().setLookAt(dirty, 30, 30);
+                npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+                GameplayLog.event(npc, "npc-care", "action=street_dirt_frown target={} dirt={}", dirty.getUUID(), dirty.status().marks().dirt());
+            }
+        }
         if (lastPetted != null && (!lastPetted.isAlive() || lastPetted.level() != npc.level()
                 || npc.distanceToSqr(lastPetted) > PARTED_SQ)) lastPetted = null;
         if (warnings.isEmpty()) return;

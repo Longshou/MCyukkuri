@@ -544,7 +544,8 @@ FIELDS = [
     # 64 blocks of meadow north and south of the plots: the leader's hunting ground lies 32-64 blocks out (CommonHunt.RADIUS).
     Biomes('colony', '族群迁徙与族规', 'biome', -680, 468, 64, 64, 'minecraft:plains', plots=COLONY_PLOTS, cols=2,
            blurb='有族长的村落：公共狩猎、黄昏分粮，全族带着赤油迁往东边的空村'),
-    Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
+    Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', deck_depth=DECK_DEPTH + 3,
+           blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', deck_depth=19, blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
     Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', deck_depth=19, blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),

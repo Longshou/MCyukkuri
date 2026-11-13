@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData.Relation;
+import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 
 /** Interaction-time reads. The inputs remain with their existing owners. */
@@ -9,6 +10,33 @@ public final class SocialDisposition {
     private static final double DAY = 24000;
 
     private SocialDisposition() {}
+
+    public enum Response {
+        CALM, GRATEFUL, GUARDED, DEFIANT, SULKY;
+
+        public String id() { return name().toLowerCase(Locale.ROOT); }
+    }
+
+    /** A read of the existing values before contact changes them. */
+    public record Contact(double esteem, double wariness, double insistence, int closeness, int fear) {
+        public Response response(boolean welcome) {
+            if (wariness >= .65) return Response.GUARDED;
+            if (insistence >= .52) return Response.DEFIANT;
+            if (welcome && closeness >= BondLevels.TRUST_FAMILIAR) return Response.GRATEFUL;
+            return welcome ? Response.CALM : Response.SULKY;
+        }
+    }
+
+    public static Contact contact(YukkuriEntity entity, Entity other) {
+        var personality = entity.life().personality();
+        var relation = personality.relation(other == null ? null : other.getUUID());
+        double esteem = selfEsteem(entity);
+        double wary = other == null || other instanceof YukkuriEntity ? wariness(entity, relation) : humanWariness(entity, other, relation);
+        return new Contact(esteem, wary, insistence(personality, esteem, wary, relation), relation.closeness(), relation.fear());
+    }
+
+    /** Observer-independent readout for the status card. The individual can answer a specific person differently. */
+    public static Response outlook(YukkuriEntity entity) { return contact(entity, null).response(true); }
 
     public static double selfEsteem(YukkuriEntity entity) {
         var personality = entity.life().personality();
@@ -25,7 +53,11 @@ public final class SocialDisposition {
         long freed = entity.settlement().lastFreedAt();
         double recovery = slave || freed < 0 ? 0 : 1 - ramp(now - freed, 0, DAY);
         return Math.clamp(base + 2 * entity.pet().effectiveGrade().id() + (entity.treasure().count() > 0 ? 2 : 0)
-                - (slave ? 14 : 0) - 12 * loss - 6 * illness - 10 * recovery, 0, 100);
+                - (slave ? 14 : 0) - 12 * loss - 6 * illness - 10 * recovery - 3 * entity.status().marks().dirt(), 0, 100);
+    }
+
+    public static double dirtAversion(YukkuriEntity target, Relation relation) {
+        return ramp(target.status().marks().dirt(), 1, 3) * (1 - ramp(relation.closeness(), 0, 20));
     }
 
     public static double humanWariness(YukkuriEntity entity, Entity person, Relation relation) {

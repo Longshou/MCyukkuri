@@ -103,6 +103,7 @@ public interface YukkuriView {
     String getExpressionId();
     long leakTraceAt();
     String identityTranslationKey();
+    String outlookId();
     String getBehaviorId();
     long getBehaviorStartTick();
     String getDialogueKey();

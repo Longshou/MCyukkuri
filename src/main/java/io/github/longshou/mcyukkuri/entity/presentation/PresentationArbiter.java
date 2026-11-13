@@ -413,6 +413,8 @@ public final class PresentationArbiter {
         YukkuriAction action = behavior.equals(Behaviors.FORAGE_SEEK) ? YukkuriAction.NERVOUS : behavior.equals(Behaviors.FORAGE_HARVEST) ? YukkuriAction.BRACE : EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || actions == Actions.PREDATOR || e.isPassenger()) return action;
+        var reaction = e.reactionAction();
+        if (reaction != null) return reaction;
         if (state.reactionTicks() > 0) action = EcologyPresentation.reaction(state.reactionEvent());
         return action == YukkuriAction.IDLE && (!e.life().hasAccessory() && !e.life().accessoryCustodied() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
     }

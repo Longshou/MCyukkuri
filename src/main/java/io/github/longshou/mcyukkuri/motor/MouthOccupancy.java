@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Item and bite payloads share one oral purpose. Live holds and the kit retain their physical owners. */
 public final class MouthOccupancy {
-    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE }
+    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND }
 
     private record Load(Purpose purpose, List<ItemStack> items, BodyFood.Bite bite) {}
 
@@ -273,6 +273,7 @@ public final class MouthOccupancy {
         else if (purpose == Purpose.DUTY) owner.settlement().duties().putDownLoad();
         else if (purpose == Purpose.SWADDLE) owner.leafSwaddle().putDownLeaves();
         else if (purpose == Purpose.HOUSE) owner.house().dropCarrying();
+        else if (purpose == Purpose.FIND) owner.treasure().stop();
     }
 
     public void releaseAtDeath() {

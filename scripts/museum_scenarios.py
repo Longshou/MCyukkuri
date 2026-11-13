@@ -382,11 +382,13 @@ add('stray_rubbish', 'forage', '流浪：翻一口垃圾，盖住就放弃', '�
 
 _junk_scene = 'stray_junk_headwear'
 add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
-    '捡起地上的垃圾头饰，分别右键低自尊与骄横的失饰者。观察戴假帽的同类被鼓腹嘲笑。照料菜单可取下假帽，真饰也可换回；遗体可潜行空手取下假帽。',
+    '看低自尊的失饰流浪油走近、叼起并戴上地面的垃圾头饰。可另捡一件右键试戴，观察同类嘲笑、取下时的反应，以及换回真饰。',
     '手动试戴与取回', [
         item('mcyukkuri:junk_headwear', 3, 0, 5, name='junk_supply'),
+        item('mcyukkuri:junk_headwear', 1, -10, 4, name='loose_hat'),
         street_stray(_junk_scene, 'reimu', -10, 7, 'quiet_stray', accessory=False, boldness=0,
                      friendliness=100, label='低自尊失饰者', lead=True),
+        set_status('quiet_stray', 'marks.dirt', 3),
         street_stray(_junk_scene, 'reimu', 10, 7, 'proud_stray', accessory=False, boldness=100,
                      friendliness=65, label='骄横失饰者'),
         street_stray(_junk_scene, 'marisa', 0, -2, 'covered_stray', accessory=False, boldness=30,
@@ -394,12 +396,14 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
                      'Accessory:0b,HatCustody:{State:"LOST",JunkHeadwear:"bottle_cap"},'),
         street_stray(_junk_scene, 'reimu', 1, -2, 'mocking_stray', friendliness=20, boldness=65,
                      yaw=90, label='会嘲笑的邻居'),
-    ], give=['mcyukkuri:reimu_ribbon'], env=DAY, spot='street', vantage=(0, 11),
-    smoke=dict(ticks=310, forbid=[],
+    ], give=['mcyukkuri:reimu_ribbon', 'mcyukkuri:magnifying_glass'], env=DAY, spot='street', vantage=(0, 11),
+    smoke=dict(ticks=620, forbid=[],
                commands=[(130, 'damage ' + sel('covered_stray') + ' 100 minecraft:generic_kill'),
                          (180, 'execute if entity @e[type=mcyukkuri:yukkuri_remains,distance=..12,nbt={Remains:{components:{"minecraft:custom_data":{JunkHeadwear:"bottle_cap"}}}}] run say MCYJUNK_REMAINS'),
-                         (210, 'execute unless entity @e[type=minecraft:item,distance=..25,tag=!scn_junk_supply,nbt={Item:{id:"mcyukkuri:junk_headwear"}}] run say MCYJUNK_NO_DUPLICATE')],
+                         (600, 'execute unless entity @e[type=minecraft:item,distance=..25,tag=!scn_junk_supply,nbt={Item:{id:"mcyukkuri:junk_headwear"}}] run say MCYJUNK_NO_DUPLICATE')],
                expect=[r'\[contempt\][^\n]* junk mocked .*variant=bottle_cap affinity=0 -> -1',
+                       r'\[treasure\][^\n]* picked up drop=\S+ item=mcyukkuri:junk_headwear remaining=0 holder=mouth',
+                       r'\[headwear\][^\n]* junk equipped variant=\S+ source=ground',
                        r'MCYJUNK_REMAINS', r'MCYJUNK_NO_DUPLICATE']))
 
 add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进木板缝挡风',
@@ -680,6 +684,28 @@ add('settle_pit_drive', 'biomes', '失饰成员被拒五次成奴隶', '失饰�
                verify=lambda window: pit_level(window) or colony_death(window)))
 
 # ====================================================================================================== daily life meadow
+add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料时的态度：洗涤与油粮',
+    '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；给不饿的强硬魔理沙递预算粮，再试高级粮。右侧饿的个体也可试预算粮。',
+    '右键后看表情，约 2 秒吞咽', [
+        yk('reimu', -7, 0, 'wash_shy', boldness=0, friendliness=75, hygiene=5, lead=True, also=('care_subject',)),
+        set_status('wash_shy', 'marks.dirt', 3),
+        yk('marisa', 0, 0, 'grain_proud', nutrition=70, boldness=100, friendliness=0, self_control=0, also=('care_subject',)),
+        yk('marisa', 7, 0, 'grain_hungry', nutrition=29, boldness=100, friendliness=0, self_control=0, also=('care_subject',)),
+        yk('chen', -5, 0, 'dirt_observer', friendliness=0, also=('care_subject',)),
+    ], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]',
+             'mcyukkuri:oil_grain_budget 4', 'mcyukkuri:oil_grain_premium 2'], env=DAY, vantage=(0, 11),
+    reads=[('读脏污、卫生和态度', 'yukkuri status @e[tag=scn_care_subject,distance=..20] raw')],
+    smoke=dict(ticks=280, forbid=[], commands=[
+        (60, f'yukkuri scenario care_click {sel("grain_proud")} budget_grain'),
+        (61, f'yukkuri scenario care_click {sel("grain_hungry")} budget_grain'),
+        (160, f'yukkuri scenario care_click {sel("wash_shy")} wet_cloth'),
+        (170, f'yukkuri scenario care_click {sel("grain_proud")} premium_grain'),
+    ], expect=[r'\[contempt\][^\n]* dirt snub target=\S+ dirt=3',
+               r'\[interaction\][^\n]* wash player=\S+ response=guarded [^\n]*dirt=3->2',
+               r'\[meal\][^\n]* grain refused item=mcyukkuri:oil_grain_budget [^\n]*reason=quality',
+               r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_budget ',
+               r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_premium ']))
+
 def _bed_walk_verify(log, crossing_limit=4, crossing_window=None):
     crossings = {}
     for actor, tick in re.findall(r'\[home\] \w+ #\d+ uuid=(\S+) t=(\d+)[^\n]*bed crossing[^\n]*source=walk', log):
@@ -1583,6 +1609,23 @@ add('transport', 'town', '装篮运输：三种容量', '装篮运输：三种�
     box(-10, -1, 4, -3, -1, 7, 'minecraft:stone')],
     give=['mcyukkuri:sleep_spray 8', 'mcyukkuri:yukkuri_carrier 1', 'mcyukkuri:yukkuri_carrier_fine 1',
           'mcyukkuri:yukkuri_carrier_large 1'], vantage=(0, 12))
+
+add('basket_attitude', 'town', '运输篮：不同个体的抗拒', '运输篮：不同个体的抗拒',
+    '持空篮分别右键强硬、胆小和很饿的流浪油，看它们的抗拒。放下篮子，先给它们喂食、熟悉后再试。',
+    '右键后立即看表情和动作', [
+        street_stray('basket_attitude', 'reimu', -5, 0, 'basket_defiant', nutrition=70, boldness=100,
+                     friendliness=0, self_control=0, lead=True),
+        street_stray('basket_attitude', 'reimu', 0, 0, 'basket_guarded', nutrition=70, boldness=0),
+        set_status('basket_guarded', 'mood.stress', 85),
+        street_stray('basket_attitude', 'reimu', 5, 0, 'basket_weary', nutrition=16, boldness=0),
+    ], give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:oil_grain_regular 6'], env=DAY, vantage=(0, 10),
+    smoke=dict(ticks=180, forbid=[r'\[carrier\][^\n]* action=capture result=committed'], commands=[
+        (50, 'yukkuri scenario basket plain'),
+        *[(60 + i, f'yukkuri scenario basket capture {sel(name)}')
+          for i, name in enumerate(('basket_defiant', 'basket_guarded', 'basket_weary'))],
+    ], expect=[r'\[carrier\][^\n]* capture reaction [^\n]*response=defiant',
+               r'\[carrier\][^\n]* capture reaction [^\n]*response=guarded',
+               r'\[carrier\][^\n]* capture reaction [^\n]*response=weary']))
 
 # Eight pet young already wrapped, one style each (the cream knit is the plain cloth), side by side; the ninth, unwrapped, takes a cloth from the chest by hand.
 _SWADDLE_LOOKS = (('knit', '奶油针织'), ('frill', '荷叶边蝴蝶结'), ('letter', '首字母'), ('tiger', '虎纹'),
@@ -4301,7 +4344,7 @@ TOPICS = {
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
-    'excited_leak': 'D1',
+    'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
