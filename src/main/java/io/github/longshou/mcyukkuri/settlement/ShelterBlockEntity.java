@@ -32,6 +32,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -615,7 +616,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public void tick() {
         if(level==null||level.isClientSide||dismantling)return;
-        ticks++;if(ticks%100!=0)return;
+        ticks++;
+        if(ticks%100!=0) {
+            if(kind()==ShelterBlock.Kind.CARDBOARD&&moisture>=80&&updateRainStage((ServerLevel)level))changed();
+            return;
+        }
         if(kind()==ShelterBlock.Kind.BURROW&&naturalBeds.isEmpty()){dismantle();return;}
         var families=FamilyData.get((ServerLevel)level);
         var server = (ServerLevel)level;
@@ -666,20 +671,24 @@ public final class ShelterBlockEntity extends BlockEntity {
         emptyTicks = residents.isEmpty() ? Math.min(24000, emptyTicks + 100) : 0;
         if (kind() == ShelterBlock.Kind.CARDBOARD) {
             moisture = Math.clamp(moisture + (level.isRainingAt(worldPosition.above(kind().height)) ? 10 : -5), 0, 100);
-            int stage = moisture >= 80 ? 2 : moisture >= 55 ? 1 : 0;
-            // The soaked shape (sagging roof, walls bowed in, top flap hanging over the opening) takes room inside and in the
-            // doorway: it shows only once nobody is in the box or on its step, so no body or hat ever meets it. Until then the
-            // carton stays damp-looking; the water keeps rising and the collapse at 100 still ejects whoever stayed.
-            if (stage == 2 && !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(kind().radius, 0, kind().radius)
-                    .expandTowards(0, kind().height - 1, 0), YukkuriEntity::isAlive).isEmpty()) stage = 1;
-            if (stage != rainStage) GameplayLog.world(server, "habitat", "found rain stage={} -> {} shelter={} moisture={}",
-                    rainStage, stage, worldPosition, moisture);
-            rainStage = stage;
+            updateRainStage(server);
             if (moisture == 100) { condition = 0; dismantle("rain_collapse"); return; }
         }
         for (var id : residents.keySet()) if (server.getEntity(id) instanceof YukkuriEntity y)
             dirt = Math.min(100, dirt + (y.body().mold() > 0 ? 2 : y.status().marks().dirt() >= 3 ? 1 : 0));
         changed();
+    }
+
+    private boolean updateRainStage(ServerLevel server) {
+        int stage = moisture >= 80 ? 2 : moisture >= 55 ? 1 : 0;
+        // The soaked roof, walls and flap intrude into the exit. Check the footprint on each wet tick so a returning
+        // body clears the soaked look promptly. Moisture and collapse still follow their usual weather tick.
+        if (stage == 2 && !server.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition).inflate(kind().radius, 0, kind().radius)
+                .expandTowards(0, kind().height - 1, 0), entity -> entity.isAlive() && !entity.isSpectator()).isEmpty()) stage = 1;
+        if (stage == rainStage) return false;
+        GameplayLog.world(server, "habitat", "found rain stage={} -> {} shelter={} moisture={}", rainStage, stage, worldPosition, moisture);
+        rainStage = stage;
+        return true;
     }
 
     private boolean touchesFire(BlockPos part) {

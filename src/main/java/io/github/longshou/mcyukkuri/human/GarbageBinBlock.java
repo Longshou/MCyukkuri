@@ -125,24 +125,31 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
      * (its stand cell); untagged barrels are never touched. Its stock moves over in slot order; stacks past the bin's nine
      * slots drop at the spot, so nothing is lost. Not called while a caller iterates the chunk's block entities.
      */
-    public static GarbageBinBlockEntity adopt(ServerLevel level, BarrelBlockEntity barrel) {
+    public static void adopt(ServerLevel level, BarrelBlockEntity barrel) {
         var pos = barrel.getBlockPos();
+        if (level.getBlockEntity(pos) != barrel) return;
         var facing = barrel.getBlockState().getValue(BarrelBlock.FACING);
-        var stock = new ArrayList<ItemStack>();
-        for (int slot = 0; slot < barrel.getContainerSize(); slot++) if (!barrel.getItem(slot).isEmpty()) stock.add(barrel.getItem(slot).copy());
+        var stock = new ArrayList<ItemStack>(barrel.getContainerSize());
+        for (int slot = 0; slot < barrel.getContainerSize(); slot++) stock.add(barrel.getItem(slot).copy());
         barrel.clearContent();   // the barrel's own removal would otherwise spill what is moved below
         var state = ModBlocks.GARBAGE_BIN.get().defaultBlockState().setValue(TIPPED, facing.getAxis().isHorizontal())
                 .setValue(FACING, facing.getAxis().isHorizontal() ? facing : Direction.SOUTH);
-        level.setBlock(pos, state, Block.UPDATE_ALL);
+        if (!level.setBlock(pos, state, Block.UPDATE_ALL)) {
+            for (int slot = 0; slot < stock.size(); slot++) barrel.setItem(slot, stock.get(slot));
+            return;
+        }
         var bin = (GarbageBinBlockEntity) level.getBlockEntity(pos);
-        int dropped = 0;
-        for (int i = 0; i < stock.size(); i++) {
-            if (i < GarbageBinBlockEntity.SLOTS) bin.setItem(i, stock.get(i));
-            else { Containers.dropItemStack(level, pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5, stock.get(i)); dropped++; }
+        var saved = barrel.getPersistentData();
+        if (saved.contains(VillageBin.DAY)) bin.deposited(saved.getLong(VillageBin.DAY));
+        int stacks = 0, dropped = 0;
+        for (var stack : stock) {
+            if (stack.isEmpty()) continue;
+            if (stacks < GarbageBinBlockEntity.SLOTS) bin.setItem(stacks, stack);
+            else { Containers.dropItemStack(level, pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5, stack); dropped++; }
+            stacks++;
         }
         GameplayLog.world(level, "street", "legacy garbage barrel converted bin={} stacks={} dropped={} tipped={}",
-                pos.toShortString(), stock.size(), dropped, state.getValue(TIPPED));
-        return bin;
+                pos.toShortString(), stacks, dropped, state.getValue(TIPPED));
     }
 
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {

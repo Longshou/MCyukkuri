@@ -337,7 +337,7 @@ def garbage_bin(x, z, items, tipped):
 
 _stray_mother = uid('stray_boxes', 'mother')
 add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '流浪：母子找纸箱，木箱也能歇脚',
-    '夜里母子试着在纸箱落脚，赤油往里、亲油在开口。另一只流浪油可选旁边的旧木箱。',
+    '夜里母子试着在横宽的纸箱落脚，赤油和亲油并排各睡一边。另一只流浪油可选旁边的旧木箱。',
     '约半分钟至一分钟', [
         *found_shell('cardboard_shelter', -5, -1), *found_shell('crate_shelter', 6, -1),
         street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True),
@@ -350,7 +350,7 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '�
                                   r'\[habitat\][^\n]* found settled .*kind=CRATE']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
-    '看已经躲在箱里的流浪油歇脚。纸箱变湿、下陷，流浪油退到外面，最后留下真纸片。也可以手动拆箱看住户原地脱身。',
+    '看已经躲在箱里的流浪油歇脚。纸箱受潮时流浪油退到外面，箱子随后下陷，最后留下真纸片。也可以手动拆箱看住户原地脱身。',
     '约一分钟', [
         *found_shell('cardboard_shelter', -4, -1),
         street_stray('stray_rain', 'marisa', -4, -1, 'rain_stray', energy=25, rest_wait=0, lead=True),
@@ -3248,6 +3248,19 @@ def _seat_family(size=.35, nourishment=147000, age=144000):
 
 def _uuid_text(sid, slot):
     return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
+
+
+def _stray_rain_verify(log):
+    marisa = _uuid_text('stray_rain', 'rain_stray')
+    exit_before_soak = (
+        rf'uuid={marisa}[^\n]* found exited shelter=(BlockPos\{{[^\n]+?\}})'
+        r'[\s\S]*?found rain stage=1 -> 2 shelter=\1'
+    )
+    if not re.search(exit_before_soak, log):
+        return 'the rain-scene Marisa did not leave her carton before it became soaked'
+
+
+next(s for s in S if s.id == 'stray_rain').smoke['verify'] = _stray_rain_verify
 
 
 def _stray_rubbish_verify(log):

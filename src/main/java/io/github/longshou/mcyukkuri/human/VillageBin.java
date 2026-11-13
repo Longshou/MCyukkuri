@@ -17,7 +17,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
  * cap or snack box, the generic junk headwear item). A bin takes one deposit a day and never two of the same item.
  */
 public final class VillageBin {
-    private static final String DAY = "VillageBinDay";
+    static final String DAY = "VillageBinDay";
     private static final int REACH = 2;
     private static final double PASSING_SPEED_SQUARED = .0004;
 
@@ -30,11 +30,16 @@ public final class VillageBin {
         var residentData = resident.getPersistentData();
         for (var at : BlockPos.withinManhattan(resident.blockPosition(), REACH, 1, REACH)) {
             if (!level.hasChunkAt(at) || resident.distanceToSqr(at.getCenter()) > REACH * REACH) continue;
-            if (GarbageBinBlock.legacy(level.getBlockEntity(at))) GarbageBinBlock.adopt(level, (BarrelBlockEntity) level.getBlockEntity(at));
-            if (!(level.getBlockEntity(at) instanceof GarbageBinBlockEntity bin)) continue;
+            var candidate = level.getBlockEntity(at);
+            if (!(candidate instanceof GarbageBinBlockEntity) && !GarbageBinBlock.legacy(candidate)) continue;
             var hit = level.clip(new ClipContext(resident.getEyePosition(), at.getCenter(),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, resident));
             if (!at.equals(hit.getBlockPos())) continue;
+            if (candidate instanceof BarrelBlockEntity barrel) {
+                GarbageBinBlock.adopt(level, barrel);
+                candidate = level.getBlockEntity(at);
+            }
+            if (!(candidate instanceof GarbageBinBlockEntity bin)) continue;
             if (bin.tipped()) {
                 if (!GarbageBinBlock.standUp(level, at)) continue;
                 resident.swing(InteractionHand.MAIN_HAND);
