@@ -24,6 +24,8 @@ import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -32,6 +34,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -55,6 +58,7 @@ final class HumanStreet {
     private int actions;
     private long beatUntil;
     private boolean chasing;
+    private Vec3 chaseStand;
     private YukkuriEntity activeTarget;
     private YukkuriEntity lastPetted;
     int kickPose, frownPose;
@@ -163,7 +167,7 @@ final class HumanStreet {
                 || y.getHealth() < y.getMaxHealth() || y.body().toxin() > 0 || y.body().mold() > 0
                 || !y.body().wounds().isEmpty() || y.body().footBurned() || y.status().marks().dirt() > 0
                 || FamilyNest.atAssignedNest(y) || FamilyNest.rimNest(y) != null || Facilities.floor(y).is(ModBlocks.NEST.get())
-                || ShelterBlock.shelter(y.level(), y.blockPosition()) != null
+                || ShelterBlock.shelter(y.level(), BlockPos.containing(y.position().add(0, .125, 0))) != null
                 || !SurfaceApproach.supportedGround(y, y.position())) return false;
         return !Custody.protectedAnimal(y) && Custody.harmRefusal(null, y, exposure) == null
                 && BadgeSocial.visibleRank(y).id() < BadgeGrade.BRONZE.id()
@@ -189,7 +193,8 @@ final class HumanStreet {
     }
 
     private boolean crowding(YukkuriEntity y) {
-        return npc.distanceToSqr(y) <= CLOSE_SQ && aheadOf(npc, y);
+        double distance = npc.distanceToSqr(y);
+        return distance <= .85 * .85 || distance <= CLOSE_SQ && aheadOf(npc, y);
     }
 
     void begin(YukkuriEntity y) {
@@ -202,7 +207,7 @@ final class HumanStreet {
         var warning = warnings.get(y.getUUID());
         if (beatUntil != 0) {
             if (chasing) return chaseContinues(y);
-            if (now() < beatUntil && y.hasLineOfSight(npc) && aheadOf(y, npc)) warning.seen = true;
+            if (now() < beatUntil && npc.distanceToSqr(y) <= CONTACT_SQ && y.hasLineOfSight(npc) && aheadOf(y, npc)) warning.seen = true;
             return now() < beatUntil;
         }
         if (!canStart(y)) return false;
@@ -220,11 +225,14 @@ final class HumanStreet {
             return true;
         }
         if (!crowding(y)) return false;
+        warning.parted = false;
         if (interrupted(y, warning)) return false;
         var away = away(y);
-        if (!dryStreet(y, y.position().add(away.scale(.5)), away)) return false;
+        if (!dryStreet(y, y.position(), away)) return false;
         var data = y.getPersistentData();
-        if (npc.distanceToSqr(y) <= .85 * .85 && (!data.contains(KICK_DAY) || data.getLong(KICK_DAY) != day())) {
+        if (npc.distanceToSqr(y) <= .85 * .85 && (!data.contains(KICK_DAY) || data.getLong(KICK_DAY) != day())
+                && dryStreet(y, y.position().add(away.scale(.5)), away)
+                && npc.level().noCollision(y, y.getBoundingBox().move(away.scale(.5)).deflate(.01))) {
             kick(y, away);
             return false;
         }
@@ -236,6 +244,7 @@ final class HumanStreet {
         if (path == null || !path.canReach() || path.getNodeCount() > 2 || !nav.moveTo(path, .85)) return false;
         beatUntil = now() + ROUTE_TICKS;
         chasing = true;
+        chaseStand = Vec3.atBottomCenterOf(stand);
         actions++;
         cue(npc, y, "chase");
         GameplayLog.event(npc, "npc-care", "action=street_chase target={} health={} actions={}", y.getUUID(), y.getHealth(), actions);
@@ -244,7 +253,8 @@ final class HumanStreet {
 
     private boolean chaseContinues(YukkuriEntity y) {
         return HumanWorld.CRUELTY.get() && now() < beatUntil && !npc.getNavigation().isDone() && !npc.horizontalCollision
-                && npc.distanceToSqr(y) <= CONTACT_SQ && dryStreet(y, y.position(), away(y))
+                && npc.distanceToSqr(y) <= CONTACT_SQ && aheadOf(npc, y) && dryStreet(y, y.position(), away(y))
+                && dryStreet(y, chaseStand, away(y))
                 && !interrupted(y, warnings.get(y.getUUID()));
     }
 
@@ -255,6 +265,7 @@ final class HumanStreet {
                         && resident.hasLineOfSight(y) && npc.hasLineOfSight(resident)).stream().findFirst().orElse(null);
         if (by == null) return false;
         warning.blockedUntil = now() + DAY;
+        if (!chasing) actions++;
         by.level().broadcastEntityEvent(by, FROWN_EVENT);
         cue(by, npc, "stop");
         GameplayLog.event(by, "npc-care", "action=street_stop target={} abuser={} until={}",
@@ -312,14 +323,47 @@ final class HumanStreet {
             tag.putLong("StreetActionDay", actionDay);
             tag.putInt("StreetActions", actions);
         }
+        var interventions = new ListTag();
+        warnings.forEach((target, warning) -> {
+            if (warning.blockedUntil <= now()) return;
+            var saved = new CompoundTag();
+            saved.putUUID("Target", target);
+            saved.putLong("Until", warning.blockedUntil);
+            interventions.add(saved);
+        });
+        if (!interventions.isEmpty()) tag.put("StreetInterventions", interventions);
     }
 
     void load(CompoundTag tag) {
         actionDay = tag.getLong("StreetActionDay");
         actions = tag.getInt("StreetActions");
+        warnings.clear();
+        for (var item : tag.getList("StreetInterventions", Tag.TAG_COMPOUND)) {
+            var saved = (CompoundTag) item;
+            if (!saved.hasUUID("Target") || saved.getLong("Until") <= now()) continue;
+            var warning = new Warning(saved.getLong("Until") - DAY);
+            warning.blockedUntil = saved.getLong("Until");
+            warnings.put(saved.getUUID("Target"), warning);
+        }
     }
 
-    void cancel() { activeTarget = null; beatUntil = 0; chasing = false; }
+    void cancel() { activeTarget = null; beatUntil = 0; chasing = false; chaseStand = null; }
+
+    /** Pick up an available real portion within reach. The same stock pays for feeding and bin transfers. */
+    void pickUpGrain() {
+        if (!npc.streetActive() || !observable() || npc.attitude() != HumanNpc.Attitude.CARING || npc.careFood() != 0
+                || npc.walking() || npc.level().isRaining() || npc.tickCount % 40 != 13) return;
+        var grain = npc.level().getEntitiesOfClass(ItemEntity.class, npc.getBoundingBox().inflate(1.25, .25, 1.25),
+                item -> item.isAlive() && !item.hasPickUpDelay() && item.onGround()
+                        && item.getItem().is(ModItems.GRAIN_REGULAR.get()) && npc.hasLineOfSight(item))
+                .stream().min(Comparator.comparingDouble(npc::distanceToSqr)).orElse(null);
+        if (grain == null) return;
+        npc.takeStreetGrain();
+        grain.getItem().shrink(1);
+        if (grain.getItem().isEmpty()) grain.discard();
+        npc.swing(InteractionHand.OFF_HAND);
+        GameplayLog.event(npc, "npc-care", "action=street_pickup item={} count=1 food=0->1", grain.getUUID());
+    }
 
     boolean threatTo(YukkuriEntity witness) {
         return activeTarget != null && beatUntil > now() && witness.distanceToSqr(npc) <= 64 && !witness.isLeashed()
@@ -363,6 +407,7 @@ final class HumanStreet {
     static final class Stroll extends Goal {
         private final HumanNpc npc;
         private Vec3 destination;
+        private boolean finished;
         private Vec3 last;
         private int stalled;
         private int nextAt;
@@ -379,6 +424,7 @@ final class HumanStreet {
 
         @Override public void start() {
             detours = 0;
+            finished = false;
             if (npc.level().isRaining()) {
                 if (npc.level().canSeeSky(npc.blockPosition())) {
                     for (var pos : BlockPos.withinManhattan(npc.blockPosition(), 5, 1, 5)) {
@@ -394,11 +440,13 @@ final class HumanStreet {
             route(stand == null ? Vec3.atBottomCenterOf(npc.home()) : stand);
         }
 
-        @Override public boolean canContinueToUse() { return npc.streetActive() && !npc.walking() && destination != null; }
+        @Override public boolean canContinueToUse() { return npc.streetActive() && !npc.walking() && !finished; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
 
         @Override public void tick() {
-            if (npc.distanceToSqr(destination) < .5) { destination = null; return; }
+            // Vanilla still ticks running goals before its next continuation check.
+            if (finished) return;
+            if (npc.distanceToSqr(destination) < .5) { finished = true; return; }
             if (npc.position().distanceToSqr(last) > .25) { last = npc.position(); stalled = 0; }
             if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) {
                 var toward = destination.subtract(npc.position()).multiply(1, 0, 1).normalize();
@@ -411,7 +459,7 @@ final class HumanStreet {
                 if (trySide(side) || trySide(side.scale(-1))) return;
             }
             if (detours <= 2) route(Vec3.atBottomCenterOf(npc.home()));
-            else destination = null;
+            else finished = true;
         }
 
         private boolean trySide(Vec3 side) {

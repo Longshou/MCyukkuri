@@ -129,6 +129,7 @@ public final class HumanNpc extends PathfinderMob {
     public void usedTrade() { trades++; }
     public void receivedInput() { delivered++; }
     public boolean donateFood() { if (careFood > 248) return false; careFood += 8; return true; }
+    void takeStreetGrain() { careFood++; }
     public boolean beginTrade(Player player) {
         if (isTrading() && !player.getUUID().equals(customer)) return false;
         customer = player.getUUID(); getNavigation().stop(); return true;
@@ -282,9 +283,10 @@ public final class HumanNpc extends PathfinderMob {
         if (street.kickPose > 0) street.kickPose--;
         if (street.frownPose > 0) street.frownPose--;
         if (level().isClientSide || !isAlive() || isNoAi() || closedFactory()) return;
+        // The summon/structure loader applies its world position after reading NBT.
+        if (home == null) home = blockPosition();
         if (!initialized) {
             initialized = true;
-            home = blockPosition();
             if (getTags().contains("mcy_street_local")) street.assignVillageAttitude();
             careFood = streetResident() ? attitude() == Attitude.CARING ? Math.min(8, HumanWorld.CARE_SUPPLIES.get()) : 0
                     : HumanWorld.CARE_SUPPLIES.get();
@@ -305,6 +307,7 @@ public final class HumanNpc extends PathfinderMob {
         entityData.set(RESTING, !level().isDay());
         if (routineDelay != 0) routineDelay -= Integer.signum(routineDelay);
         street.tick();
+        street.pickUpGrain();
         entityData.set(STREET_GRAIN, streetResident() && attitude() == Attitude.CARING && careFood > 0);
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (tickCount % 40 == 17 && tickCount >= nextBadgeGreeting && !resting() && !isTrading() && !avoidingStreet()
@@ -462,6 +465,7 @@ public final class HumanNpc extends PathfinderMob {
                 return;
             }
             if (attention == null) return;
+            if (streetResident() && elapsed >= 140) return;
             if (streetResident() && attitude() == Attitude.CRUEL) {
                 if (!street.step(attention)) elapsed = 140;
                 return;
@@ -543,7 +547,7 @@ public final class HumanNpc extends PathfinderMob {
         super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
         if (t.contains("HumanAttitude")) setAttitude(Attitude.values()[Math.clamp(t.getInt("HumanAttitude"), 0, 2)]);
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized");
-        home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : initialized ? blockPosition() : null;
+        home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
         production.load(t.getCompound("FactoryProduction")); walk().load(t);
         street.load(t);
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;

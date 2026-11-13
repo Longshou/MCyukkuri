@@ -1620,12 +1620,14 @@ _street_badge_owner = uuid_nbt(uid('oniisan_prey', 'former_owner'))
 add('oniisan_prey', 'town', '虐派居民：警告与四种豁免', '虐派居民：警告与四种豁免',
     '路上的成年独行爱丽丝会遇到警告。旁边是戴作废章的前宠物、正在吃饭的流浪油、箱里的流浪油和聚落成员。看谁会被针对，再用读数核对血量。',
     '约半分钟', [
-        *[street_abuser(x, 0, name + '_npc', label=label) for x, name, label in _street_trials],
+        *[street_abuser(x, 0, name + '_npc', label=label) for x, name, label in _street_trials if name != 'street_box'],
+        human('oniisan', -1, 2, 'street_box_npc', 0, attitude=0, yaw=180, label='纸箱外的虐派'),
         street_trial('oniisan_prey', 'patchouli', -15, 0, 'street_badge', yaw=90,
                      pet=f',Grade:1,Worn:1b,VoidBadge:1b,FormerOwner:{_street_badge_owner}'),
         street_trial('oniisan_prey', 'chen', -8, 0, 'street_chewing', yaw=90, nutrition=24,
                      extra='YukkuriMouth:{Purpose:"MEAL",Items:[{id:"mcyukkuri:oil_grain_regular",count:1}]}'),
         f'data merge entity {sel("street_chewing")} {{YukkuriLife:{{MealTicks:1,SharedMeal:1b}}}}',
+        box(-2, -1, -1, 0, -1, 1, 'minecraft:oak_planks'),
         *found_shell('cardboard_shelter', -1, 0),
         street_trial('oniisan_prey', 'marisa', -1, 0, 'street_box', yaw=90, energy=30),
         street_trial('oniisan_prey', 'reimu', 8, 0, 'street_colony', yaw=90),
@@ -1641,13 +1643,13 @@ add('street_mixed', 'town', '街道对照：爱派喝止、玩家喂熟、店门
         street_abuser(-16, 0, 'street_stopped', label='被喝止的虐派'),
         human('caretaker_sister', -15, 3, 'street_helper', 0, label='目击的爱派'),
         street_trial('street_mixed', 'reimu', -15, 0, 'street_intervened', yaw=90, lead=True),
-        street_abuser(-10, 6, 'street_trust_npc', label='路过的虐派'),
+        'execute if entity @s[type=minecraft:player] run ' + street_abuser(-10, 6, 'street_trust_npc', label='路过的虐派'),
         street_trial('street_mixed', 'chen', -9, 6, 'street_trust', yaw=90, nutrition=66),
         'execute if entity @s[type=minecraft:player] run ' + f'yukkuri status relate {sel("street_trust")} @s 16',
         street_abuser(9, -12, 'street_door_npc', dy=2, label='店门附近的居民'),
         street_trial('street_mixed', 'marisa', 10, -12, 'street_door', dy=2, yaw=90),
         human('caretaker_brother', 7, 0, 'street_passer', 0, attitude=2, label='普通路人'),
-    ], env=DAY, vantage=(-4, 14), give=['mcyukkuri:oil_grain_regular 8'],
+    ], env=DAY, vantage=(-4, 14, 180, 15), give=['mcyukkuri:oil_grain_regular 8'],
     reads=[('读吃过玩家粮的橙', f'yukkuri status {sel("street_trust")} raw'),
            ('读店门流浪油血量', f'data get entity {sel("street_door")} Health'),
            ('读商店库存与店员', 'yukkuri human shop list')])
@@ -4557,7 +4559,25 @@ _fed = _uuid_text('feed_wild', 'street_hungry')
 _empty = _uuid_text('feed_wild', 'street_nofood')
 _free = _uuid_text('oniisan_prey', 'street_free')
 _stopped = _uuid_text('street_mixed', 'street_intervened')
-_street_protected = [_uuid_text('oniisan_prey', name) for _, name, _ in _street_trials if name != 'street_free']
+_chewing = _uuid_text('oniisan_prey', 'street_chewing')
+_street_protected = [_uuid_text('oniisan_prey', name) for _, name, _ in _street_trials
+                     if name not in ('street_free', 'street_chewing')]
+_mixed_protected = [_uuid_text('street_mixed', name) for name in ('street_intervened', 'street_door', 'street_trust')]
+
+
+def _street_health_reads(*names):
+    return [f'data get entity {sel(name)} Health' for name in names]
+
+
+def _street_chewing_check(log):
+    swallow = re.search(rf'\[meal\][^\n]* uuid={_chewing}\b[^\n]* swallowed item=[^\n]*oil_grain_regular', log)
+    if swallow is None:
+        return 'the eating fixture did not swallow its initial grain'
+    if re.search(rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target={_chewing}\b', log[:swallow.end()]):
+        return 'the resident reacted to the eating fixture before it swallowed'
+    return None
+
+
 _smoke('feed_wild', 400, [
     rf'\[npc-care\][^\n]* action=begin_meal target={_fed} food=1->0\b',
     rf'\[npc-care\][^\n]* action=street_pet target={_empty} food=0\b',
@@ -4565,10 +4585,15 @@ _smoke('feed_wild', 400, [
 ])
 _smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_free}\b'],
        [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_street_protected)})\b',
-        r'\[npc-care\][^\n]* action=street_kick [^\n]*health=(?!([\d.]+)->\1\b)'])
+        rf'\[npc-care\][^\n]* action=street_kick target={_chewing}\b',
+        r'\[npc-care\][^\n]* action=street_kick [^\n]*health=(?!([\d.]+)->\1\b)',
+        rf'\[body\][^\n]* uuid=(?:{_free}|{_chewing}|{"|".join(_street_protected)})\b[^\n]* accepted damage'],
+       readout=_street_health_reads(*(name for _, name, _ in _street_trials)))
+next(s for s in S if s.id == 'oniisan_prey').smoke['verify'] = _street_chewing_check
 _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
        r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
-       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{_stopped}|{_uuid_text("street_mixed", "street_door")})\b'])
+       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],
+       readout=_street_health_reads('street_intervened', 'street_door', 'street_trust'))
 _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
                             r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',
                             r'\[interaction\][^\n]* action=pin reason=shop'],
