@@ -188,12 +188,14 @@ public final class BodyLife {
                 || tag.getInt("Wound") > 0 || tag.getInt("Burns") > 0 || BodyWound.read(tag).stream().anyMatch(BodyLife::injury);
     }
     private static boolean severe(BodyWound w){return injury(w)&&w.severity()>=3;}
+    public boolean needsPhysicalRestoration() {
+        return footBurned || footScorch > 0 || entity.getHealth() < entity.getMaxHealth()
+                || wounds.stream().anyMatch(BodyLife::injury);
+    }
+
     /** Orange juice heals every injury grade and sole damage; existing scars are repaired with flour paste. */
     public boolean restorePhysical() {
-        if(!treatmentAllowed())return false;
-        boolean skin=wounds.stream().anyMatch(BodyLife::injury);
-        boolean needHealth=entity.getHealth()<entity.getMaxHealth();
-        if(!skin&&!needHealth&&!footBurned&&footScorch==0)return false;
+        if(!treatmentAllowed() || !needsPhysicalRestoration())return false;
         int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         float before=entity.getHealth();
         for(var healed:List.copyOf(wounds))if(injury(healed))entity.status().marks().healed(healed);

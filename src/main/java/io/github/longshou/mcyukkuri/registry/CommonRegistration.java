@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
 import io.github.longshou.mcyukkuri.command.PlaygroundTools;
 import io.github.longshou.mcyukkuri.command.YukkuriCommands;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.event.EventReservations;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -178,6 +179,8 @@ public final class CommonRegistration {
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, HouseholdEcology::purgeInventory);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, ShopRegistry::playerTick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class,
+                YukkuriGroundNavigation::playerPassage);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Post.class, ShopTrade::pickedUp);
 
 

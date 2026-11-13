@@ -1675,6 +1675,20 @@ add('attack_witness', 'town', '你打灵梦：看见的逃，墙后的不知', '
         box(-2, 0, -3, -2, 2, 3, 'minecraft:stone')], env=DAY, vantage=(0, 8),
     reads=[('读可见旁观者', f'yukkuri status {sel("attack_witness")} raw'), ('读墙后旁观者', f'yukkuri status {sel("attack_hidden")} raw')])
 
+_pass_x, _pass_z = BY_ID['town'].anchor
+_pass_home = (((_pass_x + 4) & 0x3ffffff) << 38) | ((_pass_z & 0x3ffffff) << 12) | FEET
+if _pass_home >= 1 << 63:
+    _pass_home -= 1 << 64
+add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让', '街上挡路：给走来的居民和玩家侧让',
+    '南北两列各站着一只油库里。居民沿北边短路回家时看灵梦先抬头再侧让。你沿南边从西向东走过魔理沙身边；站着看它或擦边走过时不需让路。',
+    '居民几秒内回家，玩家可随后走过', [
+        box(-6, -1, -2, 6, -1, 6, 'minecraft:stone_bricks'),
+        human('caretaker_brother', -4, 0, 'pass_resident', 0, attitude=2, yaw=-90, label='正在回家的居民'),
+        f'data merge entity {sel("pass_resident")} {{HumanHome:{_pass_home}L,StreetHomePause:-600}}',
+        yk('reimu', 0, 0, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), extra='Health:2.8f', **pair_ready()),
+        yk('marisa', 0, 4, 'pass_marisa', label='从西侧走来', extra='Health:2.8f', **pair_ready()),
+    ], env=DAY, vantage=(-5, 4, -90, 10))
+
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
@@ -1697,6 +1711,20 @@ add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放�
            ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
 # SP-02 changes only stock and relationship starting values inside the same authored shop.
 BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1,sort=nearest]'
+add('shop_care', 'shop', '店员照料：带伤、长霉和拥挤的食盆', '店员照料：带伤、长霉和拥挤的食盆',
+    '爱丽丝带伤，蕾米莉亚长霉，后院帕秋莉有感染。看店员进栏、亮出对症药品并处理；前排食盆空了，几只油挤在添粮路线旁。',
+    '约半分钟看治疗与添粮', [
+        'yukkuri human build shop ~8 ~ ~17 south',
+        f'yukkuri status set {BOOTH.format("alice", 3)} health.wound_at front:tear:2',
+        f'yukkuri status set {BOOTH.format("remilia", 2)} health.mold 2',
+        f'yukkuri status set {BOOTH.format("patchouli", 0)} health.infection 3',
+        f'tp {BOOTH.format("alice", 3)} ~17.5 ~2 ~11.5',
+        f'tp {BOOTH.format("chen", 0)} ~16.5 ~2 ~10.5',
+        f'tp {BOOTH.format("reimu", 0)} ~15.5 ~2 ~10.5',
+        'data merge block ~18 ~2 ~10 {Items:[]}',
+    ], env=DAY, vantage=(14, 18, 180, 8),
+    reads=[('读在售个体伤病', f'yukkuri status {STOCK} raw')])
+
 _window_alice = BOOTH.format('alice', 3)
 _window_flandre = BOOTH.format('flandre', 0)
 _window_west = sel('customer_west', 80)
@@ -4256,7 +4284,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
-    'oni_shop': 'M1',
+    'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -4821,6 +4849,16 @@ _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI '])
+_smoke('street_give_way', 300, [
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
+])
+_smoke('shop_care', 1100, [
+    *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
+      for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],
+    r'\[shop\][^\n]* action=job result=asked_way kind=FEED ',
+    r'\[move\][^\n]* action=give_way ',
+    rf'\[npc-care\][^\n]* action=refill_bowl target={BY_ID["shop"].anchor[0] + 18}, {FEET + 2}, {BY_ID["shop"].anchor[1] + 10} transferred=4 ',
+], forbid=[r'\[shop\][^\n]* action=job result=failed kind=(TREAT|FEED) '])
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
                           r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',

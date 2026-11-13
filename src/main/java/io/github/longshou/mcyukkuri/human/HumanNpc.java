@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.human;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -54,6 +55,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 public final class HumanNpc extends PathfinderMob {
     public enum Look { ONIISAN, BROTHER, SISTER }
     public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER, KEEPER }
+    public static final int DOSE_SWING_TICKS = 20, DOSE_TICKS = 30;
     public enum Attitude { CRUEL, CARING, NEUTRAL }
     private static final EntityDataAccessor<Integer> JOB = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTITUDE = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
@@ -279,10 +281,14 @@ public final class HumanNpc extends PathfinderMob {
         else super.handleEntityEvent(id);
     }
     @Override public void aiStep() {
+        Vec3 before = position();
         super.aiStep();
         if (street.kickPose > 0) street.kickPose--;
         if (street.frownPose > 0) street.frownPose--;
         if (level().isClientSide || !isAlive() || isNoAi() || closedFactory()) return;
+        if (streetResident() && !getNavigation().isDone())
+            YukkuriGroundNavigation.noticePassage(this, before);
+        if (tickCount == 1) returnUnusedDose();
         // The summon/structure loader applies its world position after reading NBT.
         if (home == null) home = blockPosition();
         if (!initialized) {
@@ -480,18 +486,13 @@ public final class HumanNpc extends PathfinderMob {
                 getNavigation().stop();
                 if (careTicks < 0) { careTicks++; return; }
                 if (dose == null && !prepareDose(attention)) { attend(attention); elapsed = 140; return; }
-                if (++careTicks == 20) swing(InteractionHand.MAIN_HAND);
-                if (careTicks < 30) return;
-                if (dose == null || !getMainHandItem().is(dose==TreatmentItem.Kind.ORANGE_JUICE ? ModItems.ORANGE_JUICE.get() : ModItems.FLOUR_PASTE.get())
-                        || !level().isDay() || attitude()!=Attitude.CARING || !mayTend(attention)) {
+                if (++careTicks == DOSE_SWING_TICKS) swing(InteractionHand.MAIN_HAND);
+                if (careTicks < DOSE_TICKS) return;
+                if (!level().isDay() || attitude()!=Attitude.CARING || !mayTend(attention)) {
                     GameplayLog.event(HumanNpc.this,"npc-care","action=treatment_refused reason=dose_or_care_context_changed target={}",attention.getUUID());
                     elapsed=140; return;
                 }
-                boolean applied=TreatmentItem.apply(attention,dose);
-                GameplayLog.event(HumanNpc.this,"npc-care","action=treatment target={} treatment={} medicine={} reserved=1 result={}",
-                        attention.getUUID(),dose,medicine,applied?"applied":"refused");
-                if (!applied) { elapsed=140; return; }
-                getMainHandItem().shrink(1);
+                if (!applyDose(attention, dose)) { elapsed=140; return; }
                 if (streetResident()) elapsed = 140;
                 dose=null; careTicks=-20;
             }
@@ -508,32 +509,50 @@ public final class HumanNpc extends PathfinderMob {
                     : patient.status().marks().scarCount()>0 ? TreatmentItem.Kind.FLOUR_PASTE
                     : patient.getHealth()<patient.getMaxHealth() && !(patient.life().canEat() && patient.life().nutrition()<10 && careFood>0)
                             ? TreatmentItem.Kind.ORANGE_JUICE : null;
-            if(desired==null)return false;
-            var item=desired==TreatmentItem.Kind.ORANGE_JUICE ? ModItems.ORANGE_JUICE.get() : ModItems.FLOUR_PASTE.get();
-            if(!getMainHandItem().isEmpty()) {
-                // A saved, reserved dose remains a real item after reload; never recreate its budget.
-                if(!getMainHandItem().is(item))return false;
-            } else {
-                if(medicine<=0)return false;
-                medicine--;
-                setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(item));
-                setDropChance(EquipmentSlot.MAINHAND,0);
-            }
+            if(desired==null || !reserveDose(patient, desired))return false;
             dose=desired;
-            GameplayLog.event(HumanNpc.this,"npc-care","action=prepare_dose target={} treatment={} medicine={} reserved=1",patient.getUUID(),dose,medicine);
             return true;
         }
         @Override public void stop() {
-            var hand=getMainHandItem();
-            if(isAlive() && (hand.is(ModItems.ORANGE_JUICE.get()) || hand.is(ModItems.FLOUR_PASTE.get()))) {
-                medicine+=hand.getCount(); setItemSlot(EquipmentSlot.MAINHAND,ItemStack.EMPTY);
-                GameplayLog.event(HumanNpc.this,"npc-care","action=return_unused_dose medicine={}",medicine);
-            }
+            // Trading and resting also use this goal, so only its own care routine returns a dose.
+            if (dose != null) returnUnusedDose();
             street.cancel();
             dose=null; careTicks=0; attention = null; getNavigation().stop();
             if (routineDelay >= 0) routineDelay = Math.max(routineDelay, job() == Job.FACTORY ? 80 : 200);
         }
     }
+
+    public boolean hasMedicine() { return medicine > 0; }
+
+    public boolean reserveDose(YukkuriEntity patient, TreatmentItem.Kind dose) {
+        var item = TreatmentItem.doseItem(dose);
+        if (!getMainHandItem().isEmpty()) return getMainHandItem().is(item);
+        if (!hasMedicine()) return false;
+        medicine--;
+        setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(item));
+        setDropChance(EquipmentSlot.MAINHAND, 0);
+        GameplayLog.event(this, "npc-care", "action=prepare_dose target={} treatment={} medicine={} reserved=1",
+                patient.getUUID(), dose, medicine);
+        return true;
+    }
+
+    public boolean applyDose(YukkuriEntity patient, TreatmentItem.Kind dose) {
+        boolean applied = getMainHandItem().is(TreatmentItem.doseItem(dose)) && TreatmentItem.apply(patient, dose);
+        if (applied) getMainHandItem().shrink(1);
+        GameplayLog.event(this, "npc-care", "action=treatment target={} treatment={} medicine={} reserved=1 result={}",
+                patient.getUUID(), dose, medicine, applied ? "applied" : "refused");
+        return applied;
+    }
+
+    /** A dose survives saving as equipment. Return it to the same supplies when its job ends or is gone. */
+    public void returnUnusedDose() {
+        var hand = getMainHandItem();
+        if (!isAlive() || !(hand.getItem() instanceof TreatmentItem)) return;
+        medicine += hand.getCount();
+        setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        GameplayLog.event(this, "npc-care", "action=return_unused_dose medicine={}", medicine);
+    }
+
     @Override public void addAdditionalSaveData(CompoundTag t) {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());

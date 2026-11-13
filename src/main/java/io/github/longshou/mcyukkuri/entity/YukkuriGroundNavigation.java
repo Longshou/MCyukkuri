@@ -12,17 +12,22 @@ import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
@@ -33,6 +38,7 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
  * Dry-area routines may route around an exposed gap; hunger and danger can release the preference.
@@ -386,6 +392,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     @Override public void tick() {
         if(mob instanceof YukkuriEntity actor){
+            if (passage != null) tickPassage(actor);
             if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
                 NestDoorway.observe(actor,observedGround,actor.position(),level.getGameTime()-steerTick<=1?aimed:null);
             observedGround=actor.onGround()&&!actor.isPassenger()?actor.position():null;
@@ -656,6 +663,26 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
     private static final double YIELD_PACE = .16;
+    private static final int YIELD_NOTICE = 3, YIELD_LIMIT = 14;
+    private static final double PASSAGE_RANGE = 1.75;
+    private record PlayerPosition(Level level, Vec3 position) {}
+    private static final Map<ServerPlayer, PlayerPosition> PLAYER_POSITIONS = new WeakHashMap<>();
+    private static final class Passage {
+        final UUID walker;
+        final Vec3 stand;
+        final long began;
+        final boolean mayInterruptWalk;
+        boolean stepped, done;
+
+        Passage(UUID walker, Vec3 stand, long began, boolean mayInterruptWalk) {
+            this.walker = walker;
+            this.stand = stand;
+            this.began = began;
+            this.mayInterruptWalk = mayInterruptWalk;
+            this.done = stand == null;
+        }
+    }
+    private Passage passage;
 
     /**
      * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
@@ -670,29 +697,112 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         return Motor.move(body, side.scale(away * YIELD_PACE), "give_way").lengthSqr() > 1e-6;
     }
 
-    /**
-     * Shop stock can give a worker the same short pace as a peer, including while walking toward a bowl.
-     * Check both sides of the worker's current line for a clear, supported place to step.
-     */
+    /** The server player moves via packets. Sample actual positions instead of using server velocity. */
+    public static void playerPassage(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || (player.tickCount & 1) != 0) return;
+        var before = PLAYER_POSITIONS.put(player, new PlayerPosition(player.level(), player.position()));
+        if (before != null && before.level() == player.level() && !player.isSpectator() && !player.getAbilities().flying)
+            noticePassage(player, before.position());
+    }
+
+    /** A moving player or resident asks the first idle body across their line to step aside. */
+    public static void noticePassage(LivingEntity walker, Vec3 before) {
+        if (!walker.onGround() || walker.isPassenger() || walker.isInWater() || walker.hurtTime > 0) return;
+        var travel = walker.position().subtract(before).multiply(1, 0, 1);
+        if (travel.lengthSqr() < .001 || travel.lengthSqr() > 1 || Math.abs(walker.getY() - before.y) > .5) return;
+        var heading = travel.normalize();
+        var area = walker.getBoundingBox().move(before.subtract(walker.position()))
+                .expandTowards(walker.position().subtract(before).add(heading.scale(PASSAGE_RANGE))).inflate(.6, 0, .6);
+        var blockers = walker.level().getEntitiesOfClass(YukkuriEntity.class, area, y -> {
+            if (!idleForPassage(y) || !canGiveWay(y)) return false;
+            var offset = y.position().subtract(walker.position());
+            var temperament = y.life().personality();
+            double notice = .55 + .3 * (100 - temperament.boldness() + temperament.friendliness()) / 100;
+            return offset.dot(heading) >= -.1 && offset.dot(heading) <= notice
+                    && Math.abs(offset.dot(right(heading))) < passingWidth(y, walker) && walker.hasLineOfSight(y);
+        });
+        blockers.sort(Comparator.comparingDouble(walker::distanceToSqr));
+        for (var y : blockers) if (giveWay(y, walker, walker.position().add(heading), false)) return;
+    }
+
+    private static boolean idleForPassage(YukkuriEntity body) {
+        return body.getNavigation().isDone() && !body.getMoveControl().hasWanted();
+    }
+
+    private static boolean canGiveWay(YukkuriEntity body) {
+        return body.isAlive() && !body.isNoAi() && !body.isCommandPlaying() && !body.operations().active()
+                && !body.life().isSleeping() && body.nudgeable() && !body.isPanicking() && !body.pet().busy()
+                && !body.life().protectsStep() && body.motor().current() == null;
+    }
+
+    private static double passingWidth(YukkuriEntity body, Entity walker) {
+        return (walker.getBbWidth() + body.getBbWidth()) / 2 + .1;
+    }
+
+    /** Warn and take one short, bounded sidestep. The same encounter cannot restart until the walker leaves. */
     public static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 toward) {
-        if (blocker.isNoAi() || blocker.isCommandPlaying() || blocker.operations().active() || blocker.life().isSleeping()
-                || !blocker.nudgeable() || blocker.isPanicking() || blocker.pet().busy() || blocker.life().protectsStep()) return false;
+        return giveWay(blocker, walker, toward, true);
+    }
+
+    private static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 toward, boolean mayInterruptWalk) {
+        if (!(blocker.directNavigation() instanceof YukkuriGroundNavigation nav) || !(blocker.level() instanceof ServerLevel)
+                || !canGiveWay(blocker) || blocker.distanceToSqr(walker) > PASSAGE_RANGE * PASSAGE_RANGE) return false;
+        if (nav.passage != null) return !nav.passage.done && nav.passage.walker.equals(walker.getUUID());
         var line = toward.subtract(walker.position()).multiply(1, 0, 1);
         if (line.lengthSqr() < 1e-6) return false;
         var side = right(line.normalize());
-        if (blocker.position().subtract(walker.position()).dot(side) < 0) side = side.reverse();
-        // Check the space needed to pass, then take one pace toward it.
-        double clearance = (walker.getBbWidth() + blocker.getBbWidth()) / 2 + .1;
+        var offset = blocker.position().subtract(walker.position());
+        if (offset.dot(side) < 0) side = side.reverse();
+        double clearance = passingWidth(blocker, walker);
+        if (offset.dot(side) >= clearance) return false;
         for (var direction : List.of(side, side.reverse())) {
-            double distance = clearance - blocker.position().subtract(walker.position()).dot(direction);
-            if (distance <= 0) continue;
+            double distance = clearance - offset.dot(direction);
             var stand = blocker.position().add(direction.scale(distance));
-            if (!SurfaceApproach.clearLastStep(blocker, stand) || !blocker.level().noCollision(blocker,
-                    blocker.getBoundingBox().move(stand.subtract(blocker.position())))) continue;
-            SurfaceApproach.stopWalking(blocker);
-            return Motor.move(blocker, direction.scale(Math.min(distance, YIELD_PACE)), "give_way").lengthSqr() > 1e-6;
+            if (!clearYieldStand(blocker, stand)) continue;
+            blocker.getLookControl().setLookAt(walker, 30, 30);
+            if (!blocker.hasReaction()) blocker.showReaction("surprise", "", 12);
+            nav.passage = new Passage(walker.getUUID(), stand, blocker.level().getGameTime(), mayInterruptWalk);
+            return true;
         }
+        nav.passage = new Passage(walker.getUUID(), null, blocker.level().getGameTime(), mayInterruptWalk);
         return false;
+    }
+
+    private static boolean clearYieldStand(YukkuriEntity body, Vec3 stand) {
+        var box = body.getBoundingBox().move(stand.subtract(body.position()));
+        return SurfaceApproach.clearLastStep(body, stand) && body.level().noCollision(body, box)
+                && body.level().getEntitiesOfClass(LivingEntity.class, box, other -> other != body && other.isAlive()
+                        && !other.isSpectator()).isEmpty();
+    }
+
+    private void tickPassage(YukkuriEntity body) {
+        if (!(level instanceof ServerLevel server)) return;
+        var walker = server.getEntity(passage.walker);
+        if (walker == null || !walker.isAlive() || body.distanceToSqr(walker) > PASSAGE_RANGE * PASSAGE_RANGE) {
+            passage = null;
+            return;
+        }
+        if (passage.done) return;
+        long elapsed = level.getGameTime() - passage.began;
+        if (!canGiveWay(body) || !passage.mayInterruptWalk && !idleForPassage(body) || elapsed > YIELD_LIMIT) {
+            passage.done = true;
+            return;
+        }
+        if (elapsed < YIELD_NOTICE || !body.onGround()) return;
+        var delta = passage.stand.subtract(body.position()).multiply(1, 0, 1);
+        if (delta.horizontalDistanceSqr() < .0025 || !clearYieldStand(body, passage.stand)) {
+            passage.done = true;
+            return;
+        }
+        SurfaceApproach.stopWalking(body);
+        var step = delta.normalize().scale(Math.min(delta.length(), YIELD_PACE));
+        if (Motor.move(body, step, "give_way").dot(step) < step.lengthSqr() * .5) {
+            passage.done = true;
+        } else if (!passage.stepped) {
+            passage.stepped = true;
+            GameplayLog.event(body, "move", "action=give_way walker={} walker_type={} stand={}",
+                    walker.getUUID(), walker.getType(), GameplayLog.at(passage.stand));
+        }
     }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */

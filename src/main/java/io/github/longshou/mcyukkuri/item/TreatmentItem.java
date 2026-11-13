@@ -1,8 +1,10 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,6 +17,23 @@ public final class TreatmentItem extends Item {
     public enum Kind { HERB, ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
     private final Kind kind;
     public TreatmentItem(Kind kind,Properties properties){super(properties);this.kind=kind;}
+    public static Item doseItem(Kind kind) {
+        return switch (kind) {
+            case HERB -> ModItems.MEDICINE.get();
+            case ORANGE_JUICE -> ModItems.ORANGE_JUICE.get();
+            case MOLD_REMOVER -> ModItems.MOLD_REMOVER.get();
+            case FLOUR_PASTE -> ModItems.FLOUR_PASTE.get();
+        };
+    }
+
+    /** Select a dose that can help a sick or injured animal now. */
+    public static Kind neededCare(YukkuriEntity patient) {
+        var body = patient.body();
+        if (!body.treatmentBlockReason().equals("none")) return null;
+        if (body.mold() > 0 && body.mold() < BodyLife.MOLD_TERMINAL) return Kind.MOLD_REMOVER;
+        if (body.infection() > 0) return Kind.HERB;
+        return body.needsPhysicalRestoration() ? Kind.ORANGE_JUICE : null;
+    }
     /** Player items, NPC supplies and diagnostic commands use the same treatment and successful-dose effects. */
     public static boolean apply(YukkuriEntity entity, Kind kind) {
         boolean applied=switch(kind){
