@@ -5799,7 +5799,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_settlement_shun"
       },
-      "source_sha256": "297e475fffb9ffff78bea89cb08290ccb9e22cfd06d2ae64c6659f0055310f1b"
+      "source_sha256": "297e475fffb9ffff78bea89cb08290ccb9e22cfd06d2ae64c6659f0055310f1b",
+      "english": "Who're you? Stay back!"
     },
     {
       "id": "reimu.young.o_settlement_drive",
@@ -5815,7 +5816,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_settlement_drive"
       },
-      "source_sha256": "15e9b8aee85d97db13367ba869641b42bb3a99c28e501b0961fbd3b2284d6390"
+      "source_sha256": "15e9b8aee85d97db13367ba869641b42bb3a99c28e501b0961fbd3b2284d6390",
+      "english": "You can't stay here! Go away!"
     },
     {
       "id": "reimu.young.o_settlement_assign",
@@ -5831,7 +5833,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_settlement_assign"
       },
-      "source_sha256": "c48a90f46041dccd9edae3e0bd8f70d1bb8e5f35125a1558233d8165f4a78325"
+      "source_sha256": "c48a90f46041dccd9edae3e0bd8f70d1bb8e5f35125a1558233d8165f4a78325",
+      "english": "Poop slave! Clean Mishter Toilet!"
     },
     {
       "id": "reimu.young.o_settlement_submit",
@@ -5847,7 +5850,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_settlement_submit"
       },
-      "source_sha256": "bd9d83be3670756ced85c0ebdbe2e13eeaaab0c57321bc58ea5e570ec9b884e9"
+      "source_sha256": "bd9d83be3670756ced85c0ebdbe2e13eeaaab0c57321bc58ea5e570ec9b884e9",
+      "english": "I'll clean Mishter Toilet... pwease let me stay..."
     },
     {
       "id": "reimu.young.o_settlement_hurt",
@@ -5863,7 +5867,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_settlement_hurt"
       },
-      "source_sha256": "24c470fd9f5e1d109dda59b8277468d4f73df23a67e8ae5f9d7e4eb14d91187e"
+      "source_sha256": "24c470fd9f5e1d109dda59b8277468d4f73df23a67e8ae5f9d7e4eb14d91187e",
+      "english": "Yuu... I wanna stay with everyone too..."
     },
     {
       "id": "marisa.adult.o_settlement_shun",
@@ -5879,7 +5884,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_settlement_shun"
       },
-      "source_sha256": "3fb78850b429a5ce9e172add8a3f23aef298d4a6a2759a3b0b1fa27a55ec6f25"
+      "source_sha256": "3fb78850b429a5ce9e172add8a3f23aef298d4a6a2759a3b0b1fa27a55ec6f25",
+      "english": "I don't know you! Stay back!"
     },
     {
       "id": "marisa.adult.o_settlement_drive",
@@ -5895,7 +5901,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_settlement_drive"
       },
-      "source_sha256": "2306f632c9fc79113954be50a8b49c2bf1178f95718bbe6e53aba37e2255d83b"
+      "source_sha256": "2306f632c9fc79113954be50a8b49c2bf1178f95718bbe6e53aba37e2255d83b",
+      "english": "This isn't your home!"
     },
     {
       "id": "marisa.adult.o_settlement_assign",
@@ -5928,7 +5935,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_settlement_submit"
       },
-      "source_sha256": "fd4ba294db545fb15db6420f5d5fdf4268aec2d873efebe0d12bb999b357e44f"
+      "source_sha256": "fd4ba294db545fb15db6420f5d5fdf4268aec2d873efebe0d12bb999b357e44f",
+      "english": "I'll clean Mr. Toilet... let me stay here..."
     },
     {
       "id": "marisa.adult.o_settlement_hurt",
@@ -5944,7 +5952,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_settlement_hurt"
       },
-      "source_sha256": "3f0e94ea2cf68fb381ccfe905fbceca6656fcba8a0dc6cb98b65e2614e27156f"
+      "source_sha256": "3f0e94ea2cf68fb381ccfe905fbceca6656fcba8a0dc6cb98b65e2614e27156f",
+      "english": "Yuu... I want to stay with everyone too..."
     },
     {
       "id": "marisa.young.o_settlement_shun",
@@ -5960,7 +5969,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_settlement_shun"
       },
-      "source_sha256": "bb67dc1e5826ab9f73f1c7007567edf66e09723c6d87487938d94f21806dc721"
+      "source_sha256": "bb67dc1e5826ab9f73f1c7007567edf66e09723c6d87487938d94f21806dc721",
+      "english": "Who're you? Stay back!"
     },
     {
       "id": "marisa.young.o_settlement_drive",
@@ -5976,7 +5986,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_settlement_drive"
       },
-      "source_sha256": "48a517d9fc4efffc8d5292cf63976ea9fba51d62c51b42feee0fe9e3e63015fe"
+      "source_sha256": "48a517d9fc4efffc8d5292cf63976ea9fba51d62c51b42feee0fe9e3e63015fe",
+      "english": "You can't stay here!"
     },
     {
       "id": "marisa.young.o_settlement_assign",
@@ -5992,7 +6003,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_settlement_assign"
       },
-      "source_sha256": "21e8cbca95dac8df5acfcde4c4bf696611fd1c8d27f3d41f19eea3fd5182ac3a"
+      "source_sha256": "21e8cbca95dac8df5acfcde4c4bf696611fd1c8d27f3d41f19eea3fd5182ac3a",
+      "english": "Poop slave! Clean Mishter Toilet!"
     },
     {
       "id": "marisa.young.o_settlement_submit",
@@ -6008,7 +6020,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_settlement_submit"
       },
-      "source_sha256": "2512b377e0c3d68d7a7b7d72e7caa642a42b6f00c21d4f4cf61f33a4dd7f4330"
+      "source_sha256": "2512b377e0c3d68d7a7b7d72e7caa642a42b6f00c21d4f4cf61f33a4dd7f4330",
+      "english": "I'll clean Mishter Toilet... pwease let me stay..."
     },
     {
       "id": "marisa.young.o_settlement_hurt",
@@ -6024,7 +6037,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_settlement_hurt"
       },
-      "source_sha256": "f5e2b5e117b49eb2dabae66ff9434b2c816ffdf77ce3b64588d48300e43b7e08"
+      "source_sha256": "f5e2b5e117b49eb2dabae66ff9434b2c816ffdf77ce3b64588d48300e43b7e08",
+      "english": "Yuu... I wanna stay with everyone too..."
     },
     {
       "id": "alice.adult.o_settlement_shun",
@@ -6040,7 +6054,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_settlement_shun"
       },
-      "source_sha256": "6699d7ea9ae0666306c83e421bab60d3a29528b8a9081327281946600af22502"
+      "source_sha256": "6699d7ea9ae0666306c83e421bab60d3a29528b8a9081327281946600af22502",
+      "english": "Who are you? Back up a little, please."
     },
     {
       "id": "alice.adult.o_settlement_drive",
@@ -6056,7 +6071,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_settlement_drive"
       },
-      "source_sha256": "549edb86560c6215064f974e2edef1e6c03426ecebc8b1ba3c0b11e74d0b53ae"
+      "source_sha256": "549edb86560c6215064f974e2edef1e6c03426ecebc8b1ba3c0b11e74d0b53ae",
+      "english": "We don't want you here. Get out!"
     },
     {
       "id": "alice.adult.o_settlement_assign",
@@ -6089,7 +6105,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_settlement_submit"
       },
-      "source_sha256": "425bf66d2cfcca7ce34026cd636c27b7a84e6708defbefd05b68f3327a269eb9"
+      "source_sha256": "425bf66d2cfcca7ce34026cd636c27b7a84e6708defbefd05b68f3327a269eb9",
+      "english": "I'll clean Mr. Toilet... please let me stay..."
     },
     {
       "id": "alice.adult.o_settlement_hurt",
@@ -6105,7 +6122,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_settlement_hurt"
       },
-      "source_sha256": "2eac15492dbe912adb82e97ea3780262acce0664d8e6859f0b2b173984bb1061"
+      "source_sha256": "2eac15492dbe912adb82e97ea3780262acce0664d8e6859f0b2b173984bb1061",
+      "english": "Yuu... I want to stay with everyone too..."
     },
     {
       "id": "alice.young.o_settlement_shun",
@@ -6121,7 +6139,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_settlement_shun"
       },
-      "source_sha256": "8523a6378a6bbb44565995512e11f4865574d8cdd0c620ce96d22d6844caac1e"
+      "source_sha256": "8523a6378a6bbb44565995512e11f4865574d8cdd0c620ce96d22d6844caac1e",
+      "english": "Who're you? Don't come closer!"
     },
     {
       "id": "alice.young.o_settlement_drive",
@@ -6137,7 +6156,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_settlement_drive"
       },
-      "source_sha256": "68dea4b42d63e22b4fb8dfd4f125436d99136f56287b0add0e0a1799f3a65a1a"
+      "source_sha256": "68dea4b42d63e22b4fb8dfd4f125436d99136f56287b0add0e0a1799f3a65a1a",
+      "english": "You can't stay here! Go away!"
     },
     {
       "id": "alice.young.o_settlement_assign",
@@ -6153,7 +6173,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_settlement_assign"
       },
-      "source_sha256": "b7794af5a54e1a1f1dadd3d53cdbf4dbdc6a454020b439f54d71d3f5de415549"
+      "source_sha256": "b7794af5a54e1a1f1dadd3d53cdbf4dbdc6a454020b439f54d71d3f5de415549",
+      "english": "Poop slave! Clean Mishter Toilet!"
     },
     {
       "id": "alice.young.o_settlement_submit",
@@ -6169,7 +6190,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_settlement_submit"
       },
-      "source_sha256": "eb30845262e53dfb1d8292b15ae16f986c5be8dc7af2a27edffb642f171fa094"
+      "source_sha256": "eb30845262e53dfb1d8292b15ae16f986c5be8dc7af2a27edffb642f171fa094",
+      "english": "I'll clean Mishter Toilet... pwease let me stay..."
     },
     {
       "id": "alice.young.o_settlement_hurt",
@@ -6185,7 +6207,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_settlement_hurt"
       },
-      "source_sha256": "ace8bd27adfaa195d34a68918ff4a7d40bf1984b3d3900a57830cef597667bbb"
+      "source_sha256": "ace8bd27adfaa195d34a68918ff4a7d40bf1984b3d3900a57830cef597667bbb",
+      "english": "Yuu... I wanna stay with everyone too..."
     },
     {
       "id": "chen.adult.o_settlement_shun",
@@ -6201,7 +6224,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_settlement_shun"
       },
-      "source_sha256": "3473a4f75bf246b95374fc2e3bbc278a823981a81a15ced009639e9e909fee51"
+      "source_sha256": "3473a4f75bf246b95374fc2e3bbc278a823981a81a15ced009639e9e909fee51",
+      "english": "I don't know who you are. Stay back."
     },
     {
       "id": "chen.adult.o_settlement_drive",
@@ -6217,7 +6241,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_settlement_drive"
       },
-      "source_sha256": "304cbb50663ffe3a5408d845ab463d42a0a182a2c56cbc339368f31c7b5fa625"
+      "source_sha256": "304cbb50663ffe3a5408d845ab463d42a0a182a2c56cbc339368f31c7b5fa625",
+      "english": "Get out of here!"
     },
     {
       "id": "chen.adult.o_settlement_assign",
@@ -6250,7 +6275,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_settlement_submit"
       },
-      "source_sha256": "5fd2f21c337b71603f2fe4baf22536a7939fa96b0590513dc9deb70a96d738b9"
+      "source_sha256": "5fd2f21c337b71603f2fe4baf22536a7939fa96b0590513dc9deb70a96d738b9",
+      "english": "I'll clean Mr. Toilet... please let me stay..."
     },
     {
       "id": "chen.adult.o_settlement_hurt",
@@ -6266,7 +6292,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_settlement_hurt"
       },
-      "source_sha256": "c573c9c2cf3879e506f914a9c9757e34e8e7efb43e1d3aaa14c5b0cd8183fd71"
+      "source_sha256": "c573c9c2cf3879e506f914a9c9757e34e8e7efb43e1d3aaa14c5b0cd8183fd71",
+      "english": "Yuu... I want to stay with everyone too..."
     },
     {
       "id": "chen.young.o_settlement_shun",
@@ -6282,7 +6309,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_settlement_shun"
       },
-      "source_sha256": "ade1a557b30e164a37ba461b62c5a5f14648a86b99fd36390fc9e6942c216d52"
+      "source_sha256": "ade1a557b30e164a37ba461b62c5a5f14648a86b99fd36390fc9e6942c216d52",
+      "english": "Who're you? I don't know you! Stay away!"
     },
     {
       "id": "chen.young.o_settlement_drive",
@@ -6298,7 +6326,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_settlement_drive"
       },
-      "source_sha256": "4da1ba24d16279126a41c93906bf872fa240cc64b7adb44c7d2fd85c6b268de1"
+      "source_sha256": "4da1ba24d16279126a41c93906bf872fa240cc64b7adb44c7d2fd85c6b268de1",
+      "english": "You can't stay here! Got dat?"
     },
     {
       "id": "chen.young.o_settlement_assign",
@@ -6314,7 +6343,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_settlement_assign"
       },
-      "source_sha256": "be52dcc5cdbb2b83742527e1a9283b9dc7da8962bd1a6afab077f9e35b441636"
+      "source_sha256": "be52dcc5cdbb2b83742527e1a9283b9dc7da8962bd1a6afab077f9e35b441636",
+      "english": "Poop slave! Clean Mishter Toilet!"
     },
     {
       "id": "chen.young.o_settlement_submit",
@@ -6330,7 +6360,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_settlement_submit"
       },
-      "source_sha256": "be555b2595f9d134e10b1bcf5a1b088e7963301e2afe2a6ab67f3b672a97ba07"
+      "source_sha256": "be555b2595f9d134e10b1bcf5a1b088e7963301e2afe2a6ab67f3b672a97ba07",
+      "english": "I'll clean Mishter Toilet... pwease let me stay..."
     },
     {
       "id": "chen.young.o_settlement_hurt",
@@ -6346,7 +6377,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_settlement_hurt"
       },
-      "source_sha256": "a291f4836b072eff5144e77b0836ca7884a654f637c6237c5e55463b59b743c9"
+      "source_sha256": "a291f4836b072eff5144e77b0836ca7884a654f637c6237c5e55463b59b743c9",
+      "english": "Yuu... I wanna stay with everyone too..."
     },
     {
       "id": "patchouli.adult.o_settlement_shun",
@@ -6362,7 +6394,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_settlement_shun"
       },
-      "source_sha256": "5678bed7a9235614c9c8ea3bc3f82bda9127a6339d2fabf2da66d7599c5b9368"
+      "source_sha256": "5678bed7a9235614c9c8ea3bc3f82bda9127a6339d2fabf2da66d7599c5b9368",
+      "english": "Mukyu. I don't know you. Please stay back."
     },
     {
       "id": "patchouli.adult.o_settlement_drive",
@@ -6378,7 +6411,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_settlement_drive"
       },
-      "source_sha256": "65ff199a7f20781e315165d1bc1c06e247079ee185425daf26882984413d4198"
+      "source_sha256": "65ff199a7f20781e315165d1bc1c06e247079ee185425daf26882984413d4198",
+      "english": "Mukyu. Please get out of here!"
     },
     {
       "id": "patchouli.adult.o_settlement_assign",
@@ -6394,7 +6428,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_settlement_assign"
       },
-      "source_sha256": "81e933310a70ea2324769a35de73a2ec88806d088bed82a409e61b2fc695d4ad"
+      "source_sha256": "81e933310a70ea2324769a35de73a2ec88806d088bed82a409e61b2fc695d4ad",
+      "english": "Mukyu. Poop slave! Clean up Mr. Toilet!"
     },
     {
       "id": "patchouli.adult.o_settlement_submit",
@@ -6410,7 +6445,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_settlement_submit"
       },
-      "source_sha256": "7782ad1310273bb74246345099e44895fa7b68aa4e2204769d61b8d5bc8e444e"
+      "source_sha256": "7782ad1310273bb74246345099e44895fa7b68aa4e2204769d61b8d5bc8e444e",
+      "english": "Mukyu. I'll clean Mr. Toilet... please let me stay..."
     },
     {
       "id": "patchouli.adult.o_settlement_hurt",
@@ -6426,7 +6462,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_settlement_hurt"
       },
-      "source_sha256": "9721b7c7f54fa767b2b6d499beeab576a744fd6c3506a61d8977b25dd0d08ed6"
+      "source_sha256": "9721b7c7f54fa767b2b6d499beeab576a744fd6c3506a61d8977b25dd0d08ed6",
+      "english": "Mukyu. Yuu... I want to stay with everyone too..."
     },
     {
       "id": "patchouli.young.o_settlement_shun",
@@ -6442,7 +6479,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_settlement_shun"
       },
-      "source_sha256": "fe1e36d52ef30ab9517f3ae17d485ccc8878048b7671b7d6ceb5b33620a6d04f"
+      "source_sha256": "fe1e36d52ef30ab9517f3ae17d485ccc8878048b7671b7d6ceb5b33620a6d04f",
+      "english": "Mukyu... who're you? Stay back!"
     },
     {
       "id": "patchouli.young.o_settlement_drive",
@@ -6458,7 +6496,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_settlement_drive"
       },
-      "source_sha256": "754407bb70bafe52ff4c2085ffe82dd5b8cc171749a67625caff98e61691bc6c"
+      "source_sha256": "754407bb70bafe52ff4c2085ffe82dd5b8cc171749a67625caff98e61691bc6c",
+      "english": "Mukyu! You can't stay here!"
     },
     {
       "id": "patchouli.young.o_settlement_assign",
@@ -6474,7 +6513,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_settlement_assign"
       },
-      "source_sha256": "3fbba38c4d71af02450b641db05697dc09b5cee0053bbd07a2ed9deb6c1c2c51"
+      "source_sha256": "3fbba38c4d71af02450b641db05697dc09b5cee0053bbd07a2ed9deb6c1c2c51",
+      "english": "Mukyu. Poop slave! Clean Mishter Toilet!"
     },
     {
       "id": "patchouli.young.o_settlement_submit",
@@ -6490,7 +6530,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_settlement_submit"
       },
-      "source_sha256": "1b2ecb9432d8dae2ee5b67d059dc39015dc1e25984bd2ec5d0946a6221bd9c64"
+      "source_sha256": "1b2ecb9432d8dae2ee5b67d059dc39015dc1e25984bd2ec5d0946a6221bd9c64",
+      "english": "Mukyu. I'll clean Mishter Toilet... pwease let me stay..."
     },
     {
       "id": "patchouli.young.o_settlement_hurt",
@@ -6506,7 +6547,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_settlement_hurt"
       },
-      "source_sha256": "f7d26979061767b932d91e2f4deb8c5e7495ee2d7a22970372f6f137331d9a94"
+      "source_sha256": "f7d26979061767b932d91e2f4deb8c5e7495ee2d7a22970372f6f137331d9a94",
+      "english": "Mukyu. Yuu... I wanna stay with everyone too..."
     },
     {
       "id": "remilia.adult.o_hello",
@@ -6525,7 +6567,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_hello"
       },
-      "source_sha256": "f64b02c295decb161bd35f42d8b0517bba4bf3ca5554058754f87510b757f2a5"
+      "source_sha256": "f64b02c295decb161bd35f42d8b0517bba4bf3ca5554058754f87510b757f2a5",
+      "english": "Uu... Remilia wants to take it easy with you too."
     },
     {
       "id": "remilia.adult.o_idle",
@@ -6541,7 +6584,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_idle"
       },
-      "source_sha256": "1b5edf4b6e5567c07682065940662df12b73c539eca645fc873a896826546000"
+      "source_sha256": "1b5edf4b6e5567c07682065940662df12b73c539eca645fc873a896826546000",
+      "english": "Uu... I'll rest here awhile."
     },
     {
       "id": "remilia.adult.o_hungry",
@@ -6557,7 +6601,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_hungry"
       },
-      "source_sha256": "737cff6ebfea33ef4d8adc62ede9dafc49cb4223b27fbfa176cfbb17bb331484"
+      "source_sha256": "737cff6ebfea33ef4d8adc62ede9dafc49cb4223b27fbfa176cfbb17bb331484",
+      "english": "Uu... I'm hungry... Mr. Food..."
     },
     {
       "id": "remilia.adult.o_food",
@@ -6573,7 +6618,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_food"
       },
-      "source_sha256": "bbb57d5ebdb2fe37bc732ba35b0a1d8305a0a4c258695fde1fc74d43058c822f"
+      "source_sha256": "bbb57d5ebdb2fe37bc732ba35b0a1d8305a0a4c258695fde1fc74d43058c822f",
+      "english": "Uu... there's food. Let's go see."
     },
     {
       "id": "remilia.adult.o_eat",
@@ -6590,7 +6636,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_eat"
       },
-      "source_sha256": "67bfa182f164b0770fdf7e046e496d5ffb94ebf0f7805fc6723635fa2fbfa213"
+      "source_sha256": "67bfa182f164b0770fdf7e046e496d5ffb94ebf0f7805fc6723635fa2fbfa213",
+      "english": "Uu... munch, munch!"
     },
     {
       "id": "remilia.adult.o_fed",
@@ -6606,7 +6653,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_fed"
       },
-      "source_sha256": "3e1e1179388bb6188c8c404b03dadc567b71aa7fc3dedd6e209840fa97239144"
+      "source_sha256": "3e1e1179388bb6188c8c404b03dadc567b71aa7fc3dedd6e209840fa97239144",
+      "english": "Uu... delicious! I'm so happy!"
     },
     {
       "id": "remilia.adult.o_share",
@@ -6622,7 +6670,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_share"
       },
-      "source_sha256": "3c6ae988eea2a4d31367c9e3117647375782a6da8eff03df75e6d6ae46476a72"
+      "source_sha256": "3c6ae988eea2a4d31367c9e3117647375782a6da8eff03df75e6d6ae46476a72",
+      "english": "Uu... here! Let's share!"
     },
     {
       "id": "remilia.adult.o_wait_turn",
@@ -6638,7 +6687,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_wait_turn"
       },
-      "source_sha256": "91f1bb8e9f32aab6352e7a8564136c8fced144a38dca84c004d5595e9a6deb35"
+      "source_sha256": "91f1bb8e9f32aab6352e7a8564136c8fced144a38dca84c004d5595e9a6deb35",
+      "english": "Uu... is it Remilia's turn yet?"
     },
     {
       "id": "remilia.adult.o_mine",
@@ -6654,7 +6704,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_mine"
       },
-      "source_sha256": "4dd5295546359ced51b795aa804691faa622de3c58d9cee8bf16ef63ed482bb2"
+      "source_sha256": "4dd5295546359ced51b795aa804691faa622de3c58d9cee8bf16ef63ed482bb2",
+      "english": "Uu... this is Remilia's share!"
     },
     {
       "id": "remilia.adult.o_toilet",
@@ -6670,7 +6721,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_toilet"
       },
-      "source_sha256": "067e98267f23bb9c9c4c043a55b1024c1e7dff0de6edf04864ebad192d2dcb8b"
+      "source_sha256": "067e98267f23bb9c9c4c043a55b1024c1e7dff0de6edf04864ebad192d2dcb8b",
+      "english": "Uu... I need to find a toilet."
     },
     {
       "id": "remilia.adult.o_clean",
@@ -6687,7 +6739,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_clean"
       },
-      "source_sha256": "58d086f4734d5c3a09d091828b0a4557959eb7ab3e60c37b70455e283571874d"
+      "source_sha256": "58d086f4734d5c3a09d091828b0a4557959eb7ab3e60c37b70455e283571874d",
+      "english": "What a relief. That feels good."
     },
     {
       "id": "remilia.adult.o_sleep",
@@ -6703,7 +6756,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_sleep"
       },
-      "source_sha256": "bc14fba069398e15bfa5d6e5dabb6b49640c5c4ed885bd1c484c5d0770815567"
+      "source_sha256": "bc14fba069398e15bfa5d6e5dabb6b49640c5c4ed885bd1c484c5d0770815567",
+      "english": "Uu... I'm sleepy now. Good night."
     },
     {
       "id": "remilia.adult.o_awake",
@@ -6719,7 +6773,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_awake"
       },
-      "source_sha256": "58705612f6a2b0650f95b721d06497b7d6e34f23d3ce914e515504ed50d00589"
+      "source_sha256": "58705612f6a2b0650f95b721d06497b7d6e34f23d3ce914e515504ed50d00589",
+      "english": "Uu... I slept well. Let's take it easy today."
     },
     {
       "id": "remilia.adult.o_gentle",
@@ -6736,7 +6791,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_gentle"
       },
-      "source_sha256": "ea69e090cac74314080b351d3afd4bddf2cad4c45a228403308a11ed52133b5e"
+      "source_sha256": "ea69e090cac74314080b351d3afd4bddf2cad4c45a228403308a11ed52133b5e",
+      "english": "Uu... stay a bit longer... I want to be close to you..."
     },
     {
       "id": "remilia.adult.o_shy",
@@ -6753,7 +6809,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_shy"
       },
-      "source_sha256": "79b42d7505e950beaee1786a4dcaec7dc34389d4fc1c7108c05d36a752367b70"
+      "source_sha256": "79b42d7505e950beaee1786a4dcaec7dc34389d4fc1c7108c05d36a752367b70",
+      "english": "Uu... yuu... I'll tuck myself in a little..."
     },
     {
       "id": "remilia.adult.o_afraid",
@@ -6769,7 +6826,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_afraid"
       },
-      "source_sha256": "a7bf1dd5679265191c6614f91c21870ff27feed689f936b3a5fd2d59a3fadaf1"
+      "source_sha256": "a7bf1dd5679265191c6614f91c21870ff27feed689f936b3a5fd2d59a3fadaf1",
+      "english": "Uu... I'm scared!"
     },
     {
       "id": "remilia.adult.o_hurt",
@@ -6785,7 +6843,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_hurt"
       },
-      "source_sha256": "ab3a42f8f0b7d7c9c599d6560be5a166fa18ae72c2ebd52eb90d772ec3a3f3a3"
+      "source_sha256": "ab3a42f8f0b7d7c9c599d6560be5a166fa18ae72c2ebd52eb90d772ec3a3f3a3",
+      "english": "Uu... it hurts... it hurts!"
     },
     {
       "id": "remilia.adult.o_treated",
@@ -6818,7 +6877,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_lost"
       },
-      "source_sha256": "c60ecff92653b2498996043c8a407bc652383518b027a79113dda1ee3adc90da"
+      "source_sha256": "c60ecff92653b2498996043c8a407bc652383518b027a79113dda1ee3adc90da",
+      "english": "My headwear's gone. Where did I drop it?"
     },
     {
       "id": "remilia.adult.o_returned",
