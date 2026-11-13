@@ -12,6 +12,7 @@
 | 工具 2：并入原版物品、实际使用模型与效果 | `.worktrees/wp-id-tools-v2` | item/OperationToolItem, interaction/OperationLife, art/props operation-tools, recipes, lang |
 | 街道生活：爱派、虐派与路人（单步可见反应） | `.worktrees/wp-ig-human-npc` | human/HumanNpc, human/Custody, social (reactions), museum street scenes, docs/FEATURES.md |
 | 店员搬运卡住（运废物超时、食盆被围） | `.worktrees/wp-ih-shop-staff-carry` | shop/ShopStaff, human/HumanNpc staff navigation |
+| 铂金章改钻石章 | `.worktrees/wp-ie-diamond-badge` | art/props/badges, art/props/ui, lang badge names |
 
 ## 玩法待办
 
