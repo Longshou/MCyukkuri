@@ -3530,7 +3530,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ゆっくりするよ！わかってねー！",
-      "chinese": "要油库里哟！要明白呢——！",
+      "chinese": "要油库里哟！听懂了吧——！",
       "source": {
         "file": "yukkuri/tilen/sei_serifu.csv",
         "line": 24,
@@ -3598,7 +3598,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "いたいよぉぉぉ！わかってねぇぇぇ！",
-      "chinese": "好痛哟——！要明白呢——！",
+      "chinese": "好痛哟——！听明白了吗——！",
       "source": {
         "file": "yukkuri/tilen/sei_serifu.csv",
         "line": 101,
@@ -3664,7 +3664,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "ゆっきゅりしゅりゅよ！わきゃってにぇー！",
-      "chinese": "要油库气哟！要明白捏——！",
+      "chinese": "要油库气哟！听懂惹捏——！",
       "source": {
         "file": "yukkuri/tilen/serifu.csv",
         "line": 24,
@@ -3732,7 +3732,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "いちゃいよぉぉぉ！わかっちぇにぇぇぇ！",
-      "chinese": "好痛痛哟——！要明白捏——！",
+      "chinese": "好痛痛哟——！要懂呀——！",
       "source": {
         "file": "yukkuri/tilen/serifu.csv",
         "line": 101,
@@ -4041,7 +4041,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "おなかが ぺーこぺーこ だよー。",
-      "chinese": "彭彭饿了哟——。",
+      "chinese": "肚子饿了哟——！",
       "events": [
         "hungry"
       ],
@@ -4050,7 +4050,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_hungry"
       },
-      "source_sha256": "7c4eda47875a921c34b8c95beacbe16831be45e34d6e0b6be0e6ef1b52c2e0ba"
+      "source_sha256": "7c4eda47875a921c34b8c95beacbe16831be45e34d6e0b6be0e6ef1b52c2e0ba",
+      "english": "I'm getting hungry!"
     },
     {
       "id": "chen.adult.o_food",
@@ -6507,7 +6508,7 @@
       "id": "remilia.adult.o_treated",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー、もう いたくないのだ……ありがと……",
+      "japanese": "うー、さっきより いたくないのだ……ありがと……",
       "chinese": "呜——没那么痛了呀……谢谢……",
       "events": [
         "treated"
@@ -6517,7 +6518,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_treated"
       },
-      "source_sha256": "5cdae58005fa9fab1d2b8fb907331e6fef85c21a278f038d750f5309c03b727c"
+      "source_sha256": "e813539216bfb0ebf1edbdb9e1da3359f613ca3f4ccc7144198cf078512ccf9a",
+      "english": "Uu... it doesn't hurt as much now... thank you..."
     },
     {
       "id": "remilia.adult.o_lost",
@@ -6689,8 +6691,8 @@
       "id": "remilia.adult.o_newborn",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー、れみりあがうまれたのだ。",
-      "chinese": "呜——蕾米莉亚出生啦。",
+      "japanese": "うー、おちびちゃん。れみりあは ここに いるのだ！",
+      "chinese": "呜——小贝比酱，蕾米莉亚在这儿呀！",
       "events": [
         "newborn"
       ],
@@ -6699,7 +6701,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_newborn"
       },
-      "source_sha256": "8469f013f37da0b771997f6e2cc0fbad5f5577768c0a9ccd721cf2fc0a0fb6c0"
+      "source_sha256": "b01b64533457c5f4a6aa61613a336a9bb6cc3bf852629fa46c245a83a8d85d62",
+      "english": "Uu... little one, Remilia's right here!"
     },
     {
       "id": "remilia.adult.o_grown",
@@ -6936,8 +6939,8 @@
       "id": "remilia.young.o_fed",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー、ぽんぽんしゃん いっぱいなのだ！",
-      "chinese": "呜——彭彭先森饱惹！好幸乎！",
+      "japanese": "うー、まんま、おいちいのだ！",
+      "chinese": "呜——饭饭真好粗呀！",
       "events": [
         "fed"
       ],
@@ -6946,7 +6949,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_fed"
       },
-      "source_sha256": "ca2194cc2db0f2dc1995030f047fc98c07ddf62f16870c55cf839ebe6f60fd8d"
+      "source_sha256": "931fcdefdc7251a566dde25b05a24fb80efba21bb55d6687c8ddf9499f9b4355",
+      "english": "Uu... num-num's yummy!"
     },
     {
       "id": "remilia.young.o_share",
@@ -7131,7 +7135,7 @@
       "id": "remilia.young.o_treated",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー、いたく にゃいのだ……ありがちょ……",
+      "japanese": "うー、さっきより いたくにゃいのだ……ありがちょ……",
       "chinese": "呜——没那么痛惹呀……蟹蟹……",
       "events": [
         "treated"
@@ -7141,7 +7145,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_treated"
       },
-      "source_sha256": "2821787511878d9d4c9068c444b9014c9c3bc46453080652db8409d0a84ac67d"
+      "source_sha256": "e09249dc842b592b8a29c982bf2a3ede0db342881fb324520e88dd4f2cb02ac0",
+      "english": "Uu... doesn't huwt as much... fank you..."
     },
     {
       "id": "remilia.young.o_lost",
@@ -7755,7 +7760,7 @@
       "id": "flandre.adult.o_treated",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、もう いたくないよ……ありがと……",
+      "japanese": "うー、さっきより いたくないよ……ありがと……",
       "chinese": "呜——没那么痛了哦……谢谢……",
       "events": [
         "treated"
@@ -7765,7 +7770,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_treated"
       },
-      "source_sha256": "7d22d2e9e9ffdc29f78d39c78672866b61d0396d8e16a54c9df1c82d49ab8986"
+      "source_sha256": "26607fbee5b55b4a95242febae367d47b6da628fedf3636179b250b5ede54364",
+      "english": "Uu... it doesn't hurt as much now... thank you..."
     },
     {
       "id": "flandre.adult.o_lost",
@@ -7937,8 +7943,8 @@
       "id": "flandre.adult.o_newborn",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、ここはどこかな？",
-      "chinese": "呜——这里是哪儿呀？",
+      "japanese": "うー、おちびちゃん、めを あけたね！",
+      "chinese": "呜——小贝比酱，睁开眼啦！",
       "events": [
         "newborn"
       ],
@@ -7947,7 +7953,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_newborn"
       },
-      "source_sha256": "bf21248145ac9b7e9a9588c52d408a5cf2c0c4d48d2e5d88c1532e79b1d73187"
+      "source_sha256": "9370ed78db62de04e7bee80002a1fbbd32e5145fb1ef53a08779ea695a038962",
+      "english": "Uu... little one, you opened your eyes!"
     },
     {
       "id": "flandre.adult.o_grown",
@@ -8184,8 +8191,8 @@
       "id": "flandre.young.o_fed",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、ぽんぽんしゃん いっぱい！ しゃーわちぇ！",
-      "chinese": "呜——彭彭先森饱惹！好幸乎！",
+      "japanese": "うー、このひとくち、おいちい！ しゃーわちぇ！",
+      "chinese": "呜——这口好粗！好幸乎！",
       "events": [
         "fed"
       ],
@@ -8194,7 +8201,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_fed"
       },
-      "source_sha256": "55dd9e89ae88d5c63e93c6c655f7ec57071fdf22e8fc68d65f712caa5ffe0208"
+      "source_sha256": "1e1e0ff4159e3e125169bff54bc4307ae8906874f37e25de0fe15b90afcfb00a",
+      "english": "Uu... that bite was yummy! Sho happy!"
     },
     {
       "id": "flandre.young.o_share",
@@ -8379,7 +8387,7 @@
       "id": "flandre.young.o_treated",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、いたく にゃいよぅ……ありがちょ……",
+      "japanese": "うー、さっきより いたくにゃいよぅ……ありがちょ……",
       "chinese": "呜——没那么痛惹哟……蟹蟹……",
       "events": [
         "treated"
@@ -8389,7 +8397,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_treated"
       },
-      "source_sha256": "ab7ed46ed8970ceeb4d1b084e7484f32eb73e13d7a0c0f3e438a64c55044a935"
+      "source_sha256": "79a372d005aa9b306c3d97b67f52e701da1a0af355b1853020abab7c80a123c2",
+      "english": "Uu... doesn't huwt as much... fank you..."
     },
     {
       "id": "flandre.young.o_lost",
@@ -8820,8 +8829,8 @@
       "id": "reimu.adult.o_house_hatched",
       "species": "reimu",
       "age": "adult",
-      "japanese": "おちびちゃん！ ゆっくり おおきく なってね！",
-      "chinese": "小贝比酱！油库里地长大哟！",
+      "japanese": "ゆっ！ たまごさんが うごいた……おちびちゃん、でてきたよ！",
+      "chinese": "油！蛋先生动了……小贝比酱，出来啦！",
       "events": [
         "house_hatched"
       ],
@@ -8830,14 +8839,15 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_house_hatched"
       },
-      "source_sha256": "d85b977e36d961b1ebe9463b995ab7d10a43836da0efbe9791da6aa3b956c037"
+      "source_sha256": "beab14f2553281b40fac7616f52cdd900655dae768e62e10fd75937c7ebe0511",
+      "english": "Yu! Mr. Egg moved... little one, you made it out!"
     },
     {
       "id": "marisa.adult.o_house_hatched",
       "species": "marisa",
       "age": "adult",
-      "japanese": "おちびちゃん！ ゆっくり おおきく なってね！",
-      "chinese": "小贝比酱！油库里地长大贼！",
+      "japanese": "おちびちゃんが でてきたのぜ！ まりさの そばで ゆっくりするのぜ！",
+      "chinese": "小贝比酱出来了！来，挨着魔理沙油库里贼！",
       "events": [
         "house_hatched"
       ],
@@ -8846,7 +8856,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_house_hatched"
       },
-      "source_sha256": "d85b977e36d961b1ebe9463b995ab7d10a43836da0efbe9791da6aa3b956c037"
+      "source_sha256": "104da546341b8dc7ee7d5fb7bd0b483ae05cd55441c60ad3fbde4cbdfede70f7",
+      "english": "The little one is out! Come take it easy beside Marisa!"
     },
     {
       "id": "reimu.young.o_house_startled",
@@ -10651,7 +10662,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ゆゆっ！ にんげんしゃんと おうちに かえりゅのじぇ！",
-      "chinese": "油油！窝要跟人类鲜笋回家惹诺贼！",
+      "chinese": "油油！窝要跟人类鲜笋回家惹杰！",
       "events": [
         "shop_bought"
       ],
@@ -10661,7 +10672,7 @@
         "id": "marisa.young.o_shop_bought"
       },
       "source_sha256": "ce7943a7822b554b68930644d3e56eadc2e35d545153445703448bbea4fc241f",
-      "english": "Yu-yu! I’m going home with Mr. Human!"
+      "english": "Yu-yu! I'm goin' home with Mishter Human!"
     },
     {
       "id": "marisa.young.o_shop_sold_sad",
@@ -19219,8 +19230,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……抖掉……。",
-      "english": "Shake... the hat... off...",
+      "chinese": "帽帽……放下去贼……",
+      "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -19236,8 +19247,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ふちを くわえたのぜ！",
-      "chinese": "咬住边缘了！",
-      "english": "I got hold of the edge!",
+      "chinese": "咬住边缘了贼！",
+      "english": "I got my mouth on the edge!",
       "events": [
         "self_rescue_grip"
       ],
@@ -19304,8 +19315,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "いまいくのぜ！ ふちに つかまるのぜ！",
-      "chinese": "这就来！靠过来，抓住帽檐！",
-      "english": "I am coming! Come close and hold the brim!",
+      "chinese": "这就来贼！靠过来，抓住边儿！",
+      "english": "I'm coming! Hold on to the edge!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -19321,8 +19332,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "くわえたのぜ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19338,8 +19349,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "もう ふねのうえだよ。ゆっくり いきするのぜ。",
-      "chinese": "已经到船上了，慢慢喘口气。",
-      "english": "You are aboard now. Catch your breath.",
+      "chinese": "上船啦贼！先喘口气吧。",
+      "english": "You're aboard. Catch your breath.",
       "events": [
         "braid_rescue_safe"
       ],
@@ -19508,8 +19519,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……抖掉……。",
-      "english": "Shake... the hat... off...",
+      "chinese": "帽帽……放下去惹杰……",
+      "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -19525,8 +19536,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ふちを くわえたのじぇ！",
-      "chinese": "咬住边缘了！",
-      "english": "I got hold of the edge!",
+      "chinese": "咬住边边惹杰！",
+      "english": "Got my mouth on the edge!",
       "events": [
         "self_rescue_grip"
       ],
@@ -19593,8 +19604,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "いまいくのじぇ！ ふちに ちゅかまるのじぇ！",
-      "chinese": "这就来！靠过来，抓住帽檐！",
-      "english": "I am coming! Come close and hold the brim!",
+      "chinese": "这就来惹杰！靠过来，抓住边边！",
+      "english": "I'm comin'! Hold on to the edge!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -19610,8 +19621,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "くわえたのじぇ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19627,8 +19638,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "もう ふねのうえだよ。ゆっくり いきするのじぇ。",
-      "chinese": "已经到船上了，慢慢喘口气。",
-      "english": "You are aboard now. Catch your breath.",
+      "chinese": "上船惹杰！先喘口气吧。",
+      "english": "You're aboard! Catch your breath.",
       "events": [
         "braid_rescue_safe"
       ],
@@ -19712,8 +19723,8 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19746,8 +19757,8 @@
       "species": "reimu",
       "age": "young",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19780,8 +19791,8 @@
       "species": "alice",
       "age": "adult",
       "japanese": "くわえたわ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19814,8 +19825,8 @@
       "species": "alice",
       "age": "young",
       "japanese": "くわえたわ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19848,8 +19859,8 @@
       "species": "chen",
       "age": "adult",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19882,8 +19893,8 @@
       "species": "chen",
       "age": "young",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19916,8 +19927,8 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19950,8 +19961,8 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -19984,8 +19995,8 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -20018,8 +20029,8 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -20052,8 +20063,8 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -20086,8 +20097,8 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -28091,7 +28102,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "すっ！",
-      "chinese": "素——！",
+      "chinese": "素！",
       "source": {
         "file": "yukkuri/reimu/sei_serifu.csv",
         "line": 3610,
@@ -28102,7 +28113,8 @@
       "source_sha256": "dd6ac88839f503ebe097fa07d1d1dd1c418db58ec30a06088ea8e3870353073d",
       "events": [
         "heat_relief_2"
-      ]
+      ],
+      "english": "Su!"
     },
     {
       "id": "reimu.adult.l3611",
@@ -28121,7 +28133,8 @@
       "source_sha256": "bc41ddbfd84aec34e84992b908696c95ea2ccf7aea4022584b80281d7ca95a13",
       "events": [
         "heat_relief_2"
-      ]
+      ],
+      "english": "Su...!"
     },
     {
       "id": "reimu.adult.l3621",
@@ -28140,7 +28153,8 @@
       "source_sha256": "ee24ba61a524f421441bc2ab487c9de885db15cb9f95507709b5cdfcde29c809",
       "events": [
         "heat_relief_3"
-      ]
+      ],
+      "english": "Such relief~!"
     },
     {
       "id": "reimu.adult.l3622",
@@ -28148,7 +28162,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "すっきりー！",
-      "chinese": "素鸡立——！",
+      "chinese": "素——鸡立！",
       "source": {
         "file": "yukkuri/reimu/sei_serifu.csv",
         "line": 3622,
@@ -28159,7 +28173,8 @@
       "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
       "events": [
         "heat_relief_3"
-      ]
+      ],
+      "english": "Such relieeef!"
     },
     {
       "id": "reimu.adult.l3832",
@@ -28338,7 +28353,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "すっ！",
-      "chinese": "素——！",
+      "chinese": "素！",
       "source": {
         "file": "yukkuri/marisa/sei_serifu.csv",
         "line": 3610,
@@ -28349,7 +28364,8 @@
       "source_sha256": "dd6ac88839f503ebe097fa07d1d1dd1c418db58ec30a06088ea8e3870353073d",
       "events": [
         "heat_relief_2"
-      ]
+      ],
+      "english": "Su!"
     },
     {
       "id": "marisa.adult.l3611",
@@ -28368,7 +28384,8 @@
       "source_sha256": "bc41ddbfd84aec34e84992b908696c95ea2ccf7aea4022584b80281d7ca95a13",
       "events": [
         "heat_relief_2"
-      ]
+      ],
+      "english": "Su...!"
     },
     {
       "id": "marisa.adult.l3621",
@@ -28387,7 +28404,8 @@
       "source_sha256": "ee24ba61a524f421441bc2ab487c9de885db15cb9f95507709b5cdfcde29c809",
       "events": [
         "heat_relief_3"
-      ]
+      ],
+      "english": "Such relief~!"
     },
     {
       "id": "marisa.adult.l3622",
@@ -28395,7 +28413,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "すっきりー！",
-      "chinese": "素鸡立——！",
+      "chinese": "素——鸡立！",
       "source": {
         "file": "yukkuri/marisa/sei_serifu.csv",
         "line": 3622,
@@ -28406,7 +28424,8 @@
       "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
       "events": [
         "heat_relief_3"
-      ]
+      ],
+      "english": "Such relieeef!"
     },
     {
       "id": "marisa.adult.l3832",
@@ -28585,7 +28604,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "すっ！",
-      "chinese": "素——！",
+      "chinese": "素！",
       "source": {
         "file": "yukkuri/arisu/sei_serifu.csv",
         "line": 3610,
@@ -28596,7 +28615,8 @@
       "source_sha256": "dd6ac88839f503ebe097fa07d1d1dd1c418db58ec30a06088ea8e3870353073d",
       "events": [
         "heat_relief_2"
-      ]
+      ],
+      "english": "Su!"
     },
     {
       "id": "alice.adult.l3611",
@@ -28615,7 +28635,8 @@
       "source_sha256": "bc41ddbfd84aec34e84992b908696c95ea2ccf7aea4022584b80281d7ca95a13",
       "events": [
         "heat_relief_2"
-      ]
+      ],
+      "english": "Su...!"
     },
     {
       "id": "alice.adult.l3621",
@@ -28634,7 +28655,8 @@
       "source_sha256": "ee24ba61a524f421441bc2ab487c9de885db15cb9f95507709b5cdfcde29c809",
       "events": [
         "heat_relief_3"
-      ]
+      ],
+      "english": "Such relief~!"
     },
     {
       "id": "alice.adult.l3622",
@@ -28642,7 +28664,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "すっきりー！",
-      "chinese": "素鸡立——！",
+      "chinese": "素——鸡立！",
       "source": {
         "file": "yukkuri/arisu/sei_serifu.csv",
         "line": 3622,
@@ -28653,7 +28675,8 @@
       "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
       "events": [
         "heat_relief_3"
-      ]
+      ],
+      "english": "Such relieeef!"
     },
     {
       "id": "alice.adult.l3832",
@@ -31512,80 +31535,85 @@
       "origin": "project-original",
       "species": "reimu",
       "age": "adult",
-      "japanese": "ガラスさん！ おやこが あうのを じゃましないでよ！ ゆっくち おちびちゃんを とおしてよ！",
-      "chinese": "玻璃先生！不要阻止亲油团聚哟！油库气地让小贝比酱过来哟！",
+      "japanese": "ガラスさん、じゃましないでよ！ おちびちゃんを とおしてね！",
+      "chinese": "玻璃先生，别挡着哟！让小贝比酱过来吧！",
       "source": {
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_glass_wait"
       },
-      "source_sha256": "1ec2a0def079707f1449fd5ffa3d2e693674b60d580b5abc572e1ee53bea58c1",
+      "source_sha256": "530d15c99f517fcbc60e4c37d01ffb3cdb8d37f030b5057c6186aadc1bc24394",
       "events": [
         "glass_wait"
-      ]
+      ],
+      "english": "Mr. Glass, don't block the way! Please let my little one through!"
     },
     {
       "id": "reimu.juvenile.o_glass_child_answer",
       "origin": "project-original",
       "species": "reimu",
       "age": "juvenile",
-      "japanese": "ゆーっ！ おやしゃん、きょきょだよ！",
-      "chinese": "油——！亲亲油，窝在介里哟！",
+      "japanese": "ゆーっ！ おやしゃん、きょきょにいるにぇ！",
+      "chinese": "油——！亲亲油，窝在介里捏！",
       "source": {
         "file": "art/dialogue/species-original.json",
         "id": "reimu.juvenile.o_glass_child_answer"
       },
-      "source_sha256": "7bcafdccea51f34aaeaf1b0eb512573973a02fbc17ad4e013ff468e006eb7b3d",
+      "source_sha256": "62d4eb63d43004463d7c188fb477156a260aad977e427be06aa690f7b0145ffd",
       "events": [
         "glass_child_answer"
-      ]
+      ],
+      "english": "Yuu! Mama, Papa, I'm right here!"
     },
     {
       "id": "reimu.adult.o_give_up_search",
       "origin": "project-original",
       "species": "reimu",
       "age": "adult",
-      "japanese": "おちびちゃん……ゆぅ……すーりすーり したいよぉ……おちびちゃん……さよなら……",
-      "chinese": "小贝比酱……油呜……好想跟你擦擦脸哟……小贝比酱……再见哟……",
+      "japanese": "おちびちゃん……もっと すーりすーり したいよ……でも いまは そっちに いけないよ……",
+      "chinese": "小贝比酱……还想跟你擦擦脸哟……可我现在过不去……",
       "source": {
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_give_up_search"
       },
-      "source_sha256": "7c2f8ec75958b0d2b3d2b216ed558799cfb12c7bfb7d1984da51ac92a483b2cd",
+      "source_sha256": "3b85f40ea09e5919f3085cf84fb3c04a6d9e648cd54a021097219e980867a1a1",
       "events": [
         "give_up_search"
-      ]
+      ],
+      "english": "Little one... I still want to rub cheeks... but I can't get over there right now..."
     },
     {
       "id": "marisa.adult.o_glass_ram",
       "origin": "project-original",
       "species": "marisa",
       "age": "adult",
-      "japanese": "ガラスさん！ ゆっくち おとなしく どくんだぜ！",
-      "chinese": "玻璃先生！油库气地乖乖让开贼！",
+      "japanese": "ガラスさん、おとなしく どくんだぜ！",
+      "chinese": "玻璃先生，乖乖让开贼！",
       "source": {
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_glass_ram"
       },
-      "source_sha256": "0d45c02eaffabca6479f92bc4e3b406bba6f28fd184667c8d47a25a2eb8827c1",
+      "source_sha256": "2f197f78296531d9c399db2f84840c41f611f14bf9baba1bd12e174662543b94",
       "events": [
         "glass_ram"
-      ]
+      ],
+      "english": "Mr. Glass, be good and move aside!"
     },
     {
       "id": "marisa.baby.o_fed",
       "origin": "project-original",
       "species": "marisa",
       "age": "baby",
-      "japanese": "ごはんしゃん！ むーちゃむーちゃ、しゃーわちぇー！",
-      "chinese": "饭先森！嚼嚼，好幸乎！",
+      "japanese": "ごはんしゃん！ むーちゃむーちゃ、しゃーわちぇのじぇ！",
+      "chinese": "饭先森！嚼嚼，好幸乎惹杰！",
       "source": {
         "file": "art/dialogue/species-original.json",
         "id": "marisa.baby.o_fed"
       },
-      "source_sha256": "af4d78791e200b6fea3d3f7639c75bdc69d2137b03d1d591fc6248539c9d8787",
+      "source_sha256": "27e36ab634f4f3cc36b962f2ea472da779a9029344cdf07c67faacfcf6c4bced",
       "events": [
         "fed"
-      ]
+      ],
+      "english": "Mishter Food! Munch, munch! Sho happy!"
     }
   ]
 }

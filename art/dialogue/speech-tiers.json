@@ -286,9 +286,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -2600,9 +2600,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -4914,9 +4914,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -7228,9 +7228,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -9542,9 +9542,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -12480,9 +12480,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -14794,9 +14794,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -17129,9 +17129,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -19621,9 +19621,9 @@
    "events": [
     "take_food"
    ],
-   "japanese": "まんま、ちょーらい！",
-   "chinese": "饭饭，给我！",
-   "english": "Num-num, gimme!",
+   "japanese": "まんま、もらっちゃ！",
+   "chinese": "饭饭，拿到惹！",
+   "english": "Num-num, got it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -23365,8 +23365,8 @@
     "ration_get"
    ],
    "japanese": "ごはんしゃん、もらったにぇ！ ありがちょ！",
-   "chinese": "饭鲜笋，收下捏！谢谢！",
-   "english": "Mr. Food, I got it! Thank you!",
+   "chinese": "拿到饭鲜笋了捏！蟹蟹！",
+   "english": "Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -23378,8 +23378,8 @@
     "ration_get"
    ],
    "japanese": "ごはんさん、もらったよ！ ありがとう！",
-   "chinese": "饭先生，收下了哦！谢谢！",
-   "english": "I will take this, Mr. Food! Thank you!",
+   "chinese": "领到饭先生了哦！谢谢！",
+   "english": "I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -23768,8 +23768,8 @@
     "ration_get"
    ],
    "japanese": "ごはんしゃん、もらったのじぇ！ ありがちょ！",
-   "chinese": "饭鲜笋，收下惹杰！谢谢！",
-   "english": "Mr. Food, I got it! Thank you!",
+   "chinese": "拿到饭鲜笋了惹杰！蟹蟹！",
+   "english": "Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -23781,8 +23781,8 @@
     "ration_get"
    ],
    "japanese": "ごはんさん、もらったのぜ！ ありがとう！",
-   "chinese": "饭先生，收下了贼！谢谢！",
-   "english": "I will take this, Mr. Food! Thank you!",
+   "chinese": "领到饭先生了贼！谢谢！",
+   "english": "I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24171,8 +24171,8 @@
     "ration_get"
    ],
    "japanese": "ごはんしゃん、もらったにょ！ ありがちょ！",
-   "chinese": "饭鲜笋，收下哟！谢谢！",
-   "english": "Mr. Food, I got it! Thank you!",
+   "chinese": "拿到饭鲜笋了哟！蟹蟹！",
+   "english": "Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24184,8 +24184,8 @@
     "ration_get"
    ],
    "japanese": "ごはんさん、もらったわ！ ありがとう！",
-   "chinese": "饭先生，收下了呢！谢谢！",
-   "english": "I will take this, Mr. Food! Thank you!",
+   "chinese": "领到饭先生了呢！谢谢！",
+   "english": "I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24574,8 +24574,8 @@
     "ration_get"
    ],
    "japanese": "ごはんしゃん、もらったよぅ！ ありがちょ！",
-   "chinese": "饭鲜笋，收下哟——！谢谢！",
-   "english": "Mr. Food, I got it! Thank you!",
+   "chinese": "拿到饭鲜笋了哟——！蟹蟹！",
+   "english": "Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24587,8 +24587,8 @@
     "ration_get"
    ],
    "japanese": "ごはんさん、もらったよー！ ありがとう！",
-   "chinese": "饭先生，收下了哟——！谢谢！",
-   "english": "I will take this, Mr. Food! Thank you!",
+   "chinese": "领到饭先生了哟——！谢谢！",
+   "english": "I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24977,8 +24977,8 @@
     "ration_get"
    ],
    "japanese": "むきゅ。ごはんしゃん、もらったわ！ ありがちょ！",
-   "chinese": "姆啾。饭鲜笋，收下惹哇！谢谢！",
-   "english": "Mukyu. Mr. Food, I got it! Thank you!",
+   "chinese": "姆啾。拿到饭鲜笋了惹哇！蟹蟹！",
+   "english": "Mukyu. Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24990,8 +24990,8 @@
     "ration_get"
    ],
    "japanese": "むきゅ。ごはんさん、もらったわ！ ありがとう！",
-   "chinese": "姆啾。饭先生，收下了哇！谢谢！",
-   "english": "Mukyu. I will take this, Mr. Food! Thank you!",
+   "chinese": "姆啾。领到饭先生了哇！谢谢！",
+   "english": "Mukyu. I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25380,8 +25380,8 @@
     "ration_get"
    ],
    "japanese": "うー、ごはんしゃん、もらったなのだ！ ありがちょ！",
-   "chinese": "呜——饭鲜笋，收下呀！谢谢！",
-   "english": "Uu... Mr. Food, I got it! Thank you!",
+   "chinese": "呜——拿到饭鲜笋了呀！蟹蟹！",
+   "english": "Uu... Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25393,8 +25393,8 @@
     "ration_get"
    ],
    "japanese": "うー、ごはんさん、もらったのだ！ ありがとう！",
-   "chinese": "呜——饭先生，收下了呀！谢谢！",
-   "english": "Uu... I will take this, Mr. Food! Thank you!",
+   "chinese": "呜——领到饭先生了呀！谢谢！",
+   "english": "Uu... I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25783,8 +25783,8 @@
     "ration_get"
    ],
    "japanese": "うー、ごはんしゃん、もらったよぅ！ ありがちょ！",
-   "chinese": "呜——饭鲜笋，收下哦！谢谢！",
-   "english": "Uu... Mr. Food, I got it! Thank you!",
+   "chinese": "呜——拿到饭鲜笋了哦！蟹蟹！",
+   "english": "Uu... Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25796,8 +25796,8 @@
     "ration_get"
    ],
    "japanese": "うー、ごはんさん、もらったよ！ ありがとう！",
-   "chinese": "呜——饭先生，收下了哦！谢谢！",
-   "english": "Uu... I will take this, Mr. Food! Thank you!",
+   "chinese": "呜——领到饭先生了哦！谢谢！",
+   "english": "Uu... I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26195,8 +26195,8 @@
     "ration_get"
    ],
    "japanese": "みょん！ごはんしゃん、もらったみょ！ ありがちょ！",
-   "chinese": "咪呦！饭鲜笋，收下哦！谢谢！",
-   "english": "Myon! Mr. Food, I got it! Thank you!",
+   "chinese": "咪呦！拿到饭鲜笋了哦！蟹蟹！",
+   "english": "Myon! Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26209,8 +26209,8 @@
     "ration_get"
    ],
    "japanese": "みょん！ごはんさん、もらったよ！ ありがとう！",
-   "chinese": "咪呦！饭先生，收下了哦！谢谢！",
-   "english": "Myon! I will take this, Mr. Food! Thank you!",
+   "chinese": "咪呦！领到饭先生了哦！谢谢！",
+   "english": "Myon! I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26629,8 +26629,8 @@
     "ration_get"
    ],
    "japanese": "ちーんぽ！ごはんしゃん、もらったよぅ！ ありがちょ！",
-   "chinese": "金寶！饭鲜笋，收下哦！谢谢！",
-   "english": "Chinpo! Mr. Food, I got it! Thank you!",
+   "chinese": "金寶！拿到饭鲜笋了哦！蟹蟹！",
+   "english": "Chinpo! Got Mishter Food! Fank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26643,8 +26643,8 @@
     "ration_get"
    ],
    "japanese": "ちーんぽ！ごはんさん、もらったよ！ ありがとう！",
-   "chinese": "金寶！饭先生，收下了哦！谢谢！",
-   "english": "Chinpo! I will take this, Mr. Food! Thank you!",
+   "chinese": "金寶！领到饭先生了哦！谢谢！",
+   "english": "Chinpo! I got my portion! Thank you!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -30194,9 +30194,9 @@
    "events": [
     "self_rescue_hat"
    ],
-   "japanese": "おかざり……ふりおとす……みょん……",
-   "chinese": "头饰……抖掉……咪呦……",
-   "english": "Ribbon... shake it off... Myon...",
+   "japanese": "おかざり……みずに おいた……みょん……",
+   "chinese": "头饰……放水上了……咪呦……",
+   "english": "Headwear... on the water now... Myon...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -30208,9 +30208,9 @@
    "events": [
     "self_rescue_hat"
    ],
-   "japanese": "おかじゃり……ふりおとしゅ……みょん……",
-   "chinese": "饰饰……抖掉……咪呦……",
-   "english": "Wibbon... shake off... Myon...",
+   "japanese": "おかじゃり……おみずに おいちゃ……みょん……",
+   "chinese": "饰饰……放到水上惹……咪呦……",
+   "english": "Headwear... on the water now... Myon...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -35234,9 +35234,9 @@
    "events": [
     "self_rescue_hat"
    ],
-   "japanese": "おかざり……ふりおとす……ちーんぽ……",
-   "chinese": "头饰……抖掉……金寶……",
-   "english": "Ribbon... shake it off... Chinpo...",
+   "japanese": "おかざり……みずに おいた……ちーんぽ……",
+   "chinese": "头饰……放水上了……金寶……",
+   "english": "Headwear... on the water now... Chinpo...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -35248,9 +35248,9 @@
    "events": [
     "self_rescue_hat"
    ],
-   "japanese": "おかじゃり……ふりおとしゅ……ちーんぽ……",
-   "chinese": "饰饰……抖掉……金寶……",
-   "english": "Wibbon... shake off... Chinpo...",
+   "japanese": "おかじゃり……おみずに おいちゃ……ちーんぽ……",
+   "chinese": "饰饰……放到水上惹……金寶……",
+   "english": "Headwear... on the water now... Chinpo...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },

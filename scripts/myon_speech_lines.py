@@ -356,8 +356,8 @@ LINES = {
         'adult': ('{t}！ ふちを、くわえた！', '{t}！咬住边缘了！', '{t}! Got the edge in my mouth!'),
         'young': ('{t}！ ふち、くわえちゃ！', '{t}！咬住边边惹！', '{t}! Got the edge!')},
     'self_rescue_hat': {
-        'adult': ('おかざり……ふりおとす……{t}……', '头饰……抖掉……{t}……', 'Ribbon... shake it off... {t}...'),
-        'young': ('おかじゃり……ふりおとしゅ……{t}……', '饰饰……抖掉……{t}……', 'Wibbon... shake off... {t}...')},
+        'adult': ('おかざり……みずに おいた……{t}……', '头饰……放水上了……{t}……', 'Headwear... on the water now... {t}...'),
+        'young': ('おかじゃり……おみずに おいちゃ……{t}……', '饰饰……放到水上惹……{t}……', 'Headwear... on the water now... {t}...')},
     'self_rescue_safe': {
         'adult': ('はあ……のぼれた……{t}……', '哈啊……爬上来了……{t}……', 'Haah... made it up... {t}...'),
         'young': ('はあ……のぼれちゃ……{t}……', '哈啊……爬上来惹……{t}……', 'Haah... made it... {t}...')},

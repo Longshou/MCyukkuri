@@ -91,7 +91,7 @@ BABY = {
     'lost_parent': ('{c}ーっ！ おやしゃ……おやしゃ……', '{c}——！亲亲油……亲亲油……', '{c}! Mama... papa...'),
     'idle': ('{c}～♪', '{c}～♪', '{c}~'),
     'food_found': ('まんま！ まんま！', '饭饭！饭饭！', 'Num-num! Num-num!'),
-    'take_food': ('まんま、ちょーらい！', '饭饭，给我！', 'Num-num, gimme!'),
+    'take_food': ('まんま、もらっちゃ！', '饭饭，拿到惹！', 'Num-num, got it!'),
     'share': ('どーじょ……', '给你……', 'Here...'),
     'shy': ('{c}……はずかち……', '{c}……羞羞……', '{c}... shy...'),
     'treated': ('{c}♪ ありがちょ。', '{c}♪ 谢谢。', '{c}! Thank you.'),
@@ -303,8 +303,8 @@ SETTLE = {
         'adult': ("{p}ごはんさん！ みんな、わけて たべてね！", "{p}饭先生！大家分着嚼嚼{e}！", "{p}Mr. Food! Share it, everyone!")},
     'ration_get': {
         'baby': ("{c}♪ まんま、もらった！ ありがちょ！", "{c}♪ 饭饭！蟹蟹！", "{c}! Food! Fank you!"),
-        'juvenile': ('{p}ごはんしゃん、もらった{e}！ ありがちょ！', '{p}饭鲜笋，收下{e}！谢谢！', '{p}Mr. Food, I got it! Thank you!'),
-        'adult': ('{p}ごはんさん、もらった{e}！ ありがとう！', '{p}饭先生，收下了{e}！谢谢！', '{p}I will take this, Mr. Food! Thank you!')},
+        'juvenile': ('{p}ごはんしゃん、もらった{e}！ ありがちょ！', '{p}拿到饭鲜笋了{e}！蟹蟹！', '{p}Got Mishter Food! Fank you!'),
+        'adult': ('{p}ごはんさん、もらった{e}！ ありがとう！', '{p}领到饭先生了{e}！谢谢！', '{p}I got my portion! Thank you!')},
     'rule_blocked': {
         'baby': ("{c}……おちびちゃ、まだ だめ？", "{c}……还噗能生小贝比酱？", "{c}... can't have little ones yet?"),
         'juvenile': ('{p}まだ おちびちゃん、うんじゃ だめ{e}……？', '{p}还噗能生小贝比酱{e}……？', "{p}Can't I have little ones yet...?"),

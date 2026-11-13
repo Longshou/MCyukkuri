@@ -4553,7 +4553,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 99,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -4687,7 +4687,7 @@
     "events": [
       "newborn"
     ],
-    "ticks": 75,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -4874,7 +4874,7 @@
     "events": [
       "fed"
     ],
-    "ticks": 91,
+    "ticks": 71,
     "sound": ""
   },
   {
@@ -5021,7 +5021,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 99,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -5489,7 +5489,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 95,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -5623,7 +5623,7 @@
     "events": [
       "newborn"
     ],
-    "ticks": 59,
+    "ticks": 87,
     "sound": ""
   },
   {
@@ -5810,7 +5810,7 @@
     "events": [
       "fed"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -5957,7 +5957,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 99,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -6286,7 +6286,7 @@
     "events": [
       "house_hatched"
     ],
-    "ticks": 107,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -6298,7 +6298,7 @@
     "events": [
       "house_hatched"
     ],
-    "ticks": 107,
+    "ticks": 151,
     "sound": ""
   },
   {
@@ -22046,7 +22046,7 @@
     "events": [
       "glass_wait"
     ],
-    "ticks": 180,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -22058,7 +22058,7 @@
     "events": [
       "glass_child_answer"
     ],
-    "ticks": 87,
+    "ticks": 99,
     "sound": ""
   },
   {
@@ -22070,7 +22070,7 @@
     "events": [
       "give_up_search"
     ],
-    "ticks": 175,
+    "ticks": 180,
     "sound": ""
   },
   {
@@ -22082,7 +22082,7 @@
     "events": [
       "glass_ram"
     ],
-    "ticks": 111,
+    "ticks": 87,
     "sound": ""
   },
   {
@@ -22094,7 +22094,7 @@
     "events": [
       "fed"
     ],
-    "ticks": 115,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -50004,7 +50004,7 @@
     "events": [
       "self_rescue_hat"
     ],
-    "ticks": 87,
+    "ticks": 95,
     "sound": "",
     "quirk": "miyo"
   },
@@ -50017,7 +50017,7 @@
     "events": [
       "self_rescue_hat"
     ],
-    "ticks": 95,
+    "ticks": 107,
     "sound": "",
     "quirk": "miyo"
   },
@@ -54684,7 +54684,7 @@
     "events": [
       "self_rescue_hat"
     ],
-    "ticks": 91,
+    "ticks": 99,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -54697,7 +54697,7 @@
     "events": [
       "self_rescue_hat"
     ],
-    "ticks": 99,
+    "ticks": 111,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -57256,7 +57256,7 @@
     "events": [
       "give_up_search"
     ],
-    "ticks": 171,
+    "ticks": 180,
     "sound": ""
   },
   {
@@ -57316,7 +57316,7 @@
     "events": [
       "self_rescue_hat_seek"
     ],
-    "ticks": 103,
+    "ticks": 95,
     "sound": ""
   },
   {

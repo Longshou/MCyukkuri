@@ -7,11 +7,12 @@
       "species": "chen",
       "age": "adult",
       "japanese": "おなかが ぺーこぺーこ だよー。",
-      "chinese": "彭彭饿了哟——。",
+      "chinese": "肚子饿了哟——！",
       "events": [
         "hungry"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I'm getting hungry!"
     },
     {
       "id": "chen.adult.o_food",
@@ -1735,13 +1736,14 @@
       "id": "remilia.adult.o_treated",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー、もう いたくないのだ……ありがと……",
+      "japanese": "うー、さっきより いたくないのだ……ありがと……",
       "chinese": "呜——没那么痛了呀……谢谢……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it doesn't hurt as much now... thank you..."
     },
     {
       "id": "remilia.adult.o_lost",
@@ -1873,13 +1875,14 @@
       "id": "remilia.adult.o_newborn",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー、れみりあがうまれたのだ。",
-      "chinese": "呜——蕾米莉亚出生啦。",
+      "japanese": "うー、おちびちゃん。れみりあは ここに いるのだ！",
+      "chinese": "呜——小贝比酱，蕾米莉亚在这儿呀！",
       "events": [
         "newborn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... little one, Remilia's right here!"
     },
     {
       "id": "remilia.adult.o_grown",
@@ -2060,13 +2063,14 @@
       "id": "remilia.young.o_fed",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー、ぽんぽんしゃん いっぱいなのだ！",
-      "chinese": "呜——彭彭先森饱惹！好幸乎！",
+      "japanese": "うー、まんま、おいちいのだ！",
+      "chinese": "呜——饭饭真好粗呀！",
       "events": [
         "fed"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... num-num's yummy!"
     },
     {
       "id": "remilia.young.o_share",
@@ -2207,13 +2211,14 @@
       "id": "remilia.young.o_treated",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー、いたく にゃいのだ……ありがちょ……",
+      "japanese": "うー、さっきより いたくにゃいのだ……ありがちょ……",
       "chinese": "呜——没那么痛惹呀……蟹蟹……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... doesn't huwt as much... fank you..."
     },
     {
       "id": "remilia.young.o_lost",
@@ -2679,13 +2684,14 @@
       "id": "flandre.adult.o_treated",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、もう いたくないよ……ありがと……",
+      "japanese": "うー、さっきより いたくないよ……ありがと……",
       "chinese": "呜——没那么痛了哦……谢谢……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it doesn't hurt as much now... thank you..."
     },
     {
       "id": "flandre.adult.o_lost",
@@ -2817,13 +2823,14 @@
       "id": "flandre.adult.o_newborn",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、ここはどこかな？",
-      "chinese": "呜——这里是哪儿呀？",
+      "japanese": "うー、おちびちゃん、めを あけたね！",
+      "chinese": "呜——小贝比酱，睁开眼啦！",
       "events": [
         "newborn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... little one, you opened your eyes!"
     },
     {
       "id": "flandre.adult.o_grown",
@@ -3004,13 +3011,14 @@
       "id": "flandre.young.o_fed",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、ぽんぽんしゃん いっぱい！ しゃーわちぇ！",
-      "chinese": "呜——彭彭先森饱惹！好幸乎！",
+      "japanese": "うー、このひとくち、おいちい！ しゃーわちぇ！",
+      "chinese": "呜——这口好粗！好幸乎！",
       "events": [
         "fed"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... that bite was yummy! Sho happy!"
     },
     {
       "id": "flandre.young.o_share",
@@ -3151,13 +3159,14 @@
       "id": "flandre.young.o_treated",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、いたく にゃいよぅ……ありがちょ……",
+      "japanese": "うー、さっきより いたくにゃいよぅ……ありがちょ……",
       "chinese": "呜——没那么痛惹哟……蟹蟹……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... doesn't huwt as much... fank you..."
     },
     {
       "id": "flandre.young.o_lost",
@@ -3478,23 +3487,25 @@
       "id": "reimu.adult.o_house_hatched",
       "species": "reimu",
       "age": "adult",
-      "japanese": "おちびちゃん！ ゆっくり おおきく なってね！",
-      "chinese": "小贝比酱！油库里地长大哟！",
+      "japanese": "ゆっ！ たまごさんが うごいた……おちびちゃん、でてきたよ！",
+      "chinese": "油！蛋先生动了……小贝比酱，出来啦！",
       "events": [
         "house_hatched"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu! Mr. Egg moved... little one, you made it out!"
     },
     {
       "id": "marisa.adult.o_house_hatched",
       "species": "marisa",
       "age": "adult",
-      "japanese": "おちびちゃん！ ゆっくり おおきく なってね！",
-      "chinese": "小贝比酱！油库里地长大贼！",
+      "japanese": "おちびちゃんが でてきたのぜ！ まりさの そばで ゆっくりするのぜ！",
+      "chinese": "小贝比酱出来了！来，挨着魔理沙油库里贼！",
       "events": [
         "house_hatched"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "The little one is out! Come take it easy beside Marisa!"
     },
     {
       "id": "reimu.young.o_house_startled",
@@ -4871,13 +4882,13 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ゆゆっ！ にんげんしゃんと おうちに かえりゅのじぇ！",
-      "chinese": "油油！窝要跟人类鲜笋回家惹诺贼！",
+      "chinese": "油油！窝要跟人类鲜笋回家惹杰！",
       "events": [
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
       "audio_status": "unvoiced",
-      "english": "Yu-yu! I’m going home with Mr. Human!"
+      "english": "Yu-yu! I'm goin' home with Mishter Human!"
     },
     {
       "id": "marisa.young.o_shop_sold_sad",
@@ -11417,8 +11428,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……抖掉……。",
-      "english": "Shake... the hat... off...",
+      "chinese": "帽帽……放下去贼……",
+      "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -11429,8 +11440,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ふちを くわえたのぜ！",
-      "chinese": "咬住边缘了！",
-      "english": "I got hold of the edge!",
+      "chinese": "咬住边缘了贼！",
+      "english": "I got my mouth on the edge!",
       "events": [
         "self_rescue_grip"
       ],
@@ -11477,8 +11488,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "いまいくのぜ！ ふちに つかまるのぜ！",
-      "chinese": "这就来！靠过来，抓住帽檐！",
-      "english": "I am coming! Come close and hold the brim!",
+      "chinese": "这就来贼！靠过来，抓住边儿！",
+      "english": "I'm coming! Hold on to the edge!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -11489,8 +11500,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "くわえたのぜ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11501,8 +11512,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "もう ふねのうえだよ。ゆっくり いきするのぜ。",
-      "chinese": "已经到船上了，慢慢喘口气。",
-      "english": "You are aboard now. Catch your breath.",
+      "chinese": "上船啦贼！先喘口气吧。",
+      "english": "You're aboard. Catch your breath.",
       "events": [
         "braid_rescue_safe"
       ],
@@ -11621,8 +11632,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……抖掉……。",
-      "english": "Shake... the hat... off...",
+      "chinese": "帽帽……放下去惹杰……",
+      "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -11633,8 +11644,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ふちを くわえたのじぇ！",
-      "chinese": "咬住边缘了！",
-      "english": "I got hold of the edge!",
+      "chinese": "咬住边边惹杰！",
+      "english": "Got my mouth on the edge!",
       "events": [
         "self_rescue_grip"
       ],
@@ -11681,8 +11692,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "いまいくのじぇ！ ふちに ちゅかまるのじぇ！",
-      "chinese": "这就来！靠过来，抓住帽檐！",
-      "english": "I am coming! Come close and hold the brim!",
+      "chinese": "这就来惹杰！靠过来，抓住边边！",
+      "english": "I'm comin'! Hold on to the edge!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -11693,8 +11704,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "くわえたのじぇ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11705,8 +11716,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "もう ふねのうえだよ。ゆっくり いきするのじぇ。",
-      "chinese": "已经到船上了，慢慢喘口气。",
-      "english": "You are aboard now. Catch your breath.",
+      "chinese": "上船惹杰！先喘口气吧。",
+      "english": "You're aboard! Catch your breath.",
       "events": [
         "braid_rescue_safe"
       ],
@@ -11765,8 +11776,8 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11789,8 +11800,8 @@
       "species": "reimu",
       "age": "young",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11813,8 +11824,8 @@
       "species": "alice",
       "age": "adult",
       "japanese": "くわえたわ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11837,8 +11848,8 @@
       "species": "alice",
       "age": "young",
       "japanese": "くわえたわ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11861,8 +11872,8 @@
       "species": "chen",
       "age": "adult",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11885,8 +11896,8 @@
       "species": "chen",
       "age": "young",
       "japanese": "くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11909,8 +11920,8 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11933,8 +11944,8 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11957,8 +11968,8 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -11981,8 +11992,8 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -12005,8 +12016,8 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你了！抓紧！",
+      "english": "I've got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -12029,8 +12040,8 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー……くわえたよ！ はなさないで！",
-      "chinese": "咬住啦！不要松口！",
-      "english": "I am biting on! Do not let go!",
+      "chinese": "咬住你惹！抓紧！",
+      "english": "Got you in my mouth! Hang on!",
       "events": [
         "braid_rescue_mouth_grip"
       ],
@@ -18858,56 +18869,61 @@
       "id": "reimu.adult.o_glass_wait",
       "species": "reimu",
       "age": "adult",
-      "japanese": "ガラスさん！ おやこが あうのを じゃましないでよ！ ゆっくち おちびちゃんを とおしてよ！",
-      "chinese": "玻璃先生！不要阻止亲油团聚哟！油库气地让小贝比酱过来哟！",
+      "japanese": "ガラスさん、じゃましないでよ！ おちびちゃんを とおしてね！",
+      "chinese": "玻璃先生，别挡着哟！让小贝比酱过来吧！",
       "events": [
         "glass_wait"
       ],
-      "basis": "P（项目原创）：隔玻璃唤子。亲油把玻璃当作能商量的对象，直说想团聚。"
+      "basis": "P（项目原创）：隔玻璃唤子。亲油把玻璃当作能商量的对象，直说想团聚。",
+      "english": "Mr. Glass, don't block the way! Please let my little one through!"
     },
     {
       "id": "reimu.juvenile.o_glass_child_answer",
       "species": "reimu",
       "age": "juvenile",
-      "japanese": "ゆーっ！ おやしゃん、きょきょだよ！",
-      "chinese": "油——！亲亲油，窝在介里哟！",
+      "japanese": "ゆーっ！ おやしゃん、きょきょにいるにぇ！",
+      "chinese": "油——！亲亲油，窝在介里捏！",
       "events": [
         "glass_child_answer"
       ],
-      "basis": "P（项目原创）：隔玻璃回应。子油用亲昵称呼答亲油，当前呼唤可来自母油或父油。"
+      "basis": "P（项目原创）：隔玻璃回应。子油用亲昵称呼答亲油，当前呼唤可来自母油或父油。",
+      "english": "Yuu! Mama, Papa, I'm right here!"
     },
     {
       "id": "reimu.adult.o_give_up_search",
       "species": "reimu",
       "age": "adult",
-      "japanese": "おちびちゃん……ゆぅ……すーりすーり したいよぉ……おちびちゃん……さよなら……",
-      "chinese": "小贝比酱……油呜……好想跟你擦擦脸哟……小贝比酱……再见哟……",
+      "japanese": "おちびちゃん……もっと すーりすーり したいよ……でも いまは そっちに いけないよ……",
+      "chinese": "小贝比酱……还想跟你擦擦脸哟……可我现在过不去……",
       "events": [
         "give_up_search"
       ],
-      "basis": "P（项目原创）：隔玻璃道别。想亲昵却碰不到，用停顿和反复呼唤表现不舍。"
+      "basis": "P（项目原创）：隔玻璃道别。想亲昵却碰不到，用停顿和反复呼唤表现不舍。",
+      "english": "Little one... I still want to rub cheeks... but I can't get over there right now..."
     },
     {
       "id": "marisa.adult.o_glass_ram",
       "species": "marisa",
       "age": "adult",
-      "japanese": "ガラスさん！ ゆっくち おとなしく どくんだぜ！",
-      "chinese": "玻璃先生！油库气地乖乖让开贼！",
+      "japanese": "ガラスさん、おとなしく どくんだぜ！",
+      "chinese": "玻璃先生，乖乖让开贼！",
       "events": [
         "glass_ram"
       ],
-      "basis": "P（项目原创）：撞玻璃板前。亲油理直气壮地命令玻璃让开。"
+      "basis": "P（项目原创）：撞玻璃板前。亲油理直气壮地命令玻璃让开。",
+      "english": "Mr. Glass, be good and move aside!"
     },
     {
       "id": "marisa.baby.o_fed",
       "species": "marisa",
       "age": "baby",
-      "japanese": "ごはんしゃん！ むーちゃむーちゃ、しゃーわちぇー！",
-      "chinese": "饭先森！嚼嚼，好幸乎！",
+      "japanese": "ごはんしゃん！ むーちゃむーちゃ、しゃーわちぇのじぇ！",
+      "chinese": "饭先森！嚼嚼，好幸乎惹杰！",
       "events": [
         "fed"
       ],
-      "basis": "P（项目原创）：赤油吃下一口后的满足反应，保留幼语和吃东西时含混的口吻。"
+      "basis": "P（项目原创）：赤油吃下一口后的满足反应，保留幼语和吃东西时含混的口吻。",
+      "english": "Mishter Food! Munch, munch! Sho happy!"
     }
   ]
 }
