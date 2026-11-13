@@ -13,6 +13,7 @@
 | 街道生活：爱派、虐派与路人（单步可见反应） | `.worktrees/wp-ig-human-npc` | human/HumanNpc, human/Custody, social (reactions), museum street scenes, docs/FEATURES.md |
 | 铂金章改钻石章 | `.worktrees/wp-ie-diamond-badge` | art/props/badges, art/props/ui, lang badge names |
 | 演出夸张化与玻璃挤脸 | `.worktrees/wp-ii-exaggerate-glass` | standards/yukkuri-library/motions, motion exports, shop pen glass trigger |
+| 导出脚本写出 CRLF 造成无变化改动 | `.worktrees/wp-ij-export-eol` | scripts/export_human_world.py, scripts/export helpers |
 
 ## 玩法待办
 
