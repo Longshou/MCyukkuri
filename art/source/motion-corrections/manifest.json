@@ -26,11 +26,11 @@
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
   "braid_rescue_author_sha256": "f076bc22f9d8e17051182f318b7eee96b58d2622b355caadc278ee2a384cc244",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "c3ba5ecc71059583b7f614332e1b101205319f8857d30ef3042e63b6c86c6fb3",
+  "braid_rescue_geometry_sha256": "63dbb236da22e75dcc82cf411158803e190ede651e42bbfa39e7f2b9dbd8d527",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "6f4c6d43ab74174a1d0222ac0291ea61bd6966a06b71874204a5b4879c583de3",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "fcabd1c5ebbf0f4397c23fb05bca7eef3cfab025551fb697e13f17c8dfc85fed",
+  "placement_fit_sha256": "67664451d24206ecfef40231926f74754db44163a77a1922e317a9fa4b8e41fc",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
   "runtime_sha256": "edde279311b3f8ea9da7d65bd6389ac8c070054bb91420bc43a1449712fe050e",
   "models": {
@@ -180,15 +180,15 @@
     },
     "marisa_face": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
+      "sha256": "fe9a80167f1f4de806cba3d9fa7a97f4ce224783d5e18d32a251ba56cbf3f0da",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "823866f0476d0572b32c430e0b0d94d9a992a2c13fdc3d8ed0384a14ee629637",
-        "puff": "1a26b11864f4076c6ffb19593ab0b49caccda576222c78996ecaad639fc06891"
+        "angry": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+        "puff": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/cheek_puff.png",
@@ -219,8 +219,8 @@
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "823866f0476d0572b32c430e0b0d94d9a992a2c13fdc3d8ed0384a14ee629637",
-        "puff": "1a26b11864f4076c6ffb19593ab0b49caccda576222c78996ecaad639fc06891"
+        "angry": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+        "puff": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/cheek_puff.png",

@@ -229,6 +229,10 @@ def author(ident):
         else:
             values = donor['vertices'][p['start']*8:(p['start']+p['count'])*8]
             ww = donor['weights'][p['start']:p['start']+p['count']]
+            if group == 'rear_hair':
+                # The frozen back hem and locks lie on the body-following back hair (hair-contact body_follow);
+                # held rigid, the walk's rear sway slid it through them. Same geometry, continuous binding.
+                ww = [body.continuous_binding(values[i+1], names) for i in range(0,len(values),8)]
         parts.append(dict(p,start=len(weights),count=len(ww)))
         flat.extend(round(v,7) for v in values)
         weights.extend(ww)

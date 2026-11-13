@@ -890,7 +890,7 @@
     },
     "marisa_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "base_sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
+      "base_sha256": "fe9a80167f1f4de806cba3d9fa7a97f4ce224783d5e18d32a251ba56cbf3f0da",
       "parts": [
         "back_hair",
         "bang_0",
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "fcabd1c5ebbf0f4397c23fb05bca7eef3cfab025551fb697e13f17c8dfc85fed"
+  "runtime_sha256": "67664451d24206ecfef40231926f74754db44163a77a1922e317a9fa4b8e41fc"
 }

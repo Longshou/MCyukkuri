@@ -338,7 +338,7 @@
       "diameter": 0.11875
     },
     "marisa_face": {
-      "model_sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
+      "model_sha256": "fe9a80167f1f4de806cba3d9fa7a97f4ce224783d5e18d32a251ba56cbf3f0da",
       "part": "hat_band",
       "triangle": 14049,
       "weights": [
@@ -928,7 +928,7 @@
       "diameter": 0.1
     },
     "accessory_marisa_sparse": {
-      "model_sha256": "e34ee3f69ed5325bf05aca922de8a71f843fa711906b2b929f6193cbafb86329",
+      "model_sha256": "b8eb06875eb7cab2ae9a8fc323b28abc1cb4cc35ab129662608366a94854f422",
       "part": "hat_band",
       "triangle": 183,
       "weights": [
@@ -949,7 +949,7 @@
       "diameter": 0.11875
     },
     "accessory_marisa_face": {
-      "model_sha256": "7752092d45458b782ac0845257a75e828751f2b9d4e58d8381878bccd9336ad9",
+      "model_sha256": "744be7b683d083c291a5a5e289400ca286f6b8d192ffa3228c043e63dba0548a",
       "part": "hat_band",
       "triangle": 183,
       "weights": [
