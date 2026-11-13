@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 垃圾头饰与铂金章正式美术 | `.worktrees/wp-hy-art-placeholders` | YukkuriModel.renderJunkHat, junk headwear and platinum badge assets |
+| 街道布局与鬼威惨商店建筑 | `.worktrees/wp-hz-street-oni-layout` | art/structures/human-world/, village street templates |
 
 ## 玩法待办
 
