@@ -683,6 +683,43 @@ add('settle_pit_drive', 'biomes', '失饰成员被拒五次成奴隶', '失饰�
                verify=lambda window: pit_level(window) or colony_death(window)))
 
 # ====================================================================================================== daily life meadow
+# Peers snub visible dirt on a value- and cadence-driven chance: Contempt looks every IDLE_WAIT ticks at peers inside RANGE.
+DIRT_SNUB = r'\[contempt\][^\n]* dirt snub target=\S+ dirt=[23]'
+DIRT_SNUB_RANGE, DIRT_SNUB_LOOK = 6, 60
+
+
+def _dirt_snub_verify(window, trace):
+    """The peer snub is only demanded when a real look could see the dirt: the dirty individual stayed inside the look
+    range of a peer for longer than one look interval (trace positions, one sample per tick)."""
+    if re.search(DIRT_SNUB, window):
+        return None
+    washed = re.findall(r'\[interaction\] [^\n]*? uuid=([0-9a-f-]{36}) [^\n]*\bwash ', window)
+    if not washed:
+        return None  # the wash expectation already reports the missing wash, and the dirty actor is unknown
+    dirty = washed[0]
+    samples = {}
+    for line in trace:
+        if '[trace] ' not in line:
+            continue
+        try:
+            row = json.loads(line.split('[trace] ', 1)[1])
+        except ValueError:
+            continue
+        state = row.get('st') or {}
+        if 'p' in state:
+            samples.setdefault(row['t'], {})[row['u']] = state['p']
+    longest = run = 0
+    for tick in sorted(samples):
+        here = samples[tick].get(dirty)
+        run = run + 1 if here is not None and any(math.dist(here, p) <= DIRT_SNUB_RANGE
+                                                 for uuid, p in samples[tick].items() if uuid != dirty) else 0
+        longest = max(longest, run)
+    if longest >= DIRT_SNUB_LOOK:
+        return (f'dirt snub missing though the dirty individual stayed within {DIRT_SNUB_RANGE} blocks of a peer '
+                f'for {longest} ticks')
+    return None
+
+
 add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料时的态度：洗涤与油粮',
     '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；给不饿的强硬魔理沙递预算粮，再试高级粮。右侧饿的个体也可试预算粮。',
     '右键后看表情，约 2 秒吞咽', [
@@ -699,11 +736,11 @@ add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料�
         (61, f'yukkuri scenario care_click {sel("grain_hungry")} budget_grain'),
         (160, f'yukkuri scenario care_click {sel("wash_shy")} wet_cloth'),
         (170, f'yukkuri scenario care_click {sel("grain_proud")} premium_grain'),
-    ], expect=[r'\[contempt\][^\n]* dirt snub target=\S+ dirt=3',
-               r'\[interaction\][^\n]* wash player=\S+ response=guarded [^\n]*dirt=3->2',
+    ], expect=[r'\[interaction\][^\n]* wash player=\S+ response=guarded [^\n]*dirt=3->2',
                r'\[meal\][^\n]* grain refused item=mcyukkuri:oil_grain_budget [^\n]*reason=quality',
                r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_budget ',
-               r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_premium ']))
+               r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_premium '],
+               verify=_dirt_snub_verify, verify_trace=True))
 
 def _bed_walk_verify(log, crossing_limit=4, crossing_window=None):
     crossings = {}
