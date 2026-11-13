@@ -287,6 +287,8 @@ final class HumanStreet {
             return true;
         }
         if (activeCrop == null && !crowding(y)) return false;
+        // The switch permits a warning only: no approach, no field mark, and no second attempt today.
+        if (activeCrop != null && !HumanWorld.CRUELTY.get()) { warning.blockedUntil = now() + DAY; return false; }
         warning.parted = false;
         if (activeCrop == null && interrupted(y, warning)) return false;
         var away = away(y);
