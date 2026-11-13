@@ -269,7 +269,7 @@ public final class ShopStaff {
         if (staff.tickCount % 100 != 3) return false;
         for (var animal : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds().inflate(16), ShopStaff::readyNursery)) {
             if (!shop.kind.accepts(animal) || !free(animal.getUUID(), level.getGameTime())
-                    || freeNest(level, shop, animal.profile().dangerToYukkuri(), animal.position()) == null) continue;
+                    || freePlace(level, shop, animal.profile().dangerToYukkuri(), animal.position()) == null) continue;
             var job = new Job(staff.getUUID(), shop.id, Kind.NURSERY);
             job.animal = animal.getUUID();
             start(staff, job, animal.position());
@@ -391,7 +391,7 @@ public final class ShopStaff {
             case NURSERY -> {
                 var y = animal(level, job);
                 if (y == null || !readyNursery(y)) return "nursery_changed";
-                if (freeNest(level, shop, y.profile().dangerToYukkuri(), y.position()) == null) return "no_nest";
+                if (freePlace(level, shop, y.profile().dangerToYukkuri(), y.position()) == null) return "no_nest";
             }
             case TREAT -> {
                 if (!level.isDay() || careDose(shop, animal(level, job)) != job.dose) return "care_changed";
@@ -590,8 +590,9 @@ public final class ShopStaff {
         };
         if (!holding) { end(staff, job, "hand_changed"); return; }
         if (job.target == null) { fail(level, staff, shop, job, "no_destination"); return; }
-        // A nest taken meanwhile is exchanged for another free one (or the barrel).
-        if (level.getBlockEntity(job.target) instanceof CareBlockEntity nest && nest.kind() == CareBlock.Kind.NEST && nest.resident() != null) {
+        // A nest taken (or an oni-shop pen filled) meanwhile is exchanged for another free one (or the barrel).
+        if (level.getBlockEntity(job.target) instanceof CareBlockEntity place && (place.kind() == CareBlock.Kind.NEST && place.resident() != null
+                || shop.kind == ShopKind.ONI && place.kind() == CareBlock.Kind.BOWL && job.token != null && penFull(level, shop, job.target))) {
             carryTo(job, destinationOr(level, shop, staff));
             return;
         }
@@ -636,18 +637,23 @@ public final class ShopStaff {
         } else release(level, staff, shop, job);
     }
 
-    /** The basket is opened at the nest entrance, then the animal claims the bed through ordinary home admission. */
+    /** The basket is opened at the nest entrance, then the animal claims the bed through ordinary home admission; in the oni
+     *  shop it is set down on the pen floor beside the bowl and gets no bed. */
     private static void release(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
         var nest = job.target;
-        var y = YukkuriWorldData.get(level).releaseAtNest(job.token, level, nest, staff.getYRot());
+        boolean pen = shop.kind == ShopKind.ONI;
+        var data = YukkuriWorldData.get(level);
+        var y = pen ? data.releaseOnGround(job.token, level, Vec3.atBottomCenterOf(nest), staff.getYRot(), 1)
+                : data.releaseAtNest(job.token, level, nest, staff.getYRot());
         if (y == null) { fail(level, staff, shop, job, "set_down_blocked"); return; }
         staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         staff.swing(InteractionHand.MAIN_HAND);
         var tag = HumanCommerce.data(y).copy();
         if (!tag.contains(ShopTrade.FOR_SALE_SINCE)) { tag.putLong(ShopTrade.FOR_SALE_SINCE, level.getGameTime()); HumanCommerce.set(y, tag); }
-        boolean home = y.life().assignHome(GlobalPos.of(level.dimension(), nest));
+        boolean home = !pen && y.life().assignHome(GlobalPos.of(level.dimension(), nest));
         y.playAction("basket_out"); y.speak("basket_exit");
-        GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} nest={} home={} staff={}", shop.id, job.token, nest.toShortString(), home, staff.getUUID());
+        GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} {}={} home={} staff={}", shop.id, job.token,
+                pen ? "pen" : "nest", nest.toShortString(), home, staff.getUUID());
         end(staff, job, "released");
     }
 
@@ -859,8 +865,57 @@ public final class ShopStaff {
         return out;
     }
 
+    /** Stock one oni-shop pen keeps (the most any pen starts with); the oni shop prepares no beds, its stock sleeps on the pen floor. */
+    static final int PEN_STOCK = 3;
+
+    /** Where a new stock animal goes: the pet shop's nearest free nest of the right kind, the oni shop's nearest pen with room
+     *  (it takes no predators). */
+    static BlockPos freePlace(ServerLevel level, ShopRegistry.Entry shop, boolean predator, Vec3 near) {
+        if (shop.kind == ShopKind.ONI) return predator ? null : freePen(level, shop, near);
+        return freeNest(level, shop, predator, near);
+    }
+    /** How many stock animals the shop keeps: one per nest of that kind, or PEN_STOCK per oni-shop pen. */
+    static int places(ServerLevel level, ShopRegistry.Entry shop, boolean predator) {
+        if (shop.kind == ShopKind.ONI) return predator ? 0 : pens(level, shop).size() * PEN_STOCK;
+        int count = 0;
+        for (var be : blockEntities(level, shop))
+            if (be instanceof CareBlockEntity nest && nest.kind() == CareBlock.Kind.NEST
+                    && level.getBlockState(nest.getBlockPos()).is(ModBlocks.PREDATOR_NEST.get()) == predator) count++;
+        return count;
+    }
+    /** The oni shop's pens, one bowl each (art/structures/human-world/author_street.py oni_shop). */
+    private static List<BlockPos> pens(ServerLevel level, ShopRegistry.Entry shop) {
+        var out = new ArrayList<BlockPos>();
+        for (var be : blockEntities(level, shop)) if (be instanceof CareBlockEntity bowl && bowl.kind() == CareBlock.Kind.BOWL) out.add(bowl.getBlockPos());
+        return out;
+    }
+    /** Live stock kept in this pen: those whose nearest pen bowl it is. */
+    private static int penStock(ServerLevel level, ShopRegistry.Entry shop, BlockPos pen, List<BlockPos> pens) {
+        int count = 0;
+        for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds(), y -> y.isAlive() && ShopTrade.stockOf(y, shop.id))) {
+            BlockPos nearest = null; double best = Double.MAX_VALUE;
+            for (var p : pens) { double d = p.getCenter().distanceToSqr(y.position()); if (d < best) { best = d; nearest = p; } }
+            if (pen.equals(nearest)) count++;
+        }
+        return count;
+    }
+    private static boolean penFull(ServerLevel level, ShopRegistry.Entry shop, BlockPos pen) {
+        return penStock(level, shop, pen, pens(level, shop)) >= PEN_STOCK;
+    }
+    private static BlockPos freePen(ServerLevel level, ShopRegistry.Entry shop, Vec3 near) {
+        long now = level.getGameTime();
+        var pens = pens(level, shop);
+        BlockPos best = null; double bestD = Double.MAX_VALUE;
+        for (var pen : pens) {
+            if (UNREACHABLE.active(pen, now) || penStock(level, shop, pen, pens) >= PEN_STOCK) continue;
+            double d = pen.getCenter().distanceToSqr(near);
+            if (d < bestD) { bestD = d; best = pen; }
+        }
+        return best;
+    }
+
     /** The nearest unclaimed nest of the right kind (predator nests for predators). */
-    static BlockPos freeNest(ServerLevel level, ShopRegistry.Entry shop, boolean predator, Vec3 near) {
+    private static BlockPos freeNest(ServerLevel level, ShopRegistry.Entry shop, boolean predator, Vec3 near) {
         long now = level.getGameTime();
         BlockPos best = null; double bestD = Double.MAX_VALUE;
         for (var be : blockEntities(level, shop)) {
@@ -878,7 +933,7 @@ public final class ShopStaff {
         if (token == null) return null;
         var snapshot = YukkuriWorldData.get(level).captiveSnapshot(token);
         if (shipOut(snapshot)) return shop.dock();
-        return freeNest(level, shop, predator(snapshot), near);
+        return freePlace(level, shop, predator(snapshot), near);
     }
     /** Whether the basketed individual (its saved snapshot) is a predator species, which lives on predator nests. */
     static boolean predator(net.minecraft.nbt.CompoundTag snapshot) {

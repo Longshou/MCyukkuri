@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.motor.action.GlassPress;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -884,8 +885,10 @@ public final class YukkuriLife {
             if (bedRefused) targetBlock = null;
             if (targetBlock != null && !dependentAtHome && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
                     || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
-            // A slave in the open pit curls up where it stands at rest time: dry ground is all the pit has to offer.
-            boolean penSleep = penned && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
+            // A slave in the open pit, or shop stock kept without a bed (the oni shop's pens), curls up where it stands at rest
+            // time: dry ground is all it has.
+            boolean penSleep = (penned || targetBlock == null && entity.status().identity() == Identity.STOCK)
+                    && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
             boolean restShort = bedRefused && SurfaceApproach.supportedGround(entity, entity.position()) && !level().isRainingAt(entity.blockPosition());
             if (targetBlock != null && !dependentAtHome && settleIntoBed()) return false;
             if (targetBlock != null || energy <= 10 || penSleep || restShort || entity.family().needsMash() && entity.childhood().landed()

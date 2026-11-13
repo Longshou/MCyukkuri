@@ -165,13 +165,9 @@ public final class ShopRestock {
             boolean predator = SpeciesProfile.of(y.getVariant()).dangerToYukkuri(), leaving = ShopStaff.shipOut(y);
             if (predator) { predatorStock++; if (leaving) leavingPredator++; } else { landStock++; if (leaving) leavingLand++; }
         }
-        int landNests = 0, predatorNests = 0;
-        for (var be : ShopStaff.blockEntities(level, shop))
-            if (be instanceof CareBlockEntity nest && nest.kind() == CareBlock.Kind.NEST) {
-                if (level.getBlockState(nest.getBlockPos()).is(ModBlocks.PREDATOR_NEST.get())) predatorNests++; else landNests++;
-            }
-        int land = Math.max(0, landNests - (landStock - leavingLand) - waitingLand);
-        int predators = Math.max(0, predatorNests - (predatorStock - leavingPredator) - waitingPredator);
+        // Places: the pet shop's nests, the oni shop's pens (it keeps no beds).
+        int land = Math.max(0, ShopStaff.places(level, shop, false) - (landStock - leavingLand) - waitingLand);
+        int predators = Math.max(0, ShopStaff.places(level, shop, true) - (predatorStock - leavingPredator) - waitingPredator);
         int keptAdults = adults - marked, arrived = 0;
         var random = ModRandom.world(level);
         for (int i = 0; i < land + predators && dock != null; i++) {

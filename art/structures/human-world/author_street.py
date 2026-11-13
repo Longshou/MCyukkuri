@@ -372,9 +372,9 @@ def oni_shop():
     # Window cage (stock on display, interior x2..6 z4..6): floor-level street glass, bars to the lobby and the sales floor.
     b.box((7, 3, 4), (7, 6, 6), 'iron_bars')
     cage(b, 2, 4, 6, 6, (4, 7), 'south')
-    for x, z in [(2, 4), (6, 4)]: b.block(x, 3, z, 'mcyukkuri:yukkuri_nest')
+    # The oni shop prepares no beds (user): stock sleeps on the pen floor; each pen's bowl is its place (ShopStaff.PEN_STOCK).
     b.bowl(6, 6, grain=3)
-    register_pen(b, 'window', (2, 4, 6, 6), (6, 6), [(2, 4), (6, 4)], (5, 3), hatch=(4, 7))
+    register_pen(b, 'window', (2, 4, 6, 6), (6, 6), [], (5, 3), hatch=(4, 7))
     oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45, form='WASA_REIMU')
     oni_stock(b, 5.0, 4.5, 'marisa', DULL, 42, 40)
     oni_stock(b, 2.75, 6.35, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
@@ -384,9 +384,8 @@ def oni_shop():
                             ('cage_b', 12, [('alice', DULL, 40, 55, None), ('chen', WHINY, 33, 50, None)]),
                             ('cage_c', 16, [('reimu', GESU, 36, 42, 200000), ('patchouli', DULL, 30, 55, 170000), ('reimu', WHINY, 28, 48, 150000)])]:
         cage(b, 16, z0, 19, z0 + 2, (20, z0), 'east')
-        for x, z in [(16, z0), (16, z0 + 2)]: b.block(x, 3, z, 'mcyukkuri:yukkuri_nest')
         b.bowl(18, z0 + 2, grain=2)
-        register_pen(b, name, (16, z0, 19, z0 + 2), (18, z0 + 2), [(16, z0), (16, z0 + 2)], (4, 3), hatch=(20, z0))
+        register_pen(b, name, (16, z0, 19, z0 + 2), (18, z0 + 2), [], (4, 3), hatch=(20, z0))
         starts = [(18.0, z0 + .6), (19.0, z0 + 1.4), (18.0, z0 + 1.5)]
         for i, ((kind, traits, nutrition, hygiene, age), (x, z)) in enumerate(zip(stock, starts)):
             shape = 'FACE_ASYMMETRY' if name == 'cage_c' and i == 2 else 'NORMAL'
