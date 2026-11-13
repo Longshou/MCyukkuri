@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -22,6 +23,7 @@ public final class PetWalk {
     /** Blocks per walk unit, units per game day that count, ticks between two "I do not want to go" protests. */
     public static final double UNIT = 64;
     public static final int UNITS_PER_DAY = 4, TUG_INTERVAL = 400;
+    private static final double TURN_RANGE_SQR = 16;
     private final YukkuriEntity animal;
     private Vec3 last, lastPet;
     private boolean moving;
@@ -29,6 +31,8 @@ public final class PetWalk {
     private int units, tugWait;
     private Vec3 heading;
     private long turnUntil;
+    private boolean waitsAtTurn;
+    private Vec3 turnAside;
     private Boolean manners;
 
     public PetWalk(YukkuriEntity animal) { this.animal = animal; }
@@ -36,6 +40,7 @@ public final class PetWalk {
     /** Whether the pet is currently on a lead held by its owner. */
     public static boolean walking(YukkuriEntity pet) { return pet.pet().care().walk().walking(); }
     public boolean walking() { return moving; }
+    public boolean onOwnerLead() { return onOwnerLead(animal.getLeashHolder()); }
     public double carry() { return carry; }
 
     private boolean onOwnerLead(Entity holder) {
@@ -44,18 +49,32 @@ public final class PetWalk {
     }
 
     private boolean manners() {
-        if (manners == null) manners = animal.pet().lessons().attempt(PetSkill.HARNESS);
+        if (manners == null) manners = animal.pet().lessons().everydayAttempt(PetSkill.HARNESS);
         return manners;
     }
 
     public boolean ignoresScraps() {
-        return onOwnerLead(animal.getLeashHolder()) && animal.life().nutrition() >= 30 && manners();
+        return onOwnerLead() && animal.life().nutrition() >= 30 && manners();
     }
 
-    /** Vanilla still owns the lead and its elastic range. This is the close-range choice to stop or follow. */
-    public boolean pausesFollow(Entity holder) {
-        return onOwnerLead(holder) && !animal.life().hasUrgentNeed() && animal.level().getGameTime() < turnUntil
-                && animal.distanceToSqr(holder) < 16;
+    /** A turn can briefly take over close following. Vanilla still owns the lead and its elastic range. */
+    public boolean followTurn(Entity holder, double speed) {
+        if (!onOwnerLead(holder)) return false;
+        boolean near = animal.distanceToSqr(holder) < TURN_RANGE_SQR && animal.level().getGameTime() < turnUntil;
+        if (waitsAtTurn && near) {
+            animal.getNavigation().stop();
+            return true;
+        }
+        if (turnAside == null) return false;
+        if (near) {
+            var result = SurfaceApproach.walkResult(animal, turnAside, null, speed);
+            if (result == SurfaceApproach.Result.MOVING || result == SurfaceApproach.Result.WAITING) return true;
+            if (result == SurfaceApproach.Result.ARRIVED)
+                GameplayLog.event(animal, "lesson", "harness wandered at={} owner={}", GameplayLog.at(animal.position()), holder.getUUID());
+        }
+        turnAside = null;
+        SurfaceApproach.stopWalking(animal);
+        return false;
     }
 
     void newDay() { units = 0; }
@@ -63,8 +82,18 @@ public final class PetWalk {
     public void tick() {
         var holder = animal.getLeashHolder();
         // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
-        if (!onOwnerLead(holder)) { last = null; lastPet = null; heading = null; turnUntil = 0; manners = null; moving = false; return; }
+        if (!onOwnerLead(holder)) {
+            last = null; lastPet = null; heading = null; turnUntil = 0;
+            waitsAtTurn = false; turnAside = null; manners = null; moving = false; return;
+        }
         var owner = (LivingEntity) holder;
+        boolean canTurn = !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.pet().busy() && !animal.isPanicking()
+                && animal.life().mealTicks() == 0 && !animal.life().pursuingFoodOnLead()
+                && !animal.isCommandPlaying() && !animal.operations().active() && !owner.isPassenger() && !owner.isFallFlying();
+        if (!canTurn || !animal.onGround() || animal.isPassenger()) {
+            waitsAtTurn = false;
+            turnAside = null;
+        }
         if (!animal.onGround() || animal.isPassenger()) { last = null; lastPet = null; moving = false; return; }
         var now = owner.position();
         var petNow = animal.position();
@@ -73,17 +102,21 @@ public final class PetWalk {
             double dx = now.x - last.x, dz = now.z - last.z;
             double px = petNow.x - lastPet.x, pz = petNow.z - lastPet.z;
             double ownerMoved = Math.hypot(dx, dz), petMoved = Math.hypot(px, pz);
-            if (ownerMoved > .06 && ownerMoved <= 1) {
+            // A strolling resident can take smaller steps than a player and still make a real turn.
+            if (ownerMoved > .02 && ownerMoved <= 1) {
                 Vec3 direction = new Vec3(dx / ownerMoved, 0, dz / ownerMoved);
-                if (heading != null && heading.dot(direction) < .35 && animal.distanceToSqr(owner) < 16
-                        && !animal.life().hasUrgentNeed() && !animal.pet().busy()) {
-                    boolean waiting = manners();
+                long nowTick = animal.level().getGameTime();
+                if (canTurn && nowTick >= turnUntil && heading != null && heading.dot(direction) < .35
+                        && animal.distanceToSqr(owner) < TURN_RANGE_SQR) {
+                    waitsAtTurn = animal.pet().lessons().everydayAttempt(PetSkill.HARNESS);
+                    manners = waitsAtTurn;
                     int duration = ClipMarkers.of("look_around").length();
-                    if (waiting) turnUntil = animal.level().getGameTime() + duration;
-                    animal.showReaction(waiting ? "neutral" : "teary", waiting ? "wait_turn" : "harness_tug", duration);
-                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={}", owner.getUUID(), waiting);
-                    animal.pet().lessons().performed(PetSkill.HARNESS, waiting);
-                    ExamSession.performed(animal, PetSkill.HARNESS, waiting);
+                    turnUntil = nowTick + duration;
+                    turnAside = waitsAtTurn ? null : aside(owner);
+                    animal.showReaction(waitsAtTurn ? "neutral" : "teary", waitsAtTurn ? "wait_turn" : "harness_tug", duration);
+                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={}", owner.getUUID(), waitsAtTurn);
+                    animal.pet().lessons().performed(PetSkill.HARNESS, waitsAtTurn);
+                    ExamSession.performed(animal, PetSkill.HARNESS, waitsAtTurn);
                 }
                 heading = direction;
             }
@@ -103,6 +136,12 @@ public final class PetWalk {
             tugWait = TUG_INTERVAL;
             animal.showReaction("teary", "harness_tug", 70);
         }
+    }
+
+    private Vec3 aside(LivingEntity owner) {
+        // Keep going along the old line for two body widths, only on a safe stand inside the short lead.
+        var stand = SurfaceApproach.floor(animal, animal.position().add(heading.scale(2 * animal.getBbWidth())));
+        return stand != null && owner.distanceToSqr(stand) < TURN_RANGE_SQR ? stand : null;
     }
 
     private void unit(LivingEntity owner) {

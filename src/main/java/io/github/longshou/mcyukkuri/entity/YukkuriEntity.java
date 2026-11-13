@@ -990,8 +990,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Only a harnessed pet can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override public void closeRangeLeashBehaviour(Entity holder) {
-        if (pet().care().walk().pausesFollow(holder)) getNavigation().stop();
-        else if (!life().pursuingFoodOnLead()) super.closeRangeLeashBehaviour(holder);
+        if (life().pursuingFoodOnLead()) return;
+        if (shouldStayCloseToLeashHolder() && !isPanicking() && !life().isSleeping()
+                && pet().care().walk().followTurn(holder, followLeashSpeed())) return;
+        super.closeRangeLeashBehaviour(holder);
     }
     @Override protected Vec3 getLeashOffset() { return interactions().getLeashOffset(); }
     /** It does not follow while something is urgent or it is busy: the lead only holds it back past 6 blocks. */

@@ -113,6 +113,7 @@ public final class YukkuriLife {
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private record RuleChoice(int until, boolean follows) {}
     private final EnumMap<PetSkill, RuleChoice> ruleChoices = new EnumMap<>(PetSkill.class);
+    private boolean useBowlNicely;
     private final LifeAccessory accessory;
     private int socialWait;
     private float dryness;
@@ -796,7 +797,8 @@ public final class YukkuriLife {
                     offered.size(), delayed, outOfBabyRange, unreachable, task, nutrition);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);
             if (ignoresScraps) targetFood = null;
-            if (targetBlock != null && targetFood != null && entity.pet().isPet() && followsRule(PetSkill.FOOD_BOWL)) targetFood = null;
+            useBowlNicely = targetBlock != null && followsRule(PetSkill.FOOD_BOWL);
+            if (useBowlNicely && entity.pet().isPet()) targetFood = null;
             if (targetFood != null || targetBlock != null) {
                 bowlStand = null;
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
@@ -862,9 +864,10 @@ public final class YukkuriLife {
     }
     private boolean followsRule(PetSkill skill) {
         if (!entity.pet().isPet() || nutrition < 15 || energy < 15) return true;
+        if (skill == PetSkill.FOOD_BOWL) return entity.pet().lessons().everydayAttempt(skill);
         var choice = ruleChoices.get(skill);
         if (choice == null || entity.tickCount >= choice.until()) {
-            choice = new RuleChoice(entity.tickCount + 1200, entity.pet().lessons().attempt(skill));
+            choice = new RuleChoice(entity.tickCount + 1200, entity.pet().lessons().everydayAttempt(skill));
             ruleChoices.put(skill, choice);
         }
         return choice.follows();
@@ -872,13 +875,18 @@ public final class YukkuriLife {
     private boolean planToilet() {
         // A closed leaf swaddle keeps the young one from going by itself; only a parent's care opens it (family/LeafSwaddle).
         if (!entity.childhood().firstToiletDone() || bladder < 40 || constipated() || entity.leafSwaddle().wrapped()) return false;
-        targetBlock = nearestCare(CareBlock.Kind.TOILET, false);
-        if (targetBlock != null && followsRule(PetSkill.TOILET)) {
+        var toilet = nearestCare(CareBlock.Kind.TOILET, false);
+        boolean missedToilet = toilet != null && !followsRule(PetSkill.TOILET);
+        var here = entity.blockPosition();
+        boolean groundReady = bladder >= (missedToilet ? 70 : 90) && dryStand(here);
+        if (groundReady) groundReady = !GroupPits.inCells(GroupPits.avoidedCells(entity), here);
+        if (toilet != null && (!missedToilet || bladder >= 70 && !groundReady)) {
+            targetBlock = toilet;
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;
         }
         boolean pet = (Custody.view(entity).owner() != null)
                 || home() != null && !naturalHome();
-        if (bladder < (pet ? 90 : 70)) return false;
+        if (bladder < (pet && !missedToilet ? 90 : 70)) return false;
         targetBlock = null; toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0;
         // A community member goes to the group's pit; lone wild yukkuri and families use ground away from home.
         var spot = pet ? null : GroupPits.spot(entity);
@@ -890,12 +898,12 @@ public final class YukkuriLife {
             return true;
         }
         var found = foundShelter();
-        if (found != null && dryStand(found.entrance()) && reachable(found.entrance(), false)) {
+        if (!missedToilet && found != null && dryStand(found.entrance()) && reachable(found.entrance(), false)) {
             targetBlock = found.entrance(); task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false;
             return true;
         }
-        var avoidedPit = GroupPits.avoidedCells(entity);
         if (!pet) {
+            var avoidedPit = GroupPits.avoidedCells(entity);
             var candidates = new ArrayList<BlockPos>();
             for (BlockPos candidate : BlockPos.betweenClosed(entity.blockPosition().offset(-4,0,-4),entity.blockPosition().offset(4,0,4))) {
                 if (home() != null && home().dimension().equals(level().dimension()) && candidate.distSqr(home().pos()) < 16) continue;
@@ -907,8 +915,7 @@ public final class YukkuriLife {
             for (int i = 0; i < Math.min(6, candidates.size()) && targetBlock == null; i++) if (reachable(candidates.get(i), false)) targetBlock = candidates.get(i);
         }
         toiletAccident = pet || targetBlock == null;
-        if (targetBlock == null && bladder >= 90 && !GroupPits.inCells(avoidedPit, entity.blockPosition())
-                && dryStand(entity.blockPosition())) targetBlock = entity.blockPosition();
+        if (targetBlock == null && groundReady) targetBlock = here;
         if (targetBlock == null) return false;
         task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; return true;
     }
@@ -993,7 +1000,8 @@ public final class YukkuriLife {
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         float before=bladder;
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(DetachedItems.waste(entity))) {
-                            releaseWaste(); personality.relieveFear(); entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
+                            releaseWaste(); personality.relieveFear(); ruleChoices.remove(PetSkill.TOILET);
+                            entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
                             GameplayLog.event(entity,"needs","relieved source=facility at={} bladder={} -> {} volume={}",targetBlock,before,bladder,care.waste());
                         } else { stopGoal(); return; }
                     }
@@ -1018,7 +1026,7 @@ public final class YukkuriLife {
                         // From the anus of this very model at this moment of the clip (see ToiletContact.anus); at the pit the portion lands in the pit cell behind it.
                         float before=bladder;
                         if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS), toiletPit ? toiletPitCell : null)) {
-                            releaseWaste(); personality.relieveFear();
+                            releaseWaste(); personality.relieveFear(); ruleChoices.remove(PetSkill.TOILET);
                             GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,before,bladder,toiletAccident);
                             if (toiletAccident) {
                                 hygiene = Math.max(0,hygiene-20);
@@ -1055,6 +1063,7 @@ public final class YukkuriLife {
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
                             energy,nutrition,drugSleep(),restTime()?"rest_time":"energy");
                     if (!drugged && entity.pet().isPet()) {
+                        ruleChoices.remove(PetSkill.BEDTIME);
                         boolean settled = targetBlock != null && targetBlock.equals(homeStand())
                                 && (nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED);
                         if (settled) {
@@ -1192,7 +1201,11 @@ public final class YukkuriLife {
                     entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
                 if (takeGroundFood(targetFood)) {
-                    if (targetBlock != null && entity.pet().isPet()) entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
+                    if (!useBowlNicely && targetBlock != null
+                            && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
+                        GameplayLog.event(entity, "lesson", "bowl skipped for loose food bowl={}", targetBlock);
+                        entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
+                    }
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
                         for (var rival : rivals) WildCards.competing(entity, rival);
                         entity.showReaction("angry", "mine", 80);
@@ -1213,8 +1226,7 @@ public final class YukkuriLife {
                 return;
             }
             if (ItemContact.reaches(entity, bowlStand.contact(), .06)) {
-                boolean manners = followsRule(PetSkill.FOOD_BOWL);
-                if (manners) {
+                if (useBowlNicely) {
                     boolean taken = bowl.handFood(this::seeksFood, one -> {
                         if (!beginMeal(one, null, false)) return false;
                         meal.bowlMeal();
@@ -1222,18 +1234,20 @@ public final class YukkuriLife {
                         return true;
                     });
                     if (!taken) stopGoal();
-                } else if (bowl.handFood(this::seeksFood, one -> {
-                    var dropped = ItemContact.release(entity, one, 0);
-                    if (dropped == null) return false;
-                    targetFood = dropped;
-                    GameplayLog.event(entity, "meal", "bowl spilled item={} source={} drop={} count={}",
-                            one.getItem(), bowl.getBlockPos(), dropped.getUUID(), one.getCount());
-                    return true;
-                })) {
+                } else {
                     entity.showReaction("surprise", "mine", 45);
-                    entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
-                    targetBlock = null;
-                } else stopGoal();
+                    if (bowl.handFood(this::seeksFood, one -> {
+                        var dropped = ItemContact.release(entity, one, 0);
+                        if (dropped == null) return false;
+                        targetFood = dropped;
+                        GameplayLog.event(entity, "meal", "bowl spilled item={} source={} drop={} count={}",
+                                one.getItem(), bowl.getBlockPos(), dropped.getUUID(), one.getCount());
+                        return true;
+                    })) {
+                        entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
+                        targetBlock = null;
+                    } else stopGoal();
+                }
             } else {
                 approachFood(source, bowlStand.feet(), bowlStand.contact());
             }

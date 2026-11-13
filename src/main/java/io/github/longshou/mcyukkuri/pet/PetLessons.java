@@ -82,13 +82,24 @@ public final class PetLessons {
     }
 
     public boolean attempt(PetSkill skill) {
+        return attempt(skill, 0);
+    }
+
+    public boolean everydayAttempt(PetSkill skill) {
+        int neglect = practicing(skill) || ExamSession.running(animal) ? 0 : animal.pet().neglect();
+        return attempt(skill, neglect);
+    }
+
+    private boolean attempt(PetSkill skill, int neglect) {
         var p = animal.life().personality();
         double aptitude = (p.selfControl() * .65 + p.intelligence() * .35) / 100;
-        double chance = Math.clamp(.17 + .15 * level(skill) + .27 * aptitude - .001 * animal.mind().stressView(), .08, .98);
+        // Even at maximum neglect the penalty is smaller than one level of practice.
+        double chance = Math.clamp(.17 + .15 * level(skill) + .27 * aptitude
+                - .001 * (animal.mind().stressView() + neglect), .08, .98);
         double roll = animal.getRandom().nextDouble();
         boolean success = roll < chance;
         GameplayLog.limited(animal, "lesson", "attempt." + skill, 200,
-                "skill attempt skill={} level={} chance={} roll={} success={}", skill, level(skill), chance, roll, success);
+                "skill attempt skill={} level={} chance={} roll={} success={} neglect={}", skill, level(skill), chance, roll, success, neglect);
         return success;
     }
 

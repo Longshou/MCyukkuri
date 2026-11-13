@@ -1487,15 +1487,16 @@ add('badge', 'town', '钻石章灵梦遇到嫉妒的野油', '钻石章灵梦遇
 _practice_home = []
 for _x, _kind, _name, _skill in ((-7, 'reimu', 'practised', 76), (7, 'marisa', 'novice', 0)):
     _practice_home += [
-        *shed(_x, -4), block(_x, 0, 2, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
-        block(_x + 2, 0, -1, 'mcyukkuri:yukkuri_toilet'), item('minecraft:apple', 2, _x - 2, 2, _name + '_apples'),
-        yk(_kind, _x, 0, _name, nutrition=48, energy=52, bladder=73, rest_wait=0, lead=_x < 0, yaw=0,
+        *shed(_x, -4), block(_x, 0, 5, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
+        block(_x + 2, 0, 4, 'mcyukkuri:yukkuri_toilet'), item('minecraft:apple', 2, _x - 1, 4, _name + '_apples'),
+        yk(_kind, _x, 3, _name, nutrition=48, energy=52, bladder=73, rest_wait=0, lead=_x < 0, yaw=0,
+           uuid=uid('training_home', _name),
            label='练过的宠物' if _x < 0 else '刚开始练习',
            self_control=95 if _x < 0 else 24,
-           extra=f'YukkuriPet:{{SkillExperience:{{food_bowl:{_skill},toilet:{_skill},bedtime:{_skill}}}}}'),
+           extra=f'YukkuriPet:{{Neglect:{0 if _skill else 60},SkillExperience:{{food_bowl:{_skill},toilet:{_skill},bedtime:{_skill}}}}}'),
         *own(_name), home(_name, _x, -4)]
 add('training_home', 'town', '宠物日常练习：吃饭、如厕、睡觉', '宠物日常练习：吃饭、如厕、睡觉',
-    '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。看取食或打翻、走去沙厕或当场解决、回窝或就地睡下。用手册查看经验变化。',
+    '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。魔理沙刚开始练习，也有一阵子没受照料。看它是否略过食盆吃散食、在沙厕外留下要清理的排泄物，或直接在地上睡下。用手册查看经验变化。',
     '入夜开始，约 1–2 分钟', _practice_home, env={'time': 'night'}, vantage=(0, 13),
     give=['mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
     reads=[('读训练经验', f'data get entity {sel("practised")} YukkuriPet.SkillExperience'),
@@ -1691,6 +1692,23 @@ add('harness_walk', 'town', '亲手给宠物系胴带牵着走', '亲手给宠�
         yk('reimu', 0, 0, 'harness_pet', grade=1, lead=True, nutrition=60, energy=100, hygiene=100), *own('harness_pet')],
     give=['mcyukkuri:pet_harness 1', 'minecraft:lead 1', 'minecraft:apple 6'],
     reads=[('读牵引宠物', f'yukkuri status {sel("harness_pet")} raw')], vantage=(0, 8))
+
+add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：停等或走偏',
+    '两位居民分别带练过的灵梦和新手魔理沙散步。观察转弯时宠物会停下来等主人，还是沿旧方向多走几步再跟上。', '约 1–2 分钟', [
+        'yukkuri human walker ~-10 ~ ~-14 brother reimu',
+        'tag @e[type=mcyukkuri:reimu,distance=..30,sort=nearest,limit=1] add scn_walk_practised',
+        f'tag {sel("walk_practised")} add scn',
+        f'tag {sel("walk_practised")} add scn_lead',
+        f'data modify entity {sel("walk_practised")} YukkuriPet.SkillExperience.harness set value 76',
+        f'yukkuri status set {sel("walk_practised")} personality.self_control 95',
+        'yukkuri human walker ~10 ~ ~-14 sister marisa',
+        'tag @e[type=mcyukkuri:marisa,distance=..30,sort=nearest,limit=1] add scn_walk_novice',
+        f'tag {sel("walk_novice")} add scn',
+        f'data modify entity {sel("walk_novice")} YukkuriPet.Neglect set value 60',
+        f'yukkuri status set {sel("walk_novice")} personality.self_control 24',
+    ], env=DAY, vantage=(0, 8),
+    reads=[(label, f'data get entity {sel(name)} YukkuriPet.SkillExperience')
+           for label, name in (('读灵梦的牵引经验', 'walk_practised'), ('读魔理沙的牵引经验', 'walk_novice'))])
 
 def street_trial(scene, kind, x, z, name, *, pet='', extra='', **kwargs):
     return yk(kind, x, z, name, uuid=uid(scene, name), boldness=90,
@@ -4384,7 +4402,7 @@ TOPICS = {
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
-    'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
+    'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
@@ -4479,7 +4497,15 @@ _smoke('training_home', 2100, [
     r'\[lesson\][^\n]*skill practice skill=FOOD_BOWL source=daily xp=76 -> 78',
     r'\[needs\][^\n]*relieved source=facility',
     r'\[sleep\][^\n]*begin source=life',
+    r'\[needs\] marisa [^\n]*poop (?:placed|stays a loose item) ',
+    r'\[needs\] marisa [^\n]*relieved source=ground [^\n]*accident=true',
+    r'\[lesson\] marisa [^\n]*bowl skipped for loose food',
 ], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('practised', 'novice')])
+_smoke('training_walk', 2300, [
+    r'\[lesson\] reimu [^\n]*harness turn owner=[^ ]+ waits=true',
+    r'\[lesson\] marisa [^\n]*harness turn owner=[^ ]+ waits=false',
+    r'\[lesson\] marisa [^\n]*harness wandered at=',
+], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('walk_practised', 'walk_novice')])
 _smoke('training_study', 1750, [
     r'\[lesson\][^\n]*study answered skill=READING',
     r'\[lesson\][^\n]*study answered skill=ARITHMETIC source=food count=6',

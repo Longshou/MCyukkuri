@@ -206,6 +206,7 @@
     "street_give_way": "TN-21",
     "shop_care": "SP-06",
     "care_attitude": "MD-19",
-    "basket_attitude": "TN-22"
+    "basket_attitude": "TN-22",
+    "training_walk": "TN-23"
   }
 }
