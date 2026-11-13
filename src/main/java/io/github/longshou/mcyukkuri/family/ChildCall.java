@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
@@ -23,8 +22,8 @@ import net.minecraft.world.phys.Vec3;
  * A parent who has lost sight of her dependent child calls for it, and the child that hears answers (project design, user
  * 2026-11-07 life presentation). The search walk itself is {@link FamilyLife}'s, its time limit {@link FamilySeparation}'s.
  *
- * <p>Parent: while she searches and the child is out of sight, she stops, turns toward where the family
- * last knew the child (the ledger position), calls ({@code call_child}) and listens ({@code look_around}). An answer sends her on at
+ * <p>Parent: while she searches and the child is out of sight, she stops, turns toward her last sighting,
+ * calls ({@code call_child}) and listens ({@code look_around}). An answer sends her on at
  * once; silence makes her droop ({@code droop}) before she walks on. Warm parents call more rounds and sooner again, cold ones fewer and
  * later. Every pause lasts its clip.</p>
  *
@@ -88,13 +87,6 @@ final class ChildCall {
     /** Ticks from the end of one call round to the next: 10 s when warm, 30 s when cold (project design). */
     private static int interval(YukkuriEntity parent) { return 200 + 4 * (100 - parent.life().personality().friendliness()); }
 
-    /** Where the family last knew the child: its ledger position in this dimension, else where it is. */
-    private Vec3 lastKnown(YukkuriEntity child) {
-        var known = FamilyData.get(o.level()).person(child.getUUID());
-        return known != null && known.position != null && known.position.dimension().equals(o.level().dimension())
-                ? Vec3.atBottomCenterOf(known.position.pos()) : child.position();
-    }
-
     private void turnToward(Vec3 at) {
         var e = o.entity();
         float yaw = SurfaceApproach.yaw(e.position(), at);
@@ -148,32 +140,28 @@ final class ChildCall {
      * The parent's own pauses in her search for {@code child}: true while one holds her still (her walk waits). A call starts only on
      * the ground, out of the child's sight, between her reactions and within her rounds; her search walks on between calls.
      */
-    boolean tickParent(YukkuriEntity child) {
+    boolean tickParent(YukkuriEntity child, Vec3 toward, boolean visible) {
         var e = o.entity();
         long now = o.level().getGameTime();
         if (phase == Phase.NONE) {
             if (!child.getUUID().equals(called)) { called = child.getUUID(); rounds = 0; nextCall = 0; }
-            if (now < nextCall || rounds >= rounds(e) || !e.onGround() || e.hasReaction() || FamilySeparation.near(e, child)
-                    || e.hasLineOfSight(child)) return false;
-            Vec3 toward = lastKnown(child);
+            if (visible || now < nextCall || rounds >= rounds(e) || !e.onGround() || e.hasReaction()) return false;
             rounds++;
             beginCall(child.getUUID(), toward, "wait_family");
-            GameplayLog.event(e, "family", "child call started child={} round={}/{} lastKnown={} distance={} friendliness={}",
-                    child.getUUID(), rounds, rounds(e), GameplayLog.at(toward), Math.round(e.distanceTo(child) * 10) / 10.0,
-                    e.life().personality().friendliness());
+            GameplayLog.event(e, "family", "child call started child={} round={}/{} lastKnown={} friendliness={}",
+                    child.getUUID(), rounds, rounds(e), GameplayLog.at(toward), e.life().personality().friendliness());
             return true;
         }
         if (phase == Phase.ANSWER) return false;
         boolean answered = child.family().call().answered(e.getUUID(), callStart);
-        if (FamilySeparation.near(e, child) || e.hasLineOfSight(child)) { walkOn(now, "in_sight", child); return false; }
+        if (visible) { walkOn(now, "in_sight", child); return false; }
         if (phase != Phase.CALL && answered) {
             e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false;
         }
         var before = phase;
         boolean calling = tickSilence();
         if (before == Phase.LISTEN && phase == Phase.DROOP)
-            GameplayLog.event(e, "family", "child call unanswered child={} round={}/{} distance={}",
-                    child.getUUID(), rounds, rounds(e), Math.round(e.distanceTo(child) * 10) / 10.0);
+            GameplayLog.event(e, "family", "child call unanswered child={} round={}/{}", child.getUUID(), rounds, rounds(e));
         return calling;
     }
 
@@ -196,8 +184,8 @@ final class ChildCall {
 
     private void walkOn(long now, String why, YukkuriEntity child) {
         var e = o.entity();
-        GameplayLog.event(e, "family", "child call ended why={} child={} round={}/{} phase={} distance={}",
-                why, child.getUUID(), rounds, rounds(e), phase, Math.round(e.distanceTo(child) * 10) / 10.0);
+        GameplayLog.event(e, "family", "child call ended why={} child={} round={}/{} phase={}",
+                why, child.getUUID(), rounds, rounds(e), phase);
         phase = Phase.NONE; nextCall = now + interval(e);
     }
 

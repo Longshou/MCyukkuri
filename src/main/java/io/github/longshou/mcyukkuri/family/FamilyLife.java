@@ -37,6 +37,7 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.network.chat.Component;
@@ -281,8 +282,8 @@ public final class FamilyLife {
         if(task==Task.CARRY||task==Task.SEARCH&&carry.lifting())return true;
         if(task==Task.SEARCH&&target!=null)return carry.pickupWanted(target);
         if(task!=Task.NONE||wait>0)return false;
-        var child=closestSeparatedDependentChild();
-        if(child==null||!carry.pickupWanted(child))return false;
+        var child=closestSeparatedDependentChild(true);
+        if(child==null)return false;
         return startLandChildSearch(child);
     }
     /** In its nest or inside its own home (FamilySeparation's test). */
@@ -1161,12 +1162,13 @@ public final class FamilyLife {
         return adult()||!hungerOnly||!entity.childhood().shouldStayWithParents();
     }
     private boolean startLandChildSearch() {
-        var child=closestSeparatedDependentChild();
+        var child=closestSeparatedDependentChild(false);
         if(child==null)return false;
         return startLandChildSearch(child);
     }
     private boolean startLandChildSearch(YukkuriEntity child) {
-        task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("teary","wait_family",80);return true;
+        task=Task.SEARCH;target=child;searchAt=separation.lastSeen(child);taskTicks=0;
+        entity.showReaction("teary","wait_family",80);return true;
     }
 
     private boolean startAbsence() {
@@ -1287,15 +1289,30 @@ public final class FamilyLife {
     double followRadius() { return Math.sqrt(familyRadiusSqr()); }
     /** The new mutual search is only for ordinary land families that can all move freely; independent young are never recalled.
      *  A child near in the separation sense is watched, not searched: the search starts beyond it and ends at {@link #reached}. */
-    private YukkuriEntity closestSeparatedDependentChild() {
-        return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
-                &&ordinaryLandFree(other)&&caresFor(other)&&separation.searchingAllowed(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
-                &&carry.canSearchWhileCarrying(other)&&escortsMigratingChild(other)&&!safeInSharedHome(other)
-                &&(!other.family().exploring()||other.life().hasUrgentNeed())
-                &&(carry.pickupWanted(other)||carry.needsReunion(other)
-                        ||!FamilySeparation.near(entity,other)
-                        &&!other.settlement().canCatchUpOnFoot()&&!followingOnMarch(other)))
-                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    private YukkuriEntity closestSeparatedDependentChild(boolean pickupOnly) {
+        var candidates=new LinkedHashSet<>(level().getEntitiesOfClass(YukkuriEntity.class,
+                entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),this::canSearchForChild));
+        for(var id:separation.sightedChildren())
+            if(level().getEntity(id) instanceof YukkuriEntity child&&canSearchForChild(child))candidates.add(child);
+
+        YukkuriEntity closest=null;
+        double best=FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
+        for(var child:candidates) {
+            if(child.family().exploring()&&!child.life().hasUrgentNeed())continue;
+            boolean visible=separation.observeChild(child);
+            if(pickupOnly&&(!visible||!entity.hasLineOfSight(child)||!carry.pickupWanted(child)))continue;
+            if(visible&&!carry.pickupWanted(child)&&!carry.needsReunion(child)
+                    &&(FamilySeparation.near(entity,child)||child.settlement().canCatchUpOnFoot()||followingOnMarch(child)))continue;
+            var at=separation.lastSeen(child);
+            if(at==null)continue;
+            double distance=entity.distanceToSqr(visible?child.position():at);
+            if(distance<best){closest=child;best=distance;}
+        }
+        return closest;
+    }
+    private boolean canSearchForChild(YukkuriEntity child) {
+        return ordinaryLandFree(child)&&caresFor(child)&&separation.searchingAllowed(child)&&child.childhood().shouldStayWithParents()
+                &&carry.canSearchWhileCarrying(child)&&escortsMigratingChild(child)&&!safeInSharedHome(child);
     }
     private boolean followingOnMarch(YukkuriEntity child) {
         return child.family().familyTravelling() && child.family().task == Task.FOLLOW
@@ -1418,10 +1435,10 @@ public final class FamilyLife {
         }
         if(task==Task.FOLLOW&&earlyHomeStand()!=null&&(!seekingFamilyHelp()||Bonds.parentOf(target,entity)))return false;
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
-        if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&(ordinaryLandFree(target)||target.getVehicle()==entity&&carry.lifting())&&caresFor(target)
-                &&(carry.lifting()||carry.canSearchWhileCarrying(target)&&escortsMigratingChild(target)&&!safeInSharedHome(target))
-                &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&(glass.active()||taskTicks<1200)&&target.level()==entity.level()
-                &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
+        if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&target.level()==entity.level()
+                &&(carry.lifting()&&target.isAlive()&&caresFor(target)&&target.childhood().shouldStayWithParents()
+                &&(ordinaryLandFree(target)||target.getVehicle()==entity)
+                ||canSearchForChild(target)&&(glass.active()||separation.lastSeen(target)!=null));
         if(task==Task.SEARCH&&call.waitingAtGlass())return true;
         double followRange = task == Task.FOLLOW && familyTravelling() ? FAMILY_SEARCH_RANGE * FAMILY_SEARCH_RANGE : 256;
         int timeCap = switch (task) {
@@ -1510,26 +1527,45 @@ public final class FamilyLife {
             case COMFORT -> tickComfort();
             case CARRY -> { if(!carry.tickHome(taskTicks))stop(); }
             case SEARCH -> {
-                if(target!=null) {
-                    if(glass.active()&&glass.tick())return;
-                    if(!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
-                    if(carry.pickupWanted(target)) {
-                        // Lift the baby instead of waiting for it to walk over; a march carries on, a stray goes back to its nest.
-                        if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
-                        return;
-                    }
-                    if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)){stop();return;}
-                    if(reached(target)){separation.reunited(target);SurfaceApproach.halt(entity);stop();return;}
-                    // Out of its sight she stops now and then to call for it and listen (ChildCall); her walk waits meanwhile.
-                    if(call.tickParent(target))return;
-                    if(taskTicks%10==1&&!navigateToward(target.blockPosition(),1.1)){stop();return;}
-                    if(entity.getNavigation().isDone())entity.getLookControl().setLookAt(target,20,20);
-                } else {
+                if(target!=null)tickLandChildSearch();
+                else {
                     if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
                     if(taskTicks%20==1&&!navigateToward(BlockPos.containing(searchAt),.9))stop();
                 }
             }
             default -> { }
+        }
+    }
+    private void tickLandChildSearch() {
+        boolean visible=separation.observeChild(target);
+        searchAt=separation.lastSeen(target);
+        if(glass.active()&&glass.tick())return;
+        if(visible&&!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
+        if(carry.lifting()||visible&&entity.hasLineOfSight(target)&&carry.pickupWanted(target)) {
+            // Finish the shared lift even after the child has made contact with the carrier.
+            if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
+            return;
+        }
+        if(visible&&reached(target)){separation.reunited(target);stop();return;}
+        if(searchAt==null){stop();return;}
+        if(taskTicks>=1200){
+            if(!visible)separation.searchedLastSight(target);
+            stop();return;
+        }
+        if(call.tickParent(target,searchAt,visible))return;
+        if(visible) {
+            if(taskTicks%10==1&&!navigateToward(target.blockPosition(),1.1)){stop();return;}
+            if(entity.getNavigation().isDone())entity.getLookControl().setLookAt(target,20,20);
+            return;
+        }
+        // Play the warning before leaving for the last sight. The shared walk ends at the sight or a real obstruction.
+        if(taskTicks<=80&&entity.hasReaction()){SurfaceApproach.halt(entity);return;}
+        var result=SurfaceApproach.walkResult(entity,searchAt,null,1.1);
+        if(result==SurfaceApproach.Result.ARRIVED||result==SurfaceApproach.Result.BLOCKED) {
+            GameplayLog.event(entity,"family","child search checked last sight child={} at={} outcome={}",
+                    target.getUUID(),GameplayLog.at(searchAt),result);
+            separation.searchedLastSight(target);
+            stop();
         }
     }
     public void interruptCourtship() {
@@ -1539,6 +1575,7 @@ public final class FamilyLife {
     public void stop() {
         glass.stop();
         call.stop();
+        if(task==Task.SEARCH&&target!=null&&!carry.lifting())SurfaceApproach.halt(entity);
         if(task==Task.COURT||task==Task.RECEIVE_COURT)entity.getNavigation().stop();
         if(task==Task.ABSENCE)absence().stop();
         if(task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);

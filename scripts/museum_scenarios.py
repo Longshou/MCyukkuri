@@ -1010,6 +1010,14 @@ add('family_distance', 'family', '胆大子油跑得远，普通的早回来', '
 
 _fs = {k: uid('family_search', k) for k in ('parent', 'child', 'lost_mother', 'lost_child')}
 _fsp = {k: uid('family_search_pane', k) for k in ('parent', 'child')}
+_fs_x, _fs_z = BY_ID['family'].spots['hurt_kin']
+# The north mother saw her child around the south end of the wall before the child turned behind it.
+_fs_seen_x, _fs_seen_z = _fs_x + 2, _fs_z + 2
+_fs_seen_pos = ((_fs_seen_x & 0x3ffffff) << 38) | ((_fs_seen_z & 0x3ffffff) << 12) | (FEET & 0xfff)
+if _fs_seen_pos >= 1 << 63:
+    _fs_seen_pos -= 1 << 64
+_fs_sighting = (f'ChildSightings:[{{Child:{uuid_nbt(_fs["child"])},'
+                f'Seen:{{Dimension:"minecraft:overworld",Pos:{_fs_seen_pos}L}}}}]')
 
 
 def _uuid_of(ints):
@@ -1037,8 +1045,9 @@ def _family_search_order(log, steps, once=(), absent=()):
 
 def _family_call_verify(log):
     full = _fs['lost_mother']
+    seen = re.escape(f'({_fs_seen_x + .5:.2f},{FEET:.2f},{_fs_seen_z + .5:.2f})')
     return _family_search_order(log, [
-        (_fs['parent'], 'child call started'),
+        (_fs['parent'], rf'child call started .*lastKnown={seen} '),
         (_fs['child'], 'child heard parent call'),
         (_fs['parent'], 'child search reunited'),
     ]) or _family_search_order(log, [
@@ -1071,14 +1080,15 @@ def _family_pane_verify(log):
 
 
 add('family_search', 'family', '走散亲子：绕墙重逢，隔整块玻璃道别', '走散亲子：绕墙重逢，隔整块玻璃道别',
-    '北边一对无巢亲子隔着可绕行的石砖矮墙，彼此遮住时呼唤，重新靠近后恢复自由活动。'
+    '北边的亲油上次在石墙南端看见子油。子油走到墙后，亲油朝记得的位置呼唤，重新靠近后恢复自由活动。'
     '南边亲油隔一层整块玻璃看见子油，来到玻璃前呼唤；孩子回应，贴近玻璃内侧。亲油等候到期后道别离开。'
     '可在道别后手动拆玻璃，让亲油看见实际通路再寻亲。',
     '约 30–70 秒', [
-        yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True, **pair_ready()),
-        yk('reimu', 15, -4, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
+        yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True,
+           kin=_fs_sighting, **pair_ready()),
+        yk('reimu', 8, -4, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
            kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready()),
-        box(0, 0, -8, 0, 1, 0, 'minecraft:stone_bricks'),
+        box(0, 0, -10, 0, 1, 0, 'minecraft:stone_bricks'),
         box(13, -1, 3, 17, 3, 7, 'minecraft:glass', 'hollow'),
         yk('reimu', 7, 5, 'lost_mother', uuid=_fs['lost_mother'], label='隔玻璃的亲油', friendliness=65, self_control=20, boldness=0, **pair_ready()),
         yk('reimu', 15, 5, 'lost_child', uuid=_fs['lost_child'], stage='child', label='被围住的子油', boldness=0,
@@ -1088,7 +1098,7 @@ add('family_search', 'family', '走散亲子：绕墙重逢，隔整块玻璃道
     capture=dict(shots=(1, 40, 600), sequences=((100, 340, 3),), observe=False,
                  views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, .9, 2.4), criteria='北边亲油的呼唤、伸长身体和左右张望能看清；不要求这一机位同时看见远处孩子或南边玻璃围栏。'),
                         'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, .5, 1.5), criteria='北边孩子转向、回应和接近亲油的动作能看清；只判断当前时刻已经发生的动作，不要求早期画面已经重逢。')}),
-    reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw'),
+    reads=[('读亲油最后目击点', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw'),
            ('读蹲守与寻亲记忆', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
 
 add('family_search_pane', 'family', '走散亲子：撞碎玻璃板后重逢', '走散亲子：撞碎玻璃板后重逢',
