@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 茎生 2：茎从根到顶生长再结果，耗尽死亡茎枯萎 | `.worktrees/wp-ic-stem-growth` | art/props/family-life, standards/yukkuri-library/drafts/remains, client/FamilyRenderer, RemainsRenderer |
 | 工具 2：并入原版物品、实际使用模型与效果 | `.worktrees/wp-id-tools-v2` | item/OperationToolItem, interaction/OperationLife, art/props operation-tools, recipes, lang |
 | 街道生活：爱派、虐派与路人（单步可见反应） | `.worktrees/wp-ig-human-npc` | human/HumanNpc, human/Custody, social (reactions), museum street scenes, docs/FEATURES.md |
 | 演出夸张化与玻璃挤脸 | `.worktrees/wp-ii-exaggerate-glass` | standards/yukkuri-library/motions, motion exports, shop pen glass trigger |
