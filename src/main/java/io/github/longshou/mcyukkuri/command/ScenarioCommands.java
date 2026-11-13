@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -26,6 +27,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
@@ -359,13 +361,18 @@ public final class ScenarioCommands {
         var target = yukkuri(c, "target");
         String key = StringArgumentType.getString(c, "action");
         var action = Arrays.stream(CareAction.values()).filter(value -> value.key().equals(key)).findFirst().orElse(null);
-        if (target == null || action == null || action.tool == null) return 0;
+        if (target == null || action == null || action.tool == null && !action.shears()) return 0;
         var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
         player.setPos(c.getSource().getPosition());
+        player.lookAt(EntityAnchorArgument.Anchor.EYES,target.getBoundingBox().getCenter());
         var previous = player.getMainHandItem();
         try {
-            var tool = new ItemStack(action.tool.item());
+            var tool = new ItemStack(action.shears() ? Items.SHEARS : action.tool.item());
             player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            if (action.shears()) {
+                var menu = new CareMenu(0, player.getInventory(), target.getId(), true, null);
+                return menu.clickMenuButton(player, action.id()) ? 1 : 0;
+            }
             return tool.interactLivingEntity(player, target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
         } finally {
             player.setItemInHand(InteractionHand.MAIN_HAND, previous);

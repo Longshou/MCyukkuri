@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.pose.Clips;
 import io.github.longshou.mcyukkuri.pose.Compose;
 import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.Skin;
+import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
@@ -180,6 +181,39 @@ public final class WoundSurface {
     /** Identity of the point set rest(i,expression) reads: equal sets give identical points. */
     public Object restSet(String expression){return expressionValues(expression);}
     public Vector3f rest(int i,String expression){var values=expressionValues(expression);return new Vector3f(values[i*5],values[i*5+1],values[i*5+2]);}
+    private static final class AuthoredHair {
+        static final JsonObject MODELS=GeometryJson.read("yukkuri_presentation/hair_wounds.json").data().getAsJsonObject("models");
+    }
+    /** Contact on the authored hair or worn accessory, in resting model pixels. */
+    Vector3f headContact(int cut,int previousLoss,boolean accessory){
+        var hat=accessory?HatGeometry.worn(assetId):null;
+        if(hat!=null)return new Vector3f(floats(hat.getAsJsonArray("seat")));
+        var model=accessory?null:AuthoredHair.MODELS.getAsJsonObject(assetId);
+        var authored=new HashSet<String>();
+        if(model!=null)for(var part:model.getAsJsonArray("hair_parts"))authored.add(part.getAsString());
+        var bounds=bounds();
+        var scalp=new Vector3f((bounds[0]+bounds[3])*.5f,bounds[4],(bounds[2]+bounds[5])*.5f);
+        Vector3f contact=null;
+        float best=Float.POSITIVE_INFINITY;
+        for(var raw:envelope){
+            var part=raw.getAsJsonObject();
+            String name=part.get("name").getAsString();
+            float x=part.get("x").getAsFloat();
+            if(accessory){
+                if(accessoryPrefixes.asList().stream().noneMatch(prefix->name.startsWith(prefix.getAsString())))continue;
+            }else{
+                int mask=HairParts.lossMask(name,x,authored.contains(name));
+                if((mask&cut)==0||(mask&previousLoss)!=0)continue;
+            }
+            var yz=part.getAsJsonArray("yz");
+            var top=yz.get(0).getAsJsonArray();
+            float z=(top.get(1).getAsFloat()+yz.get(1).getAsJsonArray().get(1).getAsFloat())*.5f;
+            var root=new Vector3f(x,top.get(0).getAsFloat(),z);
+            float score=root.distanceSquared(scalp);
+            if(score<best){best=score;contact=root;}
+        }
+        return contact==null?scalp:contact;
+    }
     public float contactLift(float angle,boolean accessory,int loss){float min=Float.MAX_VALUE,c=(float)Math.cos(Math.toRadians(angle)),s=(float)Math.sin(Math.toRadians(angle));
         for(var raw:envelope){var p=raw.getAsJsonObject();String name=p.get("name").getAsString();if(!accessory&&
                 accessoryPrefixes.asList().stream().anyMatch(v->name.startsWith(v.getAsString())))continue;

@@ -5,7 +5,9 @@ import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundShape;
+import io.github.longshou.mcyukkuri.body.WoundPlacement;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -54,6 +56,7 @@ public final class OperationLife {
     private int remaining,elapsed,cooldown;
     private float turn,abrasion;
     private boolean ownDamage;
+    private UUID attachedWound;
     private WoundShape settlingShape=WoundShape.NONE;
     /** The dose occupies the same durable reservation slot as a physical tool. */
     public boolean beginAssistance(Player player,InteractionHand hand){
@@ -109,15 +112,12 @@ public final class OperationLife {
             case LAY_DOWN -> begin(player,Pose.SUPINE,60,null);
             case LIE_COMMAND,SHOW_RUMP -> begin(player,action==CareAction.SHOW_RUMP?Pose.RUMP:Pose.SUPINE,80,null);
             case SHAKE_HOME -> shakeHome(player);
-            case PIN -> {if(!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive())yield false;yield begin(player,Pose.PIN,240,Tool.PIN);}
+            case PIN -> punctureAndBind(player,Pose.PIN,240,Tool.PIN,null);
             case MALLET -> strike(player,entity.getMaxHealth()+20,WoundShape.BLUNT);
             case PIERCE,BURN -> strike(player,2,WoundShape.PUNCTURE);
             case FIX_SUPINE -> begin(player,Pose.FIXED,400,Tool.RESTRAINT);
-            case WRAP_HANG,HOOK_HANG -> {
-                var support=ceiling();
-                if(action==CareAction.HOOK_HANG&&(!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive()))yield false;
-                ceiling=support;yield begin(player,action==CareAction.WRAP_HANG?Pose.WRAPPED:Pose.HOOK,300,action.tool);
-            }
+            case WRAP_HANG -> begin(player,Pose.WRAPPED,300,Tool.SLING,ceiling(),null);
+            case HOOK_HANG -> punctureAndBind(player,Pose.HOOK,300,Tool.HOOK,ceiling());
             case TRIM_HAIR,CUT_LEFT,CUT_RIGHT -> entity.body().cutHair(action.hairParts(),player);
             case CUT_ACCESSORY -> cutAccessory(player);
             case VIBRATE -> begin(player,Pose.VIBRATE,120,Tool.VIBRATOR);
@@ -181,15 +181,35 @@ public final class OperationLife {
         ownDamage=true;settlingShape=shape;
         try{return entity.hurt(entity.damageSources().playerAttack(player),amount);}finally{ownDamage=false;settlingShape=WoundShape.NONE;}
     }
+    private boolean punctureAndBind(Player player,Pose next,int duration,Tool tool,BlockPos support){
+        if(next==Pose.HOOK&&support==null)return false;
+        BodyWound wound;
+        ownDamage=true;settlingShape=WoundShape.PUNCTURE;
+        try {
+            wound=entity.hurtForAttachment(entity.damageSources().playerAttack(player),1);
+        } finally {
+            ownDamage=false;settlingShape=WoundShape.NONE;
+        }
+        return wound!=null&&!entity.body().dying()&&begin(player,next,duration,tool,support,wound);
+    }
     private boolean begin(Player player,Pose next,int duration,Tool binding){
+        return begin(player,next,duration,binding,null,null);
+    }
+    private boolean begin(Player player,Pose next,int duration,Tool binding,BlockPos support,BodyWound wound){
         if(!entity.isAlive()||active())return false;
+        if((next==Pose.WRAPPED||next==Pose.HOOK)&&support==null)return false;
         entity.life().interrupt();entity.social().stop();entity.house().stop();entity.family().stop();
         entity.getNavigation().stop();entity.setPersistenceRequired();
         pose=next;operator=player.getUUID();remaining=duration;elapsed=0;turn=abrasion=0;anchor=last=entity.position();
+        ceiling=support;
+        attachedWound=wound==null?null:wound.id();
         if(binding!=null&&!player.getAbilities().instabuild){inserted=player.getMainHandItem().split(1);}
         GameplayLog.event(entity,"interaction","operation started; player={} pose={} duration={} reserved_item={} count={}",
                 operator,pose,duration,inserted.getItem(),inserted.getCount());
-        entity.syncOperation(pose.name(),0);entity.syncOperationAnchor(ceiling);return true;
+        if(wound!=null)GameplayLog.event(entity,"interaction","binding wound; pose={} wound={} triangle={} u={} v={}",
+                pose,attachedWound,wound.triangle(),wound.u(),wound.v());
+        entity.syncOperation(pose.name(),0);entity.syncOperationAnchor(ceiling);entity.syncOperationWound(attachedWound);
+        return true;
     }
     BlockPos ceiling(){
         for(int dy=2;dy<=4;dy++){
@@ -204,6 +224,7 @@ public final class OperationLife {
         if(!active()){if(!inserted.isEmpty())returnInserted();return;}
         var player=entity.level().getPlayerByUUID(operator);
         if(player==null||InteractionDispatch.reachRefusal(player,entity,5)!=null||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
+        if(attachedWound!=null&&entity.body().wounds().stream().noneMatch(wound->wound.id().equals(attachedWound))){end();return;}
         if ((switch (pose) {
             case PIN, FIXED, WRAPPED, HOOK, BOX, VIBRATE, ASSIST, GRIP, ROLL -> true;
             default -> false;
@@ -310,7 +331,7 @@ public final class OperationLife {
     public boolean end(){
         boolean recover = switch (pose) { case PIN, FIXED, WRAPPED, HOOK, BOX, VIBRATE -> true; default -> false; };
         if(active())GameplayLog.event(entity,"interaction","operation ended; player={} pose={} elapsed={} remaining={}",operator,pose,elapsed,remaining);
-        pose=Pose.NONE;operator=null;ceiling=null;remaining=elapsed=0;
+        pose=Pose.NONE;operator=null;ceiling=null;attachedWound=null;remaining=elapsed=0;
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();
         if (recover && entity.isAlive() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPanicking() && entity.hurtTime == 0)
             entity.showReaction("teary", "", 24);
@@ -345,9 +366,10 @@ public final class OperationLife {
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
         AccessoryItem.markSource(stack,entity);
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("Cut",true));
-        var item=ModRandom.created(new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack), entity.getRandom());item.setDefaultPickUpDelay();
-        if(!entity.level().addFreshEntity(item))return false;
+        var item=ItemContact.release(entity,stack,WoundPlacement.shearContact(entity,0),Vec3.ZERO);
+        if(item==null)return false;
         if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}
+        ItemContact.shearFeedback(entity,player,item);
         if(entity.isVehicle())entity.motor().interrupt("hat_taken");
         entity.life().personality().confiscated(player.getUUID());entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("surprise","lost_accessory",140);return true;
     }
@@ -383,7 +405,7 @@ public final class OperationLife {
         if(!inserted.isEmpty())tag.put("PendingReturn",inserted.save(entity.registryAccess()));return tag;
     }
     public void load(CompoundTag tag){
-        pose=Pose.NONE;operator=null;ceiling=null;remaining=elapsed=0;cooldown=Math.clamp(tag.getInt("Cooldown"),0,200);
+        pose=Pose.NONE;operator=null;ceiling=null;attachedWound=null;remaining=elapsed=0;cooldown=Math.clamp(tag.getInt("Cooldown"),0,200);
         inserted=tag.contains("PendingReturn")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("PendingReturn")):ItemStack.EMPTY;
         entity.syncOperation(Pose.NONE.name(),0);
     }

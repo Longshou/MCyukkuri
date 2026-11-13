@@ -213,7 +213,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
             model.setWear(wear);
-            model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
+            var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             PoseTap.body(entity,start,pose.last().pose(),partialTick);
@@ -286,10 +286,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 PoseTap.mouthProp(entity,"kanroken",start,pose.last().pose(),partialTick);
                 PropModels.render("kanroken",1,pose,buffers,packedLight,overlay);pose.popPose();
             }
-            if(contact.equals("PIN"))model.renderSurfaceProp("pin_tool",1,.6f,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
+            if(contact.equals("PIN")&&toolContact!=null)OperationAttachments.pin(entity,toolContact,pose,buffers,packedLight);
             if(contact.equals("VIBRATE"))model.renderSurfaceProp("care_vibrator",1,1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("ASSIST"))LiveBirthRenderer.renderDose(entity,pose,buffers,packedLight);
-            if(contact.equals("HOOK")||contact.equals("WRAPPED"))OperationAttachments.render(entity,model,pose,buffers,packedLight,contactAngle,lift,partialTick);
+            if(contact.equals("HOOK")||contact.equals("WRAPPED"))OperationAttachments.render(entity,toolContact,start,pose,buffers,packedLight,partialTick);
             if(delivery!=null)delivery.render(pose,buffers,packedLight,start,partialTick);
             model.setDelivery(null);model.setPregnancy(0,0);
             pose.popPose();

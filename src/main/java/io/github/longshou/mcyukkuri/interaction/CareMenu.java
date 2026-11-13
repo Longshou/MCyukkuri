@@ -53,7 +53,8 @@ public final class CareMenu extends AbstractContainerMenu {
         var action=CareAction.byId(id);
         if(action==null||!lists(action))return false;
         boolean done=InteractionDispatch.perform(player,target,action);
-        ((ServerPlayer)player).closeContainer();
+        if(done||!cutter)((ServerPlayer)player).closeContainer();
+        else broadcastChanges();
         return done;
     }
 }

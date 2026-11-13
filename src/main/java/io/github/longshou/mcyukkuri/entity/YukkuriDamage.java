@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.family.RemainsStem;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.BodyHit;
+import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.HurtResult;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
@@ -47,6 +48,7 @@ final class YukkuriDamage {
     BodyFood.Bite hurtBite(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.BITE).food(); }
     boolean hurtBiteWound(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.BITE_WOUND).accepted(); }
     boolean hurt(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.ATTACK).accepted(); }
+    BodyWound hurtForAttachment(DamageSource source,float amount) { return apply(source,amount,BodyHit.Kind.ATTACHMENT).wound(); }
 
     private HurtResult settle(Transaction transaction,boolean accepted) {
         if(transaction.result==null) {
@@ -65,6 +67,8 @@ final class YukkuriDamage {
             if(owner.level().isClientSide||owner.body()==null)
                 return new HurtResult(owner.hurtBase(source,amount),0,null,BodyFood.Bite.EMPTY);
             var transaction=new Transaction(owner.body().prepareHurt(source,amount,kind));
+            if(kind==BodyHit.Kind.ATTACHMENT&&(transaction.hit.strike()==null||!transaction.hit.strike().aimed()||!owner.body().canAnchorTool()))
+                return HurtResult.REJECTED;
             current=transaction;
             boolean accepted=owner.hurtBase(source,amount);
             if(accepted && source.is(DamageTypes.HOT_FLOOR))owner.life().hotFloor().burned();

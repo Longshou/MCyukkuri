@@ -110,6 +110,12 @@ public final class WoundPlacement {
     }
     public static Vec3 outlet(YukkuriEntity e,BodyWound wound){var mesh=WoundSurface.get(e.subspecies().assetId());var p=mesh.pointDisplay(wound,
             pose(e),e.body().wounds());transform(e).transformPosition(p);return e.position().add(new Vec3(p));}
+    public static Vec3 shearContact(YukkuriEntity e,int cut){
+        var mesh=WoundSurface.get(e.assetId());
+        var point=mesh.headContact(cut,e.body().hairLoss(),cut==0);
+        transform(e).transformPosition(point);
+        return e.position().add(new Vec3(point));
+    }
     public static Vec3 outward(YukkuriEntity e,BodyWound w){var mesh=WoundSurface.get(e.subspecies().assetId());var world=pose(e);var site=
             mesh.displaySite(w);var a=mesh.posedDisplay(site.triangle(),world,e.body().wounds());var b=mesh.posedDisplay(site.triangle()+1,world,
             e.body().wounds());var c=mesh.posedDisplay(site.triangle()+2,world,e.body().wounds());var n=b.sub(a).cross(c.sub(a));transform(e).transformDirection(n).normalize();return new Vec3(n);}

@@ -16,6 +16,7 @@ import org.joml.Vector3f;
 
 /** Existing injury deformation with the selected authored materials clipped to posed skin triangles. */
 final class WoundRenderer {
+    record Contact(Vector3f point,Vector3f normal) {}
     private static final int MAX_TOPOLOGIES=64;
     private static final int CHAR_MATERIAL=44, LEAK_WET_MATERIAL=45;
     private static final String[] MATERIALS={"scratch","dent","tear","scorch","scar","dirt_1","dirt_2","dirt_3",
@@ -81,6 +82,7 @@ final class WoundRenderer {
         final String expression;
         final boolean drawBody;
         final boolean corePresent;
+        final BodyWound.Site contact;
         final CavityRenderer cavity;
         final Topology topology;
         final int[] activeVertices,normalTriangles,normalSlots,uniqueVertices,copiedVertices;
@@ -98,8 +100,9 @@ final class WoundRenderer {
         final List<Mark> marks=new ArrayList<>();
         List<Face> patchFaces=List.of();
         private final boolean wet;
-        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent,boolean wet){
+        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent,boolean wet,BodyWound.Site contact){
             this.mesh=mesh;this.wounds=List.copyOf(wounds);this.signs=List.copyOf(signs);this.expression=expression;
+            this.contact=contact;
             this.corePresent=corePresent;this.wet=wet;
             drawBody=false;topology=topology(mesh,expression);int count=mesh.weights.length;
             var coreSign=signs.stream().filter(s->s.kind()==WoundKind.CORE).findFirst().orElse(null);
@@ -115,6 +118,7 @@ final class WoundRenderer {
             boolean ink=false,tone=false,textured=false;for(var mark:marks)if(mark.material<16)ink=true;else if(mark.material<32)tone=true;else textured=true;
             woundMarks=ink;toneMarks=tone;texturedMarks=textured;
             var used=new BitSet(count);
+            if(contact!=null)used.set(contact.triangle(),contact.triangle()+3);
             for(var wound:wounds)if(wound.kind()==WoundKind.TEAR&&BodySigns.open(wound)&&mesh.valid(wound))used.set(wound.triangle(),wound.triangle()+3);
             if(drawBody)used.set(0,count);
             else for(var mark:marks)for(var hit:List.of(mark.a,mark.b,mark.c))used.set(hit.triangle(),hit.triangle()+3);
@@ -307,14 +311,25 @@ final class WoundRenderer {
         var id=new SignKey(packed,weak,wounds.stream().map(HairWoundRenderer.VisibleWound::new).toList(),asset);
         var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,healthFraction));SIGNS.put(key,Map.entry(id,result));return result;
     }
-    static void render(YukkuriView e,String expression,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
+    static Contact render(YukkuriView e,String expression,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
         float health=e.getMaxHealth()<=0?1:Math.clamp(e.getHealth()/e.getMaxHealth(),0,1);
         boolean house=e.profile().houseBody();var wounds=house?scorchOnly(e.visibleWounds()):e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
         // House bodies keep independent mould and baked-sole signs, but omit wounds and old wound scars.
         var marks=visibleMarks(e);
         List<BodyWound> all=wounds;
         if(!marks.isEmpty()){all=new ArrayList<>(wounds.size()+marks.size());all.addAll(wounds);all.addAll(marks);}
-        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),true,leakOpacity,world,stack,body,buffers,light,overlay,evidence);
+        BodyWound.Site contact=null;
+        var contactId=e.contactWound();
+        if(contactId!=null){
+            var mesh=WoundSurface.get(e.assetId());
+            for(var wound:e.visibleWounds()){
+                if(!contactId.equals(wound.id()))continue;
+                var site=mesh.displaySite(wound);
+                if(mesh.valid(site))contact=site;
+                break;
+            }
+        }
+        return render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),true,leakOpacity,world,stack,body,buffers,light,overlay,evidence,contact);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
@@ -322,10 +337,10 @@ final class WoundRenderer {
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        boolean corePresent,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        render(key,asset,expression,wounds,signs,pregnancy,healthFraction,house,corePresent,0,world,stack,body,buffers,light,overlay,null);
+        render(key,asset,expression,wounds,signs,pregnancy,healthFraction,house,corePresent,0,world,stack,body,buffers,light,overlay,null,null);
     }
-    private static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
-                       boolean corePresent,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
+    private static Contact render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
+                       boolean corePresent,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence,BodyWound.Site contact){
         var propBuffers=evidence==null?buffers:evidence.buffers("prop",buffers);
         if(evidence!=null){body=evidence.buffer("body",body);buffers=evidence.buffers("body",buffers);}
         // Mechanical wounds, scars and heat now share the authored hair/skin renderer.
@@ -333,10 +348,10 @@ final class WoundRenderer {
         wounds=without(wounds,WoundKind.SCAR);
         signs=drawnSigns(signs);
         boolean wet=leakOpacity>0;
-        if(!wet&&wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
+        if(!wet&&wounds.isEmpty()&&signs.isEmpty()&&contact==null)return null;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
-        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||geometry.wet!=wet||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
-                wounds,signs,faceExpression,corePresent,wet);CACHE.put(key,geometry);}
+        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||geometry.wet!=wet||!Objects.equals(geometry.contact,contact)||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){
+            geometry=new Geometry(mesh,wounds,signs,faceExpression,corePresent,wet,contact);CACHE.put(key,geometry);}
         // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
         var temp=geometry.temp;for(int i:geometry.uniqueVertices){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;
                 k<w.length;k+=2){world[(int)w[k]].transformPosition(geometry.rest[i],temp);dest.fma(w[k+1],temp);}}
@@ -380,6 +395,12 @@ final class WoundRenderer {
             var hit=mesh.displaySite(w).hit();pointNormal(geometry,hit,geometry.na);point(geometry,hit,.09f,geometry.na,geometry.a);stack.pushPose();stack.translate(geometry.a.x/16,geometry.a.y/16,geometry.a.z/16);float s=house?.035f:.10f;
                     stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,propBuffers,light,overlay);stack.popPose();
         }}
+        if(contact==null)return null;
+        var point=new Vector3f();
+        var normal=new Vector3f();
+        pointNormal(geometry,contact.hit(),normal);
+        point(geometry,contact.hit(),0,normal,point);
+        return new Contact(point.div(16),normal);
     }
     private static Vector3f restPoint(WoundSurface mesh,WoundSurface.Hit h){return mesh.anchor(h,WoundSurface.AnchorMath.FMA);}
     private static void drawMark(Geometry g,Mark mark,PoseStack stack,VertexConsumer buffer,int light,int overlay,int material,int alpha){

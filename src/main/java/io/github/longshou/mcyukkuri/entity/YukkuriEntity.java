@@ -637,6 +637,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncOperation(String pose,float turn){ sync().syncOperation(pose, turn); }
     public void syncOperationAnchor(BlockPos anchor){ sync().syncOperationAnchor(anchor); }
     public BlockPos contactAnchor(){ return sync().contactAnchor(); }
+    public void syncOperationWound(UUID wound){sync().syncOperationWound(wound);}
+    public UUID contactWound(){return sync().contactWound();}
     public int visibleWound(){ return sync().visibleWound(); }
     public List<BodyWound> visibleWounds() { return sync().visibleWounds(); }
     public int visibleFilling(){ return sync().visibleFilling(); }
@@ -949,6 +951,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean hurtBiteWound(DamageSource source,float amount) { return damage().hurtBiteWound(source,amount); }
     @Override
     public boolean hurt(DamageSource source, float amount) { return damage().hurt(source, amount); }
+    public BodyWound hurtForAttachment(DamageSource source,float amount) { return damage().hurtForAttachment(source,amount); }
 
     @Override
     public void heal(float amount) {

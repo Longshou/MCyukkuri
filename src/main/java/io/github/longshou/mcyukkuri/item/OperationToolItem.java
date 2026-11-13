@@ -84,6 +84,8 @@ public final class OperationToolItem extends Item {
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
         lines.add(Component.translatable("operation.mcyukkuri.hint.tool").withStyle(ChatFormatting.GRAY));
-        lines.add((heatUntil(stack)!=0?CareAction.BURN:CareAction.forTool(tool)).help());
+        var level=context.level();
+        boolean hot=level==null?heatUntil(stack)!=0:isHot(stack,level);
+        lines.add((hot?CareAction.BURN:CareAction.forTool(tool)).help());
     }
 }

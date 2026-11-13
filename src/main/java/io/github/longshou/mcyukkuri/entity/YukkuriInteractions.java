@@ -35,8 +35,10 @@ final class YukkuriInteractions {
         }
         if(Consumables.water(stack))return Consumables.feed(owner,player,hand);
         // Vanilla shears carry every cut (hair, accessory, stem, sterilizing); the menu offers only the cuts that apply now.
-        if(stack.is(Tags.Items.TOOLS_SHEAR)&&hand==InteractionHand.MAIN_HAND){
-            if(player instanceof ServerPlayer server)InteractionDispatch.openCutter(server,owner);
+        if(stack.is(Tags.Items.TOOLS_SHEAR)){
+            if(hand!=InteractionHand.MAIN_HAND)return InteractionResult.PASS;
+            if(player instanceof ServerPlayer server)
+                return InteractionDispatch.openCutter(server,owner)?InteractionResult.CONSUME:InteractionResult.FAIL;
             return InteractionResult.sidedSuccess(owner.level().isClientSide);
         }
         boolean food = stack.is(YukkuriEntity.FOOD) || Toxins.dose(stack) > 0 || InfantFood.isMash(stack)

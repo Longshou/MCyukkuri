@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -77,6 +78,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<String> CONTACT_POSE=YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Float> CONTACT_TURN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Optional<BlockPos>> CONTACT_ANCHOR=YukkuriEntity.defineSyncedValue(EntityDataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Optional<UUID>> CONTACT_WOUND=YukkuriEntity.defineSyncedValue(EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Integer> HAIR_LOSS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> WEAR=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> KANROKEN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
@@ -183,9 +185,15 @@ final class YukkuriSync {
     String contactPose(){return owner.getEntityData().get(CONTACT_POSE);}
     float contactTurn(){return owner.getEntityData().get(CONTACT_TURN);}
     int visibleHairLoss(){return owner.getEntityData().get(HAIR_LOSS);}
-    void syncOperation(String pose,float turn){owner.getEntityData().set(CONTACT_POSE,pose);owner.getEntityData().set(CONTACT_TURN,turn);if(pose.equals("NONE"))syncOperationAnchor(null);}
+    void syncOperation(String pose,float turn){
+        owner.getEntityData().set(CONTACT_POSE,pose);
+        owner.getEntityData().set(CONTACT_TURN,turn);
+        if(pose.equals("NONE")){syncOperationAnchor(null);syncOperationWound(null);}
+    }
     void syncOperationAnchor(BlockPos anchor){owner.getEntityData().set(CONTACT_ANCHOR,Optional.ofNullable(anchor));}
     BlockPos contactAnchor(){return owner.getEntityData().get(CONTACT_ANCHOR).orElse(null);}
+    void syncOperationWound(UUID wound){owner.getEntityData().set(CONTACT_WOUND,Optional.ofNullable(wound));}
+    UUID contactWound(){return owner.getEntityData().get(CONTACT_WOUND).orElse(null);}
     int visibleWound(){return owner.getEntityData().get(WOUND);}
     List<BodyWound> visibleWounds() {
         if (woundsSnapshot == null) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
@@ -382,6 +390,7 @@ final class YukkuriSync {
         builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);
         builder.define(SYNDROME_PREVENTED, false);
         builder.define(CONTACT_POSE,"NONE");builder.define(CONTACT_TURN,0f);builder.define(HAIR_LOSS,0);builder.define(CONTACT_ANCHOR,Optional.empty());
+        builder.define(CONTACT_WOUND,Optional.empty());
         builder.define(GROWTH_SCALE,1f);builder.define(LIFE_STAGE,FamilyLife.Stage.ADULT.ordinal());
         builder.define(BROOD_COUNT,0);builder.define(BROOD_BORN,0);builder.define(BROOD_TYPES,0);
         builder.define(BROOD_PROGRESS,0f);builder.define(BROOD_VARIATION,1f);builder.define(SPENT_STEM,false);

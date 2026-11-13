@@ -42,6 +42,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Vanilla health is the sole live-body resource; wounds and the one-time death snapshot belong here. */
 public final class BodyLife {
+    private static final int MAX_WOUNDS=8;
     private final YukkuriEntity entity;
     private int wound,infection,ticks;
     private int mold,moldExposure;
@@ -162,6 +163,7 @@ public final class BodyLife {
     public boolean sick(){return toxin>=SICK_TOXIN;}
     public boolean weak(){return entity.isAlive()&&healthRatio()<=WEAK_HEALTH_RATIO;}
     public List<BodyWound> wounds(){return List.copyOf(wounds);}
+    public boolean canAnchorTool(){return !dying()&&wounds.size()<MAX_WOUNDS;}
     private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->injury(w)&&w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
             Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
     public boolean cutHair(int parts,Player player){
@@ -170,9 +172,10 @@ public final class BodyLife {
         final int removed=cut;
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());
             tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
-        var drop=ModRandom.created(new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack), entity.getRandom());
-        if(!entity.level().addFreshEntity(drop))return false;
+        var drop=ItemContact.release(entity,stack,WoundPlacement.shearContact(entity,cut),Vec3.ZERO);
+        if(drop==null)return false;
         hairLoss|=cut;entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
+        ItemContact.shearFeedback(entity,player,drop);
                 entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** Older wound lists may contain surface marks; those are not injuries. */
@@ -337,6 +340,7 @@ public final class BodyLife {
         var food=hit.kind()==BodyHit.Kind.BITE?BodyFood.live(entity,loss):BodyFood.Bite.EMPTY;
         var outcome=InjuryModel.decide(entity,hit,loss);
         var strike=hit.strike();
+        BodyWound committed=null;
         if(hit.coreVisibleAtHit()&&strike!=null){
             lastCoreImpact="aimed="+strike.aimed()+" contact="+hit.coreExposedAtHit()+" triangle="+strike.hit().triangle()
                     +" u="+strike.hit().u()+" v="+strike.hit().v()+" loss="+loss+" outcome="+outcome;
@@ -348,7 +352,7 @@ public final class BodyLife {
             int severity=InjuryModel.severity(entity,hit.source(),loss);
             int closest=-1;float distance=Float.MAX_VALUE;
             var point=mesh.anchor(strike.hit());
-            for(int i=0;i<wounds.size();i++){
+            for(int i=0;hit.kind()!=BodyHit.Kind.ATTACHMENT&&i<wounds.size();i++){
                 var old=wounds.get(i);
                 if(old.kind()!=strike.kind()||old.shape()!=strike.shape()||!mesh.valid(old))continue;
                 if(!strike.shape().thermal()&&BodyPart.of(mesh,old)!=strike.part())continue;
@@ -366,6 +370,7 @@ public final class BodyLife {
                 insertWound(placed);
                 for(var wound:wounds)if(wound.id().equals(placed.id())){placed=wound;break;}
             }
+            if(wounds.contains(placed))committed=placed;
             BodyWound actual=placed;String change="retained";float pointsBefore=0;
             for(var current:wounds){
                 var previous=beforeWounds.stream().filter(w->w.id().equals(current.id())).findFirst().orElse(null);
@@ -399,7 +404,7 @@ public final class BodyLife {
             }
         }
         updateMobility();entity.syncBody();
-        return new HurtResult(true,loss,hit.part(),food);
+        return new HurtResult(true,loss,hit.part(),food,committed);
     }
     /** Small server-sent burst at the struck surface point: filling crumbs, or smoke for fire; no gameplay effect. */
     private void hitParticles(InjuryModel.Strike strike,DamageSource source){
@@ -478,7 +483,7 @@ public final class BodyLife {
     public void addWound(BodyWound wound){if(!entity.isAlive())return;insertWound(wound);}
     private void insertWound(BodyWound wound){if(entity.level().isClientSide||settled)return;var mesh=WoundSurface.get(entity.subspecies().assetId());if(!mesh.valid(wound))return;
         checkSole(wound,mesh);
-        if(wounds.size()<8)wounds.add(wound);else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
+        if(wounds.size()<MAX_WOUNDS)wounds.add(wound);else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
             for(int i=0;i<wounds.size();i++){var w=wounds.get(i);float d=mesh.anchor(w).distanceSquared(p)+(w.kind()==wound.kind()?0:10000)+(w.shape()==wound.shape()?0:1000);if(d<distance){distance=d;best=i;}}
             var old=wounds.get(best);wounds.set(best,old.withSeverity(Math.min(3,old.severity()+1)));}
         refreshWounds();

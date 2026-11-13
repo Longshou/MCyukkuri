@@ -2060,7 +2060,7 @@ _source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arro
                ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
 add('wound_sources','body','用真实武器和环境造成伤','用真实武器和环境造成伤',
     '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖从空手潜行右键的照料菜单操作。一次MC命中不虚构逐齿逐刺落点',
-    '先看右后追咬，再逐类手动操作；可用钉针或铁箱，潜行空手右键选解除；清场恢复地形与实体',[
+    '先看右后追咬，再逐类手动操作；钉针和吊钩应贴住各自刺出的伤口，吊钩需要顶板；剪发和剪饰物看头部掉落并听剪声；潜行空手右键选解除；清场恢复地形与实体',[
         *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
         box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
         yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95)],
@@ -2068,7 +2068,7 @@ add('wound_sources','body','用真实武器和环境造成伤','用真实武器�
     env=DAY,vantage=(0,17),give=['minecraft:wooden_sword','minecraft:stick','minecraft:bow','minecraft:arrow 16',
         'minecraft:trident','minecraft:sand 4','minecraft:cactus 4','minecraft:pointed_dripstone 4','minecraft:tnt 2','minecraft:redstone_torch 2',
         'minecraft:flint_and_steel','minecraft:magma_block 4','mcyukkuri:orange_juice 12',
-        'mcyukkuri:pin_tool','mcyukkuri:iron_enclosure','mcyukkuri:care_awl','mcyukkuri:sandpaper_mat'],
+        'mcyukkuri:pin_tool','mcyukkuri:hanging_hook','minecraft:shears','mcyukkuri:iron_enclosure','mcyukkuri:care_awl','mcyukkuri:sandpaper_mat'],
     reads=[(f'读{label}',f'yukkuri status {sel(name)} raw') for name,_,_,label in _source_cases]
         + [('读真实咬伤',f'yukkuri status {sel("bite_target")} raw'),('读捕食交接',f'yukkuri status {sel("bite_hunter")} raw')])
 
@@ -4547,11 +4547,30 @@ _smoke('wound_sources', 320, [
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:pin_tool count=1',
     r'\[interaction\][^\n]* operation started; [^\n]* pose=BOX duration=400 reserved_item=mcyukkuri:iron_enclosure count=1',
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:iron_enclosure count=1',
+    r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:hanging_hook count=1',
+    r'\[interaction\][^\n]* shear drop; item=mcyukkuri:trimmed_hair [^\n]*above_feet=0\.[1-9]',
+    r'\[interaction\][^\n]* shear drop; item=mcyukkuri:reimu_ribbon [^\n]*above_feet=0\.[1-9]',
+    r'\[interaction\][^\n]* action=CUT_ACCESSORY success=true',
 ])
 next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
     # The headless operator is not a level player, so the ordinary operator-departure exit returns each tool on the next tick.
     (4, f'execute at {sel("blunt")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("blunt")} enclose'),
     (6, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("cut")} pin'),
+    (8, f'execute at {sel("arrow")} run setblock ~ ~3 ~ minecraft:glass'),
+    (9, f'execute at {sel("arrow")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("arrow")} hook_hang'),
+    (10, f'execute at {sel("thorn")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("thorn")} cut_left'),
+    (12, f'execute at {sel("cone")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("cone")} cut_accessory'),
+]
+
+def _wound_tool_binding(window):
+    wounds = set(re.findall(r'\[body\][^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
+    attachments = dict(re.findall(r'\[interaction\][^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window))
+    if attachments.keys() != {'PIN', 'HOOK'} or len(set(attachments.values())) != 2 or not wounds.issuperset(attachments.values()):
+        return 'pin and hook must each bind to their own committed puncture'
+
+next(s for s in S if s.id == 'wound_sources').smoke['verify'] = _wound_tool_binding
+next(s for s in S if s.id == 'wound_sources').smoke['readout'] = [
+    f'data get entity {sel("thorn")} YukkuriBody.HairLoss',
 ]
 _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
                                  rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target='])

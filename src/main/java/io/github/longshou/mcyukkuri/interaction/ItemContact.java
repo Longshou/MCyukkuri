@@ -6,13 +6,18 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -101,6 +106,14 @@ public final class ItemContact {
     /** The caller supplies the physical contact and retains the payload on a refused spawn. */
     public static ItemEntity release(Entity holder, ItemStack owned, Vec3 at, Vec3 velocity) {
         return release(holder, owned, at, velocity, ItemEntity::setDefaultPickUpDelay);
+    }
+
+    public static void shearFeedback(YukkuriEntity source,Player player,ItemEntity drop){
+        var at=drop.position();
+        drop.level().playSound(null,at.x,at.y,at.z,SoundEvents.SHEEP_SHEAR,SoundSource.PLAYERS,1,1);
+        drop.level().gameEvent(GameEvent.SHEAR,at,GameEvent.Context.of(player));
+        GameplayLog.event(source,"interaction","shear drop; item={} drop={} contact={} above_feet={}",
+                drop.getItem().getItem(),drop.getUUID(),at,at.y-source.getY());
     }
 
     private static ItemEntity release(Entity holder, ItemStack owned, Vec3 at, Vec3 velocity, Consumer<ItemEntity> pickupDelay) {

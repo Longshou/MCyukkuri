@@ -1,28 +1,47 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Draws the real support connection in world coordinates, independently of the body's facing. */
 public final class OperationAttachments {
-    public static void render(YukkuriView entity,YukkuriModel model,PoseStack pose,MultiBufferSource buffers,int light,float angle,float lift,float partial){
+    static void pin(YukkuriView entity,WoundRenderer.Contact contact,PoseStack pose,MultiBufferSource buffers,int light){
+        var point=contact.point();
+        var rotation=new Quaternionf().rotationTo(new Vector3f(0,1,0),contact.normal());
+        float scale=(entity.profile().houseBody()?.22f:.65f)*.6f;
+        pose.pushPose();
+        pose.translate(point.x,point.y,point.z);
+        pose.mulPose(rotation);
+        pose.scale(scale,scale,scale);
+        PropModels.render("pin_tool",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        pose.popPose();
+    }
+
+    static void render(YukkuriView entity,WoundRenderer.Contact contact,Matrix4f entityFrame,PoseStack pose,MultiBufferSource buffers,int light,float partial){
         var support=entity.contactAnchor();if(support==null||entity.isInvisible())return;
-        var delta=Vec3.atBottomCenterOf(support).subtract(entity.getPosition(partial));
-        var to=new Vector3f((float)delta.x,(float)delta.y,(float)delta.z).div(entity.getScale()*entity.growthScale())
-                .rotateY((float)Math.toRadians(Mth.rotLerp(partial,entity.previousBodyYaw(),entity.bodyYaw())-180));to.y-=lift;to.rotateX((float)Math.toRadians(-angle));
+        var to=Vec3.atBottomCenterOf(support).subtract(entity.getPosition(partial)).toVector3f();
+        new Matrix4f(pose.last().pose()).invert().mul(entityFrame).transformPosition(to);
         Vector3f from;
         if(entity.contactPose().equals("HOOK")){
-            // The tip, shaft orientation and rope eye all share exactly one model transform.
-            var tip=model.surfacePoint();float scale=entity.profile().operationTipScale();
+            if(contact==null)return;
+            var tip=contact.point();float scale=entity.profile().operationTipScale();
             var localTip=new Vector3f(-2.6f/16,3.1f/16,0);var localEye=new Vector3f(0,9f/16,0);
-            var rotation=new Quaternionf().rotationTo(new Vector3f(localEye).sub(localTip).normalize(),new Vector3f(to).sub(tip).normalize());
+            // The shank is on the outward side of the barb. Aim its tangent towards the support.
+            var outward=contact.normal();
+            var up=new Vector3f(to).sub(tip);
+            up.fma(-up.dot(outward),outward);
+            if(up.lengthSquared()<1e-10f)up=WoundSurface.tangent(outward);
+            else up.normalize();
+            var rotation=new Quaternionf().setFromNormalized(new Matrix3f(outward,up,new Vector3f(outward).cross(up)));
             pose.pushPose();pose.translate(tip.x,tip.y,tip.z);pose.mulPose(rotation);pose.scale(scale,scale,scale);pose.translate(-localTip.x,-localTip.y,-localTip.z);
             PropModels.render("hanging_hook",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
             from=new Vector3f(localEye).sub(localTip).mul(scale).rotate(rotation).add(tip);

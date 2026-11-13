@@ -138,6 +138,7 @@ public interface YukkuriView {
     String contactPose();
     float contactTurn();
     BlockPos contactAnchor();
+    UUID contactWound();
     /** Synced {@code FamilyLife.drainStage()}: 0 none, 1 carrying, 2 thinning, 3 weak. */
     int aftermathDrain();
     boolean stemDepletionWarning();

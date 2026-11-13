@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
+import io.github.longshou.mcyukkuri.body.HairParts;
 import io.github.longshou.mcyukkuri.body.ModelFingerprint;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.WoundMigration;
@@ -618,12 +619,6 @@ public final class YukkuriModel {
         }
     }
 
-    public Vector3f surfacePoint(){
-        locateSurface();
-        if(woundTriangle<0)return new Vector3f(0,.2f,-.3f);
-        var point=new Vector3f();var vertex=new Vector3f();
-        for(int i=0;i<3;i++){skin(woundTriangle+i,vertex);point.add(vertex);}return point.div(48);
-    }
     /**
      * Skins the worn-shell surface of the last render pose into one reused buffer (x, y, z in blocks), for attachments derived from the
      * body itself (CareWearRenderer): the body surface with its rump mark (a raised patch that shells must close over); the first
@@ -1178,7 +1173,7 @@ public final class YukkuriModel {
     private static float cameraDistanceSquared(PoseStack stack){var pose=stack.last().pose();return pose.m30()*pose.m30()+pose.m31()*pose.m31()+pose.m32()*pose.m32();}
 
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
-    public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
+    WoundRenderer.Contact renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,String expression,
             MultiBufferSource buffers){
         try{
@@ -1227,8 +1222,8 @@ public final class YukkuriModel {
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
             // The puff uses a different skin mesh; keep its clip instead of pinning the body to the sole decal.
             int soleOpacity=puffAmount>0?0:leakOpacity;
-            if(drawingSurfaceMarks||soleOpacity>0)
-                WoundRenderer.render(entity,expression,soleOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence);
+            var contact=compatible&&(drawingSurfaceMarks||soleOpacity>0||entity.contactWound()!=null)
+                    ?WoundRenderer.render(entity,expression,soleOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence):null;
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             if(leakOpacity>0&&!ExcitedLeak.FLOW_FACE.equals(expression))
@@ -1237,6 +1232,7 @@ public final class YukkuriModel {
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
             renderJunkHat(Headwear.visualJunk(headwear),stack,buffers,light,overlay);
             PoseTap.model(entity, this, accessory, hairLoss);
+            return contact;
         }finally{drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
@@ -1430,12 +1426,8 @@ public final class YukkuriModel {
         if(loss==0)return false;
         Integer mask=staticHairMasks.get(part);if(mask!=null)return (loss&mask)!=0;
         var selected=HairWoundAssets.model(id);
-        if(!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")||part.name.startsWith("wasa_")
-                ||selected!=null&&selected.hair.contains(part.name)))return false;
-        if((loss&4)!=0)return true;
-        if(part.name.contains("bang")||part.name.contains("crown")||part.name.contains("wrap")||part.name.startsWith("wasa_scalp"))return false;
         float x=0;for(int v=part.start;v<part.start+part.count;v++)x+=vertices[v*8];
-        return x<0?(loss&1)!=0:(loss&2)!=0;
+        return (HairParts.lossMask(part.name,x,selected!=null&&selected.hair.contains(part.name))&loss)!=0;
     }
     /** Ground the shared adult-state rotation and scale, including visible hair and accessories. */
     float presentationLift(float[] value, boolean accessory, int loss) {

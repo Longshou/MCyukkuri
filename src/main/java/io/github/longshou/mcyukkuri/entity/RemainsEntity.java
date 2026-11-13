@@ -211,7 +211,7 @@ public final class RemainsEntity extends Entity {
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
         var held=player.getItemInHand(hand);
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
-        if(held.is(ItemTags.SWORDS)||held.is(Tags.Items.TOOLS_SHEAR))return takeCore(player,hand);
+        if(held.is(ItemTags.SWORDS)||hand==InteractionHand.MAIN_HAND&&held.is(Tags.Items.TOOLS_SHEAR))return takeCore(player,hand);
         if(!held.isEmpty())return InteractionResult.PASS;
         if(player.isSecondaryUseActive() && JunkHeadwear.read(data())!=null){
             if(!level().isClientSide)releaseJunk(() -> {

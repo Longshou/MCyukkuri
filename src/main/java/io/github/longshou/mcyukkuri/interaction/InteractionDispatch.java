@@ -124,7 +124,8 @@ public final class InteractionDispatch {
     }
     public static boolean openCutter(ServerPlayer player,YukkuriEntity target){
         if(!requireHarmContact(player,target,5,"cutter"))return false;
-        var reason=operationRefusal(target);
+        var reason=ExamSession.running(target)?"busy":operationRefusal(target);
+        if(reason==null&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))reason="tool";
         if(reason!=null) {
             refuse(player,target,"cutter",reason);
             return false;
