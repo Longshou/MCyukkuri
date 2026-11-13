@@ -6,7 +6,7 @@
       16,
       33
     ],
-    "blocks": 11938,
+    "blocks": 11940,
     "entities": 55,
     "source": "art/structures/human-world/build.py"
   },
@@ -17,7 +17,7 @@
       16,
       41
     ],
-    "blocks": 12299,
+    "blocks": 12301,
     "entities": 55,
     "source": "art/structures/human-world/build.py"
   },

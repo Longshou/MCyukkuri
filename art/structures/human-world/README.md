@@ -61,6 +61,8 @@
 - 初始库存：展舱里金章爱丽丝（六项技能）、子油灵梦与子油橙；捕食种房里银章蕾米莉亚（六项技能）与子油芙兰；后院放养子油魔理沙、帕秋莉、灵梦。子油以真实年龄写入 `YukkuriFamily.Age`；资格与已学技能写入根 `YukkuriPet.Grade`／`KnownSkills`，五属性写入 `YukkuriLife.Personality.Innate`。首次绑定店员时，已有资格的库存补齐发证编号、发证者与有效期。
 - 考场（x24–38）：口试区（答题台对考官桌、躲藏箱、两个约定席）、7×5 玻璃模拟房间（`exam_mark` room、窗外观察位 examiner）、陪考生栏（三个 trainee 标记，门通模拟房间）、金章间（3×3 两格由玻璃隔开：gold／actor）。
 
+`author_furniture.py` 制作街面、商店与屋内共用的木长椅（`wooden_bench`）和木桌（`wooden_table`）：原生方块模型，像素贴图取共用色板 `wood`；相邻同类自动连成一条长椅或一张大桌，腿只在外端与外角。长椅无靠背，椅面顶在 8/16 格（与半砖同高，流浪油的长椅短睡照常攀上），单节即凳子；木桌面顶在整格，寻路绕行。结构与试玩场用 `build.furniture`／`museum_dsl.furniture` 写出带连接状态的方块。离线新旧对比：`<py> preview_furniture.py --minecraft-resources <原版客户端 jar>` 输出到 `.local/previews/art-decor/`。
+
 `author_exam_props.py` 绘制并导出三个考场功能方块（答题台、躲藏箱、考位标记，`kind` 含 room／promise／actor／gold／trainee／examiner）的贴图与模型，躲藏箱内部宽 14/16、高 15/16，容得下全部普通与捕食成体，不含胖大的 deibu。`check_structure.py` 在 `export_human_world.py` 导出与 `--check` 中运行：检查方块覆盖、实体占位与地板、栏内食盆窝位、地面光照 ≥8（按灯笼泛光计算）、门高、员工可达性、立面单一材质不超过 6×6、屋顶占比。
 
 考官为 caretaker_brother。顶灯嵌入 y8 天花板，使用赭黄蛙明灯，约每 6 格地面一盏以保证地面光照 ≥8；柜台与过道上方保留少量吊灯。`check_structure.py` 另查：有员工门的栏（展舱、捕食种房、后院）四壁从地面到天花板不留空、员工门是框在墙线里的双开铁门且门内外各有可走格，捕食种房顶部封闭。

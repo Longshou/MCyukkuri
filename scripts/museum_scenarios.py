@@ -17,7 +17,7 @@ import uuid
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, tag, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
+from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, furniture, home, sel, sel_all, tag, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
 from museum_fields import FIELDS, BY_ID, FEET, den  # noqa: E402
 
 # Scene numbers: the field's code and a two-digit index (``PD-03``), so a visitor can name a scene out loud. The file is the
@@ -1817,9 +1817,7 @@ add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐�
         box(-11, -1, -4, 12, -1, 4, 'minecraft:polished_andesite'),
         box(-9, 3, -2, -3, 3, 2, 'minecraft:spruce_planks'),
         box(-1, 3, -3, 3, 3, 1, 'minecraft:spruce_planks'),
-        block(-7, 0, 0, 'minecraft:oak_stairs[facing=south]'),
-        block(-6, 0, 0, 'minecraft:oak_slab[type=bottom]'),
-        block(-5, 0, 0, 'minecraft:oak_stairs[facing=south]'),
+        *furniture('bench', 0, [(-7, 0), (-6, 0), (-5, 0)]),
         block(2, -1, 0, 'minecraft:water[level=0]'),
         block(10, 1, -3, 'minecraft:barrel[facing=west]'),
         block(11, 0, -3, 'minecraft:spruce_fence'),

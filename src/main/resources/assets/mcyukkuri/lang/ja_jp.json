@@ -6591,5 +6591,9 @@
   "shop.mcyukkuri.protect.frame": "額の中は見本。購入は店員へ。",
   "shop.mcyukkuri.protect.stock": "これは店の商品。買うまでは触れません。",
   "shop.mcyukkuri.reserve.expired": "%sの予約は3日で期限切れ。再び販売中、手付 %s エメラルドは返りません。",
-  "shop.mcyukkuri.reserve.animal": "予約していた個体"
+  "shop.mcyukkuri.reserve.animal": "予約していた個体",
+  "item.mcyukkuri.wooden_bench": "ベンチ",
+  "block.mcyukkuri.wooden_bench": "ベンチ",
+  "item.mcyukkuri.wooden_table": "木のテーブル",
+  "block.mcyukkuri.wooden_table": "木のテーブル"
 }

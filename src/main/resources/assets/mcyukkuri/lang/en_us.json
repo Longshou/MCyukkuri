@@ -6649,5 +6649,9 @@
   "human.mcyukkuri.street.stop": "Stop. Let it go.",
   "human.mcyukkuri.street.player_frown": "Don't hit it.",
   "human.mcyukkuri.street.crop": "Leave the crops alone. Back away.",
-  "human.mcyukkuri.street.crop_frown": "Oh, something took a bite out of the crops."
+  "human.mcyukkuri.street.crop_frown": "Oh, something took a bite out of the crops.",
+  "item.mcyukkuri.wooden_bench": "Wooden Bench",
+  "block.mcyukkuri.wooden_bench": "Wooden Bench",
+  "item.mcyukkuri.wooden_table": "Wooden Table",
+  "block.mcyukkuri.wooden_table": "Wooden Table"
 }

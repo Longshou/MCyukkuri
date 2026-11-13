@@ -1,0 +1,79 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "mcyukkuri:block/village_wood_planks",
+    "planks": "mcyukkuri:block/village_wood_planks",
+    "side": "mcyukkuri:block/village_wood_side",
+    "post": "mcyukkuri:block/village_wood_post"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        10,
+        1
+      ],
+      "to": [
+        13,
+        13,
+        2
+      ],
+      "faces": {
+        "up": {
+          "texture": "#side",
+          "uv": [
+            3,
+            1,
+            13,
+            2
+          ]
+        },
+        "down": {
+          "texture": "#side",
+          "uv": [
+            3,
+            1,
+            13,
+            2
+          ]
+        },
+        "north": {
+          "texture": "#side",
+          "uv": [
+            3,
+            0,
+            13,
+            3
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            3,
+            0,
+            13,
+            3
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            1,
+            0,
+            2,
+            3
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            14,
+            0,
+            15,
+            3
+          ]
+        }
+      }
+    }
+  ]
+}

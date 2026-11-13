@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'art/structures/human-world'))
+from author_furniture import joined as _joined, state as _state  # noqa: E402
 
 SCN = 'scn'                 # tag carried by every scenario individual, item and prop entity
 OBJ = 'museum'
@@ -176,6 +178,14 @@ def large_nest(dx, dz, block):
 
 def box(dx1, dy1, dz1, dx2, dy2, dz2, state, mode=''):
     return f'fill ~{dx1} ~{dy1} ~{dz1} ~{dx2} ~{dy2} ~{dz2} {state}' + (' ' + mode if mode else '')
+
+
+def furniture(kind, y, cells, axis='x', relative=True):
+    """A wooden bench (along ``axis``; one cell is a stool) or table over the (x, z) cells, written with the joins the blocks compute
+    (art/structures/human-world/author_furniture.py). ``relative`` places at the scenario anchor, otherwise at world coordinates."""
+    at = '~' if relative else ''
+    return [f'setblock {at}{x} {at}{y} {at}{z} mcyukkuri:wooden_{kind}{_state(props)}'
+            for (x, z), props in _joined('wooden_' + kind, cells, axis).items()]
 
 
 def shed(dx, dz, half=2, height=3):

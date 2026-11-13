@@ -89,6 +89,9 @@ public final class ModCreativeTabs {
                     HumanWorld.GOLD_BADGE, HumanWorld.PLATINUM_BADGE, HumanWorld.BADGE_HANDBOOK)) event.accept(item.get());
             event.accept(HumanWorld.EXAM_PODIUM.get()); event.accept(HumanWorld.EXAM_HIDE_BOX.get()); event.accept(HumanWorld.EXAM_MARK.get());
         }
+        if (event.getTabKey().location().equals(MCYukkuri.id("yukkuri_world"))) {
+            event.accept(HumanWorld.WOODEN_BENCH.get()); event.accept(HumanWorld.WOODEN_TABLE.get());
+        }
     }
 
     /** Called through FreezerModule's existing automatic MOD-bus subscriber. */

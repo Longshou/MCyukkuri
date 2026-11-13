@@ -25,6 +25,10 @@ def main(check=False):
             errors.extend(lang+':'+k for k,v in language(lang=='zh_cn').items() if actual.get(k)!=v)
         actual=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json').read_text(encoding='utf-8'))
         errors.extend('ja_jp:'+k for k,v in load('art/structures/human-world/author_exam_props.py','exam_props_language').language('ja_jp').items() if actual.get(k)!=v)
+        furniture=load('art/structures/human-world/author_furniture.py','furniture_language')
+        for lang in ['zh_cn','en_us','ja_jp']:
+            actual=json.loads((ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))
+            errors.extend(lang+':'+k for k,v in furniture.language(lang).items() if actual.get(k)!=v)
         checks=load('art/structures/human-world/check_structure.py','shop_structure_check')
         errors.extend('shop structure: '+e for e in checks.check_shop()+checks.check_street())
         if errors:raise SystemExit('Human-world assets differ: '+', '.join(errors))
@@ -35,13 +39,14 @@ def main(check=False):
     load('art/structures/human-world/author_products.py','build_human_products').export()
     load('art/structures/human-world/author_pipeline.py','build_factory_pipeline').export()
     exam=load('art/structures/human-world/author_exam_props.py','build_exam_props'); exam.export()
+    furniture=load('art/structures/human-world/author_furniture.py','build_furniture'); furniture.export()
     checks=load('art/structures/human-world/check_structure.py','shop_structure_check')
     problems=checks.check_shop()+checks.check_street()
     if problems: raise SystemExit('Shop structure checks failed: '+'; '.join(problems))
-    p=ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(exam.language('ja_jp'))
+    p=ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(exam.language('ja_jp'));data.update(furniture.language('ja_jp'))
     p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     for lang in ['zh_cn','en_us']:
-        p=ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(language(lang=='zh_cn'))
+        p=ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(language(lang=='zh_cn'));data.update(furniture.language(lang))
         p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     for id in ['oniisan','caretaker_brother','caretaker_sister']:
         p=ROOT/f'src/main/resources/assets/mcyukkuri/models/item/{id}_spawn_egg.json';p.write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8',newline='\n')
@@ -50,7 +55,10 @@ def main(check=False):
               'src/main/resources/assets/mcyukkuri/textures/entity/human/*.png','standards/yukkuri-library/textures/human/*.png',
               'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*',
               'src/main/resources/assets/mcyukkuri/textures/block/exam_*.png','src/main/resources/assets/mcyukkuri/models/block/exam_*.json','src/main/resources/assets/mcyukkuri/models/item/exam_*.json',
-              'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json']
+              'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json',
+              'src/main/resources/assets/mcyukkuri/textures/block/village_wood_*.png','src/main/resources/assets/mcyukkuri/models/*/wooden_*.json',
+              'src/main/resources/assets/mcyukkuri/blockstates/wooden_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/wooden_*.json',
+              'src/main/resources/data/mcyukkuri/recipe/wooden_*.json','src/main/resources/data/minecraft/tags/block/mineable/axe.json']
     paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'standards/yukkuri-library/tools/author_staff_skins.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
@@ -60,6 +68,8 @@ def main(check=False):
     paths.append(ROOT/'art/structures/human-world/pipeline_language.py')
     paths.extend([ROOT/'art/structures/human-world/author_exam_props.py',ROOT/'art/structures/human-world/check_structure.py',ROOT/'art/structures/human-world/author_street.py'])
     paths.extend(ROOT.glob('src/main/java/io/github/longshou/mcyukkuri/human/Exam*Block.java'))
+    paths.append(ROOT/'art/structures/human-world/author_furniture.py')
+    paths.extend(ROOT/f'src/main/java/io/github/longshou/mcyukkuri/human/{n}.java' for n in ('JoinedFurnitureBlock','WoodenBenchBlock','WoodenTableBlock'))
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/FactoryStationBlock.java')

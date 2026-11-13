@@ -51,6 +51,10 @@ public final class HumanWorld {
             () -> new ExamHideBoxBlock(BlockBehaviour.Properties.of().strength(.4f).sound(SoundType.WOOL).noOcclusion()));
     public static final DeferredBlock<ExamMarkBlock> EXAM_MARK = simple("exam_mark",
             () -> new ExamMarkBlock(BlockBehaviour.Properties.of().strength(.2f).sound(SoundType.WOOL).noCollission().noOcclusion()));
+    public static final DeferredBlock<WoodenBenchBlock> WOODEN_BENCH = simple("wooden_bench",
+            () -> new WoodenBenchBlock(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
+    public static final DeferredBlock<WoodenTableBlock> WOODEN_TABLE = simple("wooden_table",
+            () -> new WoodenTableBlock(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
     public static final DeferredHolder<EntityType<?>, EntityType<FactoryTray>> TRAY = ENTITIES.register("factory_tray", () -> EntityType.Builder.<FactoryTray>of(FactoryTray::new, MobCategory.MISC)
             .sized(.95f, .25f).clientTrackingRange(10).build(MCYukkuri.id("factory_tray").toString()));
     public static final DeferredItem<Item> MANJU = ITEMS.register("yukkuri_manju", () -> new Item(new Item.Properties()

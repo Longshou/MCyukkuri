@@ -1,0 +1,34 @@
+{
+  "status": "pending_user_confirmation",
+  "author": "Original procedural pixel art; no external source pixels.",
+  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours",
+  "models": [
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_east_end.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_middle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_single.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top.json"
+  ],
+  "assets": {
+    "village_wood_planks": {
+      "source": "art/structures/human-world/products/village_wood_planks.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_planks.png",
+      "sha256": "d3bd5c793a3133ce44806a3ee037316420bb01eeb06ea13911e8a05272167028"
+    },
+    "village_wood_side": {
+      "source": "art/structures/human-world/products/village_wood_side.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_side.png",
+      "sha256": "be385ae71480e70f37e9db2931612dd70ca3985c9dec6922b2de42a1193e3894"
+    },
+    "village_wood_post": {
+      "source": "art/structures/human-world/products/village_wood_post.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_post.png",
+      "sha256": "391bb3aed2e4f46631bddae252b3a343f586549d28705ebde68f31336e66c62e"
+    }
+  }
+}

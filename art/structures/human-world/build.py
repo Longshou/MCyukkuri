@@ -153,6 +153,10 @@ def stairs(b,x,y,z,name,facing,half='bottom'):
 def slab(b,x,y,z,name,kind='bottom'):
     b.block(x,y,z,name+'_slab',{'type':kind,'waterlogged':'false'})
 def barrel(b,x,y,z,facing='up'): b.block(x,y,z,'barrel',{'facing':facing,'open':'false'})
+def furniture(b,kind,y,cells,axis='x'):
+    """A wooden bench (along axis; one cell is a stool) or table over the (x, z) cells, joined as the blocks join (author_furniture.py)."""
+    import author_furniture
+    for (x,z),props in author_furniture.joined('wooden_'+kind,cells,axis).items(): b.block(x,y,z,'mcyukkuri:wooden_'+kind,props)
 def mark(b,x,z,kind): b.block(x,3,z,'mcyukkuri:exam_mark',{'kind':kind})
 def glass(b,a,c,y0=3,y1=7,full=False,top=5):
     """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..top)."""
@@ -264,7 +268,7 @@ def shop():
     # Planting and benches on the pavement.
     for x0,x1 in [(1,7),(33,39)]: b.box((x0,3,0),(x1,3,0),'flowering_azalea_leaves',{'persistent':'true','distance':'7'})
     for x in (9,15,23,31): b.block(x,3,1,'potted_azalea_bush')
-    for x in (3,5,35,37): stairs(b,x,3,1,'birch','north')
+    for x0 in (3,35): furniture(b,'bench',3,[(x,1) for x in range(x0,x0+3)])
     # Gabled roofs over the front block and the rear block east of the backyard (back room and exam wing); roof is 4 rows on a 6-row facade (y 3..8).
     roof(b,3,16); roof(b,17,30,16)
     b.box((6,9,3),(18,15,3),Q)   # false front carries the sign board
@@ -355,11 +359,11 @@ def shop():
     # ---- Exam hall (x 24..38, z 4..29).
     # Oral area: podium faces the examiner desk; hide corner; two promise seats.
     b.block(34,3,5,'mcyukkuri:exam_podium',{'facing':'south'})
-    b.box((33,3,7),(35,3,7),'dark_oak_planks'); b.block(34,4,7,'oak_pressure_plate',{'powered':'false'})
+    furniture(b,'table',3,[(x,7) for x in (33,34,35)])
     b.human(34.5,10.5,'caretaker_brother',3,1,'shop_examiner')
     b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
-    for z in (5,6): stairs(b,24,3,z,'birch','east')
+    furniture(b,'bench',3,[(24,5),(24,6)],'z')
     b.sign(33,3,5,['答题台','考生站上台面','考官在对面桌后'],'8')
     # Mock living room (7x5 interior) with glass walls, window observation spot and entrance door.
     pen_rect(b,29,14,35,18); b.door(30,3,13)
@@ -382,7 +386,7 @@ def shop():
     register_pen(b,'actor',(33,23,35,25),(33,25),[(35,25)],(3,3))
     b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8')
     # Records corner at the south end.
-    b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); stairs(b,26,3,28,'birch','east'); stairs(b,27,3,28,'birch','west')
+    b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); furniture(b,'bench',3,[(26,28)],'z'); furniture(b,'table',3,[(27,28)])
     # Rugs and plants keep the rooms warm and lived-in.
     for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,12),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
     carpet(b,11,4,13,5,'red'); carpet(b,18,13,21,15,'light_blue'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
@@ -436,7 +440,7 @@ def specialized_factory(kind):
     b.box((3,2,8),(37,2,8),'yellow_concrete')
     b.box((3,3,9),(37,6,9),'glass');b.door(20,3,9)
     for x in (7,31):
-        b.box((x,3,4),(x+3,3,4),'dark_oak_stairs',{'facing':'south','half':'bottom','shape':'straight','waterlogged':'false'})
+        furniture(b,'bench',3,[(xx,4) for xx in range(x,x+4)])
     b.sign(12,3,6,['收货 / 成品采购','交付运输箱内个体','每笔 3 绿宝石','原料补给 ×8'])
     b.sign(28,3,6,['生产须消耗原料','成品库存最多 16','育成遵守成长周期' if kind!='labor' else '油库里劳动 · 不发工资','成品向工人购买'])
     # Open staff office, material cages and sleeping/service rooms at the east side.
@@ -522,9 +526,7 @@ def village_shop(original):
     lot.box((0, 0, 3), (width - 1, 0, 5), 'gravel')
     for x in (4, 34):
         lot.box((x, 0, 6), (x + 3, 0, 7), 'grass_block', {'snowy': 'false'})
-        stairs(lot, x, 1, 7, 'oak', 'south')
-        slab(lot, x + 1, 1, 7, 'oak')
-        stairs(lot, x + 2, 1, 7, 'oak', 'south')
+        furniture(lot, 'bench', 1, [(x + i, 7) for i in range(3)])
         barrel(lot, x + 3, 1, 7)
 
     def jigsaw(x, z, facing, name, target='minecraft:empty', pool='minecraft:empty'):

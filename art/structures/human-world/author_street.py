@@ -15,7 +15,7 @@ from pathlib import Path
 import json, math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 import build
-from build import Building, stairs, slab, barrel, marker, frame, register_pen, name_at, string, byte, integer, compound, sequence, integers, long_, real
+from build import Building, stairs, slab, barrel, furniture, marker, frame, register_pen, name_at, string, byte, integer, compound, sequence, integers, long_, real
 
 OUT = build.OUT
 OPP = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
@@ -206,7 +206,7 @@ def street_stall():
     b.block(2, 1, 9, 'composter', {'level': '3'})
     # Sidewalks: lamps and a bench facing the lane.
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
-    stairs(b, 4, 1, 1, 'oak', 'north'); slab(b, 5, 1, 1, 'oak'); stairs(b, 6, 1, 1, 'oak', 'north')
+    furniture(b, 'bench', 1, [(4, 1), (5, 1), (6, 1)])
     for x, plant in [(3, 'potted_poppy'), (7, 'potted_dandelion')]: b.block(x, 1, 1, plant)
     street_residents(b, (5, 2), (8, 7))
     street_ends(b, W)
@@ -408,18 +408,17 @@ def oni_shop():
         ground_display(b, x, 4, 16, item, yaw=35. * x)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
-    # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a low demo table in the main
+    # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a demo table in the main
     # aisle with tools laid out on it, sacks against the counter end.
     for x, z, h in [(8, 4, 2), (9, 4, 1), (8, 5, 1)]:
         for y in range(3, 3 + h): barrel(b, x, y, z, 'up' if y == 3 else 'south')
     ground_display(b, 8, 5, 4, 'mcyukkuri:care_mallet', yaw=80.)
-    for z in (9, 10): b.block(12, 3, z, 'dark_oak_slab', {'type': 'top', 'waterlogged': 'false'})
+    furniture(b, 'table', 3, [(12, 9), (12, 10)])
     for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: ground_display(b, 12, 4, z, item, yaw=25. * z, scale=.5)
     b.block(14, 3, 15, 'hay_block', LOG)
     for x, z in [(10, 6), (11, 6), (12, 6), (13, 6), (11, 7), (12, 7)]: b.block(x, 3, z, 'brown_carpet')
     # Customer nook by the east street window: a small table under the window with a chair on each side, the cages in view.
-    b.block(19, 3, 4, 'spruce_fence'); b.block(19, 4, 4, 'spruce_pressure_plate', {'powered': 'false'})
-    stairs(b, 18, 3, 4, 'spruce', 'west'); stairs(b, 20, 3, 4, 'spruce', 'east')
+    furniture(b, 'table', 3, [(19, 4)]); furniture(b, 'bench', 3, [(18, 4)], 'z'); furniture(b, 'bench', 3, [(20, 4)], 'z')
     for x, z in [(22, 4), (15, 4)]: b.block(x, 3, z, 'potted_dead_bush')
     # Staff wall to the back room: 2-wide iron door, a barred window onto the treatment bench.
     b.box((2, 3, 19), (14, 6, 19), 'spruce_planks')

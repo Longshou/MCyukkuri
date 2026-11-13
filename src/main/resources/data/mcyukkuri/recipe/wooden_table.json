@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "ppp",
+    "t t"
+  ],
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "t": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "mcyukkuri:wooden_table",
+    "count": 1
+  }
+}

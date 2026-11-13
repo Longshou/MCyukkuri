@@ -1,0 +1,32 @@
+{
+  "variants": {
+    "axis=x,east=false,west=false": {
+      "model": "mcyukkuri:block/wooden_bench_single"
+    },
+    "axis=z,north=false,south=false": {
+      "model": "mcyukkuri:block/wooden_bench_single",
+      "y": 90
+    },
+    "axis=x,east=true,west=false": {
+      "model": "mcyukkuri:block/wooden_bench_west_end"
+    },
+    "axis=z,north=false,south=true": {
+      "model": "mcyukkuri:block/wooden_bench_west_end",
+      "y": 90
+    },
+    "axis=x,east=true,west=true": {
+      "model": "mcyukkuri:block/wooden_bench_middle"
+    },
+    "axis=z,north=true,south=true": {
+      "model": "mcyukkuri:block/wooden_bench_middle",
+      "y": 90
+    },
+    "axis=x,east=false,west=true": {
+      "model": "mcyukkuri:block/wooden_bench_east_end"
+    },
+    "axis=z,north=true,south=false": {
+      "model": "mcyukkuri:block/wooden_bench_east_end",
+      "y": 90
+    }
+  }
+}

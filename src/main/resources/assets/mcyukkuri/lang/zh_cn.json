@@ -6647,5 +6647,9 @@
   "human.mcyukkuri.street.stop": "住手，让它走。",
   "human.mcyukkuri.street.player_frown": "别打它。",
   "human.mcyukkuri.street.crop": "别吃地里的庄稼，离远一点。",
-  "human.mcyukkuri.street.crop_frown": "哎，庄稼少了一口。"
+  "human.mcyukkuri.street.crop_frown": "哎，庄稼少了一口。",
+  "item.mcyukkuri.wooden_bench": "长椅",
+  "block.mcyukkuri.wooden_bench": "长椅",
+  "item.mcyukkuri.wooden_table": "木桌",
+  "block.mcyukkuri.wooden_table": "木桌"
 }

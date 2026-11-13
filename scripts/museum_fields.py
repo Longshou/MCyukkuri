@@ -13,6 +13,7 @@ import random
 import sys
 
 sys.dont_write_bytecode = True
+from museum_dsl import furniture  # noqa: E402
 
 GROUND = 63            # top block of the flat world
 FEET = GROUND + 1
@@ -494,8 +495,8 @@ class House(Field):
         out += [f'setblock {x1 + 1} {FEET} {cz + 2} minecraft:red_bed[facing=north,part=head]', f'setblock {x1 + 1} {FEET} {cz + 3} minecraft:red_bed[facing=north,part=foot]']
         out += [f'setblock {x2 - 1} {FEET} {cz + 3} minecraft:furnace[facing=west]', f'setblock {x2 - 1} {FEET} {cz + 2} minecraft:smoker[facing=west]',
                 f'setblock {x2 - 1} {FEET} {cz + 1} minecraft:crafting_table', f'setblock {x2 - 1} {FEET} {cz} minecraft:cauldron']
-        out += [f'setblock {cx} {FEET} {cz} minecraft:oak_fence', f'setblock {cx} {FEET + 1} {cz} minecraft:oak_pressure_plate',
-                f'setblock {cx - 1} {FEET} {cz} minecraft:oak_stairs[facing=east]', f'setblock {cx + 1} {FEET} {cz} minecraft:oak_stairs[facing=west]']
+        out += furniture('table', FEET, [(cx, cz)], relative=False)
+        out += furniture('bench', FEET, [(cx - 1, cz)], 'z', relative=False) + furniture('bench', FEET, [(cx + 1, cz)], 'z', relative=False)
         # a small fenced pen with a sheep to shear, south-west of the house
         out += [fill(x1 - 8, FEET, cz - 1, x1 - 4, FEET, cz - 1, 'minecraft:oak_fence'),
                 fill(x1 - 8, FEET, cz + 3, x1 - 4, FEET, cz + 3, 'minecraft:oak_fence'),
@@ -517,7 +518,7 @@ class Town(Field):
             for pz in (self.cz - 8, self.cz + 8):
                 out += [fill(px, FEET, pz, px, FEET + 2, pz, 'minecraft:oak_fence'), f'setblock {px} {FEET + 3} {pz} minecraft:lantern']
         for bx in (self.cx - 12, self.cx + 12):
-            out += [f'setblock {bx} {FEET} {self.cz + 3} minecraft:oak_stairs[facing=north]', f'setblock {bx + 1} {FEET} {self.cz + 3} minecraft:oak_stairs[facing=north]']
+            out += furniture('bench', FEET, [(bx, self.cz + 3), (bx + 1, self.cz + 3)], relative=False)
         out += tree(self.cx - 16, self.cz - 16) + tree(self.cx + 16, self.cz + 16) + tree(self.cx - 16, self.cz + 16, height=4) + tree(self.cx + 16, self.cz - 16, height=4)
         return out
 

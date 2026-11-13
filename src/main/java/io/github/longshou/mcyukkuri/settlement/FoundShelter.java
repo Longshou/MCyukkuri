@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.WoodenBenchBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -194,8 +195,11 @@ public final class FoundShelter implements MotorOwner {
         return benchFacing(pos) == null ? roofKind(level(), pos) : StreetSpot.BENCH;
     }
 
+    /** A bench seat: any wooden bench piece, or a player-built slab between two like stairs. */
     private Direction benchFacing(BlockPos pos) {
-        if (!(level().getBlockState(pos).getBlock() instanceof SlabBlock)) return null;
+        var seat = level().getBlockState(pos);
+        if (seat.getBlock() instanceof WoodenBenchBlock) return WoodenBenchBlock.front(seat);
+        if (!(seat.getBlock() instanceof SlabBlock)) return null;
         for (var side : new Direction[]{Direction.EAST, Direction.NORTH}) {
             var a = level().getBlockState(pos.relative(side));
             var b = level().getBlockState(pos.relative(side.getOpposite()));
@@ -208,8 +212,8 @@ public final class FoundShelter implements MotorOwner {
     private boolean planStreet(BlockPos here) {
         var options = new ArrayList<BlockPos>();
         for (var pos : BlockPos.betweenClosed(here.offset(-RADIUS, -1, -RADIUS), here.offset(RADIUS, 1, RADIUS))) {
-            if (!level().hasChunkAt(pos) || refusing(pos) || !body.life().dryStand(pos)
-                    && !(level().getBlockState(pos).getBlock() instanceof SlabBlock) || kindAt(pos) == null) continue;
+            if (!level().hasChunkAt(pos) || refusing(pos) || !body.life().dryStand(pos) && benchFacing(pos) == null
+                    || kindAt(pos) == null) continue;
             options.add(pos.immutable());
         }
         boolean rain = level().isRaining();

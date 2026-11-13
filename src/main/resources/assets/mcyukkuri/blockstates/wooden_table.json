@@ -1,0 +1,161 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_top"
+      }
+    },
+    {
+      "when": {
+        "north": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg"
+      }
+    },
+    {
+      "when": {
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron"
+      }
+    },
+    {
+      "when": {
+        "north": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west"
+      }
+    },
+    {
+      "when": {
+        "north": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east"
+      }
+    },
+    {
+      "when": {
+        "east": "false",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "false",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "false",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east",
+        "y": 270
+      }
+    }
+  ]
+}
