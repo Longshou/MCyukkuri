@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 物品画风统一与清理（玩具、装置、药，删重复与无用） | `.worktrees/wp-it-item-style-cleanup` | item registry, item models/textures, art/props, recipes, lang, creative tab |
+| 纸箱返工、垃圾桶方块与垃圾闭环 | `.worktrees/wp-art-box-bin` | settlement/ShelterBlock, cardboard_shelter assets, wild-shelters source, new trash bin block |
 
 ## 玩法待办
 
