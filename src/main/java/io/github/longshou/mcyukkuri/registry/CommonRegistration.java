@@ -70,6 +70,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import net.neoforged.neoforge.event.level.ChunkDataEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -158,6 +159,9 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerWakeUpEvent.class, HouseholdEcology::woke);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.BreakEvent.class, HouseholdEcology::broke);
+        // Pet beds overhang their diagonal cells too, which send no shape update: a block change there refits them.
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.NeighborNotifyEvent.class,
+                event -> PetNestBlock.nearbyChanged(event.getLevel(), event.getPos()));
         // Pet shops: nothing is destroyed inside and stock is not handled before it is bought; first, so later handlers see the cancellation.
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, BlockEvent.BreakEvent.class, ShopProtection::broke);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, BlockEvent.EntityPlaceEvent.class, ShopProtection::placed);

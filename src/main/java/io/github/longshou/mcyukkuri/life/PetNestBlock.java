@@ -26,9 +26,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * The one-block pet bed in three grades (straw, cushion, velvet; one shape, drafts/care-props/placed.py pet_nest). Its round
  * roll reaches 5.3 past the block on every side; a side whose neighbouring block reaches into that band is flattened flush
  * with the block face, like connected blocks (NORTH..WEST true = flattened), so the roll never pokes into a block. FACING is
- * the entrance (the low lip), chosen at placement toward the placer, else the next open side clockwise; with no open side the
- * bed is not placed. A block set in front of the entrance later turns it to the next open side; enclosed on all four sides it
- * stays where it was, flattened too (then no stand is found outside it).
+ * the entrance (the low lip): the first side from the placer clockwise that is not flattened and has walking room in the cell
+ * outside it; with none the bed is not placed. A diagonal block flattens the corner's other side(s) so nothing enters the
+ * diagonal cell. Later block changes refit it the same way (entrance turned if its side closes); enclosed it keeps its entrance.
  */
 public final class PetNestBlock extends CareBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -82,48 +82,89 @@ public final class PetNestBlock extends CareBlock {
     }
 
     /** Whether the neighbour's collision reaches into the band the roll would overhang on that side, above floor coverings. */
-    static boolean blocks(BlockGetter level, BlockPos pos, Direction side) {
+    private static boolean blocks(BlockGetter level, BlockPos pos, Direction side) {
         var next = pos.relative(side);
-        var shape = level.getBlockState(next).getCollisionShape(level, next);
-        if (shape.isEmpty()) return false;
         double near = side.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 0 : 1 - OVERHANG;
-        var band = side.getAxis() == Direction.Axis.X ? Shapes.box(near, .125, 0, near + OVERHANG, TOP, 1)
-                : Shapes.box(0, .125, near, 1, TOP, near + OVERHANG);
-        return Shapes.joinIsNotEmpty(shape, band, BooleanOp.AND);
+        return intrudes(level, next, side.getAxis() == Direction.Axis.X ? Shapes.box(near, .125, 0, near + OVERHANG, TOP, 1)
+                : Shapes.box(0, .125, near, 1, TOP, near + OVERHANG));
+    }
+    /** Whether the diagonal neighbour between sides {@code a} and {@code b} reaches into the corner the round roll overhangs. */
+    private static boolean blocksCorner(BlockGetter level, BlockPos pos, Direction a, Direction b) {
+        var cell = pos.relative(a).relative(b);
+        int sx = a.getStepX() + b.getStepX(), sz = a.getStepZ() + b.getStepZ();
+        double x = sx > 0 ? 0 : 1 - OVERHANG, z = sz > 0 ? 0 : 1 - OVERHANG;
+        return intrudes(level, cell, Shapes.box(x, .125, z, x + OVERHANG, TOP, z + OVERHANG));
+    }
+    private static boolean intrudes(BlockGetter level, BlockPos cell, VoxelShape band) {
+        var shape = level.getBlockState(cell).getCollisionShape(level, cell);
+        return !shape.isEmpty() && Shapes.joinIsNotEmpty(shape, band, BooleanOp.AND);
+    }
+    /** Whether a body can stand in the cell outside that side (nothing above floor coverings there; the walking clearance of
+     *  the bodies a bed holds, at most one block tall). Separate from the mesh test above. */
+    private static boolean walkable(BlockGetter level, BlockPos pos, Direction side) {
+        var cell = pos.relative(side);
+        var shape = level.getBlockState(cell).getCollisionShape(level, cell);
+        return shape.isEmpty() || shape.max(Direction.Axis.Y) <= .125;
+    }
+
+    /**
+     * The bed fitted to its eight neighbours: sides whose cardinal neighbour reaches into the overhang are flattened; the
+     * entrance is the first side, from {@code preferred} clockwise, that a body can walk into and that is not flattened (a
+     * flattened lip is too narrow to pass); then a diagonal neighbour reaching into a corner flattens that corner's sides
+     * except the entrance, so the round roll never enters the diagonal cell. Null when no side can be the entrance.
+     */
+    private static BlockState fitted(BlockState state, BlockGetter level, BlockPos pos, Direction preferred) {
+        for (Direction side : Direction.Plane.HORIZONTAL) state = state.setValue(side(side), blocks(level, pos, side));
+        Direction entrance = null, side = preferred;
+        for (int k = 0; k < 4 && entrance == null; k++, side = side.getClockWise())
+            if (!state.getValue(side(side)) && walkable(level, pos, side)) entrance = side;
+        if (entrance == null) return null;
+        state = state.setValue(FACING, entrance);
+        for (Direction a : Direction.Plane.HORIZONTAL) {
+            var b = a.getClockWise();
+            if (state.getValue(side(a)) || state.getValue(side(b)) || !blocksCorner(level, pos, a, b)) continue;
+            if (a != entrance) state = state.setValue(side(a), true);
+            if (b != entrance) state = state.setValue(side(b), true);
+        }
+        return state;
     }
 
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         var level = context.getLevel(); var pos = context.getClickedPos();
-        var state = defaultBlockState();
-        for (Direction side : Direction.Plane.HORIZONTAL) state = state.setValue(side(side), blocks(level, pos, side));
-        state = open(state.setValue(FACING, context.getHorizontalDirection().getOpposite()));
-        if (state.getValue(side(state.getValue(FACING)))) {
-            if (level.isClientSide && context.getPlayer() != null)
-                context.getPlayer().displayClientMessage(Component.literal("窝四面都被挡住，没有入口：至少留出一侧"), true);
-            return null;
-        }
+        var state = fitted(defaultBlockState(), level, pos, context.getHorizontalDirection().getOpposite());
+        if (state == null && level.isClientSide && context.getPlayer() != null)
+            context.getPlayer().displayClientMessage(Component.literal("窝没有入口：至少留出一侧能走进来的空格"), true);
         return state;
     }
-    /** A block set beside it flattens that side; one set in front of the entrance turns the entrance to the next open side. */
+    /** A block set beside it refits the bed (flattened sides, entrance turned to an open side if its own is closed). An
+     *  enclosed bed keeps its entrance and only flattens. Diagonal neighbours do not notify a block; NestFit schedules a tick. */
     @Override protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour, LevelAccessor level,
             BlockPos pos, BlockPos neighbourPos) {
-        if (side.getAxis().isHorizontal()) state = open(state.setValue(side(side), blocks(level, pos, side)));
+        if (side.getAxis().isHorizontal()) state = refit(state, level, pos);
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
     }
-    /** Scheduled when its block entity loads: refit the sides whose neighbour is loaded (an older save had no fit). */
-    @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        var fitted = state;
+    private static BlockState refit(BlockState state, BlockGetter level, BlockPos pos) {
+        var fitted = fitted(state, level, pos, state.getValue(FACING));
+        if (fitted != null) return fitted;
         for (Direction side : Direction.Plane.HORIZONTAL)
-            if (level.hasChunkAt(pos.relative(side))) fitted = fitted.setValue(side(side), blocks(level, pos, side));
-        fitted = open(fitted);
+            state = state.setValue(side(side), blocks(level, pos, side) || side != state.getValue(FACING)
+                    && (blocksCorner(level, pos, side, side.getClockWise()) || blocksCorner(level, pos, side, side.getCounterClockWise())));
+        return state;
+    }
+    /** Scheduled when its block entity loads (an older save had no fit) or a diagonal neighbour changed. */
+    @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (!level.isAreaLoaded(pos, 1)) return;
+        var fitted = refit(state, level, pos);
         if (fitted != state) level.setBlock(pos, fitted, 3);
     }
-    /** The entrance on its side if that is open, else on the next open side clockwise; enclosed, it stays where it was. */
-    private static BlockState open(BlockState state) {
-        Direction entrance = state.getValue(FACING);
-        for (int k = 0; k < 4; k++, entrance = entrance.getClockWise())
-            if (!state.getValue(side(entrance))) return state.setValue(FACING, entrance);
-        return state;
+    /** A block changed at {@code changed}: beds diagonal to it refit on the next tick (cardinal ones get updateShape). */
+    public static void nearbyChanged(LevelAccessor level, BlockPos changed) {
+        for (Direction a : Direction.Plane.HORIZONTAL) {
+            var at = changed.relative(a).relative(a.getClockWise());
+            if (level.isClientSide() || !level.hasChunkAt(at)) continue;
+            var state = level.getBlockState(at);
+            if (state.getBlock() instanceof PetNestBlock bed) level.scheduleTick(at, bed, 1);
+        }
     }
     @Override protected BlockState rotate(BlockState state, Rotation rotation) {
         var out = state.setValue(FACING, rotation.rotate(state.getValue(FACING)));

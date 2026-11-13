@@ -12,6 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -135,7 +138,23 @@ public final class LargeNestBlock extends CareBlock {
             int expected = part ^ (side == xPartner ? 1 : 2);
             return neighbour.is(this) && neighbour.getValue(PART) == expected ? state : Blocks.AIR.defaultBlockState();
         }
+        // Anything else beside the footprint: the north-west part checks the entrance on the next tick (all four parts turn together).
+        if (side.getAxis().isHorizontal()) level.scheduleTick(origin(state, pos), this, 1);
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
+    }
+    /** The entrance walled off (or a load from an older save): turn all four parts to the next open side clockwise; with no
+     *  open side it stays. Scheduled from updateShape and from the block entity's load. */
+    @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (state.getValue(PART) != 0 || !level.isAreaLoaded(pos, 2)) return;
+        Direction facing = state.getValue(FACING), entrance = facing;
+        for (int k = 0; k < 4 && closed(level, pos, entrance); k++) entrance = entrance.getClockWise();
+        if (entrance == facing || closed(level, pos, entrance)) return;
+        for (int part = 0; part < 4; part++) {
+            var cell = at(pos, part);
+            var other = level.getBlockState(cell);
+            if (other.is(this)) level.setBlock(cell, other.setValue(FACING, entrance), 2);
+        }
+        GameplayLog.world(level, "home", "large nest entrance turned nest={} from={} to={}", pos.toShortString(), facing.getName(), entrance.getName());
     }
     /** Creative breaking removes the other parts without a drop; in survival they go through updateShape and only part 0 drops. */
     @Override public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
