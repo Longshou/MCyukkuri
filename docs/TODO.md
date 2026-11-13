@@ -23,7 +23,7 @@
   - 5 爱丽丝雷普魔：已接入待试玩（[8f9c4a8ed](https://github.com/Longshou/MCyukkuri/commit/8f9c4a8ed)；草地 MD-08、MD-10）。用户：「爱丽丝雷普魔状态的移动是平移 没有动作 且素鸡立瞬间没有演出，应该继续锁住母油演出完成后才释放」
   - 6 漏尿场景与水滩：已接入待试玩（[317b4afd9](https://github.com/Longshou/MCyukkuri/commit/317b4afd9)，MD-17 减到 4 只，水滩 90 秒后 30 秒淡出）。用户：「短受惊漏尿演出放那么多只 非常卡 场景演示要优化 性能也要优化 且尿液水滩应该也会随时间淡化消失 纯贴图变化」
   - 7 谱系名字：已接入待试玩（[317b4afd9](https://github.com/Longshou/MCyukkuri/commit/317b4afd9)）。用户：「交互菜单的谱系里面应该有油库里名字」
-  - 8 台词用词：已接入待试玩（[c087b485d](https://github.com/Longshou/MCyukkuri/commit/c087b485d)，中文台词源与语言文件已无「慢慢来」）。用户：「中文台词的慢慢来全部换成 油库里」
+  - 8 台词用词：已接入待试玩（台词审校第二轮：[396e94383](https://github.com/Longshou/MCyukkuri/commit/396e94383)，123 句中文按说话者与画面修正，英文字幕补全；[c087b485d](https://github.com/Longshou/MCyukkuri/commit/c087b485d)，中文台词源与语言文件已无「慢慢来」）。用户：「中文台词的慢慢来全部换成 油库里」
   - 10 嗯嗯奴隶脏污：已接入待试玩（[317b4afd9](https://github.com/Longshou/MCyukkuri/commit/317b4afd9)）。用户：「嗯嗯奴隶默认三级脏污」
   - 11 油霉驱逐：已接入待试玩（[8b99e83bc](https://github.com/Longshou/MCyukkuri/commit/8b99e83bc)；巢穴 DN-05、聚落 CL-06）。用户：「油霉个体会被逐出聚落 / 家庭 有演出」
   - 12 流浪与觅食重做：部分接入（[2e875ea71](https://github.com/Longshou/MCyukkuri/commit/2e875ea71)，流浪找纸箱／木箱遮蔽、雨中纸箱塌、翻有限的垃圾、避风缝；流浪与觅食 FG-08～FG-11；对人讨食与假帽等在态度包里）。用户：「流浪与觅食 野生住所的演示重做 要符合现在的系统设定 需要重做的演出也重做」「流浪与觅食的逻辑也该优化。不止这里 在工作的途中发现可以优化的演出 动作等 都可以上报调度者」
