@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -69,7 +70,7 @@ public final class Kindness extends Goal {
     private static boolean available(YukkuriEntity body) {
         var identity = body.status().identity();
         return body.isAlive() && !body.isRemoved() && !body.life().isSleeping() && !body.isPassenger()
-                && !body.isInWaterOrBubble() && !body.isOnFire() && !body.isPanicking() && !body.isCommandPlaying()
+                && !WildEvents.reserved(body) && !body.isInWaterOrBubble() && !body.isOnFire() && !body.isPanicking() && !body.isCommandPlaying()
                 && !body.operations().active() && body.hurtTime == 0 && !body.profile().houseBody()
                 && !body.profile().dangerToYukkuri() && !body.settlement().society().slave()
                 && (identity.free() || identity == Identity.PET) && !ExamSession.running(body);
