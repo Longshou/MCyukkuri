@@ -443,7 +443,7 @@ public final class YukkuriLife {
     public boolean canRecognize(YukkuriEntity target) { return Recognition.recognizes(entity, target); }
     public boolean needsFood(){ return meal.needsFood(); }
     private boolean edible(ItemStack food){ return meal.edible(food); }
-    boolean seeksFood(ItemStack food) { return meal.seeksFood(food); }
+    public boolean seeksFood(ItemStack food) { return meal.seeksFood(food); }
     public boolean seeksOfferedFood(Player giver) {
         return seeksOfferedFood(giver.getMainHandItem(), giver) || seeksOfferedFood(giver.getOffhandItem(), giver);
     }

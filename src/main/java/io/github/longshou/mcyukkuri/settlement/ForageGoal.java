@@ -54,7 +54,7 @@ public final class ForageGoal extends Goal {
 
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
-    private boolean edible(BlockPos pos) { return grass(pos) && entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS)); }
+    private boolean edible(BlockPos pos) { return grass(pos) && entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS)); }
     /** This goal searches the meadow grass: a diet whose own plants are other ones (the water plants of an aquatic Marisa) has no
      *  search and no sweep here, so hunger never walks it inland after food it does not pick. */
     private boolean grazes() { return entity.profile().diet().edible(Blocks.SHORT_GRASS.defaultBlockState()); }
@@ -207,6 +207,7 @@ public final class ForageGoal extends Goal {
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(target)) < 1) {
             // One bite takes the plant back one growth stage (Grazing); it grows again on game time, so the meadow lasts.
             if (ForageClaims.owns(level(), target, claim) && Grazing.edible(level().getBlockState(target))
+                    && entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS))
                     && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) {
                 Grazing.graze(level(), target);
                 GameplayLog.event(entity, "forage", "gathered item={} count=1 source={} holder=mouth", Items.SHORT_GRASS, target);
