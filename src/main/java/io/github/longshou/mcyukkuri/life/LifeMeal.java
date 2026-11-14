@@ -47,6 +47,9 @@ final class LifeMeal {
     private int mealTicks;
     /** The acquired serving is spat at the end of the take-food beat, including across unload. */
     private static final int SPIT_TICK = 10;
+    private static final int SWALLOW_TICK = 45;
+    /** Poll every three ticks so a brief hop can end while the serving is still held. */
+    private static final int MEAL_SIGHT_INTERVAL = 3;
     private boolean spitMeal;
     private Vec3 refusedSpitAt;
     private final LinkedHashMap<Item, Long> complaints = new LinkedHashMap<>();
@@ -246,7 +249,7 @@ final class LifeMeal {
     boolean canOfferMeal() {
         var item = mouth();
         return !spitMeal && !sharedMeal && !preparedMeal && !bowlMeal && feeder == null && mealTicks > 0
-                && mealTicks < 40 && kindnessFood(item);
+                && mealTicks < SWALLOW_TICK && kindnessFood(item);
     }
 
     static boolean kindnessFood(ItemStack item) {
@@ -330,7 +333,7 @@ final class LifeMeal {
     }
 
     boolean handOverMouth(YukkuriEntity peer, String event) {
-        if (spitMeal || mouth().isEmpty() || mealTicks == 0 || mealTicks >= 45 || peer == o.entity() || !peer.isAlive()) return false;
+        if (spitMeal || mouth().isEmpty() || mealTicks == 0 || mealTicks >= SWALLOW_TICK || peer == o.entity() || !peer.isAlive()) return false;
         if (!transferTo(peer, o.entity().getUUID())) return false;
         o.personality().experienced(Trait.FRIENDLINESS, 1); o.entity().showReaction("happy", event, 100);
         o.personality().decided("share_food");
@@ -394,12 +397,11 @@ final class LifeMeal {
                 return false;
             }
             mealTicks++;
-            // A hungry free onlooker can ask about an actual serving the pet has just picked up.
-            if (mealTicks == 3 && canOfferMeal() && BadgeSocial.mealSeen(o.entity())) return true;
+            if (mealTicks % MEAL_SIGHT_INTERVAL == 0 && canOfferMeal() && BadgeSocial.mealSeen(o.entity())) return true;
             if (!spitMeal && mealTicks == 6 && !sharedMeal && o.nutrition() >= 35) tryShare();
-            if (mealTicks == 45 && !mouthBodyFood().isEmpty()) {
+            if (mealTicks == SWALLOW_TICK && !mouthBodyFood().isEmpty()) {
                 swallowBodyFood();
-            } else if (mealTicks == 45 && !mouth.isEmpty()) {
+            } else if (mealTicks == SWALLOW_TICK && !mouth.isEmpty()) {
                 if(Consumables.oral(mouth)){
                     boolean applied=Consumables.swallow(o.entity(),mouth);
                     var returned=applied?o.doses().returnBottle()?new ItemStack(Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
@@ -607,8 +609,8 @@ final class LifeMeal {
         BodyFood.Bite bodyFood = tag.contains("BodyFood", Tag.TAG_COMPOUND) ? BodyFood.Bite.load(tag.getCompound("BodyFood")) : BodyFood.Bite.EMPTY;
         occupancy().importMeal(mouth, bodyFood, edible(mouth) || Consumables.oral(mouth) || mouth.is(ModItems.WASTE.get()));
         mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
-        if (hasMouthFood()) mealTicks = Math.clamp(mealTicks,1,44);
-        else if (mealTicks < 45) mealTicks=0;
+        if (hasMouthFood()) mealTicks = Math.clamp(mealTicks,1,SWALLOW_TICK - 1);
+        else if (mealTicks < SWALLOW_TICK) mealTicks=0;
         spitMeal = !mouth().isEmpty() && tag.getBoolean("SpitMeal");
         refusedSpitAt = null;
         sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal")

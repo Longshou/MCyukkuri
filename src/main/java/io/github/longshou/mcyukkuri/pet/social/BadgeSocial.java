@@ -128,19 +128,17 @@ public final class BadgeSocial {
         }
     }
 
-    /** A pet has just taken a bite: hungry wild onlookers decide there and then whether to beg for it. The periodic sighting rolls (every few seconds)
-     *  can almost never coincide with the ~1.8 s window in which a bite is held in the mouth, so this is the natural way for B4 to happen. */
+    /** While a pet holds an offerable bite, hungry onlookers can ask for it as they become available. */
     public static boolean mealSeen(YukkuriEntity subject) {
         if (!enabled() || !(subject.level() instanceof ServerLevel level) || !subject.pet().isPet()
                 || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
                 || subject.isLeashed() || !subject.family().canEatIndependently()) return false;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
-        var data = WildEventData.get(level);
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
                 && peer.status().identity().free() && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
-            if (o.isLeashed() || !data.opportunitySlot(o.getUUID()) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
+            if (o.isLeashed() || !WildEvents.availableForOpportunity(o) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);
             if (subject.life().mealTicks() == 0) return true; // the admitted pair now owns the carried serving
         }
@@ -230,7 +228,7 @@ public final class BadgeSocial {
 
     static BadgeArcPolicy.Subject subject(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer) {
         boolean pet = s.pet().isPet();
-        boolean eating = s.life().mealTicks() > 0 && s.life().mealTicks() < 36 && !s.life().mouth().isEmpty();
+        boolean eating = s.life().canOfferMeal();
         boolean ownerNear = ownerWithin(level, s, 12) != null;
         boolean ownerOnScene = ownerWithin(level, s, 24) != null;
         boolean trusted = false;
