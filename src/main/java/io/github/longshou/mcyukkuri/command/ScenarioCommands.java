@@ -284,6 +284,12 @@ public final class ScenarioCommands {
                                 return refused(c.getSource(), actor, "指定窝位", actor.getName().getString() + " 没能认下这个窝：窝位要有顶、够得着、没被别人占着。");
                             return 1;
                         }))))
+                .then(Commands.literal("forage_out").then(Commands.argument("actor", EntityArgument.entity()).executes(c -> {
+                    var actor = yukkuri(c, "actor");
+                    if (actor == null) return 0;
+                    return actor.forageTrip().startAtMeadow() ? 1
+                            : refused(c.getSource(), actor, "开始外出采草", "成体要有可用的洞穴、站在洞外干地上，且尚未开始外出。");
+                })))
                 .then(Commands.literal("twigs").then(Commands.argument("actor", EntityArgument.entity())
                         .then(Commands.argument("count", IntegerArgumentType.integer(1, 3)).executes(c -> {
                             var actor = yukkuri(c, "actor");

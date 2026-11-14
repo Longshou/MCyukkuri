@@ -285,30 +285,32 @@ add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野
 
 
 _absent, _stayer, _older, _baby = (uid('family_absence', n) for n in ('absent', 'stayer', 'older', 'baby'))
-_absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)}'
 _absence_x, _absence_z = BY_ID['forage'].spots['forage']
-# A narrow screen hides the far side of the nearby meadow. The actual death waits for a private moment there.
-_far_parent = (f'@e[tag={tag("absent")},x={_absence_x - 8},y={FEET - 1},z={_absence_z + 9},'
-               'dx=16,dy=4,dz=5,limit=1]')
-_unwatched_death = (f'execute as {_far_parent} at @s '
-                    + ''.join(f'unless entity @e[tag={tag(n)},distance=..10] ' for n in ('stayer', 'older', 'baby'))
-                    + 'run kill @s')
+# The family remembers the last point before Reimu turned behind the bank.
+_departure_pos = (((_absence_x + 2) & 0x3ffffff) << 38) | (((_absence_z + 4) & 0x3ffffff) << 12) | FEET
+if _departure_pos >= 1 << 63:
+    _departure_pos -= 1 << 64
+_departure_memory = (f'KinAbsence:[{{Kin:{uuid_nbt(_absent)},Seen:{_departure_pos}L,'
+                     'Dimension:"minecraft:overworld",Away:0,Phase:0}]')
+_absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)},{_departure_memory}'
 add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采草的亲油迟迟不归',
-    '灵梦亲油去土坡后的草场采草，在家人看不到的地方死亡。看魔理沙和孩子等多久才到洞口呼唤。'
-    '子油沿记得的方向找一段再回头，赤油留在洞旁等。看魔理沙找到遗体后原地哀悼，再赶去采草、照料饥饿的赤油。',
+    '开场时灵梦已在土坡后的草场采草，家人记得她离开的方向。她在家人看不到的地方死亡。'
+    '看孩子到洞口呼唤，赤油留在洞旁等。魔理沙沿记得的方向找去，发现遗体后原地哀悼，再赶去采草、照料饥饿的赤油。',
     '约 2–5 分钟（可倍速）', [
-        box(-2, 0, 5, 2, 2, 5, 'minecraft:dirt'),
-        box(-8, 0, 11, 8, 0, 22, 'minecraft:short_grass', 'keep'),
-        yk('reimu', 0, -4, 'absent', uuid=_absent, yaw=0, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=82, energy=100,
+        box(-3, 0, 6, 2, 2, 6, 'minecraft:dirt'),
+        box(-8, 0, 15, 8, 0, 23, 'minecraft:short_grass', 'keep'),
+        yk('reimu', 1, 11, 'absent', uuid=_absent, yaw=0, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=82, energy=100,
            boldness=100),
-        yk('marisa', -1, -2, 'stayer', uuid=_stayer, yaw=0, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=100, energy=48, boldness=38,
-           friendliness=100, attachment=0, affection=0, self_control=35),
+        yk('marisa', -1, -2, 'stayer', uuid=_stayer, yaw=0, kin=f'Partner:{uuid_nbt(_absent)},{_departure_memory}',
+           nutrition=100, energy=90, boldness=38, friendliness=100, attachment=0, affection=0, self_control=50),
         yk('reimu', 1, -2, 'older', stage='child', uuid=_older, kin=_absence_kin, nutrition=76, boldness=20, self_control=35,
            childhood=CHILDHOOD_HOPPING, lead=True),
-        yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=30, childhood=CHILDHOOD_CRAWLING_READY),
+        yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=29,
+           childhood=CHILDHOOD_CRAWLING_READY),
         ],
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
-          Retry(_unwatched_death, _far_parent, tries=150, every=5, first=120)],
+          f'yukkuri scenario forage_out {sel("absent")}',
+          Retry(f'kill @e[tag={tag("absent")},limit=1]', sel('absent'), tries=1, first=60)],
     env=DAY, spot='forage', vantage=(0, 10, 180, 12),
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
@@ -5412,18 +5414,26 @@ _scene_end('forage', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
            [('mother', f'seen:family:feed handed to meal child={_uuid_text("forage", "child")}'),
             ('child', f'seen:meal:swallowed item=.* feeder={_uuid_text("forage", "mother")}')])
 _scene_end('family_absence', [('absent', 'alive=false'), ('stayer', _DRY), ('older', _DRY), ('baby', _DRY)],
-           [('absent', 'seen:forage:begin role=FAMILY'), ('absent', 'seen:body:death settled into remains'),
+           [('absent', 'seen:forage:begin role=FAMILY phase=OUT reason=already_out'),
+            ('absent', 'seen:forage:phase=OUT -> GATHER'), ('absent', 'seen:body:death settled into remains'),
+            ('older', f'seen:family:missing kin call kin={_absent_uuid}'),
+            ('baby', f'seen:family:missing kin call kin={_absent_uuid}'),
             ('stayer', f'seen:family:kin overdue kin={_absent_uuid}'), ('stayer', f'seen:family:missing kin call kin={_absent_uuid}'),
+            ('stayer', f'seen:family:kin absence kin={_absent_uuid} phase=SEARCH destination=\\('),
             ('stayer', f'seen:family:missing kin found remains kin={_absent_uuid}'),
+            ('stayer', r'seen:status:behavior.animation: .* -> bereaved'),
+            ('stayer', r'seen:status:behavior.animation: bereaved -> '),
             ('stayer', 'seen:forage:begin role=FAMILY phase=OUT reason=sole_caregiver'),
             ('stayer', r'seen:forage:goal active phase=OUT .* pace=1\.[1-4]'),
             ('stayer', 'seen:forage:deposit home=.* moved=[1-9]')],
-           [('older', f'seen:family:missing kin call kin={_absent_uuid}'),
-            *[('older', f'seen:family:kin absence kin={_absent_uuid} phase={phase}') for phase in ('SEARCH', 'RETURN', 'MOVED_ON')],
-            ('older', 'seen:meal:swallowed item=.* feeder=null')],
+           [('older', f'seen:family:kin overdue kin={_absent_uuid}'),
+            ('older', f'seen:family:missing kin call kin={_absent_uuid}')],
            [('baby', f'seen:family:missing kin call kin={_absent_uuid}'),
             ('baby', f'seen:family:kin absence kin={_absent_uuid} phase=MOVED_ON')],
-           forbid=[('baby', f'seen:family:kin absence kin={_absent_uuid} phase=SEARCH')])
+           [('stayer', f'seen:family:feed handed to meal child={_uuid_text("family_absence", "baby")}'),
+            ('baby', f'seen:meal:swallowed item=.* feeder={_uuid_text("family_absence", "stayer")}')],
+           forbid=[('baby', f'seen:family:kin absence kin={_absent_uuid} phase=SEARCH'),
+                   ('stayer', 'seen:forage:begin role=FAMILY phase=OUT reason=shared_home')])
 _scene_end('settle_snow', [('lead', _DRY)], [('actors', 'seen:habitat:home chosen')])
 _scene_end('settle_pit_slave', [('slave', _DRY)],
            [('slave', 'seen:settlement:pit slave back in pit'),

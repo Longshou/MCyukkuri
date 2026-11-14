@@ -374,6 +374,15 @@ public final class ForageTrip extends Goal {
         this.levy = -1; this.gathered = 0; this.storeAim = null;
         GameplayLog.event(entity,"forage","begin role={} phase={} reason={} home={} destination={} radius={} deadline={}",role,phase,reason,this.home,dest,radius,deadline);
     }
+    /** Stage a household outing for an adult already standing at the meadow. The selector runs it normally. */
+    public boolean startAtMeadow() {
+        var home = shelter();
+        var meadow = entity.blockPosition();
+        if (outing() || home == null || leavingHome(home) || !entity.family().adult()
+                || !entity.isAlive() || !entity.life().dryStand(meadow)) return false;
+        begin(Role.FAMILY, meadow, (int) Math.ceil(Math.sqrt(home.getBlockPos().distSqr(meadow))), "already_out");
+        return true;
+    }
     /** Joins the communal hunt: walk to the gathering point, then out behind the leader. */
     private void beginHunt(Commons.Hunt hunt) {
         boolean chief = entity.getUUID().equals(hunt.chief);
