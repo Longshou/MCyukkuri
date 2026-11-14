@@ -846,6 +846,7 @@ public final class YukkuriLife {
                     "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",
                     offered.size(), delayed, outOfBabyRange, unreachable, task, nutrition);
             targetBlock = canCollect ? nearestCare(CareBlock.Kind.BOWL, true) : null;
+            if (canCollect && targetFood == null) refuseReachableServing();
             if (ignoresScraps) targetFood = null;
             useBowlNicely = targetBlock != null && followsRule(PetSkill.FOOD_BOWL);
             if (useBowlNicely && entity.pet().isPet()) targetFood = null;
@@ -1387,6 +1388,15 @@ public final class YukkuriLife {
             }
         } else stopGoal();
     }
+    /** At the pickup contact, a refused serving gets its visible sniff-and-complaint beat; scan-range food does not. */
+    private void refuseReachableServing() {
+        for (var item : level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(.6), item ->
+                item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem()) && entity.hasLineOfSight(item)
+                        && ItemContact.reaches(entity, item))) {
+            if (meal.refuseAtReach(item.getItem())) return;
+        }
+    }
+
     private boolean takeGroundFood(ItemEntity food) {
         var one = food.getItem().copyWithCount(1);
         if (!beginMeal(one, null, false)) return false;

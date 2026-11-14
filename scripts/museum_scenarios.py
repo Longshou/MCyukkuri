@@ -328,15 +328,15 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
 
 _taste_ids = {name: uid('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
 add('graze', 'forage', '舌肥：同一份粗粮，三种反应', '舌肥：同一份粗粮，三种反应',
-    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的闻一下、嫌弃地拒绝并走开。'
+    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的凑近闻一下、鼓起脸抱怨（头顶字幕与表情），不把粮叼走。'
     '手喂挑的那只，它会把粮含进嘴再吐回地上；饿到 35 左右时，同一只会勉强吃下预算粮，再饿就肯正常吃。看表情、吐出的实物和读数里的舌肥变化。',
     '约 15–60 秒', [
         yk('reimu', -3, 0, 'taste_easy', uuid=_taste_ids['taste_easy'], nutrition=48, yaw=180, self_control=40, picky=12, lead=True, label='舌肥 12'),
-        item('mcyukkuri:oil_grain_budget', 1, -3, -1, name='taste_grain_easy'),
+        item('mcyukkuri:oil_grain_budget', 1, -3, -.4, name='taste_grain_easy'),
         yk('marisa', 0, 0, 'taste_plain', uuid=_taste_ids['taste_plain'], nutrition=48, yaw=180, self_control=40, picky=50, label='舌肥 50'),
-        item('mcyukkuri:oil_grain_budget', 1, 0, -1, name='taste_grain_plain'),
+        item('mcyukkuri:oil_grain_budget', 1, 0, -.4, name='taste_grain_plain'),
         yk('reimu', 3, 0, 'taste_picky', uuid=_taste_ids['taste_picky'], nutrition=48, yaw=180, self_control=40, picky=95, label='舌肥 95'),
-        item('mcyukkuri:oil_grain_budget', 1, 3, -1, name='taste_grain_picky')],
+        item('mcyukkuri:oil_grain_budget', 1, 3, -.4, name='taste_grain_picky')],
     env=DAY, spot='graze', vantage=(0, 12), note='待验证：新场景，尚未在游戏里实测。',
     reads=[('读舌肥12', f'yukkuri status {sel("taste_easy")} raw'), ('读舌肥50', f'yukkuri status {sel("taste_plain")} raw'),
            ('读舌肥95', f'yukkuri status {sel("taste_picky")} raw')])
@@ -782,7 +782,7 @@ add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料�
         (160, f'yukkuri scenario care_click {sel("wash_shy")} wet_cloth'),
         (170, f'yukkuri scenario care_click {sel("grain_proud")} premium_grain'),
     ], expect=[r'\[interaction\][^\n]* wash player=\S+ response=guarded [^\n]*dirt=3->2',
-               r'\[meal\][^\n]* serving refused item=mcyukkuri:oil_grain_budget [^\n]*reason=taste',
+               r'\[meal\][^\n]* declined serving item=mcyukkuri:oil_grain_budget [^\n]*reason=taste',
                r'\[meal\][^\n]* spat item=mcyukkuri:oil_grain_budget ',
                r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_budget ',
                r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_premium '],
@@ -4828,7 +4828,7 @@ _taste_uuids = {name: _uuid_text('graze', name) for name in ('taste_easy', 'tast
 _smoke('graze', 1800, [
     rf'\[meal\][^\n]*uuid={_taste_uuids["taste_easy"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=SAVOUR\b',
     rf'\[meal\][^\n]*uuid={_taste_uuids["taste_plain"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=PLAIN\b',
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*serving refused item=mcyukkuri:oil_grain_budget\b'],
+    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*food_complain item=mcyukkuri:oil_grain_budget[^\n]*verdict=REFUSE\b'],
        forbid=[rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*swallowed '])
 _smoke('food_behind_glass', 260, [r'\[action\][^\n]* end id=glass_press outcome=DONE', r'MCYGLASS_APPLE_REMAINS'],
        forbid=[rf'\[meal\][^\n]* uuid={_uuid_of(_glass_food_eater)} [^\n]* pickup '],

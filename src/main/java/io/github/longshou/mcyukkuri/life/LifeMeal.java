@@ -50,6 +50,9 @@ final class LifeMeal {
     /** The serving just refused and the tick it may be considered again: a hungry body does not re-sniff the same food every scan. */
     private Item refusedFoodItem;
     private long refusedFoodUntil;
+    /** The serving whose visible complaint already played for the present refusal memory. */
+    private Item refusedBeatItem;
+    private long refusedBeatUntil;
     private UUID feeder;
     private boolean sharedMeal, preparedMeal, bowlMeal;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
@@ -86,8 +89,7 @@ final class LifeMeal {
 
     private int tasteFor(Player giver) {
         var contact = SocialDisposition.contact(o.entity(), giver);
-        return Taste.effective(Math.round(o.pickiness()), contact.esteem(), giver == null ? 0 : contact.closeness(),
-                o.entity().status().marks().dirt(), o.entity().settlement().society().slave());
+        return Taste.effective(Math.round(o.pickiness()), contact.esteem(), giver == null ? 0 : contact.closeness());
     }
 
     Taste.Verdict verdict(ItemStack food, Player giver) {
@@ -100,10 +102,13 @@ final class LifeMeal {
         if (eater.profile().dangerToYukkuri() || eater.settlement().society().slave()) return false;   // predators and slaves take what they get
         if (!(eater.family().adult() || eater.family().subadult()) || eater.family().needsMash()) return false; // babies and juveniles never refuse what a parent gives
         if (verdict(food, giver) != Taste.Verdict.REFUSE) return false;
+        long now = o.level().getGameTime();
+        boolean newMemory = refusedFoodItem != food.getItem() || now >= refusedFoodUntil;
         refusedFoodItem = food.getItem();
-        refusedFoodUntil = o.level().getGameTime() + 2400;
+        refusedFoodUntil = now + 2400;
+        if (newMemory) refusedBeatItem = null;
         GameplayLog.limited(eater, "meal", "taste_refused", 400,
-                "serving refused item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste",
+                "declined serving item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste",
                 food.getItem(), FoodTaste.grade(food).id(), Math.round(o.pickiness()), tasteFor(giver), o.nutrition(),
                 giver == null ? "" : giver.getUUID());
         return true;
@@ -121,6 +126,21 @@ final class LifeMeal {
     private boolean refusingSame(ItemStack food) {
         if (refusedFoodItem != food.getItem() || o.level().getGameTime() >= refusedFoodUntil) return false;
         if (verdict(food, null) != Taste.Verdict.REFUSE) { refusedFoodItem = null; return false; }
+        return true;
+    }
+
+    /** At the pickup contact: sniff, turn away with a complaint, and say it once for this refusal memory. */
+    boolean refuseAtReach(ItemStack food) {
+        if (!acceptsFood(food)) return false;
+        if (!refusingSame(food) && !declines(food, null)) return false;
+        long now = o.level().getGameTime();
+        if (refusedBeatItem == food.getItem() && now < refusedBeatUntil) return false;
+        if (verdict(food, null) != Taste.Verdict.REFUSE) return false;
+        o.entity().showReaction("pursed", "food_complain", 60);
+        GameplayLog.event(o.entity(), "meal", "food_complain item={} grade={} verdict=REFUSE nutrition={} pickiness={} taste={}",
+                food.getItem(), FoodTaste.grade(food).id(), o.nutrition(), Math.round(o.pickiness()), tasteFor(null));
+        refusedBeatItem = food.getItem();
+        refusedBeatUntil = refusedFoodUntil;
         return true;
     }
 
@@ -413,6 +433,7 @@ final class LifeMeal {
                 float nutritionBefore=o.nutrition();
                 float gain=FoodTaste.serving(mouth);
                 int toxic=Toxins.dose(mouth);
+                boolean pleasant = !spicy && toxic == 0 && !waste && (!grass || liked);
                 if(spicy){gain=12;o.doses().spicyTicks(240);o.increaseDryness(45);}
                 else if(sweet)o.increaseDryness(Sweets.dryness(mouth));
                 else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get()))o.increaseDryness(15); // premium grain never leaves the pet thirsty
@@ -426,7 +447,6 @@ final class LifeMeal {
                         swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal,
                         grade.id(),verdict.name(),o.pickiness());
                 o.entity().childhood().firstMealSwallowed();
-                boolean pleasant = !spicy && toxic == 0 && ((!grass && !waste) || liked);
                 var eater = o.entity();
                 UUID bondTarget = feeder;
                 var bond = o.personality().relation(bondTarget);
@@ -458,10 +478,12 @@ final class LifeMeal {
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
                 eater.gameEvent(GameEvent.EAT);
                 if (!eater.body().sick() || !(spicy || toxic > 0)) eater.showReaction(
-                        spicy || toxic > 0 ? "surprise" : grudging ? "pursed" : grass || waste || guarded ? liked ? "happy" : "teary"
+                        spicy || toxic > 0 ? "surprise" : waste ? "teary" : grudging ? "pursed" : guarded ? "teary"
+                                : grass ? liked ? "happy" : "teary"
                                 : defiant ? "smug" : grateful ? "closed_smile" : "happy",
-                        spicy || toxic > 0 ? "hurt" : grudging ? "food_complain" : grass || waste ? liked ? fedLine : "bitter"
-                                : treat != null ? treat : guarded || defiant ? "" : fedLine, content ? 8 : 100);
+                        spicy || toxic > 0 ? "hurt" : waste ? "bitter" : grudging ? "food_complain" : guarded ? ""
+                                : grass ? liked ? fedLine : "bitter"
+                                : treat != null ? treat : defiant ? "" : fedLine, content ? 8 : 100);
                 if(!spicy&&toxic==0&&!grass&&!waste)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }

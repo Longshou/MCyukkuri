@@ -28,13 +28,12 @@ public final class Taste {
 
     /**
      * How choosey this body is right now: 舌肥 shifted by the values that really change the answer.
-     * A proud body is harder to please (+0.4 per point of self-esteem above 50), dirt softens it slightly (-0.3
-     * per level), a slave eats what it is given (-40), a familiar feeder softens it (-8 at closeness>=10) and a
-     * disliked one hardens it (+6 below 0).
+     * A proud body is harder to please (+0.4 per point of self-esteem above 50), a familiar feeder softens it
+     * (-8 at closeness>=10) and a disliked one hardens it (+6 below 0). Slaves and predators never refuse at all;
+     * that gate stays in LifeMeal.declines, so this read adds no slave or dirt term of its own.
      */
-    public static int effective(int pickiness, double esteem, int closeness, int dirt, boolean slave) {
-        double value = pickiness + (esteem - 50) * .4 - dirt * .3;
-        if (slave) value -= 40;
+    public static int effective(int pickiness, double esteem, int closeness) {
+        double value = pickiness + (esteem - 50) * .4;
         if (closeness >= 10) value -= 8;
         else if (closeness < 0) value += 6;
         return clamp((int) Math.round(value), 0, 100);

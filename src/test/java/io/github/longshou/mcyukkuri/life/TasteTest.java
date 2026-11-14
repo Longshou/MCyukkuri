@@ -51,14 +51,12 @@ class TasteTest {
         }
     }
 
-    @Test void effectiveTasteReadsEsteemDirtFeederAndSlavery() {
-        assertEquals(60, Taste.effective(60, 50, 0, 0, false));
-        assertEquals(62, Taste.effective(60, 55, 0, 0, false));
-        assertEquals(59, Taste.effective(60, 50, 0, 2, false));
-        assertEquals(52, Taste.effective(60, 50, 10, 0, false));
-        assertEquals(66, Taste.effective(60, 50, -1, 0, false));
-        assertEquals(20, Taste.effective(60, 50, 0, 0, true));
-        assertEquals(100, Taste.effective(100, 100, 0, 0, false));
-        assertEquals(0, Taste.effective(0, 0, 0, 3, false));
+    @Test void effectiveTasteReadsEsteemAndFeeder() {
+        assertEquals(60, Taste.effective(60, 50, 0));
+        assertEquals(62, Taste.effective(60, 55, 0));
+        assertEquals(52, Taste.effective(60, 50, 10));
+        assertEquals(66, Taste.effective(60, 50, -1));
+        assertEquals(100, Taste.effective(100, 100, 0));
+        assertEquals(0, Taste.effective(0, 0, 0));
     }
 }
