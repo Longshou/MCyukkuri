@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 住家宣言、领地威吓、搬家与贪心占地 | `.worktrees/wp-r2-home` | home/territory/relocation goals, speech |
-| DN-01 情绪过渡、DN-02 告别、DN-05 驱逐演出 | `.worktrees/wp-r2-emotion` | mourning/recovery, farewell, exile |
 | DN-04 封洞口技能 | `.worktrees/wp-r2-seal` | den sealing, skill learning |
 | 舌肥（挑食度）数值与进食反应 | `.worktrees/wp-r2-picky` | LifeMeal, food preference, new stat |
 | 戴垃圾头饰的反应与垃圾闭环缺口 | `.worktrees/wp-r2-junk` | junk headwear reactions, VillageBin, litter |
