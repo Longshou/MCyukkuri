@@ -325,7 +325,7 @@ def build_pack(world):
         body.insert(0, f'yukkuri status trace window {s.id} {f.id} {bounds}')
         if s.id in museum_scenarios.SHOP_ACCESS:
             dx, dz = museum_scenarios.SHOP_ACCESS[s.id]
-            body.append(f'summon minecraft:marker ~{dx} ~2 ~{dz} {{Tags:["scn","mcylab_shop_access"]}}')
+            body.append(f'summon minecraft:marker ~{dx} ~2 ~{dz} {{Tags:["mcylab_shop_access"]}}')
         if s.late:
             late_lines = [f'execute positioned {ax}.0 {FEET} {az}.0 run {line}' for line in s.late if isinstance(line, str)]
             for ri, retry in enumerate(r for r in s.late if not isinstance(r, str)):

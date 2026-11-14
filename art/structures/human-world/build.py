@@ -320,12 +320,14 @@ def shop():
     register_pen(b,'predator',(16,4,22,7),(16,7),[(16,4),(22,4)],(5,3),hatch=(19,8))
     b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60))
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
-    # Eye-level opening above the counter, too short to crawl through. Staff enter through the west doors.
+    # Eye-level opening above the counter, too short to crawl through. Staff use the doors at its ends.
     b.box((7,3,12),(17,3,12),'dark_oak_planks')
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
     for x in range(7,18): slab(b,x,4,12,'dark_oak','bottom')
-    b.box((2,3,12),(4,7,12),'glass'); b.box((18,3,12),(22,7,12),'glass')
-    b.box((5,5,12),(17,7,12),'glass'); b.double_door(5,3,12,'south')
+    b.box((2,3,12),(4,7,12),'glass'); b.box((20,3,12),(22,7,12),'glass')
+    b.box((5,5,12),(19,7,12),'glass')
+    b.double_door(5,3,12,'south')
+    b.double_door(18,3,12,'south')
     b.human(12.5,14.5,'caretaker_brother',1,1,'shopkeeper')
     b.human(4.5,14.5,'caretaker_sister',1,1,'shop_staff')
     # Goods hang in item frames (spawned from these markers when the shop registers, so a rotated village copy faces the right way):
@@ -398,7 +400,7 @@ def shop():
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); furniture(b,'bench',3,[(26,28)],'z'); furniture(b,'table',3,[(27,28)])
     # Rugs and plants keep the rooms warm and lived-in.
     for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,11),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
-    carpet(b,11,4,13,5,'red'); carpet(b,18,13,21,15,'light_blue'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
+    carpet(b,11,4,13,5,'red'); carpet(b,20,13,21,15,'light_blue'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
     for z in (28,29): b.box((38,3,z),(38,4,z),'bookshelf')
     # ---- Lighting: hanging lanterns on a 5x5 grid per room; greedy completion until every covered walkable cell has light >= 8.
     pen_cells=set()

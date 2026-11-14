@@ -28,6 +28,7 @@ final class ShopAccess {
             area(2, 4, 8, 7, ShopMembership.PATRON, 5, 8, Direction.SOUTH),
             area(16, 4, 22, 7, ShopMembership.PATRON, 19, 8, Direction.SOUTH),
             area(2, 13, 22, 16, ShopMembership.MEMBER, 5, 12, Direction.NORTH),
+            area(2, 13, 22, 16, ShopMembership.MEMBER, 18, 12, Direction.NORTH),
             area(2, 18, 15, 29, ShopMembership.MEMBER, 16, 21, Direction.EAST),
             area(17, 18, 22, 29, ShopMembership.MEMBER, 17, 17, Direction.NORTH));
     private static final List<Area> ONI = List.of(
