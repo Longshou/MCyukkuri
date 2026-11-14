@@ -9,9 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
@@ -22,6 +24,8 @@ public final class ShopDoors {
     private record Door(ServerLevel level, List<BlockPos> leaves) {}
     private static final Map<Door, Set<UUID>> PASSING = new HashMap<>();
     private static final Map<UUID, Door> STAFF = new HashMap<>();
+    /** Allow two seconds for a player to reach a door opened from interaction range. */
+    private static final Map<Door, Long> PLAYER_OPEN_UNTIL = new HashMap<>();
 
     private static List<BlockPos> leaves(ServerLevel level, BlockPos at) {
         var state = level.getBlockState(at);
@@ -53,14 +57,18 @@ public final class ShopDoors {
         var door = new Door(level, leaves);
         boolean open = leaves.stream().anyMatch(leaf -> !level.getBlockState(leaf).getValue(DoorBlock.OPEN));
         if (egress && !open) return;
-        if (!open && (PASSING.containsKey(door) || leaves.stream().anyMatch(leaf -> customerInDoorway(level, leaf)))) {
+        if (!open && (PASSING.containsKey(door) || !clearToClose(door))) {
             ShopTrade.say(player, "membership.door_busy");
             GameplayLog.limited(player, "shop", "door_busy", 100, "action=door result=refused shop={} reason=doorway_occupied", shop.id);
             return;
         }
         set(door, player, open);
-        // The unattended sweep closes what a customer opened once they are out of the doorway, so a pen door cannot stand open for visitors.
-        if (open) ShopRegistry.get(level).openedDoors(level, leaves);
+        var block = (DoorBlock) level.getBlockState(leaves.getFirst()).getBlock();
+        player.playNotifySound(open ? block.type().doorOpen() : block.type().doorClose(), SoundSource.BLOCKS, 1f, 1f);
+        if (open) {
+            ShopRegistry.get(level).openedDoors(level, leaves);
+            PLAYER_OPEN_UNTIL.put(door, level.getGameTime() + 40);
+        } else PLAYER_OPEN_UNTIL.remove(door);
         GameplayLog.event(player, "shop", "action=door result={} shop={} door={}", open ? "opened" : "closed", shop.id, leaves.getFirst());
     }
 
@@ -79,7 +87,7 @@ public final class ShopDoors {
 
     public static boolean holds(HumanNpc staff, BlockPos at) {
         var door = STAFF.get(staff.getUUID());
-        return at != null && door != null && door.leaves().contains(at);
+        return at != null && door != null && (door.leaves().contains(at) || door.leaves().contains(at.below()));
     }
 
     public static void leave(HumanNpc staff) {
@@ -90,7 +98,7 @@ public final class ShopDoors {
         if (!passing.isEmpty()) return;
         PASSING.remove(door);
         var registry = ShopRegistry.get(door.level());
-        if (door.leaves().stream().anyMatch(leaf -> customerInDoorway(door.level(), leaf))) return;
+        if (playerPassing(door) || !clearToClose(door)) return;
         var owned = door.leaves().stream().filter(leaf -> registry.staffOpenedDoor(door.level(), leaf)).toList();
         set(new Door(door.level(), owned), staff, false);
     }
@@ -107,20 +115,36 @@ public final class ShopDoors {
 
     static void closeUnattended(ServerLevel level, Set<BlockPos> leaves) {
         for (var leaf : List.copyOf(leaves)) {
-            if (!level.hasChunkAt(leaf) || PASSING.keySet().stream().anyMatch(d -> d.level() == level && d.leaves().contains(leaf))) continue;
+            if (!leaves.contains(leaf) || !level.hasChunkAt(leaf)) continue;
             var pair = leaves(level, leaf);
-            if (pair.stream().anyMatch(at -> customerInDoorway(level, at))) continue;
+            var door = new Door(level, pair);
+            if (PASSING.containsKey(door) || playerPassing(door) || !clearToClose(door)) continue;
             set(new Door(level, pair.stream().filter(leaves::contains).toList()), null, false);
             if (pair.isEmpty()) ShopRegistry.get(level).closedDoor(level, leaf);
         }
+        PLAYER_OPEN_UNTIL.entrySet().removeIf(e -> e.getKey().level() == level && e.getValue() <= level.getGameTime());
     }
 
-    private static boolean customerInDoorway(ServerLevel level, BlockPos leaf) {
-        return !level.getEntitiesOfClass(ServerPlayer.class, doorway(leaf), player -> !player.isSpectator()).isEmpty();
+    private static boolean playerPassing(Door door) {
+        var level = door.level();
+        return PLAYER_OPEN_UNTIL.getOrDefault(door, 0L) > level.getGameTime()
+                || door.leaves().stream().anyMatch(leaf -> !level.getEntitiesOfClass(ServerPlayer.class, doorway(leaf),
+                        player -> !player.isSpectator()).isEmpty());
+    }
+
+    private static boolean clearToClose(Door door) {
+        var level = door.level();
+        for (var leaf : door.leaves()) {
+            if (!level.hasChunkAt(leaf)) return false;
+            var state = level.getBlockState(leaf).setValue(DoorBlock.OPEN, false);
+            var panel = state.getCollisionShape(level, leaf).bounds().move(leaf).expandTowards(0, 1, 0);
+            if (!level.getEntitiesOfClass(LivingEntity.class, panel, e -> e.isAlive() && !e.isSpectator()).isEmpty()) return false;
+        }
+        return true;
     }
 
     private static AABB doorway(BlockPos leaf) { return new AABB(leaf).expandTowards(0, 1, 0).inflate(.35, 0, .35); }
 
-    static void clear() { PASSING.clear(); STAFF.clear(); }
+    static void clear() { PASSING.clear(); STAFF.clear(); PLAYER_OPEN_UNTIL.clear(); }
     private ShopDoors() {}
 }

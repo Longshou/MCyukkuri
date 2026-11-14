@@ -397,11 +397,15 @@ def oni_shop():
             barrel(b, x, 3, z, 'up'); barrel(b, x, 4, z, 'east' if x in (5, 9) else 'west')
     for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item, facing='east')
     for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item, facing='east')
-    # Counter (customers on z15, staff on z16..18 behind it); its west end is open 3 wide for the staff.
+    # Eye-level serving opening and a member door at the west end.
     b.box((5, 3, 16), (14, 3, 16), 'stripped_dark_oak_log', {'axis': 'x'})
     b.block(9, 3, 16, 'lectern', {'facing': 'north', 'has_book': 'false', 'powered': 'false'}, over=True)
+    b.box((2, 3, 16), (2, 6, 16), 'iron_bars')
+    b.box((3, 5, 16), (14, 6, 16), 'iron_bars')
+    b.double_door(3, 3, 16, 'south')
+    for x in range(5, 15): slab(b, x, 4, 16, 'dark_oak', 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
-        ground_display(b, x, 4, 16, item, yaw=35. * x)
+        ground_display(b, x, 4.5, 16, item, yaw=35. * x)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
     # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a demo table in the main

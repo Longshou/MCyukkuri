@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanScenes;
 import io.github.longshou.mcyukkuri.shop.ShopPricing;
+import io.github.longshou.mcyukkuri.shop.ShopMembership;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopRestock;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
@@ -87,6 +88,10 @@ public final class HumanCommands {
                         .then(Commands.literal("prey").executes(c -> oniisan(c, true)))))
                 .then(Commands.literal("shop")
                         .then(Commands.literal("list").executes(HumanCommands::list))
+                        .then(Commands.literal("test_membership").then(Commands.argument("site", BlockPosArgument.blockPos())
+                                .then(Commands.literal("visitor").executes(c -> testMembership(c, ShopMembership.VISITOR)))
+                                .then(Commands.literal("member").executes(c -> testMembership(c, ShopMembership.MEMBER)))
+                                .then(Commands.literal("patron").executes(c -> testMembership(c, ShopMembership.PATRON)))))
                         .then(Commands.literal("stock").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("variant", StringArgumentType.word())
                                         .suggests((c,
@@ -98,6 +103,19 @@ public final class HumanCommands {
                                 .then(Commands.argument("animal", EntityArgument.entity())
                                         .then(Commands.argument("buyer", UuidArgument.uuid()).executes(HumanCommands::buy)))))
                         .then(Commands.literal("restock").then(Commands.argument("keeper", EntityArgument.entity()).executes(HumanCommands::restock))));
+    }
+
+    private static int testMembership(CommandContext<CommandSourceStack> c, ShopMembership tier) throws CommandSyntaxException {
+        var player = c.getSource().getPlayerOrException();
+        var level = c.getSource().getLevel();
+        var registry = ShopRegistry.get(level);
+        var site = registry.shopAt(level, BlockPosArgument.getBlockPos(c, "site").getCenter());
+        if (site == null) {
+            player.displayClientMessage(Component.translatable("shop.mcyukkuri.membership.test_missing"), true);
+            return 0;
+        }
+        registry.setTestMembership(player, site, tier);
+        return 1;
     }
 
     private static int build(CommandContext<CommandSourceStack> c, String front, boolean clear) throws CommandSyntaxException {

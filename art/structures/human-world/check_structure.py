@@ -220,7 +220,9 @@ def entity_errors(b):
         cx, cy, cz = int(x // 1), int(y // 1), int(z // 1)
         if kind == 'minecraft:marker': continue
         if kind == 'minecraft:item_display':
-            if name_at(b, cx, cy, cz) != AIR: errors.append(f'{b.name}: item display inside a block at {(cx, cy, cz)}')
+            name, props, _ = b.blocks.get((cx, cy, cz), (AIR, {}, None))
+            if name != AIR and not (name.endswith('_slab') and props['type'] == 'bottom' and y >= cy + .5):
+                errors.append(f'{b.name}: item display inside a block at {(x, y, z)}')
             continue
         head = cy + (1 if kind.startswith('mcyukkuri:caretaker') or kind.endswith('oniisan') else 0)
         for yy in sorted({cy, head}):

@@ -320,10 +320,12 @@ def shop():
     register_pen(b,'predator',(16,4,22,7),(16,7),[(16,4),(22,4)],(5,3),hatch=(19,8))
     b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60))
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
-    # Counter across the hall (customers on the aisle side z 11, staff behind it on z 13..16); its west end is open for staff.
+    # Eye-level opening above the counter, too short to crawl through. Staff enter through the west doors.
     b.box((7,3,12),(17,3,12),'dark_oak_planks')
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
-    for x in (8,16): b.block(x,4,12,'potted_azalea_bush')
+    for x in range(7,18): slab(b,x,4,12,'dark_oak','bottom')
+    b.box((2,3,12),(4,7,12),'glass'); b.box((18,3,12),(22,7,12),'glass')
+    b.box((5,5,12),(17,7,12),'glass'); b.double_door(5,3,12,'south')
     b.human(12.5,14.5,'caretaker_brother',1,1,'shopkeeper')
     b.human(4.5,14.5,'caretaker_sister',1,1,'shop_staff')
     # Goods hang in item frames (spawned from these markers when the shop registers, so a rotated village copy faces the right way):
@@ -333,9 +335,9 @@ def shop():
     for y,items in rows:
         for x,item in zip(range(8,17),items): frame(b,x,y,16,item)
     # Side-wall frames stop a cell short of the back wall, so each hangs on exactly one wall.
-    for z,item in zip(range(11,16),['yarn_ball','glass_marble','pretty_stone']): frame(b,2,4,z,item)
-    for z,item in zip(range(11,16),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
-    for z,item in zip(range(11,15),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
+    for z,item in zip((11,10,13),['yarn_ball','glass_marble','pretty_stone']): frame(b,2,4,z,item)
+    for z,item in zip((11,10,13,14,15),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
+    for z,item in zip((11,10,13,14),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
     # Windows from the west goods corner into the backyard arcade.
     b.box((3,4,17),(5,6,17),'glass',over=True)
     # ---- Back room (staff, x 17..22, z 18..29): the arrivals and shipping barrel, the waste barrel, feed; doors to the hall and the yard.
@@ -395,7 +397,7 @@ def shop():
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); furniture(b,'bench',3,[(26,28)],'z'); furniture(b,'table',3,[(27,28)])
     # Rugs and plants keep the rooms warm and lived-in.
-    for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,12),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
+    for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,11),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
     carpet(b,11,4,13,5,'red'); carpet(b,18,13,21,15,'light_blue'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
     for z in (28,29): b.box((38,3,z),(38,4,z),'bookshelf')
     # ---- Lighting: hanging lanterns on a 5x5 grid per room; greedy completion until every covered walkable cell has light >= 8.

@@ -68,6 +68,7 @@ public final class ShopRegistry extends SavedData {
         final Map<UUID, Integer> refunds = new LinkedHashMap<>();
         final Map<UUID, Integer> proceeds = new LinkedHashMap<>();
         private final Map<UUID, Integer> spent = new LinkedHashMap<>();
+        private final Map<UUID, Integer> refusedUntilDay = new LinkedHashMap<>();
         final Map<UUID, Order> orders = new LinkedHashMap<>();
         Entry(UUID id, String dimension, BlockPos pos, ShopKind kind) {
             this.id = id; this.dimension = dimension; this.pos = pos; this.kind = kind;
@@ -85,9 +86,17 @@ public final class ShopRegistry extends SavedData {
         Direction legacyFront() { return legacyFront; }
         boolean closed() { return closed; }
         boolean staff(UUID id) { return staff.contains(id); }
+        List<HumanNpc> loadedStaff(ServerLevel level) {
+            return staff.stream().map(level::getEntity).filter(e -> e instanceof HumanNpc npc && npc.isAlive() && !npc.isNoAi())
+                    .map(HumanNpc.class::cast).toList();
+        }
         Deposit deposit(UUID animal) { return deposits.get(animal); }
         long nextRestock() { return nextRestock; }
-        ShopMembership membership(UUID player) { return ShopMembership.fromSpend(spent.getOrDefault(player, 0)); }
+        int spend(UUID player) { return spent.getOrDefault(player, 0); }
+        ShopMembership membership(UUID player) { return ShopMembership.fromSpend(spend(player)); }
+        boolean refusesToday(ServerLevel level, UUID player) {
+            return refusedUntilDay.getOrDefault(player, 0) > ShopStock.today(level);
+        }
     }
     private final Map<UUID, Entry> shops = new LinkedHashMap<>();
     private final Map<UUID, List<Component>> notices = new LinkedHashMap<>();
@@ -289,7 +298,7 @@ public final class ShopRegistry extends SavedData {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         var registry = get(player.serverLevel());
         if (player.tickCount % 20 == 0) registry.payRefunds(player);
-        if (player.tickCount % 5 == 0) ShopAccess.warnTrespass(player, registry);
+        ShopAccess.playerTick(player, registry);
     }
 
     void payRefunds(ServerPlayer player) {
@@ -452,7 +461,7 @@ public final class ShopRegistry extends SavedData {
         return shop.dock();
     }
 
-    static BlockPos oniCounterTop(Entry shop) {
+    static BlockPos authoredCounterTop(Entry shop) {
         var rotation = authoredRotation(shop);
         return rotation == null ? null : shop.counter().offset(new BlockPos(1, 1, -1).rotate(rotation));
     }
@@ -501,6 +510,21 @@ public final class ShopRegistry extends SavedData {
         setDirty();
         GameplayLog.world(level, "shop", "action=membership shop={} player={} spent={} total={} tier={}->{}",
                 shop.id, player, amount, total, before, tier);
+    }
+    void refuseToday(ServerLevel level, Entry shop, UUID player) {
+        int today = ShopStock.today(level);
+        shop.refusedUntilDay.values().removeIf(until -> until <= today);
+        shop.refusedUntilDay.put(player, today + 1);
+        setDirty();
+    }
+
+    public void setTestMembership(ServerPlayer player, Entry shop, ShopMembership tier) {
+        int total = tier.threshold();
+        if (total == 0) shop.spent.remove(player.getUUID());
+        else shop.spent.put(player.getUUID(), total);
+        setDirty();
+        ShopTrade.say(player, "membership.test", tier.nameText(), total);
+        GameplayLog.event(player, "shop", "action=membership result=test_set shop={} total={} tier={}", shop.id, total, tier);
     }
     /** A reserved animal that is gone (died, or left the shop other than by its sale): its deposit is owed back to the buyer. */
     void refund(Entry shop, UUID animal) {
@@ -575,6 +599,7 @@ public final class ShopRegistry extends SavedData {
             c.put("Refunds", balances(shop.refunds, "Owed"));
             c.put("Proceeds", balances(shop.proceeds, "Owed"));
             c.put("Membership", balances(shop.spent, "Spent"));
+            c.put("RefusedUntilDay", balances(shop.refusedUntilDay, "Day"));
             list.add(c);
         }
         tag.put("Shops", list);
@@ -645,6 +670,7 @@ public final class ShopRegistry extends SavedData {
             readBalances(c, "Refunds", "Owed", shop.refunds);
             readBalances(c, "Proceeds", "Owed", shop.proceeds);
             readBalances(c, "Membership", "Spent", shop.spent);
+            readBalances(c, "RefusedUntilDay", "Day", shop.refusedUntilDay);
             result.shops.put(shop.id, shop);
         }
         return result;

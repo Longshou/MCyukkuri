@@ -6787,7 +6787,12 @@
   "shop.mcyukkuri.membership.1": "会员",
   "shop.mcyukkuri.membership.2": "贵宾",
   "shop.mcyukkuri.membership.next": "%s · 累计消费 %s 升档",
-  "shop.mcyukkuri.membership.door": "这扇门需要%s资格，右键店员查看会员等级。",
+  "shop.mcyukkuri.membership.door": "这扇门需要%s资格，还差 %s 绿宝石消费。",
   "shop.mcyukkuri.membership.door_busy": "有人正在过门，请稍等。",
-  "shop.mcyukkuri.membership.staff_area": "%s：这里是员工区，请回到顾客区。"
+  "shop.mcyukkuri.membership.leave": "%s：请离开限制区。回到顾客区后才为你服务。",
+  "shop.mcyukkuri.membership.leave_banned": "%s：请离开限制区。本店今天不再为你服务。",
+  "shop.mcyukkuri.membership.service.1": "回到顾客区后才为你服务。",
+  "shop.mcyukkuri.membership.service.2": "本店今天不再为你服务。",
+  "shop.mcyukkuri.membership.test": "本场资格：%s（累计消费 %s）",
+  "shop.mcyukkuri.membership.test_missing": "这个位置没有已登记的商店。"
 }

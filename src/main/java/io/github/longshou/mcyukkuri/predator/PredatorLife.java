@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CombatCourage;
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -365,6 +366,7 @@ public final class PredatorLife implements EcologyRoutine {
     public boolean canFlyTo(BlockPos pos) {
         if (!level().hasChunkAt(pos) || !level().getFluidState(pos).isEmpty()) return false;
         var navigation = new FlyingPathNavigation(animal, level());
+        navigation.setCanPassDoors(!TravelRange.staysBehindDoors(animal));
         SearchBudget.path(animal);
         var path = navigation.createPath(pos, 0);
         return path != null && path.canReach();

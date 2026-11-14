@@ -34,6 +34,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,12 +45,11 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /**
- * Shop staff work (docs/FEATURES.md, 宠物店). Every staff member of a shop is the same: when free (awake, not trading, empty-handed) it takes
+ * Shop staff work (docs/FEATURES.md, 宠物店). The counter clerk stays on the sales counter while the other staff take
  * the most pressing piece of work that the shop's real state calls for, in this order: an animal waiting for its buyer, a companion waiting to be
  * sold, a sick or injured animal, a hungry dependent youngster, a bowl running low, a basket waiting in the arrivals barrel or on the floor, an animal marked to ship out, a toilet or floor waste to
  * clean. Staff choose work from the site's saved orders, bowls, toilets, barrels and baskets.
@@ -59,7 +59,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  * finished leaves the target to others for a while and anything held where it can be found again.
  */
 public final class ShopStaff {
-    enum Kind { BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, FEED_YOUNG, CLEAN, STREET_SCRAP }
+    enum Kind { COUNTER, REFUSE, BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, FEED_YOUNG, CLEAN, STREET_SCRAP }
     private enum Phase { GO, WORK, CARRY }
     private static final class Job {
         final UUID staff, shop; final Kind kind;
@@ -112,8 +112,8 @@ public final class ShopStaff {
     private static final int SCRAP_COOLDOWN = 24000;
     private static final String SCRAP_AFTER = "StreetScrapAfter";
 
-    public static void started(ServerStartingEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); }
-    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); }
+    public static void started(ServerStartingEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); ShopAccess.clear(); }
+    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); ShopAccess.clear(); }
     /** True while the staff member runs a job: its routine and strolling goals stand aside. */
     public static boolean active(HumanNpc staff) { return JOBS.containsKey(staff.getUUID()); }
     public static boolean busy(HumanNpc npc) { return active(npc) || !npc.getMainHandItem().isEmpty(); }
@@ -133,11 +133,36 @@ public final class ShopStaff {
         if (shop == null) return;
         ShopRestock.tick(level, shop);
         reviewOrders(level, shop);
-        if (staff.isTrading() || staff.hurtTime > 0) return;
+        if (staff.hurtTime > 0 || staff.isTrading()) return;
+        long now = level.getGameTime();
+        if (UNREACHABLE.size() > 64) UNREACHABLE.prune(now);
+        var clerks = shop.loadedStaff(level);
+        var counter = clerks.stream().filter(n -> !UNREACHABLE.active(n.getUUID(), now))
+                .min(Comparator.comparing((HumanNpc n) -> !n.home().equals(shop.pos))
+                        .thenComparingDouble(n -> n.home().distSqr(shop.counter())).thenComparing(HumanNpc::getUUID)).orElse(null);
+        if (counter == staff && !atCounter(staff.position(), Vec3.atBottomCenterOf(shop.counter()))) {
+            var job = new Job(staff.getUUID(), shop.id, Kind.COUNTER);
+            job.target = shop.counter();
+            start(staff, job, Vec3.atBottomCenterOf(job.target));
+            return;
+        }
         if (resume(level, staff, shop)) return;
-        if (staff.resting() || !staff.getMainHandItem().isEmpty()) return;
+        if (staff.resting() || !staff.getMainHandItem().isEmpty() || counter == staff && clerks.size() > 1) return;
+        for (var player : level.getPlayers(p -> ShopAccess.needsRefusal(shop, p) && !UNREACHABLE.active(new RefusalTarget(p.getUUID(), shop.id), now)
+                && JOBS.values().stream().noneMatch(j -> p.getUUID().equals(j.animal)))) {
+            var nearest = clerks.stream().filter(n -> (clerks.size() == 1 || n != counter) && !busy(n)
+                            && !n.isTrading() && n.hurtTime == 0 && !n.resting())
+                    .min(Comparator.<HumanNpc>comparingDouble(player::distanceToSqr).thenComparing(HumanNpc::getUUID)).orElse(null);
+            if (nearest != staff) continue;
+            var job = new Job(staff.getUUID(), shop.id, Kind.REFUSE);
+            job.animal = player.getUUID();
+            start(staff, job, player.position());
+            return;
+        }
         pick(level, staff, shop);
     }
+
+    private record RefusalTarget(UUID player, UUID shop) {}
 
     /** Orders nobody serves yet are still checked: a buyer who left, nightfall or a lost animal cancels them visibly. */
     static void reviewOrders(ServerLevel level, ShopRegistry.Entry shop) {
@@ -168,7 +193,6 @@ public final class ShopStaff {
 
     private static void pick(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop) {
         long now = level.getGameTime();
-        if (UNREACHABLE.size() > 64) UNREACHABLE.prune(now);
         var stock = ShopRegistry.liveStock(level, shop);
         for (var entry : shop.orders.entrySet()) {
             var order = entry.getValue();
@@ -351,6 +375,22 @@ public final class ShopStaff {
             return;
         }
         if (++job.leg > LEG) { fail(level, staff, shop, job, "leg_timeout"); return; }
+        if (job.kind == Kind.COUNTER) {
+            var counter = Vec3.atBottomCenterOf(job.target);
+            if (staff.onGround() && atCounter(staff.position(), counter)) end(staff, job, "at_counter");
+            else walk(level, staff, shop, job, counter);
+            return;
+        }
+        if (job.kind == Kind.REFUSE) {
+            if (!(level.getPlayerByUUID(job.animal) instanceof ServerPlayer player) || !ShopAccess.needsRefusal(shop, player))
+                end(staff, job, "customer_left");
+            else if (staff.distanceToSqr(player) <= REACH * REACH && staff.hasLineOfSight(player)) {
+                staff.getLookControl().setLookAt(player, 30, 30);
+                ShopAccess.turnAway(staff, shop, player);
+                end(staff, job, "refused");
+            } else walk(level, staff, shop, job, player.position().add(0, player.getBbHeight() / 2, 0));
+            return;
+        }
         switch (job.phase) {
             case GO -> go(level, staff, shop, job);
             case WORK -> work(level, staff, shop, job);
@@ -400,6 +440,7 @@ public final class ShopStaff {
                 var y = animal(level, job);
                 if (y == null || !ShopTrade.stockOf(y, shop.id) || !shipOut(y) || y.pet().busy() || shop.deposit(y.getUUID()) != null) return "kept";
             }
+            case COUNTER, REFUSE -> throw new IllegalStateException("No work phase for " + job.kind);
             case NURSERY -> {
                 var y = animal(level, job);
                 if (y == null || !readyNursery(y)) return "nursery_changed";
@@ -723,7 +764,7 @@ public final class ShopStaff {
         boolean detourToSameStand = obstruction != null && previous != null && !job.tried.contains(previous);
         if (previous != null) job.tried.add(previous);
         if (job.tried.size() >= MAX_APPROACHES) { fail(level, staff, shop, job, "unreachable"); return; }
-        boolean counter = job.phase == Phase.CARRY && job.kind == Kind.BUY;
+        boolean counter = job.kind == Kind.COUNTER || job.phase == Phase.CARRY && job.kind == Kind.BUY;
         var touched = job.phase == Phase.CARRY || job.loose == null && job.animal == null ? job.target : null;
         var free = new LinkedHashSet<BlockPos>();
         var occupiedByStock = new LinkedHashSet<BlockPos>();
@@ -802,7 +843,11 @@ public final class ShopStaff {
      */
     private static void fail(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, String reason) {
         long now = level.getGameTime();
-        Object key = job.phase == Phase.CARRY ? job.target : job.animal != null ? job.animal : job.target;
+        Object key = switch (job.kind) {
+            case COUNTER -> job.staff;
+            case REFUSE -> new RefusalTarget(job.animal, job.shop);
+            default -> job.phase == Phase.CARRY ? job.target : job.animal != null ? job.animal : job.target;
+        };
         if (key != null) UNREACHABLE.put(job.kind == Kind.TREAT ? new CareTarget(job.animal) : key, now + RETRY);
         GameplayLog.limited(staff, "shop", "job_fail." + job.kind + "." + reason, 200, "action=job result=failed kind={} phase={} reason={} target={} token={} leg_ticks={}",
                 job.kind, job.phase, reason, key, job.token, job.leg);
@@ -860,6 +905,7 @@ public final class ShopStaff {
         if (event.getEntity() instanceof HumanNpc staff && event.getLevel() instanceof ServerLevel) {
             clearHatch(staff, JOBS.remove(staff.getUUID()));
         }
+        if (event.getEntity() instanceof ServerPlayer player) ShopAccess.leaving(player);
     }
 
     private static void clearHatch(HumanNpc staff, Job job) {

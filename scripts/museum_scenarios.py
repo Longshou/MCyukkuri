@@ -2004,11 +2004,13 @@ STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
 # Any shop staff member (all three have the same job and the same menu).
 SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
+SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'oni_shop': (11, 12)}
+SHOP_ACCESS_HINT = '商店观察台的“访客／会员／贵宾”按钮可更换本店资格。'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
     '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、亚成芙兰），后院放养赤油与亚成油。'
-    '三位店员没有区别，右键哪一位都打开同一个菜单：在售页列出店里此刻真实在场的全部个体，可购买或交定金预订；收购页可把自己的油卖给店里。'
-    '先试访客开铁门，再购买用品或活体，看菜单底部会员等级变化。会员试着进后屋和后院，贵宾可进展栏。'
+    '正对进门处的柜台有店员值守，右键哪一位都打开同一个菜单。访客先试开铁门，会员进后屋和后院，贵宾也可进展栏。'
+    + SHOP_ACCESS_HINT +
     '展舱和捕食种房的食盆清空了、两个厕所放了便便：店员会进栏添粮，把便便清进后屋的桶。',
     '建筑几秒；白天约 10–60 秒看店员添食、清厕',
     ['yukkuri human build shop ~8 ~ ~17 south'],
@@ -2042,7 +2044,8 @@ _window_west = sel('customer_west', 80)
 _window_wary = sel('customer_wary', 80)
 add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭',
     '沿临街展舱和捕食种房慢慢走。子油灵梦会卖力展示，爱丽丝可亮出钻石章，没徽章的芙兰也能昂首。'
-    '注意橙面对熟悉顾客时的鞠躬、面对害怕的人时的退藏，以及上架 17 天的蕾米莉亚转身失落。向仍在恳求的个体挥别时，看它的反应',
+    '注意橙面对熟悉顾客时的鞠躬、面对害怕的人时的退藏，以及上架 17 天的蕾米莉亚转身失落。向仍在恳求的个体挥别时，看它的反应。'
+    + SHOP_ACCESS_HINT,
     '建筑几秒；走到展舱 8 格内，1–2 秒内回应',
     ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
      'scoreboard players remove #now scn_t 408000',
@@ -2053,15 +2056,17 @@ add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆�
     env=DAY, vantage=(16, 18, 180, 0),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy', 'shop', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台',
-    '进店右键任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。最先空下来的店员拿空运输篮走到展舱铁门前，开门进去，'
+    '进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开铁门进展舱，'
     '她钻进篮子的那一刻才扣款，店员出门关门，提篮回到柜台交到你手上（不在柜台边就放在柜台上，只有你能拿）。隔壁的子油橙看着她被带走。'
-    '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱',
+    '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱。'
+    + SHOP_ACCESS_HINT,
     '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 14, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
 add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
     '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
-    '沿着橱窗慢慢走，看个体怎样回应。先看菜单底部会员等级，购买后再试后屋铁门和展栏铁门。',
+    '沿着橱窗慢慢走，看个体怎样回应。先看菜单底部会员等级，再试后屋铁门和展栏铁门。'
+    + SHOP_ACCESS_HINT,
     '建筑几秒，展舱附近等片刻', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
@@ -5274,7 +5279,34 @@ _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-c
 next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     (100, f'execute at @e[type=mcyukkuri:alice,distance=..60,nbt={{NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},limit=1] positioned ~ ~ ~.6 run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
     (1500, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:65000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
+    (850, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator enter'),
+    (851, 'yukkuri scenario shop_door_click ~15 ~3 ~5 south'),
+    (852, 'execute if block ~15 ~2 ~5 minecraft:iron_door[open=false] run say MCYSHOP_VISITOR_DOOR_CLOSED'),
+    (853, 'execute as @p at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ member'),
+    (854, 'yukkuri scenario shop_door_click ~14 ~2 ~5 south'),
+    (855, 'execute if block ~14 ~3 ~5 minecraft:iron_door[open=true] if block ~15 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_MEMBER_DOOR_OPEN'),
+    (856, 'execute positioned ~15.5 ~2 ~4.5 run yukkuri scenario tool_operator move'),
+    (857, 'yukkuri scenario shop_door_click ~15 ~3 ~5 north'),
+    (858, 'execute if block ~14 ~2 ~5 minecraft:iron_door[open=false] if block ~15 ~3 ~5 minecraft:iron_door[open=false] run say MCYSHOP_MEMBER_DOOR_CLOSED'),
+    (859, 'execute as @p at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ visitor'),
+    (980, 'yukkuri scenario shop_door_click ~14 ~2 ~5 north'),
+    (981, 'execute if block ~14 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_EGRESS'),
+    (982, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator move'),
+    (1040, 'execute as @p at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ patron'),
+    (1041, 'execute positioned ~14.5 ~2 ~8.5 run yukkuri scenario tool_operator move'),
+    (1042, 'yukkuri scenario shop_door_click ~14 ~3 ~9 north'),
+    (1043, 'execute if block ~14 ~3 ~9 minecraft:iron_door[open=true] if block ~15 ~2 ~9 minecraft:iron_door[open=true] run say MCYSHOP_PATRON_DOOR_OPEN'),
+    (1044, 'execute at ' + BOOTH.format('alice', 3) + ' run yukkuri scenario tool_operator move'),
+    (1045, 'execute as @p at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ visitor'),
+    (1046, f'yukkuri scenario shop_stock_click {BOOTH.format("alice", 3)}'),
+    (1049, 'yukkuri scenario tool_operator leave'),
 ]
+next(s for s in S if s.id == 'shop_build').smoke['expect'].extend([
+    r'MCYSHOP_VISITOR_DOOR_CLOSED', r'MCYSHOP_MEMBER_DOOR_OPEN', r'MCYSHOP_MEMBER_DOOR_CLOSED',
+    r'MCYSHOP_VISITOR_EGRESS', r'MCYSHOP_PATRON_DOOR_OPEN',
+    r'\[shop\][^\n]* action=service result=turned_away [^\n]*tier=VISITOR required=MEMBER',
+    r'\[shop\][^\n]* action=service result=refused_today [^\n]*reason=touched_stock',
+])
 # Headless customers stand on the pavement outside the pens (NoAI keeps them there).
 def _window_customer(dx, name):
     return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~15.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[180f,0f],'

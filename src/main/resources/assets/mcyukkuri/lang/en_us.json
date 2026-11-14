@@ -6789,7 +6789,12 @@
   "shop.mcyukkuri.membership.1": "Member",
   "shop.mcyukkuri.membership.2": "Patron",
   "shop.mcyukkuri.membership.next": "%s · Spend %s total to advance",
-  "shop.mcyukkuri.membership.door": "This door requires %s access. Ask a clerk for your tier.",
+  "shop.mcyukkuri.membership.door": "%s access required. Spend %s more emeralds here.",
   "shop.mcyukkuri.membership.door_busy": "Someone is in the doorway. Please wait.",
-  "shop.mcyukkuri.membership.staff_area": "%s: Staff area. Please return to the sales floor."
+  "shop.mcyukkuri.membership.leave": "%s: Leave the restricted area. We’ll serve you back on the sales floor.",
+  "shop.mcyukkuri.membership.leave_banned": "%s: Leave the restricted area. We won’t serve you again today.",
+  "shop.mcyukkuri.membership.service.1": "Return to the sales floor for service.",
+  "shop.mcyukkuri.membership.service.2": "Service refused for today.",
+  "shop.mcyukkuri.membership.test": "Test tier: %s (%s emeralds spent)",
+  "shop.mcyukkuri.membership.test_missing": "No registered shop at this position."
 }

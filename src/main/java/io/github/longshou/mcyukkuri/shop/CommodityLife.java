@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -56,6 +57,11 @@ public final class CommodityLife {
         ItemStack hand = player.getMainHandItem();
         boolean factory = buyer.job() == HumanNpc.Job.FACTORY, shop = buyer.job() == HumanNpc.Job.SHOPKEEPER;
         if (!(factory || shop) || !FillingResource.isCore(hand)) return false;
+        if (shop && player instanceof ServerPlayer server) {
+            var level = server.serverLevel();
+            var site = ShopRegistry.get(level).of(buyer);
+            if (site != null && ShopAccess.refuseService(level, site, server)) return true;
+        }
         if (buyer.remainingTrades() <= 0 || buyer.resting()) {
             GameplayLog.event(player,"shop","action=sell_core result=refused buyer={} reason={}",buyer.getUUID(),buyer.remainingTrades()<=0?"trade_limit":"resting");
             player.displayClientMessage(Component.translatable("human.mcyukkuri.core.refused"), true); return true;

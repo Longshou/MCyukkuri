@@ -36,10 +36,10 @@ public final class ShopProtection {
         return level instanceof ServerLevel server && ShopRegistry.get(server).protectedAt(server, pos);
     }
     /** A stock animal standing in its own shop. */
-    private static boolean stock(Entity target) {
-        if (!(target instanceof YukkuriEntity y) || !(y.level() instanceof ServerLevel level)) return false;
+    private static ShopRegistry.Entry stockShop(Entity target) {
+        if (!(target instanceof YukkuriEntity y) || !(y.level() instanceof ServerLevel level)) return null;
         var shop = ShopRegistry.get(level).shopAt(level, y.position());
-        return shop != null && ShopTrade.stockOf(y, shop.id);
+        return shop != null && ShopTrade.stockOf(y, shop.id) ? shop : null;
     }
     private static void refuse(Player player, String what) {
         player.displayClientMessage(Component.translatable("shop.mcyukkuri.protect." + what), true);
@@ -85,6 +85,7 @@ public final class ShopProtection {
             boolean wooden = door.type().canOpenByHand();
             if (wooden && !ShopAccess.legacyServiceDoor(shop, pos)) return;
             var required = ShopAccess.doorTier(shop, pos);
+            if (required == null) return;
             boolean allowed = shop.membership(player.getUUID()).allows(required);
             boolean egress = !allowed && ShopAccess.egress(shop, player, pos);
             if (wooden && (allowed || egress)) return;
@@ -94,9 +95,10 @@ public final class ShopProtection {
             if (allowed || egress) {
                 ShopDoors.toggle(player, shop, pos, egress);
             } else {
-                ShopTrade.say(player, "membership.door", required.nameText());
-                GameplayLog.limited(player, "shop", "membership_door", 100, "action=door result=refused shop={} door={} required={}",
-                        shop.id, pos, required);
+                int missing = required.threshold() - shop.spend(player.getUUID());
+                ShopTrade.say(player, "membership.door", required.nameText(), missing);
+                GameplayLog.limited(player, "shop", "membership_door." + required, 100,
+                        "action=door result=refused shop={} door={} required={} missing={}", shop.id, pos, required, missing);
             }
             return;
         }
@@ -105,14 +107,19 @@ public final class ShopProtection {
         if (event.getHand() == InteractionHand.MAIN_HAND) refuse(event.getEntity(), "block");
     }
     public static void touched(PlayerInteractEvent.EntityInteract event) {
-        if (event.getLevel().isClientSide()) return;
-        var player = event.getEntity(); var target = event.getTarget();
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        var target = event.getTarget();
         if (target instanceof ItemFrame frame && guarded(event.getLevel(), frame.getPos())) {
             event.setCanceled(true); event.setCancellationResult(InteractionResult.FAIL);
             if (event.getHand() == InteractionHand.MAIN_HAND) refuse(player, "frame");
             return;
         }
-        if (!stock(target)) return;
+        var shop = stockShop(target);
+        if (shop == null) return;
+        if (event.getHand() == InteractionHand.MAIN_HAND && ShopAccess.touchStock(player.serverLevel(), shop, player)) {
+            event.setCanceled(true); event.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
         var held = event.getItemStack();
         // The empty hand asks the staff (the menu on its row); the magnifying glass only looks.
         if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND && !player.isSecondaryUseActive() || held.is(ModItems.MAGNIFYING_GLASS.get())) return;
@@ -120,9 +127,14 @@ public final class ShopProtection {
         if (event.getHand() == InteractionHand.MAIN_HAND) refuse(player, "stock");
     }
     public static void touchedAt(PlayerInteractEvent.EntityInteractSpecific event) {
-        if (event.getLevel().isClientSide()) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
         var target = event.getTarget();
-        if (target instanceof ItemFrame frame && guarded(event.getLevel(), frame.getPos()) || stock(target) && !event.getItemStack().isEmpty()
+        var shop = stockShop(target);
+        if (shop != null && event.getHand() == InteractionHand.MAIN_HAND && ShopAccess.touchStock(player.serverLevel(), shop, player)) {
+            event.setCanceled(true); event.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        if (target instanceof ItemFrame frame && guarded(event.getLevel(), frame.getPos()) || shop != null && !event.getItemStack().isEmpty()
                 && !event.getItemStack().is(ModItems.MAGNIFYING_GLASS.get())) {
             event.setCanceled(true); event.setCancellationResult(InteractionResult.FAIL);
         }
@@ -130,7 +142,7 @@ public final class ShopProtection {
     public static void struck(AttackEntityEvent event) {
         var target = event.getTarget();
         var player = event.getEntity();
-        if (player.level().isClientSide()) return;
+        if (!(player instanceof ServerPlayer server)) return;
         if (target instanceof ItemFrame frame && guarded(frame.level(), frame.getPos())) {
             event.setCanceled(true);
             refuse(player, "frame");
@@ -138,17 +150,23 @@ public final class ShopProtection {
             var reason = Custody.harmRefusal(player, animal, animal.blockPosition());
             if (reason == null) return;
             event.setCanceled(true);
+            var shop = stockShop(animal);
+            if (shop != null && ShopAccess.touchStock(server.serverLevel(), shop, server)) return;
             InteractionDispatch.refuse(player, animal, "attack", reason);
         }
     }
     /** Arrows, thrown things and any other harm a player causes to stock. */
     public static void harmed(LivingIncomingDamageEvent event) {
-        if (event.getSource().getEntity() instanceof Player player && event.getEntity() instanceof YukkuriEntity animal
-                && Custody.harmRefusal(player, animal, animal.blockPosition()) != null) event.setCanceled(true);
+        if (event.getSource().getEntity() instanceof ServerPlayer player && event.getEntity() instanceof YukkuriEntity animal
+                && Custody.harmRefusal(player, animal, animal.blockPosition()) != null) {
+            event.setCanceled(true);
+            var shop = stockShop(animal);
+            if (shop != null) ShopAccess.touchStock(player.serverLevel(), shop, player);
+        }
     }
     public static void exploded(ExplosionEvent.Detonate event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         event.getAffectedBlocks().removeIf(pos -> guarded(level, pos));
-        event.getAffectedEntities().removeIf(e -> e instanceof ItemFrame frame && guarded(level, frame.getPos()) || stock(e));
+        event.getAffectedEntities().removeIf(e -> e instanceof ItemFrame frame && guarded(level, frame.getPos()) || stockShop(e) != null);
     }
 }

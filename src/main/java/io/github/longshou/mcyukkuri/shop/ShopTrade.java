@@ -22,6 +22,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -125,7 +127,9 @@ public final class ShopTrade {
         if (!y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id)) return "gone";
         if (order.kind().equals(HANDOVER)) return null;
         if (!level.isDay()) return "closed";
-        return present(level, shop, order.customer()) == null ? "buyer_left" : null;
+        var buyer = present(level, shop, order.customer());
+        if (buyer == null) return "buyer_left";
+        return ShopAccess.service(level, shop, buyer) == ShopAccess.Service.AVAILABLE ? null : "service";
     }
 
     /** A purchase or sale that cannot go on: the animal is let go and the customer is told why; nothing was paid. */
@@ -137,7 +141,8 @@ public final class ShopTrade {
         var y = level.getEntity(animal) instanceof YukkuriEntity target ? target : null;
         if (y != null) y.pet().unlock(kind);
         boolean sale = !kind.equals(SELL);
-        if (!kind.equals(HANDOVER)) ShopRegistry.get(level).tell(level, customer, (sale ? "buy" : "sell") + ".cancelled." + reason,
+        if (reason.equals("service")) ShopAccess.refuseService(level, shop, (ServerPlayer) level.getPlayerByUUID(customer));
+        else if (!kind.equals(HANDOVER)) ShopRegistry.get(level).tell(level, customer, (sale ? "buy" : "sell") + ".cancelled." + reason,
                 y == null ? Component.translatable("shop.mcyukkuri.reserve.animal") : y.getDisplayName());
         GameplayLog.world(level, "shop", "action={} result=cancelled shop={} target={} customer={} reason={} emeralds_used=0",
                 sale ? "buy_live" : "sell_live", shop.id, animal, customer, reason);
@@ -201,9 +206,12 @@ public final class ShopTrade {
     /** The top of the counter block beside the staff member (the counter faces the customer side), else its own feet. */
     private static Vec3 counterTop(ServerLevel level, ShopRegistry.Entry shop) {
         var at = shop.counter();
-        if (shop.kind == ShopKind.ONI) {
-            var cell = ShopRegistry.oniCounterTop(shop);
-            if (cell != null && level.getBlockState(cell).isAir()) return Vec3.atBottomCenterOf(cell);
+        var cell = ShopRegistry.authoredCounterTop(shop);
+        if (cell != null) {
+            var state = level.getBlockState(cell);
+            if (state.getBlock() instanceof SlabBlock && state.getValue(SlabBlock.TYPE) == SlabType.BOTTOM)
+                return Vec3.atBottomCenterOf(cell).add(0, .5, 0);
+            if (shop.kind == ShopKind.ONI && state.isAir()) return Vec3.atBottomCenterOf(cell);
         }
         for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL) {
             var c = at.relative(d);
@@ -281,7 +289,9 @@ public final class ShopTrade {
     private static String sellProblem(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, UUID seller) {
         if (!y.isAlive() || seller == null || !y.pet().ownedBy(seller) || !shop.contains(y.position())) return "gone";
         if (!level.isDay()) return "closed";
-        return present(level, shop, seller) == null ? "seller_left" : null;
+        var player = present(level, shop, seller);
+        if (player == null) return "seller_left";
+        return ShopAccess.service(level, shop, player) == ShopAccess.Service.AVAILABLE ? null : "service";
     }
 
     /** The sold companion climbs into the staff basket: it becomes the shop's stock and the seller is paid, in the same tick. */

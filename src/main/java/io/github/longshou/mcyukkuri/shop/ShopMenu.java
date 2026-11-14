@@ -67,7 +67,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class Data {
-        public static final int COUNT = 76;
+        public static final int COUNT = 77;
         public static final int TAB = 0;
         public static final int TRADES_LEFT = 1;
         public static final int DAYTIME = 2;
@@ -101,6 +101,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int SUBJECT_FATHER_BADGE = 73;
         public static final int ONI_SHOP = 74;
         public static final int MEMBERSHIP = 75;
+        public static final int SERVICE_REFUSAL = 76;
         private Data() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -276,6 +277,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
         put(Data.ONI_SHOP, oniShop() ? 1 : 0);
         put(Data.MEMBERSHIP, shop.membership(viewer.getUUID()).ordinal());
+        put(Data.SERVICE_REFUSAL, ShopAccess.service(level, shop, (ServerPlayer) viewer).ordinal());
         put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.id, viewer.getUUID()));
         put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
         if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
@@ -377,6 +379,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     public void clickLive(ServerPlayer p, int button, int entityId) {
         if (p != viewer || !stillValid(p) || shop == null || tab != LIVE || liveRow(button) < 0) return;
         var level = p.serverLevel();
+        if (ShopAccess.refuseService(level, shop, p)) return;
         if (!(level.getEntity(entityId) instanceof YukkuriEntity y) || !y.isAlive() || !roster.contains(y.getUUID())
                 || !shop.contains(y.position()) || !ShopTrade.stockOf(y, shop.id)) {
             ShopTrade.say(p, "buy.refused.gone");
@@ -406,6 +409,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             rescan(); if (!mine.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : mine.size() - 1)) % mine.size();
             broadcastChanges(); return true;
         }
+        if (ShopAccess.refuseService(level, shop, player)) return false;
         boolean ok;
         if (liveRow(id) >= 0) return false;
         if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
@@ -347,8 +348,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (level().isClientSide || variant == null || !SpeciesProfile.of(variant).dangerToYukkuri() || predatorFlying() == flying) return;
         navigation.stop();
         sync().predatorFlight(flying); setNoGravity(flying); fallDistance = 0;
-        navigation = flying ? new FlyingPathNavigation(this, level())
-                : new YukkuriGroundNavigation(this, level());
+        if (flying) {
+            var flight = new FlyingPathNavigation(this, level());
+            flight.setCanPassDoors(!TravelRange.staysBehindDoors(this));
+            navigation = flight;
+        } else navigation = new YukkuriGroundNavigation(this, level());
         moveControl = flying ? new FlyingMoveControl(this, 30, true)
                 : new HouseCrawlControl(this);
         Motor.velocity(this, getDeltaMovement().scale(.25), "predator_takeoff");

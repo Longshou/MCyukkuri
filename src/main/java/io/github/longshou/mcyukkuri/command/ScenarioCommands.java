@@ -176,6 +176,10 @@ public final class ScenarioCommands {
                         .then(Commands.literal("enter").executes(context->toolOperator(context.getSource(),true)))
                         .then(Commands.literal("move").executes(context->moveToolOperator(context.getSource())))
                         .then(Commands.literal("leave").executes(context->toolOperator(context.getSource(),false))))
+                .then(Commands.literal("shop_door_click").then(Commands.argument("door", BlockPosArgument.blockPos())
+                        .then(Commands.argument("face", StringArgumentType.word()).executes(ScenarioCommands::shopDoorClick))))
+                .then(Commands.literal("shop_stock_click").then(Commands.argument("target", EntityArgument.entity())
+                        .executes(ScenarioCommands::shopStockClick)))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fear").then(Commands.argument("target", EntityArgument.entity())
@@ -399,6 +403,23 @@ public final class ScenarioCommands {
         if(source.getEntity()!=null||!(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player))return 0;
         player.setPos(source.getPosition());
         return 1;
+    }
+
+    private static int shopDoorClick(CommandContext<CommandSourceStack> c) {
+        var level = c.getSource().getLevel();
+        if (c.getSource().getEntity() != null || !(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+        var pos = BlockPosArgument.getBlockPos(c, "door");
+        var face = Direction.byName(StringArgumentType.getString(c, "face"));
+        if (face == null || !player.canInteractWithBlock(pos, 0)) return 0;
+        var hit = new BlockHitResult(Vec3.atCenterOf(pos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(.5)), face, pos, false);
+        return player.gameMode.useItemOn(player, level, ItemStack.EMPTY, InteractionHand.MAIN_HAND, hit).consumesAction() ? 1 : 0;
+    }
+
+    private static int shopStockClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var level = c.getSource().getLevel();
+        if (c.getSource().getEntity() != null || !(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+        var target = EntityArgument.getEntity(c, "target");
+        return player.canInteractWithEntity(target, 0) && player.interactOn(target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
     }
 
     private static int toolClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

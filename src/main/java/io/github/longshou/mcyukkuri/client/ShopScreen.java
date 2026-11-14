@@ -63,10 +63,11 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     @Override protected void containerTick() {
         super.containerTick();
         int tab = menu.value(ShopMenu.Data.TAB); boolean day = menu.value(ShopMenu.Data.DAYTIME) != 0, own = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 0;
+        boolean serves = menu.value(ShopMenu.Data.SERVICE_REFUSAL) == 0;
         actions[ShopMenu.ButtonId.ORDERS_TAB].active = tab != ShopMenu.ORDERS;
         for (int i = 0; i < ShopOrders.PER_DAY; i++) {
             actions[ShopMenu.ButtonId.DELIVER_ORDER_BASE + i].visible = tab == ShopMenu.ORDERS;
-            actions[ShopMenu.ButtonId.DELIVER_ORDER_BASE + i].active = day && (menu.value(ShopMenu.Data.ORDERS_DONE) >> i & 1) == 0 && menu.value(ShopMenu.Data.ORDER_BASE + i) > 0;
+            actions[ShopMenu.ButtonId.DELIVER_ORDER_BASE + i].active = serves && day && (menu.value(ShopMenu.Data.ORDERS_DONE) >> i & 1) == 0 && menu.value(ShopMenu.Data.ORDER_BASE + i) > 0;
         }
         for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
             actions[i].active = tab != i;
@@ -76,8 +77,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                         mineReserved = (f & ShopMenu.Flags.RESERVED_YOU) != 0, otherReserved = (f & ShopMenu.Flags.RESERVED_OTHER) != 0;
                 actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].visible = actions[ShopMenu.ButtonId.RESERVE_BASE + i].visible = actions[ShopMenu.ButtonId.ABOUT_BASE + i].visible = tab == ShopMenu.LIVE;
                 // Clicks stay possible whenever the row exists: the server answers with the exact reason (closed, reserved, emeralds).
-                actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].active = has && !ordered; actions[ShopMenu.ButtonId.ABOUT_BASE + i].active = has;
-                actions[ShopMenu.ButtonId.RESERVE_BASE + i].active = has && !ordered && !mineReserved && !otherReserved;
+                actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].active = serves && has && !ordered; actions[ShopMenu.ButtonId.ABOUT_BASE + i].active = serves && has;
+                actions[ShopMenu.ButtonId.RESERVE_BASE + i].active = serves && has && !ordered && !mineReserved && !otherReserved;
                 if (has) {
                     actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].setMessage(Component.translatable(mineReserved ? "shop.mcyukkuri.buy_rest" : "shop.mcyukkuri.buy_price", price));
                     actions[ShopMenu.ButtonId.RESERVE_BASE + i].setMessage(Component.translatable(mineReserved || otherReserved ? "shop.mcyukkuri.reserved"
@@ -88,7 +89,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].visible = tab == ShopMenu.GOODS && !stack.isEmpty();
             int left = menu.value(ShopMenu.Data.GOODS_STOCK_BASE + i), need = menu.value(ShopMenu.Data.GOODS_UNLOCK_BASE + i), standing = menu.value(ShopMenu.Data.STANDING);
             boolean soldOut = left <= 0, locked = standing < need;
-            actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].active = day && menu.value(ShopMenu.Data.TRADES_LEFT) > 0 && !soldOut && !locked;
+            actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].active = serves && day && menu.value(ShopMenu.Data.TRADES_LEFT) > 0 && !soldOut && !locked;
             if (!stack.isEmpty()) actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].setMessage(soldOut ? Component.translatable("shop.mcyukkuri.sold_out_label", stack.getHoverName())
                     : locked ? Component.translatable("shop.mcyukkuri.locked_label." + need, stack.getHoverName())
                     : Component.translatable("shop.mcyukkuri.buy_stock", stack.getHoverName(), stack.getCount(), price, left));
@@ -97,7 +98,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 actions[ShopMenu.ButtonId.PREVIOUS_PAGE].active = actions[ShopMenu.ButtonId.NEXT_PAGE].active = menu.value(ShopMenu.Data.PAGE_COUNT) > 1;
         actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].visible = actions[ShopMenu.ButtonId.NEXT_SUBJECT].visible = tab == ShopMenu.BUYBACK ||
                 tab == ShopMenu.CONSULT; actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].active = actions[ShopMenu.ButtonId.NEXT_SUBJECT].active = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 1;
-        actions[ShopMenu.ButtonId.SELL].visible = tab == ShopMenu.BUYBACK; actions[ShopMenu.ButtonId.SELL].active = own;
+        actions[ShopMenu.ButtonId.SELL].visible = tab == ShopMenu.BUYBACK; actions[ShopMenu.ButtonId.SELL].active = serves && own;
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
         panel(g, leftPos, topPos, imageWidth, imageHeight);
@@ -192,6 +193,9 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         var membership = ShopMembership.byId(menu.value(ShopMenu.Data.MEMBERSHIP));
         var membershipLabel = membership.label();
         g.drawString(font, membershipLabel, imageWidth - 8 - font.width(membershipLabel), FOOT + 24, SOFT, false);
+        int refusal = menu.value(ShopMenu.Data.SERVICE_REFUSAL);
+        if (refusal != 0) g.drawString(font, ellipsize(font, Component.translatable("shop.mcyukkuri.membership.service." + refusal),
+                imageWidth - 24 - font.width(membershipLabel)), 8, FOOT + 24, WARN, false);
         int tab = menu.value(ShopMenu.Data.TAB);
         if (tab == ShopMenu.LIVE) {
             for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {

@@ -323,6 +323,9 @@ def build_pack(world):
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
         bounds = ','.join(str(value) for value in (bx1, by1, bz1, bx2, by2, bz2))
         body.insert(0, f'yukkuri status trace window {s.id} {f.id} {bounds}')
+        if s.id in museum_scenarios.SHOP_ACCESS:
+            dx, dz = museum_scenarios.SHOP_ACCESS[s.id]
+            body.append(f'summon minecraft:marker ~{dx} ~2 ~{dz} {{Tags:["scn","mcylab_shop_access"]}}')
         if s.late:
             late_lines = [f'execute positioned {ax}.0 {FEET} {az}.0 run {line}' for line in s.late if isinstance(line, str)]
             for ri, retry in enumerate(r for r in s.late if not isinstance(r, str)):
@@ -386,6 +389,13 @@ def build_pack(world):
         # a house yukkuri only moves in while mob spawning is on (HouseholdEcology.enabled); the museum keeps it off, so open it for this one call
         fn(f'extra/{name}', ['gamerule doMobSpawning true'] + lines + ['gamerule doMobSpawning false', 'tellraw @a[distance=..60] ' + _text('已模拟一段人类活动：看屋里落下的絮尘和食屑，随后家油搬入。', 'gold')])
         house.extras.append((f'extra/{name}', caption, hint))
+    shop = BY_ID['shop']
+    for tier, caption in (('visitor', '访客'), ('member', '会员'), ('patron', '贵宾')):
+        fn(f'extra/shop_{tier}', [
+            f'execute at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ {tier}',
+            'execute unless entity @e[tag=mcylab_shop_access,limit=1] run title @s actionbar ' + _text('请先启动 SP-01、SP-02、SP-03 或 SP-05。', 'yellow'),
+        ])
+        shop.extras.append((f'extra/shop_{tier}', caption, '设置本场店铺资格'))
     clips = BY_ID['clips']
     chains = clip_chains()
     clip_lookup, _ = load_clips()

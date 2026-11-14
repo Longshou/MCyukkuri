@@ -19,6 +19,8 @@ public enum ShopMembership {
 
     boolean allows(ShopMembership required) { return ordinal() >= required.ordinal(); }
 
+    int threshold() { return threshold; }
+
     Component nameText() { return Component.translatable("shop.mcyukkuri.membership." + ordinal()); }
 
     public Component label() {

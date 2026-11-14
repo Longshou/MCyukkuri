@@ -178,7 +178,7 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
         goalSelector.addGoal(4, new VillageBin.Sweep(this));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
-            @Override public boolean canUse() { return !streetResident() && !resting() && !isTrading() && super.canUse(); }
+            @Override public boolean canUse() { return job() != Job.SHOPKEEPER && !streetResident() && !resting() && !isTrading() && super.canUse(); }
         });
         goalSelector.addGoal(5, new HumanStreet.Stroll(this));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6));
@@ -415,7 +415,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     /**
      * On a job, shop staff open the iron staff door of their own shop that lies on their path and shut it once they are through
-     * (wooden doors stay with the vanilla goal). Nobody else opens these doors, so the animals behind them stay in their pens.
+     * (wooden doors stay with the vanilla goal).
      */
     private final class StaffDoorGoal extends Goal {
         private BlockPos door;
