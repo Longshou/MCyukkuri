@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.event.HomeClaim;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -197,7 +199,7 @@ public final class CarrierItem extends Item {
         var previousCustody = HumanCommerce.data(entity).copy();
         if (Custody.fromData(previousCustody).role() != Custody.Role.LOST)
             Custody.assign(entity, player, Custody.Role.COMPANION);
-        UUID token = world.capture(entity);
+        UUID token = world.capture(entity, () -> HomeClaim.displaced(entity,player));
         if (token == null) {
             Custody.restore(entity, previousCustody);
             GameplayLog.event(player,"carrier","action=capture result=rolled_back target={} reason=capture_failed",entity.getUUID());

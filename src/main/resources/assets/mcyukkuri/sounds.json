@@ -4399,5 +4399,131 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "voice.original.reimu.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.young.o_home_declare": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.o_home_declare",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.young.o_home_declare",
+        "attenuation_distance": 16
+      }
+    ]
   }
 }

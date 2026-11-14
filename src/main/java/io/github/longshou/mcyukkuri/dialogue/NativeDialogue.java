@@ -108,7 +108,7 @@ public final class NativeDialogue {
                  "mold_notice", "mold_warn", "mold_scorn", "mold_sorrow", "mold_plea", "mold_resist", "mold_leave", "mold_child_cry" -> 2;
             case "hunt_call", "hunt_join", "hunt_refuse", "hunt_back", "ration_give", "ration_get", "rule_blocked",
                  "migrate_discuss", "migrate_object", "migrate_agree", "migrate_pack", "shard_gathered", "accessory_mended",
-                 "hatless_scorn", "hatless_monster" -> 2;
+                 "hatless_scorn", "hatless_monster", "home_declare" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             // Ambient restlessness during a still-running period yields to everything else.
             case "heat_want" -> 0;

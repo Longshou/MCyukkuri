@@ -52,6 +52,16 @@
       "voice": "f1",
       "speed": 85,
       "pitch": 112
+    },
+    "myon.adult": {
+      "voice": "f3",
+      "speed": 95,
+      "pitch": 100
+    },
+    "myon.young": {
+      "voice": "f3",
+      "speed": 95,
+      "pitch": 125
     }
   },
   "flat_accent": true,

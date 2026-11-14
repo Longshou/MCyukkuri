@@ -42,6 +42,7 @@ public final class HomeClaimData extends SavedData {
         public UUID player;
         public GlobalPos retreat;
         public boolean declared;
+        public boolean occupation;
         public int ticks, holdTicks, stageTicks, quarrels;
         public int minX, minY, minZ, maxX, maxY, maxZ;
         public boolean hasBox, foodInside = true;
@@ -82,10 +83,12 @@ public final class HomeClaimData extends SavedData {
     }
     public boolean regionBlocked(GlobalPos site, long now) { return regions.active(RegionKey.cell(site,64),now) || legacyRegions.active(legacyRegion(site),now); }
     public boolean cooling(UUID member, long now) { return cooldowns.active(member,now); }
-    public Claim start(List<UUID> members, GlobalPos site, UUID player) {
+    public Claim start(List<UUID> members, GlobalPos site, UUID player, boolean occupation) {
         if (members.isEmpty() || members.size()>6 || new HashSet<>(members).size()!=members.size()
-                || !EventReservations.free(server,members)) return null;
+                || !EventReservations.free(server,members)
+                || occupation&&active().stream().anyMatch(c -> c.site.dimension().equals(site.dimension())&&c.site.pos().distSqr(site.pos())<9)) return null;
         Claim claim=new Claim(ModRandom.identity(ModRandom.world(server.getLevel(site.dimension()))),members,site); claim.player=player;
+        claim.occupation=occupation;
         if (!EventReservations.acquire(server,members,new EventReservations.Token(EventReservations.Source.HOME,claim.id))) return null;
         claims.put(claim.id,claim); setDirty(); log(claim,"started"); return claim;
     }
@@ -131,6 +134,7 @@ public final class HomeClaimData extends SavedData {
             CompoundTag n=new CompoundTag(); n.putUUID("Id",c.id); FamilyData.putPosition(n,"Site",c.site); FamilyData.putPosition(n,"Retreat",c.retreat);
             c.supervision.save(n);
             n.putString("Stage",c.stage.name()); n.putString("Result",c.result); n.putBoolean("Declared",c.declared);
+            if(c.occupation)n.putBoolean("Occupation",true);
             n.putInt("Ticks",c.ticks); n.putInt("HoldTicks",c.holdTicks); n.putInt("StageTicks",c.stageTicks); n.putInt("Quarrels",c.quarrels);
             n.putBoolean("HasBox",c.hasBox); n.putBoolean("FoodInside",c.foodInside);
             n.putIntArray("Box",new int[]{c.minX,c.minY,c.minZ,c.maxX,c.maxY,c.maxZ});
@@ -167,6 +171,7 @@ public final class HomeClaimData extends SavedData {
                 Claim c=new Claim(n.getUUID("Id"),ids,site); c.stage=Stage.valueOf(n.getString("Stage"));
                 c.supervision.load(n);
                 c.retreat=FamilyData.position(n,"Retreat"); c.result=n.getString("Result"); c.declared=n.getBoolean("Declared");
+                c.occupation=n.getBoolean("Occupation");
                 c.ticks=Math.max(0,n.getInt("Ticks")); c.holdTicks=Math.max(0,n.getInt("HoldTicks")); c.stageTicks=Math.max(0,n.getInt("StageTicks"));
                 c.quarrels=Math.clamp(n.getInt("Quarrels"),0,64); c.hasBox=n.getBoolean("HasBox"); c.foodInside=!n.contains("FoodInside") || n.getBoolean("FoodInside");
                 int[] box=n.getIntArray("Box");

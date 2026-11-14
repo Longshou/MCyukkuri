@@ -19699,6 +19699,178 @@
       ],
       "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
       "english": "Mukyu... I am scared... please stop..."
+    },
+    {
+      "id": "reimu.adult.o_home_declare",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ここが れいむの おうちだよ！",
+      "chinese": "这里是灵梦的家哟！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Reimu's home!"
+    },
+    {
+      "id": "reimu.young.o_home_declare",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ここが れいむの おうちだよ！",
+      "chinese": "这里是灵梦的家哟！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Reimu's home!"
+    },
+    {
+      "id": "marisa.adult.o_home_declare",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここが まりさの おうちだぜ！",
+      "chinese": "这里是魔理沙的家贼！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Marisa's home!"
+    },
+    {
+      "id": "marisa.young.o_home_declare",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここが まりさの おうちだぜ！",
+      "chinese": "这里是魔理沙的家贼！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Marisa's home!"
+    },
+    {
+      "id": "alice.adult.o_home_declare",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここは ありすの とかいはな おうちよ！",
+      "chinese": "这是爱丽丝的都会派之家！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Alice's fashionable home!"
+    },
+    {
+      "id": "alice.young.o_home_declare",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ここは ありすの とかいはな おうちよ！",
+      "chinese": "这是爱丽丝的都会派之家！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Alice's fashionable home!"
+    },
+    {
+      "id": "chen.adult.o_home_declare",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここが ちぇんの おうちなんだよー！",
+      "chinese": "这里就是橙的家哟——！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Chen's home!"
+    },
+    {
+      "id": "chen.young.o_home_declare",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここが ちぇんの おうちなんだよー！",
+      "chinese": "这里就是橙的家哟——！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Chen's home!"
+    },
+    {
+      "id": "patchouli.adult.o_home_declare",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ここが ぱちゅりーの おうちよ。",
+      "chinese": "姆Q，这里是帕秋莉的家。",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "Mukyu, this is Patchouli's home."
+    },
+    {
+      "id": "patchouli.young.o_home_declare",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ここが ぱちゅりーの おうちよ。",
+      "chinese": "姆Q，这里是帕秋莉的家。",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "Mukyu, this is Patchouli's home."
+    },
+    {
+      "id": "myon.miyo.adult.o_home_declare",
+      "species": "myon",
+      "age": "adult",
+      "quirk": "miyo",
+      "japanese": "ここが みょんの おうちだみょん！",
+      "chinese": "这里是咪呦的家，咪呦！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Myon's home, myon!"
+    },
+    {
+      "id": "myon.miyo.young.o_home_declare",
+      "species": "myon",
+      "age": "young",
+      "quirk": "miyo",
+      "japanese": "ここが みょんの おうちだみょん！",
+      "chinese": "这里是咪呦的家，咪呦！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Myon's home, myon!"
+    },
+    {
+      "id": "myon.kinbao.adult.o_home_declare",
+      "species": "myon",
+      "age": "adult",
+      "quirk": "kinbao",
+      "japanese": "ここが きんぽーの おうちだよ！",
+      "chinese": "这里是金寶的家哟！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Kinbao's home!"
+    },
+    {
+      "id": "myon.kinbao.young.o_home_declare",
+      "species": "myon",
+      "age": "young",
+      "quirk": "kinbao",
+      "japanese": "ここが きんぽーの おうちだよ！",
+      "chinese": "这里是金寶的家哟！",
+      "events": [
+        "home_declare"
+      ],
+      "basis": "项目原创：入住所时的住家宣言。",
+      "english": "This is Kinbao's home!"
     }
   ]
 }

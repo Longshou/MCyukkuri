@@ -171,7 +171,7 @@ final class LifeHome {
     boolean maintainHome() {
         if (o.homeProvider().homeStand(o.entity()) != null) return false;
         if(o.entity().habitat().hasMemory()) {
-            if(o.entity().habitat().unavailable()||o.entity().habitat().homeStand()!=null)return false;
+            if(o.entity().habitat().unavailable()||o.entity().habitat().homeStand()!=null||o.entity().habitat().handlesLostHome())return false;
             o.entity().habitat().release();
         }
         if (home != null) {

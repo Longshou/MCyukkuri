@@ -466,7 +466,7 @@ public final class YukkuriLife {
     public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
     public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || entity.family().stemFoodUrgent() || hasUrgentNonFoodNeed(); }
-    private boolean hasUrgentNonFoodNeed() { return energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
+    public boolean hasUrgentNonFoodNeed() { return energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     /** Thirst at the threshold the daytime plan drinks by (dryness 40 or something spicy in the mouth), and only with a drink really in reach. */
     private boolean thirstUrgent() { return (dryness >= 40 || spicyTicks() > 0) && nearestDrink() != null; }
     /** Bladder at {@link #hasUrgentNeed()}'s threshold, and only when the daytime toilet plan has somewhere to go, so waking always ends in relief. */

@@ -94,6 +94,9 @@ def outputs():
             sounds[sound_id] = {'subtitle': key, 'sounds': [{'name': 'mcyukkuri:' + target[7:-4], 'attenuation_distance': 16}]}
         catalog.append(dict(id=ident, key=key, origin=origin, species=line['species'], age=line['age'], events=line['events'],
                             ticks=ticks, sound=sound_id if clip else ''))
+        if 'quirk' in line:
+            assert origin == 'project-original' and line['quirk'] == original['quirk']
+            catalog[-1]['quirk'] = line['quirk']
         locales['zh_cn'][key] = line['chinese']
         locales['ja_jp'][key] = line['japanese']
         english = line.get('english', '')

@@ -3,15 +3,24 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Claim;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Stage;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.NestComfort;
+import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.life.PetNestBlock;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -32,17 +41,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import io.github.longshou.mcyukkuri.settlement.Grazing;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.Locale;
 
 /**
@@ -93,7 +106,8 @@ public final class HomeClaim {
     /** A jump delays action decisions, not membership or site discovery. */
     private static boolean decisionReady(YukkuriEntity e) { return e.onGround(); }
     private static boolean eligible(YukkuriEntity e, boolean housing) {
-        return e.isAlive() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && WildEvents.unowned(e)
+        return e.isAlive() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !e.profile().aquatic()
+                && (e.status().identity()==Identity.STRAY || e.status().identity()==Identity.WILD_FAMILY)
                 && WildEvents.availableForHome(e,housing);
     }
     private static List<YukkuriEntity> family(YukkuriEntity e) {
@@ -132,14 +146,74 @@ public final class HomeClaim {
     /** Called from {@link WildEvents#discover} for an available wild adult; true when a claim started. */
     public static boolean discover(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || !YukkuriConfig.HOME_CLAIMS.get() || !e.family().adult() || !eligible(e,needsHome(e))) return false;
-        if (e.getRandom().nextInt(YukkuriConfig.HOME_CLAIM_CHANCE.get())!=0) return false;
         Player player=level.getNearestPlayer(e,WITNESS);
-        if (player==null || !player.isAlive() || player.isSpectator()) return false;
-        if (HomeClaimData.get(level).cooling(e.getUUID(),level.getGameTime())) return false;
+        var data=HomeClaimData.get(level);
+        if (data.cooling(e.getUUID(),level.getGameTime())) return false;
+        var better=betterHome(e,level,player);
+        if (better!=null) {
+            boolean bed=level.getBlockEntity(better) instanceof CareBlockEntity;
+            var members=bed?List.of(e):family(e);
+            if (members.size()>1 || !e.family().tendsUnweaned()) {
+                var claim=begin(level,members,better,player,false,true);
+                if(claim!=null) {
+                    GameplayLog.event(e,"home-claim","occupation chosen site={} kind={} previous={}",better,bed?"bed":"house",e.life().home());
+                    return true;
+                }
+            }
+        }
+        if (!needsHome(e) || player==null || !player.isAlive() || player.isSpectator()
+                || e.getRandom().nextInt(YukkuriConfig.HOME_CLAIM_CHANCE.get())!=0) return false;
         List<YukkuriEntity> members=family(e);
         if (members.size()<2) return false;
         BlockPos stand=locate(e,e.blockPosition());
-        return stand!=null && begin(level,members,stand,player,false)!=null;
+        return stand!=null && begin(level,members,stand,player,false,false)!=null;
+    }
+    private static BlockPos betterHome(YukkuriEntity e, ServerLevel level, Player player) {
+        var personality=e.life().personality();
+        LivingEntity human=player!=null&&player.isAlive()&&!player.isSpectator()&&e.hasLineOfSight(player)?player:null;
+        for(var resident:level.getEntitiesOfClass(HumanNpc.class,e.getBoundingBox().inflate(10),p->p.isAlive()&&e.hasLineOfSight(p)))
+            if(human==null||e.distanceToSqr(resident)<e.distanceToSqr(human))human=resident;
+        var contact=SocialDisposition.contact(e,human);
+        double greed=.45*personality.boldness()/100+.35*(1-personality.friendliness()/100.0)
+                +.20*SocialDisposition.confidence(contact.esteem())-.55*contact.wariness();
+        if(greed<.38 || human!=null&&e.distanceToSqr(human)<36&&personality.selfControl()>55) return null;
+        var current=e.life().home();
+        int grade=current!=null&&current.dimension().equals(level.dimension())
+                &&level.hasChunkAt(current.pos())&&level.getBlockEntity(current.pos()) instanceof CareBlockEntity bed?bed.grade():1;
+        var origin=e.blockPosition();
+        BlockPos best=null; double score=0;
+        for(var pos:BlockPos.betweenClosed(origin.offset(-8,-2,-8),origin.offset(8,2,8))) {
+            if(!level.hasChunkAt(pos))continue;
+            var state=level.getBlockState(pos);
+            if(state.getBlock() instanceof PetNestBlock && level.getBlockEntity(pos) instanceof CareBlockEntity bed
+                    && bed.grade()>grade && bed.resident()==null && bed.canClaim(e)) {
+                double gain=NestComfort.read(e,bed.grade()).surplus()-NestComfort.read(e,grade).surplus();
+                var stand=NestDoorway.stand(e,bed);
+                double rank=gain*3-e.distanceToSqr(Vec3.atCenterOf(pos))*.02;
+                if(rank>score&&stand!=null&&visible(e,stand)&&SurfaceApproach.canApproach(e,stand)) {
+                    best=pos.immutable();score=rank;
+                }
+            } else if (grade==1&&house(state)&&!state.is(BlockTags.DOORS)&&!level.isVillage(pos)) {
+                for(var side:Direction.Plane.HORIZONTAL) {
+                    var stand=pos.relative(side);
+                    double rank=2-e.distanceToSqr(Vec3.atCenterOf(stand))*.02;
+                    if(rank>score&&indoors(e,stand)&&visible(e,Vec3.atCenterOf(stand))&&e.life().reachable(stand,false)) {
+                        best=stand.immutable();score=rank;
+                    }
+                }
+            }
+        }
+        return best;
+    }
+    private static boolean visible(YukkuriEntity body,Vec3 point) {
+        return body.level().clip(new ClipContext(body.getEyePosition(),point,ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,body)).getType()==HitResult.Type.MISS;
+    }
+    private static boolean indoors(YukkuriEntity body,BlockPos at) {
+        if(!body.life().dryStand(at)||!body.life().covered(at)||body.level().getBlockState(at).is(BlockTags.DOORS))return false;
+        int inside=0;
+        for(var side:Direction.Plane.HORIZONTAL)if(body.life().covered(at.relative(side)))inside++;
+        return inside>=3 && ShelterBlock.shelter(body.level(),at)==null;
     }
     /** Admin entry: nearest eligible wild family to {@code origin} claims a site near {@code origin}, skipping chance and cooldowns. */
     public static Claim startAt(ServerLevel level, BlockPos origin, Player player) {
@@ -150,12 +224,12 @@ public final class HomeClaim {
             if (members.size()<2) continue;
             BlockPos stand=locate(e,origin);
             if (stand==null) continue;
-            Claim c=begin(level,members,stand,player,true);
+            Claim c=begin(level,members,stand,player,true,false);
             if (c!=null) return c;
         }
         return null;
     }
-    private static Claim begin(ServerLevel level, List<YukkuriEntity> members, BlockPos stand, Player player, boolean force) {
+    private static Claim begin(ServerLevel level, List<YukkuriEntity> members, BlockPos stand, Player player, boolean force, boolean occupation) {
         var data=HomeClaimData.get(level); long now=level.getGameTime();
         GlobalPos site=GlobalPos.of(level.dimension(),stand);
         if (!force && (data.regionBlocked(site,now) || members.stream().anyMatch(m -> data.cooling(m.getUUID(),now)))) return null;
@@ -163,7 +237,7 @@ public final class HomeClaim {
         if (members.stream().anyMatch(m -> !eligible(m,housing))) return null;
         if (housing) WildEvents.yieldLeisureToHome(level,members);
         List<UUID> ids=members.stream().map(YukkuriEntity::getUUID).toList();
-        Claim c=data.start(ids,site,player==null?null:player.getUUID());
+        Claim c=data.start(ids,site,player==null?null:player.getUUID(),occupation);
         if (c==null) return null;
         for (var m:members) { m.setPersistenceRequired(); m.social().stop(); m.dailyLife().stop(); }
         return c;
@@ -208,13 +282,14 @@ public final class HomeClaim {
         List<YukkuriEntity> alive=new ArrayList<>();
         for (UUID id:c.members) {
             if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) { alive.add(y); continue; }
+            if(c.stage==Stage.RETREAT&&YukkuriWorldData.get(level).isCaptured(id))continue;
             var person=family.person(id);
             if (person!=null && (person.status==FamilyData.Status.DEAD || person.status==FamilyData.Status.REMOVED || person.status==FamilyData.Status.LOST)) continue;
             cancelSettle(level,c);
             supervise(level.getServer(),level,data,c,alive,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE);
             return; // Unloaded, captured or in another dimension: pause, never count it as a death.
         }
-        if (alive.isEmpty()) { cancelSettle(level,c);data.end(c,"perished",now,MEMBER_COOLDOWN,YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get()); return; }
+        if (alive.isEmpty()) { finish(level,data,c,alive,c.stage==Stage.RETREAT?"":"perished"); return; }
         if (alive.stream().anyMatch(y -> !level.isPositionEntityTicking(y.blockPosition()))) {
             cancelSettle(level,c);
             supervise(level.getServer(),level,data,c,alive,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE); return;
@@ -223,35 +298,55 @@ public final class HomeClaim {
         c.ticks+=TICK; c.stageTicks+=TICK; data.setDirty();
         switch (c.stage) {
             case GATHER -> {
-                if (c.ticks>1200) { finish(level,data,c,alive,"never_arrived",null); return; }
-                var spot=Vec3.atBottomCenterOf(c.site.pos());
-                var first=alive.stream().filter(y -> y.family().adult() && y.distanceToSqr(spot)<=1
-                        && y.life().reachable(c.site.pos(),false)).findFirst().orElse(null);
+                if (c.ticks>1200) { finish(level,data,c,alive,"never_arrived"); return; }
+                var first=alive.stream().filter(y -> y.family().adult()&&arrived(y,c)).findFirst().orElse(null);
                 if (first!=null) declare(level,c,first,alive);
             }
             case HOLD, ENCLOSED, COLLAPSING -> hold(level,data,c,alive,now);
             case RETREAT -> {
                 var spot=Vec3.atBottomCenterOf(c.site.pos());
                 if (c.stageTicks>=600 || alive.stream().allMatch(y -> y.distanceToSqr(spot)>=256))
-                    finish(level,data,c,alive,"",null);
+                    finish(level,data,c,alive,"");
             }
             default -> { }
         }
     }
     private static void declare(ServerLevel level, Claim c, YukkuriEntity first, List<YukkuriEntity> alive) {
+        if(c.occupation && level.getBlockEntity(c.site.pos()) instanceof CareBlockEntity) {
+            if(!first.life().assignHome(c.site)) {
+                finish(level,HomeClaimData.get(level),c,alive,"occupation_refused");
+                return;
+            }
+        } else if(c.occupation) {
+            if(!first.life().assignNaturalHome(c.site.pos())) {
+                finish(level,HomeClaimData.get(level),c,alive,"occupation_refused");
+                return;
+            }
+            for(var y:alive)y.habitat().release();
+        }
         c.declared=true; stage(level,c,Stage.HOLD);
-        first.showReaction("angry","mine",100);
+        declareHome(first, c.site.pos());
         for (var y:alive) if (y!=first) y.showReaction("happy","known_peer",80);
-        notify(level,c,"home_claim.mcyukkuri.declare",first.getName());
+    }
+    public static void declareHome(YukkuriEntity speaker, BlockPos site) {
+        speaker.showReaction(YukkuriAction.PUFF,"puff","");
+        boolean spoken=speaker.speakCue("home_declare");
+        GameplayLog.event(speaker,"home-claim","declared site={} spoken={}",site,spoken);
     }
     private static void hold(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, long now) {
         c.holdTicks+=TICK;
+        if(c.occupation) {
+            if(level.getBlockEntity(c.site.pos()) instanceof CareBlockEntity bed
+                    ? alive.stream().noneMatch(y->bed.owns(y.getUUID())) : !indoors(alive.getFirst(),c.site.pos()))
+                finish(level,data,c,alive,"occupation_lost");
+            return;
+        }
         if (c.holdTicks%200==0) {
             Enclosure walls=YukkuriConfig.HOME_CLAIM_ENCLOSURE.get() ? enclosure(alive.getFirst(),c.site.pos()) : null;
             if (walls!=null) {
                 c.hasBox=true; c.minX=walls.minX; c.minY=walls.minY; c.minZ=walls.minZ; c.maxX=walls.maxX; c.maxY=walls.maxY; c.maxZ=walls.maxZ;
                 c.foodInside=walls.food;
-                if (c.stage==Stage.HOLD) { stage(level,c,Stage.ENCLOSED); for (var y:alive) y.showReaction("happy","mine",60); }
+                if (c.stage==Stage.HOLD) stage(level,c,Stage.ENCLOSED);
                 else if (c.stage==Stage.COLLAPSING && alive.stream().noneMatch(y -> y.life().nutrition()<30)) stage(level,c,Stage.ENCLOSED);
                 if (c.stage==Stage.ENCLOSED && !c.foodInside && alive.stream().anyMatch(y -> y.life().nutrition()<30)) stage(level,c,Stage.COLLAPSING);
             } else if (c.stage!=Stage.HOLD) { // The pen was opened (or never closed again): back to plain holding.
@@ -261,17 +356,17 @@ public final class HomeClaim {
         if(c.stage!=Stage.HOLD)cancelSettle(level,c);
         if (c.stage==Stage.COLLAPSING && c.stageTicks%400==200) {
             quarrel(level,alive); c.quarrels++;
-            if (c.quarrels>=5) { finish(level,data,c,alive,"family_collapsed","home_claim.mcyukkuri.collapsed"); return; }
+            if (c.quarrels>=5) { finish(level,data,c,alive,"family_collapsed"); return; }
         }
         if (c.stage==Stage.HOLD && c.holdTicks>=YukkuriConfig.HOME_CLAIM_SETTLE_TICKS.get()) {
             var done=progress(level.getServer()).computeIfAbsent(c,ignored->new HashSet<>());
             var next=alive.stream().filter(y->!done.contains(y.getUUID())).findFirst().orElse(null);
-            if(next==null) { finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled"); return; }
+            if(next==null) { finish(level,data,c,alive,"settled"); return; }
             // Each member keeps its own FIND_HOME ticket and cursor. A deferred member must
             // retain the claim's position instead of making a virtual batch lease too large to admit.
             if(next.habitat().findHome()==SearchBudget.Result.DEFERRED)return;
             done.add(next.getUUID());
-            if(alive.stream().allMatch(y->done.contains(y.getUUID())))finish(level,data,c,alive,"settled","home_claim.mcyukkuri.settled");
+            if(alive.stream().allMatch(y->done.contains(y.getUUID())))finish(level,data,c,alive,"settled");
         }
     }
     private static void quarrel(ServerLevel level, List<YukkuriEntity> alive) {
@@ -294,16 +389,11 @@ public final class HomeClaim {
                 "stage claim={} {} -> {} previousTicks={} site={} player={} members={} foodInside={}",
                 claim.id,previous,next,elapsed,claim.site,claim.player,claim.members,claim.foodInside);
     }
-    private static void finish(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, String result, String message) {
+    private static void finish(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, String result) {
         cancelSettle(level,c);
         long region=result.equals("driven_off") || c.result.equals("driven_off") ? 3L*YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get() : YukkuriConfig.HOME_CLAIM_REGION_COOLDOWN.get();
         data.end(c,result,level.getGameTime(),MEMBER_COOLDOWN,region);
         for (var y:alive) y.getNavigation().stop();
-        if (message!=null) notify(level,c,message);
-    }
-    private static void notify(ServerLevel level, Claim c, String key, Object... args) {
-        var spot=Vec3.atCenterOf(c.site.pos());
-        for (var p:level.players()) if (!p.isSpectator() && p.distanceToSqr(spot)<=WITNESS*WITNESS) p.sendSystemMessage(Component.translatable(key,args));
     }
 
     // --- enclosure (L16) --------------------------------------------------------------------------------------
@@ -371,12 +461,28 @@ public final class HomeClaim {
     public static boolean away(YukkuriEntity y, Claim c, boolean homing) {
         double d=y.distanceToSqr(Vec3.atBottomCenterOf(c.site.pos()));
         if (c.stage==Stage.RETREAT) return c.retreat!=null && d<256;
-        return c.stage==Stage.GATHER ? d>1 || !y.life().reachable(c.site.pos(),false) : d>(homing?16:36);
+        return c.stage==Stage.GATHER ? !arrived(y,c) : d>(homing?16:36);
+    }
+    private static Vec3 stand(YukkuriEntity y,Claim c) {
+        if(c.occupation&&y.level().getBlockEntity(c.site.pos()) instanceof CareBlockEntity bed)
+            return NestDoorway.stand(y,bed);
+        return Vec3.atBottomCenterOf(c.site.pos());
+    }
+    public static boolean reachable(YukkuriEntity y,Claim c) {
+        var stand=stand(y,c);
+        return stand!=null&&(c.occupation?SurfaceApproach.canApproach(y,stand):y.life().reachable(c.site.pos(),false));
+    }
+    private static boolean arrived(YukkuriEntity y,Claim c) {
+        var at=stand(y,c);
+        return at!=null&&y.distanceToSqr(at)<= (c.occupation?.36:1) && reachable(y,c);
     }
     public static void step(YukkuriEntity y, Claim c) {
-        if (!y.getNavigation().isDone() && y.tickCount%40!=0) return;
+        if ((!c.occupation||c.stage==Stage.RETREAT) && !y.getNavigation().isDone() && y.tickCount%40!=0) return;
         if (c.stage==Stage.RETREAT) { if (c.retreat!=null) retreatStep(y,c); return; }
-        y.life().navigate(c.site.pos(),1.0,false);
+        if(c.occupation) {
+            var at=stand(y,c);
+            if(at!=null)SurfaceApproach.walkResult(y,at,null,1);
+        } else y.life().navigate(c.site.pos(),1.0,false);
     }
     /** The pathfinder only plans short hops, so flee toward the far anchor ten blocks at a time. */
     private static void retreatStep(YukkuriEntity y, Claim c) {
@@ -405,6 +511,11 @@ public final class HomeClaim {
         Claim c=responsiveClaim(e);
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }
+    /** Only a committed lift or basket transfer ends an occupation. */
+    public static void displaced(YukkuriEntity e, Player player) {
+        Claim claim=responsiveClaim(e);
+        if(claim!=null&&claim.occupation)driveOff((ServerLevel)e.level(),claim,player,null);
+    }
     /** The existing "decline event" operation on a claimant: the player asks them to leave. */
     public static boolean canDecline(YukkuriEntity e) { return responsive(responsiveClaim(e)); }
     public static boolean declined(YukkuriEntity e, Player player) {
@@ -418,10 +529,10 @@ public final class HomeClaim {
         if (len<1e-3) { dx=1; dz=0; len=1; }
         c.retreat=GlobalPos.of(level.dimension(),c.site.pos().offset((int)Math.round(dx/len*20),0,(int)Math.round(dz/len*20)));
         for (UUID id:c.members) if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
+            if(c.occupation&&c.site.equals(y.life().home()))y.life().releaseHome();
             if (y!=hit) y.life().personality().confiscated(player.getUUID()); // The hit member already learned fear from the blow.
             y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise","afraid",80);
         }
-        notify(level,c,"home_claim.mcyukkuri.driven_off");
         return true;
     }
     /** A claimant was adopted by {@code player}: the rest of the family follows when they also qualify. */
@@ -430,7 +541,7 @@ public final class HomeClaim {
         if (!responsive(c)) return;
         var level=(ServerLevel)e.level(); List<YukkuriEntity> others=new ArrayList<>();
         for (UUID id:c.members) if (!id.equals(e.getUUID()) && level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) others.add(y);
-        finish(level,HomeClaimData.get(level),c,others,"adopted","home_claim.mcyukkuri.adopted");
+        finish(level,HomeClaimData.get(level),c,others,"adopted");
         for (var y:others) WildEvents.adopt(y,player);
     }
 

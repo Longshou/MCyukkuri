@@ -221,19 +221,41 @@ add('indep_near', 'den', '亚成离巢：亲油在就告别', '亚成离巢：�
            ('读不告别亚成', f'data get entity {sel("far_teen")} YukkuriIndependence'),
            ('读依恋高亲油的情绪', f'yukkuri status {sel("warm_parent")} raw')])
 
-# the family of three in a 5-cell stone hole with a big empty earth cave 16 blocks east
+# A waterlogged floor makes the old den unsafe while its doorway remains dry enough to leave.
 _sm, _sf, _sc = uid('den_move', 'mother'), uid('den_move', 'father'), uid('den_move', 'child')
-add('den_move', 'den', '小石洞太挤，一家搬去大土洞', '小石洞太挤，一家搬去大土洞',
-    '一家两成体加一只能独立的子油挤在石头围的小洞里（5 格，墙是石头挖不动）；东边 16 格有一个空的大土洞，看家庭搬过去',
-    '数分钟（可倍速）', [
+add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一家自行搬家',
+    '一家三口先住在小石洞。洞底进水，但洞口仍干燥；看亲油带子油沿地面去东边空土洞，到了新家鼓脸说出住家宣言。'
+    '读三只的住所，确认一家都住到新洞；走进洞口可看领地反应。',
+    '约 1 分钟', [
         yk('reimu', 0, 3, 'mother', uuid=_sm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_sf)}', **pair_ready()),
         yk('marisa', 2, 3, 'father', uuid=_sf, yaw=180, kin=f'Partner:{uuid_nbt(_sm)}', **pair_ready()),
         yk('reimu', 1, 4, 'child', stage='teen', uuid=_sc, yaw=180, nutrition=100, energy=100, kin=f'Mother:{uuid_nbt(_sm)},Father:{uuid_nbt(_sf)}', fam=TEEN_FAMILY),
-        # The field's family and independence mounds (36 and 18 blocks west) are filled shut: the big cave is the only roomy vacant den.
+        # Leave a qualified dry den and close the other two demonstration caves.
         box(-38, 0, -5, -34, 1, 0, 'minecraft:stone'), box(-20, 0, -5, -16, 1, 0, 'minecraft:stone'),
         ],
-    late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
-    env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家说明', f'yukkuri status {sel("mother")} raw')])
+    late=[*[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
+          block(0, -1, -1, 'minecraft:oak_slab[type=top,waterlogged=true]')],
+    env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家一家', 'yukkuri status @e[tag=scn,distance=..48] raw')],
+    smoke=dict(ticks=2200, expect=[r'\[habitat\][^\n]* relocate begin .*movers=3 .*reason=flooded',
+                                   r'\[habitat\][^\n]* relocate end .*movers=3 moved=3',
+                                   r'\[home-claim\][^\n]* declared site=.*spoken=true'],
+               forbid=[r'\[habitat\][^\n]* relocate failed']))
+
+add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝，可驱离',
+    '草窝和空丝绒窝都在屋檐下。胆大、低友善的魔理沙已有草窝，却自己走向丝绒窝并说住家宣言。'
+    '等它到新窝后走近，观察转身、警告、鼓脸；停在近处还可能被轻撞。照料菜单选拒绝事件、抱起或攻击可赶走它。',
+    '约 30 秒', [
+        box(1, 3, 1, 9, 3, 6, 'minecraft:oak_planks'),
+        block(2, 0, 3, 'mcyukkuri:straw_nest[facing=south]'),
+        block(8, 0, 3, 'mcyukkuri:velvet_nest[facing=south]'),
+        yk('marisa', 2, 5, 'greedy', label='魔理沙', boldness=100, friendliness=0, self_control=0, lead=True, **pair_ready()),
+        ],
+    late=[f'yukkuri scenario home {sel("greedy")} ~2 ~ ~3'],
+    env=DAY, spot='big', vantage=(5, 10),
+    reads=[('读占领阶段','yukkuri homeclaim status'),('读魔理沙', f'yukkuri status {sel("greedy")} raw')],
+    smoke=dict(ticks=900, expect=[r'\[home-claim\][^\n]* occupation chosen .*kind=bed .*previous=GlobalPos',
+                                  r'\[home-claim\][^\n]* declared site=.*spoken=true'],
+               forbid=[r'occupation_refused', r'never_arrived']))
 
 # Two wild Reimu, each with a den of her own (the family and indep mounds, 18 apart) holding the two sticks a natural den starts with;
 # only their five-axis personality differs. A hungry predator is summoned 20+ blocks south of each only after they have settled,
@@ -4621,7 +4643,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
-    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
+    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
@@ -5532,6 +5554,13 @@ _scene_end('home_pane', [('bold',_ASHORE),('timid',_ASHORE)],
             ('bold','seen:home:pane opened'),('world','seen:home-claim:.*GATHER -> HOLD')])
 _scene_end('home_open', [('bold',_ASHORE),('timid',_ASHORE)],
            [('world','seen:home-claim:.*GATHER -> HOLD')])
+_scene_end('den_move', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
+           [('actors', 'seen:habitat:relocate begin.*reason=flooded'),
+            ('actors', 'seen:habitat:relocate arrived'),
+            ('actors', 'seen:home-claim:declared.*spoken=true')])
+_scene_end('home_greedy', [('greedy', _DRY)],
+           [('greedy', 'seen:home-claim:occupation chosen.*kind=bed'),
+            ('greedy', 'seen:home-claim:declared.*spoken=true')])
 
 _scene_end('den_family', [('mother', _DRY), ('child', _ASHORE), ('father', 'alive=false')],
            [('mother', 'seen:habitat:home chosen'), ('mother', 'seen:forage:begin role='),

@@ -1439,7 +1439,7 @@ public final class FamilyLife {
     private BlockPos earlyHomeStand() {
         if(familyTravelling()||exploring()||emergencyForaging())return null;
         var care=FamilyNest.care(entity);if(care!=null)return care.getBlockPos();
-        if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
+        if(readyForOwnNest()&&!parentKeepingYoungHome(mother)&&!parentKeepingYoungHome(father))return null;
         var home=entity.habitat().shelter();
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
     }
@@ -1456,9 +1456,9 @@ public final class FamilyLife {
                 &&parent.isAlive()&&parent.settlement().familyMarching())return true;
         return false;
     }
-    private boolean parentForaging(UUID id) {
+    private boolean parentKeepingYoungHome(UUID id) {
         return id!=null&&level().getEntity(id) instanceof YukkuriEntity parent&&parent.isAlive()
-                &&parent.forageTrip()!=null&&parent.forageTrip().outing()&&entity.habitat().shelter()!=null
+                &&(parent.habitat().movingHome()||parent.forageTrip()!=null&&parent.forageTrip().outing())&&entity.habitat().shelter()!=null
                 &&entity.habitat().shelter()==parent.habitat().shelter();
     }
     private boolean safeInSharedHome(YukkuriEntity child) {

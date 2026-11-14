@@ -54,7 +54,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         var claim=HomeClaim.of(entity);
         if (claim==null || !HomeClaim.mayAct(entity)) return false;
         if (!claim.id.equals(consideredClaim)) { consideredClaim=claim.id; paneChoices.clear(); }
-        if (cooldown<=0 && !entity.motor().heldByOther(ownerId()) && Bash.permission(entity).ok()) {
+        if (!claim.occupation && cooldown<=0 && !entity.motor().heldByOther(ownerId()) && Bash.permission(entity).ok()) {
             boolean entering=claim.stage==HomeClaimData.Stage.GATHER && !entity.life().reachable(claim.site.pos(),false);
             boolean exiting=claim.stage==HomeClaimData.Stage.ENCLOSED || claim.stage==HomeClaimData.Stage.COLLAPSING;
             if (entering || exiting) {
@@ -72,7 +72,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
                 }
             }
         }
-        if (HomeClaim.away(entity,claim,false) && (claim.stage==HomeClaimData.Stage.RETREAT || entity.life().reachable(claim.site.pos(),false))) {
+        if (HomeClaim.away(entity,claim,false) && (claim.stage==HomeClaimData.Stage.RETREAT || HomeClaim.reachable(entity,claim))) {
             homing=true; crop=null; return true;
         }
         if (cooldown-->0) return false;
@@ -85,7 +85,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         if (opening!=null) return claim.stage!=HomeClaimData.Stage.RETREAT;
         if (crop!=null) return elapsed<300 && Grazing.cropAt(entity,crop);
         return HomeClaim.away(entity,claim,homing) && (claim.stage==HomeClaimData.Stage.RETREAT
-                || entity.life().reachable(claim.site.pos(),false));
+                || HomeClaim.reachable(entity,claim));
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {

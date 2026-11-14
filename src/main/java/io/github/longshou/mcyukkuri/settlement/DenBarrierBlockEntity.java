@@ -53,7 +53,7 @@ public final class DenBarrierBlockEntity extends BlockEntity {
     }
 
     /** The owner takes the screen apart; its twig goes back to the doorway stock only if the owner is still there to carry it. */
-    private void release(String reason, boolean refund) {
+    void release(String reason, boolean refund) {
         if (!(level instanceof ServerLevel server) || released) return;
         released = true;
         var home = den == null || !server.hasChunkAt(den) ? null : ShelterBlock.shelter(server, den);

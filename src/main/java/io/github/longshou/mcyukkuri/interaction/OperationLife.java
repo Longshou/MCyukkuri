@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.interaction;
 
-
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -10,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -122,7 +122,11 @@ public final class OperationLife {
                 entity.life().personality().treatment(player.getUUID(),favored);
                 if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction(favored?"happy":"surprise",favored?"caregiver":"afraid",100);yield true;
             }
-            case LIFT -> begin(player,Pose.LIFT,160,null);
+            case LIFT -> {
+                if(!begin(player,Pose.LIFT,160,null))yield false;
+                HomeClaim.displaced(entity,player);
+                yield true;
+            }
             case GRIP -> begin(player,Pose.GRIP,100,null);
             case RUB -> {
                 if(!begin(player,Pose.RUB,40,null))yield false;

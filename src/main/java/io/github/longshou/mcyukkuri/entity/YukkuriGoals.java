@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
+import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
@@ -107,6 +108,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_TERRITORY, new HomeTerritoryGoal(owner)));
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() {

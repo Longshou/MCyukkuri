@@ -32912,6 +32912,248 @@
         "id": "patchouli.young.o_junk_afraid"
       },
       "source_sha256": "752995ace9b589f1faa7aeb34e27b2914b8edbf1fcc3bcab1d0d23f7c8f351eb"
+    },
+    {
+      "id": "reimu.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ここが れいむの おうちだよ！",
+      "chinese": "这里是灵梦的家哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_home_declare"
+      },
+      "source_sha256": "45b0894ce60476efd21e827ebe4591c9635a27ee5cfb75cb534ec7b7915312a1",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Reimu's home!"
+    },
+    {
+      "id": "reimu.young.o_home_declare",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ここが れいむの おうちだよ！",
+      "chinese": "这里是灵梦的家哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_home_declare"
+      },
+      "source_sha256": "45b0894ce60476efd21e827ebe4591c9635a27ee5cfb75cb534ec7b7915312a1",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Reimu's home!"
+    },
+    {
+      "id": "marisa.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここが まりさの おうちだぜ！",
+      "chinese": "这里是魔理沙的家贼！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_home_declare"
+      },
+      "source_sha256": "a6da002f5ecf9c0b3723a0d2a2cc0d71df101eb128bdf07b71ec5847021daabd",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Marisa's home!"
+    },
+    {
+      "id": "marisa.young.o_home_declare",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここが まりさの おうちだぜ！",
+      "chinese": "这里是魔理沙的家贼！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_home_declare"
+      },
+      "source_sha256": "a6da002f5ecf9c0b3723a0d2a2cc0d71df101eb128bdf07b71ec5847021daabd",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Marisa's home!"
+    },
+    {
+      "id": "alice.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここは ありすの とかいはな おうちよ！",
+      "chinese": "这是爱丽丝的都会派之家！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_home_declare"
+      },
+      "source_sha256": "96bad22884be679059d2853fda2c239cae86718ff210954e1719d1f38906e8dc",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Alice's fashionable home!"
+    },
+    {
+      "id": "alice.young.o_home_declare",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ここは ありすの とかいはな おうちよ！",
+      "chinese": "这是爱丽丝的都会派之家！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_home_declare"
+      },
+      "source_sha256": "96bad22884be679059d2853fda2c239cae86718ff210954e1719d1f38906e8dc",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Alice's fashionable home!"
+    },
+    {
+      "id": "chen.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここが ちぇんの おうちなんだよー！",
+      "chinese": "这里就是橙的家哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_home_declare"
+      },
+      "source_sha256": "b472d9f3f45dd331882f333af31af8ff97e3ca092739f600af4dde35c9e46059",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Chen's home!"
+    },
+    {
+      "id": "chen.young.o_home_declare",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここが ちぇんの おうちなんだよー！",
+      "chinese": "这里就是橙的家哟——！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_home_declare"
+      },
+      "source_sha256": "b472d9f3f45dd331882f333af31af8ff97e3ca092739f600af4dde35c9e46059",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Chen's home!"
+    },
+    {
+      "id": "patchouli.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ここが ぱちゅりーの おうちよ。",
+      "chinese": "姆Q，这里是帕秋莉的家。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_home_declare"
+      },
+      "source_sha256": "3191f2027b8c8ebc4fae53715f08eda8066f9622c93f4a364c3e3a7666cf0ca0",
+      "events": [
+        "home_declare"
+      ],
+      "english": "Mukyu, this is Patchouli's home."
+    },
+    {
+      "id": "patchouli.young.o_home_declare",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ここが ぱちゅりーの おうちよ。",
+      "chinese": "姆Q，这里是帕秋莉的家。",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_home_declare"
+      },
+      "source_sha256": "3191f2027b8c8ebc4fae53715f08eda8066f9622c93f4a364c3e3a7666cf0ca0",
+      "events": [
+        "home_declare"
+      ],
+      "english": "Mukyu, this is Patchouli's home."
+    },
+    {
+      "id": "myon.miyo.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "myon",
+      "age": "adult",
+      "quirk": "miyo",
+      "japanese": "ここが みょんの おうちだみょん！",
+      "chinese": "这里是咪呦的家，咪呦！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "myon.miyo.adult.o_home_declare"
+      },
+      "source_sha256": "bdc196728fb2d52d070467abaa2c101751321ae517ca05213d1c3e1d0dc9f8e9",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Myon's home, myon!"
+    },
+    {
+      "id": "myon.miyo.young.o_home_declare",
+      "origin": "project-original",
+      "species": "myon",
+      "age": "young",
+      "quirk": "miyo",
+      "japanese": "ここが みょんの おうちだみょん！",
+      "chinese": "这里是咪呦的家，咪呦！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "myon.miyo.young.o_home_declare"
+      },
+      "source_sha256": "bdc196728fb2d52d070467abaa2c101751321ae517ca05213d1c3e1d0dc9f8e9",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Myon's home, myon!"
+    },
+    {
+      "id": "myon.kinbao.adult.o_home_declare",
+      "origin": "project-original",
+      "species": "myon",
+      "age": "adult",
+      "quirk": "kinbao",
+      "japanese": "ここが きんぽーの おうちだよ！",
+      "chinese": "这里是金寶的家哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "myon.kinbao.adult.o_home_declare"
+      },
+      "source_sha256": "7a344973e71c23b91f5f785375612fad8cf2b264f206d0d6f3d0cb7d2adda10a",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Kinbao's home!"
+    },
+    {
+      "id": "myon.kinbao.young.o_home_declare",
+      "origin": "project-original",
+      "species": "myon",
+      "age": "young",
+      "quirk": "kinbao",
+      "japanese": "ここが きんぽーの おうちだよ！",
+      "chinese": "这里是金寶的家哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "myon.kinbao.young.o_home_declare"
+      },
+      "source_sha256": "7a344973e71c23b91f5f785375612fad8cf2b264f206d0d6f3d0cb7d2adda10a",
+      "events": [
+        "home_declare"
+      ],
+      "english": "This is Kinbao's home!"
     }
   ]
 }

@@ -13,6 +13,12 @@ public final class DenBarrier {
         return den.getLevel() != null && den.getLevel().getBlockState(den.entrance()).getBlock() instanceof DenBarrierBlock;
     }
 
+    /** Departure opens the existing screen through the block entity's refund and removal transaction. */
+    static void release(ShelterBlockEntity den, String reason) {
+        if (den.getLevel().getBlockEntity(den.entrance()) instanceof DenBarrierBlockEntity barrier)
+            barrier.release(reason, true);
+    }
+
     /** The sealed natural den this individual is inside (resident or not), or null. Only loaded dens near it are looked at. */
     public static ShelterBlockEntity shielding(YukkuriEntity target) {
         if (!(target.level() instanceof ServerLevel level)) return null;
