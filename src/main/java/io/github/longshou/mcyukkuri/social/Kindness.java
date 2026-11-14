@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -60,6 +61,7 @@ public final class Kindness extends Goal {
         if (received > 0 && --received == 0) mealDonor = null;
         if (act != null && !running && (++ticks >= CUE || !valid())) stop();
         if (act == null && giver.component(YukkuriComponents.MOUTH).purpose() == Purpose.KINDNESS
+                && !BadgeArcs.holdsBeggingFood(giver)
                 && !giver.isPassenger() && !giver.isRemoved() && nextScan == 0) {
             nextScan = 40;
             if (!giver.life().beginCarriedMeal(Purpose.KINDNESS))

@@ -1636,10 +1636,33 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]'),
            ('读魔理沙的自尊与关系', f'yukkuri status {sel("identity_stray")} raw')])
 
-add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '银章宠物就地吃苹果，旁边的野生魔理沙看见嘴里的食物才上前讨吃。看对方面向它、分一口或鼓脸拒绝。', '约半分钟', [
-    yk('reimu', 0, 0, 'pet', nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'),
-    f'yukkuri scenario badge {sel("pet")} silver false', item('minecraft:apple', 1, 1, 0),
-    yk('marisa', 4, 0, 'wild', nutrition=32, yaw=90, boldness=25)], env=DAY, vantage=(1, 9))
+def begging_scene(sid, title, watch, pet_traits, stray_traits, helper=False):
+    start = [yk('marisa', 7, -4, 'wild', uuid=uid(sid, 'wild'), yaw=90, picky=0, **stray_traits),
+             yk('reimu', 3, -4, 'pet', uuid=uid(sid, 'pet'), yaw=-90, picky=0, **pet_traits,
+                extra='YukkuriMouth:{Purpose:"MEAL",Items:[{id:"minecraft:apple",count:1}]}')]
+    if helper:
+        start += [human('caretaker_brother', 3, -10, 'beg_keeper', 0, label='灵梦的饲主').removesuffix('}')
+                  + ',StreetHomePause:-6000}',
+                  f'data modify entity {sel("pet")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+                  f'data modify entity {sel("pet")} {OWNED}.Owner set from entity @e[tag={tag("beg_keeper")},limit=1] UUID']
+    else:
+        start += own('pet')
+    start += [f'data merge entity {sel("pet")} {{YukkuriLife:{{MealTicks:1}}}}']
+    add(sid, 'town', title, title, watch, '约 20–45 秒', start, env=DAY,
+        vantage=(11, -7, 83, 12) if helper else (5, -8, 0, 15),
+        reads=[('读灵梦的营养与关系', f'yukkuri status {sel("pet")} raw'),
+               ('读魔理沙的营养与关系', f'yukkuri status {sel("wild")} raw')])
+
+
+begging_scene('wild', '流浪油讨食：分享半个苹果', '看魔理沙隔开一段距离开口，灵梦分出半个苹果。魔理沙道谢、吃掉半个，离开前回望。',
+              dict(nutrition=54, boldness=60, friendliness=90), dict(nutrition=29, boldness=55, friendliness=65))
+begging_scene('wild_beg_refuse', '流浪油讨食：拒绝后纠缠', '看灵梦护住苹果并扭开，魔理沙绕到侧面求食、跺地哭泣，最后慢慢走开。',
+              dict(nutrition=52, boldness=60, friendliness=15), dict(nutrition=30, boldness=60, friendliness=50))
+begging_scene('wild_beg_snatch', '流浪油讨食：抢走苹果', '看饥饿的魔理沙扑近抢食，灵梦惊叫追赶，随后记仇。',
+              dict(nutrition=52, boldness=70, friendliness=15), dict(nutrition=18, boldness=85, friendliness=5, self_control=18))
+begging_scene('wild_beg_help', '流浪油讨食：跑到饲主脚边求助', '看胆小的灵梦叼着苹果跑到饲主脚边，魔理沙退开。',
+              dict(nutrition=52, boldness=20, friendliness=45, attachment=80),
+              dict(nutrition=29, boldness=65, friendliness=50), helper=True)
 
 add('badge', 'town', '钻石章灵梦遇到嫉妒的野油', '钻石章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的钻石章，鼓脸或闹别扭。看灵梦按自尊与关系友善回礼、得意展示或退缩。', '约 1 分钟', [
     *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-1, 4) for z in range(-2, 3)
@@ -4693,7 +4716,8 @@ TOPICS = {
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
-    'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
+    'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
+    'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
@@ -4802,10 +4826,34 @@ def _one_human_food_request(log):
 
 
 _human_contact_smoke['verify'] = _one_human_food_request
-_smoke('wild', 600, [r'\[status\] reimu [^\n]* identity observed kind=pet\b',
-                    r'\[status\] marisa [^\n]* identity observed kind=wild_family\b',
-                    r'\[wild-event\][^\n]*event=ended [^\n]*card=beg_bite [^\n]*detail=(?:shared|refused)\b'],
-    readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
+for _sid, _outcome, _beg_checks in (
+    ('wild', 'shared', [r' beg transfer [^\n]*result=shared received=mcyukkuri:apple_half retained=mcyukkuri:apple_half',
+                        r'\[meal\] reimu [^\n]*swallowed item=mcyukkuri:apple_half count=1',
+                        r'\[meal\] marisa [^\n]*swallowed item=mcyukkuri:apple_half count=1']),
+    ('wild_beg_refuse', 'refused', [r' beg refusal [^\n]*response=PESTER', r' beg circled ',
+                                  r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
+    ('wild_beg_snatch', 'snatched', [r' beg transfer [^\n]*result=snatched received=minecraft:apple retained=minecraft:air',
+                                    r' beg grudge [^\n]*closeness=-?\d+->-\d+ fear=\d+->\d+',
+                                    r'\[meal\] marisa [^\n]*swallowed item=minecraft:apple count=1']),
+    ('wild_beg_help', 'asked_help', [r' beg help reached human=', r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
+):
+    _smoke(_sid, 1200, [
+        rf'\[status\] reimu [^\n]* identity observed kind={"npc_companion" if _sid == "wild_beg_help" else "pet"}\b',
+        r'\[status\] marisa [^\n]* identity observed kind=wild_family\b',
+        r'\[badge\] marisa [^\n]* beg social stand ',
+        r'\[speech\] marisa [^\n]* cue event=beg_ask spoken=true',
+        rf'\[wild-event\][^\n]*event=ended [^\n]*card=beg_bite [^\n]*elapsed=(?:[4-9]\d\d|1[01]\d\d|1200) detail={_outcome}\b',
+        *_beg_checks,
+    ], readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
+    _beg_smoke = next(s for s in S if s.id == _sid).smoke
+    _beg_smoke['gating_checks'] = ['LEDGER', 'END', 'PROGRESS']
+    if _outcome == 'snatched':
+        def _beg_grudge(window):
+            changes = re.findall(r'\[badge\] reimu [^\n]* beg grudge [^\n]*closeness=(-?\d+)->(-?\d+) fear=(\d+)->(\d+)', window)
+            if len(changes) != 1 or not all(int(c1) == max(-100, int(c0) - 20) and int(q1) > int(q0)
+                                          for c0, c1, q0, q1 in changes):
+                return f'expected one directed grudge from a completed snatch, got {changes}'
+        _beg_smoke['verify'] = _beg_grudge
 _smoke('badge', 1200, [r'\[badge\] marisa [^\n]*badge sight [^\n]*grade=4\b',
                      r'\[wild-event\][^\n]*event=ended [^\n]*card=envy [^\n]*detail=envy_\w+'],
     readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
@@ -5603,6 +5651,9 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+for _beg_scene in ('wild', 'wild_beg_refuse', 'wild_beg_snatch', 'wild_beg_help'):
+    _scene_end(_beg_scene, [('pet', _DRY), ('wild', _DRY)])
 
 _scene_end('food_behind_glass', [('glass_food_eater', _DRY)])
 

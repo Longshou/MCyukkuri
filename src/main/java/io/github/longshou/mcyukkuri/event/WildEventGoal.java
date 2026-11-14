@@ -15,7 +15,8 @@ public final class WildEventGoal extends Goal {
     private final boolean badge;
     public WildEventGoal(YukkuriEntity entity, boolean badge){this.entity=entity;this.badge=badge;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
     @Override public boolean canUse(){
-        if (!WildEvents.reserved(entity) || entity.life().hasUrgentNeed() || entity.life().mealTicks()!=0) return false;
+        if (!WildEvents.reserved(entity) || entity.life().mealTicks()!=0
+                || entity.life().hasUrgentNeed() && !(badge && BadgeArcs.handlesFoodHunger(entity))) return false;
         if (badge) return BadgeArcs.running(entity) && BadgeArcs.canMove(entity);
         return !BadgeArcs.running(entity) && WildEvents.safe(entity) && !entity.dailyLife().active() && !entity.social().active();
     }

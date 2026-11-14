@@ -236,6 +236,10 @@ public final class WildEvents {
             supervise(level,s,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE); return;
         }
         if(!supervise(level,s,EventWatchdog.Availability.AVAILABLE))return;
+        if (separated && s.kind == Kind.BADGE_ARC && Arc.byId(s.card) == Arc.BEG_BITE) {
+            finish(level, s, Phase.INTERRUPTED, "participant_captured_or_dead");
+            return;
+        }
         if(separated && s.phase!=Phase.SEPARATED) {
             data.phase(s,Phase.SEPARATED);s.result="member_captured_or_dead";
             for(var e:loaded)e.showReaction("cry","search_family",80);
@@ -318,7 +322,7 @@ public final class WildEvents {
         if(!s.active() || data.scene(s.id)!=s)return;
         boolean arc=s.kind==Kind.BADGE_ARC;
         if(arc && level!=null)BadgeArcs.settle(level,s,phase,result);
-        BadgeArcs.releaseHeldMeal(s);
+        s.begging = null;
         s.concertToken=null;
         data.finish(s,phase,result,level==null?s.supervision.originTime():level.getGameTime(),cooldown);
         if(level!=null)for(UUID id:s.members)if(level.getEntity(id) instanceof YukkuriEntity e)e.getNavigation().stop();

@@ -58684,5 +58684,149 @@
     ],
     "ticks": 103,
     "sound": ""
+  },
+  {
+    "id": "beg_ask.bite",
+    "key": "dialogue.mcyukkuri.original.beg_ask.bite",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_ask"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "beg_offer.share",
+    "key": "dialogue.mcyukkuri.original.beg_offer.share",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_offer"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "beg_refuse.mine",
+    "key": "dialogue.mcyukkuri.original.beg_refuse.mine",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "beg_plead_again.wait",
+    "key": "dialogue.mcyukkuri.original.beg_plead_again.wait",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_plead_again"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "beg_pester.hungry",
+    "key": "dialogue.mcyukkuri.original.beg_pester.hungry",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_pester"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "beg_cry.empty",
+    "key": "dialogue.mcyukkuri.original.beg_cry.empty",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_cry"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "beg_thanks.food",
+    "key": "dialogue.mcyukkuri.original.beg_thanks.food",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_thanks"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "beg_robbed.mine",
+    "key": "dialogue.mcyukkuri.original.beg_robbed.mine",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_robbed"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "beg_chase.back",
+    "key": "dialogue.mcyukkuri.original.beg_chase.back",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_chase"
+    ],
+    "ticks": 55,
+    "sound": ""
+  },
+  {
+    "id": "beg_grudge.remember",
+    "key": "dialogue.mcyukkuri.original.beg_grudge.remember",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_grudge"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "beg_help.hide",
+    "key": "dialogue.mcyukkuri.original.beg_help.hide",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_help"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "beg_curse.stingy",
+    "key": "dialogue.mcyukkuri.original.beg_curse.stingy",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "beg_curse"
+    ],
+    "ticks": 55,
+    "sound": ""
   }
 ]

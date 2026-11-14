@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.coordination.RegionKey;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.lang.ref.WeakReference;
+import io.github.longshou.mcyukkuri.pet.social.BegBite;
 import java.util.function.Predicate;
 import net.minecraft.server.MinecraftServer;
 
@@ -45,8 +45,7 @@ public final class WildEventData extends SavedData {
         public UUID player, target;
         public GlobalPos destination;
         public transient Object concertToken;
-        public transient WeakReference<YukkuriEntity> heldMealOwner;
-        public transient Object heldMealToken;
+        public transient BegBite begging;
         public final EventWatchdog.State supervision = new EventWatchdog.State();
         public Phase phase = Phase.APPROACH;
         public int ticks, phaseTicks, responses, sourceCount;

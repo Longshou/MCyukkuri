@@ -666,6 +666,12 @@ def ledger(records, samples, dense=False, raw=''):
                     or r['k'] == 'life' and r.get('out') == 'discarded'
                         and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan']]
     explained_items = defaultdict(set)
+    splits = defaultdict(Counter)
+    for event in records:
+        if event['k'] == 'ev' and event.get('cat') == 'meal' and re.fullmatch(
+                r'serving split input=minecraft:apple input_count=1 output=mcyukkuri:apple_half output_count=2 recipient=[0-9a-f-]{36}',
+                event.get('msg', '')):
+            splits[event['t']].update({'minecraft:apple': -1, 'mcyukkuri:apple_half': 2})
     for event in explanations:
         msg = event.get('msg', '')
         item = re.search(r'\b(?:item|kind|leaves)=(?:\d+[ x])?([a-z0-9_.-]+:[a-z0-9_/.-]+)', msg)
@@ -752,6 +758,9 @@ def ledger(records, samples, dense=False, raw=''):
         changed_items = {item for item in total.keys() | previous.keys()
                          if total[item] != previous[item]} if previous is not None else set()
         explained = None in explained_items[tick] or changed_items <= explained_items[tick]
+        if tick in splits and previous is not None:
+            # Require the exact signed delta at contact. A receipt cannot explain a duplicated half or an unrelated item.
+            explained = {item: total[item] - previous[item] for item in changed_items} == dict(splits[tick])
         if previous is not None and total != previous and not explained and dip is None:
             affected = [r for r in rows if r['u'] not in boundary_holders
                         and prior_holders.get(r['u']) != current.get(r['u'])]

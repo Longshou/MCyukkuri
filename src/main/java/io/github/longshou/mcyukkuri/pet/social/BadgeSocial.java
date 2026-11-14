@@ -128,22 +128,23 @@ public final class BadgeSocial {
         }
     }
 
-    /** A badge-holder has just taken a bite: hungry wild onlookers decide there and then whether to beg for it. The periodic sighting rolls (every few seconds)
+    /** A pet has just taken a bite: hungry wild onlookers decide there and then whether to beg for it. The periodic sighting rolls (every few seconds)
      *  can almost never coincide with the ~1.8 s window in which a bite is held in the mouth, so this is the natural way for B4 to happen. */
-    public static void mealSeen(YukkuriEntity subject) {
+    public static boolean mealSeen(YukkuriEntity subject) {
         if (!enabled() || !(subject.level() instanceof ServerLevel level) || !subject.pet().isPet()
                 || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
-                || visibleRank(subject).id() <= 0 || subject.life().mouth().isEmpty()) return;
+                || subject.isLeashed() || !subject.family().canEatIndependently()) return false;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
         var data = WildEventData.get(level);
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
-                && peer.status().identity().free() && peer.life().nutrition() >= 30 && peer.life().nutrition() < 50)) {
-            if (!o.pet().calm() || !data.opportunitySlot(o.getUUID()) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
+                && peer.status().identity().free() && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
+            if (o.isLeashed() || !data.opportunitySlot(o.getUUID()) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);
-            if (subject.life().mealHeld()) return; // one beggar at a time
+            if (subject.life().mealTicks() == 0) return true; // the admitted pair now owns the carried serving
         }
+        return false;
     }
 
     private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge) {
@@ -204,7 +205,7 @@ public final class BadgeSocial {
         var scene = BadgeArcs.start(level, arc, choice.variant(), o, s, viewer, extra);
         if (scene == null) { glance(o, s, edge); return; }
         if (arc != Arc.BEG_BITE) budget().commit(viewerId, arc.cost, o.getUUID(), s.getUUID());
-        ledger.arc(s.getUUID(), arc.id, now);
+        if (arc != Arc.BEG_BITE) ledger.arc(s.getUUID(), arc.id, now);
     }
 
     private static void glance(YukkuriEntity o, YukkuriEntity s, boolean worthIt) {
@@ -284,8 +285,10 @@ public final class BadgeSocial {
         if (why != null) return why;
         var scene = BadgeArcs.start(level, arc, arc == Arc.PITY ? "pity" : arc == Arc.ELDER_WARN ? "warn" : "", o, s, viewer, null);
         if (scene == null) return "start_refused";
-        o.pet().badgeLedger().ensure(s.getUUID(), visibleRank(s).id(), clock);
-        o.pet().badgeLedger().arc(s.getUUID(), arc.id, clock);
+        if (arc != Arc.BEG_BITE) {
+            o.pet().badgeLedger().ensure(s.getUUID(), visibleRank(s).id(), clock);
+            o.pet().badgeLedger().arc(s.getUUID(), arc.id, clock);
+        }
         return null;
     }
 

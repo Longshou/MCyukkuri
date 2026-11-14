@@ -1,0 +1,31 @@
+{
+  "textures": {
+    "apple": "minecraft:item/apple",
+    "cut": "minecraft:block/white_terracotta",
+    "particle": "minecraft:item/apple"
+  },
+  "elements": [
+    {
+      "from": [4, 0, 6.5],
+      "to": [12, 16, 9.5],
+      "faces": {
+        "south": {"uv": [0, 0, 8, 16], "texture": "#apple"},
+        "north": {"uv": [8, 0, 0, 16], "texture": "#apple"}
+      }
+    },
+    {
+      "from": [11.99, 2, 6.5],
+      "to": [12, 13, 9.5],
+      "faces": {
+        "east": {"texture": "#cut"}
+      }
+    }
+  ],
+  "display": {
+    "gui": {"rotation": [0, -25, 0]},
+    "ground": {"translation": [0, 3, 0], "scale": [0.5, 0.5, 0.5]},
+    "fixed": {"rotation": [0, -15, 0]},
+    "thirdperson_righthand": {"rotation": [0, 20, 0], "translation": [0, 3, 1], "scale": [0.55, 0.55, 0.55]},
+    "firstperson_righthand": {"rotation": [0, -25, 0], "translation": [1, 3, 0], "scale": [0.68, 0.68, 0.68]}
+  }
+}

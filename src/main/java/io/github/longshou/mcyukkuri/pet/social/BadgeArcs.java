@@ -13,8 +13,6 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.function.BooleanSupplier;
-import io.github.longshou.mcyukkuri.interaction.ItemContact;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -39,7 +37,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import java.lang.ref.WeakReference;
 
 /** The multi-beat badge scenes. Every arc is a WildEventData scene of kind BADGE_ARC (so claims, exclusion, persistence and yielding of the other
  *  systems come for free): members are [observer, subject, optional third], {@code Scene.responses} is the beat, {@code sourceCount} the tick the beat
@@ -78,12 +75,17 @@ public final class BadgeArcs {
         return scene != null && scene.active() && scene.kind == Kind.BADGE_ARC;
     }
     public static boolean canMove(YukkuriEntity e) { return usable(e); }
+    public static boolean handlesFoodHunger(YukkuriEntity e) {
+        var scene = WildEventData.get((ServerLevel) e.level()).controlling(e.getUUID());
+        return scene != null && scene.begging != null && BegBite.ready(e);
+    }
+    public static boolean holdsBeggingFood(YukkuriEntity e) {
+        var scene = WildEventData.get((ServerLevel) e.level()).controlling(e.getUUID());
+        return scene != null && scene.begging != null && scene.begging.holdsFood(e);
+    }
     private static boolean subjectReady(YukkuriEntity e, boolean allowMeal) {
         return usable(e) && WildEvents.safe(e) && e.onGround() && !e.dailyLife().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && (allowMeal || e.life().mealTicks() == 0);
-    }
-    private static boolean eating(YukkuriEntity e) {
-        return e.life().mealTicks() > 0 && e.life().mealTicks() <= 36 && !e.life().mouth().isEmpty();
     }
 
     /** Null when the arc could start; otherwise a short machine reason (shown by the admin command). */
@@ -94,12 +96,7 @@ public final class BadgeArcs {
         if (!WildEventData.get(level).opportunitySlot(s.getUUID())) return "subject_in_scene";
         if (o.distanceToSqr(s) > 144 || !o.hasLineOfSight(s)) return "not_in_sight";
         switch (arc) {
-            case BEG_BITE -> {
-                if (!o.status().identity().free()) return "observer_owned";
-                if (!s.pet().isPet() || grade(s) == 0) return "subject_has_no_badge";
-                if (!eating(s)) return "subject_not_eating";
-                if (!o.life().canEat() || o.life().nutrition() >= 75) return "observer_not_hungry";
-            }
+            case BEG_BITE -> { return BegBite.check(level, o, s); }
             case ENVY -> { if (grade(s) <= grade(o)) return "badge_not_higher"; }
             case PLEA -> {
                 if (!o.status().identity().free()) return "observer_owned";
@@ -138,16 +135,21 @@ public final class BadgeArcs {
         boolean third = nearbyExtra && WildEvents.availableForOpportunity(extra);
         if (third) all.add(extra);
         UUID viewer = player == null ? null : player.getUUID();
-        BooleanSupplier prepare = () -> arc != Arc.BEG_BITE || s.life().holdMeal(260);
+        var begging = arc == Arc.BEG_BITE ? BegBite.plan(o, s) : null;
+        if (arc == Arc.BEG_BITE && begging == null) {
+            GameplayLog.limited(o, "badge", "beg_stand", 100, "begging refused subject={} reason=no_social_stand", s.getUUID());
+            return null;
+        }
+        BooleanSupplier prepare = () -> begging == null || s.life().prepareKindnessFood();
         Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, all.stream().map(Entity::getUUID).toList(), viewer, now, prepare);
         if (scene == null && third) {
             all.remove(extra);
             scene = data.start(Kind.BADGE_ARC, arc.id, origin, List.of(o.getUUID(), s.getUUID()), viewer, now, prepare);
         }
         if (scene == null) return null;
-        if (arc == Arc.BEG_BITE) {
-            scene.heldMealOwner = new WeakReference<>(s);
-            scene.heldMealToken = s.life().mouth();
+        if (begging != null) {
+            scene.begging = begging;
+            begging.start(level, o, s);
         }
         scene.result = variant == null ? "" : variant;
         scene.responses = 0; scene.sourceCount = 0;
@@ -169,7 +171,7 @@ public final class BadgeArcs {
     private static int grade(YukkuriEntity e) { return BadgeSocial.visibleRank(e).id(); }
     private static void like(ServerLevel level, YukkuriEntity a, YukkuriEntity b, int delta) { BadgeSocial.nudge(YukkuriWorldData.get(level), a.getUUID(), b.getUUID(), delta); }
     /** Holder remembers the subject and the actual event. */
-    private static void note(YukkuriEntity holder, YukkuriEntity subject, int flags, long now) {
+    static void note(YukkuriEntity holder, YukkuriEntity subject, int flags, long now) {
         var ledger = holder.pet().badgeLedger();
         ledger.ensure(subject.getUUID(), grade(subject), now);
         if (flags != 0) ledger.flag(subject.getUUID(), flags, now);
@@ -224,7 +226,10 @@ public final class BadgeArcs {
             if (e.blockPosition().distSqr(s.origin.pos()) > 40 * 40) { end(level, s, Phase.INTERRUPTED, "left_region"); return; }
         }
         s.ticks++; s.phaseTicks++; WildEventData.get(level).setDirty();
-        if (s.ticks > TIMEOUT) { end(level, s, Phase.INTERRUPTED, "arc_timed_out"); return; }
+        if (s.ticks > (arc == Arc.BEG_BITE ? BegBite.MAX_TICKS : TIMEOUT)) {
+            end(level, s, Phase.INTERRUPTED, "arc_timed_out");
+            return;
+        }
         var o = loaded.get(0); var sub = loaded.get(1); var extra = loaded.size() > 2 ? loaded.get(2) : null;
         if (arc == Arc.ENVY && grade(sub) <= grade(o) || arc == Arc.BOAST && grade(o) <= grade(sub)) {
             end(level, s, Phase.INTERRUPTED, "badge_changed");
@@ -234,7 +239,10 @@ public final class BadgeArcs {
             case GLANCE -> glance(level, s, o, sub, extra);
             case ENVY -> envy(level, s, o, sub);
             case BOAST -> boast(level, s, o, sub);
-            case BEG_BITE -> begBite(level, s, o, sub);
+            case BEG_BITE -> {
+                if (s.begging == null) end(level, s, Phase.INTERRUPTED, "begging_session_ended");
+                else s.begging.advance(level, s, o, sub);
+            }
             case PROVOKE -> provoke(level, s, o, sub);
             case PLEA -> plea(level, s, o, sub);
             case PITY -> pity(level, s, o, sub);
@@ -338,48 +346,6 @@ public final class BadgeArcs {
         }
     }
 
-    /** B4: a hungry wild one begs at a bite the pet is really chewing; the pet decides by its share score and hands it over or keeps it. */
-    private static void begBite(ServerLevel level, Scene s, YukkuriEntity o, YukkuriEntity sub) {
-        int t = since(s);
-        switch (s.responses) {
-            case 0 -> {
-                if (!sub.life().mealHeld()) { end(level, s, Phase.INTERRUPTED, "meal_over"); return; }
-                if (t == 1) o.showReaction("teary", "badge_beg", 70);
-                look(sub, o);
-                double contact = (o.getBbWidth() + sub.getBbWidth()) / 2 + .2;
-                if (o.distanceToSqr(sub) <= contact * contact && o.hasLineOfSight(sub)) { quiet(o); next(s); }
-                else if (t >= 140) { releaseHeldMeal(s); end(level, s, Phase.INTERRUPTED, "begger_unreached"); }
-            }
-            case 1 -> {
-                if (!sub.life().mealHeld()) { end(level, s, Phase.INTERRUPTED, "meal_over"); return; }
-                if (t == 1) {
-                    PetScenes.act(o, "beg", "drool", null, 40, sub);
-                    var world = YukkuriWorldData.get(level);
-                    var bond = world.relation(sub.getUUID(), o.getUUID());
-                    int score = sub.life().personality().shareScore(sub.life().nutrition(), o.life().nutrition(), sub.family().caresFor(o), bond.closeness());
-                    s.result = score >= 50 && SocialDisposition.wariness(sub, bond) < .5 && o.life().canEat() ? "offer" : "refuse";
-                    look(sub, o);
-                }
-                if (t >= 36) next(s);
-            }
-            case 2 -> {
-                if (t == 1) {
-                    if (s.result.equals("offer") && ItemContact.mouthsMeet(sub, o) && sub.life().handOverMouth(o, "badge_share_offer")) { s.result = "shared"; PetScenes.act(sub, "offer_bite", null, null, 28, o); }
-                    else { s.result = "refuse"; releaseHeldMeal(s); sub.showReaction("cheek_puff", "badge_share_refuse", 70); look(sub, o); }
-                }
-                if (s.result.equals("shared")) {
-                    if (t >= 12 && o.life().mealTicks() == 0) next(s);
-                    else if (t >= 160) end(level, s, Phase.COMPLETE, "shared");
-                } else if (t >= 30) { PetScenes.act(o, "droop", "teary", null, 50, sub); next(s); }
-            }
-            default -> {
-                if (s.result.equals("shared")) {
-                    if (t == 1) PetScenes.act(o, "bow", "happy", "badge_thanks", 60, sub);
-                    if (t >= 60) end(level, s, Phase.COMPLETE, "shared");
-                } else if (t >= 60) end(level, s, Phase.REFUSED, "refused");
-            }
-        }
-    }
 
     /** B5: a provocation. The pet ignores it, answers it, or runs; a pet whose owner is around then reports to the owner (B7 praise window). */
     private static void provoke(ServerLevel level, Scene s, YukkuriEntity o, YukkuriEntity sub) {
@@ -638,12 +604,7 @@ public final class BadgeArcs {
             }
             case ENVY -> hold(e, other);
             case BOAST -> { if (isO && b == 0) walk(e, sub, 16, s); else hold(e, other); }
-            case BEG_BITE -> {
-                if (isO && b == 0) {
-                    look(e, sub);
-                    EcologyMovement.approachResult(e, sub, .85);
-                } else hold(e, other);
-            }
+            case BEG_BITE -> { if (s.begging != null) s.begging.move(level, e, o, sub); }
             case PROVOKE -> {
                 var owner = BadgeSocial.ownerWithin(level, sub, 24);
                 if (isO && b == 0) walk(e, sub, 6.25, s);
@@ -694,20 +655,13 @@ public final class BadgeArcs {
 
     // ------------------------------------------------------------------ outcome
 
-    /** Release only this session's original mouth, including when its entity has left the origin dimension. */
-    public static void releaseHeldMeal(Scene s) {
-        var owner = s.heldMealOwner == null ? null : s.heldMealOwner.get();
-        Object token = s.heldMealToken;
-        s.heldMealOwner = null; s.heldMealToken = null;
-        if (owner != null && token != null && owner.life().mouth() == token) owner.life().releaseMeal();
-    }
 
     /** Writes the lasting consequences of a closed arc; called by WildEvents.finish before the scene is retired (so Scene.result still holds the stance). */
     public static void settle(ServerLevel level, Scene s, Phase phase, String result) {
         Arc arc = Arc.byId(s.card);
         if (arc == null) return;
         var o = member(level, s, 0); var sub = member(level, s, 1); var extra = member(level, s, 2);
-        if (arc == Arc.BEG_BITE) releaseHeldMeal(s);
+        if (arc == Arc.BEG_BITE) return; // A begging outcome is committed at its physical beat.
         if (phase == Phase.INTERRUPTED || o == null || sub == null) return;
         if (result.equals("player_declined") && arc != Arc.PLEA) return;
         long now = level.getGameTime();
@@ -735,15 +689,6 @@ public final class BadgeArcs {
                 else {
                     if (boastful) o.pet().addStress(1);
                     if (result.endsWith("retorted")) { like(level, sub, o, -1); note(sub, o, BadgeLedger.MOCKED, now); }
-                }
-            }
-            case BEG_BITE -> {
-                if (result.equals("shared")) {
-                    note(o, sub, BadgeLedger.FED_BY, now); note(sub, o, BadgeLedger.HELPED, now);
-                    BadgeSocial.spread(level, o, Rumours.BADGE_FED, human, 1);
-                    tell(level, owner, "pet.mcyukkuri.badge.shared", sub, false);
-                } else {
-                    note(o, sub, BadgeLedger.SNUBBED, now); like(level, o, sub, -1);
                 }
             }
             case PROVOKE -> {

@@ -299,7 +299,19 @@
     {"id":"mold_plea","event":"mold_plea","zh":"霉油央求留下","ja":"かびのゆっくりが残してと懇願","en":"The moldy one begs to stay","basis":["P"],"status":"ready"},
     {"id":"mold_resist","event":"mold_resist","zh":"霉油抗议","ja":"かびのゆっくりが抗議する","en":"The moldy one protests","basis":["P"],"status":"ready"},
     {"id":"mold_leave","event":"mold_leave","zh":"被逐者回头道别","ja":"追われた者が振り返って別れを言う","en":"The exile's goodbye over its shoulder","basis":["P"],"status":"ready"},
-    {"id":"mold_child_cry","event":"mold_child_cry","zh":"孩子哭喊被逐的亲油","ja":"子が追われた親を泣いて呼ぶ","en":"A young crying after its driven-out parent","basis":["P"],"status":"ready","axis_refs":["stage.baby_caregiver_address"]}
+    {"id":"mold_child_cry","event":"mold_child_cry","zh":"孩子哭喊被逐的亲油","ja":"子が追われた親を泣いて呼ぶ","en":"A young crying after its driven-out parent","basis":["P"],"status":"ready","axis_refs":["stage.baby_caregiver_address"]},
+    {"id":"beg_ask","event":"beg_ask","zh":"开口讨食","ja":"ひとくちをねだる","en":"Asking for a bite","basis":["P"],"status":"ready"},
+    {"id":"beg_offer","event":"beg_offer","zh":"答应分食","ja":"ひとくち分ける","en":"Offering a bite","basis":["P"],"status":"ready"},
+    {"id":"beg_refuse","event":"beg_refuse","zh":"护住食物","ja":"食べ物を守る","en":"Refusing to share","basis":["P"],"status":"ready"},
+    {"id":"beg_plead_again","event":"beg_plead_again","zh":"绕到一旁再讨","ja":"横からもう一度ねだる","en":"Pleading again from the side","basis":["P"],"status":"ready"},
+    {"id":"beg_pester","event":"beg_pester","zh":"跺地抱怨","ja":"足を踏み鳴らす","en":"Stamping in frustration","basis":["P"],"status":"ready"},
+    {"id":"beg_cry","event":"beg_cry","zh":"乞食者哭泣","ja":"断られて泣く","en":"Crying after the refusal","basis":["P"],"status":"ready"},
+    {"id":"beg_thanks","event":"beg_thanks","zh":"答谢食物","ja":"食べ物のお礼を言う","en":"Thanking for food","basis":["P"],"status":"ready"},
+    {"id":"beg_robbed","event":"beg_robbed","zh":"被抢后惊叫","ja":"取られて叫ぶ","en":"Crying out after a snatch","basis":["P"],"status":"ready"},
+    {"id":"beg_chase","event":"beg_chase","zh":"追赶抢食者","ja":"食べ物を取った相手を追う","en":"Chasing the food thief","basis":["P"],"status":"ready"},
+    {"id":"beg_grudge","event":"beg_grudge","zh":"记住抢食者","ja":"取った相手を覚える","en":"Remembering the food thief","basis":["P"],"status":"ready"},
+    {"id":"beg_help","event":"beg_help","zh":"跑到人身旁求助","ja":"人のそばで助けを求める","en":"Appealing to a person for help","basis":["P"],"status":"ready"},
+    {"id":"beg_curse","event":"beg_curse","zh":"退开前抱怨","ja":"去る前に文句を言う","en":"Complaining before backing off","basis":["P"],"status":"ready"}
   ],
   "lines": [
     {"id":"hello.fixed","event":"hello","zh":"油库里洗跌一跌捏！","ja":"ゆっくりしていってね！","en":"Take it easy!","basis":["D01"],"status":"ready","common_ref":"common.welcome_take_it_easy"},
@@ -405,7 +417,19 @@
     {"id":"mold_plea.still","event":"mold_plea","zh":"等等！我还能油库里的！别赶我走……！","ja":"まってね！ まだゆっくりできるよ！ おいださないで……！","en":"Wait! I can still take it easy! Don't drive me out...!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"mold_resist.my_home","event":"mold_resist","zh":"这里也是我的家先生！凭什么赶我走！","ja":"ここはわたしのおうちさんでもあるよ！ どうしておいだすの!?","en":"This is my Mr. Home too! Why are you driving me out?!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"mold_leave.goodbye","event":"mold_leave","zh":"……再见了……大家要好好油库里哦……","ja":"……さようなら……みんな、ゆっくりしていってね……","en":"...Goodbye... everyone, take it easy...","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"mold_child_cry.dont_go","event":"mold_child_cry","zh":"别走……！快回来……！","ja":"いかにゃいでぇ……！ もどってきちぇね……！","en":"Don't go...! Come back...!","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"mold_child_cry.dont_go","event":"mold_child_cry","zh":"别走……！快回来……！","ja":"いかにゃいでぇ……！ もどってきちぇね……！","en":"Don't go...! Come back...!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_ask.bite","event":"beg_ask","zh":"肚肚好饿……可以分我一口吗？","ja":"おなかすいたよ……ひとくち、わけてくれる？","en":"I'm so hungry... could I have a bite?","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_offer.share","event":"beg_offer","zh":"来，分你一口。","ja":"はい、ひとくちわけてあげるね。","en":"Here, you can have a bite.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_refuse.mine","event":"beg_refuse","zh":"这是我的。别靠过来。","ja":"これはわたしのだよ。ちかよらないでね。","en":"It's mine. Stay back.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_plead_again.wait","event":"beg_plead_again","zh":"等等……就一小口也好！","ja":"まって……ちょっとだけでいいよ！","en":"Wait... just a tiny bite!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_pester.hungry","event":"beg_pester","zh":"可是肚肚真的好饿！","ja":"でも、ほんとにおなかぺこぺこだよ！","en":"But I'm really hungry!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_cry.empty","event":"beg_cry","zh":"呜呜……肚肚还是空的……","ja":"うう……まだおなかぺこぺこだよ……","en":"Sniff... my tummy's still empty...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_thanks.food","event":"beg_thanks","zh":"谢谢你！终于有东西吃了。","ja":"ありがとう！ やっとごはんだよ。","en":"Thank you! Finally, something to eat.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_robbed.mine","event":"beg_robbed","zh":"呀啊！我的吃的！","ja":"ゆああ！ わたしのごはん！","en":"Aah! My food!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_chase.back","event":"beg_chase","zh":"站住！还给我！","ja":"まて！ かえしてよ！","en":"Stop! Give it back!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_grudge.remember","event":"beg_grudge","zh":"呜……我记住你了。","ja":"うう……おぼえてるからね。","en":"Sniff... I'll remember you.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_help.hide","event":"beg_help","zh":"帮帮我！它一直盯着我的吃的！","ja":"たすけて！ ごはんをじっとみてるよ！","en":"Help! It keeps staring at my food!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"beg_curse.stingy","event":"beg_curse","zh":"小气鬼！我走就是了！","ja":"けち！ もういくよ！","en":"Stingy! Fine, I'm going!","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
     {

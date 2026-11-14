@@ -83,6 +83,8 @@ public final class NativeDialogue {
             case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail",
                  "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",
                  "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke",
+                 "beg_ask", "beg_offer", "beg_refuse", "beg_plead_again", "beg_pester", "beg_cry", "beg_thanks",
+                 "beg_robbed", "beg_chase", "beg_grudge", "beg_help", "beg_curse",
                  // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
                  "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
                  "basket_refuse", "basket_enter", "basket_exit", "wild_plea_keep", "pet_report_owner",

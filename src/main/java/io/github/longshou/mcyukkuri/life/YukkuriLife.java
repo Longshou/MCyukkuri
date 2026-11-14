@@ -445,6 +445,7 @@ public final class YukkuriLife {
     public boolean needsFood(){ return meal.needsFood(); }
     private boolean edible(ItemStack food){ return meal.edible(food); }
     public boolean seeksFood(ItemStack food) { return meal.seeksFood(food); }
+    boolean seeksFood(ItemStack food, UUID giver) { return meal.seeksFood(food, giver); }
     public boolean seeksOfferedFood(Player giver) {
         return seeksOfferedFood(giver.getMainHandItem(), giver) || seeksOfferedFood(giver.getOffhandItem(), giver);
     }
@@ -660,14 +661,11 @@ public final class YukkuriLife {
     public boolean beginKindnessMeal(YukkuriEntity giver, ItemStack food) { return meal.beginKindnessMeal(giver, food); }
     public boolean prepareKindnessFood() { return meal.prepareKindnessFood(); }
     public static boolean kindnessFood(ItemStack food) { return LifeMeal.kindnessFood(food); }
-    /** Badge social (B4): a hungry peer is begging at this serving, so the bite waits mid-chew for up to {@code ticks}. False unless a bite is really in the mouth. */
-    public boolean holdMeal(int ticks){ return meal.holdMeal(ticks); }
-    public void releaseMeal(){ meal.releaseMeal(); }
-    public boolean mealHeld(){ return meal.mealHeld(); }
+    public boolean canOfferMeal() { return meal.canOfferMeal(); }
+    public boolean passCarriedMeal(YukkuriEntity peer, boolean share) { return meal.passCarriedMeal(peer, share); }
+    public boolean finishCarriedMeal(UUID giver) { return meal.beginCarriedMeal(MouthOccupancy.Purpose.KINDNESS, giver, true); }
     /** A bully takes the serving out of this mouth (headwear.Sanction): it eats it if it can, otherwise the bite is knocked out. */
     public boolean snatchedBy(YukkuriEntity thief){ return meal.snatchedBy(thief); }
-    /** Real transfer of the held serving to a hungry peer (same rules and rewards as tryShare, but asked for by a begging scene). */
-    public boolean handOverMouth(YukkuriEntity peer, String event){ return meal.handOverMouth(peer, event); }
     private void tryShare(){ meal.tryShare(); }
     public void releaseMouthForDeath() { meal.releaseForInterrupt(); }
     public void clearDisplacedMeal() {
@@ -759,7 +757,7 @@ public final class YukkuriLife {
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks() > 0) return true;
-        if (!hasUrgentNeed() && BadgeArcs.running(entity)) return false;
+        if (BadgeArcs.running(entity) && (!hasUrgentNeed() || BadgeArcs.handlesFoodHunger(entity))) return false;
         if (task == Task.WINTER_FOOD) {
             if (entity.wintering().continueMeal()) {
                 if (pursuitTicks >= winterNeedCheckAt) {

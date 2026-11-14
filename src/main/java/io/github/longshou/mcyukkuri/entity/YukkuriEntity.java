@@ -853,7 +853,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** An ordinary reaction pose. Movement, active contact and danger can still take priority. */
     public boolean showReaction(YukkuriAction action, String expression, String dialogue) {
-        if (!showReaction(expression, dialogue, Math.max(1, (int) Math.ceil(action.duration() * 20)))) return false;
+        return showReaction(action, expression, dialogue, Math.max(1, (int) Math.ceil(action.duration() * 20)));
+    }
+
+    public boolean showReaction(YukkuriAction action, String expression, String dialogue, int ticks) {
+        if (!showReaction(expression, dialogue, ticks)) return false;
         reactionAction = action;
         return true;
     }

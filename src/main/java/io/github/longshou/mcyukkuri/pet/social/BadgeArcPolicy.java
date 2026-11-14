@@ -39,10 +39,26 @@ public final class BadgeArcPolicy {
     private static double clamp01(double v) { return Math.max(0, Math.min(1, v)); }
 
     public static double begBiteChance(Observer o, Subject s, Relation r) {
-        if (r.cooling() || o.pet() || !s.eating() || s.grade() <= 0
-                || o.nutrition() < 30 || o.nutrition() >= 50) return 0;
-        return clamp01(.65 + (50 - o.nutrition()) / 40.0
+        if (r.cooling() || o.pet() || !s.pet() || !s.eating() || !beggingHunger(o.nutrition())) return 0;
+        return clamp01(.75 + (50 - o.nutrition()) / 35.0
                 + r.affinity() / 100.0 - .6 * r.wariness() - .15 * r.confidence());
+    }
+
+    public static boolean beggingHunger(float nutrition) { return nutrition >= 12 && nutrition < 50; }
+
+    enum BegAnswer { SHARE, REFUSE, HELP }
+    enum BegRefusal { LEAVE, PESTER, SNATCH }
+
+    static BegAnswer begAnswer(float nutrition, int share, double wariness, int boldness, int attachment, boolean kin, boolean human) {
+        if (wariness >= .5 || boldness < 35 && attachment >= 55 && !kin) return human ? BegAnswer.HELP : BegAnswer.REFUSE;
+        return nutrition >= 40 && share >= 50 ? BegAnswer.SHARE : BegAnswer.REFUSE;
+    }
+
+    static BegRefusal begRefusal(float nutrition, double wariness, double confidence, double insistence, int fearBand,
+                                 int selfControl, int harshness, boolean ableToSnatch) {
+        if (wariness >= .5 || confidence < .25 || fearBand > 0) return BegRefusal.LEAVE;
+        return ableToSnatch && confidence >= .4 && selfControl < 40 && (nutrition < 30 || insistence >= .35 && harshness >= 20)
+                ? BegRefusal.SNATCH : BegRefusal.PESTER;
     }
 
     /** Every arc the situation allows with its own probability (unscaled). Empty means a silent record. */

@@ -150,6 +150,13 @@ public final class MouthOccupancy {
         return purpose() == Purpose.KINDNESS && held.release(load -> accepted.test(load.items().getFirst()));
     }
 
+    /** The recipient takes one piece before the original serving is replaced by the piece that stays here. */
+    public boolean splitKindnessFood(ItemStack piece, Predicate<ItemStack> accepted) {
+        var before = load();
+        return before != null && before.purpose() == Purpose.KINDNESS && accepted.test(piece.copy())
+                && held.replace(before, new Load(Purpose.KINDNESS, List.of(piece), BodyFood.Bite.EMPTY));
+    }
+
     public boolean prepareKindnessFood() {
         var before = load();
         return before != null && before.purpose() == Purpose.MEAL && !before.items().isEmpty()

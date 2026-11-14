@@ -33,6 +33,7 @@ public final class FoodTaste {
     /** The taste tier of one serving from the same existing food data the meal reads. */
     public static Taste.Grade grade(ItemStack food) {
         if (Sweets.is(food) || Sweets.premium(food)) return Taste.Grade.TREAT;
+        if (food.is(ModItems.APPLE_HALF.get())) return Taste.Grade.FINE;
         if (food.is(ModItems.WASTE.get()) || grass(food) || food.is(ModItems.FOOD_SCRAP.get())
                 || food.is(YukkuriEntity.WATER_FOOD)) return Taste.Grade.COARSE;
         return serving(food) < 15 ? Taste.Grade.ORDINARY : Taste.Grade.FINE;
