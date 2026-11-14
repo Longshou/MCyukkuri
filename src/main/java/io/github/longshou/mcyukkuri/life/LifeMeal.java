@@ -30,6 +30,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -44,6 +45,9 @@ final class LifeMeal {
     private int mealTicks, mealHold;
     /** Tick at which a hand-fed refusal is spat back; 0 for an ordinary meal. */
     private int spatAt;
+    /** The serving just refused and the tick it may be considered again: a hungry body does not re-sniff the same food every scan. */
+    private Item refusedFoodItem;
+    private long refusedFoodUntil;
     private UUID feeder;
     private boolean sharedMeal, preparedMeal, bowlMeal;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
@@ -94,6 +98,8 @@ final class LifeMeal {
         if (eater.profile().dangerToYukkuri() || eater.settlement().society().slave()) return false;   // predators and slaves take what they get
         if (!eater.family().adult() || eater.family().needsMash()) return false;                        // a child never refuses what a parent gives
         if (verdict(food, giver) != Taste.Verdict.REFUSE) return false;
+        refusedFoodItem = food.getItem();
+        refusedFoodUntil = o.level().getGameTime() + 2400;
         GameplayLog.limited(eater, "meal", "taste_refused", 400,
                 "serving refused item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste",
                 food.getItem(), FoodTaste.grade(food).id(), Math.round(o.pickiness()), tasteFor(giver), o.nutrition(),
@@ -106,7 +112,14 @@ final class LifeMeal {
     }
 
     boolean seeksFood(ItemStack food, Player giver) {
-        return acceptsFood(food) && !declines(food, giver);
+        return acceptsFood(food) && !refusingSame(food) && !declines(food, giver);
+    }
+
+    /** A refusal is remembered per food item for a while, so the next scan does not repeat the same sniff and log. */
+    private boolean refusingSame(ItemStack food) {
+        if (refusedFoodItem != food.getItem() || o.level().getGameTime() >= refusedFoodUntil) return false;
+        if (verdict(food, null) != Taste.Verdict.REFUSE) { refusedFoodItem = null; return false; }
+        return true;
     }
 
     /** The player offers this serving by hand: an enduring body turns its head away, a less restrained one takes it and spits it back. */
