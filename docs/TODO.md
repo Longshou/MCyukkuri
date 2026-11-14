@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 商店前台与门、商店限制方式 | `.worktrees/wp-r3-shop-access` | shop/ShopAccess, ShopDoors, ShopStaff, ShopMembership, ShopMenu；商店场景；FEATURES 商店 |
+| 商店库存年龄 | `.worktrees/wp-r3-shop-stock` | shop/ShopRestock, ShopStock, 商店模板初始库存 |
 
 ## 玩法待办
 
