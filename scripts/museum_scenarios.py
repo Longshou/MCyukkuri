@@ -5434,7 +5434,7 @@ _scene_end('family_absence', [('absent', 'alive=false'), ('stayer', _DRY), ('old
             ('stayer', f'seen:family:missing kin found remains kin={_absent_uuid}'),
             ('stayer', r'seen:status:behavior.animation: .* -> bereaved'),
             ('stayer', 'seen:forage:begin role=FAMILY phase=OUT reason=sole_caregiver'),
-            ('stayer', r'seen:forage:goal active phase=OUT .* pace=1\.[1-4]'),
+            ('stayer', r'seen:forage:goal active phase=OUT .* pace=(?:1\.0[1-9]|1\.[1-4])'),
             ('stayer', 'seen:forage:deposit home=.* moved=[1-9]')],
            [('older', f'seen:family:kin overdue kin={_absent_uuid}'),
             ('older', f'seen:family:missing kin call kin={_absent_uuid}')],

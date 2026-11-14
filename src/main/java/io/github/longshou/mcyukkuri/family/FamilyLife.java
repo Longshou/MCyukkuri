@@ -1669,6 +1669,8 @@ public final class FamilyLife {
                 return;
             }
             if(reached(target)){separation.reunited(target);stop();return;}
+            // The search is about the child: keep the face on it while walking to the stand and while standing blocked.
+            entity.getLookControl().setLookAt(target,20,20);
             if(!supported())return;
             var stand=reunionStand(target);
             var result=stand==null?SurfaceApproach.Result.BLOCKED:SurfaceApproach.walkResult(entity,stand,target,1.1);
