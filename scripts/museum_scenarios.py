@@ -427,9 +427,14 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
 
 _junk_scene = 'stray_junk_headwear'
 add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
-    '看低自尊的失饰流浪油走近、叼起脚边的垃圾头饰戴上并鞠躬道谢；中间戴瓶盖的失饰者被邻居嘲笑时含泪忍着。右键手里那两件试戴：低自尊的鞠躬道谢，中档的犹豫一下才收，骄傲的鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
+    '看两只圈起来的流浪油：左边低自尊的把脚边的垃圾头饰叼起戴上并鞠躬道谢，中间戴瓶盖的被邻居嘲笑时含泪忍着。右键手里那两件试戴：低自尊的鞠躬道谢，中档的犹豫一下才收，骄傲的鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
     '手动试戴与取回', [
-        item('mcyukkuri:junk_headwear', 1, -14, 5, name='junk_supply'),
+        item('mcyukkuri:junk_headwear', 1, -15, 5, name='junk_supply'),
+        # The lowly one has its own fenced nook with the piece in it, so its treasure scan finds the piece before it wanders off.
+        box(-16, 0, 4, -13, 1, 4, 'minecraft:oak_fence'),
+        box(-16, 0, 7, -13, 1, 7, 'minecraft:oak_fence'),
+        box(-16, 0, 4, -16, 1, 7, 'minecraft:oak_fence'),
+        box(-13, 0, 4, -13, 1, 7, 'minecraft:oak_fence'),
         street_stray(_junk_scene, 'reimu', -14, 6, 'quiet_stray', accessory=False, boldness=0,
                      friendliness=100, label='低自尊失饰者', lead=True),
         set_status('quiet_stray', 'marks.dirt', 3),
