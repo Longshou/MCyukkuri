@@ -544,6 +544,7 @@
   "activity.mcyukkuri.shelter_carry": "搬运生活物资",
   "activity.mcyukkuri.shelter_gather": "收集垫料和食物",
   "activity.mcyukkuri.shelter_stock": "取用存粮",
+  "activity.mcyukkuri.shelter_dig": "刨土挖洞",
   "notebook.mcyukkuri.guide.shelter": "野外住所\n油库里寻找现成洞穴或土坑，铺叶子和少量垫料；睡位按实际空间分配。\n拾来的几根细枝称作结界，不能造墙、造顶或挡住危险。\n交付树叶、草、纸、小麦作垫料；木棍整理结界，食物存入巢内。\n纸箱是人类遗留物。油库里能铺垫，不能修复箱体。\n露天坑会淋湿，晴天可以睡觉；雨天寻找真正遮蔽。\n用笔记选择住所，再潜行点油库里安排入住。",
   "item.mcyukkuri.glass_marble": "玻璃弹珠",
   "item.mcyukkuri.reimu_doll": "灵梦布偶",

@@ -182,6 +182,8 @@ public final class Behaviors {
     public static final String SHELTER_CLEAN = "shelter_clean";
     public static final String SHELTER_GATHER = "shelter_gather";
     public static final String SHELTER_STOCK = "shelter_stock";
+    /** Scraping its own hollow out of a soil face (HabitatLife DIG); standing at the face it plays the shelter_dig clip. */
+    public static final String SHELTER_DIG = "shelter_dig";
     public static final String SING = "sing";
     public static final String SLEEP = "sleep";
     public static final String SLEEP_ENTER = "sleep_enter";

@@ -135,6 +135,13 @@ def state(action, t, c, height):
     owned = TOOLS['state'](action, t, c, height) if action in TOOLS['EXPORT_CLIPS'] else None
     if owned is not None:
         s, r, lift, shift = owned
+    elif action == 'shelter_dig':
+        # One scrape a loop (recipe lore): lean and push in, drag back with the effort and a twist, upright again. The body is
+        # the same with or without a braid; Marisa's braid keys (braid_keys.py) ride on it.
+        lean = keyed(t, c['lean_keys']); drag = bump((t-.4)/.45)
+        r = [c['pitch']*lean, c['twist']*drag, c['roll']*lean]
+        s = squash(.5*drag, .05, .08, .03)
+        shift[1] = -c['reach']*height*(lean-drag)
     elif BRAID_KEYS['authored'](c):
         s, r, lift, shift = BRAID_KEYS['state'](action, t, c)
     elif action.startswith('braid_rescue_'):
@@ -1047,7 +1054,9 @@ def export_family(family, prune_only=False, check=False):
             return floor-((points-pivot)@row+pivot[1]).min()
         authored=compile_clips(model,cfg,root,ground,height)
         if follows:
-            follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
+            # A clip whose braid this model lays by key poses keeps them; the follow would replace its chain root.
+            follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored
+                                                             and not BRAID_KEYS['authored'](variant(cfg['clips'][name],ident))])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         authored=contact_author['finish_chain'](model,contact_cfg,authored,set(TOOLS['EXPORT_CLIPS']))
         if include_birth:

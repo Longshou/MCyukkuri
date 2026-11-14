@@ -888,6 +888,8 @@ public final class YukkuriModel {
         // House work has an authored, synchronized pause before the next crawl.
         // A moving body keeps its locomotion; these clips never move the real entity.
         if(gripBones!=null&&!action.equals("waddle")&&behavior.startsWith(Behaviors.HOUSE_PREFIX)&&clips.containsKey(behavior))selected=behavior;
+        // Digging scrapes only while it stands at the face; walking between faces keeps the walk.
+        if(behavior.equals(Behaviors.SHELTER_DIG)&&action.equals("idle")&&clips.containsKey(behavior))selected=behavior;
         if(gripBones!=null&&(behavior.equals(Behaviors.HOUSE_SLEEP)||behavior.equals(Behaviors.HOUSE_HIDE))&&action.equals("idle"))selected="sleep";
         // Ecology state is more specific than the shared base action: care must never collapse
         // into ordinary nuzzling, and early learning keeps its low crawl/short-hop rig.

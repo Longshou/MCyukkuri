@@ -544,6 +544,7 @@
   "activity.mcyukkuri.shelter_carry": "Carrying supplies",
   "activity.mcyukkuri.shelter_gather": "Gathering bedding and food",
   "activity.mcyukkuri.shelter_stock": "Taking stored food",
+  "activity.mcyukkuri.shelter_dig": "Digging a den",
   "notebook.mcyukkuri.guide.shelter": "Wild shelters\nYukkuri occupy existing caves or pits and bring loose leaves and bedding. Capacity follows usable ground.\nA few twigs form their so-called boundary; they build no walls or roof and gain no defense.\nOffer leaves, grass, paper or wheat for bedding, sticks for the boundary, and food for stores.\nCardboard is discarded human property; yukkuri can add lining but cannot repair its shell.\nOpen pits allow sleep in dry weather; rain forces a search for real cover.\nSelect a shelter with the notebook, then sneak-click a resident to assign it.",
   "item.mcyukkuri.glass_marble": "Glass marble",
   "item.mcyukkuri.reimu_doll": "Reimu doll",

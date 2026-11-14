@@ -13,6 +13,7 @@
     "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left"], "braid_follow": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
+    "dig": {"clips": ["shelter_dig"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
   "status": "pending_user_review",
@@ -594,6 +595,52 @@
       "triggers": [
         "nest_press"
       ]
+    },
+    "shelter_dig": {
+      "label": "刨土挖洞",
+      "duration": 1.4,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1.4,
+          "pursed"
+        ]
+      ],
+      "lore": "Project design (FG-01, user 2026-11-13: when it opens its own den the braid must work too; body-is-ability). Standing at the soil face it scrapes, one stroke a loop: it leans and pushes in against the face (reach, to the lean_keys peak), drags back with a little squash of effort and a yaw twist as the soil comes loose (scrape marker: the server's soil spray and scrape sound fall on it), and comes upright again. Pitch, and roll where a variant sets it, stay within the 12 degree budget. Without a braid the body alone does the work; Marisa's braid (variant) reaches forward and down to the face, drags the loosened soil down it and sweeps it out along the ground to her braid side before swinging back to rest (braid_keys.py lays the chain and gates it against her body, hat and the floor). A braid that already holds something keeps its hold (not a braid_use clip) and the body scrapes alone.",
+      "triggers": [
+        "shelter_dig (HabitatLife DIG at the reach cell, standing)"
+      ],
+      "markers": {
+        "scrape": 0.5
+      },
+      "pitch": -7,
+      "roll": 0,
+      "twist": 7,
+      "reach": 0.05,
+      "lean_keys": [
+        [0, 0],
+        [0.4, 1],
+        [0.55, 0.7],
+        [0.8, 0.2],
+        [1.4, 0]
+      ],
+      "variants": {
+        "marisa": {
+          "match": [
+            "marisa"
+          ],
+          "braid_keys": [
+            [0, "rest", "stop"],
+            [0.4, {"tip": [8.0, 1.0, -7.6], "root": [0.8, -1, -0.3], "arrive": [0.5, 1, 0.3]}],
+            [0.55, {"tip": [8.2, 0.6, -6.4], "root": [0.8, -1, -0.3], "arrive": [0.5, 1, 0.3]}],
+            [0.68, {"tip": [9.0, 0.6, -4.6], "root": [0.85, -1, -0.15], "arrive": [0.4, 1, 0.15]}],
+            [0.85, {"tip": [9.6, 0.7, -2.6], "root": [0.9, -1, 0], "arrive": [0.3, 1, 0]}],
+            [1.4, "rest", "stop"]
+          ]
+        }
+      }
     },
     "hat_brim": {
       "label": "子油站帽檐张望",
@@ -7412,7 +7459,8 @@
     "lunge_ram",
     "nod",
     "cling_right",
-    "cling_left"
+    "cling_left",
+    "shelter_dig"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",

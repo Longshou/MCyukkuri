@@ -608,9 +608,13 @@ final class HabitatHomes {
         var from=dig.reach(cell);
         if(!o.approach(from))return;
         var state=level().getBlockState(cell);
-        SurfaceApproach.face(o.entity(),SurfaceApproach.yaw(o.entity().position(),Vec3.atCenterOf(cell)));
+        // An upper-layer cell is overhead: it faces on into the hollow rather than a yaw read off a few centimetres.
+        var toward=cell.getX()==from.getX()&&cell.getZ()==from.getZ()?cell.relative(dig.dig()):cell;
+        SurfaceApproach.face(o.entity(),SurfaceApproach.yaw(o.entity().position(),Vec3.atCenterOf(toward)));
         digWork++;
-        if(digWork%12==0) {
+        // The soil comes loose on the shelter_dig clip's scrape, on the same behaviour clock the body plays it by.
+        var clip=ClipMarkers.of(Behaviors.SHELTER_DIG);
+        if((level().getGameTime()-o.entity().getBehaviorStartTick())%clip.length()==clip.ticks("scrape",0)) {
             level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,state),
                     cell.getX()+.5,cell.getY()+.3,cell.getZ()+.5,6,.25,.15,.25,.02);
             level().playSound(null,cell,state.getSoundType().getHitSound(),SoundSource.BLOCKS,.6f,.8f);

@@ -746,6 +746,7 @@
   "activity.mcyukkuri.shelter_carry": "生活物資を運ぶ",
   "activity.mcyukkuri.shelter_gather": "敷き材と食べ物を集める",
   "activity.mcyukkuri.shelter_stock": "蓄えた食べ物を取り出す",
+  "activity.mcyukkuri.shelter_dig": "土を掘って巣穴を作る",
   "notebook.mcyukkuri.guide.shelter": "野外の住まい\nゆっくりはすでにある洞穴やくぼみを探し、葉と少しの敷き材を敷きます。寝床は実際の広さに応じて割り当てられます。\n拾った小枝を結界と呼びますが、壁や屋根にはならず、危険も防ぎません。\n葉、草、紙、小麦は敷き材に、棒は結界の手入れに使い、食べ物は巣に蓄えます。\n段ボール箱は人間が残した物です。ゆっくりは中を敷き詰められますが、箱自体は修理できません。\n屋根のないくぼみは雨に濡れます。晴れた日は眠れますが、雨の日は本当の雨よけを探します。\n手帳で住まいを選び、しゃがんでゆっくりに使うと入居を指定できます。",
   "item.mcyukkuri.glass_marble": "ビー玉",
   "item.mcyukkuri.reimu_doll": "れいむのぬいぐるみ",

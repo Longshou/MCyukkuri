@@ -175,7 +175,9 @@ def compile_revision(model, cfg, face, cache=None):
         lore = runpy.run_path(str((LIBRARY/cfg['lore']).parent/'author.py'))
         result.update(lore['compile_clips'](model, lore_cfg, root, ground, height, cache=cache))
         owned = set(lore['TOOLS']['EXPORT_CLIPS'])  # aquatic_tools lays the braid itself in these clips
-        cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=[a for a in cfg['braid_follow']['actions']+lore_cfg['braid_follow'] if a not in owned]))
+        # A lore clip whose braid this model lays by key poses (braid_keys.py) keeps them: the follow replaces the chain root.
+        keyed = lambda a: a in lore_cfg['clips'] and lore['BRAID_KEYS']['authored'](lore['variant'](lore['resolve'](lore_cfg['clips'], a), model['id']))
+        cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=[a for a in cfg['braid_follow']['actions']+lore_cfg['braid_follow'] if a not in owned and not keyed(a)]))
     if cache:
         # Each follow consumes exactly one clip; preserve the original list order
         # (including repeated actions) and the single final update of result.

@@ -270,7 +270,7 @@ def gate(model, name, samples, all_tracks, tip, c, palette):
         n = np.cross(t3[:, 1]-t3[:, 0], t3[:, 2]-t3[:, 0]); cc = t3.mean(1)
         return P, P[tri[:, ::-1] if (n*(cc-np.array([0, 1, 0])*cc[:, 1:2])).sum(-1).mean() < 0 else tri]
     P0, S0 = skin(palette(model, [], 0)); base = np.maximum(-_closest(P0[braid], S0), 0)
-    m = c['markers']; ride = (m['lift_start'], m['place'])
+    m = c['markers']; ride = (m['lift_start'], m['place']) if 'lift_start' in m else (math.inf, -math.inf)  # a young rides it
     worst = {k: [-math.inf, 0.] for k in ('braid_body', 'braid_hat', 'braid_floor', 'young_body', 'young_hat')}
     def note(k, v, t):
         if v > worst[k][0]: worst[k] = [round(float(v), 3), round(t, 3)]
@@ -321,13 +321,16 @@ if __name__ == '__main__':
     sys.path.insert(0, str(HERE)); import aquatic_tools as A
     model = A.runtime_model(); names = {b['name']: i for i, b in enumerate(model['bones'])}
     rev = json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))['models']['marisa']
-    keyed = [name for name, c in RECIPE['clips'].items() if authored(c)]
+    # Marisa's own recipe for each clip: a variant matching her may carry the braid keys (shelter_dig).
+    own = {name: next(({**c, **{k: x for k, x in v.items() if k != 'match'}} for v in c.get('variants', {}).values() if 'marisa' in v['match']), c)
+           for name, c in RECIPE['clips'].items()}
+    keyed = [name for name, c in own.items() if authored(c)]
     failed = []
     for name in keyed+sorted(n for n in rev['clips'] if n.startswith('braid_') and n not in keyed):
         clip = rev['clips'][name]
         tr = [dict(t, bone=names[rev['bone_names'][t['bone']]]) for t in clip['tracks'] if rev['bone_names'][t['bone']] in names]
         try:
-            if name in keyed: gate(model, name, [k[0] for k in clip['tip']], tr, clip['tip'], dict(RECIPE['clips'][name], markers=clip['markers']), A.palette)
+            if name in keyed: gate(model, name, [k[0] for k in clip['tip']], tr, clip['tip'], dict(own[name], markers=clip['markers']), A.palette)
             else: continuity(model, name, tr)
         except ValueError as error:
             print(f'  FAIL {error}', flush=True); failed.append(name)
