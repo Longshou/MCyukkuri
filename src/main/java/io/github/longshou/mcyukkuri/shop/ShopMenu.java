@@ -67,7 +67,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class Data {
-        public static final int COUNT = 75;
+        public static final int COUNT = 76;
         public static final int TAB = 0;
         public static final int TRADES_LEFT = 1;
         public static final int DAYTIME = 2;
@@ -100,6 +100,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int SUBJECT_MOTHER_BADGE = 72;
         public static final int SUBJECT_FATHER_BADGE = 73;
         public static final int ONI_SHOP = 74;
+        public static final int MEMBERSHIP = 75;
         private Data() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -219,7 +220,7 @@ public final class ShopMenu extends AbstractContainerMenu {
 
     // helpers
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
-    private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
+    private static int stage(YukkuriEntity y) { return y.family().subadult() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
         int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.friendliness() <= 35 ? 2 : 0,
@@ -274,6 +275,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         page = Math.min(page, pageCount() - 1);
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
         put(Data.ONI_SHOP, oniShop() ? 1 : 0);
+        put(Data.MEMBERSHIP, shop.membership(viewer.getUUID()).ordinal());
         put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.id, viewer.getUUID()));
         put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
         if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
@@ -345,6 +347,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (style != null) style.apply(stack);
         stocks.take(level, shop.id, good);
         ShopTrade.debit(p, price); if (!p.getInventory().add(stack)) p.drop(stack, false); stocks.useTrade(level, shop.id, p.getUUID());
+        ShopRegistry.get(level).recordSpend(level, shop, p.getUUID(), price);
         ShopTrade.say(p, "goods.bought", stack.getHoverName(), price);
         GameplayLog.event(p, "shop", "action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} stock={}->{}",
                 shop.id, item, delivered, style == null ? null : style.id, price, stockBefore, stocks.stock(level, shop.id, good));

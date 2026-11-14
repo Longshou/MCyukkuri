@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.function.Consumer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.LivingEntity;
@@ -259,6 +260,12 @@ public final class Motor {
         }
         body.setPos(body.getX() + delta.x, body.getY() + delta.y, body.getZ() + delta.z);
         return true;
+    }
+
+    /** A contact impulse for a player whose movement is simulated by its client. */
+    public static void pushPlayer(ServerPlayer player, Vec3 impulse) {
+        player.push(impulse.x, impulse.y, impulse.z);
+        player.hurtMarked = true;
     }
 
     /** Records a violated invariant as a WARN; the state is never "corrected" here. */

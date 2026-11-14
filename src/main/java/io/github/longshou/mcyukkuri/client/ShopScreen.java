@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
+import io.github.longshou.mcyukkuri.shop.ShopMembership;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
 import io.github.longshou.mcyukkuri.network.ShopRowPayload;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
@@ -27,7 +28,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static final int PORTRAIT = 48, TEXT_X = ROW_X + PORTRAIT + 10, TEXT_W = ROW_W - PORTRAIT - 16, LINE = 12;
     private static final float PORTRAIT_YAW = 18, PORTRAIT_PITCH = 12;
     private final Button[] actions = new Button[ShopMenu.ButtonId.COUNT];
-    public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 240; }
+    public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 252; }
     @Override protected void init() {
         super.init();
         int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT, ICON_PROFILE};
@@ -188,6 +189,9 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         }
     }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
+        var membership = ShopMembership.byId(menu.value(ShopMenu.Data.MEMBERSHIP));
+        var membershipLabel = membership.label();
+        g.drawString(font, membershipLabel, imageWidth - 8 - font.width(membershipLabel), FOOT + 24, SOFT, false);
         int tab = menu.value(ShopMenu.Data.TAB);
         if (tab == ShopMenu.LIVE) {
             for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {

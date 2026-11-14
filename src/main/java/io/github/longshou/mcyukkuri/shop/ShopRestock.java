@@ -35,12 +35,10 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class ShopRestock {
     static final long PERIOD = 3 * ShopStock.DAY;
-    /** A pet shop keeps one or two grown animals (user 2026-11-13); the rest of the stock is young. */
+    /** Both shops keep at most two grown animals in generated stock; the rest are young. */
     static final int KEEP_ADULTS = 2;
-    /** Arrivals are juveniles old enough to eat from a bowl on their own, up to just before adulthood (project design). */
-    private static final long YOUNG_MIN = GrowthTiming.ADULT_START / 3, YOUNG_MAX = GrowthTiming.ADULT_START - 12_000;
     /** Chance that an arrival for a free land nest is a grown animal while the shop keeps fewer than {@link #KEEP_ADULTS}. */
-    private static final float ADULT_CHANCE = .2f;
+    private static final float ADULT_CHANCE = .05f;
     private static final List<YukkuriVariant> LAND = List.of(YukkuriVariant.REIMU, YukkuriVariant.REIMU, YukkuriVariant.REIMU, YukkuriVariant.MARISA,
             YukkuriVariant.MARISA, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.ALICE,
             YukkuriVariant.PATCHOULI, YukkuriVariant.MYON);
@@ -75,9 +73,9 @@ public final class ShopRestock {
             if (tag.contains(ShopTrade.FOR_SALE_SINCE)) continue;
             if (shop.kind == ShopKind.ONI) {
                 if (y.mind().preventionRemaining() == 0) shop.kind.prepareStock(y);
-                GameplayLog.event(y, "shop", "action=oni_stock shop={} form={} nutrition={} hygiene={} prevention={} price={}",
+                GameplayLog.event(y, "shop", "action=oni_stock shop={} form={} nutrition={} hygiene={} prevention={} price={} stage={} age={}",
                         shop.id, y.subspecies().assetId(), y.life().nutrition(), y.life().hygiene(),
-                        y.mind().preventionRemaining(), ShopPricing.price(shop.kind, y));
+                        y.mind().preventionRemaining(), ShopPricing.price(shop.kind, y), y.family().stageId(), y.family().age());
             }
             tag = tag.copy(); tag.putLong(ShopTrade.FOR_SALE_SINCE, now); HumanCommerce.set(y, tag);
         }
@@ -97,7 +95,8 @@ public final class ShopRestock {
                 continue;
             }
             if (now < deposit.since() + PERIOD) continue;
-            registry.lapse(shop, id);
+            registry.endDeposit(shop, id);
+            registry.recordSpend(level, shop, deposit.buyer(), deposit.paid());
             if (shop.orders.containsKey(id)) ShopTrade.cancel(level, shop, id, "reservation");
             var name = entity instanceof YukkuriEntity y ? y.getDisplayName() : net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.animal");
             registry.tell(level, deposit.buyer(), "reserve.expired", name, deposit.paid());
@@ -218,7 +217,7 @@ public final class ShopRestock {
         Motor.relocate(y, at, 0, "shop_arrival");
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(shop.dock()), MobSpawnType.COMMAND, null);
         y.setPersistenceRequired();
-        y.family().initializeGrowthAge(adult ? GrowthTiming.ADULT_START + random.nextInt(48_000) : YOUNG_MIN + (long) (random.nextDouble() * (YOUNG_MAX - YOUNG_MIN)));
+        y.family().initializeGrowthAge(adult ? GrowthTiming.ADULT_START + random.nextInt(48_000) : youngAge(random));
         if (shop.kind == ShopKind.ONI) {
             if (variant == YukkuriVariant.REIMU && random.nextInt(3) == 0)
                 y.subspecies().set(SubspeciesLife.Kind.WASA_REIMU, SubspeciesLife.Congenital.NORMAL);
@@ -237,6 +236,15 @@ public final class ShopRestock {
         if (token == null) return null; // it stays in the back room as stock, where staff and the roster see it
         GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} adult={} token={}", shop.id, y.family().stageId(), adult, token);
         return CarrierContents.plain(YukkuriWorldData.get(level), token);
+    }
+
+    /** Choose the young stage first so the short baby interval is represented as often as either later stage. */
+    private static long youngAge(RandomSource random) {
+        return switch (random.nextInt(3)) {
+            case 0 -> 48_000 + random.nextInt((int) GrowthTiming.BABY_END - 48_000);
+            case 1 -> GrowthTiming.BABY_END + random.nextInt((int) (GrowthTiming.SUBADULT_START - GrowthTiming.BABY_END));
+            default -> GrowthTiming.SUBADULT_START + random.nextInt((int) (GrowthTiming.ADULT_START - GrowthTiming.SUBADULT_START));
+        };
     }
     private static int between(RandomSource random, int low, int high) { return low + random.nextInt(high - low + 1); }
 

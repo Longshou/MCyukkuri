@@ -6654,5 +6654,12 @@
   "item.mcyukkuri.wooden_bench": "长椅",
   "block.mcyukkuri.wooden_bench": "长椅",
   "item.mcyukkuri.wooden_table": "木桌",
-  "block.mcyukkuri.wooden_table": "木桌"
+  "block.mcyukkuri.wooden_table": "木桌",
+  "shop.mcyukkuri.membership.0": "访客",
+  "shop.mcyukkuri.membership.1": "会员",
+  "shop.mcyukkuri.membership.2": "贵宾",
+  "shop.mcyukkuri.membership.next": "%s · 累计消费 %s 升档",
+  "shop.mcyukkuri.membership.door": "这扇门需要%s资格，右键店员查看会员等级。",
+  "shop.mcyukkuri.membership.door_busy": "有人正在过门，请稍等。",
+  "shop.mcyukkuri.membership.staff_area": "%s：这里是员工区，请回到顾客区。"
 }

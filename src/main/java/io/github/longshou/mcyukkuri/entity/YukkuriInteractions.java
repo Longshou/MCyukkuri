@@ -58,7 +58,9 @@ final class YukkuriInteractions {
             return InteractionResult.FAIL;
         }
 
-        boolean prepared = owner.family().needsMash() && InfantFood.isMash(stack);
+        boolean ownerMash = owner.family().needsMash() && !owner.childhood().isNewborn() && owner.pet().owned(player)
+                && (stack.is(ModItems.GRAIN_REGULAR.get()) || stack.is(ModItems.GRAIN_BUDGET.get()) || stack.is(ModItems.GRAIN_PREMIUM.get()));
+        boolean prepared = owner.family().needsMash() && (ownerMash || InfantFood.isMash(stack));
         if (!prepared && Toxins.dose(stack) > 0 && !owner.life().acceptsFood(stack)) { // bitter or poisonous: refused unless starving
             GameplayLog.limited(owner,"interaction","food_toxic",20,"food refused; player={} item={} reason=toxic nutrition={}",
                     player.getUUID(),stack.getItem(),owner.life().nutrition());
@@ -84,7 +86,8 @@ final class YukkuriInteractions {
         if (!prepared && owner.life().refuseOfferedGrain(stack, player)) return InteractionResult.CONSUME;
         int before=stack.getCount();
         ItemStack one = stack.copyWithCount(1);
-        boolean fed = prepared ? owner.life().beginPreparedMeal(one, player.getUUID()) : owner.life().beginMeal(one, player.getUUID(), false);
+        boolean fed = prepared ? owner.life().beginPreparedMeal(ownerMash ? InfantFood.mash(one, player.getUUID()) : one, player.getUUID())
+                : owner.life().beginMeal(one, player.getUUID(), false);
         if (fed && sweet) owner.pet().lessons().reward(player, one);
         if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         if (!fed) owner.showReaction("cheek_puff","refuse",60);

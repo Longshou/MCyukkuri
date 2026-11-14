@@ -172,9 +172,10 @@ public final class ShopTrade {
         staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
         var registry = ShopRegistry.get(level);
         registry.order(shop, y.getUUID(), new ShopRegistry.Order(order.kind(), buyer, due, token));
-        registry.sold(shop, y.getUUID());
+        var deposit = registry.endDeposit(shop, y.getUUID());
         if (player != null) {
             debit(player, due);
+            registry.recordSpend(level, shop, buyer, due + (deposit == null ? 0 : deposit.paid()));
             SurvivalProgress.award(player, "pet_bought");
             say(player, "buy.paid", due, y.getDisplayName());
         }

@@ -168,9 +168,14 @@ final class LifeMeal {
 
     boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer) {
         var player = fromPlayer == null ? null : o.level().getPlayerByUUID(fromPlayer);
-        if (o.entity().family().stage()==FamilyLife.Stage.BABY || player == null || !player.isAlive() || player.distanceToSqr(o.entity()) > 9 || !player.hasLineOfSight(o.entity())
+        if ((o.entity().family().stage()==FamilyLife.Stage.BABY && o.entity().childhood().isNewborn())
+                || player == null || !player.isAlive() || player.distanceToSqr(o.entity()) > 9 || !player.hasLineOfSight(o.entity())
                 || !o.entity().family().needsMash() || !canReceiveCareFood(prepared) || !InfantFood.isMash(prepared) || prepared.getCount() != 1) return false;
         return startMeal(prepared, fromPlayer, true, "receive_mash");
+    }
+
+    boolean beginStaffMeal(ItemStack portion, UUID staff) {
+        return canReceiveCareFood(portion) && startMeal(InfantFood.mash(portion, staff), staff, true, "receive_mash");
     }
 
     boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared) {

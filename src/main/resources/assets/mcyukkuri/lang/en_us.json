@@ -6656,5 +6656,12 @@
   "item.mcyukkuri.wooden_bench": "Wooden Bench",
   "block.mcyukkuri.wooden_bench": "Wooden Bench",
   "item.mcyukkuri.wooden_table": "Wooden Table",
-  "block.mcyukkuri.wooden_table": "Wooden Table"
+  "block.mcyukkuri.wooden_table": "Wooden Table",
+  "shop.mcyukkuri.membership.0": "Visitor",
+  "shop.mcyukkuri.membership.1": "Member",
+  "shop.mcyukkuri.membership.2": "Patron",
+  "shop.mcyukkuri.membership.next": "%s · Spend %s total to advance",
+  "shop.mcyukkuri.membership.door": "This door requires %s access. Ask a clerk for your tier.",
+  "shop.mcyukkuri.membership.door_busy": "Someone is in the doorway. Please wait.",
+  "shop.mcyukkuri.membership.staff_area": "%s: Staff area. Please return to the sales floor."
 }

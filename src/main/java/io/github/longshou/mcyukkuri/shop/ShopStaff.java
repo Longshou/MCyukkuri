@@ -51,7 +51,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 /**
  * Shop staff work (docs/FEATURES.md, 宠物店). Every staff member of a shop is the same: when free (awake, not trading, empty-handed) it takes
  * the most pressing piece of work that the shop's real state calls for, in this order: an animal waiting for its buyer, a companion waiting to be
- * sold, a sick or injured animal, a bowl running low, a basket waiting in the arrivals barrel or on the floor, an animal marked to ship out, a toilet or floor waste to
+ * sold, a sick or injured animal, a hungry dependent youngster, a bowl running low, a basket waiting in the arrivals barrel or on the floor, an animal marked to ship out, a toilet or floor waste to
  * clean. Staff choose work from the site's saved orders, bowls, toilets, barrels and baskets.
  * A job walks to its target (through the shop's iron staff doors), works at hand's reach (the same reach test admits and executes), and if it
  * holds something carries it to where it belongs: the counter, a free nest, the arrivals barrel, the waste barrel. A job is transient; what it
@@ -59,7 +59,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  * finished leaves the target to others for a while and anything held where it can be found again.
  */
 public final class ShopStaff {
-    enum Kind { BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, CLEAN, STREET_SCRAP }
+    enum Kind { BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, FEED_YOUNG, CLEAN, STREET_SCRAP }
     private enum Phase { GO, WORK, CARRY }
     private static final class Job {
         final UUID staff, shop; final Kind kind;
@@ -184,6 +184,13 @@ public final class ShopStaff {
             var job = new Job(staff.getUUID(), shop.id, Kind.TREAT);
             job.animal = y.getUUID();
             job.dose = dose;
+            start(staff, job, y.position());
+            return;
+        }
+        if (staff.careFood() > 0) for (var y : stock) {
+            if (!hungryYoung(shop, y) || !free(y.getUUID(), now)) continue;
+            var job = new Job(staff.getUUID(), shop.id, Kind.FEED_YOUNG);
+            job.animal = y.getUUID();
             start(staff, job, y.position());
             return;
         }
@@ -373,6 +380,11 @@ public final class ShopStaff {
                 ? TreatmentItem.neededCare(y) : null;
     }
 
+    private static boolean hungryYoung(ShopRegistry.Entry shop, YukkuriEntity y) {
+        return y != null && shop.contains(y.position()) && ShopTrade.stockOf(y, shop.id) && !y.pet().busy()
+                && !y.isPassenger() && y.family().needsMash() && y.life().nutrition() < 45 && y.life().canReceiveCareFood();
+    }
+
     /** Why the job's target no longer needs this job, or null. Orders that cannot go on are cancelled here, visibly. */
     private static String stale(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
         switch (job.kind) {
@@ -398,6 +410,9 @@ public final class ShopStaff {
             }
             case FEED -> {
                 if (!(level.getBlockEntity(job.target) instanceof CareBlockEntity bowl) || bowl.foodCount() >= BOWL_LOW || staff.careFood() <= 0) return "fed";
+            }
+            case FEED_YOUNG -> {
+                if (staff.careFood() == 0 || !hungryYoung(shop, animal(level, job))) return "care_changed";
             }
             case CLEAN -> {
                 var be = level.getBlockEntity(job.target);
@@ -434,7 +449,7 @@ public final class ShopStaff {
         } else {
             staff.swing(InteractionHand.MAIN_HAND);
         }
-        if (y != null && job.kind != Kind.TREAT) {
+        if (y != null && job.kind != Kind.TREAT && job.kind != Kind.FEED_YOUNG) {
             y.life().wakeForService(); // a sleeping animal is woken: the order or the move goes on
             y.getLookControl().setLookAt(staff, 30, 30);
             y.playAction("basket_in"); y.speak("basket_enter");
@@ -528,6 +543,16 @@ public final class ShopStaff {
                     break;
                 }
                 staff.swing(InteractionHand.MAIN_HAND);
+                end(staff, job, "fed");
+            }
+            case FEED_YOUNG -> {
+                if (!y.life().beginStaffMeal(new ItemStack(shop.kind.grain()), staff.getUUID())) {
+                    fail(level, staff, shop, job, "feeding_refused");
+                    return;
+                }
+                staff.drawCareFood(1);
+                staff.swing(InteractionHand.MAIN_HAND);
+                GameplayLog.event(staff, "npc-care", "action=feed_young target={} food_left={}", y.getUUID(), staff.careFood());
                 end(staff, job, "fed");
             }
             case CLEAN -> {
@@ -652,8 +677,8 @@ public final class ShopStaff {
         if (!tag.contains(ShopTrade.FOR_SALE_SINCE)) { tag.putLong(ShopTrade.FOR_SALE_SINCE, level.getGameTime()); HumanCommerce.set(y, tag); }
         boolean home = !pen && y.life().assignHome(GlobalPos.of(level.dimension(), nest));
         y.playAction("basket_out"); y.speak("basket_exit");
-        GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} {}={} home={} staff={}", shop.id, job.token,
-                pen ? "pen" : "nest", nest.toShortString(), home, staff.getUUID());
+        GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} {}={} home={} staff={} stage={} age={}", shop.id, job.token,
+                pen ? "pen" : "nest", nest.toShortString(), home, staff.getUUID(), y.family().stageId(), y.family().age());
         end(staff, job, "released");
     }
 

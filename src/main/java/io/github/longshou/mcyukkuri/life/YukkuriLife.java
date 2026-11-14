@@ -641,6 +641,7 @@ public final class YukkuriLife {
     public boolean beginCarriedMeal(MouthOccupancy.Purpose source) { return meal.beginCarriedMeal(source); }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
+    public boolean beginStaffMeal(ItemStack portion, UUID staff){ return meal.beginStaffMeal(portion, staff); }
     /** A biological parent must physically reach the child before transferring its prepared serving. */
     public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginParentMeal(caregiver, prepared); }
     public boolean beginKindnessMeal(YukkuriEntity giver, ItemStack food) { return meal.beginKindnessMeal(giver, food); }

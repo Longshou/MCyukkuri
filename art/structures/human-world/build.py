@@ -49,7 +49,7 @@ class Building:
             for y in range(a[1],b[1]+1):
                 for z in range(a[2],b[2]+1): self.block(x,y,z,name,props,over=over)
     def door(self,x,y,z,facing='north',kind='oak',hinge='left'):
-        """A 2-high door; kind 'iron' is a staff door: no hand, mob or yukkuri opens it, only shop staff on a job (shop/ShopStaff)."""
+        """A 2-high door; the shop code handles members and staff using iron doors."""
         self.doors.append((x,y,z))
         for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,kind+'_door',{'facing':facing,'half':half,'hinge':hinge,'open':'false','powered':'false'},over=True)
     def double_door(self,x,y,z,facing):
@@ -93,9 +93,8 @@ class Building:
         if traits is not None:
             assert len(traits)==5 and all(0<=value<=100 for value in traits)
             extra['YukkuriLife']=compound({'Personality':compound({'Version':integer(1),'Innate':integers(traits)})})
-        if age is not None:   # a well-fed young individual of this real age (ticks); the growth clock recomputes its size
-            extra['YukkuriFamily']=compound({'Version':integer(3),'Age':long_(age),'Nourishment':long_(336000),'Initialized':byte(1),
-                                             'AdultScale':real(1.0),'Scale':real(0.8),'Stage':string('JUVENILE')})
+        if age is not None:
+            extra['YukkuriFamily']=stock_growth(age, 336000)
         self.entity(x,y,z,'mcyukkuri:'+kind,extra)
     def display(self,x,y,z,item,over=False):
         self.block(x,y,z+1,'dark_oak_planks',over=over)
@@ -134,6 +133,13 @@ class Building:
         path=OUT/'structure'/f'{self.name}.nbt'; path.parent.mkdir(parents=True,exist_ok=True)
         raw=b'\x0a\x00\x00'+payload(10,nbt); path.write_bytes(gzip.compress(raw,mtime=0))
         return {'name':self.name,'size':self.size,'blocks':len(blocks),'entities':len(self.entities),'source':'art/structures/human-world/build.py'}
+
+def stock_growth(age, nourishment):
+    baby = age < 72000
+    return compound({'Version':integer(3), 'Age':long_(age), 'Nourishment':long_(nourishment), 'Initialized':byte(1),
+                     'AdultScale':real(1.0), 'Scale':real(.2 if baby else .8),
+                     'Stage':string('BABY' if baby else 'JUVENILE')})
+
 
 def shell(b,w,d,wall):
     b.box((0,0,0),(w-1,1,d-1),'stone_bricks')
@@ -283,7 +289,7 @@ def shop():
     for x,z in [(23,9)]: b.door(x,3,z,'east')
     # ---- Sales half (x 2..22). Every pen wall is full glass blocks from floor to ceiling (no hop clears it and nothing is passed over it);
     # each pen has one 2-wide double iron staff door (two staff pass each other in it), framed by log posts and a log lintel so no door
-    # panel ever sits against a glass pane. Only shop staff on a job open these doors (shop/ShopStaff); players, mobs and animals cannot.
+    # panel ever sits against a glass pane. Shop staff on a job and patrons can open these doors.
     def wall_line(x0,z0,x1,z1,door=None):
         """door: the first leaf of the double door (the second is the next cell along the wall line, here always +x)."""
         leaves=set() if door is None else {door,(door[0]+1,door[1])}
@@ -304,7 +310,7 @@ def shop():
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give three different answers to a customer
     # (shop/ShopWindow): gold Alice is proud, the young Reimu shows off, the young Chen is shy.
     b.pet(3.5,5.5,'alice','shopkeeper','stock',3,skills=ALL_SKILLS,traits=(85,30,70,50,60))
-    b.pet(6.5,5.5,'reimu','shopkeeper','stock',0,traits=(65,85,80,75,50),age=240000)
+    b.pet(6.5,5.5,'reimu','shopkeeper','stock',0,traits=(65,85,80,75,50),age=148000)
     b.pet(4.5,6.5,'chen','shopkeeper','stock',0,traits=(60,60,10,60,70),age=200000)
     # Predator room (interior x 16..22, z 4..7): sealed by full-height glass and the ceiling, predator nests only.
     wall_line(15,4,15,8); wall_line(16,8,22,8,door=(19,8))
@@ -352,8 +358,8 @@ def shop():
     for x,z in [(5,24),(11,24),(5,28),(11,28)]: b.block(x,7,z,'light',{'level':'12','waterlogged':'false'})
     for x,z,item in [(7.5,26.5,'yarn_ball'),(11.5,22.5,'glass_marble'),(4.5,26.5,'pretty_stone')]: b.toy(x,3,z,item)
     register_pen(b,'yard',(2,18,15,29),(13,18),[(2,18),(5,18),(8,18),(11,18)],(10,10),hatch=(16,21))
-    b.pet(4.5,24.5,'marisa','shopkeeper','stock',0,traits=(70,75,60,65,70),age=230000)
-    b.pet(9.5,23.5,'patchouli','shopkeeper','stock',0,traits=(80,70,40,60,75),age=180000)
+    b.pet(12.5,20.5,'marisa','shopkeeper','stock',0,traits=(70,75,60,65,70),age=65000)
+    b.pet(14.5,20.5,'patchouli','shopkeeper','stock',0,traits=(80,70,40,60,75),age=58000)
     b.pet(12.5,26.5,'reimu','shopkeeper','stock',0,traits=(60,80,65,70,65),age=260000)
     # Shop footprint for the register (protection, the physical roster, staff membership): the sales half and its yard.
     marker(b,1.5,0.5,3.5,'mcy_shop_corner'); marker(b,23.5,15.5,30.5,'mcy_shop_corner')

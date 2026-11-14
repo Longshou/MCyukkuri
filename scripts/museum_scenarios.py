@@ -1869,9 +1869,10 @@ CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,C
 SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
-    '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、子油芙兰），后院放养三只子油。'
+    '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、亚成芙兰），后院放养赤油与亚成油。'
     '三位店员没有区别，右键哪一位都打开同一个菜单：在售页列出店里此刻真实在场的全部个体，可购买或交定金预订；收购页可把自己的油卖给店里。'
-    '展舱和捕食种房的食盆清空了、两个厕所放了便便：店员会开铁门走进栏里添粮、把便便清进后屋的桶，出门随手关门。店内方块、展示框和在售个体都不能动',
+    '先试访客开铁门，再购买用品或活体，看菜单底部会员等级变化。会员试着进后屋和后院，贵宾可进展栏。'
+    '展舱和捕食种房的食盆清空了、两个厕所放了便便：店员会进栏添粮，把便便清进后屋的桶。',
     '建筑几秒；白天约 10–60 秒看店员添食、清厕',
     ['yukkuri human build shop ~8 ~ ~17 south'],
     # The shop opens with its bowls served; the street pen's and the predator room's are emptied so feeding starts in two pens at once
@@ -1923,7 +1924,7 @@ add('shop_buy', 'shop', '买下金章爱丽丝：店员开铁门进展舱抱她�
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
 add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
     '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
-    '沿着橱窗慢慢走，看个体怎样回应；试着购买、预订，或者带自己的宠物来询问收购价。',
+    '沿着橱窗慢慢走，看个体怎样回应。先看菜单底部会员等级，购买后再试后屋铁门和展栏铁门。',
     '建筑几秒，展舱附近等片刻', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
@@ -1937,9 +1938,10 @@ add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到�
     ], env=DAY, vantage=(4, 20, 180, 10),
     reads=[('读店内废物桶', 'data get block ~17 ~2 ~-6 Items'),
            ('读门外街桶', 'data get block ~5 ~ ~18 Items')])
-add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的子油进窝', '三天补货：多余的成体装篮送走，新到的子油进窝',
+add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的幼油进窝', '三天补货：多余的成体装篮送走，新到的幼油进窝',
     '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里只留两只成体，最久没卖出去的两只被店员装篮送进后屋的进出货桶；'
-    '新到的子油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。交了定金预订的个体不会被送走。下一次补货在三天后',
+    '新到的幼油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。隔一会儿再读库存年龄，与购买放出后的年龄对照。'
+    '交了定金预订的个体不会被送走。下一次补货在三天后',
     '建筑几秒；补货后约 1–2 分钟看店员出货、上架',
     ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
      'scoreboard players remove #now scn_t 120000'],
@@ -5067,11 +5069,12 @@ _smoke('oni_street_scrap', 1300, [
 ], readout=['data get block ~17 ~2 ~-6 Items', 'data get block ~5 ~ ~18 Items'])
 _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
                             r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',
-                            r'\[interaction\][^\n]* action=pin reason=shop'],
+                            r'\[interaction\][^\n]* action=pin reason=shop', r'MCYSHOP_PET_AGE_HELD'],
        forbid=[r'\[shop\][^\n]* action=job result=failed ', r'\[shop\][^\n]* action=job result=put_down ',
                r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '])
 next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     (100, f'execute at @e[type=mcyukkuri:alice,distance=..60,nbt={{NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},limit=1] positioned ~ ~ ~.6 run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
+    (1500, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:65000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
 ]
 # Headless customers stand on the pavement outside the pens (NoAI keeps them there).
 def _window_customer(dx, name):
@@ -5227,7 +5230,10 @@ _window_smoke['commands'] = [
 _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=16\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
-                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI '])
+                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD'])
+next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
+    (1100, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:63000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_ONI_AGE_HELD'),
+]
 _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=(?:1\.\d+|[2-9]\d*(?:\.\d+)?) gap=(?:0\.[2-9]\d*|[1-9]\d*(?:\.\d+)?)\b',

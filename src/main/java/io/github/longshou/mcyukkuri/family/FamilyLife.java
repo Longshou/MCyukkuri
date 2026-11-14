@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
@@ -559,21 +560,21 @@ public final class FamilyLife {
             initialized=true;maturity=GrowthTiming.ADULT_START;lifespan=GrowthTiming.LIFESPAN;
             age=maturity+1;nourishment=maturity;stage=Stage.ADULT;
         }
-        if(!adult())entity.subspecies().trackSubadultDeibu();
-        age++;boolean becameAdult=advanceStage();
+        boolean stock = Custody.view(entity).role() == Custody.Role.STOCK;
+        boolean becameAdult = false;
+        if (!stock) {
+            if (!adult()) entity.subspecies().trackSubadultDeibu();
+            age++;
+            becameAdult = advanceStage();
+        }
         separation.tick();
-        if (age == GrowthTiming.SUBADULT_START || age == GrowthTiming.ELDER_START)
-            GameplayLog.event(entity, "growth", "age boundary age={} stage={} subadult={} elder={} nourishment={} scale={}",
-                    age, stage, subadult(), elder(), nourishment, scale);
-        if(becameAdult)entity.subspecies().resolveAdultDeibu();
-        if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
-        if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
+        if (!stock) tickGrowth(becameAdult);
         if(entity.tickCount==1||entity.tickCount%20==0)updateMovement();
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;
         if(!adult()||sterile()||elder()||!entity.status().identity().canConceive())sexDrive=0;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         // Natural lifetime is authoritative even while the body is boarded or in a flight arc.
-        if(FamilyConfig.AGING.get()&&age>=lifespan) {
+        if(!stock&&FamilyConfig.AGING.get()&&age>=lifespan) {
             GameplayLog.limited(entity, "growth", "lifespan", 1200, "lifespan reached age={} lifespan={}", age, lifespan);
             entity.body().terminalKill(level().damageSources().generic(),false,false,"old_age");return;
         }
@@ -614,6 +615,15 @@ public final class FamilyLife {
             if(!entity.isAlive())return;
         }
         birth.tick();
+    }
+
+    private void tickGrowth(boolean becameAdult) {
+        if (age == GrowthTiming.SUBADULT_START || age == GrowthTiming.ELDER_START)
+            GameplayLog.event(entity, "growth", "age boundary age={} stage={} subadult={} elder={} nourishment={} scale={}",
+                    age, stage, subadult(), elder(), nourishment, scale);
+        if(becameAdult)entity.subspecies().resolveAdultDeibu();
+        if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
+        if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
     }
     private UUID stemWarningBrood;
 
@@ -936,7 +946,7 @@ public final class FamilyLife {
     }
     /** Called once when a real sleep completes. Neither observation nor time-of-day commands grow the entity. */
     public boolean woke() {
-        if(entity.level().isClientSide||entity.life().nutrition()<35)return false;
+        if(entity.level().isClientSide||entity.life().nutrition()<35||Custody.view(entity).role()==Custody.Role.STOCK)return false;
         return grow(true);
     }
     /** Stage changes only follow the fixed loaded-time clock. Nourishment only controls how far that stage can grow. */

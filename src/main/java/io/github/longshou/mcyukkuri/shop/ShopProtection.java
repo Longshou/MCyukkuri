@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -24,7 +25,7 @@ import net.neoforged.neoforge.event.level.PistonEvent;
 
 /**
  * Inside a pet shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
- * players cannot break, place or use blocks there (the wooden street doors excepted), cannot take, turn or break the goods' item frames,
+ * players cannot break or place blocks there, cannot take, turn or break the goods' item frames,
  * and cannot interact with or hurt stock animals; explosions leave the shop and its stock standing. An empty-hand click on a stock animal
  * still opens the staff's menu on its row (ShopMenu.clickStock), and the magnifying glass may look at it.
  */
@@ -74,9 +75,31 @@ public final class ShopProtection {
             event.setCanceled(true);
     }
     public static void used(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getLevel().isClientSide() || !guarded(event.getLevel(), event.getPos())) return;
-        var state = event.getLevel().getBlockState(event.getPos());
-        if (state.getBlock() instanceof DoorBlock door && door.type().canOpenByHand()) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        var level = player.serverLevel();
+        var pos = event.getPos();
+        var shop = ShopRegistry.get(level).protectedShop(level, pos);
+        if (shop == null) return;
+        var state = level.getBlockState(pos);
+        if (state.getBlock() instanceof DoorBlock door) {
+            boolean wooden = door.type().canOpenByHand();
+            if (wooden && !ShopAccess.legacyServiceDoor(shop, pos)) return;
+            var required = ShopAccess.doorTier(shop, pos);
+            boolean allowed = shop.membership(player.getUUID()).allows(required);
+            boolean egress = !allowed && ShopAccess.egress(shop, player, pos);
+            if (wooden && (allowed || egress)) return;
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            if (event.getHand() != InteractionHand.MAIN_HAND || player.isSpectator()) return;
+            if (allowed || egress) {
+                ShopDoors.toggle(player, shop, pos, egress);
+            } else {
+                ShopTrade.say(player, "membership.door", required.nameText());
+                GameplayLog.limited(player, "shop", "membership_door", 100, "action=door result=refused shop={} door={} required={}",
+                        shop.id, pos, required);
+            }
+            return;
+        }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.FAIL);
         if (event.getHand() == InteractionHand.MAIN_HAND) refuse(event.getEntity(), "block");

@@ -67,6 +67,7 @@ public final class ShopRegistry extends SavedData {
         final Map<UUID, Deposit> deposits = new LinkedHashMap<>();
         final Map<UUID, Integer> refunds = new LinkedHashMap<>();
         final Map<UUID, Integer> proceeds = new LinkedHashMap<>();
+        private final Map<UUID, Integer> spent = new LinkedHashMap<>();
         final Map<UUID, Order> orders = new LinkedHashMap<>();
         Entry(UUID id, String dimension, BlockPos pos, ShopKind kind) {
             this.id = id; this.dimension = dimension; this.pos = pos; this.kind = kind;
@@ -81,10 +82,12 @@ public final class ShopRegistry extends SavedData {
         BlockPos trash() { return trash; }
         public boolean authored() { return first != null; }
         boolean legacy() { return legacy; }
+        Direction legacyFront() { return legacyFront; }
         boolean closed() { return closed; }
         boolean staff(UUID id) { return staff.contains(id); }
         Deposit deposit(UUID animal) { return deposits.get(animal); }
         long nextRestock() { return nextRestock; }
+        ShopMembership membership(UUID player) { return ShopMembership.fromSpend(spent.getOrDefault(player, 0)); }
     }
     private final Map<UUID, Entry> shops = new LinkedHashMap<>();
     private final Map<UUID, List<Component>> notices = new LinkedHashMap<>();
@@ -198,12 +201,16 @@ public final class ShopRegistry extends SavedData {
         return null;
     }
 
-    /** Inside an authored shop footprint: no player breaks, places or uses anything there (ShopProtection). */
+    /** Inside an authored shop footprint: construction and stock stay protected at every membership tier. */
     public boolean protectedAt(ServerLevel level, BlockPos pos) {
+        return protectedShop(level, pos) != null;
+    }
+
+    Entry protectedShop(ServerLevel level, BlockPos pos) {
         var dim = level.dimension().location().toString();
         for (var shop : shops.values()) if (!shop.closed && shop.dimension.equals(dim)
-                && (shop.protection != null ? shop.protection.contains(pos.getCenter()) : shop.legacy && shop.contains(pos.getCenter()))) return true;
-        return false;
+                && (shop.protection != null ? shop.protection.contains(pos.getCenter()) : shop.legacy && shop.contains(pos.getCenter()))) return shop;
+        return null;
     }
 
     /** Every stock animal of this shop that is physically inside its footprint: the sale roster. */
@@ -264,6 +271,7 @@ public final class ShopRegistry extends SavedData {
     }
 
     void openedDoors(ServerLevel level, List<BlockPos> leaves) {
+        if (leaves.isEmpty()) return;
         if (openedDoors.computeIfAbsent(level.dimension().location().toString(), key -> new LinkedHashSet<>()).addAll(leaves)) setDirty();
     }
 
@@ -272,8 +280,16 @@ public final class ShopRegistry extends SavedData {
         if (leaves != null && leaves.remove(leaf)) setDirty();
     }
 
+    boolean staffOpenedDoor(ServerLevel level, BlockPos leaf) {
+        var leaves = openedDoors.get(level.dimension().location().toString());
+        return leaves != null && leaves.contains(leaf);
+    }
+
     public static void playerTick(net.neoforged.neoforge.event.tick.PlayerTickEvent.Post event) {
-        if (event.getEntity() instanceof ServerPlayer player && player.tickCount % 20 == 0) get(player.serverLevel()).payRefunds(player);
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        var registry = get(player.serverLevel());
+        if (player.tickCount % 20 == 0) registry.payRefunds(player);
+        if (player.tickCount % 5 == 0) ShopAccess.warnTrespass(player, registry);
     }
 
     void payRefunds(ServerPlayer player) {
@@ -388,7 +404,7 @@ public final class ShopRegistry extends SavedData {
         return rotation == null ? shop.bounds() : shell(shop.pos, rotation, 12);
     }
 
-    private static Rotation authoredRotation(Entry shop) {
+    static Rotation authoredRotation(Entry shop) {
         if (shop.first == null || shop.second == null) return null;
         for (var rotation : Rotation.values()) {
             var first = shop.pos.offset(shop.kind.frontCorner.rotate(rotation));
@@ -472,13 +488,20 @@ public final class ShopRegistry extends SavedData {
     // ---- reservations ------------------------------------------------------------------------------------------------
 
     void reserve(Entry shop, UUID animal, UUID buyer, int price, int paid, long now) { shop.deposits.put(animal, new Deposit(buyer, price, paid, now)); setDirty(); }
-    /** A reservation not taken up within one restock period lapses: the animal is on sale again and the shop keeps the deposit. */
-    Deposit lapse(Entry shop, UUID animal) {
+    /** Removes the paid deposit when a sale settles or a reservation lapses. */
+    Deposit endDeposit(Entry shop, UUID animal) {
         var deposit = shop.deposits.remove(animal);
         if (deposit != null) setDirty();
         return deposit;
     }
-    void sold(Entry shop, UUID animal) { if (shop.deposits.remove(animal) != null) setDirty(); }
+    void recordSpend(ServerLevel level, Entry shop, UUID player, int amount) {
+        var before = shop.membership(player);
+        int total = shop.spent.merge(player, amount, Integer::sum);
+        var tier = shop.membership(player);
+        setDirty();
+        GameplayLog.world(level, "shop", "action=membership shop={} player={} spent={} total={} tier={}->{}",
+                shop.id, player, amount, total, before, tier);
+    }
     /** A reserved animal that is gone (died, or left the shop other than by its sale): its deposit is owed back to the buyer. */
     void refund(Entry shop, UUID animal) {
         var deposit = shop.deposits.remove(animal);
@@ -549,8 +572,9 @@ public final class ShopRegistry extends SavedData {
                 deposits.add(e);
             });
             c.put("Deposits", deposits);
-            c.put("Refunds", balances(shop.refunds));
-            c.put("Proceeds", balances(shop.proceeds));
+            c.put("Refunds", balances(shop.refunds, "Owed"));
+            c.put("Proceeds", balances(shop.proceeds, "Owed"));
+            c.put("Membership", balances(shop.spent, "Spent"));
             list.add(c);
         }
         tag.put("Shops", list);
@@ -618,8 +642,9 @@ public final class ShopRegistry extends SavedData {
                 if (e.hasUUID("Animal") && e.hasUUID("Buyer") && e.getInt("Paid") > 0 && e.getInt("Price") >= e.getInt("Paid"))
                     shop.deposits.put(e.getUUID("Animal"), new Deposit(e.getUUID("Buyer"), e.getInt("Price"), e.getInt("Paid"), e.getLong("Since")));
             }
-            readBalances(c, "Refunds", shop.refunds);
-            readBalances(c, "Proceeds", shop.proceeds);
+            readBalances(c, "Refunds", "Owed", shop.refunds);
+            readBalances(c, "Proceeds", "Owed", shop.proceeds);
+            readBalances(c, "Membership", "Spent", shop.spent);
             result.shops.put(shop.id, shop);
         }
         return result;
@@ -635,18 +660,18 @@ public final class ShopRegistry extends SavedData {
         for (var id : tag.getList(key, 11)) ids.add(NbtUtils.loadUUID(id));
     }
 
-    private static ListTag balances(Map<UUID, Integer> balances) {
+    private static ListTag balances(Map<UUID, Integer> balances, String valueKey) {
         var list = new ListTag();
         balances.forEach((player, owed) -> {
-            var e = new CompoundTag(); e.putUUID("Player", player); e.putInt("Owed", owed); list.add(e);
+            var e = new CompoundTag(); e.putUUID("Player", player); e.putInt(valueKey, owed); list.add(e);
         });
         return list;
     }
 
-    private static void readBalances(CompoundTag tag, String key, Map<UUID, Integer> balances) {
+    private static void readBalances(CompoundTag tag, String key, String valueKey, Map<UUID, Integer> balances) {
         for (var raw : tag.getList(key, 10)) {
             var e = (CompoundTag) raw;
-            if (e.hasUUID("Player") && e.getInt("Owed") > 0) balances.put(e.getUUID("Player"), e.getInt("Owed"));
+            if (e.hasUUID("Player") && e.getInt(valueKey) > 0) balances.put(e.getUUID("Player"), e.getInt(valueKey));
         }
     }
 }

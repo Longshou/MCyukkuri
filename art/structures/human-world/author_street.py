@@ -15,7 +15,7 @@ from pathlib import Path
 import json, math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 import build
-from build import Building, stairs, slab, barrel, furniture, marker, frame, register_pen, name_at, string, byte, integer, compound, sequence, integers, long_, real
+from build import Building, stairs, slab, barrel, furniture, marker, frame, register_pen, stock_growth, name_at, string, byte, integer, compound, sequence, integers, real
 
 OUT = build.OUT
 OPP = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
@@ -279,9 +279,8 @@ def oni_stock(b, x, z, kind, traits, nutrition, hygiene, age=None, form='NORMAL'
     extra = {'NeoForgeData': compound({'HumanCommerce': compound(data)}), 'YukkuriLife': compound(life)}
     if form != 'NORMAL' or shape != 'NORMAL':
         extra['YukkuriSubspecies'] = compound({'Kind': string(form), 'Congenital': string(shape), 'Initialized': byte(1)})
-    if age is not None:   # a young individual of this real age (ticks) that has not eaten well: the growth clock recomputes its size
-        extra['YukkuriFamily'] = compound({'Version': integer(3), 'Age': long_(age), 'Nourishment': long_(150000), 'Initialized': byte(1),
-                                          'AdultScale': real(1.0), 'Scale': real(0.8), 'Stage': string('JUVENILE')})
+    if age is not None:
+        extra['YukkuriFamily'] = stock_growth(age, 150000)
     b.entity(x, 3, z, 'mcyukkuri:' + kind, extra)
 
 
@@ -376,13 +375,13 @@ def oni_shop():
     b.bowl(6, 6, grain=3)
     register_pen(b, 'window', (2, 4, 6, 6), (6, 6), [], (5, 3), hatch=(4, 7))
     oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45, form='WASA_REIMU')
-    oni_stock(b, 5.0, 4.5, 'marisa', DULL, 42, 40)
+    oni_stock(b, 5.0, 4.5, 'marisa', DULL, 42, 40, age=63000)
     oni_stock(b, 2.75, 6.35, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
     # Stock cages (interiors x16..19): full bars to the customers (x15), iron staff doors on the corridor side (x20).
     b.box((21, 3, 7), (22, 6, 7), 'spruce_planks')     # closes the staff corridor off from the nook
     for name, z0, stock in [('cage_a', 8, [('marisa', GESU, 35, 40, None), ('marisa', DULL, 30, 45, 160000)]),
-                            ('cage_b', 12, [('alice', DULL, 40, 55, None), ('chen', WHINY, 33, 50, None)]),
-                            ('cage_c', 16, [('reimu', GESU, 36, 42, 200000), ('patchouli', DULL, 30, 55, 170000), ('reimu', WHINY, 28, 48, 150000)])]:
+                            ('cage_b', 12, [('alice', DULL, 40, 55, 93000), ('chen', WHINY, 33, 50, 57000)]),
+                            ('cage_c', 16, [('reimu', GESU, 36, 42, 272000), ('patchouli', DULL, 30, 55, 56000), ('reimu', WHINY, 28, 48, 249000)])]:
         cage(b, 16, z0, 19, z0 + 2, (20, z0), 'east')
         b.bowl(18, z0 + 2, grain=2)
         register_pen(b, name, (16, z0, 19, z0 + 2), (18, z0 + 2), [], (4, 3), hatch=(20, z0))
