@@ -122,9 +122,13 @@ public final class ShelterPlacement {
         return true;
     }
 
+    static boolean surfaceClear(ServerLevel level, BlockPos origin) {
+        return surfaceFootprint(level, origin) && level.getEntitiesOfClass(LivingEntity.class,
+                new AABB(origin).expandTowards(1, 0, 1), entity -> entity.isAlive() && !entity.isSpectator()).isEmpty();
+    }
+
     static boolean placeSurfaceNest(ServerLevel level, BlockPos origin) {
-        if (!surfaceFootprint(level, origin) || !level.getEntitiesOfClass(LivingEntity.class,
-                new AABB(origin).expandTowards(1, 0, 1), entity -> entity.isAlive() && !entity.isSpectator()).isEmpty()) return false;
+        if (!surfaceClear(level, origin)) return false;
         var state = ModBlocks.LARGE_WILD_NEST.get().defaultBlockState();
         for (int part = 0; part < 4; part++) {
             if (!level.setBlock(origin.offset(part & 1, 0, part >> 1), state.setValue(LargeNestBlock.PART, part),

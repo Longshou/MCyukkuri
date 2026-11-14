@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.MindLife;
 
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
@@ -49,6 +50,9 @@ final class HabitatHomes {
     private boolean extending;
     private BlockPos roamTarget;
     private BlockPos surfaceNest;
+    private BlockPos surfaceSearchAnchor;
+    private final Set<BlockPos> refusedSurfaceSites=new HashSet<>();
+    private boolean lookedForCover;
     /** Ticks the carried bedding has been bowed down at the surface site (the nest_place beat). */
     private int surfacePlacing;
     /** Retained across interruption so the next attempt resumes the same hollow. */
@@ -177,6 +181,7 @@ final class HabitatHomes {
         dig=null;digIndex=digWork=0;resumeMouth=null;resumeDirection=null;pendingDig=null;
         homeContext=false;homeSearch=null;homeDimension=null;homeAnchor=null;
         relocationHome=null;relocationSearch=null;relocatingSelf=false;
+        surfaceSearchAnchor=null;
     }
     void homeChosen(ShelterBlockEntity value) {
         // An independent excavation can be in progress when the life goal finds a real shared home.
@@ -346,16 +351,27 @@ final class HabitatHomes {
         return Result.of(roamWait<=0&&startRoam());
     }
 
+    private record SurfaceSite(BlockPos pos, boolean covered) {}
+
     private Result startSurfaceNest() {
         var entity = o.entity();
         if (entity.family().carry().mouthBusy() || !o.carrying().isEmpty() && !HabitatLife.nestBedding(o.carrying())) return Result.NOT_FOUND;
         var around = entity.blockPosition();
-        var sites = new ArrayList<BlockPos>();
-        for (var pos : BlockPos.betweenClosed(around.offset(-SURFACE_SEARCH, -1, -SURFACE_SEARCH), around.offset(SURFACE_SEARCH, 1, SURFACE_SEARCH)))
-            if (entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
+        // Interruptions can resume the errand. A refused site stays retired until the search moves to new ground.
+        if (surfaceSearchAnchor == null || !around.closerThan(surfaceSearchAnchor, SURFACE_SEARCH)) {
+            surfaceSearchAnchor = around;
+            refusedSurfaceSites.clear();
+            lookedForCover = false;
+        }
+        var sites = new ArrayList<SurfaceSite>();
+        for (var pos : BlockPos.betweenClosed(around.offset(-SURFACE_SEARCH, -1, -SURFACE_SEARCH), around.offset(SURFACE_SEARCH, 1, SURFACE_SEARCH))) {
+            if (!refusedSurfaceSites.contains(pos) && entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceFootprint(level(), pos))
+                sites.add(new SurfaceSite(pos.immutable(), ShelterPlacement.surfaceCovered(level(), pos)));
+        }
         // Under cover first (a canopy or an overhang over the whole bed), then the nearest open patch.
-        sites.sort(Comparator.comparing((BlockPos pos) -> !ShelterPlacement.surfaceCovered(level(), pos)).thenComparingDouble(around::distSqr));
-        for (var pos : sites.stream().limit(8).toList()) {
+        sites.sort(Comparator.comparing((SurfaceSite site) -> !site.covered()).thenComparingDouble(site -> around.distSqr(site.pos())));
+        for (var site : sites.stream().limit(8).toList()) {
+            var pos = site.pos();
             if (!entity.life().reachable(pos.south(2), false)) continue;
             if (o.carrying().isEmpty() && !o.findSurfaceBedding(pos)) {
                 if (o.surfaceBeddingDeferred()) { o.retrySearch(); return Result.DEFERRED; }
@@ -363,11 +379,14 @@ final class HabitatHomes {
             }
             surfaceNest = pos;
             surfacePlacing = 0;
-            boolean covered = ShelterPlacement.surfaceCovered(level(), pos);
+            boolean covered = site.covered();
             o.task(Task.SURFACE_NEST);
             o.resetTicks();
             // No cave, no soil face and no cover in reach: it looks round for a hollow it cannot find before settling for the open.
-            if (!covered) entity.showReaction(YukkuriAction.LOOK_AROUND, "look_down", "mood_bad");
+            if (!covered && !lookedForCover) {
+                String face = entity.mind().stage() == MindLife.Stage.CALM ? "look_down" : "teary";
+                lookedForCover = entity.showReaction(YukkuriAction.LOOK_AROUND, face, "mood_bad");
+            }
             GameplayLog.event(entity, "settlement", "surface nest begin site={} covered={} reason={}", pos, covered,
                     covered ? "no_cave_or_soil_face" : "no_cave_soil_face_or_cover");
             return Result.FOUND;
@@ -392,29 +411,50 @@ final class HabitatHomes {
             var gathered = plants.tick();
             // Carrying it to the site is a leg of its own, with the same time allowance as the gathering.
             if (!gathered.isEmpty()) { o.carry(gathered); o.resetTicks(); }
-            else if (!plants.active()) o.stop();
+            else if (!plants.active()) refuseSurfaceNest("bedding_unavailable");
             return;
         }
         var pos = surfaceNest;
         // It stands squarely in the cell before the bed's low edge: the loose arrival of a plain approach could leave its body
         // over the 2x2 footprint, and a bed is never laid under a body.
-        var walked = SurfaceApproach.walkResult(o.entity(), Vec3.atBottomCenterOf(pos.south(2)), null, .65);
+        var stand = Vec3.atBottomCenterOf(pos.south(2));
+        var walked = SurfaceApproach.walkResult(o.entity(), stand, null, .65);
         if (walked == SurfaceApproach.Result.BLOCKED) {
-            GameplayLog.limited(o.entity(), "settlement", "surface_nest_blocked", 200, "surface nest abandoned reason=no_route site={}", pos);
-            o.stop(); return;
+            refuseSurfaceNest("no_route");
+            return;
         }
         if (walked != SurfaceApproach.Result.ARRIVED) { surfacePlacing = 0; return; }
+        if (!SurfaceApproach.at(o.entity(), stand)) {
+            refuseSurfaceNest("stand_obstructed");
+            return;
+        }
+        if (surfacePlacing == 0 && !ShelterPlacement.surfaceClear(level(), pos)) {
+            refuseSurfaceNest("site_blocked");
+            return;
+        }
         SurfaceApproach.face(o.entity(), SurfaceApproach.yaw(o.entity().position(), new Vec3(pos.getX() + 1, pos.getY(), pos.getZ() + 1)));
         // One bow of nest_place sets the carried bedding down; the nest exists from the end of that bow.
         if (++surfacePlacing < ClipMarkers.of(Behaviors.NEST_PLACE).length()) return;
-        if (ShelterPlacement.placeSurfaceNest(level(), pos)) {
-            var portion = o.carrying().copyWithCount(1);
-            if (o.entity().life().assignHome(GlobalPos.of(level().dimension(), pos))) {
-                o.carrying().shrink(1);
-                if (o.carrying().isEmpty()) o.carry(ItemStack.EMPTY);
-                GameplayLog.event(o.entity(), "settlement", "surface nest built home={} material={}", pos, portion.getItem());
-            } else ShelterPlacement.removeSurfaceNest(level(), pos);
-        } else GameplayLog.limited(o.entity(), "settlement", "surface_nest_refused", 200, "surface nest not laid reason=site_blocked site={}", pos);
+        if (!ShelterPlacement.placeSurfaceNest(level(), pos)) {
+            refuseSurfaceNest("site_blocked");
+            return;
+        }
+        if (!o.entity().life().assignHome(GlobalPos.of(level().dimension(), pos))) {
+            ShelterPlacement.removeSurfaceNest(level(), pos);
+            refuseSurfaceNest("claim_refused");
+            return;
+        }
+        var material = o.carrying().getItem();
+        o.carrying().shrink(1);
+        if (o.carrying().isEmpty()) o.carry(ItemStack.EMPTY);
+        GameplayLog.event(o.entity(), "settlement", "surface nest built home={} consumed item={} count=1", pos, material);
+        surfaceSearchAnchor = null;
+        // assignHome releases HabitatLife and stops this errand.
+    }
+
+    private void refuseSurfaceNest(String reason) {
+        refusedSurfaceSites.add(surfaceNest);
+        GameplayLog.limited(o.entity(), "settlement", reason, 200, "surface nest not laid reason={} site={}", reason, surfaceNest);
         o.stop();
     }
     private Result deferVagrantProject() { searchWait=20;o.retrySearch();return Result.DEFERRED; }
@@ -440,17 +480,19 @@ final class HabitatHomes {
             }
             resumeMouth=null;resumeDirection=null;
         }
-        // Every soil face in the same reach as the cave search is planned (block checks only); routes are tested best plan first.
+        // Plan with block checks first. One entrance uses one route test even if it has more than one dig direction.
         var origin=o.entity().blockPosition();
         var faces=Burrowing.faces(level(),origin,DIG_SEARCH);
         var plans=new ArrayList<Burrowing.Plan>();
         for(var face:faces) {
             if(!o.entity().moldExile().allowsAddress(face))continue;
+            Burrowing.Plan atFace=null;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 if(!Burrowing.soft(level(),face.relative(direction)))continue;
                 var plan=Burrowing.plan(level(),face,direction,want);
-                if(plan!=null)plans.add(plan);
+                if(plan!=null&&(atFace==null||plan.cells().size()>atFace.cells().size()))atFace=plan;
             }
+            if(atFace!=null)plans.add(atFace);
         }
         plans.sort(Comparator.comparingDouble(plan->Math.sqrt(plan.mouth().distSqr(origin))-plan.cells().size()*6));
         int routes=Math.min(DIG_ROUTES,plans.size());
