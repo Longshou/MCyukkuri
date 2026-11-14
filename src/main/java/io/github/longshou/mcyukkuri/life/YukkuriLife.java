@@ -28,6 +28,7 @@ import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -1453,6 +1454,13 @@ public final class YukkuriLife {
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public Vec3 homeEntrance(BlockPos nest) { return home.entrance(nest); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
+    /** Check every route before changing any address, then release the former den beds. */
+    public static boolean assignNaturalHomeTogether(BlockPos selected,List<YukkuriEntity> members) {
+        if(members.stream().anyMatch(y->!y.life().home.canAssignNaturalHome(selected)))return false;
+        for(var member:members)member.life().home.commitNaturalHome(selected);
+        for(var member:members)member.habitat().release();
+        return true;
+    }
     public void releaseHome(){ home.releaseHome(); }
     /** An individual without an address takes the nearest free nest its stage and body fit (also the shared nest's release of a grown child). */
     boolean claimNearestNest(){ return home.claimNearestNest(); }

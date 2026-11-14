@@ -137,14 +137,24 @@ final class LifeHome {
     }
 
     boolean assignNaturalHome(BlockPos selected) {
+        if(!canAssignNaturalHome(selected))return false;
+        commitNaturalHome(selected);
+        return true;
+    }
+
+    boolean canAssignNaturalHome(BlockPos selected) {
         var shelter=ShelterBlock.shelter(o.level(),selected);
         if(shelter!=null&&!shelter.owns(o.entity().getUUID()))return false;
-        if (o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) > 64 * 64 || !dryStand(selected) || !(shelter!=null&&shelter.owns(o.entity().getUUID())&&shelter.sound()||covered(selected))
-                || !o.reachable(selected, false)) return false;
+        return o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) <= 64 * 64 && dryStand(selected)
+                && (shelter!=null&&shelter.sound()||covered(selected)) && o.reachable(selected, false);
+    }
+
+    void commitNaturalHome(BlockPos selected) {
         var previous=home;
         releaseHome(false); home = GlobalPos.of(o.level().dimension(), selected.immutable()); naturalHome = true;
-        if(shelter==null&&!home.equals(previous))GameplayLog.event(o.entity(),"home","assigned kind=roof old={} home={}",previous,home);
-        o.deferHomeMaintenance(); o.entity().setPersistenceRequired(); return true;
+        if(!home.equals(previous)&&ShelterBlock.shelter(o.level(),selected)==null)
+            GameplayLog.event(o.entity(),"home","assigned kind=roof old={} home={}",previous,home);
+        o.deferHomeMaintenance(); o.entity().setPersistenceRequired();
     }
 
     void releaseHome() {
