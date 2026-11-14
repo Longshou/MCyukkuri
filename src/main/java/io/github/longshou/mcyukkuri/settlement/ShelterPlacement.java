@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -111,6 +112,13 @@ public final class ShelterPlacement {
             if (!NaturalShelter.stand(level, cell) || !level.getBlockState(cell).isAir() || !level.getBlockState(cell.above()).isAir()
                     || SettlementData.get(level).reserved(cell)) return false;
         }
+        return true;
+    }
+
+    /** Something solid or leafy overhead of every cell of the 2x2 bed (a canopy, an overhang), as the rest check reads cover. */
+    static boolean surfaceCovered(ServerLevel level, BlockPos origin) {
+        for (var cell : BlockPos.betweenClosed(origin, origin.offset(1, 0, 1)))
+            if (level.getHeight(Heightmap.Types.MOTION_BLOCKING, cell.getX(), cell.getZ()) <= cell.getY()) return false;
         return true;
     }
 

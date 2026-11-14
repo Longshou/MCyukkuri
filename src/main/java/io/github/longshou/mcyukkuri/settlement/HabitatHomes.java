@@ -6,8 +6,11 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
@@ -46,6 +49,8 @@ final class HabitatHomes {
     private boolean extending;
     private BlockPos roamTarget;
     private BlockPos surfaceNest;
+    /** Ticks the carried bedding has been bowed down at the surface site (the nest_place beat). */
+    private int surfacePlacing;
     /** Retained across interruption so the next attempt resumes the same hollow. */
     private BlockPos resumeMouth;
     private Direction resumeDirection;
@@ -159,7 +164,7 @@ final class HabitatHomes {
         }
         pendingDig=null;homeContext=false;homeSearch=null;homeDimension=null;homeAnchor=null;relocationHome=null;relocationSearch=null;
         if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;
-        if(task==Task.SURFACE_NEST)surfaceNest=null;
+        if(task==Task.SURFACE_NEST){surfaceNest=null;surfacePlacing=0;}
     }
     /** A load never resumes a live search cursor or its admission ticket. */
     void resetTransient() {
@@ -346,9 +351,10 @@ final class HabitatHomes {
         if (entity.family().carry().mouthBusy() || !o.carrying().isEmpty() && !HabitatLife.nestBedding(o.carrying())) return Result.NOT_FOUND;
         var around = entity.blockPosition();
         var sites = new ArrayList<BlockPos>();
-        for (var pos : BlockPos.betweenClosed(around.offset(-6, -1, -6), around.offset(6, 1, 6)))
+        for (var pos : BlockPos.betweenClosed(around.offset(-SURFACE_SEARCH, -1, -SURFACE_SEARCH), around.offset(SURFACE_SEARCH, 1, SURFACE_SEARCH)))
             if (entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
-        sites.sort(Comparator.comparingDouble(around::distSqr));
+        // Under cover first (a canopy or an overhang over the whole bed), then the nearest open patch.
+        sites.sort(Comparator.comparing((BlockPos pos) -> !ShelterPlacement.surfaceCovered(level(), pos)).thenComparingDouble(around::distSqr));
         for (var pos : sites.stream().limit(8).toList()) {
             if (!entity.life().reachable(pos.south(2), false)) continue;
             if (o.carrying().isEmpty() && !o.findSurfaceBedding(pos)) {
@@ -356,8 +362,14 @@ final class HabitatHomes {
                 continue;
             }
             surfaceNest = pos;
+            surfacePlacing = 0;
+            boolean covered = ShelterPlacement.surfaceCovered(level(), pos);
             o.task(Task.SURFACE_NEST);
             o.resetTicks();
+            // No cave, no soil face and no cover in reach: it looks round for a hollow it cannot find before settling for the open.
+            if (!covered) entity.showReaction(YukkuriAction.LOOK_AROUND, "look_down", "mood_bad");
+            GameplayLog.event(entity, "settlement", "surface nest begin site={} covered={} reason={}", pos, covered,
+                    covered ? "no_cave_or_soil_face" : "no_cave_soil_face_or_cover");
             return Result.FOUND;
         }
         return Result.NOT_FOUND;
@@ -367,15 +379,27 @@ final class HabitatHomes {
         return o.ticks() < 400 && EventHooks.canEntityGrief(level(), o.entity());
     }
 
+    /** The surface nest errand as the body shows it: gathering, carrying the bedding, then setting it down at the site. */
+    String surfaceNestActivity(PlantBedding plants) {
+        if (o.carrying().isEmpty()) return plants.harvesting() ? Behaviors.NEST_HARVEST : Behaviors.NEST_GATHER;
+        return surfacePlacing > 0 ? Behaviors.NEST_PLACE : Behaviors.NEST_CARRY;
+    }
+
     void tickSurfaceNest(PlantBedding plants) {
+        // The look round for a hollow plays out before it sets off for bedding.
+        if (o.entity().hasReaction()) return;
         if (o.carrying().isEmpty()) {
             var gathered = plants.tick();
-            if (!gathered.isEmpty()) o.carry(gathered);
+            // Carrying it to the site is a leg of its own, with the same time allowance as the gathering.
+            if (!gathered.isEmpty()) { o.carry(gathered); o.resetTicks(); }
             else if (!plants.active()) o.stop();
             return;
         }
         var pos = surfaceNest;
-        if (!o.approach(pos.south(2))) return;
+        if (!o.approach(pos.south(2))) { surfacePlacing = 0; return; }
+        SurfaceApproach.face(o.entity(), SurfaceApproach.yaw(o.entity().position(), new Vec3(pos.getX() + 1, pos.getY(), pos.getZ() + 1)));
+        // One bow of nest_place sets the carried bedding down; the nest exists from the end of that bow.
+        if (++surfacePlacing < ClipMarkers.of(Behaviors.NEST_PLACE).length()) return;
         if (ShelterPlacement.placeSurfaceNest(level(), pos)) {
             var portion = o.carrying().copyWithCount(1);
             if (o.entity().life().assignHome(GlobalPos.of(level().dimension(), pos))) {
@@ -387,12 +411,19 @@ final class HabitatHomes {
         o.stop();
     }
     private Result deferVagrantProject() { searchWait=20;o.retrySearch();return Result.DEFERRED; }
+    /** Soil faces a vagrant looks over for a new hollow: the reach of its cave search (HomeSearch, 16 blocks each way), so a
+     *  mound it could see as a cave it also sees as a face to dig. */
+    private static final int DIG_SEARCH=16;
+    /** Route tests one dig choice spends, best plan first; nearby faces of one mound share their route, so a few decide it. */
+    private static final int DIG_ROUTES=4;
+    /** Ground a surface nest may go on around the vagrant: the nearby patch it can see, out to a tree canopy close by. */
+    private static final int SURFACE_SEARCH=8;
     /** Cells the household wants in a new hollow: a nest and a store for the first, two more for everyone else. */
     private int wantedCells() { return Math.min(NaturalShelter.MAX_CELLS-2,4+2*o.householdNeed()); }
     private Result startDig() {
         if(!SearchBudget.take(level(),o.entity(),Purpose.DIG))return Result.DEFERRED;
         int want=wantedCells();
-        Burrowing.Plan best=null;double bestScore=-1;
+        Burrowing.Plan best=null;
         if(resumeMouth!=null) {
             var again=Burrowing.plan(level(),resumeMouth,resumeDirection,want);
             if(again!=null&&o.entity().life().reachable(resumeMouth,false)){
@@ -401,19 +432,26 @@ final class HabitatHomes {
             }
             resumeMouth=null;resumeDirection=null;
         }
-        var faces=new ArrayList<>(Burrowing.faces(level(),o.entity().blockPosition(),9));
-        faces.sort(Comparator.comparingDouble(face->face.distSqr(o.entity().blockPosition())));
-        for(var face:faces.subList(0,Math.min(faces.size(),40))) {
-            if(!o.entity().moldExile().allowsAddress(face)||!o.entity().life().reachable(face,false))continue;
+        // Every soil face in the same reach as the cave search is planned (block checks only); routes are tested best plan first.
+        var origin=o.entity().blockPosition();
+        var faces=Burrowing.faces(level(),origin,DIG_SEARCH);
+        var plans=new ArrayList<Burrowing.Plan>();
+        for(var face:faces) {
+            if(!o.entity().moldExile().allowsAddress(face))continue;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 if(!Burrowing.soft(level(),face.relative(direction)))continue;
                 var plan=Burrowing.plan(level(),face,direction,want);
-                if(plan==null)continue;
-                double score=plan.cells().size()*6-Math.sqrt(face.distSqr(o.entity().blockPosition()));
-                if(score>bestScore){best=plan;bestScore=score;}
+                if(plan!=null)plans.add(plan);
             }
         }
-        if(best==null)return Result.NOT_FOUND;
+        plans.sort(Comparator.comparingDouble(plan->Math.sqrt(plan.mouth().distSqr(origin))-plan.cells().size()*6));
+        int routes=Math.min(DIG_ROUTES,plans.size());
+        for(int i=0;i<routes&&best==null;i++)if(o.entity().life().reachable(plans.get(i).mouth(),false))best=plans.get(i);
+        if(best==null) {
+            GameplayLog.limited(o.entity(),"habitat","dig_none",1200,"dig search found no hollow radius={} faces={} plans={} routesTested={}",
+                    DIG_SEARCH,faces.size(),plans.size(),routes);
+            return Result.NOT_FOUND;
+        }
         resumeMouth=best.mouth();resumeDirection=best.dig();
         dig=best;extending=false;digIndex=0;digWork=0;o.task(Task.DIG);o.resetTicks();
         GameplayLog.event(o.entity(),"habitat","dig begin mouth={} cells={}",dig.mouth(),dig.cells().size());return Result.FOUND;

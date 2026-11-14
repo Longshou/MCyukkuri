@@ -133,7 +133,7 @@ public final class HabitatLife {
     public boolean active() { return task!=Task.NONE; }
     public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());homes.debug(tag);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);
             tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
-    public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.SURFACE_NEST?Behaviors.NEST_PLACE:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)
+    public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.SURFACE_NEST?homes.surfaceNestActivity(plants):task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)
             &&plants.harvesting()?Behaviors.NEST_HARVEST:task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?Behaviors.NEST_GATHER:task==Task.DEPOSIT||task==Task.SHARE
             ||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.ROAM?Behaviors.ROAM:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
     private String nestActivity(){
