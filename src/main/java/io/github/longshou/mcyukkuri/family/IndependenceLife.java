@@ -24,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -310,6 +311,7 @@ public final class IndependenceLife extends Goal {
     private void beginDeparture(YukkuriEntity parent) {
         task = Task.DEPART; departTicks = 0; lookBackTicks = 0;
         var aim = DefaultRandomPos.getPosAway(entity, DEPART_DISTANCE + 2, 3, parent.position());
+        if (aim == null) aim = LandRandomPos.getPos(entity, DEPART_DISTANCE + 2, 3);
         away = aim == null ? null : BlockPos.containing(aim);
         GameplayLog.event(entity, "independence", "departure walk parent={} away={} lookBacks={}", parent.getUUID(), away, lookBacks);
     }
