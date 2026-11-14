@@ -374,12 +374,12 @@ def oni_shop():
     # The oni shop prepares no beds (user): stock sleeps on the pen floor; each pen's bowl is its place (ShopStaff.PEN_STOCK).
     b.bowl(6, 6, grain=3)
     register_pen(b, 'window', (2, 4, 6, 6), (6, 6), [], (5, 3), hatch=(4, 7))
-    oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45, form='WASA_REIMU')
+    oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45, age=60000, form='WASA_REIMU')
     oni_stock(b, 5.0, 4.5, 'marisa', DULL, 42, 40, age=63000)
     oni_stock(b, 2.75, 6.35, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
     # Stock cages (interiors x16..19): full bars to the customers (x15), iron staff doors on the corridor side (x20).
     b.box((21, 3, 7), (22, 6, 7), 'spruce_planks')     # closes the staff corridor off from the nook
-    for name, z0, stock in [('cage_a', 8, [('marisa', GESU, 35, 40, None), ('marisa', DULL, 30, 45, 160000)]),
+    for name, z0, stock in [('cage_a', 8, [('marisa', GESU, 35, 40, 62000), ('marisa', DULL, 30, 45, 160000)]),
                             ('cage_b', 12, [('alice', DULL, 40, 55, 93000), ('chen', WHINY, 33, 50, 57000)]),
                             ('cage_c', 16, [('reimu', GESU, 36, 42, 272000), ('patchouli', DULL, 30, 55, 56000), ('reimu', WHINY, 28, 48, 249000)])]:
         cage(b, 16, z0, 19, z0 + 2, (20, z0), 'east')

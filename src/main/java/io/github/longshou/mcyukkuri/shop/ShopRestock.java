@@ -35,10 +35,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class ShopRestock {
     static final long PERIOD = 3 * ShopStock.DAY;
-    /** Both shops keep at most two grown animals in generated stock; the rest are young. */
-    static final int KEEP_ADULTS = 2;
-    /** Chance that an arrival for a free land nest is a grown animal while the shop keeps fewer than {@link #KEEP_ADULTS}. */
-    private static final float ADULT_CHANCE = .05f;
+    /** Both shops keep no grown animal in stock: any adult that comes in is crated away at the next restock. */
+    static final int KEEP_ADULTS = 0;
     private static final List<YukkuriVariant> LAND = List.of(YukkuriVariant.REIMU, YukkuriVariant.REIMU, YukkuriVariant.REIMU, YukkuriVariant.MARISA,
             YukkuriVariant.MARISA, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.ALICE,
             YukkuriVariant.PATCHOULI, YukkuriVariant.MYON);
@@ -154,7 +152,7 @@ public final class ShopRestock {
             if (ShopStaff.predator(snapshot)) waitingPredator++; else waitingLand++;
             if ("adult".equals(FamilyLife.savedStageId(snapshot.getCompound("YukkuriFamily")))) waitingAdults++;
         }
-        // Adults beyond the two kept go out next: the longest on the shelf first; reserved ones and those being bought stay.
+        // Adults all go out: the longest on the shelf first; reserved ones and those being bought stay.
         int adults = waitingAdults + (int) stock.stream().filter(y -> y.family().adult() && !ShopStaff.shipOut(y)).count(), marked = 0;
         var candidates = stock.stream().filter(y -> y.family().adult() && shop.deposit(y.getUUID()) == null
                 && !shop.orders.containsKey(y.getUUID()) && !y.pet().busy() && !ShopStaff.shipOut(y))
@@ -173,7 +171,7 @@ public final class ShopRestock {
         // Places: the pet shop's nests, the oni shop's pens (it keeps no beds).
         int land = Math.max(0, ShopStaff.places(level, shop, false) - (landStock - leavingLand) - waitingLand);
         int predators = Math.max(0, ShopStaff.places(level, shop, true) - (predatorStock - leavingPredator) - waitingPredator);
-        int keptAdults = adults - marked, arrived = 0;
+        int arrived = 0;
         var random = ModRandom.world(level);
         for (int i = 0; i < land + predators && dock != null; i++) {
             int slot = ShopStaff.openDockSlot(dock);
@@ -184,13 +182,11 @@ public final class ShopRestock {
                 dock.setItem(slot, ItemStack.EMPTY);
             }
             boolean predator = i >= land;
-            boolean adult = !predator && keptAdults < KEEP_ADULTS && random.nextFloat() < ADULT_CHANCE;
             var variant = (predator ? PREDATORS : LAND).get(random.nextInt((predator ? PREDATORS : LAND).size()));
-            var basket = arrive(level, shop, variant, adult, random);
+            var basket = arrive(level, shop, variant, random);
             if (basket == null) break;
             dock.setItem(slot, basket);
             dock.setChanged();
-            if (adult) keptAdults++;
             arrived++;
         }
         GameplayLog.world(level, "shop", "action=restock result=done shop={} stock={} adults={} ship_marked={} shipped={} free_land={} free_predator={} arrived={} next={}",
@@ -210,10 +206,10 @@ public final class ShopRestock {
     }
 
     /**
-     * A new individual from the wholesaler, packed in a basket, young unless an adult was asked for.
+     * A new individual from the wholesaler, always young, packed in a basket.
      * The temperament and condition reflect the shop's stock. It joins the world at the barrel for the tick of packing.
      */
-    private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, boolean adult, RandomSource random) {
+    private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, RandomSource random) {
         var y = ModEntities.forVariant(variant).create(level);
         if (y == null) return null;
         var beside = shop.dock();
@@ -223,7 +219,7 @@ public final class ShopRestock {
         Motor.relocate(y, at, 0, "shop_arrival");
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(shop.dock()), MobSpawnType.COMMAND, null);
         y.setPersistenceRequired();
-        y.family().initializeGrowthAge(adult ? GrowthTiming.ADULT_START + random.nextInt(48_000) : youngAge(random));
+        y.family().initializeGrowthAge(youngAge(random));
         if (shop.kind == ShopKind.ONI) {
             if (variant == YukkuriVariant.REIMU && random.nextInt(3) == 0)
                 y.subspecies().set(SubspeciesLife.Kind.WASA_REIMU, SubspeciesLife.Congenital.NORMAL);
@@ -242,17 +238,17 @@ public final class ShopRestock {
         if (!level.addFreshEntity(y)) return null;
         var token = YukkuriWorldData.get(level).capture(y);
         if (token == null) return null; // it stays in the back room as stock, where staff and the roster see it
-        GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} adult={} token={}", shop.id, y.family().stageId(), adult, token);
+        GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} token={}", shop.id, y.family().stageId(), token);
         return CarrierContents.plain(YukkuriWorldData.get(level), token);
     }
 
-    /** Choose the young stage first so the short baby interval is represented as often as either later stage. */
+    /** Half the arrivals are babies and three in ten children: stock is frozen on the shelf, so the young do not grow out of it and
+     *  the shop stays mostly 赤油 and 子油 with a few subadults. */
     private static long youngAge(RandomSource random) {
-        return switch (random.nextInt(3)) {
-            case 0 -> 48_000 + random.nextInt((int) GrowthTiming.BABY_END - 48_000);
-            case 1 -> GrowthTiming.BABY_END + random.nextInt((int) (GrowthTiming.SUBADULT_START - GrowthTiming.BABY_END));
-            default -> GrowthTiming.SUBADULT_START + random.nextInt((int) (GrowthTiming.ADULT_START - GrowthTiming.SUBADULT_START));
-        };
+        int roll = random.nextInt(10);
+        if (roll < 5) return 48_000 + random.nextInt((int) GrowthTiming.BABY_END - 48_000);
+        if (roll < 8) return GrowthTiming.BABY_END + random.nextInt((int) (GrowthTiming.SUBADULT_START - GrowthTiming.BABY_END));
+        return GrowthTiming.SUBADULT_START + random.nextInt((int) (GrowthTiming.ADULT_START - GrowthTiming.SUBADULT_START));
     }
     private static int between(RandomSource random, int low, int high) { return low + random.nextInt(high - low + 1); }
 

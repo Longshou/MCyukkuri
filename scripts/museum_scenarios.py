@@ -2104,7 +2104,7 @@ add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到�
     reads=[('读店内废物桶', 'data get block ~17 ~2 ~-6 Items'),
            ('读门外街桶', 'data get block ~5 ~ ~18 Items')])
 add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的幼油进窝', '三天补货：多余的成体装篮送走，新到的幼油进窝',
-    '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里只留两只成体，最久没卖出去的两只被店员装篮送进后屋的进出货桶；'
+    '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里不留成体，两只都被店员装篮送进后屋的进出货桶；'
     '新到的幼油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。隔一会儿再读库存年龄，与购买放出后的年龄对照。'
     '交了定金预订的个体不会被送走。下一次补货在三天后',
     '建筑几秒；补货后约 1–2 分钟看店员出货、上架',
@@ -5323,7 +5323,7 @@ _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-c
                             r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',
                             r'\[interaction\][^\n]* action=pin reason=shop', r'MCYSHOP_PET_AGE_HELD'],
        forbid=[r'\[shop\][^\n]* action=job result=failed ', r'\[shop\][^\n]* action=job result=put_down ',
-               r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '])
+               r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '], readout=[f'yukkuri status {STOCK} raw'])
 next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     (100, f'execute at @e[type=mcyukkuri:alice,distance=..60,nbt={{NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},limit=1] positioned ~ ~ ~.6 run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
     (1500, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:65000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
@@ -5509,7 +5509,8 @@ _window_smoke['commands'] = [
 _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=16\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
-                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD'])
+                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD'],
+       readout=[f'yukkuri status {STOCK} raw'])
 next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
     (1100, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:63000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_ONI_AGE_HELD'),
 ]
@@ -5534,7 +5535,7 @@ next(s for s in S if s.id == 'shop_buy').smoke['commands'] = [
 _smoke('shop_restock', 3600, [r'\[shop\][^\n]* action=restock result=done ', r'\[shop\][^\n]* action=restock result=ship_marked ',
                               r'\[shop\][^\n]* action=ship_out result=packed ', r'\[shop\][^\n]* action=stow_basket result=stored ',
                               r'\[shop\][^\n]* action=restock result=arrival ', r'\[shop\][^\n]* action=settle result=released '],
-       forbid=[r'\[shop\][^\n]* action=job result=put_down '])
+       forbid=[r'\[shop\][^\n]* action=job result=put_down '], readout=[f'yukkuri status {STOCK} raw'])
 _basket_moves = (
     ('basket_young', 0, 2, 4, 2), ('basket_baby_0', 2, 3, 4, 1), ('basket_baby_1', 3, 4, 4, 0),
     ('wild', 0, 4, 6, 2), ('basket_baby_2', 4, 5, 6, 1), ('basket_baby_3', 5, 6, 6, 0),

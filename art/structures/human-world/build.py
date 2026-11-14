@@ -308,8 +308,9 @@ def shop():
     b.bowl(2,7,grain=4); b.block(8,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(5.5,3,6.5,'yarn_ball')
     register_pen(b,'window',(2,4,8,7),(2,7),[(2,4),(5,4),(8,4)],(5,3),hatch=(5,8))
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give three different answers to a customer
-    # (shop/ShopWindow): gold Alice is proud, the young Reimu shows off, the young Chen is shy.
-    b.pet(3.5,5.5,'alice','shopkeeper','stock',3,skills=ALL_SKILLS,traits=(85,30,70,50,60))
+    # (shop/ShopWindow): gold Alice is proud, the young Reimu shows off, the young Chen is shy. Stock is young (user 2026-11-14: the
+    # shelf is mostly babies and children); ages are frozen while it is on sale.
+    b.pet(3.5,5.5,'alice','shopkeeper','stock',3,skills=ALL_SKILLS,traits=(85,30,70,50,60),age=52000)
     b.pet(6.5,5.5,'reimu','shopkeeper','stock',0,traits=(65,85,80,75,50),age=148000)
     b.pet(4.5,6.5,'chen','shopkeeper','stock',0,traits=(60,60,10,60,70),age=200000)
     # Predator room (interior x 16..22, z 4..7): sealed by full-height glass and the ceiling, predator nests only.
@@ -318,7 +319,7 @@ def shop():
     for x in (16,22): b.block(x,3,4,'mcyukkuri:predator_nest')
     b.bowl(16,7,grain=4); b.block(22,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(19.5,3,6.5,'yarn_ball')
     register_pen(b,'predator',(16,4,22,7),(16,7),[(16,4),(22,4)],(5,3),hatch=(19,8))
-    b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60))
+    b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60),age=61000)
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
     # Eye-level opening above the counter, too short to crawl through. Staff use the doors at its ends.
     b.box((7,3,12),(17,3,12),'dark_oak_planks')

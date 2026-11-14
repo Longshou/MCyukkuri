@@ -49,7 +49,7 @@
 | `mcy_oni_trash` | 废物桶 |
 | `mcy_shop_frame` | 展示框，与宠物店共用：所在店铺登记时变成固定展示框 |
 
-店主 `oniisan`（岗位 1、CRUEL、`SiteRole=oni_shopkeeper`）在柜台后，店员 `caretaker_brother`（岗位 1、CRUEL、`oni_staff`）在后屋。在售个体 `PendingRole=oni_shopkeeper`、`Use=stock`，性格偏骄横或迟钝，营养和清洁偏低，子油写真实年龄。角点、交接和货桶标记按店铺类型读取，共用的展示框标记按店铺边界读取。
+店主 `oniisan`（岗位 1、CRUEL、`SiteRole=oni_shopkeeper`）在柜台后，店员 `caretaker_brother`（岗位 1、CRUEL、`oni_staff`）在后屋。在售个体 `PendingRole=oni_shopkeeper`、`Use=stock`，性格偏骄横或迟钝，营养和清洁偏低，全部写入真实年龄（以赤油、子油为主，亚成次之，开张没有成体）。角点、交接和货桶标记按店铺类型读取，共用的展示框标记按店铺边界读取。
 
 ## 宠物店
 
@@ -59,7 +59,7 @@
 - 后屋（x17–22、z18–29，店员区）：进出货桶（`mcy_shop_dock`）、便便桶（`mcy_shop_trash`）、饲料桶、工作台与堆肥桶；双开铁门通大厅（17–18,17）与后院（16,21–22）。
 - 后院（x2–15、z18–29）：围墙内露天草地，z18–20 是橡木台阶板檐廊（三盏吊灯），檐下四个窝与两个食盆，两个厕所在远角，地上有花、开花杜鹃丛与玩具；隐藏光源让夜里也不生怪。西墙前厅一侧的窗（z17，x3–5）可看见檐廊。
 - 员工：三位店员都是 Job 1；柜台店员 `SiteRole` 为 `shopkeeper`，持有库存（模板动物的 `PendingRole` 都指向他），另外两位为 `shop_staff`（前厅西角与后屋）。考官 Job 3（`shop_examiner`）。店铺足迹由两枚 `mcy_shop_corner` 标记给出（x1–23、z3–30，不含考场），柜台交接格为 `mcy_shop_counter`。
-- 初始库存：展舱里金章爱丽丝（六项技能）、子油灵梦与子油橙；捕食种房里银章蕾米莉亚（六项技能）与子油芙兰；后院放养子油魔理沙、帕秋莉、灵梦。子油以真实年龄写入 `YukkuriFamily.Age`；资格与已学技能写入根 `YukkuriPet.Grade`／`KnownSkills`，五属性写入 `YukkuriLife.Personality.Innate`。首次绑定店员时，已有资格的库存补齐发证编号、发证者与有效期。
+- 初始库存：展舱里金章爱丽丝（六项技能，赤油）、子油灵梦与子油橙；捕食种房里银章蕾米莉亚（六项技能，赤油）与亚成芙兰；后院放养赤油魔理沙、赤油帕秋莉、亚成灵梦。开张没有成体，库存以真实年龄写入 `YukkuriFamily.Age`，在售期间冻结；资格与已学技能写入根 `YukkuriPet.Grade`／`KnownSkills`，五属性写入 `YukkuriLife.Personality.Innate`。首次绑定店员时，已有资格的库存补齐发证编号、发证者与有效期。
 - 考场（x24–38）：口试区（答题台对考官桌、躲藏箱、两个约定席）、7×5 玻璃模拟房间（`exam_mark` room、窗外观察位 examiner）、陪考生栏（三个 trainee 标记，门通模拟房间）、金章间（3×3 两格由玻璃隔开：gold／actor）。
 
 `author_furniture.py` 制作街面、商店与屋内共用的木长椅（`wooden_bench`）和木桌（`wooden_table`）：原生方块模型，像素贴图取共用色板 `wood`；相邻同类自动连成一条长椅或一张大桌，腿只在外端与外角。长椅无靠背，椅面顶在 8/16 格（与半砖同高，流浪油的长椅短睡照常攀上），单节即凳子；木桌面顶在整格，寻路绕行。结构与试玩场用 `build.furniture`／`museum_dsl.furniture` 写出带连接状态的方块。离线新旧对比：`<py> preview_furniture.py --minecraft-resources <原版客户端 jar>` 输出到 `.local/previews/art-decor/`。
