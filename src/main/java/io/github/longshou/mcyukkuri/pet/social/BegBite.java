@@ -150,7 +150,7 @@ public final class BegBite {
             case CIRCLE -> {
                 if (arrived(stray, pet)) {
                     GameplayLog.event(stray, "badge", "beg circled pet={} gap={}", this.pet, gap(stray, pet));
-                    pose(scene, Beat.STAMP, stray, HOP_LEG, "down_angry", "beg_pester", 1);
+                    pose(scene, Beat.STAMP, stray, YukkuriAction.STAMP, "down_angry", "beg_pester", 1);
                 }
                 else walkDeadline(level, scene, stray, "circle_unreached");
             }
@@ -222,7 +222,8 @@ public final class BegBite {
             case LOOK -> {
                 if (elapsed >= duration) {
                     walk(scene, Beat.LEAVE, away(stray, pet, Math.max(distance * 2.3, stray.distanceTo(pet) + distance)));
-                    stray.showReaction(result.equals("shared") ? "closed_smile" : "side_teary", "", ClipMarkers.of(LOOK_AROUND.id()).length());
+                    stray.showReaction(YukkuriAction.WALK_LOOK_BACK, result.equals("shared") ? "closed_smile" : "side_teary", "",
+                            ClipMarkers.of(YukkuriAction.WALK_LOOK_BACK.id()).length());
                 }
             }
             case LEAVE -> {
@@ -373,7 +374,7 @@ public final class BegBite {
     }
 
     private void lastLook(Scene scene, YukkuriEntity stray, YukkuriEntity pet) {
-        pose(scene, Beat.LOOK, stray, result.equals("shared") ? LOOK_AROUND : DROOP,
+        pose(scene, Beat.LOOK, stray, result.equals("shared") ? SHIAWASE : DROOP,
                 result.equals("shared") ? "closed_smile" : "side_teary", "", 1);
         if (!result.equals("asked_help") && pet.life().mealTicks() == 0) pet.showReaction(TURN, result.equals("shared") ? "closed_smile" : "pursed", "");
     }

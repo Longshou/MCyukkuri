@@ -295,7 +295,7 @@ public final class PresentationArbiter {
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()
-                ? YukkuriAction.WADDLE
+                ? walking(e)
                 : actions == Actions.GROUP ? EcologyPresentation.group(behavior)
                 : stationaryAction(state, behavior, actions);
         String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;
@@ -396,6 +396,12 @@ public final class PresentationArbiter {
     private static String predatorAnimation(YukkuriEntity e, Actions actions) {
         String animation = e.predator().animation();
         return actions == Actions.PREDATOR || e.predatorFlying() || "predator_bite".equals(animation) ? animation : null;
+    }
+
+    /** The walk, or a reaction clip that carries its own steps (YukkuriAction.walks) played in its place while travelling. */
+    private static YukkuriAction walking(YukkuriEntity e) {
+        var reaction = e.reactionAction();
+        return reaction != null && reaction.walks() ? reaction : YukkuriAction.WADDLE;
     }
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */

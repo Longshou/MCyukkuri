@@ -149,6 +149,10 @@ public enum YukkuriAction {
     SNATCH_PULL("snatch_pull", 1.2, false),
     STAND_GROUND("stand_ground", 1.6, true),
     OFFER_BITE("offer_bite", 1.4, false),
+    // Begging tantrum and departure (lore recipe base-motions, all standard forms): a planted two-stamp tantrum, and the walk
+    // with one look back over the shoulder (it carries its own steps, see walks()).
+    STAMP("stamp", 2.2, false),
+    WALK_LOOK_BACK("walk_look_back", 2.4, false),
     BOAT_LABOR("boat_labor", 12.0, true),
     // Weather and warmth moments (lore recipe v18, all standard forms): pressed beside a partner on its left or right in the rain,
     // flattened from a thunderstorm, basking flat in the winter sun.
@@ -190,6 +194,8 @@ public enum YukkuriAction {
     public int durationTicks() { return (int) Math.ceil(duration * 20.0); }
     public boolean loops() { return loop; }
     public boolean holdsEndPose() { return id.endsWith("_extend"); }
+    /** A clip that carries its own steps: shown as a reaction, it replaces the walk while the body travels. */
+    public boolean walks() { return id.startsWith("walk_"); }
     public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
     public static Optional<YukkuriAction> byId(String id) {
         return Arrays.stream(values()).filter(action -> action.id.equals(id)).findFirst();

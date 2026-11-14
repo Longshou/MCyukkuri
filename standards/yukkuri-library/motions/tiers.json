@@ -176,6 +176,8 @@
     "cling_left": {"source": "lore", "family": "social_greeting", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "rain_huddle_right"}, "callers": ["java:DailyLife.contactClip"]},
     "nod": {"source": "lore", "family": "social_greeting", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "bow"}, "callers": ["no caller"]},
     "lunge_ram": {"source": "lore", "family": "locomotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["no caller"]},
+    "stamp": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:YukkuriAction.STAMP"]},
+    "walk_look_back": {"source": "lore", "family": "locomotion", "tier": "composite", "classification": {"kind": "really_composite", "base_motions": ["waddle", "turn"]}, "callers": ["java:YukkuriAction.WALK_LOOK_BACK"]},
     "glass_press": {"source": "lore", "family": "social_greeting", "tier": "special", "classification": {"kind": "special", "reason": "The face flattens on a real pane: the squash is planted on the glass plane and the motor places the body from the clip's measured front sweep."}, "callers": ["no caller"]},
     "sukkiri_after_dazed": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:YukkuriAction.SUKKIRI_AFTER_DAZED"]},
     "sukkiri_after_tender": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "sukkiri_after_dazed"}, "callers": ["java:YukkuriAction.SUKKIRI_AFTER_TENDER"]},
@@ -312,7 +314,7 @@
     {"id": "cough_mukyu", "name_zh": "咳嗽／姆Q吐出", "tier": "base", "existing": ["shake", "droop", "reject_or_spit"], "missing": "Patchouli's cough/exertion primitive; food rejection alone does not cover coughing."},
     {"id": "crouch_watch", "name_zh": "蹲守", "tier": "composite", "existing": ["idle", "call_child", "look_around", "droop"], "missing": "Settled idle facing the pane, call, glance away, idle hold; loop; droop as patience runs out."},
     {"id": "glass_ram", "name_zh": "撞玻璃", "tier": "composite", "existing": ["waddle", "turn", "brace", "lunge_ram", "startle"], "missing": "Back off → brace → lunge → impact → rebound timing; retries advance real crack progress."},
-    {"id": "farewell", "name_zh": "道别", "tier": "composite", "existing": ["turn", "droop", "waddle"], "missing": "Turn away → look back ×n (turn preset with a held face) → droop → leave."},
+    {"id": "farewell", "name_zh": "道别", "tier": "composite", "existing": ["turn", "droop", "waddle", "walk_look_back"], "missing": "Stationary turn away → repeated look back ×n with a held face → droop; one look back while walking away is walk_look_back."},
     {"id": "snuggle", "name_zh": "依偎", "tier": "composite", "existing": ["cling_right", "nuzzle", "sway"], "missing": "Side-press hold (cling preset) + nuzzle rub + slow sway, closed-eye face."}
   ]
 }
