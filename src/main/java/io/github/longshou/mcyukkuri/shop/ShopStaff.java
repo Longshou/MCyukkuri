@@ -931,7 +931,11 @@ public final class ShopStaff {
         for (int cx = (int) Math.floor(box.minX) >> 4; cx <= (int) Math.floor(box.maxX) >> 4; cx++)
             for (int cz = (int) Math.floor(box.minZ) >> 4; cz <= (int) Math.floor(box.maxZ) >> 4; cz++) {
                 var chunk = level.getChunkSource().getChunkNow(cx, cz);
-                if (chunk != null) for (var be : chunk.getBlockEntities().values()) if (shop.contains(be.getBlockPos().getCenter())) out.add(be);
+                if (chunk == null) continue;
+                for (var be : chunk.getBlockEntities().values()) {
+                    var pos = be.getBlockPos();
+                    if (box.contains(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5)) out.add(be);
+                }
             }
         return out;
     }

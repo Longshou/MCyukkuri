@@ -61,14 +61,20 @@ public final class ShopRestock {
      */
     private static void tend(ServerLevel level, ShopRegistry.Entry shop, long now) {
         var registry = ShopRegistry.get(level);
-        for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds(), a -> a.isAlive() && Custody.view(a).role() == Custody.Role.STOCK
-                && !Custody.view(a).ownedBy(shop.id))) {
-            var owner = Custody.view(y).owner();
+        var box = shop.bounds();
+        var candidates = level.getEntitiesOfClass(YukkuriEntity.class, box, YukkuriEntity::isAlive);
+        for (var y : candidates) {
+            var custody = Custody.view(y);
+            if (custody.role() != Custody.Role.STOCK || custody.ownedBy(shop.id)) continue;
+            var owner = custody.owner();
             if (owner == null || !(level.getEntity(owner) instanceof HumanNpc staff) || registry.of(staff) != shop) continue;
             Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
             GameplayLog.event(y, "shop", "action=adopt shop={} from_staff={}", shop.id, owner);
         }
-        for (var y : ShopRegistry.liveStock(level, shop)) {
+        for (var y : candidates) {
+            if (!y.isAlive() || !box.contains(y.position())) continue;
+            var custody = Custody.view(y);
+            if (custody.role() != Custody.Role.STOCK || !custody.ownedBy(shop.id)) continue;
             var tag = HumanCommerce.data(y);
             if (tag.contains(ShopTrade.FOR_SALE_SINCE)) continue;
             if (shop.kind == ShopKind.ONI) {
