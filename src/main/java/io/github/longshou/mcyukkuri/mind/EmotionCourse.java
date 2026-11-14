@@ -63,6 +63,8 @@ public final class EmotionCourse {
     public UUID about() { return about; }
     public BlockPos where() { return where; }
     public boolean mourning() { return kind == Kind.GRIEF && stage() != Stage.FADING && stage() != Stage.NONE; }
+    /** Grief still at its onset or peak: too stricken to go and plead or to start anything of its own. */
+    public boolean stricken() { return kind == Kind.GRIEF && (stage() == Stage.ONSET || stage() == Stage.PEAK); }
     public String describe() {
         if (kind == null) return "none";
         return kind.name().toLowerCase(Locale.ROOT) + " stage=" + stage().name().toLowerCase(Locale.ROOT) + " strength="
@@ -385,8 +387,9 @@ public final class EmotionCourse {
             sit = 100 + y.getRandom().nextInt(140);
             ticks = 0;
             if (f.kind == Kind.RAGE) return;
+            // Never back into a home it was driven out of (settlement/MoldExile).
             var to = LandRandomPos.getPos(y, 4, 2);
-            if (to != null) stroll = BlockPos.containing(to);
+            if (to != null && y.moldExile().allowsAddress(BlockPos.containing(to))) stroll = BlockPos.containing(to);
         }
         @Override public void stop() {
             f().running = false; stroll = null;

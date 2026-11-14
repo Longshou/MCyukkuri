@@ -260,17 +260,22 @@ public final class IndependenceLife extends Goal {
         if (!said) {
             // Walks right up to the parent so they can touch; a parent it cannot reach is called from a few blocks off in sight.
             double reach = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .15;
-            boolean close = entity.distanceToSqr(parent) <= (reach + .6) * (reach + .6) && entity.hasLineOfSight(parent);
+            // Close enough to lean in for a nuzzle: about a body's width apart (inside a den the last step is often blocked).
+            boolean close = entity.distanceToSqr(parent) <= (reach + 1) * (reach + 1);
             boolean callable = entity.distanceToSqr(parent) <= CALL_RANGE * CALL_RANGE && entity.hasLineOfSight(parent);
             var stand = close ? null : contactStand(parent);
-            if (!close && !(callable && (stand == null || stalled >= 60 || elapsed > FAREWELL_LIMIT / 2))) {
+            if (!close && !(callable && (stand == null || stalled >= 60 || elapsed > FAREWELL_LIMIT * 3 / 4))) {
                 if (elapsed > FAREWELL_LIMIT || stand == null && !callable) { leave(); stop(); return; }
                 if (stand != null) approach(stand, parent); else SurfaceApproach.halt(entity);
                 return;
             }
             begin(parent, close);
         }
-        SurfaceApproach.halt(entity);
+        // Just before and during the nuzzle it closes the last gap to touch; otherwise it stands where it is.
+        double touch = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .25;
+        var lean = nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch
+                ? contactStand(parent) : null;
+        if (lean != null && stalled < 40) approach(lean, parent); else SurfaceApproach.halt(entity);
         entity.getLookControl().setLookAt(parent, 25, 25);
         contact++;
         if (contact == 1) entity.showReaction(teary ? "teary_smile" : "happy", teary ? "farewell_say_teary" : "farewell_say", ANSWER);
@@ -288,7 +293,7 @@ public final class IndependenceLife extends Goal {
 
     /** The exchange is decided at the first word, from both their values. */
     private void begin(YukkuriEntity parent, boolean close) {
-        said = true; touching = close; contact = 0;
+        said = true; touching = close; contact = 0; stalled = 0; target = progress = null;
         int own = entity.life().personality().attachment(), theirs = parent.life().personality().attachment();
         teary = own >= 55;
         // An attached pair nuzzle the longer the more attached they are; a cool pair or one called from afar only bows.

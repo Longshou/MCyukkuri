@@ -267,7 +267,8 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (exile == null || !local(exile.home()) || failed(null)) return false;
         var address = exile.home();
         boolean sick = entity.body().mold() > 0;
-        if (sick && exile.appealed() || !level().hasChunkAt(address.range().pos())) return false;
+        // Fresh from the exile it first sits out the worst of its grief; only then does it come back to ask.
+        if (sick && (exile.appealed() || entity.mind().feeling().stricken()) || !level().hasChunkAt(address.range().pos())) return false;
         if (!sick && (address.colony() ? reunionPeer() != null : !denStillPresent(address))) return false;
         if (entity.distanceToSqr(address.centre()) > 32 * 32) return false;
         task = Task.VISIT;
@@ -357,8 +358,12 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (!canPush()) {
             if (pushed) { entity.motor().cancel(this, "contact_ended"); return; }
             // A harsh one, having shouted, goes right up to shove it out; the others push only one already within reach.
+            // It comes up on the home side of the sick one, so its shove points out of the home.
             if (harsh && ticks > noticeEnd + SCORN_AFTER) {
-                var stand = SurfaceApproach.beside(entity, peer, (entity.getBbWidth() + peer.getBbWidth()) * .5 + .1, .35);
+                var inward = home.centre().subtract(peer.position()).multiply(1, 0, 1);
+                if (inward.lengthSqr() < 1e-4) inward = entity.position().subtract(peer.position()).multiply(1, 0, 1);
+                var aim = peer.position().add(inward.normalize().scale((entity.getBbWidth() + peer.getBbWidth()) * .5 + .1));
+                var stand = SurfaceApproach.floor(entity, aim);
                 if (stand != null) SurfaceApproach.walkAround(entity, stand, peer, 1);
             }
             return;
