@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 
@@ -20,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -100,6 +102,7 @@ public final class YukkuriLife {
     private String wakeCause;
     private Task task = Task.NONE;
     private ItemEntity targetFood;
+    private Entity foodGlassTarget;
     private Vec3 foodGlassStand;
     /** Leave blocked food alone for a while, while still considering meals that can be reached. */
     private static final int FOOD_GLASS_COOLDOWN = 400;
@@ -802,35 +805,36 @@ public final class YukkuriLife {
             if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
-        if (!penned && canEat() && !entity.forageTrip().provisioningFirst() && EventHooks.canEntityGrief(level(), entity)) {
+        if (!penned && canEat() && !entity.forageTrip().provisioningFirst()) {
+            boolean canCollect = EventHooks.canEntityGrief(level(), entity);
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && seeksFood(item.getItem()));
             // One pass in the species' own order (taste, then nearness): the first portion it can really walk to is the meal, and
             // when none is, the same pass has already counted why each was passed over for the readout below.
             boolean ignoresScraps = entity.pet().care().walk().ignoresScraps();
             boolean mayPress = !ignoresScraps && level().getGameTime() >= foodGlassAfter;
-            ItemEntity glassFood = null;
+            Entity glassFood = null;
             Vec3 glassStand = null;
             targetFood = null; int delayed = 0, outOfBabyRange = 0, unreachable = 0;
             for (var item : offered.stream().sorted(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                     .thenComparingDouble(entity::distanceToSqr)).toList()) {
-                if (item.hasPickUpDelay()) { delayed++; continue; }
                 if (!TravelRange.babyDestination(entity, item.blockPosition())) { outOfBabyRange++; continue; }
-                if (!foodRouteAvailable(item.position())) { unreachable++; continue; }
-                if (entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false)) { targetFood = item; break; }
-                if (mayPress && glassFood == null) {
-                    var hit = GlassSight.glassBetween(entity, entity.getEyePosition(), item);
-                    if (hit != null) {
-                        glassStand = GlassSight.stand(entity, item, hit.getBlockPos());
-                        if (glassStand != null) glassFood = item;
-                    }
+                if (canCollect && !item.hasPickUpDelay() && foodRouteAvailable(item.position())
+                        && (entity.distanceToSqr(item) < .5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(), false))) {
+                    targetFood = item;
+                    break;
                 }
-                unreachable++;
+                if (mayPress && glassFood == null) {
+                    glassStand = foodWindowStand(item);
+                    if (glassStand != null && !reachable(item.blockPosition(), false)) glassFood = item;
+                }
+                if (item.hasPickUpDelay()) delayed++;
+                else unreachable++;
             }
-            if (targetFood == null && !offered.isEmpty()) GameplayLog.limited(entity, "meal", "food_plan_refused", 400,
+            if (canCollect && targetFood == null && !offered.isEmpty()) GameplayLog.limited(entity, "meal", "food_plan_refused", 400,
                     "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",
                     offered.size(), delayed, outOfBabyRange, unreachable, task, nutrition);
-            targetBlock = nearestCare(CareBlock.Kind.BOWL, true);
+            targetBlock = canCollect ? nearestCare(CareBlock.Kind.BOWL, true) : null;
             if (ignoresScraps) targetFood = null;
             useBowlNicely = targetBlock != null && followsRule(PetSkill.FOOD_BOWL);
             if (useBowlNicely && entity.pet().isPet()) targetFood = null;
@@ -838,14 +842,24 @@ public final class YukkuriLife {
                 bowlStand = null;
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
             }
+            if (mayPress && glassFood == null) {
+                // A visible serving in someone's hand is a nearby invitation. Hunger extends interest from four to eight blocks.
+                double range = Mth.lerp(1 - SocialDisposition.ramp(nutrition, 15, LifeMeal.FULL), 4, 8);
+                for (var player : level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(range),
+                        p -> entity.distanceToSqr(p) <= range * range && seesOfferedWindowFood(p)).stream()
+                        .sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
+                    glassStand = foodWindowStand(player);
+                    if (glassStand != null && !reachable(player.blockPosition(), false)) { glassFood = player; break; }
+                }
+            }
             if (glassFood != null) {
-                targetFood = glassFood;
+                foodGlassTarget = glassFood;
                 foodGlassStand = glassStand;
                 task = Task.FOOD_GLASS;
                 pursuitTicks = 0;
                 GameplayLog.limited(entity, "meal", "glass_food_planned", 400,
-                        "food behind glass items={} item={} stand={} nutrition={}",
-                        offered.size(), glassFood.getItem(), GameplayLog.at(glassStand), nutrition);
+                        "food behind glass target={} kind={} stand={} nutrition={}",
+                        glassFood.getUUID(), glassFood instanceof ItemEntity ? "loose" : "held", GameplayLog.at(glassStand), nutrition);
                 return true;
             }
         }
@@ -1254,10 +1268,21 @@ public final class YukkuriLife {
         replanNow();
     }
 
+    private Vec3 foodWindowStand(Entity food) {
+        var hit = GlassSight.glassBetween(entity, entity.getEyePosition(), food);
+        if (hit == null) return null;
+        var stand = GlassSight.stand(entity, food, hit.getBlockPos());
+        return stand != null && TravelRange.babyDestination(entity, BlockPos.containing(stand)) ? stand : null;
+    }
+
+    private boolean seesOfferedWindowFood(Player player) {
+        return !player.isSpectator() && seeksOfferedFood(player) && (LearnedFear.hungerOverrides(entity)
+                || personality.fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT);
+    }
+
     private void seekFoodAtGlass() {
-        if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240 || !targetFood.isAlive()
-                || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem())
-                || GlassSight.glassBetween(entity, entity.getEyePosition(), targetFood) == null) {
+        if (!canEat() || pursuitTicks > 240 || !foodGlassTarget.isAlive() || foodGlassTarget.level() != level()
+                || !(foodGlassTarget instanceof ItemEntity item ? seeksFood(item.getItem()) : seesOfferedWindowFood((Player) foodGlassTarget))) {
             stopGoal();
             replanNow();
             return;
@@ -1266,7 +1291,7 @@ public final class YukkuriLife {
         if (foodGlassStand != null) {
             if (SurfaceApproach.walk(entity, foodGlassStand, 1.15)) {
                 foodGlassStand = null;
-                var press = GlassPress.toward(entity, targetFood);
+                var press = GlassPress.toward(entity, foodGlassTarget);
                 if (press != null && entity.motor().run(foodGlass, press)) return;
             } else if (SurfaceApproach.lastResult(entity, foodGlassStand) != SurfaceApproach.Result.BLOCKED) return;
         }
@@ -1276,6 +1301,7 @@ public final class YukkuriLife {
 
     private void endFoodGlass() {
         if (task != Task.FOOD_GLASS) return;
+        foodGlassTarget = null;
         foodGlassStand = null;
         foodGlassAfter = level().getGameTime() + FOOD_GLASS_COOLDOWN;
         entity.motor().cancel(foodGlass, "food_glass_ended");

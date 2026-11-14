@@ -309,11 +309,12 @@ add('graze', 'forage', '野生：饿了先吃苹果，只有草就啃草', '野�
 
 _glass_food_eater = uid('food_behind_glass', 'glass_food_eater')
 add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看见苹果',
-    '饥饿的灵梦隔着玻璃板看见苹果。看它走到玻璃前挤脸一次，退开继续找食，苹果留在窗内。',
+    '灵梦隔着玻璃板看见苹果。看它走到玻璃前挤脸一次，退开继续找食，苹果留在窗内。',
     '约 10 秒', [box(-2, -1, -2, 2, 2, 2, 'minecraft:stone_bricks', 'hollow'),
         block(0, 0, 2, 'minecraft:glass_pane'), block(0, 1, 2, 'minecraft:glass_pane'),
-        yk('reimu', 0, 5, 'glass_food_eater', uuid=_glass_food_eater, nutrition=22, yaw=180, lead=True),
-        item('minecraft:apple', 1, 0, 1, name='glass_apple')],
+        yk('reimu', 0, 5, 'glass_food_eater', uuid=_glass_food_eater, nutrition=60, yaw=180, lead=True),
+        item('minecraft:apple', 1, 0, 1, name='glass_apple'),
+        f'data modify entity {sel("glass_apple")} PickupDelay set value 32767s'],
     env=DAY, spot='forage', vantage=(4, 7, 155),
     reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
 
@@ -1755,9 +1756,9 @@ add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：�
     reads=[(label, f'data get entity {sel(name)} YukkuriPet.SkillExperience')
            for label, name in (('读灵梦的牵引经验', 'walk_practised'), ('读魔理沙的牵引经验', 'walk_novice'))])
 
-def street_trial(scene, kind, x, z, name, *, pet='', extra='', **kwargs):
-    return yk(kind, x, z, name, uuid=uid(scene, name), boldness=90,
-              extra=f'YukkuriPet:{{TownRoots:1b{pet}}}' + (',' + extra if extra else ''), **kwargs)
+def street_trial(scene, kind, x, z, name, *, extra='', boldness=90, **kwargs):
+    return yk(kind, x, z, name, uuid=uid(scene, name), boldness=boldness,
+              extra='YukkuriPet:{TownRoots:1b}' + (',' + extra if extra else ''), **kwargs)
 
 
 def street_abuser(x, z, name, **kwargs):
@@ -1776,33 +1777,13 @@ add('feed_wild', 'town', '爱派居民：一份粮与空手摸头', '爱派居�
     reads=[('读递粮者存量', f'data get entity {sel("street_lover")} CareFood'),
            ('读流浪油进食', f'yukkuri status {sel("street_hungry")} raw')])
 
-_street_trials = [
-    (-16, 'street_badge', '帕秋莉：仍戴作废的章'),
-    (-9, 'street_chewing', '橙：正在吃饭'),
-    (-2, 'street_box', '魔理沙：在纸箱里'),
-    (7, 'street_colony', '灵梦：聚落成员'),
-    (15, 'street_free', '爱丽丝：独行且挡路'),
-]
-_street_badge_owner = uuid_nbt(uid('oniisan_prey', 'former_owner'))
-_street_box_at = (-1, 0)
-add('oniisan_prey', 'town', '虐派居民：警告与四种豁免', '虐派居民：警告与四种豁免',
-    '路上的成年独行爱丽丝会遇到警告。旁边是戴作废章的前宠物、正在吃饭的流浪油、箱里的流浪油和聚落成员。吞咽或自行出箱后，个体可能在路上遇到警告。用读数核对血量。',
-    '约半分钟', [
-        *[street_abuser(x, 0, name + '_npc', label=label) for x, name, label in _street_trials if name != 'street_box'],
-        human('oniisan', -1, 2, 'street_box_npc', 0, attitude=0, yaw=180, label='纸箱外的虐派'),
-        street_trial('oniisan_prey', 'patchouli', -15, 0, 'street_badge', yaw=90,
-                     pet=f',Grade:1,Worn:1b,VoidBadge:1b,FormerOwner:{_street_badge_owner}'),
-        street_trial('oniisan_prey', 'chen', -8, 0, 'street_chewing', yaw=90, nutrition=24,
-                     extra='YukkuriMouth:{Purpose:"MEAL",Items:[{id:"mcyukkuri:oil_grain_regular",count:1}]}'),
-        f'data merge entity {sel("street_chewing")} {{YukkuriLife:{{MealTicks:1,SharedMeal:1b}}}}',
-        box(-2, -1, -1, 0, -1, 1, 'minecraft:oak_planks'),
-        *found_shell('cardboard_shelter', *_street_box_at),
-        street_trial('oniisan_prey', 'marisa', *_street_box_at, 'street_box', yaw=90, energy=30),
-        street_trial('oniisan_prey', 'reimu', 8, 0, 'street_colony', yaw=90),
-        f'yukkuri scenario community {sel("street_colony")} {sel("street_colony")}',
-        street_trial('oniisan_prey', 'alice', 16, 0, 'street_free', yaw=90, lead=True),
-    ], env=DAY, vantage=(0, 13),
-    reads=[(label, f'data get entity {sel(name)} Health') for _, name, label in _street_trials])
+add('oniisan_prey', 'town', '虐派居民喝斥挡路的爱丽丝', '虐派居民喝斥挡路的爱丽丝',
+    '看眼前的居民挥手喝斥「离远一点」，胆小的流浪爱丽丝抬头露出泪眼。',
+    '开场几秒内', [
+        street_abuser(-1, 0, 'street_warning_npc', label='虐派居民'),
+        street_trial('oniisan_prey', 'alice', 0, 0, 'street_free', yaw=90, boldness=15, lead=True),
+    ], env=DAY, vantage=(-2, -4, -22, 16),
+    reads=[('读爱丽丝血量', f'data get entity {sel("street_free")} Health')])
 
 add('street_mixed', 'town', '街道对照：爱派喝止、玩家喂熟、店门保护', '街道对照：爱派喝止、玩家喂熟、店门保护',
     '西边爱派看得见虐派和独行灵梦。另有已吃过玩家两份粮的橙，以及鬼威惨商店门口的一只流浪油。看爱派喝止、店员留岗与个体继续各自活动。',
@@ -1837,13 +1818,17 @@ _pass_home = (((_pass_x + 4) & 0x3ffffff) << 38) | ((_pass_z & 0x3ffffff) << 12)
 if _pass_home >= 1 << 63:
     _pass_home -= 1 << 64
 add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让', '街上挡路：给走来的居民和玩家侧让',
-    '南北两列各站着一只油库里。居民沿北边短路回家时看灵梦先抬头再侧让。你沿南边从西向东走过魔理沙身边；站着看它或擦边走过时不需让路。',
+    '居民沿北边回家时，胆小的灵梦会快速退到路外。你沿南边的砖路从西向东走，看看好强的魔理沙怎样只往旁边挪出够你经过的位置。',
     '居民几秒内回家，玩家可随后走过', [
         box(-6, -1, -2, 6, -1, 6, 'minecraft:stone_bricks'),
+        box(-6, -1, 0, 6, -1, 0, 'minecraft:polished_andesite'),
+        box(-6, -1, 4, 6, -1, 4, 'minecraft:polished_andesite'),
         human('caretaker_brother', -4, 0, 'pass_resident', 0, attitude=2, yaw=-90, label='正在回家的居民'),
         f'data merge entity {sel("pass_resident")} {{HumanHome:{_pass_home}L,StreetHomePause:-600}}',
-        yk('reimu', 0, 0, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), extra='Health:2.8f', **pair_ready()),
-        yk('marisa', 0, 4, 'pass_marisa', label='从西侧走来', extra='Health:2.8f', **pair_ready()),
+        yk('reimu', 0, 0, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), boldness=12,
+           extra='Health:2.8f', **pair_ready()),
+        yk('marisa', 0, 4, 'pass_marisa', label='从西侧走来', boldness=90, friendliness=20,
+           extra='Health:2.8f', **pair_ready()),
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
 add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', '田边：吃一口作物，居民看见后警告',
@@ -4760,8 +4745,11 @@ for _sid in ('forage', 'family_absence'):
 _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
 _smoke('food_behind_glass', 260, [r'\[action\][^\n]* end id=glass_press outcome=DONE', r'MCYGLASS_APPLE_REMAINS'],
        forbid=[rf'\[meal\][^\n]* uuid={_uuid_of(_glass_food_eater)} [^\n]* pickup '],
-       readout=[f'execute if entity @e[type=minecraft:item,tag={tag("glass_apple")},nbt={{Item:{{id:"minecraft:apple",count:1}}}}] run say MCYGLASS_APPLE_REMAINS'])
+       readout=[f'execute if entity @e[type=minecraft:item,tag={tag("glass_apple")},nbt={{Item:{{id:"minecraft:apple",count:1}}}}] run say MCYGLASS_APPLE_REMAINS',
+                'gamerule mobGriefing true'])
+next(s for s in S if s.id == 'food_behind_glass').smoke['commands'] = [(1, 'gamerule mobGriefing false')]
 next(s for s in S if s.id == 'food_behind_glass').smoke['verify'] = lambda log: _family_search_order(log, [
+    (_glass_food_eater, 'food behind glass .*kind=loose'),
     (_glass_food_eater, 'start id=glass_press'), (_glass_food_eater, 'end id=glass_press outcome=DONE'),
 ], [(_glass_food_eater, 'start id=glass_press')])
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
@@ -4987,15 +4975,11 @@ _fed = _uuid_text('feed_wild', 'street_hungry')
 _empty = _uuid_text('feed_wild', 'street_nofood')
 _free = _uuid_text('oniisan_prey', 'street_free')
 _stopped = _uuid_text('street_mixed', 'street_intervened')
-_chewing = _uuid_text('oniisan_prey', 'street_chewing')
-_boxed = _uuid_text('oniisan_prey', 'street_box')
 _crop_eater = _uuid_text('street_crops', 'crop_eater')
 _bench_stray = _uuid_text('street_furniture', 'bench_stray')
 _water_stray = _uuid_text('street_furniture', 'water_stray')
 _barrel_stray = _uuid_text('street_furniture', 'barrel_stray')
 _awning_stray = _uuid_text('street_furniture', 'awning_stray')
-_street_protected = [_uuid_text('oniisan_prey', name) for _, name, _ in _street_trials
-                     if name not in ('street_free', 'street_chewing', 'street_box')]
 _mixed_protected = [_uuid_text('street_mixed', name) for name in ('street_intervened', 'street_door', 'street_trust')]
 
 
@@ -5003,50 +4987,16 @@ def _street_health_reads(*names):
     return [f'data get entity {sel(name)} Health' for name in names]
 
 
-def _street_chewing_check(log):
-    swallow = re.search(rf'\[meal\][^\n]* uuid={_chewing}\b[^\n]* swallowed item=[^\n]*oil_grain_regular', log)
-    if swallow is None:
-        return 'the eating fixture did not swallow its initial grain'
-    if re.search(rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target={_chewing}\b', log[:swallow.end()]):
-        return 'the resident reacted to the eating fixture before it swallowed'
-    return None
-
-
-def _street_box_check(log, trace):
-    ax, az = BY_ID['town'].anchor
-    bx, bz = _street_box_at
-    stands = {}
-    for line in trace:
-        row = json.loads(line.split('[trace] ', 1)[1])
-        if row.get('win') != 'oniisan_prey' or row.get('u') != _boxed or row['k'] != 'st':
-            continue
-        x, y, z = map(math.floor, row['st']['p'])
-        stands[row['t']] = y == FEET and abs(x - (ax + bx)) <= 1 and abs(z - (az + bz)) <= 1
-    if not stands or not stands[min(stands)]:
-        return 'the box fixture was not observed starting inside its shelter'
-    for tick in re.findall(rf'\[npc-care\][^\n]* t=(\d+) [^\n]* action=street_warn target={_boxed}\b', log):
-        if stands.get(int(tick) - 1) is not False:
-            return f'the box fixture was warned at tick {tick} without an observed exit'
-    return None
-
-
-def _street_exclusions(log, trace):
-    return _street_chewing_check(log) or _street_box_check(log, trace)
-
-
 _smoke('feed_wild', 400, [
     rf'\[npc-care\][^\n]* action=begin_meal target={_fed} food=1->0\b',
     rf'\[npc-care\][^\n]* action=street_pet target={_empty} food=0\b',
     rf'\[meal\][^\n]* uuid={_fed}[^\n]* swallowed item=[^\n]*oil_grain_regular',
 ])
-_smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_free}\b'],
-       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_street_protected)})\b',
-        rf'\[npc-care\][^\n]* action=street_(chase|kick) target={_boxed}\b',
-        rf'\[npc-care\][^\n]* action=street_kick target={_chewing}\b',
-        r'\[npc-care\][^\n]* action=street_kick [^\n]*health=(?!([\d.]+)->\1\b)',
-        rf'\[body\][^\n]* uuid=(?:{_free}|{_chewing}|{_boxed}|{"|".join(_street_protected)})\b[^\n]* accepted damage'],
-       readout=_street_health_reads(*(name for _, name, _ in _street_trials)))
-next(s for s in S if s.id == 'oniisan_prey').smoke.update(verify=_street_exclusions, verify_trace=True)
+_smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_free}\b',
+                            rf'\[npc-care\][^\n]* uuid={_free}\b[^\n]* action=street_warning_seen [^\n]*face=teary\b'],
+       [rf'\[npc-care\][^\n]* action=street_(chase|kick) target={_free}\b',
+        rf'\[body\][^\n]* uuid={_free}\b[^\n]* accepted damage'],
+       readout=_street_health_reads('street_free'))
 _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
        r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
        [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],
@@ -5280,6 +5230,7 @@ _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [
                           r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI '])
 _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=(?:1\.\d+|[2-9]\d*(?:\.\d+)?) gap=(?:0\.[2-9]\d*|[1-9]\d*(?:\.\d+)?)\b',
 ])
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'

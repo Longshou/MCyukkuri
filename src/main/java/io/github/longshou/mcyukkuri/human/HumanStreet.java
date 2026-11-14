@@ -261,10 +261,20 @@ final class HumanStreet {
         if (beatUntil != 0) {
             if (chasing) return chaseContinues(y);
             if (cropWarning && !warning.seen && y.hasLineOfSight(npc)) y.getLookControl().setLookAt(npc, 30, 30);
-            if (now() < beatUntil && npc.distanceToSqr(y) <= (activeCrop == null ? CONTACT_SQ : 144)
+            if (!warning.seen && now() < beatUntil && npc.distanceToSqr(y) <= (activeCrop == null ? CONTACT_SQ : 144)
                     && y.hasLineOfSight(npc) && aheadOf(y, npc)) {
-                if (!warning.seen && activeCrop != null) y.status().reactions().threat().cropWarning(npc);
                 warning.seen = true;
+                if (activeCrop != null) {
+                    y.status().reactions().threat().cropWarning(npc);
+                } else {
+                    var contact = SocialDisposition.contact(y, npc);
+                    double confidence = SocialDisposition.confidence(contact.esteem());
+                    String face = contact.wariness() > confidence ? "teary" : "surprise";
+                    if (y.showReaction(face, "", 40)) {
+                        GameplayLog.event(y, "npc-care", "action=street_warning_seen resident={} face={} wariness={} confidence={}",
+                                npc.getUUID(), face, contact.wariness(), confidence);
+                    }
+                }
             }
             return now() < beatUntil;
         }
@@ -286,7 +296,7 @@ final class HumanStreet {
             actions++;
             cue(npc, y, activeCrop == null ? "warning" : "crop");
             y.getLookControl().setLookAt(npc, 30, 30);
-            y.showReaction("surprise", "", 30);
+            if (activeCrop != null) y.showReaction("surprise", "", 30);
             GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={} crop={}", y.getUUID(), y.getHealth(), actions, activeCrop);
             return true;
         }
