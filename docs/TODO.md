@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| DN-04 封洞口技能 | `.worktrees/wp-r2-seal` | den sealing, skill learning |
 
 ## 玩法待办
 
