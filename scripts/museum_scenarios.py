@@ -438,6 +438,11 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
         street_stray(_junk_scene, 'marisa', 0, -2, 'covered_stray', accessory=False, boldness=30,
                      label='戴瓶盖的流浪油').replace('Accessory:0b,',
                      'Accessory:0b,HatCustody:{State:"LOST",JunkHeadwear:"bottle_cap"},'),
+        # The wearer and the mocking neighbour share one fenced nook, so the neighbour's nearest junk wearer cannot wander off.
+        box(-1, 0, -4, 2, 1, -4, 'minecraft:oak_fence'),
+        box(-1, 0, -1, 2, 1, -1, 'minecraft:oak_fence'),
+        box(-1, 0, -4, -1, 1, -1, 'minecraft:oak_fence'),
+        box(2, 0, -4, 2, 1, -1, 'minecraft:oak_fence'),
         street_stray(_junk_scene, 'reimu', 1, -2, 'mocking_stray', friendliness=20, boldness=65,
                      yaw=90, label='会嘲笑的邻居'),
     ], give=['mcyukkuri:reimu_ribbon', 'mcyukkuri:junk_headwear 2', 'mcyukkuri:magnifying_glass'], env=DAY, spot='street', vantage=(0, 11),
