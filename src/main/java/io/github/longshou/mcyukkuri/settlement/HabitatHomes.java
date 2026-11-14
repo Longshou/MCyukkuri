@@ -544,7 +544,7 @@ final class HabitatHomes {
     private int shortagePatience() { return SHORTAGE_BASE+SHORTAGE_PATIENCE*o.entity().life().personality().selfControl(); }
     boolean relocationWanted(ShelterBlockEntity value) {
         if(moveWait>0||!o.handlesLostHome()||o.unavailable()||!o.entity().family().adult()
-                ||o.entity().life().hasUrgentNonFoodNeed()
+                ||o.entity().mind().feeling().mourning()||o.entity().life().hasUrgentNonFoodNeed()
                 || !o.carrying().isEmpty()||o.hasNestProject())return false;
         var mate=mate();
         if(mate!=null&&mate.habitat().relocating())return false;

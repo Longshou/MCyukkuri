@@ -350,7 +350,7 @@ public final class HabitatLife {
         }
         if(wait>0)return false;wait=(int)(60/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
-        if(homes.relocationWanted(value)) {
+        if(!housed&&homes.relocationWanted(value)) {
             homes.relocate(value);
             return task==Task.RELOCATE;
         }
@@ -376,6 +376,10 @@ public final class HabitatLife {
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal.start(value))return true;
         if(nestEligible(value)&&startNest(value))return true;
         if(homes.extensionWanted(value)&&homes.startExtension(value))return true;
+        if(homes.relocationWanted(value)) {
+            homes.relocate(value);
+            return task==Task.RELOCATE;
+        }
         if(hasNestProject()) {
             if(!nestProjectValid())cancelNestProject();
             return false;
