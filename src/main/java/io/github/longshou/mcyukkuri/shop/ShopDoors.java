@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.phys.AABB;
 
-/** Owns both leaves of each iron door and closes the doors staff opened for passage. */
+/** Owns both leaves of each iron door and closes the doors staff or customers opened for passage. */
 public final class ShopDoors {
     private record Door(ServerLevel level, List<BlockPos> leaves) {}
     private static final Map<Door, Set<UUID>> PASSING = new HashMap<>();
@@ -59,7 +59,8 @@ public final class ShopDoors {
             return;
         }
         set(door, player, open);
-        if (egress) ShopRegistry.get(level).openedDoors(level, leaves);
+        // The unattended sweep closes what a customer opened once they are out of the doorway, so a pen door cannot stand open for visitors.
+        if (open) ShopRegistry.get(level).openedDoors(level, leaves);
         GameplayLog.event(player, "shop", "action=door result={} shop={} door={}", open ? "opened" : "closed", shop.id, leaves.getFirst());
     }
 
