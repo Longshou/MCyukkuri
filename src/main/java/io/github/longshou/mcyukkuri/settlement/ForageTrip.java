@@ -594,7 +594,7 @@ public final class ForageTrip extends Goal {
         if (horizontal(pile.standCell()) > 14) { travel(pile.standCell()); return true; }
         if (!contact.near(pile)) {
             contact.reset();
-            if (entity.getNavigation().isDone() || ticks % 40 == 1) entity.life().navigate(pile.standCell(), 1, false);
+            if (entity.getNavigation().isDone() || ticks % 40 == 1) entity.life().navigate(pile.standCell(), pace, false);
             return true;
         }
         if (!contact.tick(pile)) return true;

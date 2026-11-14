@@ -108,6 +108,7 @@ public final class FamilyLife {
     private Task task=Task.NONE;
     private YukkuriEntity target;
     private Vec3 searchAt;
+    private Vec3 reunionAt;
     private record WatchedForager(UUID id, long started) {}
     private WatchedForager watchedForager;
     private final CareDecisionLedger careDecisions;
@@ -1350,15 +1351,18 @@ public final class FamilyLife {
         double reach = reunionRadius(child);
         return entity.distanceToSqr(child) <= reach * reach && entity.hasLineOfSight(child);
     }
-    private Vec3 reunionStand(YukkuriEntity child) {
+    private boolean reunionStandFree(YukkuriEntity child, Vec3 at) {
+        var body = entity.getBoundingBox().move(at.subtract(entity.position())).deflate(.005);
+        return !body.intersects(child.getBoundingBox())
+                && level().getEntitiesOfClass(YukkuriEntity.class, body,
+                        other -> other != entity && other != child && other.isAlive() && other.isPushable() && !other.isPassenger()).isEmpty();
+    }
+    private Vec3 reunionStand(YukkuriEntity child, Vec3 blocked) {
         double reach = reunionRadius(child) - SurfaceApproach.ARRIVAL;
-        return SurfaceApproach.beside(entity, child, reach, reach, reach, at -> {
-            var body = entity.getBoundingBox().move(at.subtract(entity.position()));
-            return level().getEntitiesOfClass(YukkuriEntity.class, body.deflate(.005),
-                    other -> other != entity && other != child && other.isAlive() && other.isPushable() && !other.isPassenger()).isEmpty()
-                    && level().clip(new ClipContext(at.add(0, entity.getEyeHeight(), 0), child.getEyePosition(),
-                            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
-        });
+        return SurfaceApproach.beside(entity, child, reach, reach, reach, at -> !at.equals(blocked)
+                && reunionStandFree(child, at)
+                && level().clip(new ClipContext(at.add(0, entity.getEyeHeight(), 0), child.getEyePosition(),
+                        ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS);
     }
     /** The same arrival distance that ends this child's ordinary land follow. */
     public boolean withinFollowDistance(YukkuriEntity parent) {
@@ -1650,6 +1654,7 @@ public final class FamilyLife {
     private void tickLandChildSearch() {
         boolean visible=separation.observeChild(target);
         searchAt=separation.lastSeen(target);
+        if(!visible)reunionAt=null;
         if(glass.active()&&glass.tick())return;
         if(visible&&!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
         if(carry.lifting()) {
@@ -1672,11 +1677,13 @@ public final class FamilyLife {
             // The search is about the child: keep the face on it while walking to the stand and while standing blocked.
             entity.getLookControl().setLookAt(target,20,20);
             if(!supported())return;
-            var stand=reunionStand(target);
-            var result=stand==null?SurfaceApproach.Result.BLOCKED:SurfaceApproach.walkResult(entity,stand,target,1.1);
-            if(result==SurfaceApproach.Result.BLOCKED||result==SurfaceApproach.Result.ARRIVED) {
-                if(reached(target))separation.reunited(target);
-                stop();
+            if(reunionAt==null||taskTicks%10==1||!reunionStandFree(target,reunionAt)||!SurfaceApproach.supported(entity,reunionAt))
+                reunionAt=reunionStand(target,null);
+            if(reunionAt==null){stop();return;}
+            var result=SurfaceApproach.walkResult(entity,reunionAt,target,1.1);
+            if(result==SurfaceApproach.Result.BLOCKED) {
+                reunionAt=reunionStand(target,reunionAt);
+                if(reunionAt==null)stop();
             }
             return;
         }
@@ -1708,6 +1715,7 @@ public final class FamilyLife {
                 "task stopped task={} target={} ticks={} carriedFood={}",
                 task,target==null?null:target.getUUID(),taskTicks,feeding.carrying());
         courtship.reset();
+        reunionAt=null;
         if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;taskTicks=0;feeding.reset();
         wait=Math.max(wait,40);
     }
