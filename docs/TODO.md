@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 住家宣言、领地威吓、搬家与贪心占地 | `.worktrees/wp-r2-home` | home/territory/relocation goals, speech |
-| FG-02 父亲觅食、FG-07 亲油死后与寻亲 | `.worktrees/wp-r2-family` | family forage role, loss reaction, search family |
 | DN-01 情绪过渡、DN-02 告别、DN-05 驱逐演出 | `.worktrees/wp-r2-emotion` | mourning/recovery, farewell, exile |
 | DN-04 封洞口技能 | `.worktrees/wp-r2-seal` | den sealing, skill learning |
 | 舌肥（挑食度）数值与进食反应 | `.worktrees/wp-r2-picky` | LifeMeal, food preference, new stat |
