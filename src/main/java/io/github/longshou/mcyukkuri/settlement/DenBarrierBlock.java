@@ -17,9 +17,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * A loose screen of twigs and leaves a wild Reimu piles across its den mouth (project design, user request; see
- * {@link DenSeal}). It is a physical block, not magic: solid to every body and every path, light enough that a player
- * breaks it by hand. The block entity remembers who laid it and takes it down when the danger has passed.
+ * A den resident's loose twig and leaf screen (see {@link DenSeal}). It blocks collision and paths,
+ * and a player can break it by hand.
  */
 public final class DenBarrierBlock extends Block implements EntityBlock {
     private static final VoxelShape SHAPE = box(1, 0, 1, 15, 16, 15);

@@ -203,7 +203,7 @@ public final class HabitatLife {
         SearchBudget.path(entity);
         if(!entity.life().assignNaturalHome(bed)){if(!owned)value.release(entity.getUUID());return false;}
         if(old!=null&&old!=value) {
-            DenBarrier.release(old,"resident_relocated");
+            DenBarrier.release(old,"resident_relocated",entity);
             old.release(entity.getUUID());
         }
         home=GlobalPos.of(entity.level().dimension(),value.getBlockPos());entity.setPersistenceRequired();
@@ -230,7 +230,7 @@ public final class HabitatLife {
     public void release() {
         var value=shelter();
         if(value!=null) {
-            if(value.owns(entity.getUUID()))DenBarrier.release(value,"resident_left");
+            if(value.owns(entity.getUUID()))DenBarrier.release(value,"resident_left",entity);
             value.release(entity.getUUID());
         }
         if(home!=null)GameplayLog.event(entity,"habitat","home released home={} task={} carried={}",home,task,carrying.getCount());

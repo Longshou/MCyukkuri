@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
+import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Kindness;
@@ -104,6 +105,7 @@ final class YukkuriGoals {
         // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
         goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));
         goalSelector.addGoal(6, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 6)));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.DEN_SEAL, new DenSeal.FamilyGoal(owner)));
         owner.createMoldExile();
         goalSelector.addGoal(3, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
@@ -218,7 +220,7 @@ final class YukkuriGoals {
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
             if (owner.family().carry().tickFlight(owner.getLastHurtByMob())) return;
-            // A clever wild Reimu that has run into her den seals its mouth (settlement/DenSeal); the sealing owns the body meanwhile.
+            // A skilled resident that has reached its den can seal while fleeing.
             if (owner.getLastHurtByMob() instanceof YukkuriEntity danger && danger.profile().dangerToYukkuri()
                     && owner.status().reactions().threat().seal().drive(danger)) return;
             if (owner.directNavigation().isDone() || owner.tickCount % 10 == 0) {
@@ -242,7 +244,11 @@ final class YukkuriGoals {
                 if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.2);
             }
         }
-        @Override public void stop() { owner.family().carry().endFlight(); owner.directNavigation().stop(); }
+        @Override public void stop() {
+            owner.family().carry().endFlight();
+            owner.status().reactions().threat().seal().reset();
+            owner.directNavigation().stop();
+        }
     }
     /** A hurt newborn stays where it is and cries; fire, water, being carried or held still override it. */
     private final class HurtCryGoal extends Goal {

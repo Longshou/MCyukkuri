@@ -192,7 +192,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** The owner lays a mouth-screen twig from the doorway stock (project design: {@link DenSeal}); false when none is left. */
     boolean takeBranch() { if(branches<=0)return false;branches--;changed();return true; }
     /** A twig of a taken-down screen goes back to the doorway stock. */
-    void returnBranch() { if(branches<3){branches++;changed();} }
+    boolean returnBranch() {
+        if (branches >= 3) return false;
+        branches++; changed();
+        return true;
+    }
     public void setNaturalSite(NaturalShelter.Site site) {
         naturalBeds=site==null?List.of():site.sleeping();naturalEntrance=site==null?null:site.entrance();
         naturalPile=site==null?null:site.pile();naturalPileStand=site==null?null:site.pileStand();changed();

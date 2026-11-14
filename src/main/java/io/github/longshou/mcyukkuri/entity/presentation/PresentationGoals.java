@@ -80,6 +80,7 @@ public final class PresentationGoals {
     public static final Source<ForageGoal> FORAGE = observed("forage", ForageGoal::activity);
     public static final Source<TreasureLife> TREASURE = observed("treasure", TreasureLife::activity);
     public static final Source<Goal> HABITAT = state("habitat", e -> e.habitat().active() ? e.habitat().activity() : null);
+    public static final Source<Goal> DEN_SEAL = state("den_seal", e -> e.status().reactions().threat().seal().familyActivity());
     public static final Source<Goal> INDEPENDENCE = state("independence", e -> e.independence().active() ? e.independence().activity() : null);
     public static final Source<Goal> MIGRATION = state("migration", e -> e.settlement().active() ? e.settlement().activity() : null);
     public static final Source<Goal> COMFORT_GIVER = state("comfort_giver", e -> e.woundComfort().licking() ? e.woundComfort().activity() : null);

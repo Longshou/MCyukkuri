@@ -73,7 +73,7 @@ public final class ModBlocks {
                     .pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ForagePileBlockEntity>> FORAGE_PILE_ENTITY=BLOCK_ENTITIES.register("forage_pile",
             ()->BlockEntityType.Builder.of(ForagePileBlockEntity::new,FORAGE_PILE.get()).build(null));
-    /** The twig-and-leaf screen a clever wild Reimu piles across its den mouth (settlement/DenSeal). Has no item. */
+    /** The twig-and-leaf screen a skilled resident piles across its den mouth. Has no item. */
     public static final DeferredBlock<DenBarrierBlock> DEN_BARRIER=BLOCKS.register("den_barrier",
             ()->new DenBarrierBlock(BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<DenBarrierBlockEntity>> DEN_BARRIER_ENTITY=BLOCK_ENTITIES.register("den_barrier",

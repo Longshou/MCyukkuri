@@ -85,10 +85,11 @@ public final class Reactions {
     /** Behavior id for the shared presentation chain (see EcologyPresentation). */
     public String activity() { return threat.stage != Threat.Stage.NONE ? threat.activity() : weather.activity(); }
     public String describe() {
-        return threat.stage != Threat.Stage.NONE ? threat.describe() : weather.stage != Weather.Stage.NONE ? weather.describe() : "none";
+        return threat.stage != Threat.Stage.NONE ? threat.describe() : weather.stage != Weather.Stage.NONE ? weather.describe()
+                : threat.seal.active() ? "den seal=" + threat.seal.describe() : "none";
     }
     void scan() { threat.scan(); weather.scan(); }
-    void stop() { threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
+    void stop() { threat.seal.abort("response_stopped"); threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
 
     /** Kin hear the alarm; nearby witnesses also react when they see a person inflict harm. */
     void hurtBy(DamageSource source) {
@@ -133,7 +134,7 @@ public final class Reactions {
     public static final class Threat {
         public enum Stage { NONE, WATCH, RETREAT, HIDE }
         private final YukkuriEntity y;
-        /** A clever wild Reimu's den-mouth sealing (project design, see docs/FEATURES.md); idle for everyone else. */
+        /** Shared den-mouth work for predator alarms and family outings. */
         private final DenSeal seal;
         private Stage stage = Stage.NONE;
         private LivingEntity seen;

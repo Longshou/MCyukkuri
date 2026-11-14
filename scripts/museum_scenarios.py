@@ -128,6 +128,10 @@ def add(*args, **kw):
     return scenario
 
 
+def _uuid_text(sid, slot):
+    return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
+
+
 DAY = {'time': 'noon'}
 LEAD_ANY = 'tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random] add scn_lead'
 
@@ -264,32 +268,56 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
                                   r'\[home-claim\][^\n]* declared site=.*spoken=true'],
                forbid=[r'occupation_refused', r'never_arrived']))
 
-# Two wild Reimu, each with a den of her own (the family and indep mounds, 18 apart) holding the two sticks a natural den starts with;
-# only their five-axis personality differs. A hungry predator is summoned 20+ blocks south of each only after they have settled,
-# and chooses and approaches by the ordinary hunt rules; nothing here names a Goal, a target or a result.
+# A previously learned skill as initial state. The family still decides who goes out and how to deal with the departure.
+_seal_skill = 'Version:2,DenSealLearned:1b'
+_seal_mother, _seal_father, _seal_child, _seal_learner = (uid('den_barrier', n) for n in ('mother', 'father', 'child', 'learner'))
+_seal_kin = f'Mother:{uuid_nbt(_seal_mother)},Father:{uuid_nbt(_seal_father)}'
+_seal_mother_log, _seal_father_log = (_uuid_text('den_barrier', n) for n in ('mother', 'father'))
+add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门采草，母油封洞口',
+    '洞内缺粮。父油去南边草地采草，留守灵梦记得用枝叶封洞口。看亚成子油能否从示范中学会，再看父油回来拆屏、把草送进粮堆。',
+    '约 1–2 分钟，可倍速', [
+        box(-12, 0, -8, 12, 0, 6, 'minecraft:air', 'replace minecraft:short_grass'),
+        box(-11, 0, 7, 11, 0, 17, 'minecraft:short_grass', 'keep'),
+        yk('reimu', -2, -4, 'mother', uuid=_seal_mother, label='会封洞的母油', lead=True, energy=33, nutrition=100,
+           intelligence=90, self_control=100, boldness=20, kin=f'Partner:{uuid_nbt(_seal_father)}', childhood=_seal_skill),
+        yk('marisa', 0, 2, 'father', uuid=_seal_father, label='出门采草的父油', energy=100, nutrition=86, boldness=96,
+           kin=f'Partner:{uuid_nbt(_seal_mother)}', childhood='Version:2,DenSealLearned:0b'),
+        yk('marisa', 1, -4, 'child', stage='child', uuid=_seal_child, nutrition=96, kin=_seal_kin),
+        yk('reimu', 1, -2, 'learner', stage='teen', uuid=_seal_learner, nutrition=98, intelligence=96, attachment=100,
+           kin=_seal_kin, childhood='Version:2,DenSealLearned:0b',
+           fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')),
+        *[home(n, 0, -1) for n in ('mother', 'father', 'child', 'learner')],
+        f'yukkuri scenario twigs {sel("mother")} 2'],
+    env=DAY, spot='family', vantage=(3, 10),
+    reads=[('读留守母油', f'yukkuri status {sel("mother")} raw'),
+           ('读采草父油', f'yukkuri status {sel("father")} raw'),
+           ('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriChildhood')],
+    smoke=dict(ticks=3900, expect=[
+        rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* begin role=FAMILY phase=OUT',
+        rf'\[home\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{_seal_father_log}\]',
+        rf'\[home\][^\n]*den barrier removed [^\n]* reason=parent_returned [^\n]*twig_returned=true opener={_seal_father_log}\b',
+        rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* deposit home=[^\n]* moved=[1-9]'],
+        forbid=[r'\[body\][^\n]* invariant\b']))
+
+
 def _den_guard(name, spot):
-    """The scenario individual standing in the cavity of that mound (5 wide, 5 deep behind the notch row): each hunter comes only
-    once its own reimu is really in her own den."""
+    """The hunter arrives while the resident is in the five-by-five cavity behind the notch."""
     x0, door_z = BY_ID['den'].spots[spot]
     return f'@e[tag={tag(name)},x={x0 - 2},y={FEET},z={door_z - 5},dx=4,dy=1,dz=4]'
 
 
-add('den_barrier', 'den', '灵梦用树枝封洞口挡捕食种', '灵梦用树枝封洞口挡捕食种',
-    '左洞灵梦智力90、自制90，右洞灵梦智力40、自制30，各自洞里有 2 根结界枝。各自的灵梦走进自己洞里后，该洞南面 20 格外出现饥饿蕾米莉亚，按正常捕食逻辑选目标追来：'
-    '灵梦逃回自己的洞，聪明且自制的那只在洞口转身用约 2 秒把洞口格封上树枝叶屏（用掉 1 根枝，每格 1 根），右洞那只只逃进窝。'
-    '捕食种不再把封好的洞里的个体当猎物，日志 [predator] target rejected reason=barrier；屏障挡住碰撞和寻路，玩家可徒手打掉（掉 1 根木棍）。'
-    '捕食种离开约 10 秒后灵梦自己拆下屏障、把枝条放回洞口库存，最长 4 分钟自行朽散。读数看各灵梦 threat 的 seal=',
+add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封洞的灵梦躲避捕食种',
+    '会封洞的灵梦带着 2 根洞口枝条。灵梦进洞后，南面出现饥饿蕾米莉亚。看它察觉危险后封洞，等附近没有捕食种再拆开。',
     '约 1–2 分钟，可倍速', [
-        yk('reimu', 0, 6, 'wise', label='智力90·自制90', intelligence=90, self_control=90, lead=True, **pair_ready()),
-        yk('reimu', 18, 6, 'plain', label='智力40·自制30', intelligence=40, self_control=30, **pair_ready()),
-        home('wise', 0, -1), home('plain', 18, -1),
-        f'yukkuri scenario twigs {sel("wise")} 2', f'yukkuri scenario twigs {sel("plain")} 2'],
-    late=[Retry(yk('remilia', 0, 26, 'hunter_wise', label='饥饿捕食种', nutrition=10, energy=95), _den_guard('wise', 'family'), tries=40, every=20, first=240),
-          Retry(yk('remilia', 18, 26, 'hunter_plain', label='饥饿捕食种', nutrition=10, energy=95), _den_guard('plain', 'indep'), tries=40, every=20, first=240)],
-    env=DAY, spot='family', vantage=(9, 16), retry='先“清空本场地”（洞口格要空）再按一次',
-    note='待验证：新场景，尚未在游戏里实测。',
-    reads=[('读聪明灵梦', f'yukkuri status {sel("wise")} raw'), ('读普通灵梦', f'yukkuri status {sel("plain")} raw'),
-           ('读左捕食者', f'yukkuri status {sel("hunter_wise")} raw'), ('读右捕食者', f'yukkuri status {sel("hunter_plain")} raw')])
+        box(-9, 0, -5, 9, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
+        yk('reimu', 0, -1, 'wise', label='会封洞的灵梦', boldness=20, childhood=_seal_skill, lead=True, **pair_ready()),
+        home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
+    late=[Retry(yk('remilia', 0, 6, 'hunter', label='饥饿捕食种', nutrition=48, energy=95, boldness=80),
+                _den_guard('wise', 'indep'), tries=20, every=20, first=1)],
+    env=DAY, spot='indep', vantage=(4, 12),
+    reads=[('读灵梦', f'yukkuri status {sel("wise")} raw'), ('读捕食种', f'yukkuri status {sel("hunter")} raw')],
+    smoke=dict(ticks=1800, expect=[r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]'],
+               forbid=[r'\[body\][^\n]* invariant\b']))
 
 # ====================================================================================================== vagrants and foraging
 add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理沙在土丘挖洞安家', '没有家的野生成体走到土丘边，先挖通地面，再向上挖内部第二层。入口一格高、内部两格高，每块约 6 秒。',
@@ -3375,10 +3403,6 @@ def _seat_family(size=.35, nourishment=147000, age=144000):
     return f'Version:3,Initialized:1b,Age:{age}L,Nourishment:{nourishment}L,AdultScale:1f,Scale:{size}f'
 
 
-def _uuid_text(sid, slot):
-    return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
-
-
 def _stray_rain_verify(log):
     marisa = _uuid_text('stray_rain', 'rain_stray')
     exit_before_soak = (
@@ -4650,7 +4674,8 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
-    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
+    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
+    'den_barrier': 'W8', 'den_barrier_predator': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',

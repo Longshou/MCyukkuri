@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
@@ -36,6 +38,7 @@ public final class ChildhoodLife {
     public static final double CRAWL_DISTANCE_REQUIRED = .75;
 
     private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP, BEG }
+    private enum SealSkill { UNASSESSED, UNLEARNED, LEARNED }
     /** A hungry baby asks its parent again after this long; the parent's own draw whether to answer is unchanged. */
     private static final int BEG_TICKS = 40, BEG_PAUSE = 240;
 
@@ -55,6 +58,7 @@ public final class ChildhoodLife {
     private boolean jumpLaunched, jumpAirborne, demonstrationSeen;
     /** It handled its own hat on the water once (a first voyage that came back): sailing is a learned skill, see {@link #canSail}. */
     private boolean sailed;
+    private SealSkill sealSkill = SealSkill.UNASSESSED;
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
     private long begAfter;
@@ -91,7 +95,9 @@ public final class ChildhoodLife {
 
     /** Updates settled-birth and actual movement evidence after the regular entity physics tick. */
     public void tick() {
-        if (entity.level().isClientSide || !newborn) return;
+        if (entity.level().isClientSide) return;
+        if (sealSkill == SealSkill.UNASSESSED && entity.isAlive() && canLearnDenSeal()) assessDenSeal();
+        if (!newborn) return;
         if(practiceRest>0)practiceRest--;
         if (!landed && settled()) {
             landed = true;
@@ -104,6 +110,39 @@ public final class ChildhoodLife {
             if (needsAssistedFirstToilet()) entity.showReaction("teary", "need_toilet", 50);
             else if (entity.family().needsMash() && entity.life().nutrition() < 45) entity.showReaction("teary", "hungry", 60);
         }
+    }
+
+    public boolean knowsDenSeal() { return sealSkill == SealSkill.LEARNED; }
+
+    public boolean canLearnDenSeal() {
+        var profile = entity.profile();
+        return (entity.family().subadult() || entity.family().adult())
+                && !profile.houseBody() && !profile.aquatic() && !profile.dangerToYukkuri();
+    }
+
+    private void assessDenSeal() {
+        var traits = entity.life().personality();
+        // Natural discovery is less reliable than a demonstration, with a head start for Reimu.
+        double chance = traits.learningProbability(entity.mind().stressView())
+                * (.20 + .005 * traits.selfControl() + (entity.getVariant() == YukkuriVariant.REIMU ? .20 : 0));
+        double roll = entity.getRandom().nextDouble();
+        sealSkill = roll < chance ? SealSkill.LEARNED : SealSkill.UNLEARNED;
+        GameplayLog.event(entity, "childhood", "den seal discovery age={} intelligence={} self_control={} chance={} roll={} learned={}",
+                entity.family().age(), traits.intelligence(), traits.selfControl(), chance, roll, knowsDenSeal());
+    }
+
+    /** The parent finished a real seal that this learner watched from the den. */
+    public void sawDenSeal(YukkuriEntity parent) {
+        var traits = entity.life().personality();
+        double roll = entity.getRandom().nextDouble();
+        double attention = .65 + .0035 * traits.attachment();
+        if (Cognition.learningSucceeds(entity, roll / attention)) {
+            sealSkill = SealSkill.LEARNED;
+            entity.showReaction("happy", null, 40);
+        }
+        GameplayLog.event(entity, "childhood", "den seal demonstration parent={} intelligence={} attention={} chance={} roll={} learned={}",
+                parent.getUUID(), traits.intelligence(), attention, attention * traits.learningProbability(entity.mind().stressView()),
+                roll, knowsDenSeal());
     }
 
     private boolean settled() {
@@ -525,6 +564,7 @@ public final class ChildhoodLife {
         tag.putBoolean("Jumped", jumped);
         tag.putBoolean("DemonstrationSeen", demonstrationSeen);
         tag.putBoolean("Sailed", sailed);
+        if (sealSkill != SealSkill.UNASSESSED) tag.putBoolean("DenSealLearned", knowsDenSeal());
         tag.putInt("JumpLandings",jumpLandings);tag.putInt("PracticeRest",practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
         return tag;
@@ -535,6 +575,8 @@ public final class ChildhoodLife {
         stop();
         lastPosition = null;
         sailed = tag.getBoolean("Sailed");
+        sealSkill = !tag.contains("DenSealLearned") ? SealSkill.UNASSESSED
+                : tag.getBoolean("DenSealLearned") ? SealSkill.LEARNED : SealSkill.UNLEARNED;
         if (!tag.contains("Version")) {
             newborn = false;
             landed = firstMealDone = firstToiletDone = crawled = jumped = true;

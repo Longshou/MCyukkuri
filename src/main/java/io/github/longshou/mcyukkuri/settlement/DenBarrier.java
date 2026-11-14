@@ -2,9 +2,10 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 
-/** Read-only questions about sealed dens, for the predator's target rules. */
+/** Queries about sealed dens and the release of a screen when a resident leaves. */
 public final class DenBarrier {
     private DenBarrier() {}
 
@@ -14,9 +15,14 @@ public final class DenBarrier {
     }
 
     /** Departure opens the existing screen through the block entity's refund and removal transaction. */
-    static void release(ShelterBlockEntity den, String reason) {
-        if (den.getLevel().getBlockEntity(den.entrance()) instanceof DenBarrierBlockEntity barrier)
-            barrier.release(reason, true);
+    static void release(ShelterBlockEntity den, String reason, YukkuriEntity resident) {
+        if (den.kind() != ShelterBlock.Kind.BURROW) return;
+        var level = den.getLevel();
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var cell = den.getBlockPos().relative(side);
+            if (level.hasChunkAt(cell) && level.getBlockEntity(cell) instanceof DenBarrierBlockEntity barrier)
+                barrier.releaseForDeparture(den, reason, resident);
+        }
     }
 
     /** The sealed natural den this individual is inside (resident or not), or null. Only loaded dens near it are looked at. */
