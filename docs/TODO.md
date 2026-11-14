@@ -16,6 +16,7 @@
 | 舌肥（挑食度）数值与进食反应 | `.worktrees/wp-r2-picky` | LifeMeal, food preference, new stat |
 | 商店会员等级、门、库存年龄与停止成长 | `.worktrees/wp-r2-shop` | shop/*, shop structures |
 | TN-10 重做、TN-21 让路距离、FG-13 真实触发 | `.worktrees/wp-r2-street` | street scenes, give-way, food behind glass |
+| 戴垃圾头饰的反应与垃圾闭环缺口 | `.worktrees/wp-r2-junk` | junk headwear reactions, VillageBin, litter |
 
 ## 玩法待办
 
