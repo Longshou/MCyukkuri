@@ -27,9 +27,11 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
@@ -92,10 +94,13 @@ public final class SurfaceApproach {
     /** The highest collision top under the body's square footprint within half a block of {@code near}, unchecked. */
     public static Vec3 surface(YukkuriEntity actor, Vec3 near) { return top(actor,near); }
     private static Vec3 top(YukkuriEntity actor, Vec3 near) {
-        if(!actor.level().hasChunkAt(BlockPos.containing(near)))return null;
-        double half=actor.getBbWidth()*.5-.005, top=Double.NEGATIVE_INFINITY;
+        return top(actor.level(), actor, actor.getBbWidth(), near);
+    }
+    private static Vec3 top(LevelReader level, Entity actor, double width, Vec3 near) {
+        if(!level.hasChunkAt(BlockPos.containing(near)))return null;
+        double half=width*.5-.005, top=Double.NEGATIVE_INFINITY;
         var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);
-        for (var shape : actor.level().getBlockCollisions(actor, probe)) {
+        for (var shape : level.getBlockCollisions(actor, probe)) {
             var x = shape.getCoords(Direction.Axis.X);
             var y = shape.getCoords(Direction.Axis.Y);
             var z = shape.getCoords(Direction.Axis.Z);
@@ -121,6 +126,15 @@ public final class SurfaceApproach {
         return at!=null&&supported(actor,at,planning)?at:null;
     }
 
+    /** The same terrain stand check with a body size, for placement before any resident exists. */
+    static Vec3 restingFloor(LevelReader level, EntityDimensions body, Vec3 near) {
+        var bounds = body.makeBoundingBox(near);
+        if (!level.hasChunksAt(BlockPos.containing(bounds.minX, near.y, bounds.minZ),
+                BlockPos.containing(bounds.maxX, near.y, bounds.maxZ))) return null;
+        var at = top(level, null, body.width(), near);
+        return at != null && supported(level, null, body.width(), body.makeBoundingBox(at), at, true) ? at : null;
+    }
+
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,false);
     }
@@ -133,24 +147,28 @@ public final class SurfaceApproach {
         return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));
     }
     /** Distance from the centre to the sole samples required by walking, including a bank-edge stand. */
-    public static double supportRadius(YukkuriEntity actor) { return actor.getBbWidth() * .42; }
+    public static double supportRadius(YukkuriEntity actor) { return supportRadius(actor.getBbWidth()); }
+    private static double supportRadius(double width) { return width * .42; }
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
-        var level = actor.level();
         if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
-        if (!level.hasChunkAt(BlockPos.containing(feet)) || wet(actor, feet)) return false;
-        AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
-        if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body)) return false;
-        double radius = supportRadius(actor);
+        var body = actor.getBoundingBox().move(feet.subtract(actor.position()));
+        return supported(actor.level(), actor, actor.getBbWidth(), body, feet, planning);
+    }
+    private static boolean supported(LevelReader level, Entity actor, double width, AABB body, Vec3 feet, boolean planning) {
+        if (!level.hasChunkAt(BlockPos.containing(feet)) || wetArea(level, body, feet) > 0) return false;
+        AABB clearance = body.deflate(.005);
+        if (planning ? level.getBlockCollisions(actor,clearance).iterator().hasNext() : !level.noCollision(actor, clearance)) return false;
+        double radius = supportRadius(width);
         for (int x : new int[]{-1, 1}) for (int z : new int[]{-1, 1}) {
             double px = feet.x + x * radius, pz = feet.z + z * radius;
-            if (!soleSupported(actor, px, feet.y, pz)) return false;
+            if (!soleSupported(level, actor, px, feet.y, pz)) return false;
         }
         return true;
     }
 
-    private static boolean soleSupported(YukkuriEntity actor, double x, double y, double z) {
+    private static boolean soleSupported(LevelReader level, Entity actor, double x, double y, double z) {
         var foot = new AABB(x-.015, y-.08, z-.015, x+.015, y+.005, z+.015);
-        return actor.level().getBlockCollisions(actor, foot).iterator().hasNext();
+        return level.getBlockCollisions(actor, foot).iterator().hasNext();
     }
 
     /** Near water, a set-down needs level support for one child width past the child's sole. */
@@ -167,7 +185,7 @@ public final class SurfaceApproach {
         }
         if (!nearWater) return true;
         for (int x = -1; x <= 1; x++) for (int z = -1; z <= 1; z++) {
-            if (!soleSupported(child, feet.x + x * radius, feet.y, feet.z + z * radius)) return false;
+            if (!soleSupported(level, child, feet.x + x * radius, feet.y, feet.z + z * radius)) return false;
         }
         return true;
     }
@@ -181,9 +199,11 @@ public final class SurfaceApproach {
      * stands over (a stand itself uses the uninflated footprint).
      */
     private static double wetArea(YukkuriEntity actor, Vec3 feet, boolean touching) {
-        var level = actor.level();
         var box = actor.getBoundingBox().move(feet.subtract(actor.position()));
         if (touching) box = box.inflate(.02);
+        return wetArea(actor.level(), box, feet);
+    }
+    private static double wetArea(LevelReader level, AABB box, Vec3 feet) {
         double wet = 0;
         int sole = Mth.floor(feet.y);
         for (var cell : BlockPos.betweenClosed(BlockPos.containing(box.minX, feet.y - .005, box.minZ),
@@ -194,9 +214,6 @@ public final class SurfaceApproach {
                         * (Math.min(box.maxZ, cell.getZ() + 1) - Math.max(box.minZ, cell.getZ()));
         return wet;
     }
-
-    /** Any water under the footprint at all: a stand or a destination on the land has none. */
-    private static boolean wet(YukkuriEntity actor, Vec3 feet) { return wetArea(actor, feet, false) > 0; }
 
     /** The straight step to {@code to} never puts more of the body over water than it already is (sampled every .1 blocks). */
     public static boolean dryStep(YukkuriEntity actor, Vec3 from, Vec3 to) {

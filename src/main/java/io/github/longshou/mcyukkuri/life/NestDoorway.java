@@ -1,13 +1,16 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -15,10 +18,11 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /** Physical nest openings, independent of residency. Routes end outside; a straight step crosses the low lip. */
@@ -38,7 +42,7 @@ public final class NestDoorway {
             return new Vec3(-lateral * facing.getStepZ() + depth * facing.getStepX(), 0, lateral * facing.getStepX() + depth * facing.getStepZ());
         }
     }
-    private static final Map<BlockState, Doorway> SHAPES = new HashMap<>();
+    private static final Map<BlockState, Doorway> SHAPES = new ConcurrentHashMap<>();
     private static final Predicate<BlockState> NEST = state -> state.getBlock() instanceof CareBlock care
             && care.kind() == CareBlock.Kind.NEST;
     // Keep the broad phase conservative around vanilla AABB.clip's 1e-7 face tolerance.
@@ -64,23 +68,28 @@ public final class NestDoorway {
     /** The opening follows the authored collision shell turned into the nest's frame (x lateral, z depth toward the entrance):
      *  the low lip is where the rim beyond the level floor stays below half rim height on both sides of the middle. */
     public static Doorway shape(CareBlockEntity bed) {
-        return SHAPES.computeIfAbsent(bed.getBlockState(), state -> {
-            var origin = bed.centre();
-            var frame = new Doorway(bed.entrance(), 0, 0, 0, 0);
+        return shape(bed.getBlockState(), bed.entrance(), bed.entranceReach());
+    }
+
+    private static Doorway shape(BlockState state, Direction facing, double inner) {
+        return SHAPES.computeIfAbsent(state, key -> {
+            boolean large = state.getBlock() instanceof LargeNestBlock;
+            double centre = large ? 1 : .5;
+            var frame = new Doorway(facing, 0, 0, 0, 0);
             var boxes = new ArrayList<AABB>();
             double reach = 0;
-            for (int part = 0; part < (bed.largeNest() ? 4 : 1); part++) {
-                var at = bed.getBlockPos().offset(part & 1, 0, part >> 1);
-                for (var box : bed.getLevel().getBlockState(at).getCollisionShape(bed.getLevel(), at).toAabbs()) {
-                    var a = new Vec3(box.minX + at.getX() - origin.x, 0, box.minZ + at.getZ() - origin.z);
-                    var b = new Vec3(box.maxX + at.getX() - origin.x, 0, box.maxZ + at.getZ() - origin.z);
+            for (int part = 0; part < (large ? 4 : 1); part++) {
+                var quarter = large ? state.setValue(LargeNestBlock.PART, part) : state;
+                for (var box : quarter.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).toAabbs()) {
+                    var a = new Vec3(box.minX + (part & 1) - centre, 0, box.minZ + (part >> 1) - centre);
+                    var b = new Vec3(box.maxX + (part & 1) - centre, 0, box.maxZ + (part >> 1) - centre);
                     double l0 = frame.lateral(a), l1 = frame.lateral(b), d0 = frame.depth(a), d1 = frame.depth(b);
-                    boxes.add(new AABB(Math.min(l0, l1), box.minY + at.getY() - origin.y, Math.min(d0, d1),
-                            Math.max(l0, l1), box.maxY + at.getY() - origin.y, Math.max(d0, d1)));
+                    boxes.add(new AABB(Math.min(l0, l1), box.minY, Math.min(d0, d1),
+                            Math.max(l0, l1), box.maxY, Math.max(d0, d1)));
                     reach = Math.max(reach, Math.max(Math.max(-a.x, b.x), Math.max(-a.z, b.z)));
                 }
             }
-            double inner = bed.entranceReach(), outer = boxes.stream().mapToDouble(b -> b.maxZ).max().orElseThrow();
+            double outer = boxes.stream().mapToDouble(b -> b.maxZ).max().orElseThrow();
             double top = boxes.stream().mapToDouble(b -> b.maxY).max().orElseThrow();
             double threshold = (height(boxes, 0, 0) + top) * .5, opening = 0;
             // The authored meshes use at least quarter-pixel collision cells. Sample the whole rim, not just its inside lip.
@@ -244,8 +253,24 @@ public final class NestDoorway {
         }
         var origin = bed.centre();
         double preferred = Math.clamp(shape.lateral(destination.subtract(origin)), -room, room);
+        return stand(shape, origin, actor.getBbWidth(), room, preferred, at -> SurfaceApproach.restingFloor(actor, at));
+    }
+
+    /** Placement and refits use the same opening and stand candidates as a standard adult walker. */
+    static boolean supportsAdult(LevelReader level, BlockPos pos, BlockState state) {
+        boolean large = state.getBlock() instanceof LargeNestBlock;
+        var facing = large ? state.getValue(LargeNestBlock.FACING) : state.getValue(PetNestBlock.FACING);
+        var origin = large ? Vec3.atLowerCornerOf(pos).add(1, 0, 1) : Vec3.atBottomCenterOf(pos);
+        var shape = shape(state, facing, large ? NestResting.LARGE.box() : PetNestBlock.entranceReach(state));
+        var adult = LiveBirthGeometry.adultDimensions(YukkuriVariant.REIMU);
+        double room = shape.opening() - Occupancy.foot(adult.width()) - SurfaceApproach.ARRIVAL;
+        return room >= 0 && stand(shape, origin, adult.width(), room, 0,
+                at -> SurfaceApproach.restingFloor(level, adult, at)) != null;
+    }
+
+    private static Vec3 stand(Doorway shape, Vec3 origin, double width, double room, double preferred, Function<Vec3, Vec3> floor) {
         for (double x : new double[]{preferred, -room, room, 0}) {
-            var at = SurfaceApproach.restingFloor(actor, origin.add(shape.offset(x, shape.outer() + actor.getBbWidth() * .5 + .05)));
+            var at = floor.apply(origin.add(shape.offset(x, shape.outer() + width * .5 + .05)));
             if (at != null) return at;
         }
         return null;

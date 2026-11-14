@@ -177,6 +177,10 @@ public final class LiveBirthGeometry {
         var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
+    /** The adult body of {@code variant}'s ordinary form (growth 1, no belly), for terrain probes before an entity exists. */
+    public static EntityDimensions adultDimensions(YukkuriVariant variant) {
+        return selectedDimensions(variant, 0);
+    }
     /** Her footprint radius (blocks) at this belly: the shared foot rule over her farthest reach, the swollen lower front (deform). */
     public static double footprint(YukkuriEntity mother,float belly){
         return Occupancy.foot(selectedDimensions(mother.getVariant(),mother.subspeciesFlags()).width()*mother.growthScale()

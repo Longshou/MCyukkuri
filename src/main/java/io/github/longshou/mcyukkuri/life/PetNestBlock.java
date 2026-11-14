@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -8,6 +9,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -27,7 +29,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * roll reaches 5.3 past the block on every side; a side whose neighbouring block reaches into that band is flattened flush
  * with the block face, like connected blocks (NORTH..WEST true = flattened), so the roll never pokes into a block. FACING is
  * the entrance (the low lip): the first side from the placer clockwise that is not flattened and has walking room in the cell
- * outside it; with none the bed is not placed. A diagonal block flattens the corner's other side(s) so nothing enters the
+ * outside it, and where a standard adult standing there is supported as it is for any walker (NestDoorway.supportsAdult);
+ * with none the bed is not placed. A diagonal block flattens the corner's other side(s) so nothing enters the
  * diagonal cell. Later block changes refit it the same way (entrance turned if its side closes); enclosed it keeps its entrance.
  */
 public final class PetNestBlock extends CareBlock {
@@ -112,20 +115,29 @@ public final class PetNestBlock extends CareBlock {
 
     /**
      * The bed fitted to its eight neighbours: sides whose cardinal neighbour reaches into the overhang are flattened; the
-     * entrance is the first side, from {@code preferred} clockwise, that a body can walk into and that is not flattened (a
-     * flattened lip is too narrow to pass); then a diagonal neighbour reaching into a corner flattens that corner's sides
-     * except the entrance, so the round roll never enters the diagonal cell. Null when no side can be the entrance.
+     * entrance is the first side, from {@code preferred} clockwise, that a body can walk into, that is not flattened (a
+     * flattened lip is too narrow to pass) and where the standard adult standing outside really is supported; then a diagonal
+     * neighbour reaching into a corner flattens that corner's sides except the entrance, so the round roll never enters the
+     * diagonal cell. Null when no side can be the entrance.
      */
-    private static BlockState fitted(BlockState state, BlockGetter level, BlockPos pos, Direction preferred) {
+    private static BlockState fitted(BlockState state, LevelReader level, BlockPos pos, Direction preferred) {
         for (Direction side : Direction.Plane.HORIZONTAL) state = state.setValue(side(side), blocks(level, pos, side));
-        Direction entrance = null, side = preferred;
-        for (int k = 0; k < 4 && entrance == null; k++, side = side.getClockWise())
-            if (!state.getValue(side(side)) && walkable(level, pos, side)) entrance = side;
-        if (entrance == null) return null;
-        state = state.setValue(FACING, entrance);
+        int corners = 0;
+        for (Direction side : Direction.Plane.HORIZONTAL)
+            if (blocksCorner(level, pos, side, side.getClockWise())) corners |= 1 << side.get2DDataValue();
+        Direction side = preferred;
+        for (int k = 0; k < 4; k++, side = side.getClockWise()) {
+            if (state.getValue(side(side)) || !walkable(level, pos, side)) continue;
+            var candidate = fitCorners(state.setValue(FACING, side), side, corners);
+            if (NestDoorway.supportsAdult(level, pos, candidate)) return candidate;
+        }
+        return null;
+    }
+
+    private static BlockState fitCorners(BlockState state, Direction entrance, int corners) {
         for (Direction a : Direction.Plane.HORIZONTAL) {
             var b = a.getClockWise();
-            if (state.getValue(side(a)) || state.getValue(side(b)) || !blocksCorner(level, pos, a, b)) continue;
+            if (state.getValue(side(a)) || state.getValue(side(b)) || (corners & (1 << a.get2DDataValue())) == 0) continue;
             if (a != entrance) state = state.setValue(side(a), true);
             if (b != entrance) state = state.setValue(side(b), true);
         }
@@ -136,7 +148,7 @@ public final class PetNestBlock extends CareBlock {
         var level = context.getLevel(); var pos = context.getClickedPos();
         var state = fitted(defaultBlockState(), level, pos, context.getHorizontalDirection().getOpposite());
         if (state == null && level.isClientSide && context.getPlayer() != null)
-            context.getPlayer().displayClientMessage(Component.literal("窝没有入口：至少留出一侧能走进来的空格"), true);
+            context.getPlayer().displayClientMessage(Component.literal("窝没有入口：至少留出一侧有承托的空格"), true);
         return state;
     }
     /** Schedule one refit for a cardinal change, just like the diagonal notification. */
@@ -145,7 +157,7 @@ public final class PetNestBlock extends CareBlock {
         if (side.getAxis().isHorizontal() && !level.isClientSide()) level.scheduleTick(pos, this, 1);
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
     }
-    private static BlockState refit(BlockState state, BlockGetter level, BlockPos pos) {
+    private static BlockState refit(BlockState state, LevelReader level, BlockPos pos) {
         var fitted = fitted(state, level, pos, state.getValue(FACING));
         if (fitted != null) return fitted;
         for (Direction side : Direction.Plane.HORIZONTAL)
@@ -157,7 +169,11 @@ public final class PetNestBlock extends CareBlock {
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!level.isAreaLoaded(pos, 1)) return;
         var fitted = refit(state, level, pos);
-        if (fitted != state) level.setBlock(pos, fitted, UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
+        if (fitted.equals(state)) return;
+        level.setBlock(pos, fitted, UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
+        if (fitted.getValue(FACING) != state.getValue(FACING))
+            GameplayLog.world(level, "home", "nest entrance turned nest={} from={} to={}", pos.toShortString(),
+                    state.getValue(FACING).getName(), fitted.getValue(FACING).getName());
     }
     /** A block changed at {@code changed}: beds diagonal to it refit on the next tick (cardinal ones get updateShape). */
     public static void nearbyChanged(LevelAccessor level, BlockPos changed) {

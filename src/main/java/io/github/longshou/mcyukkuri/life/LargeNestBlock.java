@@ -10,6 +10,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.server.level.ServerLevel;
@@ -30,8 +31,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * A family nest on a real 2x2 footprint, like a bed: the clicked cell is part 0 (north-west, owns the block entity and the
  * drop), part bit 1 is the +x cell and bit 2 the +z cell. Placement needs all four cells free; losing any part removes the
  * others. Each part collides with its own quarter of the nest shell, so nothing reaches outside the four cells. FACING is the
- * entrance (the low front, authored on +z): toward the placer, else the next side clockwise whose two outside cells are open;
- * with every side closed the nest is not placed.
+ * entrance (the low front, authored on +z): toward the placer, else the next side clockwise whose two outside cells are open
+ * and where a standard adult standing there is supported (NestDoorway.supportsAdult); with no such side the nest is not placed.
  */
 public final class LargeNestBlock extends CareBlock {
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 3);
@@ -100,14 +101,21 @@ public final class LargeNestBlock extends CareBlock {
                 return null;
             }
         }
-        Direction entrance = context.getHorizontalDirection().getOpposite();
-        for (int k = 0; k < 4 && closed(level, origin, entrance); k++) entrance = entrance.getClockWise();
-        if (closed(level, origin, entrance)) {
+        var state = fitted(level, origin, defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()));
+        if (state == null) {
             if (level.isClientSide && context.getPlayer() != null)
-                context.getPlayer().displayClientMessage(Component.literal("大窝四面都被挡住，没有入口：至少留出一侧的两格"), true);
+                context.getPlayer().displayClientMessage(Component.literal("大窝没有入口：至少留出一侧有承托的两格"), true);
             return null;
         }
-        return defaultBlockState().setValue(FACING, entrance);
+        return state;
+    }
+    private static BlockState fitted(LevelReader level, BlockPos origin, BlockState state) {
+        Direction side = state.getValue(FACING);
+        for (int k = 0; k < 4; k++, side = side.getClockWise()) {
+            var candidate = state.setValue(FACING, side);
+            if (!closed(level, origin, side) && NestDoorway.supportsAdult(level, origin, candidate)) return candidate;
+        }
+        return null;
     }
     /** Whether a block stands (above floor coverings) in either of the two cells just outside that side of the footprint. */
     private static boolean closed(BlockGetter level, BlockPos origin, Direction side) {
@@ -145,13 +153,13 @@ public final class LargeNestBlock extends CareBlock {
         }
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
     }
-    /** The entrance walled off (or a load from an older save): turn all four parts to the next open side clockwise; with no
-     *  open side it stays. Scheduled from updateShape and from the block entity's load. */
+    /** The entrance walled off or standing over unsupported ground (or a load from an older save): turn all four parts to the
+     *  next supported open side clockwise; with no such side it stays. Scheduled from updateShape and from the block entity's load. */
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(PART) != 0 || !level.isAreaLoaded(pos, 2)) return;
-        Direction facing = state.getValue(FACING), entrance = facing;
-        for (int k = 0; k < 4 && closed(level, pos, entrance); k++) entrance = entrance.getClockWise();
-        if (entrance == facing || closed(level, pos, entrance)) return;
+        var target = fitted(level, pos, state);
+        if (target == null || target.getValue(FACING) == state.getValue(FACING)) return;
+        Direction facing = state.getValue(FACING), entrance = target.getValue(FACING);
         for (int part = 0; part < 4; part++) {
             var cell = at(pos, part);
             var other = level.getBlockState(cell);
