@@ -305,7 +305,7 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
            nutrition=100, energy=90, boldness=38, friendliness=100, attachment=0, affection=0, self_control=50),
         yk('reimu', 1, -2, 'older', stage='child', uuid=_older, kin=_absence_kin, nutrition=76, boldness=20, self_control=35,
            childhood=CHILDHOOD_HOPPING, lead=True),
-        yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=29,
+        yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=15,
            childhood=CHILDHOOD_CRAWLING_READY),
         ],
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
@@ -4755,6 +4755,17 @@ _absent_uuid = _uuid_text('family_absence', 'absent')
 _smoke('family_absence', 6000, [rf'\[family\][^\n]* kin overdue kin={_absent_uuid}\b',
                                  rf'\[family\][^\n]* missing kin call kin={_absent_uuid}\b'],
        forbid=[rf'\[family\][^\n]* witnessed kin death dead={_absent_uuid}\b'])
+
+
+def _absence_grief_timing(log):
+    stayer = _uuid_of(_stayer)
+    found = re.search(rf'\[family\][^\n]* uuid={stayer} t=(\d+) [^\n]* missing kin found remains kin={_absent_uuid}', log)
+    trip = re.search(rf'\[forage\][^\n]* uuid={stayer} t=(\d+) [^\n]* begin role=FAMILY phase=OUT', log)
+    if not found or not trip or int(trip[1]) - int(found[1]) < 100:
+        return 'the survivor must complete the 100-tick bereavement before its first outing'
+
+
+next(s for s in S if s.id == 'family_absence').smoke['verify'] = _absence_grief_timing
 for _sid in ('forage', 'family_absence'):
     next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
 _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
@@ -5422,7 +5433,6 @@ _scene_end('family_absence', [('absent', 'alive=false'), ('stayer', _DRY), ('old
             ('stayer', f'seen:family:kin absence kin={_absent_uuid} phase=SEARCH destination=\\('),
             ('stayer', f'seen:family:missing kin found remains kin={_absent_uuid}'),
             ('stayer', r'seen:status:behavior.animation: .* -> bereaved'),
-            ('stayer', r'seen:status:behavior.animation: bereaved -> '),
             ('stayer', 'seen:forage:begin role=FAMILY phase=OUT reason=sole_caregiver'),
             ('stayer', r'seen:forage:goal active phase=OUT .* pace=1\.[1-4]'),
             ('stayer', 'seen:forage:deposit home=.* moved=[1-9]')],
