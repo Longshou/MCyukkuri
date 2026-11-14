@@ -105,7 +105,7 @@ final class KinAbsence {
                     if (data.hasUUID("Identity") && entry.getKey().equals(data.getUUID("Identity"))) {
                         witness(entry.getKey(), corpse.blockPosition());
                         e.life().personality().experienced(Trait.BOLDNESS, -3);
-                        e.bereave(EmotionEvent.FAMILY_DEATH);
+                        e.bereave(EmotionEvent.FAMILY_DEATH, entry.getKey(), corpse.blockPosition());
                         GameplayLog.event(e, "family", "missing kin found remains kin={} at={}", entry.getKey(), corpse.blockPosition());
                         break;
                     }

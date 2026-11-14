@@ -335,7 +335,7 @@ public final class HabitatLife {
             if(hasNestProject())cancelNestProject();
             if(residence()==Residence.HOUSED&&home==null)
                 GameplayLog.limited(entity,"habitat","care.housed",6000,"housed by care nest address={} no vagrant project",entity.life().homeStand());
-            if(!freeForWork())return seasonal.start(null);
+            if(!freeForWork() || entity.mind().feeling().mourning())return seasonal.start(null);
             var project=homes.vagrantProject();
             if(project==Result.DEFERRED)return false;
             if(project==Result.FOUND)return true;

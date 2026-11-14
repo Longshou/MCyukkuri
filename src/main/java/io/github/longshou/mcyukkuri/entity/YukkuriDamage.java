@@ -101,8 +101,6 @@ final class YukkuriDamage {
             if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
-                // A real blow from someone frightens beyond the flight; the shaking follows once the panic ends.
-                if(result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity()!=null)owner.mind().feeling().frightened(.6f);
                 owner.status().hurt(source);
                 owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
                 // One draw per accepted hit on a carrying parent: it may shake one young loose (ParentCarry#struck).
@@ -130,6 +128,9 @@ final class YukkuriDamage {
                     if(hurtCry)owner.startHurtCry(source.type().msgId(),HURT_CRY_TICKS);
                     else owner.setPanicTicks(112);
                     if(defending || retaliating || puffing || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
+                    // Only a real blow that leaves the victim fleeing contributes to its recovery after the flight.
+                    if(owner.isPanicking()&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof LivingEntity attacker)
+                        owner.mind().feeling().frightened(attacker instanceof YukkuriEntity y && y.profile().dangerToYukkuri() ? 1 : .6f);
                     owner.directNavigation().stop();
                     if(hurtCry)owner.setAnimation(YukkuriAction.STARTLE,true);
                     else if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());

@@ -471,6 +471,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(level().isClientSide||!isAlive()||hurtCrying())return;
         interrupt(Interrupt.FRIGHT);
         setLastHurtByMob(threat);panicTicks=100;
+        if (threat.profile().dangerToYukkuri()) mind.feeling().frightened(1);
         life.involuntaryRelease("fright", false);
     }
     /** Actual bullying shares the same numeric choice as a peer's accepted attack. */
@@ -826,8 +827,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean bereaving() { return reactionTicks > 0 && reactionEvent.equals("birth_lost"); }
 
     /** A death in the family before its eyes (a newborn lost at birth, a kin dying in sight): a blank stare, then crying and calling out (bereaved clip). */
-    public void bereave(EmotionEvent loss) { bereave(loss, null, null); }
-    /** The same stare and cry as the onset of a mourning course for {@code lost} where it died (mind/EmotionCourse#mourn). */
     public void bereave(EmotionEvent loss, UUID lost, BlockPos where) {
         if (level().isClientSide) return;
         reactionTicks = 100; reactionHeld = true; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);

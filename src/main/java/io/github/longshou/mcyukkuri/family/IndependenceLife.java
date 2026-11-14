@@ -46,7 +46,7 @@ public final class IndependenceLife extends Goal {
     private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CALL_RANGE = 4, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
     /** Beats of the exchange, in ticks from the first word: the parent's answer, then the nuzzle (or the bow). */
     private static final int ANSWER = 40, CLOSE = 80, BOW_TICKS = 24, GO_LINE = 30;
-    private static final int DEPART_LIMIT = 500, DEPART_DISTANCE = 10, SEE_OFF_LIMIT = 1800;
+    private static final int DEPART_LIMIT = 500, DEPART_DISTANCE = 10, SEE_OFF_LIMIT = 1800, SEE_OFF_RANGE = 16;
     private final YukkuriEntity entity;
     /** The parents' home that was left; the leaver never moves back into it. */
     private GlobalPos origin;
@@ -262,8 +262,9 @@ public final class IndependenceLife extends Goal {
             // Walks right up to the parent so they can touch; a parent it cannot reach is called from a few blocks off in sight.
             double reach = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .15;
             // Close enough to lean in for a nuzzle: about a body's width apart (inside a den the last step is often blocked).
-            boolean close = entity.distanceToSqr(parent) <= (reach + 1) * (reach + 1);
-            boolean callable = entity.distanceToSqr(parent) <= CALL_RANGE * CALL_RANGE && entity.hasLineOfSight(parent);
+            boolean visible = entity.hasLineOfSight(parent);
+            boolean close = entity.distanceToSqr(parent) <= (reach + 1) * (reach + 1) && visible;
+            boolean callable = entity.distanceToSqr(parent) <= CALL_RANGE * CALL_RANGE && visible;
             var stand = close ? null : contactStand(parent);
             if (!close && !(callable && (stand == null || stalled >= 60 || elapsed > FAREWELL_LIMIT * 3 / 4))) {
                 if (elapsed > FAREWELL_LIMIT || stand == null && !callable) { leave(); stop(); return; }
@@ -285,7 +286,7 @@ public final class IndependenceLife extends Goal {
             if (!parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
         }
         if (contact == CLOSE && nuzzling()) entity.showReaction(teary ? "teary_smile" : "closed_smile", "", closeTicks);
-        if (contact == closeEnd()) entity.showReaction(teary ? "teary_smile" : "happy", "farewell_go", GO_LINE);
+        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
         if (contact >= closeEnd() + GO_LINE) {
             leave();
             beginDeparture(parent);
@@ -358,12 +359,12 @@ public final class IndependenceLife extends Goal {
         if (level().getGameTime() > seeUntil || child == null || !child.isAlive() || child.independence().beat() == -2) {
             seeing = null; return false;
         }
-        return parentFree() && entity.distanceToSqr(child) <= PARENT_RANGE * PARENT_RANGE;
+        return parentFree() && entity.distanceToSqr(child) <= SEE_OFF_RANGE * SEE_OFF_RANGE;
     }
     private boolean seeOffValid() {
         var child = seen();
         return child != null && child.isAlive() && parentFree() && level().getGameTime() <= seeUntil && child.independence().beat() != -2
-                && entity.distanceToSqr(child) <= 16 * 16;
+                && entity.distanceToSqr(child) <= SEE_OFF_RANGE * SEE_OFF_RANGE;
     }
     private void seeOff() {
         var child = seen();

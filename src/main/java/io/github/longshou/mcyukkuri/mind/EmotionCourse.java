@@ -57,7 +57,7 @@ public final class EmotionCourse {
     public Stage stage() {
         if (kind == null) return Stage.NONE;
         if (elapsed < ONSET_TICKS) return Stage.ONSET;
-        float f = elapsed / (float)length;
+        float f = (elapsed - ONSET_TICKS) / (float)(length - ONSET_TICKS);
         return f < PEAK_END ? Stage.PEAK : f < EASING_END ? Stage.EASING : Stage.FADING;
     }
     public UUID about() { return about; }
@@ -136,7 +136,7 @@ public final class EmotionCourse {
 
     /** The behaviour shown while its own goal runs. */
     public String activity() {
-        if (!running) return null;
+        if (!running || goalPriority() == 0) return null;
         Stage s = stage();
         return switch (kind) {
             case GRIEF -> s == Stage.PEAK ? Behaviors.MOURN : Behaviors.MOURN_LISTLESS;
@@ -178,10 +178,9 @@ public final class EmotionCourse {
         frightAt = now;
     }
 
-    /** Called once when a panic runs out. A predator chase always leaves it shaken; other panics only after a recent real hit. */
+    /** Called once when a panic runs out, using the danger that actually started or prolonged the panic. */
     public void frightOver(LivingEntity threat) {
-        boolean recent = entity.level().getGameTime() - frightAt <= FRIGHT_MEMORY;
-        float power = threat instanceof YukkuriEntity y && y.profile().dangerToYukkuri() ? 1 : recent ? fright : 0;
+        float power = entity.level().getGameTime() - frightAt <= FRIGHT_MEMORY ? fright : 0;
         fright = 0;
         if (power > 0) begin(Kind.TERROR, power, threat == null ? null : threat.getUUID(), entity.blockPosition());
     }
@@ -193,8 +192,8 @@ public final class EmotionCourse {
         if (kind != null && now != Stage.FADING && next.ordinal() > kind.ordinal()) return false;
         power = Math.min(1, power);
         var p = entity.life().personality();
-        int span = Math.round(length(next, power, p, entity.mind().unease(), hasDependants())
-                * (.9f + .2f * entity.getRandom().nextFloat()));
+        int span = Math.clamp(Math.round(length(next, power, p, entity.mind().unease(), hasDependants())
+                * (.9f + .2f * entity.getRandom().nextFloat())), 300, 24000);
         if (kind == next && now != Stage.FADING) { span = Math.max(span, length - elapsed); power = Math.max(power, strength); }
         kind = next; strength = power; length = span; elapsed = 0; about = cause; where = at;
         lineClock = ONSET_TICKS + 40; recallClock = 0;
@@ -209,16 +208,15 @@ public final class EmotionCourse {
      * self-controlled and for a parent with young to feed. Fright: 30 s-3 min, longer for the timid. Anger: 20 s-2 min, longer for
      * the quick-tempered. Joy: 20 s-2 min, longer for the friendly.
      */
-    static int length(Kind kind, float strength, YukkuriPersonality p, float unease, boolean dependants) {
+    private static float length(Kind kind, float strength, YukkuriPersonality p, float unease, boolean dependants) {
         float attachment = p.attachment() / 100f, self = p.selfControl() / 100f, bold = p.boldness() / 100f, friendly = p.friendliness() / 100f;
         float worry = ramp(unease, 35, 80);
-        float ticks = switch (kind) {
+        return switch (kind) {
             case GRIEF -> lerp(2400, 12000, strength) * (.7f + .6f * attachment) * (1.3f - .6f * self) * (1 + .4f * worry) * (dependants ? .7f : 1);
             case TERROR -> lerp(600, 3600, strength) * (1.35f - .7f * bold) * (1.2f - .4f * self) * (1 + .4f * worry);
             case RAGE -> lerp(400, 2400, strength) * (1.4f - .8f * self) * (1.2f - .4f * friendly);
             case JOY -> lerp(400, 2400, strength) * (.7f + .6f * friendly) * (1 - .4f * worry);
         };
-        return Math.round(Math.clamp(ticks, 300, 24000));
     }
 
     /** Mate and own young 1, parents .9; anyone else (siblings, foster kin, a keeper) by how fond of them it was and its attachment. */
@@ -286,11 +284,9 @@ public final class EmotionCourse {
         return true;
     }
 
-    /** Midway through a fading grief it remembers once: looks round to the place, teary, says so. */
+    /** Midway through a fading grief it remembers once: looks around, teary, and says so. */
     private boolean recall() {
         if (!calm()) return false;
-        if (where != null && where.distSqr(entity.blockPosition()) <= 24 * 24)
-            SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), Vec3.atBottomCenterOf(where)));
         entity.showReaction("teary", "mourn_recall", 80);
         return true;
     }
@@ -318,11 +314,11 @@ public final class EmotionCourse {
         var tag = mind.getCompound("Feeling");
         try { kind = Kind.valueOf(tag.getString("Kind")); } catch (IllegalArgumentException ex) { return; }
         strength = Math.clamp(tag.getFloat("Strength"), 0f, 1f);
-        length = Math.max(1, tag.getInt("Length"));
+        length = Math.clamp(tag.getInt("Length"), 300, 24000);
         elapsed = Math.clamp(tag.getInt("Elapsed"), 0, length);
         about = tag.hasUUID("About") ? tag.getUUID("About") : null;
         where = tag.contains("Where") ? BlockPos.of(tag.getLong("Where")) : null;
-        lineClock = 200;
+        lineClock = 200; recallClock = 0;
     }
 
     static float ramp(float x, float a, float b) { return Math.clamp((x - a) / (b - a), 0f, 1f); }
