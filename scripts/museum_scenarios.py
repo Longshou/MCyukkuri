@@ -1636,7 +1636,7 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]'),
            ('读魔理沙的自尊与关系', f'yukkuri status {sel("identity_stray")} raw')])
 
-def begging_scene(sid, title, watch, pet_traits, stray_traits, helper=False):
+def begging_scene(sid, title, watch, pet_traits, stray_traits, helper=False, vantage=(5, -8, 0, 15)):
     start = [yk('marisa', 7, -4, 'wild', uuid=uid(sid, 'wild'), yaw=90, picky=0, **stray_traits),
              yk('reimu', 3, -4, 'pet', uuid=uid(sid, 'pet'), yaw=-90, picky=0, **pet_traits,
                 extra='YukkuriMouth:{Purpose:"MEAL",Items:[{id:"minecraft:apple",count:1}]}')]
@@ -1649,7 +1649,7 @@ def begging_scene(sid, title, watch, pet_traits, stray_traits, helper=False):
         start += own('pet')
     start += [f'data merge entity {sel("pet")} {{YukkuriLife:{{MealTicks:1}}}}']
     add(sid, 'town', title, title, watch, '约 20–45 秒', start, env=DAY,
-        vantage=(11, -7, 83, 12) if helper else (5, -8, 0, 15),
+        vantage=vantage,
         reads=[('读灵梦的营养与关系', f'yukkuri status {sel("pet")} raw'),
                ('读魔理沙的营养与关系', f'yukkuri status {sel("wild")} raw')])
 
@@ -1657,12 +1657,13 @@ def begging_scene(sid, title, watch, pet_traits, stray_traits, helper=False):
 begging_scene('wild', '流浪油讨食：分享半个苹果', '看魔理沙隔开一段距离开口，灵梦分出半个苹果。魔理沙道谢、吃掉半个，离开前回望。',
               dict(nutrition=54, boldness=60, friendliness=90), dict(nutrition=29, boldness=55, friendliness=65))
 begging_scene('wild_beg_refuse', '流浪油讨食：拒绝后纠缠', '看灵梦护住苹果并扭开，魔理沙绕到侧面求食、跺地哭泣，最后慢慢走开。',
-              dict(nutrition=52, boldness=60, friendliness=15), dict(nutrition=30, boldness=60, friendliness=50))
+              dict(nutrition=52, boldness=60, friendliness=15), dict(nutrition=30, boldness=60, friendliness=50),
+              vantage=(-2, -6, -89, 14))
 begging_scene('wild_beg_snatch', '流浪油讨食：抢走苹果', '看饥饿的魔理沙扑近抢食，灵梦惊叫追赶，随后记仇。',
               dict(nutrition=52, boldness=70, friendliness=15), dict(nutrition=18, boldness=85, friendliness=5, self_control=18))
 begging_scene('wild_beg_help', '流浪油讨食：跑到饲主脚边求助', '看胆小的灵梦叼着苹果跑到饲主脚边，魔理沙退开。',
               dict(nutrition=52, boldness=20, friendliness=45, attachment=80),
-              dict(nutrition=29, boldness=65, friendliness=50), helper=True)
+              dict(nutrition=29, boldness=65, friendliness=50), helper=True, vantage=(11, -7, 83, 12))
 
 add('badge', 'town', '钻石章灵梦遇到嫉妒的野油', '钻石章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的钻石章，鼓脸或闹别扭。看灵梦按自尊与关系友善回礼、得意展示或退缩。', '约 1 分钟', [
     *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-1, 4) for z in range(-2, 3)
