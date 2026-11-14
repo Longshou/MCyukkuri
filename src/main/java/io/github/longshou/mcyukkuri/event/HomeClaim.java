@@ -98,6 +98,10 @@ public final class HomeClaim {
         return c!=null && c.active() && c.site.dimension().equals(level.dimension()) ? c : null;
     }
     public static boolean holds(YukkuriEntity e) { return of(e)!=null; }
+    /** A member whose claim just ended waits the same cooldown on the ordinary nest path, so a driven-off squatter cannot re-take the bed. */
+    public static boolean cooling(YukkuriEntity e) {
+        return e.level() instanceof ServerLevel level && HomeClaimData.get(level).cooling(e.getUUID(),level.getGameTime());
+    }
 
     // --- discovery --------------------------------------------------------------------------------------------
     private static boolean needsHome(YukkuriEntity e) {

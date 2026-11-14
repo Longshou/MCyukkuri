@@ -32,6 +32,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     // Allow a visible turn before warning; allow a full puff before escalating.
     private static final int LOOK = 12;
     private static final int PUFF = ClipMarkers.of("puff").length();
+    private static final int VISIT = LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
     private final YukkuriEntity body;
     private record Home(BlockPos site, BlockPos mouth, BlockPos refuge, boolean sealed) {}
     private Home home;
@@ -124,7 +125,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         var current = home();
         return active && available() && current != null && current.site.equals(home.site)
-                && visit(intruder) && elapsed < LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
+                && visit(intruder) && elapsed < VISIT;
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -179,11 +180,11 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             if (ram != null || courage < .45 || body.body().healthRatio() < .65) return;
             var trial = new RamPerson(intruder);
             if (trial.check(body).ok()) {
-                ram = trial;
-                body.motor().run(this, ram);
-            } else if (elapsed % 5 == 0) {
-                if (SurfaceApproach.walkResult(body, RamPerson.approach(body, intruder), intruder, 1) == SurfaceApproach.Result.BLOCKED)
-                    elapsed = LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
+                // One stroke per visit: a motor refusal ends the escalation instead of retrying the same action every tick.
+                if (body.motor().run(this, trial)) ram = trial;
+                else elapsed = VISIT;
+            } else if (SurfaceApproach.walkResult(body, RamPerson.approach(body, intruder), intruder, 1) == SurfaceApproach.Result.BLOCKED) {
+                elapsed = VISIT;
             }
         } else {
             var peer = (YukkuriEntity) intruder;
@@ -193,7 +194,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             }
             if (body.distanceToSqr(peer) < 2.25 && courage > resolve(peer, body)) {
                 peer.fleeFrom(body);
-                elapsed = LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
+                elapsed = VISIT;
             }
         }
     }

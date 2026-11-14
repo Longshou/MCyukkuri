@@ -203,6 +203,7 @@ final class LifeHome {
 
     /** The nearest nest this stage and body fit that no one holds yet, taken through the ordinary care-nest assignment. */
     boolean claimNearestNest() {
+        if (HomeClaim.cooling(o.entity())) return false; // A just-driven-off claimant stays out of the nests it was evicted from.
         BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
         return nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest));
     }
