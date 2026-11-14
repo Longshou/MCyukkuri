@@ -215,7 +215,6 @@ public final class DenSeal {
         // A shared den stays open while another adult is using it.
         if (inside.stream().anyMatch(other -> other != y && other.family().adult())) return List.of();
         if (y.family().adult()) {
-            if (!home.contains(y.blockPosition()) && y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR) return List.of();
             var partner = resident(level, home, y.family().partner());
             return departed(partner, home, clearDistanceSqr) && inside.stream().anyMatch(child -> child != y
                     && !child.family().adult() && y.family().careParentOf(child) && partner.family().careParentOf(child))
@@ -241,6 +240,7 @@ public final class DenSeal {
         }
         if (!canSeal(home) || DenBarrier.sealed(home) || level.getGameTime() < nextCheck) return false;
         nextCheck = level.getGameTime() + RECHECK;
+        if (!home.contains(y.blockPosition()) && y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR) return false;
         var parents = departure(level, home, DEPARTED_SQR);
         if (parents.isEmpty() || parents.equals(considered)) return false;
         considered = parents;
