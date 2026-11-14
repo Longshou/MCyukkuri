@@ -83,6 +83,8 @@ public enum StatusKey {
     SYNDROME_PREVENTION("mood", "syndrome_prevention", 1200, y -> y.mind().preventionRemaining(), null),
     /** Current pressures and reliefs, per minute (1200 ticks), from the last sample. */
     UNEASE_CAUSES("mood", "unease_causes", 0, y -> y.mind().causesText(), null),
+    /** The course of the current strong feeling (mind/EmotionCourse): kind, stage, strength and progress. */
+    FEELING("mood", "feeling", 0, y -> y.mind().feeling().describe(), null),
     NAMINGS("mood", "namings", 0, y -> y.mind().namings(), null),
     AFFECTION_NEED("mood", "affection_need", 10, y -> y.dailyLife().affectionNeed(), null),
     // ---- species profile (worldview package 4) -----------------------------------------------------------------

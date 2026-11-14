@@ -282,6 +282,8 @@ public final class DailyLife {
             return begin(Kind.EXERCISE, inEarshot(companion));
         }
         if (companion != null && lonely && nuzzle(companion)) return true;
+        // Grief, fright or a fit of anger leave no heart for a song or a workout; seeking a nuzzle above still goes on.
+        if (entity.mind().feeling().subdued()) return false;
         float song = 2 * entity.species().traits().song();
         Kind kind = !entity.childhood().canExercise() || entity.getRandom().nextFloat() * (song + 1) >= 1 ? Kind.SING : Kind.EXERCISE;
         return begin(kind, inEarshot(companion));

@@ -91,6 +91,7 @@ public final class PresentationGoals {
     public static final Source<Goal> DUTIES = state("duties", e -> e.settlement().duties().active() ? e.settlement().duties().activity() : null);
     public static final Source<Goal> PIT_SLAVE = state("pit_slave", e -> e.settlement().duties().pit().activity());
     public static final Source<MoldExile> MOLD_EXILE = observed("mold_exile", MoldExile::activity);
+    public static final Source<Goal> EMOTION = state("emotion", e -> e.mind().feeling().activity());
     public static final Source<Goal> SETTLEMENT = state("settlement", e -> e.settlement().active() ? e.settlement().activity() : null);
     public static final Source<Goal> SOCIAL = state("social", e -> e.social().active() ? e.social().activity() : null);
     public static final Source<Goal> PLAY = state("play", e -> e.playLife().active() ? e.playLife().activity() : null);

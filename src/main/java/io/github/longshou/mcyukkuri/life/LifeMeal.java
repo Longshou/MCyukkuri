@@ -67,7 +67,11 @@ final class LifeMeal {
 
     int mealTicks() { return mealTicks; }
 
-    boolean needsFood() { return o.nutrition() <= FULL - 20 * o.entity().leafSwaddle().swelling() && !hasMouthFood() && mealTicks == 0; }
+    /** Grief and fright spoil the appetite for a while (mind/EmotionCourse); real hunger below the urgent line still eats. */
+    boolean needsFood() {
+        return o.nutrition() <= Math.max(30, FULL - 20 * o.entity().leafSwaddle().swelling() - o.entity().mind().feeling().appetiteLoss())
+                && !hasMouthFood() && mealTicks == 0;
+    }
 
     boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||o.entity().profile().diet().eats(food)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
             ||FillingResource.isFilling(food)||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get())

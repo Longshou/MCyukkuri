@@ -76,8 +76,12 @@ public final class MindLife {
     private final Map<String, Float> causes = new LinkedHashMap<>();
     private final Map<String, Long> eventCooldown = new HashMap<>();
     private final ExcitedLeak leak;
+    private final EmotionCourse feeling;
 
-    public MindLife(YukkuriEntity entity) { this.entity = entity; leak = new ExcitedLeak(entity); }
+    public MindLife(YukkuriEntity entity) { this.entity = entity; leak = new ExcitedLeak(entity); feeling = new EmotionCourse(entity); }
+
+    /** The course of the current strong feeling (grief, fright, anger, joy) and its stages. */
+    public EmotionCourse feeling() { return feeling; }
 
     // ---- reads ----------------------------------------------------------------------------------------------------
     public float unease() { return unease; }
@@ -169,6 +173,8 @@ public final class MindLife {
         // A fresh strong stimulus is independent of unease's shared fright bucket.
         if (spike != null && (until == null || until <= now || spike == ExcitedLeak.Stimulus.PREDATOR))
             leak.spike(spike, now);
+        // Getting a lost accessory back is the one great joy with its own afterglow; a repeat inside the cooldown still glows.
+        if (event == EmotionEvent.ACCESSORY_RETURNED) feeling.begin(EmotionCourse.Kind.JOY, 1, null, null);
         if (until != null && until > now) return;
         if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
         if (slavePressure) addSlavePressure(event.delta, event.bucket); else add(event.delta, event.bucket);
@@ -211,6 +217,8 @@ public final class MindLife {
     public String face(String fallback) {
         if (course == Course.FRENZY) return "dazed";
         if (course == Course.WITHERING) return "blank_cry";
+        String felt = feeling.face();
+        if (felt != null) return felt;
         if (!entity.life().hasAccessory() && entity.headwear().uneasePerMinute() > 0) return "teary";
         if (unease >= SWEETENED && "neutral".equals(fallback)) return "teary";
         return fallback;
@@ -239,6 +247,7 @@ public final class MindLife {
         leak.tick(entity.level().getGameTime());
         if (entity.isNoAi()) return;
         releaseAction();
+        feeling.tick(comforted());
         if (nonYukkuri()) courseTick();
         else if (preventionRemaining() == 0 && unease >= BREAKING) { if ((breakingTicks += 1) >= ONSET_TICKS) begin(); }
         else breakingTicks = 0;
@@ -299,8 +308,7 @@ public final class MindLife {
         // Its graded bed (life/NestComfort): softness and relief against hurt pride or feeling unworthy of it.
         if (life.isSleeping() && life.bedRead() != null) put("bed", life.bedRead().unease());
         if (atHome(identity)) put("home", -1);
-        if (entity.dailyLife().nuzzlePartnerId() >= 0 && entity.dailyLife().inContact() || entity.woundComfort().receiving() && entity.woundComfort().inContact()
-                || entity.status().reactions().weather().huddled() || entity.contactPose().equals("RUB")) put("comfort", -6);
+        if (comforted()) put("comfort", -6);
         float rate = 0;
         for (var e : causes.entrySet()) rate += e.getValue() < 0 && nonYukkuri() ? e.getValue() * .5f : e.getValue();
         unease = Math.clamp(unease + rate * PER_SAMPLE, pitPressure ? UNEASY : 0f, 100f);
@@ -317,6 +325,12 @@ public final class MindLife {
     }
 
     private void put(String cause, float perMinute) { causes.merge(cause, perMinute, Float::sum); }
+
+    /** Body contact that soothes: a nuzzle, a comforting lick, a rain huddle or a keeper's rub. */
+    private boolean comforted() {
+        return entity.dailyLife().nuzzlePartnerId() >= 0 && entity.dailyLife().inContact() || entity.woundComfort().receiving() && entity.woundComfort().inContact()
+                || entity.status().reactions().weather().huddled() || entity.contactPose().equals("RUB");
+    }
 
     /** One look around: strangers pressing close, corpses (永遠不能油庫里) and waste (超級不能油庫里) nearby. */
     private void surroundings(Identity identity) {
@@ -375,6 +389,8 @@ public final class MindLife {
                 MCYukkuri.LOGGER.info("[mind] {} #{} recovered from non-yukkuri frenzy after {} ticks (unease {})", entity.getVariant().assetId(), entity.getId(), courseTicks, Math.round(unease));
                 course = Course.NONE; courseTicks = 0; breakingTicks = 0;
                 entity.showReaction("teary", pick("uneasy", "mood_bad"), 100);
+                // Out of the frenzy it is not yet itself: it shakes and starts at nothing for a while.
+                feeling.begin(EmotionCourse.Kind.TERROR, 1, null, entity.blockPosition());
                 return;
             }
             if (courseTicks >= FRENZY_TICKS) {
@@ -424,6 +440,7 @@ public final class MindLife {
         tag.putString("Course", course.name()); tag.putInt("CourseTicks", courseTicks); tag.putInt("BreakingTicks", breakingTicks);
         if (preventionUntil > 0) tag.putLong("PreventionUntil", preventionUntil);
         tag.putInt("Namings", namings); tag.putString("GivenName", givenName); tag.putBoolean("Migrated", true);
+        feeling.save(tag);
         return tag;
     }
     /** {@code pet}: the old PetLife tag, whose Stress seeds unease once for saves written before the mind existed. */
@@ -438,6 +455,7 @@ public final class MindLife {
             unease = Math.clamp(pet.getInt("Stress"), 0, 100); sweetness = 0; course = Course.NONE; courseTicks = breakingTicks = namings = 0;
         }
         reported = stage(); causes.clear(); eventCooldown.clear();
+        feeling.load(tag);
     }
 
     /** While broken it hops about screaming and keeps no ordinary life (priority 1, under water and operations); only urgent needs get through. */

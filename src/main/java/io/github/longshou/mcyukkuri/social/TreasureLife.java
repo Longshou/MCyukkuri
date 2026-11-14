@@ -216,6 +216,7 @@ public final class TreasureLife extends Goal {
         entity.life().personality().treasureTaken(player.getUUID());
         entity.mind().add(15, "treasure_taken");
         entity.showReaction("sad", "treasure_stolen", 160);
+        entity.mind().feeling().wronged(player.getUUID(), .7f);
         GameplayLog.event(entity, "treasure", "confiscated player={} taken={} held=0", player.getUUID(), taken);
         return taken;
     }
@@ -225,6 +226,7 @@ public final class TreasureLife extends Goal {
         held.add(victim.treasure().held.remove(victim.treasure().held.size() - 1));
         victim.mind().add(15, "treasure_stolen");
         victim.showReaction("sad", "treasure_stolen", 160);
+        victim.mind().feeling().wronged(entity.getUUID(), .7f);
         entity.showReaction("happy", "thing_san", 100);
         YukkuriWorldData.get(level()).relate(victim.getUUID(), entity.getUUID(), -12);
         GameplayLog.event(entity, "treasure", "snatched victim={} item={} held={} victimHeld={}",

@@ -27,8 +27,9 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
                 ability.size());
     }
 
+    /** Character and present mood: boldness sets the usual pace, a grieving body drags itself along (mind/EmotionCourse). */
     public static double temperament(YukkuriEntity body) {
-        return Gait.temperament(body.life().personality().boldness());
+        return Gait.temperament(body.life().personality().boldness()) * body.mind().feeling().pace();
     }
 
     public static double growthPace(YukkuriEntity body) {

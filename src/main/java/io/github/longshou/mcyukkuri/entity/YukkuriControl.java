@@ -14,6 +14,8 @@ public final class YukkuriControl {
         Takeover takeover = earlyTakeover(owner, panic);
         if (takeover == Takeover.PANIC && owner.shellRetraction().active()) owner.directNavigation().stop();
         if (panic > 0) owner.setPanicTicks(panic - 1);
+        // The flight is over but not the fear: a real danger leaves a shaking course behind (mind/EmotionCourse).
+        if (panic == 1) owner.mind().feeling().frightOver(owner.getLastHurtByMob());
 
         // Physical takeovers retain the command clock. Shell/agitation are sampled after panic advances.
         if (takeover == Takeover.NONE) {

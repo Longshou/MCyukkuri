@@ -416,6 +416,9 @@ public final class PresentationArbiter {
         var reaction = e.reactionAction();
         if (reaction != null) return reaction;
         if (state.reactionTicks() > 0) action = EcologyPresentation.reaction(state.reactionEvent());
-        return action == YukkuriAction.IDLE && (!e.life().hasAccessory() && !e.life().accessoryCustodied() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
+        // A strong feeling still running its course (mind/EmotionCourse) shows in the idle pose: drooping, trembling, sulking.
+        var felt = action == YukkuriAction.IDLE && !e.life().isSleeping() ? e.mind().feeling().idle() : null;
+        if (felt != null) return felt;
+        return action == YukkuriAction.IDLE &&(!e.life().hasAccessory() && !e.life().accessoryCustodied() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
     }
 }

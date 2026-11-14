@@ -101,6 +101,8 @@ final class YukkuriDamage {
             if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
+                // A real blow from someone frightens beyond the flight; the shaking follows once the panic ends.
+                if(result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity()!=null)owner.mind().feeling().frightened(.6f);
                 owner.status().hurt(source);
                 owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
                 // One draw per accepted hit on a carrying parent: it may shake one young loose (ParentCarry#struck).

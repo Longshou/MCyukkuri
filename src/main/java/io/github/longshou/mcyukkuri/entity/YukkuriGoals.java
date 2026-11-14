@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.EscapeWater;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
@@ -99,6 +100,9 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
+        // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
+        goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));
+        goalSelector.addGoal(6, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 6)));
         owner.createMoldExile();
         goalSelector.addGoal(3, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
@@ -322,7 +326,7 @@ final class YukkuriGoals {
     private final class PlaygroundGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.playLife().active()); }
         PlaygroundGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK,Flag.JUMP));}
-        @Override public boolean canUse(){return !owner.agitation().hunting() && owner.playLife().canUse();}
+        @Override public boolean canUse(){return !owner.agitation().hunting() && !owner.mind().feeling().subdued() && owner.playLife().canUse();}
         @Override public boolean canContinueToUse(){return owner.playLife().canContinue();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.playLife().tickGoal();}
@@ -331,7 +335,7 @@ final class YukkuriGoals {
     private final class GroupGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.groupInteraction().active()); }
         GroupGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
-        @Override public boolean canUse(){return !owner.agitation().hunting() && owner.groupInteraction().canUse();}
+        @Override public boolean canUse(){return !owner.agitation().hunting() && !owner.mind().feeling().subdued() && owner.groupInteraction().canUse();}
         @Override public boolean canContinueToUse(){return owner.groupInteraction().canContinueToUse();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.groupInteraction().tick();}
@@ -380,7 +384,7 @@ final class YukkuriGoals {
             return BehaviorContinuity.emergency(owner) || owner.social().humanContact() || !owner.social().active();
         }
         SocialGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.social().canUse(); }
+        @Override public boolean canUse() { return !owner.mind().feeling().subdued() && owner.social().canUse(); }
         @Override public boolean canContinueToUse() { return owner.social().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.social().tickGoal(); }

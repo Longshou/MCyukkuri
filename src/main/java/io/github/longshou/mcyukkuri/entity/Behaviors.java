@@ -103,6 +103,18 @@ public final class Behaviors {
     public static final String INDEPENDENCE_GATHER = "independence_gather";
     public static final String INDEPENDENCE_RETURN = "independence_return";
     public static final String INDEPENDENCE_VISIT = "independence_visit";
+    /** The farewell's beats (family/IndependenceLife): the leaver's bow, the shared nuzzle and its looks back; the parent seeing it
+     *  off, answering gladly or sobbing. */
+    public static final String INDEPENDENCE_BOW = "independence_bow", INDEPENDENCE_NUZZLE = "independence_nuzzle",
+            INDEPENDENCE_LOOK_BACK = "independence_look_back", INDEPENDENCE_SEE_OFF = "independence_see_off",
+            INDEPENDENCE_ANSWER = "independence_answer", INDEPENDENCE_SOB = "independence_sob";
+    /** A strong feeling's own goal (mind/EmotionCourse): grief at its peak and easing, the shaking after danger, a fuming sulk. */
+    public static final String MOURN = "mourn", MOURN_LISTLESS = "mourn_listless", SHAKEN = "shaken", SHAKEN_WARY = "shaken_wary",
+            FUME = "fume";
+    /** Driving out a moldy member (settlement/MoldExile): the residents' notice, warning, sorrow and scorn; the sick one's plea or
+     *  protest, its walk away and its looks back. */
+    public static final String MOLD_NOTICE = "mold_notice", MOLD_WARN = "mold_warn", MOLD_SORROW = "mold_sorrow", MOLD_SCORN = "mold_scorn",
+            MOLD_PLEAD = "mold_plead", MOLD_RESIST = "mold_resist", MOLD_LEAVE = "mold_leave", MOLD_LOOK_BACK = "mold_look_back";
     public static final String LABOR = "labor";
     // leaf swaddle (family/LeafSwaddle): the parent's gathering, folding, wrapping and care; the child's answer
     public static final String LEAF_SWADDLE_APPROACH = "leaf_swaddle_approach";

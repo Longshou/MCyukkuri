@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -159,6 +160,8 @@ public final class GroupCards {
             if (level.getEntity(id) instanceof YukkuriEntity resident && resident.isAlive() && resident.distanceToSqr(thief) <= 100) {
                 boolean fights = resident.getRandom().nextFloat() < resident.life().personality().helpProbability(true, false);
                 if (!fights) resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
+                // The raid stays with them: the ones who stood up fume, the rest are shaken (mind/EmotionCourse).
+                resident.mind().feeling().begin(fights ? EmotionCourse.Kind.RAGE : EmotionCourse.Kind.TERROR, .5f, thief.getUUID(), resident.blockPosition());
                 YukkuriWorldData.get(level).relate(resident.getUUID(), thief.getUUID(), -3);
             }
         }
