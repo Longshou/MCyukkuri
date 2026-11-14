@@ -114,7 +114,9 @@ public final class DenSeal {
                 if (predator != null) done = true;
                 return false;
             }
-            if (step != SurfaceApproach.Result.ARRIVED) return true;
+            // The shared arrival tolerance is a contact between two bodies; work needs the body standing in the
+            // doorway cell, where a wall or a nest rim can hold the feet a hand's width off its centre.
+            if (step != SurfaceApproach.Result.ARRIVED && !(y.onGround() && den.equals(y.blockPosition()))) return true;
             phase = Phase.WORK; ticks = 0;
         }
         if (!home.contains(y.blockPosition())) { abort("left_den"); return false; }
@@ -292,7 +294,7 @@ public final class DenSeal {
             if (opening != null) {
                 var step = SurfaceApproach.walkResult(y, Vec3.atBottomCenterOf(stand), null, 1);
                 walkTicks++;
-                if (step == SurfaceApproach.Result.ARRIVED) {
+                if (step == SurfaceApproach.Result.ARRIVED || y.onGround() && stand.equals(y.blockPosition())) {
                     refusedFrom = null;
                     var mouth = Vec3.atCenterOf(opening.getBlockPos());
                     SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), mouth));
