@@ -227,6 +227,8 @@ add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一�
     '一家三口先住在小石洞。洞底进水，但洞口仍干燥；看亲油带子油沿地面去东边空土洞，到了新家鼓脸说出住家宣言。'
     '读三只的住所，确认一家都住到新洞；走进洞口可看领地反应。',
     '约 1 分钟', [
+        # Six floor cells leave four beds after the doorway and store are reserved.
+        box(0, 0, -6, 0, 1, -6, 'minecraft:air'),
         yk('reimu', -1, 1, 'mother', uuid=_sm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_sf)}', boldness=15, **pair_ready()),
         yk('marisa', 1, 1, 'father', uuid=_sf, yaw=180, kin=f'Partner:{uuid_nbt(_sm)}', boldness=15, **pair_ready()),
         yk('reimu', 0, 2, 'child', stage='teen', uuid=_sc, yaw=180, nutrition=100, energy=100, boldness=15,
@@ -241,7 +243,8 @@ add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一�
     smoke=dict(ticks=2200, expect=[r'\[habitat\][^\n]* relocate begin .*movers=3 .*reason=flooded',
                                    r'\[habitat\][^\n]* relocate end .*movers=3 moved=3',
                                    r'\[home-claim\][^\n]* declared site=.*spoken=true'],
-               forbid=[r'\[habitat\][^\n]* relocate failed']))
+               forbid=[r'\[habitat\][^\n]* relocate begin .*reason=(?!flooded\b)',
+                       r'\[habitat\][^\n]* relocate failed']))
 
 add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝，可驱离',
     '草窝和空丝绒窝都在屋檐下。胆大、低友善的魔理沙已有草窝，却自己走向丝绒窝并说住家宣言。'
