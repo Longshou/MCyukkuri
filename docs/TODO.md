@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 窝适配墙角与宠物窝三档 | `.worktrees/wp-art-nests` | life nest blocks (yukkuri_nest, large nests), nest models/sources, sleep recovery hooks, shop stock |
 
 ## 玩法待办
 
