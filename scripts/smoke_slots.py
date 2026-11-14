@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Machine-wide queue for smoke servers and capture clients across all worktrees: at most N at once (default 3,
+"""Machine-wide queue for smoke servers and capture clients across all worktrees: at most N at once (default by time of day, see default_slots;
 ``--slots`` or MCY_SMOKE_SLOTS), first come first served. Records live in the main checkout's .local/smoke/slots/
 (pid and process start time; records of exited runners are reclaimed). ``python scripts/smoke_slots.py`` lists them."""
 import json
@@ -12,7 +12,10 @@ import headless_server as server
 import smoke_prune
 
 DIRECTORY = server.COMMON / '.local/smoke/slots'
-DEFAULT_SLOTS = 2
+# The user is away from this PC on weekdays 03:00-19:00 (local time): heavy load is fine then. Evenings, nights and weekends
+# they use it, so agents keep the load low.
+BUSY_SLOTS = 6
+QUIET_SLOTS = 2
 ENVIRONMENT = 'MCY_SMOKE_SLOTS'
 # A dense-trace server's uncompressed stdout reaches tens of GB before it is gzipped at stop (F: filled up on 11-08 with three
 # running); below this a new server or client waits instead of filling the user's disk.
@@ -23,8 +26,13 @@ def free_gb():
     return shutil.disk_usage(server.COMMON).free / 2 ** 30
 
 
+def default_slots(now=None):
+    now = now or time.localtime()
+    return BUSY_SLOTS if now.tm_wday < 5 and 3 <= now.tm_hour < 19 else QUIET_SLOTS
+
+
 def limit(override=None):
-    count = override if override is not None else int(os.environ.get(ENVIRONMENT, DEFAULT_SLOTS))
+    count = override if override is not None else int(os.environ.get(ENVIRONMENT, default_slots()))
     if count < 1:
         raise ValueError('Smoke/capture slots must be at least 1')
     return count

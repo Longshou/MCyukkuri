@@ -717,7 +717,7 @@ def main():
     parser.add_argument('--compare', action='store_true', help='Then top up the main baseline (only missing runs) and print branch vs main')
     parser.add_argument('--seed', type=int, default=secrets.randbits(63), help='Session seed; each run derives its own seed from it and its run index (see the trace seed log)')
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
-    parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS} or %%{slots.ENVIRONMENT}%%)')
+    parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.BUSY_SLOTS} on weekdays 03:00-19:00, else {slots.QUIET_SLOTS}; or %%{slots.ENVIRONMENT}%%)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
     args = parser.parse_args()
     if (args.repeat < 1 or args.slots is not None and args.slots < 1

@@ -95,7 +95,7 @@ def main():
     parser.add_argument('--vantage', action='store_true', help='Use the fixed visitor view checked by the server, without follow/observe cameras')
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
     parser.add_argument('--view', action='append', help='Capture only this declared full view ID; repeatable')
-    parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
+    parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.BUSY_SLOTS} on weekdays 03:00-19:00, else {slots.QUIET_SLOTS})')
     parser.add_argument('--sample-window', type=int, nargs=3, metavar=('FIRST', 'LAST', 'STEP'),
                         help='Capture only this tick interval; does not change scene preparation or behaviour')
     parser.add_argument('--tick-rate', type=float, default=20, help='Capture server ticks per second (1 <= rate <= 20)')
