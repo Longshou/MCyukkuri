@@ -222,7 +222,7 @@ public final class BegBite {
             case LOOK -> {
                 if (elapsed >= duration) {
                     walk(scene, Beat.LEAVE, away(stray, pet, Math.max(distance * 2.3, stray.distanceTo(pet) + distance)));
-                    stray.showReaction(YukkuriAction.WALK_LOOK_BACK, result.equals("shared") ? "closed_smile" : "side_teary", "",
+                    stray.showReaction(YukkuriAction.WALK_LOOK_BACK, departureFace(), "",
                             ClipMarkers.of(YukkuriAction.WALK_LOOK_BACK.id()).length());
                 }
             }
@@ -374,9 +374,12 @@ public final class BegBite {
     }
 
     private void lastLook(Scene scene, YukkuriEntity stray, YukkuriEntity pet) {
-        pose(scene, Beat.LOOK, stray, result.equals("shared") ? SHIAWASE : DROOP,
-                result.equals("shared") ? "closed_smile" : "side_teary", "", 1);
+        pose(scene, Beat.LOOK, stray, snatch || result.equals("shared") ? SHIAWASE : DROOP, departureFace(), "", 1);
         if (!result.equals("asked_help") && pet.life().mealTicks() == 0) pet.showReaction(TURN, result.equals("shared") ? "closed_smile" : "pursed", "");
+    }
+
+    private String departureFace() {
+        return snatch ? "smug" : result.equals("shared") ? "closed_smile" : "side_teary";
     }
 
     private Vec3 away(YukkuriEntity stray, YukkuriEntity pet, double radius) {
