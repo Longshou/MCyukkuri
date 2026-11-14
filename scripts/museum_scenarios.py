@@ -256,7 +256,11 @@ add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理
     '约 3–6 分钟（可倍速）', [
         yk('marisa', 0, 0, 'vagrant', yaw=180, lead=True, **pair_ready()),
         'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 6, 180),
-    reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')])
+    reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')],
+    # The mound is in reach: it digs there and never settles for a grass nest in the open.
+    smoke=dict(ticks=3000, forbid=[r'\[settlement\][^\n]* surface nest (begin|built)'],
+               expect=[r'\[habitat\][^\n]* dig begin mouth=',
+                       r'\[habitat\][^\n]* dig end doorway=[^\n]*(outcome=claimed|claimed=true)']))
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
 add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',
