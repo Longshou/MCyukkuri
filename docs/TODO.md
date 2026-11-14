@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 商店库存年龄 | `.worktrees/wp-r3-shop-stock` | shop/ShopRestock, ShopStock, 商店模板初始库存 |
-| TN-01 讨食演出 | `.worktrees/wp-r3-beg` | pet/social/BadgeArcs, BadgeArcPolicy, event/WildEvents；TN-01 场景；台词 |
 
 ## 玩法待办
 
