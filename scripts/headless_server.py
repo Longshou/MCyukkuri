@@ -25,6 +25,14 @@ COMMON = git_common_root(ROOT)
 INSTANCES = ROOT / '.local/smoke'
 
 
+def below_normal_priority():
+    """Run this process and every child it starts (servers, javac, git) below normal priority, so agent work yields
+    to the desktop and the user's game. Windows children inherit the priority class."""
+    if os.name == 'nt':
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetPriorityClass(kernel32.GetCurrentProcess(), 0x4000)  # BELOW_NORMAL_PRIORITY_CLASS
+
+
 def is_client(command):
     # The museum launcher passes the client launch target through a Java argument file.
     return re.search(r'--launchTarget["\s=]+\w*client\w*\b'

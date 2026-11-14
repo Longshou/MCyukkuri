@@ -377,4 +377,5 @@ def main():
 
 
 if __name__ == '__main__':
+    server.below_normal_priority()
     main()

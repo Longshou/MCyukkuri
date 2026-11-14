@@ -44,6 +44,7 @@ def main():
 
 
 if __name__ == '__main__':
+    server.below_normal_priority()
     started = time.monotonic()
     try:
         raise SystemExit(main())

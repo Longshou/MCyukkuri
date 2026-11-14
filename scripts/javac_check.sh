@@ -3,6 +3,8 @@
 # Compiles src/main/java with javac -proc:none (no Gradle), then compiles src/test/java and runs the pure-Java unit tests.
 # Needs the local JDK under .local/tools/java, the JUnit console jar under .local/tools/junit, and the NeoForge merged jar
 # plus dependency jars that an earlier Gradle sync left in build/moddev and .local/gradle-home of the main checkout.
+# Runs below normal priority (javac and the tests inherit it) so the check yields to the desktop and the user's game.
+[ -z "$MCY_NICED" ] && command -v nice >/dev/null && MCY_NICED=1 exec nice -n 10 bash "$0" "$@"
 R=$(cd "$(dirname "$0")/.." && git rev-parse --path-format=absolute --git-common-dir | sed 's#/\.git$##')
 W=$(cd "${1:-$R}" && pwd)
 TAG=$(basename "$W")

@@ -12,7 +12,7 @@ import headless_server as server
 import smoke_prune
 
 DIRECTORY = server.COMMON / '.local/smoke/slots'
-DEFAULT_SLOTS = 6
+DEFAULT_SLOTS = 2
 ENVIRONMENT = 'MCY_SMOKE_SLOTS'
 # A dense-trace server's uncompressed stdout reaches tens of GB before it is gzipped at stop (F: filled up on 11-08 with three
 # running); below this a new server or client waits instead of filling the user's disk.
