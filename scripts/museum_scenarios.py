@@ -264,12 +264,12 @@ add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
 add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',
-    '土丘洞储粮空了。较饿、胆大的灵梦去远处草场采草，魔理沙守洞口、照看赤油。看灵梦把草实际衔回放进粮堆，家里迎接归来，再用存粮喂赤油。',
+    '土丘洞储粮空了。双亲状态相近，父油魔理沙去远处草场采草，母油灵梦守洞口、照看赤油。看魔理沙把草衔回粮堆，家里迎接归来，再用存粮喂赤油。',
     '数分钟（可倍速）', [
-        yk('marisa', 0, -2, 'father', uuid=_ff, yaw=0, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=98, energy=100,
-           boldness=20, friendliness=100, attachment=95),
-        yk('reimu', 0, 1, 'mother', uuid=_fm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=88, energy=100,
-           boldness=96, friendliness=100, attachment=95),
+        yk('marisa', 0, 1, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=90, energy=100,
+           boldness=60, friendliness=100, attachment=95),
+        yk('reimu', 0, -2, 'mother', uuid=_fm, yaw=0, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=90, energy=100,
+           boldness=60, friendliness=100, attachment=95),
         yk('reimu', 1, -3, 'child', stage='baby', uuid=_fc, yaw=0, nutrition=50, self_control=96,
            kin=f'Mother:{uuid_nbt(_fm)},Father:{uuid_nbt(_ff)}'),
         ],
@@ -278,7 +278,7 @@ add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野
     # The baby at home welcoming a parent back from the meadow (inside the mound, so the camera follows it).
     capture=dict(shots=(1, 40, 600), sequences=((900, 2700, 6),), observe=False,
                  views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(.5, 1.2, 1.2))}),
-    reads=[('读留守魔理沙', f'yukkuri status {sel("father")} raw'), ('读外出灵梦', f'yukkuri status {sel("mother")} raw'),
+    reads=[('读外出魔理沙', f'yukkuri status {sel("father")} raw'), ('读留守灵梦', f'yukkuri status {sel("mother")} raw'),
            ('读赤油进食', f'yukkuri status {sel("child")} raw')])
 
 
@@ -286,19 +286,19 @@ _absent, _stayer, _older, _baby = (uid('family_absence', n) for n in ('absent', 
 _absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)}'
 _absence_x, _absence_z = BY_ID['forage'].spots['forage']
 # The death can occur only on the meadow side of the ridge, after a real departure. The ridge blocks sight from home.
-_far_parent = (f'@e[tag={tag("absent")},x={_absence_x + 17},y={FEET - 1},z={_absence_z - 12},'
+_far_parent = (f'@e[tag={tag("absent")},x={_absence_x + 14},y={FEET - 1},z={_absence_z - 12},'
                'dx=18,dy=8,dz=24,limit=1]')
 add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采草的亲油迟迟不归',
     '灵梦亲油去土坡后的草场采草，在家人看不到的地方死亡。看魔理沙和孩子等多久才到洞口呼唤。'
-    '能走远的子油沿记得的方向找一段再回头，赤油留在洞旁等。找不到后，看看两种年龄各自怎样继续生活。',
+    '子油沿记得的方向找一段再回头，赤油留在洞旁等。看魔理沙找到遗体后原地哀悼，再赶去采草、照料饥饿的赤油。',
     '约 2–5 分钟（可倍速）', [
         box(9, 0, -5, 10, 2, 8, 'minecraft:dirt'),
-        yk('reimu', 0, 3, 'absent', uuid=_absent, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=63, boldness=98),
-        yk('marisa', 1, 3, 'stayer', uuid=_stayer, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=92, energy=53, boldness=20,
-           attachment=95, self_control=35),
+        yk('reimu', 0, 3, 'absent', uuid=_absent, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=62, boldness=100),
+        yk('marisa', 1, 3, 'stayer', uuid=_stayer, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=96, energy=75, boldness=36,
+           friendliness=100, attachment=95, self_control=35),
         yk('reimu', 0, 4, 'older', stage='child', uuid=_older, kin=_absence_kin, nutrition=76, boldness=20, self_control=35,
            childhood=CHILDHOOD_HOPPING, lead=True),
-        yk('marisa', 1, 4, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=75, childhood=CHILDHOOD_CRAWLING_READY),
+        yk('marisa', 1, 4, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=25, childhood=CHILDHOOD_CRAWLING_READY),
         ],
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
           Retry(f'kill {_far_parent}', _far_parent, tries=150, every=20, first=120)],
@@ -5322,7 +5322,7 @@ _FATES = {
     'den_family': [dict(kind='death', who=f'uuid={_uuid_text("den_family", "father")} ', match=r'cause=genericKill\b',
                         why='the smoke kills the father to widow the mother')],
     'family_absence': [dict(kind='death', who=f'uuid={_absent_uuid} ', match=r'cause=genericKill\b',
-                            why='the meadow is outside the family’s sight when the real death occurs')],
+                            why='the ridge hides the forager at the moment of death')],
     'widow_repair': [dict(kind='death', match=r'cause=genericKill\b',
                           why='the scene button ends the original partner through the real death path')],
     'settle_pit_famine': [dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
@@ -5398,14 +5398,18 @@ _scene_end('den_family', [('mother', _DRY), ('child', _ASHORE), ('father', 'aliv
            [('mother', 'seen:habitat:home chosen'), ('mother', 'seen:forage:begin role='),
             ('mother', 'seen:forage:deposit home=')])
 _scene_end('forage', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
-           [('mother', 'seen:forage:begin role=FAMILY'),
-            ('father', f'seen:family:household watched entrance provider={_uuid_text("forage", "mother")}'),
-            ('mother', 'seen:forage:deposit home=.* moved=[1-9]'), ('child', 'seen:family:welcome home started')],
-           [('father', f'seen:family:feed handed to meal child={_uuid_text("forage", "child")}'),
-            ('child', f'seen:meal:swallowed item=.* feeder={_uuid_text("forage", "father")}')])
+           [('father', 'seen:forage:begin role=FAMILY'),
+            ('mother', f'seen:family:household watched entrance provider={_uuid_text("forage", "father")}'),
+            ('father', 'seen:forage:deposit home=.* moved=[1-9]'), ('child', 'seen:family:welcome home started')],
+           [('mother', f'seen:family:feed handed to meal child={_uuid_text("forage", "child")}'),
+            ('child', f'seen:meal:swallowed item=.* feeder={_uuid_text("forage", "mother")}')])
 _scene_end('family_absence', [('absent', 'alive=false'), ('stayer', _DRY), ('older', _DRY), ('baby', _DRY)],
            [('absent', 'seen:forage:begin role=FAMILY'), ('absent', 'seen:body:death settled into remains'),
-            ('stayer', f'seen:family:kin overdue kin={_absent_uuid}'), ('stayer', f'seen:family:missing kin call kin={_absent_uuid}')],
+            ('stayer', f'seen:family:kin overdue kin={_absent_uuid}'), ('stayer', f'seen:family:missing kin call kin={_absent_uuid}'),
+            ('stayer', f'seen:family:missing kin found remains kin={_absent_uuid}'),
+            ('stayer', 'seen:forage:begin role=FAMILY phase=OUT reason=sole_caregiver'),
+            ('stayer', r'seen:forage:goal active phase=OUT .* pace=1\.[1-4]'),
+            ('stayer', 'seen:forage:deposit home=.* moved=[1-9]')],
            [('older', f'seen:family:missing kin call kin={_absent_uuid}'),
             *[('older', f'seen:family:kin absence kin={_absent_uuid} phase={phase}') for phase in ('SEARCH', 'RETURN', 'MOVED_ON')],
             ('older', 'seen:meal:swallowed item=.* feeder=null')],

@@ -58,6 +58,11 @@ final class KinAbsence {
 
     boolean movedOn() { return kin.values().stream().anyMatch(m -> m.phase == Phase.MOVED_ON); }
 
+    boolean expectingReturn(UUID id) {
+        var memory = kin.get(id);
+        return memory != null && memory.away > 0 && !memory.confirmed && memory.phase != Phase.MOVED_ON;
+    }
+
     boolean gone(UUID id) {
         var memory = kin.get(id);
         return !present(id) && (memory != null && (memory.confirmed || memory.phase == Phase.MOVED_ON)
@@ -200,8 +205,10 @@ final class KinAbsence {
         double radius = (family.adult() ? 20 : 12) * e.life().personality().exploreMultiplier();
         var origin = Vec3.atBottomCenterOf(home);
         var toward = Vec3.atBottomCenterOf(memory.seen).subtract(origin);
-        if (toward.horizontalDistance() > radius) toward = toward.scale(radius / toward.horizontalDistance());
-        var candidate = origin.add(toward);
+        // Look a short way past the sighting in the direction they were seen from home.
+        double distance = toward.horizontalDistance();
+        var candidate = origin.add(toward.multiply(1, 0, 1).normalize().scale(Math.min(radius, distance + 4)))
+                .add(0, toward.y, 0);
         return family.level().hasChunkAt(BlockPos.containing(candidate)) ? SurfaceApproach.floor(e, candidate) : null;
     }
 

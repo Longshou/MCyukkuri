@@ -60,6 +60,17 @@ public final class FamilyData extends SavedData {
     public enum Status { UNBORN, ALIVE, DEAD, REMOVED, LOST }
     public enum PartnerState { UNIMPORTED, SINGLE, PARTNERED, WIDOWED, BLOCKED }
     public enum BirthKind { STEM, EGG, LIVE }
+
+    /** Choose the bearing parent for an ordinary mixed pair, before recording or presenting either role. */
+    public static YukkuriEntity chooseMother(YukkuriEntity first, YukkuriEntity second) {
+        var a = first.getVariant();
+        var b = second.getVariant();
+        if (a == YukkuriVariant.REIMU && b == YukkuriVariant.MARISA)
+            return ModRandom.world(first.level()).nextInt(20) == 0 ? second : first;
+        if (a == YukkuriVariant.MARISA && b == YukkuriVariant.REIMU)
+            return ModRandom.world(first.level()).nextInt(20) == 0 ? first : second;
+        return first;
+    }
     public record BadgeAcquisition(int grade, long acquiredAt) {}
     public record Foster(UUID parent, long acceptedAt) {}
     public static final class Person {

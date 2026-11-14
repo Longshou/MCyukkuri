@@ -15,7 +15,15 @@ import net.minecraft.world.phys.Vec3;
 
 /** Chooses between the people who actually share the dependants and the same home. */
 public final class FamilyProvision {
-    private FamilyProvision() {}
+    private final List<YukkuriEntity> children;
+    private final List<YukkuriEntity> caregivers;
+
+    private FamilyProvision(List<YukkuriEntity> children, List<YukkuriEntity> caregivers) {
+        this.children = children;
+        this.caregivers = caregivers;
+    }
+
+    public List<YukkuriEntity> caregivers() { return caregivers; }
 
     static BlockPos home(YukkuriEntity body) {
         var shelter = body.habitat().shelter();
@@ -52,14 +60,14 @@ public final class FamilyProvision {
         return true;
     }
 
-    public static List<YukkuriEntity> caregivers(YukkuriEntity body) {
+    public static FamilyProvision atHomeOf(YukkuriEntity body) {
         var home = home(body);
-        if (home == null) return List.of();
+        if (home == null) return new FamilyProvision(List.of(), List.of());
         var area = new AABB(home).inflate(24, 8, 24);
         var children = body.level().getEntitiesOfClass(YukkuriEntity.class, area,
                 child -> child.isAlive() && child.childhood().shouldStayWithParents() && sharesHome(body, child)
                         && body.family().caresFor(child));
-        if (children.isEmpty()) return List.of();
+        if (children.isEmpty()) return new FamilyProvision(children, List.of());
         var members = new LinkedHashSet<>(body.level().getEntitiesOfClass(YukkuriEntity.class, area,
                 adult -> adult.isAlive() && !adult.body().dying() && sharesHome(body, adult)
                         && children.stream().anyMatch(adult.family()::caresFor)));
@@ -67,17 +75,17 @@ public final class FamilyProvision {
         for (var child : children) {
             for (UUID id : child.family().caregiverIds()) {
                 if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
-                        && !parent.body().dying() && sharesHome(body, parent) && parent.family().caresFor(child))
+                        && !parent.body().dying() && outForFood(parent) && sharesHome(body, parent) && parent.family().caresFor(child))
                     members.add(parent);
             }
         }
-        return List.copyOf(members);
+        return new FamilyProvision(children, List.copyOf(members));
     }
 
-    public static YukkuriEntity choose(List<YukkuriEntity> caregivers, Predicate<YukkuriEntity> available) {
+    public YukkuriEntity choose(Predicate<YukkuriEntity> available) {
         return caregivers.stream().filter(available)
                 .max(Comparator.comparing(FamilyProvision::outForFood)
-                        .thenComparingDouble(FamilyProvision::drive)
+                        .thenComparingDouble(this::drive)
                         .thenComparing(YukkuriEntity::getUUID)).orElse(null);
     }
 
@@ -85,13 +93,29 @@ public final class FamilyProvision {
         return body.forageTrip().familyOuting() || body.family().feeding().fetchingOutside();
     }
 
-    private static double drive(YukkuriEntity body) {
-        return (100 - body.life().nutrition()) * .5 + body.life().personality().boldness() * .25
+    public double drive(YukkuriEntity body) {
+        var life = body.life();
+        // The role outweighs ordinary differences among healthy adults; boldness, restlessness and condition can reverse it.
+        boolean father = children.stream().anyMatch(child -> body.getUUID().equals(child.family().father())
+                && caregivers.stream().anyMatch(peer -> peer.getUUID().equals(child.family().mother())));
+        return (father ? 30 : 0) + (100 - life.nutrition()) * .5
+                - Math.max(0, 55 - life.nutrition()) * 2 + life.personality().boldness() * .25
+                + body.dailyLife().boredom() * .2 + body.body().healthRatio() * 25 + life.energy() * .1
                 + body.getAttributeValue(Attributes.MOVEMENT_SPEED) * 100;
     }
 
+    /** A sole caregiver hurries for a hungry dependant, within its own strength and willingness to act. */
+    public double childFoodUrgency(YukkuriEntity body) {
+        if (caregivers.stream().anyMatch(peer -> peer != body && !body.family().kinOverdue(peer.getUUID()))) return 0;
+        double need = children.stream().mapToDouble(child -> Math.clamp((60 - child.life().nutrition()) / 50, 0, 1))
+                .max().orElse(0);
+        var life = body.life();
+        return need * (.5 + .005 * life.personality().friendliness()) * (.6 + .004 * life.personality().boldness())
+                * (.6 + .004 * life.energy()) * body.body().healthRatio();
+    }
+
     static boolean canFetchOutside(YukkuriEntity body) {
-        var pick = choose(caregivers(body), candidate -> !body.family().absence().overdue(candidate.getUUID())
+        var pick = atHomeOf(body).choose(candidate -> !body.family().absence().overdue(candidate.getUUID())
                 && (outForFood(candidate) || candidate.family().feeding().careReady()));
         return pick == null || pick == body;
     }

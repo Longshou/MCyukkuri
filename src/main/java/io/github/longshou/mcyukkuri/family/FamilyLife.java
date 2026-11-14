@@ -55,7 +55,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
@@ -148,6 +150,7 @@ public final class FamilyLife {
     FamilyFeeding feeding(){return feeding;}
     KinAbsence absence(){return separation.absence();}
     public boolean kinOverdue(UUID id){return absence().overdue(id);}
+    public boolean expectingMissingMate(){return absence().expectingReturn(partner());}
     GlassVigil glass(){return glass;}
     void dismissAtGlass(YukkuriEntity child,String reason){separation.dismissAtGlass(child,reason);}
     /** Where a retrieved baby is set down: its care nest, else its own shelter bed. */
@@ -1252,7 +1255,7 @@ public final class FamilyLife {
 
     private boolean startHomeWatch() {
         if(!FamilyProvision.nearHome(entity,entity.blockPosition()))return false;
-        var provider=FamilyProvision.choose(FamilyProvision.caregivers(entity),other -> other!=entity
+        var provider=FamilyProvision.atHomeOf(entity).choose(other -> other!=entity
                 && !kinOverdue(other.getUUID()) && FamilyProvision.outForFood(other));
         if(provider==null)return false;
         long started=level().getGameTime()-(provider.forageTrip().familyOuting()?provider.forageTrip().away():provider.family().taskTicks);
@@ -1338,8 +1341,25 @@ public final class FamilyLife {
      * independent subadults never enter this follow/search path.
      */
     private boolean exploring() { return entity.roaming()!=null&&entity.roaming().exploring(); }
-    /** The one reunion rule: within the child's own follow radius and in sight. The search ends, the approach halts and the greeting plays here. */
-    boolean reached(YukkuriEntity child){return entity.distanceToSqr(child)<=child.family().familyRadiusSqr()&&entity.hasLineOfSight(child);}
+    /** The follow radius must leave room to stand beside the child's full square footprint. */
+    private double reunionRadius(YukkuriEntity child) {
+        double side = (entity.getBbWidth() + child.getBbWidth()) * .5;
+        return Math.max(child.family().followRadius(), Math.sqrt(2) * (side + SurfaceApproach.ARRIVAL * 2));
+    }
+    boolean reached(YukkuriEntity child) {
+        double reach = reunionRadius(child);
+        return entity.distanceToSqr(child) <= reach * reach && entity.hasLineOfSight(child);
+    }
+    private Vec3 reunionStand(YukkuriEntity child) {
+        double reach = reunionRadius(child) - SurfaceApproach.ARRIVAL;
+        return SurfaceApproach.beside(entity, child, reach, reach, reach, at -> {
+            var body = entity.getBoundingBox().move(at.subtract(entity.position()));
+            return level().getEntitiesOfClass(YukkuriEntity.class, body.deflate(.005),
+                    other -> other != entity && other != child && other.isAlive() && other.isPushable() && !other.isPassenger()).isEmpty()
+                    && level().clip(new ClipContext(at.add(0, entity.getEyeHeight(), 0), child.getEyePosition(),
+                            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
+        });
+    }
     /** The same arrival distance that ends this child's ordinary land follow. */
     public boolean withinFollowDistance(YukkuriEntity parent) {
         var at = gatherAt(parent);
@@ -1649,8 +1669,11 @@ public final class FamilyLife {
                 return;
             }
             if(reached(target)){separation.reunited(target);stop();return;}
-            if(taskTicks%10==1&&!navigateToward(target.blockPosition(),1.1)){stop();return;}
-            if(entity.getNavigation().isDone())entity.getLookControl().setLookAt(target,20,20);
+            var stand=reunionStand(target);
+            if(stand==null||SurfaceApproach.walkResult(entity,stand,target,1.1)!=SurfaceApproach.Result.MOVING) {
+                if(reached(target))separation.reunited(target);
+                stop();
+            }
             return;
         }
         // Play the warning before leaving for the last sight. The shared walk ends at the sight or a real obstruction.

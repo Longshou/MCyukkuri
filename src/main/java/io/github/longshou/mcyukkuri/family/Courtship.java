@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -287,8 +286,6 @@ final class Courtship {
     }
 
     private YukkuriEntity mother(YukkuriEntity first,YukkuriEntity second) {
-        if(first.getVariant()==YukkuriVariant.MARISA&&second.getVariant()==YukkuriVariant.REIMU)return second;
-        if(first.getVariant()==YukkuriVariant.REIMU&&second.getVariant()==YukkuriVariant.MARISA)return first;
         return initiatorMother?first:second;
     }
 
@@ -352,7 +349,6 @@ final class Courtship {
         }
         if(courtNearTicks==0){
             courtStart=o.level().getGameTime();courtLoopTicks=loopTicks(o.target());
-            initiatorMother=!(o.entity().getVariant()==YukkuriVariant.MARISA&&o.target().getVariant()==YukkuriVariant.REIMU);
             GameplayLog.limited(o.entity(),"family","court.accept",200,
                     "courtship acceptance started partner={} requiredTicks={}",o.target().getUUID(),requiredTicks());
         }
@@ -524,6 +520,7 @@ final class Courtship {
     /** All initiator entries share one start after allowCourt; receiver entries join that existing round. */
     void beginRound(boolean declined,String releasedGoal) {
         resetAttempt();declinedRound=declined;returning=releasedGoal!=null;
+        if(!declined)initiatorMother=FamilyData.chooseMother(o.entity(),o.target())==o.entity();
         if(returning)GameplayLog.event(o.entity(),"family","courtship comeback partner={} distance={} releasedGoal={}",
                 o.target().getUUID(),Math.round(o.entity().distanceTo(o.target())*10)/10.0,releasedGoal);
     }
