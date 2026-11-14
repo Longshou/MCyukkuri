@@ -45,6 +45,8 @@ final class LifeMeal {
     private int mealTicks, mealHold;
     /** Tick at which a hand-fed refusal is spat back; 0 for an ordinary meal. */
     private int spatAt;
+    /** The hand-fed offer just refused by a less restrained body; the meal that starts next is the one it spits back. */
+    private boolean refusedHandFed;
     /** The serving just refused and the tick it may be considered again: a hungry body does not re-sniff the same food every scan. */
     private Item refusedFoodItem;
     private long refusedFoodUntil;
@@ -129,6 +131,7 @@ final class LifeMeal {
             o.entity().showReaction("pursed", "food_complain", 60);
             return true;
         }
+        refusedHandFed = true;
         return false;
     }
 
@@ -150,8 +153,13 @@ final class LifeMeal {
     boolean canReceiveCareFood(ItemStack food) { return canReceiveCareFood() && acceptsFood(food); }
 
     boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
-        if (!(canEat() || canTakeSweet(transferred)) || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
-        return startMeal(transferred, fromPlayer, alreadyShared, "take_food");
+        if (!(canEat() || canTakeSweet(transferred)) || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) {
+            refusedHandFed = false; spatAt = 0;
+            return false;
+        }
+        boolean started = startMeal(transferred, fromPlayer, alreadyShared, "take_food");
+        if (!started) { refusedHandFed = false; spatAt = 0; }
+        return started;
     }
 
     /** A crop and its serving commit together. A refused world change leaves the mouth empty. */
@@ -267,9 +275,14 @@ final class LifeMeal {
         syncBodyFood();
         mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false;
         meltFace = meltTail = finishFace = null; mealTicks = 1;
+        boolean spitBack = refusedHandFed;
+        refusedHandFed = false;
         spatAt = 0;
-        Player giver = fromPlayer == null ? null : o.level().getPlayerByUUID(fromPlayer);
-        if (giver != null && declines(transferred, giver)) spatAt = 10;
+        if (spitBack) spatAt = 10;
+        else {
+            Player giver = fromPlayer == null ? null : o.level().getPlayerByUUID(fromPlayer);
+            if (giver != null && declines(transferred, giver)) spatAt = 10;
+        }
         o.entity().social().mealStarted();
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
         o.entity().showReaction("happy", reaction, 60);
@@ -314,7 +327,7 @@ final class LifeMeal {
     }
 
     private void clearTransfer() {
-        feeder = null; mealTicks = 0; mealHold = 0; spatAt = 0; sharedMeal = false; preparedMeal = false;
+        feeder = null; mealTicks = 0; mealHold = 0; spatAt = 0; refusedHandFed = false; sharedMeal = false; preparedMeal = false;
     }
 
     void tryShare() {
