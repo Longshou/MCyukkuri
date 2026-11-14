@@ -22106,8 +22106,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 83,
-    "sound": ""
+    "ticks": 63,
+    "sound": "voice.original.reimu.adult.o_junk_thanks"
   },
   {
     "id": "reimu.young.o_junk_thanks",
@@ -22118,8 +22118,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 91,
-    "sound": ""
+    "ticks": 52,
+    "sound": "voice.original.reimu.young.o_junk_thanks"
   },
   {
     "id": "marisa.adult.o_junk_thanks",
@@ -22130,8 +22130,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 95,
-    "sound": ""
+    "ticks": 73,
+    "sound": "voice.original.marisa.adult.o_junk_thanks"
   },
   {
     "id": "marisa.young.o_junk_thanks",
@@ -22142,8 +22142,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 115,
-    "sound": ""
+    "ticks": 63,
+    "sound": "voice.original.marisa.young.o_junk_thanks"
   },
   {
     "id": "chen.adult.o_junk_thanks",
@@ -22154,8 +22154,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 60,
+    "sound": "voice.original.chen.adult.o_junk_thanks"
   },
   {
     "id": "chen.young.o_junk_thanks",
@@ -22166,8 +22166,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 107,
-    "sound": ""
+    "ticks": 51,
+    "sound": "voice.original.chen.young.o_junk_thanks"
   },
   {
     "id": "alice.adult.o_junk_thanks",
@@ -22178,8 +22178,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 74,
+    "sound": "voice.original.alice.adult.o_junk_thanks"
   },
   {
     "id": "alice.young.o_junk_thanks",
@@ -22190,8 +22190,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 111,
-    "sound": ""
+    "ticks": 63,
+    "sound": "voice.original.alice.young.o_junk_thanks"
   },
   {
     "id": "patchouli.adult.o_junk_thanks",
@@ -22202,8 +22202,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 107,
-    "sound": ""
+    "ticks": 109,
+    "sound": "voice.original.patchouli.adult.o_junk_thanks"
   },
   {
     "id": "patchouli.young.o_junk_thanks",
@@ -22214,8 +22214,8 @@
     "events": [
       "junk_thanks"
     ],
-    "ticks": 111,
-    "sound": ""
+    "ticks": 92,
+    "sound": "voice.original.patchouli.young.o_junk_thanks"
   },
   {
     "id": "reimu.adult.o_junk_unsure",
@@ -22226,8 +22226,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 68,
+    "sound": "voice.original.reimu.adult.o_junk_unsure"
   },
   {
     "id": "reimu.young.o_junk_unsure",
@@ -22238,8 +22238,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 56,
+    "sound": "voice.original.reimu.young.o_junk_unsure"
   },
   {
     "id": "marisa.adult.o_junk_unsure",
@@ -22250,8 +22250,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 87,
-    "sound": ""
+    "ticks": 65,
+    "sound": "voice.original.marisa.adult.o_junk_unsure"
   },
   {
     "id": "marisa.young.o_junk_unsure",
@@ -22262,8 +22262,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 91,
-    "sound": ""
+    "ticks": 55,
+    "sound": "voice.original.marisa.young.o_junk_unsure"
   },
   {
     "id": "chen.adult.o_junk_unsure",
@@ -22274,8 +22274,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 59,
+    "sound": "voice.original.chen.adult.o_junk_unsure"
   },
   {
     "id": "chen.young.o_junk_unsure",
@@ -22286,8 +22286,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 50,
+    "sound": "voice.original.chen.young.o_junk_unsure"
   },
   {
     "id": "alice.adult.o_junk_unsure",
@@ -22298,8 +22298,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 111,
-    "sound": ""
+    "ticks": 84,
+    "sound": "voice.original.alice.adult.o_junk_unsure"
   },
   {
     "id": "alice.young.o_junk_unsure",
@@ -22310,8 +22310,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 115,
-    "sound": ""
+    "ticks": 71,
+    "sound": "voice.original.alice.young.o_junk_unsure"
   },
   {
     "id": "patchouli.adult.o_junk_unsure",
@@ -22322,8 +22322,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 102,
+    "sound": "voice.original.patchouli.adult.o_junk_unsure"
   },
   {
     "id": "patchouli.young.o_junk_unsure",
@@ -22334,8 +22334,8 @@
     "events": [
       "junk_unsure"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 83,
+    "sound": "voice.original.patchouli.young.o_junk_unsure"
   },
   {
     "id": "reimu.adult.o_junk_indignant",
@@ -22346,8 +22346,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 87,
-    "sound": ""
+    "ticks": 63,
+    "sound": "voice.original.reimu.adult.o_junk_indignant"
   },
   {
     "id": "reimu.young.o_junk_indignant",
@@ -22358,8 +22358,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 87,
-    "sound": ""
+    "ticks": 54,
+    "sound": "voice.original.reimu.young.o_junk_indignant"
   },
   {
     "id": "marisa.adult.o_junk_indignant",
@@ -22370,8 +22370,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 91,
-    "sound": ""
+    "ticks": 67,
+    "sound": "voice.original.marisa.adult.o_junk_indignant"
   },
   {
     "id": "marisa.young.o_junk_indignant",
@@ -22382,8 +22382,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 95,
-    "sound": ""
+    "ticks": 57,
+    "sound": "voice.original.marisa.young.o_junk_indignant"
   },
   {
     "id": "chen.adult.o_junk_indignant",
@@ -22394,8 +22394,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 83,
-    "sound": ""
+    "ticks": 50,
+    "sound": "voice.original.chen.adult.o_junk_indignant"
   },
   {
     "id": "chen.young.o_junk_indignant",
@@ -22406,8 +22406,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 83,
-    "sound": ""
+    "ticks": 45,
+    "sound": "voice.original.chen.young.o_junk_indignant"
   },
   {
     "id": "alice.adult.o_junk_indignant",
@@ -22418,8 +22418,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 107,
-    "sound": ""
+    "ticks": 75,
+    "sound": "voice.original.alice.adult.o_junk_indignant"
   },
   {
     "id": "alice.young.o_junk_indignant",
@@ -22430,8 +22430,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 107,
-    "sound": ""
+    "ticks": 63,
+    "sound": "voice.original.alice.young.o_junk_indignant"
   },
   {
     "id": "patchouli.adult.o_junk_indignant",
@@ -22442,8 +22442,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 102,
+    "sound": "voice.original.patchouli.adult.o_junk_indignant"
   },
   {
     "id": "patchouli.young.o_junk_indignant",
@@ -22454,8 +22454,8 @@
     "events": [
       "junk_indignant"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 85,
+    "sound": "voice.original.patchouli.young.o_junk_indignant"
   },
   {
     "id": "reimu.adult.o_junk_afraid",
@@ -22466,8 +22466,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 87,
-    "sound": ""
+    "ticks": 63,
+    "sound": "voice.original.reimu.adult.o_junk_afraid"
   },
   {
     "id": "reimu.young.o_junk_afraid",
@@ -22478,8 +22478,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 91,
-    "sound": ""
+    "ticks": 54,
+    "sound": "voice.original.reimu.young.o_junk_afraid"
   },
   {
     "id": "marisa.adult.o_junk_afraid",
@@ -22490,8 +22490,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 99,
-    "sound": ""
+    "ticks": 74,
+    "sound": "voice.original.marisa.adult.o_junk_afraid"
   },
   {
     "id": "marisa.young.o_junk_afraid",
@@ -22502,8 +22502,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 111,
-    "sound": ""
+    "ticks": 64,
+    "sound": "voice.original.marisa.young.o_junk_afraid"
   },
   {
     "id": "chen.adult.o_junk_afraid",
@@ -22514,8 +22514,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 87,
-    "sound": ""
+    "ticks": 53,
+    "sound": "voice.original.chen.adult.o_junk_afraid"
   },
   {
     "id": "chen.young.o_junk_afraid",
@@ -22526,8 +22526,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 91,
-    "sound": ""
+    "ticks": 46,
+    "sound": "voice.original.chen.young.o_junk_afraid"
   },
   {
     "id": "alice.adult.o_junk_afraid",
@@ -22538,8 +22538,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 95,
-    "sound": ""
+    "ticks": 69,
+    "sound": "voice.original.alice.adult.o_junk_afraid"
   },
   {
     "id": "alice.young.o_junk_afraid",
@@ -22550,8 +22550,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 99,
-    "sound": ""
+    "ticks": 59,
+    "sound": "voice.original.alice.young.o_junk_afraid"
   },
   {
     "id": "patchouli.adult.o_junk_afraid",
@@ -22562,8 +22562,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 99,
-    "sound": ""
+    "ticks": 82,
+    "sound": "voice.original.patchouli.adult.o_junk_afraid"
   },
   {
     "id": "patchouli.young.o_junk_afraid",
@@ -22574,8 +22574,8 @@
     "events": [
       "junk_afraid"
     ],
-    "ticks": 103,
-    "sound": ""
+    "ticks": 70,
+    "sound": "voice.original.patchouli.young.o_junk_afraid"
   },
   {
     "id": "reimu.baby.s_hello",

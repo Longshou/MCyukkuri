@@ -5,6 +5,14 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
+import io.github.longshou.mcyukkuri.motor.action.JunkContact;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -28,6 +36,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.InjuryModel;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,7 +50,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
  * <p>Worn and boat-deployed condition lives with the owner. A loose accessory carries its physical damage and repair
  * progress, while loose fragments are interchangeable within their accessory kind. The numbers are project design.
  */
-public final class Headwear extends Goal {
+public final class Headwear extends Goal implements MotorOwner {
     public enum State { WORN, OFF, SHATTERED, REASSEMBLING, LOST }
     /** 0 intact, 1 frayed, 2 torn. One more and it shatters. */
     public static final int TORN = 2;
@@ -70,8 +79,10 @@ public final class Headwear extends Goal {
     // contempt for the hatless this individual cannot recognise (Contempt)
     private int contemptWait;
     private String lastContact = "none";
-    /** Ticks until the wearer's next junk-headwear beat, and how long a just-mocked wearer still answers. */
-    private int junkBeatWait, junkMocked;
+    private static final int JUNK_REFIT_DELAY = 2400;
+    private int junkBeatWait;
+    private boolean junkMocked;
+    private long junkRefitAt;
     /** Runtime-only pair cooldown shared by passive contempt and a peer greeting. */
     private final Map<UUID, Long> hatlessContactUntil = new HashMap<>();
 
@@ -83,7 +94,12 @@ public final class Headwear extends Goal {
     }
 
     /** A harsh peer just mocked this individual's junk headwear: it answers on its own next beat. */
-    public void markMocked() { junkMocked = 200; }
+    public void markMocked() { junkMocked = true; }
+
+    boolean canRefitJunk() { return entity.level().getGameTime() >= junkRefitAt; }
+    void delayJunkRefit() { junkRefitAt = entity.level().getGameTime() + JUNK_REFIT_DELAY; }
+
+    public boolean fittingJunk() { return entity.component(YukkuriComponents.MOUTH).purpose() == Purpose.JUNK_FIT; }
 
     // ---- reads ----------------------------------------------------------------------------------------------------
     public State state() {
@@ -431,14 +447,8 @@ public final class Headwear extends Goal {
         if (entity.level().isClientSide) return;
         if (scanWait > 0) scanWait--;
         if (--contemptWait <= 0) contemptWait = Contempt.observe(entity);
-        if (junkMocked > 0 || entity.life().custody().junk() != null) {
-            if (junkMocked > 0) {
-                junkMocked = 0;
-                junkBeatWait = JunkHeadwear.beat(entity, true, lowMood());
-            } else if (--junkBeatWait <= 0) {
-                junkBeatWait = JunkHeadwear.beat(entity, false, lowMood());
-            }
-        }
+        if (entity.life().custody().junk() == null) junkMocked = false;
+        else if (junkBeatWait > 0) junkBeatWait--;
         boolean worn = entity.life().hasAccessory();
         if (worn && (shattered || lost)) clear(); // put back on by some other path
         float body = entity.family().scale();
@@ -458,7 +468,8 @@ public final class Headwear extends Goal {
     private boolean lowMood() { return entity.mind().unease() >= MindLife.UNEASY; }
 
     // ---- goal: lick the pieces together ----------------------------------------------------------------------------
-    public boolean active() { return target != null; }
+    @Override public String ownerId() { return "headwear"; }
+    @Override public boolean active() { return target != null || entity.motor().current() instanceof JunkContact; }
     public String activity() { return target == null ? Behaviors.IDLE : lickTicks > 0 ? Behaviors.SHARD_LICK : Behaviors.SHARD_SEEK; }
     private String inabilityReason() {
         if(!entity.isAlive())return "not_alive";
@@ -474,8 +485,16 @@ public final class Headwear extends Goal {
         return null;
     }
     private boolean able() { return inabilityReason()==null; }
+    private boolean junkReady() {
+        return JunkHeadwear.available(entity) && !entity.hasReaction() && entity.motor().current() == null
+                && (fittingJunk() || JunkHeadwear.canAnswer(entity) && (junkMocked || junkBeatWait == 0)
+                && JunkHeadwear.onDryGround(entity));
+    }
+
     @Override public boolean canUse() {
         if (target != null) return true;
+        if (entity.motor().current() instanceof JunkContact) return false;
+        if (junkReady()) return true;
         if (scanWait > 0) return false;
         String blocked=shardReceiptRefusalReason();
         if(blocked==null)blocked=inabilityReason();
@@ -497,16 +516,35 @@ public final class Headwear extends Goal {
         return target != null;
     }
     @Override public boolean canContinueToUse() {
-        return target != null && target.isAlive() && canReceiveTransferredShard(target.getItem()) && elapsed < 600 && able();
+        return entity.motor().current() instanceof JunkContact && JunkHeadwear.available(entity) && JunkHeadwear.onDryGround(entity)
+                || target != null && target.isAlive() && canReceiveTransferredShard(target.getItem()) && elapsed < 600 && able();
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    @Override public void start() { entity.social().stop();
-        if(target!=null)GameplayLog.event(entity,"headwear","shard gathering started drop={} count={} state={} held={} total={}",
-                target.getUUID(),target.getItem().getCount(),stateId(),shardsHeld,shardsTotal);
+    @Override public void start() {
+        entity.social().stop();
+        if (target != null) {
+            GameplayLog.event(entity,"headwear","shard gathering started drop={} count={} state={} held={} total={}",
+                    target.getUUID(),target.getItem().getCount(),stateId(),shardsHeld,shardsTotal);
+            return;
+        }
+        SurfaceApproach.stopWalking(entity);
+        if (fittingJunk()) {
+            if (JunkHeadwear.bareHead(entity) && JunkHeadwear.onDryGround(entity))
+                entity.motor().run(this, new JunkContact(YukkuriAction.THINK, "look_down",
+                        JunkHeadwear.line(entity, "junk_unsure", "shy"), () -> JunkHeadwear.finishFit(entity)));
+            return;
+        }
+        if (JunkHeadwear.band(SocialDisposition.contact(entity, null)) == JunkHeadwear.Band.HAUGHTY && (junkMocked || lowMood())) {
+            boolean mocked = junkMocked;
+            if (!entity.motor().run(this, new JunkContact(YukkuriAction.SHAKE, "angry",
+                    JunkHeadwear.line(entity, "junk_indignant", "request_sulk"), () -> JunkHeadwear.shakeOff(entity, mocked)))) return;
+            junkBeatWait = 600;
+        } else junkBeatWait = JunkHeadwear.answer(entity, junkMocked);
+        junkMocked = false;
     }
     @Override public void tick() {
-        elapsed++;
         if (target == null) return;
+        elapsed++;
         entity.getLookControl().setLookAt(target, 30, 30);
         if (entity.distanceToSqr(target) < 1.4) {
             entity.getNavigation().stop();
@@ -529,6 +567,12 @@ public final class Headwear extends Goal {
         }
     }
     @Override public void stop() {
+        entity.motor().cancel(this, "headwear_goal_stopped");
+        if (target == null && fittingJunk() && entity.isAlive()) {
+            var mouth = entity.component(YukkuriComponents.MOUTH);
+            if (ItemContact.release(entity, mouth.stack(Purpose.JUNK_FIT), entity.position(), Vec3.ZERO) != null)
+                mouth.clear(Purpose.JUNK_FIT);
+        }
         if(target!=null)GameplayLog.limited(entity,"headwear","shard_gather_interrupted",100,
                 "shard gathering interrupted drop={} alive={} elapsed={} held={} total={}",target.getUUID(),target.isAlive(),
                 elapsed,shardsHeld,shardsTotal);
@@ -543,6 +587,8 @@ public final class Headwear extends Goal {
         if (shardToken != null) tag.putUUID("ShardToken", shardToken);
         tag.putInt("ShardsTotal", shardsTotal); tag.putInt("ShardsHeld", shardsHeld); tag.putInt("Reassembly", reassembly);
         tag.putLong("LastProgress", lastProgress); tag.putString("Cause", cause);
+        if (junkRefitAt > entity.level().getGameTime()) tag.putLong("JunkRefitAt", junkRefitAt);
+        if (junkMocked) tag.putBoolean("JunkMocked", true);
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -552,6 +598,8 @@ public final class Headwear extends Goal {
         shardToken = tag.hasUUID("ShardToken") ? tag.getUUID("ShardToken") : null;
         shardsTotal = Math.clamp(tag.getInt("ShardsTotal"), 0, 3); shardsHeld = Math.clamp(tag.getInt("ShardsHeld"), 0, shardsTotal);
         reassembly = Math.max(0, tag.getInt("Reassembly")); lastProgress = tag.getLong("LastProgress"); cause = tag.getString("Cause");
+        junkRefitAt = tag.getLong("JunkRefitAt");
+        junkMocked = tag.getBoolean("JunkMocked");
         if (shattered && shardToken == null) { shattered = false; lost = true; }
         target = null; hatlessContactUntil.clear();
         gatherCheck="not_checked";gatherScanTick=-1;gatherCandidates=gatherReachable=0;

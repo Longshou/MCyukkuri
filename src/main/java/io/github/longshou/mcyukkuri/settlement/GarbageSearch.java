@@ -240,13 +240,13 @@ public final class GarbageSearch {
         boolean food = edible(one), wear = !food && JunkHeadwear.isItem(one);
         // Contact commit: the bin loses the piece in the same tick the mouth or the head takes it.
         boolean taken = food ? body.life().beginMeal(one, null, false)
-                : wear ? JunkHeadwear.equip(body, null, SocialDisposition.contact(body, null))
+                : wear ? JunkHeadwear.fit(body, null, SocialDisposition.contact(body, null), one)
                 : body.habitat().receiveMouthLoad(one);
         if (!taken) { decline(wear ? "head_busy" : "mouth_busy"); return false; }
         bin.removeItem(slot, 1);
         nextTake = now() + 1200;
         GameplayLog.event(body, "forage", "garbage pickup item={} count=1 source={} holder={} food={} left={}",
-                one.getItem(), bin.getBlockPos(), wear ? "head" : "mouth", food, bin.load());
+                one.getItem(), bin.getBlockPos(), wear && body.life().custody().junk() != null ? "head" : "mouth", food, bin.load());
         if (food || wear) { stop(); return false; }
         phase = Phase.CARRY;
         deadline = now() + 100;

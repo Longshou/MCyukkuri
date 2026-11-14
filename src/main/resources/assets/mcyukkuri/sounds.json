@@ -4039,5 +4039,365 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "voice.original.reimu.adult.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_junk_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_junk_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_junk_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_junk_unsure": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_junk_unsure",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_junk_unsure",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_junk_indignant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_junk_indignant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_junk_indignant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_junk_afraid": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_junk_afraid",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_junk_afraid",
+        "attenuation_distance": 16
+      }
+    ]
   }
 }

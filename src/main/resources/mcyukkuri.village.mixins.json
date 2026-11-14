@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "io.github.longshou.mcyukkuri.human.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["VillageFrontageMixin", "LevelledLotCollisionMixin", "ShopFluidProtectionMixin"],
+  "mixins": ["VillageFrontageMixin", "LevelledLotCollisionMixin", "ShopFluidProtectionMixin", "ResidentUnloadMixin", "LitterMergeMixin"],
   "injectors": {"defaultRequire": 1}
 }

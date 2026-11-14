@@ -29,8 +29,9 @@ public final class JunkHeadwearItem extends Item {
 
         var contact = SocialDisposition.contact(animal, player);
         if (!JunkHeadwear.accepts(animal, contact)) JunkHeadwear.refused(animal, player, contact);
-        else if (JunkHeadwear.equip(animal, player, contact) && !player.getAbilities().instabuild)
-            player.getItemInHand(hand).shrink(1);
+        else if (JunkHeadwear.fit(animal, player, contact, stack)) {
+            if (!player.getAbilities().instabuild) stack.shrink(1);
+        } else InteractionDispatch.refuse(player, animal, "junk_headwear", "busy");
         return InteractionResult.CONSUME;
     }
 

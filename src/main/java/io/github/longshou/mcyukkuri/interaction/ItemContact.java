@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.VillageBin;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -121,6 +122,7 @@ public final class ItemContact {
         var dropped = ModRandom.created(new ItemEntity(holder.level(), at.x, at.y, at.z, owned.copy()), holder.getRandom());
         Motor.velocity(dropped, velocity, "item_release");
         pickupDelay.accept(dropped);
+        VillageBin.markLitter(holder, dropped);
         return holder.level().addFreshEntity(dropped) ? dropped : null;
     }
 

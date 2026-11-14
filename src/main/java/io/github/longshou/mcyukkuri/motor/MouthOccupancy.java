@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Item and bite payloads share one oral purpose. Live holds and the kit retain their physical owners. */
 public final class MouthOccupancy {
-    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND, KINDNESS }
+    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND, KINDNESS, JUNK_FIT }
 
     private record Load(Purpose purpose, List<ItemStack> items, BodyFood.Bite bite) {}
 

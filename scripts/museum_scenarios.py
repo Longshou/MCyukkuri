@@ -427,7 +427,7 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
 
 _junk_scene = 'stray_junk_headwear'
 add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
-    '看两只圈起来的流浪油：左边低自尊的把脚边的垃圾头饰叼起戴上并鞠躬道谢，中间戴瓶盖的被邻居嘲笑时含泪忍着。右键手里那两件试戴：低自尊的鞠躬道谢，中档的犹豫一下才收，骄傲的鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
+    '左边低自尊的叼起假帽戴上并鞠躬道谢，后方中等自尊的先叼着低头犹豫，再戴上。中间戴瓶盖的被邻居嘲笑时含泪忍着，右后方的骄横油会把纸盒摇掉。拿手里的假帽右键骄横失饰者，它会鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
     '手动试戴与取回', [
         item('mcyukkuri:junk_headwear', 1, -15, 5, name='junk_supply'),
         # The lowly one has its own fenced nook with the piece in it, so its treasure scan finds the piece before it wanders off.
@@ -438,8 +438,19 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
         street_stray(_junk_scene, 'reimu', -14, 6, 'quiet_stray', accessory=False, boldness=0,
                      friendliness=100, label='低自尊失饰者', lead=True),
         set_status('quiet_stray', 'marks.dirt', 3),
+        box(-11, 0, 4, -8, 1, 4, 'minecraft:oak_fence'),
+        box(-11, 0, 7, -8, 1, 7, 'minecraft:oak_fence'),
+        box(-11, 0, 4, -11, 1, 7, 'minecraft:oak_fence'),
+        box(-8, 0, 4, -8, 1, 7, 'minecraft:oak_fence'),
+        item('mcyukkuri:junk_headwear', 1, -10, 5, name='hesitant_supply'),
+        street_stray(_junk_scene, 'reimu', -9, 6, 'hesitant_stray', accessory=False, boldness=45,
+                     friendliness=65, label='中等自尊失饰者'),
         street_stray(_junk_scene, 'reimu', 14, 6, 'proud_stray', accessory=False, boldness=100,
                      friendliness=65, label='骄横失饰者'),
+        street_stray(_junk_scene, 'reimu', 10, -2, 'shaking_stray', accessory=False, boldness=100,
+                     friendliness=50, label='戴纸盒的骄横油').replace('Accessory:0b,',
+                     'Accessory:0b,HatCustody:{State:"LOST",JunkHeadwear:"paper_box"},')[:-1]
+                     + ',YukkuriMind:{Unease:48f,Migrated:1b,Course:"NONE"}}',
         street_stray(_junk_scene, 'marisa', 0, -2, 'covered_stray', accessory=False, boldness=30,
                      label='戴瓶盖的流浪油').replace('Accessory:0b,',
                      'Accessory:0b,HatCustody:{State:"LOST",JunkHeadwear:"bottle_cap"},'),
@@ -451,14 +462,16 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
         street_stray(_junk_scene, 'reimu', 1, -2, 'mocking_stray', friendliness=20, boldness=65,
                      yaw=90, label='会嘲笑的邻居'),
     ], give=['mcyukkuri:reimu_ribbon', 'mcyukkuri:junk_headwear 2', 'mcyukkuri:magnifying_glass'], env=DAY, spot='street', vantage=(0, 11),
-    smoke=dict(ticks=620, forbid=[],
+    smoke=dict(ticks=1400, forbid=[],
                commands=[(300, 'damage ' + sel('covered_stray') + ' 100 minecraft:generic_kill'),
                          (340, 'execute if entity @e[type=mcyukkuri:yukkuri_remains,distance=..12,nbt={Remains:{components:{"minecraft:custom_data":{JunkHeadwear:"bottle_cap"}}}}] run say MCYJUNK_REMAINS'),
-                         (600, 'execute unless entity @e[type=minecraft:item,distance=..25,nbt={Item:{id:"mcyukkuri:junk_headwear"}}] run say MCYJUNK_NO_DUPLICATE')],
+                         (600, 'execute unless entity @e[type=minecraft:item,tag=scn_junk_supply,distance=..25] run say MCYJUNK_NO_DUPLICATE')],
                expect=[r'\[contempt\][^\n]* junk mocked .*variant=bottle_cap affinity=0 -> -1',
                        r'\[headwear\][^\n]* junk mock wince variant=bottle_cap\b',
                        r'\[treasure\][^\n]* picked up drop=\S+ item=mcyukkuri:junk_headwear remaining=0 holder=mouth',
                        r'\[headwear\][^\n]* junk equipped variant=\S+ source=ground',
+                       r'\[action\][^\n]* start id=think owner=headwear[^\n]*\n[\s\S]*?\[headwear\][^\n]* junk equipped variant=\S+ source=mouth [^\n]*band=hesitant',
+                       r'\[action\][^\n]* start id=shake owner=headwear[^\n]*\n[\s\S]*?\[headwear\][^\n]* junk shaken_off variant=paper_box',
                        r'MCYJUNK_REMAINS', r'MCYJUNK_NO_DUPLICATE']))
 
 add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进木板缝挡风',
@@ -1919,12 +1932,13 @@ add('street_tidy', 'town', '街道：居民把地上的垃圾扫回桶里', '街
         box(7, 0, 5, 7, 2, 5, 'minecraft:stone_bricks'),
         *furniture('bench', 0, [(7, 7)]),
         *garbage_bin(7, 6, [], False),
-        *garbage_bin(6, 4, [], False),
-        item('minecraft:paper', 1, 6, 7, name='tidy_paper'),
-        item('minecraft:stick', 1, 5, 6, name='tidy_stick'),
+        *garbage_bin(6, 3, [], False),
+        item('minecraft:paper', 1, 6, 8, name='tidy_paper').replace('Tags:[', 'Tags:["mcy_yukkuri_litter",'),
+        item('minecraft:stick', 1, 4, 7, name='tidy_stick').replace('Tags:[', 'Tags:["mcy_yukkuri_litter",'),
+        item('minecraft:paper', 1, 5, 8, name='tidy_player_paper'),
         human('caretaker_brother', 6, 6, 'tidy_resident', 0, attitude=2, yaw=180, label='扫街的居民'),
     ], env=DAY, vantage=(6, 14),
-    reads=[('读立着的桶', 'data get block ~6 ~ ~4 Items'), ('读长椅夹住的桶', 'data get block ~7 ~ ~6 Items')])
+    reads=[('读立着的桶', 'data get block ~6 ~ ~3 Items'), ('读长椅夹住的桶', 'data get block ~7 ~ ~6 Items')])
 
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
@@ -5118,14 +5132,16 @@ _smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_f
 # may put anything in it. The reachable bin at +6/+4 takes both swept pieces.
 _tidy_ax, _tidy_az = BY_ID['town'].anchor
 _tidy_wedged_bin = re.escape(f'{_tidy_ax + 7}, {FEET}, {_tidy_az + 6}')
-_tidy_open_bin = re.escape(f'{_tidy_ax + 6}, {FEET}, {_tidy_az + 4}')
+_tidy_open_bin = re.escape(f'{_tidy_ax + 6}, {FEET}, {_tidy_az + 3}')
 _smoke('street_tidy', 1800, [
     r'\[npc-care\][^\n]* action=litter_pick_up item=minecraft:paper\b',
     r'\[npc-care\][^\n]* action=litter_pick_up item=minecraft:stick\b',
     rf'\[npc-care\][^\n]* action=bin_refill bin={_tidy_open_bin}\b[^\n]* item=minecraft:paper litter=1\b',
     rf'\[npc-care\][^\n]* action=bin_refill bin={_tidy_open_bin}\b[^\n]* item=minecraft:stick litter=1\b',
     rf'\[npc-care\][^\n]* action=bin_skip bin={_tidy_wedged_bin}\b reason=untippable\b',
-], [r'\[npc-care\][^\n]* action=bin_refill bin=' + _tidy_wedged_bin + r'\b'])
+    r'MCYTIDY_UNMARKED_STILL_ON_GROUND',
+], [r'\[npc-care\][^\n]* action=bin_refill bin=' + _tidy_wedged_bin + r'\b'],
+       readout=['execute if entity ' + sel('tidy_player_paper') + ' run say MCYTIDY_UNMARKED_STILL_ON_GROUND'])
 _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
        r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
        [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],

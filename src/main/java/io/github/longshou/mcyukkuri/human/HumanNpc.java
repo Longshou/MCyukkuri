@@ -176,6 +176,7 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(3, new StaffDoorGoal());
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
+        goalSelector.addGoal(4, new VillageBin.Sweep(this));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
             @Override public boolean canUse() { return !streetResident() && !resting() && !isTrading() && super.canUse(); }
         });
@@ -268,6 +269,17 @@ public final class HumanNpc extends PathfinderMob {
             } else Custody.ownerDied(this);
         }
         super.die(source);
+    }
+
+    @Override public void onAddedToLevel() {
+        super.onAddedToLevel();
+        if (level().isClientSide) return;
+        var data = getPersistentData();
+        if (data.contains("VillageBinLitter")) {
+            setItemInHand(InteractionHand.OFF_HAND, ItemStack.parseOptional(registryAccess(), data.getCompound("VillageBinLitter")));
+            data.remove("VillageBinLitter");
+        }
+        VillageBin.dropLitter(this);
     }
     @Override public boolean hurt(DamageSource source, float amount) {
         boolean hurt = super.hurt(source, amount);
