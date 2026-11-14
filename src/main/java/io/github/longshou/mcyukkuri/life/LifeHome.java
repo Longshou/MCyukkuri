@@ -218,10 +218,34 @@ final class LifeHome {
         return nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest));
     }
 
+    private static final Comparator<BlockPos> CARE_SCAN_ORDER = Comparator.comparingInt((BlockPos pos) -> pos.getZ())
+            .thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX);
+
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
+        var level = o.level();
+        var entity = o.entity();
+        int radius = TravelRange.search(entity, 8);
+        var here = entity.blockPosition();
+        var min = here.offset(-radius, -2, -radius);
+        var max = here.offset(radius, 2, radius);
+        var candidates = new ArrayList<BlockPos>();
+        for (int z = min.getZ() >> 4; z <= max.getZ() >> 4; z++) {
+            for (int x = min.getX() >> 4; x <= max.getX() >> 4; x++) {
+                var chunk = level.getChunkSource().getChunkNow(x, z);
+                if (chunk == null) continue;
+                for (var pos : chunk.getBlockEntitiesPos()) {
+                    if (pos.getX() >= min.getX() && pos.getX() <= max.getX()
+                            && pos.getY() >= min.getY() && pos.getY() <= max.getY()
+                            && pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ()) candidates.add(pos);
+                }
+            }
+        }
+        // Keep the cell scan's tie order and order of route tests, including pending block entities.
+        candidates.sort(CARE_SCAN_ORDER);
         BlockPos best = null; double distance = Double.MAX_VALUE;
-        for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
-            if (!TravelRange.babyDestination(o.entity(),scan) || !o.level().hasChunkAt(scan) || !(o.level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
+        for (BlockPos scan : candidates) {
+            if (!TravelRange.babyDestination(entity, scan) || !level.hasChunkAt(scan)
+                    || !(level.getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
             if (requireFood && (!care.hasFood(o::seeksFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
                     || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
                     || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;

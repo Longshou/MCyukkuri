@@ -47,6 +47,8 @@ public final class SubspeciesLife {
         public boolean fits(YukkuriVariant species) { return this != RETIRED_8 && (variant == null || variant == species); }
     }
     public enum Congenital { NORMAL, SPARSE_HAIR, FACE_ASYMMETRY, BEAN_BODY }
+    private static final Kind[] KINDS = Kind.values();
+    private static final Congenital[] CONGENITAL_FORMS = Congenital.values();
     private final YukkuriEntity entity;
     private Kind kind = Kind.NORMAL;
     private Congenital congenital = Congenital.NORMAL;
@@ -61,8 +63,10 @@ public final class SubspeciesLife {
     private long deibuRetryAt, deibuSpaceSignature;
     private BlockPos deibuCheckedAt;
     public SubspeciesLife(YukkuriEntity entity) { this.entity = entity; }
-    public Kind kind() { return entity.level().isClientSide ? Kind.values()[Math.min(Kind.values().length-1, entity.subspeciesFlags() & 15)] : kind; }
-    public Congenital congenital() { return entity.level().isClientSide ? Congenital.values()[Math.min(3, (entity.subspeciesFlags() >> 4) & 15)] : congenital; }
+    public static Kind kindFromFlags(int flags) { return KINDS[Math.min(KINDS.length - 1, flags & 15)]; }
+    public static Congenital congenitalFromFlags(int flags) { return CONGENITAL_FORMS[Math.min(3, (flags >> 4) & 15)]; }
+    public Kind kind() { return entity.level().isClientSide ? kindFromFlags(entity.subspeciesFlags()) : kind; }
+    public Congenital congenital() { return entity.level().isClientSide ? congenitalFromFlags(entity.subspeciesFlags()) : congenital; }
     public boolean boatExperienced() { return boatExperienced; }
     public boolean deibu() { return entity.level().isClientSide ? (entity.subspeciesFlags()&DEIBU_FLAG)!=0 : deibu; }
     public float formScale() { return deibu()?1.5f:1; }
@@ -166,9 +170,9 @@ public final class SubspeciesLife {
     public void initializeBirth(int flags) {
         if(initialized||entity.level().isClientSide)return;
         int k=flags&15,c=(flags>>4)&15;
-        if(k>=Kind.values().length||c>=Congenital.values().length)flags=0;
+        if(k>=KINDS.length||c>=CONGENITAL_FORMS.length)flags=0;
         k=flags&15;c=(flags>>4)&15;
-        if(!set(Kind.values()[k],Congenital.values()[c])){kind=Kind.NORMAL;congenital=Congenital.NORMAL;initialized=true;sync();}
+        if(!set(KINDS[k],CONGENITAL_FORMS[c])){kind=Kind.NORMAL;congenital=Congenital.NORMAL;initialized=true;sync();}
     }
     public static void onBirth(YukkuriEntity child, YukkuriEntity a, YukkuriEntity b) { child.subspecies().roll(a, b); }
     private boolean deibuCandidate() {

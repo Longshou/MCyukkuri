@@ -31,7 +31,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
@@ -92,7 +91,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         // A baby inside its parent's closed mouth is not seen.
         if(holder!=null&&ParentCarryPresentation.swallowed(entity,holder,partialTick))return;
         if (!entity.isInvisible()) {
-            var start=new Matrix4f(pose.last().pose());
+            // pushPose copies the top, leaving the render origin available to attachments and capture.
+            var start=pose.last().pose();
             pose.pushPose();
             var parent=holder;
             boolean carried=parent!=null&&parent.hasPassengerId(entity.getUUID());

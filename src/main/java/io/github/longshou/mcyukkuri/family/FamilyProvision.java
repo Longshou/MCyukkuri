@@ -47,11 +47,12 @@ public final class FamilyProvision {
     /** An older sibling can help at their shared home when neither parent is available there. */
     static boolean siblingCare(YukkuriEntity caregiver, YukkuriEntity child) {
         if (caregiver == child || !(caregiver.family().adult() || caregiver.family().subadult())
-                || !child.childhood().shouldStayWithParents() || !sharesHome(caregiver, child)) return false;
+                || !child.childhood().shouldStayWithParents()) return false;
         var a = caregiver.family();
         var b = child.family();
         if (!(a.mother() != null && a.mother().equals(b.mother())
                 || a.father() != null && a.father().equals(b.father()))) return false;
+        if (!sharesHome(caregiver, child)) return false;
         if (!(caregiver.level() instanceof ServerLevel level)) return false;
         for (UUID id : b.caregiverIds())
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()

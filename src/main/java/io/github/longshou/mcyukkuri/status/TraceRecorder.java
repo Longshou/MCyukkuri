@@ -196,14 +196,13 @@ public final class TraceRecorder {
     private static long lastTickEndNanos() { return lastTickEndNanos; }
 
     public static void tickPre(ServerTickEvent.Pre event) {
-        if (mode == Mode.OFF) return;
-        tickStartNanos = System.nanoTime();
+        tickStartNanos = mode == Mode.OFF ? 0 : System.nanoTime();
     }
 
     public static void tickPost(ServerTickEvent.Post event) {
         if (mode == Mode.OFF) return;
-        long work = System.nanoTime() - tickStartNanos;
         long recorderStart = System.nanoTime();
+        long start = tickStartNanos;
         MinecraftServer server = event.getServer();
         for (ServerLevel level : server.getAllLevels()) sampleLevel(level);
         lastTickLevel = server.overworld();
@@ -217,15 +216,19 @@ public final class TraceRecorder {
             stallPending = false;
             stallStack = null;
         }
-        if (mode == Mode.DENSE || work > 50_000_000L) {
-            JsonObject lag = new JsonObject();
-            lag.addProperty("ms", nanosToMillis(work));
-            lag.addProperty("rec_ms", nanosToMillis(recorder));
-            emit(lastTickLevel, currentWindow(lastTickLevel), null, "lag", lag, lastTick);
+        // The museum's load function can enable tracing after the Pre event of its first tick.
+        if (start != 0) {
+            long work = recorderStart - start;
+            if (mode == Mode.DENSE || work > 50_000_000L) {
+                JsonObject lag = new JsonObject();
+                lag.addProperty("ms", nanosToMillis(work));
+                lag.addProperty("rec_ms", nanosToMillis(recorder));
+                emit(lastTickLevel, currentWindow(lastTickLevel), null, "lag", lag, lastTick);
+            }
+            modeTicks++;
+            modeWorkNanos += work;
+            modeRecorderNanos += recorder;
         }
-        modeTicks++;
-        modeWorkNanos += work;
-        modeRecorderNanos += recorder;
         lastTickEndNanos = System.nanoTime();
     }
 

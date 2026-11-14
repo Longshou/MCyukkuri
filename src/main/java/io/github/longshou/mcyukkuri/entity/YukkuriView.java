@@ -24,10 +24,10 @@ public interface YukkuriView {
     int subspeciesFlags();
     default String assetId() { return SubspeciesLife.assetId(getVariant(), subspeciesFlags()); }
     default SubspeciesLife.Kind subspeciesKind() {
-        return SubspeciesLife.Kind.values()[Math.min(SubspeciesLife.Kind.values().length - 1, subspeciesFlags() & 15)];
+        return SubspeciesLife.kindFromFlags(subspeciesFlags());
     }
     default SubspeciesLife.Congenital congenitalForm() {
-        return SubspeciesLife.Congenital.values()[Math.min(3, (subspeciesFlags() >> 4) & 15)];
+        return SubspeciesLife.congenitalFromFlags(subspeciesFlags());
     }
     int lifeStage();
     boolean isBaby();

@@ -41,6 +41,7 @@ public final class Custody {
         RESERVE("reserve"), LOST("lost"), STUD("stud"), SHOP_NURSERY("shop_nursery"),
         TRAINEE("trainee"), EXAM_ACTOR("exam_actor");
 
+        private static final Role[] ROLES = values();
         private final String id;
 
         Role(@Nullable String id) { this.id = id; }
@@ -48,7 +49,7 @@ public final class Custody {
         @Nullable public String id() { return id; }
 
         public static Role parse(String raw) {
-            for (var role : values()) if (role.id != null && role.id.equals(raw)) return role;
+            for (var role : ROLES) if (role.id != null && role.id.equals(raw)) return role;
             return UNKNOWN;
         }
     }

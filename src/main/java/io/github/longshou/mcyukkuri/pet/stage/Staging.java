@@ -34,6 +34,7 @@ public final class Staging {
     public static UUID card(ServerLevel level, Vec3 pos, Component text, int ticks, float scale) {
         var tag = base("minecraft:text_display", scale);
         tag.putString("text", Component.Serializer.toJson(text, level.registryAccess()));
+        tag.putString("alignment", "center");
         tag.putInt("background", 0xA0181410); // vanilla text is white; keep the card dark for contrast
         tag.putInt("line_width", 160);
         return spawn(level, pos, tag, ticks);
