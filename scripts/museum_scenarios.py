@@ -427,13 +427,13 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
 
 _junk_scene = 'stray_junk_headwear'
 add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
-    '看低自尊的失饰流浪油走近、叼起并戴上地面的垃圾头饰。右键手里那两件试戴：低自尊的鞠躬道谢，中档的犹豫一下才收，骄傲的鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
+    '看低自尊的失饰流浪油走近、叼起脚边的垃圾头饰戴上并鞠躬道谢；中间戴瓶盖的失饰者被邻居嘲笑时含泪忍着。右键手里那两件试戴：低自尊的鞠躬道谢，中档的犹豫一下才收，骄傲的鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
     '手动试戴与取回', [
-        item('mcyukkuri:junk_headwear', 1, -10, 4, name='junk_supply'),
-        street_stray(_junk_scene, 'reimu', -10, 7, 'quiet_stray', accessory=False, boldness=0,
+        item('mcyukkuri:junk_headwear', 1, -14, 5, name='junk_supply'),
+        street_stray(_junk_scene, 'reimu', -14, 6, 'quiet_stray', accessory=False, boldness=0,
                      friendliness=100, label='低自尊失饰者', lead=True),
         set_status('quiet_stray', 'marks.dirt', 3),
-        street_stray(_junk_scene, 'reimu', 10, 7, 'proud_stray', accessory=False, boldness=100,
+        street_stray(_junk_scene, 'reimu', 14, 6, 'proud_stray', accessory=False, boldness=100,
                      friendliness=65, label='骄横失饰者'),
         street_stray(_junk_scene, 'marisa', 0, -2, 'covered_stray', accessory=False, boldness=30,
                      label='戴瓶盖的流浪油').replace('Accessory:0b,',
@@ -442,10 +442,11 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
                      yaw=90, label='会嘲笑的邻居'),
     ], give=['mcyukkuri:reimu_ribbon', 'mcyukkuri:junk_headwear 2', 'mcyukkuri:magnifying_glass'], env=DAY, spot='street', vantage=(0, 11),
     smoke=dict(ticks=620, forbid=[],
-               commands=[(130, 'damage ' + sel('covered_stray') + ' 100 minecraft:generic_kill'),
-                         (180, 'execute if entity @e[type=mcyukkuri:yukkuri_remains,distance=..12,nbt={Remains:{components:{"minecraft:custom_data":{JunkHeadwear:"bottle_cap"}}}}] run say MCYJUNK_REMAINS'),
+               commands=[(300, 'damage ' + sel('covered_stray') + ' 100 minecraft:generic_kill'),
+                         (340, 'execute if entity @e[type=mcyukkuri:yukkuri_remains,distance=..12,nbt={Remains:{components:{"minecraft:custom_data":{JunkHeadwear:"bottle_cap"}}}}] run say MCYJUNK_REMAINS'),
                          (600, 'execute unless entity @e[type=minecraft:item,distance=..25,nbt={Item:{id:"mcyukkuri:junk_headwear"}}] run say MCYJUNK_NO_DUPLICATE')],
                expect=[r'\[contempt\][^\n]* junk mocked .*variant=bottle_cap affinity=0 -> -1',
+                       r'\[headwear\][^\n]* junk mock wince variant=bottle_cap\b',
                        r'\[treasure\][^\n]* picked up drop=\S+ item=mcyukkuri:junk_headwear remaining=0 holder=mouth',
                        r'\[headwear\][^\n]* junk equipped variant=\S+ source=ground',
                        r'MCYJUNK_REMAINS', r'MCYJUNK_NO_DUPLICATE']))
