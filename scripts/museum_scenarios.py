@@ -264,13 +264,14 @@ add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
 add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',
-    '土丘洞储粮空了。双亲状态相近，父油魔理沙去远处草场采草，母油灵梦守洞口、照看赤油。看魔理沙把草衔回粮堆，家里迎接归来，再用存粮喂赤油。',
+    '土丘洞储粮空了。父油魔理沙去草场采草，母油灵梦守洞口、照看赤油。看魔理沙把草衔回粮堆，家里迎接归来，再用存粮喂赤油。',
     '数分钟（可倍速）', [
-        yk('marisa', 0, 1, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=86, energy=100,
+        box(7, 0, 5, 12, 0, 11, 'minecraft:short_grass', 'keep'),
+        yk('marisa', 0, 1, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=65, energy=100,
            boldness=60, friendliness=100, attachment=95),
-        yk('reimu', 0, -2, 'mother', uuid=_fm, yaw=0, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=97, energy=100,
-           boldness=60, friendliness=100, attachment=95),
-        yk('reimu', 1, -3, 'child', stage='baby', uuid=_fc, yaw=0, nutrition=71, self_control=96,
+        yk('reimu', 0, -2, 'mother', uuid=_fm, yaw=0, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=100, energy=100,
+           boldness=20, friendliness=100, attachment=35, affection=0),
+        yk('reimu', 1, -3, 'child', stage='baby', uuid=_fc, yaw=0, nutrition=74, self_control=96,
            childhood=CHILDHOOD_CRAWLING_READY,
            kin=f'Mother:{uuid_nbt(_fm)},Father:{uuid_nbt(_ff)}'),
         ],
@@ -286,23 +287,29 @@ add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野
 _absent, _stayer, _older, _baby = (uid('family_absence', n) for n in ('absent', 'stayer', 'older', 'baby'))
 _absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)}'
 _absence_x, _absence_z = BY_ID['forage'].spots['forage']
-# The death can occur only on the meadow side of the ridge, after a real departure. The ridge blocks sight from home.
-_far_parent = (f'@e[tag={tag("absent")},x={_absence_x + 14},y={FEET - 1},z={_absence_z - 12},'
-               'dx=18,dy=8,dz=24,limit=1]')
+# A narrow screen hides the far side of the nearby meadow. The actual death waits for a private moment there.
+_far_parent = (f'@e[tag={tag("absent")},x={_absence_x - 7},y={FEET - 1},z={_absence_z + 10},'
+               'dx=14,dy=4,dz=9,limit=1]')
+_unwatched_death = (f'execute as {_far_parent} at @s '
+                    + ''.join(f'unless entity @e[tag={tag(n)},distance=..10] ' for n in ('stayer', 'older', 'baby'))
+                    + 'run kill @s')
 add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采草的亲油迟迟不归',
     '灵梦亲油去土坡后的草场采草，在家人看不到的地方死亡。看魔理沙和孩子等多久才到洞口呼唤。'
     '子油沿记得的方向找一段再回头，赤油留在洞旁等。看魔理沙找到遗体后原地哀悼，再赶去采草、照料饥饿的赤油。',
     '约 2–5 分钟（可倍速）', [
-        box(9, 0, -5, 10, 2, 8, 'minecraft:dirt'),
-        yk('reimu', 0, 1, 'absent', uuid=_absent, yaw=180, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=62, boldness=100),
-        yk('marisa', 0, -2, 'stayer', uuid=_stayer, yaw=0, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=96, energy=75, boldness=43,
-           friendliness=100, attachment=95, self_control=35),
+        box(-2, 0, 6, 2, 2, 6, 'minecraft:dirt'),
+        box(-7, 0, 10, 7, 0, 19, 'minecraft:short_grass', 'keep'),
+        *(block(x, 0, 7, 'minecraft:short_grass') for x in (-6, -3, 3, 6)),
+        yk('reimu', 0, -1, 'absent', uuid=_absent, yaw=0, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=58, energy=100,
+           boldness=100),
+        yk('marisa', -1, -2, 'stayer', uuid=_stayer, yaw=0, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=100, energy=65, boldness=38,
+           friendliness=100, attachment=0, affection=0, self_control=35),
         yk('reimu', 1, -2, 'older', stage='child', uuid=_older, kin=_absence_kin, nutrition=76, boldness=20, self_control=35,
            childhood=CHILDHOOD_HOPPING, lead=True),
         yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=25, childhood=CHILDHOOD_CRAWLING_READY),
         ],
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
-          Retry(f'kill {_far_parent}', _far_parent, tries=150, every=20, first=120)],
+          Retry(_unwatched_death, _far_parent, tries=150, every=5, first=120)],
     env=DAY, spot='forage', vantage=(0, 10, 180, 12),
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
