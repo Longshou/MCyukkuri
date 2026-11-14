@@ -486,7 +486,8 @@ public final class Headwear extends Goal implements MotorOwner {
     }
     private boolean able() { return inabilityReason()==null; }
     private boolean junkReady() {
-        return JunkHeadwear.available(entity) && !entity.hasReaction() && entity.motor().current() == null
+        return (fittingJunk() || entity.life().custody().junk() != null)
+                && JunkHeadwear.available(entity) && !entity.hasReaction() && entity.motor().current() == null
                 && (fittingJunk() || JunkHeadwear.canAnswer(entity) && (junkMocked || junkBeatWait == 0)
                 && JunkHeadwear.onDryGround(entity));
     }
