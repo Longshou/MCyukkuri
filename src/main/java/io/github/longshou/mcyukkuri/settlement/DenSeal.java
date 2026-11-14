@@ -335,6 +335,7 @@ public final class DenSeal {
                 return;
             }
             var seal = seal();
+            if (!seal.active()) return;
             var level = (ServerLevel) y.level();
             var home = y.habitat().shelter();
             if (home != null && (seal.ticks % RECHECK == 0 || seal.ticks + 1 >= WORK_TICKS)
