@@ -1669,8 +1669,10 @@ public final class FamilyLife {
                 return;
             }
             if(reached(target)){separation.reunited(target);stop();return;}
+            if(!supported())return;
             var stand=reunionStand(target);
-            if(stand==null||SurfaceApproach.walkResult(entity,stand,target,1.1)!=SurfaceApproach.Result.MOVING) {
+            var result=stand==null?SurfaceApproach.Result.BLOCKED:SurfaceApproach.walkResult(entity,stand,target,1.1);
+            if(result==SurfaceApproach.Result.BLOCKED||result==SurfaceApproach.Result.ARRIVED) {
                 if(reached(target))separation.reunited(target);
                 stop();
             }

@@ -205,11 +205,16 @@ final class KinAbsence {
         double radius = (family.adult() ? 20 : 12) * e.life().personality().exploreMultiplier();
         var origin = Vec3.atBottomCenterOf(home);
         var toward = Vec3.atBottomCenterOf(memory.seen).subtract(origin);
-        // Look a short way past the sighting in the direction they were seen from home.
         double distance = toward.horizontalDistance();
-        var candidate = origin.add(toward.multiply(1, 0, 1).normalize().scale(Math.min(radius, distance + 4)))
-                .add(0, toward.y, 0);
-        return family.level().hasChunkAt(BlockPos.containing(candidate)) ? SurfaceApproach.floor(e, candidate) : null;
+        // Walk as far as the remembered trail and the caller's range allow, using the same dry routes as care.
+        var direction = toward.multiply(1, 0, 1).normalize();
+        var far = origin.add(direction.scale(Math.min(radius, distance + 4))).add(0, toward.y, 0);
+        var near = origin.add(direction.scale(Math.min(radius, distance))).add(0, toward.y, 0);
+        for (var point : new Vec3[]{far, near}) {
+            var stand = SurfaceApproach.floor(e, point);
+            if (stand != null && SurfaceApproach.canApproach(e, stand)) return stand;
+        }
+        return null;
     }
 
     void tick() {
