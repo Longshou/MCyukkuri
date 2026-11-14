@@ -14,6 +14,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.phys.Vec3;
@@ -173,7 +174,7 @@ public final class EmotionCourse {
     }
 
     /** Called once when a panic runs out. A predator chase always leaves it shaken; other panics only after a recent real hit. */
-    public void frightOver(net.minecraft.world.entity.LivingEntity threat) {
+    public void frightOver(LivingEntity threat) {
         boolean recent = entity.level().getGameTime() - frightAt <= FRIGHT_MEMORY;
         float power = threat instanceof YukkuriEntity y && y.profile().dangerToYukkuri() ? 1 : recent ? fright : 0;
         fright = 0;
@@ -374,7 +375,7 @@ public final class EmotionCourse {
             if (ticks == 1 && f.kind == Kind.GRIEF && f.where != null && f.where.distSqr(y.blockPosition()) <= 16 * 16)
                 SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), Vec3.atBottomCenterOf(f.where)));
             if (ticks == 1 && f.kind == Kind.RAGE && f.about != null && y.level() instanceof ServerLevel level
-                    && level.getEntity(f.about) instanceof net.minecraft.world.entity.LivingEntity other
+                    && level.getEntity(f.about) instanceof LivingEntity other
                     && other.distanceToSqr(y) <= 144) y.getLookControl().setLookAt(other, 30, 30);
             if (priority != 6 || ticks < sit) return;
             // Easing: after a sit, a few slow aimless steps, then another sit.

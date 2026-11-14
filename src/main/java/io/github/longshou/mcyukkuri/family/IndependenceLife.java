@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -22,21 +23,29 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 
 /**
- * A grown child leaves its parents (project design). When it is old and fit enough, and the day suits it, it walks toward a parent until it is a few blocks off in sight,
- * the two exchange a short farewell (the child's "yukkuri shite itte ne" and the parent's glad answer), and the child
- * then simply becomes a vagrant looking for a new nest of its own: its bed in the parents' home is released, its
- * kinship and affinity are kept. Finding or digging the new home belongs to {@code HabitatLife}; nothing here builds.
- * The farewell never takes control of the parent, so a parent can neither be stuck by it nor block it: a child that
- * cannot reach a parent within {@link #FAREWELL_LIMIT} ticks leaves anyway.
+ * A grown child leaves its parents (project design). When it is old and fit enough, and the day suits it, it walks up to a
+ * parent, the two say goodbye (docs/FEATURES.md 离巢告别), and the child then simply becomes a vagrant looking for a new nest
+ * of its own: its bed in the parents' home is released, its kinship and affinity are kept. Finding or digging the new home
+ * belongs to {@code HabitatLife}; nothing here builds.
+ * <p>The goodbye, by their values: the child says it is going (teary when attached); the parent answers, glad and blessing
+ * when cool, sobbing "come back sometimes" when attached; an attached pair nuzzle for a while (longer the more attached), a
+ * cool child only bows; it says "I'm off" and walks away, looking back once or twice when attached; the parent watches it go,
+ * and an attached parent is left grieving a little (mind/EmotionCourse). The parent's part is its own goal ({@link Task#SEE_OFF})
+ * that it takes up only when free; the child's farewell never waits for it, so neither can be stuck by the other: a child
+ * that cannot reach a parent within {@link #FAREWELL_LIMIT} ticks says goodbye from a few blocks off, or leaves anyway.
  */
 public final class IndependenceLife extends Goal {
-    private enum Task { NONE, FAREWELL }
-    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CONTACT_TICKS = 100, CALL_RANGE = 4, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
+    private enum Task { NONE, FAREWELL, DEPART, SEE_OFF }
+    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CALL_RANGE = 4, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
+    /** Beats of the exchange, in ticks from the first word: the parent's answer, then the nuzzle (or the bow). */
+    private static final int ANSWER = 40, CLOSE = 80, BOW_TICKS = 24, GO_LINE = 30;
+    private static final int DEPART_LIMIT = 500, DEPART_DISTANCE = 10, SEE_OFF_LIMIT = 1800;
     private final YukkuriEntity entity;
     /** The parents' home that was left; the leaver never moves back into it. */
     private GlobalPos origin;
@@ -48,6 +57,14 @@ public final class IndependenceLife extends Goal {
     private Vec3 target;
     private int stalled;
     private Vec3 progress;
+    // The exchange as decided at its first word, the walk away and its looks back. Transient.
+    private boolean touching, teary;
+    private int closeTicks, lookBacks, lookBackTicks, departTicks;
+    private BlockPos away;
+    // The parent's side: the child it is seeing off and until when the request stands.
+    private UUID seeing;
+    private long seeUntil;
+    private boolean sobbing;
 
     public IndependenceLife(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
@@ -62,7 +79,29 @@ public final class IndependenceLife extends Goal {
     public int rainLosses() { return 0; }
     public GlobalPos site() { return null; }
     public GlobalPos origin() { return origin; }
-    public String activity() { return task == Task.FAREWELL ? Behaviors.INDEPENDENCE_FAREWELL : Behaviors.IDLE; }
+    public String activity() {
+        return switch (task) {
+            case FAREWELL -> !said || contact >= ANSWER && contact < CLOSE ? Behaviors.INDEPENDENCE_SEE_OFF
+                    : contact < ANSWER ? Behaviors.INDEPENDENCE_FAREWELL
+                    : contact < closeEnd() ? nuzzling() ? Behaviors.INDEPENDENCE_NUZZLE : Behaviors.INDEPENDENCE_BOW
+                    : Behaviors.INDEPENDENCE_FAREWELL;
+            case DEPART -> lookBackTicks > 0 ? Behaviors.INDEPENDENCE_LOOK_BACK : Behaviors.INDEPENDENCE_SEE_OFF;
+            case SEE_OFF -> sobbing ? Behaviors.INDEPENDENCE_SOB : seenBeat() >= ANSWER && seenBeat() < CLOSE
+                    ? entity.life().personality().attachment() >= 55 ? Behaviors.INDEPENDENCE_SOB : Behaviors.INDEPENDENCE_ANSWER
+                    : seenBeat() >= CLOSE && seenBeat() < seenCloseEnd() && seenNuzzle() ? Behaviors.INDEPENDENCE_NUZZLE
+                    : Behaviors.INDEPENDENCE_SEE_OFF;
+            case NONE -> Behaviors.IDLE;
+        };
+    }
+    private boolean said;
+    private int closeEnd() { return CLOSE + closeTicks; }
+    private boolean nuzzling() { return touching && closeTicks > BOW_TICKS; }
+    /** The child's beat as its parent reads it: -1 while it walks up, then ticks since its first word; MAX once it walks away. */
+    private int beat() { return task == Task.FAREWELL ? said ? contact : -1 : task == Task.DEPART ? Integer.MAX_VALUE : -2; }
+    private YukkuriEntity seen() { return seeing != null && level().getEntity(seeing) instanceof YukkuriEntity child ? child : null; }
+    private int seenBeat() { var child = seen(); return child == null ? -2 : child.independence().beat(); }
+    private int seenCloseEnd() { var child = seen(); return child == null ? 0 : child.independence().closeEnd(); }
+    private boolean seenNuzzle() { var child = seen(); return child != null && child.independence().nuzzling(); }
     /** The old household chores no longer yield to a building project. */
     public boolean householdOuting() { return false; }
     /** True for the home this individual left: it does not move back into it. */
@@ -151,6 +190,8 @@ public final class IndependenceLife extends Goal {
         return chance;
     }
     @Override public boolean canUse() {
+        // The parent's side comes first: a child it recognises is saying goodbye to it.
+        if (seeOffReady()) { task = Task.SEE_OFF; return true; }
         if (independent || loadGrace > 0 || wait > 0 || !ready() || !member()) return false;
         wait = armed ? 100 : CHECK_INTERVAL;
         if (!eligible()) return false;
@@ -176,8 +217,13 @@ public final class IndependenceLife extends Goal {
         visitor = parent.getUUID(); task = Task.FAREWELL; return true;
     }
     @Override public void start() {
-        running = true; elapsed = contact = 0; target = progress = null; stalled = 0;
+        running = true; elapsed = contact = departTicks = lookBackTicks = 0; target = progress = null; stalled = 0; said = false; sobbing = false;
+        if (task == Task.SEE_OFF) {
+            GameplayLog.event(entity, "independence", "see off started child={}", seeing);
+            return;
+        }
         GameplayLog.event(entity, "independence", "farewell started parent={}", visitor);
+        if (level().getEntity(visitor) instanceof YukkuriEntity parent) parent.independence().seeOff(entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     /** Once on its way the farewell only gives way to real danger or need; picking up a bite of grass or a mild hunger do not call it off. */
@@ -186,27 +232,161 @@ public final class IndependenceLife extends Goal {
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.life().hasUrgentNeed() && !entity.life().isSleeping()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.shellRetraction().active();
     }
-    @Override public boolean canContinueToUse() { return active() && steady() && elapsed < FAREWELL_LIMIT + CONTACT_TICKS && !independent; }
+    @Override public boolean canContinueToUse() {
+        if (!active() || !steady()) return false;
+        return switch (task) {
+            case FAREWELL -> !independent && elapsed < FAREWELL_LIMIT + closeEnd() + GO_LINE + 20;
+            case DEPART -> departTicks < DEPART_LIMIT;
+            case SEE_OFF -> seeOffValid();
+            case NONE -> false;
+        };
+    }
     @Override public void tick() {
         if (!canContinueToUse()) { stop(); return; }
         elapsed++;
+        switch (task) {
+            case FAREWELL -> farewell();
+            case DEPART -> depart();
+            case SEE_OFF -> seeOff();
+            case NONE -> {}
+        }
+    }
+
+    // ---- the child's goodbye -----------------------------------------------------------------------------------------------------
+    private void farewell() {
         if (!(level().getEntity(visitor) instanceof YukkuriEntity parent) || !parent.isAlive() || parent.isPanicking() || parent.isCommandPlaying()) {
             leave(); stop(); return;
         }
-        // The goodbye is called from a few blocks off in sight; a roaming parent need not be caught up with and touched.
-        if (entity.distanceToSqr(parent) > CALL_RANGE * CALL_RANGE || !entity.hasLineOfSight(parent)) {
-            var stand = contactStand(parent);
-            if (elapsed > FAREWELL_LIMIT || stand == null && contact == 0) { leave(); stop(); return; }
-            if (stand != null) approach(stand, parent); else SurfaceApproach.halt(entity);
-            return;
+        if (!said) {
+            // Walks right up to the parent so they can touch; a parent it cannot reach is called from a few blocks off in sight.
+            double reach = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .15;
+            boolean close = entity.distanceToSqr(parent) <= (reach + .6) * (reach + .6) && entity.hasLineOfSight(parent);
+            boolean callable = entity.distanceToSqr(parent) <= CALL_RANGE * CALL_RANGE && entity.hasLineOfSight(parent);
+            var stand = close ? null : contactStand(parent);
+            if (!close && !(callable && (stand == null || stalled >= 60 || elapsed > FAREWELL_LIMIT / 2))) {
+                if (elapsed > FAREWELL_LIMIT || stand == null && !callable) { leave(); stop(); return; }
+                if (stand != null) approach(stand, parent); else SurfaceApproach.halt(entity);
+                return;
+            }
+            begin(parent, close);
         }
         SurfaceApproach.halt(entity);
         entity.getLookControl().setLookAt(parent, 25, 25);
-        if (!parent.life().isSleeping()) parent.getLookControl().setLookAt(entity, 25, 25);
-        // The little show: the child bids its parent yukkuri-shite-itte-ne; the parent answers gladly a moment later.
-        if (contact == 0) entity.showReaction("happy", "hello", 90);
-        if (contact == 30 && !parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
-        if (++contact >= CONTACT_TICKS) { leave(); stop(); }
+        contact++;
+        if (contact == 1) entity.showReaction(teary ? "teary_smile" : "happy", teary ? "farewell_say_teary" : "farewell_say", ANSWER);
+        if (contact == ANSWER && !parent.independence().seeingOff(entity)) {
+            // A parent busy elsewhere still hears it: the old glad answer from where it is.
+            if (!parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
+        }
+        if (contact == CLOSE && nuzzling()) entity.showReaction(teary ? "teary_smile" : "closed_smile", "", closeTicks);
+        if (contact == closeEnd()) entity.showReaction(teary ? "teary_smile" : "happy", "farewell_go", GO_LINE);
+        if (contact >= closeEnd() + GO_LINE) {
+            leave();
+            beginDeparture(parent);
+        }
+    }
+
+    /** The exchange is decided at the first word, from both their values. */
+    private void begin(YukkuriEntity parent, boolean close) {
+        said = true; touching = close; contact = 0;
+        int own = entity.life().personality().attachment(), theirs = parent.life().personality().attachment();
+        teary = own >= 55;
+        // An attached pair nuzzle the longer the more attached they are; a cool pair or one called from afar only bows.
+        int bond = own + theirs;
+        closeTicks = close && bond >= 100 ? 40 + (bond - 100) / 2 : BOW_TICKS;
+        lookBacks = own >= 70 ? 2 : own >= 40 ? 1 : 0;
+        looked = 0;
+        SurfaceApproach.halt(entity);
+        GameplayLog.event(entity, "independence", "farewell exchange parent={} touching={} attachment={} parentAttachment={} nuzzleTicks={} lookBacks={}",
+                parent.getUUID(), close, own, theirs, nuzzling() ? closeTicks : 0, lookBacks);
+    }
+
+    /** It walks away from the parent, stopping to look back once or twice when attached; then the habitat takes over. */
+    private void beginDeparture(YukkuriEntity parent) {
+        task = Task.DEPART; departTicks = 0; lookBackTicks = 0;
+        var aim = DefaultRandomPos.getPosAway(entity, DEPART_DISTANCE + 2, 3, parent.position());
+        away = aim == null ? null : BlockPos.containing(aim);
+        GameplayLog.event(entity, "independence", "departure walk parent={} away={} lookBacks={}", parent.getUUID(), away, lookBacks);
+    }
+
+    private void depart() {
+        departTicks++;
+        var parent = level().getEntity(visitor) instanceof YukkuriEntity p && p.isAlive() ? p : null;
+        double from = parent == null ? 0 : Math.sqrt(entity.distanceToSqr(parent));
+        if (lookBackTicks > 0) {
+            SurfaceApproach.halt(entity);
+            if (parent != null) entity.getLookControl().setLookAt(parent, 30, 30);
+            if (--lookBackTicks == 0) GameplayLog.event(entity, "independence", "looked back parent={} distance={} count={}/{}", visitor, Math.round(from), looked, lookBacks);
+            return;
+        }
+        if (parent == null || from >= DEPART_DISTANCE || away == null) { stop(); return; }
+        // A look back at about 4 and 7 blocks (or a single one at 5); the most attached call out at the last one.
+        double mark = lookBacks >= 2 ? (looked == 0 ? 4 : 7) : 5;
+        if (looked < lookBacks && from >= mark) {
+            looked++;
+            lookBackTicks = 40 + entity.life().personality().attachment() / 4;
+            SurfaceApproach.halt(entity);
+            SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), parent.position()));
+            if (entity.life().personality().attachment() >= 70 && looked == lookBacks)
+                entity.showReaction("teary_smile", "farewell_look_back", lookBackTicks);
+            else entity.showReaction(teary ? "teary_smile" : "happy", "", lookBackTicks);
+            return;
+        }
+        if (departTicks % 20 == 1 && !entity.life().navigate(away, .8, false)) { stop(); }
+    }
+    private int looked;
+
+    // ---- the parent's side -------------------------------------------------------------------------------------------------------
+    /** A child of this parent has begun its goodbye to it; the parent sees it off when it is free to. */
+    void seeOff(YukkuriEntity child) { seeing = child.getUUID(); seeUntil = level().getGameTime() + SEE_OFF_LIMIT; }
+    boolean seeingOff(YukkuriEntity child) { return task == Task.SEE_OFF && running && child.getUUID().equals(seeing); }
+    private boolean parentFree() {
+        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isPanicking() && !entity.isCommandPlaying()
+                && !entity.operations().active() && !entity.life().hasUrgentNeed() && !entity.life().isSleeping()
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && entity.life().mealTicks() == 0 && !entity.family().laboring();
+    }
+    private boolean seeOffReady() {
+        if (seeing == null) return false;
+        var child = seen();
+        if (level().getGameTime() > seeUntil || child == null || !child.isAlive() || child.independence().beat() == -2) {
+            seeing = null; return false;
+        }
+        return parentFree() && entity.distanceToSqr(child) <= PARENT_RANGE * PARENT_RANGE;
+    }
+    private boolean seeOffValid() {
+        var child = seen();
+        return child != null && child.isAlive() && parentFree() && level().getGameTime() <= seeUntil && child.independence().beat() != -2
+                && entity.distanceToSqr(child) <= 16 * 16;
+    }
+    private void seeOff() {
+        var child = seen();
+        int beat = child.independence().beat();
+        SurfaceApproach.halt(entity);
+        entity.getLookControl().setLookAt(child, 30, 30);
+        if (beat < ANSWER) return;
+        boolean attached = entity.life().personality().attachment() >= 55;
+        if (contact == 0) {
+            // Its answer, once, by its own attachment: a glad blessing, or a sob and "come back sometimes".
+            contact = 1;
+            entity.mind().felt(EmotionEvent.COMFORTED);
+            entity.showReaction(attached ? "teary" : "happy", attached ? "farewell_cry" : "farewell_bless", 60);
+            GameplayLog.event(entity, "independence", "see off answer child={} attached={} attachment={}", seeing, attached,
+                    entity.life().personality().attachment());
+        }
+        // While the child walks away the attached one sobs where it stands; the cool one just watches it go.
+        sobbing = attached && beat == Integer.MAX_VALUE;
+        if (beat == Integer.MAX_VALUE && contact == 1 && attached) { contact = 2; entity.showReaction("cry", "", 80); }
+    }
+
+    private void seeOffEnded() {
+        var child = seen();
+        boolean gone = child != null && child.independence().independent();
+        int attachment = entity.life().personality().attachment();
+        GameplayLog.event(entity, "independence", "see off ended child={} departed={} attachment={}", seeing, gone, attachment);
+        // An attached parent is left missing it for a while (a light grief course); a cool one goes back to its day.
+        if (gone && attachment >= 55)
+            entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .15f + .25f * (attachment - 55) / 45f, seeing, child.blockPosition());
+        seeing = null;
     }
     private YukkuriEntity parentNearby() {
         var home = entity.habitat().shelter();
@@ -258,11 +438,13 @@ public final class IndependenceLife extends Goal {
         SurfaceApproach.walkAround(entity,destination,parent,.8);
     }
     @Override public void stop() {
+        if (task == Task.SEE_OFF) seeOffEnded();
         // A farewell that was already heard by the parent is not taken back by an interruption: the leaving goes ahead.
-        if (task == Task.FAREWELL && contact >= 30 && !independent) leave();
-        if (task == Task.FAREWELL) GameplayLog.limited(entity, "independence", "farewell.stop", 200,
-                "farewell stopped parent={} departed={} elapsed={} contact={} stalled={}", visitor, independent, elapsed, contact, stalled);
-        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; wait = 40; target = progress = null; stalled = 0;
+        if (task == Task.FAREWELL && said && contact >= ANSWER && !independent) leave();
+        if (task == Task.FAREWELL || task == Task.DEPART) GameplayLog.limited(entity, "independence", "farewell.stop", 200,
+                "farewell stopped parent={} departed={} elapsed={} contact={} stalled={} walked={}", visitor, independent, elapsed, contact, stalled, departTicks);
+        task = Task.NONE; running = false; visitor = null; elapsed = contact = departTicks = lookBackTicks = 0; wait = 40; target = progress = null;
+        stalled = 0; said = false; sobbing = false; away = null;
         SurfaceApproach.halt(entity);
     }
     public void dropCarrying() {}

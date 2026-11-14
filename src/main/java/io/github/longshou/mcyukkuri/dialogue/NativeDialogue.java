@@ -55,7 +55,7 @@ public final class NativeDialogue {
             if (choices != null) return choices.get(choices.size() == 1 ? 0 : random.nextInt(choices.size()));
         }
         var shared = EVENTS.get(indexKey("*", "*", null, event));
-        return shared == null ? null : shared.getFirst();
+        return shared == null ? null : shared.get(shared.size() == 1 ? 0 : random.nextInt(shared.size()));
     }
     /** Whether this exact tier (no fallback) has a line for the event. */
     public static boolean has(String species, String tier, String quirk, String event) { return EVENTS.containsKey(indexKey(species, tier, quirk, event)); }
@@ -101,6 +101,9 @@ public final class NativeDialogue {
             case "stench", "eat_kin", "hunt_sweet" -> 2;
             // Settlement calls and headwear beats: a hunt call, a ration, a scolding or a torn / mended ornament answers something that just happened.
             case "accessory_torn", "famine" -> 3;
+            // The farewell's and the mould exile's beats are in step with their poses: none may be swallowed by chatter.
+            case "farewell_say", "farewell_say_teary", "farewell_bless", "farewell_cry", "farewell_go", "farewell_look_back",
+                 "mold_notice", "mold_warn", "mold_scorn", "mold_sorrow", "mold_plea", "mold_resist", "mold_leave", "mold_child_cry" -> 2;
             case "hunt_call", "hunt_join", "hunt_refuse", "hunt_back", "ration_give", "ration_get", "rule_blocked",
                  "migrate_discuss", "migrate_object", "migrate_agree", "migrate_pack", "shard_gathered", "accessory_mended",
                  "hatless_scorn", "hatless_monster" -> 2;

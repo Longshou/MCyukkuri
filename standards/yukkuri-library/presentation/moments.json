@@ -4282,6 +4282,512 @@
           ]
         }
       ]
+    },
+    "behavior_mourn": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1,
+          "tempo": 0.85,
+          "faces": [
+            [
+              0,
+              "cry"
+            ],
+            [
+              2.2,
+              "blank_cry"
+            ],
+            [
+              3.6,
+              "cry"
+            ]
+          ],
+          "emote": "gloom"
+        }
+      ]
+    },
+    "behavior_mourn_listless": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1,
+          "tempo": 0.7,
+          "faces": [
+            [
+              0,
+              "side_teary"
+            ]
+          ],
+          "emote": "gloom"
+        }
+      ]
+    },
+    "behavior_shaken": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "tremble",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "horrified"
+            ]
+          ],
+          "emote": "shiver"
+        },
+        {
+          "clip": "tremble",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "horrified"
+            ]
+          ],
+          "emote": "shiver"
+        },
+        {
+          "clip": "tremble",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "horrified"
+            ]
+          ],
+          "emote": "shiver"
+        },
+        {
+          "clip": "tremble",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "horrified"
+            ]
+          ],
+          "emote": "shiver"
+        }
+      ]
+    },
+    "behavior_shaken_wary": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "nervous",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
+        },
+        {
+          "clip": "look_around",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_fume": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "puff",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "angry"
+            ]
+          ],
+          "emote": "anger"
+        }
+      ]
+    },
+    "behavior_independence_bow": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "bow",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_independence_nuzzle": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "nuzzle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ]
+          ],
+          "emote": "heart"
+        }
+      ]
+    },
+    "behavior_independence_look_back": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "greet",
+          "intensity": 1,
+          "tempo": 0.8,
+          "faces": [
+            [
+              0,
+              "teary_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_independence_see_off": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": []
+        }
+      ]
+    },
+    "behavior_independence_answer": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "greet",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ]
+          ],
+          "emote": "note"
+        }
+      ]
+    },
+    "behavior_independence_sob": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ],
+          "emote": "gloom"
+        }
+      ]
+    },
+    "behavior_mold_notice": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "startle",
+          "intensity": 1,
+          "tempo": 0.5,
+          "faces": [
+            [
+              0,
+              "surprise"
+            ]
+          ],
+          "emote": "exclaim"
+        }
+      ]
+    },
+    "behavior_mold_warn": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "puff",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "puff"
+            ]
+          ],
+          "emote": "anger"
+        }
+      ]
+    },
+    "behavior_mold_sorrow": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "puku_teary",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "puff_teary"
+            ],
+            [
+              1.6,
+              "teary"
+            ]
+          ],
+          "emote": "gloom"
+        }
+      ]
+    },
+    "behavior_mold_scorn": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "stand_ground",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "angry"
+            ]
+          ],
+          "emote": "anger"
+        }
+      ]
+    },
+    "behavior_mold_plead": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "beg",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ],
+          "emote": "sweat"
+        }
+      ]
+    },
+    "behavior_mold_resist": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "stand_ground",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "angry"
+            ]
+          ],
+          "emote": "anger"
+        }
+      ]
+    },
+    "behavior_mold_leave": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_mold_look_back": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1,
+          "tempo": 0.8,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.0,
+              "cry"
+            ]
+          ],
+          "emote": "gloom"
+        }
+      ]
+    },
+    "reaction_mourn_recall": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "look_around",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "look_down"
+            ],
+            [
+              1.5,
+              "teary"
+            ]
+          ]
+        }
+      ]
+    },
+    "reaction_mourn_over": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "sway",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "reaction_shaken_check": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "look_around",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
+        }
+      ]
+    },
+    "reaction_shaken_over": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "shake",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "satisfied"
+            ]
+          ]
+        }
+      ]
+    },
+    "reaction_sulk_huff": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "sulk",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "down_angry"
+            ]
+          ]
+        }
+      ]
+    },
+    "reaction_glow": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "joy_jump",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "happy"
+            ]
+          ],
+          "emote": "note"
+        }
+      ]
+    },
+    "reaction_glow_hum": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "sway",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ]
+          ],
+          "emote": "note"
+        }
+      ]
     }
   },
   "behaviors": {
@@ -4420,7 +4926,26 @@
     "bully_peer": "behavior_bully_peer",
     "protect_peer": "behavior_protect_peer",
     "sumo_push": "behavior_sumo_push",
-    "window_polite": "behavior_window_polite"
+    "window_polite": "behavior_window_polite",
+    "mourn": "behavior_mourn",
+    "mourn_listless": "behavior_mourn_listless",
+    "shaken": "behavior_shaken",
+    "shaken_wary": "behavior_shaken_wary",
+    "fume": "behavior_fume",
+    "independence_bow": "behavior_independence_bow",
+    "independence_nuzzle": "behavior_independence_nuzzle",
+    "independence_look_back": "behavior_independence_look_back",
+    "independence_see_off": "behavior_independence_see_off",
+    "independence_answer": "behavior_independence_answer",
+    "independence_sob": "behavior_independence_sob",
+    "mold_notice": "behavior_mold_notice",
+    "mold_warn": "behavior_mold_warn",
+    "mold_sorrow": "behavior_mold_sorrow",
+    "mold_scorn": "behavior_mold_scorn",
+    "mold_plead": "behavior_mold_plead",
+    "mold_resist": "behavior_mold_resist",
+    "mold_leave": "behavior_mold_leave",
+    "mold_look_back": "behavior_mold_look_back"
   },
   "reactions": {
     "hello": "reaction_hello",
@@ -4456,7 +4981,32 @@
     "hat_scramble": "reaction_hat_scramble",
     "hat_slipping": "reaction_hat_slipping",
     "returned_accessory": "reaction_returned_accessory",
-    "expecting": "reaction_expecting"
+    "expecting": "reaction_expecting",
+    "mourn_sob": "reaction_family_died",
+    "mourn_miss": "behavior_mourn_listless",
+    "mourn_recall": "reaction_mourn_recall",
+    "mourn_over": "reaction_mourn_over",
+    "shaken_after": "behavior_shaken",
+    "shaken_check": "reaction_shaken_check",
+    "shaken_over": "reaction_shaken_over",
+    "fume": "behavior_fume",
+    "sulk_huff": "reaction_sulk_huff",
+    "glow": "reaction_glow",
+    "glow_hum": "reaction_glow_hum",
+    "farewell_say": "reaction_hello",
+    "farewell_say_teary": "behavior_window_farewell",
+    "farewell_bless": "behavior_independence_answer",
+    "farewell_cry": "behavior_independence_sob",
+    "farewell_go": "reaction_hello",
+    "farewell_look_back": "behavior_independence_look_back",
+    "mold_notice": "behavior_mold_notice",
+    "mold_warn": "behavior_mold_warn",
+    "mold_sorrow": "behavior_mold_sorrow",
+    "mold_scorn": "behavior_mold_scorn",
+    "mold_plea": "behavior_mold_plead",
+    "mold_resist": "behavior_mold_resist",
+    "mold_leave": "behavior_mold_look_back",
+    "mold_child_cry": "reaction_lost_parent"
   },
   "groups": {
     "sumo_push": "group_sumo_push",

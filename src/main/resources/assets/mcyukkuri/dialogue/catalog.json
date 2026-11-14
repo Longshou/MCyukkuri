@@ -57390,5 +57390,317 @@
     ],
     "ticks": 95,
     "sound": ""
+  },
+  {
+    "id": "mourn_sob.why",
+    "key": "dialogue.mcyukkuri.original.mourn_sob.why",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mourn_sob"
+    ],
+    "ticks": 159,
+    "sound": ""
+  },
+  {
+    "id": "mourn_sob.call",
+    "key": "dialogue.mcyukkuri.original.mourn_sob.call",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mourn_sob"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "mourn_miss.wish",
+    "key": "dialogue.mcyukkuri.original.mourn_miss.wish",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mourn_miss"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "mourn_recall.place",
+    "key": "dialogue.mcyukkuri.original.mourn_recall.place",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mourn_recall"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "mourn_over.both",
+    "key": "dialogue.mcyukkuri.original.mourn_over.both",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mourn_over"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "shaken_after.trembling",
+    "key": "dialogue.mcyukkuri.original.shaken_after.trembling",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "shaken_after"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "shaken_check.gone",
+    "key": "dialogue.mcyukkuri.original.shaken_check.gone",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "shaken_check"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "shaken_over.phew",
+    "key": "dialogue.mcyukkuri.original.shaken_over.phew",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "shaken_over"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "fume.never",
+    "key": "dialogue.mcyukkuri.original.fume.never",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "fume"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "sulk_huff.hmph",
+    "key": "dialogue.mcyukkuri.original.sulk_huff.hmph",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "sulk_huff"
+    ],
+    "ticks": 50,
+    "sound": ""
+  },
+  {
+    "id": "glow.happy",
+    "key": "dialogue.mcyukkuri.original.glow.happy",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "glow"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "glow_hum.still",
+    "key": "dialogue.mcyukkuri.original.glow_hum.still",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "glow_hum"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "farewell_say.own_home",
+    "key": "dialogue.mcyukkuri.original.farewell_say.own_home",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "farewell_say"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "farewell_say_teary.miss",
+    "key": "dialogue.mcyukkuri.original.farewell_say_teary.miss",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "farewell_say_teary"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "farewell_bless.take_it_easy",
+    "key": "dialogue.mcyukkuri.original.farewell_bless.take_it_easy",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "farewell_bless"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "farewell_cry.come_back",
+    "key": "dialogue.mcyukkuri.original.farewell_cry.come_back",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "farewell_cry"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "farewell_go.off",
+    "key": "dialogue.mcyukkuri.original.farewell_go.off",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "farewell_go"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "farewell_look_back.take_care",
+    "key": "dialogue.mcyukkuri.original.farewell_look_back.take_care",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "farewell_look_back"
+    ],
+    "ticks": 51,
+    "sound": ""
+  },
+  {
+    "id": "mold_notice.mr_mold",
+    "key": "dialogue.mcyukkuri.original.mold_notice.mr_mold",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_notice"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "mold_warn.stay_back",
+    "key": "dialogue.mcyukkuri.original.mold_warn.stay_back",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_warn"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "mold_scorn.get_out",
+    "key": "dialogue.mcyukkuri.original.mold_scorn.get_out",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_scorn"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "mold_sorrow.sorry",
+    "key": "dialogue.mcyukkuri.original.mold_sorrow.sorry",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_sorrow"
+    ],
+    "ticks": 131,
+    "sound": ""
+  },
+  {
+    "id": "mold_plea.still",
+    "key": "dialogue.mcyukkuri.original.mold_plea.still",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_plea"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "mold_resist.my_home",
+    "key": "dialogue.mcyukkuri.original.mold_resist.my_home",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_resist"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "mold_leave.goodbye",
+    "key": "dialogue.mcyukkuri.original.mold_leave.goodbye",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_leave"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "mold_child_cry.dont_go",
+    "key": "dialogue.mcyukkuri.original.mold_child_cry.dont_go",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_child_cry"
+    ],
+    "ticks": 103,
+    "sound": ""
   }
 ]

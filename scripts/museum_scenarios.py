@@ -156,7 +156,9 @@ def _den_family_death():
 
 
 add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土丘洞',
-    '父母和子油自己认领同一个土丘洞。三只刚入住、家里还缺粮时，场景让父油死亡。看母油目睹后的哀悼、出洞采草、存粮，以及孩子吃到食物。洞口的草已吃过，外面还有草。',
+    '父母和子油自己认领同一个土丘洞。三只刚入住、家里还缺粮时，场景让父油死亡。看母油目睹后的哀悼过程：先愣住再哭喊，'
+    '之后在原地垂头哭泣、不时抽泣（高峰，约 1–2 分钟），再无精打采地慢慢挪动、偶尔说想念（缓和），这期间才出洞采草、存粮，走得比平时慢；'
+    '最后表情恢复，回想一次后说「连你的那份一起油库里」。孩子吃到食物。洞口的草已吃过，外面还有草。',
     '入住约半分钟到一分钟，之后再看数分钟（可五倍速）', [
         yk('reimu', 0, 3, 'mother', uuid=_dm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_df)}', **pair_ready()),
         yk('marisa', 2, 3, 'father', uuid=_df, yaw=180, kin=f'Partner:{uuid_nbt(_dm)}', **pair_ready()),
@@ -171,11 +173,13 @@ add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土�
 
 _em, _ef, _ec, _eg = (uid('den_mold_exile', name) for name in ('healthy', 'molded', 'baby', 'grandparent'))
 add('den_mold_exile', 'den', '油霉亲油离巢', '油霉亲油离巢',
-    '看亲油鼓脸驱赶、年长亲油含泪犹豫，以及患病亲油回头央求时赤油是否留在健康亲油身边。',
-    '约 1–2 分钟', [
+    '健康亲油（冷淡、不友善）先吓一跳「霉菌先生」，鼓脸警告，再辱骂着上前推；年长亲油（依恋高）含泪道歉、不推。'
+    '患病亲油（依恋高、胆小）先愣住，再央求「我还能油库里」，被推开后转身离开，途中两次回头、最后一次道别；赤油哭喊「别走」并留在健康亲油身边。'
+    '患病亲油出了家的范围后先坐着哀悼一阵，之后回来央求一次，被拒后离开。',
+    '约 3–4 分钟', [
         yk('reimu', 0, 1, 'healthy', uuid=_em, yaw=0, label='健康亲油', friendliness=24, boldness=35,
            attachment=28, kin=f'Partner:{uuid_nbt(_ef)}', **pair_ready()),
-        yk('marisa', 0, 3, 'molded', uuid=_ef, lead=True, label='患油霉的亲油',
+        yk('marisa', 0, 3, 'molded', uuid=_ef, lead=True, label='患油霉的亲油', attachment=80, boldness=30,
            kin=f'Mother:{uuid_nbt(_eg)},Partner:{uuid_nbt(_em)}', **pair_ready()),
         yk('reimu', -1, 1, 'grandparent', uuid=_eg, yaw=0, label='年长亲油', friendliness=86, attachment=90, **pair_ready()),
         yk('reimu', 0, 0, 'baby', stage='baby', uuid=_ec, yaw=0, label='赤油', nutrition=100,
@@ -191,24 +195,30 @@ add('den_mold_exile', 'den', '油霉亲油离巢', '油霉亲油离巢',
 
 
 # The teen's independence is armed in NBT (Force); each family has its den as a starting home, and the farewell or departure is
-# ordinary. The near family lives in the independence mound; the far one in the family mound 18 blocks west, its parent walled in a
-# closed stone-brick room far out of PARENT_RANGE (24), so it cannot wander back during the wait.
+# ordinary. The warm family lives in the independence mound, the cool one in the small stone den 18 blocks east, both parents at
+# home; the far one in the family mound 18 blocks west, its parent walled in a closed stone-brick room far out of PARENT_RANGE (24),
+# so it cannot wander back during the wait. Only the five-axis attachment differs between warm and cool.
 _indep = []
-for _lane, _dx, _stays in (('near', 0, True), ('far', -18, False)):
+for _lane, _dx, _stays, _attach, _label in (('warm', 0, True, 85, '亚成·依恋高'), ('cool', 18, True, 20, '亚成·依恋低'),
+                                            ('far', -18, False, 60, '亚成·亲油不在')):
     _pm, _pc = uid('indep_near', f'{_lane}_parent'), uid('indep_near', f'{_lane}_teen')
-    _indep += [yk('reimu', _dx, 3, f'{_lane}_parent', uuid=_pm, yaw=180, label='亲油', **pair_ready()),
-               yk('reimu', _dx + 1, 4, f'{_lane}_teen', stage='teen', uuid=_pc, yaw=180, lead=_stays, nutrition=100, energy=100,
-                  label='亚成·亲油在' if _stays else '亚成·亲油不在', kin=f'Mother:{uuid_nbt(_pm)}', extra='YukkuriIndependence:{Force:1b}'),
+    _indep += [yk('reimu', _dx, 3, f'{_lane}_parent', uuid=_pm, yaw=180, label='亲油', attachment=_attach, **pair_ready()),
+               yk('reimu', _dx + 1, 4, f'{_lane}_teen', stage='teen', uuid=_pc, yaw=180, lead=_lane == 'warm', nutrition=100, energy=100,
+                  attachment=_attach, label=_label, kin=f'Mother:{uuid_nbt(_pm)}', extra='YukkuriIndependence:{Force:1b}'),
                f'yukkuri scenario kin {sel(f"{_lane}_parent")} {sel(f"{_lane}_teen")} false',
                *[f'yukkuri scenario home {sel(f"{_lane}_{who}")} ~{_dx} ~ ~-1' for who in ('parent', 'teen')]]
 _indep += [box(38, 0, 1, 42, 3, 5, 'minecraft:stone_bricks'), box(39, 0, 2, 41, 2, 4, 'minecraft:air')]
 add('indep_near', 'den', '亚成离巢：亲油在就告别', '亚成离巢：亲油在就告别',
-    '两只亚成同时到了独立的时候：右边亲油在家，亚成先告别再离巢；左边亲油被关在远处，约 3 分钟后亚成不告别直接离开。之后各自去找空洞或挖穴，亲缘与好感保留',
-    '约 3 分钟内离开（可倍速）', _indep, env=DAY, spot='indep', retry='先“清空本场地”（洞口格要空）', vantage=(-9, 14),
+    '三只亚成同时到了独立的时候。中间（依恋高）：亚成走到亲油跟前含泪说要去找自己的家，亲油哭着「要常回来看看」，两只贴脸好一会儿，'
+    '亚成说「我走了」后离开，途中两次回头、最后喊「要保重」，亲油原地抽泣目送，之后低落一阵。右边（依恋低）：亚成爽快告别，亲油祝福，'
+    '亚成鞠个躬就走，不回头，亲油看一眼就回去过日子。左边亲油被关在远处，约 3 分钟后亚成不告别直接离开。之后各自去找空洞或挖穴，亲缘与好感保留',
+    '约 3 分钟内离开（可倍速）', _indep, env=DAY, spot='indep', retry='先“清空本场地”（洞口格要空）', vantage=(0, 16),
     # The far parent leaves only once the home is hers: a teen whose parents own another home is not yet of the family den.
     late=[f'tp {sel("far_parent")} ~40 ~ ~3'],
-    reads=[('读告别亚成', f'data get entity {sel("near_teen")} YukkuriIndependence'),
-           ('读不告别亚成', f'data get entity {sel("far_teen")} YukkuriIndependence')])
+    reads=[('读依恋高的亚成', f'data get entity {sel("warm_teen")} YukkuriIndependence'),
+           ('读依恋低的亚成', f'data get entity {sel("cool_teen")} YukkuriIndependence'),
+           ('读不告别亚成', f'data get entity {sel("far_teen")} YukkuriIndependence'),
+           ('读依恋高亲油的情绪', f'yukkuri status {sel("warm_parent")} raw')])
 
 # the family of three in a 5-cell stone hole with a big empty earth cave 16 blocks east
 _sm, _sf, _sc = uid('den_move', 'mother'), uid('den_move', 'father'), uid('den_move', 'child')
@@ -4618,12 +4628,19 @@ _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* d
                             r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true'])
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
-    _smoke(_exile_scene, 2400, [
+    # The exile mourns its lost home (a grief course) before it comes back to ask: the refusal comes later than before.
+    _smoke(_exile_scene, 4800, [
         r'\[settlement\][^\n]* mold witnessed [^\n]* response=drive',
         rf'\[settlement\][^\n]* mold exile departed scope={_scope}\b',
         r'\[settlement\][^\n]* mold exile refused return\b',
         r'\[settlement\][^\n]* mold exile withdrew after refusal\b',
-        *([r'\[family\][^\n]* mold exile child stays child='] if _scope == 'family' else []),
+        *([r'\[family\][^\n]* mold exile child stays child=',
+           r'\[settlement\][^\n]* mold witnessed [^\n]* fond=true\b',
+           r'\[settlement\][^\n]* mold witnessed [^\n]* harsh=true\b',
+           r'\[settlement\][^\n]* mold exile protest [^\n]* answer=plead lookBacks=2\b',
+           r'\[settlement\][^\n]* mold exile looked back left=0\b',
+           r'\[family\][^\n]* mold exile child cries parent=',
+           r'\[emotion\][^\n]* course begun kind=grief\b'] if _scope == 'family' else []),
     ], readout=[f'yukkuri status {sel("molded")} raw'])
 _smoke('colony_ration', 3600, [r'\[settlement\][^\n]* event=ration [^\n]*detail=relief \d+/\d+ to [1-9]\d* short households',
                                r'\[settlement\][^\n]* event=ration_fetched '])
@@ -4706,8 +4723,12 @@ next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(
     r'\[status\] reimu #\d+ uuid=(\S+)[^\n]* identity observed kind=wild_family\b', 3, 'relation fixtures')
 
 
-_smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',
-                            r'\[forage\] reimu [^\n]* begin role='])
+# The widowed mother mourns at the den first (a grief course's peak), so her first trip comes a couple of minutes after the death.
+_smoke('den_family', 9000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',
+                            r'\[forage\] reimu [^\n]* begin role=',
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course begun kind=grief\b',
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course stage kind=grief stage=easing\b'],
+       readout=[f'yukkuri status {sel("mother")} raw'])
 
 
 def _den_family_verify(log):
@@ -4746,8 +4767,16 @@ def _den_family_verify(log):
 
 
 next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
-_smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
-next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
+_smoke('indep_near', 7200, [
+    r'\[independence\][^\n]* farewell started',
+    r'\[independence\][^\n]* farewell exchange [^\n]* attachment=85 parentAttachment=85 nuzzleTicks=[1-9]\d* lookBacks=2\b',
+    r'\[independence\][^\n]* farewell exchange [^\n]* attachment=20 parentAttachment=20 nuzzleTicks=0 lookBacks=0\b',
+    r'\[independence\][^\n]* see off answer [^\n]* attached=true\b',
+    r'\[independence\][^\n]* see off answer [^\n]* attached=false\b',
+    r'\[independence\][^\n]* looked back [^\n]* count=2/2\b',
+    rf'\[emotion\][^\n]*uuid={_uuid_text("indep_near", "warm_parent")} [^\n]* course begun kind=grief\b'],
+    readout=[f'yukkuri status {sel("warm_parent")} raw'])
+next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 3, 'teens that left home')
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=FAMILY', r'\[forage\][^\n]* deposit home=[^\n]* moved=[1-9]',
                          r'\[family\][^\n]* household watched entrance', r'\[family\][^\n]* welcome home started ',
                          rf'\[family\][^\n]* feed handed to meal child={_uuid_text("forage", "child")}\b'])
