@@ -14,6 +14,7 @@
 | DN-01 情绪过渡、DN-02 告别、DN-05 驱逐演出 | `.worktrees/wp-r2-emotion` | mourning/recovery, farewell, exile |
 | DN-04 封洞口技能 | `.worktrees/wp-r2-seal` | den sealing, skill learning |
 | 舌肥（挑食度）数值与进食反应 | `.worktrees/wp-r2-picky` | LifeMeal, food preference, new stat |
+| 商店会员等级、门、库存年龄与停止成长 | `.worktrees/wp-r2-shop` | shop/*, shop structures |
 
 ## 玩法待办
 
