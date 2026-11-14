@@ -138,7 +138,7 @@ public final class BadgeSocial {
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
                 && peer.status().identity().free() && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
-            if (o.isLeashed() || !WildEvents.availableForOpportunity(o) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
+            if (!inFront(o, subject) || BadgeArcs.check(level, Arc.BEG_BITE, o, subject, viewer, null) != null) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);
             if (subject.life().mealTicks() == 0) return true; // the admitted pair now owns the carried serving
         }
