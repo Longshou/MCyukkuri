@@ -30,6 +30,8 @@ def below_normal_priority():
     to the desktop and the user's game. Windows children inherit the priority class."""
     if os.name == 'nt':
         kernel32 = ctypes.windll.kernel32
+        kernel32.GetCurrentProcess.restype = ctypes.c_void_p
+        kernel32.SetPriorityClass.argtypes = (ctypes.c_void_p, ctypes.c_uint32)
         kernel32.SetPriorityClass(kernel32.GetCurrentProcess(), 0x4000)  # BELOW_NORMAL_PRIORITY_CLASS
 
 
