@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| TN-01 讨食演出：跺脚与边走边回望动作 | `.worktrees/wp-r3-beg-motion` | standards/yukkuri-library 动作源与导出；BegBite 只改动作引用 |
 
 ## 玩法待办
 
