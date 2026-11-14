@@ -1038,7 +1038,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     void syncAgitation() { sync().syncAgitation(); }
     void syncHairLoss() { sync().syncHairLoss(); }
     void tickShellRetraction() { shellRetraction.tick(panicTicks); }
-    void syncCarryingAndCare() { sync().syncCarryingAndCare(); }
+    void syncCare() { sync().syncCare(); }
 
     void syncAppearance() { sync().syncAppearance(); }
 

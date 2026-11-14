@@ -76,7 +76,7 @@ public final class Paddle implements Action {
     /** She rows with a real stick: in her mouth or kept by the hull she rides; her own lying in the hull only once her free braid can
      *  take it up. */
     private static boolean hasStick(YukkuriEntity body, SurfaceHost host) {
-        if (body.getMouthItem().is(Items.STICK)) return true;
+        if (body.life().mouth().is(Items.STICK)) return true;
         if (!host.holds(Items.STICK)) return false;
         return !body.hatKit().is(Items.STICK) || body.life().custody().kitPlace() != Held.Place.HAT || !Braid.gripping(body);
     }

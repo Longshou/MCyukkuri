@@ -114,7 +114,7 @@ public final class MyonLife {
     }
 
     private boolean free() {
-        return !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking() && entity.getMouthItem().isEmpty()
+        return !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking() && entity.life().mouth().isEmpty()
                 && !entity.family().stage().equals(FamilyLife.Stage.BABY);
     }
     /** A dropped stick within reach goes into the mouth. */

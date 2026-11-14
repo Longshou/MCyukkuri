@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.motor.Held;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -324,12 +325,8 @@ final class YukkuriSync {
     void syncKanroken() { owner.getEntityData().set(KANROKEN, owner.myon().hasKanroken()); }
     void syncAgitation() { owner.getEntityData().set(AGITATION, owner.agitation().state()); }
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
-    void syncCarryingAndCare() {
+    void syncCare() {
         setChanged(TOILET_VOLUME,(float)DetachedItems.wasteAmount(owner));
-        var work = owner.component(YukkuriComponents.MOUTH).workDisplay();
-        if (work.isEmpty()) work = owner.forageTrip().load();
-        if (work.isEmpty()) work = owner.habitat().carrying();
-        owner.getEntityData().set(CARRYING, work.copy());
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
@@ -348,7 +345,16 @@ final class YukkuriSync {
         owner.getEntityData().set(CARE_PROGRESS, Mth.clamp(careProgress, 0, 1));
     }
     void syncAppearance() {
-        if (!ItemStack.matches(owner.getEntityData().get(MOUTH), owner.life().mouth())) owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
+        var oral = owner.component(YukkuriComponents.MOUTH);
+        // House work uses the authored hair grip. Forage and habitat keep their own carry presentation.
+        var carried = oral.stack(Purpose.HOUSE);
+        var mouth = carried.isEmpty() ? oral.displayStack() : ItemStack.EMPTY;
+        if (carried.isEmpty() && (mouth.isEmpty() || oral.purpose() == Purpose.MEAL)) {
+            carried = owner.forageTrip().load();
+            if (carried.isEmpty()) carried = owner.habitat().carrying();
+        }
+        if (!ItemStack.matches(owner.getEntityData().get(MOUTH), mouth)) owner.getEntityData().set(MOUTH, mouth.copy());
+        if (!ItemStack.matches(owner.getEntityData().get(CARRYING), carried)) owner.getEntityData().set(CARRYING, carried.copy());
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
     }
@@ -367,9 +373,7 @@ final class YukkuriSync {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
         leakTrace(-1);
-        owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY,
-                owner.life().hasAccessory()); owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
-        owner.getEntityData().set(WEAR, owner.wornBits());
+        syncAppearance();
     }
     static void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(SUBSPECIES, 0);

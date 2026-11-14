@@ -110,9 +110,11 @@ public interface YukkuriView {
     long speechStart();
     long speechEnd();
     int speechSequence();
+    /** The real item presented at the lips, including food held between bites. */
     ItemStack getMouthItem();
     /** A transient, non-item mouthful from a successful body-food bite. */
     BodyFood.Bite getMouthBodyFood();
+    /** House hair-grip, forage or habitat load. */
     ItemStack getCarriedItem();
     int nuzzlePartnerId();
     int carePartnerId();

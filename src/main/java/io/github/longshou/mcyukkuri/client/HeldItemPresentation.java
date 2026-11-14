@@ -38,8 +38,8 @@ final class HeldItemPresentation {
 
     static boolean closedGrip(YukkuriView entity) {
         String behavior=entity.getBehaviorId();
-        return !entity.profile().houseBody()&&!entity.getCarriedItem().isEmpty()
-                &&entity.getMouthItem().isEmpty()&&entity.getMouthBodyFood().isEmpty()&&!behavior.equals(Behaviors.FAMILY_CHEW)
+        return !entity.profile().houseBody()&&(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty())
+                &&!behavior.equals(Behaviors.FAMILY_CHEW)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG);
     }
 

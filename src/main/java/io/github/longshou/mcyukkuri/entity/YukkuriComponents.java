@@ -367,7 +367,7 @@ public final class YukkuriComponents {
                 .tick(290, YukkuriEntity::syncKanroken)
                 .tick(300, RareForms::tick)
                 .tick(320, YukkuriEntity::syncAgitation)
-                .tick(350, YukkuriEntity::syncCarryingAndCare)
+                .tick(350, YukkuriEntity::syncCare)
                 .tick(370, YukkuriEntity::syncBody)
                 .tick(TickPhase.AFTER_ALIVE_CHECK, 400, YukkuriEntity::syncAppearance)
                 .tick(TickPhase.AFTER_ALIVE_CHECK, 410, YukkuriEntity::tickFireAndShellCommand)

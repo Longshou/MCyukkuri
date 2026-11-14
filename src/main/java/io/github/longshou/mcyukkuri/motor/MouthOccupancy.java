@@ -55,9 +55,9 @@ public final class MouthOccupancy {
         return load == null || load.purpose() != purpose || load.items().isEmpty() ? ItemStack.EMPTY : load.items().getFirst();
     }
 
-    public ItemStack workDisplay() {
-        var purpose = purpose();
-        return purpose == null || purpose == Purpose.MEAL ? ItemStack.EMPTY : stack(purpose);
+    public ItemStack displayStack() {
+        var load = load();
+        return load == null || load.items().isEmpty() ? ItemStack.EMPTY : load.items().getFirst();
     }
 
     public BodyFood.Bite bite() {
