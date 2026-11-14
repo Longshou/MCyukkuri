@@ -102,6 +102,23 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         return level.hasChunkAt(to) && level.getBlockState(to).getCollisionShape(level, to).isEmpty() && level.getFluidState(to).isEmpty();
     }
 
+    /**
+     * Whether a yukkuri could ever reach what is inside: it has fallen already, or it still has one side to be shoved from that
+     * leaves the far side open to fall into. A bin wedged between a bench and a wall has none, so nobody fills it.
+     */
+    public static boolean reachable(Level level, BlockPos pos) {
+        var state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof GarbageBinBlock)) return false;
+        if (state.getValue(TIPPED)) return true;
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var stand = pos.relative(side);
+            if (canFall(level, pos, side.getOpposite()) && level.hasChunkAt(stand)
+                    && level.getBlockState(stand).getCollisionShape(level, stand).isEmpty()
+                    && level.getFluidState(stand).isEmpty()) return true;
+        }
+        return false;
+    }
+
     /** Knocks the standing bin over toward {@code fall}; its contents stay inside, its mouth now opens that way. */
     public static void knockOver(Level level, BlockPos pos, Direction fall) {
         level.setBlock(pos, level.getBlockState(pos).setValue(TIPPED, true).setValue(FACING, fall), Block.UPDATE_ALL);

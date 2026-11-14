@@ -100,6 +100,8 @@ public final class Contempt {
         int before = relations.affinity(observer.getUUID(), target.getUUID());
         if (before > -10) relations.relate(observer.getUUID(), target.getUUID(), -1);
         observer.headwear().coolHatlessContact(target, AFTER_SCORN);
+        // The mocked wearer answers by its own disposition on its next beat: a haughty one retorts and shakes it off, a lowly one winces.
+        target.headwear().markMocked();
         GameplayLog.event(observer, "contempt", "junk mocked target={} variant={} affinity={} -> {}",
                 target.getUUID(), target.life().custody().junk().id(), before, relations.affinity(observer.getUUID(), target.getUUID()));
         return AFTER_SCORN;

@@ -148,6 +148,9 @@ public final class TreasureLife extends Goal {
         return target != null && target.isAlive() && JunkHeadwear.isItem(target.getItem()) && entity.distanceToSqr(target) < 1;
     }
 
+    /** This individual is walking to this loose piece right now; a resident's tidy-up leaves it to them. */
+    public boolean hunting(ItemEntity piece) { return target == piece; }
+
     @Override public boolean canContinueToUse() {
         if (elapsed > 400 || !entity.isAlive() || entity.isPanicking() || entity.life().isSleeping()) return false;
         return !carried().isEmpty() && !entity.blockPosition().equals(blockedDropAt) || target != null && target.isAlive()

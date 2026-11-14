@@ -97,6 +97,8 @@ public final class NativeDialogue {
                          "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             // Addresses, counts and self-narration answer a person or a situation right now.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide" -> 2;
+            // A junk headwear being put on, refused, mocked or taken off answers the person handling the wearer right now.
+            case "junk_thanks", "junk_unsure", "junk_indignant", "junk_afraid" -> 2;
             // The dead and the smell of them: the stench, the taboo meal and the hunt of a hatless monster answer something happening right now.
             case "stench", "eat_kin", "hunt_sweet" -> 2;
             // Settlement calls and headwear beats: a hunt call, a ration, a scolding or a torn / mended ornament answers something that just happened.

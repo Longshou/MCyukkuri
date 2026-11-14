@@ -70,6 +70,8 @@ public final class Headwear extends Goal {
     // contempt for the hatless this individual cannot recognise (Contempt)
     private int contemptWait;
     private String lastContact = "none";
+    /** Ticks until the wearer's next junk-headwear beat, and how long a just-mocked wearer still answers. */
+    private int junkBeatWait, junkMocked;
     /** Runtime-only pair cooldown shared by passive contempt and a peer greeting. */
     private final Map<UUID, Long> hatlessContactUntil = new HashMap<>();
 
@@ -77,7 +79,11 @@ public final class Headwear extends Goal {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         scanWait = 20 + entity.getRandom().nextInt(40);
         contemptWait = 40 + entity.getRandom().nextInt(80);
+        junkBeatWait = 400 + entity.getRandom().nextInt(600);
     }
+
+    /** A harsh peer just mocked this individual's junk headwear: it answers on its own next beat. */
+    public void markMocked() { junkMocked = 200; }
 
     // ---- reads ----------------------------------------------------------------------------------------------------
     public State state() {
@@ -425,6 +431,14 @@ public final class Headwear extends Goal {
         if (entity.level().isClientSide) return;
         if (scanWait > 0) scanWait--;
         if (--contemptWait <= 0) contemptWait = Contempt.observe(entity);
+        if (junkMocked > 0 || entity.life().custody().junk() != null) {
+            if (junkMocked > 0) {
+                junkMocked = 0;
+                junkBeatWait = JunkHeadwear.beat(entity, true, lowMood());
+            } else if (--junkBeatWait <= 0) {
+                junkBeatWait = JunkHeadwear.beat(entity, false, lowMood());
+            }
+        }
         boolean worn = entity.life().hasAccessory();
         if (worn && (shattered || lost)) clear(); // put back on by some other path
         float body = entity.family().scale();
@@ -439,6 +453,9 @@ public final class Headwear extends Goal {
         } else if (state() == State.SHATTERED && entity.level().getGameTime() - lastProgress > GIVE_UP_TICKS) loseForGood("gave_up");
         entity.syncHeadwear(visual());
     }
+
+    /** Low mood: the mind is already uneasy, so a cover that does not belong on it is more than a haughty one can bear. */
+    private boolean lowMood() { return entity.mind().unease() >= MindLife.UNEASY; }
 
     // ---- goal: lick the pieces together ----------------------------------------------------------------------------
     public boolean active() { return target != null; }

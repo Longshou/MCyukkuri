@@ -3,14 +3,26 @@ package io.github.longshou.mcyukkuri.headwear;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Comparator;
+import java.util.Locale;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
-/** Stable appearance IDs. Each occupied head or remains record represents one generic item. */
+/**
+ * Stable appearance IDs. Each occupied head or remains record represents one generic item.
+ *
+ * <p>The wearer answers in its own voice, split by self-esteem ({@link SocialDisposition#selfEsteem}, ramped across the same
+ * band the acceptance roll uses): a lowly one is relieved and thankful, a middling one hesitates, a haughty one is indignant
+ * and shakes the thing off. A pit slave is grateful but cowers. All fitting entry points (player offer, street bin, dropped
+ * piece) go through {@link #equip}/{@link #refused}, so one split covers every path.
+ */
 public enum JunkHeadwear {
     PAPER_BOX(1, "paper_box"),
     BOTTLE_CAP(2, "bottle_cap"),
@@ -31,9 +43,11 @@ public enum JunkHeadwear {
 
     public static boolean isItem(ItemStack stack) { return stack.is(ModItems.JUNK_HEADWEAR.get()); }
 
+    /** A bare head big enough for it: a baby or juvenile is not fitted, and a predator never wears junk. */
     public static boolean fits(YukkuriEntity animal) {
         var head = animal.life().custody();
-        return head.lost() && head.junk() == null && !animal.headwear().reassembling();
+        return head.lost() && head.junk() == null && !animal.headwear().reassembling()
+                && (animal.family().adult() || animal.family().subadult()) && !animal.profile().dangerToYukkuri();
     }
 
     public static boolean onDryGround(YukkuriEntity animal) {
@@ -47,8 +61,23 @@ public enum JunkHeadwear {
                 && animal.life().mealTicks() == 0 && !animal.status().reactions().active();
     }
 
+    /** The two esteem edges the acceptance roll and the wearer's answer share. */
+    static final double ACCEPT_LOW = 22, ACCEPT_HIGH = 44;
+
+    /** How the wearer answers: low, middling or high self-esteem, the three parts of the acceptance band. */
+    public enum Band {
+        MEEK, HESITANT, HAUGHTY;
+
+        public String id() { return name().toLowerCase(Locale.ROOT); }
+    }
+
+    public static Band band(SocialDisposition.Contact contact) {
+        double esteem = SocialDisposition.ramp(contact.esteem(), ACCEPT_LOW, ACCEPT_HIGH);
+        return esteem < 1 / 3. ? Band.MEEK : esteem < 2 / 3. ? Band.HESITANT : Band.HAUGHTY;
+    }
+
     public static double chance(SocialDisposition.Contact contact) {
-        return (1 - SocialDisposition.ramp(contact.esteem(), 22, 44))
+        return (1 - SocialDisposition.ramp(contact.esteem(), ACCEPT_LOW, ACCEPT_HIGH))
                 * (.80 + .20 * SocialDisposition.ramp(contact.closeness(), 0, 20))
                 * (1 - SocialDisposition.ramp(contact.fear(), 15, 60));
     }
@@ -59,26 +88,110 @@ public enum JunkHeadwear {
         return preference < chance(contact);
     }
 
-    /** Caller has checked the source and debits exactly one item after this server-side commit. */
+    /**
+     * Caller has checked the source and debits exactly one item after this server-side commit. A haughty one is never fitted
+     * against its will: it answers with the ordinary refusal instead, so the item stays where it came from.
+     */
     public static boolean equip(YukkuriEntity animal, Entity giver, SocialDisposition.Contact contact) {
+        var band = band(contact);
+        if (band == Band.HAUGHTY) { refused(animal, giver, contact); return false; }
         if (!animal.life().custody().equipJunk()) return false;
         Sanction.covered(animal);
-        var response = contact.response(true);
-        if (response == SocialDisposition.Response.GRATEFUL) animal.showReaction(YukkuriAction.BOW, "closed_smile", "request_thanks");
-        else animal.showReaction(contact.esteem() <= 22 ? "happy" : "teary", "", 60);
-        GameplayLog.event(animal, "headwear", "junk equipped variant={} source={} player={} esteem={} response={} item={}",
+        if (band == Band.MEEK) {
+            // Relief and thanks; a pit slave is grateful but cowers, never relieved.
+            if (slave(animal)) animal.showReaction(YukkuriAction.TREMBLE, "teary", "junk_thanks");
+            else animal.showReaction(YukkuriAction.BOW, "closed_smile", "junk_thanks");
+        } else {
+            // Middling: it looks the thing over, hesitates, then takes it.
+            animal.showReaction(YukkuriAction.THINK, "look_down", "junk_unsure");
+        }
+        GameplayLog.event(animal, "headwear", "junk equipped variant={} source={} player={} esteem={} band={} item={}",
                 animal.life().custody().junk().id(), giver == null ? "ground" : "offer",
-                giver == null ? null : giver.getUUID(), contact.esteem(), response.id(), ModItems.JUNK_HEADWEAR.get());
+                giver == null ? null : giver.getUUID(), contact.esteem(), band.id(), ModItems.JUNK_HEADWEAR.get());
         return true;
     }
 
+    /** A refused fit: a haughty one puffs and retorts, a lowly or middling one only trembles and tears up. */
     public static void refused(YukkuriEntity animal, Entity giver, SocialDisposition.Contact contact) {
-        var response = contact.response(false);
-        if (response == SocialDisposition.Response.GUARDED) animal.showReaction(YukkuriAction.TREMBLE, "teary", "");
-        else animal.showReaction(contact.esteem() >= 44 ? "cheek_puff" : "look_down", contact.esteem() >= 44 ? "puff" : "", 60);
+        var band = band(contact);
+        if (band == Band.HAUGHTY) animal.showReaction(YukkuriAction.PUFF, "cheek_puff", "junk_indignant");
+        else animal.showReaction(YukkuriAction.TREMBLE, "teary", "junk_afraid");
         GameplayLog.limited(animal, "headwear", "junk_refusal", 40,
-                "junk refused player={} esteem={} chance={} response={}", giver.getUUID(), contact.esteem(), chance(contact), response.id());
+                "junk refused player={} esteem={} chance={} band={}", giver == null ? null : giver.getUUID(),
+                contact.esteem(), chance(contact), band.id());
     }
+
+    /** The player takes it off again: the lowly one struggles not to lose it, the haughty one says it never suited it. */
+    public static void removed(YukkuriEntity animal, SocialDisposition.Contact contact) {
+        switch (band(contact)) {
+            case HAUGHTY -> animal.showReaction(YukkuriAction.PUFF, "cheek_puff", "junk_indignant");
+            case MEEK -> animal.showReaction(YukkuriAction.TREMBLE, "teary", "junk_afraid");
+            default -> animal.showReaction("look_down", "", 45);
+        }
+    }
+
+    /**
+     * One lasting beat of a wearer, off the wearer's own clock; every value split, nothing per tick:
+     * a lowly one shows the new cover off to whoever is in sight, and a haughty one (by now recovered, or just mocked) shakes
+     * it off for real. The middle band is ambivalent and does nothing while it decides. Returns the ticks until the next look.
+     */
+    public static int beat(YukkuriEntity animal, boolean mocked, boolean lowMood) {
+        if (animal.life().custody().junk() == null || owned(animal) || !available(animal)) return 200;
+        switch (band(SocialDisposition.contact(animal, null))) {
+            case MEEK:
+                if (mocked) return wince(animal) ? 1200 : 300;
+                return showOff(animal) ? 1200 + animal.getRandom().nextInt(1200) : 300;
+            case HAUGHTY:
+                if (!mocked && !lowMood) return 600;
+                return shakeOff(animal, mocked) ? 2400 : 300;
+            default:
+                return 600;
+        }
+    }
+
+    /** The lowly one is mocked: it keeps the cover and only winces, it does not answer back. */
+    private static boolean wince(YukkuriEntity animal) {
+        if (!animal.showReaction("teary", "junk_afraid", 60)) return false;
+        GameplayLog.limited(animal, "headwear", "junk_mock_wince", 600,
+                "junk mock wince variant={} esteem={}", animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal));
+        return true;
+    }
+
+    private static boolean showOff(YukkuriEntity animal) {
+        var watcher = animal.level().getEntitiesOfClass(LivingEntity.class, animal.getBoundingBox().inflate(6, 2, 6),
+                        y -> y != animal && watchedPerson(y) && animal.hasLineOfSight(y))
+                .stream().min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+        if (watcher == null) return false;
+        animal.getLookControl().setLookAt(watcher, 30, 30);
+        animal.showReaction(YukkuriAction.PROUD, "happy", "");
+        GameplayLog.limited(animal, "headwear", "junk_shown_off", 1200,
+                "junk shown off variant={} esteem={} to={}",
+                animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal), watcher.getUUID());
+        return true;
+    }
+
+    /** Shakes it off for real: the item lands on the ground as the generic junk item, then the wearer sulks. */
+    private static boolean shakeOff(YukkuriEntity animal, boolean mocked) {
+        var variant = animal.life().custody().junk();
+        if (!animal.life().custody().putDownJunk()) return false;
+        animal.showReaction(YukkuriAction.SULK, "angry", "junk_indignant");
+        GameplayLog.event(animal, "headwear", "junk shaken_off variant={} esteem={} reason={} destination=ground item={}",
+                variant.id(), SocialDisposition.selfEsteem(animal), mocked ? "mocked" : "low_mood",
+                ModItems.JUNK_HEADWEAR.get());
+        return true;
+    }
+
+    private static boolean watchedPerson(LivingEntity looker) {
+        return looker instanceof Player player ? !player.isSpectator()
+                : looker instanceof YukkuriEntity peer && !peer.profile().dangerToYukkuri();
+    }
+
+    /** Somebody's property (a pet, or an individual a person owns): what it wears is the owner's call, not its own. */
+    private static boolean owned(YukkuriEntity animal) {
+        return animal.pet().isPet() || Custody.view(animal).owner() != null;
+    }
+
+    private static boolean slave(YukkuriEntity animal) { return animal.settlement().society().slave(); }
 
     public static JunkHeadwear fromVisual(int visualId) {
         return switch (visualId) {

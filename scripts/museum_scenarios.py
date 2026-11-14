@@ -427,7 +427,7 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
 
 _junk_scene = 'stray_junk_headwear'
 add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
-    '看低自尊的失饰流浪油走近、叼起并戴上地面的垃圾头饰。可另捡一件右键试戴，观察同类嘲笑、取下时的反应，以及换回真饰。',
+    '看低自尊的失饰流浪油走近、叼起并戴上地面的垃圾头饰。右键手里那两件试戴：低自尊的鞠躬道谢，中档的犹豫一下才收，骄傲的鼓腹回绝并回嘴。也可在照料菜单取下，或换回真饰。',
     '手动试戴与取回', [
         item('mcyukkuri:junk_headwear', 1, -10, 4, name='junk_supply'),
         street_stray(_junk_scene, 'reimu', -10, 7, 'quiet_stray', accessory=False, boldness=0,
@@ -1896,6 +1896,24 @@ add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐�
         f'data merge entity {sel("water_stray")} {{YukkuriLife:{{Dryness:55f}}}}',
     ], env={'time': 'noon', 'weather': 'rain'}, vantage=(0, 14),
     reads=[('读饮水', f'yukkuri status {sel("water_stray")} raw')])
+
+# The street's own litter is swept back into a bin by whoever walks over it. The second bin stands in a nook between two
+# wall columns and the bench in front of it, so nobody can get at it from any side and nobody puts anything in it.
+add('street_tidy', 'town', '街道：居民把地上的垃圾扫回桶里', '街道：居民扫街垃圾',
+    '看路过的居民把脚边的废纸和木棍捡起来，走到立着的桶边投进去；桶可以右键打开看。右边的桶夹在砖墙与长椅之间，谁也推不倒，'
+    '居民不会往里投任何东西。',
+    '约半分钟', [
+        box(-10, -1, 0, 12, -1, 10, 'minecraft:polished_andesite'),
+        box(8, 0, 6, 8, 2, 6, 'minecraft:stone_bricks'),
+        box(7, 0, 5, 7, 2, 5, 'minecraft:stone_bricks'),
+        *furniture('bench', 0, [(7, 7)]),
+        *garbage_bin(7, 6, [], False),
+        *garbage_bin(6, 4, [], False),
+        item('minecraft:paper', 1, 6, 7, name='tidy_paper'),
+        item('minecraft:stick', 1, 5, 6, name='tidy_stick'),
+        human('caretaker_brother', 6, 6, 'tidy_resident', 0, attitude=2, yaw=180, label='扫街的居民'),
+    ], env=DAY, vantage=(6, 14),
+    reads=[('读立着的桶', 'data get block ~6 ~ ~4 Items'), ('读长椅夹住的桶', 'data get block ~7 ~ ~6 Items')])
 
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
@@ -4581,7 +4599,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
-    'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5',
+    'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -5084,6 +5102,18 @@ _smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_f
        [rf'\[npc-care\][^\n]* action=street_(chase|kick) target={_free}\b',
         rf'\[body\][^\n]* uuid={_free}\b[^\n]* accepted damage'],
        readout=_street_health_reads('street_free'))
+
+# The wedged bin stands at +7/+6 from the town anchor, between two wall columns and the bench: nobody can shove it over, so nobody
+# may put anything in it. The reachable bin at +6/+4 takes both swept pieces.
+_tidy_ax, _tidy_az = BY_ID['town'].anchor
+_tidy_wedged_bin = re.escape(f'{_tidy_ax + 7}, {FEET}, {_tidy_az + 6}')
+_smoke('street_tidy', 1800, [
+    r'\[npc-care\][^\n]* action=litter_pick_up item=minecraft:paper\b',
+    r'\[npc-care\][^\n]* action=litter_pick_up item=minecraft:stick\b',
+    r'\[npc-care\][^\n]* action=bin_refill [^\n]* item=minecraft:paper litter=1\b',
+    r'\[npc-care\][^\n]* action=bin_refill [^\n]* item=minecraft:stick litter=1\b',
+    r'\[npc-care\][^\n]* action=bin_skip [^\n]* reason=untippable\b',
+], [r'\[npc-care\][^\n]* action=bin_refill bin=' + _tidy_wedged_bin + r'\b'])
 _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
        r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
        [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],

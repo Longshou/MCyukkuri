@@ -260,6 +260,8 @@ public final class HumanNpc extends PathfinderMob {
             production.dropContents();
             // A reserved dose is a real item in the hand; it falls where the body fell instead of vanishing with the corpse.
             if (getMainHandItem().getItem() instanceof TreatmentItem) setDropChance(EquipmentSlot.MAINHAND, 2.0f);
+            // The loose piece it was carrying to a bin falls where the body fell, likewise.
+            VillageBin.dropLitter(this);
             if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) {
                 ShopStaff.staffDied(this, sl);
                 ShopRegistry.get(sl).staffDied(sl, this); // the shop closes only with its last staff member

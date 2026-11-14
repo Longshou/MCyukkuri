@@ -32232,6 +32232,686 @@
         "fed"
       ],
       "english": "Mishter Food! Munch, munch! Sho happy!"
+    },
+    {
+      "id": "reimu.adult.o_junk_thanks",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ありがとよ！ これで かくれるよ！",
+      "chinese": "谢谢哟！这下能藏起来啦哟！",
+      "english": "Thank you! Now I can hide!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_junk_thanks"
+      },
+      "source_sha256": "f6074b78bd3c91159450f081c6ffafa4461a8469a9ea41f3acd4cbc7eedd751d"
+    },
+    {
+      "id": "reimu.young.o_junk_thanks",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ありがちょよぉ！ これで かくぇりゅ！",
+      "chinese": "蟹蟹哟！这下能藏惹！",
+      "english": "Thank you! Now I can hide!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_junk_thanks"
+      },
+      "source_sha256": "509061fc0d33fc09b576057fe99b7722ccb058e51019ce86e6dd4e65ce86e662"
+    },
+    {
+      "id": "marisa.adult.o_junk_thanks",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ありがとのぜ！ これで ごまかせるのぜ！",
+      "chinese": "谢谢贼！这下能糊弄过去啦贼！",
+      "english": "Thanks! Now I can bluff my way!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_junk_thanks"
+      },
+      "source_sha256": "9dc67e33aa2958fab9deee2fe69c67c1aaf2c0f1a1c24e8eb5e2fe8f51606c33"
+    },
+    {
+      "id": "marisa.young.o_junk_thanks",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ありがちょのじぇ！ これで ごまかちぇりゅのじぇ！",
+      "chinese": "蟹蟹惹杰！这下能糊弄过去惹杰！",
+      "english": "Thanks! Now I can bluff my way!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_junk_thanks"
+      },
+      "source_sha256": "65bb167df59faf4087370ac75d7f908d0b37d88666c26224bf8bdf2e336dc590"
+    },
+    {
+      "id": "chen.adult.o_junk_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとよー！ これで いいこになれるよー！",
+      "chinese": "谢谢哟——！这样就能当好孩子啦——！",
+      "english": "Thank you! Now I can be a good kid!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_junk_thanks"
+      },
+      "source_sha256": "84690159e1d0f8b26f396bb253fdbf802cad49e3c3864a1de9267306ab8459d9"
+    },
+    {
+      "id": "chen.young.o_junk_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょよぅ！ これで いいこになれるよー！",
+      "chinese": "蟹蟹哟——！这样就能当好孩子啦——！",
+      "english": "Thank you! Now I can be a good kid!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_junk_thanks"
+      },
+      "source_sha256": "f5b42f2e5519449fed70033ff29d38e69cdddd07bec0f4c0689a4cb3423ee38d"
+    },
+    {
+      "id": "alice.adult.o_junk_thanks",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありがとわ！ これで かおを あげられるわ！",
+      "chinese": "谢谢哇！这下能抬起头啦哇！",
+      "english": "Thank you! Now I can hold my head up!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_junk_thanks"
+      },
+      "source_sha256": "829060f59ac9079fc69ab2b971a74cb25276922844bf23dd59ff6f31d9228c51"
+    },
+    {
+      "id": "alice.young.o_junk_thanks",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありがちょわ！ これで かおを あげられりゅわ！",
+      "chinese": "蟹蟹哇！这下能抬起头惹哇！",
+      "english": "Thank you! Now I can hold my head up!",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_junk_thanks"
+      },
+      "source_sha256": "2339a68d857548e382ac8d9d4deac5d1c0c0c5a87827581c22bc87db8989ab6b"
+    },
+    {
+      "id": "patchouli.adult.o_junk_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ありがとわ。これで すこし ましだわ。",
+      "chinese": "姆啾，谢谢哇。这样稍微好一点哇。",
+      "english": "Mukyu. Thank you. This is a little better.",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_junk_thanks"
+      },
+      "source_sha256": "56cfbd573f5e0255026d3df01dc20a37550edf8ff82f11b4c58af381ef3d70b3"
+    },
+    {
+      "id": "patchouli.young.o_junk_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ありがちょわ。これで すこち ましだわ。",
+      "chinese": "姆啾。蟹蟹哇。这样稍微好一点哇。",
+      "english": "Mukyu. Thank you. This is a little better.",
+      "events": [
+        "junk_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_junk_thanks"
+      },
+      "source_sha256": "c9636639bb7ec3a890b0a8e0f50ac4eb8cfbf68556d25d59401b0de253388b78"
+    },
+    {
+      "id": "reimu.adult.o_junk_unsure",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "うーん……しかたないから かぶってあげるよ。",
+      "chinese": "嗯……没办法，就戴上吧哟。",
+      "english": "Hmm... fine, I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_junk_unsure"
+      },
+      "source_sha256": "571926debe49bf073a938550ab516b0c7947e26972d8121c600ad569cb0e1eed"
+    },
+    {
+      "id": "reimu.young.o_junk_unsure",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "うーん……しかたないから かぶってあげりゅ。",
+      "chinese": "嗯……没办发，就戴上吧哟。",
+      "english": "Hmm... fine, I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_junk_unsure"
+      },
+      "source_sha256": "2147a3c09916ac2fe0e6be5390035b2047d3761d007daefdd7552ff12c664513"
+    },
+    {
+      "id": "marisa.adult.o_junk_unsure",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "うーん……ま、ないより ましなのぜ。",
+      "chinese": "嗯……嘛，总比没有好贼。",
+      "english": "Hmm... well, better than nothing.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_junk_unsure"
+      },
+      "source_sha256": "4ec8cb9149a287c99b50fa850db630ef76c0e4e3633c662f9623539ba99526c8"
+    },
+    {
+      "id": "marisa.young.o_junk_unsure",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "うーん……ま、ないより まちなのじぇ。",
+      "chinese": "嗯……嘛，总比没有好惹杰。",
+      "english": "Hmm... well, better than nothing.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_junk_unsure"
+      },
+      "source_sha256": "a90e29d868e5555fbb40a4f00f67312816c551b4a912dc8f7096e718ef2e45cc"
+    },
+    {
+      "id": "chen.adult.o_junk_unsure",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うーん……すこし へんだけど……かぶるよー。",
+      "chinese": "嗯……有点怪，不过戴上啦——。",
+      "english": "Hmm... it is a bit weird... but I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_junk_unsure"
+      },
+      "source_sha256": "7d5a7fb8003562a424de6aa37a0f3b470c7ed2bc66c089d3fcae9830a0b8dbe4"
+    },
+    {
+      "id": "chen.young.o_junk_unsure",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うーん……すこち へんだけど……かぶるよー。",
+      "chinese": "嗯……有点怪，不过戴上啦——。",
+      "english": "Hmm... it is a bit weird... but I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_junk_unsure"
+      },
+      "source_sha256": "b1d17d1982f05d0b56d2921095565dde8e07df26fee37599ad6cfbb2712f7d78"
+    },
+    {
+      "id": "alice.adult.o_junk_unsure",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うーん……みっともないけど……かぶってあげるわ。",
+      "chinese": "嗯……虽然不好看……就戴上哇。",
+      "english": "Hmm... it is not pretty... but I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_junk_unsure"
+      },
+      "source_sha256": "4132ed0c40815ae49e304f0c96df45750b5abc4d3f3acb30545389c8721f44d2"
+    },
+    {
+      "id": "alice.young.o_junk_unsure",
+      "species": "alice",
+      "age": "young",
+      "japanese": "うーん……みっともないけろ……かぶっちぇあげるわ。",
+      "chinese": "嗯……虽然不好看……就戴上哇。",
+      "english": "Hmm... it is not pretty... but I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_junk_unsure"
+      },
+      "source_sha256": "21c039f2233dfa9c3e4b1a7e1e3d3dec0faf0e02faa84b5e879a953ae6121370"
+    },
+    {
+      "id": "patchouli.adult.o_junk_unsure",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……しかたないわね。かぶってあげるわ。",
+      "chinese": "姆啾……没办法呢，戴上哇。",
+      "english": "Mukyu... no help for it. I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_junk_unsure"
+      },
+      "source_sha256": "56be950bd4c19866a6ebad147e02de9c8d316d521bd2d16b411f003425bd77aa"
+    },
+    {
+      "id": "patchouli.young.o_junk_unsure",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……しかたないね。かぶっちぇあげるわ。",
+      "chinese": "姆啾……没办法呢，戴上哇。",
+      "english": "Mukyu... no help for it. I will wear it.",
+      "events": [
+        "junk_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_junk_unsure"
+      },
+      "source_sha256": "52e9f8ce3a0e5cdd67cdfa0509c3eca2b20fbdfa3888f985448cf9f16621b5b3"
+    },
+    {
+      "id": "reimu.adult.o_junk_indignant",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、にあうわけないよ！",
+      "chinese": "这种破烂，怎么可能适合我哟！",
+      "english": "This junk could never suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_junk_indignant"
+      },
+      "source_sha256": "2ae012c858836b341839a89b5d38283415102e30fd5419817dabdd0e4cd0f269"
+    },
+    {
+      "id": "reimu.young.o_junk_indignant",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こんな ガラクタ、にあうわけないよ！",
+      "chinese": "这种破烂，怎么可能适合我哟！",
+      "english": "This junk could never suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_junk_indignant"
+      },
+      "source_sha256": "2ae012c858836b341839a89b5d38283415102e30fd5419817dabdd0e4cd0f269"
+    },
+    {
+      "id": "marisa.adult.o_junk_indignant",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、にあうわけないのぜ！",
+      "chinese": "这种破烂，怎么可能配得上我贼！",
+      "english": "This junk could never suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_junk_indignant"
+      },
+      "source_sha256": "4f275789f33e93c5f4ce80b08ae7c4c96f92bc375b0f0b654a77118a65776ed5"
+    },
+    {
+      "id": "marisa.young.o_junk_indignant",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こんな ガラクタ、にあうわけないのじぇ！",
+      "chinese": "这种破烂，怎么可能配得上我惹杰！",
+      "english": "This junk could never suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_junk_indignant"
+      },
+      "source_sha256": "f4eb283fce38a630f1aca8d149596dd9797b31c735846d4e28a38f3bbe48b346"
+    },
+    {
+      "id": "chen.adult.o_junk_indignant",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、にあわないよー！",
+      "chinese": "这种破烂，不适合我哟——！",
+      "english": "This junk does not suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_junk_indignant"
+      },
+      "source_sha256": "ef5fa02a2a66c7779960331f254064b3017fbf6a9b13388c61cf5e641a899323"
+    },
+    {
+      "id": "chen.young.o_junk_indignant",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こんな ガラクタ、にあわないよー！",
+      "chinese": "这种破烂，不适合我哟——！",
+      "english": "This junk does not suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_junk_indignant"
+      },
+      "source_sha256": "ef5fa02a2a66c7779960331f254064b3017fbf6a9b13388c61cf5e641a899323"
+    },
+    {
+      "id": "alice.adult.o_junk_indignant",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、わたしに にあうわけないわ！",
+      "chinese": "这种破烂，怎么可能配得上我哇！",
+      "english": "This junk could never suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_junk_indignant"
+      },
+      "source_sha256": "a840cf8de50c627b9fc80f9b9f656b0aeb986c80524b8807bcb17fa614d6e98f"
+    },
+    {
+      "id": "alice.young.o_junk_indignant",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こんな ガラクタ、わたちに にあうわけないわ！",
+      "chinese": "这种破烂，怎么可能配得上窝哇！",
+      "english": "This junk could never suit me!",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_junk_indignant"
+      },
+      "source_sha256": "eb1400ac694cc86e2dc6c78aff6203d76ff88c202c42dc016c124941cdefa8e2"
+    },
+    {
+      "id": "patchouli.adult.o_junk_indignant",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。こんな ガラクタ、にあうわけないわ。",
+      "chinese": "姆啾。这种破烂，怎么可能配得上我哇。",
+      "english": "Mukyu. This junk could never suit me.",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_junk_indignant"
+      },
+      "source_sha256": "e0f51ebc34f85702a96acbb7975fa380a243fededd23f8f42a059d723100f1bf"
+    },
+    {
+      "id": "patchouli.young.o_junk_indignant",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。こんな ガラクタ、にあうわけないわ。",
+      "chinese": "姆啾。这种破烂，怎么可能配得上我哇。",
+      "english": "Mukyu. This junk could never suit me.",
+      "events": [
+        "junk_indignant"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_junk_indignant"
+      },
+      "source_sha256": "e0f51ebc34f85702a96acbb7975fa380a243fededd23f8f42a059d723100f1bf"
+    },
+    {
+      "id": "reimu.adult.o_junk_afraid",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ひっ……こわいよぉ……やめてよぉ……",
+      "chinese": "咿……好可怕哟……别这样哟……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_junk_afraid"
+      },
+      "source_sha256": "bf4d25f69ff15f6c854e7c2f810ce4b872d29717ed40d5dc0e259f3736e0355b"
+    },
+    {
+      "id": "reimu.young.o_junk_afraid",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ひっ……こわいよぉ……やめちぇよぉ……",
+      "chinese": "咿……好可怕哟……别这样哟……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_junk_afraid"
+      },
+      "source_sha256": "7f6c1516542a9733fe31aeee2c1af0d657972dc9451d1ab9dab16950d97ffce3"
+    },
+    {
+      "id": "marisa.adult.o_junk_afraid",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ひっ……こわいのぜ……やめてほしいのぜ……",
+      "chinese": "咿……好可怕贼……希望你别这样贼……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_junk_afraid"
+      },
+      "source_sha256": "efe1afa0d4c547074bdbe88744a1c870081a624a6d4b29632e04375c71c35553"
+    },
+    {
+      "id": "marisa.young.o_junk_afraid",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ひっ……こわいのじぇ……やめちぇほちいのじぇ……",
+      "chinese": "咿……好可怕惹杰……希望你别这样惹杰……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_junk_afraid"
+      },
+      "source_sha256": "bd434a90bf26d9ef729f089900d1050c43b0ed7d51726528e4f54a1d49ef3686"
+    },
+    {
+      "id": "chen.adult.o_junk_afraid",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ひっ……こわいよー……やめてよー……",
+      "chinese": "咿……好可怕哟——……别这样哟——……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_junk_afraid"
+      },
+      "source_sha256": "d47ded4aa3996a2b4fdfe70147064071c782973bf6121a31abd879e38a345b2e"
+    },
+    {
+      "id": "chen.young.o_junk_afraid",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ひっ……こわいよー……やめちぇよー……",
+      "chinese": "咿……好可怕哟——……别这样哟——……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_junk_afraid"
+      },
+      "source_sha256": "1d0c40b9633634463c0051fedfcc1bed8fba4c53efd71cef8723811503d19c88"
+    },
+    {
+      "id": "alice.adult.o_junk_afraid",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ひっ……こわいわ……やめてちょうだい……",
+      "chinese": "咿……好可怕哇……请住手哇……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_junk_afraid"
+      },
+      "source_sha256": "8a7cf2437783668f92845689b596b3b2e45dfd054e56be9c478d5a0070739d27"
+    },
+    {
+      "id": "alice.young.o_junk_afraid",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ひっ……こわいわ……やめちぇちょうだい……",
+      "chinese": "咿……好可怕哇……请住手哇……",
+      "english": "Eek... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_junk_afraid"
+      },
+      "source_sha256": "6af3987d4524a12e4b833d17bf446e82305ca7066ac14a583b9c65e495ead626"
+    },
+    {
+      "id": "patchouli.adult.o_junk_afraid",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……こわいわ……やめてちょうだい……",
+      "chinese": "姆啾……好可怕哇……请住手哇……",
+      "english": "Mukyu... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_junk_afraid"
+      },
+      "source_sha256": "3a54ff17256e25fe432a7a7aed111ed4dd1eab71986d154b6a7944666de5616a"
+    },
+    {
+      "id": "patchouli.young.o_junk_afraid",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……こわいわ……やめちぇちょうだい……",
+      "chinese": "姆啾……好可怕哇……请住手哇……",
+      "english": "Mukyu... I am scared... please stop...",
+      "events": [
+        "junk_afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_junk_afraid"
+      },
+      "source_sha256": "752995ace9b589f1faa7aeb34e27b2914b8edbf1fcc3bcab1d0d23f7c8f351eb"
     }
   ]
 }

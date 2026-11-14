@@ -19219,6 +19219,486 @@
       ],
       "basis": "P（项目原创）：赤油吃下一口后的满足反应，保留幼语和吃东西时含混的口吻。",
       "english": "Mishter Food! Munch, munch! Sho happy!"
+    },
+    {
+      "id": "reimu.adult.o_junk_thanks",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ありがとよ！ これで かくれるよ！",
+      "chinese": "谢谢哟！这下能藏起来啦哟！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thank you! Now I can hide!"
+    },
+    {
+      "id": "reimu.young.o_junk_thanks",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ありがちょよぉ！ これで かくぇりゅ！",
+      "chinese": "蟹蟹哟！这下能藏惹！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thank you! Now I can hide!"
+    },
+    {
+      "id": "marisa.adult.o_junk_thanks",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ありがとのぜ！ これで ごまかせるのぜ！",
+      "chinese": "谢谢贼！这下能糊弄过去啦贼！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thanks! Now I can bluff my way!"
+    },
+    {
+      "id": "marisa.young.o_junk_thanks",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ありがちょのじぇ！ これで ごまかちぇりゅのじぇ！",
+      "chinese": "蟹蟹惹杰！这下能糊弄过去惹杰！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thanks! Now I can bluff my way!"
+    },
+    {
+      "id": "chen.adult.o_junk_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとよー！ これで いいこになれるよー！",
+      "chinese": "谢谢哟——！这样就能当好孩子啦——！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thank you! Now I can be a good kid!"
+    },
+    {
+      "id": "chen.young.o_junk_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょよぅ！ これで いいこになれるよー！",
+      "chinese": "蟹蟹哟——！这样就能当好孩子啦——！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thank you! Now I can be a good kid!"
+    },
+    {
+      "id": "alice.adult.o_junk_thanks",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありがとわ！ これで かおを あげられるわ！",
+      "chinese": "谢谢哇！这下能抬起头啦哇！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thank you! Now I can hold my head up!"
+    },
+    {
+      "id": "alice.young.o_junk_thanks",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありがちょわ！ これで かおを あげられりゅわ！",
+      "chinese": "蟹蟹哇！这下能抬起头惹哇！",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Thank you! Now I can hold my head up!"
+    },
+    {
+      "id": "patchouli.adult.o_junk_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ありがとわ。これで すこし ましだわ。",
+      "chinese": "姆啾，谢谢哇。这样稍微好一点哇。",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu. Thank you. This is a little better."
+    },
+    {
+      "id": "patchouli.young.o_junk_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ありがちょわ。これで すこち ましだわ。",
+      "chinese": "姆啾。蟹蟹哇。这样稍微好一点哇。",
+      "events": [
+        "junk_thanks"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu. Thank you. This is a little better."
+    },
+    {
+      "id": "reimu.adult.o_junk_unsure",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "うーん……しかたないから かぶってあげるよ。",
+      "chinese": "嗯……没办法，就戴上吧哟。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... fine, I will wear it."
+    },
+    {
+      "id": "reimu.young.o_junk_unsure",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "うーん……しかたないから かぶってあげりゅ。",
+      "chinese": "嗯……没办发，就戴上吧哟。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... fine, I will wear it."
+    },
+    {
+      "id": "marisa.adult.o_junk_unsure",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "うーん……ま、ないより ましなのぜ。",
+      "chinese": "嗯……嘛，总比没有好贼。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... well, better than nothing."
+    },
+    {
+      "id": "marisa.young.o_junk_unsure",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "うーん……ま、ないより まちなのじぇ。",
+      "chinese": "嗯……嘛，总比没有好惹杰。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... well, better than nothing."
+    },
+    {
+      "id": "chen.adult.o_junk_unsure",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うーん……すこし へんだけど……かぶるよー。",
+      "chinese": "嗯……有点怪，不过戴上啦——。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... it is a bit weird... but I will wear it."
+    },
+    {
+      "id": "chen.young.o_junk_unsure",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うーん……すこち へんだけど……かぶるよー。",
+      "chinese": "嗯……有点怪，不过戴上啦——。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... it is a bit weird... but I will wear it."
+    },
+    {
+      "id": "alice.adult.o_junk_unsure",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うーん……みっともないけど……かぶってあげるわ。",
+      "chinese": "嗯……虽然不好看……就戴上哇。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... it is not pretty... but I will wear it."
+    },
+    {
+      "id": "alice.young.o_junk_unsure",
+      "species": "alice",
+      "age": "young",
+      "japanese": "うーん……みっともないけろ……かぶっちぇあげるわ。",
+      "chinese": "嗯……虽然不好看……就戴上哇。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Hmm... it is not pretty... but I will wear it."
+    },
+    {
+      "id": "patchouli.adult.o_junk_unsure",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……しかたないわね。かぶってあげるわ。",
+      "chinese": "姆啾……没办法呢，戴上哇。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu... no help for it. I will wear it."
+    },
+    {
+      "id": "patchouli.young.o_junk_unsure",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……しかたないね。かぶっちぇあげるわ。",
+      "chinese": "姆啾……没办法呢，戴上哇。",
+      "events": [
+        "junk_unsure"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu... no help for it. I will wear it."
+    },
+    {
+      "id": "reimu.adult.o_junk_indignant",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、にあうわけないよ！",
+      "chinese": "这种破烂，怎么可能适合我哟！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk could never suit me!"
+    },
+    {
+      "id": "reimu.young.o_junk_indignant",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こんな ガラクタ、にあうわけないよ！",
+      "chinese": "这种破烂，怎么可能适合我哟！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk could never suit me!"
+    },
+    {
+      "id": "marisa.adult.o_junk_indignant",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、にあうわけないのぜ！",
+      "chinese": "这种破烂，怎么可能配得上我贼！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk could never suit me!"
+    },
+    {
+      "id": "marisa.young.o_junk_indignant",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こんな ガラクタ、にあうわけないのじぇ！",
+      "chinese": "这种破烂，怎么可能配得上我惹杰！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk could never suit me!"
+    },
+    {
+      "id": "chen.adult.o_junk_indignant",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、にあわないよー！",
+      "chinese": "这种破烂，不适合我哟——！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk does not suit me!"
+    },
+    {
+      "id": "chen.young.o_junk_indignant",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こんな ガラクタ、にあわないよー！",
+      "chinese": "这种破烂，不适合我哟——！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk does not suit me!"
+    },
+    {
+      "id": "alice.adult.o_junk_indignant",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "こんな ガラクタ、わたしに にあうわけないわ！",
+      "chinese": "这种破烂，怎么可能配得上我哇！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk could never suit me!"
+    },
+    {
+      "id": "alice.young.o_junk_indignant",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こんな ガラクタ、わたちに にあうわけないわ！",
+      "chinese": "这种破烂，怎么可能配得上窝哇！",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "This junk could never suit me!"
+    },
+    {
+      "id": "patchouli.adult.o_junk_indignant",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。こんな ガラクタ、にあうわけないわ。",
+      "chinese": "姆啾。这种破烂，怎么可能配得上我哇。",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu. This junk could never suit me."
+    },
+    {
+      "id": "patchouli.young.o_junk_indignant",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。こんな ガラクタ、にあうわけないわ。",
+      "chinese": "姆啾。这种破烂，怎么可能配得上我哇。",
+      "events": [
+        "junk_indignant"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu. This junk could never suit me."
+    },
+    {
+      "id": "reimu.adult.o_junk_afraid",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ひっ……こわいよぉ……やめてよぉ……",
+      "chinese": "咿……好可怕哟……别这样哟……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "reimu.young.o_junk_afraid",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ひっ……こわいよぉ……やめちぇよぉ……",
+      "chinese": "咿……好可怕哟……别这样哟……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "marisa.adult.o_junk_afraid",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ひっ……こわいのぜ……やめてほしいのぜ……",
+      "chinese": "咿……好可怕贼……希望你别这样贼……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "marisa.young.o_junk_afraid",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ひっ……こわいのじぇ……やめちぇほちいのじぇ……",
+      "chinese": "咿……好可怕惹杰……希望你别这样惹杰……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "chen.adult.o_junk_afraid",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ひっ……こわいよー……やめてよー……",
+      "chinese": "咿……好可怕哟——……别这样哟——……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "chen.young.o_junk_afraid",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ひっ……こわいよー……やめちぇよー……",
+      "chinese": "咿……好可怕哟——……别这样哟——……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "alice.adult.o_junk_afraid",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ひっ……こわいわ……やめてちょうだい……",
+      "chinese": "咿……好可怕哇……请住手哇……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "alice.young.o_junk_afraid",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ひっ……こわいわ……やめちぇちょうだい……",
+      "chinese": "咿……好可怕哇……请住手哇……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Eek... I am scared... please stop..."
+    },
+    {
+      "id": "patchouli.adult.o_junk_afraid",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……こわいわ……やめてちょうだい……",
+      "chinese": "姆啾……好可怕哇……请住手哇……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu... I am scared... please stop..."
+    },
+    {
+      "id": "patchouli.young.o_junk_afraid",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……こわいわ……やめちぇちょうだい……",
+      "chinese": "姆啾……好可怕哇……请住手哇……",
+      "events": [
+        "junk_afraid"
+      ],
+      "basis": "垃圾头饰戴上／取下时的反应是新演出，按自尊分档；沿用该种已核读的既有口吻另写，非原版引文。",
+      "english": "Mukyu... I am scared... please stop..."
     }
   ]
 }

@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.interaction;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
@@ -386,14 +385,9 @@ public final class OperationLife {
                 return player.getInventory().add(junk) && junk.isEmpty();
             });
             if (!returned && !custody.putDownJunk()) return false;
-            var response = contact.response(false);
-            switch (response) {
-                case GUARDED -> entity.showReaction(YukkuriAction.TREMBLE, "teary", "");
-                case DEFIANT -> entity.showReaction("cheek_puff", "puff", 45);
-                default -> entity.showReaction("look_down", "", 45);
-            }
-            GameplayLog.event(entity, "headwear", "junk removed player={} response={} esteem={} wariness={} destination={} item={}",
-                    player.getUUID(), response.id(), contact.esteem(), contact.wariness(),
+            JunkHeadwear.removed(entity, contact);
+            GameplayLog.event(entity, "headwear", "junk removed player={} band={} esteem={} wariness={} destination={} item={}",
+                    player.getUUID(), JunkHeadwear.band(contact).id(), contact.esteem(), contact.wariness(),
                     returned ? "player" : "ground", ModItems.JUNK_HEADWEAR.get());
             return true;
         }

@@ -211,6 +211,7 @@
     "training_walk": "TN-23",
     "street_crops": "TN-24",
     "street_furniture": "TN-25",
+    "street_tidy": "TN-26",
     "shop_care": "SP-06",
     "oni_street_scrap": "SP-07",
     "care_attitude": "MD-19",
