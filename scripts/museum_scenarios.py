@@ -272,7 +272,7 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
 _seal_skill = 'Version:2,DenSealLearned:1b'
 _seal_mother, _seal_father, _seal_child, _seal_learner = (uid('den_barrier', n) for n in ('mother', 'father', 'child', 'learner'))
 _seal_kin = f'Mother:{uuid_nbt(_seal_mother)},Father:{uuid_nbt(_seal_father)}'
-_seal_mother_log, _seal_father_log = (_uuid_text('den_barrier', n) for n in ('mother', 'father'))
+_seal_mother_log, _seal_father_log, _seal_learner_log = (_uuid_text('den_barrier', n) for n in ('mother', 'father', 'learner'))
 add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门采草，母油封洞口',
     '洞内缺粮。父油去南边草地采草，留守灵梦记得用枝叶封洞口。看亚成子油能否从示范中学会，再看父油回来拆屏、把草送进粮堆。',
     '约 1–2 分钟，可倍速', [
@@ -295,6 +295,7 @@ add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门�
     smoke=dict(ticks=3900, expect=[
         rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* begin role=FAMILY phase=OUT',
         rf'\[home\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{_seal_father_log}\]',
+        rf'\[childhood\][^\n]*uuid={_seal_learner_log}\b[^\n]* den seal demonstration parent={_seal_mother_log}\b[^\n]* roll=[\d.]+ learned=(true|false)',
         rf'\[home\][^\n]*den barrier removed [^\n]* reason=parent_returned [^\n]*twig_returned=true opener={_seal_father_log}\b',
         rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* deposit home=[^\n]* moved=[1-9]'],
         forbid=[r'\[body\][^\n]* invariant\b']))

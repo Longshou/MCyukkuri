@@ -32,8 +32,9 @@ import net.neoforged.neoforge.event.EventHooks;
 public final class DenSeal {
     static final int WORK_TICKS = 40, WALK_LIMIT = 100, RECHECK = 10, RETRY = 100, MAX_CELLS = 3;
     private static final double WATCH_SQR = 24 * 24, DOOR_SAFE_SQR = 9;
-    // The departing body must have cleared the mouth. A returner joins the opening goal from the adjoining approach.
+    // Start after the parent leaves the doorstep. During work, cancel if they actually approach the mouth again.
     private static final double DEPARTED_SQR = 5 * 5, RETURN_SQR = 4.5 * 4.5;
+    private static final double MOUTH_APPROACH_SQR = 2 * 2;
     private enum Phase { IDLE, WALK, WORK }
 
     private final YukkuriEntity y;
@@ -203,12 +204,12 @@ public final class DenSeal {
         return id != null && home.owns(id) && level.getEntity(id) instanceof YukkuriEntity other && other.isAlive() ? other : null;
     }
 
-    private static boolean departed(YukkuriEntity other, ShelterBlockEntity home) {
+    private static boolean departed(YukkuriEntity other, ShelterBlockEntity home, double clearDistanceSqr) {
         return other != null && other.forageTrip().outing() && !home.contains(other.blockPosition())
-                && other.distanceToSqr(Vec3.atCenterOf(home.entrance())) > DEPARTED_SQR;
+                && other.distanceToSqr(Vec3.atCenterOf(home.entrance())) > clearDistanceSqr;
     }
 
-    private List<UUID> departure(ServerLevel level, ShelterBlockEntity home) {
+    private List<UUID> departure(ServerLevel level, ShelterBlockEntity home, double clearDistanceSqr) {
         if (y.forageTrip().outing()) return List.of();
         var inside = residents(level, home);
         // A shared den stays open while another adult is using it.
@@ -216,14 +217,14 @@ public final class DenSeal {
         if (y.family().adult()) {
             if (!home.contains(y.blockPosition()) && y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR) return List.of();
             var partner = resident(level, home, y.family().partner());
-            return departed(partner, home) && inside.stream().anyMatch(child -> child != y
+            return departed(partner, home, clearDistanceSqr) && inside.stream().anyMatch(child -> child != y
                     && !child.family().adult() && y.family().careParentOf(child) && partner.family().careParentOf(child))
                     ? List.of(partner.getUUID()) : List.of();
         }
         if (!home.contains(y.blockPosition())) return List.of();
         var mother = resident(level, home, y.family().mother());
         var father = resident(level, home, y.family().father());
-        if (!departed(mother, home) || !departed(father, home)) return List.of();
+        if (!departed(mother, home, clearDistanceSqr) || !departed(father, home, clearDistanceSqr)) return List.of();
         var oldest = inside.stream().filter(child -> child.family().subadult() && child.childhood().knowsDenSeal()
                 && Objects.equals(child.family().mother(), mother.getUUID()) && Objects.equals(child.family().father(), father.getUUID()))
                 .max(Comparator.comparingLong((YukkuriEntity child) -> child.family().age()).thenComparing(YukkuriEntity::getUUID));
@@ -240,7 +241,7 @@ public final class DenSeal {
         }
         if (!canSeal(home) || DenBarrier.sealed(home) || level.getGameTime() < nextCheck) return false;
         nextCheck = level.getGameTime() + RECHECK;
-        var parents = departure(level, home);
+        var parents = departure(level, home, DEPARTED_SQR);
         if (parents.isEmpty() || parents.equals(considered)) return false;
         considered = parents;
         var traits = y.life().personality();
@@ -309,7 +310,7 @@ public final class DenSeal {
             var level = (ServerLevel) y.level();
             var home = y.habitat().shelter();
             if (home != null && (seal.ticks % RECHECK == 0 || seal.ticks + 1 >= WORK_TICKS)
-                    && !seal.absent.equals(seal.departure(level, home))) seal.abort("departure_changed");
+                    && !seal.absent.equals(seal.departure(level, home, MOUTH_APPROACH_SQR))) seal.abort("departure_changed");
             else seal.work(level, home, null);
         }
 
