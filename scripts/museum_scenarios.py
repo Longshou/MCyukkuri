@@ -266,8 +266,8 @@ _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 
 add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',
     '土丘洞储粮空了。父油魔理沙去草场采草，母油灵梦守洞口、照看赤油。看魔理沙把草衔回粮堆，家里迎接归来，再用存粮喂赤油。',
     '数分钟（可倍速）', [
-        box(7, 0, 5, 12, 0, 11, 'minecraft:short_grass', 'keep'),
-        yk('marisa', 0, 1, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=65, energy=100,
+        box(9, 0, 6, 16, 0, 13, 'minecraft:short_grass', 'keep'),
+        yk('marisa', 0, 1, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=80, energy=100,
            boldness=60, friendliness=100, attachment=95),
         yk('reimu', 0, -2, 'mother', uuid=_fm, yaw=0, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=100, energy=100,
            boldness=20, friendliness=100, attachment=35, affection=0),
@@ -288,8 +288,8 @@ _absent, _stayer, _older, _baby = (uid('family_absence', n) for n in ('absent', 
 _absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)}'
 _absence_x, _absence_z = BY_ID['forage'].spots['forage']
 # A narrow screen hides the far side of the nearby meadow. The actual death waits for a private moment there.
-_far_parent = (f'@e[tag={tag("absent")},x={_absence_x - 7},y={FEET - 1},z={_absence_z + 10},'
-               'dx=14,dy=4,dz=9,limit=1]')
+_far_parent = (f'@e[tag={tag("absent")},x={_absence_x - 8},y={FEET - 1},z={_absence_z + 9},'
+               'dx=16,dy=4,dz=5,limit=1]')
 _unwatched_death = (f'execute as {_far_parent} at @s '
                     + ''.join(f'unless entity @e[tag={tag(n)},distance=..10] ' for n in ('stayer', 'older', 'baby'))
                     + 'run kill @s')
@@ -297,16 +297,15 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     '灵梦亲油去土坡后的草场采草，在家人看不到的地方死亡。看魔理沙和孩子等多久才到洞口呼唤。'
     '子油沿记得的方向找一段再回头，赤油留在洞旁等。看魔理沙找到遗体后原地哀悼，再赶去采草、照料饥饿的赤油。',
     '约 2–5 分钟（可倍速）', [
-        box(-2, 0, 6, 2, 2, 6, 'minecraft:dirt'),
-        box(-7, 0, 10, 7, 0, 19, 'minecraft:short_grass', 'keep'),
-        *(block(x, 0, 7, 'minecraft:short_grass') for x in (-6, -3, 3, 6)),
-        yk('reimu', 0, -1, 'absent', uuid=_absent, yaw=0, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=58, energy=100,
+        box(-2, 0, 5, 2, 2, 5, 'minecraft:dirt'),
+        box(-8, 0, 11, 8, 0, 22, 'minecraft:short_grass', 'keep'),
+        yk('reimu', 0, -4, 'absent', uuid=_absent, yaw=0, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=82, energy=100,
            boldness=100),
-        yk('marisa', -1, -2, 'stayer', uuid=_stayer, yaw=0, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=100, energy=65, boldness=38,
+        yk('marisa', -1, -2, 'stayer', uuid=_stayer, yaw=0, kin=f'Partner:{uuid_nbt(_absent)}', nutrition=100, energy=48, boldness=38,
            friendliness=100, attachment=0, affection=0, self_control=35),
         yk('reimu', 1, -2, 'older', stage='child', uuid=_older, kin=_absence_kin, nutrition=76, boldness=20, self_control=35,
            childhood=CHILDHOOD_HOPPING, lead=True),
-        yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=25, childhood=CHILDHOOD_CRAWLING_READY),
+        yk('marisa', 1, -3, 'baby', stage='baby', uuid=_baby, kin=_absence_kin, nutrition=30, childhood=CHILDHOOD_CRAWLING_READY),
         ],
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
           Retry(_unwatched_death, _far_parent, tries=150, every=5, first=120)],
