@@ -4293,15 +4293,15 @@
           "faces": [
             [
               0,
+              "teary"
+            ],
+            [
+              1.4,
               "cry"
             ],
             [
-              2.2,
-              "blank_cry"
-            ],
-            [
-              3.6,
-              "cry"
+              3.2,
+              "teary"
             ]
           ],
           "emote": "gloom"

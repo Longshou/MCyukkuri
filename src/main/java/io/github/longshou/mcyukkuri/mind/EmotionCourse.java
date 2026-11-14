@@ -101,15 +101,18 @@ public final class EmotionCourse {
         };
     }
 
-    /** The face it wears over ordinary behaviour, or null; meals keep their chewing faces. */
+    /** The face it wears over ordinary behaviour, or null; meals keep their chewing faces, its own goal its presentation row. */
     public String face() {
-        if (kind == null || entity.life().mealTicks() > 0) return null;
+        if (kind == null || running || entity.life().mealTicks() > 0) return null;
+        if (entity.life().isSleeping()) return mourning() && stage() != Stage.ONSET ? "tear_sleep" : null;
+        return stageFace();
+    }
+    private String stageFace() {
         Stage s = stage();
-        if (s == Stage.ONSET || s == Stage.FADING) return null;
+        if (kind == null || s == Stage.ONSET || s == Stage.FADING || s == Stage.NONE) return null;
         boolean peak = s == Stage.PEAK;
-        if (entity.life().isSleeping()) return kind == Kind.GRIEF ? "tear_sleep" : null;
         return switch (kind) {
-            case GRIEF -> peak ? "cry" : "side_teary";
+            case GRIEF -> peak ? "teary" : "side_teary";
             case TERROR -> peak ? "horrified" : "teary";
             case RAGE -> peak ? "angry" : "down_angry";
             case JOY -> peak ? "happy" : "closed_smile";
@@ -277,7 +280,7 @@ public final class EmotionCourse {
             case RAGE -> peak ? "fume" : "sulk_huff";
             case JOY -> peak ? "glow" : "glow_hum";
         };
-        entity.showReaction(face(), event, 60);
+        entity.showReaction(event.equals("mourn_sob") ? "cry" : stageFace(), event, 60);
         return true;
     }
 
