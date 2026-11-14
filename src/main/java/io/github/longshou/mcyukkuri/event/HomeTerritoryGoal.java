@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -64,9 +65,10 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     }
 
     private boolean available() {
+        var identity=body.status().identity();
         return body.isAlive() && !body.isNoAi() && !body.isPassenger() && !body.isPanicking() && !body.hurtCrying()
                 && !body.profile().houseBody() && !body.profile().aquatic() && !body.profile().dangerToYukkuri()
-                && !body.settlement().society().slave() && body.status().identity().canConceive()
+                && !body.settlement().society().slave() && (identity.free() || identity.companion())
                 && !body.isCommandPlaying() && !body.operations().active() && body.life().mealTicks() == 0
                 && !body.isInWaterOrBubble() && !body.isOnFire() && !body.life().hasUrgentNeed();
     }
@@ -138,12 +140,21 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public void tick() {
         elapsed++;
         body.getLookControl().setLookAt(intruder, 30, 30);
-        if (elapsed < LOOK) return;
+        if (elapsed < LOOK) {
+            SurfaceApproach.face(body,SurfaceApproach.yaw(body.position(),intruder.position()));
+            return;
+        }
+        if (ram != null && !stranger(intruder)) {
+            body.motor().cancel(this, "territory_visitor_withdrew");
+            return;
+        }
         boolean person = !(intruder instanceof YukkuriEntity);
         double ratio = person ? 1 : body.getBbWidth() / intruder.getBbWidth();
         var contact = SocialDisposition.contact(body, intruder);
         double courage = resolve(body, contact, ratio);
-        if (!body.family().adult() || body.body().weak() || body.family().carry().carrying() || courage < (person ? .30 : .25)
+        if (intruder instanceof Player player && player.isSprinting() && contact.wariness() >= .8
+                && body.distanceToSqr(player) < 4 && courage < .30 && HomeClaim.displaced(body, player)) return;
+        if (!body.family().adult() || body.body().weak() || body.body().mold()>0 || body.family().carry().carrying() || courage < (person ? .30 : .25)
                 || intruder instanceof YukkuriEntity peer && courage + .10 < resolve(peer, body)) {
             if (!yielded) {
                 if (ram != null) body.motor().cancel(this, "territory_yielded");
@@ -171,7 +182,8 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
                 ram = trial;
                 body.motor().run(this, ram);
             } else if (elapsed % 5 == 0) {
-                SurfaceApproach.walkResult(body, RamPerson.approach(body, intruder), intruder, 1);
+                if (SurfaceApproach.walkResult(body, RamPerson.approach(body, intruder), intruder, 1) == SurfaceApproach.Result.BLOCKED)
+                    elapsed = LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
             }
         } else {
             var peer = (YukkuriEntity) intruder;

@@ -227,14 +227,16 @@ add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一�
     '一家三口先住在小石洞。洞底进水，但洞口仍干燥；看亲油带子油沿地面去东边空土洞，到了新家鼓脸说出住家宣言。'
     '读三只的住所，确认一家都住到新洞；走进洞口可看领地反应。',
     '约 1 分钟', [
-        yk('reimu', 0, 3, 'mother', uuid=_sm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_sf)}', **pair_ready()),
-        yk('marisa', 2, 3, 'father', uuid=_sf, yaw=180, kin=f'Partner:{uuid_nbt(_sm)}', **pair_ready()),
-        yk('reimu', 1, 4, 'child', stage='teen', uuid=_sc, yaw=180, nutrition=100, energy=100, kin=f'Mother:{uuid_nbt(_sm)},Father:{uuid_nbt(_sf)}', fam=TEEN_FAMILY),
+        yk('reimu', -1, 1, 'mother', uuid=_sm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_sf)}', boldness=15, **pair_ready()),
+        yk('marisa', 1, 1, 'father', uuid=_sf, yaw=180, kin=f'Partner:{uuid_nbt(_sm)}', boldness=15, **pair_ready()),
+        yk('reimu', 0, 2, 'child', stage='teen', uuid=_sc, yaw=180, nutrition=100, energy=100, boldness=15,
+           kin=f'Mother:{uuid_nbt(_sm)},Father:{uuid_nbt(_sf)}', fam=TEEN_FAMILY),
         # Leave a qualified dry den and close the other two demonstration caves.
         box(-38, 0, -5, -34, 1, 0, 'minecraft:stone'), box(-20, 0, -5, -16, 1, 0, 'minecraft:stone'),
         ],
-    late=[*[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
-          block(0, -1, -1, 'minecraft:oak_slab[type=top,waterlogged=true]')],
+    late=[*[Retry(f'yukkuri scenario home {sel(n)} ~ ~ ~-1', sel(n), tries=1, first=1)
+            for n in ('mother', 'father', 'child')],
+          Retry(block(0, -1, -1, 'minecraft:oak_slab[type=top,waterlogged=true]'), sel('mother'), tries=1, first=30)],
     env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家一家', 'yukkuri status @e[tag=scn,distance=..48] raw')],
     smoke=dict(ticks=2200, expect=[r'\[habitat\][^\n]* relocate begin .*movers=3 .*reason=flooded',
                                    r'\[habitat\][^\n]* relocate end .*movers=3 moved=3',
@@ -245,15 +247,17 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
     '草窝和空丝绒窝都在屋檐下。胆大、低友善的魔理沙已有草窝，却自己走向丝绒窝并说住家宣言。'
     '等它到新窝后走近，观察转身、警告、鼓脸；停在近处还可能被轻撞。照料菜单选拒绝事件、抱起或攻击可赶走它。',
     '约 30 秒', [
-        box(1, 3, 1, 9, 3, 6, 'minecraft:oak_planks'),
-        block(2, 0, 3, 'mcyukkuri:straw_nest[facing=south]'),
-        block(8, 0, 3, 'mcyukkuri:velvet_nest[facing=south]'),
-        yk('marisa', 2, 5, 'greedy', label='魔理沙', boldness=100, friendliness=0, self_control=0, lead=True, **pair_ready()),
+        box(1, -1, 1, 9, 3, 8, 'minecraft:oak_planks', 'hollow'),
+        block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower]'),
+        block(5, 1, 8, 'minecraft:oak_door[facing=south,half=upper]'),
+        block(3, 0, 3, 'mcyukkuri:straw_nest[facing=south]'),
+        yk('marisa', 3, 5, 'greedy', label='魔理沙', boldness=100, friendliness=0, self_control=0, lead=True, **pair_ready()),
         ],
-    late=[f'yukkuri scenario home {sel("greedy")} ~2 ~ ~3'],
-    env=DAY, spot='big', vantage=(5, 10),
+    late=[f'yukkuri scenario home {sel("greedy")} ~3 ~ ~3',
+          block(7, 0, 3, 'mcyukkuri:velvet_nest[facing=south]')],
+    env=DAY, spot='big', vantage=(5, 10, 180),
     reads=[('读占领阶段','yukkuri homeclaim status'),('读魔理沙', f'yukkuri status {sel("greedy")} raw')],
-    smoke=dict(ticks=900, expect=[r'\[home-claim\][^\n]* occupation chosen .*kind=bed .*previous=GlobalPos',
+    smoke=dict(ticks=900, expect=[r'\[home-claim\][^\n]* occupation chosen .*kind=bed .*previous=ResourceKey',
                                   r'\[home-claim\][^\n]* declared site=.*spoken=true'],
                forbid=[r'occupation_refused', r'never_arrived']))
 

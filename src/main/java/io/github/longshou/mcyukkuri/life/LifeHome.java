@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -184,7 +185,7 @@ final class LifeHome {
         var search=o.homeProvider().findHome(o.entity());
         if(search==HomeProvider.SearchResult.DEFERRED)return true;
         if(search==HomeProvider.SearchResult.FOUND)return false;
-        if (claimNearestNest()) return false;
+        if (!HomeClaim.holds(o.entity()) && claimNearestNest()) return false;
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
         if (o.entity().habitat().wildLiver()) return false;
         var found = new ArrayList<BlockPos>();

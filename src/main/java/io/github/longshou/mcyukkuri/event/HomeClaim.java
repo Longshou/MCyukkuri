@@ -299,7 +299,7 @@ public final class HomeClaim {
         switch (c.stage) {
             case GATHER -> {
                 if (c.ticks>1200) { finish(level,data,c,alive,"never_arrived"); return; }
-                var first=alive.stream().filter(y -> y.family().adult()&&arrived(y,c)).findFirst().orElse(null);
+                var first=alive.stream().filter(y -> y.family().adult()&&mayAct(y)&&arrived(y,c)).findFirst().orElse(null);
                 if (first!=null) declare(level,c,first,alive);
             }
             case HOLD, ENCLOSED, COLLAPSING -> hold(level,data,c,alive,now);
@@ -336,9 +336,12 @@ public final class HomeClaim {
     private static void hold(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, long now) {
         c.holdTicks+=TICK;
         if(c.occupation) {
-            if(level.getBlockEntity(c.site.pos()) instanceof CareBlockEntity bed
-                    ? alive.stream().noneMatch(y->bed.owns(y.getUUID())) : !indoors(alive.getFirst(),c.site.pos()))
+            if(alive.stream().noneMatch(y->c.site.equals(y.life().home()))
+                    || (level.getBlockEntity(c.site.pos()) instanceof CareBlockEntity bed
+                        ? alive.stream().noneMatch(y->bed.owns(y.getUUID())) : !indoors(alive.getFirst(),c.site.pos()))) {
+                for(var y:alive)if(c.site.equals(y.life().home()))y.life().releaseHome();
                 finish(level,data,c,alive,"occupation_lost");
+            }
             return;
         }
         if (c.holdTicks%200==0) {
@@ -511,10 +514,10 @@ public final class HomeClaim {
         Claim c=responsiveClaim(e);
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }
-    /** Only a committed lift or basket transfer ends an occupation. */
-    public static void displaced(YukkuriEntity e, Player player) {
+    /** A committed lift, basket transfer or close charge can end an occupation. */
+    public static boolean displaced(YukkuriEntity e, Player player) {
         Claim claim=responsiveClaim(e);
-        if(claim!=null&&claim.occupation)driveOff((ServerLevel)e.level(),claim,player,null);
+        return claim!=null&&claim.occupation&&driveOff((ServerLevel)e.level(),claim,player,null);
     }
     /** The existing "decline event" operation on a claimant: the player asks them to leave. */
     public static boolean canDecline(YukkuriEntity e) { return responsive(responsiveClaim(e)); }

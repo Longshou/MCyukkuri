@@ -10,6 +10,7 @@ import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -148,9 +149,9 @@ final class HabitatHomes {
         if(moveWait>0)moveWait--;
         var body=o.entity();
         var den=o.handlesLostHome()?o.shelter():null;
-        if(den!=null) {
+        if(den!=null&&body.tickCount%20==0) {
             int patience=shortagePatience();
-            shortFoodTicks=body.life().nutrition()<40&&den.food()==0?Math.min(patience,shortFoodTicks+1):0;
+            shortFoodTicks=body.life().nutrition()<40&&den.food()==0?Math.min(patience,shortFoodTicks+20):0;
             if(body.status().reactions().threat().source() instanceof YukkuriEntity predator
                     && predator.profile().dangerToYukkuri()
                     && predator.distanceToSqr(Vec3.atBottomCenterOf(den.entrance()))<16
@@ -560,7 +561,7 @@ final class HabitatHomes {
     void addressChanged() {
         shortFoodTicks=0;denFound=false;noExtension=false;
     }
-    /** The whole household (everyone of the old home who is near) walks into the bigger home: adults first, the young into a parent's cell. */
+    /** Nearby residents move as a household, assigning adults before dependent young who share their beds. */
     Result relocate(ShelterBlockEntity old) {
         if(relocationSearch==null&&!o.address().equals(relocationHome)) {
             cancelRelocationSearch();
@@ -592,7 +593,7 @@ final class HabitatHomes {
                     &&core.sound()&&core.capacity()>=search.minimum
                     &&(!search.deficit.equals("food_shortage") || nearbyFood(core.entrance()))
                     &&(!search.deficit.equals("predator_at_den") || core.getBlockPos().distSqr(search.old)>=144)
-                    &&o.entity().life().dryTravelPath(Set.of(core.entrance()))!=null) {
+                    &&routeFromGround(o.entity(),core.entrance())) {
                 // The same fit as a home search: room for the household, a size close to its need, then the nearer one.
                 double score=fit(core.capacity(),core.capacity(),o.householdNeed(),o.entity().distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())));
                 if(score<search.targetScore){search.target=core;search.targetScore=score;}
@@ -627,7 +628,7 @@ final class HabitatHomes {
                     int size=candidate.beds(level()).size();
                     if(size>=search.minimum&&size<search.bestCells) {
                         SearchBudget.path(o.entity());
-                        if(o.entity().life().dryTravelPath(Set.of(pos))!=null) {search.best=candidate;search.bestCells=size;}
+                        if(routeFromGround(o.entity(),pos)) {search.best=candidate;search.bestCells=size;}
                     }
                 }
                 return Result.DEFERRED;
@@ -646,14 +647,14 @@ final class HabitatHomes {
         // whole household. On every later slice it admits only residents moved by this operation.
         if(!usableRelocationTarget(search))return abandonRelocation(search,"destination_changed");
         if(search.mover<search.movers.size()) {
-            if(search.mover==0&&search.oldCore!=null)DenBarrier.release(search.oldCore,"household_relocating");
             var id=search.movers.get(search.mover++);
             if(level().getEntity(id) instanceof YukkuriEntity mover&&mover.isAlive()&&mover.distanceToSqr(o.entity())<=32*32
                     &&search.old.equals(mover.habitat().address())) {
                 boolean carried=mover.isPassenger()&&mover.getVehicle() instanceof YukkuriEntity carrier
                         &&search.movedIds.contains(carrier.getUUID());
                 boolean needsCarry=!mover.family().adult()&&mover.childhood().shouldStayWithParents();
-                if(!carried&&!needsCarry&&mover.life().dryTravelPath(Set.of(search.target.entrance()))==null)
+                boolean sealed=search.oldCore!=null&&DenBarrier.sealed(search.oldCore);
+                if(!carried&&!needsCarry&&!sealed&&!routeFromGround(mover,search.target.entrance()))
                     return Result.DEFERRED;
                 mover.life().trustRoutes(true);
                 boolean self=mover==o.entity();
@@ -667,8 +668,9 @@ final class HabitatHomes {
             }
             return Result.DEFERRED;
         }
-        if(!search.movedIds.contains(o.entity().getUUID()))return finishRelocation(search);
-        for(var id:search.movedIds)if(level().getEntity(id) instanceof YukkuriEntity mover&&mover.family().adult())
+        if(!search.movedIds.contains(o.entity().getUUID()))return abandonRelocation(search,"initiator_could_not_move");
+        for(var id:search.movedIds)if(level().getEntity(id) instanceof YukkuriEntity mover
+                &&(mover.family().adult()||!mover.childhood().shouldStayWithParents()))
             mover.habitat().startRelocationTravel(search.target.bed(id));
         return Result.FOUND;
     }
@@ -689,7 +691,8 @@ final class HabitatHomes {
                 finishRelocation(relocationSearch);
             }
             o.stop();
-        } else if(body.getNavigation().isDone() && !moveToBed(body)) {
+        } else if(body.getNavigation().isDone() && ((YukkuriGroundNavigation)body.getNavigation()).canPlanApproach()
+                && (body.getNavigation().isStuck() || !moveToBed(body))) {
             if(relocationSearch!=null)abandonRelocation(relocationSearch,"destination_route_lost");
             o.stop();
         }
@@ -697,6 +700,14 @@ final class HabitatHomes {
     private boolean moveToBed(YukkuriEntity body) {
         var route=body.life().dryTravelPath(Set.of(o.targetBlock()));
         return route!=null&&body.getNavigation().moveTo(route,1);
+    }
+    private boolean routeFromGround(YukkuriEntity body, BlockPos target) {
+        var here=body.blockPosition();
+        for(int down=0;down<=2;down++) {
+            var floor=here.below(down);
+            if(body.life().dryStand(floor))return body.life().dryRouteFrom(floor,Set.of(target));
+        }
+        return false;
     }
     private Result finishRelocation(RelocationSearch search) {
         moveNote="target="+search.target.getBlockPos().toShortString()+" movers="+search.movers.size()+" moved="+search.moved;
@@ -718,11 +729,15 @@ final class HabitatHomes {
     private boolean usableRelocationTarget(RelocationSearch search) {
         var target=search.target;
         return currentCore(target)&&target.kind()==ShelterBlock.Kind.BURROW&&target.sound()&&target.capacity()>=search.minimum
-                &&target.residentIds().stream().allMatch(search.movedIds::contains);
+                &&target.residentIds().stream().allMatch(id->search.movedIds.contains(id)
+                    || !search.movedIds.isEmpty()&&target.related(o.entity().getUUID(),id));
     }
     private boolean nearbyFood(BlockPos at) {
-        for(var cell:BlockPos.betweenClosed(at.offset(-5,-1,-5),at.offset(5,1,5)))
-            if(level().hasChunkAt(cell)&&Grazing.cropAt(o.entity(),cell))return true;
+        for(var cell:BlockPos.betweenClosed(at.offset(-5,-1,-5),at.offset(5,1,5))) {
+            if(!level().hasChunkAt(cell))continue;
+            var plant=Grazing.yield(level().getBlockState(cell));
+            if(!plant.isEmpty()&&o.entity().life().acceptsFood(plant)||Grazing.cropAt(o.entity(),cell))return true;
+        }
         return false;
     }
     private Result abandonRelocation(RelocationSearch search,String reason) {
