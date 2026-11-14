@@ -13,6 +13,7 @@
 | FG-01 野外筑巢选址、前倾晃动走路、挖洞辫子动作 | `.worktrees/wp-r2-nestsite` | NaturalShelter siting, walk pose, dig clip |
 | DN-01 情绪过渡、DN-02 告别、DN-05 驱逐演出 | `.worktrees/wp-r2-emotion` | mourning/recovery, farewell, exile |
 | DN-04 封洞口技能 | `.worktrees/wp-r2-seal` | den sealing, skill learning |
+| 舌肥（挑食度）数值与进食反应 | `.worktrees/wp-r2-picky` | LifeMeal, food preference, new stat |
 
 ## 玩法待办
 
