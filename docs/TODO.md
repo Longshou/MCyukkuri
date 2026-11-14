@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 住家宣言、领地威吓、搬家与贪心占地 | `.worktrees/wp-r2-home` | home/territory/relocation goals, speech |
 | FG-02 父亲觅食、FG-07 亲油死后与寻亲 | `.worktrees/wp-r2-family` | family forage role, loss reaction, search family |
+| FG-01 野外筑巢选址、前倾晃动走路、挖洞辫子动作 | `.worktrees/wp-r2-nestsite` | NaturalShelter siting, walk pose, dig clip |
 
 ## 玩法待办
 
