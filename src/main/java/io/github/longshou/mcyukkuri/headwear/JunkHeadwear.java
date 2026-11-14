@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -47,7 +48,12 @@ public enum JunkHeadwear {
     public static boolean fits(YukkuriEntity animal) {
         var head = animal.life().custody();
         return head.lost() && head.junk() == null && !animal.headwear().reassembling()
-                && (animal.family().adult() || animal.family().subadult()) && !animal.profile().dangerToYukkuri();
+                && canWear(animal);
+    }
+
+    private static boolean canWear(YukkuriEntity animal) {
+        return (animal.family().adult() || animal.family().subadult())
+                && !animal.profile().dangerToYukkuri() && !animal.profile().aquatic();
     }
 
     public static boolean onDryGround(YukkuriEntity animal) {
@@ -64,7 +70,7 @@ public enum JunkHeadwear {
     /** The two esteem edges the acceptance roll and the wearer's answer share. */
     static final double ACCEPT_LOW = 22, ACCEPT_HIGH = 44;
 
-    /** How the wearer answers: low, middling or high self-esteem, the three parts of the acceptance band. */
+    /** Low esteem is the first third of the ramp. High esteem is where the acceptance ramp reaches zero. */
     public enum Band {
         MEEK, HESITANT, HAUGHTY;
 
@@ -73,7 +79,7 @@ public enum JunkHeadwear {
 
     public static Band band(SocialDisposition.Contact contact) {
         double esteem = SocialDisposition.ramp(contact.esteem(), ACCEPT_LOW, ACCEPT_HIGH);
-        return esteem < 1 / 3. ? Band.MEEK : esteem < 2 / 3. ? Band.HESITANT : Band.HAUGHTY;
+        return esteem < 1 / 3. ? Band.MEEK : esteem < 1 ? Band.HESITANT : Band.HAUGHTY;
     }
 
     public static double chance(SocialDisposition.Contact contact) {
@@ -88,22 +94,17 @@ public enum JunkHeadwear {
         return preference < chance(contact);
     }
 
-    /**
-     * Caller has checked the source and debits exactly one item after this server-side commit. A haughty one is never fitted
-     * against its will: it answers with the ordinary refusal instead, so the item stays where it came from.
-     */
+    /** Caller checks acceptance and debits exactly one item after this server-side commit. */
     public static boolean equip(YukkuriEntity animal, Entity giver, SocialDisposition.Contact contact) {
-        var band = band(contact);
-        if (band == Band.HAUGHTY) { refused(animal, giver, contact); return false; }
-        if (!animal.life().custody().equipJunk()) return false;
+        if (!canWear(animal) || !animal.life().custody().equipJunk()) return false;
         Sanction.covered(animal);
-        if (band == Band.MEEK) {
-            // Relief and thanks; a pit slave is grateful but cowers, never relieved.
-            if (slave(animal)) animal.showReaction(YukkuriAction.TREMBLE, "teary", "junk_thanks");
-            else animal.showReaction(YukkuriAction.BOW, "closed_smile", "junk_thanks");
+        var band = band(contact);
+        if (slave(animal)) {
+            animal.showReaction(YukkuriAction.TREMBLE, "teary", line(animal, "junk_thanks", "request_thanks"));
+        } else if (band == Band.MEEK) {
+            animal.showReaction(YukkuriAction.BOW, "closed_smile", line(animal, "junk_thanks", "request_thanks"));
         } else {
-            // Middling: it looks the thing over, hesitates, then takes it.
-            animal.showReaction(YukkuriAction.THINK, "look_down", "junk_unsure");
+            animal.showReaction(YukkuriAction.THINK, "look_down", line(animal, "junk_unsure", "shy"));
         }
         GameplayLog.event(animal, "headwear", "junk equipped variant={} source={} player={} esteem={} band={} item={}",
                 animal.life().custody().junk().id(), giver == null ? "ground" : "offer",
@@ -114,8 +115,8 @@ public enum JunkHeadwear {
     /** A refused fit: a haughty one puffs and retorts, a lowly or middling one only trembles and tears up. */
     public static void refused(YukkuriEntity animal, Entity giver, SocialDisposition.Contact contact) {
         var band = band(contact);
-        if (band == Band.HAUGHTY) animal.showReaction(YukkuriAction.PUFF, "cheek_puff", "junk_indignant");
-        else animal.showReaction(YukkuriAction.TREMBLE, "teary", "junk_afraid");
+        if (band == Band.HAUGHTY) animal.showReaction(YukkuriAction.PUFF, "cheek_puff", line(animal, "junk_indignant", "request_sulk"));
+        else animal.showReaction(YukkuriAction.TREMBLE, "teary", line(animal, "junk_afraid", "afraid"));
         GameplayLog.limited(animal, "headwear", "junk_refusal", 40,
                 "junk refused player={} esteem={} chance={} band={}", giver == null ? null : giver.getUUID(),
                 contact.esteem(), chance(contact), band.id());
@@ -124,37 +125,46 @@ public enum JunkHeadwear {
     /** The player takes it off again: the lowly one struggles not to lose it, the haughty one says it never suited it. */
     public static void removed(YukkuriEntity animal, SocialDisposition.Contact contact) {
         switch (band(contact)) {
-            case HAUGHTY -> animal.showReaction(YukkuriAction.PUFF, "cheek_puff", "junk_indignant");
-            case MEEK -> animal.showReaction(YukkuriAction.TREMBLE, "teary", "junk_afraid");
-            default -> animal.showReaction("look_down", "", 45);
+            case HAUGHTY -> animal.showReaction(YukkuriAction.PUFF, "cheek_puff", line(animal, "junk_indignant", "request_sulk"));
+            case MEEK -> animal.showReaction(YukkuriAction.TREMBLE, "teary", line(animal, "junk_afraid", "afraid"));
+            case HESITANT -> lowerEyes(animal);
         }
     }
 
     /**
      * One lasting beat of a wearer, off the wearer's own clock; every value split, nothing per tick:
-     * a lowly one shows the new cover off to whoever is in sight, and a haughty one (by now recovered, or just mocked) shakes
-     * it off for real. The middle band is ambivalent and does nothing while it decides. Returns the ticks until the next look.
+     * a lowly one shows the new cover off to whoever is in sight, and a haughty one (uneasy or just mocked) shakes
+     * it off for real. The middle band lowers its eyes when mocked. Returns the ticks until the next look.
      */
     public static int beat(YukkuriEntity animal, boolean mocked, boolean lowMood) {
-        if (animal.life().custody().junk() == null || owned(animal) || !available(animal)) return 200;
-        switch (band(SocialDisposition.contact(animal, null))) {
-            case MEEK:
-                if (mocked) return wince(animal) ? 1200 : 300;
-                return showOff(animal) ? 1200 + animal.getRandom().nextInt(1200) : 300;
-            case HAUGHTY:
-                if (!mocked && !lowMood) return 600;
-                return shakeOff(animal, mocked) ? 2400 : 300;
-            default:
-                return 600;
-        }
+        if (animal.life().custody().junk() == null || owned(animal) || !canWear(animal)
+                || !available(animal) || !onDryGround(animal)) return 200;
+        return switch (band(SocialDisposition.contact(animal, null))) {
+            case MEEK -> {
+                if (mocked) yield wince(animal) ? 1200 : 300;
+                yield !slave(animal) && showOff(animal) ? 1200 + animal.getRandom().nextInt(1200) : 300;
+            }
+            case HAUGHTY -> {
+                if (!mocked && !lowMood) yield 600;
+                yield shakeOff(animal, mocked) ? 2400 : 300;
+            }
+            case HESITANT -> {
+                if (mocked) lowerEyes(animal);
+                yield 600;
+            }
+        };
     }
 
     /** The lowly one is mocked: it keeps the cover and only winces, it does not answer back. */
     private static boolean wince(YukkuriEntity animal) {
-        if (!animal.showReaction("teary", "junk_afraid", 60)) return false;
+        if (!animal.showReaction("teary", line(animal, "junk_afraid", "afraid"), 60)) return false;
         GameplayLog.limited(animal, "headwear", "junk_mock_wince", 600,
                 "junk mock wince variant={} esteem={}", animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal));
         return true;
+    }
+
+    private static void lowerEyes(YukkuriEntity animal) {
+        animal.showReaction(YukkuriAction.THINK, "look_down", "shy");
     }
 
     private static boolean showOff(YukkuriEntity animal) {
@@ -174,7 +184,7 @@ public enum JunkHeadwear {
     private static boolean shakeOff(YukkuriEntity animal, boolean mocked) {
         var variant = animal.life().custody().junk();
         if (!animal.life().custody().putDownJunk()) return false;
-        animal.showReaction(YukkuriAction.SULK, "angry", "junk_indignant");
+        animal.showReaction(YukkuriAction.SHAKE, "angry", line(animal, "junk_indignant", "request_sulk"));
         GameplayLog.event(animal, "headwear", "junk shaken_off variant={} esteem={} reason={} destination=ground item={}",
                 variant.id(), SocialDisposition.selfEsteem(animal), mocked ? "mocked" : "low_mood",
                 ModItems.JUNK_HEADWEAR.get());
@@ -188,7 +198,14 @@ public enum JunkHeadwear {
 
     /** Somebody's property (a pet, or an individual a person owns): what it wears is the owner's call, not its own. */
     private static boolean owned(YukkuriEntity animal) {
-        return animal.pet().isPet() || Custody.view(animal).owner() != null;
+        var custody = Custody.view(animal);
+        return animal.pet().isPet() || custody.owner() != null || custody.hasPendingStaffRole() || custody.role() == Custody.Role.STOCK;
+    }
+
+    private static String line(YukkuriEntity animal, String specific, String shared) {
+        var species = animal.getVariant().dialogueSpecies();
+        var tier = animal.family().subadult() ? "young" : animal.speechTier();
+        return NativeDialogue.has(species, tier, animal.myon().quirk(), specific) ? specific : shared;
     }
 
     private static boolean slave(YukkuriEntity animal) { return animal.settlement().society().slave(); }

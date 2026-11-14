@@ -184,7 +184,8 @@ public final class TreasureLife extends Goal {
         }
         if (JunkHeadwear.isItem(carried)) {
             var contact = SocialDisposition.contact(entity, null);
-            if (JunkHeadwear.available(entity) && JunkHeadwear.onDryGround(entity) && JunkHeadwear.accepts(entity, contact)
+            if (entity.status().identity() == Identity.STRAY && JunkHeadwear.available(entity)
+                    && JunkHeadwear.onDryGround(entity) && JunkHeadwear.accepts(entity, contact)
                     && JunkHeadwear.equip(entity, null, contact)) mouth.clear(Purpose.FIND);
             stop();
             return;

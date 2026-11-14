@@ -112,9 +112,11 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         if (state.getValue(TIPPED)) return true;
         for (var side : Direction.Plane.HORIZONTAL) {
             var stand = pos.relative(side);
+            var floor = stand.below();
             if (canFall(level, pos, side.getOpposite()) && level.hasChunkAt(stand)
                     && level.getBlockState(stand).getCollisionShape(level, stand).isEmpty()
-                    && level.getFluidState(stand).isEmpty()) return true;
+                    && level.getFluidState(stand).isEmpty() && level.getFluidState(floor).isEmpty()
+                    && level.getBlockState(floor).isFaceSturdy(level, floor, Direction.UP)) return true;
         }
         return false;
     }

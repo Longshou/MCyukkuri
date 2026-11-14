@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
@@ -43,6 +45,7 @@ public final class VillageBin {
         if (!resident.streetActive() || resident.walking() || level.isRaining()) { putDownLitter(resident, level, residentData); return; }
         if (resident.getDeltaMovement().horizontalDistanceSqr() < PASSING_SPEED_SQUARED) return;
         long day = level.getDayTime() / 24000;
+        var litter = carriedLitter(level, residentData);
         for (var at : BlockPos.withinManhattan(resident.blockPosition(), REACH, 1, REACH)) {
             if (!level.hasChunkAt(at) || resident.distanceToSqr(at.getCenter()) > REACH * REACH) continue;
             var candidate = level.getBlockEntity(at);
@@ -67,18 +70,16 @@ public final class VillageBin {
                         "action=bin_skip bin={} reason=untippable", at.toShortString());
                 continue;
             }
-            var litter = carriedLitter(level, residentData);
             if (!litter.isEmpty()) {
                 // Sweeping takes nothing new into the street, so only a free slot and a second of the same kind are refused.
-                if (sweep(level, at, litter)) {
-                    residentData.remove(LITTER);
-                    resident.swing(InteractionHand.OFF_HAND);
-                    GameplayLog.event(resident, "npc-care", "action=bin_refill bin={} day={} item={} litter=1 load={}",
-                            at.toShortString(), day, litter.getItem(), bin.load());
-                }
+                if (!sweep(level, at, litter)) continue;
+                residentData.remove(LITTER);
+                resident.swing(InteractionHand.OFF_HAND);
+                GameplayLog.event(resident, "npc-care", "action=bin_refill bin={} day={} item={} litter=1 load={}",
+                        at.toShortString(), day, litter.getItem(), bin.load());
                 return;
             }
-            if (residentData.contains(DAY) && residentData.getLong(DAY) == day) return;
+            if (residentData.contains(DAY) && residentData.getLong(DAY) == day) continue;
             boolean caring = resident.attitude() == HumanNpc.Attitude.CARING && resident.careFood() > 0;
             var portion = caring ? new ItemStack(ModItems.GRAIN_REGULAR.get()) : JunkHeadwear.item();
             if (!deposit(level, at, portion)) continue;
@@ -90,14 +91,13 @@ public final class VillageBin {
                     at.toShortString(), day, portion.getItem(), before, resident.careFood(), bin.load());
             return;
         }
-        var held = carriedLitter(level, residentData);
-        if (held.isEmpty()) {
+        if (litter.isEmpty()) {
             var picked = pickUpLitter(resident, level, residentData);
             if (!picked.isEmpty()) { carryToBin(resident, level, picked); return; }
             approachLitter(resident, level);
             return;
         }
-        if (resident.getNavigation().isDone()) carryToBin(resident, level, held);
+        if (resident.getNavigation().isDone()) carryToBin(resident, level, litter);
     }
 
     /** Nothing in its hands: the nearest piece of litter it can see is what the resident walks to next. */
@@ -145,7 +145,6 @@ public final class VillageBin {
 
     /** One loose piece of street litter within reach comes up into the resident's hands, on its way to a bin; empty when none. */
     private static ItemStack pickUpLitter(HumanNpc resident, ServerLevel level, CompoundTag residentData) {
-        if (residentData.contains(LITTER)) return ItemStack.EMPTY;
         var piece = level.getEntitiesOfClass(ItemEntity.class, resident.getBoundingBox().inflate(1.25, .25, 1.25),
                         item -> item.isAlive() && !item.hasPickUpDelay() && item.onGround()
                                 && litter(item.getItem()) && resident.hasLineOfSight(item) && !awaited(level, item))
@@ -153,8 +152,8 @@ public final class VillageBin {
         if (piece == null) return ItemStack.EMPTY;
         var held = piece.getItem().copyWithCount(1);
         residentData.put(LITTER, held.save(level.registryAccess()));
-        piece.getItem().shrink(1);
-        if (piece.getItem().isEmpty()) piece.discard();
+        var left = piece.getItem().copyWithCount(piece.getItem().getCount() - 1);
+        if (left.isEmpty()) piece.discard(); else piece.setItem(left);
         resident.swing(InteractionHand.MAIN_HAND);
         GameplayLog.event(resident, "npc-care", "action=litter_pick_up item={} drop={}", held.getItem(), piece.getUUID());
         return held;
@@ -179,8 +178,8 @@ public final class VillageBin {
     private static void putDownLitter(HumanNpc resident, ServerLevel level, CompoundTag residentData) {
         var held = carriedLitter(level, residentData);
         if (held.isEmpty()) return;
+        if (ItemContact.release(resident, held, resident.position(), Vec3.ZERO) == null) return;
         residentData.remove(LITTER);
-        resident.spawnAtLocation(held);
         GameplayLog.event(resident, "npc-care", "action=litter_put_down item={} count={}", held.getItem(), held.getCount());
     }
 

@@ -5118,12 +5118,13 @@ _smoke('oniisan_prey', 220, [rf'\[npc-care\][^\n]* action=street_warn target={_f
 # may put anything in it. The reachable bin at +6/+4 takes both swept pieces.
 _tidy_ax, _tidy_az = BY_ID['town'].anchor
 _tidy_wedged_bin = re.escape(f'{_tidy_ax + 7}, {FEET}, {_tidy_az + 6}')
+_tidy_open_bin = re.escape(f'{_tidy_ax + 6}, {FEET}, {_tidy_az + 4}')
 _smoke('street_tidy', 1800, [
     r'\[npc-care\][^\n]* action=litter_pick_up item=minecraft:paper\b',
     r'\[npc-care\][^\n]* action=litter_pick_up item=minecraft:stick\b',
-    r'\[npc-care\][^\n]* action=bin_refill [^\n]* item=minecraft:paper litter=1\b',
-    r'\[npc-care\][^\n]* action=bin_refill [^\n]* item=minecraft:stick litter=1\b',
-    r'\[npc-care\][^\n]* action=bin_skip [^\n]* reason=untippable\b',
+    rf'\[npc-care\][^\n]* action=bin_refill bin={_tidy_open_bin}\b[^\n]* item=minecraft:paper litter=1\b',
+    rf'\[npc-care\][^\n]* action=bin_refill bin={_tidy_open_bin}\b[^\n]* item=minecraft:stick litter=1\b',
+    rf'\[npc-care\][^\n]* action=bin_skip bin={_tidy_wedged_bin}\b reason=untippable\b',
 ], [r'\[npc-care\][^\n]* action=bin_refill bin=' + _tidy_wedged_bin + r'\b'])
 _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
        r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
