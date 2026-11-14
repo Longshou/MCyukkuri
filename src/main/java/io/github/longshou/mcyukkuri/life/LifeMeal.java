@@ -107,7 +107,7 @@ final class LifeMeal {
         refusedFoodItem = food.getItem();
         refusedFoodUntil = now + 2400;
         if (newMemory) refusedBeatItem = null;
-        GameplayLog.limited(eater, "meal", "taste_refused", 400,
+        GameplayLog.limited(eater, "meal", "taste_refused/" + food.getItem().getDescriptionId(), 400,
                 "declined serving item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste",
                 food.getItem(), FoodTaste.grade(food).id(), Math.round(o.pickiness()), tasteFor(giver), o.nutrition(),
                 giver == null ? "" : giver.getUUID());
