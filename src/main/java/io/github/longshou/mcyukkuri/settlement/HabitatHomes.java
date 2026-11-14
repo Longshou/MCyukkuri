@@ -396,7 +396,14 @@ final class HabitatHomes {
             return;
         }
         var pos = surfaceNest;
-        if (!o.approach(pos.south(2))) { surfacePlacing = 0; return; }
+        // It stands squarely in the cell before the bed's low edge: the loose arrival of a plain approach could leave its body
+        // over the 2x2 footprint, and a bed is never laid under a body.
+        var walked = SurfaceApproach.walkResult(o.entity(), Vec3.atBottomCenterOf(pos.south(2)), null, .65);
+        if (walked == SurfaceApproach.Result.BLOCKED) {
+            GameplayLog.limited(o.entity(), "settlement", "surface_nest_blocked", 200, "surface nest abandoned reason=no_route site={}", pos);
+            o.stop(); return;
+        }
+        if (walked != SurfaceApproach.Result.ARRIVED) { surfacePlacing = 0; return; }
         SurfaceApproach.face(o.entity(), SurfaceApproach.yaw(o.entity().position(), new Vec3(pos.getX() + 1, pos.getY(), pos.getZ() + 1)));
         // One bow of nest_place sets the carried bedding down; the nest exists from the end of that bow.
         if (++surfacePlacing < ClipMarkers.of(Behaviors.NEST_PLACE).length()) return;
@@ -407,13 +414,14 @@ final class HabitatHomes {
                 if (o.carrying().isEmpty()) o.carry(ItemStack.EMPTY);
                 GameplayLog.event(o.entity(), "settlement", "surface nest built home={} material={}", pos, portion.getItem());
             } else ShelterPlacement.removeSurfaceNest(level(), pos);
-        }
+        } else GameplayLog.limited(o.entity(), "settlement", "surface_nest_refused", 200, "surface nest not laid reason=site_blocked site={}", pos);
         o.stop();
     }
     private Result deferVagrantProject() { searchWait=20;o.retrySearch();return Result.DEFERRED; }
-    /** Soil faces a vagrant looks over for a new hollow: the reach of its cave search (HomeSearch, 16 blocks each way), so a
-     *  mound it could see as a cave it also sees as a face to dig. */
-    private static final int DIG_SEARCH=16;
+    /** Soil faces a vagrant looks over for a new hollow: the reach it knows homes in (HomeSearch takes registered homes from
+     *  24 blocks). Its sliced home search runs while it strolls on (a vagrant roams about 21 blocks), so a mound next to where
+     *  it began is still in sight when the search ends. */
+    private static final int DIG_SEARCH=24;
     /** Route tests one dig choice spends, best plan first; nearby faces of one mound share their route, so a few decide it. */
     private static final int DIG_ROUTES=4;
     /** Ground a surface nest may go on around the vagrant: the nearby patch it can see, out to a tree canopy close by. */
