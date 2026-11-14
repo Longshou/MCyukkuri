@@ -230,6 +230,8 @@ public final class ShopRestock {
             shop.kind.prepareStock(y);
         } else y.life().personality().applyBirthProfile(new YukkuriPersonality.BirthProfile(between(random, 45, 85), between(random, 55, 90),
                 between(random, 25, 80), between(random, 45, 85), between(random, 55, 90)));
+        // Shop-raised stock is used to fine food and turns its nose up sooner (舌肥, FG-03).
+        y.life().setPickiness(y.life().pickiness() + 18);
         Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         if (!level.addFreshEntity(y)) return null;
         var token = YukkuriWorldData.get(level).capture(y);

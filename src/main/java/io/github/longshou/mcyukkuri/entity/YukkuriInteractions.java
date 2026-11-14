@@ -83,7 +83,7 @@ final class YukkuriInteractions {
             owner.showReaction("cheek_puff","refuse",60);
             return InteractionResult.CONSUME;
         }
-        if (!prepared && owner.life().refuseOfferedGrain(stack, player)) return InteractionResult.CONSUME;
+        if (!prepared && owner.life().refuseOfferedFood(stack, player)) return InteractionResult.CONSUME;
         int before=stack.getCount();
         ItemStack one = stack.copyWithCount(1);
         boolean fed = prepared ? owner.life().beginPreparedMeal(ownerMash ? InfantFood.mash(one, player.getUUID()) : one, player.getUUID())

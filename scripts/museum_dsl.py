@@ -85,7 +85,7 @@ def sel_all(name, radius=48):
 def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
-       intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None):
+       intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
     Aquatic actors return multiple conditional commands; prefix or inspect each line from ``splitlines()`` separately.
     grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge.
@@ -97,7 +97,8 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
         parts += [f'CustomName:{_q(_text(label))}', 'CustomNameVisible:1b']
     parts.append('YukkuriLife:{' + f'Nutrition:{nutrition}f,Energy:{energy}f,Hygiene:{hygiene}f,Bladder:{bladder}f,Accessory:{1 if accessory else 0}b,'
                  f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(intelligence, friendliness, boldness, attachment, self_control)
-                 + (f',HatCustody:{{State:"WORN",Kit:{{id:"{kit}",count:1}}}}' if kit else '') + '}')
+                 + (f',HatCustody:{{State:"WORN",Kit:{{id:"{kit}",count:1}}}}' if kit else '')
+                 + (f',Pickiness:{float(picky)}f' if picky is not None else '') + '}')
     parts.append('YukkuriFamily:{' + fam + (',' + kin if kin else '') + '}' if fam else family(stage, share, kin))
     if uuid:
         parts.append('UUID:' + uuid_nbt(uuid))

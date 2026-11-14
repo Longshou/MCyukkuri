@@ -59,6 +59,13 @@ public enum StatusKey {
     SLEEPING("needs", "sleeping", 0, y -> y.life().isSleeping(), null),
     FATIGUE("needs", "fatigue", 0, y -> y.life().fatigueDetail(), null),
     NUTRITION_DEMAND("needs", "nutrition_demand", 0, y -> y.life().nutritionDemand(), null),
+    /** 舌肥 (FG-03): how choosey this body is about ordinary and coarse food; higher refuses plain servings sooner. 0-100, write a number. */
+    PICKINESS("taste", "pickiness", 5, y -> Math.round(y.life().pickiness()), (y, raw) -> {
+        Float v = number(raw);
+        if (v == null || v < 0 || v > 100) return "need a number 0-100";
+        y.life().setPickiness(Math.round(v));
+        return null;
+    }),
     TEMPERATURE("needs", "temperature", 0, y -> y.life().temperature().cold() ? "cold" : y.life().temperature().hot() ? "hot" : "comfortable", null),
     COLD_EXPOSURE("needs", "cold_exposure", 0, y -> y.life().temperature().coldExposure(), null),
     // ---- mood --------------------------------------------------------------------------------------------------

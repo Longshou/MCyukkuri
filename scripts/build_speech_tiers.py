@@ -114,6 +114,7 @@ BABY = {
     'addr_sibling_younger': ('いもーと……？ {c}♪', '妹妹……？{c}♪', 'Little sis...? {c}!'),
     # body details (komicolle 11518802 / 11518847): bitter and spicy food, letting go from fright, a baked sole, wanting the powder
     'bitter': ('{c}ーっ！ にがにが、ぺっぺっ！', '{c}——！苦苦，呸呸！', '{c}! Bitter, bitter, ptooey!'),
+    'food_complain': ('{c}ーっ！ これ、いや！ まずまず、ぺっぺっ！', '{c}——！不要这个！难吃难吃，呸呸！', '{c}! Not this one! Yucky, ptooey!'),
     'leak': ('{c}……あ……でちゃった……', '{c}……啊……漏出来了……', '{c}... oh... it came out...'),
     'sole_burned': ('{c}ーっ！ あんよしゃん、あちゅい！', '{c}——！脚脚先森好烫！', '{c}! Mr. Foot is hot!'),
     'craving': ('{c}……こなこな……ほちい……', '{c}……粉粉……想要……', '{c}... powder... want...'),
@@ -162,6 +163,7 @@ JUVENILE = {
 # --- shared juvenile / adult body-detail lines (same events as the baby ones above) --------------------------
 BODY = {
     'bitter': ("{p}にがっ……ぺっ、ぺっ！", "{p}好苦……呸、呸！", "{p}Bitter... ptooey, ptooey!"),
+    'food_complain': ("{p}これは……いや{e}。もっと ましな ごはんさんが いい{e}。", "{p}这个……不要{e}。想要更好的饭先生{e}。", "{p}This one... no. I want a better Mr. Food."),
     'leak': ("{p}ゆっ……でちゃった{e}……", "{p}油……漏出来了{e}……", "{p}Yu... it leaked out..."),
     'sole_burned': ("{p}あしが……あつい、あつい{e}！", "{p}脚……烫、好烫{e}！", "{p}My foot... hot, so hot!"),
     'craving': ('{p}あのこなさんが……ほしい{e}……', '{p}想要……那个粉末先生{e}……', '{p}I want... that powder...'),

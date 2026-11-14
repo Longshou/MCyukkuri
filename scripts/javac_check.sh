@@ -34,7 +34,8 @@ if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
   if [ "$TRC" = 0 ]; then
   "$JAVA" -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
     --select-package io.github.longshou.mcyukkuri.motor --select-package io.github.longshou.mcyukkuri.intent --select-package io.github.longshou.mcyukkuri.aquatic \
-    --select-package io.github.longshou.mcyukkuri.family --select-package io.github.longshou.mcyukkuri.pose \
+    --select-package io.github.longshou.mcyukkuri.family --select-package io.github.longshou.mcyukkuri.life \
+    --select-package io.github.longshou.mcyukkuri.pose \
     --details=tree --disable-banner --disable-ansi-colors 2>&1 | grep -aE "tests (successful|failed|found)|✘|\[X\]|expected|Exception" | head -30
   RC=${PIPESTATUS[0]}
   fi

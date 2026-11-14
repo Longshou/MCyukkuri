@@ -326,10 +326,20 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
 
-add('graze', 'forage', '野生：饿了先吃苹果，只有草就啃草', '野生：饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
-    '约 10–60 秒', [
-        yk('reimu', -6, 0, 'a', nutrition=28, yaw=180, lead=True), item('minecraft:apple', 1, -4, 0, name='apple'),
-        yk('marisa', 6, 0, 'b', nutrition=34, yaw=180)], env=DAY, spot='graze', vantage=(0, 12))
+_taste_ids = {name: uid('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
+add('graze', 'forage', '舌肥：同一份粗粮，三种反应', '舌肥：同一份粗粮，三种反应',
+    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的闻一下、嫌弃地拒绝并走开。'
+    '手喂挑的那只，它会把粮含进嘴再吐回地上；饿到 35 左右时，同一只会勉强吃下预算粮，再饿就肯正常吃。看表情、吐出的实物和读数里的舌肥变化。',
+    '约 15–60 秒', [
+        yk('reimu', -3, 0, 'taste_easy', uuid=_taste_ids['taste_easy'], nutrition=48, yaw=180, self_control=40, picky=12, lead=True, label='舌肥 12'),
+        item('mcyukkuri:oil_grain_budget', 1, -3, -1, name='taste_grain_easy'),
+        yk('marisa', 0, 0, 'taste_plain', uuid=_taste_ids['taste_plain'], nutrition=48, yaw=180, self_control=40, picky=50, label='舌肥 50'),
+        item('mcyukkuri:oil_grain_budget', 1, 0, -1, name='taste_grain_plain'),
+        yk('reimu', 3, 0, 'taste_picky', uuid=_taste_ids['taste_picky'], nutrition=48, yaw=180, self_control=40, picky=95, label='舌肥 95'),
+        item('mcyukkuri:oil_grain_budget', 1, 3, -1, name='taste_grain_picky')],
+    env=DAY, spot='graze', vantage=(0, 12), note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读舌肥12', f'yukkuri status {sel("taste_easy")} raw'), ('读舌肥50', f'yukkuri status {sel("taste_plain")} raw'),
+           ('读舌肥95', f'yukkuri status {sel("taste_picky")} raw')])
 
 _glass_food_eater = uid('food_behind_glass', 'glass_food_eater')
 add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看见苹果',
@@ -756,12 +766,12 @@ def _dirt_snub_verify(window, trace):
 
 
 add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料时的态度：洗涤与油粮',
-    '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；给不饿的强硬魔理沙递预算粮，再试高级粮。右侧饿的个体也可试预算粮。',
+    '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；给营养 50、舌肥 95 的强硬魔理沙递预算粮，它含一下再吐掉，再试高级粮。右侧饿的个体也会吃预算粮。',
     '右键后看表情，约 2 秒吞咽', [
         yk('reimu', -7, 0, 'wash_shy', boldness=0, friendliness=75, hygiene=5, lead=True, also=('care_subject',)),
         set_status('wash_shy', 'marks.dirt', 3),
-        yk('marisa', 0, 0, 'grain_proud', nutrition=70, boldness=100, friendliness=0, self_control=0, also=('care_subject',)),
-        yk('marisa', 7, 0, 'grain_hungry', nutrition=29, boldness=100, friendliness=0, self_control=0, also=('care_subject',)),
+        yk('marisa', 0, 0, 'grain_proud', nutrition=50, boldness=100, friendliness=0, self_control=0, picky=95, also=('care_subject',)),
+        yk('marisa', 7, 0, 'grain_hungry', nutrition=29, boldness=100, friendliness=0, self_control=0, picky=95, also=('care_subject',)),
         yk('chen', -5, 0, 'dirt_observer', friendliness=0, also=('care_subject',)),
     ], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]',
              'mcyukkuri:oil_grain_budget 4', 'mcyukkuri:oil_grain_premium 2'], env=DAY, vantage=(0, 11),
@@ -772,7 +782,8 @@ add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料�
         (160, f'yukkuri scenario care_click {sel("wash_shy")} wet_cloth'),
         (170, f'yukkuri scenario care_click {sel("grain_proud")} premium_grain'),
     ], expect=[r'\[interaction\][^\n]* wash player=\S+ response=guarded [^\n]*dirt=3->2',
-               r'\[meal\][^\n]* grain refused item=mcyukkuri:oil_grain_budget [^\n]*reason=quality',
+               r'\[meal\][^\n]* serving refused item=mcyukkuri:oil_grain_budget [^\n]*reason=taste',
+               r'\[meal\][^\n]* spat item=mcyukkuri:oil_grain_budget ',
                r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_budget ',
                r'\[meal\][^\n]* swallowed item=mcyukkuri:oil_grain_premium '],
                verify=_dirt_snub_verify, verify_trace=True))
@@ -4813,7 +4824,12 @@ def _absence_grief_timing(log):
 next(s for s in S if s.id == 'family_absence').smoke['verify'] = _absence_grief_timing
 for _sid in ('forage', 'family_absence'):
     next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
-_smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
+_taste_uuids = {name: _uuid_text('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
+_smoke('graze', 1800, [
+    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_easy"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=SAVOUR\b',
+    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_plain"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=PLAIN\b',
+    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*serving refused item=mcyukkuri:oil_grain_budget\b'],
+       forbid=[rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*swallowed '])
 _smoke('food_behind_glass', 260, [r'\[action\][^\n]* end id=glass_press outcome=DONE', r'MCYGLASS_APPLE_REMAINS'],
        forbid=[rf'\[meal\][^\n]* uuid={_uuid_of(_glass_food_eater)} [^\n]* pickup '],
        readout=[f'execute if entity @e[type=minecraft:item,tag={tag("glass_apple")},nbt={{Item:{{id:"minecraft:apple",count:1}}}}] run say MCYGLASS_APPLE_REMAINS',

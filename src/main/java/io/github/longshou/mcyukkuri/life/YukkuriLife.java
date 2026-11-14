@@ -87,6 +87,8 @@ public final class YukkuriLife {
     private final GarbageSearch garbage;
     private YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
+    /** 舌肥 (FG-03): how choosey this body is about ordinary and coarse food; innate from the UUID, then moved by meals. */
+    private float pickiness;
     private long ageTicks;
     private int metabolismTicks, energyTicks, hygieneTicks;
     private int immersionTicks, dryTicks;
@@ -159,6 +161,7 @@ public final class YukkuriLife {
         foundCover = new FoundShelter(entity);
         garbage = new GarbageSearch(entity);
         personality = new YukkuriPersonality(entity);
+        pickiness = Taste.innate(entity.getUUID());
         hotFloor = new HotFloorEscape(entity);
     }
     public HotFloorEscape hotFloor() { return hotFloor; }
@@ -295,6 +298,13 @@ public final class YukkuriLife {
     void finishConsumption() { task = Task.NONE; planWait = 20; }
     public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
+    public int pickiness() { return Math.round(pickiness); }
+    public void setPickiness(int value) {
+        int before = pickiness();
+        pickiness = Math.clamp(value, 0, 100);
+        GameplayLog.limited(entity, "meal", "taste.set", 200, "taste set pickiness={} -> {}", before, pickiness());
+    }
+    public void adjustPickiness(int delta) { setPickiness(pickiness() + delta); }
     public float nutrition() { return nutrition; }
     public boolean spendNutrition(float amount) {
         if(!Float.isFinite(amount)||amount<0||nutrition<amount)return false;
@@ -440,7 +450,7 @@ public final class YukkuriLife {
     private boolean seeksOfferedFood(ItemStack food, Player giver) {
         return food.is(YukkuriEntity.FOOD) && meal.seeksFood(food, giver);
     }
-    public boolean refuseOfferedGrain(ItemStack food, Player giver) { return meal.refuseOfferedGrain(food, giver); }
+    public boolean refuseOfferedFood(ItemStack food, Player giver) { return meal.refuseOfferedFood(food, giver); }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
     private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
@@ -1530,6 +1540,7 @@ public final class YukkuriLife {
         meal.save(tag);
         home.save(tag);
         accessory.save(tag);
+        tag.putFloat("Pickiness", pickiness);
         tag.put("Personality", personality.save()); return tag;
     }
     private static float bounded(CompoundTag tag, String name, float fallback) {
@@ -1555,6 +1566,7 @@ public final class YukkuriLife {
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
         meal.load(tag);
         home.load(tag); accessory.load(tag);
+        pickiness=bounded(tag,"Pickiness",pickiness);
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; refusedFood.clear(); refusedFoodFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
     }

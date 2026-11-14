@@ -553,6 +553,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "reimu.baby.s_food_complain",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "油、油——！不要这个！难吃难吃，呸呸！",
+   "english": "Yu, yu! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "reimu.baby.s_leak",
    "species": "reimu",
    "age": "baby",
@@ -1030,6 +1043,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.s_food_complain",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやにぇ。もっと ましな ごはんさんが いいにぇ。",
+   "chinese": "这个……不要捏。想要更好的饭先生捏。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -1641,6 +1667,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.s_food_complain",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやよ。もっと ましな ごはんさんが いいよ。",
+   "chinese": "这个……不要哦。想要更好的饭先生哦。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -2867,6 +2906,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "marisa.baby.s_food_complain",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "油、油——！不要这个！难吃难吃，呸呸！",
+   "english": "Yu, yu! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "marisa.baby.s_leak",
    "species": "marisa",
    "age": "baby",
@@ -3344,6 +3396,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.s_food_complain",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやのじぇ。もっと ましな ごはんさんが いいのじぇ。",
+   "chinese": "这个……不要惹杰。想要更好的饭先生惹杰。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -3955,6 +4020,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.s_food_complain",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやのぜ。もっと ましな ごはんさんが いいのぜ。",
+   "chinese": "这个……不要贼。想要更好的饭先生贼。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -5181,6 +5259,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "alice.baby.s_food_complain",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ゆっ、ゆっーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "油、油——！不要这个！难吃难吃，呸呸！",
+   "english": "Yu, yu! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "alice.baby.s_leak",
    "species": "alice",
    "age": "baby",
@@ -5658,6 +5749,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.s_food_complain",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやにょ。もっと ましな ごはんさんが いいにょ。",
+   "chinese": "这个……不要哟。想要更好的饭先生哟。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -6269,6 +6373,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.s_food_complain",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやわ。もっと ましな ごはんさんが いいわ。",
+   "chinese": "这个……不要呢。想要更好的饭先生呢。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -7495,6 +7612,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "chen.baby.s_food_complain",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ゆ、にゃっーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "油、喵——！不要这个！难吃难吃，呸呸！",
+   "english": "Yu, nya! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "chen.baby.s_leak",
    "species": "chen",
    "age": "baby",
@@ -7972,6 +8102,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.s_food_complain",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやよぅ。もっと ましな ごはんさんが いいよぅ。",
+   "chinese": "这个……不要哟——。想要更好的饭先生哟——。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -8583,6 +8726,19 @@
    "japanese": "にがっ……ぺっ、ぺっ！",
    "chinese": "好苦……呸、呸！",
    "english": "Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.s_food_complain",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "これは……いやよー。もっと ましな ごはんさんが いいよー。",
+   "chinese": "这个……不要哟——。想要更好的饭先生哟——。",
+   "english": "This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -9809,6 +9965,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "patchouli.baby.s_food_complain",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "む、きゅっーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "姆、啾——！不要这个！难吃难吃，呸呸！",
+   "english": "Mu, kyu! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "patchouli.baby.s_leak",
    "species": "patchouli",
    "age": "baby",
@@ -10286,6 +10455,19 @@
    "japanese": "むきゅ。にがっ……ぺっ、ぺっ！",
    "chinese": "姆啾。好苦……呸、呸！",
    "english": "Mukyu. Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.s_food_complain",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "むきゅ。これは……いやわ。もっと ましな ごはんさんが いいわ。",
+   "chinese": "姆啾。这个……不要惹哇。想要更好的饭先生惹哇。",
+   "english": "Mukyu. This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -11209,6 +11391,19 @@
    "japanese": "むきゅ。にがっ……ぺっ、ぺっ！",
    "chinese": "姆啾。好苦……呸、呸！",
    "english": "Mukyu. Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.s_food_complain",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "むきゅ。これは……いやわ。もっと ましな ごはんさんが いいわ。",
+   "chinese": "姆啾。这个……不要哇。想要更好的饭先生哇。",
+   "english": "Mukyu. This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -12747,6 +12942,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "remilia.baby.s_food_complain",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "うー、うーーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "呜——、呜————！不要这个！难吃难吃，呸呸！",
+   "english": "Uu, uu! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "remilia.baby.s_leak",
    "species": "remilia",
    "age": "baby",
@@ -13224,6 +13432,19 @@
    "japanese": "うー、にがっ……ぺっ、ぺっ！",
    "chinese": "呜——好苦……呸、呸！",
    "english": "Uu... Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.s_food_complain",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "うー、これは……いやなのだ。もっと ましな ごはんさんが いいなのだ。",
+   "chinese": "呜——这个……不要呀。想要更好的饭先生呀。",
+   "english": "Uu... This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -13835,6 +14056,19 @@
    "japanese": "うー、にがっ……ぺっ、ぺっ！",
    "chinese": "呜——好苦……呸、呸！",
    "english": "Uu... Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.s_food_complain",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "うー、これは……いやのだ。もっと ましな ごはんさんが いいのだ。",
+   "chinese": "呜——这个……不要呀。想要更好的饭先生呀。",
+   "english": "Uu... This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -15061,6 +15295,19 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "flandre.baby.s_food_complain",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "うー、うーーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "呜——、呜————！不要这个！难吃难吃，呸呸！",
+   "english": "Uu, uu! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "flandre.baby.s_leak",
    "species": "flandre",
    "age": "baby",
@@ -15538,6 +15785,19 @@
    "japanese": "うー、にがっ……ぺっ、ぺっ！",
    "chinese": "呜——好苦……呸、呸！",
    "english": "Uu... Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.s_food_complain",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "うー、これは……いやよぅ。もっと ましな ごはんさんが いいよぅ。",
+   "chinese": "呜——这个……不要哦。想要更好的饭先生哦。",
+   "english": "Uu... This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -16149,6 +16409,19 @@
    "japanese": "うー、にがっ……ぺっ、ぺっ！",
    "chinese": "呜——好苦……呸、呸！",
    "english": "Uu... Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.s_food_complain",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "うー、これは……いやよ。もっと ましな ごはんさんが いいよ。",
+   "chinese": "呜——这个……不要哦。想要更好的饭先生哦。",
+   "english": "Uu... This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -17416,6 +17689,20 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.baby.s_food_complain",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "みょ、みょんーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "咪、咪呦——！不要这个！难吃难吃，呸呸！",
+   "english": "Myo, myon! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.baby.s_leak",
    "species": "myon",
    "age": "baby",
@@ -17930,6 +18217,20 @@
    "japanese": "みょん！にがっ……ぺっ、ぺっ！",
    "chinese": "咪呦！好苦……呸、呸！",
    "english": "Myon! Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.s_food_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "みょん！これは……いやみょ。もっと ましな ごはんさんが いいみょ。",
+   "chinese": "咪呦！这个……不要哦。想要更好的饭先生哦。",
+   "english": "Myon! This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -18588,6 +18889,20 @@
    "japanese": "みょん！にがっ……ぺっ、ぺっ！",
    "chinese": "咪呦！好苦……呸、呸！",
    "english": "Myon! Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.s_food_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "みょん！これは……いやよ。もっと ましな ごはんさんが いいよ。",
+   "chinese": "咪呦！这个……不要哦。想要更好的饭先生哦。",
+   "english": "Myon! This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -19908,6 +20223,20 @@
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
   {
+   "id": "myon.kinbao.baby.s_food_complain",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ちん、ちーんぽーっ！ これ、いや！ まずまず、ぺっぺっ！",
+   "chinese": "金、金寶——！不要这个！难吃难吃，呸呸！",
+   "english": "Chin, chinpo! Not this one! Yucky, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.kinbao.baby.s_leak",
    "species": "myon",
    "age": "baby",
@@ -20422,6 +20751,20 @@
    "japanese": "ちーんぽ！にがっ……ぺっ、ぺっ！",
    "chinese": "金寶！好苦……呸、呸！",
    "english": "Chinpo! Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.s_food_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ちーんぽ！これは……いやよぅ。もっと ましな ごはんさんが いいよぅ。",
+   "chinese": "金寶！这个……不要哦。想要更好的饭先生哦。",
+   "english": "Chinpo! This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },
@@ -21080,6 +21423,20 @@
    "japanese": "ちーんぽ！にがっ……ぺっ、ぺっ！",
    "chinese": "金寶！好苦……呸、呸！",
    "english": "Chinpo! Bitter... ptooey, ptooey!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_food_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "food_complain"
+   ],
+   "japanese": "ちーんぽ！これは……いやよ。もっと ましな ごはんさんが いいよ。",
+   "chinese": "金寶！这个……不要哦。想要更好的饭先生哦。",
+   "english": "Chinpo! This one... no. I want a better Mr. Food.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced"
   },

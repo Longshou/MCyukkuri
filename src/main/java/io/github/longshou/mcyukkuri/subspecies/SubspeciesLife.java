@@ -120,6 +120,8 @@ public final class SubspeciesLife {
             set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
         entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),null,null,
                 congenital!=Congenital.NORMAL,kind));
+        // Animals born wild are used to coarse food and complain less (舌肥, FG-03).
+        entity.life().setPickiness(entity.life().pickiness() - 10);
     }
     private boolean nearOpenWater() {
         var origin = entity.blockPosition();
