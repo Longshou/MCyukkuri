@@ -194,7 +194,6 @@ public final class EmotionCourse {
         var p = entity.life().personality();
         int span = Math.clamp(Math.round(length(next, power, p, entity.mind().unease(), hasDependants())
                 * (.9f + .2f * entity.getRandom().nextFloat())), 300, 24000);
-        if (kind == next && now != Stage.FADING) { span = Math.max(span, length - elapsed); power = Math.max(power, strength); }
         kind = next; strength = power; length = span; elapsed = 0; about = cause; where = at;
         lineClock = ONSET_TICKS + 40; recallClock = 0;
         GameplayLog.event(entity, "emotion", "course begun kind={} strength={} length={} about={} at={} attachment={} selfControl={} boldness={} unease={}",

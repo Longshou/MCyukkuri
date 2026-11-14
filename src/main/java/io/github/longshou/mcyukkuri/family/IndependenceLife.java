@@ -23,8 +23,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
-import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -61,7 +59,7 @@ public final class IndependenceLife extends Goal {
     // The exchange as decided at its first word, the walk away and its looks back. Transient.
     private boolean touching, teary;
     private int closeTicks, lookBacks, lookBackTicks, departTicks;
-    private BlockPos away;
+    private Vec3 away;
     // The parent's side: the child it is seeing off and until when the request stands.
     private UUID seeing;
     private long seeUntil;
@@ -311,9 +309,9 @@ public final class IndependenceLife extends Goal {
     /** It walks away from the parent, stopping to look back once or twice when attached; then the habitat takes over. */
     private void beginDeparture(YukkuriEntity parent) {
         task = Task.DEPART; departTicks = 0; lookBackTicks = 0;
-        var aim = DefaultRandomPos.getPosAway(entity, DEPART_DISTANCE + 2, 3, parent.position());
-        if (aim == null) aim = LandRandomPos.getPos(entity, DEPART_DISTANCE + 2, 3);
-        away = aim == null ? null : BlockPos.containing(aim);
+        Vec3 centre = new Vec3(parent.getX(), entity.getY(), parent.getZ());
+        away = SurfaceApproach.beside(entity, centre, DEPART_DISTANCE, stand -> true);
+        if (away == null) away = SurfaceApproach.beside(entity, centre, DEPART_DISTANCE / 2.0, stand -> true);
         GameplayLog.event(entity, "independence", "departure walk parent={} away={} lookBacks={}", parent.getUUID(), away, lookBacks);
     }
 
@@ -327,7 +325,7 @@ public final class IndependenceLife extends Goal {
             if (--lookBackTicks == 0) GameplayLog.event(entity, "independence", "looked back parent={} distance={} count={}/{}", visitor, Math.round(from), looked, lookBacks);
             return;
         }
-        if (parent == null || from >= DEPART_DISTANCE || away == null) { stop(); return; }
+        if (parent == null || away == null) { stop(); return; }
         // A look back at about 4 and 7 blocks (or a single one at 5); the most attached call out at the last one.
         double mark = lookBacks >= 2 ? (looked == 0 ? 4 : 7) : 5;
         if (looked < lookBacks && from >= mark) {
@@ -340,7 +338,8 @@ public final class IndependenceLife extends Goal {
             else entity.showReaction(teary ? "teary_smile" : "happy", "", lookBackTicks);
             return;
         }
-        if (departTicks % 20 == 1 && !entity.life().navigate(away, .8, false)) { stop(); }
+        var result = SurfaceApproach.walkResult(entity, away, null, .8);
+        if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) stop();
     }
     private int looked;
 

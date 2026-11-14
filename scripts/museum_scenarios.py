@@ -4655,6 +4655,19 @@ def _distinct(pattern, count, what):
     return verify
 
 
+def _den_mold_exile_verify(window):
+    subject = rf'\[settlement\][^\n]*uuid={_uuid_text("den_mold_exile", "molded")} [^\n]* mold exile '
+    for event in ('appeals', 'return plea spoken=true', 'withdrew after refusal'):
+        count = len(re.findall(subject + event + r'\b', window))
+        if count != 1:
+            return f'expected one exile event {event}, found {count}'
+    if re.search(subject + r'withdrew without answer\b', window):
+        return 'exile withdrew again without another appeal'
+
+
+next(s for s in S if s.id == 'den_mold_exile').smoke['verify'] = _den_mold_exile_verify
+
+
 _smoke('social_identity', 440, [
     rf'\[status\] {species} #[^\n]* identity observed kind={kind}\b'
     for species, kind in (('reimu', 'pet'), ('marisa', 'stray'), ('patchouli', 'wild_settlement'), ('chen', 'wild_family'))] + [
