@@ -22,6 +22,12 @@ class TasteTest {
         assertEquals(Taste.Verdict.PLAIN, Taste.judge(100, Taste.Grade.ORDINARY, 25));
     }
 
+    @Test void starvationAcceptsCoarseFoodAtAnyTaste() {
+        assertEquals(Taste.Verdict.GRUMBLE, Taste.judge(100, Taste.Grade.COARSE, 25));
+        assertEquals(Taste.Verdict.GRUMBLE, Taste.judge(100, Taste.Grade.COARSE, 10));
+        assertEquals(Taste.Verdict.SAVOUR, Taste.judge(20, Taste.Grade.COARSE, 25));
+    }
+
     @Test void fineAndTreatFoodAreNeverRefusedForTaste() {
         for (float nutrition = 0; nutrition <= 100; nutrition += 5) {
             assertTrue(Taste.judge(100, Taste.Grade.FINE, nutrition) != Taste.Verdict.REFUSE);

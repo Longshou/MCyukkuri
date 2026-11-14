@@ -49,7 +49,11 @@ public final class Taste {
             case TREAT -> TREAT_CEILING;
         };
         int margin = ceiling + (int) Math.round(HUNGER_RELIEF * rampDown(nutrition, RELIEF_FROM, RELIEF_TO)) - taste;
-        if (margin <= 0) return Verdict.REFUSE;
+        if (margin <= 0) {
+            // Below the starving line any edible serving is taken: refusal is a choice, not a way to starve.
+            if (nutrition > RELIEF_TO) return Verdict.REFUSE;
+            return taste < EASY ? Verdict.SAVOUR : Verdict.GRUMBLE;
+        }
         if (margin < GRUMBLE_BAND) return Verdict.GRUMBLE;
         return taste < EASY ? Verdict.SAVOUR : Verdict.PLAIN;
     }

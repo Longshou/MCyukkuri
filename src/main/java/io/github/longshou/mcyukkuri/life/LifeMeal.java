@@ -96,7 +96,7 @@ final class LifeMeal {
     private boolean declines(ItemStack food, Player giver) {
         var eater = o.entity();
         if (eater.profile().dangerToYukkuri() || eater.settlement().society().slave()) return false;   // predators and slaves take what they get
-        if (!eater.family().adult() || eater.family().needsMash()) return false;                        // a child never refuses what a parent gives
+        if (!(eater.family().adult() || eater.family().subadult()) || eater.family().needsMash()) return false; // babies and juveniles never refuse what a parent gives
         if (verdict(food, giver) != Taste.Verdict.REFUSE) return false;
         refusedFoodItem = food.getItem();
         refusedFoodUntil = o.level().getGameTime() + 2400;
