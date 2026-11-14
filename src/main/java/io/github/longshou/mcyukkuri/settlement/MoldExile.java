@@ -457,7 +457,12 @@ public final class MoldExile extends Goal implements MotorOwner {
         entity.showReaction("cry", exile == null ? "settlement_hurt" : "", 40);
         if (exile != null) return;
         for (var child : dependants()) {
-            if (!child.hasLineOfSight(entity) || child.distanceToSqr(entity) > 12 * 12) continue;
+            String missed = child.distanceToSqr(entity) > 12 * 12 ? "out_of_range"
+                    : !child.hasLineOfSight(entity) ? "out_of_sight" : null;
+            if (missed != null) {
+                GameplayLog.event(child, "family", "mold exile child missed departure parent={} reason={}", entity.getUUID(), missed);
+                continue;
+            }
             child.showReactionDelayed("cry", "mold_child_cry", 80, 20);
             child.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .5f, entity.getUUID(), entity.blockPosition());
             GameplayLog.event(child, "family", "mold exile child cries parent={}", entity.getUUID());

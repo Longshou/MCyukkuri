@@ -174,7 +174,7 @@ add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土�
 _em, _ef, _ec, _eg = (uid('den_mold_exile', name) for name in ('healthy', 'molded', 'baby', 'grandparent'))
 add('den_mold_exile', 'den', '油霉亲油离巢', '油霉亲油离巢',
     '健康亲油（冷淡、不友善）先吓一跳「霉菌先生」，鼓脸警告，再辱骂着上前推；年长亲油（依恋高）含泪道歉、不推。'
-    '患病亲油（依恋高、胆小）先愣住，再央求「我还能油库里」，被推开后转身离开，途中两次回头、最后一次道别；赤油哭喊「别走」并留在健康亲油身边。'
+    '患病亲油（依恋高、胆小）先愣住，再央求「我还能油库里」，被推开后转身离开，途中两次回头、最后一次道别；赤油看见它转身时会哭喊「别走」，留在健康亲油照护下。'
     '患病亲油出了家的范围后先坐着哀悼一阵，之后回来央求一次，被拒后离开。',
     '约 3–4 分钟', [
         yk('reimu', 0, 1, 'healthy', uuid=_em, yaw=0, label='健康亲油', friendliness=24, boldness=35,
@@ -4635,12 +4635,14 @@ for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile',
         rf'\[settlement\][^\n]* mold exile departed scope={_scope}\b',
         r'\[settlement\][^\n]* mold exile refused return\b',
         r'\[settlement\][^\n]* mold exile withdrew after refusal\b',
-        *([r'\[family\][^\n]* mold exile child stays child=',
+        *([rf'\[family\][^\n]*uuid={_uuid_text("den_mold_exile", "molded")} [^\n]* mold exile child stays '
+           rf'child={_uuid_text("den_mold_exile", "baby")} healthy_parent={_uuid_text("den_mold_exile", "healthy")}\b',
            r'\[settlement\][^\n]* mold witnessed [^\n]* fond=true\b',
            r'\[settlement\][^\n]* mold witnessed [^\n]* harsh=true\b',
            r'\[settlement\][^\n]* mold exile protest [^\n]* answer=plead lookBacks=2\b',
            r'\[settlement\][^\n]* mold exile looked back left=0\b',
-           r'\[family\][^\n]* mold exile child cries parent=',
+           rf'\[family\][^\n]*uuid={_uuid_text("den_mold_exile", "baby")} [^\n]* mold exile child '
+           rf'(?:cries parent={_uuid_text("den_mold_exile", "molded")}\b|missed departure parent={_uuid_text("den_mold_exile", "molded")} reason=(?:out_of_sight|out_of_range)\b)',
            r'\[emotion\][^\n]* course begun kind=grief\b'] if _scope == 'family' else []),
     ], readout=[f'yukkuri status {sel("molded")} raw'])
 _smoke('colony_ration', 3600, [r'\[settlement\][^\n]* event=ration [^\n]*detail=relief \d+/\d+ to [1-9]\d* short households',
