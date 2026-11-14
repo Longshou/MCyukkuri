@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 嘴里物品按唯一占用显示（护食苹果不可见） | `.worktrees/wp-r3-mouth-show` | entity/YukkuriSync.java, life/LifeMeal.java, client 嘴部渲染 |
 
 ## 玩法待办
 
