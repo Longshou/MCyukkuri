@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Claim;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Stage;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestComfort;
@@ -160,7 +161,8 @@ public final class HomeClaim {
         if (better!=null) {
             boolean bed=level.getBlockEntity(better) instanceof CareBlockEntity;
             var members=bed?List.of(e):family(e);
-            if (bed ? !e.family().tendsUnweaned() : wholeHousehold(level,members)) {
+            if (bed ? !e.family().tendsUnweaned()
+                    : wholeHousehold(level,members) && members.stream().noneMatch(ParentCarry::needsCarry)) {
                 var claim=begin(level,members,better,player,false,true);
                 if(claim!=null) {
                     GameplayLog.event(e,"home-claim","occupation chosen site={} kind={} previous={}",better,bed?"bed":"house",e.life().home());
