@@ -5325,7 +5325,9 @@ _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-c
        forbid=[r'\[shop\][^\n]* action=job result=failed ', r'\[shop\][^\n]* action=job result=put_down ',
                r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '], readout=[f'yukkuri status {STOCK} raw'])
 next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
-    (100, f'execute at @e[type=mcyukkuri:alice,distance=..60,nbt={{NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},limit=1] positioned ~ ~ ~.6 run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
+    # The operator stands directly over the stock animal, in the same pen cell: a small body can stand hard against the pen glass, so a
+    # sideways offset would put the operator inside that glass and the tool refusal would read as a sight failure instead of the shop's own.
+    (100, f'execute at {BOOTH.format("alice", 3)} positioned ~ ~1 ~ run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
     (1500, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:65000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
     (850, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator enter'),
     (851, 'yukkuri scenario shop_door_click ~15 ~3 ~5 south'),
