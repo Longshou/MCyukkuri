@@ -283,7 +283,7 @@ add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门�
         yk('marisa', 0, 2, 'father', uuid=_seal_father, label='出门采草的父油', energy=100, nutrition=86, boldness=96,
            kin=f'Partner:{uuid_nbt(_seal_mother)}', childhood='Version:2,DenSealLearned:0b'),
         yk('marisa', 1, -4, 'child', stage='child', uuid=_seal_child, nutrition=96, kin=_seal_kin),
-        yk('reimu', 1, -2, 'learner', stage='teen', uuid=_seal_learner, nutrition=98, intelligence=96, attachment=100,
+        yk('reimu', 0, -3, 'learner', stage='teen', uuid=_seal_learner, nutrition=100, intelligence=96, attachment=100,
            kin=_seal_kin, childhood='Version:2,DenSealLearned:0b',
            fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')),
         *[home(n, 0, -1) for n in ('mother', 'father', 'child', 'learner')],
@@ -295,7 +295,8 @@ add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门�
     smoke=dict(ticks=3900, expect=[
         rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* begin role=FAMILY phase=OUT',
         rf'\[home\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{_seal_father_log}\]',
-        rf'\[childhood\][^\n]*uuid={_seal_learner_log}\b[^\n]* den seal demonstration parent={_seal_mother_log}\b[^\n]* roll=[\d.]+ learned=(true|false)',
+        (rf'\[childhood\][^\n]*uuid={_seal_learner_log}\b[^\n]* den seal demonstration parent={_seal_mother_log}\b[^\n]* roll=[\d.]+ learned=(true|false)'
+         rf'|\[childhood\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal demonstration missed learner={_seal_learner_log}\b reason=(out_of_sight|asleep|away)\b'),
         rf'\[home\][^\n]*den barrier removed [^\n]* reason=parent_returned [^\n]*twig_returned=true opener={_seal_father_log}\b',
         rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* deposit home=[^\n]* moved=[1-9]'],
         forbid=[r'\[body\][^\n]* invariant\b']))

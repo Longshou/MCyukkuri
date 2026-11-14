@@ -54,6 +54,8 @@ public final class DenSeal {
         static Plan refuse(String reason) { return new Plan(List.of(), reason); }
     }
 
+    private record Demonstration(YukkuriEntity learner, String missed) {}
+
     public boolean active() { return phase != Phase.IDLE; }
     public String describe() { return phase == Phase.IDLE ? (done ? "done" : "idle") : phase.name().toLowerCase() + ":" + ticks; }
     public String familyActivity() { return phase == Phase.WORK ? Behaviors.NEST_PRESS : Behaviors.RETURN_HOME; }
@@ -196,11 +198,8 @@ public final class DenSeal {
         if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size() || occupiedByOthers(level, cells)) {
             abort(plan.refusal() != null ? plan.refusal() : home.branches() < cells.size() ? "twigs_gone" : "cells_changed"); return;
         }
-        // The screen itself occludes some viewpoints, so collect witnesses just before placing it.
-        var witnesses = y.family().adult() ? residents(level, home).stream().filter(child -> !child.family().adult()
-                && child.childhood().canLearnDenSeal() && !child.childhood().knowsDenSeal()
-                && y.family().careParentOf(child) && !child.life().isSleeping() && !child.isPanicking()
-                && child.distanceToSqr(y) <= 16 && child.hasLineOfSight(y)).toList() : List.<YukkuriEntity>of();
+        // Check sight before the screen goes up. Record the outcome only if the parent finishes the work.
+        var demonstrations = y.family().adult() ? demonstrations(level, home) : List.<Demonstration>of();
         int before = home.branches(), placed = 0;
         for (var cell : cells) {
             if (!level.setBlock(cell, ModBlocks.DEN_BARRIER.get().defaultBlockState(), 3)) break;
@@ -212,8 +211,28 @@ public final class DenSeal {
         GameplayLog.event(y, "home", "den seal {} den={} cells={} placed={} twigs {} -> {} danger={} absent={} work_ticks={}",
                 placed == cells.size() ? "completed" : "placement_refused", den, cells, placed, before, home.branches(),
                 predator == null ? null : predator.getUUID(), absent, ticks);
-        if (placed == cells.size()) for (var child : witnesses) child.childhood().sawDenSeal(y);
+        if (placed == cells.size()) for (var demonstration : demonstrations) {
+            var learner = demonstration.learner();
+            if (demonstration.missed() == null) learner.childhood().sawDenSeal(y);
+            else GameplayLog.event(y, "childhood", "den seal demonstration missed learner={} reason={}",
+                    learner.getUUID(), demonstration.missed());
+        }
         phase = Phase.IDLE; ticks = 0; done = predator != null;
+    }
+
+    private List<Demonstration> demonstrations(ServerLevel level, ShelterBlockEntity home) {
+        var result = new ArrayList<Demonstration>();
+        for (var id : home.residentIds()) {
+            if (!(level.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive()
+                    || !child.family().subadult() || !child.childhood().canLearnDenSeal()
+                    || child.childhood().knowsDenSeal() || !y.family().careParentOf(child)) continue;
+            String missed = null;
+            if (!home.contains(child.blockPosition()) || child.distanceToSqr(y) > 16) missed = "away";
+            else if (child.life().isSleeping()) missed = "asleep";
+            else if (child.isPanicking() || !child.hasLineOfSight(y)) missed = "out_of_sight";
+            result.add(new Demonstration(child, missed));
+        }
+        return result;
     }
 
     private boolean occupiedByOthers(ServerLevel level, List<BlockPos> targets) {
