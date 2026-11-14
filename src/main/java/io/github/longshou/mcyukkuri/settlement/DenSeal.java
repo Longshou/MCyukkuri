@@ -35,7 +35,7 @@ public final class DenSeal {
     // Start after the parent leaves the doorstep. During work, cancel if they actually approach the mouth again.
     private static final double DEPARTED_SQR = 5 * 5, RETURN_SQR = 4.5 * 4.5;
     private static final double MOUTH_APPROACH_SQR = 2 * 2;
-    private enum Phase { IDLE, WALK, WORK }
+    private enum Phase { IDLE, WALK, CLEAR, WORK }
 
     private final YukkuriEntity y;
     private Phase phase = Phase.IDLE;
@@ -43,6 +43,7 @@ public final class DenSeal {
     private boolean done;
     private long nextCheck, lastDrive;
     private BlockPos den;
+    private Vec3 clearStand;
     private List<BlockPos> cells = List.of();
     private List<UUID> absent = List.of(), considered = List.of();
 
@@ -107,19 +108,9 @@ public final class DenSeal {
         var mouth = Vec3.atCenterOf(home.entrance());
         if (predator != null && predator.distanceToSqr(mouth) < DOOR_SAFE_SQR) { abort("danger_at_door"); return false; }
         ticks++;
-        if (phase == Phase.WALK) {
-            var step = SurfaceApproach.walkResult(y, Vec3.atBottomCenterOf(den), null, 1.2);
-            if (step == SurfaceApproach.Result.BLOCKED || ticks > WALK_LIMIT) {
-                abort("path_stuck");
-                if (predator != null) done = true;
-                return false;
-            }
-            // The shared arrival tolerance is a contact between two bodies; work needs the body standing in the
-            // doorway cell, where a wall or a nest rim can hold the feet a hand's width off its centre.
-            if (step != SurfaceApproach.Result.ARRIVED && !(y.onGround() && den.equals(y.blockPosition()))) return true;
-            phase = Phase.WORK; ticks = 0;
-        }
+        if (phase != Phase.WORK && !approach(home, predator)) return active();
         if (!home.contains(y.blockPosition())) { abort("left_den"); return false; }
+        if (!clearOfScreen(y.getBoundingBox(), cells)) { abort("sealer_in_screen"); return false; }
         SurfaceApproach.halt(y);
         SurfaceApproach.face(y, home.facing().toYRot());
         y.getLookControl().setLookAt(mouth.x, mouth.y + .2, mouth.z, 30, 30);
@@ -130,6 +121,41 @@ public final class DenSeal {
         }
         if (ticks >= WORK_TICKS) complete(level, home, predator);
         return true;
+    }
+
+    private boolean approach(ShelterBlockEntity home, YukkuriEntity predator) {
+        if (y.onGround() && (phase == Phase.WALK ? den.equals(y.blockPosition()) : home.contains(y.blockPosition()))) {
+            if (clearOfScreen(y.getBoundingBox(), cells)) {
+                phase = Phase.WORK; ticks = 0;
+                return true;
+            }
+            if (phase == Phase.WALK) {
+                clearStand = clearStandAt(den);
+                if (clearStand == null) {
+                    clearStand = home.beds().stream().map(this::clearStandAt).filter(Objects::nonNull)
+                            .min(Comparator.comparingDouble(at -> at.distanceToSqr(Vec3.atBottomCenterOf(den)))).orElse(null);
+                }
+                if (clearStand == null) { abort("no_clear_stand"); return false; }
+                // Reaching the doorway finishes the walk. Back away from the screen before starting the work.
+                phase = Phase.CLEAR; ticks = 0;
+                GameplayLog.event(y, "home", "den seal clearing screen den={} stand={}", den, clearStand);
+            }
+        }
+        var target = phase == Phase.CLEAR ? clearStand : Vec3.atBottomCenterOf(den);
+        if (ticks <= WALK_LIMIT && (phase == Phase.CLEAR && SurfaceApproach.tryStraightStep(y, target, 1.2)
+                || SurfaceApproach.walkResult(y, target, null, 1.2) != SurfaceApproach.Result.BLOCKED)) return false;
+        abort(phase == Phase.CLEAR ? "clear_stand_unreachable" : "path_stuck");
+        if (predator != null) done = true;
+        return false;
+    }
+
+    private Vec3 clearStandAt(BlockPos cell) {
+        var at = SurfaceApproach.restingFloor(y, Vec3.atBottomCenterOf(cell));
+        return at != null && clearOfScreen(y.getBoundingBox().move(at.subtract(y.position())), cells) ? at : null;
+    }
+
+    private static boolean clearOfScreen(AABB body, List<BlockPos> cells) {
+        return cells.stream().noneMatch(cell -> body.intersects(new AABB(cell)));
     }
 
     private boolean begin(ServerLevel level, ShelterBlockEntity home, YukkuriEntity predator, List<UUID> parents) {
@@ -153,7 +179,7 @@ public final class DenSeal {
             return false;
         }
         // On a family outing the sealer may still be standing in its own doorway as it heads inside.
-        if (occupied(level, plan.cells(), y)) {
+        if (occupiedByOthers(level, plan.cells())) {
             GameplayLog.limited(y, "threat", "seal_cell", 200, "den seal waiting reason=cell_occupied den={}", home.getBlockPos());
             return false;
         }
@@ -167,7 +193,7 @@ public final class DenSeal {
     private void complete(ServerLevel level, ShelterBlockEntity home, YukkuriEntity predator) {
         if (!EventHooks.canEntityGrief(level, y)) { abort("mob_griefing_off"); return; }
         var plan = planFor(level, home);
-        if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size() || occupied(level, cells, null)) {
+        if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size() || occupiedByOthers(level, cells)) {
             abort(plan.refusal() != null ? plan.refusal() : home.branches() < cells.size() ? "twigs_gone" : "cells_changed"); return;
         }
         // The screen itself occludes some viewpoints, so collect witnesses just before placing it.
@@ -190,10 +216,10 @@ public final class DenSeal {
         phase = Phase.IDLE; ticks = 0; done = predator != null;
     }
 
-    private boolean occupied(ServerLevel level, List<BlockPos> targets, LivingEntity walkingIn) {
+    private boolean occupiedByOthers(ServerLevel level, List<BlockPos> targets) {
         for (var cell : targets)
             if (!level.getEntitiesOfClass(LivingEntity.class, new AABB(cell),
-                    e -> e != walkingIn && e.isAlive() && !e.isSpectator()).isEmpty()) return true;
+                    e -> e != y && e.isAlive() && !e.isSpectator()).isEmpty()) return true;
         return false;
     }
 
