@@ -351,7 +351,7 @@ public final class HouseLife implements EcologyRoutine {
         var value = nest();
         boolean grief = mayTransfer();
         // Hunger overrides the schedule, including before a stray has found its first nest.
-        if (entity.life().nutrition() < 30 && entity.life().canEat() && grief) {
+        if (entity.life().nutrition() < 30 && entity.life().canEat() && grief && entity.life().seeksFood(SupplyPiles.crumbUnit())) {
             var relocation = value == null ? null : value.relocation();
             // A real egg already in this parent's mouth reaches its booked destination before eating; all other
             // migration work waits for the urgent meal without discarding its source-owned itinerary.
@@ -533,7 +533,8 @@ public final class HouseLife implements EcologyRoutine {
             Vec3 spot = Vec3.atBottomCenterOf(entrance);
             if (inReach(spot) && canSeeContact(spot)) beginInteraction(2, spot);
             else approach(spot);
-        } else if (value != null && entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()) {
+        } else if (value != null && entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()
+                && entity.life().seeksFood(SupplyPiles.crumbUnit())) {
             Vec3 spot = Vec3.atBottomCenterOf(value.entrance());
             if (inReach(spot) && canSeeContact(spot)) {
                 ItemStack food = value.takeFood();

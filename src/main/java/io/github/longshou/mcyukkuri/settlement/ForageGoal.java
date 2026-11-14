@@ -93,7 +93,7 @@ public final class ForageGoal extends Goal {
     private boolean attendFood() {
         Player holder = null;
         for (Player player : level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(TravelRange.search(entity, 12)),
-                p -> p.isAlive() && !p.isSpectator() && (held(p.getMainHandItem()) || held(p.getOffhandItem()))
+                p -> p.isAlive() && !p.isSpectator() && entity.life().seeksOfferedFood(p)
                         && entity.hasLineOfSight(p) && entity.life().personality().fear(p.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT)) {
             if (holder == null || entity.distanceToSqr(player) < entity.distanceToSqr(holder)) holder = player;
         }
@@ -111,7 +111,7 @@ public final class ForageGoal extends Goal {
             return true;
         }
         var items = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity, 8)),
-                item -> item.isAlive() && !item.hasPickUpDelay() && entity.life().acceptsFood(item.getItem()));
+                item -> item.isAlive() && !item.hasPickUpDelay() && entity.life().seeksFood(item.getItem()));
         if (!items.isEmpty()) {
             entity.life().replanNow();
             GameplayLog.limited(entity, "forage", "item_food", 400, "search saw loose food item={} count={} handoff=life nutrition={}",
@@ -119,7 +119,6 @@ public final class ForageGoal extends Goal {
         }
         return false;
     }
-    private boolean held(ItemStack stack) { return !stack.isEmpty() && stack.is(YukkuriEntity.FOOD) && entity.life().acceptsFood(stack); }
     private double searchSpeed() { return entity.life().nutrition() < 20 ? 1.12 : 1; }
     private void findFood(int reach) {
         var found = new ArrayList<BlockPos>();

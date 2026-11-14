@@ -328,8 +328,8 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
 
 _taste_ids = {name: uid('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
 add('graze', 'forage', '舌肥：同一份粗粮，三种反应', '舌肥：同一份粗粮，三种反应',
-    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的凑近闻一下、抿着嘴抱怨（表情与头顶字幕），不把粮叼走。'
-    '手喂挑的那只，它会把粮含进嘴再吐回地上；饿到 35 左右时，同一只会勉强吃下预算粮，再饿就肯正常吃。看表情、吐出的实物和读数里的舌肥变化。',
+    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的抿着嘴抱怨（表情与头顶字幕），把粮留在地上。'
+    '在生存模式下手喂挑的那只，它会把粮含进嘴再吐回地上；饿到 35 左右时，同一只会勉强吃下预算粮。看表情、吐出的实物和读数里的舌肥变化。',
     '约 15–60 秒', [
         yk('reimu', -3, 0, 'taste_easy', uuid=_taste_ids['taste_easy'], nutrition=48, yaw=180, self_control=40, picky=12, lead=True, label='舌肥 12'),
         item('mcyukkuri:oil_grain_budget', 1, -3, -.4, name='taste_grain_easy'),
@@ -766,7 +766,7 @@ def _dirt_snub_verify(window, trace):
 
 
 add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料时的态度：洗涤与油粮',
-    '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；给营养 50、舌肥 95 的强硬魔理沙递预算粮，它含一下再吐掉，再试高级粮。右侧饿的个体也会吃预算粮。',
+    '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；在生存模式给营养 50、舌肥 95 的强硬魔理沙递预算粮，它含一下再吐掉，再试高级粮。右侧饿的个体也会吃预算粮。',
     '右键后看表情，约 2 秒吞咽', [
         yk('reimu', -7, 0, 'wash_shy', boldness=0, friendliness=75, hygiene=5, lead=True, also=('care_subject',)),
         set_status('wash_shy', 'marks.dirt', 3),

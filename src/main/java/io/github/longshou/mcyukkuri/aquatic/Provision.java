@@ -69,7 +69,7 @@ final class Provision implements Intent {
         if (food != null) return fetch(hat);
         if (taken) return List.of(() -> new Step.Wait(() -> body.life().mealTicks() == 0, CHEW, Behaviors.BOAT_EAT));
         var larder = HullLarder.of(hat);
-        var portion = larder == null ? null : larder.source(hat, body, body.life()::acceptsFood, "eat");
+        var portion = larder == null ? null : larder.source(hat, body, body.life()::seeksFood, "eat");
         return portion == null ? null : reach(new Pick(portion, this::eatIt));
     }
 

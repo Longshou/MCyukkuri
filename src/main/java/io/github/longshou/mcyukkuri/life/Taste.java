@@ -30,7 +30,7 @@ public final class Taste {
      * How choosey this body is right now: 舌肥 shifted by the values that really change the answer.
      * A proud body is harder to please (+0.4 per point of self-esteem above 50), a familiar feeder softens it
      * (-8 at closeness>=10) and a disliked one hardens it (+6 below 0). Slaves and predators never refuse at all;
-     * that gate stays in LifeMeal.declines, so this read adds no slave or dirt term of its own.
+     * that gate stays in LifeMeal.verdict, so this read adds no slave or dirt term of its own.
      */
     public static int effective(int pickiness, double esteem, int closeness) {
         double value = pickiness + (esteem - 50) * .4;
@@ -41,6 +41,7 @@ public final class Taste {
 
     /** The verdict for one serving. margin = ceiling(grade) + hunger relief - taste. */
     public static Verdict judge(int taste, Grade grade, float nutrition) {
+        if (taste < EASY) return Verdict.SAVOUR;
         int ceiling = switch (grade) {
             case COARSE -> COARSE_CEILING;
             case ORDINARY -> ORDINARY_CEILING;
@@ -48,13 +49,9 @@ public final class Taste {
             case TREAT -> TREAT_CEILING;
         };
         int margin = ceiling + (int) Math.round(HUNGER_RELIEF * rampDown(nutrition, RELIEF_FROM, RELIEF_TO)) - taste;
-        if (margin <= 0) {
-            // Below the starving line any edible serving is taken: refusal is a choice, not a way to starve.
-            if (nutrition > RELIEF_TO) return Verdict.REFUSE;
-            return taste < EASY ? Verdict.SAVOUR : Verdict.GRUMBLE;
-        }
+        if (margin <= 0 && nutrition > RELIEF_TO) return Verdict.REFUSE;
         if (margin < GRUMBLE_BAND) return Verdict.GRUMBLE;
-        return taste < EASY ? Verdict.SAVOUR : Verdict.PLAIN;
+        return Verdict.PLAIN;
     }
 
     /** How one swallowed serving moves 舌肥: a treat +2, fine food +1, ordinary 0, coarse -2, and one more point down for any meal taken while very hungry (nutritionBefore < 30). */

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +33,8 @@ public final class FoodTaste {
     /** The taste tier of one serving from the same existing food data the meal reads. */
     public static Taste.Grade grade(ItemStack food) {
         if (Sweets.is(food) || Sweets.premium(food)) return Taste.Grade.TREAT;
-        if (food.is(ModItems.WASTE.get()) || grass(food) || food.is(ModItems.FOOD_SCRAP.get())) return Taste.Grade.COARSE;
+        if (food.is(ModItems.WASTE.get()) || grass(food) || food.is(ModItems.FOOD_SCRAP.get())
+                || food.is(YukkuriEntity.WATER_FOOD)) return Taste.Grade.COARSE;
         return serving(food) < 15 ? Taste.Grade.ORDINARY : Taste.Grade.FINE;
     }
 

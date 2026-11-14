@@ -273,7 +273,7 @@ final class AquaticGoal extends Goal {
         if (labouring != null) out.add(Desire.of("guard_labour", num("guard_want", 90), List.of(at, hat.blockPosition(), labouring.blockPosition()),
                 () -> "mother=" + labouring.getUUID() + " hold=" + labouring.family().birthBlock(), () -> new GuardLabour(body, labouring)));
         var larder = HullLarder.of(hat);
-        boolean food = larder != null && larder.has(life::acceptsFood);
+        boolean food = larder != null && larder.has(life::seeksFood);
         double eat = eat(body);
         if (food && eat > 0) out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(at, larder.count()),
                 () -> "nutrition=" + Math.round(life.nutrition()) + " stores=" + larder.count(), () -> Provision.eat(body)));
@@ -469,7 +469,7 @@ final class AquaticGoal extends Goal {
         var ride = AquaticLife.riding(body);
         var larder = HullLarder.of(ride);
         double eat = eat(body);
-        if (eat > 0 && larder != null && larder.has(body.life()::acceptsFood))
+        if (eat > 0 && larder != null && larder.has(body.life()::seeksFood))
             out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(cell(ride), larder.count()),
                     () -> "nutrition=" + Math.round(body.life().nutrition()), () -> Provision.eat(body)));
         var parent = AquaticLife.parent(body);

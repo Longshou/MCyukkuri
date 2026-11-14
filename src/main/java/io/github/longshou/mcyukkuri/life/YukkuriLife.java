@@ -448,9 +448,8 @@ public final class YukkuriLife {
         return seeksOfferedFood(giver.getMainHandItem(), giver) || seeksOfferedFood(giver.getOffhandItem(), giver);
     }
     private boolean seeksOfferedFood(ItemStack food, Player giver) {
-        return food.is(YukkuriEntity.FOOD) && meal.seeksFood(food, giver);
+        return food.is(YukkuriEntity.FOOD) && meal.seeksFood(food, giver.getUUID());
     }
-    public boolean refuseOfferedFood(ItemStack food, Player giver) { return meal.refuseOfferedFood(food, giver); }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
     private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
@@ -629,8 +628,11 @@ public final class YukkuriLife {
         if (homeWait == 0) { homeWait = 200; if(maintainHome())homeWait=20; }
     }
 
-    /** Caller transfers exactly one real item before invoking this method. */
+    /** The caller commits exactly one real portion when the mouth accepts it. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
+    public boolean beginOfferedMeal(ItemStack food, Player giver) {
+        return meal.beginOfferedMeal(food, giver.getUUID(), !giver.getAbilities().instabuild);
+    }
     public boolean beginCropMeal(ItemStack serving, BooleanSupplier harvest) { return meal.beginHarvestMeal(serving, harvest); }
     public boolean avoidsCrop(BlockPos crop) {
         return avoidedField != null && level().getGameTime() < avoidFieldUntil && avoidedField.distSqr(crop) <= 64;
@@ -846,7 +848,7 @@ public final class YukkuriLife {
                     "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",
                     offered.size(), delayed, outOfBabyRange, unreachable, task, nutrition);
             targetBlock = canCollect ? nearestCare(CareBlock.Kind.BOWL, true) : null;
-            if (canCollect && targetFood == null) refuseReachableServing();
+            if (canCollect && targetFood == null && targetBlock == null) refuseReachableServing();
             if (ignoresScraps) targetFood = null;
             useBowlNicely = targetBlock != null && followsRule(PetSkill.FOOD_BOWL);
             if (useBowlNicely && entity.pet().isPet()) targetFood = null;
@@ -1388,12 +1390,20 @@ public final class YukkuriLife {
             }
         } else stopGoal();
     }
-    /** At the pickup contact, a refused serving gets its visible sniff-and-complaint beat; scan-range food does not. */
+    /** A serving already at mouth reach can draw a complaint. */
     private void refuseReachableServing() {
         for (var item : level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(.6), item ->
                 item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem()) && entity.hasLineOfSight(item)
                         && ItemContact.reaches(entity, item))) {
-            if (meal.refuseAtReach(item.getItem())) return;
+            if (meal.refuseAtReach(item.getItem(), null)) return;
+        }
+        var feet = entity.blockPosition();
+        for (var at : BlockPos.betweenClosed(feet.offset(-1, -1, -1), feet.offset(1, 1, 1))) {
+            if (!(level().getBlockEntity(at) instanceof CareBlockEntity bowl)) continue;
+            var food = bowl.peekFood(this::acceptsFood);
+            if (food.isEmpty()) continue;
+            var stand = ItemContact.bowlStand(entity, at);
+            if (stand != null && ItemContact.reaches(entity, stand.contact(), .06) && meal.refuseAtReach(food, null)) return;
         }
     }
 
@@ -1576,7 +1586,7 @@ public final class YukkuriLife {
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
         meal.load(tag);
         home.load(tag); accessory.load(tag);
-        pickiness=bounded(tag,"Pickiness",pickiness);
+        pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; refusedFood.clear(); refusedFoodFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
     }

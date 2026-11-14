@@ -518,7 +518,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         return returnFood(stack).isEmpty();
     }
     public ItemStack takeFood(YukkuriEntity entity) {
-        return takeFood(entity,entity);
+        var pile=pile();
+        return pile==null||!owns(entity.getUUID())?ItemStack.EMPTY:pile.take(entity.life()::seeksFood);
     }
     /** A resident may collect a real portion for a child; selection follows the actual eater's acceptance. */
     public ItemStack takeFood(YukkuriEntity resident,YukkuriEntity eater) {
@@ -530,7 +531,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     public ItemStack raid() { var pile=pile();return pile==null?ItemStack.EMPTY:pile.raid(); }
     /** Preview never reserves or transfers stock; the caller cannot mutate the stored stack. */
     public ItemStack foodFor(YukkuriEntity entity) {
-        return foodFor(entity,entity);
+        var pile=pile();
+        return pile==null||!owns(entity.getUUID())?ItemStack.EMPTY:pile.peek(entity.life()::seeksFood);
     }
     private ItemStack foodFor(YukkuriEntity resident,YukkuriEntity eater) {
         var pile=pile();
@@ -547,7 +549,7 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||entity.isOnFire()||entity.isInWaterOrBubble()||entity.life().drugSleep()>0
                 ||entity.distanceToSqr(pile.standPoint(entity))>=.64
                 ||!entity.life().dryStand(entity.blockPosition()))return false;
-        var portion=pile.peek(stack->entity.life().acceptsFood(stack));
+        var portion=foodFor(entity);
         if(portion.isEmpty()||!entity.life().beginMeal(portion,null,false))return false;
         int stockBefore = pile.food();
         var taken = pile.take(stack->ItemStack.isSameItemSameComponents(stack,portion));

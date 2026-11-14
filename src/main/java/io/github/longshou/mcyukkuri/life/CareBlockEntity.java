@@ -167,7 +167,12 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         return hasFood(stack -> stack.is(YukkuriEntity.FOOD));
     }
     public boolean hasFood(Predicate<ItemStack> accepts) {
-        return kind() == CareBlock.Kind.BOWL && items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(YukkuriEntity.FOOD) && accepts.test(stack));
+        return !peekFood(accepts).isEmpty();
+    }
+    ItemStack peekFood(Predicate<ItemStack> accepts) {
+        if (kind() != CareBlock.Kind.BOWL) return ItemStack.EMPTY;
+        for (var stack : items) if (!stack.isEmpty() && stack.is(YukkuriEntity.FOOD) && accepts.test(stack)) return stack;
+        return ItemStack.EMPTY;
     }
     /** Called only after the consumer rechecks distance, line of sight and hunger. */
     public ItemStack takeFood() {

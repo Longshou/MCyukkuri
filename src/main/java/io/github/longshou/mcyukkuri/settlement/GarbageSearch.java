@@ -140,7 +140,7 @@ public final class GarbageSearch {
         return junk >= 0 ? junk : scrap;
     }
     private boolean edible(ItemStack stack) {
-        return !stack.isEmpty() && !stack.is(Items.ROTTEN_FLESH) && Toxins.dose(stack) == 0 && body.life().acceptsFood(stack);
+        return !stack.isEmpty() && !stack.is(Items.ROTTEN_FLESH) && Toxins.dose(stack) == 0 && body.life().seeksFood(stack);
     }
     private boolean wantsJunk() {
         return JunkHeadwear.fits(body) && JunkHeadwear.available(body) && JunkHeadwear.accepts(body, SocialDisposition.contact(body, null));

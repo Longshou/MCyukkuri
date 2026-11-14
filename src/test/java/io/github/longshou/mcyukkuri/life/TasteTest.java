@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TasteTest {
     @Test void easyTasteSavoursCoarseFood() {
         assertEquals(Taste.Verdict.SAVOUR, Taste.judge(12, Taste.Grade.COARSE, 48));
+        assertEquals(Taste.Verdict.SAVOUR, Taste.judge(29, Taste.Grade.COARSE, 55));
     }
 
     @Test void highTasteRefusesOrdinaryFoodWhenNotHungry() {

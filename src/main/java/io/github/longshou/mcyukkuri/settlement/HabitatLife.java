@@ -277,7 +277,7 @@ public final class HabitatLife {
             stealing=true;
         }
         if(!SearchBudget.take(level(),entity,Purpose.GRANARY))return false;
-        var pile=SiteLife.store(level(),site,entity.blockPosition(),p->!p.peek(stack->entity.life().acceptsFood(stack)).isEmpty());
+        var pile=SiteLife.store(level(),site,entity.blockPosition(),p->!p.peek(entity.life()::seeksFood).isEmpty());
         if(pile==null||!entity.life().reachable(pile.standCell(),false))return false;
         granary=pile.getBlockPos();task=Task.GRAIN_TAKE;ticks=0;contact.reset();return true;
     }
@@ -343,8 +343,11 @@ public final class HabitatLife {
         }
         homes.cancelVagrantProject();
         if(entity.forageTrip().provisioningFirst())return false;
-        if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
-        if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
+        if(entity.life().canEat()) {
+            if(value.hasFoodFor(entity)) {
+                if(!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
+            } else if(!entity.independence().householdOuting()&&startGranaryTake())return true;
+        }
         if(!freeForWork())return false;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal.start(value))return true;
@@ -478,7 +481,7 @@ public final class HabitatLife {
             var pile=granaryPile();
             if(pile==null){stop();return;}
             if(!mouth(pile))return;
-            var food=pile.take(stack->entity.life().acceptsFood(stack));
+            var food=pile.take(entity.life()::seeksFood);
             if(!food.isEmpty()) {
                 if(!entity.life().beginMeal(food,null,false))pile.returnFood(food);
                 else if(stealing){entity.showReaction("happy","narrate_steal",60);CommunityRules.observed(entity,CommunityRules.Offence.THEFT,"granary");}
