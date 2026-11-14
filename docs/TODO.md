@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 住家宣言、领地威吓、搬家与贪心占地 | `.worktrees/wp-r2-home` | home/territory/relocation goals, speech |
 
 ## 玩法待办
 
