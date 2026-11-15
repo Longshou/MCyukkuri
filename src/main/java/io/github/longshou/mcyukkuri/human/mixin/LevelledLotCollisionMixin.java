@@ -18,7 +18,7 @@ abstract class LevelledLotCollisionMixin {
             "Lnet/minecraft/world/phys/shapes/Shapes;joinUnoptimized(Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/VoxelShape;Lnet/minecraft/world/phys/shapes/BooleanOp;)Lnet/minecraft/world/phys/shapes/VoxelShape;"))
     private VoxelShape mcyukkuri$reserveLotColumns(VoxelShape free, VoxelShape occupied, BooleanOp operation,
             Operation<VoxelShape> join, @Local(ordinal = 1) StructurePoolElement child, @Local(argsOnly = true) LevelHeightAccessor height) {
-        if (child instanceof LevelledPoolElement) {
+        if (child instanceof LevelledPoolElement lot && lot.reservesColumns()) {
             // Terrain-matching roads can rise out of their jigsaw box when written. Keep their columns clear of levelled lots.
             var box = occupied.bounds();
             occupied = Shapes.create(box.minX, height.getMinBuildHeight(), box.minZ, box.maxX, height.getMaxBuildHeight(), box.maxZ);

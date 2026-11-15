@@ -1,0 +1,12 @@
+{
+  "name": "mcyukkuri:village/savanna/main_market",
+  "fallback": "mcyukkuri:village/savanna/main_end",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:empty_pool_element"
+      }
+    }
+  ]
+}
