@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 村庄城镇化：民居与宠物院子、小卖亭、口袋公园、后院 | `.worktrees/wp-town-lots` | art/structures/human-world/author_lots.py, structure/village/*/{home_yard*,kiosk,pocket_park,back_lot}, README 镇内地块 |
+| 村庄城镇化：博物馆村庄场地按 112 格半径扩大 | `.worktrees/wp-town-museum-r2` | scripts/museum_fields.py, museum_sites.py, museum_scenarios.py (village field only) |
 
 ## 玩法待办
 
