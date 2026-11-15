@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 动作库缺口：跑步、吐食、送别、贴身蹭 | `.worktrees/wp-art-motion-gaps` | standards/yukkuri-library/motions/、导出的运行动作、YukkuriAction.java、调用方片段引用 |
 | 捕食种上厕所接触动作、野生大草窝贴合洞壁 | `.worktrees/wp-art-fit-fixes` | 捕食种 toilet_contact 动作源与导出、ShelterRenderer.java |
+| 城镇道具：长椅木桌按村庄木材变体、集市农产品箱 | `.worktrees/wp-art-town-props` | author_furniture.py、human-world 地块作者脚本、新方块 |
 
 ## 玩法待办
 
