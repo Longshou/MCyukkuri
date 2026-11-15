@@ -504,7 +504,10 @@ def side_street(p):
     for x in range(0, 6):
         wool = 'blue_wool' if x % 2 == 0 else 'white_wool'
         b.block(x, 5, 7, wool); b.block(x, 4, 6, wool)
-    for z in range(9, 17): b.block(6, 4, z, 'blue_wool' if z % 2 == 0 else 'white_wool')
+    for z in range(9, 17):
+        wool = 'blue_wool' if z % 2 == 0 else 'white_wool'
+        # Keep the paper nooks below the inner edge outside FoundShelter's three-block wool search.
+        b.block(6, 5, z, wool); b.block(7, 4, z, wool)
     b.block(1, 1, 6, 'mcyukkuri:newspaper_stack', {'bundles': '3', 'facing': 'east'})
     b.block(2, 1, 6, 'mcyukkuri:newspaper_stack', {'bundles': '1', 'facing': 'north'})
     paper(b, 3, 1, 6)
