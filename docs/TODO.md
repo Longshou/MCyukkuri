@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 村庄城镇化：拼图池与地块接入 | `.worktrees/wp-town-pools` | human/TownPools.java, human/LevelledPoolElement.java, human/mixin/*, mcyukkuri.mixins.json, town_pools.py, worldgen/template_pool/** |
 
 ## 玩法待办
 
