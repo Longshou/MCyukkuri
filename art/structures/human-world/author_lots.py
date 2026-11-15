@@ -2,10 +2,8 @@
 type (town_pools.py appends `village/<type>/town_lots` to it). One authored layout per lot, exported once per village type in that
 type's materials (palette.py).
 
-Lot convention (like a vanilla house): the front edge is z0, with one `minecraft:building_entrance` jigsaw at (gate, 0, 0) facing north
-whose final state is the type's lane block. A vanilla lane puts a y0 entrance at the lane's first free height, so the lot's ground layer
-(y0) lies one block above the lane surface and people walk at y1: the outer ring of y0 is a kerb in the type's plinth stone, with a step
-slab either side of the gate. Nothing else leaves the footprint.
+The front edge is z0, with one north-facing `minecraft:building_entrance` jigsaw at (gate, 1, 0) that becomes air. A vanilla lane
+places the socket at the first free height, so the paving at y0 meets the lane at grade. The rest of the rim uses the type's plinth stone.
 
 - home_yard: a cottage at the end of a garden path, a fenced pet yard beside the path in front of it (its gate on the path, so the
   way to the door and the bed has no fence gate, which villagers cannot open). The cottage eave runs down over the yard row along the
@@ -29,12 +27,11 @@ low and high corner of a pet yard (also a no-carton zone), `mcy_yard_pet` = the 
 from pathlib import Path
 import math, sys
 sys.path.insert(0, str(Path(__file__).parent))
-from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, string, integer, sequence
-from palette import PALETTES, STYLES, BEDS, link, leaves, mc, pick, stem
-from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, ground_display, connect_bars
+from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, integer, sequence
+from palette import PALETTES, STYLES, BEDS, link, leaves, mc, pick
+from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, ground_display, connect_bars, jigsaw
 
 LOG = {'axis': 'y'}
-NOWHERE = 'minecraft:empty'
 
 # Pool rows (design town.md sections 4 and 9). town_pools.py scales the town-lot weights so that the lots take about half of the house
 # draws of each type; max_count is per village. Town lots get the centre terrain check (8 cut / 5 fill) from town_pools.py.
@@ -49,7 +46,7 @@ RUGS = {'plains': 'red_carpet', 'desert': 'brown_carpet', 'savanna': 'red_carpet
 
 # ---------------------------------------------------------------------------------------------------------- shared lot parts
 def new_lot(piece, size, p, gate):
-    """An empty lot: ground everywhere at y0, the kerb ring, the step slabs and the entrance jigsaw at (gate, 0, 0)."""
+    """An empty lot with a paved rim and a lane-level entrance."""
     width, height, depth = size
     b = Site(f'village/{p.style}/{piece}', list(size), p)
     b.box((0, 1, 0), (width - 1, height - 1, depth - 1), 'air')
@@ -57,11 +54,9 @@ def new_lot(piece, size, p, gate):
     for x in range(width):
         for z in range(depth):
             if x in (0, width - 1) or z in (0, depth - 1): b.block(x, 0, z, p.plinth_at(x, z, 2))
-    for x in (gate - 1, gate + 1): slab(b, x, 0, 0, stem(p.step))
     b.gate = gate; b.yards = []; b.corners = []
-    b.block(gate, 0, 0, 'jigsaw', {'orientation': 'north_up'}, {
-        'id': string('minecraft:jigsaw'), 'name': string('minecraft:building_entrance'), 'target': string(NOWHERE),
-        'pool': string(NOWHERE), 'joint': string('aligned'), 'final_state': string(mc(p.lane))})
+    b.block(gate, 0, 0, p.lane)
+    jigsaw(b, gate, 1, 0, 'north', 'minecraft:building_entrance')
     return b
 
 
@@ -262,7 +257,7 @@ def home_yard_large(p):
     panes(b, [(2, 4, 3), (8, 4, 5), (0, 4, 5), (0, 4, 6), (2, 4, 8), (8, 4, 6)])
     gable(b, 0, 8, 3, 8, 6, 'x')
     # Bedroom (west): the bed, a bookcase closing the hidden corner, a rug; one local lives here.
-    bed(b, 1, 3, 6, 'south')
+    bed(b, 1, 3, 7, 'north')
     b.box((2, 3, 7), (2, 4, 7), 'bookshelf')
     hidden_corner(b, 3, 3, 7)
     for x in (1, 2, 3):

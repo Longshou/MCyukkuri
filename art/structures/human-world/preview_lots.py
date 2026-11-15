@@ -1,7 +1,7 @@
 """Offline preview of the town lots (author_lots.py) in every village type.
 
 Per type: one mock vanilla lane with the five lots and two vanilla houses of that type standing on it (vanilla templates read from the
-client jar; a town lot sits one block above the lane as the jigsaw places it), and a 3/4 view of each lot. Plains: textured top-down
+client jar; each entrance is placed at the lane's first free height), and a 3/4 view of each lot. Plains: textured top-down
 plans with the stray objects, residents, pet yards, hidden corners and the gate drawn over them. Requires Pillow, NumPy, Node and the
 Minecraft client jar (--minecraft-resources). No game or browser. Writes .local/previews/town-lots of the main checkout (or
 MCYUKKURI_PREVIEWS); no source or runtime file is modified. --styles limits the types, --lots the lots.
@@ -63,15 +63,12 @@ def vanilla(jar, style, name):
     doc = read_nbt(jar.read(f'data/minecraft/structure/village/{style}/houses/{name.format(t=style)}.nbt'))
     palette = [(s['Name'], s.get('Properties', {})) for s in doc['palette']]
     blocks = {tuple(r['pos']): (*palette[r['state']], r.get('nbt', {})) for r in doc['blocks']}
-    entrance = next((pos, props['orientation'].split('_')[0]) for pos, (n, props, nbt) in blocks.items()
-                    if n == 'minecraft:jigsaw' and nbt.get('name') == 'minecraft:building_entrance')
-    layout = Layout(doc['size'], blocks)
-    turns = (DIRS.index('north') - DIRS.index(entrance[1])) % 4
-    marked = {pos: (n, {**p, '_entrance': '1'} if pos == entrance[0] else p, nbt) for pos, (n, p, nbt) in blocks.items()}
-    layout = rotated(Layout(doc['size'], marked), turns)
-    gate = next(pos for pos, (_, p, _) in layout.blocks.items() if p.get('_entrance'))
-    layout.blocks[gate] = (layout.blocks[gate][0], {k: v for k, v in layout.blocks[gate][1].items() if k != '_entrance'}, layout.blocks[gate][2])
-    return Layout(layout.size, final(layout.blocks)), gate
+    pos, facing = next((pos, props['orientation'].split('_')[0]) for pos, (n, props, nbt) in blocks.items()
+                       if n == 'minecraft:jigsaw' and nbt.get('name') == 'minecraft:building_entrance')
+    turns = (DIRS.index('north') - DIRS.index(facing)) % 4
+    socket = Layout(doc['size'], {pos: blocks[pos]})
+    (gate,) = rotated(socket, turns).blocks
+    return rotated(Layout(doc['size'], final(blocks)), turns), gate
 
 
 def lane(p, x0, x1):
@@ -89,12 +86,18 @@ def street(jar, style, order):
     p = lots.PALETTES[style]; built = lots.pieces(style); parts = []; x = 0
     for item in order:
         if item.startswith('vanilla'):
-            layout, (gx, gy, gz) = vanilla(jar, style, VANILLA[int(item[-1])])
-            parts.append((layout, (x, 1 - gy, -gz), item))   # the entrance at the lane's first free height (y1), on the front row
+            layout, (_, gy, gz) = vanilla(jar, style, VANILLA[int(item[-1])])
         else:
-            b = built[item]; parts.append((Layout(b.size, final(b.blocks)), (x, 1, 0), item))
-        x += parts[-1][0].size[0] + 2
-    return [(lane(p, -3, x + 1), (0, 0, 0), 'lane')] + parts
+            b = built[item]
+            (_, gy, gz), _, _, _, _ = b.jigsaws[0]
+            layout = Layout(b.size, final(b.blocks))
+        parts.append((layout, (x, 1 - gy, -gz), item))   # place the entrance at the lane's first free height
+        x += layout.size[0] + 2
+    base = lane(p, -3, x + 1)
+    occupied = {(ox + bx, 0, oz + bz) for layout, (ox, oy, oz), _ in parts
+                for bx, by, bz in layout.blocks if oy + by == 0}
+    base.blocks = {pos: block for pos, block in base.blocks.items() if pos not in occupied}
+    return [(base, (0, 0, 0), 'lane')] + parts
 
 
 PAGE = """<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>村庄城镇 · 镇内地块</title>
@@ -104,7 +107,7 @@ img{max-width:100%;border-radius:8px;display:block;margin:8px 0}.g{display:grid;
 p{line-height:1.6}nav a{margin-right:14px}</style>
 <h1>村庄城镇 · 镇内地块（五种村庄）</h1>
 <p class="d"><b>要你决定：</b>民居与宠物院子、大民居、街角小卖亭、口袋公园和后院杂物角，放在原版村道旁、挨着原版房子时，是否像镇上本来就有的房子，不出戏。
-每种村庄用自己原版村庄的材料；地块比村道高一格（原版房子也这样接在村道上），门口有半砖台阶。</p>
+每种村庄用自己原版村庄的材料；地块入口与村道路面齐平。</p>
 <p>画面为离线渲染（真实方块贴图，无光照）；人物、宠物位、垃圾桶等在平面图上用符号表示。宠物院子里目前只有窝、食盆、厕所和玩具，宠物本身等后续的城镇生活包接入。</p>
 <nav>{{NAV}}</nav>
 {{STYLES}}

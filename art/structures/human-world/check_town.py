@@ -238,11 +238,11 @@ def socket_checks(piece, style, roles, pools):
             errors.append(f'jigsaw {pos} has no y0 paving')
         if name == 'minecraft:building_entrance':
             incoming.append(pos)
-            if y != 0 or z != 0 or facing != 'north' or target != EMPTY or pool != EMPTY:
-                errors.append(f'building entrance {pos} must face north from the y0 front edge')
+            if y != 1 or z != 0 or facing != 'north' or target != EMPTY or pool != EMPTY:
+                errors.append(f'building entrance {pos} must face north from the y1 front edge')
             lane = 'smooth_sandstone' if style == 'desert' else 'dirt_path'
-            if piece.state(pos)[0] != 'minecraft:' + lane:
-                errors.append(f'building entrance {pos} must become {lane}')
+            if nbt['final_state'] != AIR or piece.state((x, 0, z))[0] != 'minecraft:' + lane:
+                errors.append(f'building entrance {pos} must become air above y0 {lane}')
         elif name.startswith('mcyukkuri:street_') or target.startswith('mcyukkuri:street_'):
             lanes.append(facing)
             if facing not in ('west', 'east') or (y, z) != (1, 4):
@@ -349,7 +349,7 @@ def stand(piece, pos, height, doors):
 
 def pass_door(name, doors):
     if name.endswith('_fence_gate'):
-        return bool(doors)
+        return doors is True
     if name.endswith('_door'):
         if doors == 'wood':
             return name != 'minecraft:iron_door'
@@ -555,7 +555,7 @@ def stray_checks(piece, starts, targets, gaps):
 
 
 def walk_checks(piece, starts, targets):
-    """Catch a blocked two-high route to a door, counter, bench stand or indoor resident home."""
+    """Catch blocked routes to doors, counters, benches, resident homes and villager beds."""
     errors = []
     for pos, (name, props, _) in piece.blocks.items():
         if name.endswith('_door') and props.get('half') == 'lower':
@@ -563,19 +563,25 @@ def walk_checks(piece, starts, targets):
             upper, state, _ = piece.state(add(pos, (0, 1, 0)))
             if upper != name or state != {**props, 'half': 'upper'}:
                 errors.append(f'door {pos} has no matching upper half')
+        if name.endswith('_bed') and props.get('part') == 'head':
+            targets.append(('villager bed', pos))
     for start in starts:
         reachable = walk(piece, start)
         if not reachable:
             errors.append(f'street socket or gate {start} has no two-high entry')
             continue
-        if any(label == 'resident home' for label, _ in targets):
+        if any(label in ('resident home', 'villager bed') for label, _ in targets):
             with_wood = walk(piece, start, doors='wood')
+        if any(label == 'resident home' for label, _ in targets):
             without_wood = walk(piece, start, doors='iron')
         for label, pos in targets:
             sites = [pos]
             if label == 'bench':
                 sites = [add(pos, delta) for delta in HORIZONTAL.values()]
-            if not any(p in reachable for p in sites):
+            if label == 'villager bed':
+                if not any(add(pos, delta) in with_wood for delta in HORIZONTAL.values()):
+                    errors.append(f'villager bed {pos} has no path through wooden doors from {start}')
+            elif not any(p in reachable for p in sites):
                 errors.append(f'{label} {pos} has no two-high path from {start}')
             elif label == 'resident home' and (pos not in with_wood or pos in without_wood or not covered(piece, pos)
                                                 or not stand(piece, pos, 2, False)):
@@ -888,6 +894,12 @@ def self_test():
         raise AssertionError('one-bed home control failed')
     home.blocks[3, 1, 2] = bed
     caught('second villager bed', poi_checks(home), 'expected 1 vanilla beds')
+    narrow = floor(width=1)
+    narrow.blocks[0, 1, 3] = bed
+    if walk_checks(narrow, [(0, 1, 0)], []):
+        raise AssertionError('positive villager bed route control failed')
+    narrow.blocks[0, 1, 1] = ('minecraft:oak_fence_gate', {'open': 'false'}, {})
+    caught('bed behind fence gate', walk_checks(narrow, [(0, 1, 0)], []), 'villager bed')
     p.blocks[1, 1, 1] = ('minecraft:oak_planks', {}, {})
     p.blocks[2, 1, 1] = ('minecraft:cactus', {}, {})
     p.blocks[3, 1, 1] = ('minecraft:snow', {'layers': '1'}, {})
@@ -978,12 +990,16 @@ def self_test():
     caught('mouth connector off the lane centre',
            socket_checks(off_centre, style, {'main_end'}, pools), 'z4 lane centre')
     gate = floor(village_pool(style, 'home_yard'))
-    gate.blocks[4, 0, 0] = socket('north', 'minecraft:building_entrance', final='minecraft:dirt_path')
+    gate.blocks[4, 0, 0] = ('minecraft:dirt_path', {}, {})
+    gate.blocks[4, 1, 0] = socket('north', 'minecraft:building_entrance')
     if socket_checks(gate, style, {'town_lots'}, pools):
         raise AssertionError('positive town gate control failed')
     inward = floor(village_pool(style, 'home_yard'))
-    inward.blocks[4, 0, 0] = socket('south', 'minecraft:building_entrance', final='minecraft:dirt_path')
+    inward.blocks[4, 1, 0] = socket('south', 'minecraft:building_entrance')
     caught('town gate facing in', socket_checks(inward, style, {'town_lots'}, pools), 'must face north')
+    raised = floor(village_pool(style, 'home_yard'))
+    raised.blocks[4, 0, 0] = socket('north', 'minecraft:building_entrance', final='minecraft:dirt_path')
+    caught('town gate one block above lane', socket_checks(raised, style, {'town_lots'}, pools), 'y1 front edge')
     pools[market]['fallback'] = 'mcyukkuri:village/plains/typo'
     failures = []
     pool_checks(pools, {pet.id: pet}, {}, lambda _, error: failures.append(error))

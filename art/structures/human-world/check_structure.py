@@ -261,7 +261,7 @@ def full_block(name): return name != AIR and not free(name) and not name.startsw
 def reach_from(b, start, y, body=2, doors=True):
     """Cells reached on foot at walking level y (floor at y-1, `body` free cells above it; doors opened on the way)."""
     def passable(x, yy, z):
-        n = name_at(b, x, yy, z); return free(n) or (doors and n.endswith('_door'))
+        n, _ = state_at(b, x, yy, z); return free(n) or (doors and n.endswith('_door'))
     def ok(x, z):
         return 0 <= x < b.size[0] and 0 <= z < b.size[2] and name_at(b, x, y - 1, z) != AIR and all(passable(x, y + i, z) for i in range(body))
     seen = {start} if ok(*start) else set(); queue = deque(seen)
