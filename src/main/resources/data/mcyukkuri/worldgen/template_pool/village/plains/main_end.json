@@ -5,7 +5,35 @@
     {
       "weight": 1,
       "element": {
-        "element_type": "minecraft:empty_pool_element"
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/plains/mouth_east",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_cut": 4,
+        "max_fill": 3,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/plains/mouth_west",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_cut": 4,
+        "max_fill": 3,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
       }
     }
   ]

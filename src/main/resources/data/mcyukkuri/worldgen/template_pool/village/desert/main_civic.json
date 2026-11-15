@@ -3,6 +3,60 @@
   "fallback": "mcyukkuri:village/desert/main_end",
   "elements": [
     {
+      "weight": 6,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/badge_hall",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/shelter",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 4,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/park",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
       "weight": 1,
       "element": {
         "element_type": "mcyukkuri:levelled",

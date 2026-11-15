@@ -3,6 +3,60 @@
   "fallback": "mcyukkuri:village/savanna/main_end",
   "elements": [
     {
+      "weight": 6,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/badge_hall",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/shelter",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
+      "weight": 4,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/park",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
       "weight": 1,
       "element": {
         "element_type": "mcyukkuri:levelled",

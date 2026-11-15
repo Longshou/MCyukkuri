@@ -273,5 +273,335 @@
     "blocks": 9896,
     "entities": 43,
     "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/plains/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 29,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 14,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 2,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 16,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 29,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 14,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 2,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 16,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 29,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 14,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 2,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 16,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13300,
+    "entities": 29,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5036,
+    "entities": 14,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8071,
+    "entities": 2,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5932,
+    "entities": 16,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 29,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 14,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 2,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 16,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
   }
 ]
