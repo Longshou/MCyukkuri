@@ -256,16 +256,20 @@ PROBE_COMMANDS = {
 
 def village_controls(fn, guarded, f, land):
     x1, z1, x2, z2 = f.rect()
-    columns = f'{x1} {z1} {x2} {z2}'
+    rows_per_range = 256 // (x2 // 16 - x1 // 16 + 1)  # Vanilla's per-command chunk limit.
+    last_row = z2 // 16
+    ranges = [f'{x1} {16 * row} {x2} {16 * min(row + rows_per_range - 1, last_row)}'
+              for row in range(z1 // 16, last_row + 1, rows_per_range)]
     finish = 'village/finish'
-    fn('village/load', [f'execute in minecraft:overworld run forceload add {columns}',
+    fn('village/load', [*(f'execute in minecraft:overworld run forceload add {area}' for area in ranges),
                         f'schedule function {NS}:{finish} 1t replace'])
     fn('village/cancel', [f'schedule clear {NS}:{finish}', f'scoreboard players reset #village_job {OBJ}'])
     # A museum-wide clear already owns these tickets and will reset this plot too.
     fn('field/village/clear', [f'execute unless score #clearing {OBJ} matches 1 run function {NS}:village/request_clear'])
     fn('village/request_clear', [f'scoreboard players set #village_job {OBJ} 0', f'function {NS}:village/load'])
+    notice_radius = math.ceil(math.hypot(f.cx - x1, f.cz - z1))
     fn('village/clear_loaded', [f'function {NS}:field/village/reset', f'function {NS}:village/biome_plains',
-                                f'tellraw {near_field(f, 180)} ' + _text('村庄城镇：已恢复为平地。', 'green')])
+                                f'tellraw {near_field(f, notice_radius)} ' + _text('村庄城镇：已恢复为平地。', 'green')])
 
     available = [
         f'execute if score #clearing {OBJ} matches 1 run return run tellraw @s ' + _text('全部清场正在进行。', 'yellow'),
@@ -305,7 +309,7 @@ def village_controls(fn, guarded, f, land):
     fn(finish, guarded(finish, rect_chunks(f.rect()), [
         f'execute if score #village_job {OBJ} matches 0 run function {NS}:village/clear_loaded',
         f'execute if score #village_job {OBJ} matches 1 run function {NS}:village/place',
-        f'forceload remove {columns}',
+        *(f'forceload remove {area}' for area in ranges),
         f'execute if score #village_job {OBJ} matches 1 as @a if score @s {OBJ} = #village_request {OBJ} run function {NS}:village/arrival',
         f'scoreboard players reset #village_job {OBJ}',
     ]))
@@ -704,7 +708,8 @@ def inputs_sha256():
     assets = ROOT / 'src/main/resources/assets/mcyukkuri'
     files = (sorted(HERE.glob('museum_*.py')) + [Path(__file__).resolve(), HERE / 'museum_scene_numbers.json', ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java',
                                                   ROOT / 'src/main/resources/assets/mcyukkuri/dialogue/catalog.json']
-             + sorted((assets / 'yukkuri').glob('*.json')) + sorted((assets / 'yukkuri_presentation').glob('*.json')))
+             + sorted((assets / 'yukkuri').glob('*.json')) + sorted((assets / 'yukkuri_presentation').glob('*.json'))
+             + list(BY_ID['village'].structure_files))
     for path in files:
         h.update(path.name.encode())
         h.update(path.read_bytes().replace(b'\r\n', b'\n'))

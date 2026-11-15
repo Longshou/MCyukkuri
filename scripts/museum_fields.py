@@ -8,9 +8,11 @@ world records the field left behind (``yukkuri clear``), then run the terrain ag
 Every field belongs to a theme group (``GROUPS``); the lobby only lists the fields by group, and each field has its own
 observation deck with the detailed controls.
 """
+import json
 import math
 import random
 import sys
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 from museum_dsl import furniture  # noqa: E402
@@ -543,14 +545,21 @@ class Village(Field):
     styles = [('plains', 'minecraft:plains', '平原村庄'), ('desert', 'minecraft:desert', '沙漠村庄'),
               ('savanna', 'minecraft:savanna', '热带草原村庄'), ('snowy', 'minecraft:snowy_plains', '雪原村庄'),
               ('taiga', 'minecraft:taiga', '针叶林村庄')]
+    structure_files = tuple(
+        Path(__file__).resolve().parents[1] / f'src/main/resources/data/minecraft/worldgen/structure/village_{style}.json'
+        for style, _, _ in styles)
 
     def __init__(self, cx, cz):
-        # Jigsaw radius 80 + town centre offset up to 11 + chunk shift 16 + terrain-adaptation padding 12 = 119.
-        super().__init__('village', '村庄城镇', 'human', cx, cz, 120, 120, 'minecraft:plains',
+        radius = max(json.loads(path.read_text(encoding='utf-8'))['max_distance_from_center'] for path in self.structure_files)
+        shift = 16  # Cycle through origins one chunk apart.
+        # The rotated town-centre midpoint can shift by 11 blocks. Beard adaptation inflates the placement box by 12.
+        reach = radius + 11 + shift + 12
+        half = (reach // 4 + 1) * 4  # Include the far edge and align biome paint to quart cells.
+        super().__init__('village', '村庄城镇', 'human', cx, cz, half, half, 'minecraft:plains',
                          blurb='在平地生成五种村庄城镇，同一类型可轮换三种布局')
         self.x2 -= 1
         self.z2 -= 1
-        self.origins = ((cx, cz), (cx + 16, cz), (cx, cz + 16))
+        self.origins = ((cx, cz), (cx + shift, cz), (cx, cz + shift))
         self.deck = (cx - 14, self.z2 + 6, cx + 14, self.z2 + 6 + DECK_DEPTH - 1)
         self.gate = (cx, self.deck[3] + 4)
 
