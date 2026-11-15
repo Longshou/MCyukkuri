@@ -17,10 +17,11 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from furniture_placement import joined
 import preview_shop as ps
 
-SOURCES = ['build.py', 'author_street.py', 'check_structure.py']
+SOURCES = ['build.py', 'author_street.py', 'check_structure.py', 'palette.py']
 DUMP = """import json, sys
 sys.path.insert(0, sys.argv[1]); import build, author_street
-pieces = {'lot': build.village_shop(build.shop()), 'stall': author_street.street_stall(*[getattr(build, 'PLAINS')] if hasattr(build, 'PLAINS') else []), 'oni': author_street.oni_shop()}
+stall = author_street.street_stall(build.PLAINS) if hasattr(build, 'PLAINS') else author_street.street_stall()
+pieces = {'lot': build.village_shop(build.shop()), 'stall': stall, 'oni': author_street.oni_shop()}
 print(json.dumps({k: [[*p, n, pr] for p, (n, pr, _) in b.blocks.items()] for k, b in pieces.items()}))
 """
 
