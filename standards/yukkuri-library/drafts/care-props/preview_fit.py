@@ -244,6 +244,15 @@ def wild():
                   '野生大窝：成体 2 + 赤油 4', SZ, 9, az=30),
              tile([g(16), (W, 0, 0, 0, 0, 1), seat(W, REIMU, -7.55, 0, 1.1, 175), seat(W, MARISA, 7.55, 0, 1.1, 200)], '野生大窝：两只 1.1 倍成体', SZ, 9, az=30),
              section(W, 0, '野生大窝 + 两只成体 1.0／1.1', [(1.0, -7.1, RED), (1.1, 7.55, ORANGE)], half=18, size=SZ)]]
+    # Burrow walls beside the bedding (client/ShelterRenderer.fitAgainstWalls): squeezed on each walled side to the block face.
+    for name, units, label, walls in ((W, 0, '野生大窝', [(-1, 0), (-1, -1), (0, -1)]),):
+        d = AFTER.load(name)[0]['bounds']
+        blocks = [g(24)] + [('dirt', 0, 16 * x, 0, 16 * z, 1) for x, z in walls] + [('dirt', 0, 16 * x, 16, 16 * z, 1) for x, z in walls]
+        lo = [max(d[a][0], -8) if any(c[i] == -1 and (i == 0 or c[0] == 0) for c in walls) else d[a][0] for i, a in enumerate((0, 2))]
+        k = [(d[a][1] - lo[i]) / (d[a][1] - d[a][0]) for i, a in enumerate((0, 2))]
+        fitted = (name, units, lo[0] - k[0] * d[0][0], 0, lo[1] - k[1] * d[2][0], np.array([k[0], 1, k[1]]))
+        rows.append([tile(blocks + [(name, units, 0, 0, 0, 1)], '前：%s伸进洞壁' % label, SZ, 9, az=30, el=40),
+                     tile(blocks + [fitted], '后：%s在有壁的一侧收到方块面' % label, SZ, 9, az=30, el=40)])
     sheet(rows, PREVIEWS / 'wild-nests/fit.png', '野生巢容纳：叶床睡坑整格、个人小叶巢放大到成体也躺得下、野生大窝两格宽（离线渲染与剖面）', SZ)
 
 

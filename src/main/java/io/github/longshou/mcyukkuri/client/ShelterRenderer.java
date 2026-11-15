@@ -21,23 +21,33 @@ import net.minecraft.world.phys.AABB;
 public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEntity> {
     public ShelterRenderer(BlockEntityRendererProvider.Context context) {}
     /**
-     * The personal leaf nest is a loose heap reaching past its cell; against a burrow wall it is pushed together on that side so
-     * no leaf pokes into the earth: along each axis with a solid neighbour the heap is squeezed (and shifted off the wall) to
-     * end at the cell face, like the pet bed's flattened roll.
+     * Burrow bedding (the personal leaf nest, the large family bedding) is a loose heap reaching past its cell; where a block
+     * stands in its way it is pushed together on that side so nothing pokes into the earth: each axis is squeezed (and shifted
+     * off the wall) to end at the nearest block face, like the pet bed's flattened roll.
      */
-    private static void fitAgainstWalls(ShelterBlockEntity home,BlockPos bed,PoseStack pose){
+    private static void fitAgainstWalls(ShelterBlockEntity home,BlockPos bed,String prop,int units,PoseStack pose){
         var level=home.getLevel();if(level==null)return;
-        var bounds=PropModels.bounds("personal_leaf_nest",7);
-        double[] x=span(level,bed,Direction.WEST,Direction.EAST,bounds.minX,bounds.maxX),z=span(level,bed,Direction.NORTH,Direction.SOUTH,bounds.minZ,bounds.maxZ);
-        pose.translate(x[1],0,z[1]);pose.scale((float)x[0],1,(float)z[0]);
+        var bounds=PropModels.bounds(prop,units);
+        double west=-reach(level,bed,Direction.WEST,-bounds.minX,bounds.maxY),east=reach(level,bed,Direction.EAST,bounds.maxX,bounds.maxY);
+        double north=-reach(level,bed,Direction.NORTH,-bounds.minZ,bounds.maxY),south=reach(level,bed,Direction.SOUTH,bounds.maxZ,bounds.maxY);
+        double x=(east-west)/(bounds.maxX-bounds.minX),z=(south-north)/(bounds.maxZ-bounds.minZ);
+        pose.translate(west-x*bounds.minX,0,north-z*bounds.minZ);pose.scale((float)x,1,(float)z);
     }
-    /** Scale and shift that bring [min, max] inside the cell face on each side whose neighbour has a collision shape. */
-    private static double[] span(Level level,BlockPos bed,Direction low,Direction high,double min,double max){
-        double lo=solid(level,bed.relative(low))?Math.max(min,-.5):min,hi=solid(level,bed.relative(high))?Math.min(max,.5):max;
-        double scale=(hi-lo)/(max-min);
-        return new double[]{scale,lo-scale*min};
+    /**
+     * How far the bedding reaches from the bed cell's centre toward {@code side}: its own reach {@code own}, or the nearest face
+     * of a block standing below its top in the cells it would enter, never short of the cell face. The heap is rounded, so one
+     * squeezed axis clears a corner cell: the corner cells count for the east and west sides.
+     */
+    private static double reach(Level level,BlockPos bed,Direction side,double own,double top){
+        var axis=side.getAxis();
+        for(int across=axis==Direction.Axis.X?-1:0;across<=(axis==Direction.Axis.X?1:0);across++){
+            var cell=bed.relative(side).south(across);
+            var shape=level.getBlockState(cell).getCollisionShape(level,cell);
+            if(shape.isEmpty()||shape.min(Direction.Axis.Y)>=top)continue;
+            own=Math.min(own,.5+(side.getAxisDirection()==Direction.AxisDirection.POSITIVE?shape.min(axis):1-shape.max(axis)));
+        }
+        return own;
     }
-    private static boolean solid(Level level,BlockPos pos){return !level.getBlockState(pos).getCollisionShape(level,pos).isEmpty();}
     @Override public void render(ShelterBlockEntity home,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
         if(home.kind()==ShelterBlock.Kind.BURROW) {
             var shared=new HashSet<>(home.sharedBeds());
@@ -45,7 +55,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
             shared.removeAll(home.largeBeds());
             for(var bed:home.largeBeds()){
                 var offset=bed.subtract(home.getBlockPos());
-                pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);
+                pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);fitAgainstWalls(home,bed,"large_wild_nest",1,pose);
                 PropModels.render("large_wild_nest",1,pose,buffers,light,overlay);pose.popPose();
             }
             if(home.lining()>0) for(var bed:shared) {
@@ -57,7 +67,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
             for(var bed:home.privateBeds()) {
                 var offset=bed.subtract(home.getBlockPos());
                 int local=home.getLevel()==null?light:LevelRenderer.getLightColor(home.getLevel(),bed);
-                pose.pushPose();pose.translate(offset.getX()+.5,0,offset.getZ()+.5);fitAgainstWalls(home,bed,pose);
+                pose.pushPose();pose.translate(offset.getX()+.5,0,offset.getZ()+.5);fitAgainstWalls(home,bed,"personal_leaf_nest",7,pose);
                 PropModels.renderLayers("personal_leaf_nest",7,pose,buffers,local,overlay);pose.popPose();
             }
             for(var project:home.nestConstructions()) {
@@ -66,7 +76,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
                 pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);
                 if(project.work()<20)PropModels.render("bedding_bundle",0,pose,buffers,local,overlay);
                 else {
-                    pose.pushPose();fitAgainstWalls(home,bed,pose);
+                    pose.pushPose();fitAgainstWalls(home,bed,"personal_leaf_nest",7,pose);
                     PropModels.renderLayers("personal_leaf_nest",project.work()<80?1:project.work()<100?3:7,pose,buffers,local,overlay);
                     pose.popPose();
                 }

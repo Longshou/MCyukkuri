@@ -44,6 +44,19 @@ class Source:
                     [-h, -.01, -h, 0, 0, 0, 1, 0], [h, -.01, h, k, k, 0, 1, 0], [h, -.01, -h, k, 0, 0, 1, 0]]
             return {'parts': [{'name': 'ground', 'start': 0, 'count': 6, 'texture': 'minecraft:textures/block/dirt.png'}],
                     'bounds': [[-h, h], [0, 0], [-h, h]]}, np.array(rows, dtype=np.float32)
+        if name == 'dirt':                    # a vanilla dirt block standing on y = 0, centred on the origin (a burrow wall)
+            rows = []
+            for axis in range(3):
+                for sign in (-1, 1):
+                    u, w = [i for i in range(3) if i != axis]
+                    quad = []
+                    for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                        p = [0.0, 0.0, 0.0]
+                        p[axis], p[u], p[w] = 8 * sign, 8 * a, 8 * b
+                        quad.append([p[0], p[1] + 8, p[2], (a + 1) / 2, (b + 1) / 2] + [float(sign * (i == axis)) for i in range(3)])
+                    rows += [quad[0], quad[1], quad[2], quad[0], quad[2], quad[3]]
+            return {'parts': [{'name': 'dirt', 'start': 0, 'count': 36, 'texture': 'minecraft:textures/block/dirt.png'}],
+                    'bounds': [[-8, 8], [0, 16], [-8, 8]]}, np.array(rows, dtype=np.float32)
         if name.startswith('yuk:'):      # yuk:reimu[:expression]
             bits = name.split(':')
             return self.load_yukkuri(bits[1], bits[2] if len(bits) > 2 else 'sleep')
@@ -88,7 +101,7 @@ def rot_y(deg):
 
 
 def render(src, items, az=225, el=28, ppu=24, size=None, flat=False, lock=None, pad=1.08, bg=(0, 0, 0, 0)):
-    """items: (name, units_or_('mask',m), dx, dy, dz, scale[, yaw_deg[, source]])"""
+    """items: (name, units_or_('mask',m), dx, dy, dz, scale[, yaw_deg[, source]]); scale is a number or an (x, y, z) array"""
     a, e = math.radians(az), math.radians(el)
     d = np.array([math.sin(a) * math.cos(e), math.sin(e), math.cos(a) * math.cos(e)])
     right = np.cross([0, 1, 0.0], d); right /= np.linalg.norm(right)
