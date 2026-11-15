@@ -678,6 +678,24 @@
             "src/main/resources/assets/mcyukkuri/models/item/garbage_bin",
             "src/main/resources/assets/mcyukkuri/textures/block/garbage_bin_"
           ]
+        },
+        {
+          "id": "newspaper-stack",
+          "prefixes": [
+            "art/props/newspaper-stack/",
+            "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack",
+            "src/main/resources/assets/mcyukkuri/models/item/newspaper_stack",
+            "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_"
+          ]
+        },
+        {
+          "id": "notice-board",
+          "prefixes": [
+            "art/props/notice-board/",
+            "src/main/resources/assets/mcyukkuri/models/block/notice_board",
+            "src/main/resources/assets/mcyukkuri/models/item/notice_board",
+            "src/main/resources/assets/mcyukkuri/textures/block/notice_board_"
+          ]
         }
       ]
     },

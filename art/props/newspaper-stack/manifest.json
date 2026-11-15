@@ -1,0 +1,16 @@
+{
+  "authoring": "art/props/newspaper-stack/build.py",
+  "status": "pending_user_confirmation",
+  "exports": {
+    "src/main/resources/assets/mcyukkuri/blockstates/newspaper_stack.json": "df0b415b972a5f7f6671e324bf9e4e0af4560c800e6afd667797319f4886fd09",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_1.json": "aa3c1c7238b3e357a84240b8934cb13270bfbf886b611f7b65559ebad93b8874",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_2.json": "6d5a7468f756540373dd8cc9e81a8bc1ed4decd75b7571799edb79bebe998a23",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_3.json": "8fcce724757af9142001fa47465c869dd8a8fb341317c6f1a9cc2114351348a5",
+    "src/main/resources/assets/mcyukkuri/models/item/newspaper_stack.json": "f62d41985ea54d706d58e739040dce75ec624a58b45cd89fc142aaa2380c1660",
+    "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_edge.png": "01e4fdab7ef5af0893a07adcdda06b688d5567005cfaa5aa91199aed9c02a9ec",
+    "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_fold.png": "eb0a1cf7bf196405d6e2c790a6d065a0318a4188dc86ade8a33b740c40f22c68",
+    "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_top.png": "d6d271d28e9c65f5c9bba92164a0591817913a606508f6f5ee83140f0533b3d5",
+    "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_twine.png": "d5e6b70f807d77e4f9200e409431fcae82af123b620640fa4953dff296009ed1",
+    "src/main/resources/data/mcyukkuri/loot_table/blocks/newspaper_stack.json": "16e36746870f34c9fada7da8226382628b6e1522062133ab028b32f29aec3ffc"
+  }
+}

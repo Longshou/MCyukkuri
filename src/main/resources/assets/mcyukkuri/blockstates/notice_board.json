@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mcyukkuri:block/notice_board"
+    },
+    "facing=east": {
+      "model": "mcyukkuri:block/notice_board",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mcyukkuri:block/notice_board",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mcyukkuri:block/notice_board",
+      "y": 270
+    }
+  }
+}

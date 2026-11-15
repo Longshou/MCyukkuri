@@ -55,6 +55,10 @@ public final class HumanWorld {
             () -> new WoodenBenchBlock(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
     public static final DeferredBlock<WoodenTableBlock> WOODEN_TABLE = simple("wooden_table",
             () -> new WoodenTableBlock(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
+    public static final DeferredBlock<NewspaperStackBlock> NEWSPAPER_STACK = simple("newspaper_stack",
+            () -> new NewspaperStackBlock(BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.WOOL).ignitedByLava().noOcclusion()));
+    public static final DeferredBlock<NoticeBoardBlock> NOTICE_BOARD = simple("notice_board",
+            () -> new NoticeBoardBlock(BlockBehaviour.Properties.of().strength(1f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
     public static final DeferredHolder<EntityType<?>, EntityType<FactoryTray>> TRAY = ENTITIES.register("factory_tray", () -> EntityType.Builder.<FactoryTray>of(FactoryTray::new, MobCategory.MISC)
             .sized(.95f, .25f).clientTrackingRange(10).build(MCYukkuri.id("factory_tray").toString()));
     public static final DeferredItem<Item> MANJU = ITEMS.register("yukkuri_manju", () -> new Item(new Item.Properties()

@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "bundles=1,facing=north": {
+      "model": "mcyukkuri:block/newspaper_stack_1"
+    },
+    "bundles=1,facing=east": {
+      "model": "mcyukkuri:block/newspaper_stack_1",
+      "y": 90
+    },
+    "bundles=1,facing=south": {
+      "model": "mcyukkuri:block/newspaper_stack_1",
+      "y": 180
+    },
+    "bundles=1,facing=west": {
+      "model": "mcyukkuri:block/newspaper_stack_1",
+      "y": 270
+    },
+    "bundles=2,facing=north": {
+      "model": "mcyukkuri:block/newspaper_stack_2"
+    },
+    "bundles=2,facing=east": {
+      "model": "mcyukkuri:block/newspaper_stack_2",
+      "y": 90
+    },
+    "bundles=2,facing=south": {
+      "model": "mcyukkuri:block/newspaper_stack_2",
+      "y": 180
+    },
+    "bundles=2,facing=west": {
+      "model": "mcyukkuri:block/newspaper_stack_2",
+      "y": 270
+    },
+    "bundles=3,facing=north": {
+      "model": "mcyukkuri:block/newspaper_stack_3"
+    },
+    "bundles=3,facing=east": {
+      "model": "mcyukkuri:block/newspaper_stack_3",
+      "y": 90
+    },
+    "bundles=3,facing=south": {
+      "model": "mcyukkuri:block/newspaper_stack_3",
+      "y": 180
+    },
+    "bundles=3,facing=west": {
+      "model": "mcyukkuri:block/newspaper_stack_3",
+      "y": 270
+    }
+  }
+}
