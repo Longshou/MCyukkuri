@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / 'src/main/resources/data/mcyukkuri'
 sys.path.insert(0, str(ROOT / 'scripts'))
 from furniture_placement import joined
-from palette import PALETTES, PLAINS, STYLES, leaves, mc, pick
+from palette import PALETTES, PLAINS, STYLES, leaves, mc
 
 # Small typed NBT writer: no external package or Minecraft installation needed.
 def byte(v): return (1, v)

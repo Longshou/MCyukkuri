@@ -95,8 +95,6 @@ class Palette:
 
     def planks(self, wood=None): return f'{wood or self.wood}_planks'
 
-    def door(self): return self.wood
-
     def state(self, block, axis='y'):
         """(name, props) of a frame block: logs and woods take an axis, pillars do not."""
         return block, ({'axis': axis} if block.endswith(LOGS) else None)
@@ -114,10 +112,6 @@ class Palette:
         return pick(((self.ground, 100 - sum(w for _, w in self.ground_wear)),) + self.ground_wear, x, z, 11)
 
     def pot(self, i): return self.pots[i % len(self.pots)]
-
-    def wall_post(self):
-        """Fence-like connections for lamp posts and rails: a fence joins with booleans, a stone wall with none/low."""
-        return self.fence.endswith('_wall')
 
 
 PALETTES = {
