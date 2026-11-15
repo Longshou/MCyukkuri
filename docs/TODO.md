@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 村庄城镇化：功能说明、试玩路线与后续待办 | `.worktrees/wp-town-docs` | docs/FEATURES.md 人类世界, art/structures/human-world/README.md, docs/TODO.md 村庄城镇化条目 |
 
 ## 玩法待办
 
