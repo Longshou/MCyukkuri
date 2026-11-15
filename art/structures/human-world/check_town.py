@@ -36,7 +36,6 @@ HAZARDS = {'cactus', 'sweet_berry_bush', 'magma_block', 'powder_snow', 'lava', '
 REPLACEABLE = {'short_grass', 'tall_grass', 'fern', 'large_fern', 'dead_bush', 'poppy', 'dandelion'}
 AIR_STATE = (AIR, {}, {})
 FIELDS = ('max_count', 'max_cut', 'max_fill')
-DISTANCE = 80
 SIDE_LOTS = 2
 FILL_DEPTH = 24  # LevelledPoolElement.FILL_DEPTH
 
@@ -47,6 +46,11 @@ def add(pos, delta, scale=1):
 
 def village_pool(style, name):
     return f'mcyukkuri:village/{style}/{name}'
+
+
+def village_distance(style):
+    path = DATA / 'minecraft/worldgen/structure' / f'village_{style}.json'
+    return json.loads(path.read_text(encoding='utf-8'))['max_distance_from_center']
 
 
 def valid_id(value):
@@ -633,7 +637,8 @@ def joint_check(parent, left, child, right, direction):
 
 
 def chain_checks(style, pieces, pools, warn, print_report):
-    """Enumerate aligned flat chains with two lots per side, limits, fallbacks and length samples."""
+    """Check flat chains from the frontage socket against the village's configured radius."""
+    distance = village_distance(style)
     root_pool = village_pool(style, 'frontage')
     if root_pool not in pools:
         warn(root_pool, 'missing frontage pool')
@@ -688,7 +693,7 @@ def chain_checks(style, pieces, pools, warn, print_report):
                         continue
                     child_x = offset + shift[0]
                     length = -child_x if direction == 'west' else child_x + child.size[0] - 1
-                    if length > DISTANCE:
+                    if length > distance:
                         distance_rejected += 1
                         continue
                     placed = True
@@ -709,7 +714,7 @@ def chain_checks(style, pieces, pools, warn, print_report):
             label = ', '.join(f'{n}x{count}' for n, count in sorted(lengths.items()))
             print_report(f'{style} {direction}: side lengths (blocks x layouts) {label}; '
                          f'{sum(mouth_depths.values())}/{sum(lengths.values())} end in a mouth; '
-                         f'mouth depths {dict(sorted(mouth_depths.items()))}; {distance_rejected} exceed {DISTANCE} blocks')
+                         f'mouth depths {dict(sorted(mouth_depths.items()))}; {distance_rejected} exceed {distance} blocks')
 
 
 def inspect_town(entries):
@@ -949,7 +954,7 @@ def self_test():
     chain_checks(style, pieces, pools, lambda _, error: failures.append(error), samples.append)
     if failures or not any('mouth depths {2: 1, 3: 1}' in sample for sample in samples):
         raise AssertionError(f'positive flat chain/fallback failed: {failures}, {samples}')
-    mouth.size = (DISTANCE, 8, 8)
+    mouth.size = (village_distance(style), 8, 8)
     chain_checks(style, pieces, pools, lambda _, error: failures.append(error), samples.append)
     caught('mouth outside the street budget', failures, 'no fitting mouth at lot count 1')
     mouth.size = (9, 8, 8)
