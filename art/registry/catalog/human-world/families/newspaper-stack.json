@@ -1,0 +1,10 @@
+{
+  "id": "newspaper-stack",
+  "prefixes": [
+    "art/props/newspaper-stack/",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack",
+    "src/main/resources/assets/mcyukkuri/models/item/newspaper_stack",
+    "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_"
+  ],
+  "_order": 2
+}
