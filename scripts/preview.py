@@ -222,7 +222,8 @@ def render_strip(args, stage, times, before=False):
             library = read(ASSETS/'yukkuri_presentation/face_library.json')
             data = read(a['path'])
             clip = {**data.get('clips', {}), **data.get('behavior_clips', {}),
-                    **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {})}.get(args.clip, {})
+                    **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {}),
+                    **read(ASSETS/'yukkuri_presentation/toilet_contact.json')['models'].get(model, {}).get('clips', {})}.get(args.clip, {})
             spans = clip.get('expression_spans', [])
             if spans:
                 names = {'neutral'} | {resolve(library, model, face) for _, _, face in spans}

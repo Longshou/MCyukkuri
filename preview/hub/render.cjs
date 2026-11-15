@@ -9,6 +9,13 @@ const assets=path.join(job.root,'src/main/resources/assets/mcyukkuri');
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
 const revisions=read(path.join(assets,'yukkuri_presentation/motion_corrections.json')).models;
 const fits=read(path.join(assets,'yukkuri_presentation/placement_fit.json')).models;
+// The loader's later clip revisions (YukkuriModelLoader order), each only on the skeleton it was exported for.
+const later=['house_ecology','toilet_contact'].map(f=>path.join(assets,'yukkuri_presentation',f+'.json')).filter(fs.existsSync).map(p=>read(p).models);
+const revised=(id,model)=>{
+ const names=JSON.stringify(model.bones.map(b=>b.name));let revision=revisions[id];
+ for(const models of later)if(revision&&models[id]&&JSON.stringify(models[id].bone_names)===names)revision={...revision,clips:{...revision.clips,...models[id].clips}};
+ return revision;
+};
 // A --before checkout can predate the face library; its ordinary strips still render.
 const facePath=path.join(assets,'yukkuri_presentation/face_library.json');
 const faces=fs.existsSync(facePath)?read(facePath):null;
@@ -17,7 +24,7 @@ const actors=job.actors.map(a=>{
  if(!a.prop&&faces)model.expression_patches={...model.expression_patches,...faces.models[a.id].expression_patches};
  if(!a.prop&&a.draftFace)model.expression_patches={...model.expression_patches,[a.face]:a.draftFace};
  if(a.draftClip)model.clips={...model.clips,[a.clip]:a.draftClip};
- const pose=a.prop?null:new RuntimePose(model,a.scale,revisions[a.id],fits[a.id]);
+ const pose=a.prop?null:new RuntimePose(model,a.scale,revised(a.id,model),fits[a.id]);
  if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
  if(pose&&!a.moment&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
  return {...a,model,pose};

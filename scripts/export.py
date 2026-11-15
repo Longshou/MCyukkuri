@@ -405,6 +405,9 @@ def motion(args, rows):
     import runpy
     members = {name: data['clips'] if 'clips' in data else runpy.run_path(str(ROOT/LORE/data['clip_source']))[data['clip_field']]
                for name, data in cfg['export_families'].items()}
+    # The toilet family is exported last over the lore clips (motion_gate.exported), so its builder owns these names.
+    toilet = 'standards/yukkuri-library/interactions/toilet-contact'
+    members = {'source:'+toilet+'/build.py': read(ROOT/toilet/'recipe.json')['clips'], **members}
     families = []
     for clip in args.clips:
         matches = [name for name, clips in members.items() if clip in clips]
