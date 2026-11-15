@@ -559,8 +559,8 @@ class Village(Field):
         return x1 - 1, z1 - DECK_APRON, x2 + 1, z1 - 1
 
     def clear_box(self):
-        # Restore solid ground down to the bottom of the jigsaw radius, and sweep the entire sky above it.
-        return self.x1 - 4, FEET - 80, self.z1 - 4, self.x2 + 4, 319, self.z2 + 4
+        # Restore the flat preset's ground band; village pieces stand on the surface and levelling stops at solid ground.
+        return self.x1 - 4, GROUND - 6, self.z1 - 4, self.x2 + 4, 319, self.z2 + 4
 
     def base(self):
         x1, y1, z1, x2, y2, z2 = self.clear_box()

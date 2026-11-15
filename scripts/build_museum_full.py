@@ -298,8 +298,8 @@ def village_controls(fn, guarded, f, land):
     ])
     f.extras.append(('village/next', '换个布局', '同一村庄类型'))
     fn('village/place', place)
-    x, y, z, _ = land
-    fn('village/arrival', [f'tp @s {x} {y} {z} 180 2',
+    x, y, z, yaw = land
+    fn('village/arrival', [f'tp @s {x} {y} {z} {yaw} 2',
                            f'execute if score #village_placed {OBJ} matches 1 run tellraw @s ' + _text('村庄已生成。', 'green'),
                            f'execute if score #village_placed {OBJ} matches 0 run tellraw @s ' + _text('村庄生成失败。', 'red')])
     fn(finish, guarded(finish, rect_chunks(f.rect()), [
