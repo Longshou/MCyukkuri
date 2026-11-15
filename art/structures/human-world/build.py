@@ -245,7 +245,7 @@ def roof(b,p,z0,z1,x0=0):
     for z in range(z0,z1+1):
         front=z-z0<=z1-z; d=min(z-z0,z1-z); y=9+d//2
         for x in range(x0,41):
-            mat=p.roof_trim if d in (0,dmax) or x in (x0,40) else p.roof
+            mat=p.roof_trim if (d in (0,dmax) or x in (x0,40)) and (d%2==0 or p.trim_stairs) else p.roof
             if 2<=d<=4 and x in SKYLIGHTS: b.block(x,y,z,'glass'); continue
             if p.snow and d==dmax: b.block(x,y,z,p.planks(p.roof)); b.block(x,y+1,z,'snow',{'layers':'2'}); continue
             if d%2==0: slab(b,x,y,z,mat)
@@ -260,9 +260,8 @@ def flat_roof(b,p,cells,y,skylights=()):
         elif (x,z) in skylights: b.block(x,y,z,'glass')
         else: slab(b,x,y,z,p.roof_trim if x%6==0 or z%6==0 else p.roof)
 def yard_bush(p):
-    """A free-standing shrub of the type for yards: azalea, a dead bush in the desert, a leaf bush in the conifer types."""
-    if p.style in ('plains','savanna'): return 'flowering_azalea',None
-    if p.style=='desert': return 'dead_bush',None
+    """A free-standing shrub of the type for yards: a bush of the type's leaves, a dead bush in the desert."""
+    if not p.hedge: return 'dead_bush',None
     return p.hedge,leaves(p.hedge)
 def ground(p): return p.ground,({'snowy':'false'} if p.ground=='grass_block' else None)
 def shop(p=PLAINS,name='yukkuri_shop'):
@@ -314,7 +313,7 @@ def shop(p=PLAINS,name='yukkuri_shop'):
         wool='red_wool' if (x//2)%2==0 else 'white_wool'
         b.block(x,8,2,wool); b.block(x,7,2,wool); b.block(x,7,1,wool)
     for x in (9,15,23,31): b.block(x,5,2,'red_wall_banner',{'facing':'north'})
-    board=p.planks(p.dark)
+    board=p.planks()
     b.box((6,8,2),(18,8,2),board); b.box((6,15,2),(18,15,2),board); b.box((6,8,2),(6,15,2),board); b.box((18,8,2),(18,15,2),board)
     emblem=['.FRRFDFRRF.','.KKKKKKKKK.','KKSSSSSSSKK','KSHESSSHESK','RSEESSSEESR','FPSSSMSSSPF']   # Reimu yukkuri head as seen from the street (map G of the art review)
     mats={'.':'green_terracotta','F':'white_concrete','H':'white_concrete','R':'red_concrete','D':'red_nether_bricks','K':'black_concrete','E':'black_concrete','S':'white_terracotta','M':'red_terracotta','P':'pink_terracotta'}
@@ -380,9 +379,9 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60),age=61000)
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
     # Eye-level opening above the counter, too short to crawl through. Staff use the doors at its ends.
-    b.box((7,3,12),(17,3,12),p.planks(p.dark))
+    b.box((7,3,12),(17,3,12),p.planks())
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
-    for x in range(7,18): slab(b,x,4,12,p.dark,'bottom')
+    for x in range(7,18): slab(b,x,4,12,p.wood,'bottom')
     b.box((2,3,12),(4,7,12),'glass'); b.box((20,3,12),(22,7,12),'glass')
     b.box((5,5,12),(19,7,12),'glass')
     b.double_door(5,3,12,'south')

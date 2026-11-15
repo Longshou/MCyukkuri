@@ -61,7 +61,6 @@ def leaves(block):
 class Palette:
     style: str
     wood: str            # doors, fences, trapdoors, signs, slabs of furniture
-    dark: str            # counters, sign boards, trim boards (a darker wood of the type)
     wall: str            # ordinary wall (sheds, the oni shop, stall back)
     wall_light: str      # pale wall of the pet shop and civic buildings
     band: str            # horizontal course: cornice, desert bands
@@ -71,7 +70,7 @@ class Palette:
     weathered: tuple     # plinth wear: ((block, weight), ...) mixed into the plinth
     step: str            # stair family of street ramps and doorsteps
     roof: str            # stair/slab family of roofs
-    roof_trim: str       # eaves, ridge and verge
+    roof_trim: str       # eaves and ridge, verges too when the family has stairs (the type's stone or its own wood)
     roof_patch: str      # stair family of old repairs on a shabby roof (the oni shop)
     flat: bool           # flat roof with a parapet (desert) instead of a gable
     snow: bool           # snow on the roof ridge and gable tops (snowy)
@@ -88,12 +87,17 @@ class Palette:
     hedge: str           # planter leaves ('' = none: potted plants instead)
     pots: tuple          # potted plants
     plants: tuple        # ground plants of a yard ((block, weight), ...); '' = bare
-    tree_log: str        # log for timber piles and chopping blocks
+    tree_log: str        # timber piles, chopping blocks, old frames (straw bales in the desert)
 
     @property
     def edge(self): return self.plinth
 
     def planks(self, wood=None): return f'{wood or self.wood}_planks'
+
+    @property
+    def trim_stairs(self):
+        """The trim family also has stairs (smooth stone and cut sandstone have slabs only)."""
+        return self.roof_trim not in ('smooth_stone', 'cut_sandstone')
 
     def state(self, block, axis='y'):
         """(name, props) of a frame block: logs and woods take an axis, pillars do not."""
@@ -116,45 +120,45 @@ class Palette:
 
 PALETTES = {
     'plains': Palette(
-        'plains', wood='oak', dark='dark_oak', wall='oak_planks', wall_light='white_terracotta', band='stripped_oak_log',
+        'plains', wood='oak', wall='oak_planks', wall_light='white_terracotta', band='stripped_oak_log',
         post='stripped_oak_log', beam='oak_log', plinth='cobblestone', weathered=(('mossy_cobblestone', 15),), step='cobblestone',
-        roof='oak', roof_trim='dark_oak', roof_patch='mossy_cobblestone', flat=False, snow=False, floor='birch_planks', aisle='smooth_stone',
+        roof='oak', roof_trim='cobblestone', roof_patch='mossy_cobblestone', flat=False, snow=False, floor='oak_planks', aisle='smooth_stone',
         lane='dirt_path', lane_wear=(('coarse_dirt', 8), ('gravel', 6)),
         sidewalk=(('cobblestone', 4), ('stone', 3), ('andesite', 3)),
         ground='grass_block', ground_wear=(), fill='dirt', lamp_post='oak_fence', fence='oak_fence',
-        hedge='flowering_azalea_leaves', pots=('potted_azalea_bush', 'potted_poppy', 'potted_dandelion', 'potted_fern'),
-        plants=(('dandelion', 1), ('poppy', 1), ('cornflower', 1), ('oxeye_daisy', 1), ('allium', 1)), tree_log='oak_log'),
+        hedge='oak_leaves', pots=('potted_dandelion', 'potted_poppy', 'potted_oak_sapling'),
+        plants=(('dandelion', 1), ('poppy', 1), ('oxeye_daisy', 1)), tree_log='oak_log'),
     'desert': Palette(
-        'desert', wood='jungle', dark='jungle', wall='smooth_sandstone', wall_light='smooth_sandstone', band='terracotta',
+        'desert', wood='jungle', wall='smooth_sandstone', wall_light='smooth_sandstone', band='terracotta',
         post='sandstone', beam='cut_sandstone', plinth='cut_sandstone', weathered=(('sandstone', 20),), step='sandstone',
         roof='smooth_sandstone', roof_trim='cut_sandstone', roof_patch='sandstone', flat=True, snow=False, floor='smooth_sandstone', aisle='cut_sandstone',
         lane='smooth_sandstone', lane_wear=(('terracotta', 6), ('sandstone', 6)),       # vanilla desert streets
         sidewalk=(('cut_sandstone', 7), ('sandstone', 3)),   # tiled beside the smooth lane
         ground='sand', ground_wear=(), fill='sandstone', lamp_post='sandstone_wall', fence='sandstone_wall',
         hedge='', pots=('potted_cactus', 'potted_dead_bush'),
-        plants=(('dead_bush', 1), ('', 3)), tree_log='jungle_log'),
+        plants=(('dead_bush', 1), ('', 3)), tree_log='hay_block'),   # no timber in a desert village: straw bales
     'savanna': Palette(
-        'savanna', wood='acacia', dark='dark_oak', wall='acacia_planks', wall_light='yellow_terracotta', band='stripped_acacia_log',
+        'savanna', wood='acacia', wall='acacia_planks', wall_light='yellow_terracotta', band='stripped_acacia_log',
         post='acacia_log', beam='stripped_acacia_log', plinth='terracotta', weathered=(('orange_terracotta', 10),), step='acacia',
-        roof='acacia', roof_trim='dark_oak', roof_patch='oak', flat=False, snow=False, floor='stripped_acacia_wood', aisle='smooth_stone',
+        roof='acacia', roof_trim='smooth_stone', roof_patch='cobblestone', flat=False, snow=False, floor='stripped_acacia_wood', aisle='smooth_stone',
         lane='dirt_path', lane_wear=(('coarse_dirt', 12),),
         sidewalk=(('packed_mud', 6), ('terracotta', 2), ('coarse_dirt', 2)),
         ground='grass_block', ground_wear=(('coarse_dirt', 8),), fill='dirt', lamp_post='acacia_fence', fence='acacia_fence',
         hedge='acacia_leaves', pots=('potted_acacia_sapling', 'potted_dandelion', 'potted_dead_bush'),
         plants=(('short_grass', 3), ('dandelion', 1), ('poppy', 1)), tree_log='acacia_log'),
     'snowy': Palette(
-        'snowy', wood='spruce', dark='dark_oak', wall='spruce_planks', wall_light='polished_diorite', band='stripped_spruce_wood',
+        'snowy', wood='spruce', wall='spruce_planks', wall_light='polished_diorite', band='stripped_spruce_wood',
         post='stripped_spruce_log', beam='stripped_spruce_log', plinth='stone_bricks', weathered=(('cracked_stone_bricks', 10),),
-        step='stone_brick', roof='spruce', roof_trim='dark_oak', roof_patch='cobblestone', flat=False, snow=True, floor='spruce_planks', aisle='polished_diorite',
+        step='stone_brick', roof='spruce', roof_trim='diorite', roof_patch='cobblestone', flat=False, snow=True, floor='spruce_planks', aisle='polished_diorite',
         lane='dirt_path', lane_wear=(('gravel', 8),),
         sidewalk=(('stone', 7), ('polished_diorite', 2)),
         ground='grass_block', ground_wear=(), fill='dirt', lamp_post='spruce_fence', fence='spruce_fence',
         hedge='spruce_leaves', pots=('potted_spruce_sapling', 'potted_fern'),
         plants=(('fern', 2), ('', 3)), tree_log='spruce_log'),
     'taiga': Palette(
-        'taiga', wood='spruce', dark='dark_oak', wall='spruce_planks', wall_light='stripped_spruce_wood', band='spruce_log',
+        'taiga', wood='spruce', wall='spruce_planks', wall_light='stripped_spruce_wood', band='spruce_log',
         post='spruce_log', beam='spruce_log', plinth='cobblestone', weathered=(('mossy_cobblestone', 25),), step='cobblestone',
-        roof='spruce', roof_trim='dark_oak', roof_patch='mossy_cobblestone', flat=False, snow=False, floor='spruce_planks', aisle='stone',
+        roof='spruce', roof_trim='cobblestone', roof_patch='mossy_cobblestone', flat=False, snow=False, floor='spruce_planks', aisle='cobblestone',
         lane='dirt_path', lane_wear=(('coarse_dirt', 8), ('podzol', 4)),
         sidewalk=(('cobblestone', 4), ('mossy_cobblestone', 3), ('stone', 3)),
         ground='grass_block', ground_wear=(('podzol', 15),), fill='dirt', lamp_post='spruce_fence', fence='spruce_fence',
@@ -189,21 +193,28 @@ FIXED = {
     # existing shop and market furnishings (staff areas are behind iron doors; the oni shop's treatment bench)
     'barrel', 'crafting_table', 'lectern', 'brewing_stand', 'water_cauldron', 'grindstone', 'composter', 'cobweb', 'hay_block',
     'pumpkin', 'melon', 'potted_dead_bush', 'water',
-    # the pet shop's backyard planting is part of the yard pen
-    'flowering_azalea',
 }
 
 
+WOODS = ('dark_oak', 'pale_oak', 'oak', 'spruce', 'birch', 'jungle', 'acacia', 'mangrove', 'cherry', 'bamboo', 'crimson', 'warped')
+
+
+def wood_of(block):
+    """The wood family of a block id (stripped, potted and leaves forms included), or None for anything else."""
+    name = block.split(':')[-1]
+    for prefix in ('potted_', 'stripped_'):
+        if name.startswith(prefix): name = name[len(prefix):]
+    return next((w for w in WOODS if name == w or name.startswith(w + '_')), None)
+
+
 def allowed_blocks(style):
-    """Block ids a piece exported in this style may use (mcyukkuri: blocks are always allowed)."""
+    """Block ids a piece exported in this style may use (mcyukkuri: blocks are always allowed). Outside FIXED, the only wood is the type's
+    own: a role set to another village's wood (a dark-oak trim, an oak patch, a jungle log) drops out here and fails the palette check."""
     p = PALETTES[style]
-    out = set(FIXED)
-    for wood in {p.wood, p.dark}:
-        out |= {f'{wood}_{s}' for s in ('planks', 'slab', 'stairs', 'fence', 'fence_gate', 'door', 'trapdoor', 'sign', 'wall_sign',
-                                         'pressure_plate', 'button', 'log', 'wood')}
-        out |= {f'stripped_{wood}_log', f'stripped_{wood}_wood'}
+    out = {f'{p.wood}_{s}' for s in ('planks', 'slab', 'stairs', 'fence', 'fence_gate', 'door', 'trapdoor', 'sign', 'wall_sign', 'log', 'wood')}
+    out |= {f'stripped_{p.wood}_log', f'stripped_{p.wood}_wood'}
     for family in {stem(p.roof), stem(p.roof_trim), stem(p.roof_patch), stem(p.step), stem(p.wall), stem(p.plinth)}:
-        out |= {family, f'{family}_stairs', f'{family}_slab', f'{family}s'}
+        out |= {family, f'{family}_stairs', f'{family}_slab'}
     out |= {p.wall, p.wall_light, p.band, p.post, p.beam, p.plinth, p.floor, p.aisle, p.lane, p.ground, p.fill, p.lamp_post, p.fence,
             p.tree_log}
     out |= {b for b, _ in p.weathered + p.lane_wear + p.sidewalk + p.ground_wear + p.plants if b}
@@ -212,6 +223,7 @@ def allowed_blocks(style):
     if p.flat: out |= {'smooth_sandstone_slab', 'cut_sandstone_slab', 'sandstone_slab', 'sandstone_wall', 'chiseled_sandstone'}
     if p.snow: out |= {'snow', 'snow_block'}
     if p.ground == 'grass_block': out.add('dirt')
+    out = {b for b in out if wood_of(b) in (None, p.wood)} | FIXED
     return {mc(b) for b in out}
 
 

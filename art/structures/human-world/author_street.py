@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import build
 from build import (Building, stairs, slab, barrel, furniture, marker, frame, register_pen, stock_growth, name_at, string, byte, integer,
                    compound, sequence, integers, real, flat_roof, gable_snow, ground, light_up)
-from palette import PALETTES, PLAINS, STYLES, link, pick
+from palette import PALETTES, PLAINS, STYLES, link, pick, wood_of
 
 OUT = build.OUT
 OPP = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
@@ -181,7 +181,7 @@ def shed(b, x0, x1, z0, z1, wall, corner, roof, door=None, windows=()):
         for z in range(z0, z1 + 1): slab(b, x0 + half, 4 + half, z, roof)
     if p.snow:
         for z in range(z0, z1 + 1):
-            for x in (x0 + half - 1, x1 - half + 1): b.block(x, 4 + half - 1, z, p.planks(roof), over=True); b.block(x, 4 + half, z, 'snow', {'layers': '2'})
+            for x in (x0 + half - 1, x1 - half + 1): b.block(x, 4 + half - 1, z, p.planks(roof) if wood_of(roof) else roof, over=True); b.block(x, 4 + half, z, 'snow', {'layers': '2'})
 
 
 def connect_bars(b):
@@ -221,8 +221,8 @@ def street_stall(p):
     # Produce counter: boards with a slab top the goods sit on (a step and a half: nobody climbs over it); stores at the back.
     for x in range(4, 11):
         if x == 7: b.block(x, 1, 9, 'hay_block', LOG)
-        else: b.block(x, 1, 9, p.planks(p.dark))
-        slab(b, x, 2, 9, p.dark)
+        else: b.block(x, 1, 9, p.planks())
+        slab(b, x, 2, 9, p.wood)
     for x, item in [(4, 'carrot'), (5, 'potato'), (6, 'apple'), (8, 'beetroot'), (9, 'bread'), (10, 'pumpkin_pie')]:
         ground_display(b, x, 2.5, 9, item, yaw=20. * x)
     for x, block in [(4, 'pumpkin'), (5, 'hay_block'), (9, 'melon'), (10, 'pumpkin')]:
@@ -263,7 +263,7 @@ def street_alley(p):
     b.block(1, 1, 10, 'pumpkin'); b.block(4, 1, 16, 'crafting_table'); b.box((1, 1, 16), (2, 1, 16), 'hay_block', LOG)
     b.block(1, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})   # on the hay stack
     # East: tool shed, door on the sidewalk; a lean-to on its alley wall and a woodpile closing it at the far end.
-    shed(b, 11, 16, 8, 15, p.wall, p.beam, p.roof_trim, door=(13, 8, 'north'), windows=[(16, 11), (11, 9)])
+    shed(b, 11, 16, 8, 15, p.wall, p.beam, p.roof_trim if p.trim_stairs else p.roof, door=(13, 8, 'north'), windows=[(16, 11), (11, 9)])
     b.block(15, 1, 14, p.tree_log, LOG); ground_display(b, 15, 2, 14, 'iron_axe', yaw=30.)   # chopping block
     b.block(12, 1, 14, p.tree_log, {'axis': 'x'})
     for y in (1, 2): b.block(15, y, 9, 'hay_block', LOG)
@@ -347,7 +347,7 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     from check_structure import light_levels, walk_cells
     b = Site(name, [25, 15, 26], p, floor=3)
     POST = p.state(p.post if p.flat else p.tree_log)   # bark posts: an old frame, not the clean trim of the pet shop
-    planks = p.planks(); board = p.planks(p.dark)
+    planks = p.planks(); board = f'stripped_{p.wood}_wood'   # boards replaced over the years
     worn = ((p.plinth, 60),) + tuple((block, 2 * w) for block, w in p.weathered)
     # ---- Shell.
     b.box((0, 0, 0), (24, 0, 25), p.plinth)
@@ -366,7 +366,7 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
             if x in (1, 23) or z in (3, 24):
                 b.block(x, 3, z, pick(worn, x, z, 6))
                 for y in (4, 5, 6): b.block(x, y, z, p.roof_patch if p.flat and (x * 5 + y * 7 + z * 3) % 9 == 0 else p.wall)
-                b.block(x, 7, z, board)
+                b.block(x, 7, z, *p.state(p.beam, 'x' if z in (3, 24) else 'z'))
     b.box((2, 7, 4), (22, 7, 23), planks)                                       # ceiling
     for x in (1, 7, 10, 13, 17, 23): b.box((x, 3, 3), (x, 7, 3), *POST)
     for x in (1, 6, 12, 18, 23): b.box((x, 3, 24), (x, 7, 24), *POST)
@@ -401,9 +401,9 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
         for z in range(3, 25):
             front = z - 3 <= 24 - z; d = min(z - 3, 24 - z); y = 8 + d // 2
             for x in range(25):
-                mat = p.roof_trim if d in (0, dmax) or x in (0, 24) else p.roof
+                mat = p.roof_trim if (d in (0, dmax) or x in (0, 24)) and (d % 2 == 0 or p.trim_stairs) else p.roof
                 if mat == p.roof and (x * 3 + z * 5) % 11 == 0: mat = p.roof_patch
-                elif mat == p.roof and (x + 2 * z) % 13 == 0: mat = p.roof_trim
+                elif mat == p.roof and (x + 2 * z) % 13 == 0 and (d % 2 == 0 or p.trim_stairs): mat = p.roof_trim
                 if p.snow and d == dmax: b.block(x, y, z, p.planks(p.roof)); b.block(x, y + 1, z, 'snow', {'layers': '2'}); continue
                 if d % 2 == 0: slab(b, x, y, z, mat)
                 else: stairs(b, x, y, z, mat, 'south' if front else 'north')
@@ -411,7 +411,7 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
                 for yy in range(8, y): b.block(x, yy, z, *((p.wall, None) if (yy + z) % 3 else p.state(p.band, 'y')))
     # Sign board in front of the roof: a Reimu and a Marisa head on faded board, as seen from the street (viewer's left is +x).
     b.box((5, 7, 2), (18, 12, 2), board)
-    for x in range(5, 19): slab(b, x, 13, 2, p.dark)
+    for x in range(5, 19): slab(b, x, 13, 2, p.wood)
     emblem = ['RR.RR....KK.', 'KKKKK...KKK.', 'KSSSK..KKKKK', 'KESEK..YSSSY', 'FSMSF..YESEY']
     mats = {'.': 'cyan_terracotta', 'R': 'red_concrete', 'K': 'black_concrete', 'S': 'white_terracotta', 'E': 'black_concrete',
             'F': 'white_concrete', 'M': 'red_terracotta', 'Y': 'yellow_concrete'}
@@ -454,12 +454,12 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item, facing='east')
     for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item, facing='east')
     # Eye-level serving opening and a member door at the west end.
-    b.box((5, 3, 16), (14, 3, 16), f'stripped_{p.dark}_log', {'axis': 'x'})
+    b.box((5, 3, 16), (14, 3, 16), f'stripped_{p.wood}_log', {'axis': 'x'})
     b.block(9, 3, 16, 'lectern', {'facing': 'north', 'has_book': 'false', 'powered': 'false'}, over=True)
     b.box((2, 3, 16), (2, 6, 16), 'iron_bars')
     b.box((3, 5, 16), (14, 6, 16), 'iron_bars')
     b.double_door(3, 3, 16, 'south')
-    for x in range(5, 15): slab(b, x, 4, 16, p.dark, 'bottom')
+    for x in range(5, 15): slab(b, x, 4, 16, p.wood, 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
         ground_display(b, x, 4.5, 16, item, yaw=35. * x)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
