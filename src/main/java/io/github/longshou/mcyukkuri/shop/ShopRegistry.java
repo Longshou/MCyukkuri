@@ -409,7 +409,7 @@ public final class ShopRegistry extends SavedData {
         var rotation = authoredRotation(shop);
         if (shop.kind == ShopKind.ONI && rotation != null)
             return AABB.encapsulatingFullBlocks(shop.pos.offset(new BlockPos(-9, -3, -16).rotate(rotation)),
-                    shop.pos.offset(new BlockPos(15, 10, 7).rotate(rotation)));
+                    shop.pos.offset(new BlockPos(15, 11, 7).rotate(rotation)));
         return rotation == null ? shop.bounds() : shell(shop.pos, rotation, 12);
     }
 
