@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 动作库缺口：跑步、吐食、送别、贴身蹭 | `.worktrees/wp-art-motion-gaps` | standards/yukkuri-library/motions/、导出的运行动作、YukkuriAction.java、调用方片段引用 |
 
 ## 玩法待办
 
