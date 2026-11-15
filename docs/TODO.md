@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 村庄城镇化：院子宠物、镇区判定与纸箱刷新避让 | `.worktrees/wp-town-life` | human/ (yard pet binding, restock), settlement/SettlementSpawner, TownAware helper + call sites |
 
 ## 玩法待办
 
