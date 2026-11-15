@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 村庄城镇化：徽章会馆、收容所、公园、横街与街口 | `.worktrees/wp-town-main` | art/structures/human-world/author_civic.py, structure/village/*/{badge_hall,shelter,park,side_street,mouth_*}, README 主街公共建筑 |
 | 村庄城镇化：民居与宠物院子、小卖亭、口袋公园、后院 | `.worktrees/wp-town-lots` | art/structures/human-world/author_lots.py, structure/village/*/{home_yard*,kiosk,pocket_park,back_lot}, README 镇内地块 |
 
 ## 玩法待办
