@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 村庄城镇化：群系材质与现有街面建筑改造 | `.worktrees/wp-town-palette` | human-world palette.py, build.py, author_street.py, preview_street.py, structure/village/**, exports.json, manifest.json |
 
 ## 玩法待办
 
