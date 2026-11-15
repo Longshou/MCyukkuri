@@ -241,7 +241,7 @@ def export():
     write(DATA / 'recipe/wooden_table.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['ppp', 't t'],
           'key': {'p': {'tag': 'minecraft:planks'}, 't': stick}, 'result': {'id': 'mcyukkuri:wooden_table', 'count': 1}})
     write(ROOT / 'src/main/resources/data/minecraft/tags/block/mineable/axe.json',
-          {'replace': False, 'values': ['mcyukkuri:' + name for name in NAMES]})
+          {'replace': False, 'values': ['mcyukkuri:' + name for name in (*NAMES, 'notice_board')]})
     write(ART / 'furniture-manifest.json', {'status': 'pending_user_confirmation', 'author': 'Original procedural pixel art; no external source pixels.',
         'geometry': 'bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); '
                     'table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours',

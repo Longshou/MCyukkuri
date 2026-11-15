@@ -8,8 +8,8 @@ folder's manifest.json. The frame, roof and pen ledge reuse the village wood tex
 
 The model is drawn facing north with its back against the block to the south (the wall); the blockstate turns it by `facing`,
 the direction the board faces, like a vanilla wall sign. Flyers (seen from the front): a lost yukkuri with tear-off tabs, a
-badge exam notice and an adoption notice; an old pin with a torn scrap where a fourth flyer was. The collision is one
-16 x 15 x 3 px box against the wall (human/NoticeBoardBlock).
+badge exam notice and an adoption notice; an old pin with a torn scrap where a fourth flyer was. Collision covers the board,
+ledge and the bounds of the sloped roof (human/NoticeBoardBlock).
 """
 from pathlib import Path
 import hashlib, io, json, sys
@@ -108,15 +108,16 @@ def box(a, b, faces, turn=None):
 def board():
     """Faces without a uv take Minecraft's automatic uv from the element position (front faces then read in front view)."""
     sides = ('north', 'east', 'west', 'up', 'down')
-    backing = box((1, 3, 15), (15, 13, 16), {'north': f('back')})
-    posts = [box((x, 1, 14), (x + 1, 14, 16), {'north': f('post'), 'east': f('post', [0, 2, 2, 15]), 'west': f('post', [0, 2, 2, 15]),
+    backing = box((1, 3, 15), (15, 13, 16), {'north': f('back'), 'south': f('planks')})
+    posts = [box((x, 1, 14), (x + 1, 14, 16), {'north': f('post'), 'south': f('post'),
+                                               'east': f('post', [0, 2, 2, 15]), 'west': f('post', [0, 2, 2, 15]),
                                                'down': f('post', [0, 14, 1, 16])}) for x in (0, 15)]
-    rail = box((1, 13, 14), (15, 14, 16), {'north': f('side', [1, 0, 15, 1]), 'down': f('side')})
+    rail = box((1, 13, 14), (15, 14, 16), {'north': f('side', [1, 0, 15, 1]), 'south': f('side'), 'down': f('side')})
     ledge = box((1, 2, 13), (15, 3, 16), {'up': f('planks'), 'north': f('side', [1, 0, 15, 1]), 'down': f('side'),
-                                         'east': f('side', [0, 0, 3, 1]), 'west': f('side', [0, 0, 3, 1])})
+                                         'south': f('side'), 'east': f('side', [0, 0, 3, 1]), 'west': f('side', [0, 0, 3, 1])})
     # A lean-to roof hinged at the wall, its front edge dropped by 22.5 degrees over the board.
     roof = box((0, 14.5, 11), (16, 16, 16), {'up': f('planks'), 'down': f('planks'), 'north': f('side', [0, 0, 16, 1.5]),
-                                            'east': f('side', [0, 0, 5, 1.5]), 'west': f('side', [11, 0, 16, 1.5])},
+                                            'south': f('side'), 'east': f('side', [0, 0, 5, 1.5]), 'west': f('side', [11, 0, 16, 1.5])},
                {'origin': [8, 14.5, 16], 'axis': 'x', 'angle': -22.5})
     sheets = [box((16 - u0 - len(rows[0]), 16 - v0 - len(rows), 14.75), (16 - u0, 16 - v0, 15), {s: f('flyers') for s in sides})
               for u0, v0, rows in FLYERS.values()]

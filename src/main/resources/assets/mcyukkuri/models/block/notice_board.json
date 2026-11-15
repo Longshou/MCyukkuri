@@ -23,6 +23,9 @@
       "faces": {
         "north": {
           "texture": "#back"
+        },
+        "south": {
+          "texture": "#planks"
         }
       }
     },
@@ -39,6 +42,9 @@
       ],
       "faces": {
         "north": {
+          "texture": "#post"
+        },
+        "south": {
           "texture": "#post"
         },
         "east": {
@@ -83,6 +89,9 @@
       ],
       "faces": {
         "north": {
+          "texture": "#post"
+        },
+        "south": {
           "texture": "#post"
         },
         "east": {
@@ -135,6 +144,9 @@
             1
           ]
         },
+        "south": {
+          "texture": "#side"
+        },
         "down": {
           "texture": "#side"
         }
@@ -165,6 +177,9 @@
           ]
         },
         "down": {
+          "texture": "#side"
+        },
+        "south": {
           "texture": "#side"
         },
         "east": {
@@ -213,6 +228,9 @@
             16,
             1.5
           ]
+        },
+        "south": {
+          "texture": "#side"
         },
         "east": {
           "texture": "#side",

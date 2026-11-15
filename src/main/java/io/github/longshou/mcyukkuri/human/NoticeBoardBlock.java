@@ -17,11 +17,12 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * A wall-mounted town notice board with flyers (art/props/notice-board), decorative and without a screen. Like a wall sign it
- * faces {@link #FACING}, hangs on the solid block behind it and drops when that block goes.
+ * faces {@link #FACING}, hangs against a supporting face and drops when that support goes.
  */
 public final class NoticeBoardBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -32,16 +33,23 @@ public final class NoticeBoardBlock extends Block {
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
-    /** The board, roof and pen ledge against the wall, drawn for a north-facing board and turned clockwise for the others. */
     private static Map<Direction, VoxelShape> shapes() {
         var out = new EnumMap<Direction, VoxelShape>(Direction.class);
         for (var facing : Direction.Plane.HORIZONTAL) {
-            double x0 = 0, z0 = 13, x1 = 16, z1 = 16;
-            int turns = switch (facing) { case NORTH -> 0; case EAST -> 1; case SOUTH -> 2; default -> 3; };
-            for (int i = 0; i < turns; i++) { double a = x0, c = x1; x0 = 16 - z1; x1 = 16 - z0; z0 = a; z1 = c; }
-            out.put(facing, box(x0, 1, z0, x1, 16, z1));
+            // Backing and pen ledge, then the bounds of the sloped roof in the block model.
+            out.put(facing, Shapes.or(wallBox(facing, 1, 3), wallBox(facing, 12.5, 5.25)));
         }
         return out;
+    }
+
+    private static VoxelShape wallBox(Direction facing, double bottom, double depth) {
+        return switch (facing) {
+            case NORTH -> box(0, bottom, 16 - depth, 16, 16, 16);
+            case EAST -> box(0, bottom, 0, depth, 16, 16);
+            case SOUTH -> box(0, bottom, 0, 16, 16, depth);
+            case WEST -> box(16 - depth, bottom, 0, 16, 16, 16);
+            default -> throw new IllegalArgumentException("Notice board requires a horizontal facing");
+        };
     }
 
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(FACING); }
@@ -57,7 +65,8 @@ public final class NoticeBoardBlock extends Block {
     }
 
     @Override protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return level.getBlockState(pos.relative(state.getValue(FACING).getOpposite())).isSolid();
+        var facing = state.getValue(FACING);
+        return canSupportCenter(level, pos.relative(facing.getOpposite()), facing);
     }
 
     @Override protected BlockState updateShape(BlockState state, Direction direction, BlockState neighbor, LevelAccessor level,

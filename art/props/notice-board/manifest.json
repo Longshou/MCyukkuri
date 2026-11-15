@@ -3,7 +3,7 @@
   "status": "pending_user_confirmation",
   "exports": {
     "src/main/resources/assets/mcyukkuri/blockstates/notice_board.json": "2c3c1206f801ef5d18ed8e1b8bc360632f8f9f1db3c76ce68f7fabdcb4c22161",
-    "src/main/resources/assets/mcyukkuri/models/block/notice_board.json": "e8e2cf22bcd460ecc388d47323a07266cf6df75ed424416c913d738739cc730a",
+    "src/main/resources/assets/mcyukkuri/models/block/notice_board.json": "db3daba2e408dc2e789d50a0ee8a90f55b5ef0a8ec98eff1fb44ab95da79b013",
     "src/main/resources/assets/mcyukkuri/models/item/notice_board.json": "e1040c4161642defe5eb7e71e10b44cda1f07826db0d9ac4deffa24ea9b8c73f",
     "src/main/resources/assets/mcyukkuri/textures/block/notice_board_back.png": "307cb4c15658413d82db7dc0dc64539e543beb4374a58a983cbb0dbc8fb2d294",
     "src/main/resources/assets/mcyukkuri/textures/block/notice_board_flyers.png": "175c6970cabe49d09467c0fff7f94dbf6c10da884b988c39edf9b0afbbe09a33",

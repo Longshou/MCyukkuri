@@ -38,7 +38,7 @@ public final class NewspaperStackBlock extends Block {
 
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         var here = context.getLevel().getBlockState(context.getClickedPos());
-        if (here.is(this)) return here.setValue(BUNDLES, Math.min(3, here.getValue(BUNDLES) + 1));
+        if (here.is(this)) return here.setValue(BUNDLES, here.getValue(BUNDLES) + 1);
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
