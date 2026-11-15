@@ -1,5 +1,6 @@
 """Declared asset export pipeline. No game, browser, build or temporary authoring script."""
 import argparse
+from importlib import import_module
 import json
 from itertools import product
 import os
@@ -11,6 +12,7 @@ import time
 from export_registry import load as read, save as write, shared_checkout
 
 ROOT = Path(__file__).resolve().parents[1]
+TOWN = 'art/structures/human-world'
 LORE = 'standards/yukkuri-library/motions/variants/lore'
 sys.dont_write_bytecode = True
 
@@ -239,6 +241,13 @@ def affected(rows, files):
         selected |= more
 
 
+def town_authors(directory):
+    for path in sorted(directory.glob('author_*.py')):
+        module = import_module(path.stem)
+        if hasattr(module, 'POOL_ENTRIES'):
+            yield module
+
+
 def run(row, check, logs):
     start = time.monotonic()
     if check and row['check'] is None:
@@ -258,7 +267,13 @@ def run(row, check, logs):
                     environment['PYTHONPATH'] = str(shared_checkout(ROOT)/row['pythonpath'])+os.pathsep+environment.get('PYTHONPATH', '')
                 process = subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
                                          env=environment)
-                status = 'PASS' if process.returncode == 0 else 'FAIL'
+                failed = process.returncode != 0
+                if row['id'] == 'human-world' and (check or not failed):
+                    command = [sys.executable, TOWN+'/check_town.py', *([] if check else ['--export'])]
+                    process = subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
+                                             env=environment)
+                    failed |= process.returncode != 0
+                status = 'FAIL' if failed else 'PASS'
             except OSError as error:
                 stream.write(str(error)+'\n')
                 status = 'FAIL'
