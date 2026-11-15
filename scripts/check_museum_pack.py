@@ -474,11 +474,15 @@ def main():
             if f'function mcylab:start/{s.id}' not in deck_text:
                 findings.append(f'scenario {s.id}: no button on the {field.id} deck')
         for f in museum.FIELDS:
-            if not f.scenarios and f.id != 'clips':
-                findings.append(f'field {f.id}: no scenario')
+            if not f.scenarios and not f.extras:
+                findings.append(f'field {f.id}: no scenario or extra control')
             if lobby.count(f'function mcylab:go/{f.id}') < 1:
                 findings.append(f'lobby: no teleport button to {f.id}')
             deck_text = '\n'.join(texts[f'build/field_{f.id}_do'])
+            deck_commands = {command for line in texts[f'build/field_{f.id}_do'] for command in command_block_commands(line)}
+            for function, _, _ in f.extras:
+                if f'execute as @p[distance=..8] at @s run function mcylab:{function}' not in deck_commands:
+                    findings.append(f'field {f.id}: missing extra control for {function}')
             for need in (f'function mcylab:field/{f.id}/clear', 'function mcylab:go/lobby', 'function mcylab:util/time_noon', 'function mcylab:util/speed_1x',
                          'function mcylab:util/speed_5x', 'function mcylab:util/speed_20x', 'function mcylab:util/sprint_1200', 'function mcylab:util/sprint_24000',
                          'function mcylab:util/weather_clear', 'function mcylab:util/weather_rain', 'function mcylab:util/weather_thunder',
@@ -495,7 +499,8 @@ def main():
                 findings.append(f'field {f.id}: no teleport function')
             elif 'tp @s' not in pack[f'go/{f.id}'].read_text(encoding='utf-8'):
                 findings.append(f'field {f.id}: go/{f.id} does not teleport')
-            clear = pack[f'field/{f.id}/clear'].read_text(encoding='utf-8')
+            clear_name = 'reset' if f.id == 'village' else 'clear'
+            clear = pack[f'field/{f.id}/{clear_name}'].read_text(encoding='utf-8')
             if 'yukkuri clear' not in clear or f'field/{f.id}/terrain' not in clear:
                 findings.append(f'field {f.id}: clear does not sweep entities and rebuild the terrain')
             if 'return' in clear or 'unless' in clear or 'if ' in clear:

@@ -58,6 +58,8 @@ def fillbiome_boxes(x1, z1, x2, z2, biome, y1=56, y2=100, limit=30000):
 
 
 class Field:
+    deck_side = 'south'
+
     def __init__(self, fid, title, group, cx, cz, hx, hz, biome, ground='minecraft:grass_block', blurb='', deck_depth=DECK_DEPTH):
         self.id, self.title, self.group, self.cx, self.cz, self.hx, self.hz = fid, title, group, cx, cz, hx, hz
         self.biome, self.ground, self.blurb = biome, ground, blurb
@@ -536,6 +538,45 @@ class Lot(Field):
         return [fill(self.x1, GROUND, self.entrance_z + 1, self.x2, GROUND, self.entrance_z + 3, 'minecraft:dirt_path')]
 
 
+class Village(Field):
+    deck_side = 'north'
+    styles = [('plains', 'minecraft:plains', '平原村庄'), ('desert', 'minecraft:desert', '沙漠村庄'),
+              ('savanna', 'minecraft:savanna', '热带草原村庄'), ('snowy', 'minecraft:snowy_plains', '雪原村庄'),
+              ('taiga', 'minecraft:taiga', '针叶林村庄')]
+
+    def __init__(self, cx, cz):
+        # Jigsaw radius 80 + town centre offset up to 11 + chunk shift 16 + terrain-adaptation padding 12 = 119.
+        super().__init__('village', '村庄城镇', 'human', cx, cz, 120, 120, 'minecraft:plains',
+                         blurb='在平地生成五种村庄城镇，同一类型可轮换三种布局')
+        self.x2 -= 1
+        self.z2 -= 1
+        self.origins = ((cx, cz), (cx + 16, cz), (cx, cz + 16))
+        self.deck = (cx - 14, self.z2 + 6, cx + 14, self.z2 + 6 + DECK_DEPTH - 1)
+        self.gate = (cx, self.deck[3] + 4)
+
+    def apron_rect(self):
+        x1, z1, x2, _ = self.deck
+        return x1 - 1, z1 - DECK_APRON, x2 + 1, z1 - 1
+
+    def clear_box(self):
+        # Restore solid ground down to the bottom of the jigsaw radius, and sweep the entire sky above it.
+        return self.x1 - 4, FEET - 80, self.z1 - 4, self.x2 + 4, 319, self.z2 + 4
+
+    def base(self):
+        x1, y1, z1, x2, y2, z2 = self.clear_box()
+        out = ['yukkuri clear air ' + ' '.join(map(str, box))
+               for y in range(FEET, y2 + 1, 16) for box in fill_boxes(x1, y, z1, x2, y + 15, z2)]
+        out += big_fill(x1, y1, z1, x2, GROUND - 3, z2, 'minecraft:stone')
+        out += big_fill(x1, GROUND - 2, z1, x2, GROUND - 1, z2, 'minecraft:dirt')
+        return out + big_fill(x1, GROUND, z1, x2, GROUND, z2, self.ground)
+
+    def biome_commands(self, biome='minecraft:plains'):
+        x1, z1, x2, z2 = self.rect()
+        # Paint the surface band in chunk-aligned tiles so each chunk is rewritten and sent to clients only once.
+        return [command for x in range(x1 // 32 * 32, x2 + 1, 32) for z in range(z1 // 16 * 16, z2 + 1, 16)
+                for command in fillbiome_boxes(max(x1, x), max(z1, z), min(x2, x + 31), min(z2, z + 15), biome, 56, 103)]
+
+
 # ----------------------------------------------------------------------------------------------- clips
 class Clips(Field):
     def base(self):
@@ -562,6 +603,7 @@ FIELDS = [
     Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输',
          deck_depth=DECK_DEPTH + 6),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='宠物店：临街展舱、捕食种房、后院放养，店员照料、补货、买卖'),
+    Village(384, 512),
     Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐、橙速度、魔理沙相扑'),
     Clips('clips', '动作片段', 'misc', -300, 500, 18, 10, 'minecraft:plains', ground='minecraft:smooth_quartz', blurb='纯动作片段：身体、表情、体操、合唱'),
 ]

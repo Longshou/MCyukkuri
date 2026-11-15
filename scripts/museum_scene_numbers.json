@@ -15,7 +15,8 @@
     "shop": "SP",
     "factory": "FC",
     "species": "SC",
-    "clips": "AC"
+    "clips": "AC",
+    "village": "VG"
   },
   "numbers": {
     "den_family": "DN-01",

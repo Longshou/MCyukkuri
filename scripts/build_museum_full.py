@@ -197,6 +197,9 @@ def book_command(shown):
         for f in FIELDS:
             if f.group != gid:
                 continue
+            if f.id == 'village':
+                pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n' + '\n'.join(caption for _, caption, _ in f.extras))
+                continue
             entries = [f'· {s.label}' + (f'（{s.tag}）' if s.tag else '') for s in f.scenarios]
             # A book page shows about 14 short lines and does not scroll: the field's blurb on a page of its own, then six scenes a page.
             pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n共 {len(entries)} 个场景，见后页')
@@ -251,6 +254,63 @@ PROBE_COMMANDS = {
     'speed': 'yukkuri speed rate 20', 'relay': 'yukkuri relay yukkuri status @s'}
 
 
+def village_controls(fn, guarded, f, land):
+    x1, z1, x2, z2 = f.rect()
+    columns = f'{x1} {z1} {x2} {z2}'
+    finish = 'village/finish'
+    fn('village/load', [f'execute in minecraft:overworld run forceload add {columns}',
+                        f'schedule function {NS}:{finish} 1t replace'])
+    fn('village/cancel', [f'schedule clear {NS}:{finish}', f'scoreboard players reset #village_job {OBJ}'])
+    # A museum-wide clear already owns these tickets and will reset this plot too.
+    fn('field/village/clear', [f'execute unless score #clearing {OBJ} matches 1 run function {NS}:village/request_clear'])
+    fn('village/request_clear', [f'scoreboard players set #village_job {OBJ} 0', f'function {NS}:village/load'])
+    fn('village/clear_loaded', [f'function {NS}:field/village/reset', f'function {NS}:village/biome_plains',
+                                f'tellraw {near_field(f, 180)} ' + _text('村庄城镇：已恢复为平地。', 'green')])
+
+    available = [
+        f'execute if score #clearing {OBJ} matches 1 run return run tellraw @s ' + _text('全部清场正在进行。', 'yellow'),
+        f'execute unless score #ready {OBJ} matches 1 run return run tellraw @s ' + _text('试玩场尚未就绪。', 'yellow'),
+        f'execute if score #village_job {OBJ} matches 0..1 run return run tellraw @s ' + _text('正在布置村庄场地。', 'yellow'),
+    ]
+    # Scheduled functions lose the initiating player. Only this request's player gets the deck teleport.
+    fn('village/request_place', [f'scoreboard players add #village_request {OBJ} 1',
+                                 f'scoreboard players operation @s {OBJ} = #village_request {OBJ}',
+                                 f'scoreboard players set #village_job {OBJ} 1',
+                                 'tellraw @s ' + _text('正在生成村庄……', 'aqua'), f'function {NS}:village/load'])
+    place = [f'function {NS}:field/village/reset', f'scoreboard players set #village_placed {OBJ} 0']
+    for i, (style, biome, caption) in enumerate(f.styles):
+        select = f'village/select_{style}'
+        fn(select, available + [f'scoreboard players set #village_style {OBJ} {i}', f'scoreboard players set #village_layout {OBJ} 0',
+                                f'function {NS}:village/request_place'])
+        f.extras.append((select, caption, ''))
+        fn(f'village/biome_{style}', f.biome_commands(biome))
+        condition = f'execute if score #village_style {OBJ} matches {i}'
+        place.append(f'{condition} run function {NS}:village/biome_{style}')
+        for layout, (x, z) in enumerate(f.origins):
+            place.append(f'{condition} if score #village_layout {OBJ} matches {layout} store success score #village_placed {OBJ}'
+                         f' run place structure minecraft:village_{style} {x} {FEET} {z}')
+    fn('village/next', available + [
+        f'execute unless score #village_style {OBJ} matches 0..{len(f.styles) - 1} run return run tellraw @s '
+        + _text('请先选择村庄类型。', 'yellow'),
+        f'scoreboard players add #village_layout {OBJ} 1',
+        f'execute if score #village_layout {OBJ} matches {len(f.origins)} run scoreboard players set #village_layout {OBJ} 0',
+        f'function {NS}:village/request_place',
+    ])
+    f.extras.append(('village/next', '换个布局', '同一村庄类型'))
+    fn('village/place', place)
+    x, y, z, _ = land
+    fn('village/arrival', [f'tp @s {x} {y} {z} 180 2',
+                           f'execute if score #village_placed {OBJ} matches 1 run tellraw @s ' + _text('村庄已生成。', 'green'),
+                           f'execute if score #village_placed {OBJ} matches 0 run tellraw @s ' + _text('村庄生成失败。', 'red')])
+    fn(finish, guarded(finish, rect_chunks(f.rect()), [
+        f'execute if score #village_job {OBJ} matches 0 run function {NS}:village/clear_loaded',
+        f'execute if score #village_job {OBJ} matches 1 run function {NS}:village/place',
+        f'forceload remove {columns}',
+        f'execute if score #village_job {OBJ} matches 1 as @a if score @s {OBJ} = #village_request {OBJ} run function {NS}:village/arrival',
+        f'scoreboard players reset #village_job {OBJ}',
+    ]))
+
+
 def build_pack(world):
     root = world / 'datapacks' / 'mcylab'
     functions = root / 'data' / NS / 'function'
@@ -290,9 +350,9 @@ def build_pack(world):
         f.extras = []
     for f in FIELDS:
         x1, z1, x2, z2 = f.deck
-        deck_lines, land = deck(x1, z1, x2, z2, DECK_TOP, 'south', f'{f.id} deck')
+        deck_lines, land = deck(x1, z1, x2, z2, DECK_TOP, f.deck_side, f'{f.id} deck')
         # Arrive at the open edge facing the controls, rather than facing away into the field.
-        land = (*land[:3], 180)
+        land = (*land[:3], (land[3] + 180) % 360)
         deck_info[f.id] = (deck_lines, land)
         fn(f'field/{f.id}/terrain', f.terrain())
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
@@ -312,6 +372,10 @@ def build_pack(world):
         sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + cancel + [clear_entities,
                  f'function {NS}:field/{f.id}/terrain',
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
+        if f.id == 'village':
+            fn('field/village/reset', sweep)
+            village_controls(fn, guarded, f, land)
+            continue
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
         # Keep manual diagnostic functions available without putting readout buttons on the deck.
@@ -440,13 +504,15 @@ def build_pack(world):
     fn('util/tag_fields', marks)
     fn('util/lead', ['execute unless entity @e[tag=scn_lead,distance=..250] run return run tellraw @s ' + _text('这个场景没有主角（先生成一个场景）。', 'yellow'),
                      'tp @s @e[tag=scn_lead,distance=..250,limit=1,sort=nearest]'])
-    fn('util/clear_all_do', [f'function {NS}:field/{f.id}/clear' for f in FIELDS] +
+    fn('util/clear_all_do', guarded('util/clear_all_do', rect_chunks(BY_ID['village'].rect()),
+       [f'function {NS}:' + ('village/clear_loaded' if f.id == 'village' else f'field/{f.id}/clear') for f in FIELDS] +
        [f'forceload remove {x} {z}' for f in FIELDS for x, z in sorted(f.chunks())] +
-       [f'scoreboard players reset #clearing {OBJ}', 'tellraw @a ' + _text('全部清场完成。', 'green')])
+       [f'scoreboard players reset #clearing {OBJ}', 'tellraw @a ' + _text('全部清场完成。', 'green')]))
     loads = [f'forceload add {x} {z}' for f in FIELDS for x, z in sorted(f.chunks())]
     fn('util/clear_all', [
         f'execute if score #clearing {OBJ} matches 1 run return run tellraw @a ' + _text('全部清场正在进行。', 'yellow'),
         f'scoreboard players set #clearing {OBJ} 1',
+        f'execute if score #village_job {OBJ} matches 0..1 run function {NS}:village/cancel',
         'tellraw @a ' + _text('全部清场：正在加载各场地（约 3 秒）……', 'yellow'),
     ] + loads + [f'schedule function {NS}:util/clear_all_do 3s replace'])
     fn('home', [f'function {NS}:go/lobby'])
@@ -509,7 +575,8 @@ def build_pack(world):
         chunks = sorted(f.chunks())
         following = f'build/field_{FIELDS[i + 1].id}' if i + 1 < len(FIELDS) else 'complete'
         fn(f'build/field_{f.id}', [f'forceload add {x} {z}' for x, z in chunks] + [f'schedule function {NS}:build/field_{f.id}_do 3s replace'])
-        lines = [f'function {NS}:field/{f.id}/terrain'] + f.biome_commands()
+        # The fresh flat generator already provides the village's empty plains plot.
+        lines = [] if f.id == 'village' else [f'function {NS}:field/{f.id}/terrain'] + f.biome_commands()
         deck_lines, land = deck_info[f.id]
         x1, z1, x2, z2 = f.deck
         lines += [f'fill {x1} {GROUND} {z1} {x2} {DECK_TOP - 4} {z2} minecraft:oak_planks'] + deck_lines
@@ -538,13 +605,14 @@ def build_pack(world):
 
 
 def field_deck_controls(f, land):
-    """Fixed common rows nearest the south landing, then scenarios; nine columns spaced three blocks apart.
+    """Fixed common rows nearest the landing, then scenarios; nine columns spaced three blocks apart.
 
     Readout and self-check functions remain callable manually, with no diagnostic buttons.
     """
     x1, z1, x2, z2 = f.deck
+    south = f.deck_side == 'south'
     lines = []
-    lines.append(display((x1 + x2) / 2 + .5, DECK_TOP + 3.2, z1 + 1.5, [(f'{f.title}\n', 'gold', True)] + [('\n'.join(wrap(f.blurb, 36)), 'white')], 1.0, 'banner', f'{f.id} banner', billboard='vertical'))
+    lines.append(display((x1 + x2) / 2 + .5, DECK_TOP + 3.2, z1 + 1.5 if south else z2 - .5, [(f'{f.title}\n', 'gold', True)] + [('\n'.join(wrap(f.blurb, 36)), 'white')], 1.0, 'banner', f'{f.id} banner', billboard='vertical'))
     ax = x1 + 2
     rows = [[(f'function {NS}:go/lobby', '回大厅', '', True),
                  (f'function {NS}:util/lead', '到主角身边', '', True),
@@ -566,7 +634,7 @@ def field_deck_controls(f, land):
         rows.append(start[i:i + 9])
     assert 2 + 3 * (len(rows) - 1) < z2 - z1, (f.id, len(rows), f.deck)
     for r, row in enumerate(rows):
-        z = z2 - 2 - 3 * r
+        z = z2 - 2 - 3 * r if south else z1 + 2 + 3 * r
         assert len(row) <= 9, (f.id, z, len(row))
         color, block = (('aqua', 'cyan'), ('green', 'green'), ('yellow', 'yellow'), ('gold', 'orange'))[min(r, 3)]
         lines.append(f'fill {ax} {DECK_TOP - 1} {z} {x2 - 2} {DECK_TOP - 1} {z} minecraft:{block}_concrete')
@@ -578,7 +646,7 @@ def field_deck_controls(f, land):
             lines += button(ax + 3 * i, DECK_TOP, z, command, caption, hint, nav=nav, context=f'{f.id} {caption}',
                             color='red' if clearing else color)
     for px in (x1 + 1, x2 - 1):
-        lines.append(f'setblock {px} {DECK_TOP - 1} {z1 + 4} minecraft:sea_lantern')
+        lines.append(f'setblock {px} {DECK_TOP - 1} {z1 + 4 if south else z2 - 4} minecraft:sea_lantern')
     return lines
 
 
