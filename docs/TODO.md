@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 村庄城镇化：群系材质与现有街面建筑改造 | `.worktrees/wp-town-palette` | human-world palette.py, build.py, author_street.py, preview_street.py, structure/village/**, exports.json, manifest.json |
-| 村庄城镇化：城镇检查器 | `.worktrees/wp-town-checks` | human-world check_town.py, scripts/export.py, scripts/README.md |
 | 村庄城镇化：报纸堆与告示板方块 | `.worktrees/wp-town-blocks` | newspaper_stack, notice_board blocks, ModBlocks/ModItems, art/props, assets, CATALOG |
 
 ## 玩法待办
