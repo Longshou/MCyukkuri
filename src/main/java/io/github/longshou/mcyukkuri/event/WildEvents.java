@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
@@ -123,7 +124,7 @@ public final class WildEvents {
                 || group!=null && group.kind==SettlementData.Kind.FOREST;
     }
     public static boolean inhabited(YukkuriEntity e) {
-        return ((ServerLevel)e.level()).isCloseToVillage(e.blockPosition(),2) || e.habitat().shelter()!=null;
+        return TownAware.inTown((ServerLevel)e.level(), e.blockPosition()) || e.habitat().shelter()!=null;
     }
     public static boolean unowned(YukkuriEntity e) {
         return e.status().identity().free();
@@ -197,7 +198,7 @@ public final class WildEvents {
     private static void attachConcert(YukkuriEntity singer,YukkuriEntity listener) {
         var level=(ServerLevel)singer.level();
         if(!safe(singer)||!safe(listener)||!singer.hasLineOfSight(listener)||singer.distanceToSqr(listener)>36
-                ||!forest(singer)&&!level.isCloseToVillage(singer.blockPosition(),2))return;
+                ||!forest(singer)&&!TownAware.inTown(level, singer.blockPosition()))return;
         var data=WildEventData.get(level);var s=data.start(Kind.CONCERT,forest(singer)?"concert-response":"street-performance",
                 GlobalPos.of(level.dimension(),singer.blockPosition()),List.of(singer.getUUID(),listener.getUUID()),null,level.getGameTime());
         if(s!=null){s.sourceCount=singer.dailyLife().songs();s.concertToken=singer.dailyLife().songSessionToken();singer.setPersistenceRequired();listener.setPersistenceRequired();}

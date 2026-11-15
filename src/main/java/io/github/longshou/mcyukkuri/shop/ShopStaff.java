@@ -826,7 +826,7 @@ public final class ShopStaff {
     }
 
     /** Hand's reach: near enough and a clear line from the eyes (a hit on the target block itself counts as reaching it). */
-    static boolean reaches(HumanNpc staff, Vec3 point, BlockPos block) {
+    public static boolean reaches(HumanNpc staff, Vec3 point, BlockPos block) {
         return reaches(staff, staff.position(), point, block);
     }
 

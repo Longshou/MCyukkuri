@@ -19,6 +19,7 @@ from build import stairs, slab, furniture, light_up, flat_roof, gable_snow, grou
 from palette import PALETTES, STYLES, link, pick, leaves, mc
 from author_street import (Site, garbage, wind_gap, shelter_spot, lamp, jigsaw, street_ends, street_band, lot_ground, fence_row,
                            ground_display)
+from author_lots import no_carton
 
 LOG = {'axis': 'y'}
 PANE = {'north': 'false', 'south': 'false', 'east': 'false', 'west': 'false', 'waterlogged': 'false'}
@@ -339,6 +340,7 @@ def shelter(p):
     street_band(b, 0, W - 1)
     lot_ground(b, 0, W - 1, 8, D - 1)
     # ---- Yard: worn ground, a low fence along the street and the sides with a wide open entrance (strays walk in), a path to the door.
+    no_carton(b, (0, 1, 8), (W - 1, 3, 14), (10, 1, 11))
     for x in range(8, 18):
         for z in range(9, 16):
             if x <= 12 or z == 15: b.block(x, 0, z, pick(((p.lane, 3),) + p.sidewalk, x, z, 8))

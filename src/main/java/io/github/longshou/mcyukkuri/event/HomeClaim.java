@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimData.Stage;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestComfort;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
@@ -141,7 +142,7 @@ public final class HomeClaim {
         }
         anchors.sort(Comparator.comparingDouble(p -> p.distSqr(center)));
         for (BlockPos anchor:anchors.stream().limit(24).toList()) {
-            if (level.isVillage(anchor)) continue;
+            if (TownAware.inTown(level, anchor)) continue;
             boolean farm=crop(level,anchor,level.getBlockState(anchor));
             List<BlockPos> stands=new ArrayList<>();
             for (BlockPos stand:BlockPos.betweenClosed(anchor.offset(-2,-1,-2),anchor.offset(2,1,2)))
@@ -202,7 +203,7 @@ public final class HomeClaim {
                 if(rank>score&&stand!=null&&visible(e,stand)&&SurfaceApproach.canApproach(e,stand)) {
                     best=pos.immutable();score=rank;
                 }
-            } else if (grade==1&&house(state)&&!state.is(BlockTags.DOORS)&&!level.isVillage(pos)) {
+            } else if (grade==1&&house(state)&&!state.is(BlockTags.DOORS)&&!TownAware.inTown(level, pos)) {
                 for(var side:Direction.Plane.HORIZONTAL) {
                     var stand=pos.relative(side);
                     double rank=2-e.distanceToSqr(Vec3.atCenterOf(stand))*.02;

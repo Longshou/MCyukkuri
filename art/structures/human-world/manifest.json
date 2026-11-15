@@ -293,7 +293,7 @@
       24
     ],
     "blocks": 5040,
-    "entities": 14,
+    "entities": 15,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -359,7 +359,7 @@
       24
     ],
     "blocks": 5040,
-    "entities": 14,
+    "entities": 15,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -425,7 +425,7 @@
       24
     ],
     "blocks": 5040,
-    "entities": 14,
+    "entities": 15,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -491,7 +491,7 @@
       24
     ],
     "blocks": 5036,
-    "entities": 14,
+    "entities": 15,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -557,7 +557,7 @@
       24
     ],
     "blocks": 5040,
-    "entities": 14,
+    "entities": 15,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -612,7 +612,7 @@
       13
     ],
     "blocks": 1053,
-    "entities": 6,
+    "entities": 7,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -623,7 +623,7 @@
       16
     ],
     "blocks": 2304,
-    "entities": 8,
+    "entities": 9,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -667,7 +667,7 @@
       13
     ],
     "blocks": 1053,
-    "entities": 6,
+    "entities": 7,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -678,7 +678,7 @@
       16
     ],
     "blocks": 2304,
-    "entities": 8,
+    "entities": 9,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -722,7 +722,7 @@
       13
     ],
     "blocks": 1053,
-    "entities": 6,
+    "entities": 7,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -733,7 +733,7 @@
       16
     ],
     "blocks": 2304,
-    "entities": 8,
+    "entities": 9,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -777,7 +777,7 @@
       13
     ],
     "blocks": 1049,
-    "entities": 6,
+    "entities": 7,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -788,7 +788,7 @@
       16
     ],
     "blocks": 2300,
-    "entities": 8,
+    "entities": 9,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -832,7 +832,7 @@
       13
     ],
     "blocks": 1053,
-    "entities": 6,
+    "entities": 7,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -843,7 +843,7 @@
       16
     ],
     "blocks": 2304,
-    "entities": 8,
+    "entities": 9,
     "source": "art/structures/human-world/author_lots.py"
   },
   {

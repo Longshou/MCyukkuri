@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.human.TownAware;
+
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -212,7 +214,7 @@ public final class HabitatLife {
         if(old!=value||!owned)homes.addressChanged();
         homes.homeChosen(value);
         if (entity.status().identity() == Identity.STRAY && grownEnough() && value.kind() == ShelterBlock.Kind.BURROW
-                && !level().isCloseToVillage(value.getBlockPos(), 1)
+                && !TownAware.inTown(level(), value.getBlockPos())
                 && (entity.life().hasAccessory() || BadgeSocial.visibleRank(entity).id() > 0)) {
             if (entity.settlement().groupId() != null) entity.settlement().exile();
             entity.pet().leaveTownLife();

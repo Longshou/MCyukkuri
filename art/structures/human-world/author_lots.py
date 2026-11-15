@@ -20,9 +20,8 @@ places the socket at the first free height, so the paving at y0 meets the lane a
 - back_lot: the poor corner: a shabby shed, a woodpile, a lean-to against the shed with a two-cell wind gap, a cardboard spot and a bin
   already knocked over.
 
-Markers for the town-life package (vanilla marker entities, they turn with the template; no code reads them yet): `mcy_pet_yard` x2 =
-low and high corner of a pet yard (also a no-carton zone), `mcy_yard_pet` = the yard cell a resident pet starts from, `mcy_hidden_corner`
-= a hidden corner cell (no-carton). No live pet is placed: without the pairing glue it would be an unowned stray in a closed yard.
+Town-life markers turn with the template. The pet start carries offsets to its owner and bowl, and the yard's no-carton zone
+uses the marked survey corners.
 """
 from pathlib import Path
 import math, sys
@@ -155,15 +154,27 @@ def bed(b, x, y, z, facing='south'):
     b.block(x + dx, y, z + dz, name, {'facing': facing, 'part': 'head', 'occupied': 'false'})
 
 
-def resident(b, x, y, z, kind, attitude, local=False):
+def resident(b, x, y, z, kind, attitude, local=False, yard_owner=False):
     """A street resident (job 0) whose home is this cell. attitude 1 = caring (pet owners, no village roll); a local is rolled by the
     village like the main-street residents."""
     extra = {'HumanJob': integer(0), 'HumanAttitude': integer(attitude)}
     if local: extra['Tags'] = sequence(8, ['mcy_street_local'])
+    if yard_owner: extra['Tags'] = sequence(8, ['mcy_yard_owner'])
     b.entity(x + .5, y, z + .5, f'mcyukkuri:{kind}', extra)
 
 
-def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, y=1):
+def relative(origin, target):
+    return sequence(3, [end - start for start, end in zip(origin, target)])
+
+
+def no_carton(b, low, high, anchor):
+    """Marks a volume with offsets that rotate with its anchor."""
+    x, y, z = anchor
+    marker(b, x + .5, y, z + .5, 'mcy_no_carton',
+           {'Low': relative(anchor, low), 'High': relative(anchor, high)})
+
+
+def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, y=1):
     """A pet yard: nest, bowl and toilet blocks, a toy on the ground, the yard corners and the pet's start cell as markers."""
     nx, nz = nest; b.block(nx, y, nz, 'mcyukkuri:yukkuri_nest')
     b.bowl(*bowl, y=y)
@@ -171,7 +182,10 @@ def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, y=1):
     b.toy(toy[0] + .5, y, toy[1] + .5, 'yarn_ball')
     (x0, y0, z0), (x1, y1, z1) = low, high
     marker(b, x0 + .5, y0 + .5, z0 + .5, 'mcy_pet_yard'); marker(b, x1 + .5, y1 + .5, z1 + .5, 'mcy_pet_yard')
-    marker(b, pet[0] + .5, y, pet[1] + .5, 'mcy_yard_pet')
+    start = (pet[0], y, pet[1])
+    marker(b, pet[0] + .5, y, pet[1] + .5, 'mcy_yard_pet',
+           {'Owner': relative(start, owner), 'Bowl': relative(start, (bowl[0], y, bowl[1]))})
+    no_carton(b, low, high, start)
     b.yards.append({'low': low, 'high': high, 'pet': (pet[0], y, pet[1]), 'nest': (nx, y, nz), 'bowl': (bowl[0], y, bowl[1]),
                     'toilet': (toilet[0], y, toilet[1])})
 
@@ -212,13 +226,15 @@ def home_yard(p):
         if p.flat: slab(b, x, 3, 6, p.roof)
         else: stairs(b, x, 3, 6, p.roof, 'south')
     b.block(4, 2, 6, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
-    pet_yard(b, (5, 0, 3), (7, 3, 6), pet=(6, 4), nest=(5, 6), bowl=(6, 6), toilet=(7, 6), toy=(7, 4))
+    owner = (5, 1, 9)
+    pet_yard(b, (5, 0, 3), (7, 3, 6), pet=(6, 4), nest=(5, 6), bowl=(6, 6), toilet=(7, 6), toy=(7, 4), owner=owner)
     # Garden: a bush and flowers west of the path and along the yard front.
     bush(b, 1, 1, 5); plant(b, 1, 1, 4, 0); plant(b, 1, 1, 6, 1); plant(b, 5, 1, 1, 2); plant(b, 7, 1, 1, 0); plant(b, 6, 1, 3, 1)
     # Cottage: plinth course, walls, corner posts; door at the end of the path, windows front, sides and back; gable along x.
     b.box((1, 0, 8), (7, 0, 11), p.floor)
     ring(b, 0, 8, 7, 12, 1, 3, p.wall)
     b.door(2, 1, 7, 'north', p.wood)
+    b.door(6, 1, 7, 'south', p.wood)  # The closed panel faces the owner approaching from indoors.
     panes(b, [(5, 2, 7), (7, 2, 7), (0, 2, 9), (0, 2, 10), (8, 2, 9), (3, 2, 12), (5, 2, 12)])
     gable(b, 0, 8, 7, 12, 4, 'x')
     # Room: the bed against the back wall, a bookcase that closes the hidden corner, table and stools, a rug, the owner's home cell.
@@ -229,7 +245,7 @@ def home_yard(p):
     b.block(4, 2, 11, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
     for x in (3, 4, 5): b.block(x, 1, 9, RUGS[p.style])
     b.block(1, 1, 8, p.pot(0)); b.block(7, 1, 8, p.pot(1))
-    resident(b, 5, 1, 9, 'caretaker_sister', 1)
+    resident(b, *owner, 'caretaker_sister', 1, yard_owner=True)
     # Standing bin beside the path near the gate: its mouth faces the lane, shoved over from the path side.
     garbage(b, 1, 1, 2, 'north', [('bread', 1), ('paper', 1), ('bone', 1), ('apple', 1)])
     return finish(b)
@@ -268,7 +284,8 @@ def home_yard_large(p):
     furniture(b, 'table', 3, [(7, 6), (7, 7)]); furniture(b, 'bench', 3, [(7, 5)], 'z')
     b.block(7, 4, 7, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
     b.block(5, 3, 4, p.pot(1))
-    resident(b, 5, 3, 6, 'caretaker_brother', 1)
+    owner = (5, 3, 6)
+    resident(b, *owner, 'caretaker_brother', 1, yard_owner=True)
     # Back deck at the floor height on a stone base; the base leaves a dry crawl gap at its east end, open to the side passage.
     b.box((0, 1, 9), (8, 1, 10), p.plinth)
     b.box((0, 2, 9), (8, 2, 10), p.floor)
@@ -283,7 +300,7 @@ def home_yard_large(p):
     b.box((0, 1, 15), (2, 2, 15), p.wall); b.box((0, 1, 13), (0, 2, 14), p.wall)
     b.box((0, 3, 13), (2, 3, 15), p.roof + '_slab', {'type': 'bottom', 'waterlogged': 'false'})
     b.block(2, 2, 13, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
-    pet_yard(b, (0, 0, 9), (8, 4, 15), pet=(5, 12), nest=(1, 14), bowl=(2, 14), toilet=(7, 14), toy=(5, 13))
+    pet_yard(b, (0, 0, 9), (8, 4, 15), pet=(5, 12), nest=(1, 14), bowl=(2, 14), toilet=(7, 14), toy=(5, 13), owner=owner)
     bush(b, 7, 1, 11); plant(b, 6, 1, 14, 1); plant(b, 1, 1, 11, 2)
     # Side passage: a standing bin against the house, the woodpile at the end, a lamp at the front corner.
     garbage(b, 10, 1, 4, 'west', [('potato', 1), ('paper', 2), ('stick', 1), ('cookie', 1)])

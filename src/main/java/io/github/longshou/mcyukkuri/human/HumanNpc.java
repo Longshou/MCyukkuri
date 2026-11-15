@@ -69,6 +69,8 @@ public final class HumanNpc extends PathfinderMob {
     private long nextRestock;
     /** Grain the shop staff can hand out per game day (the stock is fed from here and from the pen bowls they fill). */
     private static final int SHOP_DAILY_GRAIN = 96;
+    private static final int YARD_COMPANION_CAP = 3;
+    private BlockPos yardBowl;
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private int nextBadgeGreeting;
     private YukkuriEntity attention;
@@ -171,6 +173,7 @@ public final class HumanNpc extends PathfinderMob {
             @Override public boolean canContinueToUse() { return !avoidingStreet() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(1, new CourierGoal());
+        goalSelector.addGoal(2, new YardBowlGoal());
         goalSelector.addGoal(2, new RoutineGoal());
         goalSelector.addGoal(3, walk().goal());
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
@@ -313,6 +316,7 @@ public final class HumanNpc extends PathfinderMob {
             if (getTags().contains("mcy_street_local")) street.assignVillageAttitude();
             careFood = streetResident() ? attitude() == Attitude.CARING ? Math.min(8, HumanWorld.CARE_SUPPLIES.get()) : 0
                     : HumanWorld.CARE_SUPPLIES.get();
+            if (yardBowl != null) restockCareFood();
             nextRestock = level().getGameTime() + HumanStreet.DAY;
         }
         if ((tickCount == 1 || tickCount % 100 == 1 && (siteRole.equals("shop_keeper") || siteRole.equals("shop_sister")))
@@ -324,7 +328,7 @@ public final class HumanNpc extends PathfinderMob {
         restrictTo(home(), 18);
         if (level().getGameTime() >= nextRestock) {
             trades = delivered = 0; nextRestock = level().getGameTime() + HumanStreet.DAY;
-            if ((job() == Job.SHOPKEEPER || job() == Job.KEEPER) && careFood < SHOP_DAILY_GRAIN) careFood = SHOP_DAILY_GRAIN;
+            restockCareFood();
         }
         if (job() == Job.RESIDENT && walk().petId() != null) walk().tick();
         entityData.set(RESTING, !level().isDay());
@@ -361,18 +365,42 @@ public final class HumanNpc extends PathfinderMob {
             return;
         }
     }
+    void registerYardBowl(BlockPos bowl) {
+        yardBowl = bowl;
+        if (initialized) restockCareFood();
+    }
+
+    private void restockCareFood() {
+        if (job() == Job.SHOPKEEPER || job() == Job.KEEPER) {
+            careFood = Math.max(careFood, SHOP_DAILY_GRAIN);
+        } else if (yardBowl != null && streetResident() && attitude() == Attitude.CARING) {
+            int companions = Math.min(YARD_COMPANION_CAP, animals(Custody.Role.COMPANION).size());
+            int supply = SHOP_DAILY_GRAIN / YARD_COMPANION_CAP * companions;
+            if (careFood < supply) {
+                GameplayLog.event(this, "npc-care", "action=yard_restock companions={} food={}->{}", companions, careFood, supply);
+                careFood = supply;
+            }
+        }
+    }
+
     /** Staff refill nearby bowls from finite saved supplies (shop staff walk to each bowl as a job instead, ShopStaff). */
     private void serviceFacilities() {
         if (job() == Job.RESIDENT || job() == Job.SHOPKEEPER || careFood <= 0) return;
         for (BlockPos p : BlockPos.betweenClosed(blockPosition().offset(-8, -1, -8), blockPosition().offset(8, 1, 8))) {
             if (!level().hasChunkAt(p) || !(level().getBlockEntity(p) instanceof CareBlockEntity bowl)
                     || bowl.kind() != CareBlock.Kind.BOWL || bowl.foodCount() >= 4) continue;
-            for (int slot = 0; slot < bowl.getContainerSize(); slot++) if (bowl.getItem(slot).isEmpty()) {
-                int count = Math.min(4, careFood); bowl.setItem(slot, new ItemStack(ModItems.GRAIN_REGULAR.get(), count)); careFood -= count;
-                GameplayLog.event(this, "npc-care", "action=refill_bowl target={} food={}->{} transferred={}", p.toShortString(), careFood + count, careFood, count);
-                return;
-            }
+            if (fillRegularGrain(bowl)) return;
         }
+    }
+    private boolean fillRegularGrain(CareBlockEntity bowl) {
+        for (int slot = 0; slot < bowl.getContainerSize(); slot++) if (bowl.getItem(slot).isEmpty()) {
+            int count = drawCareFood(4);
+            bowl.setItem(slot, new ItemStack(ModItems.GRAIN_REGULAR.get(), count));
+            GameplayLog.event(this, "npc-care", "action=refill_bowl target={} food={}->{} transferred={}",
+                    bowl.getBlockPos().toShortString(), careFood + count, careFood, count);
+            return true;
+        }
+        return false;
     }
     /** A free-roaming resident feeds and pets wild yukkuri and its own pet; other people's pets and shop stock are not its business (staff tend their site's animals). */
     boolean mayTend(YukkuriEntity y) {
@@ -443,6 +471,47 @@ public final class HumanNpc extends PathfinderMob {
         @Override public void stop() { closeShopDoor(); }
     }
     public void closeShopDoor() { ShopDoors.leave(this); }
+
+    /** The resident walks to its own bowl and uses the grain shown in its off hand. */
+    private final class YardBowlGoal extends Goal {
+        private Path path;
+        private YardBowlGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+
+        private CareBlockEntity dueBowl() {
+            return yardBowl != null && careFood > 0 && attitude() == Attitude.CARING && streetActive()
+                    && getOffhandItem().isEmpty() && level().hasChunkAt(yardBowl)
+                    && level().getBlockEntity(yardBowl) instanceof CareBlockEntity bowl
+                    && bowl.kind() == CareBlock.Kind.BOWL && bowl.foodCount() < 2
+                    && bowl.hasAnyMatching(ItemStack::isEmpty) ? bowl : null;
+        }
+
+        private boolean reachesBowl() {
+            return ShopStaff.reaches(HumanNpc.this, yardBowl.getCenter(), yardBowl);
+        }
+
+        @Override public boolean canUse() {
+            // Goal selection runs on alternating ticks, so this interval must be odd.
+            if (tickCount % 101 != 0 || dueBowl() == null || animals(Custody.Role.COMPANION).isEmpty()) return false;
+            path = null;
+            if (reachesBowl()) return true;
+            var stands = new HashSet<BlockPos>();
+            for (var direction : Direction.Plane.HORIZONTAL) stands.add(yardBowl.relative(direction));
+            path = getNavigation().createPath(stands, 0);
+            return path != null && path.canReach();
+        }
+
+        @Override public void start() { if (path != null) getNavigation().moveTo(path, .85); }
+        @Override public boolean canContinueToUse() { return dueBowl() != null && (reachesBowl() || !getNavigation().isDone()); }
+        @Override public void tick() {
+            var bowl = dueBowl();
+            if (bowl == null || !reachesBowl()) return;
+            var point = yardBowl.getCenter();
+            getLookControl().setLookAt(point.x, point.y, point.z);
+            if (fillRegularGrain(bowl)) swing(InteractionHand.OFF_HAND);
+        }
+        @Override public void stop() { getNavigation().stop(); }
+    }
+
     private final class RoutineGoal extends Goal {
         /** Ticks in reach of the patient (the care cap) and ticks spent walking up to it (its own, longer cap). */
         private int elapsed, approach;
@@ -573,6 +642,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void addAdditionalSaveData(CompoundTag t) {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());
+        if (yardBowl != null) t.putLong("YardBowl", yardBowl.asLong());
         t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock",
                 nextRestock);
         t.put("FactoryProduction", production.save()); walk().save(t);
@@ -584,6 +654,7 @@ public final class HumanNpc extends PathfinderMob {
         if (t.contains("HumanAttitude")) setAttitude(Attitude.values()[Math.clamp(t.getInt("HumanAttitude"), 0, 2)]);
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized");
         home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
+        yardBowl = t.contains("YardBowl") ? BlockPos.of(t.getLong("YardBowl")) : null;
         production.load(t.getCompound("FactoryProduction")); walk().load(t);
         street.load(t);
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;

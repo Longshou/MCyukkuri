@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -216,9 +217,17 @@ public final class ShopRegistry extends SavedData {
     }
 
     Entry protectedShop(ServerLevel level, BlockPos pos) {
+        return protectedShop(level, box -> box.contains(pos.getCenter()));
+    }
+
+    public boolean protectedIntersects(ServerLevel level, AABB area) {
+        return protectedShop(level, area::intersects) != null;
+    }
+
+    private Entry protectedShop(ServerLevel level, Predicate<AABB> overlaps) {
         var dim = level.dimension().location().toString();
         for (var shop : shops.values()) if (!shop.closed && shop.dimension.equals(dim)
-                && (shop.protection != null ? shop.protection.contains(pos.getCenter()) : shop.legacy && shop.contains(pos.getCenter()))) return shop;
+                && (shop.protection != null ? overlaps.test(shop.protection) : shop.legacy && overlaps.test(shop.bounds()))) return shop;
         return null;
     }
 

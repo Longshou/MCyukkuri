@@ -134,18 +134,32 @@ public final class HumanScenes {
     }
     /** Used by natural spawns: gives the resident a random ordinary pet. */
     static void givePet(HumanNpc npc, ServerLevel level) {
+        spawnPet(level, npc, petVariant(npc));
+    }
+    private static YukkuriVariant petVariant(HumanNpc npc) {
         var pool = new ArrayList<YukkuriVariant>();
         for (var v : YukkuriVariant.values()) if (!SpeciesProfile.of(v).houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()) pool.add(v);
-        spawnPet(level, npc, pool.get(npc.getRandom().nextInt(pool.size())));
+        return pool.get(npc.getRandom().nextInt(pool.size()));
     }
     private static YukkuriEntity spawnPet(ServerLevel level, HumanNpc npc, YukkuriVariant variant) {
+        var pet = createPet(level, variant, npc.position().add(1.2, 0, 0));
+        if (pet == null || !level.addFreshEntity(pet)) return null;
+        npc.adoptPet(pet);
+        return pet;
+    }
+    static YukkuriEntity spawnYardPet(ServerLevel level, HumanNpc npc, Vec3 at) {
+        var pet = createPet(level, petVariant(npc), at);
+        if (pet == null) return null;
+        if (!level.noCollision(pet) || !level.addFreshEntity(pet)) return null;
+        Custody.assign(pet, npc, Custody.Role.COMPANION);
+        return pet;
+    }
+    private static YukkuriEntity createPet(ServerLevel level, YukkuriVariant variant, Vec3 at) {
         var pet = ModEntities.forVariant(variant).create(level);
         if (pet == null) return null;
-        pet.moveTo(npc.getX() + 1.2, npc.getY(), npc.getZ(), 0, 0);
-        pet.finalizeSpawn(level, level.getCurrentDifficultyAt(npc.blockPosition()), MobSpawnType.COMMAND, null);
+        Motor.relocate(pet, at, 0, "npc_pet_spawn");
+        pet.finalizeSpawn(level, level.getCurrentDifficultyAt(pet.blockPosition()), MobSpawnType.COMMAND, null);
         pet.setPersistenceRequired();
-        level.addFreshEntity(pet);
-        npc.adoptPet(pet);
         return pet;
     }
 

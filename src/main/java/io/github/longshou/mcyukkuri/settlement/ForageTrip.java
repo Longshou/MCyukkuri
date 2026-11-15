@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.human.TownAware;
+
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -261,11 +263,11 @@ public final class ForageTrip extends Goal {
             int distance = dx * dx + dz * dz;
             if (distance < 36 || distance > 12 * 12 || dx * home.facing().getStepX() + dz * home.facing().getStepZ() < 0) continue;
             var column = exit.offset(dx, 0, dz);
-            if (!level().hasChunkAt(column) || level().isVillage(column)) continue;
+            if (!level().hasChunkAt(column)) continue;
             int y = level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
             if (Math.abs(y - exit.getY()) > 6) continue;
             var stand = new BlockPos(column.getX(), y, column.getZ());
-            if (!level().getFluidState(stand).isEmpty() || !level().getFluidState(stand.below()).isEmpty()) continue;
+            if (TownAware.inTown(level(), stand) || !level().getFluidState(stand).isEmpty() || !level().getFluidState(stand.below()).isEmpty()) continue;
             for (int dy = -1; dy <= 1; dy++) {
                 var pos = new BlockPos(column.getX(), y + dy, column.getZ());
                 if (level().getFluidState(pos).isEmpty() && Grazing.edible(level().getBlockState(pos))) {
@@ -296,10 +298,11 @@ public final class ForageTrip extends Goal {
             double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (inner + entity.getRandom().nextDouble() * (1 - inner));
             int x = origin.getX() + (int) Math.round(Math.cos(angle) * dist), z = origin.getZ() + (int) Math.round(Math.sin(angle) * dist);
             var column = new BlockPos(x, origin.getY(), z);
-            if (!level.hasChunkAt(column) || level.isVillage(column)) continue;
+            if (!level.hasChunkAt(column)) continue;
             int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
             var spot = new BlockPos(x, y, z);
-            if (Math.abs(y - origin.getY()) > 12 || !level.getFluidState(spot.below()).isEmpty() || !level.getFluidState(spot).isEmpty()) continue;
+            if (Math.abs(y - origin.getY()) > 12 || TownAware.inTown(level, spot)
+                    || !level.getFluidState(spot.below()).isEmpty() || !level.getFluidState(spot).isEmpty()) continue;
             int count = 0;
             for (int dx = -6; dx <= 6; dx += 2) for (int dz = -6; dz <= 6; dz += 2) for (int dy = -2; dy <= 2; dy++) {
                 var p = spot.offset(dx, dy, dz);
