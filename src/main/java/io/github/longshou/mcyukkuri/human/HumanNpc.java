@@ -495,7 +495,11 @@ public final class HumanNpc extends PathfinderMob {
             path = null;
             if (reachesBowl()) return true;
             var stands = new HashSet<BlockPos>();
-            for (var direction : Direction.Plane.HORIZONTAL) stands.add(yardBowl.relative(direction));
+            // A doorway is a valid path target, but the owner stopping there keeps the closed door between it and the bowl.
+            for (var direction : Direction.Plane.HORIZONTAL) {
+                var stand = yardBowl.relative(direction);
+                if (level().getBlockState(stand).getCollisionShape(level(), stand).isEmpty()) stands.add(stand);
+            }
             path = getNavigation().createPath(stands, 0);
             return path != null && path.canReach();
         }
