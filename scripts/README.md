@@ -22,9 +22,9 @@
 
 全量只读检查可加 `--jobs 3` 并发执行独立检查，报告仍按声明顺序排列，任一失败仍返回非零；默认顺序执行。并发仅供 `--check`，写入导出保持依赖顺序执行。
 
-`export.py --family human-world` 导出后检查村庄模板；加 `--check` 直接检查现有 NBT 和拼图池。输出记录在该家族的导出日志，包含五类村庄的平地街链长度、街口深度及合成坡面结果。楼间接缝、拼图池引用和已分群系模板的材质与地基是门槛；在 `POOL_ENTRIES` 标明 `new=True` 的地块另须通过工作站、照明、步行、风口与垃圾桶等检查，旧地块的差异以 `RESTYLE` 输出。离线结果使用方块状态和有限的几何近似，原版房屋与床位的种子统计留给游戏生成。
+`export.py --family human-world` 导出后检查村庄模板；加 `--check` 直接检查现有 NBT 和拼图池。输出记录在该家族的导出日志，包含五类村庄的平地街链长度、街口深度及合成坡面结果。楼间接缝、拼图池引用和已分群系模板的材质与地基是门槛；在 `POOL_ENTRIES` 标明 `new=True` 的模板另须通过照明、步行、风口、垃圾桶与原版床位数检查，且除 `pet_shop`、`yukkuri_shop`、`oni_shop` 保留的店内陈设外不得含原版工作站；旧模板的差异以 `RESTYLE` 输出。镇内地块按仅中心点 8/5 的判定计算合成坡面，边缘埋入量只记录在摘要而不判失败。离线结果使用方块状态和有限的几何近似，原版房屋与床位的种子统计留给游戏生成。
 
-村庄作者模块置于 `art/structures/human-world/author_*.py`，声明设计中的 `POOL_ENTRIES`。新模块的无参 `build()` 返回可迭代的 `Building`，统一入口写出 NBT 并登记来源；现有街面作者沿用原导出入口。群系材质以 `palette.py` 的 `allowed_blocks(style)` 为准，返回带命名空间的方块 ID。纸片会标记相连的低矮风口；可另用 `minecraft:marker` 的 `mcy_wind_gap`、`mcy_carton_spot`、`mcy_awning` 和 `mcy_counter_stand` 标签声明检查位置。单独自查可运行 `<py> art/structures/human-world/check_town.py --self-test`，逐项打印有意破坏的反例。
+村庄作者模块置于 `art/structures/human-world/author_*.py`，声明设计中的 `POOL_ENTRIES`；每个声明的群系各返回一个名为 `village/<style>/<piece>` 的 `Building`，新模块的无参 `build()` 返回可迭代的 `Building`，统一入口写出 NBT 并登记来源；现有街面作者沿用原导出入口。各导出模板所在群系的材质以 `palette.py` 的 `allowed_blocks(style)` 为准，返回带命名空间的方块 ID；已导出模板的群系必须全部提供。纸片会标记相连的低矮风口；可另用 `minecraft:marker` 的 `mcy_wind_gap`、`mcy_carton_spot`、`mcy_awning` 和 `mcy_counter_stand` 标签声明检查位置。单独自查可运行 `<py> art/structures/human-world/check_town.py --self-test`，逐项打印有意破坏的反例。
 
 lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <主题> --model <模型> --clip <片段> --times <秒列表>` 接替；出生兼容入口 `birth_performance_preview.py` 移除，专用剖面直接用 `mamu_birth_preview.py`。保留的专门组合：`aquatic_family_preview.py`／`first_voyage_preview.py`（船上乘员与投喂交接）、`aquatic_paddle_preview.py`／`aquatic_strokes_preview.py`（船体、水线、岸边与辫节弯曲带）、`carry_hold_preview.py`（口中放幼、双尾承托、持物，侧面轮廓导出亦复用其蒙皮）、`birth_catching_preview.py`／`mamu_birth_preview.py`（出生出口剖切与接幼）、`weather_preview.py`（按真实侧面轮廓排列双体；雷雨与晒太阳的单体渲染已委托统一 strip）。这些依赖的 lore `preview.py` 是场景蒙皮辅助库，不是命令入口；`page.py` 的完整设定动作目录也保留。`aquatic_preview.py` 的旧帽船与木棍组合由上述水上专门预览覆盖。
 

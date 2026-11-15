@@ -177,7 +177,7 @@ def pool_checks(pools, pieces, entries, warn):
         if declared_lots:
             from town_pools import STYLES as POOL_STYLES
             vanilla_weight = POOL_STYLES[style][2]
-            share = vanilla_weight / sum(entry['weight'] for (p, _), entry in entries.items() if p == pool)
+            declared_weight = sum(entry['weight'] for (p, _), entry in entries.items() if p == pool)
         for row in doc['elements']:
             element = row['element']
             if type(row['weight']) is not int or not 1 <= row['weight'] <= 150:
@@ -196,7 +196,9 @@ def pool_checks(pools, pieces, entries, warn):
                 warn(pool, f'dangling template {location}')
             if key in entries:
                 expected = entries[key]
-                weight = max(1, round(expected['weight'] * share)) if declared_lots else expected['weight']
+                # Same integer arithmetic as town_pools: a float share would round 14.5 differently.
+                weight = (max(1, round(expected['weight'] * vanilla_weight / declared_weight))
+                          if declared_lots else expected['weight'])
                 limits = (expected['max_count'], None, 5) if declared_lots else tuple(expected[f] for f in FIELDS)
                 if row['weight'] != weight or tuple(element.get(f) for f in FIELDS) != limits:
                     warn(pool, f'{location} weight or limits differ from POOL_ENTRIES')
@@ -256,6 +258,8 @@ def socket_checks(piece, style, roles, pools):
             streets.append((facing, name, target, pool))
             if y != 1:
                 errors.append(f'vanilla street jigsaw {pos} is off y1')
+            elif piece.id.rsplit('/', 1)[-1] in ('mouth_east', 'mouth_west') and z != 4:
+                errors.append(f'vanilla street jigsaw {pos} is off the z4 lane centre')
         else:
             errors.append(f'unrecognised town jigsaw {pos} ({name} -> {target})')
     if style:
@@ -409,20 +413,20 @@ def light_checks(piece, gaps=()):
     return errors
 
 
-def poi_checks(piece):
+def poi_checks(piece, workstations=True):
     """Catch a vanilla workstation, including filled cauldrons, or an unintended villager bed."""
-    workstations = []
+    found = []
     beds = []
     for pos in piece.blocks:
         name, props, nbt = piece.state(pos)
         if not name.startswith('minecraft:'):
             continue
         raised_barrel = name == 'minecraft:barrel' and nbt.get('NeoForgeData', {}).get('StreetShelter')
-        if name[10:] in WORKSTATIONS and not (piece.id.rsplit('/', 1)[-1] in ('alley', 'street_alley') and raised_barrel):
-            workstations.append((pos, name))
+        if workstations and name[10:] in WORKSTATIONS and not (piece.id.rsplit('/', 1)[-1] in ('alley', 'street_alley') and raised_barrel):
+            found.append((pos, name))
         if name.endswith('_bed') and props.get('part') == 'head':
             beds.append(pos)
-    errors = [f'vanilla workstation POI {name} at {pos}' for pos, name in workstations]
+    errors = [f'vanilla workstation POI {name} at {pos}' for pos, name in found]
     expected_beds = int(piece.id.rsplit('/', 1)[-1] in ('home_yard', 'home_yard_large'))
     if len(beds) != expected_beds:
         errors.append(f'expected {expected_beds} vanilla beds, found {len(beds)} at {beds[:6]}')
@@ -575,8 +579,8 @@ def walk_checks(piece, starts, targets):
     return errors
 
 
-def ramp_checks(piece, cut, fill, edge, interior):
-    """Catch a hole at y0, unsafe fill/edge or a ramp low enough to exceed the levelling fill depth."""
+def ramp_checks(piece, cut, fill, edge, interior, strict_cut=True):
+    """Catch a hole at y0, unsafe fill/edge, a ramp below the fill depth or terrain above a corner-scanned piece."""
     errors = []
     width, height_limit, depth = piece.size
     columns = list(product(range(width), range(depth)))
@@ -605,9 +609,10 @@ def ramp_checks(piece, cut, fill, edge, interior):
                     retained += min(depth_to_ground, FILL_DEPTH)
             if exposed:
                 errors.append(f'axis {axis} ramp {slope:+} leaves {exposed} unfilled cells below the piece')
-            if buried:
+            # Town lots only check height at the centre, so an edge above the cut is expected there.
+            if buried and strict_cut:
                 errors.append(f'axis {axis} ramp {slope:+} leaves {buried} terrain cells above the cut')
-            summaries.append(f'cut {removed}, exposed {edge} {retained}')
+            summaries.append(f'cut {removed}, exposed {edge} {retained}, buried {buried}')
     return errors, summaries
 
 
@@ -737,10 +742,11 @@ def inspect_town(entries):
         if new_status.setdefault(id, new) != new:
             fail(id, 'POOL_ENTRIES disagree on new status')
 
+    styled = {id.split('/')[1] for id in village if id.count('/') == 2}.intersection(STYLES)
     allowed = {}
-    if any(id.count('/') == 2 for id in village):
+    if styled:
         from palette import allowed_blocks
-        allowed = {style: set(allowed_blocks(style)) for style in STYLES}
+        allowed = {style: set(allowed_blocks(style)) for style in sorted(styled)}
     for id, piece in village.items():
         parts = id.split('/')
         style = parts[1] if len(parts) == 3 else None
@@ -755,9 +761,10 @@ def inspect_town(entries):
             for problem in palette_checks(piece, allowed[style]):
                 fail(id, problem)
             element = elements[id]
-            cut, fill = ((8, 5) if 'town_lots' in roles.get(id, ()) else
-                         (element['max_cut'], element['max_fill']))
-            problems, summaries = ramp_checks(piece, cut, fill, element['edge']['Name'], element['fill']['Name'])
+            town_lot = 'town_lots' in roles.get(id, ())
+            cut, fill = (8, 5) if town_lot else (element['max_cut'], element['max_fill'])
+            problems, summaries = ramp_checks(piece, cut, fill, element['edge']['Name'],
+                                              element['fill']['Name'], strict_cut=not town_lot)
             for problem in problems:
                 fail(id, problem)
             print(f'{id}: {cut}/{fill} synthetic ramps (x+, x-, z+, z-) ' + ' | '.join(summaries))
@@ -766,8 +773,7 @@ def inspect_town(entries):
         gaps = set()
         checks = stray_checks(piece, starts, targets, gaps) + walk_checks(piece, starts, targets) + light_checks(piece, gaps)
         # Shops keep the established service furnishings. Other legacy POIs are reported before restyling.
-        if parts[-1] not in ('pet_shop', 'yukkuri_shop', 'oni_shop') or new_status.get(id, False):
-            checks += poi_checks(piece)
+        checks += poi_checks(piece, parts[-1] not in ('pet_shop', 'yukkuri_shop', 'oni_shop'))
         if new_status.get(id, False):
             for problem in dict.fromkeys(checks):
                 fail(id, problem)
@@ -827,6 +833,7 @@ def self_test():
     from types import SimpleNamespace
 
     stone = ('minecraft:stone', {}, {})
+    bed = ('minecraft:white_bed', {'facing': 'south', 'part': 'head', 'occupied': 'false'}, {})
     style = 'plains'
     end = village_pool(style, 'main_end')
     frontage = village_pool(style, 'frontage')
@@ -865,6 +872,17 @@ def self_test():
     caught('dim covered walk', light_checks(roof), 'covered walk cells below block light 8')
     p.blocks[0, 1, 0] = ('minecraft:water_cauldron', {'level': '2'}, {})
     caught('filled workstation', poi_checks(p), 'minecraft:water_cauldron')
+    shop = floor(village_pool(style, 'pet_shop'))
+    shop.blocks[0, 1, 0] = ('minecraft:lectern', {'facing': 'north', 'has_book': 'false'}, {})
+    if poi_checks(shop, workstations=False):
+        raise AssertionError('shop workstation exemption failed')
+    caught('ordinary workstation', poi_checks(shop), 'minecraft:lectern')
+    home = floor(village_pool(style, 'home_yard'))
+    home.blocks[2, 1, 2] = bed
+    if poi_checks(home):
+        raise AssertionError('one-bed home control failed')
+    home.blocks[3, 1, 2] = bed
+    caught('second villager bed', poi_checks(home), 'expected 1 vanilla beds')
     p.blocks[1, 1, 1] = ('minecraft:oak_planks', {}, {})
     p.blocks[2, 1, 1] = ('minecraft:cactus', {}, {})
     p.blocks[3, 1, 1] = ('minecraft:snow', {'layers': '1'}, {})
@@ -878,6 +896,12 @@ def self_test():
     caught('unstable retaining edge', problems, 'stable solid')
     caught('ramp beyond fill', problems, 'unfilled cells')
     caught('ramp exceeding cut height', problems, 'terrain cells above')
+    short = floor()
+    problems, summaries = ramp_checks(short, 10, 4, stone[0], stone[0], strict_cut=False)
+    if problems or not all('buried' in summary for summary in summaries):
+        raise AssertionError(f'centre-only ramp control failed: {problems}, {summaries}')
+    caught('terrain above a corner-scanned piece',
+           ramp_checks(short, 10, 4, stone[0], stone[0])[0], 'terrain cells above')
     caught('distant bin', near_bin_checks([('carton spot', (0, 1, 0))], [(9, 1, 0)]), 'within 8 blocks')
     if near_bin_checks([('wind gap', (0, 1, 0))], [(8, 1, 0)]):
         raise AssertionError('eight-block bin threshold rejected its boundary')
@@ -943,6 +967,18 @@ def self_test():
     problems = socket_checks(moved, style, {'main_end'}, pools)
     caught('off-centre jigsaw', problems, 'off the y1 z4')
     caught('dangling jigsaw pool', problems, 'references dangling pool')
+    off_centre = floor(village_pool(style, 'mouth_east'))
+    off_centre.blocks.update({(0, 1, 4): socket('west', east),
+                              (8, 1, 3): socket('east', target='minecraft:street', pool=vanilla)})
+    caught('mouth connector off the lane centre',
+           socket_checks(off_centre, style, {'main_end'}, pools), 'z4 lane centre')
+    gate = floor(village_pool(style, 'home_yard'))
+    gate.blocks[4, 0, 0] = socket('north', 'minecraft:building_entrance', final='minecraft:dirt_path')
+    if socket_checks(gate, style, {'town_lots'}, pools):
+        raise AssertionError('positive town gate control failed')
+    inward = floor(village_pool(style, 'home_yard'))
+    inward.blocks[4, 0, 0] = socket('south', 'minecraft:building_entrance', final='minecraft:dirt_path')
+    caught('town gate facing in', socket_checks(inward, style, {'town_lots'}, pools), 'must face north')
     pools[market]['fallback'] = 'mcyukkuri:village/plains/typo'
     failures = []
     pool_checks(pools, {pet.id: pet}, {}, lambda _, error: failures.append(error))
@@ -952,6 +988,32 @@ def self_test():
                  max_count=1, max_cut=6, max_fill=4, new=True)
     _, failures = validate_entries([SimpleNamespace(__name__='author_fixture', POOL_ENTRIES=[entry, entry])])
     caught('duplicate pool declaration', failures, 'duplicate pool entry')
+
+    pool = village_pool(style, 'town_lots')
+    weights = [7, 15, 9, 11]
+    rows = [dict(pool='town_lots', piece=f'lot_{i}', styles=[style], weight=weight,
+                 max_count=None, max_cut=None, max_fill=None, new=True)
+            for i, weight in enumerate(weights)]
+    town_entries, failures = validate_entries([SimpleNamespace(__name__='author_weights', POOL_ENTRIES=rows)])
+    if failures:
+        raise AssertionError(f'town weight declaration fixture failed: {failures}')
+    # 7 * 87 / 42 is 14.5: town_pools and the checker must both round it to 14, not by a float share.
+    town = {pool: dict(name=pool, fallback=EMPTY, elements=[
+        dict(weight=round(row['weight'] * 87 / 42), element=dict(
+            element_type='mcyukkuri:levelled', location=location, processors=EMPTY,
+            projection='rigid', max_fill=5))
+        for (_, location), row in town_entries.items()])}
+    sys.modules['town_pools'] = SimpleNamespace(STYLES={style: (EMPTY, EMPTY, 87)})
+    site = {location: floor(location) for _, location in town_entries}
+    failures = []
+    pool_checks(town, site, town_entries, lambda _, error: failures.append(error))
+    if failures:
+        raise AssertionError(f'normalized town weight control failed: {failures}')
+    town[pool]['elements'][0]['weight'] = 15
+    failures = []
+    pool_checks(town, site, town_entries, lambda _, error: failures.append(error))
+    caught('stale town lot weight', failures, 'weight or limits differ')
+    del sys.modules['town_pools']
     print('Town negative controls passed.')
     return 0
 
