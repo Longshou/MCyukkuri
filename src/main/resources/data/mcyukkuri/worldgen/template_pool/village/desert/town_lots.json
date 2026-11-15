@@ -1,5 +1,89 @@
 {
   "name": "mcyukkuri:village/desert/town_lots",
   "fallback": "minecraft:empty",
-  "elements": []
+  "elements": [
+    {
+      "weight": 20,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/home_yard",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 12,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/home_yard_large",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 17,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/kiosk",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 3,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 12,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/pocket_park",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 12,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/back_lot",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    }
+  ]
 }

@@ -1,5 +1,89 @@
 {
   "name": "mcyukkuri:village/savanna/town_lots",
   "fallback": "minecraft:empty",
-  "elements": []
+  "elements": [
+    {
+      "weight": 23,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/home_yard",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
+      "weight": 13,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/home_yard_large",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
+      "weight": 19,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/kiosk",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 3,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
+      "weight": 13,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/pocket_park",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    },
+    {
+      "weight": 13,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/back_lot",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
+      }
+    }
+  ]
 }

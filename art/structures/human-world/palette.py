@@ -196,6 +196,10 @@ FIXED = {
 }
 
 
+# The bed colour vanilla houses of the type use most (counted from the 1.21.1 village templates); town homes carry one each.
+BEDS = {'plains': 'white_bed', 'desert': 'lime_bed', 'savanna': 'orange_bed', 'snowy': 'blue_bed', 'taiga': 'purple_bed'}
+
+
 WOODS = ('dark_oak', 'pale_oak', 'oak', 'spruce', 'birch', 'jungle', 'acacia', 'mangrove', 'cherry', 'bamboo', 'crimson', 'warped')
 
 
@@ -223,6 +227,7 @@ def allowed_blocks(style):
     if p.flat: out |= {'smooth_sandstone_slab', 'cut_sandstone_slab', 'sandstone_slab', 'sandstone_wall', 'chiseled_sandstone'}
     if p.snow: out |= {'snow', 'snow_block'}
     if p.ground == 'grass_block': out.add('dirt')
+    out.add(BEDS[style])
     out = {b for b in out if wood_of(b) in (None, p.wood)} | FIXED
     return {mc(b) for b in out}
 

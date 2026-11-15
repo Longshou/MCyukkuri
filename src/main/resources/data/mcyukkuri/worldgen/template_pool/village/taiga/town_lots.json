@@ -1,5 +1,89 @@
 {
   "name": "mcyukkuri:village/taiga/town_lots",
   "fallback": "minecraft:empty",
-  "elements": []
+  "elements": [
+    {
+      "weight": 21,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/home_yard",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 12,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/home_yard_large",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 18,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/kiosk",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 3,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 12,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/pocket_park",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 12,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/back_lot",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_fill": 5,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    }
+  ]
 }

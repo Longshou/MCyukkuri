@@ -603,5 +603,280 @@
     "blocks": 432,
     "entities": 0,
     "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/kiosk",
+    "size": [
+      9,
+      9,
+      9
+    ],
+    "blocks": 729,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 0,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/kiosk",
+    "size": [
+      9,
+      9,
+      9
+    ],
+    "blocks": 729,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 0,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/kiosk",
+    "size": [
+      9,
+      9,
+      9
+    ],
+    "blocks": 729,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 0,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1049,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2300,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/kiosk",
+    "size": [
+      9,
+      9,
+      9
+    ],
+    "blocks": 727,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 0,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 500,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/kiosk",
+    "size": [
+      9,
+      9,
+      9
+    ],
+    "blocks": 729,
+    "entities": 6,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 0,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
   }
 ]
