@@ -5,7 +5,19 @@
     {
       "weight": 1,
       "element": {
-        "element_type": "minecraft:empty_pool_element"
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/savanna/stall",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:terracotta"
+        }
       }
     }
   ]

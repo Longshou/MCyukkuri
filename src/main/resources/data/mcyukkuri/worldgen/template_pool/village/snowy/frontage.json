@@ -6,9 +6,18 @@
       "weight": 1,
       "element": {
         "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:village/yukkuri_shop",
+        "location": "mcyukkuri:village/snowy/pet_shop",
         "processors": "minecraft:empty",
-        "projection": "rigid"
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 10,
+        "max_fill": 8,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:stone_bricks"
+        }
       }
     }
   ]

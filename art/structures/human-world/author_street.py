@@ -19,8 +19,8 @@ import json, math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 import build
 from build import (Building, stairs, slab, barrel, furniture, marker, frame, register_pen, stock_growth, name_at, string, byte, integer,
-                   compound, sequence, integers, real, flat_roof, ground, light_up)
-from palette import PALETTES, PLAINS, STYLES, levelling, link, pick
+                   compound, sequence, integers, real, flat_roof, gable_snow, ground, light_up)
+from palette import PALETTES, PLAINS, STYLES, link, pick
 
 OUT = build.OUT
 OPP = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
@@ -229,12 +229,12 @@ def street_stall(p):
         b.block(x, 1, 13, block, LOG if block == 'hay_block' else None)
     b.block(7, 3, 11, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     # Produce shelf behind the booth: boards on the back wall at y2, stored produce on top; the cells under it are a dry gap with a paper.
-    b.box((5, 2, 15), (8, 2, 15), p.planks())
-    for x, block in zip(range(5, 9), ('hay_block', 'pumpkin', 'melon', 'hay_block')): b.block(x, 3, 15, block, LOG if block == 'hay_block' else None)
-    for x in (5, 6, 7, 8): wind_gap(b, x, 1, 15, paper=(x == 6))
-    # Old crates beside the booth, opening toward the lane; the market bin by the west post.
+    b.box((4, 2, 15), (7, 2, 15), p.planks())
+    for x, block in zip(range(4, 8), ('hay_block', 'pumpkin', 'melon', 'hay_block')): b.block(x, 3, 15, block, LOG if block == 'hay_block' else None)
+    for x in (4, 5, 6, 7): wind_gap(b, x, 1, 15, paper=(x == 5))
+    # Old crates beside the booth, opening toward the lane; the market bin by the west post, within 8 blocks of the whole gap.
     shelter_spot(b, 13, 1, 12, 'crate_shelter', 'north')
-    garbage(b, 1, 1, 9, 'north', [('carrot', 2), ('potato', 2), ('beetroot', 1), ('paper', 1), ('stick', 1), ('rotten_flesh', 1), ('mcyukkuri:junk_headwear', 1)])
+    garbage(b, 1, 1, 10, 'north', [('carrot', 2), ('potato', 2), ('beetroot', 1), ('paper', 1), ('stick', 1), ('rotten_flesh', 1), ('mcyukkuri:junk_headwear', 1)])
     # Sidewalks: lamps and a bench facing the lane.
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
     furniture(b, 'bench', 1, [(4, 1), (5, 1), (6, 1)])
@@ -293,7 +293,7 @@ def street_alley(p):
     street_residents(b, (3, 12), (13, 11))
     street_ends(b, W)
     connect_bars(b)
-    light_up(b)
+    gable_snow(b); light_up(b)
     return b
 
 
@@ -346,7 +346,8 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     room with the dock, the waste barrel and a treatment bench. Floor y2, people walk at y3, ceiling y7; walls x1..23, z3..24."""
     from check_structure import light_levels, walk_cells
     b = Site(name, [25, 15, 26], p, floor=3)
-    POST = p.state(p.post); planks = p.planks(); board = p.planks(p.dark)
+    POST = p.state(p.post if p.flat else p.tree_log)   # bark posts: an old frame, not the clean trim of the pet shop
+    planks = p.planks(); board = p.planks(p.dark)
     worn = ((p.plinth, 60),) + tuple((block, 2 * w) for block, w in p.weathered)
     # ---- Shell.
     b.box((0, 0, 0), (24, 0, 25), p.plinth)
@@ -480,7 +481,7 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     b.box((11, 4, 19), (13, 5, 19), 'iron_bars', over=True)
     for x in (6, 9): b.box((x, 3, 19), (x, 6, 19), *POST, over=True)
     b.double_door(7, 3, 19, 'south')
-    for x in (7, 8): b.box((x, 5, 19), (x, 6, 19), *p.state(p.post, 'x'), over=True)
+    for x in (7, 8): b.box((x, 5, 19), (x, 6, 19), *p.state(POST[0], 'x'), over=True)
     # Back room (staff, z20..23): dock and waste barrels, feed, a treatment bench (brewing stand, water, grindstone, tools), supplies.
     barrel(b, 2, 3, 20, 'east'); barrel(b, 2, 3, 23, 'east'); barrel(b, 2, 3, 21, 'up'); barrel(b, 2, 4, 21, 'up')
     marker(b, 2.5, 3.5, 20.5, 'mcy_oni_dock'); marker(b, 2.5, 3.5, 23.5, 'mcy_oni_trash')
@@ -514,7 +515,7 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
         x, z = dark[0][1]
         if not any(invisible(x + dx, z + dz) for _, dx, dz in order): break
     connect_bars(b)
-    light_up(b)
+    gable_snow(b); light_up(b)
     return b
 
 
@@ -567,42 +568,14 @@ def pieces(style='plains'):
     return {'stall': street_stall(p), 'alley': street_alley(p), 'oni': oni, 'village_oni': village_oni_shop(oni)}
 
 
-def interim_pools():
-    """Main-street pools of every type from POOL_ENTRIES, in town_pools.py's element format. Only while town_pools.py (wp-town-pools)
-    has not landed: once it exists it writes these pools and this writer does nothing."""
-    here = Path(__file__).parent
-    if (here / 'town_pools.py').exists(): return
-    root = OUT / 'worldgen/template_pool/village'
-    for legacy in ('street_sites', 'street_east'): (root / f'{legacy}.json').unlink(missing_ok=True)
-    for style in STYLES:
-        fill, edge = levelling(style)
-        tables = {'frontage': [], 'main_market': [], 'main_civic': [], 'main_end': []}
-        for row in POOL_ENTRIES:
-            if row['styles'] is not None and style not in row['styles']: continue
-            element = {'element_type': 'mcyukkuri:levelled', 'location': f'mcyukkuri:village/{style}/{row["piece"]}',
-                       'processors': 'minecraft:empty', 'projection': 'rigid'}
-            element.update({k: row[k] for k in ('max_count', 'max_cut', 'max_fill') if row[k] is not None})
-            element.update(fill={'Name': fill}, edge={'Name': edge})
-            tables[row['pool']].append({'weight': row['weight'], 'element': element})
-        fallbacks = {'frontage': f'minecraft:village/{style}/streets', 'main_market': f'mcyukkuri:village/{style}/main_end',
-                     'main_civic': f'mcyukkuri:village/{style}/main_end', 'main_end': 'minecraft:empty'}
-        for role, elements in tables.items():
-            data = {'name': f'mcyukkuri:village/{style}/{role}', 'fallback': fallbacks[role],
-                    'elements': elements or [{'weight': 1, 'element': {'element_type': 'minecraft:empty_pool_element'}}]}
-            path = root / style / f'{role}.json'; path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8', newline='\n')
-
-
 def export():
-    """Saves the museum oni-san shop (plains) and the four main-street pieces of every type; removes the pre-palette templates."""
+    """Saves the museum oni-san shop (plains) and the stall, alley and oni-san shop lot of every village type."""
     summary = []
     for style in STYLES:
         built = pieces(style)
         keep = ('stall', 'alley', 'village_oni') + (('oni',) if style == 'plains' else ())
         summary += [built[k].save() for k in keep]
     for s in summary: s['source'] = 'art/structures/human-world/author_street.py'
-    for old in ('yukkuri_shop', 'oni_shop', 'street_stall', 'street_alley'): (OUT / 'structure/village' / f'{old}.nbt').unlink(missing_ok=True)
-    interim_pools()
     return summary
 
 

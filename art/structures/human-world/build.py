@@ -135,6 +135,12 @@ class Building:
         raw=b'\x0a\x00\x00'+payload(10,nbt); path.write_bytes(gzip.compress(raw,mtime=0))
         return {'name':self.name,'size':self.size,'blocks':len(blocks),'entities':len(self.entities),'source':'art/structures/human-world/build.py'}
 
+def gable_snow(b):
+    """Snow stays only on the roof over the open roof space: a layer above a solid gable end (nothing open 2 or 3 below) is removed."""
+    from check_structure import clear, state_at
+    for (x, y, z), (name, _, _) in list(b.blocks.items()):
+        if name == 'minecraft:snow' and not any(clear(*state_at(b, x, y - d, z)) for d in (2, 3)): del b.blocks[x, y, z]
+
 def light_up(b, limit=400):
     """Hidden light blocks until every floor meets the light rule (check_structure.light_needs): covered floors >= 8, open sturdy floors
     and wind gaps >= 1. A light goes into the first air cell at head height, then at the feet, then beside; a wind gap is lit from beside
@@ -246,11 +252,12 @@ def roof(b,p,z0,z1,x0=0):
             else: stairs(b,x,y,z,mat,'south' if front else 'north')
         for x in (max(1,x0),39):
             for yy in range(9,y): b.block(x,yy,z,*gable)
-def flat_roof(b,p,cells,y):
-    """Flat roof with a parapet (desert): slabs over the (x, z) cells with trim seams every 6 blocks, and a parapet course on the outline
-    capped with a slab (the cap leaves no full top for anything to spawn on)."""
+def flat_roof(b,p,cells,y,skylights=()):
+    """Flat roof with a parapet (desert): slabs over the (x, z) cells with trim seams every 6 blocks, glass at the skylight cells, and a
+    parapet course on the outline capped with a slab (the cap leaves no full top for anything to spawn on)."""
     for x,z in cells:
         if any((x+dx,z+dz) not in cells for dx,dz in ((1,0),(-1,0),(0,1),(0,-1))): b.block(x,y,z,p.roof_trim); slab(b,x,y+1,z,p.roof_trim)
+        elif (x,z) in skylights: b.block(x,y,z,'glass')
         else: slab(b,x,y,z,p.roof_trim if x%6==0 or z%6==0 else p.roof)
 def yard_bush(p):
     """A free-standing shrub of the type for yards: azalea, a dead bush in the desert, a leaf bush in the conifer types."""
@@ -322,7 +329,9 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     for x0 in (3,35): furniture(b,'bench',3,[(x,1) for x in range(x0,x0+3)])
     # Roofs over the front block and the rear block east of the backyard (back room and exam wing); the roof is 4 rows on a 6-row facade
     # (y 3..8). The desert type has one flat roof with a parapet over both blocks.
-    if p.flat: flat_roof(b,p,{(x,z) for x in range(1,40) for z in range(3,18)}|{(x,z) for x in range(16,40) for z in range(17,31)},9)
+    if p.flat:
+        lights={(x,z) for x in SKYLIGHTS for z in (5,6,7,12,13,14)}|{(x,z) for x in SKYLIGHTS if x>16 for z in (19,20,21,26,27,28)}
+        flat_roof(b,p,{(x,z) for x in range(1,40) for z in range(3,18)}|{(x,z) for x in range(16,40) for z in range(17,31)},9,lights)
     else: roof(b,p,3,16); roof(b,p,17,30,16)
     b.box((6,9,3),(18,14,3),*Q)   # false front carries the sign board
     for x in range(6,19):         # coping on the false front and the board
@@ -486,7 +495,7 @@ def shop(p=PLAINS,name='yukkuri_shop'):
         if any(invisible(x+dx,z+dz) for _,dx,dz in order) or any(hang(x+dx,z+dz) for _,dx,dz in order): continue
         break
     connect_panes(b)
-    light_up(b)
+    gable_snow(b); light_up(b)
     return b
 
 def specialized_factory(kind):

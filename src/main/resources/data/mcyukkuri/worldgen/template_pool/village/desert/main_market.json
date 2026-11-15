@@ -3,9 +3,57 @@
   "fallback": "mcyukkuri:village/desert/main_end",
   "elements": [
     {
-      "weight": 1,
+      "weight": 6,
       "element": {
-        "element_type": "minecraft:empty_pool_element"
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/oni_shop",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/stall",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/desert/alley",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
       }
     }
   ]

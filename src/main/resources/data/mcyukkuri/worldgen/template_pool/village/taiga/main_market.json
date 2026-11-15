@@ -3,9 +3,57 @@
   "fallback": "mcyukkuri:village/taiga/main_end",
   "elements": [
     {
-      "weight": 1,
+      "weight": 6,
       "element": {
-        "element_type": "minecraft:empty_pool_element"
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/oni_shop",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/stall",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 2,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/taiga/alley",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 6,
+        "max_fill": 4,
+        "fill": {
+          "Name": "minecraft:dirt"
+        },
+        "edge": {
+          "Name": "minecraft:cobblestone"
+        }
       }
     }
   ]

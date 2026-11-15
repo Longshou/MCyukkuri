@@ -189,7 +189,7 @@ def main():
         v = np.concatenate([mesh(a, b, (o[0] - cx, 0, o[2] - 20)) for b, o in assembled])
         view(a, v, out, f'{style}-street', 2000, 860, -.5, .5, 27, 4)
         west = assembled[:2]
-        view(a, np.concatenate([mesh(a, b, (o[0] + 2, 0, o[2] - 16)) for b, o in west]), out, f'{style}-west', 1500, 900, -.5, .45, 17, 4)
+        view(a, np.concatenate([mesh(a, b, (o[0] - 6, 0, o[2] - 16)) for b, o in west]), out, f'{style}-west', 1500, 900, -.5, .45, 21, 4)
         east = assembled[2:]
         ex = lot.size[0] + (pieces['village_oni'].size[0] + pieces['alley'].size[0]) / 2
         view(a, np.concatenate([mesh(a, b, (o[0] - ex, 0, o[2] - 14)) for b, o in east]), out, f'{style}-east', 1500, 900, -.55, .42, 17, 4)

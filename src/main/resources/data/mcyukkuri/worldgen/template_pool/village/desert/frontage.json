@@ -6,9 +6,18 @@
       "weight": 1,
       "element": {
         "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:village/yukkuri_shop",
+        "location": "mcyukkuri:village/desert/pet_shop",
         "processors": "minecraft:empty",
-        "projection": "rigid"
+        "projection": "rigid",
+        "max_count": 1,
+        "max_cut": 10,
+        "max_fill": 8,
+        "fill": {
+          "Name": "minecraft:sandstone"
+        },
+        "edge": {
+          "Name": "minecraft:cut_sandstone"
+        }
       }
     }
   ]

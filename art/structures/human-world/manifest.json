@@ -6,18 +6,62 @@
       16,
       33
     ],
-    "blocks": 11940,
+    "blocks": 11950,
     "entities": 55,
     "source": "art/structures/human-world/build.py"
   },
   {
-    "name": "village/yukkuri_shop",
+    "name": "village/plains/pet_shop",
     "size": [
       41,
       16,
       41
     ],
-    "blocks": 12299,
+    "blocks": 12309,
+    "entities": 55,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "village/desert/pet_shop",
+    "size": [
+      41,
+      16,
+      41
+    ],
+    "blocks": 12301,
+    "entities": 55,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "village/savanna/pet_shop",
+    "size": [
+      41,
+      16,
+      41
+    ],
+    "blocks": 12309,
+    "entities": 55,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "village/snowy/pet_shop",
+    "size": [
+      41,
+      16,
+      41
+    ],
+    "blocks": 12434,
+    "entities": 55,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "village/taiga/pet_shop",
+    "size": [
+      41,
+      16,
+      41
+    ],
+    "blocks": 12309,
     "entities": 55,
     "source": "art/structures/human-world/build.py"
   },
@@ -55,7 +99,7 @@
     "source": "art/structures/human-world/build.py"
   },
   {
-    "name": "village/street_stall",
+    "name": "village/plains/stall",
     "size": [
       15,
       8,
@@ -66,35 +110,167 @@
     "source": "art/structures/human-world/author_street.py"
   },
   {
-    "name": "village/street_alley",
+    "name": "village/plains/alley",
     "size": [
       17,
       9,
       20
     ],
     "blocks": 3060,
-    "entities": 3,
+    "entities": 4,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/plains/oni_shop",
+    "size": [
+      25,
+      15,
+      34
+    ],
+    "blocks": 9896,
+    "entities": 43,
     "source": "art/structures/human-world/author_street.py"
   },
   {
     "name": "yukkuri_oni_shop",
     "size": [
       25,
-      14,
+      15,
       26
     ],
-    "blocks": 9031,
+    "blocks": 9681,
     "entities": 43,
     "source": "art/structures/human-world/author_street.py"
   },
   {
-    "name": "village/oni_shop",
+    "name": "village/desert/stall",
+    "size": [
+      15,
+      8,
+      16
+    ],
+    "blocks": 1920,
+    "entities": 9,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/desert/alley",
+    "size": [
+      17,
+      9,
+      20
+    ],
+    "blocks": 3060,
+    "entities": 4,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/desert/oni_shop",
     "size": [
       25,
-      14,
+      15,
       34
     ],
-    "blocks": 9246,
+    "blocks": 9896,
+    "entities": 43,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/savanna/stall",
+    "size": [
+      15,
+      8,
+      16
+    ],
+    "blocks": 1920,
+    "entities": 9,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/savanna/alley",
+    "size": [
+      17,
+      9,
+      20
+    ],
+    "blocks": 3060,
+    "entities": 4,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/savanna/oni_shop",
+    "size": [
+      25,
+      15,
+      34
+    ],
+    "blocks": 9896,
+    "entities": 43,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/snowy/stall",
+    "size": [
+      15,
+      8,
+      16
+    ],
+    "blocks": 1920,
+    "entities": 9,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/snowy/alley",
+    "size": [
+      17,
+      9,
+      20
+    ],
+    "blocks": 3052,
+    "entities": 4,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/snowy/oni_shop",
+    "size": [
+      25,
+      15,
+      34
+    ],
+    "blocks": 9894,
+    "entities": 43,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/taiga/stall",
+    "size": [
+      15,
+      8,
+      16
+    ],
+    "blocks": 1920,
+    "entities": 9,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/taiga/alley",
+    "size": [
+      17,
+      9,
+      20
+    ],
+    "blocks": 3060,
+    "entities": 4,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/taiga/oni_shop",
+    "size": [
+      25,
+      15,
+      34
+    ],
+    "blocks": 9896,
     "entities": 43,
     "source": "art/structures/human-world/author_street.py"
   }

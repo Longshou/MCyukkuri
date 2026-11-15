@@ -131,11 +131,11 @@ PALETTES = {
         hedge='flowering_azalea_leaves', pots=('potted_azalea_bush', 'potted_poppy', 'potted_dandelion', 'potted_fern'),
         plants=(('dandelion', 1), ('poppy', 1), ('cornflower', 1), ('oxeye_daisy', 1), ('allium', 1)), tree_log='oak_log'),
     'desert': Palette(
-        'desert', wood='jungle', dark='jungle', wall='smooth_sandstone', wall_light='smooth_sandstone', band='cut_sandstone',
+        'desert', wood='jungle', dark='jungle', wall='smooth_sandstone', wall_light='smooth_sandstone', band='terracotta',
         post='sandstone', beam='cut_sandstone', plinth='cut_sandstone', weathered=(('sandstone', 20),), step='sandstone',
         roof='smooth_sandstone', roof_trim='cut_sandstone', roof_patch='sandstone', flat=True, snow=False, floor='smooth_sandstone', aisle='cut_sandstone',
-        lane='smooth_sandstone', lane_wear=(('sandstone', 10),),
-        sidewalk=(('sandstone', 5), ('cut_sandstone', 5)),
+        lane='smooth_sandstone', lane_wear=(('terracotta', 6), ('sandstone', 6)),       # vanilla desert streets
+        sidewalk=(('cut_sandstone', 7), ('sandstone', 3)),   # tiled beside the smooth lane
         ground='sand', ground_wear=(), fill='sandstone', lamp_post='sandstone_wall', fence='sandstone_wall',
         hedge='', pots=('potted_cactus', 'potted_dead_bush'),
         plants=(('dead_bush', 1), ('', 3)), tree_log='jungle_log'),
@@ -144,7 +144,7 @@ PALETTES = {
         post='acacia_log', beam='stripped_acacia_log', plinth='terracotta', weathered=(('orange_terracotta', 10),), step='acacia',
         roof='acacia', roof_trim='dark_oak', roof_patch='oak', flat=False, snow=False, floor='stripped_acacia_wood', aisle='smooth_stone',
         lane='dirt_path', lane_wear=(('coarse_dirt', 12),),
-        sidewalk=(('terracotta', 4), ('coarse_dirt', 3), ('packed_mud', 3)),
+        sidewalk=(('packed_mud', 6), ('terracotta', 2), ('coarse_dirt', 2)),
         ground='grass_block', ground_wear=(('coarse_dirt', 8),), fill='dirt', lamp_post='acacia_fence', fence='acacia_fence',
         hedge='acacia_leaves', pots=('potted_acacia_sapling', 'potted_dandelion', 'potted_dead_bush'),
         plants=(('short_grass', 3), ('dandelion', 1), ('poppy', 1)), tree_log='acacia_log'),
@@ -153,7 +153,7 @@ PALETTES = {
         post='stripped_spruce_log', beam='stripped_spruce_log', plinth='stone_bricks', weathered=(('cracked_stone_bricks', 10),),
         step='stone_brick', roof='spruce', roof_trim='dark_oak', roof_patch='cobblestone', flat=False, snow=True, floor='spruce_planks', aisle='polished_diorite',
         lane='dirt_path', lane_wear=(('gravel', 8),),
-        sidewalk=(('stone', 5), ('polished_diorite', 4)),
+        sidewalk=(('stone', 7), ('polished_diorite', 2)),
         ground='grass_block', ground_wear=(), fill='dirt', lamp_post='spruce_fence', fence='spruce_fence',
         hedge='spruce_leaves', pots=('potted_spruce_sapling', 'potted_fern'),
         plants=(('fern', 2), ('', 3)), tree_log='spruce_log'),
