@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / 'src/main/resources/data/mcyukkuri'
 sys.path.insert(0, str(ROOT / 'scripts'))
 from furniture_placement import joined
+from palette import PALETTES, PLAINS, STYLES, leaves, mc, pick
 
 # Small typed NBT writer: no external package or Minecraft installation needed.
 def byte(v): return (1, v)
@@ -48,9 +49,9 @@ class Building:
         for x in range(a[0],b[0]+1):
             for y in range(a[1],b[1]+1):
                 for z in range(a[2],b[2]+1): self.block(x,y,z,name,props,over=over)
-    def door(self,x,y,z,facing='north',kind='oak',hinge='left'):
-        """A 2-high door; the shop code handles members and staff using iron doors."""
-        self.doors.append((x,y,z))
+    def door(self,x,y,z,facing='north',kind=None,hinge='left'):
+        """A 2-high door (of the building's wood unless given); the shop code handles members and staff using iron doors."""
+        kind=kind or getattr(self,'wood','oak'); self.doors.append((x,y,z))
         for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,kind+'_door',{'facing':facing,'half':half,'hinge':hinge,'open':'false','powered':'false'},over=True)
     def double_door(self,x,y,z,facing):
         """A 2-wide double iron staff door: the leaf at (x,z) and its neighbour along the wall, hinged on the outer sides so they open apart
@@ -62,9 +63,9 @@ class Building:
         for z,y in [(0,1),(1,2)]:
             for dx in (-1,0,1):
                 self.block(x+dx,y,z,'stone_brick_stairs',{'facing':'south','half':'bottom','shape':'straight','waterlogged':'false'})
-    def sign(self,x,y,z,lines,rotation='8'):
+    def sign(self,x,y,z,lines,rotation='8',wood='oak'):
         messages=[json.dumps({'text':s},ensure_ascii=False) for s in (lines+['']*4)[:4]]
-        self.block(x,y,z,'oak_sign',{'rotation':rotation,'waterlogged':'false'}, {'id':string('minecraft:sign'),
+        self.block(x,y,z,f'{wood}_sign',{'rotation':rotation,'waterlogged':'false'}, {'id':string('minecraft:sign'),
             'front_text':compound({'messages':sequence(8,messages),'color':string('black'),'has_glowing_text':byte(0)})})
     def wall_sign(self,x,y,z,lines,facing='south',wood='birch'):
         """A tag hung on the block behind it (the block on the opposite side of `facing` must be solid)."""
@@ -133,6 +134,26 @@ class Building:
         path=OUT/'structure'/f'{self.name}.nbt'; path.parent.mkdir(parents=True,exist_ok=True)
         raw=b'\x0a\x00\x00'+payload(10,nbt); path.write_bytes(gzip.compress(raw,mtime=0))
         return {'name':self.name,'size':self.size,'blocks':len(blocks),'entities':len(self.entities),'source':'art/structures/human-world/build.py'}
+
+def light_up(b, limit=400):
+    """Hidden light blocks until every floor meets the light rule (check_structure.light_needs): covered floors >= 8, open sturdy floors
+    and wind gaps >= 1. A light goes into the first air cell at head height, then at the feet, then beside; a wind gap is lit from beside
+    it so it stays dim. Roof tops, awnings and parapets get theirs the same way (no monster spawns on any floor of the piece)."""
+    from check_structure import light_needs
+    gaps = set(getattr(b, 'gaps', ())); skipped = set()
+    for _ in range(limit):
+        needs = sorted((n for n in light_needs(b) if n[0] not in skipped), key=lambda n: (-n[1], n[0][1], n[0]))
+        if not needs: return
+        placed = []   # one pass places several lights far enough apart, then light is recomputed
+        for (x, y, z), need in needs:
+            if any(abs(x - a) + abs(y - c) + abs(z - d) <= (6 if need > 1 else 5) for a, c, d in placed): continue
+            side = [(x + dx, y, z + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+            spots = ([c for c in side if c not in gaps] + [(x, y, z)]) if (x, y, z) in gaps else [(x, y + 1, z), (x, y, z)] + [(cx, cy + 1, cz) for cx, cy, cz in side] + side
+            for cx, cy, cz in spots:
+                if 0 <= cx < b.size[0] and 0 <= cy < b.size[1] and 0 <= cz < b.size[2] and name_at(b, cx, cy, cz) == 'minecraft:air':
+                    b.block(cx, cy, cz, 'light', {'level': '15' if need > 1 else '7', 'waterlogged': 'false'}, over=True)
+                    placed.append((x, y, z)); break
+            else: skipped.add((x, y, z))
 
 def stock_growth(age, nourishment):
     baby = age < 72000
@@ -209,40 +230,59 @@ def carpet(b,x0,z0,x1,z1,color):
     for x in range(x0,x1+1):
         for z in range(z0,z1+1):
             if name_at(b,x,3,z)=='minecraft:air': b.block(x,3,z,color+'_carpet')
-def roof(b,z0,z1,x0=0):
-    """Low pitched roof running along x (from x0 to the east end): slab/stair pairs rise 1 per 2 blocks from both eaves to a flat ridge,
-    gable ends filled. Dark-oak eave trim and ridge cap split each slope into 5-row mud-brick bands; skylight patches break it up."""
-    dmax=max(min(z-z0,z1-z) for z in range(z0,z1+1))
+SKYLIGHTS = (6,7,8,20,21,22,34,35,36)
+def roof(b,p,z0,z1,x0=0):
+    """Low pitched roof running along x (from x0 to the east end) in the type's roof family: slab/stair pairs rise 1 per 2 blocks from
+    both eaves to a flat ridge, gable ends filled with the pale wall. Trim on the eaves, ridge and verges splits each slope into 5-row
+    bands; skylight patches break it up. A snowy roof carries its snow on a plank ridge."""
+    dmax=max(min(z-z0,z1-z) for z in range(z0,z1+1)); gable=p.state(p.wall_light)
     for z in range(z0,z1+1):
         front=z-z0<=z1-z; d=min(z-z0,z1-z); y=9+d//2
         for x in range(x0,41):
-            mat='dark_oak' if d in (0,dmax) or x in (x0,40) else 'mud_brick'
-            if 2<=d<=4 and (x//1 in (6,7,8,20,21,22,34,35,36)): b.block(x,y,z,'glass'); continue
+            mat=p.roof_trim if d in (0,dmax) or x in (x0,40) else p.roof
+            if 2<=d<=4 and x in SKYLIGHTS: b.block(x,y,z,'glass'); continue
+            if p.snow and d==dmax: b.block(x,y,z,p.planks(p.roof)); b.block(x,y+1,z,'snow',{'layers':'2'}); continue
             if d%2==0: slab(b,x,y,z,mat)
             else: stairs(b,x,y,z,mat,'south' if front else 'north')
         for x in (max(1,x0),39):
-            for yy in range(9,y): b.block(x,yy,z,'smooth_quartz')
-def shop():
+            for yy in range(9,y): b.block(x,yy,z,*gable)
+def flat_roof(b,p,cells,y):
+    """Flat roof with a parapet (desert): slabs over the (x, z) cells with trim seams every 6 blocks, and a parapet course on the outline
+    capped with a slab (the cap leaves no full top for anything to spawn on)."""
+    for x,z in cells:
+        if any((x+dx,z+dz) not in cells for dx,dz in ((1,0),(-1,0),(0,1),(0,-1))): b.block(x,y,z,p.roof_trim); slab(b,x,y+1,z,p.roof_trim)
+        else: slab(b,x,y,z,p.roof_trim if x%6==0 or z%6==0 else p.roof)
+def yard_bush(p):
+    """A free-standing shrub of the type for yards: azalea, a dead bush in the desert, a leaf bush in the conifer types."""
+    if p.style in ('plains','savanna'): return 'flowering_azalea',None
+    if p.style=='desert': return 'dead_bush',None
+    return p.hedge,leaves(p.hedge)
+def ground(p): return p.ground,({'snowy':'false'} if p.ground=='grass_block' else None)
+def shop(p=PLAINS,name='yukkuri_shop'):
+    """The pet shop in the materials of one village type; the plan, pens, exam area, sign and every interior coordinate are the same in
+    all types (the museum template `yukkuri_shop` is the plains one)."""
     from check_structure import light_levels, walk_cells
-    b=Building('yukkuri_shop',[41,16,33])
-    Q='smooth_quartz'; LOG={'axis':'y'}
+    b=Building(name,[41,16,33]); b.palette=p; b.wood=p.wood
+    Q=p.state(p.wall_light); POST=p.state(p.post); LOG={'axis':'y'}
     # ---- Shell: foundation, paving, 39x28 walls (outer x 1..39, z 3..30), 5-high rooms (y 3..7) under a y=8 ceiling.
-    b.box((0,0,0),(40,1,32),'stone_bricks'); b.box((0,2,0),(40,2,32),'polished_andesite')
-    b.box((1,3,3),(39,8,30),Q); b.box((2,3,4),(38,7,29),'air')
-    b.box((2,2,4),(38,2,29),'birch_planks'); b.box((17,2,18),(22,2,29),'oak_planks')
-    for x0,x1,z0,z1 in [(29,35,14,18),(24,27,14,18),(29,31,23,25),(33,35,23,25)]: b.box((x0,2,z0),(x1,2,z1),'oak_planks')
-    # Sales half: quartz aisle across the hall and up to the street door; the backyard (x 2..15, z 18..29) is open to the sky on grass.
-    b.box((2,2,9),(22,2,11),'smooth_quartz'); b.box((10,2,4),(14,2,8),'smooth_quartz')
-    b.box((2,2,18),(15,2,29),'grass_block',{'snowy':'false'}); b.box((2,8,18),(15,8,29),'air')
-    b.box((23,3,4),(23,8,29),Q); b.box((2,3,17),(22,8,17),Q); b.box((16,3,18),(16,8,29),Q)
-    # plinth and sign band wrap the building; pillars every 6 blocks keep every wall patch within 6x6.
+    b.box((0,0,0),(40,0,32),p.plinth)
+    for x in range(41):
+        for z in range(33): b.block(x,1,z,p.plinth_at(x,z)); b.block(x,2,z,p.sidewalk_at(x,z))
+    b.box((1,3,3),(39,8,30),*Q); b.box((2,3,4),(38,7,29),'air')
+    b.box((2,2,4),(38,2,29),p.floor); b.box((17,2,18),(22,2,29),p.planks())
+    for x0,x1,z0,z1 in [(29,35,14,18),(24,27,14,18),(29,31,23,25),(33,35,23,25)]: b.box((x0,2,z0),(x1,2,z1),p.planks())
+    # Sales half: a hard aisle across the hall and up to the street door; the backyard (x 2..15, z 18..29) is open to the sky.
+    b.box((2,2,9),(22,2,11),p.aisle); b.box((10,2,4),(14,2,8),p.aisle)
+    b.box((2,2,18),(15,2,29),*ground(p)); b.box((2,8,18),(15,8,29),'air')
+    b.box((23,3,4),(23,8,29),*Q); b.box((2,3,17),(22,8,17),*Q); b.box((16,3,18),(16,8,29),*Q)
+    # plinth course and cornice band wrap the building; posts every 6 blocks keep every wall patch within 6x6.
     for x in range(1,40):
-        for z in (3,30): b.block(x,3,z,'mud_bricks'); b.block(x,8,z,'dark_oak_planks')
+        for z in (3,30): b.block(x,3,z,p.plinth_at(x,z,1)); b.block(x,8,z,*p.state(p.band,'x'))
     for z in range(3,31):
-        for x in (1,39): b.block(x,3,z,'mud_bricks'); b.block(x,8,z,'dark_oak_planks')
-    for x in (1,9,15,23,31,39): b.box((x,3,3),(x,8,3),'stripped_birch_log',LOG)
-    for x in (1,7,13,19,25,31,37,39): b.box((x,3,30),(x,8,30),'stripped_birch_log',LOG)
-    for z in (3,9,15,21,27,30): b.box((1,3,z),(1,8,z),'stripped_birch_log',LOG); b.box((39,3,z),(39,8,z),'stripped_birch_log',LOG)
+        for x in (1,39): b.block(x,3,z,p.plinth_at(x,z,1)); b.block(x,8,z,*p.state(p.band,'z'))
+    for x in (1,9,15,23,31,39): b.box((x,3,3),(x,8,3),*POST)
+    for x in (1,7,13,19,25,31,37,39): b.box((x,3,30),(x,8,30),*POST)
+    for z in (3,9,15,21,27,30): b.box((1,3,z),(1,8,z),*POST); b.box((39,3,z),(39,8,z),*POST)
     for a,c in zip((1,7,13,19,25,31,37),(7,13,19,25,31,37,39)):
         gap=c-a-1
         if gap>=4:
@@ -254,36 +294,45 @@ def shop():
         if gap>=4:
             s=a+1+(gap-3)//2
             for t in range(s,s+3): b.box((1,5,t),(1,6,t),'glass'); b.box((39,5,t),(39,6,t),'glass')
-    # Street facade: big display windows y 4..7 with birch mullions at the booth glass lines, doors for shop and exam hall.
+    # Street facade: big display windows y 4..7 with mullions at the booth glass lines, doors for shop and exam hall.
     for a,c in [(2,8),(10,14),(16,22),(24,30),(32,38)]: b.box((a,4,3),(c,7,3),'glass')
     # The two street pens are floor-level: their window reaches down to the floor so passers-by see the animals at eye level.
     for a,c in [(2,8),(16,22)]: b.box((a,3,3),(c,3,3),'glass')
-    for x in (5,19): b.box((x,3,3),(x,7,3),'stripped_birch_log',LOG)
-    b.box((35,4,3),(35,7,3),'stripped_birch_log',LOG)
-    for x in (26,28): b.box((x,4,3),(x,7,3),'stripped_birch_log',LOG); b.block(x,5,2,'cyan_wall_banner',{'facing':'north'})
-    b.door(12,3,3); b.door(27,3,3)
-    # Red/white awning (2-block stripes) stepping out over the pavement, shop banners on the pillars, paw-print sign board.
+    for x in (5,19): b.box((x,3,3),(x,7,3),*POST)
+    b.box((35,4,3),(35,7,3),*POST)
+    for x in (26,28): b.box((x,4,3),(x,7,3),*POST); b.block(x,5,2,'cyan_wall_banner',{'facing':'north'})
+    b.door(12,3,3,kind=p.wood); b.door(27,3,3,kind=p.wood)
+    # Red/white awning (2-block stripes) stepping out over the pavement, shop banners on the posts, paw-print sign board.
     for x in range(1,40):
         wool='red_wool' if (x//2)%2==0 else 'white_wool'
         b.block(x,8,2,wool); b.block(x,7,2,wool); b.block(x,7,1,wool)
     for x in (9,15,23,31): b.block(x,5,2,'red_wall_banner',{'facing':'north'})
-    b.box((6,8,2),(18,8,2),'dark_oak_planks'); b.box((6,15,2),(18,15,2),'dark_oak_planks'); b.box((6,8,2),(6,15,2),'dark_oak_planks'); b.box((18,8,2),(18,15,2),'dark_oak_planks')
+    board=p.planks(p.dark)
+    b.box((6,8,2),(18,8,2),board); b.box((6,15,2),(18,15,2),board); b.box((6,8,2),(6,15,2),board); b.box((18,8,2),(18,15,2),board)
     emblem=['.FRRFDFRRF.','.KKKKKKKKK.','KKSSSSSSSKK','KSHESSSHESK','RSEESSSEESR','FPSSSMSSSPF']   # Reimu yukkuri head as seen from the street (map G of the art review)
     mats={'.':'green_terracotta','F':'white_concrete','H':'white_concrete','R':'red_concrete','D':'red_nether_bricks','K':'black_concrete','E':'black_concrete','S':'white_terracotta','M':'red_terracotta','P':'pink_terracotta'}
     for r,row in enumerate(emblem):
         for c,ch in enumerate(row): b.block(17-c,14-r,2,mats[ch])   # facade faces north: the viewer's left is +x
-    # Planting and benches on the pavement.
-    for x0,x1 in [(1,7),(33,39)]: b.box((x0,3,0),(x1,3,0),'flowering_azalea_leaves',{'persistent':'true','distance':'7'})
-    for x in (9,15,23,31): b.block(x,3,1,'potted_azalea_bush')
+    # Planting and benches on the pavement: a hedge of the type's leaves, or a row of pots where nothing grows.
+    for x0,x1 in [(1,7),(33,39)]:
+        for x in range(x0,x1+1):
+            if p.hedge: b.block(x,3,0,p.hedge,leaves(p.hedge))
+            elif x%2: b.block(x,3,0,p.pot(x//2))
+    for i,x in enumerate((9,15,23,31)): b.block(x,3,1,p.pot(i))
     for x0 in (3,35): furniture(b,'bench',3,[(x,1) for x in range(x0,x0+3)])
-    # Gabled roofs over the front block and the rear block east of the backyard (back room and exam wing); roof is 4 rows on a 6-row facade (y 3..8).
-    roof(b,3,16); roof(b,17,30,16)
-    b.box((6,9,3),(18,15,3),Q)   # false front carries the sign board
-    b.sign(26,3,2,['考核处','EXAM HALL','口试 / 实技'],'8')
+    # Roofs over the front block and the rear block east of the backyard (back room and exam wing); the roof is 4 rows on a 6-row facade
+    # (y 3..8). The desert type has one flat roof with a parapet over both blocks.
+    if p.flat: flat_roof(b,p,{(x,z) for x in range(1,40) for z in range(3,18)}|{(x,z) for x in range(16,40) for z in range(17,31)},9)
+    else: roof(b,p,3,16); roof(b,p,17,30,16)
+    b.box((6,9,3),(18,14,3),*Q)   # false front carries the sign board
+    for x in range(6,19):         # coping on the false front and the board
+        for z in (2,3): slab(b,x,15,z,p.roof_trim)
+    b.sign(26,3,2,['考核处','EXAM HALL','口试 / 实技'],'8',p.wood)
     for x in (11,12,13,26,27,28):   # street-edge ramp: two half-height steps up to the pavement
-        b.block(x,2,0,'air'); stairs(b,x,1,0,'stone_brick','south'); stairs(b,x,2,1,'stone_brick','south')
-    for z in (9,24):
-        for x in (4,12,20,28,36): b.block(x,9,z,'light',{'level':'10','waterlogged':'false'})   # invisible attic light: nothing spawns under the roof
+        b.block(x,2,0,'air'); stairs(b,x,1,0,p.step,'south'); stairs(b,x,2,1,p.step,'south')
+    if not p.flat:
+        for z in (9,24):
+            for x in (4,12,20,28,36): b.block(x,9,z,'light',{'level':'10','waterlogged':'false'})   # invisible attic light: nothing spawns under the roof
     # ---- Furnishing phase: every overwrite of a different block is now an error unless explicitly allowed.
     b.strict=True
     for x,z in [(23,9)]: b.door(x,3,z,'east')
@@ -322,9 +371,9 @@ def shop():
     b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60),age=61000)
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
     # Eye-level opening above the counter, too short to crawl through. Staff use the doors at its ends.
-    b.box((7,3,12),(17,3,12),'dark_oak_planks')
+    b.box((7,3,12),(17,3,12),p.planks(p.dark))
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
-    for x in range(7,18): slab(b,x,4,12,'dark_oak','bottom')
+    for x in range(7,18): slab(b,x,4,12,p.dark,'bottom')
     b.box((2,3,12),(4,7,12),'glass'); b.box((20,3,12),(22,7,12),'glass')
     b.box((5,5,12),(19,7,12),'glass')
     b.double_door(5,3,12,'south')
@@ -353,13 +402,15 @@ def shop():
     # ---- Backyard (x 2..15, z 18..29), walled and open to the sky: an arcade along the hall wall shelters four nests and the bowls,
     # toilets in the far corners, flowers and toys on the grass; lanterns and hidden lights keep it lit at night (no monster spawns).
     for x in range(2,16):
-        for z in (18,19,20): slab(b,x,6,z,'oak','top')
+        for z in (18,19,20): slab(b,x,6,z,p.wood,'top')
     for x in (3,8,13): b.block(x,5,19,'lantern',{'hanging':'true','waterlogged':'false'})
     for x in (2,5,8,11): b.block(x,3,18,'mcyukkuri:yukkuri_nest')
     b.bowl(13,18,grain=4); b.bowl(15,18,grain=4)
     for x in (2,15): b.block(x,3,29,'mcyukkuri:yukkuri_toilet')
-    for x,z,flower in [(4,22,'dandelion'),(10,27,'poppy'),(13,23,'cornflower'),(6,28,'oxeye_daisy'),(14,26,'allium')]: b.block(x,3,z,flower)
-    b.block(8,3,25,'flowering_azalea')
+    for i,(x,z) in enumerate([(4,22),(10,27),(13,23),(6,28),(14,26)]):   # the type's yard plants, one of each in turn
+        plant=p.plants[i%len(p.plants)][0]
+        if plant: b.block(x,3,z,plant)
+    b.block(8,3,25,*yard_bush(p))
     for x,z in [(5,24),(11,24),(5,28),(11,28)]: b.block(x,7,z,'light',{'level':'12','waterlogged':'false'})
     for x,z,item in [(7.5,26.5,'yarn_ball'),(11.5,22.5,'glass_marble'),(4.5,26.5,'pretty_stone')]: b.toy(x,3,z,item)
     register_pen(b,'yard',(2,18,15,29),(13,18),[(2,18),(5,18),(8,18),(11,18)],(10,10),hatch=(16,21))
@@ -376,7 +427,7 @@ def shop():
     b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
     furniture(b,'bench',3,[(24,5),(24,6)],'z')
-    b.sign(33,3,5,['答题台','考生站上台面','考官在对面桌后'],'8')
+    b.sign(33,3,5,['答题台','考生站上台面','考官在对面桌后'],'8',p.wood)
     # Mock living room (7x5 interior) with glass walls, window observation spot and entrance door.
     pen_rect(b,29,14,35,18); b.door(30,3,13)
     b.bowl(29,14); b.bowl(35,14); b.block(35,3,18,'mcyukkuri:yukkuri_toilet')
@@ -390,23 +441,23 @@ def shop():
     for x,kind in [(25.5,'marisa'),(26.5,'alice'),(27.5,'reimu')]:
         b.pet(x,16.5,kind,'shop_examiner','trainee',0,skills=LIFE_SKILLS,traits=(55,70,55,60,80))
     register_pen(b,'trainee',(24,14,27,18),(25,14),[(24,18),(26,18)],(3,3))
-    b.sign(26,3,12,['陪考生','正在受训','请勿喂食'],'8')
+    b.sign(26,3,12,['陪考生','正在受训','请勿喂食'],'8',p.wood)
     # Gold booth: two 3x3 cells split by a glass wall. Candidate (gold mark) and actor (wild-role yukkuri).
     pen_rect(b,29,23,35,25); glass(b,(32,23),(32,25)); b.door(30,3,22); b.door(34,3,22)
     mark(b,30,24,'gold'); mark(b,34,24,'actor')
     b.bowl(33,25); b.block(35,3,25,'mcyukkuri:yukkuri_nest'); b.pet(34.5,24.5,'reimu','shop_examiner','exam_actor',0)
     register_pen(b,'actor',(33,23,35,25),(33,25),[(35,25)],(3,3))
-    b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8')
+    b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8',p.wood)
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); furniture(b,'bench',3,[(26,28)],'z'); furniture(b,'table',3,[(27,28)])
     # Rugs and plants keep the rooms warm and lived-in.
-    for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,11),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
+    for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,11),(22,16)]: b.block(x,3,z,p.pot(x+z))
     carpet(b,11,4,13,5,'red'); carpet(b,20,13,21,15,'light_blue'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
     for z in (28,29): b.box((38,3,z),(38,4,z),'bookshelf')
     # ---- Lighting: hanging lanterns on a 5x5 grid per room; greedy completion until every covered walkable cell has light >= 8.
     pen_cells=set()
-    for p in b.pens:
-        x0,z0,x1,z1=p['interior']
+    for pen in b.pens:
+        x0,z0,x1,z1=pen['interior']
         for x in range(x0,x1+1):
             for z in range(z0,z1+1): pen_cells.add((x,z))
     def hang(x,z):
@@ -418,7 +469,7 @@ def shop():
         b.block(x,y-1,z,'lantern',{'hanging':'true','waterlogged':'false'}); return True   # under an awning
     def flush(x,z):
         """Ochre froglight set flush into the y8 ceiling."""
-        if name_at(b,x,8,z)!='minecraft:smooth_quartz' or any(name_at(b,x,y,z)!='minecraft:air' for y in (5,6,7)) or not 2<=x<=38 or not 4<=z<=29: return False
+        if name_at(b,x,8,z)!=mc(p.wall_light) or any(name_at(b,x,y,z)!='minecraft:air' for y in (5,6,7)) or not 2<=x<=38 or not 4<=z<=29: return False
         b.block(x,8,z,'ochre_froglight',{'axis':'y'},over=True); return True
     order=sorted(((abs(dx)+abs(dz),dx,dz) for dx in range(-2,3) for dz in range(-2,3)))
     for gx in range(3,39,5):
@@ -435,6 +486,7 @@ def shop():
         if any(invisible(x+dx,z+dz) for _,dx,dz in order) or any(hang(x+dx,z+dz) for _,dx,dz in order): continue
         break
     connect_panes(b)
+    light_up(b)
     return b
 
 def specialized_factory(kind):
@@ -521,10 +573,13 @@ def specialized_factory(kind):
     return b
 
 def village_shop(original):
-    # Keep the museum template byte-for-byte identical. The village lot adds a street-level apron before its two ramps.
+    """The pet shop as the village frontage `village/<type>/pet_shop`: the same building behind an 8-row street apron (entities and posts
+    move along). The apron's lane is the type's vanilla street block; a 3-wide stub of it runs out to the village centre, fraying into
+    the paving over its last two rows."""
+    p = original.palette
     frontage_depth = 8
     width, height, depth = original.size
-    lot = Building('village/yukkuri_shop', [width, height, depth + frontage_depth])
+    lot = Building(f'village/{p.style}/pet_shop', [width, height, depth + frontage_depth]); lot.palette = p
     lot.blocks = {(x, y, z + frontage_depth): block for (x, y, z), block in original.blocks.items()}
     for entity in original.entities:
         x, y, z = entity['pos'][1][1]
@@ -533,13 +588,12 @@ def village_shop(original):
         lot.entities.append({'pos': nbt['Pos'], 'blockPos': sequence(3, [int(x), int(y), int(z) + frontage_depth]),
                              'nbt': compound(nbt)})
 
-    lot.box((0, 0, 0), (width - 1, 0, frontage_depth - 1), 'polished_andesite')
-    lot.box((11, 0, 0), (13, 0, 2), 'gravel')
-    lot.box((0, 0, 3), (width - 1, 0, 5), 'gravel')
+    for x in range(width):
+        for z in range(frontage_depth): lot.block(x, 0, z, p.lane_at(x, z) if 3 <= z <= 5 else p.sidewalk_at(x, z))
+    for x, z in [(11, 0), (12, 0), (13, 0), (11, 1), (12, 1), (13, 1), (14, 1), (12, 2), (13, 2), (10, 2)]: lot.block(x, 0, z, p.lane)
     for x in (4, 34):
-        lot.box((x, 0, 6), (x + 3, 0, 7), 'grass_block', {'snowy': 'false'})
+        lot.box((x, 0, 6), (x + 3, 0, 7), *ground(p))
         furniture(lot, 'bench', 1, [(x + i, 7) for i in range(3)])
-        barrel(lot, x + 3, 1, 7)
 
     def jigsaw(x, z, facing, name, target='minecraft:empty', pool='minecraft:empty'):
         lot.block(x, 1, z, 'jigsaw', {'orientation': facing + '_up'}, {
@@ -550,21 +604,18 @@ def village_shop(original):
     jigsaw(12, 0, 'north', 'minecraft:street')
     import author_street   # bins as stray garbage points, street lamps, the sockets of both street ends
     author_street.dress_shop_apron(lot)
+    light_up(lot)
     return lot
 
 
 def export():
     import author_street
-    museum_shop = shop()
-    summary=[museum_shop.save(), village_shop(museum_shop).save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]+author_street.export()
-    for style in ('plains', 'desert', 'savanna', 'snowy', 'taiga'):
-        pool = f'village/{style}/frontage'
-        path = OUT / 'worldgen/template_pool' / f'{pool}.json'
-        path.parent.mkdir(parents=True, exist_ok=True)
-        data = {'name': f'mcyukkuri:{pool}', 'fallback': f'minecraft:village/{style}/streets', 'elements': [
-            {'weight': 1, 'element': {'element_type': 'mcyukkuri:levelled', 'location': 'mcyukkuri:village/yukkuri_shop',
-                                     'processors': 'minecraft:empty', 'projection': 'rigid'}}]}
-        path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8', newline='\n')
+    summary=[]
+    for style in STYLES:
+        built=shop(PALETTES[style])
+        if style=='plains': summary.append(built.save())   # the museum template (`human build shop`)
+        summary.append(village_shop(built).save())
+    summary+=[specialized_factory(k).save() for k in ('labor','manju','bag')]+author_street.export()
     p=OUT/'tags/worldgen/biome/human_buildings.json';p.parent.mkdir(parents=True,exist_ok=True)
     p.write_text(json.dumps({'replace':False,'values':['minecraft:plains','minecraft:sunflower_plains','minecraft:meadow','minecraft:savanna']},indent=2)+'\n',encoding='utf-8',newline='\n')
     p=OUT/'neoforge/biome_modifier/human_spawns.json'

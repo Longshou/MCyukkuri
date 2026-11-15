@@ -20,7 +20,7 @@ import preview_shop as ps
 SOURCES = ['build.py', 'author_street.py', 'check_structure.py']
 DUMP = """import json, sys
 sys.path.insert(0, sys.argv[1]); import build, author_street
-pieces = {'lot': build.village_shop(build.shop()), 'stall': author_street.street_stall(), 'oni': author_street.oni_shop()}
+pieces = {'lot': build.village_shop(build.shop()), 'stall': author_street.street_stall(*[getattr(build, 'PLAINS')] if hasattr(build, 'PLAINS') else []), 'oni': author_street.oni_shop()}
 print(json.dumps({k: [[*p, n, pr] for p, (n, pr, _) in b.blocks.items()] for k, b in pieces.items()}))
 """
 

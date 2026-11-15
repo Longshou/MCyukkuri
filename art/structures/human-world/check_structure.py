@@ -16,7 +16,11 @@ AIR = 'minecraft:air'
 FREE = {AIR, 'mcyukkuri:exam_mark', 'minecraft:light'}
 def free(name): return name in FREE or name.endswith(('_sign', '_banner', '_carpet'))
 # Blocks that let block light through. Furniture, stairs, slabs and every full cube count as opaque (a conservative estimate).
-TRANSPARENT = {AIR, 'minecraft:glass', 'minecraft:glass_pane', 'minecraft:lantern', 'minecraft:chain', 'minecraft:light', 'minecraft:spruce_fence', 'minecraft:oak_leaves'}
+TRANSPARENT = {AIR, 'minecraft:glass', 'minecraft:glass_pane', 'minecraft:lantern', 'minecraft:chain', 'minecraft:light', 'minecraft:spruce_fence', 'minecraft:oak_leaves',
+               'minecraft:jigsaw'}   # a jigsaw becomes air when the piece is placed
+# Plants light passes through.
+TRANSPARENT |= {'minecraft:' + n for n in ('short_grass', 'tall_grass', 'fern', 'large_fern', 'dead_bush', 'dandelion', 'poppy', 'cornflower',
+                                           'oxeye_daisy', 'allium', 'flowering_azalea', 'azalea')}
 def transparent(name):
     return (name in TRANSPARENT or name.startswith(('mcyukkuri:', 'minecraft:potted_')) or
             name.endswith(('_door', '_sign', '_banner', '_carpet', '_pressure_plate', '_trapdoor', '_fence', '_leaves')))
@@ -57,6 +61,45 @@ def walk_cells(b, y=3):
     return out
 
 def solid_cell_below(b, x, y, z): return name_at(b, x, y - 1, z) != AIR
+
+# ---------------------------------------------------------------------------------------------------- light on every floor (all pieces)
+# A stand cell has a supporting floor and two clear cells above it (a jigsaw counts as the air it becomes). Covered stand cells need
+# block light >= 8; a stand cell on a sturdy floor (a full block that is not glass or leaves) needs >= 1, or monsters spawn there at
+# night. Both apply at every height, roofs included; the cell just above the template is checked too (nothing can light it, so the
+# top layer must not be a sturdy floor). Wind gaps need >= 1 as well.
+PLANTS = {'minecraft:' + n for n in ('short_grass', 'tall_grass', 'fern', 'large_fern', 'dead_bush', 'poppy', 'dandelion')}
+def state_at(b, x, y, z):
+    name, props, _ = b.blocks.get((x, y, z), (AIR, {}, None))
+    return (AIR, {}) if name == 'minecraft:jigsaw' else (name, props or {})
+def clear(name, props): return free(name) or name in PLANTS or name == 'minecraft:snow' and props.get('layers') == '1'
+def support(name, props):
+    return name not in ('minecraft:water',) and not clear(name, props) and (
+        full_block(name) and not name.endswith(('_fence_gate', '_sapling', ':snow')) or name.endswith(('_slab', '_stairs')) or name == 'minecraft:dirt_path')
+def sturdy(name, props):
+    return support(name, props) and full_block(name) and not name.endswith(('glass', '_leaves'))
+def stand(b, x, y, z):
+    return support(*state_at(b, x, y - 1, z)) and clear(*state_at(b, x, y, z)) and clear(*state_at(b, x, y + 1, z))
+def covered(b, x, y, z): return any(support(*state_at(b, x, yy, z)) for yy in range(y + 2, b.size[1]))
+
+def light_needs(b, level=None):
+    """[(cell, required level)] of stand cells and wind gaps whose block light is too low."""
+    level = light_levels(b) if level is None else level
+    out = []; sx, sy, sz = b.size
+    for x in range(sx):
+        for z in range(sz):
+            for y in range(1, sy + 1):
+                if not stand(b, x, y, z): continue
+                lv = level.get((x, y, z), 0)
+                if covered(b, x, y, z):
+                    if lv < 8: out.append(((x, y, z), 8))
+                elif lv == 0 and sturdy(*state_at(b, x, y - 1, z)) and not name_at(b, x, y, z).endswith('_carpet'): out.append(((x, y, z), 1))
+    for x, y, z in getattr(b, 'gaps', ()):
+        if not level.get((x, y, z)): out.append(((x, y, z), 1))
+    return out
+
+def light_errors(b):
+    needs = light_needs(b)
+    return [f'{b.name}: {len(needs)} floor cells too dark (covered < 8 or open = 0), first {needs[:6]}'] if needs else []
 
 def check(b):
     errors = []
@@ -103,11 +146,13 @@ def check(b):
         if name.endswith('_door') and props.get('half') == 'lower' and (x, y, z) not in b.doors: errors.append(f'door at {(x, y, z)} not registered')
     errors += reachability(b)
     errors += facade_patches(b)
-    errors += roof_patches(b)
-    tiles = [y for (x, y, z), (n, _, _) in b.blocks.items() if n.endswith('mud_brick_slab') or n.endswith('mud_brick_stairs')]
-    rows = max(tiles) - 9 + 1; ratio = rows / (6 + rows)
-    if ratio > 0.41: errors.append(f'roof is {ratio:.0%} of facade height')
-    return errors
+    p = b.palette
+    errors += roof_patches(b, skip='minecraft:' + p.wall_light)
+    if not p.flat:   # a flat roof adds no height above the 6-row facade
+        tiles = [y for (x, y, z), (n, _, _) in b.blocks.items() if n in (f'minecraft:{p.roof}_slab', f'minecraft:{p.roof}_stairs')]
+        rows = max(tiles) - 9 + 1; ratio = rows / (6 + rows)
+        if ratio > 0.41: errors.append(f'roof is {ratio:.0%} of facade height')
+    return [f'{b.name} ({p.style}): {e}' for e in errors]
 
 def reachable(b):
     """Floor cells staff reach on foot (2-high clearance, doors opened on the way) from the pavement in front of the shop door.
@@ -173,11 +218,12 @@ def facade_patches(b, limit=6):
             if width > limit and height > limit: errors.append(f'{plane}: {kind} patch {width}x{height}')
     return errors
 
-def roof_patches(b, limit=6):
-    """Roof planes seen from above: no window of one block family larger than 6x6 (trim, ridge cap and skylights break the slopes)."""
+def roof_patches(b, limit=6, skip='minecraft:smooth_quartz'):
+    """Roof planes seen from above: no window of one block family larger than 6x6 (trim, ridge cap, seams and skylights break the
+    slopes). `skip` is the pale wall of the gables and the false front."""
     top = {}
     for (x, y, z), (n, _, _) in b.blocks.items():
-        if y >= 9 and n not in ('minecraft:light', 'minecraft:smooth_quartz') and top.get((x, z), (0,))[0] < y: top[x, z] = (y, n.replace('_slab', '').replace('_stairs', ''))
+        if y >= 9 and n not in ('minecraft:light', skip) and top.get((x, z), (0,))[0] < y: top[x, z] = (y, n.replace('_slab', '').replace('_stairs', ''))
     errors = []; n = limit + 1
     for (x, z), (_, kind) in sorted(top.items()):   # any 7x7 window of one block family is a patch larger than 6x6
         if all(top.get((x + i, z + j), (0, None))[1] == kind for i in range(n) for j in range(n)): errors.append(f'roof: {kind} patch at x{x} z{z}'); break
@@ -189,7 +235,19 @@ def load_build():
     spec = importlib.util.spec_from_file_location('build_human_structures_check', path); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     return m
 
-def check_shop(): return check(load_build().shop())
+def styled_errors(b):
+    """The light rule on every floor and the material set of the piece's village type."""
+    from palette import violations
+    errors = light_errors(b)
+    foreign = violations(b, b.palette.style)
+    if foreign: errors.append(f'{b.name}: blocks outside the {b.palette.style} palette: {", ".join(foreign)}')
+    return errors
+
+def check_shop():
+    build = load_build(); errors = []
+    for style in build.STYLES:
+        shop = build.shop(build.PALETTES[style]); errors += check(shop) + styled_errors(shop)
+    return errors
 
 # ---------------------------------------------------------------------------------------------------- street pieces and the oni-san shop
 # Run against author_street.py plans. Fails on: overwrites; entities in blocks or without floor; pens as above (walls closed to the ceiling,
@@ -355,16 +413,31 @@ def load_street():
     spec = importlib.util.spec_from_file_location('author_street_check', path); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     return m
 
+def resident_errors(b, lane):
+    """Street residents (job 0) live indoors: their home cell is covered and reached from the lane only through a wooden door. The stall
+    keepers' home is their booth behind the counter: covered and closed to passers-by the same way."""
+    errors = []
+    walk_in = reach_from(b, lane, 1); passers = reach_from(b, lane, 1, doors=False)
+    for ent in b.entities:
+        nbt = ent['nbt'][1]
+        if nbt.get('HumanJob', (0, -1))[1] != 0: continue
+        x, y, z = (int(v // 1) for v in ent['pos'][1][1])
+        if (x, z) not in walk_in or (x, z) in passers or not covered(b, x, y, z):
+            errors.append(f'{b.name}: resident home {(x, y, z)} is not an indoor cell behind a door')
+    return errors
+
 def check_street():
-    street = load_street(); built = street.pieces(); errors = []
-    for key in ('stall', 'alley'):
-        b = built[key]; errors += check_site(b) + stray_errors(b, (1, 4))
-    errors += check_site(built['oni'], door=(11, 1), region=(2, 4, 22, 23))
-    errors += stock_nest_clearance(built['oni'])
-    errors += stray_errors(built['village_oni'], (1, 4))
-    lot = street.build.village_shop(street.build.shop())
-    lot.floor = 1
-    errors += stray_errors(lot, (1, 4))
+    street = load_street(); errors = []
+    for style in street.STYLES:
+        built = street.pieces(style)
+        for key in ('stall', 'alley'):
+            b = built[key]; errors += check_site(b) + stray_errors(b, (1, 4)) + resident_errors(b, (1, 4)) + styled_errors(b)
+        errors += check_site(built['oni'], door=(11, 1), region=(2, 4, 22, 23)) + styled_errors(built['oni'])
+        errors += stock_nest_clearance(built['oni'])
+        errors += stray_errors(built['village_oni'], (1, 4)) + styled_errors(built['village_oni'])
+        lot = street.build.village_shop(street.build.shop(street.PALETTES[style]))
+        lot.floor = 1
+        errors += stray_errors(lot, (1, 4)) + styled_errors(lot)
     return errors
 
 if __name__ == '__main__':

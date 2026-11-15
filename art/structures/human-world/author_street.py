@@ -1,35 +1,51 @@
-"""Village street pieces and the oni-san shop: original block plans on the Building writer of build.py.
+"""Main-street pieces of the village and the oni-san shop: original block plans on the Building writer of build.py, exported once per
+village type in that type's materials (palette.py).
 
-Street convention (shared with the pet-shop apron in build.village_shop): paving at y0, people walk at y1, a gravel lane on z3..5 with
-sidewalks on z0..2 and z6..7, buildings south of the lane (z >= 8). A piece joins the street with a horizontal jigsaw on the lane centre
-(z4) at its open ends. The east-edge connector is named `mcyukkuri:street_west` (it is the one a westward socket attaches), the west-edge one
-`mcyukkuri:street_east`; with these names jigsaw can only attach a piece unrotated, so its buildings always stand on the far side of the lane
-from the village road. The free connector continues the street in the same direction.
+Street convention (shared with the pet-shop apron in build.village_shop): paving at y0, people walk at y1, the lane on z3..5 in the type's
+vanilla street block with sidewalks on z0..2 and z6..7 in the town's stone, buildings south of the lane (z >= 8). A piece joins the
+street with a horizontal jigsaw on the lane centre (z4) at both ends. The east-edge connector is named `mcyukkuri:street_west` and draws
+`village/<type>/main_market`, the west-edge one is named `mcyukkuri:street_east` and draws `village/<type>/main_civic`; with these names
+jigsaw can only attach a piece unrotated, so its buildings always stand on the far side of the lane from the village road, and one
+template serves both sides of the pet shop.
 
 Stray objects are the ones the stray systems read (docs/FEATURES.md 流浪): a garbage point is a `mcyukkuri:garbage_bin` with a finite real
 stock, standing or already knocked over with its mouth toward its stand cell (settlement/GarbageSearch); a wind gap is a dry floor cell with a
 collision block right above and a full block beside it, with a real paper on it (settlement/FoundShelter); cardboard boxes and crates
-use the normal rotating shelter blocks.
+use the normal rotating shelter blocks. Street residents' homes are indoor cells behind a wooden door, except the stall keepers, who live in
+their booth behind the counter.
 """
 from pathlib import Path
 import json, math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 import build
-from build import Building, stairs, slab, barrel, furniture, marker, frame, register_pen, stock_growth, name_at, string, byte, integer, compound, sequence, integers, real
+from build import (Building, stairs, slab, barrel, furniture, marker, frame, register_pen, stock_growth, name_at, string, byte, integer,
+                   compound, sequence, integers, real, flat_roof, ground, light_up)
+from palette import PALETTES, PLAINS, STYLES, levelling, link, pick
 
 OUT = build.OUT
 OPP = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
 STEP = {'north': (0, -1), 'south': (0, 1), 'east': (1, 0), 'west': (-1, 0)}
 LOG = {'axis': 'y'}
-SITES = 'mcyukkuri:village/street_sites'
-EAST_SITES = 'mcyukkuri:village/street_east'
+
+# Pool table rows of the pieces of this module and of the pet shop (build.py), read by town_pools.py (design town.md section 9).
+# Terrain bands: the pet shop 10 cut / 8 fill, main-street lots 6 / 4.
+POOL_ENTRIES = [
+    {'pool': 'frontage', 'piece': 'pet_shop', 'weight': 1, 'max_count': 1, 'max_cut': 10, 'max_fill': 8, 'styles': None},
+    {'pool': 'main_market', 'piece': 'oni_shop', 'weight': 6, 'max_count': 1, 'max_cut': 6, 'max_fill': 4, 'styles': None},
+    {'pool': 'main_market', 'piece': 'stall', 'weight': 3, 'max_count': 2, 'max_cut': 6, 'max_fill': 4, 'styles': None},
+    {'pool': 'main_market', 'piece': 'alley', 'weight': 2, 'max_count': 1, 'max_cut': 6, 'max_fill': 4, 'styles': None},
+    {'pool': 'main_civic', 'piece': 'stall', 'weight': 1, 'max_count': 2, 'max_cut': 6, 'max_fill': 4, 'styles': None},
+]
+
+
+def pool_id(p, role): return f'mcyukkuri:village/{p.style}/{role}'
 
 
 class Site(Building):
     """A Building that also records the stray objects, lamps and jigsaws it places, for check_structure.check_street."""
-    def __init__(self, name, size, floor=1):
+    def __init__(self, name, size, p, floor=1):
         super().__init__(name, size)
-        self.floor = floor; self.garbage = []; self.gaps = []; self.shelters = []; self.jigsaws = []; self.staff_doors = []
+        self.palette = p; self.floor = floor; self.garbage = []; self.gaps = []; self.shelters = []; self.jigsaws = []; self.staff_doors = []
 
 
 def records(b):
@@ -72,9 +88,10 @@ def shelter_spot(b, x, y, z, kind, facing):
                 b.block(x + dx, y + dy, z + dz, 'mcyukkuri:' + kind, {'part': str(part), 'facing': facing}, core)
 
 
-def lamp(b, x, y, z, height=3, post='spruce_fence'):
-    """A village street lamp: a fence post with a lantern standing on top."""
-    for dy in range(height): b.block(x, y + dy, z, post)
+def lamp(b, x, y, z, height=3):
+    """A village street lamp: a post of the type's lamp fence or wall with a lantern standing on top."""
+    post = b.palette.lamp_post
+    for dy in range(height): b.block(x, y + dy, z, post, link(post))
     b.block(x, y + height, z, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
 
 
@@ -87,19 +104,25 @@ def jigsaw(b, x, y, z, facing, name, target='minecraft:empty', pool='minecraft:e
 
 def street_ends(b, width, west=True, east=True):
     """The two lane-centre connectors of a chainable piece (see the module note)."""
-    if west: jigsaw(b, 0, 1, 4, 'west', 'mcyukkuri:street_east', 'mcyukkuri:street_west', SITES)
-    if east: jigsaw(b, width - 1, 1, 4, 'east', 'mcyukkuri:street_west', 'mcyukkuri:street_east', SITES)
-
-
-def pave(x, z):
-    """Older street paving: mostly polished andesite like the shop apron, worn through to cobble and andesite here and there."""
-    return ('polished_andesite', 'polished_andesite', 'andesite', 'cobblestone', 'polished_andesite', 'polished_andesite', 'gravel')[(x * 7 + z * 13) % 7]
+    p = b.palette
+    if west: jigsaw(b, 0, 1, 4, 'west', 'mcyukkuri:street_east', 'mcyukkuri:street_west', pool_id(p, 'main_civic'))
+    if east: jigsaw(b, width - 1, 1, 4, 'east', 'mcyukkuri:street_west', 'mcyukkuri:street_east', pool_id(p, 'main_market'))
 
 
 def street_band(b, x0, x1):
+    """Sidewalks in the town's stone either side of a lane in the type's vanilla street block, worn in patches."""
+    p = b.palette
     for x in range(x0, x1 + 1):
         for z in range(8):
-            b.block(x, 0, z, 'gravel' if 3 <= z <= 5 else pave(x, z))
+            b.block(x, 0, z, p.lane_at(x, z) if 3 <= z <= 5 else p.sidewalk_at(x, z))
+
+
+def lot_ground(b, x0, x1, z0, z1):
+    p = b.palette
+    for x in range(x0, x1 + 1):
+        for z in range(z0, z1 + 1):
+            block = p.ground_at(x, z)
+            b.block(x, 0, z, block, {'snowy': 'false'} if block == 'grass_block' else None)
 
 
 def street_residents(b, first, second):
@@ -112,10 +135,9 @@ def street_residents(b, first, second):
                  {'HumanJob': integer(0), 'HumanAttitude': integer(2), 'Tags': sequence(8, tags)})
 
 
-def fence_row(b, x0, x1, y, z, kind='oak_fence'):
+def fence_row(b, x0, x1, y, z, kind):
     for x in range(x0, x1 + 1):
-        b.block(x, y, z, kind, {'east': 'true' if x < x1 else 'false', 'west': 'true' if x > x0 else 'false',
-                                'north': 'false', 'south': 'false', 'waterlogged': 'false'})
+        b.block(x, y, z, kind, link(kind, [s for s, ok in (('west', x > x0), ('east', x < x1)) if ok]))
 
 
 def ground_display(b, x, y, z, item, yaw=0., scale=.6):
@@ -128,22 +150,26 @@ def ground_display(b, x, y, z, item, yaw=0., scale=.6):
                                     'right_rotation': sequence(5, [0., 0., 0., 1.])})})
 
 
-def gable_shed(b, x0, x1, z0, z1, wall, corner, roof, door=None, windows=()):
-    """A small vanilla-village style building on the street paving: cobblestone plinth (y1), `wall` (y2..3), `corner` logs, a gable roof
-    whose ridge runs along z. door = (x, z, facing); windows = [(x, z)] glass panes at y2."""
-    b.box((x0, 0, z0), (x1, 0, z1), 'cobblestone')
+def shed(b, x0, x1, z0, z1, wall, corner, roof, door=None, windows=()):
+    """A small vanilla-village style building on the street paving: plinth course (y1), `wall` (y2..3), `corner` posts, and a gable roof
+    of the `roof` family whose ridge runs along z (a flat roof with a parapet in the desert). door = (x, z, facing); windows = [(x, z)]
+    glass panes at y2."""
+    p = b.palette
+    b.box((x0, 0, z0), (x1, 0, z1), p.plinth)
     for x in range(x0, x1 + 1):
         for z in range(z0, z1 + 1):
             if x in (x0, x1) or z in (z0, z1):
-                b.block(x, 1, z, 'cobblestone' if (x + z) % 5 else 'mossy_cobblestone')
+                b.block(x, 1, z, p.plinth_at(x, z, 5))
                 b.box((x, 2, z), (x, 3, z), wall)
     for x in (x0, x1):
-        for z in (z0, z1): b.box((x, 1, z), (x, 3, z), corner, LOG)
+        for z in (z0, z1): b.box((x, 1, z), (x, 3, z), *p.state(corner))
     if door:
         dx, dz, facing = door
-        b.door(dx, 1, dz, facing, 'oak' if 'oak' in wall else 'spruce')
+        b.door(dx, 1, dz, facing, p.wood)
     for wx, wz in windows:
         b.block(wx, 2, wz, 'glass_pane', {'north': 'false', 'south': 'false', 'east': 'false', 'west': 'false', 'waterlogged': 'false'})
+    if p.flat:
+        flat_roof(b, p, {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)}, 4); return
     width = x1 - x0 + 1; half = width // 2
     for i in range(half):
         y = 4 + i
@@ -153,6 +179,9 @@ def gable_shed(b, x0, x1, z0, z1, wall, corner, roof, door=None, windows=()):
             if x0 + i + 1 <= x1 - i - 1: b.box((x0 + i + 1, y, z), (x1 - i - 1, y, z), wall)
     if width % 2:
         for z in range(z0, z1 + 1): slab(b, x0 + half, 4 + half, z, roof)
+    if p.snow:
+        for z in range(z0, z1 + 1):
+            for x in (x0 + half - 1, x1 - half + 1): b.block(x, 4 + half - 1, z, p.planks(roof), over=True); b.block(x, 4 + half, z, 'snow', {'layers': '2'})
 
 
 def connect_bars(b):
@@ -170,81 +199,89 @@ def connect_bars(b):
 
 
 # ---------------------------------------------------------------------------------------------------------- street pieces
-def street_stall():
-    """A market stall on the far side of the lane: striped awning on four posts, a produce counter, crates behind it. Old crates by the
-    stall (a crate spot), the market bin (garbage point) and the dry crawl space under the crate shelf behind the stall (wind gap)."""
+def street_stall(p):
+    """A market stall on the far side of the lane: striped awning on four posts over a booth with plank sides and a side door, a
+    produce counter, stores behind it. The two stall keepers live in the booth behind the counter. Old crates by the stall (a crate spot),
+    the market bin (garbage point) and the dry crawl space under the produce shelf behind the stall (wind gap)."""
     W, H, D = 15, 8, 16
-    b = Site('village/street_stall', [W, H, D])
+    b = Site(f'village/{p.style}/stall', [W, H, D], p)
     b.box((0, 1, 0), (W - 1, H - 1, D - 1), 'air')
     street_band(b, 0, W - 1)
-    b.box((0, 0, 8), (W - 1, 0, D - 1), 'grass_block', {'snowy': 'false'})
-    b.box((2, 0, 8), (11, 0, 13), 'dirt_path')                    # trampled ground under the booth (the crate spot keeps full grass)
-    for x, z in [(3, 9), (11, 9), (3, 13), (11, 13)]: b.box((x, 1, z), (x, 3, z), 'oak_log', LOG)
+    lot_ground(b, 0, W - 1, 8, D - 1)
+    b.box((2, 0, 8), (11, 0, 13), p.lane)                         # trampled ground under the booth (the crate spot keeps the ground)
+    for x, z in [(3, 9), (11, 9), (3, 13), (11, 13)]: b.box((x, 1, z), (x, 3, z), *p.state(p.post))
     for x in range(2, 13):
         wool = 'orange_wool' if (x // 2) % 2 == 0 else 'white_wool'
         for z in range(8, 15): b.block(x, 4, z, wool)
         b.block(x, 3, 8, wool)                                   # front valance, above head height
-    b.box((2, 1, 14), (12, 3, 14), 'spruce_planks')               # back wall of the booth
-    # Produce counter with goods on top; crates of produce behind; the stall keeper's floor stays clear.
+    b.box((2, 1, 14), (12, 3, 14), p.wall)                        # back wall of the booth
+    # Booth sides: two-high plank panels between the posts, the keepers' door in the west one.
+    for x in (3, 11): b.box((x, 1, 10), (x, 2, 12), p.planks())
+    b.door(3, 1, 11, 'west', p.wood)
+    # Produce counter: boards with a slab top the goods sit on (a step and a half: nobody climbs over it); stores at the back.
     for x in range(4, 11):
         if x == 7: b.block(x, 1, 9, 'hay_block', LOG)
-        else: barrel(b, x, 1, 9)
+        else: b.block(x, 1, 9, p.planks(p.dark))
+        slab(b, x, 2, 9, p.dark)
     for x, item in [(4, 'carrot'), (5, 'potato'), (6, 'apple'), (8, 'beetroot'), (9, 'bread'), (10, 'pumpkin_pie')]:
-        ground_display(b, x, 2, 9, item, yaw=20. * x)
+        ground_display(b, x, 2.5, 9, item, yaw=20. * x)
     for x, block in [(4, 'pumpkin'), (5, 'hay_block'), (9, 'melon'), (10, 'pumpkin')]:
         b.block(x, 1, 13, block, LOG if block == 'hay_block' else None)
     b.block(7, 3, 11, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
-    # Crate shelf behind the booth: boards on the back wall at y2, stored crates on top; the cells under it are a dry gap with a paper.
-    b.box((5, 2, 15), (8, 2, 15), 'spruce_planks')
-    for x in range(5, 9): barrel(b, x, 3, 15, 'north')
+    # Produce shelf behind the booth: boards on the back wall at y2, stored produce on top; the cells under it are a dry gap with a paper.
+    b.box((5, 2, 15), (8, 2, 15), p.planks())
+    for x, block in zip(range(5, 9), ('hay_block', 'pumpkin', 'melon', 'hay_block')): b.block(x, 3, 15, block, LOG if block == 'hay_block' else None)
     for x in (5, 6, 7, 8): wind_gap(b, x, 1, 15, paper=(x == 6))
-    # Old crates beside the booth, opening toward the lane; the market bin by the west post; a composter next to it.
+    # Old crates beside the booth, opening toward the lane; the market bin by the west post.
     shelter_spot(b, 13, 1, 12, 'crate_shelter', 'north')
     garbage(b, 1, 1, 9, 'north', [('carrot', 2), ('potato', 2), ('beetroot', 1), ('paper', 1), ('stick', 1), ('rotten_flesh', 1), ('mcyukkuri:junk_headwear', 1)])
-    b.block(2, 1, 9, 'composter', {'level': '3'})
     # Sidewalks: lamps and a bench facing the lane.
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
     furniture(b, 'bench', 1, [(4, 1), (5, 1), (6, 1)])
-    for x, plant in [(3, 'potted_poppy'), (7, 'potted_dandelion')]: b.block(x, 1, 1, plant)
-    street_residents(b, (5, 2), (8, 7))
+    for x, i in [(3, 0), (7, 1)]: b.block(x, 1, 1, p.pot(i))
+    street_residents(b, (5, 11), (9, 11))
     street_ends(b, W)
     connect_bars(b)
+    light_up(b)
     return b
 
 
-def street_alley():
+def street_alley(p):
     """A back alley between two village sheds: a storehouse with its door on the alley, a tool shed with a lean-to and a woodpile,
-    two bins against the storehouse wall, a cardboard spot at the dead end and a lantern on the end wall."""
+    two bins against the storehouse wall, a cardboard spot at the dead end and a lantern on the end wall. One resident lives in each shed."""
     W, H, D = 17, 9, 20
-    b = Site('village/street_alley', [W, H, D])
+    b = Site(f'village/{p.style}/alley', [W, H, D], p)
     b.box((0, 1, 0), (W - 1, H - 1, D - 1), 'air')
     street_band(b, 0, W - 1)
-    b.box((0, 0, 8), (W - 1, 0, D - 1), 'grass_block', {'snowy': 'false'})
+    lot_ground(b, 0, W - 1, 8, D - 1)
+    floor = p.sidewalk + tuple((block, 2) for block, _ in p.lane_wear if block not in ('dirt_path',))
     for x in range(6, 11):
-        for z in range(8, 20): b.block(x, 0, z, ('cobblestone', 'gravel', 'coarse_dirt', 'cobblestone', 'andesite')[(x * 3 + z * 7) % 5])
-    # West: storehouse (oak), door on the alley; inside barrels, hay and a work table.
-    gable_shed(b, 0, 5, 8, 17, 'oak_planks', 'oak_log', 'oak', door=(5, 10, 'east'), windows=[(5, 13), (5, 15), (2, 8)])
-    for y in (1, 2): barrel(b, 1, y, 9)
-    barrel(b, 1, 1, 10); b.block(4, 1, 16, 'crafting_table'); b.box((1, 1, 16), (2, 1, 16), 'hay_block', LOG)
-    b.block(1, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})   # on the barrel stack
-    # East: tool shed (spruce), door on the sidewalk; a lean-to on its alley wall and a woodpile closing it at the far end.
-    gable_shed(b, 11, 16, 8, 15, 'spruce_planks', 'spruce_log', 'spruce', door=(13, 8, 'north'), windows=[(16, 11), (11, 9)])
-    b.block(15, 1, 14, 'grindstone', {'face': 'floor', 'facing': 'west'}); barrel(b, 12, 1, 14); barrel(b, 15, 1, 9)
-    barrel(b, 15, 2, 9); b.block(15, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
-    b.box((10, 2, 12), (10, 2, 14), 'spruce_planks')
-    b.box((10, 1, 15), (10, 2, 15), 'oak_log', {'axis': 'z'})
+        for z in range(8, 20): b.block(x, 0, z, pick(floor, x, z, 9))   # the alley: old paving worn through in places
+    # West: storehouse, door on the alley; hay, stores and a work table inside.
+    shed(b, 0, 5, 8, 17, p.wall, p.post, p.roof, door=(5, 10, 'east'), windows=[(5, 13), (5, 15), (2, 8)])
+    for y in (1, 2): b.block(1, y, 9, 'hay_block', LOG)
+    b.block(1, 1, 10, 'pumpkin'); b.block(4, 1, 16, 'crafting_table'); b.box((1, 1, 16), (2, 1, 16), 'hay_block', LOG)
+    b.block(1, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})   # on the hay stack
+    # East: tool shed, door on the sidewalk; a lean-to on its alley wall and a woodpile closing it at the far end.
+    shed(b, 11, 16, 8, 15, p.wall, p.beam, p.roof_trim, door=(13, 8, 'north'), windows=[(16, 11), (11, 9)])
+    b.block(15, 1, 14, p.tree_log, LOG); ground_display(b, 15, 2, 14, 'iron_axe', yaw=30.)   # chopping block
+    b.block(12, 1, 14, p.tree_log, {'axis': 'x'})
+    for y in (1, 2): b.block(15, y, 9, 'hay_block', LOG)
+    b.block(15, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
+    b.box((10, 2, 12), (10, 2, 14), p.planks())
+    b.box((10, 1, 15), (10, 2, 15), p.tree_log, {'axis': 'z'})
     for z in (12, 13, 14): wind_gap(b, 10, 1, z, paper=(z == 13))
-    # Bins along the storehouse wall: one already knocked over, one standing with room behind it to fall; a composter further on.
+    # Bins along the storehouse wall: one already knocked over, one standing with room behind it to fall; a hay bale further on.
     garbage(b, 6, 1, 11, 'east', [('bread', 1), ('apple', 1), ('paper', 2), ('feather', 1), ('rotten_flesh', 2), ('mcyukkuri:junk_headwear', 1)], tipped=True)
     garbage(b, 6, 1, 13, 'east', [('potato', 1), ('cookie', 1), ('stick', 2), ('paper', 1)])
-    b.block(6, 1, 15, 'composter', {'level': '5'})
-    # Dead end: low wall with a fence, a lantern on its west post; a cardboard spot facing back up the alley.
-    for x in range(6, 11): b.block(x, 1, 19, 'mossy_cobblestone' if x % 2 else 'cobblestone')
-    fence_row(b, 6, 10, 2, 19)
+    b.block(6, 1, 15, 'hay_block', LOG)
+    # Dead end: low wall with a rail, a lantern on its west post; a cardboard spot facing back up the alley.
+    for x in range(6, 11): b.block(x, 1, 19, p.plinth_at(x, 19, 2))
+    fence_row(b, 6, 10, 2, 19, p.fence)
     b.block(6, 3, 19, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
     shelter_spot(b, 8, 1, 17, 'cardboard_shelter', 'north')
-    # Behind the sheds: grass, a composter and a fence.
-    b.block(13, 1, 18, 'composter', {'level': '2'}); fence_row(b, 11, 16, 1, 19)
+    # Behind the sheds: the ground, a pumpkin patch and a rail.
+    b.block(13, 1, 18, 'pumpkin'); fence_row(b, 11, 16, 1, 19, p.fence)
     # Sidewalks: lamps, a trough and planters.
     lamp(b, 6, 1, 7); lamp(b, 12, 1, 1)
     b.block(3, 0, 1, 'water', {'level': '0'}, over=True)
@@ -252,10 +289,11 @@ def street_alley():
     # A raised storage barrel covers one dry stand. The lower bin and its lid are separate.
     b.block(9, 2, 12, 'barrel', {'facing': 'west', 'open': 'false'},
             {'id': string('minecraft:barrel'), 'NeoForgeData': compound({'StreetShelter': byte(1)})})
-    for x, plant in [(8, 'potted_oxeye_daisy'), (9, 'potted_fern')]: b.block(x, 1, 1, plant)
-    street_residents(b, (5, 2), (9, 7))
+    for x, i in [(8, 0), (9, 1)]: b.block(x, 1, 1, p.pot(i))
+    street_residents(b, (3, 12), (13, 11))
     street_ends(b, W)
     connect_bars(b)
+    light_up(b)
     return b
 
 
@@ -286,7 +324,8 @@ def oni_stock(b, x, z, kind, traits, nutrition, hygiene, age=None, form='NORMAL'
 
 def cage(b, x0, z0, x1, z1, door, facing, floor='coarse_dirt'):
     """A stock cage: iron bars from floor to ceiling on the given ring cells, a coarse floor; the 2-wide iron staff door sits in its ring
-    between log posts with a log lintel (no door panel against bars). door = first leaf (x, z), facing as Building.double_door."""
+    between posts with a lintel (no door panel against bars). door = first leaf (x, z), facing as Building.double_door."""
+    p = b.palette
     b.box((x0, 2, z0), (x1, 2, z1), floor, over=True)
     leaves = {door, (door[0] + 1, door[1]) if facing in ('north', 'south') else (door[0], door[1] + 1)}
     if facing in ('north', 'south'): posts = {(door[0] - 1, door[1]), (door[0] + 2, door[1])}
@@ -294,39 +333,44 @@ def cage(b, x0, z0, x1, z1, door, facing, floor='coarse_dirt'):
     ring = [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
     for x, z in ring:
         if (x, z) in leaves: continue
-        if (x, z) in posts: b.box((x, 3, z), (x, 6, z), 'stripped_spruce_log', LOG, over=True); continue
+        if (x, z) in posts: b.box((x, 3, z), (x, 6, z), *p.state(p.post), over=True); continue
         if name_at(b, x, 4, z) in ('minecraft:air', 'minecraft:iron_bars'): b.box((x, 3, z), (x, 6, z), 'iron_bars', over=True)
     b.double_door(door[0], 3, door[1], facing)
-    for x, z in leaves: b.box((x, 5, z), (x, 6, z), 'stripped_spruce_log', {'axis': 'z' if facing in ('east', 'west') else 'x'}, over=True)
+    for x, z in leaves: b.box((x, 5, z), (x, 6, z), *p.state(p.post, 'z' if facing in ('east', 'west') else 'x'), over=True)
 
 
-def oni_shop():
-    """The oni-san shop (25 x 14 x 26): a shabby, low single storey of cobble, spruce and dark oak with a patched roof and a faded two-head
-    sign. Street window cage with floor-level glass (stock on display), a tool wall, two goods shelves, three stock cages behind full bars
-    serviced from a staff corridor, a counter, the staff strip and a back room with the dock, the waste barrel and a treatment bench.
-    Floor y2, people walk at y3, ceiling y7; walls x1..23, z3..24."""
+def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
+    """The oni-san shop (25 x 15 x 26): a shabby, low single storey in the type's materials with its weathering (worn plinth, patched
+    roof or parapet, replaced floor boards) and a faded two-head sign. Street window cage with floor-level glass (stock on display), a tool
+    wall, two goods shelves, three stock cages behind full bars serviced from a staff corridor, a counter, the staff strip and a back
+    room with the dock, the waste barrel and a treatment bench. Floor y2, people walk at y3, ceiling y7; walls x1..23, z3..24."""
     from check_structure import light_levels, walk_cells
-    b = Site('yukkuri_oni_shop', [25, 14, 26], floor=3)
+    b = Site(name, [25, 15, 26], p, floor=3)
+    POST = p.state(p.post); planks = p.planks(); board = p.planks(p.dark)
+    worn = ((p.plinth, 60),) + tuple((block, 2 * w) for block, w in p.weathered)
     # ---- Shell.
-    b.box((0, 0, 0), (24, 1, 25), 'cobblestone')
+    b.box((0, 0, 0), (24, 0, 25), p.plinth)
     for x in range(25):
-        for z in range(3):
-            b.block(x, 2, z, ('cobblestone', 'cobblestone', 'mossy_cobblestone', 'gravel', 'cobblestone', 'andesite')[(x * 5 + z * 3) % 6])
-    b.box((0, 3, 0), (24, 13, 25), 'air')
-    b.box((1, 2, 3), (23, 2, 24), 'spruce_planks')
+        for z in range(26): b.block(x, 1, z, p.plinth_at(x, z))
+    for x in range(25):
+        for z in range(3): b.block(x, 2, z, pick(p.sidewalk + tuple((block, 2) for block, _ in p.weathered), x, z, 4))
+    b.box((0, 3, 0), (24, 14, 25), 'air')
+    floor, mend = (p.floor, p.roof_patch) if p.flat else (planks, board)
+    b.box((1, 2, 3), (23, 2, 24), floor)
     for x in range(2, 23):
         for z in range(4, 24):
-            if (x * 73856093 ^ z * 19349663) % 11 == 0: b.block(x, 2, z, 'dark_oak_planks')   # floor boards replaced over the years
+            if (x * 73856093 ^ z * 19349663) % 11 == 0: b.block(x, 2, z, mend)   # floor boards replaced over the years
     for x in range(1, 24):
         for z in range(3, 25):
             if x in (1, 23) or z in (3, 24):
-                b.block(x, 3, z, ('cobblestone', 'mossy_cobblestone', 'cobblestone', 'cracked_stone_bricks')[(x + 2 * z) % 4])
-                b.box((x, 4, z), (x, 6, z), 'spruce_planks'); b.block(x, 7, z, 'dark_oak_planks')
-    b.box((2, 7, 4), (22, 7, 23), 'spruce_planks')                               # ceiling
-    for x in (1, 7, 10, 13, 17, 23): b.box((x, 3, 3), (x, 7, 3), 'stripped_spruce_log', LOG)
-    for x in (1, 6, 12, 18, 23): b.box((x, 3, 24), (x, 7, 24), 'stripped_spruce_log', LOG)
+                b.block(x, 3, z, pick(worn, x, z, 6))
+                for y in (4, 5, 6): b.block(x, y, z, p.roof_patch if p.flat and (x * 5 + y * 7 + z * 3) % 9 == 0 else p.wall)
+                b.block(x, 7, z, board)
+    b.box((2, 7, 4), (22, 7, 23), planks)                                       # ceiling
+    for x in (1, 7, 10, 13, 17, 23): b.box((x, 3, 3), (x, 7, 3), *POST)
+    for x in (1, 6, 12, 18, 23): b.box((x, 3, 24), (x, 7, 24), *POST)
     for z in (3, 8, 13, 19, 24):
-        for x in (1, 23): b.box((x, 3, z), (x, 7, z), 'stripped_spruce_log', LOG)
+        for x in (1, 23): b.box((x, 3, z), (x, 7, z), *POST)
     # Facade: floor-level glass of the window cage, the lobby window (one pane long since replaced by bars), the nook window.
     b.box((2, 3, 3), (6, 5, 3), 'glass')
     pane = {'north': 'false', 'south': 'false', 'east': 'false', 'west': 'false', 'waterlogged': 'false'}
@@ -335,37 +379,48 @@ def oni_shop():
     for z, kind in [(21, 'glass_pane'), (22, 'glass_pane')]:
         for x in (1, 23): b.box((x, 4, z), (x, 5, z), kind, pane)
     for x in (3, 4, 20, 21): b.box((x, 4, 24), (x, 5, 24), 'glass_pane', pane)
-    b.door(11, 3, 3, 'north', 'oak', 'left'); b.door(12, 3, 3, 'north', 'oak', 'right')
+    b.door(11, 3, 3, 'north', p.wood, 'left'); b.door(12, 3, 3, 'north', p.wood, 'right')
     for x in (10, 11, 12, 13):   # street ramp: two half steps up to the pavement
-        b.block(x, 2, 0, 'air'); stairs(b, x, 1, 0, 'cobblestone', 'south'); stairs(b, x, 2, 1, 'cobblestone', 'south')
+        b.block(x, 2, 0, 'air'); stairs(b, x, 1, 0, p.step, 'south'); stairs(b, x, 2, 1, p.step, 'south')
     # Faded awning: brown and white stripes stepping out over the pavement, its front edge torn in places.
     for x in range(1, 24):
         wool = 'brown_wool' if (x // 2) % 2 == 0 else 'white_wool'
         b.block(x, 6, 2, wool)
         if x not in (4, 9, 16, 20): b.block(x, 5, 1, wool)
-    # Patched low roof (ridge along x), gables at both ends; mossy and odd boards mark old repairs.
-    dmax = max(min(z - 3, 24 - z) for z in range(3, 25))
-    for z in range(3, 25):
-        front = z - 3 <= 24 - z; d = min(z - 3, 24 - z); y = 8 + d // 2
-        for x in range(25):
-            mat = 'dark_oak' if d in (0, dmax) or x in (0, 24) else 'spruce'
-            if mat == 'spruce' and (x * 3 + z * 5) % 11 == 0: mat = 'mossy_cobblestone'
-            elif mat == 'spruce' and (x + 2 * z) % 13 == 0: mat = 'oak'
-            if d % 2 == 0: slab(b, x, y, z, mat)
-            else: stairs(b, x, y, z, mat, 'south' if front else 'north')
-        for x in (1, 23):
-            for yy in range(8, y): b.block(x, yy, z, 'spruce_planks' if (yy + z) % 3 else 'stripped_spruce_wood', None if (yy + z) % 3 else LOG)
+    if p.flat:
+        # Flat roof with a parapet patched in odd stone, a few coping slabs long gone.
+        flat_roof(b, p, {(x, z) for x in range(1, 24) for z in range(3, 25)}, 8)
+        for x in range(1, 24):
+            for z in range(3, 25):
+                if name_at(b, x, 9, z).endswith('_slab') and (x * 7 + z * 3) % 10 == 0: b.block(x, 9, z, 'air')
+                elif name_at(b, x, 8, z) == 'minecraft:' + p.roof_trim and (x + 2 * z) % 7 == 0: b.block(x, 8, z, p.roof_patch)
+    else:
+        # Patched low roof (ridge along x), gables at both ends; odd boards and old repairs.
+        dmax = max(min(z - 3, 24 - z) for z in range(3, 25))
+        for z in range(3, 25):
+            front = z - 3 <= 24 - z; d = min(z - 3, 24 - z); y = 8 + d // 2
+            for x in range(25):
+                mat = p.roof_trim if d in (0, dmax) or x in (0, 24) else p.roof
+                if mat == p.roof and (x * 3 + z * 5) % 11 == 0: mat = p.roof_patch
+                elif mat == p.roof and (x + 2 * z) % 13 == 0: mat = p.roof_trim
+                if p.snow and d == dmax: b.block(x, y, z, p.planks(p.roof)); b.block(x, y + 1, z, 'snow', {'layers': '2'}); continue
+                if d % 2 == 0: slab(b, x, y, z, mat)
+                else: stairs(b, x, y, z, mat, 'south' if front else 'north')
+            for x in (1, 23):
+                for yy in range(8, y): b.block(x, yy, z, *((p.wall, None) if (yy + z) % 3 else p.state(p.band, 'y')))
     # Sign board in front of the roof: a Reimu and a Marisa head on faded board, as seen from the street (viewer's left is +x).
-    b.box((5, 7, 2), (18, 13, 2), 'dark_oak_planks')
+    b.box((5, 7, 2), (18, 12, 2), board)
+    for x in range(5, 19): slab(b, x, 13, 2, p.dark)
     emblem = ['RR.RR....KK.', 'KKKKK...KKK.', 'KSSSK..KKKKK', 'KESEK..YSSSY', 'FSMSF..YESEY']
     mats = {'.': 'cyan_terracotta', 'R': 'red_concrete', 'K': 'black_concrete', 'S': 'white_terracotta', 'E': 'black_concrete',
             'F': 'white_concrete', 'M': 'red_terracotta', 'Y': 'yellow_concrete'}
     for r, row in enumerate(emblem):
         for c, ch in enumerate(row): b.block(17 - c, 12 - r, 2, mats[ch])
     for x, plant in [(3, 'potted_dead_bush'), (21, 'potted_dead_bush')]: b.block(x, 3, 1, plant)
-    b.block(22, 3, 1, 'cauldron')
-    for z in (10, 18):
-        for x in (4, 12, 20): b.block(x, 9, z, 'light', {'level': '10', 'waterlogged': 'false'})   # attic: nothing spawns under the roof
+    b.block(22, 3, 1, p.tree_log, {'axis': 'x'})                                 # an old log by the wall
+    if not p.flat:
+        for z in (10, 18):
+            for x in (4, 12, 20): b.block(x, 9, z, 'light', {'level': '10', 'waterlogged': 'false'})   # attic: nothing spawns under the roof
     # ---- Furnishing phase.
     b.strict = True
     # Window cage (stock on display, interior x2..6 z4..6): floor-level street glass, bars to the lobby and the sales floor.
@@ -378,7 +433,7 @@ def oni_shop():
     oni_stock(b, 5.0, 4.5, 'marisa', DULL, 42, 40, age=63000)
     oni_stock(b, 2.75, 6.35, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
     # Stock cages (interiors x16..19): full bars to the customers (x15), iron staff doors on the corridor side (x20).
-    b.box((21, 3, 7), (22, 6, 7), 'spruce_planks')     # closes the staff corridor off from the nook
+    b.box((21, 3, 7), (22, 6, 7), p.wall)              # closes the staff corridor off from the nook
     for name, z0, stock in [('cage_a', 8, [('marisa', GESU, 35, 40, 62000), ('marisa', DULL, 30, 45, 160000)]),
                             ('cage_b', 12, [('alice', DULL, 40, 55, 93000), ('chen', WHINY, 33, 50, 57000)]),
                             ('cage_c', 16, [('reimu', GESU, 36, 42, 272000), ('patchouli', DULL, 30, 55, 56000), ('reimu', WHINY, 28, 48, 249000)])]:
@@ -398,12 +453,12 @@ def oni_shop():
     for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item, facing='east')
     for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item, facing='east')
     # Eye-level serving opening and a member door at the west end.
-    b.box((5, 3, 16), (14, 3, 16), 'stripped_dark_oak_log', {'axis': 'x'})
+    b.box((5, 3, 16), (14, 3, 16), f'stripped_{p.dark}_log', {'axis': 'x'})
     b.block(9, 3, 16, 'lectern', {'facing': 'north', 'has_book': 'false', 'powered': 'false'}, over=True)
     b.box((2, 3, 16), (2, 6, 16), 'iron_bars')
     b.box((3, 5, 16), (14, 6, 16), 'iron_bars')
     b.double_door(3, 3, 16, 'south')
-    for x in range(5, 15): slab(b, x, 4, 16, 'dark_oak', 'bottom')
+    for x in range(5, 15): slab(b, x, 4, 16, p.dark, 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
         ground_display(b, x, 4.5, 16, item, yaw=35. * x)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
@@ -421,15 +476,15 @@ def oni_shop():
     furniture(b, 'table', 3, [(19, 4)]); furniture(b, 'bench', 3, [(18, 4)], 'z'); furniture(b, 'bench', 3, [(20, 4)], 'z')
     for x, z in [(22, 4), (15, 4)]: b.block(x, 3, z, 'potted_dead_bush')
     # Staff wall to the back room: 2-wide iron door, a barred window onto the treatment bench.
-    b.box((2, 3, 19), (14, 6, 19), 'spruce_planks')
+    b.box((2, 3, 19), (14, 6, 19), p.wall)
     b.box((11, 4, 19), (13, 5, 19), 'iron_bars', over=True)
-    for x in (6, 9): b.box((x, 3, 19), (x, 6, 19), 'stripped_spruce_log', LOG, over=True)
+    for x in (6, 9): b.box((x, 3, 19), (x, 6, 19), *POST, over=True)
     b.double_door(7, 3, 19, 'south')
-    for x in (7, 8): b.box((x, 5, 19), (x, 6, 19), 'stripped_spruce_log', {'axis': 'x'}, over=True)
+    for x in (7, 8): b.box((x, 5, 19), (x, 6, 19), *p.state(p.post, 'x'), over=True)
     # Back room (staff, z20..23): dock and waste barrels, feed, a treatment bench (brewing stand, water, grindstone, tools), supplies.
     barrel(b, 2, 3, 20, 'east'); barrel(b, 2, 3, 23, 'east'); barrel(b, 2, 3, 21, 'up'); barrel(b, 2, 4, 21, 'up')
     marker(b, 2.5, 3.5, 20.5, 'mcy_oni_dock'); marker(b, 2.5, 3.5, 23.5, 'mcy_oni_trash')
-    b.box((10, 3, 23), (12, 3, 23), 'dark_oak_planks')
+    b.box((10, 3, 23), (12, 3, 23), board)
     b.block(11, 4, 23, 'brewing_stand', {'has_bottle_0': 'true', 'has_bottle_1': 'false', 'has_bottle_2': 'true'})
     b.block(13, 3, 23, 'water_cauldron', {'level': '2'})
     b.block(9, 3, 23, 'grindstone', {'face': 'floor', 'facing': 'north'})
@@ -459,6 +514,7 @@ def oni_shop():
         x, z = dark[0][1]
         if not any(invisible(x + dx, z + dz) for _, dx, dz in order): break
     connect_bars(b)
+    light_up(b)
     return b
 
 
@@ -466,7 +522,7 @@ def oni_shop():
 def shifted(original, name, dz):
     """The original layout moved dz rows south (the museum template stays byte-identical), with its entities moved along."""
     width, height, depth = original.size
-    lot = Site(name, [width, height, depth + dz], getattr(original, 'floor', 1))
+    lot = Site(name, [width, height, depth + dz], original.palette, getattr(original, 'floor', 1))
     lot.blocks = {(x, y, z + dz): block for (x, y, z), block in original.blocks.items()}
     lot.pens = [dict(p, interior=(p['interior'][0], p['interior'][1] + dz, p['interior'][2], p['interior'][3] + dz),
                      bowl=(p['bowl'][0], p['bowl'][1] + dz), nests=[(x, z + dz) for x, z in p['nests']],
@@ -480,53 +536,73 @@ def shifted(original, name, dz):
 
 
 def village_oni_shop(original):
-    """The oni-san shop on a village street: the same building behind 8 rows of street. It only joins the pet shop's east socket (pool
-    street_east), so a village has at most one; its east end continues the street."""
-    lot = shifted(original, 'village/oni_shop', 8)
+    """The oni-san shop on the main street: the same building behind 8 rows of street, `village/<type>/oni_shop`."""
+    p = original.palette
+    lot = shifted(original, f'village/{p.style}/oni_shop', 8)
     street_band(lot, 0, original.size[0] - 1)
     # Staff carry actual scraps to the pavement bin. There is no prefilled paper or hair to mask that transfer.
     garbage(lot, 1, 1, 7, 'north', [('stick', 2), ('bread', 1)])
     lamp(lot, 16, 1, 7); lamp(lot, 6, 1, 1); lamp(lot, 20, 1, 1)
-    jigsaw(lot, 0, 1, 4, 'west', 'mcyukkuri:street_east')
-    jigsaw(lot, original.size[0] - 1, 1, 4, 'east', 'minecraft:empty', 'mcyukkuri:street_east', SITES)
+    street_ends(lot, original.size[0])
+    light_up(lot)
     return lot
 
 
 def dress_shop_apron(lot):
-    """The pet shop's 8-row apron (build.village_shop): its two bins become garbage points, lamps on both sidewalks, sockets at both ends."""
-    width = lot.size[0]
+    """The pet shop's 8-row apron (build.village_shop): its two bins become garbage points, lamps on both sidewalks, sockets at both ends
+    (the pet shop arrives from the village centre, so neither end is attachable from outside)."""
+    p = lot.palette; width = lot.size[0]
     for x in (4, 34):
         # Wedged between the bench and the shop wall a standing bin cannot be shoved over: both start knocked over.
         garbage(lot, x + 3, 1, 7, 'north', [('paper', 2), ('apple', 1), ('cookie', 1), ('stick', 1)], tipped=True)
-    lamp(lot, 1, 1, 7); lamp(lot, 20, 1, 7); lamp(lot, width - 2, 1, 7); lamp(lot, 6, 1, 1); lamp(lot, width - 7, 1, 1)
-    jigsaw(lot, 0, 1, 4, 'west', 'minecraft:empty', 'mcyukkuri:street_west', SITES)
-    jigsaw(lot, width - 1, 1, 4, 'east', 'minecraft:empty', 'mcyukkuri:street_east', EAST_SITES)
+    for x, z in [(1, 7), (20, 7), (width - 2, 7), (6, 1), (width - 7, 1)]: lamp(lot, x, 1, z)
+    jigsaw(lot, 0, 1, 4, 'west', 'minecraft:empty', 'mcyukkuri:street_west', pool_id(p, 'main_civic'))
+    jigsaw(lot, width - 1, 1, 4, 'east', 'minecraft:empty', 'mcyukkuri:street_east', pool_id(p, 'main_market'))
 
 
-def pool(name, entries):
-    """A template pool of levelled rigid pieces; entries = [(weight, location or None for an empty end)]."""
-    elements = []
-    for weight, location in entries:
-        element = {'element_type': 'minecraft:empty_pool_element'} if location is None else {
-            'element_type': 'mcyukkuri:levelled', 'location': location, 'processors': 'minecraft:empty', 'projection': 'rigid'}
-        elements.append({'weight': weight, 'element': element})
-    path = OUT / 'worldgen/template_pool' / f'{name}.json'
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes((json.dumps({'name': f'mcyukkuri:{name}', 'fallback': 'minecraft:empty', 'elements': elements}, indent=2) + '\n').encode('utf-8'))
+def pieces(style='plains'):
+    """Every template of this module in one village type, built fresh (for export, checks and previews)."""
+    p = PALETTES[style]
+    oni = oni_shop(p, 'yukkuri_oni_shop' if style == 'plains' else f'village/{style}/oni_shop_base')
+    return {'stall': street_stall(p), 'alley': street_alley(p), 'oni': oni, 'village_oni': village_oni_shop(oni)}
 
 
-def pieces():
-    """Every template of this module, built fresh (for export, checks and previews)."""
-    oni = oni_shop()
-    return {'stall': street_stall(), 'alley': street_alley(), 'oni': oni, 'village_oni': village_oni_shop(oni)}
+def interim_pools():
+    """Main-street pools of every type from POOL_ENTRIES, in town_pools.py's element format. Only while town_pools.py (wp-town-pools)
+    has not landed: once it exists it writes these pools and this writer does nothing."""
+    here = Path(__file__).parent
+    if (here / 'town_pools.py').exists(): return
+    root = OUT / 'worldgen/template_pool/village'
+    for legacy in ('street_sites', 'street_east'): (root / f'{legacy}.json').unlink(missing_ok=True)
+    for style in STYLES:
+        fill, edge = levelling(style)
+        tables = {'frontage': [], 'main_market': [], 'main_civic': [], 'main_end': []}
+        for row in POOL_ENTRIES:
+            if row['styles'] is not None and style not in row['styles']: continue
+            element = {'element_type': 'mcyukkuri:levelled', 'location': f'mcyukkuri:village/{style}/{row["piece"]}',
+                       'processors': 'minecraft:empty', 'projection': 'rigid'}
+            element.update({k: row[k] for k in ('max_count', 'max_cut', 'max_fill') if row[k] is not None})
+            element.update(fill={'Name': fill}, edge={'Name': edge})
+            tables[row['pool']].append({'weight': row['weight'], 'element': element})
+        fallbacks = {'frontage': f'minecraft:village/{style}/streets', 'main_market': f'mcyukkuri:village/{style}/main_end',
+                     'main_civic': f'mcyukkuri:village/{style}/main_end', 'main_end': 'minecraft:empty'}
+        for role, elements in tables.items():
+            data = {'name': f'mcyukkuri:village/{style}/{role}', 'fallback': fallbacks[role],
+                    'elements': elements or [{'weight': 1, 'element': {'element_type': 'minecraft:empty_pool_element'}}]}
+            path = root / style / f'{role}.json'; path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
 def export():
-    built = pieces()
-    summary = [b.save() for b in built.values()]
+    """Saves the museum oni-san shop (plains) and the four main-street pieces of every type; removes the pre-palette templates."""
+    summary = []
+    for style in STYLES:
+        built = pieces(style)
+        keep = ('stall', 'alley', 'village_oni') + (('oni',) if style == 'plains' else ())
+        summary += [built[k].save() for k in keep]
     for s in summary: s['source'] = 'art/structures/human-world/author_street.py'
-    pool('village/street_sites', [(2, 'mcyukkuri:village/street_stall'), (2, 'mcyukkuri:village/street_alley'), (3, None)])
-    pool('village/street_east', [(4, 'mcyukkuri:village/oni_shop'), (1, 'mcyukkuri:village/street_stall'), (1, None)])
+    for old in ('yukkuri_shop', 'oni_shop', 'street_stall', 'street_alley'): (OUT / 'structure/village' / f'{old}.nbt').unlink(missing_ok=True)
+    interim_pools()
     return summary
 
 

@@ -1,9 +1,10 @@
-"""Offline preview of the village street pieces and the oni-san shop.
+"""Offline preview of the village main street in every village type (palette.py) and of the oni-san shop.
 
-Textured top-down plans (real vanilla and mod block textures) with the stray objects, stock, staff, goods and markers drawn over them, and
-3/4 views of one assembled street (alley + stall + pet-shop lot + oni-san shop, joined as jigsaw joins them). Entities are drawn as symbols.
-Requires Pillow, NumPy, Node and the Minecraft client jar (--minecraft-resources). No game or browser. Writes .local/previews/street-oni-layout
-of the main checkout (or MCYUKKURI_PREVIEWS); no source or runtime file is modified.
+3/4 views of one assembled street per type (stall + pet-shop lot + oni-san shop + alley, joined as jigsaw joins them) and the pet shop
+from behind; textured top-down plans (real vanilla and mod block textures) with the stray objects, residents, stock, staff, goods and
+markers drawn over them. Entities are drawn as symbols. Requires Pillow, NumPy, Node and the Minecraft client jar
+(--minecraft-resources). No game or browser. Writes .local/previews/town-palette of the main checkout (or MCYUKKURI_PREVIEWS); no source
+or runtime file is modified. --styles limits the types.
 """
 from pathlib import Path
 import argparse, html, os, shutil, sys
@@ -11,7 +12,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 sys.path.insert(0, str(Path(__file__).parent))
 import preview_shop as ps
-import build, author_street as street
+import build, author_street as street_mod
 
 ROOT = Path(__file__).resolve().parents[3]
 OPAQUE = ('planks', 'cobblestone', 'stone_bricks', 'log', 'wood', 'wool', 'terracotta', 'concrete', 'quartz', 'andesite', 'gravel',
@@ -75,7 +76,7 @@ class Plan:
         if label: self.draw.text((u, v), label, font=ps.font(size), fill='#ffffff', anchor='mm')
 
     def arrow(self, x, z, facing, color, length=1.4):
-        dx, dz = street.STEP[facing]
+        dx, dz = street_mod.STEP[facing]
         a, b = self.at(x + .5, z + .5), self.at(x + .5 + dx * length, z + .5 + dz * length)
         self.draw.line((a, b), fill=color, width=4)
         self.draw.ellipse((b[0] - 5, b[1] - 5, b[0] + 5, b[1] + 5), fill=color)
@@ -140,46 +141,67 @@ def legend(width):
     return im
 
 
-PAGE = """<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>街道布局与鬼威惨商店</title>
+NAMES_ZH = {'plains': '平原', 'desert': '沙漠', 'savanna': '热带草原', 'snowy': '雪原', 'taiga': '针叶林'}
+
+PAGE = """<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>村庄主街 · 五种村庄材质</title>
 <style>body{font-family:"Microsoft YaHei",sans-serif;background:#eff2eb;color:#273e37;margin:0 auto;max-width:1500px;padding:24px}
 h1{margin:0 0 6px}h2{margin:28px 0 8px}.d{background:#fffdf7;border-left:6px solid #d8432c;padding:12px 16px}img{max-width:100%;border-radius:8px;display:block;margin:8px 0}
-p{line-height:1.6}ul.g{columns:3;line-height:1.7}</style>
-<h1>街道布局与鬼威惨商店 · 布局预览</h1>
-<p class="d"><b>要你决定：</b>街道与鬼威惨商店的布局方向是否可以。① 街道不再有售货机等现代物件，换成原版村庄风格的集市摊位和两间小屋夹出的后巷；路灯保留；垃圾桶、挡风缝、纸箱／木箱位放在流浪油会去的地方。② 鬼威惨商店的分区：临街橱窗笼、工具墙、两排货架、三间铁栏笼（员工从后面的通道进笼）、柜台、柜台后员工区和后屋处理台。商店的买卖与店员逻辑由后续代码包接入，目前只是建筑与标记。</p>
-<p>画面为离线渲染（真实方块贴图，无光照效果）；油库里、人物、展示框与标记用符号表示。生成时宠物店东侧接口优先接鬼威惨商店，西侧接口接集市或后巷，可继续向外延伸，也可能空着。</p>
-<h2>一条街的样子</h2><p>从村庄道路一侧看（北侧）：左边（东）是鬼威惨商店，中间宠物店，右边（西）是集市摊位和后巷。</p><img src="street-overview.png"><img src="street-east.png"><img src="street-west.png"><img src="street-plan.png"><img src="legend.png">
-<h2>鬼威惨商店</h2><img src="oni-exterior.png"><img src="oni-interior.png"><img src="oni-plan.png">
+p{line-height:1.6}ul.g{columns:3;line-height:1.7}nav a{margin-right:14px}</style>
+<h1>村庄主街 · 五种村庄材质</h1>
+<p class="d"><b>要你决定：</b>宠物店、鬼威惨商店、集市摊位与后巷在五种村庄里换成各自原版村庄的材料后，是否融入、不出戏。
+平原用橡木、圆石和白陶瓦；沙漠用平滑与切制砂岩、丛林木门，屋顶改成带女儿墙的平顶；热带草原用金合欢木与黄陶瓦；雪原用云杉、闪长岩与屋脊积雪；针叶林用云杉原木与苔石。
+车道是该村庄原版道路的方块（沙漠为平滑砂岩），人行道是镇上的石料。招牌、羊毛遮阳篷、橱窗、铁门铁栏和栏舍在五种村庄里不变。
+街上的居民住进屋里：后巷两间小屋各住一人，集市摊主住在柜台后的摊棚里（侧面木门进出）。</p>
+<p>画面为离线渲染（真实方块贴图，无光照效果）；油库里、人物、展示框与标记用符号表示。示例街道：西侧一处集市摊位，东侧鬼威惨商店接后巷（实际生成时每侧最多两处地块，随机抽取）。</p>
+<nav>{{NAV}}</nav>
+{{STYLES}}
+<h2>平面图（平原）</h2><p>垃圾点、挡风缝、纸箱／木箱位、居民（员／鬼）与接口位置；五种村庄布局相同。</p>
+<img src="street-plan.png"><img src="legend.png"><img src="stall-plan.png"><img src="alley-plan.png">
+<h2>鬼威惨商店（平原，博物馆模板）</h2><img src="oni-interior.png"><img src="oni-plan.png">
 <p>展示框里的商品（编号对应平面图）：</p><ul class="g">{{GOODS}}</ul>
-<h2>集市摊位</h2><img src="stall-view.png"><img src="stall-plan.png">
-<h2>后巷</h2><img src="alley-view.png"><img src="alley-plan.png">
 </html>
 """
+
+
+def street(style):
+    """One street as jigsaw assembles it: west socket -> stall; east socket -> oni-san shop -> alley. Returns [(piece, offset)]."""
+    pieces = street_pieces(style)
+    lot = build.village_shop(build.shop(build.PALETTES[style])); lot.floor = 1
+    stall, alley, oni = pieces['stall'], pieces['alley'], pieces['village_oni']
+    return pieces, lot, [(stall, (-stall.size[0], 0, 0)), (lot, (0, 0, 0)), (oni, (lot.size[0], 0, 0)),
+                         (alley, (lot.size[0] + oni.size[0], 0, 0))]
+
+
+def street_pieces(style): return street_mod.pieces(style)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--minecraft-resources', type=Path, required=True)
-    ap.add_argument('--out', type=Path, default=Path(os.environ.get('MCYUKKURI_PREVIEWS', 'F:/yukkuri/.local/previews')) / 'street-oni-layout')
+    ap.add_argument('--styles', nargs='*', default=list(build.STYLES))
+    ap.add_argument('--out', type=Path, default=Path(os.environ.get('MCYUKKURI_PREVIEWS', 'F:/yukkuri/.local/previews')) / 'town-palette')
     args = ap.parse_args(); out = args.out; out.mkdir(parents=True, exist_ok=True)
     a = ps.Assets(args.minecraft_resources)
-    pieces = street.pieces(); lot = build.village_shop(build.shop()); lot.floor = 1
-    stall, alley, oni, village_oni = pieces['stall'], pieces['alley'], pieces['oni'], pieces['village_oni']
-    # One street as jigsaw assembles it: west socket -> stall -> alley; east socket -> oni-san shop.
-    assembled = [(alley, (-15 - alley.size[0], 0, 0)), (stall, (-stall.size[0], 0, 0)), (lot, (0, 0, 0)), (village_oni, (lot.size[0], 0, 0))]
-    # 3/4 views.
-    x0 = -15 - alley.size[0]; x1 = lot.size[0] + village_oni.size[0]; cx = (x0 + x1) / 2
-    v = np.concatenate([mesh(a, b, (o[0] - cx, 0, o[2] - 20)) for b, o in assembled])
-    view(a, v, out, 'street-overview', 2000, 900, -.5, .5, 25, 4)
-    east = [(lot, (0, 0, 0)), (village_oni, (lot.size[0], 0, 0))]
-    view(a, np.concatenate([mesh(a, b, (o[0] - 45, 0, o[2] - 18)) for b, o in east]), out, 'street-east', 1800, 1000, -.55, .42, 19, 5)
-    west = [(alley, (-15 - alley.size[0], 0, 0)), (stall, (-stall.size[0], 0, 0)), (lot, (0, 0, 0))]
-    view(a, np.concatenate([mesh(a, b, (o[0] + 10, 0, o[2] - 10)) for b, o in west]), out, 'street-west', 1800, 1000, -.45, .5, 16, 3)
-    v = mesh(a, oni, (-12.5, 0, -13))
-    view(a, v, out, 'oni-exterior', 1400, 950, -.5, .38, 15, 6)
+    sections, nav = [], []
+    for style in args.styles:
+        pieces, lot, assembled = street(style)
+        x0 = assembled[0][1][0]; x1 = assembled[-1][1][0] + assembled[-1][0].size[0]; cx = (x0 + x1) / 2
+        v = np.concatenate([mesh(a, b, (o[0] - cx, 0, o[2] - 20)) for b, o in assembled])
+        view(a, v, out, f'{style}-street', 2000, 860, -.5, .5, 27, 4)
+        west = assembled[:2]
+        view(a, np.concatenate([mesh(a, b, (o[0] + 2, 0, o[2] - 16)) for b, o in west]), out, f'{style}-west', 1500, 900, -.5, .45, 17, 4)
+        east = assembled[2:]
+        ex = lot.size[0] + (pieces['village_oni'].size[0] + pieces['alley'].size[0]) / 2
+        view(a, np.concatenate([mesh(a, b, (o[0] - ex, 0, o[2] - 14)) for b, o in east]), out, f'{style}-east', 1500, 900, -.55, .42, 17, 4)
+        view(a, mesh(a, lot, (-lot.size[0] / 2, 0, -lot.size[2] / 2)), out, f'{style}-roof', 1300, 900, 2.6, .75, 25, 2)
+        nav.append(f'<a href="#{style}">{NAMES_ZH[style]}</a>')
+        sections.append(f'<h2 id="{style}">{NAMES_ZH[style]}村庄</h2><img src="{style}-street.png"><img src="{style}-west.png">'
+                        f'<img src="{style}-east.png"><p>宠物店背面与屋顶：</p><img src="{style}-roof.png">')
+        print('rendered', style, flush=True)
+    # Plans and the oni-san shop interior, plains (the layout is the same in every type).
+    pieces, lot, assembled = street('plains')
+    oni, stall, alley = pieces['oni'], pieces['stall'], pieces['alley']
     view(a, mesh(a, oni, (-12.5, 0, -13), cut=5), out, 'oni-interior', 1400, 1000, -.62, .95, 15.5, 2)
-    for b, name in [(stall, 'stall'), (alley, 'alley')]:
-        view(a, mesh(a, b, (-b.size[0] / 2, 0, -b.size[2] / 2)), out, f'{name}-view', 1100, 800, -.55, .5, b.size[2] / 2 + 2, 2)
-    # Plans.
     goods = []
     plan = Plan(a, out, 'oni-plan', [(oni, (0, 0, 0))], cut=4, px=34)
     overlay(plan, oni, (0, 0, 0), goods)
@@ -187,7 +209,7 @@ def main():
     plan.image.save(out / 'oni-plan.png')
     for b, name in [(stall, 'stall-plan'), (alley, 'alley-plan')]:
         p = Plan(a, out, name, [(b, (0, 0, 0))], cut=b.floor + 1, px=34); overlay(p, b, (0, 0, 0)); p.image.save(out / f'{name}.png')
-    p = Plan(a, out, 'street-plan', assembled, cut=3, px=16)
+    p = Plan(a, out, 'street-plan', assembled, cut=3, px=12)
     for b, o in assembled: overlay(p, b, o)
     p.image.save(out / 'street-plan.png')
     legend(1400).save(out / 'legend.png')
@@ -197,8 +219,9 @@ def main():
               'spicy_grain': '超辣油粮', 'sleep_spray': '弹珠汽水喷雾', 'stimulant': '兴奋药',
               'oil_grain_budget': '廉价油粮', 'bread': '面包', 'candle': '蜡烛', 'paper': '纸'}
     rows = ''.join(f'<li><b>{i}</b> {html.escape(labels.get(g, g))}</li>' for i, g in enumerate(goods, 1))
-    (out / 'index.html').write_bytes(PAGE.replace('{{GOODS}}', rows).encode('utf-8'))
-    print('Rendered street pieces and the oni-san shop:', out)
+    page = PAGE.replace('{{GOODS}}', rows).replace('{{NAV}}', ''.join(nav)).replace('{{STYLES}}', '\n'.join(sections))
+    (out / 'index.html').write_bytes(page.encode('utf-8'))
+    print('Rendered the main street in', ', '.join(args.styles), ':', out)
     print('Special block renderers omitted:', ', '.join(sorted(a.missing)) or 'none')
 
 
