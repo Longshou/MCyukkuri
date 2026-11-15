@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 村庄城镇化：博物馆村庄场地按 112 格半径扩大 | `.worktrees/wp-town-museum-r2` | scripts/museum_fields.py, museum_sites.py, museum_scenarios.py (village field only) |
 | 村庄城镇化：院子宠物、镇区判定与纸箱刷新避让 | `.worktrees/wp-town-life` | human/ (yard pet binding, restock), settlement/SettlementSpawner, TownAware helper + call sites |
 
 ## 玩法待办
