@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 动作库缺口二：情绪甩辫、蹲守、撞玻璃、咳嗽、尾巴信号 | `.worktrees/wp-art-motion-gaps-2` | motions/ 新片段、YukkuriAction.java、对应调用方片段引用 |
 | 表情排查：时刻与表情不符处换脸或新做 | `.worktrees/wp-art-expressions` | standards/yukkuri-library/expressions/、presentation/moments.json、expressions.json、表情导出 |
 | 演出夸张化第二轮：仍偏弱的动作加大幅度 | `.worktrees/wp-art-exaggerate-2` | standards/yukkuri-library/motions/ 动作源与导出 |
 
