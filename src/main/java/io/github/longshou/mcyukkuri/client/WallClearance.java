@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.pose.WallYield;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
@@ -17,8 +18,14 @@ import org.joml.Vector3f;
 /** The block collision faces beside a body, measured each frame: its headwear and loose parts are drawn on their free side
  *  ({@link WallYield}), while the body keeps its own collision box. */
 final class WallClearance {
+    // Render-thread scratch so crowded indoor scenes do not allocate box lists per colliding block.
+    private static double[] boxes = new double[48];
+    private static int boxCount;
+
     private final List<WallYield.Face> faces;
     private final float originX, originY, originZ;
+    private VertexConsumer lastSource;
+    private Tuck lastTuck;
 
     private WallClearance(List<WallYield.Face> faces, Matrix4f origin) {
         this.faces = faces;
@@ -53,34 +60,49 @@ final class WallClearance {
                 Mth.lerp(partial, source.zOld, source.getZ()));
         var sweep = new AABB(-reach, 0, -reach, reach, top + motion, reach).move(feet);
         double bodyTop = feet.y + source.getBbHeight();
-        var boxes = new ArrayList<AABB>();
-        for (var shape : entity.level().getBlockCollisions(source, sweep))
-            for (var box : shape.toAabbs()) if (box.intersects(sweep)) boxes.add(box);
-        var faces = new ArrayList<WallYield.Face>();
-        for (var box : boxes) {
-            double px = Mth.clamp(feet.x, box.minX, box.maxX), pz = Mth.clamp(feet.z, box.minZ, box.maxZ);
+        boxCount = 0;
+        for (var shape : entity.level().getBlockCollisions(source, sweep)) {
+            shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
+                if (maxX <= sweep.minX || minX >= sweep.maxX || maxY <= sweep.minY || minY >= sweep.maxY
+                        || maxZ <= sweep.minZ || minZ >= sweep.maxZ) return;
+                if (boxCount + 6 > boxes.length) boxes = Arrays.copyOf(boxes, boxes.length * 2);
+                boxes[boxCount++] = minX; boxes[boxCount++] = minY; boxes[boxCount++] = minZ;
+                boxes[boxCount++] = maxX; boxes[boxCount++] = maxY; boxes[boxCount++] = maxZ;
+            });
+        }
+        if (boxCount == 0) return null;
+        var faces = new ArrayList<WallYield.Face>(boxCount / 6);
+        for (int i = 0; i < boxCount; i += 6) {
+            double minX = boxes[i], minY = boxes[i + 1], minZ = boxes[i + 2];
+            double maxX = boxes[i + 3], maxY = boxes[i + 4], maxZ = boxes[i + 5];
+            double px = Mth.clamp(feet.x, minX, maxX), pz = Mth.clamp(feet.z, minZ, maxZ);
             double x = px - feet.x, z = pz - feet.z;
             double distance = Math.hypot(x, z);
             // A shape over the body axis is a floor or ceiling, and an overhead box (crate/carton roof, burrow ceiling,
             // tabletop) only forms a side face where a wall below it actually blocks the body. Side faces use the nearest
             // point on the shape, giving a continuous separating plane around the outside of a corner.
-            if (distance <= 0 || distance >= reach || box.minY >= bodyTop && !wallBelow(boxes, px, pz, bodyTop)) continue;
+            if (distance <= 0 || distance >= reach || minY >= bodyTop && !wallBelow(px, pz, bodyTop)) continue;
             faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
-                    (float)(box.minY - feet.y), (float)(box.maxY - feet.y)));
+                    (float)(minY - feet.y), (float)(maxY - feet.y)));
         }
         return faces.isEmpty() ? null : new WallClearance(faces, origin);
     }
 
-    private static boolean wallBelow(List<AABB> boxes, double x, double z, double bodyTop) {
-        for (var box : boxes)
-            if (box.minY < bodyTop && box.maxY >= bodyTop && x >= box.minX - 1e-4 && x <= box.maxX + 1e-4
-                    && z >= box.minZ - 1e-4 && z <= box.maxZ + 1e-4) return true;
+    private static boolean wallBelow(double x, double z, double bodyTop) {
+        for (int i = 0; i < boxCount; i += 6)
+            if (boxes[i + 1] < bodyTop && boxes[i + 4] >= bodyTop && x >= boxes[i] - 1e-4 && x <= boxes[i + 3] + 1e-4
+                    && z >= boxes[i + 2] - 1e-4 && z <= boxes[i + 5] + 1e-4) return true;
         return false;
     }
 
     List<WallYield.Face> faces() { return faces; }
     /** Posed model units under {@code pose} to the faces' frame: blocks from the body axis, above the feet. */
-    Matrix4f frame(Matrix4f pose) { return new Matrix4f().translation(-originX, -originY, -originZ).mul(pose).scale(1 / 16f); }
+    Matrix4f frame(Matrix4f pose, Matrix4f target) { return target.translation(-originX, -originY, -originZ).mul(pose).scale(1 / 16f); }
+
+    VertexConsumer tuck(VertexConsumer source) {
+        if (source != lastSource) { lastSource = source; lastTuck = new Tuck(this, source); }
+        return lastTuck;
+    }
 
     record Tuck(WallClearance clearance, VertexConsumer source) implements VertexConsumer {
         @Override public VertexConsumer addVertex(float x, float y, float z) {

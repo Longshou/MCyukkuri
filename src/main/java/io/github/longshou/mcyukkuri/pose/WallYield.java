@@ -47,6 +47,7 @@ public final class WallYield {
         /** Extreme vertices of each segment, root to tip, and each segment's share of the whole turn. */
         int[][] samples;
         float[] share;
+        Vector3f[][] samplePosed;
         Vector3f[] posed, joints;
         Matrix4f[] turns;
         boolean turned;
@@ -58,6 +59,7 @@ public final class WallYield {
     private final int[] owner;
     private boolean any;
     private final Vector3f axis = new Vector3f(), point = new Vector3f(), carried = new Vector3f();
+    private final float[] reached = new float[STEPS + 1];
 
     private WallYield(Rig.Bone[] bones, int vertices) { this.bones = bones; owner = new int[vertices]; Arrays.fill(owner, -1); }
 
@@ -90,7 +92,7 @@ public final class WallYield {
             }
             int n = segments.size();
             limb.samples = new int[n][]; limb.share = new float[n]; limb.turns = new Matrix4f[n]; limb.joints = new Vector3f[n];
-            limb.posed = new Vector3f[n];
+            limb.posed = new Vector3f[n]; limb.samplePosed = new Vector3f[n][];
             for (int k = 0; k < n; k++) {
                 var extremes = new LinkedHashSet<Integer>();
                 for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) for (int dz = -1; dz <= 1; dz++) {
@@ -103,6 +105,8 @@ public final class WallYield {
                     extremes.add(best);
                 }
                 limb.samples[k] = extremes.stream().mapToInt(Integer::intValue).toArray();
+                limb.samplePosed[k] = new Vector3f[limb.samples[k].length];
+                for (int i = 0; i < limb.samplePosed[k].length; i++) limb.samplePosed[k][i] = new Vector3f();
                 limb.share[k] = kind.stiffness + (1 - kind.stiffness) * (k + 1) / n;
                 limb.turns[k] = new Matrix4f(); limb.joints[k] = new Vector3f(); limb.posed[k] = new Vector3f();
                 for (int p : segments.get(k)) Arrays.fill(result.owner, starts[p], starts[p] + counts[p], result.limbs.size() << 8 | k);
@@ -130,12 +134,11 @@ public final class WallYield {
         for (var limb : limbs) {
             if (busy.test(limb.kind.id)) continue;
             int n = limb.samples.length;
-            var posed = new Vector3f[n][];
+            var posed = limb.samplePosed;
             for (int k = 0; k < n; k++) {
-                posed[k] = new Vector3f[limb.samples[k].length];
                 limb.posed[k].zero();
                 for (int i = 0; i < posed[k].length; i++) {
-                    skin.skin(limb.samples[k][i], posed[k][i] = new Vector3f());
+                    skin.skin(limb.samples[k][i], posed[k][i]);
                     limb.posed[k].add(posed[k][i]);
                 }
                 limb.posed[k].div(posed[k].length);
@@ -149,7 +152,6 @@ public final class WallYield {
             if (hinge.parent >= 0) world[hinge.parent].transformDirection(axis);
             axis.normalize();
             // The least turn that does as well as any turn can: a limb does not fold for a wall its folding cannot clear.
-            float[] reached = new float[STEPS + 1];
             reached[0] = rest;
             float best = rest;
             for (int step = 1; step <= STEPS; step++) {

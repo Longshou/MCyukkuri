@@ -99,6 +99,7 @@ public final class YukkuriModel {
     /** Limbs that turn away from nearby walls; {@code wallTurns} is set while this frame's turns apply to the skin. */
     private WallYield wallYield,wallTurns;
     private boolean wallYieldChecked;
+    private final Matrix4f wallFrame=new Matrix4f();
     private float[] looseBounds;
     /** Farthest horizontal reach from the body axis and greatest height of the loose parts at rest (model units). */
     float[] restLooseBounds(){
@@ -119,7 +120,7 @@ public final class YukkuriModel {
             buffer=part.equals("braid_lock_root")||part.equals("braid_lock_root_outer")
                 ? drawEvidence.buffer(group,buffer,"root_ring") : drawEvidence.buffer(group,buffer);
         }
-        return wallClearance!=null&&WallYield.loose(part)?new WallClearance.Tuck(wallClearance,buffer):buffer;
+        return wallClearance!=null&&WallYield.loose(part)?wallClearance.tuck(buffer):buffer;
     }
     private String evidenceGroup(String part) {
         for(var p:parts)if(p.name.equals(part)&&accessoryPart(p))return "hat";
@@ -128,7 +129,7 @@ public final class YukkuriModel {
     MultiBufferSource evidenceBuffers(String group, MultiBufferSource buffers) {
         var observed=drawEvidence==null?buffers:drawEvidence.buffers(group,buffers);
         var clearance=wallClearance;
-        return clearance!=null&&group.equals("hat")?type->new WallClearance.Tuck(clearance,observed.getBuffer(type)):observed;
+        return clearance!=null&&group.equals("hat")?type->clearance.tuck(observed.getBuffer(type)):observed;
     }
 
     void poseFingerprint(String value) { poseFingerprint = value; }
@@ -1051,7 +1052,7 @@ public final class YukkuriModel {
                     // Working locks (house grip, braid reach/hold/use) and tails cradling a child keep their pose; they are only pressed.
                     boolean locks=gripping||braidPose.active()||holdingItem||hatInBraid>0||braidUse.contains(selected);
                     boolean tails=carryCurlLeft>0||carryCurlRight>0;
-                    wallYield.solve(this::skin,world,wallClearance.frame(stack.last().pose()),wallClearance.faces(),
+                    wallYield.solve(this::skin,world,wallClearance.frame(stack.last().pose(),wallFrame),wallClearance.faces(),
                             kind->kind.equals("lock")&&locks||kind.equals("tail")&&tails);
                     wallTurns=wallYield;
                 }
