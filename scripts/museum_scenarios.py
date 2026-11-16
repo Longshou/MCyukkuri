@@ -1066,7 +1066,7 @@ add('pred_toilet', 'meadow', '捕食种上厕所与地面排便', '捕食种上�
         yk('flandre', -6, 6, 'fla', bladder=95, nutrition=100, energy=100, yaw=-90)],
     env=DAY, vantage=None,
     reads=[('读厕所内排泄物体积（7→8 满）', 'data get block ~6 ~ ~ Waste'), ('读芙兰', f'yukkuri status {sel("fla")} raw')],
-    capture=dict(shots=(1, 40), sequences=((60, 660, 12),), observe=False,
+    capture=dict(shots=(1, 40), sequences=((60, 260, 6),), observe=False,
                  views=dict(rem=dict(follow=f'@e[tag={tag("rem")},limit=1]', offset=(.6, .7, 2.4),
                                      criteria='看清蕾米莉亚坐在厕所上排便，翅膀、帽子和身体不穿进厕所或地面。'),
                             fla=dict(follow=f'@e[tag={tag("fla")},limit=1]', offset=(.6, .7, 2.4),
