@@ -79,7 +79,7 @@ def produce_crate(b, x, y, z, facing, goods):
 
 def display_tray(b, x, y, z, facing, *items, raised=False):
     """A shallow tray of the type's wood with up to four things lying on it (an item id or (item, count <= 4)); they are its real
-    contents, read from `facing`. A count must not exceed the item's stack size (the stack would not load). raised: the counter-top
+    contents, read from `facing`. A count must not exceed the item's stack size. raised: the counter-top
     form, written over one slab of a slab-topped counter."""
     goods = [(item, 1) if isinstance(item, str) else item for item in items]
     assert 1 <= len(goods) <= 4 and all(1 <= n <= 4 for _, n in goods), goods
