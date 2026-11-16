@@ -461,7 +461,7 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
                  views={'wall': dict(follow=sel('wall_stray'), offset=(2.3, .9, -.65))}),
     smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD',
-                                  r'\[habitat\][^\n]* found rain stage=1 -> 2',
+                                  r'\[habitat\][^\n]* found rain stage=0 -> 1',
                                   r'\[habitat\][^\n]* found leaving .*reason=soaked_or_unsafe',
                                   r'\[habitat\][^\n]* found exited ',
                                   r'\[habitat\][^\n]* found removed .*reason=rain_collapse']))
@@ -3463,12 +3463,16 @@ def _seat_family(size=.35, nourishment=147000, age=144000):
 
 def _stray_rain_verify(log):
     marisa = _uuid_text('stray_rain', 'rain_stray')
-    exit_before_soak = (
-        rf'uuid={marisa}[^\n]* found exited shelter=(BlockPos\{{[^\n]+?\}})'
-        r'[\s\S]*?found rain stage=1 -> 2 shelter=\1'
+    # The soaked stage stays unlogged while a living body is inside the carton's footprint (updateRainStage),
+    # and the departing Marisa can shield the moisture-80 tick, so the exit is proven by the damp-then-leave order.
+    damp_exit_collapse = (
+        r'found rain stage=0 -> 1 shelter=(BlockPos\{[^\n]+?\})'
+        rf'[\s\S]*?uuid={marisa}[^\n]* found leaving target=\1 [^\n]*reason=soaked_or_unsafe'
+        r'[\s\S]*?found exited shelter=\1'
+        r'[\s\S]*?found removed shelter=\1 [^\n]*reason=rain_collapse'
     )
-    if not re.search(exit_before_soak, log):
-        return 'the rain-scene Marisa did not leave her carton before it became soaked'
+    if not re.search(damp_exit_collapse, log):
+        return 'the rain-scene Marisa did not leave her damp carton before it collapsed'
     walker = _uuid_text('stray_rain', 'wall_stray')
     if not re.search(rf'\[meal\][^\n]*uuid={walker}[^\n]* swallowed item=minecraft:apple\b', log):
         return 'the wall-side Marisa did not reach and eat her apple'
