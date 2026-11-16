@@ -555,6 +555,40 @@ add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进�
     smoke=dict(ticks=550, forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment'],
                expect=[r'\[habitat\][^\n]* wind cover settled .*paper=true']))
 
+_bold_paper = _uuid_text('stray_paper', 'bold_paper')
+_tired_paper = _uuid_text('stray_paper', 'tired_paper')
+add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '流浪：抽报纸盖身',
+    '雪原冬夜，中央放着一捆报纸（4 张），两侧各有一道无纸的矮木板缝：左边胆大有精力的亚成魔理沙用辫子按住报捆咬抽一张铺进缝里，发觉仍冷便再抽第二张盖在身上发抖（垫一盖一，报纸堆剩 1 张）；'
+    '右边胆小疲惫的亚成灵梦抽一张铺进缝里后钻到这张纸下发抖，耗尽体力后在纸下睡着（冷暴露照常累积）。可放篝火或纸箱看它们起身落纸转移',
+    '约半分钟', [
+        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
+        block(-3, 1, -1, 'minecraft:spruce_planks'),
+        box(-3, 0, -2, -3, 1, -2, 'minecraft:spruce_planks'),
+        block(3, 1, -1, 'minecraft:spruce_planks'),
+        box(3, 0, -2, 3, 1, -2, 'minecraft:spruce_planks'),
+        block(0, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=0]'),
+        street_stray('stray_paper', 'marisa', -2, 3, 'bold_paper', stage='teen', boldness=75, energy=48,
+                     rest_wait=0, yaw=180, label='胆大魔理沙', lead=True),
+        street_stray('stray_paper', 'reimu', 2, 3, 'tired_paper', stage='teen', boldness=25, energy=24,
+                     rest_wait=0, yaw=180, label='疲惫灵梦'),
+    ], give=['minecraft:campfire', 'mcyukkuri:cardboard_shelter', 'mcyukkuri:magnifying_glass'],
+    env={'time': 'night'}, spot='street', vantage=(0, 6, 180, 15), note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读胆大魔理沙（垫一盖一发抖）', f'yukkuri status {sel("bold_paper")} raw'),
+           ('读疲惫灵梦（盖纸力竭睡）', f'yukkuri status {sel("tired_paper")} raw')],
+    smoke=dict(ticks=800,
+               commands=[(760, 'execute if block ~ ~ ~2 mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_STACK_TAKEN_3')],
+               readout=[f'yukkuri status {sel("bold_paper")} raw', f'yukkuri status {sel("tired_paper")} raw'],
+               forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
+                       rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin'],
+               expect=[rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* wind cover paper approach',
+                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper bedding placed',
+                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover fetch',
+                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover draped source=mouth',
+                       rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* paper cover draped source=ground',
+                       rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* cold paper exhausted sleep',
+                       rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin source=life',
+                       r'MCYPAPER_STACK_TAKEN_3']))
+
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
     from museum_fields import BIOME_PLOTS
@@ -4810,7 +4844,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8',
     'family_absence': 'W9',
-    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
+    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
@@ -5778,6 +5812,8 @@ for _beg_scene in ('wild', 'wild_beg_refuse', 'wild_beg_snatch', 'wild_beg_help'
     _scene_end(_beg_scene, [('pet', _DRY), ('wild', _DRY)])
 
 _scene_end('food_behind_glass', [('glass_food_eater', _DRY)])
+_scene_end('stray_paper', [('bold_paper', _ASHORE + ' and hold.cover.item=minecraft:paper'),
+                           ('tired_paper', _ASHORE + ' and hold.cover.item=minecraft:paper')])
 
 for _exile_scene, _witnesses in (('colony_mold_exile', ['leader', 'witness']),
                                  ('den_mold_exile', ['healthy', 'grandparent', 'baby'])):

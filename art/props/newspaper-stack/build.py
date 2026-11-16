@@ -6,8 +6,9 @@ folder's manifest.json. Colours are the shared prop palette (art/props/palette.j
 berry and gold for the masthead seal and the advert inserts). Every pixel is drawn here.
 
 A bundle is 10 x 4 x 8 px (x, y, z), tied crosswise with twine and a knot on top. Bundle 1 lies square in the cell, bundle 2 sits
-on it turned 22.5 degrees, bundle 3 on top a little off-centre; the blockstate turns the whole stack by `facing`. The collision is
-one box (human/NewspaperStackBlock) 10 x 4n x 10 px around the bundles, the same at every facing.
+on it turned 22.5 degrees, bundle 3 on top a little off-centre; the blockstate turns the whole stack by `facing`. Tugging sheets
+from the top bundle (`taken` 1..3) unties its twine and lowers the top bundle 1 px per sheet (4 sheets per bundle). The collision
+is one box (human/NewspaperStackBlock) 10 x sheets x 10 px around the remaining sheets, the same at every facing.
 """
 from pathlib import Path
 import hashlib, io, json, sys
@@ -129,10 +130,78 @@ def bundle(index, cx, cz, angle, flip):
     return [body, across, along, knot]
 
 
-def stack(count):
-    elements = [e for i, layout in enumerate(LAYOUT[:count]) for e in bundle(i, *layout)]
+def sheet_box(cx, cz, y0, y1, v0, angle, flip, cull_down=False):
+    w, _, d = BUNDLE
+    x0, x1, z0, z1, dh = cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2, y1 - y0
+    turn = {'origin': [cx, y0, cz], 'axis': 'y', 'angle': angle} if angle else None
+    return box((x0, y0, z0), (x1, y1, z1), {
+        'up': f('top', [3, 4, 13, 12], 180 if flip else 0),
+        'down': f('fold', [3, 4, 13, 12], cull='down' if cull_down and not angle else None),
+        'south': f('fold', [3, v0, 13, v0 + dh]), 'north': f('edge', [3, v0, 13, v0 + dh]),
+        'east': f('edge', [4, v0, 12, v0 + dh]), 'west': f('edge', [2, v0, 10, v0 + dh])}, turn)
+
+
+def opened_bundle(index, cx, cz, angle, flip, taken):
+    """Top bundle after 1..3 sheets were pulled: twine undone, remaining 3..1 px stack with the top sheet slightly askew."""
+    _, h, d = BUNDLE
+    rem = h - taken
+    y0, v = index * h, 4 * index + taken
+    top_angle = -22.5 if angle == 0 and taken in (1, 3) else (0 if angle == 22.5 and taken in (1, 3) else angle)
+    dx, dz = (0.4, -0.3) if taken == 1 else (-0.35, 0.25) if taken == 2 else (0.25, -0.2)
+    if rem == 1:
+        return [sheet_box(cx + dx, cz + dz, y0, y0 + 1, v, top_angle, flip, index == 0)]
+    base = sheet_box(cx, cz, y0, y0 + rem - 1, v + 1, angle, flip, index == 0)
+    top_sheet = sheet_box(cx + dx, cz + dz, y0 + rem - 1, y0 + rem, v, top_angle, not flip)
+    sx = cx + TIE_X
+    turn = {'origin': [cx, y0, cz], 'axis': 'y', 'angle': angle} if angle else None
+    tail = box((sx - .45, y0, cz + d / 2 - .2), (sx + .45, y0 + .2, cz + d / 2 + 1.3), {
+        'up': f('twine', [4, 0, 4.9, 1.5]), 'south': f('twine', [6, 0, 6.9, .2]),
+        'east': f('twine', [0, 5, 1.5, 5.2]), 'west': f('twine', [0, 6, 1.5, 6.2])}, turn)
+    return [base, top_sheet, tail]
+
+
+def stack(count, taken=0):
+    if taken == 0:
+        elements = [e for i, layout in enumerate(LAYOUT[:count]) for e in bundle(i, *layout)]
+    else:
+        elements = [e for i, layout in enumerate(LAYOUT[:count - 1]) for e in bundle(i, *layout)]
+        elements.extend(opened_bundle(count - 1, *LAYOUT[count - 1], taken))
     return {'parent': 'minecraft:block/block', 'textures': {k: tex(k) for k in TEXTURES} | {'particle': tex('edge')},
             'elements': elements}
+
+
+def state_prop(props):
+    return {'condition': 'minecraft:block_state_property', 'block': 'mcyukkuri:newspaper_stack', 'properties': props}
+
+
+def loot_table():
+    bundle_counts = [
+        {'function': 'minecraft:set_count', 'count': count, 'add': False, 'conditions': [state_prop(props)]}
+        for props, count in (
+            ({'bundles': '2', 'taken': '0'}, 2),
+            ({'bundles': '3', 'taken': '0'}, 3),
+            ({'bundles': '3', 'taken': '1'}, 2),
+            ({'bundles': '3', 'taken': '2'}, 2),
+            ({'bundles': '3', 'taken': '3'}, 2),
+        )
+    ]
+    has_intact = {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:all_of', 'terms': [
+        state_prop({'bundles': '1'}),
+        {'condition': 'minecraft:inverted', 'term': state_prop({'taken': '0'})},
+    ]}}
+    opened = {'condition': 'minecraft:inverted', 'term': state_prop({'taken': '0'})}
+    paper_counts = [
+        {'function': 'minecraft:set_count', 'count': 4 - t, 'add': False, 'conditions': [state_prop({'taken': str(t)})]}
+        for t in (1, 2)
+    ]
+    return {'type': 'minecraft:block', 'pools': [
+        {'rolls': 1, 'bonus_rolls': 0, 'conditions': [has_intact], 'entries': [{
+            'type': 'minecraft:item', 'name': 'mcyukkuri:newspaper_stack',
+            'functions': [*bundle_counts, {'function': 'minecraft:explosion_decay'}]}]},
+        {'rolls': 1, 'bonus_rolls': 0, 'conditions': [opened], 'entries': [{
+            'type': 'minecraft:item', 'name': 'minecraft:paper',
+            'functions': [*paper_counts, {'function': 'minecraft:explosion_decay'}]}]},
+    ]}
 
 
 def outputs():
@@ -142,17 +211,17 @@ def outputs():
         buf = io.BytesIO(); image(painter).save(buf, format='PNG')
         files[ASSETS / f'textures/block/newspaper_stack_{name}.png'] = buf.getvalue()
     for n in (1, 2, 3):
-        files[ASSETS / f'models/block/newspaper_stack_{n}.json'] = js(stack(n))
+        files[ASSETS / f'models/block/newspaper_stack_{n}.json'] = js(stack(n, 0))
+        for t in (1, 2, 3):
+            files[ASSETS / f'models/block/newspaper_stack_{n}_t{t}.json'] = js(stack(n, t))
     turn = {'north': 0, 'east': 90, 'south': 180, 'west': 270}
     files[ASSETS / 'blockstates/newspaper_stack.json'] = js({'variants': {
-        f'bundles={n},facing={d}': {'model': f'mcyukkuri:block/newspaper_stack_{n}', **({'y': y} if y else {})}
-        for n in (1, 2, 3) for d, y in turn.items()}})
+        f'bundles={n},facing={d},taken={t}': {
+            'model': f'mcyukkuri:block/newspaper_stack_{n}' + (f'_t{t}' if t else ''),
+            **({'y': y} if y else {})}
+        for n in (1, 2, 3) for d, y in turn.items() for t in (0, 1, 2, 3)}})
     files[ASSETS / 'models/item/newspaper_stack.json'] = js({'parent': 'mcyukkuri:block/newspaper_stack_2'})
-    counts = [{'function': 'minecraft:set_count', 'count': n, 'add': False, 'conditions': [{'condition': 'minecraft:block_state_property',
-               'block': 'mcyukkuri:newspaper_stack', 'properties': {'bundles': str(n)}}]} for n in (2, 3)]
-    files[RUN / 'data/mcyukkuri/loot_table/blocks/newspaper_stack.json'] = js({'type': 'minecraft:block', 'pools': [{'rolls': 1,
-        'bonus_rolls': 0, 'entries': [{'type': 'minecraft:item', 'name': 'mcyukkuri:newspaper_stack',
-        'functions': [*counts, {'function': 'minecraft:explosion_decay'}]}]}]})
+    files[RUN / 'data/mcyukkuri/loot_table/blocks/newspaper_stack.json'] = js(loot_table())
     return files
 
 

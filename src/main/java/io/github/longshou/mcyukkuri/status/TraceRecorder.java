@@ -757,6 +757,7 @@ public final class TraceRecorder {
         hat.addProperty("placed", PlacedHatEntity.find(entity) != null);
         out.add("hat", hat);
         if (entity.life().custody().junk() != null) out.add("head", item(JunkHeadwear.item()));
+        if (!entity.life().paperCover().isEmpty()) out.add("cover", item(entity.life().paperCover()));
         var carry = new JsonArray();
         for (Entity passenger : entity.getPassengers()) if (passenger instanceof YukkuriEntity child) {
             JsonObject value = new JsonObject();

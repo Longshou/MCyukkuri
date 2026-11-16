@@ -34,7 +34,9 @@ final class CareWearRenderer {
     private static final ResourceLocation LEAF = MCYukkuri.id("textures/misc/swaddle_leaf_wear.png");
     /** 64x64 cutout sheet of the cloth's non-repeating parts (art/props/pet-goods, drafts/care-props/wear.py TRIM). */
     private static final ResourceLocation TRIM = MCYukkuri.id("textures/misc/swaddle_trim.png");
-    private static final int BINS = 24, CELLS = 32, HARNESS = 1, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, RINGS = 9;
+    private static final ResourceLocation NEWSPAPER_TOP = MCYukkuri.id("textures/block/newspaper_stack_top.png");
+    private static final ResourceLocation NEWSPAPER_FOLD = MCYukkuri.id("textures/block/newspaper_stack_fold.png");
+    private static final int BINS = 24, CELLS = 32, HARNESS = 1, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, PAPER_COVER = 1 << 13, RINGS = 9;
     /** Height cells of the skin table (the lower three quarters of the body: every rim, the leaf and the hair fade above them). */
     private static final int SKIN_CELLS = CELLS * 3 / 4;
     /** Harness belt centre and half height as fractions of the body height: low, under the mouth line, never across the face. */
@@ -183,7 +185,7 @@ final class CareWearRenderer {
 
     static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         // A retention swelling alone (bits 9-12, after the leaf is gone) is the body itself (YukkuriModel), nothing worn.
-        if ((wear & (HARNESS | SWADDLE | LEAF_WORN)) == 0) return;
+        if ((wear & (HARNESS | SWADDLE | LEAF_WORN | PAPER_COVER)) == 0) return;
         float[] pts = model.posedWear(wear);
         int body = model.wearBodyLength();
         if (body < 9) return;
@@ -193,14 +195,16 @@ final class CareWearRenderer {
         var last = pose.last();
         float out = .035f * h;
         boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0, open = leaf && (wear & LEAF_OPEN) != 0;
+        boolean paper = !cloth && !leaf && (wear & PAPER_COVER) != 0;
         // Everything is measured from the body skin alone; the hair, sidelocks and braids are lifted over the wrap as the model draws them
         // (clearHair). One buffer at a time: a batched source may flush the previous one when another texture is requested.
         profile(pts, body, cx, cz, minY, h);
-        if ((cloth || leaf && !open) && !skinTable(SKIN)) return;
+        if ((cloth || leaf && !open || paper) && !skinTable(SKIN)) return;
         if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
         if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
         else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, wear >> 6 & 7,
                 pts, body, (wear >> 9 & 15) / 15f, light, overlay);
+        else if (paper) paperTent(buffers, last, model.id(), cx, cz, minY, h, light, overlay);
         // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
         if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
                 cloth || leaf && !open ? out + .03f * h : .03f * h, light, overlay);
@@ -962,6 +966,76 @@ final class CareWearRenderer {
         float length = reach * 1.45f, width = reach * 1.1f, y = .004f * h, back = cz + length * 1.05f, front = cz - length * .95f;
         float[] stemL = {cx - width, y, back}, stemR = {cx + width, y, back}, tipR = {cx + width, y, front}, tipL = {cx - width, y, front};
         quad(b, pose, WHITE, light, overlay, 0, 1, 0, 0, 0, 0, CELL_V, 1, CELL_V, 1, 0, stemL, stemR, tipR, tipL);
+    }
+
+    /**
+     * One folded newspaper sheet draped like a low A-frame tent over the back and flanks in a cold plain gap: creased along the spine
+     * below the headwear plane (0.74h), open across the front (-Z) so the face and expressions stay clear, and flared outside side and
+     * back hair down toward the ground.
+     */
+    private static void paperTent(MultiBufferSource buffers, PoseStack.Pose pose, String modelId, float cx, float cz, float minY, float h,
+                                  int light, int overlay) {
+        int rows = 6, cols = 8;
+        float hairOut = ("patchouli".equals(modelId) ? .34f : .22f) * h;
+        float rFront = radiusAround(SKIN, .48f, (float) (-Math.PI / 2));
+        float rBack = radiusAround(SKIN, .36f, (float) (Math.PI / 2));
+        float rSide = Math.max(radiusAround(SKIN, .36f, 0f), radiusAround(SKIN, .36f, (float) Math.PI));
+        if (rSide <= 0) return;
+        float zFront = cz - rFront * .48f, zBack = cz + rBack + hairOut + .10f * h;
+        float[][][] pts = new float[rows + 1][cols + 1][3];
+        for (int r = 0; r <= rows; r++) {
+            float s = r / (float) rows;
+            float zBase = zFront + (zBack - zFront) * s;
+            float fSpine = .74f - .10f * s * s;
+            float fEave = .15f - .09f * s;
+            float span = rSide + hairOut + .14f * h * s;
+            for (int c = 0; c <= cols; c++) {
+                float t = (c / (float) cols - .5f) * 2f, u = Math.abs(t);
+                float f = fSpine + (fEave - fSpine) * (.35f * u + .65f * u * u);
+                float x = cx + t * span, z = zBase;
+                float dx = x - cx, dz = z - cz, dist = (float) Math.hypot(dx, dz);
+                if (dist > 1e-4f) {
+                    float ang = (float) Math.atan2(dz, dx);
+                    float minR = radiusAround(SKIN, Math.min(.72f, f), ang) + hairOut * side(ang) + .045f * h;
+                    if (dist < minR) {
+                        float scale = minR / dist;
+                        x = cx + dx * scale;
+                        z = cz + dz * scale;
+                    }
+                }
+                pts[r][c][0] = x;
+                pts[r][c][1] = minY + f * h;
+                pts[r][c][2] = z;
+            }
+        }
+        int[] shade = {216, 212, 202};
+        VertexConsumer topBuf = buffers.getBuffer(RenderType.entityCutoutNoCull(NEWSPAPER_TOP));
+        for (int r = 0; r < rows; r++) {
+            float v0 = .25f + .50f * r / rows, v1 = .25f + .50f * (r + 1) / rows;
+            for (int c = 0; c < cols; c++) {
+                float u0 = .1875f + .625f * c / cols, u1 = .1875f + .625f * (c + 1) / cols;
+                float[] p00 = pts[r][c], p10 = pts[r + 1][c], p11 = pts[r + 1][c + 1], p01 = pts[r][c + 1];
+                float ux = p10[0] - p00[0], uy = p10[1] - p00[1], uz = p10[2] - p00[2];
+                float vx = p01[0] - p00[0], vy = p01[1] - p00[1], vz = p01[2] - p00[2];
+                float nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+                if (ny < 0) { nx = -nx; ny = -ny; nz = -nz; }
+                float nl = (float) Math.sqrt(nx * nx + ny * ny + nz * nz) + 1e-6f;
+                quad(topBuf, pose, WHITE, light, overlay, nx / nl, ny / nl, nz / nl, u0, v0, u0, v1, u1, v1, u1, v0, p00, p10, p11, p01);
+            }
+        }
+        float inset = .008f * h;
+        VertexConsumer underBuf = buffers.getBuffer(RenderType.entityCutoutNoCull(NEWSPAPER_FOLD));
+        for (int r = 0; r < rows; r++) {
+            float v0 = .25f + .50f * r / rows, v1 = .25f + .50f * (r + 1) / rows;
+            for (int c = 0; c < cols; c++) {
+                float u0 = .1875f + .625f * c / cols, u1 = .1875f + .625f * (c + 1) / cols;
+                float[] a = {pts[r][c][0], pts[r][c][1] - inset, pts[r][c][2]};
+                float[] d = {pts[r + 1][c][0], pts[r + 1][c][1] - inset, pts[r + 1][c][2]};
+                float[] e = {pts[r + 1][c + 1][0], pts[r + 1][c + 1][1] - inset, pts[r + 1][c + 1][2]};
+                float[] g = {pts[r][c + 1][0], pts[r][c + 1][1] - inset, pts[r][c + 1][2]};
+                quad(underBuf, pose, shade, light, overlay, 0, -1, 0, u0, v0, u1, v0, u1, v1, u0, v1, a, g, e, d);
+            }
+        }
     }
 
     /** Untextured flat colour on the white care_wear texel. */

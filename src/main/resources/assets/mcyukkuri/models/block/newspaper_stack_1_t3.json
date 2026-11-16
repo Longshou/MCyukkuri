@@ -1,0 +1,89 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "top": "mcyukkuri:block/newspaper_stack_top",
+    "fold": "mcyukkuri:block/newspaper_stack_fold",
+    "edge": "mcyukkuri:block/newspaper_stack_edge",
+    "twine": "mcyukkuri:block/newspaper_stack_twine",
+    "particle": "mcyukkuri:block/newspaper_stack_edge"
+  },
+  "elements": [
+    {
+      "from": [
+        3.25,
+        0,
+        3.8
+      ],
+      "to": [
+        13.25,
+        1,
+        11.8
+      ],
+      "faces": {
+        "up": {
+          "texture": "#top",
+          "uv": [
+            3,
+            4,
+            13,
+            12
+          ]
+        },
+        "down": {
+          "texture": "#fold",
+          "uv": [
+            3,
+            4,
+            13,
+            12
+          ]
+        },
+        "south": {
+          "texture": "#fold",
+          "uv": [
+            3,
+            3,
+            13,
+            4
+          ]
+        },
+        "north": {
+          "texture": "#edge",
+          "uv": [
+            3,
+            3,
+            13,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#edge",
+          "uv": [
+            4,
+            3,
+            12,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#edge",
+          "uv": [
+            2,
+            3,
+            10,
+            4
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.25,
+          0,
+          7.8
+        ],
+        "axis": "y",
+        "angle": -22.5
+      }
+    }
+  ]
+}

@@ -205,7 +205,7 @@ public final class VillageBin {
 
         private boolean awaited(ItemEntity item) {
             return !level().getEntitiesOfClass(YukkuriEntity.class, item.getBoundingBox().inflate(16, 4, 16),
-                    y -> y.isAlive() && y.treasure().hunting(item)).isEmpty();
+                    y -> y.isAlive() && (y.treasure().hunting(item) || y.life().usingPaperBedding(item.blockPosition()))).isEmpty();
         }
 
         private List<BlockPos> bins(ItemStack held) {

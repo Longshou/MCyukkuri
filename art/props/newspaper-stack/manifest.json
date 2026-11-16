@@ -2,15 +2,24 @@
   "authoring": "art/props/newspaper-stack/build.py",
   "status": "pending_user_confirmation",
   "exports": {
-    "src/main/resources/assets/mcyukkuri/blockstates/newspaper_stack.json": "df0b415b972a5f7f6671e324bf9e4e0af4560c800e6afd667797319f4886fd09",
+    "src/main/resources/assets/mcyukkuri/blockstates/newspaper_stack.json": "21fe8cb7c12c253851061292175f1dc990b99b3432b6e152317af707b56a15bc",
     "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_1.json": "aa3c1c7238b3e357a84240b8934cb13270bfbf886b611f7b65559ebad93b8874",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_1_t1.json": "5b78b969de0e94ffd53140729e5971130682288c199fd8eb046b909eef215c45",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_1_t2.json": "2d712c9739211d6e67619496a7e2868c714b3e7a1d0dbd49007c676d032379aa",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_1_t3.json": "465b22aa1ebf620e3f4db7f2561736841b85967e22c7f77704bad37af9ebaf0a",
     "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_2.json": "6d5a7468f756540373dd8cc9e81a8bc1ed4decd75b7571799edb79bebe998a23",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_2_t1.json": "07287b3d31f3757cefd31417bc5f0541bda44e5b35022ce3e417218a35e7f53b",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_2_t2.json": "f0b856eb18968c2ed3545d472a9c855526f6807ad4eef7bab2d3bfd8f9ad5117",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_2_t3.json": "88c8b7ead90e744a5aa7f70a7b9ecbb5f5ff6bd366a0f7f2c978945fc21c1548",
     "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_3.json": "8fcce724757af9142001fa47465c869dd8a8fb341317c6f1a9cc2114351348a5",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_3_t1.json": "8d8eab58e4a481a52cb008f99326c488974ef58d3e08213b32050d2a1077add6",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_3_t2.json": "05ca39256a71d5632666041f5995f7c5d98dc5da96cac279dd610757f9af6da1",
+    "src/main/resources/assets/mcyukkuri/models/block/newspaper_stack_3_t3.json": "3e63a77ec6cfedd98925960720b787583f59d3b557e2ca1fe925f91a5c5ecc33",
     "src/main/resources/assets/mcyukkuri/models/item/newspaper_stack.json": "f62d41985ea54d706d58e739040dce75ec624a58b45cd89fc142aaa2380c1660",
     "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_edge.png": "01e4fdab7ef5af0893a07adcdda06b688d5567005cfaa5aa91199aed9c02a9ec",
     "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_fold.png": "eb0a1cf7bf196405d6e2c790a6d065a0318a4188dc86ade8a33b740c40f22c68",
     "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_top.png": "d6d271d28e9c65f5c9bba92164a0591817913a606508f6f5ee83140f0533b3d5",
     "src/main/resources/assets/mcyukkuri/textures/block/newspaper_stack_twine.png": "d5e6b70f807d77e4f9200e409431fcae82af123b620640fa4953dff296009ed1",
-    "src/main/resources/data/mcyukkuri/loot_table/blocks/newspaper_stack.json": "16e36746870f34c9fada7da8226382628b6e1522062133ab028b32f29aec3ffc"
+    "src/main/resources/data/mcyukkuri/loot_table/blocks/newspaper_stack.json": "dfb0cda2edbbf86c2fc9b6fee242606d69a4bd7e8ac32d676f976cb95d83816a"
   }
 }

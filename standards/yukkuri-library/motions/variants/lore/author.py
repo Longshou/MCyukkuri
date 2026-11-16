@@ -142,6 +142,37 @@ def state(action, t, c, height):
         r = [c['pitch']*lean, c['twist']*drag, c['roll']*lean]
         s = squash(.5*drag, .05, .08, .03)
         shift[1] = -c['reach']*height*(lean-drag)
+    elif action == 'paper_pull':
+        # Bow to bite a folded sheet corner, brace with small loosening yaw twists, yank back on `tug` and settle upright.
+        # Marisa's braid keys (braid_keys.py) press the bundle steady during the tug and return to rest.
+        reach = keyed(t, [(0, 0), (.34, 1), (.72, .85), (.84, 0), (d, 0)])
+        recoil = bump((t-.72)/.34) if .72 <= t <= 1.06 else 0.
+        h = 1-.04*reach-.045*recoil
+        sz = (h**-.5)*(1+.035*reach-.015*recoil)
+        s = [1/(h*sz), h, sz]
+        r = [keyed(t, [(0, 0), (.34, -7.2), (.68, -4.8), (.84, 3.8), (1.08, -1.0), (d, 0)]),
+             keyed(t, [(0, 0), (.34, 0), (.48, -4.0), (.62, 4.2), (.78, -5.5), (.92, 3.2), (1.12, 0), (d, 0)]),
+             keyed(t, [(0, 0), (.48, -1.2), (.62, 1.2), (.82, -2.0), (1.04, 0), (d, 0)])]
+        shift[1] = height*keyed(t, [(0, 0), (.34, -.055), (.70, -.035), (.84, .055), (1.08, .012), (d, 0)])
+    elif action == 'paper_cover_under':
+        # Dip nose to catch the sheet edge, flip chin up to lift it, push forward under it on `drape` with a quick nestle.
+        h = keyed(t, [(0, 1), (.36, .94), (.58, 1.04), (.78, .925), (1.06, .96), (d, 1)])
+        w = h**-.5; s = [w, h, w]
+        r = [keyed(t, [(0, 0), (.36, -7.2), (.58, 5.5), (.78, -5.8), (1.08, -2.5), (d, 0)]),
+             keyed(t, [(0, 0), (.68, 0), (.82, 5.2), (.98, -4.5), (1.14, 2.0), (1.28, 0), (d, 0)]),
+             keyed(t, [(0, 0), (.68, 0), (.82, 2.2), (.98, -2.0), (1.16, 0), (d, 0)])]
+        shift = [height*keyed(t, [(0, 0), (.68, 0), (.82, .015), (.98, -.014), (1.16, 0), (d, 0)]),
+                 height*keyed(t, [(0, 0), (.36, -.045), (.58, .018), (.78, -.055), (1.08, -.02), (d, 0)])]
+    elif action == 'cold_shiver':
+        # Huddled slightly forward with no emotional Y-squash: two 5.5 Hz cold shudder bursts per cycle separated by cold breaths.
+        b1 = bump((t-.32)/.72) if .32 <= t <= 1.04 else 0.
+        b2 = .78*bump((t-1.44)/.64) if 1.44 <= t <= 2.08 else 0.
+        env = b1+b2
+        sh = math.sin(2*math.pi*5.5*(t-.32))*b1 + math.sin(2*math.pi*5.5*(t-1.44))*b2
+        h = 1+.012*(1-math.cos(2*math.pi*t/d))/2
+        w = h**-.5; s = [w, h, w]
+        r = [-4.0-1.4*env, 4.5*sh, 2.4*math.sin(2*math.pi*5.5*t+.7)*env]
+        shift = [.012*height*sh, -.018*height*(1+.35*env)]
     elif BRAID_KEYS['authored'](c):
         s, r, lift, shift = BRAID_KEYS['state'](action, t, c)
     elif action.startswith('braid_rescue_'):

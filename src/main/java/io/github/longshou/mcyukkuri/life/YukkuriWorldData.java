@@ -409,6 +409,7 @@ public final class YukkuriWorldData extends SavedData {
         if (entity.isVehicle()) return captureRefused(entity,"vehicle");
         if (isCaptured(entity.getUUID())) return captureRefused(entity,"already_captured");
         if(!entity.operations().end())return captureRefused(entity,"operation_cannot_end");
+        if(!entity.life().releasePaperCover("capture"))return captureRefused(entity,"paper_cover_drop_failed");
         entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
         if (!entity.save(snapshot)) return captureRefused(entity,"snapshot_failed");

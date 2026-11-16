@@ -14,6 +14,7 @@
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
+    "paper": {"clips": ["paper_pull", "paper_cover_under", "cold_shiver"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
   "status": "pending_user_review",
@@ -7843,6 +7844,73 @@
       ],
       "lore": "Everyday sneeze (project design): nose tickles, the body stretches upward and leans slightly back across three escalating inhale hitches while the face scrunches (eyes squeezed, mouth half open); at 0.78 s it snaps sharply forward with a tiny hop and recoils onto a brief physical landing squash, then blinks twice with a small head-clearing yaw shake before settling cleanly back to neutral rest. Composed pitch+roll stays within 10.7 degrees.",
       "triggers": []
+    },
+    "paper_pull": {
+      "label": "从报纸堆抽出一张报纸",
+      "duration": 1.52,
+      "loop": false,
+      "applies": "not_house",
+      "markers": {
+        "tug": 0.8
+      },
+      "faces": [
+        [0, 0.34, "pursed"],
+        [0.34, 0.64, "chewing_closed"],
+        [0.64, 0.84, "squeezed_cry_tears"],
+        [0.84, 61.52, "chewing_closed"]
+      ],
+      "variants": {
+        "marisa": {
+          "match": ["marisa"],
+          "braid_keys": [
+            [0, "rest", "stop"],
+            [0.34, {"tip": [9.1, 0.9, -5.8], "root": [0.8, -2.0, -0.8], "arrive": [-0.7, 2.0, 0.85]}],
+            [0.62, {"tip": [9.3, 0.8, -5.4], "root": [0.8, -2.0, -0.8], "arrive": [-0.7, 2.0, 0.85]}],
+            [0.84, {"tip": [9.4, 0.6, -4.0], "root": [0.75, -2.2, -0.8], "arrive": [-0.88, 2.0, 0.85]}],
+            [1.52, "rest", "stop"]
+          ]
+        }
+      },
+      "lore": "Project design (N79, body-is-ability): standing at a newspaper bundle, it bows and bites a folded sheet edge, braces with small loosening yaw twists and pulls back at `tug` (the real sheet debits from the stack into MouthOccupancy Purpose.PAPER once), then settles upright holding the sheet in its mouth. Marisa's braid reaches down to press the bundle steady during the tug before swinging back to rest; if her braid already holds an item, the held-item pose stays and her mouth tugs alone. Composed tilt stays within 7.5 degrees.",
+      "triggers": ["BlockPull at a reachable NewspaperStackBlock"]
+    },
+    "paper_cover_under": {
+      "label": "掀起报纸角钻到纸下盖身",
+      "duration": 1.4,
+      "loop": false,
+      "applies": "not_house",
+      "markers": {
+        "drape": 0.76
+      },
+      "faces": [
+        [0, 0.38, "pursed"],
+        [0.38, 0.76, "chewing_closed"],
+        [0.76, 61.4, "cold"]
+      ],
+      "lore": "Project design (N79): resting in a cold plain gap with paper, it dips its nose to catch the sheet edge, lifts its chin to flip the folded newspaper upward, and pushes forward under it at `drape` (transferring one real paper sheet into the worn paper-cover slot) with a quick nestle before settling. Composed tilt stays within 7.5 degrees.",
+      "triggers": ["FoundShelter plain-gap cold cover"]
+    },
+    "cold_shiver": {
+      "label": "寒夜缩身阵阵发抖",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "not_house",
+      "display": {
+        "sideburn": {
+          "forward_keys": [[0, 2], [2.4, 2]],
+          "out_keys": [[0, -2], [2.4, -2]],
+          "wags": [[0.32, 1.04, 2.5, 5.5], [1.44, 2.08, 2.0, 5.5]]
+        }
+      },
+      "faces": [
+        [0, 0.44, "cold"],
+        [0.44, 0.88, "squeezed_cry_tears"],
+        [0.88, 1.56, "cold"],
+        [1.56, 1.92, "teary"],
+        [1.92, 2.4, "cold"]
+      ],
+      "lore": "Project design (N79): huddled slightly forward in a cold gap (distinct from `tremble`'s backward fear shake), with no emotional Y-squash; two involuntary 5.5 Hz cold shudder bursts per 2.4 s cycle separated by shallow cold breaths, starting and ending in the same quiet tucked hold for a seamless loop. Composed tilt stays within 6 degrees.",
+      "triggers": ["FoundShelter cold plain-gap rest"]
     }
   },
   "flourishes": {
@@ -7949,7 +8017,10 @@
     "shelter_dig",
     "sneeze_a",
     "sneeze_b",
-    "sneeze_c"
+    "sneeze_c",
+    "paper_pull",
+    "paper_cover_under",
+    "cold_shiver"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",

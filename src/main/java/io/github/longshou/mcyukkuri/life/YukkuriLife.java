@@ -152,6 +152,8 @@ public final class YukkuriLife {
     /** Project design: baseline thirst, +1 dryness per minute awake (two for the young), i.e. the drink threshold of 40 after about 40 minutes; severe thirst only slows. */
     private static final int THIRST_INTERVAL = 1200;
     private static final float SEVERE_THIRST = 90;
+    public static final int PAPER_COVER_WEAR_BIT = 1 << 13;
+    private ItemStack paperCover = ItemStack.EMPTY;
     private int thirstTicks;
 
     public YukkuriLife(YukkuriEntity entity) {
@@ -242,7 +244,7 @@ public final class YukkuriLife {
     private void accountEnvironmentalWake() {
         if(energy>=50 || !isSleeping())return;
         if(entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble() || hotFloor.active()
-                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep()) {
+                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep() && !coldPaperSleepAllowed()) {
             GameplayLog.event(entity,"sleep","woken during interruption sleepiness={} -> 50",100-energy);
             energy=50;
         }
@@ -521,7 +523,41 @@ public final class YukkuriLife {
             case FOUND_COVER -> foundCover.activity(); case GARBAGE -> garbage.activity(); default -> Behaviors.IDLE; };
     }
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
-    boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
+    public boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
+    boolean usingPaperCoverAt(BlockPos pos) { return !paperCover.isEmpty() && foundCover.restingInPlainGapAt(pos); }
+    public ItemStack paperCover() { return paperCover; }
+    public int paperCoverWearBits() { return paperCover.isEmpty() ? 0 : PAPER_COVER_WEAR_BIT; }
+    public void setPaperCover(ItemStack stack) {
+        paperCover = stack == null || stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
+        entity.syncWear();
+    }
+    public void clearPaperCoverForRemains() {
+        paperCover = ItemStack.EMPTY;
+        entity.syncWear();
+    }
+    public boolean releasePaperCover(String reason) {
+        if (paperCover.isEmpty()) return true;
+        Vec3 dropAt = foundCover.plainGapDropPoint(entity.position());
+        var drop = ItemContact.release(entity, paperCover, dropAt, Vec3.ZERO);
+        if (drop == null) return false;
+        GameplayLog.event(entity, "habitat", "paper cover drop item={} count={} reason={} drop={}",
+                paperCover.getItem(), paperCover.getCount(), reason, drop.getUUID());
+        paperCover = ItemStack.EMPTY;
+        entity.syncWear();
+        return true;
+    }
+    private boolean keepsPaperCover() {
+        return entity.isAlive() && !entity.isRemoved()
+                && !entity.isPanicking() && !entity.isOnFire() && !entity.isInWaterOrBubble()
+                && !level().isRainingAt(entity.blockPosition()) && wetness < 50
+                && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
+                && mealTicks() == 0 && drinkTicks == 0 && toiletTicks == 0
+                && FoundShelter.canWearPaperCover(entity)
+                && foundCover.restingInPlainGapAt(entity.blockPosition());
+    }
+    boolean coldPaperSleepAllowed() {
+        return !paperCover.isEmpty() && foundCover.restingInPlainGapAt(entity.blockPosition()) && !temperature.hot();
+    }
     public boolean targetingFoundShelter(BlockPos pos) { return foundCover.targeting(pos); }
     public boolean leavingFoundShelter() { return foundCover.exiting(); }
     public boolean usingGarbage(BlockPos pos) { return garbage.targeting(pos); }
@@ -565,6 +601,7 @@ public final class YukkuriLife {
         }
         if (!entity.isAlive()) return;
         accessory.tick();
+        if (!paperCover.isEmpty() && !keepsPaperCover()) releasePaperCover("state_changed");
         if (entity.isNoAi()) return;
         ageTicks++;
         personality.tick();
@@ -620,7 +657,7 @@ public final class YukkuriLife {
         temperature.tick();
         if (!entity.isAlive()) return;
         if(isSleeping() && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
-                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep())) wakeForDanger("environment");
+                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep() && !coldPaperSleepAllowed())) wakeForDanger("environment");
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
             if (mealTicks() > 0 || task != Task.NONE || sprayDelay()>0 || drugSleep()>0) interrupt();
             return;
@@ -681,6 +718,7 @@ public final class YukkuriLife {
         entity.dailyLife().stop();
         if (!meal.releaseForInterrupt()) return;
         foundCover.stop();
+        releasePaperCover("interrupt");
         garbage.stop();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","interrupt",200,
                 "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}",
@@ -707,6 +745,7 @@ public final class YukkuriLife {
                 || entity.family().birthDuty() || entity.body().dying()) return false;
         var contact = SocialDisposition.contact(entity, actor);
         var response = contact.response(true);
+        releasePaperCover("wash");
         float before = hygiene;
         hygiene = Math.min(100, hygiene + 40); wetness = Math.min(100, wetness + 5);
         marks.washed();
@@ -773,6 +812,10 @@ public final class YukkuriLife {
             stopGoal(); return false;
         }
         if (task == Task.SLEEP && foundCover.active()) {
+            if (drugSleep() == 0 && temperature.unsafeSleep() && temperature.planRealWarmth()) {
+                foundCover.stop();
+                task = Task.TEMPERATURE; resetSleep(); return true;
+            }
             if (foundCover.checkRest(foundCover.restingAtBench() && wakeAt > 0)) return true;
             resetSleep();
             if (foundCover.exiting()) { task = Task.FOUND_COVER; return true; }
@@ -782,7 +825,10 @@ public final class YukkuriLife {
             if (temperature.canContinue()) return true;
             stopGoal(); planWait = 0;
         }
-        if ((task == Task.SLEEP || task == Task.HOME) && drugSleep() == 0 && temperature.unsafeSleep() && temperature.plan()) {
+        if ((task == Task.SLEEP || task == Task.HOME) && drugSleep() == 0 && temperature.unsafeSleep() && temperature.plan()
+                || task == Task.FOUND_COVER && foundCover.restingInPlainGap() && drugSleep() == 0
+                        && temperature.unsafeSleep() && temperature.planRealWarmth()) {
+            foundCover.stop();
             task = Task.TEMPERATURE; resetSleep(); return true;
         }
         if ((task == Task.FOOD || task == Task.FOOD_GLASS) && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
@@ -1566,6 +1612,7 @@ public final class YukkuriLife {
         meal.save(tag);
         home.save(tag);
         accessory.save(tag);
+        if (!paperCover.isEmpty()) tag.put("PaperCover", paperCover.save(entity.registryAccess()));
         tag.putFloat("Pickiness", pickiness);
         tag.put("Personality", personality.save()); return tag;
     }
@@ -1592,6 +1639,9 @@ public final class YukkuriLife {
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
         meal.load(tag);
         home.load(tag); accessory.load(tag);
+        paperCover = tag.contains("PaperCover", Tag.TAG_COMPOUND)
+                ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("PaperCover")) : ItemStack.EMPTY;
+        entity.syncWear();
         pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; refusedFood.clear(); refusedFoodFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;

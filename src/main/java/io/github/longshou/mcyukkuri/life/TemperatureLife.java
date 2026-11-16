@@ -140,13 +140,18 @@ public final class TemperatureLife {
     private Conditions sample(BlockPos pos, boolean basking) { return sample(pos, heatSources(pos, 4), basking); }
     private Conditions sample(BlockPos pos, HeatSources sources, boolean basking) {
         if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0, false);
-        boolean shade = shaded(pos), insulated = insulated(pos, shade);
+        boolean shade = shaded(pos), nestInsulated = nestInsulated(pos, shade);
+        boolean dryPaper = shade && !level().isRainingAt(pos) && entity.life().wetness() < 50;
+        double paper = !nestInsulated && dryPaper
+                ? (entity.life().usingPaperBedding(pos) ? YukkuriConfig.PAPER_BEDDING_INSULATION.get() : 0)
+                        + (entity.life().usingPaperCoverAt(pos) ? YukkuriConfig.PAPER_COVER_INSULATION.get() : 0) : 0;
+        boolean insulated = nestInsulated || paper > 0;
         double biome = level().getBiome(pos).value().getBaseTemperature();
         double felt = SeasonClimate.ambient(biome, SeasonClimate.offset(level(), pos), level().dimensionType().hasSkyLight(),
                 level().isNight(), shade, level().isRaining());
         felt -= entity.life().wetness() / 100.0 * .35;
         felt += RareForms.kotatsuWarmth(entity, felt); // a kotatsu Marisa carries her own warmth
-        double bonus = insulated && tooCold(felt) ? YukkuriConfig.NEST_INSULATION.get() : 0;
+        double bonus = tooCold(felt) ? (nestInsulated ? YukkuriConfig.NEST_INSULATION.get() : paper) : 0;
         // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/FEATURES.md).
         if (entity.pet().care().swaddled() && tooCold(felt + bonus)) bonus = Math.max(bonus, Math.min(bonus + SWADDLE_WARMTH, SWADDLE_CAP));
         felt += bonus;
@@ -168,9 +173,8 @@ public final class TemperatureLife {
         if (shelter != null && shelter.contains(pos) && shelter.sound() && shelter.rainSheltered(pos)) return true;
         return level().getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ()) > pos.getY();
     }
-    private boolean insulated(BlockPos pos, boolean shade) {
+    private boolean nestInsulated(BlockPos pos, boolean shade) {
         if (!shade) return false;
-        if (entity.life().usingPaperBedding(pos)) return true;
         var shelter = entity.habitat().shelter();
         if (shelter == null) shelter = entity.life().foundShelter();
         if (shelter != null && shelter.owns(entity.getUUID()) && shelter.contains(pos)
@@ -223,7 +227,10 @@ public final class TemperatureLife {
                 && life.nutrition() >= 30
                 && (life.bladder() < 70 || life.constipated());
     }
-    public boolean plan() {
+    public boolean plan() { return plan(false); }
+    /** Preempts an active wind-gap shelter only for a real heat source, insulated nest, or winter sun — never bare biome-edge ground. */
+    public boolean planRealWarmth() { return plan(true); }
+    private boolean plan(boolean requireHeatOrNest) {
         if (active()) return canContinue();
         if (cooldown > 0 || !available()) return false;
         cooldown = 100;
@@ -239,6 +246,7 @@ public final class TemperatureLife {
             if (!mayUse(pos)) continue;
             var at = sample(pos, sources, seekingWarmth && baskCooldown == 0);
             if (!refuge(at)) continue;
+            if (requireHeatOrNest && seekingWarmth && !(at.warmth() > 0 || at.insulated() || at.sun())) continue;
             double distance = pos.distSqr(center);
             // Seeking warmth means seeking the warmest place within reach, not just the nearest merely comfortable one:
             // a real heat source (a torch, a fire, a kotatsu Marisa) outranks open ground at the same distance.

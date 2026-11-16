@@ -31,7 +31,8 @@ public final class YukkuriConfig {
             BADGE_TARGET_PER_DAY, BADGE_WORLD_REFILL_TICKS, BADGE_WORLD_CAPACITY;
     public static final ModConfigSpec.IntValue REMAINS_STALE_TICKS, REMAINS_ROTTEN_TICKS;
     public static final ModConfigSpec.BooleanValue CANNIBAL_CARRION, CANNIBAL_UNRECOGNIZED, SACRIFICE, SELF_OFFERING;
-    public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
+    public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION,
+            PAPER_BEDDING_INSULATION, PAPER_COVER_INSULATION;
     public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
     public static final ModConfigSpec.DoubleValue SPRING_TEMPERATURE, SUMMER_TEMPERATURE, AUTUMN_TEMPERATURE, WINTER_TEMPERATURE;
     static {
@@ -57,6 +58,10 @@ public final class YukkuriConfig {
                 .defineInRange("hotAtOrAbove", 1.5, .5, 4.0);
         NEST_INSULATION = builder.comment("Warmth from a real dry, intact, supplied nest while inside it; only in cold conditions.")
                 .defineInRange("nestInsulation", 1.0, 0.0, 3.0);
+        PAPER_BEDDING_INSULATION = builder.comment("Partial warmth from dry loose paper bedding in a plain wind-cover gap; smaller than a real nest.")
+                .defineInRange("paperBeddingInsulation", 0.45, 0.0, 3.0);
+        PAPER_COVER_INSULATION = builder.comment("Partial warmth from a folded newspaper sheet draped over the body in a plain wind-cover gap.")
+                .defineInRange("paperCoverInsulation", 0.40, 0.0, 3.0);
         COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units before freezing injury. Adults gain 1 per tick, juveniles 1.5, babies 2; warmth removes 2.")
                 .defineInRange("coldExposureTicks", 2400, 20, 1728000);
         FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);

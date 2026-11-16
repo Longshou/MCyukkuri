@@ -993,8 +993,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     // pet harness and lead (docs/FEATURES.md): the lead is tied to the harness ring on the back, never to the accessory
     public int visibleWear() { return sync().visibleWear(); }
-    /** Server: everything worn on the body, as YukkuriView.visibleWear bits (pet harness and cloth swaddle, leaf swaddle). */
-    public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits(); }
+    /** Server: everything worn on the body, as YukkuriView.visibleWear bits (pet harness and cloth swaddle, leaf swaddle, plain-gap paper cover). */
+    public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits() | life().paperCoverWearBits(); }
     public void syncWear() { sync().setWear(wornBits()); }
     /** Only a harnessed pet can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }

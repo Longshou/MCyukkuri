@@ -609,7 +609,10 @@ public final class BodyLife {
         if(LeafSwaddle.RETENTION.equals(internal))deathFood=BodyFood.capacity(entity);
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem);
         var mouth=entity.component(YukkuriComponents.MOUTH);
-        RemainsEntity.retainCarriedItems(remains,mouth.itemsForRemains());
+        var carried=mouth.itemsForRemains();
+        var paperCover=entity.life().paperCover();
+        if(!paperCover.isEmpty())carried.add(paperCover.save(entity.registryAccess()));
+        RemainsEntity.retainCarriedItems(remains,carried);
         var found = entity.life().foundShelter();
         var opening = found == null ? null : Vec3.atBottomCenterOf(found.entrance());
         boolean setDown = opening != null && SurfaceApproach.stands(entity, opening) && SurfaceApproach.clearLastStep(entity, opening)
@@ -628,6 +631,10 @@ public final class BodyLife {
         var find = mouth.stack(Purpose.FIND);
         if (!find.isEmpty()) GameplayLog.event(entity, "treasure", "find death transfer item={} count={}", find.getItem(), find.getCount());
         mouth.remainsAcceptedItems();
+        if (!paperCover.isEmpty()) {
+            entity.life().clearPaperCoverForRemains();
+            GameplayLog.event(entity, "habitat", "paper cover death transfer item={} count={}", paperCover.getItem(), paperCover.getCount());
+        }
         if (found != null) found.release(entity.getUUID());
         settled=true;settledCause=internal;entity.syncBody();
         var stored=remains.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

@@ -195,7 +195,12 @@ public enum YukkuriAction {
     // Museum comparison trial (lore recipe): three authored sneeze variants shown side by side; no behaviour calls them.
     SNEEZE_A("sneeze_a", 1.6, false),
     SNEEZE_B("sneeze_b", 1.68, false),
-    SNEEZE_C("sneeze_c", 1.64, false);
+    SNEEZE_C("sneeze_c", 1.64, false),
+    // Newspaper-stack paper source and cold plain-gap cover (lore recipe paper family + mouth_item_place).
+    MOUTH_ITEM_PLACE("mouth_item_place", 1.2, false),
+    PAPER_PULL("paper_pull", 1.52, false),
+    PAPER_COVER_UNDER("paper_cover_under", 1.4, false),
+    COLD_SHIVER("cold_shiver", 2.4, true);
 
     private final String id;
     private final double duration;

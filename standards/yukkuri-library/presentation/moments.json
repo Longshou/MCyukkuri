@@ -4864,6 +4864,111 @@
           "emote": "note"
         }
       ]
+    },
+    "behavior_paper_pull": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "paper_pull",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "pursed"
+            ],
+            [
+              0.34,
+              "chewing_closed"
+            ],
+            [
+              0.64,
+              "squeezed_cry_tears"
+            ],
+            [
+              0.84,
+              "chewing_closed"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_paper_place": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "mouth_item_place",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "chewing_closed"
+            ],
+            [
+              0.6,
+              "neutral"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_paper_cover": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "paper_cover_under",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "pursed"
+            ],
+            [
+              0.38,
+              "chewing_closed"
+            ],
+            [
+              0.76,
+              "cold"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_cold_shiver": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "cold_shiver",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "cold"
+            ],
+            [
+              0.44,
+              "squeezed_cry_tears"
+            ],
+            [
+              0.88,
+              "cold"
+            ],
+            [
+              1.56,
+              "teary"
+            ],
+            [
+              1.92,
+              "cold"
+            ]
+          ],
+          "emote": "shiver"
+        }
+      ]
     }
   },
   "behaviors": {
@@ -5024,7 +5129,11 @@
     "mold_plead": "behavior_mold_plead",
     "mold_resist": "behavior_mold_resist",
     "mold_leave": "behavior_mold_leave",
-    "mold_look_back": "behavior_mold_look_back"
+    "mold_look_back": "behavior_mold_look_back",
+    "paper_pull": "behavior_paper_pull",
+    "paper_place": "behavior_paper_place",
+    "paper_cover": "behavior_paper_cover",
+    "cold_shiver": "behavior_cold_shiver"
   },
   "reactions": {
     "hello": "reaction_hello",
