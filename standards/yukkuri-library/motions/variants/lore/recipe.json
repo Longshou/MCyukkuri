@@ -5390,7 +5390,10 @@
       "triggers": [
         "badge arc beg_bite: the pet hands over a bite"
       ],
-      "lean_shift": 0.035
+      "lean_shift": 0.035,
+      "markers": {
+        "contact": 0.6
+      }
     },
     "braid_reach_low": {
       "label": "亲油把辫子一侧压低，够水里的赤油",
