@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 打喷嚏三版（hakimi 试作）进博物馆动作片段区供比较 | `.worktrees/wp-sneeze-trial` | motions/variants/lore, motions/tiers.json, YukkuriAction.java, museum_actions.py |
-| 功能说明季节与体感温度一节对齐代码（4 处） | `.worktrees/wp-docs-season` | docs/FEATURES.md |
 | 报纸堆作纸源：流浪撕纸、铺垫与冬夜盖纸发抖（N79） | `.worktrees/wp-paper-source` | human/NewspaperStackBlock, life/Facilities, stray shelter behaviour, lore motions |
 
 ## 玩法待办
