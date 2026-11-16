@@ -28,7 +28,7 @@ import math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, integer, sequence
 from palette import PALETTES, STYLES, BEDS, link, leaves, mc, pick
-from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, ground_display, produce_crate, connect_bars, jigsaw
+from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, produce_crate, connect_bars, jigsaw
 
 LOG = {'axis': 'y'}
 
@@ -345,7 +345,7 @@ def kiosk(p):
         b.block(x, 3, 1, wool)
     # Inside: two goods tables at the back (a lantern on one), the keeper's home cell behind the counter.
     furniture(b, 'table', 1, [(3, 6)]); furniture(b, 'table', 1, [(5, 6)])
-    ground_display(b, 3, 2, 6, 'minecraft:apple', yaw=10.)
+    produce_crate(b, 3, 2, 6, 'north', [('apple', 3), ('apple', 2)])
     b.block(5, 2, 6, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
     resident(b, 4, 1, 5, 'caretaker_sister', 2)
     # Bench nook (west): a two-seat bench, then the paper shelf on boards at y2 with the newspaper stacks; the dry cells under it.

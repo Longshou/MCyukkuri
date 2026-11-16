@@ -94,6 +94,7 @@ public final class ModCreativeTabs {
         }
         if (event.getTabKey().location().equals(MCYukkuri.id("yukkuri_world"))) {
             event.accept(HumanWorld.WOODEN_BENCH.get()); event.accept(HumanWorld.WOODEN_TABLE.get()); event.accept(ModItems.PRODUCE_CRATE.get());
+            event.accept(ModItems.DISPLAY_TRAY.get());
             event.accept(HumanWorld.NEWSPAPER_STACK.get()); event.accept(HumanWorld.NOTICE_BOARD.get());
         }
     }

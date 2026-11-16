@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.registry;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
+import io.github.longshou.mcyukkuri.human.DisplayTrayBlock;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlock;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -72,8 +73,10 @@ public final class ModBlocks {
             ()->BlockEntityType.Builder.of(GarbageBinBlockEntity::new,GARBAGE_BIN.get()).build(null));
     public static final DeferredBlock<ProduceCrateBlock> PRODUCE_CRATE=BLOCKS.register("produce_crate",
             ()->new ProduceCrateBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
+    public static final DeferredBlock<DisplayTrayBlock> DISPLAY_TRAY=BLOCKS.register("display_tray",
+            ()->new DisplayTrayBlock(BlockBehaviour.Properties.of().strength(1f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ProduceCrateBlockEntity>> PRODUCE_CRATE_ENTITY=BLOCK_ENTITIES.register("produce_crate",
-            ()->BlockEntityType.Builder.of(ProduceCrateBlockEntity::new,PRODUCE_CRATE.get()).build(null));
+            ()->BlockEntityType.Builder.of(ProduceCrateBlockEntity::new,PRODUCE_CRATE.get(),DISPLAY_TRAY.get()).build(null));
     public static final DeferredBlock<ForagePileBlock> FORAGE_PILE=BLOCKS.register("forage_pile",
             ()->new ForagePileBlock(BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GRASS).noCollission().noOcclusion()
                     .pushReaction(PushReaction.DESTROY)));

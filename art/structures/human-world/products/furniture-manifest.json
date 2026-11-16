@@ -1,7 +1,7 @@
 {
   "status": "pending_user_confirmation",
   "author": "Original procedural pixel art; no external source pixels.",
-  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours of the same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front",
+  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours of the same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front; tray: board 1/16 with a 2/16 rim, inset 1 px; raised form on an 8/16 slab of the vanilla planks texture",
   "woods": {
     "oak": [
       "#4a3826",
@@ -29,6 +29,14 @@
     ]
   },
   "models": [
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_raised.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_raised_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_raised_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_raised_spruce.json",
+    "src/main/resources/assets/mcyukkuri/models/block/display_tray_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/produce_crate.json",
     "src/main/resources/assets/mcyukkuri/models/block/produce_crate_acacia.json",
     "src/main/resources/assets/mcyukkuri/models/block/produce_crate_jungle.json",

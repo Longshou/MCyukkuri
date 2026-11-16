@@ -72,11 +72,6 @@ class Building:
         messages=[json.dumps({'text':s},ensure_ascii=False) for s in (lines+['']*4)[:4]]
         self.block(x,y,z,f'{wood}_wall_sign',{'facing':facing,'waterlogged':'false'}, {'id':string('minecraft:sign'),
             'front_text':compound({'messages':sequence(8,messages),'color':string('black'),'has_glowing_text':byte(0)})})
-    def counter_item(self,x,y,z,item,yaw=0.):
-        """A good set out on a counter top: a fixed item display on the cell above it, turned by yaw degrees."""
-        h=math.radians(yaw)/2
-        self.entity(x+.5,y,z+.5,'minecraft:item_display',{'item_display':string('ground'),'item':compound({'id':string('mcyukkuri:'+item),'count':integer(1)}),
-            'transformation':compound({'translation':sequence(5,[0.,.1,0.]),'scale':sequence(5,[.75,.75,.75]),'left_rotation':sequence(5,[0.,math.sin(h),0.,math.cos(h)]),'right_rotation':sequence(5,[0.,0.,0.,1.])})})
     def toy(self,x,y,z,item):
         """A real toy item lying in a pen for the stock to play with: it never despawns and nobody picks it up through the glass."""
         self.entity(x,y,z,'minecraft:item',{'Item':compound({'id':string('mcyukkuri:'+item),'count':integer(1)}),

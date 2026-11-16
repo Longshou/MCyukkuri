@@ -8,6 +8,10 @@ at 8/16, the same height as a slab, so the street rest spot keeps its climb); a 
 The crate (human/ProduceCrateBlock) is a slatted box on four corner posts, 9/16 high, its front (model north) one slat lower. The goods
 it holds are drawn by client/ProduceCrateRenderer from its real contents, standing on the floor board at 2/16.
 
+The display tray (human/DisplayTrayBlock) is the same holder laid flat for desks, tables and counters: a board with a low rim, 2/16
+high, its contents lying on the board. Its `raised` form stands on a slab of the wood's vanilla planks (the only vanilla pixels used
+here, by reference), so it takes the place of one slab of a slab-topped counter without a step in the counter top.
+
 Light from the top left, every pixel drawn here (no vanilla or external pixels). Oak is the shared `wood` ramp of
 art/props/palette.json and keeps the original texture and model names; spruce, acacia and jungle follow the tone of those vanilla planks.
 Sources go to products/, runtime copies to textures/block/; models, blockstates, loot tables, recipes and language keys are written
@@ -32,7 +36,7 @@ WOODS = {
 }
 GRIME = (0x3b, 0x2e, 0x22)
 NAMES = {'wooden_bench': ('长椅', 'Wooden Bench', 'ベンチ'), 'wooden_table': ('木桌', 'Wooden Table', '木のテーブル'),
-         'produce_crate': ('货箱', 'Produce Crate', '野菜箱')}
+         'produce_crate': ('货箱', 'Produce Crate', '野菜箱'), 'display_tray': ('展示托盘', 'Display Tray', '陳列トレー')}
 
 
 def noise(x, y, salt=0):
@@ -250,6 +254,36 @@ def crate_blockstate():
                          for wood in WOODS for facing, turn in turns.items()}}
 
 
+# ---------------------------------------------------------------------------------------------------------- display tray
+TRAY_FLOOR = 1           # top of the tray board above its base: the contents lie here (human/DisplayTrayBlock.FLOOR)
+TRAY_SLAB = 8            # the raised form's slab (human/DisplayTrayBlock.SLAB)
+
+
+def tray(raised):
+    y = TRAY_SLAB if raised else 0
+    a, b = (1, y, 1), (15, y + TRAY_FLOOR, 15)
+    parts = [box(a, b, faces(a, b))]
+    parts += [rail((1, y + 1, 1), (15, y + 2, 2)), rail((1, y + 1, 14), (15, y + 2, 15)),
+              rail((1, y + 1, 2), (2, y + 2, 14)), rail((14, y + 1, 2), (15, y + 2, 14))]
+    model = {'parent': 'minecraft:block/block', 'textures': tray_textures('oak', raised), 'elements': parts}
+    if raised:
+        whole, edge = {'texture': '#slab', 'uv': [0, 0, 16, 16]}, {'texture': '#slab', 'uv': [0, 8, 16, 16]}
+        parts.insert(0, box((0, 0, 0), (16, TRAY_SLAB, 16), {'up': whole, 'down': {**whole, 'cullface': 'down'},
+                                                             **{d: {**edge, 'cullface': d} for d in ('north', 'south', 'east', 'west')}}))
+    return model
+
+
+def tray_textures(wood, raised):
+    return {**textures(wood), **({'slab': f'minecraft:block/{wood}_planks'} if raised else {})}
+
+
+def tray_blockstate():
+    turns = {'north': 0, 'east': 90, 'south': 180, 'west': 270}
+    return {'variants': {f'facing={facing},raised={str(raised).lower()},wood={wood}':
+                         {'model': tex('display_tray' + ('_raised' if raised else '') + suffix(wood)), **({'y': turn} if turn else {})}
+                         for wood in WOODS for raised in (False, True) for facing, turn in turns.items()}}
+
+
 # ---------------------------------------------------------------------------------------------------------- export
 def language(lang):
     i = ['zh_cn', 'en_us', 'ja_jp'].index(lang)
@@ -294,6 +328,13 @@ def export():
     write(models / 'item/wooden_table.json', {'parent': tex('wooden_table')})
     write(ASSET / 'blockstates/produce_crate.json', crate_blockstate())
     write(models / 'item/produce_crate.json', {'parent': tex('produce_crate')})
+    for raised in (False, True):
+        name = 'display_tray' + ('_raised' if raised else '')
+        write(models / f'block/{name}.json', tray(raised))
+        for wood in list(WOODS)[1:]:
+            write(models / f'block/{name}_{wood}.json', {'parent': tex(name), 'textures': tray_textures(wood, raised)})
+    write(ASSET / 'blockstates/display_tray.json', tray_blockstate())
+    write(models / 'item/display_tray.json', {'parent': tex('display_tray')})
     for name in NAMES:
         write(DATA / 'loot_table/blocks' / f'{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
             {'type': 'minecraft:item', 'name': 'mcyukkuri:' + name}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
@@ -304,14 +345,17 @@ def export():
           'key': {'p': {'tag': 'minecraft:planks'}, 't': stick}, 'result': {'id': 'mcyukkuri:wooden_table', 'count': 1}})
     write(DATA / 'recipe/produce_crate.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['s s', 'sss'],
           'key': {'s': {'tag': 'minecraft:wooden_slabs'}}, 'result': {'id': 'mcyukkuri:produce_crate', 'count': 2}})
+    write(DATA / 'recipe/display_tray.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['tst'],
+          'key': {'s': {'tag': 'minecraft:wooden_slabs'}, 't': stick}, 'result': {'id': 'mcyukkuri:display_tray', 'count': 1}})
     write(ROOT / 'src/main/resources/data/minecraft/tags/block/mineable/axe.json',
           {'replace': False, 'values': ['mcyukkuri:' + name for name in (*NAMES, 'notice_board')]})
     write(ART / 'furniture-manifest.json', {'status': 'pending_user_confirmation', 'author': 'Original procedural pixel art; no external source pixels.',
         'geometry': 'bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); '
                     'table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours of the '
-                    'same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front',
+                    'same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front; '
+                    'tray: board 1/16 with a 2/16 rim, inset 1 px; raised form on an 8/16 slab of the vanilla planks texture',
         'woods': WOODS,
-        'models': sorted(p.relative_to(ROOT).as_posix() for pattern in ('block/wooden_*.json', 'block/produce_crate*.json')
+        'models': sorted(p.relative_to(ROOT).as_posix() for pattern in ('block/wooden_*.json', 'block/produce_crate*.json', 'block/display_tray*.json')
                          for p in models.glob(pattern)), 'assets': records})
     return records
 

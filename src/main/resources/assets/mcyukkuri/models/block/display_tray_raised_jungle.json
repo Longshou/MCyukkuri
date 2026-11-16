@@ -1,0 +1,10 @@
+{
+  "parent": "mcyukkuri:block/display_tray_raised",
+  "textures": {
+    "particle": "mcyukkuri:block/village_wood_jungle_planks",
+    "planks": "mcyukkuri:block/village_wood_jungle_planks",
+    "side": "mcyukkuri:block/village_wood_jungle_side",
+    "post": "mcyukkuri:block/village_wood_jungle_post",
+    "slab": "minecraft:block/jungle_planks"
+  }
+}

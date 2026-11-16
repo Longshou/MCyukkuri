@@ -77,6 +77,17 @@ def produce_crate(b, x, y, z, facing, goods):
     b.block(x, y, z, 'mcyukkuri:produce_crate', {'facing': facing, 'wood': build.furniture_wood(b)}, nbt)
 
 
+def display_tray(b, x, y, z, facing, *items, raised=False):
+    """A shallow tray of the type's wood with up to four things lying on it (an item id or (item, count <= 4)); they are its real
+    contents, read from `facing`. raised: the counter-top form, written over one slab of a slab-topped counter."""
+    goods = [(item, 1) if isinstance(item, str) else item for item in items]
+    assert 1 <= len(goods) <= 4 and all(1 <= n <= 4 for _, n in goods), goods
+    nbt = {'id': string('mcyukkuri:produce_crate'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(goods)])}
+    if raised: assert b.blocks[(x, y, z)][0].endswith('_slab'), (x, y, z)
+    b.block(x, y, z, 'mcyukkuri:display_tray', {'facing': facing, 'raised': str(raised).lower(), 'wood': build.furniture_wood(b)}, nbt,
+            over=raised)
+
+
 def wind_gap(b, x, y, z, paper=True):
     """A low covered cell against a wall; a real paper lies in it as bedding (it never despawns; anyone may still take it)."""
     records(b).gaps.append((x, y, z))
@@ -146,16 +157,6 @@ def street_residents(b, first, second):
 def fence_row(b, x0, x1, y, z, kind):
     for x in range(x0, x1 + 1):
         b.block(x, y, z, kind, link(kind, [s for s, ok in (('west', x > x0), ('east', x < x1)) if ok]))
-
-
-def ground_display(b, x, y, z, item, yaw=0., scale=.6):
-    """A good set out on a surface: a fixed item display standing in the cell above it."""
-    h = math.radians(yaw) / 2
-    b.entity(x + .5, y, z + .5, 'minecraft:item_display', {'item_display': string('ground'),
-        'item': compound({'id': string(item if ':' in item else 'minecraft:' + item), 'count': integer(1)}),
-        'transformation': compound({'translation': sequence(5, [0., .1, 0.]), 'scale': sequence(5, [scale, scale, scale]),
-                                    'left_rotation': sequence(5, [0., math.sin(h), 0., math.cos(h)]),
-                                    'right_rotation': sequence(5, [0., 0., 0., 1.])})})
 
 
 def shed(b, x0, x1, z0, z1, wall, corner, roof, door=None, windows=()):
@@ -274,7 +275,7 @@ def street_alley(p):
     b.block(1, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})   # on the hay stack
     # East: tool shed, door on the sidewalk; a lean-to on its alley wall and a woodpile closing it at the far end.
     shed(b, 11, 16, 8, 15, p.wall, p.beam, p.roof_trim if p.trim_stairs else p.roof, door=(13, 8, 'north'), windows=[(16, 11), (11, 9)])
-    b.block(15, 1, 14, p.tree_log, LOG); ground_display(b, 15, 2, 14, 'iron_axe', yaw=30.)   # chopping block
+    b.block(15, 1, 14, p.tree_log, LOG); display_tray(b, 15, 2, 14, 'north', 'iron_axe')   # chopping block
     b.block(12, 1, 14, p.tree_log, {'axis': 'x'})
     for y in (1, 2): b.block(15, y, 9, 'hay_block', LOG)
     b.block(15, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
@@ -471,16 +472,16 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     b.double_door(3, 3, 16, 'south')
     for x in range(5, 15): slab(b, x, 4, 16, p.wood, 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
-        ground_display(b, x, 4.5, 16, item, yaw=35. * x)
+        display_tray(b, x, 4, 16, 'north', (item, 2), raised=True)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
     # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a demo table in the main
     # aisle with tools laid out on it, sacks against the counter end.
     for x, z, h in [(8, 4, 2), (9, 4, 1), (8, 5, 1)]:
         for y in range(3, 3 + h): barrel(b, x, y, z, 'up' if y == 3 else 'south')
-    ground_display(b, 8, 5, 4, 'mcyukkuri:care_mallet', yaw=80.)
+    display_tray(b, 8, 5, 4, 'south', 'mcyukkuri:care_mallet')
     furniture(b, 'table', 3, [(12, 9), (12, 10)])
-    for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: ground_display(b, 12, 4, z, item, yaw=25. * z, scale=.5)
+    for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: display_tray(b, 12, 4, z, 'west', item)
     b.block(14, 3, 15, 'hay_block', LOG)
     for x, z in [(10, 6), (11, 6), (12, 6), (13, 6), (11, 7), (12, 7)]: b.block(x, 3, z, 'brown_carpet')
     # Customer nook by the east street window: a small table under the window with a chair on each side, the cages in view.
@@ -499,14 +500,14 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     b.block(11, 4, 23, 'brewing_stand', {'has_bottle_0': 'true', 'has_bottle_1': 'false', 'has_bottle_2': 'true'})
     b.block(13, 3, 23, 'water_cauldron', {'level': '2'})
     b.block(9, 3, 23, 'grindstone', {'face': 'floor', 'facing': 'north'})
-    ground_display(b, 10, 4, 23, 'mcyukkuri:care_awl', yaw=60.); ground_display(b, 12, 4, 23, 'minecraft:shears', yaw=-30.)
+    display_tray(b, 10, 4, 23, 'north', 'mcyukkuri:care_awl'); display_tray(b, 12, 4, 23, 'north', 'minecraft:shears')
     for x in (16, 17, 18):
         barrel(b, x, 3, 23, 'up')
         if x != 17: barrel(b, x, 4, 23, 'up')
     b.block(4, 3, 23, 'hay_block', LOG); b.block(5, 3, 23, 'hay_block', LOG); b.block(4, 4, 23, 'hay_block', LOG)
     for x in (19, 20, 21, 22): barrel(b, x, 3, 23, 'up')
     barrel(b, 20, 4, 23, 'up'); b.block(22, 3, 22, 'composter', {'level': '6'})
-    ground_display(b, 17, 4, 23, 'mcyukkuri:yukkuri_carrier', yaw=15.)
+    display_tray(b, 17, 4, 23, 'north', 'mcyukkuri:yukkuri_carrier')
     b.human(14.5, 21.5, 'caretaker_brother', 1, 0, 'oni_staff')
     for x, z in [(2, 23), (22, 23), (2, 17), (22, 4)]: b.block(x, 6, z, 'cobweb')
     # Shop footprint (protection, roster, staff membership): the building from the facade to the back wall.

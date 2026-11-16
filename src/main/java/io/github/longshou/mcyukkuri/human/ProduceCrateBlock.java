@@ -31,7 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * An open market crate of the village's wood (art/structures/human-world/author_furniture.py). It only holds and shows its goods:
  * a hand with an item puts one in, an empty hand takes one out, and breaking it drops what is left. Its low side faces FACING.
  */
-public final class ProduceCrateBlock extends Block implements EntityBlock {
+public class ProduceCrateBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 9, 16);
 

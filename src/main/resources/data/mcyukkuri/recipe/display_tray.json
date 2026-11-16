@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "tst"
+  ],
+  "key": {
+    "s": {
+      "tag": "minecraft:wooden_slabs"
+    },
+    "t": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "mcyukkuri:display_tray",
+    "count": 1
+  }
+}

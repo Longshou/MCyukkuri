@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "facing=north,raised=false,wood=oak": {
+      "model": "mcyukkuri:block/display_tray"
+    },
+    "facing=east,raised=false,wood=oak": {
+      "model": "mcyukkuri:block/display_tray",
+      "y": 90
+    },
+    "facing=south,raised=false,wood=oak": {
+      "model": "mcyukkuri:block/display_tray",
+      "y": 180
+    },
+    "facing=west,raised=false,wood=oak": {
+      "model": "mcyukkuri:block/display_tray",
+      "y": 270
+    },
+    "facing=north,raised=true,wood=oak": {
+      "model": "mcyukkuri:block/display_tray_raised"
+    },
+    "facing=east,raised=true,wood=oak": {
+      "model": "mcyukkuri:block/display_tray_raised",
+      "y": 90
+    },
+    "facing=south,raised=true,wood=oak": {
+      "model": "mcyukkuri:block/display_tray_raised",
+      "y": 180
+    },
+    "facing=west,raised=true,wood=oak": {
+      "model": "mcyukkuri:block/display_tray_raised",
+      "y": 270
+    },
+    "facing=north,raised=false,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_spruce"
+    },
+    "facing=east,raised=false,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_spruce",
+      "y": 90
+    },
+    "facing=south,raised=false,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_spruce",
+      "y": 180
+    },
+    "facing=west,raised=false,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_spruce",
+      "y": 270
+    },
+    "facing=north,raised=true,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_raised_spruce"
+    },
+    "facing=east,raised=true,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_raised_spruce",
+      "y": 90
+    },
+    "facing=south,raised=true,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_raised_spruce",
+      "y": 180
+    },
+    "facing=west,raised=true,wood=spruce": {
+      "model": "mcyukkuri:block/display_tray_raised_spruce",
+      "y": 270
+    },
+    "facing=north,raised=false,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_acacia"
+    },
+    "facing=east,raised=false,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_acacia",
+      "y": 90
+    },
+    "facing=south,raised=false,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_acacia",
+      "y": 180
+    },
+    "facing=west,raised=false,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_acacia",
+      "y": 270
+    },
+    "facing=north,raised=true,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_raised_acacia"
+    },
+    "facing=east,raised=true,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_raised_acacia",
+      "y": 90
+    },
+    "facing=south,raised=true,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_raised_acacia",
+      "y": 180
+    },
+    "facing=west,raised=true,wood=acacia": {
+      "model": "mcyukkuri:block/display_tray_raised_acacia",
+      "y": 270
+    },
+    "facing=north,raised=false,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_jungle"
+    },
+    "facing=east,raised=false,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_jungle",
+      "y": 90
+    },
+    "facing=south,raised=false,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_jungle",
+      "y": 180
+    },
+    "facing=west,raised=false,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_jungle",
+      "y": 270
+    },
+    "facing=north,raised=true,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_raised_jungle"
+    },
+    "facing=east,raised=true,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_raised_jungle",
+      "y": 90
+    },
+    "facing=south,raised=true,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_raised_jungle",
+      "y": 180
+    },
+    "facing=west,raised=true,wood=jungle": {
+      "model": "mcyukkuri:block/display_tray_raised_jungle",
+      "y": 270
+    }
+  }
+}

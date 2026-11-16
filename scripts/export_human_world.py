@@ -60,7 +60,9 @@ def main(check=False):
               'src/main/resources/assets/mcyukkuri/blockstates/wooden_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/wooden_*.json',
               'src/main/resources/data/mcyukkuri/recipe/wooden_*.json',
               'src/main/resources/assets/mcyukkuri/models/*/produce_crate*.json','src/main/resources/assets/mcyukkuri/blockstates/produce_crate.json',
-              'src/main/resources/data/mcyukkuri/loot_table/blocks/produce_crate.json','src/main/resources/data/mcyukkuri/recipe/produce_crate.json','src/main/resources/data/minecraft/tags/block/mineable/axe.json']
+              'src/main/resources/data/mcyukkuri/loot_table/blocks/produce_crate.json','src/main/resources/data/mcyukkuri/recipe/produce_crate.json',
+              'src/main/resources/assets/mcyukkuri/models/*/display_tray*.json','src/main/resources/assets/mcyukkuri/blockstates/display_tray.json',
+              'src/main/resources/data/mcyukkuri/loot_table/blocks/display_tray.json','src/main/resources/data/mcyukkuri/recipe/display_tray.json','src/main/resources/data/minecraft/tags/block/mineable/axe.json']
     paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'standards/yukkuri-library/tools/author_staff_skins.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
