@@ -1057,6 +1057,23 @@ add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', 
     reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste')],
     smoke=dict(ticks=1200,expect=[r'relieved source=facility',r'toilet stored [^\n]*volume='],forbid=[]))
 
+# The toilet is beyond the flandre's care search (8 blocks), so she uses the ground by herself.
+add('pred_toilet', 'meadow', '捕食种上厕所与地面排便', '捕食种上厕所与地面排便',
+    '蕾米莉亚和芙兰都有强烈便意：蕾米莉亚走向右边的厕所坐下排便，远处的芙兰找一块干地排便。看翅膀、帽子和身体不穿进厕所或地面，身体贴着厕所与地面',
+    '约 1 分钟', [
+        block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'),
+        yk('remilia', 0, 0, 'rem', bladder=95, nutrition=100, energy=100, yaw=-90, lead=True),
+        yk('flandre', -9, 6, 'fla', bladder=95, nutrition=100, energy=100, yaw=-90)],
+    env=DAY, vantage=None,
+    reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste'), ('读芙兰', f'yukkuri status {sel("fla")} raw')],
+    capture=dict(shots=(1, 40), sequences=((60, 400, 10),), observe=False,
+                 views=dict(rem=dict(follow=f'@e[tag={tag("rem")},limit=1]', offset=(.6, .7, 2.4),
+                                     criteria='看清蕾米莉亚坐在厕所上排便，翅膀、帽子和身体不穿进厕所或地面。'),
+                            fla=dict(follow=f'@e[tag={tag("fla")},limit=1]', offset=(.6, .7, 2.4),
+                                     criteria='看清芙兰在地面排便，翅膀、帽子和身体不穿进地面、不悬空。'))),
+    smoke=dict(ticks=1200, expect=[r'\[needs\] remilia [^\n]*relieved source=facility', r'\[needs\] flandre [^\n]*relieved source=ground'],
+               forbid=[r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled']))
+
 # ====================================================================================================== family and growth
 # Newborns carry no scn tag; the selector finds them by stage instead (the function runs positioned at the anchor).
 NEWBORNS = '@e[type=#mcylab:yukkuri,distance=..48,nbt={YukkuriFamily:{Stage:"BABY"}}]'
@@ -4723,7 +4740,7 @@ TOPICS = {
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
-    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5',

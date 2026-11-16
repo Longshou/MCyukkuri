@@ -70,6 +70,7 @@ TABLE = [
     exporter('moments', 'scripts/export_moments.py', ['standards/yukkuri-library/presentation/moments.json'], ['ecology-expressions']),
     exporter('ecology-audio', 'scripts/build_ecology_audio.py', ['art/audio/ecology/']),
     exporter('lore-faces', LORE+'/faces.py', [LORE+'/faces.py']),
+    exporter('house-ecology', 'art/source/house-ecology-presentation/build.mjs', ['art/source/house-ecology-presentation/']),
 ]
 
 # Package-local authoring commands: kept in their source directories. These have no
@@ -167,7 +168,9 @@ for row in TABLE:
 MODEL_OWNERS = ['rounded', 'subspecies', 'rare-forms', 'predator-assets', 'reimu-deficient',
                 'marisa-deficient', 'bean-assets', 'alice-appearance', 'house-face-motion', 'house-carry-motion']
 MODEL_READERS = ['placement-fit', 'rounded-attachments', 'wound-surfaces', 'rounded-wounds',
-                 'subspecies-wounds', 'hat-interactions', 'badges', 'hat-damage', 'ecology-expressions']
+                 'subspecies-wounds', 'hat-interactions', 'badges', 'hat-damage', 'ecology-expressions', 'house-ecology']
+# Clip revisions carry each model's bone names, so they follow every model owner and the files they read.
+TOILET = 'standards/yukkuri-library/interactions/toilet-contact'
 INPUT_LEDGERS = {key: 'art/props/'+folder+'/provenance.json' for key, folder in [
     ('family-assets', 'family-life'), ('living-assets', 'care-facilities'),
     ('peripheral-assets', 'runtime-peripheral'), ('pet-goods-icons', 'pet-goods'), ('supply-icons', 'supply-icons'),
@@ -186,6 +189,8 @@ def table():
             row['after'].append('rounded-attachments')
         if row['id'] == 'source:'+JUNK_HEADWEAR:
             row['after'] += MODEL_OWNERS+['placement-fit']
+        if row['id'] == 'source:'+TOILET+'/build.py':
+            row['after'] += MODEL_OWNERS+['placement-fit', 'motion-corrections']
         if row['id'] == 'runtime-models':
             row['auto'] = False  # historical recipe refuses the selected rounded models
         if row['id'] == 'ecology-audio':
@@ -405,9 +410,9 @@ def motion(args, rows):
     import runpy
     members = {name: data['clips'] if 'clips' in data else runpy.run_path(str(ROOT/LORE/data['clip_source']))[data['clip_field']]
                for name, data in cfg['export_families'].items()}
-    # The toilet family is exported last over the lore clips (motion_gate.exported), so its builder owns these names.
-    toilet = 'standards/yukkuri-library/interactions/toilet-contact'
-    members = {'source:'+toilet+'/build.py': read(ROOT/toilet/'recipe.json')['clips'], **members}
+    # The later clip revisions replace lore clips of the same name (motion_gate.exported), so their builders own these names.
+    members = {'source:'+TOILET+'/build.py': read(ROOT/TOILET/'recipe.json')['clips'],
+               'house-ecology': read(ROOT/'art/source/house-ecology-presentation/recipe.json')['clips'], **members}
     families = []
     for clip in args.clips:
         matches = [name for name, clips in members.items() if clip in clips]
