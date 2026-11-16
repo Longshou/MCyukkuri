@@ -12,7 +12,6 @@
 | 捕食种上厕所接触动作、野生大草窝贴合洞壁 | `.worktrees/wp-art-fit-fixes` | 捕食种 toilet_contact 动作源与导出、ShelterRenderer.java |
 | 城镇道具：长椅木桌按村庄木材变体、集市农产品箱 | `.worktrees/wp-art-town-props` | author_furniture.py、human-world 地块作者脚本、新方块 |
 | 动作库缺口二：情绪甩辫、蹲守、撞玻璃、咳嗽、尾巴信号 | `.worktrees/wp-art-motion-gaps-2` | motions/ 新片段、YukkuriAction.java、对应调用方片段引用 |
-| 帽子贴墙与互穿：避风木箱睡位、帽檐与墙的间距 | `.worktrees/wp-art-hat-clearance` | CrateShelter 睡位、帽子碰撞相关代码与布局 |
 
 ## 玩法待办
 
