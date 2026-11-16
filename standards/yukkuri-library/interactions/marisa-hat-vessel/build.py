@@ -409,7 +409,7 @@ def main():
         if args.check:
             assert path.read_text(encoding='utf-8') == text, f'stale {path}'
         else:
-            path.write_text(text, encoding='utf-8')
+            path.write_text(text, encoding='utf-8', newline='\n')
     if args.check: assert not any(p.exists() for p in OLD_PROPS), 'old soft hat props left behind'
     else:
         for p in OLD_PROPS: p.unlink(missing_ok=True)

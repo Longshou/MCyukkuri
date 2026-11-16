@@ -1093,13 +1093,13 @@ def export_family(family, prune_only=False, check=False):
         pivot=np.array(model['bones'][root]['pivot']);raw=np.array(model['vertices']).reshape(-1,8)
         points=np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in model['parts']
                                if not p.get('anatomy') and not p['name'].startswith('puff_')])
-        points=np.unique(points,axis=0);floor=points[:,1].min()
+        points=np.unique(points,axis=0);floor=float(points[:,1].min())
         body=np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in model['parts'] if 'body_surface' in p['name']])
-        height=body[:,1].max()-body[:,1].min()
+        height=float(body[:,1].max()-body[:,1].min())
         def ground(scale,rot):
             x,y,z=map(math.radians,rot);cx,sx,cy,sy,cz,sz=math.cos(x),math.sin(x),math.cos(y),math.sin(y),math.cos(z),math.sin(z)
             row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
-            return floor-((points-pivot)@row+pivot[1]).min()
+            return float(floor-((points-pivot)@row+pivot[1]).min())
         authored=compile_clips(model,cfg,root,ground,height)
         if follows:
             # A clip whose braid this model lays by key poses keeps them; the follow would replace its chain root.

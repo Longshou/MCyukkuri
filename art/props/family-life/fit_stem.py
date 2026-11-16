@@ -184,7 +184,7 @@ def solve(stem, fruits, count, mothers, spacing_kinds):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--check', action='store_true'); args = ap.parse_args()
     recipe = json.loads(RECIPE.read_text(encoding='utf-8')); stem_json = json.loads(STEM.read_text(encoding='utf-8'))
-    size = json.loads(GROWTH.read_text(encoding='utf-8'))['fruit']['to']
+    size = next(s['max_scale'] for s in json.loads(GROWTH.read_text(encoding='utf-8'))['stages'] if s['id'] == 'baby')
     stem = Stem(recipe, stem_json); fruits = fruit_boxes(recipe, size)
     lengths, layouts = [], {}
     for count in range(1, 6):
