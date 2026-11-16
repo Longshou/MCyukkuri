@@ -430,25 +430,35 @@ def garbage_bin(x, z, items, tipped):
 
 
 _stray_mother = uid('stray_boxes', 'mother')
+_crate_mother = uid('stray_boxes', 'crate_mother')
 add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '流浪：母子找纸箱，木箱也能歇脚',
-    '夜里母子试着在横宽的纸箱落脚，赤油和亲油并排各睡一边。另一只流浪油可选旁边的旧木箱。',
+    '夜里左边的母子在纸箱并排歇脚，右边的母子在木箱前后错开，观察两顶头饰之间的空隙。',
     '约半分钟至一分钟', [
         *found_shell('cardboard_shelter', -5, -1), *found_shell('crate_shelter', 6, -1),
         street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True),
         street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
                      kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
-        street_stray('stray_boxes', 'marisa', 6, 2, 'crate_stray', stage='child', energy=28, rest_wait=0),
+        street_stray('stray_boxes', 'marisa', 6, -1, 'crate_stray', stage='child', energy=28, rest_wait=0,
+                     kin=f'Mother:{uuid_nbt(_crate_mother)}'),
+        street_stray('stray_boxes', 'reimu', 6, 3, 'crate_mother', energy=28, rest_wait=0),
     ], env={'time': 'night'}, spot='street', vantage=(0, 9),
+    capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
+                 views={'crate': dict(position=(5.6, .78, 2.9), look_at=(6.5, .48, -.1))}),
     smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2',
-                                  r'\[habitat\][^\n]* found settled .*kind=CRATE']))
+                                  r'\[habitat\][^\n]* found settled .*kind=CRATE occupants=2']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
-    '看已经躲在箱里的流浪油歇脚。纸箱受潮时流浪油退到外面，箱子随后下陷，最后留下真纸片。也可以手动拆箱看住户原地脱身。',
+    '看已经躲在箱里的流浪油歇脚。纸箱受潮时流浪油退到外面，箱子随后下陷，最后留下真纸片。左侧另一只魔理沙会沿墙去捡苹果。',
     '约一分钟', [
         *found_shell('cardboard_shelter', -4, -1),
         street_stray('stray_rain', 'marisa', -4, -1, 'rain_stray', energy=25, rest_wait=0, lead=True),
+        box(-14, 0, -3, -14, 1, 3, 'minecraft:cobblestone'),
+        street_stray('stray_rain', 'marisa', -13, -2, 'wall_stray', yaw=0, nutrition=24),
+        item('minecraft:apple', 1, -13, 2, 'wall_apple'),
     ], env={'time': 'noon', 'weather': 'rain'}, spot='street', vantage=(-2, 6, 164, 12),
+    capture=dict(shots=(1, 1300), sequences=((8, 248, 4),), observe=False,
+                 views={'wall': dict(follow=sel('wall_stray'), offset=(2.3, .9, -.65))}),
     smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD',
                                   r'\[habitat\][^\n]* found rain stage=1 -> 2',
@@ -3442,6 +3452,9 @@ def _stray_rain_verify(log):
     )
     if not re.search(exit_before_soak, log):
         return 'the rain-scene Marisa did not leave her carton before it became soaked'
+    walker = _uuid_text('stray_rain', 'wall_stray')
+    if not re.search(rf'\[meal\][^\n]*uuid={walker}[^\n]* swallowed item=minecraft:apple\b', log):
+        return 'the wall-side Marisa did not reach and eat her apple'
 
 
 next(s for s in S if s.id == 'stray_rain').smoke['verify'] = _stray_rain_verify

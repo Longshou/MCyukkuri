@@ -166,9 +166,19 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(kind()==ShelterBlock.Kind.CARDBOARD)return List.of(worldPosition.relative(facing().getClockWise()),worldPosition.relative(facing().getCounterClockWise()));
         return kind().found()?List.of(worldPosition, worldPosition.relative(facing())):naturalBeds;
     }
-    /** Where a body lies in this bed. In the carton the two spots sit 13/16 to each side of the core's centre (cardboard.py),
-     *  each with room for an adult and its hat between its neighbour and the wall; other beds lie at the cell centre. */
+    /** Where a body lies in this bed. The carton spreads its spots sideways (cardboard.py), the crate diagonally. */
     public Vec3 restSpot(BlockPos bed) {
+        if (kind() == ShelterBlock.Kind.CRATE) {
+            boolean front = !bed.equals(worldPosition);
+            var forward = facing();
+            var side = forward.getClockWise();
+            // Local spots (-7.5, -7.5) and (7.5, 11.5) stay in their bed cells, 24.2 units apart.
+            double across = (front ? -7.5 : 7.5) / 16;
+            double along = (front ? 11.5 : -7.5) / 16;
+            return Vec3.atBottomCenterOf(worldPosition).add(
+                    side.getStepX() * across + forward.getStepX() * along, 0,
+                    side.getStepZ() * across + forward.getStepZ() * along);
+        }
         if(kind()!=ShelterBlock.Kind.CARDBOARD)return Vec3.atBottomCenterOf(bed);
         var side=bed.subtract(worldPosition);
         return Vec3.atBottomCenterOf(worldPosition).add(side.getX()*ShelterBlock.CARTON_REST_OFFSET,0,side.getZ()*ShelterBlock.CARTON_REST_OFFSET);
@@ -385,9 +395,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         return true;
     }
 
-    /** Each carton occupant needs room to turn at the real stand, including when its neighbour used a fallback. */
+    /** Each found-shelter occupant needs room to turn at the real stand, including when its neighbour used a fallback. */
     boolean clearsResidents(YukkuriEntity entity, Vec3 stand, double reach) {
-        if (kind() != ShelterBlock.Kind.CARDBOARD) return true;
+        if (!kind().found()) return true;
         var server = (ServerLevel) level;
         for (var id : residents.keySet()) {
             if (server.getEntity(id) instanceof YukkuriEntity other && other != entity && other.isAlive() && contains(other.blockPosition())) {

@@ -38,10 +38,10 @@ public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
         // Interior clear height, and clear reach round a lying spot to the nearest wall, in blocks, from the authored shells
         // (data/mcyukkuri/shelters/<id>.json, ShelterBlockEntity.restSpot). The carton's spots at x=±13 have 12 units
-        // to the side wall and back panel, and the crate's core spot has 20.
+        // to the nearest wall; the crate's diagonal spots have 12.5 units.
         BURROW("forest_burrow", 0, 1, 16, 0, 0),
         CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 12/16.),
-        CRATE("crate_shelter", 1, 2, 2, 16/16., 20/16.);
+        CRATE("crate_shelter", 1, 2, 2, 16/16., 12.5/16.);
         public final String id;
         public final int radius, height, capacity;
         public final double innerHeight, innerReach;

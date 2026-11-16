@@ -94,18 +94,24 @@ public final class YukkuriModel {
     private String sampledClip;
     private float sampledTime;
     private DrawEvidence drawEvidence;
+    private WornHatClearance hatClearance;
 
     VertexConsumer evidenceBuffer(String part, VertexConsumer buffer) {
-        if(drawEvidence==null)return buffer;
-        if(part.equals("braid_lock_root")||part.equals("braid_lock_root_outer"))return drawEvidence.buffer(evidenceGroup(part),buffer,"root_ring");
-        return drawEvidence.buffer(evidenceGroup(part),buffer);
+        if(drawEvidence==null&&hatClearance==null)return buffer;
+        if(buffer instanceof WornHatClearance.Tuck tuck)buffer=tuck.source();
+        String group=evidenceGroup(part);
+        if(drawEvidence!=null)buffer=part.equals("braid_lock_root")||part.equals("braid_lock_root_outer")
+                ? drawEvidence.buffer(group,buffer,"root_ring") : drawEvidence.buffer(group,buffer);
+        return hatClearance!=null&&group.equals("hat")?new WornHatClearance.Tuck(hatClearance,buffer):buffer;
     }
     private String evidenceGroup(String part) {
         for(var p:parts)if(p.name.equals(part)&&accessoryPart(p))return "hat";
         return PoseGeometry.group(part);
     }
     MultiBufferSource evidenceBuffers(String group, MultiBufferSource buffers) {
-        return drawEvidence==null?buffers:drawEvidence.buffers(group,buffers);
+        var observed=drawEvidence==null?buffers:drawEvidence.buffers(group,buffers);
+        var clearance=hatClearance;
+        return clearance!=null&&group.equals("hat")?type->new WornHatClearance.Tuck(clearance,observed.getBuffer(type)):observed;
     }
 
     void poseFingerprint(String value) { poseFingerprint = value; }
@@ -1071,9 +1077,10 @@ public final class YukkuriModel {
         if(pregnantSurface!=null)pregnantSurface.finish();
         var rearTransform=mamuPlacement==null?null:mamuPlacement.transform(
                 AgitationPresentation.organSite(id)==null?new Matrix4f():world[rootBone()]);
+        var bodyBuffer=buffer;
         for (int partIndex=0;partIndex<parts.size();partIndex++) {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
-            buffer=evidenceBuffer(part.name,buffer);
+            buffer=evidenceBuffer(part.name,bodyBuffer);
             if(drawingWoundedBody&&WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
             if ((!accessory || hatProp!=null) && accessoryPart(part)) continue;
@@ -1181,8 +1188,9 @@ public final class YukkuriModel {
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     WoundRenderer.Contact renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,String expression,
-            MultiBufferSource buffers){
+            MultiBufferSource buffers,WornHatClearance clearance){
         try{
+            hatClearance=clearance;
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
             drawingSurfaceMarks=WoundRenderer.active(entity);
             int leakOpacity=WoundRenderer.leakOpacity(entity);
@@ -1247,7 +1255,7 @@ public final class YukkuriModel {
             renderJunkHat(Headwear.visualJunk(headwear),stack,buffers,light,overlay);
             PoseTap.model(entity, this, accessory, hairLoss);
             return contact;
-        }finally{drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
+        }finally{hatClearance=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
     }
@@ -1372,7 +1380,7 @@ public final class YukkuriModel {
         stack.pushPose();
         applyCrownFrame(stack,featuresBone());
         stack.mulPose(seat.matrix());
-        PropModels.render(prop,0,stack,buffers,light,overlay);
+        PropModels.render(prop,0,stack,evidenceBuffers("hat",buffers),light,overlay);
         stack.popPose();
     }
     private float[] remainsSkinFrame;
