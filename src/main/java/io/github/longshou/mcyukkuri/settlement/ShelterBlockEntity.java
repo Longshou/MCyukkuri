@@ -172,7 +172,7 @@ public final class ShelterBlockEntity extends BlockEntity {
             boolean front = !bed.equals(worldPosition);
             var forward = facing();
             var side = forward.getClockWise();
-            // Local spots (-7.5, -7.5) and (7.5, 11.5) stay in their bed cells, 24.2 units apart.
+            // Local spots in (across, along) units: front (-7.5, 11.5), back (7.5, -7.5); both stay in their bed cells, 24.2 units apart.
             double across = (front ? -7.5 : 7.5) / 16;
             double along = (front ? 11.5 : -7.5) / 16;
             return Vec3.atBottomCenterOf(worldPosition).add(
