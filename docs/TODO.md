@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 补审：今日动作与表情（缺口一二、夸张化、甩辫、新表情） | `.worktrees/wp-review-art-motion` | 审查修复提交 |
+| 补审：城镇道具与展示托盘；鬼威惨店托盘纳入商店保护 | `.worktrees/wp-review-art-props` | ProduceCrate*、DisplayTray*、商店保护门 |
 
 ## 玩法待办
 
