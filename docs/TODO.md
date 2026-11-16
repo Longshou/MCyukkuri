@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 打喷嚏三版（hakimi 试作）进博物馆动作片段区供比较 | `.worktrees/wp-sneeze-trial` | motions/variants/lore, motions/tiers.json, YukkuriAction.java, museum_actions.py |
 
 ## 玩法待办
 
