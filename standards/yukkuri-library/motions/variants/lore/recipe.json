@@ -10,7 +10,7 @@
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
     "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover", "water_hat_pull", "water_hat_over"], "braid_follow": true},
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
-    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left", "stamp", "walk_look_back"], "braid_follow": true},
+    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left"], "braid_follow": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
@@ -7093,7 +7093,7 @@
       ],
       "lore": "Project design (motion library base cling, art decision B5/C6; wiki warm_huddle F05, F14, L36 and rub_nuzzle F14, L36, N2): the rain huddle's side-press (nestle, slide and lean into the partner, pressed hold, slow breath) held calm with no shiver and a closed-eye smile. Snuggling assembles it with nuzzle and sway.",
       "triggers": [
-        "no caller yet (snuggle; a bonded pair's nuzzle hand-over), partner on its right"
+        "no caller (snuggle_right carries the bonded pair's side-press), partner on its right"
       ]
     },
     "cling_left": {
@@ -7101,7 +7101,7 @@
       "label": "依偎贴靠（同伴在左）",
       "side": -1,
       "triggers": [
-        "no caller yet (snuggle), partner on its left"
+        "no caller (snuggle_left), partner on its left"
       ]
     },
     "nod": {
@@ -7158,6 +7158,78 @@
       "lore": "Project design (user 2026-11-14: the stray finally leaves slowly looking back; after sharing it looks once more before parting): played in place of the walk while the body travels. Two rocking steps per 1.2 s gait cycle as in the walk; after the first steps the whole ball (no neck) yaws about 105 degrees back over its shoulder toward what it leaves, lingers with the steps damped and the face a little raised, turns forward again and walks on. The travel belongs to the motor; the clip's rotation composes with the travel heading. Pitch and roll stay within 3 degrees; the face is the caller's.",
       "triggers": [
         "begging departure (BegBite LEAVE beat)"
+      ]
+    },
+    "run": {
+      "label": "跑",
+      "duration": 0.64,
+      "loop": true,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.64, 1]],
+      "hops": [[0, 0.06, 0.26, 0.32, 0.13], [0.32, 0.38, 0.58, 0.64, 0.13]],
+      "pitch_keys": [[0, -4], [0.06, -7], [0.18, -5.5], [0.26, -3], [0.32, -4], [0.38, -7], [0.5, -5.5], [0.58, -3], [0.64, -4]],
+      "roll_keys": [[0, 0], [0.16, 2.2], [0.32, 0], [0.48, -2.2], [0.64, 0]],
+      "faces": [],
+      "lore": "Project design (motion library base run; wiki ground locomotion L36, F27, F09 and rain running N1, F05): the fast grounded gait of a ball without legs. Two quick low bounds per cycle, each a short crouch, a stretched flat arc and a squashed landing, the body pitched forward the whole way (deepest at each push-off) and rocking a little from side to side. Faster and flatter than the hop, never the rocking steps of the waddle. The travel belongs to the motor. Pitch and roll together stay within 8 degrees; the face is the caller's.",
+      "triggers": [
+        "panic flight (PresentationArbiter panic, Behaviors.FLEE)"
+      ]
+    },
+    "reject_or_spit": {
+      "label": "吐出拒食",
+      "duration": 3.0,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.1, 0.9], [0.22, 0.92], [0.5, 1.06], [0.8, 1.02], [1.5, 1], [1.8, 1.03], [2.6, 1.03], [3.0, 1]],
+      "reach_keys": [[0, 0], [0.1, 0.13], [0.22, 0.11], [0.5, -0.05], [0.9, -0.03], [1.5, 0], [3.0, 0]],
+      "pitch_keys": [[0, 0], [0.1, -8], [0.22, -7], [0.5, 4], [0.9, 2], [1.5, 0], [1.8, 2.5], [2.6, 2.5], [3.0, 0]],
+      "yaw_keys": [[0, 0], [0.55, 0], [0.7, 16], [0.9, -16], [1.1, 12], [1.3, -8], [1.5, 0], [1.8, -32], [2.6, -32], [3.0, 0]],
+      "roll_keys": [[0, 0], [0.55, 0], [0.7, -2], [0.9, 2], [1.1, -1.5], [1.3, 1], [1.5, 0], [3.0, 0]],
+      "markers": {"release": 0, "recoil": 0.5, "settled": 3.0},
+      "faces": [],
+      "lore": "Project design (motion library base reject_or_spit; wiki picky eating and food refusal): the mouth throws the food back out, independent of the chew and swallow loop. It starts on the tick the real item leaves the mouth (marker release): the body jabs forward and down, flattened by the push, so the dropped item appears in front of the lips; then it rears back and up away from the taste, shakes the whole ball no-no-no with a fading yaw, and ends with a short hmph turned aside before settling. No hop, never airborne. Pitch and roll together stay within 9 degrees; the face is the caller's.",
+      "triggers": [
+        "refused meal spat out (LifeMeal.spit, the real dropped item)"
+      ]
+    },
+    "farewell": {
+      "label": "道别",
+      "duration": 6.4,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.5, 0.97], [1.3, 0.97], [1.7, 0.97], [2.2, 1.05], [3.0, 1.05], [3.5, 0.97], [3.9, 1.07], [4.6, 1.07], [5.3, 0.95], [6.0, 0.95], [6.4, 1]],
+      "pitch_keys": [[0, 0], [0.5, -4], [1.3, -3], [1.7, -3], [2.2, 3], [3.0, 3], [3.5, -3], [3.9, 3.5], [4.6, 3.5], [5.3, -8], [6.0, -8], [6.4, 0]],
+      "roll_keys": [[0, 0], [0.5, 0], [0.7, 2.5], [0.9, 0], [1.1, -2.5], [1.3, 0], [3.0, 0], [3.17, 2], [3.34, -2], [3.5, 0], [6.4, 0]],
+      "yaw_keys": [[0, 0], [0.5, 0], [1.3, 150], [1.7, 150], [2.2, 55], [3.0, 50], [3.5, 140], [3.9, 30], [4.6, 25], [5.3, 0], [6.4, 0]],
+      "faces": [],
+      "lore": "Project design (motion library composite farewell = turn + droop; wiki leaving and farewell S03, L36): a parting played in place, facing what it leaves at the start and at the end. It sinks a little, turns the whole ball (no neck) away with two heavy rocking steps as if to go, stops, then turns back over its shoulder and stretches up to look, held; it turns to go again, quicker, and looks back a second time, further round and taller, held longer; then it gives up, comes round to face it and droops low and forward, held, before settling. The walking version is walk_look_back. Pitch and roll together stay within 8 degrees; the face is the caller's.",
+      "triggers": [
+        "giving up the vigil at the glass (GlassVigil FAREWELL, Behaviors.GLASS_FAREWELL)"
+      ]
+    },
+    "snuggle_right": {
+      "base": "cling_right",
+      "label": "依偎（同伴在右）",
+      "rub": {"start": 0.8, "end": 2.6, "strokes": 2, "slide": 0.07, "roll": 2.5, "press": 0.35},
+      "sway": {"start": 2.6, "end": 4.0, "degrees": 3.5, "shift": 0.025},
+      "faces": [
+        [0, 0.8, "closed_smile"],
+        [0.8, 1.25, "satisfied"],
+        [1.25, 1.7, "closed_smile"],
+        [1.7, 2.15, "satisfied"],
+        [2.15, 4.0, "closed_smile"]
+      ],
+      "lore": "Project design (motion library composite snuggle = cling + nuzzle + sway; wiki warm_huddle F05, F14, L36 and rub_nuzzle F14, L36, N2): the calm side-press of cling, then a cheek rub while still pressed (the body slides forward and back along the partner, pressing in and rolling into it with each stroke; the slide is mirrored by side, so two partners on one clip clock slide against each other), then one slow sway that is not mirrored, so the pressed pair rocks together as one. Closed-eye smile, melting on each stroke. The side-press spacing is the rain huddle's (side_profile); slide, roll and sway stay inside it. Pitch and roll together stay within 12 degrees.",
+      "triggers": [
+        "a bonded pair's side-press at the start of a nuzzle (DailyLife.contactClip), partner on its right"
+      ]
+    },
+    "snuggle_left": {
+      "base": "snuggle_right",
+      "label": "依偎（同伴在左）",
+      "side": -1,
+      "triggers": [
+        "a bonded pair's side-press at the start of a nuzzle (DailyLife.contactClip), partner on its left"
       ]
     },
     "lunge_ram": {
@@ -7493,6 +7565,11 @@
     "cling_left",
     "stamp",
     "walk_look_back",
+    "run",
+    "reject_or_spit",
+    "farewell",
+    "snuggle_right",
+    "snuggle_left",
     "shelter_dig"
   ],
   "braid_use": {

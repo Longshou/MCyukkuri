@@ -153,6 +153,11 @@ public enum YukkuriAction {
     // with one look back over the shoulder (it carries its own steps, see walks()).
     STAMP("stamp", 2.2, false),
     WALK_LOOK_BACK("walk_look_back", 2.4, false),
+    // Motion library gaps filled (lore recipe base-motions, all standard forms): the fast bounding gait of a panic flight, the
+    // spit that throws a refused bite back out (it starts on the tick the item drops), and the parting played in place.
+    RUN("run", 0.64, true),
+    REJECT_OR_SPIT("reject_or_spit", 3.0, false),
+    FAREWELL("farewell", 6.4, false),
     BOAT_LABOR("boat_labor", 12.0, true),
     // Weather and warmth moments (lore recipe v18, all standard forms): pressed beside a partner on its left or right in the rain,
     // flattened from a thunderstorm, basking flat in the winter sun.

@@ -41,7 +41,7 @@ final class GlassVigil implements MotorOwner {
     boolean callingTo(YukkuriEntity target) { return child==target && phase==Phase.WAIT; }
     boolean finishing() { return active() && (phase==Phase.RAM_APPROACH || phase==Phase.RAM || phase==Phase.CROSS || phase==Phase.FAREWELL); }
     String activity() {
-        if (phase==Phase.FAREWELL) return Behaviors.INDEPENDENCE_FAREWELL;
+        if (phase==Phase.FAREWELL) return Behaviors.GLASS_FAREWELL;
         return phase==Phase.WAIT ? Behaviors.CALL_LISTEN : Behaviors.SEARCH_FAMILY;
     }
 
@@ -163,7 +163,7 @@ final class GlassVigil implements MotorOwner {
     private void farewell(String reason) {
         family.call().stop();
         phase=Phase.FAREWELL; farewellReason=reason;
-        int length=EcologyPresentation.duration(Behaviors.INDEPENDENCE_FAREWELL);
+        int length=EcologyPresentation.duration(Behaviors.GLASS_FAREWELL);
         deadline=family.level().getGameTime()+length;
         parent.forceReaction("teary","",length);
         boolean spoken=parent.speak("give_up_search");

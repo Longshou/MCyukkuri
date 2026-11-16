@@ -94,8 +94,8 @@ public final class DailyLife {
     public String contactClip() {
         if (!inContact() || session.kind != Kind.NUZZLE || !(session.companion instanceof YukkuriEntity)
                 || Math.abs(session.leader.getY() - session.companion.getY()) > .35
-                || session.contact > ClipMarkers.of("cling_right").length()) return null;
-        return session.leader == entity ? "cling_right" : "cling_left";
+                || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
+        return session.leader == entity ? "snuggle_right" : "snuggle_left";
     }
     public String detail() {
         return !active() ? "idle" : "kind=" + session.kind
@@ -449,7 +449,7 @@ public final class DailyLife {
             level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
         int duration = current.kind == Kind.NUZZLE ? 60
                 + (current.companion instanceof YukkuriEntity && Math.abs(entity.getY() - other.getY()) <= .35
-                    ? ClipMarkers.of("cling_right").length() : 0)
+                    ? ClipMarkers.of("snuggle_right").length() : 0)
                 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);

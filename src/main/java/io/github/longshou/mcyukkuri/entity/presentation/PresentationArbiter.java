@@ -232,7 +232,7 @@ public final class PresentationArbiter {
         return new Presentation(() -> {
             if (presentPredatorFlight(state)) { state.expression("surprise"); return; }
             boolean shell = e.shellRetraction().active();
-            if (!shell) state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE);
+            if (!shell) state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.RUN);
             // The frame retains the pre-decrement count used to choose the clip.
             state.expression("surprise");
             state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);

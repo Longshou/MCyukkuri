@@ -433,6 +433,20 @@ def state(action, t, c, height):
         s = [1+wide, 1-k+c['breath']*math.sin(math.pi*hold)**2, 1+.4*wide]
         r = [c['lean'], 0., -side*c['roll']*press+c['shiver_roll']*w*calm]
         shift[0] = side*c['slide']*height*press+c['shiver_ratio']*height*w*calm
+        if 'rub' in c:
+            # Snuggle: a cheek rub while pressed. The slide along the partner is mirrored by side (two partners on one
+            # clock slide against each other); each stroke presses and rolls in a little more.
+            b = c['rub']; q = (t-b['start'])/(b['end']-b['start'])
+            if 0 < q < 1:
+                e = smooth(q/.15)*smooth((1-q)/.15); u = math.sin(2*math.pi*b['strokes']*q)*e
+                shift[1] = side*b['slide']*height*u
+                r[2] -= side*b['roll']*abs(u); shift[0] += side*c['slide']*height*b['press']*abs(u)
+        if 'sway' in c:
+            # One slow sway, not mirrored: the pressed pair rocks together as one.
+            b = c['sway']; q = (t-b['start'])/(b['end']-b['start'])
+            if 0 < q < 1:
+                u = math.sin(2*math.pi*q)*bump(q)
+                r[2] += b['degrees']*u; shift[0] -= b['shift']*height*u
     elif action == 'thunder_cower':
         # Project design (TODO 陆 14 thunderstorm): flattened, leaning back from the open side and trembling; it rises a little to
         # peek out with a small look aside (yaw only), then a rumble flattens it again. Pitch back <= lean_back, roll <= 1.5.

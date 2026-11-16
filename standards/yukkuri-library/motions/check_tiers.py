@@ -15,8 +15,7 @@ STATUSES = {"exists", "composable_from_existing_base", "base_missing", "needs_sp
 SOURCES = {"base", "composite", "lore", "procedural", "marisa_tsumuri", "anatomy"}
 CLASSIFICATIONS = {"really_base", "really_composite", "near_duplicate_of", "special"}
 REQUIRED_GAPS = {
-    "run", "roll", "reject_or_spit", "emotional_hair", "chen_tail_signal",
-    "cough_mukyu", "crouch_watch", "glass_ram", "farewell", "snuggle",
+    "roll", "emotional_hair", "chen_tail_signal", "cough_mukyu", "crouch_watch", "glass_ram",
 }
 CUSTOM_JAVA_CALLERS = {
     "hop": {"Gesture.HOP_SMALL"},
@@ -44,8 +43,8 @@ CUSTOM_JAVA_CALLERS = {
     "bank_beckon": {"Beckon.clip"},
     "water_beckon": {"Beckon.clip"},
     "water_swim": {"Swim.pose"},
-    "cling_right": {"DailyLife.contactClip"},
-    "cling_left": {"DailyLife.contactClip"},
+    "snuggle_right": {"DailyLife.contactClip"},
+    "snuggle_left": {"DailyLife.contactClip"},
 }
 RENDERER_CALLERS = {"idle", "waddle", "boat_be_carried", "be_cradled", "anatomy_mamu_extend"}
 EMPTY_BEHAVIOUR_CASE = re.compile(r"(?m)^\s*case\s+Behaviors\.\w+(?:\s*,\s*Behaviors\.\w+)*\s*->\s*\{\s*\}")

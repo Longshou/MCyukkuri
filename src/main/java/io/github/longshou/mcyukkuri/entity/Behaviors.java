@@ -100,6 +100,8 @@ public final class Behaviors {
     public static final String IDLE = "idle";
     public static final String INDEPENDENCE_BUILD = "independence_build";
     public static final String INDEPENDENCE_FAREWELL = "independence_farewell";
+    /** The parent giving up its vigil at a pane it cannot pass (family/GlassVigil): turning to go and looking back. */
+    public static final String GLASS_FAREWELL = "glass_farewell";
     public static final String INDEPENDENCE_GATHER = "independence_gather";
     public static final String INDEPENDENCE_RETURN = "independence_return";
     public static final String INDEPENDENCE_VISIT = "independence_visit";

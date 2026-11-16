@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -574,7 +575,7 @@ final class LifeMeal {
             GameplayLog.limited(o.entity(), "meal", "spit_refused", 200, "spit release refused item={} count={}", item.getItem(), item.getCount());
             return false;
         }
-        showComplaint();
+        if (o.entity().showReaction(YukkuriAction.REJECT_OR_SPIT, "pursed", "")) o.entity().speakCue("food_complain");
         GameplayLog.event(o.entity(), "meal", "spat item={} grade={} pickiness={} taste={} nutrition={} verdict=REFUSE feeder={} tick={} drop={}",
                 item.getItem(), FoodTaste.grade(item).id(), o.pickiness(), tasteFor(feeder), o.nutrition(), feeder, mealTicks, dropped.getUUID());
         return true;

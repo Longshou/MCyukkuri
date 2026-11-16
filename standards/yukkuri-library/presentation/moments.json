@@ -4471,6 +4471,22 @@
         }
       ]
     },
+    "behavior_glass_farewell": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "farewell",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
+        }
+      ]
+    },
     "behavior_independence_see_off": {
       "loop": true,
       "steps": [
@@ -4868,6 +4884,7 @@
     "learn_watch": "behavior_learn_watch",
     "nest_gather": "behavior_nest_gather",
     "independence_farewell": "behavior_independence_farewell",
+    "glass_farewell": "behavior_glass_farewell",
     "independence_visit": "behavior_independence_visit",
     "independence_gather": "behavior_independence_gather",
     "independence_return": "behavior_independence_return",
