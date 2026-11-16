@@ -2064,7 +2064,6 @@ add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱�
         street_trial('yard_stray_scold', 'marisa', -4, 0, 'yard_stray', boldness=100, friendliness=0,
                      self_control=0, yaw=-90, lead=True),
     ], late=[
-        f'yukkuri scenario home {sel("yard_stray")} ~-5 ~ ~-1',
         block(3, 0, 0, 'mcyukkuri:yukkuri_nest[facing=west]'),
         Retry(f'data merge entity {sel("yard_witness")} {{NoAI:0b}}', sel('yard_witness'), tries=1, first=200),
     ], env=DAY, vantage=(-4, 8, -155, 16),
