@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 表情排查：时刻与表情不符处换脸或新做 | `.worktrees/wp-art-expressions` | standards/yukkuri-library/expressions/、presentation/moments.json、expressions.json、表情导出 |
 | 演出夸张化第二轮：仍偏弱的动作加大幅度 | `.worktrees/wp-art-exaggerate-2` | standards/yukkuri-library/motions/ 动作源与导出 |
-| 剩余浮空展示物换成真实承载的道具 | `.worktrees/wp-art-floating-goods` | art/structures/human-world/ 作者脚本与导出、展示道具方块 |
 
 ## 玩法待办
 
