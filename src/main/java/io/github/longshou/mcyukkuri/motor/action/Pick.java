@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -37,14 +38,21 @@ public final class Pick implements Action {
 
     private final Source source;
     private final Predicate<ItemStack> into;
+    private final String clip;
     private long startTick;
     private boolean begun, bitten;
     private String taken = "";
     private final StowStep stow = new StowStep();
 
-    public Pick(ItemEntity item, Predicate<ItemStack> into) { this(loose(item), into); }
+    public Pick(ItemEntity item, Predicate<ItemStack> into) { this(loose(item), into, YukkuriAction.MOUTH_ITEM_PICK.id()); }
 
-    public Pick(Source source, Predicate<ItemStack> into) { this.source = source; this.into = into; }
+    public Pick(Source source, Predicate<ItemStack> into) { this(source, into, CLIP); }
+
+    private Pick(Source source, Predicate<ItemStack> into, String clip) {
+        this.source = source;
+        this.into = into;
+        this.clip = clip;
+    }
 
     private static Source loose(ItemEntity item) {
         return new Source() {
@@ -79,12 +87,12 @@ public final class Pick implements Action {
         }
         if (!begun) {
             var cleared = stow.tick(body);
-            if (cleared instanceof Running running) return new Running(running.metric() + ClipMarkers.of(CLIP).length(), TravelMode.PASS);
+            if (cleared instanceof Running running) return new Running(running.metric() + ClipMarkers.of(clip).length(), TravelMode.PASS);
             if (cleared instanceof Outcome outcome && outcome.reason() != null) return outcome;
             begun = true;
             startTick = body.level().getGameTime();
         }
-        int bite = ClipMarkers.of(CLIP).ticks("bite", 10);
+        int bite = ClipMarkers.of(clip).ticks("bite", 10);
         long elapsed = body.level().getGameTime() - startTick;
         if (elapsed < bite) return new Running(bite - elapsed, TravelMode.PASS);
         var still = check(body);
@@ -108,7 +116,7 @@ public final class Pick implements Action {
 
     @Override public HeldMove heldMove() { return stow.move(); }
 
-    @Override public MotionPose pose() { return begun && !bitten ? new MotionPose(CLIP, startTick, false) : MotionPose.NONE; }
+    @Override public MotionPose pose() { return begun && !bitten ? new MotionPose(clip, startTick, false) : MotionPose.NONE; }
 
     @Override public String startDetail() { return "item=" + source.item().getItem() + " at=" + GameplayLog.at(source.at()); }
 }

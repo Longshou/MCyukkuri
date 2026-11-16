@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -349,12 +350,19 @@ public final class HullAfloat implements PlacedHatBehavior {
         double speed = HullPresentation.number("throw_horizontal");
         return hat.getDeltaMovement().add(Math.cos(a) * speed, HullPresentation.number("throw_vertical"), Math.sin(a) * speed);
     }
+    private static void thrown(YukkuriEntity y) {
+        y.motor().cancel(y.motor().owner(), "thrown");
+        if ("marisa".equals(y.assetId())) y.showReaction(YukkuriAction.BOAT_THROWN, "surprise", "");
+    }
     private void capsize() {
         thrown = hat.getPassengers().size();
         for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y) {
+            for (var rider : y.family().carry().riders())
+                if (ParentCarry.hold(y, rider) == ParentCarry.Hold.HEAD) thrown(rider);
             // The young on a rider's head go over with her, thrown the same way, and are rescued like the rest.
             ParentCarry.shedHead(y, thrownVelocity(y.position()), "thrown");
             Motor.dismount(y, y.position(), thrownVelocity(y.position()), "thrown");
+            thrown(y);
         }
         larder.spill(hat, cause);
         hat.dropKit(hat.position(), hat.getDeltaMovement(), "capsized");

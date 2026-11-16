@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
@@ -193,7 +194,7 @@ final class Rescue implements Intent {
             return List.of(() -> new Step.Do(new Face(yaw())), () -> new Step.Wait(() -> {
                 if ((parent.level().getGameTime() - started) % TEARS == 0) parent.showReaction("teary", null, TEARS);
                 return satisfied() || Math.abs(Mth.wrapDegrees(yaw() - parent.yBodyRot)) > REFACE;
-            }, (int) Math.max(1, deadline() - parent.level().getGameTime()), ""));
+            }, (int) Math.max(1, deadline() - parent.level().getGameTime()), Behaviors.BOAT_REASSURE));
         }
         @Override public void ended(IntentRunner.Result result) {
             AskLedger.server().ended(incident, parent.getUUID(), result == IntentRunner.Result.DONE ? "watched" : result.name());

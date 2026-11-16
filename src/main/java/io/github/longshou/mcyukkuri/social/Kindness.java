@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
@@ -10,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.settlement.CommonStore;
@@ -250,6 +252,7 @@ public final class Kindness extends Goal {
         if (giver.distanceToSqr(guest) <= 2.25) FamilyFeedingContact.faceEachOther(giver, guest);
         if (!FamilyFeedingContact.mouthsMeet(giver, guest)) {
             if (act == Act.COMPANY && contact >= CUE) { finished = true; return; }
+            if (contact > 0 && act == Act.BITE) giver.showReaction("closed_smile", "", CUE);
             contact = 0;
             if (stand == null) stand = FamilyFeedingContact.approachSpot(giver, guest);
             if (stand == null || !withinPetRange(stand)
@@ -257,7 +260,10 @@ public final class Kindness extends Goal {
             return;
         }
         SurfaceApproach.halt(giver);
-        if (++contact < CUE) return;
+        if (contact++ == 0 && act == Act.BITE)
+            giver.showReaction(YukkuriAction.OFFER_BITE, "happy", "", ClipMarkers.of(YukkuriAction.OFFER_BITE.id()).length());
+        int cue = act == Act.BITE ? ClipMarkers.of(YukkuriAction.OFFER_BITE.id()).ticks("contact", CUE) : CUE;
+        if (contact < cue) return;
         switch (act) {
             case BITE -> give();
             case COMPANY -> {
@@ -299,6 +305,8 @@ public final class Kindness extends Goal {
 
     @Override public void stop() {
         if (act == null) return;
+        if (act == Act.BITE && !finished && giver.reactionAction() == YukkuriAction.OFFER_BITE)
+            giver.showReaction("neutral", "", 0);
         cooldown = Math.max(cooldown, act == Act.COMPANY ? RECEIVER_REST : act == Act.BITE && finished ? CUE : GIVER_REST);
         if (running) SurfaceApproach.halt(giver);
         running = finished = false;

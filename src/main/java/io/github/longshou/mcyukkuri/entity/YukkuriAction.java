@@ -122,6 +122,7 @@ public enum YukkuriAction {
     BE_CRADLED("be_cradled", 1.2, true),
     MOUTH_BITE_HOLD("mouth_bite_hold", 1.0, true),
     MOUTH_RELEASE("mouth_release", 1.6, false),
+    MOUTH_ITEM_PICK("mouth_item_pick", 1.2, false),
     BOAT_THROWN("boat_thrown", .6, false),
     WATER_HAT_RIGHT("water_hat_right", 1.6, false),
     BOAT_CARGO_STOW("boat_cargo_stow", 1.0, false),

@@ -1,18 +1,30 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Intent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
+import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.Progress;
+import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.Running;
+import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -25,8 +37,8 @@ import net.minecraft.world.phys.Vec3;
  *       with the mouth ({@code Pick} from the hat's hold) into its own meal and chews it where it stands ({@code boat_eat}). Done
  *       once it has swallowed.</li>
  *   <li>{@code forage}: an owner aboard with her stick paddles over the loaded calm water to a food item afloat or lying at the
- *       water's edge, walks within reach and picks it up: hungry she eats it, else it goes into the hollow (the hold's own
- *       store, which refuses with its real reason, and then the item stays where it lay). Done once taken.</li>
+ *       water's edge, walks within reach and picks it up: hungry she eats it, else it stays in her mouth until {@code boat_cargo_stow}'s
+ *       release marker hands it into the hollow (the hold's own store, which refuses with its real reason). Done once taken and stowed.</li>
  *   <li>{@code fetch_stick}: the same trip for a stick afloat or lying at the water's edge when she has none (never had one, or
  *       lost it at a capsize: one state); it goes into the hat's kit. Done once stowed.</li>
  * </ul>
@@ -58,7 +70,9 @@ final class Provision implements Intent {
 
     @Override public String id() { return stick ? "fetch_stick" : food == null ? "eat_aboard" : "forage"; }
     @Override public long deadline() { return started + (food == null ? EAT : FORAGE); }
-    @Override public boolean satisfied() { return taken && (food != null || body.life().mealTicks() == 0); }
+    @Override public boolean satisfied() {
+        return taken && !(body.motor().current() instanceof StowCargo) && (food != null || body.life().mealTicks() == 0);
+    }
     @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
 
     private static Step act(Action action) { return new Step.Do(action); }
@@ -66,7 +80,7 @@ final class Provision implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.riding(body);
         if (hat == null) return null;
-        if (food != null) return fetch(hat);
+        if (food != null) return !stick && !body.family().carrying().isEmpty() ? List.of(() -> act(new StowCargo())) : fetch(hat);
         if (taken) return List.of(() -> new Step.Wait(() -> body.life().mealTicks() == 0, CHEW, Behaviors.BOAT_EAT));
         var larder = HullLarder.of(hat);
         var portion = larder == null ? null : larder.source(hat, body, body.life()::seeksFood, "eat");
@@ -105,19 +119,69 @@ final class Provision implements Intent {
         return true;
     }
 
-    /** Hungry, eat it; else into the hollow of the hat she rides. A stick goes into the hat's kit. */
+    /** Hungry, eat it; else hold it in the mouth until {@link StowCargo} releases it into the hollow of the hat she rides. A stick goes into the hat's kit. */
     private boolean keep(ItemStack one) {
         if (stick) {
             taken = AquaticLife.stow(body, one);
             if (taken) GameplayLog.event(body, "aquatic", "stick taken item={} stowed_in=hat", one.getItem());
             return taken;
         }
+        if (body.life().canEat() && body.life().beginMeal(one, null, false)) {
+            taken = true;
+            GameplayLog.event(body, "aquatic", "forage taken item={} eaten nutrition={}", one.getItem(),
+                    Math.round(body.life().nutrition()));
+            return true;
+        }
         var hat = AquaticLife.riding(body);
         var larder = HullLarder.of(hat);
-        boolean ate = body.life().canEat() && body.life().beginMeal(one, null, false);
-        taken = ate || larder != null && larder.keep(hat, one, body);
-        if (taken) GameplayLog.event(body, "aquatic", "forage taken item={} {} nutrition={}", one.getItem(), ate ? "eaten" : "stored",
-                Math.round(body.life().nutrition()));
-        return taken;
+        return larder != null && larder.room(hat) && body.family().holdCareFood(one);
+    }
+
+    @Override public void ended(IntentRunner.Result result) {
+        if (body.isAlive() && food != null && !stick && !taken && !body.family().carrying().isEmpty()) {
+            if (!body.family().releaseCareFood("forage_" + result.name().toLowerCase(Locale.ROOT)))
+                body.family().putBackCareFood(one -> ItemContact.release(body, one, 20) != null);
+        }
+    }
+
+    private final class StowCargo implements Action {
+        private long startTick;
+
+        @Override public String id() { return "stow_cargo"; }
+
+        @Override public Feasibility check(YukkuriEntity body) {
+            var hat = AquaticLife.riding(body);
+            var larder = HullLarder.of(hat);
+            if (body.family().carrying().isEmpty()) return Feasibility.of(Reason.TARGET_GONE, 0, "mouth_empty");
+            return larder != null && larder.room(hat) ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "larder_full");
+        }
+
+        @Override public void start(YukkuriEntity body) {
+            startTick = body.level().getGameTime();
+        }
+
+        @Override public Progress tick(YukkuriEntity body) {
+            var clip = ClipMarkers.of(YukkuriAction.BOAT_CARGO_STOW.id());
+            long elapsed = body.level().getGameTime() - startTick;
+            int release = clip.ticks("release", 11);
+            if (!taken && elapsed >= release) {
+                var still = check(body);
+                if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
+                var hat = AquaticLife.riding(body);
+                var larder = HullLarder.of(hat);
+                var held = body.family().carrying();
+                if (!body.family().putBackCareFood(one -> larder.keep(hat, one, body)))
+                    return Outcome.of(Reason.NO_ROOM, 0, "not_stored item=" + held.getItem());
+                taken = true;
+                GameplayLog.event(body, "aquatic", "forage taken item={} stored nutrition={}", held.getItem(),
+                        Math.round(body.life().nutrition()));
+            }
+            return elapsed < clip.length() ? new Running(clip.length() - elapsed, TravelMode.PASS)
+                    : new Outcome.Done("stored");
+        }
+
+        @Override public MotionPose pose() {
+            return new MotionPose(YukkuriAction.BOAT_CARGO_STOW.id(), startTick, false);
+        }
     }
 }

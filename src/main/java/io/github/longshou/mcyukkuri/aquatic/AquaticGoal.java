@@ -56,7 +56,7 @@ final class AquaticGoal extends Goal {
     static final String DOMAIN = "aquatic";
     /** The clips of the boat life the presentation may show while this goal drives the body. */
     private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
-            Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW,
+            Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.BOAT_REASSURE, Behaviors.FAMILY_CHEW,
             Behaviors.KID_BRIM_SPLASH, Behaviors.KID_MIMIC_PADDLE, Behaviors.BOAT_RIM_PEEK, Behaviors.KID_HIDE_BEHIND, Behaviors.BOAT_TOILET);
     /** How long (ticks) a young she knowingly left ashore when setting out does not pull her back; how many she remembers. */
     private static final int LEFT_TICKS = 1200, LEFT_MAX = 16;
