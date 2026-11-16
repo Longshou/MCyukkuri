@@ -684,7 +684,7 @@ def state(action, t, c, height):
         r[1] = keyed(t, [(0, 0), (.75, 0), (1.0, -c['look']), (1.3, c['look']), (1.55, 0), (d, 0)])
     elif action == 'ignore':
         r = [c['chin_up']*smooth((t-.2)/.4)*(1-smooth((t-1.2)/.4)), keyed(t, [(0, 0), (.45, c['turn']), (1.1, c['turn']), (d, c['turn']*c['return'])]), 0.]
-        up = smooth((t-.2)/.4)*(1-smooth((t-1.2)/.4)); s = [1-.01*up, 1+.025*up, 1-.01*up]
+        up = smooth((t-.2)/.4)*(1-smooth((t-1.2)/.4)); k = c['rise']*up; s = [1-.4*k, 1+k, 1-.4*k]
     elif action == 'restrain':
         # Holding back: compressed and tense, a fine shiver, a small lean back and a glance away.
         shiver = math.sin(2*math.pi*c['shiver_hz']*t); glance = .5-.5*math.cos(2*math.pi*t/d)

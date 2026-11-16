@@ -2008,8 +2008,8 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "sway": 7,
-      "bounce_ratio": 0.03,
+      "sway": 8,
+      "bounce_ratio": 0.07,
       "chin_up": 4,
       "faces": [
         [
@@ -2185,8 +2185,8 @@
       "applies": "all",
       "lean_back": 5,
       "shrink": 0.05,
-      "shiver_ratio": 0.028,
-      "shiver_roll": 3,
+      "shiver_ratio": 0.034,
+      "shiver_roll": 4,
       "shiver_hz": 12,
       "faces": [
         [
@@ -3456,11 +3456,11 @@
       "loop": false,
       "applies": "breeding",
       "sink": 0.04,
-      "wail_rise": 0.03,
-      "wail_chin": 6,
-      "sob": 0.02,
+      "wail_rise": 0.08,
+      "wail_chin": 8,
+      "sob": 0.045,
       "sob_hz": 3,
-      "head_down": -6,
+      "head_down": -8,
       "faces": [
         [
           0,
@@ -4003,11 +4003,11 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "tilt": 6,
-      "turn": 8,
+      "tilt": 8,
+      "turn": 20,
       "look_up": 3.5,
       "squash": 0.04,
-      "sway": 0.012,
+      "sway": 0.03,
       "faces": [
         [
           0,
@@ -4025,7 +4025,7 @@
           "neutral"
         ]
       ],
-      "lore": "Project design for exam thinking: slow side-to-side tilt of at most 6 degrees, a small yaw and sideways sway, slight squash, eyes up (face does the looking up, body pitch stays about 3.5 degrees).",
+      "lore": "Project design for exam thinking: slow side-to-side tilt of at most 8 degrees, a 20 degree yaw and sideways sway, slight squash, eyes up (face does the looking up, body pitch stays about 3.5 degrees).",
       "triggers": [
         "pet exam: considering an answer"
       ]
@@ -4833,8 +4833,9 @@
       "duration": 1.6,
       "loop": false,
       "applies": "all",
-      "turn": -52,
-      "chin_up": 3,
+      "turn": -78,
+      "chin_up": 5,
+      "rise": 0.06,
       "return": 0.4,
       "faces": [
         [
@@ -4843,7 +4844,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design: calmly turns the whole body about 50 degrees away with eyes closed and the chin up at most 3 degrees, holds, then turns back partway.",
+      "lore": "Project design: calmly turns the whole body about 78 degrees away with eyes closed, drawn up tall with the chin up at most 5 degrees, holds, then turns back partway.",
       "triggers": [
         "calmly ignoring a wild yukkuri's begging or provocation"
       ]
