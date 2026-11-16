@@ -539,7 +539,8 @@
           ],
           "ids": [
             "care_wear",
-            "pet_harness"
+            "pet_harness",
+            "magnifying_glass"
           ]
         },
         {
@@ -650,7 +651,8 @@
             "spicy_grain",
             "wheat_flour",
             "custard_pudding",
-            "sweet_candy"
+            "sweet_candy",
+            "apple_half"
           ]
         }
       ]
