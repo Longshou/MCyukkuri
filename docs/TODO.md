@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 打喷嚏三版（hakimi 试作）进博物馆动作片段区供比较 | `.worktrees/wp-sneeze-trial` | motions/variants/lore, motions/tiers.json, YukkuriAction.java, museum_actions.py |
 | 报纸堆作纸源：流浪撕纸、铺垫与冬夜盖纸发抖（N79） | `.worktrees/wp-paper-source` | human/NewspaperStackBlock, life/Facilities, stray shelter behaviour, lore motions |
 | 翅膀、辫子、头发贴墙收拢（帽檐已有） | `.worktrees/wp-art-wall-tuck` | client/WornHatClearance, client/YukkuriModel, client/YukkuriRenderer, wing/braid/hair rendering |
 
