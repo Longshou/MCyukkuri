@@ -1073,7 +1073,7 @@ def export_family(family, prune_only=False, check=False):
     selection=cfg['export_families'][family]
     follows=selection.get('braid_follow',False)
     include_birth=selection.get('birth_pose',False)
-    include_weather=selection.get('side_profile',False)
+    include_side_profile=selection.get('side_profile',False)
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py'))
     names=selection['clips'] if 'clips' in selection else runpy.run_path(str(here/selection['clip_source']))[selection['clip_field']]
     cfg['clips']={name:resolve(cfg['clips'],name) for name in names}
@@ -1119,7 +1119,7 @@ def export_family(family, prune_only=False, check=False):
     if include_birth:
         write(resource.parent/'live_birth_pose.json',json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n')
     write(resource,json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
-    if include_weather:  # the side reach of every model through its huddle loop, for the server's side-by-side stand
+    if include_side_profile:
         write(resource.parent/'side_profile.json',runpy.run_path(str(here/'side_profile.py'))['build']())
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('recipe',here.parent/'contact-safe/recipe.json'),('author',here.parent/'contact-safe/author.py'),
@@ -1128,7 +1128,7 @@ def export_family(family, prune_only=False, check=False):
                        ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
                        ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
         entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
-    if include_weather:
+    if include_side_profile:
         profile_path=resource.parent/'side_profile.json'
         entry['side_profile']=profile_path.relative_to(ROOT).as_posix()
         entry['side_profile_sha256']=hashlib.sha256(profile_path.read_bytes()).hexdigest()

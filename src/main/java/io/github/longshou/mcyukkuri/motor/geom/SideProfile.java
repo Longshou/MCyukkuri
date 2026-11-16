@@ -6,14 +6,18 @@ package io.github.longshou.mcyukkuri.motor.geom;
  * cell by cell give the centre distance at which the two meet and nothing of the one passes through the other.
  */
 public final class SideProfile {
-    private final double band, z0;
+    private final double heightBand, depthBand, z0;
     private final double[][] reach;
 
     /** {@code reach[height][depth]}: the farthest point toward the side in the cell at height {@code height * band} and depth
      *  {@code z0 + depth * band}; 0 where the body has nothing. */
     public SideProfile(double band, double z0, double[][] reach) {
-        if (!(band > 0)) throw new IllegalArgumentException("band");
-        this.band = band; this.z0 = z0; this.reach = reach;
+        this(band, band, z0, reach);
+    }
+
+    public SideProfile(double heightBand, double depthBand, double z0, double[][] reach) {
+        if (!(heightBand > 0 && depthBand > 0)) throw new IllegalArgumentException("band");
+        this.heightBand = heightBand; this.depthBand = depthBand; this.z0 = z0; this.reach = reach;
     }
 
     /** Where the second body stands beside the first, both facing the same way: the centre distance across and how far behind
@@ -37,11 +41,11 @@ public final class SideProfile {
     public static double touching(SideProfile a, double scaleA, SideProfile b, double scaleB, double dy, double behind) {
         double out = 0;
         for (int y = 0; y < a.reach.length; y++) {
-            double h0 = y * a.band * scaleA, h1 = h0 + a.band * scaleA;
+            double h0 = y * a.heightBand * scaleA, h1 = h0 + a.heightBand * scaleA;
             for (int z = 0; z < a.reach[y].length; z++) {
                 double ra = a.reach[y][z];
                 if (ra <= 0) continue;
-                double d0 = (a.z0 + z * a.band) * scaleA, d1 = d0 + a.band * scaleA;
+                double d0 = (a.z0 + z * a.depthBand) * scaleA, d1 = d0 + a.depthBand * scaleA;
                 double rb = b.farthest((h0 - dy) / scaleB, (h1 - dy) / scaleB, (d0 - behind) / scaleB, (d1 - behind) / scaleB);
                 if (rb > 0) out = Math.max(out, ra * scaleA + rb * scaleB);
             }
@@ -51,10 +55,10 @@ public final class SideProfile {
 
     /** The farthest reach over the cells overlapping heights [h0, h1) and depths [d0, d1) (model units), 0 when none. */
     double farthest(double h0, double h1, double d0, double d1) {
-        int y0 = Math.max(0, (int) Math.floor(h0 / band)), y1 = Math.min(reach.length - 1, (int) Math.ceil(h1 / band) - 1);
+        int y0 = Math.max(0, (int) Math.floor(h0 / heightBand)), y1 = Math.min(reach.length - 1, (int) Math.ceil(h1 / heightBand) - 1);
         double out = 0;
         for (int y = y0; y <= y1; y++) {
-            int z0i = Math.max(0, (int) Math.floor((d0 - z0) / band)), z1i = Math.min(reach[y].length - 1, (int) Math.ceil((d1 - z0) / band) - 1);
+            int z0i = Math.max(0, (int) Math.floor((d0 - z0) / depthBand)), z1i = Math.min(reach[y].length - 1, (int) Math.ceil((d1 - z0) / depthBand) - 1);
             for (int z = z0i; z <= z1i; z++) out = Math.max(out, reach[y][z]);
         }
         return out;

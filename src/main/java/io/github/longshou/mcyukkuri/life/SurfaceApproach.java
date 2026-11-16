@@ -610,6 +610,16 @@ public final class SurfaceApproach {
         return controller(actor).walkStep(actor,destination,other==actor?null:other,speed);
     }
 
+    /** A live contact stand can move by less than the ordinary route cache's slack. */
+    public static Result walkToContact(YukkuriEntity actor, Vec3 destination, Entity other, double speed) {
+        var approach = controller(actor);
+        var request = approach.current;
+        if (request != null && (request.destination.distanceToSqr(destination) >= ARRIVAL * ARRIVAL
+                || request.goal == request.destination && at(actor, request.destination) && !at(actor, destination)))
+            approach.current = null;
+        return walkResult(actor, destination, other, speed);
+    }
+
     /** Never substitute a straight line for a route around a step or obstruction. Call it every tick while the step is wanted: once
      *  the path ends, the last step is one MoveControl input that vanilla zeroes on the next tick, so throttling the call produces
      *  stop-go movement. */

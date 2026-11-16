@@ -10,9 +10,9 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "0db153f83220e1cbc23f22430e1a20b21dfa0890630224ad8fea35f30f00e8e2",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "a45c8a2941dd51868b419c4d92cb8eb0ed87467a273af46e0023a04b1aad678c",
+  "lore_recipe_sha256": "7eb043b14b261e337e49c35733d9880a5d572fb822e07663601cf125c5aafcb5",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "637282e1f27274e388ef7f06a2d6777f015e42ed1e62b9561d5d05e0b867ee55",
+  "lore_author_sha256": "608139b39189067a35dc04a70f044c8fac190fa243462849bec242b3828ef439",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "a007b28152fef6b2272c501f19cd7ff0650180bb8279f772c12ee01e35213e4a",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
@@ -422,5 +422,5 @@
   "birth_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
   "birth_pose_sha256": "8bcbaadec1328ec6cadb1c0823c79999396296bfb31ec52c3f751665360784ec",
   "side_profile": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/side_profile.json",
-  "side_profile_sha256": "3ad67f507e6f53baaa168868575cbd052986f27ba19a2e88c8586d6e340c949a"
+  "side_profile_sha256": "69c5bf49d5b343167018bc2d69adbe41c5d68bf24ae9063f5fe6ec2358dffca9"
 }

@@ -99,7 +99,7 @@ public final class DailyLife {
     /** Two peers on about one level press side by side; a player, or a peer a step up or down, is nuzzled face to face. */
     private static boolean sidePress(Session session) {
         return session.kind == Kind.NUZZLE && session.companion instanceof YukkuriEntity
-                && Math.abs(session.leader.getY() - session.companion.getY()) <= .35;
+                && Math.abs(session.leader.getY() - session.companion.getY()) <= SideContact.SNUGGLE_STEP;
     }
     private static boolean sideBySide(YukkuriEntity body, float facing) {
         return Math.abs(Mth.wrapDegrees(facing - body.yBodyRot)) <= Face.FACE_ARRIVED;
@@ -397,10 +397,10 @@ public final class DailyLife {
             // A nuzzle leans over one block of height (a friend on the bank, a hollow below it), and the lean itself reaches that much further.
             double lift = Math.abs(entity.getY() - other.getY());
             boolean sidePress = sidePress(current);
-            Vec3 sideStand = sidePress ? SurfaceApproach.floor(current.leader,
-                    SideContact.beside(current.leader, (YukkuriEntity)current.companion, current.facing, false)) : null;
-            boolean touching = sidePress ? sideStand != null && current.leader.position().subtract(sideStand).horizontalDistance() <= SurfaceApproach.ARRIVAL
-                    : lift <= LEAN && entity.position().subtract(other.position()).horizontalDistance() <= reach + (lift > .35 ? LEAN : 0);
+            Vec3 sideStand = sidePress ? SideContact.snuggle(current.leader, (YukkuriEntity)current.companion, current.facing) : null;
+            boolean touching = sidePress ? sideStand != null && current.leader.onGround() && current.companion.onGround()
+                    && Math.abs(current.leader.getY() - sideStand.y) <= SideContact.SUPPORT_EPSILON && SurfaceApproach.at(current.leader, sideStand)
+                    : lift <= LEAN && entity.position().subtract(other.position()).horizontalDistance() <= reach + (lift > SideContact.SNUGGLE_STEP ? LEAN : 0);
             var partner = current.companion instanceof YukkuriEntity peer ? peer : null;
             String greeting = current.greeted || partner == null ? null
                     : current.welcome ? "welcome" : current.leader.social().greetingDue(partner);
@@ -418,7 +418,8 @@ public final class DailyLife {
                 // each other past their contact envelope, especially when their bodies meet diagonally.
                 if(current.leader==entity){
                     var stand=sidePress ? sideStand : standBeside(other,reach-.04);
-                    if (stand == null || SurfaceApproach.walkResult(entity, stand, other, .8) == SurfaceApproach.Result.BLOCKED) {
+                    if (stand == null || (sidePress ? SurfaceApproach.walkToContact(entity, stand, other, .8)
+                            : SurfaceApproach.walkResult(entity, stand, other, .8)) == SurfaceApproach.Result.BLOCKED) {
                         stop();
                         return;
                     }

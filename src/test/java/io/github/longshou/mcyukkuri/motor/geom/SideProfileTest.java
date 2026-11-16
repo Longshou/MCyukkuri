@@ -44,4 +44,10 @@ class SideProfileTest {
     @Test void aSmallerScaleShrinksItsReach() {
         assertEquals((6 + 3) * UNIT, SideProfile.touching(box(6), UNIT, box(6), UNIT / 2, 0, 0), 1e-9);
     }
+
+    @Test void fineHeightCellsSeparateThinBrimsOnAStep() {
+        var hatted = new SideProfile(.25, 1, -1, new double[][] {{5, 5}, {6, 6}, {6, 6}, {12, 12}});
+        assertEquals(24 * UNIT, SideProfile.touching(hatted, UNIT, hatted, UNIT, 0, .5 * UNIT), 1e-9);
+        assertEquals(18 * UNIT, SideProfile.touching(hatted, UNIT, hatted, UNIT, .25 * UNIT, .5 * UNIT), 1e-9);
+    }
 }
