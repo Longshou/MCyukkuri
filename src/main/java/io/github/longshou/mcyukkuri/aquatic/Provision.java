@@ -53,6 +53,8 @@ final class Provision implements Intent {
     private final boolean stick;
     private final long started;
     private boolean taken;
+    /** The item this trip itself took into the mouth to stow (a care portion it found there is not its to stow or drop). */
+    private boolean picked;
 
     private Provision(YukkuriEntity body, ItemEntity food, boolean stick) {
         this.body = body;
@@ -80,7 +82,7 @@ final class Provision implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.riding(body);
         if (hat == null) return null;
-        if (food != null) return !stick && !body.family().carrying().isEmpty() ? List.of(() -> act(new StowCargo())) : fetch(hat);
+        if (food != null) return !stick && picked ? List.of(() -> act(new StowCargo())) : fetch(hat);
         if (taken) return List.of(() -> new Step.Wait(() -> body.life().mealTicks() == 0, CHEW, Behaviors.BOAT_EAT));
         var larder = HullLarder.of(hat);
         var portion = larder == null ? null : larder.source(hat, body, body.life()::seeksFood, "eat");
@@ -134,11 +136,12 @@ final class Provision implements Intent {
         }
         var hat = AquaticLife.riding(body);
         var larder = HullLarder.of(hat);
-        return larder != null && larder.room(hat) && body.family().holdCareFood(one);
+        picked = larder != null && larder.room(hat) && body.family().holdCareFood(one);
+        return picked;
     }
 
     @Override public void ended(IntentRunner.Result result) {
-        if (body.isAlive() && food != null && !stick && !taken && !body.family().carrying().isEmpty()) {
+        if (body.isAlive() && picked && !taken && !body.family().carrying().isEmpty()) {
             if (!body.family().releaseCareFood("forage_" + result.name().toLowerCase(Locale.ROOT)))
                 body.family().putBackCareFood(one -> ItemContact.release(body, one, 20) != null);
         }
