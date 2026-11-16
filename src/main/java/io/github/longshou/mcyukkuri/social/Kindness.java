@@ -231,6 +231,8 @@ public final class Kindness extends Goal {
     }
 
     @Override public boolean canContinueToUse() { return running && !finished && ticks < ATTEMPT && valid(); }
+    /** A response is under way from the accepted request until it stops; ambient wild cards must not reserve her then. */
+    public boolean active() { return act != null; }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {
         if (!finished && valid()) step();

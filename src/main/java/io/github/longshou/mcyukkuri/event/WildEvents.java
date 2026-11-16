@@ -80,6 +80,7 @@ public final class WildEvents {
         return safe(e)
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.childhood().needsNewbornCare() && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
+                && !e.kindness().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && !e.moldExile().active() && e.life().mealTicks()==0;
     }
     /** Only called after a homeless adult has found a valid claim and the entire family can be admitted. */
