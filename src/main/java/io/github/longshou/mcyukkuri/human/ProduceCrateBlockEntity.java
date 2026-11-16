@@ -23,14 +23,17 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Contai
 
     public ProduceCrateBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.PRODUCE_CRATE_ENTITY.get(), pos, state); }
 
-    /** Puts one of {@code stack} in: onto a row of the same item with room, else into the first empty row. False when full. */
+    /**
+     * Puts one of {@code stack} in: onto a row of the same item with room (a row never exceeds the item's own stack size, or it
+     * would not load again), else into the first empty row. False when full.
+     */
     public boolean put(ItemStack stack) {
         if (stack.isEmpty()) return false;
         int free = -1;
         for (int row = 0; row < ROWS; row++) {
             var held = items.get(row);
             if (held.isEmpty()) { if (free < 0) free = row; continue; }
-            if (held.getCount() < PER_ROW && ItemStack.isSameItemSameComponents(held, stack)) { held.grow(1); changed(); return true; }
+            if (held.getCount() < Math.min(PER_ROW, held.getMaxStackSize()) && ItemStack.isSameItemSameComponents(held, stack)) { held.grow(1); changed(); return true; }
         }
         if (free < 0) return false;
         items.set(free, stack.copyWithCount(1)); changed();

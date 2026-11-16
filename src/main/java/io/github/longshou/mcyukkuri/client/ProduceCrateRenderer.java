@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.human.DisplayTrayBlock;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlock;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -52,7 +53,8 @@ public final class ProduceCrateRenderer implements BlockEntityRenderer<ProduceCr
 
     /**
      * A display tray: each occupied row is one pile lying flat on the tray floor. One pile fills the tray, two lie side by side,
-     * more take the four quarters; every further item of a pile lies on the one below, turned a little. Block-shaped items stand.
+     * more take the four quarters; every further item of a pile lies on the one below, turned a little. Block-shaped items and
+     * prop meshes stand.
      */
     private static void tray(ProduceCrateBlockEntity tray, ItemRenderer renderer, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         int piles = 0;
@@ -64,11 +66,24 @@ public final class ProduceCrateRenderer implements BlockEntityRenderer<ProduceCr
             var stack = tray.getItem(row);
             if (stack.isEmpty()) continue;
             float x = piles == 1 ? 0 : (pile % 2 == 0 ? -3.4f : 3.4f) * PX, z = piles <= 2 ? 0 : (pile < 2 ? -3.4f : 3.4f) * PX;
-            boolean solid = renderer.getModel(stack, tray.getLevel(), null, 0).isGui3d();
+            var model = renderer.getModel(stack, tray.getLevel(), null, 0);
+            String name = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+            boolean prop = model.isCustomRenderer() && PropModels.has(name), solid = model.isGui3d();
             int count = Math.min(stack.getCount(), ProduceCrateBlockEntity.PER_ROW);
             for (int i = 0; i < count; i++) {
                 pose.pushPose();
                 float turn = (row * 67 + i * 29) % 50 - 25;
+                if (prop) {
+                    // A prop mesh (client/PropItemRenderer) is drawn about its centre at its real size: shrunk to the pile's
+                    // share of the tray, it stands on the tray floor.
+                    float fit = Math.min(1, .9f * size * 16 / Math.max(1, PropModels.extent(name)));
+                    pose.translate(x + (i - (count - 1) / 2f) * 1.2f * PX, floor + fit * PropModels.height(name) / 2, z);
+                    pose.mulPose(Axis.YP.rotationDegrees(turn));
+                    pose.scale(fit, fit, fit);
+                    renderer.renderStatic(stack, ItemDisplayContext.NONE, light, overlay, pose, buffers, tray.getLevel(), 0);
+                    pose.popPose();
+                    continue;
+                }
                 if (solid) {
                     // A block model is half a block wide at scale 1 in the fixed display; the pile stands in a short row.
                     pose.translate(x + (i - (count - 1) / 2f) * 1.2f * PX, floor + size * .25f, z);

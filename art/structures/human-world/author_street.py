@@ -79,7 +79,8 @@ def produce_crate(b, x, y, z, facing, goods):
 
 def display_tray(b, x, y, z, facing, *items, raised=False):
     """A shallow tray of the type's wood with up to four things lying on it (an item id or (item, count <= 4)); they are its real
-    contents, read from `facing`. raised: the counter-top form, written over one slab of a slab-topped counter."""
+    contents, read from `facing`. A count must not exceed the item's stack size (the stack would not load). raised: the counter-top
+    form, written over one slab of a slab-topped counter."""
     goods = [(item, 1) if isinstance(item, str) else item for item in items]
     assert 1 <= len(goods) <= 4 and all(1 <= n <= 4 for _, n in goods), goods
     nbt = {'id': string('mcyukkuri:produce_crate'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(goods)])}
@@ -472,7 +473,7 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     b.double_door(3, 3, 16, 'south')
     for x in range(5, 15): slab(b, x, 4, 16, p.wood, 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
-        display_tray(b, x, 4, 16, 'north', (item, 2), raised=True)
+        display_tray(b, x, 4, 16, 'north', (item, 1 if 'grain' in item else 2), raised=True)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
     # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a demo table in the main

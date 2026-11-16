@@ -1,9 +1,10 @@
-"""Offline preview of the village furniture: the bench, table and produce crate in the four woods, the crate close up, and the market
-stall counter of every village type, rendered with the real block models and textures; an adult Reimu stands by for scale.
+"""Offline preview of the village furniture: the bench, table and produce crate in the four woods, the crate close up, the market
+stall counter of every village type, the display tray close up and the desks and counters that use it, rendered with the real block
+models and textures; an adult Reimu stands by for scale.
 
 Usage: <py> preview_furniture.py --minecraft-resources <client jar> [--out <dir>]
 Crate goods are block-entity sprites in the game (client/ProduceCrateRenderer); here they are drawn from the crate's authored contents
-with the same layout numbers (GOODS below). Requires Pillow, NumPy, Node. Writes .local/previews/town-props of the main checkout (or
+with the same layout numbers (GOODS and TRAY below; a tray item without a flat sprite model is drawn as its icon). Requires Pillow, NumPy, Node. Writes .local/previews/town-props of the main checkout (or
 MCYUKKURI_PREVIEWS); no source or runtime file is modified.
 """
 from pathlib import Path
@@ -17,6 +18,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from furniture_placement import joined
 import preview_shop as ps
 import author_street as street
+import author_civic as civic
 from build import sequence, string, byte, integer   # NBT literals for mock crates
 from palette import PALETTES, STYLES
 
@@ -24,6 +26,8 @@ OPAQUE = ('planks', 'cobblestone', 'stone_bricks', 'log', 'wood', 'wool', 'terra
           'grass_block', 'dirt', 'mud_bricks', 'barrel', 'hay_block', 'bookshelf', 'glass', 'sandstone', 'packed_mud')
 # client/ProduceCrateRenderer: sprite size, floor height, row rise, row and item spacing (px), lean (degrees).
 GOODS = {'scale': .4, 'floor': 2, 'rise': 1.1, 'rows': 3.2, 'across': 1.9, 'shift': .4, 'lean': -18}
+# client/ProduceCrateRenderer.tray: floor and slab height (px), pile size by pile count, pile offset from the centre (px).
+TRAY = {'floor': 1, 'slab': 8, 'size': {1: .62, 2: .42, 3: .36, 4: .36}, 'offset': 3.4}
 YROT = {'south': 0, 'west': 90, 'north': 180, 'east': 270}
 WOOD_NOTE = {'oak': '橡木 · 平原', 'spruce': '云杉 · 雪原与针叶林', 'acacia': '金合欢 · 热带草原', 'jungle': '丛林木 · 沙漠'}
 STYLE_NAME = {'plains': '平原', 'desert': '沙漠', 'savanna': '热带草原', 'snowy': '雪原', 'taiga': '针叶林'}
@@ -53,6 +57,40 @@ def goods_mesh(a, items, facing):
     return np.array(out, float).reshape(-1, 8)
 
 
+def sprite(a, item):
+    """Atlas origin of the item's flat sprite: its generated layer, else the fixed-perspective layer, else its icon texture."""
+    ns, key = item.split(':')
+    try:
+        model = a.model(f'{ns}:item/{key}')
+        layers = [model.get('textures', {}).get('layer0'), model.get('perspectives', {}).get('fixed', {}).get('textures', {}).get('layer0'),
+                  f'{ns}:item/{key}']
+        for texture in layers:
+            if texture:
+                try: return a.tex(texture)
+                except (KeyError, FileNotFoundError): pass
+    except (KeyError, FileNotFoundError): pass
+    a.missing.add(item)
+
+
+def tray_mesh(a, items, facing, raised):
+    """Sprites of a tray's contents lying on its floor, one pile per occupied row."""
+    out = []; t = TRAY; turn = ps.rotation('y', -YROT[facing]); piles = len(items); size = t['size'][piles]
+    floor = (t['floor'] + (t['slab'] if raised else 0)) / 16
+    for pile, (row, item, count) in enumerate(items):
+        o = sprite(a, item)
+        if o is None: continue
+        s = 1 / 64; uv = [o, o + [s, 0], o + [s, s], o + [0, s]]
+        x = 0 if piles == 1 else (-t['offset'] if pile % 2 == 0 else t['offset']) / 16
+        z = 0 if piles <= 2 else (-t['offset'] if pile < 2 else t['offset']) / 16
+        for i in range(min(count, 4)):
+            spin = ps.rotation('y', (row * 67 + i * 29) % 50 - 25); h = size / 2
+            centre = np.array([x, floor + (i + .5) * size / 16, z])
+            corners = [turn @ (spin @ np.array(c, float) + centre) + [.5, 0, .5] for c in ([-h, 0, -h], [h, 0, -h], [h, 0, h], [-h, 0, h])]
+            for tri in ((0, 1, 2), (0, 2, 3)):
+                for k in tri: out.append([*corners[k], *uv[k], 0, 1, 0])
+    return np.array(out, float).reshape(-1, 8)
+
+
 def contents(nbt):
     return [(row['Slot'][1], row['id'][1], row['count'][1]) for row in nbt['Items'][1][1]]
 
@@ -67,6 +105,7 @@ def mesh(a, blocks, origin, box=None):
             continue
         parts = [a.block(name, tuple(sorted(props.items()))).copy()]
         if name == 'mcyukkuri:produce_crate' and nbt: parts.append(goods_mesh(a, contents(nbt), props['facing']))
+        if name == 'mcyukkuri:display_tray' and nbt: parts.append(tray_mesh(a, contents(nbt), props['facing'], props['raised'] == 'true'))
         for v in parts:
             if len(v): v[:, :3] += np.array(pos) - np.array(origin); out.append(v)
     return np.concatenate(out)
@@ -127,6 +166,27 @@ def crate_row():
     return b
 
 
+def tray_block(facing, goods, raised=False, wood='oak'):
+    """A mock tray as author_street.display_tray writes it."""
+    nbt = {'Items': sequence(10, [{'Slot': byte(i), 'id': string(item if ':' in item else 'minecraft:' + item), 'count': integer(n)}
+                                  for i, (item, n) in enumerate(goods)])}
+    return 'mcyukkuri:display_tray', {'facing': facing, 'raised': str(raised).lower(), 'wood': wood}, nbt
+
+
+def tray_row():
+    """Oak trays: three on a table (one thing, two piles, four piles), then a slab-topped counter with two raised trays in it."""
+    b = {}
+    for (x, z), props in joined('wooden_table', [(-4, 0), (-3, 0), (-2, 0)], 'x', 'oak').items(): b[x, 0, z] = ('mcyukkuri:wooden_table', props, None)
+    b[-4, 1, 0] = tray_block('south', [('mcyukkuri:badge_handbook', 1)])
+    b[-3, 1, 0] = tray_block('south', [('mcyukkuri:care_awl', 1), ('shears', 1)])
+    b[-2, 1, 0] = tray_block('south', [('book', 2), ('mcyukkuri:bronze_yukkuri_badge', 1), ('paper', 3), ('writable_book', 1)])
+    for x in range(0, 5):
+        b[x, 0, 0] = ('minecraft:oak_planks', {}, None); b[x, 1, 0] = ('minecraft:oak_slab', {'type': 'bottom', 'waterlogged': 'false'}, None)
+    b[1, 1, 0] = tray_block('south', [('mcyukkuri:yukkuri_manju', 3)], True)
+    b[3, 1, 0] = tray_block('south', [('mcyukkuri:orange_juice', 2), ('cookie', 2)], True)
+    return b
+
+
 def sheet(images, titles, columns, title, note, out, name):
     w, h = images[0].size; rows = -(-len(images) // columns); head = 96
     page = Image.new('RGB', (w * columns + 20 * (columns - 1), head + rows * (h + 44)), '#edf1eb'); d = ImageDraw.Draw(page)
@@ -165,16 +225,34 @@ def main():
                            'stall-' + s, (1000, 560, .25, .14, 2.7, 1.9)))
     cards.append(sheet(images, [STYLE_NAME[s] for s in STYLES], 1, '集市摊位 · 五种村庄',
                        '柜台上原来悬浮的展示物换成货箱：胡萝卜、马铃薯、苹果、甜菜根、面包、南瓜派；货箱用该类型的木料', out, 'stalls'))
+    # The display tray close up, then the places that use it (plains; every type has the same layout in its own wood).
+    images = [shot(mesh(a, tray_row(), (.5, 0, .5)), 'trays', (1100, 460, 3.3, .6, 2.6, .4))]
+    cards.append(sheet(images, ['木桌上：一件、两堆、四堆；右边是半砖台面柜台，其中两格换成带托盘的台面（与半砖同高）'], 1,
+                       '展示托盘近看 · 桌上、柜台上摆的东西都真的在托盘里',
+                       '托盘里每堆最多四件、最多四堆，平放画出；和货箱一样空手右键拿走一件，手持物品右键放进一件，打掉后里面的东西掉出来', out, 'tray'))
+    p = PALETTES['plains']; hall, oni, shelter = civic.badge_hall(p), street.oni_shop(p), civic.shelter(p)
+    images = [
+        shot(mesh(a, hall.blocks, (13, 3, 25), ((4, 2, 22), (21, 6, 30))), 'desk-hall', (1000, 520, .2, .5, 5.2, .8)),
+        shot(mesh(a, oni.blocks, (9.5, 3, 16), ((4, 2, 14), (15, 6, 18))), 'desk-oni', (1000, 520, .2, .5, 4.2, .8)),
+        shot(mesh(a, oni.blocks, (12, 3, 9.5), ((10, 2, 7), (14, 5, 12))), 'desk-oni-table', (1000, 520, -1.2, .6, 2.2, .7)),
+        shot(mesh(a, oni.blocks, (11.5, 3, 23), ((8, 2, 21), (14, 5, 24))), 'desk-oni-bench', (1000, 520, .2, .6, 2.6, .8)),
+        shot(mesh(a, shelter.blocks, (14, 1, 16), ((11, 0, 14), (17, 3, 18))), 'desk-shelter', (1000, 520, .25, .5, 2.6, .8)),
+        shot(mesh(a, shelter.blocks, (5.5, 1, 21), ((2, 0, 18), (9, 3, 23))), 'desk-supply', (1000, 520, .2, .5, 3.4, .8)),
+    ]
+    cards.append(sheet(images, ['徽章会馆受理柜台：铜章、徽章手册、书与笔；后面办公桌上一本书', '鬼威惨商店柜台：馒头、曲奇、辣味粮',
+                                '鬼威惨商店演示桌：别针与铁箱', '鬼威惨商店后屋处理台：锥子与剪刀', '保护站接收窗口：橙汁与擦洗布',
+                                '保护站护理桌与物资架：货箱装油粮与襁褓布，托盘放擦洗布、携带箱、食盆'], 2,
+                       '用上托盘的桌面与柜台（平原）', '原来悬浮在台面上的展示物都换成托盘或货箱里的真实物品；立体道具（携带箱、食盆、擦洗布）在这里画成图标，游戏里是缩小的立体模型', out, 'desks'))
     print('Special block renderers omitted:', ', '.join(sorted(a.missing)) or 'none')
     shutil.rmtree(out / '_work')
     for p in out.glob('*.png'):
         if p.name not in cards: p.unlink()
     body = '\n'.join(f'<figure><img src="{c}" alt="{html.escape(c)}"></figure>' for c in cards)
-    page = f"""<!doctype html><meta charset="utf-8"><title>村庄木家具与集市货箱</title>
+    page = f"""<!doctype html><meta charset="utf-8"><title>村庄木家具、货箱与展示托盘</title>
 <style>body{{background:#edf1eb;font-family:"Microsoft YaHei",sans-serif;color:#273e37;margin:24px}}figure{{margin:0 0 28px}}img{{max-width:100%;image-rendering:pixelated}}</style>
-<h1>村庄木家具与集市货箱</h1>
+<h1>村庄木家具、货箱与展示托盘</h1>
 <p>离线渲染，真实方块模型与贴图；成体灵梦为尺寸参照。货箱里的物品在游戏中由方块实体按真实库存逐个画出，这里按同样的排布画出。</p>
-<p>请决定：长椅、木桌按村庄木料换色的样子，以及集市柜台上货箱的样子，能否采用。</p>
+<p>请决定：长椅、木桌按村庄木料换色的样子，集市柜台上货箱的样子，以及桌面与柜台上展示托盘的样子，能否采用。</p>
 {body}
 """
     (out / 'index.html').write_text(page, encoding='utf-8', newline='\n')

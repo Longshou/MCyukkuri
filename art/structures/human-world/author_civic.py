@@ -374,7 +374,7 @@ def shelter(p):
     for x in (13, 14, 15):
         b.block(x, 1, 16, p.planks()); slab(b, x, 2, 16, p.wood); b.block(x, 3, 16, 'air')
     display_tray(b, 13, 2, 16, 'north', ('mcyukkuri:orange_juice', 2), raised=True)
-    display_tray(b, 15, 2, 16, 'north', ('mcyukkuri:wash_cloth', 2), raised=True)
+    display_tray(b, 15, 2, 16, 'north', 'mcyukkuri:wash_cloth', raised=True)
     lamp(b, 1, 1, 7); lamp(b, W - 2, 1, 7); lamp(b, 12, 1, 15, 2)
     # ---- Inside. West room: care table and the supply shelf. East room (behind its own door): the intake counter and the volunteers'
     # cots.
@@ -384,9 +384,9 @@ def shelter(p):
     for x, item in [(6, 'mcyukkuri:orange_juice'), (7, 'mcyukkuri:flour_paste')]: display_tray(b, x, 2, 19, 'north', item)
     furniture(b, 'bench', 1, [(5, 19)], 'z'); furniture(b, 'bench', 1, [(8, 19)], 'z')
     for x in range(3, 9): b.block(x, 2, 22, p.planks())
-    for x, item in zip(range(3, 7), ['oil_grain_regular', 'oil_grain_regular', 'swaddle_cloth', 'wash_cloth']):
+    for x, item in zip(range(3, 6), ['oil_grain_regular', 'oil_grain_regular', 'swaddle_cloth']):
         produce_crate(b, x, 3, 22, 'north', [('mcyukkuri:' + item, 3), ('mcyukkuri:' + item, 2)])
-    for x, item in [(7, 'yukkuri_carrier'), (8, 'food_bowl')]: display_tray(b, x, 3, 22, 'north', 'mcyukkuri:' + item)
+    for x, item in [(6, 'wash_cloth'), (7, 'yukkuri_carrier'), (8, 'food_bowl')]: display_tray(b, x, 3, 22, 'north', 'mcyukkuri:' + item)
     b.block(3, 1, 22, 'hay_block', LOG); b.block(4, 1, 22, 'hay_block', LOG)
     b.block(3, 1, 17, p.pot(1)); b.block(10, 1, 22, p.pot(2))
     furniture(b, 'bench', 1, [(13, 22), (14, 22)]); furniture(b, 'bench', 1, [(16, 22), (17, 22)])

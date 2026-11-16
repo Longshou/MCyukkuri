@@ -97,6 +97,8 @@ public final class PropModels {
     public static Vec3 socket(String name){return models.get(name).socket;}
     public static Vec3 rootSocket(String name){return models.get(name).rootSocket;}
     public static float bodyLift(String name){return models.get(name).bodyLift;}
+    /** Height of the prop in blocks at scale 1. */
+    public static float height(String name){var b=models.get(name).bounds;return (b[1][1]-b[1][0])/16;}
     public static float extent(String name){var b=models.get(name).bounds;return Math.max(b[0][1]-b[0][0],Math.max(b[1][1]-b[1][0],b[2][1]-b[2][0]));}
     /** Immutable bounds in block units for exactly the parts drawn by render(name, units, ...).
      * Cached on the loaded model so resource reloads also invalidate these measurements. */
