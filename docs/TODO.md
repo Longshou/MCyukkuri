@@ -11,6 +11,7 @@
 | 动作库缺口：跑步、吐食、送别、贴身蹭 | `.worktrees/wp-art-motion-gaps` | standards/yukkuri-library/motions/、导出的运行动作、YukkuriAction.java、调用方片段引用 |
 | 捕食种上厕所接触动作、野生大草窝贴合洞壁 | `.worktrees/wp-art-fit-fixes` | 捕食种 toilet_contact 动作源与导出、ShelterRenderer.java |
 | 动作库缺口二：情绪甩辫、蹲守、撞玻璃、咳嗽、尾巴信号 | `.worktrees/wp-art-motion-gaps-2` | motions/ 新片段、YukkuriAction.java、对应调用方片段引用 |
+| 表情排查：时刻与表情不符处换脸或新做 | `.worktrees/wp-art-expressions` | standards/yukkuri-library/expressions/、presentation/moments.json、expressions.json、表情导出 |
 
 ## 玩法待办
 
