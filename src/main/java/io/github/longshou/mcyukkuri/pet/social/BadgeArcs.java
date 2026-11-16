@@ -288,7 +288,8 @@ public final class BadgeArcs {
                     s.result = snark ? "snark" : "sulk";
                     sub.showReaction("surprise", "", 50);
                     if (snark) { PetScenes.act(o, "puff", "angry", "badge_envy_snark", 70, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
-                    else PetScenes.act(o, "sulk", "envy", "badge_envy", 80, sub);
+                    // Turned partly aside: the full sulk turn hid the envious glance.
+                    else PetScenes.act(o, "ignore", "envy", "badge_envy", 80, sub);
                 }
                 if (t >= 70) { quiet(o); next(s); }
             }

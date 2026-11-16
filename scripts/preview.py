@@ -167,7 +167,7 @@ def render_strip(args, stage, times, before=False):
     if args.partner:
         specs.append((args.partner, None, args.partner_offset))
     for index, (model, prop, offset) in enumerate(specs):
-        a, images = actor(model, prop, args.clip, offset, source_root)
+        a, images = actor(model, prop, index and getattr(args, 'partner_clip', None) or args.clip, offset, source_root)
         if getattr(args, 'draft_clip', None) and index == 0:
             # A draft clip in runtime units, bones by name; only the main actor plays it.
             draft = read(Path(args.draft_clip))
@@ -692,6 +692,7 @@ def parser():
             time.add_argument('--times', default='0s,0.25s,0.5s,0.75s')
             time.add_argument('--beats', help='one time (seconds or ticks), then optional label per line')
             p.add_argument('--partner'); p.add_argument('--partner-offset', type=float, nargs=3, default=[20, 0, 0])
+            p.add_argument('--partner-clip', help='clip the partner plays on the same clock (default: --clip), e.g. the mirrored side of a pair')
             p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
             p.add_argument('--size', type=int, nargs=2, default=[360, 300])
             p.add_argument('--view', type=float, nargs=2, action='append', metavar=('AZ', 'EL'),

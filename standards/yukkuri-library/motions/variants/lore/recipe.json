@@ -4837,6 +4837,12 @@
       "chin_up": 5,
       "rise": 0.06,
       "return": 0.4,
+      "variants": {
+        "winged": {
+          "match": ["remilia", "flandre"],
+          "turn": -54
+        }
+      },
       "faces": [
         [
           0,
@@ -4844,7 +4850,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design: calmly turns the whole body about 78 degrees away with eyes closed, drawn up tall with the chin up at most 5 degrees, holds, then turns back partway.",
+      "lore": "Project design: calmly turns the whole body about 78 degrees away with eyes closed, drawn up tall with the chin up at most 5 degrees, holds, then turns back partway. Winged forms turn 54 degrees: a wider turn swings a wing tip behind the body, beyond the reach its side already has.",
       "triggers": [
         "calmly ignoring a wild yukkuri's begging or provocation"
       ]
@@ -7215,7 +7221,9 @@
     "snuggle_right": {
       "base": "cling_right",
       "label": "依偎（同伴在右）",
-      "rub": {"start": 0.8, "end": 2.6, "strokes": 2, "slide": 0.07, "roll": 2.5, "press": 0.35},
+      "hold": 0.85,
+      "slide": 0.08,
+      "rub": {"start": 0.8, "end": 2.6, "strokes": 2, "slide": 0.07, "roll": 2.5, "press": 0},
       "sway": {"start": 2.6, "end": 4.0, "degrees": 3.5, "shift": 0.025},
       "faces": [
         [0, 0.8, "closed_smile"],
@@ -7224,7 +7232,7 @@
         [1.7, 2.15, "satisfied"],
         [2.15, 4.0, "closed_smile"]
       ],
-      "lore": "Project design (motion library composite snuggle = cling + nuzzle + sway; wiki warm_huddle F05, F14, L36 and rub_nuzzle F14, L36, N2): the calm side-press of cling, then a cheek rub while still pressed (the body slides forward and back along the partner, pressing in and rolling into it with each stroke; the slide is mirrored by side, so two partners on one clip clock slide against each other), then one slow sway that is not mirrored, so the pressed pair rocks together as one. Closed-eye smile, melting on each stroke. The side-press spacing is the rain huddle's (side_profile); slide, roll and sway stay inside it. Pitch and roll together stay within 12 degrees.",
+      "lore": "Project design (motion library composite snuggle = cling + nuzzle + sway; wiki warm_huddle F05, F14, L36 and rub_nuzzle F14, L36, N2): the calm side-press of cling, then a cheek rub while still pressed (the body slides forward and back along the partner, rolling into it with each stroke; the slide is mirrored by side, so two partners on one clip clock slide against each other), then one slow sway that is not mirrored, so the pressed pair rocks together as one. Closed-eye smile, melting on each stroke. The stand is the rain huddle's (side_profile: the two just meet at the nestle peak, with up to 0.04 blocks of arrival slack); the snuggle stays pressed (hold 0.85) and slides further in (slide 0.08 of the height, about half a model unit past the huddle's peak reach on each body), so the pair stays in contact through the rub and the sway at any arrival inside that slack, with at most about 1.2 model units of soft overlap at the stroke peaks. Pitch and roll together stay within 12 degrees.",
       "triggers": [
         "a bonded pair's side-press at the start of a nuzzle (DailyLife.contactClip), partner on its right"
       ]

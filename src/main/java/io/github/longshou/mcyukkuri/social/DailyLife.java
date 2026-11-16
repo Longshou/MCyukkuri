@@ -92,10 +92,16 @@ public final class DailyLife {
     public int observedGreetingWait() { return active() ? session.greetHold : 0; }
     /** The actual shared side-press beat, before the existing rub. Players retain the face-to-face nuzzle. */
     public String contactClip() {
-        if (!inContact() || session.kind != Kind.NUZZLE || !(session.companion instanceof YukkuriEntity)
-                || Math.abs(session.leader.getY() - session.companion.getY()) > .35
-                || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
+        if (!inContact() || !sidePress(session) || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
         return session.leader == entity ? "snuggle_right" : "snuggle_left";
+    }
+    /** Two peers on about one level press side by side; a player, or a peer a step up or down, is nuzzled face to face. */
+    private static boolean sidePress(Session session) {
+        return session.kind == Kind.NUZZLE && session.companion instanceof YukkuriEntity
+                && Math.abs(session.leader.getY() - session.companion.getY()) <= .35;
+    }
+    private static boolean sideBySide(YukkuriEntity body, float facing) {
+        return Math.abs(Mth.wrapDegrees(facing - body.yBodyRot)) <= Face.FACE_ARRIVED;
     }
     public String detail() {
         return !active() ? "idle" : "kind=" + session.kind
@@ -368,7 +374,9 @@ public final class DailyLife {
         if (!valid()) { stop(); return; }
         var current = session;
         var other = current.leader == entity ? current.companion : current.leader;
-        if (other != null) entity.getLookControl().setLookAt(other, 30, 30);
+        // Once greeted, a side-pressing pair faces along its shared tangent; a look at the partner would turn the body back to it.
+        boolean pressing = current.greeted && current.greetHold == 0 && sidePress(current);
+        if (other != null && !pressing) entity.getLookControl().setLookAt(other, 30, 30);
         if (current.kind == Kind.NUZZLE && other != null) {
             if (current.greetHold > 0) {
                 SurfaceApproach.halt(entity);
@@ -384,7 +392,7 @@ public final class DailyLife {
             double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .10;
             // A nuzzle leans over one block of height (a friend on the bank, a hollow below it), and the lean itself reaches that much further.
             double lift = Math.abs(entity.getY() - other.getY());
-            boolean sidePress = current.companion instanceof YukkuriEntity && lift <= .35;
+            boolean sidePress = sidePress(current);
             Vec3 sideStand = sidePress ? SurfaceApproach.floor(current.leader,
                     SideContact.beside(current.leader, (YukkuriEntity)current.companion, current.facing, false)) : null;
             boolean touching = sidePress ? sideStand != null && current.leader.position().subtract(sideStand).horizontalDistance() <= SurfaceApproach.ARRIVAL
@@ -434,13 +442,15 @@ public final class DailyLife {
         else entity.getNavigation().stop();
         if (other != null && current.kind == Kind.NUZZLE) {
             // Both peer bodies face along the contact tangent; mirrored clips press their touching sides.
-            float yaw = current.companion instanceof YukkuriEntity && Math.abs(entity.getY() - other.getY()) <= .35
-                    ? current.facing
+            float yaw = sidePress(current) ? current.facing
                     : (float)Math.toDegrees(Math.atan2(other.getZ()-entity.getZ(),other.getX()-entity.getX())) - 90;
             Motor.face(entity, yaw);
         }
         if (current.leader != entity) return;
         current.elapsed++;
+        // The press begins once both bodies have turned side by side.
+        if (current.contact == 0 && sidePress(current) && !(sideBySide(current.leader, current.facing)
+                && sideBySide((YukkuriEntity)current.companion, current.facing))) return;
         current.contact++;
         if (current.contact == 1) {
             entity.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
@@ -448,8 +458,7 @@ public final class DailyLife {
         if (current.kind == Kind.SING && current.contact % 20 == 1)
             level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
         int duration = current.kind == Kind.NUZZLE ? 60
-                + (current.companion instanceof YukkuriEntity && Math.abs(entity.getY() - other.getY()) <= .35
-                    ? ClipMarkers.of("snuggle_right").length() : 0)
+                + (sidePress(current) ? ClipMarkers.of("snuggle_right").length() : 0)
                 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);
