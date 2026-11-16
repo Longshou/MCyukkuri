@@ -316,12 +316,17 @@ def state(action, t, c, height):
         # swell_keys: a uniform enlargement on top (puku).
         g = keyed(t, c['swell_keys']) if 'swell_keys' in c else 1.
         w = h**-.5; s = [w*g, h*g, w*g]
-        # hops: [start, take-off, land, end, height ratio] crouch-spring-land hops on top (a bounding run).
-        for a, takeoff, land, end, ratio in c.get('hops', []):
-            hs, hl, _ = hop(t, a, takeoff, land, end, height*ratio)
+        # hops: [start, take-off, land, end, height ratio[, crouch]] crouch-spring-land hops on top (a bounding run or reflex pop).
+        for a, takeoff, land, end, ratio, *crouch in c.get('hops', []):
+            hs, hl, _ = hop(t, a, takeoff, land, end, height*ratio, *crouch)
             s = times(s, hs); lift += hl
+        if 'snap' in c:
+            a, b, depth = c['snap']
+            if a <= t <= b:
+                q = bump((t-a)/(b-a)); s = times(s, [1-.4*depth*q, 1-.2*depth*q, 1+depth*q])
         r = [keyed(t, c[k]) if k in c else 0. for k in ('pitch_keys', 'yaw_keys', 'roll_keys')]
         if 'reach_keys' in c: shift[1] = -keyed(t, c['reach_keys'])*height
+        if 'sway_keys' in c: shift[0] = keyed(t, c['sway_keys'])*height
     elif action == 'aquatic_hat_care':
         shake = (1-smooth(t/.9))*math.sin(2*math.pi*t/.22)
         tidy = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))

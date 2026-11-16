@@ -190,7 +190,11 @@ public enum YukkuriAction {
     SUKKIRI_AFTER_DAZED("sukkiri_after_dazed", 6, false),
     SUKKIRI_AFTER_TENDER("sukkiri_after_tender", 6, false),
     SUKKIRI_AFTER_PROUD("sukkiri_after_proud", 6, false),
-    SUKKIRI_AFTER_MANIC("sukkiri_after_manic", 6, false);
+    SUKKIRI_AFTER_MANIC("sukkiri_after_manic", 6, false),
+    // Museum comparison trial (lore recipe): three authored sneeze variants shown side by side; no behaviour calls them.
+    SNEEZE_A("sneeze_a", 1.6, false),
+    SNEEZE_B("sneeze_b", 1.68, false),
+    SNEEZE_C("sneeze_c", 1.64, false);
 
     private final String id;
     private final double duration;

@@ -3,7 +3,7 @@
   "runtime_revision": "life-weather-20261107-v38",
   "export_families": {
     "weather": {"clips": ["rain_huddle_right", "rain_huddle_left", "thunder_cower", "sunbathe"], "braid_follow": true, "side_profile": true},
-    "life": {"clips": ["call_child", "wake", "meal_content", "puku_teary"], "braid_follow": true},
+    "life": {"clips": ["call_child", "wake", "meal_content", "puku_teary", "sneeze_a", "sneeze_b", "sneeze_c"], "braid_follow": true},
     "comfort": {"clips": ["comfort_lick"], "braid_follow": true},
     "brim-carry": {"clips": ["braid_brim_lift", "braid_brim_lower"]},
     "carry": {"clips": ["boat_carry_young", "boat_be_carried", "boat_prepare_carry", "boat_release_carry", "mouth_release"]},
@@ -7582,6 +7582,270 @@
       "faces": [[0, 63.0, "sukkiri_manic"]],
       "lore": "Project design (user 2026-11-13: the raper moved by sliding with no motion): Alice bounds after her target, a crouch-spring-land hop every 0.7 s (16% of her height), leaning 4 degrees into the run and throwing her face side to side with each hop, manic grin. Travel belongs to the navigation; the clip only carries the body.",
       "triggers": ["agitation ALICE_APPROACH while moving (wiring package)"]
+    },
+    "sneeze_a": {
+      "label": "打喷嚏",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [
+        [0, 1],
+        [0.16, 1.06],
+        [0.24, 1.03],
+        [0.42, 1.115],
+        [0.52, 1.08],
+        [0.68, 1.16],
+        [0.76, 1.175],
+        [0.84, 0.95],
+        [0.92, 0.99],
+        [0.96, 0.96],
+        [1.04, 1],
+        [1.1, 1.02],
+        [1.24, 1],
+        [1.6, 1]
+      ],
+      "hops": [
+        [0.76, 0.76, 0.92, 1.02, 0.22, 0]
+      ],
+      "reach_keys": [
+        [0, 0],
+        [0.16, -0.02],
+        [0.24, -0.012],
+        [0.42, -0.042],
+        [0.52, -0.03],
+        [0.68, -0.062],
+        [0.76, -0.07],
+        [0.84, 0.15],
+        [0.92, -0.015],
+        [0.96, -0.055],
+        [1.16, 0.01],
+        [1.36, 0],
+        [1.6, 0]
+      ],
+      "pitch_keys": [
+        [0, 0],
+        [0.16, 3.0],
+        [0.24, 1.8],
+        [0.42, 5.6],
+        [0.52, 4.2],
+        [0.68, 8.4],
+        [0.76, 9.2],
+        [0.84, -10.8],
+        [0.92, -1.0],
+        [0.96, 4.5],
+        [1.12, -1.5],
+        [1.32, 0],
+        [1.6, 0]
+      ],
+      "yaw_keys": [
+        [0, 0],
+        [0.16, 2.5],
+        [0.24, -1.5],
+        [0.42, -2.5],
+        [0.52, 1.0],
+        [0.68, 0],
+        [0.96, 0],
+        [1.1, 15],
+        [1.22, -12],
+        [1.32, 5.5],
+        [1.42, 0],
+        [1.6, 0]
+      ],
+      "roll_keys": [
+        [0, 0],
+        [0.16, 1.0],
+        [0.24, -0.6],
+        [0.42, -1.2],
+        [0.52, 0.5],
+        [0.68, 0.8],
+        [0.76, 0],
+        [0.84, 0.8],
+        [0.96, -0.8],
+        [1.1, -1.8],
+        [1.22, 1.5],
+        [1.32, -0.8],
+        [1.42, 0],
+        [1.6, 0]
+      ],
+      "quiver": [0.56, 0.76, 0.009, 12],
+      "display": {
+        "sideburn": {
+          "forward_keys": [[0, 0], [0.76, -6], [0.84, 18], [0.96, -5], [1.12, 2], [1.36, 0], [1.6, 0]],
+          "out_keys": [[0, 0], [0.76, 6], [0.84, 22], [0.96, 5], [1.36, 0], [1.6, 0]],
+          "wags": [[1.02, 1.38, 6, 5]]
+        }
+      },
+      "faces": [
+        [0, 0.08, "neutral"],
+        [0.08, 0.26, "confused"],
+        [0.26, 0.52, "chewing"],
+        [0.52, 0.7, "landing"],
+        [0.7, 0.8, "squeezed_cry"],
+        [0.8, 0.9, "impact"],
+        [0.9, 1.08, "landing"],
+        [1.08, 1.2, "pursed"],
+        [1.2, 1.28, "landing"],
+        [1.28, 1.38, "pursed"],
+        [1.38, 61.6, "neutral"]
+      ],
+      "lore": "A sneeze in three beats: nose tickle and three escalating inhale hitches with an upward volume-keeping stretch and slight backward lean (no emotional squash), a sharp forward snap with a small hop and landing recoil, then two quick blinks and a small head shake settling cleanly to neutral rest. Composed root tilt stays within 10.9 degrees.",
+      "triggers": ["sneeze"]
+    },
+    "sneeze_b": {
+      "label": "打喷嚏",
+      "duration": 1.68,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.16, 1.04], [0.28, 1.025], [0.44, 1.08], [0.56, 1.055], [0.72, 1.12], [0.80, 1.13], [0.88, 0.96], [0.96, 1], [1.68, 1]],
+      "swell_keys": [[0, 1], [0.56, 1], [0.76, 1.02], [0.80, 1.02], [0.88, 1], [1.68, 1]],
+      "quiver": [0.58, 0.80, 0.008, 12],
+      "hops": [[0.80, 0.80, 0.96, 1.12, 0.19, 0]],
+      "snap": [0.80, 0.96, 0.085],
+      "reach_keys": [[0, 0], [0.16, -0.025], [0.28, -0.018], [0.44, -0.05], [0.56, -0.04], [0.76, -0.08], [0.80, -0.08], [0.88, 0.16], [0.96, -0.04], [1.04, -0.085], [1.22, 0], [1.68, 0]],
+      "sway_keys": [[0, 0], [1.08, 0], [1.16, 0.018], [1.26, -0.015], [1.36, 0.009], [1.48, 0], [1.68, 0]],
+      "pitch_keys": [[0, 0], [0.16, 3.2], [0.28, 2.2], [0.44, 6.2], [0.56, 4.8], [0.76, 9.2], [0.80, 9.5], [0.88, -11.2], [0.96, 2.0], [1.04, 5.5], [1.16, -1.5], [1.36, 0], [1.68, 0]],
+      "yaw_keys": [[0, 0], [0.16, 2.5], [0.44, -3], [0.72, 0], [1.08, 0], [1.16, 14], [1.26, -12], [1.36, 7], [1.44, -3], [1.52, 0], [1.68, 0]],
+      "roll_keys": [[0, 0], [0.16, 1.2], [0.44, -1.5], [0.72, 0], [1.08, 0], [1.16, 2.2], [1.26, -2], [1.36, 1], [1.48, 0], [1.68, 0]],
+      "display": {
+        "sideburn": {
+          "forward_keys": [[0, 0], [0.44, -2], [0.80, -4], [0.88, 7], [1.04, -3], [1.20, 0], [1.68, 0]],
+          "out_keys": [[0, 0], [0.16, 2], [0.44, 4], [0.80, 6], [0.88, 8.5], [1.04, 3], [1.48, 0], [1.68, 0]],
+          "wags": [[1.08, 1.44, 3.5, 7]]
+        }
+      },
+      "faces": [[0, 0.06, "neutral"], [0.06, 0.22, "confused_small"], [0.22, 0.34, "landing"], [0.34, 0.50, "squeezed_cry"], [0.50, 0.58, "landing"], [0.58, 0.80, "squeezed_cry"], [0.80, 0.94, "impact"], [0.94, 1.08, "landing"], [1.08, 1.20, "confused_small"], [1.20, 1.30, "landing"], [1.30, 1.40, "pursed"], [1.40, 1.48, "landing"], [1.48, 61.68, "neutral"]],
+      "lore": "Everyday sneeze: nose tickles and the body stretches up and leans slightly back through three escalating inhale hitches with scrunched face, snaps sharply forward with a tiny reflex hop and lands into a backward recoil with a brief physical landing cushion, then blinks, gives a small shake and settles cleanly to neutral rest. Whole-body tilt stays within 11.2 degrees.",
+      "triggers": ["sneeze"]
+    },
+    "sneeze_c": {
+      "label": "打喷嚏",
+      "duration": 1.64,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [
+        [0, 1],
+        [0.18, 1.07],
+        [0.26, 1.03],
+        [0.44, 1.14],
+        [0.52, 1.085],
+        [0.70, 1.20],
+        [0.78, 1.21],
+        [0.84, 1.02],
+        [0.92, 1],
+        [1.04, 1],
+        [1.12, 1.025],
+        [1.40, 1],
+        [1.64, 1]
+      ],
+      "hops": [
+        [0.78, 0.78, 0.92, 1.04, 0.20, 0]
+      ],
+      "quiver": [0.56, 0.78, 0.012, 11],
+      "reach_keys": [
+        [0, 0],
+        [0.18, -0.02],
+        [0.26, -0.01],
+        [0.44, -0.045],
+        [0.52, -0.03],
+        [0.70, -0.07],
+        [0.78, -0.075],
+        [0.84, 0.15],
+        [0.94, -0.08],
+        [1.08, 0],
+        [1.64, 0]
+      ],
+      "pitch_keys": [
+        [0, 0],
+        [0.18, 3.2],
+        [0.26, 1.8],
+        [0.44, 6.0],
+        [0.52, 4.2],
+        [0.70, 8.6],
+        [0.78, 9.2],
+        [0.84, -10.5],
+        [0.94, 5.5],
+        [1.06, -1.2],
+        [1.18, 0.5],
+        [1.34, 0],
+        [1.64, 0]
+      ],
+      "yaw_keys": [
+        [0, 0],
+        [0.18, 2.5],
+        [0.26, 1.0],
+        [0.44, -3.5],
+        [0.52, -1.2],
+        [0.70, 0],
+        [1.08, 0],
+        [1.17, 16],
+        [1.27, -14],
+        [1.36, 7],
+        [1.43, -2.5],
+        [1.48, 0],
+        [1.64, 0]
+      ],
+      "roll_keys": [
+        [0, 0],
+        [0.18, 1.2],
+        [0.26, 0.4],
+        [0.44, -1.5],
+        [0.52, -0.5],
+        [0.70, 0.8],
+        [0.78, 0],
+        [0.84, 1.5],
+        [0.94, -1.5],
+        [1.08, 0],
+        [1.17, 2.0],
+        [1.27, -1.8],
+        [1.36, 1.0],
+        [1.46, 0],
+        [1.64, 0]
+      ],
+      "display": {
+        "sideburn": {
+          "out_keys": [
+            [0, 0],
+            [0.18, 2],
+            [0.44, 4],
+            [0.78, 6],
+            [0.84, 11],
+            [0.94, 5],
+            [1.12, 3],
+            [1.44, 0],
+            [1.64, 0]
+          ],
+          "forward_keys": [
+            [0, 0],
+            [0.78, -4],
+            [0.84, 10],
+            [0.94, -6],
+            [1.08, 0],
+            [1.64, 0]
+          ],
+          "wags": [
+            [0.56, 0.78, 2.5, 10],
+            [1.10, 1.42, 4, 6]
+          ]
+        }
+      },
+      "markers": {
+        "sneeze": 0.8,
+        "settled": 1.48
+      },
+      "faces": [
+        [0, 0.08, "neutral"],
+        [0.08, 0.28, "confused"],
+        [0.28, 0.50, "chewing"],
+        [0.50, 0.88, "squeezed_cry"],
+        [0.88, 1.04, "landing"],
+        [1.04, 1.14, "pursed"],
+        [1.14, 1.24, "old_dead"],
+        [1.24, 1.36, "pursed"],
+        [1.36, 1.44, "old_dead"],
+        [1.44, 61.64, "neutral"]
+      ],
+      "lore": "Everyday sneeze (project design): nose tickles, the body stretches upward and leans slightly back across three escalating inhale hitches while the face scrunches (eyes squeezed, mouth half open); at 0.78 s it snaps sharply forward with a tiny hop and recoils onto a brief physical landing squash, then blinks twice with a small head-clearing yaw shake before settling cleanly back to neutral rest. Composed pitch+roll stays within 10.7 degrees.",
+      "triggers": []
     }
   },
   "flourishes": {
@@ -7685,7 +7949,10 @@
     "farewell",
     "snuggle_right",
     "snuggle_left",
-    "shelter_dig"
+    "shelter_dig",
+    "sneeze_a",
+    "sneeze_b",
+    "sneeze_c"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",
