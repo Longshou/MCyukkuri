@@ -92,7 +92,8 @@ public final class DailyLife {
     public int observedGreetingWait() { return active() ? session.greetHold : 0; }
     /** The actual shared side-press beat, before the existing rub. Players retain the face-to-face nuzzle. */
     public String contactClip() {
-        if (!inContact() || !sidePress(session) || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
+        if (!inContact() || !sidePress(session) || !sideBySide(session)
+                || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
         return session.leader == entity ? "snuggle_right" : "snuggle_left";
     }
     /** Two peers on about one level press side by side; a player, or a peer a step up or down, is nuzzled face to face. */
@@ -102,6 +103,9 @@ public final class DailyLife {
     }
     private static boolean sideBySide(YukkuriEntity body, float facing) {
         return Math.abs(Mth.wrapDegrees(facing - body.yBodyRot)) <= Face.FACE_ARRIVED;
+    }
+    private static boolean sideBySide(Session session) {
+        return sideBySide(session.leader, session.facing) && sideBySide((YukkuriEntity)session.companion, session.facing);
     }
     public String detail() {
         return !active() ? "idle" : "kind=" + session.kind
@@ -448,9 +452,11 @@ public final class DailyLife {
         }
         if (current.leader != entity) return;
         current.elapsed++;
-        // The press begins once both bodies have turned side by side.
-        if (current.contact == 0 && sidePress(current) && !(sideBySide(current.leader, current.facing)
-                && sideBySide((YukkuriEntity)current.companion, current.facing))) return;
+        // A peer that comes back down to this level must turn again before the side press resumes.
+        if (sidePress(current) && !sideBySide(current)) {
+            current.contact = 0;
+            return;
+        }
         current.contact++;
         if (current.contact == 1) {
             entity.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
