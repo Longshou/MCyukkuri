@@ -307,6 +307,33 @@ def strip(args, stage):
     return body
 
 
+def faces(args, stage):
+    """Before/after runtime faces for the same beat, on each listed form and again at play-distance size."""
+    rows = []
+    for pair in args.pair:
+        fields = [field.strip() for field in pair.split('|')]
+        if len(fields) not in (4, 5):
+            raise ValueError(f'--pair is "label|clip|before face|after face[|time]": {pair}')
+        rows.append((*fields[:4], timed(fields[4]) if len(fields) == 5 else .5))
+    rendered, body = {}, ''
+    for number, (label, clip, old, new, at) in enumerate(rows, 1):
+        images, labels = [], []
+        for model in args.model:
+            for face, side in ((old, '原'), (new, '现')):
+                key = (model, clip, face, at)
+                if key not in rendered:
+                    rendered[key] = render_strip(argparse.Namespace(model=model, prop=None, clip=clip, face=face, partner=None,
+                                                 before=None, size=args.size, view=args.view, node=args.node), stage, [at])[0]
+                images.append(rendered[key])
+                labels.append(f'{model} {side} {face}')
+        name = f'pair-{number}.png'
+        sheet(images, labels, stage/name, 2*len(args.model), tuple(args.size))
+        far = [image.resize((args.size[0]//3, args.size[1]//3), Image.Resampling.BILINEAR) for image in images]
+        sheet(far, ['']*len(far), stage/('far-'+name), 2*len(args.model), (args.size[0]//3, args.size[1]//3))
+        body += f'<h2>{E(label)}</h2><p>{E(clip)} @ {at:g}s：{E(old)} → {E(new)}</p>' + media(name) + media('far-'+name, '游玩距离大小')
+    return '<p>同一片段同一时刻的运行表情：原 / 现；离线渲染，行为由试玩确认。</p>' + body
+
+
 def capture_rows(directory, bounds):
     rows = read(directory/'frames.json')
     if not rows:
@@ -690,6 +717,15 @@ def parser():
         if action == 'add':
             for key in ('title', 'url', 'decision'):
                 p.add_argument('--'+key, required=True)
+    fp = commands.add_parser('faces', help='before/after runtime faces per beat on several forms')
+    fp.add_argument('topic', type=valid_topic)
+    fp.add_argument('--pair', action='append', required=True, metavar='LABEL|CLIP|BEFORE|AFTER[|TIME]')
+    fp.add_argument('--model', nargs='+', default=['reimu', 'marisa', 'remilia'])
+    fp.add_argument('--size', type=int, nargs=2, default=[240, 210])
+    fp.add_argument('--view', type=float, nargs=2, default=[20, 8], metavar=('AZ', 'EL'))
+    fp.add_argument('--node', default='node')
+    fp.add_argument('--title')
+    fp.add_argument('--decision')
     commands.add_parser('hub', help='register existing topic pages/media without rerendering')
     mp = commands.add_parser('moment',help='render a presentation data row and its blocked-above emote pass')
     mp.add_argument('topic',type=valid_topic)
