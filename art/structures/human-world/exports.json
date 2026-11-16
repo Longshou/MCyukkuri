@@ -67,7 +67,7 @@
     "scripts/furniture_placement.py": "e5f3f69a0dc0549ce67b59db4fc66d9aeeb6d57489a92666c41572fff6adbccf",
     "src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java": "3f547f8211e0cb53559cc15bad0b6b7f6adb3a5f79a4352295c5f9ca09f8c5c3",
     "src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java": "e0ac3eefe7e240f4e0623c54b413664f9807614d4a1d2ff4715a572897ebfc35",
-    "src/main/java/io/github/longshou/mcyukkuri/client/ProduceCrateRenderer.java": "78da9857b383445b9345815ba852686ec90443231ed929ae7e45bcb653357e5e",
+    "src/main/java/io/github/longshou/mcyukkuri/client/ProduceCrateRenderer.java": "2835bfc6a85bbc73f3834498cd8c44d2cce10e5f2423f95bc9ba7869be3f6bb3",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamHideBoxBlock.java": "02e9f81a891650134db2f4dc7138977f5b6eaee5069d779cca9b7f4249abe7a6",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamMarkBlock.java": "7870b295a4c4b6a598e2b2bb03dafccb688ffd257c5912be603f02e076b1a254",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamPodiumBlock.java": "d9951d62b789c643579137667650f96ce2e653a1b8dcd341b599ef94d1278179",
