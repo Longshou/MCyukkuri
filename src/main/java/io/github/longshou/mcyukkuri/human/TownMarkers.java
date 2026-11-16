@@ -92,14 +92,26 @@ public final class TownMarkers {
         return marker.blockPosition().offset(offset.rotate(rotation));
     }
 
+    static boolean yardContains(ServerLevel level, BlockPos bowl, BlockPos site) {
+        return !level.getEntitiesOfClass(Marker.class, new AABB(bowl).inflate(HOME_TO_START, 4, HOME_TO_START), marker -> {
+            if (!marker.getTags().contains(SPAWNED)) return false;
+            var bounds = yardBounds(marker);
+            return bounds.contains(bowl.getCenter()) && bounds.contains(site.getCenter());
+        }).isEmpty();
+    }
+
+    private static AABB yardBounds(Marker marker) {
+        var data = data(marker);
+        return AABB.encapsulatingFullBlocks(offset(marker, data, "Low"), offset(marker, data, "High"));
+    }
+
     /** Scan once for the proposed carton sites; each zone anchor is within one chunk of its bounds. */
     public static List<AABB> cartonExclusions(ServerLevel level, BlockPos origin, int radius) {
         var area = new AABB(origin).inflate(radius + 16, 8, radius + 16);
         return level.getEntitiesOfClass(Marker.class, area,
                 m -> m.getTags().contains(NO_CARTON) || m.getTags().contains(HIDDEN_CORNER)).stream().map(marker -> {
             if (marker.getTags().contains(HIDDEN_CORNER)) return new AABB(marker.blockPosition());
-            var data = data(marker);
-            return AABB.encapsulatingFullBlocks(offset(marker, data, "Low"), offset(marker, data, "High"));
+            return yardBounds(marker);
         }).toList();
     }
 }

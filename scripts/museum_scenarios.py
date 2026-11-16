@@ -2000,6 +2000,73 @@ add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让
            extra='Health:2.8f', **pair_ready()),
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
+_yard_x, _yard_z = BY_ID['town'].anchor
+
+
+def _yard_pos(dx, dz):
+    return ((((_yard_x + dx) & 0x3ffffff) << 38 | ((_yard_z + dz) & 0x3ffffff) << 12 | FEET)
+            - (1 << 64))
+
+
+def _yard_ground(open_gate):
+    return [
+        box(-19, -1, -3, 9, -1, 4, 'minecraft:stone_bricks'),
+        box(0, 0, -3, 8, 0, -3, 'minecraft:oak_fence[east=true,west=true]'),
+        box(0, 0, 3, 8, 0, 3, 'minecraft:oak_fence[east=true,west=true]'),
+        box(8, 0, -2, 8, 0, 2, 'minecraft:oak_fence[north=true,south=true]'),
+        box(0, 0, -2, 0, 0, -1, 'minecraft:oak_fence[north=true,south=true]'),
+        box(0, 0, 1, 0, 0, 2, 'minecraft:oak_fence[north=true,south=true]'),
+        block(0, 0, 0, f'minecraft:oak_fence_gate[facing=east,open={str(open_gate).lower()}]'),
+        box(3, 3, -2, 7, 3, 2, 'minecraft:oak_planks'),
+        block(5, 0, 2, 'mcyukkuri:food_bowl'),
+    ]
+
+
+_yard_bond_owner = uid('yard_owner_return', 'keeper')
+_yard_scold_owner = uid('yard_stray_scold', 'keeper')
+_yard_pet_pick = '@e[type=#mcylab:yukkuri,distance=..14,sort=nearest,limit=1]'
+_yard_bounds = 'data:{Low:[-2,-1,-2],High:[4,3,2]}'
+add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎接', '宠物院子：主人归来，宠物上前迎接',
+    '院宠留在院内，主人在街另一端。约半分钟后主人步行回院，看宠物转身迎上，在主人身边欢跳和蹭蹭。',
+    '约 40 秒', [
+        *_yard_ground(False),
+        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(7, 0, 2, 'mcyukkuri:yukkuri_toilet'),
+        human('caretaker_brother', -16, 0, 'yard_keeper', 0, yaw=-90, label='院子主人')[:-1]
+        + f',UUID:{uuid_nbt(_yard_bond_owner)},HumanHome:{_yard_pos(6, 0)}L,NoAI:1b}}',
+        f'tag {sel("yard_keeper")} add mcy_yard_owner',
+        'summon minecraft:marker ~3.5 ~ ~0.5 {Tags:["scn","mcy_no_carton"],' + _yard_bounds + '}',
+        'summon minecraft:marker ~3.5 ~ ~0.5 {Tags:["scn","mcy_yard_pet"],data:{Owner:[3,0,0],Bowl:[2,0,2]}}',
+    ], late=[
+        f'tag {_yard_pet_pick} add scn_yard_pet',
+        f'tag {sel("yard_pet")} add scn',
+        f'tag {sel("yard_pet")} add scn_lead',
+        f'yukkuri status set {sel("yard_pet")} personality.attachment 95',
+        f'data merge entity {sel("yard_pet")} {{YukkuriDailyLife:{{Affection:95,Boredom:0}}}}',
+        Retry(block(0, 0, 0, 'minecraft:oak_fence_gate[facing=east,open=true]'), sel('yard_keeper'), tries=1, first=680),
+        Retry(f'data merge entity {sel("yard_keeper")} {{NoAI:0b,StreetHomePause:-1200}}',
+              sel('yard_keeper'), tries=1, first=680),
+    ], env=DAY, vantage=(-4, 8, -155, 16),
+    reads=[('读院宠状态', f'yukkuri status {sel("yard_pet")} raw'),
+           ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience')])
+
+add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
+    '魔理沙从院外草窝走进开着门的院子，认领空着的软窝并宣言。看主人走近挥手喝斥，魔理沙退出院子。',
+    '约 30 秒', [
+        *_yard_ground(True),
+        block(-5, 0, -1, 'mcyukkuri:straw_nest[facing=south]'),
+        'summon minecraft:marker ~3.5 ~ ~0.5 {Tags:["scn","mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        human('caretaker_sister', 6, 0, 'yard_witness', 0, yaw=90, label='院子主人')[:-1]
+        + f',UUID:{uuid_nbt(_yard_scold_owner)},HumanHome:{_yard_pos(6, 0)}L,YardBowl:{_yard_pos(5, 2)}L}}',
+        street_trial('yard_stray_scold', 'marisa', -5, 0, 'yard_stray', boldness=100, friendliness=0,
+                     self_control=0, yaw=-90, lead=True),
+    ], late=[
+        f'yukkuri scenario home {sel("yard_stray")} ~-5 ~ ~-1',
+        block(3, 0, 0, 'mcyukkuri:yukkuri_nest[facing=west]'),
+    ], env=DAY, vantage=(-4, 8, -155, 16),
+    reads=[('读住所宣言与驱离', 'yukkuri homeclaim status'),
+           ('读流浪魔理沙状态', f'yukkuri status {sel("yard_stray")} raw')])
+
 add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', '田边：吃一口作物，居民看见后警告',
     '灵梦在田边，正对成熟胡萝卜。居民看得见它，旁边还有一棵苗。看成熟作物退一阶、灵梦吃完、居民当面警告。', '约半分钟', [
         box(-3, -1, -3, 5, -1, 3, 'minecraft:polished_andesite'),
@@ -4744,6 +4811,7 @@ TOPICS = {
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -5555,6 +5623,21 @@ _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=(?:1\.\d+|[2-9]\d*(?:\.\d+)?) gap=(?:0\.[2-9]\d*|[1-9]\d*(?:\.\d+)?)\b',
 ])
+_smoke('yard_owner_return', 1250, [
+    r'\[pet\][^\n]* yard bond established owner=[^ ]+ closeness=24 bowl=1 toilet=1 bedtime=1',
+    r'\[pet\][^\n]* owner return approach owner=[^ ]+ clip=joy_jump distance=(?:[2-9]|1[0-2])\.',
+    r'\[pet\][^\n]* owner return greeted owner=[^ ]+ clip=joy_jump',
+    r'\[pet\][^\n]* owner return nuzzle owner=',
+], readout=[f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience',
+            f'data get entity {sel("yard_keeper")} CareFood', 'data get block ~5 ~ ~2 Items'])
+_smoke('yard_stray_scold', 1000, [
+    r'\[home-claim\][^\n]* occupation chosen [^\n]*kind=bed',
+    r'\[home-claim\][^\n]* declared site=[^\n]*spoken=true',
+    r'\[npc-care\][^\n]* action=yard_scold_approach target=[^ ]+ distance=(?:[2-9]|1[0-2])\.',
+    r'\[npc-care\][^\n]* action=yard_scold target=',
+    r'\[home-claim\][^\n]* HOLD -> RETREAT',
+    r'\[home-claim\][^\n]* ended[^\n]*driven_off',
+], readout=['yukkuri homeclaim status', f'data get entity {sel("yard_stray")} Pos', 'data get block ~5 ~ ~2 Items'])
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],

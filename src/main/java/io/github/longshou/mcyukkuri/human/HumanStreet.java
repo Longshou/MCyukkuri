@@ -498,6 +498,13 @@ final class HumanStreet {
     long frownAfter() { return nextPlayerFrown; }
     void frown(long until) { nextPlayerFrown = until; }
 
+    void scoldSquatter(YukkuriEntity squatter) {
+        npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+        cue(npc, squatter, "warning");
+        GameplayLog.event(npc, "npc-care", "action=yard_scold target={} distance={}",
+                squatter.getUUID(), npc.distanceTo(squatter));
+    }
+
     private static void cue(HumanNpc actor, Entity recipient, String line) {
         actor.getLookControl().setLookAt(recipient, 30, 30);
         actor.swing(InteractionHand.MAIN_HAND);

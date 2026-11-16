@@ -121,6 +121,13 @@ public final class PetLessons {
                 "skill practice skill={} source={} xp={} -> {} level={} -> {}", skill, source, before, xp(skill), tier, level(skill));
     }
 
+    void startYardHabits() {
+        int basic = PetSkill.xpForLevel(1);
+        experience[PetSkill.FOOD_BOWL.ordinal()] = basic;
+        experience[PetSkill.TOILET.ordinal()] = basic;
+        experience[PetSkill.BEDTIME.ordinal()] = basic;
+    }
+
     void separated() { wildDays = 0; }
     void reunited() { wildDays = -1; }
 

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -174,6 +175,7 @@ public final class HumanNpc extends PathfinderMob {
             @Override public boolean canContinueToUse() { return !avoidingStreet() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(1, new CourierGoal());
+        goalSelector.addGoal(2, new YardClaimGoal());
         goalSelector.addGoal(2, new YardBowlGoal());
         goalSelector.addGoal(2, new RoutineGoal());
         goalSelector.addGoal(3, walk().goal());
@@ -474,6 +476,60 @@ public final class HumanNpc extends PathfinderMob {
     public void closeShopDoor() { ShopDoors.leave(this); }
 
     /** The resident walks to its own bowl and uses the grain shown in its off hand. */
+    private final class YardClaimGoal extends Goal {
+        private static final double SIGHT = 12, CONTACT_SQ = 4;
+        private YukkuriEntity squatter;
+        private Path path;
+
+        private YardClaimGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+
+        private boolean watchingYard() {
+            return yardBowl != null && attitude() == Attitude.CARING && streetActive() && !walking();
+        }
+
+        private boolean inOurYard(YukkuriEntity y) {
+            if (!y.isAlive() || y.isPassenger() || y.isLeashed()) return false;
+            var site = HomeClaim.occupiedNest(y);
+            return site != null && TownMarkers.yardContains((ServerLevel) level(), yardBowl, site);
+        }
+
+        private boolean reaches(YukkuriEntity y) {
+            return distanceToSqr(y) <= CONTACT_SQ && hasLineOfSight(y) && y.hasLineOfSight(HumanNpc.this);
+        }
+
+        @Override public boolean canUse() {
+            if (tickCount % 21 != 0 || !watchingYard()) return false;
+            squatter = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(SIGHT),
+                    y -> distanceToSqr(y) <= SIGHT * SIGHT && hasLineOfSight(y) && inOurYard(y))
+                    .stream().min(Comparator.comparingDouble(HumanNpc.this::distanceToSqr)).orElse(null);
+            if (squatter == null) return false;
+            if (reaches(squatter)) { path = null; return true; }
+            path = getNavigation().createPath(squatter, 0);
+            return path != null && path.canReach();
+        }
+
+        @Override public void start() {
+            if (path != null) getNavigation().moveTo(path, .85);
+            GameplayLog.event(HumanNpc.this, "npc-care", "action=yard_scold_approach target={} distance={}",
+                    squatter.getUUID(), distanceTo(squatter));
+        }
+
+        @Override public boolean canContinueToUse() {
+            return watchingYard() && inOurYard(squatter) && (reaches(squatter) || !getNavigation().isDone());
+        }
+
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+
+        @Override public void tick() {
+            if (reaches(squatter) && HomeClaim.driveOff(squatter, HumanNpc.this)) {
+                getNavigation().stop();
+                street.scoldSquatter(squatter);
+            }
+        }
+
+        @Override public void stop() { getNavigation().stop(); }
+    }
+
     private final class YardBowlGoal extends Goal {
         private Path path;
         private YardBowlGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

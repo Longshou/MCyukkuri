@@ -218,6 +218,8 @@
     "wild_beg_refuse": "TN-27",
     "wild_beg_snatch": "TN-28",
     "wild_beg_help": "TN-29",
+    "yard_owner_return": "TN-30",
+    "yard_stray_scold": "TN-31",
     "shop_care": "SP-06",
     "oni_street_scrap": "SP-07",
     "care_attitude": "MD-19",

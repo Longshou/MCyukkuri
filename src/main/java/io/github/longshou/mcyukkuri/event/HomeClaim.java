@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimData.Claim;
 import io.github.longshou.mcyukkuri.event.HomeClaimData.Stage;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -541,7 +542,7 @@ public final class HomeClaim {
         }
     }
 
-    // --- player responses -------------------------------------------------------------------------------------
+    // --- responses --------------------------------------------------------------------------------------------
     private static boolean responsive(Claim c) { return c!=null && c.active() && c.stage!=Stage.RETREAT; }
     private static Claim responsiveClaim(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level)) return null;
@@ -563,15 +564,31 @@ public final class HomeClaim {
         Claim c=responsiveClaim(e);
         return responsive(c) && driveOff((ServerLevel)e.level(),c,player,null);
     }
-    private static boolean driveOff(ServerLevel level, Claim c, Player player, YukkuriEntity hit) {
+    private static Claim nestOccupation(YukkuriEntity e) {
+        if (Custody.view(e).owner() != null) return null;
+        Claim claim = responsiveClaim(e);
+        return claim != null && claim.occupation && claim.stage == Stage.HOLD && claim.site.equals(e.life().home())
+                && e.level().getBlockState(claim.site.pos()).getBlock() instanceof PetNestBlock ? claim : null;
+    }
+    public static BlockPos occupiedNest(YukkuriEntity e) {
+        Claim claim = nestOccupation(e);
+        return claim == null ? null : claim.site.pos();
+    }
+    public static boolean driveOff(YukkuriEntity e, HumanNpc resident) {
+        Claim claim = nestOccupation(e);
+        return claim != null && driveOff((ServerLevel)e.level(), claim, resident, null);
+    }
+    private static boolean driveOff(ServerLevel level, Claim c, LivingEntity actor, YukkuriEntity hit) {
         cancelSettle(level,c);
-        var data=HomeClaimData.get(level); c.result="driven_off"; c.player=player.getUUID(); stage(level,c,Stage.RETREAT); data.setDirty();
-        double dx=c.site.pos().getX()+.5-player.getX(), dz=c.site.pos().getZ()+.5-player.getZ(), len=Math.sqrt(dx*dx+dz*dz);
+        var data=HomeClaimData.get(level); c.result="driven_off";
+        if (actor instanceof Player) c.player=actor.getUUID();
+        stage(level,c,Stage.RETREAT); data.setDirty();
+        double dx=c.site.pos().getX()+.5-actor.getX(), dz=c.site.pos().getZ()+.5-actor.getZ(), len=Math.sqrt(dx*dx+dz*dz);
         if (len<1e-3) { dx=1; dz=0; len=1; }
         c.retreat=GlobalPos.of(level.dimension(),c.site.pos().offset((int)Math.round(dx/len*20),0,(int)Math.round(dz/len*20)));
         for (UUID id:c.members) if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
             if(c.occupation&&c.site.equals(y.life().home()))y.life().releaseHome();
-            if (y!=hit) y.life().personality().confiscated(player.getUUID()); // The hit member already learned fear from the blow.
+            if (y!=hit) y.life().personality().confiscated(actor.getUUID()); // The hit member already learned fear from the blow.
             y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise","afraid",80);
         }
         return true;

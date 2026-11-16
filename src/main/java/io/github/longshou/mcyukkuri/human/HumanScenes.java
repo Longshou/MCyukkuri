@@ -152,6 +152,7 @@ public final class HumanScenes {
         if (pet == null) return null;
         if (!level.noCollision(pet) || !level.addFreshEntity(pet)) return null;
         Custody.assign(pet, npc, Custody.Role.COMPANION);
+        pet.pet().startYardBond(npc.getUUID());
         return pet;
     }
     private static YukkuriEntity createPet(ServerLevel level, YukkuriVariant variant, Vec3 at) {
