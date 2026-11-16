@@ -1,0 +1,9 @@
+{
+  "parent": "mcyukkuri:block/wooden_bench_east_end",
+  "textures": {
+    "particle": "mcyukkuri:block/village_wood_spruce_planks",
+    "planks": "mcyukkuri:block/village_wood_spruce_planks",
+    "side": "mcyukkuri:block/village_wood_spruce_side",
+    "post": "mcyukkuri:block/village_wood_spruce_post"
+  }
+}

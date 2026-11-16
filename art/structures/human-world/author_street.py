@@ -69,6 +69,14 @@ def garbage(b, x, y, z, facing, items, tipped=False):
     b.garbage.append(((x, y, z), facing, (x + dx, y, z + dz)))
 
 
+def produce_crate(b, x, y, z, facing, goods):
+    """An open market crate of the type's wood, its low side toward `facing`. goods: up to four (item, count <= 4) rows from the back
+    to the front; they are the crate's real contents and all that is drawn in it."""
+    assert len(goods) <= 4 and all(1 <= n <= 4 for _, n in goods), goods
+    nbt = {'id': string('mcyukkuri:produce_crate'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(goods)])}
+    b.block(x, y, z, 'mcyukkuri:produce_crate', {'facing': facing, 'wood': build.furniture_wood(b)}, nbt)
+
+
 def wind_gap(b, x, y, z, paper=True):
     """A low covered cell against a wall; a real paper lies in it as bedding (it never despawns; anyone may still take it)."""
     records(b).gaps.append((x, y, z))
@@ -201,7 +209,7 @@ def connect_bars(b):
 # ---------------------------------------------------------------------------------------------------------- street pieces
 def street_stall(p):
     """A market stall on the far side of the lane: striped awning on four posts over a booth with plank sides and a side door, a
-    produce counter, stores behind it. The two stall keepers live in the booth behind the counter. Old crates by the stall (a crate spot),
+    counter of produce crates, stores behind it. The two stall keepers live in the booth behind the counter. Old crates by the stall (a crate spot),
     the market bin (garbage point) and the dry crawl space under the produce shelf behind the stall (wind gap)."""
     W, H, D = 15, 8, 16
     b = Site(f'village/{p.style}/stall', [W, H, D], p)
@@ -218,13 +226,15 @@ def street_stall(p):
     # Booth sides: two-high plank panels between the posts, the keepers' door in the west one.
     for x in (3, 11): b.box((x, 1, 10), (x, 2, 12), p.planks())
     b.door(3, 1, 11, 'west', p.wood)
-    # Produce counter: boards with a slab top the goods sit on (a step and a half: nobody climbs over it); stores at the back.
+    # Produce counter: boards carrying open crates of real goods, low side to the lane (a step and a half: nobody climbs over it);
+    # a slab over the hay bale in the middle; stores at the back.
     for x in range(4, 11):
-        if x == 7: b.block(x, 1, 9, 'hay_block', LOG)
+        if x == 7: b.block(x, 1, 9, 'hay_block', LOG); slab(b, x, 2, 9, p.wood)
         else: b.block(x, 1, 9, p.planks())
-        slab(b, x, 2, 9, p.wood)
-    for x, item in [(4, 'carrot'), (5, 'potato'), (6, 'apple'), (8, 'beetroot'), (9, 'bread'), (10, 'pumpkin_pie')]:
-        ground_display(b, x, 2.5, 9, item, yaw=20. * x)
+    for x, goods in [(4, [('carrot', 4), ('carrot', 4), ('carrot', 3)]), (5, [('potato', 4), ('potato', 4), ('potato', 2)]),
+                     (6, [('apple', 4), ('apple', 3), ('apple', 3)]), (8, [('beetroot', 4), ('beetroot', 3)]),
+                     (9, [('bread', 3), ('bread', 3)]), (10, [('pumpkin_pie', 3), ('pumpkin_pie', 2)])]:
+        produce_crate(b, x, 2, 9, 'north', goods)
     for x, block in [(4, 'pumpkin'), (5, 'hay_block'), (9, 'melon'), (10, 'pumpkin')]:
         b.block(x, 1, 13, block, LOG if block == 'hay_block' else None)
     b.block(7, 3, 11, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})

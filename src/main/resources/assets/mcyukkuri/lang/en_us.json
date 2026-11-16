@@ -6811,5 +6811,7 @@
   "shop.mcyukkuri.membership.service.1": "Return to the sales floor for service.",
   "shop.mcyukkuri.membership.service.2": "Service refused for today.",
   "shop.mcyukkuri.membership.test": "Test tier: %s (%s emeralds spent)",
-  "shop.mcyukkuri.membership.test_missing": "No registered shop at this position."
+  "shop.mcyukkuri.membership.test_missing": "No registered shop at this position.",
+  "item.mcyukkuri.produce_crate": "Produce Crate",
+  "block.mcyukkuri.produce_crate": "Produce Crate"
 }

@@ -6753,5 +6753,7 @@
   "item.mcyukkuri.wooden_bench": "ベンチ",
   "block.mcyukkuri.wooden_bench": "ベンチ",
   "item.mcyukkuri.wooden_table": "木のテーブル",
-  "block.mcyukkuri.wooden_table": "木のテーブル"
+  "block.mcyukkuri.wooden_table": "木のテーブル",
+  "item.mcyukkuri.produce_crate": "野菜箱",
+  "block.mcyukkuri.produce_crate": "野菜箱"
 }

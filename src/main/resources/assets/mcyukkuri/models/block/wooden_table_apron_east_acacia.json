@@ -1,0 +1,9 @@
+{
+  "parent": "mcyukkuri:block/wooden_table_apron_east",
+  "textures": {
+    "particle": "mcyukkuri:block/village_wood_acacia_planks",
+    "planks": "mcyukkuri:block/village_wood_acacia_planks",
+    "side": "mcyukkuri:block/village_wood_acacia_side",
+    "post": "mcyukkuri:block/village_wood_acacia_post"
+  }
+}

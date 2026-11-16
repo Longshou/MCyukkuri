@@ -12,7 +12,9 @@ public final class WoodenTableBlock extends JoinedFurnitureBlock {
     public WoodenTableBlock(Properties properties) { super(properties); }
 
     @Override
-    protected boolean joins(BlockState self, Direction side, BlockState other) { return other.is(this); }
+    protected boolean joins(BlockState self, Direction side, BlockState other) {
+        return other.is(this) && other.getValue(VillageWood.WOOD) == self.getValue(VillageWood.WOOD);
+    }
 
     /** The top with its aprons (10..16/16), and a 2/16 leg in every corner whose two sides are open. */
     @Override

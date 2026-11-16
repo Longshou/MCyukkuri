@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from build import stairs, slab, furniture, light_up, flat_roof, gable_snow, ground, name_at, string, integer, compound, sequence
 from palette import PALETTES, STYLES, link, pick, leaves, mc
 from author_street import (Site, garbage, wind_gap, shelter_spot, lamp, jigsaw, street_ends, street_band, lot_ground, fence_row,
-                           ground_display)
+                           ground_display, produce_crate)
 from author_lots import no_carton
 
 LOG = {'axis': 'y'}
@@ -497,11 +497,10 @@ def side_street(p):
     posts(b, [(0, 8), (5, 8), (0, 17), (5, 17), (5, 12)], 1, 5)
     for x in range(0, 6): b.block(x, 5, 8, *p.state(p.beam, 'x'))
     roof(b, 0, 5, 8, 17, 6, 'z', overhang=0, steep=True)
-    # Hatch onto the sidewalk: boards and a slab counter, an opening above it, goods inside on the counter.
-    for x in range(1, 5):
-        b.block(x, 1, 8, p.planks()); slab(b, x, 2, 8, p.wood); b.box((x, 3, 8), (x, 4, 8), 'air')
+    # Hatch onto the sidewalk: a board counter carrying open crates of real goods, an opening above it.
+    for x in range(1, 5): b.block(x, 1, 8, p.planks()); b.box((x, 3, 8), (x, 4, 8), 'air')
     for x, item in [(1, 'minecraft:bread'), (2, 'mcyukkuri:sweet_candy'), (3, 'minecraft:apple'), (4, 'mcyukkuri:oil_grain_budget')]:
-        ground_display(b, x, 2.5, 8, item, yaw=25. * x, scale=.5)
+        produce_crate(b, x, 2, 8, 'north', [(item, 3), (item, 2)])
     # Blue/white awning over the hatch and along the lane side; the newspaper stack and a loose sheet on the sidewalk.
     for x in range(0, 6):
         wool = 'blue_wool' if x % 2 == 0 else 'white_wool'

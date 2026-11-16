@@ -30,20 +30,21 @@ public abstract class JoinedFurnitureBlock extends Block {
         super(properties);
         var state = stateDefinition.any();
         for (var side : SIDES.values()) state = state.setValue(side, false);
-        registerDefaultState(state);
+        registerDefaultState(state.setValue(VillageWood.WOOD, VillageWood.OAK));
         shapes = getShapeForEachState(this::shapeOf);
     }
 
-    /** Whether this piece joins {@code other}, the state next to it on {@code side}. */
+    /** Whether this piece joins {@code other}, the state next to it on {@code side}; pieces of different woods never join. */
     protected abstract boolean joins(BlockState self, Direction side, BlockState other);
 
     protected abstract VoxelShape shapeOf(BlockState state);
 
     protected BlockState placed(BlockPlaceContext context) { return defaultBlockState(); }
 
+    /** A piece set down beside others of its kind takes their wood and joins them. */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        var state = placed(context);
+        var state = placed(context).setValue(VillageWood.WOOD, VillageWood.beside(context.getLevel(), context.getClickedPos(), this));
         for (var side : SIDES.entrySet())
             state = state.setValue(side.getValue(), joins(state, side.getKey(),
                     context.getLevel().getBlockState(context.getClickedPos().relative(side.getKey()))));
@@ -75,5 +76,6 @@ public abstract class JoinedFurnitureBlock extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(SIDES.values().toArray(BooleanProperty[]::new));
+        builder.add(VillageWood.WOOD);
     }
 }

@@ -6809,5 +6809,7 @@
   "shop.mcyukkuri.membership.service.1": "回到顾客区后才为你服务。",
   "shop.mcyukkuri.membership.service.2": "本店今天不再为你服务。",
   "shop.mcyukkuri.membership.test": "本场资格：%s（累计消费 %s）",
-  "shop.mcyukkuri.membership.test_missing": "这个位置没有已登记的商店。"
+  "shop.mcyukkuri.membership.test_missing": "这个位置没有已登记的商店。",
+  "item.mcyukkuri.produce_crate": "货箱",
+  "block.mcyukkuri.produce_crate": "货箱"
 }

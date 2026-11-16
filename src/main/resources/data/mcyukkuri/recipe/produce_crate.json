@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "s s",
+    "sss"
+  ],
+  "key": {
+    "s": {
+      "tag": "minecraft:wooden_slabs"
+    }
+  },
+  "result": {
+    "id": "mcyukkuri:produce_crate",
+    "count": 2
+  }
+}

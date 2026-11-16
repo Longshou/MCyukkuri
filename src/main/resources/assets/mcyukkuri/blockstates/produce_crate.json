@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,wood=oak": {
+      "model": "mcyukkuri:block/produce_crate"
+    },
+    "facing=east,wood=oak": {
+      "model": "mcyukkuri:block/produce_crate",
+      "y": 90
+    },
+    "facing=south,wood=oak": {
+      "model": "mcyukkuri:block/produce_crate",
+      "y": 180
+    },
+    "facing=west,wood=oak": {
+      "model": "mcyukkuri:block/produce_crate",
+      "y": 270
+    },
+    "facing=north,wood=spruce": {
+      "model": "mcyukkuri:block/produce_crate_spruce"
+    },
+    "facing=east,wood=spruce": {
+      "model": "mcyukkuri:block/produce_crate_spruce",
+      "y": 90
+    },
+    "facing=south,wood=spruce": {
+      "model": "mcyukkuri:block/produce_crate_spruce",
+      "y": 180
+    },
+    "facing=west,wood=spruce": {
+      "model": "mcyukkuri:block/produce_crate_spruce",
+      "y": 270
+    },
+    "facing=north,wood=acacia": {
+      "model": "mcyukkuri:block/produce_crate_acacia"
+    },
+    "facing=east,wood=acacia": {
+      "model": "mcyukkuri:block/produce_crate_acacia",
+      "y": 90
+    },
+    "facing=south,wood=acacia": {
+      "model": "mcyukkuri:block/produce_crate_acacia",
+      "y": 180
+    },
+    "facing=west,wood=acacia": {
+      "model": "mcyukkuri:block/produce_crate_acacia",
+      "y": 270
+    },
+    "facing=north,wood=jungle": {
+      "model": "mcyukkuri:block/produce_crate_jungle"
+    },
+    "facing=east,wood=jungle": {
+      "model": "mcyukkuri:block/produce_crate_jungle",
+      "y": 90
+    },
+    "facing=south,wood=jungle": {
+      "model": "mcyukkuri:block/produce_crate_jungle",
+      "y": 180
+    },
+    "facing=west,wood=jungle": {
+      "model": "mcyukkuri:block/produce_crate_jungle",
+      "y": 270
+    }
+  }
+}

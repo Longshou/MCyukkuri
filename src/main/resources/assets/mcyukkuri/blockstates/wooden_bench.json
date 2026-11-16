@@ -1,31 +1,115 @@
 {
   "variants": {
-    "axis=x,east=false,west=false": {
+    "axis=x,east=false,west=false,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_single"
     },
-    "axis=z,north=false,south=false": {
+    "axis=z,north=false,south=false,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_single",
       "y": 90
     },
-    "axis=x,east=true,west=false": {
+    "axis=x,east=true,west=false,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_west_end"
     },
-    "axis=z,north=false,south=true": {
+    "axis=z,north=false,south=true,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_west_end",
       "y": 90
     },
-    "axis=x,east=true,west=true": {
+    "axis=x,east=true,west=true,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_middle"
     },
-    "axis=z,north=true,south=true": {
+    "axis=z,north=true,south=true,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_middle",
       "y": 90
     },
-    "axis=x,east=false,west=true": {
+    "axis=x,east=false,west=true,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_east_end"
     },
-    "axis=z,north=true,south=false": {
+    "axis=z,north=true,south=false,wood=oak": {
       "model": "mcyukkuri:block/wooden_bench_east_end",
+      "y": 90
+    },
+    "axis=x,east=false,west=false,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_single_spruce"
+    },
+    "axis=z,north=false,south=false,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_single_spruce",
+      "y": 90
+    },
+    "axis=x,east=true,west=false,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_west_end_spruce"
+    },
+    "axis=z,north=false,south=true,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_west_end_spruce",
+      "y": 90
+    },
+    "axis=x,east=true,west=true,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_middle_spruce"
+    },
+    "axis=z,north=true,south=true,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_middle_spruce",
+      "y": 90
+    },
+    "axis=x,east=false,west=true,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_east_end_spruce"
+    },
+    "axis=z,north=true,south=false,wood=spruce": {
+      "model": "mcyukkuri:block/wooden_bench_east_end_spruce",
+      "y": 90
+    },
+    "axis=x,east=false,west=false,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_single_acacia"
+    },
+    "axis=z,north=false,south=false,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_single_acacia",
+      "y": 90
+    },
+    "axis=x,east=true,west=false,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_west_end_acacia"
+    },
+    "axis=z,north=false,south=true,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_west_end_acacia",
+      "y": 90
+    },
+    "axis=x,east=true,west=true,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_middle_acacia"
+    },
+    "axis=z,north=true,south=true,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_middle_acacia",
+      "y": 90
+    },
+    "axis=x,east=false,west=true,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_east_end_acacia"
+    },
+    "axis=z,north=true,south=false,wood=acacia": {
+      "model": "mcyukkuri:block/wooden_bench_east_end_acacia",
+      "y": 90
+    },
+    "axis=x,east=false,west=false,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_single_jungle"
+    },
+    "axis=z,north=false,south=false,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_single_jungle",
+      "y": 90
+    },
+    "axis=x,east=true,west=false,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_west_end_jungle"
+    },
+    "axis=z,north=false,south=true,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_west_end_jungle",
+      "y": 90
+    },
+    "axis=x,east=true,west=true,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_middle_jungle"
+    },
+    "axis=z,north=true,south=true,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_middle_jungle",
+      "y": 90
+    },
+    "axis=x,east=false,west=true,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_east_end_jungle"
+    },
+    "axis=z,north=true,south=false,wood=jungle": {
+      "model": "mcyukkuri:block/wooden_bench_east_end_jungle",
       "y": 90
     }
   }

@@ -1,12 +1,16 @@
 {
   "multipart": [
     {
+      "when": {
+        "wood": "oak"
+      },
       "apply": {
         "model": "mcyukkuri:block/wooden_table_top"
       }
     },
     {
       "when": {
+        "wood": "oak",
         "north": "false",
         "west": "false"
       },
@@ -16,6 +20,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "north": "false"
       },
       "apply": {
@@ -24,6 +29,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "north": "false",
         "west": "true"
       },
@@ -33,6 +39,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "north": "false",
         "east": "true"
       },
@@ -42,6 +49,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "east": "false",
         "north": "false"
       },
@@ -52,6 +60,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "east": "false"
       },
       "apply": {
@@ -61,6 +70,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "east": "false",
         "north": "true"
       },
@@ -71,6 +81,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "east": "false",
         "south": "true"
       },
@@ -81,6 +92,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "south": "false",
         "east": "false"
       },
@@ -91,6 +103,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "south": "false"
       },
       "apply": {
@@ -100,6 +113,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "south": "false",
         "east": "true"
       },
@@ -110,6 +124,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "south": "false",
         "west": "true"
       },
@@ -120,6 +135,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "west": "false",
         "south": "false"
       },
@@ -130,6 +146,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "west": "false"
       },
       "apply": {
@@ -139,6 +156,7 @@
     },
     {
       "when": {
+        "wood": "oak",
         "west": "false",
         "south": "true"
       },
@@ -149,11 +167,540 @@
     },
     {
       "when": {
+        "wood": "oak",
         "west": "false",
         "north": "true"
       },
       "apply": {
         "model": "mcyukkuri:block/wooden_table_apron_east",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_top_spruce"
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "north": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_spruce"
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_spruce"
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "north": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_spruce"
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "north": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_spruce"
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "east": "false",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_spruce",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_spruce",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "east": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_spruce",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "east": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_spruce",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "south": "false",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_spruce",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_spruce",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "south": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_spruce",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "south": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_spruce",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "west": "false",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_spruce",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_spruce",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "west": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_spruce",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "spruce",
+        "west": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_spruce",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_top_acacia"
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "north": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_acacia"
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_acacia"
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "north": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_acacia"
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "north": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_acacia"
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "east": "false",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_acacia",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_acacia",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "east": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_acacia",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "east": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_acacia",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "south": "false",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_acacia",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_acacia",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "south": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_acacia",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "south": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_acacia",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "west": "false",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_acacia",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_acacia",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "west": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_acacia",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "acacia",
+        "west": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_acacia",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_top_jungle"
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "north": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_jungle"
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_jungle"
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "north": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_jungle"
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "north": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_jungle"
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "east": "false",
+        "north": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_jungle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_jungle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "east": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_jungle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "east": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_jungle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "south": "false",
+        "east": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_jungle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_jungle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "south": "false",
+        "east": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_jungle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "south": "false",
+        "west": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_jungle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "west": "false",
+        "south": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_leg_jungle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "west": "false"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_jungle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "west": "false",
+        "south": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_west_jungle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "wood": "jungle",
+        "west": "false",
+        "north": "true"
+      },
+      "apply": {
+        "model": "mcyukkuri:block/wooden_table_apron_east_jungle",
         "y": 270
       }
     }

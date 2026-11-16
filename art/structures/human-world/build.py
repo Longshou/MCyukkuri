@@ -188,9 +188,12 @@ def stairs(b,x,y,z,name,facing,half='bottom'):
 def slab(b,x,y,z,name,kind='bottom'):
     b.block(x,y,z,name+'_slab',{'type':kind,'waterlogged':'false'})
 def barrel(b,x,y,z,facing='up'): b.block(x,y,z,'barrel',{'facing':facing,'open':'false'})
+def furniture_wood(b):
+    """The wood of the building's village type for the bench, table and crate (their `wood` property); oak without a palette."""
+    p=getattr(b,'palette',None); return p.wood if p else 'oak'
 def furniture(b,kind,y,cells,axis='x'):
-    """A wooden bench (along axis; one cell is a stool) or table over the joined (x, z) cells."""
-    for (x,z),props in joined('wooden_'+kind,cells,axis).items(): b.block(x,y,z,'mcyukkuri:wooden_'+kind,props)
+    """A wooden bench (along axis; one cell is a stool) or table over the joined (x, z) cells, in the building's wood."""
+    for (x,z),props in joined('wooden_'+kind,cells,axis,furniture_wood(b)).items(): b.block(x,y,z,'mcyukkuri:wooden_'+kind,props)
 def mark(b,x,z,kind): b.block(x,3,z,'mcyukkuri:exam_mark',{'kind':kind})
 def glass(b,a,c,y0=3,y1=7,full=False,top=5):
     """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..top)."""

@@ -28,7 +28,7 @@ import math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, integer, sequence
 from palette import PALETTES, STYLES, BEDS, link, leaves, mc, pick
-from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, ground_display, connect_bars, jigsaw
+from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, ground_display, produce_crate, connect_bars, jigsaw
 
 LOG = {'axis': 'y'}
 
@@ -321,13 +321,14 @@ def kiosk(p):
     for x in range(1, W - 1):
         for z in (1, 2): b.block(x, 0, z, p.sidewalk_at(x, z))
     b.box((3, 0, 4), (5, 0, 6), p.floor)
-    # Shell: walls y1..4 (plinth course y1), corner posts; the front is the hatch: counter (boards and a slab top), open above, a beam.
+    # Shell: walls y1..4 (plinth course y1), corner posts; the front is the hatch: a board counter carrying open crates of real goods,
+    # open above, a beam.
     ring(b, 2, 6, 3, 7, 1, 4, p.wall)
     for x in (3, 4, 5):
-        b.block(x, 1, 3, p.planks()); slab(b, x, 2, 3, p.wood); b.block(x, 3, 3, 'air')
+        b.block(x, 1, 3, p.planks()); b.block(x, 3, 3, 'air')
         b.block(x, 4, 3, *p.state(p.beam, 'x'))
-    for (x, item), yaw in zip([(3, 'minecraft:bread'), (4, 'minecraft:paper'), (5, 'mcyukkuri:sweet_candy')], (20., -15., 40.)):
-        ground_display(b, x, 2.5, 3, item, yaw=yaw)
+    for x, item in [(3, 'minecraft:bread'), (4, 'minecraft:paper'), (5, 'mcyukkuri:sweet_candy')]:
+        produce_crate(b, x, 2, 3, 'north', [(item, 3), (item, 2)])
     b.door(4, 1, 7, 'south', p.wood)
     panes(b, [(2, 3, 4), (6, 3, 4), (6, 3, 6), (3, 3, 7)])
     # Roof: ridge along z with overhanging eaves; the west eave runs on down over the bench nook as a lean-to.

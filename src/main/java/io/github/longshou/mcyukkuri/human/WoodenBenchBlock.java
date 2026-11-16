@@ -31,7 +31,8 @@ public final class WoodenBenchBlock extends JoinedFurnitureBlock {
 
     @Override
     protected boolean joins(BlockState self, Direction side, BlockState other) {
-        return side.getAxis() == self.getValue(AXIS) && other.is(this) && other.getValue(AXIS) == self.getValue(AXIS);
+        return side.getAxis() == self.getValue(AXIS) && other.is(this) && other.getValue(AXIS) == self.getValue(AXIS)
+                && other.getValue(VillageWood.WOOD) == self.getValue(VillageWood.WOOD);
     }
 
     /** The bench runs across the placer's view, so the placer faces its seat. */

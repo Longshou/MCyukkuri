@@ -58,7 +58,9 @@ def main(check=False):
               'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json',
               'src/main/resources/assets/mcyukkuri/textures/block/village_wood_*.png','src/main/resources/assets/mcyukkuri/models/*/wooden_*.json',
               'src/main/resources/assets/mcyukkuri/blockstates/wooden_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/wooden_*.json',
-              'src/main/resources/data/mcyukkuri/recipe/wooden_*.json','src/main/resources/data/minecraft/tags/block/mineable/axe.json']
+              'src/main/resources/data/mcyukkuri/recipe/wooden_*.json',
+              'src/main/resources/assets/mcyukkuri/models/*/produce_crate*.json','src/main/resources/assets/mcyukkuri/blockstates/produce_crate.json',
+              'src/main/resources/data/mcyukkuri/loot_table/blocks/produce_crate.json','src/main/resources/data/mcyukkuri/recipe/produce_crate.json','src/main/resources/data/minecraft/tags/block/mineable/axe.json']
     paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'standards/yukkuri-library/tools/author_staff_skins.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
@@ -71,7 +73,8 @@ def main(check=False):
     paths.extend(ROOT.glob('src/main/java/io/github/longshou/mcyukkuri/human/Exam*Block.java'))
     paths.append(ROOT/'art/structures/human-world/author_furniture.py')
     paths.append(ROOT/'scripts/furniture_placement.py')
-    paths.extend(ROOT/f'src/main/java/io/github/longshou/mcyukkuri/human/{n}.java' for n in ('JoinedFurnitureBlock','WoodenBenchBlock','WoodenTableBlock'))
+    paths.extend(ROOT/f'src/main/java/io/github/longshou/mcyukkuri/human/{n}.java' for n in ('JoinedFurnitureBlock','WoodenBenchBlock','WoodenTableBlock','VillageWood','ProduceCrateBlock','ProduceCrateBlockEntity'))
+    paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/ProduceCrateRenderer.java')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/FactoryStationBlock.java')

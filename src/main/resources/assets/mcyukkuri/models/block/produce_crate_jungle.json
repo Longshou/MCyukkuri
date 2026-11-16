@@ -1,0 +1,9 @@
+{
+  "parent": "mcyukkuri:block/produce_crate",
+  "textures": {
+    "particle": "mcyukkuri:block/village_wood_jungle_planks",
+    "planks": "mcyukkuri:block/village_wood_jungle_planks",
+    "side": "mcyukkuri:block/village_wood_jungle_side",
+    "post": "mcyukkuri:block/village_wood_jungle_post"
+  }
+}

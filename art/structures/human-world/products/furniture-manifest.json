@@ -1,18 +1,75 @@
 {
   "status": "pending_user_confirmation",
   "author": "Original procedural pixel art; no external source pixels.",
-  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours",
+  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours of the same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front",
+  "woods": {
+    "oak": [
+      "#4a3826",
+      "#6e5238",
+      "#96734e",
+      "#b99a6a"
+    ],
+    "spruce": [
+      "#35271a",
+      "#523c26",
+      "#705335",
+      "#886846"
+    ],
+    "acacia": [
+      "#5c2c1c",
+      "#87452a",
+      "#ab5c34",
+      "#c47a4c"
+    ],
+    "jungle": [
+      "#523527",
+      "#7a513a",
+      "#a37355",
+      "#bd8f70"
+    ]
+  },
   "models": [
+    "src/main/resources/assets/mcyukkuri/models/block/produce_crate.json",
+    "src/main/resources/assets/mcyukkuri/models/block/produce_crate_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/produce_crate_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/produce_crate_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_east_end.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_east_end_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_east_end_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_east_end_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_middle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_middle_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_middle_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_middle_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_single.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_single_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_single_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_single_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_table.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_acacia.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east_spruce.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west_spruce.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top.json"
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg_spruce.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top_acacia.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top_jungle.json",
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top_spruce.json"
   ],
   "assets": {
     "village_wood_planks": {
@@ -29,6 +86,51 @@
       "source": "art/structures/human-world/products/village_wood_post.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_post.png",
       "sha256": "391bb3aed2e4f46631bddae252b3a343f586549d28705ebde68f31336e66c62e"
+    },
+    "village_wood_spruce_planks": {
+      "source": "art/structures/human-world/products/village_wood_spruce_planks.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_spruce_planks.png",
+      "sha256": "224bf1e1e313e0bf6eb8236d65a129ebbde56d580aa5a820ec21b5609d145559"
+    },
+    "village_wood_spruce_side": {
+      "source": "art/structures/human-world/products/village_wood_spruce_side.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_spruce_side.png",
+      "sha256": "15fa1697e10f6b2b105096091298094d5297a0ecd56b3ecf4f5c3d6abc0f0efb"
+    },
+    "village_wood_spruce_post": {
+      "source": "art/structures/human-world/products/village_wood_spruce_post.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_spruce_post.png",
+      "sha256": "f3034c712ab64a9682bb1824c3f08db43eac1ea58b1411a327fb0a0004fa62e0"
+    },
+    "village_wood_acacia_planks": {
+      "source": "art/structures/human-world/products/village_wood_acacia_planks.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_acacia_planks.png",
+      "sha256": "d55acb427837743dd3fd2c8edd9288a41f752d1a416e0a0171a6032485292f86"
+    },
+    "village_wood_acacia_side": {
+      "source": "art/structures/human-world/products/village_wood_acacia_side.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_acacia_side.png",
+      "sha256": "af7c9b92ede51847ec0ed1bcb695f1546853dc0b842d8bb769015ee1584142f3"
+    },
+    "village_wood_acacia_post": {
+      "source": "art/structures/human-world/products/village_wood_acacia_post.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_acacia_post.png",
+      "sha256": "0335713e3d10711bbd72758143abeefbe8741c736b331858b6e4f9351ad52d27"
+    },
+    "village_wood_jungle_planks": {
+      "source": "art/structures/human-world/products/village_wood_jungle_planks.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_jungle_planks.png",
+      "sha256": "6df64d592ff64961e2d8dd69509ad5c5b59a5b2e88aebe630ad081afaace6396"
+    },
+    "village_wood_jungle_side": {
+      "source": "art/structures/human-world/products/village_wood_jungle_side.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_jungle_side.png",
+      "sha256": "4848a2abfedc1a8321af3fad078a2adf421e2866f846ea5a7e23345b9e8a9cd4"
+    },
+    "village_wood_jungle_post": {
+      "source": "art/structures/human-world/products/village_wood_jungle_post.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/village_wood_jungle_post.png",
+      "sha256": "d3451d59e0729083e7002d9a78b6391a9a389c534baff59cd071289a6418ba37"
     }
   }
 }
