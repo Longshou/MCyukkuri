@@ -260,9 +260,10 @@ public final class Kindness extends Goal {
             return;
         }
         SurfaceApproach.halt(giver);
+        var clip = ClipMarkers.of(YukkuriAction.OFFER_BITE.id());
         if (contact++ == 0 && act == Act.BITE)
-            giver.showReaction(YukkuriAction.OFFER_BITE, "happy", "", ClipMarkers.of(YukkuriAction.OFFER_BITE.id()).length());
-        int cue = act == Act.BITE ? ClipMarkers.of(YukkuriAction.OFFER_BITE.id()).ticks("contact", CUE) : CUE;
+            giver.showReaction(YukkuriAction.OFFER_BITE, "happy", "", clip.length());
+        int cue = act == Act.BITE ? clip.ticks("contact", clip.length() / 2) : CUE;
         if (contact < cue) return;
         switch (act) {
             case BITE -> give();
