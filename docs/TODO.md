@@ -23,6 +23,7 @@
   - 展示托盘：已接入待试玩（[2ec293ac1](https://github.com/Longshou/MCyukkuri/commit/2ec293ac1)）；村庄城镇的会馆柜台、保护站窗口、鬼威惨商店柜台与各处桌面；看托盘里真实物品的摆放与高度（游戏内托盘渲染未实看）。
   - 补审修复：已接入待试玩（商店里的货箱与托盘归统一保护门、漏斗不超容、抬高托盘连台阶掉落 [e3c259560](https://github.com/Longshou/MCyukkuri/commit/e3c259560)；帕秋莉咳嗽不再被吞咽盖住 [c7cb3cc7e](https://github.com/Longshou/MCyukkuri/commit/c7cb3cc7e)；魔理沙难过甩辫加强 [044372a59](https://github.com/Longshou/MCyukkuri/commit/044372a59)；贴身蹭先并排再贴、按体型与台阶高差对位，芙兰与蕾米莉亚无视转身收到 54° 免翅膀扫墙，徽章眼红改用无视转身露出嫉妒脸 [e905dc3fe](https://github.com/Longshou/MCyukkuri/commit/e905dc3fe)；草地 `meet`、徽章 `badge`、商店 `oni_shop`）。
   - 翅膀、辫子、头发、猫尾贴墙收拢：已接入待试玩（[ad4737b34](https://github.com/Longshou/MCyukkuri/commit/ad4737b34)，运行版本 [29ce00a44](https://github.com/Longshou/MCyukkuri/commit/29ce00a44)；不理会转身上限 54° 取消、改 78°）；野外场 FG-08／FG-09 看魔理沙贴墙与箱内的辫子和头发，蕾米莉亚／芙兰靠墙转身与「不理会」时翅膀向下收拢，橙背靠墙时尾巴上卷；会馆徽章眼红时两只有翼种的嫉妒脸是否仍读得出。
+  - 四个已做未调用的动作接上：已接入待试玩（[1d76ce63b](https://github.com/Longshou/MCyukkuri/commit/1d76ce63b)）；地上捡物改播叼起动作（不再是水生魔理沙的帽冠取粮）、口对口递食 `offer_bite`、亲油看护会划水的落水幼体时安抚、帽船采粮叼到入仓动作松口才进粮袋；帽船 PD 场景与善意分食。
   - 打喷嚏三版：博物馆「动作片段」→「日常生活」→ 打喷嚏 A／B／C（[ec32ba703](https://github.com/Longshou/MCyukkuri/commit/ec32ba703)，仅动作片段，未接入行为）；用户选一版留用，其余删除。
   后续（均未做）：
   - 流浪从摊位货箱偷取货物，店主看到后反应。
@@ -129,6 +130,7 @@
   - 走失找孩：已接入待试玩（[2f7decade](https://github.com/Longshou/MCyukkuri/commit/2f7decade)，亲油按自己亲眼看到的位置找走失的子油，不再全知）。
   - 训练后果：已接入待试玩（[a132e71ef](https://github.com/Longshou/MCyukkuri/commit/a132e71ef)，没学会的技能在日常里真实出错：地上排泄、吃散食、牵绳走偏；街道 TN-14、TN-21）。
   - 善意与收养：已接入待试玩（[0c1cc006e](https://github.com/Longshou/MCyukkuri/commit/0c1cc006e)，友善个体给非亲缘的饿油分一口、陪伴；孤儿由同群友善成体收养，谱系记养育者；让窝位暂缓）。
+    - 冒烟 `kindness_adoption` 在部分种子上失败（[1d76ce63b](https://github.com/Longshou/MCyukkuri/commit/1d76ce63b) 前后均有，main 更早断在递食）：收养者自己的领地宣示吓走孤儿，720 tick 窗口不够走到并接触；待改场景或收养接近方式。
   - 学会的恐惧：已接入待试玩（[f17e50d86](https://github.com/Longshou/MCyukkuri/commit/f17e50d86)，见过工具和伤害的个体躲开持用者；亲属尝试从钩下救援，够不到就放弃；烧伤后怕火；身体 BD-21～BD-23）。
   - 街面设施与农田：已接入待试玩（[471e01b81](https://github.com/Longshou/MCyukkuri/commit/471e01b81)，流浪在长椅（或椅脚）歇息、饮水、木桶檐下躲雨；偷吃作物被居民警告；鬼威惨店员把碎屑送到街桶；街道 TN-21、TN-22，商店 SP-06）。
 
