@@ -322,8 +322,9 @@ public final class YukkuriSocial implements MotorOwner {
                 && entity.component(YukkuriComponents.MOUTH).purpose() == null;
     }
 
-    private boolean atHumanContact(Entity person) {
-        double reach = humanReach(person);
+    private boolean atHumanContact(Entity person) { return atContact(person, humanReach(person)); }
+
+    private boolean atContact(Entity person, double reach) {
         return entity.distanceToSqr(person) <= reach * reach && EcologyMovement.supported(entity)
                 && SurfaceApproach.supportedGround(entity, entity.position());
     }
@@ -570,15 +571,20 @@ public final class YukkuriSocial implements MotorOwner {
             return;
         }
         if (greeted) {
-            if (!atHumanContact(target)) { stop(); return; }
-            if (task == Task.OWNER_RETURN && !greeting()) {
-                if (greetClip.equals("joy_jump")) {
-                    if (!faceContact(target)) return;
-                    greetingBody("nuzzle");
-                    GameplayLog.event(entity, "pet", "owner return nuzzle owner={} distance={}",
-                            target.getUUID(), entity.distanceTo(target));
-                } else stop();
+            if (task == Task.OWNER_RETURN) {
+                // A walking owner keeps nudging the pet; the close approach reach sits inside that push, so the welcome keeps the ordinary contact reach.
+                if (!atContact(target, HUMAN_CONTACT)) { stop(); return; }
+                if (!greeting()) {
+                    if (greetClip.equals("joy_jump")) {
+                        if (!faceContact(target)) return;
+                        greetingBody("nuzzle");
+                        GameplayLog.event(entity, "pet", "owner return nuzzle owner={} distance={}",
+                                target.getUUID(), entity.distanceTo(target));
+                    } else stop();
+                }
+                return;
             }
+            if (!atHumanContact(target)) stop();
             return;
         }
         if (wariness >= .18 && humanWatchUntil == 0) {
