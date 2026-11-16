@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 贴身蹭接触、转身扫墙、嫉妒脸被挡（审查 P2/P3） | `.worktrees/wp-art-motion-contact` | lore recipe.json 的 snuggle_*、look_around、ignore、think、sulk 与导出 |
 
 ## 玩法待办
 
