@@ -264,6 +264,7 @@ public final class PetLife {
 
     public boolean canWelcomeOwner() {
         return calm() && !animal.life().protectsStep() && !animal.isLeashed() && !animal.house().active()
+                && !animal.profile().houseBody() && !animal.profile().aquatic()
                 && !animal.childhood().needsNewbornCare() && !animal.family().tendsUnweaned();
     }
 

@@ -2011,13 +2011,14 @@ def _yard_pos(dx, dz):
 def _yard_ground(open_gate):
     return [
         box(-19, -1, -3, 9, -1, 4, 'minecraft:stone_bricks'),
+        box(-19, 0, -3, 9, 2, 4, 'minecraft:air'),
         box(0, 0, -3, 8, 0, -3, 'minecraft:oak_fence[east=true,west=true]'),
         box(0, 0, 3, 8, 0, 3, 'minecraft:oak_fence[east=true,west=true]'),
         box(8, 0, -2, 8, 0, 2, 'minecraft:oak_fence[north=true,south=true]'),
         box(0, 0, -2, 0, 0, -1, 'minecraft:oak_fence[north=true,south=true]'),
         box(0, 0, 1, 0, 0, 2, 'minecraft:oak_fence[north=true,south=true]'),
         block(0, 0, 0, f'minecraft:oak_fence_gate[facing=east,open={str(open_gate).lower()}]'),
-        box(3, 3, -2, 7, 3, 2, 'minecraft:oak_planks'),
+        box(2, 3, -2, 7, 3, 2, 'minecraft:oak_planks'),
         block(5, 0, 2, 'mcyukkuri:food_bowl'),
     ]
 
@@ -2055,15 +2056,17 @@ add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱�
     '魔理沙从院外草窝走进开着门的院子，认领空着的软窝并宣言。看主人走近挥手喝斥，魔理沙退出院子。',
     '约 30 秒', [
         *_yard_ground(True),
+        box(-6, 3, -2, -3, 3, 1, 'minecraft:oak_planks'),
         block(-5, 0, -1, 'mcyukkuri:straw_nest[facing=south]'),
         _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
         human('caretaker_sister', 6, 0, 'yard_witness', 0, yaw=90, label='院子主人')[:-1]
-        + f',UUID:{uuid_nbt(_yard_scold_owner)},HumanHome:{_yard_pos(6, 0)}L,YardBowl:{_yard_pos(5, 2)}L}}',
-        street_trial('yard_stray_scold', 'marisa', -5, 0, 'yard_stray', boldness=100, friendliness=0,
+        + f',UUID:{uuid_nbt(_yard_scold_owner)},HumanHome:{_yard_pos(6, 0)}L,YardBowl:{_yard_pos(5, 2)}L,NoAI:1b}}',
+        street_trial('yard_stray_scold', 'marisa', -4, 0, 'yard_stray', boldness=100, friendliness=0,
                      self_control=0, yaw=-90, lead=True),
     ], late=[
         f'yukkuri scenario home {sel("yard_stray")} ~-5 ~ ~-1',
         block(3, 0, 0, 'mcyukkuri:yukkuri_nest[facing=west]'),
+        Retry(f'data merge entity {sel("yard_witness")} {{NoAI:0b}}', sel('yard_witness'), tries=1, first=200),
     ], env=DAY, vantage=(-4, 8, -155, 16),
     reads=[('读住所宣言与驱离', 'yukkuri homeclaim status'),
            ('读流浪魔理沙状态', f'yukkuri status {sel("yard_stray")} raw')])
