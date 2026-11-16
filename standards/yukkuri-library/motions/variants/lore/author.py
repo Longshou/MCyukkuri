@@ -406,7 +406,7 @@ def state(action, t, c, height):
         r[0] = c['bow']*bump((t-.86)/.5) if .86 <= t <= 1.36 else 0.
     elif action == 'tremble':
         w = math.sin(2*math.pi*c['shiver_hz']*t); k = c['shrink']
-        r = [c['lean_back'], 0., 1.5*w]; s = [1-.6*k, 1-k, 1-.6*k]; shift[0] = c['shiver_ratio']*height*w
+        r = [c['lean_back'], 0., c['shiver_roll']*w]; s = [1-.6*k, 1-k, 1-.6*k]; shift[0] = c['shiver_ratio']*height*w
     elif action == 'droop':
         b = (1-math.cos(2*math.pi*t/d))/2; wide = 1+(1-c['height'])*.5
         s = [wide, c['height']-c['sigh']*b, wide]; r = [c['head_down'], 0., c['sway']*math.sin(2*math.pi*t/d)]
@@ -415,7 +415,9 @@ def state(action, t, c, height):
         for (t0, a0), (t1, a1) in zip(keys, keys[1:]):
             if t0 <= t <= t1:
                 r[1] = lerp(a0, a1, smooth((t-t0)/(t1-t0))); break
-        s = [1., c['stand'], 1.]
+        # At each side it cranes: a slow extra stretch with the chin slightly up while it holds the look.
+        q = bump((t-.6)/1.0)+bump((t-2.4)/1.0); h = c['stand']+c['crane']*q
+        s = [h**-.5, h, h**-.5]; r[0] = c['peer']*q
     elif action == 'shake':
         fade = (1-t/d)**2; w = math.sin(2*math.pi*t/c['shake_seconds'])
         r[1] = c['turn']*w*fade; s = [1+.03*abs(w)*fade, 1-.03*abs(w)*fade, 1+.03*abs(w)*fade]
