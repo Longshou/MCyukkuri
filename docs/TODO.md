@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 报纸堆作纸源：流浪撕纸、铺垫与冬夜盖纸发抖（N79） | `.worktrees/wp-paper-source` | human/NewspaperStackBlock, life/Facilities, stray shelter behaviour, lore motions |
-| main 上 export.py --check 失败（marisa-hat-vessel、family-life、aquatic-marisa-hat） | `.worktrees/wp-export-check-main` | export families: marisa-hat-vessel, family-life, aquatic-marisa-hat |
 
 ## 玩法待办
 
