@@ -1,15 +1,19 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.shop.ShopProtection;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -17,8 +21,9 @@ import net.minecraft.world.level.block.state.BlockState;
  * The real contents of an open produce crate: four rows of up to four items each. The client draws exactly these items
  * (client/ProduceCrateRenderer), so what is seen in the crate is what it holds.
  */
-public final class ProduceCrateBlockEntity extends BlockEntity implements Container {
+public final class ProduceCrateBlockEntity extends BlockEntity implements WorldlyContainer {
     public static final int ROWS = 4, PER_ROW = 4;
+    private static final int[] SLOTS = {0, 1, 2, 3};
     private final NonNullList<ItemStack> items = NonNullList.withSize(ROWS, ItemStack.EMPTY);
 
     public ProduceCrateBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.PRODUCE_CRATE_ENTITY.get(), pos, state); }
@@ -33,10 +38,10 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Contai
         for (int row = 0; row < ROWS; row++) {
             var held = items.get(row);
             if (held.isEmpty()) { if (free < 0) free = row; continue; }
-            if (held.getCount() < Math.min(PER_ROW, held.getMaxStackSize()) && ItemStack.isSameItemSameComponents(held, stack)) { held.grow(1); changed(); return true; }
+            if (held.getCount() < Math.min(PER_ROW, held.getMaxStackSize()) && ItemStack.isSameItemSameComponents(held, stack)) { held.grow(1); setChanged(); return true; }
         }
         if (free < 0) return false;
-        items.set(free, stack.copyWithCount(1)); changed();
+        items.set(free, stack.copyWithCount(1)); setChanged();
         return true;
     }
 
@@ -46,24 +51,31 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Contai
         return ItemStack.EMPTY;
     }
 
-    private void changed() {
-        setChanged();
-        if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    @Override public void setChanged() {
+        super.setChanged();
+        if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
     }
 
     @Override public int getContainerSize() { return ROWS; }
     @Override public int getMaxStackSize() { return PER_ROW; }
-    @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
+    @Override public boolean isEmpty() {
+        for (int slot = 0; slot < ROWS; slot++) if (!items.get(slot).isEmpty()) return false;
+        return true;
+    }
+    // Only automation goes through the sided interface; staff can still handle stock directly.
+    @Override public int[] getSlotsForFace(Direction side) { return SLOTS; }
+    @Override public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) { return !ShopProtection.guarded(level, worldPosition); }
+    @Override public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) { return !ShopProtection.guarded(level, worldPosition); }
     @Override public ItemStack getItem(int slot) { return items.get(slot); }
     @Override public ItemStack removeItem(int slot, int count) {
         var out = ContainerHelper.removeItem(items, slot, count);
-        if (!out.isEmpty()) changed();
+        if (!out.isEmpty()) setChanged();
         return out;
     }
     @Override public ItemStack removeItemNoUpdate(int slot) { return ContainerHelper.takeItem(items, slot); }
-    @Override public void setItem(int slot, ItemStack stack) { stack.limitSize(getMaxStackSize(stack)); items.set(slot, stack); changed(); }
+    @Override public void setItem(int slot, ItemStack stack) { stack.limitSize(getMaxStackSize(stack)); items.set(slot, stack); setChanged(); }
     @Override public boolean stillValid(Player player) { return Container.stillValidBlockEntity(this, player); }
-    @Override public void clearContent() { items.clear(); changed(); }
+    @Override public void clearContent() { items.clear(); setChanged(); }
 
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);

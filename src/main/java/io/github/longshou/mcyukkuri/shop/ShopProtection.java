@@ -24,7 +24,7 @@ import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 
 /**
- * Inside a pet shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
+ * Inside a shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
  * players cannot break or place blocks there, cannot take, turn or break the goods' item frames,
  * and cannot interact with or hurt stock animals; explosions leave the shop and its stock standing. An empty-hand click on a stock animal
  * still opens the staff's menu on its row (ShopMenu.clickStock), and the magnifying glass may look at it.
@@ -32,7 +32,7 @@ import net.neoforged.neoforge.event.level.PistonEvent;
 public final class ShopProtection {
     private ShopProtection() {}
 
-    private static boolean guarded(Level level, BlockPos pos) {
+    public static boolean guarded(Level level, BlockPos pos) {
         return level instanceof ServerLevel server && ShopRegistry.get(server).protectedAt(server, pos);
     }
     /** A stock animal standing in its own shop. */
