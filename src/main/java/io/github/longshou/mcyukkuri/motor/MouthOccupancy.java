@@ -116,6 +116,14 @@ public final class MouthOccupancy {
         return first;
     }
 
+    /** Split one item from the front stack so any remaining count stays held until its own accepted transfer. */
+    public ItemStack takeOne(Purpose purpose) {
+        var first = load().items().getFirst();
+        var one = first.split(1);
+        if (first.isEmpty()) takeFirst(purpose);
+        return one;
+    }
+
     public void clear(Purpose purpose) {
         if (purpose() == purpose) held.consume();
     }

@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.pose.Compose;
 import io.github.longshou.mcyukkuri.pose.Intensity;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.pose.Overlays;
+import io.github.longshou.mcyukkuri.pose.PaperTent;
 import io.github.longshou.mcyukkuri.pose.Rig;
 import io.github.longshou.mcyukkuri.pose.Rig.Bone;
 import io.github.longshou.mcyukkuri.pose.Skin;
@@ -497,6 +498,14 @@ public final class YukkuriModel {
             &&!name.contains("puff")&&!name.contains("rump")&&!name.contains("rear_mark");}
     private float[] wearBuffer = new float[0];
     private int wearBody;
+    private float[] tentBodyBuf = new float[0], tentMeshBuf = new float[0], tentHatBuf = new float[0];
+    private int tentBodyLen, tentMeshLen, tentHatLen;
+    private PaperTent.Grid paperTentGrid;
+    PaperTent.Grid takePaperTent() {
+        var grid = paperTentGrid;
+        paperTentGrid = null;
+        return grid != null ? grid : buildPaperTent(null, true, 0, null);
+    }
     /** Wear bits (YukkuriView.visibleWear) of the body being drawn, set by the renderer until renderLiving ends. */
     private int wear;
     /** The posed skin of a worn wrap is prepared: overWear vertices are lifted over it as they are skinned. */
@@ -666,6 +675,86 @@ public final class YukkuriModel {
         return wearBuffer;
     }
     int wearBodyLength() { return wearBody; }
+
+    private Matrix4f crownMatrix(int bone) {
+        var m = new Matrix4f();
+        if (pregnancyBelly > 0) m.translate(crownLift.x / 16, crownLift.y / 16, crownLift.z / 16);
+        m.scale(1 / 16f).mul(world[bone]);
+        if (retention > 0) m.translate(0, 0, retention * retentionCrownZ());
+        return m.scale(16f);
+    }
+
+    private void appendTentBody(Vector3f p) {
+        if (tentBodyLen + 3 > tentBodyBuf.length) tentBodyBuf = Arrays.copyOf(tentBodyBuf, Math.max(256, tentBodyBuf.length * 2));
+        tentBodyBuf[tentBodyLen++] = p.x; tentBodyBuf[tentBodyLen++] = p.y; tentBodyBuf[tentBodyLen++] = p.z;
+    }
+
+    private void appendTentMesh(Vector3f p) {
+        if (tentMeshLen + 3 > tentMeshBuf.length) tentMeshBuf = Arrays.copyOf(tentMeshBuf, Math.max(1024, tentMeshBuf.length * 2));
+        tentMeshBuf[tentMeshLen++] = p.x; tentMeshBuf[tentMeshLen++] = p.y; tentMeshBuf[tentMeshLen++] = p.z;
+    }
+
+    private void appendTentHat(Vector3f p) {
+        if (tentHatLen + 3 > tentHatBuf.length) tentHatBuf = Arrays.copyOf(tentHatBuf, Math.max(512, tentHatBuf.length * 2));
+        tentHatBuf[tentHatLen++] = p.x; tentHatBuf[tentHatLen++] = p.y; tentHatBuf[tentHatLen++] = p.z;
+    }
+
+    private PaperTent.Grid buildPaperTent(PoseStack stack, boolean showHat, int hairLoss, JunkHeadwear junk) {
+        tentBodyLen = tentMeshLen = tentHatLen = 0;
+        boolean hasWall = wallClearance != null && stack != null;
+        Matrix4f toWall = hasWall ? wallClearance.frame(stack.last().pose(), new Matrix4f()).scale(16f) : null;
+        Matrix4f fromWall = hasWall ? new Matrix4f(toWall).invert() : null;
+        var pt = new Vector3f();
+        skinningCache.begin();
+        try {
+            if (showHat && hatDamageDraw.fit() < .999f) hatDamageDraw.poseHatSeat();
+            for (int partIndex = 0; partIndex < parts.size(); partIndex++) {
+                Part part = puffAmount > 0
+                        ? (puffPartIndex == partIndex ? puffSurface : puffAttachments.getOrDefault(partIndex, parts.get(partIndex)))
+                        : parts.get(partIndex);
+                if (!part.anatomy.isEmpty() || part.face || part.name.contains("puff") || hairHidden(part, hairLoss)) continue;
+                boolean isAcc = accessoryPart(part);
+                if (isAcc && (!showHat || hatProp != null)) continue;
+                boolean isBody = wornBody(part.name);
+                boolean isLoose = WallYield.loose(part.name);
+                boolean shrinkHat = isAcc && hatDamageDraw.fit() < .999f;
+                for (int v = part.start; v < part.start + part.count; v++) {
+                    skin(v, pt);
+                    if (shrinkHat) pt.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
+                    pt.mul(1 / 16f);
+                    if (hasWall && (isLoose || isAcc)) PaperTent.pressPoint(pt, toWall, fromWall, wallClearance.faces(), 0f);
+                    if (isBody) appendTentBody(pt);
+                    if (isAcc) appendTentHat(pt);
+                    else appendTentMesh(pt);
+                }
+            }
+        } finally {
+            skinningCache.end();
+        }
+        if (showHat && hatProp != null && hatFollowBone() >= 0) {
+            var m = crownMatrix(hatFollowBone());
+            var seat = HatGeometry.anchor().div(16);
+            float fit = hatDamageDraw.fit();
+            m.translate(seat.x, seat.y, seat.z).scale(fit).translate(-seat.x, -seat.y, -seat.z);
+            PropModels.collectTriangles(hatProp, 8, m, p -> {
+                if (hasWall) PaperTent.pressPoint(p, toWall, fromWall, wallClearance.faces(), 0f);
+                appendTentHat(p);
+            });
+        }
+        if (junk != null) {
+            String prop = "junk_" + junk.id();
+            var seat = PropModels.anchor(prop, id);
+            if (seat != null) {
+                var m = crownMatrix(featuresBone()).mul(seat.matrix());
+                PropModels.collectTriangles(prop, 0, m, p -> {
+                    if (hasWall) PaperTent.pressPoint(p, toWall, fromWall, wallClearance.faces(), 0f);
+                    appendTentHat(p);
+                });
+            }
+        }
+        return PaperTent.build(tentBodyBuf, tentBodyLen, tentMeshBuf, tentMeshLen, tentHatBuf, tentHatLen,
+                hasWall ? wallClearance.faces() : null, toWall);
+    }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
     public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
     public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
@@ -1285,8 +1374,11 @@ public final class YukkuriModel {
             if(leakOpacity>0&&!ExcitedLeak.FLOW_FACE.equals(expression))
                 renderLeakStream(stack,buffers,light,overlay,leakOpacity);
             hatDamageDraw.drawCaps(evidenceBuffers("hat",buffers));
-            if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
-            renderJunkHat(Headwear.visualJunk(headwear),stack,buffers,light,overlay);
+            boolean showHat=accessory||pieces||hatMotion.equals("HAT_REMOVE");
+            if(showHat)renderReplacementHat(stack,buffers,light,overlay);
+            var junk=Headwear.visualJunk(headwear);
+            renderJunkHat(junk,stack,buffers,light,overlay);
+            paperTentGrid=(wear&CareWearRenderer.PAPER_COVER)!=0?buildPaperTent(stack,showHat,hairLoss,junk):null;
             PoseTap.model(entity, this, accessory, hairLoss);
             return contact;
         }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,

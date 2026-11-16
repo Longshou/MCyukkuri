@@ -19,6 +19,8 @@ const revised=(id,model)=>{
 // A --before checkout can predate the face library; its ordinary strips still render.
 const facePath=path.join(assets,'yukkuri_presentation/face_library.json');
 const faces=fs.existsSync(facePath)?read(facePath):null;
+const livingPath=path.join(assets,'yukkuri_presentation/living.json');
+const living=fs.existsSync(livingPath)?read(livingPath).variants:{};
 const actors=job.actors.map(a=>{
  const model=read(a.path);
  if(!a.prop&&faces)model.expression_patches={...model.expression_patches,...faces.models[a.id].expression_patches};
@@ -35,6 +37,7 @@ const frames=job.times.map((t,frame)=>{
  for(const a of actors){
   // Each actor stands beside its own copy of the walls: it turns by this frame's yaw and, with yield, gives way as in the game.
   if(a.pose&&job.wall)a.pose.wall={yaw:job.wall.yaws[frame],faces:job.wall.faces,yield:job.wall.yield};
+  if(a.pose)a.pose.paperCover=a.paperSlots?(living[a.id]?.accessory_prefixes||[]):null;
   let phase=0,clip=a.clip,time=t,intensity=1,momentFace=null;
   if(a.moment){
    for(const step of a.moment.steps){
@@ -64,6 +67,18 @@ const frames=job.times.map((t,frame)=>{
    v[3]=(slot.x+(v[3]-slot.low[0])*slot.size)/job.textureSize;
    v[4]=(slot.y+(v[4]-slot.low[1])*slot.size)/job.textureSize;
    vertices.push(...v);
+  }
+  if(a.pose&&a.paperSlots){
+   for(const [sheet,slotIdx] of [[a.pose.paperTop,a.paperSlots[0]],[a.pose.paperUnder,a.paperSlots[1]]])if(sheet){
+    const slot=job.slots[slotIdx];
+    for(let k=0;k<sheet.length;k+=8){
+     const v=sheet.slice(k,k+8);
+     for(let c=0;c<3;c++)v[c]+=a.offset[c];
+     v[3]=(slot.x+(v[3]-slot.low[0])*slot.size)/job.textureSize;
+     v[4]=(slot.y+(v[4]-slot.low[1])*slot.size)/job.textureSize;
+     vertices.push(...v);
+    }
+   }
   }
  }
  // Each wall face as a quarter-block-thick slab: a checkered sheet of quarter-block tiles toward the body, then its top and ends.

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -154,6 +155,7 @@ public final class YukkuriLife {
     private static final float SEVERE_THIRST = 90;
     public static final int PAPER_COVER_WEAR_BIT = 1 << 13;
     private ItemStack paperCover = ItemStack.EMPTY;
+    private boolean releaseSavedMouthPaper;
     private int thirstTicks;
 
     public YukkuriLife(YukkuriEntity entity) {
@@ -537,8 +539,7 @@ public final class YukkuriLife {
     }
     public boolean releasePaperCover(String reason) {
         if (paperCover.isEmpty()) return true;
-        Vec3 dropAt = foundCover.plainGapDropPoint(entity.position());
-        var drop = ItemContact.release(entity, paperCover, dropAt, Vec3.ZERO);
+        var drop = ItemContact.release(entity, paperCover, entity.position().add(0, .02, 0), Vec3.ZERO);
         if (drop == null) return false;
         GameplayLog.event(entity, "habitat", "paper cover drop item={} count={} reason={} drop={}",
                 paperCover.getItem(), paperCover.getCount(), reason, drop.getUUID());
@@ -602,6 +603,12 @@ public final class YukkuriLife {
         if (!entity.isAlive()) return;
         accessory.tick();
         if (!paperCover.isEmpty() && !keepsPaperCover()) releasePaperCover("state_changed");
+        var mouth = entity.component(YukkuriComponents.MOUTH);
+        if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !foundCover.carryingPaper()
+                && (releaseSavedMouthPaper || entity.tickCount % 10 == 0)) {
+            releaseSavedMouthPaper = false;
+            mouth.releaseItems(MouthOccupancy.Purpose.PAPER, 20);
+        }
         if (entity.isNoAi()) return;
         ageTicks++;
         personality.tick();
@@ -819,7 +826,7 @@ public final class YukkuriLife {
             if (foundCover.checkRest(foundCover.restingAtBench() && wakeAt > 0)) return true;
             resetSleep();
             if (foundCover.exiting()) { task = Task.FOUND_COVER; return true; }
-            stopGoal(); return false;
+            stopGoal(); planWait = 0; return false;
         }
         if (task == Task.TEMPERATURE) {
             if (temperature.canContinue()) return true;
@@ -1641,6 +1648,7 @@ public final class YukkuriLife {
         home.load(tag); accessory.load(tag);
         paperCover = tag.contains("PaperCover", Tag.TAG_COMPOUND)
                 ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("PaperCover")) : ItemStack.EMPTY;
+        releaseSavedMouthPaper = true;
         entity.syncWear();
         pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));

@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
@@ -37,9 +38,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class BlockPull {
     public static final String CLIP = YukkuriAction.PAPER_PULL.id();
 
-    public record Stand(BlockPos block, Vec3 feet, Vec3 contact) {}
+    public record Stand(BlockPos block, Direction side, Vec3 feet, Vec3 contact) {}
 
     public static Stand stand(YukkuriEntity actor, BlockPos pos) {
+        return stand(actor, pos, Set.of());
+    }
+
+    public static Stand stand(YukkuriEntity actor, BlockPos pos, Set<Direction> skipSides) {
         var level = actor.level();
         if (!level.hasChunkAt(pos)) return null;
         BlockState state = level.getBlockState(pos);
@@ -53,6 +58,7 @@ public final class BlockPull {
         double shortest = Double.POSITIVE_INFINITY;
         Stand best = null;
         for (Direction side : Direction.Plane.HORIZONTAL) {
+            if (skipSides.contains(side)) continue;
             Vec3 outward = Vec3.atLowerCornerOf(side.getNormal());
             double depth = side.getAxis() == Direction.Axis.X ? bounds.getXsize() : bounds.getZsize();
             Vec3 face = new Vec3(bounds.getCenter().x + outward.x * depth * 0.5, topY,
@@ -75,21 +81,46 @@ public final class BlockPull {
                     + 0.05 * actor.position().distanceTo(foot) + (peerNear ? 4.0 : 0.0);
             if (route >= shortest) continue;
             shortest = route;
-            best = new Stand(pos.immutable(), foot, face);
+            best = new Stand(pos.immutable(), side, foot, face);
         }
         return best;
     }
 
+    private static Vec3 liveFace(YukkuriEntity actor, BlockPos pos, Direction side) {
+        var level = actor.level();
+        if (!level.hasChunkAt(pos)) return null;
+        VoxelShape shape = level.getBlockState(pos).getShape(level, pos);
+        if (shape.isEmpty()) return null;
+        AABB bounds = shape.bounds().move(pos);
+        double topY = Math.clamp(bounds.maxY - 0.03, bounds.minY + 0.02, bounds.maxY);
+        Vec3 outward = Vec3.atLowerCornerOf(side.getNormal());
+        double depth = side.getAxis() == Direction.Axis.X ? bounds.getXsize() : bounds.getZsize();
+        return new Vec3(bounds.getCenter().x + outward.x * depth * 0.5, topY,
+                bounds.getCenter().z + outward.z * depth * 0.5);
+    }
+
     public static boolean reaches(YukkuriEntity actor, Stand stand) {
-        if (!actor.onGround() || actor.position().subtract(stand.feet()).horizontalDistanceSqr() > 0.16) return false;
+        return reaches(actor, stand, false);
+    }
+
+    private static boolean reaches(YukkuriEntity actor, Stand stand, boolean requireTurnedMouth) {
+        if (!actor.onGround() || actor.isPassenger() || actor.isInWaterOrBubble() || actor.isOnFire()) return false;
+        if (actor.position().subtract(stand.feet()).horizontalDistanceSqr() > 0.16
+                || Math.abs(actor.getY() - stand.feet().y) > 0.25) return false;
+        Vec3 face = liveFace(actor, stand.block(), stand.side());
+        if (face == null) return false;
         Vec3 mouth = MouthPlacement.position(actor);
-        BlockHitResult hit = actor.level().clip(new ClipContext(mouth, stand.contact(),
+        if (face.y < actor.getY() - 0.12 || face.y > mouth.y + 0.95 * actor.getBbHeight()) return false;
+        Vec3 rayStart = requireTurnedMouth ? mouth : new Vec3(actor.getX(), mouth.y, actor.getZ());
+        double maxHoriz = actor.getBbWidth() * 0.5 + (requireTurnedMouth ? 0.42 : 0.52);
+        if (rayStart.subtract(face).horizontalDistance() > maxHoriz) return false;
+        BlockHitResult hit = actor.level().clip(new ClipContext(rayStart, face,
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor));
         return hit.getType() == HitResult.Type.MISS || stand.block().equals(hit.getBlockPos());
     }
 
     public static Action action(Stand stand, MouthOccupancy.Purpose purpose,
-                                BiPredicate<ServerLevel, BlockPos> valid,
+                                BiPredicate<YukkuriEntity, BlockPos> valid,
                                 BiFunction<ServerLevel, BlockPos, ItemStack> take) {
         return new PullAction(stand, purpose, valid, take);
     }
@@ -97,7 +128,7 @@ public final class BlockPull {
     private static final class PullAction implements Action {
         private final Stand stand;
         private final MouthOccupancy.Purpose purpose;
-        private final BiPredicate<ServerLevel, BlockPos> valid;
+        private final BiPredicate<YukkuriEntity, BlockPos> valid;
         private final BiFunction<ServerLevel, BlockPos, ItemStack> take;
         private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
         private final int length = Math.max(1, marks.length());
@@ -107,7 +138,7 @@ public final class BlockPull {
         private boolean pulled;
 
         PullAction(Stand stand, MouthOccupancy.Purpose purpose,
-                   BiPredicate<ServerLevel, BlockPos> valid,
+                   BiPredicate<YukkuriEntity, BlockPos> valid,
                    BiFunction<ServerLevel, BlockPos, ItemStack> take) {
             this.stand = stand;
             this.purpose = purpose;
@@ -118,9 +149,9 @@ public final class BlockPull {
         @Override public String id() { return CLIP; }
 
         @Override public Feasibility check(YukkuriEntity body) {
-            if (!body.onGround() || body.isPassenger() || body.isInWaterOrBubble())
-                return Feasibility.of(Reason.NO_SUPPORT, 0, "dry_ground_required");
-            if (!(body.level() instanceof ServerLevel level) || !valid.test(level, stand.block()))
+            if (!reaches(body, stand, false))
+                return Feasibility.of(Reason.NO_CONTACT, 0, "out_of_reach");
+            if (!(body.level() instanceof ServerLevel) || !valid.test(body, stand.block()))
                 return Feasibility.of(Reason.NO_CONTACT, 0, "source_unavailable");
             if (!mouthFree(body))
                 return Feasibility.of(Reason.NO_CONTACT, 0, "mouth_occupied");
@@ -135,15 +166,18 @@ public final class BlockPull {
         }
 
         @Override public Progress tick(YukkuriEntity body) {
-            if (!body.onGround() || body.isPassenger() || body.isInWaterOrBubble())
+            if (!body.onGround() || body.isPassenger() || body.isInWaterOrBubble() || body.isOnFire())
                 return Outcome.of(Reason.NO_SUPPORT, 0, "dry_ground_required");
             if (!(body.level() instanceof ServerLevel level))
                 return Outcome.of(Reason.NO_CONTACT, 0, "client");
-            Motor.face(body, SurfaceApproach.yaw(body.position(), stand.contact()));
+            Vec3 face = liveFace(body, stand.block(), stand.side());
+            Motor.face(body, SurfaceApproach.yaw(body.position(), face != null ? face : stand.contact()));
             Motor.velocity(body, new Vec3(0, body.getDeltaMovement().y, 0), CLIP);
             if (!pulled) {
-                if (!valid.test(level, stand.block()))
-                    return Outcome.of(Reason.NO_CONTACT, 0, "source_depleted");
+                if (!reaches(body, stand, ticks >= tugTick))
+                    return Outcome.of(Reason.NO_CONTACT, 0, "lost_contact");
+                if (!valid.test(body, stand.block()))
+                    return Outcome.of(Reason.NO_CONTACT, 0, "source_unavailable");
                 if (!mouthFree(body))
                     return Outcome.of(Reason.NO_CONTACT, 0, "mouth_occupied");
                 if (ticks >= tugTick) {

@@ -162,12 +162,14 @@ def before_checkout(value, stage):
 def render_strip(args, stage, times, before=False, unyielded=False):
     source_root = Path(args.before).resolve() if before else ROOT
     # A before reference is another checkout's actual model, fit and motion inputs.
-    actors, textures = [], []
-    specs = [(args.model, args.prop, [0, 0, 0])]
+    actors, textures, paper_slots = [], [], None
+    specs = [(args.model, args.prop, [0, 0, 0], getattr(args, 'scale', None))]
     if args.partner:
-        specs.append((args.partner, None, args.partner_offset))
-    for index, (model, prop, offset) in enumerate(specs):
+        specs.append((args.partner, None, args.partner_offset, getattr(args, 'partner_scale', None)))
+    for index, (model, prop, offset, custom_scale) in enumerate(specs):
         a, images = actor(model, prop, index and getattr(args, 'partner_clip', None) or args.clip, offset, source_root)
+        if custom_scale is not None:
+            a['scale'] = custom_scale
         if getattr(args, 'draft_clip', None) and index == 0:
             # A draft clip in runtime units, bones by name; only the main actor plays it.
             draft = read(Path(args.draft_clip))
@@ -233,6 +235,15 @@ def render_strip(args, stage, times, before=False, unyielded=False):
                 images = [(ASSETS/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
         a['slots'] = list(range(len(textures), len(textures)+len(images)))
         textures.extend(images)
+        if getattr(args, 'paper_cover', False) and not prop:
+            if paper_slots is None:
+                paper_assets = source_root/'src/main/resources/assets/mcyukkuri/textures/block'
+                paper_slots = [len(textures), len(textures)+1]
+                textures.extend([
+                    (paper_assets/'newspaper_stack_top.png', None, [0, 0], [1, 1]),
+                    (paper_assets/'newspaper_stack_fold.png', (216, 212, 202), [0, 0], [1, 1]),
+                ])
+            a['paperSlots'] = paper_slots
         actors.append(a)
     loaded = []
     for path, tint, low, extent in textures:
@@ -702,6 +713,9 @@ def parser():
             time.add_argument('--beats', help='one time (seconds or ticks), then optional label per line')
             p.add_argument('--partner'); p.add_argument('--partner-offset', type=float, nargs=3, default=[20, 0, 0])
             p.add_argument('--partner-clip', help='clip the partner plays on the same clock (default: --clip), e.g. the mirrored side of a pair')
+            p.add_argument('--scale', type=float, help='growth/body scale of --model (e.g. 0.42 for a baby)')
+            p.add_argument('--partner-scale', type=float, help='growth/body scale of --partner')
+            p.add_argument('--paper-cover', action='store_true', help='drape the live-fitted newspaper tent over each model')
             p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
             p.add_argument('--wall', type=float, nargs=3, action='append', metavar=('X', 'Z', 'BLOCKS'),
                            help='wall face beside each model: horizontal direction from the body axis and distance in blocks; '

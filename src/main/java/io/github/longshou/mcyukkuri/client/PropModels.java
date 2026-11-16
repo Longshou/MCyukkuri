@@ -92,6 +92,19 @@ public final class PropModels {
         }
         return result;
     }
+    @FunctionalInterface interface PointSink { void add(Vector3f point); }
+    static void collectTriangles(String name, int units, Matrix4f transform, PointSink sink) {
+        var model = models.get(name);
+        if (model == null) return;
+        var pt = new Vector3f();
+        for (var part : model.parts) if (part.unit <= units) {
+            for (int v = part.start; v < part.start + part.count; v++) {
+                int i = v * 8;
+                transform.transformPosition(pt.set(model.vertices[i] / 16f, model.vertices[i + 1] / 16f, model.vertices[i + 2] / 16f));
+                sink.add(pt);
+            }
+        }
+    }
     /** The prop's named anchor, or null when the prop or anchor is missing. */
     public static WornSeat anchor(String name,String anchor){var model=models.get(name);return model==null?null:model.anchors.get(anchor);}
     public static Vec3 socket(String name){return models.get(name).socket;}

@@ -119,6 +119,12 @@ final class RenderPose implements Overlays.Contact {
                 wallYield=WallYield.of(bones,bindings,rest,names,starts,counts);}
             if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,new Matrix4f(turn).scale(scale/16),faces,kind->false);else wallYield.clear();}
         }
+        boolean wantPaper=request.has("paperCover")&&request.get("paperCover").isJsonArray();
+        List<String> accPrefixes=new ArrayList<>();
+        if(wantPaper)for(var raw:request.getAsJsonArray("paperCover"))accPrefixes.add(raw.getAsString());
+        List<Float> pBody=wantPaper?new ArrayList<>():null,pMesh=wantPaper?new ArrayList<>():null,pHat=wantPaper?new ArrayList<>():null;
+        Matrix4f localToWall=turn!=null?new Matrix4f(turn).scale(1/16f):new Matrix4f().scale(1/16f);
+        Matrix4f wallToLocal=new Matrix4f(localToWall).invert();
         for(int pi=0;pi<data.getAsJsonArray("parts").size();pi++){
             var part=data.getAsJsonArray("parts").get(pi).getAsJsonObject();
             if(part.has("anatomy")&&!part.get("anatomy").getAsString().isEmpty()&&!action.startsWith("anatomy_"+part.get("anatomy").getAsString()+"_"))continue;
@@ -126,13 +132,24 @@ final class RenderPose implements Overlays.Contact {
             if(puff>0){if(data.has("puff_surface")&&data.getAsJsonObject("puff_surface").get("part_index").getAsInt()==pi){part=data.getAsJsonObject("puff_surface");smooth=true;}
                 if(data.has("puff_attachments"))for(var raw:data.getAsJsonArray("puff_attachments"))if(raw.getAsJsonObject().get("part_index").getAsInt()==pi)part=raw.getAsJsonObject();}
             int start=start(part),end=start+count(part);
-            boolean loose=yield&&WallYield.loose(data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString());
+            String origName=data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString();
+            boolean loose=yield&&WallYield.loose(origName);
+            boolean isBody=OfflineModel.group(origName).equals("body")||origName.endsWith("_rump_mark");
+            boolean isAcc=wantPaper&&accPrefixes.stream().anyMatch(origName::startsWith);
+            boolean skipTent=origName.startsWith("face_")||origName.contains("puff");
             for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);p.mul(scale);
+                if(wantPaper&&!skipTent){
+                    var tp=new Vector3f(p);
+                    if(loose)PaperTent.pressPoint(tp,localToWall,wallToLocal,faces,0f);
+                    if(isBody){pBody.add(tp.x);pBody.add(tp.y);pBody.add(tp.z);}
+                    if(isAcc){pHat.add(tp.x);pHat.add(tp.y);pHat.add(tp.z);}
+                    else{pMesh.add(tp.x);pMesh.add(tp.y);pMesh.add(tp.z);}
+                }
                 if(turn!=null)turn.transformPosition(p);
                 if(loose){float keep=WallYield.press(faces,p.x/16,p.y/16,p.z/16);p.x*=keep;p.z*=keep;}
                 int k=i*8;output[k]=p.x;output[k+1]=p.y;output[k+2]=p.z;output[k+3]=source[k+3];output[k+4]=source[k+4];}
             for(int i=start;i<end;i+=3){int k=i*8;
-                String name=data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString();
+                String name=origName;
                 if(data.has("house")&&data.get("house").getAsBoolean()&&name.startsWith("face_")&&source[k+7]>=-.15){Arrays.fill(output,k,k+24,0);continue;}
                 var a=new Vector3f(output[k+8]-output[k],output[k+9]-output[k+1],output[k+10]-output[k+2]);
                 var b=new Vector3f(output[k+16]-output[k],output[k+17]-output[k+1],output[k+18]-output[k+2]);a.cross(b);
@@ -141,8 +158,44 @@ final class RenderPose implements Overlays.Contact {
             if(smooth)smooth(output,start,end,puff);
         }
         var out=new JsonObject();out.add("vertices",OfflineModel.array(output));
+        if(wantPaper){
+            var grid=PaperTent.build(floatsOf(pBody),pBody.size(),floatsOf(pMesh),pMesh.size(),floatsOf(pHat),pHat.size(),
+                    yield?faces:List.of(),yield&&!faces.isEmpty()?localToWall:null);
+            if(grid!=null){
+                out.add("paper_top",OfflineModel.array(sheetTris(grid.top(),grid.rows(),grid.cols(),false,turn)));
+                out.add("paper_under",OfflineModel.array(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn)));
+            }
+        }
         var matrices=new JsonArray();for(var m:world){var flat=new JsonArray();for(var row:Authoring.rows(m))for(var x:row.getAsJsonArray())flat.add(x);matrices.add(flat);}out.add("world",matrices);
         out.add("root_pose",OfflineModel.array(pose[root]));return out;
+    }
+    private static float[] floatsOf(List<Float> list){float[] r=new float[list.size()];for(int i=0;i<r.length;i++)r[i]=list.get(i);return r;}
+    private static float[] sheetTris(float[][][] pts,int rows,int cols,boolean inward,Matrix4f turn){
+        float[] out=new float[rows*cols*6*8];int at=0;
+        Vector3f pa=new Vector3f(),pb=new Vector3f(),pc=new Vector3f(),pd=new Vector3f(),n=new Vector3f();
+        for(int r=0;r<rows;r++){
+            float v0=rows==8&&r>6?.75f-.20f*(r-6):.25f+.50f*r/Math.min(6,rows);
+            float v1=rows==8&&r+1>6?.75f-.20f*(r+1-6):.25f+.50f*(r+1)/Math.min(6,rows);
+            for(int c=0;c<cols;c++){
+                float u0=.1875f+.625f*c/cols,u1=.1875f+.625f*(c+1)/cols;
+                pa.set(pts[r][c]);pb.set(pts[r+1][c]);pc.set(pts[r+1][c+1]);pd.set(pts[r][c+1]);
+                if(turn!=null){turn.transformPosition(pa);turn.transformPosition(pb);turn.transformPosition(pc);turn.transformPosition(pd);}
+                n.set(pb).sub(pa).cross(new Vector3f(pd).sub(pa));
+                if(inward)n.negate();
+                if(n.length()>1e-8f)n.normalize();
+                if(!inward){
+                    at=emitVert(out,at,pa,u0,v0,n);at=emitVert(out,at,pb,u0,v1,n);at=emitVert(out,at,pc,u1,v1,n);
+                    at=emitVert(out,at,pa,u0,v0,n);at=emitVert(out,at,pc,u1,v1,n);at=emitVert(out,at,pd,u1,v0,n);
+                }else{
+                    at=emitVert(out,at,pa,u0,v0,n);at=emitVert(out,at,pd,u1,v0,n);at=emitVert(out,at,pc,u1,v1,n);
+                    at=emitVert(out,at,pa,u0,v0,n);at=emitVert(out,at,pc,u1,v1,n);at=emitVert(out,at,pb,u0,v1,n);
+                }
+            }
+        }
+        return out;
+    }
+    private static int emitVert(float[] out,int at,Vector3f p,float u,float v,Vector3f n){
+        out[at]=p.x;out[at+1]=p.y;out[at+2]=p.z;out[at+3]=u;out[at+4]=v;out[at+5]=n.x;out[at+6]=n.y;out[at+7]=n.z;return at+8;
     }
     private void smooth(float[] output,int start,int end,float amount){
         var groups=new HashMap<String,Vector3f>();
