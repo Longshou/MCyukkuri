@@ -59,14 +59,16 @@ public final class NewspaperStackBlock extends Block {
         int bundles = state.getValue(BUNDLES);
         int taken = state.getValue(TAKEN);
         int remainingBefore = bundles * SHEETS_PER_BUNDLE - taken;
+        boolean changed;
         if (taken + 1 < SHEETS_PER_BUNDLE) {
-            level.setBlock(pos, state.setValue(TAKEN, taken + 1), Block.UPDATE_ALL);
+            changed = level.setBlock(pos, state.setValue(TAKEN, taken + 1), Block.UPDATE_ALL);
         } else if (bundles > 1) {
-            level.setBlock(pos, state.setValue(BUNDLES, bundles - 1).setValue(TAKEN, 0), Block.UPDATE_ALL);
+            changed = level.setBlock(pos, state.setValue(BUNDLES, bundles - 1).setValue(TAKEN, 0), Block.UPDATE_ALL);
         } else {
-            level.removeBlock(pos, false);
+            changed = level.removeBlock(pos, false);
         }
-        Vec3 top = Vec3.atBottomCenterOf(pos).add(0.0, Math.max(1, remainingBefore) / 16.0, 0.0);
+        if (!changed) return ItemStack.EMPTY;
+        Vec3 top = Vec3.atBottomCenterOf(pos).add(0.0, remainingBefore / 16.0, 0.0);
         level.playSound(null, top.x, top.y, top.z, SoundEvents.BOOK_PAGE_TURN, SoundSource.BLOCKS, 0.65F,
                 0.9F + level.random.nextFloat() * 0.2F);
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), top.x, top.y, top.z,

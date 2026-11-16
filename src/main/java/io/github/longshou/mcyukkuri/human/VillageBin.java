@@ -204,8 +204,9 @@ public final class VillageBin {
         }
 
         private boolean awaited(ItemEntity item) {
+            boolean paper = item.getItem().is(Items.PAPER);
             return !level().getEntitiesOfClass(YukkuriEntity.class, item.getBoundingBox().inflate(16, 4, 16),
-                    y -> y.isAlive() && (y.treasure().hunting(item) || y.life().usingPaperBedding(item.blockPosition()))).isEmpty();
+                    y -> y.isAlive() && (y.treasure().hunting(item) || paper && y.life().usingPaperBedding(item.blockPosition()))).isEmpty();
         }
 
         private List<BlockPos> bins(ItemStack held) {
