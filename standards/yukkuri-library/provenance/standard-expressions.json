@@ -850,10 +850,10 @@
     "expressions/parts/ceba918af71c4d4e486a.png": "c5363c89f37e4c5e259e8b61ef752b21bcfe9f63dfede0102c4be1bfe310a271",
     "expressions/parts/cf72efe55c3dd4495081.png": "207c4cd716146e25c074e069f0b17ed600894861c2eafcf16aa72918878c97b9",
     "expressions/parts/e08892d72dc46d4637fb.png": "f3fdce58bbfb7982e7891110673ed33a4998bc0e88b29c4cb9177935b12fdffd",
-    "expressions/presets/sneer.json": "7c39951c70d138b16c7a3bae37cad59273906d817f9a423bd8c7e615fbec425e",
-    "expressions/presets/envy.json": "5ccc0feb5581ce4241fec6cf2b609d8913d5432e0d0ca2c22bba70721faf5cfc",
-    "expressions/presets/hmph.json": "85a491afe80ef176cfd45e8fc7dc5debbdd249cd4d967ba63cf9eed6c9284410",
-    "expressions/presets/ashamed.json": "a61460f062d8dfc8648097190c35572c8f5240f9e698c4512ba85b65c329d548",
+    "expressions/presets/sneer.json": "44b4e86f43921eabb60508156b251d4bfb907bea79deb5aa759ad96635ba9d18",
+    "expressions/presets/envy.json": "676f5bce14563c256de34feb7393b59f330fab7adca5dc7a09fe0f2394c9ae8c",
+    "expressions/presets/hmph.json": "7b52a25190d934a0fdddbb126b8511aae1433b2d903b8d8f0ea687da41f56323",
+    "expressions/presets/ashamed.json": "5c5172cdf479696679488b9635ef0dbcc5915aeb1c859eaf99858a5b0f4cce8d",
     "expressions/parts/index.json": "95a83fe90b875f5f8d3ec70951e1b4b23242e6773a60c6f63c555a9b50abf0e7"
   },
   "exports": {

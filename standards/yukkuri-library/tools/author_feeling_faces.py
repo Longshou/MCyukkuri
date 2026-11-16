@@ -84,8 +84,7 @@ def outputs():
                       recipe=dict(source='tools/author_feeling_faces.py', base=base, note=note),
                       parts=chosen, sources=[], status='accepted', art='Project design; drawn on the standard part grid',
                       aliases=[], origin='project design', review_pair=None,
-                      review_decision=dict(status='accepted', date='2026-11-16',
-                                           note='用户放行当日美术批次（免审）；试玩认可仍是完成标准'))
+                      review_decision=dict(status='accepted', date='2026-11-16'))
         files[LIB/'expressions/presets'/(ident+'.json')] = (json.dumps(preset, ensure_ascii=False, indent=2)+'\n').encode()
     files[registry_path] = json.dumps(registry, indent=2).encode()
     return files
