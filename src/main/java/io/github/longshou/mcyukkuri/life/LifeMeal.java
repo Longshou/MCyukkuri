@@ -125,7 +125,7 @@ final class LifeMeal {
     }
 
     private void showComplaint() {
-        if (o.entity().showReaction("pursed", "", 60)) o.entity().speakCue("food_complain");
+        if (o.entity().showReaction("hmph", "", 60)) o.entity().speakCue("food_complain");
     }
 
     private boolean mouthForMeal() {

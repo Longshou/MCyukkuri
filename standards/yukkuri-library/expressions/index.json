@@ -109,7 +109,11 @@
     "sukkiri_smug": "expressions/presets/sukkiri_smug.json",
     "sukkiri_grin": "expressions/presets/sukkiri_grin.json",
     "sukkiri_manic": "expressions/presets/sukkiri_manic.json",
-    "sukkiri_tender": "expressions/presets/sukkiri_tender.json"
+    "sukkiri_tender": "expressions/presets/sukkiri_tender.json",
+    "sneer": "expressions/presets/sneer.json",
+    "envy": "expressions/presets/envy.json",
+    "hmph": "expressions/presets/hmph.json",
+    "ashamed": "expressions/presets/ashamed.json"
   },
   "effects": {
     "wet_highlight": "expressions/effects/wet_highlight.json",

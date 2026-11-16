@@ -2,7 +2,7 @@
   "status": "approved",
   "date": "2026-09-12",
   "user_confirmation": "作为标准表情保存吧",
-  "count": 93,
+  "count": 97,
   "entries": [
     {
       "id": "neutral",
@@ -561,6 +561,30 @@
       "code": "S06",
       "label": "温柔满足",
       "preset": "expressions/presets/sukkiri_tender.json"
+    },
+    {
+      "id": "sneer",
+      "code": "F01",
+      "label": "嘲讽",
+      "preset": "expressions/presets/sneer.json"
+    },
+    {
+      "id": "envy",
+      "code": "F02",
+      "label": "眼红",
+      "preset": "expressions/presets/envy.json"
+    },
+    {
+      "id": "hmph",
+      "code": "F03",
+      "label": "撇嘴不理",
+      "preset": "expressions/presets/hmph.json"
+    },
+    {
+      "id": "ashamed",
+      "code": "F04",
+      "label": "羞愧",
+      "preset": "expressions/presets/ashamed.json"
     }
   ],
   "deferred_ids": [
@@ -820,7 +844,17 @@
     "expressions/presets/sukkiri_tender.json": "266df76e6828880a294ab3132ba730b7b8af9e151f89d35723e64f8e66f0c7a6",
     "expressions/parts/24c4547c2ba3943d7feb.png": "b5fe2e126e4ccf859b6c4a4824b8d9b65d74bd75bacaf283a6f2367ed8687f51",
     "expressions/parts/7e221ebef1e7449e971e.png": "057f7b774253c4e1174e53e9e4484b3d05d2b835e570ef03f34fad8365148fe2",
-    "expressions/parts/978f9587fc55c9b7eeae.png": "7f86aafa8a5a2f84c0f6309acdb6c05a87644d3ad80ca20376ff0e48a850e99c"
+    "expressions/parts/978f9587fc55c9b7eeae.png": "7f86aafa8a5a2f84c0f6309acdb6c05a87644d3ad80ca20376ff0e48a850e99c",
+    "expressions/parts/07ffb2fe5be54d5a66d4.png": "b00ab38210d76096476a5ad06c006902cf009802d65a10eb0f932523c188db46",
+    "expressions/parts/7d3549213f3462106809.png": "067541f25286e81969f02e670adf9446b348632d34cbc91fdf40bd2dce1e1cda",
+    "expressions/parts/ceba918af71c4d4e486a.png": "c5363c89f37e4c5e259e8b61ef752b21bcfe9f63dfede0102c4be1bfe310a271",
+    "expressions/parts/cf72efe55c3dd4495081.png": "207c4cd716146e25c074e069f0b17ed600894861c2eafcf16aa72918878c97b9",
+    "expressions/parts/e08892d72dc46d4637fb.png": "f3fdce58bbfb7982e7891110673ed33a4998bc0e88b29c4cb9177935b12fdffd",
+    "expressions/presets/sneer.json": "7c39951c70d138b16c7a3bae37cad59273906d817f9a423bd8c7e615fbec425e",
+    "expressions/presets/envy.json": "5ccc0feb5581ce4241fec6cf2b609d8913d5432e0d0ca2c22bba70721faf5cfc",
+    "expressions/presets/hmph.json": "85a491afe80ef176cfd45e8fc7dc5debbdd249cd4d967ba63cf9eed6c9284410",
+    "expressions/presets/ashamed.json": "a61460f062d8dfc8648097190c35572c8f5240f9e698c4512ba85b65c329d548",
+    "expressions/parts/index.json": "95a83fe90b875f5f8d3ec70951e1b4b23242e6773a60c6f63c555a9b50abf0e7"
   },
   "exports": {
     "assembled/alice/index.html": "b961aa40dc7b51ea1276104cc88fdd30d6da16908d3a04c186f82269316c17a3",

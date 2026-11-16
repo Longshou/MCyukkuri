@@ -1,0 +1,33 @@
+{
+  "id": "hmph",
+  "label": "撇嘴不理",
+  "group": "生气 / 鼓脸",
+  "recipe": {
+    "source": "tools/author_feeling_faces.py",
+    "base": "neutral",
+    "note": "turning the nose up: eyes shut in a firm curve, smug brows, a flat turned-down mouth"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/7d3549213f3462106809.png",
+    "face_eye_right": "expressions/parts/7d3549213f3462106809.png",
+    "face_brow_left": "expressions/parts/4a98859cf98b258429a1.png",
+    "face_brow_right": "expressions/parts/87649084e12b80cab2ee.png",
+    "face_mouth": "expressions/parts/e08892d72dc46d4637fb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-16",
+    "note": "用户放行当日美术批次（免审）；试玩认可仍是完成标准"
+  }
+}

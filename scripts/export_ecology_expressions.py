@@ -6,10 +6,15 @@ IDS = ['closed_smile','chewing','chewing_closed','satisfied','open_smile']
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true')
+    parser.add_argument('--bases',action='store_true',help='write only the face textures of the base models: first step of a new face, before rare-forms derives its atlases')
+    args=parser.parse_args()
     from runtime_face_library import outputs as library_outputs
     from face_usage import ASSETS, emitted_faces, check_coverage
     import json
+    if args.bases:
+        for path,data in library_outputs(bases=True).items(): path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+        print('Base face textures written; rebuild the derived forms, then export again');return
     selected = library_outputs()
     usage = emitted_faces()
     metadata = ASSETS/'yukkuri_presentation/face_library.json'

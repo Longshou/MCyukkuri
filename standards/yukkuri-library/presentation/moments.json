@@ -4158,7 +4158,7 @@
           "faces": [
             [
               0,
-              "closed_smile"
+              "hmph"
             ]
           ]
         }
@@ -4205,11 +4205,11 @@
           "faces": [
             [
               0,
-              "teary_frown"
+              "envy"
             ],
             [
               0.28,
-              "puff_teary"
+              "puff_open"
             ]
           ],
           "emote": "anger"
@@ -4221,7 +4221,7 @@
           "faces": [
             [
               0,
-              "teary_frown"
+              "envy"
             ]
           ]
         }

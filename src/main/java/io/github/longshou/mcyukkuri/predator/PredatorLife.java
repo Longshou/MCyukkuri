@@ -165,7 +165,7 @@ public final class PredatorLife implements EcologyRoutine {
     private void defy(Player player) {
         if (reactWait > 0 || !EcologyRoutines.predator(animal) || active() || !animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID()) || animal.pet().busy()
                 || animal.operations().active() || animal.isCommandPlaying() || animal.isPanicking() || animal.life().isSleeping()) return;
-        reactWait = 100; PetScenes.act(animal, "ignore", "neutral", "predator_defy", 40, null);
+        reactWait = 100; PetScenes.act(animal, "ignore", "hmph", "predator_defy", 40, null);
     }
     /** An obedient predator that sees a protected yukkuri it would otherwise go for holds itself back, once a minute at most. */
     private boolean restrain() {

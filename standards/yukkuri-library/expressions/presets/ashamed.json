@@ -1,0 +1,33 @@
+{
+  "id": "ashamed",
+  "label": "羞愧",
+  "group": "惊吓 / 困惑",
+  "recipe": {
+    "source": "tools/author_feeling_faces.py",
+    "base": "look_down",
+    "note": "shame: downcast eyes, worried brows, the hatched flush across the nose, a wavering mouth"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+    "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-16",
+    "note": "用户放行当日美术批次（免审）；试玩认可仍是完成标准"
+  }
+}

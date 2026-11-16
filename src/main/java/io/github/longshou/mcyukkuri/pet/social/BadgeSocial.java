@@ -262,7 +262,7 @@ public final class BadgeSocial {
         int flag = 0;
         if (theirs > mine) {
             flag = antagonistic ? BadgeLedger.ENVIED : BadgeLedger.ADMIRED;
-            PetScenes.act(o, antagonistic ? "sulk" : "beg", antagonistic ? "teary" : "open_smile",
+            PetScenes.act(o, antagonistic ? "sulk" : "beg", antagonistic ? "envy" : "open_smile",
                     antagonistic ? "badge_envy" : "badge_admire", 80, peer);
         } else if (mine > theirs && antagonistic) PetScenes.act(o, "proud", "smug", "badge_proud", 80, peer);
         else PetScenes.act(o, mine > theirs ? "bow" : "greet", "closed_smile", "peer", 80, peer);

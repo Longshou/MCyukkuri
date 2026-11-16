@@ -288,7 +288,7 @@ public final class BadgeArcs {
                     s.result = snark ? "snark" : "sulk";
                     sub.showReaction("surprise", "", 50);
                     if (snark) { PetScenes.act(o, "puff", "angry", "badge_envy_snark", 70, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
-                    else PetScenes.act(o, "sulk", "teary", "badge_envy", 80, sub);
+                    else PetScenes.act(o, "sulk", "envy", "badge_envy", 80, sub);
                 }
                 if (t >= 70) { quiet(o); next(s); }
             }
@@ -352,7 +352,7 @@ public final class BadgeArcs {
         int t = since(s);
         switch (s.responses) {
             case 0 -> {
-                if (t == 1) o.showReaction("angry", "badge_mock", 70);
+                if (t == 1) o.showReaction("sneer", "badge_mock", 70);
                 if (o.distanceToSqr(sub) <= 6.25) { quiet(o); next(s); }
                 else if (t >= 140) end(level, s, Phase.INTERRUPTED, "provoker_unreached");
             }
@@ -445,7 +445,7 @@ public final class BadgeArcs {
         switch (s.responses) {
             case 0 -> { if (o.distanceToSqr(sub) <= 4) next(s); else if (t >= 120) end(level, s, Phase.INTERRUPTED, "pity_unreached"); }
             case 1 -> {
-                if (t == 1) { quiet(o); if (scorn) PetScenes.act(o, "puff", "angry", "badge_envy_snark", 60, sub); else PetScenes.act(o, "nuzzle", "teary", "badge_pity", 70, sub); }
+                if (t == 1) { quiet(o); if (scorn) PetScenes.act(o, "puff", "sneer", "badge_envy_snark", 60, sub); else PetScenes.act(o, "nuzzle", "teary", "badge_pity", 70, sub); }
                 if (t >= 55) { quiet(o); next(s); }
             }
             default -> {
@@ -531,7 +531,7 @@ public final class BadgeArcs {
         int t = since(s);
         switch (s.responses) {
             case 0 -> {
-                if (t == 1) o.showReaction("angry", "badge_mock", 60);
+                if (t == 1) o.showReaction("sneer", "badge_mock", 60);
                 if (o.distanceToSqr(sub) <= 2.25) { quiet(o); next(s); }
                 else if (t >= 140) end(level, s, Phase.INTERRUPTED, "snatcher_unreached");
             }

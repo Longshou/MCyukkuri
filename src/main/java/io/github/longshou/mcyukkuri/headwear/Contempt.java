@@ -134,7 +134,7 @@ public final class Contempt {
                     target.getUUID(), observer.life().personality().intelligence(), before, affinity);
             return AFTER_SCORN;
         }
-        observer.showReaction("angry", "hatless_scorn", 80);
+        observer.showReaction("sneer", "hatless_scorn", 80);
         // The scorned one answers by its own nature (flee, puff back or ignore), and thinks less of the scorner in turn.
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));

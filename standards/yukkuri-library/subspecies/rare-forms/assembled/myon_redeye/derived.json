@@ -10,12 +10,13 @@
   "status": "pending_confirmation",
   "basis": "wiki species/myon L05《赤い眼のみょん》：红眼个体遭群落迷信；DEVELOPMENT_PLAN 4.2 红眼作为稀有外观",
   "operations": {
-    "recoloured_eye_pixels": 6425
+    "recoloured_eye_pixels": 6785
   },
   "textures": {
     "afraid": "bc0b12a6966c889e683df93821bee0d3d04ad18affe1b115fbb8e3089c5e6875",
     "angry": "717e04d931c923cf4c557af4e9f346138488cf5f27ddef90e2c708d3cfcbd159",
     "angry_stare": "96b64e9525fa4115015095e146014bd185a252f27870803d52bc2854a4b24479",
+    "ashamed": "2ff65f365151e4e36c7df885b4e18273e2b10fa426632f5466d08aa3528af85e",
     "bad_taste_closed": "8cc5b4becfe4ff77c5cd380796776e6070c9401454084e2156cd62aa9d33f4b4",
     "bad_taste_small": "5d270ca91bc88a4b0695262721074c9252e39e309a8a68fe2bf2b2cd0e6a418f",
     "blank_confused": "241614f145b483f3a24a479fefd3e2ea1119da8c16079aac32e9c2b2e68cf1f4",
@@ -48,10 +49,12 @@
     "dying_closed": "0dc257aa34e2166fc5caea8dafc859fd459df1f628ab28a3025178943ce0477e",
     "dying_closed_b": "9bb2aa9d5e5d2a19ed2b69388ff9118dded9009b41608472b6a742efee6f8a78",
     "endure": "1337350f4cd1fdc180e9c1698025cebfc55b7736e06aa582b89a9e161b8fb0c9",
+    "envy": "aae8e678f9c5f1f967d6064b552a4f1bfe06226105d36c56ad806a7462f85304",
     "flick_dull": "f6fccc4fa2a9b7dbbe173fa97e366a9c1d0fa272b56937422f61e2dcae90124a",
     "flushed_smile": "bc2672ac4bebccd019ed94bec9d17becf01f5b6a6ebade2eff751d2726068255",
     "flushed_tongue": "20fddd866c9c19af1d55b1b81ddc625c7be5c37a213da5dc6205e929bd9d57bf",
     "happy": "526a9d23c85cd9abe23860541188aae385090265bccdbf342a114953d398f994",
+    "hmph": "ca350f509a775621e3395d3dfc3cca220c7b06a799b257a56226cae035602c74",
     "horrified": "675d737826f6218feace6b1088dd1072f4962fe985b038741cf4daac5da53be5",
     "horrified_b": "c80af47e52540ab1bd3947026af62013a795ae4a3422849825339cbbc3b1b061",
     "impact": "22d09bbf1ee1e3ada578c88e843d6533bac1be297f8373615cd44b0bc793b699",
@@ -84,6 +87,7 @@
     "sleep_b": "03a6aca7628f14137109c0aa77296d14c8bb323370666b80a165dbbab15e5bee",
     "sleepy": "2146bceecfff95a7250555b4b304b9d54f56b801edfeb7a4eb069235ae1f19f9",
     "smug": "a7e1efb1e9b1c624e123d4b18226907505b17d8e839b21885553fc0372ec3ff2",
+    "sneer": "f460afdd4c78f701b414d5cd4701f06aad4e92dc5d29a9a4c3e56bd68716e8ac",
     "squashed": "a2e93d2e420c60194302706cc478ef196cab9f0fab37cfac44e2a82f6fe607eb",
     "squeezed_cry": "22d09bbf1ee1e3ada578c88e843d6533bac1be297f8373615cd44b0bc793b699",
     "squeezed_cry_tears": "3cc02417e8f8c5ce18f66d17cc4ed9c2e51b17c254796c1ae748329fc97be9f4",

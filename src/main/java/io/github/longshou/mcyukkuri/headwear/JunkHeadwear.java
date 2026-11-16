@@ -183,7 +183,7 @@ public enum JunkHeadwear {
     }
 
     private static void lowerEyes(YukkuriEntity animal) {
-        animal.showReaction(YukkuriAction.THINK, "look_down", "shy");
+        animal.showReaction(YukkuriAction.THINK, "ashamed", "shy");
     }
 
     private static boolean showOff(YukkuriEntity animal) {

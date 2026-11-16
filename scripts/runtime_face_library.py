@@ -100,7 +100,9 @@ def compose_preset(model, preset, neutral_source, common, with_texture=True, lib
     return atlas, entries
 
 
-def outputs():
+def outputs(bases=False):
+    """Every runtime face file; bases=True gives only the textures of models composed here, which the forms derived
+    from them (texture_source) need before they can be rebuilt for a new face."""
     index = read(LIB/'expressions/index.json')
     approved = read(LIB/index['standard_set'])['entries']
     selection = read(LIB/'expressions/runtime.json')
@@ -109,6 +111,8 @@ def outputs():
     models = {}
     common = {e['name']: e for e in read(LIB/'components/common/face.json')['elements']}
     for ident, row in selection['models'].items():
+        if bases and 'texture_source' in row:
+            continue
         model = read(ROOT/row['model'])
         for name, source in row['retained_textures'].items():
             files[ASSETS/'textures/entity'/ident/(name+'.png')] = (ROOT/source).read_bytes()
@@ -131,6 +135,8 @@ def outputs():
         models[ident] = dict(bone_names=[b['name'] for b in model['bones']],clips={},
                             expression_patches=patches,face_aliases=row['face_aliases'],
                             selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))
+    if bases:
+        return files
     animations = selection['animations']
     # One duration (ticks) per frame; the client cycles them in order. Frames are approved faces or derived faces
     # selectable on every model.

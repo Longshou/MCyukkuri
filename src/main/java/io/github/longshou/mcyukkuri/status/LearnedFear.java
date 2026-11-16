@@ -51,7 +51,7 @@ public final class LearnedFear {
             personality.relationshipChanged(holder.getUUID(),0,gain);
             int after = personality.fear(holder.getUUID());
             if (after==before.fear()) continue;
-            witness.showReaction("surprise","afraid",60);
+            witness.showReaction("afraid","afraid",60);
             GameplayLog.event(witness,"threat","fear learned holder={} victim={} incident={} fear={} -> {}",
                     holder.getUUID(),victim.getUUID(),incident,before.fear(),after);
         }
@@ -130,7 +130,7 @@ public final class LearnedFear {
             ticks=0;
             lastBody=body.blockPosition();
             lastDanger=holder==null?fire:holder.blockPosition();
-            body.showReaction("surprise","afraid",60);
+            body.showReaction("afraid","afraid",60);
             GameplayLog.limited(body,"threat","learned_cue",200,"learned retreat cue holder={} fire={}",
                     holder==null?null:holder.getUUID(),fire);
         }
