@@ -11,6 +11,20 @@
 
 ## 玩法待办
 
+- **2026-11-16 美术批**（用户批准整批不审查；八包已合入待试玩）：
+  - 帽子贴墙与木箱双睡位：已接入待试玩（[73506752a](https://github.com/Longshou/MCyukkuri/commit/73506752a)）；野外场 FG-08「流浪：母子找纸箱，木箱也能歇脚」、FG-09「流浪：纸箱湿透」；看木箱里两只的帽子之间是否留出空隙、沿墙走时帽檐向内收是否自然。
+  - 村庄家具木料与货箱：已接入待试玩（[fb8dfb83c](https://github.com/Longshou/MCyukkuri/commit/fb8dfb83c)）；博物馆「人类社会」→「村庄城镇」五种村庄按钮；看长椅、木桌与货箱的木料是否随村庄变，摊位货箱里是否装着真实货物（货箱渲染只在离线看过）。
+  - 捕食种上厕所、家油动作与洞穴床铺：已接入待试玩（[44e2e9491](https://github.com/Longshou/MCyukkuri/commit/44e2e9491)、[65e93dc00](https://github.com/Longshou/MCyukkuri/commit/65e93dc00)、[fd27f4e18](https://github.com/Longshou/MCyukkuri/commit/fd27f4e18)）；日常草地 MD-20「捕食种上厕所与地面排便」与房屋按钮「空屋住人一天后，家油搬进来」；看厕所接触动作与家油生态动作不再被跳过、翅膀与帽子是否避开马桶；洞里大窝按相邻方块收窄只在离线看过。
+  - 四个缺动作接入：已接入待试玩（[cb7e9bc14](https://github.com/Longshou/MCyukkuri/commit/cb7e9bc14)）；「照料时的态度」「被噗咕」「熟的走近蹭蹭」「走散亲子」；看快跑、吐出拒食、隔玻璃道别、依偎四个动作的衔接与收尾。
+  - 玻璃前张望与情绪动作：已接入待试玩（[bfe0483dd](https://github.com/Longshou/MCyukkuri/commit/bfe0483dd)）；「走散亲子」「商店橱窗」「饿帕琪狼吞后呕吐」；看蹲守与疲倦张望，以及辫子、鬓发、尾巴的情绪动作。
+  - 新表情与害怕脸：已接入待试玩（[0ad1fbefc](https://github.com/Longshou/MCyukkuri/commit/0ad1fbefc)）；会馆徽章嘲弄与眼红、街道嫉妒、挑食拒食、橱窗撇嘴、捕食种抗命、垃圾头饰羞愧（FG-12）、害怕工具（BD-21～BD-23）；看新表情在远处是否仍读得出。
+  - 动作幅度第二轮：已接入待试玩（[2cab8170d](https://github.com/Longshou/MCyukkuri/commit/2cab8170d)、[01c9f2a12](https://github.com/Longshou/MCyukkuri/commit/01c9f2a12)）；发抖、张望、呼唤孩子、紧张、不理会、思考、唱歌、丧子哭泣；看幅度是否合适，大幅转头时头发与帽子是否扫到旁边的人或墙。
+  - 展示托盘：已接入待试玩（[2ec293ac1](https://github.com/Longshou/MCyukkuri/commit/2ec293ac1)）；村庄城镇的会馆柜台、保护站窗口、鬼威惨商店柜台与各处桌面；看托盘里真实物品的摆放与高度（游戏内托盘渲染未实看）。
+  后续（均未做）：
+  - 流浪从摊位货箱偷取货物，店主看到后反应。
+  - 魔理沙 `mood_droop` 的辫子动作偏弱，待补。
+  - 帕秋莉咳嗽可能被饭后动作盖住，待试玩确认。
+
 - **村庄城镇化与街景**：已接入待试玩（主街、公共建筑与街口 [d318e98a6](https://github.com/Longshou/MCyukkuri/commit/d318e98a6)，镇内地块 [19bfc0428](https://github.com/Longshou/MCyukkuri/commit/19bfc0428)，五种村庄材质 [19fbb0f3c](https://github.com/Longshou/MCyukkuri/commit/19fbb0f3c)，院子宠物与纸箱避让 [149fa90ac](https://github.com/Longshou/MCyukkuri/commit/149fa90ac)，博物馆「人类社会」→「村庄城镇」的五类按钮与「换个布局」 [6b54a34a2](https://github.com/Longshou/MCyukkuri/commit/6b54a34a2)）。用户：「接手任务，并完善地编相关内容 特别是街道与原版村庄的融入，各种街景与建筑物的构建」。用户定案：整村城镇化（油库里内容为主、原版房屋作陪衬）；建筑与街景随五类村庄换原版材质；本轮只做地编与建筑并接上已有行为，新建筑带来的新行为另开包。
   待试玩留意：坡地上街口放不下时路面方切收尾（看切坡或没标记的落差）；按村庄按钮生成时有一拍停顿（耗时未测）；院子宠物每天补粮、重放村庄后不重复生成；自然村庄的城镇边界与纸箱落点；雪原公园水池结冰（按自然现象接受）。
   后续行为（均未做）：
@@ -46,7 +60,7 @@
   - FG-13 触发条件：部分接入（[ec6646d3e](https://github.com/Longshou/MCyukkuri/commit/ec6646d3e)，玩家手持食物隔着玻璃也能引来、饥饿时注意距离由 4 格放宽到 8 格；真实街景的触发率仍无法量化，待试玩观察；场景 `food_behind_glass`）。用户：「FG-13 这种行为真的能够稳定触发吗 我不是说一定触发。我担心，如果不在演示场里演示，而是在实际环境下，这种触发条件太苛刻，导致真实场景几乎看不到」
   - 纸箱建模（Opus 返工）：已接入待试玩（[427a0c00c](https://github.com/Longshou/MCyukkuri/commit/427a0c00c)、[7eada4d24](https://github.com/Longshou/MCyukkuri/commit/7eada4d24)，卧姿方块风纸箱、两只成年并排、去掉共面闪烁，淋雨分湿／透三档；野外场「流浪：母子找纸箱」（`stray_boxes`）「流浪：纸箱湿透」（`stray_rain`））。用户：「纸箱建模有问题，并不是我们看见的纸板箱，而且太大了。正常的纸板箱大小，大概是两个成年油库里拥挤的水平。而且这个纸箱靠近观察时，会发现有法线闪烁的问题；这个建模风格也不符合MC的一贯风格」「纸箱会轻易地被油库里穿模，这种美术都要交给OPS做。如果是OPS做的话，就让他返工」
   - 垃圾桶与垃圾闭环：已接入待试玩（[f2546587f](https://github.com/Longshou/MCyukkuri/commit/f2546587f)，换成铁皮垃圾桶方块，站立打开取物、撞倒后从桶口掏；居民每日投一件垃圾、垃圾头饰来自住户与街桶；野外场 FG-10（`stray_rubbish`）「流浪：翻垃圾桶」，街道 TN-26（`street_tidy`））。用户：「垃圾桶你是用一个木桶演示的，非常不形象。考虑换更好的样式，或者新做一个方块。这里考虑到闭环垃圾了吗？比如垃圾头饰的来源」
-  - 帽子贴墙穿模（随纸箱包发现）：已接入待试玩。野外场 FG-08 看木箱里两个错开的睡位和头饰之间的空隙，FG-09 看左边魔理沙沿墙去捡苹果时帽檐向内收。两只无亲缘的成体同时到达同一个窝时，后到的可能被拒，60 秒后再试。另：捕食种的上厕所接触动作数据与现模型对不上，游戏里这段被跳过。
+  - 帽子贴墙穿模（随纸箱包发现）：木箱双睡位与贴墙帽檐已接入待试玩（[73506752a](https://github.com/Longshou/MCyukkuri/commit/73506752a)、[4259b5a14](https://github.com/Longshou/MCyukkuri/commit/4259b5a14)）。野外场 FG-08 看木箱里两个错开的睡位和头饰之间的空隙，FG-09 看左边魔理沙沿墙去捡苹果时帽檐向内收。同一窝的睡位争抢（两只无亲缘的成体同时到达时先抢同一睡位、后到者被拒、60 秒后再试）：未做。
   - 垃圾闭环缺口（随垃圾桶包发现）：已接入待试玩（[2087d24cf](https://github.com/Longshou/MCyukkuri/commit/2087d24cf)，夹在长椅与墙之间推不倒的桶只记 `bin_skip`、居民和店员都不再投放；居民把地上的纸、木棍、羽毛和垃圾头饰捡起走到最近的桶投进去；从头上取下的垃圾头饰同样是可回收实物；场景 `street_tidy`）。用户：「垃圾桶这里闭环了吗 倒塌的和正的垃圾桶是一个物件吗，状态如何转换」
   - 戴垃圾头饰的反应：已接入待试玩（[d782b9350](https://github.com/Longshou/MCyukkuri/commit/d782b9350)、[2087d24cf](https://github.com/Longshou/MCyukkuri/commit/2087d24cf)，低自尊鞠躬道谢、中档衔着犹豫、高自尊鼓脸回绝；戴着被嘲笑会含泪，取下也按同一档反应；野外场 FG-12（`stray_junk_headwear`）「流浪：垃圾头饰」）。用户：「油库里被戴上垃圾头饰也应该有所反应。不管是高自尊还是低自尊，你这个演出都有缺失」
   - 魔理沙头发穿模：已接入待试玩（[19c67a093](https://github.com/Longshou/MCyukkuri/commit/19c67a093)，后发下摆与后发片改绑到同一组头部形变，走路不再互穿；含幼体、水生与被窝魔理沙，天气与捕食种 WT-08（`shared_body`）看背影）。用户：「魔理沙油库里走路的时候，头发的后摆会和发片穿模」
@@ -103,7 +117,6 @@
   - 鬼威惨工具：已接入待试玩（工具 2：[859e06243](https://github.com/Longshou/MCyukkuri/commit/859e06243)，五件剪切工具并入原版剪刀、其余 8 件有手持与身上实际模型、钉子钩子画在各自伤口、剪下的头发从头部掉落；身体 BD-07；[97d6564b5](https://github.com/Longshou/MCyukkuri/commit/97d6564b5)，14 件工具与剪下的头发改为与小麦粉糊一致的图标；交互已接线：[aec6fe697](https://github.com/Longshou/MCyukkuri/commit/aec6fe697)，统一的保护门挡住对他人宠物与未付款商品的伤害；身体 BD-07、商店 shop_build）。用户：「现有的油虐工具设计好交互，再按照游戏其他物品风格重新做建模」「一些工具可以合并，比如剪刀也可以和原版物品合并」「工具需要有实际建模，即实际与油库里的互动需要处理好，工具需要有实际的效果」
   - 流浪油、商店（宠物店与鬼威惨商店）、街道、训练与考试：用户已认可计划，分包进行中（流浪油 wp-hf-stray、宠物店 wp-hg-pet-shop、考试 wp-ho-exams；街道布局与鬼威惨商店排在宠物店之后）。用户：「商店注意好布景和npc逻辑能闭环正常，被玩家交互打断也能恢复正常流程；街道的售货机什么的可以替换成mc原版中的村庄建筑，不出戏。路灯，纸箱这种还是可以存在的。纸箱应该跟流浪油演出相关；训练与考试的问题在于，内容和正常游戏内容割裂无关，除了训练与考试其他时候几乎没有体现或者联动」
   - 垃圾头饰与通用态度：复测失败（戴垃圾头饰的反应见晚试玩反馈）（[1afd7b44b](https://github.com/Longshou/MCyukkuri/commit/1afd7b44b)：自尊由数值现算，饥饿流浪按数值讨食或辱骂索食、野油见生人停看或退开；城镇 TN-13。垃圾头饰：[a960729a0](https://github.com/Longshou/MCyukkuri/commit/a960729a0)，右键消耗一件随机成三样之一，自尊低才接受，同类认出是假货会嘲讽但不驱逐，死后随遗体；流浪与觅食 FG-12；纸盒、瓶盖、冰淇淋筒三种正式模型已换上，并修了非魔理沙体型戴垃圾头饰时客户端崩溃（[bc42862cb](https://github.com/Longshou/MCyukkuri/commit/bc42862cb)）。徽章、宠物、同伴之间的反应改读同一套数值：[9740d6294](https://github.com/Longshou/MCyukkuri/commit/9740d6294)，街道 TN-01、TN-02，房屋 HD-06；橱窗与买卖反应也改读同一套数值，[3f6b49dfd](https://github.com/Longshou/MCyukkuri/commit/3f6b49dfd)，商店 shop_window）。用户：「缺帽戴这几种垃圾顶替。那么如果对这种垃圾取下头饰呢？我建议统一作为垃圾饰品处理，右键给油库里随机变成一种垃圾头饰。油库里也要有相应反应，也会根据数值反应。流浪有如果嚣张的会直接辱骂人类并索要食物，这种根据数值变化的态度应该是全游戏通用的。」「我看后台任务的态度模型不全面，而且没有和游戏的数值配合好 这些涉及很广的较为底层的修改 需要多个裁决者判断」——先出贴合现有数值的设计，三模型独立裁决后再实现。
-  - 物品画风统一与清理：未做。用户：「这不是还有很多物品画风不对吗 玩具 装置和药 还有些不需要的删除 比如重复道具 垫料这种没用的」
   - 工厂：暂不开放，后续再做。用户：「工厂相关暂不开放，后面再做记为todo 现有内容不应该依赖工厂」。商店以外的依赖已解除（5e18b041f，新世界不生成工厂、旧存档可读）；商店侧由宠物店包清理。
 
 - **人类世界扩建（街道生活、爱派虐派 NPC、鬼威惨商店）**：已接入待试玩（街道摊位与小巷、流浪物件、鬼威惨商店：[ff20a18b6](https://github.com/Longshou/MCyukkuri/commit/ff20a18b6)、[21a79fd07](https://github.com/Longshou/MCyukkuri/commit/21a79fd07)，商店 oni_shop、流浪 stray_rubbish；爱派、虐派与路人居民单步可见交互：[dd8bbe15f](https://github.com/Longshou/MCyukkuri/commit/dd8bbe15f)，爱派喂食与制止、虐派只恐吓驱赶轻踢且不碰受保护个体、粮食有限可见；街道 TN-09、TN-10、TN-20）。用户：「做好群落和结构规划前 原版村庄需要纳入 mod 比如街道商店等都可以和村庄一起生成  街道相关内容也需要大幅度完善 现在的简陋  包括 npc 爱派虐派做好做完善 还有鬼威惨商店也可以做了 参考wiki 设定」「街道生活、爱派虐派 NPC 和鬼威惨商店 也需要」。设定依据见 Wiki [人类世界](../wiki/hakkei-reference/world/human-world.md)。村庄生成：已接入待试玩（[8f59e1f5d](https://github.com/Longshou/MCyukkuri/commit/8f59e1f5d)；新建默认世界种子 42，`/tp @s 651 80 -302`）。
@@ -118,7 +131,9 @@
 
 ## 流程与工具
 
-提效类改动；状态与玩法条目相同，完成即删。以真实提效衡量，不追数据指标。目前无未完成项。
+提效类改动；状态与玩法条目相同，完成即删。以真实提效衡量，不追数据指标。
+
+- `check_tiers.py --check`：未做。main（[f0ba37f17](https://github.com/Longshou/MCyukkuri/commit/f0ba37f17)）有 13 个基线错误：brace、eat、sleep、wake、sing、push、shake、think 两条、proud、bow、struggle、offer_bite；与本批动作无关。
 
 ## 待用户裁决
 
