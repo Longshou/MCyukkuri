@@ -26,16 +26,25 @@ final class WornHatClearance {
         originZ = origin.m32();
     }
 
-    static WornHatClearance nearby(YukkuriEntity source, float partial, Matrix4f origin) {
+    static WornHatClearance nearby(YukkuriEntity source, YukkuriModel model, float partial, Matrix4f origin) {
         YukkuriView entity = source;
         int headwear = entity.visibleHeadwear();
         var junk = Headwear.visualJunk(headwear);
         if (junk == null && !entity.hasVisibleAccessory() && Headwear.visualLevel(headwear) != 3) return null;
-        String prop = junk == null ? "accessory_" + entity.assetId() : "junk_" + junk.id();
-        var bounds = PropModels.bounds(prop, 8);
-        var low = new Vector3f((float)bounds.minX, (float)bounds.minY, (float)bounds.minZ);
-        var high = new Vector3f((float)bounds.maxX, (float)bounds.maxY, (float)bounds.maxZ);
-        if (junk != null) PropModels.anchor(prop, entity.assetId()).matrix().transformAab(low, high, low, high);
+        String prop = junk == null ? entity.subspeciesKind().hatProp() : "junk_" + junk.id();
+        var low = new Vector3f();
+        var high = new Vector3f();
+        if (prop == null) {
+            // Skinned accessories, including the house forms, are part of the live model.
+            var bounds = model.restAccessoryBounds();
+            low.set(bounds[0] / 16, bounds[1] / 16, bounds[2] / 16);
+            high.set(bounds[3] / 16, bounds[4] / 16, bounds[5] / 16);
+        } else {
+            var bounds = PropModels.bounds(prop, 8);
+            low.set((float)bounds.minX, (float)bounds.minY, (float)bounds.minZ);
+            high.set((float)bounds.maxX, (float)bounds.maxY, (float)bounds.maxZ);
+            if (junk != null) PropModels.anchor(prop, entity.assetId()).matrix().transformAab(low, high, low, high);
+        }
         double scale = entity.getScale() * entity.growthScale();
         double wornScale = junk == null ? HatScale.factor(entity.subspeciesFlags()) : 1;
         // Rest bounds plus room for the animated hat's swing, lean and bounce.
@@ -43,7 +52,7 @@ final class WornHatClearance {
         double reach = scale * wornScale * Math.hypot(Math.max(-low.x, high.x), Math.max(-low.z, high.z)) + motion;
         var feet = new Vec3(Mth.lerp(partial, source.xOld, source.getX()), Mth.lerp(partial, source.yOld, source.getY()),
                 Mth.lerp(partial, source.zOld, source.getZ()));
-        var sweep = new AABB(-reach, scale * low.y - motion, -reach,
+        var sweep = new AABB(-reach, Math.max(0, scale * low.y - motion), -reach,
                 reach, scale * Math.max(high.y, high.y * wornScale) + motion, reach).move(feet);
         var faces = new ArrayList<Face>();
         for (var shape : entity.level().getBlockCollisions(source, sweep)) {

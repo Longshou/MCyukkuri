@@ -864,6 +864,7 @@ public final class YukkuriModel {
     String id(){return id;}
     List<Part> parts(){return parts;}
     float[] restVertices(){return restVertices;}
+    float[] restAccessoryBounds(){return hatDamageDraw.restBounds();}
     Vector3f normal(){return normal;}
     Vector3f edge(){return edge;}
     float[] vertices(){return vertices;}
