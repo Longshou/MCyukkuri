@@ -2025,6 +2025,7 @@ def _yard_ground(open_gate):
 _yard_bond_owner = uid('yard_owner_return', 'keeper')
 _yard_scold_owner = uid('yard_stray_scold', 'keeper')
 _yard_pet_pick = '@e[type=#mcylab:yukkuri,distance=..14,sort=nearest,limit=1]'
+_yard_marker = 'summon minecraft:marker ~3.5 ~ ~0.5 {Rotation:[180f,0f],'
 _yard_bounds = 'data:{Low:[-2,-1,-2],High:[4,3,2]}'
 add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎接', '宠物院子：主人归来，宠物上前迎接',
     '院宠留在院内，主人在街另一端。约半分钟后主人步行回院，看宠物转身迎上，在主人身边欢跳和蹭蹭。',
@@ -2035,8 +2036,8 @@ add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎�
         human('caretaker_brother', -16, 0, 'yard_keeper', 0, yaw=-90, label='院子主人')[:-1]
         + f',UUID:{uuid_nbt(_yard_bond_owner)},HumanHome:{_yard_pos(6, 0)}L,NoAI:1b}}',
         f'tag {sel("yard_keeper")} add mcy_yard_owner',
-        'summon minecraft:marker ~3.5 ~ ~0.5 {Tags:["scn","mcy_no_carton"],' + _yard_bounds + '}',
-        'summon minecraft:marker ~3.5 ~ ~0.5 {Tags:["scn","mcy_yard_pet"],data:{Owner:[3,0,0],Bowl:[2,0,2]}}',
+        _yard_marker + 'Tags:["mcy_no_carton"],' + _yard_bounds + '}',
+        _yard_marker + 'Tags:["mcy_yard_pet"],data:{Owner:[3,0,0],Bowl:[2,0,2]}}',
     ], late=[
         f'tag {_yard_pet_pick} add scn_yard_pet',
         f'tag {sel("yard_pet")} add scn',
@@ -2055,7 +2056,7 @@ add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱�
     '约 30 秒', [
         *_yard_ground(True),
         block(-5, 0, -1, 'mcyukkuri:straw_nest[facing=south]'),
-        'summon minecraft:marker ~3.5 ~ ~0.5 {Tags:["scn","mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
         human('caretaker_sister', 6, 0, 'yard_witness', 0, yaw=90, label='院子主人')[:-1]
         + f',UUID:{uuid_nbt(_yard_scold_owner)},HumanHome:{_yard_pos(6, 0)}L,YardBowl:{_yard_pos(5, 2)}L}}',
         street_trial('yard_stray_scold', 'marisa', -5, 0, 'yard_stray', boldness=100, friendliness=0,
