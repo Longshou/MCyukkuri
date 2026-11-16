@@ -258,8 +258,12 @@ public final class PetLife {
     }
 
     public boolean seesReturningOwner(LivingEntity person) {
-        return ownedBy(person.getUUID()) && animal.distanceToSqr(person) <= OWNER_SIGHT_SQ
-                && animal.hasLineOfSight(person) && person.hasLineOfSight(animal);
+        return nearReturningOwner(person) && animal.hasLineOfSight(person) && person.hasLineOfSight(animal);
+    }
+
+    /** The owner is still at greeting range: a gate post between them does not end a welcome already under way. */
+    public boolean nearReturningOwner(LivingEntity person) {
+        return ownedBy(person.getUUID()) && animal.distanceToSqr(person) <= OWNER_SIGHT_SQ;
     }
 
     public boolean canWelcomeOwner() {

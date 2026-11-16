@@ -372,7 +372,7 @@ public final class YukkuriSocial implements MotorOwner {
     public boolean canContinue() {
         if (task == Task.STUDY) return elapsed < duration && freeForSocial() && !entity.pet().busy();
         if (task == Task.OWNER_RETURN) return entity.pet().canWelcomeOwner() && target.isAlive()
-                && target.level() == entity.level() && entity.pet().seesReturningOwner((LivingEntity) target)
+                && target.level() == entity.level() && entity.pet().nearReturningOwner((LivingEntity) target)
                 && !(target instanceof Player player && player.isSpectator()) && !urgent()
                 && elapsed < duration;
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
