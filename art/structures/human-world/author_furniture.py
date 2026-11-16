@@ -336,8 +336,15 @@ def export():
     write(ASSET / 'blockstates/display_tray.json', tray_blockstate())
     write(models / 'item/display_tray.json', {'parent': tex('display_tray')})
     for name in NAMES:
-        write(DATA / 'loot_table/blocks' / f'{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
-            {'type': 'minecraft:item', 'name': 'mcyukkuri:' + name}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
+        survives = {'condition': 'minecraft:survives_explosion'}
+        pools = [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'mcyukkuri:' + name}], 'conditions': [survives]}]
+        if name == 'display_tray':
+            def state_is(**properties):
+                return {'condition': 'minecraft:block_state_property', 'block': 'mcyukkuri:display_tray', 'properties': properties}
+            pools.append({'rolls': 1, 'entries': [
+                {'type': 'minecraft:item', 'name': f'minecraft:{wood}_slab', 'conditions': [state_is(wood=wood)]}
+                for wood in WOODS], 'conditions': [state_is(raised='true'), survives]})
+        write(DATA / 'loot_table/blocks' / f'{name}.json', {'type': 'minecraft:block', 'pools': pools})
     stick = {'item': 'minecraft:stick'}
     write(DATA / 'recipe/wooden_bench.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['sss', 't t'],
           'key': {'s': {'tag': 'minecraft:wooden_slabs'}, 't': stick}, 'result': {'id': 'mcyukkuri:wooden_bench', 'count': 2}})
