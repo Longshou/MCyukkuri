@@ -4837,12 +4837,6 @@
       "chin_up": 5,
       "rise": 0.06,
       "return": 0.4,
-      "variants": {
-        "winged": {
-          "match": ["remilia", "flandre"],
-          "turn": -54
-        }
-      },
       "faces": [
         [
           0,
@@ -4850,7 +4844,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design: calmly turns the whole body about 78 degrees away with eyes closed, drawn up tall with the chin up at most 5 degrees, holds, then turns back partway. Winged forms turn 54 degrees: a wider turn swings a wing tip behind the body, beyond the reach its side already has.",
+      "lore": "Project design: calmly turns the whole body about 78 degrees away with eyes closed, drawn up tall with the chin up at most 5 degrees, holds, then turns back partway.",
       "triggers": [
         "calmly ignoring a wild yukkuri's begging or provocation"
       ]

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.pose.WallYield;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.Mth;
@@ -13,48 +14,45 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-/** Draw the posed headwear inside the free side of nearby block collision faces. */
-final class WornHatClearance {
-    private record Face(float x, float z, float distance) {}
+/** The block collision faces beside a body, measured each frame: its headwear and loose parts are drawn on their free side
+ *  ({@link WallYield}), while the body keeps its own collision box. */
+final class WallClearance {
+    private final List<WallYield.Face> faces;
+    private final float originX, originY, originZ;
 
-    private final List<Face> faces;
-    private final float originX, originZ;
-
-    private WornHatClearance(List<Face> faces, Matrix4f origin) {
+    private WallClearance(List<WallYield.Face> faces, Matrix4f origin) {
         this.faces = faces;
         originX = origin.m30();
+        originY = origin.m31();
         originZ = origin.m32();
     }
 
-    static WornHatClearance nearby(YukkuriEntity source, YukkuriModel model, float partial, Matrix4f origin) {
+    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, float partial, Matrix4f origin) {
         YukkuriView entity = source;
+        double scale = entity.getScale() * entity.growthScale();
+        // Rest bounds plus room for the animated swing, lean and bounce.
+        double motion = scale / 4;
         int headwear = entity.visibleHeadwear();
         var junk = Headwear.visualJunk(headwear);
-        if (junk == null && !entity.hasVisibleAccessory() && Headwear.visualLevel(headwear) != 3) return null;
-        String prop = junk == null ? entity.subspeciesKind().hatProp() : "junk_" + junk.id();
-        var low = new Vector3f();
-        var high = new Vector3f();
-        if (prop == null) {
-            // Skinned accessories, including the house forms, are part of the live model.
-            var bounds = model.restAccessoryBounds();
-            low.set(bounds[0] / 16, bounds[1] / 16, bounds[2] / 16);
-            high.set(bounds[3] / 16, bounds[4] / 16, bounds[5] / 16);
-        } else {
-            var bounds = PropModels.bounds(prop, 8);
-            low.set((float)bounds.minX, (float)bounds.minY, (float)bounds.minZ);
-            high.set((float)bounds.maxX, (float)bounds.maxY, (float)bounds.maxZ);
-            if (junk != null) PropModels.anchor(prop, entity.assetId()).matrix().transformAab(low, high, low, high);
-        }
-        double scale = entity.getScale() * entity.growthScale();
         double wornScale = junk == null ? HatScale.factor(entity.subspeciesFlags()) : 1;
-        // Rest bounds plus room for the animated hat's swing, lean and bounce.
-        double motion = scale / 4;
-        double reach = scale * wornScale * Math.hypot(Math.max(-low.x, high.x), Math.max(-low.z, high.z)) + motion;
+        // Skinned headwear, including the house forms, is among the live model's loose parts.
+        var loose = model.restLooseBounds();
+        double reach = scale * Math.max(1, wornScale) * loose[0] / 16, top = scale * Math.max(1, wornScale) * loose[1] / 16;
+        String prop = junk == null ? entity.subspeciesKind().hatProp() : "junk_" + junk.id();
+        if (prop != null && (junk != null || entity.hasVisibleAccessory() || Headwear.visualLevel(headwear) == 3)) {
+            // A hat drawn as a prop is not part of the live model.
+            var bounds = PropModels.bounds(prop, 8);
+            var low = new Vector3f((float)bounds.minX, (float)bounds.minY, (float)bounds.minZ);
+            var high = new Vector3f((float)bounds.maxX, (float)bounds.maxY, (float)bounds.maxZ);
+            if (junk != null) PropModels.anchor(prop, entity.assetId()).matrix().transformAab(low, high, low, high);
+            reach = Math.max(reach, scale * wornScale * Math.hypot(Math.max(-low.x, high.x), Math.max(-low.z, high.z)));
+            top = Math.max(top, scale * Math.max(high.y, high.y * wornScale));
+        }
+        reach += motion;
         var feet = new Vec3(Mth.lerp(partial, source.xOld, source.getX()), Mth.lerp(partial, source.yOld, source.getY()),
                 Mth.lerp(partial, source.zOld, source.getZ()));
-        var sweep = new AABB(-reach, Math.max(0, scale * low.y - motion), -reach,
-                reach, scale * Math.max(high.y, high.y * wornScale) + motion, reach).move(feet);
-        var faces = new ArrayList<Face>();
+        var sweep = new AABB(-reach, 0, -reach, reach, top + motion, reach).move(feet);
+        var faces = new ArrayList<WallYield.Face>();
         for (var shape : entity.level().getBlockCollisions(source, sweep)) {
             for (var box : shape.toAabbs()) {
                 if (!box.intersects(sweep)) continue;
@@ -64,22 +62,22 @@ final class WornHatClearance {
                 // A shape over the body axis is a floor or ceiling. Side faces use the nearest point on the shape,
                 // which also gives a continuous separating plane around the outside of a corner.
                 if (distance > 0 && distance < reach)
-                    faces.add(new Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024)));
+                    faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
+                            (float)(box.minY - feet.y), (float)(box.maxY - feet.y)));
             }
         }
-        return faces.isEmpty() ? null : new WornHatClearance(faces, origin);
+        return faces.isEmpty() ? null : new WallClearance(faces, origin);
     }
 
-    record Tuck(WornHatClearance clearance, VertexConsumer source) implements VertexConsumer {
+    List<WallYield.Face> faces() { return faces; }
+    /** Posed model units under {@code pose} to the faces' frame: blocks from the body axis, above the feet. */
+    Matrix4f frame(Matrix4f pose) { return new Matrix4f().translation(-originX, -originY, -originZ).mul(pose).scale(1 / 16f); }
+
+    record Tuck(WallClearance clearance, VertexConsumer source) implements VertexConsumer {
         @Override public VertexConsumer addVertex(float x, float y, float z) {
             float side = x - clearance.originX;
             float front = z - clearance.originZ;
-            float fraction = 1;
-            // All vertices use the same planes, so a triangle stays clear between its vertices as well.
-            for (var face : clearance.faces) {
-                float toward = face.x * side + face.z * front;
-                if (toward > face.distance) fraction = Math.min(fraction, face.distance / toward);
-            }
+            float fraction = WallYield.press(clearance.faces, side, y - clearance.originY, front);
             source.addVertex(clearance.originX + side * fraction, y, clearance.originZ + front * fraction);
             return this;
         }

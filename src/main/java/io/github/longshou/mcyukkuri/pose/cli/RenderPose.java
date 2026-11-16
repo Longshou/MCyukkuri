@@ -33,6 +33,9 @@ final class RenderPose implements Overlays.Contact {
     final Skin.RetentionFrame body;
     private final BitSet overSkin=new BitSet();
     private final Skin.Deform retain;
+    /** Limbs that give way to the request's "wall" (faces around the body axis in blocks, after its yaw), built on first use. */
+    private WallYield wallYield;
+    private boolean wallYieldBuilt;
     RenderPose(JsonObject request) {
         data=request.getAsJsonObject("model");
         if(request.has("fit")&&!request.get("fit").isJsonNull())Splice.fit(data,request.getAsJsonObject("fit"),hash->true);
@@ -104,6 +107,18 @@ final class RenderPose implements Overlays.Contact {
             Overlays.care(this,pose,world,root,!action.equals("first_toilet_assist"),target[0],target[1],target[2],care.get("blend").getAsFloat());updateFeatures();
         }
         float scale=request.get("scale").getAsFloat();float[] output=new float[rest.length];
+        // A wall beside the body: the entity's yaw turns the output, and with "yield" the loose parts give way as in the game.
+        var wall=request.has("wall")&&!request.get("wall").isJsonNull()?request.getAsJsonObject("wall"):null;
+        var faces=new ArrayList<WallYield.Face>();Matrix4f turn=null;boolean yield=false;
+        if(wall!=null){
+            turn=new Matrix4f().rotateY((float)Math.toRadians(wall.get("yaw").getAsFloat()));yield=wall.get("yield").getAsBoolean();
+            for(var raw:wall.getAsJsonArray("faces")){var f=Rig.floats(raw.getAsJsonArray());faces.add(new WallYield.Face(f[0],f[1],f[2],f[3],f[4]));}
+            if(!wallYieldBuilt){wallYieldBuilt=true;var parts=data.getAsJsonArray("parts");int n=parts.size();
+                var names=new String[n];var starts=new int[n];var counts=new int[n];
+                for(int i=0;i<n;i++){var p=parts.get(i).getAsJsonObject();names[i]=p.get("name").getAsString();starts[i]=start(p);counts[i]=count(p);}
+                wallYield=WallYield.of(bones,bindings,rest,names,starts,counts);}
+            if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,new Matrix4f(turn).scale(scale/16),faces,kind->false);else wallYield.clear();}
+        }
         for(int pi=0;pi<data.getAsJsonArray("parts").size();pi++){
             var part=data.getAsJsonArray("parts").get(pi).getAsJsonObject();
             if(part.has("anatomy")&&!part.get("anatomy").getAsString().isEmpty()&&!action.startsWith("anatomy_"+part.get("anatomy").getAsString()+"_"))continue;
@@ -111,7 +126,11 @@ final class RenderPose implements Overlays.Contact {
             if(puff>0){if(data.has("puff_surface")&&data.getAsJsonObject("puff_surface").get("part_index").getAsInt()==pi){part=data.getAsJsonObject("puff_surface");smooth=true;}
                 if(data.has("puff_attachments"))for(var raw:data.getAsJsonArray("puff_attachments"))if(raw.getAsJsonObject().get("part_index").getAsInt()==pi)part=raw.getAsJsonObject();}
             int start=start(part),end=start+count(part);
-            for(int i=start;i<end;i++){var p=skin(i).mul(scale);int k=i*8;output[k]=p.x;output[k+1]=p.y;output[k+2]=p.z;output[k+3]=source[k+3];output[k+4]=source[k+4];}
+            boolean loose=yield&&WallYield.loose(data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString());
+            for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);p.mul(scale);
+                if(turn!=null)turn.transformPosition(p);
+                if(loose){float keep=WallYield.press(faces,p.x/16,p.y/16,p.z/16);p.x*=keep;p.z*=keep;}
+                int k=i*8;output[k]=p.x;output[k+1]=p.y;output[k+2]=p.z;output[k+3]=source[k+3];output[k+4]=source[k+4];}
             for(int i=start;i<end;i+=3){int k=i*8;
                 String name=data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString();
                 if(data.has("house")&&data.get("house").getAsBoolean()&&name.startsWith("face_")&&source[k+7]>=-.15){Arrays.fill(output,k,k+24,0);continue;}

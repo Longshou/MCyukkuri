@@ -25,13 +25,16 @@ const actors=job.actors.map(a=>{
  if(!a.prop&&a.draftFace)model.expression_patches={...model.expression_patches,[a.face]:a.draftFace};
  if(a.draftClip)model.clips={...model.clips,[a.clip]:a.draftClip};
  const pose=a.prop?null:new RuntimePose(model,a.scale,revised(a.id,model),fits[a.id]);
+ // Walls stand beside the first actor only: it turns by the wall's yaw and, with yield, gives way as in the game.
  if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
  if(pose&&!a.moment&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
  return {...a,model,pose};
 });
-const frames=job.times.map(t=>{
+const frames=job.times.map((t,frame)=>{
  const vertices=[];
  for(const a of actors){
+  // Each actor stands beside its own copy of the walls: it turns by this frame's yaw and, with yield, gives way as in the game.
+  if(a.pose&&job.wall)a.pose.wall={yaw:job.wall.yaws[frame],faces:job.wall.faces,yield:job.wall.yield};
   let phase=0,clip=a.clip,time=t,intensity=1,momentFace=null;
   if(a.moment){
    for(const step of a.moment.steps){
@@ -63,6 +66,23 @@ const frames=job.times.map(t=>{
    vertices.push(...v);
   }
  }
+ // Each wall face as a quarter-block-thick slab: a checkered sheet of quarter-block tiles toward the body, then its top and ends.
+ for(const a of actors)for(const [nx,nz,distance,low,high] of a.pose&&job.wall?job.wall.faces:[]){
+  const o=a.offset,span=16,tile=4;
+  const corner=(along,up,out)=>[o[0]+nx*(distance*16+out)-nz*along,o[1]+up,o[2]+nz*(distance*16+out)+nx*along];
+  const quad=(q,colour)=>{
+   const a=q[1].map((v,k)=>v-q[0][k]),b=q[2].map((v,k)=>v-q[0][k]);
+   const n=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],length=Math.hypot(...n);
+   for(const index of [0,1,2,0,2,3])vertices.push(...q[index],colour,0,...n.map(v=>v/length));
+  };
+  for(let s=-span;s<span;s+=tile){
+   for(let h=low*16;h<high*16-1e-6;h+=tile)
+    quad([corner(s,h,0),corner(s+tile,h,0),corner(s+tile,h+tile,0),corner(s,h+tile,0)],-1-((Math.round(s/tile)+Math.round(h/tile))&1));
+   quad([corner(s,high*16,0),corner(s+tile,high*16,0),corner(s+tile,high*16,tile),corner(s,high*16,tile)],-3);
+  }
+  quad([corner(-span,low*16,tile),corner(-span,low*16,0),corner(-span,high*16,0),corner(-span,high*16,tile)],-3);
+  quad([corner(span,low*16,0),corner(span,low*16,tile),corner(span,high*16,tile),corner(span,high*16,0)],-3);
+ }
  return vertices;
 });
 // Lock one camera to the union of all samples, so motion is visible between frames.
@@ -77,6 +97,6 @@ const texture=fs.readFileSync(job.texture);
 for(let i=0;i<frames.length;i++){
  const v=frames[i];for(let k=0;k<v.length;k+=8)for(let c=0;c<3;c++)v[k+c]-=center[c];
  const pixels=raster.renderModel(v,texture,job.width,job.height,job.az,job.el,
-  radius*1.1*Math.max(1,job.height/job.width),{centerY:0,textureSize:job.textureSize});
+  radius*1.1*Math.max(1,job.height/job.width),{centerY:0,textureSize:job.textureSize,colors:[[176,172,164],[150,146,140],[120,116,112]]});
  fs.writeFileSync(path.join(job.work,i+'.rgba'),Buffer.from(pixels));
 }

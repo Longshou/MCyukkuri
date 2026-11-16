@@ -159,7 +159,7 @@ def before_checkout(value, stage):
     return root
 
 
-def render_strip(args, stage, times, before=False):
+def render_strip(args, stage, times, before=False, unyielded=False):
     source_root = Path(args.before).resolve() if before else ROOT
     # A before reference is another checkout's actual model, fit and motion inputs.
     actors, textures = [], []
@@ -263,7 +263,12 @@ def render_strip(args, stage, times, before=False):
         job = dict(root=str(source_root), actors=actors, times=times, slots=slots, textureSize=side,
                    texture=str(texture), width=args.size[0], height=args.size[1], work=str(work),
                    az=math.radians(args.view[0]), el=math.radians(args.view[1]))
-        if before:
+        if getattr(args, 'wall', None):
+            # Faces span the floor to 1.25 blocks; the unyielded pass shows the same wall with the model as authored.
+            turn = args.yaw + args.yaw[-1:]
+            job['wall'] = dict(yaws=[turn[0]+(turn[1]-turn[0])*i/max(1, len(times)-1) for i in range(len(times))], faces=[[x/math.hypot(x, z), z/math.hypot(x, z), d, 0, 1.25] for x, z, d in args.wall],
+                               **{'yield': not unyielded})
+        if before or unyielded:
             job['camera'] = read(stage/'camera.json')
         write_json(work/'job.json', job)
         subprocess.run([args.node, str(ROOT/'preview/hub/render.cjs'), str(work/'job.json')], check=True)
@@ -287,6 +292,10 @@ def strip(args, stage):
             view_labels = [f'AZ {view[0]:g}° EL {view[1]:g}° · {label}' for label in view_labels]
         frames.extend(current)
         labels.extend(view_labels)
+        if args.wall and not before_root:
+            old = render_strip(view_args, stage, times, unyielded=True)
+            pairs.extend(im for pair in zip(old, current) for im in pair)
+            comparison_labels.extend(f'{label} {version}' for label in view_labels for version in ('不避让', '避让'))
         if before_root:
             old = render_strip(view_args, stage, times, before=True)
             pairs.extend(im for pair in zip(old, current) for im in pair)
@@ -300,9 +309,9 @@ def strip(args, stage):
     write_json(stage/'atlas.json', dict(image='atlas.png', width=args.size[0], height=args.size[1], times=times,
                views=[dict(az=v[0], el=v[1]) for v in views]))
     body = f'<p>{E(args.model or args.prop)} / {E(args.clip)}；离线片段，行为效果由试玩确认。</p>' + media('strip.png')
-    if before_root:
+    if pairs:
         sheet(pairs, comparison_labels, stage/'compare.png', 2*len(times) if len(views) > 1 else 2, tuple(args.size))
-        body += media('compare.png', '相同视角与时刻：原版本 / 当前')
+        body += media('compare.png', '相同视角与时刻：' + ('原版本 / 当前' if before_root else '不避让 / 避让'))
     body += '<a href="atlas.png">帧图集</a> · <a href="atlas.json">时刻数据</a>'
     return body
 
@@ -694,6 +703,11 @@ def parser():
             p.add_argument('--partner'); p.add_argument('--partner-offset', type=float, nargs=3, default=[20, 0, 0])
             p.add_argument('--partner-clip', help='clip the partner plays on the same clock (default: --clip), e.g. the mirrored side of a pair')
             p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
+            p.add_argument('--wall', type=float, nargs=3, action='append', metavar=('X', 'Z', 'BLOCKS'),
+                           help='wall face beside each model: horizontal direction from the body axis and distance in blocks; '
+                                'repeat for more faces. Loose parts give way as in the game and an unyielded comparison is added')
+            p.add_argument('--yaw', type=float, nargs='+', default=[0], metavar='DEGREES',
+                           help='turn each model about its vertical axis (with --wall); two values turn it evenly from the first frame to the last')
             p.add_argument('--size', type=int, nargs=2, default=[360, 300])
             p.add_argument('--view', type=float, nargs=2, action='append', metavar=('AZ', 'EL'),
                            help='camera azimuth/elevation; repeat for one row per view')

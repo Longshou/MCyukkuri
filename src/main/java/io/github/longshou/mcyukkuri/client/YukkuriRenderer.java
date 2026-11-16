@@ -218,9 +218,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
             model.setWear(wear);
-            var hatClearance=preview||operated?null:WornHatClearance.nearby(source,model,partialTick,start);
+            var wallClearance=preview||operated?null:WallClearance.nearby(source,model,partialTick,start);
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
-                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,hatClearance);
+                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             PoseTap.body(entity,start,pose.last().pose(),partialTick);
             if(!preview&&!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);

@@ -19,7 +19,6 @@ final class HatDamageDraw {
     int level(){return hatDamage;}
     float fit(){return hatFit;}
     Vector3f seat(){return hatSeat;}
-    float[] restBounds(){refreshHatMasks();return hatBounds;}
     void visual(int headwear){hatDamage=Headwear.visualLevel(headwear);hatFit=HatSeat.fit(o.id(),Headwear.visualFit(headwear));}
     void sampler(HatDamageFaces.Sampler sampler){hatSampler=sampler;}
     void deferCaps(){hatCaps.clear();deferHatCaps=true;}

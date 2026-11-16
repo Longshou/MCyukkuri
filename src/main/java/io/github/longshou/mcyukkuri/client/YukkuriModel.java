@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.pose.Rig.Bone;
 import io.github.longshou.mcyukkuri.pose.Skin;
 import io.github.longshou.mcyukkuri.pose.Skin.Binding;
 import io.github.longshou.mcyukkuri.pose.Skin.Patch;
+import io.github.longshou.mcyukkuri.pose.WallYield;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -94,15 +95,31 @@ public final class YukkuriModel {
     private String sampledClip;
     private float sampledTime;
     private DrawEvidence drawEvidence;
-    private WornHatClearance hatClearance;
+    private WallClearance wallClearance;
+    /** Limbs that turn away from nearby walls; {@code wallTurns} is set while this frame's turns apply to the skin. */
+    private WallYield wallYield,wallTurns;
+    private boolean wallYieldChecked;
+    private float[] looseBounds;
+    /** Farthest horizontal reach from the body axis and greatest height of the loose parts at rest (model units). */
+    float[] restLooseBounds(){
+        if(looseBounds==null){
+            float reach=0,top=0;
+            for(var part:parts)if(WallYield.loose(part.name))for(int v=part.start;v<part.start+part.count;v++){
+                reach=Math.max(reach,(float)Math.hypot(restVertices[v*8],restVertices[v*8+2]));top=Math.max(top,restVertices[v*8+1]);}
+            looseBounds=new float[]{reach,top};
+        }
+        return looseBounds;
+    }
 
     VertexConsumer evidenceBuffer(String part, VertexConsumer buffer) {
-        if(drawEvidence==null&&hatClearance==null)return buffer;
-        if(buffer instanceof WornHatClearance.Tuck tuck)buffer=tuck.source();
-        String group=evidenceGroup(part);
-        if(drawEvidence!=null)buffer=part.equals("braid_lock_root")||part.equals("braid_lock_root_outer")
+        if(drawEvidence==null&&wallClearance==null)return buffer;
+        if(buffer instanceof WallClearance.Tuck tuck)buffer=tuck.source();
+        if(drawEvidence!=null){
+            String group=evidenceGroup(part);
+            buffer=part.equals("braid_lock_root")||part.equals("braid_lock_root_outer")
                 ? drawEvidence.buffer(group,buffer,"root_ring") : drawEvidence.buffer(group,buffer);
-        return hatClearance!=null&&group.equals("hat")?new WornHatClearance.Tuck(hatClearance,buffer):buffer;
+        }
+        return wallClearance!=null&&WallYield.loose(part)?new WallClearance.Tuck(wallClearance,buffer):buffer;
     }
     private String evidenceGroup(String part) {
         for(var p:parts)if(p.name.equals(part)&&accessoryPart(p))return "hat";
@@ -110,8 +127,8 @@ public final class YukkuriModel {
     }
     MultiBufferSource evidenceBuffers(String group, MultiBufferSource buffers) {
         var observed=drawEvidence==null?buffers:drawEvidence.buffers(group,buffers);
-        var clearance=hatClearance;
-        return clearance!=null&&group.equals("hat")?type->new WornHatClearance.Tuck(clearance,observed.getBuffer(type)):observed;
+        var clearance=wallClearance;
+        return clearance!=null&&group.equals("hat")?type->new WallClearance.Tuck(clearance,observed.getBuffer(type)):observed;
     }
 
     void poseFingerprint(String value) { poseFingerprint = value; }
@@ -864,7 +881,6 @@ public final class YukkuriModel {
     String id(){return id;}
     List<Part> parts(){return parts;}
     float[] restVertices(){return restVertices;}
-    float[] restAccessoryBounds(){return hatDamageDraw.restBounds();}
     Vector3f normal(){return normal;}
     Vector3f edge(){return edge;}
     float[] vertices(){return vertices;}
@@ -1024,6 +1040,22 @@ public final class YukkuriModel {
         // Contact solvers above change the bones repeatedly. Cache only after the final pose.
         skinningCache.begin();
         try {
+            wallTurns=null;
+            if(wallClearance!=null){
+                if(!wallYieldChecked){
+                    wallYieldChecked=true;int n=parts.size();var names=new String[n];var starts=new int[n];var counts=new int[n];
+                    for(int i=0;i<n;i++){names[i]=parts.get(i).name;starts[i]=parts.get(i).start;counts[i]=parts.get(i).count;}
+                    wallYield=WallYield.of(bones,bindings,restVertices,names,starts,counts);
+                }
+                if(wallYield!=null){
+                    // A braid at work and tails cradling a child keep their pose; they are only pressed.
+                    boolean braid=braidPose.active()||holdingItem||hatInBraid>0||braidUse.contains(selected);
+                    boolean tails=carryCurlLeft>0||carryCurlRight>0;
+                    wallYield.solve(this::skin,world,wallClearance.frame(stack.last().pose()),wallClearance.faces(),
+                            kind->kind.equals("lock")&&braid||kind.equals("tail")&&tails);
+                    wallTurns=wallYield;
+                }
+            }
             // A swaddle or leaf lies under the hair: read the final posed skin before any hair is drawn (CareWearRenderer.clearHair).
             wearClear=false;
             if(wear!=0)wearClear=CareWearRenderer.prepareClearance(this,wear);
@@ -1189,9 +1221,9 @@ public final class YukkuriModel {
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     WoundRenderer.Contact renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,String expression,
-            MultiBufferSource buffers,WornHatClearance clearance){
+            MultiBufferSource buffers,WallClearance clearance){
         try{
-            hatClearance=clearance;
+            wallClearance=clearance;
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
             drawingSurfaceMarks=WoundRenderer.active(entity);
             int leakOpacity=WoundRenderer.leakOpacity(entity);
@@ -1256,7 +1288,7 @@ public final class YukkuriModel {
             renderJunkHat(Headwear.visualJunk(headwear),stack,buffers,light,overlay);
             PoseTap.model(entity, this, accessory, hairLoss);
             return contact;
-        }finally{hatClearance=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
+        }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
     }
@@ -1490,6 +1522,7 @@ public final class YukkuriModel {
         skinBase(index,target);
         Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[index],crownLift,braidLift);
         if(wearClear&&overWearVertex(index)&&(retention<=0||rigidGroups()[index]!=1))CareWearRenderer.clearHair(target);
+        if(wallTurns!=null)wallTurns.apply(index,target);
     }
     private int featuresBone=-1;
     /** The face and crown features' frame, present on every form (the worn hat bone's parent on hatted forms). */
