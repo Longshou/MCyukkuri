@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 魔理沙难过甩辫加强 | `.worktrees/wp-art-droop-braid` | lore recipe.json 的 mood_droop 与动作修正导出 |
 
 ## 玩法待办
 
