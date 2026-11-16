@@ -1048,11 +1048,11 @@ public final class YukkuriModel {
                     wallYield=WallYield.of(bones,bindings,restVertices,names,starts,counts);
                 }
                 if(wallYield!=null){
-                    // A braid at work and tails cradling a child keep their pose; they are only pressed.
-                    boolean braid=braidPose.active()||holdingItem||hatInBraid>0||braidUse.contains(selected);
+                    // Working locks (house grip, braid reach/hold/use) and tails cradling a child keep their pose; they are only pressed.
+                    boolean locks=gripping||braidPose.active()||holdingItem||hatInBraid>0||braidUse.contains(selected);
                     boolean tails=carryCurlLeft>0||carryCurlRight>0;
                     wallYield.solve(this::skin,world,wallClearance.frame(stack.last().pose()),wallClearance.faces(),
-                            kind->kind.equals("lock")&&braid||kind.equals("tail")&&tails);
+                            kind->kind.equals("lock")&&locks||kind.equals("tail")&&tails);
                     wallTurns=wallYield;
                 }
             }
@@ -1581,6 +1581,7 @@ public final class YukkuriModel {
         if(pregnancy)Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[triangle],crownLift,braidLift);
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
         if(wearClear&&overWearVertex(triangle)&&(retention<=0||rigidGroups()[triangle]!=1))CareWearRenderer.clearHair(target);
+        if(wallTurns!=null)wallTurns.apply(triangle,target);
     }
     private boolean woundAccessoryVertex(int vertex){
         if(woundAccessoryVertices==null){woundAccessoryVertices=new boolean[bindings.length];

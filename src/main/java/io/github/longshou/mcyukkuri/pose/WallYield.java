@@ -36,6 +36,9 @@ public final class WallYield {
     /** Candidate turns tried before refining; the residual a turn may leave for the press (blocks). */
     private static final int STEPS = 12;
     private static final float SLACK = 1 / 256f;
+    /** Most turn spent per block of clearance gained (16 degrees per quarter model unit), so a grazing or rear-quarter wall
+     *  unwinds smoothly instead of snapping across a non-monotonic hump when {@code rest - best} crosses {@link #SLACK}. */
+    private static final float GAIN = 1024;
 
     private static final class Limb {
         Kind kind;
@@ -163,7 +166,7 @@ public final class WallYield {
                 turn(limb, middle);
                 if (reach(limb, posed, 1, toWall, faces) > allowed) low = middle; else high = middle;
             }
-            turn(limb, high);
+            turn(limb, Math.min(high, (rest - Math.max(0, best) - SLACK) * GAIN));
             limb.turned = any = true;
         }
     }
@@ -200,7 +203,7 @@ public final class WallYield {
     }
 
     /** The share of its horizontal offset from the body axis a point keeps so that it lies on the free side of every face
-     *  at its height. All points share the faces, so what is drawn between them stays clear as well. */
+     *  at its height. Triangles whose corners share the same height band stay clear between their corners as well. */
     public static float press(List<Face> faces, float side, float height, float front) {
         float fraction = 1;
         for (var face : faces) {

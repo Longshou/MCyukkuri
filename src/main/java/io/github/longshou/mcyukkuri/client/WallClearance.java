@@ -52,21 +52,30 @@ final class WallClearance {
         var feet = new Vec3(Mth.lerp(partial, source.xOld, source.getX()), Mth.lerp(partial, source.yOld, source.getY()),
                 Mth.lerp(partial, source.zOld, source.getZ()));
         var sweep = new AABB(-reach, 0, -reach, reach, top + motion, reach).move(feet);
+        double bodyTop = feet.y + source.getBbHeight();
+        var boxes = new ArrayList<AABB>();
+        for (var shape : entity.level().getBlockCollisions(source, sweep))
+            for (var box : shape.toAabbs()) if (box.intersects(sweep)) boxes.add(box);
         var faces = new ArrayList<WallYield.Face>();
-        for (var shape : entity.level().getBlockCollisions(source, sweep)) {
-            for (var box : shape.toAabbs()) {
-                if (!box.intersects(sweep)) continue;
-                double x = Mth.clamp(feet.x, box.minX, box.maxX) - feet.x;
-                double z = Mth.clamp(feet.z, box.minZ, box.maxZ) - feet.z;
-                double distance = Math.hypot(x, z);
-                // A shape over the body axis is a floor or ceiling. Side faces use the nearest point on the shape,
-                // which also gives a continuous separating plane around the outside of a corner.
-                if (distance > 0 && distance < reach)
-                    faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
-                            (float)(box.minY - feet.y), (float)(box.maxY - feet.y)));
-            }
+        for (var box : boxes) {
+            double px = Mth.clamp(feet.x, box.minX, box.maxX), pz = Mth.clamp(feet.z, box.minZ, box.maxZ);
+            double x = px - feet.x, z = pz - feet.z;
+            double distance = Math.hypot(x, z);
+            // A shape over the body axis is a floor or ceiling, and an overhead box (crate/carton roof, burrow ceiling,
+            // tabletop) only forms a side face where a wall below it actually blocks the body. Side faces use the nearest
+            // point on the shape, giving a continuous separating plane around the outside of a corner.
+            if (distance <= 0 || distance >= reach || box.minY >= bodyTop && !wallBelow(boxes, px, pz, bodyTop)) continue;
+            faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
+                    (float)(box.minY - feet.y), (float)(box.maxY - feet.y)));
         }
         return faces.isEmpty() ? null : new WallClearance(faces, origin);
+    }
+
+    private static boolean wallBelow(List<AABB> boxes, double x, double z, double bodyTop) {
+        for (var box : boxes)
+            if (box.minY < bodyTop && box.maxY >= bodyTop && x >= box.minX - 1e-4 && x <= box.maxX + 1e-4
+                    && z >= box.minZ - 1e-4 && z <= box.maxZ + 1e-4) return true;
+        return false;
     }
 
     List<WallYield.Face> faces() { return faces; }

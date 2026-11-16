@@ -49,6 +49,19 @@ class WallYieldTest {
         wing.solve(this::skin, world, blocks, List.of(new WallYield.Face(1, 0, .5f, 0, 2)), kind -> kind.equals("wing"));
         assertFalse(wing.turned(), "a busy limb is left to the press");
     }
+    @Test void wingUnwindsSmoothlyPastRearQuarterWall() {
+        var point = new Vector3f();
+        float previous = Float.NaN;
+        for (int yaw = 60; yaw <= 85; yaw++) {
+            var toWall = new Matrix4f().rotateY((float)Math.toRadians(yaw)).scale(1 / 16f);
+            wing.solve(this::skin, world, toWall, List.of(new WallYield.Face(1, 0, .55f, 0, 2)), kind -> false);
+            skin(2, point);
+            wing.apply(2, point);
+            if (!Float.isNaN(previous))
+                assertTrue(Math.abs(point.y - previous) < 1.2f, "wing tip y jumped at yaw " + yaw + ": " + previous + " -> " + point.y);
+            previous = point.y;
+        }
+    }
     @Test void pressKeepsPointsOnTheFreeSideAtTheirHeight() {
         var faces = List.of(new WallYield.Face(1, 0, .5f, 0, 1));
         assertEquals(.5f, WallYield.press(faces, 1, .5f, 0), 1e-6);
