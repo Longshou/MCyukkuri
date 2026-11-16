@@ -22,9 +22,10 @@
   - 动作幅度第二轮：已接入待试玩（[2cab8170d](https://github.com/Longshou/MCyukkuri/commit/2cab8170d)、[01c9f2a12](https://github.com/Longshou/MCyukkuri/commit/01c9f2a12)）；发抖、张望、呼唤孩子、紧张、不理会、思考、唱歌、丧子哭泣；看幅度是否合适，大幅转头时头发与帽子是否扫到旁边的人或墙。
   - 展示托盘：已接入待试玩（[2ec293ac1](https://github.com/Longshou/MCyukkuri/commit/2ec293ac1)）；村庄城镇的会馆柜台、保护站窗口、鬼威惨商店柜台与各处桌面；看托盘里真实物品的摆放与高度（游戏内托盘渲染未实看）。
   - 补审修复：已接入待试玩（商店里的货箱与托盘归统一保护门、漏斗不超容、抬高托盘连台阶掉落 [e3c259560](https://github.com/Longshou/MCyukkuri/commit/e3c259560)；帕秋莉咳嗽不再被吞咽盖住 [c7cb3cc7e](https://github.com/Longshou/MCyukkuri/commit/c7cb3cc7e)；魔理沙难过甩辫加强 [044372a59](https://github.com/Longshou/MCyukkuri/commit/044372a59)；贴身蹭先并排再贴、按体型与台阶高差对位，芙兰与蕾米莉亚无视转身收到 54° 免翅膀扫墙，徽章眼红改用无视转身露出嫉妒脸 [e905dc3fe](https://github.com/Longshou/MCyukkuri/commit/e905dc3fe)；草地 `meet`、徽章 `badge`、商店 `oni_shop`）。
+  - 翅膀、辫子、头发、猫尾贴墙收拢：已接入待试玩（[ad4737b34](https://github.com/Longshou/MCyukkuri/commit/ad4737b34)，运行版本 [29ce00a44](https://github.com/Longshou/MCyukkuri/commit/29ce00a44)；不理会转身上限 54° 取消、改 78°）；野外场 FG-08／FG-09 看魔理沙贴墙与箱内的辫子和头发，蕾米莉亚／芙兰靠墙转身与「不理会」时翅膀向下收拢，橙背靠墙时尾巴上卷；会馆徽章眼红时两只有翼种的嫉妒脸是否仍读得出。
+  - 打喷嚏三版：博物馆「动作片段」→「日常生活」→ 打喷嚏 A／B／C（[ec32ba703](https://github.com/Longshou/MCyukkuri/commit/ec32ba703)，仅动作片段，未接入行为）；用户选一版留用，其余删除。
   后续（均未做）：
   - 流浪从摊位货箱偷取货物，店主看到后反应。
-  - 翅膀、辫子、头发没有贴墙收拢（帽檐已有），靠墙转身仍可能扫进方块。
   - 大小不一或有台阶的贴身蹭没有专门场景，靠试玩看。
 
 - **村庄城镇化与街景**：已接入待试玩（主街、公共建筑与街口 [d318e98a6](https://github.com/Longshou/MCyukkuri/commit/d318e98a6)，镇内地块 [19bfc0428](https://github.com/Longshou/MCyukkuri/commit/19bfc0428)，五种村庄材质 [19fbb0f3c](https://github.com/Longshou/MCyukkuri/commit/19fbb0f3c)，院子宠物与纸箱避让 [149fa90ac](https://github.com/Longshou/MCyukkuri/commit/149fa90ac)，博物馆「人类社会」→「村庄城镇」的五类按钮与「换个布局」 [6b54a34a2](https://github.com/Longshou/MCyukkuri/commit/6b54a34a2)）。用户：「接手任务，并完善地编相关内容 特别是街道与原版村庄的融入，各种街景与建筑物的构建」。用户定案：整村城镇化（油库里内容为主、原版房屋作陪衬）；建筑与街景随五类村庄换原版材质；本轮只做地编与建筑并接上已有行为，新建筑带来的新行为另开包。
@@ -135,7 +136,6 @@
 
 提效类改动；状态与玩法条目相同，完成即删。以真实提效衡量，不追数据指标。
 
-- `check_tiers.py --check`：未做。main（[f0ba37f17](https://github.com/Longshou/MCyukkuri/commit/f0ba37f17)）有 13 个基线错误：brace、eat、sleep、wake、sing、push、shake、think 两条、proud、bow、struggle、offer_bite；与本批动作无关。
 
 ## 待用户裁决
 
