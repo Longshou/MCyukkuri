@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 报纸堆作纸源：流浪撕纸、铺垫与冬夜盖纸发抖（N79） | `.worktrees/wp-paper-source` | human/NewspaperStackBlock, life/Facilities, stray shelter behaviour, lore motions |
-| 接上 5 个已做未调用的动作（捡物、递食、看护安抚、翻船甩飞、入仓） | `.worktrees/wp-wire-idle-clips` | motor/action/Pick, social/Kindness, aquatic/Rescue, aquatic/HullAfloat, aquatic/Provision, motions/tiers.json |
 
 ## 玩法待办
 
