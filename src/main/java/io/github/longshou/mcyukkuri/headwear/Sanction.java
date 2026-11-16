@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.headwear;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -315,7 +316,7 @@ public final class Sanction extends Goal {
             GameplayLog.event(entity, "sanction", "executor ended target={} reason={} roundComplete={} targetAlive={} targetDying={} targetHealth={} acts={}",
                     victim.getUUID(), why, done, victim.isAlive(), victim.body().dying(), victim.getHealth(), performed);
         }
-        if (done && entity.isAlive()) entity.showReaction("angry", "", 60);
+        if (done && entity.isAlive()) entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 60);
         return false;
     }
 }

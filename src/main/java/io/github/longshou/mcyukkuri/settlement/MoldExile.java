@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -367,7 +368,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     private void watch() {
         entity.getLookControl().setLookAt(peer, 30, 30);
         if (ticks == noticeEnd && noticeEnd > 0) answer();
-        if (harsh && ticks == noticeEnd + SCORN_AFTER && entity.showReaction("angry", "", 50)) entity.speakCue("mold_scorn");
+        if (harsh && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)) entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0) || pushed && !(entity.motor().current() instanceof Push)) return;
         if (!canPush()) {
             if (pushed) { entity.motor().cancel(this, "contact_ended"); return; }
@@ -397,7 +398,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         } else if (driving) {
             if (entity.showReaction("puff", "", 50)) entity.speakCue("mold_warn");
         }
-        else entity.showReaction("teary", "", 40);
+        else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 40);
     }
 
     private boolean canPush() {

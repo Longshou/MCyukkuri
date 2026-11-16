@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -682,7 +683,7 @@ public final class YukkuriSocial implements MotorOwner {
         EcologyMovement.halt(entity);
         duration = elapsed + 40;
         if (wariness >= .62) entity.showReaction("teary", "afraid", 40);
-        else entity.showReaction("angry", "", 40);
+        else entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 40);
         GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=false response=cower",
                 entity.status().identity().id(), target.getUUID(), wariness);
         return false;

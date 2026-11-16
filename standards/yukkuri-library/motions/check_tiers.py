@@ -15,7 +15,7 @@ STATUSES = {"exists", "composable_from_existing_base", "base_missing", "needs_sp
 SOURCES = {"base", "composite", "lore", "procedural", "marisa_tsumuri", "anatomy"}
 CLASSIFICATIONS = {"really_base", "really_composite", "near_duplicate_of", "special"}
 REQUIRED_GAPS = {
-    "roll", "emotional_hair", "chen_tail_signal", "cough_mukyu", "crouch_watch", "glass_ram",
+    "roll",
 }
 CUSTOM_JAVA_CALLERS = {
     "hop": {"Gesture.HOP_SMALL"},
@@ -23,6 +23,7 @@ CUSTOM_JAVA_CALLERS = {
     "stretch_shape": {"Gesture.SQUASH"},
     "side_bend": {"Gesture.LEAN"},
     "hop_leg": {"Hop.CLIP"},
+    "lunge_ram": {"RamContact.CLIP"},
     "water_hat_climb": {"Climb.CLIP"},
     "water_hat_right": {"Right.CLIP"},
     "boat_cargo_fetch": {"Pick.CLIP"},

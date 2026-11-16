@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
@@ -447,7 +448,7 @@ final class FamilyFeeding {
         }
         var approach=o.entity().careApproach().tick(o.target(),CareApproach.Kind.FEED);
         if(approach==CareApproach.Result.FAILED){
-            o.entity().showReaction("teary","",60);
+            o.entity().showReaction(YukkuriAction.MOOD_DROOP,"teary","",60);
             endCare("approach_failed");return;
         }
         if(approach==CareApproach.Result.CONTACT) {

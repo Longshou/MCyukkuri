@@ -72,9 +72,9 @@ final class ChildCall {
     String activity() {
         return switch (phase) {
             case CALL -> Behaviors.CALL_CHILD;
-            case LISTEN -> Behaviors.CALL_LISTEN;
+            case LISTEN -> o.glass().active() ? o.glass().activity() : Behaviors.CALL_LISTEN;
             case DROOP -> Behaviors.CALL_UNANSWERED;
-            case ANSWER -> waitingAtGlass() && ticks>length(Behaviors.ANSWER_CALL) ? Behaviors.CALL_LISTEN : Behaviors.ANSWER_CALL;
+            case ANSWER -> waitingAtGlass() && ticks>length(Behaviors.ANSWER_CALL) ? glassParent.family().glass().watch() : Behaviors.ANSWER_CALL;
             case NONE -> null;
         };
     }

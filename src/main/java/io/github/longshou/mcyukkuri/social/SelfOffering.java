@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
@@ -216,7 +217,7 @@ public final class SelfOffering extends Goal {
             if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
                 if (EcologyMovement.approachResult(entity, child, 1.1) == SurfaceApproach.Result.BLOCKED) {
                     GameplayLog.event(entity, "offering", "approach ended recipient={} reason=no_reachable_meeting", recipient);
-                    entity.showReaction("teary", "", 60);
+                    entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 60);
                     stop();
                 }
                 return;

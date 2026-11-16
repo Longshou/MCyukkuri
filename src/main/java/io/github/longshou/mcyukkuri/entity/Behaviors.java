@@ -39,6 +39,8 @@ public final class Behaviors {
     public static final String BREEDING_PERIOD = "breeding_period";
     /** A parent who lost sight of her child calls for it, listens, and droops when nothing answers (family/ChildCall). */
     public static final String CALL_CHILD = "call_child", CALL_LISTEN = "call_listen", CALL_UNANSWERED = "call_unanswered";
+    /** Keeping watch at a pane between calls (family/GlassVigil, both sides of the glass), and the same with patience running out. */
+    public static final String GLASS_WATCH = "glass_watch", GLASS_WATCH_WEARY = "glass_watch_weary";
     /** A child that heard its parent call turns to her and answers. */
     public static final String ANSWER_CALL = "answer_call";
     public static final String BULLY_PEER = "bully_peer";

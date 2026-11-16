@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -428,7 +429,7 @@ public final class HumanNpc extends PathfinderMob {
         // Treatment is staged by RoutineGoal, with a real reserved dose in the vanilla hand slot.
         if (!y.isPanicking()) {
             y.life().personality().talk(getUUID(), true);
-            y.showReaction("happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;
+            y.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;
         }
         return false;
     }

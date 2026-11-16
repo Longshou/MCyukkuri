@@ -793,7 +793,7 @@ public final class FamilyLife {
         }
         if(hurt&&since==6+MISS_SHOCK&&mate&&entity.distanceToSqr(baby)<256)comfort(baby);
         if(since==30&&!hurt&&answering()!=null){
-            entity.showReaction("happy","",40);boolean spoken=entity.speak(baby.family().firstWords());BirthStaging.affection(entity);
+            entity.showReaction(YukkuriAction.MOOD_FLUTTER,"happy","",40);boolean spoken=entity.speak(baby.family().firstWords());BirthStaging.affection(entity);
             GameplayLog.event(entity,"family","birth greeting child={} spoken={} host={}",baby.getUUID(),spoken,entity.getVehicle()==null?null:entity.getVehicle().getUUID());
         }
     }

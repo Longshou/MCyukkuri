@@ -158,6 +158,14 @@ public enum YukkuriAction {
     RUN("run", 0.64, true),
     REJECT_OR_SPIT("reject_or_spit", 3.0, false),
     FAREWELL("farewell", 6.4, false),
+    // Motion library gaps (lore recipe base-motions): the watch kept at a pane and its weary form, the hair and tail mood displays
+    // shown with a face-only reaction (braid, sideburns, Chen tails; other forms move only the body), and Patchouli's cough.
+    CROUCH_WATCH("crouch_watch", 6.0, true),
+    CROUCH_WATCH_WEARY("crouch_watch_weary", 7.0, true),
+    MOOD_FLUTTER("mood_flutter", 2.0, false),
+    MOOD_FLICK("mood_flick", 1.6, false),
+    MOOD_DROOP("mood_droop", 2.4, false),
+    COUGH_MUKYU("cough_mukyu", 4.0, false),
     BOAT_LABOR("boat_labor", 12.0, true),
     // Weather and warmth moments (lore recipe v18, all standard forms): pressed beside a partner on its left or right in the rain,
     // flattened from a thunderstorm, basking flat in the winter sun.

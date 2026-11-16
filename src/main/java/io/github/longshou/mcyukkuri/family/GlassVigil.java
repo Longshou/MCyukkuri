@@ -33,6 +33,7 @@ final class GlassVigil implements MotorOwner {
     private Action action;
     private long deadline, ramAt;
     private String farewellReason;
+    private static final int WEARY_TICKS=200;
 
     GlassVigil(FamilyLife family) { this.family=family; parent=family.entity(); }
     @Override public String ownerId() { return Behaviors.WAIT_CHILD; }
@@ -42,8 +43,11 @@ final class GlassVigil implements MotorOwner {
     boolean finishing() { return active() && (phase==Phase.RAM_APPROACH || phase==Phase.RAM || phase==Phase.CROSS || phase==Phase.FAREWELL); }
     String activity() {
         if (phase==Phase.FAREWELL) return Behaviors.GLASS_FAREWELL;
-        return phase==Phase.WAIT ? Behaviors.CALL_LISTEN : Behaviors.SEARCH_FAMILY;
+        return phase==Phase.WAIT ? watch() : Behaviors.SEARCH_FAMILY;
     }
+
+    /** The watch shown between calls; it droops over the last seconds before the parent gives up. */
+    String watch() { return deadline-family.level().getGameTime()<WEARY_TICKS ? Behaviors.GLASS_WATCH_WEARY : Behaviors.GLASS_WATCH; }
 
     boolean start(YukkuriEntity target) {
         var hit=GlassSight.glassBetween(parent,parent.getEyePosition(),target);

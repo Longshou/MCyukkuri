@@ -874,6 +874,33 @@ def flourish_tracks(model, action, samples, cfg, c):
             hand, parts = carried(model, bone)
             if parts:
                 tracks.append({'bone': hand, 'channel': 'rotation', 'keys': [[round(t, 8), 0, 0, round(side*shake(t), 5)] for t in samples]})
+    display = c.get('display')
+    if display:
+        # Mood displays (flourishes.mood_display): the braid, Reimu's sideburns and Chen's tails show the feeling themselves.
+        names = {b['name']: i for i, b in enumerate(model['bones'])}
+        def wag(spec, t):
+            return sum(deg*math.sin(2*math.pi*hz*(t-a))*bump((t-a)/(b-a)) for a, b, deg, hz in spec.get('wags', []) if a <= t <= b)
+        def held(spec, key, t): return keyed(t, spec[key]) if key in spec else 0.
+        def track(bone, value):
+            tracks.append({'bone': bone, 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in value(t)]] for t in samples]})
+        hand, braid = braid_carried(model, 'hand_right')
+        if braid and 'braid' in display:
+            spec = display['braid']
+            track(hand, lambda t: [held(spec, 'forward_keys', t), 0, held(spec, 'out_keys', t)+wag(spec, t)])
+            for k in range(1, 6):  # the wag runs down the joints, each a little later
+                joint = names.get(f'hand_right_braid_{k}')
+                if joint is not None: track(joint, lambda t, k=k: [0, 0, spec['whip']*wag(spec, t-k*spec['lag'])])
+        elif 'reimu' in model['id'] and 'sideburn' in display:
+            spec = display['sideburn']
+            for bone, side in (('hand_right', 1), ('hand_left', -1)):
+                hand, parts = carried(model, bone)
+                if parts: track(hand, lambda t, side=side: [held(spec, 'forward_keys', t), 0, side*(held(spec, 'out_keys', t)+wag(spec, t))])
+        if 'tail' in display:
+            spec = display['tail']
+            for bone, side in (('chen_tail_right', 1), ('chen_tail_left', -1)):
+                if bone in names:
+                    late = spec.get('lag', 0.) if side < 0 else 0.
+                    track(names[bone], lambda t, side=side, late=late: [-held(spec, 'out_keys', t), side*held(spec, 'forward_keys', t)+wag(spec, t-late), 0])
     return tracks
 
 

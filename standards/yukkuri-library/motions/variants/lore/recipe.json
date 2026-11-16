@@ -10,7 +10,7 @@
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
     "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover", "water_hat_pull", "water_hat_over"], "braid_follow": true},
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
-    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left"], "braid_follow": true},
+    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
@@ -170,7 +170,8 @@
     },
     "marisa_braid": [
       "marisa"
-    ]
+    ],
+    "patchouli": ["patchouli"]
   },
   "clips": {
     "hat_stumble": {
@@ -7288,7 +7289,7 @@
       },
       "lore": "Project design (motion library base lunge_ram, art decision B1/C2; wiki defense_flee and home invasion pushes N1, F15, F07): crouch and draw back (wind-up), dart forward stretched with a small hop (launch), flatten on the near contact face (impact: the front stays at the dart's farthest point and the body squeezes in behind it, a physical squash), spring back with a recoil hop and settle. Travel belongs to the motor; the clip's own forward shift stays within the body. front_ratio is the rest face front ahead of the root pivot over the body height (rounded body 6.07/9.6, bean 5.11/13.14). Markers: launch, impact (hit timing), settled.",
       "triggers": [
-        "no caller yet (bash at a pane, glass ram, push re-expression)"
+        "bash at a pane (motor Bash: every stroke of the family glass ram, RamContact.CLIP)"
       ]
     },
     "glass_press": {
@@ -7344,6 +7345,101 @@
       "triggers": [
         "an approach goal reaching its glass stand with the wanted one beyond the pane (shop window plea, family glass vigil)"
       ]
+    },
+    "crouch_watch": {
+      "label": "蹲守",
+      "duration": 6.0,
+      "loop": true,
+      "applies": "all",
+      "height_keys": [[0, 0.96], [0.8, 0.975], [1.6, 0.96], [2.0, 0.94], [2.35, 1.09], [3.0, 1.08], [3.4, 0.96], [4.2, 0.97], [5.0, 0.96], [6.0, 0.96]],
+      "reach_keys": [[0, 0], [2.0, 0], [2.35, 0.03], [3.0, 0.025], [3.4, 0], [6.0, 0]],
+      "pitch_keys": [[0, -2], [1.6, -2], [2.0, -3], [2.35, 3], [3.0, 2.5], [3.4, -2], [6.0, -2]],
+      "yaw_keys": [[0, 0], [3.5, 0], [3.9, -42], [4.5, -46], [4.9, 0], [6.0, 0]],
+      "roll_keys": [[0, 0], [0.8, 1.2], [1.6, 0], [3.9, -2], [4.5, -2], [4.9, 0], [5.5, -1], [6.0, 0]],
+      "quiver": [2.35, 3.0, 0.006, 8],
+      "faces": [[0, 2.0, "neutral"], [2.0, 3.4, "surprise"], [3.4, 3.9, "neutral"], [3.9, 4.9, "confused"], [4.9, 6.0, "neutral"]],
+      "lore": "Project design (motion library composite crouch_watch: idle + call_child + look_around): a body keeping watch at a pane it cannot pass. It sits settled and slightly low facing the glass and breathes, gathers and stretches up toward the pane to peer through with a small quiver (the voiced call stays the caller's call_child), settles, glances away over one side (yaw only) and back, and holds again; it loops. Pitch and roll together stay within 5 degrees; the face is the caller's.",
+      "triggers": ["family glass vigil between calls (GlassVigil WAIT, the answering child at its stand)", "shop window watching (moment behavior_window_watch)"]
+    },
+    "crouch_watch_weary": {
+      "base": "crouch_watch",
+      "label": "蹲守（耐心将尽）",
+      "duration": 7.0,
+      "height_keys": [[0, 0.91], [1.2, 0.93], [2.4, 0.91], [2.9, 0.9], [3.4, 1.0], [3.9, 0.99], [4.6, 0.9], [5.6, 0.92], [7.0, 0.91]],
+      "reach_keys": [[0, 0], [7.0, 0]],
+      "pitch_keys": [[0, -7], [2.4, -7], [2.9, -8], [3.4, -1], [3.9, -2], [4.6, -8], [7.0, -7]],
+      "yaw_keys": [[0, 0], [4.8, 0], [5.4, -25], [6.0, -25], [6.5, 0], [7.0, 0]],
+      "roll_keys": [[0, 0], [1.2, 2.5], [2.4, 0], [5.6, -2.5], [7.0, 0]],
+      "quiver": [3.4, 3.9, 0.003, 6],
+      "faces": [[0, 2.9, "teary"], [2.9, 4.6, "confused"], [4.6, 7.0, "teary"]],
+      "lore": "Project design (crouch_watch as patience runs out, a preset of it): the same watch sunk lower with the face hanging, a slow sway, one weak lift of the face toward the pane that does not reach the full stretch, and a smaller, slower glance away. Pitch and roll together stay within 11 degrees.",
+      "triggers": ["family glass vigil in its last seconds (GlassVigil WAIT near its deadline)"]
+    },
+    "mood_flutter": {
+      "label": "开心摆发",
+      "duration": 2.0,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.2, 0.97], [0.45, 1.06], [0.75, 1.03], [1.0, 1.06], [1.3, 1.03], [1.55, 1.05], [2.0, 1]],
+      "pitch_keys": [[0, 0], [0.45, 3], [1.55, 3], [2.0, 0]],
+      "roll_keys": [[0, 0], [0.45, 2.5], [0.75, -2.5], [1.0, 2.5], [1.3, -2.5], [1.55, 1.5], [2.0, 0]],
+      "display": {
+        "braid": {"out_keys": [[0, 0], [0.15, 0], [0.45, 40], [1.5, 40], [2.0, 0]], "wags": [[0.4, 1.6, 16, 3.5]], "whip": 0.6, "lag": 0.05},
+        "sideburn": {"out_keys": [[0, 0], [0.3, 6], [1.6, 6], [2.0, 0]], "wags": [[0.3, 1.6, 12, 4]]},
+        "tail": {"out_keys": [[0, 0], [0.4, 38], [1.6, 38], [2.0, 0]], "forward_keys": [[0, 0], [0.4, 8], [1.6, 8], [2.0, 0]], "wags": [[0.35, 1.7, 20, 2.5]], "lag": 0.08}
+      },
+      "faces": [[0, 62.0, "happy"]],
+      "lore": "Emotional hair and tail display, happy (motion library base emotional_hair and chen_tail_signal; L36 hair moving with mood, F151 Reimu's sideburns ぴこぴこ, L03/F74 Chen's tails showing her mood): a small buoyant stretch with a light side-to-side rock while the appendage shows the feeling. Marisa's braid lifts out and flutters with a wave running down it, Reimu's sideburns flick, Chen's two tails rise and wag; other forms show only the body. The braid display gives way to a held item (no braid_use). Pitch and roll together stay within 6 degrees; the face is the caller's.",
+      "triggers": ["face-only happy beats (a parent hearing first words, a pat or a gift from a person)"]
+    },
+    "mood_flick": {
+      "label": "生气甩发",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.15, 0.97], [0.3, 1.05], [0.55, 1.02], [0.7, 1.05], [1.2, 1.03], [1.6, 1]],
+      "swell_keys": [[0, 1], [0.3, 1.04], [1.2, 1.04], [1.6, 1]],
+      "pitch_keys": [[0, 0], [0.3, -4], [1.2, -4], [1.6, 0]],
+      "display": {
+        "braid": {"out_keys": [[0, 0], [0.18, 8], [0.3, 62], [0.42, 20], [0.6, 55], [0.75, 24], [1.25, 24], [1.6, 0]], "wags": [[0.75, 1.3, 4, 9]], "whip": 1.0, "lag": 0.04},
+        "sideburn": {"out_keys": [[0, 0], [0.3, 26], [0.45, 14], [0.6, 24], [1.25, 18], [1.6, 0]], "wags": [[0.7, 1.3, 3, 10]]},
+        "tail": {"out_keys": [[0, 0], [0.3, 60], [1.25, 55], [1.6, 0]], "forward_keys": [[0, 0], [0.3, 12], [1.25, 12], [1.6, 0]], "wags": [[0.3, 0.9, 14, 5]], "lag": 0}
+      },
+      "faces": [[0, 61.6, "angry"]],
+      "lore": "Emotional hair and tail display, angry (emotional_hair, chen_tail_signal; project design): the body pulls up, swells slightly and leans in while the appendage snaps. Marisa's braid cracks out twice and stays bristling away from the body, Reimu's sideburns flare and quiver, Chen's tails shoot up stiff with a sharp flick (the same raised tail that announces an intention). Pitch stays within 4 degrees; the face is the caller's.",
+      "triggers": ["face-only angry beats (sanction finished, scorn at a mouldy one, a refused peer)"]
+    },
+    "mood_droop": {
+      "label": "难过垂发",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [[0, 1], [0.5, 0.965], [1.9, 0.96], [2.4, 1]],
+      "pitch_keys": [[0, 0], [0.5, -6], [1.9, -7], [2.4, 0]],
+      "roll_keys": [[0, 0], [1.0, 1.5], [1.9, -1], [2.4, 0]],
+      "display": {
+        "braid": {"forward_keys": [[0, 0], [0.6, 20], [1.9, 22], [2.4, 0]], "wags": [[0.6, 1.9, 3, 0.8]], "whip": 0.5, "lag": 0.1},
+        "sideburn": {"forward_keys": [[0, 0], [0.6, 10], [1.9, 12], [2.4, 0]]},
+        "tail": {"out_keys": [[0, 0], [0.6, -15], [1.9, -16], [2.4, 0]], "wags": [[0.6, 1.9, 4, 0.7]], "lag": 0.2}
+      },
+      "faces": [[0, 62.4, "teary"]],
+      "lore": "Emotional hair and tail display, sad or guilty (emotional_hair, chen_tail_signal; L03 Chen's lowered tail after the stolen snack): the face sinks and the appendage hangs. Marisa's braid and Reimu's sideburns fall limp forward beside the cheek, Chen's tails drop low and barely move. Pitch and roll together stay within 9 degrees; the face is the caller's.",
+      "triggers": ["face-only sad beats (a child that cannot be fed, a refused offering, an exile's plea refused)"]
+    },
+    "cough_mukyu": {
+      "label": "咳嗽（姆Q）",
+      "duration": 4.0,
+      "loop": false,
+      "applies": "patchouli",
+      "height_keys": [[0, 1], [0.18, 1.05], [0.3, 0.93], [0.5, 1.0], [0.68, 1.05], [0.8, 0.92], [1.0, 1.0], [1.25, 1.07], [1.4, 0.9], [1.75, 0.93], [2.3, 0.97], [2.8, 0.95], [3.3, 0.98], [4.0, 1]],
+      "reach_keys": [[0, 0], [0.18, -0.01], [0.3, 0.035], [0.5, 0.01], [0.68, -0.01], [0.8, 0.04], [1.0, 0.01], [1.25, -0.015], [1.4, 0.05], [1.75, 0.03], [2.3, 0.01], [4.0, 0]],
+      "pitch_keys": [[0, 0], [0.18, 3], [0.3, -7], [0.5, -2], [0.68, 3], [0.8, -8], [1.0, -3], [1.25, 4], [1.4, -9], [1.75, -7], [2.3, -4], [2.8, -5], [3.3, -2], [4.0, 0]],
+      "roll_keys": [[0, 0], [0.3, 1.5], [0.8, -1.5], [1.4, 2], [2.3, 0], [4.0, 0]],
+      "quiver": [1.8, 3.3, 0.012, 3],
+      "effort_keys": [[0, 0], [0.3, 1], [0.5, 0.2], [0.8, 1], [1.0, 0.2], [1.4, 1], [1.8, 0.5], [3.3, 0.3], [4.0, 0]],
+      "faces": [[0, 1.75, "cry"], [1.75, 64.0, "teary"]],
+      "lore": "Patchouli's cough (motion library base cough_mukyu; frail, asthmatic Patchouli, むきゅー, komicolle 40720 floor 11518905): three convulsive coughs, each a short gasp up and a jerk forward and down with the body clenched by the spasm (a physical contraction, not a mood), the last the deepest; then she stays bent, panting, and slowly straightens. Her cheek locks tremble with the effort (lock_tremble). Pitch and roll together stay within 11 degrees; the face is the caller's.",
+      "triggers": ["Patchouli retching (SpeciesLife.vomit: a gulped meal brings the filling back up)"]
     },
     "sukkiri_after_dazed": {
       "label": "素鸡立后满足（父方）",
@@ -7506,12 +7602,17 @@
     "lock_tremble": {
       "clips": [
         "labor",
-        "boat_labor"
+        "boat_labor",
+        "cough_mukyu"
       ],
       "degrees": 2.5,
       "hz": 9,
       "lore": "side hair trembles while straining",
       "applies": "models whose hand bones carry hair"
+    },
+    "mood_display": {
+      "lore": "Hair and tails that show a mood (L36; F151 Reimu's sideburns; L03, F74 Chen's tails): a clip's `display` block gives each appendage its own keys. `out_keys` lift it away from the body (degrees; a tail rises), `forward_keys` swing it forward (tails spread apart), `wags` are [start, end, degrees, hz] oscillations on top (a tail wags sideways), `lag` delays the second tail or each braid joint and `whip` is the share of the wag every braid joint adds, so a wave runs down the braid.",
+      "applies": "braid: braid_lock_* carried by hand_right; sideburn: reimu forms whose hand bones carry hair; tail: chen_tail_left/right"
     }
   },
   "braid_follow": [
@@ -7560,6 +7661,8 @@
     "meal_content",
     "puku_teary",
     "lunge_ram",
+    "crouch_watch",
+    "crouch_watch_weary",
     "nod",
     "cling_right",
     "cling_left",

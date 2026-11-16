@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.SpeechAddress;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.entity.SpeciesTraits;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -125,7 +126,7 @@ public final class SpeciesLife {
             entity.mind().add(3, "vomit_" + cause);
             entity.mind().felt(EmotionEvent.BITTER_TASTE);
         }
-        entity.showReaction("teary", "bitter", 80);
+        entity.showReaction(YukkuriAction.COUGH_MUKYU, "teary", "bitter", 80);
         return true;
     }
 

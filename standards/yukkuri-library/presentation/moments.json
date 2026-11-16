@@ -4231,17 +4231,77 @@
       "loop": true,
       "steps": [
         {
-          "clip": "idle",
+          "clip": "crouch_watch",
           "intensity": 1,
-          "tempo": 0.5,
+          "tempo": 1,
           "faces": [
             [
               0,
+              "neutral"
+            ],
+            [
+              2.0,
               "surprise"
             ],
             [
-              0.8,
+              3.4,
               "neutral"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_glass_watch": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "crouch_watch",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              2.0,
+              "teary"
+            ],
+            [
+              3.4,
+              "neutral"
+            ],
+            [
+              3.9,
+              "confused"
+            ],
+            [
+              4.9,
+              "neutral"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_glass_watch_weary": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "crouch_watch_weary",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.9,
+              "confused"
+            ],
+            [
+              4.6,
+              "teary"
             ]
           ]
         }
@@ -4913,6 +4973,8 @@
     "stay_home": "behavior_stay_home",
     "call_child": "behavior_call_child",
     "call_listen": "behavior_call_listen",
+    "glass_watch": "behavior_glass_watch",
+    "glass_watch_weary": "behavior_glass_watch_weary",
     "call_unanswered": "behavior_call_unanswered",
     "answer_call": "behavior_answer_call",
     "tend_brood": "behavior_tend_brood",

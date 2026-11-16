@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -160,7 +161,7 @@ final class HumanStreet {
             return true;
         }
         y.life().personality().talk(npc.getUUID(), true);
-        y.showReaction("happy", "", 60);
+        y.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60);
         npc.swing(InteractionHand.MAIN_HAND);
         lastPetted = y;
         GameplayLog.event(npc, "npc-care", "action=street_pet target={} food={}", y.getUUID(), npc.careFood());
