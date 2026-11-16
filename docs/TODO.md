@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 演出夸张化第二轮：仍偏弱的动作加大幅度 | `.worktrees/wp-art-exaggerate-2` | standards/yukkuri-library/motions/ 动作源与导出 |
 
 ## 玩法待办
 
