@@ -1057,16 +1057,16 @@ add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', 
     reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste')],
     smoke=dict(ticks=1200,expect=[r'relieved source=facility',r'toilet stored [^\n]*volume='],forbid=[]))
 
-# The toilet is beyond the flandre's care search (8 blocks), so she uses the ground by herself.
+# The toilet has room for one more portion: the nearer remilia fills it, so the flandre arriving after her uses the ground.
 add('pred_toilet', 'meadow', '捕食种上厕所与地面排便', '捕食种上厕所与地面排便',
-    '蕾米莉亚和芙兰都有强烈便意：蕾米莉亚走向右边的厕所坐下排便，远处的芙兰找一块干地排便。看翅膀、帽子和身体不穿进厕所或地面，身体贴着厕所与地面',
+    '蕾米莉亚和芙兰都有强烈便意，右边的厕所只剩一份空位：近处的蕾米莉亚先坐上去排满，后到的芙兰改在旁边的干地排便。看翅膀、帽子和身体不穿进厕所或地面，身体贴着厕所与地面',
     '约 1 分钟', [
-        block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'),
+        block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), 'data merge block ~6 ~ ~ {Waste:7.0d}',
         yk('remilia', 0, 0, 'rem', bladder=95, nutrition=100, energy=100, yaw=-90, lead=True),
-        yk('flandre', -9, 6, 'fla', bladder=95, nutrition=100, energy=100, yaw=-90)],
+        yk('flandre', -6, 6, 'fla', bladder=95, nutrition=100, energy=100, yaw=-90)],
     env=DAY, vantage=None,
-    reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste'), ('读芙兰', f'yukkuri status {sel("fla")} raw')],
-    capture=dict(shots=(1, 40), sequences=((60, 400, 10),), observe=False,
+    reads=[('读厕所内排泄物体积（7→8 满）', 'data get block ~6 ~ ~ Waste'), ('读芙兰', f'yukkuri status {sel("fla")} raw')],
+    capture=dict(shots=(1, 40), sequences=((60, 660, 12),), observe=False,
                  views=dict(rem=dict(follow=f'@e[tag={tag("rem")},limit=1]', offset=(.6, .7, 2.4),
                                      criteria='看清蕾米莉亚坐在厕所上排便，翅膀、帽子和身体不穿进厕所或地面。'),
                             fla=dict(follow=f'@e[tag={tag("fla")},limit=1]', offset=(.6, .7, 2.4),
