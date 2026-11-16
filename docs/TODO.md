@@ -11,7 +11,7 @@
 
 ## 玩法待办
 
-- **2026-11-16 美术批**（用户批准整批不审查；八包已合入待试玩）：
+- **2026-11-16 美术批**（先免审合入，当晚已补审并修复；运行版本 [e905dc3fe](https://github.com/Longshou/MCyukkuri/commit/e905dc3fe)，CI 43888014017）：
   - 帽子贴墙与木箱双睡位：已接入待试玩（[73506752a](https://github.com/Longshou/MCyukkuri/commit/73506752a)）；野外场 FG-08「流浪：母子找纸箱，木箱也能歇脚」、FG-09「流浪：纸箱湿透」；看木箱里两只的帽子之间是否留出空隙、沿墙走时帽檐向内收是否自然。
   - 村庄家具木料与货箱：已接入待试玩（[fb8dfb83c](https://github.com/Longshou/MCyukkuri/commit/fb8dfb83c)）；博物馆「人类社会」→「村庄城镇」五种村庄按钮；看长椅、木桌与货箱的木料是否随村庄变，摊位货箱里是否装着真实货物（货箱渲染只在离线看过）。
   - 捕食种上厕所、家油动作与洞穴床铺：已接入待试玩（[44e2e9491](https://github.com/Longshou/MCyukkuri/commit/44e2e9491)、[65e93dc00](https://github.com/Longshou/MCyukkuri/commit/65e93dc00)、[fd27f4e18](https://github.com/Longshou/MCyukkuri/commit/fd27f4e18)）；日常草地 MD-20「捕食种上厕所与地面排便」与房屋按钮「空屋住人一天后，家油搬进来」；看厕所接触动作与家油生态动作不再被跳过、翅膀与帽子是否避开马桶；洞里大窝按相邻方块收窄只在离线看过。
@@ -20,10 +20,11 @@
   - 新表情与害怕脸：已接入待试玩（[0ad1fbefc](https://github.com/Longshou/MCyukkuri/commit/0ad1fbefc)）；会馆徽章嘲弄与眼红、街道嫉妒、挑食拒食、橱窗撇嘴、捕食种抗命、垃圾头饰羞愧（FG-12）、害怕工具（BD-21～BD-23）；看新表情在远处是否仍读得出。
   - 动作幅度第二轮：已接入待试玩（[2cab8170d](https://github.com/Longshou/MCyukkuri/commit/2cab8170d)、[01c9f2a12](https://github.com/Longshou/MCyukkuri/commit/01c9f2a12)）；发抖、张望、呼唤孩子、紧张、不理会、思考、唱歌、丧子哭泣；看幅度是否合适，大幅转头时头发与帽子是否扫到旁边的人或墙。
   - 展示托盘：已接入待试玩（[2ec293ac1](https://github.com/Longshou/MCyukkuri/commit/2ec293ac1)）；村庄城镇的会馆柜台、保护站窗口、鬼威惨商店柜台与各处桌面；看托盘里真实物品的摆放与高度（游戏内托盘渲染未实看）。
+  - 补审修复：已接入待试玩（商店里的货箱与托盘归统一保护门、漏斗不超容、抬高托盘连台阶掉落 [e3c259560](https://github.com/Longshou/MCyukkuri/commit/e3c259560)；帕秋莉咳嗽不再被吞咽盖住 [c7cb3cc7e](https://github.com/Longshou/MCyukkuri/commit/c7cb3cc7e)；魔理沙难过甩辫加强 [044372a59](https://github.com/Longshou/MCyukkuri/commit/044372a59)；贴身蹭先并排再贴、按体型与台阶高差对位，芙兰与蕾米莉亚无视转身收到 54° 免翅膀扫墙，徽章眼红改用无视转身露出嫉妒脸 [e905dc3fe](https://github.com/Longshou/MCyukkuri/commit/e905dc3fe)；草地 `meet`、徽章 `badge`、商店 `oni_shop`）。
   后续（均未做）：
   - 流浪从摊位货箱偷取货物，店主看到后反应。
-  - 魔理沙 `mood_droop` 的辫子动作偏弱，待补。
-  - 帕秋莉咳嗽可能被饭后动作盖住，待试玩确认。
+  - 翅膀、辫子、头发没有贴墙收拢（帽檐已有），靠墙转身仍可能扫进方块。
+  - 大小不一或有台阶的贴身蹭没有专门场景，靠试玩看。
 
 - **村庄城镇化与街景**：已接入待试玩（主街、公共建筑与街口 [d318e98a6](https://github.com/Longshou/MCyukkuri/commit/d318e98a6)，镇内地块 [19bfc0428](https://github.com/Longshou/MCyukkuri/commit/19bfc0428)，五种村庄材质 [19fbb0f3c](https://github.com/Longshou/MCyukkuri/commit/19fbb0f3c)，院子宠物与纸箱避让 [149fa90ac](https://github.com/Longshou/MCyukkuri/commit/149fa90ac)，博物馆「人类社会」→「村庄城镇」的五类按钮与「换个布局」 [6b54a34a2](https://github.com/Longshou/MCyukkuri/commit/6b54a34a2)）。用户：「接手任务，并完善地编相关内容 特别是街道与原版村庄的融入，各种街景与建筑物的构建」。用户定案：整村城镇化（油库里内容为主、原版房屋作陪衬）；建筑与街景随五类村庄换原版材质；本轮只做地编与建筑并接上已有行为，新建筑带来的新行为另开包。
   待试玩留意：坡地上街口放不下时路面方切收尾（看切坡或没标记的落差）；按村庄按钮生成时有一拍停顿（耗时未测）；院子宠物每天补粮、重放村庄后不重复生成；自然村庄的城镇边界与纸箱落点；雪原公园水池结冰（按自然现象接受）。
