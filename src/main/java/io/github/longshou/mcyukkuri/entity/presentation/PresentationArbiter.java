@@ -96,6 +96,8 @@ public final class PresentationArbiter {
         long start=e.getAnimationStartTick();
         if(YukkuriAction.sukkiri(clip)&&!e.body().dying())
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
+        if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
         if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();
         if(state.reactionTicks()>0)return state.reactionExpression();
         if(e.body().dying())return "blank_cry";
@@ -408,6 +410,8 @@ public final class PresentationArbiter {
     private static YukkuriAction stationaryAction(PresentationAccess state, String behavior, Actions actions) {
         var e = state.owner();
         if (state.reactionTicks() > 0 && state.reactionEvent().equals("birth_lost")) return YukkuriAction.BEREAVED;
+        var reaction = e.reactionAction();
+        if (reaction == YukkuriAction.COUGH_MUKYU && e.life().mealTicks() > 0) return reaction;
         if(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)){
             if(e.family().stemDepletionWarning())return YukkuriAction.TREMBLE;
             if(e.aftermathDrain()==3)return YukkuriAction.DROOP;
@@ -419,7 +423,6 @@ public final class PresentationArbiter {
         YukkuriAction action = behavior.equals(Behaviors.FORAGE_SEEK) ? YukkuriAction.NERVOUS : behavior.equals(Behaviors.FORAGE_HARVEST) ? YukkuriAction.BRACE : EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || actions == Actions.PREDATOR || e.isPassenger()) return action;
-        var reaction = e.reactionAction();
         if (reaction != null) return reaction;
         if (state.reactionTicks() > 0) action = EcologyPresentation.reaction(state.reactionEvent());
         // A strong feeling still running its course (mind/EmotionCourse) shows in the idle pose: drooping, trembling, sulking.

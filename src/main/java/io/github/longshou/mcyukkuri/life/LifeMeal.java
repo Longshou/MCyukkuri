@@ -476,7 +476,7 @@ final class LifeMeal {
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
                 eater.gameEvent(GameEvent.EAT);
-                if (!eater.body().sick() || !(spicy || toxic > 0)) eater.showReaction(
+                if (!coughing() && (!eater.body().sick() || !(spicy || toxic > 0))) eater.showReaction(
                         spicy || toxic > 0 ? "surprise" : waste ? "teary" : grudging ? "pursed" : guarded ? "teary"
                                 : grass ? liked ? "happy" : "teary"
                                 : defiant ? "smug" : grateful ? "closed_smile" : liked ? "open_smile" : "happy",
@@ -487,14 +487,14 @@ final class LifeMeal {
                 if(!spicy&&toxic==0&&!grass&&!waste&&!grudging)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
-            if (mealTicks == 53) {
+            if (mealTicks == 53 && !coughing()) {
                 // The after-meal clip now carries the face: this individual's melt, or the composed adult's restraint over the finish.
                 if (meltFace != null) o.entity().showReaction(meltFace, "", EcologyPresentation.duration(Behaviors.MEAL_CONTENT));
                 else if (finishFace != null) o.entity().showReaction(finishFace, "", EcologyPresentation.duration(Behaviors.MEAL_FINISH));
             }
             if (mealTicks >= mealEnd()) {
                 mealTicks = 0; sharedMeal = false; preparedMeal = false; content = false;
-                if (meltTail != null) o.entity().showReaction(meltTail, "", MELT_TAIL_TICKS);
+                if (meltTail != null && !coughing()) o.entity().showReaction(meltTail, "", MELT_TAIL_TICKS);
                 meltFace = meltTail = finishFace = null;
                 o.finishConsumption();
             }
@@ -505,6 +505,8 @@ final class LifeMeal {
     /** After the swallow (tick 53) a full meal plays its contented melt for the clip's length; any other meal ends at tick 64. */
     private int mealEnd() { return content ? 53 + EcologyPresentation.duration(Behaviors.MEAL_CONTENT) : 64; }
     boolean content() { return content; }
+
+    private boolean coughing() { return o.entity().reactionAction() == YukkuriAction.COUGH_MUKYU; }
 
     /**
      * The bite that takes it past {@link #FULL}: it melts in place a moment (しあわせー, project design), unless the food was unpleasant,
@@ -558,7 +560,7 @@ final class LifeMeal {
         if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
         // Same rule as an item meal: a melting body keeps the swallow face only to the end of the swallow.
         o.entity().gameEvent(GameEvent.EAT);
-        o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy", swallowed.odor() >= 40 ? "hurt" : "fed", content ? 8 : 100);
+        if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy", swallowed.odor() >= 40 ? "hurt" : "fed", content ? 8 : 100);
     }
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
