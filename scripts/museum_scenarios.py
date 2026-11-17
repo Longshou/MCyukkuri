@@ -6136,11 +6136,16 @@ _plant_smoke['commands'] = [
 _receiving_staff = '@e[type=mcyukkuri:caretaker_brother,distance=..45,limit=1,nbt={SiteRole:"plant_receive"}]'
 _receive_click = 'execute positioned ~-7.5 ~2 ~-12.5 run yukkuri scenario basket plant_receive ' + _receiving_staff
 _near_clerk = f'execute at {_receiving_staff} run yukkuri scenario basket plant_receive ' + _receiving_staff
-_booth_obstructions = [f'execute positioned ~{x} ~2 ~{z} '
-                       'unless entity @e[type=#mcylab:yukkuri,dx=0,dy=0,dz=0] '
-                       'unless entity @e[type=mcyukkuri:caretaker_brother,dx=0,dy=0,dz=0] '
-                       'run setblock ~ ~ ~ minecraft:barrier'
-                       for x in range(-9, -5) for z in range(-13, -10)]
+# The clerk's post and the two waiting children keep their cells; every other booth cell is blocked. The children
+# are returned to their spawn cells and frozen first, so the full-box state cannot depend on where a body drifted.
+_booth_cells = [(x, z) for x in range(-9, -5) for z in range(-13, -10)]
+_booth_kept = {(-7, -12), (-9, -11), (-8, -11)}  # receive_plea, receive_freeze, the receiver's post
+_booth_obstructions = [f'execute positioned ~{x} ~2 ~{z} run setblock ~ ~ ~ minecraft:barrier'
+                       for x, z in _booth_cells if (x, z) not in _booth_kept]
+_plant_anchor_x, _plant_anchor_z = BY_ID['plant'].anchor
+_plant_penned = [command for name, dx, dz in (('receive_plea', -7, -12), ('receive_freeze', -9, -11))
+                 for command in (f'tp {sel(name)} {_plant_anchor_x + dx + .5} {FEET + 2}.0 {_plant_anchor_z + dz + .5} 180 0',
+                                 f'data merge entity {sel(name)} {{NoAI:1b}}')]
 _boxes_air = 'fill ~-20 ~2 ~-3 ~-17 ~2 ~18 '
 _receive_preserved = r'\[scenario\][^\n]* action=plant_receive_click result=\S+ token=(\S+) kept_token=true captive=true same_carrier=true carrier_count=1 occupants=1 paid=0\b'
 _receive_paid = r'\[scenario\][^\n]* action=plant_receive_click result=CONSUME token=(\S+) kept_token=false captive=false same_carrier=true carrier_count=1 occupants=0 paid=(\d+)\b'
@@ -6196,12 +6201,14 @@ _plant_smoke['reload'] = (260, _receiving_staff)
 _plant_smoke['reload_paths'] = ('UUID', 'HandItems[0]')
 _plant_smoke['readout'] += [f'data get entity {sel(name)} NeoForgeData.HumanCommerce' for name, *_ in _receiving_animals]
 _plant_smoke['commands'] += [
+    *[(45, command) for command in _plant_penned],
     (60, 'yukkuri scenario basket plain'),
     (61, f'yukkuri scenario basket capture {sel("receive_insult")}'),
     (62, 'yukkuri scenario basket plant_receive ' + _receiving_staff),
     *[(62, block) for block in _booth_obstructions],
     (63, _receive_click),
     (64, 'fill ~-9 ~2 ~-13 ~-6 ~2 ~-11 minecraft:air replace minecraft:barrier'),
+    *[(64, f'data merge entity {sel(name)} {{NoAI:0b}}') for name in ('receive_plea', 'receive_freeze')],
     (65, _receive_click),
     (66, _receive_click),
     (67, _boxes_air + 'minecraft:barrier replace minecraft:air'),
