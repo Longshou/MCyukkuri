@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.human.PlantReceiving;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -109,7 +110,7 @@ public final class CarrierItem extends Item {
             return InteractionResult.FAIL;
         }
         // A sedated animal cannot resist; otherwise only a pet, a lost animal or a wild one that trusts the player climbs in by itself.
-        if (entity.life().sedated()) {
+        if (entity.life().sedated() || PlantReceiving.assists(level, entity)) {
             var reason = capture(level, player, hand, stack, entity);
             if (reason != null) {
                 InteractionDispatch.refuse(player,entity,"capture",reason);
@@ -124,7 +125,7 @@ public final class CarrierItem extends Item {
     private static boolean willing(Player player, YukkuriEntity entity) {
         var commerce = Custody.view(entity); UUID id = player.getUUID();
         boolean known = HumanCommerce.ownedBy(entity, id) || commerce.role() == Custody.Role.LOST
-                || commerce.owner() == null && Bonds.trustedPlayer(entity, id);
+                || (commerce.owner() == null || commerce.role() == Custody.Role.PLANT_STOCK) && Bonds.trustedPlayer(entity, id);
         return known && !entity.isPanicking() && !entity.isOnFire() && entity.hurtTime == 0 && !entity.predator().active();
     }
     private void welcome(ServerLevel level, Player player, InteractionHand hand, ItemStack stack, YukkuriEntity entity) {
@@ -197,7 +198,10 @@ public final class CarrierItem extends Item {
         int added = STAGE_LOAD.get(entity.family().stageId());
         if (before + added > grade.capacity) return "carrier_full";
         var previousCustody = HumanCommerce.data(entity).copy();
-        if (Custody.fromData(previousCustody).role() != Custody.Role.LOST)
+        var role = Custody.fromData(previousCustody).role();
+        if (role == Custody.Role.PLANT_STOCK && Custody.harmRefusal(player, entity, entity.blockPosition()) != null) return "custody";
+        if (role == Custody.Role.PLANT_STOCK && (entity.operations().active() || InteractionDispatch.contactRefusal(entity) != null)) return "condition";
+        if (role != Custody.Role.LOST && !PlantReceiving.assists(level, entity))
             Custody.assign(entity, player, Custody.Role.COMPANION);
         UUID token = world.capture(entity, () -> HomeClaim.displaced(entity,player));
         if (token == null) {

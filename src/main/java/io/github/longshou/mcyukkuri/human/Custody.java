@@ -40,7 +40,7 @@ public final class Custody {
         NONE(""), UNKNOWN(null), COMPANION("companion"), STOCK("stock"), BREEDER("breeder"),
         RESERVE_PARENT("reserve_parent"), NURSERY("nursery"), INPUT("input"), LABOR("labor"),
         RESERVE("reserve"), LOST("lost"), STUD("stud"), SHOP_NURSERY("shop_nursery"),
-        TRAINEE("trainee"), EXAM_ACTOR("exam_actor");
+        TRAINEE("trainee"), EXAM_ACTOR("exam_actor"), PLANT_STOCK("plant_stock");
 
         private static final Role[] ROLES = values();
         private final String id;
@@ -333,8 +333,14 @@ public final class Custody {
 
     public static boolean mayCapture(Player player, YukkuriEntity animal) {
         var custody = view(animal);
+        if (custody.role() == Role.PLANT_STOCK) return plantContact(player, animal, custody);
         return !custody.hasPendingStaffRole() && (custody.owner() == null || custody.owner().equals(player.getUUID())
                 || custody.role() == Role.LOST);
+    }
+
+    private static boolean plantContact(@Nullable LivingEntity actor, YukkuriEntity animal, View custody) {
+        return (actor instanceof Player || actor instanceof HumanNpc npc && custody.ownedBy(npc.plantSite()))
+                && animal.level() instanceof ServerLevel level && PlantSite.contains(level, custody.owner(), animal.blockPosition());
     }
 
     /** A passive exposure has no actor authorized to harm an owned animal. */
@@ -346,6 +352,7 @@ public final class Custody {
                     || actor != null && shops.protectedAt(level, actor.blockPosition())) return "shop";
         }
         var custody = view(animal);
+        if (custody.role() == Role.PLANT_STOCK) return plantContact(actor, animal, custody) ? null : "protected";
         if (custody.hasPendingStaffRole() || custody.role() == Role.STOCK || custody.role() == Role.SHOP_NURSERY
                 || custody.ownerKind() == OwnerKind.NPC) return "protected";
         return custody.owner() != null && (!(actor instanceof Player) || !custody.ownedBy(actor.getUUID())) ? "owner" : null;

@@ -58,6 +58,21 @@ public final class PunishmentReaction {
         respond(target, punisher, incident, 0, bitten ? 0 : 12);
     }
 
+    /** A handover has a visible response without adding a punishment memory. */
+    public static void received(YukkuriEntity target, HumanNpc clerk) {
+        var contact = SocialDisposition.contact(target, clerk);
+        double control = ramp(target.life().personality().selfControl(), 30, 80);
+        double unease = ramp(target.mind().unease(), 35, 80);
+        double freeze = contact.wariness() * (.35 + .65 * control);
+        double plead = (.4 * contact.wariness() + .6 * unease) * (1 - .65 * control);
+        double insult = contact.insistence();
+        var response = insult > Math.max(freeze, plead) ? Response.DEFIANT : plead > freeze ? Response.PLEAD : Response.FREEZE;
+        if (response == Response.DEFIANT) target.forceReaction(response.action, response.face, "factory_receive_insult");
+        else target.forceReaction(response.action, response.face, response.line);
+        GameplayLog.event(target, "factory", "action=receive_reaction staff={} response={} insistence={} wariness={} self_control={} unease={}",
+                clerk.getUUID(), response, insult, contact.wariness(), target.life().personality().selfControl(), target.mind().unease());
+    }
+
     private static void respond(YukkuriEntity target, LivingEntity punisher, String incident,
                                 int closenessChange, int fearGain) {
         if (!target.isAlive() || target.body().dying()) {

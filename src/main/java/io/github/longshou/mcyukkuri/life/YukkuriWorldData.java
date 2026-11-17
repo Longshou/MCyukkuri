@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.BlockPos;
@@ -430,29 +431,38 @@ public final class YukkuriWorldData extends SavedData {
         GameplayLog.limited(entity,"transport","capture:"+reason,200,"action=capture result=refused reason={}",reason);
         return null;
     }
-    private YukkuriEntity releaseRefused(UUID token,ServerLevel level,Vec3 position,String reason){
+    public record GroundRelease(YukkuriEntity animal, String refusal) {}
+
+    private GroundRelease releaseRefused(UUID token,ServerLevel level,Vec3 position,String reason){
         GameplayLog.worldLimited(level,"transport","release:"+token+":"+reason,200,
                 "action=release result=refused token={} destination={} reason={}",token,position,reason);
-        return null;
+        return new GroundRelease(null, reason);
     }
     public YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw) {
         return release(token, level, position, yaw, false);
     }
     public YukkuriEntity releaseAtNest(UUID token, ServerLevel level, BlockPos nest, float yaw) {
-        return release(token, level, Vec3.atBottomCenterOf(nest), yaw, false, 0, nest);
+        return release(token, level, Vec3.atBottomCenterOf(nest), yaw, false, 0, nest, null, null).animal();
     }
     public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 position, float yaw) {
         return release(token, level, position, yaw, true);
     }
     public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 near, float yaw, int radius) {
-        return release(token, level, near, yaw, true, radius, null);
+        return release(token, level, near, yaw, true, radius, null, null, null).animal();
+    }
+
+    /** Restrict admission to the supplied floor cells and check the live snapshot before consuming its token. */
+    public GroundRelease releaseOnGround(UUID token, ServerLevel level, Vec3 source, float yaw, Iterable<BlockPos> floor,
+                                         Function<YukkuriEntity, String> check) {
+        return release(token, level, source, yaw, true, 0, null, floor, check);
     }
 
     private YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw, boolean ground) {
-        return release(token, level, position, yaw, ground, 0, null);
+        return release(token, level, position, yaw, ground, 0, null, null, null).animal();
     }
 
-    private YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw, boolean ground, int radius, BlockPos nest) {
+    private GroundRelease release(UUID token, ServerLevel level, Vec3 position, float yaw, boolean ground, int radius,
+                                  BlockPos nest, Iterable<BlockPos> floor, Function<YukkuriEntity, String> check) {
         if (freezer.contains(token)) return releaseRefused(token,level,position,"freezer_lease");
         Captive held = captives.get(token);
         if (held == null) return releaseRefused(token,level,position,"token_missing");
@@ -460,6 +470,10 @@ public final class YukkuriWorldData extends SavedData {
         if (Custody.normalizeSnapshot(level, held.data)) setDirty();
         Entity loaded = EntityType.loadEntityRecursive(held.data.copy(), level, entity -> entity);
         if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return releaseRefused(token,level,position,"snapshot_not_live_yukkuri");
+        if (check != null) {
+            var reason = check.apply(entity);
+            if (reason != null) return releaseRefused(token, level, position, reason);
+        }
         if (nest != null) {
             if (!(level.getBlockEntity(nest) instanceof CareBlockEntity bed) || !bed.canClaim(entity))
                 return releaseRefused(token,level,position,"nest_occupied");
@@ -468,10 +482,10 @@ public final class YukkuriWorldData extends SavedData {
             position = entrance;
             ground = true;
         }
-        if (radius > 0) {
-            var first = BlockPos.containing(position);
+        if (floor != null || radius > 0) {
+            var cells = floor != null ? floor : BlockPos.withinManhattan(BlockPos.containing(position), radius, 2, radius);
             Vec3 supported = null;
-            for (var cell : BlockPos.withinManhattan(first, radius, 2, radius)) {
+            for (var cell : cells) {
                 if (!level.hasChunkAt(cell)) continue;
                 var candidate = Vec3.atBottomCenterOf(cell);
                 var box = entity.getBoundingBox().move(candidate.subtract(entity.position()));
@@ -502,7 +516,7 @@ public final class YukkuriWorldData extends SavedData {
         Custody.cleanup(entity);
         GameplayLog.event(entity,"transport","action=release result=committed token={} owner={} role={} captive_count={}",
                 token,Custody.view(entity).owner(),Custody.view(entity).role(),captives.size());
-        return entity;
+        return new GroundRelease(entity, null);
     }
     public static void joining(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof YukkuriEntity entity && event.getLevel() instanceof ServerLevel level) {

@@ -87,7 +87,7 @@ public final class NativeDialogue {
                  "beg_robbed", "beg_chase", "beg_grudge", "beg_help", "beg_curse",
                  // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
                  "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
-                 "basket_refuse", "basket_enter", "basket_exit", "wild_plea_keep", "pet_report_owner",
+                 "basket_refuse", "basket_enter", "basket_exit", "factory_receive_insult", "wild_plea_keep", "pet_report_owner",
                  "predator_restrain", "predator_obey", "predator_defy",
                  // Badge social arcs: every beat's line must stay in step with its animation, so none may be swallowed by the quiet-gap rule.
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",

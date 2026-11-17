@@ -429,7 +429,8 @@
     {"id":"beg_chase.back","event":"beg_chase","zh":"站住！还给我！","ja":"まて！ かえしてよ！","en":"Stop! Give it back!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"beg_grudge.remember","event":"beg_grudge","zh":"呜……我记住你了。","ja":"うう……おぼえてるからね。","en":"Sniff... I'll remember you.","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"beg_help.hide","event":"beg_help","zh":"帮帮我！它一直盯着我的吃的！","ja":"たすけて！ ごはんをじっとみてるよ！","en":"Help! It keeps staring at my food!","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"beg_curse.stingy","event":"beg_curse","zh":"小气鬼！我走就是了！","ja":"けち！ もういくよ！","en":"Stingy! Fine, I'm going!","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"beg_curse.stingy","event":"beg_curse","zh":"小气鬼！我走就是了！","ja":"けち！ もういくよ！","en":"Stingy! Fine, I'm going!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"factory_receive_insult","event":"factory_receive_insult","zh":"噗咕！笨蛋人类！","ja":"ぷくー！ばかにんげん！","en":"Puff! Stupid human!","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
     {

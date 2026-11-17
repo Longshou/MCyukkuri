@@ -221,7 +221,8 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (hand != InteractionHand.MAIN_HAND || job() == Job.FACTORY) return InteractionResult.PASS;
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (job() == Job.FACTORY) return PlantReceiving.interact(player, this, hand);
         if (!level().isClientSide) {
             ShopRegistry.get((ServerLevel) level()).adoptLegacy((ServerLevel) level(), this);
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);

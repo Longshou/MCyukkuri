@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.human.mixin.StructureTemplateAccessor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,7 +15,9 @@ import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -27,6 +31,53 @@ final class PlantSite {
     private static final String SITE = "mcy_plant_site";
 
     private PlantSite() {}
+
+    record Layout(BoundingBox booth, List<BlockPos> boxFloor) {}
+
+    private static Marker marker(ServerLevel level, UUID id) {
+        return level.getEntity(id) instanceof Marker marker && marker.getTags().contains(SITE) ? marker : null;
+    }
+
+    static boolean contains(ServerLevel level, UUID id, BlockPos at) {
+        var marker = marker(level, id);
+        if (marker == null) return false;
+        var data = marker.saveWithoutId(new CompoundTag()).getCompound("data");
+        return BoundingBox.fromCorners(BlockPos.of(data.getLong("Min")), BlockPos.of(data.getLong("Max"))).isInside(at);
+    }
+
+    /** Recover the authored rooms from the same template and saved counter pose in existing sites. */
+    static Layout layout(ServerLevel level, UUID id) {
+        var site = marker(level, id);
+        if (site == null) return null;
+        var template = level.getStructureManager().get(TEMPLATE).orElseThrow();
+        var markers = ((StructureTemplateAccessor) template).mcyukkuri$entities();
+        var rotation = HumanScenes.rotationFor(Direction.fromYRot(site.getYRot()));
+        var counter = markers.stream().filter(info -> tagged(info, "mcy_plant_counter")).findFirst().orElseThrow();
+        var origin = site.blockPosition().subtract(counter.blockPos.rotate(rotation));
+        var booth = markers.stream().filter(info -> tagged(info, "mcy_plant_receive")).findFirst().orElseThrow();
+        var floors = new ArrayList<BlockPos>();
+        for (var info : markers) {
+            if (!tagged(info, "mcy_plant_box")) continue;
+            var box = bounds(info, origin, rotation);
+            var cells = new ArrayList<BlockPos>();
+            BlockPos.betweenClosed(box.minX(), box.minY(), box.minZ(), box.maxX(), box.minY(), box.maxZ())
+                    .forEach(at -> cells.add(at.immutable()));
+            var center = box.getCenter();
+            cells.sort(Comparator.comparingDouble(at -> at.distSqr(center)));
+            floors.addAll(cells);
+        }
+        return new Layout(bounds(booth, origin, rotation), floors);
+    }
+
+    private static boolean tagged(StructureTemplate.StructureEntityInfo info, String tag) {
+        return info.nbt.getList("Tags", Tag.TAG_STRING).getString(0).equals(tag);
+    }
+
+    private static BoundingBox bounds(StructureTemplate.StructureEntityInfo info, BlockPos origin, Rotation rotation) {
+        var anchor = origin.offset(info.blockPos.rotate(rotation));
+        var data = info.nbt.getCompound("data");
+        return BoundingBox.fromCorners(anchor.offset(offset(data, "Low", rotation)), anchor.offset(offset(data, "High", rotation)));
+    }
 
     static UUID id(ServerLevelAccessor level, BlockPos origin, Rotation rotation) {
         String key = TEMPLATE + "/" + level.getLevel().dimension().location() + "/" + origin.asLong() + "/" + rotation;

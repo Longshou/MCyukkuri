@@ -266,7 +266,7 @@ def run_scene(st, scene, builder, run_index, seed):
         elapsed, selector = scene.smoke['reload']
         server.sprint(st, elapsed)
         command = f'execute positioned {x}.0 {builder.FEET} {z}.0 run data get entity {selector}'
-        paths = ('Riders', 'Passengers[0].UUID', 'Passengers[1].UUID')
+        paths = scene.smoke.get('reload_paths', ('Riders', 'Passengers[0].UUID', 'Passengers[1].UUID'))
         before = [server.run_cmd(st, f'{command} {path}') for path in paths]
         server.run_cmd(st, 'save-all flush')
         for cx, cz in sorted(builder.BY_ID[scene.field].chunks()):
@@ -279,9 +279,9 @@ def run_scene(st, scene, builder, run_index, seed):
         after = [server.run_cmd(st, f'{command} {path}') for path in paths]
         normalize = lambda rows: re.sub(r'Yaw: [-+.\deE]+f', 'Yaw: observed', '\n'.join(rows))
         (Path(st['rundir']).parent / f'{scene.id}.reload.txt').write_text('\n'.join(before + after), encoding='utf-8')
-        if normalize(before) != normalize(after):
-            raise RuntimeError(f'{scene.id}: saved rider coordinates or passenger identities changed on reload')
-        print(f'PASS {scene.id}: rider coordinates and passenger identities survived chunk reload', flush=True)
+        if normalize(before) != normalize(after) or ('reload_paths' in scene.smoke and any('has the following entity data' not in row for row in before)):
+            raise RuntimeError(f'{scene.id}: required saved entity data changed or was missing on reload ({", ".join(paths)})')
+        print(f'PASS {scene.id}: saved entity data survived chunk reload ({", ".join(paths)})', flush=True)
     server.sprint(st, scene.smoke['ticks'] - elapsed)
     readout = '\n'.join(server.run_cmd(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}')
                         for command in scene.smoke.get('readout', ()))
@@ -443,7 +443,8 @@ def smoke_spec(smoke):
     verify = smoke.get('verify')
     return dict(expect=list(smoke['expect']), forbid=list(smoke['forbid']),
                 verify=None if verify is None else ' '.join(inspect.getsource(verify).split()),
-                ticks=smoke.get('ticks'), reload=list(smoke['reload']) if 'reload' in smoke else None)
+                ticks=smoke.get('ticks'), reload=list(smoke['reload']) if 'reload' in smoke else None,
+                reload_paths=list(smoke['reload_paths']) if 'reload_paths' in smoke else None)
 
 
 # The child's own copy of smoke_spec: it reads origin/main's scenes, so it cannot borrow this tree's extractor without
@@ -462,7 +463,8 @@ def spec(smoke):
     verify = smoke.get('verify')
     return dict(expect=list(smoke['expect']), forbid=list(smoke['forbid']),
                 verify=None if verify is None else ' '.join(inspect.getsource(verify).split()),
-                ticks=smoke.get('ticks'), reload=list(smoke['reload']) if 'reload' in smoke else None)
+                ticks=smoke.get('ticks'), reload=list(smoke['reload']) if 'reload' in smoke else None,
+                reload_paths=list(smoke['reload_paths']) if 'reload_paths' in smoke else None)
 
 
 print(json.dumps({scene.id: spec(scene.smoke) for scene in museum_scenarios.S}))
@@ -518,6 +520,8 @@ def smoke_differences(here, main):
         differences.append(f'ticks {main["ticks"]} -> {here["ticks"]}')
     if here['reload'] != main['reload']:
         differences.append(f'reload {main["reload"]} -> {here["reload"]}')
+    if here['reload_paths'] != main['reload_paths']:
+        differences.append('reloaded data paths differ')
     return differences
 
 

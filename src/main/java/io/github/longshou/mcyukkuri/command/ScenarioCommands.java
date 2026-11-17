@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -204,6 +205,10 @@ public final class ScenarioCommands {
                                 .executes(c -> basketClick(c, true))))
                         .then(Commands.literal("capture").then(Commands.argument("target", EntityArgument.entity())
                                 .executes(c -> basketClick(c, false))))
+                        .then(Commands.literal("load_snapshot").then(Commands.argument("target", EntityArgument.entity())
+                                .executes(ScenarioCommands::basketLoadSnapshot)))
+                        .then(Commands.literal("plant_receive").then(Commands.argument("staff", EntityArgument.entity())
+                                .executes(ScenarioCommands::basketPlantReceive)))
                         .then(Commands.literal("release").then(Commands.argument("floor", BlockPosArgument.blockPos())
                                 .executes(ScenarioCommands::basketRelease))))
                 .then(Commands.literal("unwrap").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
@@ -563,6 +568,37 @@ public final class ScenarioCommands {
         player.setPos(Vec3.atBottomCenterOf(floor.above().east()));
         var hit = new BlockHitResult(Vec3.atBottomCenterOf(floor.above()), Direction.UP, floor, false);
         var result = player.getMainHandItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        return result.consumesAction() ? 1 : 0;
+    }
+
+    /** Seed a real old/protected captive without the modern player capture's change of owner. */
+    private static int basketLoadSnapshot(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var level = c.getSource().getLevel();
+        var player = FakePlayerFactory.getMinecraft(level);
+        var basket = player.getMainHandItem();
+        var target = yukkuri(c, "target");
+        if (target == null || !CarrierContents.isBasket(basket) || !CarrierContents.tokens(basket).isEmpty()) return 0;
+        var world = YukkuriWorldData.get(level);
+        var token = world.capture(target);
+        if (token == null) return 0;
+        CarrierContents.add(basket, token, world.captiveSnapshot(token));
+        return 1;
+    }
+
+    private static int basketPlantReceive(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var source = c.getSource();
+        if (!(EntityArgument.getEntity(c, "staff") instanceof HumanNpc staff)) return 0;
+        var player = FakePlayerFactory.getMinecraft(source.getLevel());
+        player.setPos(source.getPosition());
+        var basket = player.getMainHandItem();
+        var token = CarrierContents.singleToken(basket);
+        int before = player.getInventory().countItem(Items.EMERALD);
+        var result = player.interactOn(staff, InteractionHand.MAIN_HAND);
+        var held = player.getMainHandItem();
+        GameplayLog.world(source.getLevel(), "scenario", "action=plant_receive_click result={} token={} kept_token={} captive={} same_carrier={} carrier_count={} occupants={} paid={}",
+                result, token, token != null && token.equals(CarrierContents.singleToken(held)),
+                token != null && YukkuriWorldData.get(source.getLevel()).hasToken(token), basket == held, held.getCount(),
+                CarrierContents.tokens(held).size(), player.getInventory().countItem(Items.EMERALD) - before);
         return result.consumesAction() ? 1 : 0;
     }
 

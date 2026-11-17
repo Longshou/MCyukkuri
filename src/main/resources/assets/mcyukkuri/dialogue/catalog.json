@@ -58828,5 +58828,17 @@
     ],
     "ticks": 55,
     "sound": ""
+  },
+  {
+    "id": "factory_receive_insult",
+    "key": "dialogue.mcyukkuri.original.factory_receive_insult",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "factory_receive_insult"
+    ],
+    "ticks": 59,
+    "sound": ""
   }
 ]
