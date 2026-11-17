@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 加工所 F5a：单厂入口（新厂生成、旧三厂停产兼容、移除旧产线执行） | `.worktrees/wp-fac-f5a-entry` | human/HumanWorld, human/HumanScenes, human/HumanNpc, human/FactoryTray, human/FactoryStationBlock, human/FactoryBreeding, human/FactoryPipeline, human/FactoryProduction, human/FactoryWorkGoal, command/HumanCommands, worldgen plant structure |
 | 加工所 F7a：短传送带与蒸制台（美术） | `.worktrees/wp-fac-f7a-belt-art` | art/structures/human-world (build.py, author_products.py, products/), plant template belt area |
 
 ## 玩法待办
