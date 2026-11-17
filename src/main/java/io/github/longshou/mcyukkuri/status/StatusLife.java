@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile.Ecology;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.EnumMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.joml.Vector3f;
 public final class StatusLife {
     public static final SyncSlot<String> IDENTITY = new SyncSlot<>(EntityDataSerializers.STRING, () -> "");
     public static final SyncSlot<String> OUTLOOK = new SyncSlot<>(EntityDataSerializers.STRING, () -> "");
+    public static final SyncSlot<CompoundTag> MOOD = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
     private static final Vector3f ORANGE = new Vector3f(1f, .55f, .1f);
     /** A regular jump reaches about 1.25 blocks and the trampoline bounce about 1.60. */
     private static final double AIRBORNE_HEIGHT = 1.75;
@@ -53,6 +55,23 @@ public final class StatusLife {
             var identity = identity();
             entity.syncComponentData(IDENTITY, identity.translationKey());
             entity.syncComponentData(OUTLOOK, SocialDisposition.outlook(entity).id());
+            var mood = new CompoundTag();
+            mood.putFloat("unease", entity.mind().unease());
+            mood.putFloat("sweetness", entity.mind().sweetness());
+            mood.putInt("filling", entity.mind().fillingSweetness());
+            var level = (ServerLevel) entity.level();
+            var fear = new CompoundTag();
+            YukkuriWorldData.get(level).relationsFrom(entity.getUUID()).forEach((actor, relation) -> {
+                if (relation.fear() == 0) return;
+                fear.putInt(actor.toString(), relation.fear());
+                if (relation.fear() > mood.getInt("max_fear")) {
+                    mood.putInt("max_fear", relation.fear());
+                    var source = level.getEntity(actor);
+                    mood.putString("source", source == null ? actor.toString().substring(0, 8) : source.getDisplayName().getString());
+                }
+            });
+            mood.put("fear", fear);
+            entity.syncComponentData(MOOD, mood);
             if (firstIdentity && TraceRecorder.recorded(entity)) StatusEvents.note(entity, "identity observed kind=" + identity.id());
         }
         entity.mind().ensureGivenName();

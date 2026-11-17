@@ -23,15 +23,27 @@ public final class GlassSight {
     public static BlockHitResult glassBetween(Entity observer, Vec3 eye, Entity target) {
         var level = observer.level(); var end = target.getEyePosition();
         var hit = level.clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
-        if (hit.getType() != HitResult.Type.BLOCK) return null;
+        if (!glass(level, hit)) return null;
+        return beyond(observer, eye, end, ClipContext.Block.COLLIDER, hit).getType() == HitResult.Type.MISS ? hit : null;
+    }
+
+    public static BlockHitResult outlineThroughGlass(Entity observer, Vec3 eye, Vec3 end) {
+        var hit = observer.level().clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, observer));
+        return glass(observer.level(), hit) ? beyond(observer, eye, end, ClipContext.Block.OUTLINE, hit) : hit;
+    }
+
+    private static boolean glass(BlockGetter level, BlockHitResult hit) {
+        if (hit.getType() != HitResult.Type.BLOCK) return false;
         var state = level.getBlockState(hit.getBlockPos());
-        if (!state.is(Tags.Blocks.GLASS_BLOCKS) && !state.is(Tags.Blocks.GLASS_PANES)) return null;
-        var beyond = level.clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer) {
+        return state.is(Tags.Blocks.GLASS_BLOCKS) || state.is(Tags.Blocks.GLASS_PANES);
+    }
+
+    private static BlockHitResult beyond(Entity observer, Vec3 eye, Vec3 end, ClipContext.Block shape, BlockHitResult hit) {
+        return observer.level().clip(new ClipContext(eye, end, shape, ClipContext.Fluid.NONE, observer) {
             @Override public VoxelShape getBlockShape(BlockState block, BlockGetter world, BlockPos pos) {
                 return pos.equals(hit.getBlockPos()) ? Shapes.empty() : super.getBlockShape(block, world, pos);
             }
         });
-        return beyond.getType() == HitResult.Type.MISS ? hit : null;
     }
 
     /** In plain sight, or behind exactly one glass cell. */

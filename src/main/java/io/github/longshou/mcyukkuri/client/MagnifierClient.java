@@ -2,14 +2,16 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import java.util.Locale;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -87,8 +89,20 @@ public final class MagnifierClient {
         // Match Gui.renderSelectedItemName after the health, hunger and vehicle layers set their heights.
         int inset = Math.max(ITEM_NAME_INSET, Math.max(minecraft.gui.leftHeight, minecraft.gui.rightHeight));
         int itemNameTop = g.guiHeight() - inset + (minecraft.gameMode.canHurtPlayer() ? 0 : ITEM_NAME_NO_HEALTH_SHIFT);
-        StatusStrip.of(aim).renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
+        var mood = aim.moodReadout();
+        var readout = StatusStrip.of(aim);
+        if (!mood.isEmpty()) {
+            int fear = mood.getCompound("fear").getInt(player.getUUID().toString());
+            var mind = Component.translatable("magnifier.mcyukkuri.mind", decimal(mood.getFloat("unease")),
+                    decimal(mood.getFloat("sweetness")), mood.getInt("filling"), fear);
+            if (mood.getInt("max_fear") > fear)
+                mind.append(" · ").append(Component.translatable("magnifier.mcyukkuri.fear_of", mood.getString("source"), mood.getInt("max_fear")));
+            readout = readout.withMind(mind);
+        }
+        readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
     }
+
+    private static String decimal(float value) { return String.format(Locale.ROOT, "%.1f", value); }
 
     private static YukkuriView pick(LocalPlayer player, Camera camera) {
         Vec3 eye = camera.getPosition();
@@ -96,7 +110,7 @@ public final class MagnifierClient {
         var candidates = player.level().getEntities(player, new AABB(eye, end).inflate(AIM_ASSIST),
                 e -> e instanceof YukkuriView && e.isPickable() && !e.isInvisibleTo(player));
         if (candidates.isEmpty()) return null;
-        end = player.level().clip(outlineRay(player, eye, end)).getLocation();
+        end = GlassSight.outlineThroughGlass(player, eye, end).getLocation();
 
         YukkuriView direct = null, assisted = null;
         double directDistance = eye.distanceToSqr(end), assistedDistance = directDistance;
@@ -117,7 +131,7 @@ public final class MagnifierClient {
             Vec3 surface = new Vec3(Mth.clamp(near.x, body.minX, body.maxX),
                     Mth.clamp(near.y, body.minY, body.maxY), Mth.clamp(near.z, body.minZ, body.maxZ));
             double distance = eye.distanceToSqr(surface);
-            if (distance < assistedDistance && player.level().clip(outlineRay(player, eye, surface)).getType() == HitResult.Type.MISS) {
+            if (distance < assistedDistance && GlassSight.outlineThroughGlass(player, eye, surface).getType() == HitResult.Type.MISS) {
                 assistedDistance = distance;
                 assisted = (YukkuriView) entity;
             }
@@ -127,10 +141,6 @@ public final class MagnifierClient {
 
     private static Vec3 firstHit(AABB bounds, Vec3 eye, Vec3 end) {
         return bounds.contains(eye) ? eye : bounds.clip(eye, end).orElse(null);
-    }
-
-    private static ClipContext outlineRay(LocalPlayer player, Vec3 start, Vec3 end) {
-        return new ClipContext(start, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player);
     }
 
     private MagnifierClient() {}

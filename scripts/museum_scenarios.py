@@ -2432,6 +2432,28 @@ add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房�
     env=DAY, vantage=(_plant_x, _plant_z - 3, 0, 0),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, _, label, *_ in _receiving_animals])
 
+_sweet_box = 'factory_sweet_box'
+_sweet_cast = (
+    ('sweet_defiant', 3, 17, '胆大·低自制', 80, 25, 25, 59),
+    ('sweet_endure', 4, 18, '胆大·高自制', 80, 80, 55, 61),
+    ('sweet_timid', 3, 20, '胆小·低自制', 25, 30, 55, 63),
+)
+_sweet_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
+add(_sweet_box, 'plant', '甜化箱', '甜化箱',
+    '在 A 箱比较三只同龄油库里。同样用一次冷锥，看谁回嘴、硬撑、噤声、哭求或退开。用放大镜记下每只的不安、积甜、馅甜和对你或员工的恐惧。'
+    '看员工拿真实工具办差，开门、挡路或松绑都能改变下一次接触。B、C、D 箱的开张原料供对照箱牌。',
+    '观察一至两分钟，等个体回到日常活动', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
+    late=[command for name, x, z, label, bold, control, friendly, unease in _sweet_cast for command in (
+        yk('marisa', _plant_x + x - 10, _plant_z + z, name, dy=2, label=label, boldness=bold, self_control=control,
+           friendliness=friendly, nutrition=41, energy=70, bladder=75, social_wait=0, rest_wait=0, picky=0,
+           uuid=uid(_sweet_box, name), lead=name == 'sweet_defiant',
+           extra=f'YukkuriMind:{{Unease:{unease}f,Sweetness:5f}}'),
+        f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
+        f'data modify entity {sel(name)} {OWNED}.Owner set from entity {_sweet_site} UUID',
+    )], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame',
+              'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x - 2, _plant_z + 18, 90, 15),
+    reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _sweet_cast])
+
 # ====================================================================================================== clips (buttons are built in build_museum_full.py)
 
 
@@ -5058,6 +5080,7 @@ _number_scenes()
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
     'processing_plant': 'M2',
+    'factory_sweet_box': 'M2',
     'kindness_adoption': 'F4',
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
@@ -6110,6 +6133,53 @@ _smoke('processing_plant', 120, [r'MCY_PLANT_CLEAR_POSTS', r'MCY_LEGACY_OUTPUT_A
                 'data get block ~24 ~ ~-23 Items'])
 _plant_smoke = next(s for s in S if s.id == 'processing_plant').smoke
 _plant_smoke['verify'] = _verify_plant
+
+_sweet_pressure = (r'\[factory\][^\n]* uuid=(\S+) t=(\d+)[^\n]* action=sweetening decision=pressure staff=(\S+)'
+                   r' item=(\S+) unease=([\d.]+) -> ([\d.]+) health=([\d.]+) sweet=([\d.]+) fear=(\d+)')
+_sweet_victim = (r'\[punishment\][^\n]* uuid=(\S+) t=(\d+)[^\n]* victim actor=(\S+) incident=(\S+)'
+                 r' response=(\w+) fear=(\d+) -> (\d+)')
+
+
+def _verify_sweet_box(window):
+    pressure = re.findall(_sweet_pressure, window)
+    if len(pressure) < 2:
+        return f'Expected two natural staff contacts, got {pressure}'
+    victims = re.findall(_sweet_victim, window)
+    for animal, tick, staff, tool, before, after, health, sweet, fear in pressure:
+        if float(before) >= 72 or float(after) >= 95 or float(health) <= .65:
+            return f'Unsafe staff contact on {animal}: {before} -> {after}, health {health}'
+        if not any(who == animal and when == tick and actor == staff for who, when, actor, *_ in victims):
+            return f'No individual reaction to {tool} from {staff} on {animal} at {tick}'
+    cast = {_uuid_text(_sweet_box, name) for name, *_ in _sweet_cast}
+    workers = {staff for _, _, staff, *_ in pressure}
+    compared = [(animal, actor, response, int(before), int(after)) for animal, _, actor, incident, response, before, after in victims
+                if incident == 'hurt' and animal in cast and actor not in workers]
+    if {animal for animal, *_ in compared} != cast or len({response for _, _, response, *_ in compared}) < 2:
+        return f'Expected contrasting responses to the same player tool across all three actors, got {compared}'
+    if len({actor for _, actor, *_ in compared}) != 1 or any(after <= before for _, _, _, before, after in compared):
+        return f'Expected fear of the same actual operator to increase, got {compared}'
+    for animal, tick, staff, pose in re.findall(
+            r'\[interaction\][^\n]* uuid=(\S+) t=(\d+)[^\n]* operation started; actor=(\S+) pose=(PIN|FIXED)', window):
+        end = re.search(rf'\[interaction\][^\n]* uuid={animal} t=(\d+)[^\n]* operation ended; actor={staff} pose={pose}', window)
+        if end is None or not 0 <= int(end[1]) - int(tick) <= 402:
+            return f'{pose} on {animal} at {tick} did not end within the shared operation limit'
+    return None
+
+
+_smoke(_sweet_box, 2400, [
+    r'\[factory\][^\n]* action=opening_stock box=B [^\n]* unease=53\.0 sweet=62\b',
+    r'\[factory\][^\n]* action=opening_stock box=C [^\n]* unease=68\.0 sweet=68\b',
+    r'\[factory\][^\n]* action=opening_stock box=D [^\n]* unease=80\.0 sweet=77\b',
+], forbid=[r'\[body\][^\n]* death settled', r'\[punishment\][^\n]* response=collapse'], readout=[
+    *[f'yukkuri status {sel(name)} raw' for name, *_ in _sweet_cast],
+    *[f'data get block ~{_plant_x - 3} ~4 ~{_plant_z + z} front_text.messages' for z in (17, 22, 27, 34)],
+])
+_sweet_smoke = next(s for s in S if s.id == _sweet_box).smoke
+_sweet_smoke['verify'] = _verify_sweet_box
+_sweet_smoke['commands'] = [
+    (2050 + 2 * i, f'execute at {sel(name)} positioned ~ ~ ~0.4 run yukkuri scenario tool_click {sel(name)} pierce')
+    for i, (name, *_) in enumerate(_sweet_cast)
+]
 _legacy_bag = '{id:"mcyukkuri:live_yukkuri_bag",count:1,components:{"minecraft:custom_data":{CaptiveToken:[I;8,7,6,5],EntityUUID:[I;1,2,3,4],Variant:"reimu",BatchNumber:42}}}'
 _legacy_worker = '@e[type=mcyukkuri:caretaker_brother,tag=legacy_factory,distance=..45,limit=1]'
 _plant_smoke['commands'] = [
@@ -6350,6 +6420,8 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+_scene_end(_sweet_box, [(name, _DRY) for name, *_ in _sweet_cast])
 
 _scene_end(_ugly, [(name, _DRY) for name in (
     'nest_declare', 'nest_yield', 'nest_peer_west', 'nest_peer_east', 'food_demand', 'food_ask',

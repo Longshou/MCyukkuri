@@ -156,6 +156,10 @@ public final class InteractionDispatch {
         return target.operations().ready() ? null : "busy";
     }
 
+    public static boolean restraintFits(YukkuriEntity target) {
+        return target.onGround() && target.operations().hasRoom();
+    }
+
     public static String contactRefusal(YukkuriEntity target) {
         if (target.isInWaterOrBubble()) return "water";
         if (target.vehicleHat() != null) return "hat";
@@ -175,7 +179,7 @@ public final class InteractionDispatch {
                     if (actor instanceof HumanNpc && (!actor.onGround() || actor.isPassenger())) return "space";
                     var operation = target.operations();
                     return switch (action) {
-                        case FIX_SUPINE, ENCLOSE -> target.onGround() && operation.hasRoom() ? null : "space";
+                        case FIX_SUPINE, ENCLOSE -> restraintFits(target) ? null : "space";
                         case PIN -> target.onGround() ? null : "space";
                         case BURN -> OperationToolItem.isHot(actor.getMainHandItem(), target.level()) ? null : "heat";
                         case WRAP_HANG, HOOK_HANG -> operation.ceiling() == null ? "ceiling" : null;

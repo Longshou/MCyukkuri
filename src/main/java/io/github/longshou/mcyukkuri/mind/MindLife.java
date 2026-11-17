@@ -161,12 +161,13 @@ public final class MindLife {
             case PRAISED -> ExcitedLeak.Stimulus.JOY;
             default -> null;
         };
-        felt(event, false, spike);
+        felt(event, false, spike, 100);
     }
-    public void felt(EmotionEvent event, ExcitedLeak.Stimulus spike) { felt(event, false, spike); }
+    public void felt(EmotionEvent event, ExcitedLeak.Stimulus spike) { felt(event, false, spike, 100); }
+    public void feltBelow(EmotionEvent event, float ceiling) { felt(event, false, null, ceiling); }
     /** The same real event and cooldown, but as pressure intrinsic to the slave's pit conditions. */
-    public void feltSlavePressure(EmotionEvent event) { felt(event, true, null); }
-    private void felt(EmotionEvent event, boolean slavePressure, ExcitedLeak.Stimulus spike) {
+    public void feltSlavePressure(EmotionEvent event) { felt(event, true, null, 100); }
+    private void felt(EmotionEvent event, boolean slavePressure, ExcitedLeak.Stimulus spike, float ceiling) {
         if (entity.level().isClientSide) return;
         long now = entity.level().getGameTime();
         Long until = eventCooldown.get(event.bucket);
@@ -177,7 +178,8 @@ public final class MindLife {
         if (event == EmotionEvent.ACCESSORY_RETURNED) feeling.begin(EmotionCourse.Kind.JOY, 1, null, null);
         if (until != null && until > now) return;
         if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
-        if (slavePressure) addSlavePressure(event.delta, event.bucket); else add(event.delta, event.bucket);
+        float delta = event.delta > 0 ? Math.min(event.delta, Math.max(0, ceiling - unease)) : event.delta;
+        if (slavePressure) addSlavePressure(delta, event.bucket); else add(delta, event.bucket);
     }
 
     /** Stimuli that do not write unease (for example the start of a fall). */

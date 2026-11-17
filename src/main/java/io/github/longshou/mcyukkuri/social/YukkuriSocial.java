@@ -31,6 +31,7 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -330,7 +331,10 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     private boolean mayRequestFrom(LivingEntity person) {
-        return entity.life().seeksOfferedFood(person) || entity.status().identity().free();
+        if (entity.life().seeksOfferedFood(person) || entity.status().identity().free()) return true;
+        var custody = Custody.view(entity);
+        return person instanceof HumanNpc staff && staff.sweeteningStaff() && custody.role() == Custody.Role.PLANT_STOCK
+                && custody.ownedBy(staff.plantSite());
     }
 
     private static boolean holdingTool(LivingEntity person) {

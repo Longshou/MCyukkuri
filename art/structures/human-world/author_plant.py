@@ -29,7 +29,7 @@ from pathlib import Path
 import json, sys
 sys.path.insert(0, str(Path(__file__).parent))
 import build
-from build import Building, stairs, slab, marker, name_at, string, sequence, light_up, connect_panes
+from build import Building, stairs, slab, marker, name_at, byte, compound, integer, string, sequence, light_up, connect_panes
 from palette import link, pick
 
 sys.path.insert(0, str(build.ROOT / 'scripts'))
@@ -320,13 +320,19 @@ def plant():
         nest = (BOX_X0 + 1, z0 + 1)
         b.block(nest[0], 3, nest[1], 'mcyukkuri:straw_nest', {'facing': 'east', 'north': 'false', 'east': 'false', 'south': 'false', 'west': 'false'})
         bowl = (BOX_X1, z1 if ident != 'D' else z1 - 1); toilet = (BOX_X0, z1)
-        b.bowl(*bowl); b.block(toilet[0], 3, toilet[1], 'mcyukkuri:yukkuri_toilet')
+        b.bowl(*bowl, grain=6); b.block(toilet[0], 3, toilet[1], 'mcyukkuri:yukkuri_toilet')
         anchor = (BOX_X1, 3, dz)
         site_marker(b, anchor, 'mcy_plant_box', {'Box': string(ident), 'Low': relative(anchor, (BOX_X0, 3, z0)),
                                                  'High': relative(anchor, (BOX_X1, 3, z1)), 'Door': relative(anchor, (BOX_FRONT + 1, 3, dz)),
                                                  'Readout': relative(anchor, (BOX_FRONT + 1, 5, dz))})
         b.boxes.append(dict(id=ident, kind='box', wide=ident == 'D', interior=(BOX_X0, z0, BOX_X1, z1), top=LID, bowl=bowl, toilet=toilet, nest=nest,
                             doors=[((BOX_FRONT, dz), (BOX_FRONT + 1, dz), (BOX_X1, dz))]))
+    tools = ['mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame', 'minecraft:name_tag']
+    items = [{'Slot': byte(slot), 'id': string(tool), 'count': integer(1)} for slot, tool in enumerate(tools)]
+    items[-1]['components'] = compound({'minecraft:custom_name': string('{"text":"Taffy"}')})
+    b.block(9, 3, 16, 'chest', {'facing': 'west', 'type': 'single', 'waterlogged': 'false'},
+            {'id': string('minecraft:chest'), 'Items': sequence(10, items)})
+    site_marker(b, (9, 3, 16), 'mcy_plant_tools')
     # Sick pen across the aisle: solid sides and back, glass front with the door, white floor, a bowl and a toilet, no nest.
     s = SICK_PEN
     B((s['x0'], 2, s['z0']), (s['x1'], 2, s['z1']), SICK, over=True)

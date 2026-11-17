@@ -35,8 +35,8 @@ final class PlantSite {
 
     private PlantSite() {}
 
-    record Box(BlockPos stand, List<BlockPos> floor) {}
-    record Layout(BoundingBox booth, BlockPos boothPost, List<BlockPos> boothFloor, List<Box> boxes) {}
+    record Box(BlockPos stand, BlockPos door, BlockPos lookout, BlockPos readout, BoundingBox bounds, List<BlockPos> floor) {}
+    record Layout(BoundingBox booth, BlockPos boothPost, List<BlockPos> boothFloor, List<Box> boxes, BlockPos tools) {}
 
     private static Marker marker(ServerLevel level, UUID id) {
         return level.getEntity(id) instanceof Marker marker && marker.getTags().contains(SITE) ? marker : null;
@@ -62,11 +62,17 @@ final class PlantSite {
         var boxes = new ArrayList<Box>();
         for (var info : markers) {
             if (!tagged(info, "mcy_plant_box")) continue;
-            var stand = origin.offset(info.blockPos.offset(0, 0, 1).rotate(rotation));
-            boxes.add(new Box(stand, floor(bounds(info, origin, rotation))));
+            var anchor = origin.offset(info.blockPos.rotate(rotation));
+            var door = anchor.offset(offset(info.nbt.getCompound("data"), "Door", rotation));
+            var readout = anchor.offset(offset(info.nbt.getCompound("data"), "Readout", rotation));
+            var box = bounds(info, origin, rotation);
+            boxes.add(new Box(anchor.offset(new BlockPos(0, 0, 1).rotate(rotation)), door,
+                    anchor.offset(new BlockPos(2, 0, 2).rotate(rotation)), readout, box, floor(box)));
         }
         var bounds = bounds(booth, origin, rotation);
-        return new Layout(bounds, origin.offset(booth.blockPos.rotate(rotation)), floor(bounds), boxes);
+        var tools = markers.stream().filter(info -> tagged(info, "mcy_plant_tools")).findFirst().orElseThrow();
+        return new Layout(bounds, origin.offset(booth.blockPos.rotate(rotation)), floor(bounds), boxes,
+                origin.offset(tools.blockPos.rotate(rotation)));
     }
 
     private static List<BlockPos> floor(BoundingBox bounds) {
@@ -113,6 +119,10 @@ final class PlantSite {
                 case "mcy_plant_box" -> {
                     if (data.getString("Box").equals("A"))
                         staff(level, clip, rotation, id, "plant_sweetening", at.offset(offset(data, "Door", rotation)));
+                    else {
+                        var stock = at.offset(new BlockPos(-2, 0, 0).rotate(rotation));
+                        if (clip.isInside(stock)) PlantSweetening.openingStock(level, id, data.getString("Box"), stock);
+                    }
                 }
                 case "mcy_plant_zone" -> staff(level, clip, rotation, id, "plant_" + data.getString("Kind"), at);
                 default -> {} // Other markers describe equipment and pens.

@@ -104,6 +104,7 @@ public interface YukkuriView {
     long leakTraceAt();
     String identityTranslationKey();
     String outlookId();
+    CompoundTag moodReadout();
     String getBehaviorId();
     long getBehaviorStartTick();
     String getDialogueKey();

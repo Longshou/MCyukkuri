@@ -40,6 +40,10 @@ public final class StatusStrip {
             return Component.translatable("magnifier.mcyukkuri.header", displayedName, stage);
         }
 
+        Readout withMind(Component mind) {
+            return new Readout(name, stage, identityKey, Component.empty().append(status).append("\n").append(mind));
+        }
+
         private int chipWidth(Font font, Component identity) {
             return identityKey.isEmpty() ? 0 : font.width(identity) + 10;
         }

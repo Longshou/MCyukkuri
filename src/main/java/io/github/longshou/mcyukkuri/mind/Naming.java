@@ -4,6 +4,10 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -13,6 +17,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -70,6 +75,24 @@ public final class Naming {
 
     /** The reaction to being given {@code name} by {@code namer} (null: a command). Returns a short description. */
     public static String named(YukkuriEntity y, UUID namer, String name) {
+        return named(y, namer, name, true);
+    }
+
+    /** Staff apply the held vanilla tag and use the shared punishment reaction for the visible denial. */
+    public static void useHeldTag(HumanNpc staff, YukkuriEntity y) {
+        var stack = staff.getMainHandItem();
+        var name = stack.get(DataComponents.CUSTOM_NAME);
+        Motor.face(staff, y.getBoundingBox().getCenter());
+        y.setCustomName(name);
+        y.setPersistenceRequired();
+        stack.shrink(1);
+        staff.swing(InteractionHand.MAIN_HAND);
+        named(y, staff.getUUID(), name.getString(), false);
+        PunishmentReaction.human(y, staff, "name_tag", false);
+        GameplayLog.event(y, "interaction", "name tag used; actor={} name={} remaining={}", staff.getUUID(), name.getString(), stack.getCount());
+    }
+
+    private static String named(YukkuriEntity y, UUID namer, String name, boolean show) {
         if (y.level().isClientSide || !y.isAlive()) return "not a living server-side individual";
         var mind = y.mind();
         boolean young = !y.family().adult();
@@ -85,12 +108,16 @@ public final class Naming {
         String line = mind.pick("renamed_upset", young ? "afraid" : "request_sulk");
         if (young) {
             delta = Math.min(50, 25 + 10 * (count - 1)) * soften;
-            mind.perform("struggle", 60);
-            y.showReaction("cry", line, 120);
+            if (show) {
+                mind.perform("struggle", 60);
+                y.showReaction("cry", line, 120);
+            }
         } else {
             delta = Math.min(30, 12 + 6 * (count - 1)) * soften;
-            mind.perform(count >= 3 ? "hide_face" : "sulk", count >= 3 ? 60 : 72);
-            y.showReaction(count >= 3 ? "teary" : "angry", line, 100);
+            if (show) {
+                mind.perform(count >= 3 ? "hide_face" : "sulk", count >= 3 ? 60 : 72);
+                y.showReaction(count >= 3 ? "teary" : "angry", line, 100);
+            }
         }
         // Never fatal, not even through the sickness: naming alone stops short of the breaking point.
         delta = Math.max(0, Math.min(delta, NAMING_CEILING - mind.unease()));

@@ -15,6 +15,8 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -285,7 +287,7 @@ public final class BodyLife {
         float energyBefore=entity.life().energy();
         entity.life().spendEnergy(Math.min(2,entity.life().energy()));
         BodyEffects.emit(entity,"vomit",1,MouthPlacement.position(entity));
-        witnessInjury();
+        witnessInjury(100);
         GameplayLog.limited(entity,"body","vomit",200,"vomited energy={} -> {} toxin={}",energyBefore,entity.life().energy(),toxin);
         return true;
     }
@@ -403,7 +405,7 @@ public final class BodyLife {
                 entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
                 entity.showReaction("surprise","wounded",80);
             }
-            witnessInjury();
+            witnessInjury(hit.source().getEntity() instanceof HumanNpc staff && staff.sweeteningStaff() ? Naming.NAMING_CEILING : 100);
         }
         if(outcome!=InjuryModel.Outcome.NONE){
             coreHurt=true;
@@ -435,14 +437,14 @@ public final class BodyLife {
         // House yukkuri retain the same server-side wound and leak accounting, without emitting injury particles.
         if(!entity.profile().houseBody())BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),WoundPlacement.outlet(entity,outlet));
     }
-    private void witnessInjury(){
+    private void witnessInjury(float ceiling){
         if(!(entity.level() instanceof ServerLevel level))return;
         long now=level.getGameTime();
         if(lastWitness!=Long.MIN_VALUE&&now-lastWitness<200)return;
         lastWitness=now;
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(8),other->other!=entity&&other.isAlive()
                 &&!other.life().isSleeping()&&other.distanceToSqr(entity)<=64&&other.hasLineOfSight(entity))){
-            witness.mind().felt(EmotionEvent.WOUND_DISTRESS);witness.showReaction("surprise","",60);
+            witness.mind().feltBelow(EmotionEvent.WOUND_DISTRESS, ceiling);witness.showReaction("surprise","",60);
         }
     }
     /** A point on the underside (lowest fifth of the skin) where a hot floor or campfire touches the sole. */

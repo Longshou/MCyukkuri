@@ -1,4 +1,9 @@
 {
+  "factory.mcyukkuri.box.pale": "甘さ控えめ %s",
+  "factory.mcyukkuri.box.sweet": "普通の甘さ %s",
+  "factory.mcyukkuri.box.rich_sick": "濃い甘さ %s・発症 %s",
+  "magnifier.mcyukkuri.mind": "不安 %s・甘化 %s・餡の甘さ %s・あなたへの恐怖 %s",
+  "magnifier.mcyukkuri.fear_of": "%sへの恐怖 %s",
   "factory.mcyukkuri.receive.paid": "%sを受け取りました。空のかごを返却し、エメラルド%s個を支払いました。",
   "factory.mcyukkuri.receive.refused.reach": "荷受け係の前までお越しください。",
   "factory.mcyukkuri.receive.refused.one_animal": "ゆっくりが一匹入ったかごを一つ渡してください。",

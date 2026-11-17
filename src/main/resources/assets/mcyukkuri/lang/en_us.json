@@ -1,4 +1,9 @@
 {
+  "factory.mcyukkuri.box.pale": "Mild %s",
+  "factory.mcyukkuri.box.sweet": "Sweet, ready %s",
+  "factory.mcyukkuri.box.rich_sick": "Rich %s · Sick %s",
+  "magnifier.mcyukkuri.mind": "Unease %s · Sweetening %s · Filling %s · Fears you %s",
+  "magnifier.mcyukkuri.fear_of": "Fears %s %s",
   "factory.mcyukkuri.receive.paid": "%s received. Your basket is empty. Payment: %s emeralds.",
   "factory.mcyukkuri.receive.refused.reach": "Come closer to the receiving clerk.",
   "factory.mcyukkuri.receive.refused.one_animal": "Hand over one basket carrying one yukkuri.",

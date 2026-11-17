@@ -130,6 +130,7 @@ public final class HumanNpc extends PathfinderMob {
     public void setAttitude(Attitude attitude) { entityData.set(ATTITUDE, attitude.ordinal()); }
     public String siteRole() { return siteRole; }
     public UUID plantSite() { return plantSite; }
+    public boolean sweeteningStaff() { return job() == Job.FACTORY && siteRole.equals("plant_sweetening") && plantSite != null; }
     void postAtPlant(UUID site, String role, BlockPos post) {
         plantSite = site;
         siteRole = role;
@@ -206,6 +207,7 @@ public final class HumanNpc extends PathfinderMob {
         });
         goalSelector.addGoal(1, new CourierGoal());
         goalSelector.addGoal(2, new PlantTransfer(this));
+        goalSelector.addGoal(2, new PlantSweetening(this));
         goalSelector.addGoal(2, new YardClaimGoal());
         goalSelector.addGoal(2, new YardBowlGoal());
         goalSelector.addGoal(2, new RoutineGoal());

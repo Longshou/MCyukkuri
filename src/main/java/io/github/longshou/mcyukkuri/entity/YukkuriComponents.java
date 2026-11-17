@@ -258,6 +258,7 @@ public final class YukkuriComponents {
                 .tick(260, StatusLife::tick)
                 .sync(StatusLife.IDENTITY)
                 .sync(StatusLife.OUTLOOK)
+                .sync(StatusLife.MOOD)
                 .save(230, (c, tag) -> tag.put("YukkuriStatus", c.save()))
                 .load(220, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriStatus"))).build(),
         ComponentSpec.ready(SPECIES, YukkuriEntity::species)

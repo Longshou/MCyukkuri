@@ -366,6 +366,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncLeakTrace(long at) { sync().leakTrace(at); }
     @Override public String identityTranslationKey() { return componentData(StatusLife.IDENTITY); }
     @Override public String outlookId() { return componentData(StatusLife.OUTLOOK); }
+    @Override public CompoundTag moodReadout() { return componentData(StatusLife.MOOD); }
     public String getBehaviorId() { return sync().getBehaviorId(); }
     public long getBehaviorStartTick() { return sync().getBehaviorStartTick(); }
     public int nuzzlePartnerId() { return sync().nuzzlePartnerId(); }

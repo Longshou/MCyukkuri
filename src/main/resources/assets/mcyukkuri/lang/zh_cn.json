@@ -1,4 +1,9 @@
 {
+  "factory.mcyukkuri.box.pale": "尚淡 %s",
+  "factory.mcyukkuri.box.sweet": "普通甜可送 %s",
+  "factory.mcyukkuri.box.rich_sick": "浓甜 %s · 病变 %s",
+  "magnifier.mcyukkuri.mind": "不安 %s · 积甜 %s · 馅甜 %s · 怕你 %s",
+  "magnifier.mcyukkuri.fear_of": "怕%s %s",
   "factory.mcyukkuri.receive.paid": "已接收%s，空篮已归还，货款 %s 颗绿宝石。",
   "factory.mcyukkuri.receive.refused.reach": "请走到收货员面前。",
   "factory.mcyukkuri.receive.refused.one_animal": "请递上只装有一只油库里的运输篮。",
