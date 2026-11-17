@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 报纸堆作纸源：流浪撕纸、铺垫与冬夜盖纸发抖（N79） | `.worktrees/wp-paper-source` | human/NewspaperStackBlock, life/Facilities, stray shelter behaviour, lore motions |
 
 ## 玩法待办
 
