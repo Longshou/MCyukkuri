@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 加工所 F5c：甜化箱（开张原料、职员按需加压、甜度档牌，FA-01） | `.worktrees/wp-fac-f5c-sweetbox` | human/HumanNpc, mind/MindLife, mind/Naming, plant sweet-box staff job, scripts/museum_scenarios.py factory_sweet_box |
 
 ## 玩法待办
 
