@@ -120,7 +120,7 @@ final class PlantSite {
                     if (data.getString("Box").equals("A"))
                         staff(level, clip, rotation, id, "plant_sweetening", at.offset(offset(data, "Door", rotation)));
                     else {
-                        var stock = at.offset(new BlockPos(-2, 0, 0).rotate(rotation));
+                        var stock = at.offset(new BlockPos(-1, 0, 0).rotate(rotation));
                         if (clip.isInside(stock)) PlantSweetening.openingStock(level, id, data.getString("Box"), stock);
                     }
                 }

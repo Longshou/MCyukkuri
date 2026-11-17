@@ -65,7 +65,7 @@ class Scenario:
         self.anchor = f.spots[spot] if spot else f.anchor
         self.plot = f.plot_rect(*self.anchor)
         self.sub = sub                 # name of the plot cleared before this scenario (default: the whole field)
-        self.vantage = vantage         # (dx, dz) from the anchor where the starting player is put (None: stay on the deck)
+        self.vantage = vantage         # (dx, dz[, yaw[, pitch[, dy]]]), using terrain height unless dy is given
         self.reads = list(reads)       # (caption, command) readouts that belong to this scenario
         self.smoke = smoke             # optional {ticks, expect, forbid}; runner only, never emitted into the pack
         if field == 'pond' and self.smoke is not None:
@@ -2447,11 +2447,11 @@ add(_sweet_box, 'plant', '甜化箱', '甜化箱',
         yk('marisa', _plant_x + x - 10, _plant_z + z, name, dy=2, label=label, boldness=bold, self_control=control,
            friendliness=friendly, nutrition=41, energy=70, bladder=75, social_wait=0, rest_wait=0, picky=0,
            uuid=uid(_sweet_box, name), lead=name == 'sweet_defiant',
-           extra=f'YukkuriMind:{{Unease:{unease}f,Sweetness:5f}}'),
+           extra=f'YukkuriMind:{{Migrated:1b,Unease:{unease}f,Sweetness:5f}}'),
         f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
         f'data modify entity {sel(name)} {OWNED}.Owner set from entity {_sweet_site} UUID',
     )], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame',
-              'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x - 2, _plant_z + 18, 90, 15),
+              'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x - 2, _plant_z + 19, 90, 15, 2),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _sweet_cast])
 
 # ====================================================================================================== clips (buttons are built in build_museum_full.py)
