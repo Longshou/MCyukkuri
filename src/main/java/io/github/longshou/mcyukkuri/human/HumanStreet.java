@@ -290,7 +290,7 @@ final class HumanStreet {
         street.rememberScold(y);
         witness.level().broadcastEntityEvent(witness, FROWN_EVENT);
         if (witness.attitude() != HumanNpc.Attitude.CARING) witness.getNavigation().stop();
-        cue(witness, y, "warning");
+        cue(witness, y, witness.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "warning");
         Expulsion.driveOff(y, witness, crate);
         GameplayLog.event(witness, "npc-care", "action=stall_scold target={} crate={} attitude={} actions={} drove_off=true",
                 y.getUUID(), crate.toShortString(), witness.attitude(), street.actions);
@@ -388,7 +388,7 @@ final class HumanStreet {
             if (activeSite == null && interrupted(y, warning)) return false;
             beatUntil = now() + 30;
             actions++;
-            cue(npc, y, activeSite == null ? "warning" : "crop");
+            cue(npc, y, activeSite == null ? "warning" : npc.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "crop");
             y.getLookControl().setLookAt(npc, 30, 30);
             if (activeSite != null) y.showReaction("surprise", "", 30);
             GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={} site={}", y.getUUID(), y.getHealth(), actions, activeSite);
