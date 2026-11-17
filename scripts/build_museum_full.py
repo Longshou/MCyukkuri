@@ -452,7 +452,7 @@ def build_pack(world):
     sanction = next(s for s in museum_scenarios.S if s.id == 'punishment')
     sx, sz = sanction.anchor
     fn('extra/punishment_hit', [
-        f'execute positioned {sx + .5} {FEET + 1} {sz - .5} unless entity @s[type=minecraft:player,distance=..1] run return 0',
+        f'execute positioned {sx + .5} {FEET + 2.5} {sz - .5} unless entity @s[type=minecraft:player,gamemode=!spectator,distance=..1] run return 0',
         *museum_scenarios._punishment_press,
         'tellraw @s ' + museum_scenarios._punishment_click,
     ])

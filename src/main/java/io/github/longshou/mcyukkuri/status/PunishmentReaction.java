@@ -47,25 +47,26 @@ public final class PunishmentReaction {
     }
 
     public static void human(YukkuriEntity target, LivingEntity punisher, String incident, boolean injured) {
+        var mind = target.life().personality();
+        double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
+        int fearGain = (int) Math.round((injured ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
+        respond(target, punisher, incident, injured ? -20 : -6, fearGain);
+    }
+
+    public static void peer(YukkuriEntity target, YukkuriEntity punisher, String incident, boolean bitten) {
+        // Sanction already recorded its affinity change, and an accepted bite recorded its damage relation.
+        respond(target, punisher, incident, 0, bitten ? 0 : 12);
+    }
+
+    private static void respond(YukkuriEntity target, LivingEntity punisher, String incident,
+                                int closenessChange, int fearGain) {
         if (!target.isAlive() || target.body().dying()) {
             GameplayLog.event(target, "punishment", "victim actor={} incident={} response=collapse",
                     punisher.getUUID(), incident);
             witness(target, punisher, incident);
             return;
         }
-        var mind = target.life().personality();
-        double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
-        int fearGain = (int) Math.round((injured ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
-        respond(target, punisher, incident, injured ? -20 : -6, fearGain, true);
-    }
-
-    public static void peer(YukkuriEntity target, YukkuriEntity punisher, String incident, boolean bitten) {
-        // Sanction already recorded its affinity change, and an accepted bite recorded its damage relation.
-        respond(target, punisher, incident, 0, bitten ? 0 : 12, false);
-    }
-
-    private static void respond(YukkuriEntity target, LivingEntity punisher, String incident,
-                                int closenessChange, int fearGain, boolean human) {
+        boolean human = isHuman(punisher);
         var personality = target.life().personality();
         int before = personality.fear(punisher.getUUID());
         personality.relationshipChanged(punisher.getUUID(), closenessChange, fearGain);
@@ -94,7 +95,10 @@ public final class PunishmentReaction {
         double escape = (.52 * wary + .28 * unease + .20 * energy) * (.55 + .45 * sound);
         if (exit && escape > best) response = Response.ESCAPE;
 
-        if (response == Response.ESCAPE && !target.isPanicking()) target.fleeFrom(punisher);
+        if (response == Response.ESCAPE && !target.isPanicking()) {
+            target.fleeFrom(punisher);
+            target.mind().feeling().frightened(.6f);
+        }
         response.show(target, punisher);
         GameplayLog.event(target, "punishment", "victim actor={} incident={} response={} fear={} -> {} health={} wounds={} unease={} exit={}",
                 punisher.getUUID(), incident, response, before, fear, target.getHealth(), wounds, target.mind().unease(), exit);

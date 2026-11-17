@@ -95,7 +95,7 @@ public final class Reactions {
     void hurtBy(DamageSource source) {
         threat.seal.abort("attacked");
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
-        threat.attackedBy(attacker);
+        if (!PunishmentReaction.isHuman(attacker)) threat.attackedBy(attacker);
         // The binding transaction is synchronous. Its close witnesses react to the hook that actually starts.
         if(!entity.operations().strikingHook())threat.warnKin(attacker);
         if (attacker instanceof Player player) HumanNpc.witnessedStreetHurt(entity, player);

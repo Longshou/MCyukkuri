@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -120,6 +121,7 @@ final class YukkuriDamage {
                 if(kind!=BodyHit.Kind.BOUT&&!humanPunisher)
                     owner.life().personality().hurt(source.getEntity()==null?null:source.getEntity().getUUID());
                 if(!owner.body().dying()) {
+                    if (humanPunisher && result.loss()>0) owner.mind().felt(EmotionEvent.FRIGHTENED);
                     boolean peerConflict = kind != BodyHit.Kind.BOUT && source.getEntity() instanceof YukkuriEntity attacker
                             && owner.getVariant() != YukkuriVariant.MYON && !owner.profile().dangerToYukkuri()
                             && !attacker.profile().dangerToYukkuri();
@@ -130,7 +132,7 @@ final class YukkuriDamage {
                     boolean hurtCry=owner.newbornStage()&&!owner.shellRetracts()&&!owner.isOnFire()&&!source.is(DamageTypeTags.IS_FIRE)
                             &&!source.is(DamageTypes.DROWN)&&!owner.isInWaterOrBubble();
                     if(hurtCry)owner.startHurtCry(source.type().msgId(),HURT_CRY_TICKS);
-                    else owner.setPanicTicks(112);
+                    else if(!humanPunisher||owner.shellRetracts())owner.setPanicTicks(112);
                     if(defending || retaliating || puffing || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
                     // Only a real blow that leaves the victim fleeing contributes to its recovery after the flight.
                     if(owner.isPanicking()&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof LivingEntity attacker)

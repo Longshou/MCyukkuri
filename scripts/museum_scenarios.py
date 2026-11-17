@@ -2744,11 +2744,13 @@ _punishment_click = json.dumps({'text': '[各打一下／再次施罚]', 'color'
 add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制裁反馈：顶嘴、僵住、哭求',
     '站在前排玻璃台中央，点击聊天里的“各打一下／再次施罚”，或走到各格前亲手用锥子。三只同受一击，看初次回嘴、噤声和哭求；后排隔一层玻璃的三只缩脸、僵住或转向亲属，隔两层的对照看不见。',
     '等约两秒后再点同一按钮，看刚才还顶嘴的个体对同一玩家改为戒备；清场重开才重置关系', [
-        box(-3, 0, -1, 3, 0, -1, 'minecraft:glass'),
+        box(-3, 0, -2, 3, 0, -2, 'minecraft:glass'),
+        box(-3, 0, -1, 3, 1, -1, 'minecraft:glass'),
+        block(0, 2, -1, 'minecraft:polished_andesite_slab[type=bottom]'),
         *[box(x, 0, 0, x, 0, 4, 'minecraft:polished_andesite') for x in (-3, -1, 1, 3)],
-        *[block(x, 0, 1, 'minecraft:glass_pane[east=true,west=true]') for x in (-2, 0, 2)],
-        *[block(x, 0, 3, 'minecraft:glass_pane[east=true,west=true]') for x in (-2, 0, 2)],
-        block(0, 0, 5, 'minecraft:glass'),
+        *[box(x, 1, 0, x, 1, 4, 'minecraft:glass') for x in (-3, -1, 1, 3)],
+        *[box(x, 0, z, x, 1, z, 'minecraft:glass_pane[east=true,west=true]') for x in (-2, 0, 2) for z in (1, 3)],
+        box(0, 0, 5, 0, 1, 5, 'minecraft:glass'),
         *[yk('reimu', x, 0, name, label=label, boldness=bold, self_control=control, friendliness=15 if x == -2 else 65,
              kin=kin_of(Mother=uid(_punishment_scene, 'a3_kin')) if x == -2 else '',
              lead=x == 0, uuid=uid(_punishment_scene, name))
@@ -5541,19 +5543,22 @@ _smoke(_punishment_scene, 190, [
 ], forbid=[rf'\[punishment\][^\n]* uuid={_uuid_text(_punishment_scene, "a3_screened")} '])
 _punishment_smoke = next(s for s in S if s.id == _punishment_scene).smoke
 _punishment_smoke['commands'] = [
-    (44, 'execute positioned ~0.5 ~1 ~-0.5 run yukkuri scenario tool_operator enter'),
+    (44, 'execute positioned ~0.5 ~2.5 ~-0.5 run yukkuri scenario tool_operator enter'),
     (46, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
+    (47, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
     (90, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
     (145, 'yukkuri scenario tool_operator leave'),
 ]
 
 def _verify_punishment(window):
-    for victim in ('a3_freeze', 'a3_plead', 'a3_defy'):
+    for victim, first in (('a3_freeze', 'FREEZE'), ('a3_plead', 'PLEAD'), ('a3_defy', 'DEFIANT')):
         hits = re.findall(_punishment_victim.format(uuid=_uuid_text(_punishment_scene, victim), actor=_fear_holder)
                           + r'(\w+) fear=(\d+) -> (\d+)', window)
         if len(hits) != 2 or int(hits[0][2]) == 0 or int(hits[1][1]) != int(hits[0][2]) or int(hits[1][2]) <= int(hits[1][1]):
             return f'{victim} must remember exactly two accepted blows from the same player: {hits}'
-        if victim == 'a3_defy' and (hits[0][0] != 'DEFIANT' or hits[1][0] == 'DEFIANT'):
+        if hits[0][0] != first:
+            return f'{victim} must begin with {first}: {hits}'
+        if victim == 'a3_defy' and hits[1][0] == 'DEFIANT':
             return f'{victim} must start defiant and become cautious: {hits}'
     for observer, victim, choice in (('a3_shrink', 'a3_plead', 'SHRINK'), ('a3_still', 'a3_freeze', 'FREEZE'),
                                      ('a3_kin', 'a3_defy', 'TURN_TO_KIN')):

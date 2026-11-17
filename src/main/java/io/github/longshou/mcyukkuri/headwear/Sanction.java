@@ -282,8 +282,7 @@ public final class Sanction extends Goal {
                 what, target.getUUID(), reason, acts, ACTS, healthBefore, target.getHealth(), transferred);
         // An accepted bite already decided through YukkuriDamage; pushes and real theft need the same handoff.
         if (target.isAlive() && !damageAccepted && (transferred || what.equals("push"))) target.respondToBullying(entity);
-        if (!what.equals("snatch_failed") && target.isAlive() && !target.body().dying())
-            PunishmentReaction.peer(target, entity, what, what.equals("bite"));
+        if (!what.equals("snatch_failed")) PunishmentReaction.peer(target, entity, what, what.equals("bite"));
         if (!target.isAlive()) finish(false);
     }
     /** Biting stops once the accused is badly hurt: the sanction stays bullying. */
