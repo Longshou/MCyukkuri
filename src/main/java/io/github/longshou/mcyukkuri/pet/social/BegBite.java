@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -212,6 +213,8 @@ public final class BegBite {
                 }
                 if (stand != null && SurfaceApproach.arrived(pet, stand) && pet.distanceTo(live) <= footDistance(pet, live) + .45) {
                     if (live instanceof Player player && pet.pet().ownedBy(player.getUUID())) BadgePraise.start(pet, player);
+                    if (live instanceof HumanNpc owner && pet.pet().ownedBy(owner.getUUID())) owner.helpPet(pet, stray);
+                    else Expulsion.driveOff(stray, live, stray.blockPosition());
                     result = "asked_help";
                     GameplayLog.event(pet, "badge", "beg help reached human={} stray={}", human, stray.getUUID());
                     pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length());

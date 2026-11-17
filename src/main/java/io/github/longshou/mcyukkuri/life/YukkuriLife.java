@@ -690,11 +690,11 @@ public final class YukkuriLife {
         return meal.beginOfferedMeal(food, giver.getUUID(), !giver.getAbilities().instabuild);
     }
     public boolean beginCropMeal(ItemStack serving, BooleanSupplier harvest) { return meal.beginHarvestMeal(serving, harvest); }
-    public boolean avoidsCrop(BlockPos crop) {
-        return avoidedField != null && level().getGameTime() < avoidFieldUntil && avoidedField.distSqr(crop) <= 64;
+    public boolean avoidsField(BlockPos at) {
+        return avoidedField != null && level().getGameTime() < avoidFieldUntil && avoidedField.distSqr(at) <= 64;
     }
-    public void avoidField(BlockPos crop) {
-        avoidedField = crop.immutable();
+    public void avoidField(BlockPos at) {
+        avoidedField = at.immutable();
         avoidFieldUntil = level().getGameTime() + 24000;
     }
     /** A body with a fixed duty can take a reachable portion through the ordinary meal owner without walking. */

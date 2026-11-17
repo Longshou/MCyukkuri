@@ -1853,7 +1853,7 @@ begging_scene('wild_beg_refuse', '流浪油讨食：拒绝后纠缠', '看灵梦
               vantage=(-2, -6, -89, 14))
 begging_scene('wild_beg_snatch', '流浪油讨食：抢走苹果', '看饥饿的魔理沙扑近抢食，灵梦惊叫追赶，随后记仇。',
               dict(nutrition=52, boldness=70, friendliness=15), dict(nutrition=18, boldness=85, friendliness=5, self_control=18))
-begging_scene('wild_beg_help', '流浪油讨食：跑到饲主脚边求助', '看胆小的灵梦叼着苹果跑到饲主脚边，魔理沙退开。',
+begging_scene('wild_beg_help', '流浪油讨食：跑到饲主脚边求助', '看胆小的灵梦叼着苹果跑到饲主脚边，饲主走过来喝斥赶开魔理沙，再安抚灵梦。',
               dict(nutrition=52, boldness=20, friendliness=45, attachment=80),
               dict(nutrition=29, boldness=65, friendliness=50), helper=True, vantage=(11, -7, 83, 12))
 
@@ -2247,7 +2247,7 @@ add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', 
 _stall_x, _stall_z = BY_ID['town'].anchor
 _stall_box = f'{_stall_x} {FEET} {_stall_z}'
 add('stall_theft', 'town', '流浪油在摊前偷胡萝卜', '流浪油在摊前偷胡萝卜',
-    '从侧面看魔理沙叼走唯一一根胡萝卜。摊主摆手喝斥，魔理沙叼着货退开再吃。', '约半分钟', [
+    '从侧面看魔理沙叼走唯一一根胡萝卜。摊主当场喝斥，魔理沙叼着货跑开，惊魂定了才吃。', '约半分钟', [
         box(-7, -1, -7, 7, -1, 7, 'minecraft:polished_andesite'),
         block(0, 0, 0, 'mcyukkuri:produce_crate[facing=north]{Stall:1b,Items:[{Slot:2b,id:"minecraft:carrot",count:1}]}'),
         block(-1, 0, 1, 'minecraft:oak_planks'), block(-1, 1, 1, 'minecraft:oak_planks'),
@@ -5275,7 +5275,10 @@ for _sid, _outcome, _beg_checks in (
     ('wild_beg_snatch', 'snatched', [r' beg transfer [^\n]*result=snatched received=minecraft:apple retained=minecraft:air',
                                     r' beg grudge [^\n]*closeness=-?\d+->-\d+ fear=\d+->\d+',
                                     r'\[meal\] marisa [^\n]*swallowed item=minecraft:apple count=1']),
-    ('wild_beg_help', 'asked_help', [r' beg help reached human=', r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
+    ('wild_beg_help', 'asked_help', [r' beg help reached human=',
+                                     r'\[npc-care\][^\n]* action=pet_help [^\n]*attitude=CARING',
+                                     r'\[threat\][^\n]* marisa [^\n]* response started source=',
+                                     r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
 ):
     _smoke(_sid, 1200, [
         rf'\[status\] reimu [^\n]* identity observed kind={"npc_companion" if _sid == "wild_beg_help" else "pet"}\b',
@@ -5805,17 +5808,17 @@ next(s for s in S if s.id == 'street_mixed').smoke['commands'] = [
 ]
 _smoke('street_crops', 240, [
     rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
-    rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*crop=BlockPos',
+    rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*site=BlockPos',
     rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot',
     rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source=[\w-]+ stage=RETREAT',
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))
 _stall_stray = _uuid_text('stall_theft', 'stall_stray')
-_smoke('stall_theft', 500, [
-    rf'\[forage\][^\n]* uuid={_stall_stray}\b[^\n]* stall pickup [^\n]*item=minecraft:carrot count=1 holder=mouth witness=[0-9a-f-]+ retreat=',
-    rf'\[npc-care\][^\n]* action=stall_scold target={_stall_stray}\b[^\n]*attitude=CARING',
-    rf'\[forage\][^\n]* uuid={_stall_stray}\b[^\n]* stall retreat arrived',
+_smoke('stall_theft', 700, [
+    rf'\[forage\][^\n]* uuid={_stall_stray}\b[^\n]* stall pickup [^\n]*item=minecraft:carrot count=1 holder=mouth witness=[0-9a-f-]+',
+    rf'\[npc-care\][^\n]* action=stall_scold target={_stall_stray}\b[^\n]*attitude=CARING[^\n]*drove_off=true',
+    rf'\[threat\][^\n]* uuid={_stall_stray}\b[^\n]* response started source=[\w-]+',
     rf'\[meal\][^\n]* uuid={_stall_stray}\b[^\n]* swallowed item=minecraft:carrot count=1',
     r'MCYSTALL_EMPTY',
 ], forbid=[rf'\[body\][^\n]* uuid={_stall_stray}\b[^\n]* accepted damage'],
@@ -5861,7 +5864,7 @@ def _street_furniture_result(log):
 
 
 def _crop_warning_retreat(log):
-    warning = re.search(rf'\[npc-care\][^\n]* uuid=([\w-]+) [^\n]* action=street_warn target={_crop_eater}\b[^\n]* crop=BlockPos', log)
+    warning = re.search(rf'\[npc-care\][^\n]* uuid=([\w-]+) [^\n]* action=street_warn target={_crop_eater}\b[^\n]* site=BlockPos', log)
     if warning is None:
         return 'the crop eater received no resident warning'
     swallowed = re.search(rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot', log[warning.end():])

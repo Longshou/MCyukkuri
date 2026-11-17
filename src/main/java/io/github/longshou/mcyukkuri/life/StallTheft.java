@@ -20,12 +20,10 @@ import io.github.longshou.mcyukkuri.shop.ShopProtection;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
-import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,7 +48,6 @@ public final class StallTheft implements MotorOwner {
     private final Map<BlockPos, Pause> pauses = new HashMap<>();
     private BlockPull.Stand stand;
     private Action pull;
-    private Vec3 retreat;
     private long routeUntil, watchUntil;
     private BlockPos refusedDrop;
 
@@ -140,33 +137,22 @@ public final class StallTheft implements MotorOwner {
         return level().hasChunkAt(pos) && level().getBlockState(pos).is(ModBlocks.PRODUCE_CRATE.get())
                 && level().getBlockEntity(pos) instanceof ProduceCrateBlockEntity crate && crate.stall()
                 && !crate.frontItem().isEmpty() && body.life().seeksFood(crate.frontItem())
-                && !ShopProtection.guarded(level(), pos);
+                && !body.life().avoidsField(pos) && !ShopProtection.guarded(level(), pos);
     }
 
     private void committed(ItemStack item) {
         var pos = stand.block();
+        // The witness drives the thief off through the one shared expulsion helper; the item stays in its mouth.
         var keeper = HumanNpc.witnessedStallTake(body, pos, stand.contact());
-        if (keeper != null) {
-            body.life().personality().relationshipChanged(keeper.getUUID(), -2, 8);
-            retreat = Reactions.escapeStand(body, keeper, 5, Set.of());
-            routeUntil = now() + ROUTE_TICKS;
-        }
+        if (keeper != null) body.life().personality().relationshipChanged(keeper.getUUID(), -2, 8);
         pauses.put(pos, new Pause(now() + (keeper == null ? FAILED_VISIT : SCOLDED_VISIT), null));
         refusedDrop = null;
-        GameplayLog.event(body, "forage", "stall pickup crate={} item={} count={} holder=mouth witness={} retreat={}",
-                pos.toShortString(), item.getItem(), item.getCount(), keeper == null ? null : keeper.getUUID(),
-                retreat == null ? null : GameplayLog.at(retreat));
+        GameplayLog.event(body, "forage", "stall pickup crate={} item={} count={} holder=mouth witness={}",
+                pos.toShortString(), item.getItem(), item.getCount(), keeper == null ? null : keeper.getUUID());
     }
 
     private boolean finishCarry() {
-        if (body.isPassenger()) return false;
-        if (retreat != null && now() < routeUntil) {
-            var move = SurfaceApproach.walkResult(body, retreat, null, 1.2);
-            if (move != SurfaceApproach.Result.ARRIVED && move != SurfaceApproach.Result.BLOCKED) return true;
-        }
-        if (retreat != null && SurfaceApproach.at(body, retreat))
-            GameplayLog.event(body, "forage", "stall retreat arrived at={}", GameplayLog.at(body.position()));
-        if (!body.onGround()) return false;
+        if (body.isPassenger() || !body.onGround()) return false;
         if (body.life().beginCarriedMeal(FOOD)) return false;
         if (!mouth().releaseItems(FOOD, 20)) {
             refusedDrop = body.blockPosition();
@@ -208,7 +194,7 @@ public final class StallTheft implements MotorOwner {
         return false;
     }
 
-    String activity() { return retreat != null ? Behaviors.FLEE : Behaviors.SEEK_FOOD; }
+    String activity() { return Behaviors.SEEK_FOOD; }
     private MouthOccupancy mouth() { return body.component(YukkuriComponents.MOUTH); }
     private ServerLevel level() { return (ServerLevel) body.level(); }
     private long now() { return level().getGameTime(); }
@@ -221,7 +207,6 @@ public final class StallTheft implements MotorOwner {
         SurfaceApproach.stopWalking(body);
         stand = null;
         pull = null;
-        retreat = null;
         watchUntil = 0;
     }
 }

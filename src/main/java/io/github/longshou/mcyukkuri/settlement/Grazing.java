@@ -92,7 +92,7 @@ public final class Grazing {
     public static boolean cropAt(YukkuriEntity body, BlockPos pos) {
         var level = body.level();
         return level.hasChunkAt(pos) && level.getBlockState(pos.below()).is(Blocks.FARMLAND)
-                && !body.life().avoidsCrop(pos) && !cropFood(body, level.getBlockState(pos)).isEmpty();
+                && !body.life().avoidsField(pos) && !cropFood(body, level.getBlockState(pos)).isEmpty();
     }
 
     public static boolean streetForager(YukkuriEntity body) {
@@ -125,7 +125,7 @@ public final class Grazing {
         if (!body.life().beginCropMeal(cropFood(body, state),
                 () -> level.getBlockState(pos) == state && level.setBlock(pos, crop.getStateForAge(age - 1), Block.UPDATE_ALL))) return false;
         GameplayLog.event(body, "forage", "crop bite source={} age={}->{} count=1 holder=mouth", pos.toShortString(), age, age - 1);
-        if (!body.settlement().settlementMember()) HumanNpc.witnessedCropBite(body, pos);
+        if (!body.settlement().settlementMember()) HumanNpc.witnessedCropTheft(body, pos);
         return true;
     }
 

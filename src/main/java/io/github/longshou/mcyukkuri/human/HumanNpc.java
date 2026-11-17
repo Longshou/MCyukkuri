@@ -152,9 +152,13 @@ public final class HumanNpc extends PathfinderMob {
     }
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
     public static void witnessedStreetHurt(YukkuriEntity animal, Player player) { HumanStreet.witnessedHurt(animal, player); }
-    public static void witnessedCropBite(YukkuriEntity animal, BlockPos crop) { HumanStreet.witnessedCropBite(animal, crop); }
+    public static void witnessedCropTheft(YukkuriEntity animal, BlockPos crop) { HumanStreet.witnessedCropTheft(animal, crop); }
     public static HumanNpc witnessedStallTake(YukkuriEntity animal, BlockPos crate, Vec3 contact) {
         return HumanStreet.witnessedStallTake(animal, crate, contact);
+    }
+    /** Its own pet ran to its feet about a beggar; the resident answers in its own manner (HumanStreet.helpPet). */
+    public void helpPet(YukkuriEntity pet, YukkuriEntity stray) {
+        if (streetResident() && !isTrading()) street.helpPet(pet, stray);
     }
     long streetFrownAfter() { return street.frownAfter(); }
     void streetFrown(long until) { street.frown(until); }
@@ -611,6 +615,7 @@ public final class HumanNpc extends PathfinderMob {
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
             if (job() == Job.FACTORY) return false;
+            if (street.helping()) return true;
             if (isTrading() || goingHome()) return true;
             // Shop staff tend their stock as jobs (ShopStaff) through the staff doors; this routine only keeps their trading and rest.
             if (routineDelay > 0 || job() == Job.SHOPKEEPER) return false;
@@ -624,7 +629,7 @@ public final class HumanNpc extends PathfinderMob {
             return attention != null;
         }
         @Override public boolean canContinueToUse() {
-            return isTrading() || goingHome() || attention != null && attention.isAlive() && elapsed < 140
+            return isTrading() || goingHome() || street.helping() || attention != null && attention.isAlive() && elapsed < 140
                     && approach < (streetResident() ? HumanStreet.ROUTE_TICKS : 600);
         }
         @Override public void start() {
@@ -635,6 +640,7 @@ public final class HumanNpc extends PathfinderMob {
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
             if (isTrading()) { getNavigation().stop(); return; }
+            if (street.helping()) { street.helpStep(); return; }
             if (goingHome()) {
                 street.cancel();
                 attention = null;
