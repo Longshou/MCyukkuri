@@ -226,9 +226,17 @@ public final class WildCards {
                 WildEvents.finish(level,s,Phase.COMPLETE,"actual_"+s.result);
             }return;
         }
+        if(s.card.equals("plea")) {
+            if(s.phaseTicks==1)first.showReaction("teary","hungry",60);
+            if(s.phaseTicks>=80) {
+                second.showReaction("neutral","heard",35);
+                WildEvents.finish(level,s,Phase.COMPLETE,"observed_plea");
+            }
+            return;
+        }
         if(s.phaseTicks==1) {
-            String face=s.card.equals("rivalry")||s.card.equals("territory")?"angry":s.card.equals("plea")?"teary":"neutral";
-            for(var e:all)e.showReaction(face,s.card.equals("plea")?"hungry":s.card.equals("ornament")?"search_family":"wait_turn",60);
+            String face=s.card.equals("rivalry")||s.card.equals("territory")?"angry":"neutral";
+            for(var e:all)e.showReaction(face,s.card.equals("ornament")?"search_family":"wait_turn",60);
             if(s.card.equals("rivalry")||s.card.equals("territory"))competing(first,second);
         }
         if(s.card.equals("imitate")) {
@@ -269,7 +277,7 @@ public final class WildCards {
             if(s.phaseTicks>=600)WildEvents.finish(level,s,Phase.INTERRUPTED,"food_turn_timed_out");return;
         }
         if(s.card.equals("forest-family")) {
-            if(s.phaseTicks>=80&&s.phaseTicks%20==0&&s.responses<all.size()&&all.get(s.responses).speak("known_peer"))s.responses++;
+            if(s.phaseTicks>=80&&s.phaseTicks%20==0&&s.responses<all.size()&&all.get(s.responses).speak("hello"))s.responses++;
             if(s.responses==all.size()){WildEvents.finish(level,s,Phase.COMPLETE,"every_present_relative_responded");return;}
             if(s.phaseTicks>=320)WildEvents.finish(level,s,Phase.INTERRUPTED,"family_response_interrupted");return;
         }

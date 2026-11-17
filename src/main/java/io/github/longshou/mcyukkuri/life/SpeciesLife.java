@@ -262,12 +262,15 @@ public final class SpeciesLife {
         var bond = entity.life().personality().relation(best.getUUID());
         SpeechAddress.HumanRelation relation = HumanCommerce.ownedBy(entity, best.getUUID()) ? SpeechAddress.HumanRelation.OWNER
                 : bond.fear() >= BondLevels.AFFECTION_FEAR_LIMIT || bond.closeness() < BondLevels.TRUST_AT_MINUS_5 ? SpeechAddress.HumanRelation.HOSTILE
-                : bond.closeness() >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
+                : bond.closeness() >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND
+                : best instanceof HumanNpc npc && npc.attitude() == HumanNpc.Attitude.CRUEL ? SpeechAddress.HumanRelation.HOSTILE
+                : SpeechAddress.HumanRelation.STRANGER;
         if (!chat && relation != SpeechAddress.HumanRelation.HOSTILE) return;
-        // The game keeps no sex or age for humans: derive both from the identity so a person is always called the same thing.
+        // Resident looks identify a brother or sister. Player presentation has no sex or age metadata.
         int h = best.getUUID().hashCode();
-        boolean elder = ((h >> 1) & 3) == 0 && entity.family().stage() != FamilyLife.Stage.BABY;
-        address(best, SpeechAddress.human(relation, (h & 1) == 0, elder));
+        boolean female = best instanceof HumanNpc npc ? npc.look() == HumanNpc.Look.SISTER : (h & 1) == 0;
+        boolean elder = !(best instanceof HumanNpc) && ((h >> 1) & 3) == 0 && entity.family().stage() != FamilyLife.Stage.BABY;
+        address(best, SpeechAddress.human(relation, female, elder));
     }
 
     /** Close contact or a human looking this way makes an occasion to address them. */
