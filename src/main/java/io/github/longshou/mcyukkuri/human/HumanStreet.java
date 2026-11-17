@@ -342,8 +342,7 @@ final class HumanStreet {
 
     /** The routine drives this while the answer lasts: the resident steps up to where the beggar stood. */
     void helpStep() {
-        if (!helpTarget.isAlive() || helpTarget.level() != npc.level()
-                || now() >= helpUntil || npc.distanceToSqr(helpTarget) > 1024) { stopHelp(); return; }
+        if (!helpTarget.isAlive() || helpTarget.level() != npc.level() || now() >= helpUntil) { stopHelp(); return; }
         npc.getLookControl().setLookAt(helpTarget, 30, 30);
         double reach = npc.attitude() == HumanNpc.Attitude.CRUEL ? 1.5
                 : npc.attitude() == HumanNpc.Attitude.CARING ? 3.5 : 2.5;
