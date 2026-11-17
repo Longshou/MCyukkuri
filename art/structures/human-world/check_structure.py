@@ -518,17 +518,24 @@ def enclosure_errors(b, box, seen):
     """A box, the sick pen or the booth: closed ring up to the lid, a whole lid, doors with clear stands, contents, the largest body."""
     errors = []; x0, z0, x1, z1 = box['interior']; top = box['top']; name = f"{b.name} {box['kind']} {box['id']}"
     for x, z in ring_cells(x0, z0, x1, z1):
-        if name_at(b, x, 3, z).endswith('_door'): continue
-        open_at = [y for y in range(3, top) if free(name_at(b, x, y, z))]
+        start_y = 5 if name_at(b, x, 3, z).endswith('_door') else 3
+        open_at = [y for y in range(start_y, top) if free(name_at(b, x, y, z))]
         if open_at: errors.append(f'{name}: wall {(x, z)} open at y{open_at}')
     for x in range(x0, x1 + 1):
         for z in range(z0, z1 + 1):
             if free(name_at(b, x, top, z)): errors.append(f'{name}: lid open over {(x, z)}')
             if name_at(b, x, 2, z) == AIR: errors.append(f'{name}: no floor at {(x, z)}')
     for (lx, lz), (ox, oz), (ix, iz) in box['doors']:
-        if not (name_at(b, lx, 3, lz).endswith('_door') and name_at(b, lx, 4, lz).endswith('_door')): errors.append(f'{name}: no door at {(lx, lz)}')
-        if (ox, oz) not in seen: errors.append(f'{name}: staff cannot reach the door stand {(ox, oz)}')
-        if not (free(name_at(b, ix, 3, iz)) and free(name_at(b, ix, 4, iz))): errors.append(f'{name}: inside door stand {(ix, iz)} blocked')
+        along = (1, 0) if lx == ix else (0, 1)
+        for dx, dz in ((0, 0), along):
+            leaf = (lx + dx, lz + dz)
+            outside = (ox + dx, oz + dz)
+            inside = (ix + dx, iz + dz)
+            if any(name_at(b, leaf[0], y, leaf[1]) != 'minecraft:waxed_copper_door' for y in (3, 4)):
+                errors.append(f'{name}: missing waxed copper door leaf at {leaf}')
+            if outside not in seen: errors.append(f'{name}: staff cannot reach the door stand {outside}')
+            if any(not free(name_at(b, inside[0], y, inside[1])) for y in (3, 4)):
+                errors.append(f'{name}: inside door stand {inside} blocked')
     if box['kind'] == 'booth': return errors
     for key, suffix in (('bowl', 'food_bowl'), ('toilet', 'yukkuri_toilet'), ('nest', 'nest')):
         if key in box and not name_at(b, box[key][0], 3, box[key][1]).endswith(suffix): errors.append(f'{name}: no {key} at {box[key]}')
@@ -544,8 +551,6 @@ def enclosure_errors(b, box, seen):
     squares = [(x, z) for x, z in reached if all((x + i, z + j) in reached for i in range(need) for j in range(need))]
     if not squares: errors.append(f'{name}: no {need}x{need} free square the largest body ({LARGEST["width"]} wide) can walk to')
     if top - 3 < LARGEST['height']: errors.append(f'{name}: {top - 3} blocks clear inside, below {LARGEST["height"]}')
-    leaf_count = len(box['doors']) * 2
-    if leaf_count < need: errors.append(f'{name}: door narrower than the largest body')
     return errors
 
 def plant_report(b):
