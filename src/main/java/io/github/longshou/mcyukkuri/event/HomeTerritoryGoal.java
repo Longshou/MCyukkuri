@@ -241,10 +241,9 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         if (!nestVisitor(intruder)) return;
         var p = body.life().personality();
         var contact = SocialDisposition.contact(body, intruder);
-        var side = body.position().subtract(intruder.position()).multiply(1, 0, 1).normalize()
-                .yRot((float) (Math.PI / 2)).scale(1.5);
-        var alternative = SurfaceApproach.floor(body, body.position().add(side));
-        if (alternative == null) alternative = SurfaceApproach.floor(body, body.position().subtract(side));
+        // Choose a reachable place along the rim and clear of both the visitor and the resident's current stand.
+        var alternative = SurfaceApproach.beside(body, Vec3.atBottomCenterOf(home.site), 1.6, intruder,
+                at -> at.distanceToSqr(body.position()) >= body.getBbWidth() * body.getBbWidth());
         double guard = .40 * SocialDisposition.confidence(contact.esteem()) + .30 * SocialDisposition.ramp(p.boldness(), 35, 72)
                 + .30 * (1 - SocialDisposition.ramp(body.life().energy(), 25, 80)) - .65 * contact.wariness();
         double yield = .25 + .45 * SocialDisposition.ramp(p.friendliness(), 35, 75)

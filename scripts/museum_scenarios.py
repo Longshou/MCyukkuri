@@ -1153,7 +1153,9 @@ add(_ugly, 'meadow', '争窝、骂人索食、装可爱、抢食与乱拉', '争
           yk('reimu', -7, -13.8, 'nest_peer_west', energy=55, yaw=180),
           yk('reimu', 7, -13.8, 'nest_peer_east', energy=55, yaw=180)],
     reads=[('读各只的性格与需要', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..40] raw')],
-    smoke=dict(ticks=1200, expect=[], forbid=[], verify=_choice_once))
+    smoke=dict(ticks=1200, expect=[rf'uuid={_uuid_text(_ugly, "nest_declare")}[^\n]* declared site=.*spoken=true',
+                                  rf'uuid={_uuid_text(_ugly, "nest_yield")}[^\n]* nest gave space '],
+               forbid=[], verify=_choice_once))
 
 # The toilet has room for one more portion: the nearer remilia fills it, so the flandre arriving after her uses the ground.
 add('pred_toilet', 'meadow', '捕食种上厕所与地面排便', '捕食种上厕所与地面排便',

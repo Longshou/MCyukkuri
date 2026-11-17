@@ -340,7 +340,7 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean noticeTool() {
         if (entity.profile().houseBody() || entity.profile().dangerToYukkuri()
                 || entity.settlement().society().slave() || entity.status().identity() == Identity.STOCK
-                || !entity.onGround() || entity.isLeashed()) return false;
+                || entity.isPassenger() || entity.isLeashed()) return false;
         var person = entity.level().getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(4),
                 other -> (other instanceof Player || other instanceof HumanNpc) && holdingTool(other)
                         && !seenTools.contains(other) && entity.distanceToSqr(other) <= 16 && entity.hasLineOfSight(other))
@@ -437,6 +437,8 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
+        // The visible tool chooses the contact even before landing. The reaction needs footing.
+        if (task == Task.TOOL && !entity.onGround()) return;
         elapsed++;
         if (task == Task.TOOL) {
             entity.getLookControl().setLookAt(target, 30, 30);
