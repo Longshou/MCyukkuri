@@ -6823,5 +6823,6 @@
   "item.mcyukkuri.produce_crate": "Produce Crate",
   "block.mcyukkuri.produce_crate": "Produce Crate",
   "item.mcyukkuri.display_tray": "Display Tray",
-  "block.mcyukkuri.display_tray": "Display Tray"
+  "block.mcyukkuri.display_tray": "Display Tray",
+  "block.mcyukkuri.factory_belt": "Factory Belt"
 }

@@ -37,7 +37,10 @@ public final class HumanWorld {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MCYukkuri.MOD_ID);
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MCYukkuri.MOD_ID);
     public static final DeferredBlock<FactoryStationBlock> LABOR_BENCH = station("labor_bench");
-    public static final DeferredBlock<FactoryStationBlock> MANJU_STEAMER = station("manju_steamer");
+    public static final DeferredBlock<FactoryStationBlock.Belt> FACTORY_BELT = simple("factory_belt",
+            () -> new FactoryStationBlock.Belt(stationProperties()));
+    public static final DeferredBlock<FactoryStationBlock.Steamer> MANJU_STEAMER = simple("manju_steamer",
+            () -> new FactoryStationBlock.Steamer(stationProperties()));
     public static final DeferredBlock<FactoryStationBlock> PACKING_TABLE = station("live_packing_table");
     public static final DeferredBlock<FactoryStationBlock> NURSERY_STATION = station("nursery_station");
     public static final DeferredBlock<FactoryStationBlock> RECEIVING_TABLE = station("factory_receiving_table");
@@ -108,8 +111,10 @@ public final class HumanWorld {
                 .sized(.6f, 1.8f).eyeHeight(1.62f).clientTrackingRange(10).build(MCYukkuri.id(id).toString()));
     }
     private static DeferredBlock<FactoryStationBlock> station(String id) {
-        var result=BLOCKS.register(id,()->new FactoryStationBlock(id,BlockBehaviour.Properties.of().strength(3).noOcclusion()));
-        ITEMS.registerSimpleBlockItem(id,result); return result;
+        return simple(id, () -> new FactoryStationBlock(id, stationProperties()));
+    }
+    private static BlockBehaviour.Properties stationProperties() {
+        return BlockBehaviour.Properties.of().strength(3).noOcclusion();
     }
     private static <B extends Block> DeferredBlock<B> simple(String id, Supplier<B> block) {
         var result=BLOCKS.register(id,block); ITEMS.registerSimpleBlockItem(id,result); return result;

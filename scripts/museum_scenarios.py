@@ -6083,6 +6083,7 @@ def _verify_plant(window):
 
 
 _smoke('processing_plant', 120, [r'MCY_PLANT_CLEAR_POSTS', r'MCY_LEGACY_OUTPUT_ACCEPTED', r'MCY_LEGACY_SOURCE_CLEARED',
+                                r'MCY_PLANT_BELT_AND_STEAMER',
                                 r'\[factory\][^\n]* action=legacy_tray_unload',
                                 r'\[custody\][^\n]* factory closure cleanup completed',
                                 r'\[remains\][^\n]* legacy factory claim cleared'],
@@ -6104,6 +6105,12 @@ _plant_smoke['commands'] = [
     (60, f'execute if entity {_plant_site} '
          + ' '.join(f'if entity @e[type=mcyukkuri:caretaker_brother,distance=..45,nbt={{HumanJob:2,SiteRole:"plant_{role}"}}]' for role in _plant_posts)
          + ' run say MCY_PLANT_CLEAR_POSTS'),
+    # The north-facing template starts one block below the entrance and ten blocks west of it.
+    (60, 'execute ' + ' '.join(
+        f'if block ~{_plant_x + x - 10} ~2 ~{_plant_z + z} mcyukkuri:factory_belt[facing=east,running=false]'
+        for x in range(11, 17) for z in (20, 21))
+        + f' if block ~{_plant_x + 8} ~2 ~{_plant_z + 19} mcyukkuri:manju_steamer[facing=west,lit=false,open=false]'
+        + ' run say MCY_PLANT_BELT_AND_STEAMER'),
     (60, 'execute if data block ~24 ~ ~-23 Items[{id:"minecraft:paper",count:8}] if data block ~24 ~ ~-23 Items[' + _legacy_bag + '] run say MCY_LEGACY_OUTPUT_ACCEPTED'),
     (110, f'execute if entity {_legacy_worker} unless data entity {_legacy_worker} FactoryProduction run say MCY_LEGACY_SOURCE_CLEARED'),
 ]

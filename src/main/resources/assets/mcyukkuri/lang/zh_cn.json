@@ -6821,5 +6821,6 @@
   "item.mcyukkuri.produce_crate": "货箱",
   "block.mcyukkuri.produce_crate": "货箱",
   "item.mcyukkuri.display_tray": "展示托盘",
-  "block.mcyukkuri.display_tray": "展示托盘"
+  "block.mcyukkuri.display_tray": "展示托盘",
+  "block.mcyukkuri.factory_belt": "工厂传送带"
 }

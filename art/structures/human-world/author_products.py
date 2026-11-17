@@ -23,9 +23,8 @@ def write_png(path,image):
 # plain steel in the station palette. Contact geometry for code is in the README section 加工所; numbers here are model pixels (1/16).
 # Belt states: facing = the running direction, running = moving texture and a green lamp on both sides. The model faces north.
 BELT_TOP, BELT_FRAMES, BELT_FRAMETIME = 6, 8, 2      # support surface 6/16; the running texture moves 1 px per 2 ticks (0.5 block/s)
-# Steamer: boolean properties its blockstate keys on. FactoryStationBlock declares only `facing` today (an unknown key would fail the
-# whole blockstate), so the closed cold steamer is drawn for every state until the code package declares `open` and `lit` and lists them.
-STEAMER_PROPERTIES = ()
+# Boolean properties declared by FactoryStationBlock.Steamer.
+STEAMER_PROPERTIES = ('lit', 'open')
 STEAMER_SLOTS = {'input': (8, 12, 10.5), 'wheat': (4.75, 11, 3.5), 'output': (11.25, 11, 3.5)}   # surface centres, north-facing model
 FACES = ('north', 'south', 'east', 'west', 'up', 'down')
 def rgba(h): return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
