@@ -128,16 +128,16 @@ public final class BadgeSocial {
         }
     }
 
-    /** While a pet holds an offerable bite, hungry onlookers can ask for it as they become available. */
+    /** While a peer holds an offerable bite, hungry onlookers can ask for it as they become available. */
     public static boolean mealSeen(YukkuriEntity subject) {
-        if (!enabled() || !(subject.level() instanceof ServerLevel level) || !subject.pet().isPet()
+        if (!enabled() || !(subject.level() instanceof ServerLevel level)
                 || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
                 || subject.isLeashed() || !subject.family().canEatIndependently()) return false;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
-                && peer.status().identity().free() && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
+                && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
             if (!inFront(o, subject) || BadgeArcs.check(level, Arc.BEG_BITE, o, subject, viewer, null) != null) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);
             if (subject.life().mealTicks() == 0) return true; // the admitted pair now owns the carried serving

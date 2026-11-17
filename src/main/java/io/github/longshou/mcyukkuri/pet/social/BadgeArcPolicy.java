@@ -39,7 +39,7 @@ public final class BadgeArcPolicy {
     private static double clamp01(double v) { return Math.max(0, Math.min(1, v)); }
 
     public static double begBiteChance(Observer o, Subject s, Relation r) {
-        if (r.cooling() || o.pet() || !s.pet() || !s.eating() || !beggingHunger(o.nutrition())) return 0;
+        if (r.cooling() || !s.eating() || !beggingHunger(o.nutrition())) return 0;
         return clamp01(.75 + (50 - o.nutrition()) / 35.0
                 + r.affinity() / 100.0 - .6 * r.wariness() - .15 * r.confidence());
     }

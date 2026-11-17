@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.settlement.Rumours;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -50,14 +51,14 @@ public final class BegBite {
     }
 
     static boolean ready(YukkuriEntity body) {
-        return BadgeArcs.usable(body) && !body.isLeashed() && !body.isCommandPlaying() && !body.life().hasUrgentNonFoodNeed()
+        return body.status().identity() != Identity.STOCK && !body.settlement().society().slave()
+                && !body.profile().dangerToYukkuri() && !body.profile().houseBody()
+                && BadgeArcs.usable(body) && !body.isLeashed() && !body.isCommandPlaying() && !body.life().hasUrgentNonFoodNeed()
                 && !body.family().stemFoodUrgent() && body.life().nutrition() >= 12 && !body.body().sick()
                 && body.body().condition().readyForWildEvent();
     }
 
     static String check(ServerLevel level, YukkuriEntity stray, YukkuriEntity pet) {
-        if (!stray.status().identity().free()) return "observer_owned";
-        if (!pet.pet().isPet() || pet.profile().dangerToYukkuri() || pet.profile().houseBody()) return "subject_not_pet";
         if (!ready(stray) || !ready(pet)) return "begging_unavailable";
         if (!pet.family().canEatIndependently() || !pet.life().canOfferMeal()) return "no_shareable_serving";
         if (!BadgeArcPolicy.beggingHunger(stray.life().nutrition()) || !stray.life().canEat()) return "observer_not_hungry";
@@ -94,7 +95,7 @@ public final class BegBite {
     }
 
     void advance(ServerLevel level, Scene scene, YukkuriEntity stray, YukkuriEntity pet) {
-        if (!ready(stray) || !ready(pet) || !stray.status().identity().free() || !pet.pet().isPet()) {
+        if (!ready(stray) || !ready(pet)) {
             WildEvents.finish(level, scene, Phase.INTERRUPTED, "begging_unavailable");
             return;
         }
@@ -268,9 +269,15 @@ public final class BegBite {
                 && SocialDisposition.contact(stray, player).response(false) == SocialDisposition.Response.GUARDED);
         boolean young = !level.getEntitiesOfClass(YukkuriEntity.class, stray.getBoundingBox().inflate(4),
                 child -> child.isAlive() && !child.family().adult() && WildEvents.childOf(stray, child)).isEmpty();
-        var refusal = BadgeArcPolicy.begRefusal(stray.life().nutrition(), view.wariness(), confidence, view.insistence(),
+        double drive = SocialDisposition.foodTheftDrive(stray);
+        double strength = stray.getBbWidth() * stray.body().healthRatio() / (pet.getBbWidth() * pet.body().healthRatio());
+        boolean contest = !people && !young && !Bonds.careKin(stray, pet) && view.closeness() < 10
+                && SocialDisposition.ramp(strength, .8, 1.1) * drive
+                        * (1 - SocialDisposition.ramp(p.friendliness(), 35, 62)) >= .30;
+        var refusal = p.friendliness() >= 62 || view.closeness() >= 10 ? BadgeArcPolicy.BegRefusal.LEAVE
+                : BadgeArcPolicy.begRefusal(stray.life().nutrition(), view.wariness(), confidence, view.insistence(),
                 p.relation(pet.getUUID()).fearBand(), p.selfControl(), p.escalationScore(),
-                !people && !young && stray.getBbWidth() >= pet.getBbWidth() * .9);
+                contest);
         GameplayLog.event(stray, "badge", "beg refusal pet={} response={} nutrition={} esteem={} wariness={} confidence={} insistence={} harshness={}",
                 this.pet, refusal, stray.life().nutrition(), view.esteem(), view.wariness(), confidence, view.insistence(), p.escalationScore());
         result = "refused";

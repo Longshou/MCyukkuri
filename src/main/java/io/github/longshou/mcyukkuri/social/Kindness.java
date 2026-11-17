@@ -66,7 +66,8 @@ public final class Kindness extends Goal {
                 && !BadgeArcs.holdsBeggingFood(giver)
                 && !giver.isPassenger() && !giver.isRemoved() && nextScan == 0) {
             nextScan = 40;
-            if (!giver.life().beginCarriedMeal(Purpose.KINDNESS))
+            // This serving already reached a social contact. Resume chewing without opening it to another request.
+            if (!giver.life().finishCarriedMeal(null))
                 giver.component(YukkuriComponents.MOUTH).releaseItems(Purpose.KINDNESS, 20);
         }
     }

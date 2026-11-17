@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -35,11 +37,13 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     private static final int PUFF = ClipMarkers.of("puff").length();
     private static final int VISIT = LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
     private final YukkuriEntity body;
-    private record Home(BlockPos site, BlockPos mouth, BlockPos refuge, boolean sealed) {}
+    private record Home(BlockPos site, BlockPos mouth, BlockPos refuge, boolean sealed, boolean softNest) {}
     private Home home;
     private LivingEntity intruder;
     private YukkuriEntity child;
     private RamPerson ram;
+    private boolean nestVisit;
+    private Vec3 aside;
     private int elapsed;
     private boolean active, yielded;
     private long scanAt;
@@ -57,20 +61,21 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         var claim = HomeClaim.of(body);
         if (claim != null) {
             if (!claim.declared || claim.stage == HomeClaimData.Stage.RETREAT) return null;
-            return new Home(claim.site.pos(), claim.site.pos(), claim.site.pos(), false);
+            return new Home(claim.site.pos(), claim.site.pos(), claim.site.pos(), false, false);
         }
         var bed = body.life().homeStand();
         if (bed == null) return null;
         var den = body.habitat().shelter();
-        return den == null ? new Home(bed, bed, bed, false)
-                : new Home(den.getBlockPos(), den.entrance(), bed, DenBarrier.sealed(den));
+        boolean soft = body.level().getBlockEntity(bed) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST;
+        return den == null ? new Home(bed, bed, bed, false, soft)
+                : new Home(den.getBlockPos(), den.entrance(), bed, DenBarrier.sealed(den), false);
     }
 
     private boolean available() {
         var identity=body.status().identity();
         return body.isAlive() && !body.isNoAi() && !body.isPassenger() && !body.isPanicking() && !body.hurtCrying()
                 && !body.profile().houseBody() && !body.profile().aquatic() && !body.profile().dangerToYukkuri()
-                && !body.settlement().society().slave() && (identity.free() || identity.companion())
+                && !body.settlement().society().slave() && identity != Identity.STOCK
                 && !body.isCommandPlaying() && !body.operations().active() && body.life().mealTicks() == 0
                 && !body.isInWaterOrBubble() && !body.isOnFire() && !body.life().hasUrgentNeed();
     }
@@ -83,6 +88,13 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     private boolean visit(LivingEntity visitor) {
         return visitor.isAlive() && !visitor.isRemoved() && visitor.level() == body.level()
                 && !visitor.isSpectator() && nearHome(visitor);
+    }
+
+    private boolean nestVisitor(LivingEntity visitor) {
+        return home.softNest && body.family().adult() && visitor instanceof YukkuriEntity peer && peer != body
+                && visit(peer) && !peer.isPassenger() && !peer.profile().dangerToYukkuri() && Recognition.recognizes(body, peer)
+                && !FamilyNest.sameNest(body, peer) && body.hasLineOfSight(peer)
+                && home.site.distToCenterSqr(peer.getX(), peer.getY(), peer.getZ()) <= 4;
     }
 
     private boolean stranger(LivingEntity visitor) {
@@ -116,8 +128,10 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         if (home == null || !nearHome(body)) return false;
         if (intruder != null && visit(intruder)) return false;
         intruder = body.level().getEntitiesOfClass(LivingEntity.class, new AABB(home.mouth).minmax(new AABB(home.refuge)).inflate(RADIUS),
-                this::stranger).stream().min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+                visitor -> home.softNest && visitor instanceof YukkuriEntity ? nestVisitor(visitor) : stranger(visitor))
+                .stream().min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
         if (intruder == null) return false;
+        nestVisit = nestVisitor(intruder);
         if (body.life().isSleeping()) {
             body.life().wakeForDanger("territory");
             scanAt = now + LOOK;
@@ -132,7 +146,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         var current = home();
         return active && available() && current != null && current.site.equals(home.site)
-                && visit(intruder) && elapsed < VISIT
+                && visit(intruder) && elapsed < (nestVisit ? LOOK + PUFF : VISIT)
                 && !(intruder instanceof YukkuriEntity peer && (SocialDisposition.caringContact(body, peer) || FamilyNest.sameNest(body, peer)));
     }
 
@@ -151,6 +165,18 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         body.getLookControl().setLookAt(intruder, 30, 30);
         if (elapsed < LOOK) {
             SurfaceApproach.face(body,SurfaceApproach.yaw(body.position(),intruder.position()));
+            return;
+        }
+        if (nestVisit) {
+            if (elapsed == LOOK) resolveNestVisit();
+            if (aside != null && body.onGround()) {
+                var movement = SurfaceApproach.walkResult(body, aside, intruder, 1);
+                if (movement == SurfaceApproach.Result.ARRIVED || movement == SurfaceApproach.Result.BLOCKED) {
+                    if (movement == SurfaceApproach.Result.ARRIVED)
+                        GameplayLog.event(body, "home-claim", "nest gave space peer={} stand={}", intruder.getUUID(), aside);
+                    elapsed = LOOK + PUFF;
+                }
+            }
             return;
         }
         if (ram != null && !stranger(intruder)) {
@@ -211,6 +237,28 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         return resolve(actor, SocialDisposition.contact(actor, other), actor.getBbWidth() / other.getBbWidth());
     }
 
+    private void resolveNestVisit() {
+        if (!nestVisitor(intruder)) return;
+        var p = body.life().personality();
+        var contact = SocialDisposition.contact(body, intruder);
+        var side = body.position().subtract(intruder.position()).multiply(1, 0, 1).normalize()
+                .yRot((float) (Math.PI / 2)).scale(1.5);
+        var alternative = SurfaceApproach.floor(body, body.position().add(side));
+        if (alternative == null) alternative = SurfaceApproach.floor(body, body.position().subtract(side));
+        double guard = .40 * SocialDisposition.confidence(contact.esteem()) + .30 * SocialDisposition.ramp(p.boldness(), 35, 72)
+                + .30 * (1 - SocialDisposition.ramp(body.life().energy(), 25, 80)) - .65 * contact.wariness();
+        double yield = .25 + .45 * SocialDisposition.ramp(p.friendliness(), 35, 75)
+                + .20 * SocialDisposition.ramp(contact.closeness(), 0, 20) + (alternative == null ? 0 : .10);
+        boolean declare = guard > yield;
+        if (declare) HomeClaim.declareHome(body, home.site);
+        else {
+            aside = alternative;
+            body.showReaction(YukkuriAction.SHY, "side_teary", "");
+        }
+        GameplayLog.event(body, "home-claim", "nest dispute peer={} site={} response={} guard={} yield={}",
+                intruder.getUUID(), home.site, declare ? "declare" : "yield", guard, yield);
+    }
+
     private static double resolve(YukkuriEntity actor, SocialDisposition.Contact contact, double ratio) {
         var personality = actor.life().personality();
         return .55 * personality.boldness() / 100 + .20 * SocialDisposition.confidence(contact.esteem())
@@ -231,12 +279,12 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     }
 
     @Override public void stop() {
-        if (!yielded && elapsed >= LOOK && intruder.isAlive() && !nearHome(intruder)
+        if (!nestVisit && !yielded && elapsed >= LOOK && intruder.isAlive() && !nearHome(intruder)
                 && home.equals(home()) && nearHome(body) && body.family().adult())
             HomeClaim.declareHome(body, home.site);
         body.motor().cancel(this, "territory_ended");
         SurfaceApproach.stopWalking(body);
-        active = false; ram = null; child = null;
+        active = false; ram = null; child = null; aside = null;
     }
 
 }

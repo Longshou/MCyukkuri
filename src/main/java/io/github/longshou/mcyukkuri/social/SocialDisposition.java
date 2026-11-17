@@ -92,8 +92,15 @@ public final class SocialDisposition {
                 * (1 - .50 * wariness) * (1 - ramp(relation.closeness(), 0, 20));
     }
 
-    static double demandProbability(YukkuriPersonality personality, double esteem, double wariness, Relation relation) {
-        return ramp(insistence(personality, esteem, wariness, relation), .20, .52);
+    static double demandProbability(YukkuriPersonality personality, double esteem, double wariness, Relation relation, float nutrition) {
+        double hunger = 1 - ramp(nutrition, 30, 50);
+        return ramp(insistence(personality, esteem, wariness, relation), .23 - .08 * hunger, .52);
+    }
+
+    public static double foodTheftDrive(YukkuriEntity actor) {
+        var p = actor.life().personality();
+        return .45 * (1 - ramp(actor.life().nutrition(), 15, 45)) + .35 * p.boldness() / 100.0
+                + .40 * (1 - p.selfControl() / 100.0);
     }
 
     public static double ramp(double value, double low, double high) {

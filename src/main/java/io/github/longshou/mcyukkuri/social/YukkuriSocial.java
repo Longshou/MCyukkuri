@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.headwear.Contempt;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -32,6 +33,7 @@ import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
+import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +55,7 @@ import net.minecraft.world.phys.Vec3;
 public final class YukkuriSocial implements MotorOwner {
     private static final double HUMAN_CONTACT = 1.5, FOOD_HANDOFF = 2.5;
     private static final float ASK_NUTRITION_MIN = 30, ASK_NUTRITION_MAX = 50, FED_NUTRITION = 55;
-    private enum Task { NONE, PLAYER, OWNER_RETURN, PEER, TOY, ACCESSORY, ANSWER, STUDY }
+    private enum Task { NONE, PLAYER, OWNER_RETURN, TOOL, PEER, TOY, ACCESSORY, ANSWER, STUDY }
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
     private Entity target;
@@ -70,6 +72,7 @@ public final class YukkuriSocial implements MotorOwner {
     private long replyUntil;
     private boolean foodDemand;
     private Vec3 humanEscapeStand;
+    private final Set<LivingEntity> seenTools = new HashSet<>();
     /** A loose-accessory retrieval: one budget for the whole trip (the walk to a bank stand, the step in and the swim), since a
      *  route round a bank corner is longer than the social tasks' short beat. */
     private static final int ACCESSORY = 1200;
@@ -123,7 +126,7 @@ public final class YukkuriSocial implements MotorOwner {
     private int answerDelay;
     public YukkuriSocial(YukkuriEntity entity) { this.entity = entity; }
     private YukkuriPersonality personality() { return entity.life().personality(); }
-    public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER;
+    public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER, TOOL -> Behaviors.PLAYER;
             case OWNER_RETURN -> Behaviors.SEEK_AFFECTION; case PEER -> Behaviors.PEER;
             case TOY -> Behaviors.TOY; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; case STUDY -> Behaviors.TEACH; }; }
     public boolean active() { return task != Task.NONE; }
@@ -150,6 +153,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public void tick() {
         entity.kindness().clock();
+        seenTools.removeIf(person -> !holdingTool(person) || person.level() != entity.level() || entity.distanceToSqr(person) > 64);
         if (active() && (entity.isPanicking() || urgent() || entity.isCommandPlaying())) stop();
     }
     public void save(CompoundTag tag) {
@@ -198,6 +202,7 @@ public final class YukkuriSocial implements MotorOwner {
             if (entity.level().isDay() && day != morningDay) { morningPending = true; morningDay = day; }
         }
         if (!entity.childhood().canLearn() || !availableForSocial()) return false;
+        if (noticeTool()) return true;
         var returning = entity.pet().takeOwnerWelcome();
         if (returning != null) {
             returnClip = entity.pet().ownerWelcomeClip();
@@ -261,7 +266,7 @@ public final class YukkuriSocial implements MotorOwner {
                             .thenComparingDouble(entity::distanceToSqr)).findFirst().orElse(null);
             if (target != null) { approachPeer(null); return true; }
         }
-        return !canAsk && findHuman(false);
+        return (!canAsk || !entity.status().identity().free()) && findHuman(false);
     }
 
     private record HumanCandidate(LivingEntity person, YukkuriWorldData.Relation relation) {}
@@ -272,8 +277,9 @@ public final class YukkuriSocial implements MotorOwner {
                                 && person.isAlive() && contactReady(person) && entity.hasLineOfSight(person)
                                 && entity.distanceToSqr(person) <= 36).stream()
                 .map(person -> new HumanCandidate(person, personality().relation(person.getUUID())))
-                .filter(candidate -> candidate.relation().closeness() >= 0)
-                .sorted(Comparator.comparingInt((HumanCandidate candidate) -> candidate.relation().closeness()).reversed()
+                .filter(candidate -> candidate.relation().closeness() >= 0 && (!ask || mayRequestFrom(candidate.person())))
+                .sorted(Comparator.comparing((HumanCandidate candidate) -> ask && entity.life().seeksOfferedFood(candidate.person())).reversed()
+                        .thenComparing(Comparator.comparingInt((HumanCandidate candidate) -> candidate.relation().closeness()).reversed())
                         .thenComparingDouble(candidate -> entity.distanceToSqr(candidate.person())))
                 .toList();
         for (var candidate : candidates) {
@@ -317,9 +323,52 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean canRequestFood() {
         float nutrition = entity.life().nutrition();
         return lastFoodRequest < 0 && nutrition >= ASK_NUTRITION_MIN && nutrition < ASK_NUTRITION_MAX
-                && entity.status().identity().free() && !entity.profile().dangerToYukkuri() && !entity.settlement().society().slave()
+                && entity.status().identity() != Identity.STOCK && !entity.profile().houseBody()
+                && !entity.profile().dangerToYukkuri() && !entity.settlement().society().slave()
                 && entity.childhood().canLiveIndependently() && entity.life().canEat()
                 && entity.component(YukkuriComponents.MOUTH).purpose() == null;
+    }
+
+    private boolean mayRequestFrom(LivingEntity person) {
+        return entity.life().seeksOfferedFood(person) || entity.status().identity().free();
+    }
+
+    private static boolean holdingTool(LivingEntity person) {
+        return person.isAlive() && !person.isSpectator() && person.getMainHandItem().getItem() instanceof OperationToolItem;
+    }
+
+    private boolean noticeTool() {
+        if (entity.profile().houseBody() || entity.profile().dangerToYukkuri()
+                || entity.settlement().society().slave() || entity.status().identity() == Identity.STOCK
+                || !entity.onGround() || entity.isLeashed()) return false;
+        var person = entity.level().getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(4),
+                other -> (other instanceof Player || other instanceof HumanNpc) && holdingTool(other)
+                        && !seenTools.contains(other) && entity.distanceToSqr(other) <= 16 && entity.hasLineOfSight(other))
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        if (person == null) return false;
+        task = Task.TOOL;
+        target = person;
+        duration = ClipMarkers.of(YukkuriAction.BEG.id()).length();
+        return true;
+    }
+
+    private void reactToTool(LivingEntity person) {
+        seenTools.add(person);
+        var contact = SocialDisposition.contact(entity, person);
+        var p = personality();
+        double appeal = SocialDisposition.confidence(contact.esteem()) * (1 - SocialDisposition.ramp(p.selfControl(), 35, 62))
+                * (1 - SocialDisposition.ramp(contact.fear(), 30, 65));
+        double caution = .30 * contact.wariness() + .50 * SocialDisposition.ramp(contact.fear(), 15, 60)
+                + .45 * (1 - SocialDisposition.ramp(p.boldness(), 25, 55));
+        boolean plead = appeal > .25 + caution;
+        var clip = plead ? YukkuriAction.BEG : YukkuriAction.SHY;
+        if (!plead) humanEscapeStand = Reactions.escapeStand(entity, person, 4, Set.of());
+        duration = ClipMarkers.of(clip.id()).length();
+        entity.showReaction(clip, plead ? "teary_smile" : "side_teary", "");
+        entity.speakCue(plead ? "exam_sorry" : "afraid");
+        GameplayLog.event(entity, "social", "tool response target={} tool={} choice={} appeal={} caution={} escape={}",
+                person.getUUID(), ((OperationToolItem) person.getMainHandItem().getItem()).tool().id,
+                plead ? "plead" : "withdraw", appeal, caution, humanEscapeStand);
     }
 
     private boolean atHumanContact(Entity person) { return atContact(person, humanReach(person)); }
@@ -383,11 +432,23 @@ public final class YukkuriSocial implements MotorOwner {
                 && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : elapsed < duration || holdingPeerGreeting())
                 && (!humanContact() || !entity.isPassenger() && !entity.life().hasUrgentNeed() && !entity.operations().active()
                         && !entity.waterDistress().active() && !(target instanceof Player player && player.isSpectator()))
+                && (task != Task.TOOL || holdingTool((LivingEntity) target) && availableForSocial())
                 && (task != Task.ANSWER || answerDelay > 0 || approachedBy(target));
     }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
         elapsed++;
+        if (task == Task.TOOL) {
+            entity.getLookControl().setLookAt(target, 30, 30);
+            if (elapsed == 1) {
+                SurfaceApproach.halt(entity);
+                reactToTool((LivingEntity) target);
+            } else if (humanEscapeStand != null && entity.onGround()) {
+                var movement = SurfaceApproach.walkResult(entity, humanEscapeStand, target, 1.1);
+                if (movement == SurfaceApproach.Result.ARRIVED || movement == SurfaceApproach.Result.BLOCKED) stop();
+            }
+            return;
+        }
         if (task == Task.STUDY) {
             EcologyMovement.halt(entity);
             if (elapsed == 1) entity.showReaction("confused", "", duration);
@@ -560,7 +621,7 @@ public final class YukkuriSocial implements MotorOwner {
         if(humanMayAsk&&LearnedFear.waryOf(entity,target)){stop();return;}
         double wariness = SocialDisposition.humanWariness(entity, target, relation);
         if (!retreat && (humanRetreatRoll < SocialDisposition.ramp(wariness, .62, .80)
-                || elapsed == 1 && visitor(target) && !entity.pet().lessons().attempt(PetSkill.GREETING))) {
+                || elapsed == 1 && !humanMayAsk && visitor(target) && !entity.pet().lessons().attempt(PetSkill.GREETING))) {
             retreat = true;
             greeted = false;
             replyUntil = 0;
@@ -623,7 +684,7 @@ public final class YukkuriSocial implements MotorOwner {
                     target.getUUID(), returnClip, entity.distanceTo(target));
             return;
         }
-        if (humanMayAsk && canRequestFood()) {
+        if (humanMayAsk && canRequestFood() && mayRequestFrom((LivingEntity) target)) {
             askForFood(wariness, relation);
             return;
         }
@@ -650,7 +711,7 @@ public final class YukkuriSocial implements MotorOwner {
 
     private void askForFood(double wariness, YukkuriWorldData.Relation relation) {
         double esteem = SocialDisposition.selfEsteem(entity);
-        double chance = SocialDisposition.demandProbability(personality(), esteem, wariness, relation);
+        double chance = SocialDisposition.demandProbability(personality(), esteem, wariness, relation, entity.life().nutrition());
         boolean demand = entity.getRandom().nextDouble() < chance;
         String line = demand ? "human_food_demand" : "human_food_ask";
         entity.showReaction(demand ? "cheek_puff" : "teary", "", 80);

@@ -199,7 +199,7 @@ public final class StallTheft implements MotorOwner {
     private double hunger() { return 1 - SocialDisposition.ramp(body.life().nutrition(), 15, 45); }
     private double boldness() { return body.life().personality().boldness() / 100.0; }
     private boolean cautious() {
-        return .45 * hunger() + .35 * boldness() + .4 * (1 - body.life().personality().selfControl() / 100.0) < .65;
+        return SocialDisposition.foodTheftDrive(body) < .65;
     }
 
     private boolean decline(String reason, LivingEntity watcher) {

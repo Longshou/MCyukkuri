@@ -55,6 +55,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
@@ -451,10 +452,10 @@ public final class YukkuriLife {
     private boolean edible(ItemStack food){ return meal.edible(food); }
     public boolean seeksFood(ItemStack food) { return meal.seeksFood(food); }
     boolean seeksFood(ItemStack food, UUID giver) { return meal.seeksFood(food, giver); }
-    public boolean seeksOfferedFood(Player giver) {
+    public boolean seeksOfferedFood(LivingEntity giver) {
         return seeksOfferedFood(giver.getMainHandItem(), giver) || seeksOfferedFood(giver.getOffhandItem(), giver);
     }
-    private boolean seeksOfferedFood(ItemStack food, Player giver) {
+    private boolean seeksOfferedFood(ItemStack food, LivingEntity giver) {
         return food.is(YukkuriEntity.FOOD) && meal.seeksFood(food, giver.getUUID());
     }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
@@ -1027,20 +1028,33 @@ public final class YukkuriLife {
         // A closed leaf swaddle keeps the young one from going by itself; only a parent's care opens it (family/LeafSwaddle).
         if (!entity.childhood().firstToiletDone() || bladder < 40 || constipated() || entity.leafSwaddle().wrapped()) return false;
         var toilet = nearestCare(CareBlock.Kind.TOILET, false);
-        boolean missedToilet = toilet != null && !followsRule(PetSkill.TOILET);
         var here = entity.blockPosition();
-        boolean groundReady = bladder >= (missedToilet ? 70 : 90) && dryStand(here);
-        if (groundReady) groundReady = !GroupPits.inCells(GroupPits.avoidedCells(entity), here);
-        if (toilet != null && (!missedToilet || bladder >= 70 && !groundReady)) {
+        boolean pet = Custody.view(entity).owner() != null || home() != null && !naturalHome();
+        var spot = toilet == null && !pet && bladder >= 70 ? GroupPits.spot(entity) : null;
+        var destination = toilet != null ? toilet : spot != null ? spot.stand() : null;
+        boolean groundReady = bladder >= 70 && dryStand(here) && !GroupPits.inCells(GroupPits.avoidedCells(entity), here);
+        if (groundReady && destination != null) {
+            double distance = Math.sqrt(here.distSqr(destination));
+            double impatience = .40 + .25 * SocialDisposition.ramp(distance, 1, 8)
+                    + .20 * SocialDisposition.ramp(bladder, 70, 100);
+            double restraint = .30 + .55 * SocialDisposition.ramp(personality.selfControl(), 35, 70)
+                    + .45 * SocialDisposition.ramp(entity.pet().lessons().level(PetSkill.TOILET), 0, 4);
+            if (impatience > restraint) {
+                targetBlock = here;
+                task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
+                toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0; toiletAccident = true;
+                GameplayLog.event(entity, "needs", "toilet skipped destination={} ground={} bladder={} impatience={} restraint={}",
+                        destination, here, bladder, impatience, restraint);
+                return true;
+            }
+        }
+        if (toilet != null) {
             targetBlock = toilet;
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;
         }
-        boolean pet = (Custody.view(entity).owner() != null)
-                || home() != null && !naturalHome();
-        if (bladder < (pet && !missedToilet ? 90 : 70)) return false;
+        if (bladder < (pet ? 90 : 70)) return false;
         targetBlock = null; toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0;
         // A community member goes to the group's pit; lone wild yukkuri and families use ground away from home.
-        var spot = pet ? null : GroupPits.spot(entity);
         if (spot != null) {
             targetBlock = spot.stand(); toiletPit = true; toiletPitCell = spot.pit(); toiletAccident = false;
             task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
@@ -1049,7 +1063,7 @@ public final class YukkuriLife {
             return true;
         }
         var found = foundShelter();
-        if (!missedToilet && found != null && dryStand(found.entrance()) && reachable(found.entrance(), false)) {
+        if (found != null && dryStand(found.entrance()) && reachable(found.entrance(), false)) {
             targetBlock = found.entrance(); task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false;
             return true;
         }
@@ -1175,7 +1189,7 @@ public final class YukkuriLife {
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         float before=bladder;
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(DetachedItems.waste(entity))) {
-                            releaseWaste(); personality.relieveFear(); ruleChoices.remove(PetSkill.TOILET);
+                            releaseWaste(); personality.relieveFear();
                             entity.pet().routineCompleted(1); entity.showReaction("happy", "toilet_done", 60);
                             GameplayLog.event(entity,"needs","relieved source=facility at={} bladder={} -> {} volume={}",targetBlock,before,bladder,care.waste());
                         } else { stopGoal(); return; }
@@ -1201,7 +1215,7 @@ public final class YukkuriLife {
                         // From the anus of this very model at this moment of the clip (see ToiletContact.anus); at the pit the portion lands in the pit cell behind it.
                         float before=bladder;
                         if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS), toiletPit ? toiletPitCell : null)) {
-                            releaseWaste(); personality.relieveFear(); ruleChoices.remove(PetSkill.TOILET);
+                            releaseWaste(); personality.relieveFear();
                             GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,before,bladder,toiletAccident);
                             if (toiletAccident) {
                                 hygiene = Math.max(0,hygiene-20);

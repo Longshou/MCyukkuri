@@ -1091,6 +1091,68 @@ add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', 
     reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste')],
     smoke=dict(ticks=1200,expect=[r'relieved source=facility',r'toilet stored [^\n]*volume='],forbid=[]))
 
+_ugly = 'everyday_choices'
+_pushy = dict(boldness=95, friendliness=8, self_control=20)
+_considerate = dict(boldness=56, friendliness=86, self_control=85)
+_apple_in_mouth = 'YukkuriMouth:{Purpose:"MEAL",Items:[{id:"minecraft:apple",count:1}]}'
+
+
+def _choice_actor(name, x, z, **stats):
+    return yk('marisa', x, z, name, uuid=uid(_ugly, name), picky=0, **stats)
+
+
+def _choice_once(window):
+    for name, pattern in (
+        ('nest_declare', r'nest dispute [^\n]*response=declare'),
+        ('nest_yield', r'nest dispute [^\n]*response=yield'),
+        ('food_demand', r'human food request [^\n]*line=human_food_demand'),
+        ('food_ask', r'human food request [^\n]*line=human_food_ask'),
+        ('tool_plead', r'tool response [^\n]*choice=plead'),
+        ('tool_withdraw', r'tool response [^\n]*choice=withdraw'),
+        ('food_snatch', r'beg transfer [^\n]*result=snatched received=minecraft:apple retained=minecraft:air'),
+        ('food_polite', r'beg refusal [^\n]*response=LEAVE'),
+        ('floor_dirty', r'relieved source=ground [^\n]*accident=true'),
+        ('toilet_use', r'relieved source=facility'),
+    ):
+        count = len(re.findall(rf'uuid={_uuid_text(_ugly, name)}[^\n]* {pattern}', window))
+        if count != 1:
+            return f'{name} expected once ({pattern}), got {count}'
+    return None
+
+
+add(_ugly, 'meadow', '争窝、骂人索食、装可爱、抢食与乱拉', '争窝、骂人索食、装可爱、抢食与乱拉',
+    '北侧看两只遇见走近草窝的同伴，是鼓腮宣言还是让开。中间看同一个人拿苹果时的辱骂与软声讨食、'
+    '另一个人拿锥时的装可爱求饶与退缩。东西两端看一只抢走苹果、另一只讨不到便离开。南侧看有沙厕时就地拉和走去沙厕。',
+    '约 1 分钟', [
+        *(line for x, name, traits in ((-7, 'nest_declare', _pushy), (7, 'nest_yield', _considerate))
+          for line in (box(x - 2, 3, -17, x + 2, 3, -12, 'minecraft:oak_planks'),
+                       block(x, 0, -16, 'mcyukkuri:straw_nest[facing=south]'),
+                       _choice_actor(name, x, -14.5, yaw=0, energy=55, **traits))),
+        human('caretaker_sister', 0, -7, 'apple_holder', 0, label='拿苹果的人')[:-1]
+        + ',NoAI:1b,HandItems:[{id:"minecraft:apple",count:1},{}]}',
+        _choice_actor('food_demand', -1.4, -7, yaw=-90, nutrition=38, social_wait=0, lead=True, **_pushy),
+        _choice_actor('food_ask', 1.4, -7, yaw=90, nutrition=38, social_wait=0, **_considerate),
+        *own('food_ask'),
+        human('caretaker_brother', 0, 5, 'tool_holder', 0, label='拿锥的人')[:-1]
+        + ',NoAI:1b,HandItems:[{id:"mcyukkuri:care_awl",count:1},{}]}',
+        _choice_actor('tool_plead', -2, 5, yaw=-90, social_wait=0, **_pushy),
+        _choice_actor('tool_withdraw', 2, 5, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
+        *(line for x, name, step, traits in ((-19, 'food_snatch', 4, _pushy), (19, 'food_polite', -4, _considerate))
+          for line in (_choice_actor(name, x, -1, yaw=-90 if step > 0 else 90, nutrition=18, **traits),
+                       yk('reimu', x + step, -1, 'serving_' + name, uuid=uid(_ugly, 'serving_' + name),
+                          yaw=90 if step > 0 else -90, nutrition=52, boldness=70, friendliness=10, picky=0,
+                          extra=_apple_in_mouth),
+                       f'data merge entity {sel("serving_" + name)} {{YukkuriLife:{{MealTicks:1}}}}')),
+        block(-8, 0, 18, 'mcyukkuri:yukkuri_toilet'), block(8, 0, 18, 'mcyukkuri:yukkuri_toilet'),
+        _choice_actor('floor_dirty', -8, 14, bladder=85, yaw=0, **_pushy),
+        _choice_actor('toilet_use', 8, 14, bladder=85, yaw=0, **_considerate),
+    ], env=DAY, vantage=(0, 21, 180, 25),
+    late=[home('nest_declare', -7, -16), home('nest_yield', 7, -16),
+          yk('reimu', -7, -14, 'nest_peer_west', energy=55, yaw=180),
+          yk('reimu', 7, -14, 'nest_peer_east', energy=55, yaw=180)],
+    reads=[('读各只的性格与需要', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..40] raw')],
+    smoke=dict(ticks=1200, expect=[], forbid=[], verify=_choice_once))
+
 # The toilet has room for one more portion: the nearer remilia fills it, so the flandre arriving after her uses the ground.
 add('pred_toilet', 'meadow', '捕食种上厕所与地面排便', '捕食种上厕所与地面排便',
     '蕾米莉亚和芙兰都有强烈便意，右边的厕所只剩一份空位：近处的蕾米莉亚先坐上去排满，后到的芙兰改在旁边的干地排便。看翅膀、帽子和身体不穿进厕所或地面，身体贴着厕所与地面',
@@ -4862,6 +4924,7 @@ TOPICS = {
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
+    'everyday_choices': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8',
@@ -5913,6 +5976,15 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+_scene_end(_ugly, [(name, _DRY) for name in (
+    'nest_declare', 'nest_yield', 'nest_peer_west', 'nest_peer_east', 'food_demand', 'food_ask',
+    'tool_plead', 'tool_withdraw', 'food_snatch', 'food_polite', 'serving_food_snatch', 'serving_food_polite',
+    'floor_dirty', 'toilet_use',
+)], [('food_snatch', 'seen:badge:beg transfer.*result=snatched'),
+     ('food_snatch', 'seen:meal:swallowed item=minecraft:apple')],
+   [('food_polite', 'seen:badge:beg refusal.*response=LEAVE'),
+    ('serving_food_polite', 'seen:meal:swallowed item=minecraft:apple')])
 
 for _beg_scene in ('wild', 'wild_beg_refuse', 'wild_beg_snatch', 'wild_beg_help'):
     _scene_end(_beg_scene, [('pet', _DRY), ('wild', _DRY)])
