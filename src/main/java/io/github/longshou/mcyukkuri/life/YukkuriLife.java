@@ -66,6 +66,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
@@ -79,6 +80,7 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
@@ -404,6 +406,21 @@ public final class YukkuriLife {
     public int spicyTicks(){ return doses.spicyTicks(); }
     public int sprayDelay(){ return doses.sprayDelay(); }
     public int drugSleep(){ return doses.drugSleep(); }
+    public static final float WEAKNESS_WARNING = .20f;
+    /** Existing urgent-need bands contribute together. An active harmful effect alone exceeds basket resistance. */
+    public float weakness() {
+        for (var effect : entity.getActiveEffects()) {
+            if (effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) return 1;
+        }
+        var body = entity.body();
+        float injury = Math.clamp((.85f - body.healthRatio()) / (.85f - BodyLife.WEAK_HEALTH_RATIO), 0, 1)
+                + .20f * body.openWoundSeverity();
+        float fatigue = Math.max(0, (25 - energy) / 25);
+        float hunger = Math.max(0, (20 - nutrition) / 20);
+        float bowel = constipated() ? .35f + .40f * (dryness - 70) / 30 : 0;
+        float drugDistress = (spicyTicks() > 0 ? .40f : 0) + (doses.withdrawing() ? .25f : 0);
+        return Math.min(1, injury + fatigue + hunger + bowel + drugDistress);
+    }
     public void drink(float relief){ doses.drink(relief); }
     public boolean canTakeDose(ItemStack dose){ return doses.canTakeDose(dose); }
     public boolean beginDose(ItemStack one,UUID player,boolean returnBottle){ return doses.beginDose(one, player, returnBottle); }

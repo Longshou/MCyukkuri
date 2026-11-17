@@ -2463,7 +2463,7 @@ _receiving_animals = (
 _receive_mother = uid(_plant_receiving, 'receive_insult')
 _receive_kin = kin_of(Mother=_receive_mother)
 add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房：收活体',
-    '进大厅右侧的收货间，用空篮装一只无主油库里，把实篮递给房里的收货员。看开篮后在眼前哭求、回嘴或噤声，核对空篮和绿宝石。'
+    '进大厅右侧的收货间，用空篮装一只带虚弱效果的无主油库里，把实篮递给房里的收货员。看开篮后在眼前哭求、回嘴或噤声，核对空篮和绿宝石。'
     '跟着收货员沿走廊去甜化箱，看他用自己的实篮装运同一只。空手可以接过员工正在搬运的实篮。'
     '对大厅右边的魔理沙用睡雾，在收货间外装篮使其归你，再交给收货员观察拒收。',
     '装篮、递篮各右键一次', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
@@ -2472,6 +2472,7 @@ add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房�
                grade=1 if name == 'receive_plea' else 0, kin=_receive_kin if name == 'receive_plea' else '')
             for name, kind, x, z, label, bold, control, friendly, *_ in _receiving_animals],
           *[set_status(name, 'mood.unease', unease) for name, _, _, _, _, _, _, _, unease, *_ in _receiving_animals],
+          *[f'effect give {sel(name)} minecraft:weakness 120' for name, *_ in _receiving_animals],
           f'data modify entity {sel("receive_plea")} YukkuriPet.SkillExperience.wait set value 24',
           yk('marisa', -5, -15, 'receive_pet', dy=2, label='大厅·魔理沙', uuid=uid(_plant_receiving, 'receive_pet'))],
     give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:sleep_spray 1'],
@@ -5161,6 +5162,33 @@ add('kindness_adoption', 'family', '孤儿分食与认养亲', '孤儿分食与�
     ], env=DAY, spot='pet_birth', vantage=(-5, 2, -120), reads=[
         ('读赤油营养', f'yukkuri status {sel("orphan")} raw'), ('读邻居照护', f'yukkuri status {sel("foster")} raw')])
 
+_basket_comparison = 'basket_weakness'
+add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输篮：健康、受伤与药睡',
+    '先用空篮点健康油，再看受伤油的表情和入篮反应。去石地放出受伤油。对第三只用喷雾，趁还没睡点一次，睡着后再试，最后也放回石地。',
+    '喷雾约 5 秒后入睡', [
+        yk('reimu', -5, 0, 'basket_healthy', uuid=uid(_basket_comparison, 'basket_healthy'), label='健康·陌生', lead=True),
+        yk('reimu', 0, 0, 'basket_injured', uuid=uid(_basket_comparison, 'basket_injured'), label='受伤·陌生', extra='Health:4.0f'),
+        yk('reimu', 5, 0, 'basket_sprayed', uuid=uid(_basket_comparison, 'basket_sprayed'), label='待喷雾·陌生'),
+        box(-6, -1, 4, -2, -1, 7, 'minecraft:stone'),
+    ], give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:sleep_spray 1'], env=DAY, vantage=(0, 7),
+    smoke=dict(ticks=240, commands=[
+        (50, 'yukkuri scenario basket plain'),
+        (55, f'yukkuri scenario basket capture {sel("basket_healthy")}'),
+        (60, f'yukkuri scenario basket capture {sel("basket_injured")}'),
+        (70, 'yukkuri scenario basket release ~-6 ~-1 ~5'),
+        (75, f'yukkuri scenario basket spray {sel("basket_sprayed")}'),
+        (76, f'yukkuri scenario basket capture {sel("basket_sprayed")}'),
+        (180, f'yukkuri scenario basket capture {sel("basket_sprayed")}'),
+        (190, 'yukkuri scenario basket release ~-2 ~-1 ~5'),
+    ], expect=[
+        rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_basket_comparison, "basket_healthy")} [^\n]* weakness=0\.0 ',
+        rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_basket_comparison, "basket_sprayed")} [^\n]* spray_delay=[1-9]\d* ',
+        *[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text(_basket_comparison, name)} [^\n]* admission={admission}\b'
+          for name, admission in (('basket_injured', 'WEAK'), ('basket_sprayed', 'UNCONSCIOUS'))],
+        *[rf'\[carrier\][^\n]* action=release result=committed target={_uuid_text(_basket_comparison, name)} [^\n]* remaining=0\b'
+          for name in ('basket_injured', 'basket_sprayed')],
+    ], forbid=[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text(_basket_comparison, "basket_healthy")}\b']))
+
 _number_scenes()
 
 
@@ -5185,7 +5213,7 @@ TOPICS = {
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
-    'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5',
+    'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
@@ -6479,7 +6507,10 @@ _plant_smoke['readout'] += [f'data get entity {sel(name)} NeoForgeData.HumanComm
 _plant_smoke['commands'] += [
     *[(45, command) for command in _plant_penned],
     (60, 'yukkuri scenario basket plain'),
+    (60, f'effect clear {sel("receive_insult")} minecraft:weakness'),
     (61, f'yukkuri scenario basket capture {sel("receive_insult")}'),
+    (62, f'effect give {sel("receive_insult")} minecraft:weakness 120'),
+    (62, f'yukkuri scenario basket capture {sel("receive_insult")}'),
     (62, 'yukkuri scenario basket plant_receive ' + _receiving_staff),
     *[(62, block) for block in _booth_obstructions],
     (63, _receive_click),
@@ -6510,6 +6541,8 @@ _plant_smoke['commands'] += [
           f'if data entity @s YukkuriFamily{{Mother:{uuid_nbt(_receive_mother)}}} '
           'if data entity @s YukkuriPet{Grade:1,SkillExperience:{wait:24}} run say MCY_PLANT_STOCK_PRESERVED'),
 ]
+_plant_smoke['expect'].append(
+    rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_plant_receiving, "receive_insult")} [^\n]* weakness=0\.0 ')
 _basket_moves = (
     ('basket_young', 0, 2, 4, 2), ('basket_baby_0', 2, 3, 4, 1), ('basket_baby_1', 3, 4, 4, 0),
     ('wild', 0, 4, 6, 2), ('basket_baby_2', 4, 5, 6, 1), ('basket_baby_3', 5, 6, 6, 0),

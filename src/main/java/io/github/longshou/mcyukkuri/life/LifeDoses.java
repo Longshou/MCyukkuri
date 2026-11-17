@@ -54,6 +54,7 @@ final class LifeDoses {
     }
 
     boolean addicted(){return addicted;}
+    boolean withdrawing(){return addicted&&sinceFlour>6000;}
 
     int flourDoses(){return flourDoses;}
 
@@ -73,7 +74,7 @@ final class LifeDoses {
         if(sinceFlour<1000000)sinceFlour++;
         if(addicted){
             // Withdrawal: shaking, restless, more stress, every half minute; after two game days clean the habit is gone.
-            if(sinceFlour>6000&&sinceFlour%600==0){o.entity().mind().add(2,"flour_withdrawal");if(!o.isSleeping())o.entity().showReaction("teary","craving",80);}
+            if(withdrawing()&&sinceFlour%600==0){o.entity().mind().add(2,"flour_withdrawal");if(!o.isSleeping())o.entity().showReaction("teary","craving",80);}
             if(sinceFlour>48000){addicted=false;flourDoses=0;}
         }
     }

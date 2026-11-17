@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Action
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -109,6 +110,8 @@ public final class PresentationArbiter {
             default -> { return e.aftermathDrain()==1?"teary":"neutral"; }
         }
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
+        if (!e.life().isSleeping() && e.life().weakness() >= YukkuriLife.WEAKNESS_WARNING)
+            return e.life().energy() <= 25 ? "sleepy" : "teary";
         String mood=e.mind().face("neutral");
         if(!mood.equals("neutral"))return mood;
         switch(e.getBehaviorId()){

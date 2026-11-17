@@ -170,6 +170,11 @@ public final class BodyLife {
     /** Physiological thresholds derive from the one live health value. */
     public boolean sick(){return toxin>=SICK_TOXIN;}
     public boolean weak(){return entity.isAlive()&&healthRatio()<=WEAK_HEALTH_RATIO;}
+    public int openWoundSeverity() {
+        int severity = 0;
+        for (var wound : wounds) if (BodySigns.open(wound)) severity = Math.max(severity, wound.severity());
+        return severity;
+    }
     public List<BodyWound> wounds(){return List.copyOf(wounds);}
     public boolean hasWound(UUID id){return wounds.stream().anyMatch(wound->wound.id().equals(id));}
     public boolean canAnchorTool(){return !dying()&&wounds.size()<MAX_WOUNDS;}

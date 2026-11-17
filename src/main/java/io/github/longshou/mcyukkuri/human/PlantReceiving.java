@@ -55,8 +55,8 @@ public final class PlantReceiving {
         return animal.status().identity().free() && !animal.profile().aquatic() && !animal.profile().dangerToYukkuri();
     }
 
-    /** In the marked booth a clerk can help load a free animal without domesticating it. */
-    public static boolean assists(ServerLevel level, YukkuriEntity animal) {
+    /** An otherwise admissible free animal caught in the booth stays unowned for the clerk to receive. */
+    public static boolean acceptsConsignment(ServerLevel level, YukkuriEntity animal) {
         if (!eligible(animal) || animal.body().dying()
                 || !animal.onGround() || animal.isVehicle() || animal.operations().active()
                 || InteractionDispatch.contactRefusal(animal) != null || ShopRegistry.get(level).protectedAt(level, animal.blockPosition()))

@@ -11,7 +11,9 @@ import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.PlantReceiving;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -41,6 +43,7 @@ public final class CarrierItem extends Item {
         private final int capacity;
         Grade(int capacity) { this.capacity = capacity; }
     }
+    private enum Admission { WILLING, UNCONSCIOUS, WEAK, REFUSED }
     private static final Map<String, Integer> STAGE_LOAD = Map.of("adult", 4, "subadult", 2, "juvenile", 2, "baby", 1);
     private final Grade grade;
 
@@ -109,33 +112,48 @@ public final class CarrierItem extends Item {
             InteractionDispatch.refuse(player, entity, "capture", "carrier_full");
             return InteractionResult.FAIL;
         }
-        // A sedated animal cannot resist; otherwise only a pet, a lost animal or a wild one that trusts the player climbs in by itself.
-        if (entity.life().sedated() || PlantReceiving.assists(level, entity)) {
-            var reason = capture(level, player, hand, stack, entity);
+        var contact = SocialDisposition.contact(entity, player);
+        float weakness = entity.life().weakness();
+        double resistance = resistance(contact);
+        var admission = admission(player, entity, weakness, resistance);
+        if (admission == Admission.WILLING) welcome(level, player, hand, stack, entity, contact);
+        else if (admission == Admission.REFUSED) refuse(level, player, entity, contact, weakness, resistance);
+        else {
+            var reason = capture(level, player, hand, stack, entity, admission);
             if (reason != null) {
                 InteractionDispatch.refuse(player,entity,"capture",reason);
                 return InteractionResult.FAIL;
             }
         }
-        else if (willing(player,entity)) welcome(level,player,hand,stack,entity);
-        else refuse(level,player,entity);
         return InteractionResult.CONSUME;
     }
-    /** Trust at which a wild animal accepts the player (the same standing threshold as adoption): trust 10, fear under 25. */
+    private static double resistance(SocialDisposition.Contact contact) {
+        // A timid body yields to moderate weakness. Defiance and esteem can shift that threshold up to .65.
+        return .35 + .15 * contact.insistence() + .10 * contact.esteem() / 100 + .05 * (1 - contact.fear() / 100.0);
+    }
+
+    private static Admission admission(Player player, YukkuriEntity entity, float weakness, double resistance) {
+        if (entity.life().drugSleep() > 0) return Admission.UNCONSCIOUS;
+        if (willing(player, entity)) return Admission.WILLING;
+        return weakness > resistance ? Admission.WEAK : Admission.REFUSED;
+    }
+
     private static boolean willing(Player player, YukkuriEntity entity) {
         var commerce = Custody.view(entity); UUID id = player.getUUID();
-        boolean known = HumanCommerce.ownedBy(entity, id) || commerce.role() == Custody.Role.LOST
-                || (commerce.owner() == null || commerce.role() == Custody.Role.PLANT_STOCK) && Bonds.trustedPlayer(entity, id);
+        var personality = entity.life().personality();
+        boolean known = commerce.ownedBy(id) && personality.trust(id) >= BondLevels.AFFINITY_NEUTRAL
+                && personality.fear(id) < BondLevels.AFFECTION_FEAR_LIMIT
+                || Bonds.trustedPlayer(entity, id);
         return known && !entity.isPanicking() && !entity.isOnFire() && entity.hurtTime == 0 && !entity.predator().active();
     }
-    private void welcome(ServerLevel level, Player player, InteractionHand hand, ItemStack stack, YukkuriEntity entity) {
+    private void welcome(ServerLevel level, Player player, InteractionHand hand, ItemStack stack, YukkuriEntity entity,
+                         SocialDisposition.Contact contact) {
         var session = scene(level, entity.getUUID());
         if (session == null) {
             InteractionDispatch.refuse(player,entity,"capture","busy");
             return;
         }
         GameplayLog.event(player,"carrier","action=capture result=accepted target={} completion=pending",entity.getUUID());
-        var contact = SocialDisposition.contact(entity, player);
         var response = contact.response(true);
         entity.playAction("basket_in");
         entity.showReaction(response == SocialDisposition.Response.GUARDED ? "teary" : "closed_smile",
@@ -143,36 +161,42 @@ public final class CarrierItem extends Item {
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 16) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
-            var reason=InteractionDispatch.reachRefusal(player,entity,4);
-            if(reason==null&&!willing(player,entity)&&!entity.life().sedated())reason=entity.isPanicking()?"fear":"condition";
-            if(reason==null)reason=capture(level,player,hand,stack,entity);
+            var reason = InteractionDispatch.reachRefusal(player, entity, 4);
+            if (reason == null) {
+                var admission = admission(player, entity, entity.life().weakness(), resistance(SocialDisposition.contact(entity, player)));
+                reason = admission == Admission.REFUSED ? entity.isPanicking() ? "fear" : "condition"
+                        : capture(level, player, hand, stack, entity, admission);
+            }
             if(reason!=null)InteractionDispatch.refuse(player,entity,"capture",reason);
             return true;
         });
     }
-    private static void refuse(ServerLevel level, Player player, YukkuriEntity entity) {
-        GameplayLog.limited(player,"carrier","unwilling",40,"action=capture result=refused target={} reason=unwilling panic={} fire={} hurt_ticks={} predator_active={} owner={} role={}",
-                entity.getUUID(),entity.isPanicking(),entity.isOnFire(),entity.hurtTime,entity.predator().active(),Custody.view(entity).owner(),Custody.view(entity).role());
+    private static void refuse(ServerLevel level, Player player, YukkuriEntity entity, SocialDisposition.Contact contact,
+                               float weakness, double resistance) {
+        var custody = Custody.view(entity);
+        GameplayLog.limited(entity, "carrier", "unwilling", 40, "action=capture result=refused target={} player={} reason=unwilling weakness={} resistance={} trust={} fear={} spray_delay={} panic={} fire={} hurt_ticks={} predator_active={} owner={} role={}",
+                entity.getUUID(), player.getUUID(), weakness, resistance, contact.closeness(), contact.fear(), entity.life().sprayDelay(),
+                entity.isPanicking(), entity.isOnFire(), entity.hurtTime, entity.predator().active(), custody.owner(), custody.role());
         var session = scene(level, entity.getUUID());
         if (session == null) {
             player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
             return;
         }
-        var contact = SocialDisposition.contact(entity, player);
         var response = contact.response(false);
         boolean mobile = canReact(entity);
-        if (mobile && entity.life().nutrition() >= 20 && response != SocialDisposition.Response.SULKY) {
+        boolean weary = weakness >= YukkuriLife.WEAKNESS_WARNING;
+        if (mobile && !weary && response != SocialDisposition.Response.SULKY) {
             entity.showReaction(response == SocialDisposition.Response.GUARDED ? YukkuriAction.TREMBLE : YukkuriAction.STRUGGLE,
                     response == SocialDisposition.Response.GUARDED ? "teary" : "angry", "basket_refuse");
         } else if (mobile) entity.showReaction("look_down", "basket_refuse", SCENE_WINDOW);
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
         GameplayLog.event(entity, "carrier", "capture reaction player={} response={} esteem={} wariness={} insistence={} nutrition={} mobile={}",
-                player.getUUID(), !mobile ? "busy" : entity.life().nutrition() < 20 ? "weary" : response.id(),
+                player.getUUID(), !mobile ? "busy" : weary ? "weary" : response.id(),
                 contact.esteem(), contact.wariness(), contact.insistence(), entity.life().nutrition(), mobile);
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 20) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
-            if (mobile && canReact(entity) && entity.life().nutrition() >= 20
+            if (mobile && !weary && canReact(entity) && entity.life().weakness() < YukkuriLife.WEAKNESS_WARNING
                     && InteractionDispatch.reachRefusal(player, entity, 4) == null) {
                 var away = Reactions.escapeStand(entity, player, 5, Set.of());
                 if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
@@ -188,7 +212,8 @@ public final class CarrierItem extends Item {
                 && entity.life().mealTicks() == 0 && !entity.body().dying() && entity.hurtTime == 0;
     }
     /** A voluntary entry rechecks the original basket and its current room at handoff. */
-    private String capture(ServerLevel level, Player player, InteractionHand hand, ItemStack stack, YukkuriEntity entity) {
+    private String capture(ServerLevel level, Player player, InteractionHand hand, ItemStack stack, YukkuriEntity entity,
+                           Admission admission) {
         if (player.getItemInHand(hand) != stack || !entity.isAlive()) return "condition";
         if (stack.getCount() != 1) return "single_carrier";
         if (!HumanCommerce.mayCapture(player, entity)) return "custody";
@@ -201,7 +226,7 @@ public final class CarrierItem extends Item {
         var role = Custody.fromData(previousCustody).role();
         if (role == Custody.Role.PLANT_STOCK && Custody.harmRefusal(player, entity, entity.blockPosition()) != null) return "custody";
         if (role == Custody.Role.PLANT_STOCK && (entity.operations().active() || InteractionDispatch.contactRefusal(entity) != null)) return "condition";
-        if (role != Custody.Role.LOST && !PlantReceiving.assists(level, entity))
+        if (role != Custody.Role.LOST && !PlantReceiving.acceptsConsignment(level, entity))
             Custody.assign(entity, player, Custody.Role.COMPANION);
         UUID token = world.capture(entity, () -> HomeClaim.displaced(entity,player));
         if (token == null) {
@@ -211,8 +236,8 @@ public final class CarrierItem extends Item {
         }
         CarrierContents.add(stack, token, world.captiveSnapshot(token));
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.captured", entity.getName()), true);
-        GameplayLog.event(player,"carrier","action=capture result=committed target={} token={} load={}->{} capacity={}",
-                entity.getUUID(),token,before,before + added,grade.capacity);
+        GameplayLog.event(player,"carrier","action=capture result=committed target={} token={} load={}->{} capacity={} admission={}",
+                entity.getUUID(),token,before,before + added,grade.capacity,admission);
         return null;
     }
     @Override public InteractionResult useOn(UseOnContext context) {
