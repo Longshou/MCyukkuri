@@ -163,6 +163,17 @@ def state(action, t, c, height):
              keyed(t, [(0, 0), (.68, 0), (.82, 2.2), (.98, -2.0), (1.16, 0), (d, 0)])]
         shift = [height*keyed(t, [(0, 0), (.68, 0), (.82, .015), (.98, -.014), (1.16, 0), (d, 0)]),
                  height*keyed(t, [(0, 0), (.36, -.045), (.58, .018), (.78, -.055), (1.08, -.02), (d, 0)])]
+    elif action == 'paper_cover_child':
+        # Stretch slightly upward to lift the mouth-held sheet clear, bow gently forward onto the baby's back at `drape`,
+        # then withdraw upright with a warm reassuring nod; Marisa's free braid steadies the corner via braid_keys.
+        reach = keyed(t, [(0, 0), (.36, .45), (.76, 1.0), (1.08, .22), (d, 0)])
+        h = keyed(t, [(0, 1), (.36, 1.05), (.76, .98), (1.08, 1.01), (d, 1)])
+        sz = (h**-.5)*(1+.028*reach)
+        s = [1/(h*sz), h, sz]
+        r = [keyed(t, [(0, 0), (.36, 2.4), (.76, -6.8), (1.08, -2.8), (1.28, -.6), (d, 0)]),
+             keyed(t, [(0, 0), (.52, 0), (.76, -1.8), (1.04, 1.5), (1.26, 0), (d, 0)]),
+             keyed(t, [(0, 0), (.52, 0), (.76, -1.2), (1.08, .8), (1.26, 0), (d, 0)])]
+        shift = [0., height*keyed(t, [(0, 0), (.36, -.028), (.76, -.068), (1.08, -.018), (d, 0)])]
     elif action == 'cold_shiver':
         # Huddled slightly forward with no emotional Y-squash: two 5.5 Hz cold shudder bursts per cycle separated by cold breaths.
         b1 = bump((t-.32)/.72) if .32 <= t <= 1.04 else 0.

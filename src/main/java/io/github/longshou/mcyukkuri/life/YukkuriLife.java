@@ -528,10 +528,19 @@ public final class YukkuriLife {
             default -> Behaviors.IDLE; };
     }
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
+    public boolean restingInPlainGap() { return foundCover.restingInPlainGap(); }
+    public boolean restingInPlainGapAt(BlockPos pos) { return foundCover.restingInPlainGapAt(pos); }
+    public boolean paperCoverFits() { return foundCover.paperCoverFits(); }
     public boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
     boolean usingPaperCoverAt(BlockPos pos) { return !paperCover.isEmpty() && foundCover.restingInPlainGapAt(pos); }
     public ItemStack paperCover() { return paperCover; }
     public int paperCoverWearBits() { return paperCover.isEmpty() ? 0 : PAPER_COVER_WEAR_BIT; }
+    public boolean canAcceptPaperCover() { return paperCover.isEmpty() && keepsPaperCover(); }
+    public boolean acceptPaperCover(ItemStack stack) {
+        if (stack == null || stack.isEmpty() || !canAcceptPaperCover()) return false;
+        setPaperCover(stack);
+        return true;
+    }
     public void setPaperCover(ItemStack stack) {
         paperCover = stack == null || stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
         entity.syncWear();

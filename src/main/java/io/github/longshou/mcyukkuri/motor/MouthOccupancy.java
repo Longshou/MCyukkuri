@@ -126,6 +126,18 @@ public final class MouthOccupancy {
         return one;
     }
 
+    /**
+     * Hands one real item of {@code purpose} to another authority in the same tick:
+     * {@code accepted} commits a 1-item copy on the receiver first; only on true is one item debited here.
+     */
+    public boolean handOne(Purpose purpose, Predicate<ItemStack> accepted) {
+        if (purpose() != purpose || items(purpose).isEmpty()) return false;
+        ItemStack one = stack(purpose).copyWithCount(1);
+        if (!accepted.test(one)) return false;
+        takeOne(purpose);
+        return true;
+    }
+
     public void clear(Purpose purpose) {
         if (purpose() == purpose) {
             held.consume();

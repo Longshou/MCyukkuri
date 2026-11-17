@@ -319,6 +319,14 @@ public final class FamilyLife {
     }
     /** An own child within 12 blocks that is waiting for this parent's care meal (not refused, not in a failed-search pause). */
     public boolean hasChildAwaitingFeed() { return adult()&&feeding.hungriestOwnChild()!=null; }
+    /** Read-only check whether an own child currently needs an executable feed or carry pickup, so shelter rest yields. */
+    public boolean hasExecutableChildCare() {
+        if (!adult()) return false;
+        var child = feeding.hungriestOwnChild();
+        if (child != null && feeding.hasOpportunity(child)) return true;
+        return ordinaryLandFree(entity) && closestSeparatedDependentChild(true) != null;
+    }
+    public boolean carryingOrLifting() { return carry.carrying() || carry.lifting(); }
     /** A dependent young with a parent of its own in follow range: it keeps to her side rather than sweeping an empty field alone. */
     public boolean keepsToParent() { return !adult()&&entity.childhood().shouldStayWithParents()&&closestParent()!=null; }
     public boolean hasUrgentlyHungryChild() {

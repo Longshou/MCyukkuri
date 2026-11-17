@@ -4937,6 +4937,30 @@
         }
       ]
     },
+    "behavior_paper_cover_child": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "paper_cover_child",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "pursed"
+            ],
+            [
+              0.36,
+              "chewing_closed"
+            ],
+            [
+              0.76,
+              "closed_smile"
+            ]
+          ]
+        }
+      ]
+    },
     "behavior_cold_shiver": {
       "loop": true,
       "steps": [
@@ -5133,6 +5157,7 @@
     "paper_pull": "behavior_paper_pull",
     "paper_place": "behavior_paper_place",
     "paper_cover": "behavior_paper_cover",
+    "paper_cover_child": "behavior_paper_cover_child",
     "cold_shiver": "behavior_cold_shiver"
   },
   "reactions": {

@@ -200,6 +200,7 @@ public enum YukkuriAction {
     MOUTH_ITEM_PLACE("mouth_item_place", 1.2, false),
     PAPER_PULL("paper_pull", 1.52, false),
     PAPER_COVER_UNDER("paper_cover_under", 1.4, false),
+    PAPER_COVER_CHILD("paper_cover_child", 1.48, false),
     COLD_SHIVER("cold_shiver", 2.4, true);
 
     private final String id;

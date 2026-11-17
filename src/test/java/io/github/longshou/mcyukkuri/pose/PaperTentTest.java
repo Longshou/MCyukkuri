@@ -258,4 +258,65 @@ class PaperTentTest {
             verifyPose(model, "cold_shiver", .6f, 1f, true, List.of(), .75, false);
         }
     }
+
+    @Test void babyScalePaperTentAndParentDrapeContactFrameHaveZeroPenetration() throws IOException {
+        JsonObject fit = readResource("/assets/mcyukkuri/yukkuri_presentation/placement_fit.json");
+        JsonObject motions = readResource("/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json");
+        JsonObject living = readResource("/assets/mcyukkuri/yukkuri_presentation/living.json");
+
+        Loaded reimu = loadModel("reimu", fit, motions, living);
+        Loaded marisa = loadModel("marisa", fit, motions, living);
+        for (Loaded m : List.of(reimu, marisa)) {
+            for (float babyScale : new float[]{.10f, .18f}) {
+                verifyPose(m, "cold_shiver", .6f, babyScale, true, List.of(), 1.0, true);
+                verifyPose(m, "tremble", .4f, babyScale, true, List.of(), 1.0, true);
+                verifyPose(m, "idle", 0f, babyScale, false, List.of(new WallYield.Face(0f, 1f, .42f, 0f, 1.0f)), 1.0, true);
+            }
+        }
+
+        // Contact frame (drape = 0.76s) of paper_cover_child: parent at flank distance d = 0.40 + 0.40*0.18 + 0.06 = 0.532 blocks
+        // facing -Z toward a 0.18x baby (turned 90 deg so parent meets baby's flank) with PaperTent equipped.
+        float spacing = (.80f + .80f * .18f) * .5f + .06f;
+        for (Loaded parent : List.of(reimu, marisa)) {
+            assertTrue(parent.clips.containsKey("paper_cover_child"), "Missing paper_cover_child on " + parent.id);
+            float[] parentVerts = posedActorVerts(parent, "paper_cover_child", .76f, 1f, true, 0f, 0f, 0f);
+            double roof = parent.id.equals("marisa") ? 1.5 : 1.0;
+            for (int i = 1; i < parentVerts.length; i += 3) {
+                assertTrue(parentVerts[i] < roof, parent.id + " crossed gap ceiling " + roof + " during paper_cover_child");
+            }
+            Geometry.Mesh parentMesh = triMesh(parentVerts, false);
+            for (Loaded babyModel : List.of(reimu, marisa)) {
+                Geometry.Mesh babyMesh = triMesh(posedActorVerts(babyModel, "cold_shiver", .6f, .18f, true, 90f, 0f, -spacing), false);
+                assertClear(parent.id + " -> baby " + babyModel.id + " body/hat/braid at drape", parentMesh, babyMesh);
+            }
+        }
+    }
+
+    private static float[] posedActorVerts(Loaded m, String clipName, float time, float scale, boolean accessory,
+                                           float yawDeg, float ox, float oz) {
+        float[][] pose = Rig.values(m.bones.length);
+        for (int i = 0; i < pose.length; i++) System.arraycopy(m.defaults[i], 0, pose[i], 0, 9);
+        m.clips.getOrDefault(clipName, m.clips.get("idle")).sample(time, pose);
+        Matrix4f[] world = Rig.matrices(m.bones.length);
+        new Compose(m.bones).world(pose, world, -1, 1, null, null);
+        m.featureTransforms.forEach((b, mat) -> Compose.feature(m.bones, world, b, mat, new Matrix4f()));
+        Matrix4f place = new Matrix4f().translation(ox, 0f, oz).rotateY((float) Math.toRadians(yawDeg)).scale(scale / 16f);
+        var partsJson = m.data.getAsJsonArray("parts");
+        List<Float> tris = new ArrayList<>();
+        Vector3f pt = new Vector3f(), scratch = new Vector3f();
+        for (int pi = 0; pi < partsJson.size(); pi++) {
+            var p = partsJson.get(pi).getAsJsonObject();
+            String name = p.get("name").getAsString();
+            if (p.has("anatomy") && !p.get("anatomy").getAsString().isEmpty()) continue;
+            if (name.contains("puff") || name.startsWith("face_")) continue;
+            if (m.accessoryPrefixes.stream().anyMatch(name::startsWith) && !accessory) continue;
+            int s = p.get("start").getAsInt(), c = p.get("count").getAsInt();
+            for (int v = s; v < s + c; v++) {
+                Skin.base(v, pt, scratch, m.rest, m.bindings, world, null, 0, null, m.features, m.featureTransforms);
+                place.transformPosition(pt);
+                tris.add(pt.x); tris.add(pt.y); tris.add(pt.z);
+            }
+        }
+        return toArray(tris);
+    }
 }

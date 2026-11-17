@@ -14,7 +14,7 @@
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
-    "paper": {"clips": ["paper_pull", "paper_cover_under", "cold_shiver"], "braid_follow": true},
+    "paper": {"clips": ["paper_pull", "paper_cover_under", "paper_cover_child", "cold_shiver"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
   "status": "pending_user_review",
@@ -7890,6 +7890,34 @@
       "lore": "Project design (N79): resting in a cold plain gap with paper, it dips its nose to catch the sheet edge, lifts its chin to flip the folded newspaper upward, and pushes forward under it at `drape` (transferring one real paper sheet into the worn paper-cover slot) with a quick nestle before settling. Composed tilt stays within 7.5 degrees.",
       "triggers": ["FoundShelter plain-gap cold cover"]
     },
+    "paper_cover_child": {
+      "label": "亲油叼报纸披在赤油身上",
+      "duration": 1.48,
+      "loop": false,
+      "applies": "not_house",
+      "markers": {
+        "drape": 0.76
+      },
+      "faces": [
+        [0, 0.36, "pursed"],
+        [0.36, 0.76, "chewing_closed"],
+        [0.76, 61.48, "closed_smile"]
+      ],
+      "variants": {
+        "marisa": {
+          "match": ["marisa"],
+          "braid_keys": [
+            [0, "rest", "stop"],
+            [0.38, {"tip": [9.1, 0.9, -5.6], "root": [0.8, -2.0, -0.8], "arrive": [-0.7, 2.0, 0.85]}],
+            [0.76, {"tip": [9.25, 0.75, -5.2], "root": [0.8, -2.0, -0.8], "arrive": [-0.72, 2.0, 0.85]}],
+            [0.98, {"tip": [9.35, 0.65, -4.1], "root": [0.75, -2.1, -0.8], "arrive": [-0.85, 2.0, 0.85]}],
+            [1.48, "rest", "stop"]
+          ]
+        }
+      },
+      "lore": "Project design (N79 two-body extension, body-is-ability): standing at its cold baby's flank in a low gap with a folded sheet in its mouth, the parent stretches slightly upward to clear the baby, bows gently forward to lay the sheet onto the baby's back at `drape` (atomically transferring one sheet from MouthOccupancy Purpose.PAPER into the baby's paperCover), and eases back with a small reassuring nod. Marisa's braid reaches beside the sheet corner when free and keeps its held-item pose when busy. Composed tilt stays within 7.5 degrees.",
+      "triggers": ["FoundShelter parent plain-gap baby cover"]
+    },
     "cold_shiver": {
       "label": "寒夜缩身阵阵发抖",
       "duration": 2.4,
@@ -8020,6 +8048,7 @@
     "sneeze_c",
     "paper_pull",
     "paper_cover_under",
+    "paper_cover_child",
     "cold_shiver"
   ],
   "braid_use": {

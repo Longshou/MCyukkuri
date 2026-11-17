@@ -88,7 +88,9 @@ public final class TemperatureLife {
         sampleTicks = 0;
         if (freezing(current.felt())) {
             int increment = entity.family().stage() == FamilyLife.Stage.BABY ? 40 : entity.family().adult() ? 20 : 30;
-            if (entity.pet().care().swaddled()) increment /= 2; // a swaddled young one takes half the cold exposure
+            if (entity.pet().care().swaddled()
+                    || entity.family().stage() == FamilyLife.Stage.BABY && entity.life().usingPaperCoverAt(entity.blockPosition()))
+                increment /= 2; // a swaddled or paper-covered baby takes half the cold exposure
             coldExposure = Math.min(1_728_000, coldExposure + increment);
             if (coldExposure >= YukkuriConfig.COLD_EXPOSURE_TICKS.get()) {
                 damageTicks += 20;
