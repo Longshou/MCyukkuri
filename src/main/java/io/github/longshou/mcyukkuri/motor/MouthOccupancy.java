@@ -90,6 +90,13 @@ public final class MouthOccupancy {
 
     public boolean freeForExternalWork() { return held.isEmpty() && !kitInMouth() && !ParentCarry.mouthCarrying(owner); }
 
+    /** Preview the normal paper set-down before another action asks for this mouth. */
+    public boolean canPutDownPaper() {
+        return purpose() == Purpose.PAPER && !kitInMouth() && !ParentCarry.mouthCarrying(owner)
+                && owner.onGround() && !owner.blockPosition().equals(paperDropRefusedAt)
+                && ItemContact.hasReleaseSupport(owner, owner.position().add(0, .02, 0));
+    }
+
     /** Use after the source and part have both been checked, in the same server step as the source debit. */
     public void set(Purpose purpose, ItemStack stack) {
         if (stack.isEmpty()) {

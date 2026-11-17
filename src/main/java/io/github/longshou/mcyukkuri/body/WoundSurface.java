@@ -18,6 +18,7 @@ import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
 import io.github.longshou.mcyukkuri.pose.Clips;
 import io.github.longshou.mcyukkuri.pose.Compose;
+import io.github.longshou.mcyukkuri.pose.LipGrip;
 import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.Skin;
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
@@ -37,12 +38,14 @@ public final class WoundSurface {
     public final String assetId;
     public record FacePart(int start,int count,int bone,int parent){}
     public final List<FacePart> faceParts;
+    private final FacePart mouthPart;
     private final JsonArray bones;
     private final Map<String,WoundMotion.Clip> clips;
     private final JsonArray envelope,accessoryPrefixes;
     private final Node tree;
     private final float[][] pivots;
     private final int[] parents;
+    private final int root;
     private record Node(float[] box,Node left,Node right,int[] triangles) {}
     public record Hit(int triangle,float u,float v,float distance) {}
     public record AttachmentLifts(Vector3f crown,Vector3f braid) {}
@@ -91,8 +94,12 @@ public final class WoundSurface {
         replaced=new HashSet<>();replacedIn.forEach(v->replaced.add(v.getAsString()));
         faceParts=new ArrayList<>();for(var rawPart:partsIn){var p=rawPart.getAsJsonObject();
                 faceParts.add(new FacePart(p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("bone").getAsInt(),p.get("parent").getAsInt()));}
+        mouthPart = faceParts.stream().filter(p -> bones.get(p.bone()).getAsJsonObject().get("name").getAsString()
+                .equals("face_mouth")).findFirst().orElse(null);
         pivots=new float[bones.size()][];parents=new int[bones.size()];
         for(int i=0;i<pivots.length;i++){var b=bones.get(i).getAsJsonObject();pivots[i]=floats(b.getAsJsonArray("pivot"));parents[i]=b.get("parent").getAsInt();}
+        root = IntStream.range(0, bones.size()).filter(i -> bones.get(i).getAsJsonObject().get("name").getAsString()
+                .equals("root")).findFirst().orElseThrow();
         tree=tree(IntStream.range(0,skinCount/3).map(i->i*3).boxed().toArray(Integer[]::new),0,skinCount/3);
     }
     private static float[] readFloats(JsonReader in)throws IOException{
@@ -355,11 +362,29 @@ public final class WoundSurface {
                 PregnancyAttachments.braidLift(root,belly,braid<0?null:values[braid]));
     }
     public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,"",0);}
+    public Matrix4f rootAt(String action, float elapsed) { return pose(action, elapsed)[root]; }
     public Matrix4f[] pose(String action,float elapsed,String hatMotion,float hatPhase){
-        var values=poseValues(action,elapsed,hatMotion,hatPhase);var world=new Matrix4f[bones.size()];
+        return composePose(poseValues(action,elapsed,hatMotion,hatPhase));
+    }
+    private Matrix4f[] composePose(float[][] values){
+        var world=new Matrix4f[bones.size()];
         for(int i=0;i<world.length;i++){var p=pivots[i];int parent=
                 parents[i];var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);Compose.woundLocal(world[i],p,v);
         }return world;
+    }
+    public Vector3f heldLip(String action, float elapsed, float pregnancy) {
+        var values = poseValues(action, elapsed, "", 0);
+        values[mouthPart.bone()][7] *= LipGrip.HELD_HEIGHT;
+        var world = composePose(values);
+        var grip = new LipGrip(world[mouthPart.bone()]);
+        // The held-mouth expression uses the baked lip vertices. Its closing pose was applied above.
+        for (int i = mouthPart.start(); i < mouthPart.start() + mouthPart.count(); i++) {
+            var point = new Vector3f(points[i * 5], points[i * 5 + 1], points[i * 5 + 2]);
+            Skin.deformPregnancy(point, pregnancy, 0);
+            world[mouthPart.bone()].transformPosition(point);
+            grip.include(point);
+        }
+        return grip.point();
     }
     /** Compose an authored stable root track on the selected common-side skeleton. */
     public Matrix4f rootPose(float[] values){

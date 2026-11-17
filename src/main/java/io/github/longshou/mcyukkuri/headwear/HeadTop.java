@@ -3,6 +3,10 @@ package io.github.longshou.mcyukkuri.headwear;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.body.WoundPlacement;
+import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
+import io.github.longshou.mcyukkuri.pose.LipGrip;
+import io.github.longshou.mcyukkuri.pose.Rig;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +14,8 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -26,6 +32,7 @@ public final class HeadTop {
     private static final double BODY_UNITS = 9.6;
     private static final Map<String, JsonObject> PROPS = new ConcurrentHashMap<>();
     private static final Map<String, double[]> EXTENT = new ConcurrentHashMap<>();
+    private static final Map<String, float[]> MESH = new ConcurrentHashMap<>();
 
     /** Blocks from the feet to the highest worn point. */
     public static double height(YukkuriEntity y) {
@@ -78,6 +85,52 @@ public final class HeadTop {
             reach = Math.max(reach, Math.hypot(p.x, p.z)); top = Math.max(top, p.y);
         }
         return new double[]{reach, top};
+    }
+
+    /** The worn triangles at the actual action pose, in blocks relative to the feet. */
+    private static Vector3f[] posed(YukkuriEntity y, Matrix4f root, float yaw) {
+        String asset = y.assetId();
+        var junk = y.life().custody().junk();
+        if (junk == null && !y.life().hasAccessory()) return new Vector3f[0];
+        String name = junk == null ? "accessory_" + asset : "junk_" + junk.id();
+        var points = MESH.computeIfAbsent(name, key -> Rig.floats(prop(key).getAsJsonArray("vertices")));
+        var toModel = junk == null ? new Matrix4f().scale(HatScale.of(y.growthScale(), y.subspeciesFlags()) / y.growthScale())
+                : new Matrix4f().scale(16).mul(WornSeat.read(prop(name).getAsJsonObject("anchors").getAsJsonObject(asset)).matrix())
+                        .scale(1f / 16);
+        var transform = new Matrix4f().rotateY((float) Math.toRadians(y.bodyYaw() - yaw))
+                .mul(WoundPlacement.transform(y)).mul(root)
+                .translate(PregnancyAttachments.crownLift(asset, y.livePregnancyProgress(), null)).mul(toModel);
+        var mesh = new Vector3f[points.length / 8];
+        for (int i = 0; i < mesh.length; i++)
+            mesh[i] = transform.transformPosition(new Vector3f(points[i * 8], points[i * 8 + 1], points[i * 8 + 2]));
+        return mesh;
+    }
+
+    /** A sheet can touch the baby's worn brim where it meets the back without having to pass through the hat. */
+    public static Vec3 nearestWornPoint(YukkuriEntity y, Vec3 point) {
+        var mesh = posed(y, WoundPlacement.posedRoot(y), y.bodyYaw());
+        return mesh.length == 0 ? null : y.position().add(new Vec3(LipGrip.closestPoint(mesh, point.subtract(y.position()).toVector3f())));
+    }
+
+    /** Checks every posed worn triangle's bounds against actual overhead collision, keeping thin brim and tall crown separate. */
+    public static boolean clearsOverhead(YukkuriEntity y, Vec3 feet, float yaw, Matrix4f root) {
+        var mesh = posed(y, root, yaw);
+        if (mesh.length == 0) return true;
+        var low = new Vector3f(mesh[0]);
+        var high = new Vector3f(mesh[0]);
+        for (var point : mesh) { low.min(point); high.max(point); }
+        var bounds = new AABB(new Vec3(low).add(feet), new Vec3(high).add(feet));
+        for (var shape : y.level().getBlockCollisions(y, bounds)) for (var block : shape.toAabbs()) {
+            // The supported body stand and wall-yield presentation own the side wall below this level.
+            if (block.minY < feet.y + y.getBbHeight()) continue;
+            for (int i = 0; i < mesh.length; i += 3) {
+                low.set(mesh[i]).min(mesh[i + 1]).min(mesh[i + 2]);
+                high.set(mesh[i]).max(mesh[i + 1]).max(mesh[i + 2]);
+                if (block.intersects(low.x + feet.x, low.y + feet.y, low.z + feet.z,
+                        high.x + feet.x, high.y + feet.y, high.z + feet.z)) return false;
+            }
+        }
+        return true;
     }
 
     private static JsonObject prop(String prop) {

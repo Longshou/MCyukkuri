@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import io.github.longshou.mcyukkuri.body.WoundPlacement;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.body.PaperCeiling;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
@@ -31,6 +33,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.pose.PaperTent;
+import io.github.longshou.mcyukkuri.pose.LipGrip;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -51,6 +54,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
@@ -73,6 +77,8 @@ public final class FoundShelter implements MotorOwner {
     private static final int RADIUS = 8, CONTEST_REST = 1200, BLOCKED_REST = 2400;
     private static final float LEAVE_HUNGRY = 25, SEEK_HUNGRY = 30, EXHAUSTED_PAPER_SLEEP_ENERGY = 15;
     private static final double SNIFF_REACH = .4;
+    // The mouth and brim can meet inside a much smaller interval than an ordinary walking step.
+    private static final double PAPER_CONTACT_STEP = SurfaceApproach.ARRIVAL / 10;
     private enum Phase { APPROACH, SNIFF, WAIT, PULL_PAPER, ENTER, PLACE_PAPER, DRAPE_CHILD, REST, EXIT, STEP_DOWN }
     public enum Step { ACTIVE, RESTING, ENDED }
 
@@ -457,15 +463,17 @@ public final class FoundShelter implements MotorOwner {
 
     private ItemEntity groundSheetForCover(BlockPos pos, UUID source) {
         if (triedGroundPaper.size() >= 8 || paperCountAt(pos) <= otherBeddingUsersAt(pos)) return null;
-        Vec3 mouth = MouthPlacement.position(body);
-        AABB reachBox = body.getBoundingBox().inflate(0.55, 0.3, 0.55);
         return level().getEntitiesOfClass(ItemEntity.class, new AABB(pos),
                         item -> item.isAlive() && item.getItem().is(Items.PAPER) && !item.getItem().isEmpty()
                                 && (source == null || source.equals(item.getUUID()))
                                 && !triedGroundPaper.contains(item.getUUID())
-                                && item.getBoundingBox().intersects(reachBox)
-                                && ItemContact.clear(body, mouth, item.position().add(0, 0.06, 0)))
+                                && groundPaperInReach(body, item.position(), item.getBoundingBox()))
                 .stream().min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+    }
+
+    private static boolean groundPaperInReach(YukkuriEntity wearer, Vec3 at, AABB item) {
+        return item.intersects(wearer.getBoundingBox().inflate(.55, .3, .55))
+                && ItemContact.clear(wearer, MouthPlacement.position(wearer), at.add(0, .06, 0));
     }
 
     private boolean humanNearStack(YukkuriEntity actor, BlockPos stackPos) {
@@ -544,7 +552,8 @@ public final class FoundShelter implements MotorOwner {
     private boolean familyDutyPreempts(boolean periodicScan) {
         if (body.family().active() || body.family().carryingOrLifting() || body.woundComfort().active()) return true;
         if (!periodicScan || body.life().hasUrgentNeed()) return false;
-        return body.woundComfort().plan() || body.family().hasExecutableChildCare();
+        return body.woundComfort().plan() || body.family().hasExecutableChildCare()
+                && body.component(YukkuriComponents.MOUTH).releaseItems(MouthOccupancy.Purpose.PAPER, 20);
     }
 
     private static double ramp(double value, double low, double high) {
@@ -598,11 +607,13 @@ public final class FoundShelter implements MotorOwner {
                         && samePlainGap(gap, y.blockPosition())).isEmpty();
     }
 
-    private boolean headwearClearsOverhead(Vec3 stand) {
-        double half = body.getBbWidth() * 0.5;
-        var column = new AABB(stand.x - half, stand.y + 1e-4, stand.z - half,
-                stand.x + half, stand.y + HeadTop.height(body) + 0.02, stand.z + half);
-        return !level().getBlockCollisions(body, column).iterator().hasNext();
+    private boolean headwearClearsOverhead(Vec3 stand, float yaw, String clip, int marker) {
+        return HeadTop.clearsOverhead(body, stand, yaw, WoundSurface.get(body.assetId()).rootAt(clip, marker / 20f));
+    }
+
+    private double flankSpacing(YukkuriEntity baby) {
+        // Clearance for the hair and brim overhanging the infant's collision box at the drape frame.
+        return (body.getBbWidth() + baby.getBbWidth()) * .5 + .068 * body.growthScale() * body.getScale();
     }
 
     private Vec3 flankStandForBaby(YukkuriEntity baby) {
@@ -618,7 +629,7 @@ public final class FoundShelter implements MotorOwner {
         Direction[] flanks = wallSide != null
                 ? new Direction[]{wallSide.getClockWise(), wallSide.getCounterClockWise(), wallSide.getOpposite()}
                 : new Direction[]{Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH};
-        double spacing = (body.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.068;
+        double spacing = flankSpacing(baby) + 2 * PAPER_CONTACT_STEP;
         double mouthOffsetY = Math.max(0.05, MouthPlacement.position(body).y - body.getY());
         Vec3 babyBack = baby.position().add(0, baby.getBbHeight() * 0.7, 0);
         Vec3 best = null;
@@ -628,7 +639,8 @@ public final class FoundShelter implements MotorOwner {
             Vec3 stand = SurfaceApproach.floor(body, probe);
             if (stand == null || Math.abs(stand.y - baby.getY()) > 0.18) continue;
             if (!samePlainGap(gap, BlockPos.containing(stand)) || !availableStand(stand)) continue;
-            if (!headwearClearsOverhead(stand)) continue;
+            if (!headwearClearsOverhead(stand, SurfaceApproach.yaw(stand, baby.position()),
+                    DrapeChildAction.CLIP, DrapeChildAction.DRAPE_TICK)) continue;
             Vec3 mouthAtStand = stand.add(0, mouthOffsetY, 0);
             if (level().clip(new ClipContext(mouthAtStand, babyBack,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body)).getType() != HitResult.Type.MISS)
@@ -644,19 +656,18 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private Vec3 layBesideBabyStand(YukkuriEntity baby) {
-        BlockPos babyCell = baby.blockPosition();
-        double mouthOffsetY = Math.max(0.05, MouthPlacement.position(body).y - body.getY());
-        Vec3 target = Vec3.atBottomCenterOf(babyCell).add(0, 0.08, 0);
+        Vec3 center = Vec3.atBottomCenterOf(baby.blockPosition());
+        double insideEdge = .5 - 2 * SurfaceApproach.ARRIVAL;
         Vec3 best = null;
         double bestDist = Double.POSITIVE_INFINITY;
         for (Direction side : Direction.Plane.HORIZONTAL) {
-            BlockPos adj = babyCell.relative(side);
-            Vec3 stand = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(adj));
-            if (stand == null || Math.abs(stand.y - baby.getY()) > 0.35 || !availableStand(stand)) continue;
-            if (!headwearClearsOverhead(stand)) continue;
-            if (level().clip(new ClipContext(stand.add(0, mouthOffsetY, 0), target,
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body)).getType() != HitResult.Type.MISS)
-                continue;
+            Vec3 edge = center.add(side.getStepX() * insideEdge, 0, side.getStepZ() * insideEdge);
+            float yaw = SurfaceApproach.yaw(edge, center);
+            Vec3 mouth = layLipOffset(yaw);
+            Vec3 stand = SurfaceApproach.floor(body, edge.subtract(mouth.x, 0, mouth.z));
+            if (stand == null || !availableStand(stand)
+                    || !headwearClearsOverhead(stand, yaw, LayBesideBabyAction.CLIP, LayBesideBabyAction.RELEASE_TICK)
+                    || !canLayForBaby(baby, stand.add(mouth))) continue;
             if (!SurfaceApproach.at(body, stand) && !SurfaceApproach.canApproach(body, stand)) continue;
             double dist = body.position().distanceToSqr(stand);
             if (dist < bestDist) {
@@ -667,23 +678,20 @@ public final class FoundShelter implements MotorOwner {
         return best;
     }
 
-    private boolean liveBabyFlankContact(YukkuriEntity actor, YukkuriEntity baby, boolean requireFacing) {
-        if (!actor.onGround() || actor.isPassenger() || actor.isInWaterOrBubble() || actor.isOnFire()) return false;
-        if (!baby.isAlive() || baby.level() != actor.level() || !baby.life().canAcceptPaperCover()
-                || !samePlainGap(gap, baby.blockPosition())) return false;
-        Vec3 delta = baby.position().subtract(actor.position()).multiply(1, 0, 1);
-        double dist = delta.length();
-        double min = Math.max(0.18, (actor.getBbWidth() + baby.getBbWidth()) * 0.5 - 0.03);
-        double max = (actor.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.24;
-        if (dist < min || dist > max || Math.abs(actor.getY() - baby.getY()) > 0.22) return false;
-        if (requireFacing) {
-            Vec3 forward = Vec3.directionFromRotation(0, actor.getYHeadRot()).multiply(1, 0, 1).normalize();
-            if (forward.dot(delta.scale(1 / dist)) < 0.75) return false;
-        }
-        Vec3 mouth = MouthPlacement.position(actor);
-        Vec3 babyBack = baby.position().add(0, baby.getBbHeight() * 0.7, 0);
-        return actor.level().clip(new ClipContext(mouth, babyBack,
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor)).getType() == HitResult.Type.MISS;
+    private boolean paperActionStand(YukkuriEntity baby) {
+        return body.onGround() && !body.isPassenger() && !body.isInWaterOrBubble() && !body.isOnFire()
+                && baby.onGround() && baby.life().canAcceptPaperCover();
+    }
+
+    private Vec3 layLipOffset(float yaw) {
+        return MouthPlacement.heldOffset(body, LayBesideBabyAction.CLIP, LayBesideBabyAction.RELEASE_TICK / 20f, yaw);
+    }
+
+    private boolean canLayForBaby(YukkuriEntity baby, Vec3 lip) {
+        Vec3 landing = ItemContact.releaseSurface(body, lip);
+        return landing != null && baby.blockPosition().equals(BlockPos.containing(landing.add(0, .01, 0)))
+                && !level().getBlockCollisions(body, EntityType.ITEM.getDimensions().makeBoundingBox(lip)).iterator().hasNext()
+                && groundPaperInReach(baby, landing, EntityType.ITEM.getDimensions().makeBoundingBox(landing));
     }
 
     private YukkuriEntity liveBabyTarget(UUID id) {
@@ -706,21 +714,31 @@ public final class FoundShelter implements MotorOwner {
                     baby.getUUID(), GameplayLog.at(flank), baby.blockPosition());
             return Step.ACTIVE;
         }
-        Vec3 lay = layBesideBabyStand(baby);
-        if (lay != null) {
-            drapeChild = baby.getUUID();
-            drapeLayFallback = true;
-            drapeAction = null;
-            aim = lay;
-            phase = Phase.DRAPE_CHILD;
-            began = now();
-            failures = 0;
-            GameplayLog.event(body, "habitat", "baby paper lay fallback approach child={} stand={} gap={}",
-                    baby.getUUID(), GameplayLog.at(lay), baby.blockPosition());
-            return Step.ACTIVE;
-        }
+        if (beginLayBesideBaby(baby)) return Step.ACTIVE;
         triedChildDrape.add(baby.getUUID());
         return null;
+    }
+
+    private boolean beginLayBesideBaby(YukkuriEntity baby) {
+        Vec3 lay = layBesideBabyStand(baby);
+        if (lay == null) return false;
+        drapeChild = baby.getUUID();
+        drapeLayFallback = true;
+        drapeAction = null;
+        aim = lay;
+        phase = Phase.DRAPE_CHILD;
+        began = now();
+        failures = 0;
+        GameplayLog.event(body, "habitat", "baby paper lay fallback approach child={} stand={} gap={}",
+                baby.getUUID(), GameplayLog.at(lay), baby.blockPosition());
+        return true;
+    }
+
+    private Step declineChildDrape() {
+        var baby = liveBabyTarget(drapeChild);
+        if (!drapeLayFallback && holdingPaper() && baby != null && beginLayBesideBaby(baby)) return Step.ACTIVE;
+        triedChildDrape.add(drapeChild);
+        return returnFromChildDrape();
     }
 
     private Step returnFromChildDrape() {
@@ -976,7 +994,9 @@ public final class FoundShelter implements MotorOwner {
             return Step.RESTING;
         }
         if (phase == Phase.DRAPE_CHILD) {
-            if (familyDutyPreempts(body.tickCount % 20 == 0)) {
+            boolean contactDue = drapeAction instanceof DrapeChildAction drape && drape.ticks == DrapeChildAction.DRAPE_TICK
+                    || drapeAction instanceof LayBesideBabyAction lay && lay.ticks == LayBesideBabyAction.RELEASE_TICK;
+            if (familyDutyPreempts(contactDue || body.tickCount % 20 == 0)) {
                 leave("family_duty");
                 return Step.ENDED;
             }
@@ -984,51 +1004,27 @@ public final class FoundShelter implements MotorOwner {
                 if (body.motor().current() == drapeAction) return Step.ACTIVE;
                 boolean ok = drapeAction instanceof DrapeChildAction dc ? dc.draped
                         : drapeAction instanceof LayBesideBabyAction lb && lb.placed;
-                if (ok) drapedChildInRest = true;
-                else if (drapeChild != null) triedChildDrape.add(drapeChild);
+                if (!ok) return declineChildDrape();
+                drapedChildInRest = true;
                 return returnFromChildDrape();
             }
             YukkuriEntity baby = liveBabyTarget(drapeChild);
             if (baby == null || !holdingPaper()) {
-                if (drapeChild != null) triedChildDrape.add(drapeChild);
+                triedChildDrape.add(drapeChild);
                 return returnFromChildDrape();
             }
             var approach = SurfaceApproach.walkToContact(body, aim, baby, 1);
-            boolean reached = approach == SurfaceApproach.Result.ARRIVED && body.onGround()
-                    || !drapeLayFallback && liveBabyFlankContact(body, baby, false);
-            if (approach == SurfaceApproach.Result.BLOCKED || now() - began > 200) {
-                if (!drapeLayFallback) {
-                    Vec3 lay = layBesideBabyStand(baby);
-                    if (lay != null) {
-                        drapeLayFallback = true;
-                        aim = lay;
-                        began = now();
-                        GameplayLog.event(body, "habitat", "baby paper lay fallback approach child={} stand={} gap={}",
-                                baby.getUUID(), GameplayLog.at(lay), baby.blockPosition());
-                        return Step.ACTIVE;
-                    }
-                }
-                triedChildDrape.add(drapeChild);
-                return returnFromChildDrape();
-            }
-            if (!reached) return Step.ACTIVE;
+            if (approach == SurfaceApproach.Result.BLOCKED || now() - began > 200) return declineChildDrape();
+            if (approach != SurfaceApproach.Result.ARRIVED || !body.onGround()) return Step.ACTIVE;
+            if (!SurfaceApproach.at(body, aim)) return declineChildDrape();
+            if (!drapeLayFallback && body.position().subtract(aim).horizontalDistanceSqr() > PAPER_CONTACT_STEP * PAPER_CONTACT_STEP)
+                return SurfaceApproach.tryStraightStep(body, aim, 1) ? Step.ACTIVE : declineChildDrape();
             SurfaceApproach.halt(body);
             drapeAction = drapeLayFallback
-                    ? new LayBesideBabyAction(drapeChild, baby.blockPosition())
+                    ? new LayBesideBabyAction(drapeChild)
                     : new DrapeChildAction(drapeChild);
             if (!body.motor().run(this, drapeAction)) {
-                drapeAction = null;
-                if (!drapeLayFallback) {
-                    Vec3 lay = layBesideBabyStand(baby);
-                    if (lay != null) {
-                        drapeLayFallback = true;
-                        aim = lay;
-                        began = now();
-                        return Step.ACTIVE;
-                    }
-                }
-                triedChildDrape.add(drapeChild);
-                return returnFromChildDrape();
+                return declineChildDrape();
             }
             return Step.ACTIVE;
         }
@@ -1517,10 +1513,10 @@ public final class FoundShelter implements MotorOwner {
 
     private final class DrapeChildAction implements Action {
         private static final String CLIP = YukkuriAction.PAPER_COVER_CHILD.id();
+        private static final ClipMarkers.Clip MARKS = ClipMarkers.of(CLIP);
+        private static final int LENGTH = MARKS.length();
+        private static final int DRAPE_TICK = MARKS.ticks("drape", Math.max(1, LENGTH / 2));
         private final UUID childId;
-        private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
-        private final int length = Math.max(1, marks.length());
-        private final int drapeTick = marks.ticks("drape", Math.max(1, length / 2));
         private long startTick;
         private int ticks;
         private boolean draped;
@@ -1531,7 +1527,7 @@ public final class FoundShelter implements MotorOwner {
 
         @Override public Feasibility check(YukkuriEntity actor) {
             YukkuriEntity baby = liveBabyTarget(childId);
-            if (baby == null || !liveBabyFlankContact(actor, baby, false))
+            if (baby == null || !paperActionStand(baby))
                 return Feasibility.of(Reason.NO_CONTACT, 0, "child_contact_required");
             if (!holdingPaper())
                 return Feasibility.of(Reason.NO_CONTACT, 0, "mouth_empty");
@@ -1549,60 +1545,56 @@ public final class FoundShelter implements MotorOwner {
             Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
             if (!draped) {
                 YukkuriEntity baby = liveBabyTarget(childId);
-                if (baby == null) return Outcome.of(Reason.NO_CONTACT, 0, "child_unavailable");
+                if (baby == null || !paperActionStand(baby)) return Outcome.of(Reason.NO_CONTACT, 0, "child_unavailable");
                 Motor.face(actor, SurfaceApproach.yaw(actor.position(), baby.position()));
-                if (!liveBabyFlankContact(actor, baby, ticks >= drapeTick))
-                    return Outcome.of(Reason.NO_CONTACT, 0, "child_contact_lost");
-                if (ticks >= drapeTick) {
+                if (ticks >= DRAPE_TICK) {
+                    if (!availableStand(actor.position()) || actor.position().subtract(baby.position()).horizontalDistance() < flankSpacing(baby)
+                            || !headwearClearsOverhead(actor.position(), actor.bodyYaw(), CLIP, DRAPE_TICK))
+                        return Outcome.of(Reason.NO_ROOM, 0, "live_drape_clearance");
+                    Vec3 lip = actor.position().add(MouthPlacement.heldOffset(actor, CLIP, DRAPE_TICK / 20f, actor.bodyYaw()));
+                    double scale = actor.growthScale() * actor.getScale();
+                    Vec3 skin = WoundPlacement.skinBetween(baby, lip, baby.getBoundingBox().getCenter());
+                    Vec3 contact = skin != null && LipGrip.reaches(lip.distanceTo(skin), scale)
+                            ? skin : HeadTop.nearestWornPoint(baby, lip);
+                    if (contact == null || !LipGrip.reaches(lip.distanceTo(contact), scale) || !ItemContact.clear(actor, lip, contact))
+                        return Outcome.of(Reason.NO_CONTACT, 0, "child_contact_lost lip=" + GameplayLog.at(lip)
+                                + (contact == null ? " contact=none" : " lip_gap=" + lip.distanceTo(contact)));
                     var mouth = actor.component(YukkuriComponents.MOUTH);
                     BlockPos babyGap = baby.blockPosition();
                     if (!mouth.handOne(MouthOccupancy.Purpose.PAPER, one -> {
                         if (!baby.life().acceptPaperCover(one)) return false;
-                        GameplayLog.event(actor, "habitat", "paper cover draped on child={} item={} count=1 at={}",
-                                baby.getUUID(), one.getItem(), babyGap);
+                        GameplayLog.event(actor, "habitat", "paper cover draped on child={} item={} count=1 at={} lip={} contact={} lip_gap={}",
+                                baby.getUUID(), one.getItem(), babyGap, GameplayLog.at(lip), GameplayLog.at(contact), lip.distanceTo(contact));
                         return true;
                     })) return Outcome.of(Reason.NO_CONTACT, 0, "drape_rejected");
                     draped = true;
                 }
             }
-            if (++ticks >= length) return new Outcome.Done("child=" + childId);
-            return new Running(length - ticks, TravelMode.PASS);
+            if (++ticks >= LENGTH) return new Outcome.Done("child=" + childId);
+            return new Running(LENGTH - ticks, TravelMode.PASS);
         }
 
         @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
-        @Override public String startDetail() { return "child=" + childId + " clipTicks=" + length; }
+        @Override public String startDetail() { return "child=" + childId + " clipTicks=" + LENGTH; }
     }
 
     private final class LayBesideBabyAction implements Action {
         private static final String CLIP = YukkuriAction.MOUTH_ITEM_PLACE.id();
+        private static final ClipMarkers.Clip MARKS = ClipMarkers.of(CLIP);
+        private static final int LENGTH = MARKS.length();
+        private static final int RELEASE_TICK = MARKS.ticks("release", Math.max(1, LENGTH / 2));
         private final UUID childId;
-        private final BlockPos babyGap;
-        private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
-        private final int length = Math.max(1, marks.length());
-        private final int releaseTick = marks.ticks("release", Math.max(1, length / 2));
         private long startTick;
         private int ticks;
         private boolean placed;
 
-        LayBesideBabyAction(UUID childId, BlockPos babyGap) {
-            this.childId = childId;
-            this.babyGap = babyGap.immutable();
-        }
+        LayBesideBabyAction(UUID childId) { this.childId = childId; }
 
         @Override public String id() { return CLIP; }
 
-        private boolean canReachBabyGap(YukkuriEntity actor) {
-            if (!actor.onGround() || actor.isPassenger() || actor.isInWaterOrBubble() || actor.isOnFire()
-                    || !plainGapAt(babyGap)) return false;
-            Vec3 center = Vec3.atBottomCenterOf(babyGap);
-            if (actor.position().subtract(center).horizontalDistance() > 1.35 || Math.abs(actor.getY() - center.y) > 0.35)
-                return false;
-            return actor.level().clip(new ClipContext(MouthPlacement.position(actor), center.add(0, 0.08, 0),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor)).getType() == HitResult.Type.MISS;
-        }
-
         @Override public Feasibility check(YukkuriEntity actor) {
-            if (!canReachBabyGap(actor))
+            var baby = liveBabyTarget(childId);
+            if (baby == null || !paperActionStand(baby))
                 return Feasibility.of(Reason.NO_CONTACT, 0, "baby_gap_unreachable");
             if (!holdingPaper())
                 return Feasibility.of(Reason.NO_CONTACT, 0, "mouth_empty");
@@ -1618,31 +1610,33 @@ public final class FoundShelter implements MotorOwner {
 
         @Override public Progress tick(YukkuriEntity actor) {
             Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
-            Vec3 center = Vec3.atBottomCenterOf(babyGap);
             if (!placed) {
-                if (!canReachBabyGap(actor) || liveBabyTarget(childId) == null)
+                var baby = liveBabyTarget(childId);
+                if (baby == null || !paperActionStand(baby))
                     return Outcome.of(Reason.NO_CONTACT, 0, "baby_gap_lost");
+                Vec3 center = Vec3.atBottomCenterOf(baby.blockPosition());
                 Motor.face(actor, SurfaceApproach.yaw(actor.position(), center));
-                if (ticks >= releaseTick) {
+                if (ticks >= RELEASE_TICK) {
+                    Vec3 lip = actor.position().add(layLipOffset(actor.bodyYaw()));
+                    if (!headwearClearsOverhead(actor.position(), actor.bodyYaw(), CLIP, RELEASE_TICK) || !canLayForBaby(baby, lip))
+                        return Outcome.of(Reason.NO_CONTACT, 0, "baby_cannot_reach_drop");
                     var mouth = actor.component(YukkuriComponents.MOUTH);
-                    Vec3 dropPos = center.lerp(new Vec3(actor.getX(), center.y, actor.getZ()), 0.18).add(0, 0.02, 0);
                     if (!mouth.handOne(MouthOccupancy.Purpose.PAPER, one -> {
-                        var drop = ItemContact.hasReleaseSupport(actor, dropPos)
-                                ? ItemContact.release(actor, one, dropPos, Vec3.ZERO) : null;
+                        var drop = ItemContact.release(actor, one, lip, Vec3.ZERO);
                         if (drop == null) return false;
                         drop.setPickUpDelay(20);
                         GameplayLog.event(actor, "habitat", "paper laid beside baby; drop item={} count=1 child={} at={} drop={}",
-                                one.getItem(), childId, babyGap, drop.getUUID());
+                                one.getItem(), childId, GameplayLog.at(lip), drop.getUUID());
                         return true;
                     })) return Outcome.of(Reason.NO_ROOM, 0, "drop_refused");
                     placed = true;
                 }
             }
-            if (++ticks >= length) return new Outcome.Done("babyGap=" + babyGap);
-            return new Running(length - ticks, TravelMode.PASS);
+            if (++ticks >= LENGTH) return new Outcome.Done("child=" + childId);
+            return new Running(LENGTH - ticks, TravelMode.PASS);
         }
 
         @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
-        @Override public String startDetail() { return "babyGap=" + babyGap + " clipTicks=" + length; }
+        @Override public String startDetail() { return "child=" + childId + " clipTicks=" + LENGTH; }
     }
 }

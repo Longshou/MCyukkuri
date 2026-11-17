@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.pose.Intensity;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.PaperTent;
+import io.github.longshou.mcyukkuri.pose.LipGrip;
 import io.github.longshou.mcyukkuri.pose.Rig;
 import io.github.longshou.mcyukkuri.pose.Rig.Bone;
 import io.github.longshou.mcyukkuri.pose.Skin;
@@ -570,21 +571,15 @@ public final class YukkuriModel {
     /** The current grip at the posed braid tuft, in blocks; absent while she holds nothing. */
     public Matrix4f itemAttachmentPose() { return itemAttachment; }
     private void captureMouthAttachment() {
-        Vector3f low=new Vector3f(Float.POSITIVE_INFINITY),high=new Vector3f(Float.NEGATIVE_INFINITY),point=new Vector3f();
+        Vector3f point=new Vector3f();
         int mouthBone=rootBone();boolean found=false;
         for(int i=0;i<bones.length;i++)if(bones[i].name().equals(LivingPresentation.mouthBone)){mouthBone=i;break;}
-        var rotation=new Quaternionf().setFromUnnormalized(world[mouthBone]);
-        var inverse=new Quaternionf(rotation).conjugate();
+        var grip=new LipGrip(world[mouthBone]);
         for(var part:parts)if(part.name.equals("face_mouth"))
-            for(int i=part.start;i<part.start+part.count;i++){skin(i,point);inverse.transform(point);low.min(point);high.max(point);found=true;}
-        Vector3f center=mouthPoint().div(16);
-        if(found){
-            // Keep the bite on the outer lip plane, not halfway inside the curved cheeks.
-            float lip=low.z;center.set(low).add(high).mul(.5f);center.z=lip;
-            rotation.transform(center);center.div(16);
-        }
+            for(int i=part.start;i<part.start+part.count;i++){skin(i,point);grip.include(point);found=true;}
+        Vector3f center=(found?grip.point():mouthPoint()).div(16);
         // A rigid object turns with the mouth, but lip closing must not squash that object.
-        mouthAttachment.translationRotate(center,rotation);
+        mouthAttachment.translationRotate(center,grip.rotation());
     }
     /** Idle face distance from the root, measured from the selected mesh in blocks. */
     public float faceDepth() {
@@ -1091,7 +1086,7 @@ public final class YukkuriModel {
             for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=1+.3f*carryMouth;
         }
         else if(mouthHolding){
-            for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=.45f;
+            for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=LipGrip.HELD_HEIGHT;
         }
         var hat=HatGeometry.worn(id);
         if(hat!=null&&!hatMotion.isEmpty()){

@@ -35,6 +35,12 @@ public final class MouthPlacement {
         LiveBirthGeometry.deform(point,entity.livePregnancyProgress(),0);
         return entity.position().add(new Vec3(WoundPlacement.transform(entity).transformPosition(point)));
     }
+    /** The held paper follows the posed lips of its action, including while the actor is still turning into place. */
+    public static Vec3 heldOffset(YukkuriEntity entity, String clip, float time, float yaw) {
+        var lip = WoundSurface.get(entity.assetId()).heldLip(clip, time, entity.livePregnancyProgress());
+        return new Vec3(WoundPlacement.transform(entity).transformPosition(lip))
+                .yRot((float) Math.toRadians(entity.bodyYaw() - yaw));
+    }
     public static Vec3 outward(YukkuriEntity entity){return new Vec3(WoundPlacement.transform(entity).transformDirection(new Vector3f(0,0,-1)).normalize());}
     private MouthPlacement(){}
 }

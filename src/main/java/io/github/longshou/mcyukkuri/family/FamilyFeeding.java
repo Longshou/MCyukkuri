@@ -122,9 +122,13 @@ final class FamilyFeeding {
     }
 
     private boolean careContextReady() {
+        return careContextReady(canHoldCarePortion());
+    }
+
+    private boolean careContextReady(boolean mouthAvailable) {
         return (o.adult()||o.subadult())&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
                 &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
-                &&!o.entity().life().isSleeping()&&canHoldCarePortion()&&!o.entity().independence().active()
+                &&!o.entity().life().isSleeping()&&mouthAvailable&&!o.entity().independence().active()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty()
                 &&(carriedCheck||!o.carry().mouthBusy());
@@ -138,8 +142,12 @@ final class FamilyFeeding {
     private boolean carriedCheck;
     /** New care work needs a comfortable reserve; a started handoff uses the lower emergency boundary. */
     boolean careReady() {
+        return careReady(canHoldCarePortion());
+    }
+
+    private boolean careReady(boolean mouthAvailable) {
         var life=o.entity().life();
-        return careContextReady()&&!life.hasUrgentNeed()&&life.nutrition()>=40&&life.energy()>=35;
+        return careContextReady(mouthAvailable)&&!life.hasUrgentNeed()&&life.nutrition()>=40&&life.energy()>=35;
     }
     private boolean careContinuationReady() {
         var life=o.entity().life();
@@ -299,10 +307,18 @@ final class FamilyFeeding {
 
     /** A real reachable meal can be attempted before a parent treats starvation as having no remedy. */
     boolean hasOpportunity(YukkuriEntity child) {
+        return hasOpportunity(child, canHoldCarePortion());
+    }
+
+    boolean hasOpportunityAfterPaper(YukkuriEntity child) {
+        return hasOpportunity(child, canHoldCarePortion() || mouth().canPutDownPaper());
+    }
+
+    private boolean hasOpportunity(YukkuriEntity child, boolean mouthAvailable) {
         if(child==null||!hungryOwnChild(child)||retryBlocked(child))return false;
         if(o.task()==Task.FEED_CHILD&&o.target()==child&&careContinuationReady()
                 &&(!carrying().isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null||plantSource!=null))return true;
-        if(!careReady()||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
+        if(!careReady(mouthAvailable)||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
         if(!carrying().isEmpty()||o.entity().habitat().hasMoveFoodFor(child))return true;
         var home=o.entity().habitat().shelter();var pile=home==null?null:home.pile();
         if(home!=null&&home.usable(o.entity())&&pile!=null&&home.hasFoodFor(o.entity(),child)

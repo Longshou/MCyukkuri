@@ -92,10 +92,15 @@ public final class ItemContact {
 
     /** A deliberate put-down needs a dry collision top under the actual release point. */
     public static boolean hasReleaseSupport(Entity actor, Vec3 at) {
+        return releaseSurface(actor, at) != null;
+    }
+
+    /** Where an item released without horizontal motion would land, or null without dry support. */
+    public static Vec3 releaseSurface(Entity actor, Vec3 at) {
         var below = new Vec3(at.x, Math.min(at.y - .05, actor.getY() - .10), at.z);
         var hit = actor.level().clip(new ClipContext(at, below, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
         return hit.getType() == HitResult.Type.BLOCK && hit.getDirection() == Direction.UP
-                && actor.level().getFluidState(hit.getBlockPos()).isEmpty();
+                && actor.level().getFluidState(hit.getBlockPos()).isEmpty() ? hit.getLocation() : null;
     }
 
     public static ItemEntity releaseSupported(YukkuriEntity actor, ItemStack owned, int pickupDelay) {

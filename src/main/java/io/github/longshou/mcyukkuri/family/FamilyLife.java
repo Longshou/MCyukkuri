@@ -323,7 +323,7 @@ public final class FamilyLife {
     public boolean hasExecutableChildCare() {
         if (!adult()) return false;
         var child = feeding.hungriestOwnChild();
-        if (child != null && feeding.hasOpportunity(child)) return true;
+        if (child != null && feeding.hasOpportunityAfterPaper(child)) return true;
         return ordinaryLandFree(entity) && closestSeparatedDependentChild(true) != null;
     }
     public boolean carryingOrLifting() { return carry.carrying() || carry.lifting(); }

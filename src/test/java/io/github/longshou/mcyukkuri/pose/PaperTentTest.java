@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pose;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.pose.check.Geometry;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -274,9 +275,9 @@ class PaperTentTest {
             }
         }
 
-        // Contact frame (drape = 0.76s) of paper_cover_child: parent at flank distance d = 0.40 + 0.40*0.18 + 0.068 = 0.540 blocks
+        // Contact frame of paper_cover_child: parent at flank distance d = 0.40 + 0.40*0.18 + 0.072 = 0.544 blocks
         // facing -Z toward a 0.18x baby (turned 90 deg so parent meets baby's flank) with PaperTent equipped.
-        float spacing = (.80f + .80f * .18f) * .5f + .068f;
+        float spacing = (.80f + .80f * .18f) * .5f + .072f;
         for (Loaded parent : List.of(reimu, marisa)) {
             assertTrue(parent.clips.containsKey("paper_cover_child"), "Missing paper_cover_child on " + parent.id);
             float[] parentVerts = posedActorVerts(parent, "paper_cover_child", .76f, 1f, true, 0f, 0f, 0f);
@@ -288,6 +289,41 @@ class PaperTentTest {
             for (Loaded babyModel : List.of(reimu, marisa)) {
                 Geometry.Mesh babyMesh = triMesh(posedActorVerts(babyModel, "cold_shiver", .6f, .18f, true, 90f, 0f, -spacing), false);
                 assertClear(parent.id + " -> baby " + babyModel.id + " body/hat/braid at drape", parentMesh, babyMesh);
+            }
+        }
+    }
+
+    @Test void lipReachMeasuresThePosedSkinRatherThanCenterDistance() {
+        for (String form : List.of("reimu", "marisa")) {
+            WoundSurface skin = WoundSurface.get(form);
+            var lip = skin.heldLip("paper_cover_child", .75f, 0).div(16);
+            var posed = skin.pose("cold_shiver", .6f);
+            for (float spacing : new float[]{.492f, .707f}) {
+                var from = new Vector3f(lip).add(0, 0, spacing).rotateY((float) (Math.PI / 2)).mul(16 / .18f);
+                var toward = new Vector3f(0, 4.8f, 0).sub(from).normalize();
+                var hit = skin.ray(from, toward, posed, List.of());
+                assertNotNull(hit, form + " lip " + lip);
+                assertEquals(spacing < .5f, LipGrip.reaches(hit.distance() * .18 / 16, 1),
+                        form + " lip " + lip + ", spacing " + spacing + ", gap " + hit.distance() * .18 / 16);
+            }
+        }
+    }
+
+    @Test void lipMeetsTheWornBrimFromTheClearFlank() throws IOException {
+        var marisa = WoundSurface.get("marisa");
+        var lip = marisa.heldLip("paper_cover_child", .75f, 0).div(16);
+        var prop = readResource("/assets/mcyukkuri/yukkuri_props/accessory_marisa.json");
+        float[] mesh = Rig.floats(prop.getAsJsonArray("vertices"));
+        for (float spacing : new float[]{.544f, .707f}) {
+            for (float time : new float[]{0, .6f, 1.15f, 1.95f}) {
+                var at = new Matrix4f().translate(0, 0, -spacing).rotateY((float) (-Math.PI / 2))
+                        .scale(.18f / 16).mul(marisa.rootAt("cold_shiver", time));
+                var triangles = new Vector3f[mesh.length / 8];
+                for (int i = 0; i < triangles.length; i++)
+                    triangles[i] = at.transformPosition(new Vector3f(mesh[8 * i], mesh[8 * i + 1], mesh[8 * i + 2]));
+                var closest = LipGrip.closestPoint(triangles, lip);
+                assertEquals(spacing < .6, LipGrip.reaches(lip.distance(closest), 1),
+                        "spacing " + spacing + ", shiver " + time + ", lip gap " + lip.distance(closest));
             }
         }
     }

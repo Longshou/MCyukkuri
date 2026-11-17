@@ -69,6 +69,22 @@ public final class WoundPlacement {
     }
     public static Matrix4f[] pose(YukkuriEntity e){var frame=poseFrame(e);
             return WoundSurface.get(e.subspecies().assetId()).pose(frame.action(),frame.seconds());}
+    public static Matrix4f posedRoot(YukkuriEntity e) {
+        var frame = poseFrame(e);
+        return WoundSurface.get(e.assetId()).rootAt(frame.action(), frame.seconds());
+    }
+    /** The first posed skin hit between a world contact point and a point inside this body. */
+    public static Vec3 skinBetween(YukkuriEntity e, Vec3 from, Vec3 toward) {
+        var toWorld = transform(e);
+        var toModel = new Matrix4f(toWorld).invert();
+        var origin = toModel.transformPosition(from.subtract(e.position()).toVector3f());
+        var direction = toModel.transformPosition(toward.subtract(e.position()).toVector3f()).sub(origin);
+        float length = direction.length();
+        if (length == 0) return null;
+        direction.div(length);
+        var hit = WoundSurface.get(e.assetId()).ray(origin, direction, pose(e), e.body().wounds(), e.livePregnancyProgress());
+        return hit == null || hit.distance() > length ? null : from.lerp(toward, hit.distance() / length);
+    }
     public static WoundSurface.AttachmentLifts pregnancyLifts(YukkuriEntity e) {
         var frame=poseFrame(e);
         return WoundSurface.get(e.subspecies().assetId()).pregnancyLifts(frame.action(),frame.seconds(),e.contactPose(),e.contactTurn(),e.livePregnancyProgress());
