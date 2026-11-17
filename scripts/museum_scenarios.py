@@ -543,51 +543,66 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
                        r'\[action\][^\n]* start id=shake owner=headwear[^\n]*\n[\s\S]*?\[headwear\][^\n]* junk shaken_off variant=paper_box',
                        r'MCYJUNK_REMAINS', r'MCYJUNK_NO_DUPLICATE']))
 
+_wind_stray = _uuid_text('stray_wind', 'wind_stray')
+_wind_plain = _uuid_text('stray_wind', 'wind_plain')
 add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进木板缝挡风',
-    '冷夜里，流浪油可以缩进低木板下。纸片是地上的真物品。饿了再出来。',
+    '冷夜里，聪明的幼体灵梦从空地叼起一张纸，带进低木板缝披上；另一只钻进木板缝缩身发抖。可在低缝外点篝火看纸落回地上。',
     '约半分钟', [
         'fillbiome ~-10 56 ~-6 ~10 80 ~9 minecraft:snowy_plains',
-        box(-4, 1, -1, -1, 1, 0, 'minecraft:spruce_planks'),
-        box(-4, 0, -2, -1, 0, -2, 'minecraft:spruce_planks'),
-        item('minecraft:paper', 1, -3, -1, name='wind_paper'),
-        street_stray('stray_wind', 'reimu', -3, 3, 'wind_stray', energy=34, rest_wait=0, lead=True),
-    ], env={'time': 'night'}, spot='street', vantage=(0, 9),
-    smoke=dict(ticks=550, forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment'],
-               expect=[r'\[habitat\][^\n]* wind cover settled .*paper=true']))
-
-_bold_paper = _uuid_text('stray_paper', 'bold_paper')
-_tired_paper = _uuid_text('stray_paper', 'tired_paper')
-add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '流浪：抽报纸盖身',
-    '雪原冬夜，中央放着一捆报纸（4 张），两侧各有一道无纸的矮木板缝：左边胆大有精力的亚成魔理沙用辫子按住报捆咬抽一张铺进缝里，发觉仍冷便再抽第二张盖在身上发抖（垫一盖一，报纸堆剩 1 张）；'
-    '右边胆小疲惫的亚成灵梦抽一张铺进缝里后钻到这张纸下发抖，耗尽体力后在纸下睡着（冷暴露照常累积）。可放篝火或纸箱看它们起身落纸转移',
-    '约半分钟', [
-        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
         block(-3, 1, -1, 'minecraft:spruce_planks'),
         box(-3, 0, -2, -3, 1, -2, 'minecraft:spruce_planks'),
         block(3, 1, -1, 'minecraft:spruce_planks'),
         box(3, 0, -2, 3, 1, -2, 'minecraft:spruce_planks'),
-        block(0, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=0]'),
-        street_stray('stray_paper', 'marisa', -2, 3, 'bold_paper', stage='teen', boldness=75, energy=48,
-                     rest_wait=0, yaw=180, label='胆大魔理沙', lead=True),
-        street_stray('stray_paper', 'reimu', 2, 3, 'tired_paper', stage='teen', boldness=25, energy=24,
-                     rest_wait=0, yaw=180, label='疲惫灵梦'),
+        item('minecraft:paper', 1, -3, 1, name='wind_paper'),
+        street_stray('stray_wind', 'reimu', -3, 3, 'wind_stray', stage='child', intelligence=90, energy=58,
+                     rest_wait=0, label='叼纸灵梦', lead=True),
+        street_stray('stray_wind', 'reimu', 3, 3, 'wind_plain', stage='child', intelligence=20, energy=58,
+                     rest_wait=0, label='缩身灵梦'),
+    ], give=['minecraft:campfire', 'mcyukkuri:magnifying_glass'], env={'time': 'night'}, spot='street', vantage=(0, 9),
+    smoke=dict(ticks=460,
+               commands=[(320, 'setblock ~-3 ~ ~ minecraft:campfire[lit=true]')],
+               forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
+                       rf'\[habitat\][^\n]* uuid={_wind_plain} [^\n]* (?:wind cover paper approach|gathered item=minecraft:paper|paper cover draped)'],
+               expect=[rf'\[habitat\][^\n]* uuid={_wind_stray} [^\n]* gathered item=minecraft:paper count=1 .*left=0',
+                       rf'\[habitat\][^\n]* uuid={_wind_stray} [^\n]* paper bedding placed',
+                       rf'\[habitat\][^\n]* uuid={_wind_stray} [^\n]* wind cover settled .*paper=true',
+                       rf'\[habitat\][^\n]* uuid={_wind_stray} [^\n]* paper cover draped source=bedding item=minecraft:paper count=1',
+                       rf'\[habitat\][^\n]* uuid={_wind_stray} [^\n]* paper cover drop item=minecraft:paper count=1 reason=(?:warmed|left_cover)',
+                       rf'\[habitat\][^\n]* uuid={_wind_plain} [^\n]* wind cover settled .*paper=false']))
+
+_bold_paper = _uuid_text('stray_paper', 'bold_paper')
+_tired_paper = _uuid_text('stray_paper', 'tired_paper')
+add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '流浪：抽报纸盖身',
+    '雪原冬夜，疲倦的亚成灵梦逐张衔走西边报纸堆剩下的两张纸，在纸下发抖，体力耗尽后睡着。东边成体魔理沙只找到一张，铺在缝里垫身发抖。可放篝火或纸箱看它们起身落纸转移。',
+    '约半分钟', [
+        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
+        block(-6, 1, -1, 'minecraft:spruce_planks'),
+        box(-6, 0, -2, -6, 1, -2, 'minecraft:spruce_planks'),
+        block(6, 1, -1, 'minecraft:spruce_planks'),
+        box(6, 0, -2, 6, 1, -2, 'minecraft:spruce_planks'),
+        block(-6, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=2]'),
+        block(6, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=3]'),
+        street_stray('stray_paper', 'marisa', 6, 3, 'bold_paper', intelligence=90, boldness=75, energy=70,
+                     rest_wait=0, yaw=180, label='垫纸魔理沙'),
+        street_stray('stray_paper', 'reimu', -6, 3, 'tired_paper', stage='teen', intelligence=90, boldness=25, energy=28,
+                     rest_wait=0, yaw=180, label='疲惫灵梦', lead=True),
     ], give=['minecraft:campfire', 'mcyukkuri:cardboard_shelter', 'mcyukkuri:magnifying_glass'],
-    env={'time': 'night'}, spot='street', vantage=(0, 6, 180, 15), note='待验证：新场景，尚未在游戏里实测。',
-    reads=[('读胆大魔理沙（垫一盖一发抖）', f'yukkuri status {sel("bold_paper")} raw'),
-           ('读疲惫灵梦（盖纸力竭睡）', f'yukkuri status {sel("tired_paper")} raw')],
+    env={'time': 'night'}, spot='street', vantage=(0, 8, 180, 15),
+    reads=[('读垫纸魔理沙', f'yukkuri status {sel("bold_paper")} raw'),
+           ('读盖纸灵梦', f'yukkuri status {sel("tired_paper")} raw')],
     smoke=dict(ticks=800,
-               commands=[(760, 'execute if block ~ ~ ~2 mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_STACK_TAKEN_3')],
+               commands=[(760, 'execute if block ~-6 ~ ~2 minecraft:air if block ~6 ~ ~2 minecraft:air run say MCYPAPER_STACKS_EMPTY')],
                readout=[f'yukkuri status {sel("bold_paper")} raw', f'yukkuri status {sel("tired_paper")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
-                       rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin'],
+                       rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin',
+                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover draped'],
                expect=[rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* wind cover paper approach',
                        rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper bedding placed',
-                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover fetch',
-                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover draped source=mouth',
-                       rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* paper cover draped source=ground',
+                       rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* paper cover fetch',
+                       rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* paper cover draped source=bedding item=minecraft:paper count=2',
                        rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* cold paper exhausted sleep',
                        rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin source=life',
-                       r'MCYPAPER_STACK_TAKEN_3']))
+                       r'MCYPAPER_STACKS_EMPTY']))
 
 _devoted_mother = uid('stray_paper_young', 'devoted_parent')
 _self_mother = uid('stray_paper_young', 'self_parent')
@@ -596,47 +611,45 @@ _devoted_baby_txt = _uuid_text('stray_paper_young', 'devoted_baby')
 _self_parent_txt = _uuid_text('stray_paper_young', 'self_parent')
 _self_baby_txt = _uuid_text('stray_paper_young', 'self_baby')
 add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自利者先盖自身', '流浪：亲油叼纸盖赤油',
-    '雪原冬夜，同一排矮木板檐缝里并排歇着两户母子，中央放着一捆报纸（4 张）：西侧重亲情的魔理沙用辫子按住报捆咬抽一张，走到赤油侧旁低头披在孩子身上（赤油寒战减轻，亲油自己无纸发抖，不再二趟抽纸）；'
-    '东侧自利的灵梦抽一张直接披在自己身上发抖，身旁的赤油继续无纸发抖（报纸堆剩 2 张）。可放篝火或纸箱看它们起身落纸转移',
-    '约半分钟', [
+    '雪原冬夜，同一排矮木板檐缝里歇着两户母子，中央有两捆报纸。西侧重亲情的魔理沙先叼一张给赤油披上，再逐张叼三张盖自己。东侧自利的灵梦先叼够三张给自己盖上，赤油在旁边发抖。可放篝火或纸箱看它们起身落纸转移。',
+    '约一分钟', [
         'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
         box(-6, 0, -2, 6, 1, -2, 'minecraft:spruce_planks'),
         box(-5, 1, -1, 5, 1, -1, 'minecraft:spruce_slab[type=top]'),
         box(-6, 0, -1, -6, 1, -1, 'minecraft:spruce_planks'),
         box(0, 0, -1, 0, 1, -1, 'minecraft:spruce_planks'),
         box(6, 0, -1, 6, 1, -1, 'minecraft:spruce_planks'),
-        block(0, 0, 1, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=0]'),
-        street_stray('stray_paper_young', 'marisa', -2, 2, 'devoted_parent', boldness=65, attachment=85, friendliness=85,
-                     energy=58, rest_wait=0, yaw=180, label='重亲情魔理沙', lead=True),
+        block(0, 0, 1, 'mcyukkuri:newspaper_stack[bundles=2,facing=south,taken=0]'),
+        street_stray('stray_paper_young', 'marisa', -2, 2, 'devoted_parent', intelligence=90, boldness=65, attachment=85, friendliness=85,
+                     energy=88, rest_wait=0, yaw=180, label='重亲情魔理沙', lead=True),
         street_stray('stray_paper_young', 'marisa', -4, 0, 'devoted_baby', stage='baby', energy=58, rest_wait=0, yaw=180,
                      kin=f'Mother:{uuid_nbt(_devoted_mother)}', childhood=CHILDHOOD_HOPPING, label='披纸赤油'),
-        street_stray('stray_paper_young', 'reimu', 2, 2, 'self_parent', boldness=65, attachment=18, friendliness=18,
-                     energy=58, rest_wait=0, yaw=180, label='自利灵梦'),
+        street_stray('stray_paper_young', 'reimu', 2, 2, 'self_parent', intelligence=90, boldness=65, attachment=18, friendliness=18,
+                     energy=88, rest_wait=0, yaw=180, label='自利灵梦'),
         street_stray('stray_paper_young', 'reimu', 4, 0, 'self_baby', stage='baby', energy=58, rest_wait=0, yaw=180,
                      kin=f'Mother:{uuid_nbt(_self_mother)}', childhood=CHILDHOOD_HOPPING, label='发抖赤油'),
     ], give=['minecraft:campfire', 'mcyukkuri:cardboard_shelter', 'mcyukkuri:magnifying_glass'],
-    env={'time': 'night'}, spot='street', vantage=(0, 5, 180, 16), note='待验证：新场景，尚未在游戏里实测。',
-    reads=[('读重亲情魔理沙（无纸发抖）', f'yukkuri status {sel("devoted_parent")} raw'),
+    env={'time': 'night'}, spot='street', vantage=(0, 5, 180, 16),
+    reads=[('读重亲情魔理沙（给赤油盖完再盖自己）', f'yukkuri status {sel("devoted_parent")} raw'),
            ('读披纸赤油（寒战减轻）', f'yukkuri status {sel("devoted_baby")} raw'),
            ('读自利灵梦（盖纸自身）', f'yukkuri status {sel("self_parent")} raw'),
            ('读无纸赤油（继续发抖）', f'yukkuri status {sel("self_baby")} raw')],
     capture=dict(shots=(1, 140, 240, 500), sequences=((80, 300, 4),), observe=False,
                  views={'side': dict(position=(-2.4, .75, 1.35), look_at=(-3.55, .28, -.5))}),
-    smoke=dict(ticks=560,
-               commands=[(520, 'execute if block ~ ~ ~1 mcyukkuri:newspaper_stack[bundles=1,taken=2] run say MCYPAPER_YOUNG_TAKEN_2')],
+    smoke=dict(ticks=1000,
+               commands=[(940, 'execute if block ~ ~ ~1 mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_YOUNG_ONE_LEFT')],
                readout=[f'yukkuri status {sel("devoted_parent")} raw', f'yukkuri status {sel("devoted_baby")} raw',
                         f'yukkuri status {sel("self_parent")} raw', f'yukkuri status {sel("self_baby")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
-                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover fetch',
-                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped source=',
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped on child=',
                        rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin'],
                expect=[rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* wind cover paper approach',
                        rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* baby paper cover approach child={_devoted_baby_txt}',
                        rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped on child={_devoted_baby_txt} item=minecraft:paper count=1',
+                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped source=bedding item=minecraft:paper count=3',
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover kept for self child={_self_baby_txt}',
-                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped source=mouth item=minecraft:paper count=1',
-                       r'MCYPAPER_YOUNG_TAKEN_2']))
+                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped source=bedding item=minecraft:paper count=3',
+                       r'MCYPAPER_YOUNG_ONE_LEFT']))
 
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
@@ -6590,17 +6603,30 @@ for _beg_scene in ('wild', 'wild_beg_refuse', 'wild_beg_snatch', 'wild_beg_help'
     _scene_end(_beg_scene, [('pet', _DRY), ('wild', _DRY)])
 
 _scene_end('food_behind_glass', [('glass_food_eater', _DRY)])
-_scene_end('stray_paper', [('bold_paper', _ASHORE + ' and hold.cover.item=minecraft:paper'),
-                           ('tired_paper', _ASHORE + ' and hold.cover.item=minecraft:paper')])
+_scene_end('stray_wind', [('wind_stray', _ASHORE), ('wind_plain', _ASHORE)],
+           [('wind_stray', 'seen:habitat:gathered item=minecraft:paper count=1'),
+            ('wind_stray', 'seen:habitat:paper bedding placed'),
+            ('wind_stray', 'seen:habitat:paper cover draped source=bedding.*count=1'),
+            ('wind_stray', 'seen:habitat:paper cover drop item=minecraft:paper count=1')])
+_scene_end('stray_paper', [('bold_paper', _ASHORE),
+                           ('tired_paper', _ASHORE + ' and hold.cover.item=minecraft:paper and hold.cover.n=2')],
+           [('bold_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=0'),
+            ('bold_paper', 'seen:habitat:paper bedding placed')],
+           [('tired_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=1'),
+            ('tired_paper', 'seen:habitat:paper bedding placed'),
+            ('tired_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=0'),
+            ('tired_paper', 'seen:habitat:paper cover draped source=bedding.*count=2')])
 _scene_end('stray_paper_young',
-           [('devoted_parent', _ASHORE), ('devoted_baby', _ASHORE + ' and hold.cover.item=minecraft:paper'),
-            ('self_parent', _ASHORE + ' and hold.cover.item=minecraft:paper'), ('self_baby', _ASHORE)],
+           [('devoted_parent', _ASHORE + ' and hold.cover.n=3'), ('devoted_baby', _ASHORE + ' and hold.cover.n=1'),
+            ('self_parent', _ASHORE + ' and hold.cover.n=3'), ('self_baby', _ASHORE)],
            [('devoted_parent', 'seen:habitat:wind cover paper approach'),
             ('devoted_parent', 'seen:habitat:baby paper cover approach'),
-            ('devoted_parent', 'seen:habitat:paper cover draped on child=')],
+            ('devoted_parent', 'seen:habitat:paper cover draped on child='),
+            ('devoted_parent', 'seen:habitat:gathered item=minecraft:paper count=1'),
+            ('devoted_parent', 'seen:habitat:paper cover draped source=bedding.*count=3')],
            [('self_parent', 'seen:habitat:wind cover paper approach'),
             ('self_parent', 'seen:habitat:paper cover kept for self'),
-            ('self_parent', 'seen:habitat:paper cover draped source=mouth')])
+            ('self_parent', 'seen:habitat:paper cover draped source=bedding.*count=3')])
 
 for _exile_scene, _witnesses in (('colony_mold_exile', ['leader', 'witness']),
                                  ('den_mold_exile', ['healthy', 'grandparent', 'baby'])):

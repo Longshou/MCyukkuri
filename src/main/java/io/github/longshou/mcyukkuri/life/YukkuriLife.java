@@ -533,18 +533,17 @@ public final class YukkuriLife {
     public boolean restingInPlainGapAt(BlockPos pos) { return foundCover.restingInPlainGapAt(pos); }
     public boolean paperCoverFits() { return foundCover.paperCoverFits(); }
     public boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
-    boolean usingPaperCoverAt(BlockPos pos) { return !paperCover.isEmpty() && foundCover.restingInPlainGapAt(pos); }
+    boolean usingPaperCoverAt(BlockPos pos) { return hasPaperCover() && foundCover.restingInPlainGapAt(pos); }
     public ItemStack paperCover() { return paperCover; }
-    public int paperCoverWearBits() { return paperCover.isEmpty() ? 0 : PAPER_COVER_WEAR_BIT; }
+    public int paperCoverSheets() { return entity.family().adult() ? 3 : entity.family().subadult() ? 2 : 1; }
+    public boolean hasPaperCover() { return !paperCover.isEmpty() && paperCover.getCount() >= paperCoverSheets(); }
+    public int paperCoverWearBits() { return hasPaperCover() ? PAPER_COVER_WEAR_BIT : 0; }
     public boolean canAcceptPaperCover() { return paperCover.isEmpty() && keepsPaperCover(); }
     public boolean acceptPaperCover(ItemStack stack) {
-        if (stack == null || stack.isEmpty() || !canAcceptPaperCover()) return false;
-        setPaperCover(stack);
-        return true;
-    }
-    public void setPaperCover(ItemStack stack) {
-        paperCover = stack == null || stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
+        if (stack.getCount() != paperCoverSheets() || !canAcceptPaperCover()) return false;
+        paperCover = stack;
         entity.syncWear();
+        return true;
     }
     public void clearPaperCoverForRemains() {
         paperCover = ItemStack.EMPTY;
@@ -570,7 +569,7 @@ public final class YukkuriLife {
                 && foundCover.restingInPlainGapAt(entity.blockPosition()) && foundCover.paperCoverFits();
     }
     boolean coldPaperSleepAllowed() {
-        return !paperCover.isEmpty() && foundCover.restingInPlainGapAt(entity.blockPosition()) && !temperature.hot();
+        return usingPaperCoverAt(entity.blockPosition()) && !temperature.hot();
     }
     public boolean targetingFoundShelter(BlockPos pos) { return foundCover.targeting(pos); }
     public boolean leavingFoundShelter() { return foundCover.exiting(); }
@@ -615,7 +614,7 @@ public final class YukkuriLife {
         }
         if (!entity.isAlive()) return;
         accessory.tick();
-        if (!paperCover.isEmpty() && !keepsPaperCover()) releasePaperCover("state_changed");
+        if (!paperCover.isEmpty() && (!hasPaperCover() || !keepsPaperCover())) releasePaperCover("state_changed");
         var mouth = entity.component(YukkuriComponents.MOUTH);
         if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !foundCover.carryingPaper()) {
             mouth.releaseItems(MouthOccupancy.Purpose.PAPER, 20);

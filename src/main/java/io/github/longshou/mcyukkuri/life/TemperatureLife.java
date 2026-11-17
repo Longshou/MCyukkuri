@@ -32,7 +32,7 @@ import io.github.longshou.mcyukkuri.rare.RareForms;
 /** Loaded-time thermal exposure and interruptible refuge seeking. All numbers are MC adaptation. */
 public final class TemperatureLife {
     /** {@code sun}: the felt temperature counts the winter sun on a body basking flat in it ({@link #SUN_BASK}). */
-    public record Conditions(double felt, boolean shade, boolean insulated, double warmth, boolean sun) {}
+    public record Conditions(double felt, boolean shade, boolean insulated, double warmth, boolean sun, double uncoveredFelt) {}
     private record Refuge(BlockPos pos, double score, Conditions at) {}
     /** Felt-temperature bonus of a swaddle in the cold and the largest combined bonus of swaddle and nest (project-original numbers). */
     public static final double SWADDLE_WARMTH = .5, SWADDLE_CAP = 1.5;
@@ -43,7 +43,7 @@ public final class TemperatureLife {
     /** A bask lasts the authored sunbathe clip: settle, soak, round up. */
     static final int BASK_TICKS = ClipMarkers.of("sunbathe").length();
     private final YukkuriEntity entity;
-    private Conditions current = new Conditions(.8, false, false, 0, false);
+    private Conditions current = new Conditions(.8, false, false, 0, false, .8);
     private boolean initialSample = true;
     /** Sampling is staggered; exposure keeps its legacy 20 loaded-and-AI-enabled tick cadence. */
     private int sampleTicks, temperatureSampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, baskCooldown, taskTicks, restTicks;
@@ -86,11 +86,11 @@ public final class TemperatureLife {
         }
         if (++sampleTicks < 20) return;
         sampleTicks = 0;
-        if (freezing(current.felt())) {
+        boolean paperCover = entity.life().usingPaperCoverAt(entity.blockPosition());
+        if (paperCover && !tooCold(current.uncoveredFelt())) entity.life().releasePaperCover("warmed");
+        if (freezing(current.uncoveredFelt())) {
             int increment = entity.family().stage() == FamilyLife.Stage.BABY ? 40 : entity.family().adult() ? 20 : 30;
-            if (entity.pet().care().swaddled()
-                    || entity.family().stage() == FamilyLife.Stage.BABY && entity.life().usingPaperCoverAt(entity.blockPosition()))
-                increment /= 2; // a swaddled or paper-covered baby takes half the cold exposure
+            if (entity.pet().care().swaddled() || paperCover) increment /= 2;
             coldExposure = Math.min(1_728_000, coldExposure + increment);
             if (coldExposure >= YukkuriConfig.COLD_EXPOSURE_TICKS.get()) {
                 damageTicks += 20;
@@ -141,19 +141,20 @@ public final class TemperatureLife {
     /** {@code basking}: as for a body holding still and flat there, which the winter sun warms. */
     private Conditions sample(BlockPos pos, boolean basking) { return sample(pos, heatSources(pos, 4), basking); }
     private Conditions sample(BlockPos pos, HeatSources sources, boolean basking) {
-        if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0, false);
+        if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0, false, .8);
         boolean shade = shaded(pos), nestInsulated = nestInsulated(pos, shade);
         boolean dryPaper = shade && !level().isRainingAt(pos) && entity.life().wetness() < 50;
-        double paper = !nestInsulated && dryPaper
-                ? (entity.life().usingPaperBedding(pos) ? YukkuriConfig.PAPER_BEDDING_INSULATION.get() : 0)
-                        + (entity.life().usingPaperCoverAt(pos) ? YukkuriConfig.PAPER_COVER_INSULATION.get() : 0) : 0;
-        boolean insulated = nestInsulated || paper > 0;
+        double bedding = !nestInsulated && dryPaper && entity.life().usingPaperBedding(pos)
+                ? YukkuriConfig.PAPER_BEDDING_INSULATION.get() : 0;
+        double cover = !nestInsulated && dryPaper && entity.life().usingPaperCoverAt(pos)
+                ? YukkuriConfig.PAPER_COVER_INSULATION.get() : 0;
+        boolean insulated = nestInsulated || bedding > 0 || cover > 0;
         double biome = level().getBiome(pos).value().getBaseTemperature();
         double felt = SeasonClimate.ambient(biome, SeasonClimate.offset(level(), pos), level().dimensionType().hasSkyLight(),
                 level().isNight(), shade, level().isRaining());
         felt -= entity.life().wetness() / 100.0 * .35;
         felt += RareForms.kotatsuWarmth(entity, felt); // a kotatsu Marisa carries her own warmth
-        double bonus = tooCold(felt) ? (nestInsulated ? YukkuriConfig.NEST_INSULATION.get() : paper) : 0;
+        double bonus = tooCold(felt) ? (nestInsulated ? YukkuriConfig.NEST_INSULATION.get() : bedding) : 0;
         // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/FEATURES.md).
         if (entity.pet().care().swaddled() && tooCold(felt + bonus)) bonus = Math.max(bonus, Math.min(bonus + SWADDLE_WARMTH, SWADDLE_CAP));
         felt += bonus;
@@ -165,7 +166,8 @@ public final class TemperatureLife {
         boolean sun = basking && tooCold(felt + warmth) && !shade && !level().isNight() && !level().isRaining()
                 && level().dimensionType().hasSkyLight() && level().canSeeSky(pos);
         if (sun) felt += SUN_BASK;
-        return new Conditions(felt + warmth, shade, insulated, warmth, sun);
+        double uncoveredFelt = felt + warmth;
+        return new Conditions(uncoveredFelt + (tooCold(uncoveredFelt) ? cover : 0), shade, insulated, warmth, sun, uncoveredFelt);
     }
     /** Holding still and flat in the sun right now: the reached refuge of a warmth walk that the sun warms. */
     private boolean baskingNow() { return active() && basking && restTicks > 0; }

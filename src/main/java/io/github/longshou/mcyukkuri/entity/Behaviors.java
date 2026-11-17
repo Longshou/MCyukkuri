@@ -230,8 +230,8 @@ public final class Behaviors {
     public static final String WARM_UP = "warm_up";
     /** A chilled body basking still and flat in direct sun on a clear cold day. */
     public static final String SUNBATHE = "sunbathe";
-    /** Stray newspaper-stack pulling, laying a sheet in a gap, nosing under a sheet, draping a baby, and shivering under cold gap cover. */
-    public static final String PAPER_PULL = "paper_pull", PAPER_PLACE = "paper_place", PAPER_COVER = "paper_cover",
+    /** Stray paper gathering, laying a sheet in a gap, nosing under a cover, draping a baby, and shivering in cold gaps. */
+    public static final String PAPER_PULL = "paper_pull", PAPER_PICKUP = "paper_pickup", PAPER_PLACE = "paper_place", PAPER_COVER = "paper_cover",
             PAPER_COVER_CHILD = "paper_cover_child", COLD_SHIVER = "cold_shiver";
     public static final String WATER_EXHAUSTED = "water_exhausted";
     public static final String WATER_IMPACT = "water_impact";
