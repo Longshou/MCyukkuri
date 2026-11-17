@@ -2,7 +2,8 @@ package io.github.longshou.mcyukkuri.dialogue;
 
 /**
  * Forms of address (komicolle 40720 floor 11518764): the term depends on the relation and on whether the other
- * party is well liked ("人类先生 / 大哥哥 / 大姐姐 / 饲主先生" versus "臭老太婆 / 糞老頭"). Family terms are a
+ * party is well liked ("人类先生 / 大哥哥 / 大姐姐 / 饲主先生" versus a wary warning; only an elder draws the
+ * insults "臭老太婆 / 糞老頭"). Family terms are a
  * project design (the lecture does not list them). Each method returns a dialogue event; the tier chosen by the
  * speaker's age supplies the babble, half-mature or adult wording.
  */
@@ -15,8 +16,8 @@ public final class SpeechAddress {
             case OWNER -> "addr_human_owner";
             case FRIEND -> female ? "addr_human_sis" : "addr_human_bro";
             case STRANGER -> "addr_human_kind";
-            // Insults only fit an elder; anyone else is simply addressed as a stranger.
-            case HOSTILE -> elder ? (female ? "addr_human_hostile_old" : "addr_human_hostile_man") : "addr_human_kind";
+            // Insults only fit an elder; anyone else gets a wary warning, never the cheerful stranger welcome.
+            case HOSTILE -> elder ? (female ? "addr_human_hostile_old" : "addr_human_hostile_man") : "addr_human_hostile_wary";
         };
     }
 

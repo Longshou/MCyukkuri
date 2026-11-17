@@ -49,6 +49,9 @@ def outputs():
         anchors[locale] = list(old)
     legacy_zh = ROOT / 'art/dialogue/legacy-zh-cn.json'
     locales['zh_cn'].update(json.loads(legacy_zh.read_text(encoding='utf-8')))
+    for locale, entries in json.loads((ROOT / 'art/dialogue/self-names.json').read_text(encoding='utf-8')).items():
+        if locale in locales:
+            locales[locale].update(entries)
     for name in ('training-interface.json', 'exam-interface.json'):
         interface = json.loads((ROOT / 'art/dialogue' / name).read_text(encoding='utf-8'))
         for locale, entries in interface.items():
@@ -94,6 +97,8 @@ def outputs():
             sounds[sound_id] = {'subtitle': key, 'sounds': [{'name': 'mcyukkuri:' + target[7:-4], 'attenuation_distance': 16}]}
         catalog.append(dict(id=ident, key=key, origin=origin, species=line['species'], age=line['age'], events=line['events'],
                             ticks=ticks, sound=sound_id if clip else ''))
+        if line.get('variant'):
+            catalog[-1]['variant'] = line['variant']
         if 'quirk' in line:
             assert origin == 'project-original' and line['quirk'] == original['quirk']
             catalog[-1]['quirk'] = line['quirk']
@@ -113,6 +118,7 @@ def outputs():
         entry = dict(id=ident, key=key, origin='project-original', species=line['species'], age=line['age'], events=line['events'],
                      ticks=max(50, min(180, len(line['japanese']) * 4 + 15)), sound='')
         if line.get('quirk'): entry['quirk'] = line['quirk']
+        if line.get('variant'): entry['variant'] = line['variant']
         catalog.append(entry)
         locales['zh_cn'][key] = line['chinese']
         locales['ja_jp'][key] = line['japanese']
@@ -127,6 +133,8 @@ def outputs():
         key = 'dialogue.mcyukkuri.original.' + ident
         catalog.append(dict(id=ident, key=key, origin='project-original', species='*', age='*',
                             events=[line['event']], ticks=max(50, min(180, len(line['ja']) * 4 + 15)), sound=''))
+        if line.get('variant'):
+            catalog[-1]['variant'] = line['variant']
         for locale in locales:
             locales[locale][key] = line[locale[:2]]
     for locale, values in locales.items():

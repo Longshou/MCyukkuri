@@ -1,0 +1,36 @@
+{
+  "_note": "Bare names for the {self} slot in shared lines. They are not entity display names.",
+  "zh_cn": {
+    "dialogue.self.mcyukkuri.reimu": "灵梦",
+    "dialogue.self.mcyukkuri.marisa": "魔理沙",
+    "dialogue.self.mcyukkuri.alice": "爱丽丝",
+    "dialogue.self.mcyukkuri.chen": "橙",
+    "dialogue.self.mcyukkuri.patchouli": "帕秋莉",
+    "dialogue.self.mcyukkuri.remilia": "蕾米莉亚",
+    "dialogue.self.mcyukkuri.flandre": "芙兰",
+    "dialogue.self.mcyukkuri.myon": "妖梦",
+    "dialogue.self.mcyukkuri.small": "窝"
+  },
+  "ja_jp": {
+    "dialogue.self.mcyukkuri.reimu": "れいむ",
+    "dialogue.self.mcyukkuri.marisa": "まりさ",
+    "dialogue.self.mcyukkuri.alice": "ありす",
+    "dialogue.self.mcyukkuri.chen": "ちぇん",
+    "dialogue.self.mcyukkuri.patchouli": "ぱちゅりー",
+    "dialogue.self.mcyukkuri.remilia": "れみりあ",
+    "dialogue.self.mcyukkuri.flandre": "ふらん",
+    "dialogue.self.mcyukkuri.myon": "ようむ",
+    "dialogue.self.mcyukkuri.small": "ぼく"
+  },
+  "en_us": {
+    "dialogue.self.mcyukkuri.reimu": "Reimu",
+    "dialogue.self.mcyukkuri.marisa": "Marisa",
+    "dialogue.self.mcyukkuri.alice": "Alice",
+    "dialogue.self.mcyukkuri.chen": "Chen",
+    "dialogue.self.mcyukkuri.patchouli": "Patchouli",
+    "dialogue.self.mcyukkuri.remilia": "Remilia",
+    "dialogue.self.mcyukkuri.flandre": "Flandre",
+    "dialogue.self.mcyukkuri.myon": "Youmu",
+    "dialogue.self.mcyukkuri.small": "I"
+  }
+}

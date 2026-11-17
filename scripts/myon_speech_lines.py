@@ -29,7 +29,7 @@ LINES = {
         'adult': ('ひまだ……{t}！ いっしょに、ちゃんばらしよう！', '好无聊……{t}！一起来比剑吧！', "So bored... {t}! Let's play swords!"),
         'young': ('ひまぁ……{t}！ いっちょに ちゃんばら ちよ！', '好无聊……{t}！一起玩比剑吧！', 'So bowed... {t}! Pway swords!')},
     'ask_snack': {
-        'adult': ('{t}！ あまあま、ほしい！ ちょうだい！', '{t}！想要甜甜！给我嘛！', '{t}! Want sweets! Please!'),
+        'adult': ('{t}！ あまあま、ほしい！ ちょうだい！', '{t}！想要甜甜！给妖梦嘛！', '{t}! Want sweets! Give Myon some!'),
         'young': ('{t}！ あみゃあみゃ、ほちい！ ちょうらい！', '{t}！想要甜甜！给窝嘛！', '{t}! Want sweeties! Pwease!')},
     'ask_walk': {
         'adult': ("{t}！ おそと！ おさんぽ、おさんぽ！", "{t}！出去！散步、散步！", "{t}! Outside! Walk, walk!"),
@@ -44,7 +44,7 @@ LINES = {
         'adult': ('バッジ、ぴかぴか！ さわっても いい？ {t}？', '徽章好亮！能摸摸吗？{t}？', 'Your badge is shiny! Can I touch it? {t}?'),
         'young': ('ばっじ、ぴかぴか！ しゃわっても いい？ {t}？', '徽章好亮！窝能摸摸吗？{t}？', 'Your badge is shiny! Can I touch it? {t}?')},
     'badge_beg': {
-        'adult': ('{t}……ひとくちだけ、わけてほしい……', '{t}……就一口，分我一点……', '{t}... just one bite, please...'),
+        'adult': ('{t}……ひとくちだけ、わけてほしい……', '{t}……就一口，分妖梦一点……', '{t}... just one bite for Myon...'),
         'young': ('{t}……ひとくちだけ、ちょうらい……', '{t}……就一口，给窝嘛……', '{t}... just one bite, pwease...')},
     'badge_envy': {
         'adult': ('いいな……{t}。あのバッジ、ほしい。', '真好……{t}。妖梦也想要那个徽章。', 'Lucky... {t}. I want that badge.'),
@@ -83,7 +83,7 @@ LINES = {
         'adult': ('これは、わたしのごはん。だめ。{t}。', '这是妖梦的饭。不行。{t}。', 'This is my food. No. {t}.'),
         'young': ('これ、わたちの ごはん！ らめ！ {t}！', '这是窝的饭！不给！{t}！', 'Dis my food! No! {t}!')},
     'badge_show_kind': {
-        'adult': ('{t}。バッジ、みていいよ。にんげんさんが つけてくれた。', '{t}。徽章给你看。人类先生给我戴的。', '{t}. You can see my badge. Mr. Human pinned it on me.'),
+        'adult': ('{t}。バッジ、みていいよ。にんげんさんが つけてくれた。', '{t}。徽章给你看。人类先生给妖梦戴的。', '{t}. You can see the badge. Mr. Human pinned it on Myon.'),
         'young': ('{t}。ばっじ、みちぇいいよ。にんげんしゃんが つけちぇくれた！', '{t}。给你看徽章！人类鲜笋给窝戴的！', '{t}. You can see my badge! Mr. Human put it on me!')},
     'badge_taken': {
         'adult': ("バッジが……ない。{t}……かえして……", "徽章……没了。{t}……还给妖梦……", "My badge... gone. {t}... give it back..."),
@@ -119,7 +119,7 @@ LINES = {
         'adult': ('{t}？ いま、いそがしい。', '{t}？现在很忙。', '{t}? Busy right now.'),
         'young': ('{t}？ いま、いしょがちい！', '{t}？窝在忙！', '{t}? Busy!')},
     'caregiver': {
-        'adult': ('{t}♪ そばに いてくれると、ほっとする。', '{t}♪ 有你陪着，我就安心了。', '{t}! I feel safe with you here.'),
+        'adult': ('{t}♪ そばに いてくれると、ほっとする。', '{t}♪ 有你陪着，妖梦就安心了。', '{t}! Myon feels safe with you here.'),
         'young': ('{t}♪ もうちょっと そばに いちぇ……', '{t}♪ 陪窝一会儿……窝想挨着你。', '{t}! Stay a little longer... I wanna be close.')},
     'chew': {
         'adult': ("むーしゃ、むーしゃ……{t}。", "嚼嚼，嚼嚼……{t}。", "Munch, munch... {t}."),
@@ -161,13 +161,13 @@ LINES = {
         'adult': ("{t}！ バッジ、バッジ！ やった！", "{t}！徽章、徽章！好耶！", "{t}! A badge, a badge! I did it!"),
         'young': ('{t}！ やっちゃ！ ばっじ！ しあわちぇー！', '{t}！太好惹！徽章！好幸福——！', '{t}! Yay! Badge! So happy!')},
     'exam_promise_fail': {
-        'adult': ('ずるい！ わたしの おやつは？ {t}！', '耍赖！我的点心呢？{t}！', 'Not fair! Where is my snack? {t}!'),
+        'adult': ('ずるい！ わたしの おやつは？ {t}！', '耍赖！妖梦的点心呢？{t}！', 'Not fair! Where is Myon\'s snack? {t}!'),
         'young': ('じゅるい！ わたちの おやつは？ {t}！ ぷきゅーっ！', '耍赖！窝的点心呢？{t}！噗咕——！', 'No fair! Where is my snack? {t}! Hmph!')},
     'exam_promise_wait': {
         'adult': ("おやつさん……がまん、がまん。{t}……", "点心先生……忍住，忍住。{t}……", "Mr. Snack... must wait. {t}..."),
         'young': ('がまん、がまん……{t}……まだかにゃ……', '忍耐，忍耐……{t}……还没好吗……', 'Wait, wait... {t}... not yet...?')},
     'exam_report': {
-        'adult': ('{t}！ にんげんさん！ このもんだい、できた！', '{t}！人类先生！这道题我做完了！', '{t}! Mr. Human! I finished the test task!'),
+        'adult': ('{t}！ にんげんさん！ このもんだい、できた！', '{t}！人类先生！这道题妖梦做完了！', '{t}! Mr. Human! Myon finished the test task!'),
         'young': ('{t}！ にんげんしゃん！ このもんだい、できちゃ！', '{t}！人类鲜笋！这道题窝做完惹！', '{t}! Mr. Human! I finished the test task!')},
     'exam_sorry': {
         'adult': ('ごめんなさい……まちがえた。{t}……', '对不起……弄错了。{t}……', 'Sorry... I got it wrong. {t}...'),
@@ -254,7 +254,7 @@ LINES = {
         'adult': ('{t}。あんぜんなすきまを、さがす。', '{t}。要找个安全的缝隙。', "{t}. I'll find a safe gap."),
         'young': ('{t}。おうちしゃん、みちゅける！', '{t}。要找到窝窝！', '{t}. Gonna find a home!')},
     'house_startled': {
-        'adult': ('{t}！ びっくりした！ ……でも、にげない！', '{t}！吓了一跳！……但是不逃！', "{t}! That startled me! ...But I won't run!"),
+        'adult': ('{t}！ びっくりした！ ……でも、にげない！', '{t}！吓了一跳！……但不逃！', "{t}! That startled me! ...But I won't run!"),
         'young': ('{t}！ こあい！ かくれりゅ！', '{t}！好口怕！要躲起来！', '{t}! Scawy! Hiding!')},
     'hungry': {
         'adult': ('{t}……おなかすいた……', '{t}……彭彭饿了……', "{t}... I'm hungry..."),
@@ -263,13 +263,13 @@ LINES = {
         'adult': ('{t}～。ゆっくりする。', '{t}～。油库里一下。', '{t}~ Taking it easy.'),
         'young': ('{t}～♪ ゆっきゅり！', '{t}～♪ 油库气！', '{t}~ Easy!')},
     'introduced': {
-        'adult': ('{t}！ ゆっくりしていってね！ よろしく！', '{t}！油库里洗跌一跌捏！请多关照！', '{t}! Take it easy! Nice to meet you!'),
-        'young': ('{t}！ よろちく！ ゆっくちちていっちぇにぇ！', '{t}！请多关照！油库气洗切一切捏！', '{t}! Hewwo! Take it eashy!')},
+        'adult': ('{t}！ ゆっくりしていってね！ よろしく！', '{t}！油库里洗跌一跌捏！以后一起油库里！', '{t}! Take it easy! Let us relax together!'),
+        'young': ('{t}！ よろちく！ ゆっくちちていっちぇにぇ！', '{t}！以后一起油库气！油库气洗切一切捏！', '{t}! Wewax togeder! Take it eashy!')},
     'known_peer': {
         'adult': ('{t}！ また、あえた！ ゆっくりしていってね！', '{t}！又见面了！油库里洗跌一跌捏！', '{t}! Met again! Take it easy!'),
         'young': ('{t}！ まちゃ あえちゃ！', '{t}！又见面惹！', '{t}! Again! Hi!')},
     'laid_eggs': {
-        'adult': ('{t}♪ ちびちゃんたち……ぜったい、まもる。', '{t}♪ 小贝比酱……我会护着你们的。', "{t}! My little ones... I'll protect you, always."),
+        'adult': ('{t}♪ ちびちゃんたち……ぜったい、まもる。', '{t}♪ 小贝比酱……妖梦会护着你们。', "{t}! My little ones... Myon will protect you, always."),
         'young': ('{t}♪ ゆわぁぁぁ♪', '{t}♪ 油哇啊啊♪', '{t}! Yuwaaa!')},
     'leisure_done': {
         'adult': ('{t}！ たのしかった！ しあわせー！', '{t}！好开心！好幸福——！', '{t}! That was fun! So happy!'),
@@ -332,7 +332,7 @@ LINES = {
         'adult': ('{t}……にんげんさん、のらに、いじめられた……', '{t}……人类先生，被野良欺负了……', '{t}... human, a stray bullied me...'),
         'young': ('{t}……にんげんしゃん、のらに いじめられちゃ……', '{t}……人类先生，被野良欺负惹……', '{t}... human, a stway was mean...')},
     'pet_report_owner': {
-        'adult': ('{t}！ にんげんさん、のらは、むしした！ えらい？', '{t}！人类先生，野良我没理会！厉害吧？', '{t}! Human, I ignored the stray! Good, right?'),
+        'adult': ('{t}！ にんげんさん、のらは、むしした！ えらい？', '{t}！人类先生，野良，妖梦没理会！厉害吧？', '{t}! Human, Myon ignored the stray! Good, right?'),
         'young': ('{t}！ にんげんしゃん、のらは むちちた！', '{t}！人类先生，窝没理野良！', '{t}! Human, I ignowed the stway!')},
     'plea_sad': {
         'adult': ("ゆぅ……かって もらえない……{t}……", "油呜……还是没人养妖梦……{t}……", "Yuu... nobody wants to keep me... {t}..."),
@@ -371,16 +371,16 @@ LINES = {
         'adult': ('{t}！ ここは、おまえのおうちじゃない！ でていけ！', '{t}！这里不是你的家！出去！', "{t}! This isn't your home! Get out!"),
         'young': ('{t}！ ここ、らめ！ あっちいっちぇ！', '{t}！介里不行！去那边！', '{t}! Not hewe! Go away!')},
     'settlement_hurt': {
-        'adult': ('わたしも みんなと いっしょに いたい……{t}……', '我也想跟大家待在一起……{t}……', 'I want to stay with everyone too... {t}...'),
+        'adult': ('わたしも みんなと いっしょに いたい……{t}……', '妖梦也想跟大家待在一起……{t}……', 'Myon wants to stay with everyone too... {t}...'),
         'young': ('わたちも みんなと いっちょに いちゃい……{t}……', '窝也想跟大家待在一起……{t}……', 'I wanna stay with everyone too... {t}...')},
     'settlement_shun': {
         'adult': ('{t}！ しらないゆっくり、ちかづくな！', '{t}！不认识的油库里，别靠近！', '{t}! Strange yukkuri, stay back!'),
         'young': ('{t}？ だれ？ こにゃいで！', '{t}？系谁？不要过来！', "{t}? Who? Don't come!")},
     'settlement_submit': {
-        'adult': ("おトイレさん、そうじする……ここに いさせて……{t}……", "我会打扫厕所先生……让我留下吧……{t}……", "I'll clean Mr. Toilet... let me stay... {t}..."),
+        'adult': ("おトイレさん、そうじする……ここに いさせて……{t}……", "妖梦会打扫厕所先生……让妖梦留下吧……{t}……", "Myon will clean Mr. Toilet... let Myon stay... {t}..."),
         'young': ('おといれしゃん、そうじしゅる……ここに いちゃい……{t}……', '窝会打扫厕所鲜笋……窝想留下……{t}……', "I'll cwean Mr. Toilet... I wanna stay... {t}...")},
     'share': {
-        'adult': ('{t}♪ はい、どうぞ。', '{t}♪ 给，请用。', '{t}! Here you go.'),
+        'adult': ('{t}♪ はい、どうぞ。', '{t}♪ 给，吃吧。', '{t}! Here, eat.'),
         'young': ('{t}♪ どーじょ！', '{t}♪ 给你！', '{t}! Hewe!')},
     'shop_appeal': {
         'adult': ('{t}！ かって！ つよいから、まもってあげる！', '{t}！买下妖梦吧！妖梦很强，会保护你！', "{t}! Buy me! I'm strong, I'll protect you!"),
@@ -408,7 +408,7 @@ LINES = {
         'young': ('{t}！ もっちょ！ あみゃあみゃ、もっちょ！', '{t}！还要！甜甜还要！', '{t}! Mowe! Mowe sweeties!')},
     'snack_refuse': {
         'adult': ("おなか いっぱい……もう いらない。{t}……", "饱了……吃不下了。{t}……", "I'm full... no more. {t}..."),
-        'young': ('ぽんぽんしゃん、いっぱい……あとで。{t}。', '彭彭先森已经饱惹……待会儿。{t}。', 'Mr. Tummy is full... later. {t}.')},
+        'young': ('ぽんぽんしゃん、いっぱい……あとで。{t}。', '彭彭先生已经饱惹……待会儿。{t}。', 'Mr. Tummy is full... later. {t}.')},
     'spray_drowsy': {
         'adult': ("{t}……あまい におい……ねむねむ……", "{t}……甜甜的味道……困了……", "{t}... smells sweet... sleepy..."),
         'young': ('{t}……らむねのにおい……ねむねむ……', '{t}……汽水的味道……困困……', '{t}... soda smell... sweepy...')},
@@ -434,7 +434,7 @@ LINES = {
         'adult': ("{t}……みんな、まだかな……ここで まってる……", "{t}……大家，还没来呀……妖梦在这儿等……", "{t}... where is everyone...? I'll wait here..."),
         'young': ('{t}……おうちの みんな、まだ かえらない……もうちょっと まっちぇる……', '{t}……家里的油还没肥来……窝再等一会儿……', '{t}... my family still isn’t back... I’ll wait a little more...')},
     'wait_learned': {
-        'adult': ('{t}！ ゆっくり、りかいした！', '{t}！懂啦！我会等！', '{t}! I understand now!'),
+        'adult': ('{t}！ ゆっくり、りかいした！', '{t}！懂啦！妖梦会等！', '{t}! Myon understands now!'),
         'young': ('{t}！ ゆっくち りきゃいちた！', '{t}！懂惹！窝会等！', '{t}! I undewstand!')},
     'wait_turn': {
         'adult': ('ゆっくり……わかった……{t}。', '油库里……知道了……{t}。', 'Okay... I understand... {t}.'),
@@ -452,10 +452,10 @@ LINES = {
         'adult': ('ゆぶっ！ {t}！ たすけて！', '咕呜！{t}！救命！', 'Glub! {t}! Help!'),
         'young': ('ゆぶっ！ {t}！ たしゅけて！', '咕呜！{t}！救命呀！', 'Glub! {t}! Hewp!')},
     'wild_plea_keep': {
-        'adult': ('{t}！ かいゆっくりにして！ いいこにする！', '{t}！请收我当宠物！会乖乖的！', "{t}! Keep me as a pet! I'll be good!"),
+        'adult': ('{t}！ かいゆっくりにして！ いいこにする！', '{t}！收妖梦当宠物！妖梦会乖乖的！', '{t}! Keep Myon as a pet! Myon will be good!'),
         'young': ('{t}！ かいゆっくりに ちて！ いいこに しゅる！', '{t}！收窝当宠物！窝会乖乖的！', "{t}! Keep me! I'll be good!")},
     'wild_role_beg': {
-        'adult': ('{t}！ あまあま、ちょうだい！ ここ、あけて！', '{t}！给我甜甜！把这里打开！', '{t}! Sweets, please! Open up!'),
+        'adult': ('{t}！ あまあま、ちょうだい！ ここ、あけて！', '{t}！给妖梦甜甜！把这里打开！', '{t}! Sweets for Myon! Open up!'),
         'young': ('{t}！ あまあま、ちょうらい！ あけちぇ！', '{t}！给窝甜甜！快打开！', '{t}! Sweeties! Open up!')},
     'wild_role_provoke': {
         'adult': ('{t}！ バッジなんか、いらない！ しょうぶしろ！', '{t}！什么徽章，不需要！来决斗！', '{t}! Who needs a badge! Fight me!'),
@@ -491,7 +491,7 @@ NEW = {
         'young': ('{t}！ いいぼう！ 観楼剣に しゅる！', '{t}！好棍棍！要叫它觀樓劍！', "{t}! Good stick! It's Kanroken now!"),
         'baby': ('{c}♪ ぼー！ ぼー！', '{c}♪ 棒棒！棒棒！', '{c}! Stick! Stick!')},
     'kanroken_lost': {
-        'adult': ('観楼剣が……ない……{t}……でも、なかない！', '觀樓劍……不见了……{t}……但是不哭！', "Kanroken... is gone... {t}... but I won't cry!"),
+        'adult': ('観楼剣が……ない……{t}……でも、なかない！', '觀樓劍……不见了……{t}……但不哭！', "Kanroken... is gone... {t}... but I won't cry!"),
         'juvenile': ('観楼剣、おれちゃった……{t}……またさがす！', '觀樓劍断掉了……{t}……再去找一根！', "Kanroken broke... {t}... I'll find another!"),
         'young': ('観楼剣……にゃい……{t}……にゃかにゃい……', '觀樓劍……没惹……{t}……窝不哭……', 'Kanroken... gone... {t}... not cwying...'),
         'baby': ('ぼー……にゃい……{c}ーっ！', '棒棒……没有了……{c}——！', 'Stick... gone... {c}!')},

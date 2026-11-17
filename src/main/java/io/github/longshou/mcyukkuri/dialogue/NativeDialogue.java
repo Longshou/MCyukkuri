@@ -8,7 +8,8 @@ import net.minecraft.util.RandomSource;
 
 /** Packaged, curated native dialogue. No client types or Mod dialogue fallback. */
 public final class NativeDialogue {
-    public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound, String quirk) {}
+    public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound, String quirk,
+                       String variant) {}
     private static final Map<String, Line> LINES;
     private static final Map<String, List<Line>> EVENTS;
     static {
@@ -44,6 +45,15 @@ public final class NativeDialogue {
      * borrows a child's wording. A speaker with a {@code quirk} only sees lines of that quirk.
      */
     public static Line select(String species, String tier, String quirk, String event, RandomSource random) {
+        return select(species, tier, quirk, event, random, null, Set.of());
+    }
+    /**
+     * Pick a line, preferring one written for the speaker's current style ({@code proud}, {@code timid}, ...) and
+     * avoiding a line the speaker or a nearby speaker has just used. When every line is avoided, the full pool is
+     * used again; when no line carries the wanted style, the untagged wording is preferred over another style's.
+     */
+    public static Line select(String species, String tier, String quirk, String event, RandomSource random,
+                              String style, Set<String> avoid) {
         String[] chain = switch (tier) {
             case "baby" -> new String[] {"baby", "young"};
             case "juvenile" -> new String[] {"juvenile", "young"};
@@ -52,10 +62,38 @@ public final class NativeDialogue {
         };
         for (String step : chain) {
             var choices = EVENTS.get(indexKey(species, step, quirk, event));
-            if (choices != null) return choices.get(choices.size() == 1 ? 0 : random.nextInt(choices.size()));
+            if (choices != null) return pick(choices, style, avoid, random);
         }
         var shared = EVENTS.get(indexKey("*", "*", null, event));
-        return shared == null ? null : shared.get(shared.size() == 1 ? 0 : random.nextInt(shared.size()));
+        return shared == null ? null : pick(shared, style, avoid, random);
+    }
+    private static Line pick(List<Line> choices, String style, Set<String> avoid, RandomSource random) {
+        List<Line> preferred = choices;
+        if (style != null && !style.isEmpty()) {
+            // A plain speaker answers with the untagged wording or another plain frame; proud/timid take theirs.
+            List<Line> styled = choices.stream()
+                    .filter(line -> style.equals(line.variant())
+                            || (style.equals("plain") && (line.variant() == null || line.variant().isEmpty())))
+                    .toList();
+            if (!styled.isEmpty()) preferred = styled;
+            else {
+                List<Line> neutral = neutral(choices);
+                if (!neutral.isEmpty()) preferred = neutral;
+            }
+        } else {
+            List<Line> neutral = neutral(choices);
+            if (!neutral.isEmpty()) preferred = neutral;
+        }
+        List<Line> pool = preferred.stream().filter(line -> !avoid.contains(line.key())).toList();
+        if (pool.isEmpty()) {
+            // The wanted style has nothing fresh left; variety matters more than tone for this one utterance.
+            pool = choices.stream().filter(line -> !avoid.contains(line.key())).toList();
+        }
+        if (pool.isEmpty()) pool = preferred;
+        return pool.get(pool.size() == 1 ? 0 : random.nextInt(pool.size()));
+    }
+    private static List<Line> neutral(List<Line> choices) {
+        return choices.stream().filter(line -> line.variant() == null || line.variant().isEmpty()).toList();
     }
     /** Whether this exact tier (no fallback) has a line for the event. */
     public static boolean has(String species, String tier, String quirk, String event) { return EVENTS.containsKey(indexKey(species, tier, quirk, event)); }

@@ -219,7 +219,8 @@ final class FamilyFeeding {
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
         GameplayLog.limited(o.entity(),"family","care.start",200,"feed started child={} carrying={} source={} store={}",
                 o.target().getUUID(),carrying(),foodSource==null?null:foodSource.getUUID(),foodStore);
-        BirthStaging.caption(o.entity(),"亲油接受求食，开始寻找真实食物；取得后嚼糜喂食");return true;
+        BirthStaging.caption(o.entity(),"亲油接受求食，开始寻找真实食物；取得后嚼糜喂食");
+        o.entity().species().countChildren();return true;
     }
 
     /** Choose the species' own food in its own order ({@link Diet}): a water diet looks at the water plants before anything

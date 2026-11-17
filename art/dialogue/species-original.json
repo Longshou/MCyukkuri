@@ -7,7 +7,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "おなかが ぺーこぺーこ だよー。",
-      "chinese": "肚子饿了哟——！",
+      "chinese": "彭彭饿了哟——！",
       "events": [
         "hungry"
       ],
@@ -1087,7 +1087,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "おトイレさん、そうじするよ……ここに いさせて……",
-      "chinese": "我会打扫厕所先生哟……让我留下吧……",
+      "chinese": "灵梦会打扫厕所先生哟……让灵梦留下吧……",
       "events": [
         "settlement_submit"
       ],
@@ -1099,7 +1099,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆぅ……わたしも みんなと いっしょに いたいよ……",
-      "chinese": "油呜……我也想跟大家待在一起哟……",
+      "chinese": "油呜……灵梦也想跟大家待在一起哟……",
       "events": [
         "settlement_hurt"
       ],
@@ -1207,7 +1207,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おトイレさん、そうじするのぜ……ここに いさせて……",
-      "chinese": "我会打扫厕所先生贼……让我留下吧……",
+      "chinese": "魔理沙会打扫厕所先生贼……让魔理沙留下吧……",
       "events": [
         "settlement_submit"
       ],
@@ -1219,7 +1219,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆぅ……わたしも みんなと いっしょに いたいのぜ……",
-      "chinese": "油呜……我也想跟大家待在一起贼……",
+      "chinese": "油呜……魔理沙也想跟大家待在一起贼……",
       "events": [
         "settlement_hurt"
       ],
@@ -1291,7 +1291,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "あなた、だれなの？すこしはなれてちょうだい。",
-      "chinese": "你是谁？请离远一点。",
+      "chinese": "你是谁呀？离远一点哇。",
       "events": [
         "settlement_shun"
       ],
@@ -1327,7 +1327,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "おトイレさん、そうじするわ……ここに いさせて……",
-      "chinese": "我会打扫厕所先生哇……让我留下吧……",
+      "chinese": "爱丽丝会打扫厕所先生哇……让爱丽丝留下吧……",
       "events": [
         "settlement_submit"
       ],
@@ -1339,7 +1339,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ゆぅ……わたしも みんなと いっしょに いたいわ……",
-      "chinese": "油呜……我也想跟大家待在一起哇……",
+      "chinese": "油呜……爱丽丝也想跟大家待在一起哇……",
       "events": [
         "settlement_hurt"
       ],
@@ -1447,7 +1447,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "おトイレさん、そうじするよー……ここに いさせて……",
-      "chinese": "我会打扫厕所先生哟——……让我留下吧……",
+      "chinese": "橙会打扫厕所先生哟——……让橙留下吧……",
       "events": [
         "settlement_submit"
       ],
@@ -1459,7 +1459,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ゆぅ……わたしも みんなと いっしょに いたいよー……",
-      "chinese": "油呜……我也想跟大家待在一起哟——……",
+      "chinese": "油呜……橙也想跟大家待在一起哟——……",
       "events": [
         "settlement_hurt"
       ],
@@ -1531,7 +1531,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、あなたをしらないわ。はなれてね。",
-      "chinese": "姆Q，不认识你呀。离远一点吧。",
+      "chinese": "姆啾，不认识你呀。离远一点吧。",
       "events": [
         "settlement_shun"
       ],
@@ -1543,7 +1543,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、ここからでていってちょうだい！",
-      "chinese": "姆Q，请从这里出去！",
+      "chinese": "姆啾，从这里出去！",
       "events": [
         "settlement_drive"
       ],
@@ -1567,7 +1567,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。おトイレさん、そうじするわ……ここに いさせて……",
-      "chinese": "姆啾。我会打扫厕所先生哇……让我留下吧……",
+      "chinese": "姆啾。帕秋莉会打扫厕所先生哇……让帕秋莉留下吧……",
       "events": [
         "settlement_submit"
       ],
@@ -1579,7 +1579,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。ゆぅ……わたしも みんなと いっしょに いたいわ……",
-      "chinese": "姆啾。油呜……我也想跟大家待在一起哇……",
+      "chinese": "姆啾。油呜……帕秋莉也想跟大家待在一起哇……",
       "events": [
         "settlement_hurt"
       ],
@@ -1825,7 +1825,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、もうちょっと そばに いてのだ……くっついて いたい……",
-      "chinese": "呜——再陪我一会儿呀……我想挨着你……",
+      "chinese": "呜——再陪蕾米莉亚一会儿呀……蕾米莉亚想挨着你……",
       "events": [
         "gentle",
         "caregiver"
@@ -2077,7 +2077,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、うちの みんな、まだ かえらないのだ……もうすこし まってる……",
-      "chinese": "呜——家里的油怎么还没回来呀……我再等等……",
+      "chinese": "呜——家里的油怎么还没回来呀……蕾米莉亚再等等……",
       "events": [
         "wait_family"
       ],
@@ -2090,7 +2090,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、親はどこにいるのだろう……。",
-      "chinese": "呜——亲油在哪里呢……。",
+      "chinese": "呜——亲油在哪里呢……",
       "events": [
         "lost_parent"
       ],
@@ -2398,7 +2398,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "おかざり、ないのだ……。",
-      "chinese": "饰饰不见啦……。",
+      "chinese": "饰饰不见啦……",
       "events": [
         "lost_accessory"
       ],
@@ -2837,7 +2837,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、もうちょっと そばに いてよ……くっついて いたい……",
-      "chinese": "呜——再陪我一会儿哦……我想挨着你……",
+      "chinese": "呜——再陪芙兰一会儿哦……芙兰想挨着你……",
       "events": [
         "gentle",
         "caregiver"
@@ -3089,7 +3089,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、うちの みんな、まだ かえらないよ……もうすこし まってる……",
-      "chinese": "呜——家里的油怎么还没回来哦……我再等等……",
+      "chinese": "呜——家里的油怎么还没回来哦……芙兰再等等……",
       "events": [
         "wait_family"
       ],
@@ -3102,7 +3102,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、親はどこかな。声が聞きたいよ……。",
-      "chinese": "呜——亲油在哪里呢。想听听声音……。",
+      "chinese": "呜——亲油在哪里呢……想听听声音……",
       "events": [
         "lost_parent"
       ],
@@ -3832,7 +3832,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆぅ……バッジを もらうよ……！",
-      "chinese": "油呜……我要考到徽章哟！",
+      "chinese": "油呜……灵梦要考到徽章哟！",
       "events": [
         "exam_nervous"
       ],
@@ -3910,7 +3910,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ずるいよ！ どうしてれいむじゃないの！",
-      "chinese": "耍赖哟！我的点心先生呢？",
+      "chinese": "耍赖哟！灵梦的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -3923,7 +3923,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "おやつさん、わたしも まってたよ！ ぷくーっ！",
-      "chinese": "我也在等点心先生哟！噗咕——！",
+      "chinese": "点心先生，灵梦也在等哟！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -3936,7 +3936,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "にんげんさん！ このもんだい、できたよ！",
-      "chinese": "人类先生！这道题我做完了哟！",
+      "chinese": "人类先生！这道题灵梦做完了哟！",
       "events": [
         "exam_report"
       ],
@@ -3949,7 +3949,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ごめんなさい……。れいむ、まちがえちゃったよ……。",
-      "chinese": "对不起……灵梦弄错了……。",
+      "chinese": "油呜……灵梦弄错了哟……",
       "events": [
         "exam_sorry"
       ],
@@ -4092,7 +4092,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "おいしいもの、ちょうだい！ ここ、あけてね！",
-      "chinese": "把好吃的给我！把这里打开哦！",
+      "chinese": "把好吃的给灵梦！把这里打开哦！",
       "events": [
         "wild_role_beg"
       ],
@@ -4313,7 +4313,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "ごめんにゃしゃい……れいみゅ、まちがえちゃった……。",
-      "chinese": "对不起惹……窝弄错了……。",
+      "chinese": "油呜……窝弄错了惹……",
       "events": [
         "exam_sorry"
       ],
@@ -4339,7 +4339,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょう！ ゆっくちできりゅね！",
-      "chinese": "谢谢人类先生惹！可以油库里啦惹哟！",
+      "chinese": "谢谢人类先生惹！窝可以油库里啦惹哟！",
       "events": [
         "exam_pass"
       ],
@@ -4560,7 +4560,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆぅ……バッジを もらうのぜ……！",
-      "chinese": "油呜……我要考到徽章贼！",
+      "chinese": "油呜……魔理沙要考到徽章贼！",
       "events": [
         "exam_nervous"
       ],
@@ -4638,7 +4638,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ずるいのぜ！ まりさのぶんが ないのぜ！",
-      "chinese": "耍赖贼！我的点心先生呢？",
+      "chinese": "耍赖贼！魔理沙的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -4651,7 +4651,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おやつさん、わたしも まってたのぜ！ ぷくーっ！",
-      "chinese": "我也在等点心先生贼！噗咕——！",
+      "chinese": "点心先生，魔理沙也在等贼！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -4664,7 +4664,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "にんげんさん！ このもんだい、できたのぜ！",
-      "chinese": "人类先生！这道题我做完了贼！",
+      "chinese": "人类先生！这道题魔理沙做完了贼！",
       "events": [
         "exam_report"
       ],
@@ -4677,7 +4677,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "すまないのぜ……。まりさ、まちがえたのぜ。",
-      "chinese": "对不起贼……。魔理沙弄错了贼。",
+      "chinese": "油呜……魔理沙弄错了贼。",
       "events": [
         "exam_sorry"
       ],
@@ -5041,7 +5041,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ごめんにゃしゃいなのじぇ……まりちゃ、まちがえちゃったのじぇ……。",
-      "chinese": "对不起惹杰……窝弄错惹杰……。",
+      "chinese": "油呜……窝弄错惹杰……",
       "events": [
         "exam_sorry"
       ],
@@ -5067,7 +5067,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょうなのじぇ！",
-      "chinese": "谢谢人类先生惹杰！",
+      "chinese": "谢谢人类先生惹杰！窝可以油库里啦惹杰！",
       "events": [
         "exam_pass"
       ],
@@ -5288,7 +5288,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ゆぅ……バッジを もらうわ……！",
-      "chinese": "油呜……我要考到徽章哇！",
+      "chinese": "油呜……爱丽丝要考到徽章哇！",
       "events": [
         "exam_nervous"
       ],
@@ -5366,7 +5366,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ずるいわ！ ありすのぶんはどこなの！",
-      "chinese": "耍赖哇！我的点心先生呢？",
+      "chinese": "耍赖哇！爱丽丝的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -5379,7 +5379,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "おやつさん、わたしも まってたわ！ ぷくーっ！",
-      "chinese": "我也在等点心先生哇！噗咕——！",
+      "chinese": "点心先生，爱丽丝也在等哇！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -5392,7 +5392,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "にんげんさん！ このもんだい、できたわ！",
-      "chinese": "人类先生！这道题我做完了哇！",
+      "chinese": "人类先生！这道题爱丽丝做完了哇！",
       "events": [
         "exam_report"
       ],
@@ -5405,7 +5405,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ごめんなさい……。ありす、まちがえてしまったわ……。",
-      "chinese": "对不起……。爱丽丝弄错了哇……。",
+      "chinese": "油呜……爱丽丝弄错了哇……",
       "events": [
         "exam_sorry"
       ],
@@ -5548,7 +5548,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "あまあまを ちょうだい！ ここをあけてちょうだい！",
-      "chinese": "把甜甜给我！把这里打开哇！",
+      "chinese": "把甜甜给爱丽丝！把这里打开哇！",
       "events": [
         "wild_role_beg"
       ],
@@ -5769,7 +5769,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "ごめんにゃしゃい……ありちゅ、まちがえちゃったわ……。",
-      "chinese": "对不起哇……窝弄错了哇……。",
+      "chinese": "油呜……窝弄错了哇……",
       "events": [
         "exam_sorry"
       ],
@@ -5795,7 +5795,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょう！ しあわちぇー！",
-      "chinese": "谢谢人类先生！好幸福哇——！",
+      "chinese": "谢谢人类先生！窝好幸福哇——！",
       "events": [
         "exam_pass"
       ],
@@ -6016,7 +6016,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ゆぅ……バッジを もらうよー……！",
-      "chinese": "油呜……我要考到徽章哟——！",
+      "chinese": "油呜……橙要考到徽章哟——！",
       "events": [
         "exam_nervous"
       ],
@@ -6094,7 +6094,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ずるいよー！ ちぇんのぶんがないよー！",
-      "chinese": "耍赖哟——！我的点心先生呢？",
+      "chinese": "耍赖哟——！橙的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -6107,7 +6107,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "おやつさん、わたしも まってたよー！ ぷくーっ！",
-      "chinese": "我也在等点心先生哟——！噗咕——！",
+      "chinese": "点心先生，橙也在等哟——！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -6120,7 +6120,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "にんげんさん！ このもんだい、できたよー！",
-      "chinese": "人类先生！这道题我做完了哟——！",
+      "chinese": "人类先生！这道题橙做完了哟——！",
       "events": [
         "exam_report"
       ],
@@ -6133,7 +6133,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ごめんなさいだよー……。ちぇん、まちがえたよー……。",
-      "chinese": "对不起哟——……。橙弄错了哟——……。",
+      "chinese": "油呜……橙弄错了哟——……",
       "events": [
         "exam_sorry"
       ],
@@ -6497,7 +6497,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "ごめんにゃしゃいー……ちぇん、まちがえちゃったよー……。",
-      "chinese": "对不起——……橙弄错了哟——……。",
+      "chinese": "油呜——……橙弄错了哟——……",
       "events": [
         "exam_sorry"
       ],
@@ -6523,7 +6523,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょうー！ しあわちぇー！",
-      "chinese": "谢谢人类先生——！好幸福——！",
+      "chinese": "谢谢人类先生——！橙好幸福——！",
       "events": [
         "exam_pass"
       ],
@@ -6744,7 +6744,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。ゆぅ……バッジを もらうわ……！",
-      "chinese": "姆啾。油呜……我要考到徽章哇！",
+      "chinese": "姆啾。油呜……帕秋莉要考到徽章哇！",
       "events": [
         "exam_nervous"
       ],
@@ -6822,7 +6822,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ！ ずるいわ！ ぱちゅりーのぶんが ないじゃない！",
-      "chinese": "姆啾！耍赖哇！我的点心先生呢？",
+      "chinese": "姆啾！耍赖哇！帕秋莉的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -6835,7 +6835,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。おやつさん、わたしも まってたわ！ ぷくーっ！",
-      "chinese": "姆啾。我也在等点心先生哇！噗咕——！",
+      "chinese": "姆啾。点心先生，帕秋莉也在等哇！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -6848,7 +6848,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。にんげんさん！ このもんだい、できたわ！",
-      "chinese": "姆啾。人类先生！这道题我做完了哇！",
+      "chinese": "姆啾。人类先生！这道题帕秋莉做完了哇！",
       "events": [
         "exam_report"
       ],
@@ -7004,7 +7004,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ！ あまあまを ちょうだい！ ここを あけてちょうだい！",
-      "chinese": "姆啾！给我甜甜！请把这里打开！",
+      "chinese": "姆啾！把甜甜给帕秋莉！把这里打开！",
       "events": [
         "wild_role_beg"
       ],
@@ -7082,7 +7082,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、すごいわ。ぱちゅりーにも、おしえてほしいわ。",
-      "chinese": "姆啾，好厉害。也请教教帕秋莉。",
+      "chinese": "姆啾，好厉害。也教教帕秋莉。",
       "events": [
         "badge_admire"
       ],
@@ -7251,7 +7251,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょう。しあわちぇよ！",
-      "chinese": "谢谢人类先生。好幸福！",
+      "chinese": "谢谢人类先生。窝好幸福！",
       "events": [
         "exam_pass"
       ],
@@ -7472,7 +7472,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……バッジを もらうのだ……！",
-      "chinese": "呜——油呜……我要考到徽章呀！",
+      "chinese": "呜——油呜……蕾米莉亚要考到徽章呀！",
       "events": [
         "exam_nervous"
       ],
@@ -7550,7 +7550,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー！ ずるいのだ！ れみりあのぶんがないのだ！",
-      "chinese": "呜——耍赖呀！我的点心先生呢？",
+      "chinese": "呜——耍赖呀！蕾米莉亚的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -7563,7 +7563,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おやつさん、わたしも まってたのだ！ ぷくーっ！",
-      "chinese": "呜——我也在等点心先生呀！噗咕——！",
+      "chinese": "呜——点心先生，蕾米莉亚也在等呀！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -7576,7 +7576,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、にんげんさん！ このもんだい、できたのだ！",
-      "chinese": "呜——人类先生！这道题我做完了呀！",
+      "chinese": "呜——人类先生！这道题蕾米莉亚做完了呀！",
       "events": [
         "exam_report"
       ],
@@ -7732,7 +7732,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー！ あまあまを ちょうだいなのだ！ ここを あけるのだ！",
-      "chinese": "呜——！把甜甜给我呀！把这里打开呀！",
+      "chinese": "呜——！把甜甜给蕾米莉亚呀！把这里打开呀！",
       "events": [
         "wild_role_beg"
       ],
@@ -7979,7 +7979,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょうなのだ！ うれちいのだぁ！",
-      "chinese": "谢谢人类先生呀！好开心呀！",
+      "chinese": "谢谢人类先生呀！窝好开心呀！",
       "events": [
         "exam_pass"
       ],
@@ -8200,7 +8200,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、ゆぅ……バッジを もらうよ……！",
-      "chinese": "呜——油呜……我要考到徽章哦！",
+      "chinese": "呜——油呜……芙兰要考到徽章哦！",
       "events": [
         "exam_nervous"
       ],
@@ -8278,7 +8278,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー！ ずるいよ！ ふらんのぶんがないよ！",
-      "chinese": "呜——耍赖哦！我的点心先生呢？",
+      "chinese": "呜——耍赖哦！芙兰的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -8291,7 +8291,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、おやつさん、わたしも まってたよ！ ぷくーっ！",
-      "chinese": "呜——我也在等点心先生哦！噗咕——！",
+      "chinese": "呜——点心先生，芙兰也在等哦！噗咕——！",
       "events": [
         "exam_promise_fail"
       ],
@@ -8304,7 +8304,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、にんげんさん！ このもんだい、できたよ！",
-      "chinese": "呜——人类先生！这道题我做完了哦！",
+      "chinese": "呜——人类先生！这道题芙兰做完了哦！",
       "events": [
         "exam_report"
       ],
@@ -8317,7 +8317,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー……ごめんなさい。ふらん、まちがえちゃった……。",
-      "chinese": "呜——……对不起。芙兰弄错了……。",
+      "chinese": "呜——……油呜……芙兰弄错了……",
       "events": [
         "exam_sorry"
       ],
@@ -8460,7 +8460,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー！ あまあまちょうだい！ ここ、あけて！",
-      "chinese": "呜——！给我甜甜！把这里打开！",
+      "chinese": "呜——！把甜甜给芙兰！把这里打开！",
       "events": [
         "wild_role_beg"
       ],
@@ -8681,7 +8681,7 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー……ごめんにゃしゃい。ふりゃん、まちがえちゃった……。",
-      "chinese": "呜——……对不起。芙呀弄错了……。",
+      "chinese": "呜——……油呜……芙呀弄错了……",
       "events": [
         "exam_sorry"
       ],
@@ -8707,7 +8707,7 @@
       "species": "flandre",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょう！ うれちいよぉ！",
-      "chinese": "谢谢人类先生！好开心！",
+      "chinese": "谢谢人类先生！芙呀好开心！",
       "events": [
         "exam_pass"
       ],
@@ -9071,7 +9071,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "かいゆっくりにしてね！ いいこにするよ！",
-      "chinese": "请收我当宠物哦！我会乖乖的！",
+      "chinese": "收灵梦当宠物哦！灵梦会乖乖的！",
       "english": "Please keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -9760,7 +9760,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "こわいわ……はいりたくないの……。",
-      "chinese": "好怕哇……不想进去……。",
+      "chinese": "好怕哇……不想进去……",
       "english": "I'm scared! I don't want to go in!",
       "events": [
         "basket_refuse"
@@ -9799,7 +9799,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "かいゆっくりにしてちょうだい！ いいこにするわ！",
-      "chinese": "请收我当宠物哇！我会乖乖的！",
+      "chinese": "收爱丽丝当宠物哇！爱丽丝会乖乖的！",
       "english": "Please keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -9942,7 +9942,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "こわいわぁ……はいりたくにゃいの……。",
-      "chinese": "好怕哇……不想进去……。",
+      "chinese": "好怕哇……不想进去……",
       "english": "Scary! Don't wanna go in!",
       "events": [
         "basket_refuse"
@@ -10163,7 +10163,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "かいゆっくりに してねー！ いいこに するよー！",
-      "chinese": "请收我当宠物哟——！我会乖乖的哟——！",
+      "chinese": "收橙当宠物哟——！橙会乖乖的哟——！",
       "english": "Please keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -10488,7 +10488,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ……こわいの。はいりたくないわ……。",
-      "chinese": "姆啾……好怕。不想进去……。",
+      "chinese": "姆啾……好怕。不想进去……",
       "english": "I'm scared! I don't want to go in!",
       "events": [
         "basket_refuse"
@@ -10527,7 +10527,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、かいゆっくりにしてちょうだい。",
-      "chinese": "姆啾，请收我当宠物。",
+      "chinese": "姆啾，收帕秋莉当宠物。",
       "english": "Please keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -10670,7 +10670,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ……こわいわ。はいりたくにゃいの……。",
-      "chinese": "姆啾……好怕。不想进去……。",
+      "chinese": "姆啾……好怕。不想进去……",
       "english": "Scary! Don't wanna go in!",
       "events": [
         "basket_refuse"
@@ -10709,7 +10709,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ、かいゆっくりに ちてちょうだい。",
-      "chinese": "姆啾，请收帕秋当宠物。",
+      "chinese": "姆啾，收帕秋当宠物。",
       "english": "Keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -11333,7 +11333,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、かいゆっくりに してね！ いい子にするよ！",
-      "chinese": "呜——，请收我当宠物！我会乖乖的！",
+      "chinese": "呜——，收芙兰当宠物！芙兰会乖乖的！",
       "english": "Please keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -11691,7 +11691,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……抖掉……。",
+      "chinese": "帽帽……抖掉……",
       "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
@@ -11739,7 +11739,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "はあ……のぼれたのぜ……。",
-      "chinese": "哈啊……爬上来了……。",
+      "chinese": "哈啊……爬上来了……",
       "english": "Phew... I climbed up...",
       "events": [
         "self_rescue_safe"
@@ -11811,7 +11811,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "もう とどかないのぜ……。",
-      "chinese": "已经够不到了……。",
+      "chinese": "够不到了……",
       "english": "I cannot reach it anymore...",
       "events": [
         "hat_out_of_reach"
@@ -11895,7 +11895,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……抖掉……。",
+      "chinese": "帽帽……抖掉……",
       "english": "My hat... shake it off...",
       "events": [
         "self_rescue_hat"
@@ -11943,7 +11943,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "はあ……のぼれたのじぇ……。",
-      "chinese": "哈啊……爬上来了……。",
+      "chinese": "哈啊……爬上来了……",
       "english": "Phew... I climbed up...",
       "events": [
         "self_rescue_safe"
@@ -12015,7 +12015,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "もう とどかないのじぇ……。",
-      "chinese": "已经够不到了……。",
+      "chinese": "够不到了……",
       "english": "I cannot reach it anymore...",
       "events": [
         "hat_out_of_reach"
@@ -13407,7 +13407,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ひとくち だけで いいから、わけてほしいな……。",
-      "chinese": "只要一口就好，分我一点吧……。",
+      "chinese": "只要一口就好，分灵梦一点吧……",
       "events": [
         "badge_beg"
       ],
@@ -13420,7 +13420,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "ひとくち だけでいいから、ちょうだいにぇ……。",
-      "chinese": "只要一口就好，给窝一点惹……。",
+      "chinese": "只要一口就好，给窝一点惹……",
       "events": [
         "badge_beg"
       ],
@@ -13433,7 +13433,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ひとくちだけ ほしいのぜ……わけてほしいのぜ。",
-      "chinese": "就想要一口贼……分我一点贼。",
+      "chinese": "就想要一口贼……分魔理沙一点贼。",
       "events": [
         "badge_beg"
       ],
@@ -13459,7 +13459,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ひとくちだけ いただけないかしら……。",
-      "chinese": "能分我一口吗哇……。",
+      "chinese": "能分爱丽丝一口吗哇……",
       "events": [
         "badge_beg"
       ],
@@ -13485,7 +13485,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ひとくちだけ ほしいよー……わけてー。",
-      "chinese": "就想要一口哟——……分我一点——。",
+      "chinese": "就想要一口哟——……分橙一点——。",
       "events": [
         "badge_beg"
       ],
@@ -13511,7 +13511,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ……ひとくちだけ、わけてもらえないかしら。",
-      "chinese": "姆啾……能分我一口吗。",
+      "chinese": "姆啾……能分帕秋莉一口吗。",
       "events": [
         "badge_beg"
       ],
@@ -13537,7 +13537,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……ひとくちだけ ほしいのだ。わけてほしいのだ。",
-      "chinese": "呜——……就想要一口呀。分我一点呀。",
+      "chinese": "呜——……就想要一口呀。分蕾米莉亚一点呀。",
       "events": [
         "badge_beg"
       ],
@@ -13563,7 +13563,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー……ひとくちだけ ほしいな。わけてくれる？",
-      "chinese": "呜——……就想要一口。能分我一点吗？",
+      "chinese": "呜——……就想要一口。能分芙兰一点吗？",
       "events": [
         "badge_beg"
       ],
@@ -13589,7 +13589,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "はんぶんこ しようね。ゆっくり たべてね。",
-      "chinese": "咱们分一半吧。油库里地吃哦。",
+      "chinese": "分一半吧。油库里地吃哦。",
       "events": [
         "badge_share_offer"
       ],
@@ -14369,7 +14369,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "のらは あちらへ いってちょうだい！",
-      "chinese": "野良请到那边去哇！",
+      "chinese": "野良到那边去哇！",
       "events": [
         "badge_retort"
       ],
@@ -14421,7 +14421,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、のらは あちらへ いきなさい。",
-      "chinese": "姆啾，野良请到那边去。",
+      "chinese": "姆啾，野良到那边去。",
       "events": [
         "badge_retort"
       ],
@@ -15461,7 +15461,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "あまあま、ほしいよ！ ちょうだい、ちょうだい！",
-      "chinese": "想吃甜甜的哟！给我嘛，给我嘛！",
+      "chinese": "甜甜的，想吃哟！给灵梦嘛，给灵梦嘛！",
       "english": "I want something sweet! Please!",
       "events": [
         "ask_snack"
@@ -15539,7 +15539,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆぅ……ゆっくり してるよ。",
-      "chinese": "油呜……正在油库里哟。",
+      "chinese": "油呜……油库里哟。",
       "english": "Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -15877,7 +15877,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "あまあまが ほしいのぜ！ くれなのぜ！",
-      "chinese": "想吃甜甜贼！给我贼！",
+      "chinese": "甜甜的，想吃贼！给魔理沙贼！",
       "english": "I want something sweet! Please!",
       "events": [
         "ask_snack"
@@ -15955,7 +15955,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆぅ……ゆっくり してるのぜ。",
-      "chinese": "油呜……正在油库里贼。",
+      "chinese": "油呜……油库里贼。",
       "english": "Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -16293,7 +16293,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "あまあまが ほしいのよ！ ちょうだい！",
-      "chinese": "想吃甜甜的哇！给我嘛！",
+      "chinese": "甜甜的，想吃哇！给爱丽丝嘛！",
       "english": "I want something sweet! Please!",
       "events": [
         "ask_snack"
@@ -16371,7 +16371,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ゆぅ……ゆっくり してるわ。",
-      "chinese": "油呜……正在油库里哇。",
+      "chinese": "油呜……油库里哇。",
       "english": "Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -16787,7 +16787,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ゆぅ……ゆっくり してるよー。",
-      "chinese": "油呜……正在油库里哟——。",
+      "chinese": "油呜……油库里哟——。",
       "english": "Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -17138,7 +17138,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。たいくつだわ。あそんでちょうだい。",
-      "chinese": "姆啾。好无聊哇。陪我玩吧。",
+      "chinese": "姆啾。好无聊哇。陪帕秋莉玩吧。",
       "english": "Mukyu... I'm bored! Let's play together!",
       "events": [
         "ask_play"
@@ -17203,7 +17203,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。ゆぅ……ゆっくり してるわ。",
-      "chinese": "姆啾。油呜……正在油库里哇。",
+      "chinese": "姆啾。油呜……油库里哇。",
       "english": "Mukyu. Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -17619,7 +17619,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……ゆっくり してるのだ。",
-      "chinese": "呜——油呜……正在油库里呀。",
+      "chinese": "呜——油呜……油库里呀。",
       "english": "Uu... Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -17957,7 +17957,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、あまあま ほしいな！ ちょうだい！",
-      "chinese": "呜——，想要甜甜！给我嘛！",
+      "chinese": "呜——，想要甜甜！给芙兰嘛！",
       "english": "Uu... I want something sweet! Please!",
       "events": [
         "ask_snack"
@@ -18035,7 +18035,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、ゆぅ……ゆっくり してるよ。",
-      "chinese": "呜——油呜……正在油库里哦。",
+      "chinese": "呜——油呜……油库里哦。",
       "english": "Uu... Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -19189,7 +19189,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "おちびちゃん……もっと すーりすーり したいよ……でも いまは そっちに いけないよ……",
-      "chinese": "小贝比酱……还想跟你擦擦脸哟……可我现在过不去……",
+      "chinese": "小贝比酱……灵梦还想跟你擦擦脸哟……可现在过不去……",
       "events": [
         "give_up_search"
       ],
@@ -19465,7 +19465,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "こんな ガラクタ、にあうわけないよ！",
-      "chinese": "这种破烂，怎么可能适合我哟！",
+      "chinese": "这种破烂，怎么可能适合灵梦哟！",
       "events": [
         "junk_indignant"
       ],
@@ -19477,7 +19477,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "こんな ガラクタ、にあうわけないよ！",
-      "chinese": "这种破烂，怎么可能适合我哟！",
+      "chinese": "这种破烂，怎么可能适合窝哟！",
       "events": [
         "junk_indignant"
       ],
@@ -19489,7 +19489,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "こんな ガラクタ、にあうわけないのぜ！",
-      "chinese": "这种破烂，怎么可能配得上我贼！",
+      "chinese": "这种破烂，怎么可能配得上魔理沙贼！",
       "events": [
         "junk_indignant"
       ],
@@ -19501,7 +19501,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "こんな ガラクタ、にあうわけないのじぇ！",
-      "chinese": "这种破烂，怎么可能配得上我惹杰！",
+      "chinese": "这种破烂，怎么可能配得上窝惹杰！",
       "events": [
         "junk_indignant"
       ],
@@ -19513,7 +19513,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "こんな ガラクタ、にあわないよー！",
-      "chinese": "这种破烂，不适合我哟——！",
+      "chinese": "这种破烂，不适合橙哟——！",
       "events": [
         "junk_indignant"
       ],
@@ -19525,7 +19525,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "こんな ガラクタ、にあわないよー！",
-      "chinese": "这种破烂，不适合我哟——！",
+      "chinese": "这种破烂，不适合窝哟——！",
       "events": [
         "junk_indignant"
       ],
@@ -19537,7 +19537,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "こんな ガラクタ、わたしに にあうわけないわ！",
-      "chinese": "这种破烂，怎么可能配得上我哇！",
+      "chinese": "这种破烂，怎么可能配得上爱丽丝哇！",
       "events": [
         "junk_indignant"
       ],
@@ -19561,7 +19561,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。こんな ガラクタ、にあうわけないわ。",
-      "chinese": "姆啾。这种破烂，怎么可能配得上我哇。",
+      "chinese": "姆啾。这种破烂，怎么可能配得上帕秋莉哇。",
       "events": [
         "junk_indignant"
       ],
@@ -19573,7 +19573,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ。こんな ガラクタ、にあうわけないわ。",
-      "chinese": "姆啾。这种破烂，怎么可能配得上我哇。",
+      "chinese": "姆啾。这种破烂，怎么可能配得上帕秋哇。",
       "events": [
         "junk_indignant"
       ],
@@ -19609,7 +19609,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ひっ……こわいのぜ……やめてほしいのぜ……",
-      "chinese": "咿……好可怕贼……希望你别这样贼……",
+      "chinese": "咿……好可怕贼……别这样贼……",
       "events": [
         "junk_afraid"
       ],
@@ -19621,7 +19621,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ひっ……こわいのじぇ……やめちぇほちいのじぇ……",
-      "chinese": "咿……好可怕惹杰……希望你别这样惹杰……",
+      "chinese": "咿……好可怕惹杰……别这样惹杰……",
       "events": [
         "junk_afraid"
       ],
@@ -19657,7 +19657,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ひっ……こわいわ……やめてちょうだい……",
-      "chinese": "咿……好可怕哇……请住手哇……",
+      "chinese": "咿……好可怕哇……别这样哇……",
       "events": [
         "junk_afraid"
       ],
@@ -19669,7 +19669,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "ひっ……こわいわ……やめちぇちょうだい……",
-      "chinese": "咿……好可怕哇……请住手哇……",
+      "chinese": "咿……好可怕哇……别这样哇……",
       "events": [
         "junk_afraid"
       ],
@@ -19681,7 +19681,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ……こわいわ……やめてちょうだい……",
-      "chinese": "姆啾……好可怕哇……请住手哇……",
+      "chinese": "姆啾……好可怕哇……别这样哇……",
       "events": [
         "junk_afraid"
       ],
@@ -19693,7 +19693,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ……こわいわ……やめちぇちょうだい……",
-      "chinese": "姆啾……好可怕哇……请住手哇……",
+      "chinese": "姆啾……好可怕哇……别这样哇……",
       "events": [
         "junk_afraid"
       ],
@@ -19801,7 +19801,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ、ここが ぱちゅりーの おうちよ。",
-      "chinese": "姆Q，这里是帕秋莉的家。",
+      "chinese": "姆啾，这里是帕秋莉的家。",
       "events": [
         "home_declare"
       ],
@@ -19813,7 +19813,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ、ここが ぱちゅりーの おうちよ。",
-      "chinese": "姆Q，这里是帕秋莉的家。",
+      "chinese": "姆啾，这里是帕秋莉的家。",
       "events": [
         "home_declare"
       ],

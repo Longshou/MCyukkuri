@@ -31,7 +31,7 @@ public final class SpeechBubble {
         double left = entity.speechEnd() - entity.level().getGameTime() - partialTick;
         if (mc.options.hideGui || mc.player == null || !entity.isAlive() || entity.isInvisible()
                 || entity.getDialogueKey().isEmpty() || left <= 0 || mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(entity.position()) > 256) return;
-        Layout layout=layout(mc.font,entity.getDialogueKey());
+        Layout layout=layout(mc.font,entity);
         int count=layout.count;
         if (count == 0) return;
         int width=layout.width;
@@ -63,19 +63,36 @@ public final class SpeechBubble {
         pose.popPose();
     }
 
-    private static Layout layout(Font font,String dialogueKey){
+    private static Layout layout(Font font,YukkuriView entity){
+        String dialogueKey=entity.getDialogueKey();
+        String self=selfName(entity);
+        String mister=entity.isBaby()?"先森":"先生";
+        String cacheKey=dialogueKey+'\u0000'+self+'\u0000'+mister;
         synchronized(LAYOUTS){
             Language language=Language.getInstance();
-            Layout cached=LAYOUTS.get(dialogueKey);
+            Layout cached=LAYOUTS.get(cacheKey);
             if(cached!=null&&cached.language==language&&cached.font==font)return cached;
-            List<FormattedCharSequence> lines=font.split(Component.translatable(dialogueKey),LINE_WIDTH);
+            Component text=Component.translatable(dialogueKey);
+            String raw=text.getString();
+            if(raw.contains("{self}")||raw.contains("{mister}"))
+                text=Component.literal(raw.replace("{self}",self).replace("{mister}",mister));
+            List<FormattedCharSequence> lines=font.split(text,LINE_WIDTH);
             int count=Math.min(4,lines.size()),width=24;
             int[] widths=new int[count];
             for(int i=0;i<count;i++){widths[i]=font.width(lines.get(i));width=Math.max(width,widths[i]);}
             Layout layout=new Layout(List.copyOf(lines.subList(0,count)),widths,count,width,language,font);
-            LAYOUTS.put(dialogueKey,layout);
+            LAYOUTS.put(cacheKey,layout);
             return layout;
         }
+    }
+
+    /** The bare name a shared line calls itself: a given name if the player set one, else a small one's 窝, else the species. */
+    private static String selfName(YukkuriView entity){
+        if(entity.hasCustomName())return entity.getDisplayName().getString();
+        var mc=Minecraft.getInstance();
+        if(!entity.adult()&&mc.getLanguageManager().getSelected().startsWith("zh"))
+            return Component.translatable("dialogue.self.mcyukkuri.small").getString();
+        return Component.translatable("dialogue.self.mcyukkuri."+entity.getVariant().dialogueSpecies()).getString();
     }
 
     private static void clearLayouts(){

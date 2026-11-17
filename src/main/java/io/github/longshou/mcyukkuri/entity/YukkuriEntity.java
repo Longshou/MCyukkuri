@@ -90,9 +90,13 @@ import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -222,6 +226,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** The running reaction is held: nothing replaces it before it has run its ticks (a startle that must be seen whole). */
     private boolean reactionHeld;
     private final SpeechTiming speechTiming = new SpeechTiming();
+    /** Recently spoken line keys; transient and short, so one speaker does not repeat itself and neighbours do not echo. */
+    private static final int SPEECH_MEMORY = 16;
+    private final Deque<String> recentSpeech = new ArrayDeque<>();
     private String reactionExpression = "neutral";
     private String reactionEvent = "";
     private String pendingSpeech = "";
@@ -906,6 +913,35 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return family.youngVoice() ? "young" : "adult";
     }
 
+    /** Which wording fits this individual right now: a bold, pleased one; a wary, low one; or the plain line. */
+    public String speechStyle() {
+        var feeling = mind.feeling();
+        if (feeling.subdued()) return "timid";
+        if (feeling.kind() == io.github.longshou.mcyukkuri.mind.EmotionCourse.Kind.JOY) return "proud";
+        int boldness = life.personality().boldness();
+        if (mind.unease() >= 55 || boldness < 35) return "timid";
+        if (boldness >= 65 && mind.unease() < 40) return "proud";
+        return "plain";
+    }
+    /** Line keys this speaker should avoid: its own recent ones and those being said by a neighbour right now. */
+    private Set<String> speechAvoid() {
+        Set<String> avoid = new HashSet<>(recentSpeech);
+        if (level() instanceof ServerLevel server) {
+            long now = server.getGameTime();
+            for (YukkuriEntity other : server.getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(8))) {
+                if (other != this && other.speechEnd() > now) {
+                    String key = other.getDialogueKey();
+                    if (!key.isEmpty()) avoid.add(key);
+                }
+            }
+        }
+        return avoid;
+    }
+    private void rememberSpeech(String key) {
+        recentSpeech.addLast(key);
+        while (recentSpeech.size() > SPEECH_MEMORY) recentSpeech.removeFirst();
+    }
+
     /** Say a quantity the way a yukkuri does: 1, 2, 3, then "lots" (see {@link SpeechCount}). */
     public boolean speakCount(String base, int quantity) {
         String event = SpeechCount.event(base, quantity, variant.dialogueSpecies(), speechTier());
@@ -941,9 +977,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         }
         event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
-        var line = NativeDialogue.select(species, tier, myon.quirk(), event, random);
+        var line = NativeDialogue.select(species, tier, myon.quirk(), event, random, speechStyle(), speechAvoid());
         long now = level().getGameTime();
         if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event), timedCue)) return false;
+        rememberSpeech(line.key());
         sync().dialogue(line.key());
         sync().speechStart(now); sync().speechEnd(speechTiming.end());
         sync().speechSequence(speechSequence() + 1);

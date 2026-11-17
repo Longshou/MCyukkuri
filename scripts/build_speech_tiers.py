@@ -109,7 +109,7 @@ BABY = {
     'addr_human_kind': ("にんげんしゃ！ {c}♪", "人类先森！{c}♪", "Mr. Human! {c}!"),
     'addr_human_bro': ('おにーしゃ！ {c}♪', '大哥哥！{c}♪', 'Big brother! {c}!'),
     'addr_human_sis': ('おねーしゃ！ {c}♪', '大姐姐！{c}♪', 'Big sister! {c}!'),
-    'addr_human_owner': ('かいぬししゃ！ {c}♪', '饲主先生！{c}♪', 'Owner-sir! {c}!'),
+    'addr_human_owner': ('かいぬししゃ！ {c}♪', '饲主先森！{c}♪', 'Owner-sir! {c}!'),
     'addr_sibling_elder': ('おねーちゃ！ {c}♪', '姐姐！{c}♪', 'Big sis! {c}!'),
     'addr_sibling_younger': ('いもーと……？ {c}♪', '妹妹……？{c}♪', 'Little sis...? {c}!'),
     # body details (komicolle 11518802 / 11518847): bitter and spicy food, letting go from fright, a baked sole, wanting the powder
@@ -128,24 +128,24 @@ BABY.update({
     'stench': ('{c}ーっ！ くちゃい、くちゃい！', '{c}——！臭臭，臭臭！', '{c}! Stinky, stinky!'),
     # "please eat me" (social/SelfOffering): the child's side
     'offer_refuse': ("{c}ーっ！ やー！ おやしゃ、たべにゃいー！", "{c}——！亲亲油！窝不嚼……！", "{c}! No! I won't eat you!"),
-    'offer_eat': ("ごめにゃしゃ……むーちゃ……", "对不起……嚼、嚼……", "Sowwy... munch..."),
-    'offer_grief': ('{c}……おやしゃ……ごめにゃしゃい……いきりゅ……',
-                    '{c}……亲亲油……对不起……会活下去……',
-                    '{c}... Mama, Papa... sowwy... I will live...'),
+    'offer_eat': ("{c}……むーちゃ……むーちゃ……", "{c}……嚼、嚼……", "{c}... munch... munch..."),
+    'offer_grief': ('{c}……おやしゃ……いきりゅ……',
+                    '{c}……亲亲油……{nb}会活……',
+                    '{c}... Mama, Papa... {N} will live...'),
 })
 # baby counting frames: S is the counted sequence
 BABY_COUNT = {
     'count_food': ('ごはん、{S}！', '饭饭，{S}！', 'Food: {S}!'),
     'count_stock': ('おうちのまんま、{S}！', '家里的饭饭，{S}！', 'Home food: {S}!'),
     'count_children': ('ちびちゃ、{S}！', '小宝宝，{S}！', 'Babies: {S}!'),
-    'count_peers': ('おともだち、{S}！', '朋友，{S}！', 'Friends: {S}!'),
+    'count_peers': ('おともだち、{S}！', '同伴，{S}！', 'Friends: {S}!'),
 }
 
 # --- juvenile (koyuu): half-mature, clearer words, "-sensei" nouns, narrates own actions -------------------
 # {p} species prefix, {e} species ending, {n} self-name, {N} English name
 JUVENILE = {
     'hello': ("{p}ゆっくち しちぇいっちぇにぇ！", "{p}油库气洗切一切捏！", "{p}Chake id eaji!"),
-    'hungry': ('{p}ぽんぽんしゃんが ぺこぺこしてる{e}！', '{p}彭彭先森饿了{e}！', '{p}Mr. Tummy is hungry!'),
+    'hungry': ('{p}ぽんぽんしゃんが ぺこぺこしてる{e}！', '{p}彭彭先生饿了{e}！', '{p}Mr. Tummy is hungry!'),
     'fed': ("{p}ごはんしゃん！ むーちゃ、むーちゃ……しあわせ{e}！", "{p}饭鲜笋！嚼嚼……好幸福{e}！", "{p}Mr. Food! Munch, munch... so happy!"),
     'sleep': ("{p}ねむねむ……おやすみ{e}……", "{p}困困……要睡{e}……", "{p}Sleepy... night-night..."),
     'awake': ("{p}ふわぁ……おきちゃ{e}……", "{p}呼啊……醒了{e}……", "{p}Yawn... I'm awake..."),
@@ -190,11 +190,11 @@ DEATH_ADULT = {
     'eat_kin': ("{p}くさい……おなか、すいた{e}……ごめんね……", "{p}好臭……好饿{e}……对不起……", "{p}It stinks... I'm hungry... I'm sorry..."),
     'hunt_sweet': ('{p}かいぶつ{e}……でも、おなか すいた{e}……', '{p}是怪物{e}……可彭彭好饿{e}……', '{p}A monster... but I am so hungry...'),
     # "please eat me" (social/SelfOffering): the parent's side, a chain of its own beside the ordinary last words
-    'offer_ask': ("{p}わたしを……たべて くれる{e}……？", "{p}来……把我吃了吧{e}……", "{p}Here... please eat me..."),
-    'offer_insist': ("{p}わたしを たべて……いきてね……", "{p}吃了我……你要活下去{e}……", "{p}Eat me... you have to live..."),
-    'offer_give': ("{p}ゆっくり……わたしを たべてね……", "{p}油库里地吃我{e}……", "{p}Take your time... eat me..."),
-    'offer_spared': ("{p}よかった……まだ いっしょに いられる{e}……", "{p}太好了……我们还能待在一起{e}……", "{p}Thank goodness... we can stay together..."),
-    'sacrifice': ("{p}わたしが おとりに なる！ おちびちゃん、にげて！", "{p}我来引开坏蛋{e}！小贝比酱，快逃{e}！", "{p}I'll draw the bully away! Little one, run!"),
+    'offer_ask': ("{p}{n}を……たべて くれる{e}……？", "{p}来……把{n}吃了吧{e}……", "{p}Here... eat {N}..."),
+    'offer_insist': ("{p}{n}を たべて……いきてね……", "{p}把{n}吃了……要活下去{e}……", "{p}Eat {N}... and live..."),
+    'offer_give': ("{p}ゆっくり……{n}を たべてね……", "{p}油库里地吃{n}{e}……", "{p}Take your time... eat {N}..."),
+    'offer_spared': ("{p}よかった……まだ いっしょに いられる{e}……", "{p}太好了……还能待在一起{e}……", "{p}Thank goodness... we can stay together..."),
+    'sacrifice': ("{p}{n}が おとりに なる！ おちびちゃん、にげて！", "{p}{n}来引开坏蛋{e}！小贝比酱，快逃{e}！", "{p}{N} will draw the bully away! Little one, run!"),
 }
 DEATH_BASIS = ('komicolle 40720 overview end (the dying wish) / 11518847 (cannibalism taboo, stench only yukkuri smell); wiki E05/E08 (please eat me); '
                'project-original wording, unvoiced')
@@ -215,19 +215,21 @@ ADDRESS = {
     'addr_human_owner': ("{p}{t}！ ゆっくりしていってね！", "{p}{t}！油库里洗跌一跌捏！", "{p}{t}! Take it easy!"),
     'addr_human_hostile_old': ('{p}{t}、あっちにいって！', '{p}{t}快走开{e}！', '{p}Go away, {t}!'),
     'addr_human_hostile_man': ('{p}{t}、ごはんをおいてって！', '{p}{t}，把食物交出来{e}！', '{p}Hand over the food, {t}!'),
+    # A hostile human who is not an elder draws no insult and no welcome: the yukkuri only wants it gone.
+    'addr_human_hostile_wary': ('{p}にんげんさん、こないで{e}！ こわい{e}……', '{p}人类先生，别过来{e}！好可怕{e}……', '{p}Mr. Human, stay back! Scary...'),
     'addr_predator_remilia': ('{p}れみりゃがきた{e}！ こっちにこないで！', '{p}蕾米莉亚来了{e}！别过来！', "{p}Remilia's coming! Stay away!"),
     'addr_predator_flandre': ('{p}ふらんがいる{e}……！ みつからないように……', '{p}芙兰在那里{e}……！别被发现……', "{p}Flandre's there...! Don't get noticed..."),
     'thing_san': ('{p}これは{n}のたからものさん{e}！', '{p}这是{n}的宝物先生{e}！', "{p}This is {N}'s treasure, Mr. Treasure!"),
     'treasure_stolen': ('{p}{n}のたからものさん！ かえして、かえして……！', '{p}{n}的宝物先生！还回来，还回来{e}……！', "{p}{N}'s treasure! Give it back, give it back...!"),
     # the yukkuri says out loud what it is doing (komicolle 11518780)
-    'narrate_steal': ("{p}ごはんさん……こっそり つれていく{e}……", "{p}饭先生……我悄悄把你带走{e}……", "{p}Mr. Food... I'm sneaking you away..."),
-    'narrate_flee': ('{p}ゆっ……にげなきゃ{e}……', '{p}油……得逃走{e}……', '{p}Yu... I have to run...'),
-    'narrate_hide': ('{p}みつかってない……まだ みつかってない……', '{p}还没发现我……还没发现……', '{p}They have not seen me... not yet...'),
+    'narrate_steal': ("{p}ごはんさん……こっそり つれていく{e}……", "{p}饭先生……{n}悄悄把你带走{e}……", "{p}Mr. Food... {N} is sneaking you away..."),
+    'narrate_flee': ('{p}ゆっ……にげなきゃ{e}……', '{p}油……得逃走{e}……', '{p}Yu... have to run...'),
+    'narrate_hide': ('{p}みつかってない……まだ みつかってない……', '{p}还没发现{n}……还没发现……', '{p}They have not seen {N}... not yet...'),
 }
-JUVENILE_STEAL = ('{p}ごはんしゃん……こっそり つれちぇいく{e}……', '{p}饭鲜笋……窝悄悄把你带走{e}……',
-                  "{p}Mr. Food... I'm sneaking you away...")
-JUVENILE_HIDE = ('{p}みちゅかってない……みちゅかってない……', '{p}没有发现窝，没有发现窝……',
-                 '{p}They have not seen me... they have not seen me...')
+JUVENILE_STEAL = ('{p}ごはんしゃん……こっそり つれちぇいく{e}……', '{p}饭鲜笋……{n}悄悄把你带走{e}……',
+                  "{p}Mr. Food... {N} is sneaking you away...")
+JUVENILE_HIDE = ('{p}みちゅかってない……みちゅかってない……', '{p}没有发现{n}，没有发现{n}……',
+                 '{p}They have not seen {N}... they have not seen {N}...')
 TERMS = {  # tier -> event -> (jp, zh, en)
     'juvenile': {
         'addr_mother': ('おかーしゃん', '妈妈', 'Mama'), 'addr_father': ('おとーしゃん', '爸爸', 'Papa'),
@@ -251,8 +253,163 @@ COUNT_FRAMES = {
     'count_food': ('{p}ごはんさんは……{S}！', '{p}食物先生有……{S}！', '{p}Mr. Food has... {S}!'),
     'count_stock': ('{p}おうちのたくわえさんは……{S}！', '{p}家里的存粮先生有……{S}！', '{p}The stockpile has... {S}!'),
     'count_children': ('{p}こどもは……{S}！', '{p}孩子有……{S}！', '{p}The children are... {S}!'),
-    'count_peers': ('{p}なかまは……{S}！', '{p}伙伴有……{S}！', '{p}Friends: {S}!'),
+    'count_peers': ('{p}なかまは……{S}！', '{p}同伴……{S}！', '{p}Friends: {S}!'),
 }
+# --- extra wording for frequent events, tagged by the speaker's current style -------------------------------
+# A bold, pleased individual and a wary, low one say the same beat differently; NativeDialogue prefers the tag
+# that matches speechStyle() and falls back to the plain line. Every row is project-original and unvoiced.
+STYLED = {
+    'hello': {
+        'baby': {
+            'proud': ('{c}！ ゆっくち しちぇいっちぇにぇ！', '{c}！油库气洗切一切捏！', '{c}! Take it eashy!'),
+            'timid': ('{c}……こんにちは……', '{c}……你好……', '{c}... h-hello...'),
+            'plain': ('{c}！ ゆっくち！', '{c}！油库气！', '{c}! Take it eashy!')},
+        'juvenile': {
+            'proud': ('{p}ゆっくち しちぇいっちぇにぇ！ {n}、げんき！', '{p}油库气洗切一切捏！{n}很精神！', '{p}Take it easy! {N} is full of energy!'),
+            'timid': ('{p}ゆっくち……しちぇいっちぇにぇ……', '{p}油库气……洗切一切捏……', '{p}Take it... easy...'),
+            'plain': ('{p}やあ、ゆっくち しちぇいっちぇにぇ。', '{p}呀，油库气洗切一切捏。', '{p}Hi, take it easy.')},
+        'adult': {
+            'proud': ('{p}ゆっくりしていってね！ {n}は げんき{e}！', '{p}油库里洗跌一跌捏！{n}很精神{e}！', '{p}Take it easy! {N} is doing well!'),
+            'timid': ('{p}ゆっくり……していってね……', '{p}油库里……洗跌一跌捏……', '{p}Take it... easy...'),
+            'plain': ('{p}やあ、ゆっくりしていってね。', '{p}呀，油库里洗跌一跌捏。', '{p}Hi, take it easy.')}},
+    'hungry': {
+        'baby': {
+            'proud': ('{c}！ まんま、まんま！ ぺこぺこ！', '{c}！饭饭、饭饭！饿饿！', '{c}! Num-num, num-num! Hungry!'),
+            'timid': ('{c}……ぽんぽん、ぺこ……', '{c}……彭彭，饿……', '{c}... tummy... hungry...'),
+            'plain': ('{c}……まんま……', '{c}……饭饭……', '{c}... num-num...')},
+        'juvenile': {
+            'proud': ('{p}ぽんぽんしゃん、ぺこぺこ！ ごはん、ちょうだい！', '{p}彭彭先生饿惹！给饭饭嘛！', '{p}Mr. Tummy is hungry! Give food!'),
+            'timid': ('{p}ぽんぽんしゃん……ぺこぺこ……{e}……', '{p}彭彭先生……饿……{e}……', '{p}Mr. Tummy... hungry...'),
+            'plain': ('{p}ごはんしゃん、ほしい……', '{p}想要饭鲜笋……', '{p}... want Mr. Food...')},
+        'adult': {
+            'proud': ('{p}ぽんぽんが ぺこぺこ！ ごはん、たべる{e}！', '{p}彭彭饿扁了！要吃饭{e}！', '{p}Tummy is empty! Time to eat!'),
+            'timid': ('{p}ぽんぽん……すいた……{e}……', '{p}彭彭……饿了……{e}……', '{p}Tummy... hungry...'),
+            'plain': ('{p}ごはんさん、ほしい{e}……', '{p}想要饭先生{e}……', '{p}... want Mr. Food...')}},
+    'fed': {
+        'baby': {
+            'proud': ('{c}♪ まんま、おいちい！', '{c}♪ 饭饭，好吃！', '{c}! Num-num, yummy!'),
+            'timid': ('{c}……おなか、いっぱい……', '{c}……彭彭，饱饱……', '{c}... tummy... full...'),
+            'plain': ('{c}♪ まんま、たべた！', '{c}♪ 饭饭，吃啦！', '{c}! Ate num-num!')},
+        'juvenile': {
+            'proud': ('{p}ごはんしゃん、おいちい！ しあわせ{e}！', '{p}饭鲜笋好吃！好幸福{e}！', '{p}Mr. Food is yummy! So happy!'),
+            'timid': ('{p}ごはんしゃん……おなか、いっぱい……', '{p}饭鲜笋……彭彭饱了……', '{p}Mr. Food... tummy is full...'),
+            'plain': ('{p}ごはんしゃん、たべた{e}。', '{p}吃了饭鲜笋{e}。', '{p}Ate Mr. Food.')},
+        'adult': {
+            'proud': ('{p}ごはんさん、おいしい！ しあわせ{e}！', '{p}饭先生好吃！好幸福{e}！', '{p}Mr. Food is delicious! So happy!'),
+            'timid': ('{p}ごはんさん……もう いっぱい……', '{p}饭先生……已经饱了……', '{p}Mr. Food... full already...'),
+            'plain': ('{p}ごはんさん、たべた{e}。', '{p}吃了饭先生{e}。', '{p}Ate Mr. Food.')}},
+    'food_found': {
+        'baby': {
+            'proud': ('{c}！ まんま、みつけた！', '{c}！饭饭，找到啦！', '{c}! Found num-num!'),
+            'timid': ('{c}……まんま……ある……', '{c}……饭饭……有……', '{c}... num-num... there...')},
+        'juvenile': {
+            'proud': ('{p}ごはんしゃん、みつけた{e}！', '{p}找到饭鲜笋了{e}！', '{p}Found Mr. Food!'),
+            'timid': ('{p}ごはんしゃん……いた……', '{p}饭鲜笋……在……', '{p}Mr. Food... there...')},
+        'adult': {
+            'proud': ('{p}ごはんさん、みつけた{e}！', '{p}找到饭先生了{e}！', '{p}Found Mr. Food!'),
+            'timid': ('{p}ごはんさん……いた……', '{p}饭先生……在……', '{p}Mr. Food... there...')}},
+    'share': {
+        'baby': {
+            'proud': ('{c}♪ あげる！ どうじょ！', '{c}♪ 给你！给你！', '{c}! For you! Here!'),
+            'timid': ('{c}……どーじょ……', '{c}……给你……', '{c}... here...')},
+        'juvenile': {
+            'proud': ('{p}はい、はんぶんこ{e}！', '{p}给！分一半{e}！', '{p}Here! Half each!'),
+            'timid': ('{p}……どーじょ……たべて……', '{p}……给你……吃吧……', '{p}... here... eat...')},
+        'adult': {
+            'proud': ('{p}はい、どうぞ！ いっしょに たべる{e}！', '{p}给！一起吃{e}！', '{p}Here! Let us eat together!'),
+            'timid': ('{p}……どうぞ……', '{p}……给你……', '{p}... here...')}},
+    'addr_human_kind': {
+        'baby': {
+            'proud': ('{c}！ にんげんしゃ！', '{c}！人类先森！', '{c}! Mr. Human!'),
+            'timid': ('{c}……にんげんしゃ……', '{c}……人类先森……', '{c}... Mr. Human...')},
+        'juvenile': {
+            'proud': ('{p}にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！', '{p}人类先生！油库气洗切一切捏！', '{p}Mr. Human! Take it easy!'),
+            'timid': ('{p}にんげんしゃん……こんにちは……', '{p}人类先生……你好……', '{p}Mr. Human... hello...')},
+        'adult': {
+            'proud': ('{p}にんげんさん！ ゆっくりしていってね！', '{p}人类先生！油库里洗跌一跌捏！', '{p}Mr. Human! Take it easy!'),
+            'timid': ('{p}にんげんさん……こんにちは……', '{p}人类先生……你好……', '{p}Mr. Human... hello...')}},
+    'addr_human_owner': {
+        'baby': {
+            'proud': ('{c}♪ かいぬししゃ！', '{c}♪ 饲主先森！', '{c}! Owner-sir!'),
+            'timid': ('{c}……かいぬししゃ……', '{c}……饲主先森……', '{c}... Owner-sir...')},
+        'juvenile': {
+            'proud': ('{p}かいぬししゃん！ {n}、うれちい！', '{p}饲主先生！{n}好高兴！', '{p}Mr. Owner! {N} is happy!'),
+            'timid': ('{p}かいぬししゃん……だいじょぶ……？', '{p}饲主先生……没事吧……？', '{p}Mr. Owner... okay...?')},
+        'adult': {
+            'proud': ('{p}かいぬしさん！ {n}、うれしい{e}！', '{p}饲主先生！{n}好高兴{e}！', '{p}Mr. Owner! {N} is glad!'),
+            'timid': ('{p}かいぬしさん……だいじょうぶ……？', '{p}饲主先生……没事吧……？', '{p}Mr. Owner... okay...?')}},
+    'addr_mother': {
+        'baby': {
+            'proud': ('{c}♪ おかーしゃ！', '{c}♪ 麻麻！', '{c}! Mama!'),
+            'timid': ('{c}……おかーしゃ……', '{c}……麻麻……', '{c}... Mama...')},
+        'juvenile': {
+            'proud': ('{p}おかーしゃん！ {n}、ここ！', '{p}妈妈！{n}在这儿！', '{p}Mama! {N} is here!'),
+            'timid': ('{p}おかーしゃん……どこ……？', '{p}妈妈……在哪儿……？', '{p}Mama... where...?')},
+        'adult': {
+            'proud': ('{p}おかあさん！ {n}、ここ{e}！', '{p}妈妈！{n}在这儿{e}！', '{p}Mama! {N} is here!'),
+            'timid': ('{p}おかあさん……{n}、ここ……', '{p}妈妈……{n}在这儿……', '{p}Mama... {N} is here...')}},
+    'addr_father': {
+        'baby': {
+            'proud': ('{c}♪ おとーしゃ！', '{c}♪ 粑粑！', '{c}! Papa!'),
+            'timid': ('{c}……おとーしゃ……', '{c}……粑粑……', '{c}... Papa...')},
+        'juvenile': {
+            'proud': ('{p}おとーしゃん！ {n}、ここ！', '{p}爸爸！{n}在这儿！', '{p}Papa! {N} is here!'),
+            'timid': ('{p}おとーしゃん……どこ……？', '{p}爸爸……在哪儿……？', '{p}Papa... where...?')},
+        'adult': {
+            'proud': ('{p}おとうさん！ {n}、ここ{e}！', '{p}爸爸！{n}在这儿{e}！', '{p}Papa! {N} is here!'),
+            'timid': ('{p}おとうさん……{n}、ここ……', '{p}爸爸……{n}在这儿……', '{p}Papa... {N} is here...')}},
+    'addr_human_hostile_wary': {
+        'baby': {
+            'proud': ('{c}！ にんげんしゃ、こないで！', '{c}！人类先森，别过来！', '{c}! Human-sir, stay back!'),
+            'timid': ('{c}——！ こあい……こないで……', '{c}——！好口怕……别过来……', '{c}! Scawy... stay back...')},
+        'juvenile': {
+            'proud': ('{p}にんげんしゃん！ こっち くんな{e}！', '{p}人类先生！不许过来{e}！', '{p}Mr. Human! Do not come here!'),
+            'timid': ('{p}にんげんしゃん……こないで……{e}……', '{p}人类先生……别过来……{e}……', '{p}Mr. Human... stay back...')},
+        'adult': {
+            'proud': ('{p}にんげんさん、あっちに いって{e}！', '{p}人类先生，走开{e}！', '{p}Mr. Human, go away!'),
+            'timid': ('{p}にんげんさん……こわい……{e}……', '{p}人类先生……好可怕……{e}……', '{p}Mr. Human... scary...')}},
+    'afraid': {
+        'baby': {
+            'proud': ('{c}！ こあいけど、にげない！', '{c}！好口怕，但不跑！', '{c}! Scawy, but not running!'),
+            'timid': ('{c}——！ こあい！', '{c}——！好口怕！', '{c}! Scawy!'),
+            'plain': ('{c}……こあい……', '{c}……好口怕……', '{c}... scawy...')},
+        'juvenile': {
+            'proud': ('{p}こあいけど……{n}、がんばる{e}！', '{p}好口怕……但{n}要撑住{e}！', '{p}Scawy... but {N} will hold on!'),
+            'timid': ('{p}こあい……{e}……', '{p}好口怕……{e}……', '{p}Scawy...'),
+            'plain': ('{p}こあい……どうしよ……', '{p}好口怕……怎么办……', '{p}Scawy... what do I do...')},
+        'adult': {
+            'proud': ('{p}こわいけど……{n}、まけない{e}！', '{p}好可怕……但{n}不会输{e}！', '{p}Scary... but {N} will not give in!'),
+            'timid': ('{p}こわい……{e}……', '{p}好可怕……{e}……', '{p}Scary...'),
+            'plain': ('{p}こわい……どうしよう……', '{p}好可怕……怎么办……', '{p}Scary... what should I do...')}},
+    'wounded': {
+        'baby': {
+            'proud': ('{c}！ いちゃいけど、がんばる！', '{c}！好痛，但窝要撑住！', '{c}! It hurts, but I will be brave!'),
+            'timid': ('{c}——！ いちゃい……', '{c}——！好痛……', '{c}! It hurts...'),
+            'plain': ('{c}……いちゃい……', '{c}……好痛……', '{c}... it hurts...')},
+        'juvenile': {
+            'proud': ('{p}いちゃいけど……{n}、まだ いける{e}！', '{p}好痛……但{n}还能撑{e}！', '{p}It hurts... but {N} can still go!'),
+            'timid': ('{p}いちゃい……{e}……', '{p}好痛……{e}……', '{p}It hurts...'),
+            'plain': ('{p}いちゃい……なおして……', '{p}好痛……治一治……', '{p}It hurts... fix it...')},
+        'adult': {
+            'proud': ('{p}いたいけど……{n}、まだ たたかえる{e}！', '{p}好痛……但{n}还能打{e}！', '{p}It hurts... but {N} can still fight!'),
+            'timid': ('{p}いたい……{e}……', '{p}好痛……{e}……', '{p}It hurts...'),
+            'plain': ('{p}いたい……なおしてほしい{e}……', '{p}好痛……想被治好{e}……', '{p}It hurts... I want it fixed...')}},
+    'narrate_flee': {
+        'juvenile': {
+            'proud': ('{p}にげる！ {n}、はやい{e}！', '{p}要跑！{n}跑得快{e}！', '{p}Running! {N} is fast!'),
+            'timid': ('{p}にげなきゃ……{e}……', '{p}得跑了……{e}……', '{p}Have to run...')},
+        'adult': {
+            'proud': ('{p}にげる！ {n}、まけない{e}！', '{p}要跑！{n}不会输{e}！', '{p}Running! {N} will not lose!'),
+            'timid': ('{p}にげなきゃ……{e}……', '{p}得跑了……{e}……', '{p}Have to run...')}},
+    'narrate_hide': {
+        'juvenile': {
+            'proud': ('{p}みつからない！ {n}、かくれじょうず{e}！', '{p}没被发现！{n}躲得好{e}！', '{p}Not found! {N} hides well!'),
+            'timid': ('{p}みつかってない……まだ……', '{p}没发现……还没……', '{p}Not seen... not yet...')},
+        'adult': {
+            'proud': ('{p}みつからない！ {n}、かくれじょうず{e}！', '{p}没被发现！{n}躲得好{e}！', '{p}Not found! {N} hides well!'),
+            'timid': ('{p}みつかってない……まだ……', '{p}没发现……还没……', '{p}Not seen... not yet...')}},
+}
+
 # --- emotion chain and naming (docs/FEATURES.md; mind/MindLife, mind/Naming) ----------------------------
 # komicolle 40720 11518890: unable to take it easy the filling sweetens; past the limit it goes mad and can only
 # scream "yukkuchi" (油庫己); 11518829: a given name denies "Reimu is Reimu". tier -> event -> (jp, zh, en)
@@ -359,7 +516,7 @@ PROTECTION_CHILD = {
     'protect_child_selfish': {
         'baby': ('わりゅいの、おやしゃ おっかけてる！ にげりゅ！', '坏蛋追亲亲油惹！窝跑！', 'Meanie chasing my parent! I run!'),
         'juvenile': ('わるいの、おやしゃを おっかけてる！ わたち、さきに にげる！', '坏蛋去追亲亲油惹！窝先跑！', "The meanie's chasing my parent! I'm running first!"),
-        'adult': ('わるいやつは おやを おいかけてる！ さきに にげるよ！', '坏蛋追亲油去了！我先逃啦！', "The bully's after my parent! I'm getting out first!"),
+        'adult': ('わるいやつは おやを おいかけてる！ さきに にげるよ！', '坏蛋追亲油去了！先逃啦！', "The bully's after my parent! I'm getting out first!"),
     },
     'protect_child_flee': {
         'baby': ('こあい、ゆわぁ！', '好口怕，呜哇！', 'Scawy, waaah!'),
@@ -405,15 +562,18 @@ def buckets(tier, species):
     return [str(i) for i in range(1, cap + 1)] + ['many']
 
 
-def make(key, tier, event, frame, ctx, lines, basis=None, *, prefix='s_'):
+def make(key, tier, event, frame, ctx, lines, basis=None, *, prefix='s_', variant=None):
     species, _, quirk = key.partition('.')
     ident = f'{key}.{tier}.{prefix}{event}'
     jp = frame[0].format(**ctx['jp'])
     zh = frame[1].format(**ctx['zh'])
     en = frame[2].format(**ctx['en'])
-    lines.append({'id': ident, 'species': species, 'age': tier, **({'quirk': quirk} if quirk else {}),
-                  'events': [event], 'japanese': jp, 'chinese': zh, 'english': en, 'origin': 'project-original',
-                  'basis': basis or 'komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced'})
+    line = {'id': ident, 'species': species, 'age': tier, **({'quirk': quirk} if quirk else {}),
+            'events': [event], 'japanese': jp, 'chinese': zh, 'english': en, 'origin': 'project-original',
+            'basis': basis or 'komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced'}
+    if variant:
+        line['variant'] = variant
+    lines.append(line)
 
 
 def context(sp, tier, term=None, seq=None):
@@ -465,6 +625,11 @@ def main():
             for base, frame in COUNT_FRAMES.items():
                 for b in buckets(tier, sp.partition('.')[0]):
                     make(sp, tier, f'{base}_{b}', frame, context(sp, tier, seq=counted(base, b, tier, sp.partition('.')[0])), lines)
+    for sp in SPECIES:
+        for event, tiers in STYLED.items():
+            for tier, variants in tiers.items():
+                for i, (variant, frame) in enumerate(variants.items(), 1):
+                    make(sp, tier, event, frame, context(sp, tier), lines, prefix=f'v{i}_', variant=variant)
     for sp in SPECIES:
         for tier, events in EMOTION.items():
             for event, frame in events.items():

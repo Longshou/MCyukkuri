@@ -123,7 +123,8 @@ final class FamilySeparation {
             }
         }else desperate=false;
         if(atHome(e)){
-            if(away>=ABSENCE){cameHome=o.level().getGameTime();GameplayLog.event(e,"family","came home away={} home={}",away,e.habitat().shelter()==null?null:e.habitat().shelter().getBlockPos());}
+            if(away>=ABSENCE){cameHome=o.level().getGameTime();GameplayLog.event(e,"family","came home away={} home={}",away,e.habitat().shelter()==null?null:e.habitat().shelter().getBlockPos());
+                e.species().countChildren();}
             away=0;
         }else if(FamilyNest.care(e)!=null||e.habitat().shelter()!=null)away=Math.min(away+20,1_000_000);
         boolean wasLost=lost;lost=false;
