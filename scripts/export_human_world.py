@@ -30,7 +30,7 @@ def main(check=False):
             actual=json.loads((ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))
             errors.extend(lang+':'+k for k,v in furniture.language(lang).items() if actual.get(k)!=v)
         checks=load('art/structures/human-world/check_structure.py','shop_structure_check')
-        errors.extend('shop structure: '+e for e in checks.check_shop()+checks.check_street())
+        errors.extend('shop structure: '+e for e in checks.check_shop()+checks.check_street()+checks.check_plant())
         if errors:raise SystemExit('Human-world assets differ: '+', '.join(errors))
         print(f"Human-world sources and exports match ({len(record['files'])} files).")
         return
@@ -41,7 +41,7 @@ def main(check=False):
     exam=load('art/structures/human-world/author_exam_props.py','build_exam_props'); exam.export()
     furniture=load('art/structures/human-world/author_furniture.py','build_furniture'); furniture.export()
     checks=load('art/structures/human-world/check_structure.py','shop_structure_check')
-    problems=checks.check_shop()+checks.check_street()
+    problems=checks.check_shop()+checks.check_street()+checks.check_plant()
     if problems: raise SystemExit('Shop structure checks failed: '+'; '.join(problems))
     p=ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(exam.language('ja_jp'));data.update(furniture.language('ja_jp'))
     p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
@@ -71,7 +71,7 @@ def main(check=False):
     paths.append(ROOT/'art/structures/human-world/language.json')
     paths.append(ROOT/'art/structures/human-world/pipeline_language.py')
     paths.extend([ROOT/'art/structures/human-world/author_exam_props.py',ROOT/'art/structures/human-world/check_structure.py',ROOT/'art/structures/human-world/author_street.py',
-                  ROOT/'art/structures/human-world/palette.py'])
+                  ROOT/'art/structures/human-world/palette.py',ROOT/'art/structures/human-world/author_plant.py'])
     paths.extend(ROOT.glob('src/main/java/io/github/longshou/mcyukkuri/human/Exam*Block.java'))
     paths.append(ROOT/'art/structures/human-world/author_furniture.py')
     paths.append(ROOT/'scripts/furniture_placement.py')

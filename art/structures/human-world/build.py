@@ -615,13 +615,13 @@ def village_shop(original):
 
 
 def export():
-    import author_street
+    import author_street, author_plant
     summary=[]
     for style in STYLES:
         built=shop(PALETTES[style])
         if style=='plains': summary.append(built.save())   # the museum template (`human build shop`)
         summary.append(village_shop(built).save())
-    summary+=[specialized_factory(k).save() for k in ('labor','manju','bag')]+author_street.export()
+    summary+=[specialized_factory(k).save() for k in ('labor','manju','bag')]+author_street.export()+author_plant.export()
     p=OUT/'tags/worldgen/biome/human_buildings.json';p.parent.mkdir(parents=True,exist_ok=True)
     p.write_text(json.dumps({'replace':False,'values':['minecraft:plains','minecraft:sunflower_plains','minecraft:meadow','minecraft:savanna']},indent=2)+'\n',encoding='utf-8',newline='\n')
     p=OUT/'neoforge/biome_modifier/human_spawns.json'

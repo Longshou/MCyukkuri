@@ -7,7 +7,7 @@ staff that cannot be reached from the street door; a facade patch of one block l
 Usage: python check_structure.py   (also called by scripts/export_human_world.py --check)
 """
 from collections import deque
-import json
+import json, math
 from pathlib import Path
 import importlib.util, sys
 
@@ -201,9 +201,14 @@ def reachability(b):
 
 def facade_patches(b, limit=6):
     """No connected patch of one block type larger than 6x6 on the four outer wall planes (y 3..12)."""
+    return plane_patches(b, (('z=3', [(x, y, 3) for x in range(1, 40) for y in range(3, 13)]), ('z=30', [(x, y, 30) for x in range(1, 40) for y in range(3, 13)]),
+                             ('x=1', [(1, y, z) for z in range(3, 31) for y in range(3, 13)]), ('x=39', [(39, y, z) for z in range(3, 31) for y in range(3, 13)])), limit)
+
+def plane_patches(b, planes, limit=6):
+    """No connected patch of one block type larger than limit x limit on the given wall planes [(label, cells)]; a label 'z=..' is a
+    plane of constant z (its width runs along x), 'x=..' one of constant x."""
     errors = []
-    for plane, cells in (('z=3', [(x, y, 3) for x in range(1, 40) for y in range(3, 13)]), ('z=30', [(x, y, 30) for x in range(1, 40) for y in range(3, 13)]),
-                         ('x=1', [(1, y, z) for z in range(3, 31) for y in range(3, 13)]), ('x=39', [(39, y, z) for z in range(3, 31) for y in range(3, 13)])):
+    for plane, cells in planes:
         todo = set(cells); name = lambda p: name_at(b, *p)
         axis = 0 if plane.startswith('z') else 2
         while todo:
@@ -315,11 +320,12 @@ def door_errors(b):
         if name.endswith('_door') and props.get('half') == 'lower' and (x, y, z) not in b.doors: errors.append(f'{b.name}: door at {(x, y, z)} not registered')
     return errors
 
-def corridor_errors(b, y, x0, z0, x1, z1):
-    """No 1-wide corridor cell: a walkable cell open on two opposite sides and closed on the other two."""
+def corridor_errors(b, y, x0, z0, x1, z1, skip=()):
+    """No 1-wide corridor cell: a walkable cell open on two opposite sides and closed on the other two. `skip`: cells that are not staff
+    passages (the inside of yukkuri boxes)."""
     def passable(x, yy, z): n = name_at(b, x, yy, z); return free(n) or n.endswith('_door')
     walk = {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)
-            if name_at(b, x, y - 1, z) != AIR and passable(x, y, z) and passable(x, y + 1, z)}
+            if (x, z) not in skip and name_at(b, x, y - 1, z) != AIR and passable(x, y, z) and passable(x, y + 1, z)}
     out = []
     for x, z in sorted(walk):
         n, s, e, w = (x, z - 1) in walk, (x, z + 1) in walk, (x + 1, z) in walk, (x - 1, z) in walk
@@ -486,7 +492,126 @@ def check_street():
         errors += stray_errors(lot, (1, 4)) + styled_errors(lot)
     return errors
 
+# ---------------------------------------------------------------------------------------------------- the processing plant
+# Run against author_plant.py. Fails on: overwrites; entities in blocks; doors; light on every floor; a vanilla villager workstation (the
+# plant stands at a village edge); a block outside the plant's material set; a facade patch larger than 6x6; a 1-wide corridor cell;
+# staff unable to walk from the main door to every box, pen, booth and room door and to every reserved floor; a box, the sick pen or the
+# receiving booth whose ring is open below its lid (a yukkuri steps 1 block, so every ring cell is closed up to the lid) or whose lid has
+# a gap; two neighbouring boxes not sharing exactly one glass wall; a box without its bowl, toilet and nest; a box that the largest
+# admitted body cannot stand in or walk into; reserved floors that are not empty walkable floor; boundary corners that do not contain
+# the plant's walls.
+WORKSTATIONS = {'minecraft:' + n for n in ('barrel', 'lectern', 'composter', 'smoker', 'blast_furnace', 'cartography_table', 'brewing_stand',
+                                           'cauldron', 'water_cauldron', 'fletching_table', 'grindstone', 'loom', 'smithing_table', 'stonecutter')}
+PLANT_BLOCKS = {'minecraft:' + n for n in (
+    'air', 'light', 'lantern', 'chain', 'ochre_froglight', 'glass', 'glass_pane', 'white_concrete', 'yellow_concrete',
+    'stone_bricks', 'stone_brick_wall', 'stone_brick_stairs', 'polished_andesite', 'polished_andesite_stairs', 'polished_andesite_slab', 'smooth_stone',
+    'smooth_stone_slab', 'andesite', 'stone', 'gravel', 'waxed_copper_door', 'chest', 'hay_block', 'birch_wall_sign', 'potted_fern')}
+# The largest body a sweet box admits: an adult deibu (formScale 1.5) at the top adult scale 1.2 -- hitbox 0.8 x 0.6 per unit growth
+# (body_geometry.json) -> 1.44 wide, 1.08 high; the drawn model with the ribbon is 1.91 wide. The tallest is an adult Marisa at 1.2 with
+# her hat, 1.60 high (21.28 model units). A body this wide needs a 2 x 2 free square, this tall two free cells over the floor.
+LARGEST = {'width': 1.44, 'drawn_width': 1.91, 'height': 1.60}
+
+def ring_cells(x0, z0, x1, z1):
+    return [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
+
+def enclosure_errors(b, box, seen):
+    """A box, the sick pen or the booth: closed ring up to the lid, a whole lid, doors with clear stands, contents, the largest body."""
+    errors = []; x0, z0, x1, z1 = box['interior']; top = box['top']; name = f"{b.name} {box['kind']} {box['id']}"
+    for x, z in ring_cells(x0, z0, x1, z1):
+        if name_at(b, x, 3, z).endswith('_door'): continue
+        open_at = [y for y in range(3, top) if free(name_at(b, x, y, z))]
+        if open_at: errors.append(f'{name}: wall {(x, z)} open at y{open_at}')
+    for x in range(x0, x1 + 1):
+        for z in range(z0, z1 + 1):
+            if free(name_at(b, x, top, z)): errors.append(f'{name}: lid open over {(x, z)}')
+            if name_at(b, x, 2, z) == AIR: errors.append(f'{name}: no floor at {(x, z)}')
+    for (lx, lz), (ox, oz), (ix, iz) in box['doors']:
+        if not (name_at(b, lx, 3, lz).endswith('_door') and name_at(b, lx, 4, lz).endswith('_door')): errors.append(f'{name}: no door at {(lx, lz)}')
+        if (ox, oz) not in seen: errors.append(f'{name}: staff cannot reach the door stand {(ox, oz)}')
+        if not (free(name_at(b, ix, 3, iz)) and free(name_at(b, ix, 4, iz))): errors.append(f'{name}: inside door stand {(ix, iz)} blocked')
+    if box['kind'] == 'booth': return errors
+    for key, suffix in (('bowl', 'food_bowl'), ('toilet', 'yukkuri_toilet'), ('nest', 'nest')):
+        if key in box and not name_at(b, box[key][0], 3, box[key][1]).endswith(suffix): errors.append(f'{name}: no {key} at {box[key]}')
+    # The largest body: free cells of the interior two high (it walks in through the door), a 2x2 free square among those it reaches.
+    cells = {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1) if free(name_at(b, x, 3, z)) and free(name_at(b, x, 4, z))}
+    start = [(ix, iz) for _, _, (ix, iz) in box['doors']]
+    reached = set(c for c in start if c in cells); queue = deque(reached)
+    while queue:
+        x, z = queue.popleft()
+        for n in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+            if n in cells and n not in reached: reached.add(n); queue.append(n)
+    need = math.ceil(LARGEST['width'])
+    squares = [(x, z) for x, z in reached if all((x + i, z + j) in reached for i in range(need) for j in range(need))]
+    if not squares: errors.append(f'{name}: no {need}x{need} free square the largest body ({LARGEST["width"]} wide) can walk to')
+    if top - 3 < LARGEST['height']: errors.append(f'{name}: {top - 3} blocks clear inside, below {LARGEST["height"]}')
+    leaf_count = len(box['doors']) * 2
+    if leaf_count < need: errors.append(f'{name}: door narrower than the largest body')
+    return errors
+
+def plant_report(b):
+    """Stand-height and clearance numbers per box (for the package report and the preview)."""
+    rows = []
+    for box in b.boxes:
+        x0, z0, x1, z1 = box['interior']
+        rows.append(dict(id=box['id'], kind=box['kind'], interior=f'{x1 - x0 + 1}x{z1 - z0 + 1}', clear=box['top'] - 3,
+                         door='2 x 2', largest_height=LARGEST['height'], largest_width=LARGEST['width']))
+    return rows
+
+def load_plant():
+    path = Path(__file__).parent / 'author_plant.py'
+    sys.path.insert(0, str(path.parent))
+    spec = importlib.util.spec_from_file_location('author_plant_check', path); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+def check_plant():
+    m = load_plant(); b = m.plant(); errors = [f'{b.name}: block overwrite at {pos}: {old} -> {new}' for pos, old, new in b.conflicts]
+    errors += entity_errors(b) + door_errors(b) + light_errors(b)
+    used = {n for n, _, _ in b.blocks.values()}
+    errors += [f'{b.name}: villager workstation {n}' for n in sorted(used & WORKSTATIONS)]
+    foreign = sorted(n for n in used if n not in PLANT_BLOCKS and not n.startswith('mcyukkuri:'))
+    if foreign: errors.append(f'{b.name}: blocks outside the plant material set: {", ".join(foreign)}')
+    errors += [f'{b.name}: {e}' for e in plane_patches(b, (
+        ('z=3', [(x, y, 3) for x in range(1, 44) for y in range(3, 13)]), ('z=39', [(x, y, 39) for x in range(1, 44) for y in range(3, 13)]),
+        ('z=13', [(x, y, 13) for x in range(20, 44) for y in range(3, 13)]),
+        ('x=1', [(1, y, z) for z in range(3, 40) for y in range(3, 13)]), ('x=43', [(43, y, z) for z in range(3, 40) for y in range(3, 13)])))]
+    inside = {(x, z) for box in b.boxes if box['kind'] != 'booth' for x in range(box['interior'][0], box['interior'][2] + 1)
+              for z in range(box['interior'][1], box['interior'][3] + 1)}
+    errors += corridor_errors(b, 3, 2, 4, 42, 38, inside)
+    fx, fz = m.FRONT_DOOR; seen = reach_from(b, (fx, fz - 1), 3)
+    for box in b.boxes: errors += enclosure_errors(b, box, seen)
+    boxes = [box for box in b.boxes if box['kind'] == 'box']
+    for first, second in zip(boxes, boxes[1:]):
+        wall = first['interior'][3] + 1
+        if second['interior'][1] != wall + 1: errors.append(f'{b.name}: boxes {first["id"]} and {second["id"]} do not share one wall')
+        for x in range(first['interior'][0], first['interior'][2] + 1):
+            if any(name_at(b, x, y, wall) != 'minecraft:glass' for y in (3, 4, 5)):
+                errors.append(f'{b.name}: wall between boxes {first["id"]} and {second["id"]} at x{x} is not one clear glass')
+    for zone in b.zones:
+        (x0, z0), (x1, z1) = zone['low'], zone['high']
+        cells = [(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)]
+        bad = [c for c in cells if name_at(b, c[0], 2, c[1]) == AIR or not free(name_at(b, c[0], 3, c[1])) or not free(name_at(b, c[0], 4, c[1]))]
+        if bad: errors.append(f"{b.name}: reserved floor {zone['kind']} not empty walkable floor at {bad[:4]}")
+        if not any(c in seen for c in cells): errors.append(f"{b.name}: staff cannot reach the reserved floor {zone['kind']}")
+    for room in b.rooms:
+        for (dx, dz), facing in room['doors']:
+            ox, oz = {'north': (dx, dz - 1), 'south': (dx, dz + 1), 'west': (dx - 1, dz), 'east': (dx + 1, dz)}[facing]
+            if (ox, oz) not in seen: errors.append(f"{b.name}: room {room['id']} door {(dx, dz)} unreachable")
+    tags = {}
+    for ent in b.entities:
+        nbt = ent['nbt'][1]
+        if nbt['id'][1] == 'minecraft:marker': tags.setdefault(nbt['Tags'][1][1][0], []).append(ent['pos'][1][1])
+    corners = tags.get('mcy_plant_corner', [])
+    if len(corners) != 2: errors.append(f'{b.name}: {len(corners)} boundary corners, expected 2')
+    else:
+        lo = [min(c[i] for c in corners) for i in range(3)]; hi = [max(c[i] for c in corners) for i in range(3)]
+        walls = [p for p, (n, _, _) in b.blocks.items() if p[1] >= 3 and n not in FREE and 1 <= p[0] <= 43 and 3 <= p[2] <= 39]
+        out = [p for p in walls if not all(lo[i] - .5 <= p[i] <= hi[i] + .5 for i in range(3))]
+        if out: errors.append(f'{b.name}: plant blocks outside the boundary box, first {out[:4]}')
+        if lo[2] - .5 <= fz - 1: errors.append(f'{b.name}: the forecourt is inside the boundary box')
+    if len(tags.get('mcy_plant_box', [])) != len(boxes): errors.append(f'{b.name}: box markers do not match the boxes')
+    return errors
+
 if __name__ == '__main__':
-    problems = check_shop() + check_street()
-    print('\n'.join(problems) if problems else 'yukkuri_shop, street and oni-san shop structure checks passed')
+    problems = check_shop() + check_street() + check_plant()
+    print('\n'.join(problems) if problems else 'yukkuri_shop, street, oni-san shop and processing plant structure checks passed')
     sys.exit(1 if problems else 0)

@@ -275,6 +275,17 @@
     "source": "art/structures/human-world/author_street.py"
   },
   {
+    "name": "yukkuri_processing_plant",
+    "size": [
+      45,
+      13,
+      41
+    ],
+    "blocks": 10254,
+    "entities": 18,
+    "source": "art/structures/human-world/author_plant.py"
+  },
+  {
     "name": "village/plains/badge_hall",
     "size": [
       26,
