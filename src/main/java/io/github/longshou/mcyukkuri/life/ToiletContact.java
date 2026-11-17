@@ -261,11 +261,11 @@ public final class ToiletContact {
             SurfaceApproach.face(actor, -90); // face east; rear points into the tray
             return facilityContact(actor, pos);
         }
-        // Once on the low tray, use ordinary MoveControl for the final centimetres.
+        // Once on the low tray, close the last centimetres straight: ground steering circles a point this close.
         if (actor.onGround() && Math.abs(actor.getY() - seat.y) < .08
                 && actor.position().subtract(seat).horizontalDistanceSqr() < .36) {
             actor.getNavigation().stop();
-            actor.getMoveControl().setWantedPosition(seat.x, seat.y, seat.z, .55);
+            SurfaceApproach.tryStraightStep(actor, seat, .55);
         } else if (actor.getNavigation().isDone() || actor.tickCount % 10 == 0) {
             actor.life().navigate(pos.above(), 1, false);
         }
