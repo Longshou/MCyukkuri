@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 加工所 F5d：隔玻璃亲子（目击护幼／推孩子／转开、碎玻璃逃出、出厂界解归属，FA-02） | `.worktrees/wp-fac-f5d-kinboxes` | life/GlassSight, family/FamilyLife, family/FamilySeparation, human/Custody, social/ProtectivePuff, family/ParentCarry |
 | 台词修复：油库里语言与说话场合（DeepSeek 与用户对话进行） | `.worktrees/wp-dialogue-fix` | art/dialogue, dialogue selection (NativeDialogue, SpeechAddress, counting), lang files |
+| 报纸与盖纸闭环（18/19/20） | `.worktrees/wp-paper-closure` | life/BlockPull.java pose/PaperTent.java life/TemperatureLife.java |
 
 ## 玩法待办
 
