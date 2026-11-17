@@ -24,8 +24,8 @@
   - 翅膀、辫子、头发、猫尾贴墙收拢：已接入待试玩（[ad4737b34](https://github.com/Longshou/MCyukkuri/commit/ad4737b34)，运行版本 [29ce00a44](https://github.com/Longshou/MCyukkuri/commit/29ce00a44)；不理会转身上限 54° 取消、改 78°）；野外场 FG-08／FG-09 看魔理沙贴墙与箱内的辫子和头发，蕾米莉亚／芙兰靠墙转身与「不理会」时翅膀向下收拢，橙背靠墙时尾巴上卷；会馆徽章眼红时两只有翼种的嫉妒脸是否仍读得出。
   - 四个已做未调用的动作接上：已接入待试玩（[1d76ce63b](https://github.com/Longshou/MCyukkuri/commit/1d76ce63b)）；地上捡物改播叼起动作（不再是水生魔理沙的帽冠取粮）、口对口递食 `offer_bite`、亲油看护会划水的落水幼体时安抚、帽船采粮叼到入仓动作松口才进粮袋；帽船 PD 场景与善意分食。
   - 打喷嚏三版：博物馆「动作片段」→「日常生活」→ 打喷嚏 A／B／C（[ec32ba703](https://github.com/Longshou/MCyukkuri/commit/ec32ba703)，仅动作片段，未接入行为）；用户选一版留用，其余删除。
+  - 流浪偷摊货：已接入待试玩（[b3acba32e](https://github.com/Longshou/MCyukkuri/commit/b3acba32e)；集市西端胡萝卜箱降一格可叼，饿而胆大的流浪趁摊主不看偷一根，摊主看见按态度摆手／喝斥并记一阵、不再喂它；摊货玩家可补，不自动补货）；街道 TN-32「流浪油在摊前偷胡萝卜」；看谨慎者等转身、莽者直冲、箱沿叼取姿态（复用 `paper_pull`）。
   后续（均未做）：
-  - 流浪从摊位货箱偷取货物，店主看到后反应。
   - 大小不一或有台阶的贴身蹭没有专门场景，靠试玩看。
 
 - **村庄城镇化与街景**：已接入待试玩（主街、公共建筑与街口 [d318e98a6](https://github.com/Longshou/MCyukkuri/commit/d318e98a6)，镇内地块 [19bfc0428](https://github.com/Longshou/MCyukkuri/commit/19bfc0428)，五种村庄材质 [19fbb0f3c](https://github.com/Longshou/MCyukkuri/commit/19fbb0f3c)，院子宠物与纸箱避让 [149fa90ac](https://github.com/Longshou/MCyukkuri/commit/149fa90ac)，博物馆「人类社会」→「村庄城镇」的五类按钮与「换个布局」 [6b54a34a2](https://github.com/Longshou/MCyukkuri/commit/6b54a34a2)）。用户：「接手任务，并完善地编相关内容 特别是街道与原版村庄的融入，各种街景与建筑物的构建」。用户定案：整村城镇化（油库里内容为主、原版房屋作陪衬）；建筑与街景随五类村庄换原版材质；本轮只做地编与建筑并接上已有行为，新建筑带来的新行为另开包。
