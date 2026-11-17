@@ -390,7 +390,10 @@ final class HumanStreet {
             actions++;
             cue(npc, y, activeSite == null ? "warning" : npc.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "crop");
             y.getLookControl().setLookAt(npc, 30, 30);
-            if (activeSite != null) y.showReaction("surprise", "", 30);
+            if (activeSite != null) {
+                npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+                y.showReaction("surprise", "", 30);
+            }
             GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={} site={}", y.getUUID(), y.getHealth(), actions, activeSite);
             return true;
         }
