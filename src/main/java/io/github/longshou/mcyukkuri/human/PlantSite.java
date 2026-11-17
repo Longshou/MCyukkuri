@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.human.mixin.StructureTemplateAccessor;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,8 +17,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -32,7 +35,8 @@ final class PlantSite {
 
     private PlantSite() {}
 
-    record Layout(BoundingBox booth, List<BlockPos> boxFloor) {}
+    record Box(BlockPos stand, List<BlockPos> floor) {}
+    record Layout(BoundingBox booth, BlockPos boothPost, List<BlockPos> boothFloor, List<Box> boxes) {}
 
     private static Marker marker(ServerLevel level, UUID id) {
         return level.getEntity(id) instanceof Marker marker && marker.getTags().contains(SITE) ? marker : null;
@@ -55,18 +59,23 @@ final class PlantSite {
         var counter = markers.stream().filter(info -> tagged(info, "mcy_plant_counter")).findFirst().orElseThrow();
         var origin = site.blockPosition().subtract(counter.blockPos.rotate(rotation));
         var booth = markers.stream().filter(info -> tagged(info, "mcy_plant_receive")).findFirst().orElseThrow();
-        var floors = new ArrayList<BlockPos>();
+        var boxes = new ArrayList<Box>();
         for (var info : markers) {
             if (!tagged(info, "mcy_plant_box")) continue;
-            var box = bounds(info, origin, rotation);
-            var cells = new ArrayList<BlockPos>();
-            BlockPos.betweenClosed(box.minX(), box.minY(), box.minZ(), box.maxX(), box.minY(), box.maxZ())
-                    .forEach(at -> cells.add(at.immutable()));
-            var center = box.getCenter();
-            cells.sort(Comparator.comparingDouble(at -> at.distSqr(center)));
-            floors.addAll(cells);
+            var stand = origin.offset(info.blockPos.offset(0, 0, 1).rotate(rotation));
+            boxes.add(new Box(stand, floor(bounds(info, origin, rotation))));
         }
-        return new Layout(bounds(booth, origin, rotation), floors);
+        var bounds = bounds(booth, origin, rotation);
+        return new Layout(bounds, origin.offset(booth.blockPos.rotate(rotation)), floor(bounds), boxes);
+    }
+
+    private static List<BlockPos> floor(BoundingBox bounds) {
+        var cells = new ArrayList<BlockPos>();
+        BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(), bounds.maxX(), bounds.minY(), bounds.maxZ())
+                .forEach(at -> cells.add(at.immutable()));
+        var center = bounds.getCenter();
+        cells.sort(Comparator.comparingDouble(at -> at.distSqr(center)));
+        return cells;
     }
 
     private static boolean tagged(StructureTemplate.StructureEntityInfo info, String tag) {
@@ -100,7 +109,7 @@ final class PlantSite {
                     counter = at;
                     staff(level, clip, rotation, id, "plant_counter", at);
                 }
-                case "mcy_plant_receive" -> staff(level, clip, rotation, id, "plant_receive", at.offset(offset(data, "Counter", rotation)));
+                case "mcy_plant_receive" -> staff(level, clip, rotation, id, "plant_receive", at);
                 case "mcy_plant_box" -> {
                     if (data.getString("Box").equals("A"))
                         staff(level, clip, rotation, id, "plant_sweetening", at.offset(offset(data, "Door", rotation)));
@@ -134,6 +143,7 @@ final class PlantSite {
         var nbt = at(post, "mcyukkuri:caretaker_brother", rotation);
         var npc = (HumanNpc) EntityType.create(nbt, level.getLevel()).orElseThrow();
         npc.postAtPlant(site, role, post);
+        if (role.equals("plant_receive")) PlantReceiving.equip(npc, new ItemStack(ModItems.CARRIER.get()));
         if (level.addFreshEntity(npc))
             GameplayLog.event(npc, "factory", "action=post_staff role={} site={} stand={}", role, site, post.toShortString());
     }

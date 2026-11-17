@@ -8,7 +8,7 @@
   "factory.mcyukkuri.receive.refused.unavailable": "Receiving is unavailable at this site.",
   "factory.mcyukkuri.receive.refused.land": "We only take free yukkuri that can live on dry land.",
   "factory.mcyukkuri.receive.refused.inventory": "Make space for the emeralds in your inventory.",
-  "factory.mcyukkuri.receive.refused.no_space": "There is no clear, dry space in the sweetening boxes.",
+  "factory.mcyukkuri.receive.refused.no_space": "There is no clear, dry spot in the booth within reach of both of us.",
   "dialogue.mcyukkuri.original.factory_receive_insult": "Puff! Stupid human!",
   "magnifier.mcyukkuri.outlook.calm": "Calm",
   "magnifier.mcyukkuri.outlook.guarded": "Wary",

@@ -205,6 +205,7 @@ public final class HumanNpc extends PathfinderMob {
             @Override public boolean canContinueToUse() { return !avoidingStreet() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(1, new CourierGoal());
+        goalSelector.addGoal(2, new PlantTransfer(this));
         goalSelector.addGoal(2, new YardClaimGoal());
         goalSelector.addGoal(2, new YardBowlGoal());
         goalSelector.addGoal(2, new RoutineGoal());
@@ -295,6 +296,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
             legacyOutput.collect(this);
+            if (level() instanceof ServerLevel server) PlantReceiving.dropOnDeath(server, this);
             // Held doses and operation tools fall where the worker fell.
             if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem)
                 setDropChance(EquipmentSlot.MAINHAND, 2.0f);

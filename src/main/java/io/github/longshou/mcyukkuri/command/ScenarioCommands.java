@@ -205,8 +205,7 @@ public final class ScenarioCommands {
                                 .executes(c -> basketClick(c, true))))
                         .then(Commands.literal("capture").then(Commands.argument("target", EntityArgument.entity())
                                 .executes(c -> basketClick(c, false))))
-                        .then(Commands.literal("load_snapshot").then(Commands.argument("target", EntityArgument.entity())
-                                .executes(ScenarioCommands::basketLoadSnapshot)))
+                        .then(Commands.literal("swap_hands").executes(ScenarioCommands::basketSwapHands))
                         .then(Commands.literal("plant_receive").then(Commands.argument("staff", EntityArgument.entity())
                                 .executes(ScenarioCommands::basketPlantReceive)))
                         .then(Commands.literal("release").then(Commands.argument("floor", BlockPosArgument.blockPos())
@@ -571,17 +570,11 @@ public final class ScenarioCommands {
         return result.consumesAction() ? 1 : 0;
     }
 
-    /** Seed a real old/protected captive without the modern player capture's change of owner. */
-    private static int basketLoadSnapshot(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
-        var level = c.getSource().getLevel();
-        var player = FakePlayerFactory.getMinecraft(level);
-        var basket = player.getMainHandItem();
-        var target = yukkuri(c, "target");
-        if (target == null || !CarrierContents.isBasket(basket) || !CarrierContents.tokens(basket).isEmpty()) return 0;
-        var world = YukkuriWorldData.get(level);
-        var token = world.capture(target);
-        if (token == null) return 0;
-        CarrierContents.add(basket, token, world.captiveSnapshot(token));
+    private static int basketSwapHands(CommandContext<CommandSourceStack> c) {
+        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        var main = player.getMainHandItem();
+        player.setItemInHand(InteractionHand.MAIN_HAND, player.getOffhandItem());
+        player.setItemInHand(InteractionHand.OFF_HAND, main);
         return 1;
     }
 

@@ -425,7 +425,7 @@ public final class ShopTrade {
     }
 
     /** A basket set down on the floor; {@code target} alone may pick it up (a buyer, or the shop itself so no customer takes stock). */
-    static ItemEntity drop(ServerLevel level, UUID target, Vec3 at, ItemStack basket) {
+    public static ItemEntity drop(ServerLevel level, UUID target, Vec3 at, ItemStack basket) {
         var item = ModRandom.created(new ItemEntity(level, at.x, at.y + .15, at.z, basket), ModRandom.world(level));
         item.setTarget(target);
         item.setDefaultPickUpDelay();

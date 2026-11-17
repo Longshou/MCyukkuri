@@ -8,16 +8,23 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.shop.ShopPricing;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
+import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import java.util.UUID;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 /** Counter contact settles one live intake through the real player's carrier and the transport ledger. */
 public final class PlantReceiving {
@@ -25,8 +32,23 @@ public final class PlantReceiving {
 
     private PlantReceiving() {}
 
-    private static boolean receiver(HumanNpc staff) {
+    static boolean receiver(HumanNpc staff) {
         return staff.job() == HumanNpc.Job.FACTORY && staff.plantSite() != null && staff.siteRole().equals(RECEIVER) && staff.isAlive();
+    }
+
+    static void equip(HumanNpc staff, ItemStack basket) {
+        staff.setItemInHand(InteractionHand.MAIN_HAND, basket);
+        staff.setDropChance(EquipmentSlot.MAINHAND, 2);
+    }
+
+    static void dropOnDeath(ServerLevel level, HumanNpc staff) {
+        var basket = staff.getMainHandItem();
+        if (!staff.siteRole().equals(RECEIVER) || !CarrierContents.isBasket(basket)) return;
+        var drop = ShopTrade.drop(level, null, staff.position(), basket);
+        if (drop == null) return;
+        staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        GameplayLog.event(staff, "factory", "action=receive_transfer result=dropped token={} item={} reason=staff_died",
+                CarrierContents.singleToken(basket), drop.getUUID());
     }
 
     private static boolean eligible(YukkuriEntity animal) {
@@ -50,12 +72,26 @@ public final class PlantReceiving {
 
     static InteractionResult interact(Player player, HumanNpc staff, InteractionHand hand) {
         var basket = player.getItemInHand(hand);
-        if (!(staff.level() instanceof ServerLevel level) || !staff.siteRole().equals(RECEIVER) || !CarrierContents.isBasket(basket))
+        if (!(staff.level() instanceof ServerLevel level) || !staff.siteRole().equals(RECEIVER))
             return InteractionResult.PASS;
+        var staffBasket = staff.getMainHandItem();
+        var carried = CarrierContents.singleToken(staffBasket);
+        if (!CarrierContents.isBasket(basket) && !(basket.isEmpty() && carried != null)) return InteractionResult.PASS;
         if (!receiver(staff) || !player.isAlive() || player.isSpectator()
                 || player.distanceToSqr(staff) > player.entityInteractionRange() * player.entityInteractionRange()
                 || !player.hasLineOfSight(staff)) return refuse(staff, player, null, "reach");
+        if (basket.isEmpty()) {
+            staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            player.setItemInHand(hand, staffBasket);
+            GameplayLog.event(staff, "factory", "action=receive_transfer result=taken player={} token={}", player.getUUID(), carried);
+            return InteractionResult.CONSUME;
+        }
         var token = CarrierContents.singleToken(basket);
+        if (staffBasket.isEmpty() && basket.getCount() == 1 && CarrierContents.tokens(basket).isEmpty()) {
+            equip(staff, basket);
+            player.setItemInHand(hand, ItemStack.EMPTY);
+            return InteractionResult.CONSUME;
+        }
         if (basket.getCount() != 1 || token == null) return refuse(staff, player, null, "one_animal");
         var world = YukkuriWorldData.get(level);
         var snapshot = world.captiveSnapshot(token);
@@ -70,7 +106,8 @@ public final class PlantReceiving {
         var layout = PlantSite.layout(level, site);
         if (layout == null) return refuse(staff, player, identity, "unavailable");
 
-        var released = world.releaseOnGround(token, level, staff.position(), staff.getYRot(), layout.boxFloor(), animal -> {
+        var floor = layout.boothFloor().stream().filter(cell -> visibleFloor(level, player, staff, cell)).toList();
+        var released = world.releaseOnGround(token, level, staff.position(), player.getYRot() + 180, floor, animal -> {
             if (animal.body().dying()) return "not_live";
             if (!eligible(animal)) return "land";
             return paymentSlot(player, new ItemStack(Items.EMERALD, ShopPricing.rawPrice(animal))) < 0 ? "inventory" : null;
@@ -91,12 +128,20 @@ public final class PlantReceiving {
         int price = ShopPricing.rawPrice(animal);
         var payment = new ItemStack(Items.EMERALD, price);
         player.getInventory().add(paymentSlot(player, payment), payment);
-        staff.swing(hand);
+        staff.swing(InteractionHand.OFF_HAND);
         if (!animal.life().sedated()) showOpening(level, animal, staff);
         player.displayClientMessage(Component.translatable("factory.mcyukkuri.receive.paid", animal.getName(), price), true);
         GameplayLog.event(animal, "factory", "action=receive_live result=committed player={} staff={} site={} token={} carrier_count=1 occupants=1->0 emeralds_paid={}",
                 player.getUUID(), staff.getUUID(), site, token, price);
         return InteractionResult.CONSUME;
+    }
+
+    private static boolean visibleFloor(ServerLevel level, Player player, HumanNpc staff, BlockPos cell) {
+        var point = Vec3.atBottomCenterOf(cell).add(0, .2, 0);
+        double reach = player.entityInteractionRange();
+        return player.distanceToSqr(point) <= reach * reach && ShopStaff.reaches(staff, point, cell)
+                && level.clip(new ClipContext(player.getEyePosition(), point, ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.NONE, player)).getType() == HitResult.Type.MISS;
     }
 
     private static void showOpening(ServerLevel level, YukkuriEntity animal, HumanNpc staff) {
@@ -105,7 +150,9 @@ public final class PlantReceiving {
         ShopPerformance.schedule(level, animal.getUUID(), age -> {
             if (level.getEntity(animal.getUUID()) != animal || !animal.isAlive() || animal.life().sedated()) return true;
             if (age < YukkuriAction.BASKET_OUT.durationTicks()) return false;
-            PunishmentReaction.received(animal, staff);
+            var response = PunishmentReaction.handover(animal, staff, "factory_receive_insult");
+            GameplayLog.event(animal, "factory", "action=receive_reaction staff={} response={} self_control={} unease={}",
+                    staff.getUUID(), response, animal.life().personality().selfControl(), animal.mind().unease());
             return true;
         });
     }

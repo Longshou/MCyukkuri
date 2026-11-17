@@ -2412,13 +2412,13 @@ _plant_receiving = 'processing_plant'
 _receiving_animals = (
     ('receive_insult', 'reimu', -8, -13, '胆大·回嘴', 80, 25, 25, 0, 'DEFIANT', 2),
     ('receive_plea', 'alice', -7, -12, '惊慌·哭求', 25, 30, 65, 83, 'PLEAD', 4),
-    ('receive_freeze', 'chen', -8, -11, '克制·噤声', 30, 80, 65, 65, 'FREEZE', 4),
+    ('receive_freeze', 'chen', -9, -11, '克制·噤声', 30, 80, 65, 65, 'FREEZE', 4),
 )
 _receive_mother = uid(_plant_receiving, 'receive_insult')
 _receive_kin = kin_of(Mother=_receive_mother)
 add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房：收活体',
-    '进大厅右侧收货间，用空篮右键无主油库里装篮，再从南门出去向右，把实篮递给收货员。'
-    '核对空篮和绿宝石，沿过道去甜化箱看原来的个体。多人可分站柜台与箱边看哭求、回嘴或噤声。'
+    '进大厅右侧的收货间，用空篮装一只无主油库里，把实篮递给房里的收货员。看开篮后在眼前哭求、回嘴或噤声，核对空篮和绿宝石。'
+    '跟着收货员沿走廊去甜化箱，看他用自己的实篮装运同一只。空手可以接过员工正在搬运的实篮。'
     '对大厅右边的魔理沙用睡雾，在收货间外装篮使其归你，再交给收货员观察拒收。',
     '装篮、递篮各右键一次', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
     late=[*[yk(kind, x, z, name, dy=2, stage='adult' if name == 'receive_insult' else 'child', label=label,
@@ -6134,11 +6134,14 @@ _plant_smoke['commands'] = [
     (110, f'execute if entity {_legacy_worker} unless data entity {_legacy_worker} FactoryProduction run say MCY_LEGACY_SOURCE_CLEARED'),
 ]
 _receiving_staff = '@e[type=mcyukkuri:caretaker_brother,distance=..45,limit=1,nbt={SiteRole:"plant_receive"}]'
-_receive_click = 'execute positioned ~-4.5 ~2 ~-8.5 run yukkuri scenario basket plant_receive ' + _receiving_staff
+_receive_click = 'execute positioned ~-7.5 ~2 ~-12.5 run yukkuri scenario basket plant_receive ' + _receiving_staff
+_near_clerk = f'execute at {_receiving_staff} run yukkuri scenario basket plant_receive ' + _receiving_staff
+_booth_obstructions = [f'execute positioned ~{x} ~2 ~{z} '
+                       'unless entity @e[type=#mcylab:yukkuri,dx=0,dy=0,dz=0] '
+                       'unless entity @e[type=mcyukkuri:caretaker_brother,dx=0,dy=0,dz=0] '
+                       'run setblock ~ ~ ~ minecraft:barrier'
+                       for x in range(-9, -5) for z in range(-13, -10)]
 _boxes_air = 'fill ~-20 ~2 ~-3 ~-17 ~2 ~18 '
-_protected_name = 'receive_protected'
-_protected_actor = yk('marisa', -3, -15, _protected_name, dy=2, uuid=uid(_plant_receiving, _protected_name),
-                      extra='NeoForgeData:{HumanCommerce:{Owner:[I;4,3,2,1],OwnerKind:"npc",Use:"stock"}}')
 _receive_preserved = r'\[scenario\][^\n]* action=plant_receive_click result=\S+ token=(\S+) kept_token=true captive=true same_carrier=true carrier_count=1 occupants=1 paid=0\b'
 _receive_paid = r'\[scenario\][^\n]* action=plant_receive_click result=CONSUME token=(\S+) kept_token=false captive=false same_carrier=true carrier_count=1 occupants=0 paid=(\d+)\b'
 _plant_smoke['expect'] += [
@@ -6150,10 +6153,11 @@ _plant_smoke['expect'] += [
       for reason in ('reach', 'no_space', 'one_animal', 'owned', 'protected')],
     r'\[scenario\][^\n]* action=plant_receive_click result=\S+ token=null kept_token=false captive=false same_carrier=true carrier_count=1 occupants=0 paid=0\b',
     rf'\[interaction\][^\n]* uuid={_uuid_text(_plant_receiving, "receive_freeze")} [^\n]* tool used; [^\n]* action=PIERCE ',
-    r'MCY_PLANT_STOCK_PRESERVED',
+    *[rf'\[factory\][^\n]* uuid={_uuid_text(_plant_receiving, name)} [^\n]* action=receive_transfer result=placed '
+      for name, *_ in _receiving_animals],
+    r'MCY_PLANT_STOCK_PRESERVED', r'MCY_PLANT_HELD_BEFORE_RELOAD', r'MCY_PLANT_BOXES_OPEN',
 ]
-_plant_smoke['forbid'] += [rf'\[factory\][^\n]* uuid={_uuid_text(_plant_receiving, name)} [^\n]* action=receive_live result=committed'
-                          for name in ('receive_pet', _protected_name)]
+_plant_smoke['forbid'] += [rf'\[factory\][^\n]* uuid={_uuid_text(_plant_receiving, "receive_pet")} [^\n]* action=receive_live result=committed']
 
 
 def _verify_receiving(window):
@@ -6167,37 +6171,59 @@ def _verify_receiving(window):
         return 'Interrupted or blocked receipt failed to preserve the successful token, or ownership refusal was paid'
     if len(re.findall(r'\[factory\][^\n]* action=receive_live result=committed ', window)) != 3:
         return 'Expected exactly three plant admissions'
+    x, z = BY_ID['plant'].anchor
+    booth = re.findall(r'\[factory\][^\n]* pos=(-?\d+), (\d+), (-?\d+) action=receive_(?:live result=committed|reaction) ', window)
+    if len(booth) != 6 or any(not (x + _plant_x + 3 <= int(a) <= x + _plant_x + 6
+                                  and int(b) == FEET + 2 and z + _plant_z + 7 <= int(c) <= z + _plant_z + 9)
+                              for a, b, c in booth):
+        return f'Expected all admissions and reactions on the booth floor, got {booth}'
+    packed = re.findall(r'\[factory\][^\n]* t=(\d+)[^\n]* action=receive_transfer result=packed target=(\S+) token=(\S+)', window)
+    placed = re.findall(r'\[factory\][^\n]* uuid=(\S+) t=(\d+)[^\n]* action=receive_transfer result=placed [^\n]* token=(\S+)', window)
+    taken = re.findall(r'\[factory\][^\n]* action=receive_transfer result=taken [^\n]* token=(\S+)', window)
+    if len(packed) != 4 or len(placed) != 3 or taken != [preserved[-1]] or packed[0][2] != taken[0]:
+        return f'Expected a real basket taken in transit and three placements, got {packed}, {placed}, {taken}'
+    if window.index('action=receive_transfer result=packed') < window.find('MCY_PLANT_BOXES_OPEN'):
+        return 'The clerk loaded a basket before the blocked box floors reopened'
+    trips = {token: (int(tick), animal) for tick, animal, token in packed}
+    for animal, tick, token in placed:
+        if token not in trips or trips[token][1] != animal or int(tick) - trips[token][0] < 30:
+            return f'Placement {animal} did not follow a walk with the same staff basket token'
 
 
 _plant_smoke['verify'] = _verify_receiving
-_plant_smoke['ticks'] = 210
-_plant_smoke['reload'] = (170, sel('receive_plea'))
-_plant_smoke['reload_paths'] = ('UUID', 'NeoForgeData.HumanCommerce', 'YukkuriFamily.Mother', 'YukkuriPet.Grade', 'YukkuriPet.SkillExperience.wait')
+_plant_smoke['ticks'] = 1800
+_plant_smoke['reload'] = (260, _receiving_staff)
+_plant_smoke['reload_paths'] = ('UUID', 'HandItems[0]')
 _plant_smoke['readout'] += [f'data get entity {sel(name)} NeoForgeData.HumanCommerce' for name, *_ in _receiving_animals]
 _plant_smoke['commands'] += [
     (60, 'yukkuri scenario basket plain'),
     (61, f'yukkuri scenario basket capture {sel("receive_insult")}'),
     (62, 'yukkuri scenario basket plant_receive ' + _receiving_staff),
-    (62, _boxes_air + 'minecraft:barrier replace minecraft:air'),
+    *[(62, block) for block in _booth_obstructions],
     (63, _receive_click),
-    (64, _boxes_air + 'minecraft:air replace minecraft:barrier'),
+    (64, 'fill ~-9 ~2 ~-13 ~-6 ~2 ~-11 minecraft:air replace minecraft:barrier'),
     (65, _receive_click),
     (66, _receive_click),
+    (67, _boxes_air + 'minecraft:barrier replace minecraft:air'),
     (70, f'yukkuri scenario basket capture {sel("receive_plea")}'),
     (71, _receive_click),
     (75, f'yukkuri scenario basket capture {sel("receive_freeze")}'),
     (76, _receive_click),
-    (90, _protected_actor),
-    (91, f'data modify entity {sel("receive_pet")} NeoForgeData.HumanCommerce set value '
-         '{Owner:[I;1,2,3,4],OwnerKind:"player",Use:"companion"}'),
-    (92, f'yukkuri scenario basket load_snapshot {sel("receive_pet")}'),
-    (93, _receive_click),
-    (94, 'yukkuri scenario basket release ~-5 ~1 ~-15'),
-    (99, f'yukkuri scenario basket load_snapshot {sel(_protected_name)}'),
-    (100, _receive_click),
-    (101, 'yukkuri scenario basket release ~-3 ~1 ~-15'),
     (125, f'execute at {sel("receive_freeze")} positioned ~ ~ ~0.5 run yukkuri scenario tool_click {sel("receive_freeze")} pierce'),
-    (145, f'execute as {sel("receive_plea")} if data entity @s {OWNED}{{OwnerKind:"npc",Use:"plant_stock"}} '
+    (90, f'yukkuri scenario basket spray {sel("receive_pet")}'),
+    (211, f'yukkuri scenario basket capture {sel("receive_pet")}'),
+    (212, _receive_click),
+    (213, 'yukkuri scenario basket release ~-5 ~1 ~-15'),
+    (220, _boxes_air + 'minecraft:air replace minecraft:barrier'),
+    (220, 'say MCY_PLANT_BOXES_OPEN'),
+    (253, f'execute if data entity {_receiving_staff} HandItems[0].components."minecraft:custom_data".BasketOccupants[0].Token run say MCY_PLANT_HELD_BEFORE_RELOAD'),
+    (700, 'yukkuri scenario basket swap_hands'),
+    (701, _near_clerk),
+    (702, _near_clerk),
+    (703, 'yukkuri scenario basket release ~-9 ~1 ~-13'),
+    (704, _near_clerk),
+    (705, 'yukkuri scenario basket swap_hands'),
+    (2100, f'execute as {sel("receive_plea")} if data entity @s {OWNED}{{OwnerKind:"npc",Use:"plant_stock"}} '
           f'if data entity @s YukkuriFamily{{Mother:{uuid_nbt(_receive_mother)}}} '
           'if data entity @s YukkuriPet{Grade:1,SkillExperience:{wait:24}} run say MCY_PLANT_STOCK_PRESERVED'),
 ]

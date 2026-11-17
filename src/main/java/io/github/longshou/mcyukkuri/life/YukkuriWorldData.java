@@ -438,6 +438,15 @@ public final class YukkuriWorldData extends SavedData {
                 "action=release result=refused token={} destination={} reason={}",token,position,reason);
         return new GroundRelease(null, reason);
     }
+
+    /** The current body fits here on dry support, with room for other living bodies. */
+    public static boolean clearReleaseGround(ServerLevel level, YukkuriEntity animal, BlockPos cell) {
+        if (!level.hasChunkAt(cell)) return false;
+        var feet = Vec3.atBottomCenterOf(cell);
+        var box = animal.getBoundingBox().move(feet.subtract(animal.position()));
+        return level.noCollision(animal, box) && !level.containsAnyLiquid(box) && SurfaceApproach.stands(animal, feet)
+                && level.getEntities(animal, box, other -> other instanceof LivingEntity living && living.isAlive() && !living.isSpectator()).isEmpty();
+    }
     public YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw) {
         return release(token, level, position, yaw, false);
     }
@@ -486,12 +495,8 @@ public final class YukkuriWorldData extends SavedData {
             var cells = floor != null ? floor : BlockPos.withinManhattan(BlockPos.containing(position), radius, 2, radius);
             Vec3 supported = null;
             for (var cell : cells) {
-                if (!level.hasChunkAt(cell)) continue;
-                var candidate = Vec3.atBottomCenterOf(cell);
-                var box = entity.getBoundingBox().move(candidate.subtract(entity.position()));
-                if (level.noCollision(entity, box) && !level.containsAnyLiquid(box) && SurfaceApproach.stands(entity, candidate)
-                        && level.getEntities(entity, box, other -> other instanceof LivingEntity living && living.isAlive() && !living.isSpectator()).isEmpty()) {
-                    supported = candidate;
+                if (clearReleaseGround(level, entity, cell)) {
+                    supported = Vec3.atBottomCenterOf(cell);
                     break;
                 }
             }
