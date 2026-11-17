@@ -263,7 +263,7 @@ STYLED = {
         'baby': {
             'proud': ('{c}！ ゆっくち しちぇいっちぇにぇ！', '{c}！油库气洗切一切捏！', '{c}! Take it eashy!'),
             'timid': ('{c}……こんにちは……', '{c}……你好……', '{c}... h-hello...'),
-            'plain': ('{c}！ ゆっくち！', '{c}！油库气！', '{c}! Take it eashy!')},
+            'plain': ('{c}！ ゆっくち！', '{c}！油库气！', '{c}! Eashy!')},
         'juvenile': {
             'proud': ('{p}ゆっくち しちぇいっちぇにぇ！ {n}、げんき！', '{p}油库气洗切一切捏！{n}很精神！', '{p}Take it easy! {N} is full of energy!'),
             'timid': ('{p}ゆっくち……しちぇいっちぇにぇ……', '{p}油库气……洗切一切捏……', '{p}Take it... easy...'),
@@ -349,10 +349,10 @@ STYLED = {
             'proud': ('{c}！ にんげんしゃ！', '{c}！人类先森！', '{c}! Mr. Human!'),
             'timid': ('{c}……にんげんしゃ……', '{c}……人类先森……', '{c}... Mr. Human...')},
         'juvenile': {
-            'proud': ('{p}にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！', '{p}人类先生！油库气洗切一切捏！', '{p}Mr. Human! Take it easy!'),
+            'proud': ('{p}にんげんしゃん！ {n}も ゆっくちしゅる{e}！', '{p}人类鲜笋！{n}也要油库气{e}！', '{p}Mr. Human! {N} can take it easy too!'),
             'timid': ('{p}にんげんしゃん……こんにちは……', '{p}人类先生……你好……', '{p}Mr. Human... hello...')},
         'adult': {
-            'proud': ('{p}にんげんさん！ ゆっくりしていってね！', '{p}人类先生！油库里洗跌一跌捏！', '{p}Mr. Human! Take it easy!'),
+            'proud': ('{p}にんげんさん！ {n}は きょうも ゆっくりできる{e}！', '{p}人类先生！{n}今天也能油库里{e}！', '{p}Mr. Human! {N} can take it easy today too!'),
             'timid': ('{p}にんげんさん……こんにちは……', '{p}人类先生……你好……', '{p}Mr. Human... hello...')}},
     'addr_human_owner': {
         'baby': {

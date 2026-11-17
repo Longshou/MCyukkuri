@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -65,18 +66,19 @@ public final class SpeechBubble {
 
     private static Layout layout(Font font,YukkuriView entity){
         String dialogueKey=entity.getDialogueKey();
-        String self=selfName(entity);
-        String mister=entity.isBaby()?"先森":"先生";
-        String cacheKey=dialogueKey+'\u0000'+self+'\u0000'+mister;
+        Language language=Language.getInstance();
+        String raw=language.getOrDefault(dialogueKey);
+        boolean baby=entity.lifeStage()==FamilyLife.Stage.BABY.ordinal();
+        boolean chinese=Minecraft.getInstance().getLanguageManager().getSelected().startsWith("zh");
+        String text=raw;
+        if(chinese && baby)text=text.replace("先生","先森");
+        if(raw.contains("{mister}"))text=text.replace("{mister}",baby?"先森":"先生");
+        if(raw.contains("{self}"))text=text.replace("{self}",selfName(entity,chinese));
+        String cacheKey=raw.equals(text)?dialogueKey:dialogueKey+'\u0000'+text;
         synchronized(LAYOUTS){
-            Language language=Language.getInstance();
             Layout cached=LAYOUTS.get(cacheKey);
             if(cached!=null&&cached.language==language&&cached.font==font)return cached;
-            Component text=Component.translatable(dialogueKey);
-            String raw=text.getString();
-            if(raw.contains("{self}")||raw.contains("{mister}"))
-                text=Component.literal(raw.replace("{self}",self).replace("{mister}",mister));
-            List<FormattedCharSequence> lines=font.split(text,LINE_WIDTH);
+            List<FormattedCharSequence> lines=font.split(Component.literal(text),LINE_WIDTH);
             int count=Math.min(4,lines.size()),width=24;
             int[] widths=new int[count];
             for(int i=0;i<count;i++){widths[i]=font.width(lines.get(i));width=Math.max(width,widths[i]);}
@@ -87,10 +89,9 @@ public final class SpeechBubble {
     }
 
     /** The bare name a shared line calls itself: a given name if the player set one, else a small one's 窝, else the species. */
-    private static String selfName(YukkuriView entity){
+    private static String selfName(YukkuriView entity,boolean chinese){
         if(entity.hasCustomName())return entity.getDisplayName().getString();
-        var mc=Minecraft.getInstance();
-        if(!entity.adult()&&mc.getLanguageManager().getSelected().startsWith("zh"))
+        if(!entity.adult()&&chinese)
             return Component.translatable("dialogue.self.mcyukkuri.small").getString();
         return Component.translatable("dialogue.self.mcyukkuri."+entity.getVariant().dialogueSpecies()).getString();
     }

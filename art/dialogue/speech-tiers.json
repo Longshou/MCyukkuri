@@ -22457,7 +22457,7 @@
    ],
    "japanese": "ゆっ、ゆっ！ ゆっくち！",
    "chinese": "油、油！油库气！",
-   "english": "Yu, yu! Take it eashy!",
+   "english": "Yu, yu! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -23253,9 +23253,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "人类先生！油库气洗切一切捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんしゃん！ れいみゅも ゆっくちしゅるにぇ！",
+   "chinese": "人类鲜笋！灵梦也要油库气捏！",
+   "english": "Mr. Human! Reimu can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -23281,9 +23281,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんさん！ ゆっくりしていってね！",
-   "chinese": "人类先生！油库里洗跌一跌捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんさん！ れいむは きょうも ゆっくりできるよ！",
+   "chinese": "人类先生！灵梦今天也能油库里哦！",
+   "english": "Mr. Human! Reimu can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -24039,7 +24039,7 @@
    ],
    "japanese": "ゆっ、ゆっ！ ゆっくち！",
    "chinese": "油、油！油库气！",
-   "english": "Yu, yu! Take it eashy!",
+   "english": "Yu, yu! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -24835,9 +24835,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "人类先生！油库气洗切一切捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんしゃん！ まりちゃも ゆっくちしゅるのじぇ！",
+   "chinese": "人类鲜笋！魔理沙也要油库气惹杰！",
+   "english": "Mr. Human! Marisa can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -24863,9 +24863,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんさん！ ゆっくりしていってね！",
-   "chinese": "人类先生！油库里洗跌一跌捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんさん！ まりさは きょうも ゆっくりできるのぜ！",
+   "chinese": "人类先生！魔理沙今天也能油库里贼！",
+   "english": "Mr. Human! Marisa can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -25621,7 +25621,7 @@
    ],
    "japanese": "ゆっ、ゆっ！ ゆっくち！",
    "chinese": "油、油！油库气！",
-   "english": "Yu, yu! Take it eashy!",
+   "english": "Yu, yu! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -26417,9 +26417,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "人类先生！油库气洗切一切捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんしゃん！ ありちゅも ゆっくちしゅるにょ！",
+   "chinese": "人类鲜笋！爱丽丝也要油库气哟！",
+   "english": "Mr. Human! Alice can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -26445,9 +26445,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんさん！ ゆっくりしていってね！",
-   "chinese": "人类先生！油库里洗跌一跌捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんさん！ ありすは きょうも ゆっくりできるわ！",
+   "chinese": "人类先生！爱丽丝今天也能油库里呢！",
+   "english": "Mr. Human! Alice can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -27203,7 +27203,7 @@
    ],
    "japanese": "ゆ、にゃっ！ ゆっくち！",
    "chinese": "油、喵！油库气！",
-   "english": "Yu, nya! Take it eashy!",
+   "english": "Yu, nya! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -27999,9 +27999,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "人类先生！油库气洗切一切捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんしゃん！ ちぇんも ゆっくちしゅるよぅ！",
+   "chinese": "人类鲜笋！橙也要油库气哟——！",
+   "english": "Mr. Human! Chen can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -28027,9 +28027,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "にんげんさん！ ゆっくりしていってね！",
-   "chinese": "人类先生！油库里洗跌一跌捏！",
-   "english": "Mr. Human! Take it easy!",
+   "japanese": "にんげんさん！ ちぇんは きょうも ゆっくりできるよー！",
+   "chinese": "人类先生！橙今天也能油库里哟——！",
+   "english": "Mr. Human! Chen can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -28785,7 +28785,7 @@
    ],
    "japanese": "む、きゅっ！ ゆっくち！",
    "chinese": "姆、啾！油库气！",
-   "english": "Mu, kyu! Take it eashy!",
+   "english": "Mu, kyu! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -29581,9 +29581,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "むきゅ。にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "姆啾。人类先生！油库气洗切一切捏！",
-   "english": "Mukyu. Mr. Human! Take it easy!",
+   "japanese": "むきゅ。にんげんしゃん！ ぱちゅも ゆっくちしゅるわ！",
+   "chinese": "姆啾。人类鲜笋！帕秋莉也要油库气惹哇！",
+   "english": "Mukyu. Mr. Human! Patchouli can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -29609,9 +29609,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "むきゅ。にんげんさん！ ゆっくりしていってね！",
-   "chinese": "姆啾。人类先生！油库里洗跌一跌捏！",
-   "english": "Mukyu. Mr. Human! Take it easy!",
+   "japanese": "むきゅ。にんげんさん！ ぱちゅりーは きょうも ゆっくりできるわ！",
+   "chinese": "姆啾。人类先生！帕秋莉今天也能油库里哇！",
+   "english": "Mukyu. Mr. Human! Patchouli can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -30367,7 +30367,7 @@
    ],
    "japanese": "うー、うー！ ゆっくち！",
    "chinese": "呜——、呜——！油库气！",
-   "english": "Uu, uu! Take it eashy!",
+   "english": "Uu, uu! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -31163,9 +31163,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "うー、にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "呜——人类先生！油库气洗切一切捏！",
-   "english": "Uu... Mr. Human! Take it easy!",
+   "japanese": "うー、にんげんしゃん！ れみりゃも ゆっくちしゅるなのだ！",
+   "chinese": "呜——人类鲜笋！蕾米莉亚也要油库气呀！",
+   "english": "Uu... Mr. Human! Remilia can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -31191,9 +31191,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "うー、にんげんさん！ ゆっくりしていってね！",
-   "chinese": "呜——人类先生！油库里洗跌一跌捏！",
-   "english": "Uu... Mr. Human! Take it easy!",
+   "japanese": "うー、にんげんさん！ れみりあは きょうも ゆっくりできるのだ！",
+   "chinese": "呜——人类先生！蕾米莉亚今天也能油库里呀！",
+   "english": "Uu... Mr. Human! Remilia can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -31949,7 +31949,7 @@
    ],
    "japanese": "うー、うー！ ゆっくち！",
    "chinese": "呜——、呜——！油库气！",
-   "english": "Uu, uu! Take it eashy!",
+   "english": "Uu, uu! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -32745,9 +32745,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "うー、にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "呜——人类先生！油库气洗切一切捏！",
-   "english": "Uu... Mr. Human! Take it easy!",
+   "japanese": "うー、にんげんしゃん！ ふりゃんも ゆっくちしゅるよぅ！",
+   "chinese": "呜——人类鲜笋！芙兰也要油库气哦！",
+   "english": "Uu... Mr. Human! Flandre can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -32773,9 +32773,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "うー、にんげんさん！ ゆっくりしていってね！",
-   "chinese": "呜——人类先生！油库里洗跌一跌捏！",
-   "english": "Uu... Mr. Human! Take it easy!",
+   "japanese": "うー、にんげんさん！ ふらんは きょうも ゆっくりできるよ！",
+   "chinese": "呜——人类先生！芙兰今天也能油库里哦！",
+   "english": "Uu... Mr. Human! Flandre can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -33534,7 +33534,7 @@
    ],
    "japanese": "みょ、みょん！ ゆっくち！",
    "chinese": "咪、咪呦！油库气！",
-   "english": "Myo, myon! Take it eashy!",
+   "english": "Myo, myon! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -34387,9 +34387,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "みょん！にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "咪呦！人类先生！油库气洗切一切捏！",
-   "english": "Myon! Mr. Human! Take it easy!",
+   "japanese": "みょん！にんげんしゃん！ みょんも ゆっくちしゅるみょ！",
+   "chinese": "咪呦！人类鲜笋！妖梦也要油库气哦！",
+   "english": "Myon! Mr. Human! Myon can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -34417,9 +34417,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "みょん！にんげんさん！ ゆっくりしていってね！",
-   "chinese": "咪呦！人类先生！油库里洗跌一跌捏！",
-   "english": "Myon! Mr. Human! Take it easy!",
+   "japanese": "みょん！にんげんさん！ みょんは きょうも ゆっくりできるよ！",
+   "chinese": "咪呦！人类先生！妖梦今天也能油库里哦！",
+   "english": "Myon! Mr. Human! Myon can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -35229,7 +35229,7 @@
    ],
    "japanese": "ちん、ちーんぽ！ ゆっくち！",
    "chinese": "金、金寶！油库气！",
-   "english": "Chin, chinpo! Take it eashy!",
+   "english": "Chin, chinpo! Eashy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "plain"
@@ -36082,9 +36082,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "ちーんぽ！にんげんしゃん！ ゆっくち しちぇいっちぇにぇ！",
-   "chinese": "金寶！人类先生！油库气洗切一切捏！",
-   "english": "Chinpo! Mr. Human! Take it easy!",
+   "japanese": "ちーんぽ！にんげんしゃん！ ようむも ゆっくちしゅるよぅ！",
+   "chinese": "金寶！人类鲜笋！妖梦也要油库气哦！",
+   "english": "Chinpo! Mr. Human! Youmu can take it easy too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"
@@ -36112,9 +36112,9 @@
    "events": [
     "addr_human_kind"
    ],
-   "japanese": "ちーんぽ！にんげんさん！ ゆっくりしていってね！",
-   "chinese": "金寶！人类先生！油库里洗跌一跌捏！",
-   "english": "Chinpo! Mr. Human! Take it easy!",
+   "japanese": "ちーんぽ！にんげんさん！ ようむは きょうも ゆっくりできるよ！",
+   "chinese": "金寶！人类先生！妖梦今天也能油库里哦！",
+   "english": "Chinpo! Mr. Human! Youmu can take it easy today too!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "proud"

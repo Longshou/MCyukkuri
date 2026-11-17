@@ -44231,7 +44231,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 111,
+    "ticks": 115,
     "sound": "",
     "variant": "proud"
   },
@@ -44257,7 +44257,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 91,
+    "ticks": 123,
     "sound": "",
     "variant": "proud"
   },
@@ -45700,7 +45700,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 111,
+    "ticks": 119,
     "sound": "",
     "variant": "proud"
   },
@@ -45726,7 +45726,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 91,
+    "ticks": 127,
     "sound": "",
     "variant": "proud"
   },
@@ -47169,7 +47169,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 111,
+    "ticks": 115,
     "sound": "",
     "variant": "proud"
   },
@@ -47195,7 +47195,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 91,
+    "ticks": 123,
     "sound": "",
     "variant": "proud"
   },
@@ -48664,7 +48664,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 91,
+    "ticks": 127,
     "sound": "",
     "variant": "proud"
   },
@@ -50107,7 +50107,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 127,
+    "ticks": 123,
     "sound": "",
     "variant": "proud"
   },
@@ -50133,7 +50133,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 107,
+    "ticks": 147,
     "sound": "",
     "variant": "proud"
   },
@@ -51576,7 +51576,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 123,
+    "ticks": 131,
     "sound": "",
     "variant": "proud"
   },
@@ -51602,7 +51602,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 103,
+    "ticks": 143,
     "sound": "",
     "variant": "proud"
   },
@@ -53045,7 +53045,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 123,
+    "ticks": 127,
     "sound": "",
     "variant": "proud"
   },
@@ -53071,7 +53071,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": "",
     "variant": "proud"
   },
@@ -54601,7 +54601,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -56183,7 +56183,7 @@
     "events": [
       "addr_human_kind"
     ],
-    "ticks": 111,
+    "ticks": 143,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"
