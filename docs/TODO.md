@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 亲油叼纸盖在自己的幼体身上（报纸纸源 v1 裁掉的双体接触） | `.worktrees/wp-paper-young` | settlement/FoundShelter (paper), client paper tent, lore motions |
 
 ## 玩法待办
 
