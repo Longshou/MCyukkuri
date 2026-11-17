@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 亲油叼纸盖在自己的幼体身上（报纸纸源 v1 裁掉的双体接触） | `.worktrees/wp-paper-young` | settlement/FoundShelter (paper), client paper tent, lore motions |
+| 善意收养场景部分种子失败（收养者领地吓走孤儿、窗口过短） | `.worktrees/wp-kindness-scene` | social/Kindness approach, scripts/museum_scenarios.py kindness_adoption |
 
 ## 玩法待办
 
