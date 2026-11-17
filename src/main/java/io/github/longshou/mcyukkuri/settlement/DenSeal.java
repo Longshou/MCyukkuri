@@ -48,6 +48,7 @@ public final class DenSeal {
     private Vec3 clearStand;
     private List<BlockPos> cells = List.of();
     private List<UUID> absent = List.of(), considered = List.of();
+    private boolean remembered;
 
     public DenSeal(YukkuriEntity y) { this.y = y; }
 
@@ -326,14 +327,17 @@ public final class DenSeal {
         nextCheck = level.getGameTime() + RECHECK;
         if (!home.contains(y.blockPosition()) && y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR) return false;
         var parents = departure(level, home, DEPARTED_SQR);
-        if (parents.isEmpty() || parents.equals(considered)) return false;
-        considered = parents;
-        var traits = y.life().personality();
-        double chance = chance(traits);
-        double roll = y.getRandom().nextDouble();
-        GameplayLog.event(y, "home", "den seal remembered den={} absent={} self_control={} chance={} roll={} remembered={}",
-                home.getBlockPos(), parents, traits.selfControl(), chance, roll, roll < chance);
-        return roll < chance && begin(level, home, null, parents);
+        if (parents.isEmpty()) { considered = List.of(); return false; }
+        // The decision is drawn once per trip; a doorway still occupied is retried, not re-rolled.
+        if (!parents.equals(considered)) {
+            considered = parents;
+            var traits = y.life().personality();
+            double chance = chance(traits), roll = y.getRandom().nextDouble();
+            remembered = roll < chance;
+            GameplayLog.event(y, "home", "den seal remembered den={} absent={} self_control={} chance={} roll={} remembered={}",
+                    home.getBlockPos(), parents, traits.selfControl(), chance, roll, remembered);
+        }
+        return remembered && begin(level, home, null, parents);
     }
 
     /** Family work yields to ordinary life needs and threat goals. The same worker owns the threat route above. */
