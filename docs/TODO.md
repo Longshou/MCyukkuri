@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 鬼威惨商店解压间（借还固定台、隔间处置、SP-08） | `.worktrees/wp-fac-sp-room` | shop/ShopRegistry, shop/ShopMenu, shop/ShopTrade, item/CarrierItem, scripts/museum_scenarios.py oni_stress_room |
+| 加工所 F5a：单厂入口（新厂生成、旧三厂停产兼容、移除旧产线执行） | `.worktrees/wp-fac-f5a-entry` | human/HumanWorld, human/HumanScenes, human/HumanNpc, human/FactoryTray, human/FactoryStationBlock, human/FactoryBreeding, human/FactoryPipeline, human/FactoryProduction, human/FactoryWorkGoal, command/HumanCommands, worldgen plant structure |
 
 ## 玩法待办
 
