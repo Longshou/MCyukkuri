@@ -225,6 +225,11 @@ public final class BegBite {
             }
             case LOOK -> {
                 if (elapsed >= duration) {
+                    // The helper's shoo already drives the beggar off through its own threat reaction; that flight is the departure.
+                    if (result.equals("asked_help")) {
+                        WildEvents.finish(level, scene, Phase.COMPLETE, result);
+                        return;
+                    }
                     walk(scene, Beat.LEAVE, away(stray, pet, Math.max(distance * 2.3, stray.distanceTo(pet) + distance)));
                     stray.showReaction(YukkuriAction.WALK_LOOK_BACK, departureFace(), "",
                             ClipMarkers.of(YukkuriAction.WALK_LOOK_BACK.id()).length());
