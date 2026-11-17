@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -39,18 +40,27 @@ public final class ProtectivePuff {
     }
 
     private static boolean puff(YukkuriEntity parent, YukkuriEntity victim, Entity attacker) {
-        if (!able(parent) || parent == victim && !youngNear(parent)) return false;
+        if (!able(parent) || parent == victim && !youngNear(parent) || !draw(parent, victim, attacker)) return false;
+        parent.getLookControl().setLookAt(attacker, 30, 30);
+        parent.showReaction("cheek_puff", "protect_taunt", REACTION_TICKS);
+        return parent == victim;
+    }
+
+    /** The human punishment dispatcher has already checked the witness's view of both sides. */
+    public static boolean humanWitness(YukkuriEntity parent, YukkuriEntity child, Entity actor) {
+        return able(parent) && child.distanceToSqr(parent) <= WITNESS_RANGE * WITNESS_RANGE
+                && GlassSight.sees(parent, child) && draw(parent, child, actor);
+    }
+
+    private static boolean draw(YukkuriEntity parent, YukkuriEntity victim, Entity attacker) {
         var personality = parent.life().personality();
         float chance = personality.helpProbability(true, true);
         float roll = parent.getRandom().nextFloat();
         boolean accepted = roll < chance;
         GameplayLog.event(parent, "social", "protection puff victim={} attacker={} attackerType={} chance={} roll={} accepted={}",
                 victim.getUUID(), attacker.getUUID(), attacker.getType().getDescriptionId(), chance, roll, accepted);
-        if (!accepted) return false;
-        personality.decided("protect_puff");
-        parent.getLookControl().setLookAt(attacker, 30, 30);
-        parent.showReaction("cheek_puff", "protect_taunt", REACTION_TICKS);
-        return parent == victim;
+        if (accepted) personality.decided("protect_puff");
+        return accepted;
     }
 
     /** Alive and able to answer while riding, holding or standing: this response never moves the body. */

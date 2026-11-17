@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -50,12 +51,12 @@ public final class PunishmentReaction {
         var mind = target.life().personality();
         double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
         int fearGain = (int) Math.round((injured ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
-        respond(target, punisher, incident, injured ? -20 : -6, fearGain);
+        respond(target, punisher, incident, injured ? -20 : -6, fearGain, injured);
     }
 
     public static void peer(YukkuriEntity target, YukkuriEntity punisher, String incident, boolean bitten) {
         // Sanction already recorded its affinity change, and an accepted bite recorded its damage relation.
-        respond(target, punisher, incident, 0, bitten ? 0 : 12);
+        respond(target, punisher, incident, 0, bitten ? 0 : 12, false);
     }
 
     /** A handover has a visible response without adding a punishment memory. */
@@ -72,11 +73,11 @@ public final class PunishmentReaction {
     }
 
     private static void respond(YukkuriEntity target, LivingEntity punisher, String incident,
-                                int closenessChange, int fearGain) {
+                                int closenessChange, int fearGain, boolean humanInjury) {
         if (!target.isAlive() || target.body().dying()) {
             GameplayLog.event(target, "punishment", "victim actor={} incident={} response=collapse",
                     punisher.getUUID(), incident);
-            witness(target, punisher, incident);
+            witness(target, punisher, incident, humanInjury);
             return;
         }
         boolean human = isHuman(punisher);
@@ -115,10 +116,10 @@ public final class PunishmentReaction {
         response.show(target, punisher);
         GameplayLog.event(target, "punishment", "victim actor={} incident={} response={} fear={} -> {} health={} wounds={} unease={} exit={}",
                 punisher.getUUID(), incident, response, before, fear, target.getHealth(), wounds, target.mind().unease(), exit);
-        witness(target, punisher, incident);
+        witness(target, punisher, incident, humanInjury);
     }
 
-    private static void witness(YukkuriEntity target, LivingEntity punisher, String incident) {
+    private static void witness(YukkuriEntity target, LivingEntity punisher, String incident, boolean humanInjury) {
         int range = LearnedFear.WITNESS_RANGE;
         for (var observer : target.level().getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(range),
                 body -> body != target && body != punisher && body.isAlive() && !body.body().dying()
@@ -127,6 +128,14 @@ public final class PunishmentReaction {
             // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
             if (LearnedFear.eligible(observer) && !observer.operations().active())
                 LearnedFear.remember(observer, target, punisher, incident);
+            boolean parent = ProtectivePuff.parentOf(target, observer);
+            boolean glass = !observer.hasLineOfSight(target) || !observer.hasLineOfSight(punisher);
+            if (parent && isHuman(punisher) && Custody.samePlantStock(observer, target)) {
+                String choice = observer.kinProtection().witnessed(target, punisher, humanInjury);
+                GameplayLog.event(observer, "punishment", "witness victim={} actor={} incident={} response={} glass={}",
+                        target.getUUID(), punisher.getUUID(), incident, choice, glass);
+                continue;
+            }
             var mind = observer.life().personality();
             double nerves = .55 * (1 - ramp(mind.boldness(), 25, 75))
                     + .25 * ramp(mind.fear(punisher.getUUID()), 0, 65) + .20 * ramp(observer.mind().unease(), 40, 85);
@@ -135,11 +144,11 @@ public final class PunishmentReaction {
             boolean kin = observer.life().canRecognize(target) && Bonds.careOrMate(observer, target);
             var reaction = nerves > composure ? Response.SHRINK : Response.FREEZE;
             if (kin && attachment > Math.max(nerves, .45)) {
-                reaction = ProtectivePuff.parentOf(target, observer) && GlassSight.sees(target, observer)
+                reaction = parent && GlassSight.sees(target, observer)
                         && nerves < .4 ? Response.PROTECT : Response.TURN_TO_KIN;
             }
+            if (parent && humanInjury && ProtectivePuff.humanWitness(observer, target, punisher)) reaction = Response.PROTECT;
             reaction.show(observer, reaction == Response.TURN_TO_KIN ? target : punisher);
-            boolean glass = !observer.hasLineOfSight(target) || !observer.hasLineOfSight(punisher);
             GameplayLog.event(observer, "punishment", "witness victim={} actor={} incident={} response={} glass={}",
                     target.getUUID(), punisher.getUUID(), incident, reaction, glass);
         }

@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -53,7 +55,10 @@ final class PlantSweetening extends Goal {
     private Job job;
     private long nextPressure;
 
-    private record Job(Path path, Runnable contact) {}
+    private record Job(Path path, Runnable contact, Approach approach) {
+        Job(Path path, Runnable contact) { this(path, contact, null); }
+    }
+    private record Approach(PlantSite.Box box, Set<UUID> witnesses) {}
     private record Candidate(YukkuriEntity body, PlantSite.Box box, double need) {}
 
     PlantSweetening(HumanNpc staff) {
@@ -134,7 +139,8 @@ final class PlantSweetening extends Goal {
             }
             return false;
         }
-        job = new Job(path, () -> apply(box, body));
+        job = new Job(path, () -> apply(box, body),
+                path != null && held.getItem() instanceof OperationToolItem ? new Approach(box, new HashSet<>()) : null);
         return true;
     }
 
@@ -279,11 +285,31 @@ final class PlantSweetening extends Goal {
 
     @Override public void tick() {
         if (job == null) return;
-        if (job.path() != null && !staff.blockPosition().equals(job.path().getTarget()) && !staff.getNavigation().isDone()) return;
+        if (job.path() != null && !staff.blockPosition().equals(job.path().getTarget()) && !staff.getNavigation().isDone()) {
+            if (job.approach() != null && staff.getMainHandItem().getItem() instanceof OperationToolItem)
+                noticeApproach(job.approach());
+            return;
+        }
         var work = job;
         job = null;
         staff.getNavigation().stop();
         work.contact().run();
+    }
+
+    private void noticeApproach(Approach approach) {
+        var bounds = approach.box().bounds();
+        var stock = staff.level().getEntitiesOfClass(YukkuriEntity.class, AABB.of(bounds),
+                body -> owns(body) && bounds.isInside(body.blockPosition()) && !body.body().dying());
+        for (var parent : stock) {
+            if (approach.witnesses().contains(parent.getUUID()) || parent.isNoAi() || parent.life().isSleeping()
+                    || parent.distanceToSqr(staff) > 36 || !GlassSight.sees(parent, staff)) continue;
+            stock.stream().filter(child -> !child.family().adult() && ProtectivePuff.parentOf(child, parent)
+                            && GlassSight.sees(parent, child))
+                    .min(Comparator.comparingDouble(parent::distanceToSqr)).ifPresent(child -> {
+                        approach.witnesses().add(parent.getUUID());
+                        parent.kinProtection().approaching(child, staff);
+                    });
+        }
     }
 
     @Override public void stop() {

@@ -35,6 +35,7 @@ import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.KinProtection;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
@@ -725,9 +726,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     protected void registerGoals() {
+        kinProtection = new KinProtection(this);
         goals = new YukkuriGoals(this, goalSelector);
         goals.registerGoals();
     }
+
+    public KinProtection kinProtection() { return kinProtection; }
 
     /** One exclusive track: changing action or returning to idle discards every previous pose. */
     public boolean playAction(String id) {
@@ -1100,6 +1104,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private YukkuriInteractions interactions;
     // Assigned only inside Mob.registerGoals; it owns the selector's exact Goal identity bindings.
     private YukkuriGoals goals;
+    private KinProtection kinProtection;
     public RoamingGoal roaming() { return goals == null ? null : goals.roaming(); }
     /** Actual selector entries only; observing never starts or probes a Goal. */
     public List<String> runningGoalIds() { return goals.runningGoalIds(); }

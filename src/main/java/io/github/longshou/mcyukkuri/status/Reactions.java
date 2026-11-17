@@ -109,7 +109,7 @@ public final class Reactions {
                 && !y.isNoAi() && !y.isPassenger();
     }
     /** Whether this individual may be steered right now (not mid-contact, birth, rescue, water). */
-    static boolean free(YukkuriEntity y) {
+    public static boolean free(YukkuriEntity y) {
         return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.waterDistress().active()
                 && !y.family().laboring() && !y.family().birthDuty()

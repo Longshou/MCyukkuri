@@ -27,7 +27,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-/** The persistent site marker owns the boundary and its UUID. Staff save that UUID with their posts. */
+/** The persistent site marker locates the rooms. Staff save its UUID with their posts. */
 final class PlantSite {
     static final ResourceLocation TEMPLATE = HumanScenes.Kind.PLANT.template;
     static final BlockPos ENTRANCE = new BlockPos(HumanScenes.Kind.PLANT.entranceX, 0, 0);
@@ -43,10 +43,17 @@ final class PlantSite {
     }
 
     static boolean contains(ServerLevel level, UUID id, BlockPos at) {
-        var marker = marker(level, id);
-        if (marker == null) return false;
+        var boundary = CustodyData.get(level).plant(id);
+        return boundary != null && boundary.contains(level, at);
+    }
+
+    /** Move the boundary from previously placed markers to the world ledger when those markers load. */
+    static void loaded(ServerLevel level, Marker marker) {
+        if (!marker.getTags().contains(SITE) || CustodyData.get(level).plant(marker.getUUID()) != null) return;
         var data = marker.saveWithoutId(new CompoundTag()).getCompound("data");
-        return BoundingBox.fromCorners(BlockPos.of(data.getLong("Min")), BlockPos.of(data.getLong("Max"))).isInside(at);
+        if (data.contains("Min", Tag.TAG_LONG) && data.contains("Max", Tag.TAG_LONG))
+            CustodyData.get(level).registerPlant(level, marker.getUUID(),
+                    BoundingBox.fromCorners(BlockPos.of(data.getLong("Min")), BlockPos.of(data.getLong("Max"))));
     }
 
     /** Recover the authored rooms from the same template and saved counter pose in existing sites. */
@@ -130,17 +137,17 @@ final class PlantSite {
         }
         if (!clip.isInside(counter)) return;
         var boundary = BoundingBox.fromCorners(corners.get(0), corners.get(1));
-        var data = new CompoundTag();
-        data.putLong("Min", new BlockPos(boundary.minX(), boundary.minY(), boundary.minZ()).asLong());
-        data.putLong("Max", new BlockPos(boundary.maxX(), boundary.maxY(), boundary.maxZ()).asLong());
         var nbt = at(counter, "minecraft:marker", rotation);
         nbt.putUUID("UUID", id);
-        nbt.put("data", data);
         var site = EntityType.create(nbt, level.getLevel()).orElseThrow();
         site.addTag(SITE);
-        if (level.addFreshEntity(site))
+        if (level.addFreshEntity(site)) {
+            var world = level.getLevel();
+            CustodyData.get(world).registerPlant(world, id, boundary);
+            var registered = CustodyData.get(world).plant(id);
             GameplayLog.event(site, "factory", "action=register_site min={} max={}",
-                    BlockPos.of(data.getLong("Min")).toShortString(), BlockPos.of(data.getLong("Max")).toShortString());
+                    registered.min().toShortString(), registered.max().toShortString());
+        }
     }
 
     private static BlockPos offset(CompoundTag data, String key, Rotation rotation) {

@@ -1,11 +1,13 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -24,6 +26,8 @@ public final class Push implements Action {
     private final Entity target;
     private double gain;
     private int t, length;
+    private long startTick;
+    private Vec3 from;
 
     public Push(Entity target) { this.target = target; }
 
@@ -35,16 +39,39 @@ public final class Push implements Action {
         double gap = ContactGeometry.mouthGap(body, target) - ContactGeometry.GRAB_MARGIN;
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, gap, String.format(Locale.ROOT, "gap=%.2f", gap));
         gain = BodyAbility.of(body).pace(body.isInWaterOrBubble());
-        if (target instanceof YukkuriEntity other)
+        if (target instanceof YukkuriEntity other) {
+            var contact = groundContact(body, other);
+            if (!contact.ok()) return contact;
             gain *= Effort.share(body.getBbWidth() * body.getBbWidth() * body.getBbHeight(),
                     other.getBbWidth() * other.getBbWidth() * other.getBbHeight());
+        }
         return Feasibility.pass();
     }
 
-    @Override public void start(YukkuriEntity body) { length = ClipMarkers.of(ID).length(); }
+    @Override public void start(YukkuriEntity body) {
+        length = ClipMarkers.of(ID).length();
+        startTick = body.level().getGameTime();
+        from = target.position();
+    }
+
+    private static Feasibility groundContact(YukkuriEntity body, YukkuriEntity other) {
+        if (!ContactGeometry.inMouthReach(body, other)) return Feasibility.of(Reason.NO_CONTACT, 0, "target_out_of_reach");
+        if (!other.onGround() || other.isPassenger() || other.isVehicle() || other.operations().active())
+            return Feasibility.of(Reason.NO_SUPPORT, 0, "target_not_free_on_floor");
+        Vec3 direction = other.position().subtract(body.position()).multiply(1, 0, 1).normalize();
+        Vec3 at = other.position().add(direction.scale(other.getBbWidth()));
+        return SurfaceApproach.stands(other, at) && SurfaceApproach.dryStep(other, other.position(), at)
+                ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "no_dry_step");
+    }
 
     @Override public Progress tick(YukkuriEntity body) {
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        if (target instanceof YukkuriEntity other) {
+            var contact = groundContact(body, other);
+            if (!contact.ok()) return t > 0 ? new Outcome.Done("contact ticks=" + t)
+                    : Outcome.of(contact.reason(), contact.shortfall(), contact.detail());
+            Motor.face(body, SurfaceApproach.yaw(body.position(), target.position()));
+        }
         if (++t > length) return new Outcome.Done("pushed ticks=" + length);
         Vec3 away = target.position().subtract(body.position()).multiply(1, 0, 1);
         Vec3 push = away.lengthSqr() < 1E-8 ? Vec3.ZERO : away.normalize().scale(gain);
@@ -54,4 +81,11 @@ public final class Push implements Action {
     }
 
     @Override public String startDetail() { return String.format(Locale.ROOT, "target=%s gain=%.3f", target.getUUID(), gain); }
+
+    @Override public MotionPose pose() { return new MotionPose(ID, startTick, false); }
+
+    @Override public String endDetail(Outcome outcome) {
+        return target instanceof YukkuriEntity ? String.format(Locale.ROOT, "target=%s moved=%.3f", target.getUUID(),
+                from.subtract(target.position()).horizontalDistance()) : "";
+    }
 }

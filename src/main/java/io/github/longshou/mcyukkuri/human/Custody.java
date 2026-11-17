@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Marker;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.Set;
 /** Queries and ownership transitions for the existing NeoForgeData.HumanCommerce storage. */
 public final class Custody {
     public enum OwnerKind { NONE, UNKNOWN, PLAYER, NPC }
-    public enum ReleaseReason { ABANDON, LOST_CONTACT, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
+    public enum ReleaseReason { ABANDON, LOST_CONTACT, PLANT_EXIT, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
     private static final String PENDING_RELEASE = "PendingCustodyRelease";
     private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
@@ -163,13 +164,22 @@ public final class Custody {
         } finally { CLEANING.remove(animal); }
     }
 
-    public static void tick(YukkuriEntity animal) { if (animal.level() instanceof ServerLevel && animal.isAlive()) cleanup(animal); }
+    public static void tick(YukkuriEntity animal) {
+        if (!(animal.level() instanceof ServerLevel level) || !animal.isAlive()) return;
+        if (!cleanup(animal) || animal.body().dying()) return;
+        var custody = view(animal);
+        if (custody.role() != Role.PLANT_STOCK) return;
+        var boundary = CustodyData.get(level).plant(custody.owner());
+        if (boundary != null && !boundary.contains(level, animal.blockPosition()))
+            release(animal, ReleaseReason.PLANT_EXIT, custody.owner(), null);
+    }
 
     public static void joining(EntityJoinLevelEvent event) {
         if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel level)) return;
         if (event.getEntity() instanceof HumanNpc npc) CustodyData.get(level).remember(npc.getUUID(), OwnerKind.NPC);
         else if (event.getEntity() instanceof Player player) CustodyData.get(level).remember(player.getUUID(), OwnerKind.PLAYER);
         else if (event.getEntity() instanceof YukkuriEntity animal) data(animal);
+        else if (event.getEntity() instanceof Marker marker) PlantSite.loaded(level, marker);
     }
 
     /** A real NPC death, never unload/remove or a player's death. */
@@ -276,7 +286,7 @@ public final class Custody {
     /** Callers retain scene creation and exam eligibility guards; each reason keeps its original cleanup order. */
     public static void release(YukkuriEntity animal, ReleaseReason reason, @Nullable UUID formerOwner, @Nullable CompoundTag previous) {
         switch (reason) {
-            case ABANDON, LOST_CONTACT -> {
+            case ABANDON, LOST_CONTACT, PLANT_EXIT -> {
                 var before = animal.status().identity();
                 if (reason == ReleaseReason.ABANDON) animal.pet().abandonedBy(Objects.requireNonNull(formerOwner));
                 animal.settlement().exile();
@@ -284,9 +294,15 @@ public final class Custody {
                 for (var key : ACTIVE_KEYS) tag.remove(key);
                 set(animal, tag);
                 if (reason == ReleaseReason.LOST_CONTACT) animal.pet().lostContact();
+                if (reason == ReleaseReason.PLANT_EXIT) animal.pet().ownerReleased(Objects.requireNonNull(formerOwner));
                 animal.habitat().release();
                 animal.life().releaseHome(); animal.social().stop(); animal.dailyLife().stop(); animal.setPersistenceRequired();
-                YukkuriStatus.identityChanged(animal, before, reason == ReleaseReason.ABANDON ? "abandon" : "lost_contact");
+                YukkuriStatus.identityChanged(animal, before, switch (reason) {
+                    case ABANDON -> "abandon";
+                    case LOST_CONTACT -> "lost_contact";
+                    case PLANT_EXIT -> "plant_exit";
+                    default -> throw new IllegalStateException(reason.name());
+                });
             }
             case DELIVERY_FAILED -> { set(animal, new CompoundTag()); animal.life().releaseHome(); }
             case EXAM_ROLLBACK -> restore(animal, Objects.requireNonNull(previous));
@@ -317,6 +333,12 @@ public final class Custody {
     }
 
     public static boolean ownedBy(YukkuriEntity animal, UUID id) { return view(animal).ownedBy(id); }
+
+    public static boolean samePlantStock(YukkuriEntity first, YukkuriEntity second) {
+        var a = view(first);
+        var b = view(second);
+        return a.role() == Role.PLANT_STOCK && b.role() == Role.PLANT_STOCK && a.ownedBy(b.owner());
+    }
 
     public static boolean protectedAnimal(YukkuriEntity animal) {
         var tag = data(animal);
