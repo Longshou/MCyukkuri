@@ -405,7 +405,8 @@ public final class BodyLife {
                 entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
                 entity.showReaction("surprise","wounded",80);
             }
-            witnessInjury(hit.source().getEntity() instanceof HumanNpc staff && staff.sweeteningStaff() ? Naming.NAMING_CEILING : 100);
+            // Human staff never break a bystander by their own violence; the player still can.
+            witnessInjury(hit.source().getEntity() instanceof HumanNpc ? Naming.NAMING_CEILING : 100);
         }
         if(outcome!=InjuryModel.Outcome.NONE){
             coreHurt=true;
