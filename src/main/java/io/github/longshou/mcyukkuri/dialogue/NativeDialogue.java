@@ -22,6 +22,7 @@ public final class NativeDialogue {
                 for (String event : line.events()) events.computeIfAbsent(indexKey(line.species(), line.age(), line.quirk(), event), k -> new ArrayList<>()).add(line);
             }
         } catch (Exception e) { throw new ExceptionInInitializerError(e); }
+        events.replaceAll((key, choices) -> List.copyOf(choices));
         LINES = Collections.unmodifiableMap(lines);
         EVENTS = Collections.unmodifiableMap(events);
     }
@@ -35,65 +36,31 @@ public final class NativeDialogue {
     private static String indexKey(String species, String tier, String quirk, String event) {
         return species + "/" + tier + "/" + event + (quirk == null || quirk.isEmpty() ? "" : "/" + quirk);
     }
-    /** Older two-tier entry point: {@code young} maps to the legacy childish tier. */
-    public static Line select(String species, boolean young, String event, RandomSource random) {
-        return select(species, young ? "young" : "adult", null, event, random);
-    }
     /**
-     * Pick a line for a speech tier ({@code baby}, {@code juvenile}, {@code young}, {@code adult}). A tier with no line
-     * for the event falls back along the chain: baby to young, juvenile to young, young to juvenile; adult never
-     * borrows a child's wording. A speaker with a {@code quirk} only sees lines of that quirk.
+     * Baby and juvenile can fall back to young, and young to juvenile. Species lines keep their own quirk and
+     * adults keep their own tier. Shared lines are used when the species has no applicable line.
      */
-    public static Line select(String species, String tier, String quirk, String event, RandomSource random) {
-        return select(species, tier, quirk, event, random, null, Set.of());
-    }
-    /**
-     * Pick a line, preferring one written for the speaker's current style ({@code proud}, {@code timid}, ...) and
-     * avoiding a line the speaker or a nearby speaker has just used. When every line is avoided, the full pool is
-     * used again; when no line carries the wanted style, the untagged wording is preferred over another style's.
-     */
-    public static Line select(String species, String tier, String quirk, String event, RandomSource random,
-                              String style, Set<String> avoid) {
-        String[] chain = switch (tier) {
-            case "baby" -> new String[] {"baby", "young"};
-            case "juvenile" -> new String[] {"juvenile", "young"};
-            case "young" -> new String[] {"young", "juvenile"};
-            default -> new String[] {tier};
+    public static List<Line> choices(String species, String tier, String quirk, String event) {
+        var exact = EVENTS.get(indexKey(species, tier, quirk, event));
+        if (exact != null) return exact;
+        var fallback = switch (tier) {
+            case "baby", "juvenile" -> EVENTS.get(indexKey(species, "young", quirk, event));
+            case "young" -> EVENTS.get(indexKey(species, "juvenile", quirk, event));
+            default -> null;
         };
-        for (String step : chain) {
-            var choices = EVENTS.get(indexKey(species, step, quirk, event));
-            if (choices != null) return pick(choices, style, avoid, random);
-        }
-        var shared = EVENTS.get(indexKey("*", "*", null, event));
-        return shared == null ? null : pick(shared, style, avoid, random);
+        return fallback != null ? fallback : EVENTS.getOrDefault(indexKey("*", "*", null, event), List.of());
     }
-    private static Line pick(List<Line> choices, String style, Set<String> avoid, RandomSource random) {
-        List<Line> preferred = choices;
-        if (style != null && !style.isEmpty()) {
-            // A plain speaker answers with the untagged wording or another plain frame; proud/timid take theirs.
-            List<Line> styled = choices.stream()
-                    .filter(line -> style.equals(line.variant())
-                            || (style.equals("plain") && (line.variant() == null || line.variant().isEmpty())))
-                    .toList();
-            if (!styled.isEmpty()) preferred = styled;
-            else {
-                List<Line> neutral = neutral(choices);
-                if (!neutral.isEmpty()) preferred = neutral;
-            }
-        } else {
-            List<Line> neutral = neutral(choices);
-            if (!neutral.isEmpty()) preferred = neutral;
-        }
-        List<Line> pool = preferred.stream().filter(line -> !avoid.contains(line.key())).toList();
-        if (pool.isEmpty()) {
-            // The wanted style has nothing fresh left; variety matters more than tone for this one utterance.
-            pool = choices.stream().filter(line -> !avoid.contains(line.key())).toList();
-        }
-        if (pool.isEmpty()) pool = preferred;
+    /** Prefer a line neighbours haven't just said, then a fresh line in this voice, then the least recently spoken. */
+    public static Line select(List<Line> choices, String style, List<String> recent, Set<String> nearby, RandomSource random) {
+        var candidates = choices.stream().filter(line -> !nearby.contains(line.key())).toList();
+        if (candidates.isEmpty()) candidates = choices;
+        var fresh = candidates.stream().filter(line -> !recent.contains(line.key())).toList();
+        if (fresh.isEmpty()) return Collections.min(candidates, Comparator.comparingInt(line -> recent.indexOf(line.key())));
+        var styled = fresh.stream().filter(line -> style.equals(line.variant())
+                || (style.equals("plain") && line.variant() == null)).toList();
+        var neutral = fresh.stream().filter(line -> line.variant() == null).toList();
+        var pool = !styled.isEmpty() ? styled : !neutral.isEmpty() ? neutral : fresh;
         return pool.get(pool.size() == 1 ? 0 : random.nextInt(pool.size()));
-    }
-    private static List<Line> neutral(List<Line> choices) {
-        return choices.stream().filter(line -> line.variant() == null || line.variant().isEmpty()).toList();
     }
     /** Whether this exact tier (no fallback) has a line for the event. */
     public static boolean has(String species, String tier, String quirk, String event) { return EVENTS.containsKey(indexKey(species, tier, quirk, event)); }
@@ -135,8 +102,10 @@ public final class NativeDialogue {
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
                  "human_food_ask", "human_food_demand", "food_complain",
                          "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
-            // Addresses, counts and self-narration answer a person or a situation right now.
-            case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide" -> 2;
+            // These lines answer an event as it happens.
+            case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide",
+                 "addr_human_hostile_wary", "addr_human_hostile_old", "addr_human_hostile_man",
+                 "addr_predator_remilia", "addr_predator_flandre" -> 2;
             // A junk headwear being put on, refused, mocked or taken off answers the person handling the wearer right now.
             case "junk_thanks", "junk_unsure", "junk_indignant", "junk_afraid" -> 2;
             // The dead and the smell of them: the stench, the taboo meal and the hunt of a hatless monster answer something happening right now.
@@ -152,7 +121,7 @@ public final class NativeDialogue {
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             // Ambient restlessness during a still-running period yields to everything else.
             case "heat_want" -> 0;
-            default -> event.startsWith("addr_") || event.startsWith("count_") ? 2 : 1;
+            default -> event.startsWith("count_children_") || event.startsWith("count_stock_") ? 2 : 1;
         };
     }
     private NativeDialogue() {}

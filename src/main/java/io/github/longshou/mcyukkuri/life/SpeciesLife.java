@@ -11,11 +11,13 @@ import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.SpeciesTraits;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,19 +114,25 @@ public final class SpeciesLife {
         if (entity.speak("narrate_" + kind)) { lastNarrate = now; narrated++; }
     }
 
-    /** Saying how many portions are stored or how many children there are: "1, 2, 3, lots". */
-    public boolean count(String base, int quantity) {
+    private boolean count(String base, int quantity) {
         long now = entity.level().getGameTime();
         if (quantity < 1 || now - lastCount < COUNT_COOLDOWN) return false;
         boolean spoken = entity.speakCount(base, quantity);
-        if (spoken) { lastCount = now; counted++; }
+        if (spoken) {
+            lastCount = now;
+            counted++;
+            if (StatusEvents.trace()) GameplayLog.event(entity, "speech", "count base={} quantity={}", base, quantity);
+        }
         return spoken;
     }
 
-    /** Whether this individual is free to make small talk: awake, calm, not working, not eating, not in a pet task. */
-    public boolean canChat() {
-        return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi()
-                && !entity.life().isSleeping() && !entity.isPassenger() && !entity.isPanicking()
+    /** A successful deposit gives the speaker a reason to count the real store. */
+    public void countStock(int quantity) {
+        if (canChat() && entity.getRandom().nextFloat() < .4f) count(SpeechCount.STOCK, quantity);
+    }
+
+    private boolean canChat() {
+        return !entity.life().isSleeping() && !entity.isPassenger() && !entity.isPanicking()
                 && !entity.hurtCrying() && !entity.pet().busy()
                 && entity.status().reactions().threat().stage() == Reactions.Threat.Stage.NONE
                 && !entity.mind().feeling().subdued()
@@ -135,15 +143,12 @@ public final class SpeciesLife {
      * Count the children this adult is actually caring for, on an occasion that calls for it (coming home, starting
      * to feed). Only children it can recognise and see count; a hatless child is not silently recognised by blood.
      */
-    public boolean countChildren() {
-        if (!entity.family().adult() || !canChat()) return false;
-        var level = (ServerLevel) entity.level();
-        int children = (int) level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12),
-                c -> c != entity && c.isAlive() && !c.isPassenger() && !c.life().isSleeping()
-                        && !c.isPanicking() && c.status().reactions().threat().stage() == Reactions.Threat.Stage.NONE
-                        && entity.family().caresFor(c) && Recognition.recognizes(entity, c)
-                        && entity.hasLineOfSight(c)).stream().count();
-        return children >= 2 && count(SpeechCount.CHILDREN, children);
+    public void countChildren() {
+        if (!entity.family().adult() || !canChat()) return;
+        int children = entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12),
+                c -> c != entity && c.isAlive() && entity.family().caresFor(c) && Recognition.recognizes(entity, c)
+                        && entity.hasLineOfSight(c)).size();
+        if (children >= 2) count(SpeechCount.CHILDREN, children);
     }
 
     /** Retch when frightened, gulping or strained; the body owns the visible event and energy cost. */
@@ -182,8 +187,11 @@ public final class SpeciesLife {
             lastStage = stage;
         }
         if (t % 400 == 211 && entity.mind().unease() >= BondLevels.UNEASE_SWEETENED) vomit(.2f, "strain", false);
-        if (!canChat()) return;
-        if (t % 60 == 13) greetHuman();
+        if (t % 60 != 13 && t % 120 != 37 && t % 600 != 91) return;
+        boolean chat = canChat() && !entity.family().active() && !entity.habitat().active()
+                && (entity.forageTrip() == null || !entity.forageTrip().outing());
+        if (t % 60 == 13 && !entity.life().isSleeping() && !entity.isPassenger()) addressHuman(chat);
+        if (!chat) return;
         if (t % 120 == 37) greetKin();
         if (t % 600 == 91) talkCounts();
     }
@@ -224,46 +232,54 @@ public final class SpeciesLife {
     }
 
     private boolean fresh(UUID id) {
-        long now = entity.level().getGameTime();
         Long last = addressedAt.get(id);
-        if (last != null && now - last < 2400) return false;
+        return last == null || entity.level().getGameTime() - last >= 2400;
+    }
+    private boolean address(Entity target, String event) {
+        if (!entity.speak(event)) return false;
+        long now = entity.level().getGameTime();
         if (addressedAt.size() > 24) addressedAt.values().removeIf(at -> now - at >= 2400);
+        addressedAt.put(target.getUUID(), now);
+        addressed++;
+        if (StatusEvents.trace()) GameplayLog.event(entity, "speech", "address event={} target={} distance={}",
+                event, target.getUUID(), entity.distanceTo(target));
         return true;
     }
-    private void addressed(UUID id) { addressedAt.put(id, entity.level().getGameTime()); addressed++; }
 
-    private void greetHuman() {
-        if (!canChat() || entity.getRandom().nextFloat() >= .25f) return;
+    private void addressHuman(boolean chat) {
+        if (entity.getRandom().nextFloat() >= .25f) return;
         Entity best = null; double bestD = 36;
         for (var p : entity.level().players()) {
-            if (p.isSpectator() || !p.isAlive() || entity.distanceToSqr(p) >= bestD || !entity.hasLineOfSight(p)
+            if (p.isSpectator() || !p.isAlive() || entity.distanceToSqr(p) >= bestD || !fresh(p.getUUID()) || !entity.hasLineOfSight(p)
                     || !engaged(p)) continue;
             best = p; bestD = entity.distanceToSqr(p);
         }
         for (var npc : entity.level().getEntitiesOfClass(HumanNpc.class, entity.getBoundingBox().inflate(5),
-                n -> n.isAlive() && entity.hasLineOfSight(n) && engaged(n))) {
+                n -> n.isAlive() && entity.distanceToSqr(n) <= 25 && fresh(n.getUUID()) && entity.hasLineOfSight(n) && engaged(n))) {
             if (entity.distanceToSqr(npc) < bestD) { best = npc; bestD = entity.distanceToSqr(npc); }
         }
-        if (best == null || !fresh(best.getUUID())) return;
+        if (best == null) return;
         var bond = entity.life().personality().relation(best.getUUID());
         SpeechAddress.HumanRelation relation = HumanCommerce.ownedBy(entity, best.getUUID()) ? SpeechAddress.HumanRelation.OWNER
                 : bond.fear() >= BondLevels.AFFECTION_FEAR_LIMIT || bond.closeness() < BondLevels.TRUST_AT_MINUS_5 ? SpeechAddress.HumanRelation.HOSTILE
                 : bond.closeness() >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
+        if (!chat && relation != SpeechAddress.HumanRelation.HOSTILE) return;
         // The game keeps no sex or age for humans: derive both from the identity so a person is always called the same thing.
         int h = best.getUUID().hashCode();
-        if (entity.speak(SpeechAddress.human(relation, (h & 1) == 0, ((h >> 1) & 3) == 0))) addressed(best.getUUID());
+        boolean elder = ((h >> 1) & 3) == 0 && entity.family().stage() != FamilyLife.Stage.BABY;
+        address(best, SpeechAddress.human(relation, (h & 1) == 0, elder));
     }
 
-    /** A human is worth greeting only when it is close or looking this way; passers-by and working players are not. */
+    /** Close contact or a human looking this way makes an occasion to address them. */
     private boolean engaged(Entity human) {
         double distance = entity.distanceToSqr(human);
         if (distance < 9) return true;
-        Vec3 toward = entity.position().subtract(human.getEyePosition()).normalize();
+        Vec3 toward = entity.getEyePosition().subtract(human.getEyePosition()).normalize();
         return human.getViewVector(1f).dot(toward) > .8;
     }
 
     private void greetKin() {
-        if (!canChat() || entity.getRandom().nextFloat() >= .15f) return;
+        if (entity.getRandom().nextFloat() >= .15f) return;
         var family = entity.family();
         var group = entity.settlement().group();
         for (var other : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(4),
@@ -282,7 +298,7 @@ public final class SpeciesLife {
                     || (family.father() != null && family.father().equals(other.family().father())))
                 kin = other.growthScale() >= entity.growthScale() ? SpeechAddress.Kin.ELDER_SIBLING : SpeechAddress.Kin.YOUNGER_SIBLING;
             if (kin == null || !fresh(id)) continue;
-            if (entity.speak(SpeechAddress.kin(kin))) { addressed(id); return; }
+            if (address(other, SpeechAddress.kin(kin))) return;
         }
     }
 
@@ -290,23 +306,23 @@ public final class SpeciesLife {
         var source = entity.status().reactions().threat().source();
         if (!(source instanceof YukkuriEntity predator)) return;
         String event = SpeechAddress.predator(predator.getVariant().dialogueSpecies());
-        if (event != null && fresh(predator.getUUID()) && entity.speak(event)) addressed(predator.getUUID());
+        if (event != null && fresh(predator.getUUID())) address(predator, event);
     }
 
     /** Occasional counting among real companions, or of food actually in sight; children have their own occasions. */
     private void talkCounts() {
-        if (!canChat() || entity.getRandom().nextFloat() >= .15f) return;
+        if (entity.getRandom().nextFloat() >= .15f) return;
         if (entity.getRandom().nextBoolean()) countPeers(); else countFood();
     }
 
     private void countPeers() {
         var level = (ServerLevel) entity.level();
-        int peers = (int) level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
+        int peers = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
                 o -> o != entity && o.isAlive() && !o.isPassenger() && !o.life().isSleeping() && !o.isPanicking()
                         && o.profile().ecology() != SpeciesProfile.Ecology.PREDATOR
                         && o.status().reactions().threat().stage() == Reactions.Threat.Stage.NONE
                         && Bonds.sameGroupId(entity, o) && !Bonds.kin(entity, o, NOT_PEERS)
-                        && Recognition.recognizes(entity, o) && entity.hasLineOfSight(o)).stream().count();
+                        && Recognition.recognizes(entity, o) && entity.hasLineOfSight(o)).size();
         if (peers >= 2) count(SpeechCount.PEERS, peers);
     }
 

@@ -32,7 +32,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
-import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
@@ -652,6 +651,7 @@ public final class HabitatLife {
     /** One portion at a time goes onto the pile (it only takes single portions); a full cheek is emptied by repeated mouth contact. */
     private void depositCarried(ShelterBlockEntity value,boolean stock) {
         var portion=carrying.copyWithCount(1);
+        int before=value.food();
         if(!(stock?value.depositFood(portion):value.deposit(portion))) {
             GameplayLog.limited(entity,"habitat","deposit_refused",200,"deposit refused home={} item={} carried={}",value.getBlockPos(),carrying.getItem(),carrying.getCount());
             if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
@@ -659,11 +659,12 @@ public final class HabitatLife {
         }
         var item=carrying.getItem();
         carrying.shrink(1);entity.species().chore();
+        int after=value.food();
         GameplayLog.event(entity,"habitat","deposit home={} item={} moved=1 carried={} stock={} migrant={} ration={}",
-                value.getBlockPos(),item,carrying.getCount(),value.food(),moveLoad,rationLoad);
+                value.getBlockPos(),item,carrying.getCount(),after,moveLoad,rationLoad);
         if(!carrying.isEmpty()){contact.reset();ticks=0;return;}
         moveLoad=false;
-        if(entity.getRandom().nextFloat()<.4f)entity.species().count(SpeechCount.STOCK,value.food());
+        if(after>before)entity.species().countStock(after);
         stop();
     }
     public void dropCarrying() {

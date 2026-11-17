@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.human.TownAware;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
-import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -579,7 +578,7 @@ public final class ForageTrip extends Goal {
         if (moved == 0) { giveUp("store_full"); return; }
         Levy.kept(entity, moved);
         GameplayLog.event(entity,"forage","deposit home={} moved={} carried={} stock={}",home.getBlockPos(),moved,load.getCount(),home.food());
-        if (entity.getRandom().nextFloat() < .4f) entity.species().count(SpeechCount.STOCK, home.food());
+        entity.species().countStock(home.food());
         arrived();
     }
 

@@ -18,7 +18,7 @@ public final class SpeechTiming {
     }
 
     /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. */
-    public boolean admit(YukkuriEntity speaker, long now, int duration, int incomingPriority, boolean timedCue) {
+    public boolean canSpeak(YukkuriEntity speaker, long now, int incomingPriority, boolean timedCue) {
         if (!available(now, incomingPriority, timedCue)) return false;
         if (incomingPriority < 2 && !speaker.level().getEntitiesOfClass(YukkuriEntity.class,
                 speaker.getBoundingBox().inflate(NEARBY_RADIUS), other -> other != speaker && other.isAlive()
@@ -28,18 +28,19 @@ public final class SpeechTiming {
             next = Math.max(next, now + 40 + Math.floorMod(speaker.getUUID().hashCode(), 41));
             return false;
         }
-        return begin(now, duration, incomingPriority);
+        return true;
     }
 
     public boolean admit(long now, int duration, int incomingPriority) {
-        return available(now, incomingPriority, false) && begin(now, duration, incomingPriority);
+        if (!available(now, incomingPriority, false)) return false;
+        begin(now, duration, incomingPriority);
+        return true;
     }
 
-    private boolean begin(long now, int duration, int incomingPriority) {
+    public void begin(long now, int duration, int incomingPriority) {
         priority = incomingPriority;
         end = now + duration;
         next = end + (incomingPriority == 0 ? 200 : incomingPriority == 1 ? 120 : 30);
-        return true;
     }
     public long end() { return end; }
 }

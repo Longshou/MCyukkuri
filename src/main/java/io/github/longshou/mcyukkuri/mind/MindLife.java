@@ -231,7 +231,7 @@ public final class MindLife {
     /** First available catalogued event for this voice, else the fallback (new events wait for the speech agent's lines). */
     public String pick(String wanted, String fallback) {
         String species = entity.getVariant().dialogueSpecies();
-        return NativeDialogue.select(species, entity.speechTier(), entity.myon().quirk(), wanted, entity.getRandom()) != null ? wanted : fallback;
+        return NativeDialogue.choices(species, entity.speechTier(), entity.myon().quirk(), wanted).isEmpty() ? fallback : wanted;
     }
 
     /** Most body clips loop and a played action is held until replaced: play one for {@code ticks}, then hand back to idle. */
