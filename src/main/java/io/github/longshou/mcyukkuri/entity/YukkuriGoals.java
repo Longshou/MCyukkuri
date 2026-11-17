@@ -221,9 +221,9 @@ final class YukkuriGoals {
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
             if (owner.family().carry().tickFlight(owner.getLastHurtByMob())) return;
-            // A skilled resident that has reached its den can seal while fleeing.
-            if (owner.getLastHurtByMob() instanceof YukkuriEntity danger && danger.profile().dangerToYukkuri()
-                    && owner.status().reactions().threat().seal().drive(danger)) return;
+            // A skilled resident that has reached its den can seal while fleeing, whatever drove it home.
+            var danger = owner.getLastHurtByMob();
+            if (danger != null && owner.status().reactions().threat().seal().drive(danger)) return;
             if (owner.directNavigation().isDone() || owner.tickCount % 10 == 0) {
                 var threat = owner.getLastHurtByMob();
                 if (threat != null) {

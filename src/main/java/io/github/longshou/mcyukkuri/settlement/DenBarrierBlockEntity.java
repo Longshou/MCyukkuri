@@ -17,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -28,9 +29,11 @@ import net.minecraft.world.phys.AABB;
 
 /** One cell of a den-mouth screen and the conditions under which its twig comes out. */
 public final class DenBarrierBlockEntity extends BlockEntity {
-    /** Ticks without a predator within {@link #WATCH_RANGE} before the owner takes the screen down, and the most it stands (project design). */
+    /** Ticks without a danger within {@link #WATCH_RANGE} before the owner takes the screen down, and the most it stands (project design). */
     static final int CALM_TICKS = 200, DECAY_TICKS = 4800, WATCH_RANGE = 20, CHECK = 20, PUSH_TICKS = 60;
-    private UUID owner;
+    /** How long the danger that drove the builder home still counts as present after it stops acting. */
+    static final int THREAT_MEMORY = 1200;
+    private UUID owner, threat;
     private List<UUID> absent = List.of();
     private BlockPos den;
     private long laidAt;
@@ -39,9 +42,9 @@ public final class DenBarrierBlockEntity extends BlockEntity {
 
     public DenBarrierBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.DEN_BARRIER_ENTITY.get(), pos, state); }
 
-    void lay(YukkuriEntity builder, ShelterBlockEntity shelter, List<UUID> parents) {
+    void lay(YukkuriEntity builder, ShelterBlockEntity shelter, List<UUID> parents, UUID danger) {
         owner = builder.getUUID(); den = shelter.getBlockPos().immutable(); laidAt = level.getGameTime(); calm = 0;
-        absent = parents;
+        absent = parents; threat = danger;
         setChanged();
     }
     public UUID owner() { return owner; }
@@ -65,8 +68,13 @@ public final class DenBarrierBlockEntity extends BlockEntity {
             else if (age >= DECAY_TICKS) release("decayed", null);
             return;
         }
+        // The scan sees dangerous yukkuri; the danger that drove the builder home (a human, a predator) is remembered by
+        // identity, so the screen stands while it still lingers nearby and comes down once it is gone, dead or an age older.
         boolean danger = !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(WATCH_RANGE, 8, WATCH_RANGE),
-                p -> p.isAlive() && p.profile().dangerToYukkuri()).isEmpty();
+                p -> p.isAlive() && p.profile().dangerToYukkuri()).isEmpty()
+                || age < THREAT_MEMORY && threat != null && server.getEntity(threat) instanceof LivingEntity other && other.isAlive()
+                        && other.distanceToSqr(worldPosition.getX() + .5, worldPosition.getY() + .5, worldPosition.getZ() + .5)
+                                <= (double) WATCH_RANGE * WATCH_RANGE;
         calm = danger ? 0 : calm + CHECK;
         // A resident that stands calm against the screen from inside pushes it aside (it is only loose twigs) — but only
         // while the screen's own danger scan is clear: behind it with a predator outside, the body stays put.
@@ -141,6 +149,7 @@ public final class DenBarrierBlockEntity extends BlockEntity {
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         if (owner != null) tag.putUUID("Owner", owner);
+        if (threat != null) tag.putUUID("Threat", threat);
         if (den != null) tag.putLong("Den", den.asLong());
         tag.putLong("LaidAt", laidAt);
         tag.putInt("Calm", calm);
@@ -153,6 +162,7 @@ public final class DenBarrierBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+        threat = tag.hasUUID("Threat") ? tag.getUUID("Threat") : null;
         den = tag.contains("Den") ? BlockPos.of(tag.getLong("Den")) : null;
         laidAt = tag.getLong("LaidAt");
         calm = Math.max(0, tag.getInt("Calm"));

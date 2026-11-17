@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,7 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
-/** A skilled den resident uses the real doorway stock to close a burrow against danger or during a family outing. */
+/** A skilled den resident uses the real doorway stock to close a burrow against any danger that drives it home, or during a family outing. */
 public final class DenSeal {
     static final int WORK_TICKS = 40, WALK_LIMIT = 100, RECHECK = 10, RETRY = 100, MAX_CELLS = 3;
     private static final double WATCH_SQR = 24 * 24, DOOR_SAFE_SQR = 9;
@@ -74,21 +75,48 @@ public final class DenSeal {
     }
 
     public boolean drive(LivingEntity danger) {
-        if (!(danger instanceof YukkuriEntity predator && predator.isAlive() && predator.profile().dangerToYukkuri())) {
-            abort("danger_lost"); return false;
-        }
+        if (danger == null || !danger.isAlive()) { abort("danger_lost"); return false; }
         var level = (ServerLevel) y.level();
         long now = level.getGameTime();
         if (active() && (!absent.isEmpty() || now - lastDrive > RECHECK)) abort("interrupted");
         lastDrive = now;
         var home = y.habitat().shelter();
         if (phase == Phase.IDLE) {
-            if (done || now < nextCheck || predator.distanceToSqr(y) > WATCH_SQR) return false;
+            if (done || now < nextCheck || danger.distanceToSqr(y) > WATCH_SQR) return false;
             nextCheck = now + (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) < 36 ? 3 : RECHECK);
-            if (!canSeal(home) || !home.contains(y.blockPosition()) || !begin(level, home, predator, List.of())) return false;
+            if (!canSeal(home) || !home.contains(y.blockPosition())) return false;
+            // A member of the household still outside is not shut out; the sealer keeps the mouth open while it waits.
+            if (familyOutside(level, home)) {
+                GameplayLog.limited(y, "threat", "seal_family_outside", 200, "den seal waiting reason=family_outside den={}", home.getBlockPos());
+                return false;
+            }
+            if (!decidesToSeal(danger, home) || !begin(level, home, danger, List.of())) return false;
         }
-        if (predator.distanceToSqr(y) > WATCH_SQR) { abort("danger_lost"); return false; }
-        return work(level, home, predator);
+        if (danger.distanceToSqr(y) > WATCH_SQR) { abort("danger_lost"); return false; }
+        return work(level, home, danger);
+    }
+
+    /** Skill and self-control decide once per danger episode whether the frightened resident does the extra work. */
+    private boolean decidesToSeal(LivingEntity danger, ShelterBlockEntity home) {
+        var traits = y.life().personality();
+        double chance = chance(traits), roll = y.getRandom().nextDouble();
+        boolean seals = roll < chance;
+        GameplayLog.event(y, "home", "den seal decided den={} danger={} self_control={} chance={} roll={} seals={}",
+                home.getBlockPos(), danger.getUUID(), traits.selfControl(), chance, roll, seals);
+        if (!seals) done = true;
+        return seals;
+    }
+
+    /** The shared remembered-rule chance: the family outing and the threat response draw the same number. */
+    private static double chance(YukkuriPersonality traits) {
+        return traits.ruleProbability() * (.20 + .008 * traits.selfControl());
+    }
+
+    /** A living member of this den is outside it and near: the mouth stays open for it. */
+    private boolean familyOutside(ServerLevel level, ShelterBlockEntity home) {
+        return !level.getEntitiesOfClass(YukkuriEntity.class, new AABB(home.getBlockPos()).inflate(WATCH_SQR, 8, WATCH_SQR),
+                other -> other != y && other.isAlive() && home.owns(other.getUUID()) && !home.contains(other.blockPosition())
+                        && other.distanceToSqr(y) <= WATCH_SQR).isEmpty();
     }
 
     private boolean available() {
@@ -105,12 +133,12 @@ public final class DenSeal {
                 && y.forageTrip().load().isEmpty() && y.habitat().carrying().isEmpty();
     }
 
-    private boolean work(ServerLevel level, ShelterBlockEntity home, YukkuriEntity predator) {
+    private boolean work(ServerLevel level, ShelterBlockEntity home, LivingEntity danger) {
         if (!canSeal(home) || !den.equals(home.getBlockPos())) { abort("den_or_body_changed"); return false; }
         var mouth = Vec3.atCenterOf(home.entrance());
-        if (predator != null && predator.distanceToSqr(mouth) < DOOR_SAFE_SQR) { abort("danger_at_door"); return false; }
+        if (danger != null && danger.distanceToSqr(mouth) < DOOR_SAFE_SQR) { abort("danger_at_door"); return false; }
         ticks++;
-        if (phase != Phase.WORK && !approach(home, predator)) return active();
+        if (phase != Phase.WORK && !approach(home, danger)) return active();
         if (!home.contains(y.blockPosition())) { abort("left_den"); return false; }
         if (!clearOfScreen(y.getBoundingBox(), cells)) { abort("sealer_in_screen"); return false; }
         SurfaceApproach.halt(y);
@@ -121,11 +149,11 @@ public final class DenSeal {
                     mouth.x, mouth.y + .3, mouth.z, 3, .25, .15, .25, .02);
             level.playSound(null, y.blockPosition(), SoundType.GRASS.getPlaceSound(), SoundSource.NEUTRAL, .5f, 1.1f);
         }
-        if (ticks >= WORK_TICKS) complete(level, home, predator);
+        if (ticks >= WORK_TICKS) complete(level, home, danger);
         return true;
     }
 
-    private boolean approach(ShelterBlockEntity home, YukkuriEntity predator) {
+    private boolean approach(ShelterBlockEntity home, LivingEntity danger) {
         if (y.onGround() && (phase == Phase.WALK ? den.equals(y.blockPosition()) : home.contains(y.blockPosition()))) {
             if (clearOfScreen(y.getBoundingBox(), cells)) {
                 phase = Phase.WORK; ticks = 0;
@@ -147,7 +175,7 @@ public final class DenSeal {
         if (ticks <= WALK_LIMIT && (phase == Phase.CLEAR && SurfaceApproach.tryStraightStep(y, target, 1.2)
                 || SurfaceApproach.walkResult(y, target, null, 1.2) != SurfaceApproach.Result.BLOCKED)) return false;
         abort(phase == Phase.CLEAR ? "clear_stand_unreachable" : "path_stuck");
-        if (predator != null) done = true;
+        if (danger != null) done = true;
         return false;
     }
 
@@ -160,7 +188,7 @@ public final class DenSeal {
         return cells.stream().noneMatch(cell -> body.intersects(new AABB(cell)));
     }
 
-    private boolean begin(ServerLevel level, ShelterBlockEntity home, YukkuriEntity predator, List<UUID> parents) {
+    private boolean begin(ServerLevel level, ShelterBlockEntity home, LivingEntity danger, List<UUID> parents) {
         if (!EventHooks.canEntityGrief(level, y)) {
             GameplayLog.limited(y, "threat", "seal_griefing", 1200, "den seal skipped reason=mob_griefing_off den={}", home.getBlockPos());
             done = true; return false;
@@ -176,8 +204,8 @@ public final class DenSeal {
                     home.branches(), plan.cells().size(), home.getBlockPos());
             nextCheck = level.getGameTime() + RETRY; return false;
         }
-        if (predator != null && predator.distanceToSqr(Vec3.atCenterOf(home.entrance())) < DOOR_SAFE_SQR) {
-            GameplayLog.limited(y, "threat", "seal_door", 200, "den seal waiting reason=danger_at_door danger={} den={}", predator.getUUID(), home.getBlockPos());
+        if (danger != null && danger.distanceToSqr(Vec3.atCenterOf(home.entrance())) < DOOR_SAFE_SQR) {
+            GameplayLog.limited(y, "threat", "seal_door", 200, "den seal waiting reason=danger_at_door danger={} den={}", danger.getUUID(), home.getBlockPos());
             return false;
         }
         // On a family outing the sealer may still be standing in its own doorway as it heads inside.
@@ -188,11 +216,11 @@ public final class DenSeal {
         den = home.getBlockPos().immutable(); cells = plan.cells(); absent = parents;
         phase = Phase.WALK; ticks = 0;
         GameplayLog.event(y, "home", "den seal started den={} cells={} twigs={} danger={} absent={}",
-                den, cells, home.branches(), predator == null ? null : predator.getUUID(), absent);
+                den, cells, home.branches(), danger == null ? null : danger.getUUID(), absent);
         return true;
     }
 
-    private void complete(ServerLevel level, ShelterBlockEntity home, YukkuriEntity predator) {
+    private void complete(ServerLevel level, ShelterBlockEntity home, LivingEntity danger) {
         if (!EventHooks.canEntityGrief(level, y)) { abort("mob_griefing_off"); return; }
         var plan = planFor(level, home);
         if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size() || occupiedByOthers(level, cells)) {
@@ -204,20 +232,20 @@ public final class DenSeal {
         for (var cell : cells) {
             if (!level.setBlock(cell, ModBlocks.DEN_BARRIER.get().defaultBlockState(), 3)) break;
             home.takeBranch();
-            ((DenBarrierBlockEntity) level.getBlockEntity(cell)).lay(y, home, absent);
+            ((DenBarrierBlockEntity) level.getBlockEntity(cell)).lay(y, home, absent, danger == null ? null : danger.getUUID());
             level.playSound(null, cell, SoundType.GRASS.getPlaceSound(), SoundSource.BLOCKS, 1f, .9f);
             placed++;
         }
         GameplayLog.event(y, "home", "den seal {} den={} cells={} placed={} twigs {} -> {} danger={} absent={} work_ticks={}",
                 placed == cells.size() ? "completed" : "placement_refused", den, cells, placed, before, home.branches(),
-                predator == null ? null : predator.getUUID(), absent, ticks);
+                danger == null ? null : danger.getUUID(), absent, ticks);
         if (placed == cells.size()) for (var demonstration : demonstrations) {
             var learner = demonstration.learner();
             if (demonstration.missed() == null) learner.childhood().sawDenSeal(y);
             else GameplayLog.event(y, "childhood", "den seal demonstration missed learner={} reason={}",
                     learner.getUUID(), demonstration.missed());
         }
-        phase = Phase.IDLE; ticks = 0; done = predator != null;
+        phase = Phase.IDLE; ticks = 0; done = danger != null;
     }
 
     private List<Demonstration> demonstrations(ServerLevel level, ShelterBlockEntity home) {
@@ -292,14 +320,14 @@ public final class DenSeal {
         if (parents.isEmpty() || parents.equals(considered)) return false;
         considered = parents;
         var traits = y.life().personality();
-        double chance = traits.ruleProbability() * (.20 + .008 * traits.selfControl());
+        double chance = chance(traits);
         double roll = y.getRandom().nextDouble();
         GameplayLog.event(y, "home", "den seal remembered den={} absent={} self_control={} chance={} roll={} remembered={}",
                 home.getBlockPos(), parents, traits.selfControl(), chance, roll, roll < chance);
         return roll < chance && begin(level, home, null, parents);
     }
 
-    /** Family work yields to ordinary life needs and threat goals. The same worker owns the predator route above. */
+    /** Family work yields to ordinary life needs and threat goals. The same worker owns the threat route above. */
     public static final class FamilyGoal extends Goal {
         private final YukkuriEntity y;
         private DenBarrierBlockEntity opening;

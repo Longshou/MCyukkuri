@@ -312,7 +312,7 @@ add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封�
     '会封洞的灵梦带着 2 根洞口枝条。灵梦进洞后，南面出现饥饿蕾米莉亚。看它察觉危险后封洞，等附近没有捕食种再拆开。',
     '约 1–2 分钟，可倍速', [
         box(-9, 0, -5, 9, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
-        yk('reimu', 0, -1, 'wise', label='会封洞的灵梦', boldness=20, childhood=_seal_skill, lead=True, **pair_ready()),
+        yk('reimu', 0, -1, 'wise', label='会封洞的灵梦', boldness=20, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
         home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
     late=[Retry(yk('remilia', 0, 6, 'hunter', label='饥饿捕食种', nutrition=48, energy=95, boldness=80),
                 _den_guard('wise', 'indep'), tries=20, every=20, first=1)],
@@ -320,6 +320,28 @@ add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封�
     reads=[('读灵梦', f'yukkuri status {sel("wise")} raw'), ('读捕食种', f'yukkuri status {sel("hunter")} raw')],
     smoke=dict(ticks=1800, expect=[r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]'],
                forbid=[r'\[body\][^\n]* invariant\b']))
+
+add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '会封洞的灵梦被居民打回家封洞',
+    '会封洞的灵梦在洞外被虐派居民打了两下：胆小的它先僵住忍住，第二下才真正害怕，转身逃回洞里用洞口枝条封住。'
+    '居民还在近旁时屏一直挡着；它自己忍过一阵后拆屏、把枝条还回粮堆。',
+    '约 1 分钟，可倍速', [
+        box(-9, 0, -7, 9, 0, 16, 'minecraft:air', 'replace minecraft:short_grass'),
+        yk('reimu', 0, 2, 'wise', label='会封洞的灵梦', boldness=15, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
+        human('oniisan', 3, 6, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
+        set_status('wise', 'mood.unease', 60),
+        home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
+    # Two real blows from the resident, two seconds apart: the first is endured, the second is what makes it bolt home.
+    late=[Retry(f'damage {sel("wise")} 1 minecraft:player_attack by {sel("threat")}', sel('wise'), tries=1, first=1),
+          Retry(f'damage {sel("wise")} 1 minecraft:player_attack by {sel("threat")}', sel('wise'), tries=1, first=41)],
+    env=DAY, spot='indep', vantage=(0, 14, 180),
+    reads=[('读灵梦', f'yukkuri status {sel("wise")} raw'), ('读居民', f'yukkuri status {sel("threat")} raw')],
+    smoke=dict(ticks=1900, expect=[
+        r'\[punishment\][^\n]* response=ENDURE\b',
+        r'\[punishment\][^\n]* response=ESCAPE\b',
+        r'\[home\][^\n]* den seal decided [^\n]* seals=true',
+        r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]',
+        r'\[home\][^\n]*den barrier removed [^\n]* reason=(danger_passed|pushed_through) [^\n]*twig_returned=true'],
+        forbid=[r'\[body\][^\n]* invariant\b']))
 
 # ====================================================================================================== vagrants and foraging
 add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理沙在土丘挖洞安家', '没有家的野生成体走到土丘边，先挖通地面，再向上挖内部第二层。入口一格高、内部两格高，每块约 6 秒。',
@@ -5143,7 +5165,7 @@ TOPICS = {
     'everyday_choices': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
-    'den_barrier': 'W8', 'den_barrier_predator': 'W8',
+    'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
