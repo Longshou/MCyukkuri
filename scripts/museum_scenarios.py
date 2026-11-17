@@ -589,6 +589,55 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                        rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin source=life',
                        r'MCYPAPER_STACK_TAKEN_3']))
 
+_devoted_mother = uid('stray_paper_young', 'devoted_parent')
+_self_mother = uid('stray_paper_young', 'self_parent')
+_devoted_parent_txt = _uuid_text('stray_paper_young', 'devoted_parent')
+_devoted_baby_txt = _uuid_text('stray_paper_young', 'devoted_baby')
+_self_parent_txt = _uuid_text('stray_paper_young', 'self_parent')
+_self_baby_txt = _uuid_text('stray_paper_young', 'self_baby')
+add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自利者先盖自身', '流浪：亲油叼纸盖赤油',
+    '雪原冬夜，同一排矮木板檐缝里并排歇着两户母子，中央放着一捆报纸（4 张）：西侧重亲情的魔理沙用辫子按住报捆咬抽一张，走到赤油侧旁低头披在孩子身上（赤油寒战减轻，亲油自己无纸发抖，不再二趟抽纸）；'
+    '东侧自利的灵梦抽一张直接披在自己身上发抖，身旁的赤油继续无纸发抖（报纸堆剩 2 张）。可放篝火或纸箱看它们起身落纸转移',
+    '约半分钟', [
+        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
+        box(-6, 0, -2, 6, 1, -2, 'minecraft:spruce_planks'),
+        box(-5, 1, -1, 5, 1, -1, 'minecraft:spruce_slab[type=top]'),
+        box(-6, 0, -1, -6, 1, -1, 'minecraft:spruce_planks'),
+        box(0, 0, -1, 0, 1, -1, 'minecraft:spruce_planks'),
+        box(6, 0, -1, 6, 1, -1, 'minecraft:spruce_planks'),
+        block(0, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=0]'),
+        street_stray('stray_paper_young', 'marisa', -3, 2, 'devoted_parent', boldness=65, attachment=85, friendliness=85,
+                     energy=36, rest_wait=0, yaw=180, label='重亲情魔理沙', lead=True),
+        street_stray('stray_paper_young', 'marisa', -4, 0, 'devoted_baby', stage='baby', energy=36, rest_wait=0, yaw=180,
+                     kin=f'Mother:{uuid_nbt(_devoted_mother)}', childhood=CHILDHOOD_HOPPING, label='披纸赤油'),
+        street_stray('stray_paper_young', 'reimu', 3, 2, 'self_parent', boldness=65, attachment=18, friendliness=18,
+                     energy=36, rest_wait=0, yaw=180, label='自利灵梦'),
+        street_stray('stray_paper_young', 'reimu', 4, 0, 'self_baby', stage='baby', energy=36, rest_wait=0, yaw=180,
+                     kin=f'Mother:{uuid_nbt(_self_mother)}', childhood=CHILDHOOD_HOPPING, label='发抖赤油'),
+    ], give=['minecraft:campfire', 'mcyukkuri:cardboard_shelter', 'mcyukkuri:magnifying_glass'],
+    env={'time': 'night'}, spot='street', vantage=(0, 6, 180, 15), note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读重亲情魔理沙（无纸发抖）', f'yukkuri status {sel("devoted_parent")} raw'),
+           ('读披纸赤油（寒战减轻）', f'yukkuri status {sel("devoted_baby")} raw'),
+           ('读自利灵梦（盖纸自身）', f'yukkuri status {sel("self_parent")} raw'),
+           ('读无纸赤油（继续发抖）', f'yukkuri status {sel("self_baby")} raw')],
+    capture=dict(shots=(1, 140, 260, 680), sequences=((80, 320, 4),), observe=False,
+                 views={'side': dict(position=(-2.4, .75, 1.35), look_at=(-3.55, .28, -.5))}),
+    smoke=dict(ticks=760,
+               commands=[(720, 'execute if block ~ ~ ~2 mcyukkuri:newspaper_stack[bundles=1,taken=2] run say MCYPAPER_YOUNG_TAKEN_2')],
+               readout=[f'yukkuri status {sel("devoted_parent")} raw', f'yukkuri status {sel("devoted_baby")} raw',
+                        f'yukkuri status {sel("self_parent")} raw', f'yukkuri status {sel("self_baby")} raw'],
+               forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
+                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover fetch',
+                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped source=',
+                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped on child=',
+                       rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin'],
+               expect=[rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* wind cover paper approach',
+                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* baby paper cover approach child={_devoted_baby_txt}',
+                       rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped on child={_devoted_baby_txt} item=minecraft:paper count=1',
+                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover kept for self child={_self_baby_txt}',
+                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped source=mouth item=minecraft:paper count=1',
+                       r'MCYPAPER_YOUNG_TAKEN_2']))
+
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
     from museum_fields import BIOME_PLOTS
@@ -4936,7 +4985,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8',
     'family_absence': 'W9',
-    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5',
+    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5',
@@ -5999,6 +6048,15 @@ for _beg_scene in ('wild', 'wild_beg_refuse', 'wild_beg_snatch', 'wild_beg_help'
 _scene_end('food_behind_glass', [('glass_food_eater', _DRY)])
 _scene_end('stray_paper', [('bold_paper', _ASHORE + ' and hold.cover.item=minecraft:paper'),
                            ('tired_paper', _ASHORE + ' and hold.cover.item=minecraft:paper')])
+_scene_end('stray_paper_young',
+           [('devoted_parent', _ASHORE), ('devoted_baby', _ASHORE + ' and hold.cover.item=minecraft:paper'),
+            ('self_parent', _ASHORE + ' and hold.cover.item=minecraft:paper'), ('self_baby', _ASHORE)],
+           [('devoted_parent', 'seen:habitat:wind cover paper approach'),
+            ('devoted_parent', 'seen:habitat:baby paper cover approach'),
+            ('devoted_parent', 'seen:habitat:paper cover draped on child=')],
+           [('self_parent', 'seen:habitat:wind cover paper approach'),
+            ('self_parent', 'seen:habitat:paper cover kept for self'),
+            ('self_parent', 'seen:habitat:paper cover draped source=mouth')])
 
 for _exile_scene, _witnesses in (('colony_mold_exile', ['leader', 'witness']),
                                  ('den_mold_exile', ['healthy', 'grandparent', 'baby'])):

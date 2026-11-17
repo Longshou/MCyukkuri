@@ -274,9 +274,9 @@ class PaperTentTest {
             }
         }
 
-        // Contact frame (drape = 0.76s) of paper_cover_child: parent at flank distance d = 0.40 + 0.40*0.18 + 0.06 = 0.532 blocks
+        // Contact frame (drape = 0.76s) of paper_cover_child: parent at flank distance d = 0.40 + 0.40*0.18 + 0.068 = 0.540 blocks
         // facing -Z toward a 0.18x baby (turned 90 deg so parent meets baby's flank) with PaperTent equipped.
-        float spacing = (.80f + .80f * .18f) * .5f + .06f;
+        float spacing = (.80f + .80f * .18f) * .5f + .068f;
         for (Loaded parent : List.of(reimu, marisa)) {
             assertTrue(parent.clips.containsKey("paper_cover_child"), "Missing paper_cover_child on " + parent.id);
             float[] parentVerts = posedActorVerts(parent, "paper_cover_child", .76f, 1f, true, 0f, 0f, 0f);

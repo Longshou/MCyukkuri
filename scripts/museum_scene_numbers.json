@@ -228,6 +228,7 @@
     "nest_grades": "FM-24",
     "pred_toilet": "MD-20",
     "stray_paper": "FG-14",
-    "everyday_choices": "MD-21"
+    "everyday_choices": "MD-21",
+    "stray_paper_young": "FG-15"
   }
 }

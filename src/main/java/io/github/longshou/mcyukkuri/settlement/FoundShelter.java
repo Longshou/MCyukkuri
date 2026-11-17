@@ -599,7 +599,7 @@ public final class FoundShelter implements MotorOwner {
         Direction[] flanks = wallSide != null
                 ? new Direction[]{wallSide.getClockWise(), wallSide.getCounterClockWise(), wallSide.getOpposite()}
                 : new Direction[]{Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH};
-        double spacing = (body.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.06;
+        double spacing = (body.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.068;
         double mouthOffsetY = Math.max(0.05, MouthPlacement.position(body).y - body.getY());
         Vec3 babyBack = baby.position().add(0, baby.getBbHeight() * 0.7, 0);
         Vec3 best = null;
@@ -654,8 +654,8 @@ public final class FoundShelter implements MotorOwner {
                 || !samePlainGap(gap, baby.blockPosition())) return false;
         Vec3 delta = baby.position().subtract(actor.position()).multiply(1, 0, 1);
         double dist = delta.length();
-        double min = (actor.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.01;
-        double max = (actor.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.28;
+        double min = Math.max(0.18, (actor.getBbWidth() + baby.getBbWidth()) * 0.5 - 0.03);
+        double max = (actor.getBbWidth() + baby.getBbWidth()) * 0.5 + 0.24;
         if (dist < min || dist > max || Math.abs(actor.getY() - baby.getY()) > 0.22) return false;
         if (requireFacing) {
             Vec3 forward = Vec3.directionFromRotation(0, actor.getYHeadRot()).multiply(1, 0, 1).normalize();
