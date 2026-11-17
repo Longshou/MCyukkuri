@@ -5631,7 +5631,7 @@ _smoke('yard_owner_return', 1250, [
     r'\[pet\][^\n]* owner return nuzzle owner=',
 ], readout=[f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience',
             f'data get entity {sel("yard_keeper")} CareFood', 'data get block ~5 ~ ~2 Items'])
-_smoke('yard_stray_scold', 1000, [
+_smoke('yard_stray_scold', 1200, [
     r'\[home-claim\][^\n]* occupation chosen [^\n]*kind=bed',
     r'\[home-claim\][^\n]* declared site=[^\n]*spoken=true',
     r'\[npc-care\][^\n]* action=yard_scold_approach target=[^ ]+ distance=(?:[2-9]|1[0-2])\.',
