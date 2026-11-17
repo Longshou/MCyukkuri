@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 加工所 F5d：隔玻璃亲子（目击护幼／推孩子／转开、碎玻璃逃出、出厂界解归属，FA-02） | `.worktrees/wp-fac-f5d-kinboxes` | life/GlassSight, family/FamilyLife, family/FamilySeparation, human/Custody, social/ProtectivePuff, family/ParentCarry |
 
 ## 玩法待办
 
