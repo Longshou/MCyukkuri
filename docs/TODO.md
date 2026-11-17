@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 流浪从摊位货箱偷货，店主看到后反应 | `.worktrees/wp-stall-theft` | life/BlockPull, produce crate / stall, street resident reactions |
 
 ## 玩法待办
 
