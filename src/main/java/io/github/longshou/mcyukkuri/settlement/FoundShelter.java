@@ -43,6 +43,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -304,13 +305,24 @@ public final class FoundShelter implements MotorOwner {
         return now() >= streetAfter && streetUser(body) && level().isRainingAt(body.blockPosition());
     }
 
+    private List<BlockPos> ownChildPlainGaps() {
+        if (!body.family().adult()) return List.of();
+        return level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(TravelRange.NURSE_RADIUS),
+                        c -> c != body && c.isAlive() && !c.family().adult() && body.family().caresFor(c)
+                                && body.life().canRecognize(c) && plainGapAt(c.blockPosition()))
+                .stream().map(YukkuriEntity::blockPosition).toList();
+    }
+
     private BlockPos findGap(BlockPos here) {
         var options = new ArrayList<BlockPos>();
         int reach = TravelRange.search(body, RADIUS);
         for (var pos : BlockPos.betweenClosed(here.offset(-reach, -1, -reach), here.offset(reach, 1, reach)))
             if (!refusing(pos) && TravelRange.babyDestination(body, pos) && gapAt(pos) && roofKind(level(), pos) == null)
                 options.add(pos.immutable());
-        return options.stream().sorted(Comparator.<BlockPos>comparingInt(p -> paperAt(p) ? 0 : 1)
+        var childGaps = ownChildPlainGaps();
+        return options.stream().sorted(Comparator
+                        .<BlockPos>comparingInt(p -> childGaps.stream().anyMatch(cg -> samePlainGap(p, cg)) ? 0 : 1)
+                        .thenComparingInt(p -> paperAt(p) ? 0 : 1)
                         .thenComparingDouble(here::distSqr)).limit(5)
                 .filter(pos -> availableStand(Vec3.atBottomCenterOf(pos))
                         && SurfaceApproach.canApproach(body, Vec3.atBottomCenterOf(pos))).findFirst().orElse(null);
@@ -496,13 +508,13 @@ public final class FoundShelter implements MotorOwner {
         var queue = new ArrayDeque<BlockPos>();
         seen.add(a);
         queue.add(a);
-        while (!queue.isEmpty() && seen.size() < 12) {
+        while (!queue.isEmpty() && seen.size() < 24) {
             BlockPos cur = queue.poll();
             for (Direction dir : Direction.Plane.HORIZONTAL) {
                 for (int dy : new int[]{0, -1, 1}) {
                     BlockPos next = cur.relative(dir).above(dy);
-                    if (Math.abs(next.getY() - a.getY()) > 1 || next.distManhattan(a) > 6 || !seen.add(next)) continue;
-                    if (!plainGapAt(next)) continue;
+                    if (Math.abs(next.getY() - a.getY()) > 1 || next.distManhattan(a) > 6) continue;
+                    if (!plainGapAt(next) || !seen.add(next)) continue;
                     if (next.equals(b)) return true;
                     queue.add(next);
                 }
