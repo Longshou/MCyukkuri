@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 加工所 F4：厂房、前台、厂界与单层玻璃邻箱 | `.worktrees/wp-fac-f4-plant` | art/structures/human-world (build.py, manifest.json, exports.json, new plant template) |
-| 鬼威惨商店解压间（美术：隔间、借还格、保护边界） | `.worktrees/wp-fac-sp-room-art` | art/structures/human-world/author_street.py, oni_shop templates |
 
 ## 玩法待办
 
