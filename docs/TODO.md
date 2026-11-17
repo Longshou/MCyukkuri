@@ -128,6 +128,7 @@
     - 鬼威惨商店解压间：已接入待试玩（[2aa70f80e](https://github.com/Longshou/MCyukkuri/commit/2aa70f80e)；柜台托盘押 4 绿宝石借固定台、还同款退押金，隔间在商店保护外，买来或自带的个体开篮后用工具处置，嘴硬的先回嘴后崩溃、胆小的求饶；商店 SP-08「鬼威惨商店：租工具解压」）；胆小个体那一支只能试玩看。
     - 加工所厂房与单厂入口：已接入待试玩（[ec179ad85](https://github.com/Longshou/MCyukkuri/commit/ec179ad85)；村边只生成一座加工所，配职员，旧三厂停产、旧成品一次搬进桶、旧托盘放下乘员；加工所 FA-09「加工所厂房」）；看厂房在坡地上的落位、甜化箱和前台。业务线随后续包接入。旧工厂界面的翻译键残留未清。全游戏的窝入口最多容下 1.10 倍体型的胖灵梦，更大的只能睡地板，2×2 大窝不支持旋转：未做。
     - 加工所收活体：已接入待试玩（[6400bdb8f](https://github.com/Longshou/MCyukkuri/commit/6400bdb8f)；收货亭里当面开篮、按数值回嘴／求饶／僵住，空篮当场还，职员另装篮沿过道送进甜化箱，别人的宠物与受保护个体拒收；加工所 FA-09）；职员半路死亡时篮子掉落只编译未实跑。
+    - 加工所甜化箱：已接入待试玩（[8f1efe356](https://github.com/Longshou/MCyukkuri/commit/8f1efe356)；开张原料甜度有高有低，职员按眼前所见用针、冷锥、固定台或取名加压，快到上限收手，三只同受处理各自回嘴／硬撑／僵住，甜度按真实不安涨；档牌与放大镜读数；加工所 FA-01「甜化箱」）；看职员动手频率、丑态与反应是否够看。箱 A 有一只在社交时原地弹跳约 6 秒（审查 P2）。
 
 - **人类世界扩建（街道生活、爱派虐派 NPC、鬼威惨商店）**：已接入待试玩（街道摊位与小巷、流浪物件、鬼威惨商店：[ff20a18b6](https://github.com/Longshou/MCyukkuri/commit/ff20a18b6)、[21a79fd07](https://github.com/Longshou/MCyukkuri/commit/21a79fd07)，商店 oni_shop、流浪 stray_rubbish；爱派、虐派与路人居民单步可见交互：[dd8bbe15f](https://github.com/Longshou/MCyukkuri/commit/dd8bbe15f)，爱派喂食与制止、虐派只恐吓驱赶轻踢且不碰受保护个体、粮食有限可见；街道 TN-09、TN-10、TN-20）。用户：「做好群落和结构规划前 原版村庄需要纳入 mod 比如街道商店等都可以和村庄一起生成  街道相关内容也需要大幅度完善 现在的简陋  包括 npc 爱派虐派做好做完善 还有鬼威惨商店也可以做了 参考wiki 设定」「街道生活、爱派虐派 NPC 和鬼威惨商店 也需要」。设定依据见 Wiki [人类世界](../wiki/hakkei-reference/world/human-world.md)。村庄生成：已接入待试玩（[8f59e1f5d](https://github.com/Longshou/MCyukkuri/commit/8f59e1f5d)；新建默认世界种子 42，`/tp @s 651 80 -302`）。
 - **内容脉络第二批**（来自内容脉络图第 6 节；均为已接入待试玩）：
