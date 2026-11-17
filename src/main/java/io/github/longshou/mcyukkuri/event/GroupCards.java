@@ -151,13 +151,13 @@ public final class GroupCards {
             thief.showReaction("neutral", "wait_turn", 50);
             WildEvents.finish(level, s, Phase.COMPLETE, s.sourceCount > 0 ? "raided_store" : "store_empty"); return;
         }
-        s.sourceCount++; s.responses = s.phaseTicks;
-        thief.species().narrate("steal");
         if (!thief.life().beginMeal(loot, null, false)) {
             shelter.returnFood(loot);
             WildEvents.finish(level, s, Phase.INTERRUPTED, "raid_serving_refused");
             return;
         }
+        s.sourceCount++; s.responses = s.phaseTicks;
+        thief.species().narrate("steal");
         YukkuriEntity witness = null;
         for (UUID id : shelter.residentIds()) {
             if (level.getEntity(id) instanceof YukkuriEntity resident && resident.isAlive() && resident.distanceToSqr(thief) <= 100) {

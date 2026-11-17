@@ -646,18 +646,19 @@ public final class HumanNpc extends PathfinderMob {
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
             if (isTrading()) { street.stopHelp(); getNavigation().stop(); return; }
-            if (goingHome()) {
-                if (resting()) street.stopHelp();
-                if (!street.helping()) {
-                    clearAttention();
-                    if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2) getNavigation().stop();
-                    else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
-                    return;
-                }
+            if (resting() && street.helping()) {
+                street.stopHelp();
+                getNavigation().stop();
             }
             if (street.helping()) {
                 clearAttention();
                 street.helpStep();
+                return;
+            }
+            if (goingHome()) {
+                clearAttention();
+                if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2) getNavigation().stop();
+                else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
                 return;
             }
             if (attention == null) return;

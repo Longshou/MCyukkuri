@@ -158,6 +158,7 @@ public final class Reactions {
         Threat(YukkuriEntity y) { this.y = y; seal = new DenSeal(y); }
 
         public Stage stage() { return stage; }
+        public boolean responding() { return stage != Stage.NONE || wants(); }
         public DenSeal seal() { return seal; }
         /** The predator (or attacker) that currently matters, or null. */
         public LivingEntity source() {
