@@ -4850,7 +4850,7 @@ add('kindness_adoption', 'family', '孤儿分食与认养亲', '孤儿分食与�
            childhood=CHILDHOOD_CRAWLING_READY),
         f'data merge entity {sel("foster")} {{YukkuriLife:{{MealTicks:1}}}}',
         home('foster', 0, 0),
-    ], env=DAY, spot='pet_birth', vantage=(1, 8, 100), reads=[
+    ], env=DAY, spot='pet_birth', vantage=(-1, 4, 170), reads=[
         ('读赤油营养', f'yukkuri status {sel("orphan")} raw'), ('读邻居照护', f'yukkuri status {sel("foster")} raw')])
 
 _number_scenes()
@@ -4906,7 +4906,7 @@ def _smoke(sid, ticks, expect, forbid=(), readout=()):
 _LICK = [r'\[comfort\][^\n]* approach started', r'\[comfort\][^\n]* mouth contact started']
 _smoke('hurt', 1800, _LICK)
 _smoke('kindness_adoption', 720, [
-    rf'\[kindness\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*bite handed peer={_uuid_text("kindness_adoption", "orphan")}\b',
+    rf'\[kindness\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*bite handed peer={_uuid_text("kindness_adoption", "orphan")} clip=offer_bite\b',
     rf'\[meal\][^\n]*uuid={_uuid_text("kindness_adoption", "orphan")} [^\n]*swallowed item=[^\n]*feeder={_uuid_text("kindness_adoption", "foster")}\b',
     rf'\[family\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*foster accepted child={_uuid_text("kindness_adoption", "orphan")}\b',
 ])
@@ -5090,9 +5090,14 @@ def _den_family_verify(log):
     if not homes[0] or len(set(homes)) != 1:
         return 'den family: parents and child did not claim one home before the death'
 
-    departures = [tick for tick, _ in events(mother, 'forage', r'begin role=FAMILY phase=OUT\b') if tick > death_tick]
+    outings = events(mother, 'forage', r'begin role=FAMILY phase=OUT\b')
+    departures = [tick for tick, _ in outings if tick > death_tick]
+    if any(tick < death_tick for tick, _ in outings):
+        # Mourning can pause an outing started just before the death, then resume the same OUT leg.
+        departures += [tick for tick, _ in events(mother, 'forage', r'goal active phase=OUT\b') if tick > death_tick]
+    departures.sort()
     if not departures:
-        return 'den family: mother did not start a trip after father death'
+        return 'den family: mother did not start or resume an outing after father death'
     if events(mother, 'family', rf'witnessed kin death dead={father}\b'):
         grief = events(mother, 'status', r'behavior\.animation: [^\n]*? -> bereaved\b')
         if not any(death_tick <= tick < departures[0] for tick, _ in grief):

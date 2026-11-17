@@ -312,10 +312,10 @@ public final class YukkuriPersonality {
         return owner.pet().isPet()&&owner.pet().ownedBy(object)?-((fear(object)+1)/2):ordinary;
     }
     public void petted(UUID object) { relationshipChanged(object, 0, gentleFearChange(object,0)); }
-    public void fed(UUID object) {
+    public void fed(UUID object, boolean pleasant) {
         int currentFear = fear(object);
         int fearChange = gentleFearChange(object, -5);
-        if (object != null && !owner.family().adult() && currentFear > 0) {
+        if (pleasant && !owner.family().adult() && currentFear > 0) {
             double fadeRate = (.45 + .25 * SocialDisposition.ramp(friendliness(), 20, 80)
                     + .20 * SocialDisposition.ramp(attachment(), 20, 80))
                     * (owner.family().stage() == FamilyLife.Stage.BABY ? 1.0 : .7);

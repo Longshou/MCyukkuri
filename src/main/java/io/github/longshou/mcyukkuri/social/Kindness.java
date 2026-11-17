@@ -213,7 +213,7 @@ public final class Kindness extends Goal {
         ticks = 0;
         guestAt = guest.position();
         giver.getLookControl().setLookAt(guest, 30, 30);
-        if (act == Act.ADOPT || act == Act.BITE && giver.family().canAdopt(guest))
+        if (act == Act.BITE && giver.family().canAdopt(guest))
             giver.social().startGreeting(guest, "foster");
         else giver.showReaction("closed_smile", "", CUE + 10);
         GameplayLog.event(giver, "kindness", "offer act={} peer={}", act, guest.getUUID());
@@ -281,7 +281,7 @@ public final class Kindness extends Goal {
             }
             case ADOPT -> {
                 giver.social().noteContact(guest);
-                giver.family().adopt(guest);
+                if (giver.family().adopt(guest)) giver.social().startGreeting(guest, "foster");
                 finished = true;
             }
         }
