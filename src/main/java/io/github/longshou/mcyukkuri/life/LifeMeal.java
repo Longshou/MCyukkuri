@@ -233,7 +233,8 @@ final class LifeMeal {
     }
 
     boolean beginKindnessMeal(YukkuriEntity giver, ItemStack item) {
-        if (!occupancy().canHold(Purpose.MEAL) || !FamilyFeedingContact.mouthsMeet(giver, o.entity())
+        if (!FamilyFeedingContact.mouthsMeet(giver, o.entity())
+                || refusesWhileCarryingStallFood() || !occupancy().canHold(Purpose.MEAL)
                 || !canReceiveCareFood(item) || item.getCount() != 1) return false;
         boolean mash = o.entity().family().needsMash();
         return (mash || canEat() && !refuseAtReach(item, giver.getUUID())) && startMeal(mash ? InfantFood.mash(item, giver.getUUID()) : item,
@@ -303,7 +304,13 @@ final class LifeMeal {
         if (purpose == Purpose.CARE) return o.entity().family().releaseCareFood(cause);
         if (purpose == Purpose.DUTY) return o.entity().settlement().duties().putDownLoad();
         if (purpose == Purpose.SWADDLE) return o.entity().leafSwaddle().putDownLeaves();
-        return occupancy().canHold(Purpose.MEAL);
+        return !refusesWhileCarryingStallFood() && occupancy().canHold(Purpose.MEAL);
+    }
+
+    private boolean refusesWhileCarryingStallFood() {
+        if (occupancy().purpose() != Purpose.STALL_FOOD) return false;
+        o.entity().showReaction("cheek_puff", "refuse", 60);
+        return true;
     }
 
     private void startItemMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {

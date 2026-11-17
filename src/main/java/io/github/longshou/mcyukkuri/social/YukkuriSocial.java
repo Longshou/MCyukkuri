@@ -669,7 +669,7 @@ public final class YukkuriSocial implements MotorOwner {
                 target.getUUID(), lastFoodRequest, esteem, wariness, chance, line, replyUntil);
     }
 
-    private boolean foodRequestTo(Entity person) {
+    public boolean foodRequestTo(Entity person) {
         return contactWith(person) && replyUntil > entity.level().getGameTime()
                 && canContinue() && atHumanContact(person);
     }

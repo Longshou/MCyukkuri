@@ -25,6 +25,7 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Worldl
     public static final int ROWS = 4, PER_ROW = 4;
     private static final int[] SLOTS = {0, 1, 2, 3};
     private final NonNullList<ItemStack> items = NonNullList.withSize(ROWS, ItemStack.EMPTY);
+    private boolean stall;
 
     public ProduceCrateBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.PRODUCE_CRATE_ENTITY.get(), pos, state); }
 
@@ -46,9 +47,21 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Worldl
 
     /** Takes one item from the front-most occupied row; empty when the crate is empty. */
     public ItemStack takeOne() {
-        for (int row = ROWS - 1; row >= 0; row--) if (!items.get(row).isEmpty()) return removeItem(row, 1);
-        return ItemStack.EMPTY;
+        int row = frontRow();
+        return row < 0 ? ItemStack.EMPTY : removeItem(row, 1);
     }
+
+    public ItemStack frontItem() {
+        int row = frontRow();
+        return row < 0 ? ItemStack.EMPTY : items.get(row);
+    }
+
+    private int frontRow() {
+        for (int row = ROWS - 1; row >= 0; row--) if (!items.get(row).isEmpty()) return row;
+        return -1;
+    }
+
+    public boolean stall() { return stall; }
 
     @Override public void setChanged() {
         super.setChanged();
@@ -82,11 +95,13 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Worldl
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         ContainerHelper.saveAllItems(tag, items, registries);
+        if (stall) tag.putBoolean("Stall", true);
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         items.clear();
         ContainerHelper.loadAllItems(tag, items, registries);
+        stall = tag.getBoolean("Stall");
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) { return saveWithoutMetadata(registries); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }

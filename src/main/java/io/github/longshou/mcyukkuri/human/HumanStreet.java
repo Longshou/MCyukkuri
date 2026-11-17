@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
+import io.github.longshou.mcyukkuri.life.StallTheft;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -153,6 +154,11 @@ final class HumanStreet {
     private boolean remembersScold(YukkuriEntity y) {
         long until = scolded.getOrDefault(y.getUUID(), 0L);
         if (now() >= until) return false;
+        if (now() >= nextPlayerFrown && npc.distanceToSqr(y) <= CONTACT_SQ && y.social().foodRequestTo(npc)) {
+            nextPlayerFrown = now() + ROUTE_TICKS;
+            npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+            cue(npc, y, "warning");
+        }
         GameplayLog.limited(npc, "npc-care", "street_scold." + y.getUUID(), 200,
                 "action=street_care_skip target={} reason=scolded until={}", y.getUUID(), until);
         return true;
@@ -254,6 +260,38 @@ final class HumanStreet {
         var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), crop.getCenter(),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
         return sight.getType() == HitResult.Type.MISS || sight.getBlockPos().equals(crop);
+    }
+
+    static HumanNpc witnessedStallTake(YukkuriEntity y, BlockPos crate, Vec3 contact) {
+        if (y.level().isRaining() || !StallTheft.maySteal(y)) return null;
+        var witness = y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(12),
+                npc -> npc.streetActive() && !npc.resting() && !npc.walking() && npc.street.observable()
+                        && npc.distanceToSqr(y) <= 144 && npc.isWithinRestriction(crate)
+                        && y.life().personality().trust(npc.getUUID()) < 10
+                        && npc.street.now() >= npc.street.nextPlayerFrown
+                        && (npc.street.actionDay != npc.street.day() || npc.street.actions < 2)
+                        && aheadOf(npc, y) && npc.street.seesStallContact(crate, contact))
+                .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
+        if (witness == null) return null;
+        var street = witness.street;
+        if (street.actionDay != street.day()) { street.actionDay = street.day(); street.actions = 0; }
+        street.actions++;
+        street.nextPlayerFrown = street.now() + ROUTE_TICKS;
+        street.rememberScold(y);
+        witness.level().broadcastEntityEvent(witness, FROWN_EVENT);
+        if (witness.attitude() != HumanNpc.Attitude.CARING) witness.getNavigation().stop();
+        cue(witness, y, "warning");
+        GameplayLog.event(witness, "npc-care", "action=stall_scold target={} crate={} attitude={} actions={}",
+                y.getUUID(), crate.toShortString(), witness.attitude(), street.actions);
+        return witness;
+    }
+
+    private boolean seesStallContact(BlockPos crate, Vec3 contact) {
+        var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), contact, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, npc));
+        // The authored box is open, but its collision shape is a solid cuboid. Only the rim at the tug may touch the ray.
+        return sight.getType() == HitResult.Type.MISS
+                || sight.getBlockPos().equals(crate) && sight.getLocation().distanceToSqr(contact) < .04;
     }
 
     private boolean crowding(YukkuriEntity y) {
@@ -517,16 +555,20 @@ final class HumanStreet {
     void frown(long until) { nextPlayerFrown = until; }
 
     void scoldSquatter(YukkuriEntity squatter) {
+        rememberScold(squatter);
+        npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+        cue(npc, squatter, "warning");
+        GameplayLog.event(npc, "npc-care", "action=yard_scold target={} distance={}",
+                squatter.getUUID(), npc.distanceTo(squatter));
+    }
+
+    private void rememberScold(YukkuriEntity target) {
         int memory = switch (npc.attitude()) {
             case CARING -> SCOLD_MEMORY_CARING;
             case NEUTRAL -> SCOLD_MEMORY_NEUTRAL;
             case CRUEL -> SCOLD_MEMORY_CRUEL;
         };
-        scolded.put(squatter.getUUID(), now() + memory);
-        npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
-        cue(npc, squatter, "warning");
-        GameplayLog.event(npc, "npc-care", "action=yard_scold target={} distance={}",
-                squatter.getUUID(), npc.distanceTo(squatter));
+        scolded.put(target.getUUID(), now() + memory);
     }
 
     private static void cue(HumanNpc actor, Entity recipient, String line) {

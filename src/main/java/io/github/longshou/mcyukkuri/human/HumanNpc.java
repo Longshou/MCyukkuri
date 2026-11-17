@@ -122,6 +122,9 @@ public final class HumanNpc extends PathfinderMob {
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
     public static void witnessedStreetHurt(YukkuriEntity animal, Player player) { HumanStreet.witnessedHurt(animal, player); }
     public static void witnessedCropBite(YukkuriEntity animal, BlockPos crop) { HumanStreet.witnessedCropBite(animal, crop); }
+    public static HumanNpc witnessedStallTake(YukkuriEntity animal, BlockPos crate, Vec3 contact) {
+        return HumanStreet.witnessedStallTake(animal, crate, contact);
+    }
     long streetFrownAfter() { return street.frownAfter(); }
     void streetFrown(long until) { street.frown(until); }
     public int careFood() { return careFood; }

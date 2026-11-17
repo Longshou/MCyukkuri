@@ -2113,6 +2113,28 @@ add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', 
         human('caretaker_brother', 3, -1, 'crop_witness', 0, attitude=2, yaw=65, label='看得见田的居民'),
     ], env=DAY, vantage=(0, 8), reads=[('读血量', f'data get entity {sel("crop_eater")} Health')])
 
+_stall_x, _stall_z = BY_ID['town'].anchor
+_stall_box = f'{_stall_x} {FEET} {_stall_z}'
+add('stall_theft', 'town', '流浪油在摊前偷胡萝卜', '流浪油在摊前偷胡萝卜',
+    '从侧面看魔理沙叼走唯一一根胡萝卜。摊主摆手喝斥，魔理沙叼着货退开再吃。', '约半分钟', [
+        box(-7, -1, -7, 7, -1, 7, 'minecraft:polished_andesite'),
+        block(0, 0, 0, 'mcyukkuri:produce_crate[facing=north]{Stall:1b,Items:[{Slot:2b,id:"minecraft:carrot",count:1}]}'),
+        block(-1, 0, 1, 'minecraft:oak_planks'), block(-1, 1, 1, 'minecraft:oak_planks'),
+        block(0, 0, 1, 'minecraft:oak_fence[west=true]'), block(0, 1, 1, 'minecraft:oak_fence[west=true]'),
+        block(1, 0, 0, 'minecraft:oak_planks'),
+        block(1, 1, 0, 'mcyukkuri:produce_crate[facing=north]{Items:[{Slot:0b,id:"minecraft:potato",count:4}]}'),
+        # A compact booth with a stock post in front of the keeper. The left-hand sightline past it is open.
+        box(0, 0, 2, 0, 1, 2, 'minecraft:oak_planks'),
+        box(2, 0, 2, 2, 1, 2, 'minecraft:oak_planks'),
+        box(1, 0, 3, 1, 1, 3, 'minecraft:oak_planks'),
+        box(1, 0, 1, 1, 1, 1, 'minecraft:iron_bars'),
+        human('caretaker_brother', 1, 2, 'stall_keeper', 0, yaw=160, grain=1),
+        street_trial('stall_theft', 'marisa', 0, -2, 'stall_stray', nutrition=18, self_control=15, picky=10, yaw=0, lead=True),
+    ], env=DAY, vantage=(-4, -4, -55, 8),
+    reads=[('读箱中货物', f'data get block {_stall_box} Items'),
+           ('读嘴中货物', f'data get entity {sel("stall_stray")} YukkuriMouth'),
+           ('读流浪油状态', f'yukkuri status {sel("stall_stray")} raw')])
+
 add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐下躲雨', '流浪油：长椅歇息、饮水、木桶檐下躲雨',
     '西边困倦的魔理沙会在檐下长椅的椅面或椅脚歇息。口渴的灵梦能在干岸饮水。东边两只流浪油附近各有一处遮雨地，分别是抬高木桶和遮篷。', '约半分钟', [
         box(-11, -1, -4, 12, -1, 4, 'minecraft:polished_andesite'),
@@ -4846,6 +4868,7 @@ TOPICS = {
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5',
     'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'stall_theft': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
@@ -5390,9 +5413,14 @@ _smoke('street_tidy', 1800, [
 ], [r'\[npc-care\][^\n]* action=bin_refill bin=' + _tidy_wedged_bin + r'\b'],
        readout=['execute if entity ' + sel('tidy_player_paper') + ' run say MCYTIDY_UNMARKED_STILL_ON_GROUND'])
 _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
-       r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
+       r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI ', r'MCYSTALL_TEMPLATE'],
        [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],
        readout=_street_health_reads('street_intervened', 'street_door', 'street_trust'))
+next(s for s in S if s.id == 'street_mixed').smoke['commands'] = [
+    (210, 'place template mcyukkuri:village/plains/stall ~-32 ~-1 ~-25'),
+    (230, 'execute if block ~-28 ~ ~-16 mcyukkuri:produce_crate[facing=north] '
+          'if data block ~-28 ~ ~-16 {Stall:1b,Items:[{Slot:2b,id:"minecraft:carrot",count:3}]} run say MCYSTALL_TEMPLATE'),
+]
 _smoke('street_crops', 240, [
     rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
     rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*crop=BlockPos',
@@ -5401,6 +5429,18 @@ _smoke('street_crops', 240, [
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))
+_stall_stray = _uuid_text('stall_theft', 'stall_stray')
+_smoke('stall_theft', 500, [
+    rf'\[forage\][^\n]* uuid={_stall_stray}\b[^\n]* stall pickup [^\n]*item=minecraft:carrot count=1 holder=mouth witness=[0-9a-f-]+ retreat=',
+    rf'\[npc-care\][^\n]* action=stall_scold target={_stall_stray}\b[^\n]*attitude=CARING',
+    rf'\[forage\][^\n]* uuid={_stall_stray}\b[^\n]* stall retreat arrived',
+    rf'\[meal\][^\n]* uuid={_stall_stray}\b[^\n]* swallowed item=minecraft:carrot count=1',
+    r'MCYSTALL_EMPTY',
+], forbid=[rf'\[body\][^\n]* uuid={_stall_stray}\b[^\n]* accepted damage'],
+    readout=_street_health_reads('stall_stray'))
+next(s for s in S if s.id == 'stall_theft').smoke['commands'] = [
+    (320, f'execute if block {_stall_box} mcyukkuri:produce_crate unless data block {_stall_box} Items[0] run say MCYSTALL_EMPTY'),
+]
 _street_cover_arrival = (
     rf'\[(?:weather|habitat)\][^\n]* uuid=({_barrel_stray}|{_awning_stray})\b[^\n]* '
     r'(?:street rain cover reached|street rest) spot=(BARREL|AWNING) '

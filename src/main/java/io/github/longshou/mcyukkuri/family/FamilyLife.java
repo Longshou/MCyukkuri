@@ -1469,6 +1469,8 @@ public final class FamilyLife {
         return home!=null&&home==child.habitat().shelter()&&home.usable(child)&&home.contains(child.blockPosition())
                 &&!child.isPanicking()&&!child.isInWaterOrBubble()&&!child.isOnFire();
     }
+    public boolean hasDependentYoung() { return FamilyData.get(level()).dependents(entity) > 0; }
+
     /** An adult whose own BABY-stage young live at the same home: while they are unweaned she keeps near them (outings, strolls, leisure);
      *  hunger still sends her to forage through the ordinary need, and she comes back. */
     public boolean tendsUnweaned() {

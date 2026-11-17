@@ -15,10 +15,10 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -121,8 +121,8 @@ public final class BlockPull {
 
     public static Action action(Stand stand, MouthOccupancy.Purpose purpose,
                                 BiPredicate<YukkuriEntity, BlockPos> valid,
-                                BiFunction<ServerLevel, BlockPos, ItemStack> take) {
-        return new PullAction(stand, purpose, valid, take);
+                                BiFunction<ServerLevel, BlockPos, ItemStack> take, Consumer<ItemStack> committed) {
+        return new PullAction(stand, purpose, valid, take, committed);
     }
 
     private static final class PullAction implements Action {
@@ -130,6 +130,7 @@ public final class BlockPull {
         private final MouthOccupancy.Purpose purpose;
         private final BiPredicate<YukkuriEntity, BlockPos> valid;
         private final BiFunction<ServerLevel, BlockPos, ItemStack> take;
+        private final Consumer<ItemStack> committed;
         private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
         private final int length = Math.max(1, marks.length());
         private final int tugTick = marks.ticks("tug", Math.max(1, length / 2));
@@ -139,11 +140,12 @@ public final class BlockPull {
 
         PullAction(Stand stand, MouthOccupancy.Purpose purpose,
                    BiPredicate<YukkuriEntity, BlockPos> valid,
-                   BiFunction<ServerLevel, BlockPos, ItemStack> take) {
+                   BiFunction<ServerLevel, BlockPos, ItemStack> take, Consumer<ItemStack> committed) {
             this.stand = stand;
             this.purpose = purpose;
             this.valid = valid;
             this.take = take;
+            this.committed = committed;
         }
 
         @Override public String id() { return CLIP; }
@@ -185,8 +187,7 @@ public final class BlockPull {
                     if (stack.isEmpty()) return Outcome.of(Reason.NO_CONTACT, 0, "source_empty");
                     body.component(YukkuriComponents.MOUTH).set(purpose, stack);
                     pulled = true;
-                    GameplayLog.event(body, "habitat", "gathered item={} count={} source={}",
-                            stack.getItem(), stack.getCount(), stand.block());
+                    committed.accept(stack);
                 }
             }
             if (++ticks >= length) return new Outcome.Done("block=" + stand.block());

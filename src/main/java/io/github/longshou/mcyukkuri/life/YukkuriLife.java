@@ -81,12 +81,13 @@ import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE, FOUND_COVER, GARBAGE, CROP }
+    private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE, FOUND_COVER, GARBAGE, CROP, STALL }
     private final YukkuriEntity entity;
     private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
     private final FoundShelter foundCover;
     private final GarbageSearch garbage;
+    private final StallTheft stallTheft;
     private YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     /** 舌肥 (FG-03): how choosey this body is about ordinary and coarse food; innate from the UUID, then moved by meals. */
@@ -164,6 +165,7 @@ public final class YukkuriLife {
         temperature = new TemperatureLife(entity);
         foundCover = new FoundShelter(entity);
         garbage = new GarbageSearch(entity);
+        stallTheft = new StallTheft(entity);
         personality = new YukkuriPersonality(entity);
         pickiness = Taste.innate(entity.getUUID());
         hotFloor = new HotFloorEscape(entity);
@@ -521,7 +523,8 @@ public final class YukkuriLife {
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
             case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity();
-            case FOUND_COVER -> foundCover.activity(); case GARBAGE -> garbage.activity(); default -> Behaviors.IDLE; };
+            case FOUND_COVER -> foundCover.activity(); case GARBAGE -> garbage.activity(); case STALL -> stallTheft.activity();
+            default -> Behaviors.IDLE; };
     }
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
     public boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
@@ -724,6 +727,7 @@ public final class YukkuriLife {
         foundCover.stop();
         releasePaperCover("interrupt");
         garbage.stop();
+        stallTheft.stop();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","interrupt",200,
                 "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}",
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire());
@@ -837,6 +841,7 @@ public final class YukkuriLife {
         }
         if ((task == Task.FOOD || task == Task.FOOD_GLASS) && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
         if (task != Task.NONE) return true;
+        if (stallTheft.carrying() && stallTheft.resumeCarry()) { task = Task.STALL; return true; }
         if(drugSleep()>0){task=Task.SLEEP;resetSleep();sleepTicks=20;return true;}
         var inside = ShelterBlock.foundInterior(level(), entity.blockPosition());
         if (inside != null && !entity.isPassenger()) {
@@ -867,7 +872,7 @@ public final class YukkuriLife {
             if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
-        if (!penned && canEat() && !entity.forageTrip().provisioningFirst()) {
+        if (!penned && canEat() && !stallTheft.carrying() && !entity.forageTrip().provisioningFirst()) {
             boolean canCollect = EventHooks.canEntityGrief(level(), entity);
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && seeksFood(item.getItem()));
@@ -937,6 +942,7 @@ public final class YukkuriLife {
             boolean freeToShelter = !ParentCarry.awaitsCarrier(entity);
             boolean rainFirst = freeToShelter && foundCover.seekingStreetRoof();
             if (rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
+            if (!entity.forageTrip().provisioningFirst() && stallTheft.plan()) { task = Task.STALL; return true; }
             if (EventHooks.canEntityGrief(level(), entity) && garbage.plan()) { task = Task.GARBAGE; return true; }
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         }
@@ -1076,6 +1082,7 @@ public final class YukkuriLife {
                 }
             }
             case GARBAGE -> { if (!garbage.tick()) stopGoal(); }
+            case STALL -> { if (!stallTheft.tick()) stopGoal(); }
             case CROP -> {
                 if (pursuitTicks > 200 || !Grazing.streetForager(entity) || !canEat() || !Grazing.cropAt(entity, targetBlock)) {
                     stopGoal();
@@ -1480,6 +1487,7 @@ public final class YukkuriLife {
         temperature.stop();
         foundCover.stop();
         garbage.stop();
+        stallTheft.stop();
         entity.wintering().stopMeal();
         endFoodGlass();
         task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = 0; planWait = 30;

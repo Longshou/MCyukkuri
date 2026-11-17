@@ -653,7 +653,9 @@ public final class FoundShelter implements MotorOwner {
             if (pullStep == SurfaceApproach.Result.ARRIVED && body.onGround() || BlockPull.reaches(body, paperStand)) {
                 SurfaceApproach.halt(body);
                 pullAction = BlockPull.action(paperStand, MouthOccupancy.Purpose.PAPER,
-                        this::canPullFromStack, NewspaperStackBlock::takeSheet);
+                        this::canPullFromStack, NewspaperStackBlock::takeSheet,
+                        stack -> GameplayLog.event(body, "habitat", "gathered item={} count={} source={}",
+                                stack.getItem(), stack.getCount(), paperStand.block()));
                 if (!body.motor().run(this, pullAction))
                     return abortPullAttempt("paper_pull_refused");
             }
