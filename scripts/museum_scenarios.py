@@ -6272,12 +6272,23 @@ def _verify_kin_boxes(window):
               for parent, choice in ((_kin_fond, 'SHIELD'), (_kin_selfish, 'PUSH'))]
     if any(len(results) != 1 for results in visits) or visits[0][0] != visits[1][0]:
         return f'Expected one response per parent to the same staff approach: {visits}'
+    staff = visits[0][0][1]
+    shields = re.findall(rf'\[family\][^\n]* uuid={_kin_fond} [^\n]* kin shield reached child={_kin_near} actor={staff}\b', window)
+    if len(shields) != 1:
+        return f'Expected one shield contact on the staff approach, got {len(shields)}'
     pushes = re.findall(rf'\[action\][^\n]* uuid={_kin_selfish} [^\n]* end id=push outcome=DONE [^\n]* target={_kin_near} moved=([\d.]+)', window)
     if len(pushes) != 1 or float(pushes[0]) <= .05:
         return f'Expected one actual child shove with displacement, got {pushes}'
-    releases = re.findall(r'\[identity\][^\n]* uuid=(\S+) [^\n]* changed from=owned to=stray cause=plant_exit\b', window)
-    if releases != [_kin_window]:
-        return f'Expected one release of the child that crossed the boundary, got {releases}'
+    point = r'(-?\d+, -?\d+, -?\d+)'
+    bounds = re.findall(rf'\[factory\][^\n]* action=register_site min={point} max={point}', window)
+    releases = list(re.finditer(rf'\[identity\][^\n]* uuid=(\S+) [^\n]* pos={point} changed from=owned to=stray cause=plant_exit\b', window))
+    if [release[1] for release in releases] != [_kin_window] or len(bounds) != 1:
+        return f'Expected one plant boundary and one release of the child that crossed it, got {bounds} and {[r.groups() for r in releases]}'
+    low, high, feet = (tuple(map(int, at.split(', '))) for at in (*bounds[0], releases[0][2]))
+    if all(a <= v <= b for a, v, b in zip(low, feet, high)):
+        return f'Plant released the child inside its boundary at {feet}'
+    if not 0 <= window.find('MCY_KIN_OPEN_WINDOW_STILL_STOCK') < releases[0].start() < window.find('MCY_KIN_STRAY_PARENTS_KEPT'):
+        return 'Expected stock at the broken window, release after crossing, then stray with both parents'
     return None
 
 

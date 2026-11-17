@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -18,7 +19,6 @@ import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -30,9 +30,10 @@ public final class KinProtection extends Goal implements MotorOwner {
     private enum Choice { SHIELD, PRESS, PUSH, TURN_AWAY, FREEZE }
 
     private final YukkuriEntity parent;
-    private record Response(Choice choice, YukkuriEntity child, LivingEntity actor, BlockPos pane, long until) {}
+    private record Response(Choice choice, YukkuriEntity child, LivingEntity actor, long until) {}
     private Response response;
     private Action action;
+    private boolean started;
 
     public KinProtection(YukkuriEntity parent) {
         this.parent = parent;
@@ -67,11 +68,9 @@ public final class KinProtection extends Goal implements MotorOwner {
                 : choice == Choice.FREEZE ? "horrified" : "angry";
         parent.forceReaction(pose, face, guarding ? "protect_taunt" : "");
         if (choice != Choice.TURN_AWAY) parent.getLookControl().setLookAt(choice == Choice.PRESS ? child : actor, 30, 30);
-        if (mobile() && (response == null || response.actor() != actor || response.child() != child)) {
+        if (!approach || response == null || response.actor() != actor || response.child() != child) {
             stop();
-            // This is the short-lived reaction itself. The goal can take it only while the parent is free to respond.
-            response = new Response(choice, child, actor, glass == null ? null : glass.getBlockPos(),
-                    parent.level().getGameTime() + pose.durationTicks());
+            if (mobile()) response = new Response(choice, child, actor, parent.level().getGameTime() + pose.durationTicks());
         }
         GameplayLog.event(parent, "family", "kin threat trigger={} child={} actor={} response={} attachment={} boldness={} esteem={} fear={}",
                 approach ? "approach" : "punishment", child.getUUID(), actor.getUUID(), choice, mind.attachment(), mind.boldness(),
@@ -89,7 +88,7 @@ public final class KinProtection extends Goal implements MotorOwner {
         var actor = response.actor();
         return actor.isAlive() && child.isAlive() && child.level() == parent.level() && actor.level() == parent.level()
                 && actor.distanceToSqr(child) <= 64
-                && ProtectivePuff.parentOf(child, parent) && GlassSight.sees(parent, child);
+                && Custody.samePlantStock(parent, child) && ProtectivePuff.parentOf(child, parent) && GlassSight.sees(parent, child);
     }
 
     @Override public String ownerId() { return Behaviors.PROTECT_APPROACH; }
@@ -107,15 +106,15 @@ public final class KinProtection extends Goal implements MotorOwner {
     }
     @Override public boolean canContinueToUse() { return active() && mobile() && perceived(); }
 
-    @Override public void start() {
+    private void startResponse() {
         var child = response.child();
         switch (response.choice()) {
             case FREEZE -> SurfaceApproach.halt(parent);
             case TURN_AWAY -> run(new Face(SurfaceApproach.yaw(child.position(), parent.position())));
             case PRESS -> {
                 var sight = GlassSight.glassBetween(parent, parent.getEyePosition(), child);
-                if (sight == null || !sight.getBlockPos().equals(response.pane())) { coverThroughOpening(); return; }
-                var stand = GlassSight.stand(parent, child, response.pane());
+                if (sight == null) { coverThroughOpening(); return; }
+                var stand = GlassSight.stand(parent, child, sight.getBlockPos());
                 if (stand == null) stop();
                 else run(Walk.stand(stand, 1));
             }
@@ -155,11 +154,17 @@ public final class KinProtection extends Goal implements MotorOwner {
     private void coverThroughOpening() {
         var child = response.child();
         if (!parent.hasLineOfSight(child)) { stop(); return; }
-        response = new Response(Choice.SHIELD, child, response.actor(), null, response.until());
+        response = new Response(Choice.SHIELD, child, response.actor(), response.until());
         approach(child);
     }
 
     @Override public void tick() {
+        if (response == null) return;
+        if (!started) {
+            started = true;
+            startResponse();
+            return;
+        }
         if (action == null || parent.motor().current() == action) return;
         if (action instanceof Walk && parent.motor().last() instanceof Outcome.Done) {
             var child = response.child();
@@ -187,5 +192,6 @@ public final class KinProtection extends Goal implements MotorOwner {
         parent.motor().cancel(this, "kin_threat_ended");
         response = null;
         action = null;
+        started = false;
     }
 }

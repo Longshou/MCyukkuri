@@ -51,6 +51,13 @@ public final class PunishmentReaction {
         return isHuman(actor) && Custody.samePlantStock(parent, child) && ProtectivePuff.parentOf(child, parent);
     }
 
+    static boolean perceives(YukkuriEntity observer, YukkuriEntity target, LivingEntity punisher) {
+        int range = LearnedFear.WITNESS_RANGE;
+        return observer != target && observer != punisher && observer.isAlive() && !observer.body().dying()
+                && !observer.life().isSleeping() && !observer.grieving() && observer.distanceToSqr(target) <= range * range
+                && sees(observer, target, punisher);
+    }
+
     public static void human(YukkuriEntity target, LivingEntity punisher, String incident, boolean injured) {
         var mind = target.life().personality();
         double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
@@ -126,9 +133,7 @@ public final class PunishmentReaction {
     private static void witness(YukkuriEntity target, LivingEntity punisher, String incident, boolean humanInjury) {
         int range = LearnedFear.WITNESS_RANGE;
         for (var observer : target.level().getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(range),
-                body -> body != target && body != punisher && body.isAlive() && !body.body().dying()
-                        && !body.life().isSleeping() && !body.grieving() && body.distanceToSqr(target) <= range * range
-                        && sees(body, target, punisher))) {
+                body -> perceives(body, target, punisher))) {
             // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
             if (LearnedFear.eligible(observer) && !observer.operations().active())
                 LearnedFear.remember(observer, target, punisher, incident);
