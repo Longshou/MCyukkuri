@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -97,9 +96,6 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             if (den != null && den.owns(peer.getUUID()) || claim != null && claim.members.contains(peer.getUUID())) return false;
             var contact = SocialDisposition.contact(body, peer);
             if (contact.fear() < BondLevels.AFFECTION_FEAR_LIMIT && SocialDisposition.toleratesStrangeYoung(body, peer, contact))
-                return false;
-            if (body.family().stage() == FamilyLife.Stage.BABY
-                    && contact.closeness() >= 0 && contact.wariness() < .35 && contact.fear() < BondLevels.FEAR_AT_15)
                 return false;
             return contact.closeness() < BondLevels.TRUST_FAMILIAR || contact.fear() >= BondLevels.AFFECTION_FEAR_LIMIT;
         }

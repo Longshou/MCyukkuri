@@ -55,8 +55,10 @@ final class LifeMeal {
     private boolean spitMeal;
     private Vec3 refusedSpitAt;
     private final LinkedHashMap<Item, Long> complaints = new LinkedHashMap<>();
+    // A good meal keeps the feeder familiar through a short break in contact.
+    private static final int RECENT_FEED_TICKS = 2400;
     private UUID feeder, lastFeeder;
-    private long lastFedAt = Long.MIN_VALUE / 2;
+    private long lastFedAt;
     private boolean sharedMeal, preparedMeal, bowlMeal;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
     static final float FULL = 75;
@@ -79,9 +81,8 @@ final class LifeMeal {
     int mealTicks() { return mealTicks; }
 
     boolean fedBy(UUID actor) {
-        if (actor == null) return false;
-        if (actor.equals(feeder)) return true;
-        return actor.equals(lastFeeder) && o.level().getGameTime() - lastFedAt < 2400
+        if (actor.equals(feeder) && !spitMeal && kindnessFood(mouth())) return true;
+        return actor.equals(lastFeeder) && o.level().getGameTime() - lastFedAt < RECENT_FEED_TICKS
                 && o.personality().fear(actor) < BondLevels.AFFECTION_FEAR_LIMIT;
     }
 
@@ -488,7 +489,7 @@ final class LifeMeal {
                         || premium && o.personality().friendliness() >= 55) && !guarded && !defiant;
                 String fedLine = answered ? "request_thanks" : grateful
                         ? (o.level().getEntity(bondTarget) instanceof HumanNpc ? "badge_thanks" : "request_thanks") : "fed";
-                if (!spicy && feeder != null) { lastFeeder = feeder; lastFedAt = o.level().getGameTime(); }
+                if (pleasant && feeder != null) { lastFeeder = feeder; lastFedAt = o.level().getGameTime(); }
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
@@ -622,6 +623,10 @@ final class LifeMeal {
     void save(CompoundTag tag) {
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal",
                 bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
+        if (lastFeeder != null && o.level().getGameTime() - lastFedAt < RECENT_FEED_TICKS) {
+            tag.putUUID("LastFeeder", lastFeeder);
+            tag.putLong("LastFedAt", lastFedAt);
+        }
         if (spitMeal) tag.putBoolean("SpitMeal", true);
     }
     void load(CompoundTag tag) {
@@ -635,6 +640,8 @@ final class LifeMeal {
         refusedSpitAt = null;
         sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal")
                 || InfantFood.isMash(mouth()); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
+        lastFeeder = tag.hasUUID("LastFeeder") ? tag.getUUID("LastFeeder") : null;
+        lastFedAt = tag.getLong("LastFedAt");
         syncBodyFood();
     }
 

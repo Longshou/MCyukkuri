@@ -296,7 +296,7 @@ public final class Kindness extends Goal {
             receiver.mealDonor = giver.getUUID();
             receiver.mealSwallowed = false;
             if (giver.family().canAdopt(guest)) giver.social().noteContact(guest);
-            GameplayLog.event(giver, "kindness", "bite handed peer={}", guest.getUUID());
+            GameplayLog.event(giver, "kindness", "bite handed peer={} clip={}", guest.getUUID(), giver.getAnimationId());
         } else {
             cooldown = GIVER_REST;
         }

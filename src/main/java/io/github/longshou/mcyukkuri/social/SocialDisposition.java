@@ -100,11 +100,12 @@ public final class SocialDisposition {
         return Math.clamp((value - low) / (high - low), 0, 1);
     }
 
-    /** True when either body is actively caring for, feeding, or recently fed the other. */
+    /** Whether this body reads the pair's current or recent care as safe contact. */
     public static boolean caringContact(YukkuriEntity a, YukkuriEntity b) {
-        return a.kindness().helping(b) || b.kindness().helping(a)
-                || a.life().fedBy(b.getUUID()) || b.life().fedBy(a.getUUID())
-                || a.woundComfort().helping(b) || b.woundComfort().helping(a);
+        return a.life().personality().fear(b.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT
+                && (a.kindness().helping(b) || b.kindness().helping(a)
+                    || a.life().fedBy(b.getUUID()) || b.life().fedBy(a.getUUID())
+                    || a.woundComfort().helping(b) || b.woundComfort().helping(a));
     }
 
     /**

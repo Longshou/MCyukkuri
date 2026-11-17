@@ -5107,6 +5107,15 @@ def _den_family_verify(log):
 
 
 next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
+
+# In headless smoke, stand an unrelated peer near the home as a visitor would. The residents still run ordinary AI.
+for _sid, _at, _dx, _dz in (('home_greedy', 360, 7, 4.6), ('den_family', 6000, 1, -2)):
+    _intruder = uid(_sid, 'territory_intruder')
+    _spec = next(s for s in S if s.id == _sid).smoke
+    _spec['commands'] = [(_at, yk('reimu', _dx, _dz, 'territory_intruder', uuid=_intruder, boldness=0, extra='NoAI:1b'))]
+    _spec['expect'] += [rf'\[home-claim\][^\n]* territory {beat} target={_uuid_text(_sid, "territory_intruder")}\b'
+                        for beat in ('warn', 'chase')]
+
 _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* farewell started',
     r'\[independence\][^\n]* farewell exchange [^\n]* attachment=85 parentAttachment=85 nuzzleTicks=[1-9]\d* lookBacks=2\b',
