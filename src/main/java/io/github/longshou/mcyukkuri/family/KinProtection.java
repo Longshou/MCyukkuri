@@ -116,7 +116,7 @@ public final class KinProtection extends Goal implements MotorOwner {
                 if (sight == null) { coverThroughOpening(); return; }
                 var stand = GlassSight.stand(parent, child, sight.getBlockPos());
                 if (stand == null) stop();
-                else run(Walk.stand(stand, 1));
+                else run(new Walk(stand));
             }
             case SHIELD, PUSH -> approach(child);
         }
