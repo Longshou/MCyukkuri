@@ -13,6 +13,7 @@
 | 报纸与盖纸闭环（18/19/20） | `.worktrees/wp-paper-closure` | life/BlockPull.java pose/PaperTent.java life/TemperatureLife.java |
 | 纸箱单一化与生成消失闭环（13/23） | `.worktrees/wp-carton-closure` | settlement/Shelter*.java art carton model |
 | 偷吃一律驱逐与TN-29饲主反应（15/16） | `.worktrees/wp-theft-expel` | life/StallTheft.java pet/social/BegBite.java human/HumanStreet.java |
+| 受威胁逃回家即封洞（17） | `.worktrees/wp-seal-threat` | settlement/DenSeal.java settlement/DenBarrier.java |
 
 ## 玩法待办
 
