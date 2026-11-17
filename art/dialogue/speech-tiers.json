@@ -22967,6 +22967,258 @@
    "variant": "timid"
   },
   {
+   "id": "reimu.baby.v1_peer",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ！ ゆっ、ゆっ！ あしょぶ！",
+   "chinese": "油、油！油、油！玩玩！",
+   "english": "Yu, yu! Yu, yu! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.baby.v2_peer",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ……こあい……",
+   "chinese": "油、油……好口怕……",
+   "english": "Yu, yu... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.baby.v3_peer",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ？ ゆっ、ゆっ？",
+   "chinese": "油、油？油、油？",
+   "english": "Yu, yu? Yu, yu?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.v1_peer",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "お、なかましゃん！ いっしょに あしょぶにぇ！",
+   "chinese": "哦，同伴鲜笋！一起玩玩捏！",
+   "english": "Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.v2_peer",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかましゃん……こあい……",
+   "chinese": "同伴鲜笋……好口怕……",
+   "english": "... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.v3_peer",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ……なかましゃん……",
+   "chinese": "啊……同伴鲜笋……",
+   "english": "Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.v1_peer",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "おお、なかまさん！ れいむも げんきよ！",
+   "chinese": "哦哦，同伴先生！灵梦也很精神哦！",
+   "english": "Oh, a peer! Reimu is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.v2_peer",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかまさん……こわくないよ……",
+   "chinese": "同伴先生……不吓人哦……",
+   "english": "... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.v3_peer",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ、なかまさんだよ。",
+   "chinese": "啊，是同伴先生哦。",
+   "english": "Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.baby.v1_known_peer",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ♪ あしょぶ、あしょぶ！",
+   "chinese": "油、油♪油、油♪ 玩玩，玩玩！",
+   "english": "Yu, yu! Yu, yu! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.baby.v2_known_peer",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ……そばに いちぇ……",
+   "chinese": "油、油♪油、油……陪陪窝……",
+   "english": "Yu, yu! Yu, yu... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.baby.v3_known_peer",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ……",
+   "chinese": "油、油♪油、油……",
+   "english": "Yu, yu! Yu, yu...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.v1_known_peer",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "あっ、なかましゃん！ あしょぶ、あしょぶにぇ！",
+   "chinese": "啊，同伴鲜笋！玩玩、玩玩捏！",
+   "english": "Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.v2_known_peer",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん……そばに いても いい……？",
+   "chinese": "同伴鲜笋……窝可以挨着你吗……？",
+   "english": "... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.v3_known_peer",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん、げんき？",
+   "chinese": "同伴鲜笋，精神吗？",
+   "english": "Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.v1_known_peer",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん！ いっしょに ゆっくりするよ！",
+   "chinese": "同伴先生！一起油库里哦！",
+   "english": "Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.v2_known_peer",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん……いてくれて、うれしいよ……",
+   "chinese": "同伴先生……有你陪着，灵梦好高兴哦……",
+   "english": "... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.v3_known_peer",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん、げんきそうよ。",
+   "chinese": "同伴先生，看起来很精神哦。",
+   "english": "Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
    "id": "reimu.baby.v1_addr_human_kind",
    "species": "reimu",
    "age": "baby",
@@ -24295,6 +24547,258 @@
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "timid"
+  },
+  {
+   "id": "marisa.baby.v1_peer",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ！ ゆっ、ゆっ！ あしょぶ！",
+   "chinese": "油、油！油、油！玩玩！",
+   "english": "Yu, yu! Yu, yu! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.baby.v2_peer",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ……こあい……",
+   "chinese": "油、油……好口怕……",
+   "english": "Yu, yu... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.baby.v3_peer",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ？ ゆっ、ゆっ？",
+   "chinese": "油、油？油、油？",
+   "english": "Yu, yu? Yu, yu?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.v1_peer",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "お、なかましゃん！ いっしょに あしょぶのじぇ！",
+   "chinese": "哦，同伴鲜笋！一起玩玩惹杰！",
+   "english": "Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.v2_peer",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかましゃん……こあい……",
+   "chinese": "同伴鲜笋……好口怕……",
+   "english": "... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.v3_peer",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ……なかましゃん……",
+   "chinese": "啊……同伴鲜笋……",
+   "english": "Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.v1_peer",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "おお、なかまさん！ まりさも げんきのぜ！",
+   "chinese": "哦哦，同伴先生！魔理沙也很精神贼！",
+   "english": "Oh, a peer! Marisa is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.v2_peer",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかまさん……こわくないのぜ……",
+   "chinese": "同伴先生……不吓人贼……",
+   "english": "... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.v3_peer",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ、なかまさんだのぜ。",
+   "chinese": "啊，是同伴先生贼。",
+   "english": "Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.baby.v1_known_peer",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ♪ あしょぶ、あしょぶ！",
+   "chinese": "油、油♪油、油♪ 玩玩，玩玩！",
+   "english": "Yu, yu! Yu, yu! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.baby.v2_known_peer",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ……そばに いちぇ……",
+   "chinese": "油、油♪油、油……陪陪窝……",
+   "english": "Yu, yu! Yu, yu... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.baby.v3_known_peer",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ……",
+   "chinese": "油、油♪油、油……",
+   "english": "Yu, yu! Yu, yu...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.v1_known_peer",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "あっ、なかましゃん！ あしょぶ、あしょぶのじぇ！",
+   "chinese": "啊，同伴鲜笋！玩玩、玩玩惹杰！",
+   "english": "Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.v2_known_peer",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん……そばに いても いい……？",
+   "chinese": "同伴鲜笋……窝可以挨着你吗……？",
+   "english": "... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.v3_known_peer",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん、げんき？",
+   "chinese": "同伴鲜笋，精神吗？",
+   "english": "Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.v1_known_peer",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん！ いっしょに ゆっくりするのぜ！",
+   "chinese": "同伴先生！一起油库里贼！",
+   "english": "Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.v2_known_peer",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん……いてくれて、うれしいのぜ……",
+   "chinese": "同伴先生……有你陪着，魔理沙好高兴贼……",
+   "english": "... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.v3_known_peer",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん、げんきそうのぜ。",
+   "chinese": "同伴先生，看起来很精神贼。",
+   "english": "Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
   },
   {
    "id": "marisa.baby.v1_addr_human_kind",
@@ -25627,6 +26131,258 @@
    "variant": "timid"
   },
   {
+   "id": "alice.baby.v1_peer",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ！ ゆっ、ゆっ！ あしょぶ！",
+   "chinese": "油、油！油、油！玩玩！",
+   "english": "Yu, yu! Yu, yu! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.baby.v2_peer",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ……こあい……",
+   "chinese": "油、油……好口怕……",
+   "english": "Yu, yu... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.baby.v3_peer",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆっ、ゆっ？ ゆっ、ゆっ？",
+   "chinese": "油、油？油、油？",
+   "english": "Yu, yu? Yu, yu?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.v1_peer",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "お、なかましゃん！ いっしょに あしょぶにょ！",
+   "chinese": "哦，同伴鲜笋！一起玩玩哟！",
+   "english": "Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.v2_peer",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかましゃん……こあい……",
+   "chinese": "同伴鲜笋……好口怕……",
+   "english": "... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.v3_peer",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ……なかましゃん……",
+   "chinese": "啊……同伴鲜笋……",
+   "english": "Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.v1_peer",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "おお、なかまさん！ ありすも げんきわ！",
+   "chinese": "哦哦，同伴先生！爱丽丝也很精神呢！",
+   "english": "Oh, a peer! Alice is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.v2_peer",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかまさん……こわくないわ……",
+   "chinese": "同伴先生……不吓人呢……",
+   "english": "... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.v3_peer",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ、なかまさんだわ。",
+   "chinese": "啊，是同伴先生呢。",
+   "english": "Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.baby.v1_known_peer",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ♪ あしょぶ、あしょぶ！",
+   "chinese": "油、油♪油、油♪ 玩玩，玩玩！",
+   "english": "Yu, yu! Yu, yu! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.baby.v2_known_peer",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ……そばに いちぇ……",
+   "chinese": "油、油♪油、油……陪陪窝……",
+   "english": "Yu, yu! Yu, yu... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.baby.v3_known_peer",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆっ、ゆっ♪ ゆっ、ゆっ……",
+   "chinese": "油、油♪油、油……",
+   "english": "Yu, yu! Yu, yu...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.v1_known_peer",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "あっ、なかましゃん！ あしょぶ、あしょぶにょ！",
+   "chinese": "啊，同伴鲜笋！玩玩、玩玩哟！",
+   "english": "Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.v2_known_peer",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん……そばに いても いい……？",
+   "chinese": "同伴鲜笋……窝可以挨着你吗……？",
+   "english": "... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.v3_known_peer",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん、げんき？",
+   "chinese": "同伴鲜笋，精神吗？",
+   "english": "Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.v1_known_peer",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん！ いっしょに ゆっくりするわ！",
+   "chinese": "同伴先生！一起油库里呢！",
+   "english": "Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.v2_known_peer",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん……いてくれて、うれしいわ……",
+   "chinese": "同伴先生……有你陪着，爱丽丝好高兴呢……",
+   "english": "... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.v3_known_peer",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん、げんきそうわ。",
+   "chinese": "同伴先生，看起来很精神呢。",
+   "english": "Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
    "id": "alice.baby.v1_addr_human_kind",
    "species": "alice",
    "age": "baby",
@@ -26955,6 +27711,258 @@
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "timid"
+  },
+  {
+   "id": "chen.baby.v1_peer",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆ、にゃっ！ ゆ、にゃっ！ あしょぶ！",
+   "chinese": "油、喵！油、喵！玩玩！",
+   "english": "Yu, nya! Yu, nya! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.baby.v2_peer",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆ、にゃっ……こあい……",
+   "chinese": "油、喵……好口怕……",
+   "english": "Yu, nya... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.baby.v3_peer",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ゆ、にゃっ？ ゆ、にゃっ？",
+   "chinese": "油、喵？油、喵？",
+   "english": "Yu, nya? Yu, nya?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.v1_peer",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "お、なかましゃん！ いっしょに あしょぶよぅ！",
+   "chinese": "哦，同伴鲜笋！一起玩玩哟——！",
+   "english": "Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.v2_peer",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかましゃん……こあい……",
+   "chinese": "同伴鲜笋……好口怕……",
+   "english": "... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.v3_peer",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ……なかましゃん……",
+   "chinese": "啊……同伴鲜笋……",
+   "english": "Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.v1_peer",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "おお、なかまさん！ ちぇんも げんきよー！",
+   "chinese": "哦哦，同伴先生！橙也很精神哟——！",
+   "english": "Oh, a peer! Chen is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.v2_peer",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "なかまさん……こわくないよー……",
+   "chinese": "同伴先生……不吓人哟——……",
+   "english": "... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.v3_peer",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "あ、なかまさんだよー。",
+   "chinese": "啊，是同伴先生哟——。",
+   "english": "Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.baby.v1_known_peer",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆ、にゃっ♪ ゆ、にゃっ♪ あしょぶ、あしょぶ！",
+   "chinese": "油、喵♪油、喵♪ 玩玩，玩玩！",
+   "english": "Yu, nya! Yu, nya! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.baby.v2_known_peer",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆ、にゃっ♪ ゆ、にゃっ……そばに いちぇ……",
+   "chinese": "油、喵♪油、喵……陪陪窝……",
+   "english": "Yu, nya! Yu, nya... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.baby.v3_known_peer",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ゆ、にゃっ♪ ゆ、にゃっ……",
+   "chinese": "油、喵♪油、喵……",
+   "english": "Yu, nya! Yu, nya...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.v1_known_peer",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "あっ、なかましゃん！ あしょぶ、あしょぶよぅ！",
+   "chinese": "啊，同伴鲜笋！玩玩、玩玩哟——！",
+   "english": "Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.v2_known_peer",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん……そばに いても いい……？",
+   "chinese": "同伴鲜笋……窝可以挨着你吗……？",
+   "english": "... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.v3_known_peer",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかましゃん、げんき？",
+   "chinese": "同伴鲜笋，精神吗？",
+   "english": "Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.v1_known_peer",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん！ いっしょに ゆっくりするよー！",
+   "chinese": "同伴先生！一起油库里哟——！",
+   "english": "Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.v2_known_peer",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん……いてくれて、うれしいよー……",
+   "chinese": "同伴先生……有你陪着，橙好高兴哟——……",
+   "english": "... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.v3_known_peer",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "なかまさん、げんきそうよー。",
+   "chinese": "同伴先生，看起来很精神哟——。",
+   "english": "Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
   },
   {
    "id": "chen.baby.v1_addr_human_kind",
@@ -28287,6 +29295,258 @@
    "variant": "timid"
   },
   {
+   "id": "patchouli.baby.v1_peer",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "む、きゅっ！ む、きゅっ！ あしょぶ！",
+   "chinese": "姆、啾！姆、啾！玩玩！",
+   "english": "Mu, kyu! Mu, kyu! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.baby.v2_peer",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "む、きゅっ……こあい……",
+   "chinese": "姆、啾……好口怕……",
+   "english": "Mu, kyu... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.baby.v3_peer",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "む、きゅっ？ む、きゅっ？",
+   "chinese": "姆、啾？姆、啾？",
+   "english": "Mu, kyu? Mu, kyu?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.v1_peer",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "むきゅ。お、なかましゃん！ いっしょに あしょぶわ！",
+   "chinese": "姆啾。哦，同伴鲜笋！一起玩玩惹哇！",
+   "english": "Mukyu. Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.v2_peer",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "むきゅ。なかましゃん……こあい……",
+   "chinese": "姆啾。同伴鲜笋……好口怕……",
+   "english": "Mukyu. ... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.v3_peer",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "むきゅ。あ……なかましゃん……",
+   "chinese": "姆啾。啊……同伴鲜笋……",
+   "english": "Mukyu. Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.v1_peer",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "むきゅ。おお、なかまさん！ ぱちゅりーも げんきわ！",
+   "chinese": "姆啾。哦哦，同伴先生！帕秋莉也很精神哇！",
+   "english": "Mukyu. Oh, a peer! Patchouli is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.v2_peer",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "むきゅ。なかまさん……こわくないわ……",
+   "chinese": "姆啾。同伴先生……不吓人哇……",
+   "english": "Mukyu. ... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.v3_peer",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "むきゅ。あ、なかまさんだわ。",
+   "chinese": "姆啾。啊，是同伴先生哇。",
+   "english": "Mukyu. Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.baby.v1_known_peer",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "む、きゅっ♪ む、きゅっ♪ あしょぶ、あしょぶ！",
+   "chinese": "姆、啾♪姆、啾♪ 玩玩，玩玩！",
+   "english": "Mu, kyu! Mu, kyu! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.baby.v2_known_peer",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "む、きゅっ♪ む、きゅっ……そばに いちぇ……",
+   "chinese": "姆、啾♪姆、啾……陪陪窝……",
+   "english": "Mu, kyu! Mu, kyu... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.baby.v3_known_peer",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "む、きゅっ♪ む、きゅっ……",
+   "chinese": "姆、啾♪姆、啾……",
+   "english": "Mu, kyu! Mu, kyu...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.v1_known_peer",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "むきゅ。あっ、なかましゃん！ あしょぶ、あしょぶわ！",
+   "chinese": "姆啾。啊，同伴鲜笋！玩玩、玩玩惹哇！",
+   "english": "Mukyu. Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.v2_known_peer",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "むきゅ。なかましゃん……そばに いても いい……？",
+   "chinese": "姆啾。同伴鲜笋……窝可以挨着你吗……？",
+   "english": "Mukyu. ... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.v3_known_peer",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "むきゅ。なかましゃん、げんき？",
+   "chinese": "姆啾。同伴鲜笋，精神吗？",
+   "english": "Mukyu. Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.v1_known_peer",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "むきゅ。なかまさん！ いっしょに ゆっくりするわ！",
+   "chinese": "姆啾。同伴先生！一起油库里哇！",
+   "english": "Mukyu. Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.v2_known_peer",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "むきゅ。なかまさん……いてくれて、うれしいわ……",
+   "chinese": "姆啾。同伴先生……有你陪着，帕秋莉好高兴哇……",
+   "english": "Mukyu. ... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.v3_known_peer",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "むきゅ。なかまさん、げんきそうわ。",
+   "chinese": "姆啾。同伴先生，看起来很精神哇。",
+   "english": "Mukyu. Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
    "id": "patchouli.baby.v1_addr_human_kind",
    "species": "patchouli",
    "age": "baby",
@@ -29617,6 +30877,258 @@
    "variant": "timid"
   },
   {
+   "id": "remilia.baby.v1_peer",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、うー！ うー、うー！ あしょぶ！",
+   "chinese": "呜——、呜——！呜——、呜——！玩玩！",
+   "english": "Uu, uu! Uu, uu! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.baby.v2_peer",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、うー……こあい……",
+   "chinese": "呜——、呜——……好口怕……",
+   "english": "Uu, uu... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.baby.v3_peer",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、うー？ うー、うー？",
+   "chinese": "呜——、呜——？呜——、呜——？",
+   "english": "Uu, uu? Uu, uu?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.v1_peer",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、お、なかましゃん！ いっしょに あしょぶなのだ！",
+   "chinese": "呜——哦，同伴鲜笋！一起玩玩呀！",
+   "english": "Uu... Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.v2_peer",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、なかましゃん……こあい……",
+   "chinese": "呜——同伴鲜笋……好口怕……",
+   "english": "Uu... ... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.v3_peer",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、あ……なかましゃん……",
+   "chinese": "呜——啊……同伴鲜笋……",
+   "english": "Uu... Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.v1_peer",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、おお、なかまさん！ れみりあも げんきのだ！",
+   "chinese": "呜——哦哦，同伴先生！蕾米莉亚也很精神呀！",
+   "english": "Uu... Oh, a peer! Remilia is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.v2_peer",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、なかまさん……こわくないのだ……",
+   "chinese": "呜——同伴先生……不吓人呀……",
+   "english": "Uu... ... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.v3_peer",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、あ、なかまさんだのだ。",
+   "chinese": "呜——啊，是同伴先生呀。",
+   "english": "Uu... Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.baby.v1_known_peer",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、うー♪ うー、うー♪ あしょぶ、あしょぶ！",
+   "chinese": "呜——、呜——♪呜——、呜——♪ 玩玩，玩玩！",
+   "english": "Uu, uu! Uu, uu! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.baby.v2_known_peer",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、うー♪ うー、うー……そばに いちぇ……",
+   "chinese": "呜——、呜——♪呜——、呜——……陪陪窝……",
+   "english": "Uu, uu! Uu, uu... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.baby.v3_known_peer",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、うー♪ うー、うー……",
+   "chinese": "呜——、呜——♪呜——、呜——……",
+   "english": "Uu, uu! Uu, uu...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.v1_known_peer",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、あっ、なかましゃん！ あしょぶ、あしょぶなのだ！",
+   "chinese": "呜——啊，同伴鲜笋！玩玩、玩玩呀！",
+   "english": "Uu... Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.v2_known_peer",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかましゃん……そばに いても いい……？",
+   "chinese": "呜——同伴鲜笋……窝可以挨着你吗……？",
+   "english": "Uu... ... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.v3_known_peer",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかましゃん、げんき？",
+   "chinese": "呜——同伴鲜笋，精神吗？",
+   "english": "Uu... Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.v1_known_peer",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかまさん！ いっしょに ゆっくりするのだ！",
+   "chinese": "呜——同伴先生！一起油库里呀！",
+   "english": "Uu... Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.v2_known_peer",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかまさん……いてくれて、うれしいのだ……",
+   "chinese": "呜——同伴先生……有你陪着，蕾米莉亚好高兴呀……",
+   "english": "Uu... ... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.v3_known_peer",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかまさん、げんきそうのだ。",
+   "chinese": "呜——同伴先生，看起来很精神呀。",
+   "english": "Uu... Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
    "id": "remilia.baby.v1_addr_human_kind",
    "species": "remilia",
    "age": "baby",
@@ -30945,6 +32457,258 @@
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "timid"
+  },
+  {
+   "id": "flandre.baby.v1_peer",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、うー！ うー、うー！ あしょぶ！",
+   "chinese": "呜——、呜——！呜——、呜——！玩玩！",
+   "english": "Uu, uu! Uu, uu! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.baby.v2_peer",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、うー……こあい……",
+   "chinese": "呜——、呜——……好口怕……",
+   "english": "Uu, uu... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.baby.v3_peer",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、うー？ うー、うー？",
+   "chinese": "呜——、呜——？呜——、呜——？",
+   "english": "Uu, uu? Uu, uu?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.v1_peer",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、お、なかましゃん！ いっしょに あしょぶよぅ！",
+   "chinese": "呜——哦，同伴鲜笋！一起玩玩哦！",
+   "english": "Uu... Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.v2_peer",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、なかましゃん……こあい……",
+   "chinese": "呜——同伴鲜笋……好口怕……",
+   "english": "Uu... ... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.v3_peer",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、あ……なかましゃん……",
+   "chinese": "呜——啊……同伴鲜笋……",
+   "english": "Uu... Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.v1_peer",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、おお、なかまさん！ ふらんも げんきよ！",
+   "chinese": "呜——哦哦，同伴先生！芙兰也很精神哦！",
+   "english": "Uu... Oh, a peer! Flandre is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.v2_peer",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、なかまさん……こわくないよ……",
+   "chinese": "呜——同伴先生……不吓人哦……",
+   "english": "Uu... ... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.v3_peer",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "peer"
+   ],
+   "japanese": "うー、あ、なかまさんだよ。",
+   "chinese": "呜——啊，是同伴先生哦。",
+   "english": "Uu... Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.baby.v1_known_peer",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、うー♪ うー、うー♪ あしょぶ、あしょぶ！",
+   "chinese": "呜——、呜——♪呜——、呜——♪ 玩玩，玩玩！",
+   "english": "Uu, uu! Uu, uu! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.baby.v2_known_peer",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、うー♪ うー、うー……そばに いちぇ……",
+   "chinese": "呜——、呜——♪呜——、呜——……陪陪窝……",
+   "english": "Uu, uu! Uu, uu... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.baby.v3_known_peer",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、うー♪ うー、うー……",
+   "chinese": "呜——、呜——♪呜——、呜——……",
+   "english": "Uu, uu! Uu, uu...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.v1_known_peer",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、あっ、なかましゃん！ あしょぶ、あしょぶよぅ！",
+   "chinese": "呜——啊，同伴鲜笋！玩玩、玩玩哦！",
+   "english": "Uu... Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.v2_known_peer",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかましゃん……そばに いても いい……？",
+   "chinese": "呜——同伴鲜笋……窝可以挨着你吗……？",
+   "english": "Uu... ... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.v3_known_peer",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかましゃん、げんき？",
+   "chinese": "呜——同伴鲜笋，精神吗？",
+   "english": "Uu... Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.v1_known_peer",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかまさん！ いっしょに ゆっくりするよ！",
+   "chinese": "呜——同伴先生！一起油库里哦！",
+   "english": "Uu... Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.v2_known_peer",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかまさん……いてくれて、うれしいよ……",
+   "chinese": "呜——同伴先生……有你陪着，芙兰好高兴哦……",
+   "english": "Uu... ... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.v3_known_peer",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "うー、なかまさん、げんきそうよ。",
+   "chinese": "呜——同伴先生，看起来很精神哦。",
+   "english": "Uu... Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
   },
   {
    "id": "flandre.baby.v1_addr_human_kind",
@@ -32314,6 +34078,276 @@
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.baby.v1_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょ、みょん！ みょ、みょん！ あしょぶ！",
+   "chinese": "咪、咪呦！咪、咪呦！玩玩！",
+   "english": "Myo, myon! Myo, myon! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.baby.v2_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょ、みょん……こあい……",
+   "chinese": "咪、咪呦……好口怕……",
+   "english": "Myo, myon... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.baby.v3_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょ、みょん？ みょ、みょん？",
+   "chinese": "咪、咪呦？咪、咪呦？",
+   "english": "Myo, myon? Myo, myon?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.v1_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょん！お、なかましゃん！ いっしょに あしょぶみょ！",
+   "chinese": "咪呦！哦，同伴鲜笋！一起玩玩哦！",
+   "english": "Myon! Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.v2_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょん！なかましゃん……こあい……",
+   "chinese": "咪呦！同伴鲜笋……好口怕……",
+   "english": "Myon! ... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.v3_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょん！あ……なかましゃん……",
+   "chinese": "咪呦！啊……同伴鲜笋……",
+   "english": "Myon! Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.v1_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょん！おお、なかまさん！ みょんも げんきよ！",
+   "chinese": "咪呦！哦哦，同伴先生！妖梦也很精神哦！",
+   "english": "Myon! Oh, a peer! Myon is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.v2_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょん！なかまさん……こわくないよ……",
+   "chinese": "咪呦！同伴先生……不吓人哦……",
+   "english": "Myon! ... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.v3_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "peer"
+   ],
+   "japanese": "みょん！あ、なかまさんだよ。",
+   "chinese": "咪呦！啊，是同伴先生哦。",
+   "english": "Myon! Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.baby.v1_known_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょ、みょん♪ みょ、みょん♪ あしょぶ、あしょぶ！",
+   "chinese": "咪、咪呦♪咪、咪呦♪ 玩玩，玩玩！",
+   "english": "Myo, myon! Myo, myon! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.baby.v2_known_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょ、みょん♪ みょ、みょん……そばに いちぇ……",
+   "chinese": "咪、咪呦♪咪、咪呦……陪陪窝……",
+   "english": "Myo, myon! Myo, myon... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.baby.v3_known_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょ、みょん♪ みょ、みょん……",
+   "chinese": "咪、咪呦♪咪、咪呦……",
+   "english": "Myo, myon! Myo, myon...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.v1_known_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょん！あっ、なかましゃん！ あしょぶ、あしょぶみょ！",
+   "chinese": "咪呦！啊，同伴鲜笋！玩玩、玩玩哦！",
+   "english": "Myon! Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.v2_known_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょん！なかましゃん……そばに いても いい……？",
+   "chinese": "咪呦！同伴鲜笋……窝可以挨着你吗……？",
+   "english": "Myon! ... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.v3_known_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょん！なかましゃん、げんき？",
+   "chinese": "咪呦！同伴鲜笋，精神吗？",
+   "english": "Myon! Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.v1_known_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょん！なかまさん！ いっしょに ゆっくりするよ！",
+   "chinese": "咪呦！同伴先生！一起油库里哦！",
+   "english": "Myon! Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.v2_known_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょん！なかまさん……いてくれて、うれしいよ……",
+   "chinese": "咪呦！同伴先生……有你陪着，妖梦好高兴哦……",
+   "english": "Myon! ... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.v3_known_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "みょん！なかまさん、げんきそうよ。",
+   "chinese": "咪呦！同伴先生，看起来很精神哦。",
+   "english": "Myon! Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
   },
   {
    "id": "myon.miyo.baby.v1_addr_human_kind",
@@ -33739,6 +35773,276 @@
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
    "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.baby.v1_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちん、ちーんぽ！ ちん、ちーんぽ！ あしょぶ！",
+   "chinese": "金、金寶！金、金寶！玩玩！",
+   "english": "Chin, chinpo! Chin, chinpo! Play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.baby.v2_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちん、ちーんぽ……こあい……",
+   "chinese": "金、金寶……好口怕……",
+   "english": "Chin, chinpo... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.baby.v3_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちん、ちーんぽ？ ちん、ちーんぽ？",
+   "chinese": "金、金寶？金、金寶？",
+   "english": "Chin, chinpo? Chin, chinpo?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.v1_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちーんぽ！お、なかましゃん！ いっしょに あしょぶよぅ！",
+   "chinese": "金寶！哦，同伴鲜笋！一起玩玩哦！",
+   "english": "Chinpo! Oh, a peer! Let us play together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.v2_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちーんぽ！なかましゃん……こあい……",
+   "chinese": "金寶！同伴鲜笋……好口怕……",
+   "english": "Chinpo! ... peer... scawy...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.v3_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちーんぽ！あ……なかましゃん……",
+   "chinese": "金寶！啊……同伴鲜笋……",
+   "english": "Chinpo! Ah... a peer...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.v1_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちーんぽ！おお、なかまさん！ ようむも げんきよ！",
+   "chinese": "金寶！哦哦，同伴先生！妖梦也很精神哦！",
+   "english": "Chinpo! Oh, a peer! Youmu is doing fine too!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.v2_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちーんぽ！なかまさん……こわくないよ……",
+   "chinese": "金寶！同伴先生……不吓人哦……",
+   "english": "Chinpo! ... peer... not scary...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.v3_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "peer"
+   ],
+   "japanese": "ちーんぽ！あ、なかまさんだよ。",
+   "chinese": "金寶！啊，是同伴先生哦。",
+   "english": "Chinpo! Ah, it is a peer.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.baby.v1_known_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちん、ちーんぽ♪ ちん、ちーんぽ♪ あしょぶ、あしょぶ！",
+   "chinese": "金、金寶♪金、金寶♪ 玩玩，玩玩！",
+   "english": "Chin, chinpo! Chin, chinpo! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.baby.v2_known_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちん、ちーんぽ♪ ちん、ちーんぽ……そばに いちぇ……",
+   "chinese": "金、金寶♪金、金寶……陪陪窝……",
+   "english": "Chin, chinpo! Chin, chinpo... stay close...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.baby.v3_known_peer",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちん、ちーんぽ♪ ちん、ちーんぽ……",
+   "chinese": "金、金寶♪金、金寶……",
+   "english": "Chin, chinpo! Chin, chinpo...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.v1_known_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちーんぽ！あっ、なかましゃん！ あしょぶ、あしょぶよぅ！",
+   "chinese": "金寶！啊，同伴鲜笋！玩玩、玩玩哦！",
+   "english": "Chinpo! Ah, my peer! Play, play!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.v2_known_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちーんぽ！なかましゃん……そばに いても いい……？",
+   "chinese": "金寶！同伴鲜笋……窝可以挨着你吗……？",
+   "english": "Chinpo! ... peer... may I stay close...?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.v3_known_peer",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちーんぽ！なかましゃん、げんき？",
+   "chinese": "金寶！同伴鲜笋，精神吗？",
+   "english": "Chinpo! Peer, doing okay?",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.v1_known_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちーんぽ！なかまさん！ いっしょに ゆっくりするよ！",
+   "chinese": "金寶！同伴先生！一起油库里哦！",
+   "english": "Chinpo! Peer! Let us take it easy together!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.v2_known_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちーんぽ！なかまさん……いてくれて、うれしいよ……",
+   "chinese": "金寶！同伴先生……有你陪着，妖梦好高兴哦……",
+   "english": "Chinpo! ... peer... glad you are here...",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.v3_known_peer",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "known_peer"
+   ],
+   "japanese": "ちーんぽ！なかまさん、げんきそうよ。",
+   "chinese": "金寶！同伴先生，看起来很精神哦。",
+   "english": "Chinpo! Peer, you look well.",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; project-original wording, unvoiced",
+   "variant": "plain"
   },
   {
    "id": "myon.kinbao.baby.v1_addr_human_kind",

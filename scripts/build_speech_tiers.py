@@ -318,6 +318,32 @@ STYLED = {
         'adult': {
             'proud': ('{p}はい、どうぞ！ いっしょに たべる{e}！', '{p}给！一起吃{e}！', '{p}Here! Let us eat together!'),
             'timid': ('{p}……どうぞ……', '{p}……给你……', '{p}... here...')}},
+    'peer': {
+        'baby': {
+            'proud': ('{c}！ {c}！ あしょぶ！', '{c}！{c}！玩玩！', '{c}! {c}! Play!'),
+            'timid': ('{c}……こあい……', '{c}……好口怕……', '{c}... scawy...'),
+            'plain': ('{c}？ {c}？', '{c}？{c}？', '{c}? {c}?')},
+        'juvenile': {
+            'proud': ('{p}お、なかましゃん！ いっしょに あしょぶ{e}！', '{p}哦，同伴鲜笋！一起玩玩{e}！', '{p}Oh, a peer! Let us play together!'),
+            'timid': ('{p}なかましゃん……こあい……', '{p}同伴鲜笋……好口怕……', '{p}... peer... scawy...'),
+            'plain': ('{p}あ……なかましゃん……', '{p}啊……同伴鲜笋……', '{p}Ah... a peer...')},
+        'adult': {
+            'proud': ('{p}おお、なかまさん！ {n}も げんき{e}！', '{p}哦哦，同伴先生！{n}也很精神{e}！', '{p}Oh, a peer! {N} is doing fine too!'),
+            'timid': ('{p}なかまさん……こわくない{e}……', '{p}同伴先生……不吓人{e}……', '{p}... peer... not scary...'),
+            'plain': ('{p}あ、なかまさんだ{e}。', '{p}啊，是同伴先生{e}。', '{p}Ah, it is a peer.')}},
+    'known_peer': {
+        'baby': {
+            'proud': ('{c}♪ {c}♪ あしょぶ、あしょぶ！', '{c}♪{c}♪ 玩玩，玩玩！', '{c}! {c}! Play, play!'),
+            'timid': ('{c}♪ {c}……そばに いちぇ……', '{c}♪{c}……陪陪窝……', '{c}! {c}... stay close...'),
+            'plain': ('{c}♪ {c}……', '{c}♪{c}……', '{c}! {c}...')},
+        'juvenile': {
+            'proud': ('{p}あっ、なかましゃん！ あしょぶ、あしょぶ{e}！', '{p}啊，同伴鲜笋！玩玩、玩玩{e}！', '{p}Ah, my peer! Play, play!'),
+            'timid': ('{p}なかましゃん……そばに いても いい……？', '{p}同伴鲜笋……窝可以挨着你吗……？', '{p}... peer... may I stay close...?'),
+            'plain': ('{p}なかましゃん、げんき？', '{p}同伴鲜笋，精神吗？', '{p}Peer, doing okay?')},
+        'adult': {
+            'proud': ('{p}なかまさん！ いっしょに ゆっくりする{e}！', '{p}同伴先生！一起油库里{e}！', '{p}Peer! Let us take it easy together!'),
+            'timid': ('{p}なかまさん……いてくれて、うれしい{e}……', '{p}同伴先生……有你陪着，{n}好高兴{e}……', '{p}... peer... glad you are here...'),
+            'plain': ('{p}なかまさん、げんきそう{e}。', '{p}同伴先生，看起来很精神{e}。', '{p}Peer, you look well.')}},
     'addr_human_kind': {
         'baby': {
             'proud': ('{c}！ にんげんしゃ！', '{c}！人类先森！', '{c}! Mr. Human!'),
