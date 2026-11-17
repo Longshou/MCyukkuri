@@ -130,7 +130,7 @@
   - 走失找孩：已接入待试玩（[2f7decade](https://github.com/Longshou/MCyukkuri/commit/2f7decade)，亲油按自己亲眼看到的位置找走失的子油，不再全知）。
   - 训练后果：已接入待试玩（[a132e71ef](https://github.com/Longshou/MCyukkuri/commit/a132e71ef)，没学会的技能在日常里真实出错：地上排泄、吃散食、牵绳走偏；街道 TN-14、TN-21）。
   - 善意与收养：已接入待试玩（[0c1cc006e](https://github.com/Longshou/MCyukkuri/commit/0c1cc006e)，友善个体给非亲缘的饿油分一口、陪伴；孤儿由同群友善成体收养，谱系记养育者；让窝位暂缓）。
-    - 冒烟 `kindness_adoption` 在部分种子上失败（[1d76ce63b](https://github.com/Longshou/MCyukkuri/commit/1d76ce63b) 前后均有，main 更早断在递食）：收养者自己的领地宣示吓走孤儿，720 tick 窗口不够走到并接触；待改场景或收养接近方式。
+    - 收养者领地吓走孤儿：已接入待试玩（[5840c22e2](https://github.com/Longshou/MCyukkuri/commit/5840c22e2)，照料与喂食中的赤油不再被领地驱赶，陌生赤油按友善／自制／依恋区间容忍或警告，喂过后赤油按性格消退恐惧；出生与成长 FM-23「孤儿分食与认养亲」）；看邻居递苹果、孤儿吞下、贴近收养，族谱记养育者。
   - 学会的恐惧：已接入待试玩（[f17e50d86](https://github.com/Longshou/MCyukkuri/commit/f17e50d86)，见过工具和伤害的个体躲开持用者；亲属尝试从钩下救援，够不到就放弃；烧伤后怕火；身体 BD-21～BD-23）。
   - 街面设施与农田：已接入待试玩（[471e01b81](https://github.com/Longshou/MCyukkuri/commit/471e01b81)，流浪在长椅（或椅脚）歇息、饮水、木桶檐下躲雨；偷吃作物被居民警告；鬼威惨店员把碎屑送到街桶；街道 TN-21、TN-22，商店 SP-06）。
 
