@@ -98,7 +98,7 @@ public final class StallTheft implements MotorOwner {
 
     boolean carrying() { return mouth().purpose() == FOOD; }
 
-    boolean resumeCarry() { return !body.isPassenger() && !body.blockPosition().equals(refusedDrop); }
+    boolean resumeCarry() { return body.onGround() && !body.isPassenger() && !body.blockPosition().equals(refusedDrop); }
 
     boolean tick() {
         if (pull != null) {
@@ -159,13 +159,15 @@ public final class StallTheft implements MotorOwner {
     }
 
     private boolean finishCarry() {
+        if (body.isPassenger()) return false;
         if (retreat != null && now() < routeUntil) {
             var move = SurfaceApproach.walkResult(body, retreat, null, 1.2);
             if (move != SurfaceApproach.Result.ARRIVED && move != SurfaceApproach.Result.BLOCKED) return true;
         }
         if (retreat != null && SurfaceApproach.at(body, retreat))
             GameplayLog.event(body, "forage", "stall retreat arrived at={}", GameplayLog.at(body.position()));
-        if (body.onGround() && body.life().beginCarriedMeal(FOOD)) return false;
+        if (!body.onGround()) return false;
+        if (body.life().beginCarriedMeal(FOOD)) return false;
         if (!mouth().releaseItems(FOOD, 20)) {
             refusedDrop = body.blockPosition();
             GameplayLog.event(body, "forage", "stall release refused at={}", refusedDrop.toShortString());
