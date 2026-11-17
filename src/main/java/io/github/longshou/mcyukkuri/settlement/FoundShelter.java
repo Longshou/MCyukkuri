@@ -185,7 +185,7 @@ public final class FoundShelter implements MotorOwner {
 
     private static boolean canPullPaperBody(YukkuriEntity y) {
         var personality = y.life().personality();
-        // Persistence shifts the minimum intelligence for gathering several pieces into a cover from 55 to 75.
+        // Self-control shifts the minimum intelligence for gathering several pieces into a cover from 75 down to 55.
         return y.level() instanceof ServerLevel level
                 && y.profile().landSettler() && y.family().stage() != FamilyLife.Stage.BABY
                 && personality.intelligence() >= 75 - .20 * personality.selfControl()
