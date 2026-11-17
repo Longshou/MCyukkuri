@@ -3,8 +3,10 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.random.ModRandom;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -214,6 +216,14 @@ public final class ShopRegistry extends SavedData {
     /** Inside an authored shop footprint: construction and stock stay protected at every membership tier. */
     public boolean protectedAt(ServerLevel level, BlockPos pos) {
         return protectedShop(level, pos) != null;
+    }
+
+    /** The marked counter fixture is self-service, even if the site's last staff member has died. */
+    static ProduceCrateBlockEntity lendingTray(ServerLevel level, BlockPos pos) {
+        if (!level.getBlockState(pos).is(ModBlocks.DISPLAY_TRAY.get())
+                || !(level.getBlockEntity(pos) instanceof ProduceCrateBlockEntity tray)) return null;
+        return level.getEntitiesOfClass(Marker.class, new AABB(pos), m -> m.blockPosition().equals(pos)
+                && m.getTags().contains("mcy_oni_lend")).isEmpty() ? null : tray;
     }
 
     Entry protectedShop(ServerLevel level, BlockPos pos) {

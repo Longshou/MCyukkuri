@@ -183,9 +183,15 @@ public final class ScenarioCommands {
                 .then(Commands.literal("tool_operator").requires(source->source.hasPermission(2))
                         .then(Commands.literal("enter").executes(context->toolOperator(context.getSource(),true)))
                         .then(Commands.literal("move").executes(context->moveToolOperator(context.getSource())))
+                        .then(Commands.literal("select").then(Commands.argument("slot", IntegerArgumentType.integer(0, 8))
+                                .executes(ScenarioCommands::selectToolOperatorSlot)))
+                        .then(Commands.literal("pick_up").then(Commands.argument("item", EntityArgument.entity())
+                                .executes(ScenarioCommands::toolOperatorPickup)))
                         .then(Commands.literal("leave").executes(context->toolOperator(context.getSource(),false))))
                 .then(Commands.literal("shop_door_click").then(Commands.argument("door", BlockPosArgument.blockPos())
                         .then(Commands.argument("face", StringArgumentType.word()).executes(ScenarioCommands::shopDoorClick))))
+                .then(Commands.literal("shop_block_click").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(c -> shopBlockClick(c, BlockPosArgument.getBlockPos(c, "pos"), Direction.UP))))
                 .then(Commands.literal("shop_stock_click").then(Commands.argument("target", EntityArgument.entity())
                         .executes(ScenarioCommands::shopStockClick)))
                 .then(Commands.literal("basket")
@@ -413,14 +419,31 @@ public final class ScenarioCommands {
         return 1;
     }
 
+    private static int selectToolOperatorSlot(CommandContext<CommandSourceStack> c) {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+        player.getInventory().selected = IntegerArgumentType.getInteger(c, "slot");
+        return 1;
+    }
+
+    private static int toolOperatorPickup(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)
+                || !(EntityArgument.getEntity(c, "item") instanceof ItemEntity item) || player.distanceToSqr(item) > 1) return 0;
+        item.playerTouch(player);
+        return item.isRemoved() ? 1 : 0;
+    }
+
     private static int shopDoorClick(CommandContext<CommandSourceStack> c) {
+        return shopBlockClick(c, BlockPosArgument.getBlockPos(c, "door"), Direction.byName(StringArgumentType.getString(c, "face")));
+    }
+
+    private static int shopBlockClick(CommandContext<CommandSourceStack> c, BlockPos pos, Direction face) {
         var level = c.getSource().getLevel();
         if (c.getSource().getEntity() != null || !(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
-        var pos = BlockPosArgument.getBlockPos(c, "door");
-        var face = Direction.byName(StringArgumentType.getString(c, "face"));
         if (face == null || !player.canInteractWithBlock(pos, 0)) return 0;
         var hit = new BlockHitResult(Vec3.atCenterOf(pos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(.5)), face, pos, false);
-        return player.gameMode.useItemOn(player, level, ItemStack.EMPTY, InteractionHand.MAIN_HAND, hit).consumesAction() ? 1 : 0;
+        return player.gameMode.useItemOn(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND, hit).consumesAction() ? 1 : 0;
     }
 
     private static int shopStockClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

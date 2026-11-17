@@ -26,14 +26,16 @@ import net.neoforged.neoforge.event.level.PistonEvent;
 /**
  * Inside a shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
  * players cannot break or place blocks there, cannot take, turn or break the goods' item frames,
- * and cannot interact with or hurt stock animals; explosions leave the shop and its stock standing. An empty-hand click on a stock animal
+ * and cannot interact with or hurt stock animals; explosions leave the shop and its stock standing. The marked lending tray exchanges only
+ * its frame and deposit. An empty-hand click on a stock animal
  * still opens the staff's menu on its row (ShopMenu.clickStock), and the magnifying glass may look at it.
  */
 public final class ShopProtection {
     private ShopProtection() {}
 
     public static boolean guarded(Level level, BlockPos pos) {
-        return level instanceof ServerLevel server && ShopRegistry.get(server).protectedAt(server, pos);
+        return level instanceof ServerLevel server && (ShopRegistry.get(server).protectedAt(server, pos)
+                || ShopRegistry.lendingTray(server, pos) != null);
     }
     /** A stock animal standing in its own shop. */
     private static ShopRegistry.Entry stockShop(Entity target) {
@@ -78,6 +80,14 @@ public final class ShopProtection {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         var level = player.serverLevel();
         var pos = event.getPos();
+        var tray = ShopRegistry.lendingTray(level, pos);
+        if (tray != null) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            if (event.getHand() == InteractionHand.MAIN_HAND && player.isAlive() && !player.isSpectator())
+                ShopTrade.exchangeRestraint(player, tray);
+            return;
+        }
         var shop = ShopRegistry.get(level).protectedShop(level, pos);
         if (shop == null) return;
         var state = level.getBlockState(pos);

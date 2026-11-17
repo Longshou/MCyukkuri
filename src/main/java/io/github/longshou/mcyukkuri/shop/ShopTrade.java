@@ -5,7 +5,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
+import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -65,6 +67,59 @@ public final class ShopTrade {
         return unpaid;
     }
     static void say(Player p, String key, Object... args) { p.displayClientMessage(Component.translatable("shop.mcyukkuri." + key, args), true); }
+
+    /** The display tray's first slot holds the frame or the actual deposit. No separate lending record is needed. */
+    static void exchangeRestraint(ServerPlayer player, ProduceCrateBlockEntity tray) {
+        var frame = Tool.RESTRAINT.item();
+        var stored = tray.getItem(0);
+        var hand = player.getMainHandItem();
+        if (stored.is(frame)) {
+            int price = Math.min(ProduceCrateBlockEntity.PER_ROW, ShopCatalog.find(ShopKind.ONI, Tool.RESTRAINT.id).price());
+            if (!hand.isEmpty()) {
+                restraintRefused(player, tray, "empty_hand", price);
+            } else if (emeralds(player) < price) {
+                restraintRefused(player, tray, "emeralds", price);
+            } else {
+                debit(player, price);
+                tray.setItem(0, new ItemStack(Items.EMERALD, price));
+                player.setItemInHand(InteractionHand.MAIN_HAND, stored);
+                say(player, "restraint.lent", price);
+                GameplayLog.event(player, "shop", "action=lend_restraint result=committed tray={} deposit={}", tray.getBlockPos(), price);
+            }
+        } else if (stored.is(Items.EMERALD)) {
+            int price = stored.getCount();
+            if (!hand.is(frame)) {
+                restraintRefused(player, tray, "return_frame", price);
+            } else if (hand.getCount() == 1) {
+                tray.setItem(0, hand);
+                player.setItemInHand(InteractionHand.MAIN_HAND, stored);
+                restraintReturned(player, tray, price);
+            } else {
+                var inventory = player.getInventory();
+                int slot = inventory.getSlotWithRemainingSpace(stored);
+                if (slot < 0 || inventory.getItem(slot).getCount() + price > stored.getMaxStackSize()) slot = inventory.getFreeSlot();
+                if (slot < 0) {
+                    restraintRefused(player, tray, "inventory", price);
+                    return;
+                }
+                tray.setItem(0, hand.split(1));
+                inventory.add(slot, stored);
+                restraintReturned(player, tray, price);
+            }
+        } else restraintRefused(player, tray, "unavailable", 0);
+    }
+
+    private static void restraintReturned(ServerPlayer player, ProduceCrateBlockEntity tray, int price) {
+        say(player, "restraint.returned", price);
+        GameplayLog.event(player, "shop", "action=return_restraint result=committed tray={} deposit={}", tray.getBlockPos(), price);
+    }
+
+    private static void restraintRefused(ServerPlayer player, ProduceCrateBlockEntity tray, String reason, int price) {
+        say(player, "restraint." + reason, price);
+        GameplayLog.limited(player, "shop", "restraint." + reason, 100,
+                "action=exchange_restraint result=refused tray={} reason={} deposit={}", tray.getBlockPos(), reason, price);
+    }
+
     private static ServerPlayer present(ServerLevel level, ShopRegistry.Entry shop, UUID id) {
         var p = id == null ? null : level.getServer().getPlayerList().getPlayer(id);
         return p != null && p.level() == level && p.isAlive() && !p.isSpectator()

@@ -2365,6 +2365,26 @@ add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价�
         'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
     ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 17, 180, 8),
     reads=[('读店铺与库存', 'yukkuri human shop list'), ('读库存体况与预防', f'yukkuri status {STOCK} raw')])
+_stress_stock = {'oni_bold': (272000, 80, 60), 'oni_timid': (249000, 25, 68)}
+add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨商店：租工具解压',
+    '切到生存模式。空主手右键靠双木门的借还托盘，付押金领走固定台。找店员买里侧同一展栏里的胆大低自制或胆小的灵梦，'
+    '等店员交来实篮，穿过柜台旁的双木门，在解压间中间的干地右键开篮。'
+    '手持固定台右键个体，比较鼓脸、僵住或求饶。用照料菜单解除操作、拾回固定台，再试一次，放大镜可看同一个体的恐惧和不安。'
+    '拿同款固定台回托盘取押金。也可自带工具和个体，随时离开、治疗或装篮带走。展示栏的库存仍受保护。',
+    '建筑几秒，买出后等店员交篮', [
+        'yukkuri human build oni_shop ~8 ~ ~17 south',
+        *[f'tag @e[type=mcyukkuri:reimu,distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
+          f'NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}}] add {tag(name)}'
+          for name, (age, _, _) in _stress_stock.items()],
+        *[set_status(name, key, value)
+          for name, (_, boldness, unease) in _stress_stock.items()
+          for key, value in [('personality.boldness', boldness), ('personality.self_control', 25),
+                             ('personality.friendliness', 30), ('mood.unease', unease)]],
+    ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass'],
+    env=DAY, vantage=(8, 17, 180, 8),
+    reads=[('读借还托盘', 'data get block ~14 ~3 ~1 Items'),
+           ('读胆大灵梦', f'yukkuri status {sel("oni_bold")} raw'),
+           ('读胆小灵梦', f'yukkuri status {sel("oni_timid")} raw')])
 add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到街桶', '鬼威惨商店：店员把一份碎屑送到街桶',
     '废物桶里有一份剪落的头发。看店员从后屋拿出，走到门外街桶投放。桶里的头发可以读数。', '约一分钟', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
@@ -5022,7 +5042,7 @@ TOPICS = {
     'den_barrier': 'W8', 'den_barrier_predator': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
-    'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
@@ -5948,6 +5968,63 @@ _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [
 next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
     (100, f'execute at {BOOTH.format("reimu", 0)} positioned ~ ~1 ~ run yukkuri scenario tool_click {BOOTH.format("reimu", 0)} pin'),
     (1100, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:63000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_ONI_AGE_HELD'),
+]
+_stress_brought = _uuid_text('oni_stress_room', 'brought_reimu')
+_smoke('oni_stress_room', 440, [
+    r'\[shop\][^\n]* action=exchange_restraint result=refused [^\n]*reason=emeralds deposit=4\b',
+    r'\[shop\][^\n]* action=lend_restraint result=committed [^\n]*deposit=4\b',
+    r'\[shop\][^\n]* action=protect result=refused what=block',
+    rf'\[carrier\][^\n]* action=capture result=committed target={_stress_brought} ',
+    rf'\[carrier\][^\n]* action=release result=committed target={_stress_brought} ',
+    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* operation started; [^\n]* pose=FIXED [^\n]* count=1\b',
+    rf'\[punishment\][^\n]*uuid={_stress_brought} [^\n]* incident=fix_supine response=DEFIANT fear=0 -> [1-9]\d*\b',
+    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* operation ended; [^\n]* reason=operator_unreachable\b',
+    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* binding returned to world; [^\n]* count=1\b',
+    r'\[shop\][^\n]* action=exchange_restraint result=refused [^\n]*reason=return_frame deposit=4\b',
+    r'\[shop\][^\n]* action=return_restraint result=committed [^\n]*deposit=4\b',
+    r'\[interaction\][^\n]* action=fix_supine reason=shop',
+    r'MCYSP08_LOAN_BALANCED', r'MCYSP08_RETURN_BALANCED',
+], readout=['data get block ~14 ~3 ~1 Items', f'yukkuri status {sel("oni_bold")} raw',
+            f'yukkuri status {sel("oni_timid")} raw', f'yukkuri status {sel("brought_reimu")} raw'])
+_stress_operator = '@p[distance=..40]'
+_stress_frame_drop = '@e[type=minecraft:item,distance=..8,limit=1,nbt={Item:{id:"mcyukkuri:restraint_frame"}}]'
+next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
+    (70, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator enter'),
+    (71, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (72, f'item replace entity {_stress_operator} inventory.0 with minecraft:emerald 8'),
+    (73, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (74, 'scoreboard objectives add sp08_balance dummy'),
+    (75, f'execute store result score #emeralds sp08_balance run clear {_stress_operator} minecraft:emerald 0'),
+    (75, f'execute if score #emeralds sp08_balance matches 4 if items entity {_stress_operator} weapon.mainhand '
+         'mcyukkuri:restraint_frame if data block ~14 ~3 ~1 {Items:[{Slot:0b,id:"minecraft:emerald",count:4}]} '
+         'run say MCYSP08_LOAN_BALANCED'),
+    (76, 'yukkuri scenario shop_block_click ~13 ~3 ~1'),
+    (78, yk('reimu', 23, 4, 'brought_reimu', dy=2, uuid=uid('oni_stress_room', 'brought_reimu'),
+            boldness=80, self_control=25, friendliness=30)),
+    *[(79, f'execute as {_stress_operator} run {command}') for command in own('brought_reimu')],
+    (80, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
+    (81, f'item replace entity {_stress_operator} hotbar.1 with mcyukkuri:yukkuri_carrier'),
+    (82, 'yukkuri scenario tool_operator select 1'),
+    (83, f'yukkuri scenario shop_stock_click {sel("brought_reimu")}'),
+    (110, 'yukkuri scenario shop_block_click ~22 ~1 ~2'),
+    (120, 'yukkuri scenario tool_operator select 0'),
+    (121, f'yukkuri scenario shop_stock_click {sel("brought_reimu")}'),
+    (128, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
+    (129, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    # Exercise the tray's block-entity save/load round trip while the frame is out, without changing its Items.
+    (130, 'data merge block ~14 ~3 ~1 {SP08Readback:1b}'),
+    (154, f'execute positioned ~22 ~2 ~3 at {_stress_frame_drop} run yukkuri scenario tool_operator move'),
+    (155, f'execute positioned ~22 ~2 ~3 run yukkuri scenario tool_operator pick_up {_stress_frame_drop}'),
+    (156, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
+    (157, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (158, f'execute store result score #emeralds sp08_balance run clear {_stress_operator} minecraft:emerald 0'),
+    (158, f'execute store result score #frames sp08_balance run clear {_stress_operator} mcyukkuri:restraint_frame 0'),
+    (158, 'execute if score #emeralds sp08_balance matches 8 if score #frames sp08_balance matches 0 '
+          'if data block ~14 ~3 ~1 {Items:[{Slot:0b,id:"mcyukkuri:restraint_frame",count:1}]} '
+          f'positioned ~22 ~2 ~3 unless entity {_stress_frame_drop} run say MCYSP08_RETURN_BALANCED'),
+    (159, 'scoreboard objectives remove sp08_balance'),
+    (160, 'yukkuri scenario tool_operator leave'),
+    (170, f'execute at {sel("oni_bold")} positioned ~ ~1 ~ run yukkuri scenario tool_click {sel("oni_bold")} fix_supine'),
 ]
 _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',

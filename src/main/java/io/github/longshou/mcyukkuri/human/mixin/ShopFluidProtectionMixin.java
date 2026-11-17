@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.human.mixin;
 
-import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import io.github.longshou.mcyukkuri.shop.ShopProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +19,6 @@ abstract class ShopFluidProtectionMixin {
     @Inject(method = "spreadTo", at = @At("HEAD"), cancellable = true)
     private void mcyukkuri$guardShop(LevelAccessor level, BlockPos destination, BlockState replaced,
             Direction direction, FluidState fluid, CallbackInfo callback) {
-        if (level instanceof ServerLevel server && ShopRegistry.get(server).protectedAt(server, destination)) callback.cancel();
+        if (level instanceof ServerLevel server && ShopProtection.guarded(server, destination)) callback.cancel();
     }
 }
