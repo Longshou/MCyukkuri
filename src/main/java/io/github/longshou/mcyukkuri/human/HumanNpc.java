@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -26,6 +28,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -90,6 +93,25 @@ public final class HumanNpc extends PathfinderMob {
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
     /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */
     public boolean beginWalk() { return walk().begin(); }
+
+    /** One contact at the current stand. The caller chooses when to approach and use its equipped tool. */
+    public boolean useHeldTool(YukkuriEntity target) { return InteractionDispatch.useHeldTool(this, target); }
+
+    public boolean releaseTool(YukkuriEntity target) { return InteractionDispatch.releaseTool(this, target); }
+
+    public boolean pickUpTool(ItemEntity item) {
+        if (!(level() instanceof ServerLevel) || level() != item.level() || !isAlive() || !onGround() || isPassenger()
+                || !item.isAlive() || item.hasPickUpDelay() || !getMainHandItem().isEmpty()
+                || !getBoundingBox().inflate(1.5, .5, 1.5).intersects(item.getBoundingBox()) || !hasLineOfSight(item)) return false;
+        var stack = item.getItem();
+        if (!(stack.getItem() instanceof OperationToolItem tool) || !tool.tool().staffUse()) return false;
+        setItemSlot(EquipmentSlot.MAINHAND, stack);
+        take(item, stack.getCount());
+        item.discard();
+        GameplayLog.event(this, "interaction", "tool picked up; drop={} item={} hand_count=0 -> {} damage={}",
+                item.getUUID(), stack.getItem(), stack.getCount(), stack.getDamageValue());
+        return true;
+    }
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level, Look look) {
         super(type, level); this.look = look;
@@ -268,8 +290,9 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
             production.dropContents();
-            // A reserved dose is a real item in the hand; it falls where the body fell instead of vanishing with the corpse.
-            if (getMainHandItem().getItem() instanceof TreatmentItem) setDropChance(EquipmentSlot.MAINHAND, 2.0f);
+            // Held doses and operation tools fall where the worker fell.
+            if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem)
+                setDropChance(EquipmentSlot.MAINHAND, 2.0f);
             // The loose piece it was carrying to a bin falls where the body fell, likewise.
             VillageBin.dropLitter(this);
             if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) {

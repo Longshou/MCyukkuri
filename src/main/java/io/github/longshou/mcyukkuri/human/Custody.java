@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.ArrayList;
@@ -336,9 +337,9 @@ public final class Custody {
                 || custody.role() == Role.LOST);
     }
 
-    /** A passive exposure has no player authorized to harm an owned animal. */
+    /** A passive exposure has no actor authorized to harm an owned animal. */
     @Nullable
-    public static String harmRefusal(@Nullable Player actor, YukkuriEntity animal, BlockPos exposure) {
+    public static String harmRefusal(@Nullable LivingEntity actor, YukkuriEntity animal, BlockPos exposure) {
         if (animal.level() instanceof ServerLevel level) {
             var shops = ShopRegistry.get(level);
             if (shops.protectedAt(level, animal.blockPosition()) || shops.protectedAt(level, exposure)
@@ -347,7 +348,7 @@ public final class Custody {
         var custody = view(animal);
         if (custody.hasPendingStaffRole() || custody.role() == Role.STOCK || custody.role() == Role.SHOP_NURSERY
                 || custody.ownerKind() == OwnerKind.NPC) return "protected";
-        return custody.owner() != null && (actor == null || !custody.ownedBy(actor.getUUID())) ? "owner" : null;
+        return custody.owner() != null && (!(actor instanceof Player) || !custody.ownedBy(actor.getUUID())) ? "owner" : null;
     }
 
     private Custody() {}

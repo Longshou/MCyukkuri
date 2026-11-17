@@ -39,6 +39,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -109,6 +112,58 @@ public final class OperationLife {
         return !entity.level().getBlockCollisions(entity,entity.getBoundingBox().inflate(.6,0,.6)
                 .expandTowards(0,.4,0).move(0,.01,0)).iterator().hasNext();
     }
+    boolean staffBinding(LivingEntity actor) {
+        return (pose == Pose.PIN || pose == Pose.FIXED) && actor.getUUID().equals(operator);
+    }
+    boolean release() {
+        Pose released = pose;
+        boolean returned = end("released");
+        if (returned && released == Pose.VIBRATE)
+            entity.showReaction(SocialDisposition.selfEsteem(entity) >= 50 ? "smug" : "puff", "", 40);
+        return returned;
+    }
+
+    boolean performTool(LivingEntity actor, CareAction action) {
+        if (actor instanceof Mob) Motor.face(actor, entity.getBoundingBox().getCenter());
+        var stack = actor.getMainHandItem();
+        var item = stack.getItem();
+        int count = stack.getCount(), damage = stack.getDamageValue();
+        float health = entity.getHealth();
+        boolean done = switch (action) {
+            case PIN -> punctureAndBind(actor, Pose.PIN, 240, Tool.PIN, null);
+            case MALLET -> strike(actor, entity.getMaxHealth() + 20, WoundShape.BLUNT);
+            case PIERCE, BURN -> strike(actor, 2, WoundShape.PUNCTURE);
+            case FIX_SUPINE -> begin(actor, Pose.FIXED, 400, Tool.RESTRAINT);
+            case WRAP_HANG -> begin(actor, Pose.WRAPPED, 300, Tool.SLING, ceiling(), null);
+            case HOOK_HANG -> punctureAndBind(actor, Pose.HOOK, 300, Tool.HOOK, ceiling());
+            case VIBRATE -> begin(actor, Pose.VIBRATE, 120, Tool.VIBRATOR);
+            case ENCLOSE -> begin(actor, Pose.BOX, 400, Tool.BOX);
+            default -> throw new IllegalArgumentException(action.name());
+        };
+        if (done) {
+            if (action.tool.inserted) LearnedFear.witnessed(entity, actor, action.key());
+            finishContact(actor, action);
+            if (!action.tool.inserted) stack.hurtAndBreak(1, actor, EquipmentSlot.MAINHAND);
+            if (action == CareAction.PIERCE) entity.forceReaction("pin_cry", "", 60);
+            if (action == CareAction.BURN) entity.forceReaction("endure", "", 60);
+            GameplayLog.event(entity, "interaction",
+                    "tool used; actor={} action={} item={} hand_count={} -> {} damage={} -> {} health={} -> {} pose={}",
+                    actor.getUUID(), action, item, count, stack.getCount(), damage, stack.getDamageValue(), health, entity.getHealth(), pose);
+        }
+        logResult(actor, action, done);
+        return done;
+    }
+
+    private void finishContact(LivingEntity actor, CareAction action) {
+        cooldown=20;actor.swing(InteractionHand.MAIN_HAND);
+        entity.pet().contact(actor.getUUID(), action.positiveContact());
+    }
+
+    private void logResult(LivingEntity actor, CareAction action, boolean done) {
+        GameplayLog.event(entity,"interaction","care result; actor={} action={} success={} health={}/{} pose={}",
+                actor.getUUID(),action,done,entity.getHealth(),entity.getMaxHealth(),pose);
+    }
+
     boolean perform(Player player,CareAction action){
         boolean done=switch(action){
             case COLD -> entity.social().talk(player,false);
@@ -144,64 +199,44 @@ public final class OperationLife {
             case LAY_DOWN -> begin(player,Pose.SUPINE,60,null);
             case LIE_COMMAND,SHOW_RUMP -> begin(player,action==CareAction.SHOW_RUMP?Pose.RUMP:Pose.SUPINE,80,null);
             case SHAKE_HOME -> shakeHome(player);
-            case PIN -> punctureAndBind(player,Pose.PIN,240,Tool.PIN,null);
-            case MALLET -> strike(player,entity.getMaxHealth()+20,WoundShape.BLUNT);
-            case PIERCE,BURN -> strike(player,2,WoundShape.PUNCTURE);
-            case FIX_SUPINE -> begin(player,Pose.FIXED,400,Tool.RESTRAINT);
-            case WRAP_HANG -> begin(player,Pose.WRAPPED,300,Tool.SLING,ceiling(),null);
-            case HOOK_HANG -> punctureAndBind(player,Pose.HOOK,300,Tool.HOOK,ceiling());
             case TRIM_HAIR,CUT_LEFT,CUT_RIGHT -> entity.body().cutHair(action.hairParts(),player);
             case CUT_ACCESSORY -> cutAccessory(player);
-            case VIBRATE -> begin(player,Pose.VIBRATE,120,Tool.VIBRATOR);
             case STERILIZE -> {
                 if(!strike(player,2,WoundShape.CUT)||!entity.isAlive())yield false;
                 yield entity.family().sterilize();
             }
-            case ENCLOSE -> begin(player,Pose.BOX,400,Tool.BOX);
             case CUT_STEM,BOTTLE_STEM -> DetachedStemBlockEntity.cut(entity,player,action==CareAction.BOTTLE_STEM);
             case TAKE_ACCESSORY,CONFISCATE -> takeAccessory(player,action==CareAction.CONFISCATE);
             case COLLECT_NEAREST -> collect(player);
             case ASK -> entity.pet().care().ask(player);
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
             case UNWRAP -> entity.pet().care().takeOffSwaddle(player);
-            case RELEASE -> {
-                Pose released = pose;
-                boolean returned = end();
-                if (returned && released == Pose.VIBRATE)
-                    entity.showReaction(SocialDisposition.selfEsteem(entity) >= 50 ? "smug" : "puff", "", 40);
-                yield returned;
-            }
+            case RELEASE -> release();
+            default -> throw new IllegalArgumentException(action.name());
         };
         if(done&&action!=CareAction.RELEASE){
             // Most strike actions report their accepted damage transaction, including lethal strikes.
-            if(action.shears()&&action!=CareAction.STERILIZE||switch(action){
-                case PIN, HOOK_HANG, FIX_SUPINE, WRAP_HANG, VIBRATE, ENCLOSE -> true;
-                default -> false;
-            })LearnedFear.witnessed(entity,player,action.key());
+            if(action.shears()&&action!=CareAction.STERILIZE)LearnedFear.witnessed(entity,player,action.key());
             if(action==CareAction.COLD||action==CareAction.FLICK){
                 entity.pet().lessons().reprimand(player,action);
                 entity.pet().care().reprimand(player,action);
                 entity.mind().spike(ExcitedLeak.Stimulus.SCOLD);
             }
-            cooldown=20;player.swing(InteractionHand.MAIN_HAND);
-            entity.pet().contact(player.getUUID(), action.positiveContact());
-            if(action.tool!=null&&!action.tool.inserted||action.shears())player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
+            finishContact(player,action);
+            if(action.shears())player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
             switch(action){
                 case COLLECT_NEAREST -> message(player,"collected");
                 case STERILIZE -> {
                     entity.forceReaction("cut_cry", "", 80);
                     message(player,"sterilized");
                 }
-                case PIERCE -> entity.forceReaction("pin_cry", "", 60);
-                case BURN -> entity.forceReaction("endure", "", 60);
                 case ABANDON -> message(player,"abandoned");
                 case DECLINE_EVENT -> message(player,"declined");
                 default -> {}
             }
         }
         if(done&&action==CareAction.RELEASE)message(player,"released");
-        GameplayLog.event(entity,"interaction","care result; player={} action={} success={} health={}/{} pose={}",
-                player.getUUID(),action,done,entity.getHealth(),entity.getMaxHealth(),pose);
+        logResult(player,action,done);
         return done;
     }
     private void message(Player player,String result){
@@ -213,37 +248,41 @@ public final class OperationLife {
         entity.pet().contact(player.getUUID(),true);
         GameplayLog.event(entity,"interaction","accessory hung; player={}",player.getUUID());
     }
-    private boolean strike(Player player,float amount,WoundShape shape){
-        ownDamage=true;settlingShape=shape;
-        try{return entity.hurt(entity.damageSources().playerAttack(player),amount);}finally{ownDamage=false;settlingShape=WoundShape.NONE;}
+    private DamageSource attack(LivingEntity actor) {
+        return actor instanceof Player player ? entity.damageSources().playerAttack(player)
+                : entity.damageSources().mobAttack(actor);
     }
-    private boolean punctureAndBind(Player player,Pose next,int duration,Tool tool,BlockPos support){
+    private boolean strike(LivingEntity actor,float amount,WoundShape shape){
+        ownDamage=true;settlingShape=shape;
+        try{return entity.hurt(attack(actor),amount);}finally{ownDamage=false;settlingShape=WoundShape.NONE;}
+    }
+    private boolean punctureAndBind(LivingEntity actor,Pose next,int duration,Tool tool,BlockPos support){
         if(next==Pose.HOOK&&support==null)return false;
         BodyWound wound;
         ownDamage=true;settlingShape=WoundShape.PUNCTURE;strikingHook=next==Pose.HOOK;
         try {
-            wound=entity.hurtForAttachment(entity.damageSources().playerAttack(player),1);
+            wound=entity.hurtForAttachment(attack(actor),1);
         } finally {
             ownDamage=false;settlingShape=WoundShape.NONE;strikingHook=false;
         }
         if(wound==null)return false;
-        if(!entity.body().dying()&&begin(player,next,duration,tool,support,wound))return true;
-        LearnedFear.witnessed(entity,player,"hurt");
+        if(!entity.body().dying()&&begin(actor,next,duration,tool,support,wound))return true;
+        LearnedFear.witnessed(entity,actor,"hurt");
         return false;
     }
-    private boolean begin(Player player,Pose next,int duration,Tool binding){
-        return begin(player,next,duration,binding,null,null);
+    private boolean begin(LivingEntity actor,Pose next,int duration,Tool binding){
+        return begin(actor,next,duration,binding,null,null);
     }
-    private boolean begin(Player player,Pose next,int duration,Tool binding,BlockPos support,BodyWound wound){
+    private boolean begin(LivingEntity actor,Pose next,int duration,Tool binding,BlockPos support,BodyWound wound){
         if(!entity.isAlive()||active())return false;
         if((next==Pose.WRAPPED||next==Pose.HOOK)&&support==null)return false;
         entity.life().interrupt();entity.social().stop();entity.house().stop();entity.family().stop();
         entity.getNavigation().stop();entity.setPersistenceRequired();
-        pose=next;operator=player.getUUID();remaining=duration;elapsed=0;turn=abrasion=0;anchor=last=entity.position();
+        pose=next;operator=actor.getUUID();remaining=duration;elapsed=0;turn=abrasion=0;anchor=last=entity.position();
         ceiling=support;
         attachedWound=wound==null?null:wound.id();
-        if(binding!=null&&!player.getAbilities().instabuild){inserted=player.getMainHandItem().split(1);}
-        GameplayLog.event(entity,"interaction","operation started; player={} pose={} duration={} reserved_item={} count={}",
+        if(binding!=null&&!(actor instanceof Player player&&player.getAbilities().instabuild))inserted=actor.getMainHandItem().split(1);
+        GameplayLog.event(entity,"interaction","operation started; actor={} pose={} duration={} reserved_item={} count={}",
                 operator,pose,duration,inserted.getItem(),inserted.getCount());
         if(wound!=null)GameplayLog.event(entity,"interaction","binding wound; pose={} wound={} triangle={} u={} v={}",
                 pose,attachedWound,wound.triangle(),wound.u(),wound.v());
@@ -257,28 +296,40 @@ public final class OperationLife {
         }
         return null;
     }
+    private Entity loadedOperator(ServerLevel level) {
+        var player = level.getPlayerByUUID(operator);
+        return player == null ? level.getEntity(operator) : player;
+    }
+    private boolean anchorSupported() {
+        var bounds = entity.getBoundingBox().move(anchor.subtract(entity.position()));
+        var feet = new AABB(bounds.minX, anchor.y - .08, bounds.minZ, bounds.maxX, anchor.y, bounds.maxZ);
+        return entity.level().getBlockCollisions(entity, feet).iterator().hasNext();
+    }
     public void tick(){
-        if(entity.level().isClientSide)return;
+        if(!(entity.level() instanceof ServerLevel level))return;
         if(cooldown>0)cooldown--;
         if(!active()){if(!inserted.isEmpty())returnInserted();return;}
-        var player=entity.level().getPlayerByUUID(operator);
-        if(player==null||InteractionDispatch.reachRefusal(player,entity,5)!=null||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
-        if(attachedWound!=null&&entity.body().wounds().stream().noneMatch(wound->wound.id().equals(attachedWound))){end();return;}
+        if(!(loadedOperator(level) instanceof LivingEntity actor)
+                ||InteractionDispatch.reachRefusal(actor,entity,InteractionDispatch.TOOL_REACH)!=null){end("operator_unreachable");return;}
+        if(entity.isInWaterOrBubble()||entity.isOnFire()){end("danger");return;}
+        if(--remaining<=0){end("timeout");return;}
+        if(attachedWound!=null&&!entity.body().hasWound(attachedWound)){end("wound_closed");return;}
+        if((pose==Pose.PIN||pose==Pose.FIXED)&&!anchorSupported()){end("support_lost");return;}
         if ((switch (pose) {
             case PIN, FIXED, WRAPPED, HOOK, BOX, VIBRATE, ASSIST, GRIP, ROLL -> true;
             default -> false;
-        }) && (Custody.harmRefusal(player, entity, entity.blockPosition()) != null || entity.isPassenger())) {
-            end();
+        }) && (Custody.harmRefusal(actor, entity, entity.blockPosition()) != null || entity.isPassenger())) {
+            end("contact_lost");
             return;
         }
         elapsed++;
         if (elapsed == 1 || pose == Pose.BOX && elapsed % BOX_BEAT == 0) bindingReaction();
         if(pose==Pose.ASSIST){
-            if(player.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
+            if(actor.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
                     ||!entity.family().readyForAssistance()){end();return;}
             entity.getNavigation().stop();Motor.velocity(entity, entity.getDeltaMovement().multiply(0,1,0), "operation_hold");
             // Show the rear to the caregiver; birth later uses a separate front outlet.
-            Motor.face(entity, player.getYRot());
+            Motor.face(entity, actor.getYRot());
             if(elapsed==40){
                 var brood=FamilyData.get((ServerLevel)entity.level()).assist(entity);
                 if(brood!=null){inserted=ItemStack.EMPTY;entity.showReaction("happy","expecting",100);}
@@ -286,10 +337,10 @@ public final class OperationLife {
             }
         }
         if(pose==Pose.RUB){
-            if(player.distanceToSqr(entity)>2.25||entity.life().hasUrgentNeed()||entity.isPanicking()){end();return;}
+            if(actor.distanceToSqr(entity)>2.25||entity.life().hasUrgentNeed()||entity.isPanicking()){end();return;}
             if(elapsed==30){
-                entity.life().personality().petted(player.getUUID());
-                entity.pet().care().affection(player);
+                entity.life().personality().petted(actor.getUUID());
+                entity.pet().care().affection((Player)actor);
                 entity.dailyLife().comfort(25);
             }
         }
@@ -297,31 +348,31 @@ public final class OperationLife {
             if(ceiling==null||entity.level().getBlockState(ceiling).getCollisionShape(entity.level(),ceiling).isEmpty()){end();return;}
             moveTo(Vec3.atBottomCenterOf(ceiling).add(0,-.9-entity.getBbHeight(),0));
         }else if(pose==Pose.LIFT||pose==Pose.GRIP){
-            var forward=player.getLookAngle().multiply(1,0,1).normalize();
-            moveTo(player.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
+            var forward=actor.getLookAngle().multiply(1,0,1).normalize();
+            moveTo(actor.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
             if(elapsed==1)entity.mind().spike(ExcitedLeak.Stimulus.SUDDEN_LIFT);
-            if(pose==Pose.GRIP&&elapsed%40==0)strike(player,1,WoundShape.BLUNT);
+            if(pose==Pose.GRIP&&elapsed%40==0)strike(actor,1,WoundShape.BLUNT);
         }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
             if (pose == Pose.VIBRATE && elapsed == ROTOR_PLEA)
                 entity.showReaction(entity.life().personality().intelligence() >= 70 ? "teary" : "sukkiri_squeeze", "", remaining);
         }else if(pose==Pose.ROLL){
-            var forward=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
+            var forward=entity.position().subtract(actor.position()).multiply(1,0,1).normalize();
             Motor.move(entity,forward.scale(.045).add(0,-.04,0),"operation_roll");
         }else if(pose==Pose.RUMP){
-            Motor.face(entity, player.getYRot());
+            Motor.face(entity, actor.getYRot());
         }
         double moved=entity.position().subtract(last).horizontalDistance();
         // Neither still restraint nor suspension causes ground abrasion. Large loads/teleports are excluded.
         if((pose==Pose.ROLL||pose==Pose.SLIDE)&&entity.onGround()&&moved<.5){
             turn+=moved*360/(Math.PI*Math.max(.1,entity.getBbWidth()));
             var floor = Facilities.floorPosition(entity);
-            if (Custody.harmRefusal(player, entity, floor) != null || InteractionDispatch.contactRefusal(entity) != null) {
+            if (Custody.harmRefusal(actor, entity, floor) != null || InteractionDispatch.contactRefusal(entity) != null) {
                 abrasion = 0;
             } else {
                 abrasion += moved * Facilities.roughness(entity.level().getBlockState(floor));
-                if (abrasion >= 1.5f) { abrasion -= 1.5f; strike(player, 1, WoundShape.ABRASION); }
+                if (abrasion >= 1.5f) { abrasion -= 1.5f; strike(actor, 1, WoundShape.ABRASION); }
             }
         }
         last=entity.position();entity.syncOperation(pose.name(),pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN?elapsed/20f:turn);
@@ -371,9 +422,12 @@ public final class OperationLife {
         GameplayLog.event(entity,"interaction","binding returned to world; drop={} item={} count={}",item.getUUID(),inserted.getItem(),inserted.getCount());
         inserted=ItemStack.EMPTY;return true;
     }
-    public boolean end(){
+    public boolean end(){return end("interrupted");}
+
+    private boolean end(String reason){
         boolean recover = switch (pose) { case PIN, FIXED, WRAPPED, HOOK, BOX, VIBRATE -> true; default -> false; };
-        if(active())GameplayLog.event(entity,"interaction","operation ended; player={} pose={} elapsed={} remaining={}",operator,pose,elapsed,remaining);
+        if(active())GameplayLog.event(entity,"interaction","operation ended; actor={} pose={} elapsed={} remaining={} reason={}",
+                operator,pose,elapsed,remaining,reason);
         pose=Pose.NONE;operator=null;ceiling=null;attachedWound=null;remaining=elapsed=0;
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();
         if (recover && entity.isAlive() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPanicking() && entity.hurtTime == 0)

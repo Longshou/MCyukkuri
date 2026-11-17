@@ -5316,15 +5316,64 @@ next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
     (9, f'execute at {sel("arrow")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("arrow")} hook_hang'),
     (10, f'execute at {sel("thorn")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("thorn")} cut_left'),
     (12, f'execute at {sel("cone")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("cone")} cut_accessory'),
+    (45, f'execute at {sel("heat")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("heat")} pierce'),
 ]
+
+_staff_tool_cases = (('awl', 'care_awl', -8), ('frame', 'restraint_frame', 0), ('pin', 'pin_tool', 6))
+_wound_smoke = next(s for s in S if s.id == 'wound_sources').smoke
+_tool_stand = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
+for case, tool, x in _staff_tool_cases:
+    fixture = 'tool_' + case
+    operator = 'staff_' + case
+    _wound_smoke['commands'].extend([
+        (18, yk('reimu', x, 5, fixture, extra=_tool_stand, uuid=uid('wound_sources', fixture))),
+        (18, f'summon mcyukkuri:caretaker_brother ~{x + .5} ~ ~6.5 '
+             f'{{Tags:["scn","{tag(operator)}"],{_tool_stand},PersistenceRequired:1b,HumanInitialized:1b,HumanJob:2,'
+             f'HandItems:[{{id:"mcyukkuri:{tool}",count:1,components:{{"minecraft:custom_data":{{A1:"{case}"}}}}}},{{}}]}}'),
+        (55, f'yukkuri scenario staff_tool {sel(operator)} use {sel(fixture)}'),
+    ])
+    if case != 'awl':
+        condition = f'Item:{{id:"mcyukkuri:{tool}",components:{{"minecraft:custom_data":{{A1:"{case}"}}}}}}'
+        item_selector = f'@e[type=minecraft:item,nbt={{{condition}}},distance=..5,limit=1]'
+        hand = f'HandItems:[{{id:"mcyukkuri:{tool}",count:1,components:{{"minecraft:custom_data":{{A1:"{case}"}}}}}}]'
+        pickup = 105 if case == 'frame' else 220
+        _wound_smoke['commands'].extend([
+            (56, f'execute if entity {sel(operator)} unless data entity {sel(operator)} HandItems[0].id '
+                 f'run say MCYA1_HAND_EMPTY_{case}'),
+            (pickup, f'execute at {sel(fixture)} run yukkuri scenario staff_tool {sel(operator)} pickup {item_selector}'),
+            (pickup + 1, f'execute at {sel(fixture)} if entity @e[tag={tag(operator)},nbt={{{hand}}}] '
+                         f'unless entity {item_selector} run say MCYA1_BACK_IN_HAND_{case}'),
+        ])
+        _wound_smoke['expect'].extend([f'MCYA1_HAND_EMPTY_{case}', f'MCYA1_BACK_IN_HAND_{case}'])
+_wound_smoke['commands'].extend([
+    (56, f'yukkuri scenario staff_tool {sel("staff_awl")} use {sel("tool_awl")}'),
+    (80, f'yukkuri scenario staff_tool {sel("staff_frame")} release {sel("tool_frame")}'),
+    (185, f'yukkuri scenario care_click {sel("tool_pin")} orange_juice'),
+])
+_wound_smoke['commands'].sort(key=lambda command: command[0])
+_wound_smoke['expect'].extend([
+    rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* accepted damage cause=mob [^\n]* loss=2\.0',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* tool used; [^\n]* action=PIERCE item=mcyukkuri:care_awl hand_count=1 -> 1 damage=0 -> 1',
+    r'\[body\][^\n]* accepted damage cause=player [^\n]* loss=2\.0',
+    r'\[interaction\][^\n]* tool refused; [^\n]* action=pierce reason=busy',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* operation ended; [^\n]* pose=FIXED elapsed=\d\d [^\n]* reason=released',
+    rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_pin")} [^\n]* orange juice cleared 1 wound\(s\)',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_pin")} [^\n]* operation ended; [^\n]* pose=PIN [^\n]* reason=wound_closed',
+])
 
 def _wound_tool_binding(window):
     wounds = set(re.findall(r'\[body\][^\n]* uuid=([\w-]+) [^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
     attachments = re.findall(r'\[interaction\][^\n]* uuid=([\w-]+) [^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window)
-    if (len(attachments) != 2 or {pose for _, pose, _ in attachments} != {'PIN', 'HOOK'}
-            or len({wound for _, _, wound in attachments}) != 2
+    if (len(attachments) != 3 or sorted(pose for _, pose, _ in attachments) != ['HOOK', 'PIN', 'PIN']
+            or len({wound for _, _, wound in attachments}) != 3
             or any((actor, wound) not in wounds for actor, _, wound in attachments)):
-        return 'pin and hook must each bind to their own committed puncture'
+        return 'both pins and the hook must each bind to their own committed puncture'
+    for case, tool, _ in _staff_tool_cases[1:]:
+        target = _uuid_text('wound_sources', 'tool_' + case)
+        drops = re.findall(rf'\[interaction\][^\n]* uuid={target} [^\n]* binding returned to world; drop=([\w-]+) item=mcyukkuri:{tool} count=1', window)
+        picked = re.findall(rf'\[interaction\][^\n]* tool picked up; drop=([\w-]+) item=mcyukkuri:{tool} hand_count=0 -> 1', window)
+        if len(drops) != 1 or drops != picked:
+            return f'the staff {case} must return one real drop and pick up that same drop'
 
 next(s for s in S if s.id == 'wound_sources').smoke['verify'] = _wound_tool_binding
 next(s for s in S if s.id == 'wound_sources').smoke['readout'] = [
@@ -5703,9 +5752,12 @@ _window_smoke['commands'] = [
 _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=16\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
-                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD'],
+                          r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD',
+                          r'\[interaction\][^\n]* action=pin reason=shop'],
+       forbid=[r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '],
        readout=[f'yukkuri status {STOCK} raw'])
 next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
+    (100, f'execute at {BOOTH.format("reimu", 0)} positioned ~ ~1 ~ run yukkuri scenario tool_click {BOOTH.format("reimu", 0)} pin'),
     (1100, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:63000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_ONI_AGE_HELD'),
 ]
 _smoke('street_give_way', 300, [

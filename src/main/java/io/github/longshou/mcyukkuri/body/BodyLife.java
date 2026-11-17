@@ -169,6 +169,7 @@ public final class BodyLife {
     public boolean sick(){return toxin>=SICK_TOXIN;}
     public boolean weak(){return entity.isAlive()&&healthRatio()<=WEAK_HEALTH_RATIO;}
     public List<BodyWound> wounds(){return List.copyOf(wounds);}
+    public boolean hasWound(UUID id){return wounds.stream().anyMatch(wound->wound.id().equals(id));}
     public boolean canAnchorTool(){return !dying()&&wounds.size()<MAX_WOUNDS;}
     private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->injury(w)&&w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
             Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}

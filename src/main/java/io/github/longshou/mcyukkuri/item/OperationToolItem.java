@@ -35,6 +35,7 @@ public final class OperationToolItem extends Item {
         public final boolean inserted;
         Tool(String id,boolean inserted){this.id=id;this.inserted=inserted;}
         public Item item(){return ModItems.OPERATION_TOOLS.get(this).get();}
+        public boolean staffUse(){return this==AWL||this==RESTRAINT||this==PIN;}
     }
     /** Heat lasts 30 s after the awl touches fire; then the same stack is a plain awl again. */
     private static final int HEAT_TICKS = 600;
@@ -42,6 +43,9 @@ public final class OperationToolItem extends Item {
     private final Tool tool;
     public OperationToolItem(Tool tool,Properties properties){super(properties);this.tool=tool;}
     public Tool tool(){return tool;}
+    public CareAction heldAction(ItemStack stack,Level level){
+        return tool==Tool.AWL&&isHot(stack,level)?CareAction.BURN:CareAction.forTool(tool);
+    }
     private static long heatUntil(ItemStack stack){
         return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getLong(HEAT);
     }
@@ -77,8 +81,7 @@ public final class OperationToolItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
         if(!(target instanceof YukkuriEntity entity)||hand!=InteractionHand.MAIN_HAND)return InteractionResult.PASS;
         if(player instanceof ServerPlayer){
-            var action=tool==Tool.AWL&&isHot(stack,player.level())?CareAction.BURN:CareAction.forTool(tool);
-            return InteractionDispatch.perform(player, entity, action) ? InteractionResult.CONSUME : InteractionResult.FAIL;
+            return InteractionDispatch.perform(player, entity, heldAction(stack,player.level())) ? InteractionResult.CONSUME : InteractionResult.FAIL;
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }

@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.function.Consumer;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.LivingEntity;
@@ -140,6 +141,11 @@ public final class Motor {
     public static void face(YukkuriEntity body, float yaw) {
         if (body == null) return;
         applyFacing(body, turnYaw(body, yaw));
+    }
+
+    /** Aim a human's held tool from its eyes at the point of contact. */
+    public static void face(LivingEntity actor, Vec3 contact) {
+        actor.lookAt(EntityAnchorArgument.Anchor.EYES, contact);
     }
 
     /** Sets the initial pose for a system placement, including before a destination is tested at that pose. */

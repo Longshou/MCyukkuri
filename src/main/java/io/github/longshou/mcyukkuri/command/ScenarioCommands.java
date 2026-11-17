@@ -40,6 +40,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.Items;
@@ -170,6 +171,13 @@ public final class ScenarioCommands {
                 .then(Commands.literal("exam_step_owner").then(Commands.argument("step", Vec3Argument.vec3()).executes(ScenarioCommands::stepExamOwner)))
                 .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
+                .then(Commands.literal("staff_tool").then(Commands.argument("staff", EntityArgument.entity())
+                        .then(Commands.literal("use").then(Commands.argument("target", EntityArgument.entity())
+                                .executes(c -> staffTool(c, "use"))))
+                        .then(Commands.literal("release").then(Commands.argument("target", EntityArgument.entity())
+                                .executes(c -> staffTool(c, "release"))))
+                        .then(Commands.literal("pickup").then(Commands.argument("target", EntityArgument.entity())
+                                .executes(c -> staffTool(c, "pickup"))))))
                 .then(Commands.literal("care_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
                 .then(Commands.literal("tool_operator").requires(source->source.hasPermission(2))
@@ -446,6 +454,18 @@ public final class ScenarioCommands {
         }
     }
 
+    private static int staffTool(CommandContext<CommandSourceStack> c, String operation) throws CommandSyntaxException {
+        if (!(EntityArgument.getEntity(c, "staff") instanceof HumanNpc staff)) return 0;
+        var target = EntityArgument.getEntity(c, "target");
+        boolean done = switch (operation) {
+            case "use" -> target instanceof YukkuriEntity animal && staff.useHeldTool(animal);
+            case "release" -> target instanceof YukkuriEntity animal && staff.releaseTool(animal);
+            case "pickup" -> target instanceof ItemEntity item && staff.pickUpTool(item);
+            default -> throw new IllegalArgumentException(operation);
+        };
+        return done ? 1 : 0;
+    }
+
     /** Drives the real held-item boundary on a dedicated smoke server. */
     private static int careClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var target = yukkuri(c, "target");
@@ -455,6 +475,7 @@ public final class ScenarioCommands {
             case "junk" -> new ItemStack(ModItems.JUNK_HEADWEAR.get());
             case "budget_grain" -> new ItemStack(ModItems.GRAIN_BUDGET.get());
             case "premium_grain" -> new ItemStack(ModItems.GRAIN_PREMIUM.get());
+            case "orange_juice" -> new ItemStack(ModItems.ORANGE_JUICE.get());
             default -> ItemStack.EMPTY;
         };
         if (stack.isEmpty()) return 0;

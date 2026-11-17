@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -19,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
@@ -27,16 +29,17 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /** Shared server checks for player interaction. Care buttons use the same refusal as execution. */
 public final class InteractionDispatch {
+    static final double TOOL_REACH = 5;
     private InteractionDispatch() {}
 
-    public static String rangeRefusal(Player player,YukkuriEntity target,double range){
-        if(target==null||!target.isAlive()||!player.isAlive()||player.isSpectator()||player.level()!=target.level())return "target";
-        return player.distanceToSqr(target)>range*range?"reach":null;
+    public static String rangeRefusal(LivingEntity actor,YukkuriEntity target,double range){
+        if(target==null||!target.isAlive()||!actor.isAlive()||actor.isSpectator()||actor.level()!=target.level())return "target";
+        return actor.distanceToSqr(target)>range*range?"reach":null;
     }
-    public static String reachRefusal(Player player,YukkuriEntity target,double range){
-        var reason=rangeRefusal(player,target,range);
+    public static String reachRefusal(LivingEntity actor,YukkuriEntity target,double range){
+        var reason=rangeRefusal(actor,target,range);
         if(reason!=null)return reason;
-        return player.hasLineOfSight(target)?null:"sight";
+        return actor.hasLineOfSight(target)?null:"sight";
     }
     public static boolean requireReach(Player player,YukkuriEntity target,double range){
         var reason=reachRefusal(player,target,range);
@@ -160,9 +163,57 @@ public final class InteractionDispatch {
                 || target.operations().pose() == OperationLife.Pose.GRIP ? "carried" : null;
     }
 
-    static String harmContactRefusal(Player player, YukkuriEntity target) {
-        var reason = Custody.harmRefusal(player, target, target.blockPosition());
+    static String harmContactRefusal(LivingEntity actor, YukkuriEntity target) {
+        var reason = Custody.harmRefusal(actor, target, target.blockPosition());
         return reason == null ? contactRefusal(target) : reason;
+    }
+
+    private static String toolRefusal(LivingEntity actor, YukkuriEntity target, CareAction action) {
+        return ToolContactRules.refusal(() -> reachRefusal(actor, target, TOOL_REACH), () -> ExamSession.running(target),
+                () -> harmContactRefusal(actor, target), () -> target.operations().ready(),
+                () -> actor.getMainHandItem().is(action.tool.item()), () -> {
+                    if (actor instanceof HumanNpc && (!actor.onGround() || actor.isPassenger())) return "space";
+                    var operation = target.operations();
+                    return switch (action) {
+                        case FIX_SUPINE, ENCLOSE -> target.onGround() && operation.hasRoom() ? null : "space";
+                        case PIN -> target.onGround() ? null : "space";
+                        case BURN -> OperationToolItem.isHot(actor.getMainHandItem(), target.level()) ? null : "heat";
+                        case WRAP_HANG, HOOK_HANG -> operation.ceiling() == null ? "ceiling" : null;
+                        case VIBRATE -> target.family().adult() && !target.family().sterile() ? null : "condition";
+                        case PIERCE, MALLET -> null;
+                        default -> throw new IllegalArgumentException(action.name());
+                    };
+                });
+    }
+
+    private static String performTool(LivingEntity actor, YukkuriEntity target, CareAction action) {
+        var reason = toolRefusal(actor, target, action);
+        if (reason != null) return reason;
+        return target.operations().performTool(actor, action) ? null : "condition";
+    }
+
+    public static boolean useHeldTool(HumanNpc actor, YukkuriEntity target) {
+        var stack = actor.getMainHandItem();
+        if (!(stack.getItem() instanceof OperationToolItem tool) || !tool.tool().staffUse())
+            return staffRefusal(actor, target, "use", "tool");
+        var action = tool.heldAction(stack, actor.level());
+        var reason = performTool(actor, target, action);
+        return reason == null || staffRefusal(actor, target, action.key(), reason);
+    }
+
+    public static boolean releaseTool(HumanNpc actor, YukkuriEntity target) {
+        var reason = reachRefusal(actor, target, TOOL_REACH);
+        if (reason == null && ExamSession.running(target)) reason = "busy";
+        if (reason == null && !target.operations().staffBinding(actor)) reason = "no_operation";
+        if (reason != null) return staffRefusal(actor, target, "release", reason);
+        if (target.operations().release()) return true;
+        return staffRefusal(actor, target, "release", "condition");
+    }
+
+    private static boolean staffRefusal(HumanNpc actor, YukkuriEntity target, String action, String reason) {
+        GameplayLog.limited(actor, "interaction", action + ":" + reason, 20,
+                "tool refused; target={} action={} reason={}", target.getUUID(), action, reason);
+        return false;
     }
 
     public static boolean requireHarmContact(Player player, YukkuriEntity target, double range, String action) {
@@ -174,6 +225,7 @@ public final class InteractionDispatch {
     }
 
     static String refusal(Player player,YukkuriEntity target,CareAction action){
+        if(action.tool!=null)return toolRefusal(player,target,action);
         double range=switch(action){
             case RUB -> 1.5;
             case ADOPT, ABANDON, DECLINE_EVENT, SING, EXERCISE -> 4;
@@ -193,8 +245,7 @@ public final class InteractionDispatch {
         }
         reason=operationRefusal(target);
         if(reason!=null)return reason;
-        if(action.tool!=null&&!player.getMainHandItem().is(action.tool.item())
-                ||action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
+        if(action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
         if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_HARNESS||action==CareAction.UNWRAP){
             if(!ownsPet(player,target))return "owner";
         }
@@ -209,13 +260,10 @@ public final class InteractionDispatch {
                     : life.hasUrgentNeed()||life.isSleeping()||life.mealTicks()>0||!personality.canTalk()?"busy":null;
             case COLD -> target.social().busyForTalk()||!personality.canTalk()?"busy":null;
             case FAVOR, DISLIKE -> personality.canTalk()?null:"busy";
-            case ROLL, LAY_DOWN, FIX_SUPINE, ENCLOSE -> target.onGround()&&operation.hasRoom()?null:"space";
-            case PIN -> target.onGround()?null:"space";
+            case ROLL, LAY_DOWN -> target.onGround()&&operation.hasRoom()?null:"space";
             case SHOW_RUMP, LIE_COMMAND -> !personality.knowsWait()||personality.trust(player.getUUID())<BondLevels.TRUST_FAMILIAR?"command"
                     : target.isPanicking()?"fear":!operation.hasRoom()&&action==CareAction.LIE_COMMAND?"space":null;
             case SHAKE_HOME -> shakeRefusal(player, operation);
-            case BURN -> OperationToolItem.isHot(player.getMainHandItem(),target.level())?null:"heat";
-            case WRAP_HANG, HOOK_HANG -> operation.ceiling()==null?"ceiling":null;
             case TAKE_ACCESSORY -> life.hasAccessory() || target.headwear().reassembling() || life.custody().junk() != null ? null : "accessory";
             case CONFISCATE, CUT_ACCESSORY -> life.hasAccessory()||target.headwear().reassembling()?null:"accessory";
             case COLLECT_NEAREST -> operation.canCollect(player)?null:"collect";
@@ -227,8 +275,7 @@ public final class InteractionDispatch {
             case REMOVE_HARNESS -> target.pet().care().harnessed()?null:"harness";
             case UNWRAP -> target.pet().care().swaddled()?null:"swaddle";
             case TRIM_HAIR, CUT_LEFT, CUT_RIGHT -> (~target.body().hairLoss()&action.hairParts())!=0?null:"hair";
-            case VIBRATE, STERILIZE -> !target.family().adult()||target.family().sterile()
-                    ||action==CareAction.STERILIZE&&target.family().stimulation()==0?"condition":null;
+            case STERILIZE -> !target.family().adult()||target.family().sterile()||target.family().stimulation()==0?"condition":null;
             case CUT_STEM, BOTTLE_STEM -> DetachedStemBlockEntity.cutRefusal(target, player, action == CareAction.BOTTLE_STEM);
             default -> null;
         };
@@ -239,9 +286,9 @@ public final class InteractionDispatch {
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
     public static boolean perform(Player player,YukkuriEntity target,CareAction action){
-        var reason=refusal(player,target,action);
+        var reason=action.tool!=null?performTool(player,target,action):refusal(player,target,action);
         if(reason==null){
-            if(target.operations().perform(player,action))return true;
+            if(action.tool!=null||target.operations().perform(player,action))return true;
             reason="condition";
         }
         if(reason.equals("cut_too_early")||reason.equals("cut_birth_started"))
