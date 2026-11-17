@@ -507,16 +507,19 @@ def stray_checks(piece, starts, targets, gaps):
             errors.append(f'bin {pos} has a blocked mouth stand or missing stock tag')
         low_targets.append(('bin stand', mouth))
     for pos, (name, facing) in shelters.items():
+        carton = name == 'mcyukkuri:cardboard_shelter'
         for dx, dy, dz in product((-1, 0, 1), (0, 1), (-1, 0, 1)):
+            if carton and (dz if facing in ('north', 'south') else dx):
+                continue
             p = add(pos, (dx, dy, dz))
             part = dx + 2 + 5 * (dz + 2) + 25 * dy
             block, props, nbt = piece.state(p)
             if (block != name or props.get('facing') != facing or props.get('part') != str(part)
                     or bool(nbt) != (part == 12) or not sturdy(piece.state(add(pos, (dx, -1, dz))))):
                 errors.append(f'shelter {pos} has an invalid shell or floor at {p}')
-        if name == 'mcyukkuri:cardboard_shelter':
+        if carton:
             cartons.add(pos)
-        low_targets.append(('shelter entrance', add(pos, HORIZONTAL[facing], 2)))
+        low_targets.append(('shelter entrance', add(pos, HORIZONTAL[facing], 1 if carton else 2)))
     for pos in sorted(gaps):
         if not gap_at(piece, pos):
             errors.append(f'wind gap {pos} lacks dry footing, collision overhead or a sturdy side')

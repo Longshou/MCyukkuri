@@ -100,13 +100,17 @@ def wind_gap(b, x, y, z, paper=True):
 
 
 def shelter_spot(b, x, y, z, kind, facing):
-    """A regular 3×3×2 found shelter with a single block entity at its floor centre."""
+    """A found shelter with one block entity at its floor centre."""
     records(b).shelters.append(((x, y, z), kind, facing))
     for dy in range(2):
         for dz in range(-1, 2):
             for dx in range(-1, 2):
+                if kind == 'cardboard_shelter' and (dz if facing in ('north', 'south') else dx):
+                    continue
                 part = dx + 2 + 5 * (dz + 2) + 25 * dy
                 core = {'id': string('mcyukkuri:wild_shelter')} if part == 12 else None
+                if core is not None and kind == 'cardboard_shelter':
+                    core['Condition'] = integer(100)
                 b.block(x + dx, y + dy, z + dz, 'mcyukkuri:' + kind, {'part': str(part), 'facing': facing}, core)
 
 

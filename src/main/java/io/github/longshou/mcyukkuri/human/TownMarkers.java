@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +17,6 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 public final class TownMarkers {
     private static final String OWNER = "mcy_yard_owner", START = "mcy_yard_pet";
     private static final String NO_CARTON = "mcy_no_carton", SPAWNED = "mcy_yard_pet_spawned";
-    private static final String HIDDEN_CORNER = "mcy_hidden_corner";
     // The owner home and start of either lot are within eight horizontal blocks of each other.
     private static final int HOME_TO_START = 8;
 
@@ -105,13 +103,4 @@ public final class TownMarkers {
         return AABB.encapsulatingFullBlocks(offset(marker, data, "Low"), offset(marker, data, "High"));
     }
 
-    /** Scan once for the proposed carton sites; each zone anchor is within one chunk of its bounds. */
-    public static List<AABB> cartonExclusions(ServerLevel level, BlockPos origin, int radius) {
-        var area = new AABB(origin).inflate(radius + 16, 8, radius + 16);
-        return level.getEntitiesOfClass(Marker.class, area,
-                m -> m.getTags().contains(NO_CARTON) || m.getTags().contains(HIDDEN_CORNER)).stream().map(marker -> {
-            if (marker.getTags().contains(HIDDEN_CORNER)) return new AABB(marker.blockPosition());
-            return yardBounds(marker);
-        }).toList();
-    }
 }

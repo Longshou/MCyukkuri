@@ -913,7 +913,7 @@ public final class FoundShelter implements MotorOwner {
             return Step.RESTING;
         }
         if (exiting()) {
-            if (!shelter.contains(body.blockPosition())) {
+            if (shelter.kind() == ShelterBlock.Kind.CARDBOARD ? !shelter.cartonTouches(body) : !shelter.contains(body.blockPosition())) {
                 GameplayLog.event(body, "habitat", "found exited shelter={}", target());
                 stop();
                 return Step.ENDED;
@@ -1122,9 +1122,14 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private Vec3 restPoint(BlockPos pos, Vec3 failed) {
-        var centre = shelter.restSpot(pos);
         double reach = HeadTop.reach(body);
         double height = HeadTop.height(body);
+        if (shelter.kind() == ShelterBlock.Kind.CARDBOARD) {
+            // Use the actual body's remaining width beside the wall. Leave room for the final walking tolerance.
+            double across = 15/16. - reach - 2 * SurfaceApproach.ARRIVAL;
+            return restStand(shelter.cartonRestSpot(pos, across), failed, reach, height);
+        }
+        var centre = shelter.restSpot(pos);
         var stand = restStand(centre, failed, reach, height);
         if (stand != null) return stand;
         for (var side : Direction.Plane.HORIZONTAL) {
@@ -1144,8 +1149,11 @@ public final class FoundShelter implements MotorOwner {
 
     private boolean clearRestTurn(Vec3 feet, double reach, double height) {
         // The body can turn at the actual stand, including an offset or a stand moved clear of a placed hat.
-        var swept = new AABB(feet.x - reach, feet.y, feet.z - reach, feet.x + reach, feet.y + height, feet.z + reach);
-        return !level().getBlockCollisions(body, swept).iterator().hasNext();
+        return !level().getBlockCollisions(body, turnBounds(feet, reach, height)).iterator().hasNext();
+    }
+
+    static AABB turnBounds(Vec3 feet, double reach, double height) {
+        return new AABB(feet.x - reach, feet.y, feet.z - reach, feet.x + reach, feet.y + height, feet.z + reach);
     }
 
     private boolean availableStand(Vec3 at) {
@@ -1280,7 +1288,7 @@ public final class FoundShelter implements MotorOwner {
         nextScan = "better_shelter".equals(reason) ? 0 : now() + 100;
         if (shelter == null) { stop(); return; }
         phase = Phase.EXIT; deadline = now() + 140;
-        aim = Vec3.atBottomCenterOf(shelter.entrance());
+        aim = shelter.kind() == ShelterBlock.Kind.CARDBOARD ? cartonLane(body.position()) : Vec3.atBottomCenterOf(shelter.entrance());
         if (reason.equals("soaked_or_unsafe")) {
             warnUntil = now() + Math.max(1, ClipMarkers.of(Behaviors.WARM_UP).length());
             deadline += warnUntil - now();
@@ -1337,8 +1345,26 @@ public final class FoundShelter implements MotorOwner {
         return Vec3.atBottomCenterOf(home.entrance().relative(home.facing().getOpposite()));
     }
 
+    private Vec3 cartonLane(Vec3 at) {
+        var side = Vec3.atLowerCornerOf(shelter.facing().getClockWise().getNormal());
+        var forward = Vec3.atLowerCornerOf(shelter.facing().getNormal());
+        return Vec3.atBottomCenterOf(shelter.entrance()).add(side.scale(shelter.cartonAcross(at)))
+                .add(forward.scale(.25 + SurfaceApproach.ARRIVAL));
+    }
+
     private SurfaceApproach.Result walk() {
         if (!body.onGround() && !body.isInWaterOrBubble()) return SurfaceApproach.Result.WAITING;
+        if (shelter != null && shelter.kind() == ShelterBlock.Kind.CARDBOARD && phase == Phase.ENTER
+                && !shelter.contains(body.blockPosition())) {
+            var lane = cartonLane(aim);
+            var forward = Vec3.atLowerCornerOf(shelter.facing().getNormal());
+            // Align on the pavement, then cross the lip in the same lane as the checked rest stand.
+            if (body.position().subtract(lane).dot(forward) >= -SurfaceApproach.ARRIVAL && !SurfaceApproach.at(body, lane)) {
+                var approach = SurfaceApproach.walkResult(body, lane, null, 1);
+                return approach == SurfaceApproach.Result.ARRIVED ? SurfaceApproach.Result.MOVING : approach;
+            }
+            if (SurfaceApproach.tryStraightStep(body, aim, 1)) return SurfaceApproach.Result.MOVING;
+        }
         if (shelter == null || !shelter.contains(body.blockPosition())) return SurfaceApproach.walkResult(body, aim, null, 1);
         // A newly placed or lifted body has not landed yet. Its short step can be checked once its feet are down.
         if (!body.onGround()) return SurfaceApproach.Result.WAITING;

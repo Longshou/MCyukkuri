@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.LargeNestBlock;
+import io.github.longshou.mcyukkuri.headwear.HeadTop;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +25,7 @@ public final class ShelterPlacement {
     public record Plan(BlockPos center,ShelterBlock.Kind kind,Direction facing) {
         public BlockPos entrance(ServerLevel level) {
             if(kind==ShelterBlock.Kind.BURROW){var site=NaturalShelter.survey(level,center,facing);if(site!=null)return site.entrance();}
-            return center.relative(facing,kind.radius+1);
+            return center.relative(facing,kind==ShelterBlock.Kind.CARDBOARD?1:kind.radius+1);
         }
         public List<BlockPos> beds(ServerLevel level) {
             if(kind.found())return List.of(center);
@@ -33,9 +35,12 @@ public final class ShelterPlacement {
     public record Placed(ShelterBlockEntity shelter,Map<BlockPos,BlockState> before) {
         public void rollback(ServerLevel level) { shelter.rollback();before.forEach((pos,state)->level.setBlock(pos,state,3)); }
     }
-    public static List<BlockPos> positions(BlockPos center,ShelterBlock.Kind kind) {
+    public static List<BlockPos> positions(BlockPos center,ShelterBlock.Kind kind,Direction facing) {
         var result=new ArrayList<BlockPos>();
-        for(int y=0;y<kind.height;y++)for(int z=-kind.radius;z<=kind.radius;z++)for(int x=-kind.radius;x<=kind.radius;x++)result.add(center.offset(x,y,z));
+        for(int y=0;y<kind.height;y++)for(int z=-kind.radius;z<=kind.radius;z++)for(int x=-kind.radius;x<=kind.radius;x++) {
+            var offset=new BlockPos(x,y,z);
+            if(kind!=ShelterBlock.Kind.CARDBOARD||ShelterBlock.cartonPart(offset,facing))result.add(center.offset(offset));
+        }
         return result;
     }
     public static boolean canPlace(ServerLevel level,Plan plan) {
@@ -47,7 +52,8 @@ public final class ShelterPlacement {
             var site=NaturalShelter.survey(level,plan.center,plan.facing);
             if(site==null||site.beds().size()<Burrowing.MIN_CELLS)return false;
         }
-        for(var pos:positions(plan.center,plan.kind)) {
+        var footprint=positions(plan.center,plan.kind,plan.facing);
+        for(var pos:footprint) {
             if(!level.hasChunkAt(pos)||!level.getFluidState(pos).isEmpty()||level.getBlockEntity(pos)!=null)return false;
             var state=level.getBlockState(pos);
             if(!state.isAir()&&!state.is(Blocks.SHORT_GRASS)&&!state.is(Blocks.FERN)
@@ -59,22 +65,10 @@ public final class ShelterPlacement {
         if(!level.hasChunkAt(entry)||!level.getFluidState(entry).isEmpty()||!level.getBlockState(entry).getCollisionShape(level,entry).isEmpty()
                 ||!level.getBlockState(entry.below()).isFaceSturdy(level,entry.below(),Direction.UP))return false;
         var bounds=new AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
-        if (plan.kind == ShelterBlock.Kind.CARDBOARD) {
-            var side = plan.facing.getClockWise().getNormal();
-            double x = Math.abs(side.getX()) * ShelterBlock.CARTON_SIDE_OVERHANG;
-            double z = Math.abs(side.getZ()) * ShelterBlock.CARTON_SIDE_OVERHANG;
-            var left = x > 0 ? new AABB(bounds.minX-x,bounds.minY,bounds.minZ,bounds.minX,bounds.maxY,bounds.maxZ)
-                    : new AABB(bounds.minX,bounds.minY,bounds.minZ-z,bounds.maxX,bounds.maxY,bounds.minZ);
-            var right = x > 0 ? new AABB(bounds.maxX,bounds.minY,bounds.minZ,bounds.maxX+x,bounds.maxY,bounds.maxZ)
-                    : new AABB(bounds.minX,bounds.minY,bounds.maxZ,bounds.maxX,bounds.maxY,bounds.maxZ+z);
-            for (var edge : new AABB[]{left, right}) {
-                if (!level.hasChunkAt(BlockPos.containing(edge.getCenter())) || level.getBlockCollisions(null, edge).iterator().hasNext()) return false;
-            }
-            bounds = bounds.inflate(x, 0, z);
-        }
         for(var occupant:level.getEntitiesOfClass(LivingEntity.class,bounds,entity->entity.isAlive()&&!entity.isSpectator())) {
-            var body=Shapes.create(occupant.getBoundingBox());
-            for(var pos:positions(plan.center,plan.kind)) {
+            var body=Shapes.create(plan.kind==ShelterBlock.Kind.CARDBOARD&&occupant instanceof YukkuriEntity y
+                    ? FoundShelter.turnBounds(y.position(),HeadTop.reach(y),HeadTop.height(y)) : occupant.getBoundingBox());
+            for(var pos:footprint) {
                 var offset=pos.subtract(plan.center);
                 var shell=ShelterGeometry.shape(plan.kind,plan.facing,ShelterBlock.part(offset.getX(),offset.getY(),offset.getZ())).move(pos.getX(),pos.getY(),pos.getZ());
                 if(Shapes.joinIsNotEmpty(shell,body,BooleanOp.AND))return false;
@@ -91,7 +85,7 @@ public final class ShelterPlacement {
             case CARDBOARD -> ModBlocks.CARDBOARD_SHELTER.get();
             case CRATE -> ModBlocks.CRATE_SHELTER.get();
         };
-        for(var pos:positions(plan.center,plan.kind))before.put(pos,level.getBlockState(pos));
+        for(var pos:positions(plan.center,plan.kind,plan.facing))before.put(pos,level.getBlockState(pos));
         for(var pos:before.keySet()) {
             var delta=pos.subtract(plan.center);
             if(!level.setBlock(pos,block.defaultBlockState().setValue(ShelterBlock.PART,ShelterBlock.part(delta.getX(),delta.getY(),delta.getZ()))

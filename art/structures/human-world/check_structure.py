@@ -358,15 +358,19 @@ def stray_errors(b, lane):
         if not any(full_block(name_at(b, x + dx, yy, z + dz)) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))): errors.append(f'{b.name}: wind gap {(x, yy, z)} has no wall')
         if (x, z) not in strays: errors.append(f'{b.name}: wind gap {(x, z)} unreachable from the lane')
     for (x, yy, z), kind, facing in b.shelters:
+        carton = kind == 'cardboard_shelter'
         for dx in (-1, 0, 1):
             for dz in (-1, 0, 1):
+                if carton and (dz if facing in ('north', 'south') else dx):
+                    continue
                 for dy in (0, 1):
                     part = dx + 2 + 5 * (dz + 2) + 25 * dy
                     state = b.blocks.get((x + dx, yy + dy, z + dz))
                     if not state or state[0] != 'mcyukkuri:' + kind or state[1] != {'facing': facing, 'part': str(part)} or bool(state[2]) != (part == 12):
                         errors.append(f'{b.name}: {kind} has an invalid shell part at {(x + dx, yy + dy, z + dz)}')
                 if not full_block(name_at(b, x + dx, yy - 1, z + dz)): errors.append(f'{b.name}: {kind} spot {(x, z)} floor {(x + dx, z + dz)} is not sturdy')
-        ex, ez = x + 2 * {'east': 1, 'west': -1}.get(facing, 0), z + 2 * {'south': 1, 'north': -1}.get(facing, 0)
+        distance = 1 if carton else 2
+        ex, ez = x + distance * {'east': 1, 'west': -1}.get(facing, 0), z + distance * {'south': 1, 'north': -1}.get(facing, 0)
         if not free(name_at(b, ex, yy, ez)) or (ex, ez) not in strays: errors.append(f'{b.name}: {kind} spot {(x, z)} entrance {(ex, ez)} blocked or unreachable')
     for (x, yy, z), facing, name, target, pool in b.jigsaws:
         edge = {'west': x == 0, 'east': x == b.size[0] - 1, 'north': z == 0}.get(facing, False)

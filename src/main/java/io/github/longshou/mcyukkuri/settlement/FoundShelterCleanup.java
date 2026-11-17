@@ -58,6 +58,7 @@ public final class FoundShelterCleanup {
         for (var home : LoadedShelters.within(level, here.offset(-SIGHT,-2,-SIGHT), here.offset(SIGHT,2,SIGHT))) {
             if (home.kind() != ShelterBlock.Kind.CARDBOARD || home.emptyTicks() < ABANDONED || home.occupants() != 0) continue;
             var pos = home.getBlockPos();
+            if (!home.complete() || level.hasNearbyAlivePlayer(pos.getX()+.5, pos.getY(), pos.getZ()+.5, SIGHT)) continue;
             var area = new ChunkPos(pos);
             var done = level.getDataStorage().computeIfAbsent(HISTORY, "mcyukkuri_found_shelter_cleanup");
             if (done.cleaned(area, day)) continue;
@@ -66,6 +67,8 @@ public final class FoundShelterCleanup {
             var hit = level.clip(new ClipContext(villager.getEyePosition(), Vec3.atCenterOf(pos), ClipContext.Block.COLLIDER,
                     ClipContext.Fluid.NONE, villager));
             if (hit.getType() != HitResult.Type.MISS && ShelterBlock.shelter(level, hit.getBlockPos()) != home) continue;
+            // The villager has to reach the carton before swinging and leaving scraps.
+            if (villager.distanceToSqr(Vec3.atCenterOf(pos)) > 2 * 2) continue;
             done.record(area, day);
             villager.swing(InteractionHand.MAIN_HAND);
             GameplayLog.event(villager, "habitat", "found cleared shelter={} empty_ticks={}", pos, home.emptyTicks());

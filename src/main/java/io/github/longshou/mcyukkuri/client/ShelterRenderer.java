@@ -114,8 +114,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         pose.pushPose();pose.translate(.5,0,.5);
         pose.mulPose(Axis.YP.rotationDegrees(-90*ShelterGeometry.turns(home.facing())));
         int lined=home.lining()>0?1:0;
-        // The carton has one export per rain stage (cardboard.py): dry; damp (stains creeping down, top flap flopped forward);
-        // soaked (dark through, roof sagging, walls bowed in, top flap hanging over the opening). Unit 1 is the bedding.
+        // Damp stains the panels. The soaked roof and lip fold down over an empty opening. Unit 1 is bedding.
         String id=home.kind()==ShelterBlock.Kind.CARDBOARD&&home.rainStage()>0?home.kind().id+(home.rainStage()==1?"_damp":"_soaked"):home.kind().id;
         PropModels.renderLayers(id,lined,pose,buffers,light,overlay);
         pose.popPose();
@@ -145,7 +144,8 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         return layers;
     }
     @Override public AABB getRenderBoundingBox(ShelterBlockEntity home) {
-        double radius=home.kind().radius+(home.kind()==ShelterBlock.Kind.CARDBOARD?ShelterBlock.CARTON_SIDE_OVERHANG:0);
+        if (home.kind()==ShelterBlock.Kind.CARDBOARD) return home.interior();
+        int radius=home.kind().radius;
         return home.kind()==ShelterBlock.Kind.BURROW?home.interior().inflate(1):new AABB(home.getBlockPos()).inflate(radius,0,radius).expandTowards(0,home.kind().height,0);
     }
     @Override public boolean shouldRenderOffScreen(ShelterBlockEntity home) { return true; }

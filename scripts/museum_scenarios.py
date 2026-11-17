@@ -446,8 +446,9 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
 
 
 def found_shell(kind, x, z):
+    depth = (0,) if kind == 'cardboard_shelter' else range(-1, 2)
     return [block(x + dx, dy, z + dz, f'mcyukkuri:{kind}[facing=south,part={dx + 2 + 5*(dz + 2) + 25*dy}]')
-            for dy in range(2) for dz in range(-1, 2) for dx in range(-1, 2)]
+            for dy in range(2) for dz in depth for dx in range(-1, 2)]
 
 
 def street_stray(scene, kind, x, z, name, **kwargs):
@@ -463,12 +464,14 @@ def garbage_bin(x, z, items, tipped):
 
 
 _stray_mother = uid('stray_boxes', 'mother')
+_stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,'
+                       'Maturity:336000L,Lifespan:1056000L,AdultScale:0.84f,Scale:0.84f')
 _crate_mother = uid('stray_boxes', 'crate_mother')
 add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '流浪：母子找纸箱，木箱也能歇脚',
     '夜里左边的母子在纸箱并排歇脚，右边的母子在木箱前后错开，观察两顶头饰之间的空隙。',
     '约半分钟至一分钟', [
         *found_shell('cardboard_shelter', -5, -1), *found_shell('crate_shelter', 6, -1),
-        street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True),
+        street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
         street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
                      kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
         street_stray('stray_boxes', 'marisa', 6, -1, 'crate_stray', stage='child', energy=28, rest_wait=0,
@@ -482,21 +485,23 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '�
                                   r'\[habitat\][^\n]* found settled .*kind=CRATE occupants=2']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
-    '看已经躲在箱里的流浪油歇脚。纸箱受潮时流浪油退到外面，箱子随后下陷，最后留下真纸片。左侧另一只魔理沙会沿墙去捡苹果。',
+    '看纸箱里的流浪油歇脚。纸箱受潮后，它沿开口离开去找干燥的木箱。空纸箱泡透塌下，留下纸片。左侧另一只魔理沙会沿墙去捡苹果。',
     '约一分钟', [
-        *found_shell('cardboard_shelter', -4, -1),
+        *found_shell('cardboard_shelter', -4, -1), *found_shell('crate_shelter', 1, -1),
         street_stray('stray_rain', 'marisa', -4, -1, 'rain_stray', energy=25, rest_wait=0, lead=True),
         box(-14, 0, -3, -14, 1, 3, 'minecraft:cobblestone'),
         street_stray('stray_rain', 'marisa', -13, -2, 'wall_stray', yaw=0, nutrition=24),
         item('minecraft:apple', 1, -13, 2, 'wall_apple'),
     ], env={'time': 'noon', 'weather': 'rain'}, spot='street', vantage=(-2, 6, 164, 12),
-    capture=dict(shots=(1, 1300), sequences=((8, 248, 4),), observe=False,
+    capture=dict(shots=(1, 590, 700, 850, 1050, 1300), observe=False,
                  views={'wall': dict(follow=sel('wall_stray'), offset=(2.3, .9, -.65))}),
     smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD',
                                   r'\[habitat\][^\n]* found rain stage=0 -> 1',
                                   r'\[habitat\][^\n]* found leaving .*reason=soaked_or_unsafe',
                                   r'\[habitat\][^\n]* found exited ',
+                                  r'\[habitat\][^\n]* found rain stage=1 -> 2',
+                                  r'\[habitat\][^\n]* drop item=minecraft:paper count=1 source=shelter .*reason=rain_collapse',
                                   r'\[habitat\][^\n]* found removed .*reason=rain_collapse']))
 
 _rubbish_stock = [('minecraft:apple', 1), ('minecraft:paper', 2), ('minecraft:stick', 2)]
@@ -3896,12 +3901,12 @@ def _seat_family(size=.35, nourishment=147000, age=144000):
 
 def _stray_rain_verify(log):
     marisa = _uuid_text('stray_rain', 'rain_stray')
-    # The soaked stage stays unlogged while a living body is inside the carton's footprint (updateRainStage),
-    # and the departing Marisa can shield the moisture-80 tick, so the exit is proven by the damp-then-leave order.
     damp_exit_collapse = (
         r'found rain stage=0 -> 1 shelter=(BlockPos\{[^\n]+?\})'
         rf'[\s\S]*?uuid={marisa}[^\n]* found leaving target=\1 [^\n]*reason=soaked_or_unsafe'
         r'[\s\S]*?found exited shelter=\1'
+        r'[\s\S]*?found rain stage=1 -> 2 shelter=\1'
+        r'[\s\S]*?drop item=minecraft:paper count=1 source=shelter at=\1 reason=rain_collapse'
         r'[\s\S]*?found removed shelter=\1 [^\n]*reason=rain_collapse'
     )
     if not re.search(damp_exit_collapse, log):

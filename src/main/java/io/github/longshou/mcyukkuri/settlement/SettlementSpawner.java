@@ -9,11 +9,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.TownAware;
-import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
-import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,8 +21,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
@@ -104,9 +100,18 @@ public final class SettlementSpawner {
         if (seedLeader) units.add(1);
         composition.households().forEach(h -> units.add(h.size()));
         if ((composition.leader() && !seedLeader) || preset == Preset.WANDERER) units.add(1);
-        // Cardboard encounters belong to existing human villages: discarded human goods, not yukkuri construction.
-        var kind=preset==Preset.WANDERER&&TownAware.inTown(level,origin)?ShelterBlock.Kind.CARDBOARD:ShelterBlock.Kind.BURROW;
-        var plans=site!=null?SiteLife.allocate(level,site,units,composition,seedLeader):plans(probe,origin,units,forest?24:12,kind);
+        // Town strays look for cartons that are already on the street, placed by the village template or a player.
+        if (preset==Preset.WANDERER&&TownAware.inTown(level,origin)) {
+            var stray=seed!=null?seed:ModEntities.forVariant(COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
+            if (stray==null) return List.of();
+            if (seed==null) {
+                Motor.relocate(stray,Vec3.atBottomCenterOf(origin),stray.getYRot(),"settlement_spawn");
+                if (!level.noCollision(stray)||!level.addFreshEntity(stray)) return List.of();
+            }
+            stray.pet().markTownRoots();
+            return List.of(stray);
+        }
+        var plans=site!=null?SiteLife.allocate(level,site,units,composition,seedLeader):plans(probe,origin,units,forest?24:12);
         if(plans.size()!=units.size()){trace("No complete set of sites: "+preset+" "+units);return List.of();}
         List<BlockPos> sites=new ArrayList<>();List<Integer> rooms=new ArrayList<>();
         for(int room=0;room<plans.size();room++) {
@@ -160,10 +165,6 @@ public final class SettlementSpawner {
             added.add(member);
         }
         if(preset==Preset.WANDERER) {
-            if (kind.found()) {
-                members.getFirst().pet().markTownRoots();
-                return List.copyOf(members);
-            }
             homes.getFirst().shelter().initializeEncounter(1);
             if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();}
             return List.copyOf(members);
@@ -253,14 +254,14 @@ public final class SettlementSpawner {
         if(seed!=null){seed.load(snapshot);var old=seed.habitat().shelter();if(old!=null)old.claim(seed);}
     }
     /** Reserve complete household footprints before changing blocks or adding members. */
-    private static List<ShelterPlacement.Plan> plans(YukkuriEntity probe,BlockPos origin,List<Integer> units,int radius,ShelterBlock.Kind kind) {
+    private static List<ShelterPlacement.Plan> plans(YukkuriEntity probe,BlockPos origin,List<Integer> units,int radius) {
         ServerLevel level=(ServerLevel)probe.level();
-        var exclusions=kind==ShelterBlock.Kind.CARDBOARD?TownMarkers.cartonExclusions(level,origin,radius):List.<AABB>of();
+        var kind=ShelterBlock.Kind.BURROW;
         var candidates=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(origin.offset(-radius,-3,-radius),origin.offset(radius,3,radius)))
             // A burrow centre must itself be an enclosed cavity cell: filtering once here spares every household
             // (and every facing) a full cavity survey of each flat meadow cell, the main cost of a colony start.
-            if(pos.distSqr(origin)<=radius*radius&&(kind!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,pos))&&probe.life().dryStand(pos))candidates.add(pos.immutable());
+            if(pos.distSqr(origin)<=radius*radius&&NaturalShelter.enclosed(level,pos)&&probe.life().dryStand(pos))candidates.add(pos.immutable());
         candidates.sort(Comparator.comparingDouble(pos->pos.distSqr(origin)));
         var result=new ArrayList<ShelterPlacement.Plan>();var occupied=new HashSet<BlockPos>();
         var failedPaths=new HashSet<List<BlockPos>>();int paths=0;
@@ -269,14 +270,11 @@ public final class SettlementSpawner {
             ShelterPlacement.Plan selected=null;
             for(var center:candidates) {
 
-                var footprint=ShelterPlacement.positions(center,kind);
-                if(footprint.stream().anyMatch(occupied::contains))continue;
-                if(kind==ShelterBlock.Kind.CARDBOARD&&roofedCartonSite(level,center,kind.radius))continue;
+                if(occupied.contains(center))continue;
                 if(result.stream().anyMatch(plan->Math.abs(center.getX()-plan.center().getX())<kind.radius*2+2
                         &&Math.abs(center.getZ()-plan.center().getZ())<kind.radius*2+2))continue;
                 for(var facing:Direction.Plane.HORIZONTAL) {
                     var plan=new ShelterPlacement.Plan(center,kind,facing);
-                    if(kind==ShelterBlock.Kind.CARDBOARD&&cartonOverlaps(level,plan,exclusions))continue;
                     if(!ShelterPlacement.canPlace(level,plan))continue;
                     var beds=plan.beds(level);
                     if(beds.size()<size||beds.stream().anyMatch(occupied::contains))continue;
@@ -302,24 +300,6 @@ public final class SettlementSpawner {
         return result;
     }
 
-    /** A full roof over the footprint is indoors; an awning and a partly covered sidewalk stay available. */
-    private static boolean roofedCartonSite(ServerLevel level, BlockPos center, int radius) {
-        if (FoundShelter.roofKind(level, center) != null) return false;
-        for (var pos : BlockPos.betweenClosed(center.offset(-radius, 0, -radius), center.offset(radius, 0, radius))) {
-            if (!level.hasChunkAt(pos) || level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ()) <= pos.getY())
-                return false;
-        }
-        return true;
-    }
-
-    private static boolean cartonOverlaps(ServerLevel level, ShelterPlacement.Plan plan, List<AABB> exclusions) {
-        var kind = plan.kind();
-        double overhang = ShelterBlock.CARTON_SIDE_OVERHANG;
-        double x = plan.facing().getAxis() == Direction.Axis.Z ? overhang : 0;
-        double z = plan.facing().getAxis() == Direction.Axis.X ? overhang : 0;
-        var box = new AABB(plan.center()).inflate(kind.radius + x, 0, kind.radius + z).expandTowards(0, kind.height - 1, 0);
-        return exclusions.stream().anyMatch(box::intersects) || ShopRegistry.get(level).protectedIntersects(level, box);
-    }
     private static final ThreadLocal<String> FAILURE = new ThreadLocal<>();
     /** Why the last spawn on this thread returned nobody (shown by the settlement command). */
     public static String lastFailure() { String s = FAILURE.get(); return s == null ? "unknown" : s; }

@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -36,11 +37,9 @@ import net.minecraft.util.RandomSource;
 /** Hollow, physical multi-block shelters. Only the central floor block owns inventory and residents. */
 public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
-        // Interior clear height, and clear reach round a lying spot to the nearest wall, in blocks, from the authored shells
-        // (data/mcyukkuri/shelters/<id>.json, ShelterBlockEntity.restSpot). The carton's spots at x=±13 have 12 units
-        // to the nearest wall; the crate's diagonal spots have 12.5 units.
+        // Clear height and maximum turn radius from the authored shells. Each actual stand is checked separately.
         BURROW("forest_burrow", 0, 1, 16, 0, 0),
-        CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 12/16.),
+        CARDBOARD("cardboard_shelter", 1, 2, 2, 22/16., 12/16.),
         CRATE("crate_shelter", 1, 2, 2, 16/16., 12.5/16.);
         public final String id;
         public final int radius, height, capacity;
@@ -50,8 +49,6 @@ public final class ShelterBlock extends Block implements EntityBlock {
         }
         public boolean found() { return this != BURROW; }
     }
-    static final double CARTON_REST_OFFSET = 13 / 16.;
-    public static final double CARTON_SIDE_OVERHANG = 3 / 16.;
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 74);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final int CORE = 12;
@@ -64,6 +61,15 @@ public final class ShelterBlock extends Block implements EntityBlock {
     public static BlockPos offset(int part) { return new BlockPos(part % 5 - 2, part / 25, (part % 25) / 5 - 2); }
     public static int part(int x, int y, int z) { return x + 2 + 5 * (z + 2) + 25 * y; }
     public static BlockPos root(BlockPos pos, BlockState state) { return pos.subtract(offset(state.getValue(PART))); }
+    static boolean cartonPart(BlockPos offset, Direction facing) {
+        return offset.getY() < 2 && offset.getX() * facing.getStepX() + offset.getZ() * facing.getStepZ() == 0
+                && Math.abs(offset.getX()) + Math.abs(offset.getZ()) <= 1;
+    }
+    /** Authored shell bounds (cardboard.py), including the mouth. */
+    public static AABB cartonBounds(BlockPos core, Direction facing) {
+        return new AABB(core).inflate(facing.getAxis()==Direction.Axis.Z?.5:0,0,facing.getAxis()==Direction.Axis.X?.5:0)
+                .expandTowards(0,7/16.,0);
+    }
     @Override protected BlockState rotate(BlockState state, Rotation rotation) {
         return orient(state, offset(state.getValue(PART)).rotate(rotation), rotation.rotate(state.getValue(FACING)));
     }
@@ -126,6 +132,10 @@ public final class ShelterBlock extends Block implements EntityBlock {
     @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random) {
         if(state.getValue(PART)==CORE)return;
         var root=root(pos,state);
+        if (kind == Kind.CARDBOARD && !cartonPart(offset(state.getValue(PART)), state.getValue(FACING))) {
+            level.removeBlock(pos, false);
+            return;
+        }
         // Scheduled ticks survive chunk unloading; abandoned shell pieces disappear when their root is observable.
         if(level.hasChunkAt(root)&&(kind==Kind.BURROW||shelter(level,pos)==null))level.removeBlock(pos,false);
         else level.scheduleTick(pos,this,200);
@@ -157,7 +167,8 @@ public final class ShelterBlock extends Block implements EntityBlock {
     }
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {
         if((!state.is(replacement.getBlock()) || state.getValue(PART) != replacement.getValue(PART)
-                || state.getValue(FACING) != replacement.getValue(FACING)) && !level.isClientSide) {
+                || state.getValue(FACING) != replacement.getValue(FACING)) && !level.isClientSide
+                && (kind != Kind.CARDBOARD || cartonPart(offset(state.getValue(PART)), state.getValue(FACING)))) {
             var home=level.getBlockEntity(root(pos,state)) instanceof ShelterBlockEntity value?value:null;
             if(home!=null&&home.getBlockState().is(state.getBlock())&&home.facing()==state.getValue(FACING)) home.dismantle();
         }
