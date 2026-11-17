@@ -43,8 +43,8 @@ public final class KinProtection extends Goal implements MotorOwner {
         return choose(child, actor, false, injured).name();
     }
 
-    public void approaching(YukkuriEntity child, LivingEntity actor) {
-        choose(child, actor, true, false);
+    public String approaching(YukkuriEntity child, LivingEntity actor) {
+        return choose(child, actor, true, false).name();
     }
 
     private Choice choose(YukkuriEntity child, LivingEntity actor, boolean approach, boolean injured) {
@@ -88,7 +88,8 @@ public final class KinProtection extends Goal implements MotorOwner {
         var child = response.child();
         var actor = response.actor();
         return actor.isAlive() && child.isAlive() && child.level() == parent.level() && actor.level() == parent.level()
-                && ProtectivePuff.parentOf(child, parent) && GlassSight.sees(parent, child) && GlassSight.sees(parent, actor);
+                && actor.distanceToSqr(child) <= 64
+                && ProtectivePuff.parentOf(child, parent) && GlassSight.sees(parent, child);
     }
 
     @Override public String ownerId() { return Behaviors.PROTECT_APPROACH; }
@@ -113,7 +114,7 @@ public final class KinProtection extends Goal implements MotorOwner {
             case TURN_AWAY -> run(new Face(SurfaceApproach.yaw(child.position(), parent.position())));
             case PRESS -> {
                 var sight = GlassSight.glassBetween(parent, parent.getEyePosition(), child);
-                if (sight == null || !sight.getBlockPos().equals(response.pane())) { stop(); return; }
+                if (sight == null || !sight.getBlockPos().equals(response.pane())) { coverThroughOpening(); return; }
                 var stand = GlassSight.stand(parent, child, response.pane());
                 if (stand == null) stop();
                 else run(Walk.stand(stand, 1));
@@ -151,6 +152,13 @@ public final class KinProtection extends Goal implements MotorOwner {
         }
     }
 
+    private void coverThroughOpening() {
+        var child = response.child();
+        if (!parent.hasLineOfSight(child)) { stop(); return; }
+        response = new Response(Choice.SHIELD, child, response.actor(), null, response.until());
+        approach(child);
+    }
+
     @Override public void tick() {
         if (action == null || parent.motor().current() == action) return;
         if (action instanceof Walk && parent.motor().last() instanceof Outcome.Done) {
@@ -158,9 +166,12 @@ public final class KinProtection extends Goal implements MotorOwner {
             if (response.choice() != Choice.PRESS) contact(child);
             else {
                 var press = GlassPress.toward(parent, child);
-                if (press == null) stop();
+                if (press == null) coverThroughOpening();
                 else run(press);
             }
+        } else if (action instanceof GlassPress && parent.motor().last() instanceof Outcome.Blocked
+                && parent.hasLineOfSight(response.child())) {
+            coverThroughOpening();
         } else if (action instanceof Face && response.choice() == Choice.PUSH && parent.motor().last() instanceof Outcome.Done
                 && onSide(parent.position())) run(new Push(response.child()));
         else if (action instanceof Face && response.choice() == Choice.SHIELD) action = null;

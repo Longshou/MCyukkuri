@@ -241,7 +241,8 @@ public final class Reactions {
         void warnKin(LivingEntity danger) {
             long now = y.level().getGameTime();
             for (var z : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 5, 12),
-                    o -> o != y && prey(o) && kin(y, o))) z.status().reactions().threat().heard(danger, now);
+                    o -> o != y && prey(o) && kin(y, o) && !PunishmentReaction.decidesAsPlantParent(o, y, danger)))
+                z.status().reactions().threat().heard(danger, now);
         }
         void heard(LivingEntity danger, long now) { heard(danger, now, HEARD); }
         /** The ordinary threat goal waits for the meal to finish before it can steer. */

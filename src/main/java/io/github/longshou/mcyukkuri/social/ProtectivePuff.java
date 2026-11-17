@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -49,7 +48,7 @@ public final class ProtectivePuff {
     /** The human punishment dispatcher has already checked the witness's view of both sides. */
     public static boolean humanWitness(YukkuriEntity parent, YukkuriEntity child, Entity actor) {
         return able(parent) && child.distanceToSqr(parent) <= WITNESS_RANGE * WITNESS_RANGE
-                && GlassSight.sees(parent, child) && draw(parent, child, actor);
+                && draw(parent, child, actor);
     }
 
     private static boolean draw(YukkuriEntity parent, YukkuriEntity victim, Entity attacker) {

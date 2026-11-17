@@ -58,7 +58,7 @@ final class PlantSweetening extends Goal {
     private record Job(Path path, Runnable contact, Approach approach) {
         Job(Path path, Runnable contact) { this(path, contact, null); }
     }
-    private record Approach(PlantSite.Box box, Set<UUID> witnesses) {}
+    private record Approach(PlantSite.Box box, Set<UUID> witnesses, long startedAt) {}
     private record Candidate(YukkuriEntity body, PlantSite.Box box, double need) {}
 
     PlantSweetening(HumanNpc staff) {
@@ -140,7 +140,7 @@ final class PlantSweetening extends Goal {
             return false;
         }
         job = new Job(path, () -> apply(box, body),
-                path != null && held.getItem() instanceof OperationToolItem ? new Approach(box, new HashSet<>()) : null);
+                path != null && held.getItem() instanceof OperationToolItem ? new Approach(box, new HashSet<>(), level.getGameTime()) : null);
         return true;
     }
 
@@ -307,7 +307,9 @@ final class PlantSweetening extends Goal {
                             && GlassSight.sees(parent, child))
                     .min(Comparator.comparingDouble(parent::distanceToSqr)).ifPresent(child -> {
                         approach.witnesses().add(parent.getUUID());
-                        parent.kinProtection().approaching(child, staff);
+                        var response = parent.kinProtection().approaching(child, staff);
+                        GameplayLog.event(parent, "factory", "kin tool approach started={} child={} staff={} response={}",
+                                approach.startedAt(), child.getUUID(), staff.getUUID(), response);
                     });
         }
     }

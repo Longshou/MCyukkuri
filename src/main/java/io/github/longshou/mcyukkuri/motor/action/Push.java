@@ -56,7 +56,7 @@ public final class Push implements Action {
 
     private static Feasibility groundContact(YukkuriEntity body, YukkuriEntity other) {
         if (!ContactGeometry.inMouthReach(body, other)) return Feasibility.of(Reason.NO_CONTACT, 0, "target_out_of_reach");
-        if (!other.onGround() || other.isPassenger() || other.isVehicle() || other.operations().active())
+        if (!body.onGround() || !other.onGround() || other.isPassenger() || other.isVehicle() || other.operations().active())
             return Feasibility.of(Reason.NO_SUPPORT, 0, "target_not_free_on_floor");
         Vec3 direction = other.position().subtract(body.position()).multiply(1, 0, 1).normalize();
         Vec3 at = other.position().add(direction.scale(other.getBbWidth()));
@@ -65,7 +65,7 @@ public final class Push implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
-        if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        if (!target.isAlive() || target.level() != body.level()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
         if (target instanceof YukkuriEntity other) {
             var contact = groundContact(body, other);
             if (!contact.ok()) return t > 0 ? new Outcome.Done("contact ticks=" + t)

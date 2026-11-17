@@ -16,37 +16,40 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
 
-/** Sight through a window: one glass cell (block or pane) between two bodies is seen through, any other collider still occludes,
- *  and so does a second glass cell. Shared by the family search at a pane and the shop window. */
+/** A glass wall one block thick lets bodies see each other across it, including along seams between tiles. */
 public final class GlassSight {
-    /** The single glass cell between {@code eye} and the target's eye, or null when nothing or something else occludes. */
+    /** The first glass tile hit by a ray through one layer, or null when clear or occluded. */
     public static BlockHitResult glassBetween(Entity observer, Vec3 eye, Entity target) {
         var level = observer.level(); var end = target.getEyePosition();
         var hit = level.clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
         if (!glass(level, hit)) return null;
-        return beyond(observer, eye, end, ClipContext.Block.COLLIDER, hit).getType() == HitResult.Type.MISS ? hit : null;
+        return beyond(observer, eye, end, ClipContext.Block.COLLIDER, hit, true).getType() == HitResult.Type.MISS ? hit : null;
     }
 
     public static BlockHitResult outlineThroughGlass(Entity observer, Vec3 eye, Vec3 end) {
         var hit = observer.level().clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, observer));
-        return glass(observer.level(), hit) ? beyond(observer, eye, end, ClipContext.Block.OUTLINE, hit) : hit;
+        return glass(observer.level(), hit) ? beyond(observer, eye, end, ClipContext.Block.OUTLINE, hit, false) : hit;
     }
 
     private static boolean glass(BlockGetter level, BlockHitResult hit) {
         if (hit.getType() != HitResult.Type.BLOCK) return false;
-        var state = level.getBlockState(hit.getBlockPos());
-        return state.is(Tags.Blocks.GLASS_BLOCKS) || state.is(Tags.Blocks.GLASS_PANES);
+        return glass(level.getBlockState(hit.getBlockPos()));
     }
 
-    private static BlockHitResult beyond(Entity observer, Vec3 eye, Vec3 end, ClipContext.Block shape, BlockHitResult hit) {
+    private static boolean glass(BlockState state) { return state.is(Tags.Blocks.GLASS_BLOCKS) || state.is(Tags.Blocks.GLASS_PANES); }
+
+    private static BlockHitResult beyond(Entity observer, Vec3 eye, Vec3 end, ClipContext.Block shape, BlockHitResult hit, boolean layer) {
+        var across = hit.getDirection().getAxis();
+        int plane = hit.getBlockPos().get(across);
         return observer.level().clip(new ClipContext(eye, end, shape, ClipContext.Fluid.NONE, observer) {
             @Override public VoxelShape getBlockShape(BlockState block, BlockGetter world, BlockPos pos) {
-                return pos.equals(hit.getBlockPos()) ? Shapes.empty() : super.getBlockShape(block, world, pos);
+                return pos.equals(hit.getBlockPos()) || layer && pos.get(across) == plane && glass(block)
+                        ? Shapes.empty() : super.getBlockShape(block, world, pos);
             }
         });
     }
 
-    /** In plain sight, or behind exactly one glass cell. */
+    /** In plain sight, or behind one glass wall. */
     public static boolean sees(LivingEntity observer, Entity target) {
         return observer.hasLineOfSight(target) || glassBetween(observer, observer.getEyePosition(), target) != null;
     }

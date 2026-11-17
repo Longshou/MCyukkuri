@@ -2458,9 +2458,9 @@ _kin_boxes = 'factory_kin_boxes'
 _kin_parents = kin_of(Mother=uid(_kin_boxes, 'kin_fond'), Father=uid(_kin_boxes, 'kin_selfish'))
 _kin_cast = (
     ('kin_fond', 4.0, 20, '高依恋亲油', 'adult', 80, 72, 70, 74, ''),
-    ('kin_selfish', 2.35, 19.3, '低依恋亲油', 'adult', 28, 80, 25, 74, ''),
-    ('kin_near', 3.3, 19.3, '同箱子油', 'child', 55, 65, 55, 39, _kin_parents),
-    ('kin_window', 4.0, 22, '隔玻璃子油', 'child', 65, 42, 65, 68, _kin_parents),
+    ('kin_selfish', 3.05, 19.15, '低依恋亲油', 'adult', 28, 80, 25, 74, ''),
+    ('kin_near', 3.9, 19.15, '同箱子油', 'teen', 55, 65, 55, 39, _kin_parents),
+    ('kin_window', 4.0, 22, '隔玻璃子油', 'teen', 65, 42, 65, 68, _kin_parents),
     ('kin_screened', 4.0, 30, '实板后亲油', 'adult', 80, 72, 70, 74, ''),
     ('kin_hidden', 4.0, 32, '实板后子油', 'child', 65, 42, 65, 68,
      kin_of(Mother=uid(_kin_boxes, 'kin_screened'))),
@@ -6256,7 +6256,7 @@ _kin_mother_nbt = uuid_nbt(uid(_kin_boxes, 'kin_fond'))
 _kin_father_nbt = uuid_nbt(uid(_kin_boxes, 'kin_selfish'))
 _kin_has_parents = f'if data entity {sel("kin_window")} YukkuriFamily{{Mother:{_kin_mother_nbt},Father:{_kin_father_nbt}}}'
 _kin_witness = r'\[punishment\][^\n]* uuid={parent} t=(\d+)[^\n]* witness victim={child} actor=(\S+) incident=hurt response={choice} glass=true'
-_kin_approach = r'\[family\][^\n]* uuid={parent} t=(\d+)[^\n]* kin threat trigger=approach child={child} actor=(\S+) response={choice}\b'
+_kin_approach = r'\[factory\][^\n]* uuid={parent} [^\n]* kin tool approach started=(\d+) child={child} staff=(\S+) response={choice}\b'
 _kin_release = rf'\[identity\][^\n]* uuid={_kin_window} [^\n]* changed from=owned to=stray cause=plant_exit\b'
 
 
@@ -6269,7 +6269,7 @@ def _verify_kin_boxes(window):
               for parent, choice in ((_kin_fond, 'SHIELD'), (_kin_selfish, 'PUSH'))]
     if any(len(results) != 1 for results in visits) or visits[0][0] != visits[1][0]:
         return f'Expected one response per parent to the same staff approach: {visits}'
-    pushes = re.findall(rf'\[action\][^\n]* uuid={_kin_selfish} [^\n]* end id=push outcome=done [^\n]* target={_kin_near} moved=([\d.]+)', window)
+    pushes = re.findall(rf'\[action\][^\n]* uuid={_kin_selfish} [^\n]* end id=push outcome=DONE [^\n]* target={_kin_near} moved=([\d.]+)', window)
     if len(pushes) != 1 or float(pushes[0]) <= .05:
         return f'Expected one actual child shove with displacement, got {pushes}'
     releases = re.findall(r'\[identity\][^\n]* uuid=(\S+) [^\n]* changed from=owned to=stray cause=plant_exit\b', window)
@@ -6282,9 +6282,10 @@ _smoke(_kin_boxes, 500, [
     rf'\[punishment\][^\n]* uuid={_kin_hidden} [^\n]* victim actor=\S+ incident=hurt',
     rf'\[social\][^\n]* uuid={_kin_fond} [^\n]* protection puff victim={_kin_window} ',
     rf'\[action\][^\n]* uuid={_kin_fond} [^\n]* start id=glass_press owner=protect_approach',
-    rf'\[action\][^\n]* uuid={_kin_fond} [^\n]* end id=glass_press outcome=done [^\n]* faceGap=',
+    rf'\[action\][^\n]* uuid={_kin_fond} [^\n]* end id=glass_press outcome=DONE [^\n]* faceGap=',
     rf'\[family\][^\n]* uuid={_kin_fond} [^\n]* kin shield reached child={_kin_near} ',
-    r'MCY_KIN_WINDOW_STILL_STOCK',
+    r'MCY_KIN_OPEN_WINDOW_STILL_STOCK',
+    rf'\[punishment\][^\n]* uuid={_kin_window} [^\n]* victim actor=\S+ incident=hurt response=ESCAPE\b',
     _kin_release,
     r'MCY_KIN_STRAY_PARENTS_KEPT',
 ], forbid=[
@@ -6297,16 +6298,20 @@ _kin_smoke['verify'] = _verify_kin_boxes
 _kin_smoke['commands'] = [
     (1, f'data merge entity {_kin_staff} {{NoAI:1b}}'),
     (46, f'execute at {sel("kin_window")} run yukkuri scenario tool_click {sel("kin_window")} pierce'),
-    (48, f'execute at {sel("kin_hidden")} run yukkuri scenario tool_click {sel("kin_hidden")} pierce'),
-    (155, f'tp {_kin_staff} {_kin_point(8.5, 3, 19.5)} 90 0'),
-    (155, f'item replace entity {_kin_staff} weapon.mainhand from block {_sweet_cabinet} container.0'),
-    (155, f'item replace block {_sweet_cabinet} container.0 with minecraft:air'),
-    (155, f'data merge entity {_kin_staff} {{NoAI:0b}}'),
-    (275, f'tp {sel("kin_window")} {_kin_point(2.5, 3, 22.5)} 90 0'),
-    (275, set_status('kin_window', 'needs.nutrition', 35)),
-    (278, f'fill {_kin_point(1, 3, 22)} {_kin_point(1, 4, 23)} minecraft:air replace minecraft:glass'),
-    (279, f'execute {_kin_has_stock} {_kin_has_parents} run say MCY_KIN_WINDOW_STILL_STOCK'),
-    (280, item('minecraft:apple', 1, _plant_x - 12, _plant_z + 22, name='kin_apple', dy=2.05)),
+    (130, f'execute at {sel("kin_hidden")} run yukkuri scenario tool_click {sel("kin_hidden")} pierce'),
+    # Set the same-box starting positions with a clear door. Staff and parents still make and execute their own choices.
+    (158, f'fill {_kin_point(6, 3, 17)} {_kin_point(6, 4, 18)} minecraft:air replace minecraft:waxed_copper_door'),
+    (160, f'tp {sel("kin_fond")} {_kin_point(5.25, 3, 19.65)} -90 0'),
+    (160, f'tp {sel("kin_selfish")} {_kin_point(3.55, 3, 19.65)} -90 0'),
+    (160, f'tp {sel("kin_near")} {_kin_point(4.4, 3, 19.65)} -90 0'),
+    (160, f'tp {_kin_staff} {_kin_point(8.5, 3, 19.5)} 90 0'),
+    (160, f'item replace entity {_kin_staff} weapon.mainhand from block {_sweet_cabinet} container.0'),
+    (160, f'item replace block {_sweet_cabinet} container.0 with minecraft:air'),
+    (160, f'data merge entity {_kin_staff} {{NoAI:0b}}'),
+    (318, f'tp {sel("kin_window")} {_kin_point(2.5, 3, 22.5)} 90 0'),
+    (320, f'fill {_kin_point(1, 3, 22)} {_kin_point(1, 4, 23)} minecraft:air replace minecraft:glass'),
+    (321, f'execute if block {_kin_point(1, 3, 22)} minecraft:air {_kin_has_stock} {_kin_has_parents} run say MCY_KIN_OPEN_WINDOW_STILL_STOCK'),
+    (324, f'execute positioned {_kin_point(4.5, 3, 22.5)} run yukkuri scenario tool_click {sel("kin_window")} pierce'),
     (485, f'execute if entity {sel("kin_window")} unless data entity {sel("kin_window")} {OWNED}.Owner '
           f'if data entity {sel("kin_window")} YukkuriPet{{TownRoots:1b}} {_kin_has_parents} run say MCY_KIN_STRAY_PARENTS_KEPT'),
 ]

@@ -47,6 +47,10 @@ public final class PunishmentReaction {
         return GlassSight.sees(witness, target) && GlassSight.sees(witness, punisher);
     }
 
+    static boolean decidesAsPlantParent(YukkuriEntity parent, YukkuriEntity child, LivingEntity actor) {
+        return isHuman(actor) && Custody.samePlantStock(parent, child) && ProtectivePuff.parentOf(child, parent);
+    }
+
     public static void human(YukkuriEntity target, LivingEntity punisher, String incident, boolean injured) {
         var mind = target.life().personality();
         double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
@@ -128,14 +132,14 @@ public final class PunishmentReaction {
             // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
             if (LearnedFear.eligible(observer) && !observer.operations().active())
                 LearnedFear.remember(observer, target, punisher, incident);
-            boolean parent = ProtectivePuff.parentOf(target, observer);
             boolean glass = !observer.hasLineOfSight(target) || !observer.hasLineOfSight(punisher);
-            if (parent && isHuman(punisher) && Custody.samePlantStock(observer, target)) {
+            if (decidesAsPlantParent(observer, target, punisher)) {
                 String choice = observer.kinProtection().witnessed(target, punisher, humanInjury);
                 GameplayLog.event(observer, "punishment", "witness victim={} actor={} incident={} response={} glass={}",
                         target.getUUID(), punisher.getUUID(), incident, choice, glass);
                 continue;
             }
+            boolean parent = ProtectivePuff.parentOf(target, observer);
             var mind = observer.life().personality();
             double nerves = .55 * (1 - ramp(mind.boldness(), 25, 75))
                     + .25 * ramp(mind.fear(punisher.getUUID()), 0, 65) + .20 * ramp(observer.mind().unease(), 40, 85);
