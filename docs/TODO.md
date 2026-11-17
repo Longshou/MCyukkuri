@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 台词修复：油库里语言与说话场合（DeepSeek 与用户对话进行） | `.worktrees/wp-dialogue-fix` | art/dialogue, dialogue selection (NativeDialogue, SpeechAddress, counting), lang files |
 | 纸箱单一化与生成消失闭环（13/23） | `.worktrees/wp-carton-closure` | settlement/Shelter*.java art carton model |
 | 偷吃一律驱逐与TN-29饲主反应（15/16） | `.worktrees/wp-theft-expel` | life/StallTheft.java pet/social/BegBite.java human/HumanStreet.java |
 | 受威胁逃回家即封洞（17） | `.worktrees/wp-seal-threat` | settlement/DenSeal.java settlement/DenBarrier.java |
