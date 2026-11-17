@@ -408,11 +408,16 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private ItemEntity groundSheetForCover(BlockPos pos) {
-        if (paperCountAt(pos) <= otherBeddingUsersAt(pos)) return null;
+        return groundSheetForCover(pos, null);
+    }
+
+    private ItemEntity groundSheetForCover(BlockPos pos, UUID source) {
+        if (triedGroundPaper.size() >= 8 || paperCountAt(pos) <= otherBeddingUsersAt(pos)) return null;
         Vec3 mouth = MouthPlacement.position(body);
         AABB reachBox = body.getBoundingBox().inflate(0.55, 0.3, 0.55);
         return level().getEntitiesOfClass(ItemEntity.class, new AABB(pos),
                         item -> item.isAlive() && item.getItem().is(Items.PAPER) && !item.getItem().isEmpty()
+                                && (source == null || source.equals(item.getUUID()))
                                 && !triedGroundPaper.contains(item.getUUID())
                                 && item.getBoundingBox().intersects(reachBox)
                                 && ItemContact.clear(body, mouth, item.position().add(0, 0.06, 0)))
@@ -550,8 +555,10 @@ public final class FoundShelter implements MotorOwner {
                 boolean succeeded = coverAction.draped;
                 coverAction = null;
                 deadline = Math.max(deadline, now() + 20);
-                if (!succeeded && attemptedGround != null && triedGroundPaper.size() < 8)
-                    triedGroundPaper.add(attemptedGround);
+                if (!succeeded) {
+                    if (attemptedGround != null) triedGroundPaper.add(attemptedGround);
+                    else if (holdingPaper()) return beginPlacePaper();
+                }
             }
             if (shelter != null && !facingOut()) SurfaceApproach.face(body, outward());
             if (!checkRest(false)) return exiting() ? Step.ACTIVE : Step.ENDED;
@@ -575,7 +582,7 @@ public final class FoundShelter implements MotorOwner {
                             coverAction = new CoverPaperAction(gap, sheet.getUUID());
                             if (!body.motor().run(this, coverAction)) {
                                 coverAction = null;
-                                if (triedGroundPaper.size() < 8) triedGroundPaper.add(sheet.getUUID());
+                                triedGroundPaper.add(sheet.getUUID());
                             }
                         }
                     }
@@ -1084,7 +1091,7 @@ public final class FoundShelter implements MotorOwner {
         @Override public Feasibility check(YukkuriEntity actor) {
             if (!inGapContact(actor) || !actor.life().paperCover().isEmpty())
                 return Feasibility.of(Reason.NO_CONTACT, 0, "cover_unavailable");
-            if (!holdingPaper() && groundSheetForCover(targetGap) == null)
+            if (groundSource == null ? !holdingPaper() : groundSheetForCover(targetGap, groundSource) == null)
                 return Feasibility.of(Reason.NO_CONTACT, 0, "no_paper");
             return Feasibility.pass();
         }
@@ -1102,13 +1109,14 @@ public final class FoundShelter implements MotorOwner {
             Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
             if (!draped && ticks >= drapeTick) {
                 var mouth = actor.component(YukkuriComponents.MOUTH);
-                if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !mouth.items(MouthOccupancy.Purpose.PAPER).isEmpty()) {
+                if (groundSource == null) {
+                    if (!holdingPaper()) return Outcome.of(Reason.NO_CONTACT, 0, "paper_gone");
                     ItemStack one = mouth.takeOne(MouthOccupancy.Purpose.PAPER);
                     actor.life().setPaperCover(one);
                     GameplayLog.event(actor, "habitat", "paper cover draped source=mouth item={} count=1 at={}",
                             one.getItem(), targetGap);
                 } else {
-                    var sheetEntity = groundSheetForCover(targetGap);
+                    var sheetEntity = groundSheetForCover(targetGap, groundSource);
                     if (sheetEntity == null) return Outcome.of(Reason.NO_CONTACT, 0, "paper_gone");
                     ItemStack ground = sheetEntity.getItem();
                     ItemStack one = ground.split(1);
