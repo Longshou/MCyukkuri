@@ -598,6 +598,13 @@ public final class FoundShelter implements MotorOwner {
                         && samePlainGap(gap, y.blockPosition())).isEmpty();
     }
 
+    private boolean headwearClearsOverhead(Vec3 stand) {
+        double half = body.getBbWidth() * 0.5;
+        var column = new AABB(stand.x - half, stand.y + 1e-4, stand.z - half,
+                stand.x + half, stand.y + HeadTop.height(body) + 0.02, stand.z + half);
+        return !level().getBlockCollisions(body, column).iterator().hasNext();
+    }
+
     private Vec3 flankStandForBaby(YukkuriEntity baby) {
         BlockPos babyCell = baby.blockPosition();
         Direction wallSide = null;
@@ -621,7 +628,7 @@ public final class FoundShelter implements MotorOwner {
             Vec3 stand = SurfaceApproach.floor(body, probe);
             if (stand == null || Math.abs(stand.y - baby.getY()) > 0.18) continue;
             if (!samePlainGap(gap, BlockPos.containing(stand)) || !availableStand(stand)) continue;
-            if (HeadTop.height(body) + 0.02 > PaperCeiling.height(body, stand)) continue;
+            if (!headwearClearsOverhead(stand)) continue;
             Vec3 mouthAtStand = stand.add(0, mouthOffsetY, 0);
             if (level().clip(new ClipContext(mouthAtStand, babyBack,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body)).getType() != HitResult.Type.MISS)
@@ -646,7 +653,7 @@ public final class FoundShelter implements MotorOwner {
             BlockPos adj = babyCell.relative(side);
             Vec3 stand = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(adj));
             if (stand == null || Math.abs(stand.y - baby.getY()) > 0.35 || !availableStand(stand)) continue;
-            if (HeadTop.height(body) + 0.02 > PaperCeiling.height(body, stand)) continue;
+            if (!headwearClearsOverhead(stand)) continue;
             if (level().clip(new ClipContext(stand.add(0, mouthOffsetY, 0), target,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body)).getType() != HitResult.Type.MISS)
                 continue;
