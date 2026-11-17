@@ -44,6 +44,7 @@ public final class DenSeal {
     private boolean done;
     private long nextCheck, lastDrive;
     private BlockPos den;
+    private UUID dangerId;
     private Vec3 clearStand;
     private List<BlockPos> cells = List.of();
     private List<UUID> absent = List.of(), considered = List.of();
@@ -74,8 +75,11 @@ public final class DenSeal {
         nextCheck = y.level().getGameTime() + RETRY;
     }
 
-    public boolean drive(LivingEntity danger) {
-        if (danger == null || !danger.isAlive()) { abort("danger_lost"); return false; }
+    public boolean drive(LivingEntity reported) {
+        // Vanilla forgets the attacker after a while; the work already started still remembers what drove it home.
+        if (reported != null && reported.isAlive()) dangerId = reported.getUUID();
+        var danger = dangerAt();
+        if (danger == null) { abort("danger_lost"); return false; }
         var level = (ServerLevel) y.level();
         long now = level.getGameTime();
         if (active() && (!absent.isEmpty() || now - lastDrive > RECHECK)) abort("interrupted");
@@ -94,6 +98,11 @@ public final class DenSeal {
         }
         if (danger.distanceToSqr(y) > WATCH_SQR) { abort("danger_lost"); return false; }
         return work(level, home, danger);
+    }
+
+    private LivingEntity dangerAt() {
+        return dangerId != null && y.level() instanceof ServerLevel level
+                && level.getEntity(dangerId) instanceof LivingEntity other && other.isAlive() ? other : null;
     }
 
     /** Skill and self-control decide once per danger episode whether the frightened resident does the extra work. */
@@ -213,7 +222,7 @@ public final class DenSeal {
             GameplayLog.limited(y, "threat", "seal_cell", 200, "den seal waiting reason=cell_occupied den={}", home.getBlockPos());
             return false;
         }
-        den = home.getBlockPos().immutable(); cells = plan.cells(); absent = parents;
+        den = home.getBlockPos().immutable(); cells = plan.cells(); absent = parents; dangerId = danger == null ? null : danger.getUUID();
         phase = Phase.WALK; ticks = 0;
         GameplayLog.event(y, "home", "den seal started den={} cells={} twigs={} danger={} absent={}",
                 den, cells, home.branches(), danger == null ? null : danger.getUUID(), absent);
