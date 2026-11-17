@@ -471,11 +471,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         fleeFrom(threat);
     }
     /** A chosen retreat must not be replaced by a species' stand-ground override. */
-    public void fleeFrom(YukkuriEntity threat) {
+    public void fleeFrom(LivingEntity threat) {
         if(level().isClientSide||!isAlive()||hurtCrying())return;
         interrupt(Interrupt.FRIGHT);
         setLastHurtByMob(threat);panicTicks=100;
-        if (threat.profile().dangerToYukkuri()) mind.feeling().frightened(1);
+        if (threat instanceof YukkuriEntity y && y.profile().dangerToYukkuri()) mind.feeling().frightened(1);
         life.involuntaryRelease("fright", false);
     }
     /** Actual bullying shares the same numeric choice as a peer's accepted attack. */
@@ -877,6 +877,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         reactionAction = null;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(reactionEvent);
+    }
+    public void forceReaction(YukkuriAction action, String expression, String dialogue) {
+        forceReaction(expression, dialogue, action.durationTicks());
+        reactionAction = action;
     }
     /** The same reaction, held for all its ticks: any reaction but pain or danger shown meanwhile is dropped, so the face cannot
      *  flip back and forth. */

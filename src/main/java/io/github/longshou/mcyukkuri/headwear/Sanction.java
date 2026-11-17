@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.headwear;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -246,7 +247,7 @@ public final class Sanction extends Goal {
     private void act(ServerLevel level) {
         acts++;
         var relations = YukkuriWorldData.get(level);
-        relations.relate(target.getUUID(), entity.getUUID(), -5);
+        target.life().personality().relationshipChanged(entity.getUUID(), -5, 0);
         relations.relate(entity.getUUID(), target.getUUID(), -2);
         if (acts >= ACTS) { driveOff(); return; }
         String what;
@@ -276,11 +277,13 @@ public final class Sanction extends Goal {
             target.hurtMarked = true;
             what = "push";
         }
-        Contempt.suffer(target, entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60, 1, "bullied", false);
+        if (target.isAlive()) target.mind().add(1, "bullied");
         GameplayLog.event(entity, "sanction", "act={} target={} reason={} step={}/{} health={} -> {} transferred={}",
                 what, target.getUUID(), reason, acts, ACTS, healthBefore, target.getHealth(), transferred);
         // An accepted bite already decided through YukkuriDamage; pushes and real theft need the same handoff.
         if (target.isAlive() && !damageAccepted && (transferred || what.equals("push"))) target.respondToBullying(entity);
+        if (!what.equals("snatch_failed") && target.isAlive() && !target.body().dying())
+            PunishmentReaction.peer(target, entity, what, what.equals("bite"));
         if (!target.isAlive()) finish(false);
     }
     /** Biting stops once the accused is badly hurt: the sanction stays bullying. */
@@ -295,7 +298,8 @@ public final class Sanction extends Goal {
     private void driveOff() {
         entity.showReaction("angry", "settlement_drive", 80);
         boolean resisted = target.respondToBullying(entity);
-        Contempt.suffer(target, "teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100, 3, "drive_off_attempt", false);
+        target.mind().add(3, "drive_off_attempt");
+        PunishmentReaction.peer(target, entity, "drive_off", false);
         GameplayLog.event(entity, "sanction", "drive off attempted target={} response={}", target.getUUID(), resisted ? "counterattack" : "flee");
         finish(!resisted);
     }

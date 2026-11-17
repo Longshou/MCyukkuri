@@ -175,7 +175,7 @@ public final class YukkuriComponents {
                 .goal(2, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (c, entity) -> c.carry().setDownGoal())
                 .interrupt(Interrupt.HURT, InterruptPhase.BEFORE_INJURY, 15, (c, ctx) -> c.interruptCourtship())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 25, (c, ctx) -> c.interruptCourtship())
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died()).build(),
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died(ctx.source())).build(),
         ComponentSpec.ready(CHILDHOOD, YukkuriEntity::childhood)
                 .tick(100, ChildhoodLife::tick)
                 .save(170, (c, tag) -> tag.put("YukkuriChildhood", c.save()))

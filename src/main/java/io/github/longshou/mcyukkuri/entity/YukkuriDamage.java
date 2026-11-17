@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -82,8 +83,11 @@ final class YukkuriDamage {
                 owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             }
             var result=settle(transaction,accepted);
+            boolean humanPunisher=PunishmentReaction.isHuman(source.getEntity());
+            boolean sanctionBite=kind==BodyHit.Kind.BITE_WOUND && source.getEntity() instanceof YukkuriEntity peer
+                    && peer.sanction().target()==owner;
             if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&kind!=BodyHit.Kind.ATTACHMENT
-                    &&source.getEntity() instanceof LivingEntity attacker)
+                    &&!humanPunisher&&!sanctionBite&&source.getEntity() instanceof LivingEntity attacker)
                 LearnedFear.witnessed(owner,attacker,"hurt");
             if(result.loss()>0&&YukkuriLife.isWaterDamage(source))
                 GameplayLog.event(owner,"water","damage cause={} health={} -> {} loss={}",
@@ -106,15 +110,15 @@ final class YukkuriDamage {
                 // One draw per accepted hit on a carrying parent: it may shake one young loose (ParentCarry#struck).
                 owner.family().carry().struck(result.loss());
                 // One draw per real attack: the victim's own protective puff and each of its parents' (ProtectivePuff).
-                boolean puffing = kind != BodyHit.Kind.BOUT && ProtectivePuff.witnessedHit(owner, source.getEntity());
+                boolean puffing = kind != BodyHit.Kind.BOUT && !humanPunisher && ProtectivePuff.witnessedHit(owner, source.getEntity());
                 if(kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof YukkuriEntity attacker)
                     GroupInteractionGoal.witnessedAttack(owner,attacker);
                 owner.operations().damaged(source);
                 owner.settlement().attackedBy(source,false);
                 if(source.getEntity() instanceof Player attackerPlayer)HomeClaim.attacked(owner,attackerPlayer);
                 owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
-                if(kind!=BodyHit.Kind.BOUT)owner.life().personality().attacked(
-                        source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
+                if(kind!=BodyHit.Kind.BOUT&&!humanPunisher)
+                    owner.life().personality().hurt(source.getEntity()==null?null:source.getEntity().getUUID());
                 if(!owner.body().dying()) {
                     boolean peerConflict = kind != BodyHit.Kind.BOUT && source.getEntity() instanceof YukkuriEntity attacker
                             && owner.getVariant() != YukkuriVariant.MYON && !owner.profile().dangerToYukkuri()
@@ -137,6 +141,10 @@ final class YukkuriDamage {
                     else owner.setAnimation(YukkuriAction.STARTLE,true);
                 }
             }
+            // Inserted tools choose after the operation has either bound the wound or left it open.
+            if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&kind!=BodyHit.Kind.ATTACHMENT
+                    &&humanPunisher&&source.getEntity() instanceof LivingEntity punisher)
+                PunishmentReaction.human(owner,punisher,"hurt",true);
             return result;
         } finally {
             current=previous;

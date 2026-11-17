@@ -448,6 +448,15 @@ def build_pack(world):
             # Manual /function diagnostics keep the original anchor and executing player.
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax}.0 {FEET} {az}.0 run yukkuri readout {command}'])
 
+    # Run the same two-click comparison with the player standing on the front ledge.
+    sanction = next(s for s in museum_scenarios.S if s.id == 'punishment')
+    sx, sz = sanction.anchor
+    fn('extra/punishment_hit', [
+        f'execute positioned {sx + .5} {FEET + 1} {sz - .5} unless entity @s[type=minecraft:player,distance=..1] run return 0',
+        *museum_scenarios._punishment_press,
+        'tellraw @s ' + museum_scenarios._punishment_click,
+    ])
+
     # extras: the house activity buttons and clips
     house = BY_ID['house']
     hx, hz = house.anchor

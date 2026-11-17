@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
@@ -54,6 +55,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -1729,7 +1732,7 @@ public final class FamilyLife {
         if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;taskTicks=0;feeding.reset();
         wait=Math.max(wait,40);
     }
-    public void died() {
+    public void died(DamageSource source) {
         feeding.died();
         var data=FamilyData.get(level());data.died(entity);
         // Pending unborn reservations are cancelled above; completed births and detached stems
@@ -1741,7 +1744,9 @@ public final class FamilyLife {
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.BIRTH_LOSS,entity.getUUID(),entity.blockPosition());
             } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other)
                     || entity.getUUID().equals(other.family().fosterParent()) && other.family().orphaned())
-                    &&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
+                    &&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)
+                    &&(other.hasLineOfSight(entity) || PunishmentReaction.isHuman(source.getEntity())
+                        && source.getEntity() instanceof LivingEntity punisher && PunishmentReaction.sees(other, entity, punisher))) {
                 // Kin and the mate who see it die grieve where they stand (no walk to the body).
                 other.family().absence().witness(entity.getUUID(),entity.blockPosition());
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH,entity.getUUID(),entity.blockPosition());

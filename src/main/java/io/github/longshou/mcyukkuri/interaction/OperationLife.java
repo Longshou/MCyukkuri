@@ -28,6 +28,7 @@ import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -141,11 +142,16 @@ public final class OperationLife {
             default -> throw new IllegalArgumentException(action.name());
         };
         if (done) {
-            if (action.tool.inserted) LearnedFear.witnessed(entity, actor, action.key());
             finishContact(actor, action);
             if (!action.tool.inserted) stack.hurtAndBreak(1, actor, EquipmentSlot.MAINHAND);
-            if (action == CareAction.PIERCE) entity.forceReaction("pin_cry", "", 60);
-            if (action == CareAction.BURN) entity.forceReaction("endure", "", 60);
+            switch (action) {
+                case FIX_SUPINE, WRAP_HANG, VIBRATE, ENCLOSE -> {
+                    if (pose == Pose.FIXED || pose == Pose.BOX && !calmInBox())
+                        entity.mind().felt(EmotionEvent.FRIGHTENED);
+                    PunishmentReaction.human(entity, actor, action.key(), false);
+                }
+                default -> {} // Accepted strikes and punctures commit through their damage paths.
+            }
             GameplayLog.event(entity, "interaction",
                     "tool used; actor={} action={} item={} hand_count={} -> {} damage={} -> {} health={} -> {} pose={}",
                     actor.getUUID(), action, item, count, stack.getCount(), damage, stack.getDamageValue(), health, entity.getHealth(), pose);
@@ -258,6 +264,7 @@ public final class OperationLife {
     }
     private boolean punctureAndBind(LivingEntity actor,Pose next,int duration,Tool tool,BlockPos support){
         if(next==Pose.HOOK&&support==null)return false;
+        float before = entity.getHealth();
         BodyWound wound;
         ownDamage=true;settlingShape=WoundShape.PUNCTURE;strikingHook=next==Pose.HOOK;
         try {
@@ -265,10 +272,10 @@ public final class OperationLife {
         } finally {
             ownDamage=false;settlingShape=WoundShape.NONE;strikingHook=false;
         }
-        if(wound==null)return false;
-        if(!entity.body().dying()&&begin(actor,next,duration,tool,support,wound))return true;
-        LearnedFear.witnessed(entity,actor,"hurt");
-        return false;
+        boolean bound = wound != null && !entity.body().dying() && begin(actor,next,duration,tool,support,wound);
+        if (entity.getHealth() < before)
+            PunishmentReaction.human(entity, actor, bound ? CareAction.forTool(tool).key() : "hurt", true);
+        return bound;
     }
     private boolean begin(LivingEntity actor,Pose next,int duration,Tool binding){
         return begin(actor,next,duration,binding,null,null);
@@ -323,7 +330,11 @@ public final class OperationLife {
             return;
         }
         elapsed++;
-        if (elapsed == 1 || pose == Pose.BOX && elapsed % BOX_BEAT == 0) bindingReaction();
+        if (pose == Pose.BOX && elapsed % BOX_BEAT == 0) {
+            boolean calm = calmInBox();
+            if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
+            entity.forceReaction(calm ? "sleepy" : "horrified", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
+        }
         if(pose==Pose.ASSIST){
             if(actor.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
                     ||!entity.family().readyForAssistance()){end();return;}
@@ -378,27 +389,6 @@ public final class OperationLife {
         last=entity.position();entity.syncOperation(pose.name(),pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN?elapsed/20f:turn);
     }
 
-    private void bindingReaction() {
-        switch (pose) {
-            case PIN -> entity.forceReaction("pin_cry", "", remaining);
-            case FIXED -> {
-                entity.mind().felt(EmotionEvent.FRIGHTENED);
-                entity.forceReaction("pressed_cry", "", remaining);
-            }
-            case WRAPPED -> {
-                if (entity.life().nutrition() < SLING_HUNGER) entity.forceReaction("teary", "", remaining);
-                else entity.showReaction("closed_smile", "airborne", remaining);
-            }
-            case HOOK -> entity.forceReaction("horrified", "", remaining);
-            case VIBRATE -> entity.showReaction("flushed_smile", "", ROTOR_PLEA);
-            case BOX -> {
-                boolean calm = calmInBox();
-                if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
-                entity.forceReaction(calm ? "sleepy" : "horrified", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
-            }
-            default -> {}
-        }
-    }
     /** A bold one that does not fear this operator and is not already uneasy dozes in the box instead of panicking. */
     public boolean calmInBox() {
         var personality = entity.life().personality();

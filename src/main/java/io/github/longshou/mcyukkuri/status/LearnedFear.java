@@ -20,7 +20,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Witnesses write to the normal directed relation. Retreat is a short use of ordinary ground movement. */
 public final class LearnedFear {
-    private static final int WITNESS_RANGE = 8, WITNESS_INTERVAL = 200;
+    static final int WITNESS_RANGE = 8;
+    private static final int WITNESS_INTERVAL = 200;
     private static final int FIRE_RANGE = 3;
     private static final int WARNING_TICKS = 20;
     private static final int RETREAT_BUDGET = 120;
@@ -37,24 +38,27 @@ public final class LearnedFear {
 
     public static void witnessed(YukkuriEntity victim, LivingEntity holder, String incident) {
         if (victim.level().isClientSide || holder==victim) return;
-        long now = victim.level().getGameTime();
         for (var witness : victim.level().getEntitiesOfClass(YukkuriEntity.class, victim.getBoundingBox().inflate(WITNESS_RANGE),
                 body -> body!=victim && body!=holder && eligible(body) && !body.operations().active()
                         && body.distanceToSqr(victim)<=WITNESS_RANGE*WITNESS_RANGE
                         && body.hasLineOfSight(victim) && body.hasLineOfSight(holder))) {
-            var personality = witness.life().personality();
-            var before = personality.relation(holder.getUUID());
-            // A recent directed contact already anchors this memory, including another sighting of the same holder.
-            if (before.fear()>0 && now-before.lastInteraction()<WITNESS_INTERVAL) continue;
-            int gain = 6+Math.round(9*(100-personality.boldness())/100f);
-            if (!witness.family().adult()) gain = (gain+1)/2;
-            personality.relationshipChanged(holder.getUUID(),0,gain);
-            int after = personality.fear(holder.getUUID());
-            if (after==before.fear()) continue;
-            witness.showReaction("afraid","afraid",60);
-            GameplayLog.event(witness,"threat","fear learned holder={} victim={} incident={} fear={} -> {}",
-                    holder.getUUID(),victim.getUUID(),incident,before.fear(),after);
+            if (remember(witness, victim, holder, incident)) witness.showReaction("afraid","afraid",60);
         }
+    }
+
+    static boolean remember(YukkuriEntity witness, YukkuriEntity victim, LivingEntity holder, String incident) {
+        var personality = witness.life().personality();
+        var before = personality.relation(holder.getUUID());
+        // A recent directed contact already anchors this memory, including another sighting of the same holder.
+        if (before.fear()>0 && victim.level().getGameTime()-before.lastInteraction()<WITNESS_INTERVAL) return false;
+        int gain = 6+Math.round(9*(100-personality.boldness())/100f);
+        if (!witness.family().adult()) gain = (gain+1)/2;
+        personality.relationshipChanged(holder.getUUID(),0,gain);
+        int after = personality.fear(holder.getUUID());
+        if (after==before.fear()) return false;
+        GameplayLog.event(witness,"threat","fear learned holder={} victim={} incident={} fear={} -> {}",
+                holder.getUUID(),victim.getUUID(),incident,before.fear(),after);
+        return true;
     }
 
     public static boolean waryOf(YukkuriEntity body, Entity holder) {

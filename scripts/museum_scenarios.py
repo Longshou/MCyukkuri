@@ -2730,6 +2730,39 @@ add('wound_sources','body','用真实武器和环境造成伤','用真实武器�
     reads=[(f'读{label}',f'yukkuri status {sel(name)} raw') for name,_,_,label in _source_cases]
         + [('读真实咬伤',f'yukkuri status {sel("bite_target")} raw'),('读捕食交接',f'yukkuri status {sel("bite_hunter")} raw')])
 
+_punishment_scene = 'punishment'
+_punishment_targets = (('a3_freeze', 0, '胆小·僵住', 30, 57, 49),
+                       ('a3_plead', 2, '惊慌·哭求', 25, 30, 83),
+                       ('a3_defy', -2, '胆大·顶嘴', 80, 68, 0))
+_punishment_press = [
+    f'damage {sel(name)} 1 minecraft:player_attack by @s'
+    for name, *_ in _punishment_targets
+]
+_punishment_click = json.dumps({'text': '[各打一下／再次施罚]', 'color': 'gold',
+                               'clickEvent': {'action': 'run_command', 'value': '/function mcylab:extra/punishment_hit'}},
+                              ensure_ascii=False)
+add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制裁反馈：顶嘴、僵住、哭求',
+    '站在前排玻璃台中央，点击聊天里的“各打一下／再次施罚”，或走到各格前亲手用锥子。三只同受一击，看初次回嘴、噤声和哭求；后排隔一层玻璃的三只缩脸、僵住或转向亲属，隔两层的对照看不见。',
+    '等约两秒后再点同一按钮，看刚才还顶嘴的个体对同一玩家改为戒备；清场重开才重置关系', [
+        box(-3, 0, -1, 3, 0, -1, 'minecraft:glass'),
+        *[box(x, 0, 0, x, 0, 4, 'minecraft:polished_andesite') for x in (-3, -1, 1, 3)],
+        *[block(x, 0, 1, 'minecraft:glass_pane[east=true,west=true]') for x in (-2, 0, 2)],
+        *[block(x, 0, 3, 'minecraft:glass_pane[east=true,west=true]') for x in (-2, 0, 2)],
+        block(0, 0, 5, 'minecraft:glass'),
+        *[yk('reimu', x, 0, name, label=label, boldness=bold, self_control=control, friendliness=15 if x == -2 else 65,
+             kin=kin_of(Mother=uid(_punishment_scene, 'a3_kin')) if x == -2 else '',
+             lead=x == 0, uuid=uid(_punishment_scene, name))
+          for name, x, label, bold, control, _ in _punishment_targets],
+        yk('reimu', 2, 2, 'a3_shrink', label='旁观·缩脸', boldness=25, self_control=30, uuid=uid(_punishment_scene, 'a3_shrink')),
+        yk('reimu', 0, 2, 'a3_still', label='旁观·噤声', boldness=45, self_control=80, uuid=uid(_punishment_scene, 'a3_still')),
+        yk('reimu', -2, 2, 'a3_kin', label='旁观·看向孩子', boldness=30, attachment=80, uuid=uid(_punishment_scene, 'a3_kin')),
+        yk('reimu', 0, 4, 'a3_screened', label='两层玻璃·对照', uuid=uid(_punishment_scene, 'a3_screened')),
+        *[set_status(name, 'mood.unease', unease) for name, _, _, _, _, unease in _punishment_targets],
+        set_status('a3_plead', 'health.health', 8),
+        f'tellraw @s {_punishment_click}'],
+    env=DAY, vantage=(0, -1, 0, 38), give=['mcyukkuri:care_awl', 'mcyukkuri:orange_juice 3'],
+    reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, label, *_ in _punishment_targets])
+
 add('wound_leak', 'body', '伤口漏馅，橙汁止漏', '伤口漏馅，橙汁止漏',
     '五只灵梦：1／2／3级裂口、多处三级裂口、血3且三级大裂口露核；每10秒漏血0／0.5／1／1／1。绕行看大伤口普通馅与唯一中枢创腔，橙汁闭伤补血止漏并原位留疤，面粉糊只去疤；露核者真实漏血可致死，及时治疗',
     '先等 10 秒读血量，再用橙汁；随后再等 10 秒确认止漏', [
@@ -5000,7 +5033,7 @@ TOPICS = {
     'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
-    'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
@@ -5500,6 +5533,37 @@ next(s for s in S if s.id == 'wound_sources').smoke['readout'] = [
 ]
 
 _fear_holder = '2d4c7192-2a6d-4da4-9f94-c82721b9de87'
+_punishment_victim = r'\[punishment\][^\n]* uuid={uuid} [^\n]* victim actor={actor} incident=hurt response='
+_punishment_witness = r'\[punishment\][^\n]* uuid={uuid} [^\n]* witness victim={victim} actor={actor} incident=hurt response={response} glass=true'
+_smoke(_punishment_scene, 190, [
+    _punishment_victim.format(uuid=_uuid_text(_punishment_scene, name), actor=_fear_holder) + response
+    for name, response in (('a3_defy', 'DEFIANT'), ('a3_freeze', 'FREEZE'), ('a3_plead', 'PLEAD'))
+], forbid=[rf'\[punishment\][^\n]* uuid={_uuid_text(_punishment_scene, "a3_screened")} '])
+_punishment_smoke = next(s for s in S if s.id == _punishment_scene).smoke
+_punishment_smoke['commands'] = [
+    (44, 'execute positioned ~0.5 ~1 ~-0.5 run yukkuri scenario tool_operator enter'),
+    (46, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
+    (90, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
+    (145, 'yukkuri scenario tool_operator leave'),
+]
+
+def _verify_punishment(window):
+    for victim in ('a3_freeze', 'a3_plead', 'a3_defy'):
+        hits = re.findall(_punishment_victim.format(uuid=_uuid_text(_punishment_scene, victim), actor=_fear_holder)
+                          + r'(\w+) fear=(\d+) -> (\d+)', window)
+        if len(hits) != 2 or int(hits[0][2]) == 0 or int(hits[1][1]) != int(hits[0][2]) or int(hits[1][2]) <= int(hits[1][1]):
+            return f'{victim} must remember exactly two accepted blows from the same player: {hits}'
+        if victim == 'a3_defy' and (hits[0][0] != 'DEFIANT' or hits[1][0] == 'DEFIANT'):
+            return f'{victim} must start defiant and become cautious: {hits}'
+    for observer, victim, choice in (('a3_shrink', 'a3_plead', 'SHRINK'), ('a3_still', 'a3_freeze', 'FREEZE'),
+                                     ('a3_kin', 'a3_defy', 'TURN_TO_KIN')):
+        pattern = _punishment_witness.format(uuid=_uuid_text(_punishment_scene, observer),
+                                             victim=_uuid_text(_punishment_scene, victim), actor=_fear_holder, response=choice)
+        if len(re.findall(pattern, window)) != 2:
+            return f'{observer} must show {choice} through glass on both blows'
+
+_punishment_smoke['verify'] = _verify_punishment
+
 _smoke('learned_holder', 500, [
     rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=vibrate fear=0 -> 15',
     rf'\[threat\][^\n]* uuid={_uuid_text("learned_holder","witness")} [^\n]* fear learned holder={_fear_holder} [^\n]*incident=vibrate fear=15 -> 30',
