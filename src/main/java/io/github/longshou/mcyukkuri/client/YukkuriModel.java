@@ -504,7 +504,7 @@ public final class YukkuriModel {
     PaperTent.Grid takePaperTent() {
         var grid = paperTentGrid;
         paperTentGrid = null;
-        return grid != null ? grid : buildPaperTent(null, true, 0, null);
+        return grid;
     }
     /** Wear bits (YukkuriView.visibleWear) of the body being drawn, set by the renderer until renderLiving ends. */
     private int wear;
@@ -701,7 +701,7 @@ public final class YukkuriModel {
 
     private PaperTent.Grid buildPaperTent(PoseStack stack, boolean showHat, int hairLoss, JunkHeadwear junk) {
         tentBodyLen = tentMeshLen = tentHatLen = 0;
-        boolean hasWall = wallClearance != null && stack != null;
+        boolean hasWall = wallClearance != null;
         Matrix4f toWall = hasWall ? wallClearance.frame(stack.last().pose(), new Matrix4f()).scale(16f) : null;
         Matrix4f fromWall = hasWall ? new Matrix4f(toWall).invert() : null;
         var pt = new Vector3f();
@@ -753,7 +753,8 @@ public final class YukkuriModel {
             }
         }
         return PaperTent.build(tentBodyBuf, tentBodyLen, tentMeshBuf, tentMeshLen, tentHatBuf, tentHatLen,
-                hasWall ? wallClearance.faces() : null, toWall);
+                hasWall ? wallClearance.faces() : null, toWall,
+                hasWall ? wallClearance.paperCeiling() : Double.POSITIVE_INFINITY);
     }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
     public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }

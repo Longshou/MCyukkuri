@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -33,6 +34,7 @@ public final class MouthOccupancy {
     private boolean reconcileExternal;
     private boolean reconcileOnTick;
     private BlockPos refusedAt;
+    private BlockPos paperDropRefusedAt;
 
     public MouthOccupancy(YukkuriEntity owner) { this.owner = owner; }
 
@@ -125,7 +127,10 @@ public final class MouthOccupancy {
     }
 
     public void clear(Purpose purpose) {
-        if (purpose() == purpose) held.consume();
+        if (purpose() == purpose) {
+            held.consume();
+            if (purpose == Purpose.PAPER) paperDropRefusedAt = null;
+        }
     }
 
     public boolean acquireMeal(ItemStack stack) {
@@ -175,13 +180,23 @@ public final class MouthOccupancy {
     public boolean releaseItems(Purpose purpose, int delay) {
         while (!items(purpose).isEmpty()) {
             var stack = stack(purpose);
-            var dropped = ItemContact.releaseSupported(owner, stack, delay);
+            var dropped = purpose == Purpose.PAPER ? releasePaperAtFeet(stack, delay) : ItemContact.releaseSupported(owner, stack, delay);
             if (dropped == null) return false;
             takeFirst(purpose);
             GameplayLog.event(owner, "body", "mouth drop item={} count={} purpose={} drop={}", stack.getItem(),
                     stack.getCount(), purpose, dropped.getUUID());
         }
         return true;
+    }
+
+    /** A failed bedding placement gives up at the body's actual support, away from the mouth placement point. */
+    private ItemEntity releasePaperAtFeet(ItemStack stack, int delay) {
+        if (!owner.onGround() || owner.blockPosition().equals(paperDropRefusedAt)) return null;
+        Vec3 at = owner.position().add(0, .02, 0);
+        var drop = ItemContact.hasReleaseSupport(owner, at) ? ItemContact.release(owner, stack, at, Vec3.ZERO) : null;
+        if (drop == null) paperDropRefusedAt = owner.blockPosition();
+        else drop.setPickUpDelay(delay);
+        return drop;
     }
 
     public void importItems(Purpose purpose, List<ItemStack> items) {
@@ -223,6 +238,7 @@ public final class MouthOccupancy {
         importing = !root.contains("YukkuriMouth", Tag.TAG_COMPOUND);
         reconcileOnTick = true;
         refusedAt = null;
+        paperDropRefusedAt = null;
         held.restore(null);
         displaced.clear();
         var tag = root.getCompound("YukkuriMouth");

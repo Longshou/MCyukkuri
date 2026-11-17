@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.longshou.mcyukkuri.body.PaperCeiling;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
@@ -23,18 +24,20 @@ final class WallClearance {
     private static int boxCount;
 
     private final List<WallYield.Face> faces;
+    private final double paperCeiling;
     private final float originX, originY, originZ;
     private VertexConsumer lastSource;
     private Tuck lastTuck;
 
-    private WallClearance(List<WallYield.Face> faces, Matrix4f origin) {
+    private WallClearance(List<WallYield.Face> faces, Matrix4f origin, double paperCeiling) {
         this.faces = faces;
+        this.paperCeiling = paperCeiling;
         originX = origin.m30();
         originY = origin.m31();
         originZ = origin.m32();
     }
 
-    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, float partial, Matrix4f origin) {
+    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, float partial, Matrix4f origin, boolean paper) {
         YukkuriView entity = source;
         double scale = entity.getScale() * entity.growthScale();
         // Rest bounds plus room for the animated swing, lean and bounce.
@@ -58,6 +61,7 @@ final class WallClearance {
         reach += motion;
         var feet = new Vec3(Mth.lerp(partial, source.xOld, source.getX()), Mth.lerp(partial, source.yOld, source.getY()),
                 Mth.lerp(partial, source.zOld, source.getZ()));
+        double paperCeiling = paper ? PaperCeiling.height(source, feet) : Double.POSITIVE_INFINITY;
         var sweep = new AABB(-reach, 0, -reach, reach, top + motion, reach).move(feet);
         double bodyTop = feet.y + source.getBbHeight();
         boxCount = 0;
@@ -70,7 +74,7 @@ final class WallClearance {
                 boxes[boxCount++] = maxX; boxes[boxCount++] = maxY; boxes[boxCount++] = maxZ;
             });
         }
-        if (boxCount == 0) return null;
+        if (boxCount == 0 && !Double.isFinite(paperCeiling)) return null;
         var faces = new ArrayList<WallYield.Face>(boxCount / 6);
         for (int i = 0; i < boxCount; i += 6) {
             double minX = boxes[i], minY = boxes[i + 1], minZ = boxes[i + 2];
@@ -85,7 +89,7 @@ final class WallClearance {
             faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
                     (float)(minY - feet.y), (float)(maxY - feet.y)));
         }
-        return faces.isEmpty() ? null : new WallClearance(faces, origin);
+        return faces.isEmpty() && !Double.isFinite(paperCeiling) ? null : new WallClearance(faces, origin, paperCeiling);
     }
 
     private static boolean wallBelow(double x, double z, double bodyTop) {
@@ -96,6 +100,7 @@ final class WallClearance {
     }
 
     List<WallYield.Face> faces() { return faces; }
+    double paperCeiling() { return paperCeiling; }
     /** Posed model units under {@code pose} to the faces' frame: blocks from the body axis, above the feet. */
     Matrix4f frame(Matrix4f pose, Matrix4f target) { return target.translation(-originX, -originY, -originZ).mul(pose).scale(1 / 16f); }
 

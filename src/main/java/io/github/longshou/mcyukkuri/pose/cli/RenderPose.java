@@ -160,7 +160,7 @@ final class RenderPose implements Overlays.Contact {
         var out=new JsonObject();out.add("vertices",OfflineModel.array(output));
         if(wantPaper){
             var grid=PaperTent.build(floatsOf(pBody),pBody.size(),floatsOf(pMesh),pMesh.size(),floatsOf(pHat),pHat.size(),
-                    yield?faces:List.of(),yield&&!faces.isEmpty()?localToWall:null);
+                    yield?faces:List.of(),yield&&!faces.isEmpty()?localToWall:null,Double.POSITIVE_INFINITY);
             if(grid!=null){
                 out.add("paper_top",OfflineModel.array(sheetTris(grid.top(),grid.rows(),grid.cols(),false,turn)));
                 out.add("paper_under",OfflineModel.array(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn)));

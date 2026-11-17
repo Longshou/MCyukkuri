@@ -77,6 +77,11 @@ class PaperTentTest {
 
     private static void verifyPose(Loaded m, String clipName, float time, float scale, boolean accessory,
                                    List<WallYield.Face> wallFaces) {
+        verifyPose(m, clipName, time, scale, accessory, wallFaces, Double.POSITIVE_INFINITY, true);
+    }
+
+    private static void verifyPose(Loaded m, String clipName, float time, float scale, boolean accessory,
+                                   List<WallYield.Face> wallFaces, double ceiling, boolean fits) {
         float[][] pose = Rig.values(m.bones.length);
         for (int i = 0; i < pose.length; i++) System.arraycopy(m.defaults[i], 0, pose[i], 0, 9);
         Clips.Clip clip = m.clips.getOrDefault(clipName, m.clips.get("idle"));
@@ -98,7 +103,7 @@ class PaperTentTest {
 
         Vector3f scratch = new Vector3f();
         WallYield yield = null;
-        Matrix4f toWall = wallFaces.isEmpty() ? null : new Matrix4f();
+        Matrix4f toWall = !wallFaces.isEmpty() || Double.isFinite(ceiling) ? new Matrix4f() : null;
         Matrix4f fromWall = wallFaces.isEmpty() ? null : new Matrix4f();
         if (!wallFaces.isEmpty()) {
             yield = WallYield.of(m.bones, m.bindings, m.rest, names, starts, counts);
@@ -135,7 +140,12 @@ class PaperTentTest {
             }
         }
         float[] bodyArr = toArray(bodyList), skinArr = toArray(skinOnlyList), meshArr = toArray(meshList), hatArr = toArray(hatList);
-        PaperTent.Grid grid = PaperTent.build(bodyArr, bodyArr.length, meshArr, meshArr.length, hatArr, hatArr.length, wallFaces, toWall);
+        PaperTent.Grid grid = PaperTent.build(bodyArr, bodyArr.length, meshArr, meshArr.length, hatArr, hatArr.length,
+                wallFaces, toWall, ceiling);
+        if (!fits) {
+            assertNull(grid, m.id + " must keep bedding where the crown reaches the roof");
+            return;
+        }
         assertNotNull(grid, "PaperTent returned null for " + m.id);
 
         String ctx = m.id + "/" + clipName + "@" + time + "s scale=" + scale + " acc=" + accessory + " walls=" + wallFaces.size();
@@ -153,6 +163,8 @@ class PaperTentTest {
             assertClear(ctx + " [under vs hat]", tentUnder, hatMesh);
             assertClear(ctx + " [top vs hat]", tentTop, hatMesh);
         }
+        for (var row : grid.top()) for (var p : row)
+            assertTrue(p[1] < ceiling, ctx + " crossed the ceiling at " + p[1]);
 
         for (var face : wallFaces) {
             float wallPlane = face.distance() + 4f / 4096f;
@@ -234,5 +246,16 @@ class PaperTentTest {
                 new WallYield.Face(1f, 0f, .45f, 0f, 1.25f), new WallYield.Face(0f, 1f, .42f, 0f, 1.25f)));
         verifyPose(reimu, "cold_shiver", 0.6f, 1f, true, List.of(new WallYield.Face(0f, 1f, .42f, 0f, 1.25f)));
         verifyPose(reimu, "cold_shiver", 0.6f, 1f, true, List.of(new WallYield.Face(1f, 0f, .45f, 0f, 1.25f)));
+    }
+
+    @Test void adultPaperTentFitsUnderOneBlockCeilingOrDeclinesWhenTooLow() throws IOException {
+        JsonObject fit = readResource("/assets/mcyukkuri/yukkuri_presentation/placement_fit.json");
+        JsonObject motions = readResource("/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json");
+        JsonObject living = readResource("/assets/mcyukkuri/yukkuri_presentation/living.json");
+        for (String id : List.of("reimu", "patchouli")) {
+            Loaded model = loadModel(id, fit, motions, living);
+            verifyPose(model, "cold_shiver", .6f, 1f, true, List.of(), 1, true);
+            verifyPose(model, "cold_shiver", .6f, 1f, true, List.of(), .75, false);
+        }
     }
 }

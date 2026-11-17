@@ -19,8 +19,19 @@ public final class PaperTent {
     private static final float[] BARY_V = {
             0f, 0f, 1f, 0f, .5f, .5f, 0f, 0f, .75f, .25f, .25f, .75f, 1f / 3f, .2f, .2f, .6f
     };
+    private static final double CEILING_GAP = .015;
 
     private PaperTent() {}
+
+    public static boolean fitsBelow(double bodyHeight, double headHeight, double ceiling) {
+        // Reserve the rise of the compact crown during the drape and shiver poses. A high crown uses a shawl below the brim.
+        double coveredHeight = tallCrown(headHeight, bodyHeight) ? bodyHeight : headHeight + .13 * bodyHeight;
+        return coveredHeight + 2 * CEILING_GAP < ceiling;
+    }
+
+    private static boolean tallCrown(double headHeight, double bodyHeight) {
+        return headHeight > 1.52 * bodyHeight;
+    }
 
     /**
      * Fit one folded newspaper sheet over the posed mesh.
@@ -29,13 +40,14 @@ public final class PaperTent {
      * @param meshTris   posed non-headwear triangles ({@code body + hair + braid}, 9 floats per triangle; {@code meshLen} valid)
      * @param hatTris    posed headwear triangles (skinned accessories + prop/junk hats, 9 floats per triangle; {@code hatLen} valid)
      * @param wallFaces  nearby collision faces in block units (null or empty when none)
-     * @param toWall     transforms caller units to {@code wallFaces}' block frame (null when {@code wallFaces} is empty)
+     * @param toWall     transforms caller units to the collision frame when walls or a ceiling are present
+     * @param ceiling    lowest overhead collision in that frame, in blocks
      */
     public static Grid build(float[] bodyVerts, int bodyLen,
                              float[] meshTris, int meshLen,
                              float[] hatTris, int hatLen,
                              List<WallYield.Face> wallFaces,
-                             Matrix4f toWall) {
+                             Matrix4f toWall, double ceiling) {
         if (bodyLen < 9) return null;
         float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
         float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
@@ -55,7 +67,7 @@ public final class PaperTent {
 
         float maxHatY = -Float.MAX_VALUE;
         for (int i = 1; i < hatLen; i += 3) if (hatTris[i] > maxHatY) maxHatY = hatTris[i];
-        boolean tallHat = hatLen >= 9 && (maxHatY - minY) > 1.52f * bodyH;
+        boolean tallHat = hatLen >= 9 && tallCrown(maxHatY - minY, bodyH);
 
         Grid grid = tallHat
                 ? buildUnderBrim(cx, cz, minY, bodyH, meshTris, meshLen, hatTris, hatLen)
@@ -71,7 +83,46 @@ public final class PaperTent {
                 pressOverCrown(grid.top, grid.rows, grid.cols, wallFaces, toWall, fromWall, 3f / 4096f);
             }
         }
+        if (Double.isFinite(ceiling) && !fitCeiling(grid, meshTris, meshLen, hatTris, hatLen, toWall, ceiling))
+            return null;
         return grid;
+    }
+
+    private static boolean fitCeiling(Grid grid, float[] mesh, int meshLen, float[] hat, int hatLen,
+                                      Matrix4f toWall, double ceiling) {
+        float cap = (float) (ceiling - CEILING_GAP);
+        float underCap = (float) (ceiling - 1.25 * CEILING_GAP);
+        var point = new Vector3f();
+        for (var row : grid.top) for (var p : row) {
+            if (toWall.transformPosition(point.set(p)).y <= cap) continue;
+            // Lower the outer fold only when there is room above the posed body and headwear.
+            if (highest(mesh, meshLen, toWall, point) >= underCap || highest(hat, hatLen, toWall, point) >= underCap)
+                return false;
+            var fromWall = new Matrix4f(toWall).invert();
+            capGrid(grid.under, toWall, fromWall, point, underCap);
+            capGrid(grid.top, toWall, fromWall, point, cap);
+            return true;
+        }
+        return true;
+    }
+
+    private static float highest(float[] tris, int len, Matrix4f toWall, Vector3f point) {
+        float top = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < len; i += 3)
+            top = Math.max(top, toWall.transformPosition(point.set(tris[i], tris[i + 1], tris[i + 2])).y);
+        return top;
+    }
+
+    private static void capGrid(float[][][] grid, Matrix4f toWall, Matrix4f fromWall, Vector3f point, float cap) {
+        for (var row : grid) for (var vertex : row) {
+            toWall.transformPosition(point.set(vertex));
+            if (point.y <= cap) continue;
+            point.y = cap;
+            fromWall.transformPosition(point);
+            vertex[0] = point.x;
+            vertex[1] = point.y;
+            vertex[2] = point.z;
+        }
     }
 
     /** Press one point in caller coordinates against {@code faces} (with optional outward offset in blocks). */

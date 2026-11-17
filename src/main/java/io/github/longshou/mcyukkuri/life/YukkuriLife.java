@@ -155,7 +155,6 @@ public final class YukkuriLife {
     private static final float SEVERE_THIRST = 90;
     public static final int PAPER_COVER_WEAR_BIT = 1 << 13;
     private ItemStack paperCover = ItemStack.EMPTY;
-    private boolean releaseSavedMouthPaper;
     private int thirstTicks;
 
     public YukkuriLife(YukkuriEntity entity) {
@@ -554,7 +553,7 @@ public final class YukkuriLife {
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
                 && mealTicks() == 0 && drinkTicks == 0 && toiletTicks == 0
                 && FoundShelter.canWearPaperCover(entity)
-                && foundCover.restingInPlainGapAt(entity.blockPosition());
+                && foundCover.restingInPlainGapAt(entity.blockPosition()) && foundCover.paperCoverFits();
     }
     boolean coldPaperSleepAllowed() {
         return !paperCover.isEmpty() && foundCover.restingInPlainGapAt(entity.blockPosition()) && !temperature.hot();
@@ -604,9 +603,7 @@ public final class YukkuriLife {
         accessory.tick();
         if (!paperCover.isEmpty() && !keepsPaperCover()) releasePaperCover("state_changed");
         var mouth = entity.component(YukkuriComponents.MOUTH);
-        if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !foundCover.carryingPaper()
-                && (releaseSavedMouthPaper || entity.tickCount % 10 == 0)) {
-            releaseSavedMouthPaper = false;
+        if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !foundCover.carryingPaper()) {
             mouth.releaseItems(MouthOccupancy.Purpose.PAPER, 20);
         }
         if (entity.isNoAi()) return;
@@ -1648,7 +1645,6 @@ public final class YukkuriLife {
         home.load(tag); accessory.load(tag);
         paperCover = tag.contains("PaperCover", Tag.TAG_COMPOUND)
                 ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("PaperCover")) : ItemStack.EMPTY;
-        releaseSavedMouthPaper = true;
         entity.syncWear();
         pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));

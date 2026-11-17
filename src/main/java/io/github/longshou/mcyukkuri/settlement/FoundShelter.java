@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import io.github.longshou.mcyukkuri.body.PaperCeiling;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
@@ -28,6 +29,7 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.pose.PaperTent;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -82,7 +84,7 @@ public final class FoundShelter implements MotorOwner {
     private record StackFace(BlockPos block, Direction side) {}
     private final Set<StackFace> triedPaperFaces = new HashSet<>();
     private final Set<UUID> triedGroundPaper = new HashSet<>();
-    private boolean paperFetchExhausted;
+    private long nextPaperScan;
     private BlockPull.Stand paperStand;
     private PlacePaperAction placeAction;
     private CoverPaperAction coverAction;
@@ -190,7 +192,12 @@ public final class FoundShelter implements MotorOwner {
         return canWearPaperCover(body)
                 && body.life().wetness() < 50
                 && !level().isRainingAt(body.blockPosition())
-                && (gap == null || !level().isRainingAt(gap));
+                && !level().isRainingAt(gap) && paperCoverFits();
+    }
+
+    public boolean paperCoverFits() {
+        Vec3 feet = gap.equals(body.blockPosition()) ? body.position() : Vec3.atBottomCenterOf(gap);
+        return PaperTent.fitsBelow(body.getBbHeight(), HeadTop.height(body), PaperCeiling.height(body, feet));
     }
 
     /** The body with what it wears (and anything riding it) clears the shelter's real interior from its lying spot, at any heading. */
@@ -257,7 +264,7 @@ public final class FoundShelter implements MotorOwner {
         if (gap == null) return false;
         triedPaperFaces.clear();
         triedGroundPaper.clear();
-        paperFetchExhausted = false;
+        nextPaperScan = 0;
         paperStand = null;
         pullAction = null;
         placeAction = null;
@@ -453,10 +460,10 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private String neededPaperFetchEvent() {
-        if (gap == null || paperFetchExhausted || holdingPaper() || !body.life().paperCover().isEmpty() || !canPullPaper(body))
+        if (holdingPaper() || !body.life().paperCover().isEmpty() || !canPullPaper(body))
             return null;
         if (!paperAt(gap)) return "wind cover paper approach stack={} gap={}";
-        if (phase == Phase.REST && now() >= deadline && body.life().temperature().cold() && canWearPaperCoverNow()) {
+        if ((phase == Phase.REST || phase == Phase.PULL_PAPER) && body.life().temperature().cold() && canWearPaperCoverNow()) {
             boolean wantSecond = paperCountAt(gap) == 1 && body.life().personality().boldness() >= 50
                     && body.life().energy() >= 25;
             if (wantSecond || groundSheetForCover(gap) == null)
@@ -466,9 +473,12 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private SearchBudget.Result tryAdvancePaperFetch(BlockPos origin) {
+        if (now() < nextPaperScan) return SearchBudget.Result.NOT_FOUND;
         String event = neededPaperFetchEvent();
         if (event == null) return SearchBudget.Result.NOT_FOUND;
         if (!SearchBudget.take(level(), body, Purpose.BEDDING)) return SearchBudget.Result.DEFERRED;
+        triedPaperFaces.removeIf(face -> level().hasChunkAt(face.block())
+                && NewspaperStackBlock.sheets(level().getBlockState(face.block())) == 0);
         var options = new ArrayList<BlockPos>();
         int reach = TravelRange.search(body, RADIUS);
         for (var pos : BlockPos.betweenClosed(origin.offset(-reach, -1, -reach), origin.offset(reach, 2, reach))) {
@@ -490,7 +500,8 @@ public final class FoundShelter implements MotorOwner {
                 return SearchBudget.Result.FOUND;
             }
         }
-        paperFetchExhausted = true;
+        // Look for newly available sources later. Rejected faces stay excluded for this rest.
+        nextPaperScan = now() + 80;
         return SearchBudget.Result.NOT_FOUND;
     }
 
@@ -517,15 +528,13 @@ public final class FoundShelter implements MotorOwner {
         return Step.ENDED;
     }
 
-    private Step abortPullAttempt(String reason, boolean refuseStack) {
-        if (paperStand != null) {
-            triedPaperFaces.add(new StackFace(paperStand.block(), paperStand.side()));
-            if (refuseStack) remember(paperStand.block(), CONTEST_REST, reason);
-        }
+    private Step abortPullAttempt(String reason) {
+        triedPaperFaces.add(new StackFace(paperStand.block(), paperStand.side()));
+        GameplayLog.event(body, "habitat", "paper fetch declined stack={} side={} reason={}",
+                paperStand.block(), paperStand.side(), reason);
         pullAction = null;
         paperStand = null;
         if (tryAdvancePaperFetch(body.blockPosition()) == SearchBudget.Result.FOUND) return Step.ACTIVE;
-        paperFetchExhausted = true;
         return enterGap();
     }
 
@@ -618,13 +627,12 @@ public final class FoundShelter implements MotorOwner {
                     triedPaperFaces.clear();
                     return enterGap();
                 }
-                boolean badStack = paperStand != null && !canPullFromStack(body, paperStand.block());
-                return abortPullAttempt("paper_tug_failed", badStack);
+                return abortPullAttempt("paper_tug_failed");
             }
-            if (paperStand == null || !canPullFromStack(body, paperStand.block()))
-                return abortPullAttempt("paper_source_unavailable", true);
+            if (!canPullFromStack(body, paperStand.block()))
+                return abortPullAttempt("paper_source_unavailable");
             if (now() - began > 240)
-                return abortPullAttempt("paper_approach_timeout", false);
+                return abortPullAttempt("paper_approach_timeout");
             if ((now() - began) % 20 == 19 && !BlockPull.reaches(body, paperStand)
                     && !level().getEntitiesOfClass(YukkuriEntity.class,
                             body.getBoundingBox().move(paperStand.feet().subtract(body.position())).inflate(0.25, 0.1, 0.25),
@@ -641,13 +649,13 @@ public final class FoundShelter implements MotorOwner {
             }
             var pullStep = walk();
             if (pullStep == SurfaceApproach.Result.BLOCKED)
-                return abortPullAttempt("paper_approach_blocked", false);
+                return abortPullAttempt("paper_approach_blocked");
             if (pullStep == SurfaceApproach.Result.ARRIVED && body.onGround() || BlockPull.reaches(body, paperStand)) {
                 SurfaceApproach.halt(body);
                 pullAction = BlockPull.action(paperStand, MouthOccupancy.Purpose.PAPER,
                         this::canPullFromStack, NewspaperStackBlock::takeSheet);
                 if (!body.motor().run(this, pullAction))
-                    return abortPullAttempt("paper_pull_refused", !canPullFromStack(body, paperStand.block()));
+                    return abortPullAttempt("paper_pull_refused");
             }
             return Step.ACTIVE;
         }
@@ -948,7 +956,7 @@ public final class FoundShelter implements MotorOwner {
         if (shelter != null && !shelter.isRemoved() && (exiting() || !shelter.contains(body.blockPosition())))
             shelter.release(body.getUUID());
         paperStand = null; pullAction = null; placeAction = null; coverAction = null;
-        triedPaperFaces.clear(); triedGroundPaper.clear(); paperFetchExhausted = false;
+        triedPaperFaces.clear(); triedGroundPaper.clear();
         shelter = null; gap = null; aim = null; phase = null; streetSpot = null; yieldingRival = null; failures = 0; warnUntil = 0;
         benchLaunch = null; benchHop = null; benchStepBlocked = false;
         body.component(YukkuriComponents.MOUTH).releaseItems(MouthOccupancy.Purpose.PAPER, 20);
