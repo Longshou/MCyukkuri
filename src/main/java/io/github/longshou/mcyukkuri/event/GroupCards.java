@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
@@ -120,7 +121,7 @@ public final class GroupCards {
         if (mates.isEmpty()) return false;
         ShelterBlockEntity best = null;
         for (BlockPos pos : BlockPos.betweenClosed(e.blockPosition().offset(-16, -3, -16), e.blockPosition().offset(16, 3, 16))) {
-            if (pos.distSqr(e.blockPosition()) > 256 || !level.hasChunkAt(pos)) continue;
+            if (pos.distSqr(e.blockPosition()) > 256 || e.life().avoidsField(pos) || !level.hasChunkAt(pos)) continue;
             if (level.getBlockEntity(pos) instanceof ShelterBlockEntity shelter && shelter.occupants() > 0 && shelter.food() > 0 && shelter.sound()
                     && (best == null || pos.distSqr(e.blockPosition()) < best.getBlockPos().distSqr(e.blockPosition()))) best = shelter;
         }
@@ -138,6 +139,7 @@ public final class GroupCards {
         var thief = all.getFirst();
         var shelter = shelterAt(level, s);
         if (shelter == null) { WildEvents.finish(level, s, Phase.INTERRUPTED, "store_missing"); return; }
+        if (thief.life().avoidsField(shelter.getBlockPos())) { WildEvents.finish(level, s, Phase.INTERRUPTED, "store_guarded"); return; }
         if (s.phaseTicks >= 1200) {
             WildEvents.finish(level, s, s.sourceCount > 0 ? Phase.COMPLETE : Phase.INTERRUPTED, s.sourceCount > 0 ? "raided_store" : "raid_timed_out"); return;
         }
@@ -151,11 +153,12 @@ public final class GroupCards {
         }
         s.sourceCount++; s.responses = s.phaseTicks;
         thief.species().narrate("steal");
-        // Eat on the spot, or carry it off to the ground nearby; the portion itself is the one taken from the store.
         if (!thief.life().beginMeal(loot, null, false)) {
-            var drop = thief.spawnAtLocation(loot);
-            if (drop != null) drop.setPickUpDelay(40);
+            shelter.returnFood(loot);
+            WildEvents.finish(level, s, Phase.INTERRUPTED, "raid_serving_refused");
+            return;
         }
+        YukkuriEntity witness = null;
         for (UUID id : shelter.residentIds()) {
             if (level.getEntity(id) instanceof YukkuriEntity resident && resident.isAlive() && resident.distanceToSqr(thief) <= 100) {
                 boolean fights = resident.getRandom().nextFloat() < resident.life().personality().helpProbability(true, false);
@@ -163,9 +166,14 @@ public final class GroupCards {
                 // The raid stays with them: the ones who stood up fume, the rest are shaken (mind/EmotionCourse).
                 resident.mind().feeling().begin(fights ? EmotionCourse.Kind.RAGE : EmotionCourse.Kind.TERROR, .5f, thief.getUUID(), resident.blockPosition());
                 YukkuriWorldData.get(level).relate(resident.getUUID(), thief.getUUID(), -3);
+                if (!resident.isNoAi() && !resident.life().isSleeping() && resident.hasLineOfSight(thief)
+                        && (witness == null || resident.distanceToSqr(thief) < witness.distanceToSqr(thief))) witness = resident;
             }
         }
-        if (s.sourceCount >= 3 || shelter.food() == 0) WildEvents.finish(level, s, Phase.COMPLETE, "raided_store");
+        if (witness != null) {
+            Expulsion.driveOff(thief, witness, shelter.getBlockPos());
+            WildEvents.finish(level, s, Phase.COMPLETE, "raided_store");
+        } else if (s.sourceCount >= 3 || shelter.food() == 0) WildEvents.finish(level, s, Phase.COMPLETE, "raided_store");
     }
     private static void raidMove(YukkuriEntity e, Scene s, ShelterBlockEntity shelter) {
         if (s.members.indexOf(e.getUUID()) == 0) { go(e, s, shelter.entrance(), 1.2); return; }

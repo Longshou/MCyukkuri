@@ -295,7 +295,8 @@ public final class HabitatLife {
             stealing=true;
         }
         if(!SearchBudget.take(level(),entity,Purpose.GRANARY))return false;
-        var pile=SiteLife.store(level(),site,entity.blockPosition(),p->!p.peek(entity.life()::seeksFood).isEmpty());
+        var pile=SiteLife.store(level(),site,entity.blockPosition(),
+                p->!entity.life().avoidsField(p.getBlockPos())&&!p.peek(entity.life()::seeksFood).isEmpty());
         if(pile==null||!entity.life().reachable(pile.standCell(),false))return false;
         granary=pile.getBlockPos();task=Task.GRAIN_TAKE;ticks=0;contact.reset();return true;
     }
@@ -509,12 +510,12 @@ public final class HabitatLife {
         }
         if(task==Task.GRAIN_TAKE) {
             var pile=granaryPile();
-            if(pile==null){stop();return;}
+            if(pile==null||entity.life().avoidsField(pile.getBlockPos())){stop();return;}
             if(!mouth(pile))return;
             var food=pile.take(entity.life()::seeksFood);
             if(!food.isEmpty()) {
                 if(!entity.life().beginMeal(food,null,false))pile.returnFood(food);
-                else if(stealing){entity.showReaction("happy","narrate_steal",60);CommunityRules.observed(entity,CommunityRules.Offence.THEFT,"granary");}
+                else if(stealing){entity.showReaction("happy","narrate_steal",60);CommunityRules.granaryTheft(entity,pile.getBlockPos());}
                 else if(Rations.governs(entity))Rations.ateAllowance(entity);
             }
             stealing=false;stop();return;

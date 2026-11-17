@@ -5,10 +5,12 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import java.util.function.Predicate;
@@ -66,18 +68,18 @@ public final class CommunityRules {
         return LoadedGroupMembers.minimum(level, box, LoadedGroupMembers.query(level, group.id, box, eligible), score);
     }
 
-    /** Detector entry: looks for a witness in the offender's own community; an unseen offence is only logged. */
-    public static boolean observed(YukkuriEntity offender, Offence offence, String detail) {
-        if (!(offender.level() instanceof ServerLevel level)) return false;
+    /** An awake, recognising member scolds a witnessed theft after the portion is committed. */
+    static void granaryTheft(YukkuriEntity offender, BlockPos site) {
+        var level = (ServerLevel) offender.level();
         var group = offender.settlement().group();
-        if (!rule(group, offence.rule)) return false;
+        if (!rule(group, Commons.NO_THEFT)) return;
         var seen = witness(offender, group, WITNESS_RANGE);
         if (seen == null) {
-            group.commons.note(level.getGameTime(), "unseen_" + offence.id, offender.getUUID(), detail);
+            group.commons.note(level.getGameTime(), "unseen_theft", offender.getUUID(), "granary");
             SettlementData.get(level).setDirty();
-            return false;
+            return;
         }
-        return report(offender, group, offence, seen, detail);
+        if (report(offender, group, Offence.THEFT, seen, "granary")) Expulsion.driveOff(offender, seen, site);
     }
 
     /**
