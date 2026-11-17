@@ -13,9 +13,11 @@ public final class YukkuriControl {
         int panic = owner.panicTicksValue();
         Takeover takeover = earlyTakeover(owner, panic);
         if (takeover == Takeover.PANIC && owner.shellRetraction().active()) owner.directNavigation().stop();
-        if (panic > 0) owner.setPanicTicks(panic - 1);
+        // The flight owns an unfinished door: fear holds until the last twig is in, so the flight is not cut short.
+        boolean sealing = panic == 1 && owner.status().reactions().threat().seal().active();
+        if (panic > 0) owner.setPanicTicks(sealing ? 1 : panic - 1);
         // The flight is over but not the fear: a real danger leaves a shaking course behind (mind/EmotionCourse).
-        if (panic == 1) owner.mind().feeling().frightOver(owner.getLastHurtByMob());
+        if (panic == 1 && !sealing) owner.mind().feeling().frightOver(owner.getLastHurtByMob());
 
         // Physical takeovers retain the command clock. Shell/agitation are sampled after panic advances.
         if (takeover == Takeover.NONE) {

@@ -327,7 +327,8 @@ add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '
     '约 1 分钟，可倍速', [
         box(-9, 0, -7, 9, 0, 16, 'minecraft:air', 'replace minecraft:short_grass'),
         yk('reimu', 0, 2, 'wise', label='会封洞的灵梦', boldness=15, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
-        human('oniisan', 3, 6, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
+        # The resident starts well south of the mouth: it follows the panicking yukkuri slowly, so the doorway is clear while the screen goes up.
+        human('oniisan', 3, 9, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
         set_status('wise', 'mood.unease', 60),
         home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
     # Two real blows from the resident, two seconds apart: the first is endured, the second is what makes it bolt home.
