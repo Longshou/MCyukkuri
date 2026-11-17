@@ -1484,6 +1484,8 @@ public final class FoundShelter implements MotorOwner {
                 return Outcome.of(Reason.NO_CONTACT, 0, "cover_unavailable");
             Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
             if (!draped && ticks >= drapeTick) {
+                if (!actor.life().paperCover().isEmpty())
+                    return Outcome.of(Reason.NO_CONTACT, 0, "already_covered");
                 var mouth = actor.component(YukkuriComponents.MOUTH);
                 if (groundSource == null) {
                     if (!mouth.handOne(MouthOccupancy.Purpose.PAPER, one -> {
