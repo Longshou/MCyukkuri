@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 加工所 F7a：短传送带与蒸制台（美术） | `.worktrees/wp-fac-f7a-belt-art` | art/structures/human-world (build.py, author_products.py, products/), plant template belt area |
+| 加工所 F5b：收活体（玩家递篮入厂属、同一只入箱、已驯宠退回） | `.worktrees/wp-fac-f5b-receive` | human/Custody, human/HumanMenu, item/CarrierItem, life/YukkuriWorldData |
 
 ## 玩法待办
 
