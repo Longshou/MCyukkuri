@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import java.util.Comparator;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 
@@ -24,7 +23,7 @@ public final class HumanCommerce {
     public static boolean protectedAnimal(YukkuriEntity animal) { return Custody.protectedAnimal(animal); }
     public static boolean mayCapture(Player player, YukkuriEntity animal) { return Custody.mayCapture(player, animal); }
     public static void prepareBreederHome(YukkuriEntity animal) {
-        if(!(animal.level() instanceof ServerLevel level)||!Set.of(Custody.Role.BREEDER,Custody.Role.STUD).contains(Custody.view(animal).role())||animal.life().homeStand()!=null)return;
+        if (!(animal.level() instanceof ServerLevel level) || Custody.view(animal).role() != Custody.Role.STUD || animal.life().homeStand() != null) return;
         for(var pos:BlockPos.betweenClosed(animal.blockPosition().offset(-3,0,-3),animal.blockPosition().offset(3,0,3)))
             if(animal.life().assignHome(GlobalPos.of(level.dimension(),pos.immutable())))return;
     }
@@ -56,7 +55,7 @@ public final class HumanCommerce {
      */
     public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
         if (!(animal.level() instanceof ServerLevel level)) return;
-        if (npc.closedFactory() || CustodyData.get(level).deadNpc(npc.getUUID())) return;
+        if (npc.job() == HumanNpc.Job.FACTORY || CustodyData.get(level).deadNpc(npc.getUUID())) return;
         var tag = data(animal).copy();
         var custody = Custody.fromData(tag);
         if (custody.pendingStaffRole().isEmpty()) return;

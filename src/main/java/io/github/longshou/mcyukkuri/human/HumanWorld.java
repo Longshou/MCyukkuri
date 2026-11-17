@@ -80,8 +80,6 @@ public final class HumanWorld {
     public static final DeferredItem<DeferredSpawnEggItem> ONIISAN_EGG = egg("oniisan", ONIISAN, 0x333b48, 0xa24e42);
     public static final DeferredItem<DeferredSpawnEggItem> BROTHER_EGG = egg("caretaker_brother", BROTHER, 0x486f66, 0xebd6ad);
     public static final DeferredItem<DeferredSpawnEggItem> SISTER_EGG = egg("caretaker_sister", SISTER, 0xad596b, 0xf0d4aa);
-    public static final DeferredHolder<MenuType<?>, MenuType<HumanMenu>> MENU = MENUS.register("human_trades",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new HumanMenu(id, inv, buf.readVarInt())));
     public static final DeferredHolder<MenuType<?>, MenuType<BadgeMenu>> BADGE_MENU = MENUS.register("badge_assessment",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new BadgeMenu(id, inv, buf.readVarInt())));
     public static final DeferredHolder<MenuType<?>, MenuType<KeeperMenu>> KEEPER_MENU = MENUS.register("shop_keeper",
@@ -101,7 +99,7 @@ public final class HumanWorld {
         CARE_SUPPLIES = b.comment("Initial grain; caring residents receive at most eight portions once.").defineInRange("initialCareFood", 32, 0, 256);
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
         COMMODITY_HARSHNESS = b
-                .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales factory-parent wear and punishment after a failed exam.")
+                .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales punishment after a failed exam.")
                 .defineInRange("commodityHarshness", 1, 0, 3);
         SPEC = b.build();
     }

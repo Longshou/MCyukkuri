@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -40,7 +39,7 @@ public final class HumanScenes {
 
     public enum Kind {
         // Template x of the street door. The oni shop template carries its stress room on the west (author_street.ROOM = 6 columns).
-        SHOP("yukkuri_shop", 12), ONI_SHOP("yukkuri_oni_shop", 17);
+        SHOP("yukkuri_shop", 12), ONI_SHOP("yukkuri_oni_shop", 17), PLANT("yukkuri_processing_plant", 10);
         public final ResourceLocation template;
         final int entranceX;
         Kind(String id, int entranceX) { this.template = MCYukkuri.id(id); this.entranceX = entranceX; }
@@ -52,7 +51,7 @@ public final class HumanScenes {
     /** What a placement created: the footprint, the staff and the individuals that came with the template (all bound to their posts). */
     public record Placed(Kind kind, BoundingBox box, List<HumanNpc> staff, List<YukkuriEntity> animals) {}
 
-    private static Rotation rotationFor(Direction front) {
+    static Rotation rotationFor(Direction front) {
         return switch (front) { case EAST -> Rotation.CLOCKWISE_90; case SOUTH -> Rotation.CLOCKWISE_180; case WEST -> Rotation.COUNTERCLOCKWISE_90; default -> Rotation.NONE; };
     }
 
@@ -65,7 +64,8 @@ public final class HumanScenes {
     public static Placed place(ServerLevel level, Kind kind, BlockPos entrance, Direction front, boolean clear) {
         var template = level.getStructureManager().get(kind.template).orElse(null);
         if (template == null) return null;
-        var settings = new StructurePlaceSettings().setRotation(rotationFor(front)).setIgnoreEntities(false);
+        var rotation = rotationFor(front);
+        var settings = new StructurePlaceSettings().setRotation(rotation).setIgnoreEntities(false);
         BlockPos rel = StructureTemplate.calculateRelativePosition(settings, new BlockPos(kind.entranceX, 0, 0));
         BlockPos origin = entrance.below().subtract(rel);
         BoundingBox box = template.getBoundingBox(settings, origin);
@@ -73,7 +73,8 @@ public final class HumanScenes {
         var before = new HashSet<UUID>();
         var area = AABB.of(box).inflate(1);
         for (var e : level.getEntitiesOfClass(Entity.class, area)) before.add(e.getUUID());
-        template.placeInWorld(level, origin, origin, settings, level.getRandom(), 2);
+        if (template.placeInWorld(level, origin, origin, settings, level.getRandom(), 2) && kind == Kind.PLANT)
+            PlantSite.place(level, template, origin, rotation, box);
         var staff = new ArrayList<HumanNpc>();
         var animals = new ArrayList<YukkuriEntity>();
         for (var n : level.getEntitiesOfClass(HumanNpc.class, area)) if (!before.contains(n.getUUID())) staff.add(n);

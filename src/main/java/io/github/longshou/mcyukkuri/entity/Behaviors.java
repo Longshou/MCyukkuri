@@ -275,8 +275,6 @@ public final class Behaviors {
     public static final String HOME_CLAIM_RETREAT = "home_claim_retreat";
     public static final String HOME_CLAIM_RETURN = "home_claim_return";
     public static final String HOME_TERRITORY = "home_territory";
-    public static final String FACTORY_APPROACH = "factory_approach";
-    public static final String FACTORY_WAIT = "factory_wait";
     /** Shop stock at its window (shop/ShopWindow): the motor owner, noticing a customer, going to the glass, the chosen answer, the
      *  letdown or turned-up nose afterwards, and seeing off a neighbour carried away in a basket. */
     public static final String SHOP_WINDOW = "shop_window";

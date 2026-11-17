@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The grim side of the pet trade (komicolle 11518786, docs/FEATURES.md): factory parent animals wear down, a failed exam is punished and
+ * The grim side of the pet trade (komicolle 11518786, docs/FEATURES.md): a failed exam is punished and
  * core filling is a valuable raw material; the days a stock animal has waited on the shelf are counted here. Everything scales with
  * {@link HumanWorld#COMMODITY_HARSHNESS} (0 off, 1 mild default, 2 harsh, 3 brutal). Server only; no client class is touched.
  */
@@ -47,17 +47,16 @@ public final class CommodityLife {
 
     // ---- core filling as raw material ------------------------------------------------------------------------------
 
-    /** Emeralds a buyer pays for one core filling: the factory pays more than the shop. */
-    public static int corePrice(ItemStack stack, boolean factory) {
+    /** Emeralds the shop pays for one core filling. */
+    private static int corePrice(ItemStack stack) {
         int sweetness = Math.clamp(FillingResource.data(stack).getInt("Sweetness"), 0, 100);
-        return factory ? 6 + sweetness / 25 : 4 + sweetness / 40;
+        return 4 + sweetness / 40;
     }
-    /** A sneaking player offers the core filling in hand to a shopkeeper or a factory worker. Returns true when the offer was handled. */
+    /** A sneaking player offers the core filling in hand to a shopkeeper. Returns true when the offer was handled. */
     public static boolean sellCore(Player player, HumanNpc buyer) {
         ItemStack hand = player.getMainHandItem();
-        boolean factory = buyer.job() == HumanNpc.Job.FACTORY, shop = buyer.job() == HumanNpc.Job.SHOPKEEPER;
-        if (!(factory || shop) || !FillingResource.isCore(hand)) return false;
-        if (shop && player instanceof ServerPlayer server) {
+        if (buyer.job() != HumanNpc.Job.SHOPKEEPER || !FillingResource.isCore(hand)) return false;
+        if (player instanceof ServerPlayer server) {
             var level = server.serverLevel();
             var site = ShopRegistry.get(level).of(buyer);
             if (site != null && ShopAccess.refuseService(level, site, server)) return true;
@@ -66,14 +65,13 @@ public final class CommodityLife {
             GameplayLog.event(player,"shop","action=sell_core result=refused buyer={} reason={}",buyer.getUUID(),buyer.remainingTrades()<=0?"trade_limit":"resting");
             player.displayClientMessage(Component.translatable("human.mcyukkuri.core.refused"), true); return true;
         }
-        int price = corePrice(hand, factory);
+        int price = corePrice(hand);
         hand.shrink(1); buyer.usedTrade();
-        if (factory) buyer.production().receiveCore();
         var pay = new ItemStack(Items.EMERALD, price);
         if (!player.getInventory().add(pay)) player.drop(pay, false);
         buyer.swing(InteractionHand.MAIN_HAND);
         player.level().playSound(null, buyer.blockPosition(), SoundEvents.VILLAGER_YES, SoundSource.NEUTRAL, 1f, 1f);
-        player.displayClientMessage(Component.translatable(factory ? "human.mcyukkuri.core.sold_factory" : "human.mcyukkuri.core.sold_shop", price), true);
+        player.displayClientMessage(Component.translatable("human.mcyukkuri.core.sold_shop", price), true);
         GameplayLog.event(player,"shop","action=sell_core result=committed buyer={} cores_used=1 emeralds_received={} trades_left={}",buyer.getUUID(),price,buyer.remainingTrades());
         return true;
     }

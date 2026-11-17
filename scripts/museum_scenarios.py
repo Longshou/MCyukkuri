@@ -2407,6 +2407,12 @@ add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到
     env=DAY, vantage=(12, 0, 180, 30),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'), ('读在售个体', f'yukkuri status {STOCK} raw')])
 
+_plant_x, _plant_z = BY_ID['plant'].entrance
+add('processing_plant', 'plant', '加工所厂房', '加工所厂房',
+    '沿村道路面进加工所，可看前台、卸货场、玻璃箱、病栏和各间厂房。员工在各自岗位上。',
+    '建筑几秒', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
+    env=DAY, vantage=(_plant_x, _plant_z - 3, 0, 0))
+
 # ====================================================================================================== clips (buttons are built in build_museum_full.py)
 
 
@@ -5032,6 +5038,7 @@ _number_scenes()
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
+    'processing_plant': 'M2',
     'kindness_adoption': 'F4',
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
@@ -6063,6 +6070,43 @@ _smoke('shop_restock', 3600, [r'\[shop\][^\n]* action=restock result=done ', r'\
                               r'\[shop\][^\n]* action=ship_out result=packed ', r'\[shop\][^\n]* action=stow_basket result=stored ',
                               r'\[shop\][^\n]* action=restock result=arrival ', r'\[shop\][^\n]* action=settle result=released '],
        forbid=[r'\[shop\][^\n]* action=job result=put_down '], readout=[f'yukkuri status {STOCK} raw'])
+_plant_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
+_plant_staff = '@e[type=mcyukkuri:caretaker_brother,distance=..45,nbt={HumanJob:2}]'
+_plant_posts = ('counter', 'receive', 'sweetening', 'belt_steamer', 'classroom', 'packing', 'roller')
+
+
+def _verify_plant(window):
+    sites = re.findall(r'\[factory\][^\n]* uuid=(\S+) [^\n]* action=register_site min=([^\n]+)', window)
+    posts = re.findall(r'\[factory\][^\n]* action=post_staff role=plant_(\S+) site=(\S+)', window)
+    if len(sites) != 1 or sorted(posts) != sorted((role, sites[0][0]) for role in _plant_posts):
+        return f'Expected one plant and seven staff sharing its UUID, got {sites} and {posts}'
+
+
+_smoke('processing_plant', 120, [r'MCY_PLANT_CLEAR_POSTS', r'MCY_LEGACY_OUTPUT_ACCEPTED', r'MCY_LEGACY_SOURCE_CLEARED',
+                                r'\[factory\][^\n]* action=legacy_tray_unload',
+                                r'\[custody\][^\n]* factory closure cleanup completed',
+                                r'\[remains\][^\n]* legacy factory claim cleared'],
+       readout=[f'data get entity {_plant_site}', f'execute as {_plant_staff} run data get entity @s HumanHome',
+                'data get block ~24 ~ ~-23 Items'])
+_plant_smoke = next(s for s in S if s.id == 'processing_plant').smoke
+_plant_smoke['verify'] = _verify_plant
+_legacy_bag = '{id:"mcyukkuri:live_yukkuri_bag",count:1,components:{"minecraft:custom_data":{CaptiveToken:[I;8,7,6,5],EntityUUID:[I;1,2,3,4],Variant:"reimu",BatchNumber:42}}}'
+_legacy_worker = '@e[type=mcyukkuri:caretaker_brother,tag=legacy_factory,distance=..45,limit=1]'
+_plant_smoke['commands'] = [
+    (1, 'setblock ~24 ~ ~-23 minecraft:barrel'),
+    (1, 'summon mcyukkuri:caretaker_brother ~23.5 ~ ~-23.5 {Tags:["legacy_factory"],HumanJob:2,SiteRole:"manju_worker",'
+        'FactoryProduction:{Batches:4,Delay:200,Material:17,Breeding:{},Pipeline:{},Output:[{id:"minecraft:paper",count:8},'
+        + _legacy_bag + ']}}'),
+    (1, 'summon mcyukkuri:factory_tray ~21.5 ~ ~-23.5 {FactoryOwner:[I;1,2,3,4],Ticket:[I;4,3,2,1],'
+        'Passengers:[{id:"mcyukkuri:reimu",Tags:["legacy_rider"],NeoForgeData:{HumanCommerce:{Owner:[I;1,2,3,4],OwnerKind:"npc",Use:"input"}}}]}'),
+    (1, 'summon mcyukkuri:yukkuri_remains ~19.5 ~ ~-23.5 {Remains:{id:"mcyukkuri:yukkuri_remains",count:1,'
+        'components:{"minecraft:custom_data":{FactoryOwner:[I;1,2,3,4],FactorySource:[I;4,3,2,1],Variant:"reimu",FoodRemaining:2.0f}}}}'),
+    (60, f'execute if entity {_plant_site} '
+         + ' '.join(f'if entity @e[type=mcyukkuri:caretaker_brother,distance=..45,nbt={{HumanJob:2,SiteRole:"plant_{role}"}}]' for role in _plant_posts)
+         + ' run say MCY_PLANT_CLEAR_POSTS'),
+    (60, 'execute if data block ~24 ~ ~-23 Items[{id:"minecraft:paper",count:8}] if data block ~24 ~ ~-23 Items[' + _legacy_bag + '] run say MCY_LEGACY_OUTPUT_ACCEPTED'),
+    (110, f'execute if entity {_legacy_worker} unless data entity {_legacy_worker} FactoryProduction run say MCY_LEGACY_SOURCE_CLEARED'),
+]
 _basket_moves = (
     ('basket_young', 0, 2, 4, 2), ('basket_baby_0', 2, 3, 4, 1), ('basket_baby_1', 3, 4, 4, 0),
     ('wild', 0, 4, 6, 2), ('basket_baby_2', 4, 5, 6, 1), ('basket_baby_3', 5, 6, 6, 0),

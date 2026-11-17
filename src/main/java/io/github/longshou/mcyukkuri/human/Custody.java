@@ -101,7 +101,7 @@ public final class Custody {
             queueRelease(tag, "owner_died", owner);
             return true;
         }
-        if (!FactoryProduction.ENABLED && custody.ownerKind() != OwnerKind.PLAYER
+        if (custody.ownerKind() != OwnerKind.PLAYER
                 && (FACTORY_ROLES.contains(custody.role()) || FACTORY_STAFF_ROLES.contains(custody.pendingStaffRole()))) {
             queueRelease(tag, "factory_closed", owner);
             return true;

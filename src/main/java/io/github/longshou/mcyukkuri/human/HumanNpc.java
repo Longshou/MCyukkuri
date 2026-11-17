@@ -76,12 +76,12 @@ public final class HumanNpc extends PathfinderMob {
     private static final int SHOP_DAILY_GRAIN = 96;
     private static final int YARD_COMPANION_CAP = 3;
     private BlockPos yardBowl;
-    private int trades, delivered, careFood, medicine = 8, routineDelay;
+    private int trades, careFood, medicine = 8, routineDelay;
     private int nextBadgeGreeting;
     private YukkuriEntity attention;
     final HumanStreet street = new HumanStreet(this);
-    private final FactoryProduction production = new FactoryProduction(this);
-    public FactoryProduction production() { return production; }
+    private final LegacyFactoryOutput legacyOutput = new LegacyFactoryOutput();
+    private UUID plantSite;
     /** Created on first use: registerGoals() runs inside the Mob constructor, before field initialisers. */
     private HumanWalk walk;
     private HumanWalk walk() { if (walk == null) walk = new HumanWalk(this); return walk; }
@@ -129,6 +129,14 @@ public final class HumanNpc extends PathfinderMob {
     public void setJob(Job job) { entityData.set(JOB, job.ordinal()); }
     public void setAttitude(Attitude attitude) { entityData.set(ATTITUDE, attitude.ordinal()); }
     public String siteRole() { return siteRole; }
+    public UUID plantSite() { return plantSite; }
+    void postAtPlant(UUID site, String role, BlockPos post) {
+        plantSite = site;
+        siteRole = role;
+        home = post;
+        setJob(Job.FACTORY);
+        setAttitude(Attitude.NEUTRAL);
+    }
     public BlockPos home() { return home == null ? blockPosition() : home; }
     public boolean resting() { return entityData.get(RESTING); }
     public boolean showsStreetGrain() { return entityData.get(STREET_GRAIN); }
@@ -153,15 +161,13 @@ public final class HumanNpc extends PathfinderMob {
     /** Takes up to {@code max} portions of grain from the finite daily supply (shop staff filling a bowl); returns how many. */
     public int drawCareFood(int max) { int taken = Math.min(max, careFood); careFood -= taken; return taken; }
     public int remainingTrades() { return Math.max(0, HumanWorld.TRADE_DAY_LIMIT.get() - trades); }
-    boolean closedFactory() { return !FactoryProduction.ENABLED && job() == Job.FACTORY; }
-    public boolean canReceiveInput() { return FactoryProduction.ENABLED && job() == Job.FACTORY && delivered < 4 && animals(Custody.Role.INPUT).size() < 2
-            && (production.kind().equals("labor")||production.kind().isEmpty()||production.breeding().population()<8); }
-    public boolean canReceiveParent(){return FactoryProduction.ENABLED&&job()==Job.FACTORY&&(production.kind().equals("bag")||production.kind().equals("manju"))&&delivered<4&&
-            animals(Custody.Role.RESERVE_PARENT).size()<4&&production.breeding().population()<8;}
     public void usedTrade() { trades++; }
-    public void receivedInput() { delivered++; }
     public boolean donateFood() { if (careFood > 248) return false; careFood += 8; return true; }
     void takeStreetGrain() { careFood++; }
+    public static boolean canServe(Player player, HumanNpc npc) {
+        return npc != null && npc.job() != Job.FACTORY && npc.isAlive() && player.isAlive() && !player.isSpectator()
+                && player.level() == npc.level() && player.distanceToSqr(npc) <= 36 && player.hasLineOfSight(npc);
+    }
     public boolean beginTrade(Player player) {
         if (isTrading() && !player.getUUID().equals(customer)) return false;
         customer = player.getUUID(); getNavigation().stop(); return true;
@@ -171,8 +177,7 @@ public final class HumanNpc extends PathfinderMob {
         if (ExamSession.active(this)) return true;
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
-        return player != null && (player.containerMenu instanceof HumanMenu menu && menu.target() == this
-                || player.containerMenu instanceof ShopMenu shop && shop.target() == this
+        return player != null && (player.containerMenu instanceof ShopMenu shop && shop.target() == this
                 || player.containerMenu instanceof KeeperMenu keeper && keeper.target() == this
                 || player.containerMenu instanceof ExamMenu exam && exam.target() == this);
     }
@@ -209,22 +214,21 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
         goalSelector.addGoal(4, new VillageBin.Sweep(this));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
-            @Override public boolean canUse() { return job() != Job.SHOPKEEPER && !streetResident() && !resting() && !isTrading() && super.canUse(); }
+            @Override public boolean canUse() { return job() != Job.SHOPKEEPER && job() != Job.FACTORY && !streetResident() && !resting() && !isTrading() && super.canUse(); }
         });
         goalSelector.addGoal(5, new HumanStreet.Stroll(this));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (hand != InteractionHand.MAIN_HAND || closedFactory()) return InteractionResult.PASS;
+        if (hand != InteractionHand.MAIN_HAND || job() == Job.FACTORY) return InteractionResult.PASS;
         if (!level().isClientSide) {
             ShopRegistry.get((ServerLevel) level()).adoptLegacy((ServerLevel) level(), this);
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) KeeperMenu.open(player, this); // the matchmaker with its studs, not shop staff
             else if (job() == Job.EXAMINER) ExamMenu.open(player, this);
-            else if (job() == Job.RESIDENT) HumanFolk.interact(player, this);
-            else HumanMenu.open(player, this);
+            else HumanFolk.interact(player, this);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
@@ -289,7 +293,7 @@ public final class HumanNpc extends PathfinderMob {
 
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
-            production.dropContents();
+            legacyOutput.collect(this);
             // Held doses and operation tools fall where the worker fell.
             if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem)
                 setDropChance(EquipmentSlot.MAINHAND, 2.0f);
@@ -334,7 +338,9 @@ public final class HumanNpc extends PathfinderMob {
         super.aiStep();
         if (street.kickPose > 0) street.kickPose--;
         if (street.frownPose > 0) street.frownPose--;
-        if (level().isClientSide || !isAlive() || isNoAi() || closedFactory()) return;
+        if (level().isClientSide || !isAlive()) return;
+        if (tickCount % 100 == 1) legacyOutput.collect(this);
+        if (isNoAi() || job() == Job.FACTORY) return;
         if (streetResident() && !getNavigation().isDone())
             YukkuriGroundNavigation.noticePassage(this, before);
         if (tickCount == 1) returnUnusedDose();
@@ -356,7 +362,7 @@ public final class HumanNpc extends PathfinderMob {
         }
         restrictTo(home(), 18);
         if (level().getGameTime() >= nextRestock) {
-            trades = delivered = 0; nextRestock = level().getGameTime() + HumanStreet.DAY;
+            trades = 0; nextRestock = level().getGameTime() + HumanStreet.DAY;
             restockCareFood();
         }
         if (job() == Job.RESIDENT && walk().petId() != null) walk().tick();
@@ -368,7 +374,6 @@ public final class HumanNpc extends PathfinderMob {
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (tickCount % 40 == 17 && tickCount >= nextBadgeGreeting && !resting() && !isTrading() && !avoidingStreet()
                 && !ExamSession.active(this)) greetBadge();
-        if (job() == Job.FACTORY) production.tick();
         if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3) ShopStaff.tick(this);
     }
@@ -439,16 +444,9 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** Contact is checked at execution, not only when the goal selects an animal. */
     public boolean attend(YukkuriEntity y) {
-        if (closedFactory() || !y.isAlive() || y.level() != level() || distanceToSqr(y) > 9 || !hasLineOfSight(y) || !level().isDay()) return false;
+        if (job() == Job.FACTORY || !y.isAlive() || y.level() != level() || distanceToSqr(y) > 9 || !hasLineOfSight(y) || !level().isDay()) return false;
         if (streetResident()) return street.care(y);
-        if(job()==Job.FACTORY && production.pipeline().needsService(y))return production.process(y);
-        boolean input = job() == Job.FACTORY && HumanCommerce.ownedBy(y, getUUID()) && (Custody.view(y).role() == Custody.Role.INPUT);
-        if (input) {
-            if (!production.kind().isEmpty()) return production.process(y);
-            return false;
-        }
-        if (attitude() == Attitude.CRUEL || job() == Job.FACTORY && Custody.view(y).role() == Custody.Role.INPUT
-                && !FactoryPipeline.stage(y).equals("observe")) return false;
+        if (attitude() == Attitude.CRUEL) return false;
         if (y.life().canEat() && careFood > 0 && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             careFood--; swing(InteractionHand.MAIN_HAND);
             GameplayLog.event(this, "npc-care", "action=begin_meal target={} food={}->{} nutrition={} result=accepted", y.getUUID(), careFood + 1, careFood, y.life().nutrition());
@@ -607,7 +605,7 @@ public final class HumanNpc extends PathfinderMob {
         private boolean goingHome() { return resting() || avoidingStreet(); }
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
-            if (closedFactory()) return false;
+            if (job() == Job.FACTORY) return false;
             if (isTrading() || goingHome()) return true;
             // Shop staff tend their stock as jobs (ShopStaff) through the staff doors; this routine only keeps their trading and rest.
             if (routineDelay > 0 || job() == Job.SHOPKEEPER) return false;
@@ -615,13 +613,9 @@ public final class HumanNpc extends PathfinderMob {
                 attention = street.pick();
                 return attention != null;
             }
-            attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(job()==Job.FACTORY?32:12), y -> y.isAlive()
-                    && (job() == Job.FACTORY && (production.kind().isEmpty()&&HumanCommerce.ownedBy(y, getUUID())&&
-                            (Custody.view(y).role() == Custody.Role.INPUT)||production.pipeline().needsService(y))
-                    || attitude() == Attitude.CARING && mayTend(y)
-                            && (job() != Job.FACTORY || Custody.view(y).role() != Custody.Role.INPUT || FactoryPipeline.stage(y).equals("observe"))))
-                    .stream().min(Comparator.comparingDouble(y -> distanceToSqr(y)
-                            - (job()==Job.FACTORY && attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
+            if (attitude() != Attitude.CARING) return false;
+            attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(12), y -> y.isAlive() && mayTend(y))
+                    .stream().min(Comparator.comparingDouble(HumanNpc.this::distanceToSqr)).orElse(null);
             return attention != null;
         }
         @Override public boolean canContinueToUse() {
@@ -672,8 +666,7 @@ public final class HumanNpc extends PathfinderMob {
         }
         private boolean prepareDose(YukkuriEntity patient) {
             if(attitude()!=Attitude.CARING || !mayTend(patient) || !level().isDay()
-                    || !patient.body().treatmentBlockReason().equals("none")
-                    || job()==Job.FACTORY && production.pipeline().needsService(patient))return false;
+                    || !patient.body().treatmentBlockReason().equals("none")) return false;
             boolean physical=patient.body().footBurned() || patient.body().wounds().stream().anyMatch(w -> switch(w.kind()) {
                 case TEAR,DENT,SCRATCH,SCORCH -> true;
                 default -> false;
@@ -691,7 +684,7 @@ public final class HumanNpc extends PathfinderMob {
             if (dose != null) returnUnusedDose();
             street.cancel();
             dose=null; careTicks=0; attention = null; getNavigation().stop();
-            if (routineDelay >= 0) routineDelay = Math.max(routineDelay, job() == Job.FACTORY ? 80 : 200);
+            if (routineDelay >= 0) routineDelay = Math.max(routineDelay, 200);
         }
     }
 
@@ -730,9 +723,10 @@ public final class HumanNpc extends PathfinderMob {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());
         if (yardBowl != null) t.putLong("YardBowl", yardBowl.asLong());
-        t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock",
-                nextRestock);
-        t.put("FactoryProduction", production.save()); walk().save(t);
+        t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putLong("NextRestock", nextRestock);
+        if (plantSite != null) t.putUUID("PlantSite", plantSite);
+        legacyOutput.save(t, registryAccess());
+        walk().save(t);
         street.save(t);
         if (avoidingStreet()) t.putInt("StreetHomePause", routineDelay);
     }
@@ -742,10 +736,12 @@ public final class HumanNpc extends PathfinderMob {
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized");
         home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
         yardBowl = t.contains("YardBowl") ? BlockPos.of(t.getLong("YardBowl")) : null;
-        production.load(t.getCompound("FactoryProduction")); walk().load(t);
+        plantSite = t.hasUUID("PlantSite") ? t.getUUID("PlantSite") : null;
+        legacyOutput.load(t, registryAccess());
+        walk().load(t);
         street.load(t);
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;
-        trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock");
+        trades = Math.clamp(t.getInt("Trades"), 0, 64); nextRestock = t.getLong("NextRestock");
         routineDelay = Math.clamp(t.getInt("StreetHomePause"), -HumanStreet.DAY, 0);
     }
 }

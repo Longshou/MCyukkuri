@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
@@ -191,7 +190,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     public static void open(Player p, HumanNpc npc) { open(p, npc, null); }
     public static void open(Player p, HumanNpc npc, YukkuriEntity focusAnimal) {
-        if (!(p instanceof ServerPlayer server) || !HumanMenu.valid(p, npc)) return;
+        if (!(p instanceof ServerPlayer server) || !HumanNpc.canServe(p, npc)) return;
         if (!npc.beginTrade(p)) { p.displayClientMessage(Component.translatable("human.mcyukkuri.busy"), true); return; }
         var registry = ShopRegistry.get(server.serverLevel());
         var shop = registry.of(npc);
@@ -210,12 +209,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         var staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds().inflate(4), n -> n.isAlive() && registry.of(n) == shop)
                 .stream().min(Comparator.comparingDouble(p::distanceToSqr)).orElse(null);
         if (staff == null) { ShopTrade.say(p, "protect.stock"); return true; } // no one to ask: still not handled before it is bought
-        if (!HumanMenu.valid(p, staff)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
+        if (!HumanNpc.canServe(p, staff)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
         open(p, staff, y); return true;
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return data.get(index); }
-    @Override public boolean stillValid(Player p) { return HumanMenu.valid(p, target) && (shop == null || !shop.closed()); }
+    @Override public boolean stillValid(Player p) { return HumanNpc.canServe(p, target) && (shop == null || !shop.closed()); }
     @Override public ItemStack quickMoveStack(Player p, int slot) { return ItemStack.EMPTY; }
     @Override public void removed(Player player) { super.removed(player); if (target != null) target.endTrade(player); }
 

@@ -5,7 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import io.github.longshou.mcyukkuri.badge.BadgeMenu;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareLineage;
@@ -85,7 +84,6 @@ final class CaptureScreen {
                     InteractionDispatch.openCutter(player, (YukkuriEntity) actor);
                 }
                 case "badge" -> BadgeMenu.open(player, (YukkuriEntity) actor);
-                case "human" -> HumanMenu.open(player, (HumanNpc) actor);
                 case "shop" -> ShopMenu.open(player, (HumanNpc) actor);
                 case "exam" -> ExamMenu.open(player, (HumanNpc) actor);
                 case "keeper" -> KeeperMenu.open(player, (HumanNpc) actor);
@@ -179,7 +177,6 @@ final class CaptureScreen {
             case "care", "care_busy", "care_inspect", "care_observe", "care_lineage", "cutter" ->
                     menu instanceof CareMenu care && care.cutter() == kind.equals("cutter");
             case "badge" -> menu instanceof BadgeMenu;
-            case "human" -> menu instanceof HumanMenu;
             case "shop" -> menu instanceof ShopMenu;
             case "exam" -> menu instanceof ExamMenu;
             case "keeper" -> menu instanceof KeeperMenu;

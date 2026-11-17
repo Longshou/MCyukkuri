@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
@@ -80,13 +79,13 @@ public final class ExamMenu extends AbstractContainerMenu {
         addDataSlots(data); rescan(); refresh();
     }
     public static void open(Player p, HumanNpc npc) {
-        if (!(p instanceof ServerPlayer server) || !HumanMenu.valid(p, npc)) return;
+        if (!(p instanceof ServerPlayer server) || !HumanNpc.canServe(p, npc)) return;
         if (!npc.beginTrade(p)) { p.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse.busy"), true); return; }
         server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ExamMenu(id, inv, npc.getId()), npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return data.get(index); }
-    @Override public boolean stillValid(Player p) { return HumanMenu.valid(p, target); }
+    @Override public boolean stillValid(Player p) { return HumanNpc.canServe(p, target); }
     @Override public ItemStack quickMoveStack(Player p, int slot) { return ItemStack.EMPTY; }
     @Override public void removed(Player player) { super.removed(player); if (target != null) target.endTrade(player); }
 

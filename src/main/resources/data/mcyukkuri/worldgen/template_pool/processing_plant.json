@@ -1,0 +1,17 @@
+{
+  "name": "mcyukkuri:processing_plant",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:yukkuri_processing_plant",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "max_cut": 8,
+        "max_fill": 6
+      }
+    }
+  ]
+}

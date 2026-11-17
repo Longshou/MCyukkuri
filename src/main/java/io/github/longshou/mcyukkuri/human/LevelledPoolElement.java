@@ -74,7 +74,10 @@ public final class LevelledPoolElement extends SinglePoolElement {
         // The template manager resolves removed IDs to zero-size templates. Their bounding boxes must never be levelled.
         if (getSize(manager, rotation).getY() == 0) return true;
         level(manager, level, pos, rotation, chunkBox);
-        return super.place(manager, level, structures, generator, pos, pivot, rotation, chunkBox, random, liquid, keepJigsaws);
+        boolean placed = super.place(manager, level, structures, generator, pos, pivot, rotation, chunkBox, random, liquid, keepJigsaws);
+        if (placed && template.left().filter(PlantSite.TEMPLATE::equals).isPresent())
+            PlantSite.place(level, manager.get(PlantSite.TEMPLATE).orElseThrow(), pos, rotation, chunkBox);
+        return placed;
     }
 
     public boolean reservesColumns() {
