@@ -1125,9 +1125,11 @@ add(_ugly, 'meadow', '争窝、骂人索食、装可爱、抢食与乱拉', '争
     '另一个人拿锥时的装可爱求饶与退缩。东西两端看一只抢走苹果、另一只讨不到便离开。南侧看有沙厕时就地拉和走去沙厕。',
     '约 1 分钟', [
         *(line for x, name, traits in ((-7, 'nest_declare', _pushy), (7, 'nest_yield', _considerate))
-          for line in (box(x - 2, 3, -17, x + 2, 3, -12, 'minecraft:oak_planks'),
-                       block(x, 0, -16, 'mcyukkuri:straw_nest[facing=south]'),
-                       _choice_actor(name, x, -14.5, yaw=0, energy=55, **traits))),
+          for line in (box(x - 2, 3, -18, x + 2, 3, -12, 'minecraft:oak_planks'),
+                       *(block(nx, 0, nz, 'minecraft:oak_fence') for nx in range(x - 2, x + 3)
+                         for nz in range(-18, -11) if abs(nx - x) == 2 or nz in (-18, -12)),
+                       block(x, 0, -15, 'mcyukkuri:straw_nest[facing=south]'),
+                       _choice_actor(name, x - .85, -13.8, yaw=0, energy=55, **traits))),
         human('caretaker_sister', 0, -7, 'apple_holder', 0, label='拿苹果的人')[:-1]
         + ',NoAI:1b,HandItems:[{id:"minecraft:apple",count:1},{}]}',
         _choice_actor('food_demand', -1.4, -7, yaw=-90, nutrition=38, social_wait=0, lead=True, **_pushy),
@@ -1144,12 +1146,12 @@ add(_ugly, 'meadow', '争窝、骂人索食、装可爱、抢食与乱拉', '争
                           extra=_apple_in_mouth),
                        f'data merge entity {sel("serving_" + name)} {{YukkuriLife:{{MealTicks:1}}}}')),
         block(-8, 0, 18, 'mcyukkuri:yukkuri_toilet'), block(8, 0, 18, 'mcyukkuri:yukkuri_toilet'),
-        _choice_actor('floor_dirty', -8, 14, bladder=85, yaw=0, **_pushy),
-        _choice_actor('toilet_use', 8, 14, bladder=85, yaw=0, **_considerate),
-    ], env=DAY, vantage=(0, 21, 180, 25),
-    late=[home('nest_declare', -7, -16), home('nest_yield', 7, -16),
-          yk('reimu', -7, -14, 'nest_peer_west', energy=55, yaw=180),
-          yk('reimu', 7, -14, 'nest_peer_east', energy=55, yaw=180)],
+        _choice_actor('floor_dirty', -8, 14, bladder=76, yaw=0, **_pushy),
+        _choice_actor('toilet_use', 8, 14, bladder=76, yaw=0, **_considerate),
+    ], env=DAY, vantage=(0, 21, 180, 10),
+    late=[home('nest_declare', -7, -15), home('nest_yield', 7, -15),
+          yk('reimu', -7, -13.8, 'nest_peer_west', energy=55, yaw=180),
+          yk('reimu', 7, -13.8, 'nest_peer_east', energy=55, yaw=180)],
     reads=[('读各只的性格与需要', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..40] raw')],
     smoke=dict(ticks=1200, expect=[], forbid=[], verify=_choice_once))
 
