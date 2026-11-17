@@ -42,7 +42,7 @@ public final class BegBite {
     private UUID human;
     private ItemStack petFood, strayFood = ItemStack.EMPTY;
     private String result = "";
-    private boolean snatch;
+    private boolean snatch, drivenOff;
     private int duration;
 
     private BegBite(YukkuriEntity pet, double distance, Vec3 stand) {
@@ -183,6 +183,13 @@ public final class BegBite {
                 if (elapsed >= duration) walk(scene, Beat.BACK, away(stray, pet, snatch ? distance * 1.8 : distance));
             }
             case BACK -> {
+                if (drivenOff) {
+                    // The owner's shoo already sends the robber running with the food; the card's outcome is decided.
+                    pet.showReaction(DROOP, "open_cry", "");
+                    pet.speakCue("beg_grudge");
+                    WildEvents.finish(level, scene, Phase.COMPLETE, result);
+                    return;
+                }
                 if (arrived(stray, pet)) {
                     setBeat(scene, Beat.EAT);
                     if (snatch) {
@@ -324,6 +331,7 @@ public final class BegBite {
             BadgeSocial.spread(level, stray, Rumours.THIEF, stray.getUUID(), 2);
             GameplayLog.event(pet, "badge", "beg grudge stray={} closeness={}->{} fear={}->{}",
                     stray.getUUID(), before.closeness(), after.closeness(), before.fear(), after.fear());
+            ownerSeesRobbery(level, pet, stray);
         } else {
             result = "shared";
             BadgeArcs.note(stray, pet, BadgeLedger.FED_BY, now);
@@ -334,6 +342,14 @@ public final class BegBite {
         }
         GameplayLog.event(stray, "badge", "beg transfer pet={} result={} received={} retained={} gap={}", this.pet,
                 result, strayFood.getItem(), petFood.getItem(), gap(stray, pet));
+    }
+
+    /** A resident owner who sees its pet robbed drives the thief off; the food stays in the fleeing thief's mouth. */
+    private void ownerSeesRobbery(ServerLevel level, YukkuriEntity pet, YukkuriEntity stray) {
+        if (pet.pet().owner() == null || !(level.getEntity(pet.pet().owner()) instanceof HumanNpc owner)
+                || !owner.isAlive() || owner.distanceToSqr(pet) > 144 || !pet.hasLineOfSight(owner)) return;
+        owner.helpPet(pet, stray);
+        drivenOff = true;
     }
 
     void move(ServerLevel level, YukkuriEntity actor, YukkuriEntity stray, YukkuriEntity pet) {
