@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -53,6 +54,7 @@ final class PlantSweetening extends Goal {
     private long nextPressure;
 
     private record Job(Path path, Runnable contact) {}
+    private record Candidate(YukkuriEntity body, PlantSite.Box box, double need) {}
 
     PlantSweetening(HumanNpc staff) {
         this.staff = staff;
@@ -82,9 +84,7 @@ final class PlantSweetening extends Goal {
                 || !(staff.level() instanceof ServerLevel level)) return false;
         var layout = PlantSite.layout(level, staff.plantSite());
         if (layout == null) return false;
-        YukkuriEntity candidate = null;
-        PlantSite.Box pen = null;
-        double best = 0;
+        var candidates = new ArrayList<Candidate>();
         for (var box : layout.boxes()) {
             var stock = level.getEntitiesOfClass(YukkuriEntity.class, AABB.of(box.bounds()).expandTowards(0, 1, 0),
                     animal -> owns(animal) && box.floor().contains(BlockPos.containing(animal.getX(), box.door().getY(), animal.getZ())));
@@ -98,48 +98,56 @@ final class PlantSweetening extends Goal {
                     continue;
                 }
                 if (level.getGameTime() < nextPressure || !visible(level, box, animal)) continue;
-                if (needsTreatment(animal)) {
+                if (needsTreatment(animal) && GlassSight.sees(staff, animal)) {
                     GameplayLog.limited(animal, "factory", "treat_later", 1200, "action=sweetening decision=treat_later staff={} health={} unease={}",
                             staff.getUUID(), animal.body().healthRatio(), animal.mind().unease());
                     continue;
                 }
                 double need = need(animal);
-                if (need > best) { best = need; candidate = animal; pen = box; }
+                if (need > 0) candidates.add(new Candidate(animal, box, need));
             }
         }
 
         if (staff.getMainHandItem().isEmpty() && recoverTool(level, layout)) return true;
-        if (candidate == null) return false;
-        var body = candidate;
+        if (candidates.isEmpty()) return false;
         var cabinet = level.getBlockEntity(layout.tools()) instanceof ChestBlockEntity chest ? chest : null;
+        candidates.sort(Comparator.comparingDouble(Candidate::need).reversed());
+        for (var candidate : candidates) if (planPressure(level, layout.tools(), cabinet, candidate)) return true;
+        return false;
+    }
+
+    private boolean planPressure(ServerLevel level, BlockPos tools, ChestBlockEntity cabinet, Candidate candidate) {
+        var body = candidate.body();
+        var box = candidate.box();
+        boolean inReach = touching(body);
+        var path = inReach ? null : contactPath(level, body, box);
+        if (!inReach && (path == null || !path.canReach() || path.getTarget().equals(staff.blockPosition()))) return false;
         var held = staff.getMainHandItem();
         var preferred = preferredTool(body);
         int slot = cabinet == null ? -1 : toolSlot(cabinet, preferred, body);
-        if (!held.is(preferred) && slot >= 0) return getTool(level, layout.tools(), slot, preferred);
+        if (!held.is(preferred) && slot >= 0 && getTool(level, tools, slot, preferred)) return true;
         if (!usable(held, body)) {
             if (cabinet == null) return false;
             for (int i = 0; i < cabinet.getContainerSize(); i++) {
                 var stack = cabinet.getItem(i);
-                if (usable(stack, body)) return getTool(level, layout.tools(), i, stack.getItem());
+                if (usable(stack, body)) return getTool(level, tools, i, stack.getItem());
             }
             return false;
         }
-        if (touching(body)) {
-            var box = pen;
-            job = new Job(null, () -> apply(box, body));
-            return true;
-        }
+        job = new Job(path, () -> apply(box, body));
+        return true;
+    }
+
+    private Path contactPath(ServerLevel level, YukkuriEntity body, PlantSite.Box box) {
         var stands = new HashSet<BlockPos>();
-        for (var stand : pen.floor()) {
+        for (var stand : box.floor()) {
             var feet = Vec3.atBottomCenterOf(stand);
             if (feet.distanceToSqr(body.position()) > REACH * REACH) continue;
             var ray = new ClipContext(feet.add(0, staff.getEyeHeight(), 0), body.getEyePosition(),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, staff);
             if (level.clip(ray).getType() == HitResult.Type.MISS) stands.add(stand);
         }
-        if (stands.isEmpty()) return false;
-        var box = pen;
-        return walk(staff.shopPath(stands, body.getBoundingBox()), () -> apply(box, body));
+        return stands.isEmpty() ? null : staff.shopPath(stands, body.getBoundingBox());
     }
 
     private boolean visible(ServerLevel level, PlantSite.Box box, YukkuriEntity animal) {
@@ -223,7 +231,8 @@ final class PlantSweetening extends Goal {
 
     private boolean getTool(ServerLevel level, BlockPos at, int slot, Item item) {
         Runnable swap = () -> {
-            if (!(level.getBlockEntity(at) instanceof ChestBlockEntity cabinet) || !cabinet.getItem(slot).is(item)) return;
+            if (at.distSqr(staff.blockPosition()) > 1 || !(level.getBlockEntity(at) instanceof ChestBlockEntity cabinet)
+                    || !cabinet.getItem(slot).is(item)) return;
             var taken = cabinet.getItem(slot);
             var returned = staff.getMainHandItem();
             cabinet.setItem(slot, returned);
@@ -274,7 +283,7 @@ final class PlantSweetening extends Goal {
         var work = job;
         job = null;
         staff.getNavigation().stop();
-        if (work.path() == null || staff.blockPosition().equals(work.path().getTarget())) work.contact().run();
+        work.contact().run();
     }
 
     @Override public void stop() {

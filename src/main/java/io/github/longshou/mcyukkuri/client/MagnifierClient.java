@@ -10,6 +10,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
@@ -92,11 +93,19 @@ public final class MagnifierClient {
         var mood = aim.moodReadout();
         var readout = StatusStrip.of(aim);
         if (!mood.isEmpty()) {
-            int fear = mood.getCompound("fear").getInt(player.getUUID().toString());
+            var fear = mood.getCompound("fear");
             var mind = Component.translatable("magnifier.mcyukkuri.mind", decimal(mood.getFloat("unease")),
-                    decimal(mood.getFloat("sweetness")), mood.getInt("filling"), fear);
-            if (mood.getInt("max_fear") > fear)
-                mind.append(" · ").append(Component.translatable("magnifier.mcyukkuri.fear_of", mood.getString("source"), mood.getInt("max_fear")));
+                    decimal(mood.getFloat("sweetness")), mood.getInt("filling"), fear.getInt(player.getUUID().toString()));
+            var strongest = mood.getList("strongest", Tag.TAG_COMPOUND);
+            for (int i = 0; i < strongest.size(); i++) {
+                var edge = strongest.getCompound(i);
+                var actor = edge.getUUID("actor");
+                if (player.getUUID().equals(actor)) continue;
+                var source = player.level().getEntity(edge.getInt("entity"));
+                var name = source == null ? Component.literal(actor.toString().substring(0, 8)) : source.getDisplayName();
+                mind.append(" · ").append(Component.translatable("magnifier.mcyukkuri.fear_of", name, fear.getInt(actor.toString())));
+                break;
+            }
             readout = readout.withMind(mind);
         }
         readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());

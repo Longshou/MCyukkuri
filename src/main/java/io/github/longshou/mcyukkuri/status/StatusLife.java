@@ -5,11 +5,13 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile.Ecology;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -61,16 +63,22 @@ public final class StatusLife {
             mood.putInt("filling", entity.mind().fillingSweetness());
             var level = (ServerLevel) entity.level();
             var fear = new CompoundTag();
-            YukkuriWorldData.get(level).relationsFrom(entity.getUUID()).forEach((actor, relation) -> {
-                if (relation.fear() == 0) return;
-                fear.putInt(actor.toString(), relation.fear());
-                if (relation.fear() > mood.getInt("max_fear")) {
-                    mood.putInt("max_fear", relation.fear());
-                    var source = level.getEntity(actor);
-                    mood.putString("source", source == null ? actor.toString().substring(0, 8) : source.getDisplayName().getString());
-                }
+            var relations = YukkuriWorldData.get(level).relationsFrom(entity.getUUID());
+            relations.forEach((actor, relation) -> {
+                if (relation.fear() > 0) fear.putInt(actor.toString(), relation.fear());
             });
             mood.put("fear", fear);
+            var strongest = new ListTag();
+            relations.entrySet().stream().filter(edge -> edge.getValue().fear() > 0)
+                    .sorted(Comparator.comparingInt(edge -> -edge.getValue().fear())).limit(2).forEach(edge -> {
+                        var entry = new CompoundTag();
+                        var actor = edge.getKey();
+                        entry.putUUID("actor", actor);
+                        var source = level.getEntity(actor);
+                        if (source != null) entry.putInt("entity", source.getId());
+                        strongest.add(entry);
+                    });
+            mood.put("strongest", strongest);
             entity.syncComponentData(MOOD, mood);
             if (firstIdentity && TraceRecorder.recorded(entity)) StatusEvents.note(entity, "identity observed kind=" + identity.id());
         }

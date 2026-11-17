@@ -2434,18 +2434,18 @@ add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房�
 
 _sweet_box = 'factory_sweet_box'
 _sweet_cast = (
-    ('sweet_defiant', 3, 17, '胆大·低自制', 80, 25, 25, 59),
-    ('sweet_endure', 4, 18, '胆大·高自制', 80, 80, 55, 61),
-    ('sweet_timid', 3, 20, '胆小·低自制', 25, 30, 55, 63),
+    ('sweet_defiant', 3, 17, '胆大·低自制', 80, 25, 25, 59, 75),
+    ('sweet_endure', 4, 18, '胆大·高自制', 80, 80, 55, 61, 45),
+    ('sweet_timid', 3, 20, '胆小·低自制', 25, 30, 55, 63, 64),
 )
 _sweet_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
 add(_sweet_box, 'plant', '甜化箱', '甜化箱',
     '在 A 箱比较三只同龄油库里。同样用一次冷锥，看谁回嘴、硬撑、噤声、哭求或退开。用放大镜记下每只的不安、积甜、馅甜和对你或员工的恐惧。'
     '看员工拿真实工具办差，开门、挡路或松绑都能改变下一次接触。B、C、D 箱的开张原料供对照箱牌。',
     '观察一至两分钟，等个体回到日常活动', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
-    late=[command for name, x, z, label, bold, control, friendly, unease in _sweet_cast for command in (
+    late=[command for name, x, z, label, bold, control, friendly, unease, bladder in _sweet_cast for command in (
         yk('marisa', _plant_x + x - 10, _plant_z + z, name, dy=2, label=label, boldness=bold, self_control=control,
-           friendliness=friendly, nutrition=41, energy=70, bladder=75, social_wait=0, rest_wait=0, picky=0,
+           friendliness=friendly, nutrition=41, energy=70, bladder=bladder, social_wait=0, rest_wait=0, picky=0,
            uuid=uid(_sweet_box, name), lead=name == 'sweet_defiant',
            extra=f'YukkuriMind:{{Migrated:1b,Unease:{unease}f,Sweetness:5f}}'),
         f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
@@ -6138,6 +6138,7 @@ _sweet_pressure = (r'\[factory\][^\n]* uuid=(\S+) t=(\d+)[^\n]* action=sweetenin
                    r' item=(\S+) unease=([\d.]+) -> ([\d.]+) health=([\d.]+) sweet=([\d.]+) fear=(\d+)')
 _sweet_victim = (r'\[punishment\][^\n]* uuid=(\S+) t=(\d+)[^\n]* victim actor=(\S+) incident=(\S+)'
                  r' response=(\w+) fear=(\d+) -> (\d+)')
+_sweet_bind = r'\[interaction\][^\n]* uuid=(\S+) t=(\d+)[^\n]* operation started; actor=(\S+) pose=(PIN|FIXED) [^\n]*reserved_item=(\S+) count=1'
 
 
 def _verify_sweet_box(window):
@@ -6158,11 +6159,22 @@ def _verify_sweet_box(window):
         return f'Expected contrasting responses to the same player tool across all three actors, got {compared}'
     if len({actor for _, actor, *_ in compared}) != 1 or any(after <= before for _, _, _, before, after in compared):
         return f'Expected fear of the same actual operator to increase, got {compared}'
-    for animal, tick, staff, pose in re.findall(
-            r'\[interaction\][^\n]* uuid=(\S+) t=(\d+)[^\n]* operation started; actor=(\S+) pose=(PIN|FIXED)', window):
-        end = re.search(rf'\[interaction\][^\n]* uuid={animal} t=(\d+)[^\n]* operation ended; actor={staff} pose={pose}', window)
-        if end is None or not 0 <= int(end[1]) - int(tick) <= 402:
+    binds = list(re.finditer(_sweet_bind, window))
+    if not binds:
+        return 'Expected staff to use the physical binding tool after the awl was moved out of the cabinet'
+    recovered = False
+    for bind in binds:
+        animal, tick, staff, pose, item = bind.groups()
+        tail = window[bind.end():]
+        end = re.search(rf'\[interaction\][^\n]* uuid={animal} t=(\d+)[^\n]* operation ended; actor={staff} pose={pose}', tail)
+        if end is None or int(end[1]) - int(tick) > (240 if pose == 'PIN' else 400) + 2:
             return f'{pose} on {animal} at {tick} did not end within the shared operation limit'
+        returned = re.search(rf'\[interaction\][^\n]* uuid={animal} t={end[1]} [^\n]* binding returned to world; drop=(\S+) item={re.escape(item)} count=1', tail)
+        if returned is None:
+            return f'{pose} on {animal} at {tick} did not return the physical tool'
+        recovered |= bool(re.search(rf'\[interaction\][^\n]* uuid={staff} [^\n]* tool picked up; drop={returned[1]} item={re.escape(item)} hand_count=0 -> 1', tail[returned.end():]))
+    if not recovered:
+        return 'The worker never recovered a released binding tool by its drop UUID'
     return None
 
 
@@ -6176,9 +6188,14 @@ _smoke(_sweet_box, 2400, [
 ])
 _sweet_smoke = next(s for s in S if s.id == _sweet_box).smoke
 _sweet_smoke['verify'] = _verify_sweet_box
+_sweet_cabinet = f'~{_plant_x - 1} ~2 ~{_plant_z + 16}'
+_sweet_wheat = f'~{_plant_x + 8} ~2 ~{_plant_z + 18}'
 _sweet_smoke['commands'] = [
-    (2050 + 2 * i, f'execute at {sel(name)} positioned ~ ~ ~0.4 run yukkuri scenario tool_click {sel(name)} pierce')
-    for i, (name, *_) in enumerate(_sweet_cast)
+    # Model a tool taken out of service by moving the real stack to the separate store chest.
+    (1, f'item replace block {_sweet_wheat} container.17 from block {_sweet_cabinet} container.0'),
+    (1, f'item replace block {_sweet_cabinet} container.0 with minecraft:air'),
+    *[(2050 + 2 * i, f'execute at {sel(name)} run yukkuri scenario tool_click {sel(name)} pierce')
+      for i, (name, *_) in enumerate(_sweet_cast)],
 ]
 _legacy_bag = '{id:"mcyukkuri:live_yukkuri_bag",count:1,components:{"minecraft:custom_data":{CaptiveToken:[I;8,7,6,5],EntityUUID:[I;1,2,3,4],Variant:"reimu",BatchNumber:42}}}'
 _legacy_worker = '@e[type=mcyukkuri:caretaker_brother,tag=legacy_factory,distance=..45,limit=1]'
