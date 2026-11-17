@@ -355,12 +355,29 @@ def cage(b, x0, z0, x1, z1, door, facing, floor='coarse_dirt'):
     for x, z in leaves: b.box((x, 5, z), (x, 6, z), *p.state(p.post, 'z' if facing in ('east', 'west') else 'x'), over=True)
 
 
+# The stress room (design factory.md section 5): a lean-to on the shop's west side, outside the shop's protection box. The template is
+# ROOM columns wider than the shop: template x = shop x + ROOM. Shop-frame coordinates below (and in the README) are the shop's own.
+ROOM = 6
+ROOM_Z = (10, 18)          # room walls along z; interior z11..17, template x1..5
+ROOM_DOOR = 14             # its 2-wide door in the shop's west wall (shop x1), z14..15, faces the counter's west end
+
+
 def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
-    """The oni-san shop (25 x 15 x 26): a shabby, low single storey in the type's materials with its weathering (worn plinth, patched
-    roof or parapet, replaced floor boards) and a faded two-head sign. Street window cage with floor-level glass (stock on display), a tool
-    wall, two goods shelves, three stock cages behind full bars serviced from a staff corridor, a counter, the staff strip and a back
-    room with the dock, the waste barrel and a treatment bench. Floor y2, people walk at y3, ceiling y7; walls x1..23, z3..24."""
-    from check_structure import light_levels, walk_cells
+    """The oni-san shop (31 x 15 x 26): the shop (oni_body, 25 wide) moved ROOM columns east, the stress room on its west side, then
+    the lighting of both."""
+    b = shifted(oni_body(p, name), name, dx=ROOM)
+    b.strict = True
+    stress_room(b)
+    oni_lighting(b)
+    return b
+
+
+def oni_body(p, name):
+    """The oni-san shop itself (25 x 15 x 26), unlit: a shabby, low single storey in the type's materials with its weathering (worn plinth,
+    patched roof or parapet, replaced floor boards) and a faded two-head sign. Street window cage with floor-level glass (stock on display),
+    a tool wall, two goods shelves, three stock cages behind full bars serviced from a staff corridor, a counter with the restraint lending
+    tray, the staff strip and a back room with the dock, the waste barrel and a treatment bench. Floor y2, people walk at y3, ceiling y7;
+    walls x1..23, z3..24."""
     b = Site(name, [25, 15, 26], p, floor=3)
     POST = p.state(p.post if p.flat else p.tree_log)   # bark posts: an old frame, not the clean trim of the pet shop
     planks = p.planks(); board = f'stripped_{p.wood}_wood'   # boards replaced over the years
@@ -461,8 +478,8 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
         for i, ((kind, traits, nutrition, hygiene, age), (x, z)) in enumerate(zip(stock, starts)):
             shape = 'FACE_ASYMMETRY' if name == 'cage_c' and i == 2 else 'NORMAL'
             oni_stock(b, x, z, kind, traits, nutrition, hygiene, age, shape=shape)
-    # Tool wall (west, x2 against x1): fourteen tools in two rows of fixed frames.
-    for i, item in enumerate(TOOLS): frame(b, 2, 5 - i // 7, 9 + i % 7, item, facing='east')
+    # Tool wall (west, x2 against x1): the tools in two rows of fixed frames, z9..13; the stress room door follows at z14..15.
+    for i, item in enumerate(TOOLS): frame(b, 2, 5 - i // 5, 9 + i % 5, item, facing='east')
     # Two goods shelves of stacked barrels: consumables on the first, grain and household goods on the second; frames on their east faces.
     for z in range(10, 14):
         for x in (4, 5, 8, 9):
@@ -478,6 +495,10 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     for x in range(5, 15): slab(b, x, 4, 16, p.wood, 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
         display_tray(b, x, 4, 16, 'north', (item, 1 if 'grain' in item else 2), raised=True)
+    # Lending tray at the counter's west end, the one nearest the stress room door: the shop's one real restraint frame lies in it, and
+    # the deposit lies there while the frame is out (design factory.md section 5).
+    display_tray(b, 5, 4, 16, 'north', 'mcyukkuri:restraint_frame', raised=True)
+    marker(b, 5.5, 4.5, 16.5, 'mcy_oni_lend')
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
     # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a demo table in the main
@@ -517,16 +538,82 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
     for x, z in [(2, 23), (22, 23), (2, 17), (22, 4)]: b.block(x, 6, z, 'cobweb')
     # Shop footprint (protection, roster, staff membership): the building from the facade to the back wall.
     marker(b, 1.5, 0.5, 3.5, 'mcy_oni_corner'); marker(b, 23.5, 13.5, 24.5, 'mcy_oni_corner')
-    # ---- Lighting: a few lanterns on chains, then hidden light blocks until every covered walkable cell has light >= 8.
+    return b
+
+
+def stress_room(b):
+    """The stress room on the shop's west side (template coordinates; the shop stands from x ROOM): a low lean-to of the shop's materials
+    against its west wall, interior x1..5, z11..17, outside the shop's protection box (ShopRegistry: shop x0..24, z1..24 around the
+    clerk's post) so a player may use a tool on an animal in it. Its 2-wide wooden door is cut into the shop's west wall at z14..15, at
+    the end of the customers' counter row: door and counter see each other. Dry boards with a hard 3x3 floor in the middle where a
+    carrier is opened, a bench, a barred vent to the forecourt. The forecourt in front of it continues the shop's pavement."""
+    p = b.palette; R = ROOM; z0, z1 = ROOM_Z
+    POST = p.state(p.post if p.flat else p.tree_log)
+    floor, mend = (p.floor, p.roof_patch) if p.flat else (p.planks(), f'stripped_{p.wood}_wood')
+    worn = ((p.plinth, 60),) + tuple((block, 2 * w) for block, w in p.weathered)
+    # Ground of the new columns: foundation, plinth, the paved forecourt at the shop's pavement height, a strip of yard behind.
+    for x in range(R):
+        for z in range(26):
+            b.block(x, 0, z, p.plinth)
+            b.block(x, 1, z, *(build.ground(p) if z > z1 else (p.plinth_at(x, z),)))
+            if z < z0: b.block(x, 2, z, pick(p.sidewalk + tuple((block, 2) for block, _ in p.weathered), x, z, 4))
+    for x in range(R + 1):
+        for z in range(z0, z1 + 1): b.block(x, 2, z, mend if (x * 73856093 ^ z * 19349663) % 7 == 0 else floor, over=True)
+    b.box((2, 2, 13), (4, 2, 15), p.aisle, over=True)                                # hard floor where the carrier is opened
+    # Walls: worn plinth course, then wall up to the roof line; bark posts at the corners and mid west wall.
+    roof_y = (lambda x: 7) if p.flat else (lambda x: 6 + x // 2)
+    def eave(z): return min(y for y in range(8, 15) if name_at(b, R, y, z) != 'minecraft:air')   # the shop's roof over x R
+    def top(x, z): return eave(z) - 1 if x == R and not p.flat else roof_y(x) - 1
+    for x in range(R + 1):
+        for z in range(z0, z1 + 1):
+            if x not in (0, R) and z not in (z0, z1): continue
+            b.block(x, 3, z, pick(worn, x, z, 6))
+            b.box((x, 4, z), (x, top(x, z), z), p.wall)
+    for x, z in [(0, z0), (0, z1), (R, z0), (R, z1), (0, 14)]: b.box((x, 3, z), (x, top(x, z), z), *POST, over=True)
+    b.box((3, 4, z0), (3, 5, z0), 'iron_bars', over=True)                              # vent onto the forecourt
+    # Roof: a lean-to rising toward the shop in slab/stair half steps (trim on the eave and verges, old patches); flat with a parapet in
+    # the desert.
+    if p.flat:
+        flat_roof(b, p, {(x, z) for x in range(R + 1) for z in range(z0, z1 + 1)}, 7)
+    else:
+        for x in range(R):
+            for z in range(z0, z1 + 1):
+                mat = p.roof_trim if (x == 0 or z in (z0, z1)) and (x % 2 == 0 or p.trim_stairs) else p.roof
+                if mat == p.roof and (x * 3 + z * 5) % 11 == 0: mat = p.roof_patch
+                if x % 2 == 0: slab(b, x, roof_y(x), z, mat)
+                else: stairs(b, x, roof_y(x), z, mat, 'east')
+    # Door: two wooden leaves in the shop's west wall (shop x1) under a log lintel, a post closing the opening on the counter side, and
+    # the 1-deep threshold through the room's own east wall.
+    d = ROOM_DOOR; wall = R + 1
+    b.box((wall, 3, d + 2), (wall, 7, d + 2), *POST, over=True)
+    for x in (R, wall):
+        b.box((x, 3, d), (x, 4, d + 1), 'air', over=True)
+        b.box((x, 5, d), (x, 5, d + 1), *p.state(POST[0], 'z'), over=True)
+    b.door(wall, 3, d, 'east', p.wood, 'left'); b.door(wall, 3, d + 1, 'east', p.wood, 'right')
+    # Furnishing: a bench along the west wall, a lantern from the roof, an old cobweb.
+    furniture(b, 'bench', 3, [(1, 16), (1, 17)], 'z')
+    b.block(3, roof_y(3) - 1, 14, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
+    b.block(1, 5, 11, 'cobweb')
+    b.block(1, 3, 9, 'potted_dead_bush')
+    # Interior floor cells (feet level), for the code: the room is the box between the two markers.
+    marker(b, 1.5, 3, z0 + 1.5, 'mcy_oni_room'); marker(b, R - .5, 3, z1 - .5, 'mcy_oni_room')
+
+
+def oni_lighting(b):
+    """A few lanterns on chains in the shop, hidden light blocks until every covered walkable shop cell has light >= 8, then the shared
+    light rule over the whole piece (the stress room included)."""
+    from check_structure import light_levels, walk_cells
+    R = ROOM
     for x, z in [(4, 9), (12, 6), (18, 6), (12, 12), (7, 17), (17, 21), (21, 13)]:
-        b.block(x, 6, z, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
+        b.block(x + R, 6, z, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     order = sorted(((abs(dx) + abs(dz), dx, dz) for dx in range(-2, 3) for dz in range(-2, 3)))
     def invisible(x, z):
         y = 6 if 4 <= z <= 23 else 4            # under the ceiling indoors, at head height under the awning outside
-        if not 0 <= x <= 24 or not 0 <= z <= 23 or name_at(b, x, y, z) != 'minecraft:air' or (y == 6 and not 2 <= x <= 22): return False
+        if not R <= x <= R + 24 or not 0 <= z <= 23 or name_at(b, x, y, z) != 'minecraft:air' or (y == 6 and not R + 2 <= x <= R + 22): return False
         b.block(x, y, z, 'light', {'level': '15' if y == 6 else '12', 'waterlogged': 'false'}); return True
     for _ in range(200):
-        level = light_levels(b); dark = sorted((level.get((x, 3, z), 0), (x, z)) for x, z in walk_cells(b) if level.get((x, 3, z), 0) < 8)
+        level = light_levels(b)
+        dark = sorted((level.get((x, 3, z), 0), (x, z)) for x, z in walk_cells(b) if x > R and level.get((x, 3, z), 0) < 8)
         if not dark: break
         x, z = dark[0][1]
         if not any(invisible(x + dx, z + dz) for _, dx, dz in order): break
@@ -536,19 +623,21 @@ def oni_shop(p=PLAINS, name='yukkuri_oni_shop'):
 
 
 # ---------------------------------------------------------------------------------------------------------- village lots
-def shifted(original, name, dz):
-    """The original layout moved dz rows south (the museum template stays byte-identical), with its entities moved along."""
+def shifted(original, name, dz=0, dx=0):
+    """The original layout moved dx columns east and dz rows south (the source plan stays as it is), with its entities, pens, doors and
+    recorded overwrites moved along."""
     width, height, depth = original.size
-    lot = Site(name, [width, height, depth + dz], original.palette, getattr(original, 'floor', 1))
-    lot.blocks = {(x, y, z + dz): block for (x, y, z), block in original.blocks.items()}
-    lot.pens = [dict(p, interior=(p['interior'][0], p['interior'][1] + dz, p['interior'][2], p['interior'][3] + dz),
-                     bowl=(p['bowl'][0], p['bowl'][1] + dz), nests=[(x, z + dz) for x, z in p['nests']],
-                     hatch=None if p['hatch'] is None else (p['hatch'][0], p['hatch'][1] + dz)) for p in original.pens]
-    lot.doors = [(x, y, z + dz) for x, y, z in original.doors]
+    lot = Site(name, [width + dx, height, depth + dz], original.palette, getattr(original, 'floor', 1))
+    lot.blocks = {(x + dx, y, z + dz): block for (x, y, z), block in original.blocks.items()}
+    lot.pens = [dict(p, interior=(p['interior'][0] + dx, p['interior'][1] + dz, p['interior'][2] + dx, p['interior'][3] + dz),
+                     bowl=(p['bowl'][0] + dx, p['bowl'][1] + dz), nests=[(x + dx, z + dz) for x, z in p['nests']],
+                     hatch=None if p['hatch'] is None else (p['hatch'][0] + dx, p['hatch'][1] + dz)) for p in original.pens]
+    lot.doors = [(x + dx, y, z + dz) for x, y, z in original.doors]
+    lot.conflicts = [((x + dx, y, z + dz), old, new) for (x, y, z), old, new in original.conflicts]
     for entity in original.entities:
         x, y, z = entity['pos'][1][1]
-        nbt = dict(entity['nbt'][1]); nbt['Pos'] = sequence(6, [x, y, z + dz])
-        lot.entities.append({'pos': nbt['Pos'], 'blockPos': sequence(3, [int(x), int(y), int(z) + dz]), 'nbt': compound(nbt)})
+        nbt = dict(entity['nbt'][1]); nbt['Pos'] = sequence(6, [x + dx, y, z + dz])
+        lot.entities.append({'pos': nbt['Pos'], 'blockPos': sequence(3, [int(x) + dx, int(y), int(z) + dz]), 'nbt': compound(nbt)})
     return lot
 
 
@@ -558,8 +647,8 @@ def village_oni_shop(original):
     lot = shifted(original, f'village/{p.style}/oni_shop', 8)
     street_band(lot, 0, original.size[0] - 1)
     # Staff carry actual scraps to the pavement bin. There is no prefilled paper or hair to mask that transfer.
-    garbage(lot, 1, 1, 7, 'north', [('stick', 2), ('bread', 1)])
-    lamp(lot, 16, 1, 7); lamp(lot, 6, 1, 1); lamp(lot, 20, 1, 1)
+    garbage(lot, ROOM + 1, 1, 7, 'north', [('stick', 2), ('bread', 1)])
+    lamp(lot, ROOM + 16, 1, 7); lamp(lot, ROOM + 6, 1, 1); lamp(lot, ROOM + 20, 1, 1)
     street_ends(lot, original.size[0])
     light_up(lot)
     return lot

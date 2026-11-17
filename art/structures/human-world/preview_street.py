@@ -113,7 +113,7 @@ def overlay(plan, b, offset, goods=None):
                 goods.append(nbt['data'][1]['Item'][1]['id'][1].split(':')[1])
                 frames.setdefault((x, z), []).append(str(len(goods)))
             elif tag.startswith('mcy_oni_') and 'corner' not in tag:
-                plan.text(x, z + .9, {'mcy_oni_counter': '柜台交接', 'mcy_oni_dock': '进出货桶', 'mcy_oni_trash': '废物桶'}[tag], 12, back='#5b2a86cc')
+                plan.text(x, z + .9, ONI_MARKERS[tag], 12, back='#5b2a86cc')
     for (x, z), numbers in frames.items():   # two rows of frames on one wall cell share a label
         u, v = plan.at(x, z); label = '/'.join(numbers); f = ps.font(11)
         box = plan.draw.textbbox((u, v), label, font=f, anchor='mm')
@@ -121,7 +121,9 @@ def overlay(plan, b, offset, goods=None):
         plan.draw.text((u, v), label, font=f, fill='#ffffff', anchor='mm')
 
 
-ZONES = [  # oni shop interior labels (template coordinates)
+ONI_MARKERS = {'mcy_oni_counter': '柜台交接', 'mcy_oni_dock': '进出货桶', 'mcy_oni_trash': '废物桶', 'mcy_oni_lend': '固定台借还格',
+               'mcy_oni_room': '解压间角'}
+ZONES = [  # oni shop interior labels (shop coordinates; the template adds street_mod.ROOM columns on the west)
     (4.5, 6.6, '橱窗笼'), (12, 5.5, '入口'), (19.5, 6.5, '顾客桌'), (3.5, 8.5, '工具墙'), (5, 14.6, '消耗品'), (9, 14.6, '粮食·日用'),
     (18.5, 10.7, '笼 A'), (18.5, 14.7, '笼 B'), (18.5, 18.7, '笼 C'), (22, 12, '员工通道'), (12, 16.5, '柜台'),
     (4, 18, '柜台后'), (6, 21.5, '后屋'), (11.5, 22.3, '处理台')]
@@ -201,11 +203,11 @@ def main():
     # Plans and the oni-san shop interior, plains (the layout is the same in every type).
     pieces, lot, assembled = street('plains')
     oni, stall, alley = pieces['oni'], pieces['stall'], pieces['alley']
-    view(a, mesh(a, oni, (-12.5, 0, -13), cut=5), out, 'oni-interior', 1400, 1000, -.62, .95, 15.5, 2)
+    view(a, mesh(a, oni, (-oni.size[0] / 2, 0, -13), cut=5), out, 'oni-interior', 1400, 1000, -.62, .95, 17.5, 2)
     goods = []
     plan = Plan(a, out, 'oni-plan', [(oni, (0, 0, 0))], cut=4, px=34)
     overlay(plan, oni, (0, 0, 0), goods)
-    for x, z, label in ZONES: plan.text(x, z, label, 15, back='#273e37cc')
+    for x, z, label in ZONES + [(3.5 - street_mod.ROOM, 13, '解压间')]: plan.text(x + street_mod.ROOM, z, label, 15, back='#273e37cc')
     plan.image.save(out / 'oni-plan.png')
     for b, name in [(stall, 'stall-plan'), (alley, 'alley-plan')]:
         p = Plan(a, out, name, [(b, (0, 0, 0))], cut=b.floor + 1, px=34); overlay(p, b, (0, 0, 0)); p.image.save(out / f'{name}.png')

@@ -123,23 +123,23 @@
   {
     "name": "village/plains/oni_shop",
     "size": [
-      25,
+      31,
       15,
       34
     ],
-    "blocks": 9896,
-    "entities": 33,
+    "blocks": 10513,
+    "entities": 36,
     "source": "art/structures/human-world/author_street.py"
   },
   {
     "name": "yukkuri_oni_shop",
     "size": [
-      25,
+      31,
       15,
       26
     ],
-    "blocks": 9681,
-    "entities": 33,
+    "blocks": 10249,
+    "entities": 36,
     "source": "art/structures/human-world/author_street.py"
   },
   {
@@ -167,12 +167,12 @@
   {
     "name": "village/desert/oni_shop",
     "size": [
-      25,
+      31,
       15,
       34
     ],
-    "blocks": 9896,
-    "entities": 33,
+    "blocks": 10541,
+    "entities": 36,
     "source": "art/structures/human-world/author_street.py"
   },
   {
@@ -200,12 +200,12 @@
   {
     "name": "village/savanna/oni_shop",
     "size": [
-      25,
+      31,
       15,
       34
     ],
-    "blocks": 9896,
-    "entities": 33,
+    "blocks": 10513,
+    "entities": 36,
     "source": "art/structures/human-world/author_street.py"
   },
   {
@@ -233,12 +233,12 @@
   {
     "name": "village/snowy/oni_shop",
     "size": [
-      25,
+      31,
       15,
       34
     ],
-    "blocks": 9894,
-    "entities": 33,
+    "blocks": 10509,
+    "entities": 36,
     "source": "art/structures/human-world/author_street.py"
   },
   {
@@ -266,12 +266,12 @@
   {
     "name": "village/taiga/oni_shop",
     "size": [
-      25,
+      31,
       15,
       34
     ],
-    "blocks": 9896,
-    "entities": 33,
+    "blocks": 10513,
+    "entities": 36,
     "source": "art/structures/human-world/author_street.py"
   },
   {

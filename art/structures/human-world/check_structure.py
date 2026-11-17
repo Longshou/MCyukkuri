@@ -426,13 +426,59 @@ def resident_errors(b, lane):
             errors.append(f'{b.name}: resident home {(x, y, z)} is not an indoor cell behind a door')
     return errors
 
+# ShopRegistry.authoredProtection for the oni shop: the protected box relative to the clerk's post (unrotated template).
+ONI_PROTECTION = ((-9, -3, -16), (15, 11, 7))
+
+def stress_room_errors(b, room):
+    """The oni shop's stress room (author_street.stress_room): its interior (between the two mcy_oni_room markers) lies wholly outside the
+    shop's protection box, on a dry full-block floor with a clear 3x3 middle, lit and reached on foot from the street door; its door and the
+    customer's stand at the lending tray see each other at eye level; the tray holds the restraint frame."""
+    errors = []; tags = {}
+    for ent in b.entities:
+        nbt = ent['nbt'][1]; x, y, z = ent['pos'][1][1]
+        if nbt['id'][1] == 'minecraft:marker': tags.setdefault(nbt['Tags'][1][1][0], []).append((int(x // 1), int(y // 1), int(z // 1)))
+        elif nbt.get('SiteRole', (0, ''))[1] == 'oni_shopkeeper': clerk = (int(x // 1), int(y // 1), int(z // 1))
+    rooms, lend = tags.get('mcy_oni_room', []), tags.get('mcy_oni_lend', [])
+    if len(rooms) != 2 or len(lend) != 1: return [f'{b.name}: stress room needs 2 mcy_oni_room and 1 mcy_oni_lend markers']
+    (lo, hi) = [tuple(c + o for c, o in zip(clerk, off)) for off in ONI_PROTECTION]
+    (ax, y, az), (bx, _, bz) = rooms
+    cells = [(x, z) for x in range(min(ax, bx), max(ax, bx) + 1) for z in range(min(az, bz), max(az, bz) + 1)]
+    inside = [c for c in cells if lo[0] <= c[0] <= hi[0] and lo[2] <= c[1] <= hi[2]]
+    if inside: errors.append(f'{b.name}: stress room cells {inside[:4]} inside the shop protection {lo}..{hi}')
+    wet = [c for c in cells if not full_block(name_at(b, c[0], y - 1, c[1])) or 'water' in name_at(b, c[0], y - 1, c[1])
+           or name_at(b, c[0], y, c[1]) == 'minecraft:water']
+    if wet: errors.append(f'{b.name}: stress room floor not a dry full block at {wet[:4]}')
+    cx = sorted({x for x, _ in cells})[len({x for x, _ in cells}) // 2]; cz = sorted({z for _, z in cells})[len({z for _, z in cells}) // 2]
+    blocked = [(x, z) for x in range(cx - 1, cx + 2) for z in range(cz - 1, cz + 2) if not (free(name_at(b, x, y, z)) and free(name_at(b, x, y + 1, z)))]
+    if blocked: errors.append(f'{b.name}: stress room middle 3x3 not clear at {blocked}')
+    walk = reach_from(b, (room + 11, 1), y)
+    if any(c not in walk for c in cells if free(name_at(b, c[0], y, c[1]))): errors.append(f'{b.name}: stress room not reached on foot from the street door')
+    level = light_levels(b)
+    dark = [c for c in cells if free(name_at(b, c[0], y, c[1])) and level.get((c[0], y, c[1]), 0) < 8]
+    if dark: errors.append(f'{b.name}: stress room cells below light 8: {dark[:4]}')
+    # Eye line (feet + 1.6) from the customer's stand in front of the tray to each door leaf, sampled finely; doors, bars and panes see through.
+    tx, ty, tz = lend[0]; tray = b.blocks.get((tx, ty, tz))
+    if not tray or tray[0] != 'mcyukkuri:display_tray' or 'restraint_frame' not in str(tray[2]): errors.append(f'{b.name}: lending tray at {lend[0]} holds no restraint frame')
+    doors = [(x, z) for x, yy, z in b.doors if yy == y and x == room + 1]
+    if len(doors) != 2: errors.append(f'{b.name}: stress room door is not a 2-wide pair in the shop wall'); return errors
+    see = lambda n: free(n) or n.endswith(('_door', '_pane', 'iron_bars', 'lantern'))
+    for dx, dz in doors:
+        a, c = (tx + .5, tz - .5), (dx + .5, dz + .5); steps = 64
+        for i in range(1, steps):
+            px, pz = a[0] + (c[0] - a[0]) * i / steps, a[1] + (c[1] - a[1]) * i / steps
+            n = name_at(b, int(px // 1), y + 1, int(pz // 1))
+            if not see(n): errors.append(f'{b.name}: tray stand cannot see the stress room door {(dx, dz)}: {n} at {(int(px), int(pz))}'); break
+    return errors
+
 def check_street():
     street = load_street(); errors = []
     for style in street.STYLES:
         built = street.pieces(style)
         for key in ('stall', 'alley'):
             b = built[key]; errors += check_site(b) + stray_errors(b, (1, 4)) + resident_errors(b, (1, 4)) + styled_errors(b)
-        errors += check_site(built['oni'], door=(11, 1), region=(2, 4, 22, 23)) + styled_errors(built['oni'])
+        room = street.ROOM   # the stress room's columns west of the shop (template x = shop x + ROOM); the region covers both
+        errors += check_site(built['oni'], door=(room + 11, 1), region=(1, 4, room + 22, 23)) + styled_errors(built['oni'])
+        errors += stress_room_errors(built['oni'], room)
         errors += stock_nest_clearance(built['oni'])
         errors += stray_errors(built['village_oni'], (1, 4)) + styled_errors(built['village_oni'])
         lot = street.build.village_shop(street.build.shop(street.PALETTES[style]))

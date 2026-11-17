@@ -39,7 +39,8 @@ public final class HumanScenes {
     private HumanScenes() {}
 
     public enum Kind {
-        SHOP("yukkuri_shop", 12), ONI_SHOP("yukkuri_oni_shop", 11);
+        // Template x of the street door. The oni shop template carries its stress room on the west (author_street.ROOM = 6 columns).
+        SHOP("yukkuri_shop", 12), ONI_SHOP("yukkuri_oni_shop", 17);
         public final ResourceLocation template;
         final int entranceX;
         Kind(String id, int entranceX) { this.template = MCYukkuri.id(id); this.entranceX = entranceX; }

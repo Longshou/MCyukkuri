@@ -231,15 +231,16 @@ def main():
                        '展示托盘近看 · 桌上、柜台上摆的东西都真的在托盘里',
                        '托盘里每堆最多四件、最多四堆，平放画出；和货箱一样空手右键拿走一件，手持物品右键放进一件，打掉后里面的东西掉出来', out, 'tray'))
     p = PALETTES['plains']; hall, oni, shelter = civic.badge_hall(p), street.oni_shop(p), civic.shelter(p)
+    R = street.ROOM   # oni shop coordinates below are the shop's own; the template adds the stress room's columns on the west
     images = [
         shot(mesh(a, hall.blocks, (13, 3, 25), ((4, 2, 22), (21, 6, 30))), 'desk-hall', (1000, 520, .2, .5, 5.2, .8)),
-        shot(mesh(a, oni.blocks, (9.5, 3, 16), ((4, 2, 14), (15, 6, 18))), 'desk-oni', (1000, 520, .2, .5, 4.2, .8)),
-        shot(mesh(a, oni.blocks, (12, 3, 9.5), ((10, 2, 7), (14, 5, 12))), 'desk-oni-table', (1000, 520, -1.2, .6, 2.2, .7)),
-        shot(mesh(a, oni.blocks, (11.5, 3, 23), ((8, 2, 21), (14, 5, 24))), 'desk-oni-bench', (1000, 520, .2, .6, 2.6, .8)),
+        shot(mesh(a, oni.blocks, (R + 9.5, 3, 16), ((R + 4, 2, 14), (R + 15, 6, 18))), 'desk-oni', (1000, 520, .2, .5, 4.2, .8)),
+        shot(mesh(a, oni.blocks, (R + 12, 3, 9.5), ((R + 10, 2, 7), (R + 14, 5, 12))), 'desk-oni-table', (1000, 520, -1.2, .6, 2.2, .7)),
+        shot(mesh(a, oni.blocks, (R + 11.5, 3, 23), ((R + 8, 2, 21), (R + 14, 5, 24))), 'desk-oni-bench', (1000, 520, .2, .6, 2.6, .8)),
         shot(mesh(a, shelter.blocks, (14, 1, 16), ((11, 0, 14), (17, 3, 18))), 'desk-shelter', (1000, 520, .25, .5, 2.6, .8)),
         shot(mesh(a, shelter.blocks, (5.5, 1, 21), ((2, 0, 18), (9, 3, 23))), 'desk-supply', (1000, 520, .2, .5, 3.4, .8)),
     ]
-    cards.append(sheet(images, ['徽章会馆受理柜台：铜章、徽章手册、书与笔；后面办公桌上一本书', '鬼威惨商店柜台：馒头、曲奇、辣味粮',
+    cards.append(sheet(images, ['徽章会馆受理柜台：铜章、徽章手册、书与笔；后面办公桌上一本书', '鬼威惨商店柜台：固定台借还格、馒头、曲奇、辣味粮',
                                 '鬼威惨商店演示桌：别针与铁箱', '鬼威惨商店后屋处理台：锥子与剪刀', '保护站接收窗口：橙汁与擦洗布',
                                 '保护站护理桌与物资架：货箱装油粮与襁褓布，托盘放擦洗布、携带箱、食盆'], 2,
                        '用上托盘的桌面与柜台（平原）', '原来悬浮在台面上的展示物都换成托盘或货箱里的真实物品；立体道具（携带箱、食盆、擦洗布）在这里画成图标，游戏里是缩小的立体模型', out, 'desks'))
