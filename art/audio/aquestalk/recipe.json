@@ -33,6 +33,21 @@
       "speed": 100,
       "pitch": 131
     },
+    "reimu.baby": {
+      "voice": "f1",
+      "speed": 100,
+      "pitch": 150
+    },
+    "marisa.baby": {
+      "voice": "f2",
+      "speed": 100,
+      "pitch": 150
+    },
+    "alice.baby": {
+      "voice": "f3",
+      "speed": 100,
+      "pitch": 156
+    },
     "chen.adult": {
       "voice": "f1",
       "speed": 110,
@@ -67,5 +82,5 @@
   "flat_accent": true,
   "output_sample_rate": 32000,
   "peak_limit_dbfs": -3,
-  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系。幼语来自八景 U 原表；幼体音程 125 是本项目初始值，随变速一起改变时长，不声称复原日记参数。只调用本机工具，程序和 DLL 不打包。 新增 alice f3、chen f1、patchouli f1 的差异参数为本项目候选；没有声称是八景 U 或日记原配音参数。"
+  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系。幼语来自八景 U 原表；幼体音程 125 是本项目初始值，随变速一起改变时长，不声称复原日记参数。赤油音程 150／156 只为八景 ver1.12 迁入的原句候选，高于幼体一档，同样不声称复原原配音。只调用本机工具，程序和 DLL 不打包。 新增 alice f3、chen f1、patchouli f1 的差异参数为本项目候选；没有声称是八景 U 或日记原配音参数。"
 }

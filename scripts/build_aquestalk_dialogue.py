@@ -44,8 +44,10 @@ def phonetics(text):
     # AquesTalk's symbol spelling differs from ordinary kana in these cases.
     value = text.replace('\u3000', ' ').replace('〜', 'ー').replace('～', 'ー')
     # AquesTalk's symbol spelling differs from ordinary kana in these cases.
+    # A standalone voicing mark after a kana (「ゆ゛」) is a written strain, not a phoneme AquesTalk accepts.
+    value = value.replace('゛', '').replace('゜', '')
     value = value.replace('ぢ', 'じ').replace('づ', 'ず')
-    value = re.sub(r'([ぁぃぅぇぉ])\1+', lambda m: 'ー'*len(m[0]), value)
+    value = re.sub(r'([ぁぃぅぇぉァィゥェォ])\1+', lambda m: 'ー'*len(m[0]), value)
     for syllable in ('やぁ', 'よぉ', 'よぅ', 'ぜぇ', 'りぃ', 'ちぃ', 'わぁ'):
         value = value.replace(syllable, syllable[0]+'ー')
     for syllable in ('ゅぅ', 'ねぇ', 'ふぅ'):

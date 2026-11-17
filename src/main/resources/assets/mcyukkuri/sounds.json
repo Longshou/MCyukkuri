@@ -4040,6 +4040,528 @@
       }
     ]
   },
+  "voice.native112.reimu.baby.h112_0017": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_0017",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_0017",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_0831": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_0831",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_0831",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_1338": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_1338",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_1338",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_3003": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_3003",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_3003",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_2961": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_2961",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_2961",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_1986": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_1986",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_1986",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_2113": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_2113",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_2113",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_2125": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_2125",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_2125",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_4876": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_4876",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_4876",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_1128": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_1128",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_1128",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_4181": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_4181",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_4181",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_6619": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_6619",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_6619",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_0892": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_0892",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_0892",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.baby.h112_0984": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.baby.h112_0984",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.baby.h112_0984",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_0017": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_0017",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_0017",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_0835": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_0835",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_0835",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_1343": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_1343",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_1343",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_3007": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_3007",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_3007",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_2965": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_2965",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_2965",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_1991": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_1991",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_1991",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_2118": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_2118",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_2118",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_2130": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_2130",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_2130",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_4878": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_4878",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_4878",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_1133": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_1133",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_1133",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_4183": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_4183",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_4183",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_6609": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_6609",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_6609",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_0896": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_0896",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_0896",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.baby.h112_0988": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.baby.h112_0988",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.baby.h112_0988",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.baby.h112_0017": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.baby.h112_0017",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.baby.h112_0017",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.baby.h112_0091": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.baby.h112_0091",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.baby.h112_0091",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.baby.h112_0175": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.baby.h112_0175",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.baby.h112_0175",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_3060": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_3060",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_3060",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_2099": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_2099",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_2099",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_4957": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_4957",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_4957",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_4264": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_4264",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_4264",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_6674": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_6674",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_6674",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_0892": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_0892",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_0892",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_2655": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_2655",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_2655",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.reimu.adult.h112_1869": {
+    "subtitle": "dialogue.mcyukkuri.native112.reimu.adult.h112_1869",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/reimu.adult.h112_1869",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_2773": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_2773",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_2773",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_3061": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_3061",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_3061",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_2100": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_2100",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_2100",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_4959": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_4959",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_4959",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_4265": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_4265",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_4265",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_6675": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_6675",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_6675",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_0893": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_0893",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_0893",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_2656": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_2656",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_2656",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.marisa.adult.h112_1870": {
+    "subtitle": "dialogue.mcyukkuri.native112.marisa.adult.h112_1870",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/marisa.adult.h112_1870",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_1245": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_1245",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_1245",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_3060": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_3060",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_3060",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_2099": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_2099",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_2099",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_2230": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_2230",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_2230",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_4957": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_4957",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_4957",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_1037": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_1037",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_1037",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_4264": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_4264",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_4264",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_6674": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_6674",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_6674",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_0892": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_0892",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_0892",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.native112.alice.adult.h112_1869": {
+    "subtitle": "dialogue.mcyukkuri.native112.alice.adult.h112_1869",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/native112/alice.adult.h112_1869",
+        "attenuation_distance": 16
+      }
+    ]
+  },
   "voice.original.reimu.adult.o_junk_thanks": {
     "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_junk_thanks",
     "sounds": [
