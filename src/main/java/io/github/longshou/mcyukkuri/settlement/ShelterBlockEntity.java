@@ -38,6 +38,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -720,7 +721,12 @@ public final class ShelterBlockEntity extends BlockEntity {
             int previousStage = rainStage;
             moisture = Math.clamp(moisture + (level.isRainingAt(worldPosition.above(kind().height)) ? 10 : -5), 0, 100);
             updateRainStage(server);
-            if (moisture == 100 && previousStage == 2 && rainStage == 2) { condition = 0; dismantle("rain_collapse"); return; }
+            if (moisture == 100 && previousStage == 2 && rainStage == 2) {
+                server.levelEvent(2001, worldPosition, Block.getId(getBlockState()));
+                condition = 0;
+                dismantle("rain_collapse");
+                return;
+            }
         }
         for (var id : residents.keySet()) if (server.getEntity(id) instanceof YukkuriEntity y)
             dirt = Math.min(100, dirt + (y.body().mold() > 0 ? 2 : y.status().marks().dirt() >= 3 ? 1 : 0));

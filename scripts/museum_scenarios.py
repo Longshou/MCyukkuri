@@ -479,22 +479,25 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '�
         street_stray('stray_boxes', 'reimu', 6, 3, 'crate_mother', energy=28, rest_wait=0),
     ], env={'time': 'night'}, spot='street', vantage=(0, 9),
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
-                 views={'crate': dict(position=(5.6, .78, 2.9), look_at=(6.5, .48, -.1))}),
+                 views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4)),
+                        'crate': dict(position=(5.6, .78, 2.9), look_at=(6.5, .48, -.1))}),
     smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2',
                                   r'\[habitat\][^\n]* found settled .*kind=CRATE occupants=2']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
-    '看纸箱里的流浪油歇脚。纸箱受潮后，它沿开口离开去找干燥的木箱。空纸箱泡透塌下，留下纸片。左侧另一只魔理沙会沿墙去捡苹果。',
+    '看纸箱里的流浪油歇脚。纸箱受潮后，它沿开口离开，去别处避雨。空纸箱泡透塌下，留下纸片。左侧另一只魔理沙会沿墙去捡苹果。',
     '约一分钟', [
-        *found_shell('cardboard_shelter', -4, -1), *found_shell('crate_shelter', 1, -1),
-        street_stray('stray_rain', 'marisa', -4, -1, 'rain_stray', energy=25, rest_wait=0, lead=True),
+        *found_shell('cardboard_shelter', -4, -1),
+        # Start near the open edge with clearance behind the brim and to the wall.
+        street_stray('stray_rain', 'marisa', -4.18, -.6875, 'rain_stray', energy=25, rest_wait=0, lead=True),
         box(-14, 0, -3, -14, 1, 3, 'minecraft:cobblestone'),
         street_stray('stray_rain', 'marisa', -13, -2, 'wall_stray', yaw=0, nutrition=24),
         item('minecraft:apple', 1, -13, 2, 'wall_apple'),
     ], env={'time': 'noon', 'weather': 'rain'}, spot='street', vantage=(-2, 6, 164, 12),
-    capture=dict(shots=(1, 590, 700, 850, 1050, 1300), observe=False,
-                 views={'wall': dict(follow=sel('wall_stray'), offset=(2.3, .9, -.65))}),
+    capture=dict(shots=(1, 590, 700, 850, 1050, 1300), sequences=(), observe=False,
+                 views={'carton': dict(position=(-2.35, 1.1, 2.1), look_at=(-3.5, .55, -.4)),
+                        'wall': dict(follow=sel('wall_stray'), offset=(2.3, .9, -.65))}),
     smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD',
                                   r'\[habitat\][^\n]* found rain stage=0 -> 1',
@@ -3904,7 +3907,8 @@ def _stray_rain_verify(log):
     damp_exit_collapse = (
         r'found rain stage=0 -> 1 shelter=(BlockPos\{[^\n]+?\})'
         rf'[\s\S]*?uuid={marisa}[^\n]* found leaving target=\1 [^\n]*reason=soaked_or_unsafe'
-        r'[\s\S]*?found exited shelter=\1'
+        rf'[\s\S]*?uuid={marisa}[^\n]* found exited shelter=\1'
+        rf'[\s\S]*?uuid={marisa}[^\n]* shelter response started sky=RAIN stage=RUN cover='
         r'[\s\S]*?found rain stage=1 -> 2 shelter=\1'
         r'[\s\S]*?drop item=minecraft:paper count=1 source=shelter at=\1 reason=rain_collapse'
         r'[\s\S]*?found removed shelter=\1 [^\n]*reason=rain_collapse'

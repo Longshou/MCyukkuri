@@ -615,6 +615,7 @@ public final class Reactions {
             long now = y.level().getGameTime();
             if (now < cooldownUntil || !free(y) || y.isPanicking()) return false;
             if (approachingWater(3) != null) { planned = Stage.FLOOD; return true; }
+            if (y.life().leavingFoundShelter()) return false;
             if (bothered()) {
                 if (pressing()) return false;
                 if (now >= searchAfter) {
