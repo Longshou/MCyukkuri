@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
@@ -88,11 +90,20 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         if (visitor == body || !visit(visitor) || !body.hasLineOfSight(visitor)) return false;
         if (visitor instanceof YukkuriEntity peer) {
             if (peer.profile().dangerToYukkuri() || peer.isPassenger() || !Recognition.recognizes(body, peer)
-                    || Bonds.careOrMate(body, peer) || Bonds.sameGroupId(body, peer)) return false;
+                    || Bonds.careOrMate(body, peer) || Bonds.sameGroupId(body, peer)
+                    || FamilyNest.sameNest(body, peer) || SocialDisposition.caringContact(body, peer)) return false;
             var den = body.habitat().shelter();
             var claim = HomeClaim.of(body);
             if (den != null && den.owns(peer.getUUID()) || claim != null && claim.members.contains(peer.getUUID())) return false;
-        } else if (!(visitor instanceof Player || visitor instanceof HumanNpc)
+            var contact = SocialDisposition.contact(body, peer);
+            if (contact.fear() < BondLevels.AFFECTION_FEAR_LIMIT && SocialDisposition.toleratesStrangeYoung(body, peer, contact))
+                return false;
+            if (body.family().stage() == FamilyLife.Stage.BABY
+                    && contact.closeness() >= 0 && contact.wariness() < .35 && contact.fear() < BondLevels.FEAR_AT_15)
+                return false;
+            return contact.closeness() < BondLevels.TRUST_FAMILIAR || contact.fear() >= BondLevels.AFFECTION_FEAR_LIMIT;
+        }
+        if (!(visitor instanceof Player || visitor instanceof HumanNpc)
                 || visitor.getUUID().equals(body.pet().owner())
                 || visitor instanceof Player player && body.life().seeksOfferedFood(player)) return false;
         var contact = SocialDisposition.contact(body, visitor);
@@ -125,7 +136,8 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         var current = home();
         return active && available() && current != null && current.site.equals(home.site)
-                && visit(intruder) && elapsed < VISIT;
+                && visit(intruder) && elapsed < VISIT
+                && !(intruder instanceof YukkuriEntity peer && (SocialDisposition.caringContact(body, peer) || FamilyNest.sameNest(body, peer)));
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -217,7 +229,9 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             var between = child.position().add(toward.scale((body.getBbWidth() + child.getBbWidth()) * .5));
             if (SurfaceApproach.walkResult(body, between, child, 1) != SurfaceApproach.Result.BLOCKED) return;
         }
-        if (!body.life().navigate(home.refuge, 1, false) && intruder instanceof YukkuriEntity peer) body.fleeFrom(peer);
+        if (!body.life().navigate(home.refuge, 1, false)
+                && body.blockPosition().distSqr(home.refuge) > 2
+                && intruder instanceof YukkuriEntity peer) body.fleeFrom(peer);
     }
 
     @Override public void stop() {

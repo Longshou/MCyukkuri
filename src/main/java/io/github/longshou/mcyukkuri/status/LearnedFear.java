@@ -93,6 +93,8 @@ public final class LearnedFear {
                 if(source==body || !source.isAlive() || source instanceof Player player && (player.isSpectator()||player.isInvisible())
                         || !body.hasLineOfSight(source)) continue;
                 double distance=body.distanceToSqr(source);
+                if(source instanceof YukkuriEntity peer && !peer.profile().dangerToYukkuri()
+                        && SocialDisposition.caringContact(body, peer)) continue;
                 double radius=SocialDisposition.learnedRetreatRadius(body.life().personality().relation(source.getUUID()));
                 if(radius>0 && distance<=radius*radius && distance<best&&changed(source.blockPosition())){holder=source;best=distance;}
             }
@@ -138,6 +140,7 @@ public final class LearnedFear {
         @Override public boolean canContinueToUse() {
             return ticks<RETREAT_BUDGET && available()
                     && (holder!=null ? holder.isAlive()&&holder.level()==body.level()&&body.distanceToSqr(holder)<64&&waryOf(body,holder)
+                                       &&!(holder instanceof YukkuriEntity peer&&!peer.profile().dangerToYukkuri()&&SocialDisposition.caringContact(body,peer))
                                      : fire!=null&&body.body().remembersBurn()&&burning(fire));
         }
 

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData.Relation;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
@@ -97,5 +98,28 @@ public final class SocialDisposition {
 
     public static double ramp(double value, double low, double high) {
         return Math.clamp((value - low) / (high - low), 0, 1);
+    }
+
+    /** True when either body is actively caring for, feeding, or recently fed the other. */
+    public static boolean caringContact(YukkuriEntity a, YukkuriEntity b) {
+        return a.kindness().helping(b) || b.kindness().helping(a)
+                || a.life().fedBy(b.getUUID()) || b.life().fedBy(a.getUUID())
+                || a.woundComfort().helping(b) || b.woundComfort().helping(a);
+    }
+
+    /**
+     * Whether a homeowner tolerates a strange baby near its home rather than warning or chasing it.
+     * Scales continuously with friendliness, self-control and attachment, reduced by wariness or prior dislike.
+     */
+    public static boolean toleratesStrangeYoung(YukkuriEntity owner, YukkuriEntity young, Contact contact) {
+        if (young.family().stage() != FamilyLife.Stage.BABY) return false;
+        var p = owner.life().personality();
+        double warmth = .45 * ramp(p.friendliness(), 20, 75)
+                + .30 * ramp(p.selfControl(), 20, 80)
+                + .25 * ramp(p.attachment(), 20, 80)
+                + (young.family().orphaned() ? .15 : 0)
+                - .40 * contact.wariness()
+                - .30 * ramp(-contact.closeness(), 0, 20);
+        return warmth >= .45;
     }
 }

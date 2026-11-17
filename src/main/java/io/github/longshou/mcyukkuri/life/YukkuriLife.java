@@ -707,6 +707,7 @@ public final class YukkuriLife {
     public static boolean kindnessFood(ItemStack food) { return LifeMeal.kindnessFood(food); }
     public boolean canOfferMeal() { return meal.canOfferMeal(); }
     public boolean passCarriedMeal(YukkuriEntity peer, boolean share) { return meal.passCarriedMeal(peer, share); }
+    public boolean fedBy(UUID actor) { return meal.fedBy(actor); }
     public boolean finishCarriedMeal(UUID giver) { return meal.beginCarriedMeal(MouthOccupancy.Purpose.KINDNESS, giver, true); }
     /** A bully takes the serving out of this mouth (headwear.Sanction): it eats it if it can, otherwise the bite is knocked out. */
     public boolean snatchedBy(YukkuriEntity thief){ return meal.snatchedBy(thief); }

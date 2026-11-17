@@ -76,6 +76,7 @@ public final class WoundComfort {
     /** Recently comforted: the cry gives way to a calmer face and the one is not licked again for a while. */
     public boolean soothed() { return relief > 0; }
     public int victimId() { return licking() ? session.victim.getId() : -1; }
+    public boolean helping(YukkuriEntity target) { return licking() && session.victim == target; }
     public float contactProgress() { return licking() && inContact() ? Math.min(1f, session.contact / 20f) : 0f; }
     public String activity() { return !active() ? Behaviors.IDLE : licking()
             ? inContact()?Behaviors.COMFORT_LICK:Behaviors.CAREGIVER : Behaviors.COMFORT_RECEIVE; }

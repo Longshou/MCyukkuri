@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
@@ -54,7 +55,8 @@ final class LifeMeal {
     private boolean spitMeal;
     private Vec3 refusedSpitAt;
     private final LinkedHashMap<Item, Long> complaints = new LinkedHashMap<>();
-    private UUID feeder;
+    private UUID feeder, lastFeeder;
+    private long lastFedAt = Long.MIN_VALUE / 2;
     private boolean sharedMeal, preparedMeal, bowlMeal;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
     static final float FULL = 75;
@@ -75,6 +77,13 @@ final class LifeMeal {
     boolean hasMouthFood() { return occupancy().purpose() == Purpose.MEAL; }
 
     int mealTicks() { return mealTicks; }
+
+    boolean fedBy(UUID actor) {
+        if (actor == null) return false;
+        if (actor.equals(feeder)) return true;
+        return actor.equals(lastFeeder) && o.level().getGameTime() - lastFedAt < 2400
+                && o.personality().fear(actor) < BondLevels.AFFECTION_FEAR_LIMIT;
+    }
 
     /** Grief and fright spoil the appetite for a while (mind/EmotionCourse); real hunger below the urgent line still eats. */
     boolean needsFood() {
@@ -479,6 +488,7 @@ final class LifeMeal {
                         || premium && o.personality().friendliness() >= 55) && !guarded && !defiant;
                 String fedLine = answered ? "request_thanks" : grateful
                         ? (o.level().getEntity(bondTarget) instanceof HumanNpc ? "badge_thanks" : "request_thanks") : "fed";
+                if (!spicy && feeder != null) { lastFeeder = feeder; lastFedAt = o.level().getGameTime(); }
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
