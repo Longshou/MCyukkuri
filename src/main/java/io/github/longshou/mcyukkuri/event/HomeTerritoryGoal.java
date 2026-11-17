@@ -35,6 +35,8 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     // Allow a visible turn before warning; allow a full puff before escalating.
     private static final int LOOK = 12;
     private static final int PUFF = ClipMarkers.of("puff").length();
+    // A yield walk round the nest rim happens at waddle pace, so it needs more than one puff.
+    private static final int NEST_VISIT = LOOK + 4 * PUFF;
     private static final int VISIT = LOOK + 2 * PUFF + ClipMarkers.of(RamContact.CLIP).length();
     private final YukkuriEntity body;
     private record Home(BlockPos site, BlockPos mouth, BlockPos refuge, boolean sealed, boolean softNest) {}
@@ -146,7 +148,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         var current = home();
         return active && available() && current != null && current.site.equals(home.site)
-                && visit(intruder) && elapsed < (nestVisit ? LOOK + PUFF : VISIT)
+                && visit(intruder) && elapsed < (nestVisit ? (aside != null ? NEST_VISIT : LOOK + PUFF) : VISIT)
                 && !(intruder instanceof YukkuriEntity peer && (SocialDisposition.caringContact(body, peer) || FamilyNest.sameNest(body, peer)));
     }
 
@@ -174,7 +176,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
                 if (movement == SurfaceApproach.Result.ARRIVED || movement == SurfaceApproach.Result.BLOCKED) {
                     if (movement == SurfaceApproach.Result.ARRIVED)
                         GameplayLog.event(body, "home-claim", "nest gave space peer={} stand={}", intruder.getUUID(), aside);
-                    elapsed = LOOK + PUFF;
+                    elapsed = NEST_VISIT;
                 }
             }
             return;

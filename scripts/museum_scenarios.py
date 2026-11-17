@@ -1139,6 +1139,9 @@ add(_ugly, 'meadow', '争窝、骂人索食、装可爱、抢食与乱拉', '争
         + ',NoAI:1b,HandItems:[{id:"mcyukkuri:care_awl",count:1},{}]}',
         _choice_actor('tool_plead', -2, 5, yaw=-90, social_wait=0, **_pushy),
         _choice_actor('tool_withdraw', 2, 5, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
+        # Keep the display one opportunity: a viewer that leaves the 8-block holder memory resets. The retreat is a bounded walk or cower inside the pen.
+        *(block(nx, 0, nz, 'minecraft:oak_fence') for nx in range(-5, 6) for nz in range(0, 11)
+          if abs(nx) == 5 or nz in (0, 10)),
         *(line for x, name, step, traits in ((-19, 'food_snatch', 4, _pushy), (19, 'food_polite', -4, _considerate))
           for line in (_choice_actor(name, x, -1, yaw=-90 if step > 0 else 90, nutrition=18, **traits),
                        yk('reimu', x + step, -1, 'serving_' + name, uuid=uid(_ugly, 'serving_' + name),
