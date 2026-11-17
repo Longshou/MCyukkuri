@@ -111,7 +111,9 @@ public final class PunishmentReaction {
                 body -> body != target && body != punisher && body.isAlive() && !body.body().dying()
                         && !body.life().isSleeping() && !body.grieving() && body.distanceToSqr(target) <= range * range
                         && sees(body, target, punisher))) {
-            LearnedFear.remember(observer, target, punisher, incident);
+            // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
+            if (LearnedFear.eligible(observer) && !observer.operations().active())
+                LearnedFear.remember(observer, target, punisher, incident);
             var mind = observer.life().personality();
             double nerves = .55 * (1 - ramp(mind.boldness(), 25, 75))
                     + .25 * ramp(mind.fear(punisher.getUUID()), 0, 65) + .20 * ramp(observer.mind().unease(), 40, 85);
