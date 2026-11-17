@@ -34,9 +34,11 @@ public final class DialogueAudio {
             if (old != null) mc.getSoundManager().stop(old);
             long age = mc.level.getGameTime() - y.speechStart();
             var line = NativeDialogue.byKey(y.getDialogueKey());
-            if (line == null || line.sound().isEmpty() || !y.isAlive() || y.isSilent() || age < 0 || (prior == null && age > 5)
+            if (line == null || !y.isAlive() || y.isSilent() || age < 0 || (prior == null && age > 5)
                     || mc.level.getGameTime() >= y.speechEnd()) continue;
-            Voice voice = new Voice(source, line.sound());
+            String sound = line.soundFor(source.getVariant().dialogueSpecies(), source.speechTier());
+            if (sound.isEmpty()) continue;
+            Voice voice = new Voice(source, sound);
             ACTIVE.put(id, voice); mc.getSoundManager().play(voice);
         }
         SEEN.keySet().retainAll(present);

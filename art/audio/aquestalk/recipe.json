@@ -8,20 +8,40 @@
       "speed": 100,
       "pitch": 100
     },
-    "marisa.adult": {
-      "voice": "f2",
-      "speed": 100,
-      "pitch": 100
-    },
     "reimu.young": {
       "voice": "f1",
       "speed": 100,
       "pitch": 125
     },
+    "reimu.juvenile": {
+      "voice": "f1",
+      "speed": 100,
+      "pitch": 112
+    },
+    "reimu.baby": {
+      "voice": "f1",
+      "speed": 100,
+      "pitch": 150
+    },
+    "marisa.adult": {
+      "voice": "f2",
+      "speed": 100,
+      "pitch": 100
+    },
     "marisa.young": {
       "voice": "f2",
       "speed": 100,
       "pitch": 125
+    },
+    "marisa.juvenile": {
+      "voice": "f2",
+      "speed": 100,
+      "pitch": 112
+    },
+    "marisa.baby": {
+      "voice": "f2",
+      "speed": 100,
+      "pitch": 150
     },
     "alice.adult": {
       "voice": "f3",
@@ -33,15 +53,10 @@
       "speed": 100,
       "pitch": 131
     },
-    "reimu.baby": {
-      "voice": "f1",
+    "alice.juvenile": {
+      "voice": "f3",
       "speed": 100,
-      "pitch": 150
-    },
-    "marisa.baby": {
-      "voice": "f2",
-      "speed": 100,
-      "pitch": 150
+      "pitch": 117
     },
     "alice.baby": {
       "voice": "f3",
@@ -58,6 +73,16 @@
       "speed": 110,
       "pitch": 144
     },
+    "chen.juvenile": {
+      "voice": "f1",
+      "speed": 110,
+      "pitch": 127
+    },
+    "chen.baby": {
+      "voice": "f1",
+      "speed": 110,
+      "pitch": 165
+    },
     "patchouli.adult": {
       "voice": "f1",
       "speed": 85,
@@ -68,6 +93,16 @@
       "speed": 85,
       "pitch": 112
     },
+    "patchouli.juvenile": {
+      "voice": "f1",
+      "speed": 85,
+      "pitch": 102
+    },
+    "patchouli.baby": {
+      "voice": "f1",
+      "speed": 85,
+      "pitch": 140
+    },
     "myon.adult": {
       "voice": "f3",
       "speed": 95,
@@ -77,10 +112,60 @@
       "voice": "f3",
       "speed": 95,
       "pitch": 125
+    },
+    "myon.juvenile": {
+      "voice": "f3",
+      "speed": 95,
+      "pitch": 112
+    },
+    "myon.baby": {
+      "voice": "f3",
+      "speed": 95,
+      "pitch": 150
+    },
+    "remilia.adult": {
+      "voice": "f2",
+      "speed": 90,
+      "pitch": 85
+    },
+    "remilia.young": {
+      "voice": "f2",
+      "speed": 90,
+      "pitch": 110
+    },
+    "remilia.juvenile": {
+      "voice": "f2",
+      "speed": 90,
+      "pitch": 97
+    },
+    "remilia.baby": {
+      "voice": "f2",
+      "speed": 90,
+      "pitch": 135
+    },
+    "flandre.adult": {
+      "voice": "f3",
+      "speed": 110,
+      "pitch": 120
+    },
+    "flandre.young": {
+      "voice": "f3",
+      "speed": 110,
+      "pitch": 145
+    },
+    "flandre.juvenile": {
+      "voice": "f3",
+      "speed": 110,
+      "pitch": 132
+    },
+    "flandre.baby": {
+      "voice": "f3",
+      "speed": 110,
+      "pitch": 165
     }
   },
   "flat_accent": true,
   "output_sample_rate": 32000,
   "peak_limit_dbfs": -3,
-  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系。幼语来自八景 U 原表；幼体音程 125 是本项目初始值，随变速一起改变时长，不声称复原日记参数。赤油音程 150／156 只为八景 ver1.12 迁入的原句候选，高于幼体一档，同样不声称复原原配音。只调用本机工具，程序和 DLL 不打包。 新增 alice f3、chen f1、patchouli f1 的差异参数为本项目候选；没有声称是八景 U 或日记原配音参数。"
+  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系。幼语音程 125 来自八景 U 原表；最早 559 条录音的参数与赤油 150／156 均保持不变。全量配音新增爱丽丝 f3、橙 f1、帕秋莉 f1、妖梦 f3、蕾米莉亚 f2、芙兰朵露 f3，并按成体、幼语、子油、赤油四档给出基准／+25／+12／+50 的音程阶梯（最高 165）。这些参数只用于本项目候选录音，不声称复原八景 U 或《油库里日记》的原配音。"
 }

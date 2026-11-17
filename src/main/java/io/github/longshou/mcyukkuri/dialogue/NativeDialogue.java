@@ -9,7 +9,24 @@ import net.minecraft.util.RandomSource;
 /** Packaged, curated native dialogue. No client types or Mod dialogue fallback. */
 public final class NativeDialogue {
     public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound, String quirk,
-                       String variant) {}
+                       String variant, Map<String, String> voices) {
+        /**
+         * A shared line has one recording per speaker species and stage. Species-specific lines
+         * carry a fixed recording, so this returns their ordinary sound unchanged.
+         */
+        public String soundFor(String speakerSpecies, String speakerTier) {
+            if (voices == null || voices.isEmpty()) return sound == null ? "" : sound;
+            String chosen = voices.get(speakerSpecies + "." + speakerTier);
+            if (chosen == null) chosen = switch (speakerTier) {
+                case "baby", "juvenile" -> voices.get(speakerSpecies + ".young");
+                case "young" -> voices.get(speakerSpecies + ".juvenile");
+                default -> null;
+            };
+            if (chosen == null) chosen = voices.get(speakerSpecies + ".adult");
+            if (chosen == null) chosen = sound;
+            return chosen == null ? "" : chosen;
+        }
+    }
     private static final Map<String, Line> LINES;
     private static final Map<String, List<Line>> EVENTS;
     static {

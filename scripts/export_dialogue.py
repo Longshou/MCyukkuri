@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 PREFIX = 'dialogue.mcyukkuri.native.'
 PREFIXES = (PREFIX, 'dialogue.mcyukkuri.native112.', 'dialogue.mcyukkuri.original.')
+TIER_ORDER = {'baby': 0, 'juvenile': 1, 'young': 2, 'adult': 3}
 
 
 def place_dialogue(values, old_order):
@@ -42,6 +43,19 @@ def outputs():
     voices = json.loads(manifest_path.read_text(encoding='utf-8'))['clips'] if manifest_path.exists() else {}
     catalog, sounds, files = [], {}, {}
     locales, anchors = {}, {}
+
+    def install_voice(clip, ident, japanese, namespace, key):
+        """Validate one manifest clip, stage its OGG and return its sound id ('' when absent)."""
+        if not clip:
+            return ''
+        assert clip['japanese'] == japanese and clip['engine'] == 'AquesTalk1'
+        path = ROOT / clip['ogg']
+        assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == clip['sha256']
+        target = f'sounds/voice/{namespace}/{ident}.ogg'
+        files[ASSETS / target] = path.read_bytes()
+        sound_id = 'voice.' + namespace + '.' + ident
+        sounds[sound_id] = {'subtitle': key, 'sounds': [{'name': 'mcyukkuri:' + target[7:-4], 'attenuation_distance': 16}]}
+        return sound_id
     for locale in ('zh_cn', 'ja_jp', 'en_us'):
         path = ASSETS / f'lang/{locale}.json'
         old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
@@ -84,19 +98,14 @@ def outputs():
             assert all(original[k] == line[k] for k in ['id','japanese','chinese','species','age','events'])
             assert hashlib.sha256(line['japanese'].encode()).hexdigest() == line['source_sha256']
             namespace = 'original'
-        key, sound_id = 'dialogue.mcyukkuri.' + namespace + '.' + ident, 'voice.' + namespace + '.' + ident
+        key = 'dialogue.mcyukkuri.' + namespace + '.' + ident
         clip = voices.get(ident)
         ticks = max(50, min(180, len(line['japanese']) * 4 + 15))
         if clip:
-            assert clip['japanese'] == line['japanese'] and clip['engine'] == 'AquesTalk1'
-            path = ROOT / clip['ogg']
-            assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == clip['sha256']
             ticks = max(45, int(clip['duration_seconds'] * 20 + .999) + 15)
-            target = f'sounds/voice/{namespace}/{ident}.ogg'
-            files[ASSETS / target] = path.read_bytes()
-            sounds[sound_id] = {'subtitle': key, 'sounds': [{'name': 'mcyukkuri:' + target[7:-4], 'attenuation_distance': 16}]}
+        sound_id = install_voice(clip, ident, line['japanese'], namespace, key)
         catalog.append(dict(id=ident, key=key, origin=origin, species=line['species'], age=line['age'], events=line['events'],
-                            ticks=ticks, sound=sound_id if clip else ''))
+                            ticks=ticks, sound=sound_id))
         if line.get('variant'):
             catalog[-1]['variant'] = line['variant']
         if 'quirk' in line:
@@ -107,7 +116,8 @@ def outputs():
         english = line.get('english', '')
         assert english.strip(), f'Missing English subtitle: {ident}'
         locales['en_us'][key] = english
-    # Speech tiers (baby / juvenile / adult), forms of address, counting and the Myon tics: unvoiced project originals.
+    # Speech tiers (baby / juvenile / adult), forms of address, counting and the Myon tics.
+    # Every tier line has its own species-and-tier recording; sound stays empty only when a manifest entry is missing.
     tiers_path = ROOT / 'art/dialogue/speech-tiers.json'
     for line in (json.loads(tiers_path.read_text(encoding='utf-8'))['lines'] if tiers_path.exists() else []):
         ident = line['id']
@@ -115,8 +125,12 @@ def outputs():
         seen.add(ident)
         assert line['origin'] == 'project-original' and line['events'] and line['english']
         key = 'dialogue.mcyukkuri.original.' + ident
+        clip = voices.get(ident)
         entry = dict(id=ident, key=key, origin='project-original', species=line['species'], age=line['age'], events=line['events'],
                      ticks=max(50, min(180, len(line['japanese']) * 4 + 15)), sound='')
+        if clip:
+            entry['ticks'] = max(45, int(clip['duration_seconds'] * 20 + .999) + 15)
+            entry['sound'] = install_voice(clip, ident, line['japanese'], 'original', key)
         if line.get('quirk'): entry['quirk'] = line['quirk']
         if line.get('variant'): entry['variant'] = line['variant']
         catalog.append(entry)
@@ -124,6 +138,10 @@ def outputs():
         locales['ja_jp'][key] = line['japanese']
         locales['en_us'][key] = line['english']
     situation = json.loads((ROOT / 'art/dialogue/corpus/situation.json').read_text(encoding='utf-8'))
+    shared_voices = {}
+    for cid, clip in voices.items():
+        if clip.get('shared_id'):
+            shared_voices.setdefault(clip['shared_id'], []).append((cid, clip))
     for line in situation['lines']:
         if not line.get('shared_runtime'):
             continue
@@ -131,12 +149,37 @@ def outputs():
         assert ident not in seen and line['status'] == 'ready', ident
         seen.add(ident)
         key = 'dialogue.mcyukkuri.original.' + ident
-        catalog.append(dict(id=ident, key=key, origin='project-original', species='*', age='*',
-                            events=[line['event']], ticks=max(50, min(180, len(line['ja']) * 4 + 15)), sound=''))
+        ticks = max(50, min(180, len(line['ja']) * 4 + 15))
+        variants = sorted(shared_voices.get(ident, []),
+                          key=lambda item: (item[1].get('species', ''), TIER_ORDER.get(item[1].get('age'), 9)))
+        voice_map = {}
+        for cid, clip in variants:
+            voice_map[clip['species'] + '.' + clip['age']] = install_voice(clip, cid, line['ja'], 'original', key)
+            ticks = max(ticks, max(45, int(clip['duration_seconds'] * 20 + .999) + 15))
+        entry = dict(id=ident, key=key, origin='project-original', species='*', age='*',
+                     events=[line['event']], ticks=ticks, sound='')
+        if voice_map:
+            entry['voices'] = voice_map
+        catalog.append(entry)
         if line.get('variant'):
             catalog[-1]['variant'] = line['variant']
         for locale in locales:
             locales[locale][key] = line[locale[:2]]
+    # A deficient mind speaks one held short cry outside the event corpus. Its subtitle key is
+    # fixed in the entity, so the catalog row only carries the per-speaker recordings.
+    special_ident = 'deficient_babble'
+    assert special_ident not in seen
+    seen.add(special_ident)
+    special_key = 'dialogue.mcyukkuri.deficient.babble'
+    special_japanese = 'ゆぴー'
+    ticks = max(50, len(special_japanese) * 4 + 15)
+    voice_map = {}
+    for cid, clip in sorted(shared_voices.get(special_ident, []),
+                            key=lambda item: (item[1].get('species', ''), TIER_ORDER.get(item[1].get('age'), 9))):
+        voice_map[clip['species'] + '.' + clip['age']] = install_voice(clip, cid, special_japanese, 'original', special_key)
+        ticks = max(ticks, max(45, int(clip['duration_seconds'] * 20 + .999) + 15))
+    catalog.append(dict(id=special_ident, key=special_key, origin='project-original', species='*', age='*',
+                        events=[], ticks=ticks, sound='', voices=voice_map))
     for locale, values in locales.items():
         values = place_dialogue(values, anchors[locale])
         files[ASSETS / f'lang/{locale}.json'] = (json.dumps(values, ensure_ascii=False, indent=2) + '\n').encode()

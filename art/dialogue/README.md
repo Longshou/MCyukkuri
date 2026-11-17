@@ -21,7 +21,7 @@ python scripts/export_dialogue.py
 python scripts/export_dialogue.py --check
 ```
 
-原版检索数据由 `scripts/catalogue_hakkei_dialogue.py` 从只读来源目录生成；配音由 `scripts/build_aquestalk_dialogue.py` 按 `art/audio/aquestalk/recipe.json` 制作。已配音的日文文本必须与录音台词保持一致，导出器会拒绝清单不一致的录音。未配音条目只导出字幕。
+原版检索数据由 `scripts/catalogue_hakkei_dialogue.py` 从只读来源目录生成；配音由 `scripts/build_aquestalk_dialogue.py` 按 `art/audio/aquestalk/recipe.json` 制作。已配音的日文文本必须与录音台词保持一致，导出器会拒绝清单不一致的录音。全部运行台词均已配音，包括 52 条无固定种族的情境句和缺陷惨叫：它们按八种族、四档成长阶段各录一版，导出器为每条台词登记说话者对应的 `voices` 表。未收录进 manifest 的台词不会进入游戏。
 
 运行资源包括 `dialogue/catalog.json`、`lang/*.json`、`sounds.json` 与对白 OGG。导出器只更新本任务拥有的对白键；共享运行资源的其他条目由对应资源包维护。
 
