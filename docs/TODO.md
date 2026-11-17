@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 亲油叼纸盖在自己的幼体身上（报纸纸源 v1 裁掉的双体接触） | `.worktrees/wp-paper-young` | settlement/FoundShelter (paper), client paper tent, lore motions |
-| 加工所 A1：玩家与职员共用工具入口（冷锥、固定台、针） | `.worktrees/wp-fac-a1-tools` | interaction/InteractionDispatch, interaction/OperationLife, item/OperationToolItem, human/HumanNpc, body/BodyLife |
 | 加工所 A2：日常丑态（占地、讨骂、装可爱、抢食、乱拉）按数值自选 | `.worktrees/wp-fac-a2-ugly` | social/SocialDisposition, social/YukkuriSocial, event/HomeClaim, pet/social/BegBite, life/StallTheft |
 | 加工所 F4：厂房、前台、厂界与单层玻璃邻箱 | `.worktrees/wp-fac-f4-plant` | art/structures/human-world (build.py, manifest.json, exports.json, new plant template) |
 
