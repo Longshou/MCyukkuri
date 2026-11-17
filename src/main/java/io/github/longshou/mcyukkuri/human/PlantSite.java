@@ -32,6 +32,8 @@ final class PlantSite {
     static final ResourceLocation TEMPLATE = HumanScenes.Kind.PLANT.template;
     static final BlockPos ENTRANCE = new BlockPos(HumanScenes.Kind.PLANT.entranceX, 0, 0);
     private static final String SITE = "mcy_plant_site";
+    private static final String COUNTER = "mcy_plant_counter";
+    private static final String CORNER = "mcy_plant_corner";
 
     private PlantSite() {}
 
@@ -47,24 +49,47 @@ final class PlantSite {
         return boundary != null && boundary.contains(level, at);
     }
 
-    /** Move the boundary from previously placed markers to the world ledger when those markers load. */
+    /** Register on server admission, including markers placed by a chunk generation worker. */
     static void loaded(ServerLevel level, Marker marker) {
-        if (!marker.getTags().contains(SITE) || CustodyData.get(level).plant(marker.getUUID()) != null) return;
+        if (!marker.getTags().contains(SITE)) return;
+        var ledger = CustodyData.get(level);
+        if (ledger.plant(marker.getUUID()) != null) return;
         var data = marker.saveWithoutId(new CompoundTag()).getCompound("data");
-        if (data.contains("Min", Tag.TAG_LONG) && data.contains("Max", Tag.TAG_LONG))
-            CustodyData.get(level).registerPlant(level, marker.getUUID(),
-                    BoundingBox.fromCorners(BlockPos.of(data.getLong("Min")), BlockPos.of(data.getLong("Max"))));
+        var boundary = data.contains("Min", Tag.TAG_LONG) && data.contains("Max", Tag.TAG_LONG)
+                ? BoundingBox.fromCorners(BlockPos.of(data.getLong("Min")), BlockPos.of(data.getLong("Max")))
+                : authoredBoundary(level, marker);
+        ledger.registerPlant(level, marker.getUUID(), boundary);
+        GameplayLog.event(marker, "factory", "action=register_site min={} max={}",
+                new BlockPos(boundary.minX(), boundary.minY(), boundary.minZ()).toShortString(),
+                new BlockPos(boundary.maxX(), boundary.maxY(), boundary.maxZ()).toShortString());
+    }
+
+    private static BoundingBox authoredBoundary(ServerLevel level, Marker site) {
+        var markers = markers(level);
+        var rotation = HumanScenes.rotationFor(Direction.fromYRot(site.getYRot()));
+        var origin = origin(site, markers, rotation);
+        var corners = markers.stream().filter(info -> tagged(info, CORNER))
+                .map(info -> origin.offset(info.blockPos.rotate(rotation))).toList();
+        return BoundingBox.fromCorners(corners.get(0), corners.get(1));
+    }
+
+    private static List<StructureTemplate.StructureEntityInfo> markers(ServerLevel level) {
+        var template = level.getStructureManager().get(TEMPLATE).orElseThrow();
+        return ((StructureTemplateAccessor) template).mcyukkuri$entities();
+    }
+
+    private static BlockPos origin(Marker site, List<StructureTemplate.StructureEntityInfo> markers, Rotation rotation) {
+        var counter = markers.stream().filter(info -> tagged(info, COUNTER)).findFirst().orElseThrow();
+        return site.blockPosition().subtract(counter.blockPos.rotate(rotation));
     }
 
     /** Recover the authored rooms from the same template and saved counter pose in existing sites. */
     static Layout layout(ServerLevel level, UUID id) {
         var site = marker(level, id);
         if (site == null) return null;
-        var template = level.getStructureManager().get(TEMPLATE).orElseThrow();
-        var markers = ((StructureTemplateAccessor) template).mcyukkuri$entities();
+        var markers = markers(level);
         var rotation = HumanScenes.rotationFor(Direction.fromYRot(site.getYRot()));
-        var counter = markers.stream().filter(info -> tagged(info, "mcy_plant_counter")).findFirst().orElseThrow();
-        var origin = site.blockPosition().subtract(counter.blockPos.rotate(rotation));
+        var origin = origin(site, markers, rotation);
         var booth = markers.stream().filter(info -> tagged(info, "mcy_plant_receive")).findFirst().orElseThrow();
         var boxes = new ArrayList<Box>();
         for (var info : markers) {
@@ -109,7 +134,6 @@ final class PlantSite {
     static void place(ServerLevelAccessor level, StructureTemplate template, BlockPos origin, Rotation rotation, BoundingBox clip) {
         var settings = new StructurePlaceSettings().setRotation(rotation);
         var id = id(level, origin, rotation);
-        var corners = new ArrayList<BlockPos>(2);
         BlockPos counter = null;
         for (var marker : ((StructureTemplateAccessor) template).mcyukkuri$entities()) {
             if (!marker.nbt.getString("id").equals("minecraft:marker")) continue;
@@ -117,8 +141,7 @@ final class PlantSite {
             BlockPos at = origin.offset(StructureTemplate.calculateRelativePosition(settings, marker.blockPos));
             var data = marker.nbt.getCompound("data");
             switch (tag) {
-                case "mcy_plant_corner" -> corners.add(at);
-                case "mcy_plant_counter" -> {
+                case COUNTER -> {
                     counter = at;
                     staff(level, clip, rotation, id, "plant_counter", at);
                 }
@@ -136,18 +159,11 @@ final class PlantSite {
             }
         }
         if (!clip.isInside(counter)) return;
-        var boundary = BoundingBox.fromCorners(corners.get(0), corners.get(1));
         var nbt = at(counter, "minecraft:marker", rotation);
         nbt.putUUID("UUID", id);
         var site = EntityType.create(nbt, level.getLevel()).orElseThrow();
         site.addTag(SITE);
-        if (level.addFreshEntity(site)) {
-            var world = level.getLevel();
-            CustodyData.get(world).registerPlant(world, id, boundary);
-            var registered = CustodyData.get(world).plant(id);
-            GameplayLog.event(site, "factory", "action=register_site min={} max={}",
-                    registered.min().toShortString(), registered.max().toShortString());
-        }
+        level.addFreshEntity(site);
     }
 
     private static BlockPos offset(CompoundTag data, String key, Rotation rotation) {
