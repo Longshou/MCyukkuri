@@ -524,7 +524,7 @@ public final class FoundShelter implements MotorOwner {
         return enterGap();
     }
 
-    public boolean usingPaperAt(BlockPos pos) { return restingInPlainGapAt(pos) && paperAt(pos); }
+    public boolean usingPaperAt(BlockPos pos) { return phase == Phase.REST && pos.equals(gap) && paperAt(pos); }
 
     public Step tick() {
         if (!active()) return Step.ENDED;
