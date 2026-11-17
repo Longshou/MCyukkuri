@@ -6450,7 +6450,8 @@ _plant_anchor_x, _plant_anchor_z = BY_ID['plant'].anchor
 _plant_penned = [command for name, dx, dz in (('receive_plea', -7, -12), ('receive_freeze', -9, -11))
                  for command in (f'tp {sel(name)} {_plant_anchor_x + dx + .5} {FEET + 2}.0 {_plant_anchor_z + dz + .5} 180 0',
                                  f'data merge entity {sel(name)} {{NoAI:1b}}')]
-_boxes_air = 'fill ~-20 ~2 ~-3 ~-17 ~2 ~18 '
+# Carpet blocks the exact landing plane without suffocating the opening stock in those boxes.
+_boxes_floor = 'fill ~-20 ~2 ~-3 ~-17 ~2 ~18 '
 _receive_preserved = r'\[scenario\][^\n]* action=plant_receive_click result=\S+ token=(\S+) kept_token=true captive=true same_carrier=true carrier_count=1 occupants=1 paid=0\b'
 _receive_paid = r'\[scenario\][^\n]* action=plant_receive_click result=CONSUME token=(\S+) kept_token=false captive=false same_carrier=true carrier_count=1 occupants=0 paid=(\d+)\b'
 _plant_smoke['expect'] += [
@@ -6518,25 +6519,27 @@ _plant_smoke['commands'] += [
     *[(64, f'data merge entity {sel(name)} {{NoAI:0b}}') for name in ('receive_plea', 'receive_freeze')],
     (65, _receive_click),
     (66, _receive_click),
-    (67, _boxes_air + 'minecraft:barrier replace minecraft:air'),
+    (67, _boxes_floor + 'minecraft:magenta_carpet replace minecraft:air'),
     (70, f'yukkuri scenario basket capture {sel("receive_plea")}'),
     (71, _receive_click),
     (75, f'yukkuri scenario basket capture {sel("receive_freeze")}'),
     (76, _receive_click),
-    (125, f'execute at {sel("receive_freeze")} positioned ~ ~ ~0.5 run yukkuri scenario tool_click {sel("receive_freeze")} pierce'),
+    # The test operator stands on the far side so the struck animal recoils toward the clerk's pickup area.
+    (125, f'execute at {sel("receive_freeze")} positioned ~ ~ ~-0.5 run yukkuri scenario tool_click {sel("receive_freeze")} pierce'),
     (90, f'yukkuri scenario basket spray {sel("receive_pet")}'),
     (211, f'yukkuri scenario basket capture {sel("receive_pet")}'),
     (212, _receive_click),
     (213, 'yukkuri scenario basket release ~-5 ~1 ~-15'),
-    (220, _boxes_air + 'minecraft:air replace minecraft:barrier'),
+    (220, _boxes_floor + 'minecraft:air replace minecraft:magenta_carpet'),
     (220, 'say MCY_PLANT_BOXES_OPEN'),
     (253, f'execute if data entity {_receiving_staff} HandItems[0].components."minecraft:custom_data".BasketOccupants[0].Token run say MCY_PLANT_HELD_BEFORE_RELOAD'),
-    (700, 'yukkuri scenario basket swap_hands'),
-    (701, _near_clerk),
-    (702, _near_clerk),
-    (703, 'yukkuri scenario basket release ~-9 ~1 ~-13'),
-    (704, _near_clerk),
-    (705, 'yukkuri scenario basket swap_hands'),
+    # Field forceload and entity reload can finish after tick 700 on a busy server.
+    (800, 'yukkuri scenario basket swap_hands'),
+    (801, _near_clerk),
+    (802, _near_clerk),
+    (803, 'yukkuri scenario basket release ~-9 ~1 ~-13'),
+    (804, _near_clerk),
+    (805, 'yukkuri scenario basket swap_hands'),
     (2100, f'execute as {sel("receive_plea")} if data entity @s {OWNED}{{OwnerKind:"npc",Use:"plant_stock"}} '
           f'if data entity @s YukkuriFamily{{Mother:{uuid_nbt(_receive_mother)}}} '
           'if data entity @s YukkuriPet{Grade:1,SkillExperience:{wait:24}} run say MCY_PLANT_STOCK_PRESERVED'),
