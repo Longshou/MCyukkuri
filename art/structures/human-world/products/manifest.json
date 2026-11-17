@@ -37,11 +37,6 @@
       "target": "src/main/resources/assets/mcyukkuri/textures/block/labor_bench.png",
       "sha256": "344e6adfa7fffa3cec6024e621bcb2c941e7dd8ff77a7d52c50cc39e855485d6"
     },
-    "manju_steamer": {
-      "source": "art/structures/human-world/products/manju_steamer.png",
-      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer.png",
-      "sha256": "25a94d78b092cf500159749e3966b4b2aa1e40fc8b58f23e79950991226b0d83"
-    },
     "live_packing_table": {
       "source": "art/structures/human-world/products/live_packing_table.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/live_packing_table.png",
@@ -51,6 +46,86 @@
       "source": "art/structures/human-world/products/nursery_station.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/nursery_station.png",
       "sha256": "cf48475b8f88e050bf445265b95765721d9bd30bf75b1c31553258b1f7a22da1"
+    },
+    "factory_belt_top": {
+      "source": "art/structures/human-world/products/factory_belt_top.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_belt_top.png",
+      "sha256": "4ceba7011a3814efb11191ad66e0f70ed05c3e75ade92eefc468334e565e57a7"
+    },
+    "factory_belt_top_running": {
+      "source": "art/structures/human-world/products/factory_belt_top_running.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_belt_top_running.png",
+      "sha256": "69bdebd4f815870e3fdcc962f82c9e355a554a0c0355995ee37be81329e960d6"
+    },
+    "factory_belt_side": {
+      "source": "art/structures/human-world/products/factory_belt_side.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_belt_side.png",
+      "sha256": "482c197ce1100a9962d62342d87b95bb67e8a634538c784936c7699b64f2645d"
+    },
+    "factory_belt_side_running": {
+      "source": "art/structures/human-world/products/factory_belt_side_running.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_belt_side_running.png",
+      "sha256": "0f77dd2d225d46011a948a85b1b49edf4c04347237e8155aa62aa24ee1142191"
+    },
+    "factory_belt_end": {
+      "source": "art/structures/human-world/products/factory_belt_end.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_belt_end.png",
+      "sha256": "efd1a56d06b81c0c96e0fbcbd684664f95edfb6dbcd2fcc64dc255eec06e8731"
+    },
+    "manju_steamer_cabinet": {
+      "source": "art/structures/human-world/products/manju_steamer_cabinet.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_cabinet.png",
+      "sha256": "916c2dd076adb51fd5da6b073b5435f96a39d2c522cffa213e0676b0cf3d3b06"
+    },
+    "manju_steamer_firebox": {
+      "source": "art/structures/human-world/products/manju_steamer_firebox.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_firebox.png",
+      "sha256": "c8554272bcf359e60b1389e31d4e3c5029855493ea90dbbc66aa86660e9b7a57"
+    },
+    "manju_steamer_firebox_lit": {
+      "source": "art/structures/human-world/products/manju_steamer_firebox_lit.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_firebox_lit.png",
+      "sha256": "a296f49829ff3ad514cd72a8ca548562f01ce21c7853d284d7189105eec22799"
+    },
+    "manju_steamer_deck": {
+      "source": "art/structures/human-world/products/manju_steamer_deck.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_deck.png",
+      "sha256": "d3f35d735f6ab0134eee5ab6daabcefc18a898de0a20e3620534ca31058873f8"
+    },
+    "manju_steamer_tray": {
+      "source": "art/structures/human-world/products/manju_steamer_tray.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_tray.png",
+      "sha256": "9a3bfabae3af3c8259eae8b62ee1fb172f0739d09863d083e6a9265ee5777e9a"
+    },
+    "manju_steamer_pot": {
+      "source": "art/structures/human-world/products/manju_steamer_pot.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_pot.png",
+      "sha256": "ab69c7389d4725c101835e033f6903308f5d5bc5c1bca3c461e4f1d053e0ae9f"
+    },
+    "manju_steamer_pot_inner": {
+      "source": "art/structures/human-world/products/manju_steamer_pot_inner.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_pot_inner.png",
+      "sha256": "50149de7e3c55984aed4277a8aa926cff5df40fb60a23ee0ee0e3c7975a6c30d"
+    },
+    "manju_steamer_rack": {
+      "source": "art/structures/human-world/products/manju_steamer_rack.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_rack.png",
+      "sha256": "7a9a5a5a0e5a42ba210753bf8854376230decae74a885216c3c85ae31ff08fa6"
+    },
+    "manju_steamer_lid": {
+      "source": "art/structures/human-world/products/manju_steamer_lid.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_lid.png",
+      "sha256": "4a01db299051165d06ded8046ca2fe0ebf842eab2d030c682e2369fc8368e9bc"
+    },
+    "manju_steamer_lid_inner": {
+      "source": "art/structures/human-world/products/manju_steamer_lid_inner.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_lid_inner.png",
+      "sha256": "b691b6df5b9bab14dad11c95ee680133a3db934acffdb085b3e97e6fabc928e9"
+    },
+    "manju_steamer_steam": {
+      "source": "art/structures/human-world/products/manju_steamer_steam.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_steam.png",
+      "sha256": "fe98c64a5da46df10ef7497ce1176f83173e496921506f359aedf9f3ff0d5aca"
     }
   }
 }

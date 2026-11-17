@@ -20,7 +20,8 @@ floor-level glass, so a broken box opens straight out past the plant boundary. T
 (the one good resting spot), a food bowl at the front glass and a sand toilet in a back corner. The sick pen is the same box with solid
 sides and a white floor. Every door in the plant is a waxed copper door: players and staff open it by hand, yukkuri never do.
 
-Reserved floors (belt and steamer, classroom, packing table, roller room) are left empty with yellow corner marks; later art packages
+The belt-and-steamer floor holds the short floor belt, its stop wall, the steamer with its wheat chest and two lever posts (see
+belt_steamer). Reserved floors (classroom, packing table, roller room) are left empty with yellow corner marks; later art packages
 fill them. Markers (vanilla marker entities, read by code; offsets in `data` are relative to the marker and turn with its yaw, as
 human/TownMarkers reads them) are listed in the README section 加工所.
 """
@@ -51,8 +52,14 @@ BOX_X0, BOX_X1, BOX_FRONT = 2, 5, 6
 LID = 6                               # glass lid level of the boxes and the sick pen (inside clear y3..5)
 SICK_PEN = dict(x0=11, z0=32, x1=14, z1=35, front=10, door=33)
 BOOTH = dict(x0=13, z0=7, x1=16, z1=9, door=14)
-ZONES = [('belt_steamer', (11, 17), (18, 24)), ('classroom', (22, 17), (31, 24)), ('packing', (35, 16), (42, 25)),
-         ('roller', (22, 29), (31, 38))]
+ZONES = [('classroom', (22, 17), (31, 24)), ('packing', (35, 16), (42, 25)), ('roller', (22, 29), (31, 38))]
+# Belt and steamer floor x11..18, z17..24: a 2-wide floor belt (mcyukkuri:factory_belt, running east) from the load end at x11, by the
+# sweet aisle, to a stone-brick stop wall at x17; the steamer east of the stop faces west onto the worker's stand, its wheat chest north
+# of it; two control posts (run lever, grade lever) flank the load end. Both sides of the belt stay dry walkable floor.
+BELT_FLOOR = ((11, 17), (18, 24))
+BELT = dict(x0=11, x1=16, z0=20, z1=21, stop=17)
+LOAD, STAND, STEAMER, WHEAT, EXIT = (10, 20), (17, 19), (18, 19), (18, 18), (16, 22)
+LEVERS = {'run': ((11, 19), ['传送带', '拉杆开：运转', '拉杆关：停', '']), 'grade': ((11, 22), ['料牌', '拉杆关：普通甜也送', '拉杆开：只等浓甜', ''])}
 ROOMS = {'classroom': dict(x0=21, z0=16, x1=32, z1=25, doors=[((26, 16), 'north'), ((21, 20), 'west')], sign='教育室'),
          'roller': dict(x0=21, z0=28, x1=32, z1=39, doors=[((26, 28), 'north'), ((21, 32), 'west')], sign='滚轴间')}
 
@@ -61,7 +68,7 @@ class Plant(Building):
     """The plant's Building, with the boxes, zones and rooms recorded for check_structure.check_plant and the preview."""
     def __init__(self):
         super().__init__(NAME, SIZE)
-        self.floor = 3; self.boxes = []; self.zones = []; self.rooms = []; self.gaps = []
+        self.floor = 3; self.boxes = []; self.zones = []; self.rooms = []; self.gaps = []; self.belt = None
 
 
 def relative(origin, target): return sequence(3, [int(b - a) for a, b in zip(origin, target)])
@@ -175,6 +182,40 @@ def box_ring(b, x0, z0, x1, z1, front, door, facing, sides, label, readout):
             b.block(x, LID, z, BAND if sides_of(x, z) else 'glass')
     sx, sz = readout
     wall_sign(b, sx, 5, sz, facing, [label, '', '', ''])
+
+
+def corner_marks(b, x0, z0, x1, z1):
+    """Yellow L-shaped floor marks in the four corners of a work floor."""
+    for cx, cz, sx, sz in [(x0, z0, 1, 1), (x1, z0, -1, 1), (x0, z1, 1, -1), (x1, z1, -1, -1)]:
+        for x, z in [(cx, cz), (cx + sx, cz), (cx + 2 * sx, cz), (cx, cz + sz), (cx, cz + 2 * sz)]:
+            if name_at(b, x, 2, z) == 'minecraft:' + FLOOR: b.block(x, 2, z, LINE, over=True)
+
+
+def belt_steamer(b):
+    """The belt line of the sweet line: candidates are released onto the load end (x11) from the stand west of it, ride east on the
+    support surface (6/16 above the floor) and stop at the stone-brick wall (its 1.5 collision rises past the 1.0 step from the belt);
+    every belt cell has dry floor beside it on both sides, so a body steps off sideways anywhere and at the end. The worker on the stand
+    north-east of the end reaches the last belt cells and turns to the steamer (open side west); the wheat chest is north of it."""
+    (fx0, fz0), (fx1, fz1) = BELT_FLOOR
+    corner_marks(b, fx0, fz0, fx1, fz1)
+    for x in range(BELT['x0'], BELT['x1'] + 1):
+        for z in (BELT['z0'], BELT['z1']): b.block(x, 3, z, 'mcyukkuri:factory_belt', {'facing': 'east', 'running': 'false'})
+    for z in (BELT['z0'], BELT['z1']): b.block(BELT['stop'], 3, z, 'stone_brick_wall')
+    b.block(STEAMER[0], 3, STEAMER[1], 'mcyukkuri:manju_steamer', {'facing': 'west', 'open': 'false', 'lit': 'false'})
+    chest(b, WHEAT[0], WHEAT[1], 'west')
+    for (x, z), lines in LEVERS.values():
+        b.block(x, 3, z, POST); b.block(x, 4, z, BAND)
+        b.block(x, 5, z, 'lever', {'face': 'floor', 'facing': 'west', 'powered': 'false'})
+        wall_sign(b, x - 1, 4, z, 'west', lines)
+    anchor = (STAND[0], 3, STAND[1])
+    at = lambda cell, y=3: relative(anchor, (cell[0], y, cell[1]))
+    site_marker(b, anchor, 'mcy_plant_zone', {'Kind': string('belt_steamer'), 'Low': at((fx0, fz0)), 'High': at((fx1, fz1)),
+                                              'BeltLow': at((BELT['x0'], BELT['z0'])), 'BeltHigh': at((BELT['x1'], BELT['z1'])), 'Load': at(LOAD),
+                                              'Steamer': at(STEAMER), 'Wheat': at(WHEAT), 'Exit': at(EXIT),
+                                              'Run': at(LEVERS['run'][0], 5), 'Grade': at(LEVERS['grade'][0], 5)})
+    b.belt = dict(cells=[(x, z) for x in range(BELT['x0'], BELT['x1'] + 1) for z in (BELT['z0'], BELT['z1'])], stop=BELT['stop'],
+                  rows=(BELT['z0'], BELT['z1']), end=BELT['x1'], load=LOAD, stand=STAND, steamer=STEAMER, wheat=WHEAT, exit=EXIT,
+                  levers=[cell for cell, _ in LEVERS.values()])
 
 
 def plant():
@@ -318,11 +359,10 @@ def plant():
         (sx, sz), facing = r['doors'][0]
         wall_sign(b, sx, 5, sz - 1, 'north', [r['sign'], '', '', ''])
         b.rooms.append(dict(id=key, **r))
+    belt_steamer(b)
     # ---- Reserved floors: yellow corner marks on the floor; empty for the later art packages.
     for kind, (x0, z0), (x1, z1) in ZONES:
-        for cx, cz, sx, sz in [(x0, z0, 1, 1), (x1, z0, -1, 1), (x0, z1, 1, -1), (x1, z1, -1, -1)]:
-            for x, z in [(cx, cz), (cx + sx, cz), (cx + 2 * sx, cz), (cx, cz + sz), (cx, cz + 2 * sz)]:
-                if name_at(b, x, 2, z) == 'minecraft:' + FLOOR: b.block(x, 2, z, LINE, over=True)
+        corner_marks(b, x0, z0, x1, z1)
         anchor = (x0, 3, z0)
         site_marker(b, anchor, 'mcy_plant_zone', {'Kind': string(kind), 'Low': relative(anchor, (x0, 3, z0)), 'High': relative(anchor, (x1, 3, z1))})
         b.zones.append(dict(kind=kind, low=(x0, z0), high=(x1, z1)))

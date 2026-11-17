@@ -505,7 +505,7 @@ WORKSTATIONS = {'minecraft:' + n for n in ('barrel', 'lectern', 'composter', 'sm
 PLANT_BLOCKS = {'minecraft:' + n for n in (
     'air', 'light', 'lantern', 'chain', 'ochre_froglight', 'glass', 'glass_pane', 'white_concrete', 'yellow_concrete',
     'stone_bricks', 'stone_brick_wall', 'stone_brick_stairs', 'polished_andesite', 'polished_andesite_stairs', 'polished_andesite_slab', 'smooth_stone',
-    'smooth_stone_slab', 'andesite', 'stone', 'gravel', 'waxed_copper_door', 'chest', 'hay_block', 'birch_wall_sign', 'potted_fern')}
+    'smooth_stone_slab', 'andesite', 'stone', 'gravel', 'waxed_copper_door', 'chest', 'hay_block', 'birch_wall_sign', 'potted_fern', 'lever')}
 # The largest body a sweet box admits: an adult deibu (formScale 1.5) at the top adult scale 1.2 -- hitbox 0.8 x 0.6 per unit growth
 # (body_geometry.json) -> 1.44 wide, 1.08 high; its rounded body surface is as wide (12.8 units). The widest drawn model is the wasa
 # deibu (reimu_wasa_deibu) at 1.8: 2.41 across its hair, which WallYield presses onto any face nearer than that (measured with the pose
@@ -618,6 +618,46 @@ def load_plant():
     spec = importlib.util.spec_from_file_location('author_plant_check', path); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     return m
 
+# The plant belt (author_plant.belt_steamer, author_products.BELT_TOP): yukkuri step 1.0 (YukkuriEntity STEP_HEIGHT), a stone-brick
+# wall's collision is 1.5 high.
+BELT_TOP, STEP, WALL_COLLISION = 6 / 16, 1.0, 1.5
+
+
+def belt_errors(b, seen):
+    """The belt as F7b's contact contract states it: east-running stopped belt cells two wide (wider than the largest admitted body),
+    headroom for the tallest body over the support surface, a stop the belt cannot step a body over, dry reachable floor beside every
+    belt cell on both sides with a 2 x 2 square at the end for the largest body, the stands reachable, the steamer open toward its stand."""
+    belt = b.belt; errors = []
+    if not belt: return [f'{b.name}: no belt and steamer']
+    for x, z in belt['cells']:
+        n, p = state_at(b, x, 3, z)
+        if n != 'mcyukkuri:factory_belt' or p != {'facing': 'east', 'running': 'false'}: errors.append(f'{b.name}: belt cell {(x, z)} is {n} {p}')
+        top = next(y for y in range(4, b.size[1]) if not free(name_at(b, x, y, z)))
+        if top - (3 + BELT_TOP) < LARGEST['height']: errors.append(f'{b.name}: belt cell {(x, z)} headroom {top - 3 - BELT_TOP:.2f} under the tallest body')
+    z0, z1 = belt['rows']
+    if z1 - z0 + 1 < LARGEST['width']: errors.append(f'{b.name}: belt {z1 - z0 + 1} wide, the largest body {LARGEST["width"]}')
+    for z in belt['rows']:
+        if name_at(b, belt['stop'], 3, z) != 'minecraft:stone_brick_wall' or WALL_COLLISION - BELT_TOP <= STEP:
+            errors.append(f'{b.name}: belt row z{z} has no stop a body cannot step over')
+    for x in {x for x, _ in belt['cells']}:
+        for z in (z0 - 1, z1 + 1):
+            if (x, z) in belt['levers']: continue
+            if (x, z) not in seen: errors.append(f'{b.name}: no dry floor beside the belt at {(x, z)}')
+    ex, ez = belt['exit']; dz = 1 if ez > z1 else -1
+    if not all((ex - dx, ez + dz * k) in seen for dx in (0, 1) for k in (0, 1)): errors.append(f'{b.name}: the end exit {belt["exit"]} has no 2 x 2 floor')
+    for key in ('load', 'stand'):
+        if belt[key] not in seen: errors.append(f'{b.name}: belt {key} stand {belt[key]} unreachable')
+    sx, sz = belt['steamer']; tx, tz = belt['stand']
+    facing = {(-1, 0): 'west', (1, 0): 'east', (0, -1): 'north', (0, 1): 'south'}.get((tx - sx, tz - sz))
+    if state_at(b, sx, 3, sz) != ('mcyukkuri:manju_steamer', {'facing': facing, 'open': 'false', 'lit': 'false'}):
+        errors.append(f'{b.name}: the steamer at {belt["steamer"]} does not face its stand {belt["stand"]}')
+    wx, wz = belt['wheat']
+    if name_at(b, wx, 3, wz) != 'minecraft:chest' or (wx - 1, wz) not in seen: errors.append(f'{b.name}: the wheat chest {belt["wheat"]} is not reachable')
+    for x, z in belt['levers']:
+        if name_at(b, x, 5, z) != 'minecraft:lever' or (x - 1, z) not in seen: errors.append(f'{b.name}: lever post {(x, z)} not reachable')
+    return errors
+
+
 def check_plant():
     m = load_plant(); b = m.plant(); errors = [f'{b.name}: block overwrite at {pos}: {old} -> {new}' for pos, old, new in b.conflicts]
     errors += entity_errors(b) + door_errors(b) + light_errors(b)
@@ -647,6 +687,7 @@ def check_plant():
         bad = [c for c in cells if name_at(b, c[0], 2, c[1]) == AIR or not free(name_at(b, c[0], 3, c[1])) or not free(name_at(b, c[0], 4, c[1]))]
         if bad: errors.append(f"{b.name}: reserved floor {zone['kind']} not empty walkable floor at {bad[:4]}")
         if not any(c in seen for c in cells): errors.append(f"{b.name}: staff cannot reach the reserved floor {zone['kind']}")
+    errors += belt_errors(b, seen)
     for room in b.rooms:
         for (dx, dz), facing in room['doors']:
             ox, oz = {'north': (dx, dz - 1), 'south': (dx, dz + 1), 'west': (dx - 1, dz), 'east': (dx + 1, dz)}[facing]

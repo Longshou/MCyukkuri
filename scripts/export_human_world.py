@@ -58,7 +58,9 @@ def main(check=False):
               'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json',
               'src/main/resources/assets/mcyukkuri/textures/block/village_wood_*.png','src/main/resources/assets/mcyukkuri/models/*/wooden_*.json',
               'src/main/resources/assets/mcyukkuri/blockstates/wooden_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/wooden_*.json',
-              'src/main/resources/data/mcyukkuri/recipe/wooden_*.json',
+              'src/main/resources/data/mcyukkuri/recipe/wooden_*.json','src/main/resources/assets/mcyukkuri/models/block/factory_belt_*.json','src/main/resources/assets/mcyukkuri/models/block/manju_steamer_*.json',
+              'src/main/resources/assets/mcyukkuri/textures/block/factory_belt_*','src/main/resources/assets/mcyukkuri/textures/block/manju_steamer_*',
+              'src/main/resources/data/mcyukkuri/loot_table/blocks/factory_belt.json','src/main/resources/data/mcyukkuri/loot_table/blocks/manju_steamer.json',
               'src/main/resources/assets/mcyukkuri/models/*/produce_crate*.json','src/main/resources/assets/mcyukkuri/blockstates/produce_crate.json',
               'src/main/resources/data/mcyukkuri/loot_table/blocks/produce_crate.json','src/main/resources/data/mcyukkuri/recipe/produce_crate.json',
               'src/main/resources/assets/mcyukkuri/models/*/display_tray*.json','src/main/resources/assets/mcyukkuri/blockstates/display_tray.json',
@@ -80,7 +82,7 @@ def main(check=False):
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/FactoryStationBlock.java')
-    for name in ['factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray','yukkuri_manju','live_yukkuri_bag','silver_yukkuri_badge','gold_yukkuri_badge','platinum_yukkuri_badge','labor_bench','manju_steamer','live_packing_table','nursery_station']:
+    for name in ['factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray','yukkuri_manju','live_yukkuri_bag','silver_yukkuri_badge','gold_yukkuri_badge','platinum_yukkuri_badge','labor_bench','manju_steamer','factory_belt','live_packing_table','nursery_station']:
         for folder,extension in [('models/item','json'),('models/block','json'),('blockstates','json'),('textures/item','png'),('textures/block','png')]:
             p=ROOT/'src/main/resources/assets/mcyukkuri'/folder/(name+'.'+extension)
             if p.exists():paths.append(p)

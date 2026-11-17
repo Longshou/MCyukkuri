@@ -16,6 +16,8 @@ FACES = {
     'west': ([-1,0,0], [4,7,3,0]), 'east': ([1,0,0], [1,2,6,5]),
     'up': ([0,1,0], [3,7,6,2]), 'down': ([0,-1,0], [4,0,1,5]),
 }
+# Box corners (0 x0y0z0, 1 x1y0z0, 2 x1y1z0, 3 x0y1z0, 4 x0y0z1, 5 x1y0z1, 6 x1y1z1, 7 x0y1z1) in Minecraft's FaceInfo vertex order.
+MC_CORNERS = {'down': [4,0,1,5], 'up': [3,7,6,2], 'north': [2,1,0,3], 'south': [7,4,5,6], 'west': [3,0,4,7], 'east': [6,5,1,2]}
 
 def font(size):
     for p in ('C:/Windows/Fonts/msyh.ttc','/System/Library/Fonts/STHeiti Light.ttc','/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'):
@@ -69,9 +71,11 @@ class Assets:
                     if texture in seen: raise ValueError(texture)
                     seen.add(texture); texture=textures[texture[1:]]
                 origin=self.tex(texture); u0,v0,u1,v1=f.get('uv',defaults[direction])
-                uv=np.array([[u0,v1],[u0,v0],[u1,v0],[u1,v1]],float)/1024+origin
-                uv=np.roll(uv,int(f.get('rotation',0)/90),axis=0)
+                # Minecraft's FaceBakery: the face's i-th vertex (MC_CORNERS) takes uv corner (i + rotation/90) % 4 of
+                # (u0,v0),(u0,v1),(u1,v1),(u1,v0); the image's top row is v0 (a top texture's top edge is north).
                 normal,ix=FACES[direction]; normal=r@er@normal
+                corner=[(u0,v0),(u0,v1),(u1,v1),(u1,v0)]; shift=int(f.get('rotation',0)/90)
+                uv=np.array([corner[(MC_CORNERS[direction].index(c)+shift)%4] for c in ix],float)/1024+origin
                 quad=corners[ix]
                 for tri in ((0,1,2),(0,2,3)):
                     for i in tri: out.append([*quad[i],*uv[i],*normal])
