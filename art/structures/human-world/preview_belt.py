@@ -27,11 +27,11 @@ p{line-height:1.6}</style>
 <p class="d"><b>要你决定：</b>地面短传送带（橡胶带面上的人字防滑条指向运行方向，运转时带面向前走、两侧小灯变绿）和改做的馒头蒸台
 （炉膛、托盘、钢锅、可开合的锅盖、蒸汽）是否像朴素工厂里的设备、和厂房其他部分放在一起是否协调。</p>
 <p>画面为离线渲染（真实方块模型与贴图，无光照；储物箱、木牌字等方块实体不画）。带面在游戏里由动画贴图滚动；蒸汽是像素点阵的上升动画。
-蒸台的开盖、蒸制状态要等代码包给方块加上状态后才在游戏里切换，现在游戏里一律显示关盖冷台。</p>
+模板放下的是停带和关盖冷台，生产时的状态切换由后续玩法接入。</p>
 <h2>蒸台四种状态</h2><img src="steamer.png"><p>{{STATES}}。正面（朝员工）是炉门与托盘：托盘右格（草垫）放真小麦，左格（白蒸布）放出笼的馒头；格里不画假货，代码包把真实物品摆上去；开盖后锅里是放遗体的蒸架。</p>
 <h2>传送带：停 / 运转</h2><img src="belt-stopped.png"><img src="belt-running.gif">
 <p>两格宽、带面离地 6/16 格，最大的灵胖（1.44 格宽）也整个落在带面上；带尾是石砖墙挡头（碰撞 1.5 格高，带面上的个体跨不过去）。
-每一格带的两侧都是平整干地，个体随时可以从侧面下带，带尾两侧尤其留出整块空地。</p>
+过了上料端的控制柱，带两侧都是平整干地，带尾留出侧退空地。</p>
 <h2>在厂房里</h2><img src="area.png"><img src="area-steam.png"><img src="area-plan.png">
 <p>西端（左）是上料端，员工从甜化过道把实篮里的个体放上带；两根控制柱上各有一根原版拉杆和木牌（北：传送带开停；南：料牌，普通甜也送 / 只等浓甜）。
 东端挡头墙北侧是员工站位，伸手够得到带尾的个体，转身就是蒸台；蒸台北边是放小麦的箱子。
@@ -74,10 +74,12 @@ def main():
     # The four steamer states in a row, fronts toward the camera (south), steam at its first frame.
     row = [model_at(a, 'mcyukkuri:block/' + m, (2.2 * i - 3.8, 0, -.5), 180) for i, (m, _) in enumerate(STATES)]
     view(a, np.concatenate(row + floor(-5, -2, 5, 1)), out, 'steamer', 1600, 700, 2.8, .32, 2.3, .9)
-    wall = a.block('minecraft:stone_brick_wall', (('east', 'none'), ('north', 'low'), ('south', 'low'), ('up', 'true'), ('waterlogged', 'false'), ('west', 'none')))
+    wall = [model_at(a, 'minecraft:block/stone_bricks', (2, 0, z)) for z in (-1, 0)]
+    slab = a.block('minecraft:stone_brick_slab', tuple(sorted(author_plant.STOP_CAP.items())))
+    wall += [slab + [2, 1, z, 0, 0, 0, 0, 0] for z in (-1, 0)]
     # The belt alone: 2 x 4 cells running east with the stop wall; stopped, then eight frames of the running texture.
     run = lambda running: np.concatenate([model_at(a, 'mcyukkuri:block/factory_belt' + ('_running' if running else ''), (x - 2, 0, z - 1), 90)
-                                          for x in range(4) for z in range(2)] + [wall + [2, 0, z, 0, 0, 0, 0, 0] for z in (-1, 0)] + floor(-3, -2, 4, 3))
+                                          for x in range(4) for z in range(2)] + wall + floor(-3, -2, 4, 3))
     view(a, run(False), out, 'belt-stopped', 1200, 640, 2.6, .55, 3.0, .3)
     frames = []
     for k in range(author_products.BELT_FRAMES):
@@ -93,14 +95,14 @@ def main():
               place_body(a, 'reimu', 1.0, (16.0, 22.9), 3, 2, 2)]
     centre = np.array([-14, 0, -21.5, 0, 0, 0, 0, 0])
     view(a, np.concatenate([mesh(a, area)] + bodies) + centre, out, 'area', 1600, 1000, -2.45, .55, 6.4, 4)
-    # The same floor from the north-east with the belt running and the steamer open and steaming.
+    # The same floor from the north-west with the belt running and the steamer open and steaming.
     sx, sz = belt['steamer']
     rest = subset(area, lambda x, y, z: (x, z) != (sx, sz) or y != 3)
     running = {p: (n, dict(q, running='true') if n == 'mcyukkuri:factory_belt' else q, nbt) for p, (n, q, nbt) in rest.blocks.items()}
     set_frame(a, 'mcyukkuri:block/factory_belt_top_running', 3); set_frame(a, 'mcyukkuri:block/manju_steamer_steam', 2)
     steam = model_at(a, 'mcyukkuri:block/manju_steamer_open_lit', (sx, 3, sz), 270)
     end = np.array([-16, 0, -20.5, 0, 0, 0, 0, 0])
-    view(a, np.concatenate([mesh(a, SimpleNamespace(blocks=running)), steam] + bodies) + end, out, 'area-steam', 1600, 1000, -1.95, .42, 3.6, 4.3)
+    view(a, np.concatenate([mesh(a, SimpleNamespace(blocks=running)), steam] + bodies) + end, out, 'area-steam', 1600, 1000, -.95, .42, 3.6, 4.3)
     # Top-down plan of the belt floor (x6..21, z14..27) with the stands and the exit.
     X0, Z0 = 6, 14
     plan_area = SimpleNamespace(size=[16, 13, 14], blocks={(x - X0, y, z - Z0): v for (x, y, z), v in b.blocks.items() if X0 <= x < X0 + 16 and Z0 <= z < Z0 + 14})

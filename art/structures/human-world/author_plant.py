@@ -58,6 +58,7 @@ ZONES = [('classroom', (22, 17), (31, 24)), ('packing', (35, 16), (42, 25)), ('r
 # of it; two control posts (run lever, grade lever) flank the load end. Both sides of the belt stay dry walkable floor.
 BELT_FLOOR = ((11, 17), (18, 24))
 BELT = dict(x0=11, x1=16, z0=20, z1=21, stop=17)
+STOP_CAP = {'type': 'bottom', 'waterlogged': 'false'}
 LOAD, STAND, STEAMER, WHEAT, EXIT = (10, 20), (17, 19), (18, 19), (18, 18), (16, 22)
 LEVERS = {'run': ((11, 19), ['传送带', '拉杆开：运转', '拉杆关：停', '']), 'grade': ((11, 22), ['料牌', '拉杆关：普通甜也送', '拉杆开：只等浓甜', ''])}
 ROOMS = {'classroom': dict(x0=21, z0=16, x1=32, z1=25, doors=[((26, 16), 'north'), ((21, 20), 'west')], sign='教育室'),
@@ -193,14 +194,16 @@ def corner_marks(b, x0, z0, x1, z1):
 
 def belt_steamer(b):
     """The belt line of the sweet line: candidates are released onto the load end (x11) from the stand west of it, ride east on the
-    support surface (6/16 above the floor) and stop at the stone-brick wall (its 1.5 collision rises past the 1.0 step from the belt);
-    every belt cell has dry floor beside it on both sides, so a body steps off sideways anywhere and at the end. The worker on the stand
+    support surface (6/16 above the floor) and stop at the full-width stone-brick wall, 1.5 high with its slab cap;
+    beyond the control posts the belt has dry floor on both sides for stepping off. The worker on the stand
     north-east of the end reaches the last belt cells and turns to the steamer (open side west); the wheat chest is north of it."""
     (fx0, fz0), (fx1, fz1) = BELT_FLOOR
     corner_marks(b, fx0, fz0, fx1, fz1)
     for x in range(BELT['x0'], BELT['x1'] + 1):
         for z in (BELT['z0'], BELT['z1']): b.block(x, 3, z, 'mcyukkuri:factory_belt', {'facing': 'east', 'running': 'false'})
-    for z in (BELT['z0'], BELT['z1']): b.block(BELT['stop'], 3, z, 'stone_brick_wall')
+    for z in (BELT['z0'], BELT['z1']):
+        b.block(BELT['stop'], 3, z, 'stone_bricks')
+        b.block(BELT['stop'], 4, z, 'stone_brick_slab', STOP_CAP)
     b.block(STEAMER[0], 3, STEAMER[1], 'mcyukkuri:manju_steamer', {'facing': 'west', 'open': 'false', 'lit': 'false'})
     chest(b, WHEAT[0], WHEAT[1], 'west')
     for (x, z), lines in LEVERS.values():
@@ -213,9 +216,9 @@ def belt_steamer(b):
                                               'BeltLow': at((BELT['x0'], BELT['z0'])), 'BeltHigh': at((BELT['x1'], BELT['z1'])), 'Load': at(LOAD),
                                               'Steamer': at(STEAMER), 'Wheat': at(WHEAT), 'Exit': at(EXIT),
                                               'Run': at(LEVERS['run'][0], 5), 'Grade': at(LEVERS['grade'][0], 5)})
-    b.belt = dict(cells=[(x, z) for x in range(BELT['x0'], BELT['x1'] + 1) for z in (BELT['z0'], BELT['z1'])], stop=BELT['stop'],
-                  rows=(BELT['z0'], BELT['z1']), end=BELT['x1'], load=LOAD, stand=STAND, steamer=STEAMER, wheat=WHEAT, exit=EXIT,
-                  levers=[cell for cell, _ in LEVERS.values()])
+    b.belt = dict(floor=BELT_FLOOR, low=(BELT['x0'], BELT['z0']), high=(BELT['x1'], BELT['z1']), stop=BELT['stop'],
+                  load=LOAD, stand=STAND, steamer=STEAMER, wheat=WHEAT, exit=EXIT,
+                  levers={key: cell for key, (cell, _) in LEVERS.items()})
 
 
 def plant():
