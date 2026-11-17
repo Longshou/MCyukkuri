@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 报纸堆作纸源：流浪撕纸、铺垫与冬夜盖纸发抖（N79） | `.worktrees/wp-paper-source` | human/NewspaperStackBlock, life/Facilities, stray shelter behaviour, lore motions |
-| 宠物院子日常：睡窝、迎接主人；流浪认院为家，主人回应 | `.worktrees/wp-pet-yard-life` | pet yard behaviour, human owner NPC, pet nest |
 
 ## 玩法待办
 
