@@ -1,15 +1,8 @@
 package io.github.longshou.mcyukkuri.body;
 
-import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,29 +14,19 @@ import org.joml.Vector3f;
 /** Server-authoritative inverse posed-skin picking and physical release coordinates. */
 public final class WoundPlacement {
     public static float angle(YukkuriEntity e){return switch(e.contactPose()){case "SUPINE","FIXED","HOOK"->90;case "ROLL"->e.contactTurn();case "RUMP","ASSIST"->-12;default->0;};}
-    private static final Map<String,Float> LIFTS=new ConcurrentHashMap<>();
     public static float lift(YukkuriEntity e){
-        if(e.contactPose().equals("FIXED")){String name="restraint_frame_"+e.getVariant().assetId()+(e.hasVisibleAccessory()?"":"_bare");return LIFTS.computeIfAbsent(name,WoundPlacement::fixedLift);}
         return angle(e)==0?0:WoundSurface.get(e.subspecies().assetId()).contactLift(angle(e),e.hasVisibleAccessory(),e.visibleHairLoss());
     }
-    private static float fixedLift(String name){
-        String path="/assets/mcyukkuri/yukkuri_props/"+name+".json";
-        var stream=WoundPlacement.class.getResourceAsStream(path);
-        if(stream==null)throw new IllegalStateException("Missing fitted operation resource: "+path);
-        try(var reader=new InputStreamReader(stream,StandardCharsets.UTF_8)){
-            var value=JsonParser.parseReader(reader).getAsJsonObject().get("body_lift");
-            if(value==null)throw new IllegalStateException("Missing body_lift in "+path);
-            float lift=value.getAsFloat();
-            if(!Float.isFinite(lift)||lift<=0)throw new IllegalStateException("Invalid body_lift in "+path);
-            return lift;
-        }catch(IOException ex){throw new UncheckedIOException(ex);}
+    public static float tableDepth(String asset) {
+        var bounds=WoundSurface.get(asset).bounds();
+        return -(bounds[1]+bounds[4])/32;
     }
     /** Model units to an entity-relative world vector; keep world translation in double precision. */
     private static float bodyYaw(YukkuriEntity e) {
         return e.yBodyRot;
     }
     public static Matrix4f transform(YukkuriEntity e){float scale=e.getScale()*e.growthScale();var m=new Matrix4f().rotateY((float)Math.toRadians(180-bodyYaw(e))).scale(scale);
-        if(angle(e)!=0)m.translate(0,lift(e),0).rotateX((float)Math.toRadians(angle(e)));
+        if(angle(e)!=0)m.translate(0,lift(e),e.contactPose().equals("FIXED")?tableDepth(e.assetId()):0).rotateX((float)Math.toRadians(angle(e)));
         if(e.contactPose().equals("GRIP"))m.scale(1.1f,.85f,1.1f);
         boolean open=!e.profile().houseBody()&&e.body()!=null&&e.body().wounds().stream().anyMatch(BodySigns::open);
         float health=e.getMaxHealth()<=0?1:e.getHealth()/e.getMaxHealth();

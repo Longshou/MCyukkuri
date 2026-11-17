@@ -235,7 +235,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (job() == Job.FACTORY) return PlantReceiving.interact(player, this, hand);
+        if (job() == Job.FACTORY) return sweeteningStaff() ? PlantSweetening.receiveBasket(this, player, hand) : PlantReceiving.interact(player, this, hand);
         if (!level().isClientSide) {
             ShopRegistry.get((ServerLevel) level()).adoptLegacy((ServerLevel) level(), this);
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);

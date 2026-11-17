@@ -95,7 +95,7 @@ public final class InteractionDispatch {
     }
     public static boolean allowCapture(Player player,YukkuriEntity target){
         if(!requireReach(player,target,4))return false;
-        if (ExamSession.running(target)) { refuse(player, target, "capture", "busy"); return false; }
+        if (ExamSession.running(target)||target.operations().table()!=null) { refuse(player, target, "capture", "busy"); return false; }
         if(HumanCommerce.mayCapture(player,target))return true;
         refuse(player,target,"capture","custody");
         return false;
@@ -131,9 +131,12 @@ public final class InteractionDispatch {
     public static void openCare(ServerPlayer player,YukkuriEntity target){
         if(requireReach(player,target,5))open(player,target,false);
     }
+    public static void releaseTable(ServerPlayer player,YukkuriEntity target){
+        if(requireReach(player,target,5))target.operations().unstrap("released");
+    }
     public static boolean openCutter(ServerPlayer player,YukkuriEntity target){
         if(!requireHarmContact(player,target,5,"cutter"))return false;
-        var reason=ExamSession.running(target)?"busy":operationRefusal(target);
+        var reason=ExamSession.running(target)||!target.operations().toolReady(false)?"busy":null;
         if(reason==null&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))reason="tool";
         if(reason!=null) {
             refuse(player,target,"cutter",reason);
@@ -156,10 +159,6 @@ public final class InteractionDispatch {
         return target.operations().ready() ? null : "busy";
     }
 
-    public static boolean restraintFits(YukkuriEntity target) {
-        return target.onGround() && target.operations().hasRoom();
-    }
-
     public static String contactRefusal(YukkuriEntity target) {
         if (target.isInWaterOrBubble()) return "water";
         if (target.vehicleHat() != null) return "hat";
@@ -174,15 +173,15 @@ public final class InteractionDispatch {
 
     private static String toolRefusal(LivingEntity actor, YukkuriEntity target, CareAction action) {
         return ToolContactRules.refusal(() -> reachRefusal(actor, target, TOOL_REACH), () -> ExamSession.running(target),
-                () -> harmContactRefusal(actor, target), () -> target.operations().ready(),
+                () -> harmContactRefusal(actor, target), () -> target.operations().toolReady(action.tool.inserted),
                 () -> actor.getMainHandItem().is(action.tool.item()), () -> {
                     if (actor instanceof HumanNpc && (!actor.onGround() || actor.isPassenger())) return "space";
                     var operation = target.operations();
                     return switch (action) {
-                        case FIX_SUPINE, ENCLOSE -> restraintFits(target) ? null : "space";
-                        case PIN -> target.onGround() ? null : "space";
+                        case ENCLOSE -> operation.table()!=null || target.onGround() && operation.hasRoom() ? null : "space";
+                        case PIN -> operation.table()!=null || target.onGround() ? null : "space";
                         case BURN -> OperationToolItem.isHot(actor.getMainHandItem(), target.level()) ? null : "heat";
-                        case WRAP_HANG, HOOK_HANG -> operation.ceiling() == null ? "ceiling" : null;
+                        case WRAP_HANG, HOOK_HANG -> operation.table()==null && operation.ceiling()==null ? "ceiling" : null;
                         case VIBRATE -> target.family().adult() && !target.family().sterile() ? null : "condition";
                         case PIERCE, MALLET -> null;
                         default -> throw new IllegalArgumentException(action.name());
@@ -247,7 +246,7 @@ public final class InteractionDispatch {
             reason = contactRefusal(target);
             if (reason != null) return reason;
         }
-        reason=operationRefusal(target);
+        reason=action.shears()?(operation.toolReady(false)?null:"busy"):operationRefusal(target);
         if(reason!=null)return reason;
         if(action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
         if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_HARNESS||action==CareAction.UNWRAP){

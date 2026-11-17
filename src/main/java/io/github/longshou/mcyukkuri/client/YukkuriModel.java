@@ -1362,7 +1362,7 @@ public final class YukkuriModel {
                     ||entity.visibleKanroken()||mouthHolding)captureMouthAttachment();
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
             // The puff uses a different skin mesh; keep its clip instead of pinning the body to the sole decal.
-            int soleOpacity=puffAmount>0?0:leakOpacity;
+            int soleOpacity=puffAmount>0&&!entity.contactPose().equals("FIXED")&&!entity.contactPose().equals("SUPINE")?0:leakOpacity;
             var contact=compatible&&(drawingSurfaceMarks||soleOpacity>0||contactWound!=null)
                     ?WoundRenderer.render(entity,expression,soleOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence):null;
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();

@@ -28,7 +28,8 @@ final class YukkuriInteractions {
                 return owner.mobInteractBase(player,hand);
             }
             if (player instanceof ServerPlayer server) {
-                if(player.isSecondaryUseActive())InteractionDispatch.openCare(server,owner);
+                if(owner.operations().table()!=null)InteractionDispatch.releaseTable(server,owner);
+                else if(player.isSecondaryUseActive())InteractionDispatch.openCare(server,owner);
                 else owner.social().clickedTalk(player);
             }
             return InteractionResult.sidedSuccess(owner.level().isClientSide);

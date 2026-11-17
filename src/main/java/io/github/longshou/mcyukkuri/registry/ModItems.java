@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.item.HouseEggItem;
 import io.github.longshou.mcyukkuri.item.HouseholdSprayItem;
 import io.github.longshou.mcyukkuri.item.MagnifyingGlassItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.item.PetHarnessItem;
 import io.github.longshou.mcyukkuri.item.RemainsItem;
 import io.github.longshou.mcyukkuri.item.SupplyItem;
@@ -46,6 +47,7 @@ public final class ModItems {
             AQUATIC_HATS.put(kind,ITEMS.register(kind.hatItem(),()->new AccessoryItem(new Item.Properties())));
     }
     public static final Map<OperationToolItem.Tool,DeferredItem<OperationToolItem>> OPERATION_TOOLS=new EnumMap<>(OperationToolItem.Tool.class);
+    public static final DeferredItem<BlockItem> RESTRAINT = ITEMS.registerSimpleBlockItem(RestraintTableBlock.ID, ModBlocks.RESTRAINT, new Item.Properties().stacksTo(16));
     static {
         for(var tool:OperationToolItem.Tool.values())OPERATION_TOOLS.put(tool,ITEMS.register(tool.id,()->new OperationToolItem(tool,
                 tool.inserted?new Item.Properties().stacksTo(16):new Item.Properties().durability(128))));

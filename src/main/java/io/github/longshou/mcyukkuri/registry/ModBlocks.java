@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
 import io.github.longshou.mcyukkuri.human.DisplayTrayBlock;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlock;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
@@ -38,6 +40,10 @@ import net.minecraft.world.level.material.PushReaction;
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MCYukkuri.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MCYukkuri.MOD_ID);
+    public static final DeferredBlock<RestraintTableBlock> RESTRAINT = BLOCKS.register(RestraintTableBlock.ID,
+            () -> new RestraintTableBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion().pushReaction(PushReaction.DESTROY)));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RestraintTableBlockEntity>> RESTRAINT_ENTITY =
+            BLOCK_ENTITIES.register(RestraintTableBlock.ID, () -> BlockEntityType.Builder.of(RestraintTableBlockEntity::new, RESTRAINT.get()).build(null));
     public static final DeferredBlock<DetachedStemBlock> DETACHED_STEM=BLOCKS.register("detached_brood_stem",()->new DetachedStemBlock(false,
             BlockBehaviour.Properties.of().strength(.2f).noCollission().noOcclusion()));
     public static final DeferredBlock<DetachedStemBlock> BOTTLED_STEM=BLOCKS.register("bottled_brood_stem",()->new DetachedStemBlock(true,

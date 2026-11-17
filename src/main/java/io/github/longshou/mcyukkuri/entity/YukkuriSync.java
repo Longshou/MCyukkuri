@@ -90,6 +90,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Float> BODY_YAW=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Long> LEAK_TRACE_AT=YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private static final EntityDataAccessor<String> SPEECH_VOICE_TIER = YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> TABLE_TOOL=YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private Held heldSnapshot = Held.NONE;
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
@@ -197,6 +198,8 @@ final class YukkuriSync {
     BlockPos contactAnchor(){return owner.getEntityData().get(CONTACT_ANCHOR).orElse(null);}
     void syncOperationWound(UUID wound){owner.getEntityData().set(CONTACT_WOUND,Optional.ofNullable(wound));}
     UUID contactWound(){return owner.getEntityData().get(CONTACT_WOUND).orElse(null);}
+    void syncTableTool(String pose){owner.getEntityData().set(TABLE_TOOL,pose);}
+    String tableTool(){return owner.getEntityData().get(TABLE_TOOL);}
     int visibleWound(){return owner.getEntityData().get(WOUND);}
     List<BodyWound> visibleWounds() {
         if (woundsSnapshot == null) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
@@ -409,6 +412,7 @@ final class YukkuriSync {
         builder.define(HELD_ITEM,ItemStack.EMPTY);builder.define(HELD_PLACE,new CompoundTag());builder.define(BODY_YAW,0f);
         builder.define(LEAK_TRACE_AT,-1L);
         builder.define(SPEECH_VOICE_TIER, "");
+        builder.define(TABLE_TOOL,"NONE");
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if(BROOD_PROGRESS.equals(key)&&owner.level().isClientSide){

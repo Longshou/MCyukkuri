@@ -7,10 +7,11 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
-import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.random.ModRandom;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -70,11 +71,11 @@ public final class ShopTrade {
 
     /** The display tray's first slot holds the frame or the actual deposit. No separate lending record is needed. */
     static void exchangeRestraint(ServerPlayer player, ProduceCrateBlockEntity tray) {
-        var frame = Tool.RESTRAINT.item();
+        var frame = ModItems.RESTRAINT.get();
         var stored = tray.getItem(0);
         var hand = player.getMainHandItem();
         if (stored.is(frame)) {
-            int price = Math.min(ProduceCrateBlockEntity.PER_ROW, ShopCatalog.find(ShopKind.ONI, Tool.RESTRAINT.id).price());
+            int price = Math.min(ProduceCrateBlockEntity.PER_ROW, ShopCatalog.find(ShopKind.ONI, RestraintTableBlock.ID).price());
             if (!hand.isEmpty()) {
                 restraintRefused(player, tray, "empty_hand", price);
             } else if (emeralds(player) < price) {

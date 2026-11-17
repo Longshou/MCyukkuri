@@ -62,6 +62,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.SWEET_CANDY.get());output.accept(ModItems.CUSTARD_PUDDING.get());
                         output.accept(ModItems.ORANGE_JUICE.get());output.accept(ModItems.FLOUR_PASTE.get());output.accept(ModItems.MOLD_REMOVER.get());
                         ModItems.OPERATION_TOOLS.values().forEach(item->output.accept(item.get()));
+                        output.accept(ModItems.RESTRAINT.get());
                         Facilities.ITEMS.values().forEach(item->output.accept(item.get()));
                         Playgrounds.ITEMS.values().forEach(item->output.accept(item.get()));
                         Consumables.ITEMS.values().forEach(item->output.accept(item.get()));

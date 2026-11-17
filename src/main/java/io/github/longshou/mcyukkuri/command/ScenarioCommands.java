@@ -188,6 +188,8 @@ public final class ScenarioCommands {
                                 .executes(ScenarioCommands::selectToolOperatorSlot)))
                         .then(Commands.literal("pick_up").then(Commands.argument("item", EntityArgument.entity())
                                 .executes(ScenarioCommands::toolOperatorPickup)))
+                        .then(Commands.literal("break").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                .executes(ScenarioCommands::toolOperatorBreak)))
                         .then(Commands.literal("leave").executes(context->toolOperator(context.getSource(),false))))
                 .then(Commands.literal("shop_door_click").then(Commands.argument("door", BlockPosArgument.blockPos())
                         .then(Commands.argument("face", StringArgumentType.word()).executes(ScenarioCommands::shopDoorClick))))
@@ -436,6 +438,13 @@ public final class ScenarioCommands {
                 || !(EntityArgument.getEntity(c, "item") instanceof ItemEntity item) || player.distanceToSqr(item) > 1) return 0;
         item.playerTouch(player);
         return item.isRemoved() ? 1 : 0;
+    }
+
+    private static int toolOperatorBreak(CommandContext<CommandSourceStack> c) {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+        var pos = BlockPosArgument.getBlockPos(c, "pos");
+        return player.canInteractWithBlock(pos, 0) && player.gameMode.destroyBlock(pos) ? 1 : 0;
     }
 
     private static int shopDoorClick(CommandContext<CommandSourceStack> c) {

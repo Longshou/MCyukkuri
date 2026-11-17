@@ -456,6 +456,11 @@ public final class YukkuriWorldData extends SavedData {
     public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 position, float yaw) {
         return release(token, level, position, yaw, true);
     }
+
+    public GroundRelease releaseOnSurface(UUID token, ServerLevel level, Vec3 position, float yaw,
+                                          Function<YukkuriEntity, String> check) {
+        return release(token, level, position, yaw, true, 0, null, null, check);
+    }
     public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 near, float yaw, int radius) {
         return release(token, level, near, yaw, true, radius, null, null, null).animal();
     }
@@ -479,7 +484,7 @@ public final class YukkuriWorldData extends SavedData {
         if (Custody.normalizeSnapshot(level, held.data)) setDirty();
         Entity loaded = EntityType.loadEntityRecursive(held.data.copy(), level, entity -> entity);
         if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return releaseRefused(token,level,position,"snapshot_not_live_yukkuri");
-        if (check != null) {
+        if (check != null && floor != null) {
             var reason = check.apply(entity);
             if (reason != null) return releaseRefused(token, level, position, reason);
         }
@@ -504,6 +509,10 @@ public final class YukkuriWorldData extends SavedData {
             position = supported;
         }
         Motor.relocate(entity, position, yaw, "release"); entity.fallDistance = 0; entity.setPersistenceRequired();
+        if (check != null && floor == null) {
+            var reason = check.apply(entity);
+            if (reason != null) return releaseRefused(token,level,position,reason);
+        }
         if (!level.noCollision(entity)) return releaseRefused(token,level,position,"collision");
         if (level.containsAnyLiquid(entity.getBoundingBox())) return releaseRefused(token,level,position,"liquid");
         if (ground) {

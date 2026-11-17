@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -70,6 +71,7 @@ public final class ShopCatalog {
         List<Good> goods = new ArrayList<>();
         for (var tool : OperationToolItem.Tool.values())
             goods.add(good(tool.id, TOOL_CATEGORY, () -> new ItemStack(tool.item()), 4, 3, 1, 0));
+        goods.add(3, good(RestraintTableBlock.ID, TOOL_CATEGORY, () -> new ItemStack(ModItems.RESTRAINT.get()), 4, 3, 1, 0));
         // Every cut (hair, accessory, stem, sterilizing) is made with vanilla shears.
         goods.add(good("shears", TOOL_CATEGORY, () -> new ItemStack(Items.SHEARS), 2, 3, 1, 0));
         for (var dose : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT))

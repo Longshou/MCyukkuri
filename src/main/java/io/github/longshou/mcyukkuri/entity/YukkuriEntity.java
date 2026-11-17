@@ -653,6 +653,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public BlockPos contactAnchor(){ return sync().contactAnchor(); }
     public void syncOperationWound(UUID wound){sync().syncOperationWound(wound);}
     public UUID contactWound(){return sync().contactWound();}
+    public void syncTableTool(String pose){sync().syncTableTool(pose);}
+    public String tableTool(){return sync().tableTool();}
     public int visibleWound(){ return sync().visibleWound(); }
     public List<BodyWound> visibleWounds() { return sync().visibleWounds(); }
     public int visibleFilling(){ return sync().visibleFilling(); }

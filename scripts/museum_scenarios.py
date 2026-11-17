@@ -2433,9 +2433,9 @@ add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价�
 _stress_stock = {'oni_bold': (272000, 80, 60), 'oni_timid': (249000, 25, 68)}
 add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨商店：租工具解压',
     '切到生存模式。空主手右键靠双木门的借还托盘，付押金领走固定台。找店员买里侧同一展栏里的胆大低自制或胆小的灵梦，'
-    '等店员交来实篮，穿过柜台旁的双木门，在解压间中间的干地右键开篮。'
-    '手持固定台右键个体，比较鼓脸、僵住或求饶。用照料菜单解除操作、拾回固定台，再试一次，放大镜可看同一个体的恐惧和不安。'
-    '拿同款固定台回托盘取押金。也可自带工具和个体，随时离开、治疗或装篮带走。展示栏的库存仍受保护。',
+    '等店员交来实篮，穿过柜台旁的双木门，在解压间干地摆下固定台，再持实篮右键台面。比较鼓脸、僵住或求饶。'
+    '趁它还躺着用锥子，观察反应和漏尿沿底面两侧流下的样子。用空手右键个体或台面松绑。'
+    '拆下固定台，捡起后回托盘取押金。也可自带工具和个体，随时离开、治疗或装篮带走。展示栏的库存仍受保护。',
     '建筑几秒，买出后等店员交篮', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         *[f'tag @e[type=mcyukkuri:reimu,distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
@@ -2445,7 +2445,7 @@ add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨�
           for name, (_, boldness, unease) in _stress_stock.items()
           for key, value in [('personality.boldness', boldness), ('personality.self_control', 25),
                              ('personality.friendliness', 30), ('mood.unease', unease)]],
-    ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass'],
+    ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl'],
     env=DAY, vantage=(8, 17, 180, 8),
     reads=[('读借还托盘', 'data get block ~14 ~3 ~1 Items'),
            ('读胆大灵梦', f'yukkuri status {sel("oni_bold")} raw'),
@@ -2507,7 +2507,7 @@ _sweet_cast = (
 _sweet_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
 add(_sweet_box, 'plant', '甜化箱', '甜化箱',
     '在 A 箱比较三只同龄油库里。同样用一次冷锥，看谁回嘴、硬撑、噤声、哭求或退开。用放大镜记下每只的不安、积甜、馅甜和对你或员工的恐惧。'
-    '看员工拿真实工具办差，开门、挡路或松绑都能改变下一次接触。B、C、D 箱的开张原料供对照箱牌。',
+    '看员工摆下固定台，提实篮走到台前开篮，操作结束后松绑。开门或挡路会改变员工可到达的接触位置。B、C、D 箱的开张原料供对照箱牌。',
     '观察一至两分钟，等个体回到日常活动', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
     late=[command for name, x, z, label, bold, control, friendly, unease, bladder in _sweet_cast for command in (
         yk('marisa', _plant_x + x - 10, _plant_z + z, name, dy=2, label=label, boldness=bold, self_control=control,
@@ -2892,7 +2892,7 @@ _source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arro
                ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
 add('wound_sources','body','用真实武器和环境造成伤','用真实武器和环境造成伤',
     '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖从空手潜行右键的照料菜单操作。一次MC命中不虚构逐齿逐刺落点',
-    '先看右后追咬，再逐类手动操作；钉针和吊钩应贴住各自刺出的伤口，吊钩需要顶板；剪发和剪饰物看头部掉落并听剪声；潜行空手右键选解除；清场恢复地形与实体',[
+    '先看右后追咬，再逐类手动操作。架上仰卧时针和钩贴在各自刺出的伤口，空手右键松绑。离开固定台使用吊钩需要顶板。剪发和剪饰物看头部掉落并听剪声。清场恢复地形与实体。',[
         *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
         box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
         yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95)],
@@ -2900,7 +2900,8 @@ add('wound_sources','body','用真实武器和环境造成伤','用真实武器�
     env=DAY,vantage=(0,17),give=['minecraft:wooden_sword','minecraft:stick','minecraft:bow','minecraft:arrow 16',
         'minecraft:trident','minecraft:sand 4','minecraft:cactus 4','minecraft:pointed_dripstone 4','minecraft:tnt 2','minecraft:redstone_torch 2',
         'minecraft:flint_and_steel','minecraft:magma_block 4','mcyukkuri:orange_juice 12',
-        'mcyukkuri:pin_tool','mcyukkuri:hanging_hook','minecraft:shears','mcyukkuri:iron_enclosure','mcyukkuri:care_awl'],
+        'mcyukkuri:pin_tool','mcyukkuri:hanging_hook','minecraft:shears','mcyukkuri:iron_enclosure','mcyukkuri:care_awl',
+        'mcyukkuri:restraint_frame','mcyukkuri:yukkuri_carrier'],
     reads=[(f'读{label}',f'yukkuri status {sel(name)} raw') for name,_,_,label in _source_cases]
         + [('读真实咬伤',f'yukkuri status {sel("bite_target")} raw'),('读捕食交接',f'yukkuri status {sel("bite_hunter")} raw')])
 
@@ -5684,7 +5685,7 @@ next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
     (45, f'execute at {sel("heat")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("heat")} pierce'),
 ]
 
-_staff_tool_cases = (('awl', 'care_awl', -8), ('frame', 'restraint_frame', 0), ('pin', 'pin_tool', 6))
+_staff_tool_cases = (('awl', 'care_awl', -8), ('pin', 'pin_tool', 6))
 _wound_smoke = next(s for s in S if s.id == 'wound_sources').smoke
 _tool_stand = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 for case, tool, x in _staff_tool_cases:
@@ -5701,7 +5702,7 @@ for case, tool, x in _staff_tool_cases:
         condition = f'Item:{{id:"mcyukkuri:{tool}",components:{{"minecraft:custom_data":{{A1:"{case}"}}}}}}'
         item_selector = f'@e[type=minecraft:item,nbt={{{condition}}},distance=..5,limit=1]'
         hand = f'HandItems:[{{id:"mcyukkuri:{tool}",count:1,components:{{"minecraft:custom_data":{{A1:"{case}"}}}}}}]'
-        pickup = 105 if case == 'frame' else 220
+        pickup = 220
         _wound_smoke['commands'].extend([
             (56, f'execute if entity {sel(operator)} unless data entity {sel(operator)} HandItems[0].id '
                  f'run say MCYA1_HAND_EMPTY_{case}'),
@@ -5712,7 +5713,19 @@ for case, tool, x in _staff_tool_cases:
         _wound_smoke['expect'].extend([f'MCYA1_HAND_EMPTY_{case}', f'MCYA1_BACK_IN_HAND_{case}'])
 _wound_smoke['commands'].extend([
     (56, f'yukkuri scenario staff_tool {sel("staff_awl")} use {sel("tool_awl")}'),
-    (80, f'yukkuri scenario staff_tool {sel("staff_frame")} release {sel("tool_frame")}'),
+    (100, yk('reimu', 0, 5, 'tool_frame', extra=_tool_stand, uuid=uid('wound_sources', 'tool_frame'),
+             boldness=80, self_control=25)),
+    (114, 'execute positioned ~1.5 ~ ~4.5 run yukkuri scenario tool_operator enter'),
+    *[(115, f'execute as @p run {command}') for command in own('tool_frame')],
+    (116, 'item replace entity @p hotbar.0 with mcyukkuri:restraint_frame'),
+    (117, 'yukkuri scenario shop_block_click ~ ~-1 ~4'),
+    (118, 'item replace entity @p hotbar.1 with mcyukkuri:yukkuri_carrier'),
+    (119, 'yukkuri scenario tool_operator select 1'),
+    (120, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
+    (144, 'yukkuri scenario shop_block_click ~ ~ ~4'),
+    (146, f'execute at {sel("tool_frame")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("tool_frame")} hook_hang'),
+    (170, 'yukkuri scenario shop_block_click ~ ~ ~4'),
+    (171, 'yukkuri scenario tool_operator leave'),
     (185, f'yukkuri scenario care_click {sel("tool_pin")} orange_juice'),
 ])
 _wound_smoke['commands'].sort(key=lambda command: command[0])
@@ -5721,7 +5734,8 @@ _wound_smoke['expect'].extend([
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* tool used; [^\n]* action=PIERCE item=mcyukkuri:care_awl hand_count=1 -> 1 damage=0 -> 1',
     r'\[body\][^\n]* accepted damage cause=player [^\n]* loss=2\.0',
     r'\[interaction\][^\n]* tool refused; [^\n]* action=pierce reason=busy',
-    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* operation ended; [^\n]* pose=FIXED elapsed=\d\d [^\n]* reason=released',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* tool used; [^\n]* action=HOOK_HANG [^\n]* pose=FIXED',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* table unstrapped; [^\n]* reason=released',
     rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_pin")} [^\n]* orange juice cleared 1 wound\(s\)',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_pin")} [^\n]* operation ended; [^\n]* pose=PIN [^\n]* reason=wound_closed',
 ])
@@ -5729,10 +5743,10 @@ _wound_smoke['expect'].extend([
 def _wound_tool_binding(window):
     wounds = set(re.findall(r'\[body\][^\n]* uuid=([\w-]+) [^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
     attachments = re.findall(r'\[interaction\][^\n]* uuid=([\w-]+) [^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window)
-    if (len(attachments) != 3 or sorted(pose for _, pose, _ in attachments) != ['HOOK', 'PIN', 'PIN']
-            or len({wound for _, _, wound in attachments}) != 3
+    if (len(attachments) != 4 or sorted(pose for _, pose, _ in attachments) != ['HOOK', 'HOOK', 'PIN', 'PIN']
+            or len({wound for _, _, wound in attachments}) != 4
             or any((actor, wound) not in wounds for actor, _, wound in attachments)):
-        return 'both pins and the hook must each bind to their own committed puncture'
+        return 'both pins and both hooks must each bind to their own committed puncture'
     for case, tool, _ in _staff_tool_cases[1:]:
         target = _uuid_text('wound_sources', 'tool_' + case)
         drops = re.findall(rf'\[interaction\][^\n]* uuid={target} [^\n]* binding returned to world; drop=([\w-]+) item=mcyukkuri:{tool} count=1', window)
@@ -6173,14 +6187,14 @@ _smoke('oni_stress_room', 440, [
     r'\[shop\][^\n]* action=protect result=refused what=block',
     rf'\[carrier\][^\n]* action=capture result=committed target={_stress_brought} ',
     rf'\[carrier\][^\n]* action=release result=committed target={_stress_brought} ',
-    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* operation started; [^\n]* pose=FIXED [^\n]* count=1\b',
+    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* table strapped; ',
     rf'\[punishment\][^\n]*uuid={_stress_brought} [^\n]* incident=fix_supine response=DEFIANT fear=0 -> [1-9]\d*\b',
-    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* operation ended; [^\n]* reason=operator_unreachable\b',
-    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* binding returned to world; [^\n]* count=1\b',
+    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* tool used; [^\n]* action=PIERCE [^\n]* pose=FIXED',
+    rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* table unstrapped; [^\n]* reason=table_removed\b',
     r'\[shop\][^\n]* action=exchange_restraint result=refused [^\n]*reason=return_frame deposit=4\b',
     r'\[shop\][^\n]* action=return_restraint result=committed [^\n]*deposit=4\b',
-    r'\[interaction\][^\n]* action=fix_supine reason=shop',
-    r'MCYSP08_LOAN_BALANCED', r'MCYSP08_RETURN_BALANCED',
+    r'\[interaction\][^\n]* action=pierce reason=shop',
+    r'MCYSP08_LOAN_BALANCED', r'MCYSP08_EMPTY_TABLE', r'MCYSP08_HELD_WITHOUT_OPERATOR', r'MCYSP08_RETURN_BALANCED',
 ], readout=['data get block ~14 ~3 ~1 Items', f'yukkuri status {sel("oni_bold")} raw',
             f'yukkuri status {sel("oni_timid")} raw', f'yukkuri status {sel("brought_reimu")} raw'])
 _stress_operator = '@p[distance=..40]'
@@ -6200,28 +6214,33 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
             boldness=80, self_control=25, friendliness=30)),
     *[(79, f'execute as {_stress_operator} run {command}') for command in own('brought_reimu')],
     (80, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
+    (80, 'yukkuri scenario shop_block_click ~22 ~1 ~2'),
+    (80, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame if entity {sel("brought_reimu")} '
+         f'unless data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_EMPTY_TABLE'),
     (81, f'item replace entity {_stress_operator} hotbar.1 with mcyukkuri:yukkuri_carrier'),
     (82, 'yukkuri scenario tool_operator select 1'),
     (83, f'yukkuri scenario shop_stock_click {sel("brought_reimu")}'),
-    (110, 'yukkuri scenario shop_block_click ~22 ~1 ~2'),
-    (120, 'yukkuri scenario tool_operator select 0'),
-    (121, f'yukkuri scenario shop_stock_click {sel("brought_reimu")}'),
+    (110, 'yukkuri scenario shop_block_click ~22 ~2 ~2'),
+    (121, f'execute at {sel("brought_reimu")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("brought_reimu")} pierce'),
     (128, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
     (129, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
     # Exercise the tray's block-entity save/load round trip while the frame is out, without changing its Items.
     (130, 'data merge block ~14 ~3 ~1 {SP08Readback:1b}'),
-    (154, f'execute positioned ~22 ~2 ~3 at {_stress_frame_drop} run yukkuri scenario tool_operator move'),
-    (155, f'execute positioned ~22 ~2 ~3 run yukkuri scenario tool_operator pick_up {_stress_frame_drop}'),
-    (156, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
-    (157, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
-    (158, f'execute store result score #emeralds sp08_balance run clear {_stress_operator} minecraft:emerald 0'),
-    (158, f'execute store result score #frames sp08_balance run clear {_stress_operator} mcyukkuri:restraint_frame 0'),
-    (158, 'execute if score #emeralds sp08_balance matches 8 if score #frames sp08_balance matches 0 '
+    (152, f'execute if data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_HELD_WITHOUT_OPERATOR'),
+    (153, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
+    (153, 'yukkuri scenario tool_operator break ~22 ~2 ~2'),
+    (175, f'execute positioned ~22 ~2 ~3 at {_stress_frame_drop} run yukkuri scenario tool_operator move'),
+    (176, f'execute positioned ~22 ~2 ~3 run yukkuri scenario tool_operator pick_up {_stress_frame_drop}'),
+    (177, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
+    (178, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (179, f'execute store result score #emeralds sp08_balance run clear {_stress_operator} minecraft:emerald 0'),
+    (179, f'execute store result score #frames sp08_balance run clear {_stress_operator} mcyukkuri:restraint_frame 0'),
+    (179, 'execute if score #emeralds sp08_balance matches 8 if score #frames sp08_balance matches 0 '
           'if data block ~14 ~3 ~1 {Items:[{Slot:0b,id:"mcyukkuri:restraint_frame",count:1}]} '
           f'positioned ~22 ~2 ~3 unless entity {_stress_frame_drop} run say MCYSP08_RETURN_BALANCED'),
-    (159, 'scoreboard objectives remove sp08_balance'),
-    (160, 'yukkuri scenario tool_operator leave'),
-    (170, f'execute at {sel("oni_bold")} positioned ~ ~1 ~ run yukkuri scenario tool_click {sel("oni_bold")} fix_supine'),
+    (180, 'scoreboard objectives remove sp08_balance'),
+    (181, 'yukkuri scenario tool_operator leave'),
+    (190, f'execute at {sel("oni_bold")} positioned ~ ~1 ~ run yukkuri scenario tool_click {sel("oni_bold")} pierce'),
 ]
 _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
@@ -6286,7 +6305,7 @@ _sweet_pressure = (r'\[factory\][^\n]* uuid=(\S+) t=(\d+)[^\n]* action=sweetenin
                    r' item=(\S+) unease=([\d.]+) -> ([\d.]+) health=([\d.]+) sweet=([\d.]+) fear=(\d+)')
 _sweet_victim = (r'\[punishment\][^\n]* uuid=(\S+) t=(\d+)[^\n]* victim actor=(\S+) incident=(\S+)'
                  r' response=(\w+) fear=(\d+) -> (\d+)')
-_sweet_bind = r'\[interaction\][^\n]* uuid=(\S+) t=(\d+)[^\n]* operation started; actor=(\S+) pose=(PIN|FIXED) [^\n]*reserved_item=(\S+) count=1'
+_sweet_bind = r'\[interaction\][^\n]* uuid=(\S+) t=(\d+)[^\n]* operation started; actor=(\S+) pose=PIN [^\n]*reserved_item=(\S+) count=1'
 
 
 def _verify_sweet_box(window):
@@ -6307,22 +6326,26 @@ def _verify_sweet_box(window):
         return f'Expected contrasting responses to the same player tool across all three actors, got {compared}'
     if len({actor for _, actor, *_ in compared}) != 1 or any(after <= before for _, _, _, before, after in compared):
         return f'Expected fear of the same actual operator to increase, got {compared}'
-    binds = list(re.finditer(_sweet_bind, window))
-    if not binds:
-        return 'Expected staff to use the physical binding tool after the awl was moved out of the cabinet'
-    recovered = False
-    for bind in binds:
-        animal, tick, staff, pose, item = bind.groups()
+    packs = list(re.finditer(r'\[factory\][^\n]* uuid=(\S+) [^\n]* action=table_carry result=packed target=(\S+) token=(\S+) table=(\S+)', window))
+    if not packs:
+        return 'Expected staff to carry at least one animal to the placed table'
+    for pack in packs:
+        staff, animal, token, table = pack.groups()
+        tail = window[pack.end():]
+        placed = re.search(rf'\[factory\][^\n]* uuid={animal} [^\n]* action=table_carry result=placed staff={staff} token={token} table={re.escape(table)}', tail)
+        if placed is None:
+            return f'The basketed animal {animal} never reached the table'
+        if not re.search(rf'\[interaction\][^\n]* uuid={animal} [^\n]* table unstrapped; actor={staff} table={re.escape(table)} reason=(?:released|body_need)', tail[placed.end():]):
+            return f'The table never released {animal} after the staff contact'
+    for bind in re.finditer(_sweet_bind, window):
+        animal, tick, staff, item = bind.groups()
         tail = window[bind.end():]
-        end = re.search(rf'\[interaction\][^\n]* uuid={animal} t=(\d+)[^\n]* operation ended; actor={staff} pose={pose}', tail)
-        if end is None or int(end[1]) - int(tick) > (240 if pose == 'PIN' else 400) + 2:
-            return f'{pose} on {animal} at {tick} did not end within the shared operation limit'
+        end = re.search(rf'\[interaction\][^\n]* uuid={animal} t=(\d+)[^\n]* operation ended; actor={staff} pose=PIN', tail)
+        if end is None or int(end[1]) - int(tick) > 242:
+            return f'PIN on {animal} at {tick} did not end within the shared operation limit'
         returned = re.search(rf'\[interaction\][^\n]* uuid={animal} t={end[1]} [^\n]* binding returned to world; drop=(\S+) item={re.escape(item)} count=1', tail)
-        if returned is None:
-            return f'{pose} on {animal} at {tick} did not return the physical tool'
-        recovered |= bool(re.search(rf'\[interaction\][^\n]* uuid={staff} [^\n]* tool picked up; drop={returned[1]} item={re.escape(item)} hand_count=0 -> 1', tail[returned.end():]))
-    if not recovered:
-        return 'The worker never recovered a released binding tool by its drop UUID'
+        if returned is None or not re.search(rf'\[interaction\][^\n]* uuid={staff} [^\n]* tool picked up; drop={returned[1]} item={re.escape(item)} hand_count=0 -> 1', tail[returned.end():]):
+            return f'The worker never recovered the pin from {animal} by its drop UUID'
     return None
 
 
@@ -6330,6 +6353,7 @@ _smoke(_sweet_box, 2400, [
     r'\[factory\][^\n]* action=opening_stock box=B [^\n]* unease=53\.0 sweet=62\b',
     r'\[factory\][^\n]* action=opening_stock box=C [^\n]* unease=68\.0 sweet=68\b',
     r'\[factory\][^\n]* action=opening_stock box=D [^\n]* unease=80\.0 sweet=77\b',
+    r'\[factory\][^\n]* action=table_deploy result=placed [^\n]* held=0',
 ], forbid=[r'\[body\][^\n]* death settled', r'\[punishment\][^\n]* response=collapse'], readout=[
     *[f'yukkuri status {sel(name)} raw' for name, *_ in _sweet_cast],
     *[f'data get block ~{_plant_x - 3} ~4 ~{_plant_z + z} front_text.messages' for z in (17, 22, 27, 34)],
@@ -6342,6 +6366,8 @@ _sweet_smoke['commands'] = [
     # Model a tool taken out of service by moving the real stack to the separate store chest.
     (1, f'item replace block {_sweet_wheat} container.17 from block {_sweet_cabinet} container.0'),
     (1, f'item replace block {_sweet_cabinet} container.0 with minecraft:air'),
+    (1, f'item replace block {_sweet_wheat} container.16 from block {_sweet_cabinet} container.1'),
+    (1, f'item replace block {_sweet_cabinet} container.1 with minecraft:air'),
     *[(2050 + 2 * i, f'execute at {sel(name)} run yukkuri scenario tool_click {sel(name)} pierce')
       for i, (name, *_) in enumerate(_sweet_cast)],
 ]

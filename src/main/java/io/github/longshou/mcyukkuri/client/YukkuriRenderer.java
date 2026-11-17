@@ -32,6 +32,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.body.WoundPlacement;
 
 public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     public YukkuriRenderer(EntityRendererProvider.Context context) {
@@ -132,19 +133,23 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.pushPose();pose.scale(entity.growthScale(),entity.growthScale(),entity.growthScale());
             var model=YukkuriModel.get(entity.assetId());
             String contact=entity.contactPose();boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
+            boolean fixed=contact.equals("FIXED");
+            String tool=fixed?entity.tableTool():contact;
             if(contact.equals("BOX"))PropModels.render("iron_enclosure_"+entity.assetId(),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
-            if(contact.equals("FIXED")||contact.equals("WRAPPED")){
-                PropModels.render((contact.equals("FIXED")?"restraint_frame_":"wrap_sling_")+entity.assetId()+(entity.hasVisibleAccessory()?"":
+            if(contact.equals("WRAPPED")){
+                PropModels.render("wrap_sling_"+entity.assetId()+(entity.hasVisibleAccessory()?"":
                         "_bare"),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             }
             float contactAngle=switch(contact){case "SUPINE","FIXED","HOOK"->90;case "ROLL"->entity.contactTurn();case "RUMP","ASSIST"->-12;default->0;};
-            float lift=contact.equals("FIXED")?PropModels.bodyLift("restraint_frame_"+entity.assetId()+(entity.hasVisibleAccessory()?"":"_bare")):
-                    contactAngle==0?0:model.contactLift(contactAngle,entity.hasVisibleAccessory(),entity.visibleHairLoss());
+            float lift=contactAngle==0?0:model.contactLift(contactAngle,entity.hasVisibleAccessory(),entity.visibleHairLoss());
             pose.pushPose();
             if(contactAngle!=0){
-                pose.translate(0,lift,0);
+                pose.translate(0,lift,fixed?WoundPlacement.tableDepth(entity.assetId()):0);
                 pose.mulPose(Axis.XP.rotationDegrees(contactAngle));
             }
+            if(fixed&&tool.equals("BOX"))PropModels.render("iron_enclosure_"+entity.assetId(),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
+            if(fixed&&tool.equals("WRAPPED"))PropModels.render("wrap_sling_"+entity.assetId()+(entity.hasVisibleAccessory()?"":"_bare"),
+                    1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("GRIP"))pose.scale(1.1f,.85f,1.1f);
             // House bodies retain wound mechanics but never show the wounded-skin silhouette.
             boolean open = false;
@@ -156,7 +161,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float health=entity.getMaxHealth()<=0?1:entity.getHealth()/entity.getMaxHealth();
             pose.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
             pose.scale(HairWoundAssets.drainWidth(entity.aftermathDrain()),1,1);
-            if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);
+            if(tool.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);
             float animationTicks = entity.getAnimationId().equals(ParentCarry.BRIM_LIFT)
                     ? (float) TimelineClock.elapsed(entity.level(), entity.getAnimationStartTick(), partialTick)
                     : entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick;
@@ -292,8 +297,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 PoseTap.mouthProp(entity,"kanroken",start,pose.last().pose(),partialTick);
                 PropModels.render("kanroken",1,pose,buffers,packedLight,overlay);pose.popPose();
             }
-            if(contact.equals("PIN")&&toolContact!=null)OperationAttachments.pin(entity,toolContact,pose,buffers,packedLight);
-            if(contact.equals("VIBRATE"))model.renderSurfaceProp("care_vibrator",1,1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
+            if(toolContact!=null){
+                if(tool.equals("PIN"))OperationAttachments.pin(entity,toolContact,pose,buffers,packedLight);
+                if(fixed&&tool.equals("HOOK"))OperationAttachments.hook(entity,toolContact,new Vector3f(0,0,-1),pose,buffers,packedLight);
+            }
+            if(tool.equals("VIBRATE"))model.renderSurfaceProp("care_vibrator",1,1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("ASSIST"))LiveBirthRenderer.renderDose(entity,pose,buffers,packedLight);
             if(contact.equals("HOOK")||contact.equals("WRAPPED"))OperationAttachments.render(entity,toolContact,start,pose,buffers,packedLight,partialTick);
             if(delivery!=null)delivery.render(pose,buffers,packedLight,start,partialTick);

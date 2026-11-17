@@ -29,13 +29,13 @@ import net.minecraft.world.level.block.CampfireBlock;
 public final class OperationToolItem extends Item {
     public enum Tool {
         PIN("pin_tool",true),MALLET("care_mallet",false),AWL("care_awl",false),
-        RESTRAINT("restraint_frame",true),SLING("wrap_sling",true),HOOK("hanging_hook",true),
+        SLING("wrap_sling",true),HOOK("hanging_hook",true),
         VIBRATOR("care_vibrator",true),BOX("iron_enclosure",true);
         public final String id;
         public final boolean inserted;
         Tool(String id,boolean inserted){this.id=id;this.inserted=inserted;}
         public Item item(){return ModItems.OPERATION_TOOLS.get(this).get();}
-        public boolean staffUse(){return this==AWL||this==RESTRAINT||this==PIN;}
+        public boolean staffUse(){return this==AWL||this==PIN;}
     }
     /** Heat lasts 30 s after the awl touches fire; then the same stack is a plain awl again. */
     private static final int HEAT_TICKS = 600;

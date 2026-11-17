@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlockEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.PlantReceiving;
@@ -249,6 +250,18 @@ public final class CarrierItem extends Item {
             var tokens = CarrierContents.tokens(stack);
             if (tokens.isEmpty()) return blocked(context);
             UUID token = tokens.getFirst();
+            if (level.getBlockEntity(context.getClickedPos()) instanceof RestraintTableBlockEntity table) {
+                var player = context.getPlayer();
+                if (player == null) return InteractionResult.PASS;
+                var result = table.placeFrom(player, stack, token, context.getRotation());
+                if (result.animal() == null) {
+                    GameplayLog.event(player, "carrier", "action=table_release result=refused token={} reason={}", token, result.refusal());
+                    return blocked(context);
+                }
+                GameplayLog.event(player, "carrier", "action=release result=committed target={} token={} remaining={} table={}",
+                        result.animal().getUUID(), token, tokens.size() - 1, context.getClickedPos());
+                return InteractionResult.CONSUME;
+            }
             var pos = context.getClickedPos().relative(context.getClickedFace());
             if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level, pos.below())) {
                 GameplayLog.event(context.getPlayer(),"carrier","action=release result=refused token={} destination={} reason={}",token,pos.toShortString(),!level.hasChunkAt(pos)?"unloaded":"unsupported_ground");

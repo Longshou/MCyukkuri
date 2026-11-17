@@ -3,12 +3,20 @@ package io.github.longshou.mcyukkuri.human;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
+import io.github.longshou.mcyukkuri.interaction.RestraintTableBlockEntity;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.life.GlassSight;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
+import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -25,15 +33,19 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.pathfinder.Path;
@@ -47,6 +59,7 @@ final class PlantSweetening extends Goal {
     // Give the animals time to react, settle and return to their own activities after an actual contact.
     private static final int CONTACT_RECOVERY = 1000;
     private static final double REACH = 3;
+    private static final double CARRY_REACH = 2.5;
     private static final float EASE_OFF = 72, TREAT_LATER = .75f;
     private static final int RICH_FILLING = 75;
     private static final int SWEET_FILLING = 65;
@@ -64,6 +77,22 @@ final class PlantSweetening extends Goal {
     PlantSweetening(HumanNpc staff) {
         this.staff = staff;
         setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+    }
+
+    static void equip(HumanNpc staff, ItemStack basket) {
+        staff.setItemInHand(InteractionHand.OFF_HAND, basket);
+        staff.setDropChance(EquipmentSlot.OFFHAND, 2);
+    }
+
+    static InteractionResult receiveBasket(HumanNpc staff, Player player, InteractionHand hand) {
+        var basket = player.getItemInHand(hand);
+        if (!staff.getOffhandItem().isEmpty() || !CarrierContents.isBasket(basket) || !CarrierContents.tokens(basket).isEmpty())
+            return InteractionResult.PASS;
+        if (!staff.level().isClientSide) {
+            equip(staff, basket.split(1));
+            GameplayLog.event(staff, "factory", "action=table_basket result=received player={}", player.getUUID());
+        }
+        return InteractionResult.sidedSuccess(staff.level().isClientSide);
     }
 
     static void openingStock(ServerLevelAccessor level, UUID site, String box, BlockPos position) {
@@ -87,6 +116,10 @@ final class PlantSweetening extends Goal {
     @Override public boolean canUse() {
         if (!staff.sweeteningStaff() || !staff.onGround() || staff.hurtTime > 0 || staff.tickCount % SCAN_INTERVAL != 0
                 || !(staff.level() instanceof ServerLevel level)) return false;
+        if (CarrierContents.singleToken(staff.getOffhandItem()) != null) {
+            job = new Job(null, () -> abortCarry(level, "interrupted"));
+            return true;
+        }
         var layout = PlantSite.layout(level, staff.plantSite());
         if (layout == null) return false;
         var candidates = new ArrayList<Candidate>();
@@ -124,18 +157,30 @@ final class PlantSweetening extends Goal {
     private boolean planPressure(ServerLevel level, BlockPos tools, ChestBlockEntity cabinet, Candidate candidate) {
         var body = candidate.body();
         var box = candidate.box();
+        var held = staff.getMainHandItem();
+        var preferred = preferredTool(body);
+        boolean hasBasket = CarrierContents.isBasket(staff.getOffhandItem()) && !body.isVehicle();
+        if (hasBasket && (preferred == ModItems.RESTRAINT.get() || !usable(held, body))) {
+            var table = box.floor().stream().map(level::getBlockEntity)
+                    .filter(RestraintTableBlockEntity.class::isInstance).map(RestraintTableBlockEntity.class::cast)
+                    .filter(at -> at.occupant() == null && at.fits(body)).findFirst().orElse(null);
+            if (table != null && planTable(level, box, body, table)) return true;
+        }
         boolean inReach = touching(body);
         var path = inReach ? null : contactPath(level, body, box);
         if (!inReach && (path == null || !path.canReach() || path.getTarget().equals(staff.blockPosition()))) return false;
-        var held = staff.getMainHandItem();
-        var preferred = preferredTool(body);
+        if (held.is(ModItems.RESTRAINT.get()) && hasBasket) {
+            job = new Job(path, () -> deployTable(level, box, body));
+            return true;
+        }
         int slot = cabinet == null ? -1 : toolSlot(cabinet, preferred, body);
         if (!held.is(preferred) && slot >= 0 && getTool(level, tools, slot, preferred)) return true;
         if (!usable(held, body)) {
             if (cabinet == null) return false;
             for (int i = 0; i < cabinet.getContainerSize(); i++) {
                 var stack = cabinet.getItem(i);
-                if (usable(stack, body)) return getTool(level, tools, i, stack.getItem());
+                if (usable(stack, body) || hasBasket && stack.is(ModItems.RESTRAINT.get()))
+                    return getTool(level, tools, i, stack.getItem());
             }
             return false;
         }
@@ -144,11 +189,102 @@ final class PlantSweetening extends Goal {
         return true;
     }
 
+    private boolean planTable(ServerLevel level, PlantSite.Box box, YukkuriEntity body, RestraintTableBlockEntity table) {
+        boolean inReach = InteractionDispatch.reachRefusal(staff, body, CARRY_REACH) == null;
+        var path = inReach ? null : contactPath(level, body, box, CARRY_REACH);
+        if (!inReach && (path == null || !path.canReach() || path.getTarget().equals(staff.blockPosition()))) return false;
+        job = new Job(path, () -> carryToTable(level, box, body, table), new Approach(box, new HashSet<>(), level.getGameTime()));
+        return true;
+    }
+
+    private void deployTable(ServerLevel level, PlantSite.Box box, YukkuriEntity body) {
+        var stack = staff.getMainHandItem();
+        if (!stack.is(ModItems.RESTRAINT.get()) || !touching(body) || need(body) <= 0) return;
+        var cell = box.floor().stream().filter(pos -> !pos.equals(box.door()) && level.getBlockState(pos).isAir()
+                && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)
+                && ShopStaff.reaches(staff, RestraintTableBlock.surface(pos), pos)
+                && level.getEntitiesOfClass(LivingEntity.class, new AABB(pos), LivingEntity::isAlive).isEmpty())
+                .min(Comparator.comparingDouble(pos -> body.distanceToSqr(RestraintTableBlock.surface(pos)))).orElse(null);
+        if (cell == null) {
+            nextPressure = level.getGameTime() + CONTACT_RECOVERY;
+            GameplayLog.event(staff, "factory", "action=table_deploy result=refused reason=no_clear_cell");
+            return;
+        }
+        if (!level.setBlock(cell, ModBlocks.RESTRAINT.get().defaultBlockState(), Block.UPDATE_ALL)) return;
+        stack.shrink(1);
+        Motor.face(staff, RestraintTableBlock.surface(cell));
+        staff.swing(InteractionHand.MAIN_HAND);
+        GameplayLog.event(staff, "factory", "action=table_deploy result=placed table={} held={}", cell, stack.getCount());
+    }
+
+    private void carryToTable(ServerLevel level, PlantSite.Box box, YukkuriEntity body, RestraintTableBlockEntity table) {
+        var at = table.getBlockPos();
+        var surface = RestraintTableBlock.surface(at);
+        if (InteractionDispatch.reachRefusal(staff, body, CARRY_REACH) != null || need(body) <= 0 || !box.bounds().isInside(body.blockPosition())
+                || table.isRemoved() || table.occupant() != null || !table.fits(body)) return;
+        boolean here = ShopStaff.reaches(staff, surface, at) && staff.position().distanceToSqr(surface) <= 2.25;
+        Path route = null;
+        if (!here) {
+            var stands = new HashSet<BlockPos>();
+            for (var direction : Direction.Plane.HORIZONTAL) {
+                var stand = at.relative(direction);
+                if (box.floor().contains(stand)) stands.add(stand);
+            }
+            route = stands.isEmpty() ? null : staff.shopPath(stands, new AABB(at));
+            if (route == null || !route.canReach() || !staff.getNavigation().moveTo(route, .9)) {
+                nextPressure = level.getGameTime() + CONTACT_RECOVERY;
+                GameplayLog.event(staff, "factory", "action=table_carry result=refused target={} reason=no_route", body.getUUID());
+                return;
+            }
+        }
+        var basket = staff.getOffhandItem();
+        var world = YukkuriWorldData.get(level);
+        float before = body.mind().unease();
+        var token = world.capture(body);
+        if (token == null) return;
+        CarrierContents.add(basket, token, world.captiveSnapshot(token));
+        staff.swing(InteractionHand.OFF_HAND);
+        nextPressure = level.getGameTime() + CONTACT_RECOVERY;
+        GameplayLog.event(staff, "factory", "action=table_carry result=packed target={} token={} table={}", body.getUUID(), token, GameplayLog.at(surface));
+        job = new Job(route, () -> {
+            if (!table.isRemoved() && staff.onGround() && ShopStaff.reaches(staff, surface, at)) {
+                Motor.face(staff, surface);
+                var result = table.placeFrom(staff, basket, token, staff.getYRot());
+                if (result.animal() != null) {
+                    staff.swing(InteractionHand.OFF_HAND);
+                    GameplayLog.event(result.animal(), "factory", "action=table_carry result=placed staff={} token={} table={}", staff.getUUID(), token, GameplayLog.at(surface));
+                    pressure(result.animal(), ModItems.RESTRAINT.get(), before);
+                    return;
+                }
+            }
+            abortCarry(level, "table_unreachable");
+        });
+    }
+
+    private void abortCarry(ServerLevel level, String reason) {
+        var basket = staff.getOffhandItem();
+        var token = CarrierContents.singleToken(basket);
+        if (token == null) return;
+        var body = YukkuriWorldData.get(level).releaseOnGround(token, level, staff.position(), staff.getYRot(), 2);
+        if (body != null) {
+            CarrierContents.remove(basket, token);
+            staff.swing(InteractionHand.OFF_HAND);
+        } else if (ShopTrade.drop(level, null, staff.position(), basket) != null) {
+            staff.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        }
+        GameplayLog.event(staff, "factory", "action=table_carry result={} token={} reason={}",
+                body != null ? "released_to_floor" : staff.getOffhandItem().isEmpty() ? "basket_dropped" : "basket_held", token, reason);
+    }
+
     private Path contactPath(ServerLevel level, YukkuriEntity body, PlantSite.Box box) {
+        return contactPath(level, body, box, REACH);
+    }
+
+    private Path contactPath(ServerLevel level, YukkuriEntity body, PlantSite.Box box, double reach) {
         var stands = new HashSet<BlockPos>();
         for (var stand : box.floor()) {
             var feet = Vec3.atBottomCenterOf(stand);
-            if (feet.distanceToSqr(body.position()) > REACH * REACH) continue;
+            if (feet.distanceToSqr(body.position()) > reach * reach) continue;
             var ray = new ClipContext(feet.add(0, staff.getEyeHeight(), 0), body.getEyePosition(),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, staff);
             if (level.clip(ray).getType() == HitResult.Type.MISS) stands.add(stand);
@@ -187,7 +323,7 @@ final class PlantSweetening extends Goal {
 
     private Item preferredTool(YukkuriEntity body) {
         if (body.social().demandingFoodFrom(staff)) return Tool.PIN.item();
-        if (body.mind().unease() >= 62) return Tool.RESTRAINT.item();
+        if (body.mind().unease() >= 62 && CarrierContents.isBasket(staff.getOffhandItem())) return ModItems.RESTRAINT.get();
         if (!soundForPuncture(body) || body.life().personality().fear(staff.getUUID()) >= 20) return Items.NAME_TAG;
         return Tool.AWL.item();
     }
@@ -207,7 +343,6 @@ final class PlantSweetening extends Goal {
         return switch (item.tool()) {
             case AWL -> soundForPuncture(body) && !OperationToolItem.isHot(stack, staff.level());
             case PIN -> soundForPuncture(body);
-            case RESTRAINT -> InteractionDispatch.restraintFits(body);
             default -> false;
         };
     }
@@ -222,6 +357,10 @@ final class PlantSweetening extends Goal {
         if (tool.is(Items.NAME_TAG)) Naming.useHeldTag(staff, body);
         else if (!staff.useHeldTool(body)) return;
         nextPressure = staff.level().getGameTime() + CONTACT_RECOVERY;
+        pressure(body, item, unease);
+    }
+
+    private void pressure(YukkuriEntity body, Item item, float unease) {
         GameplayLog.event(body, "factory", "action=sweetening decision=pressure staff={} item={} unease={} -> {} health={} sweet={} fear={}",
                 staff.getUUID(), item, unease, body.mind().unease(), body.body().healthRatio(), body.mind().sweetness(),
                 body.life().personality().fear(staff.getUUID()));
@@ -230,7 +369,7 @@ final class PlantSweetening extends Goal {
     private int toolSlot(ChestBlockEntity cabinet, Item item, YukkuriEntity body) {
         for (int i = 0; i < cabinet.getContainerSize(); i++) {
             var stack = cabinet.getItem(i);
-            if (stack.is(item) && usable(stack, body)) return i;
+            if (stack.is(item) && (stack.is(ModItems.RESTRAINT.get()) || usable(stack, body))) return i;
         }
         return -1;
     }
@@ -286,7 +425,7 @@ final class PlantSweetening extends Goal {
     @Override public void tick() {
         if (job == null) return;
         if (job.path() != null && !staff.blockPosition().equals(job.path().getTarget()) && !staff.getNavigation().isDone()) {
-            if (job.approach() != null && staff.getMainHandItem().getItem() instanceof OperationToolItem)
+            if (job.approach() != null)
                 noticeApproach(job.approach());
             return;
         }
@@ -316,6 +455,7 @@ final class PlantSweetening extends Goal {
 
     @Override public void stop() {
         staff.getNavigation().stop();
+        if (staff.isAlive() && staff.level() instanceof ServerLevel level) abortCarry(level, "interrupted");
         job = null;
     }
 

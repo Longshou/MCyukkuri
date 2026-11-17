@@ -177,6 +177,7 @@ final class PlantSite {
         var npc = (HumanNpc) EntityType.create(nbt, level.getLevel()).orElseThrow();
         npc.postAtPlant(site, role, post);
         if (role.equals("plant_receive")) PlantReceiving.equip(npc, new ItemStack(ModItems.CARRIER.get()));
+        if (role.equals("plant_sweetening")) PlantSweetening.equip(npc, new ItemStack(ModItems.CARRIER.get()));
         if (level.addFreshEntity(npc))
             GameplayLog.event(npc, "factory", "action=post_staff role={} site={} stand={}", role, site, post.toShortString());
     }
