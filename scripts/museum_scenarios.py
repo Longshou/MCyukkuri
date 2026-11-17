@@ -2053,18 +2053,16 @@ add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎�
            ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience')])
 
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
-    '魔理沙从院外草窝走进开着门的院子，认领空着的软窝并宣言。看主人走近挥手喝斥，魔理沙退出院子。',
+    '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
         *_yard_ground(True),
-        box(-6, 3, -2, -3, 3, 1, 'minecraft:oak_planks'),
-        block(-5, 0, -1, 'mcyukkuri:straw_nest[facing=south]'),
+        block(3, 0, 0, 'mcyukkuri:yukkuri_nest[facing=west]'),
         _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
         human('caretaker_sister', 6, 0, 'yard_witness', 0, yaw=90, label='院子主人')[:-1]
         + f',UUID:{uuid_nbt(_yard_scold_owner)},HumanHome:{_yard_pos(6, 0)}L,YardBowl:{_yard_pos(5, 2)}L,NoAI:1b}}',
-        street_trial('yard_stray_scold', 'marisa', -4, 0, 'yard_stray', boldness=100, friendliness=0,
-                     self_control=0, yaw=-90, lead=True),
+        street_trial('yard_stray_scold', 'marisa', 3, -2, 'yard_stray', boldness=100, friendliness=0,
+                     self_control=0, yaw=90, lead=True),
     ], late=[
-        block(3, 0, 0, 'mcyukkuri:yukkuri_nest[facing=west]'),
         Retry(f'data merge entity {sel("yard_witness")} {{NoAI:0b}}', sel('yard_witness'), tries=1, first=200),
     ], env=DAY, vantage=(-4, 8, -155, 16),
     reads=[('读住所宣言与驱离', 'yukkuri homeclaim status'),
