@@ -2742,9 +2742,10 @@ _punishment_click = json.dumps({'text': '[各打一下／再次施罚]', 'color'
                                'clickEvent': {'action': 'run_command', 'value': '/function mcylab:extra/punishment_hit'}},
                               ensure_ascii=False)
 add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制裁反馈：顶嘴、僵住、哭求',
-    '站在前排玻璃台中央，点击聊天里的“各打一下／再次施罚”，或走到各格前亲手用锥子。三只同受一击，看初次回嘴、噤声和哭求；后排隔一层玻璃的三只缩脸、僵住或转向亲属，隔两层的对照看不见。',
+    '向前走上中央石台，点击聊天里的“各打一下／再次施罚”，或走到各格前亲手用锥子。三只同受一击，看初次回嘴、噤声和哭求；后排隔一层玻璃的三只缩脸、僵住或转向亲属，隔两层的对照看不见。',
     '等约两秒后再点同一按钮，看刚才还顶嘴的个体对同一玩家改为戒备；清场重开才重置关系', [
         box(-3, 0, -2, 3, 0, -2, 'minecraft:glass'),
+        block(0, 1, -2, 'minecraft:glass'),
         box(-3, 0, -1, 3, 1, -1, 'minecraft:glass'),
         block(0, 2, -1, 'minecraft:polished_andesite_slab[type=bottom]'),
         *[box(x, 0, 0, x, 0, 4, 'minecraft:polished_andesite') for x in (-3, -1, 1, 3)],
@@ -2762,7 +2763,7 @@ add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制�
         *[set_status(name, 'mood.unease', unease) for name, _, _, _, _, unease in _punishment_targets],
         set_status('a3_plead', 'health.health', 8),
         f'tellraw @s {_punishment_click}'],
-    env=DAY, vantage=(0, -1, 0, 38), give=['mcyukkuri:care_awl', 'mcyukkuri:orange_juice 3'],
+    env=DAY, vantage=(0, -2, 0, 38), give=['mcyukkuri:care_awl', 'mcyukkuri:orange_juice 3'],
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, label, *_ in _punishment_targets])
 
 add('wound_leak', 'body', '伤口漏馅，橙汁止漏', '伤口漏馅，橙汁止漏',
