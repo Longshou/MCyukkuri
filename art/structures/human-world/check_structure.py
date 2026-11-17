@@ -515,7 +515,7 @@ PLANT_BLOCKS = {'minecraft:' + n for n in (
 LARGEST = {'width': 1.44, 'drawn_width': 2.41, 'yielded_half': .8125, 'height': 1.60}
 ORDINARY_ADULT = .96            # a non-deibu adult at the top adult scale 1.2
 DEIBU_PER_SCALE = .8 * 1.5      # deibu hitbox width per unit adult scale
-# A copper door leaf stands open as a 3/16 panel on its hinge side, so a 2-wide double door leaves 1 - 2 x 3/16 to each side of the centre.
+# Each open copper leaf occupies 3/16 of the two-block opening.
 DOOR_CLEAR = 2 - 2 * 3 / 16
 # Pet nest rules (life/NestResting.CUSHION, life/PetNestBlock, life/NestDoorway, motor/surface/Occupancy, life/SurfaceApproach):
 # a round bed (no side pressed flat) keeps its 11.5/16 level pad; a body enters through the low lip when the lip's half width covers
@@ -554,12 +554,17 @@ def enclosure_errors(b, box, seen):
             if name_at(b, x, 2, z) == AIR: errors.append(f'{name}: no floor at {(x, z)}')
     for (lx, lz), (ox, oz), (ix, iz) in box['doors']:
         along = (1, 0) if lx == ix else (0, 1)
-        for dx, dz in ((0, 0), along):
+        facing = {(0, -1): 'north', (0, 1): 'south', (1, 0): 'east', (-1, 0): 'west'}[ox - lx, oz - lz]
+        hinges = ('left', 'right') if facing in ('north', 'east') else ('right', 'left')
+        for (dx, dz), hinge in zip(((0, 0), along), hinges):
             leaf = (lx + dx, lz + dz)
             outside = (ox + dx, oz + dz)
             inside = (ix + dx, iz + dz)
-            if any(name_at(b, leaf[0], y, leaf[1]) != 'minecraft:waxed_copper_door' for y in (3, 4)):
+            states = [state_at(b, leaf[0], y, leaf[1]) for y in (3, 4)]
+            if any(block != 'minecraft:waxed_copper_door' for block, _ in states):
                 errors.append(f'{name}: missing waxed copper door leaf at {leaf}')
+            elif any((props['facing'], props['hinge']) != (facing, hinge) for _, props in states):
+                errors.append(f'{name}: door leaf at {leaf} must face {facing} with its {hinge} hinge on the outside')
             if outside not in seen: errors.append(f'{name}: staff cannot reach the door stand {outside}')
             if any(not free(name_at(b, inside[0], y, inside[1])) for y in (3, 4)):
                 errors.append(f'{name}: inside door stand {inside} blocked')

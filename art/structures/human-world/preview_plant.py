@@ -121,20 +121,20 @@ def main():
     view(a, mesh(a, b, centre, cut=6), out, 'cutaway', 1700, 1300, -.45, .95, 26, 2)
     # Sweet boxes up close from the sweet aisle (the hall east of x9 and everything above the lids left out), the three bodies inside.
     boxes = subset(b, lambda x, y, z: x <= 9 and 14 <= z and y <= 6)
-    placed = bodies(a, out / '_work'); people = np.concatenate(placed); inside = np.concatenate([placed[0]] + placed[2:])
-    sweet = np.concatenate([mesh(a, boxes), people]); sweet[:, :3] -= [5, 0, 27.5]
+    placed = bodies(a, out / '_work'); inside = np.concatenate([placed[0]] + placed[2:])
+    sweet = np.concatenate([mesh(a, boxes), inside]); sweet[:, :3] -= [5, 0, 27.5]
     view(a, sweet, out, 'sweet-boxes', 1900, 1000, 1.22, .4, 7.2, 4.5)
     # Stand-height cut: the box fronts (x6) and the aisle taken away, lids kept, the bodies where they stand.
     cut = subset(b, lambda x, y, z: (x <= 5 or y <= 2) and x <= 7 and 15 <= z and y <= 6)
     for name, zc in (('stand-height-d', 35.5), ('stand-height-ab', 21)):
         v = np.concatenate([mesh(a, cut), inside]); v[:, :3] -= [4, 0, zc]
         view(a, v, out, name, 1500, 900, 1.4, .18, 3.4, 4.6)
-    # Box D's door open (both copper leaves), the wasa deibu in the doorway: from the aisle and from above.
+    # Box D's open door with the wasa deibu in the doorway. The top view omits the lintel to expose the leaves.
     opened = {p: (n, dict(props, open='true') if n.endswith('_door') and 6 <= p[0] <= 6 and 34 <= p[2] <= 35 else props, nbt)
               for p, (n, props, nbt) in b.blocks.items()}
-    door = subset(SimpleNamespace(blocks=opened), lambda x, y, z: x <= 9 and 30 <= z and y <= 5)
-    for name, az, el, span in (('door-d', 1.25, .3, 2.6), ('door-d-top', 1.5, 1.35, 3.2)):
-        v = np.concatenate([mesh(a, door), people]); v[:, :3] -= [6, 0, 35]
+    for name, az, el, span, top in (('door-d', 1.25, .3, 2.6, 5), ('door-d-top', 1.5, 1.35, 3.2, 4)):
+        door = subset(SimpleNamespace(blocks=opened), lambda x, y, z: x <= 9 and 30 <= z and y <= top)
+        v = np.concatenate([mesh(a, door), placed[1]]); v[:, :3] -= [6, 0, 35]
         view(a, v, out, name, 1400, 900, az, el, span, 3.8)
     # The front desk and the receiving booth from the lobby: the facade and everything above y7 left out.
     desk = subset(b, lambda x, y, z: x <= 21 and z <= 13 and y <= 7 and (z >= 4 or y <= 2))
