@@ -4850,7 +4850,7 @@ add('kindness_adoption', 'family', '孤儿分食与认养亲', '孤儿分食与�
            childhood=CHILDHOOD_CRAWLING_READY),
         f'data merge entity {sel("foster")} {{YukkuriLife:{{MealTicks:1}}}}',
         home('foster', 0, 0),
-    ], env=DAY, spot='pet_birth', vantage=(-1, 4, 170), reads=[
+    ], env=DAY, spot='pet_birth', vantage=(-5, 2, -120), reads=[
         ('读赤油营养', f'yukkuri status {sel("orphan")} raw'), ('读邻居照护', f'yukkuri status {sel("foster")} raw')])
 
 _number_scenes()
