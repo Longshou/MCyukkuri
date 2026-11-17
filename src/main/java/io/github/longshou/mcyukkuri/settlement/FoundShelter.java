@@ -575,7 +575,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private boolean holdsPaperForGapDecision() {
-        return coldUncoveredBabyInSameGap() != null || babyWaitTicks < 80 && coldUncoveredBabyEnteringSameGap() != null;
+        return coldUncoveredBabyInSameGap() != null || babyWaitTicks < 160 && coldUncoveredBabyEnteringSameGap() != null;
     }
 
     private boolean coveredOccupantInSameGap() {
@@ -851,7 +851,7 @@ public final class FoundShelter implements MotorOwner {
                                 coverAction = null;
                             }
                         }
-                    } else if (babyWaitTicks < 80 && coldUncoveredBabyEnteringSameGap() != null) {
+                    } else if (babyWaitTicks < 160 && coldUncoveredBabyEnteringSameGap() != null) {
                         babyWaitTicks++;
                         return Step.RESTING;
                     }
@@ -1328,6 +1328,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private SurfaceApproach.Result walk() {
+        if (!body.onGround() && !body.isInWaterOrBubble()) return SurfaceApproach.Result.WAITING;
         if (shelter == null || !shelter.contains(body.blockPosition())) return SurfaceApproach.walkResult(body, aim, null, 1);
         // A newly placed or lifted body has not landed yet. Its short step can be checked once its feet are down.
         if (!body.onGround()) return SurfaceApproach.Result.WAITING;

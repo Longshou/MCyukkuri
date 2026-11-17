@@ -124,7 +124,8 @@ public final class WildCards {
     public static Scene begin(String card,YukkuriEntity first,List<YukkuriEntity> peers,Player player) {
         if(!(first.level() instanceof ServerLevel level)||peers.isEmpty()||!WildEvents.available(first))return null;
         var second=peers.getFirst();List<YukkuriEntity> all=new ArrayList<>();all.add(first);all.addAll(peers);
-        if(all.stream().distinct().count()!=all.size()||all.size()>6||peers.stream().anyMatch(p -> p.level()!=level
+        if(all.stream().distinct().count()!=all.size()||all.size()>6||all.stream().anyMatch(p -> p.life().usingFoundCover())
+                ||peers.stream().anyMatch(p -> p.level()!=level
                 ||!WildEvents.available(p)||!close(first,p,6)||!first.life().reachable(p.blockPosition(),false)))return null;
         // Cards are leisure: everyone in a play card, and the carer of a care card, must be well and free (the daily-life gate).
         if(!(CARE_CARDS.contains(card)?List.of(first):all).stream().allMatch(p -> DailyLife.wellAndFree(p,false)))return null;
