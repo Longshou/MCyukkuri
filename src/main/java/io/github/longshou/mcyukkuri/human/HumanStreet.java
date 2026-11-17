@@ -53,11 +53,18 @@ final class HumanStreet {
     static final byte FROWN_EVENT = 92;
     static final int KICK_POSE_TICKS = 10;
     private static final int FEED_INTERVAL = 2400;
+    /**
+     * Ticks a resident keeps an animal it drove off out of its care: longer than a street routing beat, far shorter
+     * than the driven-off claim's cooldown. A caring resident only scolds when truly pushed, so it holds the distance
+     * longest; a cruel one scolds routinely and forgets soonest.
+     */
+    private static final int SCOLD_MEMORY_CARING = 2400, SCOLD_MEMORY_NEUTRAL = 1800, SCOLD_MEMORY_CRUEL = 1200;
     private static final String FED_AFTER = "ResidentWildFeedAfter";
     private static final String KICK_DAY = "StreetKickDay";
     private static final double CONTACT_SQ = 4, CLOSE_SQ = 1.44, PARTED_SQ = 9;
     private final HumanNpc npc;
     private final Map<UUID, Warning> warnings = new HashMap<>();
+    private final Map<UUID, Long> scolded = new HashMap<>();
     private long actionDay = Long.MIN_VALUE, nextPlayerFrown;
     private int actions;
     private long beatUntil;
@@ -138,7 +145,17 @@ final class HumanStreet {
         var relation = y.life().personality().relation(npc.getUUID());
         return SocialDisposition.humanWariness(y, npc, relation) <= .50
                 && (own || y.social().contactWith(npc) || y.status().identity() == Identity.STRAY && npc.distanceToSqr(y) <= CONTACT_SQ)
-                && (lastPetted != y || eligibleMeal(y));
+                && (lastPetted != y || eligibleMeal(y))
+                && !remembersScold(y);
+    }
+
+    /** A resident that just scolded an animal keeps it out of its care; the refusal is logged with that real reason. */
+    private boolean remembersScold(YukkuriEntity y) {
+        long until = scolded.getOrDefault(y.getUUID(), 0L);
+        if (now() >= until) return false;
+        GameplayLog.limited(npc, "npc-care", "street_scold." + y.getUUID(), 200,
+                "action=street_care_skip target={} reason=scolded until={}", y.getUUID(), until);
+        return true;
     }
 
     private boolean eligibleMeal(YukkuriEntity y) {
@@ -416,6 +433,7 @@ final class HumanStreet {
         }
         if (lastPetted != null && (!lastPetted.isAlive() || lastPetted.level() != npc.level()
                 || npc.distanceToSqr(lastPetted) > PARTED_SQ)) lastPetted = null;
+        scolded.values().removeIf(until -> now() >= until);
         if (warnings.isEmpty()) return;
         var level = (ServerLevel) npc.level();
         for (var entry : warnings.entrySet()) {
@@ -499,6 +517,12 @@ final class HumanStreet {
     void frown(long until) { nextPlayerFrown = until; }
 
     void scoldSquatter(YukkuriEntity squatter) {
+        int memory = switch (npc.attitude()) {
+            case CARING -> SCOLD_MEMORY_CARING;
+            case NEUTRAL -> SCOLD_MEMORY_NEUTRAL;
+            case CRUEL -> SCOLD_MEMORY_CRUEL;
+        };
+        scolded.put(squatter.getUUID(), now() + memory);
         npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
         cue(npc, squatter, "warning");
         GameplayLog.event(npc, "npc-care", "action=yard_scold target={} distance={}",
