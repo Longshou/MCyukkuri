@@ -6,9 +6,10 @@ Requires Pillow, NumPy, Node and the Minecraft client jar (--minecraft-resources
 of the main checkout (or MCYUKKURI_PREVIEWS); no source or runtime file is modified.
 """
 from pathlib import Path
-import argparse, json, math, os, shutil, sys
+import argparse, json, math, os, shutil, subprocess, sys
 import numpy as np
 from PIL import Image
+from types import SimpleNamespace
 sys.path.insert(0, str(Path(__file__).parent))
 import preview_shop as ps
 import author_plant
@@ -33,36 +34,66 @@ p{line-height:1.6}table{border-collapse:collapse}td,th{border:1px solid #c9d1c6;
 <h2>外观（从村道看）</h2><img src="exterior.png"><img src="exterior-back.png">
 <h2>去顶布局</h2><img src="cutaway.png">
 <h2>平面图</h2><img src="plan.png">
-<h2>甜化箱近看与站高测试</h2><img src="sweet-boxes.png"><p>去掉箱子正面后的站高：D 加宽箱里的成年灵胖（1.8 倍），A 箱戴帽成年魔理沙（1.2 倍）与 B 箱普通成年灵梦（1 倍），玻璃盖在头顶上方。</p><img src="stand-height-d.png"><img src="stand-height-ab.png">{{HEIGHTS}}
+<h2>甜化箱近看与站高测试</h2><img src="sweet-boxes.png"><p>去掉箱子正面后的站高：D 加宽箱里最宽的蓬发灵胖（1.8 倍，头发展开 2.41 格），A 箱戴帽成年魔理沙（1.2 倍，最高）与 B 箱普通成年灵梦（1 倍），玻璃盖在头顶上方。</p><img src="stand-height-d.png"><img src="stand-height-ab.png"><p>D 箱两扇铜门打开、同一只蓬发灵胖站在门口：身体 1.44 格，门扇之间净宽 1.625 格；头发按游戏里的贴墙让位（WallYield）压到两扇门板内侧，不穿门。</p><img src="door-d.png"><img src="door-d-top.png">{{HEIGHTS}}
 <h2>前台与收货玻璃间</h2><img src="front-desk.png">
 </html>
 """
 
 
-def bodies(a):
-    """Vertices of the largest admitted bodies standing in boxes D and A, facing the sweet aisle (east), on the atlas's lower half."""
+CORE = r"""
+const fs=require('fs'),path=require('path');
+const [root,id,scale,faces,out]=process.argv.slice(2);
+const {RuntimePose}=require(path.join(root,'preview/review/pose.js'));
+const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
+const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
+const pose=new RuntimePose(read(path.join(assets,'yukkuri',id+'.json')),+scale,
+  read(path.join(assets,'yukkuri_presentation/motion_corrections.json')).models[id],read(path.join(assets,'yukkuri_presentation/placement_fit.json')).models[id]);
+const walls=JSON.parse(faces);if(walls.length)pose.wall={yaw:0,faces:walls,yield:true};
+fs.writeFileSync(out,Buffer.from(Float32Array.from(pose.frame('idle',0)).buffer));process.exit(0);
+"""
+
+
+def core_body(ident, scale, faces, work):
+    """The idle mesh of a runtime model from the shared pose core (model units x scale), yielded against `faces` as in the game:
+    [[nx, nz, distance, low, high]] in blocks around the body axis, the model facing -z."""
+    work.mkdir(parents=True, exist_ok=True); script = work / 'core.cjs'; script.write_text(CORE, encoding='utf-8')
+    target = work / f'{ident}-{len(faces)}.bin'
+    subprocess.run(['node', str(script), str(ROOT), ident, str(scale), json.dumps(faces), str(target)], check=True)
+    v = np.frombuffer(target.read_bytes(), dtype='<f4').reshape(-1, 8).astype(float)
+    return v[:, :3], v[:, 3:5], v[:, 5:8]
+
+
+def bodies(a, work):
+    """Vertices of the bodies standing in the boxes, facing the sweet aisle (east), their textures on the atlas's lower half.
+    The wasa deibu (the widest drawn body, scale 1.8) stands in the wide box D unyielded and passes D's open door with its loose hair
+    pressed onto the two open copper panels (faces 0.8125 either side of its axis) by the pose core's WallYield. The adult hatted
+    Marisa (1.2, the tallest) stands in A, an ordinary adult Reimu in B."""
     sys.path.insert(0, str(LORE))
     from preview import Posed
     corrections = json.loads((ASSETS / 'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
+    half = check_structure.DOOR_CLEAR / 2
+    bodies = [('reimu_wasa_deibu', 1.8, (3.5, 36.0), []), ('reimu_wasa_deibu', 1.8, (6.5, 35.0), [[1, 0, half, 0, 2], [-1, 0, half, 0, 2]]),
+              ('marisa', 1.2, (3.8, 19.5), None), ('reimu', 1.0, (3.5, 24.5), None)]
     out = []
-    # (model, scale, feet): the deibu in the wide box D, an adult Marisa in box A, an ordinary adult Reimu in B, each behind front glass.
-    for i, (ident, scale, (x, z)) in enumerate([('reimu_deibu', 1.8, (3.5, 37.0)), ('marisa', 1.2, (3.8, 19.5)), ('reimu', 1.0, (3.5, 24.5))]):
-        posed = Posed(ident, corrections); tri, uv, n = posed.frame('idle', 0)
-        v = tri.reshape(-1, 3) * scale / 16
+    for i, (ident, scale, (x, z), faces) in enumerate(bodies):
+        if faces is None:
+            posed = Posed(ident, corrections); tri, uv, n = posed.frame('idle', 0)
+            v, uv, n = tri.reshape(-1, 3) * scale, uv.reshape(-1, 2), np.repeat(n, 3, axis=0)
+        else:
+            v, uv, n = core_body(ident, scale, faces, work)
+        v = v / 16
         # The model faces -z; turn it to face +x (the aisle): x' = -z, z' = x.
         v = np.c_[-v[:, 2], v[:, 1], v[:, 0]] + [x, 3, z]
-        normals = np.repeat(n, 3, axis=0); normals = np.c_[-normals[:, 2], normals[:, 1], normals[:, 0]]
-        tex = Image.fromarray(posed.texture('neutral')).convert('RGBA').resize((512, 512), Image.Resampling.NEAREST)
+        n = np.c_[-n[:, 2], n[:, 1], n[:, 0]]
+        tex = Image.open(ASSETS / f'textures/entity/{ident}/neutral.png').convert('RGBA').resize((512, 512), Image.Resampling.NEAREST)
         ox, oy = (i % 4) * 512, 1536
         a.atlas.paste(tex, (ox, oy))
-        uvs = uv.reshape(-1, 2) * .25 + [ox / 2048, oy / 2048]
-        out.append(np.c_[v, uvs, normals])
-    return np.concatenate(out)
+        out.append(np.c_[v, uv * .25 + [ox / 2048, oy / 2048], n])
+    return out
 
 
 def subset(b, keep):
     """The blocks of b for which keep(x, y, z) holds, as a layout `mesh` can draw."""
-    from types import SimpleNamespace
     return SimpleNamespace(blocks={p: v for p, v in b.blocks.items() if keep(*p)})
 
 
@@ -70,9 +101,11 @@ def heights_table(b):
     rows = ''.join(f"<tr><td>{r['id']}</td><td>{ {'box': '甜化箱', 'sick': '病栏', 'booth': '收货间'}[r['kind']] }</td><td>{r['interior']}</td>"
                    f"<td>{r['clear']}</td><td>{r['door']}</td></tr>" for r in check_structure.plant_report(b))
     L = check_structure.LARGEST
-    return (f"<p>最大可收个体：成年灵胖（体型 ×1.5，成体缩放上限 1.2）碰撞箱 {L['width']} 格宽、模型连蝴蝶结 {L['drawn_width']} 格宽；"
-            f"最高的是戴帽成年魔理沙（1.2 倍）{L['height']} 格高。箱内净高 3 格（玻璃盖在第 4 格），门 2 格宽 2 格高，每箱都留得出 2×2 空地；"
-            f"D 箱留 3×3 以上空地，草窝不贴墙。</p><table><tr><th>编号</th><th>种类</th><th>内部（深×宽）</th><th>净高</th><th>门（宽×高）</th></tr>{rows}</table>")
+    N = check_structure.nest_report()
+    return (f"<p>最大可收个体：成年灵胖（体型 ×1.5，成体缩放上限 1.2）碰撞箱 {L['width']} 格宽，蓬发灵胖的模型头发展开 {L['drawn_width']} 格；"
+            f"最高的是戴帽成年魔理沙（1.2 倍）{L['height']} 格高。箱内净高 3 格（玻璃盖在第 4 格），门 2 格宽 2 格高（开门后净宽 {N['door_clear']} 格），"
+            f"每箱都留得出 2×2 空地，D 箱留 3×3 以上。每箱一个不贴墙的圆草窝，入口朝门：按游戏的窝口与垫面规则收得下 {N['admits']:.2f} 格宽的身体，"
+            f"即所有普通成体和成体缩放 {N['deibu_scale']:.2f} 以下的灵胖；1.2 倍的最大灵胖现有任何窝都进不去（单格窝口 {N['opening']:.3f}，2×2 窝口更窄），睡在箱底地面。</p><table><tr><th>编号</th><th>种类</th><th>内部（深×宽）</th><th>净高</th><th>门（宽×高）</th></tr>{rows}</table>")
 
 
 def main():
@@ -88,14 +121,21 @@ def main():
     view(a, mesh(a, b, centre, cut=6), out, 'cutaway', 1700, 1300, -.45, .95, 26, 2)
     # Sweet boxes up close from the sweet aisle (the hall east of x9 and everything above the lids left out), the three bodies inside.
     boxes = subset(b, lambda x, y, z: x <= 9 and 14 <= z and y <= 6)
-    people = bodies(a)
+    placed = bodies(a, out / '_work'); people = np.concatenate(placed); inside = np.concatenate([placed[0]] + placed[2:])
     sweet = np.concatenate([mesh(a, boxes), people]); sweet[:, :3] -= [5, 0, 27.5]
     view(a, sweet, out, 'sweet-boxes', 1900, 1000, 1.22, .4, 7.2, 4.5)
     # Stand-height cut: the box fronts (x6) and the aisle taken away, lids kept, the bodies where they stand.
     cut = subset(b, lambda x, y, z: (x <= 5 or y <= 2) and x <= 7 and 15 <= z and y <= 6)
     for name, zc in (('stand-height-d', 35.5), ('stand-height-ab', 21)):
-        v = np.concatenate([mesh(a, cut), people]); v[:, :3] -= [4, 0, zc]
+        v = np.concatenate([mesh(a, cut), inside]); v[:, :3] -= [4, 0, zc]
         view(a, v, out, name, 1500, 900, 1.4, .18, 3.4, 4.6)
+    # Box D's door open (both copper leaves), the wasa deibu in the doorway: from the aisle and from above.
+    opened = {p: (n, dict(props, open='true') if n.endswith('_door') and 6 <= p[0] <= 6 and 34 <= p[2] <= 35 else props, nbt)
+              for p, (n, props, nbt) in b.blocks.items()}
+    door = subset(SimpleNamespace(blocks=opened), lambda x, y, z: x <= 9 and 30 <= z and y <= 5)
+    for name, az, el, span in (('door-d', 1.25, .3, 2.6), ('door-d-top', 1.5, 1.35, 3.2)):
+        v = np.concatenate([mesh(a, door), people]); v[:, :3] -= [6, 0, 35]
+        view(a, v, out, name, 1400, 900, az, el, span, 3.8)
     # The front desk and the receiving booth from the lobby: the facade and everything above y7 left out.
     desk = subset(b, lambda x, y, z: x <= 21 and z <= 13 and y <= 7 and (z >= 4 or y <= 2))
     view(a, mesh(a, desk, (-11, 0, -9)), out, 'front-desk', 1600, 1000, -.35, .55, 8.5, 4)

@@ -507,9 +507,36 @@ PLANT_BLOCKS = {'minecraft:' + n for n in (
     'stone_bricks', 'stone_brick_wall', 'stone_brick_stairs', 'polished_andesite', 'polished_andesite_stairs', 'polished_andesite_slab', 'smooth_stone',
     'smooth_stone_slab', 'andesite', 'stone', 'gravel', 'waxed_copper_door', 'chest', 'hay_block', 'birch_wall_sign', 'potted_fern')}
 # The largest body a sweet box admits: an adult deibu (formScale 1.5) at the top adult scale 1.2 -- hitbox 0.8 x 0.6 per unit growth
-# (body_geometry.json) -> 1.44 wide, 1.08 high; the drawn model with the ribbon is 1.91 wide. The tallest is an adult Marisa at 1.2 with
-# her hat, 1.60 high (21.28 model units). A body this wide needs a 2 x 2 free square, this tall two free cells over the floor.
-LARGEST = {'width': 1.44, 'drawn_width': 1.91, 'height': 1.60}
+# (body_geometry.json) -> 1.44 wide, 1.08 high; its rounded body surface is as wide (12.8 units). The widest drawn model is the wasa
+# deibu (reimu_wasa_deibu) at 1.8: 2.41 across its hair, which WallYield presses onto any face nearer than that (measured with the pose
+# core between two faces 0.8125 from the axis: the loose hair ends at 0.8125, the body surface at 0.72). The tallest is an adult Marisa
+# at 1.2 with her hat, 1.60 high (21.28 model units). A body this wide needs a 2 x 2 free square, this tall two free cells over the
+# floor; the wasa hair standing unyielded needs a 3 x 3 free square (the wide box).
+LARGEST = {'width': 1.44, 'drawn_width': 2.41, 'yielded_half': .8125, 'height': 1.60}
+ORDINARY_ADULT = .96            # a non-deibu adult at the top adult scale 1.2
+DEIBU_PER_SCALE = .8 * 1.5      # deibu hitbox width per unit adult scale
+# A copper door leaf stands open as a 3/16 panel on its hinge side, so a 2-wide double door leaves 1 - 2 x 3/16 to each side of the centre.
+DOOR_CLEAR = 2 - 2 * 3 / 16
+# Pet nest rules (life/NestResting.CUSHION, life/PetNestBlock, life/NestDoorway, motor/surface/Occupancy, life/SurfaceApproach):
+# a round bed (no side pressed flat) keeps its 11.5/16 level pad; a body enters through the low lip when the lip's half width covers
+# foot(width) = 0.5 width + 0.02 plus the 0.02 arrival allowance.
+NEST_PAD, FOOT_MARGIN, ARRIVAL = 11.5 / 16, .02, .02
+
+def nest_opening(mask=0):
+    """Half width of a pet nest's low lip (NestDoorway.shape) from the authored collision cells, entrance north, level pad 11.5/16."""
+    raw = json.loads((Path(__file__).resolve().parents[3] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json')
+                     .read_text(encoding='utf-8'))[f'pet_nest_{mask}']['boxes']
+    boxes = [(b[0] / 16, b[2] / 16, -b[3] / 16, -b[1] / 16, b[4] / 16) for b in raw]   # lateral x0, x1, depth d0, d1 toward the entrance, top
+    top = max(b[4] for b in boxes); middle = max(b[4] for b in boxes if b[0] <= 0 <= b[1] and b[2] <= 0 <= b[3])
+    threshold = (middle + top) / 2
+    crest = lambda x: max([b[4] for b in boxes if b[0] <= x <= b[1] and b[3] >= NEST_PAD] or [0])
+    opening, x = 0, 0
+    while x < NEST_PAD and crest(x) <= threshold and crest(-x) <= threshold: opening = x; x += 1 / 64
+    return opening
+
+def nest_admits():
+    """The widest body a free-standing (round) pet nest takes: it must enter through the lip and rest on the level pad."""
+    return min(2 * NEST_PAD, 2 * (nest_opening() - FOOT_MARGIN - ARRIVAL))
 
 def ring_cells(x0, z0, x1, z1):
     return [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
@@ -551,6 +578,20 @@ def enclosure_errors(b, box, seen):
     squares = [(x, z) for x, z in reached if all((x + i, z + j) in reached for i in range(need) for j in range(need))]
     if not squares: errors.append(f'{name}: no {need}x{need} free square the largest body ({LARGEST["width"]} wide) can walk to')
     if top - 3 < LARGEST['height']: errors.append(f'{name}: {top - 3} blocks clear inside, below {LARGEST["height"]}')
+    if DOOR_CLEAR < LARGEST['width']: errors.append(f'{name}: open door clears {DOOR_CLEAR}, below the body {LARGEST["width"]}')
+    if box.get('wide'):
+        three = [(x, z) for x, z in reached if all((x + i, z + j) in reached for i in range(3) for j in range(3))]
+        if not three: errors.append(f'{name}: no 3x3 free square for the unyielded wasa deibu ({LARGEST["drawn_width"]} across)')
+    if 'nest' in box:
+        # The shared resting spot is a round bed: nothing stands in its eight neighbours (a pressed side shuts out adults from about 1.15x),
+        # its entrance cell is walkable floor, and the bed admits every ordinary adult; the wide box's admits an adult-scale deibu.
+        nx, nz = box['nest']; state = b.blocks[(nx, 3, nz)][1]
+        near = [(nx + i, nz + j) for i in (-1, 0, 1) for j in (-1, 0, 1) if (i, j) != (0, 0) and not free(name_at(b, nx + i, 3, nz + j))]
+        if near: errors.append(f'{name}: nest {box["nest"]} is pressed by {near}')
+        step = {'north': (0, -1), 'south': (0, 1), 'east': (1, 0), 'west': (-1, 0)}[state.get('facing', 'north')]
+        if (nx + step[0], nz + step[1]) not in reached: errors.append(f'{name}: nest entrance {(nx + step[0], nz + step[1])} not walkable')
+        need = DEIBU_PER_SCALE if box.get('wide') else ORDINARY_ADULT
+        if nest_admits() < need: errors.append(f'{name}: nest admits {nest_admits():.3f} wide, below {need:.3f}')
     return errors
 
 def plant_report(b):
@@ -561,6 +602,10 @@ def plant_report(b):
         rows.append(dict(id=box['id'], kind=box['kind'], interior=f'{x1 - x0 + 1}x{z1 - z0 + 1}', clear=box['top'] - 3,
                          door='2 x 2', largest_height=LARGEST['height'], largest_width=LARGEST['width']))
     return rows
+
+def nest_report():
+    """The round nest's lip, the widest body it admits, and the largest deibu adult scale that fits (for the report and the preview)."""
+    return dict(opening=nest_opening(), admits=nest_admits(), deibu_scale=nest_admits() / DEIBU_PER_SCALE, door_clear=DOOR_CLEAR)
 
 def load_plant():
     path = Path(__file__).parent / 'author_plant.py'

@@ -16,7 +16,7 @@ Plan (x east, z south; the facade faces north onto the village road at z0; floor
 Sweet boxes: interior 4 deep (x2..5) and 4 wide (A z17..20, B z22..25, C z27..30) or 7 wide (D z32..38, the wide box), walls y3..5 with a
 glass lid at y6 (3 blocks clear inside). Adjacent boxes share exactly one wall of vanilla clear glass; the back wall is the outer wall's
 floor-level glass, so a broken box opens straight out past the plant boundary. The front is glass with a 2-wide copper double door
-(the side opening, floor level, no sill) under a smooth-stone lintel carrying the box's readout sign. Each box holds one straw nest
+(the side opening, floor level, no sill) under a smooth-stone lintel carrying the box's readout sign. Each box holds one free-standing straw nest
 (the one good resting spot), a food bowl at the front glass and a sand toilet in a back corner. The sick pen is the same box with solid
 sides and a white floor. Every door in the plant is a waxed copper door: players and staff open it by hand, yukkuri never do.
 
@@ -270,15 +270,18 @@ def plant():
         # Box A's north wall is glass onto the main aisle; each later box's north wall is the one glass wall it shares with the previous.
         box_ring(b, BOX_X0, z0, BOX_X1, z1, 'e', (BOX_FRONT, dz), 'east', {'n': 'glass', 's': 'glass' if z1 < 38 else None, 'w': None},
                  f'甜化箱 {ident}', (BOX_FRONT + 1, dz))
-        nest = (BOX_X0 + 1, z0 + 1) if ident == 'D' else (BOX_X0, z0)       # the wide box's nest stands free for a large body
-        b.block(*(nest[0], 3, nest[1]), 'mcyukkuri:straw_nest')
+        # The one nest stands free of every wall (a round bed: a pressed-flat side would shut out adults from about 1.15x), its
+        # entrance toward the door. NestResting/NestDoorway admit bodies up to 1.326 wide in it (every ordinary adult, a deibu up
+        # to adult scale 1.10); no placeable nest takes a 1.2x deibu (1.44), which rests on the box floor.
+        nest = (BOX_X0 + 1, z0 + 1)
+        b.block(nest[0], 3, nest[1], 'mcyukkuri:straw_nest', {'facing': 'east', 'north': 'false', 'east': 'false', 'south': 'false', 'west': 'false'})
         bowl = (BOX_X1, z1 if ident != 'D' else z1 - 1); toilet = (BOX_X0, z1)
         b.bowl(*bowl); b.block(toilet[0], 3, toilet[1], 'mcyukkuri:yukkuri_toilet')
         anchor = (BOX_X1, 3, dz)
         site_marker(b, anchor, 'mcy_plant_box', {'Box': string(ident), 'Low': relative(anchor, (BOX_X0, 3, z0)),
                                                  'High': relative(anchor, (BOX_X1, 3, z1)), 'Door': relative(anchor, (BOX_FRONT + 1, 3, dz)),
                                                  'Readout': relative(anchor, (BOX_FRONT + 1, 5, dz))})
-        b.boxes.append(dict(id=ident, kind='box', interior=(BOX_X0, z0, BOX_X1, z1), top=LID, bowl=bowl, toilet=toilet, nest=nest,
+        b.boxes.append(dict(id=ident, kind='box', wide=ident == 'D', interior=(BOX_X0, z0, BOX_X1, z1), top=LID, bowl=bowl, toilet=toilet, nest=nest,
                             doors=[((BOX_FRONT, dz), (BOX_FRONT + 1, dz), (BOX_X1, dz))]))
     # Sick pen across the aisle: solid sides and back, glass front with the door, white floor, a bowl and a toilet, no nest.
     s = SICK_PEN
