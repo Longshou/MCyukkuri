@@ -10,9 +10,8 @@ import net.minecraft.world.entity.LivingEntity;
  * the theft itself ends and the stolen item leaves with the thief in its mouth.
  */
 public final class Expulsion {
-    /** {@code site} is the crate, crop or stand the guard saw taken from; the thief keeps away from it for a day. */
+    /** {@code site} is the food source or stand the guard defended. */
     public static void driveOff(YukkuriEntity thief, LivingEntity guard, BlockPos site) {
-        if (thief == null || guard == null || !thief.isAlive() || !guard.isAlive()) return;
         thief.life().avoidField(site);
         thief.status().reactions().threat().warnedBy(guard);
     }

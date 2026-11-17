@@ -156,9 +156,15 @@ public final class HumanNpc extends PathfinderMob {
     public static HumanNpc witnessedStallTake(YukkuriEntity animal, BlockPos crate, Vec3 contact) {
         return HumanStreet.witnessedStallTake(animal, crate, contact);
     }
+    public static void witnessedBowlTake(YukkuriEntity animal, BlockPos bowl) {
+        HumanStreet.witnessedBowlTake(animal, bowl);
+    }
+    boolean ownsYardBowl(BlockPos bowl) { return bowl.equals(yardBowl); }
     /** Its own pet ran to its feet about a beggar; the resident answers in its own manner (HumanStreet.helpPet). */
-    public void helpPet(YukkuriEntity pet, YukkuriEntity stray) {
-        if (streetResident() && !isTrading()) street.helpPet(pet, stray);
+    public boolean helpPet(YukkuriEntity pet, YukkuriEntity stray) {
+        if (isNoAi()) return false;
+        street.helpPet(pet, stray);
+        return true;
     }
     long streetFrownAfter() { return street.frownAfter(); }
     void streetFrown(long until) { street.frown(until); }
@@ -634,18 +640,24 @@ public final class HumanNpc extends PathfinderMob {
         }
         @Override public void start() {
             elapsed = 0; approach = 0; careTicks = 0; dose = null;
-            if (attention != null && streetResident()) street.begin(attention);
+            if (!street.helping() && attention != null && streetResident()) street.begin(attention);
         }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
-            if (isTrading()) { getNavigation().stop(); return; }
-            if (street.helping()) { street.helpStep(); return; }
+            if (isTrading()) { street.stopHelp(); getNavigation().stop(); return; }
             if (goingHome()) {
-                street.cancel();
-                attention = null;
-                if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2) getNavigation().stop();
-                else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
+                if (resting()) street.stopHelp();
+                if (!street.helping()) {
+                    clearAttention();
+                    if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2) getNavigation().stop();
+                    else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
+                    return;
+                }
+            }
+            if (street.helping()) {
+                clearAttention();
+                street.helpStep();
                 return;
             }
             if (attention == null) return;
@@ -690,11 +702,15 @@ public final class HumanNpc extends PathfinderMob {
             dose=desired;
             return true;
         }
-        @Override public void stop() {
-            // Trading and resting also use this goal, so only its own care routine returns a dose.
+        private void clearAttention() {
             if (dose != null) returnUnusedDose();
             street.cancel();
-            dose=null; careTicks=0; attention = null; getNavigation().stop();
+            dose=null; careTicks=0; attention = null;
+        }
+        @Override public void stop() {
+            street.stopHelp();
+            clearAttention();
+            getNavigation().stop();
             if (routineDelay >= 0) routineDelay = Math.max(routineDelay, 200);
         }
     }

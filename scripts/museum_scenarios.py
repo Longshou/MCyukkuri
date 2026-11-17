@@ -5274,9 +5274,11 @@ for _sid, _outcome, _beg_checks in (
                                   r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
     ('wild_beg_snatch', 'snatched', [r' beg transfer [^\n]*result=snatched received=minecraft:apple retained=minecraft:air',
                                     r' beg grudge [^\n]*closeness=-?\d+->-\d+ fear=\d+->\d+',
+                                    r'\[threat\][^\n]* marisa [^\n]* response started source=',
                                     r'\[meal\] marisa [^\n]*swallowed item=minecraft:apple count=1']),
     ('wild_beg_help', 'asked_help', [r' beg help reached human=',
                                      r'\[npc-care\][^\n]* action=pet_help [^\n]*attitude=CARING',
+                                     r'\[npc-care\][^\n]* action=pet_comfort ',
                                      r'\[threat\][^\n]* marisa [^\n]* response started source=',
                                      r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
 ):
@@ -5806,11 +5808,12 @@ next(s for s in S if s.id == 'street_mixed').smoke['commands'] = [
     (230, 'execute if block ~-28 ~ ~-16 mcyukkuri:produce_crate[facing=north] '
           'if data block ~-28 ~ ~-16 {Stall:1b,Items:[{Slot:2b,id:"minecraft:carrot",count:3}]} run say MCYSTALL_TEMPLATE'),
 ]
-_smoke('street_crops', 240, [
+_smoke('street_crops', 500, [
     rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
     rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*site=BlockPos',
     rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot',
     rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source=[\w-]+ stage=RETREAT',
+    rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response ended stage=HIDE [^\n]*cooldown=100',
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))

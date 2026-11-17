@@ -180,25 +180,20 @@ public final class BegBite {
                         pet.speakCue("beg_robbed");
                     }
                 }
-                if (elapsed >= duration) walk(scene, Beat.BACK, away(stray, pet, snatch ? distance * 1.8 : distance));
+                if (elapsed >= duration) {
+                    if (snatch) pose(scene, Beat.BACK, pet, DROOP, "open_cry", "beg_grudge", 1);
+                    else walk(scene, Beat.BACK, away(stray, pet, distance));
+                }
             }
             case BACK -> {
-                if (drivenOff) {
-                    // The owner's shoo already sends the robber running with the food; the card's outcome is decided.
-                    pet.showReaction(DROOP, "open_cry", "");
-                    pet.speakCue("beg_grudge");
-                    WildEvents.finish(level, scene, Phase.COMPLETE, result);
+                if (snatch) {
+                    if (elapsed >= duration) WildEvents.finish(level, scene, Phase.COMPLETE, result);
                     return;
                 }
                 if (arrived(stray, pet)) {
                     setBeat(scene, Beat.EAT);
-                    if (snatch) {
-                        pet.showReaction(DROOP, "open_cry", "");
-                        pet.speakCue("beg_grudge");
-                    } else {
-                        stray.showReaction(SocialDisposition.selfEsteem(stray) < 50 ? BOW : GREET, "happy", "");
-                        stray.speakCue("beg_thanks");
-                    }
+                    stray.showReaction(SocialDisposition.selfEsteem(stray) < 50 ? BOW : GREET, "happy", "");
+                    stray.speakCue("beg_thanks");
                 } else walkDeadline(level, scene, stray, "release_space_unreached");
             }
             case EAT -> {
@@ -220,20 +215,20 @@ public final class BegBite {
                 }
                 if (stand != null && SurfaceApproach.arrived(pet, stand) && pet.distanceTo(live) <= footDistance(pet, live) + .45) {
                     if (live instanceof Player player && pet.pet().ownedBy(player.getUUID())) BadgePraise.start(pet, player);
-                    if (live instanceof HumanNpc owner && pet.pet().ownedBy(owner.getUUID())) owner.helpPet(pet, stray);
-                    else Expulsion.driveOff(stray, live, stray.blockPosition());
+                    drivenOff = live instanceof HumanNpc owner && pet.pet().ownedBy(owner.getUUID()) && owner.helpPet(pet, stray);
                     result = "asked_help";
                     GameplayLog.event(pet, "badge", "beg help reached human={} stray={}", human, stray.getUUID());
                     pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length());
                     pet.speakCue("beg_help");
                     if (SocialDisposition.contact(stray, live).wariness() < .5) stray.speakCue("beg_curse");
-                    lastLook(scene, stray, pet);
+                    if (drivenOff) pose(scene, Beat.LOOK, stray, YukkuriAction.WALK_LOOK_BACK, departureFace(), "", 1);
+                    else lastLook(scene, stray, pet);
                 } else walkDeadline(level, scene, pet, "helper_unreached");
             }
             case LOOK -> {
                 if (elapsed >= duration) {
                     // The helper's shoo already drives the beggar off through its own threat reaction; that flight is the departure.
-                    if (result.equals("asked_help")) {
+                    if (drivenOff) {
                         WildEvents.finish(level, scene, Phase.COMPLETE, result);
                         return;
                     }
@@ -331,7 +326,7 @@ public final class BegBite {
             BadgeSocial.spread(level, stray, Rumours.THIEF, stray.getUUID(), 2);
             GameplayLog.event(pet, "badge", "beg grudge stray={} closeness={}->{} fear={}->{}",
                     stray.getUUID(), before.closeness(), after.closeness(), before.fear(), after.fear());
-            ownerSeesRobbery(level, pet, stray);
+            if (!ownerSeesRobbery(level, pet, stray)) Expulsion.driveOff(stray, pet, pet.blockPosition());
         } else {
             result = "shared";
             BadgeArcs.note(stray, pet, BadgeLedger.FED_BY, now);
@@ -345,14 +340,15 @@ public final class BegBite {
     }
 
     /** A resident owner who sees its pet robbed drives the thief off; the food stays in the fleeing thief's mouth. */
-    private void ownerSeesRobbery(ServerLevel level, YukkuriEntity pet, YukkuriEntity stray) {
-        if (pet.pet().owner() == null || !(level.getEntity(pet.pet().owner()) instanceof HumanNpc owner)
-                || !owner.isAlive() || owner.distanceToSqr(pet) > 144 || !pet.hasLineOfSight(owner)) return;
-        owner.helpPet(pet, stray);
-        drivenOff = true;
+    private boolean ownerSeesRobbery(ServerLevel level, YukkuriEntity pet, YukkuriEntity stray) {
+        var ownerId = pet.pet().owner();
+        return ownerId != null && level.getEntity(ownerId) instanceof HumanNpc owner && owner.isAlive()
+                && owner.distanceToSqr(pet) <= 144 && owner.hasLineOfSight(pet) && owner.hasLineOfSight(stray)
+                && owner.helpPet(pet, stray);
     }
 
     void move(ServerLevel level, YukkuriEntity actor, YukkuriEntity stray, YukkuriEntity pet) {
+        if (actor == stray && (drivenOff || result.equals("snatched"))) return;
         if (actor == stray && (beat == Beat.APPROACH || beat == Beat.CIRCLE || beat == Beat.CONTACT || beat == Beat.BACK || beat == Beat.LEAVE)) {
             if (beat == Beat.BACK && stand != null && gap(stray, pet) < .30) {
                 // The food has changed hands. Turn at the contact stand before issuing forward gait.

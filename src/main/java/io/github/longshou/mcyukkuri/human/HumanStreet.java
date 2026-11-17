@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.StallTheft;
+import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -44,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -75,22 +77,18 @@ final class HumanStreet {
     private boolean chasing;
     private Vec3 chaseStand;
     private YukkuriEntity activeTarget;
-    private YukkuriEntity theftTarget;
-    private BlockPos witnessedSite, activeSite;
-    private long theftWitnessUntil;
-    private YukkuriEntity helpTarget;
-    private BlockPos helpSite;
-    private long helpUntil;
+    private record Help(YukkuriEntity pet, YukkuriEntity stray, BlockPos site, long until) {}
+    private Help help;
+    private Path helpPath;
     private YukkuriEntity lastPetted;
     private long nextDirtLook;
     int kickPose, frownPose;
 
     private static final class Warning {
         final long at;
-        final BlockPos site;
         boolean seen, parted;
         long blockedUntil;
-        Warning(long at, BlockPos site) { this.at = at; this.site = site; }
+        Warning(long at) { this.at = at; }
     }
 
     HumanStreet(HumanNpc npc) { this.npc = npc; }
@@ -110,11 +108,6 @@ final class HumanStreet {
         if (!npc.streetActive() || !observable()) return null;
         if (actionDay != day()) { actionDay = day(); actions = 0; }
         warnings.values().removeIf(warning -> now() >= Math.max(warning.at + DAY, warning.blockedUntil));
-        if (actions < 2 && theftTarget != null && now() < theftWitnessUntil && canTheftWarn(theftTarget)) return theftTarget;
-        if (actions < 2 && HumanWorld.CRUELTY.get() && npc.attitude() != HumanNpc.Attitude.CARING) {
-            var returning = nearest(2, y -> siteReturn(y) != null && canStart(y));
-            if (returning != null) return returning;
-        }
         return switch (npc.attitude()) {
             case CARING -> nearest(4, this::canCare);
             case NEUTRAL -> null;
@@ -197,22 +190,22 @@ final class HumanStreet {
         return true;
     }
 
-    private boolean canTarget(YukkuriEntity y, BlockPos exposure, boolean keepBite) {
+    private boolean canTarget(YukkuriEntity y) {
         if (!npc.streetActive() || npc.level().isRaining()
                 || !available(y) || y.profile().aquatic() || !y.onGround() || !npc.hasLineOfSight(y)
-                || !npc.isWithinRestriction(y.blockPosition()) || !npc.isWithinRestriction(exposure)) return false;
+                || !npc.isWithinRestriction(y.blockPosition())) return false;
         var identity = y.status().identity();
         if (identity != Identity.STRAY && identity != Identity.WILD_FAMILY
                 || !y.family().adult() && !y.family().subadult()
                 || y.settlement().groupId() != null || y.settlement().society().slave()
                 || y.family().brood() != null || y.family().partner() != null || !lone(y)) return false;
-        if (!keepBite && (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork())
+        if (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork()
                 || y.getHealth() < y.getMaxHealth() || y.body().toxin() > 0 || y.body().mold() > 0
                 || !y.body().wounds().isEmpty() || y.body().footBurned() || y.status().marks().dirt() > 0
                 || FamilyNest.atAssignedNest(y) || FamilyNest.rimNest(y) != null || Facilities.floor(y).getBlock() instanceof PetNestBlock
                 || ShelterBlock.shelter(y.level(), BlockPos.containing(y.position().add(0, .125, 0))) != null
                 || !SurfaceApproach.supportedGround(y, y.position())) return false;
-        return !Custody.protectedAnimal(y) && Custody.harmRefusal(null, y, exposure) == null
+        return !Custody.protectedAnimal(y) && Custody.harmRefusal(null, y, y.blockPosition()) == null
                 && BadgeSocial.visibleRank(y).id() < BadgeGrade.BRONZE.id()
                 && (!(y.pet().voidBadge() || y.pet().abandoned()) || y.pet().visibleGrade() == BadgeGrade.NONE);
     }
@@ -229,47 +222,28 @@ final class HumanStreet {
     }
 
     private boolean canStart(YukkuriEntity y) {
-        if (npc.distanceToSqr(y) > CONTACT_SQ || !canTarget(y, y.blockPosition(), false)) return false;
+        if (npc.distanceToSqr(y) > CONTACT_SQ || !canTarget(y)) return false;
         var warning = warnings.get(y.getUUID());
         if (warning != null && (!warning.seen || !warning.parted || now() < warning.blockedUntil || !HumanWorld.CRUELTY.get())) return false;
-        if (npc.attitude() != HumanNpc.Attitude.CRUEL && siteReturn(y) == null) return false;
-        return siteReturn(y) != null || crowding(y) || y.social().demandingFoodFrom(npc);
-    }
-
-    private BlockPos siteReturn(YukkuriEntity y) {
-        var warning = warnings.get(y.getUUID());
-        return warning == null || warning.site == null || y.blockPosition().distSqr(warning.site) > 16
-                || y.life().avoidsField(warning.site) ? null : warning.site;
-    }
-
-    private boolean canTheftWarn(YukkuriEntity y) {
-        return !npc.walking() && now() >= nextPlayerFrown && npc.distanceToSqr(y) <= 144
-                && !warnings.containsKey(y.getUUID()) && !y.life().avoidsField(witnessedSite)
-                && canTarget(y, witnessedSite, true);
+        return npc.attitude() == HumanNpc.Attitude.CRUEL && (crowding(y) || y.social().demandingFoodFrom(npc));
     }
 
     static void witnessedCropTheft(YukkuriEntity y, BlockPos crop) {
         var witness = y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(12, 12, 12), npc ->
-                npc.street.observable() && npc.street.canTarget(y, crop, true) && npc.distanceToSqr(y) <= 144
-                        && npc.street.seesCrop(crop) && !npc.walking() && !npc.street.warnings.containsKey(y.getUUID())
-                        && npc.street.now() >= npc.street.nextPlayerFrown
-                        && (npc.street.actionDay != npc.street.day() || npc.street.actions < 2))
+                npc.streetActive() && !npc.level().isRaining() && npc.street.observable() && !npc.walking()
+                        && npc.distanceToSqr(y) <= 144 && npc.isWithinRestriction(crop)
+                        && npc.hasLineOfSight(y) && npc.street.seesSite(crop))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
         if (witness == null) return;
-        witness.street.witnessTheft(y, crop);
+        witness.street.expulsionCue(y, crop, "crop");
+        GameplayLog.event(witness, "npc-care", "action=street_warn target={} health={} site={} attitude={}",
+                y.getUUID(), y.getHealth(), crop, witness.attitude());
     }
 
-    /** The site a resident saw taken from; the routine then warns there in its own manner. */
-    private void witnessTheft(YukkuriEntity y, BlockPos site) {
-        theftTarget = y;
-        witnessedSite = site.immutable();
-        theftWitnessUntil = now() + 60;
-    }
-
-    private boolean seesCrop(BlockPos crop) {
-        var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), crop.getCenter(),
+    private boolean seesSite(BlockPos site) {
+        var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), site.getCenter(),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
-        return sight.getType() == HitResult.Type.MISS || sight.getBlockPos().equals(crop);
+        return sight.getType() == HitResult.Type.MISS || sight.getBlockPos().equals(site);
     }
 
     static HumanNpc witnessedStallTake(YukkuriEntity y, BlockPos crate, Vec3 contact) {
@@ -277,24 +251,37 @@ final class HumanStreet {
         var witness = y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(12),
                 npc -> npc.streetActive() && !npc.resting() && !npc.walking() && npc.street.observable()
                         && npc.distanceToSqr(y) <= 144 && npc.isWithinRestriction(crate)
-                        && y.life().personality().trust(npc.getUUID()) < 10
-                        && npc.street.now() >= npc.street.nextPlayerFrown
-                        && (npc.street.actionDay != npc.street.day() || npc.street.actions < 2)
                         && aheadOf(npc, y) && npc.street.seesStallContact(crate, contact))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
         if (witness == null) return null;
-        var street = witness.street;
-        if (street.actionDay != street.day()) { street.actionDay = street.day(); street.actions = 0; }
-        street.actions++;
-        street.nextPlayerFrown = street.now() + ROUTE_TICKS;
-        street.rememberScold(y);
-        witness.level().broadcastEntityEvent(witness, FROWN_EVENT);
-        if (witness.attitude() != HumanNpc.Attitude.CARING) witness.getNavigation().stop();
-        cue(witness, y, witness.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "warning");
-        Expulsion.driveOff(y, witness, crate);
-        GameplayLog.event(witness, "npc-care", "action=stall_scold target={} crate={} attitude={} actions={} drove_off=true",
-                y.getUUID(), crate.toShortString(), witness.attitude(), street.actions);
+        witness.street.expulsionCue(y, crate, "warning");
+        GameplayLog.event(witness, "npc-care", "action=stall_scold target={} crate={} attitude={} drove_off=true",
+                y.getUUID(), crate.toShortString(), witness.attitude());
         return witness;
+    }
+
+    static void witnessedBowlTake(YukkuriEntity eater, BlockPos bowl) {
+        var level = (ServerLevel) eater.level();
+        var shop = ShopRegistry.get(level).shopAt(level, bowl.getCenter());
+        var owner = Custody.view(eater).owner();
+        if (shop != null && (shop.id.equals(owner) || shop.staff(owner))) return;
+        var witness = level.getEntitiesOfClass(HumanNpc.class, eater.getBoundingBox().inflate(12), npc ->
+                !npc.isNoAi() && npc.isAlive() && npc.distanceToSqr(eater) <= 144
+                        && !npc.getUUID().equals(owner)
+                        && (npc.ownsYardBowl(bowl) || shop != null && shop.staff(npc.getUUID()))
+                        && npc.hasLineOfSight(eater) && npc.street.seesSite(bowl))
+                .stream().min(Comparator.comparingDouble(eater::distanceToSqr)).orElse(null);
+        if (witness == null) return;
+        witness.street.expulsionCue(eater, bowl, "warning");
+        GameplayLog.event(witness, "npc-care", "action=bowl_scold target={} site={} attitude={}",
+                eater.getUUID(), bowl, witness.attitude());
+    }
+
+    private void expulsionCue(YukkuriEntity thief, BlockPos site, String line) {
+        rememberScold(thief);
+        npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+        cue(npc, thief, npc.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : line);
+        Expulsion.driveOff(thief, npc, site);
     }
 
     private boolean seesStallContact(BlockPos crate, Vec3 contact) {
@@ -311,94 +298,86 @@ final class HumanStreet {
     }
 
     void begin(YukkuriEntity y) {
-        var warning = warnings.get(y.getUUID());
-        activeSite = y == theftTarget && now() < theftWitnessUntil ? witnessedSite
-                : warning != null && warning.seen ? siteReturn(y) : null;
-        if (activeSite != null || npc.attitude() == HumanNpc.Attitude.CRUEL) activeTarget = y;
+        if (npc.attitude() == HumanNpc.Attitude.CRUEL) activeTarget = y;
     }
 
     boolean reacting() { return activeTarget != null; }
 
     /** Its own pet ran to its feet about a beggar: the resident answers in its own manner. */
     void helpPet(YukkuriEntity pet, YukkuriEntity stray) {
-        if (!npc.isAlive() || stray == null || !stray.isAlive() || stray.level() != npc.level()) return;
-        helpTarget = stray;
-        helpSite = stray.blockPosition().immutable();
-        helpUntil = now() + HELP_TICKS;
-        npc.getNavigation().stop();
-        if (pet != null && pet.isAlive() && pet.level() == npc.level()) {
+        var site = stray.blockPosition();
+        if (npc.job() == HumanNpc.Job.RESIDENT && npc.level().isDay() && !npc.isTrading()) {
+            help = new Help(pet, stray, site, now() + HELP_TICKS);
+            helpPath = null;
+        }
+        gesture(npc, npc.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "warning");
+        Expulsion.driveOff(stray, npc, site);
+        GameplayLog.event(npc, "npc-care", "action=pet_help pet={} target={} attitude={} distance={}",
+                pet.getUUID(), stray.getUUID(), npc.attitude(), Math.round(npc.distanceTo(stray)));
+    }
+
+    boolean helping() { return help != null; }
+
+    /** The routine drives this while the answer lasts: the resident steps up to where the beggar stood. */
+    void helpStep() {
+        var nav = npc.getNavigation();
+        double reach = switch (npc.attitude()) { case CARING -> 3.5; case NEUTRAL -> 2.5; case CRUEL -> 1.5; };
+        if (npc.distanceToSqr(Vec3.atBottomCenterOf(help.site())) > reach * reach && now() < help.until()) {
+            if (helpPath == null) {
+                npc.getLookControl().setLookAt(help.stray(), 30, 30);
+                helpPath = nav.createPath(help.site(), 0);
+                if (helpPath != null && helpPath.canReach() && nav.moveTo(helpPath, .85)) return;
+            } else if (!nav.isDone()) return;
+        }
+        nav.stop();
+        var pet = help.pet();
+        if (pet.isAlive() && pet.level() == npc.level() && npc.distanceToSqr(pet) <= 36 && npc.hasLineOfSight(pet)) {
             npc.getLookControl().setLookAt(pet, 30, 30);
             npc.swing(InteractionHand.MAIN_HAND);
             pet.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60);
             pet.life().personality().talk(npc.getUUID(), true);
+            GameplayLog.event(npc, "npc-care", "action=pet_comfort pet={} distance={}", pet.getUUID(), npc.distanceTo(pet));
         }
-        cue(npc, stray, npc.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "warning");
-        Expulsion.driveOff(stray, npc, helpSite);
-        GameplayLog.event(npc, "npc-care", "action=pet_help pet={} target={} attitude={} distance={}",
-                pet == null ? null : pet.getUUID(), stray.getUUID(), npc.attitude(), Math.round(npc.distanceTo(stray)));
+        stopHelp();
     }
 
-    boolean helping() { return helpTarget != null; }
-
-    /** The routine drives this while the answer lasts: the resident steps up to where the beggar stood. */
-    void helpStep() {
-        if (!helpTarget.isAlive() || helpTarget.level() != npc.level() || now() >= helpUntil) { stopHelp(); return; }
-        npc.getLookControl().setLookAt(helpTarget, 30, 30);
-        double reach = npc.attitude() == HumanNpc.Attitude.CRUEL ? 1.5
-                : npc.attitude() == HumanNpc.Attitude.CARING ? 3.5 : 2.5;
-        if (npc.distanceToSqr(helpSite.getCenter()) > reach * reach) {
-            if (npc.tickCount % 20 == 1)
-                npc.getNavigation().moveTo(helpSite.getX() + .5, helpSite.getY(), helpSite.getZ() + .5, .85);
-        } else npc.getNavigation().stop();
-    }
-
-    private void stopHelp() { helpTarget = null; helpSite = null; }
+    void stopHelp() { help = null; helpPath = null; }
 
     boolean step(YukkuriEntity y) {
         var warning = warnings.get(y.getUUID());
-        boolean siteWarning = activeSite != null && !chasing && (beatUntil != 0 || warning == null);
-        if (activeTarget != y || !observable() || !canTarget(y, y.blockPosition(), siteWarning)) return false;
+        if (activeTarget != y || !observable() || !canTarget(y)) return false;
         npc.getLookControl().setLookAt(y, 30, 30);
         if (beatUntil != 0) {
             if (chasing) return chaseContinues(y);
-            if (siteWarning && !warning.seen && y.hasLineOfSight(npc)) y.getLookControl().setLookAt(npc, 30, 30);
-            if (!warning.seen && now() < beatUntil && npc.distanceToSqr(y) <= (activeSite == null ? CONTACT_SQ : 144)
+            if (!warning.seen && now() < beatUntil && npc.distanceToSqr(y) <= CONTACT_SQ
                     && y.hasLineOfSight(npc) && aheadOf(y, npc)) {
                 warning.seen = true;
-                if (activeSite != null) {
-                    Expulsion.driveOff(y, npc, activeSite);
-                } else {
-                    var contact = SocialDisposition.contact(y, npc);
-                    double confidence = SocialDisposition.confidence(contact.esteem());
-                    String face = contact.wariness() > confidence ? "teary" : "surprise";
-                    if (y.showReaction(face, "", 40)) {
-                        GameplayLog.event(y, "npc-care", "action=street_warning_seen resident={} face={} wariness={} confidence={}",
-                                npc.getUUID(), face, contact.wariness(), confidence);
-                    }
+                var contact = SocialDisposition.contact(y, npc);
+                double confidence = SocialDisposition.confidence(contact.esteem());
+                String face = contact.wariness() > confidence ? "teary" : "surprise";
+                if (y.showReaction(face, "", 40)) {
+                    GameplayLog.event(y, "npc-care", "action=street_warning_seen resident={} face={} wariness={} confidence={}",
+                            npc.getUUID(), face, contact.wariness(), confidence);
                 }
             }
             return now() < beatUntil;
         }
-        if (!(siteWarning ? canTheftWarn(y) : canStart(y))) return false;
+        if (!canStart(y)) return false;
         npc.getNavigation().stop();
         if (warning == null) {
-            warning = new Warning(now(), activeSite);
+            warning = new Warning(now());
             warnings.put(y.getUUID(), warning);
-            if (activeSite == null && interrupted(y, warning)) return false;
+            if (interrupted(y, warning)) return false;
             beatUntil = now() + 30;
             actions++;
-            cue(npc, y, activeSite == null ? "warning" : npc.attitude() == HumanNpc.Attitude.CRUEL ? "chase" : "crop");
+            cue(npc, y, "warning");
             y.getLookControl().setLookAt(npc, 30, 30);
-            if (activeSite != null) {
-                npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
-                y.showReaction("surprise", "", 30);
-            }
-            GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={} site={}", y.getUUID(), y.getHealth(), actions, activeSite);
+            GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={} site=null", y.getUUID(), y.getHealth(), actions);
             return true;
         }
-        if (activeSite == null && !crowding(y)) return false;
+        if (!crowding(y)) return false;
         warning.parted = false;
-        if (activeSite == null && interrupted(y, warning)) return false;
+        if (interrupted(y, warning)) return false;
         var away = away(y);
         if (!dryStreet(y, y.position(), away)) return false;
         var data = y.getPersistentData();
@@ -415,16 +394,10 @@ final class HumanStreet {
         if (stand.equals(npc.blockPosition()) || !dryStreet(y, Vec3.atBottomCenterOf(stand), away)) return false;
         var path = nav.createPath(stand, 0);
         if (path == null || !path.canReach() || path.getNodeCount() > 2) return false;
-        if (activeSite != null) {
-            for (int i = 0; i < path.getNodeCount(); i++)
-                if (npc.level().getBlockState(path.getNodePos(i).below()).is(Blocks.FARMLAND)) return false;
-        }
         if (!nav.moveTo(path, .85)) return false;
         beatUntil = now() + ROUTE_TICKS;
         chasing = true;
         chaseStand = Vec3.atBottomCenterOf(stand);
-        if (activeSite != null) y.life().avoidField(activeSite);
-        if (activeSite != null) warning.blockedUntil = now() + DAY;
         actions++;
         cue(npc, y, "chase");
         GameplayLog.event(npc, "npc-care", "action=street_chase target={} health={} actions={}", y.getUUID(), y.getHealth(), actions);
@@ -435,7 +408,7 @@ final class HumanStreet {
         return HumanWorld.CRUELTY.get() && now() < beatUntil && !npc.getNavigation().isDone() && !npc.horizontalCollision
                 && npc.distanceToSqr(y) <= CONTACT_SQ && aheadOf(npc, y) && dryStreet(y, y.position(), away(y))
                 && dryStreet(y, chaseStand, away(y))
-                && (activeSite != null || !interrupted(y, warnings.get(y.getUUID())));
+                && !interrupted(y, warnings.get(y.getUUID()));
     }
 
     private boolean interrupted(YukkuriEntity y, Warning warning) {
@@ -461,7 +434,7 @@ final class HumanStreet {
         for (double distance = 0; distance <= 2; distance += .5) {
             var feet = stand.add(away.scale(distance));
             var at = BlockPos.containing(feet);
-            if (!npc.level().hasChunkAt(at) || activeSite == null && !road(npc.level().getBlockState(at.below()))
+            if (!npc.level().hasChunkAt(at) || !road(npc.level().getBlockState(at.below()))
                     || !SurfaceApproach.supportedGround(y, feet) || Custody.harmRefusal(null, y, at) != null) return false;
         }
         return true;
@@ -480,10 +453,6 @@ final class HumanStreet {
         int closeness = personality.relation(npc.getUUID()).closeness();
         personality.relationshipChanged(npc.getUUID(), Math.min(-8, -1 - closeness), 18);
         y.getPersistentData().putLong(KICK_DAY, day());
-        if (activeSite != null) {
-            y.life().avoidField(activeSite);
-            warnings.get(y.getUUID()).blockedUntil = now() + DAY;
-        }
         npc.level().broadcastEntityEvent(npc, KICK_EVENT);
         actions++;
         GameplayLog.event(npc, "npc-care", "action=street_kick target={} health={}->{} actions={}",
@@ -491,6 +460,7 @@ final class HumanStreet {
     }
 
     void tick() {
+        if (help != null && helpPath == null && now() >= help.until()) stopHelp();
         if (now() >= nextDirtLook && npc.streetActive() && observable()) {
             nextDirtLook = now() + 60;
             var dirty = nearest(4, y -> y.status().identity() == Identity.STRAY && y.status().marks().dirt() >= 2
@@ -504,9 +474,6 @@ final class HumanStreet {
                 GameplayLog.event(npc, "npc-care", "action=street_dirt_frown target={} dirt={}", dirty.getUUID(), dirty.status().marks().dirt());
             }
         }
-        if (theftTarget != null && (!theftTarget.isAlive() || theftTarget.isRemoved() || now() >= theftWitnessUntil)) {
-            theftTarget = null; witnessedSite = null;
-        }
         if (lastPetted != null && (!lastPetted.isAlive() || lastPetted.level() != npc.level()
                 || npc.distanceToSqr(lastPetted) > PARTED_SQ)) lastPetted = null;
         scolded.values().removeIf(until -> now() >= until);
@@ -515,8 +482,7 @@ final class HumanStreet {
         for (var entry : warnings.entrySet()) {
             var warning = entry.getValue();
             if (warning.seen && !warning.parted && level.getEntity(entry.getKey()) instanceof YukkuriEntity y
-                    && (warning.site == null ? npc.distanceToSqr(y) > PARTED_SQ
-                            : y.blockPosition().distSqr(warning.site) > 16)) warning.parted = true;
+                    && npc.distanceToSqr(y) > PARTED_SQ) warning.parted = true;
         }
     }
 
@@ -527,7 +493,7 @@ final class HumanStreet {
         }
         var interventions = new ListTag();
         warnings.forEach((target, warning) -> {
-            if (warning.site != null || warning.blockedUntil <= now()) return;
+            if (warning.blockedUntil <= now()) return;
             var saved = new CompoundTag();
             saved.putUUID("Target", target);
             saved.putLong("Until", warning.blockedUntil);
@@ -543,13 +509,13 @@ final class HumanStreet {
         for (var item : tag.getList("StreetInterventions", Tag.TAG_COMPOUND)) {
             var saved = (CompoundTag) item;
             if (!saved.hasUUID("Target") || saved.getLong("Until") <= now()) continue;
-            var warning = new Warning(saved.getLong("Until") - DAY, null);
+            var warning = new Warning(saved.getLong("Until") - DAY);
             warning.blockedUntil = saved.getLong("Until");
             warnings.put(saved.getUUID("Target"), warning);
         }
     }
 
-    void cancel() { activeTarget = null; activeSite = null; beatUntil = 0; chasing = false; chaseStand = null; }
+    void cancel() { activeTarget = null; beatUntil = 0; chasing = false; chaseStand = null; }
 
     /** Pick up an available real portion within reach. The same stock pays for feeding and bin transfers. */
     void pickUpGrain() {
@@ -569,11 +535,10 @@ final class HumanStreet {
 
     boolean threatTo(YukkuriEntity witness) {
         return activeTarget != null && beatUntil > now() && witness.distanceToSqr(npc) <= 64 && !witness.isLeashed()
-                && (activeSite == null || chasing)
                 && witness.hasLineOfSight(npc) && (witness == activeTarget
                 ? chasing || beatUntil - now() <= 10 && warnings.get(activeTarget.getUUID()).seen
                 : witness.hasLineOfSight(activeTarget))
-                && canTarget(activeTarget, activeTarget.blockPosition(), activeSite != null && !chasing);
+                && canTarget(activeTarget);
     }
 
     static void witnessedHurt(YukkuriEntity y, Player player) {
@@ -611,6 +576,10 @@ final class HumanStreet {
 
     private static void cue(HumanNpc actor, Entity recipient, String line) {
         actor.getLookControl().setLookAt(recipient, 30, 30);
+        gesture(actor, line);
+    }
+
+    private static void gesture(HumanNpc actor, String line) {
         actor.swing(InteractionHand.MAIN_HAND);
         var level = (ServerLevel) actor.level();
         level.playSound(null, actor.blockPosition(), SoundEvents.VILLAGER_NO, SoundSource.NEUTRAL, .85f, 1);

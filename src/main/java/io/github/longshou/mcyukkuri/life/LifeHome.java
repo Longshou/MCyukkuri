@@ -246,7 +246,7 @@ final class LifeHome {
         for (BlockPos scan : candidates) {
             if (!TravelRange.babyDestination(entity, scan) || !level.hasChunkAt(scan)
                     || !(level.getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
-            if (requireFood && (!care.hasFood(o::seeksFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
+            if (requireFood && (o.avoidsField(scan) || !care.hasFood(o::seeksFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
                     || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
                     || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));

@@ -88,7 +88,7 @@ public final class ShopRegistry extends SavedData {
         boolean legacy() { return legacy; }
         Direction legacyFront() { return legacyFront; }
         boolean closed() { return closed; }
-        boolean staff(UUID id) { return staff.contains(id); }
+        public boolean staff(UUID id) { return staff.contains(id); }
         List<HumanNpc> loadedStaff(ServerLevel level) {
             return staff.stream().map(level::getEntity).filter(e -> e instanceof HumanNpc npc && npc.isAlive() && !npc.isNoAi())
                     .map(HumanNpc.class::cast).toList();

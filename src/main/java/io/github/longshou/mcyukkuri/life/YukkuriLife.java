@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -695,7 +696,8 @@ public final class YukkuriLife {
     }
     public void avoidField(BlockPos at) {
         avoidedField = at.immutable();
-        avoidFieldUntil = level().getGameTime() + 24000;
+        // The shortest existing street scold memory allows a hungry adult to lose only ten more nutrition at the default rate.
+        avoidFieldUntil = level().getGameTime() + 1200;
     }
     /** A body with a fixed duty can take a reachable portion through the ordinary meal owner without walking. */
     public void eatAtStand() {
@@ -1435,7 +1437,8 @@ public final class YukkuriLife {
                 Vec3 source = targetFood.position();
                 approachFood(source, ItemContact.approach(entity, source), source);
             }
-        } else if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
+        } else if (targetBlock != null && !avoidsField(targetBlock)
+                && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
             Vec3 source = Vec3.atBottomCenterOf(targetBlock);
             if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
             if (bowlStand == null) {
@@ -1450,7 +1453,8 @@ public final class YukkuriLife {
                         GameplayLog.event(entity, "meal", "pickup item={} count={} source={} holder=mouth", one.getItem(), one.getCount(), bowl.getBlockPos());
                         return true;
                     });
-                    if (!taken) stopGoal();
+                    if (taken) HumanNpc.witnessedBowlTake(entity, bowl.getBlockPos());
+                    else stopGoal();
                 } else {
                     entity.showReaction("surprise", "mine", 45);
                     if (bowl.handFood(this::seeksFood, one -> {
@@ -1461,6 +1465,7 @@ public final class YukkuriLife {
                                 one.getItem(), bowl.getBlockPos(), dropped.getUUID(), one.getCount());
                         return true;
                     })) {
+                        HumanNpc.witnessedBowlTake(entity, bowl.getBlockPos());
                         entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
                         targetBlock = null;
                     } else stopGoal();
@@ -1645,6 +1650,10 @@ public final class YukkuriLife {
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
         tag.putInt("StarvingTicks", starvingTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
+        if (avoidedField != null && level().getGameTime() < avoidFieldUntil) {
+            tag.putLong("AvoidedField", avoidedField.asLong());
+            tag.putLong("AvoidFieldUntil", avoidFieldUntil);
+        }
         meal.save(tag);
         home.save(tag);
         accessory.save(tag);
@@ -1673,6 +1682,8 @@ public final class YukkuriLife {
         fatigueTicks=0; napReady=false;
         hygieneTicks = Math.clamp(tag.getInt("HygieneProgress"),0,23999); restWait = Math.clamp(tag.getInt("RestWait"),0,1200);
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
+        avoidedField = tag.contains("AvoidedField", Tag.TAG_LONG) ? BlockPos.of(tag.getLong("AvoidedField")) : null;
+        avoidFieldUntil = tag.getLong("AvoidFieldUntil");
         meal.load(tag);
         home.load(tag); accessory.load(tag);
         paperCover = tag.contains("PaperCover", Tag.TAG_COMPOUND)

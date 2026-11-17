@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -62,8 +63,10 @@ public final class Kindness extends Goal {
         if (nextScan > 0) nextScan--;
         if (received > 0 && --received == 0) mealDonor = null;
         if (act != null && !running && (++ticks >= CUE || !valid())) stop();
+        var threat = giver.status().reactions().threat();
         if (act == null && giver.component(YukkuriComponents.MOUTH).purpose() == Purpose.KINDNESS
                 && !BadgeArcs.holdsBeggingFood(giver)
+                && threat.source() == null && threat.stage() == Reactions.Threat.Stage.NONE
                 && !giver.isPassenger() && !giver.isRemoved() && nextScan == 0) {
             nextScan = 40;
             // This serving already reached a social contact. Resume chewing without opening it to another request.
