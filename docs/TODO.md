@@ -14,6 +14,7 @@
 | 纸箱单一化与生成消失闭环（13/23） | `.worktrees/wp-carton-closure` | settlement/Shelter*.java art carton model |
 | 偷吃一律驱逐与TN-29饲主反应（15/16） | `.worktrees/wp-theft-expel` | life/StallTheft.java pet/social/BegBite.java human/HumanStreet.java |
 | 受威胁逃回家即封洞（17） | `.worktrees/wp-seal-threat` | settlement/DenSeal.java settlement/DenBarrier.java |
+| 辫子送嘴进食与垃圾桶真撞（24/25） | `.worktrees/wp-eat-braid` | settlement/GarbageSearch.java human/GarbageBin* entity/Behaviors.java motions |
 
 ## 玩法待办
 
