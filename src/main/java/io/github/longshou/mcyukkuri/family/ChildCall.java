@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -63,6 +64,28 @@ final class ChildCall {
     };
 
     ChildCall(FamilyLife owner) { o = owner; }
+
+    /** A baby's cold complaint is addressed to its nearest recognized caregiver in earshot. */
+    YukkuriEntity coldParent() {
+        var child = o.entity();
+        if (o.stage() != FamilyLife.Stage.BABY) return null;
+        YukkuriEntity closest = null;
+        double distance = EARSHOT * EARSHOT;
+        for (var id : new UUID[]{o.mother(), o.father(), o.fosterParent()}) {
+            if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()
+                    || !parent.family().caresFor(child) || !child.life().canRecognize(parent)) continue;
+            double toParent = child.distanceToSqr(parent);
+            if (toParent < distance) { closest = parent; distance = toParent; }
+        }
+        return closest;
+    }
+
+    boolean hearsColdCry(YukkuriEntity child) {
+        if (child.speechEnd() <= o.level().getGameTime() || !child.life().temperature().cold()
+                || child.family().call().coldParent() != o.entity()) return false;
+        var line = NativeDialogue.byKey(child.getDialogueKey());
+        return line != null && line.events().contains("cold");
+    }
 
     String describe() {
         return phase + " ticks=" + ticks + " rounds=" + rounds + "/" + rounds(o.entity()) + " nextCall=" + nextCall

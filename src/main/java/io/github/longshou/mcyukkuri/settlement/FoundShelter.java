@@ -744,7 +744,7 @@ public final class FoundShelter implements MotorOwner {
 
     private boolean loosePaperAvailable(ItemEntity item) {
         return item.isAlive() && !item.hasPickUpDelay() && !item.isInWater()
-                && ItemStack.isSameItemSameComponents(item.getItem(), Items.PAPER.getDefaultInstance())
+                && item.getItem().is(Items.PAPER)
                 && !triedGroundPaper.contains(item.getUUID())
                 && !item.getPersistentData().getBoolean(BROUGHT_PAPER);
     }

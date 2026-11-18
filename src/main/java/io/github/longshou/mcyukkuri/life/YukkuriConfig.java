@@ -52,7 +52,7 @@ public final class YukkuriConfig {
         builder.pop().push("temperature");
         COLD_THRESHOLD = builder.comment("Original gameplay thresholds in Minecraft biome-temperature units, not Celsius.")
                 .defineInRange("coldBelow", .2, -2.0, 1.0);
-        FREEZE_THRESHOLD = builder.comment("At or below this felt temperature, cold exposure accumulates; capped at coldBelow.")
+        FREEZE_THRESHOLD = builder.comment("Felt temperature at or below which accumulated cold exposure can cause freezing injury; capped at coldBelow.")
                 .defineInRange("freezeAtOrBelow", 0.0, -2.0, 1.0);
         HOT_THRESHOLD = builder.comment("Hot weather adds dryness. Effective threshold stays at least 0.5 above coldBelow.")
                 .defineInRange("hotAtOrAbove", 1.5, .5, 4.0);
@@ -62,7 +62,7 @@ public final class YukkuriConfig {
                 .defineInRange("paperBeddingInsulation", 0.45, 0.0, 3.0);
         PAPER_COVER_INSULATION = builder.comment("Partial warmth from a folded newspaper sheet draped over the body in a plain wind-cover gap.")
                 .defineInRange("paperCoverInsulation", 0.40, 0.0, 3.0);
-        COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units before freezing injury. Adults gain 1 per tick, juveniles 1.5, babies 2; warmth removes 2.")
+        COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units before freezing injury. Per unit of felt deficit, adults gain 1 per tick, juveniles 1.5, babies 2.")
                 .defineInRange("coldExposureTicks", 2400, 20, 1728000);
         FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);
         HEAT_DRYNESS_INTERVAL = builder.defineInRange("heatDrynessInterval", 100, 20, 24000);

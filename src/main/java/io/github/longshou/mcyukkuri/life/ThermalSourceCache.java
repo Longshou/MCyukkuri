@@ -8,6 +8,7 @@ import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
@@ -19,7 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * cell is discarded and never causes a chunk load.</p>
  */
 final class ThermalSourceCache {
-    record Source(BlockPos pos, double strength) {}
+    record Source(BlockPos pos, double strength, boolean campfire) {}
 
     private record Cell(int x, int y, int z) {}
     private static final class Entry {
@@ -112,16 +113,15 @@ final class ThermalSourceCache {
             if (entry.known(index)) continue;
             entry.markKnown(index);
             var pos = new BlockPos(x, y, z);
-            double strength = strength(level, pos);
-            if (strength > 0) entry.sources.add(new Source(pos.immutable(), strength));
+            var state = level.getBlockState(pos);
+            if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) entry.sources.add(new Source(pos, .9, false));
+            // At the nearest safe stand (two blocks), a dry body in a snowy-plains winter night can recover.
+            if (litCampfire(state)) entry.sources.add(new Source(pos, 2.1, true));
         }
     }
 
-    private static double strength(ServerLevel level, BlockPos pos) {
-        var state = level.getBlockState(pos);
-        if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) return .9;
-        if (state.is(Blocks.CAMPFIRE) && state.getValue(BlockStateProperties.LIT)) return 1.4;
-        return 0;
+    static boolean litCampfire(BlockState state) {
+        return (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) && state.getValue(BlockStateProperties.LIT);
     }
 
     private ThermalSourceCache() {}

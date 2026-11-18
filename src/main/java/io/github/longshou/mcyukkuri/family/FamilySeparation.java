@@ -45,6 +45,10 @@ final class FamilySeparation {
         if(childSightings.size()>CHILD_SIGHTINGS)childSightings.remove(childSightings.keySet().iterator().next());
     }
 
+    void heardChild(YukkuriEntity child) {
+        remember(child.getUUID(), GlobalPos.of(o.level().dimension(), child.blockPosition()));
+    }
+
     boolean observeChild(YukkuriEntity child) {
         var parent=o.entity();
         if(parent.level()!=child.level()||parent.life().isSleeping()||parent.isPassenger()

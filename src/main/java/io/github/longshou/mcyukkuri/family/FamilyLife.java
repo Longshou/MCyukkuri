@@ -181,6 +181,16 @@ public final class FamilyLife {
     Courtship courtship() { return courtship; }
     ChildCall call() { return call; }
 
+    public YukkuriEntity coldCryParent() { return call.coldParent(); }
+
+    public YukkuriEntity coldChildNearby() {
+        if (!adult()) return null;
+        return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(TravelRange.NURSE_RADIUS),
+                        child -> child.isAlive() && !child.isPassenger() && child.life().temperature().cold()
+                                && child.family().call().coldParent() == entity)
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+
     public YukkuriEntity childToBeckon(Predicate<BlockPos> inside) {
         if (!adult()) return null;
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(ChildCall.EARSHOT),
@@ -1305,8 +1315,13 @@ public final class FamilyLife {
     }
     private boolean startLandChildSearch(YukkuriEntity child) {
         if(!entity.duty().mayTake(Kind.SEARCH))return false;
+        boolean coldCry = call.hearsColdCry(child);
+        if (coldCry) {
+            separation.heardChild(child);
+            GameplayLog.event(entity, "family", "heard cold cry child={} heardFrom={}", child.getUUID(), GameplayLog.at(child.position()));
+        }
         // The last-sighting walk has a 1200-tick cap. Leave room for goal handoffs.
-        entity.duty().take(Kind.SEARCH,1400,0,"child_lost");
+        entity.duty().take(Kind.SEARCH,1400,0,coldCry ? "child_cold" : "child_lost");
         task=Task.SEARCH;target=child;searchAt=separation.lastSeen(child);taskTicks=0;
         entity.showReaction("teary","wait_family",80);return true;
     }
@@ -1472,6 +1487,7 @@ public final class FamilyLife {
         for(var child:candidates) {
             if(child.family().exploring()&&!child.life().hasUrgentNeed())continue;
             boolean visible=separation.observeChild(child);
+            if (!pickupOnly && !reached(child) && call.hearsColdCry(child)) return child;
             if(pickupOnly&&(!visible||!entity.hasLineOfSight(child)||!carry.pickupWanted(child)))continue;
             if(visible&&!carry.pickupWanted(child)&&!carry.needsReunion(child)
                     &&(FamilySeparation.near(entity,child)||child.settlement().canCatchUpOnFoot()||followingOnMarch(child)))continue;

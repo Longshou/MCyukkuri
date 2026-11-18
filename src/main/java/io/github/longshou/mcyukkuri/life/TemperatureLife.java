@@ -20,7 +20,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.HitResult;
@@ -32,7 +31,8 @@ import io.github.longshou.mcyukkuri.rare.RareForms;
 /** Loaded-time thermal exposure and interruptible refuge seeking. All numbers are MC adaptation. */
 public final class TemperatureLife {
     /** {@code sun}: the felt temperature counts the winter sun on a body basking flat in it ({@link #SUN_BASK}). */
-    public record Conditions(double felt, boolean shade, boolean insulated, double warmth, boolean sun, double uncoveredFelt) {}
+    public record Conditions(double felt, boolean shade, boolean insulated, double warmth, boolean sun, double uncoveredFelt,
+                             BlockPos campfire) {}
     private record Refuge(BlockPos pos, double score, Conditions at) {}
     /** Felt-temperature bonus of a swaddle in the cold and the largest combined bonus of swaddle and nest (project-original numbers). */
     public static final double SWADDLE_WARMTH = .5, SWADDLE_CAP = 1.5;
@@ -43,11 +43,12 @@ public final class TemperatureLife {
     /** A bask lasts the authored sunbathe clip: settle, soak, round up. */
     static final int BASK_TICKS = ClipMarkers.of("sunbathe").length();
     private final YukkuriEntity entity;
-    private Conditions current = new Conditions(.8, false, false, 0, false, .8);
+    private Conditions current = new Conditions(.8, false, false, 0, false, .8, null);
     private boolean initialSample = true;
     /** Sampling is staggered; exposure keeps its legacy 20 loaded-and-AI-enabled tick cadence. */
-    private int sampleTicks, temperatureSampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, baskCooldown, taskTicks, restTicks;
-    private BlockPos target, temporarySleepSite;
+    private int sampleTicks, temperatureSampleTicks, damageTicks, coldTicks, hotTicks, cooldown, baskCooldown, taskTicks, restTicks;
+    private double coldExposure, departureFelt;
+    private BlockPos target, targetFire, temporarySleepSite;
     private boolean seekingWarmth, basking;
 
     public TemperatureLife(YukkuriEntity entity) { this.entity = entity; }
@@ -55,20 +56,26 @@ public final class TemperatureLife {
     private double coldLimit() { return YukkuriConfig.COLD_THRESHOLD.get(); }
     private double freezeLimit() { return Math.min(coldLimit(), YukkuriConfig.FREEZE_THRESHOLD.get()); }
     private double hotLimit() { return Math.max(coldLimit() + .5, YukkuriConfig.HOT_THRESHOLD.get()); }
-    public int coldExposure() { return coldExposure; }
+    public int coldExposure() { return (int)coldExposure; }
     /** Actual reached-refuge rest counter, read without evaluating a thermal task. */
     public int observedRestTicks() { return restTicks; }
     private boolean freezing(double felt) { return felt <= freezeLimit(); }
     private boolean tooCold(double felt) { return felt < coldLimit() || freezing(felt); }
     private boolean comfortable(double felt) { return !tooCold(felt) && felt < hotLimit(); }
+    private double exposureRate(double felt) {
+        double ageRate = entity.family().stage() == FamilyLife.Stage.BABY ? 2 : entity.family().adult() ? 1 : 1.5;
+        return ThermalComfort.exposureRate(felt, coldLimit(), ageRate);
+    }
     public boolean cold() { return tooCold(current.felt()); }
     public boolean hot() { return current.felt() >= hotLimit(); }
     public boolean unsafeSleep() { return cold() || hot(); }
     public boolean comfortableAt(BlockPos pos) { return pos != null && level().hasChunkAt(pos) && comfortable(sample(pos).felt()); }
     public boolean active() { return target != null; }
     public String activity() {
-        return restTicks > 0 ? seekingWarmth ? basking ? Behaviors.SUNBATHE : Behaviors.WARM_UP : Behaviors.SHADE_REST
-                : seekingWarmth ? Behaviors.SEEK_WARMTH : Behaviors.SEEK_SHADE;
+        if (restTicks == 0) return seekingWarmth ? Behaviors.SEEK_WARMTH : Behaviors.SEEK_SHADE;
+        if (!seekingWarmth) return Behaviors.SHADE_REST;
+        if (basking) return Behaviors.SUNBATHE;
+        return cold() ? Behaviors.COLD_SHIVER : Behaviors.WARM_UP;
     }
 
     public void tick() {
@@ -77,32 +84,25 @@ public final class TemperatureLife {
         if (baskCooldown > 0) baskCooldown--;
         if (initialSample) {
             // A loaded entity has a useful current reading at once, without advancing exposure.
-            current = sample(entity.blockPosition(), baskingNow());
+            sampleHere();
             initialSample = false;
             temperatureSampleTicks = Math.floorMod(entity.getUUID().hashCode(), 20);
         } else if (++temperatureSampleTicks >= 20) {
             temperatureSampleTicks = 0;
-            current = sample(entity.blockPosition(), baskingNow());
+            sampleHere();
         }
         if (++sampleTicks < 20) return;
         sampleTicks = 0;
-        boolean paperCover = entity.life().usingPaperCoverAt(entity.blockPosition());
-        if (paperCover && !tooCold(current.uncoveredFelt())) entity.life().releasePaperCover("warmed");
-        if (freezing(current.uncoveredFelt())) {
-            int increment = entity.family().stage() == FamilyLife.Stage.BABY ? 40 : entity.family().adult() ? 20 : 30;
-            if (entity.pet().care().swaddled() || paperCover) increment /= 2;
-            coldExposure = Math.min(1_728_000, coldExposure + increment);
-            if (coldExposure >= YukkuriConfig.COLD_EXPOSURE_TICKS.get()) {
-                damageTicks += 20;
-                if (damageTicks >= YukkuriConfig.FREEZE_DAMAGE_INTERVAL.get()) {
-                    damageTicks = 0;
-                    entity.hurt(level().damageSources().freeze(), 1);
-                }
+        if (entity.life().usingPaperCoverAt(entity.blockPosition()) && !tooCold(current.uncoveredFelt()))
+            entity.life().releasePaperCover("warmed");
+        coldExposure = Math.clamp(coldExposure + 20 * exposureRate(current.felt()), 0, 1_728_000);
+        if (freezing(current.felt()) && coldExposure >= YukkuriConfig.COLD_EXPOSURE_TICKS.get()) {
+            damageTicks += 20;
+            if (damageTicks >= YukkuriConfig.FREEZE_DAMAGE_INTERVAL.get()) {
+                damageTicks = 0;
+                entity.hurt(level().damageSources().freeze(), 1);
             }
-        } else {
-            coldExposure = Math.max(0, coldExposure - 40);
-            damageTicks = 0;
-        }
+        } else damageTicks = 0;
         if (cold()) {
             coldTicks += 20;
             if (coldTicks >= 100) {
@@ -119,10 +119,22 @@ public final class TemperatureLife {
         } else hotTicks = 0;
     }
 
+    private void sampleHere() {
+        boolean wasCold = !initialSample && cold();
+        current = sample(entity.blockPosition(), baskingNow());
+        if (cold() && !wasCold && !entity.life().isSleeping() && !entity.isPanicking()) {
+            var parent = entity.family().coldCryParent();
+            boolean spoken = entity.speakCue("cold");
+            if (spoken && parent != null) entity.showReaction("cry", "", 40);
+            GameplayLog.event(entity, "temperature", "cold onset felt={} line={} parent={}", current.felt(),
+                    spoken ? entity.getDialogueKey() : "silent", parent == null ? null : parent.getUUID());
+        }
+    }
+
     /** No offline time, pending route or remembered weather is restored. */
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Version", 1); tag.putInt("ColdExposure", coldExposure); tag.putInt("DamageTicks", damageTicks);
+        tag.putInt("Version", 1); tag.putInt("ColdExposure", coldExposure()); tag.putInt("DamageTicks", damageTicks);
         tag.putInt("ColdTicks", coldTicks); tag.putInt("HotTicks", hotTicks);
         return tag;
     }
@@ -141,7 +153,7 @@ public final class TemperatureLife {
     /** {@code basking}: as for a body holding still and flat there, which the winter sun warms. */
     private Conditions sample(BlockPos pos, boolean basking) { return sample(pos, heatSources(pos, 4), basking); }
     private Conditions sample(BlockPos pos, HeatSources sources, boolean basking) {
-        if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0, false, .8);
+        if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0, false, .8, null);
         boolean shade = shaded(pos), nestInsulated = nestInsulated(pos, shade);
         boolean dryPaper = shade && !level().isRainingAt(pos) && entity.life().wetness() < 50;
         double bedding = !nestInsulated && dryPaper && entity.life().usingPaperBedding(pos)
@@ -158,16 +170,25 @@ public final class TemperatureLife {
         // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/FEATURES.md).
         if (entity.pet().care().swaddled() && tooCold(felt + bonus)) bonus = Math.max(bonus, Math.min(bonus + SWADDLE_WARMTH, SWADDLE_CAP));
         felt += bonus;
-        double warmth = heatAt(pos, sources.blocks());
+        var source = heatSourceAt(pos, sources.blocks());
+        double warmth = source == null ? 0 : heatAt(pos, source);
+        BlockPos campfire = source != null && source.campfire() ? source.pos() : null;
         // A kotatsu Marisa carries an internal heater like a torch carries fire, but only into a body that is cold:
         // beside her a freezing neighbour gets properly warm, and in summer nobody does (wiki L23 内部发热, L22 耐寒怕热).
-        if (tooCold(felt + warmth)) warmth = Math.max(warmth, heatAt(pos, sources.bodies()));
+        if (tooCold(felt + warmth)) {
+            var heater = heatSourceAt(pos, sources.bodies());
+            if (heater != null) warmth = Math.max(warmth, heatAt(pos, heater));
+        }
+        // Pressed bodies and a parent directly behind a baby reduce heat loss while they are actually together.
+        if (tooCold(felt + warmth) && pos.equals(entity.blockPosition())
+                && (entity.status().reactions().weather().huddled() || campfire != null && shieldingParent(campfire) != null))
+            felt += .25;
         // Where nothing else warms it enough, a chilled body basking flat in the direct sun of a clear day soaks up the sun.
         boolean sun = basking && tooCold(felt + warmth) && !shade && !level().isNight() && !level().isRaining()
                 && level().dimensionType().hasSkyLight() && level().canSeeSky(pos);
         if (sun) felt += SUN_BASK;
         double uncoveredFelt = felt + warmth;
-        return new Conditions(uncoveredFelt + (tooCold(uncoveredFelt) ? cover : 0), shade, insulated, warmth, sun, uncoveredFelt);
+        return new Conditions(uncoveredFelt + (tooCold(uncoveredFelt) ? cover : 0), shade, insulated, warmth, sun, uncoveredFelt, campfire);
     }
     /** Holding still and flat in the sun right now: the reached refuge of a warmth walk that the sun warms. */
     private boolean baskingNow() { return active() && basking && restTicks > 0; }
@@ -197,18 +218,25 @@ public final class TemperatureLife {
         var bodies = new ArrayList<ThermalSourceCache.Source>();
         for (var kotatsu : level().getEntitiesOfClass(YukkuriEntity.class, new AABB(center).inflate(radius),
                 other -> other != entity && RareForms.kotatsu(other)))
-            bodies.add(new ThermalSourceCache.Source(kotatsu.blockPosition(), KOTATSU_NEIGHBOUR_HEAT));
+            bodies.add(new ThermalSourceCache.Source(kotatsu.blockPosition(), KOTATSU_NEIGHBOUR_HEAT, false));
         return new HeatSources(ThermalSourceCache.sources(level(), center, radius), bodies);
     }
     /** Warmth reaching this place from one group of heat sources; a wall blocks it like any other heat. */
-    private double heatAt(BlockPos pos, List<ThermalSourceCache.Source> sources) {
+    private ThermalSourceCache.Source heatSourceAt(BlockPos pos, List<ThermalSourceCache.Source> sources) {
+        ThermalSourceCache.Source best = null;
         double warmth = 0;
         for (var source : sources) {
-            double distance = Math.sqrt(source.pos().distSqr(pos));
-            if (distance > 4 || !level().hasChunkAt(source.pos())) continue;
-            if (clearHeat(pos, source.pos())) warmth = Math.max(warmth, source.strength() * (1 - distance / 6));
+            if (source.pos().distSqr(pos) > 16 || !level().hasChunkAt(source.pos())) continue;
+            double heat = heatAt(pos, source);
+            if (heat <= warmth || !clearHeat(pos, source.pos())) continue;
+            warmth = heat;
+            best = source;
         }
-        return warmth;
+        return best;
+    }
+
+    private static double heatAt(BlockPos pos, ThermalSourceCache.Source source) {
+        return source.strength() * (1 - Math.sqrt(source.pos().distSqr(pos)) / 6);
     }
     /** Heat a kotatsu Marisa radiates to a body huddled against her: properly warm within three blocks, gone by four. */
     static final double KOTATSU_NEIGHBOUR_HEAT = 2.4;
@@ -239,39 +267,83 @@ public final class TemperatureLife {
         if (active()) return canContinue();
         if (cooldown > 0 || !available()) return false;
         cooldown = 100;
-        current = sample(entity.blockPosition());
-        if (!cold() && !hot()) return false;
-        seekingWarmth = cold();
+        var here = sample(entity.blockPosition());
+        if (comfortable(here.felt())) return false;
+        seekingWarmth = tooCold(here.felt());
+        departureFelt = here.felt();
         // A chilled body counts the sun it could bask in, its own sunny spot included (it then just settles where it is).
-        var candidates = new ArrayList<Refuge>();
         var center = entity.blockPosition();
-        var sources = heatSources(center, 20);
-        for (var pos : BlockPos.betweenClosed(center.offset(-TravelRange.search(entity,6), -2, -TravelRange.search(entity,6)), center.offset(TravelRange.search(entity,6), 2, TravelRange.search(entity,6)))) {
+        int reach = TravelRange.search(entity, 6);
+        var sources = heatSources(center, reach + 4);
+        var candidates = new ArrayList<Refuge>();
+        var baby = seekingWarmth ? entity.family().coldChildNearby() : null;
+        var parent = seekingWarmth ? entity.family().coldCryParent() : null;
+        for (var pos : BlockPos.betweenClosed(center.offset(-reach, -2, -reach), center.offset(reach, 2, reach))) {
             if (!safeStand(pos)) continue;
             if (!mayUse(pos)) continue;
             var at = sample(pos, sources, seekingWarmth && baskCooldown == 0);
             if (!refuge(at)) continue;
             if (requireHeatOrNest && seekingWarmth && !(at.warmth() > 0 || at.insulated() || at.sun())) continue;
             double distance = pos.distSqr(center);
-            // Seeking warmth means seeking the warmest place within reach, not just the nearest merely comfortable one:
-            // a real heat source (a torch, a fire, a kotatsu Marisa) outranks open ground at the same distance.
-            candidates.add(new Refuge(pos.immutable(), distance - (seekingWarmth ? at.warmth() * 8 : 0)
-                    - (seekingWarmth && at.insulated() ? 8 : 0), at));
+            double score = seekingWarmth ? distance * .18 - 8 * (at.felt() - departureFelt) : distance;
+            if (seekingWarmth && at.campfire() != null) {
+                if (!fireStandFree(pos)) continue;
+                score += fireRingScore(pos, at.campfire(), baby, parent);
+            }
+            candidates.add(new Refuge(pos.immutable(), score, at));
         }
         candidates.sort(Comparator.comparingDouble(Refuge::score));
         for (int i = 0; i < Math.min(16, candidates.size()); i++) {
             var candidate = candidates.get(i);
             if (safePath(candidate.pos()) == null) continue;
             target = candidate.pos(); taskTicks = restTicks = 0; basking = candidate.at().sun();
+            targetFire = seekingWarmth ? candidate.at().campfire() : null;
             GameplayLog.limited(entity, "temperature", "refuge.start", 1200,
-                    "refuge route selected warming={} target={} felt={} target_felt={} target_heat={} sun={} coldExposure={}",
-                    seekingWarmth, target, current.felt(), candidate.at().felt(), candidate.at().warmth(), basking, coldExposure);
+                    "refuge route selected warming={} target={} felt={} target_felt={} target_heat={} sun={} coldExposure={} fire={}",
+                    seekingWarmth, target, departureFelt, candidate.at().felt(), candidate.at().warmth(), basking, coldExposure(), targetFire);
             return true;
         }
         return false;
     }
     private boolean refuge(Conditions at) {
-        return comfortable(at.felt()) && (seekingWarmth || at.shade());
+        return seekingWarmth ? ThermalComfort.warmerRefuge(departureFelt, at.felt(), hotLimit())
+                : comfortable(at.felt()) && at.shade();
+    }
+
+    private double fireRingScore(BlockPos pos, BlockPos fire, YukkuriEntity baby, YukkuriEntity parent) {
+        // At two blocks the adult clears the fire's keep-out. Less bold and smaller bodies prefer up to a block more.
+        double bold = entity.life().personality().boldness() / 100.0;
+        double dominance = (bold * 3 + Math.min(1, entity.getBbWidth())) / 4;
+        double preferred = baby != null ? 3 : parent != null ? 2 : 3 - dominance;
+        double offset = Math.sqrt(fire.distSqr(pos)) - preferred;
+        double score = 12 * offset * offset - 3;
+        var kin = baby != null ? baby : parent;
+        if (kin == null) return score;
+        var kinTemperature = kin.life().temperature();
+        var anchor = fire.equals(kinTemperature.targetFire) ? kinTemperature.target : kin.blockPosition();
+        int dx = anchor.getX() - fire.getX(), dz = anchor.getZ() - fire.getZ();
+        double length = Math.hypot(dx, dz);
+        if (length == 0) return score;
+        // Each body chooses its own free stand on the same radial line. The child is inside the parent.
+        double x = pos.getX() - fire.getX() - preferred * dx / length;
+        double z = pos.getZ() - fire.getZ() - preferred * dz / length;
+        return score + x * x + z * z;
+    }
+
+    private boolean fireStandFree(BlockPos pos) {
+        var feet = Vec3.atBottomCenterOf(pos);
+        var box = entity.getBoundingBox().move(feet.subtract(entity.position())).deflate(.005);
+        return level().getEntitiesOfClass(YukkuriEntity.class, box,
+                other -> other != entity && other.isAlive() && other.isPushable() && !other.isPassenger()).isEmpty();
+    }
+
+    private YukkuriEntity shieldingParent(BlockPos fire) {
+        var parent = entity.family().coldCryParent();
+        if (parent == null || !parent.onGround() || parent.distanceToSqr(entity) > 2.25 || !entity.hasLineOfSight(parent)) return null;
+        var outward = entity.position().subtract(Vec3.atBottomCenterOf(fire));
+        var toParent = parent.position().subtract(entity.position());
+        return outward.x * toParent.x + outward.z * toParent.z >= .7 * outward.horizontalDistance() * toParent.horizontalDistance()
+                && toParent.horizontalDistanceSqr() > .04 ? parent : null;
     }
     private boolean mayUse(BlockPos pos) {
         if (!TravelRange.babyDestination(entity,pos) || !level().hasChunkAt(pos)) return false;
@@ -296,7 +368,7 @@ public final class TemperatureLife {
             var state = level().getBlockState(near);
             if (state.is(Blocks.FIRE) || state.is(Blocks.SOUL_FIRE) || state.is(Blocks.LAVA)
                     || state.is(Blocks.MAGMA_BLOCK) || state.is(Blocks.CACTUS)
-                    || (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) && state.getValue(BlockStateProperties.LIT)) return false;
+                    || ThermalSourceCache.litCampfire(state)) return false;
         }
         return true;
     }
@@ -319,7 +391,11 @@ public final class TemperatureLife {
         if (restTicks >= (basking ? BASK_TICKS : 200)) return "rested";
         if (!safeStand(target)) return "unsafe_stand";
         if (!mayUse(target)) return "not_ours";
-        if (taskTicks % 20 == 0 && (waterTakesPriority() || !refuge(sample(target, basking)))) return "lost_refuge";
+        if (taskTicks % 20 == 0) {
+            if (waterTakesPriority()) return "lost_refuge";
+            var at = sample(target, basking);
+            if (!refuge(at) || targetFire != null && (!targetFire.equals(at.campfire()) || !fireStandFree(target))) return "lost_refuge";
+        }
         return null;
     }
     private boolean waterTakesPriority() {
@@ -334,6 +410,13 @@ public final class TemperatureLife {
         if (reached(target, occupancy)) {
             if (occupancy != null) SurfaceApproach.halt(entity); else entity.getNavigation().stop();
             restTicks++;
+            if (targetFire != null && (restTicks == 1 || restTicks == 60)) {
+                var at = sample(entity.blockPosition());
+                var parent = shieldingParent(targetFire);
+                GameplayLog.event(entity, "temperature", "campfire rest fire={} stand={} ring={} felt={} rate={} shield_parent={} ticks={}",
+                        targetFire, entity.blockPosition(), Math.sqrt(entity.blockPosition().distSqr(targetFire)), at.felt(), exposureRate(at.felt()),
+                        parent == null ? null : parent.getUUID(), restTicks);
+            }
             // A short pause consumes no supplies and grants neither sleep growth nor free hydration.
             return true;
         }
@@ -360,12 +443,12 @@ public final class TemperatureLife {
         if (!active() || restTicks < 20 || !available() || waterTakesPriority()
                 || !reached(target, FamilyNest.bedOccupancy(entity, target)) || !safeStand(target) || !mayUse(target)
                 || level().isRainingAt(target)) return false;
-        current = sample(entity.blockPosition());
-        if (!refuge(current)) return false;
+        var at = sample(entity.blockPosition());
+        if (!comfortable(at.felt()) || !refuge(at)) return false;
         temporarySleepSite = target;
         GameplayLog.limited(entity, "temperature", "refuge.sleep", 1200,
-                "refuge handed to sleep site={} felt={} restTicks={}", target, current.felt(), restTicks);
-        target = null; taskTicks = restTicks = 0; basking = false; cooldown = Math.max(cooldown, 60);
+                "refuge handed to sleep site={} felt={} restTicks={}", target, at.felt(), restTicks);
+        target = targetFire = null; taskTicks = restTicks = 0; basking = false; cooldown = Math.max(cooldown, 60);
         return true;
     }
     public boolean hasTemporarySleepSite() { return temporarySleepSite != null; }
@@ -385,14 +468,14 @@ public final class TemperatureLife {
         // Only another sun bask rests for a minute: a real heat source or shade can still meet a new thermal need.
         if ("rested".equals(gate) && basking) baskCooldown = BASK_REST;
         cooldown = "lost_refuge".equals(gate) ? 0 : Math.max(cooldown, 60);
-        target = temporarySleepSite = null; taskTicks = restTicks = 0; basking = false;
+        target = targetFire = temporarySleepSite = null; taskTicks = restTicks = 0; basking = false;
     }
 
     public Component observation() {
-        current = sample(entity.blockPosition());
-        String state = freezing(current.felt()) ? "freezing" : cold() ? "cold" : hot() ? "hot" : "comfortable";
+        var at = sample(entity.blockPosition(), baskingNow());
+        String state = freezing(at.felt()) ? "freezing" : tooCold(at.felt()) ? "cold" : at.felt() >= hotLimit() ? "hot" : "comfortable";
         return Component.translatable("notebook.mcyukkuri.temperature", Component.translatable("temperature.mcyukkuri." + state),
-                String.format(Locale.ROOT, "%.2f", current.felt()), coldExposure, YukkuriConfig.COLD_EXPOSURE_TICKS.get(),
-                current.shade() ? "✓" : "—", current.insulated() ? "✓" : "—", current.warmth() > 0 ? "✓" : "—");
+                String.format(Locale.ROOT, "%.2f", at.felt()), coldExposure(), YukkuriConfig.COLD_EXPOSURE_TICKS.get(),
+                at.shade() ? "✓" : "—", at.insulated() ? "✓" : "—", at.warmth() > 0 ? "✓" : "—");
     }
 }
