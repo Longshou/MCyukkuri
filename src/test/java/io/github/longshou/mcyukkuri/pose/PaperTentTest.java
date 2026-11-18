@@ -107,7 +107,7 @@ class PaperTentTest {
         Matrix4f toWall = !wallFaces.isEmpty() || Double.isFinite(ceiling) ? new Matrix4f() : null;
         Matrix4f fromWall = wallFaces.isEmpty() ? null : new Matrix4f();
         if (!wallFaces.isEmpty()) {
-            yield = WallYield.of(m.bones, m.bindings, m.rest, names, starts, counts);
+            yield = WallYield.of(m.id, m.bones, m.bindings, m.rest, names, starts, counts);
             if (yield != null) {
                 Matrix4f modelToWall = new Matrix4f().scale(scale / 16f);
                 yield.solve((idx, out) -> Skin.base(idx, out, scratch, m.rest, m.bindings, world, null, 0, null, m.features, m.featureTransforms),

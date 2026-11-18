@@ -18,7 +18,7 @@ class WallYieldTest {
 
     WallYieldTest() {
         for (int i = 0; i < WING.length; i++) { System.arraycopy(WING[i], 0, rest, i * 8, 3); bindings[i] = new Skin.Binding(1, 1, 0); }
-        wing = WallYield.of(BONES, bindings, rest, new String[]{"predator_wing_ridge_right_0"}, new int[]{0}, new int[]{WING.length});
+        wing = WallYield.of("remilia", BONES, bindings, rest, new String[]{"predator_wing_ridge_right_0"}, new int[]{0}, new int[]{WING.length});
     }
     private void skin(int index, Vector3f target) { target.set(rest[index * 8], rest[index * 8 + 1], rest[index * 8 + 2]); }
     /** Farthest reach toward +x in blocks after this frame's turn. */

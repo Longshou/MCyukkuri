@@ -116,7 +116,7 @@ final class RenderPose implements Overlays.Contact {
             if(!wallYieldBuilt){wallYieldBuilt=true;var parts=data.getAsJsonArray("parts");int n=parts.size();
                 var names=new String[n];var starts=new int[n];var counts=new int[n];
                 for(int i=0;i<n;i++){var p=parts.get(i).getAsJsonObject();names[i]=p.get("name").getAsString();starts[i]=start(p);counts[i]=count(p);}
-                wallYield=WallYield.of(bones,bindings,rest,names,starts,counts);}
+                wallYield=WallYield.of(data.get("id").getAsString(),bones,bindings,rest,names,starts,counts);}
             if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,new Matrix4f(turn).scale(scale/16),faces,kind->false);else wallYield.clear();}
         }
         boolean wantPaper=request.has("paperCover")&&request.get("paperCover").isJsonArray();

@@ -1133,7 +1133,7 @@ public final class YukkuriModel {
                 if(!wallYieldChecked){
                     wallYieldChecked=true;int n=parts.size();var names=new String[n];var starts=new int[n];var counts=new int[n];
                     for(int i=0;i<n;i++){names[i]=parts.get(i).name;starts[i]=parts.get(i).start;counts[i]=parts.get(i).count;}
-                    wallYield=WallYield.of(bones,bindings,restVertices,names,starts,counts);
+                    wallYield=WallYield.of(id,bones,bindings,restVertices,names,starts,counts);
                 }
                 if(wallYield!=null){
                     // Working locks (house grip, braid reach/hold/use) and tails cradling a child keep their pose; they are only pressed.
