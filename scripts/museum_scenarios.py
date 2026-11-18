@@ -488,11 +488,11 @@ add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收
         # Chen eats from where it stands: its apple lies just ahead of it, so its eating stand keeps its back 0.6 from the pane.
         *[item('minecraft:apple', 1, x, 1.45 if name == 'tuck_chen' else 1, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
         *[item('minecraft:apple', 1, x, 10, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
-    env=DAY, spot='wall_tuck', vantage=(0, -4, 0, 25), note='待验证：新场景，尚未在游戏里实测。',
+    env=DAY, spot='wall_tuck', vantage=(0, -6, 0, 12), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
                  views={'': {}, 'locks': dict(position=(5.5, 1.9, -1.2), look_at=(5.5, .3, 2)),
                         'wings': dict(position=(-5.5, 1.9, -1.2), look_at=(-5.5, .3, 2))}),
-    smoke=dict(ticks=600,
+    smoke=dict(ticks=600, forbid=[r'\[body\][^\n]* invariant\b'],
                expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
                        for _, _, name, _ in _TUCK_ROW]),
     reads=[('读魔理沙', f'yukkuri status {sel("tuck_marisa")} raw'), ('读橙', f'yukkuri status {sel("tuck_chen")} raw'),
