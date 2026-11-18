@@ -454,38 +454,44 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
     env=DAY, spot='forage', vantage=(4, 7, 155),
     reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
 
-# Five one-cell niches, three deep, open to the north: glass sides (the visitor sees the parts meet the wall through them) and a
-# stone back wall. Each body starts in the innermost cell facing the back wall; its apple lies two cells north of the mouth, so
-# hunger turns it round against the walls (wings, braid, side locks press in; Chen's tails curl up against the back wall) and
-# walks it out into the open, where they come free. A Remilia in the open beside the row does the same with nothing to yield to.
-# One keeper's pets: a predator does not menace its keeper's own, so the row stays calm.
-_TUCK_ROW = (('marisa', 4, 'tuck_marisa', '魔理沙：辫子'), ('reimu', 2, 'tuck_reimu', '灵梦：鬓发'),
-             ('chen', 0, 'tuck_chen', '橙：尾巴'), ('remilia', -2, 'tuck_remilia', '蕾米莉亚：翅膀'),
-             ('flandre', -4, 'tuck_flandre', '芙兰：翅膀'), ('remilia', -8, 'tuck_open', '对照：空地蕾米莉亚'))
+# One-cell niches, three deep, open to the north: glass sides (the visitor sees the parts meet the wall through them, and a
+# yukkuri cannot see through them) and a stone back wall. Each hungry body has one apple at the back of its niche and one in the
+# open behind it: it walks into the niche (wings, braid, side locks press in), eats there, turns round and walks out to the second
+# apple, where they come free. Chen starts backed against the back wall over its first apple, so its tails stay curled up through
+# the meal and uncurl as it leaves. A Remilia in the open does the same walk with nothing to yield to.
+# A predator menaces ordinary bodies it is in sight of or within 6 blocks of (Reactions.Threat): a stone wall under the viewing
+# spot screens the ordinary niches (east) from the predator niches (west), 7 blocks apart.
+_TUCK_ROW = (('marisa', 7, 'tuck_marisa', '魔理沙：辫子'), ('reimu', 5, 'tuck_reimu', '灵梦：鬓发'),
+             ('chen', 3, 'tuck_chen', '橙：尾巴'), ('remilia', -4, 'tuck_remilia', '蕾米莉亚：翅膀'),
+             ('flandre', -6, 'tuck_flandre', '芙兰：翅膀'), ('remilia', -10, 'tuck_open', '对照：空地蕾米莉亚'))
 
 
 def _tuck_body(kind, x, name, label):
-    # A predator below FULL - 20 takes a loose apple first (PredatorLife scavenge) and, at boldness 0, does not want to hunt above 45.
+    # Prey at 30 still wants the second apple after the first (+20, LifeMeal FULL - 20 = 55). A predator takes loose food before
+    # hunting (PredatorLife scavenge) and at boldness 0 wants to hunt only below 45, so at 50 it eats both apples and hunts nobody.
     predator = kind in ('remilia', 'flandre')
-    return yk(kind, x, 2, name, uuid=uid('wall_tuck', name), label=label, yaw=0, lead=name == 'tuck_marisa',
-              nutrition=50 if predator else 30, boldness=0 if predator else 55, social_wait=6000)
+    backed = name == 'tuck_chen'
+    return yk(kind, x, 2 if backed else -1, name, uuid=uid('wall_tuck', name), label=label, yaw=180 if backed else 0,
+              lead=name == 'tuck_marisa', nutrition=50 if predator else 30, boldness=0 if predator else 55, social_wait=6000)
 
 
 add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收拢：辫子、翅膀、尾巴',
-    '五只饿油各在一格宽的墙槽最里面、面朝墙，苹果在槽口外。看它们在槽里转身时魔理沙的辫子与帽檐、灵梦的鬓发向内收，'
-    '蕾米莉亚和芙兰的翅膀向下收拢，橙背靠槽底时两条尾巴向上卷；走出槽口后各自复原。最右边空地上的蕾米莉亚转身时翅膀照常张开，作对照。',
+    '饿油走进一格宽的玻璃墙槽吃槽底的苹果：看魔理沙的辫子与帽檐、灵梦的鬓发向内收，蕾米莉亚和芙兰的翅膀向下收拢；'
+    '橙一开始就背靠槽底吃苹果，两条尾巴向上卷。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
     '约 10–20 秒', [
-        box(-5, 0, 3, 5, 1, 3, 'minecraft:stone_bricks'),
-        *[box(x, 0, 0, x, 1, 2, 'minecraft:glass') for x in (-5, -3, -1, 1, 3, 5)],
+        box(-7, 0, 3, 8, 1, 3, 'minecraft:stone_bricks'),
+        box(0, 0, -8, 0, 1, 2, 'minecraft:stone_bricks'),
+        *[box(x, 0, 0, x, 1, 2, 'minecraft:glass') for x in (2, 4, 6, 8, -3, -5, -7)],
         *[_tuck_body(*entry) for entry in _TUCK_ROW],
-        *[item('minecraft:apple', 1, x, -2, f'{name}_apple') for _, x, name, _ in _TUCK_ROW],
-        *[line for _, _, name, _ in _TUCK_ROW for line in own(name)]],
-    env=DAY, spot='wall_tuck', vantage=(-2, -5, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
-    capture=dict(shots=(1, 400), sequences=((2, 200, 4),), observe=False,
-                 views={'': {}, 'locks': dict(position=(2.5, 2.2, -2.5), look_at=(2.5, .4, 1.5)),
-                        'wings': dict(position=(-3.5, 2.2, -2.5), look_at=(-3.5, .4, 1.5))}),
-    smoke=dict(ticks=600, expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
-                                  for _, _, name, _ in _TUCK_ROW]),
+        *[item('minecraft:apple', 1, x, 2, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
+        *[item('minecraft:apple', 1, x, -5, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
+    env=DAY, spot='wall_tuck', vantage=(0, -7, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
+    capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
+                 views={'': {}, 'locks': dict(position=(5.5, 2.4, -3), look_at=(5.5, .3, 2)),
+                        'wings': dict(position=(-6, 2.4, -3), look_at=(-6, .3, 2))}),
+    smoke=dict(ticks=600, forbid=[r'\[threat\][^\n]* response started '],
+               expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
+                       for _, _, name, _ in _TUCK_ROW]),
     reads=[('读魔理沙', f'yukkuri status {sel("tuck_marisa")} raw'), ('读橙', f'yukkuri status {sel("tuck_chen")} raw'),
            ('读蕾米莉亚', f'yukkuri status {sel("tuck_remilia")} raw')])
 
