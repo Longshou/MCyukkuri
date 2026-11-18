@@ -1493,21 +1493,16 @@ public final class YukkuriLife {
                     if (foodRoute != null) {
                         var contact = bowlStand.contact();
                         if (!meal.beginTuftMeal(foodRoute, new MealRoute.Serving(() -> contact,
-                                receiver -> !bowl.isRemoved() && bowl.handFood(this::seeksFood, one -> {
-                                    if (!receiver.test(one)) return false;
-                                    GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} holder=braid", one.getItem(), bowl.getBlockPos());
-                                    return true;
-                                }), one -> MealRoute.restore(entity, bowl, one), true))) stopGoal();
+                                receiver -> handBowlFood(bowl, receiver, "braid"),
+                                one -> MealRoute.restore(entity, bowl, one), true))) stopGoal();
                         return;
                     }
-                    boolean taken = bowl.handFood(this::seeksFood, one -> {
+                    boolean taken = handBowlFood(bowl, one -> {
                         if (!beginMeal(one, null, false)) return false;
                         meal.bowlMeal();
-                        GameplayLog.event(entity, "meal", "pickup item={} count={} source={} holder=mouth", one.getItem(), one.getCount(), bowl.getBlockPos());
                         return true;
-                    });
-                    if (taken) HumanNpc.witnessedBowlTake(entity, bowl.getBlockPos());
-                    else stopGoal();
+                    }, "mouth");
+                    if (!taken) stopGoal();
                 } else {
                     entity.showReaction("surprise", "mine", 45);
                     if (bowl.handFood(this::seeksFood, one -> {
@@ -1529,6 +1524,17 @@ public final class YukkuriLife {
             }
         } else stopGoal();
     }
+    private boolean handBowlFood(CareBlockEntity bowl, Predicate<ItemStack> receiver, String holder) {
+        if (bowl.isRemoved()) return false;
+        boolean taken = bowl.handFood(this::seeksFood, one -> {
+            if (!receiver.test(one)) return false;
+            GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} holder={}", one.getItem(), bowl.getBlockPos(), holder);
+            return true;
+        });
+        if (taken) HumanNpc.witnessedBowlTake(entity, bowl.getBlockPos());
+        return taken;
+    }
+
     /** A serving already at mouth reach can draw a complaint. */
     private void refuseReachableServing() {
         for (var item : level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(.6), item ->
@@ -1555,7 +1561,7 @@ public final class YukkuriLife {
 
     private boolean braidAtFood(Vec3 contact) {
         if (foodRoute.reaches(entity, contact)) return true;
-        switch (SurfaceApproach.walkToContact(entity, foodRoute.stand(), null, 1.15)) {
+        switch (foodRoute.approach(entity, 1.15)) {
             case ARRIVED -> {
                 SurfaceApproach.face(entity, foodRoute.yaw());
                 if (Math.abs(Mth.wrapDegrees(entity.yBodyRot - foodRoute.yaw())) <= 3 && !foodRoute.reaches(entity, contact))

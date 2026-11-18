@@ -2,9 +2,11 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.body.HairParts;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.function.Predicate;
@@ -20,10 +22,22 @@ public record MealRoute(String id, ClipMarkers.Clip clip, float yaw, Vec3 stand)
     @FunctionalInterface
     interface Transfer { boolean hand(Predicate<ItemStack> receiver); }
     record Serving(Supplier<Vec3> contact, Transfer transfer, Predicate<ItemStack> restore, boolean bowl) {}
+    private static final int TUFT_LOSS = HairParts.lossMask("braid_lock_tuft", (float) ContactGeometry.braidTipModel().x, true);
+
+    static boolean braidIntact(YukkuriEntity body) { return (body.body().hairLoss() & TUFT_LOSS) == 0; }
+
+    public SurfaceApproach.Result approach(YukkuriEntity body, double speed) {
+        if (SurfaceApproach.arrived(body, stand)) {
+            SurfaceApproach.halt(body);
+            return SurfaceApproach.Result.ARRIVED;
+        }
+        return SurfaceApproach.tryStraightStep(body, stand, speed) ? SurfaceApproach.Result.MOVING
+                : SurfaceApproach.walkToContact(body, stand, null, speed);
+    }
 
     public static MealRoute choose(YukkuriEntity body, Vec3 contact, float yaw, boolean bin) {
         String id = bin ? Behaviors.BRAID_EAT_BIN : Behaviors.BRAID_EAT;
-        if (!ClipMarkers.tipped(body.assetId(), id) || Braid.use(body) != Braid.Use.FREE || !Braid.mouthFree(body)) return null;
+        if (!ClipMarkers.tipped(body.assetId(), id) || !braidIntact(body) || Braid.use(body) != Braid.Use.FREE || !Braid.mouthFree(body)) return null;
         double chance = bin ? .85 : .25 + .25 * Mth.clamp((body.life().nutrition() - 10) / 20, 0, 1)
                 + (body.pet().lessons().level(PetSkill.FOOD_BOWL) > 0 ? .2 : 0);
         if (body.getRandom().nextDouble() >= chance) return null;

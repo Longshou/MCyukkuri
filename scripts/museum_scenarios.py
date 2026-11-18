@@ -512,7 +512,7 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
                                   r'\[habitat\][^\n]* drop item=minecraft:paper count=1 source=shelter .*reason=rain_collapse',
                                   r'\[habitat\][^\n]* found removed .*reason=rain_collapse']))
 
-_rubbish_stock = [('minecraft:apple', 1), ('minecraft:paper', 2), ('minecraft:stick', 2)]
+_rubbish_stock = [('minecraft:apple', 1), ('minecraft:paper', 5), ('minecraft:stick', 5)]
 add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小的放弃', '流浪：翻垃圾桶，撞倒或放弃',
     '西边两只立着的桶里只有一个苹果或一张废纸，桶轻，胆大的灵梦撞一两下就倒，再钻进桶口吃、衔纸走开放下。东边两只立着、装得一样满的桶前，'
     '胆大的魔理沙撞倒桶再绕到桶口吃，胆小的撞几下推不动就放弃。中间倒着的桶里只有一件垃圾头饰（胆小的失饰者撞不动桶，所以它一开始就倒着），'
@@ -3975,11 +3975,14 @@ next(s for s in S if s.id == 'stray_rain').smoke['verify'] = _stray_rain_verify
 
 def _stray_rubbish_verify(log):
     bold = uid('stray_rubbish', 'bold_stray')
+    braided = re.search(rf'uuid={_uuid_text("stray_rubbish", "bold_stray")} [^\n]*garbage pickup item=minecraft:apple [^\n]*holder=braid', log)
     return _family_search_order(log, [
+        (bold, r'garbage ram [^\n]*tipped=false rock=strong'),
         (bold, r'garbage ram [^\n]*tipped=true'),
         (bold, r'garbage reroute [^\n]*why=knocked_over'),
         (bold, r'garbage nose_in '),
-        (bold, r'garbage pickup item=minecraft:apple [^\n]*holder=mouth'),
+        (bold, r'garbage pickup item=minecraft:apple [^\n]*holder=(braid|mouth)'),
+        *([(bold, r'braid handover item=minecraft:apple clip=braid_eat_bin tick=28\b')] if braided else []),
         (bold, r'swallowed item=minecraft:apple\b'),
     ])
 

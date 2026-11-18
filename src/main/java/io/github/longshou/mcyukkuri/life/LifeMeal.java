@@ -113,7 +113,7 @@ final class LifeMeal {
         var source = tuftMeal.source();
         var clip = route.clip();
         long tick = o.level().getGameTime() - tuftMeal.start();
-        if (mealTicks == 0 && (!body.onGround() || body.isPassenger() || body.motor().current() != null
+        if (mealTicks == 0 && (!MealRoute.braidIntact(body) || !body.onGround() || body.isPassenger() || body.motor().current() != null
                 || body.distanceToSqr(route.stand()) > .12 * .12)) {
             if (releaseForInterrupt()) clearTransfer();
             return false;
