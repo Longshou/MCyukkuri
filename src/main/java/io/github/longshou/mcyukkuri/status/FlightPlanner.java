@@ -11,14 +11,17 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
-/** Selects a dry, reachable retreat. A moving threat only breaks the commitment when it flanks the runner. */
+/** Selects and holds a dry route that keeps clear of the pursuer. */
 public final class FlightPlanner {
-    private static final int[] FAN = {0, 25, -25, 50, -50, 80, -80};
+    private static final int[] FAN = {0, 25, -25, 50, -50, 80, -80, 100, -100};
+    private static final double[] STRIDES = {1, .6, .3};
+    private static final double CLEARANCE = 3.8;
     private final YukkuriEntity body;
     private LivingEntity source;
     private Direction heading;
     private long plannedAt;
     private Path route;
+    private Vec3 checkedDanger;
 
     FlightPlanner(YukkuriEntity body) { this.body = body; }
 
@@ -27,19 +30,22 @@ public final class FlightPlanner {
     }
 
     private Path routeTo(Vec3 stand, Vec3 danger) {
-        if (stand == null || FlightCourse.passesNearThreat(body.getX(), body.getZ(), stand.x, stand.z, danger.x, danger.z, 3.8))
+        if (stand == null || FlightCourse.passesNearThreat(body.getX(), body.getZ(), stand.x, stand.z, danger.x, danger.z, CLEARANCE))
             return null;
         var path = body.getNavigation().createPath(BlockPos.containing(stand), 0);
-        if (path == null || !path.canReach()) return null;
-        var previous = body.position();
-        double clearance = Math.min(3.8, Math.hypot(previous.x - danger.x, previous.z - danger.z) - .35);
+        return path != null && path.canReach() && clearsThreat(path, danger) ? path : null;
+    }
+
+    private boolean clearsThreat(Path path, Vec3 danger) {
+        double x = body.getX(), z = body.getZ();
+        double clearance = FlightCourse.corridorClearance(Math.hypot(x - danger.x, z - danger.z), CLEARANCE);
         for (int i = path.getNextNodeIndex(); i < path.getNodeCount(); i++) {
             var next = path.getEntityPosAtNode(body, i);
-            if (FlightCourse.segmentDistance(previous.x, previous.z, next.x, next.z, danger.x, danger.z) < clearance)
-                return null;
-            previous = next;
+            if (FlightCourse.segmentDistance(x, z, next.x, next.z, danger.x, danger.z) < clearance) return false;
+            x = next.x;
+            z = next.z;
         }
-        return path;
+        return true;
     }
 
     private Path fan(Vec3 danger, double reach, Direction direction) {
@@ -47,7 +53,8 @@ public final class FlightPlanner {
         double score = Double.NEGATIVE_INFINITY;
         for (int angle : FAN) {
             var ray = direction.rotate(angle);
-            for (double distance : new double[]{reach, reach * .6}) {
+            for (double stride : STRIDES) {
+                double distance = reach * stride;
                 var near = body.position().add(ray.x() * distance, 0, ray.z() * distance);
                 var stand = SurfaceApproach.restingFloor(body, near);
                 if (stand == null) continue;
@@ -67,8 +74,10 @@ public final class FlightPlanner {
     }
 
     public void retreatToward(Vec3 danger, Vec3 anchor) {
+        double distance = body.position().distanceTo(anchor);
+        if (distance < 1.5) return;
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
-        var path = fan(danger, Math.min(9, body.position().distanceTo(anchor)), direction);
+        var path = fan(danger, Math.min(9, distance), direction);
         if (path != null) body.getNavigation().moveTo(path, 1.2);
     }
 
@@ -94,20 +103,32 @@ public final class FlightPlanner {
 
     public void flee(LivingEntity danger) {
         long now = body.level().getGameTime();
-        var away = away(danger.position());
+        var dangerAt = danger.position();
+        var navigation = body.getNavigation();
         boolean changed = source != danger;
-        if (!changed && !FlightCourse.shouldReplan(now - plannedAt, route != null && route.isDone(),
-                route != null && body.getNavigation().isDone(), heading, away)) return;
+        if (!changed && now - plannedAt < 40 && (route == null || !navigation.isDone() && route == navigation.getPath())) {
+            if (dangerAt.distanceToSqr(checkedDanger) < .25) return;
+            var away = away(dangerAt);
+            if (!FlightCourse.shouldReplan(now - plannedAt, false, false, heading, away)
+                    && (route == null || clearsThreat(route, dangerAt))) {
+                checkedDanger = dangerAt;
+                return;
+            }
+        }
+        var away = away(dangerAt);
         if (changed || heading.dot(away) < .25) heading = away;
         source = danger;
+        checkedDanger = dangerAt;
         plannedAt = now;
         route = refuge(danger);
-        if (route == null) route = fan(danger.position(), 9, heading);
-        if (route == null) { body.getNavigation().stop(); return; }
+        if (route == null) route = fan(dangerAt, 9, heading);
+        if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away);
+        if (route == null) { navigation.stop(); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
-        body.getNavigation().moveTo(route, body.newbornStage() ? .8 : 1.2);
+        if (!navigation.moveTo(route, body.newbornStage() ? .8 : 1.2)) { route = null; return; }
+        route = navigation.getPath();
         GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={}",
-                route.getTarget(), danger.getUUID(), Math.round(danger.distanceTo(body)));
+                BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body)));
     }
 }

@@ -19,7 +19,12 @@ public final class FlightCourse {
                                            double threatX, double threatZ, double clearance) {
         double start = Math.hypot(x - threatX, z - threatZ);
         if (Math.hypot(endX - threatX, endZ - threatZ) <= start + .5) return true;
-        return segmentDistance(x, z, endX, endZ, threatX, threatZ) < Math.min(clearance, start - .35);
+        return segmentDistance(x, z, endX, endZ, threatX, threatZ) < corridorClearance(start, clearance);
+    }
+
+    public static double corridorClearance(double start, double clearance) {
+        // Allow for the first grid node without letting a route cross the threat at close quarters.
+        return Math.min(clearance, start - Math.min(.35, start * .5)) - .001;
     }
 
     public static double segmentDistance(double x, double z, double endX, double endZ, double threatX, double threatZ) {
