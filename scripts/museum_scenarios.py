@@ -5500,8 +5500,8 @@ def _den_family_verify(log):
     outings = events(mother, 'forage', r'begin role=FAMILY phase=OUT\b')
     departures = [tick for tick, _ in outings if tick > death_tick]
     if any(tick < death_tick for tick, _ in outings):
-        # Mourning can pause an outing started just before the death, then resume the same OUT leg.
-        departures += [tick for tick, _ in events(mother, 'forage', r'goal active phase=OUT\b') if tick > death_tick]
+        # The same outing can resume gathering if she already reached the food when grief paused it.
+        departures += [tick for tick, _ in events(mother, 'forage', r'goal active phase=(?:OUT|GATHER)\b') if tick > death_tick]
     departures.sort()
     if not departures:
         return 'den family: mother did not start or resume an outing after father death'
