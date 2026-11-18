@@ -959,7 +959,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         pendingSpeechTicks = 0;
         reactionStartedAt = level().getGameTime();
         speechTiming.interrupt();
-        forceReaction(face, line, ticks);
+        startReaction(face, line, ticks);
+        speak(line, speechTier(), false, null, NativeDialogue.priority("wounded"));
         reactionAction = action;
         reactionHeld = true;
         setAnimation(action, true);
@@ -1027,23 +1028,23 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public boolean speakCue(String event, String style) {
-        boolean spoken = speak(event, speechTier(), true, style);
+        boolean spoken = speak(event, speechTier(), true, style, 0);
         if (StatusEvents.trace()) GameplayLog.event(this, "speech", "cue event={} spoken={}", event, spoken);
         return spoken;
     }
 
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
     public boolean speak(String event, String tier) {
-        return speak(event, tier, false, null);
+        return speak(event, tier, false, null, 0);
     }
 
-    private boolean speak(String event, String tier, boolean timedCue, String style) {
+    private boolean speak(String event, String tier, boolean timedCue, String style, int priorityFloor) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
         long now = level().getGameTime();
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
-            int priority = NativeDialogue.priority(event);
+            int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
             if (!speechTiming.canSpeak(this, now, priority, timedCue)) return false;
             speechTiming.begin(now, 40, priority);
             showSpeech(event, "dialogue.mcyukkuri.deficient.babble", tier, now);
@@ -1051,7 +1052,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         }
         event = mind.voice(event); // a broken mind can only scream
         var choices = NativeDialogue.choices(variant.dialogueSpecies(), tier, myon.quirk(), event);
-        int priority = NativeDialogue.priority(event);
+        int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
         if (choices.isEmpty() || !speechTiming.canSpeak(this, now, priority, timedCue)) return false;
         var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, style == null ? speechStyle() : style, recentSpeech,
                 nearbySpeech(now), RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));

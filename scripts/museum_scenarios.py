@@ -5757,6 +5757,19 @@ def _den_family_verify(log):
 
 next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
 
+def _struck_speech(window):
+    events = {'FLEE': ('hurt_flee',), 'FREEZE': ('hurt_freeze',), 'PUFF_FIGHT': ('hurt_defy', 'puff'),
+              'PLEAD': ('plea_sad', 'hurt_tame_plea'), 'ENDURE': ('hurt_endure',)}
+    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=[^\n]* dialogue=(\S*)', window)
+    if not strikes:
+        return 'Missing struck stance and spoken line'
+    for actor, tick, stance, key in strikes:
+        lines = re.findall(rf'\[speech\][^\n]* uuid={actor} t={tick} [^\n]* line event=(\S+) key=(\S+)', window)
+        matching = [(event, line) for event, line in lines if any(event in group for group in events.values()) or event == 'afraid']
+        if len(matching) != 1 or matching[0] != lines[-1] or matching[0][0] not in events[stance] or matching[0][1] != key:
+            return f'{actor} at {tick} chose {stance} but its speech was {lines}'
+
+
 # In headless smoke, stand an unrelated peer near the home as a visitor would. The residents still run ordinary AI.
 for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000, 1, -2)):
     _intruder = uid(_sid, 'territory_intruder')
@@ -5772,6 +5785,7 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
         ]
         _spec['expect'] += [r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
         _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
+        _spec['verify'] = _struck_speech
 
 _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* farewell started',
@@ -6136,6 +6150,7 @@ def _verify_punishment(window):
     draws = re.findall(draw, window)
     if len(draws) != 2 or [tick for tick, accepted in draws if accepted == 'true'] != re.findall(shown, window):
         return f'Expected one human-hit protective puff draw per blow and a puff for each accepted draw: {draws}'
+    return _struck_speech(window)
 
 _punishment_smoke['verify'] = _verify_punishment
 
