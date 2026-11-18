@@ -63,13 +63,18 @@ public final class DenBarrierBlockEntity extends BlockEntity {
         long age = server.getGameTime() - laidAt;
         var home = home(server);
         if (den != null && server.hasChunkAt(den) && home == null) { release("den_gone", null); return; }
+        if (home != null && (home.flooded() || !server.getEntitiesOfClass(YukkuriEntity.class, home.interior(),
+                y -> y.isAlive() && home.owns(y.getUUID()) && home.contains(y.blockPosition())
+                        && (y.isOnFire() || y.isInWaterOrBubble())).isEmpty())) {
+            releaseMouth(server, "danger_inside", nearbyBuilder(server));
+            return;
+        }
         if (!absent.isEmpty()) {
             if (home != null) checkFamily(server, home, age);
             else if (age >= DECAY_TICKS) release("decayed", null);
             return;
         }
-        // The scan sees dangerous yukkuri; the danger that drove the builder home (a human, a predator) is remembered by
-        // identity, so the screen stands while it still lingers nearby and comes down once it is gone, dead or an age older.
+        // Remember the specific attacker for a limited time. Nearby predators can still keep the screen up until decay.
         boolean danger = !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(WATCH_RANGE, 8, WATCH_RANGE),
                 p -> p.isAlive() && p.profile().dangerToYukkuri()).isEmpty()
                 || age < THREAT_MEMORY && threat != null && server.getEntity(threat) instanceof LivingEntity other && other.isAlive()
@@ -96,9 +101,6 @@ public final class DenBarrierBlockEntity extends BlockEntity {
     private void checkFamily(ServerLevel server, ShelterBlockEntity home, long age) {
         for (var child : server.getEntitiesOfClass(YukkuriEntity.class, home.interior(),
                 y -> y.isAlive() && !y.family().adult() && home.owns(y.getUUID()) && home.contains(y.blockPosition()))) {
-            if (child.isOnFire() || child.isInWaterOrBubble() || home.flooded()) {
-                releaseMouth(server, "danger_inside", child); return;
-            }
             if (child.life().isSleeping() || child.isPassenger()) continue;
             if (child.life().nutrition() < 30 && home.food() == 0) { releaseMouth(server, "child_hungry", child); return; }
             if (absent.stream().anyMatch(child.family()::kinOverdue)) { releaseMouth(server, "parent_overdue", child); return; }
@@ -115,7 +117,7 @@ public final class DenBarrierBlockEntity extends BlockEntity {
                 && y.distanceToSqr(worldPosition.getX() + .5, worldPosition.getY(), worldPosition.getZ() + .5) <= 144 ? y : null;
     }
 
-    /** Work on the doorway clears every remaining cell of the same family screen. */
+    /** Work on the doorway clears every remaining cell of the same screen. */
     private void releaseMouth(ServerLevel server, String reason, YukkuriEntity opener) {
         for (var side : Direction.Plane.HORIZONTAL) {
             var cell = den.relative(side);
@@ -129,7 +131,7 @@ public final class DenBarrierBlockEntity extends BlockEntity {
         var home = home(server);
         boolean returned = home != null && opener != null && home.returnBranch();
         released = true;
-        if (!returned && !reason.equals("decayed")) Block.popResource(server, worldPosition, new ItemStack(Items.STICK));
+        if (!returned) Block.popResource(server, worldPosition, new ItemStack(Items.STICK));
         GameplayLog.world(server, "home", "den barrier removed pos={} den={} owner={} reason={} age={} twig_returned={} opener={}",
                 worldPosition.toShortString(), den == null ? "none" : den.toShortString(), owner, reason,
                 server.getGameTime() - laidAt, returned, opener == null ? null : opener.getUUID());

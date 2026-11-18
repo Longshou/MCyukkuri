@@ -321,12 +321,14 @@ add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封�
     smoke=dict(ticks=1800, expect=[r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]'],
                forbid=[r'\[body\][^\n]* invariant\b']))
 
+_seal_threat_wise = _uuid_text('den_barrier_threat', 'wise')
 add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '会封洞的灵梦被居民打回家封洞',
     '会封洞的灵梦在洞外被虐派居民打了两下：胆小的它先僵住忍住，第二下才真正害怕，转身逃回洞里用洞口枝条封住。'
     '居民还在近旁时屏一直挡着；它自己忍过一阵后拆屏、把枝条还回粮堆。',
     '约 1 分钟，可倍速', [
         box(-9, 0, -7, 9, 0, 16, 'minecraft:air', 'replace minecraft:short_grass'),
-        yk('reimu', 0, 2, 'wise', label='会封洞的灵梦', boldness=15, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
+        yk('reimu', 0, 2, 'wise', uuid=uid('den_barrier_threat', 'wise'), label='会封洞的灵梦',
+           boldness=15, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
         # The resident starts well south of the mouth: it follows the panicking yukkuri slowly, so the doorway is clear while the screen goes up.
         human('oniisan', 3, 9, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
         set_status('wise', 'mood.unease', 60),
@@ -337,11 +339,11 @@ add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '
     env=DAY, spot='indep', vantage=(0, 14, 180),
     reads=[('读灵梦', f'yukkuri status {sel("wise")} raw'), ('读居民', f'yukkuri status {sel("threat")} raw')],
     smoke=dict(ticks=1900, expect=[
-        r'\[punishment\][^\n]* response=ENDURE\b',
-        r'\[punishment\][^\n]* response=ESCAPE\b',
-        r'\[home\][^\n]* den seal decided [^\n]* seals=true',
-        r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]',
-        r'\[home\][^\n]*den barrier removed [^\n]* reason=(danger_passed|pushed_through) [^\n]*twig_returned=true'],
+        rf'\[punishment\][^\n]*uuid={_seal_threat_wise}\b[^\n]* response=ENDURE\b',
+        rf'\[punishment\][^\n]*uuid={_seal_threat_wise}\b[^\n]* response=ESCAPE\b',
+        rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal decided [^\n]* seals=true',
+        rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal completed [^\n]* placed=1 twigs 2 -> 1 danger=[0-9a-f-]{{36}} absent=\[\]',
+        rf'\[home\][^\n]*den barrier removed [^\n]*owner={_seal_threat_wise}\b reason=(danger_passed|pushed_through) [^\n]*twig_returned=true'],
         forbid=[r'\[body\][^\n]* invariant\b']))
 
 # ====================================================================================================== vagrants and foraging
