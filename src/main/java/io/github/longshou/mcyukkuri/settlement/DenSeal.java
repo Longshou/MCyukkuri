@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Duty.End;
+import io.github.longshou.mcyukkuri.life.Duty.Kind;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -77,6 +79,7 @@ public final class DenSeal {
 
     public void abort(String reason) {
         if (!active()) return;
+        if (!absent.isEmpty()) y.duty().release(Kind.SEAL, End.FAILED, reason);
         GameplayLog.event(y, "home", "den seal aborted reason={} phase={} ticks={} den={} cells={} twigs_spent=0", reason, phase, ticks, den, cells.size());
         phase = Phase.IDLE; ticks = 0; dangerId = null; SurfaceApproach.halt(y);
         nextCheck = y.level().getGameTime() + RETRY;
@@ -238,6 +241,8 @@ public final class DenSeal {
             GameplayLog.limited(y, "threat", "seal_cell", 200, "den seal waiting reason=cell_occupied den={}", home.getBlockPos());
             return false;
         }
+        if (!parents.isEmpty() && !y.duty().take(Kind.SEAL, WALK_LIMIT + WORK_TICKS + RECHECK, 0, "den_seal_outing"))
+            return false;
         den = home.getBlockPos().immutable(); cells = plan.cells(); absent = parents;
         phase = Phase.WALK; ticks = 0;
         GameplayLog.event(y, "home", "den seal started den={} cells={} twigs={} danger={} absent={}",
@@ -265,6 +270,7 @@ public final class DenSeal {
         GameplayLog.event(y, "home", "den seal {} den={} cells={} placed={} twigs {} -> {} danger={} absent={} work_ticks={}",
                 placed == cells.size() ? "completed" : "placement_refused", den, cells, placed, before, home.branches(),
                 danger == null ? null : danger.getUUID(), absent, ticks);
+        if (!absent.isEmpty()) y.duty().release(Kind.SEAL, placed == cells.size() ? End.DONE : End.FAILED, "seal_finished");
         if (placed == cells.size()) for (var demonstration : demonstrations) {
             var learner = demonstration.learner();
             if (demonstration.missed() == null) learner.childhood().sawDenSeal(y);
