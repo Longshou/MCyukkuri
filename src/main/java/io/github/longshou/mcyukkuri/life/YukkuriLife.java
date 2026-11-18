@@ -1018,7 +1018,7 @@ public final class YukkuriLife {
             return true;
         }
         if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
-                && homeProvider().ordinaryRestAllowed(this)) {
+                && !entity.family().mealAwaits() && homeProvider().ordinaryRestAllowed(this)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
@@ -1238,7 +1238,8 @@ public final class YukkuriLife {
                 }
                 if (restingHere || inside && entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
-                    if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())) {
+                    if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME))
+                            && (energy <= restThreshold() || restTime()) && !entity.family().mealAwaits()) {
                         // Arrived to sleep: it looks its own bed over first (it may stay up a while, see settleIntoBed).
                         if (settleIntoBed()) { task = Task.NONE; planWait = 0; } else { task = Task.SLEEP; resetSleep(); }
                     }

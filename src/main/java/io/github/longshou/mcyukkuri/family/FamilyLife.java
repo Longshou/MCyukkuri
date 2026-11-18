@@ -375,6 +375,13 @@ public final class FamilyLife {
     }
     /** Uses the existing food source, care refusal and physical reach rules; it never starts care or rolls willingness. */
     public boolean hasFeedingOpportunity(YukkuriEntity child) { return feeding.hasOpportunity(child); }
+    /** Real hunger keeps a dependant up for a meal its caregiver already has in reach; it does not lie down hungry beside it. */
+    public boolean mealAwaits() {
+        return !adult() && entity.childhood().shouldStayWithParents() && entity.life().nutrition() < 30
+                && !entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12),
+                        other -> other != entity && other.family().caresFor(entity)
+                                && other.family().hasFeedingOpportunity(entity)).isEmpty();
+    }
     /** Migration yields to the same feeding and lost-child routines instead of leaving dependants behind. */
     public boolean prepareMigrationCare() {
         if(!adult()||!ordinaryLandFree(entity)||!entity.settlement().familyMarching())return false;
