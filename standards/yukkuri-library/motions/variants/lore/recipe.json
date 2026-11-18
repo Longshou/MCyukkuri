@@ -14,6 +14,7 @@
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
+    "braid-eat": {"clips": ["braid_eat", "braid_eat_bin"]},
     "paper": {"clips": ["paper_pull", "paper_cover_under", "paper_cover_child", "cold_shiver"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
@@ -171,6 +172,11 @@
     },
     "marisa_braid": [
       "marisa"
+    ],
+    "braid_feeders": [
+      "marisa",
+      "marisa_face",
+      "marisa_tsumuri"
     ],
     "patchouli": ["patchouli"]
   },
@@ -1276,6 +1282,52 @@
         "forward": 0.01,
         "sink": 0.02
       }
+    },
+    "braid_eat": {
+      "label": "辫梢把食物送进嘴里",
+      "duration": 1.9,
+      "loop": false,
+      "applies": "braid_feeders",
+      "braid_frame": "body",
+      "markers": {"pick": 0.55, "lift": 0.7, "mouth": 1.4},
+      "yaw": 32,
+      "reach_pitch": -5,
+      "bite_pitch": -6,
+      "roll": -4,
+      "end_lean": -8,
+      "faces": [[0, 0.6, "look_down"], [0.6, 1.25, "open_smile"], [1.25, 1.45, "chewing"], [1.45, 1.9, "chewing_closed"]],
+      "mouth_comp": {"pitch": 10, "forward": 0.01, "sink": 0.02},
+      "braid_keys": [
+        [0, "rest", "stop"],
+        [0.22, {"tip": [8.6, 0.8, -6.0], "root": [0.24, -0.92, -0.31], "arrive": [0.1, 0.9, 0.3]}, "turn", "swap_lead"],
+        [0.5, {"tip": [6.4, 1.0, -6.6], "root": [0.2, -1, -0.25], "arrive": [0.3, 0.9, 0.2]}, "stop"],
+        [0.6, {"tip": [6.4, 1.0, -6.6], "root": [0.2, -1, -0.25], "arrive": [0.3, 0.9, 0.2]}, "stop"],
+        [1.0, {"tip": [6.0, 3.0, -8.0], "root": [0.2, -1, -0.25], "arrive": [0.6, 0.8, 0.2]}],
+        [1.4, {"tip": [4.4, 2.8, -5.6], "root": [0.15, -1, -0.4], "arrive": [1, 0.4, -0.3]}, "stop"],
+        [1.62, {"tip": [8.6, 0.8, -6.0], "root": [0.24, -0.92, -0.31], "arrive": [0.1, 0.9, 0.3]}],
+        [1.9, "rest", "stop", "turn", "swap_lead"]
+      ],
+      "lore": "Project design (user 2026-11-17 feedback 24: eating gets a braid-to-mouth beat, mixed at random with eating straight with the mouth; scavenging a bin especially needs it). Body-is-ability: the braid is Marisa's only limb. The food lies where the mouth would have bitten it (just before her lips, ItemContact reach), which the braid cannot reach from her side, so she turns her braid side toward it (yaw, unlimited) and leans in a little while the tuft curls down onto it (pick: the real stack leaves its source into the braid tuft once, drawn at the clip field tip), turns back while the braid swings it up in front of her face (lift) and brings it to her lips' braid-side corner (mouth: the stack moves from the tuft into the mouth once, the meal starts there; the tip then sits at HeldItemPresentation LIPS_CORNER on the mouth anchor), bites with a small chomp and lets the braid fall back to rest while the face starts chewing. The last 0.5 s is the meal's take-food beat and ends on eat's own first pose (lean end_lean with eat's mouth_comp), so the eat loop takes over unseen. Tilt (pitch plus roll) stays within 9 degrees. Chain key poses and gate: braid_keys.py.",
+      "triggers": ["meal start with the braid (ground food, bowl): random alternative to eating straight with the mouth"]
+    },
+    "braid_eat_bin": {
+      "base": "braid_eat",
+      "label": "辫梢从倒下的垃圾桶里掏出食物送进嘴里",
+      "yaw": 48,
+      "reach_pitch": -6,
+      "roll": -3,
+      "braid_keys": [
+        [0, "rest", "stop"],
+        [0.22, {"tip": [8.6, 0.8, -6.0], "root": [0.24, -0.92, -0.31], "arrive": [0.1, 0.9, 0.3]}, "turn", "swap_lead"],
+        [0.5, {"tip": [8.0, 2.6, -8.0], "root": [0.15, -1, -0.4], "arrive": [0.3, 0.9, 0.2]}, "stop"],
+        [0.6, {"tip": [8.0, 2.6, -8.0], "root": [0.15, -1, -0.4], "arrive": [0.3, 0.9, 0.2]}, "stop"],
+        [1.0, {"tip": [6.0, 3.0, -8.0], "root": [0.2, -1, -0.25], "arrive": [0.6, 0.8, 0.2]}],
+        [1.4, {"tip": [4.4, 2.8, -5.6], "root": [0.15, -1, -0.4], "arrive": [1, 0.4, -0.3]}, "stop"],
+        [1.62, {"tip": [8.6, 0.8, -6.0], "root": [0.24, -0.92, -0.31], "arrive": [0.1, 0.9, 0.3]}],
+        [1.9, "rest", "stop", "turn", "swap_lead"]
+      ],
+      "lore": "Project design (user 2026-11-17 feedback 24: rummaging a bin especially needs the braid). braid_eat's preset at a fallen street bin, worked from its stand (GarbageSearch, one block out from the bin): she turns her braid side well toward the bin and leans in, the tuft reaches into the dark mouth of the fallen can (pick: the real piece leaves the bin into the tuft once, drawn at tip), pulls it out and up in front of her face (lift) and brings it to her lips (mouth: tuft to mouth, the meal starts), then chews. Tilt stays within 9 degrees.",
+      "triggers": ["GarbageSearch take at a fallen bin, for a braided body (strongly preferred over the mouth)"]
     },
     "shiawase": {
       "label": "しあわせー",

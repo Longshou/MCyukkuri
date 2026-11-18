@@ -41,6 +41,8 @@
     "nest_harvest": {"source": "lore", "family": "care_feeding", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "brace"}, "callers": ["java:Behaviors.NEST_HARVEST"]},
     "nest_place": {"source": "lore", "family": "care_feeding", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "brace"}, "callers": ["java:Behaviors.NEST_PLACE"]},
     "shelter_dig": {"source": "lore", "family": "care_feeding", "tier": "special", "classification": {"kind": "special", "reason": "Marisa's braid scrapes a real soil face and sweeps the soil out (braid key poses); the body-only scrape rides the same clock."}, "callers": ["java:Behaviors.SHELTER_DIG"]},
+    "braid_eat": {"source": "lore", "family": "care_feeding", "tier": "special", "classification": {"kind": "special", "reason": "Marisa's braid carries a real food item from where the mouth would bite it to her lips (pick and mouth contact markers, braid key poses with a tip track)."}, "callers": ["no caller"]},
+    "braid_eat_bin": {"source": "lore", "family": "care_feeding", "tier": "special", "classification": {"kind": "near_duplicate_of", "target": "braid_eat"}, "callers": ["no caller"]},
     "nest_spread": {"source": "lore", "family": "care_feeding", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "brace"}, "callers": ["java:Behaviors.NEST_SPREAD"]},
     "nest_press": {"source": "lore", "family": "care_feeding", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "brace"}, "callers": ["java:Behaviors.NEST_PRESS"]},
     "hat_brim": {"source": "lore", "family": "hat_boat", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:YukkuriAction.HAT_BRIM"]},
