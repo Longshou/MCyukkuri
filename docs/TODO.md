@@ -11,6 +11,7 @@
 | 布景角色与首批场景整理：TN34-36 进公园、HD06、MD17、MD21、TN14、TN20、TN24 | `.worktrees/wp-stager-1` | docs/roles/stager.md, scripts/museum_scenarios.py, scripts/museum_fields.py (Park) |
 | 转身：行进中变向，大角度才有转身动作 | `.worktrees/wp-turning` | motor/action/Hop.java, motor/action/Face.java |
 | 寒冷与取暖：按差值累积寒冷、篝火取暖站位、冷的台词与赤油哭诉、纸张收集、盖纸掉帧 | `.worktrees/wp-cold-warmth` | cold/warmth code, client/YukkuriModel.java (paper tent cache), FG-14 scene |
+| S1 性格层与宽分布：同一事件因数值不同而反应不同 | `.worktrees/wp-temperament` | personality/Temperament, TraitDraw, ~75 axis gates across behaviour code |
 
 ## 玩法待办
 
