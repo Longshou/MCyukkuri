@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,6 +25,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
@@ -38,6 +40,24 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     public YukkuriRenderer(EntityRendererProvider.Context context) {
         super(context);
         shadowRadius = .32f;
+    }
+
+    @Override
+    public Vec3 getRenderOffset(YukkuriEntity entity, float partialTick) {
+        if (entity.isPassenger()) return Vec3.ZERO;
+        var feet = entity.getPosition(partialTick);
+        var carton = ShelterBlock.foundInterior(entity.level(), BlockPos.containing(feet));
+        if (carton == null) return Vec3.ZERO;
+        var core = carton.getBlockPos();
+        var facing = carton.facing();
+        double x = feet.x - core.getX() - .5, z = feet.z - core.getZ() - .5;
+        double forward = x * facing.getStepX() + z * facing.getStepZ();
+        double across = Math.abs(x * facing.getStepZ() - z * facing.getStepX());
+        // Ease onto the 30-by-15-texel sheet over one texel at its edges.
+        double edge = Math.min(.5 - forward, Math.min(forward + 7/16., 15/16. - across));
+        // The floor sheet is 1/128 block thick, with another 1/128 for bedding (cardboard.py).
+        double top = core.getY() + (carton.lining() > 0 ? 2 : 1) / 128.0;
+        return new Vec3(0, Math.max(0, top - feet.y) * Mth.clamp(edge * 16, 0, 1), 0);
     }
 
     @Override
