@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 美术重做：纸箱重建与垃圾桶 | `.worktrees/wp-art-carton-bin` | standards/yukkuri-library/ecology/wild-shelters/, art/props/street-bin/ |
-| 试玩场菜单唯一入口：大厅按 M 选场景并直达观察点、实用页、重开随机个体 | `.worktrees/wp-museum-menu-first` | client/ViewerScreen.java, scripts/museum_*.py, scripts/build_museum_full.py, scripts/check_museum_pack.py, scripts/smoke_museum.py, scripts/capture_museum.py, command/ScenarioCommands.java |
 | 家庭职责占用：留守巡视、寻找、守望不被个体驱动抢走 | `.worktrees/wp-duty-claim` | life/Duty.java, life/DutyClaim, life/FamilyLife.java, entity/YukkuriGoals.java, DenSeal |
 | 美术重做 1：器具与窝 | `.worktrees/wp-art-redo-devices` | standards/yukkuri-library/drafts/care-props (placed, wild, large_nests), art/props/predators, art/props/large-nests |
 | 美术重做 2：护理工具与玩具 | `.worktrees/wp-art-redo-care` | care-expansion, house-repellent, CP/small.py |
