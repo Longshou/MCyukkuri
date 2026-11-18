@@ -78,6 +78,11 @@ if ($build) {
 }
 if (-not (Test-Path -LiteralPath $worldFile)) { throw 'Playground save is missing.' }
 
+if (-not $python) { $python = Find-Python }
+$viewerList = Join-Path $gameRoot 'mcyukkuri-viewer/playtest.json'
+& $python (Join-Path $projectRoot 'scripts/playtest_list.py') --menu-json $viewerList
+if ($LASTEXITCODE -ne 0) { throw 'Playtest list generation failed.' }
+
 $launchTime = Get-Date
 $stamp = $launchTime.ToString('yyyyMMdd-HHmmss-fff')
 $arguments = @(
@@ -85,6 +90,7 @@ $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunVmArgs.txt') + '"'),
     '-Xmx6G',
     '-Dmcyukkuri.aqdiag=true',
+    ('"-Dmcyukkuri.viewer=' + $viewerList + '"'),
     ('"-Dfml.modFolders=mcyukkuri%%' + (Join-Path $runtimeRoot 'mod') + '"')
 )
 if ($Profile) {

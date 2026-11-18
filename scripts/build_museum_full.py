@@ -49,6 +49,7 @@ import museum_sites  # noqa: E402
 from museum_sites import button, display, deck, wrap, units, CONTROLS  # noqa: E402
 
 NS = 'mcylab'
+JUMP_OBJ = 'mcylab_jump'
 WORLD = 'MCyukkuri-Museum'
 SPAWN = (0, FEET, 36, 180)
 LOBBY = (-42, -36, 42, 42)            # x1, z1, x2, z2 of the lobby plaza
@@ -384,6 +385,10 @@ def build_pack(world):
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
         # Keep manual diagnostic functions available without putting readout buttons on the deck.
         fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
+    start_guards = [
+        f'execute if score #clearing {OBJ} matches 1 run return run tellraw @s ' + _text('全部清场正在进行，结束后可启动场景。', 'yellow'),
+        f'execute unless score #ready {OBJ} matches 1 run return run tellraw @s ' + _text('试玩场尚未就绪，布置完成后可启动场景。', 'yellow'),
+    ]
     for s in museum_scenarios.S:
         f = BY_ID[s.field]
         ax, az = s.anchor
@@ -414,9 +419,7 @@ def build_pack(world):
             body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
         fn(f'scn/{s.id}', body)
         clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
-        start = [
-            f'execute if score #clearing {OBJ} matches 1 run return run tellraw @s ' + _text('全部清场正在进行，结束后可启动场景。', 'yellow'),
-            f'execute unless score #ready {OBJ} matches 1 run return run tellraw @s ' + _text('试玩场尚未就绪，布置完成后可启动场景。', 'yellow'),
+        start = start_guards + [
             'tellraw @s ' + _text(f'正在准备场景：{s.label}', 'aqua'),
             f'function {NS}:{clear_fn}',
         ] + env_commands(s.env)
@@ -449,6 +452,31 @@ def build_pack(world):
         for i, (caption, command) in enumerate(s.reads):
             # Manual /function diagnostics keep the original anchor and executing player.
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax}.0 {FEET} {az}.0 run yukkuri readout {command}'])
+
+    # Scheduled functions lose the caller. Each visitor's score keeps their latest scene choice.
+    jump_numbers = {s.id: n for n, s in enumerate(museum_scenarios.S, 1)}
+    jump_dispatchers = []
+    for f in FIELDS:
+        if not f.scenarios:
+            continue
+        rect = f.rect()
+        chunks = rect_chunks(rect)
+        assert len(chunks) <= 256, (f.id, len(chunks))
+        area = ' '.join(map(str, rect))
+        dispatcher = f'jump/field_{f.id}'
+        jump_dispatchers.append(dispatcher)
+        choices = []
+        for s in f.scenarios:
+            n = jump_numbers[s.id]
+            fn(f'jump/{s.id}', start_guards + [
+                f'scoreboard players set @s {JUMP_OBJ} {n}',
+                f'execute in minecraft:overworld run function {NS}:go/{f.id}',
+                f'execute in minecraft:overworld run forceload add {area}',
+                f'schedule function {NS}:{dispatcher} 1s replace',
+            ])
+            fn(f'jump/{s.id}_go', [f'scoreboard players reset @s {JUMP_OBJ}', f'function {NS}:start/{s.id}'])
+            choices.append(f'execute as @a[scores={{{JUMP_OBJ}={n}}}] at @s in minecraft:overworld run function {NS}:jump/{s.id}_go')
+        fn(dispatcher, guarded(dispatcher, chunks, choices + [f'forceload remove {area}']))
 
     # Run the same two-click comparison with the player standing on the front ledge.
     sanction = next(s for s in museum_scenarios.S if s.id == 'punishment')
@@ -528,6 +556,9 @@ def build_pack(world):
         f'execute if score #clearing {OBJ} matches 1 run return run tellraw @a ' + _text('全部清场正在进行。', 'yellow'),
         f'scoreboard players set #clearing {OBJ} 1',
         f'execute if score #village_job {OBJ} matches 0..1 run function {NS}:village/cancel',
+        # Clear-all takes over the force-loaded fields and releases them when it finishes.
+        f'scoreboard players reset * {JUMP_OBJ}',
+        *(f'schedule clear {NS}:{dispatcher}' for dispatcher in jump_dispatchers),
         'tellraw @a ' + _text('全部清场：正在加载各场地（约 3 秒）……', 'yellow'),
     ] + loads + [f'schedule function {NS}:util/clear_all_do 3s replace'])
     fn('home', [f'function {NS}:go/lobby'])
@@ -545,7 +576,7 @@ def build_pack(world):
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
     fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
-                   'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。', 'aqua')])
+                   'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。按 M 打开查看菜单：待看项一键前往并开始。', 'aqua')])
     shapes, blocks, items, entities = probe_lines([line for lines in texts.values() for line in lines])
     probes = {'commands': ['yukkuri clear air 0 64 0 0 64 0'] + [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],
               'blocks': [f'setblock 0 -64 0 {b}' for b in blocks], 'items': [f'give @s {i}' for i in items],
@@ -565,7 +596,7 @@ def build_pack(world):
        ['tellraw @s ' + _text('更新 .local/experimental-map/museum-runtime.json 指向的运行产物（用含 command/Scenario*.java 的 CI 构建）。', 'yellow')])
 
     # ---------------------------------------------------------------- load / tick / prepare / build
-    fn('load', ['yukkuri status trace light', f'scoreboard objectives add {OBJ} dummy',
+    fn('load', ['yukkuri status trace light', f'scoreboard objectives add {OBJ} dummy', f'scoreboard objectives add {JUMP_OBJ} dummy',
                 f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
                 f'execute unless score #probe {OBJ} matches 1 run scoreboard players set #ready {OBJ} 0',
                 f'execute if score #probe {OBJ} matches 1 unless score #built {OBJ} matches 1 run function {NS}:prepare',

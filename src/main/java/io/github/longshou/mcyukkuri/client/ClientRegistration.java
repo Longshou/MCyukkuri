@@ -17,6 +17,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
@@ -39,6 +40,10 @@ public final class ClientRegistration {
             NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Post.class, MuseumCapture::frame);
             NeoForge.EVENT_BUS.addListener(ScreenEvent.Render.Pre.class, MuseumCapture::renderScreen);
             NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, ViewportEvent.ComputeFov.class, MuseumCapture::fov);
+        }
+        if (System.getProperty(ViewerTodo.PROPERTY) != null) {
+            modBus.addListener(RegisterKeyMappingsEvent.class, ViewerScreen::keys);
+            NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, ViewerScreen::tick);
         }
         if (Boolean.getBoolean("mcyukkuri.clientProfile")) {
             NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, ClientProfile::tick);

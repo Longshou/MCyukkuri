@@ -6,7 +6,7 @@ Generates the pack into a scratch directory below .local/experimental-map and th
     Java sources register (literals and argument counts are parsed from the Java command classes);
   * every `function mcylab:x` and `schedule function` target exists in the pack (a `schedule clear` may name a smoke-runner
     function, which only the smoke tool writes);
-  * every scenario has a start function and a body and a button on its field's deck; every deck and every field gate has a way back to the
+  * every scenario has start and jump functions, a body and a button on its field's deck; every deck and every field gate has a way back to the
     lobby; every deck has clear (unconditional), lobby, time, weather, speed, advance, observe and mode buttons;
     every field teleports to its deck and belongs to a theme group listed in the lobby;
   * the lobby holds teleport buttons only (and the guide book): no time, weather, speed, spawn, clear or scenario control;
@@ -466,7 +466,7 @@ def main():
         stations = museum_scenarios_all()
         lobby = '\n'.join(texts['build/lobby'])
         for s in stations:
-            for need in (f'start/{s.id}', f'scn/{s.id}'):
+            for need in (f'start/{s.id}', f'jump/{s.id}', f'scn/{s.id}'):
                 if need not in pack:
                     findings.append(f'scenario {s.id}: function {need} missing')
             field = museum.BY_ID[s.field]

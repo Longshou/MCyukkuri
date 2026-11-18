@@ -107,7 +107,7 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 
 ## 试玩清单与反馈入档
 
-`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>] [--no-html]`：给用户的试玩清单。上次试玩提交取最近一场会话（`play-museum/*.session.json` 的 `runtimeConfig.commit`，`--since` 覆盖），已装运行包取 `museum-runtime.json`（`--until` 覆盖）；两个提交的 `docs/TODO.md` 差异只决定哪些状态仍开放的条目算新增或变化，措辞一律取当前检出的 `docs/TODO.md`（跨版本靠标题／引导短语／重叠度对上；在当前待办里找不到对应条目的跳过，列在标准错误）。条目里反引号包住的场景 ID 经 `museum_scenarios.py` 换成按钮：一场一行，按场地分组（场地与场内场景都按博物馆顺序），场内复测失败在前、已接入待试玩次之；每条目取最短看点（看点／完成子句，约 40 字）；顶部有场地、场景、条目计数，未指名场景的条目与已不存在的场景 ID 放在末尾“其他”块。Markdown 打到标准输出，页面写到 `.local/previews/playtest/index.html`；总入口 `index.html` 由 `build_preview_hub.py` 按分类生成，并链接此页。场景 ID 以当前检出为准，TODO 条目只认反引号写法。
+`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>]` 将两版之间新增或变化的待试玩条目按场地输出为 Markdown。默认从最近一场试玩会话和已装运行包取提交，措辞取当前检出的《待办》，用反引号内的场景 ID 或场景编号关联按钮。`--menu-json PATH` 改为写出游戏内「待看」清单的 JSON，包含当前所有复测失败与已接入待试玩条目，并根据两版差异标记「新」；没有旧会话时不标「新」。启动器每次启动都生成这份 JSON，原 HTML 页已停用。
 
 `<py> scripts/feedback_intake.py [--session <id或前缀>]`：把最近（或指定）会话的 session JSON、该场 stdout／stderr 日志（以及最近一场的 `latest.log`、`debug.log`；更早场次的这两份已被覆盖）复制到 `.local/reports/playtest-<日期>-<时间>/`，原文件不动；按聊天标题 `【<场景标题>】看点：` 识别用户打开过的场景，窗口取到下一次场景启动为止（并排场地的场景会共享窗口），逐场汇总死亡、溺水、`inWall`、饥饿伤害、拒绝（含原因计数）、异常，以及场景 `smoke.expect` 的断言行是否出现（无断言的场景给服务端前缀计数），写成同目录 `summary.md` 并打印。标题已在场景源码里改名的场景标为找不到；日志只含时分秒，日期由会话开始时间逐日推算。
 

@@ -1,16 +1,12 @@
-"""Playtest list: what changed between the runtime the user last played and the installed one, mapped to museum buttons.
+"""Map current TODO items to museum buttons by scene ID or number.
 
-Items of docs/TODO.md that are new or changed between the two commits and still open get their wording from the CURRENT
-docs/TODO.md (the diff only selects items); the backticked scene ids they name resolve to one line per scene, grouped by
-field in museum order (复测失败 first, then 已接入待试玩, then the rest), with a count summary on top and a short 其他
-block for items without scenes and for scene ids that no longer exist. Markdown on stdout, page at
-`.local/previews/playtest/index.html`. Read-only on the museum files.
+Markdown on stdout lists open items changed between the last played and installed runtime. Menu JSON lists all
+failed retests and items ready for playtest, marking the items from that diff as fresh.
 
-    python scripts/playtest_list.py [--since <commit>] [--until <commit>] [--no-html]
+    python scripts/playtest_list.py [--since <commit>] [--until <commit>] [--menu-json PATH]
 """
 import argparse
 import difflib
-import html
 import json
 import re
 import subprocess
@@ -23,6 +19,7 @@ sys.path.insert(0, str(HERE))
 
 STATUSES = ('已接入待试玩', '部分接入', '复测失败', '数值通过·演出待补')
 RANK = {'复测失败': 0, '已接入待试玩': 1, '部分接入': 2, '数值通过·演出待补': 3}
+MENU = ('复测失败', '已接入待试玩')
 PLAY_DIR = Path('.local/experimental-map/play-museum')
 WATCH_MAX = 40
 
@@ -184,17 +181,24 @@ def watch_of(hit, current):
 
 
 def load_museum():
-    """{scene id: (field, button)} and [(field title, [scene ids])] in museum order."""
+    """Scene labels by ID, IDs by scene number, and the field and scene order."""
     import museum_scenarios as ms
     from museum_fields import FIELDS
     scenes = {s.id: (f.title, s.label) for f in FIELDS for s in f.scenarios}
-    return scenes, [(f.title, [s.id for s in f.scenarios]) for f in FIELDS]
+    numbers = {s.number: s.id for s in ms.S}
+    return scenes, numbers, [(f.title, [s.id for s in f.scenarios]) for f in FIELDS]
+
+
+def scene_refs(text, scenes, numbers):
+    ids = [i for i in re.findall(r'`([a-z][a-z0-9_]*)`', text) if i in scenes]
+    ids += [numbers[n] for n in re.findall(r'\b([A-Z]{1,2}-\d\d)\b', text) if n in numbers]
+    return list(dict.fromkeys(ids))
 
 
 def build(since, until):
     old = {t for _, t in todo_items(git_show(since, 'docs/TODO.md'))}
     current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
-    scenes, field_order = load_museum()
+    scenes, numbers, field_order = load_museum()
     gone_pool = (scene_ids_at(since) | scene_ids_at(until)) - set(scenes)
     rows, unnamed, gone, skipped = {}, [], [], []
     items = []
@@ -212,7 +216,7 @@ def build(since, until):
         title, ctext = hit
         status = status_of(ctext)
         tokens = list(dict.fromkeys(re.findall(r'`([a-z][a-z0-9_]*)`', ctext)))
-        ids = [t for t in tokens if t in scenes]
+        ids = scene_refs(ctext, scenes, numbers)
         w = watch_of(hit, current)
         name = display_name(hit)
         gone += [(t, name) for t in tokens if t in gone_pool]
@@ -232,6 +236,22 @@ def build(since, until):
         if present:
             fields.append((ftitle, present))
     return dict(scenes=scenes, fields=fields, rows=rows, unnamed=unnamed, gone=gone, skipped=skipped, items=items)
+
+
+def menu(current, fresh_texts, scenes, numbers, field_order):
+    order = {sid: i for i, sid in enumerate(sid for _, ids in field_order for sid in ids)}
+    rows = []
+    for item in current:
+        _, text = item
+        status = status_of(text)
+        if status not in MENU:
+            continue
+        ids = scene_refs(text, scenes, numbers)
+        rows.append(dict(status=status, title=display_name(item), watch=watch_of(item, current),
+                         fresh=text in fresh_texts,
+                         scenes=[dict(id=sid, label=scenes[sid][1], field=scenes[sid][0]) for sid in ids]))
+    return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'],
+                                         order[row['scenes'][0]['id']] if row['scenes'] else len(order)))
 
 
 def statuses_line(statuses):
@@ -270,53 +290,35 @@ def markdown(d, since, until, played_from):
     return '\n'.join(out) + '\n'
 
 
-def page(d, since, until, played_from):
-    e = html.escape
-    body = [f'<h1>试玩清单</h1><p>{e(summary(d))}</p>'
-            f'<p>上次试玩 {e(since[:9])}（{e(played_from)}）→ 已装运行包 {e(until[:9])}</p>']
-    if not d['fields'] and not d['unnamed']:
-        body.append('<p>这两个版本之间没有新增或变化的待试玩条目。</p>')
-    for ftitle, sids in d['fields']:
-        body.append(f'<h2>{e(ftitle)}</h2><table><tr><th>按钮</th><th>状态</th><th>看点</th><th>条目</th></tr>')
-        for i in sorted(sids, key=lambda i: (min(RANK[s] for s in d['rows'][i]['statuses']), sids.index(i))):
-            r = d['rows'][i]
-            body.append(f'<tr><td>{e(d["scenes"][i][1])}</td><td>{e(statuses_line(r["statuses"]))}</td>'
-                        f'<td>{e("；".join(r["watches"]))}</td><td>{e("／".join(r["titles"]))}</td></tr>')
-        body.append('</table>')
-    if d['unnamed'] or d['gone']:
-        body.append('<h2>其他</h2><table><tr><th>条目</th><th>状态</th><th>看点</th></tr>')
-        body += [f'<tr><td>{e(t)}</td><td>{e(s)}</td><td>{e(w)}</td></tr>' for t, s, w in d['unnamed']]
-        body += [f'<tr><td>已不存在的场景：{e(g)}</td><td></td><td>条目「{e(t)}」</td></tr>' for g, t in d['gone']]
-        body.append('</table>')
-    style = ('body{font:15px/1.6 sans-serif;max-width:1100px;margin:2em auto;padding:0 1em}table{border-collapse:collapse;width:100%}'
-             'td,th{border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top}th{background:#eee}')
-    return (f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>试玩清单</title><style>{style}</style></head>'
-            f'<body>{"".join(body)}</body></html>')
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--since', help='override the last-played commit')
     ap.add_argument('--until', help='override the installed runtime commit')
-    ap.add_argument('--no-html', action='store_true')
+    ap.add_argument('--menu-json', type=Path, help='write the in-game playtest list')
     a = ap.parse_args()
     since, played_from = a.since, '--since'
     if not since:
         found = sessions()
-        if not found:
+        if found:
+            sid, data = found[-1]
+            since, played_from = data['runtimeConfig']['commit'], f'会话 {sid}'
+        elif not a.menu_json:
             sys.exit('no museum session under .local/experimental-map/play-museum; pass --since <commit>')
-        sid, data = found[-1]
-        since, played_from = data['runtimeConfig']['commit'], f'会话 {sid}'
     until = a.until or installed_commit()
+    if a.menu_json:
+        current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
+        fresh_texts = {text for _, text in build(since, until)['items']} if since else set()
+        rows = menu(current, fresh_texts, *load_museum())
+        a.menu_json.parent.mkdir(parents=True, exist_ok=True)
+        a.menu_json.write_text(json.dumps(dict(format=1, since=since, until=until, items=rows), ensure_ascii=False) + '\n',
+                               encoding='utf-8')
+        print(f'menu items={len(rows)} scenes={sum(len(row["scenes"]) for row in rows)} '
+              f'fresh={sum(row["fresh"] for row in rows)} unlinked={sum(not row["scenes"] for row in rows)}')
+        return
     d = build(since, until)
     print(markdown(d, since, until, played_from), end='')
     for title in d['skipped']:
         print(f'跳过（当前待办已无对应条目）：{title}', file=sys.stderr)
-    if not a.no_html:
-        out = ROOT / '.local/previews/playtest/index.html'
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(page(d, since, until, played_from), encoding='utf-8')
-        print(f'(页面：{out})', file=sys.stderr)
 
 
 if __name__ == '__main__':

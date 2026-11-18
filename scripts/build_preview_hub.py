@@ -42,7 +42,7 @@ def register_topics(out):
     recent = json.loads(recent_path.read_text(encoding='utf-8')) if recent_path.is_file() else dict(chapters=[])
     topics = []
     for folder in sorted(out.iterdir()):
-        if not folder.is_dir() or folder.name.startswith('_') or folder.name in ('models', 'library', 'scenes'):
+        if not folder.is_dir() or folder.name.startswith('_') or folder.name in ('models', 'library', 'scenes', 'playtest'):
             continue
         images = sorted(p for p in folder.iterdir() if p.suffix.lower() in ('.png', '.jpg', '.gif', '.mp4', '.webm'))
         index = folder/'index.html'
@@ -68,7 +68,7 @@ def register_topics(out):
         temporary.replace(path)
     for name in ('style.css', 'app.js', 'router.js', 'scene-player.js', 'index.html'):
         shutil.copy2(ROOT/'preview/hub'/name, out/name)
-    print(f'Registered {len(topics)} local preview topics (including playtest/inbox when present).')
+    print(f'Registered {len(topics)} local preview topics.')
 
 
 def render_models(node):
