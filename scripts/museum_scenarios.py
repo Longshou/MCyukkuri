@@ -2761,7 +2761,8 @@ add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱�
            ('读流浪魔理沙状态', f'yukkuri status {sel("yard_stray")} raw')])
 
 add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', '田边：吃一口作物，居民看见后警告',
-    '灵梦在田边，正对成熟胡萝卜。居民看得见它，旁边还有一棵苗。看成熟作物退一阶、灵梦吃完、居民当面警告。', '约半分钟', [
+    '灵梦在田边，正对成熟胡萝卜，右边的居民看得见它。开场几秒内灵梦咬下一口，作物退一阶，居民挥手喝斥；'
+    '灵梦在原地嚼完这一口（约 3 秒）才转身，朝远离居民的方向跑出十几格躲起来。旁边的幼苗不会被咬。', '约半分钟', [
         box(-3, -1, -3, 5, -1, 3, 'minecraft:polished_andesite'),
         block(1, -1, 0, 'minecraft:farmland[moisture=7]'),
         block(1, 0, 0, 'minecraft:carrots[age=7]'),
