@@ -479,7 +479,7 @@ def _tuck_body(kind, x, name, label):
 
 add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收拢：辫子、翅膀、尾巴',
     '饿油走进一格宽的玻璃墙槽，面朝你吃槽底的苹果：看魔理沙的辫子与帽檐、灵梦的鬓发向内收，蕾米莉亚和芙兰的翅膀向下收拢；'
-    '橙一开始就侧身背贴西侧玻璃朝东吃苹果，从正面隔着玻璃看它的侧面，两条尾巴贴着玻璃向上卷。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
+    '橙一开始就侧身背贴西侧玻璃朝东吃苹果，从正面隔着玻璃看它的侧面，两条尾巴离开头发向上弯成问号钩，尾尖越过头顶后部。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
     '约 10–20 秒', [
         box(-7, 0, 0, 8, 1, 0, 'minecraft:glass'),
         box(0, 0, 0, 0, 1, 28, 'minecraft:stone_bricks'),
@@ -491,7 +491,9 @@ add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收
     env=DAY, spot='wall_tuck', vantage=(1, -3, 0, 12), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
                  views={'': {}, 'locks': dict(position=(5.5, 1.9, -1.2), look_at=(5.5, .3, 2)),
-                        'tail': dict(position=(3.5, 2.7, -.9), look_at=(3.5, .3, 2.3)),
+                        # Chen in profile through the front glass at about 4.5 blocks, and from behind over the screen wall.
+                        'tail': dict(position=(3.5, .8, -2), look_at=(3.4, .4, 2.5)),
+                        'tail_back': dict(position=(.5, 2.6, 2.5), look_at=(3.5, .5, 2.5)),
                         'wings': dict(position=(-5.5, 1.9, -1.2), look_at=(-5.5, .3, 2))}),
     smoke=dict(ticks=600, forbid=[r'\[body\][^\n]* invariant\b'],
                expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
