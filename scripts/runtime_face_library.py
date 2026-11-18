@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LIB = ROOT / 'standards/yukkuri-library'
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 sys.path[:0] = [str(LIB), str(LIB/'body-standard'), str(LIB/'ecology/house-yukkuri')]
+from character_appearance import apply_style
 from expression_geometry import geometry_fingerprint, offset_element, offset_vertices, preset_changes, profile_point
 from mesh_geometry import vertices as mesh_vertices
 
@@ -76,6 +77,7 @@ def compose_preset(model, preset, neutral_source, common, with_texture=True, lib
             box = tuple(round(f([v[c] for v in front])*size) for c,f in [(3,min),(4,min),(3,max),(4,max)])
             im = Image.open(library/preset['parts'][p['name']]).convert('RGBA')
             atlas.paste(im.resize((box[2]-box[0],box[3]-box[1]),Image.Resampling.NEAREST),box[:2])
+        atlas = apply_style(model['id'], atlas)
     changes = preset_changes(preset)
     baked = {entry['index']: entry['vertices'] for entry in model.get('expression_patches', {}).get(preset['id'], [])}
     bake = body_bake(model['id'], library)
