@@ -2534,6 +2534,9 @@ add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放�
     late=['data merge block ~18 ~2 ~10 {Items:[]}', 'data merge block ~4 ~2 ~10 {Items:[]}',
           'data merge block ~12 ~2 ~10 {Waste:3.0d}', 'data merge block ~5 ~2 ~-12 {Waste:3.0d}'],
     give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook', CORE_FILLING], env=DAY, vantage=(8, 21, 180, 0),
+    capture=dict(shots=(60,), sequences=(), observe=False,
+                 views={'facade': dict(position=(0.0, 3.5, 23.0), look_at=(0.0, 4.0, 14.0)),
+                        'exam': dict(position=(-7.5, 3.6, 7.5), look_at=(-13.5, 2.8, 11.5))}),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
            ('读店内个体档案', f'yukkuri status {STOCK} raw'),
            ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
@@ -2586,6 +2589,8 @@ add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价�
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
     ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 17, 180, 8),
+    capture=dict(shots=(60,), sequences=(), observe=False,
+                 views={'counter': dict(position=(9.5, 3.5, 2.8), look_at=(14.5, 3.3, 0.8))}),
     reads=[('读店铺与库存', 'yukkuri human shop list'), ('读库存体况与预防', f'yukkuri status {STOCK} raw')])
 _stress_stock = {'oni_bold': (272000, 80, 60), 'oni_timid': (249000, 25, 68)}
 add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨商店：租工具解压',
