@@ -440,9 +440,9 @@ public final class ForageTrip extends Goal {
     private static final Set<String> KEEPS_LOAD = Set.of("stuck_home", "no_route_home");
     /** A way home that fails keeps the family's load in the mouth (it is brought on after the pause); the other endings drop it. */
     private void giveUp(String why) { reason = why; if (!KEEPS_LOAD.contains(why)) dropLoad(); finish(false); }
-    public void died() {
-        if (outing()) giveUp("death");
-        else if (!load.isEmpty()) { reason = "death"; dropLoad(); }
+    public void abortOnDanger(String why) {
+        if (outing()) giveUp(why);
+        else if (!load.isEmpty()) { reason = why; dropLoad(); }
     }
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }

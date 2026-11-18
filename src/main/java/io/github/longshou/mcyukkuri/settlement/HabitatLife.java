@@ -678,6 +678,10 @@ public final class HabitatLife {
         if(after>before)entity.species().countStock(after);
         stop();
     }
+    public void interruptOnHurt() {
+        dropCarrying();
+        if (active()) stop();
+    }
     public void dropCarrying() {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);

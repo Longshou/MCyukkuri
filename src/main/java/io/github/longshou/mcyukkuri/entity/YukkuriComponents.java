@@ -196,6 +196,7 @@ public final class YukkuriComponents {
                 .tick(130, HabitatLife::tick)
                 .save(290, (c, tag) -> tag.put("YukkuriHabitat", c.save()))
                 .load(280, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriHabitat")))
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_DANGER_STRIKE, 40, (c, ctx) -> c.interruptOnHurt())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 40, (c, ctx) -> c.dropCarrying()).build(),
         ComponentSpec.ready(GROUP_INTERACTION, YukkuriEntity::groupInteraction)
                 .goal(1, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (c, entity) -> c.defense(), PresentationGoals.SELF_DEFENSE)
@@ -300,7 +301,9 @@ public final class YukkuriComponents {
         ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip)
                 .save(330, ForageTrip::saveLoad)
                 .load(350, (c, ctx) -> c.loadCarried(ctx.root()))
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 45, (c, ctx) -> c.died()).build(),
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_DANGER_STRIKE, 45, (c, ctx) -> c.abortOnDanger("hurt"))
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 96, (c, ctx) -> c.abortOnDanger("fright"))
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 45, (c, ctx) -> c.abortOnDanger("death")).build(),
         ComponentSpec.ready(CARE_APPROACH, YukkuriEntity::careApproach)
                 .goal(2, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (care, entity) -> new Goal() {
                     { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
