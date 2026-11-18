@@ -6537,9 +6537,10 @@ _smoke('yard_park_play', 2600, [
 _picnic_pet = _uuid_text('yard_park_picnic', 'picnic_pet')
 _picnic_transfers = [
     r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',
-    rf'action=picnic_offer pet={_picnic_pet} input=minecraft:apple ',
+    rf'action=picnic_offer pet={_picnic_pet} input=minecraft:apple kept=1 mcyukkuri:apple_half '
+    r'placed item=mcyukkuri:apple_half count=1 drop=([0-9a-f-]{36}) age=-32768 ',
     r'action=picnic_ate item=mcyukkuri:apple_half count=1',
-    rf'uuid={_picnic_pet} [^\n]*pickup item=mcyukkuri:apple_half ',
+    rf'uuid={_picnic_pet} [^\n]*pickup item=mcyukkuri:apple_half count=1 source=([0-9a-f-]{{36}}) ',
     rf'uuid={_picnic_pet} [^\n]*swallowed item=mcyukkuri:apple_half count=1',
 ]
 _smoke('yard_park_picnic', 3200, [
@@ -6557,13 +6558,19 @@ _smoke('yard_park_picnic', 3200, [
 
 
 def _picnic_ledger(window):
+    transfers = []
     for transfer in _picnic_transfers:
-        count = len(re.findall(transfer, window))
-        if count != 1:
-            return f'expected exactly one picnic transfer matching {transfer}, found {count}'
+        matches = list(re.finditer(transfer, window))
+        if len(matches) != 1:
+            return f'expected exactly one picnic transfer matching {transfer}, found {len(matches)}'
+        transfers.append(matches[0])
+    take, offer, owner_eat, pickup, pet_eat = transfers
+    if (offer[1] != pickup[1] or not take.start() < offer.start() < pickup.start() < pet_eat.start()
+            or owner_eat.start() <= offer.start()):
+        return 'picnic half did not move from the original placement into the pet meal'
 
 
-next(s for s in S if s.id == 'yard_park_picnic').smoke['verify'] = _picnic_ledger
+next(s for s in S if s.id == 'yard_park_picnic').smoke.update(verify=_picnic_ledger, gating_checks=['LEDGER', 'END'])
 
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'

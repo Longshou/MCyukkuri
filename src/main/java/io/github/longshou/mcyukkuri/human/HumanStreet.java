@@ -144,7 +144,7 @@ final class HumanStreet {
     }
 
     boolean canCare(YukkuriEntity y) {
-        if (!npc.streetActive() || !observable() || npc.attitude() != HumanNpc.Attitude.CARING || !available(y) || !npc.mayTend(y)
+        if (!npc.streetActive() || npc.handlingPicnic() || !observable() || npc.attitude() != HumanNpc.Attitude.CARING || !available(y) || !npc.mayTend(y)
                 || !npc.hasLineOfSight(y) || !y.hasLineOfSight(npc) || y.isPanicking()
                 || npc.level().isRaining() && (npc.level().canSeeSky(BlockPos.containing(npc.getEyePosition()))
                 || npc.level().canSeeSky(y.blockPosition()) || !SurfaceApproach.supportedGround(y, y.position()))) return false;
@@ -175,7 +175,6 @@ final class HumanStreet {
 
     private boolean eligibleMeal(YukkuriEntity y) {
         return npc.careFood() > 0 && y.life().nutrition() <= 35 && y.body().toxin() == 0 && y.life().canEat()
-                && !(npc.holdsPicnicFood() && y.outing().onOuting() && Custody.ownedBy(y, npc.getUUID()))
                 && now() >= Custody.data(y).getLong(FED_AFTER);
     }
 
@@ -639,6 +638,7 @@ final class HumanStreet {
         }
 
         boolean outing() { return homeward || !companions.isEmpty(); }
+        boolean handlingPicnic() { return outing() && (npc.holdsPicnicFood() || picnicHalf != null); }
         boolean escorts(YukkuriEntity pet) { return !homeward && companions.contains(pet); }
         boolean parkLingering() { return facility != null && (leg != Leg.NONE || resume == null && atDestination()); }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
@@ -874,8 +874,8 @@ final class HumanStreet {
             picnicHalf = id;
             halfTicks = 0;
             tried.add(Leg.OFFER);
-            GameplayLog.event(npc, "npc-care", "action=picnic_offer pet={} input={} kept={} half={} serving={} at={}",
-                    legPet.getUUID(), input, kept, drop.getUUID(), id, GameplayLog.at(at));
+            GameplayLog.event(npc, "npc-care", "action=picnic_offer pet={} input={} kept={} placed item={} count=1 drop={} age={} serving={} at={}",
+                    legPet.getUUID(), input, kept, serving.getItem(), drop.getUUID(), drop.getAge(), id, GameplayLog.at(at));
         }
 
         private ItemEntity looseHalf() {
@@ -949,8 +949,8 @@ final class HumanStreet {
                         }
                         if (!npc.pickUpFood(half)) return false;
                         npc.swing(InteractionHand.MAIN_HAND);
-                        GameplayLog.event(npc, "npc-care", "action=picnic_collect result=picked half={} serving={} count=1",
-                                half.getUUID(), picnicHalf);
+                        GameplayLog.event(npc, "npc-care", "action=picnic_collect result=picked pickup item={} count=1 source={} serving={}",
+                                ModItems.APPLE_HALF.get(), half.getUUID(), picnicHalf);
                         picnicHalf = null;
                     }
                 }
