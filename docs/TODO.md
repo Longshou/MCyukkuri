@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 美术重做 1：器具与窝 | `.worktrees/wp-art-redo-devices` | standards/yukkuri-library/drafts/care-props (placed, wild, large_nests), art/props/predators, art/props/large-nests |
 | 受击统一入口与姿态：首击即反应、逃离威胁源、跑步动作、台词随姿态 | `.worktrees/wp-struck-stance` | status/Reactions.java, status/StruckStance.java, status/FlightPlanner.java, entity/YukkuriDamage.java, status/PunishmentReaction.java, entity/presentation/PresentationArbiter.java, art/dialogue |
-| 蹦床弹力：所有实体在床面弹起、床面下压与声音、油库里按体重体力弹跳 | `.worktrees/wp-trampoline-bounce` | play/PlayBlock.java, play/PlayLife.java, client/PlaygroundRenderer.java |
 | 布景角色与首批场景整理：TN34-36 进公园、HD06、MD17、MD21、TN14、TN20、TN24 | `.worktrees/wp-stager-1` | docs/roles/stager.md, scripts/museum_scenarios.py, scripts/museum_fields.py (Park) |
 
 ## 玩法待办
