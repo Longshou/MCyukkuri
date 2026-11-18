@@ -1,4 +1,4 @@
-"""Oil-grain bags: one product line, four silhouettes (kraft sack, mint pouch, navy gusset bag, chili pouch).
+"""Oil-grain bags: kraft sack, mint pouch and navy gusset bag.
 
 Labels sit on the -Z and +Z faces from one 11x15 texel decal (2 texels per unit): a big-shape face icon and stars.
 """
@@ -13,16 +13,6 @@ STAR = ['..x..',
         '.xxx.',
         '.x.x.',
         'x...x']
-CHILI = ['...gg....',
-         '...grr...',
-         '..rrrrr..',
-         '..rHrrr..',
-         '..rHrrr..',
-         '...rrrr..',
-         '...rrrr..',
-         '....rrr..',
-         '....rr...',
-         '.....r...']
 
 
 def head(img, x0, y0, ribbon=C('chili', 2)):
@@ -47,18 +37,9 @@ def head(img, x0, y0, ribbon=C('chili', 2)):
         img.putpixel((x0 + i, y0 + j), colour(*spec) + (255,))
 
 
-def mini_head(img, x0, y0):
-    paint(img, x0, y0, ['rh.hh', 'hhhhh', 'fefef', 'ffmff', '.fff.'],
-          {'r': C('chili', 2), 'h': C('wood', 0), 'f': C('straw', 2), 'e': C('wood', 0), 'm': C('berry', 1)})
-
-
-def label_art(p, ground, stars=0, star_spec=None, chili=False, width=11, sticker=False):
+def label_art(p, ground, stars, star_spec, width=11, sticker=False):
     x0, y0 = LABEL_AT
     fill(p.img, x0, y0, width, LABEL[1], ground)
-    if chili:
-        paint(p.img, x0 + 3, y0 + 1, CHILI, {'g': C('leaf', 1), 'r': C('chili', 2), 'H': C('chili', 3)})
-        mini_head(p.img, x0, y0)              # top-left corner, clear of the chili
-        return
     head(p.img, x0 + (width - 9) // 2, y0)      # rows 0-7, then two clear rows before the stars
     if sticker:
         paint(p.img, x0 + width - 4, y0 + 1, ['.gg.', 'gGGg', 'gGGg', '.gg.'], {'g': C('gold', 1), 'G': C('gold', 3)})
@@ -113,29 +94,18 @@ def oil_grain_budget():
     return p
 
 
-def pouch(p, ramp, tone, stars, star_spec, chili=False, top_tone=None):
-    rows = [(0, 3, 1.5, .5), (.5, 3.5, 2, .75), (8, 3.5, 2, .75), (10, 3.5, .75, .5), (10.5, 3.5, .5, .25), (11.5, 3.5, .5, .25)]
-    body = p.part('stand_up_pouch')
-    p.skin(body, loops(rows), Band(lambda i, j, c: C(ramp, max(0, tone - 2)) if i == 0 else C(ramp, tone if i < 3 or top_tone is None else top_tone)),
-           smooth='both', caps=(True, True), grid=.5)
-    seal = p.part('seal_teeth')
-    for k in range(7):
-        p.box(seal, [-3.5 + k, 10.5, -.75], [-3 + k, 11, .75], C(ramp, 0), grid=.5)
-    label_art(p, C('paper', 2) if chili else C('paper', 3), stars, star_spec, chili=chili)
-    label_quads(p, p.part('label'), 2.4, 1.5, 8, 2 + .125)
-
-
 def oil_grain_regular():
     """Regular: mint stand-up pouch with a cream label window and two stars."""
     p = Prop('oil_grain_regular', wide=True)
-    pouch(p, 'mint', 3, 2, C('gold', 1))
-    return p
-
-
-def spicy_grain():
-    """Spicy grain: the regular pouch shape in chili red with a chili icon."""
-    p = Prop('spicy_grain', wide=True)
-    pouch(p, 'chili', 1, 0, None, chili=True, top_tone=0)
+    rows = [(0, 3, 1.5, .5), (.5, 3.5, 2, .75), (8, 3.5, 2, .75), (10, 3.5, .75, .5), (10.5, 3.5, .5, .25), (11.5, 3.5, .5, .25)]
+    body = p.part('stand_up_pouch')
+    p.skin(body, loops(rows), Band(lambda i, j, c: C('mint', 1 if i == 0 else 3)),
+           smooth='both', caps=(True, True), grid=.5)
+    seal = p.part('seal_teeth')
+    for k in range(7):
+        p.box(seal, [-3.5 + k, 10.5, -.75], [-3 + k, 11, .75], C('mint', 0), grid=.5)
+    label_art(p, C('paper', 3), 2, C('gold', 1))
+    label_quads(p, p.part('label'), 2.4, 1.5, 8, 2 + .125)
     return p
 
 

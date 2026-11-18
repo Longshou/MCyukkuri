@@ -8,7 +8,7 @@ the low-poly kit; the placed food bowl, its heap-only grain / wheat / forage fil
 toilet (clean and dirty), the droppings and every non-default dye style of the placed goods (including the 2x2 woven nest
 and the ceramic / covered toilets) come from placed.py through vanilla_props.py. The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
-The default ceramic and covered toilets (placed.py), mats, and spicy grain / food mash are exported by their own package
+The default ceramic and covered toilets (placed.py), mats, and food mash are exported by their own package
 builders, which import this folder. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
 ecology/wild-shelters/build.py and art/props/predators/build.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
