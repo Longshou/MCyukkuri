@@ -68,9 +68,10 @@ public final class RamPerson implements Action {
                     || !body.hasLineOfSight(target) || target.position().subtract(body.position()).dot(direction) <= 0)
                 return Outcome.of(Reason.NO_CONTACT, distance, "person_moved_or_stroke_blocked");
             // A territorial bump is a warning. Leave at least half a heart even on a wounded person.
-            float damage = Math.clamp(target.getHealth() - 1, 0, 1);
+            boolean peer = target instanceof YukkuriEntity;
+            float damage = Math.clamp(target.getHealth() - 1, 0, peer ? .5f : 1);
             boolean hurt = damage > 0 && target.hurt(body.damageSources().mobAttack(body), damage);
-            target.knockback(.25, -direction.x, -direction.z);
+            target.knockback(peer ? .20 : .25, -direction.x, -direction.z);
             target.hurtMarked = true;
             GameplayLog.event(body, "home-claim", "territory ram target={} damage={}", target.getUUID(), hurt ? damage : 0);
         }

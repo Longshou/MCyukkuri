@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.body.BodyHit;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
@@ -89,17 +92,7 @@ public final class Reactions {
                 : threat.seal.active() ? "den seal=" + threat.seal.describe() : "none";
     }
     void scan() { threat.scan(); weather.scan(); }
-    void stop() { threat.seal.abort("response_stopped"); threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
-
-    /** Kin hear the alarm; nearby witnesses also react when they see a person inflict harm. */
-    void hurtBy(DamageSource source) {
-        threat.seal.abort("attacked");
-        if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
-        if (!PunishmentReaction.isHuman(attacker)) threat.attackedBy(attacker);
-        // The binding transaction is synchronous. Its close witnesses react to the hook that actually starts.
-        if(!entity.operations().strikingHook())threat.warnKin(attacker, true);
-        if (attacker instanceof Player player) HumanNpc.witnessedStreetHurt(entity, player);
-    }
+    void stop() { threat.response.clear(); threat.seal.abort("response_stopped"); threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
 
     // ---- shared predicates -------------------------------------------------------------------------------------
 
@@ -132,7 +125,7 @@ public final class Reactions {
     // ---- threat -----------------------------------------------------------------------------------------------
 
     public static final class Threat {
-        public enum Stage { NONE, WATCH, RETREAT, HIDE }
+        public enum Stage { NONE, WATCH, RETREAT, HIDE, STRUCK }
         private final YukkuriEntity y;
         /** Shared den-mouth work for predator alarms and family outings. */
         private final DenSeal seal;
@@ -151,7 +144,15 @@ public final class Reactions {
         static final int SAME_DANGER = 3600, HEARD = 160;
         private final FlightPlanner flight;
 
-        Threat(YukkuriEntity y) { this.y = y; seal = new DenSeal(y); flight = new FlightPlanner(y); }
+        private final StruckResponse response;
+        Threat(YukkuriEntity y) {
+            this.y = y;
+            seal = new DenSeal(y);
+            flight = new FlightPlanner(y);
+            response = new StruckResponse(y);
+        }
+        public boolean holdingStance() { return response.active(); }
+        public YukkuriAction stanceAction() { return response.action(); }
         public FlightPlanner flight() { return flight; }
 
         public Stage stage() { return stage; }
@@ -160,9 +161,10 @@ public final class Reactions {
         /** The predator (or attacker) that currently matters, or null. */
         public LivingEntity source() {
             if(y.life().isSleeping())return null;
-            if (seen != null && seen.isAlive()) return seen;
             long now = y.level().getGameTime();
-            return heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576 ? heard : null;
+            boolean nearby = heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576;
+            if (nearby && heard == y.getLastHurtByMob()) return heard;
+            return seen != null && seen.isAlive() ? seen : nearby ? heard : null;
         }
         String activity() {
             if (seal.pressing()) return Behaviors.NEST_PRESS;
@@ -170,6 +172,7 @@ public final class Reactions {
                 case WATCH -> Behaviors.THREAT_WATCH;
                 case RETREAT -> Behaviors.THREAT_RETREAT;
                 case HIDE -> Behaviors.THREAT_HIDE;
+                case STRUCK -> Behaviors.STRUCK;
                 default -> Behaviors.IDLE;
             };
         }
@@ -208,7 +211,7 @@ public final class Reactions {
                 if (d < bestD) { bestD = d; best = person; }
             }
             seen = best;
-            if (best == null) return;
+            if (best == null || holdingStance()) return;
             double d = Math.sqrt(bestD);
             // A known danger still in sight stays known: one that never leaves is announced once, not again and again.
             if (!fresh(best, now)) knownAt = now;
@@ -261,7 +264,74 @@ public final class Reactions {
             heard(guard, now);
         }
         /** The one that just hurt this body is remembered for the whole danger window: a bitten animal does not forget it. */
-        void attackedBy(LivingEntity danger) { heard(danger, y.level().getGameTime(), SAME_DANGER); }
+        private void attackedBy(LivingEntity danger) {
+            long now = y.level().getGameTime();
+            heard = danger;
+            heardUntil = now + SAME_DANGER;
+            know(danger, now);
+            cooldownUntil = now;
+        }
+
+        public void struck(DamageSource source, float loss, BodyHit.Kind kind) {
+            seal.abort("attacked");
+            var actor = source.getEntity() instanceof LivingEntity other && other != y ? other : null;
+            boolean human = PunishmentReaction.isHuman(actor);
+            int before = 0;
+            if (actor != null) {
+                attackedBy(actor);
+                warnKin(actor, true);
+                if (actor instanceof Player player) HumanNpc.witnessedStreetHurt(y, player);
+                if (human) before = PunishmentReaction.recordHuman(y, actor, "hurt", loss);
+                else if (loss > 0 && !(kind == BodyHit.Kind.BITE_WOUND && actor instanceof YukkuriEntity peer
+                        && peer.sanction().target() == y)) LearnedFear.witnessed(y, actor, "hurt");
+            }
+            if (!y.isAlive()) return;
+            boolean puff = !human && ProtectivePuff.witnessedHit(y, actor);
+            if (!human) y.life().personality().hurt(actor == null ? null : actor.getUUID());
+            if (y.body().dying()) return;
+            if (human && loss > 0) y.mind().felt(EmotionEvent.FRIGHTENED);
+            SurfaceApproach.halt(y);
+            if (y.shellRetracts()) {
+                response.clear();
+                y.setPanicTicks(112);
+                y.shellRetraction().tick(112);
+                return;
+            }
+            if (puff || actor instanceof YukkuriEntity peer && (y.profile().dangerToYukkuri()
+                    ? y.predator().retaliate(peer) : !peer.profile().dangerToYukkuri() && y.getVariant() != YukkuriVariant.MYON
+                    && !y.newbornStage() && y.groupInteraction().defense().respond(peer)) || y.myon().standGround(source)) {
+                response.clear();
+                y.setPanicTicks(0);
+                return;
+            }
+            if (actor == null) {
+                response.flee(null);
+                GameplayLog.event(y, "threat", "struck stance=FLEE cause={} loss={}", source.getMsgId(), loss);
+            } else {
+                var choice = response.decide(actor, loss);
+                if (human) logHuman(actor, "hurt", before, choice);
+            }
+        }
+
+        void humanIncident(LivingEntity actor, String incident, float loss) {
+            int before = PunishmentReaction.recordHuman(y, actor, incident, loss);
+            if (!y.isAlive() || y.body().dying()) return;
+            if (loss > 0) {
+                attackedBy(actor);
+                if (!y.operations().strikingHook()) warnKin(actor, true);
+            }
+            logHuman(actor, incident, before, response.decide(actor, loss));
+        }
+
+        private void logHuman(LivingEntity actor, String incident, int before, StruckStance choice) {
+            String name = switch (choice) {
+                case FLEE -> "ESCAPE";
+                case PUFF_FIGHT -> "DEFIANT";
+                default -> choice.name();
+            };
+            GameplayLog.event(y, "punishment", "victim actor={} incident={} response={} fear={} -> {} health={}",
+                    actor.getUUID(), incident, name, before, y.life().personality().fear(actor.getUUID()), y.getHealth());
+        }
         private void heard(LivingEntity danger, long now, int window) {
             if(y.life().isSleeping())return;
             if (danger == y || !danger.isAlive()) return;
@@ -272,14 +342,18 @@ public final class Reactions {
         }
 
         boolean wants() {
+            if (holdingStance()) return free(y) && !y.isPanicking();
             var s = source();
-            if (s == null || !free(y) || s instanceof HumanNpc && y.isLeashed() || y.hurtCrying() || y.grief().protecting() || y.myon().fighting() || y.isPanicking()
+            if (s == null || !free(y) || s instanceof HumanNpc && y.isLeashed() || y.grief().protecting() || y.myon().fighting() || y.isPanicking()
                     || y.family().carry().shelteredFrom(s) || y.level().getGameTime() < cooldownUntil) return false;
             return stage != Stage.NONE || s.distanceToSqr(y) <= 256 || s == heard;
         }
-        boolean keeps() { return stage != Stage.NONE && free(y) && !(source() instanceof HumanNpc && y.isLeashed()) && !y.hurtCrying() && !y.grief().protecting() && !y.myon().fighting()
+        boolean keeps() {
+            if (stage == Stage.STRUCK || holdingStance()) return free(y) && !y.isPanicking();
+            return stage != Stage.NONE && free(y) && !(source() instanceof HumanNpc && y.isLeashed()) && !y.grief().protecting() && !y.myon().fighting()
                 && !y.isPanicking() && !y.family().carry().shelteredFrom(source()); }
         void start() {
+            if (holdingStance()) { stage = Stage.STRUCK; return; }
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();
             stage = danger != null && y.hasLineOfSight(danger) ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
@@ -297,6 +371,7 @@ public final class Reactions {
             if (s != null) know(s, now);
         }
         void end(int cooldown) {
+            if (stage == Stage.STRUCK) response.clear();
             y.family().carry().endFlight();
             seal.reset();
             if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
@@ -306,6 +381,11 @@ public final class Reactions {
         }
 
         void tick() {
+            if (stage == Stage.STRUCK || holdingStance()) {
+                stage = Stage.STRUCK;
+                if (!response.tick()) end(100);
+                return;
+            }
             if (y.family().carry().tickFlight(source())) return;
             ticks++;
             var s = source();
@@ -323,9 +403,8 @@ public final class Reactions {
                     if (s == null) { stage = Stage.HIDE; ticks = 0; return; }
                     if (seal.drive(s)) return;
                     double d = s.distanceTo(y);
+                    if (safeAt(s)) { stage = Stage.HIDE; ticks = 0; return; }
                     flight.flee(s);
-                    var home = y.life().homeStand();
-                    if (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home)) < 2.25 && safeAt(s)) { stage = Stage.HIDE; ticks = 0; return; }
                     if (d > 20 || ticks > 400) { stage = Stage.HIDE; ticks = 0; }
                 }
                 case HIDE -> {

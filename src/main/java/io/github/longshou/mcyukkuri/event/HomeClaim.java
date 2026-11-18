@@ -597,8 +597,11 @@ public final class HomeClaim {
         c.retreat=GlobalPos.of(level.dimension(),c.site.pos().offset((int)Math.round(dx/len*20),0,(int)Math.round(dz/len*20)));
         for (UUID id:c.members) if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
             if(c.occupation&&c.site.equals(y.life().home()))y.life().releaseHome();
-            if (y!=hit) y.life().personality().confiscated(actor.getUUID()); // The hit member already learned fear from the blow.
-            y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise","afraid",80);
+            if (y!=hit) {
+                y.life().personality().confiscated(actor.getUUID());
+                y.mind().felt(EmotionEvent.FRIGHTENED);
+                y.showReaction("surprise","afraid",80);
+            }
         }
         return true;
     }

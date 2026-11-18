@@ -47,7 +47,7 @@ def catalog_input(number, broken):
             1: ('water', 'damage cause=drown health=10.0 -> 9.0 loss=1.0'),
             2: ('body', 'death settled into remains; cause=mcyukkuri.soaking'),
             7: ('water', 'damage cause=drown health=1.0 -> 0.0 loss=1.0'),
-            11: ('childhood', 'hurt cry start cause=inWall'),
+            11: ('threat', 'struck stance=FLEE cause=inWall loss=1.0'),
         }[number]
         if not broken:
             msg = 'healthy observation'

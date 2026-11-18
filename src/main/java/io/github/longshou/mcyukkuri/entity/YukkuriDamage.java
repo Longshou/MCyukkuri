@@ -12,25 +12,18 @@ import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
-import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.LearnedFear;
-import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /** One synchronous hurt/death transaction owner; public entity overrides delegate once. */
 final class YukkuriDamage {
-    /** A hurt newborn cries in place for this long (20 s), renewed by each further hit. */
-    private static final int HURT_CRY_TICKS=400;
     private final YukkuriEntity owner;
     YukkuriDamage(YukkuriEntity owner) { this.owner = owner; }
     private boolean deathRecorded;
@@ -84,12 +77,6 @@ final class YukkuriDamage {
                 owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             }
             var result=settle(transaction,accepted);
-            boolean humanPunisher=PunishmentReaction.isHuman(source.getEntity());
-            boolean sanctionBite=kind==BodyHit.Kind.BITE_WOUND && source.getEntity() instanceof YukkuriEntity peer
-                    && peer.sanction().target()==owner;
-            if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&kind!=BodyHit.Kind.ATTACHMENT
-                    &&!humanPunisher&&!sanctionBite&&source.getEntity() instanceof LivingEntity attacker)
-                LearnedFear.witnessed(owner,attacker,"hurt");
             if(result.loss()>0&&YukkuriLife.isWaterDamage(source))
                 GameplayLog.event(owner,"water","damage cause={} health={} -> {} loss={}",
                         source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss());
@@ -102,16 +89,11 @@ final class YukkuriDamage {
                         "accepted damage cause={} health={} -> {} loss={}{}",
                         source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss(),
                         source.is(DamageTypes.STARVE)&&owner.body().stemDepleting()?" stem_depletion=true":"");
-            // Witnesses see a lethal hit too; the victim's own recovery and panic require it to remain alive.
-            if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
-                owner.status().hurt(source);
                 owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
                 // One draw per accepted hit on a carrying parent: it may shake one young loose (ParentCarry#struck).
                 owner.family().carry().struck(result.loss());
-                // One draw per real attack: the victim's own protective puff and each of its parents' (ProtectivePuff).
-                boolean puffing = kind != BodyHit.Kind.BOUT && !humanPunisher && ProtectivePuff.witnessedHit(owner, source.getEntity());
                 if(kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof YukkuriEntity attacker)
                     GroupInteractionGoal.witnessedAttack(owner,attacker);
                 owner.operations().damaged(source);
@@ -120,35 +102,9 @@ final class YukkuriDamage {
                 owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
                 if(kind!=BodyHit.Kind.BOUT && kind!=BodyHit.Kind.ATTACHMENT)
                     owner.interrupt(interruption,InterruptPhase.AFTER_DANGER_STRIKE);
-                if(kind!=BodyHit.Kind.BOUT&&!humanPunisher)
-                    owner.life().personality().hurt(source.getEntity()==null?null:source.getEntity().getUUID());
-                if(!owner.body().dying()) {
-                    if (humanPunisher && result.loss()>0) owner.mind().felt(EmotionEvent.FRIGHTENED);
-                    boolean peerConflict = kind != BodyHit.Kind.BOUT && source.getEntity() instanceof YukkuriEntity attacker
-                            && owner.getVariant() != YukkuriVariant.MYON && !owner.profile().dangerToYukkuri()
-                            && !attacker.profile().dangerToYukkuri();
-                    boolean retaliating = kind != BodyHit.Kind.BOUT && owner.profile().dangerToYukkuri()
-                            && source.getEntity() instanceof YukkuriEntity attacker
-                            && owner.predator().retaliate(attacker);
-                    boolean defending = peerConflict && owner.groupInteraction().defense().respond((YukkuriEntity) source.getEntity());
-                    boolean hurtCry=owner.newbornStage()&&!owner.shellRetracts()&&!owner.isOnFire()&&!source.is(DamageTypeTags.IS_FIRE)
-                            &&!source.is(DamageTypes.DROWN)&&!owner.isInWaterOrBubble();
-                    if(hurtCry)owner.startHurtCry(source.type().msgId(),HURT_CRY_TICKS);
-                    else if(!humanPunisher||owner.shellRetracts())owner.setPanicTicks(112);
-                    if(defending || retaliating || puffing || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
-                    // Only a real blow that leaves the victim fleeing contributes to its recovery after the flight.
-                    if(owner.isPanicking()&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof LivingEntity attacker)
-                        owner.mind().feeling().frightened(attacker instanceof YukkuriEntity y && y.profile().dangerToYukkuri() ? 1 : .6f);
-                    owner.directNavigation().stop();
-                    if(hurtCry)owner.setAnimation(YukkuriAction.STARTLE,true);
-                    else if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());
-                    else owner.setAnimation(YukkuriAction.STARTLE,true);
-                }
             }
-            // Inserted tools choose after the operation has either bound the wound or left it open.
-            if(physicalHit&&result.loss()>0&&kind!=BodyHit.Kind.BOUT&&kind!=BodyHit.Kind.ATTACHMENT
-                    &&humanPunisher&&source.getEntity() instanceof LivingEntity punisher)
-                PunishmentReaction.human(owner,punisher,"hurt",true);
+            if(physicalHit && kind!=BodyHit.Kind.BOUT && kind!=BodyHit.Kind.ATTACHMENT)
+                owner.status().reactions().threat().struck(source, result.loss(), kind);
             return result;
         } finally {
             current=previous;

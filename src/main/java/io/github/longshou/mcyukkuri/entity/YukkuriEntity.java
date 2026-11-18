@@ -221,9 +221,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     private YukkuriAction requestedAction;
     private int panicTicks;
-    /** Game time until which a hurt newborn holds still and cries; server-only, never saved. */
-    private long hurtCryUntil;
-    private String hurtCryCause;
     private final ShellRetraction shellRetraction = new ShellRetraction(this);
     private int reactionTicks;
     /** The running reaction is held: nothing replaces it before it has run its ticks (a startle that must be seen whole). */
@@ -491,14 +488,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public PlayLife playLife(){return playLife;}
     public void frightenFrom(YukkuriEntity threat) {
-        if(level().isClientSide||!isAlive()||life.isSleeping()||hurtCrying()||hurtCrying())return;
+        if(level().isClientSide||!isAlive()||life.isSleeping()||status.reactions().threat().holdingStance())return;
         if(grief.protecting())return;
         if(myon.confront(threat))return; // a brave Myon turns on the threat instead of bolting
         fleeFrom(threat);
     }
     /** A chosen retreat must not be replaced by a species' stand-ground override. */
     public void fleeFrom(LivingEntity threat) {
-        if(level().isClientSide||!isAlive()||hurtCrying())return;
+        if(level().isClientSide||!isAlive())return;
         interrupt(Interrupt.FRIGHT);
         setLastHurtByMob(threat);panicTicks=100;
         if (threat instanceof YukkuriEntity y && y.profile().dangerToYukkuri()) mind.feeling().frightened(1);
@@ -869,7 +866,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */
-    boolean shellRetracts() {
+    public boolean shellRetracts() {
         return shellRetraction.available();
     }
 
@@ -955,6 +952,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (level().isClientSide) return;
         startReaction(expression, dialogue, ticks);
         speak(reactionEvent);
+    }
+
+    public void struckReaction(YukkuriAction action, String face, String line, int ticks) {
+        pendingSpeech = null;
+        pendingSpeechTicks = 0;
+        reactionStartedAt = level().getGameTime();
+        speechTiming.interrupt();
+        forceReaction(face, line, ticks);
+        reactionAction = action;
+        reactionHeld = true;
+        setAnimation(action, true);
     }
 
     private void startReaction(String expression, String dialogue, int ticks) {
@@ -1243,23 +1251,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     PathNavigation directNavigation() { return navigation; }
     float lastHurtValue() { return lastHurt; }
     int panicTicksValue() { return panicTicks; }
-    void setPanicTicks(int ticks) { panicTicks = ticks; }
-    /** Project design: a hurt newborn (BABY stage) does not flee; it stays put and cries until the cry lapses. */
-    public boolean hurtCrying() {
-        return hurtCryUntil > level().getGameTime() && isAlive() && lifeStage() == FamilyLife.Stage.BABY.ordinal();
-    }
+    public void setPanicTicks(int ticks) { panicTicks = ticks; }
     public boolean newbornStage() { return lifeStage() == FamilyLife.Stage.BABY.ordinal(); }
-    public String hurtCryCause() { return hurtCryCause; }
-    void startHurtCry(String cause, int ticks) {
-        boolean fresh = !hurtCrying();
-        hurtCryUntil = level().getGameTime() + ticks; hurtCryCause = cause; panicTicks = 0;
-        if (fresh) GameplayLog.event(this, "childhood", "hurt cry start cause={} ticks={} health={}", cause, ticks, getHealth());
-    }
-    void endHurtCry(String reason) {
-        if (hurtCryUntil == 0) return;
-        hurtCryUntil = 0;
-        GameplayLog.event(this, "childhood", "hurt cry end cause={} reason={} health={}", hurtCryCause, reason, getHealth());
-    }
     YukkuriAction requestedActionValue() { return requestedAction; }
     boolean hurtBase(DamageSource source, float amount) {
         int previousHurt = hurtTime, previousDuration = hurtDuration;

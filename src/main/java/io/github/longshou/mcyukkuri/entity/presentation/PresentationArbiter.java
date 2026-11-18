@@ -438,6 +438,10 @@ public final class PresentationArbiter {
         var e = state.owner();
         if (state.reactionTicks() > 0 && state.reactionEvent().equals("birth_lost")) return YukkuriAction.BEREAVED;
         var reaction = e.reactionAction();
+        if (behavior.equals(Behaviors.STRUCK)) {
+            var action = e.status().reactions().threat().stanceAction();
+            if (action != null) return action;
+        }
         if (reaction == YukkuriAction.COUGH_MUKYU && e.life().mealTicks() > 0) return reaction;
         if(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)){
             if(e.family().stemDepletionWarning())return YukkuriAction.TREMBLE;

@@ -305,7 +305,7 @@ public final class OperationLife {
         }
         boolean bound = wound != null && !entity.body().dying() && begin(actor,next,duration,tool,support,wound);
         if (entity.getHealth() < before)
-            PunishmentReaction.human(entity, actor, bound ? CareAction.forTool(tool).key() : "hurt", true);
+            PunishmentReaction.human(entity, actor, bound ? CareAction.forTool(tool).key() : "hurt", before - entity.getHealth());
         return bound;
     }
     private boolean begin(LivingEntity actor,Pose next,int duration,Tool binding){

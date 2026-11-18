@@ -337,23 +337,23 @@ def _seal_threat_press(_window, trace):
 
 
 add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '会封洞的灵梦被居民打回家封洞',
-    '会封洞的灵梦在洞外被虐派居民打了两下：胆小的它先僵住忍住，第二下才真正害怕，转身逃回洞里用洞口枝条封住。'
+    '会封洞的灵梦叼着两份草，在洞外挨了居民一下，掉下草后立即转身逃回洞里，用洞口枝条封住。'
     '居民还在近旁时屏一直挡着；它自己忍过一阵后拆屏、把枝条还回粮堆。',
     '约 1 分钟，可倍速', [
         box(-9, 0, -7, 9, 0, 16, 'minecraft:air', 'replace minecraft:short_grass'),
         yk('reimu', 0, 2, 'wise', uuid=uid('den_barrier_threat', 'wise'), label='会封洞的灵梦',
-           boldness=15, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
+           boldness=15, self_control=100, childhood=_seal_skill, lead=True,
+           extra='YukkuriForageLoad:{id:"minecraft:short_grass",count:2}', **pair_ready()),
         # The resident starts well south of the mouth: it follows the panicking yukkuri slowly, so the doorway is clear while the screen goes up.
         human('oniisan', 3, 9, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
         set_status('wise', 'mood.unease', 60),
         home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
-    # Two real blows from the resident, two seconds apart: the first is endured, the second is what makes it bolt home.
-    late=[Retry(f'damage {sel("wise")} 1 minecraft:player_attack by {sel("threat")}', sel('wise'), tries=1, first=1),
-          Retry(f'damage {sel("wise")} 1 minecraft:player_attack by {sel("threat")}', sel('wise'), tries=1, first=41)],
+    late=[Retry(f'damage {sel("wise")} 1 minecraft:player_attack by {sel("threat")}', sel('wise'), tries=1, first=1)],
     env=DAY, spot='indep', vantage=(0, 14, 180),
     reads=[('读灵梦', f'yukkuri status {sel("wise")} raw'), ('读居民', f'yukkuri status {sel("threat")} raw')],
     smoke=dict(ticks=1900, expect=[
-        rf'\[punishment\][^\n]*uuid={_seal_threat_wise}\b[^\n]* response=ENDURE\b',
+        rf'\[threat\][^\n]*uuid={_seal_threat_wise}\b[^\n]* struck stance=FLEE\b',
+        rf'\[forage\][^\n]*uuid={_seal_threat_wise}\b[^\n]* drop item=minecraft:short_grass count=2 reason=hurt\b',
         rf'\[punishment\][^\n]*uuid={_seal_threat_wise}\b[^\n]* response=ESCAPE\b',
         rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal decided [^\n]* seals=true',
         rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal completed [^\n]* placed=1 twigs 2 -> 1 danger=[0-9a-f-]{{36}} absent=\[\]',
@@ -3386,12 +3386,41 @@ for _label, _x, _friend, _control in (('willing', -16, 10, 10), ('reluctant', 16
     _hunt_lines += [
         yk('reimu', _x, 0, 'hunter_' + _label, label='低克制' if _label == 'willing' else '高克制',
            nutrition=9, energy=95, friendliness=_friend, self_control=_control, boldness=60, lead=_label == 'willing'),
-        yk('marisa', _x + 4, 0, 'prey_' + _label, accessory=False, **pair_ready())]
+        yk('marisa', _x + 4, 0, 'prey_' + _label, accessory=False, boldness=40,
+           uuid=uid('cannibal_hunt', 'prey_' + _label), **pair_ready())]
 add('cannibal_hunt', 'body', '饿油捕食没头饰的同类', '饿油捕食没头饰的同类',
     '两组都是营养9、看见失饰成年目标；左低友善低自制，右高友善高自制。读猎食判分与真实追咬：数值拒绝不算卡住；失饰识别不等于必攻击，低血和体力不足会退避。只有实际伤害形成食物、吞下才加营养',
     '约10–60秒；饥饿继续加深时意愿也会改变', _hunt_lines, note=NEW, vantage=(0, 12),
     reads=[(f'读{role}·{label}', f'yukkuri status {sel(role + "_" + label)} raw')
-           for label in ('willing','reluctant') for role in ('hunter','prey')])
+           for label in ('willing','reluctant') for role in ('hunter','prey')],
+    smoke=dict(ticks=900, expect=[
+        r'\[cannibal\][^\n]* hunt meal handed off prey=',
+        rf'\[threat\][^\n]*uuid={_uuid_text("cannibal_hunt", "prey_willing")} [^\n]* struck stance=FLEE\b',
+        rf'\[threat\][^\n]*uuid={_uuid_text("cannibal_hunt", "prey_willing")} [^\n]* flight away stand=',
+    ], forbid=[r'\[body\][^\n]* invariant\b'], verify_trace=True))
+
+
+def _hunt_flight(window, trace):
+    prey = _uuid_text('cannibal_hunt', 'prey_willing')
+    hit = re.search(rf'\[threat\][^\n]*uuid={prey} t=(\d+)[^\n]* struck stance=FLEE attacker=([\da-f-]+)', window)
+    if not hit:
+        return 'The willing hunter never made its prey flee'
+    tick, hunter = int(hit[1]), hit[2]
+    positions = {}
+    running = False
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and tick <= row['t'] <= tick + 104 and row['u'] in (prey, hunter):
+            state = row['st']
+            positions.setdefault(row['t'], {})[row['u']] = state['p']
+            if row['u'] == prey and state['behavior'] == 'flee' and state['animation'] == 'run':
+                running = True
+    distances = [math.dist(bodies[prey], bodies[hunter]) for bodies in positions.values() if len(bodies) == 2]
+    if not running or not distances or max(distances) <= distances[0] + 1:
+        return 'Struck prey must show the run clip and gain ground on its attacker'
+
+
+next(s for s in S if s.id == 'cannibal_hunt').smoke['verify'] = _hunt_flight
 
 
 
@@ -5735,6 +5764,14 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
     _spec['commands'] = [(_at, yk('reimu', _dx, _dz, 'territory_intruder', uuid=_intruder, boldness=0, extra='NoAI:1b'))]
     _spec['expect'] += [rf'\[home-claim\][^\n]* territory {beat} target={_uuid_text(_sid, "territory_intruder")}\b'
                         for beat in ('warn', 'chase')]
+    if _sid == 'home_greedy':
+        _spec['commands'] += [
+            (700, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator enter'),
+            (702, f'damage {sel("greedy")} 1 minecraft:player_attack by @a[name=MuseumOperator,limit=1]'),
+            (805, 'yukkuri scenario tool_operator leave'),
+        ]
+        _spec['expect'] += [r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
+        _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
 
 _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* farewell started',

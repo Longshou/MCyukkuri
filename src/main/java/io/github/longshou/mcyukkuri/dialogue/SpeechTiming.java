@@ -43,4 +43,5 @@ public final class SpeechTiming {
         next = end + (incomingPriority == 0 ? 200 : incomingPriority == 1 ? 120 : 30);
     }
     public long end() { return end; }
+    public void interrupt() { end = next = 0; priority = -1; }
 }

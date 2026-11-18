@@ -77,7 +77,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
 
     private boolean available() {
         var identity=body.status().identity();
-        return body.isAlive() && !body.isNoAi() && !body.isPassenger() && !body.isPanicking() && !body.hurtCrying()
+        return body.isAlive() && !body.isNoAi() && !body.isPassenger() && !body.isPanicking() && !body.status().reactions().threat().holdingStance()
                 && !body.profile().houseBody() && !body.profile().aquatic() && !body.profile().dangerToYukkuri()
                 && !body.settlement().society().slave() && identity != Identity.STOCK
                 && !body.isCommandPlaying() && !body.operations().active() && body.life().mealTicks() == 0
@@ -243,7 +243,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         }
         if (yielded) { shelter(); return; }
         if (elapsed == LOOK) {
-            body.showReaction("angry", "wild_role_provoke", PUFF / 2);
+            body.showReaction("angry", "puff", PUFF / 2);
             GameplayLog.event(body, "home-claim", "territory warn target={} site={} esteem={} wariness={} resolve={}",
                     intruder.getUUID(), home.site, contact.esteem(), contact.wariness(), courage);
         }

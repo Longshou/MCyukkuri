@@ -406,10 +406,7 @@ public final class BodyLife {
                     actual.id(),hit.source().getMsgId(),hit.source().getEntity()==null?"none":hit.source().getEntity().getUUID());
             hitParticles(strike,hit.source());
             if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
-            if(entity.isAlive()){
-                entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
-                entity.showReaction("surprise","wounded",80);
-            }
+            if(entity.isAlive())entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
             // Human staff never break a bystander by their own violence; the player still can.
             witnessInjury(hit.source().getEntity() instanceof HumanNpc ? Naming.NAMING_CEILING : 100);
         }

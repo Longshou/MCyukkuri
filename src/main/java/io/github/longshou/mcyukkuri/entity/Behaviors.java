@@ -58,7 +58,7 @@ public final class Behaviors {
     public static final String CHEW_RELUCTANT = "chew_reluctant";
     public static final String COMFORT_LICK = "comfort_lick";
     public static final String COMFORT_RECEIVE = "comfort_receive";
-    public static final String HURT_CRY = "hurt_cry";
+    public static final String STRUCK = "struck";
     public static final String COURTSHIP = "courtship";
     public static final String DRINK = "drink";
     public static final String ESCAPE_WATER = "escape_water";

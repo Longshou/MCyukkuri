@@ -26,8 +26,8 @@ FATES = {
     'death': (('body', r'^death settled into remains; cause=(?P<cause>\S+)'), ('body', r'^core hurt \((?P<cause>[^)]*)\), dying for ')),
     # entity/YukkuriDamage: health lost to immersion (life/YukkuriLife hurts every 20 ticks in water, 60 for aquatic bodies)
     'drown': (('water', r'^damage cause=drown\b'),),
-    # entity/YukkuriDamage (first hit, then rate-limited); a newborn's cry (entity/YukkuriEntity.startHurtCry); a death by it
-    'in_wall': (('body', r'^in wall damage\b'), ('childhood', r'^hurt cry start cause=inWall\b'),
+    # Accepted suffocation damage, the surviving victim's flight, or a death by suffocation.
+    'in_wall': (('body', r'^in wall damage\b'), ('threat', r'^struck stance=FLEE cause=inWall\b'),
                 ('body', r'^death settled into remains; cause=inWall\b')),
     # life/YukkuriLife.tick: nutrition at zero for the starvation interval
     'starve': (('needs', r'^starvation damage accepted=true\b'),),

@@ -410,15 +410,6 @@ public final class PetLife {
         else { animal.playAction("droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("cry", "lost_parent", 100); }
     }
 
-    /** A pet chased by a predator runs to its owner when the owner is close enough to help (called by the flee goal). */
-    public boolean fleeToOwner() {
-        if (!isPet() || !(animal.getLastHurtByMob() instanceof YukkuriEntity threat) || !threat.profile().dangerToYukkuri()) return false;
-        var o = animal.level().getPlayerByUUID(owner());
-        if (o == null || !o.isAlive() || o.isSpectator() || o.distanceToSqr(animal) > 256) return false;
-        if (o.distanceToSqr(animal) > 6.25) animal.getNavigation().moveTo(o, 1.2); else animal.getNavigation().stop();
-        return true;
-    }
-
     // sessions
     public boolean busy() { return lockKind != null; }
     public String busyWith() { return lockKind == null ? "" : lockKind; }

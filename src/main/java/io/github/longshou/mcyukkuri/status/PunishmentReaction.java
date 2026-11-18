@@ -59,15 +59,29 @@ public final class PunishmentReaction {
     }
 
     public static void human(YukkuriEntity target, LivingEntity punisher, String incident, boolean injured) {
+        human(target, punisher, incident, injured ? 1f : 0f);
+    }
+
+    public static void human(YukkuriEntity target, LivingEntity punisher, String incident, float loss) {
+        target.status().reactions().threat().humanIncident(punisher, incident, loss);
+    }
+
+    static int recordHuman(YukkuriEntity target, LivingEntity punisher, String incident, float loss) {
         var mind = target.life().personality();
-        double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
-        int fearGain = (int) Math.round((injured ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
-        respond(target, punisher, incident, injured ? -20 : -6, fearGain, injured);
+        int before = mind.fear(punisher.getUUID());
+        if (target.isAlive() && !target.body().dying()) {
+            double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
+            int gain = (int) Math.round((loss > 0 ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
+            mind.relationshipChanged(punisher.getUUID(), loss > 0 ? -20 : -6, gain);
+        } else GameplayLog.event(target, "punishment", "victim actor={} incident={} response=collapse", punisher.getUUID(), incident);
+        witness(target, punisher, incident, loss > 0);
+        return before;
     }
 
     public static void peer(YukkuriEntity target, YukkuriEntity punisher, String incident, boolean bitten) {
         // Sanction already recorded its affinity change, and an accepted bite recorded its damage relation.
-        respond(target, punisher, incident, 0, bitten ? 0 : 12, false);
+        if (bitten) witness(target, punisher, incident, false);
+        else respond(target, punisher, incident, 0, 12, false);
     }
 
     /** A handover has a visible response without adding a punishment memory. */
@@ -105,7 +119,7 @@ public final class PunishmentReaction {
         double sound = ramp(target.body().healthRatio(), .45, .95) * (1 - .3 * ramp(wounds, 0, 5));
         double energy = ramp(target.life().energy(), 25, 60);
         boolean exit = (human || target.isPanicking()) && energy > 0 && Reactions.free(target)
-                && target.onGround() && !target.isLeashed() && !target.hurtCrying() && !target.body().weak()
+                && target.onGround() && !target.isLeashed() && !target.body().weak()
                 && !target.shellRetraction().available() && !target.grief().protecting()
                 && Reactions.escapeStand(target, punisher, 5, Set.of()) != null;
         var response = Response.DEFIANT;

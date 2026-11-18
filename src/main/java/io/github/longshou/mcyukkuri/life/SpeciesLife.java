@@ -133,7 +133,7 @@ public final class SpeciesLife {
 
     private boolean canChat() {
         return !entity.life().isSleeping() && !entity.isPassenger() && !entity.isPanicking()
-                && !entity.hurtCrying() && !entity.pet().busy()
+                && !entity.status().reactions().threat().holdingStance() && !entity.pet().busy()
                 && entity.status().reactions().threat().stage() == Reactions.Threat.Stage.NONE
                 && !entity.mind().feeling().subdued()
                 && entity.life().mealTicks() <= 0;
@@ -199,7 +199,7 @@ public final class SpeciesLife {
     /** The emergency now pressing this animal, or null: fleeing, just hurt, retreating from a threat, or starving in the rain. */
     private String urgentReason() {
         if (entity.life().isSleeping() || entity.isPassenger()) return null;
-        if (entity.hurtCrying()) return null;
+        if (entity.status().reactions().threat().holdingStance()) return null;
         if (entity.isPanicking()) return "panic";
         if (entity.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT) return "retreat";
         if (!entity.newbornStage() && entity.getLastHurtByMob() != null && entity.tickCount - entity.getLastHurtByMobTimestamp() < 200) return "hurt";

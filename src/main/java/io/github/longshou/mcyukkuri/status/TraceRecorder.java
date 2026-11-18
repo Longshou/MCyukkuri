@@ -618,6 +618,7 @@ public final class TraceRecorder {
         entity.runningGoalIds().forEach(goals::add);
         out.add("goals", goals);
         out.addProperty("behavior", entity.getBehaviorId());
+        if (mode == Mode.DENSE) out.addProperty("animation", entity.getAnimationId());
         if (mode == Mode.DENSE && entity.getBehaviorId().startsWith("window_")) {
             String moment = entity.getMomentId();
             float elapsed = (entity.level().getGameTime() - entity.getAnimationStartTick()) / 20f;

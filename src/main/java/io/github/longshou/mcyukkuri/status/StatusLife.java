@@ -14,7 +14,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
 import org.joml.Vector3f;
 
 /**
@@ -150,8 +149,6 @@ public final class StatusLife {
         }
     }
 
-    /** A physical hit was accepted: kin and visible witnesses react, including when the victim dies. */
-    public void hurt(DamageSource source) { reactions.hurtBy(source); }
 
     /** Orange juice restored the body: a short rising orange shimmer, sent to every nearby client. */
     public void orangeRestored() {
