@@ -12,6 +12,7 @@
 | 辫子送嘴进食与垃圾桶真撞（24/25） | `.worktrees/wp-eat-braid` | settlement/GarbageSearch.java human/GarbageBin* entity/Behaviors.java motions |
 | 仰卧固定台改为方块、绑上可用其他工具、仰卧漏尿（5/6） | `.worktrees/wp-restraint-block` | interaction/OperationLife.java interaction/CareAction.java item/OperationToolItem.java new restraint table block |
 | 不信任时需昏迷或虚弱才能装篮（1） | `.worktrees/wp-weak-capture` | item/CarrierItem.java carrier admission, weakness helper |
+| 住家宣言夸张骄傲演出（21） | `.worktrees/wp-home-declare-art` | motions home declaration clips, expressions |
 
 ## 玩法待办
 
