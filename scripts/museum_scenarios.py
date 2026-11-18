@@ -545,8 +545,8 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
     '夜里，流浪母子自己走到箱口，在纸箱里并排歇脚。看两顶头饰是否与箱壁和彼此留有空隙。',
     '约半分钟至一分钟', [
         *carton_shell(-5, -1),
-        street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
-        street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
+        street_stray('stray_boxes', 'reimu', -5, 0, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
+        street_stray('stray_boxes', 'reimu', -5, 2.5, 'child', stage='baby', energy=48, rest_wait=0,
                      kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
     ], env={'time': 'night'}, spot='street', vantage=(-5, 5, 180, 15),
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
