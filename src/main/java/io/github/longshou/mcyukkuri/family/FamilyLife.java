@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.life.Duty.End;
 import io.github.longshou.mcyukkuri.life.Duty.Kind;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
@@ -1259,12 +1260,17 @@ public final class FamilyLife {
         return startLandChildSearch(child);
     }
     private boolean startLandChildSearch(YukkuriEntity child) {
+        if(!entity.duty().mayTake(Kind.SEARCH))return false;
+        // The last-sighting walk has a 1200-tick cap. Leave room for goal handoffs.
+        entity.duty().take(Kind.SEARCH,1400,0,"child_lost");
         task=Task.SEARCH;target=child;searchAt=separation.lastSeen(child);taskTicks=0;
         entity.showReaction("teary","wait_family",80);return true;
     }
 
     private boolean startAbsence() {
-        if(!absence().start())return false;
+        if(!entity.duty().mayTake(Kind.SEARCH)||!absence().start())return false;
+        var p=entity.life().personality();
+        entity.duty().take(Kind.SEARCH,600*(FamilyDutyMath.searchWaypoints(p.attachment(),p.selfControl())+3),0,"kin_overdue");
         task=Task.ABSENCE;taskTicks=0;return true;
     }
 
@@ -1655,31 +1661,31 @@ public final class FamilyLife {
         if(visible&&!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
         if(carry.lifting()) {
             // A Grab in progress owns the child through the custody transfer.
-            if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
+            if(carry.tickPickup(target)==ParentCarry.Step.FAILED)endChildSearch(End.FAILED,"pickup_failed");
             return;
         }
-        if(searchAt==null){stop();return;}
+        if(searchAt==null){endChildSearch(End.FAILED,"sighting_lost");return;}
         if(taskTicks>=1200){
             if(!visible)separation.searchedLastSight(target);
-            stop();return;
+            endChildSearch(End.FAILED,"search_limit");return;
         }
         if(call.tickParent(target,searchAt,visible))return;
         if(visible) {
             if(entity.hasLineOfSight(target)&&carry.pickupWanted(target)){
-                if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
+                if(carry.tickPickup(target)==ParentCarry.Step.FAILED)endChildSearch(End.FAILED,"pickup_failed");
                 return;
             }
-            if(reached(target)){separation.reunited(target);stop();return;}
+            if(reached(target)){separation.reunited(target);endChildSearch(End.DONE,"child_reunited");return;}
             // The search is about the child: keep the face on it while walking to the stand and while standing blocked.
             entity.getLookControl().setLookAt(target,20,20);
             if(!supported())return;
             if(reunionAt==null||taskTicks%10==1||!reunionStandFree(target,reunionAt)||!SurfaceApproach.supported(entity,reunionAt))
                 reunionAt=reunionStand(target,null);
-            if(reunionAt==null){stop();return;}
+            if(reunionAt==null){endChildSearch(End.FAILED,"no_reunion_stand");return;}
             var result=SurfaceApproach.walkResult(entity,reunionAt,target,1.1);
             if(result==SurfaceApproach.Result.BLOCKED) {
                 reunionAt=reunionStand(target,reunionAt);
-                if(reunionAt==null)stop();
+                if(reunionAt==null)endChildSearch(End.FAILED,"no_reunion_route");
             }
             return;
         }
@@ -1690,8 +1696,12 @@ public final class FamilyLife {
             GameplayLog.event(entity,"family","child search checked last sight child={} at={} outcome={}",
                     target.getUUID(),GameplayLog.at(searchAt),result);
             separation.searchedLastSight(target);
-            stop();
+            endChildSearch(End.FAILED,"checked_last_sight");
         }
+    }
+    private void endChildSearch(End end, String reason) {
+        entity.duty().release(Kind.SEARCH,end,reason);
+        stop();
     }
     public void interruptCourtship() {
         if(task==Task.COURT||task==Task.RECEIVE_COURT)stop();
@@ -1700,9 +1710,18 @@ public final class FamilyLife {
     public void stop() {
         glass.stop();
         call.stop();
-        if(task==Task.SEARCH&&target!=null&&!carry.lifting())SurfaceApproach.halt(entity);
+        if(task==Task.SEARCH&&target!=null&&!carry.lifting()){
+            if(target.getVehicle()==entity||safeInSharedHome(target))entity.duty().release(Kind.SEARCH,End.DONE,"child_safe");
+            else if(!target.isAlive()||!caresFor(target)||!separation.searchingAllowed(target))
+                entity.duty().release(Kind.SEARCH,End.FAILED,"search_target_lost");
+            SurfaceApproach.halt(entity);
+        }
         if(task==Task.COURT||task==Task.RECEIVE_COURT)entity.getNavigation().stop();
-        if(task==Task.ABSENCE)absence().stop();
+        if(task==Task.ABSENCE){
+            var end=absence().outcome();
+            absence().stop();
+            if(end!=null)entity.duty().release(Kind.SEARCH,end,"kin_search_over");
+        }
         if(task==Task.WATCH_HOME)watch.finishIfDue();
         if(task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}

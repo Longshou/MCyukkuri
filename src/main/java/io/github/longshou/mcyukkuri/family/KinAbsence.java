@@ -3,12 +3,16 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Duty.End;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -38,6 +42,8 @@ final class KinAbsence {
     private UUID searching;
     private Vec3 destination;
     private boolean callStarted;
+    private List<Vec3> sweep = List.of();
+    private int index, pause;
 
     KinAbsence(FamilyLife family) { this.family = family; }
 
@@ -174,13 +180,16 @@ final class KinAbsence {
         for (var entry : kin.entrySet()) {
             var memory = entry.getValue();
             if (memory.confirmed || memory.phase == Phase.MOVED_ON || memory.away < expectation()) continue;
+            if (!entry.getKey().equals(searching)) sweep = List.of();
             searching = entry.getKey();
             if (memory.phase == Phase.WAIT) {
                 memory.phase = Phase.DOOR;
                 GameplayLog.event(e, "family", "kin overdue kin={} away={} expected={} lastSeen={} stage={}",
                         searching, memory.away, expectation(), memory.seen, family.stageId());
             }
-            destination = aim(memory);
+            if (memory.phase == Phase.SEARCH) {
+                if (sweep.isEmpty()) beginSweep(home, memory);
+            } else destination = aim(memory);
             return true;
         }
         return false;
@@ -194,7 +203,15 @@ final class KinAbsence {
 
     String activity() {
         var call = family.call().activity();
-        return call == null ? Behaviors.SEARCH_FAMILY : call;
+        return call != null ? call : pause > 0 ? Behaviors.CALL_LISTEN : Behaviors.SEARCH_FAMILY;
+    }
+
+    End outcome() {
+        var memory = kin.get(searching);
+        if (present(searching) || memory != null && (memory.confirmed || memory.away == 0)) return End.DONE;
+        if (memory == null || memory.phase == Phase.MOVED_ON || memory.phase == Phase.CALL && callStarted && baby())
+            return End.FAILED;
+        return null;
     }
 
     private Vec3 aim(Memory memory) {
@@ -208,20 +225,65 @@ final class KinAbsence {
             return TravelRange.babyDestination(e, door) ? SurfaceApproach.floor(e, Vec3.atBottomCenterOf(door)) : null;
         }
         if (memory.phase == Phase.RETURN) return FamilyProvision.entranceStand(e);
-        if (memory.phase != Phase.SEARCH || !dimension().equals(memory.dimension)) return null;
+        return null;
+    }
+
+    private void beginSweep(BlockPos home, Memory memory) {
+        var e = body();
+        var p = e.life().personality();
         double radius = (family.adult() ? 20 : 12) * e.life().personality().exploreMultiplier();
         var origin = Vec3.atBottomCenterOf(home);
         var toward = Vec3.atBottomCenterOf(memory.seen).subtract(origin);
-        double distance = toward.horizontalDistance();
-        // Walk as far as the remembered trail and the caller's range allow, using the same dry routes as care.
-        var direction = toward.multiply(1, 0, 1).normalize();
-        var far = origin.add(direction.scale(Math.min(radius, distance + 4))).add(0, toward.y, 0);
-        var near = origin.add(direction.scale(Math.min(radius, distance))).add(0, toward.y, 0);
-        for (var point : new Vec3[]{far, near}) {
-            var stand = SurfaceApproach.floor(e, point);
-            if (stand != null && SurfaceApproach.canApproach(e, stand)) return stand;
+        var shelter = e.habitat().shelter();
+        double heading = shelter == null ? 0 : Math.toDegrees(Math.atan2(shelter.facing().getStepZ(), shelter.facing().getStepX()));
+        var points = new ArrayList<Vec3>();
+        if (dimension().equals(memory.dimension)) {
+            var offsets = FamilyDutyMath.searchSweep(toward.x, toward.z, heading, radius,
+                    FamilyDutyMath.searchWaypoints(p.attachment(), p.selfControl()), FamilyDutyMath.searchSpread(p.intelligence()));
+            for (var offset : offsets) points.add(origin.add(offset[0], toward.y, offset[1]));
         }
-        return null;
+        sweep = points;
+        index = pause = memory.legTicks = 0;
+        destination = sweep.isEmpty() ? null : searchStand(sweep.getFirst());
+    }
+
+    private Vec3 searchStand(Vec3 point) {
+        var stand = SurfaceApproach.floor(body(), point);
+        return stand != null && SurfaceApproach.canApproach(body(), stand) ? stand : null;
+    }
+
+    private void tickSweep(Memory memory) {
+        var e = body();
+        if (sweep.isEmpty()) {
+            advance(memory, Phase.RETURN);
+            return;
+        }
+        if (pause > 0) {
+            boolean calling = index % 2 == 0 && family.call().tickAbsence();
+            if (++pause > EcologyPresentation.duration(Behaviors.CALL_LISTEN) && !calling) nextWaypoint(memory);
+            return;
+        }
+        var result = destination == null ? SurfaceApproach.Result.BLOCKED : SurfaceApproach.walkResult(e, destination, null, .9);
+        boolean timeout = ++memory.legTicks > 460;
+        if (!timeout && result != SurfaceApproach.Result.ARRIVED && result != SurfaceApproach.Result.BLOCKED) return;
+        GameplayLog.event(e, "family", "kin search waypoint kin={} index={}/{} at={} result={}",
+                searching, index + 1, sweep.size(), GameplayLog.at(destination == null ? sweep.get(index) : destination),
+                timeout ? "TIMEOUT" : result);
+        if (destination == null) {
+            nextWaypoint(memory);
+            return;
+        }
+        SurfaceApproach.halt(e);
+        pause = 1;
+        if (index % 2 == 0) family.call().beginAbsence(searching, sweep.get(index));
+    }
+
+    private void nextWaypoint(Memory memory) {
+        if (++index == sweep.size()) advance(memory, Phase.RETURN);
+        else {
+            memory.legTicks = pause = 0;
+            destination = searchStand(sweep.get(index));
+        }
     }
 
     void tick() {
@@ -237,12 +299,15 @@ final class KinAbsence {
             advance(memory, baby() ? Phase.MOVED_ON : Phase.SEARCH);
             return;
         }
+        if (memory.phase == Phase.SEARCH) {
+            tickSweep(memory);
+            return;
+        }
         // Bounded physical walks. The same wall is not re-requested after the shared movement reports a refusal.
         var result = destination == null ? SurfaceApproach.Result.BLOCKED : SurfaceApproach.walkResult(e, destination, null, .9);
         if (++memory.legTicks <= 460 && result != SurfaceApproach.Result.BLOCKED && result != SurfaceApproach.Result.ARRIVED) return;
         advance(memory, switch (memory.phase) {
             case DOOR -> Phase.CALL;
-            case SEARCH -> Phase.RETURN;
             case RETURN -> Phase.MOVED_ON;
             default -> throw new IllegalStateException("Unexpected absence leg " + memory.phase);
         });
@@ -253,9 +318,15 @@ final class KinAbsence {
         SurfaceApproach.halt(e);
         memory.phase = next;
         memory.legTicks = 0;
-        destination = aim(memory);
+        if (next == Phase.SEARCH) beginSweep(FamilyProvision.home(e), memory);
+        else {
+            sweep = List.of();
+            pause = 0;
+            destination = aim(memory);
+        }
         GameplayLog.event(e, "family", "kin absence kin={} phase={} destination={} stage={} nutrition={}",
-                searching, next, destination, family.stageId(), e.life().nutrition());
+                searching, next, next == Phase.SEARCH && !sweep.isEmpty() ? sweep.getFirst() : destination,
+                family.stageId(), e.life().nutrition());
         if (next == Phase.MOVED_ON) {
             e.showReaction(baby() ? "cry" : "teary", "lost_parent", 80);
             BirthStaging.tears(e);
@@ -265,10 +336,16 @@ final class KinAbsence {
 
     void stop() {
         var memory = kin.get(searching);
-        if (memory != null && memory.phase == Phase.CALL && callStarted)
+        if (memory != null && memory.phase == Phase.CALL && callStarted) {
             memory.phase = baby() ? Phase.MOVED_ON : Phase.SEARCH;
-        searching = null;
-        destination = null;
+            sweep = List.of();
+        }
+        if (memory == null || memory.phase == Phase.MOVED_ON || memory.phase == Phase.WAIT) {
+            searching = null;
+            sweep = List.of();
+            pause = 0;
+            destination = null;
+        }
         callStarted = false;
     }
 
