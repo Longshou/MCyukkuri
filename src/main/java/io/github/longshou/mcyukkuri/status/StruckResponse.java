@@ -24,7 +24,7 @@ final class StruckResponse implements MotorOwner {
     }
 
     private boolean exitOpen(LivingEntity danger) {
-        return Reactions.free(body) && !body.isLeashed() && !body.grief().protecting()
+        return Reactions.freeToReact(body) && !body.isLeashed() && !body.grief().protecting()
                 && !body.shellRetraction().available() && body.status().reactions().threat().flight().hasExit(danger);
     }
 
@@ -41,7 +41,10 @@ final class StruckResponse implements MotorOwner {
         clear();
         body.setPanicTicks(0);
         SurfaceApproach.halt(body);
-        if (choice == StruckStance.FLEE) flee(danger);
+        if (choice == StruckStance.FLEE) {
+            if (loss == 0) body.fleeFrom(danger);
+            flee(danger);
+        }
         else {
             actor = danger;
             stance = choice;
@@ -82,6 +85,7 @@ final class StruckResponse implements MotorOwner {
     void clear() {
         if (stance != null) body.motor().cancel(this, "stance_ended");
         stance = null;
+        actor = null;
     }
 
     /** Called only by the goal holding MOVE/LOOK, including its last tick. */

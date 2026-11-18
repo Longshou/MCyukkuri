@@ -679,7 +679,7 @@ public final class HabitatLife {
         stop();
     }
     public void interruptOnHurt() {
-        dropCarrying();
+        if ((!carrying.isEmpty() || !nestMaterial.isEmpty()) && ItemContact.hasReleaseSupport(entity, entity.getEyePosition())) dropCarrying();
         if (active()) stop();
     }
     public void dropCarrying() {

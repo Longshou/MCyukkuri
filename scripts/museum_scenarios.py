@@ -3386,10 +3386,10 @@ for _label, _x, _friend, _control in (('willing', -16, 10, 10), ('reluctant', 16
     _hunt_lines += [
         yk('reimu', _x, 0, 'hunter_' + _label, label='低克制' if _label == 'willing' else '高克制',
            nutrition=9, energy=95, friendliness=_friend, self_control=_control, boldness=60, lead=_label == 'willing'),
-        yk('marisa', _x + 4, 0, 'prey_' + _label, accessory=False, boldness=40,
-           uuid=uid('cannibal_hunt', 'prey_' + _label), **pair_ready())]
+        yk('marisa', _x + 2, 0, 'prey_' + _label, accessory=False, boldness=40, energy=0, nutrition=100,
+           uuid=uid('cannibal_hunt', 'prey_' + _label))]
 add('cannibal_hunt', 'body', '饿油捕食没头饰的同类', '饿油捕食没头饰的同类',
-    '两组都是营养9、看见失饰成年目标；左低友善低自制，右高友善高自制。读猎食判分与真实追咬：数值拒绝不算卡住；失饰识别不等于必攻击，低血和体力不足会退避。只有实际伤害形成食物、吞下才加营养',
+    '两组饥饿灵梦的营养都是9，旁边的失饰成体正因疲倦入睡，挨咬会惊醒。左低友善低自制，右高友善高自制。读猎食判分与真实追咬：数值拒绝不算卡住；失饰识别不等于必攻击，低血和体力不足会退避。只有实际伤害形成食物、吞下才加营养',
     '约10–60秒；饥饿继续加深时意愿也会改变', _hunt_lines, note=NEW, vantage=(0, 12),
     reads=[(f'读{role}·{label}', f'yukkuri status {sel(role + "_" + label)} raw')
            for label in ('willing','reluctant') for role in ('hunter','prey')],
@@ -5767,7 +5767,7 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
     if _sid == 'home_greedy':
         _spec['commands'] += [
             (700, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator enter'),
-            (702, f'damage {sel("greedy")} 1 minecraft:player_attack by @a[name=MuseumOperator,limit=1]'),
+            (702, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
             (805, 'yukkuri scenario tool_operator leave'),
         ]
         _spec['expect'] += [r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']

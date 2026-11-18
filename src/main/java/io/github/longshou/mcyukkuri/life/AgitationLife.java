@@ -441,10 +441,6 @@ public final class AgitationLife {
         if (first) entity.speak("rapem_alarm");
         else if (entity.getRandom().nextInt(3) == 0) entity.speak("rapem_flee");
         entity.frightenFrom(attacker); // panic and run
-        // Panic here is animation-only; steer an actual escape route away from the hunter.
-        Vec3 away = entity.position().subtract(attacker.position()).multiply(1, 0, 1);
-        if (away.lengthSqr() < .01) away = new Vec3(entity.getRandom().nextDouble() - .5, 0, entity.getRandom().nextDouble() - .5);
-        entity.life().navigate(BlockPos.containing(entity.position().add(away.normalize().scale(8))), 1.6, false);
     }
 
     /** Attacker-side throttle around the victim's alarm; renews the flight while the chase lasts. */

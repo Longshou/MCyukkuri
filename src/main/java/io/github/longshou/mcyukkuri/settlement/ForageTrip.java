@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.human.TownAware;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -441,8 +442,10 @@ public final class ForageTrip extends Goal {
     /** A way home that fails keeps the family's load in the mouth (it is brought on after the pause); the other endings drop it. */
     private void giveUp(String why) { reason = why; if (!KEEPS_LOAD.contains(why)) dropLoad(); finish(false); }
     public void abortOnDanger(String why) {
-        if (outing()) giveUp(why);
-        else if (!load.isEmpty()) { reason = why; dropLoad(); }
+        if (!outing() && load.isEmpty()) return;
+        reason = why;
+        if (!load.isEmpty() && (why.equals("death") || ItemContact.hasReleaseSupport(entity, entity.getEyePosition()))) dropLoad();
+        if (outing()) finish(false);
     }
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }

@@ -103,7 +103,10 @@ public final class Reactions {
     }
     /** Whether this individual may be steered right now (not mid-contact, birth, rescue, water). */
     public static boolean free(YukkuriEntity y) {
-        return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
+        return prey(y) && freeToReact(y);
+    }
+    static boolean freeToReact(YukkuriEntity y) {
+        return !y.isNoAi() && !y.isPassenger() && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.waterDistress().active()
                 && !y.family().laboring() && !y.family().birthDuty()
                 && !y.family().awaitingLanding() && y.life().mealTicks() == 0;
@@ -342,15 +345,17 @@ public final class Reactions {
         }
 
         boolean wants() {
-            if (holdingStance()) return free(y) && !y.isPanicking();
+            if (holdingStance()) return freeToReact(y) && !y.isPanicking();
             var s = source();
-            if (s == null || !free(y) || s instanceof HumanNpc && y.isLeashed() || y.grief().protecting() || y.myon().fighting() || y.isPanicking()
+            if (s == null || !free(y) || s instanceof HumanNpc && y.isLeashed() || y.grief().protecting()
+                    || y.groupInteraction().defense().active() || y.myon().fighting() || y.isPanicking()
                     || y.family().carry().shelteredFrom(s) || y.level().getGameTime() < cooldownUntil) return false;
             return stage != Stage.NONE || s.distanceToSqr(y) <= 256 || s == heard;
         }
         boolean keeps() {
-            if (stage == Stage.STRUCK || holdingStance()) return free(y) && !y.isPanicking();
-            return stage != Stage.NONE && free(y) && !(source() instanceof HumanNpc && y.isLeashed()) && !y.grief().protecting() && !y.myon().fighting()
+            if (stage == Stage.STRUCK || holdingStance()) return freeToReact(y) && !y.isPanicking();
+            return stage != Stage.NONE && free(y) && !(source() instanceof HumanNpc && y.isLeashed()) && !y.grief().protecting()
+                && !y.groupInteraction().defense().active() && !y.myon().fighting()
                 && !y.isPanicking() && !y.family().carry().shelteredFrom(source()); }
         void start() {
             if (holdingStance()) { stage = Stage.STRUCK; return; }

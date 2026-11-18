@@ -413,7 +413,6 @@ public final class Cannibalism extends Goal {
             biteClock = 20; return;
         }
         bites++; biteClock = 35;
-        prey.frightenFrom(entity);
         GameplayLog.event(entity, "cannibal", "hunt meal handed off prey={} health={} -> {} bite={} portions={}",
                 prey.getUUID(), healthBefore, prey.getHealth(), bites, bite.portions());
         if (!prey.isAlive()) bites = 99;
