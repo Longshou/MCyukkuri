@@ -197,7 +197,7 @@ def load_field(st, field, feet):
         wait_command(st, f'execute {loaded} run say {marker}', marker)
 
 
-def failure(smoke, window, trace=()):
+def failure(smoke, window, trace=(), readout=''):
     """The scene's own check: one (stable reason, printed text) per failed check -- every forbidden pattern that hit and
     every expected pattern that is missing, so one fix round sees the whole list."""
     found = []
@@ -212,6 +212,10 @@ def failure(smoke, window, trace=()):
             found.append((f'missing /{pattern}/', f'missing /{pattern}/'))
     if 'verify' in smoke:
         problem = smoke['verify'](window, trace) if smoke.get('verify_trace') else smoke['verify'](window)
+        if problem is not None:
+            found.append((fate.signature(problem)[:200], problem))
+    if 'verify_readout' in smoke:
+        problem = smoke['verify_readout'](readout)
         if problem is not None:
             found.append((fate.signature(problem)[:200], problem))
     return found
@@ -303,7 +307,7 @@ def run_scene(st, scene, builder, run_index, seed):
         output.write(f'\nMCYSMOKE_END_TICK {end_tick}\n')
     window = ''.join(legacy) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
     problems = [] if nonempty else [('empty log', 'empty server log window')]
-    problems += failure(scene.smoke, window, trace)
+    problems += failure(scene.smoke, window, trace, readout)
     problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
     rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
                     str(builder.ROOT), '--seed', str(seed), scene.id])

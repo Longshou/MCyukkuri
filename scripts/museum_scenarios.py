@@ -6659,16 +6659,20 @@ next(s for s in S if s.id == 'shop_browse').smoke['commands'] = [
     (100, f'execute if entity {BOOTH.format("chen", 0)} run say MCYSHOP_BROWSE_CHEN'),
 ]
 
-_smoke('shop_pick', 140, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=PET ',
-                          *[rf'MCYSHOP_PICK_READY {name}\b' for name, _, _, _ in _pick_stock]],
+def _verify_shop_pick(readout):
+    rows = re.findall(
+        r'^entity\.mcyukkuri\.reimu #(\d+) \{.*?growth:\{age_ticks:(\d+)L,[^}]*\bstage:"([^"]+)"[^}]*\}'
+        r'.*?identity:\{[^}]*\bkind:"([^"]+)"[^}]*\}.*?personality:\{[^}]*\bboldness:(\d+),friendliness:(\d+),',
+        readout, re.M)
+    expected = [('148000', 'juvenile', 'stock', str(boldness), str(friendliness))
+                for _, _, boldness, friendliness in _pick_stock]
+    if [row[1:] for row in rows] != expected or len({row[0] for row in rows}) != len(expected):
+        return f'Expected two different stock Reimu with age, stage and effective traits {expected}; got {rows}'
+
+
+_smoke('shop_pick', 140, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=PET '],
        readout=[f'yukkuri status {sel(name)} raw' for name, _, _, _ in _pick_stock])
-next(s for s in S if s.id == 'shop_pick').smoke['commands'] = [
-    (100, f'execute if data entity {sel(name)} YukkuriFamily{{Age:148000L}} '
-          f'if data entity {sel(name)} NeoForgeData.HumanCommerce{{Use:"stock"}} '
-          f'if data entity {sel(name)} YukkuriLife.Personality{{Innate:[I;50,{friendliness},{boldness},50,50]}} '
-          f'run say MCYSHOP_PICK_READY {name}')
-    for name, _, boldness, friendliness in _pick_stock
-]
+next(s for s in S if s.id == 'shop_pick').smoke['verify_readout'] = _verify_shop_pick
 
 
 def _verify_shop_fetch(window):
