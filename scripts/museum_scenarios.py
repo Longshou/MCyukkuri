@@ -2278,7 +2278,7 @@ add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟�
         box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
         block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
         block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
-        block(5, 0, 2, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}]}'),
+        'item replace block ~5 ~ ~2 container.0 with mcyukkuri:oil_grain_regular 4',
         _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
         'summon minecraft:marker ~-11.5 ~ ~0.5 {Tags:["mcy_yard_street"]}',
         human('caretaker_sister', 1, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
@@ -6310,9 +6310,10 @@ _smoke('yard_street_walk', 1100, [
     r'action=outing_depart pets=2 ', r'action=outing_home',
     rf'action=street_warn target={_uuid_text("yard_street_walk", "outing_stray")}',
     *[rf'uuid={_uuid_text("yard_street_walk", p[1])} [^\n]*outing reached home' for p in _outing_pets],
-    r'MCY_OUTING_BOTH_UNLEASHED',
+    r'MCY_OUTING_BOWL_STOCKED', r'MCY_OUTING_BOTH_UNLEASHED',
 ], forbid=[rf'action=street_(?:warn|chase|kick) target=(?:{_outing_ids})'])
 next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_crossings, verify_trace=True, commands=[
+    (1, 'execute if data block ~5 ~ ~2 Items[{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}] run say MCY_OUTING_BOWL_STOCKED'),
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
 ])
