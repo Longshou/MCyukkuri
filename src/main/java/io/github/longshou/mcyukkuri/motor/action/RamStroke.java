@@ -12,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 /** The same authored launch, contact and recoil against any block face. The caller owns its impact. */
 final class RamStroke {
@@ -26,6 +27,7 @@ final class RamStroke {
 
     private final Vec3 face, outward, stand;
     private final RamContact contact;
+    private final double collisionDistance;
 
     RamStroke(YukkuriEntity body, BlockHitResult hit) {
         this(body, hit, CLIP);
@@ -36,6 +38,14 @@ final class RamStroke {
         outward = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
         stand = body.position();
         contact = RamContact.of(body.assetId(), clip);
+        // The mouth ray locates the contact plane, but the body can also meet a rim or lid off that ray.
+        var block = hit.getBlockPos();
+        var level = body.level();
+        var collider = level.getBlockState(block).getCollisionShape(level, block, CollisionContext.of(body))
+                .move(block.getX(), block.getY(), block.getZ());
+        double from = stand.subtract(face).dot(outward);
+        int sign = hit.getDirection().getAxisDirection().getStep();
+        collisionDistance = from + sign * collider.collide(hit.getDirection().getAxis(), body.getBoundingBox(), -sign * from);
     }
 
     static double scale(YukkuriEntity body) { return body.growthScale() * body.getScale() / 16; }
@@ -62,7 +72,7 @@ final class RamStroke {
     Frame move(YukkuriEntity body, double seconds, double touch, String id) {
         double scale = scale(body);
         double standDistance = stand.subtract(face).dot(outward);
-        double distance = contact.distance(standDistance / scale, seconds) * scale;
+        double distance = Math.max(collisionDistance, contact.distance(standDistance / scale, seconds) * scale);
         if (seconds >= contact.launch() && seconds < touch) {
             double t = (seconds - contact.launch()) / (touch - contact.launch());
             distance = Math.max(distance, Mth.lerp(t * t * (3 - 2 * t), standDistance, distance));
@@ -72,6 +82,6 @@ final class RamStroke {
         Motor.move(body, target.subtract(body.position()).multiply(1, 0, 1), id);
         double actual = body.position().subtract(face).dot(outward);
         return new Frame(actual - contact.impact() * scale, standDistance - actual,
-                target.subtract(body.position()).horizontalDistance());
+                target.distanceTo(body.position()));
     }
 }
