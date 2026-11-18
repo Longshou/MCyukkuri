@@ -13,6 +13,7 @@
 | 街道宠物①：生成、鬼威惨不攻击、自驱逛街回家（14） | `.worktrees/wp-street-pets-1` | human/HumanStreet.java human/HumanNpc.java human/HumanWalk.java pet/Custody.java town lots |
 | 贴墙收拢演示场景（26） | `.worktrees/wp-wall-tuck-demo` | scripts/museum_scenarios.py new scene, museum_scene_numbers.json |
 | 甜化箱演示看得懂、大头针可拔出（2） | `.worktrees/wp-sweetbox-demo` | human/PlantSweetening.java interaction/OperationLife.java factory_sweet_box scene |
+| 舌肥分级进食反应（22） | `.worktrees/wp-picky-reactions` | life/LifeMeal.java picky reactions, graze scene |
 
 ## 玩法待办
 
