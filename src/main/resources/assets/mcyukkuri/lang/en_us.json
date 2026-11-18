@@ -524,8 +524,6 @@
   "item.mcyukkuri.forest_burrow": "Legacy Nest Marker",
   "block.mcyukkuri.cardboard_shelter": "Cardboard Shelter",
   "item.mcyukkuri.cardboard_shelter": "Cardboard Shelter",
-  "block.mcyukkuri.crate_shelter": "Shelter Crate",
-  "item.mcyukkuri.crate_shelter": "Shelter Crate",
   "block.mcyukkuri.garbage_bin": "Street Garbage Bin",
   "block.mcyukkuri.newspaper_stack": "Newspaper Stack",
   "block.mcyukkuri.notice_board": "Notice Board",
@@ -7863,5 +7861,6 @@
   "dialogue.self.mcyukkuri.remilia": "Remilia",
   "dialogue.self.mcyukkuri.flandre": "Flandre",
   "dialogue.self.mcyukkuri.myon": "Youmu",
-  "dialogue.self.mcyukkuri.small": "I"
+  "dialogue.self.mcyukkuri.small": "I",
+  "human.mcyukkuri.street.crop_frown": "Oh, something took a bite out of the crops."
 }

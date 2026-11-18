@@ -8,7 +8,7 @@ buildings on the far side of the lane. The mouths and the side street end in a `
 streets pool, so vanilla lanes and houses grow on from them.
 
 Behaviour hooks are the existing ones only: wooden benches (stray naps), garbage bins with a finite real stock (standing bins have room to
-be shoved over), paper-lined wind gaps (FoundShelter), crate shelters, wool canopies (stray rain cover), a pond (drink), roofed pavilions
+be shoved over), paper-lined wind gaps (FoundShelter), cartons, wool canopies (stray rain cover), a pond (drink), roofed pavilions
 (street residents' rain cover), and street residents whose home is an indoor cell behind a wooden door (HumanNpc). The shelter volunteers are
 caring residents (`HumanAttitude 1`, no village roll). No vanilla workstation blocks; every floor cell is lit (build.light_up).
 """
@@ -17,7 +17,7 @@ import json, math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 from build import stairs, slab, furniture, light_up, flat_roof, gable_snow, ground, name_at, string, integer, compound, sequence
 from palette import PALETTES, STYLES, link, pick, leaves, mc
-from author_street import (Site, garbage, wind_gap, shelter_spot, lamp, jigsaw, street_ends, street_band, lot_ground, fence_row,
+from author_street import (Site, garbage, wind_gap, carton, lamp, jigsaw, street_ends, street_band, lot_ground, fence_row,
                            display_tray, produce_crate)
 from author_lots import no_carton
 
@@ -331,7 +331,7 @@ def badge_hall(p):
 # ---------------------------------------------------------------------------------------------------------- shelter
 def shelter(p):
     """ゆっくりんピース (油库里保护站): a modest single-storey house behind an open low-fenced yard. In the yard a green-and-white canopy
-    covers three crate shelters, the free houses for strays; under the house's front shelf runs a paper-lined wind gap; a standing bin by
+    covers three cartons, the free shelters for strays; under the house's front shelf runs a paper-lined wind gap; a standing bin by
     the door is stocked with food. Inside: an intake counter with a hatch onto the yard, a care table with orange juice and flour paste, the
     supply shelf, and the volunteers' room. Two caring volunteers live there and tend strays with the existing care routine."""
     W, H, D = 21, 10, 24
@@ -348,12 +348,12 @@ def shelter(p):
     for x, z in fence:
         sides = [s for s, (dx, dz) in (('north', (0, -1)), ('south', (0, 1)), ('east', (1, 0)), ('west', (-1, 0))) if (x + dx, z + dz) in fence]
         b.block(x, 1, z, p.fence, link(p.fence, sides))
-    # ---- Canopy over the free houses: posts and green/white stripes at y4; three crate shelters open onto the yard path.
+    # ---- Canopy over the free cartons: posts and green/white stripes at y4; mouths face the yard path.
     posts(b, [(x, z) for x in (3, 17) for z in (9, 14)], 1, 3)
     for x in range(3, 18):
         for z in range(9, 15): b.block(x, 4, z, 'green_wool' if (x // 2) % 2 == 0 else 'white_wool')
-    shelter_spot(b, 6, 1, 10, 'crate_shelter', 'east'); shelter_spot(b, 6, 1, 13, 'crate_shelter', 'east')
-    shelter_spot(b, 14, 1, 12, 'crate_shelter', 'west')
+    carton(b, 6, 1, 10, 'east'); carton(b, 6, 1, 13, 'east')
+    carton(b, 14, 1, 12, 'west')
     b.block(10, 3, 12, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     for x, z in [(14, 9), (15, 9), (16, 10)]: b.block(x, 1, z, p.pot(x + z))
     # ---- The house (x2..18, z16..23): plinth course, plank walls, frame posts, a low gable roof; floor y0, people walk at y1.

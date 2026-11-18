@@ -39,8 +39,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
         // Clear height and maximum turn radius from the authored shells. Each actual stand is checked separately.
         BURROW("forest_burrow", 0, 1, 16, 0, 0),
-        CARDBOARD("cardboard_shelter", 1, 2, 2, 22/16., 12/16.),
-        CRATE("crate_shelter", 1, 2, 2, 16/16., 12.5/16.);
+        CARDBOARD("cardboard_shelter", 1, 2, 2, 22/16., 12/16.);
         public final String id;
         public final int radius, height, capacity;
         public final double innerHeight, innerReach;

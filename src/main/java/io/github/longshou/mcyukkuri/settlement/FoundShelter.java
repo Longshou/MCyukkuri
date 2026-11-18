@@ -232,11 +232,11 @@ public final class FoundShelter implements MotorOwner {
     }
 
     /** The body with what it wears (and anything riding it) clears the shelter's real interior from its lying spot, at any heading. */
-    static boolean fits(YukkuriEntity y, ShelterBlock.Kind kind) {
+    static boolean fits(YukkuriEntity y) {
         double height = HeadTop.height(y);
         for (var rider : y.getPassengers()) height = Math.max(height, rider.getBoundingBox().maxY - y.getY());
-        double reach = HeadTop.reach(y) + (kind == ShelterBlock.Kind.CARDBOARD ? SurfaceApproach.ARRIVAL : 0);
-        return height < kind.innerHeight && reach < kind.innerReach;
+        double reach = HeadTop.reach(y) + SurfaceApproach.ARRIVAL;
+        return height < ShelterBlock.Kind.CARDBOARD.innerHeight && reach < ShelterBlock.Kind.CARDBOARD.innerReach;
     }
 
     private boolean wantsCover() {
@@ -914,7 +914,7 @@ public final class FoundShelter implements MotorOwner {
             return Step.RESTING;
         }
         if (exiting()) {
-            if (shelter.kind() == ShelterBlock.Kind.CARDBOARD ? !shelter.cartonTouches(body) : !shelter.contains(body.blockPosition())) {
+            if (!shelter.cartonTouches(body)) {
                 GameplayLog.event(body, "habitat", "found exited shelter={}", target());
                 stop();
                 return Step.ENDED;
@@ -1125,24 +1125,9 @@ public final class FoundShelter implements MotorOwner {
     private Vec3 restPoint(BlockPos pos, Vec3 failed) {
         double reach = HeadTop.reach(body);
         double height = HeadTop.height(body);
-        if (shelter.kind() == ShelterBlock.Kind.CARDBOARD) {
-            // Use the actual body's remaining width beside the wall. Leave room for the final walking tolerance.
-            double across = 15/16. - reach - 2 * SurfaceApproach.ARRIVAL;
-            return restStand(shelter.cartonRestSpot(pos, across), failed, reach, height);
-        }
-        var centre = shelter.restSpot(pos);
-        var stand = restStand(centre, failed, reach, height);
-        if (stand != null) return stand;
-        for (var side : Direction.Plane.HORIZONTAL) {
-            var d = side.getNormal();
-            stand = restStand(centre.add(d.getX() * .40, 0, d.getZ() * .40), failed, reach, height);
-            if (stand != null) return stand;
-        }
-        return null;
-    }
-
-    private Vec3 restStand(Vec3 at, Vec3 failed, double reach, double height) {
-        var stand = SurfaceApproach.stand(body, at);
+        // Use the actual body's remaining width beside the wall. Leave room for the final walking tolerance.
+        double across = 15/16. - reach - 2 * SurfaceApproach.ARRIVAL;
+        var stand = SurfaceApproach.stand(body, shelter.cartonRestSpot(pos, across));
         if (stand == null || stand.equals(failed) || !shelter.contains(BlockPos.containing(stand)) || !availableStand(stand)) return null;
         double paddedReach = reach + SurfaceApproach.ARRIVAL;
         return clearRestTurn(stand, paddedReach, height) && shelter.clearsResidents(body, stand, paddedReach) ? stand : null;
@@ -1289,7 +1274,7 @@ public final class FoundShelter implements MotorOwner {
         nextScan = "better_shelter".equals(reason) ? 0 : now() + 100;
         if (shelter == null) { stop(); return; }
         phase = Phase.EXIT; deadline = now() + 140;
-        aim = shelter.kind() == ShelterBlock.Kind.CARDBOARD ? cartonLane(body.position()) : Vec3.atBottomCenterOf(shelter.entrance());
+        aim = cartonLane(body.position());
         if (reason.equals("soaked_or_unsafe")) {
             warnUntil = now() + Math.max(1, ClipMarkers.of(Behaviors.WARM_UP).length());
             deadline += warnUntil - now();
@@ -1356,7 +1341,7 @@ public final class FoundShelter implements MotorOwner {
 
     private SurfaceApproach.Result walk() {
         if (!body.onGround() && !body.isInWaterOrBubble()) return SurfaceApproach.Result.WAITING;
-        if (shelter != null && shelter.kind() == ShelterBlock.Kind.CARDBOARD && phase == Phase.ENTER
+        if (shelter != null && phase == Phase.ENTER
                 && !shelter.contains(body.blockPosition())) {
             var lane = cartonLane(aim);
             var forward = Vec3.atLowerCornerOf(shelter.facing().getNormal());
@@ -1375,7 +1360,7 @@ public final class FoundShelter implements MotorOwner {
             return SurfaceApproach.Result.ARRIVED;
         }
         if (SurfaceApproach.tryStraightStep(body, aim, 1)) return SurfaceApproach.Result.MOVING;
-        if (shelter.kind() == ShelterBlock.Kind.CARDBOARD && shelter.overlapsCartonShell(body.getBoundingBox().deflate(.005))
+        if (shelter.overlapsCartonShell(body.getBoundingBox().deflate(.005))
                 && SurfaceApproach.tryStepOutOfOverlap(body, aim, 1)) return SurfaceApproach.Result.MOVING;
         if (phase == Phase.EXIT) {
             var step = insideOpening(shelter);

@@ -22,7 +22,7 @@ import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
-import io.github.longshou.mcyukkuri.life.LegacyMatContents;
+import io.github.longshou.mcyukkuri.life.LegacyBlockContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.item.MagnifyingGlassItem;
 import io.github.longshou.mcyukkuri.mind.Naming;
@@ -92,7 +92,7 @@ public final class CommonRegistration {
         // The aquatic add-on: a set-down hat in water floats, the aquatic life's goal and natural spawn (the base never names them).
         HullAfloat.register();
         AquaticLife.register();
-        LegacyMatContents.register(modBus);
+        LegacyBlockContents.register(modBus);
         modBus.addListener(EventPriority.NORMAL, false, EntityAttributeCreationEvent.class, HumanWorld::attributes);
         modBus.addListener(EventPriority.NORMAL, false, EntityAttributeCreationEvent.class, ModEntities::registerAttributes);
 
@@ -233,8 +233,8 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AddReloadListenerEvent.class,
                 event -> event.addListener(new DriveWeights()));
 
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkDataEvent.Load.class, LegacyMatContents::read);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkEvent.Load.class, LegacyMatContents::loaded);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkDataEvent.Load.class, LegacyBlockContents::read);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkEvent.Load.class, LegacyBlockContents::loaded);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkEvent.Load.class, ShelterIndexEvents::loaded);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkEvent.Unload.class, ShelterIndexEvents::unloaded);

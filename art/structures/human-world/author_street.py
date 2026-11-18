@@ -99,19 +99,17 @@ def wind_gap(b, x, y, z, paper=True):
                                                        'Age': integer(-32768)})
 
 
-def shelter_spot(b, x, y, z, kind, facing):
-    """A found shelter with one block entity at its floor centre."""
-    records(b).shelters.append(((x, y, z), kind, facing))
+def carton(b, x, y, z, facing):
+    """A carton with one block entity at its floor centre."""
+    records(b).shelters.append(((x, y, z), facing))
     for dy in range(2):
         for dz in range(-1, 2):
             for dx in range(-1, 2):
-                if kind == 'cardboard_shelter' and (dz if facing in ('north', 'south') else dx):
+                if dz if facing in ('north', 'south') else dx:
                     continue
                 part = dx + 2 + 5 * (dz + 2) + 25 * dy
-                core = {'id': string('mcyukkuri:wild_shelter')} if part == 12 else None
-                if core is not None and kind == 'cardboard_shelter':
-                    core['Condition'] = integer(100)
-                b.block(x + dx, y + dy, z + dz, 'mcyukkuri:' + kind, {'part': str(part), 'facing': facing}, core)
+                core = {'id': string('mcyukkuri:wild_shelter'), 'Condition': integer(100)} if part == 12 else None
+                b.block(x + dx, y + dy, z + dz, 'mcyukkuri:cardboard_shelter', {'part': str(part), 'facing': facing}, core)
 
 
 def lamp(b, x, y, z, height=3):
@@ -252,8 +250,7 @@ def street_stall(p):
     b.box((4, 2, 15), (7, 2, 15), p.planks())
     for x, block in zip(range(4, 8), ('hay_block', 'pumpkin', 'melon', 'hay_block')): b.block(x, 3, 15, block, LOG if block == 'hay_block' else None)
     for x in (4, 5, 6, 7): wind_gap(b, x, 1, 15, paper=(x == 5))
-    # Old crates beside the booth, opening toward the lane; the market bin by the west post, within 8 blocks of the whole gap.
-    shelter_spot(b, 13, 1, 12, 'crate_shelter', 'north')
+    # The market bin by the west post is within 8 blocks of the whole gap.
     garbage(b, 1, 1, 10, 'north', [('carrot', 2), ('potato', 2), ('beetroot', 1), ('paper', 1), ('stick', 1), ('rotten_flesh', 1), ('mcyukkuri:junk_headwear', 1)])
     # Sidewalks: lamps and a bench facing the lane.
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
@@ -299,7 +296,7 @@ def street_alley(p):
     for x in range(6, 11): b.block(x, 1, 19, p.plinth_at(x, 19, 2))
     fence_row(b, 6, 10, 2, 19, p.fence)
     b.block(6, 3, 19, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
-    shelter_spot(b, 8, 1, 17, 'cardboard_shelter', 'north')
+    carton(b, 8, 1, 17, 'north')
     # Behind the sheds: the ground, a pumpkin patch and a rail.
     b.block(13, 1, 18, 'pumpkin'); fence_row(b, 11, 16, 1, 19, p.fence)
     # Sidewalks: lamps, a trough and planters.

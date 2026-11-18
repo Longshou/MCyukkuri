@@ -27,7 +27,7 @@ VANILLA_POOLS = {'minecraft:empty', *(f'minecraft:village/{style}/streets' for s
 RESOURCE = re.compile(r'[a-z0-9_.-]+:[a-z0-9_./-]+')
 EMPTY = 'minecraft:empty'
 BIN = 'mcyukkuri:garbage_bin'
-SHELTERS = {'mcyukkuri:cardboard_shelter', 'mcyukkuri:crate_shelter', 'mcyukkuri:forest_burrow'}
+CARTON = 'mcyukkuri:cardboard_shelter'
 WORKSTATIONS = {'barrel', 'blast_furnace', 'brewing_stand', 'cartography_table', 'cauldron',
                 'composter', 'fletching_table', 'grindstone', 'lectern', 'loom', 'smoker', 'smithing_table',
                 'stonecutter', 'water_cauldron', 'lava_cauldron', 'powder_snow_cauldron'}
@@ -494,10 +494,10 @@ def stray_checks(piece, starts, targets, gaps):
     for pos, (name, props, nbt) in piece.blocks.items():
         if name == BIN:
             bins[pos] = props, nbt
-        if name in SHELTERS:
+        if name == CARTON:
             part = int(props['part'])
             center = add(pos, (2 - part % 5, -(part // 25), 2 - part // 5 % 5))
-            shelters[center] = name, props['facing']
+            shelters[center] = props['facing']
         if name == 'mcyukkuri:wooden_bench':
             targets.append(('bench', pos))
     for pos, (props, nbt) in bins.items():
@@ -506,20 +506,18 @@ def stray_checks(piece, starts, targets, gaps):
         if not stand(piece, mouth, 1, False) or 'Items' not in nbt:
             errors.append(f'bin {pos} has a blocked mouth stand or missing stock tag')
         low_targets.append(('bin stand', mouth))
-    for pos, (name, facing) in shelters.items():
-        carton = name == 'mcyukkuri:cardboard_shelter'
+    for pos, facing in shelters.items():
         for dx, dy, dz in product((-1, 0, 1), (0, 1), (-1, 0, 1)):
-            if carton and (dz if facing in ('north', 'south') else dx):
+            if dz if facing in ('north', 'south') else dx:
                 continue
             p = add(pos, (dx, dy, dz))
             part = dx + 2 + 5 * (dz + 2) + 25 * dy
             block, props, nbt = piece.state(p)
-            if (block != name or props.get('facing') != facing or props.get('part') != str(part)
+            if (block != CARTON or props.get('facing') != facing or props.get('part') != str(part)
                     or bool(nbt) != (part == 12) or not sturdy(piece.state(add(pos, (dx, -1, dz))))):
                 errors.append(f'shelter {pos} has an invalid shell or floor at {p}')
-        if carton:
-            cartons.add(pos)
-        low_targets.append(('shelter entrance', add(pos, HORIZONTAL[facing], 1 if carton else 2)))
+        cartons.add(pos)
+        low_targets.append(('shelter entrance', add(pos, HORIZONTAL[facing])))
     for pos in sorted(gaps):
         if not gap_at(piece, pos):
             errors.append(f'wind gap {pos} lacks dry footing, collision overhead or a sturdy side')

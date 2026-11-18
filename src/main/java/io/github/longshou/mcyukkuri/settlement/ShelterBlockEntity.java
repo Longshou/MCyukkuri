@@ -153,7 +153,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public int food() { var pile=pile();return pile==null?0:pile.food(); }
     public Direction facing() { return getBlockState().getValue(ShelterBlock.FACING); }
     public BlockPos entrance() { return kind()==ShelterBlock.Kind.BURROW&&naturalEntrance!=null?naturalEntrance:
-            worldPosition.relative(facing(),kind()==ShelterBlock.Kind.CARDBOARD?1:kind().radius+1); }
+            worldPosition.relative(facing()); }
     public AABB interior() {
         if (kind()==ShelterBlock.Kind.CARDBOARD) return ShelterBlock.cartonBounds(worldPosition,facing());
         var bounds=new AABB(worldPosition);for(var pos:beds())bounds=bounds.minmax(new AABB(pos));
@@ -162,31 +162,18 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** Inside the home: a residential cell, the doorway cell just inside the mouth, or the store cell. */
     public boolean contains(BlockPos pos) {
         if (kind()==ShelterBlock.Kind.CARDBOARD) return pos.getY()==worldPosition.getY()&&ShelterBlock.cartonPart(pos.subtract(worldPosition),facing());
-        if (kind().found()) return pos.getY() == worldPosition.getY() && Math.abs(pos.getX()-worldPosition.getX()) <= kind().radius
-                && Math.abs(pos.getZ()-worldPosition.getZ()) <= kind().radius;
         return beds().contains(pos)||pos.equals(worldPosition)||pos.equals(naturalPile);
     }
     /** The planned store cell inside the cavity, or null. */
     public BlockPos pileCell() { return naturalPile; }
     public boolean owns(UUID id) { return residents.containsKey(id); }
-    /** Found shelters: the carton's two side-by-side cells left and right of the core; the crate's core and the cell in front. */
+    /** The carton's two sleeping cells are left and right of the core. */
     public List<BlockPos> beds() {
         if(kind()==ShelterBlock.Kind.CARDBOARD)return List.of(worldPosition.relative(facing().getClockWise()),worldPosition.relative(facing().getCounterClockWise()));
-        return kind().found()?List.of(worldPosition, worldPosition.relative(facing())):naturalBeds;
+        return naturalBeds;
     }
-    /** Where a body lies in this bed. The carton spreads its spots sideways (cardboard.py), the crate diagonally. */
+    /** Where a body lies in this bed. The carton spreads its spots sideways (cardboard.py). */
     public Vec3 restSpot(BlockPos bed) {
-        if (kind() == ShelterBlock.Kind.CRATE) {
-            boolean front = !bed.equals(worldPosition);
-            var forward = facing();
-            var side = forward.getClockWise();
-            // Local spots in (across, along) units: front (-7.5, 11.5), back (7.5, -7.5); both stay in their bed cells, 24.2 units apart.
-            double across = (front ? -7.5 : 7.5) / 16;
-            double along = (front ? 11.5 : -7.5) / 16;
-            return Vec3.atBottomCenterOf(worldPosition).add(
-                    side.getStepX() * across + forward.getStepX() * along, 0,
-                    side.getStepZ() * across + forward.getStepZ() * along);
-        }
         if(kind()!=ShelterBlock.Kind.CARDBOARD)return Vec3.atBottomCenterOf(bed);
         return cartonRestSpot(bed,6/16.);
     }
@@ -416,8 +403,7 @@ public final class ShelterBlockEntity extends BlockEntity {
                 || residents.keySet().stream().anyMatch(other -> !related(id, other)) || !contains(entity.blockPosition())
                 || !clearsResidents(entity, entity.position(), HeadTop.reach(entity))) return false;
         if (!owns(id)) {
-            int slot = (kind()==ShelterBlock.Kind.CARDBOARD ? cartonAcross(entity.position()) < 0
-                    : entity.blockPosition().equals(beds().get(1))) ? 1 : 0;
+            int slot = cartonAcross(entity.position()) < 0 ? 1 : 0;
             boolean sharesSlot = residents.containsValue(slot);
             int reservedYoung = FamilyData.get(server).reservedForResidents(candidate -> candidate.equals(id) || owns(candidate));
             if ((sharesSlot && entity.family().adult()) || !fitsResident(sharesSlot, reservedYoung)) return false;
@@ -450,14 +436,14 @@ public final class ShelterBlockEntity extends BlockEntity {
         boolean parent = entity.family().adult() && (reservedYoung > 0 || youngInside || family.children(id).stream().anyMatch(child ->
                 level instanceof ServerLevel server && server.getEntity(child) instanceof YukkuriEntity y
                         && !y.family().adult() && y.distanceToSqr(entity) < 36));
-        // A parent takes the second bed (the crate's mouth, the carton's other side); so does a second grown-up when the first is held.
+        // A parent takes the other side; so does a second grown-up when the first is held.
         boolean backTaken = residents.entrySet().stream().anyMatch(e -> e.getValue() == 0 && !e.getKey().equals(id));
         return parent || backTaken && !residents.containsValue(1) ? beds().get(1) : beds().get(0);
     }
 
     boolean foundUsable(YukkuriEntity entity) {
         return rainStage == 0 && sound() && (dirt < 65 || entity.status().marks().dirt() >= 3 || entity.body().mold() > 0)
-                && FoundShelter.fits(entity, kind());
+                && FoundShelter.fits(entity);
     }
 
     public boolean feedResident(Player player, InteractionHand hand, ItemStack food) {
@@ -524,8 +510,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean sound() {
         return (kind()==ShelterBlock.Kind.BURROW||condition>0) && complete() && !beds().isEmpty() && !flooded()
-                && (kind()==ShelterBlock.Kind.CARDBOARD ? cartonHasFloor() : beds().stream().allMatch(pos->
-                        kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos):sturdyFloor(pos.below())))
+                && (kind()==ShelterBlock.Kind.CARDBOARD ? cartonHasFloor() : beds().stream().allMatch(pos->NaturalShelter.enclosed(level,pos)))
                 && (kind()!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,worldPosition));
     }
     public boolean usable(YukkuriEntity entity) {
@@ -736,22 +721,20 @@ public final class ShelterBlockEntity extends BlockEntity {
         boolean blocked = !level.getBlockState(entrance()).getCollisionShape(level, entrance()).isEmpty()
                 || !NaturalShelter.stand(level, entrance());
         boolean fire = ShelterPlacement.positions(worldPosition, kind(), facing()).stream().anyMatch(this::touchesFire);
-        boolean unsupported = kind() == ShelterBlock.Kind.CARDBOARD && !cartonHasFloor();
+        boolean unsupported = !cartonHasFloor();
         if (flooded() || blocked || fire || unsupported) {
             dismantle(flooded() ? "flooded" : fire ? "fire" : unsupported ? "unsupported" : "closed");
             return;
         }
         emptyTicks = residents.isEmpty() ? Math.min(24000, emptyTicks + 100) : 0;
-        if (kind() == ShelterBlock.Kind.CARDBOARD) {
-            int previousStage = rainStage;
-            moisture = Math.clamp(moisture + (level.isRainingAt(worldPosition.above(kind().height)) ? 10 : -5), 0, 100);
-            updateRainStage(server);
-            if (moisture == 100 && previousStage == 2 && rainStage == 2) {
-                server.levelEvent(2001, worldPosition, Block.getId(getBlockState()));
-                condition = 0;
-                dismantle("rain_collapse");
-                return;
-            }
+        int previousStage = rainStage;
+        moisture = Math.clamp(moisture + (level.isRainingAt(worldPosition.above(kind().height)) ? 10 : -5), 0, 100);
+        updateRainStage(server);
+        if (moisture == 100 && previousStage == 2 && rainStage == 2) {
+            server.levelEvent(2001, worldPosition, Block.getId(getBlockState()));
+            condition = 0;
+            dismantle("rain_collapse");
+            return;
         }
         for (var id : residents.keySet()) if (server.getEntity(id) instanceof YukkuriEntity y)
             dirt = Math.min(100, dirt + (y.body().mold() > 0 ? 2 : y.status().marks().dirt() >= 3 ? 1 : 0));
@@ -828,9 +811,7 @@ public final class ShelterBlockEntity extends BlockEntity {
             for(var id:List.copyOf(nestProjects.keySet()))dropNestProject(id);
             if (kind().found()) {
                 for (var stack : foundBedding) dropFoundMaterial(stack, reason);
-                var scrap = kind() == ShelterBlock.Kind.CARDBOARD
-                        ? new ItemStack(Items.PAPER, condition > 0 ? 3 : 1) : new ItemStack(Items.STICK, 3);
-                dropFoundMaterial(scrap, reason);
+                dropFoundMaterial(new ItemStack(Items.PAPER, condition > 0 ? 3 : 1), reason);
             } else Containers.dropItemStack(level, worldPosition.getX()+.5, worldPosition.getY(), worldPosition.getZ()+.5,
                     new ItemStack(Items.STICK, branches));
         }

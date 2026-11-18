@@ -603,7 +603,7 @@ class Clips(Field):
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
-    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='村边纸箱、木箱、垃圾桶与挡风处；另有野生家庭演示'),
+    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='村边纸箱、垃圾桶与挡风处；另有野生家庭演示'),
     Biomes('biomes', '群系聚落', 'biome', -884, 468, 128, 64, 'minecraft:plains', plots=BIOME_PLOTS, cols=4,
            blurb='八个群系的聚落（春夏秋冬各有），各群系的住所、存粮与山脚聚落的嗯嗯坑、嗯嗯奴隶'),
     # 64 blocks of meadow north and south of the plots: the leader's hunting ground lies 32-64 blocks out (CommonHunt.RADIUS).

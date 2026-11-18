@@ -82,7 +82,7 @@ final class WallClearance {
             double px = Mth.clamp(feet.x, minX, maxX), pz = Mth.clamp(feet.z, minZ, maxZ);
             double x = px - feet.x, z = pz - feet.z;
             double distance = Math.hypot(x, z);
-            // A shape over the body axis is a floor or ceiling, and an overhead box (crate/carton roof, burrow ceiling,
+            // A shape over the body axis is a floor or ceiling, and an overhead box (carton roof, burrow ceiling,
             // tabletop) only forms a side face where a wall below it actually blocks the body. Side faces use the nearest
             // point on the shape, giving a continuous separating plane around the outside of a corner.
             if (distance <= 0 || distance >= reach || minY >= bodyTop && !wallBelow(px, pz, bodyTop)) continue;

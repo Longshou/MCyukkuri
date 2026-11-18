@@ -62,7 +62,6 @@ WINE = ['#3a0d1f', '#5c1530', '#7e2042', '#a23458', '#c7577a']         # velvet 
 GOLDC = ['#6b4a12', '#9c7220', '#c99a32', '#e8c25a', '#f8e49a']        # velvet nest cord and buttons (placed.py GOLD)
 NAVYW = ['#273f5c', '#3d5f86', '#5a83ad', '#86abcf', '#b8d2ea']        # fine (blue) carrier wicker
 SAGEW = ['#2b4a33', '#41704b', '#5f9467', '#8bb98d', '#bfe0bd']        # large (green) carrier wicker
-DARKWOOD = ['#2b1d10', '#4a3219', '#6a4826', '#8c6336', '#ad8250']     # crate shelter
 WATER = ['#1d4a7a', '#2f6fa8', '#4b93cc', '#7cb9e6', '#bfe0f7']        # pool water
 TILE = ['#56747a', '#8aaab0', '#b5d0d3', '#d9ecec', '#ffffff']         # pool basin
 WASH = ['#2f5677', '#4f7fa6', '#78a8cc', '#a6cde8', '#d6ecf9']         # wash cloth
@@ -728,30 +727,6 @@ def cardboard_shelter():
     return i
 
 
-def crate_shelter():
-    """Windbreak crate on its side: dark boards with seams on the top and side, the open front showing the inside planks."""
-    i = Icon('crate_shelter')
-    i.rows(legend(o=(DARKWOOD, 0), d=(DARKWOOD, 1), m=(DARKWOOD, 2), L=(DARKWOOD, 3), H=(DARKWOOD, 4)), [
-        "................",
-        "................",
-        "................",
-        "......oooooooooo",
-        ".....oHHoHHHoHLo",
-        "....oHHoHHHoHLmo",
-        "...oLLoLLLoLLmdo",
-        "..ooooooooooomdo",
-        "..oHHHHHHHHHLodo",
-        "..oLooooooooLomo",
-        "..oHoLLLLLLoHodo",
-        "..oLoddddddoLomo",
-        "..oHooooooooHodo",
-        "..oLommmmmmoLoo.",
-        "..oHHLLHHLLHLo..",
-        "..ooooooooooooo.",
-    ])
-    return i
-
-
 def forage_pile():
     """Forage store: a mound of gathered leaves and grass with a clump of red berries, brown nuts and a white daisy on top."""
     i = Icon('forage_pile')
@@ -945,7 +920,7 @@ ICONS = {
     'food_bowl': food_bowl, 'straw_nest': straw_nest, 'yukkuri_nest': yukkuri_nest, 'velvet_nest': velvet_nest,
     'large_yukkuri_nest': large_yukkuri_nest,
     'large_wild_nest': large_wild_nest, 'predator_nest': predator_nest, 'yukkuri_toilet': yukkuri_toilet,
-    'cardboard_shelter': cardboard_shelter, 'crate_shelter': crate_shelter, 'forage_pile': forage_pile,
+    'cardboard_shelter': cardboard_shelter, 'forage_pile': forage_pile,
     'yukkuri_carrier': yukkuri_carrier, 'yukkuri_carrier_fine': yukkuri_carrier_fine,
     'yukkuri_carrier_large': yukkuri_carrier_large,
     'wash_cloth': wash_cloth, 'teaching_whistle': teaching_whistle, 'companion_cord': companion_cord,

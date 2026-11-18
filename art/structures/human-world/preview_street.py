@@ -92,11 +92,13 @@ def overlay(plan, b, offset, goods=None):
     for (x, y, z), facing, (sx, sy, sz) in getattr(b, 'garbage', []):
         plan.cell(ox + sx, oz + sz, fill='#ff5a3c55'); plan.dot(ox + x + .5, oz + z + .5, 10, '#d8432c', '垃')
     for x, y, z in getattr(b, 'gaps', []): plan.cell(ox + x, oz + z, fill='#3c8dff88', outline='#1f5fbf', width=2, inset=.08)
-    for (x, y, z), kind, facing in getattr(b, 'shelters', []):
-        (u0, v0), (u1, v1) = plan.at(ox + x - 1, oz + z - 1), plan.at(ox + x + 2, oz + z + 2)
+    for (x, y, z), facing in getattr(b, 'shelters', []):
+        wide_x = facing in ('north', 'south')
+        dx, dz = (1, 0) if wide_x else (0, 1)
+        (u0, v0), (u1, v1) = plan.at(ox + x - dx, oz + z - dz), plan.at(ox + x + 1 + dx, oz + z + 1 + dz)
         plan.draw.rectangle((u0, v0, u1, v1), fill='#c8964b66', outline='#7a4a12', width=3)
         plan.arrow(ox + x, oz + z, facing, '#7a4a12', 2.2)
-        plan.text(ox + x + .5, oz + z + .5, '木箱位' if 'crate' in kind else '纸箱位', 13)
+        plan.text(ox + x + .5, oz + z + .5, '纸箱位', 13)
     for (x, y, z), facing, *_ in getattr(b, 'jigsaws', []): plan.arrow(ox + x, oz + z, facing, '#ff3df2', 1.2)
     frames = {}
     for ent in b.entities:
@@ -131,7 +133,7 @@ ZONES = [  # oni shop interior labels (shop coordinates; the template adds stree
 
 def legend(width):
     rows = [('#d8432c', '垃', '垃圾点（标记木桶，前方是取物格，上方活板门是盖子）'), ('#3c8dff', '', '挡风缝（低顶、一侧有墙，地上一张真纸）'),
-            ('#c8964b', '', '纸箱／木箱位（代码在此放置实体箱，箭头为开口）'), ('#ffd34d', '', '路灯／灯笼'),
+            ('#c8964b', '', '纸箱位（箭头为开口）'), ('#ffd34d', '', '路灯／灯笼'),
             ('#ff3df2', '', '街道接口（与相邻地块拼接的方向）'), ('#e0457b', '灵', '在售油库里（小圆为子油）'),
             ('#30343a', '鬼', '店主（鬼威惨）／店员'), ('#f2a33a', '1', '展示框（编号见下表）'), ('#4fd1ff', '', '铁门（员工门，两格宽）')]
     im = Image.new('RGBA', (width, 40 + 34 * ((len(rows) + 1) // 2)), '#f6f4ee'); d = ImageDraw.Draw(im)
@@ -157,7 +159,7 @@ p{line-height:1.6}ul.g{columns:3;line-height:1.7}nav a{margin-right:14px}</style
 <p>画面为离线渲染（真实方块贴图，无光照效果）；油库里、人物、展示框与标记用符号表示。示例街道：西侧一处集市摊位，东侧鬼威惨商店接后巷（实际生成时每侧最多两处地块，随机抽取）。</p>
 <nav>{{NAV}}</nav>
 {{STYLES}}
-<h2>平面图（平原）</h2><p>垃圾点、挡风缝、纸箱／木箱位、居民（员／鬼）与接口位置；五种村庄布局相同。</p>
+<h2>平面图（平原）</h2><p>垃圾点、挡风缝、纸箱位、居民（员／鬼）与接口位置；五种村庄布局相同。</p>
 <img src="street-plan.png"><img src="legend.png"><img src="stall-plan.png"><img src="alley-plan.png">
 <h2>鬼威惨商店（平原，博物馆模板）</h2><img src="oni-interior.png"><img src="oni-plan.png">
 <p>展示框里的商品（编号对应平面图）：</p><ul class="g">{{GOODS}}</ul>

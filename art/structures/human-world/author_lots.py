@@ -28,7 +28,7 @@ import math, sys
 sys.path.insert(0, str(Path(__file__).parent))
 from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, integer, sequence
 from palette import PALETTES, STYLES, BEDS, link, leaves, mc, pick
-from author_street import Site, garbage, wind_gap, shelter_spot, lamp, lot_ground, produce_crate, connect_bars, jigsaw
+from author_street import Site, garbage, wind_gap, carton, lamp, lot_ground, produce_crate, connect_bars, jigsaw
 
 LOG = {'axis': 'y'}
 
@@ -453,7 +453,7 @@ def back_lot(p):
     b.block(6, 2, 8, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
     wind_gap(b, 4, 1, 6); wind_gap(b, 4, 1, 7, paper=False)
     # The cardboard spot and the bin already knocked over, its mouth toward the gate path; a broken fence on the west side.
-    shelter_spot(b, 5, 1, 2, 'cardboard_shelter', 'west')
+    carton(b, 5, 1, 2, 'west')
     garbage(b, 1, 1, 2, 'east', [('rotten_flesh', 2), ('paper', 1), ('bone', 1), ('bread', 1), ('mcyukkuri:junk_headwear', 1)],
             tipped=True)
     fence(b, [(0, 1), (0, 3)])

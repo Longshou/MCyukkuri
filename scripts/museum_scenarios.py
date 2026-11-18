@@ -445,10 +445,9 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
     reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
 
 
-def found_shell(kind, x, z):
-    depth = (0,) if kind == 'cardboard_shelter' else range(-1, 2)
-    return [block(x + dx, dy, z + dz, f'mcyukkuri:{kind}[facing=south,part={dx + 2 + 5*(dz + 2) + 25*dy}]')
-            for dy in range(2) for dz in depth for dx in range(-1, 2)]
+def carton_shell(x, z):
+    return [block(x + dx, dy, z, f'mcyukkuri:cardboard_shelter[facing=south,part={dx + 12 + 25*dy}]')
+            for dy in range(2) for dx in range(-1, 2)]
 
 
 def street_stray(scene, kind, x, z, name, **kwargs):
@@ -466,29 +465,23 @@ def garbage_bin(x, z, items, tipped):
 _stray_mother = uid('stray_boxes', 'mother')
 _stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,'
                        'Maturity:336000L,Lifespan:1056000L,AdultScale:0.84f,Scale:0.84f')
-_crate_mother = uid('stray_boxes', 'crate_mother')
-add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '流浪：母子找纸箱，木箱也能歇脚',
-    '夜里左边的母子在纸箱并排歇脚，右边的母子在木箱前后错开，观察两顶头饰之间的空隙。',
+add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸箱',
+    '夜里，流浪母子自己走到箱口，在纸箱里并排歇脚。看两顶头饰是否与箱壁和彼此留有空隙。',
     '约半分钟至一分钟', [
-        *found_shell('cardboard_shelter', -5, -1), *found_shell('crate_shelter', 6, -1),
+        *carton_shell(-5, -1),
         street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
         street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
                      kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
-        street_stray('stray_boxes', 'marisa', 6, -1, 'crate_stray', stage='child', energy=28, rest_wait=0,
-                     kin=f'Mother:{uuid_nbt(_crate_mother)}'),
-        street_stray('stray_boxes', 'reimu', 6, 3, 'crate_mother', energy=28, rest_wait=0),
-    ], env={'time': 'night'}, spot='street', vantage=(0, 9),
+    ], env={'time': 'night'}, spot='street', vantage=(-5, 7),
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
-                 views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4)),
-                        'crate': dict(position=(5.6, .78, 2.9), look_at=(6.5, .48, -.1))}),
+                 views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4))}),
     smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
-               expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2',
-                                  r'\[habitat\][^\n]* found settled .*kind=CRATE occupants=2']))
+               expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
     '看纸箱里的流浪油歇脚。纸箱受潮后，它沿开口离开，去别处避雨。空纸箱泡透塌下，留下纸片。左侧另一只魔理沙会沿墙去捡苹果。',
     '约一分钟', [
-        *found_shell('cardboard_shelter', -4, -1),
+        *carton_shell(-4, -1),
         # Start near the open edge with clearance behind the brim and to the wall.
         street_stray('stray_rain', 'marisa', -4.18, -.6875, 'rain_stray', energy=25, rest_wait=0, lead=True),
         box(-14, 0, -3, -14, 1, 3, 'minecraft:cobblestone'),
