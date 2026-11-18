@@ -2,17 +2,21 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.body.PaperCeiling;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
 import io.github.longshou.mcyukkuri.pose.WallYield;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -37,7 +41,7 @@ final class WallClearance {
         originZ = origin.m32();
     }
 
-    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, float partial, Matrix4f origin, boolean paper) {
+    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, Matrix4f origin, boolean paper) {
         YukkuriView entity = source;
         double scale = entity.getScale() * entity.growthScale();
         // Rest bounds plus room for the animated swing, lean and bounce.
@@ -65,7 +69,17 @@ final class WallClearance {
         var sweep = new AABB(-reach, 0, -reach, reach, top + motion, reach).move(feet);
         double bodyTop = feet.y + source.getBbHeight();
         boxCount = 0;
-        for (var shape : entity.level().getBlockCollisions(source, sweep)) {
+        // The bin's solid collision box spans its open mouth. A reaching tuft keeps the authored pose there.
+        var bin = Behaviors.BRAID_EAT_BIN.equals(action) ? entity.braidMealBin() : null;
+        if (bin != null) {
+            var state = entity.level().getBlockState(bin);
+            if (!(state.getBlock() instanceof GarbageBinBlock) || !state.getValue(GarbageBinBlock.TIPPED)) bin = null;
+        }
+        var reachedBin = bin;
+        var collisions = new BlockCollisions<>(entity.level(), source, sweep, false,
+                (pos, shape) -> pos.equals(reachedBin) ? Shapes.empty() : shape);
+        while (collisions.hasNext()) {
+            var shape = collisions.next();
             shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
                 if (maxX <= sweep.minX || minX >= sweep.maxX || maxY <= sweep.minY || minY >= sweep.maxY
                         || maxZ <= sweep.minZ || minZ >= sweep.maxZ) return;

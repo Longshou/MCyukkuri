@@ -69,7 +69,8 @@ public final class ForageGoal extends Goal {
         return entity.life().nutrition() >= 30 && entity.settlement().familyMarching();
     }
     @Override public boolean canUse() {
-        if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
+        if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || entity.life().mealTicks() > 0
+                || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
         if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst() || yieldsToMarch() || entity.forageTrip().provisioningFirst()) return false;
         scanFood();
@@ -158,7 +159,7 @@ public final class ForageGoal extends Goal {
     }
     @Override public boolean canContinueToUse() {
         if (yieldsToMarch()) return false;
-        return running && !entity.life().isSleeping() && !entity.family().awaitingLanding() && entity.life().canEat()
+        return running && entity.life().mealTicks() == 0 && !entity.life().isSleeping() && !entity.family().awaitingLanding() && entity.life().canEat()
                 && (target != null || entity.life().nutrition() < 30)
                 && !SettlementSeasons.forageBlocked(entity) && !feedsChildFirst() && !entity.forageTrip().provisioningFirst()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);

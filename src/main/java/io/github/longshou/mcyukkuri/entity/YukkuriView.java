@@ -115,6 +115,7 @@ public interface YukkuriView {
     /** The real item presented at the lips, including food held between bites. */
     ItemStack getMouthItem();
     boolean foodOnBraid();
+    BlockPos braidMealBin();
     /** A transient, non-item mouthful from a successful body-food bite. */
     BodyFood.Bite getMouthBodyFood();
     /** House hair-grip, forage or habitat load. */

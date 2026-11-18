@@ -53,8 +53,8 @@ final class LifeMeal {
     private record TuftMeal(MealRoute route, MealRoute.Serving source, long start) {}
     private TuftMeal tuftMeal;
     private BlockPos tuftReleaseRefusedAt;
-    /** The acquired serving is spat at the end of the take-food beat, including across unload. */
-    private static final int SPIT_TICK = 10;
+    /** The take-food beat ends when chewing or spitting begins. */
+    static final int TAKE_TICKS = 10;
     private static final int SWALLOW_TICK = 45;
     /** Poll every three ticks so a brief hop can end while the serving is still held. */
     private static final int MEAL_SIGHT_INTERVAL = 3;
@@ -90,6 +90,7 @@ final class LifeMeal {
     boolean braidHasFood() { return tuftMeal != null && mealTicks == 0 && hasMouthFood(); }
     String braidClip() { return playingTuftMeal() ? tuftMeal.route().id() : ""; }
     long braidStart() { return tuftMeal.start(); }
+    BlockPos braidMealBin() { return playingTuftMeal() ? tuftMeal.source().bin() : null; }
 
     boolean beginTuftMeal(MealRoute route, MealRoute.Serving source) {
         var body = o.entity();
@@ -315,8 +316,8 @@ final class LifeMeal {
 
     boolean canOfferMeal() {
         var item = mouth();
-        return !spitMeal && !sharedMeal && !preparedMeal && !bowlMeal && feeder == null && mealTicks > 0
-                && mealTicks < SWALLOW_TICK && kindnessFood(item);
+        return tuftMeal == null && !spitMeal && !sharedMeal && !preparedMeal && !bowlMeal && feeder == null
+                && mealTicks > 0 && mealTicks < TAKE_TICKS && kindnessFood(item);
     }
 
     static boolean kindnessFood(ItemStack item) {
@@ -464,7 +465,7 @@ final class LifeMeal {
             ItemStack mouth = mouth();
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { o.interrupt(); return false; }
             o.entity().getNavigation().stop();
-            if (spitMeal && mealTicks >= SPIT_TICK) {
+            if (spitMeal && mealTicks >= TAKE_TICKS) {
                 Vec3 at = MouthPlacement.position(o.entity());
                 if (at.equals(refusedSpitAt)) return false;
                 if (!occupancy().releaseMeal(this::spit, bite -> false)) refusedSpitAt = at;

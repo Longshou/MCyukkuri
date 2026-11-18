@@ -461,6 +461,7 @@ public final class YukkuriLife {
     public String braidMealClip() { return meal.braidClip(); }
     public long braidMealStart() { return meal.braidStart(); }
     public boolean braidHasFood() { return meal.braidHasFood(); }
+    public BlockPos braidMealBin() { return meal.braidMealBin(); }
     /** Ticks this body has waited its turn at a contested meal; 0 when it is not heading for food. */
     public int queuedTicks() { return task == Task.FOOD ? queueTicks : 0; }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
@@ -542,7 +543,7 @@ public final class YukkuriLife {
         if (mealTicks() > 0) {
             String after = meal.content() ? Behaviors.MEAL_CONTENT : Behaviors.MEAL_FINISH;
             if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : after;
-            return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : after;
+            return mealTicks() < LifeMeal.TAKE_TICKS ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : after;
         }
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
         return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
@@ -714,7 +715,7 @@ public final class YukkuriLife {
     public boolean takeBinWithBraid(MealRoute route, Vec3 contact, GarbageBinBlockEntity bin,
                                    Predicate<Predicate<ItemStack>> hand) {
         return meal.beginTuftMeal(route, new MealRoute.Serving(() -> contact, hand::test,
-                one -> MealRoute.restore(entity, bin, one), false));
+                one -> MealRoute.restore(entity, bin, one), false, bin.getBlockPos()));
     }
     public boolean beginOfferedMeal(ItemStack food, Player giver) {
         return meal.beginOfferedMeal(food, giver.getUUID(), !giver.getAbilities().instabuild);
@@ -1494,7 +1495,7 @@ public final class YukkuriLife {
                         var contact = bowlStand.contact();
                         if (!meal.beginTuftMeal(foodRoute, new MealRoute.Serving(() -> contact,
                                 receiver -> handBowlFood(bowl, receiver, "braid"),
-                                one -> MealRoute.restore(entity, bowl, one), true))) stopGoal();
+                                one -> MealRoute.restore(entity, bowl, one), true, null))) stopGoal();
                         return;
                     }
                     boolean taken = handBowlFood(bowl, one -> {
@@ -1575,7 +1576,7 @@ public final class YukkuriLife {
 
     private boolean takeGroundFood(ItemEntity food, MealRoute route) {
         if (route != null) return meal.beginTuftMeal(route, new MealRoute.Serving(() -> groundFoodContact(food),
-                receiver -> handGroundFood(food, receiver, "braid"), one -> false, false));
+                receiver -> handGroundFood(food, receiver, "braid"), one -> false, false, null));
         return handGroundFood(food, one -> beginMeal(one, null, false), "mouth");
     }
 

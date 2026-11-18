@@ -47,10 +47,17 @@ public final class GarbageSearch implements MotorOwner {
     private static final int RADIUS = 8, RAMS = 3, APPROACH_TICKS = 280;
     /** Width of the selected adult body export (12.8 units, body_geometry.json): a shove's mass is relative to it. */
     private static final double ADULT_WIDTH = .8;
+    /** Extra run-up from the adjacent stand so the collision stroke reads before recoil. */
+    private static final double RAM_RUN_UP = .18;
     private enum Phase { WALK, SNIFF, RAM, RAM_TIPPED, NOSE_IN, BRAID_APPROACH, MOUTH_APPROACH, CARRY, RETREAT }
 
     /** The stand to work from; {@code fall} is where a standing bin goes when shoved from {@code stand}, null at a fallen bin's mouth. */
-    private record Point(GarbageBinBlockEntity bin, BlockPos stand, Direction fall) {}
+    private record Point(GarbageBinBlockEntity bin, BlockPos stand, Direction fall) {
+        Vec3 approach() {
+            var center = Vec3.atBottomCenterOf(stand);
+            return fall == null ? center : center.subtract(Vec3.atLowerCornerOf(fall.getNormal()).scale(RAM_RUN_UP));
+        }
+    }
     private final YukkuriEntity body;
     private final LinkedHashMap<BlockPos, Long> refused = new LinkedHashMap<>();
     private Point point;
@@ -113,9 +120,9 @@ public final class GarbageSearch implements MotorOwner {
         // An old garbage barrel in sight becomes a bin now (after the scan); it is a candidate from the next scan on.
         for (var barrel : legacy) GarbageBinBlock.adopt(level(), barrel);
         point = options.stream().sorted(Comparator.comparingDouble(p -> here.distSqr(p.stand()))).limit(4)
-                .filter(p -> SurfaceApproach.canApproach(body, Vec3.atBottomCenterOf(p.stand()))).findFirst().orElse(null);
+                .filter(p -> SurfaceApproach.canApproach(body, p.approach())).findFirst().orElse(null);
         if (point == null) return false;
-        aim = Vec3.atBottomCenterOf(point.stand());
+        aim = point.approach();
         phase = Phase.WALK; deadline = now() + APPROACH_TICKS; rams = 0;
         GameplayLog.event(body, "forage", "garbage approach point={} tipped={}", point.bin().getBlockPos(), point.fall() == null);
         return true;
@@ -287,7 +294,7 @@ public final class GarbageSearch implements MotorOwner {
     private void walkTo(Point next, String why) {
         point = next;
         braid = null;
-        aim = Vec3.atBottomCenterOf(next.stand());
+        aim = next.approach();
         phase = Phase.WALK; deadline = now() + APPROACH_TICKS;
         GameplayLog.event(body, "forage", "garbage reroute point={} to={} why={}", next.bin().getBlockPos(), next.stand().toShortString(), why);
     }

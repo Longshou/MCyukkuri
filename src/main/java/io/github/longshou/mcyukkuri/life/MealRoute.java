@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 public record MealRoute(String id, ClipMarkers.Clip clip, float yaw, Vec3 stand) {
     @FunctionalInterface
     interface Transfer { boolean hand(Predicate<ItemStack> receiver); }
-    record Serving(Supplier<Vec3> contact, Transfer transfer, Predicate<ItemStack> restore, boolean bowl) {}
+    record Serving(Supplier<Vec3> contact, Transfer transfer, Predicate<ItemStack> restore, boolean bowl, BlockPos bin) {}
     private static final int TUFT_LOSS = HairParts.lossMask("braid_lock_tuft", (float) ContactGeometry.braidTipModel().x, true);
 
     static boolean braidIntact(YukkuriEntity body) { return (body.body().hairLoss() & TUFT_LOSS) == 0; }
