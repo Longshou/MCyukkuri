@@ -2,7 +2,6 @@
   "status": "pending_user_review",
   "id": "yukkuri_stem",
   "family_stem_registry": "art/registry/runtime/family_stem.json",
-  "stem_source": "standards/yukkuri-v1/components/common/stem.json",
   "icon_source": "art/props/item-icons/yukkuri_stem.png",
   "height": 7.5,
   "appearance": "Extruded leafy stem icon recoloured to the living head stem palette (family_stem.json -> stem.json).",

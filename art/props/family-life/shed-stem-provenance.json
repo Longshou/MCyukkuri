@@ -1,7 +1,7 @@
 {
   "status": "pending_user_review",
   "source": {
-    "art/props/family-life/shed-stem.json": "d1c0623960e834f543e873b627abe0db3fc7166faea0ebdf6be8705dcfe35f96",
+    "art/props/family-life/shed-stem.json": "8a3d377245e8a736068f4d78048f00c36f0bc83864f95e68000728a62422aa2d",
     "art/registry/runtime/family_stem.json": "786cd2f44a30146cc7906947ba6192d032144aedb54443a5785f6e979412fb47",
     "standards/yukkuri-v1/components/common/stem.json": "96f9a4f12c692fcf3138b145c2602378348b148dbdbab2d716077d2dacc54836",
     "art/props/item-icons/yukkuri_stem.png": "ca8b2e138adde1af12b96d9043519baa41f52913dd55160c681b0277d6ad25a7",

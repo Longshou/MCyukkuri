@@ -1,6 +1,9 @@
 {
   "source": "art/props/family-life/shed-stem.json",
   "exporter": "art/props/family-life/export_shed_stem.py",
+  "icon_source": "art/props/item-icons/yukkuri_stem.png",
+  "palette_registry": "art/registry/runtime/family_stem.json",
+  "extrusion_kit": "standards/yukkuri-library/drafts/block-props/kit.py",
   "manifest": "art/props/family-life/shed-stem-provenance.json",
   "geometry": "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json",
   "item_model": "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json",

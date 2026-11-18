@@ -1,0 +1,11 @@
+{
+  "source": "standards/yukkuri-library/drafts/consumables/build.py",
+  "recipe": "standards/yukkuri-library/drafts/consumables/recipe.json",
+  "selected_snapshot": "art/props/consumables/selected",
+  "manifest": "art/props/consumables/manifest.json",
+  "readme": "art/props/consumables/README.md",
+  "icon_source": "art/props/item-icons/",
+  "extrusion_kit": "standards/yukkuri-library/drafts/block-props/kit.py",
+  "runtime_index": "src/main/resources/assets/mcyukkuri/yukkuri_props/consumables-index.json",
+  "status": "pending_user_confirmation"
+}

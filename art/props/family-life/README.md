@@ -1,6 +1,6 @@
 # 家庭生长与茎生素材
 
-[recipe.json](recipe.json) 与 [shed-stem.json](shed-stem.json) 是本包的制作数据；[export_family_assets.py](../../../scripts/export_family_assets.py) 导出家族展示资源与产后茎道具，来源指纹分别见 [provenance.json](provenance.json) 和 [shed-stem-provenance.json](shed-stem-provenance.json)。
+[recipe.json](recipe.json) 由 [export_family_assets.py](../../../scripts/export_family_assets.py) 导出家族展示资源，[shed-stem.json](shed-stem.json) 由 [export_shed_stem.py](export_shed_stem.py) 导出产后茎道具。来源指纹分别见 [provenance.json](provenance.json) 和 [shed-stem-provenance.json](shed-stem-provenance.json)。
 
 普通灵梦与魔理沙使用 `art/source/standard-runtime/` 的选定模型、骨架和表情；服务器与客户端共用 `FamilyGeometry` 计算母体茎与子代位置。每胎 1–5 个，茎长随胎数、母体和子代体型拟合（[fit_stem.py](fit_stem.py)）；子代始终悬在母体前方，间隔错开并避开脸、头饰和地面。每个子代由一根连续、渐细的小茎从主茎挂点沿重力竖直悬下，静止时整根小茎与子代头顶挂点在同一垂线上，不作固定的左右斜伸；出生从对应悬挂处直落。挂点间距和主茎长度由 `fit_stem.py` 拟合，保证幼体与母体、相邻幼体及地面留有间隙，不依靠斜枝错开。客户端在母体实际走动或跳跃时才按现有重力方向轻摆并向移动反方向滞后，停稳后恢复竖直，没有静止自发摆动（项目设计）；客户端不改变胎次数据或服务端出生落点。主茎仍按参考在身体前方的竖直面内向前拱出。剪下或装瓶的茎同样静止竖垂。自然生产完成后，空茎从根部脱落。
 

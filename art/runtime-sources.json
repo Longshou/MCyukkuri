@@ -155,7 +155,6 @@
       "oil_grain_budget",
       "oil_grain_regular",
       "oil_grain_premium",
-      "spicy_grain",
       "food_scrap",
       "food_mash_serving",
       "yukkuri_waste",
@@ -199,7 +198,8 @@
         "food_bowl": "standards/yukkuri-library/drafts/block-props/devices.py (default style; dye styles stay placed.py)",
         "yarn_ball, glass_marble, pretty_stone, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
         "teaching_whistle, wash_cloth, companion_cord": "extruded inventory icons (cloth and cord laid flat), exported by standards/yukkuri-library/drafts/care-expansion/build.py",
-        "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py"
+        "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py",
+        "ceramic_tunnel/yukkuri_slide/yukkuri_trampoline/yukkuri_pool": "standards/yukkuri-library/drafts/playgrounds/build.py (collision from the same cells, slide chute sampled along its slope; trampoline bed is unit 2 with its pivot at y 8), in-use preview standards/yukkuri-library/drafts/playgrounds/preview.py"
       },
       "preview": "standards/yukkuri-library/drafts/block-props/preview.py",
       "style": "vanilla-like: axis-aligned voxel cuboids on the 1/16 grid at one texel per unit, icon ramps lit from the top left, each rounded object an explicit stepped-round recipe (octagon/inset vessels, stepped sphere) with painted detail; small handheld or dropped items are their 16x16 icon extruded like item/generated with vanilla hand angles and a 30-degree fixed view",
@@ -265,6 +265,17 @@
     "preview": "standards/yukkuri-library/motions/variants/lore/carry_hold_preview.py",
     "status": "pending_user_review",
     "scope": "Reimu's mouth_release (markers open/release/closed: a young emerges from her mouth before it is let go); the generic held item: Marisa's braid (the braid_item_hold overlay ashore and boat_paddle's loop start aboard, braid_item_pick contact, braid_item_place release; props.item uses the paddle's grip and twig frame on hand_right_tip, contacts.braid_grip) and the mouth for the others (mouth_item_pick bite, mouth_item_place release; drawn at the mouth anchor); boat_puff, the seated captain's puff with the braid at its boat rest; the aquatic self hat clips (hat_off_self_aq, hat_on_self_aq: hat.stick) keep the held stick in the tuft, laid along the brim it hooks, handed over from and back to the hold with the braid (user 2026-11-05 feedback 2). Project design (user 2026-11-04 feedback 1, 2 and 6). Chen's two-tail carry reuses the client CarryTailCurl seats unchanged."
+  },
+  "consumables": {
+    "source": "standards/yukkuri-library/drafts/consumables/build.py",
+    "recipe": "standards/yukkuri-library/drafts/consumables/recipe.json",
+    "selected_snapshot": "art/props/consumables/selected",
+    "manifest": "art/props/consumables/manifest.json",
+    "readme": "art/props/consumables/README.md",
+    "icon_source": "art/props/item-icons/",
+    "extrusion_kit": "standards/yukkuri-library/drafts/block-props/kit.py",
+    "runtime_index": "src/main/resources/assets/mcyukkuri/yukkuri_props/consumables-index.json",
+    "status": "pending_user_confirmation"
   },
   "core_filling": {
     "builder": "art/props/body-marks/core_filling.py",
@@ -7511,6 +7522,9 @@
   "shed_stem": {
     "source": "art/props/family-life/shed-stem.json",
     "exporter": "art/props/family-life/export_shed_stem.py",
+    "icon_source": "art/props/item-icons/yukkuri_stem.png",
+    "palette_registry": "art/registry/runtime/family_stem.json",
+    "extrusion_kit": "standards/yukkuri-library/drafts/block-props/kit.py",
     "manifest": "art/props/family-life/shed-stem-provenance.json",
     "geometry": "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json",
     "item_model": "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json",

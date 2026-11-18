@@ -394,7 +394,7 @@
           "ids": [
             "house_egg*",
             "live_birth_pose",
-            "reproductive_filling",
+            "yukkuri_stem",
             "family-index"
           ]
         },
@@ -648,10 +648,23 @@
             "standards/yukkuri-library/drafts/consumables/"
           ],
           "registry": [
+            "consumables",
             "food_mash_serving"
           ],
           "ids": [
-            "consumables-index"
+            "consumables-index",
+            "mold_remover",
+            "yogurt_drink",
+            "stimulant",
+            "sitataran",
+            "sleep_spray",
+            "spicy_grain",
+            "reproductive_filling",
+            "wheat_flour",
+            "water_serving",
+            "yogurt_serving",
+            "stimulant_serving",
+            "sitataran_serving"
           ]
         },
         {
@@ -661,8 +674,6 @@
             "forage_pile",
             "oil_grain_*",
             "food_scrap",
-            "spicy_grain",
-            "wheat_flour",
             "custard_pudding",
             "sweet_candy",
             "apple_half"

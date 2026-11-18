@@ -5,10 +5,23 @@
     "standards/yukkuri-library/drafts/consumables/"
   ],
   "registry": [
+    "consumables",
     "food_mash_serving"
   ],
   "ids": [
-    "consumables-index"
+    "consumables-index",
+    "mold_remover",
+    "yogurt_drink",
+    "stimulant",
+    "sitataran",
+    "sleep_spray",
+    "spicy_grain",
+    "reproductive_filling",
+    "wheat_flour",
+    "water_serving",
+    "yogurt_serving",
+    "stimulant_serving",
+    "sitataran_serving"
   ],
   "_order": 0
 }

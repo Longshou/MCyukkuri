@@ -92,7 +92,7 @@ def main():
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(raw)
-    print('Empty stem source and five exported files ' + ('match.' if args.check else 'exported.'))
+    print('Shed stem: five exported files ' + ('match.' if args.check else 'written.'))
     if args.preview:
         out = ROOT / '.local/previews/shed-stem'
         out.mkdir(parents=True, exist_ok=True)
