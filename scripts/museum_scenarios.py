@@ -560,13 +560,17 @@ def _stray_child_flight(window, trace):
         row = json.loads(line.split('[trace] ', 1)[1])
         if row['k'] == 'st' and tick <= row['t'] < tick + 96 and row['u'] in (mother, _stray_child_log):
             pairs.setdefault(row['t'], {})[row['u']] = row['st']
-    flight = [(bodies[_stray_child_log]['p'], bodies[mother]['p']) for bodies in pairs.values()
+    flight = [(t, bodies[_stray_child_log]['p'], bodies[mother]['p']) for t, bodies in pairs.items()
               if len(bodies) == 2 and bodies[_stray_child_log]['behavior'] == 'flee']
     if not flight:
         return 'The baby never entered flight'
-    start, parent = flight[0]
-    if min(math.dist(child, parent) for child, _ in flight) > math.dist(start, parent) - .4:
+    _, start, parent = flight[0]
+    def gap(child):
+        return math.hypot(child[0] - parent[0], child[2] - parent[2])
+    if not any(gap(child) <= gap(start) - .4 for _, child, _ in flight):
         return 'The fleeing baby did not move toward its mother'
+    if not any(t <= tick + 30 and math.hypot(child[0] - start[0], child[2] - start[2]) >= .4 for t, child, _ in flight):
+        return 'The flight did not steer the baby after it landed from the blow'
 
 
 add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸箱',
@@ -579,7 +583,8 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
     ], env={'time': 'night'}, spot='street', vantage=(-5, 5, 180, 15),
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
                  views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4))}),
-    smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '], verify_trace=True, verify=_stray_child_flight,
+    # Leave time for the child's post-flight fear and the original two-occupant settlement check.
+    smoke=dict(ticks=1600, forbid=[r'\[habitat\][^\n]* home chosen '], verify_trace=True, verify=_stray_child_flight,
                commands=[
                    (44, set_status('child', 'personality.boldness', 55)),
                    (45, f'execute at {sel("child")} positioned ~ ~ ~3 run yukkuri scenario tool_operator enter'),

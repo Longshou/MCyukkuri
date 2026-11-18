@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
@@ -119,6 +120,8 @@ public final class FlightPlanner {
                 return;
             }
         }
+        // Knockback can leave a grounded runner airborne between deciding to flee and starting the goal.
+        if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
         var away = away(dangerAt);
         if (changed || heading.dot(away) < .25) heading = away;
         var stalled = !changed && route != null && navigation.isStuck() ? route.getTarget() : null;
