@@ -483,12 +483,13 @@ add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收
         box(0, 0, -8, 0, 1, 2, 'minecraft:stone_bricks'),
         *[box(x, 0, 0, x, 1, 2, 'minecraft:glass') for x in (2, 4, 6, 8, -3, -5, -7)],
         *[_tuck_body(*entry) for entry in _TUCK_ROW],
-        *[item('minecraft:apple', 1, x, 2, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
-        *[item('minecraft:apple', 1, x, -5, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
-    env=DAY, spot='wall_tuck', vantage=(0, -7, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
+        # Chen eats from where it stands: its apple lies just ahead of it, so its eating stand keeps its back at the back wall.
+        *[item('minecraft:apple', 1, x, 1.75 if name == 'tuck_chen' else 2, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
+        *[item('minecraft:apple', 1, x, -3, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
+    env=DAY, spot='wall_tuck', vantage=(0, -6, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
-                 views={'': {}, 'locks': dict(position=(5.5, 2.4, -3), look_at=(5.5, .3, 2)),
-                        'wings': dict(position=(-6, 2.4, -3), look_at=(-6, .3, 2))}),
+                 views={'': {}, 'locks': dict(position=(5.5, 1.5, -1), look_at=(5.5, .3, 2.2)),
+                        'wings': dict(position=(-4.5, 1.5, -1), look_at=(-4.5, .3, 2.2))}),
     smoke=dict(ticks=600, forbid=[r'\[threat\][^\n]* response started '],
                expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
                        for _, _, name, _ in _TUCK_ROW]),
