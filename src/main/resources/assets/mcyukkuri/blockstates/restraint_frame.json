@@ -1,5 +1,7 @@
 {
   "variants": {
-    "": { "model": "mcyukkuri:block/restraint_frame" }
+    "": {
+      "model": "mcyukkuri:block/restraint_frame"
+    }
   }
 }

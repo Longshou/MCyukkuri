@@ -260,26 +260,27 @@ def care_awl_hot():
 
 
 def restraint_frame():
-    """お仕置き用固定具: a pale oak board seen slightly from above, two reddish leather straps arched over it, each with a
-    2px brass buckle; the same board and bands the restrained body lies in."""
+    """仰卧固定台 (art/props/restraint-table): the low table seen from above its buckle side, the plank top with board seams,
+    two reddish leather straps across it ending in iron buckles on the near edge, iron corner caps and short iron-shod legs."""
     i = Icon('restraint_frame')
-    i.rows(legend(l=(STRAP, 3), m=(STRAP, 1), y=(BRASS, 3), Y=(BRASS, 1),
-                  o=(PLANK, 0), e=(PLANK, 1), p=(PLANK, 3), H=(PLANK, 4), g=(PLANK, 2)), [
+    i.rows(legend(o=(WOOD, 0), d=(WOOD, 1), m=(WOOD, 2), l=(WOOD, 3), h=(WOOD, 4),
+                  k=(STRAP, 0), s=(STRAP, 1), S=(STRAP, 2), T=(STRAP, 3),
+                  j=(IRON, 0), i=(IRON, 1), I=(IRON, 2), w=(IRON, 3), W=(IRON, 4)), [
         "................",
         "................",
         "................",
-        "....lll....lll..",
-        "...l...m..l...m.",
-        "...l...m..l...m.",
-        "...yy..m..yy..m.",
-        "...YY..m..YY..m.",
-        "...l...m..l...m.",
-        "..ol...moolooomo",
-        "..oHHHHHHHHHHHHo",
-        ".oppppgpppppgppo",
-        ".oeeeeeeeeeeeeo.",
-        ".oeegeeeeeegeeo.",
-        ".oooooooooooooo.",
+        "................",
+        "..jIooooooooIj..",
+        ".jwlhTSlhlTSlwj.",
+        ".olmmTsmmmTsmlo.",
+        ".odddksdddksddo.",
+        ".ommmTSmmmTSmmo.",
+        ".omlmTSmlmTSmlo.",
+        ".odddksdddksddo.",
+        ".IwhhTShhhTShwI.",
+        ".jodiWIidiWIdoj.",
+        "..od.jij.jij.do.",
+        "..jj........jj..",
         "................",
     ])
     return i

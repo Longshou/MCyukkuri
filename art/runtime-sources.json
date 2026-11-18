@@ -6586,7 +6586,6 @@
       "care_mallet": "src/main/resources/assets/mcyukkuri/textures/item/care_mallet_model.png",
       "care_awl": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_model.png",
       "care_awl_hot": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_hot_model.png",
-      "restraint_frame": "src/main/resources/assets/mcyukkuri/textures/item/restraint_frame_model.png",
       "wrap_sling": "src/main/resources/assets/mcyukkuri/textures/item/wrap_sling_model.png",
       "hanging_hook": "src/main/resources/assets/mcyukkuri/textures/item/hanging_hook_model.png",
       "care_vibrator": "src/main/resources/assets/mcyukkuri/textures/item/care_vibrator_model.png",
@@ -6595,8 +6594,8 @@
     "drafts": {
       "alcohol_lamp": "art/props/operation-tools/icons/alcohol_lamp.png"
     },
-    "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (neoforge:separate_transforms: 3D base in the hands, sprite in GUI, ground and frames; trimmed_hair is item/generated; written by build.py)",
-    "role": "vanilla-style 16x16 sprites for the GUI, ground and item frames, and real 3D cuboid models of the same tools for both hands; the pin, hook and rotor contact meshes on the body are the same 3D models, and the body-fitted restraint board, sling and iron box sample the same material textures. Cutting tools are vanilla shears; the heated awl is the awl's heat state (care_awl_hot override). Drafts are not shipped until their item is registered",
+    "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (neoforge:separate_transforms: 3D base in the hands, sprite in GUI, ground and frames; the placed restraint_frame takes its block model (art/props/restraint-table) as the hand base; trimmed_hair is item/generated; written by build.py)",
+    "role": "vanilla-style 16x16 sprites for the GUI, ground and item frames, and real 3D cuboid models of the same tools for both hands; the pin, hook and rotor contact meshes on the body are the same 3D models, and the body-fitted sling and iron box sample the same material textures. Cutting tools are vanilla shears; the heated awl is the awl's heat state (care_awl_hot override). Drafts are not shipped until their item is registered",
     "status": "pending_user_confirmation"
   },
   "path_base": "repository_root",

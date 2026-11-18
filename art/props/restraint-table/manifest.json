@@ -1,0 +1,15 @@
+{
+  "authoring": "art/props/restraint-table/build.py",
+  "status": "pending_user_confirmation",
+  "exports": {
+    "src/main/resources/assets/mcyukkuri/blockstates/restraint_frame.json": "e21688886c3960a533dcbf22e6d912b89ef987c947a38e602ecebc2e75887649",
+    "src/main/resources/assets/mcyukkuri/models/block/restraint_frame.json": "575e5db9944a5c382c2f631cfad2da35e6b65801a78db9407706c7895bd5ae8a",
+    "src/main/resources/assets/mcyukkuri/models/block/restraint_frame_occupied.json": "ead7b6d3fcaa4b6d748130608915cdde1ee51bda1907855ebeef61e010c761fe",
+    "src/main/resources/assets/mcyukkuri/restraint_table/strap_fits.json": "ef290fee210271477e12501a501ed0d52497ea347160e829eb4232af800275e4",
+    "src/main/resources/assets/mcyukkuri/textures/block/restraint_table_iron.png": "75745d1edd43e68c03439401383b2bb862d2e2f420e241329b042a66e8c974ba",
+    "src/main/resources/assets/mcyukkuri/textures/block/restraint_table_leg.png": "0778b48b9a53d579968f723e8f6f8774b099cfc8fadb121955cae3c724a0225c",
+    "src/main/resources/assets/mcyukkuri/textures/block/restraint_table_side.png": "3eb925a9480bd7d0531817a23df5e7eb8f405db0abd25d0b18489f1d5734e128",
+    "src/main/resources/assets/mcyukkuri/textures/block/restraint_table_strap.png": "ab2facfbe3648f451e9321091c8ca7700410f633bef49d6a767e9f5a3c01dda2",
+    "src/main/resources/assets/mcyukkuri/textures/block/restraint_table_top.png": "b5c85093d25c50bab3c393c205704e6e0d4c536894055ee7e9f99a5da5e940f7"
+  }
+}
