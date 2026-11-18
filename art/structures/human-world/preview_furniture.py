@@ -24,8 +24,8 @@ from palette import PALETTES, STYLES
 
 OPAQUE = ('planks', 'cobblestone', 'stone_bricks', 'log', 'wood', 'wool', 'terracotta', 'concrete', 'quartz', 'andesite', 'gravel',
           'grass_block', 'dirt', 'mud_bricks', 'barrel', 'hay_block', 'bookshelf', 'glass', 'sandstone', 'packed_mud')
-# client/ProduceCrateRenderer: sprite size, floor height, row rise, row/normal/item spacing (px), lean (degrees).
-GOODS = {'scale': .4, 'floor': 2, 'rise': 1.1, 'rows': 2.9, 'step': .5, 'across': 1.9, 'shift': .4, 'lean': -18}
+# client/ProduceCrateRenderer: sprite size, floor height, row/normal/item spacing (px), lean (degrees).
+GOODS = {'scale': .4, 'floor': 2, 'rows': 2.6, 'step': .5, 'across': 1.9, 'shift': .4, 'lean': -18}
 # client/ProduceCrateRenderer.tray: floor and slab height (px), pile size by pile count, pile offset from the centre (px).
 TRAY = {'floor': 1, 'slab': 8, 'size': {1: .62, 2: .42, 3: .36, 4: .36}, 'offset': 3.4}
 YROT = {'south': 0, 'west': 90, 'north': 180, 'east': 270}
@@ -47,7 +47,7 @@ def goods_mesh(a, items, facing):
         uv = [o, o + [s, 0], o + [s, s], o + [0, s]]
         for i in range(min(count, 4)):
             centre = np.array([((i - 1.5) * g['across'] + (-g['shift'] if row % 2 == 0 else g['shift'])) / 16,
-                               (g['floor'] + (3 - row) * g['rise']) / 16 + g['scale'] / 2, (row - 1.5) * g['rows'] / 16])
+                               g['floor'] / 16 + g['scale'] / 2, (row - 1.5) * g['rows'] / 16])
             lean = ps.rotation('x', g['lean'])
             tilt = (((row * 4 + i) * 7) % 16 - 7.5) * 1.3
             pose = lean @ ps.rotation('z', tilt)
@@ -87,7 +87,7 @@ def tray_mesh(a, items, facing, raised):
         z = 0 if piles <= 2 else (-t['offset'] if pile < 2 else t['offset']) / 16
         for i in range(min(count, 4)):
             spin = ps.rotation('y', (row * 67 + i * 29) % 50 - 25); h = size / 2
-            centre = np.array([x, floor + (.58 + i * 1.15) * size / 16, z])
+            centre = np.array([x, floor + (.58 + i * 1.25 + pile * .05) * size / 16, z])
             corners = [turn @ (spin @ np.array(c, float) + centre) + [.5, 0, .5] for c in ([-h, 0, -h], [h, 0, -h], [h, 0, h], [-h, 0, h])]
             for tri in ((0, 1, 2), (0, 2, 3)):
                 for k in tri: out.append([*corners[k], *uv[k], 0, 1, 0])

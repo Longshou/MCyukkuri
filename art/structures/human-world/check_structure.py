@@ -313,17 +313,23 @@ def pen_errors(b, seen):
 def door_errors(b):
     errors = []
     thin = ('minecraft:iron_bars', 'minecraft:glass_pane')
+    clockwise = {'north': (1, 0), 'east': (0, 1), 'south': (-1, 0), 'west': (0, -1)}
     for (x, y, z) in b.doors:
-        up = b.blocks.get((x, y + 1, z)); lo = b.blocks.get((x, y, z))
-        if not (lo and up and lo[0].endswith('_door') and up[0] == lo[0] and lo[1].get('half') == 'lower' and up[1].get('half') == 'upper'):
+        name, lo = state_at(b, x, y, z)
+        upper, up = state_at(b, x, y + 1, z)
+        if not (name.endswith('_door') and name == upper and lo.get('half') == 'lower' and up == {**lo, 'half': 'upper'}):
             errors.append(f'{b.name}: door at {(x, y, z)} is not a matching 2-high pair'); continue
-        if lo[0] == 'minecraft:iron_door':
-            along = ((1, 0), (-1, 0)) if lo[1].get('facing') in ('north', 'south') else ((0, 1), (0, -1))
-            for dx, dz in along:
+        if name == 'minecraft:iron_door':
+            dx, dz = clockwise[lo['facing']]
+            other_hinge = 'right' if lo['hinge'] == 'left' else 'left'
+            if other_hinge == 'left': dx, dz = -dx, -dz
+            for sx, sz in ((x + dx, z + dz), (x - dx, z - dz)):
                 for yy in (y, y + 1):
-                    side = name_at(b, x + dx, yy, z + dz)
-                    if side != 'minecraft:iron_door' and not full_block(side):
-                        errors.append(f'{b.name}: iron door {(x, yy, z)} is not framed at {(x + dx, yy, z + dz)} ({side})')
+                    side, props = state_at(b, sx, yy, sz)
+                    paired = (sx, sz) == (x + dx, z + dz) and side == name and props == {
+                        **b.blocks[x, yy, z][1], 'hinge': other_hinge}
+                    if not paired and not full_block(side):
+                        errors.append(f'{b.name}: iron door {(x, yy, z)} is not framed at {(sx, yy, sz)} ({side})')
             if not full_block(name_at(b, x, y + 2, z)):
                 errors.append(f'{b.name}: iron door {(x, y, z)} lacks a full lintel at {(x, y + 2, z)} ({name_at(b, x, y + 2, z)})')
         else:
