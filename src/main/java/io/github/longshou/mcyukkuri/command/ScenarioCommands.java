@@ -463,6 +463,7 @@ public final class ScenarioCommands {
         var level = c.getSource().getLevel();
         if (c.getSource().getEntity() != null || !(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
         var target = EntityArgument.getEntity(c, "target");
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getBoundingBox().getCenter());
         return player.canInteractWithEntity(target, 0) && player.interactOn(target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
     }
 

@@ -5711,7 +5711,7 @@ _smoke('wound_sources', 320, [
 next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
     (4, f'execute at {sel("blunt")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("blunt")} enclose'),
     (5, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
-    (5, 'item replace entity @p[name=MuseumOperator] weapon.mainhand with mcyukkuri:pin_tool'),
+    (5, 'item replace entity @p[distance=..40] hotbar.0 with mcyukkuri:pin_tool'),
     (6, f'yukkuri scenario shop_stock_click {sel("cut")}'),
     (7, f'yukkuri scenario shop_stock_click {sel("cut")}'),
     (7, 'yukkuri scenario tool_operator leave'),
@@ -5768,8 +5768,8 @@ _wound_smoke['commands'].extend([
           f'unless data entity {sel("tool_frame")} YukkuriOperations.PendingReturn '
           'if entity @e[type=item,nbt={Item:{id:"mcyukkuri:pin_tool",count:1,components:{"minecraft:custom_data":{BD07:1b}}}}] '
           'run say MCY_BD07_PIN_OUT_TABLE_HELD'),
-    (164, f'execute at {sel("tool_frame")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("tool_frame")} hook_hang'),
-    (169, 'yukkuri scenario tool_operator select 2'),
+    (168, f'execute at {sel("tool_frame")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("tool_frame")} hook_hang'),
+    (169, 'yukkuri scenario tool_operator select 3'),
     (170, 'yukkuri scenario shop_block_click ~ ~ ~4'),
     (171, 'yukkuri scenario tool_operator leave'),
     (185, f'yukkuri scenario care_click {sel("tool_pin")} orange_juice'),
