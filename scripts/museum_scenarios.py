@@ -490,13 +490,27 @@ add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收
         *[item('minecraft:apple', 1, x, -5, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
     env=DAY, spot='wall_tuck', vantage=(0, -7, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
-                 views={'': {}, 'locks': dict(position=(5.5, 1.5, -1), look_at=(5.5, .3, 2.2)),
-                        'wings': dict(position=(-4.5, 1.5, -1), look_at=(-4.5, .3, 2.2))}),
-    smoke=dict(ticks=600, forbid=[r'\[threat\][^\n]* response started '],
+                 views={'': {}, 'locks': dict(position=(5.5, 3.6, -1.4), look_at=(5.5, .2, 2.2)),
+                        'wings': dict(position=(-5.5, 3.6, -1.4), look_at=(-5.5, .2, 2.2))}),
+    smoke=dict(ticks=600,
                expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
                        for _, _, name, _ in _TUCK_ROW]),
     reads=[('读魔理沙', f'yukkuri status {sel("tuck_marisa")} raw'), ('读橙', f'yukkuri status {sel("tuck_chen")} raw'),
            ('读蕾米莉亚', f'yukkuri status {sel("tuck_remilia")} raw')])
+
+
+def _wall_tuck_verify(log):
+    # The exhibit is both apples of every body: the inner one at the wall, the outer one in the open. Fed bodies that later roam
+    # round the end of the screen meet the predators and back off for real; that may come after, never before.
+    threat = re.search(r'\[threat\][^\n]* response started ', log)
+    calm = log[:threat.start()] if threat else log
+    for _, _, name, _ in _TUCK_ROW:
+        meals = re.findall(rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b', calm)
+        if len(meals) < 2:
+            return f'{name} ate {len(meals)} of its two apples before the first threat response'
+
+
+next(s for s in S if s.id == 'wall_tuck').smoke['verify'] = _wall_tuck_verify
 
 
 def carton_shell(x, z):
