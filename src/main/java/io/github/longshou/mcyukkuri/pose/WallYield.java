@@ -24,15 +24,18 @@ public final class WallYield {
     /**
      * One kind of limb: its hinge bones, the axis the right-hand one turns about in its parent bone's frame (y and z mirror
      * for a left-hand one), the largest turn of its tip in degrees, and its stiffness: 1 turns the whole limb at the root,
-     * 0 spreads the turn evenly along its length so it curls. Project design numbers:
-     * a wing droops beside the back, stopping before its tip reaches the floor; a tail curls up over itself as a cat's
-     * does against a wall; a side lock or braid swings in until it lies on the cheek.
+     * 0 spreads the turn evenly along its length so it curls; and how far past its least turn it keeps turning, in degrees
+     * per block of clearance its turn gains (0: the least turn only). Project design numbers: a wing droops beside the back,
+     * stopping before its tip reaches the floor; a side lock or braid swings in until it lies on the cheek; a tail does not
+     * stop at the wall but curls up as a cat's does, fully once the wall stands a fifth of a block into it: it leans back
+     * off the hair, rises splayed a little outward and lays its tip forward over the crown, so the hook reads from the side
+     * and the pair from behind.
      */
-    private record Kind(String id, List<String> bones, float x, float y, float z, float limit, float stiffness) {}
+    private record Kind(String id, List<String> bones, float x, float y, float z, float limit, float stiffness, float curl) {}
     private static final List<Kind> KINDS = List.of(
-            new Kind("wing", List.of("predator_wing_left", "predator_wing_right"), 0, -.34f, -.94f, 95, 1),
-            new Kind("tail", List.of("chen_tail_left", "chen_tail_right"), -1, 0, 0, 175, .2f),
-            new Kind("lock", List.of("hand_left", "hand_right", "sideburn_left", "sideburn_right"), 0, 0, -1, 16, 1));
+            new Kind("wing", List.of("predator_wing_left", "predator_wing_right"), 0, -.34f, -.94f, 95, 1, 0),
+            new Kind("tail", List.of("chen_tail_left", "chen_tail_right"), -1, 0, -.15f, 135, .35f, 650),
+            new Kind("lock", List.of("hand_left", "hand_right", "sideburn_left", "sideburn_right"), 0, 0, -1, 16, 1, 0));
     /** Candidate turns tried before refining; the residual a turn may leave for the press (blocks). */
     private static final int STEPS = 12;
     private static final float SLACK = 1 / 256f;
@@ -168,7 +171,8 @@ public final class WallYield {
                 turn(limb, middle);
                 if (reach(limb, posed, 1, toWall, faces) > allowed) low = middle; else high = middle;
             }
-            turn(limb, Math.min(high, (rest - Math.max(0, best) - SLACK) * GAIN));
+            float gained = rest - Math.max(0, best) - SLACK;
+            turn(limb, Math.max(Math.min(high, gained * GAIN), Math.min(limb.kind.limit, gained * limb.kind.curl)));
             limb.turned = any = true;
         }
     }
