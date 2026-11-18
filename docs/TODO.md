@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 纸箱单一化与生成消失闭环（13/23） | `.worktrees/wp-carton-closure` | settlement/Shelter*.java art carton model |
 | 辫子送嘴进食与垃圾桶真撞（24/25） | `.worktrees/wp-eat-braid` | settlement/GarbageSearch.java human/GarbageBin* entity/Behaviors.java motions |
 | 仰卧固定台改为方块、绑上可用其他工具、仰卧漏尿（5/6） | `.worktrees/wp-restraint-block` | interaction/OperationLife.java interaction/CareAction.java item/OperationToolItem.java new restraint table block |
 | 住家宣言夸张骄傲演出（21） | `.worktrees/wp-home-declare-art` | motions home declaration clips, expressions |
