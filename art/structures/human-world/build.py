@@ -334,7 +334,6 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     b.box((6,9,3),(18,14,3),*Q)   # false front carries the sign board
     for x in range(6,19):         # coping on the false front and the board
         for z in (2,3): slab(b,x,15,z,p.roof_trim)
-    b.sign(26,3,2,['考核处','EXAM HALL','口试 / 实技'],'8',p.wood)
     for x in (11,12,13,26,27,28):   # street-edge ramp: two half-height steps up to the pavement
         b.block(x,2,0,'air'); stairs(b,x,1,0,p.step,'south'); stairs(b,x,2,1,p.step,'south')
     if not p.flat:
@@ -434,7 +433,7 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
     furniture(b,'bench',3,[(24,5),(24,6)],'z')
-    b.sign(33,3,5,['答题台','考生站上台面','考官在对面桌后'],'8',p.wood)
+    b.block(24,4,7,'mcyukkuri:notice_board',{'facing':'east'})
     # Mock living room (7x5 interior) with glass walls, window observation spot and entrance door.
     pen_rect(b,29,14,35,18); b.door(30,3,13)
     b.bowl(29,14); b.bowl(35,14); b.block(35,3,18,'mcyukkuri:yukkuri_toilet')
@@ -448,13 +447,11 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     for x,kind in [(25.5,'marisa'),(26.5,'alice'),(27.5,'reimu')]:
         b.pet(x,16.5,kind,'shop_examiner','trainee',0,skills=LIFE_SKILLS,traits=(55,70,55,60,80))
     register_pen(b,'trainee',(24,14,27,18),(25,14),[(24,18),(26,18)],(3,3))
-    b.sign(26,3,12,['陪考生','正在受训','请勿喂食'],'8',p.wood)
     # Gold booth: two 3x3 cells split by a glass wall. Candidate (gold mark) and actor (wild-role yukkuri).
     pen_rect(b,29,23,35,25); glass(b,(32,23),(32,25)); b.door(30,3,22); b.door(34,3,22)
     mark(b,30,24,'gold'); mark(b,34,24,'actor')
     b.bowl(33,25); b.block(35,3,25,'mcyukkuri:yukkuri_nest'); b.pet(34.5,24.5,'reimu','shop_examiner','exam_actor',0)
     register_pen(b,'actor',(33,23,35,25),(33,25),[(35,25)],(3,3))
-    b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8',p.wood)
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); furniture(b,'bench',3,[(26,28)],'z'); furniture(b,'table',3,[(27,28)])
     # Rugs and plants keep the rooms warm and lived-in.

@@ -215,7 +215,7 @@ def allowed_blocks(style):
     """Block ids a piece exported in this style may use (mcyukkuri: blocks are always allowed). Outside FIXED, the only wood is the type's
     own: a role set to another village's wood (a dark-oak trim, an oak patch, a jungle log) drops out here and fails the palette check."""
     p = PALETTES[style]
-    out = {f'{p.wood}_{s}' for s in ('planks', 'slab', 'stairs', 'fence', 'fence_gate', 'door', 'trapdoor', 'sign', 'wall_sign', 'log', 'wood')}
+    out = {f'{p.wood}_{s}' for s in ('planks', 'slab', 'stairs', 'fence', 'fence_gate', 'door', 'trapdoor', 'log', 'wood')}
     out |= {f'stripped_{p.wood}_log', f'stripped_{p.wood}_wood'}
     for family in {stem(p.roof), stem(p.roof_trim), stem(p.roof_patch), stem(p.step), stem(p.wall), stem(p.plinth)}:
         out |= {family, f'{family}_stairs', f'{family}_slab'}

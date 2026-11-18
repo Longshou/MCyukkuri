@@ -64,10 +64,6 @@ def notice(b, x, y, z, facing):
     b.block(x, y, z, 'mcyukkuri:notice_board', {'facing': facing})
 
 
-def wall_sign(b, x, y, z, lines, facing):
-    b.wall_sign(x, y, z, lines, facing, b.palette.wood)
-
-
 def paper(b, x, y, z):
     """A loose sheet of paper (strays bed on it); it never despawns."""
     b.entity(x + .5, y, z + .5, 'minecraft:item', {'Item': compound({'id': string('minecraft:paper'), 'count': integer(1)}),
@@ -303,7 +299,6 @@ def badge_hall(p):
     for x0 in (5, 18): furniture(b, 'bench', 3, [(x, 22) for x in range(x0, x0 + 3)])
     notice(b, 8, 4, 20, 'south'); notice(b, 17, 4, 20, 'south')
     for x, z in [(4, 20), (21, 20), (4, 24), (21, 24)]: b.block(x, 3, z, p.pot(x + z))
-    wall_sign(b, 11, 5, 18, ['油库里徽章会馆', '受理 · 考试', '登记 · 换章'], 'north')
     # Reception counter across the hall: boards with a slab top (no lectern), the badge handbook and a bronze badge laid out on trays;
     # end walls with the staff door at the west end.
     b.box((4, 3, 25), (5, 7, 25), p.planks()); b.box((20, 3, 25), (21, 7, 25), p.planks())
@@ -363,7 +358,7 @@ def shelter(p):
     roof(b, 2, 18, 16, 23, 4, 'x')
     windows(b, [(5, 23), (6, 23), (14, 23), (15, 23), (2, 19), (2, 20), (18, 19), (18, 20)], 2, 2)
     b.door(10, 1, 16, 'north', p.wood)
-    wall_sign(b, 10, 3, 15, ['油库里保护站', '免费小屋 请自取', '领养 · 咨询'], 'north')
+    notice(b, 11, 2, 15, 'north')
     # Front shelf west of the door: boards at y2 with pots and folded blankets on top; the dry run under it is the wind gap.
     for x in range(3, 8):
         b.block(x, 2, 15, p.planks()); wind_gap(b, x, 1, 15, paper=x in (4, 6))
