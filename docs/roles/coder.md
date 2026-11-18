@@ -28,7 +28,7 @@
 - 通过统一入口记录品种／类型、实体 ID、UUID、tick、维度和位置；涉及目标、资源、概率时记录身份、前后值、失败条件或已算出的概率，不把尝试写成成功。客户端不重复记服务端业务。
 - 关键事件默认 INFO；扫描无候选、持续寻路、每 tick 数值和几何采样不逐次 INFO。重复等待／拒绝按实体与原因限频，连续消耗记阈值、阶段或汇总；详尽采样需显式开关。缓存有界、不进存档，不转储完整 NBT、背包或长路径。
 - 公共入口 `status/GameplayLog`：`event(entity, category, message, values...)`（附品种、实体 ID、UUID、tick、维度、位置）、`world(level, ...)`（无存活实体的事务）、`limited`／`worldLimited`（按主体、类别、稳定原因键限频，缓存每桶最多 64 键、不入存档；下次输出带 `suppressed=N`，键不含动态坐标或时间）。跨重载关联用 UUID。
-- 稳定前缀按领域划分，如 `[species]` `[body]` `[remains]` `[family]` `[childhood]` `[choreo]` `[approach]` `[care]` `[offering]` `[incident]` `[water]` `[settlement]` `[habitat]` `[meal]` `[needs]` `[interaction]` `[shop]` `[exam]` `[custody]` `[badge]` `[intent]` `[method]` `[action]` `[aquatic]` `[hat]` `[headwear]` `[winter]` `[move]` `[social]` `[wild-event]` `[mind]` `[predator]`；新增前缀沿用此命名。默认省略每 tick 的移动、朝向、几何、动画、台词、代谢和寻路节点；接近、预留、获准路线不代表业务完成，初态准备成功不是玩法成功；读档与场景直接写初态不重放历史事务。
+- 稳定前缀按领域划分，如 `[species]` `[body]` `[remains]` `[family]` `[duty]` `[childhood]` `[choreo]` `[approach]` `[care]` `[offering]` `[incident]` `[water]` `[settlement]` `[habitat]` `[meal]` `[needs]` `[interaction]` `[shop]` `[exam]` `[custody]` `[badge]` `[intent]` `[method]` `[action]` `[aquatic]` `[hat]` `[headwear]` `[winter]` `[move]` `[social]` `[wild-event]` `[mind]` `[predator]`；新增前缀沿用此命名。默认省略每 tick 的移动、朝向、几何、动画、台词、代谢和寻路节点；接近、预留、获准路线不代表业务完成，初态准备成功不是玩法成功；读档与场景直接写初态不重放历史事务。
 - 调试开关默认关闭，用完关闭：`/yukkuri status trace true|false`（细密状态日志）、`debug.entitySaveViews`（完整实体保存视图）、客户端 `render.woundPerfLog`（`[render]` 伤口渲染耗时）、客户端参数 `-Dmcyukkuri.aqdiag=true`（`[hat-input]` 右键输入候选）。
 - 排查结合实际运行版本和现场读数；没有日志不等于行为未发生，限频后的沉默或缺日志不能单独证明行为没有发生。实时日志问题统一登记到待办的对应模块。
 

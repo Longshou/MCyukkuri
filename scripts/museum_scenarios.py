@@ -298,7 +298,9 @@ add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门�
            ('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriChildhood')],
     smoke=dict(ticks=3900, expect=[
         rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* begin role=FAMILY phase=OUT',
+        rf'\[duty\][^\n]*uuid={_seal_mother_log}\b[^\n]* claimed kind=SEAL',
         rf'\[home\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{_seal_father_log}\]',
+        rf'\[duty\][^\n]*uuid={_seal_mother_log}\b[^\n]* released kind=SEAL end=DONE',
         (rf'\[childhood\][^\n]*uuid={_seal_learner_log}\b[^\n]* den seal demonstration parent={_seal_mother_log}\b[^\n]* roll=[\d.]+ learned=(true|false)'
          rf'|\[childhood\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal demonstration missed learner={_seal_learner_log}\b reason=(out_of_sight|asleep|away)\b'),
         rf'\[home\][^\n]*den barrier removed [^\n]* reason=parent_returned [^\n]*twig_returned=true opener={_seal_father_log}\b',
@@ -371,7 +373,7 @@ add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
 add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',
-    '土丘洞储粮空了。父油魔理沙去草场采草，母油灵梦守洞口、照看赤油。看魔理沙把草衔回粮堆，家里迎接归来，再用存粮喂赤油。',
+    '土丘洞储粮空了。父油魔理沙去草场采草，母油灵梦在洞口两侧巡视，间或回洞看赤油。看魔理沙把草衔回粮堆，家里迎接归来，再用存粮喂赤油。',
     '数分钟（可倍速）', [
         box(9, 0, 6, 16, 0, 13, 'minecraft:short_grass', 'keep'),
         yk('marisa', 0, 1, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=80, energy=100,
@@ -402,7 +404,7 @@ _departure_memory = (f'KinAbsence:[{{Kin:{uuid_nbt(_absent)},Seen:{_departure_po
 _absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)},{_departure_memory}'
 add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采草的亲油迟迟不归',
     '开场时灵梦已在土坡后的草场采草，家人记得她离开的方向。她在家人看不到的地方死亡。'
-    '看孩子到洞口呼唤，赤油留在洞旁等。魔理沙沿记得的方向找去，发现遗体后原地哀悼，再赶去采草、照料饥饿的赤油。',
+    '看子油在洞口内向外守望，赤油留在窝里等。魔理沙先巡视，亲油迟归后朝记得的方向扇形寻找并呼唤，发现遗体后哀悼，再去采草、照料饥饿的赤油。',
     '约 2–5 分钟（可倍速）', [
         box(-3, 0, 6, 2, 2, 6, 'minecraft:dirt'),
         box(-8, 0, 15, 8, 0, 23, 'minecraft:short_grass', 'keep'),
@@ -542,7 +544,7 @@ _stray_mother = uid('stray_boxes', 'mother')
 _stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,'
                        'Maturity:336000L,Lifespan:1056000L,AdultScale:0.84f,Scale:0.84f')
 add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸箱',
-    '夜里，流浪母子自己走到箱口，在纸箱里并排歇脚。看两顶头饰是否与箱壁和彼此留有空隙。',
+    '夜里，流浪母油找到纸箱，在箱口转身招呼孩子。看孩子应声跟来，母子进箱并排歇脚时，两顶头饰是否与箱壁和彼此留有空隙。',
     '约半分钟至一分钟', [
         *carton_shell(-5, -1),
         street_stray('stray_boxes', 'reimu', -5, 0, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
@@ -552,7 +554,11 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
                  views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4))}),
     smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
-               expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2']))
+               expect=[
+                   rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon child={_uuid_text("stray_boxes", "child")}',
+                   rf'\[family\][^\n]*uuid={_uuid_text("stray_boxes", "child")} [^\n]* child heard parent call parent={_uuid_text("stray_boxes", "mother")}[^\n]* beckon=true',
+                   rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon (answered|unanswered) child={_uuid_text("stray_boxes", "child")}',
+                   r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
     '看纸箱里的流浪油歇脚。纸箱受潮后，它沿开口离开，去别处避雨。空纸箱泡透塌下，留下纸片。左侧另一只魔理沙会沿墙去捡苹果。',
@@ -5738,13 +5744,40 @@ _smoke('indep_near', 7200, [
     rf'\[emotion\][^\n]*uuid={_uuid_text("indep_near", "warm_parent")} [^\n]* course begun kind=grief\b'],
     readout=[f'yukkuri status {sel("warm_parent")} raw'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 3, 'teens that left home')
+_forage_mother, _forage_father = (_uuid_text('forage', n) for n in ('mother', 'father'))
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=FAMILY', r'\[forage\][^\n]* deposit home=[^\n]* moved=[1-9]',
-                         r'\[family\][^\n]* household watched entrance', r'\[family\][^\n]* welcome home started ',
-                         rf'\[family\][^\n]* feed handed to meal child={_uuid_text("forage", "child")}\b'])
+                       rf'\[duty\][^\n]*uuid={_forage_mother} [^\n]* claimed kind=WATCH',
+                       rf'\[family\][^\n]*uuid={_forage_mother} [^\n]* home watch started kin={_forage_father} stance=PATROL',
+                       rf'\[duty\][^\n]*uuid={_forage_mother} [^\n]* released kind=WATCH end=DONE why=kin_returned',
+                       r'\[family\][^\n]* welcome home started ',
+                       rf'\[family\][^\n]* feed handed to meal child={_uuid_text("forage", "child")}\b'])
 _absent_uuid = _uuid_text('family_absence', 'absent')
+_stayer_uuid, _older_uuid = (_uuid_text('family_absence', n) for n in ('stayer', 'older'))
 _smoke('family_absence', 6000, [rf'\[family\][^\n]* kin overdue kin={_absent_uuid}\b',
-                                 rf'\[family\][^\n]* missing kin call kin={_absent_uuid}\b'],
+                               rf'\[family\][^\n]* missing kin call kin={_absent_uuid}\b',
+                               rf'\[duty\][^\n]*uuid={_stayer_uuid} [^\n]* claimed kind=WATCH',
+                               rf'\[duty\][^\n]*uuid={_stayer_uuid} [^\n]* released kind=WATCH end=REPLACED',
+                               rf'\[duty\][^\n]*uuid={_stayer_uuid} [^\n]* claimed kind=SEARCH',
+                               rf'\[family\][^\n]*uuid={_stayer_uuid} [^\n]* kin search waypoint kin={_absent_uuid} index=1/',
+                               rf'\[family\][^\n]*uuid={_older_uuid} [^\n]* home watch started kin={_absent_uuid} stance=THRESHOLD'],
        forbid=[rf'\[family\][^\n]* witnessed kin death dead={_absent_uuid}\b'])
+
+
+def _forage_watch(log):
+    actor = rf'[^\n]* uuid={_forage_mother} [^\n]* '
+    claim = re.search(rf'\[duty\]{actor}claimed kind=WATCH\b', log)
+    if not claim:
+        return 'the mother never claimed a home watch'
+    rest = log[claim.end():]
+    release = re.search(rf'\[duty\]{actor}released kind=WATCH\b', rest)
+    if not release:
+        return 'the first home watch had no release'
+    watched = rest[:release.start()]
+    if re.search(rf'\[habitat\]{actor}gathered item=|\[forage\]{actor}(?:food search started|begin role=)', watched):
+        return 'the mother started foraging during her home watch'
+    stations = re.findall(rf'\[family\]{actor}home watch station [^\n]* mouthDistance=([\d.]+)', watched)
+    if len(stations) < 2 or any(float(distance) < 2 for distance in stations):
+        return f'the mother must visit at least two patrol stands two or more blocks from the mouth, saw {stations}'
 
 
 def _absence_grief_timing(log):
@@ -5755,6 +5788,7 @@ def _absence_grief_timing(log):
         return 'the survivor must complete the 100-tick bereavement before its first outing'
 
 
+next(s for s in S if s.id == 'forage').smoke['verify'] = _forage_watch
 next(s for s in S if s.id == 'family_absence').smoke['verify'] = _absence_grief_timing
 for _sid in ('forage', 'family_absence'):
     next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
@@ -7223,7 +7257,7 @@ _scene_end('den_family', [('mother', _DRY), ('child', _ASHORE), ('father', 'aliv
             ('mother', 'seen:forage:deposit home=')])
 _scene_end('forage', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
            [('father', 'seen:forage:begin role=FAMILY'),
-            ('mother', f'seen:family:household watched entrance provider={_uuid_text("forage", "father")}'),
+            ('mother', f'seen:family:home watch started kin={_forage_father}'),
             ('father', 'seen:forage:deposit home=.* moved=[1-9]')],
            [('child', 'seen:family:welcome home started')],
            [('mother', f'seen:family:feed handed to meal child={_uuid_text("forage", "child")}'),
