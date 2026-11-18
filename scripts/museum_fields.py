@@ -227,7 +227,7 @@ class Forage(Field):
         self.dig_mound = solid_mound(cx - 28, cz)                       # x -32..-24, z -4..+4, 4 high
         self.forage_den, self.forage_door = den(cx + 4, cz + 6)         # a 5x5 hollow; its doorway is the first cavity cell
         self.spots = {'dig': (cx - 28, cz + 10), 'forage': (cx + 4, cz + 6), 'graze': (cx + 26, cz + 8),
-                      'street': (cx, cz - 23)}
+                      'street': (cx, cz - 23), 'wall_tuck': (cx + 16, cz - 10)}
         self.anchor = self.spots['dig']
 
     def features(self):

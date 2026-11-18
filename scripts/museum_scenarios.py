@@ -454,6 +454,41 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
     env=DAY, spot='forage', vantage=(4, 7, 155),
     reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
 
+# Five one-cell niches, three deep, open to the north: glass sides (the visitor sees the parts meet the wall through them) and a
+# stone back wall. Each body starts in the innermost cell facing the back wall; its apple lies two cells north of the mouth, so
+# hunger turns it round against the walls (wings, braid, side locks press in; Chen's tails curl up against the back wall) and
+# walks it out into the open, where they come free. A Remilia in the open beside the row does the same with nothing to yield to.
+# One keeper's pets: a predator does not menace its keeper's own, so the row stays calm.
+_TUCK_ROW = (('marisa', 4, 'tuck_marisa', '魔理沙：辫子'), ('reimu', 2, 'tuck_reimu', '灵梦：鬓发'),
+             ('chen', 0, 'tuck_chen', '橙：尾巴'), ('remilia', -2, 'tuck_remilia', '蕾米莉亚：翅膀'),
+             ('flandre', -4, 'tuck_flandre', '芙兰：翅膀'), ('remilia', -8, 'tuck_open', '对照：空地蕾米莉亚'))
+
+
+def _tuck_body(kind, x, name, label):
+    # A predator below FULL - 20 takes a loose apple first (PredatorLife scavenge) and, at boldness 0, does not want to hunt above 45.
+    predator = kind in ('remilia', 'flandre')
+    return yk(kind, x, 2, name, uuid=uid('wall_tuck', name), label=label, yaw=0, lead=name == 'tuck_marisa',
+              nutrition=50 if predator else 30, boldness=0 if predator else 55, social_wait=6000)
+
+
+add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收拢：辫子、翅膀、尾巴',
+    '五只饿油各在一格宽的墙槽最里面、面朝墙，苹果在槽口外。看它们在槽里转身时魔理沙的辫子与帽檐、灵梦的鬓发向内收，'
+    '蕾米莉亚和芙兰的翅膀向下收拢，橙背靠槽底时两条尾巴向上卷；走出槽口后各自复原。最右边空地上的蕾米莉亚转身时翅膀照常张开，作对照。',
+    '约 10–20 秒', [
+        box(-5, 0, 3, 5, 1, 3, 'minecraft:stone_bricks'),
+        *[box(x, 0, 0, x, 1, 2, 'minecraft:glass') for x in (-5, -3, -1, 1, 3, 5)],
+        *[_tuck_body(*entry) for entry in _TUCK_ROW],
+        *[item('minecraft:apple', 1, x, -2, f'{name}_apple') for _, x, name, _ in _TUCK_ROW],
+        *[line for _, _, name, _ in _TUCK_ROW for line in own(name)]],
+    env=DAY, spot='wall_tuck', vantage=(-2, -5, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
+    capture=dict(shots=(1, 400), sequences=((2, 200, 4),), observe=False,
+                 views={'': {}, 'locks': dict(position=(2.5, 2.2, -2.5), look_at=(2.5, .4, 1.5)),
+                        'wings': dict(position=(-3.5, 2.2, -2.5), look_at=(-3.5, .4, 1.5))}),
+    smoke=dict(ticks=600, expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
+                                  for _, _, name, _ in _TUCK_ROW]),
+    reads=[('读魔理沙', f'yukkuri status {sel("tuck_marisa")} raw'), ('读橙', f'yukkuri status {sel("tuck_chen")} raw'),
+           ('读蕾米莉亚', f'yukkuri status {sel("tuck_remilia")} raw')])
+
 
 def carton_shell(x, z):
     return [block(x + dx, dy, z, f'mcyukkuri:cardboard_shelter[facing=south,part={dx + 12 + 25*dy}]')
@@ -5271,6 +5306,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8',
     'family_absence': 'W9',
+    'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
