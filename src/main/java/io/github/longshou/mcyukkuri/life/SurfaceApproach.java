@@ -275,7 +275,7 @@ public final class SurfaceApproach {
 
     private static double reach(YukkuriEntity actor){return Math.max(1.5,actor.getBbWidth()+.5);}
 
-    private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
+    public static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
         if(NestDoorway.blocksLine(actor,start,destination))return false;
         double reach=reach(actor),step=actor.maxUpStep();
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
@@ -329,13 +329,18 @@ public final class SurfaceApproach {
     static boolean canApproachAfterLanding(YukkuriEntity actor, Vec3 destination) {
         if (!(actor.getNavigation() instanceof YukkuriGroundNavigation ground) || ground.canPlanApproach()
                 || actor.isPassenger() || actor.isInWaterOrBubble()) return false;
+        var landing = landingStand(actor);
+        var stand = outside(actor, destination, null);
+        return landing != null && stand != null && plan(actor, stand, null, true, landing) != null;
+    }
+
+    /** Dry supported feet beneath an airborne body, for surveying the ground it can reach on landing. */
+    public static Vec3 landingStand(YukkuriEntity actor) {
         var from = actor.position();
         var hit = actor.level().clip(new ClipContext(from, from.add(0, -actor.getMaxFallDistance(), 0),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
-        if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP) return false;
-        var stand = outside(actor, destination, null);
-        var landing = hit.getLocation();
-        return stand != null && stands(actor, landing) && plan(actor, stand, null, true, landing) != null;
+        return hit.getType() == HitResult.Type.BLOCK && hit.getDirection() == Direction.UP && stands(actor, hit.getLocation())
+                ? hit.getLocation() : null;
     }
 
     /** Read-only planning, including the last step from a vanilla node to the exact physical stand. */

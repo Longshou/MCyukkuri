@@ -547,21 +547,34 @@ _stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nour
 
 
 def _stray_child_flight(window, trace):
-    hit = re.search(rf'\[threat\][^\n]* uuid={_stray_child_log} t=(\d+)[^\n]* struck stance=FLEE\b[^\n]* dialogue=(\S+)', window)
-    if not hit:
-        return 'The baby did not flee from its first hit'
-    tick, key = int(hit[1]), hit[2]
+    hit = re.search(rf'\[threat\][^\n]* uuid={_stray_child_log} t=(\d+)[^\n]* struck stance=(\w+) [^\n]* duration=(\d+) dialogue=(\S+)', window)
+    if not hit or hit[2] not in ('FLEE', 'FREEZE'):
+        return 'The baby must flee or briefly freeze on the first hit'
+    tick, stance, duration, key = int(hit[1]), hit[2], int(hit[3]), hit[4]
     lines = re.findall(rf'\[speech\][^\n]* uuid={_stray_child_log} t={tick} [^\n]* line event=(\S+) key=(\S+)', window)
-    if lines != [('wounded', key)]:
-        return f'The fleeing baby must give one pain cry: {lines}'
+    if lines != [('wounded' if stance == 'FLEE' else 'hurt_freeze', key)]:
+        return f'The struck baby must give one cry matching {stance}: {lines}'
     mother = _uuid_text('stray_boxes', 'mother')
     pairs = {}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
-        if row['k'] == 'st' and tick <= row['t'] < tick + 96 and row['u'] in (mother, _stray_child_log):
+        if row['k'] == 'st' and tick <= row['t'] <= tick + 101 and row['u'] in (mother, _stray_child_log):
             pairs.setdefault(row['t'], {})[row['u']] = row['st']
+    if stance == 'FREEZE':
+        child = [(t, bodies[_stray_child_log]) for t, bodies in pairs.items() if _stray_child_log in bodies]
+        held = [t for t, s in child if s['behavior'] == 'struck' and s['animation'] in ('brace', 'tremble')]
+        if not 0 < duration <= 100 or not held or held[-1] - held[0] + 1 > 100 or held[-1] > tick + 100:
+            return 'The baby must show a freeze lasting at most 100 ticks'
+        recovered = next((t for t, s in child if t > held[-1] and s['behavior'] != 'struck'), None)
+        if recovered is None:
+            return 'The baby did not recover from the freeze within 100 ticks'
+        answers = re.findall(rf'\[habitat\][^\n]* uuid={mother} t=(\d+)[^\n]* found beckon answered child={_stray_child_log}', window)
+        settled = re.findall(rf'\[habitat\][^\n]* uuid=(?:{mother}|{_stray_child_log}) t=(\d+)[^\n]* found settled [^\n]*kind=CARDBOARD occupants=2', window)
+        if not any(recovered <= int(answer) <= int(rest) for answer in answers for rest in settled):
+            return 'After recovering the baby must answer its mother and settle with her'
+        return
     flight = [(t, bodies[_stray_child_log]['p'], bodies[mother]['p']) for t, bodies in pairs.items()
-              if len(bodies) == 2 and bodies[_stray_child_log]['behavior'] == 'flee']
+              if t < tick + 96 and len(bodies) == 2 and bodies[_stray_child_log]['behavior'] == 'flee']
     if not flight:
         return 'The baby never entered flight'
     _, start, parent = flight[0]
@@ -594,7 +607,7 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
                expect=[
                    rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon child={_uuid_text("stray_boxes", "child")}',
                    rf'\[family\][^\n]*uuid={_uuid_text("stray_boxes", "child")} [^\n]* child heard parent call parent={_uuid_text("stray_boxes", "mother")}[^\n]* beckon=true',
-                   rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon (answered|unanswered) child={_uuid_text("stray_boxes", "child")}',
+                   rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon answered child={_uuid_text("stray_boxes", "child")}',
                    r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',

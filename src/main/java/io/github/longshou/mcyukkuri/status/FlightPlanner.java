@@ -34,7 +34,14 @@ public final class FlightPlanner {
         if (stand == null || FlightCourse.passesNearThreat(body.getX(), body.getZ(), stand.x, stand.z, danger.x, danger.z, CLEARANCE))
             return null;
         var path = body.getNavigation().createPath(BlockPos.containing(stand), 0);
-        return path != null && path.canReach() && clearsThreat(path, danger) ? path : null;
+        if (path == null || !path.canReach()) return null;
+        if (clearsThreat(path, danger)) return path;
+        // In its starting cell the runner can already be farther from danger than the node centre.
+        if (path.getNextNodeIndex() != 0 || path.getNodeCount() < 2 || !path.getNodePos(0).equals(body.blockPosition())
+                || !SurfaceApproach.clearLastStep(body, path.getEntityPosAtNode(body, 1))) return null;
+        var direct = path.copy();
+        direct.advance();
+        return clearsThreat(direct, danger) ? direct : null;
     }
 
     boolean clearsThreat(Path path, Vec3 danger) {
@@ -103,6 +110,18 @@ public final class FlightPlanner {
     }
 
     boolean hasExit(LivingEntity danger) {
+        if (body.getNavigation() instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) {
+            var landing = SurfaceApproach.landingStand(body);
+            if (landing == null) return false;
+            var away = away(danger.position());
+            for (int angle : FAN) {
+                var ray = away.rotate(angle);
+                var step = SurfaceApproach.restingFloor(body, landing.add(ray.x(), 0, ray.z()));
+                if (step != null && !FlightCourse.passesNearThreat(landing.x, landing.z, step.x, step.z,
+                        danger.getX(), danger.getZ(), CLEARANCE) && SurfaceApproach.clearLastStep(body, landing, step)) return true;
+            }
+            return false;
+        }
         return refuge(danger) != null || destination(danger.position(), 5) != null;
     }
 

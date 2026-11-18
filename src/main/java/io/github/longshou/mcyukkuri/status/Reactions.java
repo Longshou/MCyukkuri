@@ -284,7 +284,7 @@ public final class Reactions {
             boolean human = PunishmentReaction.isHuman(actor);
             int before = 0;
             if (actor != null) {
-                attackedBy(actor);
+                if (!human) attackedBy(actor);
                 warnKin(actor, true);
                 if (actor instanceof Player player) HumanNpc.witnessedStreetHurt(y, player);
                 if (human) before = PunishmentReaction.recordHuman(y, actor, incident, loss);

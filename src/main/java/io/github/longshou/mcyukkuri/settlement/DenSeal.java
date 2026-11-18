@@ -254,13 +254,8 @@ public final class DenSeal {
         if (!EventHooks.canEntityGrief(level, y)) { abort("mob_griefing_off"); return; }
         if (danger != null && familyOutside(level, home)) { abort("family_outside"); return; }
         var plan = planFor(level, home);
-        if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size()) {
+        if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size() || occupiedByOthers(level, cells)) {
             abort(plan.refusal() != null ? plan.refusal() : home.branches() < cells.size() ? "twigs_gone" : "cells_changed"); return;
-        }
-        if (occupiedByOthers(level, cells)) {
-            // A relative can cross the mouth during pressing. Keep the family decision until the cells clear.
-            if (!absent.isEmpty()) remembered = true;
-            abort("cell_occupied"); return;
         }
         // Check sight before the screen goes up. Record the outcome only if the parent finishes the work.
         var demonstrations = y.family().adult() ? demonstrations(level, home) : List.<Demonstration>of();
