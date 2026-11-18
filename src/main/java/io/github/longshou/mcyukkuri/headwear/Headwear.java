@@ -260,19 +260,18 @@ public final class Headwear extends Goal implements MotorOwner {
     private boolean waterborne() {
         return entity.isInWaterOrBubble() || entity.getVehicle() instanceof PlacedHatEntity hat && hat.afloat();
     }
-    /** Tear the worn hat by {@code levels}; past torn it shatters ({@code burn}: burns away, nothing left to gather). */
+    /** Apply impact wear. The struck response owns the victim's face and voice. */
     public boolean harm(int levels, String why, boolean burn) {
         if (entity.level().isClientSide || levels <= 0 || !entity.life().hasAccessory()) return false;
         damage += levels; mend = 0; cause = why;
-        if (damage > TORN) { shatter(why, burn); return true; }
+        if (damage > TORN) return shatter(why, burn);
         entity.mind().add(4f * levels, damage >= TORN ? "accessory_torn" : "accessory_frayed");
-        if (entity.isAlive()) entity.showReaction("teary", "accessory_torn", 80);
         GameplayLog.event(entity, "headwear", "damaged before={} after={} cause={}", damage - levels, damage, why);
         return true;
     }
     /** The hat breaks apart: two or three pieces fall around the owner, who is now a stranger to everyone. */
-    public void shatter(String why, boolean burned) {
-        if (entity.level().isClientSide || !entity.life().hasAccessory()) return;
+    private boolean shatter(String why, boolean burned) {
+        if (entity.level().isClientSide || !entity.life().hasAccessory()) return false;
         var item = new ItemStack(ModItems.accessoryFor(entity));
         entity.life().removeAccessory();
         // The hat is gone: its children come down through the motor's interrupt bridge, where they are.
@@ -285,8 +284,9 @@ public final class Headwear extends Goal implements MotorOwner {
         int emitted=0;
         for (int piece = 0; piece < shardsTotal; piece++) if(dropShard(item, piece))emitted++;
         entity.mind().add(burned ? 20 : 12, burned ? "accessory_burned" : "accessory_shattered");
-        if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
+        if (entity.isAlive()) entity.mind().felt(EmotionEvent.ACCESSORY_LOST);
         GameplayLog.event(entity, "headwear", "accessory destroyed burned={} cause={} pieces={} emitted={} token={}", burned, why, shardsTotal, emitted, shardToken);
+        return true;
     }
     /** @return whether the world accepted this one physical fragment. */
     private boolean dropShard(ItemStack hat, int piece) {
@@ -410,10 +410,13 @@ public final class Headwear extends Goal implements MotorOwner {
     }
 
     // ---- writes for status and tests -------------------------------------------------------------------------------
+    private void shatterForStatus(boolean burned) {
+        if (shatter("status", burned) && entity.isAlive()) entity.showReaction("cry", "lost_accessory", 140);
+    }
     public String force(String what) {
         switch (what) {
-            case "shatter" -> { if (!entity.life().hasAccessory()) return "not worn"; shatter("status", false); }
-            case "burn" -> { if (!entity.life().hasAccessory()) return "not worn"; shatter("status", true); }
+            case "shatter" -> { if (!entity.life().hasAccessory()) return "not worn"; shatterForStatus(false); }
+            case "burn" -> { if (!entity.life().hasAccessory()) return "not worn"; shatterForStatus(true); }
             case "lose" -> { if (entity.life().hasAccessory()) return "worn"; if (!shattered && !lost) { shattered = true; } loseForGood("status"); }
             case "gather" -> { if (state() != State.SHATTERED) return "not shattered"; if (!entity.life().custody().putDownJunk()) return "no junk drop"; shardsHeld = shardsTotal; lastProgress = entity.level().getGameTime(); }
             case "knit" -> { if (state() != State.REASSEMBLING) return "not reassembling"; if (!restore()) return "no junk drop"; }
@@ -425,7 +428,7 @@ public final class Headwear extends Goal implements MotorOwner {
     public String setDamage(int value) {
         if (value < 0 || value > 3) return "0-3 (3 shatters)";
         if (!entity.life().hasAccessory()) return "not worn";
-        if (value == 3) { shatter("status", false); return null; }
+        if (value == 3) { shatterForStatus(false); return null; }
         damage = value; mend = 0; return null;
     }
     public String setFit(float ratio) {
