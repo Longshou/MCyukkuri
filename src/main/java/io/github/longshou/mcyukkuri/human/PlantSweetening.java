@@ -129,9 +129,16 @@ final class PlantSweetening extends Goal {
             updateReadout(level, box, stock);
             for (var animal : stock) {
                 if (staff.getUUID().equals(animal.operations().operator())) {
-                    if ((!animal.hasReaction() || animal.mind().unease() >= EASE_OFF || needsTreatment(animal)) && touching(animal)) {
-                        job = new Job(null, () -> staff.releaseTool(animal));
-                        return true;
+                    if (!animal.hasReaction() || animal.mind().unease() >= EASE_OFF || needsTreatment(animal)) {
+                        if (touching(animal)) {
+                            job = new Job(null, () -> staff.releaseTool(animal));
+                            return true;
+                        }
+                        var path = contactPath(level, animal, box);
+                        if (path != null && path.canReach()) {
+                            job = new Job(path, () -> staff.releaseTool(animal));
+                            return true;
+                        }
                     }
                     continue;
                 }

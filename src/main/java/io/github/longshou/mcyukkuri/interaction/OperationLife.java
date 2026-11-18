@@ -350,6 +350,7 @@ public final class OperationLife {
             if(!level.getBlockState(table).is(ModBlocks.RESTRAINT.get())
                     ||entity.position().distanceToSqr(surface)>.25||entity.isPassenger()){unstrap("support_lost");return;}
             if(entity.life().hasUrgentNeed()||entity.body().dying()){unstrap("body_need");return;}
+            if(entity.isInWaterOrBubble()||entity.isOnFire()){unstrap("danger");return;}
             if(staffTable&&(!(level.getEntity(tableOperator) instanceof HumanNpc staff)
                     ||InteractionDispatch.reachRefusal(staff,entity,InteractionDispatch.TOOL_REACH)!=null)){
                 unstrap("staff_unreachable");return;
