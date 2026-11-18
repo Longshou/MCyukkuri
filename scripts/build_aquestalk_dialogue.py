@@ -210,8 +210,7 @@ def main():
     scratch.mkdir(parents=True, exist_ok=True)
     masters = args.masters_directory.resolve()
     masters.mkdir(parents=True, exist_ok=True)
-    for folder in ['masters', 'ogg']:
-        (OUT / folder).mkdir(parents=True, exist_ok=True)
+    (OUT / 'ogg').mkdir(parents=True, exist_ok=True)
     prior_path=args.manifest
     prior=json.loads(prior_path.read_text(encoding='utf-8')) if prior_path.exists() else {}
     # Keep entries for lines that are not selected in this run, so a partial batch or an

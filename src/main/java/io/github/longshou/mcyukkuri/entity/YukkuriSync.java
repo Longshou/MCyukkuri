@@ -89,6 +89,7 @@ final class YukkuriSync {
     /** The server's body facing (the motor owns it): the client draws the body at it instead of estimating its own. */
     private static final EntityDataAccessor<Float> BODY_YAW=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Long> LEAK_TRACE_AT=YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
+    private static final EntityDataAccessor<String> SPEECH_VOICE_TIER = YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private Held heldSnapshot = Held.NONE;
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
@@ -164,6 +165,7 @@ final class YukkuriSync {
     long speechStart() { return owner.getEntityData().get(SPEECH_START); }
     long speechEnd() { return owner.getEntityData().get(SPEECH_END); }
     int speechSequence() { return owner.getEntityData().get(SPEECH_SEQUENCE); }
+    String speechVoiceTier() { return owner.getEntityData().get(SPEECH_VOICE_TIER); }
     ItemStack getMouthItem() { return owner.getEntityData().get(MOUTH); }
     BodyFood.Bite getMouthBodyFood() { return BodyFood.Bite.load(owner.getEntityData().get(MOUTH_BODY_FOOD)); }
     void syncMouthBodyFood(BodyFood.Bite bite) {
@@ -406,6 +408,7 @@ final class YukkuriSync {
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);
         builder.define(HELD_ITEM,ItemStack.EMPTY);builder.define(HELD_PLACE,new CompoundTag());builder.define(BODY_YAW,0f);
         builder.define(LEAK_TRACE_AT,-1L);
+        builder.define(SPEECH_VOICE_TIER, "");
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if(BROOD_PROGRESS.equals(key)&&owner.level().isClientSide){
@@ -438,4 +441,5 @@ final class YukkuriSync {
     void speechStart(long value) { owner.getEntityData().set(SPEECH_START, value); }
     void speechEnd(long value) { owner.getEntityData().set(SPEECH_END, value); }
     void speechSequence(int value) { owner.getEntityData().set(SPEECH_SEQUENCE, value); }
+    void speechVoiceTier(String value) { owner.getEntityData().set(SPEECH_VOICE_TIER, value); }
 }

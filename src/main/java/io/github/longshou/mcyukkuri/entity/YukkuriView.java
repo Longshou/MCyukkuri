@@ -111,6 +111,7 @@ public interface YukkuriView {
     long speechStart();
     long speechEnd();
     int speechSequence();
+    String speechVoiceTier();
     /** The real item presented at the lips, including food held between bites. */
     ItemStack getMouthItem();
     /** A transient, non-item mouthful from a successful body-food bite. */

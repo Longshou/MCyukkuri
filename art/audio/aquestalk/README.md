@@ -23,7 +23,7 @@
 
 打包的 OGG 在 `ogg/`，运行副本由导出器复制到 `src/main/resources/assets/mcyukkuri/sounds/voice/`。ogg 为 32 kHz 单声道 Vorbis。
 
-仓库只跟踪 OGG。最早 559 条录音的 WAV 母带仍在 `masters/`；之后新增的母带不再入库，写在 `--masters-directory`（默认 `.local/aquestalk-masters/`），manifest 用 `master`／`master_sha256` 记录本机路径与指纹。旧条目的 `wav`／`wav_sha256` 保留原值，缓存检查也不要求这些旧母带仍在原处。
+新增录音只提交 OGG，WAV 母带写在 `--masters-directory`（默认 `.local/aquestalk-masters/`），manifest 用 `master`／`master_sha256` 记录本机路径与指纹。此前已入库的 501 条母带仍在 `masters/`，58 条八景 1.12 母带按原文件名保存在本机母带目录。旧条目的 `wav`／`wav_sha256` 保留制作时的路径与指纹，缓存检查只读取对应的 OGG。
 
 ## 制作
 

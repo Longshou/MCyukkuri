@@ -453,6 +453,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long speechStart() { return sync().speechStart(); }
     public long speechEnd() { return sync().speechEnd(); }
     public int speechSequence() { return sync().speechSequence(); }
+    public String speechVoiceTier() { return sync().speechVoiceTier(); }
     public ItemStack getMouthItem() { return sync().getMouthItem(); }
     public BodyFood.Bite getMouthBodyFood() { return sync().getMouthBodyFood(); }
     /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
@@ -962,7 +963,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             int priority = NativeDialogue.priority(event);
             if (!speechTiming.canSpeak(this, now, priority, timedCue)) return false;
             speechTiming.begin(now, 40, priority);
-            showSpeech(event, "dialogue.mcyukkuri.deficient.babble", now);
+            showSpeech(event, "dialogue.mcyukkuri.deficient.babble", tier, now);
             return true;
         }
         event = mind.voice(event); // a broken mind can only scream
@@ -972,18 +973,19 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, speechStyle(), recentSpeech,
                 nearbySpeech(now), RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));
         speechTiming.begin(now, line.ticks(), priority);
-        showSpeech(event, line.key(), now);
+        showSpeech(event, line.key(), tier, now);
         return true;
     }
 
-    private void showSpeech(String event, String key, long now) {
+    private void showSpeech(String event, String key, String tier, long now) {
         recentSpeech.remove(key);
         if (recentSpeech.size() == SPEECH_MEMORY) recentSpeech.removeFirst();
         recentSpeech.add(key);
         sync().dialogue(key);
+        sync().speechVoiceTier(tier);
         sync().speechStart(now); sync().speechEnd(speechTiming.end());
         sync().speechSequence(speechSequence() + 1);
-        if (StatusEvents.trace()) GameplayLog.event(this, "speech", "line event={} key={} until={}", event, key, speechTiming.end());
+        if (StatusEvents.trace()) GameplayLog.event(this, "speech", "line event={} key={} until={} voiceTier={}", event, key, speechTiming.end(), tier);
     }
 
     /** Repeat a currently heard, catalogued line and retain its actual speaker as provenance. */
@@ -997,7 +999,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 || !Objects.equals(line.quirk(), line.species().equals(variant.dialogueSpecies()) ? myon.quirk()
                         : SpeechQuirk.of(line.species(), getUUID()))
                 || !speechTiming.admit(now, line.ticks(), 1)) return false;
-        showSpeech("imitate", line.key(), now);
+        showSpeech("imitate", line.key(), speechTier(), now);
         var learned = new CompoundTag(); learned.putUUID("Teacher", teacher.getUUID());
         learned.putString("Species", line.species()); learned.putString("Key", line.key());
         learned.putLong("HeardAt", now); learned.putInt("Uses", getPersistentData().getCompound("LearnedDialect").getInt("Uses") + 1);
