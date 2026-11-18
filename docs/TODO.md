@@ -12,7 +12,6 @@
 | 住家宣言夸张骄傲演出（21） | `.worktrees/wp-home-declare-art` | motions home declaration clips, expressions |
 | 街道宠物①：生成、鬼威惨不攻击、自驱逛街回家（14） | `.worktrees/wp-street-pets-1` | human/HumanStreet.java human/HumanNpc.java human/HumanWalk.java pet/Custody.java town lots |
 | 贴墙收拢演示场景（26） | `.worktrees/wp-wall-tuck-demo` | scripts/museum_scenarios.py new scene, museum_scene_numbers.json |
-| 删除木箱遮蔽（用户：木箱没必要做） | `.worktrees/wp-remove-crate` | settlement/Shelter*.java crate_shelter assets wild-shelters/build.py stray_boxes scene |
 | 甜化箱演示看得懂、大头针可拔出（2） | `.worktrees/wp-sweetbox-demo` | human/PlantSweetening.java interaction/OperationLife.java factory_sweet_box scene |
 
 ## 玩法待办
