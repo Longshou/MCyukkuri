@@ -27,7 +27,7 @@ public final class StatusLife {
     public static final SyncSlot<String> OUTLOOK = new SyncSlot<>(EntityDataSerializers.STRING, () -> "");
     public static final SyncSlot<CompoundTag> MOOD = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
     private static final Vector3f ORANGE = new Vector3f(1f, .55f, .1f);
-    /** A regular jump reaches about 1.25 blocks and the trampoline bounce about 1.60. */
+    /** Ordinary jumps stay below this height. */
     private static final double AIRBORNE_HEIGHT = 1.75;
     private static final int AIRBORNE_TICKS = 4;
     private static final int AIRBORNE_COOLDOWN = 600;

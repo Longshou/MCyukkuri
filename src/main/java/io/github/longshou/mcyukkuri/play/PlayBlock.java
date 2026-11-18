@@ -48,6 +48,7 @@ public final class PlayBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING=BlockStateProperties.HORIZONTAL_FACING;
     public static final int CORE=12;
     public static final double BED_HEIGHT=8/16.0;
+    static final double RIM_RADIUS=19/16.0;
     private static final int BED_IMPACT=1;
     private final Kind kind;
     public PlayBlock(Kind kind,Properties properties){super(properties);this.kind=kind;registerDefaultState(stateDefinition.any().setValue(PART,CORE).setValue(FACING,

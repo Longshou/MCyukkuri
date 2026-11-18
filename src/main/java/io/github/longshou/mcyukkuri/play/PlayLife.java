@@ -67,7 +67,8 @@ public final class PlayLife {
         var local=switch(target.kind()){
             case CERAMIC->List.of(new Vec3(0,0,-2),new Vec3(0,.125,-1),new Vec3(0,.125,0),new Vec3(0,.125,1),new Vec3(0,0,2));
             case SLIDE->List.of(new Vec3(0,0,-2.8),new Vec3(0,.25,-1.9),new Vec3(0,.5,-1.4),new Vec3(0,.75,-.9),new Vec3(0,1,-.4),new Vec3(0,1,0),new Vec3(0,0,2.8));
-            case TRAMPOLINE->List.of(new Vec3(0,0,-1.7),new Vec3(0,PlayBlock.BED_HEIGHT,0),new Vec3(0,0,1.7));
+            case TRAMPOLINE->List.of(new Vec3(0,0,-1.7),new Vec3(0,PlayBlock.BED_HEIGHT,0),
+                    new Vec3(0,0,Math.max(1.7,PlayBlock.RIM_RADIUS+entity.getBbWidth()/2.0+.22)));
             case POOL->List.of(new Vec3(-.95,0,-1.2),new Vec3(-.95,.375,0),new Vec3(-.95,0,1.2),new Vec3(0,0,1.5));
         };
         var points=local.stream().map(v->PlayGeometry.world(target.getBlockPos(),target.facing(),v.x,v.y,v.z)).toList();
@@ -127,11 +128,13 @@ public final class PlayLife {
                 return;
             }
         }
-        if(distance<.22&&Math.abs(entity.getY()-target.y)<.6&&!(trampoline&&waypoint==1)){
-            if (trampoline && waypoint == 2 && !entity.onGround()) {
-                TrampolineMotion.steady(entity);
-                return;
-            }
+        boolean leavingTrampoline = trampoline && waypoint == 2;
+        if (leavingTrampoline && distance < .22 && !entity.onGround()) {
+            TrampolineMotion.steady(entity);
+            return;
+        }
+        if(distance<.22&&Math.abs(entity.getY()-target.y)<.6&&!(trampoline&&waypoint==1)
+                &&(!leavingTrampoline||PlayBlock.facility(entity.level(),entity.getOnPos())!=facility)){
             waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
             if(waypoint>=route.size()){
                 completed=!trampoline||bounces>0;
