@@ -499,7 +499,18 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
                  views={'carton': dict(position=(-2.35, 1.1, 2.1), look_at=(-3.5, .55, -.4)),
                         'wall': dict(follow=sel('wall_stray'), offset=(2.3, .9, -.65))}),
     smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
+               commands=[(1, block(-5, 0, -2, 'mcyukkuri:cardboard_shelter[facing=south,part=6]')),
+                         (1, block(-3, 1, 0, 'mcyukkuri:cardboard_shelter[facing=south,part=43]')),
+                         (1, 'data merge block ~-4 ~ ~-1 {Condition:0,Lining:1,FoundBedding:[{id:"minecraft:wheat",count:1}]}'),
+                         (1, f'tp {sel("rain_stray")} ~-4.3125 ~ ~-0.5'),
+                         (140, 'execute if block ~-5 ~ ~-2 minecraft:air if block ~-3 ~1 ~ minecraft:air '
+                               'if data block ~-4 ~ ~-1 {Condition:100,Lining:1} run say CARTON_LEGACY_RETAINED'),
+                         (1120, 'execute positioned ~-3.5 ~ ~-0.5 '
+                                'if entity @e[type=minecraft:item,distance=..4,nbt={Item:{id:"minecraft:paper",count:1}}] '
+                                'if entity @e[type=minecraft:item,distance=..4,nbt={Item:{id:"minecraft:wheat",count:1}}] run say CARTON_REAL_DROPS')],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD',
+                                  r'\[Not Secure\].*CARTON_LEGACY_RETAINED|\[.*\] CARTON_LEGACY_RETAINED',
+                                  r'\[Not Secure\].*CARTON_REAL_DROPS|\[.*\] CARTON_REAL_DROPS',
                                   r'\[habitat\][^\n]* found rain stage=0 -> 1',
                                   r'\[habitat\][^\n]* found leaving .*reason=soaked_or_unsafe',
                                   r'\[habitat\][^\n]* found exited ',

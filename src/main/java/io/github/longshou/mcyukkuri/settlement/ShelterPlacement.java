@@ -64,7 +64,8 @@ public final class ShelterPlacement {
         var entry=plan.entrance(level);
         if(!level.hasChunkAt(entry)||!level.getFluidState(entry).isEmpty()||!level.getBlockState(entry).getCollisionShape(level,entry).isEmpty()
                 ||!level.getBlockState(entry.below()).isFaceSturdy(level,entry.below(),Direction.UP))return false;
-        var bounds=new AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
+        var bounds=plan.kind==ShelterBlock.Kind.CARDBOARD ? ShelterBlock.cartonBounds(plan.center,plan.facing).inflate(1)
+                : new AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
         for(var occupant:level.getEntitiesOfClass(LivingEntity.class,bounds,entity->entity.isAlive()&&!entity.isSpectator())) {
             var body=Shapes.create(plan.kind==ShelterBlock.Kind.CARDBOARD&&occupant instanceof YukkuriEntity y
                     ? FoundShelter.turnBounds(y.position(),HeadTop.reach(y),HeadTop.height(y)) : occupant.getBoundingBox());

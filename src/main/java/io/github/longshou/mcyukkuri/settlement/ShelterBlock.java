@@ -62,7 +62,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
     public static int part(int x, int y, int z) { return x + 2 + 5 * (z + 2) + 25 * y; }
     public static BlockPos root(BlockPos pos, BlockState state) { return pos.subtract(offset(state.getValue(PART))); }
     static boolean cartonPart(BlockPos offset, Direction facing) {
-        return offset.getY() < 2 && offset.getX() * facing.getStepX() + offset.getZ() * facing.getStepZ() == 0
+        return offset.getY() >= 0 && offset.getY() < 2 && offset.getX() * facing.getStepX() + offset.getZ() * facing.getStepZ() == 0
                 && Math.abs(offset.getX()) + Math.abs(offset.getZ()) <= 1;
     }
     /** Authored shell bounds (cardboard.py), including the mouth. */

@@ -255,6 +255,24 @@ public final class SurfaceApproach {
         return true;
     }
 
+    /** A terrain change can put a wall through the stance a walker loaded at. Step clear of that overlap on level ground. */
+    public static boolean tryStepOutOfOverlap(YukkuriEntity actor, Vec3 destination, double speed) {
+        var start = actor.position();
+        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation ground) || !actor.onGround()
+                || Math.abs(destination.y - start.y) >= .005 || !supported(actor, destination)
+                || start.distanceToSqr(destination) > Mth.square(reach(actor)) || !dryStep(actor, start, destination)
+                || !Reactions.Weather.allowsStep(actor, BlockPos.containing(destination))) return false;
+        var body = actor.getBoundingBox().deflate(.005);
+        var sweep = body.expandTowards(destination.subtract(start));
+        for (var shape : actor.level().getBlockCollisions(actor, sweep))
+            for (var box : shape.toAabbs())
+                if (box.intersects(sweep) && !box.intersects(body)) return false;
+        if (ground.aim(destination, true) != destination) return false;
+        ground.stop();
+        ground.step(destination, speed);
+        return true;
+    }
+
     private static double reach(YukkuriEntity actor){return Math.max(1.5,actor.getBbWidth()+.5);}
 
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){

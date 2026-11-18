@@ -24,6 +24,7 @@ import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -37,11 +38,14 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
@@ -198,6 +202,18 @@ public final class ShelterBlockEntity extends BlockEntity {
     boolean cartonTouches(LivingEntity entity) {
         return interior().intersects(entity instanceof YukkuriEntity y
                 ? FoundShelter.turnBounds(y.position(), HeadTop.reach(y), HeadTop.height(y)) : entity.getBoundingBox());
+    }
+    boolean overlapsCartonShell(AABB body) {
+        var shape = Shapes.create(body);
+        for (var pos : BlockPos.betweenClosed(BlockPos.containing(body.minX, body.minY, body.minZ),
+                BlockPos.containing(body.maxX, body.maxY, body.maxZ))) {
+            if (!ShelterBlock.cartonPart(pos.subtract(worldPosition), facing()) || !level.hasChunkAt(pos)) continue;
+            var state = level.getBlockState(pos);
+            if (state.is(getBlockState().getBlock()) && state.getValue(ShelterBlock.FACING) == facing()
+                    && ShelterBlock.root(pos,state).equals(worldPosition)
+                    && Shapes.joinIsNotEmpty(shape, state.getCollisionShape(level,pos).move(pos.getX(),pos.getY(),pos.getZ()), BooleanOp.AND)) return true;
+        }
+        return false;
     }
     public boolean privateNest(UUID id) { return owns(id)&&privateNests.contains(id); }
     /** Occupied common nest cells, ordered by their surveyed sleeping slot for client-side grouping. */
@@ -508,8 +524,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean sound() {
         return (kind()==ShelterBlock.Kind.BURROW||condition>0) && complete() && !beds().isEmpty() && !flooded()
-                && beds().stream().allMatch(pos->kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos)
-                        :level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP))
+                && (kind()==ShelterBlock.Kind.CARDBOARD ? cartonHasFloor() : beds().stream().allMatch(pos->
+                        kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos):sturdyFloor(pos.below())))
                 && (kind()!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,worldPosition));
     }
     public boolean usable(YukkuriEntity entity) {
@@ -664,9 +680,15 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public void tick() {
         if(level==null||level.isClientSide||dismantling)return;
+        var server = (ServerLevel)level;
+        if (kind()==ShelterBlock.Kind.CARDBOARD) {
+            if (!cartonAreaLoaded(server)) return;
+            // Persist the phase of the weather counter even if this chunk is saved between samples.
+            level.blockEntityChanged(worldPosition);
+        }
         ticks++;
         if(ticks%100!=0) {
-            if(kind()==ShelterBlock.Kind.CARDBOARD&&moisture>=80&&updateRainStage((ServerLevel)level))changed();
+            if(kind()==ShelterBlock.Kind.CARDBOARD&&moisture>=80&&updateRainStage(server))changed();
             return;
         }
         if(kind()==ShelterBlock.Kind.BURROW&&naturalBeds.isEmpty()){dismantle();return;}
@@ -674,8 +696,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if (!parts.stream().allMatch(level::hasChunkAt)) return;
         if (kind()==ShelterBlock.Kind.CARDBOARD) removeOldCartonParts();
         if(!complete()) {dismantle();return;}
-        var families=FamilyData.get((ServerLevel)level);
-        var server = (ServerLevel)level;
+        var families=FamilyData.get(server);
         if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED)
                 || kind().found() && (!(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive()
                         || !contains(y.blockPosition()) && !entrance().equals(y.blockPosition()));})) {
@@ -715,7 +736,11 @@ public final class ShelterBlockEntity extends BlockEntity {
         boolean blocked = !level.getBlockState(entrance()).getCollisionShape(level, entrance()).isEmpty()
                 || !NaturalShelter.stand(level, entrance());
         boolean fire = ShelterPlacement.positions(worldPosition, kind(), facing()).stream().anyMatch(this::touchesFire);
-        if (flooded() || blocked || fire) { dismantle(flooded() ? "flooded" : fire ? "fire" : "closed"); return; }
+        boolean unsupported = kind() == ShelterBlock.Kind.CARDBOARD && !cartonHasFloor();
+        if (flooded() || blocked || fire || unsupported) {
+            dismantle(flooded() ? "flooded" : fire ? "fire" : unsupported ? "unsupported" : "closed");
+            return;
+        }
         emptyTicks = residents.isEmpty() ? Math.min(24000, emptyTicks + 100) : 0;
         if (kind() == ShelterBlock.Kind.CARDBOARD) {
             int previousStage = rainStage;
@@ -733,11 +758,30 @@ public final class ShelterBlockEntity extends BlockEntity {
         changed();
     }
 
+    private AABB cartonOccupantArea() { return interior().inflate(1); }
+
+    private boolean cartonAreaLoaded(ServerLevel server) {
+        var area = cartonOccupantArea();
+        int minX = SectionPos.blockToSectionCoord(area.minX), maxX = SectionPos.blockToSectionCoord(area.maxX);
+        int minZ = SectionPos.blockToSectionCoord(area.minZ), maxZ = SectionPos.blockToSectionCoord(area.maxZ);
+        for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++)
+            if (server.getChunkSource().getChunkNow(x,z) == null || !server.areEntitiesLoaded(ChunkPos.asLong(x,z))) return false;
+        return true;
+    }
+
+    private boolean cartonHasFloor() {
+        var side = facing().getClockWise();
+        var floor = worldPosition.below();
+        return sturdyFloor(floor) && sturdyFloor(floor.relative(side)) && sturdyFloor(floor.relative(side.getOpposite()));
+    }
+
+    private boolean sturdyFloor(BlockPos floor) { return level.getBlockState(floor).isFaceSturdy(level,floor,Direction.UP); }
+
     private boolean updateRainStage(ServerLevel server) {
         int stage = moisture >= 80 ? 2 : moisture >= 55 ? 1 : 0;
         // The soaked roof, walls and flap intrude into the exit. Check the footprint on each wet tick so a returning
         // body clears the soaked look promptly. Moisture and collapse still follow their usual weather tick.
-        if (stage == 2 && !server.getEntitiesOfClass(LivingEntity.class, interior().inflate(1),
+        if (stage == 2 && !server.getEntitiesOfClass(LivingEntity.class, cartonOccupantArea(),
                 entity -> entity.isAlive() && !entity.isSpectator() && cartonTouches(entity)).isEmpty()) stage = 1;
         if (stage == rainStage) return false;
         GameplayLog.world(server, "habitat", "found rain stage={} -> {} shelter={} moisture={}", rainStage, stage, worldPosition, moisture);
@@ -779,6 +823,7 @@ public final class ShelterBlockEntity extends BlockEntity {
 
     private void clearStructure(boolean drops, String reason) {
         if(dismantling||level==null)return;dismantling=true;
+        if (kind()==ShelterBlock.Kind.CARDBOARD) removeOldCartonParts();
         if(drops){
             for(var id:List.copyOf(nestProjects.keySet()))dropNestProject(id);
             if (kind().found()) {
@@ -804,7 +849,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         var positions=new ArrayList<>(ShelterPlacement.positions(worldPosition,kind(),facing()));positions.remove(worldPosition);positions.add(worldPosition);
         for(var pos:positions)if(level.hasChunkAt(pos)){
             var state=level.getBlockState(pos);
-            if(state.getBlock() instanceof ShelterBlock&&ShelterBlock.root(pos,state).equals(worldPosition))level.setBlock(pos,Blocks.AIR.defaultBlockState(),3);
+            if(state.is(getBlockState().getBlock())&&state.getValue(ShelterBlock.FACING)==facing()
+                    &&ShelterBlock.root(pos,state).equals(worldPosition))level.setBlock(pos,Blocks.AIR.defaultBlockState(),3);
         }
     }
     private void changed() {

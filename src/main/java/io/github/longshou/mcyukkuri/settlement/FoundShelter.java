@@ -235,7 +235,8 @@ public final class FoundShelter implements MotorOwner {
     static boolean fits(YukkuriEntity y, ShelterBlock.Kind kind) {
         double height = HeadTop.height(y);
         for (var rider : y.getPassengers()) height = Math.max(height, rider.getBoundingBox().maxY - y.getY());
-        return height < kind.innerHeight && HeadTop.reach(y) < kind.innerReach;
+        double reach = HeadTop.reach(y) + (kind == ShelterBlock.Kind.CARDBOARD ? SurfaceApproach.ARRIVAL : 0);
+        return height < kind.innerHeight && reach < kind.innerReach;
     }
 
     private boolean wantsCover() {
@@ -1348,8 +1349,9 @@ public final class FoundShelter implements MotorOwner {
     private Vec3 cartonLane(Vec3 at) {
         var side = Vec3.atLowerCornerOf(shelter.facing().getClockWise().getNormal());
         var forward = Vec3.atLowerCornerOf(shelter.facing().getNormal());
+        double clearance = phase == Phase.EXIT ? Math.max(shelter.kind().innerReach, HeadTop.reach(body)) : shelter.kind().innerReach;
         return Vec3.atBottomCenterOf(shelter.entrance()).add(side.scale(shelter.cartonAcross(at)))
-                .add(forward.scale(.25 + SurfaceApproach.ARRIVAL));
+                .add(forward.scale(clearance - .5 + SurfaceApproach.ARRIVAL));
     }
 
     private SurfaceApproach.Result walk() {
@@ -1373,6 +1375,8 @@ public final class FoundShelter implements MotorOwner {
             return SurfaceApproach.Result.ARRIVED;
         }
         if (SurfaceApproach.tryStraightStep(body, aim, 1)) return SurfaceApproach.Result.MOVING;
+        if (shelter.kind() == ShelterBlock.Kind.CARDBOARD && shelter.overlapsCartonShell(body.getBoundingBox().deflate(.005))
+                && SurfaceApproach.tryStepOutOfOverlap(body, aim, 1)) return SurfaceApproach.Result.MOVING;
         if (phase == Phase.EXIT) {
             var step = insideOpening(shelter);
             if (!SurfaceApproach.at(body, step) && SurfaceApproach.tryStraightStep(body, step, 1)) return SurfaceApproach.Result.MOVING;
