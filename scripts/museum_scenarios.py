@@ -472,7 +472,7 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
         street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
         street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
                      kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
-    ], env={'time': 'night'}, spot='street', vantage=(-5, 7),
+    ], env={'time': 'night'}, spot='street', vantage=(-5, 5, 180, 15),
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
                  views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4))}),
     smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
