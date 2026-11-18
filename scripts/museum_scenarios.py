@@ -2364,7 +2364,7 @@ _park_outing = []
 for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
     _park_outing += [
         yk(_kind, _x, _z, _name, uuid=uid('yard_park_play', _name), boldness=_bold, attachment=_bond,
-           nutrition=100, energy=47 if _kind == 'reimu' else 100,
+           nutrition=100, energy=50 if _kind == 'reimu' else 100,
            extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True),
         f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
         f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',

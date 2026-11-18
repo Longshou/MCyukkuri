@@ -143,7 +143,7 @@ final class HumanStreet {
                 || npc.level().isRaining() && (npc.level().canSeeSky(BlockPos.containing(npc.getEyePosition()))
                 || npc.level().canSeeSky(y.blockPosition()) || !SurfaceApproach.supportedGround(y, y.position()))) return false;
         boolean own = Custody.ownedBy(y, npc.getUUID());
-        if (npc.strollingWith(y) && y.outing().fit() && !eligibleMeal(y)) return false;
+        if (own && npc.walking() && y.outing().sound() && !eligibleMeal(y)) return false;
         if (!own && (!y.status().identity().free() || Custody.harmRefusal(null, y, y.blockPosition()) != null)) return false;
         if (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork()) return false;
         var relation = y.life().personality().relation(npc.getUUID());

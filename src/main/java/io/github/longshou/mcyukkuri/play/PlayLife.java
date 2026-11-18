@@ -40,7 +40,8 @@ public final class PlayLife {
             &&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()
             &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
-            &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&entity.body().condition().readyForPlay()&&!entity.family().active()&&!entity.house().active();}
+            &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&entity.body().condition().readyForPlay()
+            &&(!entity.family().active()||entity.motor().owner()==PLAY)&&!entity.house().active();}
     public void clock(){
         if(cooldown>0)cooldown--;
         if(scanWait>0)scanWait--;

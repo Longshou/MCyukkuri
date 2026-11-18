@@ -62,12 +62,16 @@ public final class PetOuting extends Goal {
         return resident == null ? null : resident.parkFacility();
     }
 
+    private boolean nearFacility(PlayBlockEntity facility) {
+        return pet.distanceToSqr(facility.getBlockPos().getCenter()) <= 64;
+    }
+
     public boolean tryParkPlay() {
         var facility = parkFacility();
         long now = pet.level().getGameTime();
         if (facility == null || now < playTryAt || tired() || playTries >= 2
                 || pet.dailyLife().boredom() < 60 - pet.life().personality().boldness() / 5.0
-                || pet.distanceToSqr(facility.getBlockPos().getCenter()) > 64) return false;
+                || !nearFacility(facility)) return false;
         playTryAt = now + 200;
         var play = pet.playLife();
         if (play.begin(facility)) return true;
@@ -123,8 +127,13 @@ public final class PetOuting extends Goal {
     @Override public boolean canUse() {
         if (!free()) return false;
         owner = escort();
-        if (owner != null) return pet.distanceTo(owner) > outerDistance();
+        if (owner != null) return shouldFollow(outerDistance());
         return !pet.blockPosition().equals(blockedAt);
+    }
+
+    private boolean shouldFollow(double comfortDistance) {
+        var facility = owner.parkFacility();
+        return pet.distanceTo(owner) > comfortDistance && (facility == null || !nearFacility(facility));
     }
 
     @Override public void start() {
@@ -164,7 +173,7 @@ public final class PetOuting extends Goal {
     }
 
     @Override public boolean canContinueToUse() {
-        return free() && (owner != null ? owner == escort() && pet.distanceTo(owner) > innerDistance()
+        return free() && (owner != null ? owner == escort() && shouldFollow(innerDistance())
                 : stand != null && escort() == null);
     }
 
