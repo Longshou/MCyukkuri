@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
@@ -504,6 +505,9 @@ public final class YukkuriModel {
     private int wearBody;
     private float[] tentBodyBuf = new float[0], tentMeshBuf = new float[0], tentHatBuf = new float[0];
     private int tentBodyLen, tentMeshLen, tentHatLen;
+    private record PaperFit(long inputs, PaperTent.Grid grid) {}
+    private final Map<YukkuriView, PaperFit> paperFits = new WeakHashMap<>();
+    private final Matrix4f tentToWall = new Matrix4f();
     private PaperTent.Grid paperTentGrid;
     PaperTent.Grid takePaperTent() {
         var grid = paperTentGrid;
@@ -714,10 +718,37 @@ public final class YukkuriModel {
         tentHatBuf[tentHatLen++] = p.x; tentHatBuf[tentHatLen++] = p.y; tentHatBuf[tentHatLen++] = p.z;
     }
 
-    private PaperTent.Grid buildPaperTent(PoseStack stack, boolean showHat, int hairLoss, JunkHeadwear junk) {
+    private PaperTent.Grid paperTent(YukkuriView entity, PoseStack stack, boolean showHat, int hairLoss, JunkHeadwear junk) {
+        // The loose paper settles over a sampled pose while the body shivers under it. Sample the fold at 5 Hz.
+        long inputs = 31L * sampledClip.hashCode() + (int)(sampledTime * 5);
+        inputs = 31 * inputs + (showHat ? 1 : 0);
+        inputs = 31 * inputs + hairLoss;
+        inputs = 31 * inputs + entity.visibleHeadwear();
+        inputs = 31 * inputs + entity.subspeciesFlags();
+        inputs = 31 * inputs + entity.getMomentId().hashCode();
+        inputs = 31 * inputs + Math.round(puffAmount * 64);
+        inputs = 31 * inputs + Math.round(pregnancyBelly * 64);
+        inputs = 31 * inputs + Math.round(pregnancyContraction * 64);
+        inputs = 31 * inputs + Math.round(hatPhase * 64);
+        Matrix4f toWall = null;
+        if (wallClearance != null) {
+            toWall = wallClearance.frame(stack.last().pose(), tentToWall).scale(16f);
+            inputs = 31 * inputs + wallClearance.faces().hashCode();
+            inputs = 31 * inputs + Double.doubleToLongBits(wallClearance.paperCeiling());
+            // Camera-relative transforms introduce tiny float noise even when the entity and walls are still.
+            for (int column = 0; column < 4; column++) for (int row = 0; row < 3; row++)
+                inputs = 31 * inputs + Math.round(toWall.get(column, row) * 4096f);
+        }
+        var fit = paperFits.get(entity);
+        if (fit != null && fit.inputs() == inputs) return fit.grid();
+        var grid = buildPaperTent(toWall, showHat, hairLoss, junk);
+        paperFits.put(entity, new PaperFit(inputs, grid));
+        return grid;
+    }
+
+    private PaperTent.Grid buildPaperTent(Matrix4f toWall, boolean showHat, int hairLoss, JunkHeadwear junk) {
         tentBodyLen = tentMeshLen = tentHatLen = 0;
-        boolean hasWall = wallClearance != null;
-        Matrix4f toWall = hasWall ? wallClearance.frame(stack.last().pose(), new Matrix4f()).scale(16f) : null;
+        boolean hasWall = toWall != null;
         Matrix4f fromWall = hasWall ? new Matrix4f(toWall).invert() : null;
         var pt = new Vector3f();
         skinningCache.begin();
@@ -1396,7 +1427,8 @@ public final class YukkuriModel {
             if(showHat)renderReplacementHat(stack,buffers,light,overlay);
             var junk=Headwear.visualJunk(headwear);
             renderJunkHat(junk,stack,buffers,light,overlay);
-            paperTentGrid=(wear&CareWearRenderer.PAPER_COVER)!=0?buildPaperTent(stack,showHat,hairLoss,junk):null;
+            if ((wear & CareWearRenderer.PAPER_COVER) != 0) paperTentGrid = paperTent(entity, stack, showHat, hairLoss, junk);
+            else { paperFits.remove(entity); paperTentGrid = null; }
             PoseTap.model(entity, this, accessory, hairLoss);
             return contact;
         }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,

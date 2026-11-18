@@ -974,6 +974,8 @@ final class CareWearRenderer {
      * One folded newspaper sheet fitted against the live posed mesh (body, hair, braids, headwear and wall clearance),
      * drawn as outer print ({@link #NEWSPAPER_TOP}) and inner fold ({@link #NEWSPAPER_FOLD}).
      */
+    private static final int[] PAPER_FOLD_SHADE = {216, 212, 202};
+
     private static float tentV(int r, int rows) {
         return rows == 8 && r > 6 ? .75f - .20f * (r - 6) : .25f + .50f * r / Math.min(6, rows);
     }
@@ -995,7 +997,6 @@ final class CareWearRenderer {
                 quad(topBuf, pose, WHITE, light, overlay, nx / nl, ny / nl, nz / nl, u0, v0, u0, v1, u1, v1, u1, v0, p00, p10, p11, p01);
             }
         }
-        int[] shade = {216, 212, 202};
         VertexConsumer underBuf = buffers.getBuffer(RenderType.entityCutoutNoCull(NEWSPAPER_FOLD));
         for (int r = 0; r < rows; r++) {
             float v0 = tentV(r, rows), v1 = tentV(r + 1, rows);
@@ -1006,7 +1007,7 @@ final class CareWearRenderer {
                 float vx = g[0] - a[0], vy = g[1] - a[1], vz = g[2] - a[2];
                 float nx = -(uy * vz - uz * vy), ny = -(uz * vx - ux * vz), nz = -(ux * vy - uy * vx);
                 float nl = (float) Math.sqrt(nx * nx + ny * ny + nz * nz) + 1e-6f;
-                quad(underBuf, pose, shade, light, overlay, nx / nl, ny / nl, nz / nl, u0, v0, u1, v0, u1, v1, u0, v1, a, g, e, d);
+                quad(underBuf, pose, PAPER_FOLD_SHADE, light, overlay, nx / nl, ny / nl, nz / nl, u0, v0, u1, v0, u1, v1, u0, v1, a, g, e, d);
             }
         }
     }
