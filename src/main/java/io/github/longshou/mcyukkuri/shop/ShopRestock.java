@@ -95,18 +95,22 @@ public final class ShopRestock {
             boolean onSale = entity instanceof YukkuriEntity y && y.isAlive() && ShopTrade.stockOf(y, shop.id) && shop.contains(y.position());
             boolean captured = custody.isCaptured(id);
             if (!onSale && !captured) {
-                if (entity != null || shopLoaded(level, shop)) registry.refund(shop, id);
+                if (entity != null || shopLoaded(level, shop)) registry.refund(level, shop, id);
                 continue;
             }
             if (now < deposit.since() + PERIOD) continue;
             var order = shop.orders.get(id);
             if (order != null && order.kind().equals(ShopTrade.SALE) && deposit.buyer().equals(order.customer())) continue;
-            registry.endDeposit(shop, id);
+            registry.endDeposit(level, shop, id);
             registry.recordSpend(level, shop, deposit.buyer(), deposit.paid());
             var name = entity instanceof YukkuriEntity y ? y.getDisplayName() : net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.animal");
             registry.tell(level, deposit.buyer(), "reserve.expired", name, deposit.paid());
             GameplayLog.world(level, "shop", "action=reserve result=lapsed shop={} target={} buyer={} deposit_kept={}",
                     shop.id, id, deposit.buyer(), deposit.paid());
+        }
+        for (var animal : ShopRegistry.liveStock(level, shop)) {
+            var deposit = shop.deposit(animal.getUUID());
+            animal.showReservation(deposit == null ? null : deposit.buyer());
         }
     }
 
@@ -142,7 +146,7 @@ public final class ShopRestock {
             ShopRegistry.releaseStockBasket(level, token, departure);
             if (custody.hasToken(token)) continue;
             item.setItem(new ItemStack(item.getItem().getItem()));
-            item.setTarget(null);
+            item.setTarget(shop.id);
             shipped++;
             GameplayLog.world(level, "shop", "action=restock result=shipped shop={} token={} species={}", shop.id, token, snapshot.getString("id"));
         }
@@ -179,7 +183,7 @@ public final class ShopRestock {
             if (slot < 0) break;
             var returned = dock.getItem(slot);
             if (!returned.isEmpty()) {
-                if (ShopTrade.drop(level, null, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break;
+                if (ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break;
                 dock.setItem(slot, ItemStack.EMPTY);
             }
             boolean predator = i >= land;

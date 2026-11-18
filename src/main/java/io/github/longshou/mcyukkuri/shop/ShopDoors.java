@@ -57,13 +57,12 @@ public final class ShopDoors {
         return leaves(level, at).stream().anyMatch(leaf -> doorway(leaf).intersects(npc.getBoundingBox()));
     }
 
-    static void toggle(ServerPlayer player, ShopRegistry.Entry shop, BlockPos at, boolean egress) {
+    static void toggle(ServerPlayer player, ShopRegistry.Entry shop, BlockPos at) {
         var level = player.serverLevel();
         var leaves = leaves(level, at);
         if (leaves.isEmpty()) return; // The struck upper half can outlive a missing lower block.
         var door = new Door(level, leaves);
         boolean open = leaves.stream().anyMatch(leaf -> !level.getBlockState(leaf).getValue(DoorBlock.OPEN));
-        if (egress && !open) return;
         if (!open && (PASSING.containsKey(door) || !clearToClose(door))) {
             ShopTrade.say(player, "membership.door_busy");
             GameplayLog.limited(player, "shop", "door_busy", 100, "action=door result=refused shop={} reason=doorway_occupied", shop.id);

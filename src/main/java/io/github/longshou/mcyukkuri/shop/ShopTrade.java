@@ -29,6 +29,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 /**
  * Accepted orders live in the shop register; the animal's lock keeps it in place while staff fetch it.
@@ -136,8 +138,20 @@ public final class ShopTrade {
         if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id)) return "gone";
         var d = shop.deposit(y.getUUID());
         if (d != null && !d.buyer().equals(p.getUUID())) return "reserved";
+        if (!shop.membership(p.getUUID()).allows(ShopMembership.required(y))) return "tier";
         if (y.pet().busy() || shop.orders.containsKey(y.getUUID())) return "ordered";
         return emeralds(p) < need ? "emeralds" : null;
+    }
+
+    private static boolean refuseTier(ServerPlayer player, ShopRegistry.Entry shop, YukkuriEntity animal,
+                                      String action, String verb) {
+        var required = ShopMembership.required(animal);
+        var id = player.getUUID();
+        int missing = required.threshold(shop.kind) - shop.spend(id);
+        say(player, verb + ".refused.tier", required.nameText(), missing);
+        GameplayLog.event(player, "shop", "action={} result=refused shop={} target={} reason=tier required={} tier={} missing={}",
+                action, shop.id, animal.getUUID(), required, shop.membership(id), missing);
+        return false;
     }
 
     /** The player orders this stock animal: it waits for the first free staff member to bring it to the counter. */
@@ -145,6 +159,7 @@ public final class ShopTrade {
         int need = y == null ? 0 : due(shop, y);
         String why = buyRefusal(level, shop, y, p, need);
         if (why != null) {
+            if (why.equals("tier")) return refuseTier(p, shop, y, "buy_live", "buy");
             say(p, "buy.refused." + why, need, emeralds(p));
             GameplayLog.event(p, "shop", "action=buy_live result=refused shop={} target={} reason={} due={} emeralds={}",
                     shop.id, y == null ? null : y.getUUID(), why, need, emeralds(p));
@@ -237,7 +252,7 @@ public final class ShopTrade {
         ShopStaff.finishFetch(y.getUUID());
         var registry = ShopRegistry.get(level);
         registry.order(shop, y.getUUID(), new ShopRegistry.Order(order.kind(), buyer, due, token));
-        var deposit = registry.endDeposit(shop, y.getUUID());
+        var deposit = registry.endDeposit(level, shop, y.getUUID());
         if (player != null) {
             debit(player, due);
             registry.recordSpend(level, shop, buyer, due + (deposit == null ? 0 : deposit.paid()));
@@ -289,12 +304,14 @@ public final class ShopTrade {
         String why = y != null && shop.deposit(y.getUUID()) != null && shop.deposit(y.getUUID()).buyer().equals(p.getUUID()) ? "own"
                 : buyRefusal(level, shop, y, p, paid);
         if (why != null) {
+            if (why.equals("tier")) return refuseTier(p, shop, y, "reserve", "reserve");
             say(p, "reserve.refused." + why, paid, emeralds(p));
             GameplayLog.event(p, "shop", "action=reserve result=refused shop={} target={} reason={}", shop.id, y == null ? null : y.getUUID(), why);
             return false;
         }
         debit(p, paid);
         ShopRegistry.get(level).reserve(shop, y.getUUID(), p.getUUID(), price, paid, level.getGameTime());
+        y.showReservation(p.getUUID());
         var tag = HumanCommerce.data(y).copy(); tag.remove(SHIP_OUT); HumanCommerce.set(y, tag);
         y.showReaction("happy", "shop_reserved", 40);
         say(p, "reserve.done", paid, y.getDisplayName(), price - paid);
@@ -388,7 +405,19 @@ public final class ShopTrade {
 
     // ---- loose baskets ----------------------------------------------------------------------------------------------------
 
-    public static void pickedUp(net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Post event) {
+    public static void pickingUp(ItemEntityPickupEvent.Pre event) {
+        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+        var item = event.getItemEntity();
+        var target = item.getTarget();
+        if (target == null) return;
+        var level = player.serverLevel();
+        var shop = ShopRegistry.get(level).shop(target);
+        if (shop == null) return; // A paid basket still follows its buyer's vanilla pickup target.
+        if (shop.closed() && !ShopStaff.shopBasket(level, shop, item.getItem())) item.setTarget(null);
+        else event.setCanPickup(TriState.FALSE);
+    }
+
+    public static void pickedUp(ItemEntityPickupEvent.Post event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         UUID token = CarrierContents.singleToken(event.getOriginalStack());
         if (token == null) return;

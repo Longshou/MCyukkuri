@@ -126,6 +126,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, DATA_SIZE = Data.COUNT;
     public static final class Flags {
         public static final int GRADE_MASK = 7, EXPIRED = 8, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
+        public static final int REQUIRED_SHIFT = 8, REQUIRED_MASK = 3;
         private Flags() {}
     }
     /** Sell state codes (slot 34): the refusal the sell button would meet. */
@@ -234,7 +235,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         var b = y.pet(); var d = shop == null ? null : shop.deposit(y.getUUID());
         return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0)
                 | (ShopTrade.order(y) ? Flags.ORDERED : 0)
-                | (d == null ? 0 : d.buyer().equals(viewer.getUUID()) ? Flags.RESERVED_YOU : Flags.RESERVED_OTHER);
+                | (d == null ? 0 : d.buyer().equals(viewer.getUUID()) ? Flags.RESERVED_YOU : Flags.RESERVED_OTHER)
+                | (ShopMembership.required(y).ordinal() << Flags.REQUIRED_SHIFT);
     }
     private static int skills(YukkuriEntity y) {
         int mask = 0;

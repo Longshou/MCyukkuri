@@ -52,6 +52,7 @@ final class YukkuriSync {
     /** A body-food bite is display-only transport, deliberately separate from real mouth items. */
     private static final EntityDataAccessor<CompoundTag> MOUTH_BODY_FOOD = YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> MEDAL = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Optional<UUID>> RESERVED_BY = YukkuriEntity.defineSyncedValue(EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> ACCESSORY = YukkuriEntity.defineSyncedValue( EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> GROWTH_SCALE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> LIFE_STAGE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
@@ -179,6 +180,8 @@ final class YukkuriSync {
         setChanged(MOUTH_BODY_FOOD, value);
     }
     int visibleMedal() { return owner.getEntityData().get(MEDAL); }
+    Optional<UUID> reservedBy() { return owner.getEntityData().get(RESERVED_BY); }
+    void showReservation(UUID player) { owner.getEntityData().set(RESERVED_BY, Optional.ofNullable(player)); }
     boolean hasVisibleAccessory() { return owner.getEntityData().get(ACCESSORY); }
     boolean visibleKanroken() { return owner.getEntityData().get(KANROKEN); }
     ItemStack getHeldItem() { return owner.getEntityData().get(HELD_ITEM); }
@@ -400,6 +403,7 @@ final class YukkuriSync {
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);
         builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(MOUTH_BODY_FOOD, new CompoundTag()); builder.define(ACCESSORY, true);
+        builder.define(RESERVED_BY, Optional.empty());
         builder.define(FOOD_ON_BRAID, false);
         builder.define(BRAID_MEAL_BIN, Optional.empty());
         builder.define(CARRYING,ItemStack.EMPTY);

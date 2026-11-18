@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -133,6 +134,7 @@ public interface YukkuriView {
     /** Where that stack physically is (her grip, her mouth, lying in her set-down hat) and the beat moving it, as synchronized. */
     Held heldPlace();
     int visibleMedal();
+    Optional<UUID> reservedBy();
     int visibleHeadwear();
     int visibleWear();
     int visibleHairLoss();

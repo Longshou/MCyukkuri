@@ -327,6 +327,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             RapemOverlayRenderer.render(entity, partialTick, pose, buffers, packedLight);
             SpeechBubble.render(entity, partialTick, pose, buffers, packedLight);
             MomentEmote.render(entity, partialTick, pose, buffers, packedLight);
+            ReservationMark.render(entity, pose, buffers, packedLight);
         }
     }
 

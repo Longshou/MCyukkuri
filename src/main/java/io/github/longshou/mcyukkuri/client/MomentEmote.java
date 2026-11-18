@@ -59,15 +59,18 @@ final class MomentEmote {
         float v = cell.get(1).getAsFloat()/ATLAS.get("rows").getAsFloat();
         float du = 1f/ATLAS.get("columns").getAsFloat(), dv = 1f/ATLAS.get("rows").getAsFloat();
         float scale = e.growthScale()*e.getScale();
-        double top = e.profile().houseBody() ? .35 : e.getVariant().assetId().endsWith("marisa") ? 1.25 : .87;
         pose.pushPose();
-        pose.translate(0, Math.max(e.getBbHeight(), top*scale)+.12*scale, 0);
+        pose.translate(0, height(e, scale), 0);
         pose.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
         pose.scale(.4f*scale, .4f*scale, .4f*scale);
         var texture = MCYukkuri.id("textures/emote/atlas.png");
         quad(buffers.getBuffer(RenderType.textSeeThrough(texture)), pose.last().pose(), u,v,du,dv,64,light);
         quad(buffers.getBuffer(RenderType.text(texture)), pose.last().pose(), u,v,du,dv,255,light);
         pose.popPose();
+    }
+    static double height(YukkuriView e, float scale) {
+        double top = e.profile().houseBody() ? .35 : e.getVariant().assetId().endsWith("marisa") ? 1.25 : .87;
+        return Math.max(e.getBbHeight(), top * scale) + .12 * scale;
     }
     private static void quad(VertexConsumer out, Matrix4f matrix, float u,float v,float du,float dv,int alpha,int light) {
         out.addVertex(matrix,-.5f,0,0).setColor(255,255,255,alpha).setUv(u,v+dv).setLight(light);

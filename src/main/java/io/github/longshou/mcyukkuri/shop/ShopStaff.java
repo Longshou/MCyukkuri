@@ -103,6 +103,7 @@ public final class ShopStaff {
     /** Animals and blocks a staff member could not reach: nobody tries them again before the deadline (transient, at most 64 keys). */
     private static final DeadlineMap<Object> UNREACHABLE = new DeadlineMap<>();
     private record CareTarget(UUID animal) {}
+    private record MakeWayTarget(UUID player, UUID staff) {}
     /** Keep the full leg budget. A stalled route gets a second to clear after each short request to step aside. */
     private static final int LEG = 600, BLOCKED = 20, STALL = 3 * BLOCKED, WORK = 16, RETRY = 1200;
     /** A young animal can cross a display pen in under five seconds. Moving obstructions get ten seconds to clear. */
@@ -133,19 +134,21 @@ public final class ShopStaff {
 
     /** Every 20 ticks per staff member: the restock clock, waiting orders that cannot go on, and new work when free. */
     public static void tick(HumanNpc staff) {
-        if (!(staff.level() instanceof ServerLevel level) || active(staff) || staff.isNoAi()) return;
-        staff.returnUnusedDose();
+        if (!(staff.level() instanceof ServerLevel level) || staff.isNoAi()) return;
+        if (!active(staff)) staff.returnUnusedDose();
         var shop = ShopRegistry.get(level).of(staff);
         if (shop == null) return;
+        if (active(staff)) {
+            ShopRestock.reconcileReservations(level, shop);
+            return;
+        }
         ShopRestock.tick(level, shop);
         reviewOrders(level, shop);
         if (staff.hurtTime > 0 || staff.isTrading()) return;
         long now = level.getGameTime();
         if (UNREACHABLE.size() > 64) UNREACHABLE.prune(now);
         var clerks = shop.loadedStaff(level);
-        var counter = clerks.stream().filter(n -> !UNREACHABLE.active(n.getUUID(), now))
-                .min(Comparator.comparing((HumanNpc n) -> !n.home().equals(shop.pos))
-                        .thenComparingDouble(n -> n.home().distSqr(shop.counter())).thenComparing(HumanNpc::getUUID)).orElse(null);
+        var counter = counter(clerks, shop, now);
         if (counter == staff && !atCounter(staff.position(), Vec3.atBottomCenterOf(shop.counter()))) {
             var job = new Job(staff.getUUID(), shop.id, Kind.COUNTER);
             job.target = shop.counter();
@@ -154,21 +157,28 @@ public final class ShopStaff {
         }
         if (resume(level, staff, shop)) return;
         if (staff.resting() || !staff.getMainHandItem().isEmpty() || counter == staff && clerks.size() > 1) return;
-        for (var player : level.getPlayers(p -> ShopAccess.needsRefusal(shop, p) && !UNREACHABLE.active(new RefusalTarget(p.getUUID(), shop.id), now)
-                && JOBS.values().stream().noneMatch(j -> p.getUUID().equals(j.animal)))) {
-            var nearest = clerks.stream().filter(n -> (clerks.size() == 1 || n != counter) && !busy(n)
-                            && !n.isTrading() && n.hurtTime == 0 && !n.resting())
-                    .min(Comparator.<HumanNpc>comparingDouble(player::distanceToSqr).thenComparing(HumanNpc::getUUID)).orElse(null);
-            if (nearest != staff) continue;
-            var job = new Job(staff.getUUID(), shop.id, Kind.REFUSE);
-            job.animal = player.getUUID();
-            start(staff, job, player.position());
-            return;
-        }
         pick(level, staff, shop);
     }
 
-    private record RefusalTarget(UUID player, UUID shop) {}
+    private static HumanNpc counter(List<HumanNpc> clerks, ShopRegistry.Entry shop, long now) {
+        return clerks.stream().filter(n -> !UNREACHABLE.active(n.getUUID(), now))
+                .min(Comparator.comparing((HumanNpc n) -> !n.home().equals(shop.pos))
+                        .thenComparingDouble(n -> n.home().distSqr(shop.counter())).thenComparing(HumanNpc::getUUID)).orElse(null);
+    }
+
+    static void warn(ServerLevel level, ShopRegistry.Entry shop, ServerPlayer player) {
+        var id = player.getUUID();
+        if (JOBS.values().stream().anyMatch(j -> j.kind == Kind.REFUSE && id.equals(j.animal) && shop.id.equals(j.shop))) return;
+        var clerks = shop.loadedStaff(level);
+        var counter = counter(clerks, shop, level.getGameTime());
+        var nearest = clerks.stream().filter(n -> (clerks.size() == 1 || n != counter) && !busy(n)
+                        && !n.isTrading() && n.hurtTime == 0 && !n.resting())
+                .min(Comparator.<HumanNpc>comparingDouble(player::distanceToSqr).thenComparing(HumanNpc::getUUID)).orElse(null);
+        if (nearest == null) return;
+        var job = new Job(nearest.getUUID(), shop.id, Kind.REFUSE);
+        job.animal = id;
+        start(nearest, job, player.position());
+    }
 
     /** Orders nobody serves yet are still checked: a buyer who left, nightfall or a lost animal cancels them visibly. */
     static void reviewOrders(ServerLevel level, ShopRegistry.Entry shop) {
@@ -409,11 +419,12 @@ public final class ShopStaff {
             return;
         }
         if (job.kind == Kind.REFUSE) {
-            if (!(level.getPlayerByUUID(job.animal) instanceof ServerPlayer player) || !ShopAccess.needsRefusal(shop, player))
+            if (!(level.getPlayerByUUID(job.animal) instanceof ServerPlayer player) || !player.isAlive() || player.isSpectator()
+                    || !shop.contains(player.position()))
                 end(staff, job, "customer_left");
             else if (staff.distanceToSqr(player) <= REACH * REACH && staff.hasLineOfSight(player)) {
                 staff.getLookControl().setLookAt(player, 30, 30);
-                ShopAccess.turnAway(staff, shop, player);
+                ShopAccess.warn(staff, shop, player);
                 end(staff, job, "refused");
             } else walk(level, staff, shop, job, player.position().add(0, player.getBbHeight() / 2, 0));
             return;
@@ -935,7 +946,7 @@ public final class ShopStaff {
     }
 
     private static void makeWay(HumanNpc staff, ServerPlayer player) {
-        var key = new RefusalTarget(player.getUUID(), staff.getUUID());
+        var key = new MakeWayTarget(player.getUUID(), staff.getUUID());
         long now = staff.level().getGameTime();
         if (UNREACHABLE.active(key, now)) return;
         UNREACHABLE.put(key, now + FETCH_RETRY);
@@ -966,7 +977,7 @@ public final class ShopStaff {
         }
         Object key = switch (job.kind) {
             case COUNTER -> job.staff;
-            case REFUSE -> new RefusalTarget(job.animal, job.shop);
+            case REFUSE -> null;
             case BUY -> job.token;
             default -> job.phase == Phase.CARRY ? job.target : job.animal != null ? job.animal : job.target;
         };
@@ -989,7 +1000,7 @@ public final class ShopStaff {
             return;
         }
         var hand = staff.getMainHandItem().copy();
-        UUID target = job.kind == Kind.BUY ? job.customer : job.kind == Kind.CLEAN || job.kind == Kind.STREET_SCRAP ? null : shop.id;
+        UUID target = job.kind == Kind.BUY ? job.customer : shop.contains(staff.position()) ? shop.id : null;
         if (ShopTrade.drop(level, target, staff.position(), hand) != null) {
             staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             GameplayLog.event(staff, "shop", "action=job result=put_down kind={} token={} at={} pickup={}", job.kind, job.token, GameplayLog.at(staff.position()), target);
@@ -1021,7 +1032,7 @@ public final class ShopStaff {
         if (hand.isEmpty()) return;
         var view = token == null ? null : Custody.fromSnapshot(YukkuriWorldData.get(level).captiveSnapshot(token));
         var shop = ShopRegistry.get(level).of(staff);
-        UUID target = view != null ? view.owner() : hand.is(ModItems.CARRIER.get()) && shop != null ? shop.id : null;
+        UUID target = view != null ? view.owner() : shop != null && shop.contains(staff.position()) ? shop.id : null;
         if (ShopTrade.drop(level, target, staff.position(), hand.copy()) != null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         else if (view != null && view.role() == Custody.Role.STOCK || hand.is(ModItems.CARRIER.get()) && token == null) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 2.0f);
         else if (view != null) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 0.0f);

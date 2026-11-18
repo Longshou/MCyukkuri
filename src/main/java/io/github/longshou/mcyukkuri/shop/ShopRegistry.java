@@ -95,7 +95,7 @@ public final class ShopRegistry extends SavedData {
         Deposit deposit(UUID animal) { return deposits.get(animal); }
         long nextRestock() { return nextRestock; }
         int spend(UUID player) { return spent.getOrDefault(player, 0); }
-        ShopMembership membership(UUID player) { return ShopMembership.fromSpend(spend(player)); }
+        ShopMembership membership(UUID player) { return ShopMembership.fromSpend(kind, spend(player)); }
         boolean refusesToday(ServerLevel level, UUID player) {
             return refusedUntilDay.getOrDefault(player, 0) > ShopStock.today(level);
         }
@@ -192,7 +192,7 @@ public final class ShopRegistry extends SavedData {
         shop.closed = true;
         shop.closing = false;
         setDirty();
-        for (var animal : List.copyOf(shop.deposits.keySet())) refund(shop, animal);
+        for (var animal : List.copyOf(shop.deposits.keySet())) refund(level, shop, animal);
         for (var animal : List.copyOf(shop.orders.keySet()))
             if (shop.orders.get(animal).token() == null) ShopTrade.cancel(level, shop, animal, "closed");
         shop.releases.addAll(stockBaskets(level, shop));
@@ -361,7 +361,7 @@ public final class ShopRegistry extends SavedData {
         if (!(event.getEntity() instanceof YukkuriEntity animal) || !(animal.level() instanceof ServerLevel level)) return;
         var registry = get(level);
         for (var shop : registry.shops.values()) {
-            registry.refund(shop, animal.getUUID());
+            registry.refund(level, shop, animal.getUUID());
             var order = shop.orders.get(animal.getUUID());
             if (order != null && order.token() == null) ShopTrade.cancel(level, shop, animal.getUUID(), "gone");
         }
@@ -514,9 +514,12 @@ public final class ShopRegistry extends SavedData {
 
     void reserve(Entry shop, UUID animal, UUID buyer, int price, int paid, long now) { shop.deposits.put(animal, new Deposit(buyer, price, paid, now)); setDirty(); }
     /** Removes the paid deposit when a sale settles or a reservation lapses. */
-    Deposit endDeposit(Entry shop, UUID animal) {
+    Deposit endDeposit(ServerLevel level, Entry shop, UUID animal) {
         var deposit = shop.deposits.remove(animal);
-        if (deposit != null) setDirty();
+        if (deposit != null) {
+            if (level.getEntity(animal) instanceof YukkuriEntity y) y.showReservation(null);
+            setDirty();
+        }
         return deposit;
     }
     void recordSpend(ServerLevel level, Entry shop, UUID player, int amount) {
@@ -535,7 +538,7 @@ public final class ShopRegistry extends SavedData {
     }
 
     public void setTestMembership(ServerPlayer player, Entry shop, ShopMembership tier) {
-        int total = tier.threshold();
+        int total = tier.threshold(shop.kind);
         if (total == 0) shop.spent.remove(player.getUUID());
         else shop.spent.put(player.getUUID(), total);
         setDirty();
@@ -543,8 +546,8 @@ public final class ShopRegistry extends SavedData {
         GameplayLog.event(player, "shop", "action=membership result=test_set shop={} total={} tier={}", shop.id, total, tier);
     }
     /** A reserved animal that is gone (died, or left the shop other than by its sale): its deposit is owed back to the buyer. */
-    void refund(Entry shop, UUID animal) {
-        var deposit = shop.deposits.remove(animal);
+    void refund(ServerLevel level, Entry shop, UUID animal) {
+        var deposit = endDeposit(level, shop, animal);
         if (deposit == null) return;
         owe(shop, deposit.buyer(), deposit.paid(), true);
     }

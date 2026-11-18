@@ -2519,12 +2519,13 @@ STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
 # Any shop staff member (all three have the same job and the same menu).
 SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
-SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
-SHOP_ACCESS_HINT = '商店观察台的“访客／会员／贵宾”按钮可更换本店资格。'
+SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'shop_browse': (8, 6),
+               'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
+SHOP_ACCESS_HINT = '商店观察台的“访客／会员／贵宾”按钮可更换本店购买与预订资格。'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
     '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、亚成芙兰），后院放养赤油与亚成油。'
-    '正对进门处的柜台有店员值守，右键哪一位都打开同一个菜单。访客先试开铁门，会员进后屋和后院，贵宾也可进展栏。'
+    '正对进门处的柜台有店员值守，右键哪一位都打开同一个菜单。访客也能开门进展栏、柜台后方、后屋和后院。'
     + SHOP_ACCESS_HINT +
     '展舱和捕食种房的食盆清空了、两个厕所放了便便：店员会进栏添粮，把便便清进后屋的桶。',
     '建筑几秒；白天约 10–60 秒看店员添食、清厕',
@@ -2574,16 +2575,23 @@ add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆�
     env=DAY, vantage=(16, 18, 180, 0),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy', 'shop', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台',
-    '进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开展舱铁门，'
+    '先在观察台选“贵宾”。进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开展舱铁门，'
     '叫她来到门边，装篮那一刻才扣款。店员提篮交到你手上，或放在柜台上留给你。隔壁的子油橙看着她被带走。'
     '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱。'
     + SHOP_ACCESS_HINT,
     '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 14, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
+add('shop_browse', 'shop', '自由逛店：进展栏、乱动被警告、稀有个体要会员', '自由逛店：进展栏、乱动被警告、稀有个体要会员',
+    '以访客身份打开铁门，逛展栏、后屋和后院。拿着 16 颗绿宝石找店员，在“在售”里试买或预订橙，看看还差多少消费。'
+    '切到生存模式，在店里试挖玻璃，等空闲店员走来警告，再试挖一次。玻璃应完好，本店今天会拒绝交易，门仍能开。'
+    '想试会员购买，可清场重开，在观察台切换会员后再试。',
+    '建筑几秒，试挖后等店员走近', ['yukkuri human build shop ~8 ~ ~17 south'],
+    give=['minecraft:emerald 16'], env=DAY, vantage=(8, 21, 180, 0),
+    reads=[('读店铺登记', 'yukkuri human shop list'), ('读在售子油橙', f'yukkuri status {BOOTH.format("chen", 0)} raw')])
 _fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
-    '右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
+    '先在观察台选“会员”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
     '看店员在栏门口叫它们靠近，等约五秒仍够不着时伸手接进篮子，去后院取货时则会走进去。等店员提来每只装好的实篮再买下一只。',
     '布置几秒，每单约 20 秒', ['yukkuri human build shop ~8 ~ ~17 south',
         *[f'tag @e[type=mcyukkuri:{kind},distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
@@ -2601,7 +2609,7 @@ add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处�
            ('读后院库存', f'yukkuri status {sel("fetch_yard")} raw')])
 add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
     '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
-    '沿着橱窗慢慢走，看个体怎样回应。先看菜单底部会员等级，再试后屋铁门和展栏铁门。'
+    '沿着橱窗慢慢走，看个体怎样回应。访客可试开后屋和展栏铁门。菜单底部显示本店购买资格，升会员需累计花 2 颗绿宝石，升贵宾需 6 颗。'
     + SHOP_ACCESS_HINT,
     '建筑几秒，展舱附近等片刻', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
@@ -5450,7 +5458,7 @@ TOPICS = {
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
@@ -6230,31 +6238,21 @@ next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     (1500, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:65000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
     (850, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator enter'),
     (851, 'yukkuri scenario shop_door_click ~15 ~3 ~5 south'),
-    (852, 'execute if block ~15 ~2 ~5 minecraft:iron_door[open=false] run say MCYSHOP_VISITOR_DOOR_CLOSED'),
-    (853, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ member'),
-    (854, 'yukkuri scenario shop_door_click ~14 ~2 ~5 south'),
-    (855, 'execute if block ~14 ~3 ~5 minecraft:iron_door[open=true] if block ~15 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_MEMBER_DOOR_OPEN'),
+    (852, 'execute if block ~14 ~3 ~5 minecraft:iron_door[open=true] if block ~15 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_COUNTER_OPEN'),
     (856, 'execute positioned ~15.5 ~2 ~4.5 run yukkuri scenario tool_operator move'),
     (857, 'yukkuri scenario shop_door_click ~15 ~3 ~5 north'),
-    (858, 'execute if block ~14 ~2 ~5 minecraft:iron_door[open=false] if block ~15 ~3 ~5 minecraft:iron_door[open=false] run say MCYSHOP_MEMBER_DOOR_CLOSED'),
-    (859, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ visitor'),
+    (858, 'execute if block ~14 ~2 ~5 minecraft:iron_door[open=false] if block ~15 ~3 ~5 minecraft:iron_door[open=false] run say MCYSHOP_VISITOR_COUNTER_CLOSED'),
     (1160, 'yukkuri scenario shop_door_click ~14 ~2 ~5 north'),
     (1161, 'execute if block ~14 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_EGRESS'),
     (1162, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator move'),
-    (1220, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ patron'),
     (1221, 'execute positioned ~14.5 ~2 ~8.5 run yukkuri scenario tool_operator move'),
     (1222, 'yukkuri scenario shop_door_click ~14 ~3 ~9 north'),
-    (1223, 'execute if block ~14 ~3 ~9 minecraft:iron_door[open=true] if block ~15 ~2 ~9 minecraft:iron_door[open=true] run say MCYSHOP_PATRON_DOOR_OPEN'),
-    (1224, 'execute at ' + BOOTH.format('alice', 3) + ' run yukkuri scenario tool_operator move'),
-    (1225, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ visitor'),
-    (1226, f'yukkuri scenario shop_stock_click {BOOTH.format("alice", 3)}'),
+    (1223, 'execute if block ~14 ~3 ~9 minecraft:iron_door[open=true] if block ~15 ~2 ~9 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_PEN_OPEN'),
     (1229, 'yukkuri scenario tool_operator leave'),
 ]
 next(s for s in S if s.id == 'shop_build').smoke['expect'].extend([
-    r'MCYSHOP_VISITOR_DOOR_CLOSED', r'MCYSHOP_MEMBER_DOOR_OPEN', r'MCYSHOP_MEMBER_DOOR_CLOSED',
-    r'MCYSHOP_VISITOR_EGRESS', r'MCYSHOP_PATRON_DOOR_OPEN',
-    r'\[shop\][^\n]* action=service result=turned_away [^\n]*tier=VISITOR required=MEMBER',
-    r'\[shop\][^\n]* action=service result=refused_today [^\n]*reason=touched_stock',
+    r'MCYSHOP_VISITOR_COUNTER_OPEN', r'MCYSHOP_VISITOR_COUNTER_CLOSED',
+    r'MCYSHOP_VISITOR_EGRESS', r'MCYSHOP_VISITOR_PEN_OPEN',
 ])
 # Headless customers stand on the pavement outside the pens (NoAI keeps them there).
 def _window_customer(dx, name):
@@ -6412,9 +6410,9 @@ _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD',
                           r'\[interaction\][^\n]* action=pin reason=shop',
-                          r'\[shop\][^\n]* action=door result=refused [^\n]*required=MEMBER',
-                          r'MCYSHOP_ONI_VISITOR_DOOR_CLOSED', r'MCYSHOP_ONI_MEMBER_DOOR_OPEN',
-                          r'MCYSHOP_ONI_MEMBER_DOOR_CLOSED', r'MCYSHOP_ONI_VISITOR_EGRESS'],
+                          r'MCYSHOP_ONI_VISITOR_COUNTER_OPEN', r'MCYSHOP_ONI_VISITOR_COUNTER_CLOSED', r'MCYSHOP_ONI_VISITOR_EGRESS',
+                          r'\[shop\][^\n]* action=membership result=test_set [^\n]*total=2 tier=MEMBER',
+                          r'\[shop\][^\n]* action=membership result=test_set [^\n]*total=6 tier=PATRON'],
        forbid=[r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '],
        readout=[f'yukkuri status {STOCK} raw'])
 next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
@@ -6422,17 +6420,15 @@ next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
     # The south-facing template puts the two counter leaves at x16 and x17 relative to the scene origin.
     (200, 'execute positioned ~17.5 ~2 ~2.5 run yukkuri scenario tool_operator enter'),
     (201, 'yukkuri scenario shop_door_click ~17 ~3 ~1 south'),
-    (202, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=false] if block ~17 ~2 ~1 minecraft:iron_door[open=false] run say MCYSHOP_ONI_VISITOR_DOOR_CLOSED'),
-    (203, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ member'),
-    (204, 'yukkuri scenario shop_door_click ~17 ~2 ~1 south'),
-    (205, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=true] if block ~17 ~2 ~1 minecraft:iron_door[open=true] run say MCYSHOP_ONI_MEMBER_DOOR_OPEN'),
+    (202, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=true] if block ~17 ~2 ~1 minecraft:iron_door[open=true] run say MCYSHOP_ONI_VISITOR_COUNTER_OPEN'),
     (206, 'execute positioned ~16.5 ~2 ~0.5 run yukkuri scenario tool_operator move'),
     (207, 'yukkuri scenario shop_door_click ~16 ~3 ~1 north'),
-    (208, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=false] if block ~17 ~2 ~1 minecraft:iron_door[open=false] run say MCYSHOP_ONI_MEMBER_DOOR_CLOSED'),
-    (209, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ visitor'),
+    (208, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=false] if block ~17 ~2 ~1 minecraft:iron_door[open=false] run say MCYSHOP_ONI_VISITOR_COUNTER_CLOSED'),
     (210, 'yukkuri scenario shop_door_click ~16 ~2 ~1 north'),
     (211, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=true] if block ~17 ~2 ~1 minecraft:iron_door[open=true] run say MCYSHOP_ONI_VISITOR_EGRESS'),
-    (212, 'yukkuri scenario tool_operator leave'),
+    (212, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ member'),
+    (213, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ patron'),
+    (214, 'yukkuri scenario tool_operator leave'),
     (1100, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:63000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_ONI_AGE_HELD'),
 ]
 _stress_brought = _uuid_text('oni_stress_room', 'brought_reimu')
@@ -6635,6 +6631,13 @@ _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r
        forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* action=job result=failed '])
 next(s for s in S if s.id == 'shop_buy').smoke['commands'] = [
     (200, f'yukkuri human shop buy {SHOP_STAFF} {BOOTH.format("alice", 3)} {_uuid_text("shop_buy", "buyer")}')]
+
+
+_smoke('shop_browse', 140, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=PET ', r'MCYSHOP_BROWSE_CHEN'],
+       readout=['yukkuri human shop list', f'yukkuri status {BOOTH.format("chen", 0)} raw'])
+next(s for s in S if s.id == 'shop_browse').smoke['commands'] = [
+    (100, f'execute if entity {BOOTH.format("chen", 0)} run say MCYSHOP_BROWSE_CHEN'),
+]
 
 
 def _verify_shop_fetch(window):

@@ -98,6 +98,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -464,6 +465,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
     public void syncMouthBodyFood(BodyFood.Bite bite) { sync().syncMouthBodyFood(bite); }
     public int visibleMedal() { return sync().visibleMedal(); }
+    @Override public Optional<UUID> reservedBy() { return sync().reservedBy(); }
+    public void showReservation(UUID player) { sync().showReservation(player); }
     public boolean hasVisibleAccessory() { return sync().hasVisibleAccessory(); }
     public boolean isPanicking() { return panicTicks > 0 && (body == null || !body.dying()); } // a dying body no longer bolts
     public ShellRetraction shellRetraction() { return shellRetraction; }

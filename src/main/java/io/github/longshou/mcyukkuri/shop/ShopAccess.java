@@ -17,57 +17,43 @@ import net.minecraft.world.phys.Vec3;
 
 /** Staff floor areas and their exits, in the template coordinate system. */
 final class ShopAccess {
-    private record Area(AABB floor, ShopMembership tier, BlockPos exit, Direction out) {}
-    record DoorAccess(ShopMembership tier, boolean egress) {}
+    private record Area(AABB floor, boolean pen, BlockPos exit, Direction out) {}
     record Hatch(BlockPos door, BlockPos outside, Vec3 inside, AABB room, boolean pen) {}
     enum Service {
-        AVAILABLE, LEAVE, DAY;
+        AVAILABLE, DAY;
 
         String message() { return "membership.service." + ordinal(); }
     }
     private static final Map<UUID, UUID> SPOKEN = new HashMap<>();
 
     private static final List<Area> PET = List.of(
-            area(2, 4, 8, 7, ShopMembership.PATRON, 5, 8, Direction.SOUTH),
-            area(16, 4, 22, 7, ShopMembership.PATRON, 19, 8, Direction.SOUTH),
-            area(2, 13, 22, 16, ShopMembership.MEMBER, 5, 12, Direction.NORTH),
-            area(2, 13, 22, 16, ShopMembership.MEMBER, 18, 12, Direction.NORTH),
-            area(2, 18, 15, 29, ShopMembership.MEMBER, 16, 21, Direction.EAST),
-            area(17, 18, 22, 29, ShopMembership.MEMBER, 17, 17, Direction.NORTH));
+            area(2, 4, 8, 7, true, 5, 8, Direction.SOUTH),
+            area(16, 4, 22, 7, true, 19, 8, Direction.SOUTH),
+            area(2, 13, 22, 16, false, 5, 12, Direction.NORTH),
+            area(2, 13, 22, 16, false, 18, 12, Direction.NORTH),
+            area(2, 18, 15, 29, false, 16, 21, Direction.EAST),
+            area(17, 18, 22, 29, false, 17, 17, Direction.NORTH));
     private static final List<Area> ONI = List.of(
-            area(2, 4, 6, 6, ShopMembership.PATRON, 4, 7, Direction.SOUTH),
-            area(16, 8, 19, 10, ShopMembership.PATRON, 20, 8, Direction.EAST),
-            area(16, 12, 19, 14, ShopMembership.PATRON, 20, 12, Direction.EAST),
-            area(16, 16, 19, 18, ShopMembership.PATRON, 20, 16, Direction.EAST),
+            area(2, 4, 6, 6, true, 4, 7, Direction.SOUTH),
+            area(16, 8, 19, 10, true, 20, 8, Direction.EAST),
+            area(16, 12, 19, 14, true, 20, 12, Direction.EAST),
+            area(16, 16, 19, 18, true, 20, 16, Direction.EAST),
             // x3 is a leaf in both the original and the reframed counter opening.
-            area(2, 17, 14, 18, ShopMembership.MEMBER, 3, 16, Direction.NORTH),
-            area(21, 8, 22, 19, ShopMembership.MEMBER, 21, 20, Direction.SOUTH),
-            area(2, 19, 22, 23, ShopMembership.MEMBER, 7, 19, Direction.NORTH));
-    private static final List<Area> LEGACY = List.of(
-            area(2, 4, 4, 6, ShopMembership.PATRON, 2, 7, Direction.SOUTH),
-            area(6, 4, 8, 6, ShopMembership.PATRON, 6, 7, Direction.SOUTH),
-            area(16, 4, 18, 6, ShopMembership.PATRON, 16, 7, Direction.SOUTH),
-            area(20, 4, 22, 6, ShopMembership.PATRON, 20, 7, Direction.SOUTH),
-            area(2, 18, 4, 20, ShopMembership.PATRON, 4, 21, Direction.SOUTH),
-            area(6, 18, 8, 20, ShopMembership.PATRON, 8, 21, Direction.SOUTH),
-            area(2, 27, 4, 29, ShopMembership.PATRON, 4, 26, Direction.NORTH),
-            area(6, 27, 8, 29, ShopMembership.PATRON, 8, 26, Direction.NORTH),
-            area(2, 18, 12, 29, ShopMembership.MEMBER, 10, 17, Direction.NORTH),
-            area(13, 18, 22, 29, ShopMembership.MEMBER, 14, 17, Direction.NORTH));
-    private static final Map<Direction, Rotation> ROTATIONS = Map.of(Direction.NORTH, Rotation.NONE,
-            Direction.EAST, Rotation.CLOCKWISE_90, Direction.SOUTH, Rotation.CLOCKWISE_180, Direction.WEST, Rotation.COUNTERCLOCKWISE_90);
+            area(2, 17, 14, 18, false, 3, 16, Direction.NORTH),
+            area(21, 8, 22, 19, false, 21, 20, Direction.SOUTH),
+            area(2, 19, 22, 23, false, 7, 19, Direction.NORTH));
 
-    private static Area area(int x0, int z0, int x1, int z1, ShopMembership tier, int x, int z, Direction out) {
-        return new Area(new AABB(x0, 2.5, z0, x1 + 1, 8, z1 + 1), tier, new BlockPos(x, 3, z), out);
+    private static Area area(int x0, int z0, int x1, int z1, boolean pen, int x, int z, Direction out) {
+        return new Area(new AABB(x0, 2.5, z0, x1 + 1, 8, z1 + 1), pen, new BlockPos(x, 3, z), out);
     }
 
     static Hatch hatch(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity animal) {
         if (shop.legacy()) return ShopRegistry.legacyHatch(level, shop, animal);
-        var rotation = rotation(shop);
+        var rotation = ShopRegistry.authoredRotation(shop);
         if (rotation == null) return null;
         Hatch closest = null;
         double best = Double.MAX_VALUE;
-        for (var area : areas(shop)) {
+        for (var area : shop.kind == ShopKind.PET ? PET : ONI) {
             var floor = area.floor();
             var room = new AABB(world(shop, rotation, new Vec3(floor.minX, floor.minY, floor.minZ)),
                     world(shop, rotation, new Vec3(floor.maxX, floor.maxY, floor.maxZ)));
@@ -80,51 +66,16 @@ final class ShopAccess {
                 if (distance >= best) continue;
                 best = distance;
                 closest = new Hatch(door, door.relative(out), Vec3.atBottomCenterOf(door.relative(out.getOpposite())),
-                        room, area.tier() == ShopMembership.PATRON);
+                        room, area.pen());
             }
         }
         return closest;
     }
 
-    static DoorAccess doorAccess(ShopRegistry.Entry shop, ServerPlayer player, BlockPos pos) {
-        var rotation = rotation(shop);
-        if (rotation == null) return null;
-        var leaves = shop.legacy() ? List.of(pos) : ShopDoors.leaves(player.serverLevel(), pos);
-        var exits = leaves.stream().map(leaf -> local(shop, rotation, leaf.getCenter()))
-                .map(leaf -> BlockPos.containing(leaf.x, 3, leaf.z)).toList();
-        var feet = local(shop, rotation, player.position());
-        var door = local(shop, rotation, pos.getCenter());
-        for (var area : areas(shop)) {
-            if (!exits.contains(area.exit())) continue;
-            boolean egress = feet.subtract(door).dot(Vec3.atLowerCornerOf(area.out().getNormal())) < 0;
-            return new DoorAccess(area.tier(), egress);
-        }
-        return shop.legacy() ? new DoorAccess(ShopMembership.MEMBER, false) : null;
-    }
-
-    static boolean legacyServiceDoor(ShopRegistry.Entry shop, BlockPos pos) {
-        var rotation = rotation(shop);
-        if (!shop.legacy() || rotation == null) return false;
-        var local = BlockPos.containing(local(shop, rotation, pos.getCenter()));
-        int x = local.getX(), z = local.getZ();
-        return z == 17 && (x == 10 || x == 14) || x == 12 && z == 24 || x == 16 && (z == 21 || z == 26);
-    }
-
-    private static ShopMembership restricted(ShopRegistry.Entry shop, ServerPlayer player) {
-        if (!player.isAlive() || player.isSpectator() || !shop.contains(player.position())) return null;
-        var rotation = rotation(shop);
-        if (rotation == null) return null;
-        var tier = shop.membership(player.getUUID());
-        var feet = local(shop, rotation, player.position());
-        for (var area : areas(shop))
-            if (!tier.allows(area.tier()) && area.floor().contains(feet)) return area.tier();
-        return null;
-    }
-
     static Service service(ServerLevel level, ShopRegistry.Entry shop, ServerPlayer player) {
-        if (shop.refusesToday(level, player.getUUID())) return Service.DAY;
-        return restricted(shop, player) == null ? Service.AVAILABLE : Service.LEAVE;
+        return shop.refusesToday(level, player.getUUID()) ? Service.DAY : Service.AVAILABLE;
     }
+
 
     static boolean refuseService(ServerLevel level, ShopRegistry.Entry shop, ServerPlayer player) {
         var refusal = service(level, shop, player);
@@ -135,49 +86,39 @@ final class ShopAccess {
         return true;
     }
 
-    static boolean touchStock(ServerLevel level, ShopRegistry.Entry shop, ServerPlayer player) {
-        if (restricted(shop, player) != null && !shop.refusesToday(level, player.getUUID())) {
-            ShopRegistry.get(level).refuseToday(level, shop, player.getUUID());
-            GameplayLog.event(player, "shop", "action=service result=refused_today shop={} reason=touched_stock", shop.id);
+    static void offend(ServerLevel level, ShopRegistry.Entry shop, ServerPlayer player, String what) {
+        var id = player.getUUID();
+        if (player.isCreative() || shop.refusesToday(level, id)) return;
+        boolean second = shop.id.equals(SPOKEN.put(id, shop.id));
+        if (second) {
+            SPOKEN.remove(id);
+            ShopRegistry.get(level).refuseToday(level, shop, id);
         }
-        return refuseService(level, shop, player);
+        GameplayLog.event(player, "shop", "action=offense result={} shop={} player={} what={}",
+                second ? "banned" : "warned", shop.id, id, what);
+        ShopStaff.warn(level, shop, player);
     }
 
-    static boolean needsRefusal(ShopRegistry.Entry shop, ServerPlayer player) {
-        return !shop.id.equals(SPOKEN.get(player.getUUID())) && restricted(shop, player) != null;
-    }
-
-    static void turnAway(HumanNpc staff, ShopRegistry.Entry shop, ServerPlayer player) {
-        SPOKEN.put(player.getUUID(), shop.id);
-        ShopTrade.say(player, shop.refusesToday(player.serverLevel(), player.getUUID()) ? "membership.leave_banned" : "membership.leave", staff.getDisplayName());
-        GameplayLog.event(staff, "shop", "action=service result=turned_away shop={} player={} tier={} required={}",
-                shop.id, player.getUUID(), shop.membership(player.getUUID()), restricted(shop, player));
+    static void warn(HumanNpc staff, ShopRegistry.Entry shop, ServerPlayer player) {
+        boolean banned = shop.refusesToday(player.serverLevel(), player.getUUID());
+        ShopTrade.say(player, banned ? "protect.banned" : "protect.warn", staff.getDisplayName());
+        GameplayLog.event(staff, "shop", "action=offense result=spoken shop={} player={} response={}",
+                shop.id, player.getUUID(), banned ? "banned" : "warned");
     }
 
     static void playerTick(ServerPlayer player, ShopRegistry registry) {
         var id = player.getUUID();
-        if (!SPOKEN.containsKey(id)) return;
+        var shopId = SPOKEN.get(id);
+        if (shopId == null) return;
         var shop = registry.shopAt(player.serverLevel(), player.position());
-        if (shop == null || !shop.id.equals(SPOKEN.get(id)) || restricted(shop, player) == null) SPOKEN.remove(id);
+        if (shop == null || !shopId.equals(shop.id)) SPOKEN.remove(id);
     }
 
     static void clear() { SPOKEN.clear(); }
 
     static void leaving(ServerPlayer player) { SPOKEN.remove(player.getUUID()); }
-    private static List<Area> areas(ShopRegistry.Entry shop) { return shop.legacy() ? LEGACY : shop.kind == ShopKind.PET ? PET : ONI; }
-    private static int clerkX(ShopRegistry.Entry shop) { return shop.legacy() ? 11 : shop.kind == ShopKind.PET ? 12 : 9; }
+    private static int clerkX(ShopRegistry.Entry shop) { return shop.kind == ShopKind.PET ? 12 : 9; }
     private static int clerkZ(ShopRegistry.Entry shop) { return shop.kind == ShopKind.PET ? 14 : 17; }
-    private static Rotation rotation(ShopRegistry.Entry shop) {
-        if (!shop.legacy()) return ShopRegistry.authoredRotation(shop);
-        var front = shop.legacyFront();
-        return front == null ? null : ROTATIONS.get(front);
-    }
-
-    private static Vec3 local(ShopRegistry.Entry shop, Rotation rotation, Vec3 pos) {
-        var delta = pos.subtract(shop.pos.getCenter());
-        return new Vec3(clerkX(shop) + .5 + delta.dot(Vec3.atLowerCornerOf(rotation.rotate(Direction.EAST).getNormal())),
-                3.5 + delta.y, clerkZ(shop) + .5 + delta.dot(Vec3.atLowerCornerOf(rotation.rotate(Direction.SOUTH).getNormal())));
-    }
 
     private static Vec3 world(ShopRegistry.Entry shop, Rotation rotation, Vec3 pos) {
         return shop.pos.getCenter().add(Vec3.atLowerCornerOf(rotation.rotate(Direction.EAST).getNormal()).scale(pos.x - clerkX(shop) - .5))

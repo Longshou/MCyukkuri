@@ -177,6 +177,8 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.EntityInteract.class, ShopProtection::touched);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.EntityInteractSpecific.class, ShopProtection::touchedAt);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, AttackEntityEvent.class, ShopProtection::struck);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, net.neoforged.neoforge.event.entity.ProjectileImpactEvent.class, ShopProtection::projectile);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent.class, ShopProtection::looseGoods);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, LivingIncomingDamageEvent.class, ShopProtection::harmed);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, ExplosionEvent.Detonate.class, ShopProtection::exploded);
 
@@ -194,6 +196,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, ShopRegistry::playerTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class,
                 YukkuriGroundNavigation::playerPassage);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Pre.class, ShopTrade::pickingUp);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Post.class, ShopTrade::pickedUp);
 
 

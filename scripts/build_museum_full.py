@@ -472,7 +472,7 @@ def build_pack(world):
     for tier, caption in (('visitor', '访客'), ('member', '会员'), ('patron', '贵宾')):
         fn(f'extra/shop_{tier}', [
             f'execute at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ {tier}',
-            'execute unless entity @e[tag=mcylab_shop_access,limit=1] run title @s actionbar ' + _text('请先启动 SP-01、SP-02、SP-03、SP-05 或 SP-11。', 'yellow'),
+            'execute unless entity @e[tag=mcylab_shop_access,limit=1] run title @s actionbar ' + _text('请先启动 SP-01、SP-02、SP-03、SP-05、SP-09 或 SP-11。', 'yellow'),
         ])
         shop.extras.append((f'extra/shop_{tier}', caption, '设置本场店铺资格'))
     clips = BY_ID['clips']
