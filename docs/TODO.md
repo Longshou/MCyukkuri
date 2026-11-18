@@ -15,6 +15,7 @@
 | 美术重做 1：器具与窝 | `.worktrees/wp-art-redo-devices` | standards/yukkuri-library/drafts/care-props (placed, wild, large_nests), art/props/predators, art/props/large-nests |
 | 美术重做 2：护理工具与玩具 | `.worktrees/wp-art-redo-care` | care-expansion, house-repellent, CP/small.py |
 | 美术重做 3：游乐设施 | `.worktrees/wp-art-redo-play` | standards/yukkuri-library/drafts/playgrounds/, art/props/playgrounds |
+| 美术重做 4：食物药品 | `.worktrees/wp-art-redo-consumables` | standards/yukkuri-library/drafts/consumables/, art/props/consumables, art/props/family-life/export_shed_stem.py |
 
 ## 玩法待办
 
