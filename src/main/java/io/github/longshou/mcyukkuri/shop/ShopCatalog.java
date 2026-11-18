@@ -25,6 +25,8 @@ public final class ShopCatalog {
     private static Good good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) { return new Good(id,
             category, supplier, price, cap, restock, unlock); }
     private static final Good BUDGET_GRAIN = good("oil_grain_budget", 0, () -> new ItemStack(ModItems.GRAIN_BUDGET.get(), 16), 2, 6, 3, 0);
+    /** A day's working supply, sized to cover all pens of either shop. Staff take these from the shelf and return empties. */
+    static final Good TRANSPORT_CARRIER = good("transport_carrier", 1, () -> new ItemStack(ModItems.CARRIER.get()), 0, 16, 16, 0);
 
     /** Categories: 0 food and sweets, 1 care, 2 toys and accessories, 3 training and outings, 4 breeding and nursery. */
     private static final List<Good> GOODS = List.of(

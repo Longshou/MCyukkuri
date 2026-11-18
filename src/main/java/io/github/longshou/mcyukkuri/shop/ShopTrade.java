@@ -35,7 +35,7 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class ShopTrade {
     public static final String SALE = "sale", HANDOVER = "handover", SELL = "sell";
-    /** A buyer this far from the staff at the counter takes the basket from its hands; otherwise it is set on the counter for the buyer. */
+    /** A buyer within this range and in sight can take the basket directly from the staff member. */
     static final double HAND_REACH = 4.5;
     /** A buyer or seller counts as in the shop within this margin around the footprint (the pavement in front of the door included). */
     private static final double PRESENT_MARGIN = 4;
@@ -121,7 +121,7 @@ public final class ShopTrade {
                 "action=exchange_restraint result=refused tray={} reason={} deposit={}", tray.getBlockPos(), reason, price);
     }
 
-    private static ServerPlayer present(ServerLevel level, ShopRegistry.Entry shop, UUID id) {
+    static ServerPlayer present(ServerLevel level, ShopRegistry.Entry shop, UUID id) {
         var p = id == null ? null : level.getServer().getPlayerList().getPlayer(id);
         return p != null && p.level() == level && p.isAlive() && !p.isSpectator()
                 && shop.bounds().inflate(PRESENT_MARGIN, 2, PRESENT_MARGIN).contains(p.position()) ? p : null;
@@ -192,6 +192,7 @@ public final class ShopTrade {
     static void cancel(ServerLevel level, ShopRegistry.Entry shop, UUID animal, String reason) {
         var order = ShopRegistry.get(level).endOrder(shop, animal);
         if (order == null) return;
+        ShopStaff.finishFetch(animal);
         String kind = order.kind();
         UUID customer = order.customer();
         var y = level.getEntity(animal) instanceof YukkuriEntity target ? target : null;
@@ -230,7 +231,8 @@ public final class ShopTrade {
             cancel(level, shop, y.getUUID(), "capture");
             return null;
         }
-        staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
+        ShopStaff.fillCarrier(level, staff, token);
+        ShopStaff.finishFetch(y.getUUID());
         var registry = ShopRegistry.get(level);
         registry.order(shop, y.getUUID(), new ShopRegistry.Order(order.kind(), buyer, due, token));
         var deposit = registry.endDeposit(shop, y.getUUID());
@@ -245,17 +247,18 @@ public final class ShopTrade {
         return token;
     }
 
-    /** The basket reaches the counter: into the buyer's hands when it stands there, else set on the counter where only the buyer can take it. */
-    static boolean handOver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, UUID buyer, ItemStack basket, UUID token) {
-        var player = buyer == null ? null : level.getServer().getPlayerList().getPlayer(buyer);
-        boolean hands = player != null && player.level() == level && player.isAlive() && player.distanceTo(staff) <= HAND_REACH && player.getInventory().add(basket.copy());
-        if (!hands && drop(level, buyer, counterTop(level, shop), basket.copy()) == null) return false;
+    /** Place the same carrier in the buyer's hands, on the counter within reach, or at the staff member's feet. */
+    static boolean handOver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, ServerPlayer player, UUID buyer,
+                            ItemStack basket, UUID token, boolean atCounter) {
+        boolean hands = player != null && player.distanceToSqr(staff) <= HAND_REACH * HAND_REACH
+                && staff.hasLineOfSight(player) && player.getInventory().add(basket.copy());
+        if (!hands && drop(level, buyer, atCounter ? counterTop(level, shop) : staff.position(), basket.copy()) == null) return false;
         staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         if (hands || buyer == null) ShopRegistry.get(level).endOrder(shop, YukkuriWorldData.get(level).captiveIdentity(token));
         staff.swing(InteractionHand.MAIN_HAND);
-        if (player != null) say(player, hands ? "buy.delivered" : "buy.on_counter");
+        ShopRegistry.get(level).tell(level, buyer, hands ? "buy.delivered" : atCounter ? "buy.on_counter" : "buy.on_floor");
         GameplayLog.event(staff, "shop", "action=buy_live result=delivered shop={} buyer={} token={} placement={} handoff_at={}",
-                shop.id, buyer == null ? "operator" : buyer, token, hands ? "inventory" : "counter", staff.blockPosition().toShortString());
+                shop.id, buyer == null ? "operator" : buyer, token, hands ? "inventory" : atCounter ? "counter" : "floor", staff.blockPosition().toShortString());
         return true;
     }
 
@@ -369,7 +372,7 @@ public final class ShopTrade {
             cancel(level, shop, y.getUUID(), "capture");
             return null;
         }
-        staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
+        ShopStaff.fillCarrier(level, staff, token);
         ShopRegistry.get(level).endOrder(shop, y.getUUID());
         int unpaid = pay(player, price, shop.kind.buybackCurrency());
         if (unpaid > 0) ShopRegistry.get(level).owe(shop, seller, unpaid, false);

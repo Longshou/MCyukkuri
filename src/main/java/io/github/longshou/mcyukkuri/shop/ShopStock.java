@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.human.HumanWorld;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ public final class ShopStock extends SavedData {
     }
     private static List<ShopCatalog.Good> goods(ServerLevel level, UUID id) {
         var site = ShopRegistry.get(level).shop(id);
-        return ShopCatalog.goods(site == null ? ShopKind.PET : site.kind);
+        var goods = new ArrayList<>(ShopCatalog.goods(site == null ? ShopKind.PET : site.kind));
+        goods.add(ShopCatalog.TRANSPORT_CARRIER);
+        return goods;
     }
     private Visit visit(ServerLevel level, UUID shopId, UUID player) {
         Visit visit = shop(level, shopId).visits.computeIfAbsent(player, k -> new Visit());

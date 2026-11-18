@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 final class ShopAccess {
     private record Area(AABB floor, ShopMembership tier, BlockPos exit, Direction out) {}
     record DoorAccess(ShopMembership tier, boolean egress) {}
+    record Hatch(BlockPos door, BlockPos outside, Vec3 inside, AABB room, boolean pen) {}
     enum Service {
         AVAILABLE, LEAVE, DAY;
 
@@ -57,6 +59,31 @@ final class ShopAccess {
 
     private static Area area(int x0, int z0, int x1, int z1, ShopMembership tier, int x, int z, Direction out) {
         return new Area(new AABB(x0, 2.5, z0, x1 + 1, 8, z1 + 1), tier, new BlockPos(x, 3, z), out);
+    }
+
+    static Hatch hatch(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity animal) {
+        if (shop.legacy()) return ShopRegistry.legacyHatch(level, shop, animal);
+        var rotation = rotation(shop);
+        if (rotation == null) return null;
+        Hatch closest = null;
+        double best = Double.MAX_VALUE;
+        for (var area : areas(shop)) {
+            var floor = area.floor();
+            var room = new AABB(world(shop, rotation, new Vec3(floor.minX, floor.minY, floor.minZ)),
+                    world(shop, rotation, new Vec3(floor.maxX, floor.maxY, floor.maxZ)));
+            if (!room.intersects(animal.getBoundingBox())) continue;
+            var out = rotation.rotate(area.out());
+            var first = BlockPos.containing(world(shop, rotation, area.exit().getCenter()));
+            if (!ShopDoors.ironLower(level, first)) continue;
+            for (var door : ShopDoors.leaves(level, first)) {
+                double distance = animal.distanceToSqr(door.getCenter());
+                if (distance >= best) continue;
+                best = distance;
+                closest = new Hatch(door, door.relative(out), Vec3.atBottomCenterOf(door.relative(out.getOpposite())),
+                        room, area.tier() == ShopMembership.PATRON);
+            }
+        }
+        return closest;
     }
 
     static DoorAccess doorAccess(ShopRegistry.Entry shop, ServerPlayer player, BlockPos pos) {
@@ -150,6 +177,12 @@ final class ShopAccess {
         var delta = pos.subtract(shop.pos.getCenter());
         return new Vec3(clerkX(shop) + .5 + delta.dot(Vec3.atLowerCornerOf(rotation.rotate(Direction.EAST).getNormal())),
                 3.5 + delta.y, clerkZ(shop) + .5 + delta.dot(Vec3.atLowerCornerOf(rotation.rotate(Direction.SOUTH).getNormal())));
+    }
+
+    private static Vec3 world(ShopRegistry.Entry shop, Rotation rotation, Vec3 pos) {
+        return shop.pos.getCenter().add(Vec3.atLowerCornerOf(rotation.rotate(Direction.EAST).getNormal()).scale(pos.x - clerkX(shop) - .5))
+                .add(0, pos.y - 3.5, 0)
+                .add(Vec3.atLowerCornerOf(rotation.rotate(Direction.SOUTH).getNormal()).scale(pos.z - clerkZ(shop) - .5));
     }
 
     private ShopAccess() {}

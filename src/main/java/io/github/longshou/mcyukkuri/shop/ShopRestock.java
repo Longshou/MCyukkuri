@@ -99,9 +99,10 @@ public final class ShopRestock {
                 continue;
             }
             if (now < deposit.since() + PERIOD) continue;
+            var order = shop.orders.get(id);
+            if (order != null && order.kind().equals(ShopTrade.SALE) && deposit.buyer().equals(order.customer())) continue;
             registry.endDeposit(shop, id);
             registry.recordSpend(level, shop, deposit.buyer(), deposit.paid());
-            if (shop.orders.containsKey(id)) ShopTrade.cancel(level, shop, id, "reservation");
             var name = entity instanceof YukkuriEntity y ? y.getDisplayName() : net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.animal");
             registry.tell(level, deposit.buyer(), "reserve.expired", name, deposit.paid());
             GameplayLog.world(level, "shop", "action=reserve result=lapsed shop={} target={} buyer={} deposit_kept={}",

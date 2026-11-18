@@ -2519,7 +2519,7 @@ STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
 # Any shop staff member (all three have the same job and the same menu).
 SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
-SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'oni_shop': (11, 12)}
+SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
 SHOP_ACCESS_HINT = '商店观察台的“访客／会员／贵宾”按钮可更换本店资格。'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
@@ -2573,14 +2573,30 @@ add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆�
      f'yukkuri status relate {BOOTH.format("chen", 0)} @s 20'],
     env=DAY, vantage=(16, 18, 180, 0),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
-add('shop_buy', 'shop', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台',
-    '进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开铁门进展舱，'
-    '她钻进篮子的那一刻才扣款，店员出门关门，提篮回到柜台交到你手上（不在柜台边就放在柜台上，只有你能拿）。隔壁的子油橙看着她被带走。'
+add('shop_buy', 'shop', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台',
+    '进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开展舱铁门，'
+    '叫她来到门边，装篮那一刻才扣款。店员提篮交到你手上，或放在柜台上留给你。隔壁的子油橙看着她被带走。'
     '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱。'
     + SHOP_ACCESS_HINT,
     '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 14, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
+_fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
+add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
+    '右键店员，在“在售”里依次买下玻璃角落里的橙、窝里睡着的子油灵梦和后院远处的魔理沙。'
+    '看店员在栏门口叫它们靠近，等约五秒仍够不着时伸手接进篮子，去后院取货时则会走进去。等店员提来每只装好的实篮再买下一只。',
+    '布置几秒，每单约 20 秒', ['yukkuri human build shop ~8 ~ ~17 south',
+        *[f'tag @e[type=mcyukkuri:{kind},distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
+          f'NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}}] add {tag(name)}' for name, kind, age in _fetch_stock],
+        'fill ~13 ~2 ~12 ~13 ~3 ~13 minecraft:glass', 'fill ~12 ~2 ~11 ~12 ~3 ~11 minecraft:glass',
+        f'tp {sel("fetch_corner")} ~12.5 ~2 ~12.5',
+        f'tp {sel("fetch_nest")} ~15.5 ~2 ~13.5',
+        f'tp {sel("fetch_yard")} ~17.5 ~2 ~-11.5',
+    ], late=[f'yukkuri scenario home {sel("fetch_nest")} ~15 ~2 ~13', set_status('fetch_nest', 'needs.energy', 0)],
+    give=['minecraft:emerald 64'], env=DAY, vantage=(8, 17, 180, 8),
+    reads=[('读展栏角落', f'yukkuri status {sel("fetch_corner")} raw'),
+           ('读窝里睡觉的库存', f'yukkuri status {sel("fetch_nest")} raw'),
+           ('读后院库存', f'yukkuri status {sel("fetch_yard")} raw')])
 add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
     '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
     '沿着橱窗慢慢走，看个体怎样回应。先看菜单底部会员等级，再试后屋铁门和展栏铁门。'
@@ -5432,7 +5448,7 @@ TOPICS = {
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
@@ -6617,6 +6633,30 @@ _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r
        forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* action=job result=failed '])
 next(s for s in S if s.id == 'shop_buy').smoke['commands'] = [
     (200, f'yukkuri human shop buy {SHOP_STAFF} {BOOTH.format("alice", 3)} {_uuid_text("shop_buy", "buyer")}')]
+
+
+def _verify_shop_fetch(window):
+    animals = re.findall(r'\[shop\] (chen|reimu|marisa) [^\n]* uuid=(\S+)[^\n]* action=buy_live result=accepted [^\n]* buyer=operator', window)
+    reaches = re.findall(r'\[shop\][^\n]* action=job result=reach kind=BUY reach=(hand|through) [^\n]* target=(\S+)', window)
+    packed = re.findall(r'\[shop\][^\n]* action=buy_live result=committed [^\n]* target=(\S+) token=(\S+) emeralds_used=0\b', window)
+    delivered = re.findall(r'\[shop\][^\n]* action=buy_live result=delivered [^\n]* token=(\S+) placement=counter\b', window)
+    if [kind for kind, _ in animals] != ['chen', 'reimu', 'marisa']:
+        return f'Expected the three staged stock orders in order, got {animals}'
+    ids = [animal for _, animal in animals]
+    if sorted(animal for _, animal in reaches) != sorted(ids) or ('through', ids[0]) not in reaches or ('hand', ids[2]) not in reaches:
+        return f'Expected one reach per animal, with through for the trapped corner and hand for the yard, got {reaches}'
+    if sorted(animal for animal, _ in packed) != sorted(ids) or sorted(token for _, token in packed) != sorted(delivered):
+        return f'Expected all three packed tokens in carrier deliveries at the counter, got {packed} and {delivered}'
+    if not re.search(rf'\[sleep\] reimu [^\n]* uuid={ids[1]} [^\n]* begin source=', window):
+        return 'The staged nest Reimu did not fall asleep'
+
+
+_smoke('shop_fetch', 1800, [r'\[shop\][^\n]* action=job result=reach kind=BUY ', r'\[shop\][^\n]* action=buy_live result=delivered '],
+       forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* reason=unreachable\b'])
+_fetch_smoke = next(s for s in S if s.id == 'shop_fetch').smoke
+_fetch_smoke.update(verify=_verify_shop_fetch, commands=[
+    (200 + 400 * i, f'yukkuri human shop buy {SHOP_STAFF} {sel(name)} {_uuid_text("shop_fetch", "buyer")}')
+    for i, (name, _, _) in enumerate(_fetch_stock)])
 _smoke('shop_restock', 3600, [r'\[shop\][^\n]* action=restock result=done ', r'\[shop\][^\n]* action=restock result=ship_marked ',
                               r'\[shop\][^\n]* action=ship_out result=packed ', r'\[shop\][^\n]* action=stow_basket result=stored ',
                               r'\[shop\][^\n]* action=restock result=arrival ', r'\[shop\][^\n]* action=settle result=released '],

@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
@@ -26,6 +27,12 @@ public final class ShopDoors {
     private static final Map<UUID, Door> STAFF = new HashMap<>();
     /** Allow two seconds for a player to reach a door opened from interaction range. */
     private static final Map<Door, Long> PLAYER_OPEN_UNTIL = new HashMap<>();
+
+    static boolean ironLower(ServerLevel level, BlockPos at) {
+        if (!level.hasChunkAt(at)) return false;
+        var state = level.getBlockState(at);
+        return state.is(Blocks.IRON_DOOR) && state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER;
+    }
 
     static List<BlockPos> leaves(ServerLevel level, BlockPos at) {
         var state = level.getBlockState(at);

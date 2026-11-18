@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -68,8 +69,9 @@ public final class ShopStaff {
         /** GO: the bowl, toilet, waste or barrel worked at; CARRY: the counter, nest or barrel it carries to. */
         BlockPos target;
         BlockPos pursued;
-        ShopRegistry.LegacyHatch hatch;
+        ShopAccess.Hatch hatch;
         HatchApproach hatchApproach;
+        boolean reachIn, counterOnly;
         ItemEntity loose;
         TreatmentItem.Kind dose;
         final Set<BlockPos> tried = new HashSet<>();
@@ -94,15 +96,21 @@ public final class ShopStaff {
             if (walk != null) animal.motor().cancel(this, "shop_hatch_closed");
             active = false;
         }
-        @Override public String ownerId() { return "shop_legacy_hatch"; }
+        @Override public String ownerId() { return "shop_hatch"; }
         @Override public boolean active() { return active; }
     }
     private static final Map<UUID, Job> JOBS = new HashMap<>();
+    /** Route attempts by open BUY order, cleared when the order ends or the animal is packed. */
+    private static final Map<UUID, Integer> FETCH_ATTEMPTS = new HashMap<>();
     /** Animals and blocks a staff member could not reach: nobody tries them again before the deadline (transient, at most 64 keys). */
     private static final DeadlineMap<Object> UNREACHABLE = new DeadlineMap<>();
     private record CareTarget(UUID animal) {}
     /** Keep the full leg budget. A stalled route gets a second to clear after each short request to step aside. */
     private static final int LEG = 600, BLOCKED = 20, STALL = 3 * BLOCKED, WORK = 16, RETRY = 1200;
+    /** A young animal can cross a display pen in under five seconds. Moving obstructions get ten seconds to clear. */
+    private static final int CALL_PATIENCE = 100, FETCH_RETRY = 200, FETCH_ATTEMPT_LIMIT = 3;
+    private static final String FETCH_LOCK = "shop_fetch";
+    private static final double HATCH_REACH = 1.25, HATCH_BLOCKED_REACH = 3.5, BUYER_ARRIVAL = 3.5;
     private static final int MAX_APPROACHES = 8;
     /** A bowl holding fewer portions than this is refilled with one serving of regular grain. */
     private static final int BOWL_LOW = 2, SERVING = 4;
@@ -112,8 +120,8 @@ public final class ShopStaff {
     private static final int SCRAP_COOLDOWN = 24000;
     private static final String SCRAP_AFTER = "StreetScrapAfter";
 
-    public static void started(ServerStartingEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); ShopAccess.clear(); }
-    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); ShopAccess.clear(); }
+    public static void started(ServerStartingEvent event) { JOBS.clear(); FETCH_ATTEMPTS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); ShopAccess.clear(); }
+    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); FETCH_ATTEMPTS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); ShopAccess.clear(); }
     /** True while the staff member runs a job: its routine and strolling goals stand aside. */
     public static boolean active(HumanNpc staff) { return JOBS.containsKey(staff.getUUID()); }
     public static boolean busy(HumanNpc npc) { return active(npc) || !npc.getMainHandItem().isEmpty(); }
@@ -199,7 +207,8 @@ public final class ShopStaff {
             if (order.token() != null || !free(entry.getKey(), now) || !(level.getEntity(entry.getKey()) instanceof YukkuriEntity y)) continue;
             var job = new Job(staff.getUUID(), shop.id, order.kind().equals(ShopTrade.SELL) ? Kind.SELL : Kind.BUY);
             job.animal = y.getUUID(); job.customer = order.customer();
-            start(staff, job, y.position()); return;
+            if (startWithCarrier(level, staff, shop, job, y.position())) return;
+            break;
         }
         if (staff.hasMedicine()) for (var y : stock) {
             if (!free(y.getUUID(), now) || UNREACHABLE.active(new CareTarget(y.getUUID()), now)) continue;
@@ -238,7 +247,8 @@ public final class ShopStaff {
             }
         if (shop.dock() != null) for (var y : stock) if (shipOut(y) && !y.pet().busy() && shop.deposit(y.getUUID()) == null && free(y.getUUID(), now)) {
             var job = new Job(staff.getUUID(), shop.id, Kind.SHIP); job.animal = y.getUUID();
-            start(staff, job, y.position()); return;
+            if (startWithCarrier(level, staff, shop, job, y.position())) return;
+            break;
         }
         if (shop.trash() != null) for (var be : blocks) {
             boolean dirty = be instanceof CareBlockEntity toilet && toilet.kind() == CareBlock.Kind.TOILET && toilet.waste() >= 1
@@ -299,12 +309,11 @@ public final class ShopStaff {
     private static boolean graduate(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop) {
         if (staff.tickCount % 100 != 3) return false;
         for (var animal : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds().inflate(16), ShopStaff::readyNursery)) {
-            if (!shop.kind.accepts(animal) || !free(animal.getUUID(), level.getGameTime())
+            if (!shop.kind.accepts(animal) || animal.pet().busy() || !free(animal.getUUID(), level.getGameTime())
                     || freePlace(level, shop, animal.profile().dangerToYukkuri(), animal.position()) == null) continue;
             var job = new Job(staff.getUUID(), shop.id, Kind.NURSERY);
             job.animal = animal.getUUID();
-            start(staff, job, animal.position());
-            return true;
+            return startWithCarrier(level, staff, shop, job, animal.position());
         }
         return false;
     }
@@ -312,12 +321,20 @@ public final class ShopStaff {
     private static boolean readyNursery(YukkuriEntity animal) {
         return animal.isAlive() && Custody.view(animal).role() == Custody.Role.SHOP_NURSERY
                 && (animal.family().adult() || animal.childhood().canLiveIndependently())
-                && !animal.pet().busy() && !animal.isPassenger() && !animal.isVehicle();
+                && !animal.isPassenger() && !animal.isVehicle();
     }
+
+    private static boolean startWithCarrier(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, Vec3 toward) {
+        var supply = ShopStock.get(level);
+        var carrier = ShopCatalog.TRANSPORT_CARRIER;
+        if (!supply.take(level, shop.id, carrier)) return false;
+        staff.setItemInHand(InteractionHand.MAIN_HAND, carrier.stack());
+        start(staff, job, toward);
+        return true;
+    }
+
     private static void start(HumanNpc staff, Job job, Vec3 toward) {
         JOBS.put(staff.getUUID(), job);
-        if (job.kind == Kind.BUY || job.kind == Kind.SELL || job.kind == Kind.SHIP || job.kind == Kind.NURSERY)
-            staff.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
         GameplayLog.event(staff, "shop", "action=job result=start kind={} phase={} target={} at={} token={}", job.kind, job.phase,
                 job.animal != null ? job.animal : job.target, GameplayLog.at(toward), job.token);
     }
@@ -343,9 +360,14 @@ public final class ShopStaff {
         if (!hand.is(ModItems.CARRIER.get())) return false;
         UUID token = CarrierContents.singleToken(hand);
         var custody = YukkuriWorldData.get(level);
-        if (token == null || !custody.hasToken(token)) {
-            staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            return false;
+        if (token == null) {
+            returnCarrier(level, staff, shop);
+            return !staff.getMainHandItem().isEmpty();
+        }
+        if (!custody.hasToken(token)) {
+            CarrierContents.remove(hand, token);
+            returnCarrier(level, staff, shop);
+            return !staff.getMainHandItem().isEmpty();
         }
         var view = Custody.fromSnapshot(custody.captiveSnapshot(token));
         Job job;
@@ -356,10 +378,17 @@ public final class ShopStaff {
             if (job.target == null) job.target = shop.legacy() ? shop.counter() : shop.dock();
             if (job.target == null) return false;
         }
-        if (UNREACHABLE.active(job.target, level.getGameTime())) return true;
+        if (job.kind != Kind.BUY && UNREACHABLE.active(job.target, level.getGameTime())) return true;
         job.token = token; job.phase = Phase.CARRY;
         start(staff, job, job.target.getCenter());
         return true;
+    }
+
+    private static void returnCarrier(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop) {
+        var hand = staff.getMainHandItem();
+        if (ShopStock.get(level).add(level, shop.id, ShopCatalog.TRANSPORT_CARRIER, 1) == 1
+                || ShopTrade.drop(level, shop.id, staff.position(), hand.copy()) != null)
+            staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
 
     // ---- running a job ------------------------------------------------------------------------------------------------
@@ -371,7 +400,7 @@ public final class ShopStaff {
         var shop = ShopRegistry.get(level).shop(job.shop);
         if (shop == null || shop.closed()) { end(staff, job, "shop_closed"); return; }
         if (staff.isTrading() || staff.hurtTime > 0) {
-            if (job.approach != null || !staff.getNavigation().isDone()) interrupt(staff);
+            if (job.hatchApproach != null || job.approach != null || !staff.getNavigation().isDone()) interrupt(staff);
             return;
         }
         if (++job.leg > LEG) { fail(level, staff, shop, job, "leg_timeout"); return; }
@@ -404,6 +433,10 @@ public final class ShopStaff {
         if (job == null) return;
         staff.getNavigation().stop();
         clearApproach(job);
+        if (job.hatchApproach != null) {
+            job.phase = Phase.GO;
+            clearHatch(staff, job);
+        }
         // The leg budget and the work timer stop with the walk: the pause is recorded, the job goes on once the menu closes or the flinch passes.
         GameplayLog.limited(staff, "shop", "job_paused", 100, "action=job result=paused kind={} phase={} reason={} leg_ticks={}",
                 job.kind, job.phase, staff.isTrading() ? "trade" : staff.hurtTime > 0 ? "hurt" : "goal", job.leg);
@@ -438,12 +471,12 @@ public final class ShopStaff {
             }
             case SHIP -> {
                 var y = animal(level, job);
-                if (y == null || !ShopTrade.stockOf(y, shop.id) || !shipOut(y) || y.pet().busy() || shop.deposit(y.getUUID()) != null) return "kept";
+                if (y == null || !ShopTrade.stockOf(y, shop.id) || !shipOut(y) || busyElsewhere(y, job) || shop.deposit(y.getUUID()) != null) return "kept";
             }
             case COUNTER, REFUSE -> throw new IllegalStateException("No work phase for " + job.kind);
             case NURSERY -> {
                 var y = animal(level, job);
-                if (y == null || !readyNursery(y)) return "nursery_changed";
+                if (y == null || !readyNursery(y) || busyElsewhere(y, job)) return "nursery_changed";
                 if (freePlace(level, shop, y.profile().dangerToYukkuri(), y.position()) == null) return "no_nest";
             }
             case TREAT -> {
@@ -472,55 +505,74 @@ public final class ShopStaff {
         return null;
     }
 
+    private static boolean busyElsewhere(YukkuriEntity y, Job job) {
+        return y.pet().busy() && (job.hatchApproach == null || y.pet().director() != job.hatchApproach);
+    }
+
     private static void go(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
         String why = stale(level, staff, shop, job);
         if (why != null) { end(staff, job, why); return; }
         var y = animal(level, job);
         Vec3 point = job.loose != null ? job.loose.position() : y != null ? centre(y) : job.target.getCenter();
         BlockPos block = job.loose != null || y != null ? null : job.target;
-        if (y != null && job.kind == Kind.BUY && shop.legacy() && !legacyFetch(level, staff, shop, job, y)) return;
+        boolean fetch = job.kind == Kind.BUY || job.kind == Kind.SHIP || job.kind == Kind.NURSERY;
+        if (fetch && !hatchFetch(level, staff, shop, job, y)) return;
         staff.getLookControl().setLookAt(point.x, point.y, point.z, 30, 30);
-        if (!reaches(staff, point, block)) { walk(level, staff, shop, job, point); return; }
+        if (!job.reachIn && !reaches(staff, point, block)) { walk(level, staff, shop, job, point); return; }
         staff.getNavigation().stop();
         job.phase = Phase.WORK;
+        if (fetch) job.timer = 0;
         if (job.kind == Kind.TREAT) {
             if (!staff.reserveDose(y, job.dose)) { fail(level, staff, shop, job, "dose_unavailable"); return; }
             y.life().wakeForService();
             y.getLookControl().setLookAt(staff, 30, 30);
         } else {
-            staff.swing(InteractionHand.MAIN_HAND);
+            staff.swing(job.reachIn ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
         }
         if (y != null && job.kind != Kind.TREAT && job.kind != Kind.FEED_YOUNG) {
             y.life().wakeForService(); // a sleeping animal is woken: the order or the move goes on
             y.getLookControl().setLookAt(staff, 30, 30);
             y.playAction("basket_in"); y.speak("basket_enter");
         }
-        GameplayLog.event(staff, "shop", "action=job result=reach kind={} target={} staff_at={} target_at={}", job.kind,
+        GameplayLog.event(staff, "shop", "action=job result=reach kind={} reach={} distance={} target={} staff_at={} target_at={}", job.kind,
+                job.reachIn ? "through" : "hand", staff.position().distanceTo(point),
                 y != null ? y.getUUID() : job.target, GameplayLog.at(staff.position()), GameplayLog.at(point));
     }
 
-    private static boolean legacyFetch(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, YukkuriEntity y) {
-        if (job.hatch == null) job.hatch = ShopRegistry.legacyHatch(level, shop, y);
-        if (job.hatch == null) return true;
-        var stand = Vec3.atBottomCenterOf(job.hatch.outside());
-        if (staff.position().distanceToSqr(stand) > 1.25) {
-            if (job.approach == null) {
-                var path = staff.shopPath(job.hatch.outside());
-                if (path == null || !path.canReach() || !staff.getNavigation().moveTo(path, SPEED)) {
-                    fail(level, staff, shop, job, "unreachable"); return false;
-                }
-                job.approach = job.hatch.outside();
-            } else if (staff.getNavigation().isDone() && job.leg > 3) fail(level, staff, shop, job, "unreachable");
+    private static boolean hatchFetch(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, YukkuriEntity y) {
+        if (job.hatch != null && !job.hatch.room().intersects(y.getBoundingBox())) {
+            clearHatch(staff, job);
             return false;
         }
+        if (job.hatch == null) job.hatch = ShopAccess.hatch(level, shop, y);
+        if (job.hatch == null) return true;
+        var stand = Vec3.atBottomCenterOf(job.hatch.outside());
         if (job.hatchApproach == null) {
+            boolean detour = job.hatch.pen() && FETCH_ATTEMPTS.getOrDefault(job.animal, 0) >= FETCH_ATTEMPT_LIMIT;
+            var door = Vec3.atBottomCenterOf(job.hatch.door());
+            var outward = stand.subtract(door).multiply(1, 0, 1);
+            Predicate<Vec3> atHatch = at -> at.subtract(door).dot(outward) > 0
+                    && (at.distanceToSqr(stand) <= HATCH_REACH * HATCH_REACH
+                    || detour && at.distanceToSqr(stand) <= HATCH_BLOCKED_REACH * HATCH_BLOCKED_REACH
+                    && reaches(staff, at, door.add(0, .85, 0), job.hatch.door()));
+            if (!staff.onGround() || !atHatch.test(staff.position())) {
+                walk(level, staff, shop, job, stand, atHatch);
+                return false;
+            }
             staff.getNavigation().stop();
             ShopDoors.enter(staff, job.hatch.door());
             y.life().wakeForService();
+            if (job.kind != Kind.BUY) y.pet().lock(FETCH_LOCK, null);
             job.hatchApproach = new HatchApproach(job.hatch.inside());
             y.pet().direct(job.hatchApproach);
+            staff.getLookControl().setLookAt(y, 30, 30);
+            if (detour) GameplayLog.event(staff, "shop", "action=job result=hatch_detour kind={} target={} door={}",
+                    job.kind, job.animal, job.hatch.door().toShortString());
         }
-        return reaches(staff, centre(y), null);
+        if (reaches(staff, centre(y), null)) return true;
+        if (++job.timer < CALL_PATIENCE) return false;
+        job.reachIn = job.hatch.pen() && staff.position().distanceToSqr(stand) <= HATCH_BLOCKED_REACH * HATCH_BLOCKED_REACH;
+        return true;
     }
 
     private static void work(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
@@ -528,7 +580,12 @@ public final class ShopStaff {
         if (why != null) { end(staff, job, why); return; }
         var y = animal(level, job);
         Vec3 point = job.loose != null ? job.loose.position() : y != null ? centre(y) : job.target.getCenter();
-        if (!reaches(staff, point, job.loose != null || y != null ? null : job.target)) {
+        if (job.reachIn && !job.hatch.room().intersects(y.getBoundingBox())) {
+            clearHatch(staff, job);
+            job.phase = Phase.GO;
+            return;
+        }
+        if (!job.reachIn && !reaches(staff, point, job.loose != null || y != null ? null : job.target)) {
             if (job.kind == Kind.TREAT) job.timer = 0;
             job.phase = Phase.GO;
             clearApproach(job);
@@ -545,11 +602,12 @@ public final class ShopStaff {
             return;
         }
         if (job.timer < (job.kind == Kind.STREET_SCRAP ? 20 : WORK)) return;
+        if (job.reachIn) staff.swing(InteractionHand.MAIN_HAND);
         switch (job.kind) {
             case BUY -> {
                 job.token = ShopTrade.captureSale(level, staff, shop, y);
                 if (job.token == null) { end(staff, job, "not_bought"); return; }
-                if (job.hatch != null) staff.closeShopDoor();
+                clearHatch(staff, job);
                 carryTo(job, shop.counter());
             }
             case SELL -> {
@@ -558,20 +616,22 @@ public final class ShopStaff {
                 carryTo(job, destinationOr(level, shop, staff));
             }
             case NURSERY -> {
+                clearHatch(staff, job);
                 job.token = YukkuriWorldData.get(level).capture(y, () -> {
                     y.life().releaseHome();
                     Custody.assign(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK);
                     shop.kind.prepareStock(y);
                 });
                 if (job.token == null) { end(staff, job, "capture_refused"); return; }
-                staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), job.token));
+                fillCarrier(level, staff, job.token);
                 GameplayLog.event(staff, "shop", "action=nursery result=packed shop={} target={} token={}", shop.id, y.getUUID(), job.token);
                 carryTo(job, destinationOr(level, shop, staff));
             }
             case SHIP -> {
+                clearHatch(staff, job);
                 job.token = YukkuriWorldData.get(level).capture(y, y.life()::releaseHome);
                 if (job.token == null) { end(staff, job, "capture_refused"); return; }
-                staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), job.token));
+                fillCarrier(level, staff, job.token);
                 GameplayLog.event(staff, "shop", "action=ship_out result=packed shop={} target={} token={}", shop.id, y.getUUID(), job.token);
                 carryTo(job, shop.dock());
             }
@@ -636,6 +696,12 @@ public final class ShopStaff {
         }
     }
 
+    static void fillCarrier(ServerLevel level, HumanNpc staff, UUID token) {
+        var hand = staff.getMainHandItem().copy();
+        CarrierContents.add(hand, token, YukkuriWorldData.get(level).captiveSnapshot(token));
+        staff.setItemInHand(InteractionHand.MAIN_HAND, hand);
+    }
+
     private static void carryTo(Job job, BlockPos where) {
         job.phase = Phase.CARRY; job.target = where; job.leg = 0; job.timer = 0;
         job.tried.clear(); job.pursued = null;
@@ -656,23 +722,20 @@ public final class ShopStaff {
         };
         if (!holding) { end(staff, job, "hand_changed"); return; }
         if (job.target == null) { fail(level, staff, shop, job, "no_destination"); return; }
+        if (job.kind == Kind.BUY) {
+            deliver(level, staff, shop, job, hand);
+            return;
+        }
         // A nest taken (or an oni-shop pen filled) meanwhile is exchanged for another free one (or the barrel).
         if (level.getBlockEntity(job.target) instanceof CareBlockEntity place && (place.kind() == CareBlock.Kind.NEST && place.resident() != null
                 || shop.kind == ShopKind.ONI && place.kind() == CareBlock.Kind.BOWL && job.token != null && penFull(level, shop, job.target))) {
             carryTo(job, destinationOr(level, shop, staff));
             return;
         }
-        boolean counter = job.kind == Kind.BUY;
-        Vec3 point = counter ? Vec3.atBottomCenterOf(job.target) : job.target.getCenter();
-        boolean arrived = counter ? staff.onGround() && atCounter(staff.position(), point) : reaches(staff, point, job.target);
-        if (!arrived) { walk(level, staff, shop, job, point); return; }
+        Vec3 point = job.target.getCenter();
+        if (!reaches(staff, point, job.target)) { walk(level, staff, shop, job, point); return; }
         staff.getNavigation().stop();
         staff.getLookControl().setLookAt(point.x, point.y, point.z, 30, 30);
-        if (counter) {
-            if (ShopTrade.handOver(level, staff, shop, job.customer, hand, job.token)) end(staff, job, "delivered");
-            else fail(level, staff, shop, job, "handoff_blocked");
-            return;
-        }
         if (job.kind == Kind.STREET_SCRAP && !job.target.equals(shop.trash())) {
             if (!VillageBin.deposit(level, job.target, hand)) { carryTo(job, shop.trash()); return; }
             staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -698,9 +761,29 @@ public final class ShopStaff {
             if (ShopRegistry.releaseBasketNear(level, job.token, staff.blockPosition(), false) == null) {
                 fail(level, staff, shop, job, "set_down_blocked"); return;
             }
-            staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            emptyCarrier(staff, job.token);
             end(staff, job, "released");
         } else release(level, staff, shop, job);
+    }
+
+    private static void deliver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, ItemStack hand) {
+        var buyer = ShopTrade.present(level, shop, job.customer);
+        var counter = Vec3.atBottomCenterOf(job.target);
+        boolean atCounter = atCounter(staff.position(), counter);
+        boolean meetBuyer = buyer != null && !job.counterOnly;
+        if (staff.onGround() && (atCounter || meetBuyer && staff.distanceToSqr(buyer) <= BUYER_ARRIVAL * BUYER_ARRIVAL
+                && staff.hasLineOfSight(buyer))) {
+            staff.getNavigation().stop();
+            if (buyer != null) staff.getLookControl().setLookAt(buyer, 30, 30);
+            if (ShopTrade.handOver(level, staff, shop, buyer, job.customer, hand, job.token, atCounter)) end(staff, job, "delivered");
+            else fail(level, staff, shop, job, "handoff_blocked");
+            return;
+        }
+        if (meetBuyer) {
+            var point = buyer.getEyePosition();
+            walk(level, staff, shop, job, buyer.position(), at -> shop.contains(at)
+                    && at.distanceToSqr(buyer.position()) <= BUYER_ARRIVAL * BUYER_ARRIVAL && clearReach(staff, at, point, null));
+        } else walk(level, staff, shop, job, counter, at -> atCounter(at, counter));
     }
 
     /** The basket is opened at the nest entrance, then the animal claims the bed through ordinary home admission; in the oni
@@ -712,7 +795,7 @@ public final class ShopStaff {
         var y = pen ? data.releaseOnGround(job.token, level, Vec3.atBottomCenterOf(nest), staff.getYRot(), 1)
                 : data.releaseAtNest(job.token, level, nest, staff.getYRot());
         if (y == null) { fail(level, staff, shop, job, "set_down_blocked"); return; }
-        staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        emptyCarrier(staff, job.token);
         staff.swing(InteractionHand.MAIN_HAND);
         var tag = HumanCommerce.data(y).copy();
         if (!tag.contains(ShopTrade.FOR_SALE_SINCE)) { tag.putLong(ShopTrade.FOR_SALE_SINCE, level.getGameTime()); HumanCommerce.set(y, tag); }
@@ -723,8 +806,20 @@ public final class ShopStaff {
         end(staff, job, "released");
     }
 
+    private static void emptyCarrier(HumanNpc staff, UUID token) {
+        var hand = staff.getMainHandItem().copy();
+        CarrierContents.remove(hand, token);
+        staff.setItemInHand(InteractionHand.MAIN_HAND, hand);
+    }
+
     /** The active path owns progress around corners. Distance to the faraway work site can increase on a good route. */
     private static void walk(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, Vec3 point) {
+        var touched = job.phase == Phase.CARRY || job.loose == null && job.animal == null ? job.target : null;
+        walk(level, staff, shop, job, point,
+                at -> job.kind == Kind.COUNTER ? atCounter(at, point) : reaches(staff, at, point, touched));
+    }
+
+    private static void walk(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, Vec3 point, Predicate<Vec3> standAt) {
         var target = BlockPos.containing(point);
         var navigation = staff.getNavigation();
         if (job.pursued == null || job.pursued.distSqr(target) > 4) {
@@ -746,6 +841,7 @@ public final class ShopStaff {
             } else job.stall++;
             if (job.stall > 0 && job.stall % BLOCKED == 0) {
                 obstruction = blocker(level, staff, toward);
+                if (job.kind == Kind.BUY && obstruction instanceof ServerPlayer player) makeWay(staff, player);
             }
             // A feeder asks the stock occupying the next pace before it spends a full stall waiting.
             if (obstruction != null || job.kind == Kind.FEED && job.leg % 5 == 0) {
@@ -764,22 +860,22 @@ public final class ShopStaff {
         boolean detourToSameStand = obstruction != null && previous != null && !job.tried.contains(previous);
         if (previous != null) job.tried.add(previous);
         if (job.tried.size() >= MAX_APPROACHES) { fail(level, staff, shop, job, "unreachable"); return; }
-        boolean counter = job.kind == Kind.COUNTER || job.phase == Phase.CARRY && job.kind == Kind.BUY;
-        var touched = job.phase == Phase.CARRY || job.loose == null && job.animal == null ? job.target : null;
         var free = new LinkedHashSet<BlockPos>();
         var occupiedByStock = new LinkedHashSet<BlockPos>();
         for (var cell : BlockPos.withinManhattan(target, 2, 1, 2)) {
             if (!level.hasChunkAt(cell)) continue;
             var stand = Vec3.atBottomCenterOf(cell);
-            if (counter && !atCounter(stand, point) || job.tried.contains(cell) && !(detourToSameStand && cell.equals(previous))
+            if (job.tried.contains(cell) && !(detourToSameStand && cell.equals(previous))
                     || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) continue;
             var box = staff.getBoundingBox().move(stand.subtract(staff.position()));
             if (level.getBlockCollisions(staff, box).iterator().hasNext()) continue;
-            if (!counter && !reaches(staff, stand, point, touched)) continue;
+            if (!standAt.test(stand)) continue;
             var occupants = level.getEntitiesOfClass(LivingEntity.class, box, e -> e != staff && e.isAlive() && !e.isSpectator());
             if (occupants.isEmpty()) free.add(cell.immutable());
             else if (job.kind == Kind.FEED && occupants.stream().allMatch(e -> e instanceof YukkuriEntity animal && ShopTrade.stockOf(animal, shop.id)))
                 occupiedByStock.add(cell.immutable());
+            else if (job.kind == Kind.BUY) occupants.stream().filter(ServerPlayer.class::isInstance).map(ServerPlayer.class::cast)
+                    .findFirst().ifPresent(player -> makeWay(staff, player));
         }
         var obstacle = obstruction == null ? null : obstruction.getBoundingBox();
         var path = free.isEmpty() ? null : staff.shopPath(free, obstacle);
@@ -831,18 +927,44 @@ public final class ShopStaff {
     }
 
     private static boolean reaches(HumanNpc staff, Vec3 stand, Vec3 point, BlockPos block) {
-        if (stand.distanceToSqr(point) > REACH * REACH) return false;
+        return stand.distanceToSqr(point) <= REACH * REACH && clearReach(staff, stand, point, block);
+    }
+
+    private static boolean clearReach(HumanNpc staff, Vec3 stand, Vec3 point, BlockPos block) {
         var hit = staff.level().clip(new ClipContext(stand.add(0, staff.getEyeHeight(), 0), point, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, staff));
         return hit.getType() == HitResult.Type.MISS || block != null && hit.getBlockPos().equals(block);
     }
 
+    private static void makeWay(HumanNpc staff, ServerPlayer player) {
+        var key = new RefusalTarget(player.getUUID(), staff.getUUID());
+        long now = staff.level().getGameTime();
+        if (UNREACHABLE.active(key, now)) return;
+        UNREACHABLE.put(key, now + FETCH_RETRY);
+        ShopTrade.say(player, "protect.make_way", staff.getDisplayName());
+    }
+
     /**
-     * A leg that cannot be finished: the target is left to others for a while. An order not yet in a basket is cancelled with the reason;
+     * A leg that cannot be finished: the target is left to others for a while. A purchase waits for a new route;
      * something held goes where it can be found again (a stock basket to the arrivals barrel, else on the floor where only the buyer, or no
      * customer at all, may pick it up; waste on the floor).
      */
     private static void fail(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, String reason) {
         long now = level.getGameTime();
+        if (job.kind == Kind.BUY && job.phase != Phase.CARRY) {
+            UNREACHABLE.put(job.animal, now + FETCH_RETRY);
+            int attempts = FETCH_ATTEMPTS.merge(job.animal, 1, (n, one) -> Math.min(FETCH_ATTEMPT_LIMIT, n + one));
+            if (attempts == 1) ShopRegistry.get(level).tell(level, job.customer, "buy.waiting_route");
+            GameplayLog.event(staff, "shop", "action=job result=waiting_route kind=BUY target={} attempt={} retry_at={} cause={}",
+                    job.animal, attempts, now + FETCH_RETRY, reason);
+            end(staff, job, "waiting_route");
+            return;
+        }
+        if (job.kind == Kind.BUY && job.phase == Phase.CARRY && !job.counterOnly && ShopTrade.present(level, shop, job.customer) != null
+                && !atCounter(staff.position(), Vec3.atBottomCenterOf(job.target)) && !reason.equals("handoff_blocked")) {
+            job.counterOnly = true;
+            carryTo(job, shop.counter());
+            return;
+        }
         Object key = switch (job.kind) {
             case COUNTER -> job.staff;
             case REFUSE -> new RefusalTarget(job.animal, job.shop);
@@ -852,7 +974,7 @@ public final class ShopStaff {
         GameplayLog.limited(staff, "shop", "job_fail." + job.kind + "." + reason, 200, "action=job result=failed kind={} phase={} reason={} target={} token={} leg_ticks={}",
                 job.kind, job.phase, reason, key, job.token, job.leg);
         if (job.phase != Phase.CARRY) {
-            if (job.kind == Kind.BUY || job.kind == Kind.SELL) ShopTrade.cancel(level, shop, job.animal, "unreachable");
+            if (job.kind == Kind.SELL) ShopTrade.cancel(level, shop, job.animal, "unreachable");
             else staff.swing(InteractionHand.MAIN_HAND);
             end(staff, job, reason);
             return;
@@ -871,6 +993,7 @@ public final class ShopStaff {
         if (ShopTrade.drop(level, target, staff.position(), hand) != null) {
             staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             GameplayLog.event(staff, "shop", "action=job result=put_down kind={} token={} at={} pickup={}", job.kind, job.token, GameplayLog.at(staff.position()), target);
+            if (job.kind == Kind.BUY) ShopRegistry.get(level).tell(level, target, "buy.on_floor");
         }
         end(staff, job, reason);
     }
@@ -879,10 +1002,13 @@ public final class ShopStaff {
         JOBS.remove(staff.getUUID(), job);
         clearHatch(staff, job);
         staff.getNavigation().stop();
-        staff.closeShopDoor();
         if (job.kind == Kind.TREAT) staff.returnUnusedDose();
         var hand = staff.getMainHandItem();
-        if (hand.is(ModItems.CARRIER.get()) && CarrierContents.singleToken(hand) == null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (hand.is(ModItems.CARRIER.get()) && CarrierContents.tokens(hand).isEmpty() && staff.level() instanceof ServerLevel level) {
+            var shop = ShopRegistry.get(level).shop(job.shop);
+            if (shop != null && !shop.closed()) returnCarrier(level, staff, shop);
+            else if (ShopTrade.drop(level, null, staff.position(), hand.copy()) != null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
         GameplayLog.event(staff, "shop", "action=job result=end kind={} phase={} reason={} token={} leg_ticks={}", job.kind, job.phase, reason, job.token, job.leg);
     }
 
@@ -892,11 +1018,12 @@ public final class ShopStaff {
         clearHatch(staff, job);
         var hand = staff.getMainHandItem();
         UUID token = CarrierContents.singleToken(hand);
-        if (hand.isEmpty() || hand.is(ModItems.CARRIER.get()) && token == null) return;
+        if (hand.isEmpty()) return;
         var view = token == null ? null : Custody.fromSnapshot(YukkuriWorldData.get(level).captiveSnapshot(token));
-        UUID target = view == null ? null : view.owner();
+        var shop = ShopRegistry.get(level).of(staff);
+        UUID target = view != null ? view.owner() : hand.is(ModItems.CARRIER.get()) && shop != null ? shop.id : null;
         if (ShopTrade.drop(level, target, staff.position(), hand.copy()) != null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        else if (view != null && view.role() == Custody.Role.STOCK) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 2.0f);
+        else if (view != null && view.role() == Custody.Role.STOCK || hand.is(ModItems.CARRIER.get()) && token == null) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 2.0f);
         else if (view != null) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 0.0f);
         GameplayLog.event(staff, "shop", "action=job result=staff_died kind={} token={} pickup={}", job == null ? null : job.kind, token, target);
     }
@@ -911,15 +1038,28 @@ public final class ShopStaff {
     private static void clearHatch(HumanNpc staff, Job job) {
         if (job != null && job.hatchApproach != null && staff.level() instanceof ServerLevel level) {
             var animal = animal(level, job);
-            if (animal != null && animal.pet().director() == job.hatchApproach) animal.pet().direct(null);
+            if (animal != null && animal.pet().director() == job.hatchApproach) {
+                if (job.kind == Kind.BUY) animal.pet().direct(null);
+                else animal.pet().unlock(FETCH_LOCK);
+            }
+            job.hatchApproach = null;
+        }
+        if (job != null && job.hatch != null) {
+            job.hatch = null;
+            job.reachIn = false;
+            job.timer = 0;
+            clearApproach(job);
         }
         staff.closeShopDoor();
     }
+
+    static void finishFetch(UUID animal) { FETCH_ATTEMPTS.remove(animal); }
 
     /** Playground field clear: jobs of removed staff, animals or baskets end (their entities are gone with the field). */
     public static void forget(Set<UUID> ids, Set<UUID> tokens) {
         JOBS.values().removeIf(j -> ids.contains(j.staff) || ids.contains(j.shop) || j.animal != null && ids.contains(j.animal)
                 || j.token != null && tokens.contains(j.token));
+        FETCH_ATTEMPTS.keySet().removeAll(ids);
         UNREACHABLE.clear();
     }
 

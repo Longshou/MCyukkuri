@@ -33,7 +33,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -450,21 +449,19 @@ public final class ShopRegistry extends SavedData {
                 clerk.offset(new BlockPos(40 - clerkX, 13, 18).rotate(rotation)));
     }
 
-    record LegacyHatch(BlockPos door, BlockPos outside, Vec3 inside) {}
-
-    static LegacyHatch legacyHatch(ServerLevel level, Entry shop, YukkuriEntity animal) {
+    static ShopAccess.Hatch legacyHatch(ServerLevel level, Entry shop, YukkuriEntity animal) {
         if (shop.legacyFront == null) return null;
         for (var rotation : Rotation.values()) {
             if (rotation.rotate(Direction.NORTH) != shop.legacyFront) continue;
             for (int x : new int[] {2, 6, 16, 20}) {
                 var first = shop.pos.offset(new BlockPos(x - 11, 1, -10).rotate(rotation));
                 var last = shop.pos.offset(new BlockPos(x - 9, 2, -8).rotate(rotation));
-                if (!AABB.encapsulatingFullBlocks(first, last).intersects(animal.getBoundingBox())) continue;
+                var room = AABB.encapsulatingFullBlocks(first, last);
+                if (!room.intersects(animal.getBoundingBox())) continue;
                 var door = shop.pos.offset(new BlockPos(x - 11, 1, -7).rotate(rotation));
-                var state = level.getBlockState(door);
-                if (!state.is(Blocks.IRON_DOOR) || state.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER) return null;
+                if (!ShopDoors.ironLower(level, door)) return null;
                 var outside = door.relative(shop.legacyFront.getOpposite()).below();
-                return new LegacyHatch(door, outside, Vec3.atBottomCenterOf(door.relative(shop.legacyFront)));
+                return new ShopAccess.Hatch(door, outside, Vec3.atBottomCenterOf(door.relative(shop.legacyFront)), room, true);
             }
         }
         return null;

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.human.*;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -64,6 +66,16 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             }
             if (n.showsStreetGrain() && n.getOffhandItem().isEmpty())
                 (n.getMainArm() == HumanoidArm.RIGHT ? leftArm : rightArm).xRot -= .5f;
+            if (n.job() == HumanNpc.Job.SHOPKEEPER && n.swingingArm == InteractionHand.OFF_HAND && attackTime > 0
+                    && CarrierContents.isBasket(n.getMainHandItem())) {
+                float reach = Mth.sin(attackTime * Mth.PI);
+                var grasp = n.getMainArm() == HumanoidArm.RIGHT ? leftArm : rightArm;
+                var basket = n.getMainArm() == HumanoidArm.RIGHT ? rightArm : leftArm;
+                grasp.xRot = (head.xRot - 1.6f) * reach;
+                grasp.yRot = head.yRot;
+                basket.xRot -= .85f * reach;
+                body.xRot += .22f * reach;
+            }
             if (n.isUsingItem()) {
                 var arm = n.getUsedItemHand() == InteractionHand.MAIN_HAND ? n.getMainArm() : n.getMainArm().getOpposite();
                 var used = arm == HumanoidArm.RIGHT ? rightArm : leftArm;

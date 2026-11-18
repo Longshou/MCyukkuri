@@ -247,6 +247,9 @@
     "yard_street_walk": "TN-34",
     "wall_tuck": "FG-16",
     "yard_park_play": "TN-35",
-    "yard_park_picnic": "TN-36"
+    "yard_park_picnic": "TN-36",
+    "shop_browse": "SP-09",
+    "shop_pick": "SP-10",
+    "shop_fetch": "SP-11"
   }
 }
