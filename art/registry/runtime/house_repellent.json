@@ -10,5 +10,5 @@
   "preview_source": "standards/yukkuri-library/ecology/house-nest/render_supplies.py",
   "preview": ".local/previews/house-supplies/repellent-spray.png",
   "status": "pending_user_review",
-  "scope": "Original handheld spray bottle, nozzle, trigger and barred-yukkuri face label. Native item geometry uses vanilla block surface textures; no item icon is reused, no block is placed. Existing item ID is retained for save compatibility."
+  "scope": "Plain vanilla item: item/generated on its inventory icon (item_icons), no own geometry, no vanilla textures; no block is placed. Existing item ID is retained for save compatibility."
 }

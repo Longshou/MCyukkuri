@@ -1,36 +1,16 @@
 {
   "id": "house_repellent",
   "item_id": "household_guard",
-  "revision": "trigger-spray-20261017",
+  "revision": "icon-item-20261119",
   "status": "pending_user_review",
   "source": "standards/yukkuri-library/ecology/house-repellent/recipe.json",
   "exporter": "standards/yukkuri-library/ecology/house-repellent/build.py",
-  "source_sha256": "131372b7b08107b6fcd778c113952e5a3fe54631446a8e10093602889b7c0e7c",
-  "material_sources": {
-    "bottle": "minecraft:block/light_blue_concrete",
-    "trim": "minecraft:block/gray_concrete",
-    "paper": "minecraft:block/white_concrete",
-    "warning": "minecraft:block/red_concrete",
-    "ink": "minecraft:block/black_concrete"
-  },
-  "elements": 35,
-  "bounds": [
-    [
-      5,
-      11
-    ],
-    [
-      0,
-      12
-    ],
-    [
-      3.4,
-      10.3
-    ]
-  ],
-  "scope": "Original bottle, nozzle, trigger and barred-yukkuri label, native item geometry. Vanilla surface textures remain external references; no reused item icon.",
+  "source_sha256": "7241166b6f5b573ad139abc5454a091fa06ae0a4668f42a2fbe5b625dc82999a",
+  "icon": "art/props/item-icons/household_guard.png",
+  "icon_sha256": "21d688273955c40928c847e36daa4729564f150b835a444c23b660a127ca18c1",
+  "scope": "Vanilla item/generated model on the inventory icon (drawn by standards/yukkuri-library/drafts/item-icons/draw.py); no own geometry and no vanilla textures.",
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/models/item/household_guard.json": "9ce8117abdd9c88c52eb8b9ee87807069121fed02aee17c00b35fc7493d18107",
-    "art/source/house-repellent/recipe.json": "131372b7b08107b6fcd778c113952e5a3fe54631446a8e10093602889b7c0e7c"
+    "src/main/resources/assets/mcyukkuri/models/item/household_guard.json": "bb3807e543ef8a0ef9fe282270e98865ed0e00f0866a11339b6e303ddefebd03",
+    "art/source/house-repellent/recipe.json": "7241166b6f5b573ad139abc5454a091fa06ae0a4668f42a2fbe5b625dc82999a"
   }
 }
