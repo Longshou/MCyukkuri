@@ -171,12 +171,6 @@
       "personal_leaf_nest",
       "bedding_bundle"
     ],
-    "palette_only": [
-      "glass_marble",
-      "marisa_doll",
-      "reimu_doll",
-      "pretty_stone"
-    ],
     "removed": [
       "food_bowl_garbage"
     ],
@@ -203,9 +197,9 @@
       "palette": "standards/yukkuri-library/drafts/item-icons/draw.py (icon ramps)",
       "models": {
         "food_bowl": "standards/yukkuri-library/drafts/block-props/devices.py (default style; dye styles stay placed.py)",
-        "yarn_ball": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
-        "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py",
-        "ceramic_tunnel/yukkuri_slide/yukkuri_trampoline/yukkuri_pool": "standards/yukkuri-library/drafts/playgrounds/build.py (collision from the same cells, slide chute sampled along its slope; trampoline bed is unit 2 with its pivot at y 8), in-use preview standards/yukkuri-library/drafts/playgrounds/preview.py"
+        "yarn_ball, glass_marble, pretty_stone, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
+        "teaching_whistle, wash_cloth, companion_cord": "extruded inventory icons (cloth and cord laid flat), exported by standards/yukkuri-library/drafts/care-expansion/build.py",
+        "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py"
       },
       "preview": "standards/yukkuri-library/drafts/block-props/preview.py",
       "style": "vanilla-like: axis-aligned voxel cuboids on the 1/16 grid at one texel per unit, icon ramps lit from the top left, each rounded object an explicit stepped-round recipe (octagon/inset vessels, stepped sphere) with painted detail; small handheld or dropped items are their 16x16 icon extruded like item/generated with vanilla hand angles and a 30-degree fixed view",
@@ -2914,7 +2908,7 @@
     "preview_source": "standards/yukkuri-library/ecology/house-nest/render_supplies.py",
     "preview": ".local/previews/house-supplies/repellent-spray.png",
     "status": "pending_user_review",
-    "scope": "Original handheld spray bottle, nozzle, trigger and barred-yukkuri face label. Native item geometry uses vanilla block surface textures; no item icon is reused, no block is placed. Existing item ID is retained for save compatibility."
+    "scope": "Plain vanilla item: item/generated on its inventory icon (item_icons), no own geometry, no vanilla textures; no block is placed. Existing item ID is retained for save compatibility."
   },
   "item_icons": {
     "source": "standards/yukkuri-library/drafts/item-icons/draw.py",

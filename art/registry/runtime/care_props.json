@@ -44,12 +44,6 @@
     "personal_leaf_nest",
     "bedding_bundle"
   ],
-  "palette_only": [
-    "glass_marble",
-    "marisa_doll",
-    "reimu_doll",
-    "pretty_stone"
-  ],
   "removed": [
     "food_bowl_garbage"
   ],
@@ -76,7 +70,8 @@
     "palette": "standards/yukkuri-library/drafts/item-icons/draw.py (icon ramps)",
     "models": {
       "food_bowl": "standards/yukkuri-library/drafts/block-props/devices.py (default style; dye styles stay placed.py)",
-      "yarn_ball": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
+      "yarn_ball, glass_marble, pretty_stone, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
+      "teaching_whistle, wash_cloth, companion_cord": "extruded inventory icons (cloth and cord laid flat), exported by standards/yukkuri-library/drafts/care-expansion/build.py",
       "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py"
     },
     "preview": "standards/yukkuri-library/drafts/block-props/preview.py",

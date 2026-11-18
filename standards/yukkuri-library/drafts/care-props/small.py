@@ -1,4 +1,4 @@
-"""Small props: crumbs, waste, filling, mash, cloth, carrier basket."""
+"""Small props: crumbs, waste, filling, mash, carrier basket."""
 import math
 from kit import Prop, Band, Planar, colour, fill, paint, deterministic
 
@@ -66,20 +66,6 @@ def food_mash_serving():
     for k, (x, z) in enumerate([(.3, .25), (-.35, .2), (.1, -.35)]):
         specks = p.part(f'plant_bit_{k}')
         p.blob(specks, [x, .38 - .1 * math.hypot(x, z), z], [.09, .05, .08], lambda n: C('leaf', 3), None, 0)
-    return p
-
-
-def wash_cloth():
-    """Folded sky-blue towel with cream border stripes and a small berry tag."""
-    p = Prop('wash_cloth')
-    for k, (hx, hz, shift) in enumerate([(2.75, 2, 0), (2.5, 1.75, .25), (2.25, 1.5, -.25)]):
-        part = p.part(f'fold_{k}')
-        y0, y1 = k * .5, (k + 1) * .5
-        p.box(part, [-hx + shift, y0, -hz], [hx + shift, y1, hz], {'*': C('sky', 1), 'top': C('sky', 2), 'bottom': C('sky', 0)}, grid=.25)
-        p.box(part, [-hx + shift, y1 - .05, -hz], [-hx + shift + .5, y1 + .02, hz], C('paper', 2), grid=.05)
-        p.box(part, [hx + shift - .5, y1 - .05, -hz], [hx + shift, y1 + .02, hz], C('paper', 2), grid=.05)
-    tag = p.part('tag')
-    p.box(tag, [1.0, 1.0, -.5], [2.0, 1.1, .5], C('berry', 2), grid=.05)
     return p
 
 

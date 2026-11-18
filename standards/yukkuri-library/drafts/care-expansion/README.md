@@ -1,5 +1,8 @@
-# 生活设施扩展草案
+# 小玩具与小件照料用品
 
-本目录保存生活设施扩展的 MC 适配制作源。`build.py` 定义四种商店小玩具（玻璃弹珠、两种布偶、漂亮石子）；复用相邻 `operation-tools/build.py` 的几何函数。导出同时更新本目录 `recipe.json`、`assembled/`、`art/props/care-expansion/selected/` 和对应游戏资源，不单独修改生成网格。
+`build.py` 导出商店小玩具和小件照料用品的道具物品，全部是原版风格，造型以各自的 16×16 物品栏图标为准：
 
-`--check` 只读检查导出一致性。几何使用每方块 16 单位，色板为原创绘制；模型无独立骨架。运行行为与来源说明见[接入包](../../../../art/props/care-expansion/README.md)。
+- 方块风格（设计在[方块道具](../block-props/toys.py)）：毛线球、玻璃弹珠、漂亮石子、灵梦布偶、魔理沙布偶。
+- 图标挤出（[方块道具工具](../block-props/kit.py) `extrude`，贴图就是图标）：教导哨立放；清洗布、同伴绳平放在地上、图标朝上，物品模型在掉落以外的视图里把它重新立起，手持、嘴叼和展示框看到的仍是图标正面。
+
+导出同时更新本目录 `recipe.json`（各件的风格与尺寸、四种玩具的合成材料）、四种玩具的 `assembled/`、`art/props/care-expansion/selected/` 和对应游戏资源，不单独修改生成网格。`--check` 只读检查导出一致性。几何使用每方块 16 单位，模型无独立骨架。运行行为与来源说明见[接入包](../../../../art/props/care-expansion/README.md)。

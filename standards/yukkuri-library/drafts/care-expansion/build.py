@@ -1,116 +1,99 @@
-"""Original MC facility/toy candidates and the small care goods; parametric editable source, not approved standards.
+"""Shop toys and small care goods as vanilla-style prop items; editable source, not approved standards.
 
-The four toys use the adjacent tool package's stable mesh primitives. The shop care goods (wash cloth, yarn ball,
-teaching whistle, companion cord) are exported here as prop items: the cloth is designed in care-props/small.py and
-the yarn ball in block-props/toys.py, both snapshotted to selected/; the whistle and the cord are fixed snapshots.
+Block style (block-props/toys.py): yarn ball, glass marble, pretty stone, Reimu and Marisa dolls. Extruded inventory icons
+(block-props/kit.py extrude): teaching whistle (standing plate), wash cloth and companion cord (the plate laid flat on the
+ground, icon up; every view but the dropped one turns it upright again, so hands, mouths and frames show the icon).
 No original game pixels. 16 units = one block. --check verifies editable, selected and packaged exports.
 """
-import argparse, base64, importlib.util, io, json, runpy, sys, uuid
+import argparse, importlib.util, json, math, sys
 from pathlib import Path
-from PIL import Image
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
 sys.path.insert(0,str(ROOT/'scripts'))
-from asset_export_checks import (check_output, fingerprints, preserve_equivalent_png,
-                                 preserve_negative_zero_mesh_json, provenance)
-BASE=HERE.parent/'operation-tools/build.py'
-primitive=runpy.run_path(str(BASE))
-box,rod,ball,geometry=(primitive[k] for k in ('box','rod','ball','geometry'))
-sub,cross,unit=(primitive[k] for k in ('sub','cross','unit'))
-sys.path.insert(0,str(HERE.parent/'care-props'))
-import kit as care_kit, small as care_small
+from asset_export_checks import check_output, fingerprints, preserve_equivalent_png, provenance
 if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-props also has a `kit`
     _spec=importlib.util.spec_from_file_location('block_props_kit',HERE.parent/'block-props/kit.py')
     sys.modules['block_props_kit']=_module=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_module)
-block_kit=sys.modules['block_props_kit']
+kit=sys.modules['block_props_kit']
 sys.path.insert(0,str(HERE.parent/'block-props'))
-import toys as block_toys   # block-style redo: the yarn ball
-H=care_kit.hex_of
-# Shop care goods: a design function (snapshotted to selected/<id>/) or None for a fixed snapshot; GUI transform overrides.
-GOODS={'wash_cloth':care_small.wash_cloth,'yarn_ball':block_toys.yarn_ball,'teaching_whistle':None,'companion_cord':None}
-GOODS_GUI={'companion_cord':{'rotation':[50,225,0],'scale':[1.25,1.25,1.25]}}   # thin cord enlarged in the slot
-# Toy palette touched up to the shared care-prop ramps (art/props/palette.json); indices are unchanged.
-PALETTE=[H('paper',2),H('anko',0),H('wood',1),H('wood',2),H('wood',3),H('paper',3),H('berry',2),H('chili',1),H('anko',0),H('gold',2),H('sky',2),H('sky',3),H('steel',0),H('mint',1),H('ceramic',2),H('paper',3)]
+import toys
+ICONS=ROOT/'art/props/item-icons'
+# Extruded icons: the height in units of the icon's opaque rows, and whether the plate lies flat.
+EXTRUDED={'wash_cloth':(4.3,True),'teaching_whistle':(3.4,False),'companion_cord':(6.8,True)}
+TOYS=('glass_marble','reimu_doll','marisa_doll','pretty_stone')   # also kept editable in assembled/, crafted by recipe
 SNAPSHOT=ROOT/'art/props/care-expansion'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 DATA=ROOT/'src/main/resources/data/mcyukkuri'
-
-def mesh_number(value):
-    value=round(value,6)
-    return 0.0 if isinstance(value,float) and value==0 else value
-
-RECIPES={
- 'glass_marble':[rod([-.8,.6,-.2],[.8,3.4,.2],.25,7),ball([0,2,0],[2,2,2],10)],
- 'reimu_doll':[ball([0,2.7,0],[3,2.7,2.5],14),ball([0,4.2,.2],[3,.9,2.4],8),box([-3.4,4.3,-.6],[-.5,5.8,.6],7),box([.5,4.3,-.6],[3.4,5.8,.6],7),box([-.6,4.6,-.7],[.6,5.5,.7],5),ball([-1,2.7,-2.3],[.25,.25,.15],1),ball([1,2.7,-2.3],[.25,.25,.15],1)],
- 'marisa_doll':[ball([0,2.7,0],[3,2.7,2.5],14),ball([0,4,.2],[3,.9,2.4],9),ball([0,4.7,0],[3.4,.4,2.8],8),rod([0,4.7,0],[.6,8,0],2.2,8,end=0),box([-1.5,5,-1.9],[1.5,5.7,-1.4],5),ball([-1,2.7,-2.3],[.25,.25,.15],1),ball([1,2.7,-2.3],[.25,.25,.15],1)],
- 'pretty_stone':[ball([0,1.5,0],[3,1.5,2.4],12)],
-}
 INGREDIENTS={'glass_marble':['glass','red_dye'],
  'reimu_doll':['white_wool','black_wool','red_dye'],'marisa_doll':['white_wool','black_wool','yellow_dye'],
  'pretty_stone':['cobblestone','amethyst_shard']}
 LABELS={'glass_marble':['玻璃弹珠','Glass marble'],'reimu_doll':['灵梦布偶','Reimu doll'],'marisa_doll':['魔理沙布偶','Marisa doll'],
  'pretty_stone':['漂亮石子','Pretty stone']}
 
+def lay_flat(mesh,bbmodel):
+    """Turn a standing extruded plate (front -Z) a quarter turn about X onto the ground: front up, icon top toward +Z."""
+    rows=mesh['vertices'];thick=max(rows[2::8])-min(rows[2::8]);height=max(rows[1::8])
+    place=lambda p:[p[0],round(thick/2-p[2],6)+0.0,round(p[1]-height/2,6)+0.0]
+    for i in range(0,len(rows),8):
+        rows[i:i+3]=place(rows[i:i+3]);rows[i+5:i+8]=[rows[i+5],-rows[i+7]+0.0,rows[i+6]]
+    mesh['bounds']=[[min(rows[k::8]),max(rows[k::8])] for k in range(3)]
+    for element in bbmodel['elements']:element['vertices']={k:place(p) for k,p in element['vertices'].items()}
+
+def _matrix(rotation):
+    """Minecraft display rotation (degrees) as the matrix Rx * Ry * Rz."""
+    (sa,ca),(sb,cb),(sc,cc)=((math.sin(math.radians(v)),math.cos(math.radians(v))) for v in rotation)
+    return [[cb*cc,-cb*sc,sb],[sa*sb*cc+ca*sc,-sa*sb*sc+ca*cc,-sa*cb],[-ca*sb*cc+sa*sc,ca*sb*sc+sa*cc,ca*cb]]
+
+def upright(model):
+    """The item model of a flat plate: every display but the dropped one first stands the plate up again (a quarter
+    turn back about X), then applies the kit's rotation for a standing plate."""
+    stand=_matrix([-90,0,0])
+    for context,entry in model['display'].items():
+        if context=='ground':continue
+        a=_matrix(entry.get('rotation',[0,0,0]));m=[[sum(a[i][k]*stand[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+        if abs(m[0][2])>.9999:raise ValueError('display rotation at the Euler pole')
+        angles=[math.degrees(v) for v in (math.atan2(-m[1][2],m[2][2]),math.asin(m[0][2]),math.atan2(-m[0][1],m[0][0]))]
+        entry['rotation']=[round(v,2)+0.0 for v in angles]
+    return model
+
 def outputs():
     previous=provenance(SNAPSHOT/'manifest.json')
-    image=Image.new('RGBA',(16,16))
-    for x,color in enumerate(PALETTE):
-        for y in range(16):image.putpixel((x,y),tuple(bytes.fromhex(color[1:]))+(200 if x==11 else 90 if x==10 else 255,))
-    stream=io.BytesIO();image.save(stream,format='PNG');texture=preserve_equivalent_png(HERE/'assembled'/next(iter(RECIPES))/'texture.png',stream.getvalue())
-    result={};index={}
+    result={};index={};icons={}
     def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
-    def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
-    emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS,'shared_palette':'art/props/palette.json'})
-    for name,shapes in RECIPES.items():
-        vertices=[];parts=[];elements=[]
-        for number,shape in enumerate(shapes):
-            points,faces=geometry(shape)
-            if 'ball' in shape:faces=[list(reversed(face)) for face in faces]
-            start=len(vertices)//8;bbfaces={};u=(shape['color']+.5)/16
-            for face in faces:
-                for j in range(1,len(face)-1):
-                    tri=[face[0],face[j],face[j+1]];normal=unit(cross(sub(points[tri[1]],points[tri[0]]),sub(points[tri[2]],points[tri[0]])))
-                    if sum(x*x for x in normal)<.5:continue
-                    for i in tri:vertices.extend([*points[i],u,.5,*normal])
-                    bbfaces[str(len(bbfaces))]={'vertices':[str(i) for i in tri],'uv':{str(i):[u*16,8] for i in tri},'texture':0}
-            parts.append({'name':f'part_{number}','start':start,'count':len(vertices)//8-start,'translucent':shape['color'] in (10,11)})
-            elements.append({'name':f'part_{number}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(number))),'origin':[0,0,0],'rotation':[0,0,0],'vertices':{str(i):p for i,p in enumerate(points)},'faces':bbfaces})
-        bounds=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)] if vertices else None
-        mesh={'format':1,'units_per_block':16,'vertices':[mesh_number(v) for v in vertices],'parts':parts,'bounds':bounds}
-        model_texture=texture
-        bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements],
-            'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
-        for folder in (HERE/'assembled'/name,SNAPSHOT/'selected'/name):
-            emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=model_texture
-        emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=model_texture
-        emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[25,225,0],'scale':[.85,.85,.85]},'ground':{'translation':[0,3,0],'scale':[.5,.5,.5]},'thirdperson_righthand':{'translation':[0,3,0],'scale':[.5,.5,.5]}}})
-        emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:'+x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
-        index[name]={'bounds':bounds,'triangles':len(vertices)//24}
-    fixed={}
-    for name,design in GOODS.items():
-        folder=SNAPSHOT/'selected'/name
-        if design:
-            prop=design()
-            result[folder/f'{name}.mesh.json']=care_kit.dumps(prop.mesh());result[folder/f'{name}.bbmodel']=care_kit.dumps(prop.bbmodel())
-            result[folder/'texture.png']=preserve_equivalent_png(folder/'texture.png',prop.png())
-            mesh_bytes,texture=result[folder/f'{name}.mesh.json'],result[folder/'texture.png']
-        else:
-            for file in (folder/f'{name}.mesh.json',folder/f'{name}.bbmodel',folder/'texture.png'):fixed[file]=file.read_bytes()
-            mesh_bytes,texture=fixed[folder/f'{name}.mesh.json'],fixed[folder/'texture.png']
-        mesh=json.loads(mesh_bytes);vertices=mesh['vertices']
-        mesh['bounds']=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)];mesh['format']=1
-        emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
-        emit(ASSETS/f'models/item/{name}.json',block_kit.prop_item_model(name,GOODS_GUI.get(name)))
-        index[name]={'bounds':mesh['bounds'],'triangles':len(vertices)//24}
-    emit(ASSETS/'yukkuri_props/facilities-index.json',index)
+    props={}
+    for name,design in toys.PROPS.items():
+        prop=design()
+        props[name]={'style':'block','source':'standards/yukkuri-library/drafts/block-props/toys.py'}
+        index[name]=(name,prop.mesh(),prop.bbmodel(),prop.png(),kit.prop_item_model(name))
+    for name,(height,flat) in EXTRUDED.items():
+        icons[ICONS/f'{name}.png']=icon=(ICONS/f'{name}.png').read_bytes()
+        mesh,bb,png=kit.extrude(name,icon,height)
+        model=kit.prop_item_model(name,extruded=True)
+        if flat:lay_flat(mesh,bb);upright(model)
+        props[name]={'style':'extruded_icon','icon':f'art/props/item-icons/{name}.png','height':height,'flat':flat}
+        index[name]=(name,mesh,bb,png,model)
+    emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':props,'recipes':INGREDIENTS})
+    catalog={}
+    for name,mesh,bb,png,model in index.values():
+        for folder in (SNAPSHOT/'selected'/name,*([HERE/'assembled'/name] if name in TOYS else [])):
+            emit(folder/f'{name}.mesh.json',mesh);emit(folder/f'{name}.bbmodel',bb)
+            result[folder/'texture.png']=preserve_equivalent_png(folder/'texture.png',png)
+        emit(ASSETS/f'yukkuri_props/{name}.json',mesh)
+        result[ASSETS/f'textures/props/{name}.png']=result[SNAPSHOT/'selected'/name/'texture.png']
+        emit(ASSETS/f'models/item/{name}.json',model)
+        if name in INGREDIENTS:
+            emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:'+x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
+        catalog[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
+    emit(ASSETS/'yukkuri_props/facilities-index.json',catalog)
     language={}
     for i,locale in enumerate(('zh_cn','en_us')):
         path=ASSETS/f'lang/{locale}.json';existing=json.loads(path.read_text(encoding='utf8'))
         strings={'item.mcyukkuri.'+name:labels[i] for name,labels in LABELS.items()}
         language[locale]=strings;changed=any(existing.get(k)!=v for k,v in strings.items());existing.update(strings)
         result[path]=(json.dumps(existing,ensure_ascii=False,indent=2)+'\n').encode() if changed else path.read_bytes()
-    emit(SNAPSHOT/'manifest.json',{'status':'pending-review-game-adaptation','source':str(HERE.relative_to(ROOT)).replace('\\','/')+'/build.py','language_keys':language,'inputs':fingerprints(ROOT,{**{p:p.read_bytes() for p in (Path(__file__).resolve(),BASE,HERE.parent/'care-props/small.py',HERE.parent/'care-props/kit.py',HERE.parent/'block-props/kit.py',HERE.parent/'block-props/toys.py',HERE.parent/'item-icons/draw.py')},**fixed},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
+    sources={p:p.read_bytes() for p in (Path(__file__).resolve(),HERE.parent/'block-props/kit.py',HERE.parent/'block-props/toys.py',HERE.parent/'item-icons/draw.py')}
+    emit(SNAPSHOT/'manifest.json',{'status':'pending-review-game-adaptation','source':str(HERE.relative_to(ROOT)).replace('\\','/')+'/build.py','language_keys':language,'inputs':fingerprints(ROOT,{**sources,**icons},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
     return result
 
 if __name__=='__main__':
@@ -120,4 +103,4 @@ if __name__=='__main__':
             changed.append(path.relative_to(ROOT).as_posix())
             if not args.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     if args.check and changed:raise SystemExit('Stale exports: '+', '.join(changed))
-    print(f'Care expansion: {len(RECIPES)} models; {len(changed)} files '+('differ' if args.check else 'written'))
+    print(f'Care expansion: {len(toys.PROPS)+len(EXTRUDED)} models; {len(changed)} files '+('differ' if args.check else 'written'))

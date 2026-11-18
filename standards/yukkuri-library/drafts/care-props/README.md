@@ -16,7 +16,7 @@
 | `wild_kit.py` | 野生族共用件：手绘图集（散草纤维、旧草、落叶垫、干草堆、苔藓、树皮、草团、毛虫、浆果、坚果、草团端茎头与木切口等可平铺材质，大叶、细叶与白花等镂空精灵），沿路径扫掠的草卷 `roll`、压扁的一口散草 `wad` 与分层堆压的窝沿 `pressed_rim`、低多边形草堆 `dome` 与小球、方截面细枝 `stick`／草茎 `straw`、贴面与直立十字精灵、平铺小块 |
 | `bags.py` | 油粮袋一条产品线：廉价牛皮纸袋、普通薄荷站立袋、高级藏青褶袋（平直热封边）、超辣红袋；标签在前后两面共用一份。超辣红袋是运行物品；前三袋网格只作周边附属物供离线预览，物品外观见 `supplies.py` |
 | `wild.py` | 野外油库里自建的巢（`wild_kit` 图集）：叶床（单位 1 铺满整格的落叶垫，2–17 为可拼接的边、角与延续段，每段是三层压实的散草（`pressed_rim`），略伸过段端以便相邻睡位叠成一圈，另有横搭或外支的松散草茎打碎轮廓；后 5、侧 4、前 2.4 高）、个人小叶巢（散叶 → 带缺口的低草圈 → 散草一层层堆压成的小窝，后高前低）、叶束（叼得动的一小撮松散干草与叶片，不是捆）与 2×2 野生大窝（窝底 0.5 落叶垫，三层压实的散草沿 `CareBlock` 野生碰撞的围沿走、最高 3，正面 \|x\|<7 开口、两肩 1.5／2.3）；捕食种枝巢仍引用原版贴图与叶色着色（不复制原版文件），由 `art/props/predators/build.py` 导出 |
-| `small.py` | 食物残渣、便便、漏馅（12 个单位逐块显示）、食糜、清洗布、携带篮；清洗布由 `care-expansion/build.py` 导出 |
+| `small.py` | 食物残渣、便便、漏馅（12 个单位逐块显示）、食糜、携带篮 |
 | `large_nests.py`、`preview_large_nests.py` | 2×2 家庭窝（项目设计）导出：`placed.py` 的 `large_yukkuri_nest`（默认款）与 `wild.py` 的 `large_wild_nest`（经 `vanilla_props.py` 登记），占地 32×32、原点在四格公共角、入口朝 +z；方块 `life/LargeNestBlock` 像床一样占真实 2×2 格（`part` 0 为西北角并持有方块实体与掉落，1／2 位为 +x／+z 格），每格只取自己那一角的碰撞，方块状态与掉落表由本导出器写出；可容两名成体与四只新生随意散卧。写入 `art/props/large-nests/` 快照及运行网格、粒子方块模型、物品模型、方块状态、掉落表与中英文名，并以 `owner` 条目加入共享 `yukkuri_props/index.json`；`--check` 只读。预览输出到 `.local/previews/birth-large-nests/`（`MCYUKKURI_PREVIEWS` 可改根目录） |
 | `goods.py` | 宠物照料物品（糖粒、布丁、牵引胴带、襁褓布八款）的 16×16 物品图标：前三件按色板阶绘制，襁褓布按 `supplies.py` 的原版物品画法，同一折叠布包按款式换布料与标记；`build.py` 写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/item/`；身上外观由 `client/CareWearRenderer` 程序化绘制 |
 | `wear.py` | 襁褓身上贴图：`swaddle_leaf_wear.png`（32×256：一片宽卵形叶的四个失护阶段——新叶、积便（叶缘泛黄、一块渍斑）、干黄卷褶、硬褐皱褶，各带积便染色版，树叶襁褓像尿布一样从身后兜过底部包到前方，打开时同一片叶摊在身下）、`swaddle/` 六种 16×16 可平铺布料（针织、细布、绒为近白按顶点色着色，虎纹、格纹、碎花自带颜色）与 `swaddle_trim.png`（64×64 装饰：荷叶边、蝴蝶结、绒球、胶底、背带、小包、虎额纹、A–Z 字母）；直接运行写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/misc/`；`--check` 只读 |
@@ -28,7 +28,7 @@
 | `preview_wild_nests.py` | 野生族当前运行网格的离线预览（不入库）：叶床单睡位与 L 形相连、2×2 野生大窝、个人小叶巢各阶段与叶束、储粮堆各档与特写，配成体／子体对照。输出 `.local/previews/wild-nests/`（`MCYUKKURI_PREVIEWS` 可改根目录） |
 | `build.py` | 写入 `art/props/runtime-peripheral/selected/` 的快照（含 `placed.py` 的食盆、填充、软垫窝、沙厕、便堆，以及全部非默认款式：大窝的款式也在这里，作为附属网格导出）；`--check` 只读 |
 
-`build.py` 之后执行 `scripts/export_peripheral_assets.py`。玩具色板由 `drafts/care-expansion/build.py` 导出；超辣油粮与食糜由 `drafts/consumables/build.py`；捕食种巢由 `art/props/predators/build.py`；叶床、个人小叶巢、叶束（`wild.py`）及纸箱由 `ecology/wild-shelters/build.py` 导出，结界等其余件的输出指纹不变；2×2 编织大窝默认款与野生大窝由 `large_nests.py` 导出。
+`build.py` 之后执行 `scripts/export_peripheral_assets.py`。小玩具、清洗布、教导哨与同伴绳由 `drafts/care-expansion/build.py` 导出；超辣油粮与食糜由 `drafts/consumables/build.py`；捕食种巢由 `art/props/predators/build.py`；叶床、个人小叶巢、叶束（`wild.py`）及纸箱由 `ecology/wild-shelters/build.py` 导出，结界等其余件的输出指纹不变；2×2 编织大窝默认款与野生大窝由 `large_nests.py` 导出。
 
 被替换的原三档袋“标签位图”改动脚本 `art/props/runtime-peripheral/shop_goods_v2.py` 不再处理油粮袋。厨余盆 `food_bowl_garbage` 无任何代码引用，已删除。旧导出的 `nest_lining` 不由游戏代码使用，但仍被动作预览 `preview/hub/actions.json` 引用，保留不动。
 

@@ -6,7 +6,7 @@ fixed display (mouth hold, item frame) from the holder's front and side when the
 beside an adult and a baby yukkuri at their real size. Meshes and textures are read from the runtime resources, so run the
 exporters first. Uses the care-prop software renderer.
 
-Usage: preview.py <out dir> <prop id>... [--before origin/main] [--fill <prop>:<fill id>:<units>]
+Usage: preview.py <out dir> <prop id>... [--before origin/main] [--fill <prop>:<fill id>:<units>] [--turn <prop>]
 Then publish with `scripts/preview.py collection <topic> --source <out dir> --decision ...`.
 """
 import argparse, io, json, os, subprocess, sys, tarfile, tempfile
@@ -85,7 +85,7 @@ def column(images, gap=16):
     return out
 
 
-def sheet(name, old, new, fills):
+def sheet(name, old, new, fills, turned=False):
     icon = Image.open(ICONS / f'{name}.png').convert('RGBA')
     has_old = (old.assets / f'yukkuri_props/{name}.json').exists()
     sources = [('旧', old)] * has_old + [('新', new)]
@@ -113,6 +113,10 @@ def sheet(name, old, new, fills):
     if turn:
         views.append(row([label(on(BG, shot(new, [(name, 8, 0, 0, 0, 1, turn, new)], (320, 260), az, 8)[0]),
                                 f'新 · 固定展示转 {turn:g}° · {what}') for az, what in ((180, '持有者正面'), (270, '持有者侧面'))]))
+    if turned:      # a pushed toy slides without turning, so the player sees it from every side: 1x and 4x each 45 degrees
+        tiles = [on(BG, shot(new, [(name, 8, 0, 0, 0, 1, yaw, new)], (16, 16))[0]) for yaw in range(0, 360, 45)]
+        views.append(label(row([row([pad(t, 24) for t in tiles], 2), row([t.resize((64, 64), Image.NEAREST) for t in tiles], 6)], 24),
+                           '新 · 每 45° 一面（1× 与 4×）'))
     world = []
     frame = None
     def scene(src):
@@ -136,6 +140,7 @@ def main():
     parser.add_argument('--before', default='origin/main', help='Git ref holding the previous runtime meshes')
     parser.add_argument('--fill', action='append', default=[], metavar='PROP:FILL:UNITS',
                         help='also draw a fill mesh with the prop, e.g. food_bowl:food_bowl_regular:8')
+    parser.add_argument('--turn', action='append', default=[], metavar='PROP', help='also show this prop from eight sides (rolling toys)')
     args = parser.parse_args()
     fills = {}
     for spec in args.fill:
@@ -147,7 +152,7 @@ def main():
         old, new = before_tree(args.before, work), R.Source(ROOT)
         for name in args.props:
             path = out / f'{name}.png'
-            sheet(name, old, new, fills).convert('RGB').save(path)
+            sheet(name, old, new, fills, name in args.turn).convert('RGB').save(path)
             print(path)
 
 
