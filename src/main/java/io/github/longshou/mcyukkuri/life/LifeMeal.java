@@ -13,6 +13,8 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.motor.Braid;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
@@ -29,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -47,6 +50,9 @@ final class LifeMeal {
     /** Project design: one portion of droppings feeds this much, and soils the eater this much hygiene. */
     static final float PIT_MEAL_NUTRITION = 20, PIT_MEAL_DIRT = 8;
     private int mealTicks;
+    private record TuftMeal(MealRoute route, MealRoute.Serving source, long start) {}
+    private TuftMeal tuftMeal;
+    private BlockPos tuftReleaseRefusedAt;
     /** The acquired serving is spat at the end of the take-food beat, including across unload. */
     private static final int SPIT_TICK = 10;
     private static final int SWALLOW_TICK = 45;
@@ -78,7 +84,56 @@ final class LifeMeal {
 
     boolean hasMouthFood() { return occupancy().purpose() == Purpose.MEAL; }
 
-    int mealTicks() { return mealTicks; }
+    int mealTicks() { return playingTuftMeal() ? Math.max(1, mealTicks) : mealTicks; }
+
+    private boolean playingTuftMeal() { return tuftMeal != null && tuftReleaseRefusedAt == null; }
+    boolean braidHasFood() { return tuftMeal != null && mealTicks == 0 && hasMouthFood(); }
+    String braidClip() { return playingTuftMeal() ? tuftMeal.route().id() : ""; }
+    long braidStart() { return tuftMeal.start(); }
+
+    boolean beginTuftMeal(MealRoute route, MealRoute.Serving source) {
+        var body = o.entity();
+        if (tuftMeal != null || !body.onGround() || body.motor().current() != null || !canEat() || !ExamSession.allowsPeerFeeding(body, null)
+                || !Braid.mouthFree(body) || Braid.use(body) != Braid.Use.FREE || !route.reaches(body, source.contact().get())) return false;
+        o.beginConsumption();
+        SurfaceApproach.halt(body);
+        tuftMeal = new TuftMeal(route, source, o.level().getGameTime());
+        return true;
+    }
+
+    /** The source is checked and debited at the tuft, and the mouth clock begins at its own contact marker. */
+    private boolean tickTuftMeal() {
+        if (tuftMeal == null) return true;
+        var body = o.entity();
+        if (tuftReleaseRefusedAt != null) {
+            if (!body.blockPosition().equals(tuftReleaseRefusedAt)) releaseForInterrupt();
+            return false;
+        }
+        var route = tuftMeal.route();
+        var source = tuftMeal.source();
+        var clip = route.clip();
+        long tick = o.level().getGameTime() - tuftMeal.start();
+        if (mealTicks == 0 && (!body.onGround() || body.isPassenger() || body.motor().current() != null
+                || body.distanceToSqr(route.stand()) > .12 * .12)) {
+            if (releaseForInterrupt()) clearTransfer();
+            return false;
+        }
+        if (tick == clip.ticks("pick")) {
+            if (!route.reaches(body, source.contact().get()) || Braid.use(body) != Braid.Use.FREE
+                    || !source.transfer().hand(one -> canStartSolid(one) && !refuseAtReach(one, null) && occupancy().acquireMeal(one))) {
+                GameplayLog.event(body, "meal", "braid pickup refused clip={} contact={}", route.id(), source.contact().get());
+                tuftMeal = null;
+            }
+        } else if (tick == clip.ticks("mouth")) {
+            startItemMeal(mouth(), null, false, "take_food");
+            if (source.bowl()) bowlMeal();
+            GameplayLog.event(body, "meal", "braid handover item={} clip={} tick={}", mouth().getItem(), route.id(), tick);
+            return false;
+        } else if (tick >= clip.length()) {
+            tuftMeal = null;
+        }
+        return mealTicks > 0;
+    }
 
     boolean fedBy(UUID actor) {
         if (actor.equals(feeder) && !spitMeal && kindnessFood(mouth())) return true;
@@ -187,7 +242,7 @@ final class LifeMeal {
 
     /** A crop and its serving commit together. A refused world change leaves the mouth empty. */
     boolean beginHarvestMeal(ItemStack serving, BooleanSupplier harvest) {
-        if (!canEat() || !acceptsFood(serving) || refuseAtReach(serving, null) || !ExamSession.allowsPeerFeeding(o.entity(), null)
+        if (tuftMeal != null || !canEat() || !acceptsFood(serving) || refuseAtReach(serving, null) || !ExamSession.allowsPeerFeeding(o.entity(), null)
                 || !occupancy().freeForExternalWork() || !occupancy().acquireMeal(serving)) return false;
         if (!harvest.getAsBoolean()) {
             occupancy().clear(Purpose.MEAL);
@@ -198,7 +253,7 @@ final class LifeMeal {
     }
 
     /** A caller checks this before consuming a body's one-shot resource. */
-    boolean canAcceptBodyFood() { return canEat() && occupancy().canHold(Purpose.MEAL); }
+    boolean canAcceptBodyFood() { return tuftMeal == null && canEat() && occupancy().canHold(Purpose.MEAL); }
 
     boolean canAcceptBodyFood(BodyFood.Bite bite) { return bite != null && !bite.isEmpty() && canAcceptBodyFood(); }
 
@@ -270,7 +325,7 @@ final class LifeMeal {
     }
 
     private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
-        if (!ExamSession.allowsPeerFeeding(o.entity(), fromPlayer)) return false;
+        if (tuftMeal != null || !ExamSession.allowsPeerFeeding(o.entity(), fromPlayer)) return false;
         if (!makeRoom("meal") || !occupancy().acquireMeal(transferred.copy())) return false;
         startItemMeal(transferred, fromPlayer, alreadyShared, reaction);
         return true;
@@ -282,7 +337,7 @@ final class LifeMeal {
 
     boolean beginCarriedMeal(Purpose source, UUID giver, boolean shared) {
         var stack = occupancy().stack(source);
-        if (!canEat() || stack.isEmpty() || !acceptsFood(stack) || refuseAtReach(stack, giver) || !occupancy().chewCarried(source)) return false;
+        if (tuftMeal != null || !canEat() || stack.isEmpty() || !acceptsFood(stack) || refuseAtReach(stack, giver) || !occupancy().chewCarried(source)) return false;
         startItemMeal(stack, giver, shared, "take_food");
         return true;
     }
@@ -365,6 +420,7 @@ final class LifeMeal {
     }
 
     private void clearTransfer() {
+        tuftMeal = null; tuftReleaseRefusedAt = null;
         feeder = null; mealTicks = 0; spitMeal = false; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
     }
 
@@ -403,6 +459,7 @@ final class LifeMeal {
     }
     /** False preserves the old interrupt-and-return from the entire life tick. */
     boolean tickChew() {
+        if (!tickTuftMeal()) return true;
         if (mealTicks > 0) {
             ItemStack mouth = mouth();
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { o.interrupt(); return false; }
@@ -600,6 +657,28 @@ final class LifeMeal {
         return true;
     }
     boolean releaseForInterrupt() {
+        if (braidHasFood()) {
+            var body = o.entity();
+            var route = tuftMeal.route();
+            var tip = tuftReleaseRefusedAt == null
+                    ? route.tip(body, (o.level().getGameTime() - tuftMeal.start()) / 20f) : ContactGeometry.braidTip(body);
+            boolean released = occupancy().releaseMeal(one -> {
+                if (tuftMeal.source().restore().test(one)) {
+                    GameplayLog.event(body, "meal", "braid returned item={} clip={}", one.getItem(), route.id());
+                    return true;
+                }
+                var drop = ItemContact.hasReleaseSupport(body, tip) ? ItemContact.release(body, one, tip, Vec3.ZERO) : null;
+                if (drop == null) return false;
+                GameplayLog.event(body, "meal", "braid interrupted item={} drop={} clip={}", one.getItem(), drop.getUUID(), route.id());
+                return true;
+            }, bite -> false);
+            if (released) clearTransfer();
+            else {
+                tuftReleaseRefusedAt = body.blockPosition();
+                GameplayLog.limited(body, "meal", "braid_release_refused", 200, "braid release refused item={} tip={}", mouth().getItem(), tip);
+            }
+            return released;
+        }
         return !hasMouthFood() || occupancy().releaseMeal(mouth -> {
             ItemEntity dropped = ItemContact.releaseSupported(o.entity(), mouth, 60);
             if (dropped == null) {

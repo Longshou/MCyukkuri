@@ -2,7 +2,7 @@
   "authoring": "art/props/street-bin/build.py",
   "status": "pending_user_confirmation",
   "exports": {
-    "src/main/resources/assets/mcyukkuri/blockstates/garbage_bin.json": "1665049564b1c044c75368f91713e321c2c41e83ffec523d2531bcea3b70983c",
+    "src/main/resources/assets/mcyukkuri/blockstates/garbage_bin.json": "4ad35759d61d1a63b5c5881a24a7a77fa5d00e40be89a3f17f401047721ccd7e",
     "src/main/resources/assets/mcyukkuri/models/block/garbage_bin.json": "ac0ad29055f519c058788ff2c7baf80be8e3873af66284e65e9e717708ca3ae2",
     "src/main/resources/assets/mcyukkuri/models/block/garbage_bin_rock_east_settle.json": "cac059519397832abee0c7446b37418c9bc69b0cdf0d91ac7ef43ce07e4314a1",
     "src/main/resources/assets/mcyukkuri/models/block/garbage_bin_rock_east_strong.json": "b6f91f01a1d80071bb2f1c06c5b191bd5d208a00feaeb6fa06ec56ec47ad3f9b",

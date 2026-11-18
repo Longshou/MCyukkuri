@@ -289,6 +289,7 @@ public final class InteractionDispatch {
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
     public static boolean perform(Player player,YukkuriEntity target,CareAction action){
+        if (action == CareAction.LIFT && reachRefusal(player, target, 5) == null) target.homeTerritory().offended(player);
         var reason=action.tool!=null?performTool(player,target,action):refusal(player,target,action);
         if(reason==null){
             if(action.tool!=null||target.operations().perform(player,action))return true;

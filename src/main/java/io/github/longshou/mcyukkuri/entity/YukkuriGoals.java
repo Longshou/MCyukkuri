@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
@@ -57,8 +58,10 @@ final class YukkuriGoals {
     private PresentationGoals presentationGoals;
     private RoamingGoal roaming;
     private Kindness kindness;
+    private HomeTerritoryGoal homeTerritory;
     RoamingGoal roaming() { return roaming; }
     Kindness kindness() { return kindness; }
+    HomeTerritoryGoal homeTerritory() { return homeTerritory; }
     YukkuriGoals(YukkuriEntity owner, GoalSelector goalSelector) {
         this.owner = owner;
         this.goalSelector = goalSelector;
@@ -111,7 +114,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
-        goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_TERRITORY, new HomeTerritoryGoal(owner)));
+        homeTerritory = new HomeTerritoryGoal(owner);
+        goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_TERRITORY, homeTerritory));
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() {
@@ -198,10 +202,19 @@ final class YukkuriGoals {
     }
     private final class HoldActionGoal extends Goal {
         HoldActionGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.requestedActionValue() != null || owner.bereaving(); }
+        @Override public boolean canUse() {
+            return owner.requestedActionValue() != null || owner.bereaving()
+                    || HomeClaim.declaring(owner) && !homeTerritory.active() && !homeTerritory.declarationChallenged();
+        }
         @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void start() { owner.directNavigation().stop(); }
-        @Override public void tick() { owner.directNavigation().stop(); }
+        @Override public void start() { tick(); }
+        @Override public void tick() {
+            owner.directNavigation().stop();
+            if (HomeClaim.declaring(owner)) SurfaceApproach.halt(owner);
+        }
+        @Override public void stop() {
+            if (HomeClaim.declaring(owner) && !homeTerritory.active()) owner.cancelReaction();
+        }
     }
     private final class ShellGoal extends Goal {
         ShellGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}

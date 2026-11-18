@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Locale;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -33,6 +36,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -46,6 +50,17 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class GarbageBinBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty TIPPED = BooleanProperty.create("tipped");
+    public static final EnumProperty<Rock> ROCK = EnumProperty.create("rock", Rock.class);
+    public enum Rock implements StringRepresentable {
+        NONE,
+        SOUTH_STRONG, SOUTH_WEAK, SOUTH_SETTLE,
+        WEST_STRONG, WEST_WEAK, WEST_SETTLE,
+        NORTH_STRONG, NORTH_WEAK, NORTH_SETTLE,
+        EAST_STRONG, EAST_WEAK, EAST_SETTLE;
+
+        @Override public String getSerializedName() { return name().toLowerCase(Locale.ROOT); }
+        private static Rock toward(Direction direction, String size) { return valueOf(direction.name() + "_" + size); }
+    }
     private static final String LEGACY_MARKER = "YukkuriGarbage";
     // Model boxes (16ths) with the mouth of the fallen can toward south; the blockstate turns them like the model.
     private static final double[][] STANDING = {{2, 0, 2, 14, 14, 14}, {6, 14, 7, 10, 15, 9}};
@@ -54,7 +69,7 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
 
     public GarbageBinBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.SOUTH).setValue(TIPPED, false));
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.SOUTH).setValue(TIPPED, false).setValue(ROCK, Rock.NONE));
     }
 
     private static Map<Direction, VoxelShape> shapes(double[][] boxes) {
@@ -72,7 +87,7 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         return out;
     }
 
-    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(FACING, TIPPED); }
+    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(FACING, TIPPED, ROCK); }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
@@ -123,15 +138,35 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
 
     /** Knocks the standing bin over toward {@code fall}; its contents stay inside, its mouth now opens that way. */
     public static void knockOver(Level level, BlockPos pos, Direction fall) {
-        level.setBlock(pos, level.getBlockState(pos).setValue(TIPPED, true).setValue(FACING, fall), Block.UPDATE_ALL);
+        level.setBlock(pos, level.getBlockState(pos).setValue(TIPPED, true).setValue(FACING, fall).setValue(ROCK, Rock.NONE), Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, .8f, .7f);
     }
 
     public static boolean standUp(Level level, BlockPos pos) {
-        var upright = level.getBlockState(pos).setValue(TIPPED, false);
+        var upright = level.getBlockState(pos).setValue(TIPPED, false).setValue(ROCK, Rock.NONE);
         if (!level.isUnobstructed(upright, pos, CollisionContext.empty()) || !level.setBlock(pos, upright, Block.UPDATE_ALL)) return false;
         level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, .6f, 1.1f);
         return true;
+    }
+
+    public static void rock(ServerLevel level, BlockPos pos, Direction fall, boolean strong) {
+        var state = level.getBlockState(pos);
+        var local = Direction.from2DDataValue(Math.floorMod(fall.get2DDataValue() - state.getValue(FACING).get2DDataValue(), 4));
+        level.setBlock(pos, state.setValue(ROCK, Rock.toward(local, strong ? "STRONG" : "WEAK")), Block.UPDATE_CLIENTS);
+        level.scheduleTick(pos, state.getBlock(), strong ? 3 : 2);
+        level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, .4f, 1);
+    }
+
+    @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        var next = switch (state.getValue(ROCK)) {
+            case SOUTH_STRONG -> Rock.NORTH_SETTLE;
+            case WEST_STRONG -> Rock.EAST_SETTLE;
+            case NORTH_STRONG -> Rock.SOUTH_SETTLE;
+            case EAST_STRONG -> Rock.WEST_SETTLE;
+            default -> Rock.NONE;
+        };
+        level.setBlock(pos, state.setValue(ROCK, next), Block.UPDATE_CLIENTS);
+        if (next != Rock.NONE) level.scheduleTick(pos, this, 2);
     }
 
     /** Older street templates made garbage points from vanilla barrels tagged {@code NeoForgeData.YukkuriGarbage}. */

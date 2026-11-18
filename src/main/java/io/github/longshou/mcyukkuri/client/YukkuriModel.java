@@ -568,6 +568,23 @@ public final class YukkuriModel {
     public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
     /** Captured from the rendered lip surface before its expression patch is restored. */
     public Matrix4f mouthAttachmentPose() { return new Matrix4f(mouthAttachment); }
+
+    Vector3f braidMealTip() {
+        var root = java.util.Arrays.stream(bones).filter(bone -> bone.name().equals("hand_right")).findFirst().orElseThrow();
+        int tip = -1;
+        double distance = -1;
+        for (var part : parts) {
+            if (!part.name.startsWith("braid_lock_tuft")) continue;
+            for (int i = part.start; i < part.start + part.count; i++) {
+                double d = new Vector3f(restVertices[i * 8], restVertices[i * 8 + 1], restVertices[i * 8 + 2])
+                        .distanceSquared(root.x(), root.y(), root.z());
+                if (d > distance) { tip = i; distance = d; }
+            }
+        }
+        var point = new Vector3f();
+        skin(tip, point);
+        return point.div(16);
+    }
     /** The current grip at the posed braid tuft, in blocks; absent while she holds nothing. */
     public Matrix4f itemAttachmentPose() { return itemAttachment; }
     private void captureMouthAttachment() {

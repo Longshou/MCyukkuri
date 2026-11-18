@@ -151,9 +151,13 @@ def outputs():
         for size, degrees in ROCK_DEGREES.items():
             files[ASSETS / f'models/block/garbage_bin_rock_{toward}_{size}.json'] = js(rocked(toward, degrees))
     turn = {'south': 0, 'west': 90, 'north': 180, 'east': 270}
+    rocks = ['none', *(f'{side}_{size}' for side in ROCK_EDGE for size in ROCK_DEGREES)]
     files[ASSETS / 'blockstates/garbage_bin.json'] = js({'variants': {
-        f'facing={d},tipped={str(t).lower()}': {'model': 'mcyukkuri:block/garbage_bin' + ('_tipped' if t else ''), **({'y': y} if y else {})}
-        for d, y in turn.items() for t in (False, True)}})
+        f'facing={d},rock={r},tipped=false': {'model': 'mcyukkuri:block/garbage_bin' + (f'_rock_{r}' if r != 'none' else ''),
+                                             **({'y': y} if y else {})}
+        for d, y in turn.items() for r in rocks} | {
+        f'facing={d},tipped=true': {'model': 'mcyukkuri:block/garbage_bin_tipped', **({'y': y} if y else {})}
+        for d, y in turn.items()}})
     files[ASSETS / 'models/item/garbage_bin.json'] = js({'parent': 'mcyukkuri:block/garbage_bin'})
     files[RUN / 'data/mcyukkuri/loot_table/blocks/garbage_bin.json'] = js({'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
         {'type': 'minecraft:item', 'name': 'mcyukkuri:garbage_bin'}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})

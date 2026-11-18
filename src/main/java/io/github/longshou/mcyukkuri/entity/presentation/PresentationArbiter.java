@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriControl;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Actions;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -99,6 +100,10 @@ public final class PresentationArbiter {
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
         if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
+        if (clip.equals(e.life().braidMealClip()))
+            return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "look_down");
+        if (HomeClaim.declaring(e) && clip.equals(e.reactionAction().id()))
+            return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "smug");
         if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();
         if(state.reactionTicks()>0)return state.reactionExpression();
         if(e.body().dying())return "blank_cry";
@@ -298,11 +303,20 @@ public final class PresentationArbiter {
         var court=state.requestedAction()==null&&behavior.equals(Behaviors.PAIRING)?e.family().courtContactAction():null;
         // Contact locks its clip to the real shared clock. Commands retain their own pose.
         var pose = court!=null?new ActionPose(court,e.family().courtAnimationStart()):state.requestedAction()==null?actionPose(e):null;
+        if (pose == null && state.requestedAction() == null) {
+            var braid = switch (e.life().braidMealClip()) {
+                case Behaviors.BRAID_EAT -> YukkuriAction.BRAID_EAT;
+                case Behaviors.BRAID_EAT_BIN -> YukkuriAction.BRAID_EAT_BIN;
+                default -> null;
+            };
+            if (braid != null) pose = new ActionPose(braid, e.life().braidMealStart());
+        }
         if (state.requestedAction() == null && e.isPassenger() && e.social().greeting()
                 && (e.motor().current() == null || e.motor().current().interruptible()))
             pose = new ActionPose(YukkuriAction.GREET, e.social().greetStart());
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
                 : pose != null ? pose.action()
+                : HomeClaim.declaring(e) ? e.reactionAction()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()

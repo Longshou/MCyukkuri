@@ -9,9 +9,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /** Authored clip timing: a clip's own markers are the server clock, so an action and the drawn clip agree. Durations and markers are read once and kept per clip name. */
 public final class ClipMarkers {
@@ -25,6 +23,7 @@ public final class ClipMarkers {
         }
 
         public int length() { return Math.max(1, Math.round(seconds * 20f)); }
+        public int ticks(String marker) { return Math.round(markers.get(marker) * 20f); }
 
         /** The tuft end at {@code at} seconds (model units), linear between the exported samples and held past either end. */
         public Vec tip(float at) {
@@ -39,14 +38,16 @@ public final class ClipMarkers {
     private static final String DATA = "/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json";
     /** A clip the file does not author: one second and no markers, so every {@link Clip#ticks} call uses its fallback. */
     private static final Clip MISSING = new Clip(1f, Map.of(), Map.of(), new float[0]);
-    private record Data(Map<String, Clip> clips, Set<String> tipped) {}
+    private record Data(Map<String, Clip> clips, Map<String, Clip> tipped) {}
     private static volatile Data data;
 
     /** The clip authored under {@code clip}, or the {@link #MISSING} default when the data has no such clip. */
     public static Clip of(String clip) { return loaded().clips().getOrDefault(clip == null ? "" : clip, MISSING); }
 
     /** Whether the model {@code model} has its own authored tuft track for {@code clip} (the braid-key clips are authored per model). */
-    public static boolean tipped(String model, String clip) { return loaded().tipped().contains(model + "/" + clip); }
+    public static boolean tipped(String model, String clip) { return loaded().tipped().containsKey(model + "/" + clip); }
+
+    public static Clip tuftClip(String model, String clip) { return loaded().tipped().get(model + "/" + clip); }
 
     private static Data loaded() {
         var loaded = data;
@@ -58,7 +59,7 @@ public final class ClipMarkers {
 
     private static Data read() {
         var out = new HashMap<String, Clip>();
-        var tipped = new HashSet<String>();
+        var tipped = new HashMap<String, Clip>();
         try (var stream = ClipMarkers.class.getResourceAsStream(DATA)) {
             if (stream == null) throw new IOException("missing " + DATA);
             var reader = new JsonReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
@@ -75,7 +76,7 @@ public final class ClipMarkers {
                         while (reader.hasNext()) {
                             String name = reader.nextName();
                             var clip = clip(reader);
-                            if (clip.tip().length > 0) tipped.add(model + "/" + name);
+                            if (clip.tip().length > 0) tipped.put(model + "/" + name, clip);
                             out.putIfAbsent(name, clip);
                         }
                         reader.endObject();
@@ -100,7 +101,7 @@ public final class ClipMarkers {
             }
             reader.endObject();
         } catch (IOException failure) { throw new java.io.UncheckedIOException(failure); }
-        return new Data(Map.copyOf(out), Set.copyOf(tipped));
+        return new Data(Map.copyOf(out), Map.copyOf(tipped));
     }
 
     private static Clip clip(JsonReader reader) throws IOException {

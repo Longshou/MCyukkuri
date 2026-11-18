@@ -253,6 +253,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 var grip=heldIndex==1&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!mash?model.gripPoint():null;
                 pose.pushPose();
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
+                else if (heldIndex == 0) HeldItemPresentation.meal(pose, model, entity, action, clock);
                 else HeldItemPresentation.mouth(pose,model);
                 if(mash){
                     float portionScale=entity.profile().portionScale();

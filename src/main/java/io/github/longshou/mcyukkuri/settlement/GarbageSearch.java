@@ -7,10 +7,15 @@ import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
+import io.github.longshou.mcyukkuri.life.MealRoute;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.Toxins;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Shove;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -19,9 +24,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -36,12 +43,11 @@ import net.minecraft.world.phys.Vec3;
  * One real serving from a street bin. A standing bin keeps its contents out of reach: the body shoves it from one side and it
  * falls the other way only if the shove beats its load. A fallen bin is rummaged at its open mouth.
  */
-public final class GarbageSearch {
-    private static final String RAM = "lunge_ram";
+public final class GarbageSearch implements MotorOwner {
     private static final int RADIUS = 8, RAMS = 3;
     /** Width of the selected adult body export (12.8 units, body_geometry.json): a shove's mass is relative to it. */
     private static final double ADULT_WIDTH = .8;
-    private enum Phase { WALK, SNIFF, RAM, NOSE_IN, CARRY, RETREAT }
+    private enum Phase { WALK, SNIFF, RAM, NOSE_IN, BRAID_APPROACH, CARRY, RETREAT }
 
     /** The stand to work from; {@code fall} is where a standing bin goes when shoved from {@code stand}, null at a fallen bin's mouth. */
     private record Point(GarbageBinBlockEntity bin, BlockPos stand, Direction fall) {}
@@ -52,10 +58,15 @@ public final class GarbageSearch {
     private Phase phase;
     private long nextScan, nextTake, deadline;
     private int rams;
+    private MealRoute braid;
+    private Vec3 braidContact;
+    private Shove stroke;
 
     public GarbageSearch(YukkuriEntity body) { this.body = body; }
     private ServerLevel level() { return (ServerLevel)body.level(); }
     private long now() { return level().getGameTime(); }
+    @Override public String ownerId() { return Behaviors.HOUSE_SCAVENGE; }
+    @Override public boolean active() { return phase == Phase.RAM; }
     public boolean targeting(BlockPos pos) { return point != null && point.bin().getBlockPos().equals(pos) && phase != Phase.RETREAT && phase != Phase.CARRY; }
 
     private boolean eligible() {
@@ -168,6 +179,11 @@ public final class GarbageSearch {
             if (person != null) { retreat(person.position(), "person_near"); return true; }
         }
         if (!eligible() || !allowedByFamily(point.stand())) { stop(); return false; }
+        if (phase == Phase.RAM) {
+            if (body.motor().current() == stroke) return true;
+            if (!(body.motor().last() instanceof Outcome.Done)) { decline("ram_obstructed"); return false; }
+            if (bin.tipped()) body.showReaction("surprise", "", 30);
+        }
         // Someone stood the bin up, or it fell meanwhile: work from where the bin now is.
         if (bin.tipped() != (point.fall() == null)) {
             var next = points(bin).stream().filter(p -> body.life().dryStand(p.stand()))
@@ -193,17 +209,50 @@ public final class GarbageSearch {
             GameplayLog.event(body, "forage", "garbage sniff point={} tipped={}", pos, bin.tipped());
             return true;
         }
+        if (phase == Phase.BRAID_APPROACH) {
+            var move = SurfaceApproach.walkToContact(body, braid.stand(), null, 1);
+            if (move != SurfaceApproach.Result.BLOCKED && now() < deadline) {
+                if (move != SurfaceApproach.Result.ARRIVED) return true;
+                SurfaceApproach.face(body, braid.yaw());
+                if (Math.abs(Mth.wrapDegrees(braid.yaw() - body.yBodyRot)) > Face.FACE_ARRIVED) return true;
+                if (body.life().takeBinWithBraid(braid, braidContact, bin, receiver -> handBraidFood(bin, receiver))) {
+                    stop();
+                    return false;
+                }
+            }
+            decline("braid_contact_lost");
+            return false;
+        }
         if (body.distanceToSqr(aim) > .25) { retreat(Vec3.atCenterOf(pos), "lost_contact"); return true; }
+        var fall = point.fall();
+        if (phase == Phase.SNIFF && fall != null)
+            SurfaceApproach.face(body, SurfaceApproach.yaw(Vec3.ZERO, Vec3.atLowerCornerOf(fall.getNormal())));
         if (now() < deadline) return true;
         if (phase == Phase.NOSE_IN) return take(bin);
         if (bin.tipped()) {
+            var facing = bin.getBlockState().getValue(GarbageBinBlock.FACING);
+            var outward = Vec3.atLowerCornerOf(facing.getNormal());
+            // The can's mouth is at 13/16 in its south-facing frame; the contact is just outside its collider.
+            braidContact = Vec3.atBottomCenterOf(pos).add(outward.scale(5 / 16.0 + .001)).add(0, .125, 0);
+            if (phase == Phase.SNIFF && edible(bin.getItem(serving(bin))) && braid == null) {
+                braid = MealRoute.choose(body, braidContact, SurfaceApproach.yaw(Vec3.ZERO, outward.reverse()), true);
+                if (braid != null) {
+                    phase = Phase.BRAID_APPROACH;
+                    deadline = now() + clip(Behaviors.HOUSE_SCAVENGE);
+                    GameplayLog.event(body, "forage", "garbage nose_in point={} holder=braid", pos);
+                    return true;
+                }
+            }
             phase = Phase.NOSE_IN; deadline = now() + clip(Behaviors.HOUSE_SCAVENGE);
             GameplayLog.event(body, "forage", "garbage nose_in point={}", pos);
             return true;
         }
-        if (phase == Phase.RAM && shove(bin)) return true;
         if (rams == RAMS) { decline("too_heavy"); return false; }
-        phase = Phase.RAM; deadline = now() + clip(RAM); rams++;
+        phase = Phase.RAM;
+        stroke = new Shove(pos, fall.getOpposite(),
+                () -> level().hasChunkAt(pos) && level().getBlockEntity(pos) == bin && !bin.tipped(),
+                travel -> shove(bin, fall, travel));
+        if (!body.motor().run(this, stroke)) { decline("ram_refused"); return false; }
         return true;
     }
 
@@ -212,18 +261,18 @@ public final class GarbageSearch {
      * varied ±10% per ram, plus the rocking left by earlier rams; the bin resists with its own weight and its load. So a big bold
      * stray topples a half-empty bin at once, an ordinary one after rocking it, and a small or timid one gives up.
      */
-    private boolean shove(GarbageBinBlockEntity bin) {
+    private void shove(GarbageBinBlockEntity bin, Direction fall, double travel) {
+        rams++;
         double mass = Math.pow(body.getBbWidth() / ADULT_WIDTH, 2);
         double push = mass * (.5 + body.life().personality().boldness() / 100.) * (.9 + .2 * body.getRandom().nextDouble()) + .15 * (rams - 1);
         double resist = 1 + .05 * bin.load();
-        boolean falls = push >= resist && GarbageBinBlock.canFall(level(), bin.getBlockPos(), point.fall());
-        GameplayLog.event(body, "forage", "garbage ram point={} count={} push={} resist={} tipped={}", bin.getBlockPos(), rams,
-                String.format(Locale.ROOT, "%.2f", push), String.format(Locale.ROOT, "%.2f", resist), falls);
-        if (!falls) return false;
-        GarbageBinBlock.knockOver(level(), bin.getBlockPos(), point.fall());
-        body.showReaction("surprise", "", 30);
-        walkTo(new Point(bin, bin.getBlockPos().relative(point.fall()), null), "knocked_over");
-        return true;
+        boolean falls = push >= resist && GarbageBinBlock.canFall(level(), bin.getBlockPos(), fall);
+        boolean strong = push >= .8 * resist;
+        if (falls) GarbageBinBlock.knockOver(level(), bin.getBlockPos(), fall);
+        else GarbageBinBlock.rock(level(), bin.getBlockPos(), fall, strong);
+        GameplayLog.event(body, "forage", "garbage ram point={} count={} push={} resist={} tipped={} rock={} strokeTravel={}", bin.getBlockPos(), rams,
+                String.format(Locale.ROOT, "%.2f", push), String.format(Locale.ROOT, "%.2f", resist), falls,
+                falls ? "none" : strong ? "strong" : "weak", travel);
     }
 
     private void walkTo(Point next, String why) {
@@ -254,8 +303,24 @@ public final class GarbageSearch {
         return true;
     }
 
+    private boolean handBraidFood(GarbageBinBlockEntity bin, Predicate<ItemStack> receiver) {
+        var pos = bin.getBlockPos();
+        if (!level().hasChunkAt(pos) || level().getBlockEntity(pos) != bin || !bin.tipped()) return false;
+        int slot = serving(bin);
+        if (slot < 0 || !edible(bin.getItem(slot))) return false;
+        var one = bin.getItem(slot).copyWithCount(1);
+        if (!receiver.test(one)) return false;
+        bin.removeItem(slot, 1);
+        nextTake = now() + 1200;
+        GameplayLog.event(body, "forage", "garbage pickup item={} count=1 source={} holder=braid food=true left={}",
+                one.getItem(), pos, bin.load());
+        GameplayLog.event(body, "meal", "pickup item={} count=1 source={} holder=braid", one.getItem(), pos);
+        return true;
+    }
+
     private void retreat(Vec3 from, String reason) {
         remember(reason);
+        body.motor().cancel(this, "garbage_retreat");
         body.showReaction("surprise", "", 50);
         phase = Phase.RETREAT; deadline = now() + 100;
         aim = DefaultRandomPos.getPosAway(body, 5, 2, from);
@@ -272,16 +337,17 @@ public final class GarbageSearch {
     public String activity() {
         return switch (phase) {
             case SNIFF -> Behaviors.HOUSE_SNIFF;
-            case RAM -> RAM;
-            case NOSE_IN -> Behaviors.HOUSE_SCAVENGE;
+            case NOSE_IN, BRAID_APPROACH -> Behaviors.HOUSE_SCAVENGE;
             case CARRY -> Behaviors.SHELTER_CARRY;
             case null, default -> Behaviors.SEEK_FOOD;
         };
     }
     public void stop() {
         if (point == null) return;
+        body.motor().cancel(this, "garbage_ended");
         if (phase == Phase.CARRY) body.habitat().putDownMouthLoad();
         point = null; aim = null; phase = null; rams = 0;
+        braid = null; braidContact = null; stroke = null;
         SurfaceApproach.stopWalking(body);
     }
 }

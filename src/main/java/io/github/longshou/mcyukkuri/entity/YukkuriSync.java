@@ -47,6 +47,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Long> SPEECH_END = YukkuriEntity.defineSyncedValue( EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> SPEECH_SEQUENCE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<ItemStack> MOUTH = YukkuriEntity.defineSyncedValue( EntityDataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<Boolean> FOOD_ON_BRAID = YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     /** A body-food bite is display-only transport, deliberately separate from real mouth items. */
     private static final EntityDataAccessor<CompoundTag> MOUTH_BODY_FOOD = YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> MEDAL = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
@@ -168,6 +169,7 @@ final class YukkuriSync {
     int speechSequence() { return owner.getEntityData().get(SPEECH_SEQUENCE); }
     String speechVoiceTier() { return owner.getEntityData().get(SPEECH_VOICE_TIER); }
     ItemStack getMouthItem() { return owner.getEntityData().get(MOUTH); }
+    boolean foodOnBraid() { return owner.getEntityData().get(FOOD_ON_BRAID); }
     BodyFood.Bite getMouthBodyFood() { return BodyFood.Bite.load(owner.getEntityData().get(MOUTH_BODY_FOOD)); }
     void syncMouthBodyFood(BodyFood.Bite bite) {
         if (owner.level().isClientSide) return;
@@ -359,6 +361,7 @@ final class YukkuriSync {
             if (carried.isEmpty()) carried = owner.habitat().carrying();
         }
         if (!ItemStack.matches(owner.getEntityData().get(MOUTH), mouth)) owner.getEntityData().set(MOUTH, mouth.copy());
+        owner.getEntityData().set(FOOD_ON_BRAID, owner.life().braidHasFood());
         if (!ItemStack.matches(owner.getEntityData().get(CARRYING), carried)) owner.getEntityData().set(CARRYING, carried.copy());
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
@@ -394,6 +397,7 @@ final class YukkuriSync {
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);
         builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(MOUTH_BODY_FOOD, new CompoundTag()); builder.define(ACCESSORY, true);
+        builder.define(FOOD_ON_BRAID, false);
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);
         builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);

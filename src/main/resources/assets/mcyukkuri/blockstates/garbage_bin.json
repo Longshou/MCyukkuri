@@ -1,30 +1,210 @@
 {
   "variants": {
-    "facing=south,tipped=false": {
+    "facing=south,rock=none,tipped=false": {
       "model": "mcyukkuri:block/garbage_bin"
+    },
+    "facing=south,rock=south_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_strong"
+    },
+    "facing=south,rock=south_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_weak"
+    },
+    "facing=south,rock=south_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_settle"
+    },
+    "facing=south,rock=north_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_strong"
+    },
+    "facing=south,rock=north_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_weak"
+    },
+    "facing=south,rock=north_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_settle"
+    },
+    "facing=south,rock=east_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_strong"
+    },
+    "facing=south,rock=east_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_weak"
+    },
+    "facing=south,rock=east_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_settle"
+    },
+    "facing=south,rock=west_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_strong"
+    },
+    "facing=south,rock=west_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_weak"
+    },
+    "facing=south,rock=west_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_settle"
+    },
+    "facing=west,rock=none,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin",
+      "y": 90
+    },
+    "facing=west,rock=south_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_strong",
+      "y": 90
+    },
+    "facing=west,rock=south_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_weak",
+      "y": 90
+    },
+    "facing=west,rock=south_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_settle",
+      "y": 90
+    },
+    "facing=west,rock=north_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_strong",
+      "y": 90
+    },
+    "facing=west,rock=north_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_weak",
+      "y": 90
+    },
+    "facing=west,rock=north_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_settle",
+      "y": 90
+    },
+    "facing=west,rock=east_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_strong",
+      "y": 90
+    },
+    "facing=west,rock=east_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_weak",
+      "y": 90
+    },
+    "facing=west,rock=east_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_settle",
+      "y": 90
+    },
+    "facing=west,rock=west_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_strong",
+      "y": 90
+    },
+    "facing=west,rock=west_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_weak",
+      "y": 90
+    },
+    "facing=west,rock=west_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_settle",
+      "y": 90
+    },
+    "facing=north,rock=none,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin",
+      "y": 180
+    },
+    "facing=north,rock=south_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_strong",
+      "y": 180
+    },
+    "facing=north,rock=south_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_weak",
+      "y": 180
+    },
+    "facing=north,rock=south_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_settle",
+      "y": 180
+    },
+    "facing=north,rock=north_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_strong",
+      "y": 180
+    },
+    "facing=north,rock=north_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_weak",
+      "y": 180
+    },
+    "facing=north,rock=north_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_settle",
+      "y": 180
+    },
+    "facing=north,rock=east_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_strong",
+      "y": 180
+    },
+    "facing=north,rock=east_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_weak",
+      "y": 180
+    },
+    "facing=north,rock=east_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_settle",
+      "y": 180
+    },
+    "facing=north,rock=west_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_strong",
+      "y": 180
+    },
+    "facing=north,rock=west_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_weak",
+      "y": 180
+    },
+    "facing=north,rock=west_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_settle",
+      "y": 180
+    },
+    "facing=east,rock=none,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin",
+      "y": 270
+    },
+    "facing=east,rock=south_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_strong",
+      "y": 270
+    },
+    "facing=east,rock=south_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_weak",
+      "y": 270
+    },
+    "facing=east,rock=south_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_south_settle",
+      "y": 270
+    },
+    "facing=east,rock=north_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_strong",
+      "y": 270
+    },
+    "facing=east,rock=north_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_weak",
+      "y": 270
+    },
+    "facing=east,rock=north_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_north_settle",
+      "y": 270
+    },
+    "facing=east,rock=east_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_strong",
+      "y": 270
+    },
+    "facing=east,rock=east_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_weak",
+      "y": 270
+    },
+    "facing=east,rock=east_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_east_settle",
+      "y": 270
+    },
+    "facing=east,rock=west_strong,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_strong",
+      "y": 270
+    },
+    "facing=east,rock=west_weak,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_weak",
+      "y": 270
+    },
+    "facing=east,rock=west_settle,tipped=false": {
+      "model": "mcyukkuri:block/garbage_bin_rock_west_settle",
+      "y": 270
     },
     "facing=south,tipped=true": {
       "model": "mcyukkuri:block/garbage_bin_tipped"
-    },
-    "facing=west,tipped=false": {
-      "model": "mcyukkuri:block/garbage_bin",
-      "y": 90
     },
     "facing=west,tipped=true": {
       "model": "mcyukkuri:block/garbage_bin_tipped",
       "y": 90
     },
-    "facing=north,tipped=false": {
-      "model": "mcyukkuri:block/garbage_bin",
-      "y": 180
-    },
     "facing=north,tipped=true": {
       "model": "mcyukkuri:block/garbage_bin_tipped",
       "y": 180
-    },
-    "facing=east,tipped=false": {
-      "model": "mcyukkuri:block/garbage_bin",
-      "y": 270
     },
     "facing=east,tipped=true": {
       "model": "mcyukkuri:block/garbage_bin_tipped",

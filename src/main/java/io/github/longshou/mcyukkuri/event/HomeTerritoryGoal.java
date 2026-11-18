@@ -42,6 +42,8 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     private record Home(BlockPos site, BlockPos mouth, BlockPos refuge, boolean sealed, boolean softNest) {}
     private Home home;
     private LivingEntity intruder;
+    private record Offence(BlockPos site, Player player) {}
+    private Offence offence;
     private YukkuriEntity child;
     private RamPerson ram;
     private boolean nestVisit;
@@ -82,25 +84,25 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
                 && !body.isInWaterOrBubble() && !body.isOnFire() && !body.life().hasUrgentNeed();
     }
 
-    private boolean nearHome(LivingEntity visitor) {
-        return home.mouth.distToCenterSqr(visitor.getX(), visitor.getY(), visitor.getZ()) <= RADIUS * RADIUS
-                || home.refuge.distToCenterSqr(visitor.getX(), visitor.getY(), visitor.getZ()) <= RADIUS * RADIUS;
+    private static boolean nearHome(Home at, LivingEntity visitor) {
+        return at.mouth.distToCenterSqr(visitor.getX(), visitor.getY(), visitor.getZ()) <= RADIUS * RADIUS
+                || at.refuge.distToCenterSqr(visitor.getX(), visitor.getY(), visitor.getZ()) <= RADIUS * RADIUS;
     }
 
-    private boolean visit(LivingEntity visitor) {
+    private boolean visit(Home at, LivingEntity visitor) {
         return visitor.isAlive() && !visitor.isRemoved() && visitor.level() == body.level()
-                && !visitor.isSpectator() && nearHome(visitor);
+                && !visitor.isSpectator() && nearHome(at, visitor);
     }
 
-    private boolean nestVisitor(LivingEntity visitor) {
-        return home.softNest && body.family().adult() && visitor instanceof YukkuriEntity peer && peer != body
-                && visit(peer) && !peer.isPassenger() && !peer.profile().dangerToYukkuri() && Recognition.recognizes(body, peer)
+    private boolean nestVisitor(Home at, LivingEntity visitor) {
+        return at.softNest && body.family().adult() && visitor instanceof YukkuriEntity peer && peer != body
+                && visit(at, peer) && !peer.isPassenger() && !peer.profile().dangerToYukkuri() && Recognition.recognizes(body, peer)
                 && !FamilyNest.sameNest(body, peer) && body.hasLineOfSight(peer)
-                && home.site.distToCenterSqr(peer.getX(), peer.getY(), peer.getZ()) <= 4;
+                && at.site.distToCenterSqr(peer.getX(), peer.getY(), peer.getZ()) <= 4;
     }
 
-    private boolean stranger(LivingEntity visitor) {
-        if (visitor == body || !visit(visitor) || !body.hasLineOfSight(visitor)) return false;
+    private boolean stranger(Home at, LivingEntity visitor) {
+        if (visitor == body || !visit(at, visitor) || !body.hasLineOfSight(visitor)) return false;
         if (visitor instanceof YukkuriEntity peer) {
             if (peer.profile().dangerToYukkuri() || peer.isPassenger() || !Recognition.recognizes(body, peer)
                     || Bonds.careOrMate(body, peer) || Bonds.sameGroupId(body, peer)
@@ -120,6 +122,33 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         return contact.closeness() < BondLevels.TRUST_FAMILIAR || contact.fear() >= BondLevels.AFFECTION_FEAR_LIMIT;
     }
 
+    /** Actual harm or a lift attempt counts even when the resident knows this player. */
+    public void offended(Player player) {
+        var at = home();
+        if (at == null || !nearHome(at, body) || !visit(at, player)) return;
+        offence = new Offence(at.site, player);
+        scanAt = body.level().getGameTime();
+        GameplayLog.event(body, "home-claim", "territory offended target={} site={}", player.getUUID(), at.site);
+    }
+
+    private boolean offending(Home at, LivingEntity visitor) {
+        return offence != null && offence.player == visitor && offence.site.equals(at.site) && visit(at, visitor);
+    }
+
+    private LivingEntity visitor(Home at) {
+        return body.level().getEntitiesOfClass(LivingEntity.class, new AABB(at.mouth).minmax(new AABB(at.refuge)).inflate(RADIUS),
+                visitor -> visitor != intruder
+                        && (at.softNest && visitor instanceof YukkuriEntity ? nestVisitor(at, visitor) : stranger(at, visitor)))
+                .stream().min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+    }
+
+    /** The stationary declaration yields to a new encounter, which the normal territory goal owns. */
+    public boolean declarationChallenged() {
+        if (!available() || !body.onGround() || body.level().getGameTime() < scanAt) return false;
+        var at = home();
+        return at != null && nearHome(at, body) && (offence != null && offending(at, offence.player) || visitor(at) != null);
+    }
+
     @Override public boolean canUse() {
         long now = body.level().getGameTime();
         if (now < scanAt || !available() || !body.onGround()) return false;
@@ -127,13 +156,15 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         var current = home();
         if (current == null || home == null || !current.site.equals(home.site)) intruder = null;
         home = current;
-        if (home == null || !nearHome(body)) return false;
-        if (intruder != null && visit(intruder)) return false;
-        intruder = body.level().getEntitiesOfClass(LivingEntity.class, new AABB(home.mouth).minmax(new AABB(home.refuge)).inflate(RADIUS),
-                visitor -> home.softNest && visitor instanceof YukkuriEntity ? nestVisitor(visitor) : stranger(visitor))
-                .stream().min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+        if (home == null || !nearHome(home, body)) { offence = null; return false; }
+        if (offence != null && !offending(home, offence.player)) offence = null;
+        if (offence != null) intruder = offence.player;
+        else {
+            if (intruder != null && visit(home, intruder)) return false;
+            intruder = visitor(home);
+        }
         if (intruder == null) return false;
-        nestVisit = nestVisitor(intruder);
+        nestVisit = nestVisitor(home, intruder);
         if (body.life().isSleeping()) {
             body.life().wakeForDanger("territory");
             scanAt = now + LOOK;
@@ -148,13 +179,14 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         var current = home();
         return active && available() && current != null && current.site.equals(home.site)
-                && visit(intruder) && elapsed < (nestVisit ? (aside != null ? NEST_VISIT : LOOK + PUFF) : VISIT)
+                && visit(home, intruder) && elapsed < (nestVisit ? (aside != null ? NEST_VISIT : LOOK + PUFF + 1) : VISIT)
                 && !(intruder instanceof YukkuriEntity peer && (SocialDisposition.caringContact(body, peer) || FamilyNest.sameNest(body, peer)));
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void start() {
+        if (HomeClaim.declaring(body)) body.cancelReaction();
         active = true; elapsed = 0; yielded = false;
         child = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(RADIUS),
                 y -> y.isAlive() && body.family().caresFor(y) && Recognition.recognizes(body, y))
@@ -171,6 +203,12 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         }
         if (nestVisit) {
             if (elapsed == LOOK) resolveNestVisit();
+            else if (HomeClaim.declaring(body)) {
+                elapsed = LOOK;
+                SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), intruder.position()));
+            } else if (elapsed == LOOK + 1 && !yielded && nestVisitor(home, intruder) && intruder.blockPosition().equals(home.site)) {
+                puff();
+            }
             if (aside != null && body.onGround()) {
                 var movement = SurfaceApproach.walkResult(body, aside, intruder, 1);
                 if (movement == SurfaceApproach.Result.ARRIVED || movement == SurfaceApproach.Result.BLOCKED) {
@@ -181,7 +219,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             }
             return;
         }
-        if (ram != null && !stranger(intruder)) {
+        if (ram != null && !stranger(home, intruder) && !offending(home, intruder)) {
             body.motor().cancel(this, "territory_visitor_withdrew");
             return;
         }
@@ -205,13 +243,14 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         }
         if (yielded) { shelter(); return; }
         if (elapsed == LOOK) {
-            body.showReaction("angry", "wild_role_provoke", PUFF);
+            body.showReaction("angry", "wild_role_provoke", PUFF / 2);
             GameplayLog.event(body, "home-claim", "territory warn target={} site={} esteem={} wariness={} resolve={}",
                     intruder.getUUID(), home.site, contact.esteem(), contact.wariness(), courage);
         }
-        if (elapsed == LOOK + PUFF / 2)
-            body.showReaction(YukkuriAction.PUFF, "cheek_puff", "");
-        if (elapsed < LOOK + PUFF || home().sealed || !stranger(intruder)) return;
+        if (elapsed >= LOOK && elapsed < LOOK + PUFF + PUFF / 2)
+            SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), intruder.position()));
+        if (elapsed == LOOK + PUFF / 2 && (stranger(home, intruder) || offending(home, intruder))) puff();
+        if (elapsed < LOOK + PUFF + PUFF / 2 || home().sealed || !stranger(home, intruder) && !offending(home, intruder)) return;
         if (person) {
             if (ram != null || courage < .45 || body.body().healthRatio() < .65) return;
             var trial = new RamPerson(intruder);
@@ -224,7 +263,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             }
         } else {
             var peer = (YukkuriEntity) intruder;
-            if (elapsed == LOOK + PUFF) {
+            if (elapsed == LOOK + PUFF + PUFF / 2) {
                 boolean route = body.life().navigate(peer.blockPosition(), 1.2, false);
                 GameplayLog.event(body, "home-claim", "territory chase target={} route={}", peer.getUUID(), route);
             }
@@ -240,7 +279,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     }
 
     private void resolveNestVisit() {
-        if (!nestVisitor(intruder)) return;
+        if (!nestVisitor(home, intruder)) { yielded = true; return; }
         var p = body.life().personality();
         var contact = SocialDisposition.contact(body, intruder);
         // Choose a reachable place along the rim and clear of both the visitor and the resident's current stand.
@@ -250,7 +289,8 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
                 + .30 * (1 - SocialDisposition.ramp(body.life().energy(), 25, 80)) - .65 * contact.wariness();
         double yield = .25 + .45 * SocialDisposition.ramp(p.friendliness(), 35, 75)
                 + .20 * SocialDisposition.ramp(contact.closeness(), 0, 20) + (alternative == null ? 0 : .10);
-        boolean declare = guard > yield;
+        boolean declare = guard > yield && !body.body().weak() && body.body().mold() == 0 && !body.family().carry().carrying();
+        yielded = !declare;
         if (declare) HomeClaim.declareHome(body, home.site);
         else {
             aside = alternative;
@@ -258,6 +298,11 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         }
         GameplayLog.event(body, "home-claim", "nest dispute peer={} site={} response={} guard={} yield={}",
                 intruder.getUUID(), home.site, declare ? "declare" : "yield", guard, yield);
+    }
+
+    private void puff() {
+        if (body.showReaction(YukkuriAction.PUFF, "cheek_puff", "", PUFF))
+            GameplayLog.event(body, "home-claim", "territory puff target={} site={}", intruder.getUUID(), home.site);
     }
 
     private static double resolve(YukkuriEntity actor, SocialDisposition.Contact contact, double ratio) {
@@ -280,9 +325,10 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     }
 
     @Override public void stop() {
-        if (!nestVisit && !yielded && elapsed >= LOOK && intruder.isAlive() && !nearHome(intruder)
-                && home.equals(home()) && nearHome(body) && body.family().adult())
+        if (!nestVisit && !yielded && elapsed >= LOOK && intruder.isAlive() && !nearHome(home, intruder)
+                && home.equals(home()) && nearHome(home, body) && body.family().adult())
             HomeClaim.declareHome(body, home.site);
+        if (offence != null && offence.player == intruder) offence = null;
         body.motor().cancel(this, "territory_ended");
         SurfaceApproach.stopWalking(body);
         active = false; ram = null; child = null; aside = null;

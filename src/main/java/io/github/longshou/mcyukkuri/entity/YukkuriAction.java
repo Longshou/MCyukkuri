@@ -28,6 +28,8 @@ public enum YukkuriAction {
     // World-setting motions from motions/variants/lore/recipe.json, shipped in the motion corrections;
     // models outside a clip's `applies` group fall back to idle.
     EAT("eat", 1.2, true),
+    BRAID_EAT("braid_eat", 1.9, false),
+    BRAID_EAT_BIN("braid_eat_bin", 1.9, false),
     SHIAWASE("shiawase", 2.0, false),
     MEAL_CONTENT("meal_content", 3.6, false),
     DRINK("drink", 1.6, true),
@@ -134,6 +136,8 @@ public enum YukkuriAction {
     THINK("think", 2.0, true),
     NERVOUS("nervous", 1.5, true),
     PROUD("proud", 2.0, false),
+    HOME_DECLARE("home_declare", 6.4, false),
+    HOME_DECLARE_TIMID("home_declare_timid", 3.2, false),
     JOY_JUMP("joy_jump", 1.6, false),
     SULK("sulk", 2.4, true),
     HIDE_FACE("hide_face", 2.0, true),

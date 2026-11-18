@@ -263,6 +263,7 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
     late=[f'yukkuri scenario home {sel("greedy")} ~3 ~ ~3',
           block(7, 0, 3, 'mcyukkuri:velvet_nest[facing=south]')],
     env=DAY, spot='big', vantage=(5, 10, 180),
+    capture=dict(shots=(40,), sequences=((65, 320, 4), (360, 480, 4)), follow=sel('greedy'), offset=(1.25, .8, 2.05)),
     reads=[('读占领阶段','yukkuri homeclaim status'),('读魔理沙', f'yukkuri status {sel("greedy")} raw')],
     smoke=dict(ticks=900, expect=[r'\[home-claim\][^\n]* occupation chosen .*kind=bed .*previous=ResourceKey',
                                   r'\[home-claim\][^\n]* declared site=.*spoken=true'],
@@ -530,6 +531,7 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
         street_stray('stray_rubbish', 'marisa', 12, 3, 'timid_stray', nutrition=24, boldness=25, label='胆小的'),
         street_stray('stray_rubbish', 'marisa', 26, 3, 'bold_stray', nutrition=24, boldness=90, label='胆大的'),
     ], env=DAY, spot='street', vantage=(0, 12),
+    capture=dict(shots=(35,), sequences=((40, 255, 2), (260, 420, 5)), follow=sel('bold_stray'), offset=(-1.9, .85, .65)),
     smoke=dict(ticks=700, forbid=[r'\[forage\][^\n]* garbage ram .*count=4'],
                expect=[r'\[forage\][^\n]* garbage pickup item=[^\n]* food=true',
                                   r'\[meal\][^\n]* swallowed item=',
@@ -537,6 +539,7 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
                                   r'\[habitat\][^\n]* drop item=minecraft:paper count=1 holder=mouth',
                                   r'\[forage\][^\n]* garbage pickup item=mcyukkuri:junk_headwear [^\n]*holder=head',
                                   r'\[headwear\][^\n]* junk equipped variant=\S+ source=ground',
+                                  r'\[forage\][^\n]* garbage ram [^\n]*tipped=false rock=(strong|weak) strokeTravel=0\.0*[1-9]',
                                   r'\[forage\][^\n]* garbage ram [^\n]*tipped=true',
                                   r'\[forage\][^\n]* garbage gave_up .*reason=too_heavy rams=3']))
 

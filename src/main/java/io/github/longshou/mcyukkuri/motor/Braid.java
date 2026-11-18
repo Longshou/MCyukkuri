@@ -10,11 +10,10 @@ import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 /**
  * The one authority on what a Marisa's braid holds this tick (project design, user 2026-11-06: braid occupancy has one authority):
  * a young ({@link ParentCarry#braidGripping}), her hat on its way on or off (the hat clips, which keep the stick in the tuft), her
- * held stick (her kit in {@link Held.Place#GRIP}), or nothing. Read on both sides from the hold record, the motor action and the
- * held record; never stored.
+ * held stick (her kit in {@link Held.Place#GRIP}), a serving on its way to her mouth, or nothing.
  */
 public final class Braid {
-    public enum Use { NONE, FREE, STICK, YOUNG, HAT }
+    public enum Use { NONE, FREE, STICK, YOUNG, HAT, FOOD }
 
     private Braid() {}
 
@@ -22,6 +21,7 @@ public final class Braid {
     public static Use use(YukkuriEntity body) {
         if (!ContactGeometry.braided(body)) return Use.NONE;
         if (gripping(body)) return Use.YOUNG;
+        if (body.life().braidHasFood()) return Use.FOOD;
         String action = body.motorAction();
         if (action.equals(TakeProp.ID) || action.equals(PlaceProp.ID)) return Use.HAT;
         return !body.hatKit().isEmpty() && body.life().custody().kitPlace() == Held.Place.GRIP ? Use.STICK : Use.FREE;

@@ -54,6 +54,7 @@ import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.SpeciesLife;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
@@ -231,7 +232,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private final List<String> recentSpeech = new ArrayList<>();
     private String reactionExpression = "neutral";
     private String reactionEvent = "";
-    private String pendingSpeech = "";
+    private record DelayedCue(String event, YukkuriAction action, java.util.function.Consumer<Boolean> result) {}
+    private DelayedCue pendingSpeech;
     private int pendingSpeechTicks;
     // The bridge reads nothing during construction; component instances keep their original timing.
     private final PresentationArbiter presentation = new PresentationArbiter(new PresentationState());
@@ -456,6 +458,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int speechSequence() { return sync().speechSequence(); }
     public String speechVoiceTier() { return sync().speechVoiceTier(); }
     public ItemStack getMouthItem() { return sync().getMouthItem(); }
+    public boolean foodOnBraid() { return level().isClientSide ? sync().foodOnBraid() : life.braidHasFood(); }
     public BodyFood.Bite getMouthBodyFood() { return sync().getMouthBodyFood(); }
     /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
     public void syncMouthBodyFood(BodyFood.Bite bite) { sync().syncMouthBodyFood(bite); }
@@ -474,6 +477,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public WoundComfort woundComfort() { return woundComfort; }
     public YukkuriSocial social() { return social; }
     public Kindness kindness() { return goals.kindness(); }
+    public HomeTerritoryGoal homeTerritory() { return goals.homeTerritory(); }
     public GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public PlayLife playLife(){return playLife;}
     public void frightenFrom(YukkuriEntity threat) {
@@ -818,12 +822,24 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
         if (level().isClientSide) return;
         if (!isAlive()) return;
-        if (reactionTicks > 0) reactionTicks--;
-        if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
+        boolean firstReactionTick = reactionStartedAt == level().getGameTime();
+        if (!firstReactionTick && reactionTicks > 0 && --reactionTicks == 0 && reactionAfter != null) {
+            var follow = reactionAfter;
+            var event = reactionEvent;
+            showReaction(follow, reactionExpression, "");
+            setAnimation(follow, true);
+            reactionEvent = event;
+            reactionHeld = true;
+        }
+        if (!firstReactionTick && pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
+            var cue = pendingSpeech;
+            pendingSpeech = null;
             // A newborn's first words: its kind's childish hello when it has one, else its newborn line (FamilyLife.firstWords).
-            boolean first = pendingSpeech.equals("newborn");
-            String words = first ? family.firstWords() : pendingSpeech;
-            if (speak(words, first && words.equals("hello") ? "young" : speechTier()) && first) BirthStaging.greeting(this);
+            if (cue.action() == null) {
+                boolean first = cue.event().equals("newborn");
+                String words = first ? family.firstWords() : cue.event();
+                if (speak(words, first && words.equals("hello") ? "young" : speechTier()) && first) BirthStaging.greeting(this);
+            } else if (reactionAction() == cue.action()) cue.result().accept(speakCue(cue.event()));
         }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
@@ -851,22 +867,40 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void bereave(EmotionEvent loss, UUID lost, BlockPos where) {
         if (level().isClientSide) return;
         reactionTicks = 100; reactionHeld = true; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);
-        pendingSpeech = "family_died"; pendingSpeechTicks = 32;
+        reactionAction = reactionAfter = null;
+        pendingSpeech = new DelayedCue("family_died", null, null); pendingSpeechTicks = 32;
         mind.feeling().mourn(lost, where);
     }
 
     /** A reaction whose line is spoken after a delay, when the clip reaches its face (the newborn's first
      *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
-        if (level().isClientSide || held() && !urgent(event)) return;
-        reactionAction = null;
-        reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = event == null ? "" : event;
-        pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
+        showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, null);
+    }
+
+    public boolean showReactionDelayed(YukkuriAction action, String expression, String event, int ticks, int speechDelayTicks,
+                                       YukkuriAction follow, java.util.function.Consumer<Boolean> spoken) {
+        if (level().isClientSide || held() && !urgent(event)) return false;
+        reactionAction = action;
+        reactionAfter = follow;
+        reactionTicks = ticks; reactionHeld = action != null; reactionExpression = expression; reactionEvent = event == null ? "" : event;
+        pendingSpeech = new DelayedCue(reactionEvent, action, spoken); pendingSpeechTicks = Math.max(1, speechDelayTicks);
+        if (action != null) {
+            reactionStartedAt = level().getGameTime();
+            setAnimation(action, true);
+        }
+        return true;
     }
 
     public boolean hasReaction() { return reactionTicks > 0; }
-    private YukkuriAction reactionAction;
+    private YukkuriAction reactionAction, reactionAfter;
+    private long reactionStartedAt = -1;
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
+    public boolean homeDeclarationFollowup() { return reactionEvent.equals("home_declare"); }
+    public void cancelReaction() {
+        reactionTicks = 0;
+        reactionAction = reactionAfter = null;
+    }
 
     /** An ordinary reaction pose. Movement, active contact and danger can still take priority. */
     public boolean showReaction(YukkuriAction action, String expression, String dialogue) {
@@ -891,7 +925,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */
     public void forceReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
-        reactionAction = null;
+        reactionAction = reactionAfter = null;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(reactionEvent);
     }
@@ -919,7 +953,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     /** Which wording fits this individual right now: a bold, pleased one; a wary, low one; or the plain line. */
-    private String speechStyle() {
+    public String speechStyle() {
         var feeling = mind.feeling();
         if (feeling.subdued()) return "timid";
         if (feeling.kind() == EmotionCourse.Kind.JOY) return "proud";

@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.settlement.GarbageSearch;
 import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
@@ -41,6 +42,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
@@ -125,6 +127,7 @@ public final class YukkuriLife {
     private long avoidFieldUntil, cropSearchAfter;
     private int cropLook;
     private ItemContact.BowlStand bowlStand;
+    private MealRoute foodRoute;
     /** Only rejected food destinations in reach of the present approach origin. */
     private final Map<BlockPos, Vec3> refusedFood = new HashMap<>();
     private Vec3 refusedFoodFrom;
@@ -455,6 +458,9 @@ public final class YukkuriLife {
     public BodyFood.Bite mouthBodyFood() { return meal.mouthBodyFood(); }
     public boolean hasMouthFood() { return meal.hasMouthFood(); }
     public int mealTicks(){ return meal.mealTicks(); }
+    public String braidMealClip() { return meal.braidClip(); }
+    public long braidMealStart() { return meal.braidStart(); }
+    public boolean braidHasFood() { return meal.braidHasFood(); }
     /** Ticks this body has waited its turn at a contested meal; 0 when it is not heading for food. */
     public int queuedTicks() { return task == Task.FOOD ? queueTicks : 0; }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
@@ -532,6 +538,7 @@ public final class YukkuriLife {
     }
     public String activity() {
         if (fatigueActive()) return Behaviors.SLEEP;
+        if (!braidMealClip().isEmpty()) return braidMealClip();
         if (mealTicks() > 0) {
             String after = meal.content() ? Behaviors.MEAL_CONTENT : Behaviors.MEAL_FINISH;
             if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : after;
@@ -704,6 +711,11 @@ public final class YukkuriLife {
 
     /** The caller commits exactly one real portion when the mouth accepts it. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
+    public boolean takeBinWithBraid(MealRoute route, Vec3 contact, GarbageBinBlockEntity bin,
+                                   Predicate<Predicate<ItemStack>> hand) {
+        return meal.beginTuftMeal(route, new MealRoute.Serving(() -> contact, hand::test,
+                one -> MealRoute.restore(entity, bin, one), false));
+    }
     public boolean beginOfferedMeal(ItemStack food, Player giver) {
         return meal.beginOfferedMeal(food, giver.getUUID(), !giver.getAbilities().instabuild);
     }
@@ -723,7 +735,11 @@ public final class YukkuriLife {
                 seeksFood(item.getItem()) && ItemContact.reaches(entity,item) && WildCards.mayTakeFood(entity,item));
         var food = items.stream().min(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                 .thenComparingDouble(entity::distanceToSqr)).orElse(null);
-        if (food != null) takeGroundFood(food);
+        if (food != null) {
+            var contact = groundFoodContact(food);
+            var route = MealRoute.choose(entity, contact, entity.yBodyRot, false);
+            takeGroundFood(food, route != null && route.reaches(entity, contact) ? route : null);
+        }
     }
     public boolean beginCarriedMeal(MouthOccupancy.Purpose source) { return meal.beginCarriedMeal(source); }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
@@ -938,6 +954,7 @@ public final class YukkuriLife {
             if (useBowlNicely && entity.pet().isPet()) targetFood = null;
             if (targetFood != null || targetBlock != null) {
                 bowlStand = null;
+                foodRoute = targetFood == null ? null : groundFoodRoute(targetFood);
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
             }
             if (mayPress && glassFood == null) {
@@ -1423,10 +1440,14 @@ public final class YukkuriLife {
 
     private void seekFood() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240) { stopGoal(); return; }
-        if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem()))) targetFood = null;
+        if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem()))) {
+            targetFood = null;
+            foodRoute = null;
+        }
         if (targetFood != null) {
             entity.getLookControl().setLookAt(targetFood, 20, 20);
-            if (ItemContact.reaches(entity, targetFood)) {
+            if (foodRoute != null && !braidAtFood(groundFoodContact(targetFood))) return;
+            if (foodRoute != null || ItemContact.reaches(entity, targetFood)) {
                 if (!WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
@@ -1436,7 +1457,7 @@ public final class YukkuriLife {
                 if (behindRival && queueTicks++ < wait) {
                     entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
-                if (takeGroundFood(targetFood)) {
+                if (takeGroundFood(targetFood, foodRoute)) {
                     if (!useBowlNicely && targetBlock != null
                             && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
                         GameplayLog.event(entity, "lesson", "bowl skipped for loose food bowl={}", targetBlock);
@@ -1457,13 +1478,28 @@ public final class YukkuriLife {
         } else if (targetBlock != null && !avoidsField(targetBlock)
                 && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
             Vec3 source = Vec3.atBottomCenterOf(targetBlock);
-            if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
+            if (bowlStand == null) {
+                bowlStand = ItemContact.bowlStand(entity, targetBlock);
+                if (bowlStand != null && useBowlNicely)
+                    foodRoute = MealRoute.choose(entity, bowlStand.contact(), SurfaceApproach.yaw(bowlStand.feet(), bowlStand.contact()), false);
+            }
             if (bowlStand == null) {
                 refuseFoodRoute(source, null, "no_reachable_bowl_face");
                 return;
             }
-            if (ItemContact.reaches(entity, bowlStand.contact(), .06)) {
+            if (foodRoute != null && !braidAtFood(bowlStand.contact())) return;
+            if (foodRoute != null || ItemContact.reaches(entity, bowlStand.contact(), .06)) {
                 if (useBowlNicely) {
+                    if (foodRoute != null) {
+                        var contact = bowlStand.contact();
+                        if (!meal.beginTuftMeal(foodRoute, new MealRoute.Serving(() -> contact,
+                                receiver -> !bowl.isRemoved() && bowl.handFood(this::seeksFood, one -> {
+                                    if (!receiver.test(one)) return false;
+                                    GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} holder=braid", one.getItem(), bowl.getBlockPos());
+                                    return true;
+                                }), one -> MealRoute.restore(entity, bowl, one), true))) stopGoal();
+                        return;
+                    }
                     boolean taken = bowl.handFood(this::seeksFood, one -> {
                         if (!beginMeal(one, null, false)) return false;
                         meal.bowlMeal();
@@ -1478,6 +1514,7 @@ public final class YukkuriLife {
                         var dropped = ItemContact.release(entity, one, 0);
                         if (dropped == null) return false;
                         targetFood = dropped;
+                        foodRoute = groundFoodRoute(dropped);
                         GameplayLog.event(entity, "meal", "bowl spilled item={} source={} drop={} count={}",
                                 one.getItem(), bowl.getBlockPos(), dropped.getUUID(), one.getCount());
                         return true;
@@ -1509,14 +1546,43 @@ public final class YukkuriLife {
         }
     }
 
-    private boolean takeGroundFood(ItemEntity food) {
+    private static Vec3 groundFoodContact(ItemEntity food) { return food.position().add(0, .06, 0); }
+
+    private MealRoute groundFoodRoute(ItemEntity food) {
+        var contact = groundFoodContact(food);
+        return MealRoute.choose(entity, contact, SurfaceApproach.yaw(entity.position(), contact), false);
+    }
+
+    private boolean braidAtFood(Vec3 contact) {
+        if (foodRoute.reaches(entity, contact)) return true;
+        switch (SurfaceApproach.walkToContact(entity, foodRoute.stand(), null, 1.15)) {
+            case ARRIVED -> {
+                SurfaceApproach.face(entity, foodRoute.yaw());
+                if (Math.abs(Mth.wrapDegrees(entity.yBodyRot - foodRoute.yaw())) <= 3 && !foodRoute.reaches(entity, contact))
+                    foodRoute = null;
+            }
+            case BLOCKED -> foodRoute = null;
+            default -> {}
+        }
+        return false;
+    }
+
+    private boolean takeGroundFood(ItemEntity food, MealRoute route) {
+        if (route != null) return meal.beginTuftMeal(route, new MealRoute.Serving(() -> groundFoodContact(food),
+                receiver -> handGroundFood(food, receiver, "braid"), one -> false, false));
+        return handGroundFood(food, one -> beginMeal(one, null, false), "mouth");
+    }
+
+    private boolean handGroundFood(ItemEntity food, Predicate<ItemStack> receiver, String holder) {
+        if (!food.isAlive() || food.hasPickUpDelay() || !EventHooks.canEntityGrief(level(), entity)
+                || !WildCards.mayTakeFood(entity, food)) return false;
         var one = food.getItem().copyWithCount(1);
-        if (!beginMeal(one, null, false)) return false;
+        if (!receiver.test(one)) return false;
         var remaining = food.getItem().copy();
         remaining.shrink(1);
         if (remaining.isEmpty()) food.discard(); else food.setItem(remaining);
-        GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder=mouth",
-                one.getItem(), food.getUUID(), remaining.getCount());
+        GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder={}",
+                one.getItem(), food.getUUID(), remaining.getCount(), holder);
         WildCards.foodTaken(entity, food);
         return true;
     }
@@ -1536,6 +1602,7 @@ public final class YukkuriLife {
         stallTheft.stop();
         entity.wintering().stopMeal();
         endFoodGlass();
+        foodRoute = null;
         task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }

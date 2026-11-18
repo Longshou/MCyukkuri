@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 
 import io.github.longshou.mcyukkuri.client.capture.PoseTap;
 
@@ -38,7 +39,7 @@ final class HeldItemPresentation {
 
     static boolean closedGrip(YukkuriView entity) {
         String behavior=entity.getBehaviorId();
-        return !entity.profile().houseBody()&&(!entity.getMouthItem().isEmpty()||!entity.getCarriedItem().isEmpty())
+        return !entity.profile().houseBody()&&(!entity.getMouthItem().isEmpty()&&!entity.foodOnBraid()||!entity.getCarriedItem().isEmpty())
                 &&!behavior.equals(Behaviors.FAMILY_CHEW)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG);
     }
@@ -57,6 +58,23 @@ final class HeldItemPresentation {
 
     static void mouth(PoseStack pose,YukkuriModel model) {
         pose.mulPose(model.mouthAttachmentPose());
+    }
+
+    static void meal(PoseStack pose, YukkuriModel model, YukkuriView body, String action, float seconds) {
+        if (action.equals(Behaviors.BRAID_EAT) || action.equals(Behaviors.BRAID_EAT_BIN)) {
+            var clip = ClipMarkers.tuftClip(body.assetId(), action);
+            if (clip != null) {
+                float share = smooth((seconds * 20 - clip.ticks("mouth")) / GLIDE);
+                var point = clip.tip(seconds);
+                var from = new Matrix4f().translation((float) point.x() / 16, (float) point.y() / 16, (float) point.z() / 16);
+                pose.mulPose(from.lerp(model.mouthAttachmentPose(), share));
+                return;
+            }
+        }
+        if (body.foodOnBraid()) {
+            var tip = model.braidMealTip();
+            pose.translate(tip.x, tip.y, tip.z);
+        } else mouth(pose, model);
     }
 
     /**

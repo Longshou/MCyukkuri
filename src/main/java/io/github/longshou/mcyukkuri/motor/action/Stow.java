@@ -76,7 +76,7 @@ public final class Stow implements Action, HeldMove {
     /** The beat that brings her stack back into her braid from her mouth, or from her own hat while its spot is in the braid's reach;
      *  null when it is already there, the braid grips a young, or it cannot be reached. */
     public static Stow regrip(YukkuriEntity body, String cause) {
-        if (!ContactGeometry.braided(body) || body.hatKit().isEmpty() || Braid.gripping(body)) return null;
+        if (!ContactGeometry.braided(body) || body.hatKit().isEmpty() || Braid.gripping(body) || body.foodOnBraid()) return null;
         var custody = body.life().custody();
         if (custody.kitPlace() == Place.MOUTH) return new Stow(body, Place.MOUTH, Place.GRIP, false, cause, null, null, null);
         if (custody.kitPlace() != Place.HAT || !reaches(body, custody.kitSpot())) return null;
@@ -137,6 +137,7 @@ public final class Stow implements Action, HeldMove {
     @Override public Feasibility check(YukkuriEntity body) {
         if (body.hatKit().isEmpty()) return Feasibility.of(Reason.TARGET_GONE, 0, "nothing_held");
         if (place(body) != from) return Feasibility.of(Reason.NO_CONTACT, 0, "held_elsewhere place=" + place(body));
+        if (to == Place.GRIP && body.foodOnBraid()) return Feasibility.of(Reason.NO_ROOM, 0, "braid_occupied");
         if ((from == Place.HAT || to == Place.HAT) && PlacedHatEntity.find(body) == null) return Feasibility.of(Reason.TARGET_GONE, 0, "hat_gone");
         if (to == Place.MOUTH && !Braid.mouthFree(body)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_occupied");
         return Feasibility.pass();

@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.life.NestComfort;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -359,9 +360,22 @@ public final class HomeClaim {
         for (var y:alive) if (y!=first) y.showReaction("happy","known_peer",80);
     }
     public static void declareHome(YukkuriEntity speaker, BlockPos site) {
-        speaker.showReaction(YukkuriAction.PUFF,"puff","");
-        boolean spoken=speaker.speakCue("home_declare");
-        GameplayLog.event(speaker,"home-claim","declared site={} spoken={}",site,spoken);
+        String style = speaker.speechStyle();
+        var action = style.equals("timid") ? YukkuriAction.HOME_DECLARE_TIMID : YukkuriAction.HOME_DECLARE;
+        var clip = ClipMarkers.of(action.id());
+        if (speaker.showReactionDelayed(action, "smug", "home_declare", clip.ticks("settled"), clip.ticks("declare"),
+                style.equals("proud") ? YukkuriAction.PROUD : null,
+                spoken -> GameplayLog.event(speaker, "home-claim", "declared site={} spoken={} style={} clip={}",
+                        site, spoken, style, action.id()))) {
+            SurfaceApproach.halt(speaker);
+            GameplayLog.event(speaker, "home-claim", "declaration started site={} style={} clip={}", site, style, action.id());
+        }
+    }
+
+    public static boolean declaring(YukkuriEntity body) {
+        var action = body.reactionAction();
+        return action == YukkuriAction.HOME_DECLARE || action == YukkuriAction.HOME_DECLARE_TIMID
+                || action == YukkuriAction.PROUD && body.homeDeclarationFollowup();
     }
     private static void hold(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, long now) {
         c.holdTicks+=TICK;
@@ -486,6 +500,7 @@ public final class HomeClaim {
 
     // --- movement (used by HomeClaimGoal) ---------------------------------------------------------------------
     public static boolean mayAct(YukkuriEntity y) {
+        if (declaring(y)) return false;
         if (!decisionReady(y) || !y.isAlive() || y.isNoAi() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
                 || y.life().mealTicks()!=0 || y.isInWaterOrBubble() || y.isPassenger()) return false;
         var life=y.life(); // Only hunger may be answered here; other urgent needs go back to their own goals.
@@ -550,6 +565,7 @@ public final class HomeClaim {
     }
     /** A player hit a claimant (called from {@code YukkuriEntity.hurt}). */
     public static void attacked(YukkuriEntity e, Player player) {
+        e.homeTerritory().offended(player);
         Claim c=responsiveClaim(e);
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }

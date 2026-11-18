@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.*;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.RamContact;
@@ -13,9 +12,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
@@ -24,7 +21,6 @@ import net.neoforged.neoforge.event.EventHooks;
 /** A grounded adult rams one pane; authored part geometry sets the stroke and vanilla resolves its travel. */
 public final class Bash implements Action {
     public static final String ID = "bash";
-    private static final String CLIP = RamContact.CLIP;
     /** The caller owns this damage record across actions; a stroke is recorded exactly once. */
     public static final class Damage {
         private int hits;
@@ -45,13 +41,10 @@ public final class Bash implements Action {
     private final int crackId;
     private int ticks;
     private long startTick;
-    private final int length = ClipMarkers.of(CLIP).length();
-    private final int impactTick = ClipMarkers.of(CLIP).ticks("impact", 0);
-    private final int launchTick = ClipMarkers.of(CLIP).ticks("launch", 0);
-    private Vec3 face, outward, stand;
+    private static final int LENGTH = RamStroke.LENGTH;
+    private RamStroke stroke;
 
-    private static double scale(YukkuriEntity body) { return body.growthScale()*body.getScale()/16; }
-    public static double standOff(YukkuriEntity body) { return RamContact.of(body.assetId()).turn()*scale(body); }
+    public static double standOff(YukkuriEntity body) { return RamContact.of(body.assetId()).turn()*RamStroke.scale(body); }
 
     public Bash(BlockPos pane, Damage damage, int crackId) { this.pane = pane.immutable(); this.damage=damage; this.crackId=crackId; }
     public BlockPos pane() { return pane; }
@@ -86,25 +79,17 @@ public final class Bash implements Action {
         return Feasibility.pass();
     }
 
-    /** The collider face the body's centre line meets on its level way to the pane. */
-    private static BlockHitResult contact(YukkuriEntity body, BlockPos pane) {
-        var from = body.position().add(0, body.getBbHeight() / 2, 0);
-        Vec3 aim = Vec3.atCenterOf(pane);
-        return body.level().clip(new ClipContext(from, new Vec3(aim.x, from.y, aim.z),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body));
-    }
-    private static float square(Vec3 outward) { return SurfaceApproach.yaw(Vec3.ZERO, outward.reverse()); }
     /** Squared up to the pane face: the authored straight-ahead reach is then the reach into the pane, even off its centre line. */
     public static float squareYaw(YukkuriEntity body, BlockPos pane) {
-        return square(Vec3.atLowerCornerOf(contact(body, pane).getDirection().getNormal()));
+        return RamStroke.square(Vec3.atLowerCornerOf(RamStroke.contact(body, pane).getDirection().getNormal()));
     }
 
     @Override public Feasibility check(YukkuriEntity body) {
         var allowed = allowed(body, pane);
         if (!allowed.ok()) return allowed;
-        var hit = contact(body, pane);
+        var hit = RamStroke.contact(body, pane);
         var normal = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
-        if (Math.abs(Mth.wrapDegrees(square(normal) - body.yBodyRot)) > Face.FACE_ARRIVED)
+        if (Math.abs(Mth.wrapDegrees(RamStroke.square(normal) - body.yBodyRot)) > Face.FACE_ARRIVED)
             return Feasibility.of(Reason.NO_CONTACT, 0, "face_pane_first");
         if (hit.getType() != HitResult.Type.BLOCK || !hit.getBlockPos().equals(pane))
             return Feasibility.of(Reason.NO_CONTACT, 0, "front_obstructed");
@@ -117,36 +102,23 @@ public final class Bash implements Action {
     @Override public void start(YukkuriEntity body) {
         body.getNavigation().stop();
         startTick = body.level().getGameTime();
-        var hit=contact(body,pane);
-        outward=Vec3.atLowerCornerOf(hit.getDirection().getNormal());
-        face=new Vec3(pane.getX()+.5,body.getY(),pane.getZ()+.5);
-        face=face.add(outward.scale(hit.getLocation().subtract(face).dot(outward)));
-        stand=body.position();
+        stroke = new RamStroke(body, RamStroke.contact(body, pane));
         damage.display(body.level(),pane,crackId);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
         // The stroke is a physical, bounded launch/recoil. A competing need takes over at its settled marker.
-        Motor.face(body, body.yBodyRot + (float) Effort.turn(body.yBodyRot, square(outward), BodyAbility.of(body).turnRate()));
+        stroke.face(body);
         boolean opened=damage.broken()>=1 && !body.level().getBlockState(pane).is(Tags.Blocks.GLASS_PANES);
         if (!opened) {
             var feasible = check(body);
             if (!feasible.ok()) return Outcome.of(feasible.reason(), feasible.shortfall(), feasible.detail());
         }
-        int phase=ticks%length;
-        var contact=RamContact.of(body.assetId());
-        // The impact marker falls between server ticks: that tick lands at the marker's exact contact pose.
-        double seconds=phase==impactTick?contact.strike():phase==launchTick?contact.launch():phase==length-1?contact.settled():phase/20.0;
-        double standDistance=stand.subtract(face).dot(outward);
-        double distance=contact.distance(standDistance/scale(body),seconds)*scale(body);
-        var target=stand.add(outward.scale(distance-standDistance));
-        Motor.velocity(body,new Vec3(0,body.getDeltaMovement().y,0),"bash_stroke");
-        Motor.move(body,target.subtract(body.position()).multiply(1,0,1),"bash_stroke");
+        int phase=ticks%LENGTH;
+        var frame = stroke.move(body, phase, "bash_stroke");
         ticks++;
-        if (phase == impactTick && !opened) {
-            double gap=body.position().subtract(face).dot(outward)-contact.impact()*scale(body);
-            // Sub-milliblock arithmetic tolerance; authored contact, not vanilla's smaller body box, is the hit.
-            if (Math.abs(gap) > 1.0/1024) return Outcome.of(Reason.NO_CONTACT, Math.abs(gap), "stroke_obstructed");
+        if (phase == RamStroke.IMPACT && !opened) {
+            if (!frame.reached()) return Outcome.of(Reason.NO_CONTACT, Math.abs(frame.gap()), "stroke_obstructed");
             var level = (ServerLevel) body.level();
             var state = level.getBlockState(pane);
             double resistance = state.getDestroySpeed(level, pane);
@@ -158,25 +130,25 @@ public final class Bash implements Action {
                     pane.getZ()+.5, 6, .1, .1, .1, 0);
             float before = body.getHealth();
             body.hurtInternal(body.damageSources().generic(), (float) resistance);
-            body.showReaction("teary", "hurt", length);
+            body.showReaction("teary", "hurt", LENGTH);
             GameplayLog.event(body, "action", "hit id=bash block={} hits={} progress={} health={} -> {} contactGap={} strokeTravel={}",
-                    pane, hits(), damage.broken(), before, body.getHealth(),gap,standDistance-distance);
+                    pane, hits(), damage.broken(), before, body.getHealth(),frame.gap(),frame.travel());
             if (damage.broken() >= 1) {
                 if (!level.destroyBlock(pane, false, body)) return Outcome.of(Reason.NO_TOOL, 0, "break_denied");
                 GameplayLog.event(body, "action", "break id=bash block={} hits={}", pane, hits());
             }
         }
-        if (phase==length-1 && damage.broken()>=1 && !body.level().getBlockState(pane).is(Tags.Blocks.GLASS_PANES))
+        if (phase==LENGTH-1 && damage.broken()>=1 && !body.level().getBlockState(pane).is(Tags.Blocks.GLASS_PANES))
             return new Outcome.Done("pane_broken hits="+hits());
-        return new Running(Math.max(0, 1 - damage.broken()) + (length - ticks % length) / (double) length, TravelMode.PASS);
+        return new Running(Math.max(0, 1 - damage.broken()) + (LENGTH - ticks % LENGTH) / (double) LENGTH, TravelMode.PASS);
     }
-    @Override public boolean interruptible() { int phase=ticks%length; return phase<=launchTick; }
+    @Override public boolean interruptible() { return ticks % LENGTH <= RamStroke.LAUNCH; }
 
     @Override public void finished(YukkuriEntity body, Outcome outcome) {
         damage.display(body.level(),pane,crackId);
         if (!(outcome instanceof Outcome.Done))
             GameplayLog.event(body, "action", "blocked id=bash block={} hits={} outcome={}", pane, hits(), outcome);
     }
-    @Override public MotionPose pose() { return new MotionPose(CLIP, startTick+(Math.max(0,ticks-1)/length)*length, false); }
-    @Override public String startDetail() { return "block=" + pane + " strokeTicks=" + length + " hits=" + hits() + " crack=" + damage.crack(); }
+    @Override public MotionPose pose() { return new MotionPose(RamStroke.CLIP, startTick+(Math.max(0,ticks-1)/LENGTH)*LENGTH, false); }
+    @Override public String startDetail() { return "block=" + pane + " strokeTicks=" + LENGTH + " hits=" + hits() + " crack=" + damage.crack(); }
 }

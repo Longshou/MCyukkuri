@@ -290,6 +290,7 @@ public final class ParentCarry {
     public static boolean mouthCarrying(YukkuriView carrier) { return carrier.isVehicle() && !riders(carrier, Hold.MOUTH).isEmpty(); }
     /** A child sits on the brim or hangs from the braid: the braid cannot carry the hat on or off. */
     public static boolean braidBusy(YukkuriView carrier) {
+        if (carrier.foodOnBraid()) return true;
         if (!carrier.isVehicle()) return false;
         for (var rider : carrier.passengerViews()) if (hold(carrier, rider) != Hold.HEAD && hold(carrier, rider).reach() == Reach.BRAID) return true;
         return false;
@@ -1160,6 +1161,7 @@ public final class ParentCarry {
     public static String holdProblem(YukkuriEntity carrier, YukkuriEntity child, Hold hold, boolean ongoing, SurfaceHost destination) {
         var problem = common(carrier, child);
         if (problem != null) return problem;
+        if (!ongoing && hold.reach() == Reach.BRAID && carrier.foodOnBraid()) return "braid_occupied";
         switch (hold) {
             case HEAD -> {
                 var e = entry(carrier, child.getUUID());
