@@ -128,6 +128,13 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** Loaded ticks a natural burrow has stayed soaked; transient, a restart resets the worry. */
     private int soaked;
     public ShelterBlockEntity(BlockPos pos,BlockState state) { super(ModBlocks.SHELTER_ENTITY.get(),pos,state); }
+    /**
+     * Only the core part holds the shelter. Every part is the same block, so a cell that changes from one shelter's core to
+     * another shelter's wall in one tick would otherwise keep this entity, and the client would draw a second shell there.
+     */
+    @Override public boolean isValidBlockState(BlockState state) {
+        return super.isValidBlockState(state)&&state.getValue(ShelterBlock.PART)==ShelterBlock.CORE;
+    }
     @Override public void onLoad() {
         super.onLoad();
         if(level instanceof ServerLevel server)Homes.registerLoaded(server,this);

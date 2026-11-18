@@ -15,6 +15,7 @@ PAL = {'k0': (0x78, 0x5c, 0x3f), 'k1': (0x96, 0x73, 0x4e), 'k2': (0xb1, 0x8b, 0x
        'straw': (0xc8, 0xb0, 0x70), 'straw_dk': (0xa0, 0x8a, 0x52)}
 SIZE = 128
 WET = ((0x5c, 0x43, 0x2c), (0x46, 0x33, 0x22))   # soaked kraft, and the tide line at a stain's edge
+FLOOR = .125                                     # floor sheet top above the ground the occupants stand on
 
 
 def clamp(c):
@@ -207,11 +208,14 @@ def build(level=0):
                {'up': 'outer:tape_wrap', 'down': 'inner'})
         c.cube('hanging_lip', (-x + 1, top - 8, front - 1), (x - 1, top - 3, front),
                {'north': 'inner', 'south': 'outer:stain', 'up': 'outer', 'down': 'cut'})
-    c.cube('bottom_panel', (-x + 1, 0, back + 1), (x - 1, .5, front), {'up': 'floor', 'south': 'cut'})
+    # Bodies stand on the ground under the box, so the floor is a sheet lying on it and the bedding scraps lie flat on the
+    # sheet: each is 1/8 texel (1/128 block) above the face below, enough to hold the depth test and too little to cover a
+    # baby's 1.7-texel body (redstone dust lies 1/4 texel up).
+    c.cube('bottom_panel', (-x + 1, 0, back + 1), (x - 1, FLOOR, front), {'up': 'floor', 'south': 'cut'})
     for i, (x0, z0, w, d, style) in enumerate([(-13, -6, 5, 3, 'news'), (-6, -4, 5, 3, 'straw'),
                                                (1, -6, 5, 3, 'paper'), (8, -5, 5, 3, 'straw'),
                                                (-11, 2, 6, 4, 'news'), (3, 1, 4, 5, 'straw')]):
-        c.cube(f'bedding_{i}', (x0, .5, z0), (x0 + w, 1, z0 + d),
+        c.cube(f'bedding_{i}', (x0, FLOOR, z0), (x0 + w, 2 * FLOOR, z0 + d),
                {'up': style, 'north': style, 'south': style, 'east': style, 'west': style}, unit=1)
     return c
 
