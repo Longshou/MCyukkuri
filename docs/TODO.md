@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 商店购买②：店内卡片、预订标志、了解弹窗（4/9） | `.worktrees/wp-shop-card` | shop card actions, client shop info screen, reservation label, SP-10 |
 
 ## 玩法待办
 
