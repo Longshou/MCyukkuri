@@ -13,6 +13,7 @@
 | 家庭职责占用：留守巡视、寻找、守望不被个体驱动抢走 | `.worktrees/wp-duty-claim` | life/Duty.java, life/DutyClaim, life/FamilyLife.java, entity/YukkuriGoals.java, DenSeal |
 | 捕食种鞠躬时嘴上红色浮动条 | `.worktrees/wp-art-bow-bar` | client/ (face cards / bow render) |
 | 美术重做 1：器具与窝 | `.worktrees/wp-art-redo-devices` | standards/yukkuri-library/drafts/care-props (placed, wild, large_nests), art/props/predators, art/props/large-nests |
+| 美术重做 2：护理工具与玩具 | `.worktrees/wp-art-redo-care` | care-expansion, house-repellent, CP/small.py |
 
 ## 玩法待办
 
