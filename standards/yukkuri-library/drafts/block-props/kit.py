@@ -105,8 +105,12 @@ def _add(a, b):
     return (a[0] + b[0], a[1] + b[1], a[2] + b[2])
 
 
+CLEAR = (0, 0, 0, 0)
+
+
 class Material:
-    """A ramp, its base step and an optional `pattern(cell, face)` returning a step offset or (ramp, step)."""
+    """A ramp (draw.py name), its base step and an optional `pattern(cell, face)` returning a step offset, (ramp name,
+    step) or CLEAR (a cut-out texel)."""
 
     def __init__(self, ramp_name, step=2, top=1, bottom=-1, bevel=True, pattern=None):
         self.ramp = ramp(ramp_name)
@@ -117,8 +121,10 @@ class Material:
         step += self.top if face == 'up' else self.bottom if face == 'down' else 0
         if self.pattern:
             value = self.pattern(cell, face)
+            if value == CLEAR:
+                return CLEAR
             if isinstance(value, tuple):
-                colours, step = ramp(value[0]) if isinstance(value[0], str) else value[0], value[1]
+                colours, step = ramp(value[0]), value[1]
             elif value:
                 step += value
         if self.bevel:
@@ -126,9 +132,22 @@ class Material:
         return colours[max(0, min(len(colours) - 1, step))]
 
 
+class Clear(Material):
+    """Cut-out cells: the geometry is there but every texel is transparent. A family member (one look of a shared atlas)
+    paints an optional part of the family's geometry with it to leave that part out."""
+
+    def __init__(self):
+        pass
+
+    def texel(self, cell, face, lit, shaded):
+        return CLEAR
+
+
 class Block:
     """Voxel prop. A part's faces against its own unit and lower units are omitted (always drawn with it); faces
-    against higher units stay, because those units may be hidden. Each cell belongs to one part."""
+    against higher units stay, because those units may be hidden. Each cell belongs to one part. A part made with
+    solid=False (an optional layer that some looks cut out) hides no faces of the other parts, so whatever lies under
+    it stays closed when it is clear."""
 
     def __init__(self, name, offset=(0, 0, 0)):
         self.name, self.offset, self.parts, self._export = name, offset, [], None
@@ -151,15 +170,15 @@ class Block:
             self._export = self.export()
         return self._export
 
-    def part(self, name, unit=0):
-        part = {'name': name, 'unit': unit, 'cells': {}}
+    def part(self, name, unit=0, solid=True):
+        part = {'name': name, 'unit': unit, 'cells': {}, 'solid': solid}
         self.parts.append(part)
         return Shape(part)
 
     def _occupied(self, part):
         cells = set(part['cells'])
         for other in self.parts:
-            if other['unit'] <= part['unit']:
+            if other['unit'] <= part['unit'] and other['solid']:
                 cells |= set(other['cells'])
         return cells
 
@@ -188,17 +207,28 @@ class Block:
                         result.append((part, face, plane, rect, painted))
         return result
 
-    def export(self):
-        """Returns (mesh, bbmodel, png bytes)."""
-        faces = self.faces()
+    def _check_cells(self):
         seen = {}
         for part in self.parts:
             for cell in part['cells']:
                 if seen.setdefault(cell, part['name']) != part['name']:
                     raise ValueError(f'{self.name}: cell {cell} is in {seen[cell]} and {part["name"]}')
+
+    def export(self):
+        """Returns (mesh, bbmodel, png bytes)."""
+        faces = self.faces()
+        self._check_cells()
         sizes = [(r[2] - r[0], r[3] - r[1]) for _, _, _, r, _ in faces]
         size, slots = _pack(sizes)
         image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        for (_, _, _, (u0, v0, u1, v1), painted), (x, y) in zip(faces, slots):
+            for (u, v), rgb in painted.items():
+                if u0 <= u < u1 and v0 <= v < v1:
+                    image.putpixel((x + u - u0, y + v - v0), _rgba(rgb))
+        return self._build(faces, slots, size, image)
+
+    def _build(self, faces, slots, size, image):
+        """Mesh, bbmodel and PNG from the faces, the atlas position of each face rectangle and the painted atlas."""
         vertices, parts, elements = [], [], []
         for part in self.parts:
             start = len(vertices) // 8
@@ -206,9 +236,6 @@ class Block:
             for (owner, face, plane, (u0, v0, u1, v1), painted), (x, y) in zip(faces, slots):
                 if owner is not part:
                     continue
-                for (u, v), rgb in painted.items():
-                    if u0 <= u < u1 and v0 <= v < v1:
-                        image.putpixel((x + u - u0, y + v - v0), rgb + (255,))
                 (axis, sign), (ua, us), (va, vs) = FACES[face]
                 normal = [0.0, 0.0, 0.0]
                 normal[axis] = float(sign)
@@ -244,6 +271,40 @@ class Block:
                 'vertices': vertices, 'parts': parts, 'bounds': bounds}
         png = png_bytes(image)
         return mesh, _bbmodel(self.name, elements, size, size, png), png
+
+
+def _rgba(colour):
+    return colour if len(colour) == 4 else colour + (255,)
+
+
+def share_atlas(blocks):
+    """One atlas layout for a family of blocks with the same part names (a bed and its shapes fitted against walls): each
+    (part, face direction, plane) gets one atlas region covering the texels it shows in any member, so a member's
+    faces sample the same texels as the others'. A texel shown by several members takes the first member's paint.
+    Members built with different materials but the same cells give the same layout, so one member's geometry can be
+    drawn with another look's atlas. Sets every block's export; returns the shared PNG bytes."""
+    regions, colours, faces = {}, {}, {}
+    for block in blocks:
+        block._check_cells()
+        faces[block.name] = block.faces()
+        for part, face, plane, (u0, v0, u1, v1), painted in faces[block.name]:
+            key = (part['name'], face, plane)
+            box = regions.setdefault(key, [u0, v0, u1, v1])
+            box[:] = [min(box[0], u0), min(box[1], v0), max(box[2], u1), max(box[3], v1)]
+            for (u, v), rgb in painted.items():
+                if u0 <= u < u1 and v0 <= v < v1:
+                    colours.setdefault((key, u, v), rgb)
+    keys = sorted(regions)
+    size, slots = _pack([(regions[k][2] - regions[k][0], regions[k][3] - regions[k][1]) for k in keys])
+    origin = {k: (x - regions[k][0], y - regions[k][1]) for k, (x, y) in zip(keys, slots)}
+    image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    for (key, u, v), rgb in colours.items():
+        image.putpixel((origin[key][0] + u, origin[key][1] + v), _rgba(rgb))
+    for block in blocks:
+        rects = faces[block.name]
+        placed = [(origin[(p['name'], f, plane)][0] + r[0], origin[(p['name'], f, plane)][1] + r[1]) for p, f, plane, r, _ in rects]
+        block._export = block._build(rects, placed, size, image)
+    return blocks[0]._export[2]
 
 
 class Shape:
@@ -292,12 +353,22 @@ class Shape:
         return self
 
 
-def octagon(half, chamfer, centre=(0, 0)):
-    """Plan cells of a square 2*half wide with each corner stepped off one cell per row over `chamfer` rows: the
-    stepped round of flat vessels. Symmetric under both mirrors and the diagonal."""
+def octagon(half, chamfer, centre=(0, 0), half_z=None):
+    """Plan cells of a square 2*half wide (2*half_z deep when given) with each corner stepped off one cell per row over
+    `chamfer` rows: the stepped round of flat vessels and trays. Symmetric under both mirrors (and the diagonal when square)."""
     cx, cz = centre
-    return {(x, z) for x in range(cx - half, cx + half) for z in range(cz - half, cz + half)
-            if max(x - cx + 1, cx - x) + max(z - cz + 1, cz - z) <= 2 * half - chamfer}
+    hz = half if half_z is None else half_z
+    return {(x, z) for x in range(cx - half, cx + half) for z in range(cz - hz, cz + hz)
+            if max(x - cx + 1, cx - x) + max(z - cz + 1, cz - z) <= half + hz - chamfer}
+
+
+def disc(radius, centre=(0, 0), squircle=2):
+    """Plan cells whose centres lie within `radius` of `centre` (a stepped circle; squircle=4 gives the rounder square of
+    a basket or a 2x2 nest)."""
+    cx, cz = centre
+    reach = int(radius) + 1
+    return {(x, z) for x in range(int(cx) - reach - 1, int(cx) + reach + 1) for z in range(int(cz) - reach - 1, int(cz) + reach + 1)
+            if abs(x + .5 - cx) ** squircle + abs(z + .5 - cz) ** squircle <= radius ** squircle}
 
 
 def inset(cells, steps=1):

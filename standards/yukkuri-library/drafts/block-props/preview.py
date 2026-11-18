@@ -85,8 +85,16 @@ def column(images, gap=16):
     return out
 
 
+def icon_of(name):
+    """The prop's own icon, else its base prop's (a dye style, a dirty state or a fitted bed shape has none)."""
+    stem = name
+    while not (ICONS / f'{stem}.png').exists() and '_' in stem:
+        stem = stem.rsplit('_', 1)[0]
+    return ICONS / f'{stem}.png' if (ICONS / f'{stem}.png').exists() else ICONS / 'yukkuri_nest.png'
+
+
 def sheet(name, old, new, fills, turned=False):
-    icon = Image.open(ICONS / f'{name}.png').convert('RGBA')
+    icon = Image.open(icon_of(name)).convert('RGBA')
     has_old = (old.assets / f'yukkuri_props/{name}.json').exists()
     sources = [('旧', old)] * has_old + [('新', new)]
     extra = fills.get(name, [])
@@ -108,7 +116,8 @@ def sheet(name, old, new, fills, turned=False):
             tiles.append(label(on(BG, image), f'{tag} · {what}'))
         views.append(row(tiles))
     # A turned fixed display (mouth hold, item frame): the new item model's turn, seen from the holder's front and side.
-    model = json.loads((new.assets / f'models/item/{name}.json').read_text(encoding='utf-8'))
+    item = new.assets / f'models/item/{name}.json'      # a style or state mesh has no item model of its own
+    model = json.loads(item.read_text(encoding='utf-8')) if item.exists() else {}
     turn = model.get('display', {}).get('fixed', {}).get('rotation', [0, 0, 0])[1]
     if turn:
         views.append(row([label(on(BG, shot(new, [(name, 8, 0, 0, 0, 1, turn, new)], (320, 260), az, 8)[0]),
