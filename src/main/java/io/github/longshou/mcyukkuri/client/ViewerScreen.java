@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -45,7 +46,7 @@ final class ViewerScreen extends Screen {
     private float yaw = 18, pitch = 12, zoom = 1;
     private boolean dragging;
     private boolean barDrag;
-    private int scrollGrab;
+    private double scrollGrab;
     private int columnX, columnW, rowFormY, rowFamilyY, listTopY, listBottomY;
     private int previewX, previewY, previewW, previewH, controlY, sliderY, timeY;
     private Scrub scrub;
@@ -55,9 +56,16 @@ final class ViewerScreen extends Screen {
         int height() { return buttonOffset() + item.scenes().size() * PITCH + PAD; }
     }
 
-    /** Drawn scrollbar: target 0 scrolls the 待看 list, 1 the stage lists; thumb 0 when the content fits. */
-    private record Bar(int target, int x, int top, int track, int max, int thumb) {
-        int thumbTop(int value) { return top + (track - thumb) * value / max; }
+    private record Bar(int x, int top, int track, int max, int thumb) {
+        static Bar of(int x, int top, int track, int max) {
+            int thumb = max > 0 && track > 1
+                    ? Math.min(track - 1, Math.max(PAD, track * track / (track + max))) : 0;
+            return new Bar(x, top, track, max, thumb);
+        }
+
+        int travel() { return track - thumb; }
+        double thumbOffset(int value) { return (double) travel() * value / max; }
+        int thumbTop(int value) { return top + (int) thumbOffset(value); }
     }
 
     private record ViewerCatalog(Map<String, String> models, List<Family> families) {
@@ -87,6 +95,7 @@ final class ViewerScreen extends Screen {
     @Override public boolean isPauseScreen() { return false; }
 
     @Override protected void init() {
+        barDrag = dragging = false;
         catalog = ViewerCatalog.read();
         clipNames = new HashMap<>();
         for (var family : catalog.families()) for (var clip : family.clips()) clipNames.put(clip[0], clip[1]);
@@ -114,7 +123,9 @@ final class ViewerScreen extends Screen {
             int textWidth = right - left - 5 * PAD;
             rows = todo.items().stream().map(item -> {
                 var detail = Component.literal(item.title());
-                if (!item.watch().isEmpty()) detail.append("\n").append(Component.literal(item.watch()).withColor(GuiKit.SOFT & 0xffffff));
+                if (!item.watch().isEmpty()) {
+                    detail.append("\n").append(Component.literal(watchPreview(item.watch(), textWidth)).withColor(GuiKit.SOFT & 0xffffff));
+                }
                 if (item.scenes().isEmpty()) detail.append("\n").append(tr("todo.no_scene").withColor(GuiKit.SOFT & 0xffffff));
                 return new Row(item, font.split(detail, textWidth));
             }).toList();
@@ -122,6 +133,13 @@ final class ViewerScreen extends Screen {
         summary = font.split(heading, right - left - 2 * PAD);
         listTop = 2 * PAD + BUTTON + 4 + summary.size() * LINE + PAD;
         contentHeight = rows.stream().mapToInt(row -> row.height() + 4).sum();
+    }
+
+    private String watchPreview(String watch, int width) {
+        var lines = font.getSplitter().splitLines(watch, width, Style.EMPTY);
+        if (lines.size() <= 3) return watch;
+        var last = GuiKit.ellipsize(font, Component.literal(lines.get(2).getString() + "…"), width);
+        return String.join("\n", lines.get(0).getString(), lines.get(1).getString(), last.getString());
     }
 
     private void refresh() {
@@ -145,6 +163,7 @@ final class ViewerScreen extends Screen {
     }
 
     private void switchTab(int index) {
+        barDrag = dragging = false;
         tab = index;
         scroll = 0;
         listScroll = 0;
@@ -326,12 +345,7 @@ final class ViewerScreen extends Screen {
             y += row.height() + 4;
         }
         graphics.disableScissor();
-        Bar bar = bar();
-        if (bar.thumb() > 0) {
-            graphics.fill(bar.x(), bar.top(), bar.x() + BAR_WIDTH, bar.top() + bar.track(), 0xffdfd4bd);
-            int top = bar.thumbTop(scroll);
-            graphics.fill(bar.x(), top, bar.x() + BAR_WIDTH, top + bar.thumb(), 0xff9b815e);
-        }
+        renderBar(graphics, scroll);
     }
 
     private void renderStage(GuiGraphics graphics) {
@@ -340,18 +354,21 @@ final class ViewerScreen extends Screen {
         centered(graphics, catalog.models().get(ViewerStage.form), columnX, columnW, rowFormY + 5, GuiKit.INK);
         centered(graphics, familyIndex < catalog.families().size() ? catalog.families().get(familyIndex).title() : tr("family.other").getString(),
                 columnX, columnW, rowFamilyY + 5, GuiKit.SOFT);
-        Bar bar = bar();
-        if (bar.thumb() > 0) {
-            graphics.fill(bar.x(), bar.top(), bar.x() + BAR_WIDTH, bar.top() + bar.track(), 0xffdfd4bd);
-            int top = bar.thumbTop(listScroll);
-            graphics.fill(bar.x(), top, bar.x() + BAR_WIDTH, top + bar.thumb(), 0xff9b815e);
-        }
+        renderBar(graphics, listScroll);
         GuiKit.card(graphics, previewX, previewY, previewW, previewH, false);
         ViewerStage.draw(graphics, previewX + 2, previewY + 2, previewW - 4, previewH - 4, yaw, pitch, zoom);
         graphics.drawString(font, GuiKit.ellipsize(font, tr("orbit"), previewW - 2 * PAD), previewX + PAD, previewY + previewH - LINE,
                 GuiKit.SOFT, false);
         graphics.drawString(font, tr("clip.time", ViewerStage.clip, number(ViewerStage.seconds), number(ViewerStage.duration())),
                 previewX, timeY, GuiKit.INK, false);
+    }
+
+    private void renderBar(GuiGraphics graphics, int value) {
+        Bar bar = bar();
+        if (bar.thumb() == 0) return;
+        graphics.fill(bar.x(), bar.top(), bar.x() + BAR_WIDTH, bar.top() + bar.track(), 0xffdfd4bd);
+        int top = bar.thumbTop(value);
+        graphics.fill(bar.x(), top, bar.x() + BAR_WIDTH, top + bar.thumb(), 0xff9b815e);
     }
 
     private void centered(GuiGraphics graphics, String text, int x, int width, int y, int color) {
@@ -372,10 +389,14 @@ final class ViewerScreen extends Screen {
         if (button == 0) {
             Bar bar = bar();
             if (bar.thumb() > 0 && GuiKit.over((int) x, (int) y, bar.x(), bar.top(), BAR_WIDTH, bar.track())) {
-                scrollGrab = (int) y - bar.thumbTop(bar.target() == 0 ? scroll : listScroll);
+                int value = tab == 0 ? scroll : listScroll;
+                double offset = y - bar.thumbTop(value);
+                clearFocus();
                 barDrag = true;
-                if (scrollGrab < 0 || scrollGrab >= bar.thumb()) {
-                    scrollGrab = bar.thumb() / 2;
+                if (offset >= 0 && offset < bar.thumb()) {
+                    scrollGrab = y - bar.top() - bar.thumbOffset(value);
+                } else {
+                    scrollGrab = bar.thumb() / 2.0;
                     dragBar(bar, y);
                 }
                 return true;
@@ -389,11 +410,11 @@ final class ViewerScreen extends Screen {
     }
 
     @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
-        if (barDrag) {
+        if (button == 0 && barDrag) {
             dragBar(bar(), y);
             return true;
         }
-        if (dragging) {
+        if (button == 0 && dragging) {
             yaw = Mth.wrapDegrees(yaw + (float) dx * 2);
             pitch = Mth.wrapDegrees(pitch + (float) dy * 2);
             return true;
@@ -402,8 +423,13 @@ final class ViewerScreen extends Screen {
     }
 
     @Override public boolean mouseReleased(double x, double y, int button) {
-        barDrag = false;
-        dragging = false;
+        if (button == 0) {
+            dragging = false;
+            if (barDrag) {
+                barDrag = false;
+                return true;
+            }
+        }
         return super.mouseReleased(x, y, button);
     }
 
@@ -437,23 +463,17 @@ final class ViewerScreen extends Screen {
     /** The scrollbar of the shown tab: the 待看 list or the stage lists, with thumb 0 when everything fits. */
     private Bar bar() {
         if (tab == 0) {
-            int track = listBottom - listTop;
-            int max = maxScroll();
-            return new Bar(0, right - PAD - BAR_WIDTH, listTop, track, max,
-                    max > 0 ? Math.max(PAD, track * track / contentHeight) : 0);
+            return Bar.of(right - PAD - BAR_WIDTH, listTop, listBottom - listTop, maxScroll());
         }
         int track = listBottomY - listTopY;
-        int max = listContent - track;
-        return new Bar(1, columnX + columnW - 2 * BAR_WIDTH - 2, listTopY, track, max,
-                max > 0 ? Math.max(PAD, track * track / listContent) : 0);
+        return Bar.of(columnX + columnW - 2 * BAR_WIDTH - 2, listTopY, track, listContent - track);
     }
 
     /** Moves the bar's list so the grabbed point of the thumb follows the cursor, then rebuilds the list. */
     private void dragBar(Bar bar, double y) {
-        int travel = bar.track() - bar.thumb();
-        int at = Mth.clamp((int) y - scrollGrab - bar.top(), 0, travel);
-        int value = (int) Math.round((double) at * bar.max() / travel);
-        if (bar.target() == 0) scroll = value; else listScroll = value;
+        double at = Mth.clamp(y - scrollGrab - bar.top(), 0, bar.travel());
+        int value = (int) Math.round(at * bar.max() / bar.travel());
+        if (tab == 0) scroll = value; else listScroll = value;
         refresh();
     }
 
