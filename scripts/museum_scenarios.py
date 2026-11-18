@@ -541,8 +541,34 @@ def garbage_bin(x, z, items, tipped):
 
 
 _stray_mother = uid('stray_boxes', 'mother')
+_stray_child_log = _uuid_text('stray_boxes', 'child')
 _stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,'
                        'Maturity:336000L,Lifespan:1056000L,AdultScale:0.84f,Scale:0.84f')
+
+
+def _stray_child_flight(window, trace):
+    hit = re.search(rf'\[threat\][^\n]* uuid={_stray_child_log} t=(\d+)[^\n]* struck stance=FLEE\b[^\n]* dialogue=(\S+)', window)
+    if not hit:
+        return 'The baby did not flee from its first hit'
+    tick, key = int(hit[1]), hit[2]
+    lines = re.findall(rf'\[speech\][^\n]* uuid={_stray_child_log} t={tick} [^\n]* line event=(\S+) key=(\S+)', window)
+    if lines != [('wounded', key)]:
+        return f'The fleeing baby must give one pain cry: {lines}'
+    mother = _uuid_text('stray_boxes', 'mother')
+    pairs = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and tick <= row['t'] < tick + 96 and row['u'] in (mother, _stray_child_log):
+            pairs.setdefault(row['t'], {})[row['u']] = row['st']
+    flight = [(bodies[_stray_child_log]['p'], bodies[mother]['p']) for bodies in pairs.values()
+              if len(bodies) == 2 and bodies[_stray_child_log]['behavior'] == 'flee']
+    if not flight:
+        return 'The baby never entered flight'
+    start, parent = flight[0]
+    if min(math.dist(child, parent) for child, _ in flight) > math.dist(start, parent) - .4:
+        return 'The fleeing baby did not move toward its mother'
+
+
 add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸箱',
     '夜里，流浪母油找到纸箱，在箱口转身招呼孩子。看孩子应声跟来，母子进箱并排歇脚时，两顶头饰是否与箱壁和彼此留有空隙。',
     '约半分钟至一分钟', [
@@ -553,7 +579,13 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
     ], env={'time': 'night'}, spot='street', vantage=(-5, 5, 180, 15),
     capture=dict(shots=(1, 40, 1000), sequences=((60, 460, 10),), observe=False,
                  views={'carton': dict(position=(-3.2, 1, 2.1), look_at=(-4.5, .55, -.4))}),
-    smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
+    smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '], verify_trace=True, verify=_stray_child_flight,
+               commands=[
+                   (44, set_status('child', 'personality.boldness', 55)),
+                   (45, f'execute at {sel("child")} positioned ~ ~ ~3 run yukkuri scenario tool_operator enter'),
+                   (46, f'damage {sel("child")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
+                   (150, 'yukkuri scenario tool_operator leave'),
+               ],
                expect=[
                    rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon child={_uuid_text("stray_boxes", "child")}',
                    rf'\[family\][^\n]*uuid={_uuid_text("stray_boxes", "child")} [^\n]* child heard parent call parent={_uuid_text("stray_boxes", "mother")}[^\n]* beckon=true',
