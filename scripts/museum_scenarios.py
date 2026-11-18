@@ -1138,7 +1138,8 @@ def _sleep_doorway_verify(log):
 add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的窝睡觉',
     '油库里困了，自己走回有顶的窝里睡觉；睡足醒来先在窝里伸一个长懒腰、打哈欠，再抖抖身子起来（饿醒的直接起身）', '约 1 分钟', [
     *shed(7, 0), yk(('reimu', 'marisa'), 0, 0, 'a', uuid=uid('sleep', 'a'), energy=95,
-                   rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(7, -7, 0, 35), env=DAY,
+                   identity=('wild_family', 'stray'), rest_wait=0, yaw=-90, lead=True),
+    home('a', 7, 0)], vantage=(7, -7, 0, 35), env=DAY,
     # The home is set two seconds after the summon, so the tiredness comes only once the nest is hers (energy below the rest
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],

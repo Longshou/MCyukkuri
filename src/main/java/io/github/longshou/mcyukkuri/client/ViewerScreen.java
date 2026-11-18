@@ -455,7 +455,10 @@ final class ViewerScreen extends Screen {
     }
 
     private static void send(Action action, String target) {
-        PacketDistributor.sendToServer(new MuseumMenuPayload(action, target));
+        var player = Minecraft.getInstance().player;
+        var request = new MuseumMenuPayload(action, target);
+        if (player.connection.hasChannel(request)) PacketDistributor.sendToServer(request);
+        else if (action != Action.READ_STATE) player.displayClientMessage(tr("todo.world"), false);
     }
 
     // ------------------------------------------------------------------ rendering

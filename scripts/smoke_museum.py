@@ -465,8 +465,9 @@ def spec(smoke):
 print(json.dumps({scene.id: spec(scene.smoke) for scene in museum_scenarios.S}))
 '''
 
-# What origin/main's scenes need to import: their own scripts tree and the one resource museum_dsl reads beside it.
-MAIN_SCENE_INPUTS = ('scripts', 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json')
+# The archived field and scene modules read the nest collision and village footprints during import.
+MAIN_SCENE_INPUTS = ('scripts', 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json',
+                     'src/main/resources/data/minecraft/worldgen/structure')
 
 
 def smoke_specs_on_main(source):
