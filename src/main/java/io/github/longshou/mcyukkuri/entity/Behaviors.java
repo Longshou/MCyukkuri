@@ -51,6 +51,8 @@ public final class Behaviors {
     /** A parent standing over a child it is lifting with its Grab (the client bows it, or plays the braid reach, from the synced action). */
     public static final String CARRY_LIFT = "carry_lift";
     public static final String CHEW = "chew";
+    public static final String CHEW_GRUDGE = "chew_grudge";
+    public static final String CHEW_RELUCTANT = "chew_reluctant";
     public static final String COMFORT_LICK = "comfort_lick";
     public static final String COMFORT_RECEIVE = "comfort_receive";
     public static final String HURT_CRY = "hurt_cry";
@@ -136,6 +138,9 @@ public final class Behaviors {
     public static final String BEG_FOOD = "beg_food";
     public static final String LISTEN_SONG = "listen_song";
     public static final String MEAL_FINISH = "meal_finish";
+    public static final String MEAL_DELIGHT = "meal_delight";
+    public static final String MEAL_GRUDGE = "meal_grudge";
+    public static final String MEAL_RELUCTANT = "meal_reluctant";
     /** The bite that left it full: a contented melt in place. */
     public static final String MEAL_CONTENT = "meal_content";
     public static final String MIDWIFE = "midwife";

@@ -418,20 +418,30 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
 
-_taste_ids = {name: uid('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
-add('graze', 'forage', '舌肥：同一份粗粮，三种反应', '舌肥：同一份粗粮，三种反应',
-    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的抿着嘴抱怨（表情与头顶字幕），把粮留在地上。'
-    '在生存模式下手喂挑的那只，它会把粮含进嘴再吐回地上；饿到 35 左右时，同一只会勉强吃下预算粮。看表情、吐出的实物和读数里的舌肥变化。',
+_taste_actors = (
+    ('easy', 'reimu', -12, 56, 12, 'SAVOUR'),
+    ('plain', 'marisa', -8, 56, 45, 'PLAIN'),
+    ('grudge', 'alice', -4, 56, 64, 'GRUMBLE'),
+    ('reluctant', 'chen', 0, 22, 95, 'RELUCTANT'),
+    ('picky', 'reimu', 4, 56, 95, 'REFUSE'),
+)
+add('graze', 'forage', '舌肥：同一份粗粮，五种反应', '舌肥：同一份粗粮，五种反应',
+    '五只成体脚前各有一份预算粮。从左到右看开心蹦跳、平静吃完、嫌弃着慢嚼、饿得含泪吃下、抿嘴转开把粮留在地上。'
+    '后两只舌肥都是 95，开场营养分别为 22 和 56。生存模式下也可进围栏亲手喂最右边那只，看它把粮含住再吐回地上。',
     '约 15–60 秒', [
-        yk('reimu', -3, 0, 'taste_easy', uuid=_taste_ids['taste_easy'], nutrition=48, yaw=180, self_control=40, picky=12, lead=True, label='舌肥 12'),
-        item('mcyukkuri:oil_grain_budget', 1, -3, -.4, name='taste_grain_easy'),
-        yk('marisa', 0, 0, 'taste_plain', uuid=_taste_ids['taste_plain'], nutrition=48, yaw=180, self_control=40, picky=50, label='舌肥 50'),
-        item('mcyukkuri:oil_grain_budget', 1, 0, -.4, name='taste_grain_plain'),
-        yk('reimu', 3, 0, 'taste_picky', uuid=_taste_ids['taste_picky'], nutrition=48, yaw=180, self_control=40, picky=95, label='舌肥 95'),
-        item('mcyukkuri:oil_grain_budget', 1, 3, -.4, name='taste_grain_picky')],
-    env=DAY, spot='graze', vantage=(0, 12), note='待验证：新场景，尚未在游戏里实测。',
-    reads=[('读舌肥12', f'yukkuri status {sel("taste_easy")} raw'), ('读舌肥50', f'yukkuri status {sel("taste_plain")} raw'),
-           ('读舌肥95', f'yukkuri status {sel("taste_picky")} raw')])
+        box(-13, 0, -1, 5, 0, 1, 'minecraft:air'),
+        *(box(x, 0, -2, x, 0, 2, 'minecraft:oak_fence') for x in range(-14, 7, 4)),
+        *(box(-14, 0, z, 6, 0, z, 'minecraft:oak_fence') for z in (-2, 2)),
+        *(block(x, 0, -2, 'minecraft:oak_fence_gate[facing=south]') for _, _, x, *_ in _taste_actors),
+        *(command for name, species, x, nutrition, taste, _ in _taste_actors for command in (
+            yk(species, x, 0, f'taste_{name}', uuid=uid('graze', f'taste_{name}'), nutrition=nutrition, yaw=180,
+               boldness=80 if name == 'picky' else 50, friendliness=30 if name == 'picky' else 50,
+               self_control=25 if name == 'picky' else 40, picky=taste, lead=name == 'grudge', label=f'舌肥 {taste}'),
+            item('mcyukkuri:oil_grain_budget', 1, x, -.4, name=f'taste_grain_{name}')))],
+    env=DAY, spot='graze', vantage=(-4, 12),
+    give=['mcyukkuri:oil_grain_budget 4', 'mcyukkuri:oil_grain_premium 2'], note='待验证：尚未试玩。',
+    reads=[(f'读舌肥 {taste}／起始营养 {nutrition}', f'yukkuri status {sel(f"taste_{name}")} raw')
+           for name, _, _, nutrition, taste, _ in _taste_actors])
 
 _glass_food_eater = uid('food_behind_glass', 'glass_food_eater')
 add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看见苹果',
@@ -5551,12 +5561,14 @@ def _absence_grief_timing(log):
 next(s for s in S if s.id == 'family_absence').smoke['verify'] = _absence_grief_timing
 for _sid in ('forage', 'family_absence'):
     next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
-_taste_uuids = {name: _uuid_text('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
+_taste_picky_uuid = _uuid_text('graze', 'taste_picky')
 _smoke('graze', 1800, [
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_easy"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=SAVOUR\b',
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_plain"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=PLAIN\b',
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*food_complain item=mcyukkuri:oil_grain_budget[^\n]*verdict=REFUSE\b'],
-       forbid=[rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*swallowed '])
+    *(rf'\[meal\][^\n]*uuid={_uuid_text("graze", f"taste_{name}")}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict={verdict}\b'
+      for name, _, _, _, _, verdict in _taste_actors if verdict != 'REFUSE'),
+    rf'\[meal\][^\n]*uuid={_taste_picky_uuid}[^\n]*food_complain item=mcyukkuri:oil_grain_budget[^\n]*verdict=REFUSE\b',
+    r'MCYGRAZE_PICKY_REMAINS'],
+    forbid=[rf'\[meal\][^\n]*uuid={_taste_picky_uuid}[^\n]*swallowed '],
+    readout=[f'execute if entity @e[type=minecraft:item,tag={tag("taste_grain_picky")},nbt={{Item:{{id:"mcyukkuri:oil_grain_budget",count:1}}}}] run say MCYGRAZE_PICKY_REMAINS'])
 _smoke('food_behind_glass', 260, [r'\[action\][^\n]* end id=glass_press outcome=DONE', r'MCYGLASS_APPLE_REMAINS'],
        forbid=[rf'\[meal\][^\n]* uuid={_uuid_of(_glass_food_eater)} [^\n]* pickup '],
        readout=[f'execute if entity @e[type=minecraft:item,tag={tag("glass_apple")},nbt={{Item:{{id:"minecraft:apple",count:1}}}}] run say MCYGLASS_APPLE_REMAINS',

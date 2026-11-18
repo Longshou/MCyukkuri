@@ -949,17 +949,21 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** A timed presentation line cannot consume the random stream of the behavior it accompanies. */
     public boolean speakCue(String event) {
-        boolean spoken = speak(event, speechTier(), true);
+        return speakCue(event, null);
+    }
+
+    public boolean speakCue(String event, String style) {
+        boolean spoken = speak(event, speechTier(), true, style);
         if (StatusEvents.trace()) GameplayLog.event(this, "speech", "cue event={} spoken={}", event, spoken);
         return spoken;
     }
 
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
     public boolean speak(String event, String tier) {
-        return speak(event, tier, false);
+        return speak(event, tier, false, null);
     }
 
-    private boolean speak(String event, String tier, boolean timedCue) {
+    private boolean speak(String event, String tier, boolean timedCue, String style) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
@@ -975,7 +979,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         var choices = NativeDialogue.choices(variant.dialogueSpecies(), tier, myon.quirk(), event);
         int priority = NativeDialogue.priority(event);
         if (choices.isEmpty() || !speechTiming.canSpeak(this, now, priority, timedCue)) return false;
-        var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, speechStyle(), recentSpeech,
+        var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, style == null ? speechStyle() : style, recentSpeech,
                 nearbySpeech(now), RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));
         speechTiming.begin(now, line.ticks(), priority);
         showSpeech(event, line.key(), tier, now);

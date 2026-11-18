@@ -184,6 +184,28 @@
         }
       ]
     },
+    "behavior_chew_grudge": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "eat",
+          "intensity": 1,
+          "tempo": 0.65,
+          "faces": [[0, "bad_taste_small"], [0.4, "bad_taste_closed"], [0.8, "pursed"], [1.2, "bad_taste_closed"]]
+        }
+      ]
+    },
+    "behavior_chew_reluctant": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "eat",
+          "intensity": 1,
+          "tempo": 0.6,
+          "faces": [[0, "squeezed_cry_tears"], [0.45, "teary_frown"], [0.9, "cry"], [1.35, "teary_frown"]]
+        }
+      ]
+    },
     "behavior_family_chew": {
       "loop": true,
       "steps": [
@@ -309,14 +331,50 @@
               "closed_smile"
             ],
             [
-              0.3,
+              0.2,
               "happy"
             ],
             [
-              0.95,
+              0.4,
               "satisfied"
             ]
           ]
+        }
+      ]
+    },
+    "behavior_meal_delight": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "joy_jump",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [[0, "open_smile"], [0.55, "happy"], [1.1, "satisfied"]],
+          "emote": "note"
+        }
+      ]
+    },
+    "behavior_meal_grudge": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "sulk",
+          "intensity": 1,
+          "tempo": 1.2,
+          "faces": [[0, "pursed"], [0.6, "hmph"]],
+          "emote": "sweat"
+        }
+      ]
+    },
+    "behavior_meal_reluctant": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1,
+          "tempo": 1.25,
+          "faces": [[0, "squeezed_cry_tears"], [0.7, "teary"]],
+          "emote": "gloom"
         }
       ]
     },
@@ -4815,6 +4873,17 @@
         }
       ]
     },
+    "reaction_food_complain": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "ignore",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [[0, "hmph"], [0.7, "pursed"]]
+        }
+      ]
+    },
     "reaction_sulk_huff": {
       "loop": true,
       "steps": [
@@ -5016,10 +5085,15 @@
     "boat_toilet": "behavior_boat_toilet",
     "take_food": "behavior_take_food",
     "chew": "behavior_chew",
+    "chew_grudge": "behavior_chew_grudge",
+    "chew_reluctant": "behavior_chew_reluctant",
     "family_chew": "behavior_family_chew",
     "swallow": "behavior_swallow",
     "receive_mash": "behavior_receive_mash",
     "meal_finish": "behavior_meal_finish",
+    "meal_delight": "behavior_meal_delight",
+    "meal_grudge": "behavior_meal_grudge",
+    "meal_reluctant": "behavior_meal_reluctant",
     "meal_content": "behavior_meal_content",
     "drink": "behavior_drink",
     "sleep_enter": "behavior_sleep_enter",
@@ -5204,6 +5278,7 @@
     "shaken_over": "reaction_shaken_over",
     "fume": "behavior_fume",
     "sulk_huff": "reaction_sulk_huff",
+    "food_complain": "reaction_food_complain",
     "glow": "reaction_glow",
     "glow_hum": "reaction_glow_hum",
     "farewell_say": "reaction_hello",

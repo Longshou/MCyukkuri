@@ -533,9 +533,11 @@ public final class YukkuriLife {
     public String activity() {
         if (fatigueActive()) return Behaviors.SLEEP;
         if (mealTicks() > 0) {
-            String after = meal.content() ? Behaviors.MEAL_CONTENT : Behaviors.MEAL_FINISH;
-            if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : after;
-            return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : after;
+            int swallowAt = meal.swallowTick();
+            if (mealTicks() >= swallowAt + LifeMeal.SWALLOW_TICKS) return meal.afterActivity();
+            if (meal.preparedMeal()) return Behaviors.RECEIVE_MASH;
+            if (mealTicks() < LifeMeal.TAKE_TICKS) return Behaviors.TAKE_FOOD;
+            return mealTicks() < swallowAt ? meal.chewActivity() : Behaviors.SWALLOW;
         }
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
         return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0

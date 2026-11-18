@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.Taste.Verdict;
 import io.github.longshou.mcyukkuri.body.BodyEffects;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -48,13 +49,14 @@ final class LifeMeal {
     static final float PIT_MEAL_NUTRITION = 20, PIT_MEAL_DIRT = 8;
     private int mealTicks;
     /** The acquired serving is spat at the end of the take-food beat, including across unload. */
-    private static final int SPIT_TICK = 10;
-    private static final int SWALLOW_TICK = 45;
+    static final int TAKE_TICKS = 10, SWALLOW_TICKS = 8;
+    private static final int SWALLOW_TICK = 45, SLOW_SWALLOW_TICK = 65;
     /** Poll every three ticks so a brief hop can end while the serving is still held. */
     private static final int MEAL_SIGHT_INTERVAL = 3;
-    private boolean spitMeal;
+    private Verdict mealVerdict = Verdict.PLAIN;
     private Vec3 refusedSpitAt;
     private final LinkedHashMap<Item, Long> complaints = new LinkedHashMap<>();
+    private static final int COMPLAINT_TICKS = 2400;
     // A good meal keeps the feeder familiar through a short break in contact.
     private static final int RECENT_FEED_TICKS = 2400;
     private UUID feeder, lastFeeder;
@@ -78,10 +80,11 @@ final class LifeMeal {
 
     boolean hasMouthFood() { return occupancy().purpose() == Purpose.MEAL; }
 
-    int mealTicks() { return mealTicks; }
+    /** A blocked release keeps the item in its mouth but gives movement back to competing needs. */
+    int mealTicks() { return refusedSpitAt == null ? mealTicks : 0; }
 
     boolean fedBy(UUID actor) {
-        if (actor.equals(feeder) && !spitMeal && kindnessFood(mouth())) return true;
+        if (actor.equals(feeder) && mealVerdict != Verdict.REFUSE && kindnessFood(mouth())) return true;
         return actor.equals(lastFeeder) && o.level().getGameTime() - lastFedAt < RECENT_FEED_TICKS
                 && o.personality().fear(actor) < BondLevels.AFFECTION_FEAR_LIMIT;
     }
@@ -102,11 +105,11 @@ final class LifeMeal {
         return Taste.effective(o.pickiness(), SocialDisposition.selfEsteem(o.entity()), o.personality().trust(giver));
     }
 
-    private Taste.Verdict verdict(ItemStack food, UUID giver) {
+    private Verdict verdict(ItemStack food, UUID giver) {
         var eater = o.entity();
         if (eater.profile().dangerToYukkuri() || eater.settlement().society().slave() || eater.family().needsMash()
                 || !(eater.family().adult() || eater.family().subadult()) || InfantFood.isMash(food)
-                || Consumables.kind(food) == Consumables.Kind.SPICY) return Taste.Verdict.PLAIN;
+                || Consumables.kind(food) == Consumables.Kind.SPICY) return Verdict.PLAIN;
         return Taste.judge(tasteFor(giver), FoodTaste.grade(food), o.nutrition());
     }
 
@@ -115,27 +118,30 @@ final class LifeMeal {
     }
 
     boolean seeksFood(ItemStack food, UUID giver) {
-        return acceptsFood(food) && verdict(food, giver) != Taste.Verdict.REFUSE;
+        return acceptsFood(food) && verdict(food, giver) != Verdict.REFUSE;
     }
 
     /** Automatic offers only show the complaint at contact, once per item type in the refusal window. */
     boolean refuseAtReach(ItemStack food, UUID giver) {
-        if (verdict(food, giver) != Taste.Verdict.REFUSE) return false;
-        long now = o.level().getGameTime();
+        if (verdict(food, giver) != Verdict.REFUSE) return false;
         Item item = food.getItem();
-        if (now >= complaints.getOrDefault(item, 0L)) {
-            complaints.remove(item);
-            if (complaints.size() == 16) complaints.pollFirstEntry();
-            complaints.put(item, now + 2400);
-            showComplaint();
+        if (o.level().getGameTime() >= complaints.getOrDefault(item, 0L)) {
+            showComplaint(item);
             GameplayLog.event(o.entity(), "meal", "food_complain item={} grade={} verdict=REFUSE nutrition={} pickiness={} taste={} giver={}",
                     item, FoodTaste.grade(food).id(), o.nutrition(), o.pickiness(), tasteFor(giver), giver);
         }
         return true;
     }
 
-    private void showComplaint() {
-        if (o.entity().showReaction("hmph", "", 60)) o.entity().speakCue("food_complain");
+    private void rememberComplaint(Item item) {
+        complaints.remove(item);
+        if (complaints.size() == 16) complaints.pollFirstEntry();
+        complaints.put(item, o.level().getGameTime() + COMPLAINT_TICKS);
+    }
+
+    private void showComplaint(Item item) {
+        rememberComplaint(item);
+        o.entity().showReaction(YukkuriAction.IGNORE, "", "food_complain");
     }
 
     private boolean mouthForMeal() {
@@ -157,27 +163,27 @@ final class LifeMeal {
 
     boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
         return canStartSolid(transferred) && !refuseAtReach(transferred, fromPlayer)
-                && startMeal(transferred, fromPlayer, alreadyShared, "take_food");
+                && startMeal(transferred, fromPlayer, alreadyShared);
     }
 
     boolean beginOfferedMeal(ItemStack food, UUID giver, boolean transfersItem) {
         if (!canStartSolid(food)) return false;
-        boolean spit = verdict(food, giver) == Taste.Verdict.REFUSE;
-        if (spit) {
+        Verdict offered = verdict(food, giver);
+        if (offered == Verdict.REFUSE) {
             GameplayLog.limited(o.entity(), "meal", "taste_refused/" + food.getItem().getDescriptionId(), 400,
                     "declined serving item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste",
                     food.getItem(), FoodTaste.grade(food).id(), o.pickiness(), tasteFor(giver), o.nutrition(), giver);
-            if (o.personality().selfControl() >= 60 || !transfersItem
+            if (!transfersItem || !Taste.spitsBack(o.personality().selfControl(), SocialDisposition.selfEsteem(o.entity()),
+                    o.personality().trust(giver))
                     || !ItemContact.hasReleaseSupport(o.entity(), MouthPlacement.position(o.entity()))) {
-                showComplaint();
+                showComplaint(food.getItem());
                 return false;
             }
         }
-        if (!startMeal(food, giver, false, spit ? "" : "take_food")) {
+        if (!startMeal(food, giver, false, offered)) {
             o.entity().showReaction("cheek_puff", "refuse", 60);
             return false;
         }
-        spitMeal = spit;
         return true;
     }
 
@@ -193,7 +199,7 @@ final class LifeMeal {
             occupancy().clear(Purpose.MEAL);
             return false;
         }
-        startItemMeal(serving, null, false, "take_food");
+        startItemMeal(serving, null, false, verdict(serving, null));
         return true;
     }
 
@@ -227,11 +233,11 @@ final class LifeMeal {
         if ((o.entity().family().stage()==FamilyLife.Stage.BABY && o.entity().childhood().isNewborn())
                 || player == null || !player.isAlive() || player.distanceToSqr(o.entity()) > 9 || !player.hasLineOfSight(o.entity())
                 || !o.entity().family().needsMash() || !canReceiveCareFood(prepared) || !InfantFood.isMash(prepared) || prepared.getCount() != 1) return false;
-        return startMeal(prepared, fromPlayer, true, "receive_mash");
+        return startMeal(prepared, fromPlayer, true);
     }
 
     boolean beginStaffMeal(ItemStack portion, UUID staff) {
-        return canReceiveCareFood(portion) && startMeal(InfantFood.mash(portion, staff), staff, true, "receive_mash");
+        return canReceiveCareFood(portion) && startMeal(InfantFood.mash(portion, staff), staff, true);
     }
 
     boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared) {
@@ -239,7 +245,7 @@ final class LifeMeal {
                 || !FamilyFeedingContact.mouthsMeet(caregiver, o.entity())) return false;
         return o.entity().family().needsMash()
                 && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
-                && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
+                && startMeal(prepared, caregiver.getUUID(), true);
     }
 
     boolean beginKindnessMeal(YukkuriEntity giver, ItemStack item) {
@@ -248,7 +254,7 @@ final class LifeMeal {
                 || !canReceiveCareFood(item) || item.getCount() != 1) return false;
         boolean mash = o.entity().family().needsMash();
         return (mash || canEat() && !refuseAtReach(item, giver.getUUID())) && startMeal(mash ? InfantFood.mash(item, giver.getUUID()) : item,
-                giver.getUUID(), true, mash ? "receive_mash" : "take_food");
+                giver.getUUID(), true);
     }
 
     boolean prepareKindnessFood() {
@@ -260,8 +266,8 @@ final class LifeMeal {
 
     boolean canOfferMeal() {
         var item = mouth();
-        return !spitMeal && !sharedMeal && !preparedMeal && !bowlMeal && feeder == null && mealTicks > 0
-                && mealTicks < SWALLOW_TICK && kindnessFood(item);
+        return mealVerdict != Verdict.REFUSE && !sharedMeal && !preparedMeal && !bowlMeal && feeder == null && mealTicks > 0
+                && kindnessFood(item) && mealTicks < swallowTick();
     }
 
     static boolean kindnessFood(ItemStack item) {
@@ -269,10 +275,14 @@ final class LifeMeal {
                 && Consumables.kind(item) != Consumables.Kind.SPICY && Toxins.dose(item) == 0;
     }
 
-    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
+    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
+        return startMeal(transferred, fromPlayer, alreadyShared, verdict(transferred, fromPlayer));
+    }
+
+    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, Verdict verdict) {
         if (!ExamSession.allowsPeerFeeding(o.entity(), fromPlayer)) return false;
         if (!makeRoom("meal") || !occupancy().acquireMeal(transferred.copy())) return false;
-        startItemMeal(transferred, fromPlayer, alreadyShared, reaction);
+        startItemMeal(transferred, fromPlayer, alreadyShared, verdict);
         return true;
     }
 
@@ -283,7 +293,7 @@ final class LifeMeal {
     boolean beginCarriedMeal(Purpose source, UUID giver, boolean shared) {
         var stack = occupancy().stack(source);
         if (!canEat() || stack.isEmpty() || !acceptsFood(stack) || refuseAtReach(stack, giver) || !occupancy().chewCarried(source)) return false;
-        startItemMeal(stack, giver, shared, "take_food");
+        startItemMeal(stack, giver, shared, verdict(stack, giver));
         return true;
     }
 
@@ -323,7 +333,8 @@ final class LifeMeal {
         return true;
     }
 
-    private void startItemMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
+    private void startItemMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, Verdict verdict) {
+        mealVerdict = verdict;
         o.temperature().stop();
         o.entity().dailyLife().stop();
         bowlMeal = false;
@@ -332,7 +343,12 @@ final class LifeMeal {
         meltFace = meltTail = finishFace = null; mealTicks = 1;
         o.entity().social().mealStarted();
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
-        o.entity().showReaction("happy", reaction, 60);
+        if (preparedMeal) o.entity().showReaction("happy", "receive_mash", 60);
+        else switch (mealVerdict) {
+            case SAVOUR, PLAIN -> o.entity().showReaction("happy", "take_food", TAKE_TICKS);
+            case REFUSE, GRUMBLE -> o.entity().showReaction("pursed", "", TAKE_TICKS);
+            case RELUCTANT -> o.entity().showReaction("teary_frown", "", TAKE_TICKS);
+        }
         GameplayLog.event(o.entity(), "meal", "received item={} count={} holder=mouth feeder={} prepared={} shared={}",
                 transferred.getItem(), transferred.getCount(), feeder, preparedMeal, sharedMeal);
     }
@@ -351,7 +367,8 @@ final class LifeMeal {
     }
 
     boolean handOverMouth(YukkuriEntity peer, String event) {
-        if (spitMeal || mouth().isEmpty() || mealTicks == 0 || mealTicks >= SWALLOW_TICK || peer == o.entity() || !peer.isAlive()) return false;
+        if (mealVerdict == Verdict.REFUSE || mouth().isEmpty() || mealTicks == 0 || mealTicks >= swallowTick()
+                || peer == o.entity() || !peer.isAlive()) return false;
         if (!transferTo(peer, o.entity().getUUID())) return false;
         o.personality().experienced(Trait.FRIENDLINESS, 1); o.entity().showReaction("happy", event, 100);
         o.personality().decided("share_food");
@@ -365,7 +382,7 @@ final class LifeMeal {
     }
 
     private void clearTransfer() {
-        feeder = null; mealTicks = 0; spitMeal = false; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
+        feeder = null; mealTicks = 0; mealVerdict = Verdict.PLAIN; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
     }
 
     void tryShare() {
@@ -406,20 +423,23 @@ final class LifeMeal {
         if (mealTicks > 0) {
             ItemStack mouth = mouth();
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { o.interrupt(); return false; }
-            o.entity().getNavigation().stop();
-            if (spitMeal && mealTicks >= SPIT_TICK) {
+            if (mealVerdict == null) restoreVerdict(mouth);
+            int swallowAt = swallowTick();
+            if (mealVerdict == Verdict.REFUSE && mealTicks >= TAKE_TICKS - 1) {
+                mealTicks = TAKE_TICKS;
                 Vec3 at = MouthPlacement.position(o.entity());
-                if (at.equals(refusedSpitAt)) return false;
+                if (at.equals(refusedSpitAt)) return true;
                 if (!occupancy().releaseMeal(this::spit, bite -> false)) refusedSpitAt = at;
                 else o.interrupt();
                 return false;
             }
+            o.entity().getNavigation().stop();
             mealTicks++;
             if (mealTicks % MEAL_SIGHT_INTERVAL == 0 && canOfferMeal() && BadgeSocial.mealSeen(o.entity())) return true;
-            if (!spitMeal && mealTicks == 6 && !sharedMeal && o.nutrition() >= 35) tryShare();
-            if (mealTicks == SWALLOW_TICK && !mouthBodyFood().isEmpty()) {
+            if (mealVerdict != Verdict.REFUSE && mealTicks == 6 && !sharedMeal && o.nutrition() >= 35) tryShare();
+            if (mealTicks == swallowAt && !mouthBodyFood().isEmpty()) {
                 swallowBodyFood();
-            } else if (mealTicks == SWALLOW_TICK && !mouth.isEmpty()) {
+            } else if (mealTicks == swallowAt && !mouth.isEmpty()) {
                 if(Consumables.oral(mouth)){
                     boolean applied=Consumables.swallow(o.entity(),mouth);
                     var returned=applied?o.doses().returnBottle()?new ItemStack(Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
@@ -439,11 +459,11 @@ final class LifeMeal {
                 boolean grass=FoodTaste.grass(mouth);
                 // A slave kept in the waste pit eats the droppings lying there (settlement/PitSlave): poor food, foul to the body.
                 boolean waste=mouth.is(ModItems.WASTE.get());
-                var verdict = verdict(mouth, feeder);
-                if (verdict == Taste.Verdict.REFUSE) verdict = Taste.Verdict.GRUMBLE;
                 var grade = FoodTaste.grade(mouth);
-                boolean liked = verdict == Taste.Verdict.SAVOUR;
-                boolean grudging = verdict == Taste.Verdict.GRUMBLE;
+                boolean liked = mealVerdict == Verdict.SAVOUR;
+                boolean grudging = mealVerdict == Verdict.GRUMBLE;
+                boolean reluctant = mealVerdict == Verdict.RELUCTANT;
+                boolean unhappy = grudging || reluctant;
                 ItemStack swallowed=mouth.copy();
                 float nutritionBefore=o.nutrition();
                 float gain=FoodTaste.serving(mouth);
@@ -461,7 +481,7 @@ final class LifeMeal {
                 o.adjustPickiness(Taste.afterMeal(grade, nutritionBefore));
                 GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={} grade={} verdict={} pickiness={}",
                         swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal,
-                        grade.id(),verdict.name(),o.pickiness());
+                        grade.id(),mealVerdict.name(),o.pickiness());
                 o.entity().childhood().firstMealSwallowed();
                 var eater = o.entity();
                 UUID bondTarget = feeder;
@@ -473,7 +493,8 @@ final class LifeMeal {
                 boolean guarded = ordinaryAdult && pleasant && wariness >= .4;
                 boolean defiant = ordinaryAdult && pleasant && feeder != null && !guarded
                         && SocialDisposition.insistence(o.personality(), esteem, wariness, bond) >= .52;
-                sated(nutritionBefore, pleasant, grudging, guarded, defiant);
+                if (!unhappy) finishFace = guarded ? "teary" : defiant ? "smug" : null;
+                sated(nutritionBefore, pleasant, unhappy, guarded, defiant);
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
@@ -492,26 +513,31 @@ final class LifeMeal {
                 if (pleasant && feeder != null) { lastFeeder = feeder; lastFedAt = o.level().getGameTime(); }
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
-                // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
                 eater.gameEvent(GameEvent.EAT);
-                if (!coughing() && (!eater.body().sick() || !(spicy || toxic > 0))) eater.showReaction(
-                        spicy || toxic > 0 ? "surprise" : waste ? "teary" : grudging ? "pursed" : guarded ? "teary"
-                                : grass ? liked ? "happy" : "teary"
-                                : defiant ? "smug" : grateful ? "closed_smile" : liked ? "open_smile" : "happy",
-                        spicy || toxic > 0 ? "hurt" : waste ? "bitter" : grudging ? "" : guarded ? ""
-                                : grass ? liked ? fedLine : "bitter"
-                                : treat != null ? treat : defiant ? "" : fedLine, content ? 8 : 100);
-                if (grudging && !waste && !spicy && toxic == 0) eater.speakCue("food_complain");
-                if(!spicy&&toxic==0&&!grass&&!waste&&!grudging)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
+                boolean harmful = spicy || toxic > 0;
+                String face = harmful ? "surprise" : waste ? "teary" : reluctant ? "squeezed_cry_tears" : grudging ? "pursed"
+                        : guarded ? "teary" : grass && !liked ? "teary"
+                        : defiant ? "smug" : grateful ? "closed_smile" : liked ? "open_smile" : "happy";
+                String line = harmful ? "hurt" : waste ? "bitter" : reluctant ? "uneasy" : grudging ? "mood_bad"
+                        : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat : fedLine;
+                if (!coughing() && (!eater.body().sick() || !harmful)
+                        && eater.showReaction(face, harmful ? line : "",
+                            harmful || waste || grass && !liked && !unhappy || preparedMeal ? 100 : SWALLOW_TICKS)
+                        && !harmful && !line.isEmpty()) {
+                    if (line.equals("fed")) eater.speakCue(line, liked ? "proud" : "plain");
+                    else eater.speakCue(line);
+                }
+                if (!harmful && !grass && !waste && !unhappy)
+                    o.level().sendParticles(ParticleTypes.HEART, eater.getX(), eater.getY()+eater.getBbHeight(), eater.getZ(), 3, .1, .05, .1, 0);
                 }
             }
-            if (mealTicks == 53 && !coughing()) {
+            if (mealTicks == swallowAt + SWALLOW_TICKS && !coughing()) {
                 // The after-meal clip now carries the face: this individual's melt, or the composed adult's restraint over the finish.
                 if (meltFace != null) o.entity().showReaction(meltFace, "", EcologyPresentation.duration(Behaviors.MEAL_CONTENT));
-                else if (finishFace != null) o.entity().showReaction(finishFace, "", EcologyPresentation.duration(Behaviors.MEAL_FINISH));
+                else if (finishFace != null) o.entity().showReaction(finishFace, "", mealEnd() - mealTicks);
             }
             if (mealTicks >= mealEnd()) {
-                mealTicks = 0; sharedMeal = false; preparedMeal = false; content = false;
+                clearTransfer(); content = false;
                 if (meltTail != null && !coughing()) o.entity().showReaction(meltTail, "", MELT_TAIL_TICKS);
                 meltFace = meltTail = finishFace = null;
                 o.finishConsumption();
@@ -520,9 +546,40 @@ final class LifeMeal {
         return true;
     }
 
-    /** After the swallow (tick 53) a full meal plays its contented melt for the clip's length; any other meal ends at tick 64. */
-    private int mealEnd() { return content ? 53 + EcologyPresentation.duration(Behaviors.MEAL_CONTENT) : 64; }
-    boolean content() { return content; }
+    /** Restore an interrupted chewing phase after all saved traits, custody and life stages have loaded. */
+    private void restoreVerdict(ItemStack held) {
+        Verdict restored = verdict(held, feeder);
+        mealVerdict = restored != Verdict.REFUSE ? restored : o.nutrition() <= 30 ? Verdict.RELUCTANT : Verdict.GRUMBLE;
+        mealTicks = Math.min(mealTicks, swallowTick() - 1);
+    }
+
+    int swallowTick() {
+        return mealVerdict == Verdict.GRUMBLE || mealVerdict == Verdict.RELUCTANT ? SLOW_SWALLOW_TICK : SWALLOW_TICK;
+    }
+
+    String chewActivity() {
+        return switch (mealVerdict) {
+            case GRUMBLE -> Behaviors.CHEW_GRUDGE;
+            case RELUCTANT -> Behaviors.CHEW_RELUCTANT;
+            case null, default -> Behaviors.CHEW;
+        };
+    }
+
+    String afterActivity() {
+        if (content) return Behaviors.MEAL_CONTENT;
+        if (finishFace != null) return Behaviors.MEAL_FINISH;
+        return switch (mealVerdict) {
+            case SAVOUR -> Behaviors.MEAL_DELIGHT;
+            case GRUMBLE -> Behaviors.MEAL_GRUDGE;
+            case RELUCTANT -> Behaviors.MEAL_RELUCTANT;
+            case null, default -> Behaviors.MEAL_FINISH;
+        };
+    }
+
+    private int mealEnd() {
+        String after = afterActivity();
+        return swallowTick() + SWALLOW_TICKS + (after.equals(Behaviors.MEAL_FINISH) ? 11 : EcologyPresentation.duration(after));
+    }
 
     private boolean coughing() { return o.entity().reactionAction() == YukkuriAction.COUGH_MUKYU; }
 
@@ -530,16 +587,15 @@ final class LifeMeal {
      * The bite that takes it past {@link #FULL}: it melts in place a moment (しあわせー, project design), unless the food was unpleasant,
      * it rides a host, it is a composed adult (self-control 90 and above), or it melted not long ago (a young one sooner again).
      */
-    private void sated(float before, boolean pleasant, boolean grudging, boolean guarded, boolean defiant) {
+    private void sated(float before, boolean pleasant, boolean unhappy, boolean guarded, boolean defiant) {
         if (before > FULL || o.nutrition() <= FULL) return;
         var e = o.entity();
         long now = o.level().getGameTime();
         boolean young = !e.family().adult();
         int composure = o.personality().selfControl();
-        String reason = !pleasant ? "unpleasant" : grudging ? "reluctant" : guarded ? "guarded" : e.isPassenger() ? "aboard"
+        String reason = !pleasant ? "unpleasant" : unhappy ? "reluctant" : guarded ? "guarded" : e.isPassenger() ? "aboard"
                 : !young && composure >= 90 ? "composed" : now < contentAfter ? "recent" : null;
         content = reason == null;
-        meltFace = null; meltTail = null; finishFace = null;
         if (content) {
             contentAfter = now + 1200 + (young ? 0 : 24 * composure);
             // The melt face is this body's own, from values it already has (bands, not scene literals):
@@ -551,9 +607,7 @@ final class LifeMeal {
             else if (composure < 40) { meltFace = "open_drool"; meltTail = "open_smile"; }
             else if (defiant) { meltFace = "smug"; meltTail = "closed_smile"; }
             else { meltFace = "satisfied"; meltTail = "closed_smile"; }
-        } else if (grudging) finishFace = "pursed";
-        else if (guarded) finishFace = "teary";
-        else if (reason.equals("composed")) finishFace = "closed_smile";
+        } else if (reason.equals("composed")) finishFace = "closed_smile";
         GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={} face={}", before, o.nutrition(), content,
                 reason == null ? "melt" : reason, composure, meltFace != null ? meltFace : finishFace != null ? finishFace : "-");
     }
@@ -577,7 +631,8 @@ final class LifeMeal {
         if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
         // Same rule as an item meal: a melting body keeps the swallow face only to the end of the swallow.
         o.entity().gameEvent(GameEvent.EAT);
-        if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy", swallowed.odor() >= 40 ? "hurt" : "fed", content ? 8 : 100);
+        if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy",
+                swallowed.odor() >= 40 ? "hurt" : "fed", content ? SWALLOW_TICKS : 100);
     }
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
@@ -585,6 +640,7 @@ final class LifeMeal {
         if (!mouthForMeal() || !makeRoom("dose") || !occupancy().acquireMeal(one.copy())) return false;
         o.temperature().stop();
         syncBodyFood();
+        mealVerdict = Verdict.PLAIN;
         feeder=player;sharedMeal=true;content=false; meltFace = meltTail = finishFace = null; o.doses().returnBottle(returnBottle);mealTicks=1;
         return true;
     }
@@ -594,7 +650,8 @@ final class LifeMeal {
             GameplayLog.limited(o.entity(), "meal", "spit_refused", 200, "spit release refused item={} count={}", item.getItem(), item.getCount());
             return false;
         }
-        if (o.entity().showReaction(YukkuriAction.REJECT_OR_SPIT, "pursed", "")) o.entity().speakCue("food_complain");
+        rememberComplaint(item.getItem());
+        if (o.entity().showReaction(YukkuriAction.REJECT_OR_SPIT, "bad_taste_small", "")) o.entity().speakCue("bitter");
         GameplayLog.event(o.entity(), "meal", "spat item={} grade={} pickiness={} taste={} nutrition={} verdict=REFUSE feeder={} tick={} drop={}",
                 item.getItem(), FoodTaste.grade(item).id(), o.pickiness(), tasteFor(feeder), o.nutrition(), feeder, mealTicks, dropped.getUUID());
         return true;
@@ -626,16 +683,21 @@ final class LifeMeal {
             tag.putUUID("LastFeeder", lastFeeder);
             tag.putLong("LastFedAt", lastFedAt);
         }
-        if (spitMeal) tag.putBoolean("SpitMeal", true);
+        if (mealVerdict == Verdict.REFUSE) tag.putBoolean("SpitMeal", true);
     }
     void load(CompoundTag tag) {
         ItemStack mouth = tag.contains("Mouth",Tag.TAG_COMPOUND) ? ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("Mouth")) : ItemStack.EMPTY;
         BodyFood.Bite bodyFood = tag.contains("BodyFood", Tag.TAG_COMPOUND) ? BodyFood.Bite.load(tag.getCompound("BodyFood")) : BodyFood.Bite.EMPTY;
         occupancy().importMeal(mouth, bodyFood, edible(mouth) || Consumables.oral(mouth) || mouth.is(ModItems.WASTE.get()));
-        mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
-        if (hasMouthFood()) mealTicks = Math.clamp(mealTicks,1,SWALLOW_TICK - 1);
-        else if (mealTicks < SWALLOW_TICK) mealTicks=0;
-        spitMeal = !mouth().isEmpty() && tag.getBoolean("SpitMeal");
+        ItemStack held = mouth();
+        mealTicks = hasMouthFood() ? Math.clamp(tag.getInt("MealTicks"), 1, SLOW_SWALLOW_TICK - 1) : 0;
+        if (held.isEmpty() || Consumables.oral(held)) {
+            mealVerdict = Verdict.PLAIN;
+            mealTicks = Math.min(mealTicks, SWALLOW_TICK - 1);
+        } else {
+            mealVerdict = tag.getBoolean("SpitMeal") ? Verdict.REFUSE : null;
+        }
+        content = false; meltFace = meltTail = finishFace = null;
         refusedSpitAt = null;
         sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal")
                 || InfantFood.isMash(mouth()); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
