@@ -11,7 +11,6 @@
 | 辫子送嘴进食与垃圾桶真撞（24/25） | `.worktrees/wp-eat-braid` | settlement/GarbageSearch.java human/GarbageBin* entity/Behaviors.java motions |
 | 住家宣言夸张骄傲演出（21） | `.worktrees/wp-home-declare-art` | motions home declaration clips, expressions |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
-| 接线：辫子送嘴、撞桶、住家宣言（21/24/25） | `.worktrees/wp-wire-1118` | life/LifeMeal.java settlement/GarbageSearch.java human/GarbageBin* event/HomeClaim.java event/HomeTerritoryGoal.java motions merge |
 | 补美术：闪亮眼表情、翻垃圾桶嗅探与探头动作 | `.worktrees/wp-art-1118b` | expressions sparkle, motions bin_sniff bin_nose_in |
 | 街道宠物③：分苹果野餐（14） | `.worktrees/wp-street-pets-3` | human/HumanStreet.java meal/picnic apple, yard templates produce_crate |
 
