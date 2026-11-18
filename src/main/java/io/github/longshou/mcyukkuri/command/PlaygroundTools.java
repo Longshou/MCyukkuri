@@ -30,19 +30,15 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.server.MinecraftServer;
@@ -53,7 +49,6 @@ public final class PlaygroundTools {
     private static final Map<Entity, Label> LABELLED = new WeakHashMap<>();
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
     private static final Predicate<BlockState> HAS_BLOCK = state -> state != AIR;
-    private static final String SCENE_BUTTON = "execute as @p[distance=..8] at @s run function mcylab:start/";
     private static boolean observing;
 
     /** What {@link #clear} removes: everything this mod owns (living, remains, boats, drops, humans) and every dropped item. */
@@ -136,27 +131,6 @@ public final class PlaygroundTools {
         }
         for (var pos : changed) level.blockUpdated(pos, level.getBlockState(pos).getBlock());
         return changed.size();
-    }
-
-    /** Report the conditions under which vanilla accepts the click packet without scheduling this scene. */
-    public static void sceneButton(PlayerInteractEvent.RightClickBlock event) {
-        if (!(event.getLevel() instanceof ServerLevel level) || event.getHand() != InteractionHand.MAIN_HAND) return;
-        var pos = event.getPos();
-        var state = level.getBlockState(pos);
-        if (!state.is(Blocks.STONE_BUTTON)
-                || !(level.getBlockEntity(pos.below(2)) instanceof CommandBlockEntity command)
-                || !command.getCommandBlock().getCommand().startsWith(SCENE_BUTTON)) return;
-        var player = event.getEntity();
-        String reason;
-        if (player.isSpectator()) reason = "旁观模式无法启动场景，请先切回创造模式。";
-        else if (!level.getServer().isCommandBlockEnabled()) reason = "命令方块未启用，无法启动场景。";
-        else if (state.getValue(ButtonBlock.POWERED)) reason = "场景按钮尚未复位，请等它弹起再按。";
-        else if (player.isSecondaryUseActive() && (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty())
-                && !(player.getMainHandItem().doesSneakBypassUse(level, pos, player)
-                && player.getOffhandItem().doesSneakBypassUse(level, pos, player)))
-            reason = "蹲下持物时无法启动场景，请站起来再按。";
-        else return;
-        player.displayClientMessage(Component.literal(reason), true);
     }
 
     /**

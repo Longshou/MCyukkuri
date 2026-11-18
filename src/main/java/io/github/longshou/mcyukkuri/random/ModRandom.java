@@ -41,6 +41,11 @@ public final class ModRandom {
     public static void seedEntity(Entity entity) {
         if (seed != null) entity.getRandom().setSeed(mix(seed, entity.getUUID()));
     }
+    /** Scene rolls use separate streams for species and starting state, without advancing the actor's AI stream. */
+    public static RandomSource scene(Level level, UUID actor, long stream) {
+        Long run = seed;
+        return run == null ? level.getRandom() : RandomSource.create(mix(run ^ stream, actor));
+    }
     private static long mix(long seed, UUID id) {
         long z = seed + 0x9e3779b97f4a7c15L + id.getMostSignificantBits();
         z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;

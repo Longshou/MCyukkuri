@@ -45,6 +45,7 @@ public final class YukkuriCommands {
                 .then(SeasonCommands.command())
                 .then(HumanCommands.command())
                 .then(ScenarioCommands.command())
+                .then(MuseumMenuHandler.command())
                 .then(ScenarioCommands.clear())
                 .then(ScenarioCommands.field())
                 .then(ScenarioCommands.observe())

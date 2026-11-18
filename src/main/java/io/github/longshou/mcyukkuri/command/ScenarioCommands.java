@@ -30,6 +30,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
@@ -71,8 +72,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
  */
 public final class ScenarioCommands {
     /**
-     * Failure text for the players standing near the scenario. A button runs these from a command block with output
-     * off, so the source alone would swallow the reason.
+     * Failure text for players standing near a scenario, including commands called from scheduled functions.
      */
     static void tell(ServerLevel level, Vec3 at, String text, ChatFormatting colour) {
         var message = Component.literal(text).withStyle(colour);
@@ -161,6 +161,16 @@ public final class ScenarioCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("summon").then(Commands.argument("pool", StringArgumentType.string())
+                        .then(Commands.argument("pos", Vec3Argument.vec3())
+                                .then(Commands.argument("nbt", CompoundTagArgument.compoundTag()).executes(c ->
+                                        ScenarioSetup.summon(c.getSource(), StringArgumentType.getString(c, "pool"),
+                                                Vec3Argument.getVec3(c, "pos"), CompoundTagArgument.getCompoundTag(c, "nbt")))))))
+                .then(Commands.literal("vary").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("spec", CompoundTagArgument.compoundTag()).executes(c -> {
+                            var body = yukkuri(c, "target");
+                            return body == null ? 0 : ScenarioSetup.vary(c.getSource(), body, CompoundTagArgument.getCompoundTag(c, "spec"));
+                        }))))
                 .then(Commands.literal("exam_bronze").then(Commands.argument("examiner", EntityArgument.entity())
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.NONE)))))
                 .then(Commands.literal("exam_silver").then(Commands.argument("examiner", EntityArgument.entity())

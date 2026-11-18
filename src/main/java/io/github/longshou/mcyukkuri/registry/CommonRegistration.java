@@ -49,6 +49,7 @@ import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.network.ShopRowPayload;
+import io.github.longshou.mcyukkuri.network.MuseumMenuPayload;
 import io.github.longshou.mcyukkuri.network.ShopInfoPayload;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
@@ -111,6 +112,7 @@ public final class CommonRegistration {
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, BodyEffectNetworking::register);
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, ShopRowPayload::register);
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, ShopInfoPayload::register);
+        modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, MuseumMenuPayload::register);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RegisterCommandsEvent.class, YukkuriCommands::register);
 
@@ -188,7 +190,6 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, MagnifyingGlassItem::blockCare);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::interact);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.RightClickBlock.class, PlaygroundTools::sceneButton);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.ItemCraftedEvent.class, HouseholdEcology::crafted);
 

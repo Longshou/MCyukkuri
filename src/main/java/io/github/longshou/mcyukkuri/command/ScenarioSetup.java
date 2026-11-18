@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.command;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.DomainHooks;
@@ -7,6 +10,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import net.minecraft.world.entity.MobSpawnType;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -29,6 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -36,6 +43,15 @@ import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.commands.SummonCommand;
+import net.minecraft.util.RandomSource;
 
 /**
  * Starting conditions of the playground scenarios that cannot be written into entity NBT: relationships, a claimed
@@ -43,6 +59,100 @@ import net.minecraft.tags.FluidTags;
  * returns a refusal text (or null on success); nothing here controls an entity afterwards.
  */
 final class ScenarioSetup {
+    private static final DynamicCommandExceptionType INVALID_ROLL = new DynamicCommandExceptionType(
+            value -> Component.literal("Invalid scene actor variation: " + value));
+
+    static int summon(CommandSourceStack source, String pool, Vec3 pos, CompoundTag nbt) throws CommandSyntaxException {
+        if (!nbt.hasUUID("UUID")) throw INVALID_ROLL.create("summon requires an actor UUID");
+        var variants = new ArrayList<YukkuriVariant>();
+        for (String key : pool.split(",", -1)) {
+            var variant = Arrays.stream(YukkuriVariant.values()).filter(v -> v.assetId().equals(key)).findFirst();
+            variants.add(variant.orElseThrow(() -> INVALID_ROLL.create(key)));
+        }
+        var random = ModRandom.scene(source.getLevel(), nbt.getUUID("UUID"), 0);
+        var variant = variants.get(random.nextInt(variants.size()));
+        var type = BuiltInRegistries.ENTITY_TYPE.getHolder(MCYukkuri.id(variant.assetId())).orElseThrow();
+        var body = (YukkuriEntity) SummonCommand.createEntity(source, type, pos, nbt, false);
+        GameplayLog.event(body, "scenario", "summon pool={} species={}", pool, variant.assetId());
+        return 1;
+    }
+
+    private record Range(double lo, double hi) {
+        double roll(RandomSource random) {
+            return lo == hi ? lo : lo + random.nextDouble() * (hi - lo);
+        }
+        int rollInt(RandomSource random) { return random.nextIntBetweenInclusive((int) lo, (int) hi); }
+    }
+
+    private static Range range(ListTag list, String key) throws CommandSyntaxException {
+        if (list.size() == 2 && list.get(0) instanceof NumericTag a && list.get(1) instanceof NumericTag b) {
+            double lo = a.getAsDouble(), hi = b.getAsDouble();
+            if (lo >= 0 && hi <= 100 && lo <= hi && (key.equals("energy") || key.equals("nutrition")
+                    || lo == Math.rint(lo) && hi == Math.rint(hi))) return new Range(lo, hi);
+        }
+        throw INVALID_ROLL.create(key);
+    }
+
+    private static <E extends Enum<E>> E choice(ListTag pool, E[] values, RandomSource random, String key)
+            throws CommandSyntaxException {
+        var options = new ArrayList<E>();
+        for (var element : pool) {
+            if (!(element instanceof StringTag name)) throw INVALID_ROLL.create(key);
+            options.add(Arrays.stream(values).filter(value -> value.name().equalsIgnoreCase(name.getAsString()))
+                    .findFirst().orElseThrow(() -> INVALID_ROLL.create(name.getAsString())));
+        }
+        return options.get(random.nextInt(options.size()));
+    }
+
+    static int vary(CommandSourceStack source, YukkuriEntity body, CompoundTag spec) throws CommandSyntaxException {
+        var random = ModRandom.scene(source.getLevel(), body.getUUID(), 1);
+        var kind = body.subspecies().kind();
+        var congenital = body.subspecies().congenital();
+        var identity = SceneIdentity.UNCHANGED;
+        var values = new LinkedHashMap<String, Range>();
+        for (String key : spec.getAllKeys().stream().sorted().toList()) {
+            if (!(spec.get(key) instanceof ListTag pool) || pool.isEmpty()) throw INVALID_ROLL.create(key);
+            switch (key) {
+                case "form" -> kind = choice(pool, Arrays.stream(SubspeciesLife.Kind.values())
+                        .filter(value -> value.fits(body.getVariant())).toArray(SubspeciesLife.Kind[]::new), random, key);
+                case "congenital" -> congenital = choice(pool, SubspeciesLife.Congenital.values(), random, key);
+                case "identity" -> identity = choice(pool, SceneIdentity.values(), random, key);
+                case "intelligence", "friendliness", "boldness", "attachment", "self_control",
+                     "picky", "nutrition", "energy" -> values.put(key, range(pool, key));
+                default -> throw INVALID_ROLL.create(key);
+            }
+        }
+        if (spec.contains("form") || spec.contains("congenital")) body.subspecies().set(kind, congenital);
+        Map<String, Number> rolled = new LinkedHashMap<>();
+        values.forEach((key, limits) -> {
+            switch (key) {
+                case "nutrition", "energy" -> {
+                    float value = (float) limits.roll(random);
+                    body.life().setNeed(key, value);
+                    rolled.put(key, value);
+                }
+                case "picky" -> {
+                    body.life().setPickiness(limits.rollInt(random));
+                    rolled.put(key, body.life().pickiness());
+                }
+                default -> {
+                    var trait = Trait.valueOf(key.toUpperCase(Locale.ROOT));
+                    var personality = body.life().personality();
+                    personality.setTrait(trait, limits.rollInt(random));
+                    rolled.put(key, personality.trait(trait));
+                }
+            }
+        });
+        if (identity == SceneIdentity.STRAY) body.pet().markTownRoots();
+        if (identity == SceneIdentity.WILD_FAMILY) body.pet().leaveTownLife();
+        body.body().syncStageHealth();
+        GameplayLog.event(body, "scenario", "vary species={} form={} congenital={} identity={} rolled={}",
+                body.getVariant().assetId(), kind, congenital, body.status().identity().id(), rolled);
+        return 1;
+    }
+
+    private enum SceneIdentity { UNCHANGED, WILD_FAMILY, STRAY }
+
     /** Initial community identity for explicitly summoned households; movement and settlement remain ordinary AI. */
     static int community(YukkuriEntity leader, List<YukkuriEntity> members, BlockPos centre) {
         if (!leader.family().adult() || !members.contains(leader) || members.stream().anyMatch(e -> e.settlement().group() != null)) return 0;
