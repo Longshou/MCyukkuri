@@ -82,6 +82,7 @@ public final class HabitatLife {
     }
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
+    public List<ItemStack> carriedItems() { return List.of(carrying, nestMaterial); }
     public List<ItemStack> takeLegacyLoads() {
         var stacks = new ArrayList<ItemStack>();
         if (!carrying.isEmpty()) stacks.add(carrying);

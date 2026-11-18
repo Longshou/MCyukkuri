@@ -354,6 +354,10 @@ public final class MouthOccupancy {
         var tag = saveItems(displaced);
         var load = load();
         if (load != null) tag.addAll(saveItems(load.items()));
+        // Death drop attempts have already run. Only cargo still held after a refusal goes into the remains.
+        tag.addAll(saveItems(owner.habitat().carriedItems()));
+        var forage = owner.forageTrip().load();
+        if (!forage.isEmpty()) tag.add(forage.save(owner.registryAccess()));
         return tag;
     }
 
@@ -361,5 +365,7 @@ public final class MouthOccupancy {
         var load = load();
         if (load != null && !load.items().isEmpty()) held.consume();
         displaced.clear();
+        owner.habitat().takeLegacyLoads();
+        owner.forageTrip().takeLegacyLoad();
     }
 }
