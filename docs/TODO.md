@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 辫子送嘴进食与垃圾桶真撞（24/25） | `.worktrees/wp-eat-braid` | settlement/GarbageSearch.java human/GarbageBin* entity/Behaviors.java motions |
 | 住家宣言夸张骄傲演出（21） | `.worktrees/wp-home-declare-art` | motions home declaration clips, expressions |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
 | 补美术：闪亮眼表情、翻垃圾桶嗅探与探头动作 | `.worktrees/wp-art-1118b` | expressions sparkle, motions bin_sniff bin_nose_in |
