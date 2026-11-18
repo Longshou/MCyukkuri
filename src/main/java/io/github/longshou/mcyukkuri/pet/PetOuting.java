@@ -22,7 +22,7 @@ public final class PetOuting extends Goal {
     private HumanNpc escort, owner;
     private Vec3 stand;
     private boolean shelter;
-    private int playTries;
+    private int playAttempts;
     private long playTryAt;
 
     public PetOuting(YukkuriEntity pet) {
@@ -69,22 +69,24 @@ public final class PetOuting extends Goal {
     public boolean tryParkPlay() {
         var facility = parkFacility();
         long now = pet.level().getGameTime();
-        if (facility == null || now < playTryAt || tired() || playTries >= 2
+        if (facility == null || now < playTryAt || tired() || playAttempts == 0
                 || pet.dailyLife().boredom() < 60 - pet.life().personality().boldness() / 5.0
                 || !nearFacility(facility)) return false;
         playTryAt = now + 200;
         var play = pet.playLife();
         if (play.begin(facility)) return true;
         // Give a current player time to finish. Other refusals end this pet's play search for this visit.
-        playTries = play.refused().equals("occupied") ? playTries + 1 : 2;
+        playAttempts = play.refused().equals("occupied") ? playAttempts - 1 : 0;
         GameplayLog.event(pet, "pet", "outing play refused reason={} kind={} at={}",
                 play.refused(), facility.kind(), facility.getBlockPos());
         return false;
     }
 
+    public void finishedParkPlay() { playAttempts = 0; }
+
     public boolean doneAtPark() {
-        return !pet.life().isSleeping() && !pet.playLife().active() && !tired()
-                && (playTries >= 2 || pet.dailyLife().boredom() <= 45 - pet.life().personality().boldness() / 4.0);
+        return !pet.life().isSleeping() && !pet.life().outingResting() && !pet.playLife().active() && !tired()
+                && (playAttempts == 0 || pet.dailyLife().boredom() <= 45 - pet.life().personality().boldness() / 4.0);
     }
 
     public boolean wants(HumanNpc resident) {
@@ -97,12 +99,12 @@ public final class PetOuting extends Goal {
         escort = resident;
         home = yard;
         blockedAt = null;
-        playTries = 0;
+        playAttempts = 2;
         playTryAt = 0;
         GameplayLog.event(pet, "pet", "outing joined yard={} follow={}..{}", yard.toShortString(), innerDistance(), outerDistance());
     }
 
-    public void forget() { home = null; escort = null; playTries = 0; playTryAt = 0; }
+    public void forget() { home = null; escort = null; playAttempts = 0; playTryAt = 0; }
     public boolean onOuting() { return home != null; }
     public boolean escorted() { return escort() != null; }
     public boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }

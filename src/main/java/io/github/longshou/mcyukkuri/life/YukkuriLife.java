@@ -509,6 +509,7 @@ public final class YukkuriLife {
         return entity.family().hasChildAwaitingFeed() ? "child_hungry" : null;
     }
     public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
+    public boolean outingResting() { return outingRest; }
     public void wakeForStemFood() {
         if (drugSleep()>0) return;
         if (fatigueActive()) stopFatigueRest("stem_food");

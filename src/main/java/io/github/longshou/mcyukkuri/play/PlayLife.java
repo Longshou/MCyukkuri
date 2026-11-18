@@ -120,6 +120,7 @@ public final class PlayLife {
             waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
             if(waypoint>=route.size()){
                 completed=true;entity.dailyLife().entertained(Math.min(30,20+2*bounces));
+                if(entity.outing().onOuting())entity.outing().finishedParkPlay();
                 entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",70);stop();return;
             }
             if(!entity.life().spendEnergy(.5f)){stop();return;}target=route.get(waypoint);
