@@ -178,7 +178,8 @@ final class YukkuriGoals {
         return new Goal() {
             { setFlags(delegate.getFlags()); }
             @Override public boolean canUse() {
-                return !(basic && (owner.duty().claimed() || owner.family().claimHomeWatch())) && delegate.canUse();
+                return !(basic && (owner.duty().claimed() || owner.family().claimHomeWatch()
+                        || owner.family().stockedChildMealDue())) && delegate.canUse();
             }
             @Override public boolean canContinueToUse() { return delegate.canContinueToUse(); }
             @Override public boolean isInterruptable() { return delegate.isInterruptable(); }

@@ -355,6 +355,10 @@ public final class FamilyLife {
     }
     /** An own child within 12 blocks that is waiting for this parent's care meal (not refused, not in a failed-search pause). */
     public boolean hasChildAwaitingFeed() { return adult()&&feeding.hungriestOwnChild()!=null; }
+    /** A reachable serving after an outing is family care, ahead of starting another ordinary errand. */
+    public boolean stockedChildMealDue() {
+        return adult() && !entity.forageTrip().outing() && feeding.stockedMealDue();
+    }
     /** Read-only check whether an own child currently needs an executable feed or carry pickup, so shelter rest yields. */
     public boolean hasExecutableChildCare() {
         if (!adult()) return false;
@@ -1188,7 +1192,7 @@ public final class FamilyLife {
         if(entity.isPanicking()||entity.isCommandPlaying()||urgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         if(task!=Task.NONE)return true;
         if(comfortTicks>0&&adult()){task=Task.COMFORT;taskTicks=0;return true;}
-        if(wait>0&&!owesFamilyDuty())return false;wait=40;
+        if(wait>0&&!owesFamilyDuty()&&!stockedChildMealDue())return false;wait=40;
         var pregnancy=brood();
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()) { task=Task.BROOD;taskTicks=0;return true; }

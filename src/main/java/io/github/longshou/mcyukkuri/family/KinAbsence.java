@@ -229,6 +229,10 @@ final class KinAbsence {
     }
 
     private void beginSweep(BlockPos home, Memory memory) {
+        sweep = List.of();
+        index = pause = memory.legTicks = 0;
+        destination = null;
+        if (home == null || !dimension().equals(memory.dimension)) return;
         var e = body();
         var p = e.life().personality();
         double radius = (family.adult() ? 20 : 12) * e.life().personality().exploreMultiplier();
@@ -237,14 +241,11 @@ final class KinAbsence {
         var shelter = e.habitat().shelter();
         double heading = shelter == null ? 0 : Math.toDegrees(Math.atan2(shelter.facing().getStepZ(), shelter.facing().getStepX()));
         var points = new ArrayList<Vec3>();
-        if (dimension().equals(memory.dimension)) {
-            var offsets = FamilyDutyMath.searchSweep(toward.x, toward.z, heading, radius,
-                    FamilyDutyMath.searchWaypoints(p.attachment(), p.selfControl()), FamilyDutyMath.searchSpread(p.intelligence()));
-            for (var offset : offsets) points.add(origin.add(offset[0], toward.y, offset[1]));
-        }
+        var offsets = FamilyDutyMath.searchSweep(toward.x, toward.z, heading, radius,
+                FamilyDutyMath.searchWaypoints(p.attachment(), p.selfControl()), FamilyDutyMath.searchSpread(p.intelligence()));
+        for (var offset : offsets) points.add(origin.add(offset[0], toward.y, offset[1]));
         sweep = points;
-        index = pause = memory.legTicks = 0;
-        destination = sweep.isEmpty() ? null : searchStand(sweep.getFirst());
+        destination = searchStand(sweep.getFirst());
     }
 
     private Vec3 searchStand(Vec3 point) {

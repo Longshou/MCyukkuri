@@ -172,6 +172,19 @@ final class FamilyFeeding {
                 .min(Comparator.comparingDouble((YukkuriEntity child)->child.life().nutrition()).thenComparingDouble(o.entity()::distanceToSqr)).orElse(null);
     }
 
+    boolean stockedMealDue() {
+        if(!careReady())return false;
+        var child=hungriestOwnChild();
+        return child!=null&&stockedShelter(child)!=null;
+    }
+
+    private ShelterBlockEntity stockedShelter(YukkuriEntity child) {
+        var home=o.entity().habitat().shelter();
+        var pile=home==null?null:home.pile();
+        return pile!=null&&home.usable(o.entity())&&home.hasFoodFor(o.entity(),child)
+                &&o.entity().life().reachable(pile.standCell(),false)?home:null;
+    }
+
     /** Owner of the refusal turn: it only lasts as long as that Face, which ends at its own 3 degree arrival. */
     private static MotorOwner refusalTurn(YukkuriEntity body,Face turn){
         return new MotorOwner(){
@@ -260,11 +273,9 @@ final class FamilyFeeding {
                         &&o.entity().life().acceptsFood(item.getItem())&&o.target()!=null&&o.target().life().canReceiveCareFood(item.getItem()))
                         .stream().sorted(Comparator.<ItemEntity>comparingInt(item -> o.entity().getUUID().equals(o.target().family().mother()) && item.getItem().is(ModItems.YUKKURI_STEM.get()) ? 0 : 1).thenComparingDouble(o.entity()::distanceToSqr)).limit(6)
                         .filter(item->o.entity().life().reachable(item.blockPosition(),false)).findFirst().orElse(null):null;
-        var shelter=o.entity().habitat().shelter();
-        var pile=shelter==null?null:shelter.pile();
-        boolean stocked=shelter!=null&&shelter.usable(o.entity())&&o.target()!=null&&shelter.hasFoodFor(o.entity(),o.target())&&pile!=null&&o.entity().life().reachable(pile.standCell(),false);
-        if(nearby!=null&&(o.entity().getUUID().equals(o.target().family().mother())&&nearby.getItem().is(ModItems.YUKKURI_STEM.get())||!stocked||o.entity().distanceToSqr(nearby)<=o.entity().distanceToSqr(pile.standPoint(o.entity()))))foodSource=nearby;
-        else if(stocked){foodStore=shelter.getBlockPos();if(storeContact==null)storeContact=new PileContact(o.entity());storeContact.reset();}
+        var stocked=o.target()==null?null:stockedShelter(o.target());
+        if(nearby!=null&&(o.entity().getUUID().equals(o.target().family().mother())&&nearby.getItem().is(ModItems.YUKKURI_STEM.get())||stocked==null||o.entity().distanceToSqr(nearby)<=o.entity().distanceToSqr(stocked.pile().standPoint(o.entity()))))foodSource=nearby;
+        else if(stocked!=null){foodStore=stocked.getBlockPos();if(storeContact==null)storeContact=new PileContact(o.entity());storeContact.reset();}
     }
 
     /** Her own hat set down near the water keeps a portion for her ({@code HullAfloat}'s store): she walks to the bank beside it
@@ -321,9 +332,7 @@ final class FamilyFeeding {
                 &&(!carrying().isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null||plantSource!=null))return true;
         if(!careReady(mouthAvailable)||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
         if(!carrying().isEmpty()||o.entity().habitat().hasMoveFoodFor(child))return true;
-        var home=o.entity().habitat().shelter();var pile=home==null?null:home.pile();
-        if(home!=null&&home.usable(o.entity())&&pile!=null&&home.hasFoodFor(o.entity(),child)
-                &&o.entity().life().reachable(pile.standCell(),false))return true;
+        if(stockedShelter(child)!=null)return true;
         return EventHooks.canEntityGrief(o.level(),o.entity())&&o.level().getEntitiesOfClass(ItemEntity.class,
                 o.entity().getBoundingBox().inflate(24),item->item.isAlive()&&!item.hasPickUpDelay()
                         &&o.entity().life().acceptsFood(item.getItem())&&child.life().canReceiveCareFood(item.getItem()))
