@@ -457,7 +457,7 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
 # One-cell glass niches, three deep, with their glass back toward the visitor and open to the south (a yukkuri cannot see through
 # glass). Each hungry body has one apple at the back of its niche and one out in the open south of it: it walks in and eats facing
 # the visitor (wings, braid, side locks pressed in between the side panes), then turns round and walks out to the second apple,
-# where they come free. Chen starts backed against the back pane facing out over its first apple, so the visitor sees its tails
+# where they come free. Chen starts backed against the west pane facing east over its first apple, so the visitor sees it in profile and its tails
 # curl up against the glass through the meal and uncurl as it leaves. A Remilia in the open does the same walk with nothing to
 # yield to. A predator menaces ordinary bodies it sees or is within 6 blocks of (Reactions.Threat): a stone wall running south from
 # the middle of the row screens the ordinary niches (east) from the predator niches (west), 7 blocks apart.
@@ -472,25 +472,26 @@ def _tuck_body(kind, x, name, label):
     # at energy 40 (patrol needs above 45) it walks to its food and stays on the ground instead of flying a patrol over the screen.
     predator = kind in ('remilia', 'flandre')
     backed = name == 'tuck_chen'
-    return yk(kind, x, 1 if backed else 5, name, uuid=uid('wall_tuck', name), label=label, yaw=0 if backed else 180,
+    return yk(kind, x, 2 if backed else 5, name, uuid=uid('wall_tuck', name), label=label, yaw=270 if backed else 180,
               lead=name == 'tuck_marisa', nutrition=50 if predator else 30, boldness=0 if predator else 55,
               energy=40 if predator else 95, social_wait=6000)
 
 
 add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收拢：辫子、翅膀、尾巴',
     '饿油走进一格宽的玻璃墙槽，面朝你吃槽底的苹果：看魔理沙的辫子与帽檐、灵梦的鬓发向内收，蕾米莉亚和芙兰的翅膀向下收拢；'
-    '橙一开始就背贴玻璃吃苹果，两条尾巴贴着玻璃向上卷。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
+    '橙一开始就侧身背贴西侧玻璃朝东吃苹果，从正面隔着玻璃看它的侧面，两条尾巴贴着玻璃向上卷。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
     '约 10–20 秒', [
         box(-7, 0, 0, 8, 1, 0, 'minecraft:glass'),
-        box(0, 0, 0, 0, 1, 14, 'minecraft:stone_bricks'),
+        box(0, 0, 0, 0, 1, 28, 'minecraft:stone_bricks'),
         *[box(x, 0, 1, x, 1, 3, 'minecraft:glass') for x in (2, 4, 6, 8, -3, -5, -7)],
         *[_tuck_body(*entry) for entry in _TUCK_ROW],
-        # Chen eats from where it stands: its apple lies just ahead of it, so its eating stand keeps its back 0.6 from the pane.
-        *[item('minecraft:apple', 1, x, 1.45 if name == 'tuck_chen' else 1, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
+        # Chen eats from where it stands: its apple lies just ahead (east), so it keeps its back against the west pane.
+        *[item('minecraft:apple', 1, x + .3 if name == 'tuck_chen' else x, 2 if name == 'tuck_chen' else 1, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
         *[item('minecraft:apple', 1, x, 10, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
-    env=DAY, spot='wall_tuck', vantage=(0, -6, 0, 12), note='待验证：新场景，尚未在游戏里实测。',
+    env=DAY, spot='wall_tuck', vantage=(1, -3, 0, 12), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
                  views={'': {}, 'locks': dict(position=(5.5, 1.9, -1.2), look_at=(5.5, .3, 2)),
+                        'tail': dict(position=(3.5, 2.7, -.9), look_at=(3.5, .3, 2.3)),
                         'wings': dict(position=(-5.5, 1.9, -1.2), look_at=(-5.5, .3, 2))}),
     smoke=dict(ticks=600, forbid=[r'\[body\][^\n]* invariant\b'],
                expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
@@ -500,12 +501,12 @@ add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收
 
 
 def _wall_tuck_verify(log):
-    # The exhibit is both apples of every body: the inner one at the wall, the outer one in the open. Fed bodies that later roam
+    # The exhibit is both apples of every body (a body may share its second one with a neighbour: it counts once picked up): the inner one at the wall, the outer one in the open. Fed bodies that later roam
     # round the end of the screen meet the predators and back off for real; that may come after, never before.
     threat = re.search(r'\[threat\][^\n]* response started ', log)
     calm = log[:threat.start()] if threat else log
     for _, _, name, _ in _TUCK_ROW:
-        meals = re.findall(rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b', calm)
+        meals = re.findall(rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* received item=minecraft:apple\b', calm)
         if len(meals) < 2:
             return f'{name} ate {len(meals)} of its two apples before the first threat response'
 
