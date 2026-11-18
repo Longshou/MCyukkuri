@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.google.gson.Gson;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.network.MuseumMenuPayload;
+import io.github.longshou.mcyukkuri.network.MuseumMenuPayload.Action;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
@@ -20,11 +22,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 /** Museum viewer, enabled by the playground launcher. */
@@ -33,9 +35,17 @@ final class ViewerScreen extends Screen {
     private static final String KEY_PREFIX = "viewer.mcyukkuri.";
     private static final int LINE = 12, BUTTON = 18, PITCH = 20, PAD = 8;
     private static final int PANEL = 520, BAR_WIDTH = 4;
+    private static final int TODO = 0, SCENES = 1, UTIL = 2, CLIPS = 3;
+    private static final int SCENE_ROW = 2 * PITCH;
     private static int tab, familyIndex;
 
     private final ViewerTodo todo = ViewerTodo.read();
+    private final MuseumIndex museum = MuseumIndex.read();
+    private final List<MuseumIndex.Field> fields = museum == null ? List.of() : museum.fields();
+    private int fieldIndex;
+    private MuseumMenuPayload.State activeScene = new MuseumMenuPayload.State("", "");
+    private int museumTop, museumSplit, museumHeight, fieldHeight;
+    private boolean fieldBarDrag;
     private ViewerCatalog catalog;
     private Map<String, String> clipNames;
     private List<String> forms;
@@ -55,6 +65,18 @@ final class ViewerScreen extends Screen {
         int buttonOffset() { return 2 * PAD + LINE + text.size() * LINE; }
         int height() { return buttonOffset() + item.scenes().size() * PITCH + PAD; }
     }
+
+    private record UtilityGroup(String title, Action action, List<String> keys) {}
+    private static final List<UtilityGroup> UTILITIES = List.of(
+            new UtilityGroup("speed", Action.RUN_UTIL, List.of("util/speed_1x", "util/speed_3x", "util/speed_5x", "util/speed_10x", "util/speed_20x",
+                    "util/sprint_1200", "util/sprint_6000", "util/sprint_24000")),
+            new UtilityGroup("environment", Action.RUN_UTIL, List.of("util/time_dawn", "util/time_noon", "util/time_dusk", "util/time_night",
+                    "util/weather_clear", "util/weather_rain", "util/weather_thunder")),
+            new UtilityGroup("observation", Action.RUN_UTIL, List.of("util/observe_on", "util/observe_off", "util/spectator", "util/creative")),
+            new UtilityGroup("house", Action.RUN_EXTRA, List.of("extra/house_activity", "extra/house_sleepover")),
+            new UtilityGroup("shop", Action.RUN_EXTRA, List.of("extra/shop_visitor", "extra/shop_member", "extra/shop_patron")),
+            new UtilityGroup("village", Action.RUN_EXTRA, List.of("village/select_plains", "village/select_desert", "village/select_savanna",
+                    "village/select_snowy", "village/select_taiga", "village/next")));
 
     private record Bar(int x, int top, int track, int max, int thumb) {
         static Bar of(int x, int top, int track, int max) {
@@ -88,14 +110,24 @@ final class ViewerScreen extends Screen {
     static void tick(ClientTickEvent.Post event) {
         var mc = Minecraft.getInstance();
         while (KEY.consumeClick()) {
-            if (mc.screen == null && mc.player != null) mc.setScreen(new ViewerScreen());
+            if (mc.screen == null && mc.player != null) {
+                mc.setScreen(new ViewerScreen());
+                send(Action.READ_STATE, "");
+            }
+        }
+    }
+
+    static void receiveState(MuseumMenuPayload.State state) {
+        if (Minecraft.getInstance().screen instanceof ViewerScreen viewer) {
+            viewer.activeScene = state;
+            if (tab == UTIL) viewer.refresh();
         }
     }
 
     @Override public boolean isPauseScreen() { return false; }
 
     @Override protected void init() {
-        barDrag = dragging = false;
+        fieldBarDrag = barDrag = dragging = false;
         catalog = ViewerCatalog.read();
         clipNames = new HashMap<>();
         for (var family : catalog.families()) for (var clip : family.clips()) clipNames.put(clip[0], clip[1]);
@@ -105,6 +137,9 @@ final class ViewerScreen extends Screen {
         left = Math.max(PAD, (width - PANEL) / 2);
         right = width - left;
         listBottom = height - 2 * PAD;
+        museumTop = 3 * PAD + BUTTON;
+        museumSplit = left + (right - left) * 2 / 5;
+        fieldHeight = museum == null ? 0 : museum.groups().size() * LINE + fields.size() * PITCH;
         buildTodo();
         refresh();
     }
@@ -146,24 +181,30 @@ final class ViewerScreen extends Screen {
         clearFocus();
         clearWidgets();
         buildTabs();
-        if (tab == 0) buildTodoRows(); else buildStage();
+        switch (tab) {
+            case TODO -> buildTodoRows();
+            case SCENES -> buildScenes(null);
+            case UTIL -> buildUtilities(null);
+            default -> buildStage();
+        }
     }
 
     private void buildTabs() {
-        int tabWidth = (right - left - 4 * PAD) / 3;
+        int gap = 3;
+        int tabWidth = (right - left - 2 * PAD - 4 * gap) / 5;
         int x = left + PAD;
-        String[] names = {"todo", "clips", "faces"};
+        String[] names = {"todo", "scenes", "util", "clips", "faces"};
         for (int i = 0; i < names.length; i++) {
             int index = i;
             var widget = addRenderableWidget(new GuiKit.Tab(x, 2 * PAD, tabWidth, BUTTON, tr("tab." + names[i]), GuiKit.ICON_STATUS,
                     b -> switchTab(index)));
             widget.active = tab != i;
-            x += tabWidth + PAD;
+            x += tabWidth + gap;
         }
     }
 
     private void switchTab(int index) {
-        barDrag = dragging = false;
+        fieldBarDrag = barDrag = dragging = false;
         tab = index;
         scroll = 0;
         listScroll = 0;
@@ -177,7 +218,7 @@ final class ViewerScreen extends Screen {
             int buttonY = y + row.buttonOffset();
             for (var scene : row.item().scenes()) {
                 if (buttonY >= listTop && buttonY + BUTTON <= listBottom) {
-                    addRenderableWidget(Button.builder(Component.literal(scene.label()), b -> jump(scene))
+                    addRenderableWidget(Button.builder(Component.literal(scene.label()), b -> dispatch(Action.JUMP_SCENE, scene.id()))
                             .bounds(left + 2 * PAD, buttonY, right - left - 5 * PAD, BUTTON)
                             .tooltip(Tooltip.create(Component.literal(scene.field()))).build(GuiKit.ActionButton::new));
                 }
@@ -185,6 +226,116 @@ final class ViewerScreen extends Screen {
             }
             y += row.height() + 4;
         }
+    }
+
+    private void buildScenes(GuiGraphics graphics) {
+        if (museum == null) {
+            museumHeight = 0;
+            museumText(graphics, tr("scenes.missing"), left + PAD, museumTop, right - left - 2 * PAD);
+            return;
+        }
+        var selected = fields.get(fieldIndex);
+        museumHeight = selected.scenes().size() * SCENE_ROW;
+        int track = listBottom - museumTop;
+        listScroll = Mth.clamp(listScroll, 0, Math.max(0, fieldHeight - track));
+        scroll = Mth.clamp(scroll, 0, Math.max(0, museumHeight - track));
+        int index = 0, y = museumTop - listScroll;
+        int x = left + PAD, w = museumSplit - x - 2 * PAD;
+        for (var group : museum.groups()) {
+            museumText(graphics, Component.literal(group.title()), x, y, w);
+            y += LINE;
+            for (var field : group.fields()) {
+                int next = index++;
+                if (graphics == null && museumVisible(y, BUTTON)) {
+                    var button = museumButton(Component.literal(field.title()), x, y, w, () -> selectField(next), null);
+                    button.active = next != fieldIndex;
+                }
+                y += PITCH;
+            }
+        }
+        x = museumSplit + PAD;
+        w = right - x - 2 * PAD;
+        if (selected.scenes().isEmpty()) museumText(graphics, tr("scenes.empty"), x, museumTop, w);
+        y = museumTop - scroll;
+        for (var scene : selected.scenes()) {
+            var label = Component.literal(scene.label());
+            if (!scene.tag().isEmpty()) label.append(" · " + scene.tag());
+            if (graphics == null && museumVisible(y, BUTTON))
+                museumButton(label, x, y, w, () -> dispatch(Action.JUMP_SCENE, scene.id()), Component.literal(scene.watch()));
+            museumText(graphics, Component.literal(scene.watch()), x + 2, y + PITCH, w - 4);
+            y += SCENE_ROW;
+        }
+    }
+
+    private void selectField(int index) {
+        fieldIndex = index;
+        if (tab == SCENES) scroll = 0;
+        refresh();
+    }
+
+    private void buildUtilities(GuiGraphics graphics) {
+        int x = left + PAD, width = right - left - 3 * PAD;
+        int cols = Math.max(2, width / 100);
+        int cell = (width + 4) / cols;
+        var activeField = fields.stream().filter(field -> field.id().equals(activeScene.field())).findFirst();
+        var active = activeField.flatMap(field -> field.scenes().stream().filter(scene -> scene.id().equals(activeScene.scene())).findFirst());
+        var label = active.map(scene -> scene.label() + " · " + activeField.orElseThrow().title()).orElse(activeScene.scene());
+        boolean chooseField = activeField.isEmpty() && !fields.isEmpty();
+        museumHeight = LINE + (chooseField && cols == 2 ? 2 : 1) * PITCH + Math.ceilDiv(3, cols) * PITCH
+                + UTILITIES.stream().mapToInt(group -> PAD + LINE + Math.ceilDiv(group.keys().size(), cols) * PITCH).sum();
+        scroll = Mth.clamp(scroll, 0, Math.max(0, museumHeight - (listBottom - museumTop)));
+        int y = museumTop - scroll;
+        museumText(graphics, label.isEmpty() ? tr("util.no_scene") : tr("util.current", label), x, y, width);
+        y += LINE;
+        if (graphics == null && museumVisible(y, BUTTON)) {
+            museumButton(tr("util.rerun"), x, y, cell - 4, () -> dispatch(Action.RERUN_SCENE, ""), null)
+                    .active = !activeScene.scene().isEmpty();
+            if (!fields.isEmpty()) {
+                var field = activeField.orElse(fields.get(fieldIndex));
+                museumButton(tr("util.clear_field", field.title()), x + cell, y, cell - 4,
+                        () -> dispatch(Action.RUN_UTIL, "field/" + field.id() + "/clear"), null);
+            }
+        }
+        if (chooseField) {
+            int fieldY = y + (cols == 2 ? PITCH : 0);
+            if (graphics == null && museumVisible(fieldY, BUTTON))
+                museumButton(tr("util.next_field"), x + (cols == 2 ? 0 : 2 * cell), fieldY,
+                        cell - 4, () -> selectField((fieldIndex + 1) % fields.size()), null);
+            y = fieldY;
+        }
+        y += PITCH;
+        y = utilityButtons(graphics, List.of("util/clear_all", "util/lead", "go/lobby"), Action.RUN_UTIL, x, y, cols, cell);
+        for (var group : UTILITIES) {
+            y += PAD;
+            museumText(graphics, tr("util.group." + group.title()), x, y, width);
+            y = utilityButtons(graphics, group.keys(), group.action(), x, y + LINE, cols, cell);
+        }
+    }
+
+    private int utilityButtons(GuiGraphics graphics, List<String> keys, Action action, int x, int y, int cols, int cell) {
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            int buttonY = y + i / cols * PITCH;
+            if (graphics == null && museumVisible(buttonY, BUTTON))
+                museumButton(tr("util." + key.replace('/', '.')), x + i % cols * cell, buttonY, cell - 4,
+                        () -> dispatch(action, key), null);
+        }
+        return y + Math.ceilDiv(keys.size(), cols) * PITCH;
+    }
+
+    private Button museumButton(Component label, int x, int y, int width, Runnable action, Component tooltip) {
+        var shortLabel = GuiKit.ellipsize(font, label, width - 8);
+        var button = Button.builder(shortLabel, b -> action.run()).bounds(x, y, width, BUTTON);
+        if (tooltip != null) button.tooltip(Tooltip.create(Component.empty().append(label).append("\n").append(tooltip)));
+        else if (shortLabel != label) button.tooltip(Tooltip.create(label));
+        return addRenderableWidget(button.build(GuiKit.ActionButton::new));
+    }
+
+    private boolean museumVisible(int y, int size) { return y >= museumTop && y + size <= listBottom; }
+
+    private void museumText(GuiGraphics graphics, Component label, int x, int y, int width) {
+        if (graphics != null && museumVisible(y, LINE))
+            graphics.drawString(font, GuiKit.ellipsize(font, label, width), x, y, GuiKit.SOFT, false);
     }
 
     // ------------------------------------------------------------------ 动作 / 表情
@@ -220,7 +371,7 @@ final class ViewerScreen extends Screen {
         addRenderableWidget(arrow(columnX + columnW - 16, y, "▶", b -> cycleForm(1)));
         rowFormY = y;
         y += BUTTON + 4;
-        if (tab == 1) {
+        if (tab == CLIPS) {
             addRenderableWidget(arrow(columnX, y, "◀", b -> cycleFamily(-1)));
             addRenderableWidget(arrow(columnX + columnW - 16, y, "▶", b -> cycleFamily(1)));
             rowFamilyY = y;
@@ -242,17 +393,17 @@ final class ViewerScreen extends Screen {
     }
 
     private void buildList() {
-        var ids = tab == 1 ? familyClips() : selectableFaces();
+        var ids = tab == CLIPS ? familyClips() : selectableFaces();
         int view = listBottomY - listTopY;
         listContent = ids.size() * PITCH;
         listScroll = Mth.clamp(listScroll, 0, Math.max(0, listContent - view));
         int y = listTopY - listScroll;
         for (var id : ids) {
             if (y >= listTopY && y + BUTTON <= listBottomY) {
-                boolean selected = tab == 1 ? id.equals(ViewerStage.clip) : id.equals(ViewerStage.face);
-                String name = tab == 1 ? clipNames.getOrDefault(id, id) : FaceLibrary.label(id);
+                boolean selected = tab == CLIPS ? id.equals(ViewerStage.clip) : id.equals(ViewerStage.face);
+                String name = tab == CLIPS ? clipNames.getOrDefault(id, id) : FaceLibrary.label(id);
                 var button = addRenderableWidget(Button.builder(Component.literal(name), b -> {
-                    if (tab == 1) ViewerStage.setClip(id); else ViewerStage.setFace(id);
+                    if (tab == CLIPS) ViewerStage.setClip(id); else ViewerStage.setFace(id);
                     refresh();
                 }).bounds(columnX, y, columnW - 12, BUTTON).build(GuiKit.ActionButton::new));
                 button.active = !selected;
@@ -298,24 +449,13 @@ final class ViewerScreen extends Screen {
         scrub = addRenderableWidget(new Scrub(previewX, sliderY, previewW, 16, position()));
     }
 
-    private void jump(ViewerTodo.Scene scene) {
-        var mc = minecraft;
-        var player = mc.player;
-        var server = mc.getSingleplayerServer();
-        var id = ResourceLocation.fromNamespaceAndPath("mcylab", "jump/" + scene.id());
+    private void dispatch(Action action, String target) {
+        send(action, target);
         onClose();
-        if (server == null || player.connection.getCommands().getRoot().getChild("function") == null) {
-            player.displayClientMessage(tr("todo.world"), false);
-            return;
-        }
-        server.execute(() -> {
-            boolean available = server.getFunctions().get(id).isPresent();
-            mc.execute(() -> {
-                if (mc.player != player) return;
-                if (available) player.connection.sendCommand("function " + id);
-                else player.displayClientMessage(tr("todo.world"), false);
-            });
-        });
+    }
+
+    private static void send(Action action, String target) {
+        PacketDistributor.sendToServer(new MuseumMenuPayload(action, target));
     }
 
     // ------------------------------------------------------------------ rendering
@@ -323,7 +463,19 @@ final class ViewerScreen extends Screen {
     @Override public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partial) {
         super.renderBackground(graphics, mouseX, mouseY, partial);
         GuiKit.panel(graphics, left, PAD, right - left, height - 2 * PAD);
-        if (tab == 0) renderTodo(graphics); else renderStage(graphics);
+        switch (tab) {
+            case TODO -> renderTodo(graphics);
+            case SCENES -> {
+                buildScenes(graphics);
+                renderBar(graphics, fieldBar(), listScroll);
+                renderBar(graphics, bar(), scroll);
+            }
+            case UTIL -> {
+                buildUtilities(graphics);
+                renderBar(graphics, bar(), scroll);
+            }
+            default -> renderStage(graphics);
+        }
     }
 
     private void renderTodo(GuiGraphics graphics) {
@@ -345,7 +497,7 @@ final class ViewerScreen extends Screen {
             y += row.height() + 4;
         }
         graphics.disableScissor();
-        renderBar(graphics, scroll);
+        renderBar(graphics, bar(), scroll);
     }
 
     private void renderStage(GuiGraphics graphics) {
@@ -354,7 +506,7 @@ final class ViewerScreen extends Screen {
         centered(graphics, catalog.models().get(ViewerStage.form), columnX, columnW, rowFormY + 5, GuiKit.INK);
         centered(graphics, familyIndex < catalog.families().size() ? catalog.families().get(familyIndex).title() : tr("family.other").getString(),
                 columnX, columnW, rowFamilyY + 5, GuiKit.SOFT);
-        renderBar(graphics, listScroll);
+        renderBar(graphics, bar(), listScroll);
         GuiKit.card(graphics, previewX, previewY, previewW, previewH, false);
         ViewerStage.draw(graphics, previewX + 2, previewY + 2, previewW - 4, previewH - 4, yaw, pitch, zoom);
         graphics.drawString(font, GuiKit.ellipsize(font, tr("orbit"), previewW - 2 * PAD), previewX + PAD, previewY + previewH - LINE,
@@ -363,8 +515,7 @@ final class ViewerScreen extends Screen {
                 previewX, timeY, GuiKit.INK, false);
     }
 
-    private void renderBar(GuiGraphics graphics, int value) {
-        Bar bar = bar();
+    private void renderBar(GuiGraphics graphics, Bar bar, int value) {
         if (bar.thumb() == 0) return;
         graphics.fill(bar.x(), bar.top(), bar.x() + BAR_WIDTH, bar.top() + bar.track(), 0xffdfd4bd);
         int top = bar.thumbTop(value);
@@ -387,12 +538,14 @@ final class ViewerScreen extends Screen {
     @Override public boolean mouseClicked(double x, double y, int button) {
         if (super.mouseClicked(x, y, button)) return true;
         if (button == 0) {
-            Bar bar = bar();
+            boolean field = tab == SCENES && x < museumSplit;
+            Bar bar = field ? fieldBar() : bar();
             if (bar.thumb() > 0 && GuiKit.over((int) x, (int) y, bar.x(), bar.top(), BAR_WIDTH, bar.track())) {
-                int value = tab == 0 ? scroll : listScroll;
+                int value = field || tab >= CLIPS ? listScroll : scroll;
                 double offset = y - bar.thumbTop(value);
                 clearFocus();
                 barDrag = true;
+                fieldBarDrag = field;
                 if (offset >= 0 && offset < bar.thumb()) {
                     scrollGrab = y - bar.top() - bar.thumbOffset(value);
                 } else {
@@ -401,7 +554,7 @@ final class ViewerScreen extends Screen {
                 }
                 return true;
             }
-            if (tab != 0 && GuiKit.over((int) x, (int) y, previewX, previewY, previewW, previewH)) {
+            if (tab >= CLIPS && GuiKit.over((int) x, (int) y, previewX, previewY, previewW, previewH)) {
                 dragging = true;
                 return true;
             }
@@ -411,7 +564,7 @@ final class ViewerScreen extends Screen {
 
     @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
         if (button == 0 && barDrag) {
-            dragBar(bar(), y);
+            dragBar(fieldBarDrag ? fieldBar() : bar(), y);
             return true;
         }
         if (button == 0 && dragging) {
@@ -426,7 +579,7 @@ final class ViewerScreen extends Screen {
         if (button == 0) {
             dragging = false;
             if (barDrag) {
-                barDrag = false;
+                fieldBarDrag = barDrag = false;
                 return true;
             }
         }
@@ -435,9 +588,11 @@ final class ViewerScreen extends Screen {
 
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
         if (vertical == 0) return super.mouseScrolled(x, y, horizontal, vertical);
-        if (tab == 0) {
-            if (maxScroll() == 0) return super.mouseScrolled(x, y, horizontal, vertical);
-            scroll -= (int) Math.round(vertical * 3 * LINE);
+        if (tab < CLIPS) {
+            boolean field = tab == SCENES && x < museumSplit;
+            if ((field ? fieldBar() : bar()).thumb() == 0) return super.mouseScrolled(x, y, horizontal, vertical);
+            int delta = (int) Math.round(vertical * 3 * LINE);
+            if (field) listScroll -= delta; else scroll -= delta;
             refresh();
             return true;
         }
@@ -460,20 +615,27 @@ final class ViewerScreen extends Screen {
 
     private int maxScroll() { return Math.max(0, contentHeight - (listBottom - listTop)); }
 
-    /** The scrollbar of the shown tab: the 待看 list or the stage lists, with thumb 0 when everything fits. */
     private Bar bar() {
-        if (tab == 0) {
+        if (tab == TODO) {
             return Bar.of(right - PAD - BAR_WIDTH, listTop, listBottom - listTop, maxScroll());
         }
+        if (tab < CLIPS) return museumBar(right - PAD - BAR_WIDTH, museumHeight);
         int track = listBottomY - listTopY;
         return Bar.of(columnX + columnW - 2 * BAR_WIDTH - 2, listTopY, track, listContent - track);
+    }
+
+    private Bar fieldBar() { return museumBar(museumSplit - PAD - BAR_WIDTH, fieldHeight); }
+
+    private Bar museumBar(int x, int content) {
+        int track = listBottom - museumTop;
+        return Bar.of(x, museumTop, track, content - track);
     }
 
     /** Moves the bar's list so the grabbed point of the thumb follows the cursor, then rebuilds the list. */
     private void dragBar(Bar bar, double y) {
         double at = Mth.clamp(y - scrollGrab - bar.top(), 0, bar.travel());
         int value = (int) Math.round(at * bar.max() / bar.travel());
-        if (tab == 0) scroll = value; else listScroll = value;
+        if (fieldBarDrag || tab >= CLIPS) listScroll = value; else scroll = value;
         refresh();
     }
 
