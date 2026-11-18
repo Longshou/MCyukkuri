@@ -3078,13 +3078,19 @@ def _verify_leak_scene(window):
 add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿', '短落差受惊：赤油、子油、成油漏尿',
     '从左到右是自制较低的赤油、子油和成油各一只，前排另有一只矮身豆油。开场从两格多的安全高度落下，各自真实抽签。'
     '看第一股、漏 A 与脚底湿边，矮身豆油可对照脸部是否干净。皮肤上的尿痕随个体移动，小水滩留在原地逐渐淡去。'
-    '成油较少漏尿，没看到可清场重开。',
-    '开场约 1–4 秒，水滩可继续观察', [
+    '成油每次落地只有一成多的机会漏尿，所以右边的成油每隔 8 秒再从同样高度落一次，共 7 次，每次都重新抽签；'
+    '也可以把它突然抱起再放下，同样算一次强刺激。整场没漏就重开。',
+    '赤油和子油在开场 1–4 秒，成油在 1 分钟内；水滩可继续观察', [
         yk('reimu', -2, 0, 'leak_baby', dy=2.5, stage='baby', yaw=0, label='赤油', self_control=0, also=('leak_actor',)),
         yk('reimu', 0, 0, 'leak_child', dy=2.5, stage='child', yaw=0, label='子油', lead=True, self_control=0, also=('leak_actor',)),
         yk('reimu', 2, 0, 'leak_adult', dy=2.5, yaw=0, label='成油', self_control=0, also=('leak_actor',)),
         yk('reimu', -1, 2, 'leak_bean', dy=2.5, stage='baby', yaw=0, label='豆油', congenital='BEAN_BODY',
            self_control=0, also=('leak_actor',)),
+    ], late=[
+        # An adult's strong-stimulus chance tops out at 15 % (ExcitedLeak.ADULT), so it gets six more real falls of the same
+        # height, far enough apart for a leak's whole beat (at most 150 ticks) to play before the next one.
+        *(Retry(f'execute as {sel("leak_adult")} at @s run tp @s ~ ~2.5 ~', sel('leak_adult'), tries=1, first=160 * n)
+          for n in range(1, 7)),
     ], env=DAY, vantage=(0, 6, 180, 15),
     # A single adult is unlikely to leak even on two genuine falls. Check a real winning drop and its
     # presentation, then validate the timing and skin trace of every logged winner.
@@ -3807,20 +3813,29 @@ add('hatless_monster', 'headwear', '失饰重伤才像怪物，普通伤不算',
            ('读左北反应', f'yukkuri status {sel("timid")} raw'), ('读左南反应', f'yukkuri status {sel("severe_observer")} raw'),
            ('读两处普通伤', f'yukkuri status {sel("single")} raw'), ('读普通鄙视', f'yukkuri status {sel("observer")} raw')])
 
+# Two pens with a hedge between them, so that neither pair sees or reaches the other: the timid child has the long pen to run in.
+_puff_pens = [
+    box(-13, 0, -4, 9, 0, -4, 'minecraft:oak_fence[east=true,west=true]'),
+    box(-13, 0, 4, 9, 0, 4, 'minecraft:oak_fence[east=true,west=true]'),
+    box(-13, 0, -3, -13, 0, 3, 'minecraft:oak_fence[north=true,south=true]'),
+    box(9, 0, -3, 9, 0, 3, 'minecraft:oak_fence[north=true,south=true]'),
+    box(0, 0, -4, 0, 1, 4, 'minecraft:oak_leaves[persistent=true]'),
+]
 _puff_pairs = []
-for _i, (_x, _z, _label, _stage, _friend, _bold) in enumerate((
-        (-14, -10, '胆小子油', 'child', 50, 5), (14, -10, '友善成体', 'adult', 95, 80),
-        (-14, 10, '普通成体', 'adult', 50, 50), (14, 10, '凶悍大胆成体', 'adult', 0, 95))):
+for _i, (_x, _label, _stats) in enumerate((
+        (-5, '胆小子油', dict(stage='child', friendliness=(30, 70), boldness=(5, 30), self_control=60)),
+        (3, '成体', dict(friendliness=(0, 95), boldness=(50, 95), self_control=(0, 60))))):
     _puff_pairs += [
-        yk('reimu', _x, _z, f'puff_target{_i}', label=_label, stage=_stage, accessory=False,
-           nutrition=90, energy=95, friendliness=_friend, boldness=_bold, self_control=0 if _i==3 else 60, lead=_i==0),
-        yk('marisa', _x+3, _z, f'puff_source{_i}', label='凶悍失饰制裁者', yaw=90,
+        yk('reimu', _x, 0, f'puff_target{_i}', uuid=uid('puff_response', f'puff_target{_i}'), label=_label, accessory=False,
+           yaw=-90, nutrition=90, energy=95, lead=_i == 0, **_stats),
+        yk('marisa', _x + 3, 0, f'puff_source{_i}', label='凶悍的制裁者', yaw=90,
            intelligence=30, friendliness=0, boldness=95, self_control=0, **pair_ready())]
 add('puff_response', 'headwear', '被噗咕：逃、无视、回嘴或反击', '被噗咕：逃、无视、回嘴或反击',
-    '四组真实失饰初态，由凶悍者自行识别并发起制裁宣告。对照小体型胆小、友善、普通与凶悍大胆目标的逃跑／无视／噗咕回应／激怒攻击；自然升级有概率，不直接指定行为。日志记录当前自尊、防备、强硬程度、战力和选择',
-    '约1–3分钟；读实际制裁与反应，不将未发生宣告算作无视', _puff_pairs,
-    env=DAY, vantage=(0, 22), reads=[(f'读回应{i+1}',f'yukkuri status {sel(f"puff_target{i}")} raw') for i in range(4)])
-
+    '两个围栏各有一只没了头饰的灵梦和一只凶悍的魔理沙，中间隔着树篱。魔理沙认出失饰者后鼓脸宣告制裁。'
+    '左栏的胆小子油体型小，多半转身逃到围栏另一头；右栏成体的友善与胆量每次重开都不同，会无视、鼓脸回嘴或冲上去反击。',
+    '约 1–3 分钟；魔理沙没宣告时重开', _puff_pens + _puff_pairs,
+    env=DAY, vantage=(-2, 13, 180, 22),
+    reads=[(f'读{label}的回应', f'yukkuri status {sel(f"puff_target{i}")} raw') for i, label in enumerate(('子油', '成体'))])
 # ---- species traits and rare forms
 add('species_fatigue', 'species', '妖梦、灵梦、帕琪体力消耗对照', '妖梦、灵梦、帕琪体力消耗对照',
     '妖梦、灵梦和帕秋莉均成年、营养100、精力95，各有两份真实苹果并用玻璃隔开。按 species.fatigue 的 steps 对照代谢 cost：同为20次时应为18／20／25；睡眠会暂停清醒代谢，其他活动额外耗能不计入cost，不要求同一秒达到同次数',
@@ -5927,7 +5942,7 @@ _smoke('badge', 1200, [r'\[badge\] marisa [^\n]*badge sight [^\n]*grade=4\b',
                      r'\[wild-event\][^\n]*event=ended [^\n]*card=envy [^\n]*detail=envy_\w+'],
     readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
 _smoke('puff_response', 650, [r'\[social\][^\n]*puff response=(?:flee|ignore|puff_back|attack) [^\n]*esteem=[^\n]*wariness=[^\n]*insistence=[^\n]*combat='],
-    readout=[f'yukkuri status {sel(f"puff_target{i}")} raw' for i in range(4)])
+    readout=[f'yukkuri status {sel(f"puff_target{i}")} raw' for i in range(2)])
 _smoke('training_home', 2100, [
     r'\[skill\][^\n]* practice ability=FOOD_GUARD source=daily points=8 -> 9',
     r'\[needs\][^\n]*relieved source=facility',
