@@ -1220,12 +1220,7 @@ public final class FoundShelter implements MotorOwner {
     private SurfaceApproach.Result climbBench() {
         if (benchHop != null) return hopToBenchAim();
         var approach = SurfaceApproach.walkResult(body, benchLaunch, null, 1);
-        if (approach != SurfaceApproach.Result.ARRIVED) return approach;
-        if (now() - began < 20) {
-            SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), aim));
-            return SurfaceApproach.Result.WAITING;
-        }
-        return hopToBenchAim();
+        return approach == SurfaceApproach.Result.ARRIVED ? hopToBenchAim() : approach;
     }
 
     private SurfaceApproach.Result hopToBenchAim() {

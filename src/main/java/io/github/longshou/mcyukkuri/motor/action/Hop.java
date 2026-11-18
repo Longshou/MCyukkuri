@@ -79,6 +79,8 @@ public final class Hop implements Action {
     private int leg;
     private Vec3 from;
     private int takeoff, crouch, air;
+    private int plannedAir;
+    private float launchYaw, landingYaw;
     private double peak;
     private boolean launched;
     private boolean aboard;
@@ -246,8 +248,7 @@ public final class Hop implements Action {
         return host == null ? (float) local : SurfaceApproach.yaw(host.frame().toWorld(from), host.frame().toWorld(to));
     }
 
-    /** The turn (relative to the host) a body hopping from {@code from} comes down on {@code seat} with: it faces the leg (the turn
-     *  {@link #faceLeg} makes and the landing keeps), so its room there is judged turned that way, at admission and at launch alike. */
+    /** Judge seat room at admission and launch with the heading the body will land with, relative to the host. */
     private static float arrivalYaw(YukkuriEntity body, Vec3 from, SeatTarget seat) {
         var host = seat.host();
         float yaw = body.getVehicle() == host.entity()
@@ -256,10 +257,16 @@ public final class Hop implements Action {
         return yaw - host.entity().getYRot();
     }
 
-    private Face faceLeg(YukkuriEntity body) {
+    private float legBearing(YukkuriEntity body) {
         if (seat != null && body.getVehicle() == seat.host().entity())
-            return new Face(heading(body, seat.host(), seat.host().riders().local(body.getUUID()), seat.local(), body.yBodyRot));
-        return new Face(heading(body, null, body.position(), seat == null ? target : seat.world(), body.yBodyRot));
+            return heading(body, seat.host(), seat.host().riders().local(body.getUUID()), seat.local(), body.yBodyRot);
+        return heading(body, null, body.position(), seat == null ? target : seat.world(), body.yBodyRot);
+    }
+
+    /** Timed exits and a passenger's swept clearance depend on the supported turn before springing. */
+    private boolean travelTurn(YukkuriEntity body) {
+        return runUp == null && wornBrim == null && bank == null && !body.isVehicle()
+                && !(seatHost == null && body.getVehicle() instanceof SurfaceHost);
     }
 
     /** One leg to a supported point on the current host, without routing through other stops. */
@@ -320,9 +327,10 @@ public final class Hop implements Action {
         float yaw = heading(body, anchor, frame == null ? start : start.scale(1 / frame.unit()),
                 frame == null ? end : end.scale(1 / frame.unit()), body.yBodyRot);
         var brim = wornBrim == null ? null : brimClearance(body, brimYaw);
+        float startYaw = delay == 0 && travelTurn(body) ? body.yBodyRot : yaw;
         var result = runUp == null
                 ? ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(), ability.hopSpeed(),
-                        points -> clear(body, start, anchor, hosts, points, delay, yaw, brim), visibleRise, diagnose)
+                        points -> clear(body, start, anchor, hosts, points, delay, startYaw, yaw, brim), visibleRise, diagnose)
                 : ArcSolver.running(from, to, ability.hopHeight(), ability.hopReach(), vec(runUp), ability.hopSpeed(),
                         points -> clear(body, start, anchor, hosts, points, delay, yaw));
         timing(body, "arc", started);
@@ -523,6 +531,50 @@ public final class Hop implements Action {
         underway = true;
     }
 
+    private Progress turn(YukkuriEntity body, float yaw, double tolerance) {
+        if (legTurn == null || legTurn.target() != yaw) {
+            legTurn = new Face(yaw, tolerance);
+            legTurn.start(body);
+        }
+        return legTurn.tick(body);
+    }
+
+    /** A free travel leg shares its turn with the crouch. A supported exit keeps its forecast wind-up. */
+    private Progress prepare(YukkuriEntity body) {
+        if (plannedAir == 0) {
+            var next = solve(body, takeoff - 1);
+            if (!next.ready().ok()) return Outcome.of(next.ready().reason(), next.ready().shortfall(), next.ready().detail());
+            seat = next.seat();
+            plannedAir = Mth.ceil(next.plan().ticks());
+        }
+        float bearing = legBearing(body);
+        float error = Mth.wrapDegrees(bearing - body.yBodyRot);
+        boolean blend = travelTurn(body);
+        if (crouch == 0 && (blend ? HopHeading.standingTurn(error) : Math.abs(error) > Face.FACE_ARRIVED))
+            return turn(body, bearing, Face.FACE_ARRIVED);
+
+        legTurn = null;
+        startTick = body.level().getGameTime() - crouch;
+        int remaining = takeoff - crouch;
+        double rate = BodyAbility.of(body).turnRate();
+        if (blend) {
+            float step = (float) HopHeading.crouchTurn(error, remaining, plannedAir, rate);
+            if (aboard) {
+                var result = turn(body, body.yBodyRot + step, 0);
+                if (result instanceof Outcome && !(result instanceof Outcome.Done)) return result;
+                legTurn = null;
+            } else Motor.face(body, body.yBodyRot + step);
+        }
+        if (remaining > 1) return new Running(takeoff - ++crouch, TravelMode.CONSUMED);
+        // Host drift and a partial supported turn can leave a different bearing at the takeoff marker.
+        error = Mth.wrapDegrees(legBearing(body) - body.yBodyRot);
+        if (blend) {
+            if (Math.abs(error) > HopHeading.launchAllowance(plannedAir, rate))
+                return new Running(Math.abs(error), TravelMode.CONSUMED);
+        } else if (Math.abs(error) > Face.FACE_ARRIVED) return turn(body, legBearing(body), Face.FACE_ARRIVED);
+        return null;
+    }
+
     @Override public Progress tick(YukkuriEntity body) {
         if (carried != null) return carried.tick(body);
         // The level can tick a just-dismounted passenger again as a free entity in the same world tick.
@@ -543,35 +595,26 @@ public final class Hop implements Action {
                 return left > SurfaceApproach.ARRIVAL ? new Running(left, TravelMode.CONSUMED) : seatFromEntry(body);
             }
             if (runUp != null) {
-                var turn = faceLeg(body);
-                turn.start(body);
-                turn.tick(body);
-            } else {
-                if (crouch == 0) {
-                    if (legTurn == null) {
-                        var next = solve(body, takeoff - 1);
-                        if (!next.ready().ok()) return Outcome.of(next.ready().reason(), next.ready().shortfall(), next.ready().detail());
-                        seat = next.seat();
-                        legTurn = faceLeg(body);
-                        legTurn.start(body);
-                    }
-                    var turning = legTurn.tick(body);
-                    if (!(turning instanceof Outcome.Done)) return turning;
-                    legTurn = null;
-                    startTick = body.level().getGameTime();
-                }
-                if (++crouch < takeoff) return new Running(takeoff - crouch, TravelMode.CONSUMED);
-                // The host can drift during preparation; face the live leg before committing its impulse.
-                legTurn = faceLeg(body);
-                legTurn.start(body);
-                var turning = legTurn.tick(body);
-                if (!(turning instanceof Outcome.Done)) return turning;
+                turn(body, legBearing(body), Face.FACE_ARRIVED);
                 legTurn = null;
+            } else {
+                var preparing = prepare(body);
+                if (preparing != null) return preparing;
             }
             // A supported turn can change the sole height. Solve from the position it actually left behind.
             var launch = solve(body, 0);
             if (!launch.ready().ok()) return Outcome.of(launch.ready().reason(), launch.ready().shortfall(), launch.ready().detail());
             seat = launch.seat();
+            float bearing = legBearing(body);
+            boolean blend = travelTurn(body);
+            plannedAir = Mth.ceil(launch.plan().ticks());
+            double error = Math.abs(Mth.wrapDegrees(bearing - body.yBodyRot));
+            if (blend && error > HopHeading.launchAllowance(plannedAir, BodyAbility.of(body).turnRate()))
+                return new Running(error, TravelMode.CONSUMED);
+            // Aboard, both ends of the turn travel with the same frame as the flight samples.
+            float hostYaw = aboard ? seatHost.entity().getYRot() : 0;
+            landingYaw = bearing - hostYaw;
+            launchYaw = blend ? body.yBodyRot - hostYaw : landingYaw;
             more = launch.more();
             from = aboard ? seatHost.riders().local(body.getUUID()).scale(seatHost.frame().unit()) : body.position();
             var plan = launch.plan();
@@ -606,6 +649,10 @@ public final class Hop implements Action {
             return new Running(flight.size() + SETTLE - air, TravelMode.PASS);
         }
         var p = flight.get(++air);
+        if (air > 1 && launchYaw != landingYaw) {
+            float yaw = (float) HopHeading.flightYaw(launchYaw, landingYaw, air, flight.size() - 1);
+            Motor.face(body, yaw + (aboard ? seatHost.entity().getYRot() : 0));
+        }
         var aim = from.add(p.x(), p.y(), p.z());
         if (aboard) aim = seatHost.frame().toWorld(aim.scale(1 / seatHost.frame().unit()));
         var delta = aim.subtract(body.position());
@@ -647,6 +694,7 @@ public final class Hop implements Action {
 
     private Progress landed(YukkuriEntity body) {
         launched = false;
+        plannedAir = 0;
         completedLegs++;
         recovery = recoveryTicks();
         startTick = body.level().getGameTime() - landingMarker();
@@ -717,7 +765,7 @@ public final class Hop implements Action {
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "legs=%d peak=%.2f airTicks=%d", completedLegs, peak, air); }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay, float yaw) {
-        return clear(body, from, anchor, hosts, points, delay, yaw, null);
+        return clear(body, from, anchor, hosts, points, delay, yaw, yaw, null);
     }
 
     private record BrimClearance(Predicate<Vec3> hat, List<AABB> occupants) {
@@ -738,16 +786,20 @@ public final class Hop implements Action {
     }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay,
-                          float yaw, BrimClearance brim) {
+                          float startYaw, float bearing, BrimClearance brim) {
         AABB base = body.getBoundingBox();
         Vec3 previous = anchor == null ? from : anchor.frameAfter(delay).toWorld(from.scale(1 / anchor.frame().unit()));
         for (int tick = 0; tick < points.size(); tick++) {
+            float yaw = (float) HopHeading.flightYaw(startYaw, bearing, tick, points.size() - 1);
             var point = points.get(tick);
             Vec3 at = from.add(point.x(), point.y(), point.z());
             var frame = anchor == null ? null : anchor.frameAfter(delay + tick);
             if (frame != null) at = frame.toWorld(at.scale(1 / frame.unit()));
-            if (anchor != null && !anchor.room(body, frame.toLocal(at))) {
-                obstruction = "host_room at=" + GameplayLog.at(at); return false;
+            if (anchor != null) {
+                var local = frame.toLocal(at);
+                if (!anchor.room(body, local, local.y + body.getBbHeight() / frame.unit(), yaw - anchor.entity().getYRot())) {
+                    obstruction = "host_room at=" + GameplayLog.at(at); return false;
+                }
             }
             Vec3 corner = at.y < previous.y ? new Vec3(at.x, previous.y, at.z) : new Vec3(previous.x, at.y, previous.z);
             if (!carriedClear(body, previous, at, yaw)) {
