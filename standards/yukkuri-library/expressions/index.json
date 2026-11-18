@@ -113,7 +113,8 @@
     "sneer": "expressions/presets/sneer.json",
     "envy": "expressions/presets/envy.json",
     "hmph": "expressions/presets/hmph.json",
-    "ashamed": "expressions/presets/ashamed.json"
+    "ashamed": "expressions/presets/ashamed.json",
+    "sparkle": "expressions/presets/sparkle.json"
   },
   "effects": {
     "wet_highlight": "expressions/effects/wet_highlight.json",

@@ -10,9 +10,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * How the parts that hang off the body give way to nearby walls. A limb (wing, tail, side lock) turns about its own root
- * by the least angle that clears the faces, up to its limit; whatever still reaches past a face, and every other loose
- * part, is pressed onto the free side of that face. Only the drawn mesh changes. Shared by the client and the offline preview.
+ * How the parts that hang off the body give way to nearby walls. Wings and side locks turn about their roots by the least
+ * angle that clears the faces, up to their limits. Segmented tails curl farther. Any remaining protrusion and every other
+ * loose part are pressed onto the free side of the face. Shared by the client and the offline preview.
  */
 public final class WallYield {
     /** One collision face beside the body: unit horizontal direction from the body axis to its nearest point, the distance
@@ -24,15 +24,18 @@ public final class WallYield {
     /**
      * One kind of limb: its hinge bones, the axis the right-hand one turns about in its parent bone's frame (y and z mirror
      * for a left-hand one), the largest turn of its tip in degrees, and its stiffness: 1 turns the whole limb at the root,
-     * 0 spreads the turn evenly along its length so it curls. Project design numbers:
-     * a wing droops beside the back, stopping before its tip reaches the floor; a tail curls up over itself as a cat's
-     * does against a wall; a side lock or braid swings in until it lies on the cheek.
+     * 0 spreads the turn evenly along its length so it curls; and how far past its least turn it keeps turning, in degrees
+     * per block of clearance its turn gains (0: the least turn only). Project design numbers: a wing droops beside the back,
+     * stopping before its tip reaches the floor; a side lock or braid swings in until it lies on the cheek; a tail does not
+     * stop at the wall but curls up as a cat's does, fully once the wall stands a fifth of a block into it: it leans back
+     * off the hair, rises splayed a little outward and lays its tip forward over the crown, so the hook reads from the side
+     * and the pair from behind.
      */
-    private record Kind(String id, List<String> bones, float x, float y, float z, float limit, float stiffness) {}
+    private record Kind(String id, List<String> bones, float x, float y, float z, float limit, float stiffness, float curl) {}
     private static final List<Kind> KINDS = List.of(
-            new Kind("wing", List.of("predator_wing_left", "predator_wing_right"), 0, -.34f, -.94f, 95, 1),
-            new Kind("tail", List.of("chen_tail_left", "chen_tail_right"), -1, 0, 0, 175, .2f),
-            new Kind("lock", List.of("hand_left", "hand_right", "sideburn_left", "sideburn_right"), 0, 0, -1, 16, 1));
+            new Kind("wing", List.of("predator_wing_left", "predator_wing_right"), 0, -.34f, -.94f, 95, 1, 0),
+            new Kind("tail", List.of("chen_tail_left", "chen_tail_right"), -1, 0, -.15f, 135, .35f, 650),
+            new Kind("lock", List.of("hand_left", "hand_right", "sideburn_left", "sideburn_right"), 0, 0, -1, 16, 1, 0));
     /** Candidate turns tried before refining; the residual a turn may leave for the press (blocks). */
     private static final int STEPS = 12;
     private static final float SLACK = 1 / 256f;
@@ -72,10 +75,12 @@ public final class WallYield {
     }
 
     /** The limbs of one model, or null when it has none. Parts are given as parallel name, start and count arrays. */
-    public static WallYield of(Rig.Bone[] bones, Skin.Binding[] bindings, float[] rest, String[] names, int[] starts, int[] counts) {
+    public static WallYield of(String modelId, Rig.Bone[] bones, Skin.Binding[] bindings, float[] rest, String[] names, int[] starts, int[] counts) {
         var result = new WallYield(bones, bindings.length);
         for (var kind : KINDS) for (int bone = 0; bone < bones.length; bone++) {
             if (!kind.bones.contains(bones[bone].name)) continue;
+            // A puff tail compresses against the wall. Turning it about the root pushes it into the back hair.
+            if (kind.id.equals("tail") && modelId.equals("chen_roundtail")) continue;
             var root = new Vector3f(bones[bone].x, bones[bone].y, bones[bone].z);
             var parts = new ArrayList<Integer>();
             for (int p = 0; p < names.length; p++)
@@ -122,7 +127,7 @@ public final class WallYield {
     }
 
     /** Leave every limb as posed. */
-    public void clear() { any = false; for (var limb : limbs) limb.turned = false; }
+    public void clear() { any = false; for (int i = 0; i < limbs.size(); i++) limbs.get(i).turned = false; }
 
     /**
      * Turn each limb for this frame. {@code world} holds the final bone transforms, {@code toWall} takes posed model units to
@@ -131,7 +136,8 @@ public final class WallYield {
      */
     public void solve(Skinner skin, Matrix4f[] world, Matrix4f toWall, List<Face> faces, Predicate<String> busy) {
         clear();
-        for (var limb : limbs) {
+        for (int l = 0; l < limbs.size(); l++) {
+            var limb = limbs.get(l);
             if (busy.test(limb.kind.id)) continue;
             int n = limb.samples.length;
             var posed = limb.samplePosed;
@@ -143,34 +149,44 @@ public final class WallYield {
                 }
                 limb.posed[k].div(posed[k].length);
             }
-            float rest = reach(limb, posed, 0, toWall, faces);
-            if (rest <= 0) continue;
             var hinge = bones[limb.bone];
             world[limb.bone].transformPosition(limb.joints[0].set(hinge.x, hinge.y, hinge.z));
             for (int k = 1; k < n; k++) limb.joints[k].set(limb.posed[k - 1]).add(limb.posed[k]).mul(.5f);
             axis.set(limb.kind.x, limb.kind.y * limb.side, limb.kind.z * limb.side);
             if (hinge.parent >= 0) world[hinge.parent].transformDirection(axis);
             axis.normalize();
-            // The least turn that does as well as any turn can: a limb does not fold for a wall its folding cannot clear.
-            reached[0] = rest;
-            float best = rest;
-            for (int step = 1; step <= STEPS; step++) {
-                turn(limb, limb.kind.limit * step / STEPS);
-                best = Math.min(best, reached[step] = reach(limb, posed, 1, toWall, faces));
-            }
-            float allowed = Math.max(0, best) + SLACK;
-            if (rest <= allowed) continue;
-            int first = 1;
-            while (reached[first] > allowed) first++;
-            float low = limb.kind.limit * (first - 1) / STEPS, high = limb.kind.limit * first / STEPS;
-            for (int i = 0; i < 6; i++) {
-                float middle = (low + high) / 2;
-                turn(limb, middle);
-                if (reach(limb, posed, 1, toWall, faces) > allowed) low = middle; else high = middle;
-            }
-            turn(limb, Math.min(high, (rest - Math.max(0, best) - SLACK) * GAIN));
+            float degrees = 0;
+            if (limb.kind.curl > 0) {
+                // Each face can wind the tail independently, so a closer face cannot unwind a curl made by another face.
+                for (int f = 0; f < faces.size(); f++) degrees = Math.max(degrees, angle(limb, toWall, faces, f, f + 1));
+            } else degrees = angle(limb, toWall, faces, 0, faces.size());
+            if (degrees == 0) continue;
+            turn(limb, degrees);
             limb.turned = any = true;
         }
+    }
+
+    /** Find the least useful turn, then add the curl for the clearance gained. */
+    private float angle(Limb limb, Matrix4f toWall, List<Face> faces, int from, int to) {
+        float rest = reach(limb, false, toWall, faces, from, to);
+        if (rest <= 0) return 0;
+        float best = rest;
+        for (int step = 1; step <= STEPS; step++) {
+            turn(limb, limb.kind.limit * step / STEPS);
+            best = Math.min(best, reached[step] = reach(limb, true, toWall, faces, from, to));
+        }
+        float allowed = Math.max(0, best) + SLACK;
+        if (rest <= allowed) return 0;
+        int first = 1;
+        while (reached[first] > allowed) first++;
+        float low = limb.kind.limit * (first - 1) / STEPS, high = limb.kind.limit * first / STEPS;
+        for (int i = 0; i < 6; i++) {
+            float middle = (low + high) / 2;
+            turn(limb, middle);
+            if (reach(limb, true, toWall, faces, from, to) > allowed) low = middle; else high = middle;
+        }
+        float gained = rest - Math.max(0, best) - SLACK;
+        return Math.max(Math.min(high, gained * GAIN), Math.min(limb.kind.limit, gained * limb.kind.curl));
     }
     /** Segment transforms in posed model space for one turn of the tip (degrees). */
     private void turn(Limb limb, float degrees) {
@@ -181,15 +197,18 @@ public final class WallYield {
             if (k + 1 < limb.turns.length) limb.turns[k].transformPosition(carried.set(limb.joints[k + 1]));
         }
     }
-    /** How far the limb reaches past the faces (blocks, at most 0 when clear), turned by {@code turned} of its current turn. */
-    private float reach(Limb limb, Vector3f[][] posed, int turned, Matrix4f toWall, List<Face> faces) {
+    /** Distance past the selected faces in blocks, at most zero when clear. */
+    private float reach(Limb limb, boolean turned, Matrix4f toWall, List<Face> faces, int from, int to) {
+        var posed = limb.samplePosed;
         float past = -Float.MAX_VALUE;
         for (int k = 0; k < posed.length; k++) for (var sample : posed[k]) {
             point.set(sample);
-            if (turned != 0) limb.turns[k].transformPosition(point);
+            if (turned) limb.turns[k].transformPosition(point);
             toWall.transformPosition(point);
-            for (var face : faces)
+            for (int i = from; i < to; i++) {
+                var face = faces.get(i);
                 if (point.y >= face.low && point.y <= face.high) past = Math.max(past, face.x * point.x + face.z * point.z - face.distance);
+            }
         }
         return past;
     }
@@ -208,7 +227,8 @@ public final class WallYield {
      *  at its height. Triangles whose corners share the same height band stay clear between their corners as well. */
     public static float press(List<Face> faces, float side, float height, float front) {
         float fraction = 1;
-        for (var face : faces) {
+        for (int i = 0; i < faces.size(); i++) {
+            var face = faces.get(i);
             if (height < face.low || height > face.high) continue;
             float toward = face.x * side + face.z * front;
             if (toward > face.distance) fraction = Math.min(fraction, face.distance / toward);

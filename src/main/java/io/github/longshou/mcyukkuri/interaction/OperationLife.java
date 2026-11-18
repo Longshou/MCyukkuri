@@ -125,12 +125,15 @@ public final class OperationLife {
         staffTable=actor instanceof HumanNpc;
         Motor.velocity(entity,Vec3.ZERO,"table_strap");
         entity.syncOperation(Pose.FIXED.name(),0);
+        entity.syncOperationAnchor(table);
+        RestraintTableBlock.setOccupied(entity.level(),table,true);
         entity.mind().felt(EmotionEvent.FRIGHTENED);
         PunishmentReaction.human(entity,actor,"fix_supine",false);
         GameplayLog.event(entity,"interaction","table strapped; actor={} table={}",tableOperator,GameplayLog.at(RestraintTableBlock.surface(table)));
     }
     public boolean unstrap(String reason) {
         GameplayLog.event(entity,"interaction","table unstrapped; actor={} table={} reason={}",tableOperator,GameplayLog.at(RestraintTableBlock.surface(table)),reason);
+        RestraintTableBlock.setOccupied(entity.level(),table,false);
         table=null;tableOperator=null;staffTable=false;
         return end(reason);
     }
@@ -321,7 +324,7 @@ public final class OperationLife {
         if(wound!=null)GameplayLog.event(entity,"interaction","binding wound; pose={} wound={} triangle={} u={} v={}",
                 pose,attachedWound,wound.triangle(),wound.u(),wound.v());
         entity.syncOperation(pose().name(),0);
-        entity.syncOperationAnchor(ceiling);
+        entity.syncOperationAnchor(table!=null?table:ceiling);
         if(table!=null)entity.syncTableTool(pose.name());
         entity.syncOperationWound(attachedWound);
         return true;
@@ -351,7 +354,8 @@ public final class OperationLife {
         if(cooldown>0)cooldown--;
         if(table!=null){
             var surface=RestraintTableBlock.surface(table);
-            if(!level.getBlockState(table).is(ModBlocks.RESTRAINT.get())
+            var state=level.getBlockState(table);
+            if(!state.is(ModBlocks.RESTRAINT.get())
                     ||entity.position().distanceToSqr(surface)>.25||entity.isPassenger()){unstrap("support_lost");return;}
             if(entity.life().hasUrgentNeed()||entity.body().dying()){unstrap("body_need");return;}
             if(entity.isInWaterOrBubble()||entity.isOnFire()){unstrap("danger");return;}
@@ -359,6 +363,7 @@ public final class OperationLife {
                     ||InteractionDispatch.reachRefusal(staff,entity,InteractionDispatch.TOOL_REACH)!=null)){
                 unstrap("staff_unreachable");return;
             }
+            if(!state.getValue(RestraintTableBlock.OCCUPIED))RestraintTableBlock.setOccupied(level,table,true);
             entity.getNavigation().stop();moveTo(surface);
         }
         if(pose==Pose.NONE){if(!inserted.isEmpty())returnInserted();return;}
@@ -471,7 +476,7 @@ public final class OperationLife {
         pose=Pose.NONE;operator=null;ceiling=null;attachedWound=null;remaining=elapsed=0;
         entity.syncOperation(pose().name(),0);
         entity.syncTableTool(Pose.NONE.name());
-        if(table!=null){entity.syncOperationAnchor(null);entity.syncOperationWound(null);}
+        if(table!=null)entity.syncOperationWound(null);
         entity.getNavigation().stop();
         if (recover && entity.isAlive() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPanicking() && entity.hurtTime == 0)
             entity.showReaction("teary", "", 24);
@@ -555,7 +560,9 @@ public final class OperationLife {
         table=tag.contains("Table")?BlockPos.of(tag.getLong("Table")):null;
         tableOperator=table==null?null:tag.getUUID("TableOperator");
         staffTable=tag.getBoolean("StaffTable");
+        if(table!=null)Motor.placementFacing(entity,RestraintTableBlock.lyingYaw(entity.getYRot()));
         entity.syncOperation(pose().name(),0);
+        entity.syncOperationAnchor(table);
         entity.syncTableTool(Pose.NONE.name());
     }
 }

@@ -61,9 +61,9 @@ def swatch(kind, ramp):
 
 
 MATERIALS = {
-    'iron': ('metal', I.IRON), 'drum': ('metal', I.DRUM), 'wood': ('wood', I.WOOD), 'plank': ('wood', I.PLANK),
-    'leather': ('cloth', I.LEATHER), 'pink': ('cloth', I.PINK), 'switch': ('cloth', I.PINK[:3]), 'strap': ('wood', I.STRAP),
-    'brass': ('metal', I.BRASS), 'cloth': ('cloth', I.CLOTH[1:]), 'string': ('cloth', I.STRING), 'hot': ('hot', I.HOT),
+    'iron': ('metal', I.IRON), 'drum': ('metal', I.DRUM), 'wood': ('wood', I.WOOD),
+    'leather': ('cloth', I.LEATHER), 'pink': ('cloth', I.PINK), 'switch': ('cloth', I.PINK[:3]),
+    'cloth': ('cloth', I.CLOTH[1:]), 'string': ('cloth', I.STRING), 'hot': ('hot', I.HOT),
     'dark': ('dark', I.DRUM),
 }
 
@@ -125,14 +125,6 @@ def care_vibrator():
     return egg + cord + box
 
 
-def restraint_frame():
-    straps = []
-    for z in (-3.5, 3.5):
-        straps += [cube((-5, 1, z - .75), (-4, 5, z + .75), 'strap'), cube((4, 1, z - .75), (5, 5, z + .75), 'strap'),
-                   cube((-5, 5, z - .75), (5, 6, z + .75), 'strap'), cube((1, 4.75, z - 1), (2.5, 6.25, z + 1), 'brass')]
-    return [cube((-6, 0, -7), (6, 1, 7), 'plank')] + straps
-
-
 def wrap_sling():
     cords = [cube((3.4, 3, -.3), (4.0, 12.1, .3), 'string', rotation={'origin': [3.7, 3, 0], 'axis': 'z', 'angle': 22.5}),
              cube((-4.0, 3, -.3), (-3.4, 12.1, .3), 'string', rotation={'origin': [-3.7, 3, 0], 'axis': 'z', 'angle': -22.5})]
@@ -162,7 +154,6 @@ HELD = {
     'care_awl_hot': (care_awl_hot, 'tool', ('wood', 'iron', 'hot'), None),
     'hanging_hook': (hanging_hook, 'item', ('iron', 'string'), {'origin': (0, 0, 0), 'rows': ((1, 0, 0), (0, 1, 0), (0, 0, 1))}),
     'care_vibrator': (care_vibrator, 'item', ('pink', 'string', 'switch'), {'origin': (-2.25, 2.5, 0), 'rows': CYCLE}),
-    'restraint_frame': (restraint_frame, 'block', ('plank', 'strap', 'brass', 'cloth'), None),
     'wrap_sling': (wrap_sling, 'item', ('cloth', 'string', 'iron'), None),
     'iron_enclosure': (iron_enclosure, 'block', ('iron', 'dark'), None),
 }
@@ -310,7 +301,6 @@ def triangles(ident, frame='tool', hand_only=True):
 
 # Palette colours of the body-fitted meshes in build.py -> material of the same tool's texture.
 FITTED = {
-    'restraint_frame': {0: 'plank', 7: 'cloth', 8: 'strap'},
     'wrap_sling': {7: 'cloth', 8: 'iron'},
     'iron_enclosure': {3: 'iron', 4: 'iron'},
 }

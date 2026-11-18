@@ -180,12 +180,12 @@ def hedge_row(b, cells):
             b.block(x, 1, z, p.fence, link(p.fence, sides))
 
 
-def finish(b):
+def finish(b, *, reserved=()):
     """Roof snow only over open roof space, then snow on the exposed tops of tree crowns (snowy), then hidden light on every floor."""
     gable_snow(b)
     for x, y, z in getattr(b, 'tree_snow', ()):
         if name_at(b, x, y + 1, z) == 'minecraft:air' and y + 1 < b.size[1] - 1: b.block(x, y + 1, z, 'snow', {'layers': '1'})
-    light_up(b)
+    light_up(b, reserved=reserved)
     return b
 
 
@@ -407,6 +407,12 @@ def park(p):
     W, H, D = 23, 13, 27
     b = Site(f'village/{p.style}/park', [W, H, D], p)
     marker(b, 11.5, 1, 10.5, 'mcy_park_walk')
+    kind, play_z, depth = {
+        'plains': ('yukkuri_slide', 14, 2), 'savanna': ('yukkuri_slide', 14, 2),
+        'taiga': ('yukkuri_trampoline', 14, 1), 'snowy': ('yukkuri_trampoline', 14, 1),
+        'desert': ('yukkuri_pool', 17, 1),
+    }[p.style]
+    marker(b, 12.5, 1, play_z + .5, 'mcy_park_play', {'Kind': string(kind), 'Facing': string('south')})
     b.box((0, 1, 0), (W - 1, H - 1, D - 1), 'air')
     street_band(b, 0, W - 1)
     lot_ground(b, 0, W - 1, 8, D - 1)
@@ -449,7 +455,8 @@ def park(p):
             for x in range(x0, x0 + 3): b.block(x, 4, z0 - 1, p.beam, None); b.block(x, 4, z0 + 3, p.beam, None)
         for i, (x, z) in enumerate([(4, 21), (12, 22), (14, 19), (3, 12)]): b.block(x, 1, z, p.pot(i))
     # Lawn plants (bare where the type has none), clear of paths, benches and the pond.
-    lawn = [(x, z) for x in range(3, 20) for z in range(11, 20) if (x, z) not in path and (x, z) not in pond]
+    lawn = [(x, z) for x in range(3, 20) for z in range(11, 20)
+            if (x, z) not in path and (x, z) not in pond and not (10 <= x <= 14 and abs(z - play_z) <= depth + 1)]
     plants(b, [(x, z) for x, z in lawn if (x * 7 + z * 3) % 5 == 0 and not 13 <= x <= 19], 1)
     plants(b, [(x, z) for x in range(1, 15) for z in range(21, 26) if (x * 5 + z) % 4 == 0], 2)
     # Gardeners' lodge (x15..21, z21..25): a small house of the type, door onto the path; two residents live in it.
@@ -474,7 +481,8 @@ def park(p):
     resident(b, 20, 24, 'oniisan', 2, ['mcy_street_local', 'mcy_street_special'])
     b.strict = False
     street_ends(b, W)
-    return finish(b)
+    footprint = {(x, y, z) for x in range(11, 14) for y in (1, 2) for z in range(play_z - depth, play_z + depth + 1)}
+    return finish(b, reserved=footprint)
 
 
 # ---------------------------------------------------------------------------------------------------------- side street

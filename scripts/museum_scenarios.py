@@ -422,20 +422,30 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
 
-_taste_ids = {name: uid('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
-add('graze', 'forage', '舌肥：同一份粗粮，三种反应', '舌肥：同一份粗粮，三种反应',
-    '三只成体并排面对你，脚前各有一份同样的预算粮，营养都是 48，舌肥分别是 12 / 50 / 95：最不挑的开心吃下，中间的平平淡淡吃下，挑的抿着嘴抱怨（表情与头顶字幕），把粮留在地上。'
-    '在生存模式下手喂挑的那只，它会把粮含进嘴再吐回地上；饿到 35 左右时，同一只会勉强吃下预算粮。看表情、吐出的实物和读数里的舌肥变化。',
+_taste_actors = (
+    ('easy', 'reimu', -12, 56, 12, 'SAVOUR'),
+    ('plain', 'marisa', -8, 56, 45, 'PLAIN'),
+    ('grudge', 'alice', -4, 56, 64, 'GRUMBLE'),
+    ('reluctant', 'chen', 0, 22, 95, 'RELUCTANT'),
+    ('picky', 'reimu', 4, 56, 95, 'REFUSE'),
+)
+add('graze', 'forage', '舌肥：同一份粗粮，五种反应', '舌肥：同一份粗粮，五种反应',
+    '五只成体脚前各有一份预算粮。从左到右看开心蹦跳、平静吃完、嫌弃着慢嚼、饿得含泪吃下、抿嘴转开把粮留在地上。'
+    '后两只舌肥都是 95，开场营养分别为 22 和 56。生存模式下也可进围栏亲手喂最右边那只，看它把粮含住再吐回地上。',
     '约 15–60 秒', [
-        yk('reimu', -3, 0, 'taste_easy', uuid=_taste_ids['taste_easy'], nutrition=48, yaw=180, self_control=40, picky=12, lead=True, label='舌肥 12'),
-        item('mcyukkuri:oil_grain_budget', 1, -3, -.4, name='taste_grain_easy'),
-        yk('marisa', 0, 0, 'taste_plain', uuid=_taste_ids['taste_plain'], nutrition=48, yaw=180, self_control=40, picky=50, label='舌肥 50'),
-        item('mcyukkuri:oil_grain_budget', 1, 0, -.4, name='taste_grain_plain'),
-        yk('reimu', 3, 0, 'taste_picky', uuid=_taste_ids['taste_picky'], nutrition=48, yaw=180, self_control=40, picky=95, label='舌肥 95'),
-        item('mcyukkuri:oil_grain_budget', 1, 3, -.4, name='taste_grain_picky')],
-    env=DAY, spot='graze', vantage=(0, 12), note='待验证：新场景，尚未在游戏里实测。',
-    reads=[('读舌肥12', f'yukkuri status {sel("taste_easy")} raw'), ('读舌肥50', f'yukkuri status {sel("taste_plain")} raw'),
-           ('读舌肥95', f'yukkuri status {sel("taste_picky")} raw')])
+        box(-13, 0, -1, 5, 0, 1, 'minecraft:air'),
+        *(box(x, 0, -2, x, 0, 2, 'minecraft:oak_fence') for x in range(-14, 7, 4)),
+        *(box(-14, 0, z, 6, 0, z, 'minecraft:oak_fence') for z in (-2, 2)),
+        *(block(x, 0, -2, 'minecraft:oak_fence_gate[facing=south]') for _, _, x, *_ in _taste_actors),
+        *(command for name, species, x, nutrition, taste, _ in _taste_actors for command in (
+            yk(species, x, 0, f'taste_{name}', uuid=uid('graze', f'taste_{name}'), nutrition=nutrition, yaw=180,
+               boldness=80 if name == 'picky' else 50, friendliness=30 if name == 'picky' else 50,
+               self_control=25 if name == 'picky' else 40, picky=taste, lead=name == 'grudge', label=f'舌肥 {taste}'),
+            item('mcyukkuri:oil_grain_budget', 1, x, -.4, name=f'taste_grain_{name}')))],
+    env=DAY, spot='graze', vantage=(-4, 12),
+    give=['mcyukkuri:oil_grain_budget 4', 'mcyukkuri:oil_grain_premium 2'], note='待验证：尚未试玩。',
+    reads=[(f'读舌肥 {taste}／起始营养 {nutrition}', f'yukkuri status {sel(f"taste_{name}")} raw')
+           for name, _, _, nutrition, taste, _ in _taste_actors])
 
 _glass_food_eater = uid('food_behind_glass', 'glass_food_eater')
 add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看见苹果',
@@ -447,6 +457,67 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
         f'data modify entity {sel("glass_apple")} PickupDelay set value 32767s'],
     env=DAY, spot='forage', vantage=(4, 7, 155),
     reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
+
+# One-cell glass niches, three deep, with their glass back toward the visitor and open to the south (a yukkuri cannot see through
+# glass). Each hungry body has one apple at the back of its niche and one out in the open south of it: it walks in and eats facing
+# the visitor (wings, braid, side locks pressed in between the side panes), then turns round and walks out to the second apple,
+# where they come free. Chen starts backed against the west pane facing east over its first apple, so the visitor sees it in profile and its tails
+# curl up against the glass through the meal and uncurl as it leaves. A Remilia in the open does the same walk with nothing to
+# yield to. A predator menaces ordinary bodies it sees or is within 6 blocks of (Reactions.Threat): a stone wall running south from
+# the middle of the row screens the ordinary niches (east) from the predator niches (west), 7 blocks apart.
+_TUCK_ROW = (('marisa', 7, 'tuck_marisa', '魔理沙：辫子'), ('reimu', 5, 'tuck_reimu', '灵梦：鬓发'),
+             ('chen', 3, 'tuck_chen', '橙：尾巴'), ('remilia', -4, 'tuck_remilia', '蕾米莉亚：翅膀'),
+             ('flandre', -6, 'tuck_flandre', '芙兰：翅膀'), ('remilia', -10, 'tuck_open', '对照：空地蕾米莉亚'))
+
+
+def _tuck_body(kind, x, name, label):
+    # Prey at 30 still wants the second apple after the first (+20, LifeMeal FULL - 20 = 55). A predator takes loose food before
+    # hunting (PredatorLife scavenge) and at boldness 0 wants to hunt only below 45, so at 50 it eats both apples and hunts nobody;
+    # at energy 40 (patrol needs above 45) it walks to its food and stays on the ground instead of flying a patrol over the screen.
+    predator = kind in ('remilia', 'flandre')
+    backed = name == 'tuck_chen'
+    return yk(kind, x, 2 if backed else 5, name, uuid=uid('wall_tuck', name), label=label, yaw=270 if backed else 180,
+              lead=name == 'tuck_marisa', nutrition=50 if predator else 30, boldness=0 if predator else 55,
+              energy=40 if predator else 95, social_wait=6000)
+
+
+add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收拢：辫子、翅膀、尾巴',
+    '饿油走进一格宽的玻璃墙槽，面朝你吃槽底的苹果：看魔理沙的辫子与帽檐、灵梦的鬓发向内收，蕾米莉亚和芙兰的翅膀向下收拢；'
+    '橙一开始就侧身背贴西侧玻璃朝东吃苹果，从正面隔着玻璃看它的侧面，两条尾巴离开头发向上弯成问号钩，尾尖越过头顶后部。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
+    '约 10–20 秒', [
+        box(-7, 0, 0, 8, 1, 0, 'minecraft:glass'),
+        box(0, 0, 0, 0, 1, 28, 'minecraft:stone_bricks'),
+        *[box(x, 0, 1, x, 1, 3, 'minecraft:glass') for x in (2, 4, 6, 8, -3, -5, -7)],
+        *[_tuck_body(*entry) for entry in _TUCK_ROW],
+        # Chen eats from where it stands: its apple lies just ahead (east), so it keeps its back against the west pane.
+        *[item('minecraft:apple', 1, x + .3 if name == 'tuck_chen' else x, 2 if name == 'tuck_chen' else 1, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
+        *[item('minecraft:apple', 1, x, 10, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
+    env=DAY, spot='wall_tuck', vantage=(1, -3, 0, 12), note='待验证：新场景，尚未在游戏里实测。',
+    capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
+                 views={'': {}, 'locks': dict(position=(5.5, 1.9, -1.2), look_at=(5.5, .3, 2)),
+                        # Chen in profile through the front glass at about 4.5 blocks, and from behind over the screen wall.
+                        'tail': dict(position=(3.5, .8, -2), look_at=(3.4, .4, 2.5)),
+                        'tail_back': dict(position=(.5, 2.6, 2.5), look_at=(3.5, .5, 2.5)),
+                        'wings': dict(position=(-5.5, 1.9, -1.2), look_at=(-5.5, .3, 2))}),
+    smoke=dict(ticks=600, forbid=[r'\[body\][^\n]* invariant\b'],
+               expect=[rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* swallowed item=minecraft:apple\b'
+                       for _, _, name, _ in _TUCK_ROW]),
+    reads=[('读魔理沙', f'yukkuri status {sel("tuck_marisa")} raw'), ('读橙', f'yukkuri status {sel("tuck_chen")} raw'),
+           ('读蕾米莉亚', f'yukkuri status {sel("tuck_remilia")} raw')])
+
+
+def _wall_tuck_verify(log):
+    # The exhibit is both apples of every body (a body may share its second one with a neighbour: it counts once picked up): the inner one at the wall, the outer one in the open. Fed bodies that later roam
+    # round the end of the screen meet the predators and back off for real; that may come after, never before.
+    threat = re.search(r'\[threat\][^\n]* response started ', log)
+    calm = log[:threat.start()] if threat else log
+    for _, _, name, _ in _TUCK_ROW:
+        meals = re.findall(rf'\[meal\][^\n]*uuid={_uuid_text("wall_tuck", name)}[^\n]* received item=minecraft:apple\b', calm)
+        if len(meals) < 2:
+            return f'{name} ate {len(meals)} of its two apples before the first threat response'
+
+
+next(s for s in S if s.id == 'wall_tuck').smoke['verify'] = _wall_tuck_verify
 
 
 def carton_shell(x, z):
@@ -2298,6 +2369,35 @@ add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟�
     ], env=DAY, vantage=(-2, 9, 160, 16),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
+_park_outing = []
+for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
+    _park_outing += [
+        yk(_kind, _x, _z, _name, uuid=uid('yard_park_play', _name), boldness=_bold, attachment=_bond,
+           nutrition=100, energy=50 if _kind == 'reimu' else 100,
+           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True),
+        f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',
+    ]
+add('yard_park_play', 'town', '主人带两只宠物去公园玩', '主人带两只宠物去公园玩',
+    '院主带灵梦和魔理沙走到草地上的蹦床旁。看它们自己上蹦床玩，灵梦玩累后在干地趴下，主人等它醒来再一起回院。',
+    '约 2 分钟', [
+        *_yard_ground(True),
+        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
+        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
+        'item replace block ~5 ~ ~2 container.0 with mcyukkuri:oil_grain_regular 4',
+        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        box(-19, -1, 5, -9, -1, 9, 'minecraft:grass_block'),
+        box(-19, 0, 5, -9, 2, 9, 'minecraft:air'),
+        'summon minecraft:marker ~-11.5 ~ ~1.5 {Tags:["mcy_park_walk"]}',
+        'summon minecraft:marker ~-12.5 ~ ~6.5 {Tags:["mcy_park_play"],Rotation:[180f,0f],'
+        'data:{Kind:"yukkuri_trampoline",Facing:"south"}}',
+        human('caretaker_sister', 1, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
+        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L}}',
+        *_park_outing,
+    ], env=DAY, vantage=(-7, 9, 145, 21),
+    reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -2476,6 +2576,9 @@ add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨�
                              ('personality.friendliness', 30), ('mood.unease', unease)]],
     ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl'],
     env=DAY, vantage=(8, 17, 180, 8),
+    capture=dict(shots=(84, 100, 116, 137, 152, 160, 173), sequences=((86, 170, 6),), observe=False,
+                 views={'table': dict(position=(24.5, 3.7, .75), look_at=(22.5, 2.55, 2.5),
+                                      criteria='看清空台的两条皮带、仰卧个体身上的合拢皮带以及拆台后松绑。')}),
     reads=[('读借还托盘', 'data get block ~14 ~3 ~1 Items'),
            ('读胆大灵梦', f'yukkuri status {sel("oni_bold")} raw'),
            ('读胆小灵梦', f'yukkuri status {sel("oni_timid")} raw')])
@@ -5273,10 +5376,11 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8',
     'family_absence': 'W9',
+    'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5', 'yard_park_play': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -5563,12 +5667,14 @@ def _absence_grief_timing(log):
 next(s for s in S if s.id == 'family_absence').smoke['verify'] = _absence_grief_timing
 for _sid in ('forage', 'family_absence'):
     next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
-_taste_uuids = {name: _uuid_text('graze', name) for name in ('taste_easy', 'taste_plain', 'taste_picky')}
+_taste_picky_uuid = _uuid_text('graze', 'taste_picky')
 _smoke('graze', 1800, [
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_easy"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=SAVOUR\b',
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_plain"]}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict=PLAIN\b',
-    rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*food_complain item=mcyukkuri:oil_grain_budget[^\n]*verdict=REFUSE\b'],
-       forbid=[rf'\[meal\][^\n]*uuid={_taste_uuids["taste_picky"]}[^\n]*swallowed '])
+    *(rf'\[meal\][^\n]*uuid={_uuid_text("graze", f"taste_{name}")}[^\n]*swallowed item=mcyukkuri:oil_grain_budget[^\n]*verdict={verdict}\b'
+      for name, _, _, _, _, verdict in _taste_actors if verdict != 'REFUSE'),
+    rf'\[meal\][^\n]*uuid={_taste_picky_uuid}[^\n]*food_complain item=mcyukkuri:oil_grain_budget[^\n]*verdict=REFUSE\b',
+    r'MCYGRAZE_PICKY_REMAINS'],
+    forbid=[rf'\[meal\][^\n]*uuid={_taste_picky_uuid}[^\n]*swallowed '],
+    readout=[f'execute if entity @e[type=minecraft:item,tag={tag("taste_grain_picky")},nbt={{Item:{{id:"mcyukkuri:oil_grain_budget",count:1}}}}] run say MCYGRAZE_PICKY_REMAINS'])
 _smoke('food_behind_glass', 260, [r'\[action\][^\n]* end id=glass_press outcome=DONE', r'MCYGLASS_APPLE_REMAINS'],
        forbid=[rf'\[meal\][^\n]* uuid={_uuid_of(_glass_food_eater)} [^\n]* pickup '],
        readout=[f'execute if entity @e[type=minecraft:item,tag={tag("glass_apple")},nbt={{Item:{{id:"minecraft:apple",count:1}}}}] run say MCYGLASS_APPLE_REMAINS',
@@ -6266,7 +6372,7 @@ _smoke('oni_stress_room', 440, [
     r'MCYSP08_LOAN_BALANCED', r'MCYSP08_EMPTY_TABLE', r'MCYSP08_HELD_WITHOUT_OPERATOR', r'MCYSP08_RETURN_BALANCED',
 ], readout=['data get block ~14 ~3 ~1 Items', f'yukkuri status {sel("oni_bold")} raw',
             f'yukkuri status {sel("oni_timid")} raw', f'yukkuri status {sel("brought_reimu")} raw'])
-_stress_operator = '@p[distance=..40]'
+_stress_operator = '@p[name=MuseumOperator,distance=..40]'
 _stress_frame_drop = '@e[type=minecraft:item,distance=..8,limit=1,nbt={Item:{id:"mcyukkuri:restraint_frame"}}]'
 next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (70, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator enter'),
@@ -6284,7 +6390,7 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     *[(79, f'execute as {_stress_operator} run {command}') for command in own('brought_reimu')],
     (80, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
     (80, 'yukkuri scenario shop_block_click ~22 ~1 ~2'),
-    (80, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame if entity {sel("brought_reimu")} '
+    (80, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame[occupied=false] if entity {sel("brought_reimu")} '
          f'unless data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_EMPTY_TABLE'),
     (81, f'item replace entity {_stress_operator} hotbar.1 with mcyukkuri:yukkuri_carrier'),
     (82, 'yukkuri scenario tool_operator select 1'),
@@ -6295,7 +6401,8 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (129, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
     # Exercise the tray's block-entity save/load round trip while the frame is out, without changing its Items.
     (130, 'data merge block ~14 ~3 ~1 {SP08Readback:1b}'),
-    (152, f'execute if data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_HELD_WITHOUT_OPERATOR'),
+    (152, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame[occupied=true] '
+          f'if data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_HELD_WITHOUT_OPERATOR'),
     (153, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
     (153, 'yukkuri scenario tool_operator break ~22 ~2 ~2'),
     (175, f'execute positioned ~22 ~2 ~3 at {_stress_frame_drop} run yukkuri scenario tool_operator move'),
@@ -6365,6 +6472,28 @@ next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_cro
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
 ])
+_park_shy = _uuid_text('yard_park_play', 'outing_shy')
+_smoke('yard_park_play', 2600, [
+    r'park facility result=placed kind=TRAMPOLINE',
+    r'action=outing_depart pets=2 ',
+    r'action=outing_park facility=',
+    rf'uuid={_park_shy} [^\n]*facility session started kind=TRAMPOLINE',
+    rf'uuid={_park_shy} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true',
+    rf'uuid={_park_shy} [^\n]*outing rest begin',
+    rf'uuid={_park_shy} [^\n]*end source=life cause=rested ',
+    r'action=outing_turn reason=park_(?:done|time)',
+    r'action=outing_home',
+    *[rf'uuid={_uuid_text("yard_park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
+    r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
+], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)'],
+    readout=[
+        'execute if block ~-13 ~ ~6 mcyukkuri:yukkuri_trampoline run say MCY_PARK_FACILITY_BEFORE_CLEAR',
+        'function mcylab:field/town/clear',
+        'execute ' + ' '.join(f'if block ~{x} ~{y} ~{z} minecraft:air'
+                              for x in range(-14, -11) for y in range(2) for z in range(5, 8))
+        + ' unless entity @e[type=minecraft:item,distance=..22,nbt={Item:{id:"mcyukkuri:yukkuri_trampoline"}}]'
+        ' run say MCY_PARK_FACILITY_CLEARED',
+    ])
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],

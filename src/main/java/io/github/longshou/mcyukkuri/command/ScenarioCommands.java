@@ -405,7 +405,9 @@ public final class ScenarioCommands {
 
     private static int toolOperator(CommandSourceStack source,boolean enter){
         var level=source.getLevel();
-        if(source.getEntity()!=null||level.players().stream().anyMatch(player->!player.isFakePlayer()))return 0;
+        // The hidden capture client observes the same scripted interactions as headless smoke.
+        boolean capture = level.getServer().isSingleplayer() && Boolean.getBoolean("mcyukkuri.capture");
+        if(source.getEntity()!=null||!capture&&level.players().stream().anyMatch(player->!player.isFakePlayer()))return 0;
         var current=level.getPlayerByUUID(TOOL_OPERATOR);
         if(!enter){
             if(!(current instanceof FakePlayer player))return 0;

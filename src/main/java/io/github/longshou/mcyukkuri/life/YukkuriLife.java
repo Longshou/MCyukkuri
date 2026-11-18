@@ -111,6 +111,7 @@ public final class YukkuriLife {
     private int wakeAt;
     /** What ended a sleep that got up before its own wake tick (hunger, a real need, a child waiting); null for the rested wake. */
     private String wakeCause;
+    private boolean outingRest;
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private Entity foodGlassTarget;
@@ -277,7 +278,7 @@ public final class YukkuriLife {
     }
     void leaked() { releaseWaste();hygiene=Math.max(0,hygiene-15); }
     /** No sleep bookkeeping outlives a sleep: the next one starts from the enter clip with no wake tick. */
-    private void resetSleep() { sleepTicks = 0; wakeAt = 0; wakeCause = null; bedRead = null; }
+    private void resetSleep() { sleepTicks = 0; wakeAt = 0; wakeCause = null; bedRead = null; outingRest = false; }
     /** The graded bed it is sleeping in, read from its own values (NestComfort) each time the sleep checks it lies inside; null
      *  when it is not asleep in its own graded bed. Not saved: a reloaded sleep reads its bed again at the next check. */
     private NestComfort.Read bedRead;
@@ -515,6 +516,7 @@ public final class YukkuriLife {
         return entity.family().hasChildAwaitingFeed() ? "child_hungry" : null;
     }
     public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
+    public boolean outingResting() { return outingRest; }
     public void wakeForStemFood() {
         if (drugSleep()>0) return;
         if (fatigueActive()) stopFatigueRest("stem_food");
@@ -541,9 +543,11 @@ public final class YukkuriLife {
         if (fatigueActive()) return Behaviors.SLEEP;
         if (!braidMealClip().isEmpty()) return braidMealClip();
         if (mealTicks() > 0) {
-            String after = meal.content() ? Behaviors.MEAL_CONTENT : Behaviors.MEAL_FINISH;
-            if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : after;
-            return mealTicks() < LifeMeal.TAKE_TICKS ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : after;
+            int swallowAt = meal.swallowTick();
+            if (mealTicks() >= swallowAt + LifeMeal.SWALLOW_TICKS) return meal.afterActivity();
+            if (meal.preparedMeal()) return Behaviors.RECEIVE_MASH;
+            if (mealTicks() < LifeMeal.TAKE_TICKS) return Behaviors.TAKE_FOOD;
+            return mealTicks() < swallowAt ? meal.chewActivity() : Behaviors.SWALLOW;
         }
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
         return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
@@ -995,6 +999,16 @@ public final class YukkuriLife {
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         }
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
+        if (entity.outing().restsHere() && homeProvider().ordinaryRestAllowed(this)) {
+            var here = entity.blockPosition();
+            if (!dryStand(here) || !SurfaceApproach.supportedGround(entity, entity.position()) || level().isRainingAt(here)) return false;
+            targetBlock = null;
+            task = Task.SLEEP;
+            resetSleep();
+            outingRest = true;
+            GameplayLog.event(entity, "pet", "outing rest begin energy={} band={}", energy, entity.outing().restBand());
+            return true;
+        }
         if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
                 && homeProvider().ordinaryRestAllowed(this)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
@@ -1320,7 +1334,8 @@ public final class YukkuriLife {
                 else if (wakeAt == 0 && drugSleep() == 0) {
                     // Real needs end a sleep at once, with the thresholds the daytime plan uses (checked once a second, like the nest sample).
                     String need = sleepTicks % 20 == 0 ? needWakeCause() : null;
-                    if (sleepTicks >= 20 && foundCover.humanNearBench()) wakeAt = sleepTicks + stretch;
+                    if (outingRest && !entity.outing().escorted()) wakeNow("outing_ended");
+                    else if (sleepTicks >= 20 && foundCover.humanNearBench()) wakeAt = sleepTicks + stretch;
                     else if (sleepTicks >= sleepDuration() && nutrition < 15) wakeNow("hunger");
                     else if (need != null) wakeNow(need);
                     // A sleep taken at its own rest time (the night, or a house body's day) goes on past the full stretch, so a night sleep

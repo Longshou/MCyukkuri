@@ -244,6 +244,8 @@
     "oni_stress_room": "SP-08",
     "den_barrier_threat": "DN-08",
     "basket_weakness": "TN-33",
-    "yard_street_walk": "TN-34"
+    "yard_street_walk": "TN-34",
+    "wall_tuck": "FG-16",
+    "yard_park_play": "TN-35"
   }
 }

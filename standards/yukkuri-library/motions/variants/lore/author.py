@@ -715,6 +715,24 @@ def state(action, t, c, height):
         r[0] = keyed(t, [(0, 0), (L, c['rise_lean']), (C, c['lean']), (I, c['lean']), (I+.3, c['peel_lean']), (S, 0)])
         a = keyed(t, [(0, 0), (L, -c['draw_back']), (C, c['reach']), (I, c['reach']), (S, 0)])
         shift[1] = -height*(a + q*F)
+    elif action == 'bin_nose_in':
+        # Nose into a fallen bin's mouth (recipe lore): a small eager rise and draw-back, lean in until the face meets the mouth
+        # (launch..contact), face pressed flat into it while the body wriggles and digs (contact..impact: yaw and roll wiggle,
+        # short forward pumps; the front stays on the mouth plane), yank back out with the find on `pull` (= impact) with the
+        # chin up, then settle into eat's first pose. Travel is the motor's (RamContact front sweep of this clip).
+        m = c['markers']; L, C, I = m['launch'], m['contact'], m['impact']
+        fl, F, hz = c['flatten'], c['front_ratio'], c['wiggle_hz']
+        q = fl*keyed(t, [(0, 0), (C, 0), (C+.12, 1), (I, 1), (I+.1, 0), (d, 0)])
+        env = keyed(t, [(0, 0), (C+.05, 0), (C+.2, 1), (I-.2, 1), (I-.05, 0), (d, 0)])
+        ph = 2*math.pi*hz*(t-C)
+        a = keyed(t, [(0, 0), (L, -c['draw_back']), (C, c['reach']), (I, c['reach']), (I+.14, -c['recoil']), (I+.4, 0), (d, 0)])
+        a += c['dig']*env*math.sin(2*ph)
+        yank = bump((t-I)/.3) if I <= t <= I+.3 else 0.
+        s = [1+.6*q, 1+.25*q+.03*yank, 1-q+.02*yank]
+        r = [keyed(t, [(0, 0), (L, c['rise_lean']), (C, c['lean']), (I, c['lean']), (I+.14, c['yank_lean']), (I+.4, -4), (d, c['end_lean'])]),
+             c['wiggle_yaw']*env*math.sin(ph), c['wiggle_roll']*env*math.sin(ph+1.3)]
+        shift[1] = -height*(a + q*F)
+        lift = c['yank_hop']*height*yank
     elif action == 'shy':
         # Face turned away with a small sway; once per cycle it peeks back and turns away again.
         ph = 2*math.pi*t/d; peek = max(0., math.sin(ph))**2

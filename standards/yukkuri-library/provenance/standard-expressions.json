@@ -2,7 +2,7 @@
   "status": "approved",
   "date": "2026-09-12",
   "user_confirmation": "作为标准表情保存吧",
-  "count": 97,
+  "count": 98,
   "entries": [
     {
       "id": "neutral",
@@ -585,6 +585,12 @@
       "code": "F04",
       "label": "羞愧",
       "preset": "expressions/presets/ashamed.json"
+    },
+    {
+      "id": "sparkle",
+      "code": "F05",
+      "label": "闪亮眼",
+      "preset": "expressions/presets/sparkle.json"
     }
   ],
   "deferred_ids": [
@@ -854,7 +860,9 @@
     "expressions/presets/envy.json": "676f5bce14563c256de34feb7393b59f330fab7adca5dc7a09fe0f2394c9ae8c",
     "expressions/presets/hmph.json": "7b52a25190d934a0fdddbb126b8511aae1433b2d903b8d8f0ea687da41f56323",
     "expressions/presets/ashamed.json": "5c5172cdf479696679488b9635ef0dbcc5915aeb1c859eaf99858a5b0f4cce8d",
-    "expressions/parts/index.json": "95a83fe90b875f5f8d3ec70951e1b4b23242e6773a60c6f63c555a9b50abf0e7"
+    "expressions/parts/37c1543499c07ab08f91.png": "f7ffbf677443a8c8e0339a176bacf460e3eb168a1cf3bf55a59dc9113d5dd2e1",
+    "expressions/presets/sparkle.json": "e94da340d1c33b289c5ed508e0b2119fe2dd0beddbacbf81e6a8d6d6f2c2b258",
+    "expressions/parts/index.json": "0c1689cefc97685759a1e976899816e973ce8e4d2e28bf8c246a06c659d368cf"
   },
   "exports": {
     "assembled/alice/index.html": "b961aa40dc7b51ea1276104cc88fdd30d6da16908d3a04c186f82269316c17a3",

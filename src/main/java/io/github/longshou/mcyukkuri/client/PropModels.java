@@ -28,7 +28,7 @@ import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
 public final class PropModels {
     public static final ResourceManagerReloadListener RELOAD = PropModels::reload;
     private record Part(String name,int start, int count, int unit, ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
-    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,float bodyLift,Map<Integer,AABB> unitBounds,Map<String,WornSeat> anchors) {}
+    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,Map<Integer,AABB> unitBounds,Map<String,WornSeat> anchors) {}
     private static Map<String, Model> models = Map.of();
     private static Map<ResourceLocation,HatDamageFaces.Sampler> propSamplers = Map.of();
     private static final Map<String,HatDamageFaces.Face[][]> HAT_FACES = new HashMap<>();
@@ -60,7 +60,7 @@ public final class PropModels {
                     loaded.put(name,new Model(vertices,parts,bounds,socket==null?Vec3.ZERO:
                             new Vec3(socket.get(0).getAsDouble()/16,socket.get(1).getAsDouble()/16,socket.get(2).getAsDouble()/16),rootSocket==null?Vec3.ZERO:
                             new Vec3(rootSocket.get(0).getAsDouble()/16,rootSocket.get(1).getAsDouble()/16,rootSocket.get(2).getAsDouble()/16),
-                                    data.has("body_lift")?data.get("body_lift").getAsFloat():0,new HashMap<>(),anchors(data)));
+                                    new HashMap<>(),anchors(data)));
                 }
             }
         } catch(IOException error){throw new UncheckedIOException(error);}
@@ -109,7 +109,6 @@ public final class PropModels {
     public static WornSeat anchor(String name,String anchor){var model=models.get(name);return model==null?null:model.anchors.get(anchor);}
     public static Vec3 socket(String name){return models.get(name).socket;}
     public static Vec3 rootSocket(String name){return models.get(name).rootSocket;}
-    public static float bodyLift(String name){return models.get(name).bodyLift;}
     /** Height of the prop in blocks at scale 1. */
     public static float height(String name){var b=models.get(name).bounds;return (b[1][1]-b[1][0])/16;}
     public static float extent(String name){var b=models.get(name).bounds;return Math.max(b[0][1]-b[0][0],Math.max(b[1][1]-b[1][0],b[2][1]-b[2][0]));}

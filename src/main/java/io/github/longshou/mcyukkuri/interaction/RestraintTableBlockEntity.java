@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -23,6 +24,13 @@ public final class RestraintTableBlockEntity extends BlockEntity {
     public YukkuriEntity occupant() {
         return level.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(1),
                 body -> worldPosition.equals(body.operations().table())).stream().findFirst().orElse(null);
+    }
+
+    void refreshOccupied(ServerLevel server, BlockState state) {
+        // Chunk block data can be ready before the occupant's saved entity data.
+        if (state.getValue(RestraintTableBlock.OCCUPIED) && server.areEntitiesLoaded(ChunkPos.asLong(worldPosition))
+                && occupant() == null)
+            RestraintTableBlock.setOccupied(server, worldPosition, false);
     }
 
     public boolean fits(YukkuriEntity body) {
@@ -38,7 +46,7 @@ public final class RestraintTableBlockEntity extends BlockEntity {
         if (occupant() != null) return new YukkuriWorldData.GroundRelease(null, "busy");
         var server = (ServerLevel) level;
         var destination = RestraintTableBlock.surface(worldPosition);
-        var placed = YukkuriWorldData.get(server).releaseOnSurface(token, server, destination, yaw, body -> {
+        var placed = YukkuriWorldData.get(server).releaseOnSurface(token, server, destination, RestraintTableBlock.lyingYaw(yaw), body -> {
             var reason = Custody.harmRefusal(actor, body, worldPosition);
             if (reason != null) return reason;
             if (!fits(body)) return "space";

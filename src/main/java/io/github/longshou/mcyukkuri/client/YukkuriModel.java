@@ -1094,8 +1094,10 @@ public final class YukkuriModel {
                 for(int k=track.offset;k<track.offset+3;k++)target[k]+=(held[k]-target[k])*hold;
             }
         }
-        if (behavior.equals(Behaviors.CHEW) || behavior.equals(Behaviors.FAMILY_CHEW) || behavior.equals(Behaviors.SING)) {
-            float wave = (float)(.5 + .5 * Math.sin(behaviorTicks * Math.PI * 2 / LivingPresentation.chewPeriod));
+        boolean slowChew = behavior.equals(Behaviors.CHEW_GRUDGE) || behavior.equals(Behaviors.CHEW_RELUCTANT);
+        if (slowChew || behavior.equals(Behaviors.CHEW) || behavior.equals(Behaviors.FAMILY_CHEW) || behavior.equals(Behaviors.SING)) {
+            float period = LivingPresentation.chewPeriod * (slowChew ? 1.6f : 1f);
+            float wave = (float)(.5 + .5 * Math.sin(behaviorTicks * Math.PI * 2 / period));
             for (int i=0; i<bones.length; i++) if (bones[i].name.equals(LivingPresentation.mouthBone))
                 pose[i][7] *= LivingPresentation.mouthMinimum + (LivingPresentation.mouthMaximum - LivingPresentation.mouthMinimum) * wave;
         }
@@ -1148,7 +1150,7 @@ public final class YukkuriModel {
                 if(!wallYieldChecked){
                     wallYieldChecked=true;int n=parts.size();var names=new String[n];var starts=new int[n];var counts=new int[n];
                     for(int i=0;i<n;i++){names[i]=parts.get(i).name;starts[i]=parts.get(i).start;counts[i]=parts.get(i).count;}
-                    wallYield=WallYield.of(bones,bindings,restVertices,names,starts,counts);
+                    wallYield=WallYield.of(id,bones,bindings,restVertices,names,starts,counts);
                 }
                 if(wallYield!=null){
                     // Working locks (house grip, braid reach/hold/use) and tails cradling a child keep their pose; they are only pressed.

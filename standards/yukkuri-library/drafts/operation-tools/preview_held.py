@@ -2,8 +2,8 @@
 
 Writes .local/previews/<topic>/: each tool as held (hand space, three views) beside its GUI sprite, and the bound tools
 at their body contact on every runtime form at rest: pin and rotor on the renderer's surface triangle (same rule as
-YukkuriModel.locateSurface), the hook from the contact-pose surface point, and the fitted restraint board, sling and iron
-box. Uses the care-props software renderer; reads the current exported resources.
+YukkuriModel.locateSurface), the hook from the contact-pose surface point, and the fitted sling and iron box. Uses the
+care-props software renderer; reads the current exported resources.
 
     python preview_held.py [--topic oni-tools-v2] [--forms reimu,marisa,...]
 """
@@ -163,13 +163,9 @@ def main():
         row = []
         for ident, scale in (('pin_tool', .6), ('care_vibrator', 1)):
             row.append(label(contact_tile(ROOT, form, {ident: scale}), f'{form} · {ident}'))
-        for fitted in ('restraint_frame', 'wrap_sling', 'iron_enclosure'):
+        for fitted in ('wrap_sling', 'iron_enclosure'):
             name = f'{fitted}_{form}'
-            items = [(f'yuk:{form}:neutral', 9, 0, 0, 0, 1)]
-            lift = 0
-            if fitted == 'restraint_frame':
-                continue                     # drawn supine in game; the fitted board is checked by build.py
-            items.append((name, 9, 0, lift, 0, 1))
+            items = [(f'yuk:{form}:neutral', 9, 0, 0, 0, 1), (name, 9, 0, 0, 0, 1)]
             image, _ = R.render(R.Source(ROOT), items, az=150, el=12, ppu=9, size=(240, 230), bg=(214, 222, 214, 255))
             row.append(label(image, f'{form} · {fitted}'))
         strip = Image.new('RGBA', (sum(t.width + 4 for t in row), max(t.height for t in row)), (232, 228, 218, 255))

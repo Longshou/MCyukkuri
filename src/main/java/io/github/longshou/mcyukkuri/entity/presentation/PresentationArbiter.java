@@ -105,7 +105,7 @@ public final class PresentationArbiter {
         if (HomeClaim.declaring(e) && clip.equals(e.reactionAction().id()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "smug");
         if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();
-        if(state.reactionTicks()>0)return state.reactionExpression();
+        if(state.reactionTicks()>0&&!state.reactionExpression().isEmpty())return state.reactionExpression();
         if(e.body().dying())return "blank_cry";
         if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
         // Danger and contact keep their reaction faces; ordinary clips use the existing dry presets.
@@ -371,7 +371,8 @@ public final class PresentationArbiter {
         // EcologyPresentation.expression reads this new behavior/start; keep fallback evaluation here.
         state.behavior(behavior);
         state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
-                state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
+                state.reactionTicks() > 0 && !state.reactionExpression().isEmpty() ? state.reactionExpression()
+                        : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
                         e.settlement().society().dejected() ? "teary" : "neutral")));
     }
 

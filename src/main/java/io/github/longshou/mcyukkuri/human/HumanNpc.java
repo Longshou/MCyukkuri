@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -92,6 +93,8 @@ public final class HumanNpc extends PathfinderMob {
     public void releaseLegacyLead(YukkuriEntity pet) { walk().releaseLegacyLead(pet); }
     boolean leadingWalk() { return walk().walking(); }
     public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
+    public PlayBlockEntity parkFacility() { return stroll().parkFacility(); }
+    public boolean parkLingering() { return stroll().parkLingering(); }
     /** Gives the resident this individual as its companion and fits its harness. */
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
     /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */

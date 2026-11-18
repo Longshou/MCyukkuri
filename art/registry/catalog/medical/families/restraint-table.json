@@ -1,0 +1,9 @@
+{
+  "id": "restraint-table",
+  "prefixes": [
+    "art/props/restraint-table/",
+    "src/main/resources/assets/mcyukkuri/textures/block/restraint_table_",
+    "src/main/resources/assets/mcyukkuri/restraint_table/"
+  ],
+  "_order": 4
+}

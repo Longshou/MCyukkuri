@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -142,7 +143,7 @@ final class HumanStreet {
                 || npc.level().isRaining() && (npc.level().canSeeSky(BlockPos.containing(npc.getEyePosition()))
                 || npc.level().canSeeSky(y.blockPosition()) || !SurfaceApproach.supportedGround(y, y.position()))) return false;
         boolean own = Custody.ownedBy(y, npc.getUUID());
-        if (npc.strollingWith(y) && y.outing().fit() && !eligibleMeal(y)) return false;
+        if (own && npc.walking() && y.outing().sound() && !eligibleMeal(y)) return false;
         if (!own && (!y.status().identity().free() || Custody.harmRefusal(null, y, y.blockPosition()) != null)) return false;
         if (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork()) return false;
         var relation = y.life().personality().relation(npc.getUUID());
@@ -611,6 +612,9 @@ final class HumanStreet {
         private int lagTicks;
         private long nextOuting;
         private Vec3 resume;
+        private boolean toPark;
+        private PlayBlockEntity facility;
+        private int lingerTicks, tiredTicks;
 
         Stroll(HumanNpc npc) {
             this.npc = npc;
@@ -619,6 +623,9 @@ final class HumanStreet {
 
         boolean outing() { return homeward || !companions.isEmpty(); }
         boolean escorts(YukkuriEntity pet) { return !homeward && companions.contains(pet); }
+        boolean parkLingering() { return facility != null && resume == null && atDestination(); }
+        PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
+
         void save(CompoundTag tag) {
             if (outing()) tag.putBoolean("OutingReturn", true);
             if (nextOuting > 0) tag.putLong("NextOuting", nextOuting);
@@ -661,7 +668,13 @@ final class HumanStreet {
             landmarks.sort(Comparator.comparing((Marker m) -> !m.getTags().contains("mcy_park_walk"))
                     .thenComparingDouble(npc::distanceToSqr));
             // As with the companion cover search, bound route probes when several lots overlap.
-            boolean routed = landmarks.stream().limit(8).anyMatch(m -> route(m.position()));
+            boolean routed = false;
+            for (var marker : landmarks.stream().limit(8).toList()) {
+                if (!route(marker.position())) continue;
+                routed = true;
+                toPark = marker.getTags().contains("mcy_park_walk");
+                break;
+            }
             if (!routed) {
                 var stand = DefaultRandomPos.getPos(npc, 12, 2);
                 if (stand == null || !npc.level().canSeeSky(BlockPos.containing(stand)) || !route(stand)) return false;
@@ -677,12 +690,62 @@ final class HumanStreet {
         private void returnHome(String reason) {
             if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
             homeward = true;
+            clearPark();
             sheltering = false;
             resume = null;
             detours = 0;
             var home = Vec3.atBottomCenterOf(npc.home());
             if (npc.distanceToSqr(home) < .5) finishReturn("home");
             else if (!route(home)) findReturnShelter();
+        }
+
+        private boolean beginLinger() {
+            toPark = false;
+            var center = BlockPos.containing(destination);
+            var level = npc.level();
+            var found = BlockPos.betweenClosedStream(center.offset(-12, -2, -12), center.offset(12, 2, 12))
+                    .filter(level::hasChunkAt).map(level::getBlockEntity)
+                    .filter(PlayBlockEntity.class::isInstance).map(PlayBlockEntity.class::cast)
+                    .min(Comparator.comparingDouble(play -> play.getBlockPos().distSqr(center))).orElse(null);
+            if (found == null) return false;
+            var facing = found.facing();
+            for (var side : List.of(facing.getClockWise(), facing.getCounterClockWise(), facing)) {
+                var pos = found.getBlockPos().relative(side, found.kind().depth + (side == facing ? 3 : 2));
+                var stand = Vec3.atBottomCenterOf(pos);
+                if (!npc.isWithinRestriction(pos) || !level.hasChunkAt(pos) || !level.getFluidState(pos).isEmpty()
+                        || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)
+                        || !level.noCollision(npc, npc.getBoundingBox().move(stand.subtract(npc.position())))
+                        || !route(stand)) continue;
+                facility = found;
+                detours = 0;
+                GameplayLog.event(npc, "npc-care", "action=outing_park facility={} kind={} stand={}",
+                        facility.getBlockPos(), facility.kind(), GameplayLog.at(stand));
+                return true;
+            }
+            return false;
+        }
+
+        private void linger() {
+            npc.getNavigation().stop();
+            npc.getLookControl().setLookAt(facility.getBlockPos().getCenter());
+            boolean playing = false, waitingForRest = false, done = true;
+            for (var pet : companions) {
+                boolean atPlay = pet.playLife().active();
+                playing |= atPlay;
+                waitingForRest |= pet.outing().tired() && !pet.life().isSleeping() && !atPlay;
+                done &= pet.outing().doneAtPark();
+            }
+            tiredTicks = waitingForRest ? tiredTicks + 1 : 0;
+            lingerTicks++;
+            if (done) returnHome("park_done");
+            else if (tiredTicks > 300) returnHome("tired");
+            else if (lingerTicks >= 3000 || lingerTicks >= 2400 && !playing) returnHome("park_time");
+        }
+
+        private void clearPark() {
+            toPark = false;
+            facility = null;
+            lingerTicks = tiredTicks = 0;
         }
 
         private void finishReturn(String result) {
@@ -730,17 +793,22 @@ final class HumanStreet {
                 boolean checkNeeds = npc.tickCount % 10 == 0;
                 for (int i = 0; i < companions.size(); i++) {
                     var pet = companions.get(i);
-                    if (!pet.isAlive() || !pet.outing().escorted() || checkNeeds && !pet.outing().fit()) {
+                    if (!pet.isAlive() || !pet.outing().escorted()
+                            || checkNeeds && !(facility == null ? pet.outing().fit() : pet.outing().sound())) {
                         returnHome("companion");
                         return;
                     }
+                    if (facility != null) continue;
                     double behind = npc.distanceTo(pet) - pet.outing().outerDistance();
                     if (behind > lag) {
                         lagging = pet;
                         lag = behind;
                     }
                 }
-                if (lagging != null) {
+                if (facility != null) {
+                    if (facility.isRemoved()) { returnHome("park_done"); return; }
+                    if (parkLingering()) { linger(); return; }
+                } else if (lagging != null) {
                     npc.getLookControl().setLookAt(lagging, 30, 30);
                     npc.getNavigation().setSpeedModifier(.30);
                     if (++lagTicks >= ROUTE_TICKS) { returnHome("lagging"); return; }
@@ -749,14 +817,14 @@ final class HumanStreet {
                     npc.getNavigation().setSpeedModifier(.55);
                 }
             }
-            if (npc.distanceToSqr(destination) < .5) {
+            if (atDestination()) {
                 if (resume != null) {
                     var next = resume;
                     resume = null;
                     if (route(next)) return;
                     blockedOutingLeg();
                 } else if (!homeward && !companions.isEmpty()) {
-                    returnHome("destination");
+                    if (!toPark || !beginLinger()) returnHome("destination");
                 } else if (homeward) {
                     finishReturn(sheltering ? "shelter" : "home");
                 } else {
@@ -784,6 +852,8 @@ final class HumanStreet {
             else finished = true;
         }
 
+        private boolean atDestination() { return npc.distanceToSqr(destination) < .5; }
+
         private void blockedOutingLeg() {
             if (!homeward) returnHome("blocked");
             else if (!sheltering) findReturnShelter();
@@ -808,6 +878,7 @@ final class HumanStreet {
         }
 
         @Override public void stop() {
+            clearPark();
             if (!companions.isEmpty()) {
                 if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason=interrupted");
                 homeward = true;

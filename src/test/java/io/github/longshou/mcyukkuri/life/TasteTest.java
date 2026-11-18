@@ -3,12 +3,16 @@ package io.github.longshou.mcyukkuri.life;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TasteTest {
-    @Test void easyTasteSavoursCoarseFood() {
+    @Test void tasteAndQualitySeparateDelightContentAndGrudgingAcceptance() {
         assertEquals(Taste.Verdict.SAVOUR, Taste.judge(12, Taste.Grade.COARSE, 48));
-        assertEquals(Taste.Verdict.SAVOUR, Taste.judge(29, Taste.Grade.COARSE, 55));
+        assertEquals(Taste.Verdict.SAVOUR, Taste.judge(25, Taste.Grade.ORDINARY, 55));
+        assertEquals(Taste.Verdict.PLAIN, Taste.judge(26, Taste.Grade.ORDINARY, 55));
+        assertEquals(Taste.Verdict.PLAIN, Taste.judge(58, Taste.Grade.ORDINARY, 55));
+        assertEquals(Taste.Verdict.GRUMBLE, Taste.judge(59, Taste.Grade.ORDINARY, 55));
     }
 
     @Test void highTasteRefusesOrdinaryFoodWhenNotHungry() {
@@ -20,12 +24,15 @@ class TasteTest {
     }
 
     @Test void starvationAcceptsOrdinaryFoodAtAnyTaste() {
-        assertEquals(Taste.Verdict.PLAIN, Taste.judge(100, Taste.Grade.ORDINARY, 25));
+        assertEquals(Taste.Verdict.RELUCTANT, Taste.judge(100, Taste.Grade.ORDINARY, 25));
+        assertEquals(Taste.Verdict.RELUCTANT, Taste.judge(100, Taste.Grade.ORDINARY, 29));
+        assertEquals(Taste.Verdict.GRUMBLE, Taste.judge(100, Taste.Grade.ORDINARY, 31));
     }
 
     @Test void starvationAcceptsCoarseFoodAtAnyTaste() {
-        assertEquals(Taste.Verdict.GRUMBLE, Taste.judge(100, Taste.Grade.COARSE, 25));
-        assertEquals(Taste.Verdict.GRUMBLE, Taste.judge(100, Taste.Grade.COARSE, 10));
+        assertEquals(Taste.Verdict.REFUSE, Taste.judge(100, Taste.Grade.COARSE, 26));
+        assertEquals(Taste.Verdict.RELUCTANT, Taste.judge(100, Taste.Grade.COARSE, 25));
+        assertEquals(Taste.Verdict.RELUCTANT, Taste.judge(100, Taste.Grade.COARSE, 10));
         assertEquals(Taste.Verdict.SAVOUR, Taste.judge(20, Taste.Grade.COARSE, 25));
     }
 
@@ -55,9 +62,22 @@ class TasteTest {
     @Test void effectiveTasteReadsEsteemAndFeeder() {
         assertEquals(60, Taste.effective(60, 50, 0));
         assertEquals(62, Taste.effective(60, 55, 0));
-        assertEquals(52, Taste.effective(60, 50, 10));
-        assertEquals(66, Taste.effective(60, 50, -1));
+        assertEquals(58, Taste.effective(60, 50, 5));
+        assertEquals(55, Taste.effective(60, 50, 10));
+        assertEquals(48, Taste.effective(60, 50, 25));
+        assertEquals(61, Taste.effective(60, 50, -2));
+        assertEquals(65, Taste.effective(60, 50, -10));
+        assertEquals(70, Taste.effective(60, 50, -20));
         assertEquals(100, Taste.effective(100, 100, 0));
         assertEquals(0, Taste.effective(0, 0, 0));
+    }
+
+    @Test void spitDependsOnComposureEsteemAndRelationship() {
+        assertTrue(Taste.spitsBack(30, 40, 0));
+        assertFalse(Taste.spitsBack(31, 40, 0));
+        assertTrue(Taste.spitsBack(45, 75, 0));
+        assertFalse(Taste.spitsBack(45, 40, 0));
+        assertFalse(Taste.spitsBack(45, 75, 20));
+        assertTrue(Taste.spitsBack(45, 40, -20));
     }
 }

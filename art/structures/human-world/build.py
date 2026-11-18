@@ -136,7 +136,7 @@ def gable_snow(b):
     for (x, y, z), (name, _, _) in list(b.blocks.items()):
         if name == 'minecraft:snow' and not any(clear(*state_at(b, x, y - d, z)) for d in (2, 3)): del b.blocks[x, y, z]
 
-def light_up(b, limit=400):
+def light_up(b, limit=400, *, reserved=()):
     """Hidden light blocks until every floor meets the light rule (check_structure.light_needs): covered floors >= 8, open sturdy floors
     and wind gaps >= 1. A light goes into the first air cell at head height, then at the feet, then beside; a wind gap is lit from beside
     it so it stays dim. Roof tops, awnings and parapets get theirs the same way (no monster spawns on any floor of the piece)."""
@@ -151,7 +151,8 @@ def light_up(b, limit=400):
             side = [(x + dx, y, z + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))]
             spots = ([c for c in side if c not in gaps] + [(x, y, z)]) if (x, y, z) in gaps else [(x, y + 1, z), (x, y, z)] + [(cx, cy + 1, cz) for cx, cy, cz in side] + side
             for cx, cy, cz in spots:
-                if 0 <= cx < b.size[0] and 0 <= cy < b.size[1] and 0 <= cz < b.size[2] and name_at(b, cx, cy, cz) == 'minecraft:air':
+                if (cx, cy, cz) not in reserved and 0 <= cx < b.size[0] and 0 <= cy < b.size[1] \
+                        and 0 <= cz < b.size[2] and name_at(b, cx, cy, cz) == 'minecraft:air':
                     b.block(cx, cy, cz, 'light', {'level': '15' if need > 1 else '7', 'waterlogged': 'false'}, over=True)
                     placed.append((x, y, z)); break
             else: skipped.add((x, y, z))

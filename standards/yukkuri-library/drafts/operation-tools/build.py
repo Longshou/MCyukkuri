@@ -24,6 +24,8 @@ SNAPSHOT = ROOT / 'art/props/operation-tools'
 # Recipe meshes drawn beside a live body (DetachedStemRenderer); fitted variants are added by fitted(). The pin, hook and rotor
 # contact meshes come from held.py, the same 3D models as in the player's hand.
 IN_WORLD = ('brood_bottle',)
+# Tools placed as blocks: their block model (art/props/restraint-table/build.py) is the hand model.
+BLOCK_ITEMS = {'restraint_frame': 'mcyukkuri:block/restraint_frame'}
 PALETTE = ['#a46d39','#d9a85d','#353941','#818994','#d5dce0','#ee809b','#b74651','#f0e4c7','#614c37','#f38b35','#473126','#cbe9f3','#689cb5']
 
 
@@ -180,7 +182,7 @@ def hull(points):
 
 def fitted(bare=False, previous_sources=None):
     previous_sources = previous_sources or {}
-    recipes={};sockets={};sources={};lifts={}
+    recipes={};sockets={};sources={}
     presentations=json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants']
     presentations.update(json.loads((ASSETS/'yukkuri_presentation/subspecies.json').read_text(encoding='utf-8')))
     for path in sorted((ASSETS/'yukkuri').glob('*.json')):
@@ -207,22 +209,8 @@ def fitted(bare=False, previous_sources=None):
                     t=(value-a[axis])/(b[axis]-a[axis])
                     if 0<=t<=1:cut.append([a[j]+t*(b[j]-a[j]) for j in range(3)])
             return cut
-        # Fitted bands follow convex cross-sections of the actual visible model, including headwear.
-        clearance=.10;lift=max(p[2] for p in points)+.096+.72
-        turned=[[[p[0],lift-p[2],p[1]] for p in tri] for tri in triangles]
-        bounds=[[min(p[i] for p in points),max(p[i] for p in points)] for i in range(3)]
-        shapes=[box([bounds[0][0]-.5,0,-.5],[bounds[0][1]+.5,.65,top+.5],0)]
-        pad_top=min(lift-p[2] for p in body)
-        body_top=max(p[1] for p in body);body_left=min(p[0] for p in body);body_right=max(p[0] for p in body)
-        if pad_top>.8:shapes.append(box([body_left+.4,.65,.5],[body_right-.4,pad_top-.02,body_top-.4],7))
-        for z in (body_top*.24,body_top*.72):
-            outline=hull([(p[0],p[1]) for p in section(turned,2,z)]);cx=sum(p[0] for p in outline)/len(outline);cy=sum(p[1] for p in outline)/len(outline)
-            outline=[[x+(clearance if x>=cx else -clearance),y+(clearance if y>=cy else -clearance),z] for x,y in outline]
-            for i,a in enumerate(outline):shapes.append(band(a,outline[(i+1)%len(outline)],8))
-            for x in (min(p[0] for p in outline),max(p[0] for p in outline)):
-                shapes.append(band([x,.65,z],min(outline,key=lambda p:abs(p[0]-x)),8))
-        recipes['restraint_frame_'+name]=shapes
-        lifts['restraint_frame_'+name]=lift/16
+        # The sling follows the convex cross-section of the actual visible model, including headwear.
+        clearance=.10;body_left=min(p[0] for p in body);body_right=max(p[0] for p in body)
         outline=hull([(p[0],p[1]) for p in section(triangles,2,0)]+[(0,top+2)])
         shapes=[]
         for i,a in enumerate(outline):
@@ -236,7 +224,7 @@ def fitted(bare=False, previous_sources=None):
             lo=[min(p[i] for p in points)-.6 for i in range(3)];hi=[max(p[i] for p in points)+.6 for i in range(3)]
             left,right,front,back,top=lo[0],hi[0],lo[2],hi[2],hi[1]
             recipes['iron_enclosure_'+name]=[box([left,-.12,front],[right,0,back],3),box([left,0,front],[left+.18,top,back],3),box([right-.18,0,front],[right,top,back],3),box([left,0,back-.18],[right,top,back],3),box([left,top,front],[right,top+.18,back],3)]+[rod([left+(right-left)*i/6,0,front],[left+(right-left)*i/6,top,front],.07,4) for i in range(7)]
-    return recipes,sockets,sources,lifts
+    return recipes,sockets,sources
 
 def outputs():
     manifest_path=SNAPSHOT/'manifest.json'
@@ -249,11 +237,11 @@ def outputs():
     result={};index={}
     def emit(path,data): result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
     emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'palette':PALETTE,'props':RECIPE})
-    fitting,sockets,sources,lifts=fitted(previous_sources=previous.get('body_sources'))
-    bare,bare_sockets,bare_sources,bare_lifts=fitted(True,previous.get('body_sources'));fitting.update(bare);sockets.update(bare_sockets);sources.update(bare_sources);lifts.update(bare_lifts)
+    fitting,sockets,sources=fitted(previous_sources=previous.get('body_sources'))
+    bare,bare_sockets,bare_sources=fitted(True,previous.get('body_sources'));fitting.update(bare);sockets.update(bare_sockets);sources.update(bare_sources)
     for name,shapes in {**RECIPE,**fitting}.items():
         vertices,parts,elements=[],[],[]
-        tool=held.fitted_tool(name)   # body-fitted restraint, sling and box sample the materials of the tool's 3D model
+        tool=held.fitted_tool(name)   # body-fitted sling and box sample the materials of the tool's 3D model
         for part_id,shape in enumerate(shapes):
             points,faces=geometry(shape);start=len(vertices)//8;u=(shape['color']+.5)/16;bbfaces={}
             for face in faces:
@@ -271,7 +259,6 @@ def outputs():
         mesh={'format':1,'units_per_block':16,'vertices':[round(x,6) for x in vertices],'parts':parts,'bounds':bounds}
         if name in sockets:mesh['socket']=sockets[name]
         if name=='brood_bottle':mesh['socket']=[0,4.6,0];mesh['root_socket']=[0,.64,0]
-        if name in lifts:mesh['body_lift']=lifts[name]
         bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements], 'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
         emit(HERE/'assembled'/name/f'{name}.bbmodel',bb);emit(HERE/'assembled'/name/f'{name}.mesh.json',mesh);result[HERE/'assembled'/name/'texture.png']=texture
         if name not in IN_WORLD and name not in fitting:continue   # item-only tools are drawn by their item sprite; the mesh stays a source
@@ -292,8 +279,12 @@ def outputs():
         result[path]=data
         if path.stem in icons.SHIPPED:
             result[ASSETS/f'textures/item/{path.stem}.png']=data;sprites[path.stem]=data
-            if path.stem not in held.HELD:
-                emit(ASSETS/f'models/item/{path.stem}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'mcyukkuri:item/{path.stem}'}})
+            generated={'parent':'minecraft:item/generated','textures':{'layer0':f'mcyukkuri:item/{path.stem}'}}
+            if path.stem in BLOCK_ITEMS:   # placed tool: the block model in the hands, the sprite in the GUI, on the ground and in frames
+                emit(ASSETS/f'models/item/{path.stem}.json',{'loader':'neoforge:separate_transforms','gui_light':'front',
+                     'base':{'parent':BLOCK_ITEMS[path.stem]},'perspectives':{'gui':generated,'ground':generated,'fixed':generated}})
+            elif path.stem not in held.HELD:
+                emit(ASSETS/f'models/item/{path.stem}.json',generated)
     for name in held.HELD:
         model=held.item_model(name,name)
         if name=='care_awl':model['overrides']=[{'predicate':{'mcyukkuri:hot':1},'model':'mcyukkuri:item/care_awl_hot'}]
