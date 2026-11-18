@@ -1,0 +1,33 @@
+{
+  "id": "sparkle",
+  "label": "闪亮眼",
+  "group": "日常",
+  "recipe": {
+    "source": "tools/author_sparkle_face.py",
+    "base": "open_smile",
+    "note": "delighted by food: wide starry eyes (a gold-and-white four-point star in the dark iris), open smile, happy blush"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/37c1543499c07ab08f91.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_left": "expressions/parts/4f872d58d23bdb669e29.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/37c1543499c07ab08f91.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_right": "expressions/parts/1890bec72eaae44508bf.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-18",
+    "note": "项目设计，待美术裁定与用户试玩"
+  }
+}

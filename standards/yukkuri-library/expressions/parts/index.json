@@ -1494,5 +1494,13 @@
       12
     ],
     "sha256": "c5363c89f37e4c5e259e8b61ef752b21bcfe9f63dfede0102c4be1bfe310a271"
+  },
+  "37c1543499c07ab08f91": {
+    "path": "expressions/parts/37c1543499c07ab08f91.png",
+    "size": [
+      15,
+      12
+    ],
+    "sha256": "f7ffbf677443a8c8e0339a176bacf460e3eb168a1cf3bf55a59dc9113d5dd2e1"
   }
 }
