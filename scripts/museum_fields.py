@@ -559,8 +559,233 @@ class Plant(Field):
         return [fill(self.x1, GROUND, z - 3, self.x2, GROUND, z - 1, 'minecraft:dirt_path')]
 
 
+def _pick(options, x, z, salt=0):
+    """A deterministic weighted choice per cell (the village palettes' ``pick``): options = ((block, weight), ...)."""
+    total = sum(w for _, w in options)
+    roll = ((x * 73856093) ^ (z * 19349663) ^ (salt * 83492791)) % 1009 / 1009 * total
+    for block, weight in options:
+        roll -= weight
+        if roll < 0:
+            return block
+    return options[-1][0]
+
+
+class _Canvas:
+    """Blocks of an authored layout at (dx, dy, dz) from a centre, dy 0 being the ground layer. A cell is written once (a second write
+    is an authoring clash) except by ``soft`` writes (paths, leaves, plants), which only fill empty cells. ``None`` keeps a cell clear."""
+    FENCE = 'minecraft:oak_fence'
+    LINKS = (FENCE, 'minecraft:stripped_oak_log[axis=y]')
+
+    def __init__(self, cx, cz):
+        self.cx, self.cz, self.cells = cx, cz, {}
+
+    def put(self, x, y, z, block, soft=False):
+        if (x, y, z) in self.cells:
+            assert soft, f'park cell {(x, y, z)}: {self.cells[x, y, z]} and {block}'
+            return
+        self.cells[x, y, z] = block
+
+    def box(self, x1, y1, z1, x2, y2, z2, block, soft=False):
+        for x in range(x1, x2 + 1):
+            for y in range(y1, y2 + 1):
+                for z in range(z1, z2 + 1):
+                    self.put(x, y, z, block, soft)
+
+    def free(self, x, y, z):
+        return (x, y, z) not in self.cells
+
+    def state(self, x, y, z):
+        """A fence joins its fence and post neighbours, written out as vanilla would update it."""
+        block = self.cells[x, y, z]
+        if block != self.FENCE:
+            return block
+        sides = [f'{d}={str(self.cells.get((x + dx, y, z + dz)) in self.LINKS).lower()}'
+                 for d, (dx, dz) in (('north', (0, -1)), ('south', (0, 1)), ('west', (-1, 0)), ('east', (1, 0)))]
+        return block + '[' + ','.join(sides) + ',waterlogged=false]'
+
+    def commands(self):
+        """One fill per run of equal blocks along x."""
+        out, rows = [], {}
+        for (x, y, z), block in self.cells.items():
+            if block is not None:
+                rows.setdefault((y, z), []).append(x)
+        for (y, z), xs in sorted(rows.items()):
+            xs.sort()
+            start = prev = xs[0]
+            for x in xs[1:] + [None]:
+                if x == prev + 1 and self.state(x, y, z) == self.state(prev, y, z):
+                    prev = x
+                    continue
+                out.append(fill(self.cx + start, GROUND + y, self.cz + z, self.cx + prev, GROUND + y, self.cz + z, self.state(start, y, z)))
+                start = prev = x
+        return out
+
+
 class Park(Field):
-    reserved = True
+    """A town park on a street, in the plains palette of the village main-street park (art/structures/human-world, author_civic.park):
+    a street with sidewalks along the south, an oak fence with a five-wide gate, just inside it a picnic lawn and the playground corner,
+    a path to a fountain plaza with benches, a roofed pavilion (rain cover) and tree groves at the back, hedges on the other three sides.
+    The lots south of the street are lawn for the scenes' yards.
+
+    Offsets (dx, dz) are from the centre, x east and z south. The four facilities face the street and are written as the blocks
+    PlayItem.place sets (the pool filled), not through ``mcy_park_play`` markers, whose placement waits for loaded chunks and so raced
+    the field's forceload release; a run enters from the north and leaves to the south, so those cells stay clear. Scenes summon their
+    own landmarks: ``mcy_park_walk`` at ``walk``, ``mcy_yard_street`` at ``street``. An owner walks to the nearest landmark within its
+    restriction (18 blocks of its home, a yard at ``yard``) and at a park landmark waits beside the facility nearest to it, the
+    trampoline: on its west side, else its east side, else in front (HumanStreet.beginLinger)."""
+    reserved = True        # no scenes yet: check_museum_pack wants scenes in every other field, and the world build skips it
+    FENCE, LANE = 6, (8, 10)
+    FACILITIES = (('yukkuri_trampoline', 13, 0, 1), ('yukkuri_slide', 19, -1, 2), ('ceramic_tunnel', 25, 0, 1), ('yukkuri_pool', 30, 0, 1))
+    WAIT = ((10, 0), (16, 0), (13, 4))   # the owner's cells beside the trampoline
+    OFFSETS = {'gate': (0, 6), 'walk': (8, 1), 'picnic': (6, -1), 'fountain': (0, -13), 'pavilion': (-22, -13),
+               'trampoline': (13, 0), 'slide': (19, -1), 'tunnel': (25, 0), 'pool': (30, 0), 'yard': (8, 16), 'street': (-6, 9)}
+    VANTAGE = (4, 6, -150, 10)   # from the gate: the lot across the street, over the picnic lawn and playground to the fountain
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.spots = {name: (self.cx + dx, self.cz + dz) for name, (dx, dz) in self.OFFSETS.items()}
+        self.anchor = self.spots['gate']
+
+    def features(self):
+        c = _Canvas(self.cx, self.cz)
+        furn = []
+        lane = (('minecraft:dirt_path', 86), ('minecraft:coarse_dirt', 8), ('minecraft:gravel', 6))
+        paving = (('minecraft:cobblestone', 4), ('minecraft:stone', 3), ('minecraft:andesite', 3))
+        flowers = (('minecraft:poppy', 1), ('minecraft:dandelion', 1), ('minecraft:oxeye_daisy', 1), ('minecraft:cornflower', 1),
+                   ('minecraft:azure_bluet', 1), ('minecraft:allium', 1))
+        log, leaves = 'minecraft:stripped_oak_log[axis=y]', 'minecraft:oak_leaves[persistent=true]'
+        fx, fz = self.OFFSETS['fountain']
+        px, pz = self.OFFSETS['pavilion']
+
+        def lamp(x, z):
+            c.box(x, 1, z, x, 3, z, c.FENCE)
+            c.put(x, 4, z, 'minecraft:lantern[hanging=false]')
+
+        def tree(x, z, height=5, kind='oak'):
+            leaf = f'minecraft:{kind}_leaves[persistent=true]'
+            c.box(x, 1, z, x, height + 1, z, f'minecraft:{kind}_log[axis=y]')
+            c.box(x - 2, height - 1, z - 2, x + 2, height, z + 2, leaf, soft=True)
+            c.box(x - 1, height + 1, z - 1, x + 1, height + 2, z + 1, leaf, soft=True)
+
+        def seat(kind, cells, axis='x'):
+            for x, z in cells:
+                c.put(x, 1, z, None)
+            furn.append((kind, [(self.cx + x, self.cz + z) for x, z in cells], axis))
+
+        # Playground first: the facility boxes, their run cells, the owner's waiting cells and the walk landmark stay clear on grass.
+        for kind, x, z, depth in self.FACILITIES:
+            c.box(x - 1, 1, z - depth - 1, x + 1, 2, z - depth - 1, None)
+            c.box(x - 1, 1, z + depth + 1, x + 1, 2, z + depth + 1, None)
+            for dx in (-1, 0, 1):
+                for dz in range(-depth, depth + 1):
+                    for dy in (0, 1):
+                        part = dx + 2 + 5 * (dz + 2) + 25 * dy        # PlayBlock.part, facing south
+                        water = 3 if kind == 'yukkuri_pool' and part == 12 else 0
+                        c.put(x + dx, dy + 1, z + dz, f'mcyukkuri:{kind}[facing=south,part={part},water={water}]')
+        for x, z in self.WAIT + (self.OFFSETS['walk'],):
+            c.box(x, 1, z, x, 2, z, None, soft=True)
+        clear_ground = {(x, z) for x, y, z in c.cells}
+        # Fountain: a stone-brick basin of one block of water; the pillar's top spills four falls into it.
+        c.box(fx - 3, 0, fz - 3, fx + 3, 0, fz + 3, 'minecraft:stone_bricks')
+        c.put(fx, 1, fz, 'minecraft:chiseled_stone_bricks')
+        c.put(fx, 2, fz, 'minecraft:stone_brick_wall[up=true,north=none,south=none,east=none,west=none,waterlogged=false]')
+        c.put(fx, 3, fz, 'minecraft:water')
+        c.box(fx - 2, 1, fz - 2, fx + 2, 1, fz + 2, 'minecraft:water', soft=True)
+        c.box(fx - 3, 1, fz - 3, fx + 3, 1, fz + 3, 'minecraft:stone_bricks', soft=True)
+        c.box(fx - 3, 2, fz - 3, fx + 3, 3, fz + 3, None, soft=True)
+        # Pavilion: a 5x5 plank floor, four posts, a hipped oak roof, a bench and a lantern under it.
+        c.box(px - 2, 0, pz - 2, px + 2, 0, pz + 2, 'minecraft:oak_planks')
+        for x in (px - 2, px + 2):
+            for z in (pz - 2, pz + 2):
+                c.box(x, 1, z, x, 3, z, log)
+        for y, r in ((4, 3), (5, 2)):
+            for x in range(px - r, px + r + 1):
+                for z in range(pz - r, pz + r + 1):
+                    edge = [d for d, on in (('south', z == pz - r), ('north', z == pz + r), ('east', x == px - r), ('west', x == px + r)) if on]
+                    c.put(x, y, z, 'minecraft:oak_planks' if not edge else 'minecraft:oak_slab[type=bottom]' if len(edge) > 1
+                          else f'minecraft:oak_stairs[facing={edge[0]},half=bottom,shape=straight]')
+        c.box(px - 1, 6, pz - 1, px + 1, 6, pz + 1, 'minecraft:oak_slab[type=bottom]')
+        c.put(px, 3, pz, 'minecraft:lantern[hanging=true]')
+        seat('bench', [(x, pz - 1) for x in (px - 1, px, px + 1)])
+        # Street with sidewalks across the whole field.
+        for x in range(-self.hx, self.hx + 1):
+            for z in (self.FENCE + 1, self.LANE[1] + 1):
+                c.put(x, 0, z, _pick(paving, self.cx + x, self.cz + z, 3))
+            for z in range(self.LANE[0], self.LANE[1] + 1):
+                c.put(x, 0, z, _pick(lane, self.cx + x, self.cz + z, 7))
+        # The street side: an oak fence between log posts with the gate at x -2..2 and its two lanterns; hedges round the other sides.
+        for x in range(-35, 36):
+            if abs(x) > 2:
+                c.put(x, 1, self.FENCE, log if abs(x) in (3, 19, 35) else c.FENCE)
+        for x in (-3, 3):
+            c.put(x, 2, self.FENCE, log)
+            c.put(x, 3, self.FENCE, 'minecraft:lantern[hanging=false]')
+        c.box(-35, 1, -27, 35, 1, -27, leaves)
+        c.box(-35, 1, -26, -35, 1, self.FENCE - 1, leaves)
+        c.box(35, 1, -26, 35, 1, self.FENCE - 1, leaves)
+        # Paths: the gate spine of path blocks, the plaza paving, the worn lane block west to the pavilion and east to the playground.
+        c.box(-1, 0, -5, 1, 0, self.FENCE, 'minecraft:dirt_path', soft=True)
+        for x in range(fx - 7, fx + 8):
+            for z in range(fz - 7, fz + 8):
+                if (x - fx) ** 2 + (z - fz) ** 2 <= 56:
+                    c.put(x, 0, z, _pick(paving, self.cx + x, self.cz + z, 5), soft=True)
+        for x, z in ([(x, z) for x in range(px + 3, fx - 6) for z in (fz, fz + 1)] + [(x, z) for x in range(fx + 7, 24) for z in (fz, fz + 1)]
+                     + [(x, z) for x in (22, 23) for z in range(fz + 2, -5)]):
+            c.put(x, 0, z, _pick(lane, self.cx + x, self.cz + z, 7), soft=True)
+        # Plaza: benches facing the fountain on three sides, lamps on the diagonals.
+        seat('bench', [(x, fz - 7) for x in (-1, 0, 1)])
+        seat('bench', [(-6, z) for z in (fz - 4, fz - 3, fz - 2)], 'z')
+        seat('bench', [(6, z) for z in (fz - 4, fz - 3, fz - 2)], 'z')
+        for x, z in [(-5, fz - 5), (5, fz - 5), (-5, fz + 5), (5, fz + 5)]:
+            lamp(x, z)
+        # Picnic lawn between the spine and the playground: a shade oak, a checked cloth, a table between two benches, lamps by the spine.
+        tree(4, -5)
+        for x in range(5, 8):
+            for z in (-2, -1):
+                c.put(x, 1, z, 'minecraft:red_carpet' if (x + z) % 2 else 'minecraft:white_carpet')
+        seat('table', [(4, 2), (4, 3)])
+        seat('bench', [(3, 2), (3, 3)], 'z')
+        seat('bench', [(5, 2), (5, 3)], 'z')
+        lamp(-2, -1)
+        lamp(2, -1)
+        # Playground: a bench for the owners and a lamp; along the east path a bench and a lamp.
+        seat('bench', [(x, 4) for x in (21, 22, 23)])
+        lamp(16, 4)
+        seat('bench', [(x, fz - 1) for x in (13, 14, 15)])
+        lamp(24, fz - 1)
+        # Flower garden west of the spine with a bench facing it, a big oak, a bin by the gate, shrubs along the fence.
+        for x in range(-14, -5):
+            for z in range(-3, 2):
+                c.put(x, 1, z, _pick(flowers, x, z, 13))
+        seat('bench', [(x, 3) for x in (-11, -10, -9)])
+        c.put(-4, 1, 5, 'mcyukkuri:garbage_bin[facing=east,tipped=false]')
+        for i, x in enumerate(range(-32, -16, 3)):
+            shrub = ('rose_bush', 'lilac', 'peony')[i % 3]
+            c.put(x, 1, 5, f'minecraft:{shrub}[half=lower]')
+            c.put(x, 2, 5, f'minecraft:{shrub}[half=upper]')
+        tree(-24, -1, 6)
+        # Groves at the back, two trees framing the lots, lamps on the lot-side sidewalk.
+        for x, z, height, kind in [(-30, -22, 5, 'oak'), (-16, -23, 6, 'birch'), (-31, -11, 5, 'birch'), (-11, -22, 5, 'oak'),
+                                   (12, -22, 5, 'oak'), (21, -22, 6, 'birch'), (30, -23, 5, 'oak'), (30, -14, 5, 'birch'),
+                                   (16, -18, 4, 'oak'), (31, -7, 4, 'oak'), (-32, 24, 5, 'oak'), (32, 24, 5, 'oak')]:
+            tree(x, z, height, kind)
+        for x in (-28, -12, 28):
+            lamp(x, self.LANE[1] + 1)
+        # Short grass and a few flowers over the open lawns, short grass on the lots.
+        for x in range(-34, 35):
+            for z in list(range(-26, self.FENCE)) + list(range(self.LANE[1] + 2, self.hz)):
+                if c.free(x, 1, z) and c.free(x, 0, z):
+                    roll = ((self.cx + x) * 73856093 ^ (self.cz + z) * 19349663) % 1009
+                    if roll < 90:
+                        c.put(x, 1, z, 'minecraft:short_grass')
+                    elif roll < 115 and z < self.FENCE:
+                        c.put(x, 1, z, _pick(flowers, x, z, 17))
+        assert not clear_ground & {(x, z) for x, y, z in c.cells if y == 0}, 'the playground stands on the field grass'
+        assert all(-self.hx <= x <= self.hx and -self.hz <= z <= self.hz for x, y, z in c.cells), 'park block outside the field'
+        out = c.commands()
+        for kind, cells, axis in furn:
+            out += furniture(kind, FEET, cells, axis, relative=False)
+        return out
 
 
 FIELDS = [

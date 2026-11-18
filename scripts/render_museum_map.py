@@ -74,6 +74,11 @@ def main():
                 x1, z1, x2, z2 = f.plot_rect(ppx, ppz)
                 rect(x1, z1, x2, z2, outline=color)
                 d.text(px(x1 + 1, z1 + 1), plot[5], font=f_s, fill='#ffffff')
+        if f.id == 'park':
+            for _, x, z, depth in f.FACILITIES:
+                rect(f.cx + x - 1, f.cz + z - depth, f.cx + x + 1, f.cz + z + depth, fill='#c98a5a')
+            for name, (x, z) in f.spots.items():
+                d.text(px(x, z), name, font=f_s, fill='#ffffff')
         if f.id == 'house':
             rect(f.cx - f.HX, f.cz - f.HZ, f.cx + f.HX, f.cz + f.HZ, fill='#8a6a44', outline='#ffb36b')
     out.parent.mkdir(parents=True, exist_ok=True)
