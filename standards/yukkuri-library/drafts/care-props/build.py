@@ -3,10 +3,10 @@
 Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png}. Run
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
-Props authored here: the three oil-grain bags, food scrap, waste and leaked filling on the low-poly kit; the block-style placed goods through vanilla_props.py (food
-bowl, its heap-only grain / wheat / forage fills, the three grades of pet bed and their fitted shapes, the sand toilet clean
-and dirty, the droppings and every non-default dye style, including the 2x2 woven nest's), and the block-style forage pile
-and three carriers (block-props/nests.py, devices.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
+Props authored here: the three oil-grain bags, food scrap, waste and leaked filling on the low-poly kit; the block-style
+placed goods through vanilla_props.py (food bowl, its heap-only grain / wheat / forage fills, the three grades of pet bed
+and their fitted shapes, the sand toilet clean and dirty and every non-default dye style, including the 2x2 woven nest's),
+and the block-style forage pile and three carriers (block-props/nests.py, devices.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
 Food mash is exported by its own package builder, which imports this folder. The self-built nests of wild yukkuri
 (forest_burrow, personal_leaf_nest, bedding_bundle) are authored by wild.py and exported by ecology/wild-shelters/build.py;
@@ -45,7 +45,8 @@ BUILD = {
 }
 REMOVED = ('food_bowl_garbage', 'hat_provisions',
            'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_carrot', 'hat_cargo_bread', 'hat_cargo_cookie', 'hat_cargo_melon',
-           'hat_cargo_grass', 'hat_cargo_tall_grass', 'hat_cargo_wheat', 'hat_cargo_candy', 'hat_cargo_pudding', 'hat_cargo_mat')          # no code or recipe references them; mesh, texture and registry rows are dropped
+           'hat_cargo_grass', 'hat_cargo_tall_grass', 'hat_cargo_wheat', 'hat_cargo_candy', 'hat_cargo_pudding', 'hat_cargo_mat',
+           'toilet_waste')          # no code or recipe references them; mesh, texture and registry rows are dropped
 
 
 def outputs():

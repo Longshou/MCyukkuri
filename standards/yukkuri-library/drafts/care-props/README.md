@@ -8,7 +8,7 @@
 
 | 文件 | 内容 |
 | --- | --- |
-| `vanilla_props.py` | 导出器登记：`PROPS`（食盆、三种填充、三档宠物窝、沙厕干净／脏、便堆）、`LARGE`（编织大窝与野生大窝）、`VARIANTS`（各件非默认款式与 `pet_nest_fit_1`…`_15`）与染料款式表 `STYLES`（与 `life/CareStyles.java` 一一对应），造型全部来自 `block-props/devices.py`、`nests.py` |
+| `vanilla_props.py` | 导出器登记：`PROPS`（食盆、三种填充、三档宠物窝、沙厕干净／脏）、`LARGE`（编织大窝与野生大窝）、`VARIANTS`（各件非默认款式与 `pet_nest_fit_1`…`_15`）与染料款式表 `STYLES`（与 `life/CareStyles.java` 一一对应），造型全部来自 `block-props/devices.py`、`nests.py` |
 | `shapes.py` | 圆润低多边形工具：圆／圆角矩形轮廓（各偏移下采样一一对应），剖面旋转面（环向平滑、剖面点可选平滑或折边，`ymap` 做入口下沉）、平面或穹顶盖面（俯视贴图居中、1 texel／单位）、小方块与镂空贴片；贴图按区域打包，留 1 texel 包边（环带横向循环），避免取样渗色 |
 | `placed.py` | 窝的碰撞包络（只有几何，不进游戏画面）：旧圆润单格宠物窝与 2×2 编织大窝的形体，方块风格窝的顶面沿它走、相差不到 1 单位（垫面 2 对碰撞 1.75，软垫窝顶 5 对 5.25，编织围沿 6）。单格窝包络直径 26.6、软卷 5.25 高、平垫面 y 1.6–1.8，北侧入口降为 2.8 高的低卷边；贴墙变形（`life/PetNestBlock`）：`SideOutline`（`shapes.py`）给每一侧单独的外沿，贴墙一侧外沿正好落在格面 8 上，软卷各行保持高度、深度缩到 0.3（`NEST_KEEP`），贴墙侧与圆侧之间的角半径 8，两面墙之间的角半径 3（窝自身坐标、入口朝 −z，16 种贴墙组合）。编织大窝包络 32 宽圆角方篮，围沿后侧与两侧 6 高，+z 正面 \|x\|<6 落地、到 12 恢复全高，窝内垫顶 1.7。`collision()` 从包络顶面生成碰撞（单格窝每种贴墙组合一份 `pet_nest_<组合>`，0.5 单位格、向上取到 0.5；编织大窝 0.25 单位格、取到 0.25），写入 `yukkuri_presentation/care_collision.json`，`life/PetNestBlock`、`life/LargeNestBlock` 读取、按入口朝向转好并合并成碰撞壳，选择框高度取其最高点。贴墙一侧的平垫只到离格心 7.46（`nest_level`）；有一侧贴墙时休息范围按最近一侧取以格心为中心的方块（`PetNestBlock.bed`），成体 12.8 放得下。软垫窝中间 23 见方（本格加软卷内坡，斜向截到半径 13.75）统一为 1.75 高的平垫碰撞，软卷碰撞只在这块平垫之外：方形的身体碰撞箱停在平垫内任何位置都只碰到垫面，连 1.2 倍成体足月（碰撞箱 22.45）也坐进窝心；足月 1.2 倍成体只在斜向压进软卷约 2（`NestResting.RIM_PRESS` 容差内）。休息位置由 `NestResting` 限在平垫与可见垫面内。所有个体的步高都是 1 格，入口和窝沿都可跨 |
 | `kit.py` | 网格工具：旋转体、放样、杆、凸块、托盘壁；平滑法线；贴图与 `.bbmodel` 导出；材质瓦片：每个色板阶可画成 16×16 噪点瓦片（相邻一阶的稀疏像素），按世界坐标 1 texel／单位对齐，网格连续、与原版同密度，`NOISE_DEFAULT` 控制 |
@@ -25,7 +25,7 @@
 | `preview_nest_fit.py` | 三档单格窝与贴墙变形的离线预览（不入库）：三档在空地、背靠墙、墙角，软垫窝的一侧贴墙、墙角、一格走廊、三面墙、入口被挡、四面都挡（石砖为墙，俯视另出），以及三档 1 倍大小；输出主检出 `.local/previews/nest-grades/` |
 | `preview_fit.py` | 容纳核对预览（不入库）：各窝放入各阶段个体（按游戏碰撞求停放高度）、过窝心的轴向与对角剖面（模型、碰撞顶面、1.0／1.2 倍成体身体轮廓与腰线），以及全部放置方块与成体、亚成、子油、赤油同框；`MCYUKKURI_BEFORE` 指向旧版本时加入旧软垫窝对照。输出 `pet-goods/fit.png`、`pet-goods/lineup.png`、`wild-nests/fit.png` |
 | `preview_wild_nests.py` | 野生族当前运行网格的离线预览（不入库）：叶床单睡位与 L 形相连、2×2 野生大窝、个人小叶巢各阶段与叶束、储粮堆各档与特写，配成体／子体对照。输出 `.local/previews/wild-nests/`（`MCYUKKURI_PREVIEWS` 可改根目录） |
-| `build.py` | 写入 `art/props/runtime-peripheral/selected/` 的快照（`vanilla_props.py` 登记的食盆、填充、三档宠物窝与贴墙变形、沙厕、便堆及全部非默认款式——大窝的款式也在这里，作为附属网格导出——以及储粮堆、三种运输篮与本目录的低多边形道具）和窝的碰撞壳；`--check` 只读 |
+| `build.py` | 写入 `art/props/runtime-peripheral/selected/` 的快照（`vanilla_props.py` 登记的食盆、填充、三档宠物窝与贴墙变形、沙厕与脏态及全部非默认款式——大窝的款式也在这里，作为附属网格导出——以及储粮堆、三种运输篮与本目录的低多边形道具）和窝的碰撞壳；`--check` 只读 |
 
 `build.py` 之后执行 `scripts/export_peripheral_assets.py`。小玩具、清洗布、教导哨与同伴绳由 `drafts/care-expansion/build.py` 导出；超辣油粮与食糜由 `drafts/consumables/build.py`；捕食种枝巢（`block-props/nests.py`）由 `art/props/predators/build.py`；叶床、个人小叶巢、叶束（`wild.py`）及纸箱由 `ecology/wild-shelters/build.py` 导出，结界等其余件的输出指纹不变；2×2 编织大窝默认款与野生大窝由 `large_nests.py` 导出。
 

@@ -12,8 +12,9 @@ a stepped dome that contains heap k-1 and is wider and higher, so CareRenderer's
 last heaps rise above the rim as on the icon. Kibble is a field of lit and shaded grains, wheat golden stalks with ears,
 the grass fill cut blades.
 
-yukkuri_toilet, three dye styles, each with a dirty state, and toilet_waste: a rectangular litter tray 14 x 12, 3 high,
-clearly a tray beside the round bowl: a one-cell plastic rim with clipped corners round sand at y 2 in pixel grain. The dirty tray has damp clumps in the sand and two droppings; toilet_waste is one dropping.
+yukkuri_toilet and three dye styles, each with a dirty state: a rectangular litter tray 14 x 12, 3 high, clearly a tray
+beside the round bowl: a one-cell plastic rim with clipped corners round sand at y 2 in pixel grain. The dirty tray has
+damp clumps in the sand and two droppings.
 
 Carriers: an open woven basket with an arched handle across, in the three icon tints (natural STRAW, blue NAVYW, green
 SAGEW) with the pale lining folded over below the rim; the large carrier (12 places) is two units wider and deeper and
@@ -227,11 +228,10 @@ def sand(dirty):
 
 
 def swirl(shape, centre, size, base_y, material):
-    """A dropping: a stepped soft cone of `size` tiers (2 or 3) on base_y."""
+    """A dropping: a stepped soft cone of `size` tiers (1 or 2) on base_y."""
     cx, cz = centre
     core = {(cx, cz), (cx - 1, cz), (cx, cz - 1), (cx - 1, cz - 1)}
-    tiers = {3: [kit.octagon(3, 2, (cx, cz)), kit.octagon(2, 1, (cx, cz)), core],
-             2: [kit.octagon(2, 1, (cx, cz)), core],
+    tiers = {2: [kit.octagon(2, 1, (cx, cz)), core],
              1: [core]}[size]
     for k, plan in enumerate(tiers):
         shape.layer(plan, base_y + k, base_y + k + 1, material)
@@ -266,12 +266,6 @@ def yukkuri_toilet(style=''):
 
 def yukkuri_toilet_dirty(style=''):
     return toilet(style, True)
-
-
-def toilet_waste():
-    b = kit.Block('toilet_waste')
-    swirl(b.part('swirl'), (0, 0), 3, 0, dropping_material())
-    return b
 
 
 # =====================================================================================================================
@@ -345,6 +339,6 @@ def variants():
 
 PROPS = {'food_bowl': food_bowl, 'food_bowl_regular': food_bowl_regular, 'food_bowl_wheat': food_bowl_wheat,
          'food_bowl_forage': food_bowl_forage, 'yukkuri_toilet': yukkuri_toilet, 'yukkuri_toilet_dirty': yukkuri_toilet_dirty,
-         'toilet_waste': toilet_waste, 'yukkuri_carrier': yukkuri_carrier, 'yukkuri_carrier_fine': yukkuri_carrier_fine,
+         'yukkuri_carrier': yukkuri_carrier, 'yukkuri_carrier_fine': yukkuri_carrier_fine,
          'yukkuri_carrier_large': yukkuri_carrier_large}
 ALL = {**PROPS, **variants()}

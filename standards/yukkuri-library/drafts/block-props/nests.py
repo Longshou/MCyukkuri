@@ -371,7 +371,7 @@ def large_wild_nest():
 PRED_SINK = .6
 PRED_FLOOR = 3                 # lining top before the sink: 2.4
 PRED_HOLLOW = kit.disc(7.6)
-STICKS = (((1, 0), 4, 2), ((-1, 0), 4, -1), ((0, 1), 3, -2), ((0, -1), 4, 1), ((1, 0), 3, -4), ((0, -1), 4, -5))   # within the 1.5-block render box
+STICKS = (((1, 0), 4, 2), ((0, 1), 3, -2), ((0, -1), 4, 1), ((1, 0), 3, -4), ((0, -1), 4, -5))   # within the 1.5-block render box
 FEATHERS = {(-4, 2), (-3, 2), (-2, 2), (3, -3), (3, -2), (4, -1), (1, 4), (2, 4)}
 
 
