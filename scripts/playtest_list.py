@@ -20,6 +20,9 @@ sys.path.insert(0, str(HERE))
 STATUSES = ('已接入待试玩', '部分接入', '复测失败', '数值通过·演出待补')
 RANK = {'复测失败': 0, '已接入待试玩': 1, '部分接入': 2, '数值通过·演出待补': 3}
 MENU = ('复测失败', '已接入待试玩')
+# A scene number as the TODO writes it: dashed (TN-29) or compact (TN29). Lookarounds instead of \b so it also
+# resolves inside quotes and beside Chinese text.
+SCENE_NUMBER = re.compile(r'(?<![A-Za-z0-9])([A-Z]{1,2})-?(\d\d)(?![A-Za-z0-9])')
 PLAY_DIR = Path('.local/experimental-map/play-museum')
 WATCH_MAX = 40
 
@@ -190,8 +193,12 @@ def load_museum():
 
 
 def scene_refs(text, scenes, numbers):
+    """Scene ids named by a backticked id or a scene number, dashed (TN-29) or compact (TN29)."""
     ids = [i for i in re.findall(r'`([a-z][a-z0-9_]*)`', text) if i in scenes]
-    ids += [numbers[n] for n in re.findall(r'\b([A-Z]{1,2}-\d\d)\b', text) if n in numbers]
+    for letters, digits in SCENE_NUMBER.findall(text):
+        number = f'{letters}-{digits}'
+        if number in numbers:
+            ids.append(numbers[number])
     return list(dict.fromkeys(ids))
 
 
