@@ -51,6 +51,7 @@ import io.github.longshou.mcyukkuri.house.HouseCrawlMotion;
 import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
+import io.github.longshou.mcyukkuri.life.DutyClaim;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.SpeciesLife;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -618,6 +619,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public SettlementLife settlement() { return settlement; }
     /** The leaf swaddle on a child and its parents' care for it (docs/FEATURES.md). */
     public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }
+    public DutyClaim duty() { return component(YukkuriComponents.DUTY); }
     /** Shop stock at its window: customers met by its own drives, a neighbour's departure seen off (docs/FEATURES.md). */
     public ShopWindow shopWindow() { return component(YukkuriComponents.SHOP_WINDOW); }
     public HabitatLife habitat() { return habitat; }

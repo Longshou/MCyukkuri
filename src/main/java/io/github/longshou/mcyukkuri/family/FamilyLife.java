@@ -79,6 +79,8 @@ public final class FamilyLife {
     public static final double FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
     enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT, ABSENCE, WATCH_HOME }
+
+    public boolean watchingHome() { return task == Task.WATCH_HOME; }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.ADULT_START, age=maturity+1, nourishment=maturity,

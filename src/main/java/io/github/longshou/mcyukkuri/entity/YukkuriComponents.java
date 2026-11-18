@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.life.DutyClaim;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
@@ -111,6 +112,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<ShellRetraction> SHELL_RETRACTION = new ComponentKey<>("shellRetraction", ShellRetraction.class);
     public static final ComponentKey<LeafSwaddle> LEAF_SWADDLE = new ComponentKey<>("leafSwaddle", LeafSwaddle.class);
     public static final ComponentKey<ShopWindow> SHOP_WINDOW = new ComponentKey<>("shopWindow", ShopWindow.class);
+    public static final ComponentKey<DutyClaim> DUTY = new ComponentKey<>("duty", DutyClaim.class);
     private static final ComponentKey<YukkuriEntity> HOOKS = new ComponentKey<>("entityHooks", YukkuriEntity.class);
 
     // Numeric orders follow the lifecycle baseline, with gaps for explicit insertions.
@@ -311,6 +313,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 30, (c, ctx) -> c.cancelIncoming())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
+        ComponentSpec.ready(DUTY, DutyClaim::new).tick(85, DutyClaim::tick).build(),
         // Body driver: no passive tick, no save; the interrupts stop the
         // running action; display slots expose its snapshot and attachment through YukkuriView.
         ComponentSpec.ready(MOTOR, YukkuriEntity::motor)
