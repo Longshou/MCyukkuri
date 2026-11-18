@@ -437,6 +437,8 @@ public final class PresentationArbiter {
         // A strong feeling still running its course (mind/EmotionCourse) shows in the idle pose: drooping, trembling, sulking.
         var felt = action == YukkuriAction.IDLE && !e.life().isSleeping() ? e.mind().feeling().idle() : null;
         if (felt != null) return felt;
-        return action == YukkuriAction.IDLE &&(!e.life().hasAccessory() && !e.life().accessoryCustodied() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
+        return action == YukkuriAction.IDLE && (!e.life().hasAccessory() && !e.life().accessoryCustodied()
+                || e.body().weak() || e.body().dying()
+                || !e.life().isSleeping() && e.life().weakness() >= YukkuriLife.WEAKNESS_WARNING) ? YukkuriAction.DROOP : action;
     }
 }
