@@ -1,12 +1,11 @@
 {
   "status": "pending_user_review",
   "id": "yukkuri_stem",
+  "family_stem_registry": "art/registry/runtime/family_stem.json",
   "stem_source": "standards/yukkuri-v1/components/common/stem.json",
-  "sample_count": 2,
-  "sample_radius_scale": 0.93,
-  "rotation": "The existing forward YZ arc is turned into the item's XY plane; no fruit or branches.",
-  "appearance": "Empty green main stalk with a pale root cut; a single stackable representative shape.",
-  "root_cut_color": [212, 226, 144],
+  "icon_source": "art/props/item-icons/yukkuri_stem.png",
+  "height": 7.5,
+  "appearance": "Extruded leafy stem icon recoloured to the living head stem palette (family_stem.json -> stem.json).",
   "reference": {
     "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html",
     "read": "2026-10-16: opening disclaimer and 4.3(1) only; author labels it personal setting, with approximate numbers.",

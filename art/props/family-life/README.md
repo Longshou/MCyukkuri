@@ -8,7 +8,7 @@
 
 茎道具加入普通食物标签，可喂食、放入食盆或供饥饿个体拾食，使用普通食物的 20 营养值和进食恢复；没有额外治疗效果。空茎造型不含胎儿或可培养胎次。“茎＋干草块＋白羊毛”制作一个油库里窝，旧配方继续可用。胎生、家油卵、取消胎次及剪下后培养的茎不额外生成茎道具。
 
-从仓库根目录运行 `python art/props/family-life/export_shed_stem.py` 导出道具；追加 `--check` 只核对导出，`--preview --node <Node路径>` 在 `.local/previews/shed-stem/` 生成当前预览。预览与登记数据不进入运行资源。
+从仓库根目录运行 `python art/props/family-life/export_shed_stem.py` 导出道具：将 `art/props/item-icons/yukkuri_stem.png` 映射至 `family_stem.json`（`stem.json`）活体茎色带并按 `block-props/kit.py` 挤出（高 7.5 单位，原版手持角度与 30° 固定展示）；追加 `--check` 只核对导出，`--preview --node <Node路径>` 在 `.local/previews/shed-stem/` 生成当前预览。预览与登记数据不进入运行资源。
 
 生长：`recipe.json` 的 `growth` 按胎次进度 p（0–1，约 20 秒）给出折线曲线，导出为 `family.json` 的 `stemGrowth`。茎靠伸长而非放大：始终是足熟时的同一根主茎，从额头根部向梢头露出 `extend`（已长出的弧长比例），已长出的部分保持最终粗细，梢头后 `tip_taper` 单位内渐尖。梢头经过某个挂点后，该短梗在 `pedicel_grow` 进度内竖直伸到全长，所以短梗从根到梢依次冒出。茎和各自短梗长成后实子才鼓出：`fruit_emerge` 是最靠根的实子，往梢每个晚 `fruit_stagger`，到 `bud_scale` 大小（比它小的孩子取自己的出生体型），再按 `fruit_ripen` 长到各自出生体型；始终是同品种网格加睡脸，静止竖直悬挂。母体死时遗体带着死前已长出的那段茎并枯萎：根点随遗体姿态，茎不随尸身压扁，缩细、变褐，沿全长逐段下垂（越长的茎垂得越多，最陡不超过 `steepest_degrees`），碰地就贴地；短梗松垂、加长并向两侧交替摊开，实子停在死前大小、按 `fruit_shrivel` 干瘪，参数在[遗体制作源](../../../standards/yukkuri-library/drafts/remains/recipe.json)的 `stem`。[stem_growth.py](stem_growth.py) 是这套几何的参考实现（`FamilyGeometry`、`FamilyRenderer` 照此实现），`--check` 先核对每个实子都在整根茎和自己的短梗长成后才出现，再按 1% 进度逐一核对 1–5 果、灵梦与魔理沙母体、各品种实子与遗体的净空（约 3 分钟）：实子不入母体与地面、相邻实子、茎与其他短梗不比已认可的足熟布局更挤；其他品种的尾巴、翅膀与长发按软体只报告。
 

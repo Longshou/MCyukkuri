@@ -1,13 +1,17 @@
 {
   "status": "pending_user_review",
   "source": {
-    "art/props/family-life/shed-stem.json": "eaecd9e7ab49adab39aac9bedc50bf8d3d39561d63c0d58b20877d561eacedf1",
-    "standards/yukkuri-v1/components/common/stem.json": "96f9a4f12c692fcf3138b145c2602378348b148dbdbab2d716077d2dacc54836"
+    "art/props/family-life/shed-stem.json": "d1c0623960e834f543e873b627abe0db3fc7166faea0ebdf6be8705dcfe35f96",
+    "art/registry/runtime/family_stem.json": "786cd2f44a30146cc7906947ba6192d032144aedb54443a5785f6e979412fb47",
+    "standards/yukkuri-v1/components/common/stem.json": "96f9a4f12c692fcf3138b145c2602378348b148dbdbab2d716077d2dacc54836",
+    "art/props/item-icons/yukkuri_stem.png": "ca8b2e138adde1af12b96d9043519baa41f52913dd55160c681b0277d6ad25a7",
+    "standards/yukkuri-library/drafts/block-props/kit.py": "490e72d026ed0179c76c8443d67089666054aa0878b13f7cc06a6409e8d1d633",
+    "standards/yukkuri-library/drafts/item-icons/draw.py": "962b0d517469c8406703728ceea25218757db4990651b6a41c5047415e7ae6fe"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json": "3e4f1b5a522953546ace55e04f7e104534aba6c6426ea72c3a6649c5917f4b8f",
-    "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json": "df9bfd789ab266f9ba0c4d953d9b7771e4af44da5d61a8e8960449c87a3ffbe4",
-    "src/main/resources/assets/mcyukkuri/textures/props/yukkuri_stem.png": "0fa602be5217bd17a314841a877ff37b93d065e9665838b75a4e44871fc92f49",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json": "9e96560fccb3b44e03a774eb93b8782d39225af0aa75f19b7669c64736f07ac6",
+    "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json": "039239b26531e62b31a807c17a72be5649230ce9c63c571a3a4e47cfd9f3a12c",
+    "src/main/resources/assets/mcyukkuri/textures/props/yukkuri_stem.png": "791c6098ccac501f4b86497a90e132cba46803cd93dd71bcedd3eafc24a58b39",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/family-index.json": "d2e8314c3646030f41e94bc13d3240cbb8e5ff3afc2eea83e302162bf6c3e984"
   }
 }
