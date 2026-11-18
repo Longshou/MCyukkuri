@@ -64,8 +64,9 @@ public final class DenSeal {
     public boolean finishingThreatSeal() {
         return active() && dangerId != null && y.level().getGameTime() - lastDrive <= RECHECK;
     }
+    public boolean pressing() { return phase == Phase.WORK; }
     public String describe() { return phase == Phase.IDLE ? (threatDecision == ThreatDecision.DONE ? "done" : "idle") : phase.name().toLowerCase() + ":" + ticks; }
-    public String familyActivity() { return phase == Phase.WORK ? Behaviors.NEST_PRESS : Behaviors.RETURN_HOME; }
+    public String familyActivity() { return pressing() ? Behaviors.NEST_PRESS : Behaviors.RETURN_HOME; }
 
     /** A new threat episode starts clean; ending one while she works stops the work. */
     public void reset() {

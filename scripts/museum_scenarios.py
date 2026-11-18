@@ -322,6 +322,14 @@ add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封�
                forbid=[r'\[body\][^\n]* invariant\b']))
 
 _seal_threat_wise = _uuid_text('den_barrier_threat', 'wise')
+
+
+def _seal_threat_press(_window, trace):
+    actor = f'"u":"{_seal_threat_wise}","k":"st"'
+    if not any(actor in line and '"behavior":"nest_press"' in line for line in trace):
+        return 'Threatened Reimu never showed the den press'
+
+
 add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '会封洞的灵梦被居民打回家封洞',
     '会封洞的灵梦在洞外被虐派居民打了两下：胆小的它先僵住忍住，第二下才真正害怕，转身逃回洞里用洞口枝条封住。'
     '居民还在近旁时屏一直挡着；它自己忍过一阵后拆屏、把枝条还回粮堆。',
@@ -344,7 +352,7 @@ add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '
         rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal decided [^\n]* seals=true',
         rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal completed [^\n]* placed=1 twigs 2 -> 1 danger=[0-9a-f-]{{36}} absent=\[\]',
         rf'\[home\][^\n]*den barrier removed [^\n]*owner={_seal_threat_wise}\b reason=(danger_passed|pushed_through) [^\n]*twig_returned=true'],
-        forbid=[r'\[body\][^\n]* invariant\b']))
+        forbid=[r'\[body\][^\n]* invariant\b'], verify=_seal_threat_press, verify_trace=True))
 
 # ====================================================================================================== vagrants and foraging
 add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理沙在土丘挖洞安家', '没有家的野生成体走到土丘边，先挖通地面，再向上挖内部第二层。入口一格高、内部两格高，每块约 6 秒。',

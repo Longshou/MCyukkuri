@@ -167,7 +167,15 @@ public final class Reactions {
             long now = y.level().getGameTime();
             return heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576 ? heard : null;
         }
-        String activity() { return switch (stage) { case WATCH -> Behaviors.THREAT_WATCH; case RETREAT -> Behaviors.THREAT_RETREAT; case HIDE -> Behaviors.THREAT_HIDE; default -> Behaviors.IDLE; }; }
+        String activity() {
+            if (seal.pressing()) return Behaviors.NEST_PRESS;
+            return switch (stage) {
+                case WATCH -> Behaviors.THREAT_WATCH;
+                case RETREAT -> Behaviors.THREAT_RETREAT;
+                case HIDE -> Behaviors.THREAT_HIDE;
+                default -> Behaviors.IDLE;
+            };
+        }
         String describe() {
             var s = source();
             return "threat:" + stage.name().toLowerCase(Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y))) + " seal=" + seal.describe();

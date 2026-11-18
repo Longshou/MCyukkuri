@@ -233,6 +233,12 @@ public final class PresentationArbiter {
         var e = state.owner();
         return new Presentation(() -> {
             if (presentPredatorFlight(state)) { state.expression("surprise"); return; }
+            var seal = e.status().reactions().threat().seal();
+            if (seal.pressing() && seal.finishingThreatSeal()) {
+                state.animation(YukkuriAction.IDLE);
+                state.behavior(Behaviors.NEST_PRESS);
+                return;
+            }
             boolean shell = e.shellRetraction().active();
             if (!shell) state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.RUN);
             // The frame retains the pre-decrement count used to choose the clip.
