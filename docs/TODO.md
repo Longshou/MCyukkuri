@@ -13,6 +13,7 @@
 | 美术重做 4：食物药品 | `.worktrees/wp-art-redo-consumables` | standards/yukkuri-library/drafts/consumables/, art/props/consumables, art/props/family-life/export_shed_stem.py |
 | 受击统一入口与姿态：首击即反应、逃离威胁源、跑步动作、台词随姿态 | `.worktrees/wp-struck-stance` | status/Reactions.java, status/StruckStance.java, status/FlightPlanner.java, entity/YukkuriDamage.java, status/PunishmentReaction.java, entity/presentation/PresentationArbiter.java, art/dialogue |
 | 试玩场公园场地布景 | `.worktrees/wp-park-field` | scripts/museum_fields.py (Park) |
+| 蹦床弹力：所有实体在床面弹起、床面下压与声音、油库里按体重体力弹跳 | `.worktrees/wp-trampoline-bounce` | play/PlayBlock.java, play/PlayLife.java, client/PlaygroundRenderer.java |
 
 ## 玩法待办
 
