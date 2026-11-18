@@ -1,4 +1,6 @@
-"""Original single-portion care consumables. Parametric source, editable meshes and runtime export."""
+"""Original single-portion care consumables. Parametric source, editable meshes and runtime export.
+
+The mold remover is its inventory icon extruded into a plate (block-props/kit.py extrude), so world and icon match."""
 import argparse,base64,importlib.util,io,json,runpy,sys,uuid
 from pathlib import Path
 from PIL import Image
@@ -14,7 +16,8 @@ if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-pro
  _spec=importlib.util.spec_from_file_location('block_props_kit',HERE.parent/'block-props/kit.py')
  sys.modules['block_props_kit']=_module=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_module)
 block_kit=sys.modules['block_props_kit']
-FIXED=['mold_remover']   # fixed snapshots in art/props/consumables/selected/, shipped as prop items
+# Extruded icons (block-props/kit.py extrude): the 16x16 inventory icon as a one-pixel-thick plate of this height in units.
+ICONS=ROOT/'art/props/item-icons';EXTRUDED={'mold_remover':6.3}
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri';SELECTED=ROOT/'art/props/consumables'
 PALETTE=['#f2edda','#427da3','#85c5ca','#da9c50','#952f3d','#cba6ce','#735576','#333c46','#e1c484','#ef8b74','#728f49','#fdf8ef']
 def mesh_number(value):
@@ -80,15 +83,15 @@ def outputs():
  # Recipe-only entries: flour_paste is a 16x16 item sprite (care-props/supplies.py, scripts/export_supply_icons.py), no mesh.
  for name in [n for n in INGREDIENTS if n not in RECIPES]:
   emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
- fixed={}
- for name in FIXED:
-  folder=SELECTED/'selected'/name
-  for file in (folder/f'{name}.mesh.json',folder/f'{name}.bbmodel',folder/'texture.png'):fixed[file]=file.read_bytes()
-  mesh=json.loads(fixed[folder/f'{name}.mesh.json']);vertices=mesh['vertices']
-  mesh['bounds']=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)];mesh['format']=1
-  emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=fixed[folder/'texture.png']
+ icons={}
+ for name,height in EXTRUDED.items():
+  icons[ICONS/f'{name}.png']=icon=(ICONS/f'{name}.png').read_bytes()
+  mesh,bb,png=block_kit.extrude(name,icon,height)
+  for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
+   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=png
+  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=png
   emit(ASSETS/f'models/item/{name}.json',block_kit.prop_item_model(name))
-  index[name]={'bounds':mesh['bounds'],'triangles':len(vertices)//24}
+  index[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
  emit(ASSETS/'yukkuri_props/consumables-index.json',index)
  for n,locale in enumerate(['zh_cn','en_us']):
   path=ASSETS/f'lang/{locale}.json';data=json.loads(path.read_text(encoding='utf8'));strings={'item.mcyukkuri.'+k:v[n] for k,v in LABELS.items()}
@@ -96,7 +99,7 @@ def outputs():
    'notebook.mcyukkuri.consumables':['饮用与药效\n干燥程度：%s／100\n便秘：%s\n辣味不适：%s 秒\n喷雾起效剩余：%s 秒\n困倦剩余：%s 秒\n兴奋状态：%s 秒\n幼语药效：%s','Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s'][n],
    'death.attack.mcyukkuri.spicy_food':['%s 没能撑过超辣食物的不适','%s succumbed to extra-spicy food'][n]})
   if any(data.get(k)!=v for k,v in strings.items()):data.update(strings);result[path]=(json.dumps(data,ensure_ascii=False,indent=2)+'\n').encode()
- emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':fingerprints(ROOT,{**{p:p.read_bytes() for p in [Path(__file__).resolve(),BASE,HERE.parent/'block-props/kit.py']},**fixed},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
+ emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':fingerprints(ROOT,{**{p:p.read_bytes() for p in [Path(__file__).resolve(),BASE,HERE.parent/'block-props/kit.py']},**icons},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
  return result
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');parser.add_argument('--skip-language',action='store_true');args=parser.parse_args();changed=[]

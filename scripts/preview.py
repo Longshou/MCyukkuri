@@ -527,11 +527,11 @@ def viewer(args, stage):
 
 
 def collection(args, stage):
-    """Page for an existing set of videos, e.g. the life-review batch."""
+    """Page for an existing set of videos or still sheets, e.g. the life-review batch or an old/new prop comparison."""
     source = Path(args.source).resolve()
-    videos = sorted(source.glob('*.mp4'))
+    videos = sorted(p for p in source.iterdir() if p.suffix.lower() in ('.mp4', '.png'))
     if not videos:
-        raise ValueError(f'No mp4 files: {source}')
+        raise ValueError(f'No mp4 or png files: {source}')
     return ''.join(media(copy_media(p, stage, p.stem), p.stem) for p in videos)
 
 

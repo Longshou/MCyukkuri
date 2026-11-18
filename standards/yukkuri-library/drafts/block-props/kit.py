@@ -4,7 +4,8 @@ Block style (placed, rolled and shelf props): cells of one unit (1/16 block) fil
 filled cell and an empty one are drawn, merged into rectangles, so no two faces ever share a plane (no z-fighting) and no
 face hides inside the solid. Every face texel is painted from its cell: one texel per unit (vanilla density), each
 material a ramp from the item icons (`item-icons/draw.py` is the only palette source), light from the top left (top faces
-one step lighter, the upper and left edge of a face one step lighter, the lower and right edge one step darker), no
+one step lighter; the top row of a side face and the north and west border of a top face one step lighter, the bottom
+row and the south and east border one step darker), no
 noise tiles and no vanilla textures.
 
 Extruded icons (small handheld items): the 16x16 icon itself becomes the prop the way vanilla builds `item/generated`:
@@ -70,6 +71,15 @@ FACES = {
 }
 
 
+def inward(cell, face, centre=(0, 0)):
+    """Whether a side face of `cell` looks toward the vertical axis through `centre` (the inside of a ring wall)."""
+    (axis, sign), _, _ = FACES[face]
+    if axis == 1:
+        return False
+    offset = cell[axis] + .5 - (centre[0] if axis == 0 else centre[1])
+    return offset * sign < 0
+
+
 def _step(axis, sign):
     d = [0, 0, 0]
     d[axis] = sign
@@ -102,10 +112,29 @@ class Material:
 
 
 class Block:
-    """Voxel prop. Parts draw in unit order; a part's faces against lower units are omitted (they stay covered)."""
+    """Voxel prop. A part's faces against its own unit and lower units are omitted (always drawn with it); faces
+    against higher units stay, because those units may be hidden. Each cell belongs to one part."""
 
     def __init__(self, name, offset=(0, 0, 0)):
-        self.name, self.offset, self.parts = name, offset, []
+        self.name, self.offset, self.parts, self._export = name, offset, [], None
+
+    # The care-prop exporters read props through mesh() / bbmodel() / png() / tri_count().
+    def mesh(self):
+        return self._exported()[0]
+
+    def bbmodel(self):
+        return self._exported()[1]
+
+    def png(self):
+        return self._exported()[2]
+
+    def tri_count(self):
+        return len(self.mesh()['vertices']) // 24
+
+    def _exported(self):
+        if self._export is None:
+            self._export = self.export()
+        return self._export
 
     def part(self, name, unit=0):
         part = {'name': name, 'unit': unit, 'cells': {}}
@@ -115,7 +144,7 @@ class Block:
     def _occupied(self, part):
         cells = set(part['cells'])
         for other in self.parts:
-            if other['unit'] < part['unit']:
+            if other['unit'] <= part['unit']:
                 cells |= set(other['cells'])
         return cells
 
@@ -136,7 +165,9 @@ class Block:
                     painted = {}
                     for (u, v), (cell, material) in texels.items():
                         edge = lambda du, dv: (u + du, v + dv) not in texels
-                        painted[(u, v)] = material.texel(cell, face, edge(0, -1) or edge(-1, 0), edge(0, 1) or edge(1, 0))
+                        flat = axis == 1        # side faces bevel only along their top and bottom rows
+                        painted[(u, v)] = material.texel(cell, face, edge(0, -1) or (flat and edge(-1, 0)),
+                                                         edge(0, 1) or (flat and edge(1, 0)))
                     plane = depth + 1 if sign > 0 else depth
                     for rect in _rectangles(set(painted)):
                         result.append((part, face, plane, rect, painted))
@@ -145,6 +176,11 @@ class Block:
     def export(self):
         """Returns (mesh, bbmodel, png bytes)."""
         faces = self.faces()
+        seen = {}
+        for part in self.parts:
+            for cell in part['cells']:
+                if seen.setdefault(cell, part['name']) != part['name']:
+                    raise ValueError(f'{self.name}: cell {cell} is in {seen[cell]} and {part["name"]}')
         sizes = [(r[2] - r[0], r[3] - r[1]) for _, _, _, r, _ in faces]
         size, slots = _pack(sizes)
         image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
@@ -219,6 +255,38 @@ class Shape:
         self.cells[tuple(at)] = material
         return self
 
+    def rounded(self, half, chamfer, y0, y1, material, centre=(0, 0)):
+        """Square slab 2*half wide with its corners stepped off one unit per row (an octagon of stacked cuboids);
+        material None carves the same shape."""
+        cx, cz = centre
+        for x in range(cx - half, cx + half):
+            for z in range(cz - half, cz + half):
+                reach = max(x - cx + 1, cx - x) + max(z - cz + 1, cz - z)
+                if reach <= 2 * half - chamfer:
+                    if material is None:
+                        self.carve((x, y0, z), (x + 1, y1, z + 1))
+                    else:
+                        self.box((x, y0, z), (x + 1, y1, z + 1), material)
+        return self
+
+    def disc(self, radius, y0, y1, material, centre=(0, 0)):
+        """Stepped round slab: every cell whose centre lies within `radius` of `centre` (x, z), the way vanilla rounds."""
+        reach = int(radius) + 2
+        for x in range(int(centre[0]) - reach, int(centre[0]) + reach):
+            for z in range(int(centre[1]) - reach, int(centre[1]) + reach):
+                if (x + .5 - centre[0]) ** 2 + (z + .5 - centre[1]) ** 2 <= radius * radius:
+                    self.box((x, y0, z), (x + 1, y1, z + 1), material)
+        return self
+
+    def hollow(self, radius, y0, y1, centre=(0, 0)):
+        """Carve a stepped round hole, the inverse of disc()."""
+        reach = int(radius) + 2
+        for x in range(int(centre[0]) - reach, int(centre[0]) + reach):
+            for z in range(int(centre[1]) - reach, int(centre[1]) + reach):
+                if (x + .5 - centre[0]) ** 2 + (z + .5 - centre[1]) ** 2 <= radius * radius:
+                    self.carve((x, y0, z), (x + 1, y1, z + 1))
+        return self
+
 
 def _rectangles(texels):
     """Greedy merge of a texel set into [u0, v0, u1, v1) rectangles, row by row."""
@@ -271,7 +339,7 @@ def _bbmodel(name, elements, width, height, png):
 def extrude(name, icon_png, height):
     """The icon as a one-pixel-thick plate standing on y = 0, centred on x and z, its opaque rows `height` units tall.
 
-    Returns (mesh, bbmodel, png bytes); the texture is the icon itself."""
+    Returns (mesh, bbmodel, png bytes); the texture is the icon file itself."""
     with Image.open(io.BytesIO(icon_png)) as opened:
         icon = opened.convert('RGBA')
     W, H = icon.size
@@ -284,7 +352,8 @@ def extrude(name, icon_png, height):
     cx = (x0 + x1) / 2
 
     def at(px, py, z):
-        return [round((px - cx) * s, 6) + 0.0, round((y1 - py) * s, 6) + 0.0, round(z * s, 6) + 0.0]
+        # Seen from -Z (the front) the icon reads unmirrored, so image x runs toward -X.
+        return [round((cx - px) * s, 6) + 0.0, round((y1 - py) * s, 6) + 0.0, round(z * s, 6) + 0.0]
 
     quads = []        # (part, four (position, uv-pixel) corners counter-clockwise from outside, normal)
     front = [(at(x0, y0, -.5), (x0, y0)), (at(x1, y0, -.5), (x1, y0)), (at(x1, y1, -.5), (x1, y1)), (at(x0, y1, -.5), (x0, y1))]
@@ -292,7 +361,7 @@ def extrude(name, icon_png, height):
     quads += [('front', front, [0.0, 0.0, -1.0]), ('back', back, [0.0, 0.0, 1.0])]
     # Edge strips: runs of opaque pixels whose neighbour on that side is clear, each sampling its own pixel row/column.
     m = .5
-    for dx, dy, normal in ((0, -1, [0.0, 1.0, 0.0]), (0, 1, [0.0, -1.0, 0.0]), (-1, 0, [-1.0, 0.0, 0.0]), (1, 0, [1.0, 0.0, 0.0])):
+    for dx, dy, normal in ((0, -1, [0.0, 1.0, 0.0]), (0, 1, [0.0, -1.0, 0.0]), (-1, 0, [1.0, 0.0, 0.0]), (1, 0, [-1.0, 0.0, 0.0])):
         edges = sorted(p for p in solid if (p[0] + dx, p[1] + dy) not in solid)
         horizontal = dy != 0
         runs = []
@@ -346,5 +415,4 @@ def extrude(name, icon_png, height):
     element = {'name': 'extruded_icon', 'type': 'mesh', 'origin': [0, 0, 0], 'rotation': [0, 0, 0],
                'uuid': str(uuid.uuid5(uuid.NAMESPACE_URL, f'mcyukkuri/block-props/{name}/extruded_icon')),
                'vertices': {i: pos for i, pos in bb_vertices.values()}, 'faces': bb_faces}
-    png = png_bytes(icon)
-    return mesh, _bbmodel(name, [element], W, H, png), png
+    return mesh, _bbmodel(name, [element], W, H, icon_png), icon_png

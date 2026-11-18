@@ -1,11 +1,15 @@
 """Registry of the placed care props for the exporters (build.py, large_nests.py, care-expansion/build.py).
 
-The placed pet-care goods (food bowl and fills, the three grades of one-block pet bed and their fitted shapes, 2x2 woven
+The default food bowl is block-style (block-props/devices.py). The other placed pet-care goods (fills, the three grades of one-block pet bed and their fitted shapes, 2x2 woven
 nest, sand toilet and droppings, with their dye styles) are rounded low-poly props with painted regions from placed.py; the wild 2x2 bedding comes from wild.py
 (wild_kit atlas). Units are 1/16 block, origin at the footprint centre. Footprints, heights and entrances follow
 CareBlock collision (life/CareBlock.java) and the documented 2x2 nest interior.
 """
+import sys
+from pathlib import Path
 import placed
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "block-props"))
+import devices      # block-style redo (block-props/kit.py): the default food bowl
 
 
 def large_wild_nest():
@@ -14,7 +18,7 @@ def large_wild_nest():
     return wild.large_wild_nest()
 
 
-PROPS = {'food_bowl': placed.food_bowl, 'food_bowl_regular': placed.food_bowl_regular, 'food_bowl_wheat': placed.food_bowl_wheat,
+PROPS = {'food_bowl': devices.food_bowl, 'food_bowl_regular': placed.food_bowl_regular, 'food_bowl_wheat': placed.food_bowl_wheat,
          'food_bowl_forage': placed.food_bowl_forage, 'yukkuri_nest': placed.yukkuri_nest, 'straw_nest': placed.straw_nest,
          'velvet_nest': placed.velvet_nest, 'yukkuri_toilet': placed.yukkuri_toilet,
          'yukkuri_toilet_dirty': placed.yukkuri_toilet_dirty, 'toilet_waste': placed.toilet_waste}

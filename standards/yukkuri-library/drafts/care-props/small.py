@@ -1,4 +1,4 @@
-"""Small props: crumbs, waste, filling, mash, cloth, yarn, carrier basket."""
+"""Small props: crumbs, waste, filling, mash, cloth, carrier basket."""
 import math
 from kit import Prop, Band, Planar, colour, fill, paint, deterministic
 
@@ -80,22 +80,6 @@ def wash_cloth():
         p.box(part, [hx + shift - .5, y1 - .05, -hz], [hx + shift, y1 + .02, hz], C('paper', 2), grid=.05)
     tag = p.part('tag')
     p.box(tag, [1.0, 1.0, -.5], [2.0, 1.1, .5], C('berry', 2), grid=.05)
-    return p
-
-
-def yarn_ball():
-    """Berry yarn ball: twelve-sided sphere with diagonal windings and a loose tail."""
-    p = Prop('yarn_ball')
-    r = 2.5
-    profile = [(0, 0)] + [(r * math.sin(math.pi * k / 8), r - r * math.cos(math.pi * k / 8)) for k in range(1, 8)] + [(0, 2 * r)]
-    body = p.part('wound_ball')
-    def tone(i, j, c):
-        w = (j * 2 + i * 3) % 8
-        return C('berry', 1) if w in (0, 1) else C('berry', 3) if w == 4 and i in (2, 3) else C('berry', 2)
-    p.lathe(body, profile, Band(tone), seg=16, grid=.25, smooth='both')
-    tail = p.part('loose_tail')
-    p.rod(tail, [1.9, .9, 1.2], [3.2, .3, 2.2], .3, .3, seg=4, spec=C('berry', 3), caps=(False, True), grid=.25)
-    p.rod(tail, [3.2, .3, 2.2], [4.0, .3, 1.6], .3, .3, seg=4, spec=C('berry', 3), caps=(False, True), grid=.25)
     return p
 
 

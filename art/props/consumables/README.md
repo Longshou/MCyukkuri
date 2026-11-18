@@ -14,7 +14,7 @@
 | 新生食糜 | `food_mash_serving` 网格及贴图 | 亲油加工后与幼油受喂时显示柔软小团；原食材、份数和营养保留，不注册另一份食品 |
 | 生殖投药 | `reproductive_filling` 网格及贴图 | `LiveBirthRenderer.renderDose` 将管嘴朝向后部；短时操作由服务器控制 |
 
-小麦粉糊在本包只保留合成配方，物品外观是 [16×16 图标](../supply-icons/README.md)，不使用网格。
+除霉剂的道具网格是它的 16×16 物品栏图标按原版 `item/generated` 的做法挤出的一像素厚板（[方块道具工具](../../../standards/yukkuri-library/drafts/block-props/kit.py) `extrude`，高 6.3 单位，正面朝 −Z），贴图就是图标本身。小麦粉糊在本包只保留合成配方，物品外观是 [16×16 图标](../supply-icons/README.md)，不使用网格。
 
 原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/FEATURES.md#消耗品与胎生)。清水仍使用原版真实清水药水瓶；其他六件物品没有借用不相符的原版图标。
 

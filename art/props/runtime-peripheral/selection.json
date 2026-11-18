@@ -161,17 +161,17 @@
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json",
-      "sha256": "e6f4b28e4cc41cc97f3c6a91f73a87be7c33dc5ae4fbdba2371eae04ca8473ef",
+      "sha256": "301516662907ef06271d2a16a1da5d3e11e6999d95645e1352d1de5c01d863e7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel",
-      "sha256": "e852d3c1a8d8be1485f5369742d0bd342baf5bf07bdd0a9c9c960a1477d44108",
+      "sha256": "79f7e361b0ab0427d3d8c391fcc0f0adafead8a4fa9462309f6ebc3d8fcc08f2",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl/texture.png",
-      "sha256": "a0b7f50daf907c9c42e23da2634a2e64b5d5a24543a2d33a9524b564d59f3917",
+      "sha256": "cdc87188062ca7194893a9a66d2def6bf495832476a77bfa5ff034405b24c8f5",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.mesh.json": {
