@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 试玩场菜单分层修复（7） | `.worktrees/wp-viewer-layer-fix` | client/ViewerScreen.java |
 
 ## 玩法待办
 
