@@ -181,7 +181,7 @@ public final class FamilyData extends SavedData {
         var kinds=SubspeciesLife.Kind.values();
         var kind=ordinal<kinds.length?kinds[ordinal]:SubspeciesLife.Kind.NORMAL;
         boolean deficient=((child.subspeciesFlags>>>4)&15)!=SubspeciesLife.Congenital.NORMAL.ordinal();
-        return YukkuriPersonality.inheritBirth(child.id,first==null?null:first.life().personality(),second==null?null:second.life().personality(),deficient,kind);
+        return YukkuriPersonality.inheritBirth(child.id,first.life().personality(),second==null?null:second.life().personality(),deficient,kind);
     }
     private final Map<UUID, Brood> broods = new HashMap<>();
     private final Set<UUID> spawning = new HashSet<>();

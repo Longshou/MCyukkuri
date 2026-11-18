@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -88,8 +87,8 @@ public final class YukkuriPersonality {
     public YukkuriPersonality(YukkuriEntity owner) {
         this.owner = Objects.requireNonNull(owner);
         UUID identity = owner.getUUID();
-        Random random = new Random(identity.getMostSignificantBits() ^ identity.getLeastSignificantBits());
-        for (int i = 0; i < innate.length; i++) innate[i] = random.nextInt(101);
+        long seed = identity.getMostSignificantBits() ^ identity.getLeastSignificantBits();
+        for (int i = 0; i < innate.length; i++) innate[i] = TraitDraw.wild(seed, i, TraitDraw.WILD_CENTRE);
         protectOwnerRelation();
     }
 
@@ -169,25 +168,32 @@ public final class YukkuriPersonality {
         }
     }
 
+    public static BirthProfile wildBirth(UUID identity, boolean deficient, SubspeciesLife.Kind kind) {
+        long seed = identity.getMostSignificantBits() ^ identity.getLeastSignificantBits();
+        TraitBounds bounds = TraitBounds.forForm(deficient, kind);
+        int[] values = new int[Trait.values().length];
+        for (Trait trait : Trait.values()) {
+            int min = bounds.minimum(trait);
+            double normalized = TraitDraw.wild(seed, trait.ordinal(), TraitDraw.WILD_CENTRE) / 100.0;
+            values[trait.ordinal()] = (int) Math.round(min + normalized * (bounds.maximum(trait) - min));
+        }
+        return BirthProfile.fromInnateValues(values);
+    }
+
     /**
-     * Deterministic inheritance shared by every birth route. Parent values are normalized inside
-     * their own legal form interval before being mapped into the child's form interval.
+     * Normalize each parent's innate values in its form interval before mapping to the child's.
+     * The first parent is required. An unknown second parent contributes a wild draw.
      */
     public static BirthProfile inheritBirth(UUID childIdentity, YukkuriPersonality parentA,
             YukkuriPersonality parentB, boolean deficient, SubspeciesLife.Kind childKind) {
+        long seed = childIdentity.getMostSignificantBits() ^ childIdentity.getLeastSignificantBits();
         TraitBounds childBounds = TraitBounds.forForm(deficient, childKind);
         int[] values = new int[Trait.values().length];
         for (Trait trait : Trait.values()) {
-            double total = 0;
-            int parents = 0;
-            if (parentA != null) { total += parentA.normalizedInnate(trait); parents++; }
-            if (parentB != null) { total += parentB.normalizedInnate(trait); parents++; }
-            double normalized = parents == 0 ? .5 : total / parents;
-            int min = childBounds.minimum(trait);
-            Random random = new Random(childIdentity.getMostSignificantBits() ^ childIdentity.getLeastSignificantBits()
-                    ^ (0x9E3779B97F4A7C15L * (trait.ordinal() + 1L)));
-            double varied = Math.clamp(normalized + (random.nextInt(21) - 10) / 100.0, 0, 1);
-            values[trait.ordinal()] = childBounds.clamp(trait, (int) Math.round(min + varied * (childBounds.maximum(trait) - min)));
+            int axis = trait.ordinal();
+            double second = parentB == null ? TraitDraw.unknownParent(seed, axis) : parentB.normalizedInnate(trait);
+            values[axis] = TraitDraw.inherit(seed, axis, parentA.normalizedInnate(trait), second,
+                    childBounds.minimum(trait), childBounds.maximum(trait));
         }
         return BirthProfile.fromInnateValues(values);
     }

@@ -197,7 +197,7 @@ public final class SettlementSpawner {
             }
         }
         for(int i=0;i<homes.size();i++)homes.get(i).shelter().initializeEncounter(units.get(i));
-        // Generated members are wild-born, not vanilla natural spawns: give them the wild cognition draw (headwear.Recognition).
+        // Members keep the constructor's wild draw; their young inherit below.
         for(int i=0;i<members.size();i++) {
             if(!members.get(i).habitat().choose(homes.get(rooms.get(i)).shelter())) {
                 trace("Claim failed: member "+i+" site "+homes.get(rooms.get(i)).shelter().getBlockPos()+" capacity "+homes.get(rooms.get(i)).shelter().capacity());
