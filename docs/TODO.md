@@ -14,6 +14,7 @@
 | 美术重做 3：游乐设施 | `.worktrees/wp-art-redo-play` | standards/yukkuri-library/drafts/playgrounds/, art/props/playgrounds |
 | 美术重做 4：食物药品 | `.worktrees/wp-art-redo-consumables` | standards/yukkuri-library/drafts/consumables/, art/props/consumables, art/props/family-life/export_shed_stem.py |
 | 受击统一入口与姿态：首击即反应、逃离威胁源、跑步动作、台词随姿态 | `.worktrees/wp-struck-stance` | status/Reactions.java, status/StruckStance.java, status/FlightPlanner.java, entity/YukkuriDamage.java, status/PunishmentReaction.java, entity/presentation/PresentationArbiter.java, art/dialogue |
+| 试玩场公园场地布景 | `.worktrees/wp-park-field` | scripts/museum_fields.py (Park) |
 
 ## 玩法待办
 
