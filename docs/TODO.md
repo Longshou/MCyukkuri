@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
-| 进食分级台词池与配音 | `.worktrees/wp-food-lines` | art/dialogue food_* events, voice |
 | TN-35 场景判定接受玩或歇 | `.worktrees/wp-tn35-scene` | scripts/museum_scenarios.py yard_park_play |
 
 ## 玩法待办
