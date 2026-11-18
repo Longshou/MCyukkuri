@@ -103,7 +103,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
                 &&value.getBlockState().is(state.getBlock())&&value.facing()==state.getValue(FACING)?value:null;
     }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder) { builder.add(PART,FACING); }
-    @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return state.getValue(PART)==CORE ? new ShelterBlockEntity(pos,state) : null; }
+    @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return ShelterBlockEntity.create(pos,state); }
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return !level.isClientSide && state.getValue(PART)==CORE && type==ModBlocks.SHELTER_ENTITY.get()
                 ? (world,pos,block,entity)->((ShelterBlockEntity)entity).tick() : null;

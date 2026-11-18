@@ -49,6 +49,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         return own;
     }
     @Override public void render(ShelterBlockEntity home,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
+        if(home.isRemoved())return; // A render section may still hold the old core until it is rebuilt.
         if(home.kind()==ShelterBlock.Kind.BURROW) {
             var shared=new HashSet<>(home.sharedBeds());
             for(var project:home.nestConstructions())shared.remove(project.bed());

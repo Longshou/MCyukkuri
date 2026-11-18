@@ -127,7 +127,12 @@ public final class ShelterBlockEntity extends BlockEntity {
     private int branches;
     /** Loaded ticks a natural burrow has stayed soaked; transient, a restart resets the worry. */
     private int soaked;
-    public ShelterBlockEntity(BlockPos pos,BlockState state) { super(ModBlocks.SHELTER_ENTITY.get(),pos,state); }
+    private ShelterBlockEntity(BlockPos pos,BlockState state) { super(ModBlocks.SHELTER_ENTITY.get(),pos,state); }
+    public static ShelterBlockEntity create(BlockPos pos,BlockState state) {
+        // Saved tags enter through the type's factory, including stale attachments on old shell parts.
+        return state.getBlock() instanceof ShelterBlock&&state.getValue(ShelterBlock.PART)==ShelterBlock.CORE
+                ? new ShelterBlockEntity(pos,state) : null;
+    }
     /**
      * Only the core part holds the shelter. Every part is the same block, so a cell that changes from one shelter's core to
      * another shelter's wall in one tick would otherwise keep this entity, and the client would draw a second shell there.

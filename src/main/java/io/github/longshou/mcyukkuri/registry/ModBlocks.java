@@ -69,7 +69,7 @@ public final class ModBlocks {
             ()->new ShelterBlock(ShelterBlock.Kind.CARDBOARD,BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.WOOL).noOcclusion()
                     .pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ShelterBlockEntity>> SHELTER_ENTITY=BLOCK_ENTITIES.register("wild_shelter",
-            ()->BlockEntityType.Builder.of(ShelterBlockEntity::new,FOREST_BURROW.get(),CARDBOARD_SHELTER.get()).build(null));
+            ()->BlockEntityType.Builder.of(ShelterBlockEntity::create,FOREST_BURROW.get(),CARDBOARD_SHELTER.get()).build(null));
     public static final DeferredBlock<GarbageBinBlock> GARBAGE_BIN=BLOCKS.register("garbage_bin",
             ()->new GarbageBinBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.LANTERN).noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<GarbageBinBlockEntity>> GARBAGE_BIN_ENTITY=BLOCK_ENTITIES.register("garbage_bin",
