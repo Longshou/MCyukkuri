@@ -89,7 +89,8 @@ public final class HumanNpc extends PathfinderMob {
     private HumanStreet.Stroll stroll() { if (stroll == null) stroll = new HumanStreet.Stroll(this); return stroll; }
     public UUID walkPetId() { return animals(Custody.Role.COMPANION).stream().findFirst().map(Entity::getUUID).orElse(null); }
     public boolean walking() { return walk().walking() || stroll().outing(); }
-    public boolean leads(YukkuriEntity pet) { return walk().leads(pet); }
+    public void releaseLegacyLead(YukkuriEntity pet) { walk().releaseLegacyLead(pet); }
+    boolean leadingWalk() { return walk().walking(); }
     public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
     /** Gives the resident this individual as its companion and fits its harness. */
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
@@ -317,6 +318,7 @@ public final class HumanNpc extends PathfinderMob {
                 setDropChance(EquipmentSlot.MAINHAND, 2.0f);
             // The loose piece it was carrying to a bin falls where the body fell, likewise.
             VillageBin.dropLitter(this);
+            if (leadingWalk()) walk().end();
             if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) {
                 ShopStaff.staffDied(this, sl);
                 ShopRegistry.get(sl).staffDied(sl, this); // the shop closes only with its last staff member
@@ -337,8 +339,10 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override public void remove(RemovalReason reason) {
         if (reason.shouldDestroy() && streetResident() && level() instanceof ServerLevel server
-                && server.getEntity(getUUID()) == this && !CustodyData.get(server).deadNpc(getUUID()))
+                && server.getEntity(getUUID()) == this && !CustodyData.get(server).deadNpc(getUUID())) {
+            if (leadingWalk()) walk().end();
             Custody.ownerGone(server, getUUID());
+        }
         super.remove(reason);
     }
     @Override public boolean hurt(DamageSource source, float amount) {
@@ -626,7 +630,7 @@ public final class HumanNpc extends PathfinderMob {
         private int elapsed, approach;
         private int careTicks;
         private TreatmentItem.Kind dose;
-        private boolean goingHome() { return resting() || avoidingStreet(); }
+        private boolean goingHome() { return (resting() || avoidingStreet()) && !stroll().outing(); }
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
             if (job() == Job.FACTORY) return false;

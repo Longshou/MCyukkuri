@@ -150,10 +150,10 @@ public final class PetCare {
     private void tickWear() {
         if (animal.isLeashed()) {
             var holder = animal.getLeashHolder();
-            // Old morning walks have no explicit LedPet. Wait for vanilla to resolve the actual holder.
-            if (holder instanceof HumanNpc npc && animal.pet().ownedBy(npc.getUUID()) && !npc.leads(animal))
-                animal.dropLeash(true, false);
-            else if (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())) animal.dropLeash(true, true);
+            // Let vanilla resolve the saved holder before matching the old WalkPet UUID.
+            if (holder instanceof HumanNpc npc && animal.pet().ownedBy(npc.getUUID())) npc.releaseLegacyLead(animal);
+            if (animal.isLeashed() && (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())))
+                animal.dropLeash(true, true);
         }
         if (swaddle) {
             // The cloth comes off by itself once the young one can live on its own, or when it is soaked or burning; the owner gets it back.
@@ -260,6 +260,7 @@ public final class PetCare {
         if (animal.level().isClientSide) return;
         rollDay();
         requests.tick(); walk.tick(); tickWear();
+        animal.outing().releaseVacatedNest();
         if (animal.tickCount % 100 == 61 && animal.pet().grade() != BadgeGrade.NONE) PetPrivileges.note(animal); // keeps the owner's recorded standing and its expiry current
         if (habitLeft > 0) {
             if (!animal.isAlive() || --habitLeft <= 0) closeHabit();

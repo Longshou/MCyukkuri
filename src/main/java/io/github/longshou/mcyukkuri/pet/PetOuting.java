@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 public final class PetOuting extends Goal {
     private final YukkuriEntity pet;
     private BlockPos home, blockedAt, escortAt;
-    private HumanNpc owner;
+    private HumanNpc escort, owner;
     private Vec3 stand;
     private boolean shelter;
 
@@ -53,19 +52,26 @@ public final class PetOuting extends Goal {
                 && pet.dailyLife().boredom() >= 70 - (traits.boldness() + traits.attachment()) / 8.0;
     }
 
-    public void leave(BlockPos yard) {
+    public void leave(HumanNpc resident, BlockPos yard) {
+        escort = resident;
         home = yard;
         blockedAt = null;
         GameplayLog.event(pet, "pet", "outing joined yard={} follow={}..{}", yard.toShortString(), innerDistance(), outerDistance());
     }
 
-    public void forget() { home = null; }
+    public void forget() { home = null; escort = null; }
+    public boolean escorted() { return escort() != null; }
     public boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }
 
+    void releaseVacatedNest() {
+        if (!away() || pet.life().home() == null) return;
+        var bed = pet.life().homeStand();
+        if (bed != null && pet.level().getBlockState(bed).getBlock() instanceof PetNestBlock) pet.life().releaseHome();
+    }
+
     HumanNpc escort() {
-        if (home == null || pet.pet().owner() == null) return null;
-        return ((ServerLevel) pet.level()).getEntity(pet.pet().owner()) instanceof HumanNpc resident
-                && resident.strollingWith(pet) ? resident : null;
+        return escort != null && escort.level() == pet.level() && !escort.isRemoved()
+                && escort.strollingWith(pet) ? escort : null;
     }
 
     private boolean free() {
@@ -84,14 +90,18 @@ public final class PetOuting extends Goal {
     @Override public void start() {
         if (owner != null) return;
         if (atHome()) { arrived("home"); return; }
-        stand = SurfaceApproach.beside(pet, Vec3.atBottomCenterOf(home), 1.5, at -> true);
+        stand = SurfaceApproach.beside(pet, Vec3.atBottomCenterOf(home), 1.5,
+                at -> seesYard(at.add(0, pet.getEyeHeight(), 0)));
         if (stand == null) seekShelter();
     }
 
     private boolean atHome() {
         return pet.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 6.25 && pet.onGround()
-                && pet.level().clip(new ClipContext(pet.getEyePosition(), home.getCenter(),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pet))
+                && seesYard(pet.getEyePosition());
+    }
+
+    private boolean seesYard(Vec3 eye) {
+        return pet.level().clip(new ClipContext(eye, home.getCenter(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pet))
                 .getBlockPos().equals(home);
     }
 
@@ -99,12 +109,18 @@ public final class PetOuting extends Goal {
         var roof = Reactions.findCover(pet, null, 0);
         stand = roof == null ? null : Vec3.atBottomCenterOf(roof);
         shelter = true;
-        if (stand == null) blockedAt = pet.blockPosition();
+        if (stand == null) blockedReturn();
+    }
+
+    private void blockedReturn() {
+        blockedAt = pet.blockPosition();
+        stand = null;
+        GameplayLog.event(pet, "pet", "outing return blocked yard={}", home.toShortString());
     }
 
     private void arrived(String where) {
         GameplayLog.event(pet, "pet", "outing reached {} yard={}", where, home.toShortString());
-        home = null;
+        forget();
     }
 
     @Override public boolean canContinueToUse() {
@@ -115,21 +131,23 @@ public final class PetOuting extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {
         if (!free()) return;
-        var bed = pet.life().homeStand();
-        if (away() && bed != null && pet.level().getBlockState(bed).getBlock() instanceof PetNestBlock)
-            pet.life().releaseHome();
         if (owner != null) {
             if (!owner.blockPosition().equals(escortAt)) {
                 escortAt = owner.blockPosition();
                 stand = SurfaceApproach.beside(pet, owner, innerDistance(), 1);
             }
-            if (stand != null) SurfaceApproach.walkResult(pet, stand, owner, 1.15);
+            // This leg ends at a fixed stand sampled behind the resident. Moving the resident's body
+            // must not invalidate its path between samples.
+            if (stand != null) {
+                var result = SurfaceApproach.walkResult(pet, stand, null, 1.15);
+                if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) stand = null;
+            }
         } else if (stand != null) {
             var result = SurfaceApproach.walkResult(pet, stand, null, 1);
             if (shelter ? result == SurfaceApproach.Result.ARRIVED : atHome()) arrived(shelter ? "shelter" : "home");
             else if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) {
                 if (!shelter) seekShelter();
-                else { blockedAt = pet.blockPosition(); stand = null; }
+                else blockedReturn();
             }
         }
     }
@@ -144,6 +162,7 @@ public final class PetOuting extends Goal {
     }
 
     public void load(CompoundTag tag) {
+        forget();
         home = tag.contains("OutingYard") && pet.level().dimension().location().toString().equals(tag.getString("OutingDimension"))
                 ? BlockPos.of(tag.getLong("OutingYard")) : null;
     }

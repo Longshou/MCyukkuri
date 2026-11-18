@@ -20,6 +20,7 @@ final class HumanWalk {
     static final int WALK_TICKS = 3600, LAG_BLOCKS = 5;
     private final HumanNpc npc;
     private UUID petId;
+    private UUID legacyLedPet;
     private boolean walking, returning;
     private long walkUntil;
     private BlockPos waypoint;
@@ -100,6 +101,7 @@ final class HumanWalk {
     }
 
     void save(CompoundTag t) {
+        if (legacyLedPet != null) t.putUUID("LegacyLedPet", legacyLedPet);
         if (walking) {
             t.putUUID("LedPet", petId);
             t.putBoolean("WalkReturning", returning);
@@ -107,11 +109,17 @@ final class HumanWalk {
         }
     }
     void load(CompoundTag t) {
+        legacyLedPet = t.hasUUID("LegacyLedPet") ? t.getUUID("LegacyLedPet")
+                : t.getBoolean("Walking") && t.hasUUID("WalkPet") ? t.getUUID("WalkPet") : null;
         walking = t.hasUUID("LedPet");
         petId = walking ? t.getUUID("LedPet") : null;
         returning = t.getBoolean("WalkReturning");
         walkUntil = t.getLong("WalkUntil");
     }
 
-    boolean leads(YukkuriEntity pet) { return walking && pet.getUUID().equals(petId); }
+    void releaseLegacyLead(YukkuriEntity pet) {
+        if (!pet.getUUID().equals(legacyLedPet)) return;
+        legacyLedPet = null;
+        if (!pet.getUUID().equals(petId)) pet.dropLeash(true, false);
+    }
 }
