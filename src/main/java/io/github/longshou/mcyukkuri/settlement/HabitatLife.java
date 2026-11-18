@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import java.util.ArrayList;
 import java.util.List;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyProvision;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
@@ -282,8 +283,11 @@ public final class HabitatLife {
     /** Cut grass from a real plant: first for the lining, then as stock while the forage pile has room and the target is not met. */
     private boolean wantsHarvest(ShelterBlockEntity value) {
         var grass=new ItemStack(Items.SHORT_GRASS);
-        if(value.needsMaterial(grass)&&!stockFirst())return true;
+        if(wantsBeddingHarvest(value,grass))return true;
         return entity.life().acceptsFood(grass)&&value.food()<HouseholdStores.target(value)&&value.foodSpace(grass)>0;
+    }
+    private boolean wantsBeddingHarvest(ShelterBlockEntity value,ItemStack grass) {
+        return value.needsMaterial(grass)&&!stockFirst();
     }
     /** A hungry own child comes before the bed: harvested grass goes onto the food pile, not into the lining. */
     private boolean stockFirst() { return entity.family().hasChildAwaitingFeed(); }
@@ -471,7 +475,8 @@ public final class HabitatLife {
         else if(nestMaterial.isEmpty())nestMaterial=material;
     }
     private boolean planHarvest(ShelterBlockEntity value) {
-        if(wantsHarvest(value)&&plants.find(entity.blockPosition(),8,pos->true)){
+        if(wantsHarvest(value)&&(wantsBeddingHarvest(value,new ItemStack(Items.SHORT_GRASS))
+                || FamilyProvision.letsGatherStock(entity))&&plants.find(entity.blockPosition(),8,pos->true)){
             targetBlock=null;targetItem=null;task=Task.HARVEST;ticks=0;return true;
         }
         return false;

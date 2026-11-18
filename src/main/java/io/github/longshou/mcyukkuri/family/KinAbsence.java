@@ -338,6 +338,9 @@ final class KinAbsence {
         var memory = kin.get(searching);
         if (memory != null && memory.phase == Phase.CALL && callStarted) {
             memory.phase = baby() ? Phase.MOVED_ON : Phase.SEARCH;
+            if (memory.phase == Phase.MOVED_ON)
+                GameplayLog.event(body(), "family", "kin absence kin={} phase=MOVED_ON destination=null stage={} nutrition={} reason=call_interrupted",
+                        searching, family.stageId(), body().life().nutrition());
             sweep = List.of();
         }
         if (memory == null || memory.phase == Phase.MOVED_ON || memory.phase == Phase.WAIT) {

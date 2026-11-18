@@ -200,6 +200,16 @@ public final class FamilyLife {
     public int beckonRounds() { return call.beckonRounds(); }
     public String callActivity() { return call.activity(); }
     public void endBeckon() { call.endBeckon(); }
+
+    public boolean followsShelterLead() {
+        if (adult() || !entity.childhood().shouldStayWithParents() || entity.life().hasUrgentNeed()) return false;
+        for (UUID id : new UUID[]{mother, father}) {
+            if (id != null && level().getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
+                    && entity.distanceToSqr(parent) <= ChildCall.EARSHOT * ChildCall.EARSHOT && entity.life().canRecognize(parent)
+                    && parent.life().leadingToFoundShelter(entity)) return true;
+        }
+        return false;
+    }
     /** Observe movement ownership without advancing the drawn birth launch. */
     public boolean launchInFlight(){ return entity.motor().current() instanceof Launch; }
     UUID arrangedMate() { return courtship.arranged(); }
@@ -1298,10 +1308,13 @@ public final class FamilyLife {
     }
 
     private boolean startHomeWatch() {
-        if(!watch.start())return false;
+        if(!claimHomeWatch())return false;
         task=Task.WATCH_HOME;taskTicks=0;
         return true;
     }
+
+    /** Basic goals check the duty before their selector priority can keep FamilyGoal from starting. */
+    public boolean claimHomeWatch() { return watch.start(); }
 
     private boolean owesFamilyDuty() { return entity.duty().holds(Kind.WATCH) || entity.duty().holds(Kind.SEARCH); }
 

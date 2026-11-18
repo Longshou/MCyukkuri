@@ -562,6 +562,7 @@ public final class YukkuriLife {
             default -> Behaviors.IDLE; };
     }
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
+    public boolean leadingToFoundShelter(YukkuriEntity child) { return foundCover.leads(child); }
     public boolean usingFoundCover() { return foundCover.active(); }
     public boolean restingInPlainGap() { return foundCover.restingInPlainGap(); }
     public boolean restingInPlainGapAt(BlockPos pos) { return foundCover.restingInPlainGapAt(pos); }
@@ -996,6 +997,7 @@ public final class YukkuriLife {
             targetBlock = Grazing.nearbyCrop(entity);
             if (targetBlock != null) { task = Task.CROP; cropLook = pursuitTicks = 0; return true; }
         }
+        if (entity.family().followsShelterLead()) return false;
         if (!penned) {
             boolean freeToShelter = !ParentCarry.awaitsCarrier(entity);
             boolean rainFirst = freeToShelter && foundCover.seekingStreetRoof();

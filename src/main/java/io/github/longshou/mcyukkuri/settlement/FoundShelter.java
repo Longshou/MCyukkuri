@@ -124,6 +124,10 @@ public final class FoundShelter implements MotorOwner {
     @Override public boolean active() { return shelter != null || gap != null; }
     @Override public String ownerId() { return Behaviors.SEEK_WARMTH; }
     public boolean targeting(BlockPos at) { return shelter != null && shelter.getBlockPos().equals(at); }
+    public boolean leads(YukkuriEntity child) {
+        return shelter != null && (phase == Phase.APPROACH || phase == Phase.SNIFF || phase == Phase.BECKON)
+                && !shelter.contains(child.blockPosition()) && body.family().caresFor(child) && body.life().canRecognize(child);
+    }
     public boolean exiting() { return phase == Phase.EXIT || phase == Phase.STEP_DOWN; }
     public boolean carryingPaper() { return shelter == null && streetSpot == null && gap != null; }
     public boolean restingInPlainGap() { return shelter == null && streetSpot == null && gap != null && phase == Phase.REST; }
@@ -931,6 +935,7 @@ public final class FoundShelter implements MotorOwner {
             return Step.ACTIVE;
         }
         if (!canTakeFoundShelter(body) || body.life().nutrition() < LEAVE_HUNGRY
+                || shelter != null && body.family().followsShelterLead()
                 || (shelter != null ? shelter.isRemoved() || !shelter.foundUsable(body)
                 : streetSpot != null ? !streetSpotValid() : !gapAt(gap))) {
             stop(); return Step.ENDED;

@@ -26,6 +26,16 @@ public final class FamilyProvision {
     public List<YukkuriEntity> caregivers() { return caregivers; }
     public boolean hasChildren() { return !children.isEmpty(); }
 
+    /** Routine grass stocking follows the same household choice even while its provider is preparing to leave. */
+    public static boolean letsGatherStock(YukkuriEntity body) {
+        var provision = atHomeOf(body);
+        if (!provision.hasChildren()) return true;
+        var provider = provision.choose(peer -> !body.family().kinOverdue(peer.getUUID())
+                && (outForFood(peer) || FamilyLife.ordinaryLandFree(peer) && !peer.life().isSleeping() && !peer.life().sedated()
+                        && peer.life().energy() >= 40 && peer.life().nutrition() >= 35 && peer.body().healthRatio() >= .6));
+        return provider == null || provider == body;
+    }
+
     static BlockPos home(YukkuriEntity body) {
         var shelter = body.habitat().shelter();
         return shelter == null ? body.life().homeStand() : shelter.getBlockPos();

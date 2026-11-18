@@ -45,8 +45,8 @@ final class HomeWatch {
     }
 
     private boolean waitingFor(UUID id) {
-        if (id == null || family.absence().overdue(id)) return false;
         if (family.adult() && awayForFood(id)) return true;
+        if (id == null || family.absence().overdue(id)) return false;
         var absence = family.absence();
         return absence.expectingReturn(id) && (family.adult() || absence.away(id)
                 >= FamilyDutyMath.watchStart(body().life().personality().attachment()) * absence.expectation());
@@ -61,6 +61,7 @@ final class HomeWatch {
     private String endReason(UUID awaited) {
         var e = body();
         if (!FamilyLife.ordinaryLandFree(e)) return "unavailable";
+        if (e.forageTrip().outing()) return "out_for_food";
         if (e.life().isSleeping()) return "asleep";
         if (e.life().nutrition() < FamilyDutyMath.hungerBreak(e.life().personality().selfControl()) + (hungry ? 15 : 0)) return "hungry";
         if (family.adult()) {
@@ -69,8 +70,8 @@ final class HomeWatch {
             if (!FamilyProvision.atHomeOf(e).hasChildren()) return "no_dependants";
         } else if (!FamilySeparation.atHome(e)) return "left_home";
         if (awaited == null) return "kin_returned";
-        if (family.absence().overdue(awaited)) return "kin_overdue";
-        return waitingFor(awaited) ? null : "kin_returned";
+        if (waitingFor(awaited)) return null;
+        return family.absence().overdue(awaited) ? "kin_overdue" : "kin_returned";
     }
 
     boolean start() {
@@ -80,7 +81,7 @@ final class HomeWatch {
             return e.duty().holds(Kind.WATCH) && endReason(kin) == null;
         }
         var awaited = awaited();
-        if (awaited == null || !FamilyProvision.nearHome(e, e.blockPosition()) || !e.duty().mayTake(Kind.WATCH)
+        if (awaited == null || !e.duty().mayTake(Kind.WATCH)
                 || e.hurtTime > 0 || BehaviorContinuity.emergency(e) || endReason(awaited) != null) return false;
         var shelter = e.habitat().shelter();
         sealed = shelter != null && DenBarrier.sealed(shelter);
@@ -185,7 +186,7 @@ final class HomeWatch {
             blockedRun = 0;
             SurfaceApproach.halt(e);
             boolean insideCheck = stance() == Stance.PATROL && station.inside();
-            GameplayLog.limited(e, "family", insideCheck ? "watch.inside" : "watch.station", 200,
+            GameplayLog.limited(e, "family", (insideCheck ? "watch.inside." : "watch.station.") + stationIndex, 200,
                     insideCheck ? "home watch inside check index={} at={} mouthDistance={} result={}"
                             : "home watch station index={} at={} mouthDistance={} result={}",
                     stationIndex + 1, GameplayLog.at(station.stand()),
