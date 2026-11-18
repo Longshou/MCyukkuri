@@ -82,15 +82,17 @@ final class HomeWatch {
         }
         var awaited = awaited();
         if (awaited == null || !e.duty().mayTake(Kind.WATCH)
-                || e.hurtTime > 0 || BehaviorContinuity.emergency(e) || endReason(awaited) != null) return false;
+                || e.hurtTime > 0 || BehaviorContinuity.emergency(e)) return false;
+        var p = e.life().personality();
+        // A body that left the watch hungry waits for its meal to settle before taking it up again.
+        if (e.life().nutrition() >= FamilyDutyMath.hungerBreak(p.selfControl()) + 15) hungry = false;
+        if (endReason(awaited) != null) return false;
         var shelter = e.habitat().shelter();
         sealed = shelter != null && DenBarrier.sealed(shelter);
         setStations(shelter);
         if (stations.isEmpty()) return false;
         e.duty().take(Kind.WATCH, WATCH_TICKS, WATCH_TICKS, "kin_away");
         kin = awaited;
-        hungry = false;
-        var p = e.life().personality();
         GameplayLog.event(e, "family", "home watch started kin={} stance={} stations={} radius={} dwell={}",
                 kin, stance(), stations.size(), FamilyDutyMath.patrolRadius(p.boldness(), p.attachment()),
                 FamilyDutyMath.stationDwell(p.selfControl()));
