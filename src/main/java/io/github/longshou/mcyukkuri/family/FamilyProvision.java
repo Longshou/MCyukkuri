@@ -24,6 +24,7 @@ public final class FamilyProvision {
     }
 
     public List<YukkuriEntity> caregivers() { return caregivers; }
+    public boolean hasChildren() { return !children.isEmpty(); }
 
     static BlockPos home(YukkuriEntity body) {
         var shelter = body.habitat().shelter();
@@ -102,7 +103,7 @@ public final class FamilyProvision {
         return (father ? 30 : 0) + (100 - life.nutrition()) * .5
                 - Math.max(0, 55 - life.nutrition()) * 2 + life.personality().boldness() * .25
                 + body.dailyLife().boredom() * .2 + body.body().healthRatio() * 25 + life.energy() * .1
-                + body.getAttributeValue(Attributes.MOVEMENT_SPEED) * 100;
+                + body.getAttributeValue(Attributes.MOVEMENT_SPEED) * 100 - life.personality().attachment() * .2;
     }
 
     /** A sole caregiver hurries for a hungry dependant, within its own strength and willingness to act. */

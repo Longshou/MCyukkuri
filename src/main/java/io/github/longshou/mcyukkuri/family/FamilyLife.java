@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.life.Duty.Kind;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -114,8 +115,7 @@ public final class FamilyLife {
     private YukkuriEntity target;
     private Vec3 searchAt;
     private Vec3 reunionAt;
-    private record WatchedForager(UUID id, long started) {}
-    private WatchedForager watchedForager;
+    private final HomeWatch watch = new HomeWatch(this);
     private final CareDecisionLedger careDecisions;
     private final FamilyFeeding feeding;
     private final FamilySeparation separation;
@@ -172,7 +172,7 @@ public final class FamilyLife {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
                 + " search=" + (searchAt == null ? "none" : searchAt) + " call={" + call.describe() + "}"
-                + " court={" + courtship.describe() + "}"
+                + " court={" + courtship.describe() + "} duty={" + entity.duty().describe() + "}"
                 + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " care={" + careDecisions.describe() + "} feeding={" + feeding.describe() + "} birth={" + (liveBirth() == null ? "none" : liveBirth().describe()) + "} carry={" + carry.describe() + "}";
     }
     ServerLevel level() { return (ServerLevel)entity.level(); }
@@ -585,6 +585,7 @@ public final class FamilyLife {
             becameAdult = advanceStage();
         }
         separation.tick();
+        if (!watchingHome()) watch.finishIfDue();
         if (!stock) tickGrowth(becameAdult);
         if(entity.tickCount==1||entity.tickCount%20==0)updateMovement();
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;
@@ -1155,7 +1156,7 @@ public final class FamilyLife {
         if(entity.isPanicking()||entity.isCommandPlaying()||urgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         if(task!=Task.NONE)return true;
         if(comfortTicks>0&&adult()){task=Task.COMFORT;taskTicks=0;return true;}
-        if(wait>0)return false;wait=40;
+        if(wait>0&&!owesFamilyDuty())return false;wait=40;
         var pregnancy=brood();
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()) { task=Task.BROOD;taskTicks=0;return true; }
@@ -1172,7 +1173,7 @@ public final class FamilyLife {
             if(emergencyForaging())return false;
             if(subadult() && feeding.startCare())return true;
             if(startAbsence())return true;
-            if(subadult() && ordinaryLandFree(entity) && startHomeWatch())return true;
+            if(ordinaryLandFree(entity) && startHomeWatch())return true;
             if(seekingFamilyHelp() && !familyTravelling() && closestParent()==null && startFamilyHelp())return true;
             if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
@@ -1268,20 +1269,12 @@ public final class FamilyLife {
     }
 
     private boolean startHomeWatch() {
-        if(!FamilyProvision.nearHome(entity,entity.blockPosition()))return false;
-        var provider=FamilyProvision.atHomeOf(entity).choose(other -> other!=entity
-                && !kinOverdue(other.getUUID()) && FamilyProvision.outForFood(other));
-        if(provider==null)return false;
-        long started=level().getGameTime()-(provider.forageTrip().familyOuting()?provider.forageTrip().away():provider.family().taskTicks);
-        var outing=new WatchedForager(provider.getUUID(),started);
-        if(outing.equals(watchedForager))return false;
-        var door=FamilyProvision.entranceStand(entity);
-        if(door==null)return false;
-        watchedForager=outing;
-        target=provider;searchAt=door;task=Task.WATCH_HOME;taskTicks=0;
-        GameplayLog.event(entity,"family","household watch provider={} entrance={}",provider.getUUID(),GameplayLog.at(door));
+        if(!watch.start())return false;
+        task=Task.WATCH_HOME;taskTicks=0;
         return true;
     }
+
+    private boolean owesFamilyDuty() { return entity.duty().holds(Kind.WATCH) || entity.duty().holds(Kind.SEARCH); }
 
     /** An older dependant who has made its search can approach someone familiar before a greeting. */
     public boolean seekingFamilyHelp() {
@@ -1537,8 +1530,7 @@ public final class FamilyLife {
         if(task==Task.FEED_CHILD)return feeding.canContinue();
         if(urgentNeed()&&!courtship.finishingContact())return false;
         if(task==Task.ABSENCE)return absence().active();
-        if(task==Task.WATCH_HOME)return taskTicks<160 && !entity.life().isSleeping() && target.isAlive()
-                && !kinOverdue(target.getUUID()) && FamilyProvision.outForFood(target);
+        if(task==Task.WATCH_HOME)return watch.active()&&!hasExecutableChildCare();
         if(task==Task.COURT&&(courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
         if(task==Task.RECEIVE_COURT&&!courtship.canReceive())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
@@ -1637,18 +1629,7 @@ public final class FamilyLife {
             }
             case FEED_CHILD -> feeding.tickCare();
             case ABSENCE -> absence().tick();
-            case WATCH_HOME -> {
-                if(searchAt!=null){
-                    var result=SurfaceApproach.walkResult(entity,searchAt,null,.85);
-                    if(result==SurfaceApproach.Result.BLOCKED){stop();return;}
-                    if(result==SurfaceApproach.Result.ARRIVED){
-                        GameplayLog.event(entity,"family","household watched entrance provider={} at={}",
-                                target.getUUID(),GameplayLog.at(searchAt));
-                        searchAt=null;
-                    }
-                }
-                entity.getLookControl().setLookAt(target,20,20);
-            }
+            case WATCH_HOME -> watch.tick();
             case WAIT_CHILD -> {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
@@ -1722,6 +1703,7 @@ public final class FamilyLife {
         if(task==Task.SEARCH&&target!=null&&!carry.lifting())SurfaceApproach.halt(entity);
         if(task==Task.COURT||task==Task.RECEIVE_COURT)entity.getNavigation().stop();
         if(task==Task.ABSENCE)absence().stop();
+        if(task==Task.WATCH_HOME)watch.finishIfDue();
         if(task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}
         choreHat=null;

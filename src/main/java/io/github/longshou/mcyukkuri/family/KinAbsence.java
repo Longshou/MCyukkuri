@@ -45,7 +45,7 @@ final class KinAbsence {
     private String dimension() { return family.level().dimension().location().toString(); }
 
     /** Young or anxious watchers begin to miss a regular companion sooner. */
-    private int expectation() {
+    int expectation() {
         int base = family.adult() ? 1100 : baby() ? 620 : 800;
         return Math.clamp(base + 3 * body().life().personality().selfControl() - (int) (body().mind().unease() * 2), 520, 1400);
     }
@@ -63,13 +63,20 @@ final class KinAbsence {
         return memory != null && memory.away > 0 && !memory.confirmed && memory.phase != Phase.MOVED_ON;
     }
 
+    int away(UUID id) { return kin.get(id).away; }
+
+    BlockPos lastSeen(UUID id) {
+        var memory = kin.get(id);
+        return memory == null ? null : memory.seen;
+    }
+
     boolean gone(UUID id) {
         var memory = kin.get(id);
         return !present(id) && (memory != null && (memory.confirmed || memory.phase == Phase.MOVED_ON)
                 || FamilyData.get(family.level()).knownDead(id));
     }
 
-    private boolean present(UUID id) {
+    boolean present(UUID id) {
         return id != null && family.level().getEntity(id) instanceof YukkuriEntity peer && peer.isAlive()
                 && body().distanceToSqr(peer) <= 16 * 16 && body().life().canRecognize(peer)
                 && (body().hasLineOfSight(peer) || FamilySeparation.near(body(), peer));
