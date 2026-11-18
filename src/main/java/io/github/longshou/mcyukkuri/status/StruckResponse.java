@@ -77,7 +77,9 @@ final class StruckResponse implements MotorOwner {
         int ticks = danger == null ? 90 : body.newbornStage() ? 96 : 104;
         body.setLastHurtByMob(danger);
         body.setPanicTicks(ticks);
-        body.mind().feeling().frightened(danger instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri() ? 1 : .6f);
+        // A struck baby cries through the flight, then can follow kin or settle without the older body's terror course.
+        if (!body.newbornStage())
+            body.mind().feeling().frightened(danger instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri() ? 1 : .6f);
         body.struckReaction(YukkuriAction.STARTLE, body.newbornStage() ? "cry" : body.body().weak() ? "teary" : "surprise",
                 body.newbornStage() || danger == null ? "wounded" : "hurt_flee", ticks);
     }
