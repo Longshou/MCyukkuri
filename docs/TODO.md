@@ -16,6 +16,7 @@
 | 舌肥分级进食反应（22） | `.worktrees/wp-picky-reactions` | life/LifeMeal.java picky reactions, graze scene |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
 | 接线：辫子送嘴、撞桶、住家宣言（21/24/25） | `.worktrees/wp-wire-1118` | life/LifeMeal.java settlement/GarbageSearch.java human/GarbageBin* event/HomeClaim.java event/HomeTerritoryGoal.java motions merge |
+| 固定台正式模型 | `.worktrees/wp-art-restraint-table` | restraint_frame block/item models, textures, icon |
 
 ## 玩法待办
 
