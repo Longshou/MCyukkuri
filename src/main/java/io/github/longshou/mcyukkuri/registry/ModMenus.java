@@ -15,7 +15,8 @@ public final class ModMenus {
             ()->IMenuTypeExtension.create((id,inventory,buffer)->{
                 int target=buffer.readVarInt();
                 boolean cutter=buffer.readBoolean();
-                return new CareMenu(id,inventory,target,cutter,cutter?null:CareLineage.read(buffer));
+                boolean shop=buffer.readBoolean();
+                return new CareMenu(id,inventory,target,cutter,shop,cutter||shop?null:CareLineage.read(buffer));
             }));
     private ModMenus(){}
 }

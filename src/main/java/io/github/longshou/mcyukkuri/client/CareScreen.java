@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
 import org.joml.Vector2i;
 
 public final class CareScreen extends AbstractContainerScreen<CareMenu> {
+    final ShopInfoPanel shopInfo = new ShopInfoPanel();
     private static final int MARGIN = 6, GAP = 5, CARD_PAD = 4, SECTION_HEAD = 15, FOOT_HEIGHT = 16;
     private static final int TAB_HEIGHT = 19;
     private enum Page { ACTIONS, OBSERVE, LINEAGE }
@@ -72,21 +73,22 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         int gaps = Math.max(0, groups - 1) * GAP;
         columnWidth = Math.min(Math.min(132, idealColumn), (available - gaps) / Math.max(1, groups));
         int contentWidth = groups * columnWidth + gaps;
-        imageWidth = Math.min(width - 2 * MARGIN, Math.max(menu.cutter() ? 218 : 366, contentWidth + 2 * MARGIN));
+        imageWidth = Math.min(width - 2 * MARGIN, Math.max(menu.cutter() || menu.shop() ? 218 : 366, contentWidth + 2 * MARGIN));
 
-        contentTop = MARGIN + (menu.cutter() ? 0 : TAB_HEIGHT + GAP);
+        boolean hasTabs = !menu.cutter() && !menu.shop();
+        contentTop = MARGIN + (hasTabs ? TAB_HEIGHT + GAP : 0);
         sectionsTop = contentTop + StatusStrip.CARD_HEIGHT + GAP;
         int footer = FOOT_HEIGHT + GAP + MARGIN;
         int rowSpace = height - 2 * MARGIN - sectionsTop - footer - sectionHeight(0);
         rowPitch = Math.min(19, Math.max(10, rowSpace / Math.max(1, longest)));
         int sectionsHeight = longest == 0 ? 22 : sectionHeight(longest);
         contentHeight = StatusStrip.CARD_HEIGHT + GAP + sectionsHeight;
-        if (!menu.cutter()) contentHeight = Math.max(contentHeight, Math.min(126, height - contentTop - footer - 2 * MARGIN));
+        if (hasTabs) contentHeight = Math.max(contentHeight, Math.min(126, height - contentTop - footer - 2 * MARGIN));
         imageHeight = contentTop + contentHeight + footer;
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
-        if (!menu.cutter()) {
+        if (hasTabs) {
             tab(Page.ACTIONS, "actions", GuiKit.ICON_STATUS);
             tab(Page.OBSERVE, "observe", GuiKit.ICON_LIVE);
             tab(Page.LINEAGE, "lineage", GuiKit.ICON_PROFILE);
@@ -157,7 +159,15 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     @Override protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
         if (page != Page.ACTIONS) return;
         int headerWidth = imageWidth - 2 * MARGIN;
-        if (menu.target() == null) {
+        if (menu.shop()) {
+            GuiKit.statusCard(g, MARGIN, contentTop, headerWidth, StatusStrip.CARD_HEIGHT);
+            g.drawString(font, GuiKit.ellipsize(font, title, headerWidth - 12), MARGIN + 6, contentTop + 6, GuiKit.INK, false);
+            if ((actions & (1L << CareAction.SHOP_CANCEL.id())) != 0) {
+                g.drawString(font, Component.translatable("shop.mcyukkuri.mark.own"), MARGIN + 6, contentTop + 22, GuiKit.INK, false);
+            } else if (menu.target() != null && menu.target().reservedBy().isPresent()) {
+                g.drawString(font, Component.translatable("shop.mcyukkuri.mark.other"), MARGIN + 6, contentTop + 22, GuiKit.SOFT, false);
+            }
+        } else if (menu.target() == null) {
             GuiKit.statusCard(g, MARGIN, contentTop, headerWidth, StatusStrip.CARD_HEIGHT);
             var name = Component.literal(title.getString());
             g.drawString(font, GuiKit.ellipsize(font, name, headerWidth - 12), MARGIN + 6, contentTop + 6, GuiKit.INK, false);
@@ -183,6 +193,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     }
 
     @Override public boolean mouseClicked(double x, double y, int button) {
+        if (shopInfo.mouseClicked(x, y, button)) return true;
         if (page == Page.OBSERVE && button == 0 && overContent(x, y, CareInspection.previewWidth(imageWidth - 2 * MARGIN))) {
             inspection.startDrag();
             return true;
@@ -191,14 +202,15 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     }
 
     @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
-        return (button == 0 && inspection.drag(dx, dy)) || super.mouseDragged(x, y, button, dx, dy);
+        return shopInfo.open() || (button == 0 && inspection.drag(dx, dy)) || super.mouseDragged(x, y, button, dx, dy);
     }
 
     @Override public boolean mouseReleased(double x, double y, int button) {
-        return (button == 0 && inspection.endDrag()) || super.mouseReleased(x, y, button);
+        return shopInfo.open() || (button == 0 && inspection.endDrag()) || super.mouseReleased(x, y, button);
     }
 
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
+        if (shopInfo.open()) return true;
         int w = imageWidth - 2 * MARGIN;
         if (page != Page.ACTIONS && vertical != 0 && overContent(x, y, w)) {
             if (page == Page.OBSERVE && overContent(x, y, CareInspection.previewWidth(w))) inspection.zoom(vertical);
@@ -209,8 +221,17 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     }
 
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+        if (shopInfo.open()) {
+            super.render(g, -1, -1, partial);
+            shopInfo.render(g, mouseX, mouseY, partial);
+            return;
+        }
         super.render(g, mouseX, mouseY, partial);
         renderTooltip(g, mouseX, mouseY);
+    }
+
+    @Override public boolean keyPressed(int key, int scanCode, int modifiers) {
+        return shopInfo.keyPressed(key) || super.keyPressed(key, scanCode, modifiers);
     }
 
     @Override public void setTooltipForNextRenderPass(List<FormattedCharSequence> lines,

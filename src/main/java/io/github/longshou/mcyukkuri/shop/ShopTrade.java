@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
@@ -42,10 +43,50 @@ public final class ShopTrade {
     static final double HAND_REACH = 4.5;
     /** A buyer or seller counts as in the shop within this margin around the footprint (the pavement in front of the door included). */
     private static final double PRESENT_MARGIN = 4;
-    static final String SHIP_OUT = "ShipOut", FOR_SALE_SINCE = "ForSaleSince";
+    static final String SHIP_OUT = "ShipOut", FOR_SALE_SINCE = "ForSaleSince", SHIP_AFTER = "ShipAfter";
     private ShopTrade() {}
 
     public static boolean stockOf(YukkuriEntity y, UUID keeper) { return HumanCommerce.ownedBy(y, keeper) && Custody.view(y).role() == Custody.Role.STOCK; }
+    public static ShopRegistry.Entry shopOfStock(YukkuriEntity y) {
+        if (!(y.level() instanceof ServerLevel level) || Custody.view(y).role() != Custody.Role.STOCK) return null;
+        var shop = ShopRegistry.get(level).shop(Custody.view(y).owner());
+        return shop != null && shop.dimension.equals(level.dimension().location().toString()) && shop.contains(y.position()) ? shop : null;
+    }
+
+    public static long cardActions(Player viewer, YukkuriEntity animal) {
+        var shop = shopOfStock(animal);
+        if (shop == null) return 0;
+        long mask = (1L << CareAction.SHOP_BUY.id()) | (1L << CareAction.SHOP_ABOUT.id());
+        var deposit = shop.deposit(animal.getUUID());
+        if (deposit == null) {
+            if (!shop.closed()) mask |= 1L << CareAction.SHOP_RESERVE.id();
+        } else if (deposit.buyer().equals(viewer.getUUID())) {
+            mask |= 1L << CareAction.SHOP_CANCEL.id();
+        }
+        return mask;
+    }
+
+    public static boolean card(ServerPlayer player, YukkuriEntity animal, CareAction action) {
+        var level = player.serverLevel();
+        var shop = shopOfStock(animal);
+        if (action == CareAction.SHOP_CANCEL) {
+            var id = animal.getUUID();
+            var deposit = shop.deposit(id);
+            if (deposit == null || !deposit.buyer().equals(player.getUUID())) return false;
+            var order = shop.orders.get(id);
+            if (order != null && order.kind().equals(SALE)) cancel(level, shop, id, "reservation");
+            ShopRestock.lapse(level, shop, id, animal, true);
+            return true;
+        }
+        if (action == CareAction.SHOP_ABOUT) return ShopInfo.send(player, shop, animal);
+        if (ShopAccess.refuseService(level, shop, player)) return false;
+        ShopRestock.reconcileReservations(level, shop);
+        return switch (action) {
+            case SHOP_BUY -> buy(level, shop, animal, player);
+            case SHOP_RESERVE -> reserve(level, shop, animal, player);
+            default -> throw new IllegalArgumentException(action.name());
+        };
+    }
     static boolean order(YukkuriEntity y) { return y.pet().busyWith().equals(SALE) || y.pet().busyWith().equals(HANDOVER); }
     /** The price still due from this buyer: the reserved price less the deposit for its reserver, else today's quote. */
     static int due(ShopRegistry.Entry shop, YukkuriEntity y) {
@@ -134,7 +175,7 @@ public final class ShopTrade {
 
     /** Why this player cannot order or reserve this animal right now, or null. These are the only refusals at the click. */
     static String buyRefusal(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, Player p, int need) {
-        if (!level.isDay()) return "closed";
+        if (shop.closed() || !level.isDay()) return "closed";
         if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id)) return "gone";
         var d = shop.deposit(y.getUUID());
         if (d != null && !d.buyer().equals(p.getUUID())) return "reserved";
@@ -167,6 +208,13 @@ public final class ShopTrade {
         }
         y.pet().lock(SALE, p.getUUID());
         ShopRegistry.get(level).order(shop, y.getUUID(), new ShopRegistry.Order(SALE, p.getUUID(), need, null));
+        chosenReaction(y, p, shop, "buy_live", "accepted", need, "shop_bought");
+        say(p, "buy.accepted", y.getDisplayName(), need);
+        return true;
+    }
+
+    private static void chosenReaction(YukkuriEntity y, ServerPlayer p, ShopRegistry.Entry shop,
+                                       String action, String result, int due, String line) {
         var personality = y.life().personality();
         var bond = personality.relation(p.getUUID());
         double esteem = SocialDisposition.selfEsteem(y);
@@ -175,12 +223,10 @@ public final class ShopTrade {
         boolean joyful = !guarded && (SocialDisposition.confidence(esteem) >= .55 || personality.friendliness() >= 65
                 || bond.closeness() >= BondLevels.TRUST_FAMILIAR);
         y.playAction(joyful ? "joy_jump" : "bow");
-        y.showReaction(guarded ? "flushed_smile" : "happy", guarded ? "hello" : "shop_bought", 40);
+        y.showReaction(guarded ? "flushed_smile" : "happy", guarded ? "hello" : line, 40);
         y.getLookControl().setLookAt(p, 30, 30);
-        say(p, "buy.accepted", y.getDisplayName(), need);
-        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer={} due={} reaction={} esteem={} wariness={} closeness={} fear={}",
-                shop.id, p.getUUID(), need, guarded ? "guarded_bow" : joyful ? "joyful" : "bow", esteem, wary, bond.closeness(), bond.fear());
-        return true;
+        GameplayLog.event(y, "shop", "action={} result={} shop={} buyer={} due={} reaction={} esteem={} wariness={} closeness={} fear={}",
+                action, result, shop.id, p.getUUID(), due, guarded ? "guarded_bow" : joyful ? "joyful" : "bow", esteem, wary, bond.closeness(), bond.fear());
     }
 
     /** Operator handover uses the same saved fetch and charges no emeralds. */
@@ -241,7 +287,7 @@ public final class ShopTrade {
         UUID token = YukkuriWorldData.get(level).capture(y, () -> {
             y.pet().unlock(order.kind());
             y.life().releaseHome();
-            var tag = HumanCommerce.data(y).copy(); tag.remove(SHIP_OUT); HumanCommerce.set(y, tag);
+            var tag = HumanCommerce.data(y).copy(); tag.remove(SHIP_OUT); tag.remove(SHIP_AFTER); HumanCommerce.set(y, tag);
             Custody.assign(y, buyer, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
         });
         if (token == null) {
@@ -313,7 +359,7 @@ public final class ShopTrade {
         ShopRegistry.get(level).reserve(shop, y.getUUID(), p.getUUID(), price, paid, level.getGameTime());
         y.showReservation(p.getUUID());
         var tag = HumanCommerce.data(y).copy(); tag.remove(SHIP_OUT); HumanCommerce.set(y, tag);
-        y.showReaction("happy", "shop_reserved", 40);
+        chosenReaction(y, p, shop, "reserve_reaction", "shown", price - paid, "shop_reserved");
         say(p, "reserve.done", paid, y.getDisplayName(), price - paid);
         GameplayLog.event(y, "shop", "action=reserve result=committed shop={} buyer={} price={} deposit={}", shop.id, p.getUUID(), price, paid);
         return true;

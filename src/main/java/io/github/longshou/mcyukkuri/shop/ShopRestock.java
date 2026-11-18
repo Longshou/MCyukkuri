@@ -21,6 +21,8 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
@@ -101,17 +103,29 @@ public final class ShopRestock {
             if (now < deposit.since() + PERIOD) continue;
             var order = shop.orders.get(id);
             if (order != null && order.kind().equals(ShopTrade.SALE) && deposit.buyer().equals(order.customer())) continue;
-            registry.endDeposit(level, shop, id);
-            registry.recordSpend(level, shop, deposit.buyer(), deposit.paid());
-            var name = entity instanceof YukkuriEntity y ? y.getDisplayName() : net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.animal");
-            registry.tell(level, deposit.buyer(), "reserve.expired", name, deposit.paid());
-            GameplayLog.world(level, "shop", "action=reserve result=lapsed shop={} target={} buyer={} deposit_kept={}",
-                    shop.id, id, deposit.buyer(), deposit.paid());
+            lapse(level, shop, id, entity instanceof YukkuriEntity y ? y : null, false);
         }
         for (var animal : ShopRegistry.liveStock(level, shop)) {
             var deposit = shop.deposit(animal.getUUID());
             animal.showReservation(deposit == null ? null : deposit.buyer());
         }
+    }
+
+    static void lapse(ServerLevel level, ShopRegistry.Entry shop, UUID id, YukkuriEntity animal, boolean cancelled) {
+        var registry = ShopRegistry.get(level);
+        var deposit = registry.endDeposit(level, shop, id);
+        registry.recordSpend(level, shop, deposit.buyer(), deposit.paid());
+        boolean reacted = false;
+        if (animal != null) {
+            var data = HumanCommerce.data(animal).copy();
+            data.putLong(ShopTrade.SHIP_AFTER, level.getGameTime() + PERIOD);
+            HumanCommerce.set(animal, data);
+            reacted = animal.shopWindow().reservationEnded(deposit.buyer());
+        }
+        var name = animal == null ? Component.translatable("shop.mcyukkuri.reserve.animal") : animal.getDisplayName();
+        registry.tell(level, deposit.buyer(), cancelled ? "reserve.cancelled" : "reserve.expired", name, deposit.paid());
+        GameplayLog.world(level, "shop", "action=reserve result={} shop={} target={} buyer={} deposit_kept={} till={} reacted={}",
+                cancelled ? "cancelled" : "lapsed", shop.id, id, deposit.buyer(), deposit.paid(), shop.emeraldTill, reacted);
     }
 
     /** One restock now (also the operator command). Returns how many arrived. */
@@ -157,9 +171,10 @@ public final class ShopRestock {
             if (ShopStaff.predator(snapshot)) waitingPredator++; else waitingLand++;
             if ("adult".equals(FamilyLife.savedStageId(snapshot.getCompound("YukkuriFamily")))) waitingAdults++;
         }
-        // Adults all go out: the longest on the shelf first; reserved ones and those being bought stay.
+        // Adults go out longest on the shelf first. Reservations, their grace period and current orders keep stock on sale.
         int adults = waitingAdults + (int) stock.stream().filter(y -> y.family().adult() && !ShopStaff.shipOut(y)).count(), marked = 0;
         var candidates = stock.stream().filter(y -> y.family().adult() && shop.deposit(y.getUUID()) == null
+                && level.getGameTime() >= HumanCommerce.data(y).getLong(ShopTrade.SHIP_AFTER)
                 && !shop.orders.containsKey(y.getUUID()) && !y.pet().busy() && !ShopStaff.shipOut(y))
                 .sorted(Comparator.comparingInt(CommodityLife::forSaleDays).reversed()).toList();
         for (var y : candidates) {

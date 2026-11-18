@@ -22,8 +22,9 @@ import org.lwjgl.opengl.GL11;
 
 import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
-/** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
+/** Tabbed shopkeeper screen: live stock, goods, buyback, consultation and orders. */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
+    final ShopInfoPanel shopInfo = new ShopInfoPanel();
     private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 214, LOW_HEALTH = 6, LOW_NUTRITION = 30;
     /** Live rows: the real individual's portrait on the left, four text lines beside it. */
     private static final int PORTRAIT = 48, TEXT_X = ROW_X + PORTRAIT + 10, TEXT_W = ROW_W - PORTRAIT - 16, LINE = 12;
@@ -106,7 +107,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             boolean drewModel = false;
             for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
                 int k = ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE, rowY = topPos + TOP + i * ROW;
-                card(g, leftPos + ROW_X, rowY, ROW_W, ROW_H, menu.value(ShopMenu.Data.FOCUS_ROW) == i + 1 && menu.value(k) > 0);
+                card(g, leftPos + ROW_X, rowY, ROW_W, ROW_H, false);
                 if (menu.value(k) == 0) continue;
                 GuiKit.statusCard(g, leftPos + ROW_X + 4, rowY + 4, PORTRAIT, PORTRAIT);
                 // The animal itself, live: its current clip and face (pleading at the glass, sulking, asleep) show in the row.
@@ -132,7 +133,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     }
     private void line(GuiGraphics g, int y, int color, Component text) { g.drawString(font, text, 16, y, color, false); }
     /** Short species name (no Yukkuri suffix) when the lang file has one, else the entity name. */
-    private static Component species(int v) {
+    static Component species(int v) {
         if (v <= 0 || v > YukkuriVariant.values().length) return Component.empty();
         String id = YukkuriVariant.values()[v - 1].assetId();
         return Component.translatable(I18n.exists("shop.mcyukkuri.sp." + id) ? "shop.mcyukkuri.sp." + id : "entity.mcyukkuri." + id);
@@ -264,6 +265,11 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         }
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) {
+        if (shopInfo.open()) {
+            super.render(g, -1, -1, partial);
+            shopInfo.render(g, x, y, partial);
+            return;
+        }
         super.render(g, x, y, partial); renderTooltip(g, x, y);
         int tab = menu.value(ShopMenu.Data.TAB);
         if (tab == ShopMenu.LIVE) for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
@@ -275,5 +281,17 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ShopMenu.Data.SUBJECT_SKILLS)));
             if (font.width(knownSkills) > 308 && over(x, y, leftPos + 16, topPos + 52, 308, font.lineHeight)) g.renderTooltip(font, knownSkills, x, y);
         }
+    }
+
+    @Override public boolean mouseClicked(double x, double y, int button) {
+        return shopInfo.mouseClicked(x, y, button) || super.mouseClicked(x, y, button);
+    }
+
+    @Override public boolean mouseReleased(double x, double y, int button) {
+        return shopInfo.open() || super.mouseReleased(x, y, button);
+    }
+
+    @Override public boolean keyPressed(int key, int scanCode, int modifiers) {
+        return shopInfo.keyPressed(key) || super.keyPressed(key, scanCode, modifiers);
     }
 }

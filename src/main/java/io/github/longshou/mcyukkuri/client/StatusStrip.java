@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.status.Identity;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,11 @@ public final class StatusStrip {
     private static final int TEXT_LEFT = 25, CHIP_GAP = 5, PAD = 6, STATUS_TOP = 20;
 
     static Readout of(YukkuriView view) {
+        if (Identity.STOCK.translationKey().equals(view.identityTranslationKey())) {
+            var status = view.visibleSyndromePrevention()
+                    ? Component.translatable("magnifier.mcyukkuri.syndrome_prevention") : Component.empty();
+            return new Readout(view.getDisplayName(), stage(view), view.identityTranslationKey(), status);
+        }
         Component health = Component.translatable("magnifier.mcyukkuri.health",
                 Math.round(view.getHealth()), Math.round(view.getMaxHealth()));
         Component badge = Component.translatable("magnifier.mcyukkuri.badge",

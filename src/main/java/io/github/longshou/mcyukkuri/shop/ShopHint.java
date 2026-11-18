@@ -1,0 +1,13 @@
+package io.github.longshou.mcyukkuri.shop;
+
+import java.util.Locale;
+
+/** Append new hints to preserve the wire IDs. */
+public enum ShopHint {
+    TIMID, BOLD, SLOW_TO_WARM, FRIENDLY, INDEPENDENT, ATTACHED, IMPATIENT, PATIENT, SLOW_LEARNER, QUICK_LEARNER, EVEN_TEMPERED,
+    HEALTHY, IN_CARE, RECOVERING, TENSE, NEW_TO_TRAINING, SOME_TRAINING, WELL_TRAINED, STANDOUT,
+    SUBMISSIVE, DEFIANT, PANICKY, ENDURING, SLOW_TO_REACT, QUIET, STEADY,
+    FRAGILE_BABY, HURT, TOUGH, HUNGRY, DIRTY, HAIRY, CONGENITAL, PREVENTION, SETTLED;
+
+    public String key() { return name().toLowerCase(Locale.ROOT); }
+}

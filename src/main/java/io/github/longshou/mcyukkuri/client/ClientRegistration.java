@@ -62,6 +62,7 @@ public final class ClientRegistration {
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterLayerDefinitions.class, HumanRenderer.Events::layers);
 
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ReadoutClientEvents::setup);
+        modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ShopInfoPanel::setup);
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, BodyEffectClientEvents::setup);
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ClientEvents::registerItemProperties);
 

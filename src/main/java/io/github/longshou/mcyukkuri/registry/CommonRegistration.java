@@ -49,6 +49,7 @@ import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.network.ShopRowPayload;
+import io.github.longshou.mcyukkuri.network.ShopInfoPayload;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
 import io.github.longshou.mcyukkuri.world.SearchBudgetEvents;
@@ -109,6 +110,7 @@ public final class CommonRegistration {
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, ReadoutNetworking::register);
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, BodyEffectNetworking::register);
         modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, ShopRowPayload::register);
+        modBus.addListener(EventPriority.NORMAL, false, RegisterPayloadHandlersEvent.class, ShopInfoPayload::register);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RegisterCommandsEvent.class, YukkuriCommands::register);
 

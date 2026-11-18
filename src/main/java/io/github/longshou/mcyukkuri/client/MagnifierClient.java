@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.status.Identity;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.life.GlassSight;
@@ -90,8 +92,12 @@ public final class MagnifierClient {
         // Match Gui.renderSelectedItemName after the health, hunger and vehicle layers set their heights.
         int inset = Math.max(ITEM_NAME_INSET, Math.max(minecraft.gui.leftHeight, minecraft.gui.rightHeight));
         int itemNameTop = g.guiHeight() - inset + (minecraft.gameMode.canHurtPlayer() ? 0 : ITEM_NAME_NO_HEALTH_SHIFT);
-        var mood = aim.moodReadout();
         var readout = StatusStrip.of(aim);
+        if (Identity.STOCK.translationKey().equals(aim.identityTranslationKey())) {
+            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, "");
+            return;
+        }
+        var mood = aim.moodReadout();
         if (!mood.isEmpty()) {
             var fear = mood.getCompound("fear");
             var mind = Component.translatable("magnifier.mcyukkuri.mind", decimal(mood.getFloat("unease")),

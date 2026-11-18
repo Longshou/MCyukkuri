@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
-import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
@@ -106,7 +105,6 @@ public final class YukkuriSocial implements MotorOwner {
 
     /** The existing empty-hand greeting, counted once at its actual player entry. */
     public void clickedTalk(Player player) {
-        if (ShopMenu.clickStock(player,entity)) return;
         boolean feedback = entity.pet().lessons().praise(player)
                 || (entity.life().isSleeping() && entity.pet().care().praise(player));
         boolean accepted = feedback || talk(player, true);

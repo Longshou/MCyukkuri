@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.Toxins;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -25,6 +26,10 @@ final class YukkuriInteractions {
     InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) {
+            if (hand == InteractionHand.MAIN_HAND && player instanceof ServerPlayer server && ShopTrade.shopOfStock(owner) != null) {
+                InteractionDispatch.openCare(server, owner);
+                return InteractionResult.CONSUME;
+            }
             if(!player.getItemInHand(hand==InteractionHand.MAIN_HAND?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND).isEmpty()){
                 return owner.mobInteractBase(player,hand);
             }

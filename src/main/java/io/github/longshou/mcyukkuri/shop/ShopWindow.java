@@ -231,10 +231,25 @@ public final class ShopWindow implements MotorOwner {
 
     // ---- drives -------------------------------------------------------------------------------------------------------
 
-    /** Hope of being chosen: fades with whole days on the shelf over {@link #HOPE_DAYS}, and with each unanswered plea. */
-    private double hope() {
+    /** A reservation keeps hope high. Otherwise time on the shelf and unanswered pleas wear it down. */
+    private double hope(ShopRegistry.Deposit deposit) {
+        if (deposit != null) return 1;
         int days = Math.max(0, CommodityLife.forSaleDays(entity));
         return Math.clamp(1 - days / (double) HOPE_DAYS, 0, 1) * (1 - .2 * rejections);
+    }
+
+    boolean reservationEnded(UUID buyer) {
+        if (busy() != null) return false;
+        var personality = entity.life().personality();
+        if (personality.attachment() < 55 || personality.relation(buyer).closeness() < BondLevels.TRUST_FAMILIAR) return false;
+        entity.playAction("droop");
+        entity.showReaction("cry", "plea_sad", 60);
+        return true;
+    }
+
+    private ShopRegistry.Deposit reservation() {
+        var shop = ShopTrade.shopOfStock(entity);
+        return shop == null ? null : shop.deposit(entity.getUUID());
     }
 
     private double variation() { return (entity.getRandom().nextDouble() * 2 - 1) * VARIATION; }
@@ -247,7 +262,8 @@ public final class ShopWindow implements MotorOwner {
         double wary = SocialDisposition.humanWariness(entity, c, bond);
         double warmth = SocialDisposition.ramp(p.friendliness(), 30, 80);
         double familiar = SocialDisposition.ramp(bond.closeness(), 0, 20);
-        double hope = hope();
+        var deposit = reservation();
+        double hope = hope(deposit);
         var level = (ServerLevel) entity.level();
         var owner = Custody.view(entity).owner();
         var shop = ShopRegistry.get(level).shop(owner);
@@ -264,7 +280,8 @@ public final class ShopWindow implements MotorOwner {
         }
         // The existing performances compete on comparable weights. Attention-seeking needs hope,
         // good manners and familiarity favour a bow, and wariness can outweigh both.
-        double appeal = 32 * hope + 30 * warmth + 24 * confidence - 35 * wary - 18 * familiar + variation();
+        double appeal = deposit != null && !deposit.buyer().equals(c.getUUID()) ? 0
+                : 32 * hope + 30 * warmth + 24 * confidence - 35 * wary - 18 * familiar + variation();
         double polite = (20 + .4 * p.selfControl() + 20 * warmth + 30 * familiar + 18 * wary)
                 * (.7 + .3 * hope) + variation();
         double standTall = confidence * (70 + 24 * (1 - warmth)) * (1 - wary) * (.6 + .4 * hope) + variation();
@@ -406,9 +423,7 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private boolean reservedByCustomer() {
-        var level = (ServerLevel) entity.level();
-        var shop = ShopRegistry.get(level).shopAt(level, entity.position());
-        var deposit = shop == null ? null : shop.deposit(entity.getUUID());
+        var deposit = reservation();
         return deposit != null && deposit.buyer().equals(customer.getUUID());
     }
 
@@ -444,14 +459,15 @@ public final class ShopWindow implements MotorOwner {
         double buyerWariness = buyer == null ? 0 : SocialDisposition.humanWariness(entity, buyer, buyerBond);
         double esteem = SocialDisposition.selfEsteem(entity);
         double confidence = SocialDisposition.confidence(esteem);
-        double hope = hope();
+        var deposit = reservation();
+        double hope = hope(deposit);
         boolean kin = Bonds.kin(entity, sold, EnumSet.of(Bonds.Kin.BIO, Bonds.Kin.CARE, Bonds.Kin.MATE));
         boolean friend = peerBond.closeness() >= BondLevels.AFFINITY_CLOSE;
         int rank = BadgeSocial.visibleRank(entity).id(), soldRank = BadgeSocial.visibleRank(sold).id();
         double envy = (.65 * SocialDisposition.ramp(soldRank - rank, 0, 3)
                 + .45 * confidence * (1 - SocialDisposition.ramp(p.friendliness(), 35, 75))
                 + .2 * SocialDisposition.ramp(-peerBond.closeness(), 0, 20)) * (1 - peerWariness);
-        double join = buyer != null && present(buyer)
+        double join = buyer != null && (deposit == null || deposit.buyer().equals(buyer.getUUID())) && present(buyer)
                 ? hope * (1 - buyerWariness) * (.65 * confidence + .35 * SocialDisposition.ramp(buyerBond.closeness(), 0, 20)) : 0;
         witness = (kin || friend) && peerWariness < .5 ? Witness.FAREWELL
                 : envy >= .4 && envy >= join ? Witness.ENVY : join >= .35 ? Witness.ME_TOO : Witness.WATCH;

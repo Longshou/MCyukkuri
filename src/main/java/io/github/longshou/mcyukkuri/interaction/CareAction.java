@@ -15,9 +15,11 @@ public enum CareAction {
     VIBRATE(32,Tool.VIBRATOR), STERILIZE(33,CareAction.SHEARS), ENCLOSE(34,Tool.BOX), CUT_STEM(35,CareAction.SHEARS), BOTTLE_STEM(36,CareAction.SHEARS),
     SING(37,1), EXERCISE(38,1), ADOPT(39,2), ABANDON(40,2), DECLINE_EVENT(41,2),
     /** Stable wire IDs are independent of enum declaration order. "Ask how it is" (docs/FEATURES.md). */
-    ASK(44,1), REMOVE_HARNESS(45,2), UNWRAP(46,2);
+    ASK(44,1), REMOVE_HARNESS(45,2), UNWRAP(46,2),
+    SHOP_RESERVE(47,CareAction.SHOP), SHOP_BUY(48,CareAction.SHOP), SHOP_ABOUT(49,CareAction.SHOP), SHOP_CANCEL(50,CareAction.SHOP);
 
-    public static final int GROUP_COUNT = 3;
+    public static final int SHOP = 3;
+    public static final int GROUP_COUNT = 4;
     /** Not a care-menu group: the cuts offered by vanilla shears (the cutter menu). */
     private static final int SHEARS = -2;
     private final int id;

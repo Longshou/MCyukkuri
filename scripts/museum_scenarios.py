@@ -2520,7 +2520,7 @@ CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,C
 # Any shop staff member (all three have the same job and the same menu).
 SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
 SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'shop_browse': (8, 6),
-               'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
+               'shop_pick': (8, 6), 'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
 SHOP_ACCESS_HINT = '商店观察台的“访客／会员／贵宾”按钮可更换本店购买与预订资格。'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
@@ -2589,6 +2589,25 @@ add('shop_browse', 'shop', '自由逛店：进展栏、乱动被警告、稀有�
     '建筑几秒，试挖后等店员走近', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 16'], env=DAY, vantage=(8, 21, 180, 0),
     reads=[('读店铺登记', 'yukkuri human shop list'), ('读在售子油橙', f'yukkuri status {BOOTH.format("chen", 0)} raw')])
+_pick_stock = (('pick_friendly', 14, 20, 85), ('pick_bold', 17, 85, 20))
+add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订后头顶标记', '在店里挑：潜行右键看卡片、了解、预订后头顶标记',
+    '进临街展栏，空主手右键或潜行右键在售的子油灵梦。比较两只的“了解”弹窗：一只怕生又亲人，另一只大胆又慢热。'
+    '预订一只，观察头顶的金色标记，另一位玩家看见的是灰色。再次打开卡片取消预订，标记随即消失，定金留在店里。'
+    '也可在预订后购买，等店员装进运输篮时付余款。鬼威惨的库存评语见 SP-05。',
+    '建筑几秒，进临街展栏后即可选购', ['yukkuri human build shop ~8 ~ ~17 south',
+        *[command for name, x, boldness, friendliness in _pick_stock for command in (
+            f'yukkuri human shop stock {SHOP_STAFF} reimu ~{x} ~2 ~12',
+            f'execute positioned ~{x}.5 ~2 ~12.5 run tag @e[type=mcyukkuri:reimu,distance=..0.5,limit=1] add {tag(name)}',
+            set_status(name, 'growth.age_ticks', 148000),
+            set_status(name, 'personality.boldness', boldness),
+            set_status(name, 'personality.friendliness', friendliness),
+            set_status(name, 'personality.attachment', 50),
+            set_status(name, 'personality.intelligence', 50),
+            set_status(name, 'personality.self_control', 50),
+        )],
+    ], give=['minecraft:emerald 16'], env=DAY, vantage=(8, 21, 180, 0),
+    reads=[('读怕生亲人的灵梦', f'yukkuri status {sel("pick_friendly")} raw'),
+           ('读大胆慢热的灵梦', f'yukkuri status {sel("pick_bold")} raw')])
 _fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
     '先在观察台选“会员”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
@@ -2609,6 +2628,7 @@ add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处�
            ('读后院库存', f'yukkuri status {sel("fetch_yard")} raw')])
 add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
     '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
+    '空主手潜行右键库存，点“了解”看鬼威惨商店的库存评语。'
     '沿着橱窗慢慢走，看个体怎样回应。访客可试开后屋和展栏铁门。菜单底部显示本店购买资格，升会员需累计花 2 颗绿宝石，升贵宾需 6 颗。'
     + SHOP_ACCESS_HINT,
     '建筑几秒，展舱附近等片刻', [
@@ -5458,7 +5478,7 @@ TOPICS = {
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
@@ -6637,6 +6657,17 @@ _smoke('shop_browse', 140, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=PET
        readout=['yukkuri human shop list', f'yukkuri status {BOOTH.format("chen", 0)} raw'])
 next(s for s in S if s.id == 'shop_browse').smoke['commands'] = [
     (100, f'execute if entity {BOOTH.format("chen", 0)} run say MCYSHOP_BROWSE_CHEN'),
+]
+
+_smoke('shop_pick', 140, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=PET ',
+                          *[rf'MCYSHOP_PICK_READY {name}\b' for name, _, _, _ in _pick_stock]],
+       readout=[f'yukkuri status {sel(name)} raw' for name, _, _, _ in _pick_stock])
+next(s for s in S if s.id == 'shop_pick').smoke['commands'] = [
+    (100, f'execute if data entity {sel(name)} YukkuriFamily{{Age:148000L}} '
+          f'if data entity {sel(name)} NeoForgeData.HumanCommerce{{Use:"stock"}} '
+          f'if data entity {sel(name)} YukkuriLife.Personality{{Innate:[I;50,{friendliness},{boldness},50,50]}} '
+          f'run say MCYSHOP_PICK_READY {name}')
+    for name, _, boldness, friendliness in _pick_stock
 ]
 
 

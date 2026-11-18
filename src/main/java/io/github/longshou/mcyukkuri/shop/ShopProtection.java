@@ -32,8 +32,7 @@ import net.neoforged.neoforge.event.level.PistonEvent;
  * Inside a shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
  * players cannot break or place blocks there, cannot take, turn or break the goods' item frames,
  * and cannot interact with or hurt stock animals; explosions leave the shop and its stock standing. The marked lending tray exchanges only
- * its frame and deposit. An empty-hand click on a stock animal
- * still opens the staff's menu on its row (ShopMenu.clickStock), and the magnifying glass may look at it.
+ * its frame and deposit. An empty main hand opens a stock animal's shop card; the magnifying glass may look at it.
  */
 public final class ShopProtection {
     private ShopProtection() {}
@@ -42,11 +41,9 @@ public final class ShopProtection {
         return level instanceof ServerLevel server && (ShopRegistry.get(server).protectedAt(server, pos)
                 || ShopRegistry.lendingTray(server, pos) != null);
     }
-    /** A stock animal standing in its own shop. */
+    /** The event may target any entity. */
     private static ShopRegistry.Entry stockShop(Entity target) {
-        if (!(target instanceof YukkuriEntity y) || !(y.level() instanceof ServerLevel level)) return null;
-        var shop = ShopRegistry.get(level).shopAt(level, y.position());
-        return shop != null && ShopTrade.stockOf(y, shop.id) ? shop : null;
+        return target instanceof YukkuriEntity y ? ShopTrade.shopOfStock(y) : null;
     }
     private static void refuse(Player player, String what) {
         player.displayClientMessage(Component.translatable("shop.mcyukkuri.protect." + what), true);
@@ -121,8 +118,7 @@ public final class ShopProtection {
         }
         if (stockShop(target) == null) return;
         var held = event.getItemStack();
-        // The empty hand asks the staff (the menu on its row); the magnifying glass only looks.
-        if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND && !player.isSecondaryUseActive() || held.is(ModItems.MAGNIFYING_GLASS.get())) return;
+        if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND || held.is(ModItems.MAGNIFYING_GLASS.get())) return;
         event.setCanceled(true); event.setCancellationResult(InteractionResult.FAIL);
         if (event.getHand() == InteractionHand.MAIN_HAND) refuse(player, "stock");
     }

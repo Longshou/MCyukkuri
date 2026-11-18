@@ -484,7 +484,7 @@ public final class ScenarioCommands {
             var tool = new ItemStack(action.shears() ? Items.SHEARS : action.tool.item());
             player.setItemInHand(InteractionHand.MAIN_HAND, tool);
             if (action.shears()) {
-                var menu = new CareMenu(0, player.getInventory(), target.getId(), true, null);
+                var menu = new CareMenu(0, player.getInventory(), target.getId(), true, false, null);
                 return menu.clickMenuButton(player, action.id()) ? 1 : 0;
             }
             return tool.interactLivingEntity(player, target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;

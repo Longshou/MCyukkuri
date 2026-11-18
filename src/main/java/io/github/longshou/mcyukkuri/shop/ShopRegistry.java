@@ -66,6 +66,7 @@ public final class ShopRegistry extends SavedData {
         private final Set<UUID> staff = new LinkedHashSet<>();
         private final Set<UUID> releases = new LinkedHashSet<>();
         long nextRestock;
+        long emeraldTill;
         final Map<UUID, Deposit> deposits = new LinkedHashMap<>();
         final Map<UUID, Integer> refunds = new LinkedHashMap<>();
         final Map<UUID, Integer> proceeds = new LinkedHashMap<>();
@@ -523,6 +524,7 @@ public final class ShopRegistry extends SavedData {
         return deposit;
     }
     void recordSpend(ServerLevel level, Entry shop, UUID player, int amount) {
+        shop.emeraldTill += amount;
         var before = shop.membership(player);
         int total = shop.spent.merge(player, amount, Integer::sum);
         var tier = shop.membership(player);
@@ -585,6 +587,7 @@ public final class ShopRegistry extends SavedData {
             var c = new CompoundTag(); c.putUUID("Id", shop.id); c.putString("Dim", shop.dimension); c.put("Pos", NbtUtils.writeBlockPos(shop.pos));
             c.putString("ShopKind", shop.kind.name());
             c.putLong("NextRestock", shop.nextRestock);
+            c.putLong("EmeraldTill", shop.emeraldTill);
             c.putBoolean("Legacy", shop.legacy);
             if (shop.legacyFront != null) c.putString("LegacyFront", shop.legacyFront.getName());
             c.putBoolean("Closed", shop.closed);
@@ -671,6 +674,7 @@ public final class ShopRegistry extends SavedData {
                         e.hasUUID("Customer") ? e.getUUID("Customer") : null, e.getInt("Price"), e.hasUUID("Token") ? e.getUUID("Token") : null));
             }
             shop.nextRestock = c.getLong("NextRestock");
+            shop.emeraldTill = c.getLong("EmeraldTill");
             shop.first = NbtUtils.readBlockPos(c, "First").orElse(null);
             shop.second = shop.first == null ? null : NbtUtils.readBlockPos(c, "Second").orElse(null);
             if (shop.second == null) shop.first = null;

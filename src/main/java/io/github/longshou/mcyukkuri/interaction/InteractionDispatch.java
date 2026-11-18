@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.shop.ShopTrade;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
@@ -129,7 +131,10 @@ public final class InteractionDispatch {
         }
     }
     public static void openCare(ServerPlayer player,YukkuriEntity target){
-        if(requireReach(player,target,5))open(player,target,false);
+        if (!requireReach(player, target, 5)) return;
+        boolean shop = ShopTrade.shopOfStock(target) != null;
+        if (open(player, target, false, shop) && shop)
+            GameplayLog.event(target, "shop", "action=card result=opened player={}", player.getUUID());
     }
     public static boolean openCutter(ServerPlayer player,YukkuriEntity target){
         if(!requireHarmContact(player,target,5,"cutter"))return false;
@@ -139,17 +144,18 @@ public final class InteractionDispatch {
             refuse(player,target,"cutter",reason);
             return false;
         }
-        open(player,target,true);
+        open(player,target,true,false);
         return true;
     }
-    private static void open(ServerPlayer player,YukkuriEntity target,boolean cutter){
-        var lineage=cutter?null:CareLineage.of(player.serverLevel(),target);
-        player.openMenu(new SimpleMenuProvider((id,inventory,owner)->new CareMenu(id,inventory,target.getId(),cutter,lineage),
+    private static boolean open(ServerPlayer player,YukkuriEntity target,boolean cutter,boolean shop){
+        var lineage=cutter||shop?null:CareLineage.of(player.serverLevel(),target);
+        return player.openMenu(new SimpleMenuProvider((id,inventory,owner)->new CareMenu(id,inventory,target.getId(),cutter,shop,lineage),
                 cutter?Component.translatable("item.minecraft.shears"):target.getDisplayName()),buffer->{
             buffer.writeVarInt(target.getId());
             buffer.writeBoolean(cutter);
-            if(!cutter)lineage.write(buffer);
-        });
+            buffer.writeBoolean(shop);
+            if(lineage!=null)lineage.write(buffer);
+        }).isPresent();
     }
 
     public static String operationRefusal(YukkuriEntity target){
