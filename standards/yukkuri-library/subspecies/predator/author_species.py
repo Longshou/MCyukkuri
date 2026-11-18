@@ -43,7 +43,7 @@ BODY_FOLLOW_BONES=('hair','bangs','rear_hair')
 def weights_for(element, group, names, geometry):
     result=[]
     for i in range(0,len(geometry),8):
-        if element['name'] in ('predator_body_surface','rounded_rump_mark') or group in BODY_FOLLOW_BONES:
+        if element['name'] in ('predator_body_surface','rounded_rump_mark','face_mouth') or group in BODY_FOLLOW_BONES:
             q=min(31,max(0,geometry[i+1]/9.328*32-.5));lo=int(q);hi=min(31,lo+1)
             result.append([names[f'soft_head_slice_{lo}_bend'],names[f'soft_head_slice_{hi}_bend'],round(q-lo,7)])
         else:result.append([names[group],names[group],0])
@@ -74,6 +74,18 @@ def cute_fangs(atlas, mouth, config, expression):
         draw.polygon([(x-w//2+1,y+1),(x-w//2+3,y+1),(x,y+h-2)],fill=tuple(config['shadow']))
         draw.point(tip,fill=tuple(config['color']))
     atlas.paste(patch,(a,b))
+
+
+def fitted_mouth(shared, source_uv, fang_uv):
+    # The rounded standard already follows this chin between the shared body rows.
+    mouth=copy.deepcopy(next(e for e in shared['elements'] if e['name']=='face_mouth'))
+    u0,v0,u1,v1=source_uv
+    a,b,A,B=fang_uv
+    for face in mouth['faces'].values():
+        for uv in face['uv'].values():
+            u,v=uv
+            uv[:]=[a+(u-u0)*(A-a)/(u1-u0),b+(v-v0)*(B-b)/(v1-v0)]
+    return mouth
 
 
 def palette(spec):
@@ -262,9 +274,14 @@ def export(ident, config):
     shared_bb=read(shared/'marisa.bbmodel');original=read(shared/'animation-rig.json')
     colors,uv=palette(spec)
     elements=[body(config['body_profile'],uv['skin'])]
+    mouth=next(e for e in bb['elements'] if e['name']=='face_mouth')
+    mouth_uv=mouth['faces']['north']['uv']
     for element,group in zip(bb['elements'],face_rig['groups']):
         name=element['name']
         if not name.startswith('face_'):continue
+        if name=='face_mouth':
+            elements.append(fitted_mouth(shared_bb,mouth_uv,config['fangs']['uv']))
+            continue
         e=copy.deepcopy(element);e['bone']=group
         if name.startswith('face_'):
             for key in ['from','to','origin']:
@@ -308,19 +325,17 @@ def export(ident, config):
                     r,g,bl,alpha=atlas.getpixel((x,y))
                     if alpha and r>65 and r<210 and r>g*1.1 and g>bl*1.1:
                         ratio=r/150;atlas.putpixel((x,y),tuple(min(255,round(v*ratio)) for v in spec['eye'])+(alpha,))
-        mouth=next(e for e in elements if e['name']=='face_mouth')
         cute_fangs(atlas,mouth,config['fangs'],source.stem)
         target=out/'textures'/source.name;target.parent.mkdir(exist_ok=True);atlas.save(target)
         texture_records[source.stem]=sha(target)
     # Bite is an authored expression over the existing angry eye/brow components.
     atlas=Image.open(out/'textures/angry.png').convert('RGBA');draw=ImageDraw.Draw(atlas)
-    mouth=next(e for e in elements if e['name']=='face_mouth');u,v,U,V=map(int,mouth['faces']['north']['uv'])
+    u,v,U,V=map(int,mouth_uv)
     draw.rectangle((u,v,U-1,V-1),fill=(0,0,0,0))
     draw.ellipse((u+2,v+1,U-3,V-2),fill=(77,35,43,255))
     draw.ellipse((u+5,V-6,U-6,V-3),fill=(226,113,126,255))
     cute_fangs(atlas,mouth,config['fangs'],'biting')
     atlas.save(out/'textures/biting.png');texture_records['biting']=sha(out/'textures/biting.png')
-    mouth['faces']['north']['uv']=config['fangs']['uv']
     png=(out/'textures/neutral.png').read_bytes()
     uid=lambda key:str(uuid.uuid5(uuid.NAMESPACE_URL,'mcyukkuri/predators/'+ident+'/'+key))
     nodes={b['name']:dict(name=b['name'],uuid=uid('bone/'+b['name']),origin=b['pivot'],children=[]) for b in rig['bones']}

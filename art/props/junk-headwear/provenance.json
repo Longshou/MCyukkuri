@@ -13,7 +13,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/chen.json": "0da1136a7a65d7317c59de3c84343e45881b81856283dd112904e454ebe582f3",
     "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json": "6a94cd92b5ce79cbc0722cab5daaef0fc853cf67479f70fc23f80df610caf9c3",
     "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json": "ed6c5edadc380031c0e6e56ea6f7c4f4def84e8229f093e913bfec29fd62927f",
-    "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json": "939b25f128feb96c6dae4de9481b76f153ce9c301f74f1e1df8c93565aa67311",
+    "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json": "4cd132d6c6ded29d9618613c519094e3cc40f047655907c911bb247b0412eacc",
     "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
     "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",
@@ -32,7 +32,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json": "2bd247f55800c5a8d74ae0933482bb1d983fc7e9e26f6d0e793c0d8eac019931",
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json": "ba46852b1d895c1270023c301ab7d6ab44f0872d8a203efed8d88b5e9a787eec",
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json": "53923e185a24c993f6794ac5e22ca54a1b52806e8b1355de95e9eef7c3a3d675",
-    "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json": "fc3bdf735eaf18065b7f85ccc07f13ec76ce014362afb7f782af8181ea2ed83f"
+    "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json": "3d4cbf1c9d2a1d0fce029e2b23d44d4f3c038329c9168506694a3c9fc0b81477"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/junk_paper_box.json": "9ef8fca960fba034fb34dda9b9a1d2763c01fea89700befa46b2b0f190c2c19f",

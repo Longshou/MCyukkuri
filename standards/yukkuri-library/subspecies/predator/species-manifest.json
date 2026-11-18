@@ -11,10 +11,10 @@
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
       "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.remilia",
-      "model_sha256": "9575c757e9db8620351b41c4bf6cebb25870a3698cd22618c0c1eeeffe81c4dc",
-      "rig_sha256": "0e82b96de07d4b03b0a967c732a4aa29f58df513c961f8bbdea67b8264bbdc2a",
+      "model_sha256": "0f4a449a3e2b53ea3a3cebe4f3b6b6164a524dafff8704e8ad5ce47258343664",
+      "rig_sha256": "803ba51233bad22c8d11379308efbbca1fb455d5c5e3e08a194386fe404bfdb5",
       "elements": 69,
-      "triangles": 3368,
+      "triangles": 3382,
       "bones": 265,
       "textures": {
         "angry": "b8abbf8599be4dc1f14664b64dcf850ebf965dc4be0d7d6f90d47a7b5acf917c",
@@ -137,10 +137,10 @@
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
       "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.flandre",
-      "model_sha256": "0d2cd4f0beee2b531952bec9e618aa409f6a56ca18e5aa82262bc8837038ebf7",
-      "rig_sha256": "35dba5f93b2bc83f1a89b4666e3e06ccb9c83ace8f56105d3267c81eef251cab",
+      "model_sha256": "6a3c6abfb49b5a01f8fe0c744c5406b891f8bd2d2c5d6f703ba55e986a20fade",
+      "rig_sha256": "455ff5c7bfee6aecf07114ef0995ac6675f7a092b7ca67baf0d0f4e3a686617a",
       "elements": 73,
-      "triangles": 3356,
+      "triangles": 3370,
       "bones": 273,
       "textures": {
         "angry": "64c7a3e55a8476a5cf34f5956fef2b1e3678af36642643b95cf0594ca4036c3e",
@@ -257,6 +257,6 @@
   "inputs": {
     "species.json": "4518949b65793cf1b48bf124798aa9b39e2c27e470ae1b2a198557978c0a988f",
     "species_geometry.py": "eb34b8db80b0bb59df9f70e273cf15ff384ca35f46f1e4d63359ce30886e3849",
-    "author_species.py": "6a949fe9a505c19039c37ecdba2b609dd653314b068ffa10d1913b174ee13839"
+    "author_species.py": "576a1c2d6c23d0da13ddd88817509812a3b0702bdc3b7cb6357dc7d6e08a2cc1"
   }
 }

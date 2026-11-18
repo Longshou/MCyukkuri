@@ -58,6 +58,7 @@ def export(ident):
         weights.extend(weights_for(e,group,names,vv))
         flat.extend(round(v,7) for v in vv)
         parts.append(dict(name=e['name'],start=start,count=len(vv)//8,anatomy=group.removeprefix('anatomy_') if group.startswith('anatomy_') else ''))
+        if e['name']=='face_mouth':parts[-1]['feature_bone']=names[group]
     clips={}
     for name,clip in rig['clips'].items():
         clips[name]=dict(duration=clip['duration'],loop=clip['loop'],tracks=[dict(bone=names[bone],channel=channel,

@@ -149,9 +149,9 @@
       "diameter": 0.040625
     },
     "remilia": {
-      "model_sha256": "fc3bdf735eaf18065b7f85ccc07f13ec76ce014362afb7f782af8181ea2ed83f",
+      "model_sha256": "3d4cbf1c9d2a1d0fce029e2b23d44d4f3c038329c9168506694a3c9fc0b81477",
       "part": "predator_cap_crown",
-      "triangle": 6810,
+      "triangle": 6852,
       "weights": [
         0.28942912411419647,
         0.2705426420773947,
@@ -170,9 +170,9 @@
       "diameter": 0.1
     },
     "flandre": {
-      "model_sha256": "939b25f128feb96c6dae4de9481b76f153ce9c301f74f1e1df8c93565aa67311",
+      "model_sha256": "4cd132d6c6ded29d9618613c519094e3cc40f047655907c911bb247b0412eacc",
       "part": "predator_cap_crown",
-      "triangle": 7182,
+      "triangle": 7224,
       "weights": [
         0.28942912411419647,
         0.2705426420773947,
