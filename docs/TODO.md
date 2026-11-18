@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 商店购买①：自由逛店不许破坏、贵宾分级（4/8） | `.worktrees/wp-shop-browse` | shop/ShopRegistry.java shop protection, tiers, SP-09 |
+| 修 human-world 导出检查（HumanRenderer 手改回写生成源） | `.worktrees/wp-fix-humanrenderer-export` | human-world generator, client/HumanRenderer.java |
 
 ## 玩法待办
 
