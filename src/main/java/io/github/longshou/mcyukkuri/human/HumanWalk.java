@@ -109,8 +109,9 @@ final class HumanWalk {
         }
     }
     void load(CompoundTag t) {
+        // The old walk could end while its pet was unloaded, leaving the lead in the pet's save.
         legacyLedPet = t.hasUUID("LegacyLedPet") ? t.getUUID("LegacyLedPet")
-                : t.getBoolean("Walking") && t.hasUUID("WalkPet") ? t.getUUID("WalkPet") : null;
+                : t.hasUUID("WalkPet") ? t.getUUID("WalkPet") : null;
         walking = t.hasUUID("LedPet");
         petId = walking ? t.getUUID("LedPet") : null;
         returning = t.getBoolean("WalkReturning");
