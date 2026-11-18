@@ -543,18 +543,11 @@ public final class HomeClaim {
     }
     /** The pathfinder only plans short hops, so flee toward the far anchor ten blocks at a time. */
     private static void retreatStep(YukkuriEntity y, Claim c) {
-        BlockPos anchor=c.retreat.pos();
-        double dx=anchor.getX()+.5-y.getX(), dz=anchor.getZ()+.5-y.getZ(), len=Math.sqrt(dx*dx+dz*dz);
-        if (len<1.5) return;
-        double base=Math.atan2(dz,dx), step=Math.min(10,len);
-        for (int i=0;i<5;i++) {
-            double angle=base+(i==0?0:(i%2==1?1:-1)*((i+1)/2)*Math.PI/4);
-            int x=(int)Math.floor(y.getX()+Math.cos(angle)*step), z=(int)Math.floor(y.getZ()+Math.sin(angle)*step);
-            for (int dy=2;dy>=-3;dy--) {
-                BlockPos p=new BlockPos(x,y.getBlockY()+dy,z);
-                if (y.life().dryStand(p) && y.life().navigate(p,1.2,false)) return;
-            }
-        }
+        var site = Vec3.atBottomCenterOf(c.site.pos());
+        var anchor = Vec3.atBottomCenterOf(c.retreat.pos());
+        var actor = y.status().reactions().threat().source();
+        var danger = actor == null ? site.subtract(anchor.subtract(site).normalize()) : actor.position();
+        y.status().reactions().threat().flight().retreatToward(danger, anchor);
     }
 
     // --- responses --------------------------------------------------------------------------------------------

@@ -19,9 +19,14 @@ public final class FlightCourse {
                                            double threatX, double threatZ, double clearance) {
         double start = Math.hypot(x - threatX, z - threatZ);
         if (Math.hypot(endX - threatX, endZ - threatZ) <= start + .5) return true;
+        return segmentDistance(x, z, endX, endZ, threatX, threatZ) < Math.min(clearance, start - .35);
+    }
+
+    public static double segmentDistance(double x, double z, double endX, double endZ, double threatX, double threatZ) {
         double dx = endX - x, dz = endZ - z;
+        if (dx == 0 && dz == 0) return Math.hypot(x - threatX, z - threatZ);
         double t = Math.clamp(((threatX - x) * dx + (threatZ - z) * dz) / (dx * dx + dz * dz), 0, 1);
-        return Math.hypot(x + t * dx - threatX, z + t * dz - threatZ) < Math.min(clearance, start - .35);
+        return Math.hypot(x + t * dx - threatX, z + t * dz - threatZ);
     }
 
     public static double scoreCandidate(double x, double z, double endX, double endZ, double threatX, double threatZ,

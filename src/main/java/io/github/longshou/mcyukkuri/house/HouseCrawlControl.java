@@ -13,6 +13,9 @@ import net.minecraft.world.phys.Vec3;
 /** Navigation retains its target and collision handling while the contact gait pauses. */
 public final class HouseCrawlControl extends MoveControl {
     private final YukkuriEntity entity;
+    private double lastRequestedSpeed;
+
+    public double lastRequestedSpeed() { return lastRequestedSpeed; }
 
     public HouseCrawlControl(YukkuriEntity entity) {
         super(entity);
@@ -56,6 +59,7 @@ public final class HouseCrawlControl extends MoveControl {
                 || entity.life().wantsCrawl() || entity.treasure().wantsCrawl());
         // On a host's surface the host walk owns the crawl (Walk); here only the ground gait.
         if (!entity.isPassenger()) entity.syncCrawl(crawl);
+        lastRequestedSpeed = moving && !crawl ? requested : 0;
         if (crawl) Motor.face(entity, entity.getYRot());
     }
 

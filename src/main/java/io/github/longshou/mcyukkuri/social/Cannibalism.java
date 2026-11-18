@@ -26,7 +26,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -243,17 +242,8 @@ public final class Cannibalism extends Goal {
             if (smellAt != null) {
                 // The destination lies beyond the smell, not merely away from the body.
                 double clear = source != null ? RemainsRot.radius(source.stage()) + 2 : 5;
-                var spot = DefaultRandomPos.getPosAway(entity, (int) clear + 2, 6, smellAt);
-                if (spot != null && spot.distanceToSqr(smellAt) < clear * clear) spot = null;
-                if (spot == null) {
-                    // No random spot fitted the navigation: walk straight away from the smell instead.
-                    var dir = entity.position().subtract(smellAt).multiply(1, 0, 1);
-                    dir = dir.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : dir.normalize();
-                    spot = smellAt.add(dir.scale(clear));
-                }
-                // The stand beyond the smell must be one it can really reach: walled in, it bears the stench where it stands
-                // instead of holding MOVE at a wall for the whole 240-tick cap.
-                if (EcologyMovement.reachable(entity, BlockPos.containing(spot))) {
+                var spot = entity.status().reactions().threat().flight().destination(smellAt, clear + 2);
+                if (spot != null && spot.distanceToSqr(smellAt) >= clear * clear) {
                     away = spot; return begin(Mode.AVOID, "stench");
                 }
             }

@@ -250,9 +250,10 @@ public final class PresentationArbiter {
                 return;
             }
             boolean shell = e.shellRetraction().active();
-            if (!shell) state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.RUN);
+            if (!shell) state.animation(e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE : panicTicks > 100 ? YukkuriAction.STARTLE
+                    : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
             // The frame retains the pre-decrement count used to choose the clip.
-            state.expression("surprise");
+            state.expression(e.newbornStage() ? "cry" : e.body().weak() ? "teary" : "surprise");
             state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
             return;
         });
@@ -322,7 +323,7 @@ public final class PresentationArbiter {
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()
-                ? walking(e)
+                ? walking(e, behavior)
                 : actions == Actions.GROUP ? EcologyPresentation.group(behavior)
                 : stationaryAction(state, behavior, actions);
         String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;
@@ -427,9 +428,9 @@ public final class PresentationArbiter {
     }
 
     /** The walk, or a reaction clip that carries its own steps (YukkuriAction.walks) played in its place while travelling. */
-    private static YukkuriAction walking(YukkuriEntity e) {
+    private static YukkuriAction walking(YukkuriEntity e, String behavior) {
         var reaction = e.reactionAction();
-        return reaction != null && reaction.walks() ? reaction : YukkuriAction.WADDLE;
+        return reaction != null && reaction.walks() ? reaction : e.runningGait(behavior) ? YukkuriAction.RUN : YukkuriAction.WADDLE;
     }
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */

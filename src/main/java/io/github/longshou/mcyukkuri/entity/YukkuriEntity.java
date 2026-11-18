@@ -386,6 +386,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public float careContactProgress() { return sync().careContactProgress(); }
     public float toiletVolume() { return level().isClientSide?sync().toiletVolume():(float)DetachedItems.wasteAmount(this); }
     public boolean isCrawling() { return sync().isCrawling(); }
+    public boolean runningGait(String behavior) {
+        return moveControl instanceof HouseCrawlControl ground && Gait.isRunning(isCrawling(), childhood.canJump(),
+                ground.lastRequestedSpeed(), behavior.equals(Behaviors.FLEE) || behavior.equals(Behaviors.THREAT_RETREAT)
+                        || behavior.equals(Behaviors.RAIN_RUN) || behavior.equals(Behaviors.HOME_CLAIM_RETREAT));
+    }
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
     /** Blocks the crawl gait covers per tick on average: one stroke's travel spread over its period, at this body's size and speed. */
     public double crawlSpeed() { return HouseCrawlMotion.TRAVEL_UNITS / 16 / HouseCrawlMotion.PERIOD_TICKS * crawlScale(); }
@@ -404,14 +409,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean crawler() {
         return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() &&
                 !isNoAi() && (!isPassenger() || getVehicle() instanceof SurfaceHost) && !isCommandPlaying()
-                && !isPanicking() && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
+                && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }
     public void syncCrawl(boolean active) { sync().syncCrawl(active); }
 
     @Override public void jumpFromGround() {
         if (body != null && body.footBurned() && !isInWaterOrBubble()) return; // a baked sole never springs again
-        if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire() || isPanicking()) super.jumpFromGround();
+        if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire()) super.jumpFromGround();
     }
 
     @Override public void move(MoverType type, Vec3 delta) {

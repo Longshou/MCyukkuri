@@ -149,13 +149,10 @@ public final class Reactions {
         private UUID knownDanger;
         private long knownAt = Long.MIN_VALUE / 2;
         static final int SAME_DANGER = 3600, HEARD = 160;
-        /** The covered stand the current flight runs to, and when it was last searched (one cover query, shared). */
-        private BlockPos flightCover;
-        private LivingEntity flightFrom;
-        private long flightCoverAt;
-        private int flightOffset;
+        private final FlightPlanner flight;
 
-        Threat(YukkuriEntity y) { this.y = y; seal = new DenSeal(y); }
+        Threat(YukkuriEntity y) { this.y = y; seal = new DenSeal(y); flight = new FlightPlanner(y); }
+        public FlightPlanner flight() { return flight; }
 
         public Stage stage() { return stage; }
         public boolean responding() { return stage != Stage.NONE || wants(); }
@@ -326,7 +323,7 @@ public final class Reactions {
                     if (s == null) { stage = Stage.HIDE; ticks = 0; return; }
                     if (seal.drive(s)) return;
                     double d = s.distanceTo(y);
-                    if (ticks % 10 == 1 || y.getNavigation().isDone()) retreat(s);
+                    flight.flee(s);
                     var home = y.life().homeStand();
                     if (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home)) < 2.25 && safeAt(s)) { stage = Stage.HIDE; ticks = 0; return; }
                     if (d > 20 || ticks > 400) { stage = Stage.HIDE; ticks = 0; }
@@ -351,40 +348,6 @@ public final class Reactions {
             var home = y.life().homeStand();
             return home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home)) < 2.25
                     && home.distSqr(threat.blockPosition()) > 25;
-        }
-        private void retreat(LivingEntity s) {
-            LivingEntity owner = y.pet().owner() == null ? null : y.level().getPlayerByUUID(y.pet().owner());
-            if (owner == null && y.pet().owner() != null && y.level() instanceof ServerLevel sl
-                    && sl.getEntity(y.pet().owner()) instanceof HumanNpc resident) owner = resident; // a resident's pet runs to its keeper
-            if (owner != null && owner.isAlive() && !owner.isSpectator() && owner.distanceToSqr(y) < 256
-                    && owner.distanceToSqr(s) > 36) {
-                if (owner.distanceToSqr(y) > 6.25) y.getNavigation().moveTo(owner, 1.2);
-                else { y.getNavigation().stop(); stage = Stage.HIDE; ticks = 0; }
-                return;
-            }
-            var home = y.life().homeStand();
-            if (home != null && home.distSqr(s.blockPosition()) > 25 && y.life().navigate(home, 1.2, false)) return;
-            var parent = ParentCarry.flightEscort(y, s);
-            if (parent != null && y.life().navigate(parent.blockPosition(), 1.2, false)) return;
-            flight(s, 10);
-        }
-        /** Runs for cover away from one danger, else for a dry point away; the cover is searched at most every 80 ticks. */
-        public boolean flight(LivingEntity danger, int distance) {
-            long now = y.level().getGameTime();
-            if (flightFrom != danger || now >= flightCoverAt) {
-                flightFrom = danger; flightCoverAt = now + 80;
-                boolean budget = SearchBudget.take((ServerLevel) y.level());
-                if (budget) flightCover = findCover(y, danger.position(), flightOffset++);
-                GameplayLog.limited(y, "threat", "flight.cover", 200, "flight cover searched budget={} cover={} danger=#{} distance={}",
-                        budget, flightCover, danger.getId(), Math.round(danger.distanceTo(y)));
-            }
-            boolean routed = flightCover != null && y.life().navigate(flightCover, 1.2, false);
-            if (routed) return true;
-            Vec3 away = awayFrom(y, distance, danger.position());
-            boolean moved = away != null && y.getNavigation().moveTo(away.x, away.y, away.z, 1.2);
-            GameplayLog.limited(y, "threat", "flight.away", 200, "flight away covered={} away={} routed={} danger=#{} distance={}",
-                    flightCover != null, away, moved, danger.getId(), Math.round(danger.distanceTo(y)));
-            return moved;
         }
     }
 
@@ -438,17 +401,6 @@ public final class Reactions {
     /** Blocks of extra distance from the danger a covered stand must offer to be worth hiding in. */
     private static final double FLIGHT_GAIN = 8;
 
-    /** A random dry stand away from one danger, or null: a flight point obeys the same ground rules as any other walk. */
-    public static Vec3 awayFrom(YukkuriEntity y, int distance, Vec3 danger) {
-        for (int attempt = 0; attempt < 8; attempt++) {
-            Vec3 away = DefaultRandomPos.getPosAway(y, distance, 4, danger);
-            if (away == null) return null;
-            var pos = BlockPos.containing(away);
-            if (y.life().dryStand(pos) && TravelRange.babyDestination(y, pos)) return away;
-        }
-        return null;
-    }
-
     /** A short retreat to a supported stand, with a local search for cover and side exits when the usual flee point fails. */
     public static Vec3 escapeStand(YukkuriEntity body, Entity danger, int distance, Set<BlockPos> tried) {
         return escapeStand(body,danger.position(),danger,distance,tried);
@@ -457,7 +409,7 @@ public final class Reactions {
     static Vec3 escapeStand(YukkuriEntity body, Vec3 dangerAt, Entity danger, int distance, Set<BlockPos> tried) {
         var obstacle = danger==null?null:danger.getBoundingBox();
         double currentDistance = body.position().distanceTo(dangerAt);
-        var away = awayFrom(body, distance, dangerAt);
+        var away = body.status().reactions().threat().flight().destination(dangerAt, distance);
         if (away != null) {
             var stand = SurfaceApproach.floor(body, away);
             if (stand != null && body.distanceToSqr(stand) >= 1 && !tried.contains(BlockPos.containing(stand))
@@ -745,7 +697,7 @@ public final class Reactions {
                     if (approachingWater(1) != null) y.family().carry().endFlight();
                     else if (y.family().carry().tickFlight(null)) return;
                     if (ticks % 10 == 1 || y.getNavigation().isDone()) {
-                        var away = awayFrom(y, 8, Vec3.atCenterOf(water));
+                        var away = y.status().reactions().threat().flight().destination(Vec3.atCenterOf(water), 8);
                         if (away != null) life.navigate(BlockPos.containing(away), 1.4, false);
                     }
                 }

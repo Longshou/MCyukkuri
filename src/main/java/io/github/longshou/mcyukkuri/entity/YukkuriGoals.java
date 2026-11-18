@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
-import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
@@ -26,7 +25,6 @@ import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Kindness;
-import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.social.HookRescueGoal;
@@ -243,24 +241,10 @@ final class YukkuriGoals {
             if (owner.family().carry().tickFlight(owner.getLastHurtByMob())) return;
             // A skilled resident that has reached its den can seal while fleeing, whatever drove it home.
             if (owner.status().reactions().threat().seal().drive(owner.getLastHurtByMob())) return;
-            if (owner.directNavigation().isDone() || owner.tickCount % 10 == 0) {
-                var threat = owner.getLastHurtByMob();
-                if (threat != null) {
-                    if (owner.pet().fleeToOwner()) return;
-                    var safe = owner.life().homeStand();
-                    if (safe != null && Vec3.atBottomCenterOf(safe).distanceToSqr(threat.position()) > 25
-                            && owner.life().navigate(safe, 1.2, false)) return;
-                    // A young runs to the parent it recognises; a body without a home runs for cover, then for a dry point away.
-                    var parent = ParentCarry.flightEscort(owner, threat);
-                    if (parent != null && owner.life().navigate(parent.blockPosition(), 1.2, false)) {
-                        GameplayLog.limited(owner, "threat", "flight.parent", 200, "fleeing to parent #{} distance={} danger=#{}",
-                                parent.getId(), Math.round(owner.distanceTo(parent)), threat.getId());
-                        return;
-                    }
-                    if (owner.status().reactions().threat().flight(threat, 10)) return;
-                }
-                Vec3 target = owner.getLastHurtByMob() == null ? DefaultRandomPos.getPos(owner, 6, 3)
-                        : Reactions.awayFrom(owner, 6, owner.getLastHurtByMob().position());
+            var threat = owner.getLastHurtByMob();
+            if (threat != null) owner.status().reactions().threat().flight().flee(threat);
+            else if (owner.directNavigation().isDone()) {
+                Vec3 target = DefaultRandomPos.getPos(owner, 6, 3);
                 if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.2);
             }
         }

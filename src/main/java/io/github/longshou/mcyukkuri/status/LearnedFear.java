@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.FearBand;
 import java.util.EnumSet;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
@@ -156,7 +155,7 @@ public final class LearnedFear {
                 body.getLookControl().setLookAt(danger.x,danger.y,danger.z);
                 if(ticks<WARNING_TICKS)return;
                 if(body.distanceToSqr(danger)>9){ticks=RETREAT_BUDGET;return;}
-                stand=Reactions.escapeStand(body,danger,holder,5,Set.of());
+                stand=body.status().reactions().threat().flight().destination(danger,5);
                 if(stand==null){finish("no_route");return;}
             }
             var result=SurfaceApproach.walkResult(body,stand,holder,1.2);
