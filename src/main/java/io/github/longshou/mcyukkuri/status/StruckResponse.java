@@ -15,7 +15,7 @@ final class StruckResponse implements MotorOwner {
     private StruckStance stance;
     private long start, until;
     private double initialDistance;
-    private boolean canBump;
+    private RamPerson bump;
 
     StruckResponse(YukkuriEntity body) { this.body = body; }
     @Override public String ownerId() { return Behaviors.STRUCK; }
@@ -50,7 +50,7 @@ final class StruckResponse implements MotorOwner {
             stance = choice;
             start = body.level().getGameTime();
             initialDistance = body.distanceToSqr(actor);
-            canBump = choice == StruckStance.PUFF_FIGHT && inputs.exitOpen() && initialDistance < 25;
+            if (choice == StruckStance.PUFF_FIGHT && inputs.exitOpen() && initialDistance < 25) bump = new RamPerson(actor);
             boolean tame = id.companion() || id == Identity.STOCK;
             switch (choice) {
                 case FREEZE -> hold(YukkuriAction.BRACE, inputs.baby() ? "cry" : "horrified", "hurt_freeze", inputs.freezeTicks());
@@ -86,6 +86,7 @@ final class StruckResponse implements MotorOwner {
         if (stance != null) body.motor().cancel(this, "stance_ended");
         stance = null;
         actor = null;
+        bump = null;
     }
 
     /** Called only by the goal holding MOVE/LOOK, including its last tick. */
@@ -102,13 +103,12 @@ final class StruckResponse implements MotorOwner {
         }
         if (expired) { clear(); return false; }
         body.getLookControl().setLookAt(actor, 30, 30);
-        if (canBump && now - start >= YukkuriAction.PUFF.durationTicks() / 2) {
-            var ram = new RamPerson(actor);
-            if (ram.check(body).ok()) {
-                canBump = false;
-                body.motor().run(this, ram);
+        if (bump != null && now - start >= YukkuriAction.PUFF.durationTicks() / 2) {
+            if (bump.check(body).ok()) {
+                body.motor().run(this, bump);
+                bump = null;
             } else if (distance >= 25 || SurfaceApproach.walkResult(body, RamPerson.approach(body, actor), actor, 1.2)
-                    == SurfaceApproach.Result.BLOCKED) canBump = false;
+                    == SurfaceApproach.Result.BLOCKED) bump = null;
         } else if (body.motor().current() == null) SurfaceApproach.halt(body);
         return true;
     }

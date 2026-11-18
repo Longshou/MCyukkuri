@@ -1,13 +1,12 @@
 package io.github.longshou.mcyukkuri.interaction;
 
-import io.github.longshou.mcyukkuri.body.BodyHit;
-
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import io.github.longshou.mcyukkuri.body.BodyHit;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
@@ -74,7 +73,6 @@ public final class OperationLife {
     private int remaining,elapsed,cooldown;
     private float turn,abrasion;
     private boolean ownDamage;
-    private boolean strikingHook;
     private UUID attachedWound;
     private WoundShape settlingShape=WoundShape.NONE;
     /** The dose occupies the same durable reservation slot as a physical tool. */
@@ -89,7 +87,6 @@ public final class OperationLife {
     public boolean active(){return table!=null||pose!=Pose.NONE;}
     /** True only inside this operation's accepted damage transaction, never for an unrelated incoming attack. */
     public boolean settlingDamage(){return ownDamage;}
-    public boolean strikingHook(){return strikingHook;}
     public WoundShape settlingShape(){return settlingShape;}
     public boolean controlling(){return table!=null||pose!=Pose.NONE&&pose!=Pose.SLIDE;}
     public Pose pose(){return table!=null?Pose.FIXED:pose;}
@@ -300,11 +297,11 @@ public final class OperationLife {
         float before = entity.getHealth();
         var source = attack(actor);
         BodyWound wound;
-        ownDamage=true;settlingShape=WoundShape.PUNCTURE;strikingHook=next==Pose.HOOK;
+        ownDamage=true;settlingShape=WoundShape.PUNCTURE;
         try {
             wound=entity.hurtForAttachment(source,1);
         } finally {
-            ownDamage=false;settlingShape=WoundShape.NONE;strikingHook=false;
+            ownDamage=false;settlingShape=WoundShape.NONE;
         }
         boolean bound = wound != null && !entity.body().dying() && begin(actor,next,duration,tool,support,wound);
         if (entity.getHealth() < before)
