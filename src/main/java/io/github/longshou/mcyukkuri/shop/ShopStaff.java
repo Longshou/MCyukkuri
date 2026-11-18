@@ -82,18 +82,16 @@ public final class ShopStaff {
     }
     private static final class HatchApproach implements PetLife.Director, MotorOwner {
         private final Vec3 inside;
-        private Walk walk;
         private boolean started, active = true;
 
         HatchApproach(Vec3 inside) { this.inside = inside; }
         @Override public void tick(YukkuriEntity animal) {
             if (started) return;
             started = true;
-            walk = Walk.stand(inside, 1.0);
-            animal.motor().run(this, walk);
+            animal.motor().run(this, Walk.stand(inside, 1.0));
         }
         @Override public void stop(YukkuriEntity animal) {
-            if (walk != null) animal.motor().cancel(this, "shop_hatch_closed");
+            if (started) animal.motor().cancel(this, "shop_hatch_closed");
             active = false;
         }
         @Override public String ownerId() { return "shop_hatch"; }
@@ -378,7 +376,7 @@ public final class ShopStaff {
             if (job.target == null) job.target = shop.legacy() ? shop.counter() : shop.dock();
             if (job.target == null) return false;
         }
-        if (job.kind != Kind.BUY && UNREACHABLE.active(job.target, level.getGameTime())) return true;
+        if (UNREACHABLE.active(job.kind == Kind.BUY ? token : job.target, level.getGameTime())) return true;
         job.token = token; job.phase = Phase.CARRY;
         start(staff, job, job.target.getCenter());
         return true;
@@ -521,6 +519,7 @@ public final class ShopStaff {
         if (!job.reachIn && !reaches(staff, point, block)) { walk(level, staff, shop, job, point); return; }
         staff.getNavigation().stop();
         job.phase = Phase.WORK;
+        int callTicks = fetch ? job.timer : 0;
         if (fetch) job.timer = 0;
         if (job.kind == Kind.TREAT) {
             if (!staff.reserveDose(y, job.dose)) { fail(level, staff, shop, job, "dose_unavailable"); return; }
@@ -534,8 +533,8 @@ public final class ShopStaff {
             y.getLookControl().setLookAt(staff, 30, 30);
             y.playAction("basket_in"); y.speak("basket_enter");
         }
-        GameplayLog.event(staff, "shop", "action=job result=reach kind={} reach={} distance={} target={} staff_at={} target_at={}", job.kind,
-                job.reachIn ? "through" : "hand", staff.position().distanceTo(point),
+        GameplayLog.event(staff, "shop", "action=job result=reach kind={} reach={} distance={} call_ticks={} target={} staff_at={} target_at={}", job.kind,
+                job.reachIn ? "through" : "hand", staff.position().distanceTo(point), callTicks,
                 y != null ? y.getUUID() : job.target, GameplayLog.at(staff.position()), GameplayLog.at(point));
     }
 
@@ -968,6 +967,7 @@ public final class ShopStaff {
         Object key = switch (job.kind) {
             case COUNTER -> job.staff;
             case REFUSE -> new RefusalTarget(job.animal, job.shop);
+            case BUY -> job.token;
             default -> job.phase == Phase.CARRY ? job.target : job.animal != null ? job.animal : job.target;
         };
         if (key != null) UNREACHABLE.put(job.kind == Kind.TREAT ? new CareTarget(job.animal) : key, now + RETRY);

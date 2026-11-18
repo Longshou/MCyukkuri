@@ -2583,16 +2583,18 @@ add('shop_buy', 'shop', '买下金章爱丽丝：店员到展舱接她装篮，�
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
 _fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
-    '右键店员，在“在售”里依次买下玻璃角落里的橙、窝里睡着的子油灵梦和后院远处的魔理沙。'
+    '右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
     '看店员在栏门口叫它们靠近，等约五秒仍够不着时伸手接进篮子，去后院取货时则会走进去。等店员提来每只装好的实篮再买下一只。',
     '布置几秒，每单约 20 秒', ['yukkuri human build shop ~8 ~ ~17 south',
         *[f'tag @e[type=mcyukkuri:{kind},distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
           f'NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}}] add {tag(name)}' for name, kind, age in _fetch_stock],
-        'fill ~13 ~2 ~12 ~13 ~3 ~13 minecraft:glass', 'fill ~12 ~2 ~11 ~12 ~3 ~11 minecraft:glass',
-        f'tp {sel("fetch_corner")} ~12.5 ~2 ~12.5',
-        f'tp {sel("fetch_nest")} ~15.5 ~2 ~13.5',
+        'clone ~12 ~2 ~10 ~12 ~2 ~10 ~13 ~2 ~10 replace move',
+        'fill ~13 ~2 ~11 ~13 ~3 ~13 minecraft:glass', 'fill ~12 ~2 ~10 ~12 ~3 ~10 minecraft:glass',
+        f'tp {sel("fetch_corner")} ~12.5 ~2 ~11.5',
+        f'data modify entity {sel("fetch_nest")} YukkuriLife.DrugSleep set value 600',
+        f'tp {sel("fetch_nest")} ~15.5 ~2.109375 ~13.5',
         f'tp {sel("fetch_yard")} ~17.5 ~2 ~-11.5',
-    ], late=[f'yukkuri scenario home {sel("fetch_nest")} ~15 ~2 ~13', set_status('fetch_nest', 'needs.energy', 0)],
+    ], late=[f'yukkuri scenario home {sel("fetch_nest")} ~15 ~2 ~13'],
     give=['minecraft:emerald 64'], env=DAY, vantage=(8, 17, 180, 8),
     reads=[('读展栏角落', f'yukkuri status {sel("fetch_corner")} raw'),
            ('读窝里睡觉的库存', f'yukkuri status {sel("fetch_nest")} raw'),
@@ -6636,26 +6638,29 @@ next(s for s in S if s.id == 'shop_buy').smoke['commands'] = [
 
 
 def _verify_shop_fetch(window):
-    animals = re.findall(r'\[shop\] (chen|reimu|marisa) [^\n]* uuid=(\S+)[^\n]* action=buy_live result=accepted [^\n]* buyer=operator', window)
-    reaches = re.findall(r'\[shop\][^\n]* action=job result=reach kind=BUY reach=(hand|through) [^\n]* target=(\S+)', window)
+    animals = re.findall(r'\[shop\] (chen|reimu|marisa) [^\n]* uuid=(\S+)[^\n]* pos=([^\n]+?) action=buy_live result=accepted [^\n]* buyer=operator due=0 sleeping=(true|false)', window)
+    reaches = re.findall(r'\[shop\][^\n]* action=job result=reach kind=BUY reach=(hand|through) [^\n]* call_ticks=(\d+) target=(\S+)', window)
     packed = re.findall(r'\[shop\][^\n]* action=buy_live result=committed [^\n]* target=(\S+) token=(\S+) emeralds_used=0\b', window)
     delivered = re.findall(r'\[shop\][^\n]* action=buy_live result=delivered [^\n]* token=(\S+) placement=counter\b', window)
-    if [kind for kind, _ in animals] != ['chen', 'reimu', 'marisa']:
+    if [kind for kind, _, _, _ in animals] != ['chen', 'reimu', 'marisa']:
         return f'Expected the three staged stock orders in order, got {animals}'
-    ids = [animal for _, animal in animals]
-    if sorted(animal for _, animal in reaches) != sorted(ids) or ('through', ids[0]) not in reaches or ('hand', ids[2]) not in reaches:
-        return f'Expected one reach per animal, with through for the trapped corner and hand for the yard, got {reaches}'
+    ids = [animal for _, animal, _, _ in animals]
+    if sorted(animal for _, _, animal in reaches) != sorted(ids) or ('through', '100', ids[0]) not in reaches \
+            or not any(mode == 'hand' and animal == ids[2] for mode, _, animal in reaches):
+        return f'Expected one reach per animal, with through after 100 ticks for the trapped corner and hand for the yard, got {reaches}'
     if sorted(animal for animal, _ in packed) != sorted(ids) or sorted(token for _, token in packed) != sorted(delivered):
         return f'Expected all three packed tokens in carrier deliveries at the counter, got {packed} and {delivered}'
-    if not re.search(rf'\[sleep\] reimu [^\n]* uuid={ids[1]} [^\n]* begin source=', window):
-        return 'The staged nest Reimu did not fall asleep'
+    x, z = BY_ID['shop'].anchor
+    nest = f'{x + 15}, {FEET + 2}, {z + 13}'
+    if animals[1][2:] != (nest, 'true'):
+        return f'Expected Reimu to be asleep on the nest pad at purchase, got {animals[1][2:]}'
 
 
 _smoke('shop_fetch', 1800, [r'\[shop\][^\n]* action=job result=reach kind=BUY ', r'\[shop\][^\n]* action=buy_live result=delivered '],
        forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* reason=unreachable\b'])
 _fetch_smoke = next(s for s in S if s.id == 'shop_fetch').smoke
 _fetch_smoke.update(verify=_verify_shop_fetch, commands=[
-    (200 + 400 * i, f'yukkuri human shop buy {SHOP_STAFF} {sel(name)} {_uuid_text("shop_fetch", "buyer")}')
+    (100 + 400 * i, f'yukkuri human shop buy {SHOP_STAFF} {sel(name)} {_uuid_text("shop_fetch", "buyer")}')
     for i, (name, _, _) in enumerate(_fetch_stock)])
 _smoke('shop_restock', 3600, [r'\[shop\][^\n]* action=restock result=done ', r'\[shop\][^\n]* action=restock result=ship_marked ',
                               r'\[shop\][^\n]* action=ship_out result=packed ', r'\[shop\][^\n]* action=stow_basket result=stored ',

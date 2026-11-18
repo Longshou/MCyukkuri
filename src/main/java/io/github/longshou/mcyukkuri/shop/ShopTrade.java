@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -170,10 +171,11 @@ public final class ShopTrade {
     /** Operator handover uses the same saved fetch and charges no emeralds. */
     static boolean handover(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, UUID buyer) {
         if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id) || shop.orders.containsKey(y.getUUID())
-                || shop.deposit(y.getUUID()) != null
-                || !y.pet().lock(HANDOVER, null)) return false;
+                || shop.deposit(y.getUUID()) != null) return false;
+        boolean sleeping = y.life().isSleeping();
+        if (!y.pet().lock(HANDOVER, null)) return false;
         ShopRegistry.get(level).order(shop, y.getUUID(), new ShopRegistry.Order(HANDOVER, buyer, 0, null));
-        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer=operator due=0", shop.id);
+        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer=operator due=0 sleeping={}", shop.id, sleeping);
         return true;
     }
 
@@ -434,6 +436,9 @@ public final class ShopTrade {
         item.setTarget(target);
         item.setDefaultPickUpDelay();
         item.setUnlimitedLifetime();
-        return level.addFreshEntity(item) ? item : null;
+        if (!level.addFreshEntity(item)) return null;
+        GameplayLog.event(item, "shop", "action=drop item={} count={} drop={} pickup={}",
+                BuiltInRegistries.ITEM.getKey(basket.getItem()), basket.getCount(), item.getUUID(), target);
+        return item;
     }
 }
