@@ -73,13 +73,20 @@ public final class CommunityRules {
         var level = (ServerLevel) offender.level();
         var group = offender.settlement().group();
         if (!rule(group, Commons.NO_THEFT)) return;
+        var seen = observed(level, offender, group, Offence.THEFT, "granary");
+        if (seen != null) Expulsion.driveOff(offender, seen, site);
+    }
+
+    private static YukkuriEntity observed(ServerLevel level, YukkuriEntity offender, SettlementData.Group group,
+                                         Offence offence, String detail) {
         var seen = witness(offender, group, WITNESS_RANGE);
         if (seen == null) {
-            group.commons.note(level.getGameTime(), "unseen_theft", offender.getUUID(), "granary");
+            group.commons.note(level.getGameTime(), "unseen_" + offence.id, offender.getUUID(), detail);
             SettlementData.get(level).setDirty();
-            return;
+        } else {
+            report(offender, group, offence, seen, detail);
         }
-        if (report(offender, group, Offence.THEFT, seen, "granary")) Expulsion.driveOff(offender, seen, site);
+        return seen;
     }
 
     /**
@@ -192,7 +199,7 @@ public final class CommunityRules {
             group.commons.note(level.getGameTime(), "ate_unrecognised", eater.getUUID(), victim == null ? "" : victim.getUUID().toString().substring(0, 8));
             return;
         }
-        observed(eater, Offence.CANNIBAL, victim == null ? "remains" : "victim " + victim.getUUID().toString().substring(0, 8));
+        observed(level, eater, group, Offence.CANNIBAL, victim == null ? "remains" : "victim " + victim.getUUID().toString().substring(0, 8));
     }
 
     // ---- the birth rule ------------------------------------------------------------------------------------------
