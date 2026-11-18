@@ -10,8 +10,8 @@ template serves both sides of the pet shop.
 
 Stray objects are the ones the stray systems read (docs/FEATURES.md 流浪): a garbage point is a `mcyukkuri:garbage_bin` with a finite real
 stock, standing or already knocked over with its mouth toward its stand cell (settlement/GarbageSearch); a wind gap is a dry floor cell with a
-collision block right above and a full block beside it, with a real paper on it (settlement/FoundShelter); cardboard boxes and crates
-use the normal rotating shelter blocks. Street residents' homes are indoor cells behind a wooden door, except the stall keepers, who live in
+collision block right above and a full block beside it, with a real paper on it (settlement/FoundShelter); cardboard boxes use the
+normal rotating shelter block. Street residents' homes are indoor cells behind a wooden door, except the stall keepers, who live in
 their booth behind the counter.
 """
 from pathlib import Path
