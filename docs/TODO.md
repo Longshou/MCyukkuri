@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 商店购买④：租工具走店员（7） | `.worktrees/wp-shop-rent` | oni staff menu rental tab, SP-08 deposit tray |
 
 ## 玩法待办
 
