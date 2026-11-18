@@ -5,8 +5,8 @@ ramps of item-icons/draw.py; collision is read from the same cells (merged boxes
 player sees. Gameplay heights stay where PlayLife's routes expect them: tunnel floor 2, slide steps 4/8/12/16 and deck
 16, pool side-step top 6; the trampoline bed is raised to 8, inside the route's 0.6-block reach of its 0.3125 waypoint.
 
-ceramic_tunnel: a clay pipe lying along Z, a stepped round section (flat foot on the ground) with a raised rim band at
-each mouth; the bore keeps the old flat floor and widens to 24 units, so wide hats and long hair still pass, and darkens
+ceramic_tunnel: a clay pipe lying along Z, a stepped round section (flat foot on the ground) with a raised rim band one
+unit behind each mouth (its steps show from either end); the bore keeps the old flat floor and widens to 24 units, so wide hats and long hair still pass, and darkens
 with depth like the icon's bore.
 yukkuri_slide: steel steps and tower to a teal deck, a teal chute with side lips, a deck guard and stair handrails. The
 chute and the rails are authored flat and sheared onto their slope (the lectern's slanted-board way); the chute's
@@ -68,22 +68,25 @@ def ceramic_tunnel():
     band=section([h+1 for h in low]+[15]*17+[h+1 for h in low[::-1]])   # rim band: one unit proud, foot on the ground
     bore=section([0,0,8,9,10,11]+[12]*16+[11,10,9,8])         # flat floor at y 2; contains the old 16/24/16 bore
     Z0,Z1,RIM=-22,22,2
+    in_band=lambda z:Z0+1<=z<Z0+1+RIM or Z1-1-RIM<=z<Z1-1   # set back one unit, so both collars show their steps
     def clay(cell,face):
         x,y,z=cell
         (axis,sign),_,_=kit.FACES[face]
         n=[0,0,0];n[axis]=sign
         if (x+n[0],y+n[1]) in bore and Z0<=z+n[2]<Z1:      # a bore face: darker with depth from the nearer mouth
             depth=min(z-Z0,Z1-1-z)
-            return ('TERRA',1) if depth<2 else ('TERRA',0) if depth<4 else ('INK',2)
-        if axis==2:                                         # mouth rings bright, the step from band to body a crease
-            return ('TERRA',4) if z+n[2] in (Z0-1,Z1) else ('TERRA',1)
-        if face=='up':return ('TERRA',3)
+            return ('TERRA',1) if depth<2 else ('TERRA',0) if depth<5 else ('ANKO',1)   # shadowed clay, warm to the end
+        if axis==2 and z+n[2] in (Z0-1,Z1):return ('TERRA',4)     # bright mouth rings
         if face=='down':return ('TERRA',0)
-        return ('TERRA',3) if y>=18 else ('TERRA',2) if y>=7 else ('TERRA',1)
+        collar=in_band(z)                                   # both rim bands one step lighter than the body
+        if face=='up':return ('TERRA',3+collar)
+        # Sides, and the band's step down to the body shaded like the side at that height, so each collar reads the
+        # same from either mouth (no dark crease lines on the far one only).
+        return ('TERRA',(3 if y>=18 else 2 if y>=7 else 1)+collar)
     clay_m=M('TERRA',clay,bevel=False)                   # a lying round: shading by row, not per step
     pipe=b.part('pipe')
     for z in range(Z0,Z1):
-        plan=band if z<Z0+RIM or z>=Z1-RIM else body
+        plan=band if in_band(z) else body
         for x,y in plan-bore:pipe.cell((x,y,z),clay_m)
     return b,boxes(pipe.cells),{}
 
@@ -167,8 +170,8 @@ def yukkuri_trampoline():
     def bed(cell,face):
         x,_,z=cell
         if face!='up':return ('INK',0)
-        if (x,z) in edge and (x,z) not in kit.inset(bed_plan,1):return ('INK',1)   # the bed's outer border
-        if (x,z) in edge:return ('INK',3)                                          # stitch line inside it
+        if (x,z) in edge and (x,z) not in kit.inset(bed_plan,1):return ('INK',4)   # light bound edge against the frame
+        if (x,z) in edge:return ('INK',3)                                          # stitch row inside it
         return ('INK',2)
     mat=b.part('bed',unit=2)
     mat.layer(bed_plan,BED-1,BED,M('INK',bed,bevel=False))
