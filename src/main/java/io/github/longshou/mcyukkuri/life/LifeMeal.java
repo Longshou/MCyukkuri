@@ -584,8 +584,8 @@ final class LifeMeal {
                 String face = harmful ? "surprise" : waste ? "teary" : reluctant ? "squeezed_cry_tears" : grudging ? "pursed"
                         : guarded ? "teary" : grass && !liked ? "teary"
                         : defiant ? "smug" : grateful ? "closed_smile" : liked ? "sparkle" : "happy";
-                String line = harmful ? "hurt" : waste ? "bitter" : reluctant ? "uneasy" : grudging ? "mood_bad"
-                        : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat : fedLine;
+                String line = harmful ? "hurt" : waste ? "bitter" : reluctant ? "food_reluctant" : grudging ? "food_grudge"
+                        : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat : liked ? "food_delight" : fedLine;
                 if (!coughing() && (!eater.body().sick() || !harmful)
                         && eater.showReaction(face, harmful ? line : "",
                             harmful || waste || grass && !liked && !unhappy || preparedMeal ? 100 : SWALLOW_TICKS)
@@ -717,7 +717,7 @@ final class LifeMeal {
             return false;
         }
         rememberComplaint(item.getItem());
-        if (o.entity().showReaction(YukkuriAction.REJECT_OR_SPIT, "bad_taste_small", "")) o.entity().speakCue("bitter");
+        if (o.entity().showReaction(YukkuriAction.REJECT_OR_SPIT, "bad_taste_small", "")) o.entity().speakCue("food_spit");
         GameplayLog.event(o.entity(), "meal", "spat item={} grade={} pickiness={} taste={} nutrition={} verdict=REFUSE feeder={} tick={} drop={}",
                 item.getItem(), FoodTaste.grade(item).id(), o.pickiness(), tasteFor(feeder), o.nutrition(), feeder, mealTicks, dropped.getUUID());
         return true;

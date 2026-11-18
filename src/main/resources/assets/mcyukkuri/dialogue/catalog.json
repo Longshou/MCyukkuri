@@ -71885,6 +71885,5361 @@
     "sound": "voice.original.flandre.adult.retest_protect_angered"
   },
   {
+    "id": "reimu.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.reimu.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.reimu.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.reimu.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.reimu.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.reimu.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.reimu.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.reimu.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.reimu.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.reimu.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.reimu.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.reimu.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.reimu.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.reimu.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.reimu.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.reimu.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.reimu.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.reimu.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.reimu.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.reimu.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.reimu.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.reimu.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.reimu.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.reimu.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.reimu.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.reimu.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 75,
+    "sound": "voice.original.reimu.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.reimu.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.reimu.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.reimu.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 101,
+    "sound": "voice.original.reimu.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 82,
+    "sound": "voice.original.reimu.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.reimu.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.reimu.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 75,
+    "sound": "voice.original.reimu.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.reimu.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.reimu.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.reimu.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.reimu.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.reimu.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.reimu.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.reimu.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 103,
+    "sound": "voice.original.reimu.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.marisa.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.marisa.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.marisa.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.marisa.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.marisa.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.marisa.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.marisa.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.marisa.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.marisa.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.marisa.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.marisa.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.marisa.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.marisa.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.marisa.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.marisa.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.marisa.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.marisa.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.marisa.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.marisa.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.marisa.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.marisa.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.marisa.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.marisa.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.marisa.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.marisa.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.marisa.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 87,
+    "sound": "voice.original.marisa.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.marisa.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.marisa.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.marisa.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.marisa.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.marisa.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.marisa.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.marisa.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 88,
+    "sound": "voice.original.marisa.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.marisa.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.marisa.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.marisa.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.marisa.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 107,
+    "sound": "voice.original.marisa.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.alice.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.alice.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.alice.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.alice.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.alice.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.alice.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.alice.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.alice.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.alice.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.alice.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.alice.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.alice.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.alice.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.alice.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.alice.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.alice.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.alice.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.alice.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.alice.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.alice.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.alice.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.alice.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.alice.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.alice.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.alice.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.alice.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 86,
+    "sound": "voice.original.alice.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.alice.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.alice.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.alice.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.alice.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.alice.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.alice.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.alice.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.alice.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 88,
+    "sound": "voice.original.alice.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.alice.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.alice.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.alice.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.alice.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.alice.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 106,
+    "sound": "voice.original.alice.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.chen.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.chen.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.chen.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.chen.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.chen.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.chen.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.chen.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.chen.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.chen.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.chen.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.chen.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.chen.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.chen.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.chen.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.chen.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.chen.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.chen.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.chen.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.chen.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.chen.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.chen.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.chen.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.chen.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.chen.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.chen.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.chen.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.chen.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.chen.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.chen.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.chen.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.chen.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.chen.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.chen.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.chen.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.patchouli.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.patchouli.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.patchouli.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.patchouli.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.patchouli.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.patchouli.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.patchouli.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.patchouli.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.patchouli.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.patchouli.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.patchouli.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.patchouli.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.patchouli.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.patchouli.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.patchouli.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 115,
+    "sound": "voice.original.patchouli.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.patchouli.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 95,
+    "sound": "voice.original.patchouli.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 101,
+    "sound": "voice.original.patchouli.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 94,
+    "sound": "voice.original.patchouli.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 96,
+    "sound": "voice.original.patchouli.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 107,
+    "sound": "voice.original.patchouli.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 115,
+    "sound": "voice.original.patchouli.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.patchouli.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.patchouli.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.patchouli.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 98,
+    "sound": "voice.original.patchouli.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 115,
+    "sound": "voice.original.patchouli.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 113,
+    "sound": "voice.original.patchouli.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 106,
+    "sound": "voice.original.patchouli.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 128,
+    "sound": "voice.original.patchouli.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 124,
+    "sound": "voice.original.patchouli.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 151,
+    "sound": "voice.original.patchouli.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 126,
+    "sound": "voice.original.patchouli.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 119,
+    "sound": "voice.original.patchouli.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.patchouli.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 118,
+    "sound": "voice.original.patchouli.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 114,
+    "sound": "voice.original.patchouli.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 102,
+    "sound": "voice.original.patchouli.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 130,
+    "sound": "voice.original.patchouli.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.patchouli.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 125,
+    "sound": "voice.original.patchouli.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 116,
+    "sound": "voice.original.patchouli.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 126,
+    "sound": "voice.original.patchouli.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 154,
+    "sound": "voice.original.patchouli.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.remilia.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.remilia.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.remilia.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.remilia.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.remilia.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.remilia.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.remilia.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.remilia.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.remilia.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.remilia.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.remilia.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.remilia.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.remilia.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.remilia.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.remilia.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.remilia.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 86,
+    "sound": "voice.original.remilia.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.remilia.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.remilia.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 92,
+    "sound": "voice.original.remilia.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.remilia.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.remilia.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.remilia.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.remilia.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 82,
+    "sound": "voice.original.remilia.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.remilia.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 97,
+    "sound": "voice.original.remilia.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 91,
+    "sound": "voice.original.remilia.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 108,
+    "sound": "voice.original.remilia.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 103,
+    "sound": "voice.original.remilia.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 131,
+    "sound": "voice.original.remilia.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.remilia.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.remilia.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.remilia.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 97,
+    "sound": "voice.original.remilia.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.remilia.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.remilia.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 110,
+    "sound": "voice.original.remilia.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.remilia.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.remilia.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 96,
+    "sound": "voice.original.remilia.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.remilia.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 133,
+    "sound": "voice.original.remilia.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.flandre.baby.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.flandre.baby.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.flandre.baby.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.flandre.baby.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.flandre.baby.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.baby.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.flandre.baby.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.flandre.baby.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.baby.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.flandre.baby.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.flandre.baby.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.baby.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.flandre.baby.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.flandre.juvenile.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.juvenile.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.flandre.juvenile.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.flandre.juvenile.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.flandre.juvenile.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.flandre.juvenile.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.flandre.juvenile.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.flandre.juvenile.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.juvenile.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.juvenile.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.juvenile.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.flandre.juvenile.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.flandre.juvenile.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.flandre.juvenile.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.flandre.juvenile.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.flandre.adult.v1_food_delight",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.flandre.adult.v1_food_grudge",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 87,
+    "sound": "voice.original.flandre.adult.v1_food_reluctant",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.flandre.adult.v1_food_spit",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.flandre.adult.v1_food_complain",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.adult.v2_food_delight",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.flandre.adult.v2_food_grudge",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.flandre.adult.v2_food_reluctant",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.flandre.adult.v2_food_spit",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.flandre.adult.v2_food_complain",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.adult.v3_food_delight",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.flandre.adult.v3_food_grudge",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.flandre.adult.v3_food_reluctant",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.flandre.adult.v3_food_spit",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 87,
+    "sound": "voice.original.flandre.adult.v3_food_complain",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.miyo.baby.v1_food_delight",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.myon.miyo.baby.v1_food_grudge",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.miyo.baby.v1_food_reluctant",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.miyo.baby.v1_food_spit",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.myon.miyo.baby.v1_food_complain",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.v2_food_delight",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.miyo.baby.v2_food_grudge",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.myon.miyo.baby.v2_food_reluctant",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.myon.miyo.baby.v2_food_spit",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.myon.miyo.baby.v2_food_complain",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.myon.miyo.baby.v3_food_delight",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.myon.miyo.baby.v3_food_grudge",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.myon.miyo.baby.v3_food_reluctant",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.v3_food_spit",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.miyo.baby.v3_food_complain",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.myon.miyo.juvenile.v1_food_delight",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.myon.miyo.juvenile.v1_food_grudge",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.myon.miyo.juvenile.v1_food_reluctant",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 88,
+    "sound": "voice.original.myon.miyo.juvenile.v1_food_spit",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.myon.miyo.juvenile.v1_food_complain",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.myon.miyo.juvenile.v2_food_delight",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 91,
+    "sound": "voice.original.myon.miyo.juvenile.v2_food_grudge",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 98,
+    "sound": "voice.original.myon.miyo.juvenile.v2_food_reluctant",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.myon.miyo.juvenile.v2_food_spit",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.myon.miyo.juvenile.v2_food_complain",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.miyo.juvenile.v3_food_delight",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.myon.miyo.juvenile.v3_food_grudge",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 96,
+    "sound": "voice.original.myon.miyo.juvenile.v3_food_reluctant",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 97,
+    "sound": "voice.original.myon.miyo.juvenile.v3_food_spit",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.myon.miyo.juvenile.v3_food_complain",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 108,
+    "sound": "voice.original.myon.miyo.adult.v1_food_delight",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 104,
+    "sound": "voice.original.myon.miyo.adult.v1_food_grudge",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 129,
+    "sound": "voice.original.myon.miyo.adult.v1_food_reluctant",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 106,
+    "sound": "voice.original.myon.miyo.adult.v1_food_spit",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 102,
+    "sound": "voice.original.myon.miyo.adult.v1_food_complain",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.myon.miyo.adult.v2_food_delight",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.myon.miyo.adult.v2_food_grudge",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 94,
+    "sound": "voice.original.myon.miyo.adult.v2_food_reluctant",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 86,
+    "sound": "voice.original.myon.miyo.adult.v2_food_spit",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 111,
+    "sound": "voice.original.myon.miyo.adult.v2_food_complain",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.myon.miyo.adult.v3_food_delight",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 104,
+    "sound": "voice.original.myon.miyo.adult.v3_food_grudge",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 97,
+    "sound": "voice.original.myon.miyo.adult.v3_food_reluctant",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 107,
+    "sound": "voice.original.myon.miyo.adult.v3_food_spit",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 130,
+    "sound": "voice.original.myon.miyo.adult.v3_food_complain",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.myon.kinbao.baby.v1_food_delight",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.myon.kinbao.baby.v1_food_grudge",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.myon.kinbao.baby.v1_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.myon.kinbao.baby.v1_food_spit",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.myon.kinbao.baby.v1_food_complain",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.kinbao.baby.v2_food_delight",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.myon.kinbao.baby.v2_food_grudge",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.myon.kinbao.baby.v2_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.myon.kinbao.baby.v2_food_spit",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.kinbao.baby.v2_food_complain",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.myon.kinbao.baby.v3_food_delight",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.kinbao.baby.v3_food_grudge",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.kinbao.baby.v3_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.kinbao.baby.v3_food_spit",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.kinbao.baby.v3_food_complain",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.myon.kinbao.juvenile.v1_food_delight",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.myon.kinbao.juvenile.v1_food_grudge",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.myon.kinbao.juvenile.v1_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 95,
+    "sound": "voice.original.myon.kinbao.juvenile.v1_food_spit",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 88,
+    "sound": "voice.original.myon.kinbao.juvenile.v1_food_complain",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 90,
+    "sound": "voice.original.myon.kinbao.juvenile.v2_food_delight",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 98,
+    "sound": "voice.original.myon.kinbao.juvenile.v2_food_grudge",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 105,
+    "sound": "voice.original.myon.kinbao.juvenile.v2_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.myon.kinbao.juvenile.v2_food_spit",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.myon.kinbao.juvenile.v2_food_complain",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.myon.kinbao.juvenile.v3_food_delight",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 89,
+    "sound": "voice.original.myon.kinbao.juvenile.v3_food_grudge",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 102,
+    "sound": "voice.original.myon.kinbao.juvenile.v3_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 104,
+    "sound": "voice.original.myon.kinbao.juvenile.v3_food_spit",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.myon.kinbao.juvenile.v3_food_complain",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.v1_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 113,
+    "sound": "voice.original.myon.kinbao.adult.v1_food_delight",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.v1_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 110,
+    "sound": "voice.original.myon.kinbao.adult.v1_food_grudge",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.v1_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 134,
+    "sound": "voice.original.myon.kinbao.adult.v1_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.v1_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 111,
+    "sound": "voice.original.myon.kinbao.adult.v1_food_spit",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.v1_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 107,
+    "sound": "voice.original.myon.kinbao.adult.v1_food_complain",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.v2_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.kinbao.adult.v2_food_delight",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.v2_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 104,
+    "sound": "voice.original.myon.kinbao.adult.v2_food_grudge",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.v2_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.myon.kinbao.adult.v2_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.v2_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 92,
+    "sound": "voice.original.myon.kinbao.adult.v2_food_spit",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.v2_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 116,
+    "sound": "voice.original.myon.kinbao.adult.v2_food_complain",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.v3_food_delight",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_delight",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_delight"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.myon.kinbao.adult.v3_food_delight",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.v3_food_grudge",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_grudge",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_grudge"
+    ],
+    "ticks": 110,
+    "sound": "voice.original.myon.kinbao.adult.v3_food_grudge",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.v3_food_reluctant",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_reluctant",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_reluctant"
+    ],
+    "ticks": 102,
+    "sound": "voice.original.myon.kinbao.adult.v3_food_reluctant",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.v3_food_spit",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_spit",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_spit"
+    ],
+    "ticks": 112,
+    "sound": "voice.original.myon.kinbao.adult.v3_food_spit",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.v3_food_complain",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_complain",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "food_complain"
+    ],
+    "ticks": 135,
+    "sound": "voice.original.myon.kinbao.adult.v3_food_complain",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
     "id": "glass_wait.parent",
     "key": "dialogue.mcyukkuri.original.glass_wait.parent",
     "origin": "project-original",

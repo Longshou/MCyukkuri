@@ -51866,6 +51866,3651 @@
       }
     ]
   },
+  "voice.original.reimu.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.baby.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.baby.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v1_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v1_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v1_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v1_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v1_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v1_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v1_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v1_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v1_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v1_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v1_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v2_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v2_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v2_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v2_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v2_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v2_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v2_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v2_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v2_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v2_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v2_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v3_food_delight": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_delight",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v3_food_delight",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v3_food_grudge": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_grudge",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v3_food_grudge",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v3_food_reluctant": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_reluctant",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v3_food_reluctant",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v3_food_spit": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_spit",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v3_food_spit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.v3_food_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.v3_food_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.v3_food_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
   "voice.original.glass_wait.parent.alice.baby": {
     "subtitle": "dialogue.mcyukkuri.original.glass_wait.parent",
     "sounds": [
