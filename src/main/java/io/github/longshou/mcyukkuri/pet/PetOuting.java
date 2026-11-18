@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -21,6 +22,8 @@ public final class PetOuting extends Goal {
     private HumanNpc escort, owner;
     private Vec3 stand;
     private boolean shelter;
+    private int playTries;
+    private long playTryAt;
 
     public PetOuting(YukkuriEntity pet) {
         this.pet = pet;
@@ -35,20 +38,54 @@ public final class PetOuting extends Goal {
     public double outerDistance() { return 2 + 4 * independence(); }
     private double innerDistance() { return 1 + 2 * independence(); }
 
-    public boolean fit() {
+    public boolean sound() {
         var body = pet.body().condition();
         return pet.isAlive() && !pet.isNoAi() && pet.family().adult() && pet.family().brood() == null
                 && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle() && !pet.isLeashed()
                 && !pet.profile().aquatic() && !pet.profile().houseBody() && !pet.profile().dangerToYukkuri()
                 && body.readyForPlay() && !body.weak() && !body.dying() && !body.sick() && !body.hasSicknessPressure()
                 && !body.footBurned() && pet.body().toxin() == 0 && !pet.life().temperature().cold()
-                && !pet.life().hasUrgentNeed() && pet.life().energy() >= 45 - 15 * independence()
-                && !pet.life().isSleeping() && !pet.isPanicking() && !pet.pet().busy() && !pet.operations().active();
+                && !pet.life().hasUrgentNeed() && !pet.isPanicking() && !pet.pet().busy() && !pet.operations().active();
+    }
+
+    public double restBand() { return 45 - 15 * independence(); }
+    public boolean tired() { return pet.life().energy() < restBand(); }
+    public boolean fit() { return sound() && !pet.life().isSleeping() && !tired(); }
+
+    public boolean restsHere() {
+        var resident = escort();
+        return resident != null && resident.parkLingering() && tired() && sound() && pet.level().getDayTime() % 24000 <= 11000;
+    }
+
+    public PlayBlockEntity parkFacility() {
+        var resident = escort();
+        return resident == null ? null : resident.parkFacility();
+    }
+
+    public boolean tryParkPlay() {
+        var facility = parkFacility();
+        long now = pet.level().getGameTime();
+        if (facility == null || now < playTryAt || tired() || playTries >= 2
+                || pet.dailyLife().boredom() < 60 - pet.life().personality().boldness() / 5.0
+                || pet.distanceToSqr(facility.getBlockPos().getCenter()) > 64) return false;
+        playTryAt = now + 200;
+        var play = pet.playLife();
+        if (play.begin(facility)) return true;
+        // Give a current player time to finish. Other refusals end this pet's play search for this visit.
+        playTries = play.refused().equals("occupied") ? playTries + 1 : 2;
+        GameplayLog.event(pet, "pet", "outing play refused reason={} kind={} at={}",
+                play.refused(), facility.kind(), facility.getBlockPos());
+        return false;
+    }
+
+    public boolean doneAtPark() {
+        return !pet.life().isSleeping() && !pet.playLife().active() && !tired()
+                && (playTries >= 2 || pet.dailyLife().boredom() <= 45 - pet.life().personality().boldness() / 4.0);
     }
 
     public boolean wants(HumanNpc resident) {
         var traits = pet.life().personality();
-        return home == null && fit() && pet.pet().calm() && !LearnedFear.waryOf(pet, resident)
+        return home == null && fit() && !pet.playLife().active() && pet.pet().calm() && !LearnedFear.waryOf(pet, resident)
                 && pet.dailyLife().boredom() >= 70 - (traits.boldness() + traits.attachment()) / 8.0;
     }
 
@@ -56,10 +93,13 @@ public final class PetOuting extends Goal {
         escort = resident;
         home = yard;
         blockedAt = null;
+        playTries = 0;
+        playTryAt = 0;
         GameplayLog.event(pet, "pet", "outing joined yard={} follow={}..{}", yard.toShortString(), innerDistance(), outerDistance());
     }
 
-    public void forget() { home = null; escort = null; }
+    public void forget() { home = null; escort = null; playTries = 0; playTryAt = 0; }
+    public boolean onOuting() { return home != null; }
     public boolean escorted() { return escort() != null; }
     public boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }
 
@@ -77,7 +117,7 @@ public final class PetOuting extends Goal {
     private boolean free() {
         return home != null && !pet.isLeashed() && !pet.isPassenger() && !pet.isPanicking()
                 && !pet.operations().active() && !pet.isCommandPlaying() && !pet.pet().busy()
-                && !pet.life().isSleeping() && pet.life().mealTicks() == 0;
+                && !pet.life().isSleeping() && pet.life().mealTicks() == 0 && !pet.playLife().active();
     }
 
     @Override public boolean canUse() {

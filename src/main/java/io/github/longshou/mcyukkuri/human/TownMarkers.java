@@ -1,6 +1,9 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.play.PlayBlock;
+import io.github.longshou.mcyukkuri.play.PlayItem;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,10 +18,11 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
-/** The template's rotated markers give each yard a fixed pet start, owner home and food bowl. */
+/** Rotated village markers bind a yard's inhabitants and place each park's shared facility. */
 public final class TownMarkers {
     private static final String OWNER = "mcy_yard_owner", START = "mcy_yard_pet";
     private static final String NO_CARTON = "mcy_no_carton", SPAWNED = "mcy_yard_pet_spawned";
+    private static final String PARK_PLAY = "mcy_park_play";
     // The owner home and start of either lot are within eight horizontal blocks of each other.
     private static final int HOME_TO_START = 8;
 
@@ -27,14 +31,16 @@ public final class TownMarkers {
     public static void joining(EntityJoinLevelEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         var entity = event.getEntity();
-        if (!(entity instanceof Marker && (entity.getTags().contains(START) || entity.getTags().contains(NO_CARTON)))
+        if (!(entity instanceof Marker && (entity.getTags().contains(START) || entity.getTags().contains(NO_CARTON)
+                || entity.getTags().contains(PARK_PLAY)))
                 && !(entity instanceof HumanNpc && entity.getTags().contains(OWNER))) return;
         var server = level.getServer();
         // The join event runs before the entity is visible to the level's queries.
         server.tell(new TickTask(server.getTickCount(), () -> {
             if (level.getEntity(entity.getUUID()) != entity) return;
             if (entity instanceof Marker marker) {
-                if (marker.getTags().contains(START)) bind(level, marker);
+                if (marker.getTags().contains(PARK_PLAY)) placePark(level, marker);
+                else if (marker.getTags().contains(START)) bind(level, marker);
                 else for (var start : level.getEntitiesOfClass(Marker.class, new AABB(marker.blockPosition()),
                         m -> m.getTags().contains(START))) bind(level, start);
             }
@@ -44,6 +50,27 @@ public final class TownMarkers {
                         m -> m.getTags().contains(START))) bind(level, marker);
             }
         }));
+    }
+
+    private static void placePark(ServerLevel level, Marker marker) {
+        var data = data(marker);
+        String id = data.getString("Kind");
+        var kind = Arrays.stream(PlayBlock.Kind.values()).filter(candidate -> candidate.id.equals(id)).findFirst().orElse(null);
+        var localFacing = Direction.byName(data.getString("Facing"));
+        var root = marker.blockPosition();
+        if (kind == null || localFacing == null || !localFacing.getAxis().isHorizontal()) {
+            GameplayLog.world(level, "play", "park facility result=refused kind={} at={} facing={} reason=marker_data",
+                    id, root, data.getString("Facing"));
+            marker.discard();
+            return;
+        }
+        var facing = rotation(marker).rotate(localFacing);
+        if (PlayItem.positions(root, kind, facing).stream().anyMatch(pos -> !level.hasChunkAt(pos))) return;
+        var facility = PlayItem.place(level, root, kind, facing);
+        if (facility != null && kind == PlayBlock.Kind.POOL) facility.fill();
+        marker.discard();
+        GameplayLog.world(level, "play", "park facility result={} kind={} at={} facing={}",
+                facility == null ? "refused" : "placed", kind, root, facing);
     }
 
     private static void bind(ServerLevel level, Marker start) {
@@ -88,15 +115,18 @@ public final class TownMarkers {
 
     private static BlockPos offset(Marker marker, CompoundTag data, String key) {
         var xyz = data.getList(key, Tag.TAG_INT);
-        var rotation = switch (Direction.fromYRot(marker.getYRot())) {
+        var offset = new BlockPos(xyz.getInt(0), xyz.getInt(1), xyz.getInt(2));
+        return marker.blockPosition().offset(offset.rotate(rotation(marker)));
+    }
+
+    private static Rotation rotation(Marker marker) {
+        return switch (Direction.fromYRot(marker.getYRot())) {
             case NORTH -> Rotation.NONE;
             case EAST -> Rotation.CLOCKWISE_90;
             case SOUTH -> Rotation.CLOCKWISE_180;
             case WEST -> Rotation.COUNTERCLOCKWISE_90;
             default -> throw new IllegalStateException("Marker yaw must be horizontal");
         };
-        var offset = new BlockPos(xyz.getInt(0), xyz.getInt(1), xyz.getInt(2));
-        return marker.blockPosition().offset(offset.rotate(rotation));
     }
 
     static boolean yardContains(ServerLevel level, BlockPos bowl, BlockPos site) {

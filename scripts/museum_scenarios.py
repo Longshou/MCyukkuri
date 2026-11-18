@@ -2360,6 +2360,35 @@ add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟�
     ], env=DAY, vantage=(-2, 9, 160, 16),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
+_park_outing = []
+for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
+    _park_outing += [
+        yk(_kind, _x, _z, _name, uuid=uid('yard_park_play', _name), boldness=_bold, attachment=_bond,
+           nutrition=100, energy=47 if _kind == 'reimu' else 100,
+           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True),
+        f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',
+    ]
+add('yard_park_play', 'town', '主人带两只宠物去公园玩', '主人带两只宠物去公园玩',
+    '院主带灵梦和魔理沙走到草地上的蹦床旁。看它们自己上蹦床玩，灵梦玩累后在干地趴下，主人等它醒来再一起回院。',
+    '约 2 分钟', [
+        *_yard_ground(True),
+        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
+        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
+        'item replace block ~5 ~ ~2 container.0 with mcyukkuri:oil_grain_regular 4',
+        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        box(-19, -1, 5, -9, -1, 9, 'minecraft:grass_block'),
+        box(-19, 0, 5, -9, 2, 9, 'minecraft:air'),
+        'summon minecraft:marker ~-11.5 ~ ~1.5 {Tags:["mcy_park_walk"]}',
+        'summon minecraft:marker ~-12.5 ~ ~6.5 {Tags:["mcy_park_play"],Rotation:[180f,0f],'
+        'data:{Kind:"yukkuri_trampoline",Facing:"south"}}',
+        human('caretaker_sister', 1, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
+        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L}}',
+        *_park_outing,
+    ], env=DAY, vantage=(-7, 9, 145, 21),
+    reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -5339,7 +5368,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5', 'yard_park_play': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -6431,6 +6460,28 @@ next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_cro
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
 ])
+_park_shy = _uuid_text('yard_park_play', 'outing_shy')
+_smoke('yard_park_play', 2600, [
+    r'park facility result=placed kind=TRAMPOLINE',
+    r'action=outing_depart pets=2 ',
+    r'action=outing_park facility=',
+    rf'uuid={_park_shy} [^\n]*facility session started kind=TRAMPOLINE',
+    rf'uuid={_park_shy} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true',
+    rf'uuid={_park_shy} [^\n]*outing rest begin',
+    rf'uuid={_park_shy} [^\n]*end source=life cause=rested ',
+    r'action=outing_turn reason=park_(?:done|time)',
+    r'action=outing_home',
+    *[rf'uuid={_uuid_text("yard_park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
+    r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
+], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)'],
+    readout=[
+        'execute if block ~-13 ~ ~6 mcyukkuri:yukkuri_trampoline run say MCY_PARK_FACILITY_BEFORE_CLEAR',
+        'function mcylab:field/town/clear',
+        'execute ' + ' '.join(f'if block ~{x} ~{y} ~{z} minecraft:air'
+                              for x in range(-14, -11) for y in range(2) for z in range(5, 8))
+        + ' unless entity @e[type=minecraft:item,distance=..22,nbt={Item:{id:"mcyukkuri:yukkuri_trampoline"}}]'
+        ' run say MCY_PARK_FACILITY_CLEARED',
+    ])
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],

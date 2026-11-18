@@ -245,6 +245,7 @@
     "den_barrier_threat": "DN-08",
     "basket_weakness": "TN-33",
     "yard_street_walk": "TN-34",
-    "wall_tuck": "FG-16"
+    "wall_tuck": "FG-16",
+    "yard_park_play": "TN-35"
   }
 }
