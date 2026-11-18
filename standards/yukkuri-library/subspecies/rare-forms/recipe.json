@@ -176,7 +176,7 @@
       ],
       "iris": {
         "max_luminance": 150,
-        "min_warmth": 10,
+        "min_pigment": 10,
         "target": [
           196,
           30,

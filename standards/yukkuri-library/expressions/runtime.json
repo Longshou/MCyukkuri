@@ -924,9 +924,9 @@
         "satisfied": "art/source/rare-forms-runtime/myon_redeye/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/myon_redeye/textures/sleepy.png",
         "alice_agitated": "art/source/rare-forms-runtime/myon/textures/alice_agitated.png",
-        "breeding_period": "art/source/rare-forms-runtime/myon/textures/breeding_period.png",
+        "breeding_period": "art/source/rare-forms-runtime/myon_redeye/textures/breeding_period.png",
         "dazed": "art/source/rare-forms-runtime/myon_redeye/textures/dazed.png",
-        "state_recover": "art/source/rare-forms-runtime/myon/textures/state_recover.png"
+        "state_recover": "art/source/rare-forms-runtime/myon_redeye/textures/state_recover.png"
       },
       "face_aliases": {
         "biting": "puff"

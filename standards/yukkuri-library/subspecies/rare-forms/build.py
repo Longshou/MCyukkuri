@@ -196,13 +196,16 @@ def collapse(model, prefixes):
 
 
 def build_redeye(spec, model, textures):
+    """Repaint the base form's eye pigment, whichever colour the character style gave it: dark pixels on
+    either side of grey (brown or blue iris, glow and lid lines) scale toward the target; grey eyes,
+    highlights and skin stay."""
     cells = texels(model, spec['eye_parts'])
     iris = spec['iris']
     changed = 0
     for im in textures.values():
         for xy in cells:
             p = im.getpixel(xy)
-            if p[3] and luminance(p) < iris['max_luminance'] and p[0] - p[2] >= iris['min_warmth']:
+            if p[3] and luminance(p) < iris['max_luminance'] and abs(p[0] - p[2]) >= iris['min_pigment']:
                 k = max(.35, luminance(p) / 70)
                 im.putpixel(xy, tuple(max(0, min(255, round(c * k))) for c in iris['target']) + (p[3],))
                 changed += 1
