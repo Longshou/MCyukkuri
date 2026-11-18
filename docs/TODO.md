@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
+| 商店购买③：店员稳定取货（10） | `.worktrees/wp-shop-fetch` | shop/ShopStaff.java shop/ShopTrade.java fetch, SP-11 scene |
 
 ## 玩法待办
 
