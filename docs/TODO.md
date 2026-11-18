@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
-| 街道宠物③：分苹果野餐（14） | `.worktrees/wp-street-pets-3` | human/HumanStreet.java meal/picnic apple, yard templates produce_crate |
 | 进食分级台词池与配音 | `.worktrees/wp-food-lines` | art/dialogue food_* events, voice |
 | 爱丽丝与妖梦合成表情眼睛颜色 | `.worktrees/wp-face-eye-color` | face exporter, expressions exports |
 
