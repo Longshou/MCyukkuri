@@ -5,8 +5,7 @@ lines put its whole box back into the starting state (the dirt under the turf, g
 scenes change it, the biome), so "clear this field" is: remove every recorded non-player entity together with the
 world records the field left behind (``yukkuri clear``), then run the terrain again. Nothing else is ever left behind.
 
-Every field belongs to a theme group (``GROUPS``); the lobby only lists the fields by group, and each field has its own
-observation deck with the detailed controls.
+The scene menu lists fields by theme group (``GROUPS``).
 """
 import json
 import math
@@ -20,11 +19,7 @@ from museum_dsl import furniture  # noqa: E402
 GROUND = 63            # top block of the flat world
 FEET = GROUND + 1
 SKY = 82               # highest layer that is cleared again
-DECK_TOP = 68          # standing level of the observation deck (four blocks above the feet level)
-DECK_DEPTH = 16        # five rows with three-block spacing, common controls nearest the south landing
-DECK_APRON = 10        # field ground south of a deck that the visitor looks over: no scene building stands in it
-
-# theme groups, in lobby order: (id, title)
+# Theme groups, in menu order: (id, title).
 GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
           ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '物种与形态')]
 
@@ -60,18 +55,14 @@ def fillbiome_boxes(x1, z1, x2, z2, biome, y1=56, y2=100, limit=30000):
 
 
 class Field:
-    deck_side = 'south'
+    reserved = False
 
-    def __init__(self, fid, title, group, cx, cz, hx, hz, biome, ground='minecraft:grass_block', blurb='', deck_depth=DECK_DEPTH):
+    def __init__(self, fid, title, group, cx, cz, hx, hz, biome, ground='minecraft:grass_block', blurb=''):
         self.id, self.title, self.group, self.cx, self.cz, self.hx, self.hz = fid, title, group, cx, cz, hx, hz
         self.biome, self.ground, self.blurb = biome, ground, blurb
         self.x1, self.x2, self.z1, self.z2 = cx - hx, cx + hx, cz - hz, cz + hz
         self.scenarios = []
-        self.extras = []          # (function name, caption, hint) of extra deck buttons beyond the scenarios
         self.anchor = (cx, cz)    # default block the scenarios stand around
-        # observation deck: north of the field, looking south into it
-        self.deck = (cx - 14, self.z1 - 6 - deck_depth + 1, cx + 14, self.z1 - 6)
-        self.gate = (cx, self.z2 + 8)   # the whole return pad stays outside the clear margin
 
     def rect(self):
         x1, _, z1, x2, _, z2 = self.clear_box()
@@ -80,29 +71,13 @@ class Field:
     def plot_rect(self, x, z):
         return self.x1, self.z1, self.x2, self.z2
 
-    def deck_rect(self):
-        x1, z1, x2, z2 = self.deck
-        return (x1 - 1, z1 - 1, x2 + 1, z2 + 1)
-
-    def apron_rect(self):
-        """The first ``DECK_APRON`` rows immediately south of the deck, reserved for a view into the field."""
-        x1, _, x2, z2 = self.deck
-        return (x1 - 1, z2 + 1, x2 + 1, z2 + DECK_APRON)
-
-    def gate_rect(self):
-        x, z = self.gate
-        return (x - 3, z - 2, x + 3, z + 2)
-
     def chunks(self):
-        out = set()
-        for x1, z1, x2, z2 in (self.rect(), self.deck_rect(), self.gate_rect()):
-            for x in range(x1 // 16 * 16, x2 // 16 * 16 + 1, 16):
-                for z in range(z1 // 16 * 16, z2 // 16 * 16 + 1, 16):
-                    out.add((x, z))
-        return out
+        x1, z1, x2, z2 = self.rect()
+        return {(x, z) for x in range(x1 // 16 * 16, x2 // 16 * 16 + 1, 16)
+                for z in range(z1 // 16 * 16, z2 // 16 * 16 + 1, 16)}
 
     def clear_box(self):
-        """Region that ``yukkuri clear`` sweeps: the field and a margin (never the deck)."""
+        """Region that ``yukkuri clear`` sweeps: the field and its margin."""
         return (self.x1 - 4, GROUND - 6, self.z1 - 4, self.x2 + 4, SKY + 8, self.z2 + 4)
 
     def base(self):
@@ -415,9 +390,6 @@ class Pond(Field):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self.px, self.pz = self.cx + 4, self.cz
-        # Three common control rows and four rows of scenarios, with three-block spacing.
-        x1, z1, x2, z2 = self.deck
-        self.deck = (x1, z1 - 6, x2, z2)
         # first water cell on the row z=pz, scanned from the west
         x = self.px - self.RX - 3
         while self.depth(x, self.pz) == 0:
@@ -528,7 +500,7 @@ class Town(Field):
 
 
 class Lot(Field):
-    """An empty building lot with a street along its south edge; a ``human build`` button puts the whole building on it and clears the lot first.
+    """An empty building lot with a street along its south edge. A scene clears it before placing the building with ``human build``.
     ``pads`` are the entrance x offsets from the centre (one building per pad); the entrance row is 17 blocks south of the centre."""
     def __init__(self, *args, pads=(0,), **kw):
         super().__init__(*args, **kw)
@@ -541,7 +513,6 @@ class Lot(Field):
 
 
 class Village(Field):
-    deck_side = 'north'
     styles = [('plains', 'minecraft:plains', '平原村庄'), ('desert', 'minecraft:desert', '沙漠村庄'),
               ('savanna', 'minecraft:savanna', '热带草原村庄'), ('snowy', 'minecraft:snowy_plains', '雪原村庄'),
               ('taiga', 'minecraft:taiga', '针叶林村庄')]
@@ -560,12 +531,6 @@ class Village(Field):
         self.x2 -= 1
         self.z2 -= 1
         self.origins = ((cx, cz), (cx + shift, cz), (cx, cz + shift))
-        self.deck = (cx - 14, self.z2 + 6, cx + 14, self.z2 + 6 + DECK_DEPTH - 1)
-        self.gate = (cx, self.deck[3] + 4)
-
-    def apron_rect(self):
-        x1, z1, x2, _ = self.deck
-        return x1 - 1, z1 - DECK_APRON, x2 + 1, z1 - 1
 
     def clear_box(self):
         # Restore the flat preset's ground band; village pieces stand on the surface and levelling stops at solid ground.
@@ -594,27 +559,30 @@ class Plant(Field):
         return [fill(self.x1, GROUND, z - 3, self.x2, GROUND, z - 1, 'minecraft:dirt_path')]
 
 
+class Park(Field):
+    reserved = True
+
+
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
-    # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
     Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='村边纸箱、垃圾桶与挡风处；另有野生家庭演示'),
     Biomes('biomes', '群系聚落', 'biome', -884, 468, 128, 64, 'minecraft:plains', plots=BIOME_PLOTS, cols=4,
            blurb='八个群系的聚落（春夏秋冬各有），各群系的住所、存粮与山脚聚落的嗯嗯坑、嗯嗯奴隶'),
     # 64 blocks of meadow north and south of the plots: the leader's hunting ground lies 32-64 blocks out (CommonHunt.RADIUS).
     Biomes('colony', '族群迁徙与族规', 'biome', -680, 468, 64, 64, 'minecraft:plains', plots=COLONY_PLOTS, cols=2,
            blurb='有族长的村落：公共狩猎、黄昏分粮，全族带着赤油迁往东边的空村'),
-    Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', deck_depth=DECK_DEPTH + 3,
+    Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains',
            blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
-    Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', deck_depth=19, blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
+    Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
-    Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', deck_depth=19, blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
+    Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
     Open('headwear', '头饰与认知', 'react', 0, 500, 28, 24, 'minecraft:plains', blurb='头饰损坏自愈、碎裂拼回、失饰者认不出、鄙视、怪物、欺负'),
     Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='水生魔理沙：出航返岸、亲子上船、落水自救与救援、岸边分娩、帽子翻覆与搁浅'),
     House('house', '家油人类屋', 'house', 8, 296, 22, 18, 'minecraft:plains', blurb='有人类活动的屋子：隐蔽墙角、搬入、筑巢、迁卵'),
-    Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输',
-         deck_depth=DECK_DEPTH + 6),
+    Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输'),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='宠物店：临街展舱、捕食种房、后院放养，店员照料、补货、买卖'),
     Plant('plant', '加工所', 'human', -600, 700, 26, 27, 'minecraft:plains'),
+    Park('park', '公园', 'human', -450, 700, 36, 28, 'minecraft:plains'),
     Village(384, 512),
     Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐、橙速度、魔理沙相扑'),
 ]

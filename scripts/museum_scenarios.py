@@ -51,7 +51,7 @@ class Retry:
 
 
 class Scenario:
-    def __init__(self, sid, field, title, hint, watch, wait, lines, give=(), env=None, spot=None, retry='先按“清空本场地”，再重新生成',
+    def __init__(self, sid, field, title, hint, watch, wait, lines, give=(), env=None, spot=None, retry='按 M，在「实用」里重开',
                  asks='', note='', sub=None, vantage=(0, 14), reads=(), late=(), smoke=None, capture=None):
         self.id, self.field, self.title, self.hint = sid, field, title, hint
         # self.number is set once every scenario exists (``_number_scenes``), so that the pond tour order is known.
@@ -171,7 +171,7 @@ add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土�
         box(-7, 0, 1, 7, 1, 8, 'minecraft:air', 'replace minecraft:short_grass')],
     env=DAY, spot='family', vantage=(0, 12),
     late=list(_den_family_death()),
-    note='观察台可读母油的 Load、Delivered 和孩子营养。若家中已有足够存粮，母油会留在窝里用现成的粮照料孩子。',
+    note='用场景读数查看母油的 Load、Delivered 和孩子营养。若家中已有足够存粮，母油会留在窝里用现成的粮照料孩子。',
     reads=[('读家的识别与母油觅食', f'yukkuri status {sel("mother")} raw'),
            ('读孩子生活', f'yukkuri status {sel("child")} raw')])
 
@@ -440,7 +440,8 @@ add('graze', 'forage', '舌肥：同一份粗粮，五种反应', '舌肥：同�
         *(command for name, species, x, nutrition, taste, _ in _taste_actors for command in (
             yk(species, x, 0, f'taste_{name}', uuid=uid('graze', f'taste_{name}'), nutrition=nutrition, yaw=180,
                boldness=80 if name == 'picky' else 50, friendliness=30 if name == 'picky' else 50,
-               self_control=25 if name == 'picky' else 40, picky=taste, lead=name == 'grudge', label=f'舌肥 {taste}'),
+               self_control=25 if name == 'picky' else 40, intelligence=(45, 65),
+               picky=taste, lead=name == 'grudge', label=f'舌肥 {taste}'),
             item('mcyukkuri:oil_grain_budget', 1, x, -.4, name=f'taste_grain_{name}')))],
     env=DAY, spot='graze', vantage=(-4, 12),
     give=['mcyukkuri:oil_grain_budget 4', 'mcyukkuri:oil_grain_premium 2'], note='待验证：尚未试玩。',
@@ -1135,13 +1136,14 @@ def _sleep_doorway_verify(log):
 
 
 add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的窝睡觉',
-    '灵梦困了，自己走回有顶的窝里睡觉；睡足醒来先在窝里伸一个长懒腰、打哈欠，再抖抖身子起来（饿醒的直接起身）', '约 1 分钟', [
-    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(7, -7, 0, 35), env=DAY,
+    '油库里困了，自己走回有顶的窝里睡觉；睡足醒来先在窝里伸一个长懒腰、打哈欠，再抖抖身子起来（饿醒的直接起身）', '约 1 分钟', [
+    *shed(7, 0), yk(('reimu', 'marisa'), 0, 0, 'a', uuid=uid('sleep', 'a'), energy=95,
+                   rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(7, -7, 0, 35), env=DAY,
     # The home is set two seconds after the summon, so the tiredness comes only once the nest is hers (energy below the rest
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
     # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
-    # Second view: in front of her face, for the waking stretch and yawn (from the deck she lies with her back to it).
+    # Second view: in front of her face, for the waking stretch and yawn.
     capture=dict(shots=(1, 40, 2600), sequences=((200, 1500, 5),), observe=False,
                  views={'': dict(), 'face': dict(follow=f'@e[tag={tag("a")},limit=1]', offset=(0, .7, 1.3))}),
     smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
@@ -1153,7 +1155,7 @@ add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的�
                readout=[f'yukkuri status {sel("a")} raw'], verify=_sleep_doorway_verify))
 
 add('fatigue', 'weather', '困极原地睡着，打盹与惊醒', '困极原地睡着，打盹与惊醒',
-    '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并打盹1–3秒，两次间隔至少15秒、平均约32秒（“读短打盹”的 gap 为剩余间隔）。用天气按钮下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',
+    '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并打盹1–3秒，两次间隔至少15秒、平均约32秒（“读短打盹”的 gap 为剩余间隔）。在 M 菜单的「实用」页下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',
     '先看两只睡眠时长；再观察后排约1–2分钟，可清场后试雨或轻击', [
         yk('reimu', -5, 0, 'timid', label='胆小·困值100', energy=0, boldness=10, lead=True),
         yk('reimu', 5, 0, 'bold', label='胆大·困值100', energy=0, boldness=90),
@@ -1183,12 +1185,13 @@ add('nutrition_age', 'body', '各年龄饿得快慢，饿到0变虚弱', '各年
 add('meet', 'meadow', '熟的走近蹭蹭，生的先问候', '熟的走近蹭蹭，生的先问候',
     '北边一对橙和爱丽丝互相认识、想亲近，会自己走近、问候、蹭蹭；南边一对橙和爱丽丝素不相识（亲近度 0），一只走过去时另一只停下看着它，接触时先问候、对方回礼，'
     '之后读数里出现彼此的关系、亲近度大于 0；再靠近看陌生的两只能否主动问候中立的你', '持续观察约 2 分钟（暂停不计时）', [
-    yk('chen', -2, -3, 'a', yaw=-90, affection=95, social_wait=0, lead=True),
+    yk('chen', -2, -3, 'a', uuid=uid('meet', 'a'), intelligence=(45, 65),
+       yaw=-90, affection=95, social_wait=0, lead=True),
     yk('alice', 2, -3, 'b', yaw=90, affection=95, social_wait=0),
     f'yukkuri scenario bond {sel("a")} {sel("b")}',
     yk('chen', -2, 3, 'stranger_a', label='陌生橙', yaw=-90, attachment=95, affection=0, social_wait=0),
     yk('alice', 2, 3, 'stranger_b', label='陌生爱丽丝', yaw=90, attachment=95, affection=0, social_wait=0)],
-    env=DAY, vantage=None, give=['mcyukkuri:field_notebook'],
+    env=DAY, vantage=(0, 14), give=['mcyukkuri:field_notebook'],
     capture=dict(shots=(1, 40, 600), sequences=((20, 400, 4),), observe=False,
                  views={'bonded': dict(follow=f'@e[tag={tag("a")},limit=1]', offset=(3, 1.6, 3),
                                       criteria='熟识的一对连续走近、轮流问候，侧贴蹭蹭时身体接触而不重叠。'),
@@ -1267,14 +1270,14 @@ add('hurt', 'meadow', '受伤后伴侣和亲油来舔伤', '受伤后伴侣和�
         yk('reimu', 0, 7, 'mom', yaw=-90, **pair_ready()),
         yk('chen', 4, 7, 'kid', stage='child', uuid=_hurt_victims['kid'], yaw=90, nutrition=90, energy=95),
         f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
-        f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:flour_paste 2'], vantage=None,
+        f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:flour_paste 2'], vantage=(2, 16, 180, 20),
     capture=dict(shots=(1, 40, 200, 600, 1800), sequences=((60, 1800, 12),), observe=False,
                  views=dict(wound=dict(follow='@e[tag=scn_a,limit=1]', offset=(.8, .65, 2.3),
                                        criteria='看清橙正面的磕伤与伴侣靠近舔舐的接触，保留双方身体和伤口。'))),
     reads=[('读受伤的橙（伴侣）', f'yukkuri status {sel("a")} raw'), ('读受伤的小橙（亲子）', f'yukkuri status {sel("kid")} raw')])
 
 add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', '橙有强烈便意：看它走向右边的厕所；拆掉厕所再看它在地面排便（从油菊排出）', '约 1 分钟', [
-    block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=None,
+    block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=(3, 10, 180, 18),
     reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste')],
     smoke=dict(ticks=1200,expect=[r'relieved source=facility',r'toilet stored [^\n]*volume='],forbid=[]))
 
@@ -1354,7 +1357,7 @@ add('pred_toilet', 'meadow', '捕食种上厕所与地面排便', '捕食种上�
         block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), 'data merge block ~6 ~ ~ {Waste:7.0d}',
         yk('remilia', 0, 0, 'rem', bladder=95, nutrition=100, energy=100, yaw=-90, lead=True),
         yk('flandre', -6, 6, 'fla', bladder=95, nutrition=100, energy=100, yaw=-90)],
-    env=DAY, vantage=None,
+    env=DAY, vantage=(0, 14),
     reads=[('读厕所内排泄物体积（7→8 满）', 'data get block ~6 ~ ~ Waste'), ('读芙兰', f'yukkuri status {sel("fla")} raw')],
     capture=dict(shots=(1, 40), sequences=((60, 260, 6),), observe=False,
                  views=dict(rem=dict(follow=f'@e[tag={tag("rem")},limit=1]', offset=(.6, .7, 2.4),
@@ -1657,7 +1660,7 @@ _NEST_SHARE={'b0':.2095,'b1':.2062,'b2':.2028,'b3':.18}
 _NEST_CELLS=((-0.5, -0.5), (0.5, -0.5), (-0.5, 0.5), (0.5, 0.5))
 add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六口同窝，长大再分窝',
     '六口开场都不困：四只赤油平平地躺在大窝的四个格上，父母贴着窝边（读“同居与床位”看六口床位都在这一个窝）。场景切到 3 倍速：约半分钟内开始有子油长成、被大窝按容量让出（日志 '
-    'growth released shared nest，一次一只），让出的子油自己走到两边空着的普通窝里认领床位（日志 released child claimed a free nest，三只分住这两个窝），最后一只仍是赤油留在大窝。困了会回自己的窝；按观察台“1倍速”可恢复正常速度',
+    'growth released shared nest，一次一只），让出的子油自己走到两边空着的普通窝里认领床位（日志 released child claimed a free nest，三只分住这两个窝），最后一只仍是赤油留在大窝。困了会回自己的窝；在「实用」页选“1×”可恢复正常速度',
     '先看六口同窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝；清空或重开场景会恢复 1 倍速', ['function mcylab:util/speed_3x',
     *shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
@@ -1697,7 +1700,7 @@ def _night_sleep_verify(log):
 
 
 add('night_sleep', 'family', '夜里睡到天亮，惊扰才醒', '夜里睡到天亮，惊扰才醒',
-    '夜里（正午按钮可换白天对照）：父母和两只赤油精力满、困值不满，到了作息时间照样认窝、进窝睡下；睡下的那几只整夜不自己醒，约两分钟后自动天亮，它们伸懒腰打哈欠醒来（日志 cause=rested_dawn）。还在储粮或找孩子的那只不一定整夜在窝里；中途按“夜晚”重开或打雷、搬走窝才提前醒',
+    '夜里（「实用」页的“正午”可换白天对照）：父母和两只赤油精力满、困值不满，到了作息时间照样认窝、进窝睡下；睡下的那几只整夜不自己醒，约两分钟后自动天亮，它们伸懒腰打哈欠醒来（日志 cause=rested_dawn）。还在储粮或找孩子的那只不一定整夜在窝里；中途按“夜晚”重开或打雷、搬走窝才提前醒',
     '整夜约2分钟，天亮后自动醒', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     yk('reimu', -1, -.5, 'mother', uuid=_night_ids['mother'], energy=100, nutrition=100, rest_wait=60, lead=True),
     yk('marisa', 2, 2, 'father', uuid=_night_ids['father'], energy=100, nutrition=100, rest_wait=60),
@@ -1779,7 +1782,7 @@ add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草',
 
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑去远处石顶下躲雨',
-    '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease。按观察台“雷暴”对照：同样的石顶，反应更强烈',
+    '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease。在「实用」页选“雷暴”对照：同样的石顶，反应更强烈',
     '约 30 秒', [
         yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
     env={'time': 'noon', 'weather': 'rain'}, spot='shelter', vantage=(0, 14),
@@ -1913,10 +1916,10 @@ def house_pair(sid='house_pair', ax=-1, bx=1, dz=1):
 
 HOUSE_ACTIVITY = 'yukkuri household activity 24000 false true'
 add('house_empty', 'house', '空屋住人一天后，家油搬进来', '空屋住人一天后，家油搬进来', '屋里没有家油：按“模拟人类活动”相当于住了一天（落下絮尘和食屑），随后有一只家油搬进来、选墙角、筑巢',
-    '搬入几十秒，筑巢数分钟', [say('按观察台第一排右边的“模拟人类活动”，再用“推进”快进。', 'gold')], env=DAY, vantage=(0, 8, 180, 10),
+    '搬入几十秒，筑巢数分钟', [say('按 M，在「实用」页选“模拟人类活动”，再用“推进”快进。', 'gold')], env=DAY, vantage=(0, 8, 180, 10),
     reads=[('读家油现状', 'yukkuri household status')])
 add('house_pair', 'house', '一对家油挑墙角叼絮筑窝', '一对家油挑墙角叼絮筑窝', '从夜晚开始，屋内已有真实人类活动留下的絮尘和食屑：家油挑墙角、叼絮铺窝、储食；按“正午”对照白天躲窝休息',
-    '数分钟（可倍速）', [*house_pair(), HOUSE_ACTIVITY], env={'time': 'night'}, vantage=None,
+    '数分钟（可倍速）', [*house_pair(), HOUSE_ACTIVITY], env={'time': 'night'}, vantage=(0, 5, 180, 15, 0),
     reads=[('读家油现状', 'yukkuri household status')])
 
 HNEST = 'mcyukkuri:house_dust_nest{Materials:6,Food:8,Arrivals:2,Entrance:"south"%s}'
@@ -1925,7 +1928,7 @@ add('house_eggs', 'house', '窝脏了，家油把卵叼去新窝', '窝脏了，
                        *house_pair('house_eggs', -4, -5, -1), HOUSE_ACTIVITY,
                        f'yukkuri scenario home {sel("a")} ~-5 ~ ~-2', f'yukkuri scenario home {sel("b")} ~-5 ~ ~-2',
                        f'yukkuri scenario eggs {sel("b")} {sel("a")}'],
-    env={'time': 'night'}, vantage=None, reads=[('读家油现状', 'yukkuri household status'),
+    env={'time': 'night'}, vantage=(0, 5, 180, 15, 0), reads=[('读家油现状', 'yukkuri household status'),
         ('读迁卵与亲代住所', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..18] raw'),
         ('读原窝卵与迁卵记录', 'data get block ~-5 ~ ~-2'),
         ('读新窝卵与接收记录', 'data get block ~5 ~ ~-2')],
@@ -2521,7 +2524,7 @@ CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,C
 SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
 SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 'shop_browse': (8, 6),
                'shop_pick': (8, 6), 'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
-SHOP_ACCESS_HINT = '商店观察台的“访客／会员／贵宾”按钮可更换本店购买与预订资格。'
+SHOP_ACCESS_HINT = '在 M 菜单的「实用」页选“访客／会员／贵宾”，更换本店购买与预订资格。'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
     '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、亚成芙兰），后院放养赤油与亚成油。'
@@ -2575,7 +2578,7 @@ add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆�
     env=DAY, vantage=(16, 18, 180, 0),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy', 'shop', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台',
-    '先在观察台选“贵宾”。进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开展舱铁门，'
+    '先在「实用」页选“贵宾”。进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开展舱铁门，'
     '叫她来到门边，装篮那一刻才扣款。店员提篮交到你手上，或放在柜台上留给你。隔壁的子油橙看着她被带走。'
     '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱。'
     + SHOP_ACCESS_HINT,
@@ -2585,7 +2588,7 @@ add('shop_buy', 'shop', '买下金章爱丽丝：店员到展舱接她装篮，�
 add('shop_browse', 'shop', '自由逛店：进展栏、乱动被警告、稀有个体要会员', '自由逛店：进展栏、乱动被警告、稀有个体要会员',
     '以访客身份打开铁门，逛展栏、后屋和后院。拿着 16 颗绿宝石找店员，在“在售”里试买或预订橙，看看还差多少消费。'
     '切到生存模式，在店里试挖玻璃，等空闲店员走来警告，再试挖一次。玻璃应完好，本店今天会拒绝交易，门仍能开。'
-    '想试会员购买，可清场重开，在观察台切换会员后再试。',
+    '想试会员购买，可重开，在「实用」页切换会员后再试。',
     '建筑几秒，试挖后等店员走近', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 16'], env=DAY, vantage=(8, 21, 180, 0),
     reads=[('读店铺登记', 'yukkuri human shop list'), ('读在售子油橙', f'yukkuri status {BOOTH.format("chen", 0)} raw')])
@@ -2610,7 +2613,7 @@ add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订
            ('读大胆慢热的灵梦', f'yukkuri status {sel("pick_bold")} raw')])
 _fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
-    '先在观察台选“会员”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
+    '先在「实用」页选“会员”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
     '看店员在栏门口叫它们靠近，等约五秒仍够不着时伸手接进篮子，去后院取货时则会走进去。等店员提来每只装好的实篮再买下一只。',
     '布置几秒，每单约 20 秒', ['yukkuri human build shop ~8 ~ ~17 south',
         *[f'tag @e[type=mcyukkuri:{kind},distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
@@ -2827,7 +2830,7 @@ add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿'
 add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '没人照看，襁褓里积满便便',
     '两只裹着树叶襁褓的子油没有亲油：便意 95 的一只马上把便便排进襁褓（soil 按体积增加，卫生、不安恶化，襁褓下沿染色）；'
     '已积 3 体积单位的一只早期再满就溢到地上。失护约 1.25／2.5／3.75 天（随体质平移）后依次黄褐干枯、停止溢出并肿胀、损失生命直至便秘死亡；'
-    '用观察台倍速和推进按钮加快，持续喂苹果维持真实供食。按“解开积满子油襁褓”调用亲油同一解开动作，积便按体积落地，肿胀和虚弱逐渐恢复',
+    '用「实用」页的倍速和推进加快，持续喂苹果维持真实供食。按“解开积满子油襁褓”调用亲油同一解开动作，积便按体积落地，肿胀和虚弱逐渐恢复',
     '立即积便；长期后果用倍速观察', [
         # Early children have enough real childhood left to reach late neglect before outgrowing the leaf.
         yk('reimu', 0, 0, 'kid', stage='child', share=.23, yaw=180, lead=True, nutrition=80, bladder=95, hygiene=80, extra=leaf_wrap()),
@@ -3264,7 +3267,7 @@ add('magma_sole', 'body', '踩岩浆块烫脚，跳着逃开', '踩岩浆块烫�
 add('learned_holder', 'body', '目击工具后躲开持用者', '目击工具后躲开持用者',
     '在个体面前使用转子，间隔十秒再让它看见一次。空手靠近目击者也会引起退避。封闭隔间里的对照可以走动，始终看不到工具接触。可把食物放在离持用者八格以外，观察极饿时恢复觅食。',
     '站在目标前使用转子，读旁观者的对象关系', [
-        yk('reimu',0,0,'target',label='工具接触对象',lead=True,extra='NoAI:1b'),
+        yk('reimu',0,0,'target',label='工具接触对象',lead=True),
         yk('reimu',2,1,'witness',label='看得见的旁观者',boldness=0,uuid=uid('learned_holder','witness')),
         box(-8,-1,-1,-4,3,3,'minecraft:stone','hollow'),
         block(-6,3,1,'minecraft:sea_lantern'),
@@ -3276,8 +3279,8 @@ _hook_scene = 'hook_kin_rescue'
 add(_hook_scene, 'body', '亲属走近吊钩尝试救援', '亲属走近吊钩尝试救援',
     '在透明高顶下的孩子身上使用吊钩，然后留在五格内并给亲油让开通路。亲油按胆量、恐惧与友善决定是否上前。这处钩位偏高，观察亲油走到下方、抬头尝试、够不到时含泪退让。够到钩身才会松开钩子。',
     '用吊钩挂起孩子，观察亲油走近后如何尝试', [
-        box(-1,3,-1,1,3,1,'minecraft:glass'),
-        yk('reimu',0,0,'hook_child',label='孩子',lead=True,extra='NoAI:1b',
+        box(-2,3,-2,2,3,2,'minecraft:glass'),
+        yk('reimu',0,0,'hook_child',label='孩子',lead=True,
            uuid=uid(_hook_scene,'hook_child'),kin=f'Mother:{uuid_nbt(uid(_hook_scene,"hook_parent"))}'),
         yk('reimu',2,0,'hook_parent',label='亲油',uuid=uid(_hook_scene,'hook_parent'),boldness=100,friendliness=100),
     ], env=DAY,vantage=(0,8),give=['mcyukkuri:hanging_hook'],
@@ -3523,7 +3526,7 @@ add('puff_response', 'headwear', '被噗咕：逃、无视、回嘴或反击', '
 # ---- species traits and rare forms
 add('species_fatigue', 'species', '妖梦、灵梦、帕琪体力消耗对照', '妖梦、灵梦、帕琪体力消耗对照',
     '妖梦、灵梦和帕秋莉均成年、营养100、精力95，各有两份真实苹果并用玻璃隔开。按 species.fatigue 的 steps 对照代谢 cost：同为20次时应为18／20／25；睡眠会暂停清醒代谢，其他活动额外耗能不计入cost，不要求同一秒达到同次数',
-    '默认间隔下约3分钟，精力耗尽前读20次；可用已有推进按钮', [
+    '默认间隔下约3分钟，精力耗尽前读20次；可用「实用」页的推进', [
         box(-3, 0, -4, -3, 2, 4, 'minecraft:glass'), box(3, 0, -4, 3, 2, 4, 'minecraft:glass'),
         *[command for species,dx,name,label in (('myon',-7,'myon','妖梦·0.9'),('reimu',0,'neutral','灵梦·1'),('patchouli',7,'frail','帕秋莉·1.25'))
           for command in (yk(species,dx,0,name,label=label,nutrition=100,energy=95,lead=name=='myon'),item('minecraft:apple',2,dx,2))]],
@@ -4897,7 +4900,7 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
      '静水亲帽停在离岸三格的水面，亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳（会玩才会探头），一在舱内、一在头顶，都已吃饱。静水里帽子只轻摆起伏，不翻。'
      '舱内那只自己跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只只做不碰水的探头。'
      '第 13 秒打雷：舱内有空位就跳回舱内缩身，舱内无位而头顶有位时由亲油辫子托上头顶，两处都无位才留在帽檐上抓紧缩身；平静后继续玩耍。空手右击赤油看问候',
-     '约 2 分钟；用天气按钮可再看受惊',
+     '约 2 分钟；可在「实用」页调整天气再看受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
       _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),

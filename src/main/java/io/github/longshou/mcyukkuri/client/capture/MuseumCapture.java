@@ -191,10 +191,10 @@ public final class MuseumCapture {
                 var source = server.getPlayerList().getPlayer(uuid).createCommandSourceStack().withPermission(4);
                 if (nextScene > 1) server.getCommands().performPrefixedCommand(source,
                         "function mcylab:field/" + PLAN[nextScene - 2].field + "/clear");
-                // A human reaches the field before pressing its button; load that same terrain first.
+                // Load the scene's field before sending the player to its fixed view.
                 for (int[] chunk : scene.chunks) server.overworld().getChunk(chunk[0] >> 4, chunk[1] >> 4);
                 server.getCommands().performPrefixedCommand(source, scene.view);
-                // Give the client two seconds to receive/render the terrain before the button starts the scene.
+                // Give the client two seconds to receive and render the terrain before starting the scene.
                 server.getCommands().performPrefixedCommand(source, "schedule function mcylab:capture/" + scene.id + " 40t");
                 return server.overworld().getGameTime() + 40;
             });

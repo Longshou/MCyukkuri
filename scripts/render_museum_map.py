@@ -2,7 +2,7 @@
 
     python scripts/render_museum_map.py [output.png]      # default: .local/previews/museum/map.png in the main checkout
 
-The lobby plaza, every field with its scenario anchors, its observation deck and the pond / cave details.
+The lobby plaza, every field with its scenario anchors, and the pond and cave details.
 """
 from pathlib import Path
 import sys
@@ -30,10 +30,10 @@ def main():
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(r'F:\yukkuri\.local\previews\museum\map.png')
     fields = museum.FIELDS
     lx1, lz1, lx2, lz2 = museum.LOBBY
-    x_min = min([lx1] + [f.deck[0] - 4 for f in fields] + [f.x1 - 4 for f in fields])
+    x_min = min([lx1] + [f.x1 - 4 for f in fields])
     x_max = max([lx2 + 60] + [f.x2 + 60 for f in fields])
-    z_min = min([lz1] + [f.deck[1] - 4 for f in fields])
-    z_max = max([lz2] + [f.gate[1] + 4 for f in fields])
+    z_min = min([lz1] + [f.z1 - 4 for f in fields])
+    z_max = max([lz2] + [f.z2 + 4 for f in fields])
     S = 1.6
     W, H = int((x_max - x_min) * S) + 40, int((z_max - z_min) * S) + 40
     img = Image.new('RGB', (W, H), '#20242b')
@@ -47,16 +47,14 @@ def main():
         d.rectangle([px(x1, z1), px(x2 + 1, z2 + 1)], fill=fill, outline=outline, width=width)
 
     rect(lx1, lz1, lx2, lz2, fill='#3a3f4b', outline='#8a93a6', width=2)
-    d.text(px(lx1 + 2, lz1 + 2), 'LOBBY / 大厅（站点墙：每行一个场地）', font=f_m, fill='#ffd36b')
+    d.text(px(lx1 + 2, lz1 + 2), 'LOBBY / 大厅', font=f_m, fill='#ffd36b')
     sx, sz = museum.SPAWN[0], museum.SPAWN[2]
     rect(sx - 1, sz - 1, sx + 1, sz + 1, fill='#ffd36b')
     for f in fields:
         color = GROUP_COLORS.get(f.group, '#ffffff')
         rect(f.x1, f.z1, f.x2, f.z2, fill='#2c3038', outline=color, width=2)
-        d.text(px(f.x1 + 1, f.z1 + 1), f'{f.title}（{dict(museum.GROUPS)[f.group]}）', font=f_m, fill=color)
-        dx1, dz1, dx2, dz2 = f.deck
-        rect(dx1, dz1, dx2, dz2, fill='#7a5a3a', outline='#d0b080')
-        d.text(px(dx1 + 1, dz1 + 1), f'观察台 · {f.title}', font=f_s, fill='#ffffff')
+        title = f'{f.title}（预留）' if f.reserved else f'{f.title}（{dict(museum.GROUPS)[f.group]}）'
+        d.text(px(f.x1 + 1, f.z1 + 1), title, font=f_m, fill=color)
         for s in f.scenarios:
             ax, az = s.anchor
             r = 1.2
@@ -78,9 +76,6 @@ def main():
                 d.text(px(x1 + 1, z1 + 1), plot[5], font=f_s, fill='#ffffff')
         if f.id == 'house':
             rect(f.cx - f.HX, f.cz - f.HZ, f.cx + f.HX, f.cz + f.HZ, fill='#8a6a44', outline='#ffb36b')
-        gx, gz = f.gate
-        rect(gx - 3, gz - 1, gx + 3, gz + 1, fill='#4a5568', outline='#ffd36b')
-        d.text(px(gx + 4, gz - 2), '出口', font=f_s, fill='#ffd36b')
     out.parent.mkdir(parents=True, exist_ok=True)
     img.save(out)
     print(out)

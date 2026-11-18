@@ -2,21 +2,12 @@
 
 Generates the pack into a scratch directory below .local/experimental-map and then verifies, without running anything:
 
-  * every `yukkuri ...` command in any function (and in every command block) is a path of the Brigadier tree that the
-    Java sources register (literals and argument counts are parsed from the Java command classes);
-  * every `function mcylab:x` and `schedule function` target exists in the pack (a `schedule clear` may name a smoke-runner
-    function, which only the smoke tool writes);
-  * every scenario has start and jump functions, a body and a button on its field's deck; every deck and every field gate has a way back to the
-    lobby; every deck has clear (unconditional), lobby, time, weather, speed, advance, observe and mode buttons;
-    every field teleports to its deck and belongs to a theme group listed in the lobby;
-  * the lobby holds teleport buttons only (and the guide book): no time, weather, speed, spawn, clear or scenario control;
-  * relayed readings (``yukkuri relay ...``) wrap a command that exists; no retired item (nest lint, food scrap) or retired command is used;
-  * scenario functions never fix, freeze or protect an individual (NoAI, Invulnerable, pm_actor, pm_live);
-  * the field layout: no overlap between fields, decks and gates, anchors inside their field, pond bank and water agree with the
-    terrain, every den has a free doorway cell under a roof and an open notch; every village building a scene places stands inside
-    its field's clear box and clear of every deck and of the ground the deck looks over;
-  * every button survives the later fills, stands on a full block and has nothing on top; deck landings have a floor;
-  * every board and label fits (CJK-aware width and line counts).
+  * every `yukkuri ...` command is a path of the Java Brigadier tree, including commands wrapped by relay;
+  * function and schedule targets exist, with smoke-only schedule clears allowed;
+  * every scene has a direct jump, start, body and in-field vantage; all menu utilities have targets;
+  * the lobby has a supported spawn and the generated map has no navigation blocks or displays;
+  * scenes never fix, freeze or protect their individuals; retired commands and items cannot appear;
+  * field bounds and anchors, the pond bank, den doorways and the footprints of authored buildings are checked.
 
     python scripts/check_museum_pack.py            # exit status 1 on any finding
 """
@@ -31,10 +22,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 import build_museum_full as museum  # noqa: E402
-import museum_sites  # noqa: E402
 
 JAVA = ROOT / 'src/main/java'
-KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'item', 'summon', 'fill', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
+KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'item', 'summon', 'fill', 'clone', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
                'forceload', 'gamerule', 'difficulty', 'time', 'weather', 'setworldspawn', 'tag', 'gamemode', 'say', 'fillbiome', 'yukkuri',
                'return', 'particle', 'tick', 'kill', 'damage'}
 
@@ -203,22 +193,12 @@ def matches(node, words, i=0):
 
 
 def yukkuri_commands(line):
-    """`yukkuri ...` commands in a function line, including the ones inside command blocks."""
-    out = []
-    for m in re.finditer(r'(?<![\w:"/.#])yukkuri (?=[a-z_])[^\n]*', line):
-        text = m.group(0)
-        # a command block's Command:'...' ends at the closing quote
-        if "',TrackOutput" in text:
-            text = text[:text.index("',TrackOutput")]
-        out.append(text.replace("\\'", "'"))
-    return out
+    """Mod commands in a function line, including those nested after execute."""
+    return [match.group(0) for match in re.finditer(r'(?<![\w:"/.#])yukkuri (?=[a-z_])[^\n]*', line)]
 
 
-def command_block_commands(line):
-    out = []
-    for m in re.finditer(r"Command:'((?:[^'\\]|\\.)*)',TrackOutput", line):
-        out.append(m.group(1).replace("\\'", "'").replace('\\\\', '\\'))
-    return out
+def matches_root(tree, words):
+    return words and words[0] == tree.name and matches(tree, words[1:])
 
 
 # ---------------------------------------------------------------------------- syntax lint
@@ -325,7 +305,7 @@ def block_id(value):
 
 # ---------------------------------------------------------------------------- checks
 def check_geometry(findings):
-    """Fields do not overlap each other or any deck; every anchor lies inside its field; the pond's bank and water agree; the cave mouths are free."""
+    """Check field bounds, anchors, the pond shoreline and the cave mouths."""
     fields = museum.FIELDS
     for i, a in enumerate(fields):
         ax1, az1, ax2, az2 = a.rect()
@@ -333,12 +313,6 @@ def check_geometry(findings):
             bx1, bz1, bx2, bz2 = b.rect()
             if ax1 <= bx2 and bx1 <= ax2 and az1 <= bz2 and bz1 <= az2:
                 findings.append(f'fields {a.id} and {b.id} overlap')
-        for b in fields:
-            for what, (dx1, dz1, dx2, dz2) in (('deck', b.deck_rect()), ('gate', b.gate_rect())):
-                if what == 'gate' and b is a:
-                    continue
-                if ax1 <= dx2 and dx1 <= ax2 and az1 <= dz2 and dz1 <= az2:
-                    findings.append(f'field {a.id} overlaps the {what} of {b.id}')
         for s in a.scenarios:
             x, z = s.anchor
             if not (a.x1 <= x <= a.x2 and a.z1 <= z <= a.z2):
@@ -404,14 +378,10 @@ def main():
         shutil.rmtree(scratch)
     scratch.mkdir(parents=True)
     try:
-        museum.CONTROLS.clear()
-        museum_sites.TEXTS.clear()
         museum.validate()
         world = scratch / 'saves' / museum.WORLD
         world.mkdir(parents=True)
-        checks, texts = museum.build_pack(world)
-        for violation in museum_sites.VIOLATIONS:
-            findings.append(f'text does not fit: {violation}')
+        _, texts = museum.build_pack(world)
         functions = world / 'datapacks/mcylab/data/mcylab/function'
         pack = {p.relative_to(functions).with_suffix('').as_posix(): p for p in functions.rglob('*.mcfunction')}
         tree = load_tree()
@@ -423,99 +393,48 @@ def main():
             for number, line in enumerate(lines, 1):
                 where = f'{name}:{number}'
                 lint_line(line, where, findings)
-                candidates = [line] + command_block_commands(line)
-                for text in candidates:
-                    head = text.split(' ', 1)[0]
-                    if text and not text.startswith('#') and head not in KNOWN_HEADS:
-                        findings.append(f'{where}: unknown command head {head!r}')
-                    for cmd in (yukkuri_commands(text) if head not in ('summon', 'tellraw', 'title', 'setblock', 'fill', 'give') else []):
-                        words = split_words(cmd)
-                        if words[1:2] == ['relay']:
-                            inner = words[2:]
-                            # relay runs its argument as a root command (ScenarioCommands.relay): a mod command keeps its yukkuri head
-                            if inner and inner[0] in ('status', 'household', 'human', 'settlement'):
-                                findings.append(f'{where}: relayed mod command lost its yukkuri head (runs as an unknown root command): {" ".join(inner)[:80]}')
-                            elif inner and inner[0] == 'yukkuri':
-                                if not matches_root(tree, inner):
-                                    findings.append(f'{where}: relayed command not in the Java command tree: {" ".join(inner)[:120]}')
-                            elif not inner or inner[0] not in ('data', 'execute'):
-                                findings.append(f'{where}: relay wraps an unknown command: {" ".join(inner)[:80]}')
-                        yukkuri_seen.add(' '.join(words[1:3]) if words[1:2] in (['scenario'], ['settlement']) else words[1])
-                        if not matches_root(tree, words):
-                            findings.append(f'{where}: command not in the Java command tree: {cmd[:120]}')
-                    for ref in re.findall(r'function mcylab:([\w/]+)', text):
-                        if ref not in pack:
-                            findings.append(f'{where}: function mcylab:{ref} does not exist')
-                    # A clear cancels smoke-runner functions the tool writes into the pack, never the shipped pack itself;
-                    # ``schedule clear`` of a missing id is a no-op, unlike ``schedule function``.
-                    for ref in re.findall(r'schedule clear mcylab:([\w/]+)', text):
-                        if ref not in pack and not ref.startswith('smoke/'):
-                            findings.append(f'{where}: schedule clear of a missing function mcylab:{ref}')
-                    for ref in re.findall(r'schedule function mcylab:([\w/]+)', text):
-                        if ref not in pack:
-                            findings.append(f'{where}: scheduled function mcylab:{ref} does not exist')
+                head = line.split(' ', 1)[0]
+                if line and not line.startswith('#') and head not in KNOWN_HEADS:
+                    findings.append(f'{where}: unknown command head {head!r}')
+                for cmd in (yukkuri_commands(line) if head not in ('summon', 'tellraw', 'title', 'setblock', 'fill', 'give') else []):
+                    words = split_words(cmd)
+                    if words[1:2] == ['relay']:
+                        inner = words[2:]
+                        # relay runs its argument as a root command (ScenarioCommands.relay): a mod command keeps its yukkuri head
+                        if inner and inner[0] in ('status', 'household', 'human', 'settlement'):
+                            findings.append(f'{where}: relayed mod command lost its yukkuri head (runs as an unknown root command): {" ".join(inner)[:80]}')
+                        elif inner and inner[0] == 'yukkuri':
+                            if not matches_root(tree, inner):
+                                findings.append(f'{where}: relayed command not in the Java command tree: {" ".join(inner)[:120]}')
+                        elif not inner or inner[0] not in ('data', 'execute'):
+                            findings.append(f'{where}: relay wraps an unknown command: {" ".join(inner)[:80]}')
+                    yukkuri_seen.add(' '.join(words[1:3]) if words[1:2] in (['scenario'], ['settlement'], ['museum']) else words[1])
+                    if not matches_root(tree, words):
+                        findings.append(f'{where}: command not in the Java command tree: {cmd[:120]}')
+                for ref in re.findall(r'function mcylab:([\w/]+)', line):
+                    if ref not in pack:
+                        findings.append(f'{where}: function mcylab:{ref} does not exist')
+                # A clear cancels smoke-runner functions the tool writes into the pack, never the shipped pack itself;
+                # ``schedule clear`` of a missing id is a no-op, unlike ``schedule function``.
+                for ref in re.findall(r'schedule clear mcylab:([\w/]+)', line):
+                    if ref not in pack and not ref.startswith('smoke/'):
+                        findings.append(f'{where}: schedule clear of a missing function mcylab:{ref}')
+                for ref in re.findall(r'schedule function mcylab:([\w/]+)', line):
+                    if ref not in pack:
+                        findings.append(f'{where}: scheduled function mcylab:{ref} does not exist')
                 # a scenario never fixes, freezes or protects its individuals
                 for banned in ('nest_lint', 'food_scrap', 'settlement assign', 'settlement threat', 'settlement order'):
                     if banned in line:
                         findings.append(f'{where}: retired content ({banned})')
                 if name.startswith(('scn/', 'start/')):
-                    for banned in ('NoAI', 'Invulnerable', 'pm_actor', 'pm_live', 'Silent'):
+                    for banned in ('Invulnerable', 'pm_actor', 'pm_live', 'Silent'):
                         if banned in line:
                             findings.append(f'{where}: scenario fixes an individual ({banned})')
+                    if re.search(r'\bNoAI\s*:\s*(?:1[bB]?|true)\b', line) and 'summon mcyukkuri:caretaker_' not in line:
+                        findings.append(f'{where}: scenario disables yukkuri AI (NoAI)')
 
-        stations = museum_scenarios_all()
-        lobby = '\n'.join(texts['build/lobby'])
-        for s in stations:
-            for need in (f'start/{s.id}', f'jump/{s.id}', f'scn/{s.id}'):
-                if need not in pack:
-                    findings.append(f'scenario {s.id}: function {need} missing')
-            field = museum.BY_ID[s.field]
-            deck_text = '\n'.join(texts[f'build/field_{field.id}_do'])
-            if f'function mcylab:start/{s.id}' not in deck_text:
-                findings.append(f'scenario {s.id}: no button on the {field.id} deck')
-        for f in museum.FIELDS:
-            if not f.scenarios and not f.extras:
-                findings.append(f'field {f.id}: no scenario or extra control')
-            if lobby.count(f'function mcylab:go/{f.id}') < 1:
-                findings.append(f'lobby: no teleport button to {f.id}')
-            deck_text = '\n'.join(texts[f'build/field_{f.id}_do'])
-            deck_commands = {command for line in texts[f'build/field_{f.id}_do'] for command in command_block_commands(line)}
-            for function, _, _ in f.extras:
-                if f'execute as @p[distance=..8] at @s run function mcylab:{function}' not in deck_commands:
-                    findings.append(f'field {f.id}: missing extra control for {function}')
-            for need in (f'function mcylab:field/{f.id}/clear', 'function mcylab:go/lobby', 'function mcylab:util/time_noon', 'function mcylab:util/speed_1x',
-                         'function mcylab:util/speed_5x', 'function mcylab:util/speed_20x', 'function mcylab:util/sprint_1200', 'function mcylab:util/sprint_24000',
-                         'function mcylab:util/weather_clear', 'function mcylab:util/weather_rain', 'function mcylab:util/weather_thunder',
-                         'function mcylab:util/observe_on', 'function mcylab:util/spectator', 'function mcylab:util/lead'):
-                if need not in deck_text:
-                    findings.append(f'field {f.id}: deck has no button for {need}')
-            if 'function mcylab:read/' in deck_text or 'yukkuri readout' in deck_text or 'function mcylab:selfcheck' in deck_text:
-                findings.append(f'field {f.id}: diagnostic button remains on the deck')
-            # the gate south of the field leads back to the deck and to the lobby (the deck itself has a lobby button too)
-            gate_text = deck_text.rsplit('minecraft:smooth_stone', 1)[-1]
-            if f'function mcylab:go/{f.id}' not in gate_text or 'function mcylab:go/lobby' not in gate_text:
-                findings.append(f'field {f.id}: the gate has no way back (deck and lobby)')
-            if f'go/{f.id}' not in pack:
-                findings.append(f'field {f.id}: no teleport function')
-            elif 'tp @s' not in pack[f'go/{f.id}'].read_text(encoding='utf-8'):
-                findings.append(f'field {f.id}: go/{f.id} does not teleport')
-            clear_name = 'reset' if f.id == 'village' else 'clear'
-            clear = pack[f'field/{f.id}/{clear_name}'].read_text(encoding='utf-8')
-            if 'yukkuri clear' not in clear or f'field/{f.id}/terrain' not in clear:
-                findings.append(f'field {f.id}: clear does not sweep entities and rebuild the terrain')
-            if 'return' in clear or 'unless' in clear or 'if ' in clear:
-                findings.append(f'field {f.id}: clear has a condition (it must never refuse)')
-        # the lobby: teleports and the guide only
-        lobby_commands = set()
-        for line in texts['build/lobby']:
-            lobby_commands.update(command_block_commands(line))
-        for command in lobby_commands:
-            if not re.search(r'run function mcylab:(go/[a-z_]+|guide)$', command):
-                findings.append(f'lobby: a control that is not a teleport or the guide: {command}')
-        for banned in ('util/', 'start/', 'field/', 'scn/', 'read/', 'extra/', 'season/', 'selfcheck'):
-            if any(banned in c for c in lobby_commands):
-                findings.append(f'lobby: a control that reaches {banned} (time, weather, speed, spawn, clear, reading ...)')
-        for need in ('load', 'tick', 'probe', 'outdated', 'util/clear_all'):
+        check_menu(texts, findings)
+        for need in ('load', 'tick', 'probe', 'outdated'):
             if need not in pack:
                 findings.append(f'function {need} missing')
         load_text = (functions / 'load.mcfunction').read_text(encoding='utf-8')
@@ -524,27 +443,12 @@ def main():
         if 'function mcylab:probe' not in load_text or 'prepare' not in load_text:
             findings.append('load does not probe the runtime before preparing the map')
 
-        # buttons survive later fills; the block under each button is full; nothing stands on it
-        order = ['build/lobby'] + [f'build/field_{f.id}_do' for f in museum.FIELDS]
-        ops = block_layers(pack, order)
-        for x, y, z in museum_sites.CONTROLS:
-            if block_id(block_at(ops, (x, y, z))) != 'minecraft:command_block':
-                findings.append(f'control at {x} {y} {z}: command block overwritten or missing ({block_at(ops, (x, y, z))})')
-            if block_id(block_at(ops, (x, y + 2, z))) != 'minecraft:stone_button':
-                findings.append(f'control at {x} {y} {z}: button overwritten or missing ({block_at(ops, (x, y + 2, z))})')
-            if block_id(block_at(ops, (x, y + 1, z))) != 'minecraft:polished_andesite':
-                findings.append(f'control at {x} {y} {z}: the block under the button changed')
-            if block_id(block_at(ops, (x, y + 3, z))) != 'minecraft:air':
-                findings.append(f'control at {x} {y} {z}: something stands on the button')
-        controls = list(museum_sites.CONTROLS)
-        if len(set(controls)) != len(controls):
-            findings.append('two buttons share one cell')
-        # every deck landing and the spawn have a floor and free space
-        for f in museum.FIELDS:
-            x, y, z = [int(v // 1) for v in pack_land(pack, f.id)]
-            if block_id(block_at(ops, (x, y - 1, z))) == 'minecraft:air' or block_id(block_at(ops, (x, y, z))) != 'minecraft:air':
-                findings.append(f'field {f.id}: the deck landing {x} {y} {z} has no floor or is not free')
-        print(f'functions {len(pack)}, fields {len(museum.FIELDS)}, scenarios {len(stations)}, controls {checks["controls"]}, texts {checks["texts"]}, '
+        ops = block_layers(pack, ['build/lobby'])
+        x, y, z, _ = museum.SPAWN
+        if block_id(block_at(ops, (x, y - 1, z))) != 'minecraft:smooth_quartz' or any(
+                block_id(block_at(ops, (x, feet, z))) != 'minecraft:air' for feet in (y, y + 1)):
+            findings.append('lobby: the spawn needs a quartz floor and two free blocks')
+        print(f'functions {len(pack)}, fields {len(museum.FIELDS)}, scenarios {len(museum.museum_scenarios.S)}, '
               f'distinct yukkuri command shapes {len(yukkuri_seen)}')
         for shape in sorted(yukkuri_seen):
             print('  yukkuri', shape)
@@ -558,19 +462,61 @@ def main():
     print('playground pack check: OK')
 
 
-def museum_scenarios_all():
-    import museum_scenarios
-    return museum_scenarios.S
+def check_menu(texts, findings):
+    handler = (JAVA / 'io/github/longshou/mcyukkuri/command/MuseumMenuHandler.java').read_text(encoding='utf-8')
+    ui = (JAVA / 'io/github/longshou/mcyukkuri/client/ViewerScreen.java').read_text(encoding='utf-8')
+    actions = r'"((?:util|extra|village|go)/[a-z0-9_]+)"'
+    targets = set(re.findall(actions, handler))
+    if targets != set(re.findall(actions, ui)):
+        findings.append('museum UI and server disagree on utility actions')
+    for name in targets | {'menu/ready', 'village/arrival'}:
+        if name not in texts:
+            findings.append(f'menu: function {name} missing')
 
+    for s in museum.museum_scenarios.S:
+        expected = (f'jump/{s.id}', f'jump/{s.id}_go', f'jump/field_{s.field}', f'start/{s.id}', f'scn/{s.id}', f'view/{s.id}')
+        for name in expected:
+            if name not in texts:
+                findings.append(f'scenario {s.id}: function {name} missing')
+        jump, setup, dispatcher, start, _, view = [texts.get(name, []) for name in expected]
+        if (not any('forceload add' in line for line in jump)
+                or not any(f'schedule function mcylab:{expected[2]} 1t' in line for line in jump)
+                or any('tp ' in line or ':go/' in line for line in jump)
+                or not any('unless loaded' in line for line in dispatcher)
+                or not any(f'function mcylab:{expected[1]}' in line for line in dispatcher)
+                or 'forceload remove ' not in (dispatcher[-1] if dispatcher else '')
+                or setup[-2:] != [f'yukkuri museum menu_seed {s.id} {s.field}', f'function mcylab:start/{s.id}']
+                or start[-1:] != [f'function mcylab:view/{s.id}']
+                or not any(f'function mcylab:scn/{s.id}' in line for line in start)):
+            findings.append(f'scenario {s.id}: jump must load, seed, start, view and release')
+        position = re.match(r'execute positioned (\S+) (\S+) (\S+).* run tp @s ~ ~ ~ ', view[0]) if view else None
+        if s.vantage is None or not position:
+            findings.append(f'scenario {s.id}: missing vantage teleport')
+        else:
+            x, _, z = map(float, position.groups())
+            field = museum.BY_ID[s.field]
+            if not (field.x1 <= x < field.x2 + 1 and field.z1 <= z < field.z2 + 1):
+                findings.append(f'scenario {s.id}: vantage {x},{z} outside field {s.field}')
 
-def pack_land(pack, field_id):
-    m = re.match(r'tp @s (\S+) (\S+) (\S+) ', pack[f'go/{field_id}'].read_text(encoding='utf-8'))
-    return float(m.group(1)), float(m.group(2)), float(m.group(3))
+    for f in museum.FIELDS:
+        if not f.scenarios and not f.reserved and f.id != 'village':
+            findings.append(f'field {f.id}: no scenes')
+        if f'go/{f.id}' in texts:
+            findings.append(f'field {f.id}: obsolete navigation function')
+        if f'menu/field/{f.id}/clear' not in texts:
+            findings.append(f'field {f.id}: no menu clear function')
+        clear_name = 'reset' if f.id == 'village' else 'clear'
+        clear = '\n'.join(texts.get(f'field/{f.id}/{clear_name}', ()))
+        if 'yukkuri clear' not in clear or f'field/{f.id}/terrain' not in clear:
+            findings.append(f'field {f.id}: clear does not sweep entities and rebuild the terrain')
+        if any(re.match(r'(?:return\b|execute .*\b(?:if|unless)\b)', line) for line in clear.splitlines()):
+            findings.append(f'field {f.id}: field reset must be unconditional')
 
-
-def matches_root(tree, words):
-    """`yukkuri` is the root literal; the words begin with it."""
-    return words and words[0] == tree.name and matches(tree, words[1:], 0)
+    controls = re.compile(r'minecraft:(?:\w*_?command_block|\w+_button|\w+_sign|text_display)\b')
+    for name, lines in texts.items():
+        if name.startswith('build/') or name.endswith('/terrain'):
+            if any(controls.search(line) for line in lines):
+                findings.append(f'{name}: obsolete in-world controls')
 
 
 if __name__ == '__main__':

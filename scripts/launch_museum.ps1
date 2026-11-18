@@ -80,8 +80,9 @@ if (-not (Test-Path -LiteralPath $worldFile)) { throw 'Playground save is missin
 
 if (-not $python) { $python = Find-Python }
 $viewerList = Join-Path $gameRoot 'mcyukkuri-viewer/playtest.json'
-& $python (Join-Path $projectRoot 'scripts/playtest_list.py') --menu-json $viewerList
-if ($LASTEXITCODE -ne 0) { throw 'Playtest list generation failed.' }
+$sceneCatalog = Join-Path (Split-Path -Parent $viewerList) 'scenes.json'
+& $python (Join-Path $projectRoot 'scripts/playtest_list.py') --menu-json $viewerList --scenes-json $sceneCatalog
+if ($LASTEXITCODE -ne 0) { throw 'Museum menu generation failed.' }
 
 $launchTime = Get-Date
 $stamp = $launchTime.ToString('yyyyMMdd-HHmmss-fff')

@@ -17,7 +17,8 @@
     "plant": "FA",
     "species": "SC",
     "clips": "AC",
-    "village": "VG"
+    "village": "VG",
+    "park": "PK"
   },
   "numbers": {
     "den_family": "DN-01",

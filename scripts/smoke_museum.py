@@ -92,8 +92,6 @@ def assemble_mod(worktree, runtime, java, instance):
 
 def build_pack(builder, pack_root, layout=False):
     # Use the selected tree's generator API: older trees restrict CLI outputs to their own checkout.
-    builder.CONTROLS.clear()
-    builder.museum_sites.TEXTS.clear()
     builder.validate()
     world = pack_root / 'saves' / builder.WORLD
     world.mkdir(parents=True, exist_ok=False)
@@ -117,7 +115,7 @@ def build_pack(builder, pack_root, layout=False):
         for path in (pack / 'data' / builder.NS / 'function/scn').glob('*.mcfunction'):
             lines = []
             for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
-                if re.search(r'(?:^|run )(?:summon |yukkuri settlement spawn |yukkuri scenario (?:spawn|afloat) |yukkuri human build |yukkuri human walker )', line):
+                if re.search(r'(?:^|run )(?:summon |yukkuri settlement spawn |yukkuri scenario (?:spawn|summon|afloat) |yukkuri human build |yukkuri human walker )', line):
                     # A guarded retry writes its own success score and returns it; replacing that line would leave the
                     # score unset and the retry would summon again every attempt, so only observe the score it writes.
                     if line.startswith('execute store success score '):
@@ -148,8 +146,6 @@ def build_pack(builder, pack_root, layout=False):
         (directory / 'start.mcfunction').write_text(''.join(
             f'schedule function {builder.NS}:smoke/{scene.id}/{i} {tick}t\n'
             for i, (tick, _) in enumerate(commands)), encoding='utf-8')
-    if builder.museum_sites.VIOLATIONS:
-        raise ValueError(f'Text displays do not fit: {builder.museum_sites.VIOLATIONS}')
     print(json.dumps({'output': str(pack_root), 'fields': len(builder.FIELDS),
                       'scenarios': len(builder.museum_scenarios.S), **checks}, ensure_ascii=False), flush=True)
     return pack
@@ -259,8 +255,6 @@ def run_scene(st, scene, builder, run_index, seed):
     server.run_cmd(st, f'yukkuri status seed {seed}')
     # Execute as the virtual observer so the scene's own view sets its exact position/yaw/pitch in the same tick.
     server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function mcylab:start/{scene.id}')
-    if scene.vantage is None:
-        server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function mcylab:go/{scene.field}')
     if 'commands' in scene.smoke:
         server.run_cmd(st, f'function mcylab:smoke/{scene.id}/start')
     x, z = scene.anchor
@@ -355,8 +349,7 @@ def check_layout(st, builder, scene):
     server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
     existing = {row['uuid'] for row in geometry(st)}
     server.run_cmd(st, f'function {builder.NS}:start/{scene.id}', timeout=180)
-    view = f'view/{scene.id}' if scene.vantage is not None else f'go/{scene.field}'
-    server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function {builder.NS}:{view}')
+    server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function {builder.NS}:view/{scene.id}')
     snapshots = []
     inspected = set()
     unsupported = {}
@@ -389,8 +382,7 @@ def check_layout(st, builder, scene):
             elif row['uuid'] not in inspected:
                 unsupported[row['uuid']] = f'{who} has no support through initialization; first box={box}'
             inspected.add(row['uuid'])
-            # Scenes which keep the player on the observation deck assign that deck as its viewing area.
-            area = field.deck if row['player'] and scene.vantage is None else rect
+            area = (field.x1, field.z1, field.x2, field.z2) if row['player'] else rect
             if not (area[0] <= box[0] and box[3] <= area[2] + 1 and area[1] <= box[2] and box[5] <= area[3] + 1):
                 problems.append(f't={tick} {who} outside assigned plot {area} box={box}')
         # Fields can run concurrently. Their actual footprints must never enter another scene's field.

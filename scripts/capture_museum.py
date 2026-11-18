@@ -183,8 +183,7 @@ def capture(parser, args):
             if point in settings:
                 x, y, z = settings[point]
                 settings = dict(settings, **{point:(scene.anchor[0]+x, builder.FEET+y, scene.anchor[1]+z)})
-        start_lines = (functions / f'start/{scene.id}.mcfunction').read_text(encoding='utf-8').splitlines()
-        view = next((line for line in start_lines if line.startswith(('tp @s ', 'function mcylab:view/'))), f'function mcylab:go/{scene.field}')
+        view = f'function mcylab:view/{scene.id}'
         interactions = (f'function mcylab:smoke/{scene.id}/start\n'
                         if args.smoke_commands and scene.smoke and scene.smoke.get('commands') else '')
         camera = ''

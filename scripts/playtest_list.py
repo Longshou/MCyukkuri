@@ -1,9 +1,9 @@
-"""Map current TODO items to museum buttons by scene ID or number.
+"""Map current TODO items to museum scenes by ID or number.
 
 Markdown on stdout lists open items changed between the last played and installed runtime. Menu JSON lists all
 failed retests and items ready for playtest, marking the items from that diff as fresh.
 
-    python scripts/playtest_list.py [--since <commit>] [--until <commit>] [--menu-json PATH]
+    python scripts/playtest_list.py [--since <commit>] [--until <commit>] [--menu-json PATH] [--scenes-json PATH]
 """
 import argparse
 import difflib
@@ -331,7 +331,19 @@ def main():
     ap.add_argument('--since', help='override the last-played commit')
     ap.add_argument('--until', help='override the installed runtime commit')
     ap.add_argument('--menu-json', type=Path, help='write the in-game playtest list')
+    ap.add_argument('--scenes-json', type=Path, help='write the in-game scene catalog')
     a = ap.parse_args()
+    if a.scenes_json:
+        import museum_scenarios  # registers the scenes on each field
+        from museum_fields import FIELDS, GROUPS
+        groups = [dict(title=title, fields=[
+            dict(id=f.id, title=f.title, scenes=[dict(id=s.id, label=s.label, tag=s.tag, watch=s.watch) for s in f.scenarios])
+            for f in FIELDS if f.group == group]) for group, title in GROUPS]
+        a.scenes_json.parent.mkdir(parents=True, exist_ok=True)
+        a.scenes_json.write_text(json.dumps(dict(format=1, groups=groups), ensure_ascii=False) + '\n', encoding='utf-8')
+        print(f'catalog fields={len(FIELDS)} scenes={len(museum_scenarios.S)}')
+        if not a.menu_json:
+            return
     since, played_from = a.since, '--since'
     if not since:
         found = sessions()

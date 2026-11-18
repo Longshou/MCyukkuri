@@ -34,12 +34,6 @@ def _q(value):
     return "'" + value.replace('\\', '\\\\').replace("'", "\\'") + "'"
 
 
-def _label(x, y, z, value, scale=1.0):
-    return (f'summon minecraft:text_display {x} {y} {z} {{Tags:["pm_label"],text:{_q(_text(value))},billboard:"center",alignment:"center",'
-            f'line_width:300,background:1600000000,transformation:{{translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],'
-            f'scale:[{scale}f,{scale}f,{scale}f]}}}}')
-
-
 def personality(intelligence=55, friendliness=70, boldness=55, attachment=60, self_control=70):
     """The five behavior axes in their authoritative saved order."""
     axes = (intelligence, friendliness, boldness, attachment, self_control)
@@ -85,12 +79,38 @@ def sel_all(name, radius=48):
 def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
-       intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None):
+       intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None, identity=None):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
-    Aquatic actors return multiple conditional commands; prefix or inspect each line from ``splitlines()`` separately.
+    Varied actors require a fixed ``uid(scene, slot)``. Species, form, congenital shape and identity accept pools;
+    the five axes, picky, nutrition and energy accept (lo, hi). Split multiline results before prefixing commands.
     grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge.
     form: a subspecies kind (``SubspeciesLife.Kind``, e.g. LONGTAIL_CHEN) instead of NORMAL / AQUATIC_MARISA.
     kit: an item id tucked into the worn hat (a Marisa's stick, ``HatCustody`` Kit), as one picked up earlier would be."""
+    variation = {}
+
+    def pinned(key, value):
+        if isinstance(value, (tuple, list)):
+            variation[key] = [float(v) for v in value] if key in ('nutrition', 'energy') else value
+            return value[0]
+        return value
+
+    intelligence = pinned('intelligence', intelligence)
+    friendliness = pinned('friendliness', friendliness)
+    boldness = pinned('boldness', boldness)
+    attachment = pinned('attachment', attachment)
+    self_control = pinned('self_control', self_control)
+    picky = pinned('picky', picky)
+    nutrition = pinned('nutrition', nutrition)
+    energy = pinned('energy', energy)
+    if isinstance(form, (tuple, list)):
+        variation['form'], form = form, None
+    if isinstance(congenital, (tuple, list)):
+        variation['congenital'], congenital = congenital, 'NORMAL'
+    if identity is not None:
+        variation['identity'] = (identity,) if isinstance(identity, str) else identity
+    pooled = isinstance(kind, (tuple, list))
+    if (pooled or variation) and uuid is None:
+        raise ValueError(f'{name}: varied actor requires a fixed UUID')
     tags = [SCN, tag(name)] + ([tag('lead')] if lead else []) + [tag(t) for t in also]
     parts = ['Tags:[' + ','.join(f'"{t}"' for t in tags) + ']', 'PersistenceRequired:1b', f'Rotation:[{float(yaw)}f,0f]']
     if label:
@@ -112,7 +132,11 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
                      'Cooldown:0,History:[],Permits:[]}')
     if extra:
         parts.append(extra)
-    command = f'summon mcyukkuri:{kind} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'
+    summon = f'yukkuri scenario summon "{",".join(kind)}"' if pooled else f'summon mcyukkuri:{kind}'
+    command = f'{summon} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'
+    if variation:
+        spec = ','.join(f'{key}:{json.dumps(value, separators=(",", ":"))}' for key, value in variation.items())
+        command += f'\nyukkuri scenario vary {sel(name)} {{{spec}}}'
     return command
 
 

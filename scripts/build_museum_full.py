@@ -1,10 +1,10 @@
 """Build the MCyukkuri playground (试玩场), the single in-game test world (Minecraft 1.21.1, NeoForge, Python 3.11+).
 
-Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow),
-each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
+Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow)
+are reached through the M menu. Every scenario
 creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every non-player
 entity recorded in its UUID history, including departed and unloaded copies, makes the world records forget what
-the field left behind and rebuilds its terrain, so nothing is ever refused and a scenario starts again from the same state. Minecraft builds the map from the generated data pack on first entry; this script writes the pack,
+the field left behind and rebuilds its terrain. Minecraft builds the map from the generated data pack on first entry; this script writes the pack,
 a seed-derived level.dat (metadata only) and options.
 
 Normal use is through the root launcher ``启动动作博物馆.cmd``, which runs
@@ -21,7 +21,7 @@ earlier museum world). Other modes:
 
 No Java compilation and no UI automation. An explicit output directory must be a new directory below
 ``.local/experimental-map`` (or ``.local/smoke`` for ``--pack-only``). Fields are in museum_fields.py, scenarios in
-museum_scenarios.py, spawn vocabulary in museum_dsl.py, buttons and labels in museum_sites.py.
+museum_scenarios.py, and spawn vocabulary in museum_dsl.py.
 """
 from pathlib import Path
 import argparse
@@ -41,12 +41,9 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / '.local/setup/python'))
 sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
 from museum_actions import ACTION_META  # noqa: E402
-from museum_dsl import _text, _q, yk, OBJ  # noqa: E402
-import museum_fields  # noqa: E402
-from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, SKY, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
+from museum_dsl import _text, _q, OBJ  # noqa: E402
+from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, big_fill  # noqa: E402
 import museum_scenarios  # noqa: E402
-import museum_sites  # noqa: E402
-from museum_sites import button, display, deck, wrap, units, CONTROLS  # noqa: E402
 
 NS = 'mcylab'
 JUMP_OBJ = 'mcylab_jump'
@@ -57,7 +54,7 @@ HUMAN_SCENES = ROOT / 'src/main/java/io/github/longshou/mcyukkuri/human/HumanSce
 STAGING = (ROOT / '.local/experimental-map')
 ENV_TIME = {'noon': 'noon', 'dawn': '100', 'dusk': '12500', 'night': 'midnight'}
 SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200), ('20x', 400))
-SPRINTS = (('1分钟', 1200), ('5分钟', 6000), ('20分钟', 24000))
+SPRINTS = (1200, 6000, 24000)
 
 
 def js(value):
@@ -67,11 +64,6 @@ def js(value):
 def rect_chunks(rect):
     x1, z1, x2, z2 = rect
     return {(x, z) for x in range(x1 // 16 * 16, x2 // 16 * 16 + 1, 16) for z in range(z1 // 16 * 16, z2 // 16 * 16 + 1, 16)}
-
-
-def overlaps(a, b):
-    """Two (x1, z1, x2, z2) rectangles share a cell."""
-    return a[0] <= b[2] and b[0] <= a[2] and a[1] <= b[3] and b[1] <= a[3]
 
 
 def human_build_kinds(source):
@@ -126,7 +118,7 @@ def validate():
 
 
 def validate_builds():
-    """Keep buildings and their leveling inside the field clear box and leave the decks and their views clear."""
+    """Keep buildings and their leveling inside the field clear box."""
     source = HUMAN_SCENES.read_text(encoding='utf-8')
     kinds = human_build_kinds(source)
     level_margin = int(re.search(r'\bLEVEL_MARGIN = (\d+);', source)[1])
@@ -152,19 +144,12 @@ def validate_builds():
             what = f'scenario {scenario.id}: the {kind} at x{rect[0]}..{rect[2]} y{ground}..{high} z{rect[1]}..{rect[3]}'
             assert (x1 <= leveled[0] and leveled[2] <= x2 and y1 <= low and high <= y2
                     and z1 <= leveled[1] and leveled[3] <= z2), f'{what} or its leveling leaves the {field.id} clear box'
-            for other in FIELDS:
-                assert not overlaps(leveled, other.deck_rect()) and not overlaps(leveled, other.gate_rect()), (
-                    f'{what} or its leveling overlaps the {other.id} observation deck or return gate')
-                assert not overlaps(rect, other.apron_rect()), (
-                    f'{what} blocks the {other.id} observation deck apron')
 
 
 # ============================================================================== guide book
 def book_command():
-    pages = ['油库里试玩场\n\n一块块开放的真实场地：玩法在里面按普通规则自然运行，没有玻璃罩，没有被固定的演员。\n\n'
-             '1 大厅只有传送按钮：按主题分组，每个按钮去一个区的观察台。\n'
-             '2 观察台上：落点面向按钮，近处是常用操作，再往里依次是倍速推进、时间天气、场景。红色清场按钮在常用排最右侧，单独隔开。\n'
-             '3 生成时会把你带到场景旁；聊天栏里的“[回观察台]”“[回大厅]”可点。每个区的南边也有回观察台／回大厅按钮。\n\n回大厅：/function mcylab:home']
+    pages = ['油库里试玩场\n\n按 M 打开菜单。「待看」汇总待试玩项目，「场景」按场地列出表演，选择后直接到观察点。\n\n'
+             '「实用」可重开、清场、回大厅，或调整倍速、时间、天气和观察标签。推进一段时间后恢复原速度。']
     pages.append('与油库里互动\n\n双手空着右键交谈；潜行右键打开照料菜单，显示当前可用的操作和身份。\n'
                  '手持食水右键喂食。工具直接对个体右键，剪刀会询问剪哪里。\n'
                  '手持饰物右键归还，潜行右键挂在上方支撑物下。观察状态也可用放大镜或观察笔记。')
@@ -173,16 +158,15 @@ def book_command():
             if f.group != gid:
                 continue
             if f.id == 'village':
-                pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n' + '\n'.join(caption for _, caption, _ in f.extras))
+                pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n在「实用」页选择村庄样式。')
+                continue
+            if f.reserved:
                 continue
             entries = [f'· {s.label}' + (f'（{s.tag}）' if s.tag else '') for s in f.scenarios]
             # A book page shows about 14 short lines and does not scroll: the field's blurb on a page of its own, then six scenes a page.
             pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n共 {len(entries)} 个场景，见后页')
             for start in range(0, len(entries), 6):
                 pages.append(f'{f.title}（{start // 6 + 1}）\n' + '\n'.join(entries[start:start + 6]))
-    pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、放下的帽子……），之后全由普通 AI 接手。\n'
-                 '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签（默认关闭，用观察台按钮开启）：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
-                 '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
     items = ','.join(_q(js({'text': page})) for page in pages)
     return 'give @s minecraft:written_book[minecraft:written_book_content={title:"油库里试玩场导览",author:"MCyukkuri",pages:[' + items + ']}]'
 
@@ -196,7 +180,7 @@ def probe_lines(all_lines):
     for line in all_lines:
         for m in re.finditer(r'(?<![\w:"/.#])yukkuri ([a-z_]+)(?: ([a-z_]+))?', line):
             head, second = m.group(1), m.group(2)
-            if head in ('scenario', 'settlement'):
+            if head in ('scenario', 'settlement', 'museum'):
                 shapes.add(f'{head} {second}')
             elif head in ('clear', 'observe', 'action', 'speed', 'relay', 'body'):
                 shapes.add(head)
@@ -210,6 +194,9 @@ def probe_lines(all_lines):
 
 
 PROBE_COMMANDS = {
+    'museum menu_seed': 'yukkuri museum menu_seed probe meadow',
+    'scenario summon': 'yukkuri scenario summon "reimu,marisa" ~ ~ ~ {UUID:[I;0,0,0,1]}',
+    'scenario vary': 'yukkuri scenario vary @s {boldness:[40,60]}',
     'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
@@ -226,7 +213,7 @@ PROBE_COMMANDS = {
     'speed': 'yukkuri speed rate 20', 'relay': 'yukkuri relay yukkuri status @s'}
 
 
-def village_controls(fn, guarded, f, land):
+def village_controls(fn, guarded, f):
     x1, z1, x2, z2 = f.rect()
     rows_per_range = 256 // (x2 // 16 - x1 // 16 + 1)  # Vanilla's per-command chunk limit.
     last_row = z2 // 16
@@ -248,17 +235,16 @@ def village_controls(fn, guarded, f, land):
         f'execute unless score #ready {OBJ} matches 1 run return run tellraw @s ' + _text('试玩场尚未就绪。', 'yellow'),
         f'execute if score #village_job {OBJ} matches 0..1 run return run tellraw @s ' + _text('正在布置村庄场地。', 'yellow'),
     ]
-    # Scheduled functions lose the initiating player. Only this request's player gets the deck teleport.
+    # Scheduled functions lose the initiating player. Only this request's player gets the view teleport.
     fn('village/request_place', [f'scoreboard players add #village_request {OBJ} 1',
                                  f'scoreboard players operation @s {OBJ} = #village_request {OBJ}',
                                  f'scoreboard players set #village_job {OBJ} 1',
                                  'tellraw @s ' + _text('正在生成村庄……', 'aqua'), f'function {NS}:village/load'])
     place = [f'function {NS}:field/village/reset', f'scoreboard players set #village_placed {OBJ} 0']
-    for i, (style, biome, caption) in enumerate(f.styles):
+    for i, (style, biome, _) in enumerate(f.styles):
         select = f'village/select_{style}'
         fn(select, available + [f'scoreboard players set #village_style {OBJ} {i}', f'scoreboard players set #village_layout {OBJ} 0',
                                 f'function {NS}:village/request_place'])
-        f.extras.append((select, caption, ''))
         fn(f'village/biome_{style}', f.biome_commands(biome))
         condition = f'execute if score #village_style {OBJ} matches {i}'
         place.append(f'{condition} run function {NS}:village/biome_{style}')
@@ -272,17 +258,15 @@ def village_controls(fn, guarded, f, land):
         f'execute if score #village_layout {OBJ} matches {len(f.origins)} run scoreboard players set #village_layout {OBJ} 0',
         f'function {NS}:village/request_place',
     ])
-    f.extras.append(('village/next', '换个布局', '同一村庄类型'))
     fn('village/place', place)
-    x, y, z, yaw = land
-    fn('village/arrival', [f'tp @s {x} {y} {z} {yaw} 2',
+    fn('village/arrival', [f'execute positioned {f.cx + .5} {FEET} {f.cz + 45.5} positioned over motion_blocking_no_leaves run tp @s ~ ~ ~ 180 12',
                            f'execute if score #village_placed {OBJ} matches 1 run tellraw @s ' + _text('村庄已生成。', 'green'),
                            f'execute if score #village_placed {OBJ} matches 0 run tellraw @s ' + _text('村庄生成失败。', 'red')])
     fn(finish, guarded(finish, rect_chunks(f.rect()), [
         f'execute if score #village_job {OBJ} matches 0 run function {NS}:village/clear_loaded',
         f'execute if score #village_job {OBJ} matches 1 run function {NS}:village/place',
-        *(f'forceload remove {area}' for area in ranges),
         f'execute if score #village_job {OBJ} matches 1 as @a if score @s {OBJ} = #village_request {OBJ} run function {NS}:village/arrival',
+        *(f'forceload remove {area}' for area in ranges),
         f'scoreboard players reset #village_job {OBJ}',
     ]))
 
@@ -317,19 +301,12 @@ def build_pack(world):
                      encoding='utf-8')
 
     # ---------------------------------------------------------------- field and scenario functions (collected first, probed below)
+    fn('menu/ready', ['return 1'])
     # Random tick speed is a world rule, so switching any field cancels pending changes as well as resetting its value.
     random_tick_windows = {s.id: s.env['random_tick_window'] for s in museum_scenarios.S if 'random_tick_window' in s.env}
     cancel_random_ticks = [f'schedule clear {NS}:scn/{sid}_random_ticks_{phase}'
                            for sid in random_tick_windows for phase in ('start', 'end')]
-    deck_info = {}
     for f in FIELDS:
-        f.extras = []
-    for f in FIELDS:
-        x1, z1, x2, z2 = f.deck
-        deck_lines, land = deck(x1, z1, x2, z2, DECK_TOP, f.deck_side, f'{f.id} deck')
-        # Arrive at the open edge facing the controls, rather than facing away into the field.
-        land = (*land[:3], (land[3] + 180) % 360)
-        deck_info[f.id] = (deck_lines, land)
         fn(f'field/{f.id}/terrain', f.terrain())
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
         cancel = []
@@ -347,10 +324,10 @@ def build_pack(world):
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         if f.id == 'village':
             fn('field/village/reset', sweep)
-            village_controls(fn, guarded, f, land)
+            village_controls(fn, guarded, f)
+            fn('menu/field/village/clear', [f'function {NS}:field/village/clear'])
             continue
         fn(f'field/{f.id}/clear', sweep + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
-        # Keep manual diagnostic functions available without putting readout buttons on the deck.
         fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
     start_guards = [
         f'execute if score #clearing {OBJ} matches 1 run return run tellraw @s ' + _text('全部清场正在进行，结束后可启动场景。', 'yellow'),
@@ -397,51 +374,50 @@ def build_pack(world):
             fn(f'{base}_start', [f'gamerule randomTickSpeed {speed}', f'schedule function {NS}:{base}_end {duration}t replace'])
             fn(f'{base}_end', ['gamerule randomTickSpeed 3'])
             start.append(f'schedule function {NS}:{base}_start {first}t replace')
-        if s.vantage is not None:
-            vdx, vdz = s.vantage[0], s.vantage[1]
-            # The common two-value view is the north observation line, looking south. Explicit three-value views
-            # keep their side-on angle for water routes and paired kin demonstrations.
-            if len(s.vantage) > 2:
-                yaw = s.vantage[2]
-            else:
-                vdz = -abs(vdz)
-                yaw = 0
-            pitch = s.vantage[3] if len(s.vantage) > 3 else 20
-            place = f'{ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves'
-            if len(s.vantage) > 4:  # An authored indoor floor lies below the naturally highest surface.
-                place = f'{ax + vdx + .5} {FEET + s.vantage[4]} {az + vdz + .5}'
-            fn(f'view/{s.id}', [f'execute positioned {place} run tp @s ~ ~ ~ {yaw} {pitch}'])
-            start += [f'function {NS}:view/{s.id}',
-                      'tellraw @s ' + js([{'text': '到了。', 'color': 'gray'},
-                                          {'text': ' [回观察台]', 'color': 'aqua', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/{f.id}'}},
-                                          {'text': ' [回大厅]', 'color': 'gold', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/lobby'}}])]
+        vdx, vdz = s.vantage[:2]
+        # Two-value views stand north of the anchor and look south. Explicit views keep their signed offset.
+        yaw = s.vantage[2] if len(s.vantage) > 2 else 0
+        if len(s.vantage) == 2:
+            vdz = -abs(vdz)
+        pitch = s.vantage[3] if len(s.vantage) > 3 else 20
+        place = f'{ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves'
+        if len(s.vantage) > 4:  # An authored indoor floor lies below the naturally highest surface.
+            place = f'{ax + vdx + .5} {FEET + s.vantage[4]} {az + vdz + .5}'
+        fn(f'view/{s.id}', [f'execute positioned {place} run tp @s ~ ~ ~ {yaw} {pitch}'])
+        start.append(f'function {NS}:view/{s.id}')
         fn(f'start/{s.id}', start)
         for i, (caption, command) in enumerate(s.reads):
             # Manual /function diagnostics keep the original anchor and executing player.
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax}.0 {FEET} {az}.0 run yukkuri readout {command}'])
 
-    # Scheduled functions lose the caller. Each visitor's score keeps their latest scene choice.
+    # A field's jump and remote clear share one load and release. Each visitor's score keeps their latest scene choice.
     jump_numbers = {s.id: n for n, s in enumerate(museum_scenarios.S, 1)}
-    jump_dispatchers = []
+    field_jobs = []
     for f in FIELDS:
-        if not f.scenarios:
+        if f.id == 'village':
             continue
         rect = f.rect()
         chunks = rect_chunks(rect)
         assert len(chunks) <= 256, (f.id, len(chunks))
         area = ' '.join(map(str, rect))
         dispatcher = f'jump/field_{f.id}'
-        jump_dispatchers.append(dispatcher)
-        choices = []
+        clear_flag = f'#clear_{f.id}'
+        field_jobs.append((dispatcher, clear_flag))
+        load = [f'execute in minecraft:overworld run forceload add {area}',
+                f'schedule function {NS}:{dispatcher} 1t replace']
+        fn(f'menu/field/{f.id}/clear', start_guards + [
+            f'scoreboard players set {clear_flag} {OBJ} 1',
+            'tellraw @s ' + _text(f'{f.title}：正在清场……', 'yellow'),
+        ] + load)
+        choices = [f'execute if score {clear_flag} {OBJ} matches 1 run function {NS}:field/{f.id}/clear',
+                   f'scoreboard players reset {clear_flag} {OBJ}']
         for s in f.scenarios:
             n = jump_numbers[s.id]
             fn(f'jump/{s.id}', start_guards + [
                 f'scoreboard players set @s {JUMP_OBJ} {n}',
-                f'execute in minecraft:overworld run function {NS}:go/{f.id}',
-                f'execute in minecraft:overworld run forceload add {area}',
-                f'schedule function {NS}:{dispatcher} 1s replace',
-            ])
-            fn(f'jump/{s.id}_go', [f'scoreboard players reset @s {JUMP_OBJ}', f'function {NS}:start/{s.id}'])
+            ] + load)
+            fn(f'jump/{s.id}_go', [f'scoreboard players reset @s {JUMP_OBJ}',
+                                  f'yukkuri museum menu_seed {s.id} {f.id}', f'function {NS}:start/{s.id}'])
             choices.append(f'execute as @a[scores={{{JUMP_OBJ}={n}}}] at @s in minecraft:overworld run function {NS}:jump/{s.id}_go')
         fn(dispatcher, guarded(dispatcher, chunks, choices + [f'forceload remove {area}']))
 
@@ -454,22 +430,23 @@ def build_pack(world):
         'tellraw @s ' + museum_scenarios._punishment_click,
     ])
 
-    # extras: the house activity buttons and shop tiers
+    # Field utilities.
     house = BY_ID['house']
     hx, hz = house.anchor
-    for name, caption, hint, lines in (
-            ('house_activity', '模拟人类活动', '住一天的痕迹', [f'execute positioned {hx} {FEET} {hz} run yukkuri household activity 24000 false true']),
-            ('house_sleepover', '睡一晚', '人类睡在屋里', [f'execute positioned {hx} {FEET} {hz} run yukkuri household activity 24000 true true'])):
+    for name, sleeps in (('house_activity', 'false'), ('house_sleepover', 'true')):
         # a house yukkuri only moves in while mob spawning is on (HouseholdEcology.enabled); the museum keeps it off, so open it for this one call
-        fn(f'extra/{name}', ['gamerule doMobSpawning true'] + lines + ['gamerule doMobSpawning false', 'tellraw @a[distance=..60] ' + _text('已模拟一段人类活动：看屋里落下的絮尘和食屑，随后家油搬入。', 'gold')])
-        house.extras.append((f'extra/{name}', caption, hint))
-    shop = BY_ID['shop']
-    for tier, caption in (('visitor', '访客'), ('member', '会员'), ('patron', '贵宾')):
+        fn(f'extra/{name}', [
+            f'execute positioned {hx} {FEET} {hz} unless loaded ~ ~ ~ run return run tellraw @s ' + _text('请先启动家油场景。', 'yellow'),
+            'gamerule doMobSpawning true',
+            f'execute positioned {hx} {FEET} {hz} run yukkuri household activity 24000 {sleeps} true',
+            'gamerule doMobSpawning false',
+            'tellraw @s ' + _text('已模拟一段人类活动：看屋里落下的絮尘和食屑，随后家油搬入。', 'gold'),
+        ])
+    for tier in ('visitor', 'member', 'patron'):
         fn(f'extra/shop_{tier}', [
             f'execute at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ {tier}',
             'execute unless entity @e[tag=mcylab_shop_access,limit=1] run title @s actionbar ' + _text('请先启动 SP-01、SP-02、SP-03、SP-05、SP-09、SP-10 或 SP-11。', 'yellow'),
         ])
-        shop.extras.append((f'extra/shop_{tier}', caption, '设置本场店铺资格'))
 
     # ---------------------------------------------------------------- utilities
     for tag_, command, text in (('dawn', 'time set 100', '清晨'), ('noon', 'time set noon', '正午'), ('dusk', 'time set 12500', '黄昏'), ('night', 'time set midnight', '夜晚')):
@@ -477,12 +454,12 @@ def build_pack(world):
     fn('util/weather_clear', ['weather clear', 'tellraw @a ' + _text('天气：晴。', 'gray')])
     fn('util/weather_rain', ['weather rain 1000000', 'tellraw @a ' + _text('天气：雨（寒冷群系下雪）。', 'gray')])
     fn('util/weather_thunder', ['weather thunder 1000000', 'tellraw @a ' + _text('天气：雷暴。', 'gray')])
-    # vanilla /tick needs permission level 3 and functions run at level 2, so the speed buttons use the mod's own commands
+    # Vanilla /tick needs permission level 3 and functions run at level 2.
     for label, rate in SPEEDS:
         fn(f'util/speed_{label}', [f'yukkuri speed rate {rate}'])
-    for label, ticks_ in SPRINTS:
+    for ticks_ in SPRINTS:
         fn(f'util/sprint_{ticks_}', [f'yukkuri speed sprint {ticks_}'])
-    fn('util/spectator', ['gamemode spectator @s', 'tellraw @s ' + _text('旁观模式：可穿过实体和方块飞行；点按钮请先切回创造。', 'gray')])
+    fn('util/spectator', ['gamemode spectator @s', 'tellraw @s ' + _text('旁观模式：可穿过实体和方块飞行。按 M，在「实用」页切回创造。', 'gray')])
     fn('util/creative', ['gamemode creative @s'])
     fn('util/observe_on', ['yukkuri observe on'])
     fn('util/observe_off', ['yukkuri observe off'])
@@ -505,7 +482,8 @@ def build_pack(world):
         f'execute if score #village_job {OBJ} matches 0..1 run function {NS}:village/cancel',
         # Clear-all takes over the force-loaded fields and releases them when it finishes.
         f'scoreboard players reset * {JUMP_OBJ}',
-        *(f'schedule clear {NS}:{dispatcher}' for dispatcher in jump_dispatchers),
+        *(line for dispatcher, flag in field_jobs for line in
+          (f'schedule clear {NS}:{dispatcher}', f'scoreboard players reset {flag} {OBJ}')),
         'tellraw @a ' + _text('全部清场：正在加载各场地（约 3 秒）……', 'yellow'),
     ] + loads + [f'schedule function {NS}:util/clear_all_do 3s replace'])
     fn('home', [f'function {NS}:go/lobby'])
@@ -513,17 +491,12 @@ def build_pack(world):
 
     # ---------------------------------------------------------------- teleports
     fn('go/lobby', [f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0',
-                    'tellraw @s ' + _text('大厅：每个按钮传送到一个区的观察台，细节控制都在观察台上。', 'aqua')])
-    for f in FIELDS:
-        x, y, z, yaw = deck_info[f.id][1]
-        fn(f'go/{f.id}', [f'tp @s {x} {y} {z} {yaw} 15',
-                          'tellraw @s ' + js([{'text': f'{f.title}', 'color': 'gold', 'bold': True},
-                                              {'text': f'：{f.blurb}。面前起依次是常用操作、倍速推进、时间天气、场景；红色清场在第一排最右侧。', 'color': 'aqua'}])])
+                    'tellraw @s ' + _text('大厅：按 M 打开场景菜单。', 'aqua')])
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
     fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
-                   'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。按 M 打开查看菜单：待看、动作、表情。', 'aqua')])
+                   'tellraw @s ' + _text('欢迎来到试玩场！按 M 打开菜单：待看、场景、实用、动作、表情。', 'aqua')])
     shapes, blocks, items, entities = probe_lines([line for lines in texts.values() for line in lines])
     probes = {'commands': ['yukkuri clear air 0 64 0 0 64 0'] + [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],
               'blocks': [f'setblock 0 -64 0 {b}' for b in blocks], 'items': [f'give @s {i}' for i in items],
@@ -564,130 +537,30 @@ def build_pack(world):
 
     lobby = build_lobby()
     fn('build/lobby', guarded('build/lobby', initial, lobby + [f'schedule function {NS}:build/field_{FIELDS[0].id} 1s replace']))
-    for i, f in enumerate(FIELDS):
+    built_fields = [f for f in FIELDS if not f.reserved]
+    for i, f in enumerate(built_fields):
         chunks = sorted(f.chunks())
-        following = f'build/field_{FIELDS[i + 1].id}' if i + 1 < len(FIELDS) else 'complete'
+        following = f'build/field_{built_fields[i + 1].id}' if i + 1 < len(built_fields) else 'complete'
         fn(f'build/field_{f.id}', [f'forceload add {x} {z}' for x, z in chunks] + [f'schedule function {NS}:build/field_{f.id}_do 3s replace'])
         # The fresh flat generator already provides the village's empty plains plot.
         lines = [] if f.id == 'village' else [f'function {NS}:field/{f.id}/terrain'] + f.biome_commands()
-        deck_lines, land = deck_info[f.id]
-        x1, z1, x2, z2 = f.deck
-        lines += [f'fill {x1} {GROUND} {z1} {x2} {DECK_TOP - 4} {z2} minecraft:oak_planks'] + deck_lines
-        lines += field_deck_controls(f, land)
-        lines += field_gate(f)
         lines += [f'forceload remove {x} {z}' for x, z in chunks]
         fn(f'build/field_{f.id}_do', guarded(f'build/field_{f.id}_do', set(chunks), lines + [f'schedule function {NS}:{following} 1s replace']))
     fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:util/tag_fields', 'say MCYMUSEUM_BUILD_COMPLETE',
                     f'schedule function {NS}:release_load 60s replace'])
     fn('release_load', [f'forceload remove {x} {z}' for x, z in sorted(initial)])
 
-    n_controls = len(CONTROLS)
-    check = [f'scoreboard players set #controls {OBJ} 0', f'scoreboard players set #seen {OBJ} 0']
-    for x, y, z in CONTROLS:
-        check += [f'execute if loaded {x} {y} {z} run scoreboard players add #seen {OBJ} 1',
-                  f'execute if loaded {x} {y} {z} if block {x} {y} {z} minecraft:command_block run scoreboard players add #controls {OBJ} 1']
-    check += ['tellraw @a ' + js([{'text': '试玩场自检：已加载的按钮 ', 'color': 'aqua'}, {'score': {'name': '#controls', 'objective': OBJ}}, {'text': ' / '},
-                                 {'score': {'name': '#seen', 'objective': OBJ}}, {'text': f'（全图共 {n_controls} 个，远处没加载的不计）'}]),
-              f'execute unless score #controls {OBJ} = #seen {OBJ} run tellraw @a ' + _text('有按钮缺失：建场尚未完成，或被后来的方块覆盖。', 'red'),
-              f'execute if score #controls {OBJ} = #seen {OBJ} run tellraw @a ' + _text('已加载的按钮齐全。', 'green')]
-    fn('selfcheck', check)
-    return dict(controls=n_controls, fields=len(FIELDS), scenarios=len(museum_scenarios.S), functions=len(names), texts=len(museum_sites.TEXTS)), texts
-
-
-def field_deck_controls(f, land):
-    """Fixed common rows nearest the landing, then scenarios; nine columns spaced three blocks apart.
-
-    Readout and self-check functions remain callable manually, with no diagnostic buttons.
-    """
-    x1, z1, x2, z2 = f.deck
-    south = f.deck_side == 'south'
-    lines = []
-    lines.append(display((x1 + x2) / 2 + .5, DECK_TOP + 3.2, z1 + 1.5 if south else z2 - .5, [(f'{f.title}\n', 'gold', True)] + [('\n'.join(wrap(f.blurb, 36)), 'white')], 1.0, 'banner', f'{f.id} banner', billboard='vertical'))
-    ax = x1 + 2
-    rows = [[(f'function {NS}:go/lobby', '回大厅', '', True),
-                 (f'function {NS}:util/lead', '到主角身边', '', True),
-                 (f'function {NS}:util/speed_1x', '恢复正常速度', '1倍速', False),
-                 (f'function {NS}:util/observe_on', '观察标签开', '头顶显状态', False),
-                 (f'function {NS}:util/observe_off', '观察标签关', '', False),
-                 (f'function {NS}:util/spectator', '旁观模式', '', True),
-                 (f'function {NS}:util/creative', '创造模式', '', True),
-                 None,  # A full empty column separates clearing from routine controls.
-                 (f'function {NS}:field/{f.id}/clear', '清空本场地', '移除并复原', False)]]
-    rows.append([(f'function {NS}:util/speed_{label}', f'倍速 {label}', '', False) for label, _ in SPEEDS if label != '1x']
-                + [(f'function {NS}:util/sprint_{ticks_}', f'推进 {label}', '快进后恢复', False) for label, ticks_ in SPRINTS])
-    rows.append([(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
-                + [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False),
-                   (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
-    start = [(f'function {NS}:start/{s.id}', s.label, s.tag, True) for s in f.scenarios]
-    start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
-    for i in range(0, len(start), 9):
-        rows.append(start[i:i + 9])
-    assert 2 + 3 * (len(rows) - 1) < z2 - z1, (f.id, len(rows), f.deck)
-    for r, row in enumerate(rows):
-        z = z2 - 2 - 3 * r if south else z1 + 2 + 3 * r
-        assert len(row) <= 9, (f.id, z, len(row))
-        color, block = (('aqua', 'cyan'), ('green', 'green'), ('yellow', 'yellow'), ('gold', 'orange'))[min(r, 3)]
-        lines.append(f'fill {ax} {DECK_TOP - 1} {z} {x2 - 2} {DECK_TOP - 1} {z} minecraft:{block}_concrete')
-        for i, entry in enumerate(row):
-            if entry is None:
-                continue
-            command, caption, hint, nav = entry
-            clearing = command == f'function {NS}:field/{f.id}/clear'
-            lines += button(ax + 3 * i, DECK_TOP, z, command, caption, hint, nav=nav, context=f'{f.id} {caption}',
-                            color='red' if clearing else color)
-    for px in (x1 + 1, x2 - 1):
-        lines.append(f'setblock {px} {DECK_TOP - 1} {z1 + 4 if south else z2 - 4} minecraft:sea_lantern')
-    return lines
-
-
-def field_gate(f):
-    """Two return buttons just outside the field's south edge (outside the box the terrain rebuild touches)."""
-    gx, gz = f.gate
-    lines = [f'fill {gx - 3} {GROUND} {gz - 1} {gx + 3} {GROUND} {gz + 1} minecraft:smooth_stone',
-             f'fill {gx - 3} {FEET} {gz - 1} {gx + 3} {FEET + 4} {gz + 1} minecraft:air']
-    lines += button(gx - 1, FEET, gz, f'function {NS}:go/{f.id}', '回观察台', '', nav=True, context=f'{f.id} gate deck', color='aqua')
-    lines += button(gx + 1, FEET, gz, f'function {NS}:go/lobby', '回大厅', '', nav=True, context=f'{f.id} gate lobby', color='gold')
-    return lines
+    return dict(fields=len(FIELDS), scenarios=len(museum_scenarios.S), functions=len(names)), texts
 
 
 def build_lobby():
-    """The lobby holds teleports only: one button per field, grouped by theme, with a board of what the field offers. No time, weather,
-    spawn or clearing control lives here; those are on each field's deck."""
     x1, z1, x2, z2 = LOBBY
-    s = big_fill(x1, GROUND + 1, z1, x2, GROUND + 8, z2, 'minecraft:air')
-    s += big_fill(x1, GROUND, z1, x2, GROUND, z2, 'minecraft:smooth_quartz')
-    for x in range(x1 + 4, x2, 8):
-        for z in range(z1 + 4, z2, 8):
-            s.append(f'setblock {x} {GROUND} {z} minecraft:sea_lantern')
-    s.append(display(0.5, FEET + 7, z1 + 3, [('油库里试玩场\n', 'gold', True), ('Yukkuri Playground', 'aqua')], 3.0, 'title', 'lobby title', billboard='vertical'))
-    howto = [('怎么玩\n', 'gold', True), ('大厅只管去哪儿：每个按钮传送\n', 'white'), ('到一个区的观察台。\n', 'white'),
-             ('生成场景、清场、时间、天气、\n', 'gray'), ('倍速与推进，都在\n', 'gray'), ('各区的观察台上。\n', 'gray'),
-             ('每个观察台和区的南边都有\n', 'gray'), ('“回大厅”。', 'gray')]
-    s.append(display(0.5, FEET + 4.0, z1 + 3, howto, .9, 'board', 'lobby how-to', billboard='vertical'))
-    columns = [[g for g in GROUPS[:4]], [g for g in GROUPS[4:]]]
-    for ci, groups in enumerate(columns):
-        bx = -38 if ci == 0 else 4
-        z = -26
-        for gid, gtitle in groups:
-            s.append(display(bx + 5.5, FEET + 2.4, z + .5, [(f'{gtitle}', 'gold', True)], 1.5, 'title', f'lobby group {gid}', billboard='vertical'))
-            z += 3
-            for f in [f for f in FIELDS if f.group == gid]:
-                s += button(bx, FEET, z, f'function {NS}:go/{f.id}', f.title, '', nav=True, context=f'lobby {f.id}', color='gold')
-                names = wrap('、'.join(sc.label for sc in f.scenarios) or f.blurb, 44)
-                if len(names) > 6:
-                    # A cut list says so: the deck holds every scene.
-                    names = names[:5] + [f'……共 {len(f.scenarios)} 个场景，全在观察台']
-                body = [(f'{f.title}\n', 'gold', True), ('\n'.join(wrap(f.blurb, 44)) + '\n', 'white'), ('\n'.join(names), 'gray')]
-                s.append(display(bx + 6.5, FEET + 1.9, z + .5, body, .85, 'board', f'lobby board {f.id}', billboard='vertical'))
-                z += 6
-            z += 1
-    s += button(-8, FEET, 38, f'function {NS}:guide', '领取导览书', '', nav=True, context='lobby guide')
-    return s
+    return (big_fill(x1, GROUND + 1, z1, x2, GROUND + 8, z2, 'minecraft:air')
+            + big_fill(x1, GROUND, z1, x2, GROUND, z2, 'minecraft:smooth_quartz')
+            + [f'setblock {x} {GROUND} {z} minecraft:sea_lantern'
+               for x in range(x1 + 4, x2, 8) for z in range(z1 + 4, z2, 8)])
 
 
-
-
-# ============================================================================== world
 def inputs_sha256():
     """Hash of everything that decides what the generated world looks like."""
     h = hashlib.sha256()
@@ -791,8 +664,6 @@ def main():
         if not any(out != root and out.is_relative_to(root) for root in staging_roots):
             raise ValueError('Output must be below .local/experimental-map (or .local/smoke for --pack-only)')
     # Everything that can fail is done before the old world is touched: validation and the level metadata.
-    CONTROLS.clear()
-    museum_sites.TEXTS.clear()
     validate()
     metadata = level_metadata(args.seed_level) if not args.pack_only else None
     final = out
@@ -811,10 +682,6 @@ def main():
         serverconfig.mkdir(parents=True, exist_ok=True)
         (serverconfig / 'mcyukkuri-server.toml').write_text('[debug]\nentitySaveViews = true\n', encoding='utf-8')
     checks, _ = build_pack(world)
-    if museum_sites.VIOLATIONS:
-        for violation in museum_sites.VIOLATIONS:
-            print('TEXT DOES NOT FIT', violation, file=sys.stderr)
-        raise SystemExit(f'{len(museum_sites.VIOLATIONS)} text displays do not fit their board or label')
     manifest = {'world': str(final / 'saves' / WORLD), 'minecraft': '1.21.1', 'inputs_sha256': inputs_sha256(),
                 'fields': [{'id': f.id, 'title': f.title, 'centre': [f.cx, f.cz], 'half': [f.hx, f.hz], 'biome': f.biome, 'anchor': list(f.anchor),
                             'scenarios': [s.id for s in f.scenarios]} for f in FIELDS],
