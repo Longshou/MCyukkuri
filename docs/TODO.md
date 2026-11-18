@@ -15,6 +15,7 @@
 | 固定台正式模型 | `.worktrees/wp-art-restraint-table` | restraint_frame block/item models, textures, icon |
 | 街道宠物②：公园游玩与歇脚（14） | `.worktrees/wp-street-pets-2` | human/HumanStreet.java human/HumanWalk.java play/PlayLife.java park authoring |
 | 补美术：闪亮眼表情、翻垃圾桶嗅探与探头动作 | `.worktrees/wp-art-1118b` | expressions sparkle, motions bin_sniff bin_nose_in |
+| 橙贴墙尾巴上卷看得出 | `.worktrees/wp-art-chen-tail-tuck` | client tail tuck pose, Chen tail |
 
 ## 玩法待办
 
