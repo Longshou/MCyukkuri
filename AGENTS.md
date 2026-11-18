@@ -12,6 +12,7 @@
 | 代码实现者（玩法、场景、工具、脚本） | [coder.md](docs/roles/coder.md) |
 | 审查者（代码审查、复跑、合入） | [reviewer.md](docs/roles/reviewer.md)、[coder.md](docs/roles/coder.md) 的架构红线 |
 | 美术与动作制作者 | [art.md](docs/roles/art.md)、[制作约定](standards/yukkuri-library/AGENTS.md) |
+| 场景布置师（试玩场选址、布景、初态、观察点） | [stager.md](docs/roles/stager.md)、[coder.md](docs/roles/coder.md) 的场景与冒烟做法 |
 | 美术裁定 | [art-arbiter.md](docs/roles/art-arbiter.md) |
 | 生图专员 | [image-liaison.md](docs/roles/image-liaison.md) |
 | 冒烟审核官 | [smoke-approver.md](docs/roles/smoke-approver.md) |
