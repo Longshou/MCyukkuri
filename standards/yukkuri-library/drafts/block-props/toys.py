@@ -53,13 +53,13 @@ def glass_marble():
     def glass(cell, face):
         x, y, z = cell
         if face == 'up':
-            return ('MARBLE', 4) if (x, z) == (1, -1) else ('MARBLE', 3 if y == 4 else 2)   # the glint, top left from the front
+            return ('MARBLE', 4) if (x, z) == (1, -1) else ('MARBLE', 2 if y == 4 else 1)   # the glint, top left from the front
         if face == 'down':
             return ('MARBLE', 0)
         along = {'north': -x, 'south': x, 'east': -z, 'west': z}[face]            # left to right seen from outside, -2..2
-        if (along, y) in ((1, 3), (0, 2), (-1, 1)):
+        if (along, y) in ((1, 3), (0, 3), (0, 2), (-1, 2)):                # one stepped band
             return ('AMBER', 3 if y == 3 else 2)                                  # the twist, a diagonal
-        if y == 4 or (along, y) in ((-1, 3), (-2, 2)):
+        if y == 4 or (along, y) == (-2, 2):
             return ('MARBLE', 2)                                                  # lit cap and the upper left
         return ('MARBLE', 0 if y == 0 else 1)
     b.part('marble').ball(2.5, (.5, 2.5, .5), kit.Material('MARBLE', top=0, bottom=0, bevel=False, pattern=glass))
@@ -67,7 +67,7 @@ def glass_marble():
 
 
 def pretty_stone():
-    """A flat river pebble, 6 x 3 x 5: an oval layer on a stepped-in foot under a smaller off-centre crown, in the icon's blue-grey
+    """A flat river pebble, 6 x 3 x 5: an oval layer on a stepped-in foot under a smaller crown, in the icon's blue-grey
     with its pale quartz vein running diagonally over the top and down both sides, and the glint at the top left."""
     b = kit.Block('pretty_stone', offset=(0, 0, -.5))
 
@@ -86,7 +86,7 @@ def pretty_stone():
     pebble = b.part('pebble')
     pebble.layer(kit.inset(oval), 0, 1, stone)                      # the foot steps in all round: a pebble, not a slab
     pebble.layer(oval, 1, 2, stone)
-    pebble.layer({(x, z) for x in range(-2, 2) for z in range(-1, 2)} | {(2, 0), (2, 1)}, 2, 3, stone)
+    pebble.layer({(x, z) for x in range(-2, 2) for z in range(-1, 2)}, 2, 3, stone)
     return b
 
 
@@ -111,7 +111,7 @@ def _doll(name, hair, front):
             return ('SKIN', 1)
         if face == 'north':
             return {'h': (hair, 3 if y == 4 else 2), 's': ('SKIN', 3 if y else 2), 'e': ('INK', 1),
-                    'b': ('BERRY', 4), 'm': ('BERRY', 2)}[picture(x, y)]
+                    'b': ('BERRY', 4), 'm': ('BERRY', 3)}[picture(x, y)]
         if face == 'south':
             return (hair, 2 if y > 1 else 1) if y else ('SKIN', 1)
         if y >= 3 or (z >= 0 and y >= 1):
@@ -128,6 +128,9 @@ def _doll(name, hair, front):
             for z in range(-2, 3):
                 if x in (-3, 2) or z in (-2, 2):
                     body.carve((x, y, z), (x + 1, y + 1, z + 1))
+    for x in (-3, 2):                                               # the lower corners one cell more: a round bottom
+        for z in (-1, 1):
+            body.carve((x, 1, z), (x + 1, 2, z + 1))
     return b, body
 
 
@@ -160,8 +163,8 @@ def marisa_doll():
         if y == 5 and face not in ('up', 'down'):
             return ('PAPER', 4 if face in ('north', 'west') else 3)  # the band
         if face == 'up':
-            return ('INK', 3)
-        return ('INK', 0 if face == 'down' else 2 if face in ('north', 'east') else 1)
+            return ('INK', 2)
+        return ('INK', 1 if face in ('north', 'east') else 0)                   # the icon's near-black purple
     ink = kit.Material('INK', top=0, bottom=0, bevel=False, pattern=felt)
     brim = {(x, z) for x in range(-4, 4) for z in range(-2, 3)} - {(-4, -2), (3, -2), (-4, 2), (3, 2)}
     body.layer(brim, 4, 5, ink)
