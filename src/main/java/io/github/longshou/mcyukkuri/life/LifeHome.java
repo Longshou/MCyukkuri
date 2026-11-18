@@ -191,7 +191,7 @@ final class LifeHome {
             if (homeStand() != null) return false;
             releaseHome();
         }
-        if (o.entity().mind().feeling().mourning()) return false;
+        if (o.entity().mind().feeling().mourning() || o.entity().outing().away()) return false;
         var search=o.homeProvider().findHome(o.entity());
         if(search==HomeProvider.SearchResult.DEFERRED)return true;
         if(search==HomeProvider.SearchResult.FOUND)return false;

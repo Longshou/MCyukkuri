@@ -15,7 +15,7 @@ caring residents (`HumanAttitude 1`, no village roll). No vanilla workstation bl
 from pathlib import Path
 import json, math, sys
 sys.path.insert(0, str(Path(__file__).parent))
-from build import stairs, slab, furniture, light_up, flat_roof, gable_snow, ground, name_at, string, integer, compound, sequence
+from build import stairs, slab, furniture, light_up, flat_roof, gable_snow, ground, name_at, string, integer, compound, sequence, marker
 from palette import PALETTES, STYLES, link, pick, leaves, mc
 from author_street import (Site, garbage, wind_gap, carton, lamp, jigsaw, street_ends, street_band, lot_ground, fence_row,
                            display_tray, produce_crate)
@@ -406,6 +406,7 @@ def park(p):
     plants, and the gardeners' lodge at the back where two residents live. Desert: no trees; pergolas with a wool shade, pots and dead bushes."""
     W, H, D = 23, 13, 27
     b = Site(f'village/{p.style}/park', [W, H, D], p)
+    marker(b, 11.5, 1, 10.5, 'mcy_park_walk')
     b.box((0, 1, 0), (W - 1, H - 1, D - 1), 'air')
     street_band(b, 0, W - 1)
     lot_ground(b, 0, W - 1, 8, D - 1)

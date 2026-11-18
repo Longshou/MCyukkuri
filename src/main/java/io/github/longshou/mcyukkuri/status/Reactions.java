@@ -97,7 +97,7 @@ public final class Reactions {
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
         if (!PunishmentReaction.isHuman(attacker)) threat.attackedBy(attacker);
         // The binding transaction is synchronous. Its close witnesses react to the hook that actually starts.
-        if(!entity.operations().strikingHook())threat.warnKin(attacker);
+        if(!entity.operations().strikingHook())threat.warnKin(attacker, true);
         if (attacker instanceof Player player) HumanNpc.witnessedStreetHurt(entity, player);
     }
 
@@ -225,7 +225,7 @@ public final class Reactions {
                     fright(best, 80);
                     StatusEvents.note(y, "alarm threat #" + best.getId());
                     fleeFromPredator(best);
-                    warnKin(best);
+                    warnKin(best, false);
                 } else if (d <= 4 || hunting) fleeFromPredator(best);
             }
         }
@@ -247,10 +247,11 @@ public final class Reactions {
         }
 
         /** Kin and friends within earshot learn of the danger even without seeing it; those who already know are not told again. */
-        void warnKin(LivingEntity danger) {
+        void warnKin(LivingEntity danger, boolean hurt) {
             long now = y.level().getGameTime();
             for (var z : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 5, 12),
                     o -> o != y && prey(o) && kin(y, o))) {
+                if (!hurt && danger instanceof HumanNpc && z.status().identity().companion()) continue;
                 if (PunishmentReaction.decidesAsPlantParent(z, y, danger) && PunishmentReaction.perceives(z, y, danger)) continue;
                 z.status().reactions().threat().heard(danger, now);
             }
@@ -393,7 +394,7 @@ public final class Reactions {
      * The one cover query: the nearest reachable covered dry stand of this body's travel range, and farther from the
      * danger than the body itself when a danger is given. The weather goal and both flight paths use it.
      */
-    static BlockPos findCover(YukkuriEntity y, Vec3 danger, int offset) {
+    public static BlockPos findCover(YukkuriEntity y, Vec3 danger, int offset) {
         var level = (ServerLevel) y.level();
         var life = y.life();
         var home = life.homeStand();

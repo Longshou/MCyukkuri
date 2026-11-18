@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -149,7 +150,10 @@ public final class PetCare {
     private void tickWear() {
         if (animal.isLeashed()) {
             var holder = animal.getLeashHolder();
-            if (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())) animal.dropLeash(true, true);
+            // Old morning walks have no explicit LedPet. Wait for vanilla to resolve the actual holder.
+            if (holder instanceof HumanNpc npc && animal.pet().ownedBy(npc.getUUID()) && !npc.leads(animal))
+                animal.dropLeash(true, false);
+            else if (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())) animal.dropLeash(true, true);
         }
         if (swaddle) {
             // The cloth comes off by itself once the young one can live on its own, or when it is soaked or burning; the owner gets it back.
@@ -265,16 +269,19 @@ public final class PetCare {
 
     public CompoundTag save() {
         var tag = new CompoundTag();
+        animal.outing().save(tag);
+        tag.putDouble("FreeWalkCarry", walk.freeCarry());
         tag.putInt("Day", day); tag.putInt("Snacks", snacks); tag.putInt("Habits", habits);
         tag.putBoolean("Harness", harness); tag.putBoolean("Swaddle", swaddle); tag.putString("SwaddleStyle", swaddleStyle.id); tag.put("Requests", requests.save());
         tag.putInt("WalkUnits", walk.saveUnits()); tag.putDouble("WalkCarry", walk.carry()); if (wearOwner != null) tag.putUUID("WearOwner", wearOwner);
         return tag;
     }
     public void load(CompoundTag tag) {
+        animal.outing().load(tag);
         day = tag.contains("Day") ? tag.getInt("Day") : Integer.MIN_VALUE;
         snacks = Math.clamp(tag.getInt("Snacks"), 0, 99); habits = Math.clamp(tag.getInt("Habits"), 0, 99);
         habitLeft = 0; habitCard = null; askUntil = 0;
         harness = tag.getBoolean("Harness"); swaddle = tag.getBoolean("Swaddle"); swaddleStyle = SwaddleStyle.byId(tag.getString("SwaddleStyle")); requests.load(tag.getCompound("Requests"));
-        walk.load(tag.getInt("WalkUnits"), tag.getDouble("WalkCarry")); wearOwner = tag.hasUUID("WearOwner") ? tag.getUUID("WearOwner") : null;
+        walk.load(tag.getInt("WalkUnits"), tag.getDouble("WalkCarry"), tag.getDouble("FreeWalkCarry")); wearOwner = tag.hasUUID("WearOwner") ? tag.getUUID("WearOwner") : null;
     }
 }

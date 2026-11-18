@@ -28,6 +28,7 @@ public final class PetWalk {
     private Vec3 last, lastPet;
     private boolean moving;
     private double carry;
+    private double freeCarry;
     private int units, tugWait;
     private Vec3 heading;
     private long turnUntil;
@@ -82,7 +83,9 @@ public final class PetWalk {
     public void tick() {
         var holder = animal.getLeashHolder();
         // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
-        if (!onOwnerLead(holder)) {
+        boolean led = onOwnerLead(holder);
+        if (!led) holder = animal.outing().escort();
+        if (holder == null) {
             last = null; lastPet = null; heading = null; turnUntil = 0;
             waitsAtTurn = false; turnAside = null; manners = null; moving = false; return;
         }
@@ -103,7 +106,7 @@ public final class PetWalk {
             double px = petNow.x - lastPet.x, pz = petNow.z - lastPet.z;
             double ownerMoved = Math.hypot(dx, dz), petMoved = Math.hypot(px, pz);
             // A strolling resident can take smaller steps than a player and still make a real turn.
-            if (ownerMoved > .02 && ownerMoved <= 1) {
+            if (led && ownerMoved > .02 && ownerMoved <= 1) {
                 Vec3 direction = new Vec3(dx / ownerMoved, 0, dz / ownerMoved);
                 long nowTick = animal.level().getGameTime();
                 if (canTurn && nowTick >= turnUntil && heading != null && heading.dot(direction) < .35
@@ -125,14 +128,19 @@ public final class PetWalk {
                     && animal.distanceToSqr(owner) <= 36 && !animal.life().hasUrgentNeed() && !animal.pet().busy()
                     && !owner.isPassenger() && !owner.isFallFlying()) {
                 moving = true;
-                carry += moved;
                 animal.pet().care().requests().walked(moved);
-                while (carry >= UNIT) { carry -= UNIT; unit(owner); }
+                if (led) {
+                    carry += moved;
+                    while (carry >= UNIT) { carry -= UNIT; unit(owner, true); }
+                } else {
+                    freeCarry += moved;
+                    while (freeCarry >= UNIT) { freeCarry -= UNIT; unit(owner, false); }
+                }
             }
         }
         last = now; lastPet = petNow;
         if (tugWait > 0) tugWait--;
-        if (animal.life().hasUrgentNeed() && tugWait == 0) { // it will not follow while something is urgent: the owner feels the pull of the lead
+        if (led && animal.life().hasUrgentNeed() && tugWait == 0) { // it will not follow while something is urgent: the owner feels the pull of the lead
             tugWait = TUG_INTERVAL;
             animal.showReaction("teary", "harness_tug", 70);
         }
@@ -144,10 +152,10 @@ public final class PetWalk {
         return stand != null && owner.distanceToSqr(stand) < TURN_RANGE_SQR ? stand : null;
     }
 
-    private void unit(LivingEntity owner) {
+    private void unit(LivingEntity owner, boolean led) {
         if (units >= UNITS_PER_DAY) return;
         units++;
-        animal.pet().lessons().performed(PetSkill.HARNESS, true);
+        if (led) animal.pet().lessons().performed(PetSkill.HARNESS, true);
         manners = null;
         var daily = animal.dailyLife(); var pet = animal.pet();
         daily.entertained(6); daily.comfort(4); pet.addStress(-2);
@@ -160,5 +168,6 @@ public final class PetWalk {
     }
 
     public int saveUnits() { return units; }
-    public void load(int savedUnits, double savedCarry) { units = Math.clamp(savedUnits, 0, UNITS_PER_DAY); carry = Math.clamp(savedCarry, 0, UNIT); last = null; lastPet = null; moving = false; }
+    double freeCarry() { return freeCarry; }
+    public void load(int savedUnits, double savedCarry, double savedFreeCarry) { units = Math.clamp(savedUnits, 0, UNITS_PER_DAY); carry = Math.clamp(savedCarry, 0, UNIT); freeCarry = savedFreeCarry; last = null; lastPet = null; moving = false; }
 }

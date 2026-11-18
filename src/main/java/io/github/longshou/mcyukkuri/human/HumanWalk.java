@@ -14,24 +14,20 @@ import net.minecraft.server.level.ServerLevel;
  * (custody Owner = the resident, Use = companion, harness on), so the pet systems treat it as any owner's pet: the lead needs the harness, and the walk
  * counts blocks in {@code PetWalk} exactly as it does for a player (boredom, affection, stress, energy; the pet follows through the vanilla lead).
  *
- * Schedule: in daylight, outside rain, a resident that has a pet goes out once its cooldown is over, leashes the pet, strolls between waypoints near home
- * for about three minutes (stopping while the pet lags behind or has an urgent need), walks back to the post, and unleashes. Everything runs on the server's
- * game time, never frames; the resident's NBT keeps the pet's UUID, the cooldown and the phase.
+ * Only an explicit walker request fits the lead. Ordinary street outings use the resident's street stroll.
  */
 final class HumanWalk {
-    static final int WALK_TICKS = 3600, COOLDOWN = 3000, LAG_BLOCKS = 5;
+    static final int WALK_TICKS = 3600, LAG_BLOCKS = 5;
     private final HumanNpc npc;
     private UUID petId;
     private boolean walking, returning;
-    private long walkUntil, nextWalk, walked;
+    private long walkUntil;
     private BlockPos waypoint;
     private int linger, lostLead;
 
     HumanWalk(HumanNpc npc) { this.npc = npc; }
 
-    UUID petId() { return petId; }
     boolean walking() { return walking; }
-    boolean returning() { return returning; }
 
     YukkuriEntity pet() {
         return petId != null && npc.level() instanceof ServerLevel level && level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
@@ -40,7 +36,6 @@ final class HumanWalk {
     void adopt(YukkuriEntity pet) {
         Custody.assign(pet, npc, Custody.Role.COMPANION); // first: a change of owner strips worn gear
         pet.pet().care().fitHarnessFor(npc.getUUID());
-        petId = pet.getUUID(); nextWalk = npc.level().getGameTime() + 100;
     }
     private boolean fair() {
         return npc.level().isDay() && !npc.level().isRaining() && !npc.resting() && !npc.isTrading() && npc.isAlive();
@@ -48,15 +43,8 @@ final class HumanWalk {
 
     /** Server tick of the resident. */
     void tick() {
-        if (petId == null) return;
+        if (!walking) return;
         long now = npc.level().getGameTime(); var pet = pet();
-        if (!walking) {
-            long dayTime = npc.level().getDayTime() % 24000;
-            if (pet == null || now < nextWalk || !fair()) return;
-            if (dayTime < 500 || dayTime > 6500) return; // the outing begins in the morning and ends before dusk
-            begin();
-            return;
-        }
         // after a reload the lead is restored by the pet a few ticks later: give it a moment before calling it dropped
         lostLead = pet != null && pet.getLeashHolder() == npc ? 0 : lostLead + 1;
         if (pet == null || !fair() || lostLead > 60) { end(); return; }
@@ -65,21 +53,19 @@ final class HumanWalk {
     }
 
     /** Leashes the pet and starts the outing; false when the pet is busy, young, away or unable to wear the lead. */
-    boolean begin() {
-        var pet = pet(); long now = npc.level().getGameTime();
-        if (pet == null || walking) return false;
-        if (pet.pet().busy() || !pet.pet().ownedBy(npc.getUUID()) || !pet.pet().isPet() || !pet.canBeLeashed() || pet.distanceToSqr(npc) > 400) { nextWalk = now + 400; return false; }
-        if (!pet.onGround() || pet.isPassenger()) return false;
-        if (pet.isLeashed()) pet.dropLeash(true, false);
+    boolean begin(YukkuriEntity pet) {
+        if (walking || pet.pet().busy() || !pet.pet().ownedBy(npc.getUUID()) || !pet.canBeLeashed()
+                || pet.isLeashed() || pet.isPassenger() || pet.distanceToSqr(npc) > 400) return false;
+        petId = pet.getUUID();
         pet.setLeashedTo(npc, true);
-        walking = true; returning = false; lostLead = 0; walkUntil = now + WALK_TICKS; waypoint = null; linger = 0; walked++;
+        walking = true; returning = false; lostLead = 0; walkUntil = npc.level().getGameTime() + WALK_TICKS; waypoint = null; linger = 0;
         return true;
     }
     void end() {
         var pet = pet();
         if (pet != null && pet.getLeashHolder() == npc) pet.dropLeash(true, false);
         walking = false; returning = false; waypoint = null; npc.getNavigation().stop();
-        nextWalk = npc.level().getGameTime() + COOLDOWN + npc.getRandom().nextInt(1500);
+        petId = null;
     }
 
     Goal goal() { return new StrollGoal(); }
@@ -114,13 +100,18 @@ final class HumanWalk {
     }
 
     void save(CompoundTag t) {
-        if (petId != null) t.putUUID("WalkPet", petId);
-        t.putBoolean("Walking", walking); t.putBoolean("WalkReturning", returning);
-        t.putLong("WalkUntil", walkUntil); t.putLong("NextWalk", nextWalk); t.putLong("WalksDone", walked);
+        if (walking) {
+            t.putUUID("LedPet", petId);
+            t.putBoolean("WalkReturning", returning);
+            t.putLong("WalkUntil", walkUntil);
+        }
     }
     void load(CompoundTag t) {
-        petId = t.hasUUID("WalkPet") ? t.getUUID("WalkPet") : null;
-        walking = t.getBoolean("Walking"); returning = t.getBoolean("WalkReturning");
-        walkUntil = t.getLong("WalkUntil"); nextWalk = t.getLong("NextWalk"); walked = t.getLong("WalksDone");
+        walking = t.hasUUID("LedPet");
+        petId = walking ? t.getUUID("LedPet") : null;
+        returning = t.getBoolean("WalkReturning");
+        walkUntil = t.getLong("WalkUntil");
     }
+
+    boolean leads(YukkuriEntity pet) { return walking && pet.getUUID().equals(petId); }
 }

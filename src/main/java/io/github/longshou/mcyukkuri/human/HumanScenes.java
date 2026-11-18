@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -131,7 +132,7 @@ public final class HumanScenes {
         if (npc == null) return null;
         npc.setAttitude(HumanNpc.Attitude.CARING);
         var pet = spawnPet(level, npc, variant);
-        if (pet != null && leashNow) npc.beginWalk();
+        if (pet != null && leashNow) npc.beginWalk(pet);
         return npc;
     }
     /** Used by natural spawns: gives the resident a random ordinary pet. */
@@ -152,7 +153,7 @@ public final class HumanScenes {
     static YukkuriEntity spawnYardPet(ServerLevel level, HumanNpc npc, Vec3 at) {
         var pet = createPet(level, petVariant(npc), at);
         if (pet == null) return null;
-        if (!level.noCollision(pet) || !level.addFreshEntity(pet)) return null;
+        if (!SurfaceApproach.stands(pet, at) || !level.noCollision(pet) || !level.addFreshEntity(pet)) return null;
         Custody.assign(pet, npc, Custody.Role.COMPANION);
         pet.pet().startYardBond(npc.getUUID());
         return pet;

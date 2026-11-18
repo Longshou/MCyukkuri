@@ -8,6 +8,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.AABB;
@@ -25,13 +27,17 @@ public final class TownMarkers {
     public static void joining(EntityJoinLevelEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         var entity = event.getEntity();
-        if (!(entity instanceof Marker && entity.getTags().contains(START))
+        if (!(entity instanceof Marker && (entity.getTags().contains(START) || entity.getTags().contains(NO_CARTON)))
                 && !(entity instanceof HumanNpc && entity.getTags().contains(OWNER))) return;
         var server = level.getServer();
         // The join event runs before the entity is visible to the level's queries.
         server.tell(new TickTask(server.getTickCount(), () -> {
             if (level.getEntity(entity.getUUID()) != entity) return;
-            if (entity instanceof Marker marker) bind(level, marker);
+            if (entity instanceof Marker marker) {
+                if (marker.getTags().contains(START)) bind(level, marker);
+                else for (var start : level.getEntitiesOfClass(Marker.class, new AABB(marker.blockPosition()),
+                        m -> m.getTags().contains(START))) bind(level, start);
+            }
             else {
                 var owner = (HumanNpc) entity;
                 for (var marker : level.getEntitiesOfClass(Marker.class, new AABB(owner.home()).inflate(HOME_TO_START, 4, HOME_TO_START),
@@ -59,6 +65,11 @@ public final class TownMarkers {
                         && npc.getTags().contains(OWNER) && npc.home().equals(home)).stream()
                 .min(Comparator.comparing(HumanNpc::getUUID)).orElse(null);
         if (owner == null) return;
+        // Each start shares a chunk with its own durable zone marker, even across a split yard.
+        sites.getFirst().addTag(SPAWNED);
+        for (var site : sites.subList(1, sites.size())) site.discard();
+        start.discard();
+        if (data.getInt("Slot") == 1 && !RandomSource.create(level.getSeed() ^ Mth.getSeed(home)).nextBoolean()) return;
         var pet = HumanScenes.spawnYardPet(level, owner, start.position());
         if (pet == null) {
             GameplayLog.event(owner, "npc-care", "action=yard_pet result=spawn_refused start={}", cell.toShortString());
@@ -66,9 +77,6 @@ public final class TownMarkers {
         }
         var bowl = offset(start, data, "Bowl");
         owner.registerYardBowl(bowl);
-        sites.getFirst().addTag(SPAWNED);
-        for (var site : sites.subList(1, sites.size())) site.discard();
-        start.discard();
         GameplayLog.event(pet, "npc-care", "action=yard_pet result=spawned owner={} stage={} bowl={}",
                 owner.getUUID(), pet.family().stageId(), bowl.toShortString());
     }

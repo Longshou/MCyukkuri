@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.EnumSet;
@@ -37,6 +38,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -140,6 +142,7 @@ final class HumanStreet {
                 || npc.level().isRaining() && (npc.level().canSeeSky(BlockPos.containing(npc.getEyePosition()))
                 || npc.level().canSeeSky(y.blockPosition()) || !SurfaceApproach.supportedGround(y, y.position()))) return false;
         boolean own = Custody.ownedBy(y, npc.getUUID());
+        if (npc.strollingWith(y) && y.outing().fit() && !eligibleMeal(y)) return false;
         if (!own && (!y.status().identity().free() || Custody.harmRefusal(null, y, y.blockPosition()) != null)) return false;
         if (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork()) return false;
         var relation = y.life().personality().relation(npc.getUUID());
@@ -537,7 +540,7 @@ final class HumanStreet {
         return activeTarget != null && beatUntil > now() && witness.distanceToSqr(npc) <= 64 && !witness.isLeashed()
                 && witness.hasLineOfSight(npc) && (witness == activeTarget
                 ? chasing || beatUntil - now() <= 10 && warnings.get(activeTarget.getUUID()).seen
-                : witness.hasLineOfSight(activeTarget))
+                : !witness.status().identity().companion() && witness.hasLineOfSight(activeTarget))
                 && canTarget(activeTarget);
     }
 
@@ -601,41 +604,131 @@ final class HumanStreet {
         private int stalled;
         private int nextAt;
         private int detours;
+        private List<YukkuriEntity> companions = List.of();
+        private boolean homeward;
+        private int lagTicks;
+        private long nextOuting;
+        private BlockPos refusedHomeFrom;
+        private Vec3 resume;
 
         Stroll(HumanNpc npc) {
             this.npc = npc;
             setFlags(EnumSet.of(Flag.MOVE));
         }
 
+        boolean outing() { return homeward || !companions.isEmpty(); }
+        boolean escorts(YukkuriEntity pet) { return !homeward && companions.contains(pet); }
+        void save(CompoundTag tag) {
+            if (outing()) tag.putBoolean("OutingReturn", true);
+            if (nextOuting > 0) tag.putLong("NextOuting", nextOuting);
+        }
+        void load(CompoundTag tag) {
+            companions = List.of();
+            homeward = tag.getBoolean("OutingReturn");
+            nextOuting = tag.getLong("NextOuting");
+        }
+
         @Override public boolean canUse() {
-            return npc.streetActive() && !npc.walking() && npc.tickCount >= nextAt;
+            return npc.streetActive() && (!npc.walking() || homeward) && npc.tickCount >= nextAt;
         }
 
         @Override public void start() {
             detours = 0;
             finished = false;
+            resume = null;
+            if (homeward && !npc.blockPosition().equals(refusedHomeFrom)) { returnHome(); return; }
             if (npc.level().isRaining()) {
-                if (npc.level().canSeeSky(npc.blockPosition())) {
-                    for (var pos : BlockPos.withinManhattan(npc.blockPosition(), 5, 1, 5)) {
-                        if (npc.isWithinRestriction(pos) && !npc.level().canSeeSky(pos)
-                                && npc.level().getBlockState(pos.below()).isFaceSturdy(npc.level(), pos.below(), Direction.UP)
-                                && route(Vec3.atBottomCenterOf(pos))) return;
-                    }
-                }
+                if (npc.level().canSeeSky(npc.blockPosition()) && shelter()) return;
                 route(Vec3.atBottomCenterOf(npc.home()));
                 return;
             }
+            if (!homeward && startOuting()) return;
             Vec3 stand = DefaultRandomPos.getPos(npc, 8, 2);
             route(stand == null ? Vec3.atBottomCenterOf(npc.home()) : stand);
         }
 
-        @Override public boolean canContinueToUse() { return npc.streetActive() && !npc.walking() && !finished; }
+        private boolean startOuting() {
+            var yard = npc.yardBowl();
+            if (yard == null || npc.attitude() != HumanNpc.Attitude.CARING || npc.level().getGameTime() < nextOuting
+                    || npc.blockPosition().distSqr(npc.home()) > 100) return false;
+            var ready = npc.animals(Custody.Role.COMPANION).stream()
+                    .filter(pet -> pet.blockPosition().distSqr(yard) <= 100 && pet.outing().wants(npc)).limit(2).toList();
+            if (ready.isEmpty()) return false;
+            var landmarks = npc.level().getEntitiesOfClass(Marker.class, new AABB(npc.home()).inflate(18),
+                    m -> npc.isWithinRestriction(m.blockPosition()) && (m.getTags().contains("mcy_park_walk")
+                            || m.getTags().contains("mcy_yard_street")));
+            landmarks.sort(Comparator.comparing((Marker m) -> !m.getTags().contains("mcy_park_walk"))
+                    .thenComparingDouble(npc::distanceToSqr));
+            boolean routed = landmarks.stream().anyMatch(m -> route(m.position()));
+            if (!routed) {
+                var stand = DefaultRandomPos.getPos(npc, 12, 2);
+                if (stand == null || !npc.level().canSeeSky(BlockPos.containing(stand)) || !route(stand)) return false;
+            }
+            companions = ready;
+            nextOuting = npc.level().getGameTime() + 3000; // the resident's existing rest between walks
+            for (var pet : companions) pet.outing().leave(yard);
+            lagTicks = 0;
+            GameplayLog.event(npc, "npc-care", "action=outing_depart pets={} destination={}", companions.size(), GameplayLog.at(destination));
+            return true;
+        }
+
+        void returnHome() {
+            homeward = true;
+            resume = null;
+            refusedHomeFrom = null;
+            detours = 0;
+            if (!route(Vec3.atBottomCenterOf(npc.home())) && !shelter()) {
+                refusedHomeFrom = npc.blockPosition();
+                finished = true;
+            }
+        }
+
+        private boolean shelter() {
+            for (var pos : BlockPos.withinManhattan(npc.blockPosition(), 5, 1, 5)) {
+                if (npc.isWithinRestriction(pos) && !npc.level().canSeeSky(pos)
+                        && npc.level().getBlockState(pos.below()).isFaceSturdy(npc.level(), pos.below(), Direction.UP)
+                        && route(Vec3.atBottomCenterOf(pos))) return true;
+            }
+            return false;
+        }
+
+        @Override public boolean canContinueToUse() { return npc.streetActive() && (!npc.walking() || outing()) && !finished; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
 
         @Override public void tick() {
             // Vanilla still ticks running goals before its next continuation check.
             if (finished) return;
-            if (npc.distanceToSqr(destination) < .5) { finished = true; return; }
+            if (!homeward && !companions.isEmpty()) {
+                var lagging = companions.stream().max(Comparator.comparingDouble(npc::distanceToSqr)).orElseThrow();
+                if (npc.level().isRaining() || companions.stream().anyMatch(p -> p.isRemoved() || !p.outing().fit()
+                        || !p.pet().ownedBy(npc.getUUID()))) { returnHome(); return; }
+                if (npc.distanceTo(lagging) > lagging.outing().outerDistance()) {
+                    npc.getLookControl().setLookAt(lagging, 30, 30);
+                    npc.getNavigation().setSpeedModifier(.30);
+                    if (++lagTicks >= ROUTE_TICKS) { returnHome(); return; }
+                } else {
+                    lagTicks = 0;
+                    npc.getNavigation().setSpeedModifier(.55);
+                }
+            }
+            if (npc.distanceToSqr(destination) < .5) {
+                if (resume != null) {
+                    var next = resume;
+                    resume = null;
+                    if (route(next)) return;
+                }
+                if (!homeward && !companions.isEmpty()) returnHome();
+                else {
+                    boolean atHome = npc.blockPosition().distSqr(npc.home()) <= 2;
+                    if (homeward && (atHome || !npc.level().canSeeSky(npc.blockPosition()))) {
+                        GameplayLog.event(npc, "npc-care", "action=outing_{}", atHome ? "home" : "shelter");
+                        homeward = false;
+                        companions = List.of();
+                    }
+                    finished = true;
+                }
+                return;
+            }
             if (npc.position().distanceToSqr(last) > .25) { last = npc.position(); stalled = 0; }
             if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) {
                 var toward = destination.subtract(npc.position()).multiply(1, 0, 1).normalize();
@@ -645,9 +738,16 @@ final class HumanStreet {
             }
             if (++detours == 1 && !npc.level().isRaining()) {
                 Vec3 side = destination.subtract(npc.position()).multiply(1, 0, 1).normalize().yRot((float) (Math.PI / 2));
-                if (trySide(side) || trySide(side.scale(-1))) return;
+                var next = destination;
+                if (trySide(side) || trySide(side.scale(-1))) {
+                    if (outing()) resume = next;
+                    return;
+                }
             }
-            if (detours <= 2) route(Vec3.atBottomCenterOf(npc.home()));
+            if (detours <= 2) {
+                if (!homeward && !companions.isEmpty()) returnHome();
+                else route(Vec3.atBottomCenterOf(npc.home()));
+            }
             else finished = true;
         }
 
@@ -669,6 +769,10 @@ final class HumanStreet {
         }
 
         @Override public void stop() {
+            if (!companions.isEmpty()) {
+                homeward = true;
+                companions = List.of();
+            }
             npc.getNavigation().stop();
             nextAt = npc.tickCount + 40 + npc.getRandom().nextInt(80);
             destination = null;

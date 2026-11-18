@@ -174,7 +174,7 @@ def no_carton(b, low, high, anchor):
            {'Low': relative(anchor, low), 'High': relative(anchor, high)})
 
 
-def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, y=1):
+def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, second=None, y=1):
     """A pet yard: nest, bowl and toilet blocks, a toy on the ground, the yard corners and the pet's start cell as markers."""
     nx, nz = nest; b.block(nx, y, nz, 'mcyukkuri:yukkuri_nest')
     b.bowl(*bowl, y=y)
@@ -182,10 +182,16 @@ def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, y=1):
     b.toy(toy[0] + .5, y, toy[1] + .5, 'yarn_ball')
     (x0, y0, z0), (x1, y1, z1) = low, high
     marker(b, x0 + .5, y0 + .5, z0 + .5, 'mcy_pet_yard'); marker(b, x1 + .5, y1 + .5, z1 + .5, 'mcy_pet_yard')
-    start = (pet[0], y, pet[1])
-    marker(b, pet[0] + .5, y, pet[1] + .5, 'mcy_yard_pet',
-           {'Owner': relative(start, owner), 'Bowl': relative(start, (bowl[0], y, bowl[1]))})
-    no_carton(b, low, high, start)
+    starts = [pet]
+    if second:
+        spot, bed = second
+        b.block(bed[0], y, bed[1], 'mcyukkuri:yukkuri_nest', {'facing': 'north'})
+        starts.append(spot)
+    for index, (x, z) in enumerate(starts):
+        start = (x, y, z)
+        marker(b, x + .5, y, z + .5, 'mcy_yard_pet',
+               {'Owner': relative(start, owner), 'Bowl': relative(start, (bowl[0], y, bowl[1])), 'Slot': integer(index)})
+        no_carton(b, low, high, start)
     b.yards.append({'low': low, 'high': high, 'pet': (pet[0], y, pet[1]), 'nest': (nx, y, nz), 'bowl': (bowl[0], y, bowl[1]),
                     'toilet': (toilet[0], y, toilet[1])})
 
@@ -221,7 +227,8 @@ def home_yard(p):
     # Yard: fence on the front, the path side and the east edge, its gate on the path; the cottage roof runs on down over the row
     # along its wall (a catslide porch at y3) that shelters the nest, the bowl and the toilet.
     fence(b, [(x, 2) for x in range(4, W)] + [(4, z) for z in (3, 5, 6)] + [(8, z) for z in range(3, 7)])
-    fence_gate(b, 4, 1, 4, 'east')
+    # Leave the path-side entrance passable for an unled adult.
+    marker(b, 2.5, 1, .5, 'mcy_yard_street')
     for x in range(W):
         if p.flat: slab(b, x, 3, 6, p.roof)
         else: stairs(b, x, 3, 6, p.roof, 'south')
@@ -296,11 +303,13 @@ def home_yard_large(p):
     b.block(8, 4, 10, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
     # Pet garden: fences on three sides; the kennel corner is a board-walled nook (back and west) under a slab roof at y3, open to
     # the garden on its north and east sides, over the nest and the bowl.
-    fence(b, [(0, z) for z in (11, 12)] + [(x, 15) for x in range(3, 8)] + [(8, z) for z in range(11, 16)])
+    fence(b, [(0, z) for z in (11, 12)] + [(x, 15) for x in range(3, 8)] + [(8, z) for z in (11, 14, 15)])
     b.box((0, 1, 15), (2, 2, 15), p.wall); b.box((0, 1, 13), (0, 2, 14), p.wall)
     b.box((0, 3, 13), (2, 3, 15), p.roof + '_slab', {'type': 'bottom', 'waterlogged': 'false'})
     b.block(2, 2, 13, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
-    pet_yard(b, (0, 0, 9), (8, 4, 15), pet=(5, 12), nest=(1, 14), bowl=(2, 14), toilet=(7, 14), toy=(5, 13), owner=owner)
+    pet_yard(b, (0, 0, 9), (8, 4, 15), pet=(5, 12), nest=(1, 14), bowl=(2, 14), toilet=(7, 14), toy=(5, 13),
+             owner=owner, second=((3, 13), (4, 14)))
+    marker(b, 9.5, 1, .5, 'mcy_yard_street')
     bush(b, 7, 1, 11); plant(b, 6, 1, 14, 1); plant(b, 1, 1, 11, 2)
     # Side passage: a standing bin against the house, the woodpile at the end, a lamp at the front corner.
     garbage(b, 10, 1, 4, 'west', [('potato', 1), ('paper', 2), ('stick', 1), ('cookie', 1)])
@@ -392,6 +401,7 @@ def pocket_park(p):
     in the back corner, a lamp and a standing bin by the east bench; hedges (pots in the desert) on the kerb of three sides."""
     W, H, D = 11, 11, 11
     b = new_lot('pocket_park', (W, H, D), p, 5)
+    marker(b, 5.5, 1, 4.5, 'mcy_park_walk')
     path(b, [(5, 1), (5, 2)])
     for x in range(1, W - 1):
         for z in range(1, D - 1):

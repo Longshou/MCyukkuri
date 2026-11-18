@@ -2262,6 +2262,33 @@ add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎�
     reads=[('读院宠状态', f'yukkuri status {sel("yard_pet")} raw'),
            ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience')])
 
+_outing_pets = [('reimu', 'outing_shy', 3, -1, 5, 95), ('marisa', 'outing_bold', 4, 1, 95, 5)]
+_outing_start = []
+for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
+    _outing_start += [
+        yk(_kind, _x, _z, _name, uuid=uid('yard_street_walk', _name), boldness=_bold, attachment=_bond,
+           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True, **pair_ready()),
+        f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',
+    ]
+add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
+    '大院里有两个窝。灵梦爱黏着主人，魔理沙喜欢离远些张望。看它们走出院门，经过鬼威惨和挡路的流浪油，再各自回院。',
+    '约 1 分钟', [
+        *_yard_ground(True),
+        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
+        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
+        block(5, 0, 2, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}]}'),
+        _yard_marker + 'Tags:["scn","mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        'summon minecraft:marker ~-11.5 ~ ~0.5 {Tags:["scn","mcy_yard_street"]}',
+        human('caretaker_sister', 4, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
+        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L}}',
+        *_outing_start,
+        street_abuser(-8, 1, 'outing_oni'),
+        street_trial('yard_street_walk', 'chen', -7, 1, 'outing_stray', yaw=90),
+    ], env=DAY, vantage=(-2, 9, 160, 16),
+    reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -5223,7 +5250,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -6256,6 +6283,35 @@ _smoke('yard_stray_scold', 1200, [
     r'\[home-claim\][^\n]* HOLD -> RETREAT',
     r'\[home-claim\][^\n]* ended[^\n]*driven_off',
 ], readout=['yukkuri homeclaim status', f'data get entity {sel("yard_stray")} Pos', 'data get block ~5 ~ ~2 Items'])
+
+
+def _outing_crossings(window, trace):
+    for _, name, *_ in _outing_pets:
+        actor = _uuid_text('yard_street_walk', name)
+        reached = re.search(rf'uuid={actor} t=(\d+) [^\n]*outing reached home', window)
+        if not reached:
+            return f'{name} did not return to the yard'
+        for line in trace:
+            if actor not in line:
+                continue
+            row = json.loads(line.split('[trace] ', 1)[1])
+            if row['k'] == 'st' and 'p' in row['st'] and row['t'] < int(reached[1]) and row['st']['p'][0] < _yard_x - 1:
+                break
+        else:
+            return f'{name} never walked outside the yard before returning'
+
+
+_outing_ids = '|'.join(_uuid_text('yard_street_walk', p[1]) for p in _outing_pets)
+_smoke('yard_street_walk', 1100, [
+    r'action=outing_depart pets=2 ', r'action=outing_home',
+    rf'action=street_warn target={_uuid_text("yard_street_walk", "outing_stray")}',
+    *[rf'uuid={_uuid_text("yard_street_walk", p[1])} [^\n]*outing reached home' for p in _outing_pets],
+    r'MCY_OUTING_BOTH_UNLEASHED',
+], forbid=[rf'action=street_(?:warn|chase|kick) target=(?:{_outing_ids})'])
+next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_crossings, verify_trace=True, commands=[
+    (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
+     f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
+])
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],

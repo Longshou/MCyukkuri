@@ -151,6 +151,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.COMFORT_GIVER, new ComfortGoal()));
         kindness = new Kindness(owner);
         goalSelector.addGoal(4, kindness);
+        goalSelector.addGoal(4, landGoal(owner.outing()));
         goalSelector.addGoal(5, landBinding(PresentationGoals.DAILY, new DailyGoal()));
         goalSelector.addGoal(6, landBinding(PresentationGoals.SOCIAL, new SocialGoal()));
         goalSelector.addGoal(5, landBinding(PresentationGoals.GROUP, new GroupGoal()));

@@ -363,6 +363,7 @@ public final class PetLife {
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
+        animal.outing().forget();
         lessons.reunited();
         care.ownerChanged(owner);
         lastContact = now(); neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
@@ -373,6 +374,7 @@ public final class PetLife {
     }
     /** End NPC control while preserving the animal's badge and history. */
     public void ownerReleased(UUID former) {
+        animal.outing().forget();
         lessons.separated();
         townRoots = true;
         care.ownerChanged(null);

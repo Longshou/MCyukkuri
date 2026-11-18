@@ -85,14 +85,17 @@ public final class HumanNpc extends PathfinderMob {
     /** Created on first use: registerGoals() runs inside the Mob constructor, before field initialisers. */
     private HumanWalk walk;
     private HumanWalk walk() { if (walk == null) walk = new HumanWalk(this); return walk; }
-    /** UUID of the resident's own pet (the one it walks on the lead), or null. */
-    public UUID walkPetId() { return walk().petId(); }
-    /** Whether the resident is out on a walk with its pet on the lead right now. */
-    public boolean walking() { return walk().walking(); }
-    /** Gives the resident this individual as its companion (custody, harness); the resident walks it from the next morning, or at once via {@link #beginWalk()}. */
+    private HumanStreet.Stroll stroll;
+    private HumanStreet.Stroll stroll() { if (stroll == null) stroll = new HumanStreet.Stroll(this); return stroll; }
+    public UUID walkPetId() { return animals(Custody.Role.COMPANION).stream().findFirst().map(Entity::getUUID).orElse(null); }
+    public boolean walking() { return walk().walking() || stroll().outing(); }
+    public boolean leads(YukkuriEntity pet) { return walk().leads(pet); }
+    public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
+    public void turnOutingHome() { stroll.returnHome(); }
+    /** Gives the resident this individual as its companion and fits its harness. */
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
     /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */
-    public boolean beginWalk() { return walk().begin(); }
+    boolean beginWalk(YukkuriEntity pet) { return walk().begin(pet); }
 
     /** One contact at the current stand. The caller chooses when to approach and use its equipped tool. */
     public boolean useHeldTool(YukkuriEntity target) { return InteractionDispatch.useHeldTool(this, target); }
@@ -160,6 +163,7 @@ public final class HumanNpc extends PathfinderMob {
         HumanStreet.witnessedBowlTake(animal, bowl);
     }
     boolean ownsYardBowl(BlockPos bowl) { return bowl.equals(yardBowl); }
+    BlockPos yardBowl() { return yardBowl; }
     /** Its own pet ran to its feet about a beggar; the resident answers in its own manner (HumanStreet.helpPet). */
     public boolean helpPet(YukkuriEntity pet, YukkuriEntity stray) {
         if (isNoAi()) return false;
@@ -229,7 +233,7 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
             @Override public boolean canUse() { return job() != Job.SHOPKEEPER && job() != Job.FACTORY && !streetResident() && !resting() && !isTrading() && super.canUse(); }
         });
-        goalSelector.addGoal(5, new HumanStreet.Stroll(this));
+        goalSelector.addGoal(5, stroll());
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
@@ -332,12 +336,18 @@ public final class HumanNpc extends PathfinderMob {
         }
         VillageBin.dropLitter(this);
     }
+    @Override public void remove(RemovalReason reason) {
+        if (reason.shouldDestroy() && streetResident() && level() instanceof ServerLevel server
+                && server.getEntity(getUUID()) == this && !CustodyData.get(server).deadNpc(getUUID()))
+            Custody.ownerGone(server, getUUID());
+        super.remove(reason);
+    }
     @Override public boolean hurt(DamageSource source, float amount) {
         boolean hurt = super.hurt(source, amount);
         if (hurt && isAlive() && !level().isClientSide && streetResident() && source.getEntity() instanceof Player) {
             routineDelay = -HumanStreet.DAY;
             street.cancel();
-            if (walking()) walk().end();
+            if (walk().walking()) walk().end();
             getNavigation().stop();
             GameplayLog.event(this, "npc-care", "action=street_go_home cause=player_hit ticks={}", -routineDelay);
         }
@@ -380,7 +390,7 @@ public final class HumanNpc extends PathfinderMob {
             trades = 0; nextRestock = level().getGameTime() + HumanStreet.DAY;
             restockCareFood();
         }
-        if (job() == Job.RESIDENT && walk().petId() != null) walk().tick();
+        if (walk().walking()) walk().tick();
         entityData.set(RESTING, !level().isDay());
         if (routineDelay != 0) routineDelay -= Integer.signum(routineDelay);
         street.tick();
@@ -755,6 +765,7 @@ public final class HumanNpc extends PathfinderMob {
         if (plantSite != null) t.putUUID("PlantSite", plantSite);
         legacyOutput.save(t, registryAccess());
         walk().save(t);
+        stroll().save(t);
         street.save(t);
         if (avoidingStreet()) t.putInt("StreetHomePause", routineDelay);
     }
@@ -767,6 +778,7 @@ public final class HumanNpc extends PathfinderMob {
         plantSite = t.hasUUID("PlantSite") ? t.getUUID("PlantSite") : null;
         legacyOutput.load(t, registryAccess());
         walk().load(t);
+        stroll().load(t);
         street.load(t);
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;
         trades = Math.clamp(t.getInt("Trades"), 0, 64); nextRestock = t.getLong("NextRestock");
