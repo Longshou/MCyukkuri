@@ -239,17 +239,32 @@ def build(since, until):
 
 
 def menu(current, fresh_texts, scenes, numbers, field_order):
+    """One row per scene: a performance several items point at shows once, with the worst status of its items,
+    every distinct watch text and fresh if any item is fresh. Items without a scene stay one row each."""
     order = {sid: i for i, sid in enumerate(sid for _, ids in field_order for sid in ids)}
     rows = []
+    by_scene = {}
     for item in current:
         _, text = item
         status = status_of(text)
         if status not in MENU:
             continue
         ids = scene_refs(text, scenes, numbers)
-        rows.append(dict(status=status, title=display_name(item), watch=watch_of(item, current),
-                         fresh=text in fresh_texts,
-                         scenes=[dict(id=sid, label=scenes[sid][1], field=scenes[sid][0]) for sid in ids]))
+        if not ids:
+            rows.append(dict(status=status, title=display_name(item), watch=watch_of(item, current),
+                             fresh=text in fresh_texts, scenes=[]))
+            continue
+        w = watch_of(item, current)
+        for sid in ids:
+            r = by_scene.setdefault(sid, dict(status=status, title=scenes[sid][1], watch=[], fresh=False,
+                                              scenes=[dict(id=sid, label=scenes[sid][1], field=scenes[sid][0])]))
+            if RANK[status] < RANK[r['status']]:
+                r['status'] = status
+            r['fresh'] = r['fresh'] or text in fresh_texts
+            if w and w not in r['watch']:
+                r['watch'].append(w)
+    rows += [dict(status=r['status'], title=r['title'], watch='；'.join(r['watch']), fresh=r['fresh'],
+                  scenes=r['scenes']) for r in by_scene.values()]
     return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'],
                                          order[row['scenes'][0]['id']] if row['scenes'] else len(order)))
 

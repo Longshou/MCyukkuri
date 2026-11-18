@@ -31,7 +31,7 @@ final class ViewerScreen extends Screen {
     private static final KeyMapping KEY = new KeyMapping("key.mcyukkuri.viewer", GLFW.GLFW_KEY_M, "key.categories.mcyukkuri");
     private static final String KEY_PREFIX = "viewer.mcyukkuri.";
     private static final int LINE = 12, BUTTON = 18, PITCH = 20, PAD = 8;
-    private static final int PANEL = 520;
+    private static final int PANEL = 520, BAR_WIDTH = 4;
     private static int tab, familyIndex;
 
     private final ViewerTodo todo = ViewerTodo.read();
@@ -44,6 +44,8 @@ final class ViewerScreen extends Screen {
     private int scroll, listScroll, listContent;
     private float yaw = 18, pitch = 12, zoom = 1;
     private boolean dragging;
+    private boolean barDrag;
+    private int scrollGrab;
     private int columnX, columnW, rowFormY, rowFamilyY, listTopY, listBottomY;
     private int previewX, previewY, previewW, previewH, controlY, sliderY, timeY;
     private Scrub scrub;
@@ -51,6 +53,11 @@ final class ViewerScreen extends Screen {
     private record Row(ViewerTodo.Item item, List<FormattedCharSequence> text) {
         int buttonOffset() { return 2 * PAD + LINE + text.size() * LINE; }
         int height() { return buttonOffset() + item.scenes().size() * PITCH + PAD; }
+    }
+
+    /** Drawn scrollbar: target 0 scrolls the 待看 list, 1 the stage lists; thumb 0 when the content fits. */
+    private record Bar(int target, int x, int top, int track, int max, int thumb) {
+        int thumbTop(int value) { return top + (track - thumb) * value / max; }
     }
 
     private record ViewerCatalog(Map<String, String> models, List<Family> families) {
@@ -319,12 +326,11 @@ final class ViewerScreen extends Screen {
             y += row.height() + 4;
         }
         graphics.disableScissor();
-        if (maxScroll() > 0) {
-            int track = listBottom - listTop;
-            int thumb = Math.max(PAD, track * track / contentHeight);
-            int top = listTop + (track - thumb) * scroll / maxScroll();
-            graphics.fill(right - 12, listTop, right - PAD, listBottom, 0xffdfd4bd);
-            graphics.fill(right - 12, top, right - PAD, top + thumb, 0xff9b815e);
+        Bar bar = bar();
+        if (bar.thumb() > 0) {
+            graphics.fill(bar.x(), bar.top(), bar.x() + BAR_WIDTH, bar.top() + bar.track(), 0xffdfd4bd);
+            int top = bar.thumbTop(scroll);
+            graphics.fill(bar.x(), top, bar.x() + BAR_WIDTH, top + bar.thumb(), 0xff9b815e);
         }
     }
 
@@ -334,12 +340,11 @@ final class ViewerScreen extends Screen {
         centered(graphics, catalog.models().get(ViewerStage.form), columnX, columnW, rowFormY + 5, GuiKit.INK);
         centered(graphics, familyIndex < catalog.families().size() ? catalog.families().get(familyIndex).title() : tr("family.other").getString(),
                 columnX, columnW, rowFamilyY + 5, GuiKit.SOFT);
-        int view = listBottomY - listTopY;
-        if (listContent > view) {
-            int thumb = Math.max(PAD, view * view / listContent);
-            int top = listTopY + (view - thumb) * listScroll / (listContent - view);
-            graphics.fill(columnX + columnW - 10, listTopY, columnX + columnW - 6, listBottomY, 0xffdfd4bd);
-            graphics.fill(columnX + columnW - 10, top, columnX + columnW - 6, top + thumb, 0xff9b815e);
+        Bar bar = bar();
+        if (bar.thumb() > 0) {
+            graphics.fill(bar.x(), bar.top(), bar.x() + BAR_WIDTH, bar.top() + bar.track(), 0xffdfd4bd);
+            int top = bar.thumbTop(listScroll);
+            graphics.fill(bar.x(), top, bar.x() + BAR_WIDTH, top + bar.thumb(), 0xff9b815e);
         }
         GuiKit.card(graphics, previewX, previewY, previewW, previewH, false);
         ViewerStage.draw(graphics, previewX + 2, previewY + 2, previewW - 4, previewH - 4, yaw, pitch, zoom);
@@ -364,14 +369,30 @@ final class ViewerScreen extends Screen {
     // ------------------------------------------------------------------ input
     @Override public boolean mouseClicked(double x, double y, int button) {
         if (super.mouseClicked(x, y, button)) return true;
-        if (button == 0 && tab != 0 && GuiKit.over((int) x, (int) y, previewX, previewY, previewW, previewH)) {
-            dragging = true;
-            return true;
+        if (button == 0) {
+            Bar bar = bar();
+            if (bar.thumb() > 0 && GuiKit.over((int) x, (int) y, bar.x(), bar.top(), BAR_WIDTH, bar.track())) {
+                scrollGrab = (int) y - bar.thumbTop(bar.target() == 0 ? scroll : listScroll);
+                barDrag = true;
+                if (scrollGrab < 0 || scrollGrab >= bar.thumb()) {
+                    scrollGrab = bar.thumb() / 2;
+                    dragBar(bar, y);
+                }
+                return true;
+            }
+            if (tab != 0 && GuiKit.over((int) x, (int) y, previewX, previewY, previewW, previewH)) {
+                dragging = true;
+                return true;
+            }
         }
         return false;
     }
 
     @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
+        if (barDrag) {
+            dragBar(bar(), y);
+            return true;
+        }
         if (dragging) {
             yaw = Mth.wrapDegrees(yaw + (float) dx * 2);
             pitch = Mth.wrapDegrees(pitch + (float) dy * 2);
@@ -381,6 +402,7 @@ final class ViewerScreen extends Screen {
     }
 
     @Override public boolean mouseReleased(double x, double y, int button) {
+        barDrag = false;
         dragging = false;
         return super.mouseReleased(x, y, button);
     }
@@ -411,6 +433,29 @@ final class ViewerScreen extends Screen {
     }
 
     private int maxScroll() { return Math.max(0, contentHeight - (listBottom - listTop)); }
+
+    /** The scrollbar of the shown tab: the 待看 list or the stage lists, with thumb 0 when everything fits. */
+    private Bar bar() {
+        if (tab == 0) {
+            int track = listBottom - listTop;
+            int max = maxScroll();
+            return new Bar(0, right - PAD - BAR_WIDTH, listTop, track, max,
+                    max > 0 ? Math.max(PAD, track * track / contentHeight) : 0);
+        }
+        int track = listBottomY - listTopY;
+        int max = listContent - track;
+        return new Bar(1, columnX + columnW - 2 * BAR_WIDTH - 2, listTopY, track, max,
+                max > 0 ? Math.max(PAD, track * track / listContent) : 0);
+    }
+
+    /** Moves the bar's list so the grabbed point of the thumb follows the cursor, then rebuilds the list. */
+    private void dragBar(Bar bar, double y) {
+        int travel = bar.track() - bar.thumb();
+        int at = Mth.clamp((int) y - scrollGrab - bar.top(), 0, travel);
+        int value = (int) Math.round((double) at * bar.max() / travel);
+        if (bar.target() == 0) scroll = value; else listScroll = value;
+        refresh();
+    }
 
     private static MutableComponent tr(String key, Object... args) { return Component.translatable(KEY_PREFIX + key, args); }
 
