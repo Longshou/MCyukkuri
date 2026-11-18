@@ -1617,7 +1617,8 @@ add('family_search_pane', 'family', '走散亲子：撞碎玻璃板后重逢', '
     '约 10–30 秒', [
         box(-3, -1, -3, 3, 2, 3, 'minecraft:stone_bricks', 'hollow'),
         box(-2, 0, 3, 1, 1, 3, 'minecraft:iron_bars'),
-        box(0, 0, 3, 0, 1, 3, 'minecraft:glass_pane'),
+        # The parent can drift a little while waiting for its first kin scan. Keep the child visible across that approach.
+        box(-1, 0, 3, 1, 1, 3, 'minecraft:glass_pane'),
         yk('marisa', 0, 7, 'pane_parent', uuid=_fsp['parent'], label='撞玻璃板的亲油', yaw=180, boldness=100, lead=True, **pair_ready()),
         yk('marisa', 0, 0, 'pane_child', uuid=_fsp['child'], label='窗内的子油', stage='child', boldness=0,
            kin=f'Mother:{uuid_nbt(_fsp["parent"])}', **pair_ready())],
