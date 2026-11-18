@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
-import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -44,6 +43,8 @@ public final class ShopTrade {
     /** A buyer or seller counts as in the shop within this margin around the footprint (the pavement in front of the door included). */
     private static final double PRESENT_MARGIN = 4;
     static final String SHIP_OUT = "ShipOut", FOR_SALE_SINCE = "ForSaleSince", SHIP_AFTER = "ShipAfter";
+    public static final int RESTRAINT_DEPOSIT = 4;
+    private static final String RESTRAINT_DUE_DAY = "RestraintDueDay";
     private ShopTrade() {}
 
     public static boolean stockOf(YukkuriEntity y, UUID keeper) { return HumanCommerce.ownedBy(y, keeper) && Custody.view(y).role() == Custody.Role.STOCK; }
@@ -113,56 +114,89 @@ public final class ShopTrade {
     }
     static void say(Player p, String key, Object... args) { p.displayClientMessage(Component.translatable("shop.mcyukkuri." + key, args), true); }
 
-    /** The display tray's first slot holds the frame or the actual deposit. No separate lending record is needed. */
-    static void exchangeRestraint(ServerPlayer player, ProduceCrateBlockEntity tray) {
-        var frame = ModItems.RESTRAINT.get();
-        var stored = tray.getItem(0);
-        var hand = player.getMainHandItem();
-        if (stored.is(frame)) {
-            int price = Math.min(ProduceCrateBlockEntity.PER_ROW, ShopCatalog.find(ShopKind.ONI, RestraintTableBlock.ID).price());
-            if (!hand.isEmpty()) {
-                restraintRefused(player, tray, "empty_hand", price);
-            } else if (emeralds(player) < price) {
-                restraintRefused(player, tray, "emeralds", price);
-            } else {
-                debit(player, price);
-                tray.setItem(0, new ItemStack(Items.EMERALD, price));
-                player.setItemInHand(InteractionHand.MAIN_HAND, stored);
-                say(player, "restraint.lent", price);
-                GameplayLog.event(player, "shop", "action=lend_restraint result=committed tray={} deposit={}", tray.getBlockPos(), price);
-            }
-        } else if (stored.is(Items.EMERALD)) {
-            int price = stored.getCount();
-            if (!hand.is(frame)) {
-                restraintRefused(player, tray, "return_frame", price);
-            } else if (hand.getCount() == 1) {
-                tray.setItem(0, hand);
-                player.setItemInHand(InteractionHand.MAIN_HAND, stored);
-                restraintReturned(player, tray, price);
-            } else {
-                var inventory = player.getInventory();
-                int slot = inventory.getSlotWithRemainingSpace(stored);
-                if (slot < 0 || inventory.getItem(slot).getCount() + price > stored.getMaxStackSize()) slot = inventory.getFreeSlot();
-                if (slot < 0) {
-                    restraintRefused(player, tray, "inventory", price);
-                    return;
-                }
-                tray.setItem(0, hand.split(1));
-                inventory.add(slot, stored);
-                restraintReturned(player, tray, price);
-            }
-        } else restraintRefused(player, tray, "unavailable", 0);
+    static boolean lendRestraint(ServerPlayer player, HumanNpc staff, ProduceCrateBlockEntity tray) {
+        if (emeralds(player) < RESTRAINT_DEPOSIT) return restraintRefused(player, staff, "emeralds", RESTRAINT_DEPOSIT);
+        var inventory = player.getInventory();
+        int slot = inventory.getFreeSlot();
+        if (slot < 0) return restraintRefused(player, staff, "inventory", RESTRAINT_DEPOSIT);
+        var table = tray.getItem(0);
+        debit(player, RESTRAINT_DEPOSIT);
+        tray.getPersistentData().putInt(RESTRAINT_DUE_DAY, ShopStock.today(player.serverLevel()) + 1);
+        tray.setItem(0, new ItemStack(Items.EMERALD, RESTRAINT_DEPOSIT));
+        inventory.setItem(slot, table);
+        restraintHandOver(player, staff);
+        say(player, "restraint.lent", RESTRAINT_DEPOSIT);
+        GameplayLog.event(player, "shop", "action=lend_restraint result=committed via=menu staff={} tray={} deposit={}",
+                staff.getUUID(), tray.getBlockPos(), RESTRAINT_DEPOSIT);
+        return true;
     }
 
-    private static void restraintReturned(ServerPlayer player, ProduceCrateBlockEntity tray, int price) {
+    static boolean returnRestraint(ServerPlayer player, HumanNpc staff, ProduceCrateBlockEntity tray) {
+        var inventory = player.getInventory();
+        var table = ModItems.RESTRAINT.get();
+        int source = inventory.selected;
+        if (!inventory.getItem(source).is(table)) {
+            for (source = 0; source < inventory.getContainerSize() && !inventory.getItem(source).is(table); source++) {}
+            if (source == inventory.getContainerSize()) return restraintRefused(player, staff, "return_frame", tray.getItem(0).getCount());
+        }
+        var returned = inventory.getItem(source);
+        var deposit = tray.getItem(0);
+        int price = deposit.getCount();
+        if (returned.getCount() == 1) {
+            inventory.setItem(source, deposit);
+        } else {
+            int slot = inventory.getSlotWithRemainingSpace(deposit);
+            if (slot < 0 || inventory.getItem(slot).getCount() + price > deposit.getMaxStackSize()) slot = inventory.getFreeSlot();
+            if (slot < 0 && drop(player.serverLevel(), player.getUUID(), player.position(), deposit.copy()) == null)
+                return restraintRefused(player, staff, "inventory", price);
+            if (slot >= 0) inventory.add(slot, deposit.copy());
+        }
+        tray.getPersistentData().remove(RESTRAINT_DUE_DAY);
+        tray.setItem(0, returned.split(1));
+        restraintHandOver(player, staff);
         say(player, "restraint.returned", price);
-        GameplayLog.event(player, "shop", "action=return_restraint result=committed tray={} deposit={}", tray.getBlockPos(), price);
+        GameplayLog.event(player, "shop", "action=return_restraint result=committed via=menu staff={} tray={} deposit={}",
+                staff.getUUID(), tray.getBlockPos(), price);
+        return true;
     }
 
-    private static void restraintRefused(ServerPlayer player, ProduceCrateBlockEntity tray, String reason, int price) {
+    private static void restraintHandOver(ServerPlayer player, HumanNpc staff) {
+        staff.getLookControl().setLookAt(player);
+        staff.swing(InteractionHand.MAIN_HAND);
+    }
+
+    static boolean restraintRefused(ServerPlayer player, HumanNpc staff, String reason, int price) {
         say(player, "restraint." + reason, price);
         GameplayLog.limited(player, "shop", "restraint." + reason, 100,
-                "action=exchange_restraint result=refused tray={} reason={} deposit={}", tray.getBlockPos(), reason, price);
+                "action=rent_restraint result=refused via=menu staff={} reason={} deposit={}", staff.getUUID(), reason, price);
+        return false;
+    }
+
+    /** The tray holds the deposit and its deadline together, including when the counter chunk unloads. */
+    static void expireRestraint(ServerLevel level, ShopRegistry.Entry shop, ProduceCrateBlockEntity tray) {
+        var deposit = tray.getItem(0);
+        if (!deposit.is(Items.EMERALD)) return;
+        var data = tray.getPersistentData();
+        int today = ShopStock.today(level);
+        if (!data.contains(RESTRAINT_DUE_DAY)) {
+            // A deposit saved before rentals had deadlines can be recovered until the next shop day.
+            data.putInt(RESTRAINT_DUE_DAY, today + 1);
+            tray.setChanged();
+            return;
+        }
+        if (today < data.getInt(RESTRAINT_DUE_DAY)) return;
+        ShopRegistry.get(level).depositInTill(shop, deposit.getCount());
+        data.remove(RESTRAINT_DUE_DAY);
+        tray.setItem(0, ItemStack.EMPTY);
+        GameplayLog.world(level, "shop", "action=rent_restraint result=expired shop={} tray={} deposit={} till={}",
+                shop.id, tray.getBlockPos(), deposit.getCount(), shop.emeraldTill);
+    }
+
+    static void restockRestraint(ServerLevel level, ShopRegistry.Entry shop, ProduceCrateBlockEntity tray) {
+        expireRestraint(level, shop, tray);
+        if (!tray.getItem(0).isEmpty()) return;
+        tray.setItem(0, new ItemStack(ModItems.RESTRAINT.get()));
+        GameplayLog.world(level, "shop", "action=rent_restraint result=restocked shop={} tray={}", shop.id, tray.getBlockPos());
     }
 
     static ServerPlayer present(ServerLevel level, ShopRegistry.Entry shop, UUID id) {

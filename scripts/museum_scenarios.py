@@ -2640,10 +2640,10 @@ add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价�
     reads=[('读店铺与库存', 'yukkuri human shop list'), ('读库存体况与预防', f'yukkuri status {STOCK} raw')])
 _stress_stock = {'oni_bold': (272000, 80, 60), 'oni_timid': (249000, 25, 68)}
 add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨商店：租工具解压',
-    '切到生存模式。空主手右键靠双木门的借还托盘，付押金领走固定台。找店员买里侧同一展栏里的胆大低自制或胆小的灵梦，'
+    '切到生存模式。右键任一店员，在“租借”页付押金借固定台。找店员买里侧同一展栏里的胆大低自制或胆小的灵梦，'
     '等店员交来实篮，穿过柜台旁的双木门，在解压间干地摆下固定台，再持实篮右键台面。比较鼓脸、僵住或求饶。'
     '趁它还躺着用锥子，观察反应和漏尿沿底面两侧流下的样子。用空手右键个体或台面松绑。'
-    '拆下固定台，捡起后回托盘取押金。也可自带工具和个体，随时离开、治疗或装篮带走。展示栏的库存仍受保护。',
+    '拆下固定台，捡起后回店员的“租借”页归还并取回押金。也可自带工具和个体，随时离开、治疗或装篮带走。展示栏的库存仍受保护。',
     '建筑几秒，买出后等店员交篮', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         *[f'tag @e[type=mcyukkuri:reimu,distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
@@ -2658,7 +2658,7 @@ add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨�
     capture=dict(shots=(84, 100, 116, 137, 152, 160, 173), sequences=((86, 170, 6),), observe=False,
                  views={'table': dict(position=(24.5, 3.7, .75), look_at=(22.5, 2.55, 2.5),
                                       criteria='看清空台的两条皮带、仰卧个体身上的合拢皮带以及拆台后松绑。')}),
-    reads=[('读借还托盘', 'data get block ~14 ~3 ~1 Items'),
+    reads=[('读柜台托盘里的固定台或押金', 'data get block ~14 ~3 ~1 Items'),
            ('读胆大灵梦', f'yukkuri status {sel("oni_bold")} raw'),
            ('读胆小灵梦', f'yukkuri status {sel("oni_timid")} raw')])
 add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到街桶', '鬼威惨商店：店员把一份碎屑送到街桶',
@@ -6453,8 +6453,8 @@ next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
 ]
 _stress_brought = _uuid_text('oni_stress_room', 'brought_reimu')
 _smoke('oni_stress_room', 440, [
-    r'\[shop\][^\n]* action=exchange_restraint result=refused [^\n]*reason=emeralds deposit=4\b',
-    r'\[shop\][^\n]* action=lend_restraint result=committed [^\n]*deposit=4\b',
+    r'\[shop\][^\n]* action=rent_restraint result=refused via=menu staff=[^\n]*reason=emeralds deposit=4\b',
+    r'\[shop\][^\n]* action=lend_restraint result=committed via=menu staff=[^\n]*deposit=4\b',
     r'\[shop\][^\n]* action=protect result=refused what=block',
     rf'\[carrier\][^\n]* action=capture result=committed target={_stress_brought} ',
     rf'\[carrier\][^\n]* action=release result=committed target={_stress_brought} ',
@@ -6462,25 +6462,32 @@ _smoke('oni_stress_room', 440, [
     rf'\[punishment\][^\n]*uuid={_stress_brought} [^\n]* incident=fix_supine response=DEFIANT fear=0 -> [1-9]\d*\b',
     rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* tool used; [^\n]* action=PIERCE [^\n]* pose=FIXED',
     rf'\[interaction\][^\n]*uuid={_stress_brought} [^\n]* table unstrapped; [^\n]* reason=table_removed\b',
-    r'\[shop\][^\n]* action=exchange_restraint result=refused [^\n]*reason=return_frame deposit=4\b',
-    r'\[shop\][^\n]* action=return_restraint result=committed [^\n]*deposit=4\b',
+    r'\[shop\][^\n]* action=rent_restraint result=refused via=menu staff=[^\n]*reason=return_frame deposit=4\b',
+    r'\[shop\][^\n]* action=return_restraint result=committed via=menu staff=[^\n]*deposit=4\b',
     r'\[interaction\][^\n]* action=pierce reason=shop',
     r'MCYSP08_LOAN_BALANCED', r'MCYSP08_EMPTY_TABLE', r'MCYSP08_HELD_WITHOUT_OPERATOR', r'MCYSP08_RETURN_BALANCED',
+    r'\[shop\][^\n]* action=rent_restraint result=expired [^\n]*deposit=4 till=4\b',
+    r'\[shop\][^\n]* action=rent_restraint result=restocked ',
+    r'MCYSP08_EXPIRED_EMPTY', r'MCYSP08_RESTOCKED',
 ], readout=['data get block ~14 ~3 ~1 Items', f'yukkuri status {sel("oni_bold")} raw',
             f'yukkuri status {sel("oni_timid")} raw', f'yukkuri status {sel("brought_reimu")} raw'])
 _stress_operator = '@p[name=MuseumOperator,distance=..40]'
 _stress_frame_drop = '@e[type=minecraft:item,distance=..8,limit=1,nbt={Item:{id:"mcyukkuri:restraint_frame"}}]'
+_stress_staff = '@e[type=mcyukkuri:oniisan,nbt={HumanJob:1},distance=..40,limit=1,sort=nearest]'
+_stress_menu = f'yukkuri scenario shop_rental_click {_stress_staff}'
+_stress_desk = 'execute positioned ~10.5 ~2 ~2.5 run yukkuri scenario tool_operator'
 next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (70, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator enter'),
     (71, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (71, _stress_desk + ' move'),
+    (71, _stress_menu),
     (72, f'item replace entity {_stress_operator} inventory.0 with minecraft:emerald 8'),
-    (73, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (73, _stress_menu),
     (74, 'scoreboard objectives add sp08_balance dummy'),
     (75, f'execute store result score #emeralds sp08_balance run clear {_stress_operator} minecraft:emerald 0'),
     (75, f'execute if score #emeralds sp08_balance matches 4 if items entity {_stress_operator} weapon.mainhand '
          'mcyukkuri:restraint_frame if data block ~14 ~3 ~1 {Items:[{Slot:0b,id:"minecraft:emerald",count:4}]} '
          'run say MCYSP08_LOAN_BALANCED'),
-    (76, 'yukkuri scenario shop_block_click ~13 ~3 ~1'),
     (78, yk('reimu', 23, 4, 'brought_reimu', dy=2, uuid=uid('oni_stress_room', 'brought_reimu'),
             boldness=80, self_control=25, friendliness=30)),
     *[(79, f'execute as {_stress_operator} run {command}') for command in own('brought_reimu')],
@@ -6493,8 +6500,8 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (83, f'yukkuri scenario shop_stock_click {sel("brought_reimu")}'),
     (110, 'yukkuri scenario shop_block_click ~22 ~2 ~2'),
     (121, f'execute at {sel("brought_reimu")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("brought_reimu")} pierce'),
-    (128, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
-    (129, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (128, _stress_desk + ' move'),
+    (129, _stress_menu),
     # Exercise the tray's block-entity save/load round trip while the frame is out, without changing its Items.
     (130, 'data merge block ~14 ~3 ~1 {SP08Readback:1b}'),
     (152, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame[occupied=true] '
@@ -6503,9 +6510,10 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (153, 'yukkuri scenario tool_operator break ~22 ~2 ~2'),
     (175, f'execute positioned ~22 ~2 ~3 at {_stress_frame_drop} run yukkuri scenario tool_operator move'),
     (176, f'execute positioned ~22 ~2 ~3 run yukkuri scenario tool_operator pick_up {_stress_frame_drop}'),
-    (177, 'yukkuri scenario tool_operator select 0'),
-    (177, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator move'),
-    (178, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
+    (177, _stress_desk + ' move'),
+    (178, 'time set midnight'),
+    (178, _stress_menu),
+    (179, 'time set noon'),
     (179, f'execute store result score #emeralds sp08_balance run clear {_stress_operator} minecraft:emerald 0'),
     (179, f'execute store result score #frames sp08_balance run clear {_stress_operator} mcyukkuri:restraint_frame 0'),
     (179, 'execute if score #emeralds sp08_balance matches 8 if score #frames sp08_balance matches 0 '
@@ -6514,6 +6522,16 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (180, 'scoreboard objectives remove sp08_balance'),
     (181, 'yukkuri scenario tool_operator leave'),
     (190, f'execute at {sel("oni_bold")} positioned ~ ~1 ~ run yukkuri scenario tool_click {sel("oni_bold")} pierce'),
+    (198, _stress_desk + ' enter'),
+    (199, f'item replace entity {_stress_operator} inventory.0 with minecraft:emerald 4'),
+    (200, _stress_menu),
+    # Set the persisted deadline in the past instead of holding the smoke server for a whole shop day.
+    (201, 'data modify block ~14 ~3 ~1 NeoForgeData.RestraintDueDay set value 0'),
+    (225, 'execute unless data block ~14 ~3 ~1 Items[{Slot:0b}] run say MCYSP08_EXPIRED_EMPTY'),
+    (226, f'yukkuri human shop restock {_stress_staff}'),
+    (227, f'execute if items entity {_stress_operator} weapon.mainhand mcyukkuri:restraint_frame '
+          'if data block ~14 ~3 ~1 {Items:[{Slot:0b,id:"mcyukkuri:restraint_frame",count:1}]} run say MCYSP08_RESTOCKED'),
+    (228, 'yukkuri scenario tool_operator leave'),
 ]
 _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',

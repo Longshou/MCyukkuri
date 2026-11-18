@@ -26,12 +26,13 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** The one shop menu: any staff member of a shop opens it (docs/FEATURES.md, 宠物店). Rows and subjects are fixed server-side; button packets
  *  carry the displayed entity ID for live actions. The live roster is the stock physically inside the shop.
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 reserve live row; 12/13 prev/next
  *  page; 14-17 buy goods row; 18 sell subject; 20/21 prev/next subject; 22-24 open the info panel for a live row;
- *  25 orders tab, 26-28 deliver order 1-3.
+ *  25 orders tab, 26-28 deliver order 1-3; 29 rental tab, 30 borrow or return the restraint table.
  *  Data slots (shorts): 0 tab, 1 the buyer's trades left today, 2 daytime, 3 page, 4 page count, 5 stock animals in the shop, 6 subject count,
  *  7 subject index+1; from 8, live rows of 12: species+1, stage, flags (grade | expired<<3 | display<<4 | ordered<<5 | reserved by you<<6 |
  *  reserved by another<<7), learned-skill mask, entity id low/high short, days on the shelf, mood ({@link Mood}), tags (a|b<<4, 15 none), health,
@@ -39,7 +40,7 @@ import net.minecraft.world.item.ItemStack;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, health 16, nutrition 17, hygiene 18, stress 19,
  *  advice x3 (26-28), price/offer (29), sell state (34; 0 ok, else {@link #SELL_STATES} index), tags (35), title (36),
  *  57-60 goods shelf stock, 61-64 badge needed, 65 orders done (bit per order), 66-68 today's orders (pool index+1), 69 buyback rate percent,
- *  70 buyback stress penalty percent, 71 the buyer's own badge standing (0-3), 72/73 parents' badges. */
+ *  70 buyback stress penalty percent, 71 the buyer's own badge standing (0-3), 72/73 parents' badges, 77 rental table available. */
 public final class ShopMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
@@ -60,12 +61,14 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int ORDERS_TAB = 25;
         public static final int DELIVER_ORDER_BASE = 26;
         public static final int DELIVER_ORDER_LAST = 28;
-        public static final int COUNT = 29;
+        public static final int RENT_TAB = 29;
+        public static final int RENT = 30;
+        public static final int COUNT = 31;
         private ButtonId() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class Data {
-        public static final int COUNT = 77;
+        public static final int COUNT = 78;
         public static final int TAB = 0;
         public static final int TRADES_LEFT = 1;
         public static final int DAYTIME = 2;
@@ -99,6 +102,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int ONI_SHOP = 74;
         public static final int MEMBERSHIP = 75;
         public static final int SERVICE_REFUSAL = 76;
+        public static final int RENT_AVAILABLE = 77;
         private Data() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -121,7 +125,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int PRICE_BASE = 19;
         private LiveRow() {}
     }
-    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, DATA_SIZE = Data.COUNT;
+    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, RENT = 5, DATA_SIZE = Data.COUNT;
     public static final class Flags {
         public static final int GRADE_MASK = 7, EXPIRED = 8, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
         public static final int REQUIRED_SHIFT = 8, REQUIRED_MASK = 3;
@@ -274,6 +278,10 @@ public final class ShopMenu extends AbstractContainerMenu {
             for (int i = 0; i < ShopOrders.PER_DAY; i++) put(Data.ORDER_BASE + i, orders[i] + 1);
             put(Data.ORDERS_DONE, ShopStock.get(level).ordersDone(level, shop.id, viewer.getUUID()));
         }
+        if (tab == RENT) {
+            var tray = ShopRegistry.lendingTrayOf(level, shop);
+            put(Data.RENT_AVAILABLE, tray != null && tray.getItem(0).is(ModItems.RESTRAINT.get()) ? 1 : 0);
+        }
         put(Data.STOCK_COUNT, roster.size()); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
         if (tab == LIVE) {
             for (int i = 0; i < PAGE_ROWS; i++) {
@@ -361,13 +369,35 @@ public final class ShopMenu extends AbstractContainerMenu {
         } else ShopInfo.send(p, shop, y);
         broadcastChanges();
     }
+    private boolean rentRestraint(ServerLevel level, ServerPlayer player) {
+        var tray = ShopRegistry.lendingTrayOf(level, shop);
+        if (tray != null) {
+            ShopTrade.expireRestraint(level, shop, tray);
+            var stored = tray.getItem(0);
+            if (stored.is(Items.EMERALD)) return ShopTrade.returnRestraint(player, target, tray);
+            if (stored.is(ModItems.RESTRAINT.get())) {
+                if (ShopAccess.refuseService(level, shop, player)) return false;
+                if (!level.isDay()) return ShopTrade.restraintRefused(player, target, "closed", ShopTrade.RESTRAINT_DEPOSIT);
+                return ShopTrade.lendRestraint(player, target, tray);
+            }
+        }
+        return ShopTrade.restraintRefused(player, target, "unavailable", 0);
+    }
+
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id > ButtonId.DELIVER_ORDER_LAST || target == null
+        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id >= ButtonId.COUNT || target == null
                 || shop == null || !(p.level() instanceof ServerLevel level) || !(p instanceof ServerPlayer player)) return false;
-        if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB) {
-            tab = id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0;
+        if (id == ButtonId.RENT_TAB && !oniShop()) return false;
+        if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB || id == ButtonId.RENT_TAB) {
+            tab = id == ButtonId.RENT_TAB ? RENT : id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0;
             if (tab == BUYBACK || tab == CONSULT) rescan(); else if (tab == LIVE) rebuildRoster();
             broadcastChanges(); return true;
+        }
+        if (id == ButtonId.RENT) {
+            if (tab != RENT) return false;
+            boolean ok = rentRestraint(level, player);
+            broadcastChanges();
+            return ok;
         }
         if (id == ButtonId.PREVIOUS_PAGE || id == ButtonId.NEXT_PAGE) {
             if (tab == LIVE) rebuildRoster();

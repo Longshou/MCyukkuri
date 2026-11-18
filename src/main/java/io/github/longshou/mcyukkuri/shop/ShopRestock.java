@@ -133,6 +133,8 @@ public final class ShopRestock {
         if (shop.closed() || shop.dock() == null || !shopLoaded(level, shop)) return 0;
         var registry = ShopRegistry.get(level);
         reconcileReservations(level, shop);
+        var tray = ShopRegistry.lendingTrayOf(level, shop);
+        if (tray != null) ShopTrade.restockRestraint(level, shop, tray);
         registry.restocked(shop, level.getGameTime() + PERIOD);
         var custody = YukkuriWorldData.get(level);
         var stock = ShopRegistry.liveStock(level, shop);

@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -197,6 +198,8 @@ public final class ScenarioCommands {
                         .executes(c -> shopBlockClick(c, BlockPosArgument.getBlockPos(c, "pos"), Direction.UP))))
                 .then(Commands.literal("shop_stock_click").then(Commands.argument("target", EntityArgument.entity())
                         .executes(ScenarioCommands::shopStockClick)))
+                .then(Commands.literal("shop_rental_click").requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("staff", EntityArgument.entity()).executes(ScenarioCommands::shopRentalClick)))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fear").then(Commands.argument("target", EntityArgument.entity())
@@ -467,6 +470,15 @@ public final class ScenarioCommands {
         var target = EntityArgument.getEntity(c, "target");
         player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getBoundingBox().getCenter());
         return player.canInteractWithEntity(target, 0) && player.interactOn(target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
+    }
+
+    private static int shopRentalClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)
+                || !(EntityArgument.getEntity(c, "staff") instanceof HumanNpc staff) || !HumanNpc.canServe(player, staff)) return 0;
+        // FakePlayer cannot open a network menu. Use the same server container and button handler.
+        var menu = new ShopMenu(0, player.getInventory(), staff.getId());
+        return menu.clickMenuButton(player, ShopMenu.ButtonId.RENT_TAB) && menu.clickMenuButton(player, ShopMenu.ButtonId.RENT) ? 1 : 0;
     }
 
     private static int toolClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

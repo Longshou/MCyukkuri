@@ -218,12 +218,14 @@ public final class ShopRegistry extends SavedData {
         return protectedShop(level, pos) != null;
     }
 
-    /** The marked counter fixture is self-service, even if the site's last staff member has died. */
-    static ProduceCrateBlockEntity lendingTray(ServerLevel level, BlockPos pos) {
-        if (!level.getBlockState(pos).is(ModBlocks.DISPLAY_TRAY.get())
-                || !(level.getBlockEntity(pos) instanceof ProduceCrateBlockEntity tray)) return null;
-        return level.getEntitiesOfClass(Marker.class, new AABB(pos), m -> m.blockPosition().equals(pos)
-                && m.getTags().contains("mcy_oni_lend")).isEmpty() ? null : tray;
+    static ProduceCrateBlockEntity lendingTrayOf(ServerLevel level, Entry shop) {
+        if (shop.kind != ShopKind.ONI) return null;
+        for (var marker : level.getEntitiesOfClass(Marker.class, shop.bounds(), m -> m.getTags().contains("mcy_oni_lend"))) {
+            var pos = marker.blockPosition();
+            if (level.getBlockState(pos).is(ModBlocks.DISPLAY_TRAY.get())
+                    && level.getBlockEntity(pos) instanceof ProduceCrateBlockEntity tray) return tray;
+        }
+        return null;
     }
 
     Entry protectedShop(ServerLevel level, BlockPos pos) {
@@ -291,6 +293,8 @@ public final class ShopRegistry extends SavedData {
             }
             if (!shop.releases.isEmpty()) registry.recoverClosed(level, shop);
             if (!shop.closed) {
+                var tray = lendingTrayOf(level, shop);
+                if (tray != null) ShopTrade.expireRestraint(level, shop, tray);
                 if (!shop.deposits.isEmpty()) ShopRestock.reconcileReservations(level, shop);
                 if (!shop.orders.isEmpty()) ShopStaff.reviewOrders(level, shop);
             }
@@ -523,12 +527,15 @@ public final class ShopRegistry extends SavedData {
         }
         return deposit;
     }
-    void recordSpend(ServerLevel level, Entry shop, UUID player, int amount) {
+    void depositInTill(Entry shop, int amount) {
         shop.emeraldTill += amount;
+        setDirty();
+    }
+    void recordSpend(ServerLevel level, Entry shop, UUID player, int amount) {
+        depositInTill(shop, amount);
         var before = shop.membership(player);
         int total = shop.spent.merge(player, amount, Integer::sum);
         var tier = shop.membership(player);
-        setDirty();
         GameplayLog.world(level, "shop", "action=membership shop={} player={} spent={} total={} tier={}->{}",
                 shop.id, player, amount, total, before, tier);
     }

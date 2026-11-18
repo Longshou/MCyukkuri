@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.shop.ShopKind;
 import io.github.longshou.mcyukkuri.shop.ShopMembership;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
+import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.network.ShopRowPayload;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import net.minecraft.client.Minecraft;
@@ -22,23 +23,28 @@ import org.lwjgl.opengl.GL11;
 
 import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
-/** Tabbed shopkeeper screen: live stock, goods, buyback, consultation and orders. */
+/** Tabbed shopkeeper screen, with rental service in the oni shop. */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     final ShopInfoPanel shopInfo = new ShopInfoPanel();
     private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 214, LOW_HEALTH = 6, LOW_NUTRITION = 30;
     /** Live rows: the real individual's portrait on the left, four text lines beside it. */
     private static final int PORTRAIT = 48, TEXT_X = ROW_X + PORTRAIT + 10, TEXT_W = ROW_W - PORTRAIT - 16, LINE = 12;
     private static final float PORTRAIT_YAW = 18, PORTRAIT_PITCH = 12;
+    private static final int[] TAB_BUTTONS = {ShopMenu.ButtonId.LIVE_TAB, ShopMenu.GOODS, ShopMenu.BUYBACK, ShopMenu.CONSULT,
+            ShopMenu.ButtonId.ORDERS_TAB, ShopMenu.ButtonId.RENT_TAB};
     private final Button[] actions = new Button[ShopMenu.ButtonId.COUNT];
     public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 252; }
     @Override protected void init() {
         super.init();
-        int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT, ICON_PROFILE};
-        for (int i = 0; i < 5; i++) {
-            int tabId = i == 4 ? ShopMenu.ButtonId.ORDERS_TAB : i;
-            var tab = addRenderableWidget(new GuiKit.Tab(leftPos + 8 + i * 65, topPos + 6, 64, 22, Component.translatable("shop.mcyukkuri.tab." + i), icons[i], b -> press(tabId)));
-            if (i < 4) actions[i] = tab; else actions[ShopMenu.ButtonId.ORDERS_TAB] = tab;
+        int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT, ICON_PROFILE, ICON_GOODS};
+        for (int i = 0; i < TAB_BUTTONS.length; i++) {
+            int tabId = TAB_BUTTONS[i];
+            actions[tabId] = addRenderableWidget(new GuiKit.Tab(leftPos + 8, topPos + 6, 64, 22,
+                    Component.translatable("shop.mcyukkuri.tab." + i), icons[i], b -> press(tabId)));
         }
+        layoutTabs();
+        add(ShopMenu.ButtonId.RENT, 16, 80, 154, Component.translatable("shop.mcyukkuri.restraint.exchange"));
+        actions[ShopMenu.ButtonId.RENT].visible = false;
         for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) add(ShopMenu.ButtonId.BUY_GOODS_BASE + i, 36, 52 + i * 34, 290, Component.empty());
         for (int i = 0; i < ShopOrders.PER_DAY; i++) add(ShopMenu.ButtonId.DELIVER_ORDER_BASE + i, 270, 49 + i * 34, 62, 22, Component.translatable("shop.mcyukkuri.order.deliver"));
         for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
@@ -62,16 +68,28 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private void add(int id, int x, int y, int w, int h, Component title) {
         actions[id] = addRenderableWidget(Button.builder(title, b -> press(id)).bounds(leftPos + x, topPos + y, w, h).build(ActionButton::new));
     }
+    private void layoutTabs() {
+        boolean oni = menu.oniShop();
+        int width = oni ? 54 : 65;
+        int tab = menu.value(ShopMenu.Data.TAB);
+        for (int i = 0; i < TAB_BUTTONS.length; i++) {
+            var button = actions[TAB_BUTTONS[i]];
+            button.setX(leftPos + 8 + i * width);
+            button.setWidth(width - 1);
+            button.visible = i != ShopMenu.RENT || oni;
+            button.active = tab != i;
+        }
+    }
     @Override protected void containerTick() {
         super.containerTick();
         int tab = menu.value(ShopMenu.Data.TAB); boolean day = menu.value(ShopMenu.Data.DAYTIME) != 0, own = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 0;
-        actions[ShopMenu.ButtonId.ORDERS_TAB].active = tab != ShopMenu.ORDERS;
+        layoutTabs();
+        actions[ShopMenu.ButtonId.RENT].visible = tab == ShopMenu.RENT;
         for (int i = 0; i < ShopOrders.PER_DAY; i++) {
             actions[ShopMenu.ButtonId.DELIVER_ORDER_BASE + i].visible = tab == ShopMenu.ORDERS;
             actions[ShopMenu.ButtonId.DELIVER_ORDER_BASE + i].active = day && (menu.value(ShopMenu.Data.ORDERS_DONE) >> i & 1) == 0 && menu.value(ShopMenu.Data.ORDER_BASE + i) > 0;
         }
         for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
-            actions[i].active = tab != i;
             if (i < ShopMenu.PAGE_ROWS) {
                 int f = menu.value(ShopMenu.LiveRow.FLAGS_BASE + i * ShopMenu.LiveRow.STRIDE), price = menu.value(ShopMenu.LiveRow.PRICE_BASE + i * ShopMenu.LiveRow.STRIDE);
                 boolean has = menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0, ordered = (f & ShopMenu.Flags.ORDERED) != 0,
@@ -129,7 +147,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 card(g, leftPos + 8, topPos + 46 + i * 34, 324, 30, false);
                 if (menu.value(ShopMenu.Data.ORDER_BASE + i) > 0) g.renderItem(ShopOrders.icon(menu.value(ShopMenu.Data.ORDER_BASE + i) - 1), leftPos + 14, topPos + 53 + i * 34);
             }
-        } else card(g, leftPos + 8, topPos + 32, 324, menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0 ? 28 : tab == ShopMenu.BUYBACK ? 120 : 178, false);
+        } else card(g, leftPos + 8, topPos + 32, 324, tab == ShopMenu.RENT ? 76
+                : menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0 ? 28 : tab == ShopMenu.BUYBACK ? 120 : 178, false);
     }
     private void line(GuiGraphics g, int y, int color, Component text) { g.drawString(font, text, 16, y, color, false); }
     /** Short species name (no Yukkuri suffix) when the lang file has one, else the entity name. */
@@ -228,6 +247,11 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 if (done) g.drawString(font, Component.translatable("shop.mcyukkuri.order.done"), 36, 66 + i * 34, GOOD, false);
             }
             line(g, 156, SOFT, Component.translatable("shop.mcyukkuri.order.hint"));
+        } else if (tab == ShopMenu.RENT) {
+            line(g, 42, INK, Component.translatable("shop.mcyukkuri.restraint.deposit", ShopTrade.RESTRAINT_DEPOSIT));
+            line(g, 56, SOFT, Component.translatable(menu.value(ShopMenu.Data.RENT_AVAILABLE) != 0
+                    ? "shop.mcyukkuri.restraint.available" : "shop.mcyukkuri.restraint.unavailable_to_borrow"));
+            line(g, 68, SOFT, Component.translatable("shop.mcyukkuri.restraint.deadline"));
         } else {
             if (menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(ShopMenu.Data.SUBJECT_FLAGS);
