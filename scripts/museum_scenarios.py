@@ -6512,15 +6512,23 @@ next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_cro
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
 ])
-_park_shy = _uuid_text('yard_park_play', 'outing_shy')
+def _park_play_pet_fates(window):
+    """Either outcome is valid for each pet: finishing a trampoline session, or resting and waking before the walk home."""
+    for _, name, *_ in _outing_pets:
+        actor = _uuid_text('yard_park_play', name)
+        played = re.search(rf'uuid={actor} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b', window)
+        rest = re.search(rf'uuid={actor} [^\n]*outing rest begin ', window)
+        woke = re.search(rf'uuid={actor} [^\n]*end source=life cause=rested ', window)
+        if played or (rest and woke and rest.start() < woke.start()):
+            continue
+        return f'{name} neither finished a trampoline session nor rested and woke'
+    return None
+
+
 _smoke('yard_park_play', 2600, [
     r'park facility result=placed kind=TRAMPOLINE',
     r'action=outing_depart pets=2 ',
     r'action=outing_park facility=',
-    rf'uuid={_park_shy} [^\n]*facility session started kind=TRAMPOLINE',
-    rf'uuid={_park_shy} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true',
-    rf'uuid={_park_shy} [^\n]*outing rest begin',
-    rf'uuid={_park_shy} [^\n]*end source=life cause=rested ',
     r'action=outing_turn reason=park_(?:done|time)',
     r'action=outing_home',
     *[rf'uuid={_uuid_text("yard_park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
@@ -6534,6 +6542,7 @@ _smoke('yard_park_play', 2600, [
         + ' unless entity @e[type=minecraft:item,distance=..22,nbt={Item:{id:"mcyukkuri:yukkuri_trampoline"}}]'
         ' run say MCY_PARK_FACILITY_CLEARED',
     ])
+next(s for s in S if s.id == 'yard_park_play').smoke['verify'] = _park_play_pet_fates
 _picnic_pet = _uuid_text('yard_park_picnic', 'picnic_pet')
 _picnic_transfers = [
     r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',
