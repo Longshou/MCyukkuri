@@ -12,6 +12,7 @@
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
     "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true, "side_profile": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
+    "territory": {"clips": ["home_declare", "home_declare_timid"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
     "braid-eat": {"clips": ["braid_eat", "braid_eat_bin"]},
@@ -4152,6 +4153,45 @@
       "triggers": [
         "badge earned or praised"
       ]
+    },
+    "home_declare": {
+      "label": "住家宣言（嚣张）",
+      "duration": 6.4,
+      "loop": false,
+      "applies": "all",
+      "markers": {"declare": 1.0, "show_off": 1.7, "bounce": 3.6, "hold": 5.0, "settled": 6.4},
+      "height_keys": [[0, 1], [0.8, 1], [1.15, 1.13], [1.7, 1.12], [2.2, 1.1], [3.3, 1.1], [3.6, 1], [5.0, 1], [5.35, 1.15], [6.0, 1.14], [6.4, 1]],
+      "hops": [[0, 0.22, 0.62, 0.8, 0.34, 1.2], [3.6, 3.78, 4.08, 4.2, 0.26, 1.0], [4.2, 4.42, 4.84, 5.0, 0.46, 1.3]],
+      "pitch_keys": [[0, 0], [0.22, -2], [0.45, 3], [0.62, -1], [0.8, 0], [1.15, 8], [1.7, 7], [2.2, 6], [3.3, 6], [3.6, 0], [3.78, -2], [3.95, 3], [4.2, -1], [4.42, -2], [4.65, 4], [5.0, 0], [5.35, 9], [6.0, 8.5], [6.4, 0]],
+      "yaw_keys": [[0, 0], [1.7, 0], [2.2, -75], [2.55, -72], [3.05, 75], [3.3, 72], [3.6, 0], [6.4, 0]],
+      "roll_keys": [[0, 0], [1.7, 0], [1.95, 2.5], [2.2, 0], [2.55, 0], [2.8, -2.5], [3.05, 0], [3.3, 0], [3.6, 0], [5.35, 0], [5.6, 1.5], [5.85, -1.5], [6.1, 1], [6.4, 0]],
+      "display": {
+        "braid": {"out_keys": [[0, 0], [0.45, 14], [0.8, 8], [1.15, 42], [1.7, 36], [3.3, 32], [3.6, 18], [4.65, 30], [5.0, 20], [5.35, 46], [6.0, 42], [6.4, 0]], "forward_keys": [[0, 0], [1.15, -6], [3.3, -5], [3.6, 0], [5.35, -6], [6.0, -6], [6.4, 0]], "wags": [[1.15, 1.7, 4, 3], [5.35, 6.0, 5, 3]], "whip": 1.0, "lag": 0.05},
+        "sideburn": {"out_keys": [[0, 0], [0.45, 10], [0.8, 4], [1.15, 22], [3.3, 18], [3.6, 8], [4.65, 18], [5.0, 10], [5.35, 24], [6.0, 22], [6.4, 0]], "wags": [[5.35, 6.0, 3, 4]]},
+        "tail": {"out_keys": [[0, 0], [0.45, 30], [0.8, 20], [1.15, 65], [3.3, 60], [3.6, 40], [4.65, 60], [5.0, 50], [5.35, 70], [6.0, 68], [6.4, 0]], "forward_keys": [[0, 0], [1.15, 10], [3.3, 10], [3.6, 4], [5.35, 12], [6.0, 12], [6.4, 0]], "wags": [[1.15, 3.3, 10, 1.5], [5.35, 6.2, 12, 2]], "lag": 0.1}
+      },
+      "faces": [[0, 0.8, "open_smile"], [0.8, 1.7, "smug"], [1.7, 3.6, "sneer"], [3.6, 5.0, "smug"], [5.0, 5.6, "hmph"], [5.6, 66.4, "smug"]],
+      "lore": "Project design (user 2026-11-17 feedback 21: the home declaration is exaggerated, richer, with a cocky, proud face; it puffs only when someone offends it; ここをゆっくりプレイスにするよ!): an arrival bounce into the new home, the chest thrown out in a tall stretch with the chin up for the line (marker declare), a wide show-off turn to one side and the other looking down on everything in sight (show_off), two bounces in place, the second the higher with the strongest squash-stretch (bounce), then a nose-up snort and a long smug hold with a small proud wiggle (hold). The braid flourishes out, Reimu's sideburns flare and Chen's tails stand high and swish. No cheek puff: the offended branch plays the shared puff aimed at the offender. Squash comes only from take-off and landing; pitch and roll together stay within 10.5 degrees.",
+      "triggers": ["home declaration of a plain or proud individual (HomeClaim.declareHome)"]
+    },
+    "home_declare_timid": {
+      "label": "住家宣言（胆小）",
+      "duration": 3.2,
+      "loop": false,
+      "applies": "all",
+      "markers": {"declare": 1.55, "settled": 3.2},
+      "height_keys": [[0, 1], [1.35, 1], [1.6, 1.05], [2.2, 1.045], [2.35, 1], [3.2, 1]],
+      "hops": [[2.35, 2.47, 2.71, 2.85, 0.12, 0.6]],
+      "pitch_keys": [[0, 0], [0.3, -2], [1.2, -2], [1.35, 0], [1.6, 3.5], [2.2, 3], [2.35, 0], [2.6, 2], [2.85, 0], [3.2, 0]],
+      "yaw_keys": [[0, 0], [0.12, 0], [0.4, -38], [0.65, -36], [0.92, 34], [1.15, 32], [1.35, 0], [3.2, 0]],
+      "display": {
+        "braid": {"out_keys": [[0, 0], [1.35, 0], [1.6, 16], [2.2, 14], [2.35, 6], [2.85, 10], [3.2, 0]], "whip": 1.0, "lag": 0.05},
+        "sideburn": {"out_keys": [[0, 0], [1.6, 8], [2.2, 6], [3.2, 0]]},
+        "tail": {"out_keys": [[0, -10], [1.35, -8], [1.6, 25], [2.85, 22], [3.2, 0]], "wags": [[1.6, 2.3, 6, 2]], "lag": 0.1}
+      },
+      "faces": [[0, 1.35, "confused"], [1.35, 2.35, "smug"], [2.35, 2.9, "closed_smile"], [2.9, 63.2, "smug"]],
+      "lore": "Project design (feedback 21, the timid individual's short declaration): it peeks round to one side and the other first, slightly lowered, to make sure nobody is about; then a small stretch with the chin up and a brave little smug face for the line (marker declare), one small happy hop and a smug settle. No cheek puff. Pitch stays within 4 degrees.",
+      "triggers": ["home declaration of a timid individual (HomeClaim.declareHome)"]
     },
     "joy_jump": {
       "label": "欢呼跳",

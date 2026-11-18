@@ -10,7 +10,7 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "0db153f83220e1cbc23f22430e1a20b21dfa0890630224ad8fea35f30f00e8e2",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "d8a279c623da5a1e0eb2ae8c244f608f6ba1f03d55bcae90413ed15cff972a10",
+  "lore_recipe_sha256": "db332eeac16bdd94bc841c484555d8b49e088875844a62dbefd0cb48cffd185f",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
   "lore_author_sha256": "74ad52347468d802496f705df27e7001dfdbb4ffa7eec81c9ea83ba2edf67dc7",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
@@ -32,7 +32,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "67664451d24206ecfef40231926f74754db44163a77a1922e317a9fa4b8e41fc",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "9c5600bb03762b0c9a8a740095f44c01f19d6ddfea98990a63d6d88dc4c2df22",
+  "runtime_sha256": "3382398673dfc34e5bf0641f866afd087ccc60a2167012a786524b329ae618c1",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
