@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 辫子送嘴进食与垃圾桶真撞（24/25） | `.worktrees/wp-eat-braid` | settlement/GarbageSearch.java human/GarbageBin* entity/Behaviors.java motions |
 | 住家宣言夸张骄傲演出（21） | `.worktrees/wp-home-declare-art` | motions home declaration clips, expressions |
-| 贴墙收拢演示场景（26） | `.worktrees/wp-wall-tuck-demo` | scripts/museum_scenarios.py new scene, museum_scene_numbers.json |
 | 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
 | 接线：辫子送嘴、撞桶、住家宣言（21/24/25） | `.worktrees/wp-wire-1118` | life/LifeMeal.java settlement/GarbageSearch.java human/GarbageBin* event/HomeClaim.java event/HomeTerritoryGoal.java motions merge |
 | 固定台正式模型 | `.worktrees/wp-art-restraint-table` | restraint_frame block/item models, textures, icon |
