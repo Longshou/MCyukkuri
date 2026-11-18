@@ -161,8 +161,10 @@ final class LifeHome {
         releaseHome(true);
     }
     private void releaseHome(boolean log) {
-        if (home != null && !naturalHome && home.dimension().equals(o.level().dimension()) && o.level().hasChunkAt(home.pos())
-                && o.level().getBlockEntity(home.pos()) instanceof CareBlockEntity care) care.release(o.entity().getUUID());
+        if (home != null && !naturalHome) {
+            var level = o.level().getServer().getLevel(home.dimension());
+            if (level != null && level.getBlockEntity(home.pos()) instanceof CareBlockEntity care) care.release(o.entity().getUUID());
+        }
         if(log&&home!=null)GameplayLog.event(o.entity(),"home","released home={} natural={}",home,naturalHome);
         home = null; naturalHome = false;
     }

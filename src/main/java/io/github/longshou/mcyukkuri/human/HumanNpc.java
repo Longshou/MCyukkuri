@@ -91,7 +91,6 @@ public final class HumanNpc extends PathfinderMob {
     public boolean walking() { return walk().walking() || stroll().outing(); }
     public boolean leads(YukkuriEntity pet) { return walk().leads(pet); }
     public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
-    public void turnOutingHome() { stroll.returnHome(); }
     /** Gives the resident this individual as its companion and fits its harness. */
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
     /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */

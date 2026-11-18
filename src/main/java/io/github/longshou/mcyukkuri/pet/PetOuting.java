@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -19,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 /** An unled companion follows outside its comfort distance. If separated, it remembers the way into its yard. */
 public final class PetOuting extends Goal {
     private final YukkuriEntity pet;
-    private BlockPos home, blockedAt;
+    private BlockPos home, blockedAt, escortAt;
     private HumanNpc owner;
     private Vec3 stand;
     private boolean shelter;
@@ -120,8 +119,11 @@ public final class PetOuting extends Goal {
         if (away() && bed != null && pet.level().getBlockState(bed).getBlock() instanceof PetNestBlock)
             pet.life().releaseHome();
         if (owner != null) {
-            if (EcologyMovement.approachResult(pet, owner, 1.15) == SurfaceApproach.Result.BLOCKED)
-                owner.turnOutingHome();
+            if (!owner.blockPosition().equals(escortAt)) {
+                escortAt = owner.blockPosition();
+                stand = SurfaceApproach.beside(pet, owner, innerDistance(), 1);
+            }
+            if (stand != null) SurfaceApproach.walkResult(pet, stand, owner, 1.15);
         } else if (stand != null) {
             var result = SurfaceApproach.walkResult(pet, stand, null, 1);
             if (shelter ? result == SurfaceApproach.Result.ARRIVED : atHome()) arrived(shelter ? "shelter" : "home");
@@ -132,7 +134,7 @@ public final class PetOuting extends Goal {
         }
     }
 
-    @Override public void stop() { SurfaceApproach.stopWalking(pet); owner = null; stand = null; shelter = false; }
+    @Override public void stop() { SurfaceApproach.stopWalking(pet); owner = null; escortAt = null; stand = null; shelter = false; }
 
     public void save(CompoundTag tag) {
         if (home != null) {

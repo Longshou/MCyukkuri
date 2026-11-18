@@ -61,7 +61,7 @@ public final class TownMarkers {
         if (sites.isEmpty()) return;
         var home = offset(start, data, "Owner");
         var owner = level.getEntitiesOfClass(HumanNpc.class, new AABB(home).inflate(24), npc ->
-                npc.isAlive() && npc.streetResident() && npc.attitude() == HumanNpc.Attitude.CARING
+                npc.isAlive() && npc.streetResident()
                         && npc.getTags().contains(OWNER) && npc.home().equals(home)).stream()
                 .min(Comparator.comparing(HumanNpc::getUUID)).orElse(null);
         if (owner == null) return;
@@ -69,6 +69,7 @@ public final class TownMarkers {
         sites.getFirst().addTag(SPAWNED);
         for (var site : sites.subList(1, sites.size())) site.discard();
         start.discard();
+        if (owner.attitude() != HumanNpc.Attitude.CARING) return;
         if (data.getInt("Slot") == 1 && !RandomSource.create(level.getSeed() ^ Mth.getSeed(home)).nextBoolean()) return;
         var pet = HumanScenes.spawnYardPet(level, owner, start.position());
         if (pet == null) {

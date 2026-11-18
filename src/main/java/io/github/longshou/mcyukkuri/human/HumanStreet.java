@@ -636,7 +636,7 @@ final class HumanStreet {
             detours = 0;
             finished = false;
             resume = null;
-            if (homeward && !npc.blockPosition().equals(refusedHomeFrom)) { returnHome(); return; }
+            if (homeward && !npc.blockPosition().equals(refusedHomeFrom)) { returnHome("resume"); return; }
             if (npc.level().isRaining()) {
                 if (npc.level().canSeeSky(npc.blockPosition()) && shelter()) return;
                 route(Vec3.atBottomCenterOf(npc.home()));
@@ -672,7 +672,8 @@ final class HumanStreet {
             return true;
         }
 
-        void returnHome() {
+        private void returnHome(String reason) {
+            if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
             homeward = true;
             resume = null;
             refusedHomeFrom = null;
@@ -699,13 +700,14 @@ final class HumanStreet {
             // Vanilla still ticks running goals before its next continuation check.
             if (finished) return;
             if (!homeward && !companions.isEmpty()) {
-                var lagging = companions.stream().max(Comparator.comparingDouble(npc::distanceToSqr)).orElseThrow();
+                var lagging = companions.stream().max(Comparator.comparingDouble(
+                        p -> npc.distanceTo(p) - p.outing().outerDistance())).orElseThrow();
                 if (npc.level().isRaining() || companions.stream().anyMatch(p -> p.isRemoved() || !p.outing().fit()
-                        || !p.pet().ownedBy(npc.getUUID()))) { returnHome(); return; }
+                        || !p.pet().ownedBy(npc.getUUID()))) { returnHome("weather_or_companion"); return; }
                 if (npc.distanceTo(lagging) > lagging.outing().outerDistance()) {
                     npc.getLookControl().setLookAt(lagging, 30, 30);
                     npc.getNavigation().setSpeedModifier(.30);
-                    if (++lagTicks >= ROUTE_TICKS) { returnHome(); return; }
+                    if (++lagTicks >= ROUTE_TICKS) { returnHome("lagging"); return; }
                 } else {
                     lagTicks = 0;
                     npc.getNavigation().setSpeedModifier(.55);
@@ -717,7 +719,7 @@ final class HumanStreet {
                     resume = null;
                     if (route(next)) return;
                 }
-                if (!homeward && !companions.isEmpty()) returnHome();
+                if (!homeward && !companions.isEmpty()) returnHome("destination");
                 else {
                     boolean atHome = npc.blockPosition().distSqr(npc.home()) <= 2;
                     if (homeward && (atHome || !npc.level().canSeeSky(npc.blockPosition()))) {
@@ -733,7 +735,7 @@ final class HumanStreet {
             if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) {
                 var toward = destination.subtract(npc.position()).multiply(1, 0, 1).normalize();
                 AABB ahead = npc.getBoundingBox().move(toward.scale(.65)).deflate(.04);
-                if (npc.level().getEntitiesOfClass(YukkuriEntity.class, ahead, Entity::isAlive).isEmpty()
+                if (npc.level().getEntitiesOfClass(YukkuriEntity.class, ahead, y -> y.isAlive() && !companions.contains(y)).isEmpty()
                         && npc.level().getEntitiesOfClass(Player.class, ahead, player -> !player.isSpectator()).isEmpty()) return;
             }
             if (++detours == 1 && !npc.level().isRaining()) {
@@ -745,7 +747,7 @@ final class HumanStreet {
                 }
             }
             if (detours <= 2) {
-                if (!homeward && !companions.isEmpty()) returnHome();
+                if (!homeward && !companions.isEmpty()) returnHome("blocked");
                 else route(Vec3.atBottomCenterOf(npc.home()));
             }
             else finished = true;
@@ -770,6 +772,7 @@ final class HumanStreet {
 
         @Override public void stop() {
             if (!companions.isEmpty()) {
+                if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason=interrupted");
                 homeward = true;
                 companions = List.of();
             }

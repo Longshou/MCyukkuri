@@ -2279,9 +2279,9 @@ add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟�
         block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
         block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
         block(5, 0, 2, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}]}'),
-        _yard_marker + 'Tags:["scn","mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
-        'summon minecraft:marker ~-11.5 ~ ~0.5 {Tags:["scn","mcy_yard_street"]}',
-        human('caretaker_sister', 4, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
+        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        'summon minecraft:marker ~-11.5 ~ ~0.5 {Tags:["mcy_yard_street"]}',
+        human('caretaker_sister', 1, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
         + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L}}',
         *_outing_start,
         street_abuser(-8, 1, 'outing_oni'),
@@ -6286,6 +6286,9 @@ _smoke('yard_stray_scold', 1200, [
 
 
 def _outing_crossings(window, trace):
+    departed = re.search(r' t=(\d+) [^\n]*action=outing_depart pets=2 ', window)
+    if not departed:
+        return 'the resident never left with both pets'
     for _, name, *_ in _outing_pets:
         actor = _uuid_text('yard_street_walk', name)
         reached = re.search(rf'uuid={actor} t=(\d+) [^\n]*outing reached home', window)
@@ -6295,7 +6298,8 @@ def _outing_crossings(window, trace):
             if actor not in line:
                 continue
             row = json.loads(line.split('[trace] ', 1)[1])
-            if row['k'] == 'st' and 'p' in row['st'] and row['t'] < int(reached[1]) and row['st']['p'][0] < _yard_x - 1:
+            if (row['k'] == 'st' and 'p' in row['st'] and int(departed[1]) <= row['t'] < int(reached[1])
+                    and row['st']['p'][0] < _yard_x - 1):
                 break
         else:
             return f'{name} never walked outside the yard before returning'
