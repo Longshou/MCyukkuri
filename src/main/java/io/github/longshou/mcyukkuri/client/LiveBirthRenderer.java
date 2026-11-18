@@ -41,9 +41,10 @@ final class LiveBirthRenderer {
         return new Delivery(mother,model,contraction(mother,partial));
     }
     static void renderDose(YukkuriView entity,PoseStack pose,MultiBufferSource buffers,int light){
-        // Single-use applicator at the rear; the delivery outlet is a different front surface.
-        pose.pushPose();pose.translate(0,.10,.64);pose.mulPose(Axis.XP.rotationDegrees(-90));
-        pose.scale(.75f,.75f,.75f);PropModels.render("reproductive_filling",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
+        // Single-use applicator at the rear; the extruded piping bag has its nozzle at y=0, so point it inward.
+        pose.pushPose();pose.translate(0,.10,.64);pose.mulPose(Axis.XP.rotationDegrees(90));
+        pose.scale(.75f,.75f,.75f);pose.translate(0,-PropModels.height("reproductive_filling"),0);
+        PropModels.render("reproductive_filling",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
     }
     static final class Delivery {
         private final YukkuriView mother;
