@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 商店购买③：店员稳定取货（10） | `.worktrees/wp-shop-fetch` | shop/ShopStaff.java shop/ShopTrade.java fetch, SP-11 scene |
 
 ## 玩法待办
 
