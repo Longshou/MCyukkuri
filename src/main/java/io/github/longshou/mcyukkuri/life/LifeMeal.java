@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.PicnicFood;
 import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
@@ -370,7 +371,7 @@ final class LifeMeal {
             return true;
         };
         boolean passed = share && food.is(Items.APPLE)
-                ? occupancy().splitKindnessFood(new ItemStack(ModItems.APPLE_HALF.get()), accept)
+                ? occupancy().splitKindnessFood(PicnicFood.split(food), accept)
                 : occupancy().offerKindnessFood(accept);
         if (passed && share) {
             if (food.is(Items.APPLE))

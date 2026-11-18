@@ -2399,6 +2399,33 @@ add('yard_park_play', 'town', '主人带两只宠物去公园玩', '主人带两
     ], env=DAY, vantage=(-7, 9, 145, 21),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
+add('yard_park_picnic', 'town', '主人在公园分苹果', '主人在公园分苹果',
+    '院子货箱里有一个苹果。看院主带饿了的魔理沙到公园，在干地分苹果，吃完再回院。流浪橙也可能来讨食。',
+    '约 2 分钟', [
+        *_yard_ground(True),
+        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
+        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(2, 0, -2, 'mcyukkuri:produce_crate[facing=south]'),
+        'item replace block ~2 ~ ~-2 container.0 with minecraft:apple 1',
+        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
+        box(-19, -1, 5, -9, -1, 9, 'minecraft:grass_block'),
+        box(-19, 0, 5, -9, 2, 9, 'minecraft:air'),
+        'summon minecraft:marker ~-11.5 ~ ~1.5 {Tags:["mcy_park_walk"]}',
+        'summon minecraft:marker ~-12.5 ~ ~6.5 {Tags:["mcy_park_play"],Rotation:[180f,0f],'
+        'data:{Kind:"yukkuri_trampoline",Facing:"south"}}',
+        human('caretaker_sister', 1, 0, 'picnic_keeper', 0, yaw=90, label='院主')[:-1]
+        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L,YardCrate:{_yard_pos(2, -2)}L,'
+          'HumanInitialized:1b,NextRestock:2147483647L,CareFood:0}',
+        yk('marisa', 3, -1, 'picnic_pet', uuid=uid('yard_park_picnic', 'picnic_pet'), boldness=40, attachment=50,
+           nutrition=40, energy=100, extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True),
+        f'data modify entity {sel("picnic_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel("picnic_pet")} {OWNED}.Owner set from entity {sel("picnic_keeper")} UUID',
+        street_trial('yard_park_picnic', 'chen', -16, 8, 'picnic_stray', nutrition=25),
+    ], env=DAY, vantage=(-7, 9, 145, 21),
+    reads=[('读货箱存量', 'data get block ~2 ~ ~-2 Items'),
+           ('读魔理沙', f'yukkuri status {sel("picnic_pet")} raw'),
+           ('读流浪橙', f'yukkuri status {sel("picnic_stray")} raw')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -5393,7 +5420,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5', 'yard_park_play': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5', 'yard_park_play': 'M5', 'yard_park_picnic': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -6507,6 +6534,37 @@ _smoke('yard_park_play', 2600, [
         + ' unless entity @e[type=minecraft:item,distance=..22,nbt={Item:{id:"mcyukkuri:yukkuri_trampoline"}}]'
         ' run say MCY_PARK_FACILITY_CLEARED',
     ])
+_picnic_pet = _uuid_text('yard_park_picnic', 'picnic_pet')
+_picnic_transfers = [
+    r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',
+    rf'action=picnic_offer pet={_picnic_pet} input=minecraft:apple ',
+    r'action=picnic_ate item=mcyukkuri:apple_half count=1',
+    rf'uuid={_picnic_pet} [^\n]*pickup item=mcyukkuri:apple_half ',
+    rf'uuid={_picnic_pet} [^\n]*swallowed item=mcyukkuri:apple_half count=1',
+]
+_smoke('yard_park_picnic', 3200, [
+    r'action=outing_depart pets=1 ', r'action=outing_park facility=', *_picnic_transfers,
+    r'action=picnic_half_gone', r'action=outing_home', rf'uuid={_picnic_pet} [^\n]*outing reached home',
+    r'MCY_PICNIC_APPLES_ACCOUNTED_FOR',
+], forbid=[r'picnic_refused reason=no_dry_ground', r'outing return blocked', r'action=outing_return_blocked',
+           r'reason=(?:lagging|blocked)'], readout=[
+    'execute if block ~2 ~ ~-2 mcyukkuri:produce_crate unless data block ~2 ~ ~-2 Items[0] '
+    f'if entity {sel("picnic_keeper")} unless data entity {sel("picnic_keeper")} HandItems[0].id '
+    'unless entity @e[type=minecraft:item,distance=..24,nbt={Item:{id:"minecraft:apple"}}] '
+    'unless entity @e[type=minecraft:item,distance=..24,nbt={Item:{id:"mcyukkuri:apple_half"}}] '
+    'run say MCY_PICNIC_APPLES_ACCOUNTED_FOR',
+])
+
+
+def _picnic_ledger(window):
+    for transfer in _picnic_transfers:
+        count = len(re.findall(transfer, window))
+        if count != 1:
+            return f'expected exactly one picnic transfer matching {transfer}, found {count}'
+
+
+next(s for s in S if s.id == 'yard_park_picnic').smoke['verify'] = _picnic_ledger
+
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],
@@ -6959,6 +7017,7 @@ _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
 
 _scene_end(_sweet_box, [(name, _DRY) for name, *_ in _sweet_cast])
+_scene_end('yard_park_picnic', [('picnic_pet', _DRY), ('picnic_stray', _DRY)])
 
 _scene_end(_ugly, [(name, _DRY) for name in (
     'nest_declare', 'nest_yield', 'nest_peer_west', 'nest_peer_east', 'food_demand', 'food_ask',

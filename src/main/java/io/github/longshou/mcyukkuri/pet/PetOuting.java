@@ -49,6 +49,7 @@ public final class PetOuting extends Goal {
     }
 
     public double restBand() { return 45 - 15 * independence(); }
+    public double picnicBand() { return 50 - pet.life().personality().boldness() / 5.0; }
     public boolean tired() { return pet.life().energy() < restBand(); }
     public boolean fit() { return sound() && !pet.life().isSleeping() && !tired(); }
 
@@ -67,9 +68,11 @@ public final class PetOuting extends Goal {
     }
 
     public boolean tryParkPlay() {
-        var facility = parkFacility();
+        var resident = escort();
+        var facility = resident == null ? null : resident.parkFacility();
         long now = pet.level().getGameTime();
         if (facility == null || now < playTryAt || tired() || playAttempts == 0
+                || resident.holdsPicnicFood() && pet.life().nutrition() <= picnicBand()
                 || pet.dailyLife().boredom() < 60 - pet.life().personality().boldness() / 5.0
                 || !nearFacility(facility)) return false;
         playTryAt = now + 200;

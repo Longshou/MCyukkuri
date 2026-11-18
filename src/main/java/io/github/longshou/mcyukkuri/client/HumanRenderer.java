@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -63,6 +64,12 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             }
             if (n.showsStreetGrain() && n.getOffhandItem().isEmpty())
                 (n.getMainArm() == HumanoidArm.RIGHT ? leftArm : rightArm).xRot -= .5f;
+            if (n.isUsingItem()) {
+                var arm = n.getUsedItemHand() == InteractionHand.MAIN_HAND ? n.getMainArm() : n.getMainArm().getOpposite();
+                var used = arm == HumanoidArm.RIGHT ? rightArm : leftArm;
+                used.xRot = -1.3f;
+                used.yRot = arm == HumanoidArm.RIGHT ? -.35f : .35f;
+            }
             if (n.kicking()) rightLeg.xRot = -.8f;
             if (n.frowning()) { head.zRot = -.13f; head.xRot += .25f; hat.copyFrom(head); }
         }

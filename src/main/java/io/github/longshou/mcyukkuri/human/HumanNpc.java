@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -76,7 +77,7 @@ public final class HumanNpc extends PathfinderMob {
     /** Grain the shop staff can hand out per game day (the stock is fed from here and from the pen bowls they fill). */
     private static final int SHOP_DAILY_GRAIN = 96;
     private static final int YARD_COMPANION_CAP = 3;
-    private BlockPos yardBowl;
+    private BlockPos yardBowl, yardCrate;
     private int trades, careFood, medicine = 8, routineDelay;
     private int nextBadgeGreeting;
     private YukkuriEntity attention;
@@ -105,10 +106,14 @@ public final class HumanNpc extends PathfinderMob {
 
     public boolean releaseTool(YukkuriEntity target) { return InteractionDispatch.releaseTool(this, target); }
 
+    boolean reachesPickup(ItemEntity item) {
+        return level() instanceof ServerLevel && level() == item.level() && isAlive() && onGround() && !isPassenger()
+                && item.isAlive()
+                && getBoundingBox().inflate(1.5, .5, 1.5).intersects(item.getBoundingBox()) && hasLineOfSight(item);
+    }
+
     public boolean pickUpTool(ItemEntity item) {
-        if (!(level() instanceof ServerLevel) || level() != item.level() || !isAlive() || !onGround() || isPassenger()
-                || !item.isAlive() || item.hasPickUpDelay() || !getMainHandItem().isEmpty()
-                || !getBoundingBox().inflate(1.5, .5, 1.5).intersects(item.getBoundingBox()) || !hasLineOfSight(item)) return false;
+        if (!getMainHandItem().isEmpty() || item.hasPickUpDelay() || !reachesPickup(item)) return false;
         var stack = item.getItem();
         if (!(stack.getItem() instanceof OperationToolItem tool) || !tool.tool().staffUse()) return false;
         setItemSlot(EquipmentSlot.MAINHAND, stack);
@@ -117,6 +122,47 @@ public final class HumanNpc extends PathfinderMob {
         GameplayLog.event(this, "interaction", "tool picked up; drop={} item={} hand_count=0 -> {} damage={}",
                 item.getUUID(), stack.getItem(), stack.getCount(), stack.getDamageValue());
         return true;
+    }
+
+    public boolean holdsPicnicFood() { return PicnicFood.apple(getMainHandItem()); }
+
+    boolean pickUpFood(ItemEntity item) {
+        var hand = getMainHandItem();
+        var stack = item.getItem();
+        if (!stack.is(ModItems.APPLE_HALF.get()) || item.hasPickUpDelay() || !reachesPickup(item)) return false;
+        var half = PicnicFood.collected(stack);
+        if (!hand.isEmpty() && (!ItemStack.isSameItemSameComponents(hand, half) || hand.getCount() >= hand.getMaxStackSize())) return false;
+        if (hand.isEmpty()) setItemSlot(EquipmentSlot.MAINHAND, half);
+        else hand.grow(1);
+        take(item, 1);
+        stack.shrink(1);
+        if (stack.isEmpty()) item.discard();
+        else item.setItem(stack);
+        return true;
+    }
+
+    private void dropPicnicFood(String reason) {
+        if (!holdsPicnicFood()) return;
+        var hand = getMainHandItem();
+        var drop = ItemContact.release(this, PicnicFood.mark(hand), position().add(0, .2, 0), Vec3.ZERO);
+        if (drop == null) {
+            setDropChance(EquipmentSlot.MAINHAND, 2.0f);
+            return;
+        }
+        stopUsingItem();
+        setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        GameplayLog.event(this, "npc-care", "action=picnic_drop item={} count={} reason={} half={}",
+                hand.getItem(), hand.getCount(), reason, drop.getUUID());
+    }
+
+    @Override protected void completeUsingItem() {
+        var food = getUseItem();
+        var item = food.getItem();
+        int count = food.getCount();
+        boolean picnic = !level().isClientSide && PicnicFood.apple(food);
+        super.completeUsingItem();
+        if (picnic && getMainHandItem().getCount() < count)
+            GameplayLog.event(this, "npc-care", "action=picnic_ate item={} count=1", item);
     }
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level, Look look) {
@@ -314,6 +360,7 @@ public final class HumanNpc extends PathfinderMob {
 
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
+            dropPicnicFood("death");
             legacyOutput.collect(this);
             if (level() instanceof ServerLevel server) PlantReceiving.dropOnDeath(server, this);
             // Held doses and operation tools fall where the worker fell.
@@ -341,6 +388,8 @@ public final class HumanNpc extends PathfinderMob {
         VillageBin.dropLitter(this);
     }
     @Override public void remove(RemovalReason reason) {
+        if (reason.shouldDestroy() && level() instanceof ServerLevel server && server.getEntity(getUUID()) == this)
+            dropPicnicFood("removal");
         if (reason.shouldDestroy() && streetResident() && level() instanceof ServerLevel server
                 && server.getEntity(getUUID()) == this && !CustodyData.get(server).deadNpc(getUUID())) {
             if (leadingWalk()) walk().end();
@@ -434,6 +483,9 @@ public final class HumanNpc extends PathfinderMob {
         yardBowl = bowl;
         if (initialized) restockCareFood();
     }
+
+    void registerYardCrate(BlockPos crate) { yardCrate = crate; }
+    BlockPos yardCrate() { return yardCrate; }
 
     private void restockCareFood() {
         if (job() == Job.SHOPKEEPER || job() == Job.KEEPER) {
@@ -767,6 +819,7 @@ public final class HumanNpc extends PathfinderMob {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());
         if (yardBowl != null) t.putLong("YardBowl", yardBowl.asLong());
+        if (yardCrate != null) t.putLong("YardCrate", yardCrate.asLong());
         t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putLong("NextRestock", nextRestock);
         if (plantSite != null) t.putUUID("PlantSite", plantSite);
         legacyOutput.save(t, registryAccess());
@@ -781,6 +834,7 @@ public final class HumanNpc extends PathfinderMob {
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized");
         home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
         yardBowl = t.contains("YardBowl") ? BlockPos.of(t.getLong("YardBowl")) : null;
+        yardCrate = t.contains("YardCrate") ? BlockPos.of(t.getLong("YardCrate")) : null;
         plantSite = t.hasUUID("PlantSite") ? t.getUUID("PlantSite") : null;
         legacyOutput.load(t, registryAccess());
         walk().load(t);

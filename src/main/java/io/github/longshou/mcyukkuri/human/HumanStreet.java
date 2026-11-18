@@ -1,15 +1,19 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.StallTheft;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -39,12 +43,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -169,6 +175,7 @@ final class HumanStreet {
 
     private boolean eligibleMeal(YukkuriEntity y) {
         return npc.careFood() > 0 && y.life().nutrition() <= 35 && y.body().toxin() == 0 && y.life().canEat()
+                && !(npc.holdsPicnicFood() && y.outing().onOuting() && Custody.ownedBy(y, npc.getUUID()))
                 && now() >= Custody.data(y).getLong(FED_AFTER);
     }
 
@@ -598,6 +605,8 @@ final class HumanStreet {
 
     /** Selects ordinary reachable street stands; a blocked leg tries the other side, then heads home. */
     static final class Stroll extends Goal {
+        private enum Leg { NONE, TAKE, OFFER, COLLECT, STOW }
+
         private final HumanNpc npc;
         private Vec3 destination;
         private boolean finished;
@@ -615,6 +624,14 @@ final class HumanStreet {
         private boolean toPark;
         private PlayBlockEntity facility;
         private int lingerTicks, tiredTicks;
+        private Leg leg = Leg.NONE;
+        private Vec3 legThen, watch;
+        private YukkuriEntity legPet;
+        private UUID picnicHalf;
+        private int halfTicks;
+        private long picnicTryAt;
+        private BlockPos picnicRefusedAt;
+        private final EnumSet<Leg> tried = EnumSet.noneOf(Leg.class);
 
         Stroll(HumanNpc npc) {
             this.npc = npc;
@@ -623,21 +640,24 @@ final class HumanStreet {
 
         boolean outing() { return homeward || !companions.isEmpty(); }
         boolean escorts(YukkuriEntity pet) { return !homeward && companions.contains(pet); }
-        boolean parkLingering() { return facility != null && resume == null && atDestination(); }
+        boolean parkLingering() { return facility != null && (leg != Leg.NONE || resume == null && atDestination()); }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
 
         void save(CompoundTag tag) {
-            if (outing()) tag.putBoolean("OutingReturn", true);
+            if (outing() || picnicHalf != null) tag.putBoolean("OutingReturn", true);
             if (nextOuting > 0) tag.putLong("NextOuting", nextOuting);
+            if (picnicHalf != null) tag.putUUID("PicnicHalf", picnicHalf);
         }
         void load(CompoundTag tag) {
             companions = List.of();
             homeward = tag.getBoolean("OutingReturn");
             nextOuting = tag.getLong("NextOuting");
+            picnicHalf = tag.hasUUID("PicnicHalf") ? tag.getUUID("PicnicHalf") : null;
         }
 
         @Override public boolean canUse() {
-            return npc.tickCount >= nextAt && !npc.leadingWalk() && (homeward ? !npc.isTrading() : npc.streetActive());
+            return npc.tickCount >= nextAt && !npc.leadingWalk() && !npc.isUsingItem()
+                    && (homeward || npc.streetResident() && npc.holdsPicnicFood() ? !npc.isTrading() : npc.streetActive());
         }
 
         @Override public void start() {
@@ -645,6 +665,7 @@ final class HumanStreet {
             finished = false;
             resume = null;
             if (homeward) { returnHome("resume"); return; }
+            if (npc.holdsPicnicFood()) { returnHome("stow"); return; }
             if (npc.level().isRaining()) {
                 if (npc.level().canSeeSky(npc.blockPosition()) && shelter()) return;
                 route(Vec3.atBottomCenterOf(npc.home()));
@@ -684,19 +705,88 @@ final class HumanStreet {
             for (var pet : companions) pet.outing().leave(npc, yard);
             lagTicks = 0;
             GameplayLog.event(npc, "npc-care", "action=outing_depart pets={} destination={}", companions.size(), GameplayLog.at(destination));
+            var crate = crate();
+            if (toPark && npc.getMainHandItem().isEmpty() && crate != null && PicnicFood.apple(crate.frontItem())
+                    && ready.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand() + 15)) {
+                var park = destination;
+                if (!crateLeg(Leg.TAKE, park))
+                    GameplayLog.event(npc, "npc-care", "action=picnic_take result=unreachable crate={}", npc.yardCrate());
+            }
             return true;
+        }
+
+        private ProduceCrateBlockEntity crate() {
+            var pos = npc.yardCrate();
+            return pos != null && npc.level().hasChunkAt(pos)
+                    && npc.level().getBlockEntity(pos) instanceof ProduceCrateBlockEntity crate && !crate.stall() ? crate : null;
+        }
+
+        private boolean crateLeg(Leg task, Vec3 then) {
+            var crate = npc.yardCrate();
+            if (ShopStaff.reaches(npc, crate.getCenter(), crate)) {
+                beginLeg(task, then);
+                return true;
+            }
+            for (var side : Direction.Plane.HORIZONTAL) {
+                var stand = crate.relative(side);
+                if (routeLeg(stand)) {
+                    beginLeg(task, then);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void beginLeg(Leg task, Vec3 then) {
+            leg = task;
+            legThen = then;
+            resume = null;
+            detours = stalled = 0;
+        }
+
+        private boolean atCrate() {
+            var pos = npc.yardCrate();
+            return ShopStaff.reaches(npc, pos.getCenter(), pos);
+        }
+
+        private void takeApple() {
+            var crate = crate();
+            if (crate == null || !PicnicFood.apple(crate.frontItem()) || !npc.getMainHandItem().isEmpty()) return;
+            var apple = PicnicFood.mark(crate.takeOne());
+            npc.setItemSlot(EquipmentSlot.MAINHAND, apple);
+            npc.swing(InteractionHand.MAIN_HAND);
+            GameplayLog.event(npc, "npc-care", "action=picnic_take item={} crate={} count=1", apple.getItem(), crate.getBlockPos());
         }
 
         private void returnHome(String reason) {
             if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
             homeward = true;
             clearPark();
+            clearLeg();
+            if (npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
             sheltering = false;
             resume = null;
             detours = 0;
+            continueHome();
+        }
+
+        private void continueHome() {
+            if (collectForHome()) return;
+            if (npc.holdsPicnicFood() && tried.add(Leg.STOW) && crate() != null) {
+                if (crateLeg(Leg.STOW, null)) return;
+                GameplayLog.event(npc, "npc-care", "action=picnic_stow result=unreachable crate={}", npc.yardCrate());
+            }
             var home = Vec3.atBottomCenterOf(npc.home());
             if (npc.distanceToSqr(home) < .5) finishReturn("home");
             else if (!route(home)) findReturnShelter();
+        }
+
+        private boolean collectForHome() {
+            if (picnicHalf == null || tried.contains(Leg.COLLECT)) return false;
+            var hand = npc.getMainHandItem();
+            if (!hand.isEmpty() && !hand.is(ModItems.APPLE_HALF.get())) return false;
+            var half = looseHalf();
+            return half != null && beginCollect(half, null);
         }
 
         private boolean beginLinger() {
@@ -712,11 +802,9 @@ final class HumanStreet {
             for (var side : List.of(facing.getClockWise(), facing.getCounterClockWise(), facing)) {
                 var pos = found.getBlockPos().relative(side, found.kind().depth + (side == facing ? 3 : 2));
                 var stand = Vec3.atBottomCenterOf(pos);
-                if (!npc.isWithinRestriction(pos) || !level.hasChunkAt(pos) || !level.getFluidState(pos).isEmpty()
-                        || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)
-                        || !level.noCollision(npc, npc.getBoundingBox().move(stand.subtract(npc.position())))
-                        || !route(stand)) continue;
+                if (!standable(pos) || !route(stand)) continue;
                 facility = found;
+                watch = stand;
                 detours = 0;
                 GameplayLog.event(npc, "npc-care", "action=outing_park facility={} kind={} stand={}",
                         facility.getBlockPos(), facility.kind(), GameplayLog.at(stand));
@@ -725,9 +813,175 @@ final class HumanStreet {
             return false;
         }
 
+        private boolean standable(BlockPos pos) {
+            var level = npc.level();
+            var stand = Vec3.atBottomCenterOf(pos);
+            return npc.isWithinRestriction(pos) && level.hasChunkAt(pos) && level.getFluidState(pos).isEmpty()
+                    && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)
+                    && level.noCollision(npc, npc.getBoundingBox().move(stand.subtract(npc.position())));
+        }
+
+        private boolean readyForHalf(YukkuriEntity pet) {
+            return pet.isAlive() && pet.onGround() && !pet.life().isSleeping() && !pet.playLife().active()
+                    && pet.life().mealTicks() == 0 && pet.life().canEat() && pet.life().nutrition() <= pet.outing().picnicBand();
+        }
+
+        private boolean offerReach(YukkuriEntity pet) {
+            return npc.onGround() && npc.distanceToSqr(pet) <= 6.25 && npc.hasLineOfSight(pet);
+        }
+
+        private boolean beginOffer() {
+            if (!npc.holdsPicnicFood() || tried.contains(Leg.OFFER) || npc.level().getGameTime() < picnicTryAt) return false;
+            var pet = companions.stream().filter(this::readyForHalf).filter(p -> !p.blockPosition().equals(picnicRefusedAt))
+                    .min(Comparator.comparingDouble(p -> p.life().nutrition())).orElse(null);
+            if (pet == null) return false;
+            var toward = npc.position().subtract(pet.position()).multiply(1, 0, 1).normalize();
+            var stand = BlockPos.containing(pet.position().add(toward.scale(pet.getBbWidth() / 2 + .9)));
+            legPet = pet;
+            if (offerReach(pet) || routeLeg(stand)) {
+                beginLeg(Leg.OFFER, watch);
+                return true;
+            }
+            refuseOffer("unreachable");
+            clearLeg();
+            return false;
+        }
+
+        private void refuseOffer(String reason) {
+            GameplayLog.event(npc, "npc-care", "action=picnic_refused reason={} pet={}", reason, legPet.getUUID());
+            picnicTryAt = npc.level().getGameTime() + ROUTE_TICKS;
+            picnicRefusedAt = legPet.blockPosition();
+        }
+
+        private void offerHalf() {
+            if (!readyForHalf(legPet) || !npc.holdsPicnicFood()) { refuseOffer("pet_changed"); return; }
+            var inFront = legPet.position().add(0, .3, 0)
+                    .add(MouthPlacement.outward(legPet).scale(legPet.getBbWidth() / 2 + .3));
+            var at = ItemContact.releaseSurface(legPet, inFront);
+            if (at == null) { refuseOffer("no_dry_ground"); return; }
+            var hand = npc.getMainHandItem();
+            var input = hand.getItem();
+            var id = UUID.randomUUID();
+            var kept = hand.is(Items.APPLE) ? PicnicFood.split(hand) : ItemStack.EMPTY;
+            var serving = hand.is(Items.APPLE) ? kept.copy() : hand.copyWithCount(1);
+            var drop = ItemContact.release(npc, PicnicFood.serving(serving, id), at.add(0, .05, 0), Vec3.ZERO);
+            if (drop == null) { refuseOffer("spawn_refused"); return; }
+            if (hand.is(Items.APPLE)) npc.setItemSlot(EquipmentSlot.MAINHAND, kept);
+            else hand.shrink(1);
+            npc.getLookControl().setLookAt(legPet, 30, 30);
+            npc.swing(InteractionHand.MAIN_HAND);
+            if (!kept.isEmpty()) npc.startUsingItem(InteractionHand.MAIN_HAND);
+            picnicHalf = id;
+            halfTicks = 0;
+            tried.add(Leg.OFFER);
+            GameplayLog.event(npc, "npc-care", "action=picnic_offer pet={} input={} kept={} half={} serving={} at={}",
+                    legPet.getUUID(), input, kept, drop.getUUID(), id, GameplayLog.at(at));
+        }
+
+        private ItemEntity looseHalf() {
+            return npc.level().getEntitiesOfClass(ItemEntity.class, npc.getBoundingBox().inflate(16),
+                    item -> item.isAlive() && PicnicFood.matches(item.getItem(), picnicHalf)).stream()
+                    .min(Comparator.comparingDouble(npc::distanceToSqr)).orElse(null);
+        }
+
+        private boolean mouthHoldsHalf() {
+            return !npc.level().getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(16), pet -> pet.isAlive()
+                    && (PicnicFood.matches(pet.life().mouth(), picnicHalf) || PicnicFood.matches(
+                            pet.component(YukkuriComponents.MOUTH).stack(MouthOccupancy.Purpose.KINDNESS), picnicHalf))).isEmpty();
+        }
+
+        private boolean beginCollect(ItemEntity half, Vec3 then) {
+            if (!half.onGround()) return false;
+            tried.add(Leg.COLLECT);
+            var stand = half.blockPosition();
+            if (npc.reachesPickup(half) || routeLeg(stand)) {
+                beginLeg(Leg.COLLECT, then);
+                return true;
+            }
+            GameplayLog.event(npc, "npc-care", "action=picnic_collect result=unreachable half={}", half.getUUID());
+            return false;
+        }
+
+        private void halfGone() {
+            GameplayLog.event(npc, "npc-care", "action=picnic_half_gone serving={}", picnicHalf);
+            picnicHalf = null;
+        }
+
+        private void stowApple() {
+            var crate = crate();
+            if (crate == null || !npc.holdsPicnicFood()) return;
+            var hand = npc.getMainHandItem();
+            var item = hand.getItem();
+            int count = 0;
+            while (!hand.isEmpty() && crate.put(hand)) { hand.shrink(1); count++; }
+            if (count > 0) {
+                npc.swing(InteractionHand.MAIN_HAND);
+                GameplayLog.event(npc, "npc-care", "action=picnic_stow result=crate item={} count={}", item, count);
+            }
+            if (hand.isEmpty()) npc.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        }
+
+        private void clearLeg() { leg = Leg.NONE; legPet = null; legThen = null; }
+
+        private void afterLeg() {
+            var then = legThen;
+            clearLeg();
+            detours = 0;
+            resume = null;
+            if (homeward) continueHome();
+            else if (!route(then)) blockedOutingLeg();
+        }
+
+        private boolean legStep() {
+            if (resume != null) return false;
+            switch (leg) {
+                case NONE -> { return false; }
+                case TAKE -> { if (!atCrate()) return false; takeApple(); }
+                case OFFER -> { if (!offerReach(legPet)) return false; offerHalf(); }
+                case COLLECT -> {
+                    var half = looseHalf();
+                    if (half == null) {
+                        if (!mouthHoldsHalf()) halfGone();
+                    } else {
+                        if (half.hasPickUpDelay() && npc.reachesPickup(half) && ++stalled < ROUTE_TICKS) {
+                            npc.getNavigation().stop();
+                            return true;
+                        }
+                        if (!npc.pickUpFood(half)) return false;
+                        npc.swing(InteractionHand.MAIN_HAND);
+                        GameplayLog.event(npc, "npc-care", "action=picnic_collect result=picked half={} serving={} count=1",
+                                half.getUUID(), picnicHalf);
+                        picnicHalf = null;
+                    }
+                }
+                case STOW -> { if (!atCrate()) return false; stowApple(); }
+            }
+            afterLeg();
+            return true;
+        }
+
+        private void legBlocked() {
+            switch (leg) {
+                case OFFER -> refuseOffer("unreachable");
+                case COLLECT -> GameplayLog.event(npc, "npc-care", "action=picnic_collect result=unreachable serving={}", picnicHalf);
+                case TAKE, STOW -> GameplayLog.event(npc, "npc-care", "action=picnic_{} result=unreachable crate={}",
+                        leg == Leg.TAKE ? "take" : "stow", npc.yardCrate());
+                case NONE -> throw new IllegalStateException("No picnic leg");
+            }
+            afterLeg();
+        }
+
         private void linger() {
             npc.getNavigation().stop();
             npc.getLookControl().setLookAt(facility.getBlockPos().getCenter());
+            if (picnicHalf != null) {
+                var half = looseHalf();
+                if (half == null) {
+                    if (!mouthHoldsHalf()) halfGone();
+                } else if (!tried.contains(Leg.COLLECT) && !npc.isUsingItem() && ++halfTicks >= 300) {
+                    if (beginCollect(half, watch)) return;
+                }
+            } else if (beginOffer()) return;
             boolean playing = false, waitingForRest = false, done = true;
             for (var pet : companions) {
                 boolean atPlay = pet.playLife().active();
@@ -737,7 +991,7 @@ final class HumanStreet {
             }
             tiredTicks = waitingForRest ? tiredTicks + 1 : 0;
             lingerTicks++;
-            if (done) returnHome("park_done");
+            if (done && !npc.isUsingItem() && (picnicHalf == null || tried.contains(Leg.COLLECT))) returnHome("park_done");
             else if (tiredTicks > 300) returnHome("tired");
             else if (lingerTicks >= 3000 || lingerTicks >= 2400 && !playing) returnHome("park_time");
         }
@@ -745,11 +999,20 @@ final class HumanStreet {
         private void clearPark() {
             toPark = false;
             facility = null;
+            watch = null;
             lingerTicks = tiredTicks = 0;
+            picnicTryAt = 0;
+            picnicRefusedAt = null;
         }
 
         private void finishReturn(String result) {
             GameplayLog.event(npc, "npc-care", "action=outing_{}", result);
+            if (npc.holdsPicnicFood()) {
+                npc.startUsingItem(InteractionHand.MAIN_HAND);
+                GameplayLog.event(npc, "npc-care", "action=picnic_stow result=eating item={}", npc.getMainHandItem().getItem());
+            }
+            picnicHalf = null;
+            tried.clear();
             homeward = false;
             companions = List.of();
             finished = true;
@@ -807,7 +1070,7 @@ final class HumanStreet {
                 }
                 if (facility != null) {
                     if (facility.isRemoved()) { returnHome("park_done"); return; }
-                    if (parkLingering()) { linger(); return; }
+                    if (leg == Leg.NONE && parkLingering()) { linger(); return; }
                 } else if (lagging != null) {
                     npc.getLookControl().setLookAt(lagging, 30, 30);
                     npc.getNavigation().setSpeedModifier(.30);
@@ -817,12 +1080,17 @@ final class HumanStreet {
                     npc.getNavigation().setSpeedModifier(.55);
                 }
             }
+            if (homeward && leg == Leg.NONE && !sheltering && collectForHome()) return;
+            if (legStep()) return;
             if (atDestination()) {
                 if (resume != null) {
                     var next = resume;
                     resume = null;
                     if (route(next)) return;
-                    blockedOutingLeg();
+                    if (leg == Leg.NONE) blockedOutingLeg();
+                    else legBlocked();
+                } else if (leg != Leg.NONE) {
+                    legBlocked();
                 } else if (!homeward && !companions.isEmpty()) {
                     if (!toPark || !beginLinger()) returnHome("destination");
                 } else if (homeward) {
@@ -847,7 +1115,8 @@ final class HumanStreet {
                     return;
                 }
             }
-            if (outing()) blockedOutingLeg();
+            if (leg != Leg.NONE) legBlocked();
+            else if (outing()) blockedOutingLeg();
             else if (detours <= 2) route(Vec3.atBottomCenterOf(npc.home()));
             else finished = true;
         }
@@ -877,8 +1146,19 @@ final class HumanStreet {
             return true;
         }
 
+        private boolean routeLeg(BlockPos stand) {
+            if (!standable(stand)) return false;
+            var nav = npc.getNavigation();
+            var path = nav.createPath(stand, 0);
+            if (path == null || !path.canReach() || !nav.moveTo(path, .65)) return false;
+            last = npc.position(); stalled = 0; destination = Vec3.atBottomCenterOf(stand);
+            return true;
+        }
+
         @Override public void stop() {
             clearPark();
+            clearLeg();
+            if (!finished && npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
             if (!companions.isEmpty()) {
                 if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason=interrupted");
                 homeward = true;

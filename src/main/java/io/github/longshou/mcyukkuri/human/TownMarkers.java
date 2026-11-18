@@ -105,6 +105,7 @@ public final class TownMarkers {
         }
         var bowl = offset(start, data, "Bowl");
         owner.registerYardBowl(bowl);
+        if (data.contains("Crate", Tag.TAG_LIST)) owner.registerYardCrate(offset(start, data, "Crate"));
         GameplayLog.event(pet, "npc-care", "action=yard_pet result=spawned owner={} stage={} bowl={}",
                 owner.getUUID(), pet.family().stageId(), bowl.toShortString());
     }

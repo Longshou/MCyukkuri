@@ -20,7 +20,7 @@ places the socket at the first free height, so the paving at y0 meets the lane a
 - back_lot: the poor corner: a shabby shed, a woodpile, a lean-to against the shed with a two-cell wind gap, a cardboard spot and a bin
   already knocked over.
 
-Town-life markers turn with the template. The pet start carries offsets to its owner and bowl, and the yard's no-carton zone
+Town-life markers turn with the template. The pet start carries offsets to its owner, bowl and picnic crate, and the yard's no-carton zone
 uses the marked survey corners.
 """
 from pathlib import Path
@@ -174,12 +174,14 @@ def no_carton(b, low, high, anchor):
            {'Low': relative(anchor, low), 'High': relative(anchor, high)})
 
 
-def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, second=None, y=1):
+def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, crate, crate_facing, second=None, y=1):
     """A pet yard: nest, bowl and toilet blocks, a toy on the ground, the yard corners and the pet's start cell as markers."""
     nx, nz = nest; b.block(nx, y, nz, 'mcyukkuri:yukkuri_nest')
     b.bowl(*bowl, y=y)
     b.block(toilet[0], y, toilet[1], 'mcyukkuri:yukkuri_toilet')
     b.toy(toy[0] + .5, y, toy[1] + .5, 'yarn_ball')
+    cx, cz = crate
+    produce_crate(b, cx, y, cz, crate_facing, [('apple', 2)])
     (x0, y0, z0), (x1, y1, z1) = low, high
     marker(b, x0 + .5, y0 + .5, z0 + .5, 'mcy_pet_yard'); marker(b, x1 + .5, y1 + .5, z1 + .5, 'mcy_pet_yard')
     starts = [pet]
@@ -190,7 +192,8 @@ def pet_yard(b, low, high, pet, nest, bowl, toilet, toy, owner, second=None, y=1
     for index, (x, z) in enumerate(starts):
         start = (x, y, z)
         marker(b, x + .5, y, z + .5, 'mcy_yard_pet',
-               {'Owner': relative(start, owner), 'Bowl': relative(start, (bowl[0], y, bowl[1])), 'Slot': integer(index)})
+               {'Owner': relative(start, owner), 'Bowl': relative(start, (bowl[0], y, bowl[1])),
+                'Crate': relative(start, (cx, y, cz)), 'Slot': integer(index)})
         no_carton(b, low, high, start)
     b.yards.append({'low': low, 'high': high, 'pet': (pet[0], y, pet[1]), 'nest': (nx, y, nz), 'bowl': (bowl[0], y, bowl[1]),
                     'toilet': (toilet[0], y, toilet[1])})
@@ -234,7 +237,8 @@ def home_yard(p):
         else: stairs(b, x, 3, 6, p.roof, 'south')
     b.block(4, 2, 6, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     owner = (5, 1, 9)
-    pet_yard(b, (5, 0, 3), (7, 3, 6), pet=(6, 4), nest=(5, 6), bowl=(6, 6), toilet=(7, 6), toy=(7, 4), owner=owner)
+    pet_yard(b, (5, 0, 3), (7, 3, 6), pet=(6, 4), nest=(5, 6), bowl=(6, 6), toilet=(7, 6), toy=(7, 4),
+             owner=owner, crate=(3, 6), crate_facing='west')
     # Garden: a bush and flowers west of the path and along the yard front.
     bush(b, 1, 1, 5); plant(b, 1, 1, 4, 0); plant(b, 1, 1, 6, 1); plant(b, 5, 1, 1, 2); plant(b, 7, 1, 1, 0); plant(b, 6, 1, 3, 1)
     # Cottage: plinth course, walls, corner posts; door at the end of the path, windows front, sides and back; gable along x.
@@ -308,7 +312,7 @@ def home_yard_large(p):
     b.box((0, 3, 13), (2, 3, 15), p.roof + '_slab', {'type': 'bottom', 'waterlogged': 'false'})
     b.block(2, 2, 13, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     pet_yard(b, (0, 0, 9), (8, 4, 15), pet=(5, 12), nest=(1, 14), bowl=(2, 14), toilet=(7, 14), toy=(5, 13),
-             owner=owner, second=((3, 13), (4, 14)))
+             owner=owner, crate=(8, 2), crate_facing='north', second=((3, 13), (4, 14)))
     marker(b, 9.5, 1, .5, 'mcy_yard_street')
     bush(b, 7, 1, 11); plant(b, 6, 1, 14, 1); plant(b, 1, 1, 11, 2)
     # Side passage: a standing bin against the house, the woodpile at the end, a lamp at the front corner.
