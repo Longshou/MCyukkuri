@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 待看合并同一演出、滚动条可拖 | `.worktrees/wp-playtest-merge` | scripts/playtest_list.py, client/ViewerScreen.java |
+| 美术重做 R0：共享方块道具工具与三件试样 | `.worktrees/wp-art-redo-r0` | standards/yukkuri-library/drafts/block-props/, food_bowl, mold_remover, yarn_ball |
 
 ## 玩法待办
 
