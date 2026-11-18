@@ -267,12 +267,12 @@
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "717e04d931c923cf4c557af4e9f346138488cf5f27ddef90e2c708d3cfcbd159",
+        "angry": "bec1ae4aa829c0a641ac21a10a89e07f316187850db5e39e72c3d94bf6036b8a",
         "puff": "0119aa3378c90058c86056e8d62218fe865733965aea11830b43edfefc948c32"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/cheek_puff.png",
-      "texture_sha256": "348a60e8008fdc2da480b0a4b2f1367a9fa990773af79293efac560ab5785bc2"
+      "texture_sha256": "5a58de031c43ce987cbde3b0f7b71ecccc8d6c00abb8e9768347b1f22aaa7908"
     },
     "patchouli": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",

@@ -351,7 +351,7 @@
     "myon_redeye": {
       "sad": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/sad.png",
-        "sha256": "b9c6a4668cad0ff02dab389100f308e136b073ff5cd829988e5e1b37c3a6190e"
+        "sha256": "db76ad92c4a863841e5f3923bce849ba622d16d4b644984d73a324992b1bd1b0"
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/afraid.png",
@@ -359,15 +359,15 @@
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_startle.png",
-        "sha256": "e55be731c3360b8c33e92a2bf8a06dc2b29d1356cd18ad550477aab707c1ba6f"
+        "sha256": "5026748f48473d0c0b65b06580b54dbc96aed08a7e57973a2a0439a16fa423ae"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_flow.png",
-        "sha256": "84012e230a70e62ffc95051344647a5ee80ef3f97e5d9cc21b191013c039b11b"
+        "sha256": "6845950868a4e96c26919586f802efc97b54ca085888033999aa434c99c7220d"
       },
       "from": {
-        "teary": "bbabad6de8f1ce4831cbf4a0c092a62a944171d3edc52c9838e44ee8db70cf74",
-        "neutral": "db13d431109dc66d1bc11925fc4a692164eb3647371d115d93c27f972935b387",
+        "teary": "79ceca55dec12b2476fdca692292256ee2df8021d74dec1a37b02223fc7c6781",
+        "neutral": "12d24a52c5f6c2ee805349988a502af30af9b5b4dfdfedba14a1f4c8386c3192",
         "surprise": "d68629a7ddba145bc5e95e4edfcfb18562e3fc33de74b46047510e0bb6684106",
         "flushed_smile": "bc2672ac4bebccd019ed94bec9d17becf01f5b6a6ebade2eff751d2726068255"
       }
