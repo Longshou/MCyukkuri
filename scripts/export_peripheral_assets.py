@@ -11,7 +11,7 @@ import io
 import sys
 from asset_export_checks import check_output, fingerprint, fingerprints, provenance
 from pathlib import Path
-from PIL import Image, ImageOps
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,7 +35,7 @@ def recipe():
 
 def owned_paths():
     spec = recipe()
-    result = {ASSETS / f'models/item/{name}.json' for name in spec['items'] + list(spec.get('recolours', {}))}
+    result = {ASSETS / f'models/item/{name}.json' for name in spec['items']}
     result |= {ASSETS / f'models/block/{name}.json' for name in spec['blocks']}
     result |= {DATA / f'{kind}/{name}.json' for name in spec['retired_recipes']
                for kind in ('recipe', 'advancement/recipes/misc')}
@@ -77,17 +77,6 @@ def outputs():
             key = path.relative_to(ROOT).as_posix()
             inputs[key] = fingerprint(path, path.read_bytes(), previous.get('inputs', {}).get(key))
         index[name] = {'bounds': bounds, 'triangles': len(vertices) // 24}
-    for name, palette in spec.get('recolours', {}).items():
-        base = palette['base']
-        result[ASSETS / f'yukkuri_props/{name}.json'] = result[ASSETS / f'yukkuri_props/{base}.json']
-        index[name] = index[base]
-        with Image.open(io.BytesIO(result[ASSETS / f'textures/props/{base}.png'])) as original:
-            image = original.convert('RGBA')
-            recoloured = ImageOps.colorize(ImageOps.grayscale(image), palette['shadow'], palette['highlight'])
-            recoloured.putalpha(image.getchannel('A'))
-            texture = io.BytesIO()
-            recoloured.save(texture, format='PNG')
-            result[ASSETS / f'textures/props/{name}.png'] = texture.getvalue()
     # Species accessories are selected from the same fitted triangles hidden on
     # their owner, preserving the real bonnet/headband shape when removed.
     living_path = ROOT / 'art/props/care-facilities/recipe.json'
@@ -122,7 +111,7 @@ def outputs():
             if name not in index and isinstance(entry, dict) and entry.get('owner'):
                 index[name] = entry
     emit(shared, index)
-    for name in spec['items'] + list(spec.get('recolours', {})) + list(spec.get('species_accessories', {}).values()):
+    for name in spec['items'] + list(spec.get('species_accessories', {}).values()):
         emit(ASSETS / f'models/item/{name}.json', block_kit.prop_item_model(name, spec.get('gui_display', {}).get(name)))
     for name in spec['blocks']:
         emit(ASSETS / f'models/block/{name}.json', {'textures': {'particle': f'mcyukkuri:props/{name}'}, 'elements': []})

@@ -1,4 +1,4 @@
-"""Family-size 2x2 nests: the woven pet bed (placed.py) and the wild bedding (wild.py), registered in vanilla_props.py.
+"""Family-size 2x2 nests: the woven pet bed and the wild bedding (block-props/nests.py), registered in vanilla_props.py.
 
 Writes the snapshot art/props/large-nests/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png} with manifest fingerprints, and the
 runtime mesh, palette texture, particle-only block model, builtin item model, blockstate, loot table and zh_cn / en_us names.
@@ -67,8 +67,8 @@ def outputs():
     emit(SNAPSHOT / 'manifest.json', {'status': 'pending_user_confirmation', 'generator': GENERATOR,
          'footprint': '2x2 blocks (32 x 32 units), origin at the footprint centre, entrance +z',
          'capacity': 'two adults and four newborns settling anywhere on an unmarked floor',
-         'interior': 'about 29 units (1.8 blocks) across inside a one-cell rim; outline within 15.5 of the centre',
-         'rim_max_height': {'large_yukkuri_nest': 7.0, 'large_wild_nest': 3.0}, 'files': files})
+         'interior': 'about 30 units across inside a one-cell rim; outline within 16 of the centre',
+         'rim_max_height': {name: prop.mesh()['bounds'][1][1] for name, prop in props.items()}, 'files': files})
     return result, props
 
 

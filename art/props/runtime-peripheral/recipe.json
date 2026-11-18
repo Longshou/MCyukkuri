@@ -8,6 +8,8 @@
     "velvet_nest",
     "yukkuri_toilet",
     "yukkuri_carrier",
+    "yukkuri_carrier_fine",
+    "yukkuri_carrier_large",
     "food_scrap",
     "yukkuri_waste",
     "leaked_filling",
@@ -79,18 +81,6 @@
     "food_scrap",
     "herbal_medicine"
   ],
-  "recolours": {
-    "yukkuri_carrier_fine": {
-      "base": "yukkuri_carrier",
-      "shadow": "#122942",
-      "highlight": "#d3e7f7"
-    },
-    "yukkuri_carrier_large": {
-      "base": "yukkuri_carrier",
-      "shadow": "#193b2a",
-      "highlight": "#d4efd6"
-    }
-  },
   "recipes": {
     "yukkuri_carrier_fine": {
       "ingredients": [

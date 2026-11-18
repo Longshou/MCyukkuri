@@ -1,8 +1,8 @@
 {
   "source": "standards/yukkuri-library/drafts/care-props",
   "authors": {
-    "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/placed.py:large_yukkuri_nest",
-    "large_wild_nest": "standards/yukkuri-library/drafts/care-props/wild.py:large_wild_nest (called by vanilla_props.py:large_wild_nest)"
+    "large_yukkuri_nest": "standards/yukkuri-library/drafts/block-props/nests.py:large_yukkuri_nest",
+    "large_wild_nest": "standards/yukkuri-library/drafts/block-props/nests.py:large_wild_nest"
   },
   "exporter": "standards/yukkuri-library/drafts/care-props/large_nests.py",
   "snapshot": "art/props/large-nests",
@@ -13,16 +13,16 @@
       "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_yukkuri_nest.json",
       "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_yukkuri_nest.png",
       "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_yukkuri_nest.json",
-      "role": "pet family bed: rounded-square woven basket, wicker wall 1.3 thick and 7 high at the back and sides (collision follows the visible shape: yukkuri_presentation/care_collision.json) with a braided top, a quilted pad with a rolled hem at about 1.7 inside; front opening down to the floor; dye styles ship as runtime-peripheral attachments"
+      "role": "pet family bed: block-style rounded-square woven basket, a one-cell wicker wall 6 high at the back and sides with a braided top row, dipping to the cushion across the front (collision: the rounded envelope in yukkuri_presentation/care_collision.json), a quilted cushion floor (top 2) with a stitched hem; dye styles ship as runtime-peripheral attachments"
     },
     "large_wild_nest": {
       "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",
       "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_wild_nest.png",
       "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_wild_nest.json",
-      "role": "wild family bedding (wild_kit atlas): leaf-litter pad at the collision floor 0.5 with lining leaves, moss and hay, no marked places; rim of loose dry grass pressed down in layers, up to 3 high, following the collision rim and front shoulders, twigs worked in, open front"
+      "role": "wild family bedding (block style): a leaf-litter floor (top 1, collision 0.5) lined with green leaves, a ragged ring of heaped dry grass along the collision rim (3 high with tufts, a bank of loose grass inside it, loose blades sticking up), open front"
     }
   },
-  "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; 31-cell rounded (squircle n=4) outline at half-extent 15.5, one-cell rim leaving a 29-unit interior (collision interior 28.5), rim at most 3 high, down to the floor across 14 units of the south side and 2 high to |x| 11; family members settle anywhere",
-  "vanilla_texture_references": "none: all tiles hand-drawn in vanilla_props.py",
+  "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; woven nest: a 32-cell rounded square (corner radius 7) with a one-cell wall leaving a 30-cell cushion floor; wild nest: the squircle (n=4) band between 14.75 and 16 of LargeNestBlock.wildShape as its rim, down to the litter across 14 units of the south side and 2 high to |x| 12; family members settle anywhere",
+  "vanilla_texture_references": "none: all texels from the item-icon ramps (block-props/kit.py)",
   "status": "pending_user_confirmation"
 }

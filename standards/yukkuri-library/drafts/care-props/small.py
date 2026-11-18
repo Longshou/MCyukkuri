@@ -1,4 +1,4 @@
-"""Small props: crumbs, waste, filling, mash, carrier basket."""
+"""Small props: crumbs, waste, filling, mash (the carriers are block-style, block-props/devices.py)."""
 import math
 from kit import Prop, Band, Planar, colour, fill, paint, deterministic
 
@@ -69,21 +69,3 @@ def food_mash_serving():
     return p
 
 
-def yukkuri_carrier():
-    """Oval wicker carrier: checker-woven body, rolled rim, cream liner, arched handle."""
-    p = Prop('yukkuri_carrier')
-    rx, rz = 5.5, 4.5
-    sq = rz / rx
-    body = p.part('wicker_body')
-    profile = [(0, 0), (4.5, 0), (5, 1.5), (5.5, 3.5), (5.5, 5.5), (5.5, 7)]
-    p.lathe(body, profile, Band(lambda i, j, c: C('straw', 0) if i == 0 else (C('straw', 1) if (i + j) % 2 else C('straw', 2))),
-            seg=16, squash=sq, grid=.5, smooth='around')
-    rim = p.part('rolled_rim')
-    p.torus(rim, [0, 7, 0], 5.0, .75, seg=16, tube=4, spec=C('wood', 2), squash=sq, grid=.25, smooth='both')
-    liner = p.part('cream_liner')
-    p.lathe(liner, [(5.0, 7), (4.75, 6.5), (4.5, 5.5), (0, 5.5)], Band(lambda i, j, c: C('straw', 0) if i < 2 else C('paper', 2)), seg=16, squash=sq, grid=.25, smooth='around')
-    handle = p.part('arched_handle')
-    pts = [[5.25 * math.cos(math.pi * k / 8), 7.25 + 3.5 * math.sin(math.pi * k / 8), 0] for k in range(9)]
-    for k in range(8):
-        p.rod(handle, pts[k], pts[k + 1], .6, .6, seg=4, spec=C('wood', 3) if k % 2 else C('wood', 2), caps=(False, False), grid=.25)
-    return p

@@ -1,27 +1,30 @@
-"""Registry of the placed care props for the exporters (build.py, large_nests.py, care-expansion/build.py).
+"""Registry of the placed care props for the exporters (build.py, large_nests.py).
 
-The default food bowl is block-style (block-props/devices.py). The other placed pet-care goods (fills, the three grades of one-block pet bed and their fitted shapes, 2x2 woven
-nest, sand toilet and droppings, with their dye styles) are rounded low-poly props with painted regions from placed.py; the wild 2x2 bedding comes from wild.py
-(wild_kit atlas). Units are 1/16 block, origin at the footprint centre. Footprints, heights and entrances follow
-CareBlock collision (life/CareBlock.java) and the documented 2x2 nest interior.
+Every placed pet-care good is block-style (block-props/kit.py): the food bowl and its fills, the sand toilet, its droppings
+and the carriers in block-props/devices.py; the three grades of one-block pet bed with their fitted shapes, the 2x2
+woven nest and the 2x2 wild bedding in block-props/nests.py. Units are 1/16 block, origin at the footprint centre.
+Footprints, heights and entrances follow CareBlock collision (life/CareBlock.java); the nest collision envelope is
+placed.py. STYLES is the dye-style table (keep in step with life/CareStyles.java); '' is the default style carried by the
+plain mesh name.
 """
 import sys
 from pathlib import Path
-import placed
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "block-props"))
-import devices      # block-style redo (block-props/kit.py): the default food bowl
+import devices, nests      # block-style props (block-props/kit.py)
+
+BED_STYLES = ['', 'gingham', 'polka', 'floral', 'lavender', 'teddy', 'stars']
+STYLES = {**devices.STYLES, 'yukkuri_nest': BED_STYLES, **nests.STYLES}
 
 
-def large_wild_nest():
-    """Wild family bedding: a woven dry-grass roll and leaf-litter pad from the wild nest family (wild.py, wild_kit atlas)."""
-    import wild
-    return wild.large_wild_nest()
+def model_name(base, style):
+    return f'{base}_{style}' if style else base
 
 
-PROPS = {'food_bowl': devices.food_bowl, 'food_bowl_regular': placed.food_bowl_regular, 'food_bowl_wheat': placed.food_bowl_wheat,
-         'food_bowl_forage': placed.food_bowl_forage, 'yukkuri_nest': placed.yukkuri_nest, 'straw_nest': placed.straw_nest,
-         'velvet_nest': placed.velvet_nest, 'yukkuri_toilet': placed.yukkuri_toilet,
-         'yukkuri_toilet_dirty': placed.yukkuri_toilet_dirty, 'toilet_waste': placed.toilet_waste}
-LARGE = {'large_yukkuri_nest': placed.large_yukkuri_nest, 'large_wild_nest': large_wild_nest}
-VARIANTS = {**placed.variants(),      # dye-selected styles of the placed goods, shipped as runtime-peripheral attachments
-            **placed.fitted_nests()}   # one-block bed shapes flattened against blocks (drawn with the placed bed's texture)
+PROPS = {**{name: devices.PROPS[name] for name in ('food_bowl', 'food_bowl_regular', 'food_bowl_wheat', 'food_bowl_forage',
+                                                   'yukkuri_toilet', 'yukkuri_toilet_dirty', 'toilet_waste')},
+         'yukkuri_nest': nests.BEDS['yukkuri_nest'], 'straw_nest': nests.BEDS['straw_nest'], 'velvet_nest': nests.BEDS['velvet_nest']}
+LARGE = nests.LARGE_NESTS
+VARIANTS = {**devices.variants(),                                    # dye-selected styles, shipped as runtime-peripheral attachments
+            **{model_name('yukkuri_nest', s): nests.BEDS[model_name('yukkuri_nest', s)] for s in BED_STYLES[1:]},
+            **nests.variants(),
+            **nests.FITTED}       # one-block bed shapes flattened against blocks (drawn with the placed bed's texture)

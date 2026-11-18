@@ -9,7 +9,7 @@
 | [冷冻收容柜](cold-storage/README.md) | 冷冻收容设施草稿 |
 | [照料道具](care-props/README.md) | 食盆、窝、厕所等照料道具共用制作源 |
 | [操作器具](operation-tools/README.md) | 接触操作器具模型 |
-| `block-props/` | 原版风格世界道具共用工具：`kit.py`（体素长方体、八角平面与内缩、阶梯球、贴图、`.bbmodel`、网格、图标挤出，色阶取自 `item-icons/draw.py`；选用规则写在其说明中）与道具物品模型模板；`devices.py`（放置设备，现为默认款食盆）、`toys.py`（毛线球）；`preview.py <输出目录> <道具 ID>… [--before <Git 引用>] [--fill <道具>:<填充>:<份数>]` 出新旧对照（图标与 1×／4×、两个视角、与成体幼体同尺度），再用 `scripts/preview.py collection` 发布 |
+| `block-props/` | 原版风格世界道具共用工具：`kit.py`（体素长方体、八角平面与内缩、阶梯球、贴图、`.bbmodel`、网格、图标挤出，色阶取自 `item-icons/draw.py`；选用规则写在其说明中）与道具物品模型模板；`devices.py`（放置设备：食盆与染料款式、三种填充堆、沙厕与脏态、便堆、三种运输篮）、`nests.py`（三档单格宠物窝与 15 种贴墙变形共用一张图集布局，`kit.share_atlas`；低档窝不显示的高档部件是 `solid=False` 的可镂空部件；2×2 编织大窝与野生大窝、捕食种枝巢、储粮堆）、`toys.py`（毛线球）；`preview.py <输出目录> <道具 ID>… [--before <Git 引用>] [--fill <道具>:<填充>:<份数>]` 出新旧对照（图标与 1×／4×、两个视角、与成体幼体同尺度），再用 `scripts/preview.py collection` 发布 |
 | [大型游具](playgrounds/README.md) | 陶管、滑梯、蹦床、水池 |
 | `consumables/` | 消耗品模型制作源（`build.py`、`recipe.json`） |
 | [物品栏图标](../../../art/props/item-icons/README.md) | `item-icons/`：立体道具类物品的 16×16 物品栏图标（`draw.py`、`preview.py`） |

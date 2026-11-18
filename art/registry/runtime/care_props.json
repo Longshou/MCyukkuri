@@ -58,9 +58,6 @@
     "models": {
       "forest_burrow/personal_leaf_nest/bedding_bundle": [
         "block/oak_leaves, birch_leaves, spruce_leaves (tinted), short_grass, moss_block, podzol_top, coarse_dirt, oak_log, spruce_log, hay_block_top, item/wheat"
-      ],
-      "predator_nest": [
-        "block/oak_log, spruce_log, hay_block_side, moss_block, podzol_top, coarse_dirt, oak_leaves, birch_leaves, dead_bush, item/feather"
       ]
     }
   },
@@ -68,7 +65,14 @@
     "kit": "standards/yukkuri-library/drafts/block-props/kit.py",
     "palette": "standards/yukkuri-library/drafts/item-icons/draw.py (icon ramps)",
     "models": {
-      "food_bowl": "standards/yukkuri-library/drafts/block-props/devices.py (default style; dye styles stay placed.py)",
+      "food_bowl": "standards/yukkuri-library/drafts/block-props/devices.py (six dye styles, fills food_bowl_regular/_wheat/_forage as stepped heaps per portion)",
+      "yukkuri_toilet": "standards/yukkuri-library/drafts/block-props/devices.py (three dye styles, each with _dirty)",
+      "yukkuri_carrier": "standards/yukkuri-library/drafts/block-props/devices.py (yukkuri_carrier_fine and yukkuri_carrier_large are their own meshes; the large one is wider and taller)",
+      "pet_beds": "standards/yukkuri-library/drafts/block-props/nests.py: straw_nest, yukkuri_nest and its six styles, velvet_nest, pet_nest_fit_1..15 on one shared atlas layout (kit.share_atlas); grade parts the lower grades cut out (kit solid=False)",
+      "large_yukkuri_nest": "standards/yukkuri-library/drafts/block-props/nests.py (three dye styles), exported by large_nests.py",
+      "large_wild_nest": "standards/yukkuri-library/drafts/block-props/nests.py, exported by large_nests.py",
+      "forage_pile": "standards/yukkuri-library/drafts/block-props/nests.py",
+      "predator_nest": "standards/yukkuri-library/drafts/block-props/nests.py, exported by art/props/predators/build.py (own atlas, no vanilla textures)",
       "yarn_ball, glass_marble, pretty_stone, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
       "teaching_whistle, wash_cloth, companion_cord": "extruded inventory icons (cloth and cord laid flat), exported by standards/yukkuri-library/drafts/care-expansion/build.py",
       "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py",
@@ -76,9 +80,9 @@
     },
     "preview": "standards/yukkuri-library/drafts/block-props/preview.py",
     "style": "vanilla-like: axis-aligned voxel cuboids on the 1/16 grid at one texel per unit, icon ramps lit from the top left, each rounded object an explicit stepped-round recipe (octagon/inset vessels, stepped sphere) with painted detail; small handheld or dropped items are their 16x16 icon extruded like item/generated with vanilla hand angles and a 30-degree fixed view",
-    "status": "arbiter R0: food_bowl and mold_remover accepted with notes (applied), yarn_ball redone (7-unit stepped sphere); awaiting re-review and user playtest"
+    "status": "arbiter R0: food_bowl, yarn_ball and mold_remover accepted; package 1 (devices and nests) awaiting the arbiter and user playtest"
   },
-  "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed pet goods are placed_goods; wild self-built nests are wild.py",
+  "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed pet goods are block_style; wild self-built nests are wild.py",
   "placed_goods": {
     "models": [
       "food_bowl",
@@ -89,7 +93,10 @@
       "yukkuri_toilet",
       "yukkuri_toilet_dirty",
       "toilet_waste",
-      "large_yukkuri_nest"
+      "large_yukkuri_nest",
+      "straw_nest",
+      "velvet_nest",
+      "large_wild_nest"
     ],
     "styles": [
       "food_bowl_hearts",
@@ -114,14 +121,14 @@
       "yukkuri_toilet_sky",
       "yukkuri_toilet_sky_dirty"
     ],
-    "author": "standards/yukkuri-library/drafts/care-props/placed.py",
-    "kit": "standards/yukkuri-library/drafts/care-props/shapes.py",
+    "author": "standards/yukkuri-library/drafts/block-props/devices.py, nests.py (block_style)",
+    "kit": "standards/yukkuri-library/drafts/block-props/kit.py",
     "registry": "standards/yukkuri-library/drafts/care-props/vanilla_props.py (PROPS, LARGE, VARIANTS)",
     "preview_source": "standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py",
-    "style": "rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit; several dye-selected colour / pattern styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; footprints are unchanged except the pet cushion nest (26.6 across, a 23 square level pad so a full-term 1.2x adult lies in it); the two pet nests collide along their visible top surface",
-    "styles_table": "life/CareStyles.java (dye -> style) mirrors placed.STYLES; non-default styles ship as runtime-peripheral attachments named <block id>_<style>",
+    "style": "block style (block_style.style); several dye-selected styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; footprints and contact heights are unchanged; the pet beds and the 2x2 woven nest keep the collision envelope generated from the earlier rounded beds (placed.py), which the block-style tops follow within a unit",
+    "styles_table": "life/CareStyles.java (dye -> style) mirrors vanilla_props.STYLES; non-default styles ship as runtime-peripheral attachments named <block id>_<style>",
     "status": "pending_user_confirmation",
     "runtime_hook": "client/CareRenderer draws <model>[_<style>] from CareBlockEntity Pattern, then the fill mesh for bowls, and the stored droppings on the sand toilet floor",
-    "collision": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json (placed.collision(), written by build.py; life/CareBlock builds the yukkuri_nest and large_yukkuri_nest collision and selection height from it)"
+    "collision": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json (placed.collision(): the rounded envelope of the pet bed per fitted mask and of the 2x2 woven nest, written by build.py; life/CareBlock builds the pet bed and large_yukkuri_nest collision and selection height from it)"
   }
 }

@@ -1,4 +1,4 @@
-"""Offline preview sheets for the placed pet-care goods (placed.py): the goods beside vanilla blocks, every dye style, the
+"""Offline preview sheets for the placed pet-care goods (vanilla_props.py): the goods beside vanilla blocks, every dye style, the
 bowl fills by portion, and an optional before/after row.
 
 Local preview only. Vanilla block models are read from the locally downloaded client jar (MCYUKKURI_VANILLA_JAR, default
@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import render_preview as R
-import placed
+import vanilla_props
 from PIL import Image, ImageDraw, ImageFont
 
 PREVIEWS = Path(os.environ.get('MCYUKKURI_PREVIEWS', Path(__file__).resolve().parents[4] / '.local/previews'))
@@ -162,7 +162,7 @@ def g(half):
 
 
 def styles(base):
-    return [(placed.model_name(base, s), LABELS[base][s]) for s in placed.STYLES[base]]
+    return [(vanilla_props.model_name(base, s), LABELS[base][s]) for s in vanilla_props.STYLES[base]]
 
 
 def vanilla():

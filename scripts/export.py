@@ -94,6 +94,7 @@ BUILDERS = [
 ]
 CHECKED_BUILDERS = {
     'art/props/body-marks/build.py', 'art/props/family-life/export_shed_stem.py', 'art/props/cold-storage/export_guide.py',
+    'art/props/predators/build.py',
     *['standards/yukkuri-library/interactions/'+p for p in ('toilet-contact/build.py', 'marisa-hat-vessel/build.py',
        'aquatic-marisa-hat/build.py', 'aquatic-marisa-hat/export.py')],
     'standards/yukkuri-library/subspecies/rare-forms/build.py',

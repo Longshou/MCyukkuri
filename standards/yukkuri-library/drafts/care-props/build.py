@@ -3,14 +3,14 @@
 Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png}. Run
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
-Props authored here: the three oil-grain bags, forage pile, food scrap, waste, leaked filling and carrier on
-the low-poly kit; the placed food bowl, its heap-only grain / wheat / forage fills, the cushion pet nest, the sand
-toilet (clean and dirty), the droppings and every non-default dye style of the placed goods (including the 2x2 woven nest
-and the ceramic / covered toilets) come from placed.py through vanilla_props.py. The four pet-care goods (sweet candy, custard pudding, pet harness,
+Props authored here: the three oil-grain bags, food scrap, waste and leaked filling on the low-poly kit; the block-style placed goods through vanilla_props.py (food
+bowl, its heap-only grain / wheat / forage fills, the three grades of pet bed and their fitted shapes, the sand toilet clean
+and dirty, the droppings and every non-default dye style, including the 2x2 woven nest's), and the block-style forage pile
+and three carriers (block-props/nests.py, devices.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
-The default ceramic and covered toilets (placed.py), mats, and food mash are exported by their own package
-builders, which import this folder. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
-ecology/wild-shelters/build.py and art/props/predators/build.py.
+Food mash is exported by its own package builder, which imports this folder. The self-built nests of wild yukkuri
+(forest_burrow, personal_leaf_nest, bedding_bundle) are authored by wild.py and exported by ecology/wild-shelters/build.py;
+the predator twig nest (block-props/nests.py) by art/props/predators/build.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
 import argparse, io, json, sys
@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, designs, bags, small, goods, vanilla_props, placed
+import kit, bags, small, goods, vanilla_props, placed, devices, nests
 from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
@@ -32,14 +32,16 @@ COLLISION = ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/car
 BUILD = {
     **vanilla_props.PROPS,
     **vanilla_props.VARIANTS,
-    'forage_pile': designs.forage_pile,
+    'forage_pile': nests.forage_pile,
     'oil_grain_budget': bags.oil_grain_budget,
     'oil_grain_regular': bags.oil_grain_regular,
     'oil_grain_premium': bags.oil_grain_premium,
     'food_scrap': small.food_scrap,
     'yukkuri_waste': small.yukkuri_waste,
     'leaked_filling': small.leaked_filling,
-    'yukkuri_carrier': small.yukkuri_carrier,
+    'yukkuri_carrier': devices.yukkuri_carrier,
+    'yukkuri_carrier_fine': devices.yukkuri_carrier_fine,
+    'yukkuri_carrier_large': devices.yukkuri_carrier_large,
 }
 REMOVED = ('food_bowl_garbage', 'hat_provisions',
            'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_carrot', 'hat_cargo_bread', 'hat_cargo_cookie', 'hat_cargo_melon',
