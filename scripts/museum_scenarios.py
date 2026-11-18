@@ -2601,88 +2601,101 @@ add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎�
     reads=[('读院宠状态', f'yukkuri status {sel("yard_pet")} raw'),
            ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriSkills')])
 
-_outing_pets = [('reimu', 'outing_shy', 3, -1, 5, 95), ('marisa', 'outing_bold', 4, 1, 95, 5)]
-_outing_start = []
-for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
-    _outing_start += [
-        yk(_kind, _x, _z, _name, uuid=uid('yard_street_walk', _name), boldness=_bold, attachment=_bond,
-           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True, **pair_ready()),
-        f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
-        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',
+# ---- park outings: a yard on the lot across the street from the park gate; all offsets are from the park's ``yard`` spot
+_park = BY_ID['park']
+_lot_x, _lot_z = _park.spots['yard']
+_PARK_BOWL, _PARK_CRATE, _PARK_HOME = (0, 2), (3, -2), (0, -3)
+_PARK_TRAMPOLINE = tuple(a - b for a, b in zip(_park.spots['trampoline'], _park.spots['yard']))
+
+
+def _lot_pos(dx, dz):
+    return ((((_lot_x + dx) & 0x3ffffff) << 38 | ((_lot_z + dz) & 0x3ffffff) << 12 | FEET) - (1 << 64))
+
+
+def _lot_spot(name, dx=0, dz=0):
+    """A park spot as an offset from the yard anchor."""
+    x, z = _park.spots[name]
+    return x - _lot_x + dx, z - _lot_z + dz
+
+
+def _lot_yard(*nests):
+    """The fenced yard: a three-wide opening onto the sidewalk on its north side, a lean-to over the back with the food bowl under
+    it, and the lawn's grass tufts cleared so that nests and pets stand on plain ground."""
+    return [
+        box(-4, 0, -4, 4, 3, 3, 'minecraft:air'),
+        box(-4, 0, -4, -2, 0, -4, 'minecraft:oak_fence[east=true,west=true]'),
+        box(2, 0, -4, 4, 0, -4, 'minecraft:oak_fence[east=true,west=true]'),
+        box(-4, 0, 3, 4, 0, 3, 'minecraft:oak_fence[east=true,west=true]'),
+        box(-4, 0, -3, -4, 0, 2, 'minecraft:oak_fence[north=true,south=true]'),
+        box(4, 0, -3, 4, 0, 2, 'minecraft:oak_fence[north=true,south=true]'),
+        *(box(x, 0, z, x, 2, z, 'minecraft:stripped_oak_log[axis=y]') for x in (-4, 4) for z in (0, 3)),
+        box(-4, 3, 0, 4, 3, 3, 'minecraft:oak_slab[type=bottom]'),
+        block(_PARK_BOWL[0], 0, _PARK_BOWL[1], 'mcyukkuri:food_bowl'),
+        *(block(x, 0, 1, 'mcyukkuri:yukkuri_nest[facing=north]') for x in nests),
+        'summon minecraft:marker ~0.5 ~ ~0.5 {Rotation:[180f,0f],Tags:["mcy_no_carton","mcy_yard_pet_spawned"],'
+        'data:{Low:[-3,-1,-3],High:[3,3,2]}}',
     ]
-add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
-    '大院里有两个窝。灵梦爱黏着主人，魔理沙喜欢离远些张望。看它们走出院门，经过鬼威惨和挡路的流浪油，再各自回院。',
+
+
+def _lot_keeper(name, extra=''):
+    return (human('caretaker_sister', 0, -2, name, 0, yaw=180, label='院主')[:-1]
+            + f',YardBowl:{_lot_pos(*_PARK_BOWL)}L,HumanHome:{_lot_pos(*_PARK_HOME)}L{extra}}}')
+
+
+def _lot_pet(scene, keeper, kind, x, name, **stats):
+    return [
+        yk(kind, x, -1, name, uuid=uid(scene, name), extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True, **stats),
+        f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel(name)} {OWNED}.Owner set from entity {sel(keeper)} UUID',
+    ]
+
+
+_outing_pets = [('reimu', 'outing_shy', -2, 5, 95), ('marisa', 'outing_bold', 2, 95, 5)]
+add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
+    '院子在公园对面。院主带灵梦和魔理沙出院门，沿街往西走到公园门口再折回。灵梦贴着主人，魔理沙离得远些。'
+    '街上的鬼威惨先喝斥挡路的流浪油，不碰有主的宠物。',
     '约 1 分钟', [
-        *_yard_ground(True),
-        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
-        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
-        'item replace block ~5 ~ ~2 container.0 with mcyukkuri:oil_grain_regular 4',
-        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
-        'summon minecraft:marker ~-11.5 ~ ~0.5 {Tags:["mcy_yard_street"]}',
-        human('caretaker_sister', 1, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
-        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L}}',
-        *_outing_start,
-        street_abuser(-8, 1, 'outing_oni'),
-        street_trial('yard_street_walk', 'chen', -7, 1, 'outing_stray', yaw=90),
-    ], env=DAY, vantage=(-2, 9, 160, 16),
+        *_lot_yard(-2, 2),
+        f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_yard_street"]}}'.format(*(v + .5 for v in _lot_spot('street'))),
+        _lot_keeper('outing_keeper'),
+        *(line for kind, name, x, bold, bond in _outing_pets
+          for line in _lot_pet('park_walk', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, **pair_ready())),
+        street_abuser(*_lot_spot('street', 4, 1), 'outing_oni'),
+        street_trial('park_walk', ('chen', 'alice'), *_lot_spot('street', 5, 1), 'outing_stray', yaw=90,
+                     friendliness=(30, 80), nutrition=(60, 90)),
+    ], env=DAY, spot='yard', vantage=(-6, 4, 180, 12),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
-_park_outing = []
-for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
-    _play_scale = 1.15 if _kind == 'reimu' else .9
-    _park_outing += [
-        yk(_kind, _x, _z, _name, uuid=uid('yard_park_play', _name), boldness=_bold, attachment=_bond,
-           nutrition=100, energy=(60, 65) if _kind == 'reimu' else (93, 100),
-           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True).replace(
-               'AdultScale:1f,Scale:1f', f'AdultScale:{_play_scale}f,Scale:{_play_scale}f'),
-        f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
-        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',
-    ]
-add('yard_park_play', 'town', '主人带两只宠物去公园玩', '主人带两只宠物去公园玩',
-    '院主带灵梦和魔理沙去公园。看较重、精力较少的灵梦和魔理沙弹得多高，床面是否随落地压下回弹。也可以站上床面自己跳，试着落地接跳或潜行停弹。',
+add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带两只宠物去公园玩蹦床',
+    '院主带灵梦和魔理沙进公园，站到蹦床西侧等。两只宠物从北侧上床、朝街这一侧跳下。看较重、精力较少的灵梦和魔理沙弹得多高，'
+    '床面是否随落地压下回弹。也可以站上床面自己跳，试着落地接跳或潜行停弹。',
     '约 2 分钟', [
-        *_yard_ground(True),
-        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
-        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        block(7, 0, 1, 'mcyukkuri:yukkuri_nest[facing=west]'),
-        'item replace block ~5 ~ ~2 container.0 with mcyukkuri:oil_grain_regular 4',
-        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
-        box(-19, -1, 5, -9, -1, 9, 'minecraft:grass_block'),
-        box(-19, 0, 5, -9, 2, 9, 'minecraft:air'),
-        'summon minecraft:marker ~-11.5 ~ ~1.5 {Tags:["mcy_park_walk"]}',
-        'summon minecraft:marker ~-12.5 ~ ~6.5 {Tags:["mcy_park_play"],Rotation:[180f,0f],'
-        'data:{Kind:"yukkuri_trampoline",Facing:"south"}}',
-        human('caretaker_sister', 1, 0, 'outing_keeper', 0, yaw=90, label='院主')[:-1]
-        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L}}',
-        *_park_outing,
-    ], env=DAY, vantage=(-7, 9, 145, 21),
+        *_lot_yard(-2, 2),
+        f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
+        # North-west of the trampoline: the pets arrive on the side they mount from, so their run-up does not pass the keeper.
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -3, -4))),
+        _lot_keeper('outing_keeper'),
+        *(line for kind, name, x, bold, bond in _outing_pets
+          for line in _lot_pet('park_play', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, nutrition=100,
+                               energy=(60, 65) if kind == 'reimu' else (93, 100))
+          for line in [line.replace('AdultScale:1f,Scale:1f', 'AdultScale:{0}f,Scale:{0}f'.format(1.15 if kind == 'reimu' else .9))]),
+    ], env=DAY, spot='yard', vantage=(*_lot_spot('trampoline', -1, 5), -169, 15),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
-add('yard_park_picnic', 'town', '主人在公园分苹果', '主人在公园分苹果',
-    '院子货箱里有一个苹果。看院主带饿了的魔理沙到公园，在干地分苹果，吃完再回院。流浪橙也可能来讨食。',
+add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公园野餐布旁分苹果',
+    '院子货箱里有一个苹果。院主先取苹果，再带饿了的魔理沙进公园，走到野餐布旁掰开苹果，一半放到魔理沙面前，一半自己吃，吃完回院。'
+    '街上饿着的流浪橙也可能进来讨食。',
     '约 2 分钟', [
-        *_yard_ground(True),
-        box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
-        block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        block(2, 0, -2, 'mcyukkuri:produce_crate[facing=south]'),
-        'item replace block ~2 ~ ~-2 container.0 with minecraft:apple 1',
-        _yard_marker + 'Tags:["mcy_no_carton","mcy_yard_pet_spawned"],' + _yard_bounds + '}',
-        box(-19, -1, 5, -9, -1, 9, 'minecraft:grass_block'),
-        box(-19, 0, 5, -9, 2, 9, 'minecraft:air'),
-        'summon minecraft:marker ~-11.5 ~ ~1.5 {Tags:["mcy_park_walk"]}',
-        'summon minecraft:marker ~-12.5 ~ ~6.5 {Tags:["mcy_park_play"],Rotation:[180f,0f],'
-        'data:{Kind:"yukkuri_trampoline",Facing:"south"}}',
-        human('caretaker_sister', 1, 0, 'picnic_keeper', 0, yaw=90, label='院主')[:-1]
-        + f',YardBowl:{_yard_pos(5, 2)}L,HumanHome:{_yard_pos(4, 0)}L,YardCrate:{_yard_pos(2, -2)}L,'
-          'HumanInitialized:1b,NextRestock:2147483647L,CareFood:0}',
-        yk('marisa', 3, -1, 'picnic_pet', uuid=uid('yard_park_picnic', 'picnic_pet'), boldness=40, attachment=50,
-           nutrition=40, energy=100, extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True),
-        f'data modify entity {sel("picnic_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
-        f'data modify entity {sel("picnic_pet")} {OWNED}.Owner set from entity {sel("picnic_keeper")} UUID',
-        street_trial('yard_park_picnic', 'chen', -16, 8, 'picnic_stray', nutrition=25),
-    ], env=DAY, vantage=(-7, 9, 145, 21),
-    reads=[('读货箱存量', 'data get block ~2 ~ ~-2 Items'),
+        *_lot_yard(-2),
+        block(_PARK_CRATE[0], 0, _PARK_CRATE[1], 'mcyukkuri:produce_crate[facing=west]'),
+        f'item replace block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} container.0 with minecraft:apple 1',
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('picnic', 2, 0))),
+        _lot_keeper('picnic_keeper', f',YardCrate:{_lot_pos(*_PARK_CRATE)}L,HumanInitialized:1b,NextRestock:2147483647L,CareFood:0'),
+        *_lot_pet('park_picnic', 'picnic_keeper', 'marisa', -2, 'picnic_pet', boldness=40, attachment=50, nutrition=40, energy=100),
+        street_trial('park_picnic', 'chen', *_lot_spot('street'), 'picnic_stray', nutrition=25),
+    ], env=DAY, spot='yard', vantage=(*_lot_spot('picnic', 4, 6), 156, 15),
+    reads=[('读货箱存量', f'data get block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} Items'),
            ('读魔理沙', f'yukkuri status {sel("picnic_pet")} raw'),
            ('读流浪橙', f'yukkuri status {sel("picnic_stray")} raw')])
 
@@ -5758,7 +5771,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5', 'yard_park_play': 'M5', 'yard_park_picnic': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -6896,7 +6909,7 @@ def _outing_crossings(window, trace):
     if not departed:
         return 'the resident never left with both pets'
     for _, name, *_ in _outing_pets:
-        actor = _uuid_text('yard_street_walk', name)
+        actor = _uuid_text('park_walk', name)
         reached = re.search(rf'uuid={actor} t=(\d+) [^\n]*outing reached home', window)
         if not reached:
             return f'{name} did not return to the yard'
@@ -6904,22 +6917,25 @@ def _outing_crossings(window, trace):
             if actor not in line:
                 continue
             row = json.loads(line.split('[trace] ', 1)[1])
+            # North of the yard's street-side fence: on the sidewalk or the street.
             if (row['k'] == 'st' and 'p' in row['st'] and int(departed[1]) <= row['t'] < int(reached[1])
-                    and row['st']['p'][0] < _yard_x - 1):
+                    and row['st']['p'][2] < _lot_z - 5):
                 break
         else:
             return f'{name} never walked outside the yard before returning'
 
 
-_outing_ids = '|'.join(_uuid_text('yard_street_walk', p[1]) for p in _outing_pets)
-_smoke('yard_street_walk', 1100, [
+_lot_bowl = f'~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]}'
+_lot_crate = f'~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]}'
+_outing_ids = '|'.join(_uuid_text('park_walk', p[1]) for p in _outing_pets)
+_smoke('park_walk', 1100, [
     r'action=outing_depart pets=2 ', r'action=outing_home',
-    rf'action=street_warn target={_uuid_text("yard_street_walk", "outing_stray")}',
-    *[rf'uuid={_uuid_text("yard_street_walk", p[1])} [^\n]*outing reached home' for p in _outing_pets],
+    rf'action=street_warn target={_uuid_text("park_walk", "outing_stray")}',
+    *[rf'uuid={_uuid_text("park_walk", p[1])} [^\n]*outing reached home' for p in _outing_pets],
     r'MCY_OUTING_BOWL_STOCKED', r'MCY_OUTING_BOTH_UNLEASHED',
 ], forbid=[rf'action=street_(?:warn|chase|kick) target=(?:{_outing_ids})'])
-next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_crossings, verify_trace=True, commands=[
-    (1, 'execute if data block ~5 ~ ~2 Items[{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}] run say MCY_OUTING_BOWL_STOCKED'),
+next(s for s in S if s.id == 'park_walk').smoke.update(verify=_outing_crossings, verify_trace=True, commands=[
+    (1, f'execute if data block {_lot_bowl} Items[{{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}}] run say MCY_OUTING_BOWL_STOCKED'),
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
 ])
@@ -6927,7 +6943,7 @@ def _park_play_pet_fates(window):
     """Both pets rebound; before returning each finishes playing or rests and wakes."""
     first = []
     for _, name, *_ in _outing_pets:
-        actor = _uuid_text('yard_park_play', name)
+        actor = _uuid_text('park_play', name)
         played = re.search(rf'uuid={actor} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b', window)
         rest = re.search(rf'uuid={actor} [^\n]*outing rest begin ', window)
         woke = re.search(rf'uuid={actor} [^\n]*end source=life cause=rested ', window)
@@ -6944,26 +6960,34 @@ def _park_play_pet_fates(window):
     return None
 
 
-_smoke('yard_park_play', 2600, [
-    r'park facility result=placed kind=TRAMPOLINE',
+# The park's facilities are terrain (the field writes the blocks PlayItem.place sets), so no marker placement is logged: the start
+# checks every facility's core block instead, and a field clear must stand the trampoline up again without dropping it as an item.
+_park_cores = ' '.join(
+    'if block ~{} ~ ~{} mcyukkuri:{}'.format(*_lot_spot(spot), kind + ('[water=3]' if kind == 'yukkuri_pool' else ''))
+    for kind, spot in (('yukkuri_trampoline', 'trampoline'), ('yukkuri_slide', 'slide'), ('ceramic_tunnel', 'tunnel'),
+                       ('yukkuri_pool', 'pool')))
+_park_bed = ' '.join(f'if block ~{_PARK_TRAMPOLINE[0] + x} ~{y} ~{_PARK_TRAMPOLINE[1] + z} mcyukkuri:yukkuri_trampoline'
+                     for x in (-1, 0, 1) for y in range(2) for z in (-1, 0, 1))
+_smoke('park_play', 2600, [
+    r'MCY_PARK_FACILITIES_STAND',
     r'action=outing_depart pets=2 ',
     r'action=outing_park facility=',
     r'action=outing_turn reason=park_(?:done|time)',
     r'action=outing_home',
-    *[rf'uuid={_uuid_text("yard_park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
+    *[rf'uuid={_uuid_text("park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
     r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
            r'\[body\][^\n]*accepted damage cause=fall\b'],
     readout=[
-        'execute if block ~-13 ~ ~6 mcyukkuri:yukkuri_trampoline run say MCY_PARK_FACILITY_BEFORE_CLEAR',
-        'function mcylab:field/town/clear',
-        'execute ' + ' '.join(f'if block ~{x} ~{y} ~{z} minecraft:air'
-                              for x in range(-14, -11) for y in range(2) for z in range(5, 8))
-        + ' unless entity @e[type=minecraft:item,distance=..22,nbt={Item:{id:"mcyukkuri:yukkuri_trampoline"}}]'
+        f'execute {_park_bed} run say MCY_PARK_FACILITY_BEFORE_CLEAR',
+        'function mcylab:field/park/clear',
+        f'execute {_park_bed}'
+        ' unless entity @e[type=minecraft:item,distance=..48,nbt={Item:{id:"mcyukkuri:yukkuri_trampoline"}}]'
         ' run say MCY_PARK_FACILITY_CLEARED',
     ])
-next(s for s in S if s.id == 'yard_park_play').smoke['verify'] = _park_play_pet_fates
-_picnic_pet = _uuid_text('yard_park_picnic', 'picnic_pet')
+next(s for s in S if s.id == 'park_play').smoke.update(
+    verify=_park_play_pet_fates, commands=[(1, f'execute {_park_cores} run say MCY_PARK_FACILITIES_STAND')])
+_picnic_pet = _uuid_text('park_picnic', 'picnic_pet')
 _picnic_transfers = [
     r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',
     rf'action=picnic_offer pet={_picnic_pet} input=minecraft:apple kept=1 mcyukkuri:apple_half '
@@ -6972,16 +6996,16 @@ _picnic_transfers = [
     rf'uuid={_picnic_pet} [^\n]*pickup item=mcyukkuri:apple_half count=1 source=([0-9a-f-]{{36}}) ',
     rf'uuid={_picnic_pet} [^\n]*swallowed item=mcyukkuri:apple_half count=1',
 ]
-_smoke('yard_park_picnic', 3200, [
+_smoke('park_picnic', 3200, [
     r'action=outing_depart pets=1 ', r'action=outing_park facility=', *_picnic_transfers,
     r'action=picnic_half_gone', r'action=outing_home', rf'uuid={_picnic_pet} [^\n]*outing reached home',
     r'MCY_PICNIC_APPLES_ACCOUNTED_FOR',
 ], forbid=[r'picnic_refused reason=no_dry_ground', r'outing return blocked', r'action=outing_return_blocked',
            r'reason=(?:lagging|blocked)'], readout=[
-    'execute if block ~2 ~ ~-2 mcyukkuri:produce_crate unless data block ~2 ~ ~-2 Items[0] '
+    f'execute if block {_lot_crate} mcyukkuri:produce_crate unless data block {_lot_crate} Items[0] '
     f'if entity {sel("picnic_keeper")} unless data entity {sel("picnic_keeper")} HandItems[0].id '
-    'unless entity @e[type=minecraft:item,distance=..24,nbt={Item:{id:"minecraft:apple"}}] '
-    'unless entity @e[type=minecraft:item,distance=..24,nbt={Item:{id:"mcyukkuri:apple_half"}}] '
+    'unless entity @e[type=minecraft:item,distance=..48,nbt={Item:{id:"minecraft:apple"}}] '
+    'unless entity @e[type=minecraft:item,distance=..48,nbt={Item:{id:"mcyukkuri:apple_half"}}] '
     'run say MCY_PICNIC_APPLES_ACCOUNTED_FOR',
 ])
 
@@ -6999,7 +7023,7 @@ def _picnic_ledger(window):
         return 'picnic half did not move from the original placement into the pet meal'
 
 
-next(s for s in S if s.id == 'yard_park_picnic').smoke.update(verify=_picnic_ledger, gating_checks=['LEDGER', 'END'])
+next(s for s in S if s.id == 'park_picnic').smoke.update(verify=_picnic_ledger, gating_checks=['LEDGER', 'END'])
 
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
@@ -7502,7 +7526,7 @@ _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
 
 _scene_end(_sweet_box, [(name, _DRY) for name, *_ in _sweet_cast])
-_scene_end('yard_park_picnic', [('picnic_pet', _DRY), ('picnic_stray', _DRY)])
+_scene_end('park_picnic', [('picnic_pet', _DRY), ('picnic_stray', _DRY)])
 
 _scene_end(_ugly, [(name, _DRY) for name in (
     'nest_declare', 'nest_yield', 'nest_peer_west', 'nest_peer_east', 'food_demand', 'food_ask',

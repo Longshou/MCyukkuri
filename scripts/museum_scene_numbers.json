@@ -255,6 +255,9 @@
     "shop_pick": "SP-10",
     "shop_fetch": "SP-11",
     "skills_magnifier": "TN-37",
-    "skills_got_it": "TN-38"
+    "skills_got_it": "TN-38",
+    "park_walk": "PK-01",
+    "park_play": "PK-02",
+    "park_picnic": "PK-03"
   }
 }

@@ -633,7 +633,6 @@ class Park(Field):
     own landmarks: ``mcy_park_walk`` at ``walk``, ``mcy_yard_street`` at ``street``. An owner walks to the nearest landmark within its
     restriction (18 blocks of its home, a yard at ``yard``) and at a park landmark waits beside the facility nearest to it, the
     trampoline: on its west side, else its east side, else in front (HumanStreet.beginLinger)."""
-    reserved = True        # no scenes yet: check_museum_pack wants scenes in every other field, and the world build skips it
     FENCE, LANE = 6, (8, 10)
     FACILITIES = (('yukkuri_trampoline', 13, 0, 1), ('yukkuri_slide', 19, -1, 2), ('ceramic_tunnel', 25, 0, 1), ('yukkuri_pool', 30, 0, 1))
     WAIT = ((10, 0), (16, 0), (13, 4))   # the owner's cells beside the trampoline
