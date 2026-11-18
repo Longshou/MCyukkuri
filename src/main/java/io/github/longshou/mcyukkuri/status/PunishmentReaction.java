@@ -58,12 +58,8 @@ public final class PunishmentReaction {
                 && sees(observer, target, punisher);
     }
 
-    public static void human(YukkuriEntity target, LivingEntity punisher, String incident, boolean injured) {
-        human(target, punisher, incident, injured ? 1f : 0f);
-    }
-
-    public static void human(YukkuriEntity target, LivingEntity punisher, String incident, float loss) {
-        target.status().reactions().threat().humanIncident(punisher, incident, loss);
+    public static void human(YukkuriEntity target, LivingEntity punisher, String incident) {
+        target.status().reactions().threat().humanIncident(punisher, incident);
     }
 
     static int recordHuman(YukkuriEntity target, LivingEntity punisher, String incident, float loss) {

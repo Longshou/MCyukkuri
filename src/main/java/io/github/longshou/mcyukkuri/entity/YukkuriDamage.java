@@ -100,11 +100,9 @@ final class YukkuriDamage {
                 owner.settlement().attackedBy(source,false);
                 if(source.getEntity() instanceof Player attackerPlayer)HomeClaim.attacked(owner,attackerPlayer);
                 owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
-                if(kind!=BodyHit.Kind.BOUT && kind!=BodyHit.Kind.ATTACHMENT)
-                    owner.interrupt(interruption,InterruptPhase.AFTER_DANGER_STRIKE);
             }
             if(physicalHit && kind!=BodyHit.Kind.BOUT && kind!=BodyHit.Kind.ATTACHMENT)
-                owner.status().reactions().threat().struck(source, result.loss(), kind);
+                owner.status().reactions().threat().struck(source, result.loss(), kind, "hurt");
             return result;
         } finally {
             current=previous;

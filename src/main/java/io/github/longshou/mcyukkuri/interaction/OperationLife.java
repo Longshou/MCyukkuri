@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.body.BodyHit;
+
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -128,7 +130,7 @@ public final class OperationLife {
         entity.syncOperationAnchor(table);
         RestraintTableBlock.setOccupied(entity.level(),table,true);
         entity.mind().felt(EmotionEvent.FRIGHTENED);
-        PunishmentReaction.human(entity,actor,"fix_supine",false);
+        PunishmentReaction.human(entity,actor,"fix_supine");
         GameplayLog.event(entity,"interaction","table strapped; actor={} table={}",tableOperator,GameplayLog.at(RestraintTableBlock.surface(table)));
     }
     public boolean unstrap(String reason) {
@@ -179,7 +181,7 @@ public final class OperationLife {
                 case WRAP_HANG, VIBRATE, ENCLOSE -> {
                     if (pose == Pose.BOX && !calmInBox())
                         entity.mind().felt(EmotionEvent.FRIGHTENED);
-                    PunishmentReaction.human(entity, actor, action.key(), false);
+                    PunishmentReaction.human(entity, actor, action.key());
                 }
                 default -> {} // Accepted strikes and punctures commit through their damage paths.
             }
@@ -296,16 +298,18 @@ public final class OperationLife {
     private boolean punctureAndBind(LivingEntity actor,Pose next,int duration,Tool tool,BlockPos support){
         if(next==Pose.HOOK&&support==null&&table==null)return false;
         float before = entity.getHealth();
+        var source = attack(actor);
         BodyWound wound;
         ownDamage=true;settlingShape=WoundShape.PUNCTURE;strikingHook=next==Pose.HOOK;
         try {
-            wound=entity.hurtForAttachment(attack(actor),1);
+            wound=entity.hurtForAttachment(source,1);
         } finally {
             ownDamage=false;settlingShape=WoundShape.NONE;strikingHook=false;
         }
         boolean bound = wound != null && !entity.body().dying() && begin(actor,next,duration,tool,support,wound);
         if (entity.getHealth() < before)
-            PunishmentReaction.human(entity, actor, bound ? CareAction.forTool(tool).key() : "hurt", before - entity.getHealth());
+            entity.status().reactions().threat().struck(source, before - entity.getHealth(), BodyHit.Kind.ATTACHMENT,
+                    bound ? CareAction.forTool(tool).key() : "hurt");
         return bound;
     }
     private boolean begin(LivingEntity actor,Pose next,int duration,Tool binding){

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.body.BodyHit;
+import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
+import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -275,7 +277,8 @@ public final class Reactions {
             cooldownUntil = now;
         }
 
-        public void struck(DamageSource source, float loss, BodyHit.Kind kind) {
+        public void struck(DamageSource source, float loss, BodyHit.Kind kind, String incident) {
+            if (y.isAlive()) y.interrupt(InterruptContext.hurt(source), InterruptPhase.AFTER_DANGER_STRIKE);
             seal.abort("attacked");
             var actor = source.getEntity() instanceof LivingEntity other && other != y ? other : null;
             boolean human = PunishmentReaction.isHuman(actor);
@@ -284,7 +287,7 @@ public final class Reactions {
                 attackedBy(actor);
                 warnKin(actor, true);
                 if (actor instanceof Player player) HumanNpc.witnessedStreetHurt(y, player);
-                if (human) before = PunishmentReaction.recordHuman(y, actor, "hurt", loss);
+                if (human) before = PunishmentReaction.recordHuman(y, actor, incident, loss);
                 else if (loss > 0 && !(kind == BodyHit.Kind.BITE_WOUND && actor instanceof YukkuriEntity peer
                         && peer.sanction().target() == y)) LearnedFear.witnessed(y, actor, "hurt");
             }
@@ -312,18 +315,14 @@ public final class Reactions {
                 GameplayLog.event(y, "threat", "struck stance=FLEE cause={} loss={}", source.getMsgId(), loss);
             } else {
                 var choice = response.decide(actor, loss);
-                if (human) logHuman(actor, "hurt", before, choice);
+                if (human) logHuman(actor, incident, before, choice);
             }
         }
 
-        void humanIncident(LivingEntity actor, String incident, float loss) {
-            int before = PunishmentReaction.recordHuman(y, actor, incident, loss);
+        void humanIncident(LivingEntity actor, String incident) {
+            int before = PunishmentReaction.recordHuman(y, actor, incident, 0);
             if (!y.isAlive() || y.body().dying()) return;
-            if (loss > 0) {
-                attackedBy(actor);
-                if (!y.operations().strikingHook()) warnKin(actor, true);
-            }
-            logHuman(actor, incident, before, response.decide(actor, loss));
+            logHuman(actor, incident, before, response.decide(actor, 0));
         }
 
         private void logHuman(LivingEntity actor, String incident, int before, StruckStance choice) {

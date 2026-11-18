@@ -88,7 +88,7 @@ public final class Naming {
         stack.shrink(1);
         staff.swing(InteractionHand.MAIN_HAND);
         named(y, staff.getUUID(), name.getString(), false);
-        PunishmentReaction.human(y, staff, "name_tag", false);
+        PunishmentReaction.human(y, staff, "name_tag");
         GameplayLog.event(y, "interaction", "name tag used; actor={} name={} remaining={}", staff.getUUID(), name.getString(), stack.getCount());
     }
 
