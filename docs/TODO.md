@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 美术重做 R0：共享方块道具工具与三件试样 | `.worktrees/wp-art-redo-r0` | standards/yukkuri-library/drafts/block-props/, food_bowl, mold_remover, yarn_ball |
 | 美术重做：纸箱重建与垃圾桶 | `.worktrees/wp-art-carton-bin` | standards/yukkuri-library/ecology/wild-shelters/, art/props/street-bin/ |
 | 试玩场菜单唯一入口：去观察台按钮告示、每场景视点、实用页、重开随机个体 | `.worktrees/wp-museum-menu-first` | client/ViewerScreen.java, scripts/museum_*.py, scripts/build_museum_full.py, scripts/check_museum_pack.py, scripts/smoke_museum.py, scripts/capture_museum.py, command/ScenarioCommands.java |
 | 家庭职责占用：留守巡视、寻找、守望不被个体驱动抢走 | `.worktrees/wp-duty-claim` | life/Duty.java, life/DutyClaim, life/FamilyLife.java, entity/YukkuriGoals.java, DenSeal |
