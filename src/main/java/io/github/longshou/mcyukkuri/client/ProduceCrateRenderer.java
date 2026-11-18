@@ -17,13 +17,16 @@ import org.joml.Quaternionf;
 
 /**
  * Draws every item a produce crate holds, one sprite per item: row 0 stands at the back and each later row a step lower in front
- * of it, leaning back, so the goods face the crate's low side like a market display. A display tray (the same block entity) shows
- * its rows as piles lying flat.
+ * of it, leaning back, with items in each row shingled along the sprite normal so overlapping items never share a depth plane.
+ * A display tray (the same block entity) shows its rows as piles lying flat.
  */
 public final class ProduceCrateRenderer implements BlockEntityRenderer<ProduceCrateBlockEntity> {
-    private static final float SCALE = .4f, PX = 1 / 16f;
+    // Generated sprites in FIXED are 1 px thick at scale 1 (.4 px at SCALE = .4); .5 px normal step leaves a .1 px gap in each row,
+    // and 2.9 px row spacing leaves .52 px between a row's frontmost item and the next row's backmost item inside the 12 px crate.
+    private static final float SCALE = .4f, PX = 1 / 16f, CRATE_ROW_STEP = 2.9f, CRATE_NORMAL_STEP = .5f;
+    private static final Quaternionf CRATE_LEAN = Axis.XP.rotationDegrees(-18);
     private static final Quaternionf[] FACING = new Quaternionf[4];
-    private static final Quaternionf[][] CRATE = turns(), TRAY_UPRIGHT = turns(), TRAY_FLAT = turns();
+    private static final Quaternionf[][] CRATE_TILT = turns(), TRAY_UPRIGHT = turns(), TRAY_FLAT = turns();
 
     private static Quaternionf[][] turns() { return new Quaternionf[ProduceCrateBlockEntity.ROWS][ProduceCrateBlockEntity.PER_ROW]; }
 
@@ -32,7 +35,8 @@ public final class ProduceCrateRenderer implements BlockEntityRenderer<ProduceCr
         for (int row = 0; row < ProduceCrateBlockEntity.ROWS; row++) {
             for (int i = 0; i < ProduceCrateBlockEntity.PER_ROW; i++) {
                 int turn = (row * 67 + i * 29) % 50 - 25;
-                CRATE[row][i] = Axis.XP.rotationDegrees(-18).mul(Axis.ZP.rotationDegrees((i * 37 + row * 53) % 21 - 10));
+                float tilt = (((row * ProduceCrateBlockEntity.PER_ROW + i) * 7) % 16 - 7.5f) * 1.3f;
+                CRATE_TILT[row][i] = Axis.ZP.rotationDegrees(tilt);
                 TRAY_UPRIGHT[row][i] = Axis.YP.rotationDegrees(turn);
                 TRAY_FLAT[row][i] = Axis.YP.rotationDegrees(180 + turn).mul(Axis.XP.rotationDegrees(90));
             }
@@ -68,15 +72,20 @@ public final class ProduceCrateRenderer implements BlockEntityRenderer<ProduceCr
             var stack = crate.getItem(row);
             if (stack.isEmpty()) continue;
             var model = renderer.getModel(stack, crate.getLevel(), null, 0);
+            String name = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+            boolean prop = model.isCustomRenderer() && PropModels.has(name);
+            float scale = prop ? Math.min(SCALE, .9f * SCALE * 16 / Math.max(1, PropModels.extent(name))) : SCALE;
             int count = Math.min(stack.getCount(), ProduceCrateBlockEntity.PER_ROW);
             for (int i = 0; i < count; i++) {
                 resetItemPose(pose, base);
-                // Rows 3.2 px apart from the back (z -4.8) to the front (z +4.8), each 1.1 px lower; items 1.9 px apart across (they overlap).
+                // Rows 2.9 px apart from back to front, each 1.1 px lower; items 1.9 px apart across and shingled .5 px along the normal.
                 pose.translate(((i - 1.5f) * 1.9f + (row % 2 == 0 ? -.4f : .4f)) * PX,
-                        (2 + (ProduceCrateBlockEntity.ROWS - 1 - row) * 1.1f) * PX + SCALE / 2, (row - 1.5f) * 3.2f * PX);
-                pose.mulPose(CRATE[row][i]);
-                pose.scale(SCALE, SCALE, SCALE);
-                renderer.render(stack, ItemDisplayContext.FIXED, false, pose, buffers, light, overlay, model);
+                        (2 + (ProduceCrateBlockEntity.ROWS - 1 - row) * 1.1f) * PX + SCALE / 2, (row - 1.5f) * CRATE_ROW_STEP * PX);
+                pose.mulPose(CRATE_LEAN);
+                pose.translate(0, 0, (i - 1.5f) * CRATE_NORMAL_STEP * PX);
+                pose.mulPose(CRATE_TILT[row][i]);
+                pose.scale(scale, scale, scale);
+                renderer.render(stack, prop ? ItemDisplayContext.NONE : ItemDisplayContext.FIXED, false, pose, buffers, light, overlay, model);
             }
         }
     }
@@ -106,11 +115,13 @@ public final class ProduceCrateRenderer implements BlockEntityRenderer<ProduceCr
             for (int i = 0; i < count; i++) {
                 resetItemPose(pose, base);
                 if (prop || solid) {
-                    // Meshes and blocks stand in a short row, centred half their drawn height above the floor.
-                    pose.translate(x + (i - (count - 1) / 2f) * 1.2f * PX, y, z);
+                    // Meshes and blocks stand in a staggered row; lift slightly off the tray floor and step per item to avoid z-fighting.
+                    float dz = count > 1 ? (i % 2 == 0 ? -.4f : .4f) * PX : 0;
+                    pose.translate(x + (i - (count - 1) / 2f) * 1.4f * PX, y + (.05f + i * .05f) * PX, z + dz);
                     pose.mulPose(TRAY_UPRIGHT[row][i]);
                 } else {
-                    pose.translate(x, floor + (i + .5f) * size * PX, z);        // a sprite is one pixel thick at scale 1
+                    // A generated sprite in FIXED is 1 px thick at scale 1 (±.5 * size * PX): lift clear of the floor and leave .15 px per layer.
+                    pose.translate(x, floor + (.58f + i * 1.15f) * size * PX, z);
                     pose.mulPose(TRAY_FLAT[row][i]);
                 }
                 float scale = prop ? fit : size;
