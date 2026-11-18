@@ -6393,11 +6393,28 @@ _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_sparse [^\n]*prevention=72000\b',
                           r'\[shop\][^\n]* window start mode=(INSOLENT|NUMB|SULK) [^\n]*shop_kind=ONI ', r'MCYSHOP_ONI_AGE_HELD',
-                          r'\[interaction\][^\n]* action=pin reason=shop'],
+                          r'\[interaction\][^\n]* action=pin reason=shop',
+                          r'\[shop\][^\n]* action=door result=refused [^\n]*required=MEMBER',
+                          r'MCYSHOP_ONI_VISITOR_DOOR_CLOSED', r'MCYSHOP_ONI_MEMBER_DOOR_OPEN',
+                          r'MCYSHOP_ONI_MEMBER_DOOR_CLOSED', r'MCYSHOP_ONI_VISITOR_EGRESS'],
        forbid=[r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '],
        readout=[f'yukkuri status {STOCK} raw'])
 next(s for s in S if s.id == 'oni_shop').smoke['commands'] = [
     (100, f'execute at {BOOTH.format("reimu", 0)} positioned ~ ~1 ~ run yukkuri scenario tool_click {BOOTH.format("reimu", 0)} pin'),
+    # The south-facing template puts the two counter leaves at x16 and x17 relative to the scene origin.
+    (200, 'execute positioned ~17.5 ~2 ~2.5 run yukkuri scenario tool_operator enter'),
+    (201, 'yukkuri scenario shop_door_click ~17 ~3 ~1 south'),
+    (202, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=false] if block ~17 ~2 ~1 minecraft:iron_door[open=false] run say MCYSHOP_ONI_VISITOR_DOOR_CLOSED'),
+    (203, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ member'),
+    (204, 'yukkuri scenario shop_door_click ~17 ~2 ~1 south'),
+    (205, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=true] if block ~17 ~2 ~1 minecraft:iron_door[open=true] run say MCYSHOP_ONI_MEMBER_DOOR_OPEN'),
+    (206, 'execute positioned ~16.5 ~2 ~0.5 run yukkuri scenario tool_operator move'),
+    (207, 'yukkuri scenario shop_door_click ~16 ~3 ~1 north'),
+    (208, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=false] if block ~17 ~2 ~1 minecraft:iron_door[open=false] run say MCYSHOP_ONI_MEMBER_DOOR_CLOSED'),
+    (209, 'execute as @p[distance=..40] at @e[tag=mcylab_shop_access,limit=1] run yukkuri human shop test_membership ~ ~ ~ visitor'),
+    (210, 'yukkuri scenario shop_door_click ~16 ~2 ~1 north'),
+    (211, 'execute if block ~16 ~2 ~1 minecraft:iron_door[open=true] if block ~17 ~2 ~1 minecraft:iron_door[open=true] run say MCYSHOP_ONI_VISITOR_EGRESS'),
+    (212, 'yukkuri scenario tool_operator leave'),
     (1100, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:63000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_ONI_AGE_HELD'),
 ]
 _stress_brought = _uuid_text('oni_stress_room', 'brought_reimu')

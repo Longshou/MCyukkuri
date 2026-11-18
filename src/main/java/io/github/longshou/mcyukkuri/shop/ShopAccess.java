@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 /** Staff floor areas and their exits, in the template coordinate system. */
 final class ShopAccess {
     private record Area(AABB floor, ShopMembership tier, BlockPos exit, Direction out) {}
+    record DoorAccess(ShopMembership tier, boolean egress) {}
     enum Service {
         AVAILABLE, LEAVE, DAY;
 
@@ -36,7 +37,8 @@ final class ShopAccess {
             area(16, 8, 19, 10, ShopMembership.PATRON, 20, 8, Direction.EAST),
             area(16, 12, 19, 14, ShopMembership.PATRON, 20, 12, Direction.EAST),
             area(16, 16, 19, 18, ShopMembership.PATRON, 20, 16, Direction.EAST),
-            area(2, 17, 14, 18, ShopMembership.MEMBER, 2, 16, Direction.NORTH),
+            // x3 is a leaf in both the original and the reframed counter opening.
+            area(2, 17, 14, 18, ShopMembership.MEMBER, 3, 16, Direction.NORTH),
             area(21, 8, 22, 19, ShopMembership.MEMBER, 21, 20, Direction.SOUTH),
             area(2, 19, 22, 23, ShopMembership.MEMBER, 7, 19, Direction.NORTH));
     private static final List<Area> LEGACY = List.of(
@@ -57,13 +59,20 @@ final class ShopAccess {
         return new Area(new AABB(x0, 2.5, z0, x1 + 1, 8, z1 + 1), tier, new BlockPos(x, 3, z), out);
     }
 
-    static ShopMembership doorTier(ShopRegistry.Entry shop, BlockPos pos) {
+    static DoorAccess doorAccess(ShopRegistry.Entry shop, ServerPlayer player, BlockPos pos) {
         var rotation = rotation(shop);
         if (rotation == null) return null;
+        var leaves = shop.legacy() ? List.of(pos) : ShopDoors.leaves(player.serverLevel(), pos);
+        var exits = leaves.stream().map(leaf -> local(shop, rotation, leaf.getCenter()))
+                .map(leaf -> BlockPos.containing(leaf.x, 3, leaf.z)).toList();
+        var feet = local(shop, rotation, player.position());
         var door = local(shop, rotation, pos.getCenter());
-        for (var area : areas(shop))
-            if (exitDoor(area, door, !shop.legacy())) return area.tier();
-        return shop.legacy() ? ShopMembership.MEMBER : null;
+        for (var area : areas(shop)) {
+            if (!exits.contains(area.exit())) continue;
+            boolean egress = feet.subtract(door).dot(Vec3.atLowerCornerOf(area.out().getNormal())) < 0;
+            return new DoorAccess(area.tier(), egress);
+        }
+        return shop.legacy() ? new DoorAccess(ShopMembership.MEMBER, false) : null;
     }
 
     static boolean legacyServiceDoor(ShopRegistry.Entry shop, BlockPos pos) {
@@ -72,22 +81,6 @@ final class ShopAccess {
         var local = BlockPos.containing(local(shop, rotation, pos.getCenter()));
         int x = local.getX(), z = local.getZ();
         return z == 17 && (x == 10 || x == 14) || x == 12 && z == 24 || x == 16 && (z == 21 || z == 26);
-    }
-
-    static boolean egress(ShopRegistry.Entry shop, ServerPlayer player, BlockPos pos) {
-        var rotation = rotation(shop);
-        if (rotation == null) return false;
-        var feet = local(shop, rotation, player.position());
-        var door = local(shop, rotation, pos.getCenter());
-        return areas(shop).stream().anyMatch(area -> exitDoor(area, door, !shop.legacy())
-                && feet.subtract(door).dot(Vec3.atLowerCornerOf(area.out().getNormal())) < 0);
-    }
-
-    private static boolean exitDoor(Area area, Vec3 door, boolean paired) {
-        var lower = BlockPos.containing(door.x, 3, door.z);
-        var first = area.exit();
-        var second = first.relative(area.out().getAxis() == Direction.Axis.X ? Direction.SOUTH : Direction.EAST);
-        return lower.equals(first) || paired && lower.equals(second);
     }
 
     private static ShopMembership restricted(ShopRegistry.Entry shop, ServerPlayer player) {

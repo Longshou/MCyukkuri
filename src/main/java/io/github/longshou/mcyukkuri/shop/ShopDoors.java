@@ -27,7 +27,7 @@ public final class ShopDoors {
     /** Allow two seconds for a player to reach a door opened from interaction range. */
     private static final Map<Door, Long> PLAYER_OPEN_UNTIL = new HashMap<>();
 
-    private static List<BlockPos> leaves(ServerLevel level, BlockPos at) {
+    static List<BlockPos> leaves(ServerLevel level, BlockPos at) {
         var state = level.getBlockState(at);
         if (!(state.getBlock() instanceof DoorBlock block) || block.type().canOpenByHand()) return List.of();
         if (state.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER) {

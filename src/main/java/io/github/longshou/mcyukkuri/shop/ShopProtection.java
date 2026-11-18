@@ -94,10 +94,11 @@ public final class ShopProtection {
         if (state.getBlock() instanceof DoorBlock door) {
             boolean wooden = door.type().canOpenByHand();
             if (wooden && !ShopAccess.legacyServiceDoor(shop, pos)) return;
-            var required = ShopAccess.doorTier(shop, pos);
-            if (required == null) return;
+            var access = ShopAccess.doorAccess(shop, player, pos);
+            if (access == null) return;
+            var required = access.tier();
             boolean allowed = shop.membership(player.getUUID()).allows(required);
-            boolean egress = !allowed && ShopAccess.egress(shop, player, pos);
+            boolean egress = !allowed && access.egress();
             if (wooden && (allowed || egress)) return;
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.SUCCESS);
