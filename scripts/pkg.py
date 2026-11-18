@@ -166,6 +166,18 @@ def row_removed_in_head(tree, name):
     return True
 
 
+def sync_main(tree):
+    """Bring the landing onto origin/main. A branch that already contains it is left alone; a branch built from merges (art
+    branches merged into a wiring branch) merges origin/main instead of rebasing, because a rebase would replay each art commit
+    and conflict on generated exports; any other branch rebases as before."""
+    if not subprocess.run(['git', 'merge-base', '--is-ancestor', 'origin/main', 'HEAD'], cwd=tree).returncode:
+        return
+    if git(tree, 'rev-list', '--merges', 'origin/main..HEAD'):
+        git(tree, 'merge', '--no-edit', 'origin/main')
+    else:
+        git(tree, 'rebase', 'origin/main')
+
+
 def push_landing(tree, name):
     """A lost push race means another package landed: rebase onto it, recompile, push again."""
     for attempt in range(1, PUSH_ATTEMPTS + 1):
@@ -180,7 +192,7 @@ def push_landing(tree, name):
                         if 'rejected' in line or line.startswith(('error:', 'fatal:'))), 'unknown')
         print(f'{name}: push rejected ({attempt}/{PUSH_ATTEMPTS}): {message}; origin/main moved to '
               f'{git(tree, "rev-parse", "--short", "origin/main")}, rebasing the landing commits', flush=True)
-        git(tree, 'rebase', 'origin/main')
+        sync_main(tree)
         # The scene content already ran its smoke; only the rebase needs the compile check.
         check_tree(tree, [])
     raise Fail(f'{name}: push still rejected after {PUSH_ATTEMPTS} attempts')
@@ -196,7 +208,7 @@ def cmd_land(args):
     git(wt, 'fetch', '-q', 'origin')
     tree = dry_copy(name, wt) if args.dry_run else wt
     try:
-        git(tree, 'rebase', 'origin/main')
+        sync_main(tree)
         check_tree(tree, args.scene)
         landed = row_removed_in_head(tree, name)
         text = (tree / TODO).read_text(encoding='utf-8')
