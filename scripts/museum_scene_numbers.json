@@ -258,6 +258,11 @@
     "skills_got_it": "TN-38",
     "park_walk": "PK-01",
     "park_play": "PK-02",
-    "park_picnic": "PK-03"
+    "park_picnic": "PK-03",
+    "choice_nest": "MD-22",
+    "choice_food": "MD-23",
+    "choice_tool": "MD-24",
+    "choice_snatch": "MD-25",
+    "choice_toilet": "MD-26"
   }
 }
