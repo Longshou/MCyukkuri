@@ -20,9 +20,9 @@ sys.path.insert(0, str(HERE))
 STATUSES = ('已接入待试玩', '部分接入', '复测失败', '数值通过·演出待补')
 RANK = {'复测失败': 0, '已接入待试玩': 1, '部分接入': 2, '数值通过·演出待补': 3}
 MENU = ('复测失败', '已接入待试玩')
-# A scene number as the TODO writes it: dashed (TN-29) or compact (TN29). Lookarounds instead of \b so it also
-# resolves inside quotes and beside Chinese text.
-SCENE_NUMBER = re.compile(r'(?<![A-Za-z0-9])([A-Z]{1,2})-?(\d\d)(?![A-Za-z0-9])')
+# Dashed or compact, with Chinese text allowed alongside the number but no enclosing identifier or path.
+SCENE_NUMBER = re.compile(r'(?<![A-Za-z0-9_/-])(?<![A-Za-z0-9_]\.)([A-Z]{1,2})-?([0-9]{2})'
+                          r'(?![A-Za-z0-9_/-]|\.[A-Za-z0-9_])')
 PLAY_DIR = Path('.local/experimental-map/play-museum')
 WATCH_MAX = 40
 
@@ -167,7 +167,7 @@ def watch_of(hit, current):
     texts = [_plain(text)] + [_plain(t) for ti, t in current[current.index(hit) + 1:] if ti == title]
     cands = []
     for t in texts:
-        for m in re.finditer(r'(?:看点|完成标准|完成|看)：', t):
+        for m in re.finditer(r'(?:看点|完成标准|完成|看)：|(?:^|[；。])\s*看(?:点)?[：:]?', t):
             seg = re.split(r'[；。]', t[m.end():])[0].strip('，、： ')
             if seg:
                 cands.append(seg)
@@ -202,12 +202,25 @@ def scene_refs(text, scenes, numbers):
     return list(dict.fromkeys(ids))
 
 
+def feedback_watches(text, numbers):
+    """Keep numbered feedback quotes with the scene named at the start of each quote."""
+    watches = {}
+    for quote in re.findall(r'\d+「([^」]+)」', text):
+        ref = SCENE_NUMBER.match(quote)
+        if ref:
+            sid = numbers.get(f'{ref[1]}-{ref[2]}')
+            watch = quote[ref.end():].strip(' ：:')
+            if sid and watch:
+                watches.setdefault(sid, []).append(_clip(watch))
+    return watches
+
+
 def build(since, until):
     old = {t for _, t in todo_items(git_show(since, 'docs/TODO.md'))}
     current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
     scenes, numbers, field_order = load_museum()
     gone_pool = (scene_ids_at(since) | scene_ids_at(until)) - set(scenes)
-    rows, unnamed, gone, skipped = {}, [], [], []
+    rows, unnamed, gone, skipped = {}, [], {}, []
     items = []
     for item in todo_items(git_show(until, 'docs/TODO.md')):
         text = item[1]
@@ -226,17 +239,20 @@ def build(since, until):
         ids = scene_refs(ctext, scenes, numbers)
         w = watch_of(hit, current)
         name = display_name(hit)
-        gone += [(t, name) for t in tokens if t in gone_pool]
+        for token in tokens:
+            if token in gone_pool:
+                gone.setdefault(token, set()).add(name)
         if not ids:
             unnamed.append((name, status, w))
             continue
+        watches = feedback_watches(ctext, numbers)
         for i in ids:
-            r = rows.setdefault(i, dict(watches=[], statuses=set(), titles=[]))
-            if w and w not in r['watches']:
-                r['watches'].append(w)
-            r['statuses'].add(status)
-            if name not in r['titles']:
-                r['titles'].append(name)
+            r = rows.setdefault(i, dict(watches=[], status=status))
+            for watch in watches.get(i, (w,)):
+                if watch and watch not in r['watches']:
+                    r['watches'].append(watch)
+            if RANK[status] < RANK[r['status']]:
+                r['status'] = status
     fields = []
     for ftitle, sids in field_order:
         present = [i for i in sids if i in rows]
@@ -262,22 +278,20 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
                              fresh=text in fresh_texts, scenes=[]))
             continue
         w = watch_of(item, current)
+        watches = feedback_watches(text, numbers)
         for sid in ids:
             r = by_scene.setdefault(sid, dict(status=status, title=scenes[sid][1], watch=[], fresh=False,
                                               scenes=[dict(id=sid, label=scenes[sid][1], field=scenes[sid][0])]))
             if RANK[status] < RANK[r['status']]:
                 r['status'] = status
             r['fresh'] = r['fresh'] or text in fresh_texts
-            if w and w not in r['watch']:
-                r['watch'].append(w)
+            for watch in watches.get(sid, (w,)):
+                if watch and watch not in r['watch']:
+                    r['watch'].append(watch)
     rows += [dict(status=r['status'], title=r['title'], watch='；'.join(r['watch']), fresh=r['fresh'],
                   scenes=r['scenes']) for r in by_scene.values()]
     return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'],
                                          order[row['scenes'][0]['id']] if row['scenes'] else len(order)))
-
-
-def statuses_line(statuses):
-    return '、'.join(sorted(statuses, key=lambda s: RANK[s]))
 
 
 def summary(d):
@@ -294,20 +308,20 @@ def summary(d):
 
 def markdown(d, since, until, played_from):
     out = [f'# 试玩清单：{since[:9]}（{played_from}）→ {until[:9]}（已装运行包）', '', summary(d), '']
-    if not d['fields'] and not d['unnamed']:
+    if not d['fields'] and not d['unnamed'] and not d['gone']:
         out = [f'# 试玩清单：{since[:9]}（{played_from}）→ {until[:9]}（已装运行包）', '',
                '这两个版本之间没有新增或变化的待试玩条目。']
     for ftitle, sids in d['fields']:
         out.append(f'## {ftitle}')
         out.append('')
-        for i in sorted(sids, key=lambda i: (min(RANK[s] for s in d['rows'][i]['statuses']), sids.index(i))):
+        for i in sorted(sids, key=lambda i: RANK[d['rows'][i]['status']]):
             r = d['rows'][i]
-            out.append(f"- {d['scenes'][i][1]}｜{statuses_line(r['statuses'])}｜{'；'.join(r['watches'])}")
+            out.append(f"- {d['scenes'][i][1]}｜{r['status']}｜{'；'.join(r['watches'])}")
         out.append('')
     if d['unnamed'] or d['gone']:
         out += ['## 其他', '']
         out += [f'- {t}｜{s}｜{w}' if w else f'- {t}｜{s}' for t, s, w in d['unnamed']]
-        out += [f'- 已不存在的场景：{g}（条目「{t}」）' for g, t in d['gone']]
+        out += [f'- 已不存在的场景：{g}（条目「{"、".join(sorted(titles))}」）' for g, titles in d['gone'].items()]
         out.append('')
     return '\n'.join(out) + '\n'
 
