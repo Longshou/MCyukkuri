@@ -9,7 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 美术重做：纸箱重建与垃圾桶 | `.worktrees/wp-art-carton-bin` | standards/yukkuri-library/ecology/wild-shelters/, art/props/street-bin/ |
-| 试玩场菜单唯一入口：去观察台按钮告示、每场景视点、实用页、重开随机个体 | `.worktrees/wp-museum-menu-first` | client/ViewerScreen.java, scripts/museum_*.py, scripts/build_museum_full.py, scripts/check_museum_pack.py, scripts/smoke_museum.py, scripts/capture_museum.py, command/ScenarioCommands.java |
+| 试玩场菜单唯一入口：大厅按 M 选场景并直达观察点、实用页、重开随机个体 | `.worktrees/wp-museum-menu-first` | client/ViewerScreen.java, scripts/museum_*.py, scripts/build_museum_full.py, scripts/check_museum_pack.py, scripts/smoke_museum.py, scripts/capture_museum.py, command/ScenarioCommands.java |
 | 家庭职责占用：留守巡视、寻找、守望不被个体驱动抢走 | `.worktrees/wp-duty-claim` | life/Duty.java, life/DutyClaim, life/FamilyLife.java, entity/YukkuriGoals.java, DenSeal |
 | 美术重做 1：器具与窝 | `.worktrees/wp-art-redo-devices` | standards/yukkuri-library/drafts/care-props (placed, wild, large_nests), art/props/predators, art/props/large-nests |
 | 美术重做 2：护理工具与玩具 | `.worktrees/wp-art-redo-care` | care-expansion, house-repellent, CP/small.py |
@@ -44,7 +44,7 @@
   - 试玩场菜单分层：已接入待试玩（模糊背景只画一次，面板与内容在按钮之下清晰显示）。7「你的m键动作演示  分层有问题吧  按钮感觉在其他层之上 导致其他层内容像有蒙版 只有按钮明显  记下 先快速修这个菜单问题并合入」
 
 - **2026-11-17 晚试玩反馈**（运行版本 [8b7066a03](https://github.com/Longshou/MCyukkuri/commit/8b7066a03)，日志 `.local/reports/playtest-20261117-220425/`，客户端 JFR `.local/reports/jfr/20261117-220425-547.jfr`；用户原话为验收标准，编号沿用原话；用户：「先整理好待办 一件件来。先不要直接派发」）：
-  - 试玩场查看方式：已接入待试玩（[4262dc268](https://github.com/Longshou/MCyukkuri/commit/4262dc268)；博物馆里按 M 打开菜单，「待看」页按待办列出待试玩与复测失败条目、上次试玩后变过的标「新」，点一条就传送到该场地观察台并开始该场景；用 -Fresh 重建的世界才有跳转；「动作」页选种族形态与动作片段，可单次／循环／慢放／拖动，「表情」页选表情套在菜单里的展示个体上；旧的「动作片段」场地已删除）。27「动作片段相关的演出太原始 只是播放 我无法快速看到想看的动作或者表情。」28「考虑演出用更高效的实现方式？比如直接用类似菜单ui的方式让我选择。 同时做让我快速跳转到待看项 这样省很多时间」
+  - 试玩场查看方式：已接入待试玩（[4262dc268](https://github.com/Longshou/MCyukkuri/commit/4262dc268)；博物馆里按 M 打开菜单，「待看」页按待办列出待试玩与复测失败条目、上次试玩后变过的标「新」，从「待看」或「场景」选择后，场地加载完成即到观察点，个体已开场；「实用」可重开、清场、调速度与环境，并操作家油、商店和村庄；用 `-Fresh` 验证大厅与五页菜单；「动作」页选种族形态与动作片段，可单次／循环／慢放／拖动，「表情」页选表情套在菜单里的展示个体上；旧的「动作片段」场地已删除）。27「动作片段相关的演出太原始 只是播放 我无法快速看到想看的动作或者表情。」28「考虑演出用更高效的实现方式？比如直接用类似菜单ui的方式让我选择。 同时做让我快速跳转到待看项 这样省很多时间」
   - 贴墙收拢演示：已接入待试玩（[f3d1ab451](https://github.com/Longshou/MCyukkuri/commit/f3d1ab451)；新场景 流浪与觅食 FG-16「贴墙收拢：辫子、翅膀、尾巴」，五个贴墙玻璃小间加空地对照，饿了先在小间里吃再出来吃第二个苹果；走近玻璃看翅膀下收、辫子帽檐鬓发内收及出来后松开）；橙贴墙时尾巴离背上卷成问号钩、白尖朝前，侧面与背后都看得出，[15aa584ac](https://github.com/Longshou/MCyukkuri/commit/15aa584ac)）。26「FG08 09你说有辫子和头发收拢 翅膀收起 橙尾巴上卷 那就应该演示里做 我看不出啊」
   - 甜化箱演示与拔针：已接入待试玩（[b9d7add73](https://github.com/Longshou/MCyukkuri/commit/b9d7add73)；B 箱开场在普通甜线下，职员上台加压后约 44 秒牌子由尚淡变普通甜，已浓甜的 D 箱被留着休息，箱边说明不安积甜；两手空着右键被扎的个体拔出那一根针，在台上先拔针再松绑，适用于所有被针扎的个体）。加工所 FA-01；看职员挑哪只、牌子变化、D 被放过、自己拔针。原话：2「这个甜化箱的逻辑我都没动 演示只是扎了一下 我用大头针扎了好像也取不下来 没看懂。这个标题和内容好像不符啊…」
   - 内容梳理（新任务）：未做。「需要梳理过一遍现在的内容，之前说的情绪渐进平复 演出前后衔接等 感觉没有全部做好」
@@ -129,7 +129,7 @@
   - 商店友好度与门：已接入待试玩（[1cceb2b7b](https://github.com/Longshou/MCyukkuri/commit/1cceb2b7b)，消费累计成会员／贵宾档；[1795ca247](https://github.com/Longshou/MCyukkuri/commit/1795ca247)，会员在铁门两侧都能开关、访客当面被拒；商店观景台新增「访客」「会员」「贵宾」按钮，旧商店须重建才有新门；场景 `shop_build`、`oni_shop`）。用户：「油库里商店有友好度设定。友好度较高时，允许玩家自由在商店中走动，也应该允许玩家进行交互，比如开门、关门」「目前有些门正常来说玩家无法交互，比如没有按钮的铁门，这个要注意修复」
   - TN-21 让路距离：已接入待试玩（[ec6646d3e](https://github.com/Longshou/MCyukkuri/commit/ec6646d3e)，横移按双方真实碰撞箱留出空当，最少 0.6 格、胆小的更宽；街道 TN-21，场景 `street_give_way`）。用户：「TN-21比起让路更像是只是转向 还是会挤到我 应该移动距离更大」
   - 捕食种遮眼：已接入待试玩（[19c67a093](https://github.com/Longshou/MCyukkuri/commit/19c67a093)，脸板与臀部花纹、刘海、后发、翅根改为随头部形变，走路时两只眼都露出；天气与捕食种 WT-08，场景 `shared_body`）。用户：「捕食种走路的时候会把一边的眼睛盖住，修复模型问题」
-  - 街道观察台：已接入待试玩（[ae5c4467d](https://github.com/Longshou/MCyukkuri/commit/ae5c4467d)，鬼威惨商店改到街道东侧、店门朝西，观察台围栏、按钮与台上视野不再被建筑挡住；街道 TN-20，场景 `street_mixed`）。用户：「街道场景的地形改变影响到了观察台」
+  - 街道取景：已接入待试玩（[ae5c4467d](https://github.com/Longshou/MCyukkuri/commit/ae5c4467d)，鬼威惨商店改到街道东侧、店门朝西，检查新观察点的视野及商店入口；街道 TN-20，场景 `street_mixed`）。用户：「街道场景的地形改变影响到了观察台」
   - 窝适配墙角与分档：已接入待试玩（[bd76cc8b4](https://github.com/Longshou/MCyukkuri/commit/bd76cc8b4)、[a7bb4fec3](https://github.com/Longshou/MCyukkuri/commit/a7bb4fec3)，宠物窝贴墙与墙角自动压平、入口转向空侧，草／软垫／丝绒三档按自尊决定睡不睡得着与不安；鬼威惨商店不再准备窝 [9098497ad](https://github.com/Longshou/MCyukkuri/commit/9098497ad)；出生与成长 FM-24（`nest_grades`）「三档宠物窝」）。用户：「窝需要适配墙角情况。如果旁边是方块，需要改变合适的形状避免穿墙。宠物窝也要做好几种分档次。鬼威惨商店不会准备窝」
   - 客户端性能：部分接入（[6bba9c60a](https://github.com/Longshou/MCyukkuri/commit/6bba9c60a) 与 [8f1c146ab](https://github.com/Longshou/MCyukkuri/commit/8f1c146ab)，`-Profile` 录 JFR 帧与首次伤口标记、伤口贴图与几何预载、减少人群渲染分配；商店服务端热点另见 [abb64ffbf](https://github.com/Longshou/MCyukkuri/commit/abb64ffbf)。客户端瓶颈仍待用户按 `-Profile` 在 SP-01、SP-02、SP-05 与 BD-07 复现并交回 `.local/reports/jfr/` 记录定位）。用户：「性能问题：估计是客户端问题，你能查到吗，查不到就做埋点等，听你的，帮助我解决。主要是攻击油库里第一次生成伤口卡顿 油库里多就掉帧 商店等情形掉帧很明显」
 
