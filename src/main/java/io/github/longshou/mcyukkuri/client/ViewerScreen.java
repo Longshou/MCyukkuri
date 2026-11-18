@@ -293,11 +293,11 @@ final class ViewerScreen extends Screen {
     }
 
     // ------------------------------------------------------------------ rendering
-    @Override public void render(GuiGraphics graphics, int mouseX, int mouseY, float partial) {
-        renderBackground(graphics, mouseX, mouseY, partial);
+    /** Background, panel and tab content, all before {@link Screen#render} draws the widgets on top. */
+    @Override public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+        super.renderBackground(graphics, mouseX, mouseY, partial);
         GuiKit.panel(graphics, left, PAD, right - left, height - 2 * PAD);
         if (tab == 0) renderTodo(graphics); else renderStage(graphics);
-        super.render(graphics, mouseX, mouseY, partial);
     }
 
     private void renderTodo(GuiGraphics graphics) {
