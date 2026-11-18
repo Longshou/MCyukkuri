@@ -312,10 +312,24 @@ def pen_errors(b, seen):
 
 def door_errors(b):
     errors = []
+    thin = ('minecraft:iron_bars', 'minecraft:glass_pane')
     for (x, y, z) in b.doors:
         up = b.blocks.get((x, y + 1, z)); lo = b.blocks.get((x, y, z))
         if not (lo and up and lo[0].endswith('_door') and up[0] == lo[0] and lo[1].get('half') == 'lower' and up[1].get('half') == 'upper'):
-            errors.append(f'{b.name}: door at {(x, y, z)} is not a matching 2-high pair')
+            errors.append(f'{b.name}: door at {(x, y, z)} is not a matching 2-high pair'); continue
+        if lo[0] == 'minecraft:iron_door':
+            along = ((1, 0), (-1, 0)) if lo[1].get('facing') in ('north', 'south') else ((0, 1), (0, -1))
+            for dx, dz in along:
+                for yy in (y, y + 1):
+                    side = name_at(b, x + dx, yy, z + dz)
+                    if side != 'minecraft:iron_door' and not full_block(side):
+                        errors.append(f'{b.name}: iron door {(x, yy, z)} is not framed at {(x + dx, yy, z + dz)} ({side})')
+            if not full_block(name_at(b, x, y + 2, z)):
+                errors.append(f'{b.name}: iron door {(x, y, z)} lacks a full lintel at {(x, y + 2, z)} ({name_at(b, x, y + 2, z)})')
+        else:
+            for dx, dy, dz in ((1, 0, 0), (-1, 0, 0), (0, 0, 1), (0, 0, -1), (0, 2, 0)):
+                if name_at(b, x + dx, y + dy, z + dz) in thin:
+                    errors.append(f'{b.name}: door {(x, y, z)} touches thin pane/bars at {(x + dx, y + dy, z + dz)}')
     for (x, y, z), (name, props, _) in b.blocks.items():
         if name.endswith('_door') and props.get('half') == 'lower' and (x, y, z) not in b.doors: errors.append(f'{b.name}: door at {(x, y, z)} not registered')
     return errors

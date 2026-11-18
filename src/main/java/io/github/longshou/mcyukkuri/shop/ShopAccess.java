@@ -36,7 +36,7 @@ final class ShopAccess {
             area(16, 8, 19, 10, ShopMembership.PATRON, 20, 8, Direction.EAST),
             area(16, 12, 19, 14, ShopMembership.PATRON, 20, 12, Direction.EAST),
             area(16, 16, 19, 18, ShopMembership.PATRON, 20, 16, Direction.EAST),
-            area(2, 17, 14, 18, ShopMembership.MEMBER, 3, 16, Direction.NORTH),
+            area(2, 17, 14, 18, ShopMembership.MEMBER, 2, 16, Direction.NORTH),
             area(21, 8, 22, 19, ShopMembership.MEMBER, 21, 20, Direction.SOUTH),
             area(2, 19, 22, 23, ShopMembership.MEMBER, 7, 19, Direction.NORTH));
     private static final List<Area> LEGACY = List.of(

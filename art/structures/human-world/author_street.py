@@ -487,13 +487,14 @@ def oni_body(p, name):
             barrel(b, x, 3, z, 'up'); barrel(b, x, 4, z, 'east' if x in (5, 9) else 'west')
     for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item, facing='east')
     for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item, facing='east')
-    # Eye-level serving opening and a member door at the west end.
-    b.box((5, 3, 16), (14, 3, 16), f'stripped_{p.wood}_log', {'axis': 'x'})
+    # Eye-level serving opening and a framed member door at the west end (posts and lintel keep door panels off the bars).
+    b.box((5, 3, 16), (13, 3, 16), f'stripped_{p.wood}_log', {'axis': 'x'})
     b.block(9, 3, 16, 'lectern', {'facing': 'north', 'has_book': 'false', 'powered': 'false'}, over=True)
-    b.box((2, 3, 16), (2, 6, 16), 'iron_bars')
-    b.box((3, 5, 16), (14, 6, 16), 'iron_bars')
-    b.double_door(3, 3, 16, 'south')
-    for x in range(5, 15): slab(b, x, 4, 16, p.wood, 'bottom')
+    for x in (4, 14): b.box((x, 3, 16), (x, 6, 16), *POST)
+    b.double_door(2, 3, 16, 'south')
+    b.box((2, 5, 16), (3, 6, 16), *p.state(POST[0], 'x'))
+    b.box((5, 5, 16), (13, 6, 16), 'iron_bars')
+    for x in range(5, 14): slab(b, x, 4, 16, p.wood, 'bottom')
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
         display_tray(b, x, 4, 16, 'north', (item, 1 if 'grain' in item else 2), raised=True)
     # Lending tray at the counter's west end, the one nearest the stress room door: the shop's one real restraint frame lies in it, and
