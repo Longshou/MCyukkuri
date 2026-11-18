@@ -632,12 +632,13 @@ class Park(Field):
     the field's forceload release; a run enters from the north and leaves to the south, so those cells stay clear. Scenes summon their
     own landmarks: ``mcy_park_walk`` at ``walk``, ``mcy_yard_street`` at ``street``. An owner walks to the nearest landmark within its
     restriction (18 blocks of its home, a yard at ``yard``) and at a park landmark waits beside the facility nearest to it, the
-    trampoline: on its west side, else its east side, else in front (HumanStreet.beginLinger)."""
+    trampoline: on its west side, else its east side, else in front (HumanStreet.beginLinger). The yard faces the gate: an owner's
+    path search does not find the way round the fence from a lot further along the street."""
     FENCE, LANE = 6, (8, 10)
     FACILITIES = (('yukkuri_trampoline', 13, 0, 1), ('yukkuri_slide', 19, -1, 2), ('ceramic_tunnel', 25, 0, 1), ('yukkuri_pool', 30, 0, 1))
     WAIT = ((10, 0), (16, 0), (13, 4))   # the owner's cells beside the trampoline
     OFFSETS = {'gate': (0, 6), 'walk': (8, 1), 'picnic': (6, -1), 'fountain': (0, -13), 'pavilion': (-22, -13),
-               'trampoline': (13, 0), 'slide': (19, -1), 'tunnel': (25, 0), 'pool': (30, 0), 'yard': (8, 16), 'street': (-6, 9)}
+               'trampoline': (13, 0), 'slide': (19, -1), 'tunnel': (25, 0), 'pool': (30, 0), 'yard': (0, 16), 'street': (-6, 9)}
     VANTAGE = (4, 6, -150, 10)   # from the gate: the lot across the street, over the picnic lawn and playground to the fountain
 
     def __init__(self, *args, **kw):

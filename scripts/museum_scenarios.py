@@ -2646,7 +2646,7 @@ add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎�
     reads=[('读院宠状态', f'yukkuri status {sel("yard_pet")} raw'),
            ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriSkills')])
 
-# ---- park outings: a yard on the lot across the street from the park gate; all offsets are from the park's ``yard`` spot
+# ---- park outings: a yard on the lot facing the park gate across the street; all offsets are from the park's ``yard`` spot
 _park = BY_ID['park']
 _lot_x, _lot_z = _park.spots['yard']
 _PARK_BOWL, _PARK_CRATE, _PARK_HOME = (0, 2), (3, -2), (0, -3)
@@ -2697,19 +2697,20 @@ def _lot_pet(scene, keeper, kind, x, name, **stats):
 
 _outing_pets = [('reimu', 'outing_shy', -2, 5, 95), ('marisa', 'outing_bold', 2, 95, 5)]
 add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
-    '院子在公园对面。院主带灵梦和魔理沙出院门，沿街往西走到公园门口再折回。灵梦贴着主人，魔理沙离得远些。'
+    '院子在公园大门对面。院主带灵梦和魔理沙出院门，沿街往西走十来格再折回。灵梦贴着主人，魔理沙离得远些。'
     '街上的鬼威惨先喝斥挡路的流浪油，不碰有主的宠物。',
     '约 1 分钟', [
         *_lot_yard(-2, 2),
         f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_yard_street"]}}'.format(*(v + .5 for v in _lot_spot('street'))),
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_yard_street"]}}'.format(*(v + .5 for v in _lot_spot('street', -4, 0))),
         _lot_keeper('outing_keeper'),
         *(line for kind, name, x, bold, bond in _outing_pets
           for line in _lot_pet('park_walk', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, **pair_ready())),
-        street_abuser(*_lot_spot('street', 4, 1), 'outing_oni'),
-        street_trial('park_walk', ('chen', 'alice'), *_lot_spot('street', 5, 1), 'outing_stray', yaw=90,
+        # More than six blocks from the keeper, who would otherwise call the warning off before it is given.
+        street_abuser(*_lot_spot('street', 0, 1), 'outing_oni'),
+        street_trial('park_walk', ('chen', 'alice'), *_lot_spot('street', 1, 1), 'outing_stray', yaw=90,
                      friendliness=(30, 80), nutrition=(60, 90)),
-    ], env=DAY, spot='yard', vantage=(-6, 4, 180, 12),
+    ], env=DAY, spot='yard', vantage=(-7, 0, 180, 12),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
 add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带两只宠物去公园玩蹦床',
@@ -2718,8 +2719,8 @@ add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带�
     '约 2 分钟', [
         *_lot_yard(-2, 2),
         f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
-        # North-west of the trampoline: the pets arrive on the side they mount from, so their run-up does not pass the keeper.
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -3, -4))),
+        # North-west of the keeper's waiting cell: the pets arrive on the side they mount from, so their run-up does not pass her.
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -4, -2))),
         _lot_keeper('outing_keeper'),
         *(line for kind, name, x, bold, bond in _outing_pets
           for line in _lot_pet('park_play', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, nutrition=100,
@@ -2738,7 +2739,7 @@ add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公
         'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('picnic', 2, 0))),
         _lot_keeper('picnic_keeper', f',YardCrate:{_lot_pos(*_PARK_CRATE)}L,HumanInitialized:1b,NextRestock:2147483647L,CareFood:0'),
         *_lot_pet('park_picnic', 'picnic_keeper', 'marisa', -2, 'picnic_pet', boldness=40, attachment=50, nutrition=40, energy=100),
-        street_trial('park_picnic', 'chen', *_lot_spot('street'), 'picnic_stray', nutrition=25),
+        street_trial('park_picnic', 'chen', *_lot_spot('street', -6, 0), 'picnic_stray', nutrition=25),
     ], env=DAY, spot='yard', vantage=(*_lot_spot('picnic', 4, 6), 156, 15),
     reads=[('读货箱存量', f'data get block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} Items'),
            ('读魔理沙', f'yukkuri status {sel("picnic_pet")} raw'),
