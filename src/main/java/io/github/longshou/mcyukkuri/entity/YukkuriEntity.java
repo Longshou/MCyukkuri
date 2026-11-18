@@ -384,7 +384,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public float toiletVolume() { return level().isClientSide?sync().toiletVolume():(float)DetachedItems.wasteAmount(this); }
     public boolean isCrawling() { return sync().isCrawling(); }
     public boolean runningGait(String behavior) {
-        return moveControl instanceof HouseCrawlControl ground && Gait.isRunning(isCrawling(), childhood.canJump(),
+        return moveControl instanceof HouseCrawlControl ground && Gait.isRunning(isCrawling(), childhood.canJump() && !body.footBurned(),
                 ground.lastRequestedSpeed(), behavior.equals(Behaviors.FLEE) || behavior.equals(Behaviors.THREAT_RETREAT)
                         || behavior.equals(Behaviors.RAIN_RUN) || behavior.equals(Behaviors.HOME_CLAIM_RETREAT));
     }

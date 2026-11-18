@@ -430,7 +430,7 @@ public final class PresentationArbiter {
     /** The walk, or a reaction clip that carries its own steps (YukkuriAction.walks) played in its place while travelling. */
     private static YukkuriAction walking(YukkuriEntity e, String behavior) {
         var reaction = e.reactionAction();
-        return reaction != null && reaction.walks() ? reaction : e.runningGait(behavior) ? YukkuriAction.RUN : YukkuriAction.WADDLE;
+        return e.runningGait(behavior) ? YukkuriAction.RUN : reaction != null && reaction.walks() ? reaction : YukkuriAction.WADDLE;
     }
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
