@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 试玩场菜单①：待看一键跳转（27/28） | `.worktrees/wp-viewer-menu-1` | client museum menu screen, datapack jump functions, launch_museum.ps1, playtest_list.py |
 
 ## 玩法待办
 
