@@ -1,45 +1,76 @@
 """Original single-portion care consumables. Parametric source, editable meshes and runtime export.
 
-The mold remover is its inventory icon extruded into a plate (block-props/kit.py extrude), so world and icon match."""
-import argparse,base64,importlib.util,io,json,runpy,sys,uuid
+Hand-held consumables and the spicy-grain pouch are their 16x16 inventory icons extruded into one-pixel-thick plates
+(block-props/kit.py extrude), and the oral *_serving doses are stepped voxel shapes built with block-props/kit.py and
+icon ramps from item-icons/draw.py. food_mash_serving remains authored by care-props/small.py."""
+import argparse,importlib.util,io,json,sys
 from pathlib import Path
-from PIL import Image
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
 sys.path.insert(0,str(ROOT/'scripts'))
 from asset_export_checks import check_output,fingerprints,preserve_equivalent_png,preserve_negative_zero_mesh_json,provenance
-BASE=HERE.parent/'operation-tools/build.py';primitive=runpy.run_path(str(BASE))
-box,rod,ball=(primitive[k] for k in ('box','rod','ball'))
 sys.path.insert(0,str(HERE.parent/'care-props'))
-import bags as care_bags,small as care_small   # shared-palette kit designs: spicy_grain pouch and the food mash dollop
-KIT={'spicy_grain':care_bags.spicy_grain,'food_mash_serving':care_small.food_mash_serving}
+import small as care_small   # shared-palette kit design: the food mash dollop
+KIT={'food_mash_serving':care_small.food_mash_serving}
 if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-props also has a `kit`
  _spec=importlib.util.spec_from_file_location('block_props_kit',HERE.parent/'block-props/kit.py')
  sys.modules['block_props_kit']=_module=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_module)
 block_kit=sys.modules['block_props_kit']
 # Extruded icons (block-props/kit.py extrude): the 16x16 inventory icon as a one-pixel-thick plate of this height in units.
-ICONS=ROOT/'art/props/item-icons';EXTRUDED={'mold_remover':6.3}
+ICONS=ROOT/'art/props/item-icons'
+EXTRUDED={'mold_remover':6.3,'yogurt_drink':6.0,'stimulant':5.0,'sitataran':4.8,'sleep_spray':6.7,'spicy_grain':11.5,'reproductive_filling':5.8,'wheat_flour':5.7}
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri';SELECTED=ROOT/'art/props/consumables'
-PALETTE=['#f2edda','#427da3','#85c5ca','#da9c50','#952f3d','#cba6ce','#735576','#333c46','#e1c484','#ef8b74','#728f49','#fdf8ef']
 def mesh_number(value):
  value=round(value,6)
  return 0.0 if isinstance(value,float) and value==0 else value
-def bottle(radius,height,body,cap):
- return [rod([0,0,0],[0,.4,0],radius*.84,body,radius),rod([0,.4,0],[0,height-1.6,0],radius,body),rod([0,height-1.6,0],[0,height-.7,0],radius,body,radius*.55),rod([0,height-.7,0],[0,height,0],radius*.55,cap)]
-def label(radius,y,color):return box([-radius*.7,y,-radius-.02],[radius*.7,y+2,-radius+.15],color)
-RECIPES={
- 'yogurt_drink':bottle(1.6,6,0,1)+[label(1.6,1.6,1),ball([0,2.6,-1.67],[.55,.75,.09],11)],
- 'stimulant':bottle(1.3,5,3,4)+[label(1.3,1.2,0),rod([-.35,1.5,-1.35],[.25,2.25,-1.35],.15,4),rod([.25,2.25,-1.35],[-.2,2.25,-1.35],.15,4),rod([-.2,2.25,-1.35],[.35,3,-1.35],.15,4)],
- 'sitataran':bottle(1.2,4.8,5,6)+[label(1.2,1.2,11),box([-.6,1.8,-1.29],[.6,2.8,-1.18],6),rod([-.45,1.45,-1.31],[-.25,1.9,-1.31],.13,6)]+[ball([x,2.3,-1.32],[.09,.09,.05],11) for x in [-.35,0,.35]],
- 'sleep_spray':bottle(1.5,5.5,2,7)+[label(1.5,1.4,1),rod([0,5.5,0],[0,6.2,0],.3,7),box([-.55,6,-1.9],[.55,6.7,.8],0),rod([0,6.35,-1.95],[0,6.35,-2.1],.25,7),box([-.23,5.4,-1.2],[.23,6.1,-.85],7),ball([0,2.45,-1.57],[.55,.6,.1],0),ball([.28,2.67,-1.69],[.46,.46,.1],1)],
- 'spicy_grain':[],
- 'reproductive_filling':[box([-1.5,0,-.6],[1.5,.35,.6],1),rod([0,.35,0],[0,3.7,0],1.25,0,.9),rod([0,3.7,0],[0,4.5,0],.9,0,.35),rod([0,4.5,0],[0,5.8,0],.35,1,.15),box([-.75,1.2,-1.26],[.75,2.9,-1.2],1),ball([0,2.25,-1.29],[.35,.45,.08],11)],
- 'wheat_flour':[box([-2,0,-1.2],[2,5.2,1.2],11),box([-2.1,5.2,-1.3],[2.1,5.7,1.3],0),box([-2.1,4.4,-1.3],[2.1,4.8,1.3],3),box([-1.2,1,-1.27],[1.2,3.5,-1.2],8),
-  rod([0,1.3,-1.29],[0,3.2,-1.29],.1,10),ball([-.32,2.7,-1.3],[.22,.1,.04],10),ball([.32,2.7,-1.3],[.22,.1,.04],10),ball([-.3,2.15,-1.3],[.22,.1,.04],10),ball([.3,2.15,-1.3],[.22,.1,.04],10)],
- 'water_serving':[ball([0,0,0],[.6,.35,.5],2)],
- 'yogurt_serving':[ball([0,0,0],[.6,.35,.5],0)],
- 'food_mash_serving':[],
- 'stimulant_serving':[rod([-.55,0,0],[0,0,0],.25,4),rod([0,0,0],[.55,0,0],.25,0),ball([-.55,0,0],[.25,.25,.25],4),ball([.55,0,0],[.25,.25,.25],0)],
- 'sitataran_serving':[ball([0,0,0],[.6,.25,.4],5)],
+def scaled_block(block,cell_size):
+ """Export a block-props voxel model scaled down to mouth-serving dimensions (cell_size units per voxel)."""
+ mesh,bb,png=block.export()
+ verts=mesh['vertices']
+ for i in range(0,len(verts),8):
+  for k in range(3):verts[i+k]=mesh_number(verts[i+k]*cell_size)
+ mesh['bounds']=[[mesh_number(min(verts[k::8])),mesh_number(max(verts[k::8]))] for k in range(3)]
+ for elem in bb['elements']:
+  for key,pos in elem['vertices'].items():elem['vertices'][key]=[mesh_number(c*cell_size) for c in pos]
+ return mesh,bb,png
+def _pill_capsule():
+ b=block_kit.Block('stimulant_serving',offset=(-5,-2,-2))
+ red=block_kit.Material('RED',step=2,top=1,bottom=-1);paper=block_kit.Material('PAPER',step=3,top=1,bottom=-1)
+ part=b.part('capsule')
+ for x in range(10):
+  mat=red if x<5 else paper
+  for y in range(4):
+   for z in range(4):
+    if x in (0,9) and not (1<=y<=2 and 1<=z<=2):continue
+    if (y in (0,3)) and (z in (0,3)):continue
+    part.cell((x,y,z),mat)
+ return scaled_block(b,0.15)
+def _lozenge():
+ b=block_kit.Block('sitataran_serving',offset=(-4,-1.5,-3))
+ lilac=block_kit.Material('LILAC',step=3,top=1,bottom=-1,pattern=lambda cell,face:('PINK',2) if cell[1]==2 and face=='up' and 3<=cell[0]<=4 and 2<=cell[2]<=3 else 0)
+ part=b.part('lozenge')
+ for x in range(8):
+  for z in range(6):
+   if not (x in (0,7) and z in (0,5)):part.cell((x,1,z),lilac)
+   if 1<=x<=6 and 1<=z<=4:
+    part.cell((x,0,z),lilac);part.cell((x,2,z),lilac)
+ return scaled_block(b,0.15)
+def _droplet(name,ramp_name,step,glint_step):
+ b=block_kit.Block(name,offset=(-4,-2,-3))
+ mat=block_kit.Material(ramp_name,step=step,top=1,bottom=-1,pattern=lambda cell,face:(ramp_name,glint_step) if cell==(3,3,2) and face=='up' else 0)
+ part=b.part('droplet')
+ for x in range(8):
+  for z in range(6):
+   if not (x in (0,7) and z in (0,5)):part.cell((x,1,z),mat)
+   if 1<=x<=6 and 1<=z<=4:
+    part.cell((x,0,z),mat)
+    if not (x in (1,6) and z in (1,4)):part.cell((x,2,z),mat)
+   if 3<=x<=4 and 2<=z<=3:part.cell((x,3,z),mat)
+ return scaled_block(b,0.15)
+SERVINGS={
+ 'water_serving':lambda:_droplet('water_serving','WATER',2,4),
+ 'yogurt_serving':lambda:_droplet('yogurt_serving','YOGURT',3,4),
+ 'stimulant_serving':_pill_capsule,
+ 'sitataran_serving':_lozenge,
 }
 LABELS={'yogurt_drink':['酸奶饮品','Yogurt drink'],'stimulant':['兴奋药','Stimulant'],'sitataran':['幼语药（シタタラン）','Sitataran baby-talk medicine'],'sleep_spray':['弹珠汽水喷雾','Ramune spray'],'spicy_grain':['超辣油粮','Extra-spicy yukkuri feed'],'reproductive_filling':['生殖用馅','Reproductive filling'],'wheat_flour':['小麦粉','Wheat flour'],'flour_paste':['小麦粉糊','Wheat flour paste']}
 INGREDIENTS={'yogurt_drink':['minecraft:milk_bucket','minecraft:sugar','minecraft:glass_bottle'],'stimulant':['minecraft:sugar','minecraft:redstone','minecraft:glass_bottle'],
@@ -47,43 +78,10 @@ INGREDIENTS={'yogurt_drink':['minecraft:milk_bucket','minecraft:sugar','minecraf
  'reproductive_filling':['minecraft:sugar','minecraft:wheat','minecraft:milk_bucket','minecraft:paper'],
  'wheat_flour':['minecraft:wheat','minecraft:wheat','minecraft:wheat'],'flour_paste':['mcyukkuri:wheat_flour','mcyukkuri:wheat_flour','minecraft:sugar','minecraft:water_bucket']}
 def outputs():
- previous=provenance(SELECTED/'manifest.json');result={};index={};image=Image.new('RGBA',(16,16))
- for x in range(16):
-  for y in range(16):image.putpixel((x,y),tuple(bytes.fromhex(PALETTE[min(x,len(PALETTE)-1)][1:]))+(255,))
- stream=io.BytesIO();image.save(stream,format='PNG');texture=preserve_equivalent_png(HERE/'assembled'/next(iter(RECIPES))/'texture.png',stream.getvalue())
+ previous=provenance(SELECTED/'manifest.json');result={};index={};icons={}
  def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
  def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
- emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS,'kit_props':{k:'standards/yukkuri-library/drafts/care-props/'+v.__module__+'.py' for k,v in KIT.items()},'shared_palette':'art/props/palette.json'})
- for name,shapes in RECIPES.items():
-  kit_prop=KIT[name]() if name in KIT else None
-  vertices=[];parts=[];elements=[]
-  for number,shape in enumerate(shapes):
-   points,faces=primitive['geometry'](shape);start=len(vertices)//8;bbfaces={};u=(shape['color']+.5)/16
-   for face in faces:
-    for j in range(1,len(face)-1):
-     tri=[face[0],face[j],face[j+1]];normal=primitive['unit'](primitive['cross'](primitive['sub'](points[tri[1]],points[tri[0]]),primitive['sub'](points[tri[2]],points[tri[0]])))
-     if sum(x*x for x in normal)<.5:continue
-     for i in tri:vertices.extend([*points[i],u,.5,*normal])
-     bbfaces[str(len(bbfaces))]={'vertices':[str(i) for i in tri],'uv':{str(i):[u*16,8] for i in tri},'texture':0}
-   parts.append({'name':f'part_{number}','start':start,'count':len(vertices)//8-start})
-   elements.append({'name':f'part_{number}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(number))),'origin':[0,0,0],'rotation':[0,0,0],'vertices':{str(i):p for i,p in enumerate(points)},'faces':bbfaces})
-  extent=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)] if vertices else None
-  mesh={'format':1,'units_per_block':16,'vertices':[mesh_number(v) for v in vertices],'parts':parts,'bounds':extent}
-  model_texture=texture
-  bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements],'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
-  if kit_prop:
-   mesh=kit_prop.mesh();extent=mesh['bounds'];bb=kit_prop.bbmodel();model_texture=preserve_equivalent_png(HERE/'assembled'/name/'texture.png',kit_prop.png())
-  for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
-   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=model_texture
-  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=model_texture
-  if name in INGREDIENTS:
-   emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[20,225,0]}}})
-   emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
-  index[name]={'bounds':extent,'triangles':len(vertices)//24}
- # Recipe-only entries: flour_paste is a 16x16 item sprite (care-props/supplies.py, scripts/export_supply_icons.py), no mesh.
- for name in [n for n in INGREDIENTS if n not in RECIPES]:
-  emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
- icons={}
+ emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'extruded_heights':EXTRUDED,'servings':list(SERVINGS),'recipes':INGREDIENTS,'kit_props':{k:'standards/yukkuri-library/drafts/care-props/'+v.__module__+'.py' for k,v in KIT.items()},'icon_source':'art/props/item-icons','ramps_source':'standards/yukkuri-library/drafts/item-icons/draw.py'})
  for name,height in EXTRUDED.items():
   icons[ICONS/f'{name}.png']=icon=(ICONS/f'{name}.png').read_bytes()
   mesh,bb,png=block_kit.extrude(name,icon,height)
@@ -92,6 +90,23 @@ def outputs():
   emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=png
   emit(ASSETS/f'models/item/{name}.json',block_kit.prop_item_model(name,extruded=True))
   index[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
+ for name,builder in SERVINGS.items():
+  mesh,bb,png=builder()
+  model_texture=preserve_equivalent_png(HERE/'assembled'/name/'texture.png',png)
+  for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
+   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=model_texture
+  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=model_texture
+  index[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
+ for name,kit_fn in KIT.items():
+  kit_prop=kit_fn()
+  mesh=kit_prop.mesh();bb=kit_prop.bbmodel();model_texture=preserve_equivalent_png(HERE/'assembled'/name/'texture.png',kit_prop.png())
+  for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
+   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=model_texture
+  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=model_texture
+  index[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
+ # Crafting recipes (flour_paste uses its 16x16 item sprite from care-props/supplies.py, no prop mesh).
+ for name in INGREDIENTS:
+  emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
  emit(ASSETS/'yukkuri_props/consumables-index.json',index)
  for n,locale in enumerate(['zh_cn','en_us']):
   path=ASSETS/f'lang/{locale}.json';data=json.loads(path.read_text(encoding='utf8'));strings={'item.mcyukkuri.'+k:v[n] for k,v in LABELS.items()}
@@ -99,7 +114,7 @@ def outputs():
    'notebook.mcyukkuri.consumables':['饮用与药效\n干燥程度：%s／100\n便秘：%s\n辣味不适：%s 秒\n喷雾起效剩余：%s 秒\n困倦剩余：%s 秒\n兴奋状态：%s 秒\n幼语药效：%s','Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s'][n],
    'death.attack.mcyukkuri.spicy_food':['%s 没能撑过超辣食物的不适','%s succumbed to extra-spicy food'][n]})
   if any(data.get(k)!=v for k,v in strings.items()):data.update(strings);result[path]=(json.dumps(data,ensure_ascii=False,indent=2)+'\n').encode()
- emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':fingerprints(ROOT,{**{p:p.read_bytes() for p in [Path(__file__).resolve(),BASE,HERE.parent/'block-props/kit.py']},**icons},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
+ emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':fingerprints(ROOT,{**{p:p.read_bytes() for p in [Path(__file__).resolve(),HERE.parent/'block-props/kit.py',HERE.parent/'item-icons/draw.py',HERE.parent/'care-props/small.py']},**icons},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
  return result
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');parser.add_argument('--skip-language',action='store_true');args=parser.parse_args();changed=[]
@@ -109,4 +124,4 @@ if __name__=='__main__':
    changed.append(path.relative_to(ROOT).as_posix())
    if not args.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
  if args.check and changed:raise SystemExit('Stale exports: '+', '.join(changed))
- print(f'Consumables: {len(RECIPES)} models; {len(changed)} files '+('differ' if args.check else 'written'))
+ print(f'Consumables: {len(EXTRUDED)+len(SERVINGS)+len(KIT)} models; {len(changed)} files '+('differ' if args.check else 'written'))
