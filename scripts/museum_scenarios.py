@@ -263,7 +263,10 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
     late=[f'yukkuri scenario home {sel("greedy")} ~3 ~ ~3',
           block(7, 0, 3, 'mcyukkuri:velvet_nest[facing=south]')],
     env=DAY, spot='big', vantage=(5, 10, 180),
-    capture=dict(shots=(40,), sequences=((65, 320, 4), (360, 480, 4)), follow=sel('greedy'), offset=(1.25, .8, 2.05)),
+    capture=dict(shots=(40,), sequences=((65, 320, 4), (360, 480, 4)),
+                 views={'': dict(position=(8.6, 1.2, 3.3), look_at=(6.9, .6, 5.0),
+                                 criteria='固定机位从正前方看住家宣言：跳进、挺胸抬头、左右大幅转身俯视、两连跳、哼一声后得意定格，'
+                                          '全程嚣张骄傲表情、不鼓脸；来客出现后才转向它鼓脸。')}),
     reads=[('读占领阶段','yukkuri homeclaim status'),('读魔理沙', f'yukkuri status {sel("greedy")} raw')],
     smoke=dict(ticks=900, expect=[r'\[home-claim\][^\n]* occupation chosen .*kind=bed .*previous=ResourceKey',
                                   r'\[home-claim\][^\n]* declared site=.*spoken=true'],
@@ -532,7 +535,7 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
         street_stray('stray_rubbish', 'marisa', 26, 3, 'bold_stray', nutrition=24, boldness=90, label='胆大的'),
     ], env=DAY, spot='street', vantage=(0, 12),
     capture=dict(shots=(35,), sequences=((40, 255, 2), (260, 420, 5)),
-                 views={'': dict(follow=f'@e[tag={tag("bold_stray")},limit=1]', offset=(-1.9, .85, .65),
+                 views={'': dict(position=(23.9, .95, -.7), look_at=(26.4, .5, -.6),
                                   criteria='从侧面看冲到桶面、桶晃和倒下，再看辫梢取苹果并送到嘴边。')}),
     smoke=dict(ticks=700, forbid=[r'\[forage\][^\n]* garbage ram .*count=4'],
                expect=[r'\[forage\][^\n]* garbage pickup item=[^\n]* food=true',
@@ -5523,7 +5526,7 @@ def _den_family_verify(log):
 next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
 
 # In headless smoke, stand an unrelated peer near the home as a visitor would. The residents still run ordinary AI.
-for _sid, _at, _dx, _dz in (('home_greedy', 360, 7, 4.6), ('den_family', 6000, 1, -2)):
+for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000, 1, -2)):
     _intruder = uid(_sid, 'territory_intruder')
     _spec = next(s for s in S if s.id == _sid).smoke
     _spec['commands'] = [(_at, yk('reimu', _dx, _dz, 'territory_intruder', uuid=_intruder, boldness=0, extra='NoAI:1b'))]
