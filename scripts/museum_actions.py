@@ -13,6 +13,7 @@ CATEGORIES = [
         ('waddle','行走'),('run','快跑'),('walk_look_back','边走边回头'),('brace','撑起身体'),('lunge_ram','蓄力撞击'),('glass_press','玻璃挤脸'),('turn','转身'),('hop','跳跃'),('hop_leg','屈身蹬跳'),('stretch','伸展'),
         ('exercise_vertical','纵向体操'),('exercise_sides','横向体操'),('press','挤压'),('taiso','广播体操')]),
     ('日常生活', [('eat','进食'),('braid_eat','辫梢送嘴'),('braid_eat_bin','从倒地垃圾桶辫梢取食'),
+        ('bin_sniff','嗅垃圾桶'),('bin_nose_in','探进垃圾桶翻找'),
         ('shiawase','饭后幸福'),('meal_content','吃饱满足瘫软'),('reject_or_spit','吐出拒食'),('drink','饮水'),('sleep','睡觉'),('wake','醒来'),('shake','甩水'),('sunbathe','晒太阳'),
         ('sneeze_a','打喷嚏 A'),('sneeze_b','打喷嚏 B'),('sneeze_c','打喷嚏 C'),
         ('mouth_item_place','低头嘴放物品'),('paper_pull','抽出一张报纸'),('paper_cover_under','掀角钻入报纸下'),('paper_cover_child','亲油叼纸披在赤油身上'),('cold_shiver','寒夜缩身发抖')]),

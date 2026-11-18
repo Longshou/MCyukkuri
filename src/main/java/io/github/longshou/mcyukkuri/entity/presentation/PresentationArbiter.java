@@ -102,6 +102,8 @@ public final class PresentationArbiter {
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
         if (clip.equals(e.life().braidMealClip()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "look_down");
+        if (clip.equals(Behaviors.BIN_SNIFF) || clip.equals(Behaviors.BIN_NOSE_IN))
+            return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "neutral");
         if (HomeClaim.declaring(e) && clip.equals(e.reactionAction().id()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "smug");
         if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();

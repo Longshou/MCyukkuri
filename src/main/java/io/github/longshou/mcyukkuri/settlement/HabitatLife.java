@@ -42,6 +42,8 @@ public final class HabitatLife {
     private ItemStack carrying=ItemStack.EMPTY;
     /** The carried food is a migrant's mouthful from the old store: it is put on the new pile even when tired or hungry. */
     private boolean moveLoad;
+    /** A bin scrap belongs to the scavenger's carry leg, including after a reload. */
+    private boolean garbageLoad;
     /** The second real portion for a personal nest. Unlike household work, its item identity need not match the first. */
     private ItemStack nestMaterial=ItemStack.EMPTY;
     /** The home that supplied reserved nest material. A move or lost bed cancels this small project in the current world. */
@@ -93,11 +95,13 @@ public final class HabitatLife {
     public boolean receiveMouthLoad(ItemStack stack) {
         if (!mouthFreeForLoad()) return false;
         carry(stack);
+        garbageLoad = true;
         return true;
     }
+    boolean carryingGarbage() { return garbageLoad; }
     public boolean putDownMouthLoad() {
-        if (carrying.isEmpty()) return true;
-        var drop = ItemContact.release(entity, carrying, 60);
+        if (!garbageLoad) return true;
+        var drop = ItemContact.releaseSupported(entity, carrying, 60);
         if (drop == null) return false;
         GameplayLog.event(entity, "habitat", "drop item={} count={} holder=mouth drop={}", carrying.getItem(), carrying.getCount(), drop.getUUID());
         carry(ItemStack.EMPTY);
@@ -337,6 +341,7 @@ public final class HabitatLife {
     private boolean freeForWork() { return entity.component(YukkuriComponents.MOUTH).freeForExternalWork(); }
 
     public boolean canUse() {
+        if (garbageLoad) return false;
         if(carrying.isEmpty())moveLoad=false;
         if(task==Task.RELOCATE)return canContinue();
         if(!ready()){homes.cancelVagrantProject();return false;}
@@ -688,7 +693,7 @@ public final class HabitatLife {
     Task task() { return task; }
     BlockPos targetBlock() { return targetBlock; }
     void targetBlock(BlockPos next) { targetBlock=next; }
-    void carry(ItemStack next) { carrying=next;moveLoad=false; }
+    void carry(ItemStack next) { carrying=next;moveLoad=garbageLoad=false; }
     void resetContact() { contact.reset(); }
     int quarrelCooldown() { return seasonal.quarrelCooldown(); }
     void quarrelCooldown(int ticks) { seasonal.quarrelCooldown(ticks); }
@@ -699,6 +704,7 @@ public final class HabitatLife {
         if(!carrying.isEmpty()) {
             tag.put("Carrying",carrying.save(entity.registryAccess()));
             tag.putBoolean("MoveLoad",moveLoad);
+            if (garbageLoad) tag.putBoolean("GarbageLoad", true);
         }
         if(!nestMaterial.isEmpty())tag.put("NestMaterial",nestMaterial.save(entity.registryAccess()));return tag;
     }
@@ -708,6 +714,7 @@ public final class HabitatLife {
         home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),
                 tag.getCompound("Carrying")):ItemStack.EMPTY;
         moveLoad=!carrying.isEmpty()&&tag.getBoolean("MoveLoad");
+        garbageLoad=!carrying.isEmpty()&&tag.getBoolean("GarbageLoad");
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;
         task=Task.NONE;targetItem=null;targetBlock=null;ticks=buildTicks=0;seasonal.resetLoad();
         wait=20+entity.getRandom().nextInt(100);

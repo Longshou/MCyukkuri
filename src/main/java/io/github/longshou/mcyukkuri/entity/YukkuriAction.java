@@ -30,6 +30,8 @@ public enum YukkuriAction {
     EAT("eat", 1.2, true),
     BRAID_EAT("braid_eat", 1.9, false),
     BRAID_EAT_BIN("braid_eat_bin", 1.9, false),
+    BIN_SNIFF("bin_sniff", 3.1, false),
+    BIN_NOSE_IN("bin_nose_in", 2.5, false),
     SHIAWASE("shiawase", 2.0, false),
     MEAL_CONTENT("meal_content", 3.6, false),
     DRINK("drink", 1.6, true),

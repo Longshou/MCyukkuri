@@ -290,7 +290,10 @@ public final class YukkuriLife {
     private static final int BED_LOOK_MEMORY = 6000;
     /** The sleep ends at this very tick because something real ended it; [sleep] end names it. */
     private void wakeNow(String cause) { wakeAt = sleepTicks; wakeCause = cause; }
-    void beginConsumption() { resetSleep();task=Task.NONE; }
+    void beginConsumption() {
+        resetSleep();
+        if (!garbage.rummaging()) task = Task.NONE;
+    }
     void beginDrugSleep() { task=Task.SLEEP;resetSleep(); }
     boolean beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
         return meal.beginDose(one, player, returnBottle);
@@ -542,6 +545,7 @@ public final class YukkuriLife {
     public String activity() {
         if (fatigueActive()) return Behaviors.SLEEP;
         if (!braidMealClip().isEmpty()) return braidMealClip();
+        if (garbage.rummaging()) return Behaviors.BIN_NOSE_IN;
         if (mealTicks() > 0) {
             int swallowAt = meal.swallowTick();
             if (mealTicks() >= swallowAt + LifeMeal.SWALLOW_TICKS) return meal.afterActivity();
@@ -710,12 +714,13 @@ public final class YukkuriLife {
             return;
         }
         doses.tickSpray();
-        if (!meal.tickChew()) return;
+        if (!garbage.rummaging() && !meal.tickChew()) return;
         if (homeWait == 0) { homeWait = 200; if(maintainHome())homeWait=20; }
     }
 
     /** The caller commits exactly one real portion when the mouth accepts it. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
+    public boolean beginBinMeal(ItemStack transferred) { return meal.beginBinMeal(transferred); }
     public boolean takeBinWithBraid(MealRoute route, Vec3 contact, GarbageBinBlockEntity bin,
                                    Predicate<Predicate<ItemStack>> hand) {
         return meal.beginTuftMeal(route, new MealRoute.Serving(() -> contact, hand::test,
@@ -893,6 +898,7 @@ public final class YukkuriLife {
         if ((task == Task.FOOD || task == Task.FOOD_GLASS) && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
         if (task != Task.NONE) return true;
         if (stallTheft.carrying() && stallTheft.resumeCarry()) { task = Task.STALL; return true; }
+        if (garbage.resumeCarry()) { task = Task.GARBAGE; return true; }
         if(drugSleep()>0){task=Task.SLEEP;resetSleep();sleepTicks=20;return true;}
         var inside = ShelterBlock.foundInterior(level(), entity.blockPosition());
         if (inside != null && !entity.isPassenger()) {
@@ -1145,7 +1151,7 @@ public final class YukkuriLife {
         task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; return true;
     }
     public void tickGoal() {
-        if (mealTicks() > 0) { entity.getNavigation().stop(); return; }
+        if (mealTicks() > 0 && !garbage.rummaging()) { entity.getNavigation().stop(); return; }
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         pursuitTicks++;
         switch (task) {

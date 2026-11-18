@@ -4082,7 +4082,19 @@ next(s for s in S if s.id == 'stray_rain').smoke['verify'] = _stray_rain_verify
 
 
 def _stray_rubbish_verify(log):
+    mouth = uid('stray_rubbish', 'open_stray')
+    failure = _family_search_order(log, [
+        (mouth, r'garbage sniff [^\n]*tipped=true'),
+        (mouth, r'garbage nose_in '),
+        (mouth, r'garbage pickup item=minecraft:apple [^\n]*holder=mouth [^\n]*marker=pull'),
+        (mouth, r'swallowed item=minecraft:apple\b'),
+    ])
+    if failure:
+        return failure
     bold = uid('stray_rubbish', 'bold_stray')
+    travels = re.findall(rf'uuid={_uuid_of(bold)}[^\n]* garbage ram [^\n]*strokeTravel=([\d.]+)', log)
+    if not travels or min(map(float, travels)) < .18:
+        return f'expected at least .18 block of ram travel, found {travels}'
     braided = re.search(rf'uuid={_uuid_text("stray_rubbish", "bold_stray")} [^\n]*garbage pickup item=minecraft:apple [^\n]*holder=braid', log)
     return _family_search_order(log, [
         (bold, r'garbage ram [^\n]*tipped=false rock=strong'),

@@ -222,6 +222,13 @@ final class LifeMeal {
                 && startMeal(transferred, fromPlayer, alreadyShared);
     }
 
+    /** The bin clip already plays the take-food beat. Its last pose leads straight into chewing. */
+    boolean beginBinMeal(ItemStack transferred) {
+        if (!beginMeal(transferred, null, false)) return false;
+        mealTicks = TAKE_TICKS;
+        return true;
+    }
+
     boolean beginOfferedMeal(ItemStack food, UUID giver, boolean transfersItem) {
         if (!canStartSolid(food)) return false;
         Verdict offered = verdict(food, giver);
@@ -575,7 +582,7 @@ final class LifeMeal {
                 boolean harmful = spicy || toxic > 0;
                 String face = harmful ? "surprise" : waste ? "teary" : reluctant ? "squeezed_cry_tears" : grudging ? "pursed"
                         : guarded ? "teary" : grass && !liked ? "teary"
-                        : defiant ? "smug" : grateful ? "closed_smile" : liked ? "open_smile" : "happy";
+                        : defiant ? "smug" : grateful ? "closed_smile" : liked ? "sparkle" : "happy";
                 String line = harmful ? "hurt" : waste ? "bitter" : reluctant ? "uneasy" : grudging ? "mood_bad"
                         : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat : fedLine;
                 if (!coughing() && (!eater.body().sick() || !harmful)

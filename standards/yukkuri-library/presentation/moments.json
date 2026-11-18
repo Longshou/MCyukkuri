@@ -349,7 +349,7 @@
           "clip": "joy_jump",
           "intensity": 1,
           "tempo": 1,
-          "faces": [[0, "open_smile"], [0.55, "happy"], [1.1, "satisfied"]],
+          "faces": [[0, "sparkle"], [0.55, "happy"], [1.1, "satisfied"]],
           "emote": "note"
         }
       ]
@@ -576,6 +576,28 @@
               "neutral"
             ]
           ]
+        }
+      ]
+    },
+    "behavior_bin_sniff": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "bin_sniff",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": []
+        }
+      ]
+    },
+    "behavior_bin_nose_in": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "bin_nose_in",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": []
         }
       ]
     },
@@ -5103,6 +5125,8 @@
     "house_hide": "behavior_house_hide",
     "house_peek": "behavior_house_peek",
     "house_search_home": "behavior_house_search_home",
+    "bin_sniff": "behavior_bin_sniff",
+    "bin_nose_in": "behavior_bin_nose_in",
     "house_sniff": "behavior_house_sniff",
     "house_shape": "behavior_house_shape",
     "house_tend": "behavior_house_tend",

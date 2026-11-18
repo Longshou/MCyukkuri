@@ -52,6 +52,7 @@ public final class Behaviors {
     public static final String CARRY_LIFT = "carry_lift";
     public static final String CHEW = "chew";
     public static final String BRAID_EAT = "braid_eat", BRAID_EAT_BIN = "braid_eat_bin";
+    public static final String BIN_SNIFF = "bin_sniff", BIN_NOSE_IN = "bin_nose_in";
     public static final String CHEW_GRUDGE = "chew_grudge";
     public static final String CHEW_RELUCTANT = "chew_reluctant";
     public static final String COMFORT_LICK = "comfort_lick";
