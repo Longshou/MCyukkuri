@@ -34,7 +34,7 @@ import build_museum_full as museum  # noqa: E402
 import museum_sites  # noqa: E402
 
 JAVA = ROOT / 'src/main/java'
-KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'summon', 'fill', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
+KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'item', 'summon', 'fill', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
                'forceload', 'gamerule', 'difficulty', 'time', 'weather', 'setworldspawn', 'tag', 'gamemode', 'say', 'fillbiome', 'yukkuri',
                'return', 'particle', 'tick', 'kill', 'damage'}
 
