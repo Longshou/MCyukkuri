@@ -91,6 +91,7 @@ public final class OperationLife {
     public WoundShape settlingShape(){return settlingShape;}
     public boolean controlling(){return table!=null||pose!=Pose.NONE&&pose!=Pose.SLIDE;}
     public Pose pose(){return table!=null?Pose.FIXED:pose;}
+    public boolean pinned(){return pose==Pose.PIN;}
     public UUID operator(){return operator!=null?operator:tableOperator;}
     public BlockPos table(){return table;}
     public UUID hookWound(){return pose==Pose.HOOK?attachedWound:null;}
@@ -141,7 +142,7 @@ public final class OperationLife {
         return pose == Pose.PIN && actor.getUUID().equals(operator) || actor.getUUID().equals(tableOperator);
     }
     boolean release() {
-        if (table!=null) return unstrap("released");
+        if (table!=null && !pinned()) return unstrap("released");
         Pose released = pose;
         boolean returned = end("released");
         if (returned && released == Pose.VIBRATE)

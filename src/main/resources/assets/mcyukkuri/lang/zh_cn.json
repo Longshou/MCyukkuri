@@ -1,5 +1,5 @@
 {
-  "factory.mcyukkuri.box.pale": "尚淡 %s",
+  "factory.mcyukkuri.box.pale_rest": "尚淡 %s · 停手 %s",
   "factory.mcyukkuri.box.sweet": "普通甜可送 %s",
   "factory.mcyukkuri.box.rich_sick": "浓甜 %s · 病变 %s",
   "magnifier.mcyukkuri.mind": "不安 %s · 积甜 %s · 馅甜 %s · 怕你 %s",
@@ -333,7 +333,7 @@
   "operation.mcyukkuri.shake_home": "摇小屋",
   "operation.mcyukkuri.help.shake_home": "惊动近处、确实登记在该住所的住户。",
   "operation.mcyukkuri.pin": "大头针固定",
-  "operation.mcyukkuri.help.pin": "刺入一根针固定身体；解除时退回这根针。",
+  "operation.mcyukkuri.help.pin": "双手空着右键被固定的油库里即可拔针。",
   "operation.mcyukkuri.mallet": "锤击",
   "operation.mcyukkuri.help.mallet": "重锤造成致命伤害。",
   "operation.mcyukkuri.pierce": "锥刺",

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
@@ -28,7 +29,7 @@ final class YukkuriInteractions {
                 return owner.mobInteractBase(player,hand);
             }
             if (player instanceof ServerPlayer server) {
-                if(owner.operations().table()!=null)InteractionDispatch.releaseTable(server,owner);
+                if(owner.operations().pinned() || owner.operations().table()!=null)InteractionDispatch.perform(server,owner,CareAction.RELEASE);
                 else if(player.isSecondaryUseActive())InteractionDispatch.openCare(server,owner);
                 else owner.social().clickedTalk(player);
             }

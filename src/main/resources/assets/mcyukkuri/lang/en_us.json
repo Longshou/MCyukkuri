@@ -1,5 +1,5 @@
 {
-  "factory.mcyukkuri.box.pale": "Mild %s",
+  "factory.mcyukkuri.box.pale_rest": "Mild %s · Rest %s",
   "factory.mcyukkuri.box.sweet": "Sweet, ready %s",
   "factory.mcyukkuri.box.rich_sick": "Rich %s · Sick %s",
   "magnifier.mcyukkuri.mind": "Unease %s · Sweetening %s · Filling %s · Fears you %s",
@@ -333,7 +333,7 @@
   "operation.mcyukkuri.shake_home": "Shake home",
   "operation.mcyukkuri.help.shake_home": "Shake home. Requires close range; active operations may be released.",
   "operation.mcyukkuri.pin": "Pin",
-  "operation.mcyukkuri.help.pin": "Pin. Requires close range; active operations may be released.",
+  "operation.mcyukkuri.help.pin": "Right-click the pinned yukkuri with both hands empty to pull the pin out.",
   "operation.mcyukkuri.mallet": "Mallet",
   "operation.mcyukkuri.help.mallet": "Lethal impact.",
   "operation.mcyukkuri.pierce": "Pierce",

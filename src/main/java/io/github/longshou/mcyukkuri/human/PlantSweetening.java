@@ -316,10 +316,13 @@ final class PlantSweetening extends Goal {
         return animal.body().dying() || animal.body().healthRatio() <= TREAT_LATER || animal.body().condition().painSeverity() >= 3;
     }
 
+    private static boolean leaveToRest(YukkuriEntity body) {
+        return needsTreatment(body) || body.mind().nonYukkuri() || body.mind().unease() >= EASE_OFF
+                || body.mind().fillingSweetness() >= RICH_FILLING;
+    }
+
     private double need(YukkuriEntity body) {
-        if (needsTreatment(body) || body.mind().nonYukkuri() || body.mind().unease() >= EASE_OFF
-                || body.mind().fillingSweetness() >= RICH_FILLING
-                || !body.onGround() || body.hasReaction() || body.isCommandPlaying() || body.life().isSleeping()
+        if (leaveToRest(body) || !body.onGround() || body.hasReaction() || body.isCommandPlaying() || body.life().isSleeping()
                 || body.life().hasUrgentNeed() || body.life().sedated() || InteractionDispatch.operationRefusal(body) != null
                 || InteractionDispatch.contactRefusal(body) != null) return 0;
         var p = body.life().personality();
@@ -468,8 +471,9 @@ final class PlantSweetening extends Goal {
 
     private static void updateReadout(ServerLevel level, PlantSite.Box box, List<YukkuriEntity> stock) {
         if (!(level.getBlockEntity(box.readout()) instanceof SignBlockEntity sign)) return;
-        int pale = 0, sweet = 0, rich = 0, sick = 0;
+        int pale = 0, sweet = 0, rich = 0, sick = 0, resting = 0;
         for (var animal : stock) {
+            if (leaveToRest(animal)) resting++;
             int filling = animal.mind().fillingSweetness();
             if (animal.mind().nonYukkuri()) sick++;
             else if (filling >= RICH_FILLING) rich++;
@@ -477,9 +481,13 @@ final class PlantSweetening extends Goal {
             else pale++;
         }
         var text = sign.getFrontText()
-                .setMessage(1, Component.translatable("factory.mcyukkuri.box.pale", pale))
+                .setMessage(1, Component.translatable("factory.mcyukkuri.box.pale_rest", pale, resting))
                 .setMessage(2, Component.translatable("factory.mcyukkuri.box.sweet", sweet))
                 .setMessage(3, Component.translatable("factory.mcyukkuri.box.rich_sick", rich, sick));
-        if (!Arrays.equals(text.getMessages(false), sign.getFrontText().getMessages(false))) sign.setText(text, true);
+        if (!Arrays.equals(text.getMessages(false), sign.getFrontText().getMessages(false))) {
+            sign.setText(text, true);
+            GameplayLog.world(level, "factory", "action=box_readout box={} pale={} sweet={} rich={} sick={} resting={}",
+                    text.getMessage(0, false).getString(), pale, sweet, rich, sick, resting);
+        }
     }
 }

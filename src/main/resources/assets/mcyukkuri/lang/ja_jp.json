@@ -1,5 +1,5 @@
 {
-  "factory.mcyukkuri.box.pale": "甘さ控えめ %s",
+  "factory.mcyukkuri.box.pale_rest": "薄味 %s・休養 %s",
   "factory.mcyukkuri.box.sweet": "普通の甘さ %s",
   "factory.mcyukkuri.box.rich_sick": "濃い甘さ %s・発症 %s",
   "magnifier.mcyukkuri.mind": "不安 %s・甘化 %s・餡の甘さ %s・あなたへの恐怖 %s",
@@ -562,7 +562,7 @@
   "operation.mcyukkuri.shake_home": "家を揺らす",
   "operation.mcyukkuri.help.shake_home": "近くにいて、その家に実際に登録されている住人を驚かせます。",
   "operation.mcyukkuri.pin": "ピンで固定する",
-  "operation.mcyukkuri.help.pin": "ピンを 1 本刺して体を固定します。解除するとそのピンが戻ります。",
+  "operation.mcyukkuri.help.pin": "両手を空けて固定中のゆっくりを右クリックすると、ピンを抜けます。",
   "operation.mcyukkuri.mallet": "木槌で打つ",
   "operation.mcyukkuri.help.mallet": "重い一撃で致命傷を与えます。",
   "operation.mcyukkuri.pierce": "錐で刺す",

@@ -2520,15 +2520,29 @@ add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房�
 
 _sweet_box = 'factory_sweet_box'
 _sweet_cast = (
-    ('sweet_defiant', 3, 17, '胆大·低自制', 80, 25, 25, 59, 75),
-    ('sweet_endure', 4, 18, '胆大·高自制', 80, 80, 55, 61, 45),
-    ('sweet_timid', 3, 20, '胆小·低自制', 25, 30, 55, 63, 64),
+    ('sweet_defiant', 3, 17, '胆大·低自制', 80, 25, 25, 67, 75),
+    ('sweet_endure', 4, 18, '胆大·高自制', 80, 80, 55, 67, 45),
+    ('sweet_timid', 3, 20, '胆小·低自制', 25, 30, 55, 67, 64),
 )
 _sweet_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
-add(_sweet_box, 'plant', '甜化箱', '甜化箱',
-    '在 A 箱比较三只同龄油库里。同样用一次冷锥，看谁回嘴、硬撑、噤声、哭求或退开。用放大镜记下每只的不安、积甜、馅甜和对你或员工的恐惧。'
-    '看员工摆下固定台，提实篮走到台前开篮，操作结束后松绑。开门或挡路会改变员工可到达的接触位置。B、C、D 箱的开张原料供对照箱牌。',
-    '观察一至两分钟，等个体回到日常活动', [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
+_sweet_cabinet = f'~{_plant_x - 1} ~2 ~{_plant_z + 16}'
+_sweet_b = '@e[type=mcyukkuri:reimu,distance=..2,limit=1]'
+_sweet_boards = (
+    (18, ('A 同龄对照', '用同一工具', '看它顶嘴或哭求', '双手空着可拔针')),
+    (23, ('B 尚淡起步', '不安越久', '积甜越多', '看箱牌转普通甜')),
+    (28, ('C 普通甜起步', '馅甜达到 65', '可送普通甜', '用放大镜查看')),
+    (35, ('D 浓甜起步', '馅甜达到 75', '员工停手', '留它休息')),
+)
+add(_sweet_box, 'plant', '甜化箱：加压、积甜与停手', '甜化箱：加压、积甜与停手',
+    '看 B 箱门牌。灵梦的馅还淡，员工会按体况选工具。看它受惊、缩起或硬撑，用放大镜对比接触前后的不安与积甜，等箱牌从尚淡转为普通甜。'
+    '沿走道看 C 箱的普通甜和 D 箱的浓甜，门牌写着员工对几只停手。到 A 箱对三只同龄个体用同一工具，比较它们对你的反应与恐惧。',
+    '观察约一分钟。拔针时双手空着，右键个体，再捡起针。',
+    [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north',
+     # This existing, sound animal is close to the ordinary grade (11.25 accumulated). Its next gain is a real mind sample.
+     f'execute positioned ~{_plant_x - 5.5} ~2 ~{_plant_z + 24.5} run data merge entity {_sweet_b} '
+     '{YukkuriMind:{Unease:63f,Sweetness:10.2f},YukkuriLife:{Personality:{Innate:[I;55,55,85,60,70]}}}',
+     *[block(_plant_x - 3, 4, _plant_z + z, 'minecraft:birch_wall_sign[facing=east]{front_text:{messages:['
+             + ','.join("'" + _text(line, 'black') + "'" for line in lines) + ']}}') for z, lines in _sweet_boards]],
     late=[command for name, x, z, label, bold, control, friendly, unease, bladder in _sweet_cast for command in (
         yk('marisa', _plant_x + x - 10, _plant_z + z, name, dy=2, label=label, boldness=bold, self_control=control,
            friendliness=friendly, nutrition=41, energy=70, bladder=bladder, social_wait=0, rest_wait=0, picky=0,
@@ -2537,7 +2551,7 @@ add(_sweet_box, 'plant', '甜化箱', '甜化箱',
         f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
         f'data modify entity {sel(name)} {OWNED}.Owner set from entity {_sweet_site} UUID',
     )], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame',
-              'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x - 2, _plant_z + 19, 90, 15, 2),
+              'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x, _plant_z + 24, 113, -5, 2),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _sweet_cast])
 
 _kin_boxes = 'factory_kin_boxes'
@@ -2912,7 +2926,7 @@ _source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arro
                ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
 add('wound_sources','body','用真实武器和环境造成伤','用真实武器和环境造成伤',
     '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖从空手潜行右键的照料菜单操作。一次MC命中不虚构逐齿逐刺落点',
-    '先看右后追咬，再逐类手动操作。架上仰卧时针和钩贴在各自刺出的伤口，空手右键松绑。离开固定台使用吊钩需要顶板。剪发和剪饰物看头部掉落并听剪声。清场恢复地形与实体。',[
+    '先看右后追咬，再逐类手动操作。针和钩贴在各自刺出的伤口。双手空着右键个体拔针，在台上再点一次松绑。离开固定台使用吊钩需要顶板。剪发和剪饰物看头部掉落并听剪声。清场恢复地形与实体。',[
         *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
         box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
         yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95)],
@@ -5695,9 +5709,12 @@ _smoke('wound_sources', 320, [
     r'\[interaction\][^\n]* action=CUT_ACCESSORY success=true',
 ])
 next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
-    # The headless operator is not a level player, so the ordinary operator-departure exit returns each tool on the next tick.
     (4, f'execute at {sel("blunt")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("blunt")} enclose'),
-    (6, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("cut")} pin'),
+    (5, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (5, 'item replace entity @p[name=MuseumOperator] weapon.mainhand with mcyukkuri:pin_tool'),
+    (6, f'yukkuri scenario shop_stock_click {sel("cut")}'),
+    (7, f'yukkuri scenario shop_stock_click {sel("cut")}'),
+    (7, 'yukkuri scenario tool_operator leave'),
     (8, f'execute at {sel("arrow")} run setblock ~ ~3 ~ minecraft:glass'),
     (9, f'execute at {sel("arrow")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("arrow")} hook_hang'),
     (10, f'execute at {sel("thorn")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("thorn")} cut_left'),
@@ -5743,7 +5760,15 @@ _wound_smoke['commands'].extend([
     (119, 'yukkuri scenario tool_operator select 1'),
     (120, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
     (144, 'yukkuri scenario shop_block_click ~ ~ ~4'),
-    (146, f'execute at {sel("tool_frame")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("tool_frame")} hook_hang'),
+    (145, 'item replace entity @p[distance=..8] hotbar.2 with mcyukkuri:pin_tool[minecraft:custom_data={BD07:1b}]'),
+    (145, 'yukkuri scenario tool_operator select 2'),
+    (146, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
+    (150, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
+    (151, f'execute if data entity {sel("tool_frame")} YukkuriOperations.Table '
+          f'unless data entity {sel("tool_frame")} YukkuriOperations.PendingReturn '
+          'if entity @e[type=item,nbt={Item:{id:"mcyukkuri:pin_tool",count:1,components:{"minecraft:custom_data":{BD07:1b}}}}] '
+          'run say MCY_BD07_PIN_OUT_TABLE_HELD'),
+    (164, f'execute at {sel("tool_frame")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("tool_frame")} hook_hang'),
     (169, 'yukkuri scenario tool_operator select 2'),
     (170, 'yukkuri scenario shop_block_click ~ ~ ~4'),
     (171, 'yukkuri scenario tool_operator leave'),
@@ -5751,6 +5776,8 @@ _wound_smoke['commands'].extend([
 ])
 _wound_smoke['commands'].sort(key=lambda command: command[0])
 _wound_smoke['expect'].extend([
+    'MCY_BD07_PIN_OUT_TABLE_HELD',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* pose=PIN elapsed=\d+ remaining=[1-9]\d* reason=released',
     rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* accepted damage cause=mob [^\n]* loss=2\.0',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* tool used; [^\n]* action=PIERCE item=mcyukkuri:care_awl hand_count=1 -> 1 damage=0 -> 1',
     r'\[body\][^\n]* accepted damage cause=player [^\n]* loss=2\.0',
@@ -5764,10 +5791,17 @@ _wound_smoke['expect'].extend([
 def _wound_tool_binding(window):
     wounds = set(re.findall(r'\[body\][^\n]* uuid=([\w-]+) [^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
     attachments = re.findall(r'\[interaction\][^\n]* uuid=([\w-]+) [^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window)
-    if (len(attachments) != 4 or sorted(pose for _, pose, _ in attachments) != ['HOOK', 'HOOK', 'PIN', 'PIN']
-            or len({wound for _, _, wound in attachments}) != 4
+    if (sorted(pose for _, pose, _ in attachments) != ['HOOK', 'HOOK', 'PIN', 'PIN', 'PIN']
+            or len({wound for _, _, wound in attachments}) != 5
             or any((actor, wound) not in wounds for actor, _, wound in attachments)):
-        return 'both pins and both hooks must each bind to their own committed puncture'
+        return 'each of the three pins and two hooks must bind to its own committed puncture'
+    pulls = re.findall(r'\[interaction\][^\n]* uuid=(\S+) [^\n]* operation ended; actor=2d4c7192-2a6d-4da4-9f94-c82721b9de87 '
+                       r'pose=PIN elapsed=\d+ remaining=[1-9]\d* reason=released', window)
+    if len(set(pulls)) != 2:
+        return 'the player must pull a live pin on the floor and on the table'
+    for animal in pulls:
+        if len(re.findall(rf'\[interaction\][^\n]* uuid={animal} [^\n]* binding returned to world; [^\n]* item=mcyukkuri:pin_tool count=1', window)) != 1:
+            return f'pulling the pin from {animal} must return exactly one pin'
     for case, tool, _ in _staff_tool_cases[1:]:
         target = _uuid_text('wound_sources', 'tool_' + case)
         drops = re.findall(rf'\[interaction\][^\n]* uuid={target} [^\n]* binding returned to world; drop=([\w-]+) item=mcyukkuri:{tool} count=1', window)
@@ -6368,6 +6402,14 @@ def _verify_sweet_box(window):
     pressure = re.findall(_sweet_pressure, window)
     if len(pressure) < 2:
         return f'Expected two natural staff contacts, got {pressure}'
+    stock = dict(re.findall(r'\[factory\][^\n]* uuid=(\S+) [^\n]* action=opening_stock box=([BD]) ', window))
+    if any(stock.get(animal) == 'D' for animal, *_ in pressure):
+        return 'Staff worked the rich stock marked for rest'
+    pale = window.find('action=box_readout box=甜化箱 B pale=1 sweet=0')
+    ordinary = window.find('action=box_readout box=甜化箱 B pale=0 sweet=1')
+    if pale < 0 or ordinary <= pale or not any(stock.get(m[1]) == 'B' and float(m[6]) > float(m[5])
+                                                for m in re.finditer(_sweet_pressure, window[pale:ordinary])):
+        return 'B must go from pale to ordinary on its sign after staff contact increases its unease'
     victims = re.findall(_sweet_victim, window)
     for animal, tick, staff, tool, before, after, health, sweet, fear in pressure:
         if float(before) >= 72 or float(after) >= 95 or float(health) <= .65:
@@ -6410,20 +6452,15 @@ _smoke(_sweet_box, 2400, [
     r'\[factory\][^\n]* action=opening_stock box=C [^\n]* unease=68\.0 sweet=68\b',
     r'\[factory\][^\n]* action=opening_stock box=D [^\n]* unease=80\.0 sweet=77\b',
     r'\[factory\][^\n]* action=table_deploy result=placed [^\n]* held=0',
+    r'action=box_readout box=甜化箱 C pale=0 sweet=1 rich=0 sick=0',
+    r'action=box_readout box=甜化箱 D pale=0 sweet=0 rich=1 sick=0 resting=1',
 ], forbid=[r'\[body\][^\n]* death settled', r'\[punishment\][^\n]* response=collapse'], readout=[
     *[f'yukkuri status {sel(name)} raw' for name, *_ in _sweet_cast],
     *[f'data get block ~{_plant_x - 3} ~4 ~{_plant_z + z} front_text.messages' for z in (17, 22, 27, 34)],
 ])
 _sweet_smoke = next(s for s in S if s.id == _sweet_box).smoke
 _sweet_smoke['verify'] = _verify_sweet_box
-_sweet_cabinet = f'~{_plant_x - 1} ~2 ~{_plant_z + 16}'
-_sweet_wheat = f'~{_plant_x + 8} ~2 ~{_plant_z + 18}'
 _sweet_smoke['commands'] = [
-    # Model a tool taken out of service by moving the real stack to the separate store chest.
-    (1, f'item replace block {_sweet_wheat} container.17 from block {_sweet_cabinet} container.0'),
-    (1, f'item replace block {_sweet_cabinet} container.0 with minecraft:air'),
-    (1, f'item replace block {_sweet_wheat} container.16 from block {_sweet_cabinet} container.1'),
-    (1, f'item replace block {_sweet_cabinet} container.1 with minecraft:air'),
     *[(2050 + 2 * i, f'execute at {sel(name)} run yukkuri scenario tool_click {sel(name)} pierce')
       for i, (name, *_) in enumerate(_sweet_cast)],
 ]

@@ -131,9 +131,6 @@ public final class InteractionDispatch {
     public static void openCare(ServerPlayer player,YukkuriEntity target){
         if(requireReach(player,target,5))open(player,target,false);
     }
-    public static void releaseTable(ServerPlayer player,YukkuriEntity target){
-        if(requireReach(player,target,5))target.operations().unstrap("released");
-    }
     public static boolean openCutter(ServerPlayer player,YukkuriEntity target){
         if(!requireHarmContact(player,target,5,"cutter"))return false;
         var reason=ExamSession.running(target)||!target.operations().toolReady(false)?"busy":null;
