@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 待看合并同一演出、滚动条可拖 | `.worktrees/wp-playtest-merge` | scripts/playtest_list.py, client/ViewerScreen.java |
 
 ## 玩法待办
 
