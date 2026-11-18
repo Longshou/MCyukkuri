@@ -2381,15 +2381,17 @@ add('yard_street_walk', 'town', '两只宠物跟主人逛街', '两只宠物跟�
 
 _park_outing = []
 for _kind, _name, _x, _z, _bold, _bond in _outing_pets:
+    _play_scale = 1.15 if _kind == 'reimu' else .9
     _park_outing += [
         yk(_kind, _x, _z, _name, uuid=uid('yard_park_play', _name), boldness=_bold, attachment=_bond,
-           nutrition=100, energy=50 if _kind == 'reimu' else 100,
-           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True),
+           nutrition=100, energy=(60, 65) if _kind == 'reimu' else (93, 100),
+           extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True).replace(
+               'AdultScale:1f,Scale:1f', f'AdultScale:{_play_scale}f,Scale:{_play_scale}f'),
         f'data modify entity {sel(_name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
         f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("outing_keeper")} UUID',
     ]
 add('yard_park_play', 'town', '主人带两只宠物去公园玩', '主人带两只宠物去公园玩',
-    '院主带灵梦和魔理沙走到草地上的蹦床旁。看它们自己上蹦床玩，灵梦玩累后在干地趴下，主人等它醒来再一起回院。',
+    '院主带灵梦和魔理沙去公园。看较重、精力较少的灵梦和魔理沙弹得多高，床面是否随落地压下回弹。也可以站上床面自己跳，试着落地接跳或潜行停弹。',
     '约 2 分钟', [
         *_yard_ground(True),
         box(0, 0, -1, 0, 0, 1, 'minecraft:air'),
@@ -6621,15 +6623,23 @@ next(s for s in S if s.id == 'yard_street_walk').smoke.update(verify=_outing_cro
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
 ])
 def _park_play_pet_fates(window):
-    """Either outcome is valid for each pet: finishing a trampoline session, or resting and waking before the walk home."""
+    """Both pets rebound; before returning each finishes playing or rests and wakes."""
+    first = []
     for _, name, *_ in _outing_pets:
         actor = _uuid_text('yard_park_play', name)
         played = re.search(rf'uuid={actor} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b', window)
         rest = re.search(rf'uuid={actor} [^\n]*outing rest begin ', window)
         woke = re.search(rf'uuid={actor} [^\n]*end source=life cause=rested ', window)
-        if played or (rest and woke and rest.start() < woke.start()):
-            continue
-        return f'{name} neither finished a trampoline session nor rested and woke'
+        if not (played or (rest and woke and rest.start() < woke.start())):
+            return f'{name} neither finished a trampoline session nor rested and woke'
+        bounce = re.search(rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
+                           r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)
+        if not bounce:
+            return f'{name} had no measured trampoline rebound'
+        first.append(tuple(map(float, bounce.groups())))
+    heavy, light = first
+    if not (heavy[0] > light[0] and heavy[1] < light[1] and 0 < heavy[2] < light[2]):
+        return f'park rebound height did not follow weight and energy: {first}'
     return None
 
 
@@ -6641,7 +6651,8 @@ _smoke('yard_park_play', 2600, [
     r'action=outing_home',
     *[rf'uuid={_uuid_text("yard_park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
     r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
-], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)'],
+], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
+           r'\[body\][^\n]*accepted damage cause=fall\b'],
     readout=[
         'execute if block ~-13 ~ ~6 mcyukkuri:yukkuri_trampoline run say MCY_PARK_FACILITY_BEFORE_CLEAR',
         'function mcylab:field/town/clear',

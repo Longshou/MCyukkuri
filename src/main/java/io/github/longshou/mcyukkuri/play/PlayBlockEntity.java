@@ -13,10 +13,23 @@ import net.minecraft.world.level.block.Blocks;
 /** Water is saved in the block state. Activity reservations are short, loaded-world leases. */
 public final class PlayBlockEntity extends BlockEntity {
     private UUID player;private long leaseUntil;private boolean dismantling,suppressDrop;
+    private long bedImpactTick;
+    private float bedImpactStrength;
     public PlayBlockEntity(BlockPos pos,BlockState state){super(Playgrounds.ENTITY.get(),pos,state);}
     public PlayBlock.Kind kind(){return ((PlayBlock)getBlockState().getBlock()).kind();}
     public Direction facing(){return getBlockState().getValue(PlayBlock.FACING);}
     public int water(){return getBlockState().getValue(PlayBlock.WATER);}
+
+    void pressBed(float strength) {
+        bedImpactTick = level.getGameTime();
+        bedImpactStrength = strength;
+    }
+
+    public float bedDepression(float partial) {
+        // Return in four ticks. The skirt hides at most two model units of bed travel.
+        float spring = Math.max(0, 1 - (level.getGameTime() - bedImpactTick + partial) / 4);
+        return (2 / 16f) * bedImpactStrength * spring * spring;
+    }
     public void fill(){setWater(3);}
     public boolean spendWater(){if(level==null||level.isClientSide||isRemoved()||water()==0)return false;setWater(water()-1);return true;}
     private void setWater(int value){level.setBlockAndUpdate(worldPosition,getBlockState().setValue(PlayBlock.WATER,value));setChanged();}

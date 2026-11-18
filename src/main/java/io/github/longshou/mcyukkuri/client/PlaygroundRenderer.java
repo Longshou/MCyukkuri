@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.play.PlayGeometry;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -15,7 +16,11 @@ public final class PlaygroundRenderer implements BlockEntityRenderer<PlayBlockEn
     @Override public void render(PlayBlockEntity e,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         if(e.getLevel()!=null)light=LevelRenderer.getLightColor(e.getLevel(),e.getBlockPos().above(2));
         pose.pushPose();pose.translate(.5,0,.5);pose.mulPose(Axis.YP.rotationDegrees(-90*PlayGeometry.turns(e.facing())));
-        PropModels.render(e.kind().id,Integer.MAX_VALUE,pose,buffers,light,overlay);pose.popPose();
+        if (e.kind() == PlayBlock.Kind.TRAMPOLINE) {
+            // The fixed, opaque y=9 rim occludes the bed and contact at y=8 through the normal depth test.
+            PropModels.renderShiftedPart(e.kind().id, "bed", -e.bedDepression(partial), pose, buffers, light, overlay);
+        } else PropModels.render(e.kind().id,Integer.MAX_VALUE,pose,buffers,light,overlay);
+        pose.popPose();
     }
     @Override public AABB getRenderBoundingBox(PlayBlockEntity e){return new AABB(e.getBlockPos()).inflate(2,0,2).expandTowards(0,2,0);}
     @Override public boolean shouldRenderOffScreen(PlayBlockEntity e){return true;}

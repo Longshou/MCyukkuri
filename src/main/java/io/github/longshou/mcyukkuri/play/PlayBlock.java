@@ -1,9 +1,17 @@
 package io.github.longshou.mcyukkuri.play;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
+import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
+import io.github.longshou.mcyukkuri.motor.geom.TrampolineSpring;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -29,8 +37,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import net.minecraft.util.RandomSource;
 
 public final class PlayBlock extends Block implements EntityBlock {
     public enum Kind {
@@ -41,6 +47,8 @@ public final class PlayBlock extends Block implements EntityBlock {
     public static final IntegerProperty PART=IntegerProperty.create("part",0,49), WATER=IntegerProperty.create("water",0,3);
     public static final DirectionProperty FACING=BlockStateProperties.HORIZONTAL_FACING;
     public static final int CORE=12;
+    public static final double BED_HEIGHT=8/16.0;
+    private static final int BED_IMPACT=1;
     private final Kind kind;
     public PlayBlock(Kind kind,Properties properties){super(properties);this.kind=kind;registerDefaultState(stateDefinition.any().setValue(PART,CORE).setValue(FACING,
             Direction.SOUTH).setValue(WATER,0));}
@@ -64,6 +72,65 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected boolean isPathfindable(BlockState state,PathComputationType type){return type==PathComputationType.LAND;}
     @Override protected FluidState getFluidState(BlockState state){return kind==Kind.POOL&&state.getValue(PART)==CORE&&state.getValue(WATER)>0
             ?Fluids.FLOWING_WATER.getFlowing(state.getValue(WATER),false):super.getFluidState(state);}
+
+    public static boolean onTrampolineBed(Entity entity) {
+        var pos = entity.getOnPos();
+        return onTrampolineBed(entity.level().getBlockState(pos), pos, entity);
+    }
+
+    private static boolean onTrampolineBed(BlockState state, BlockPos pos, Entity entity) {
+        // The supporting collision has a top at y=8 only for the bed. Rim and legs are at y=9 and y=4.
+        return state.getBlock() instanceof PlayBlock block && block.kind == Kind.TRAMPOLINE
+                && entity.onGround() && Math.abs(entity.getY() - pos.getY() - BED_HEIGHT) < 1e-6;
+    }
+
+    @Override public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float distance) {
+        if (!onTrampolineBed(state, pos, entity) || entity.isSuppressingBounce()) {
+            super.fallOn(level, state, pos, entity, distance);
+        } else if (entity instanceof ServerPlayer) {
+            // The server receives the player's landings as positions. Estimate the impact from its measured fall.
+            double impact = Math.max(-entity.getKnownMovement().y, Math.sqrt(2 * Ballistic.GRAVITY * distance));
+            if (TrampolineSpring.rebound(impact, TrampolineSpring.RESTITUTION, entity.getGravity()) > 0) {
+                bedImpact(level, state, pos, impact);
+            }
+        }
+    }
+
+    @Override public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
+        var pos = entity.getOnPos();
+        var state = level.getBlockState(pos);
+        double impact = -entity.getDeltaMovement().y;
+        if (state.is(this) && onTrampolineBed(state, pos, entity) && !entity.isSuppressingBounce()
+                && !(entity instanceof ServerPlayer)) {
+            boolean rebounded;
+            if (entity instanceof YukkuriEntity body) {
+                boolean playing = body.playLife().springingAt(root(pos, state));
+                rebounded = TrampolineMotion.rebound(body, impact, playing);
+                if (rebounded && playing) body.playLife().trampolineBounced();
+            } else rebounded = TrampolineMotion.rebound(entity, impact);
+            if (rebounded) {
+                if (level instanceof ServerLevel server) bedImpact(server, state, pos, impact);
+                return;
+            }
+        }
+        super.updateEntityAfterFallOn(level, entity);
+    }
+
+    private void bedImpact(Level level, BlockState state, BlockPos pos, double speed) {
+        var center = root(pos, state);
+        // A solid landing (about three blocks of fall) presses the bed to its authored limit.
+        double strength = Math.min(1, speed / .65);
+        level.blockEvent(center, this, BED_IMPACT, (int) Math.round(255 * strength));
+        level.playSound(null, center, SoundEvents.SLIME_JUMP, SoundSource.BLOCKS, (float) (.2 + .6 * strength), 1.45f);
+    }
+
+    @Override protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int amount) {
+        if (id != BED_IMPACT || kind != Kind.TRAMPOLINE) return super.triggerEvent(state, level, pos, id, amount);
+        if (!(level.getBlockEntity(pos) instanceof PlayBlockEntity trampoline)) return false;
+        if (level.isClientSide) trampoline.pressBed(amount / 255f);
+        return true;
+    }
+
     @Override protected void entityInside(BlockState state,Level level,BlockPos pos,Entity entity){
         if(!level.isClientSide&&kind==Kind.POOL&&state.getValue(PART)==CORE&&entity instanceof YukkuriEntity y
                 &&y.isInWater()&&y.tickCount%40==0){var pool=facility(level,pos);if(pool!=null)pool.rinse(y);}

@@ -18,13 +18,18 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
 
     /** Reads the ability of {@code body}, where {@code load} is the host's load in the units of L. The {@code scale} is S, which the arc solver uses for its minimum clearance. */
     public static BodyAbility of(YukkuriEntity body, double load) {
-        AbilityMath.Values ability = AbilityMath.compute(inputs(body, load), AbilityTable.current(),
-                AbilityModifier.of(body));
+        AbilityMath.Values ability = values(body, load);
         double temperament = temperament(body);
         return new BodyAbility(ability.canJump(), ability.hopHeight(), ability.hopReach(), Gait.hop(ability.size(), temperament),
                 ability.stepUp(), Gait.walk(ability.walkSpeed(), temperament), ability.turnRate(),
                 Gait.swim(ability.swimSpeed(), temperament), ability.climbRise(), ability.grip(),
                 ability.size());
+    }
+
+    public static double fitness(YukkuriEntity body) { return values(body, 0).fitness(); }
+
+    private static AbilityMath.Values values(YukkuriEntity body, double load) {
+        return AbilityMath.compute(inputs(body, load), AbilityTable.current(), AbilityModifier.of(body));
     }
 
     /** Character and present mood: boldness sets the usual pace, a grieving body drags itself along (mind/EmotionCourse). */

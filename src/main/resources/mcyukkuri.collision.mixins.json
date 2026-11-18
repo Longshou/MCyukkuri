@@ -3,5 +3,5 @@
   "minVersion": "0.8",
   "package": "io.github.longshou.mcyukkuri.motor.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["VoxelShapeAccess"]
+  "mixins": ["VoxelShapeAccess", "TrampolineJumpMixin"]
 }

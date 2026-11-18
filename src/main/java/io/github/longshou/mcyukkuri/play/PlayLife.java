@@ -5,8 +5,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Motor;
-import io.github.longshou.mcyukkuri.motor.MotorOwner;
-import io.github.longshou.mcyukkuri.motor.action.Launch;
+import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -17,18 +16,13 @@ import net.minecraft.world.phys.Vec3;
 /** Interruptible physical routes. No route teleports the body or advances while unloaded. */
 public final class PlayLife {
     private final YukkuriEntity entity;
-    /** The facility session's own claim on the body: the mat's bounce is a real Launch, not a written velocity. */
-    private static final MotorOwner PLAY = new MotorOwner() {
-        @Override public String ownerId() { return "play_facility"; }
-        @Override public boolean active() { return true; }
-    };
     private PlayBlockEntity facility;
     private List<Vec3> route=List.of();
-    private int cooldown,scanWait,elapsed,waypoint,bounces,bounceWait,stalled,bounceLimit;
+    private int cooldown,scanWait,elapsed,waypoint,bounces,stalled,bounceLimit;
     private int lastElapsed;
     private String refused;
     private double lastDistance=Double.MAX_VALUE;
-    private boolean completed,bouncing;
+    private boolean completed,springing;
     public PlayLife(YukkuriEntity entity){this.entity=entity;}
     public boolean active(){return facility!=null;}
     public boolean completed(){return completed;}
@@ -41,7 +35,7 @@ public final class PlayLife {
             &&!entity.operations().active()&&!entity.groupInteraction().active()
             &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
             &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&entity.body().condition().readyForPlay()
-            &&(!entity.family().active()||entity.motor().owner()==PLAY)&&!entity.house().active();}
+            &&!entity.family().active()&&!entity.house().active();}
     public void clock(){
         if(cooldown>0)cooldown--;
         if(scanWait>0)scanWait--;
@@ -73,14 +67,14 @@ public final class PlayLife {
         var local=switch(target.kind()){
             case CERAMIC->List.of(new Vec3(0,0,-2),new Vec3(0,.125,-1),new Vec3(0,.125,0),new Vec3(0,.125,1),new Vec3(0,0,2));
             case SLIDE->List.of(new Vec3(0,0,-2.8),new Vec3(0,.25,-1.9),new Vec3(0,.5,-1.4),new Vec3(0,.75,-.9),new Vec3(0,1,-.4),new Vec3(0,1,0),new Vec3(0,0,2.8));
-            case TRAMPOLINE->List.of(new Vec3(0,0,-1.7),new Vec3(0,.3125,0),new Vec3(0,0,1.7));
+            case TRAMPOLINE->List.of(new Vec3(0,0,-1.7),new Vec3(0,PlayBlock.BED_HEIGHT,0),new Vec3(0,0,1.7));
             case POOL->List.of(new Vec3(-.95,0,-1.2),new Vec3(-.95,.375,0),new Vec3(-.95,0,1.2),new Vec3(0,0,1.5));
         };
         var points=local.stream().map(v->PlayGeometry.world(target.getBlockPos(),target.facing(),v.x,v.y,v.z)).toList();
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach())return refuse("blocked");
         if(!target.reserve(entity))return refuse("occupied");
-        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=bounceWait=stalled=0;lastDistance=Double.MAX_VALUE;completed=bouncing=false;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
+        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;completed=springing=false;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
         lastElapsed=-1;
         entity.getNavigation().moveTo(path,.8);
         GameplayLog.limited(entity,"play","started",1200,"facility session started kind={} at={} energy={} bounceLimit={}",
@@ -94,34 +88,59 @@ public final class PlayLife {
             &&(facility.kind()!=PlayBlock.Kind.POOL||facility.water()>0)
             &&entity.distanceToSqr(Vec3.atCenterOf(facility.getBlockPos()))<144&&facility.reserve(entity);}
     public boolean canContinue(){return valid();}
+
+    boolean springingAt(BlockPos root) {
+        return springing && facility.getBlockPos().equals(root);
+    }
+
+    void trampolineBounced() {
+        bounces++;
+        entity.life().spendEnergy(2);
+        entity.mind().felt(EmotionEvent.PLAYED);
+        entity.showReaction("happy","toy",45);
+    }
+
     public void tickGoal(){
-        if(!valid()){stop();return;}elapsed++;if(bounceWait>0)bounceWait--;
+        if(!valid()){stop();return;}elapsed++;
         Vec3 target=route.get(waypoint);double distance=target.subtract(entity.position()).horizontalDistance();
         entity.getLookControl().setLookAt(target.x,entity.getEyeY(),target.z,25,25);
-        boolean onMat=facility.kind()==PlayBlock.Kind.TRAMPOLINE&&waypoint==1&&distance<.25;
-        if(onMat){
-            entity.getNavigation().stop();
-            if(!entity.onGround())return;
-            // Let the client's position interpolation settle on the mat before the next launch.
-            if(bouncing){bouncing=false;bounceWait=6;return;}
-            if(bounces<bounceLimit){
-                if(bounceWait==0&&entity.motor().current()==null){
-                    if(!entity.life().spendEnergy(2)){stop();return;}
-                    if(entity.motor().run(PLAY,new Launch(new Vec3(0,.48,0),"trampoline_bounce"))){
-                        entity.fallDistance=0;
-                        bounces++;bouncing=true;bounceWait=12;entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",45);
-                    }
+        boolean trampoline = facility.kind() == PlayBlock.Kind.TRAMPOLINE;
+        if (trampoline && waypoint == 1) {
+            if (springing) {
+                boolean enough = bounces >= bounceLimit || entity.life().energy() < 35
+                        || entity.outing().onOuting() && entity.outing().tired();
+                if (!entity.onGround() || entity.getDeltaMovement().y > 0 && !enough) {
+                    TrampolineMotion.steady(entity);
+                    return;
+                }
+                springing = false;
+                // Take the last rebound toward the exit. If the spring has settled, hop toward it from the bed.
+                if (entity.getDeltaMovement().y <= 0) TrampolineMotion.hop(entity);
+                waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
+                target=route.get(waypoint);distance=target.subtract(entity.position()).horizontalDistance();
+            } else if (distance < .22 && PlayBlock.onTrampolineBed(entity)) {
+                entity.getNavigation().stop();
+                if (entity.motor().current() == null) {
+                    springing = true;
+                    TrampolineMotion.hop(entity);
                 }
                 return;
             }
-            if(bounceWait>0)return;
         }
-        if(distance<.22&&Math.abs(entity.getY()-target.y)<.6){
+        if(distance<.22&&Math.abs(entity.getY()-target.y)<.6&&!(trampoline&&waypoint==1)){
+            if (trampoline && waypoint == 2 && !entity.onGround()) {
+                TrampolineMotion.steady(entity);
+                return;
+            }
             waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
             if(waypoint>=route.size()){
-                completed=true;entity.dailyLife().entertained(Math.min(30,20+2*bounces));
-                if(entity.outing().onOuting())entity.outing().finishedParkPlay();
-                entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",70);stop();return;
+                completed=!trampoline||bounces>0;
+                if(completed){
+                    entity.dailyLife().entertained(Math.min(30,20+2*bounces));
+                    if(entity.outing().onOuting())entity.outing().finishedParkPlay();
+                    entity.mind().felt(EmotionEvent.PLAYED);entity.showReaction("happy","toy",70);
+                }
+                stop();return;
             }
             if(!entity.life().spendEnergy(.5f)){stop();return;}target=route.get(waypoint);
         }
@@ -149,7 +168,7 @@ public final class PlayLife {
                     facility.kind(),facility.getBlockPos(),completed,elapsed,waypoint,bounces,stalled,entity.life().nutrition(),
                     entity.life().energy(),entity.dailyLife().boredom());
         }
-        facility=null;route=List.of();entity.getNavigation().stop();
+        springing=false;facility=null;route=List.of();entity.getNavigation().stop();
     }
     private void face(Vec3 direction){Motor.face(entity,(float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));}
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag;}
