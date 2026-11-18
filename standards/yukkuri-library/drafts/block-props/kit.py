@@ -1,16 +1,21 @@
 """Shared kit for the vanilla-style world props: block-style voxel models and extruded item icons.
 
-Block style (placed, rolled and shelf props): cells of one unit (1/16 block) filled with materials. Only faces between a
+Which style: small handheld or dropped items (bottles, cord, whistle, cloth) are extruded icons; anything placed as a
+block, larger than about 8 units, or standing on furniture is block style, and every rounded object gets an explicit
+stepped-round recipe (octagon() and inset() for flat vessels, Shape.ball() for spheres) plus painted detail, never a
+plain cuboid stack.
+
+Block style: cells of one unit (1/16 block) filled with materials. Only faces between a
 filled cell and an empty one are drawn, merged into rectangles, so no two faces ever share a plane (no z-fighting) and no
 face hides inside the solid. Every face texel is painted from its cell: one texel per unit (vanilla density), each
 material a ramp from the item icons (`item-icons/draw.py` is the only palette source), light from the top left (top faces
 one step lighter; the top row of a side face and the north and west border of a top face one step lighter, the bottom
-row and the south and east border one step darker), no
-noise tiles and no vanilla textures.
+row and the south and east border one step darker), no noise tiles and no vanilla textures.
 
 Extruded icons (small handheld items): the 16x16 icon itself becomes the prop the way vanilla builds `item/generated`:
 a front and a back face plus one-pixel edge strips, one pixel thick, scaled to the item's real height. The texture is
-the icon, so the world view cannot drift from it.
+the icon, so the world view cannot drift from it. prop_item_model(extruded=True) gives the plate vanilla hand angles
+and a turned fixed view so it is never held edge-on.
 
 Models export the PropModels triangle mesh (eight floats per vertex), a Blockbench `.bbmodel` and the PNG atlas.
 Units are 1/16 block, +Y up, the icon front faces -Z.
@@ -47,15 +52,25 @@ def png_bytes(image):
     return stream.getvalue()
 
 
-def prop_item_model(name, gui=None):
-    """The `builtin/entity` item model drawn by client/PropItemRenderer; `gui` overrides the inventory transform."""
+def prop_item_model(name, gui=None, extruded=False):
+    """The `builtin/entity` item model drawn by client/PropItemRenderer; `gui` overrides the inventory transform.
+
+    An extruded icon plate takes vanilla's item/generated hand angles (turned half a turn, its front being -Z) so a hand
+    never holds it edge-on, and a fixed (mouth, item frame) view turned 30 degrees so neither the front nor the side of
+    the holder sees only its edge. On the ground the item entity spins it as vanilla does."""
+    display = {
+        'gui': {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85], **(gui or {})},
+        'ground': {'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
+        'fixed': {'scale': [.75, .75, .75]},
+        'thirdperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
+        'firstperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [.6, .6, .6]}}
+    if extruded:
+        display.update({
+            'fixed': {'rotation': [0, 30, 0], 'scale': [.75, .75, .75]},
+            'thirdperson_righthand': {'rotation': [0, 90, -55], 'translation': [0, 4, .5], 'scale': [.85, .85, .85]},
+            'firstperson_righthand': {'rotation': [0, 90, -25], 'translation': [1.13, 3.2, 1.13], 'scale': [.68, .68, .68]}})
     return {'parent': 'minecraft:builtin/entity', 'gui_light': 'front', 'textures': {'particle': f'mcyukkuri:props/{name}'},
-            'display': {
-                'gui': {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85], **(gui or {})},
-                'ground': {'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
-                'fixed': {'scale': [.75, .75, .75]},
-                'thirdperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
-                'firstperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [.6, .6, .6]}}}
+            'display': display}
 
 
 # ---- face frames ------------------------------------------------------------------------------------------------------
@@ -255,37 +270,42 @@ class Shape:
         self.cells[tuple(at)] = material
         return self
 
-    def rounded(self, half, chamfer, y0, y1, material, centre=(0, 0)):
-        """Square slab 2*half wide with its corners stepped off one unit per row (an octagon of stacked cuboids);
-        material None carves the same shape."""
-        cx, cz = centre
-        for x in range(cx - half, cx + half):
-            for z in range(cz - half, cz + half):
-                reach = max(x - cx + 1, cx - x) + max(z - cz + 1, cz - z)
-                if reach <= 2 * half - chamfer:
-                    if material is None:
-                        self.carve((x, y0, z), (x + 1, y1, z + 1))
-                    else:
-                        self.box((x, y0, z), (x + 1, y1, z + 1), material)
+    def layer(self, cells, y0, y1, material):
+        """Fill (or with material None carve) the plan `cells` {(x, z)} from y0 to y1."""
+        for x, z in cells:
+            if material is None:
+                self.carve((x, y0, z), (x + 1, y1, z + 1))
+            else:
+                self.box((x, y0, z), (x + 1, y1, z + 1), material)
         return self
 
-    def disc(self, radius, y0, y1, material, centre=(0, 0)):
-        """Stepped round slab: every cell whose centre lies within `radius` of `centre` (x, z), the way vanilla rounds."""
+    def ball(self, radius, centre, material):
+        """Stepped sphere: every cell whose centre lies within `radius` of `centre` (cell-centre coordinates), so the
+        corners are cut on all three axes and each layer is a stepped round, as vanilla rounds a shape in cubes."""
+        cx, cy, cz = centre
         reach = int(radius) + 2
-        for x in range(int(centre[0]) - reach, int(centre[0]) + reach):
-            for z in range(int(centre[1]) - reach, int(centre[1]) + reach):
-                if (x + .5 - centre[0]) ** 2 + (z + .5 - centre[1]) ** 2 <= radius * radius:
-                    self.box((x, y0, z), (x + 1, y1, z + 1), material)
+        for x in range(int(cx) - reach, int(cx) + reach):
+            for y in range(int(cy) - reach, int(cy) + reach):
+                for z in range(int(cz) - reach, int(cz) + reach):
+                    if (x + .5 - cx) ** 2 + (y + .5 - cy) ** 2 + (z + .5 - cz) ** 2 <= radius * radius:
+                        self.cells[(x, y, z)] = material
         return self
 
-    def hollow(self, radius, y0, y1, centre=(0, 0)):
-        """Carve a stepped round hole, the inverse of disc()."""
-        reach = int(radius) + 2
-        for x in range(int(centre[0]) - reach, int(centre[0]) + reach):
-            for z in range(int(centre[1]) - reach, int(centre[1]) + reach):
-                if (x + .5 - centre[0]) ** 2 + (z + .5 - centre[1]) ** 2 <= radius * radius:
-                    self.carve((x, y0, z), (x + 1, y1, z + 1))
-        return self
+
+def octagon(half, chamfer, centre=(0, 0)):
+    """Plan cells of a square 2*half wide with each corner stepped off one cell per row over `chamfer` rows: the
+    stepped round of flat vessels. Symmetric under both mirrors and the diagonal."""
+    cx, cz = centre
+    return {(x, z) for x in range(cx - half, cx + half) for z in range(cz - half, cz + half)
+            if max(x - cx + 1, cx - x) + max(z - cz + 1, cz - z) <= 2 * half - chamfer}
+
+
+def inset(cells, steps=1):
+    """The plan shrunk by whole cells: a cell stays when its four neighbours are in the shape. A wall between a plan and
+    its inset is one cell thick everywhere, the steps of the corners included."""
+    for _ in range(steps):
+        cells = {(x, z) for x, z in cells if {(x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)} <= cells}
+    return cells
 
 
 def _rectangles(texels):

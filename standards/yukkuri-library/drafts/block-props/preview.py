@@ -1,14 +1,15 @@
 """Old/new comparison sheets for redone world props (local preview only; nothing here is shipped).
 
 For each prop ID: its 16x16 inventory icon, the previous runtime mesh (from a Git ref) and the current one at the same
-camera, at 1x (fitted to a 16 px slot) and 4x (the same pixels enlarged); larger renders of both from two views; and both
+camera, at 1x (fitted to a 16 px slot) and 4x (the same pixels enlarged); larger renders of both from two views; a turned
+fixed display (mouth hold, item frame) from the holder's front and side when the item model has one; and both
 beside an adult and a baby yukkuri at their real size. Meshes and textures are read from the runtime resources, so run the
 exporters first. Uses the care-prop software renderer.
 
 Usage: preview.py <out dir> <prop id>... [--before origin/main] [--fill <prop>:<fill id>:<units>]
 Then publish with `scripts/preview.py collection <topic> --source <out dir> --decision ...`.
 """
-import argparse, io, os, subprocess, sys, tarfile, tempfile
+import argparse, io, json, os, subprocess, sys, tarfile, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -106,6 +107,12 @@ def sheet(name, old, new, fills):
             image, _ = shot(src, items(src), (320, 260), az, el, lock=frame)
             tiles.append(label(on(BG, image), f'{tag} · {what}'))
         views.append(row(tiles))
+    # A turned fixed display (mouth hold, item frame): the new item model's turn, seen from the holder's front and side.
+    model = json.loads((new.assets / f'models/item/{name}.json').read_text(encoding='utf-8'))
+    turn = model.get('display', {}).get('fixed', {}).get('rotation', [0, 0, 0])[1]
+    if turn:
+        views.append(row([label(on(BG, shot(new, [(name, 8, 0, 0, 0, 1, turn, new)], (320, 260), az, 8)[0]),
+                                f'新 · 固定展示转 {turn:g}° · {what}') for az, what in ((180, '持有者正面'), (270, '持有者侧面'))]))
     world = []
     frame = None
     def scene(src):

@@ -90,7 +90,7 @@ def outputs():
   for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
    emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=png
   emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=png
-  emit(ASSETS/f'models/item/{name}.json',block_kit.prop_item_model(name))
+  emit(ASSETS/f'models/item/{name}.json',block_kit.prop_item_model(name,extruded=True))
   index[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
  emit(ASSETS/'yukkuri_props/consumables-index.json',index)
  for n,locale in enumerate(['zh_cn','en_us']):

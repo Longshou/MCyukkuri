@@ -207,8 +207,8 @@
         "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py"
       },
       "preview": "standards/yukkuri-library/drafts/block-props/preview.py",
-      "style": "vanilla-like: axis-aligned voxel cuboids on the 1/16 grid at one texel per unit, icon ramps lit from the top left; small handheld items are their 16x16 icon extruded like item/generated",
-      "status": "pilot awaiting the art arbiter and user playtest"
+      "style": "vanilla-like: axis-aligned voxel cuboids on the 1/16 grid at one texel per unit, icon ramps lit from the top left, each rounded object an explicit stepped-round recipe (octagon/inset vessels, stepped sphere) with painted detail; small handheld or dropped items are their 16x16 icon extruded like item/generated with vanilla hand angles and a 30-degree fixed view",
+      "status": "arbiter R0: food_bowl and mold_remover accepted with notes (applied), yarn_ball redone (7-unit stepped sphere); awaiting re-review and user playtest"
     },
     "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed pet goods are placed_goods; wild self-built nests are wild.py",
     "placed_goods": {
