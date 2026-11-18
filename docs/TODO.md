@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 家庭职责占用：留守巡视、寻找、守望不被个体驱动抢走 | `.worktrees/wp-duty-claim` | life/Duty.java, life/DutyClaim, life/FamilyLife.java, entity/YukkuriGoals.java, DenSeal |
 | 美术重做 1：器具与窝 | `.worktrees/wp-art-redo-devices` | standards/yukkuri-library/drafts/care-props (placed, wild, large_nests), art/props/predators, art/props/large-nests |
 | 美术重做 2：护理工具与玩具 | `.worktrees/wp-art-redo-care` | care-expansion, house-repellent, CP/small.py |
 | 美术重做 3：游乐设施 | `.worktrees/wp-art-redo-play` | standards/yukkuri-library/drafts/playgrounds/, art/props/playgrounds |
