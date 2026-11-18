@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -73,6 +74,7 @@ public final class LearnedFear {
         private LivingEntity holder;
         private BlockPos fire;
         private Vec3 stand;
+        private Path route;
         private int ticks;
         private long nextScan;
         private BlockPos lastBody, lastDanger;
@@ -155,12 +157,17 @@ public final class LearnedFear {
                 body.getLookControl().setLookAt(danger.x,danger.y,danger.z);
                 if(ticks<WARNING_TICKS)return;
                 if(body.distanceToSqr(danger)>9){ticks=RETREAT_BUDGET;return;}
-                stand=body.status().reactions().threat().flight().destination(danger,5);
-                if(stand==null){finish("no_route");return;}
+                var navigation=body.getNavigation();
+                route=body.status().reactions().threat().flight().retreatRoute(danger,5);
+                if(route==null||!navigation.moveTo(route,1.2)){finish("no_route");return;}
+                stand=Vec3.atBottomCenterOf(route.getTarget());
+                route=navigation.getPath();
+                return;
             }
-            var result=SurfaceApproach.walkResult(body,stand,holder,1.2);
-            if(result==SurfaceApproach.Result.ARRIVED)finish("away");
-            else if(result==SurfaceApproach.Result.BLOCKED)finish("blocked");
+            var navigation=body.getNavigation();
+            if(body.distanceToSqr(stand)<1)finish("away");
+            else if(navigation.isDone()||navigation.getPath()!=route
+                    ||holder!=null&&!body.status().reactions().threat().flight().clearsThreat(route,danger))finish("blocked");
         }
 
         private void finish(String outcome) {
@@ -172,7 +179,7 @@ public final class LearnedFear {
 
         @Override public void stop() {
             SurfaceApproach.halt(body);
-            holder=null;fire=null;stand=null;
+            holder=null;fire=null;stand=null;route=null;
             nextScan=body.level().getGameTime()+WITNESS_INTERVAL;
         }
     }

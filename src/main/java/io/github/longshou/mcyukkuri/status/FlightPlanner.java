@@ -36,7 +36,7 @@ public final class FlightPlanner {
         return path != null && path.canReach() && clearsThreat(path, danger) ? path : null;
     }
 
-    private boolean clearsThreat(Path path, Vec3 danger) {
+    boolean clearsThreat(Path path, Vec3 danger) {
         double x = body.getX(), z = body.getZ();
         double clearance = FlightCourse.corridorClearance(Math.hypot(x - danger.x, z - danger.z), CLEARANCE);
         for (int i = path.getNextNodeIndex(); i < path.getNodeCount(); i++) {
@@ -48,7 +48,7 @@ public final class FlightPlanner {
         return true;
     }
 
-    private Path fan(Vec3 danger, double reach, Direction direction) {
+    private Path fan(Vec3 danger, double reach, Direction direction, BlockPos stalled) {
         Path best = null;
         double score = Double.NEGATIVE_INFINITY;
         for (int angle : FAN) {
@@ -57,7 +57,7 @@ public final class FlightPlanner {
                 double distance = reach * stride;
                 var near = body.position().add(ray.x() * distance, 0, ray.z() * distance);
                 var stand = SurfaceApproach.restingFloor(body, near);
-                if (stand == null) continue;
+                if (stand == null || BlockPos.containing(stand).equals(stalled)) continue;
                 double candidate = FlightCourse.scoreCandidate(body.getX(), body.getZ(), stand.x, stand.z,
                         danger.x, danger.z, direction);
                 if (candidate <= score) continue;
@@ -69,15 +69,19 @@ public final class FlightPlanner {
     }
 
     public Vec3 destination(Vec3 danger, double reach) {
-        var path = fan(danger, reach, away(danger));
+        var path = retreatRoute(danger, reach);
         return path == null ? null : Vec3.atBottomCenterOf(path.getTarget());
+    }
+
+    public Path retreatRoute(Vec3 danger, double reach) {
+        return fan(danger, reach, away(danger), null);
     }
 
     public void retreatToward(Vec3 danger, Vec3 anchor) {
         double distance = body.position().distanceTo(anchor);
         if (distance < 1.5) return;
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
-        var path = fan(danger, Math.min(9, distance), direction);
+        var path = fan(danger, Math.min(9, distance), direction, null);
         if (path != null) body.getNavigation().moveTo(path, 1.2);
     }
 
@@ -117,12 +121,13 @@ public final class FlightPlanner {
         }
         var away = away(dangerAt);
         if (changed || heading.dot(away) < .25) heading = away;
+        var stalled = !changed && route != null && navigation.isStuck() ? route.getTarget() : null;
         source = danger;
         checkedDanger = dangerAt;
         plannedAt = now;
         route = refuge(danger);
-        if (route == null) route = fan(dangerAt, 9, heading);
-        if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away);
+        if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled);
+        if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled);
         if (route == null) { navigation.stop(); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));

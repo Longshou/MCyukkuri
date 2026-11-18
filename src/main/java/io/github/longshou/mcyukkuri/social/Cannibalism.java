@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.pathfinder.Path;
 
 /**
  * The smell of the dead and the taboo of eating one's own kind (komicolle 11518847: eating one's kind is forbidden yet not rare; the dead give off
@@ -50,7 +51,7 @@ public final class Cannibalism extends Goal {
     private Mode mode = Mode.NONE;
     private RemainsEntity body;
     private YukkuriEntity prey;
-    private Vec3 away;
+    private Path away;
     private int elapsed, biteClock, bites, scanWait, smellWait;
     /** Remaining loaded ticks, so unloading pauses the cooldown just as it did before persistence. */
     private static final String HUNT_COOLDOWN = "CannibalHuntCooldown";
@@ -242,9 +243,9 @@ public final class Cannibalism extends Goal {
             if (smellAt != null) {
                 // The destination lies beyond the smell, not merely away from the body.
                 double clear = source != null ? RemainsRot.radius(source.stage()) + 2 : 5;
-                var spot = entity.status().reactions().threat().flight().destination(smellAt, clear + 2);
-                if (spot != null && spot.distanceToSqr(smellAt) >= clear * clear) {
-                    away = spot; return begin(Mode.AVOID, "stench");
+                var route = entity.status().reactions().threat().flight().retreatRoute(smellAt, clear + 2);
+                if (route != null && Vec3.atBottomCenterOf(route.getTarget()).distanceToSqr(smellAt) >= clear * clear) {
+                    away = route; return begin(Mode.AVOID, "stench");
                 }
             }
         }
@@ -298,7 +299,8 @@ public final class Cannibalism extends Goal {
     @Override public boolean canContinueToUse() {
         if (!eligible() || elapsed > (mode == Mode.AVOID ? 240 : 600)) return false;
         return switch (mode) {
-            case AVOID -> away != null && entity.position().distanceToSqr(away) > 4 && (elapsed % 10 != 0 || RemainsRot.source(level(), entity.position()) != null);
+            case AVOID -> !entity.getNavigation().isDone() && entity.getNavigation().getPath() == away
+                    && (elapsed % 10 != 0 || RemainsRot.source(level(), entity.position()) != null);
             case CARRION -> body != null && body.isAlive() && mayEat(body);
             case HUNT -> prey != null && prey.isAlive() && !prey.body().dying() && bites < 6 && entity.life().nutrition() < 30
                     && combatFit() && Headwear.fairGame(entity, prey) && !Recognition.grotesque(prey);
@@ -312,7 +314,11 @@ public final class Cannibalism extends Goal {
     @Override public void start() {
         running = true;
         entity.life().interrupt(); entity.social().stop();
-        if (mode == Mode.AVOID) entity.showReaction("teary", "stench", 80);
+        if (mode == Mode.AVOID) {
+            entity.showReaction("teary", "stench", 80);
+            entity.getNavigation().moveTo(away, 1.1);
+            away = entity.getNavigation().getPath();
+        }
         else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", 100);
         else if (mode == Mode.GUARD && !guardAttacks) entity.showReaction("angry", "puff", 80);
         GameplayLog.limited(entity, "cannibal", "start." + mode, 200, "started mode={} body={} prey={} nutrition={}",
@@ -322,7 +328,6 @@ public final class Cannibalism extends Goal {
         elapsed++;
         if (biteClock > 0) biteClock--;
         switch (mode) {
-            case AVOID -> { if (elapsed % 20 == 1) EcologyMovement.navigate(entity, away, 1.1); }
             case CARRION -> carrion();
             case HUNT -> hunt();
             case GUARD -> guard();

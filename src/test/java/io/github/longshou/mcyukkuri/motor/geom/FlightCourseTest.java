@@ -8,6 +8,8 @@ class FlightCourseTest {
         var away = FlightCourse.awayUnit(2, 0, 0, 0, 0);
         assertEquals(Double.NEGATIVE_INFINITY, FlightCourse.scoreCandidate(2, 0, -8, 0, 0, 0, away));
         assertTrue(FlightCourse.passesNearThreat(2, 0, 2, 0, 0, 0, 3.8));
+        assertTrue(FlightCourse.passesNearThreat(.2, 0, -4, 0, 0, 0, 3.8));
+        assertFalse(FlightCourse.passesNearThreat(.2, 0, .2, 4, 0, 0, 3.8));
         assertTrue(FlightCourse.scoreCandidate(2, 0, 10, 0, 0, 0, away)
                 > FlightCourse.scoreCandidate(2, 0, 6, 6, 0, 0, away));
     }
