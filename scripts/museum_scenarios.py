@@ -541,9 +541,47 @@ def garbage_bin(x, z, items, tipped):
 
 
 _stray_mother = uid('stray_boxes', 'mother')
+_stray_mother_log = _uuid_text('stray_boxes', 'mother')
 _stray_child_log = _uuid_text('stray_boxes', 'child')
 _stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,'
                        'Maturity:336000L,Lifespan:1056000L,AdultScale:0.84f,Scale:0.84f')
+
+
+def _stray_box_arrival(events, ready):
+    first_resident = mother_approach = None
+    beckon = None
+    for row in events:
+        actor, tick, msg = row['u'], row['t'], row['msg']
+        if actor == _stray_mother_log:
+            target = re.fullmatch(r'found approach shelter=(.+) kind=CARDBOARD', msg)
+            if target:
+                mother_approach = (target[1], row['seq'])
+                beckon = None
+            elif msg.startswith(f'found beckon child={_stray_child_log} '):
+                beckon = 'called'
+            elif msg.startswith(f'found beckon answered child={_stray_child_log} ') and beckon == 'heard' and tick >= ready:
+                beckon = 'answered'
+            elif msg.startswith('found beckon unanswered '):
+                beckon = None
+        elif (actor == _stray_child_log and beckon == 'called'
+              and msg.startswith(f'child heard parent call parent={_stray_mother_log} ') and msg.endswith('beckon=true')):
+            beckon = 'heard'
+
+        if first_resident and actor == first_resident[0] and msg.startswith(('found leaving ', 'found exited ', 'found ejected ')):
+            first_resident = None
+        settled = re.fullmatch(r'found settled shelter=(.+) kind=CARDBOARD occupants=(\d+)', msg)
+        if not settled:
+            continue
+        box, occupants = settled.groups()
+        if occupants == '1':
+            first_resident = (actor, box, row['seq']) if tick >= ready else None
+        elif occupants == '2' and first_resident and mother_approach:
+            resident, first_box, arrived = first_resident
+            target_box, approached = mother_approach
+            child_first = resident == _stray_child_log and arrived < approached
+            if resident != actor and first_box == box == target_box and (beckon == 'answered' or child_first):
+                return
+    return 'Both must settle in the same carton after an answered beckon or after the child settled before the mother approached'
 
 
 def _stray_child_flight(window, trace):
@@ -554,11 +592,16 @@ def _stray_child_flight(window, trace):
     lines = re.findall(rf'\[speech\][^\n]* uuid={_stray_child_log} t={tick} [^\n]* line event=(\S+) key=(\S+)', window)
     if lines != [('wounded' if stance == 'FLEE' else 'hurt_freeze', key)]:
         return f'The struck baby must give one cry matching {stance}: {lines}'
-    mother = _uuid_text('stray_boxes', 'mother')
+    mother = _stray_mother_log
     pairs = {}
+    events = []
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
-        if row['k'] == 'st' and tick <= row['t'] <= tick + 101 and row['u'] in (mother, _stray_child_log):
+        if row['u'] not in (mother, _stray_child_log) or row['t'] < tick:
+            continue
+        if row['k'] == 'ev' and row['cat'] in ('habitat', 'family'):
+            events.append(row)
+        elif row['k'] == 'st' and row['t'] <= tick + 101:
             pairs.setdefault(row['t'], {})[row['u']] = row['st']
     if stance == 'FREEZE':
         child = [(t, bodies[_stray_child_log]) for t, bodies in pairs.items() if _stray_child_log in bodies]
@@ -568,11 +611,7 @@ def _stray_child_flight(window, trace):
         recovered = next((t for t, s in child if t > held[-1] and s['behavior'] != 'struck'), None)
         if recovered is None:
             return 'The baby did not recover from the freeze within 100 ticks'
-        answers = re.findall(rf'\[habitat\][^\n]* uuid={mother} t=(\d+)[^\n]* found beckon answered child={_stray_child_log}', window)
-        settled = re.findall(rf'\[habitat\][^\n]* uuid=(?:{mother}|{_stray_child_log}) t=(\d+)[^\n]* found settled [^\n]*kind=CARDBOARD occupants=2', window)
-        if not any(recovered <= int(answer) <= int(rest) for answer in answers for rest in settled):
-            return 'After recovering the baby must answer its mother and settle with her'
-        return
+        return _stray_box_arrival(events, recovered)
     flight = [(t, bodies[_stray_child_log]['p'], bodies[mother]['p']) for t, bodies in pairs.items()
               if t < tick + 96 and len(bodies) == 2 and bodies[_stray_child_log]['behavior'] == 'flee']
     if not flight:
@@ -584,10 +623,11 @@ def _stray_child_flight(window, trace):
         return 'The fleeing baby did not move toward its mother'
     if not any(t <= tick + 30 and math.hypot(child[0] - start[0], child[2] - start[2]) >= .4 for t, child, _ in flight):
         return 'The flight did not steer the baby after it landed from the blow'
+    return _stray_box_arrival(events, tick)
 
 
 add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸箱',
-    '夜里，流浪母油找到纸箱，在箱口转身招呼孩子。看孩子应声跟来，母子进箱并排歇脚时，两顶头饰是否与箱壁和彼此留有空隙。',
+    '夜里，孩子还在箱外时，流浪母油会在箱口转身招呼它；孩子先在箱内歇下时，母油会直接进去。看母子并排歇脚时，两顶头饰是否与箱壁和彼此留有空隙。',
     '约半分钟至一分钟', [
         *carton_shell(-5, -1),
         street_stray('stray_boxes', 'reimu', -5, 0, 'mother', energy=28, rest_wait=0, lead=True, fam=_stray_mother_family),
@@ -604,11 +644,7 @@ add('stray_boxes', 'forage', '流浪：母子找纸箱', '流浪：母子找纸�
                    (46, f'damage {sel("child")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
                    (150, 'yukkuri scenario tool_operator leave'),
                ],
-               expect=[
-                   rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon child={_uuid_text("stray_boxes", "child")}',
-                   rf'\[family\][^\n]*uuid={_uuid_text("stray_boxes", "child")} [^\n]* child heard parent call parent={_uuid_text("stray_boxes", "mother")}[^\n]* beckon=true',
-                   rf'\[habitat\][^\n]*uuid={_uuid_text("stray_boxes", "mother")} [^\n]* found beckon answered child={_uuid_text("stray_boxes", "child")}',
-                   r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2']))
+               expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2\b']))
 
 add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
     '看纸箱里的流浪油歇脚。纸箱受潮后，它沿开口离开，去别处避雨。空纸箱泡透塌下，留下纸片。左侧另一只魔理沙会沿墙去捡苹果。',
