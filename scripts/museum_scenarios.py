@@ -2536,6 +2536,9 @@ add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨�
                              ('personality.friendliness', 30), ('mood.unease', unease)]],
     ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl'],
     env=DAY, vantage=(8, 17, 180, 8),
+    capture=dict(shots=(84, 100, 116, 137, 152, 160, 173), sequences=((86, 170, 6),), observe=False,
+                 views={'table': dict(position=(24.5, 3.7, .75), look_at=(22.5, 2.55, 2.5),
+                                      criteria='看清空台的两条皮带、仰卧个体身上的合拢皮带以及拆台后松绑。')}),
     reads=[('读借还托盘', 'data get block ~14 ~3 ~1 Items'),
            ('读胆大灵梦', f'yukkuri status {sel("oni_bold")} raw'),
            ('读胆小灵梦', f'yukkuri status {sel("oni_timid")} raw')])
@@ -6326,7 +6329,7 @@ _smoke('oni_stress_room', 440, [
     r'MCYSP08_LOAN_BALANCED', r'MCYSP08_EMPTY_TABLE', r'MCYSP08_HELD_WITHOUT_OPERATOR', r'MCYSP08_RETURN_BALANCED',
 ], readout=['data get block ~14 ~3 ~1 Items', f'yukkuri status {sel("oni_bold")} raw',
             f'yukkuri status {sel("oni_timid")} raw', f'yukkuri status {sel("brought_reimu")} raw'])
-_stress_operator = '@p[distance=..40]'
+_stress_operator = '@p[name=MuseumOperator,distance=..40]'
 _stress_frame_drop = '@e[type=minecraft:item,distance=..8,limit=1,nbt={Item:{id:"mcyukkuri:restraint_frame"}}]'
 next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (70, 'execute positioned ~14.5 ~2 ~2.5 run yukkuri scenario tool_operator enter'),
@@ -6344,7 +6347,7 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     *[(79, f'execute as {_stress_operator} run {command}') for command in own('brought_reimu')],
     (80, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
     (80, 'yukkuri scenario shop_block_click ~22 ~1 ~2'),
-    (80, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame if entity {sel("brought_reimu")} '
+    (80, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame[occupied=false] if entity {sel("brought_reimu")} '
          f'unless data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_EMPTY_TABLE'),
     (81, f'item replace entity {_stress_operator} hotbar.1 with mcyukkuri:yukkuri_carrier'),
     (82, 'yukkuri scenario tool_operator select 1'),
@@ -6355,7 +6358,8 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
     (129, 'yukkuri scenario shop_block_click ~14 ~3 ~1'),
     # Exercise the tray's block-entity save/load round trip while the frame is out, without changing its Items.
     (130, 'data merge block ~14 ~3 ~1 {SP08Readback:1b}'),
-    (152, f'execute if data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_HELD_WITHOUT_OPERATOR'),
+    (152, f'execute if block ~22 ~2 ~2 mcyukkuri:restraint_frame[occupied=true] '
+          f'if data entity {sel("brought_reimu")} YukkuriOperations.Table run say MCYSP08_HELD_WITHOUT_OPERATOR'),
     (153, 'execute positioned ~22.5 ~2 ~3.5 run yukkuri scenario tool_operator move'),
     (153, 'yukkuri scenario tool_operator break ~22 ~2 ~2'),
     (175, f'execute positioned ~22 ~2 ~3 at {_stress_frame_drop} run yukkuri scenario tool_operator move'),

@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "occupied=false": {
       "model": "mcyukkuri:block/restraint_frame"
+    },
+    "occupied=true": {
+      "model": "mcyukkuri:block/restraint_frame_occupied"
     }
   }
 }

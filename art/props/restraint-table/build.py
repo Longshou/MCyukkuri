@@ -422,7 +422,10 @@ def outputs(fits):
         files[ASSETS / f'textures/block/{name}.png'] = png(paint(painter))
     for name, data in models().items():
         files[ASSETS / f'models/block/{name}.json'] = js(data)
-    files[ASSETS / 'blockstates/restraint_frame.json'] = js({'variants': {'': {'model': 'mcyukkuri:block/restraint_frame'}}})
+    files[ASSETS / 'blockstates/restraint_frame.json'] = js({'variants': {
+        'occupied=false': {'model': 'mcyukkuri:block/restraint_frame'},
+        'occupied=true': {'model': 'mcyukkuri:block/restraint_frame_occupied'},
+    }})
     fit = {'units': 'model units (16 per block) before the supine turn: y is the strap line height, hull is (x, z) counter-clockwise',
            'strap': {'width_px': STRAP_W, 'thickness_px': STRAP_T, 'clearance_px': .12, 'min_width_px': .6},
            'anchors_px': {'note': 'strap plane (u = x - 8, v = y - 5); the hull also takes both top edges',

@@ -93,7 +93,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if(holder!=null&&ParentCarryPresentation.swallowed(entity,holder,partialTick))return;
         if (!entity.isInvisible()) {
             // pushPose copies the top, leaving the render origin available to attachments and capture.
-            var start=pose.last().pose();
+            var origin=pose.last();
+            var start=origin.pose();
             pose.pushPose();
             var parent=holder;
             boolean carried=parent!=null&&parent.hasPassengerId(entity.getUUID());
@@ -305,6 +306,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(contact.equals("ASSIST"))LiveBirthRenderer.renderDose(entity,pose,buffers,packedLight);
             if(contact.equals("HOOK")||contact.equals("WRAPPED"))OperationAttachments.render(entity,toolContact,start,pose,buffers,packedLight,partialTick);
             if(delivery!=null)delivery.render(pose,buffers,packedLight,start,partialTick);
+            if(fixed&&!preview)RestraintStraps.render(entity,partialTick,origin,pose.last().pose(),buffers,packedLight);
             model.setDelivery(null);model.setPregnancy(0,0);
             pose.popPose();
             pose.popPose();

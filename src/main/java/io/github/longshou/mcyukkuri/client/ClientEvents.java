@@ -68,6 +68,7 @@ public final class ClientEvents {
         event.registerReloadListener(SpeechBubble.RELOAD);
         event.registerReloadListener(AgitationPresentation.RELOAD);
         event.registerReloadListener(PropModels.RELOAD);
+        event.registerReloadListener(RestraintStraps.RELOAD);
         event.registerReloadListener(HatDamageMask.RELOAD);
     }
 
