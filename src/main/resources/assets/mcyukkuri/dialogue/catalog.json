@@ -71906,7 +71906,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 54,
+    "ticks": 55,
     "sound": "voice.original.reimu.baby.v1_food_grudge",
     "variant": "proud"
   },
@@ -71919,7 +71919,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 70,
+    "ticks": 58,
     "sound": "voice.original.reimu.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -71945,7 +71945,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 70,
+    "ticks": 52,
     "sound": "voice.original.reimu.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -71971,7 +71971,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 57,
+    "ticks": 50,
     "sound": "voice.original.reimu.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -71984,7 +71984,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 70,
+    "ticks": 60,
     "sound": "voice.original.reimu.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -72036,7 +72036,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 63,
+    "ticks": 55,
     "sound": "voice.original.reimu.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -72049,7 +72049,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 63,
+    "ticks": 54,
     "sound": "voice.original.reimu.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -72075,7 +72075,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 62,
+    "ticks": 45,
     "sound": "voice.original.reimu.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -72101,7 +72101,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 51,
+    "ticks": 70,
     "sound": "voice.original.reimu.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -72114,7 +72114,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 62,
+    "ticks": 65,
     "sound": "voice.original.reimu.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -72179,7 +72179,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 77,
+    "ticks": 72,
     "sound": "voice.original.reimu.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -72283,7 +72283,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 84,
+    "ticks": 48,
     "sound": "voice.original.reimu.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -72491,7 +72491,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 54,
+    "ticks": 55,
     "sound": "voice.original.marisa.baby.v1_food_grudge",
     "variant": "proud"
   },
@@ -72504,7 +72504,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 70,
+    "ticks": 58,
     "sound": "voice.original.marisa.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -72530,7 +72530,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 70,
+    "ticks": 52,
     "sound": "voice.original.marisa.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -72556,7 +72556,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 57,
+    "ticks": 50,
     "sound": "voice.original.marisa.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -72569,7 +72569,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 70,
+    "ticks": 60,
     "sound": "voice.original.marisa.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -72621,7 +72621,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 63,
+    "ticks": 55,
     "sound": "voice.original.marisa.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -72634,7 +72634,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 63,
+    "ticks": 54,
     "sound": "voice.original.marisa.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -72660,7 +72660,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 62,
+    "ticks": 45,
     "sound": "voice.original.marisa.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -72686,7 +72686,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 53,
+    "ticks": 73,
     "sound": "voice.original.marisa.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -72699,7 +72699,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 64,
+    "ticks": 68,
     "sound": "voice.original.marisa.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -72764,7 +72764,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 79,
+    "ticks": 72,
     "sound": "voice.original.marisa.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -72868,7 +72868,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 87,
+    "ticks": 52,
     "sound": "voice.original.marisa.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -73076,7 +73076,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 56,
+    "ticks": 55,
     "sound": "voice.original.alice.baby.v1_food_grudge",
     "variant": "proud"
   },
@@ -73089,7 +73089,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 71,
+    "ticks": 59,
     "sound": "voice.original.alice.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -73115,7 +73115,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 73,
+    "ticks": 55,
     "sound": "voice.original.alice.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -73141,7 +73141,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 59,
+    "ticks": 50,
     "sound": "voice.original.alice.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -73154,7 +73154,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 72,
+    "ticks": 61,
     "sound": "voice.original.alice.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -73206,7 +73206,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 64,
+    "ticks": 57,
     "sound": "voice.original.alice.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -73219,7 +73219,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 64,
+    "ticks": 55,
     "sound": "voice.original.alice.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -73245,7 +73245,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 64,
+    "ticks": 45,
     "sound": "voice.original.alice.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -73271,7 +73271,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 51,
+    "ticks": 70,
     "sound": "voice.original.alice.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -73284,7 +73284,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 60,
+    "ticks": 66,
     "sound": "voice.original.alice.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -73349,7 +73349,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 79,
+    "ticks": 72,
     "sound": "voice.original.alice.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -73453,7 +73453,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 86,
+    "ticks": 49,
     "sound": "voice.original.alice.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -73674,7 +73674,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 58,
+    "ticks": 49,
     "sound": "voice.original.chen.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -73700,7 +73700,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 59,
+    "ticks": 45,
     "sound": "voice.original.chen.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -73726,7 +73726,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 48,
+    "ticks": 45,
     "sound": "voice.original.chen.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -73739,7 +73739,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 58,
+    "ticks": 50,
     "sound": "voice.original.chen.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -73791,7 +73791,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 52,
+    "ticks": 46,
     "sound": "voice.original.chen.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -73804,7 +73804,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 52,
+    "ticks": 46,
     "sound": "voice.original.chen.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -73830,7 +73830,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 52,
+    "ticks": 45,
     "sound": "voice.original.chen.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -73856,7 +73856,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 45,
+    "ticks": 58,
     "sound": "voice.original.chen.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -73869,7 +73869,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 53,
+    "ticks": 55,
     "sound": "voice.original.chen.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -73934,7 +73934,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 65,
+    "ticks": 61,
     "sound": "voice.original.chen.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -74038,7 +74038,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 70,
+    "ticks": 45,
     "sound": "voice.original.chen.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -74259,7 +74259,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 81,
+    "ticks": 66,
     "sound": "voice.original.patchouli.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -74285,7 +74285,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 81,
+    "ticks": 58,
     "sound": "voice.original.patchouli.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -74311,7 +74311,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 65,
+    "ticks": 55,
     "sound": "voice.original.patchouli.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -74324,7 +74324,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 80,
+    "ticks": 68,
     "sound": "voice.original.patchouli.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -74376,7 +74376,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 71,
+    "ticks": 62,
     "sound": "voice.original.patchouli.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -74389,7 +74389,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 71,
+    "ticks": 61,
     "sound": "voice.original.patchouli.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -74415,7 +74415,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 71,
+    "ticks": 45,
     "sound": "voice.original.patchouli.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -74441,7 +74441,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 81,
+    "ticks": 103,
     "sound": "voice.original.patchouli.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -74454,7 +74454,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 95,
+    "ticks": 100,
     "sound": "voice.original.patchouli.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -74519,7 +74519,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 115,
+    "ticks": 110,
     "sound": "voice.original.patchouli.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -74623,7 +74623,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 128,
+    "ticks": 87,
     "sound": "voice.original.patchouli.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -74844,7 +74844,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 77,
+    "ticks": 63,
     "sound": "voice.original.remilia.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -74870,7 +74870,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 77,
+    "ticks": 55,
     "sound": "voice.original.remilia.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -74896,7 +74896,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 61,
+    "ticks": 52,
     "sound": "voice.original.remilia.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -74909,7 +74909,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 77,
+    "ticks": 65,
     "sound": "voice.original.remilia.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -74961,7 +74961,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 68,
+    "ticks": 59,
     "sound": "voice.original.remilia.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -74974,7 +74974,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 68,
+    "ticks": 58,
     "sound": "voice.original.remilia.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -75000,7 +75000,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 68,
+    "ticks": 45,
     "sound": "voice.original.remilia.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -75026,7 +75026,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 66,
+    "ticks": 91,
     "sound": "voice.original.remilia.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -75039,7 +75039,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 80,
+    "ticks": 84,
     "sound": "voice.original.remilia.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -75104,7 +75104,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 99,
+    "ticks": 88,
     "sound": "voice.original.remilia.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -75208,7 +75208,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 108,
+    "ticks": 65,
     "sound": "voice.original.remilia.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -75429,7 +75429,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 62,
+    "ticks": 51,
     "sound": "voice.original.flandre.baby.v1_food_reluctant",
     "variant": "proud"
   },
@@ -75455,7 +75455,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 63,
+    "ticks": 47,
     "sound": "voice.original.flandre.baby.v1_food_complain",
     "variant": "proud"
   },
@@ -75481,7 +75481,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 51,
+    "ticks": 45,
     "sound": "voice.original.flandre.baby.v2_food_grudge",
     "variant": "timid"
   },
@@ -75494,7 +75494,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 62,
+    "ticks": 53,
     "sound": "voice.original.flandre.baby.v2_food_reluctant",
     "variant": "timid"
   },
@@ -75546,7 +75546,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 56,
+    "ticks": 49,
     "sound": "voice.original.flandre.baby.v3_food_grudge",
     "variant": "plain"
   },
@@ -75559,7 +75559,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 56,
+    "ticks": 47,
     "sound": "voice.original.flandre.baby.v3_food_reluctant",
     "variant": "plain"
   },
@@ -75585,7 +75585,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 55,
+    "ticks": 45,
     "sound": "voice.original.flandre.baby.v3_food_complain",
     "variant": "plain"
   },
@@ -75611,7 +75611,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 46,
+    "ticks": 61,
     "sound": "voice.original.flandre.juvenile.v1_food_grudge",
     "variant": "proud"
   },
@@ -75624,7 +75624,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 53,
+    "ticks": 57,
     "sound": "voice.original.flandre.juvenile.v1_food_reluctant",
     "variant": "proud"
   },
@@ -75689,7 +75689,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 68,
+    "ticks": 61,
     "sound": "voice.original.flandre.juvenile.v2_food_reluctant",
     "variant": "timid"
   },
@@ -75793,7 +75793,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 71,
+    "ticks": 45,
     "sound": "voice.original.flandre.adult.v1_food_delight",
     "variant": "proud"
   },
@@ -76016,7 +76016,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 73,
+    "ticks": 60,
     "sound": "voice.original.myon.miyo.baby.v1_food_reluctant",
     "quirk": "miyo",
     "variant": "proud"
@@ -76044,7 +76044,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 76,
+    "ticks": 55,
     "sound": "voice.original.myon.miyo.baby.v1_food_complain",
     "quirk": "miyo",
     "variant": "proud"
@@ -76072,7 +76072,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 60,
+    "ticks": 50,
     "sound": "voice.original.myon.miyo.baby.v2_food_grudge",
     "quirk": "miyo",
     "variant": "timid"
@@ -76086,7 +76086,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 74,
+    "ticks": 62,
     "sound": "voice.original.myon.miyo.baby.v2_food_reluctant",
     "quirk": "miyo",
     "variant": "timid"
@@ -76142,7 +76142,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 66,
+    "ticks": 57,
     "sound": "voice.original.myon.miyo.baby.v3_food_grudge",
     "quirk": "miyo",
     "variant": "plain"
@@ -76156,7 +76156,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 66,
+    "ticks": 55,
     "sound": "voice.original.myon.miyo.baby.v3_food_reluctant",
     "quirk": "miyo",
     "variant": "plain"
@@ -76184,7 +76184,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 65,
+    "ticks": 45,
     "sound": "voice.original.myon.miyo.baby.v3_food_complain",
     "quirk": "miyo",
     "variant": "plain"
@@ -76212,7 +76212,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 68,
+    "ticks": 86,
     "sound": "voice.original.myon.miyo.juvenile.v1_food_grudge",
     "quirk": "miyo",
     "variant": "proud"
@@ -76226,7 +76226,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 78,
+    "ticks": 84,
     "sound": "voice.original.myon.miyo.juvenile.v1_food_reluctant",
     "quirk": "miyo",
     "variant": "proud"
@@ -76296,7 +76296,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 98,
+    "ticks": 91,
     "sound": "voice.original.myon.miyo.juvenile.v2_food_reluctant",
     "quirk": "miyo",
     "variant": "timid"
@@ -76408,7 +76408,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 108,
+    "ticks": 65,
     "sound": "voice.original.myon.miyo.adult.v1_food_delight",
     "quirk": "miyo",
     "variant": "proud"
@@ -76618,7 +76618,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 72,
+    "ticks": 70,
     "sound": "voice.original.myon.kinbao.baby.v1_food_delight",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76632,7 +76632,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 64,
+    "ticks": 61,
     "sound": "voice.original.myon.kinbao.baby.v1_food_grudge",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76646,7 +76646,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 80,
+    "ticks": 65,
     "sound": "voice.original.myon.kinbao.baby.v1_food_reluctant",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76660,7 +76660,7 @@
     "events": [
       "food_spit"
     ],
-    "ticks": 67,
+    "ticks": 65,
     "sound": "voice.original.myon.kinbao.baby.v1_food_spit",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76674,7 +76674,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 83,
+    "ticks": 60,
     "sound": "voice.original.myon.kinbao.baby.v1_food_complain",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76688,7 +76688,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 60,
+    "ticks": 58,
     "sound": "voice.original.myon.kinbao.baby.v2_food_delight",
     "quirk": "kinbao",
     "variant": "timid"
@@ -76702,7 +76702,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 67,
+    "ticks": 55,
     "sound": "voice.original.myon.kinbao.baby.v2_food_grudge",
     "quirk": "kinbao",
     "variant": "timid"
@@ -76716,7 +76716,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 81,
+    "ticks": 68,
     "sound": "voice.original.myon.kinbao.baby.v2_food_reluctant",
     "quirk": "kinbao",
     "variant": "timid"
@@ -76730,7 +76730,7 @@
     "events": [
       "food_spit"
     ],
-    "ticks": 57,
+    "ticks": 55,
     "sound": "voice.original.myon.kinbao.baby.v2_food_spit",
     "quirk": "kinbao",
     "variant": "timid"
@@ -76744,7 +76744,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 58,
+    "ticks": 56,
     "sound": "voice.original.myon.kinbao.baby.v2_food_complain",
     "quirk": "kinbao",
     "variant": "timid"
@@ -76758,7 +76758,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 62,
+    "ticks": 60,
     "sound": "voice.original.myon.kinbao.baby.v3_food_delight",
     "quirk": "kinbao",
     "variant": "plain"
@@ -76772,7 +76772,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 73,
+    "ticks": 62,
     "sound": "voice.original.myon.kinbao.baby.v3_food_grudge",
     "quirk": "kinbao",
     "variant": "plain"
@@ -76786,7 +76786,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 73,
+    "ticks": 60,
     "sound": "voice.original.myon.kinbao.baby.v3_food_reluctant",
     "quirk": "kinbao",
     "variant": "plain"
@@ -76800,7 +76800,7 @@
     "events": [
       "food_spit"
     ],
-    "ticks": 60,
+    "ticks": 59,
     "sound": "voice.original.myon.kinbao.baby.v3_food_spit",
     "quirk": "kinbao",
     "variant": "plain"
@@ -76814,7 +76814,7 @@
     "events": [
       "food_complain"
     ],
-    "ticks": 73,
+    "ticks": 49,
     "sound": "voice.original.myon.kinbao.baby.v3_food_complain",
     "quirk": "kinbao",
     "variant": "plain"
@@ -76842,7 +76842,7 @@
     "events": [
       "food_grudge"
     ],
-    "ticks": 74,
+    "ticks": 95,
     "sound": "voice.original.myon.kinbao.juvenile.v1_food_grudge",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76856,7 +76856,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 85,
+    "ticks": 90,
     "sound": "voice.original.myon.kinbao.juvenile.v1_food_reluctant",
     "quirk": "kinbao",
     "variant": "proud"
@@ -76926,7 +76926,7 @@
     "events": [
       "food_reluctant"
     ],
-    "ticks": 105,
+    "ticks": 95,
     "sound": "voice.original.myon.kinbao.juvenile.v2_food_reluctant",
     "quirk": "kinbao",
     "variant": "timid"
@@ -77038,7 +77038,7 @@
     "events": [
       "food_delight"
     ],
-    "ticks": 113,
+    "ticks": 73,
     "sound": "voice.original.myon.kinbao.adult.v1_food_delight",
     "quirk": "kinbao",
     "variant": "proud"

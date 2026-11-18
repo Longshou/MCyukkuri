@@ -4,7 +4,7 @@
 Source of the worldview rules: komicolle 40720 floors 11518764 (baby babble, forms of address, "-sensei"
 suffix), 11518780 (narrating own actions, counting collapses to "lots" at 4, vocabulary inherited at birth)
 and 11518905 (Myon has two mutually exclusive tics, Patchouli may count past 4). Every line is a
-project-original composition ('origin': 'project-original'); none is a Hakkei U line and none is voiced.
+project-original composition ('origin': 'project-original'); none is a Hakkei U line.
 Myon's full per-event library and the kotatsu-Marisa lines live in scripts/myon_speech_lines.py.
 
 Run: python scripts/build_speech_tiers.py   (then python scripts/export_dialogue.py)
@@ -437,6 +437,79 @@ STYLED = {
 }
 
 # --- emotion chain and naming (docs/FEATURES.md; mind/MindLife, mind/Naming) ----------------------------
+FOOD_BASIS = 'komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced'
+FOOD_STYLED = {
+    'baby': {
+        'proud': {
+            'food_delight': ('{c}！ まんま、おいち！ もっと！', '{c}！饭饭好吃！还要、还要！', '{c}! Num-num yummy! More, more!'),
+            'food_grudge': ('{c}！ まじゅまじゅ！ むーちゃ！', '{c}！难吃吃！嚼嚼！', '{c}! Yucky! Munch-munch!'),
+            'food_reluctant': ('{c}……ぽんぽんしゃん、ぺこぺこ……', '{c}……彭彭先森饿惹……', '{c}... Mr. Tummy... so hungry...'),
+            'food_spit': ('{c}！ いや！ ぺっ、ぺっ！', '{c}！不要！呸、呸！', '{c}! No! Ptooey, ptooey!'),
+            'food_complain': ('{c}！ まんましゃん、やー！', '{c}！饭饭{{mister}}，不要哒！', '{c}! No, Mr. Num-num!'),
+        },
+        'timid': {
+            'food_delight': ('{c}……まんま、おいち……', '{c}……饭饭好吃……', '{c}... Num-num is yummy...'),
+            'food_grudge': ('{c}……まじゅ……むちゃ……', '{c}……难吃吃……嚼嚼……', '{c}... Yucky... munch...'),
+            'food_reluctant': ('{c}……ひっく……おなか、ぺこ……', '{c}……呜呜……彭彭饿……', '{c}... Hic... tummy hungry...'),
+            'food_spit': ('{c}……ぺっ……いや……', '{c}……呸……不要……', '{c}... Ptooey... no...'),
+            'food_complain': ('{c}……こあい……やぁ……', '{c}……口怕……不要哒……', '{c}... Scawy... no...'),
+        },
+        'plain': {
+            'food_delight': ('{c}、まんま、おいちい。', '{c}，饭饭好吃。', '{c}, num-num yummy.'),
+            'food_grudge': ('{c}、むーちゃ。まじゅい。', '{c}，嚼嚼。难吃吃。', '{c}, munch-munch. Yucky.'),
+            'food_reluctant': ('{c}……ぺこぺこ……むーちゃ……', '{c}……饿饿……嚼嚼……', '{c}... Hungry... munch-munch...'),
+            'food_spit': ('{c}、ぺっ。いや。', '{c}，呸。不要。', '{c}, ptooey. No.'),
+            'food_complain': ('{c}、いらにゃい。', '{c}，窝不要。', '{c}, no want.'),
+        },
+    },
+    'juvenile': {
+        'proud': {
+            'food_delight': ('{p}ごはんしゃん、さいこう！ もっと たべたい{e}！', '{p}饭先生最棒！还想吃{e}！', '{p}Mr. Food is the best! I want more!'),
+            'food_grudge': ('{p}まじゅいけど、{n}は むーちゃできる{e}！', '{p}难吃归难吃，{{self}}还是能嚼嚼{e}！', '{p}Yucky, but {N} can munch it!'),
+            'food_reluctant': ('{p}ぽんぽんしゃん、ぺこぺこ{e}……むーちゃ……', '{p}彭彭先生饿扁惹{e}……嚼嚼……', '{p}Mr. Tummy is empty... munch-munch...'),
+            'food_spit': ('{p}ぺっ、ぺっ！ まずい、いらない{e}！', '{p}呸、呸！难吃，不要{e}！', '{p}Ptooey, ptooey! Yucky! No!'),
+            'food_complain': ('{p}こんな ごはんしゃん、いらない{e}！', '{p}这种饭先生不要{e}！', '{p}I do not want this Mr. Food!'),
+        },
+        'timid': {
+            'food_delight': ('{p}ごはんしゃん、おいちい……しあわせ{e}……', '{p}饭先生好吃……好幸胡{e}……', '{p}Mr. Food is yummy... so happy...'),
+            'food_grudge': ('{p}ごはんしゃん、まずい……でも がまん{e}……', '{p}饭先生难吃……忍一忍{e}……', '{p}Mr. Food is yucky... I can bear it...'),
+            'food_reluctant': ('{p}ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……', '{p}彭彭饿……眼泪啪嗒啪嗒……嚼嚼……', '{p}Tummy so hungry... drip, drip... munch-munch...'),
+            'food_spit': ('{p}ぺっ……ごめん……いや{e}……', '{p}呸……对不起……不要{e}……', '{p}Ptooey... sorry... no...'),
+            'food_complain': ('{p}ごめん……これ、むり{e}……', '{p}对不起……窝吃不下{e}……', '{p}Sorry... I cannot eat this...'),
+        },
+        'plain': {
+            'food_delight': ('{p}ごはんしゃん、おいちい{e}。', '{p}饭先生好吃{e}。', '{p}Mr. Food is yummy.'),
+            'food_grudge': ('{p}ごはんしゃん、まずい{e}。たべる。', '{p}饭先生难吃{e}。还是嚼嚼。', '{p}Mr. Food is yucky. Munch anyway.'),
+            'food_reluctant': ('{p}おなか ぺこぺこ……まずいけど たべる{e}……', '{p}彭彭饿……难吃也吃{e}……', '{p}My tummy is hungry... yucky, but I will eat...'),
+            'food_spit': ('{p}ぺっ、ぺっ。まずい{e}。いらない。', '{p}呸、呸。难吃{e}。不要。', '{p}Ptooey, ptooey. Yucky. No.'),
+            'food_complain': ('{p}これ、いらない{e}。べつのが いい。', '{p}介个不要{e}。想要别的。', '{p}No to this. I want another.'),
+        },
+    },
+    'adult': {
+        'proud': {
+            'food_delight': ('{p}{n}は しあわせ{e}！', '{p}{{self}}好幸福{e}！', '{p}{N} is so happy!'),
+            'food_grudge': ('{p}ふん、こんな ごはんさん……たべてやる{e}。', '{p}哼，这种饭先生……也嚼得下去{e}。', '{p}Hmph, this Mr. Food... I can eat it anyway.'),
+            'food_reluctant': ('{p}いやだが、たおれる わけには いかない。たべる{e}。', '{p}虽然不想要，可不能倒下。吃{e}。', '{p}I do not want it, but I cannot collapse. I will eat.'),
+            'food_spit': ('{p}ぺっ！ まずい ごはんさん、ゆるさない{e}！', '{p}呸！难吃的饭先生，不原谅{e}！', '{p}Ptooey! Yucky Mr. Food, I will not forgive it!'),
+            'food_complain': ('{p}ふん、こんな ごはんさん、いらない{e}。', '{p}哼，这种饭先生不要{e}。', '{p}Hmph, I do not want this Mr. Food.'),
+        },
+        'timid': {
+            'food_delight': ('{p}おいしい……しあわせ{e}……', '{p}好吃……好幸福{e}……', '{p}It is tasty... I am happy...'),
+            'food_grudge': ('{p}まずいけど……すてるのは もったいない{e}……', '{p}难吃……可是扔掉太浪费{e}……', '{p}It is yucky... but throwing it away is wasteful...'),
+            'food_reluctant': ('{p}いや……ぺこぺこ……なみだ でる{e}……', '{p}不要……彭彭饿……眼泪掉下来了{e}……', '{p}No... my tummy is hungry... here come the tears...'),
+            'food_spit': ('{p}ぺっ……ごめん……たべられない{e}……', '{p}呸……对不起……吃不下{e}……', '{p}Ptooey... sorry... I cannot eat it...'),
+            'food_complain': ('{p}ごめん……これ、むり{e}……べつの おねがい。', '{p}对不起……这个吃不下{e}……换一个吧。', '{p}Sorry... I cannot manage this... another, please.'),
+        },
+        'plain': {
+            'food_delight': ('{p}ごはんさん、おいしい{e}。', '{p}饭先生好吃{e}。', '{p}Mr. Food is tasty.'),
+            'food_grudge': ('{p}ごはんさん、まずい{e}。でも たべる。', '{p}饭先生难吃{e}。不过还是吃。', '{p}Mr. Food is yucky. But I will eat.'),
+            'food_reluctant': ('{p}まずい……でも おなかが すいた{e}。', '{p}难吃……可是彭彭饿了{e}。', '{p}Yucky... but my tummy is hungry.'),
+            'food_spit': ('{p}ぺっ、ぺっ。まずい{e}。いらない。', '{p}呸、呸。难吃{e}。不要。', '{p}Ptooey, ptooey. Yucky. No.'),
+            'food_complain': ('{p}この ごはんさんは いらない{e}。べつのが ほしい。', '{p}这个饭先生不要{e}。想要别的。', '{p}I do not want this Mr. Food. I want another.'),
+        },
+    },
+}
+
 # komicolle 40720 11518890: unable to take it easy the filling sweetens; past the limit it goes mad and can only
 # scream "yukkuchi" (油庫己); 11518829: a given name denies "Reimu is Reimu". tier -> event -> (jp, zh, en)
 EMOTION_BASIS = 'komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced'
@@ -689,6 +762,15 @@ def main():
                 make(sp, tier, event, frame, protection_context, lines, PROTECTION_BASIS, prefix='retest_')
     for sp in ('remilia', 'flandre'):
         make(sp, 'adult', 'protect_angered', PROTECTION_ANGERED, protection_context, lines, PROTECTION_BASIS, prefix='retest_')
+    for sp in SPECIES:
+        for tier, variants in FOOD_STYLED.items():
+            ctx = context(sp, tier)
+            if sp in ('remilia', 'flandre'):
+                for words in ctx.values():
+                    words['p'] = ''  # Their food lines use the species ending and the baby cry.
+            for i, (variant, events) in enumerate(variants.items(), 1):
+                for event, frame in events.items():
+                    make(sp, tier, event, frame, ctx, lines, FOOD_BASIS, prefix=f'v{i}_', variant=variant)
     ids = [l['id'] for l in lines]
     assert len(ids) == len(set(ids))
     doc = {'origin': 'project-original', 'status': 'Unvoiced project-original subtitles; wording awaits listening review.',

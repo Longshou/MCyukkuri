@@ -53055,7 +53055,7 @@
     "food_delight"
    ],
    "japanese": "ゆっ、ゆっ！ まんま、おいち！ もっと！",
-   "chinese": "油、油！饭饭好吃！还要，还要！",
+   "chinese": "油、油！饭饭好吃！还要、还要！",
    "english": "Yu, yu! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -53068,9 +53068,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ……まずいけど、たべる！",
-   "chinese": "油、油……难吃，但是吃！",
-   "english": "Yu, yu... Yucky, but I will eat!",
+   "japanese": "ゆっ、ゆっ！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "油、油！难吃吃！嚼嚼！",
+   "english": "Yu, yu! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53082,9 +53082,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……いや……でも ぺこぺこ……たべる……",
-   "chinese": "油、油……不要……可是彭彭饿……吃……",
-   "english": "Yu, yu... No... but my tummy is hungry... I will eat...",
+   "japanese": "ゆっ、ゆっ……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "油、油……彭彭先森饿惹……",
+   "english": "Yu, yu... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53110,9 +53110,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ！ これ、いや！ いいの もってきて！",
-   "chinese": "油、油！这个不要！拿好的来！",
-   "english": "Yu, yu! Not this! Bring a good one!",
+   "japanese": "ゆっ、ゆっ！ まんましゃん、やー！",
+   "chinese": "油、油！饭饭{mister}，不要哒！",
+   "english": "Yu, yu! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53126,7 +53126,7 @@
    ],
    "japanese": "ゆっ、ゆっ……まんま、おいち……",
    "chinese": "油、油……饭饭好吃……",
-   "english": "Yu, yu... Num-num is tasty...",
+   "english": "Yu, yu... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53138,9 +53138,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ……いや……でも たべる……",
-   "chinese": "油、油……不想要……可是吃……",
-   "english": "Yu, yu... I do not want it... but I will eat...",
+   "japanese": "ゆっ、ゆっ……まじゅ……むちゃ……",
+   "chinese": "油、油……难吃吃……嚼嚼……",
+   "english": "Yu, yu... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53152,9 +53152,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……なみだ……まずい……でも たべる……",
-   "chinese": "油、油……流泪……难吃……可是吃……",
-   "english": "Yu, yu... tears... yucky... but I will eat...",
+   "japanese": "ゆっ、ゆっ……ひっく……おなか、ぺこ……",
+   "chinese": "油、油……呜呜……彭彭饿……",
+   "english": "Yu, yu... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53168,7 +53168,7 @@
    ],
    "japanese": "ゆっ、ゆっ……ぺっ……いや……",
    "chinese": "油、油……呸……不要……",
-   "english": "Yu, yu... ptooey... no...",
+   "english": "Yu, yu... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53180,9 +53180,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ……こわい……いや……",
-   "chinese": "油、油……怕怕……不要……",
-   "english": "Yu, yu... scary... no...",
+   "japanese": "ゆっ、ゆっ……こあい……やぁ……",
+   "chinese": "油、油……口怕……不要哒……",
+   "english": "Yu, yu... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53196,7 +53196,7 @@
    ],
    "japanese": "ゆっ、ゆっ、まんま、おいちい。",
    "chinese": "油、油，饭饭好吃。",
-   "english": "Yu, yu, num-num is yummy.",
+   "english": "Yu, yu, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53208,9 +53208,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ、まずい。でも たべる。",
-   "chinese": "油、油，难吃。但是吃。",
-   "english": "Yu, yu, yucky. But I will eat.",
+   "japanese": "ゆっ、ゆっ、むーちゃ。まじゅい。",
+   "chinese": "油、油，嚼嚼。难吃吃。",
+   "english": "Yu, yu, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53222,9 +53222,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……まずい。でも たべる。",
-   "chinese": "油、油……难吃。但是吃。",
-   "english": "Yu, yu... Yucky. But I will eat.",
+   "japanese": "ゆっ、ゆっ……ぺこぺこ……むーちゃ……",
+   "chinese": "油、油……饿饿……嚼嚼……",
+   "english": "Yu, yu... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53250,9 +53250,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ、いや。べつのは ある？",
-   "chinese": "油、油，不要。有别的吗？",
-   "english": "Yu, yu, no. Is there another?",
+   "japanese": "ゆっ、ゆっ、いらにゃい。",
+   "chinese": "油、油，窝不要。",
+   "english": "Yu, yu, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53265,7 +53265,7 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、さいこう！ もっと たべたいにぇ！",
-   "chinese": "饭鲜笋最棒！还想吃捏！",
+   "chinese": "饭先生最棒！还想吃捏！",
    "english": "Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -53278,9 +53278,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "まずいけど、たべてやるにぇ！",
-   "chinese": "虽然难吃，我吃给你看捏！",
-   "english": "It is yucky, but I will eat it anyway!",
+   "japanese": "まじゅいけど、れいみゅは むーちゃできるにぇ！",
+   "chinese": "难吃归难吃，{self}还是能嚼嚼捏！",
+   "english": "Yucky, but Reimu can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53292,9 +53292,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ぺこぺこに まけたにぇ……たべる……",
-   "chinese": "输给饿肚子了捏……吃……",
-   "english": "Hunger won... I will eat...",
+   "japanese": "ぽんぽんしゃん、ぺこぺこにぇ……むーちゃ……",
+   "chinese": "彭彭先生饿扁惹捏……嚼嚼……",
+   "english": "Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53308,7 +53308,7 @@
    ],
    "japanese": "ぺっ、ぺっ！ まずい、いらないにぇ！",
    "chinese": "呸、呸！难吃，不要捏！",
-   "english": "Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53321,7 +53321,7 @@
     "food_complain"
    ],
    "japanese": "こんな ごはんしゃん、いらないにぇ！",
-   "chinese": "这种饭鲜笋不要捏！",
+   "chinese": "这种饭先生不要捏！",
    "english": "I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -53335,8 +53335,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちい……しあわせにぇ……",
-   "chinese": "饭鲜笋好吃……好幸福捏……",
-   "english": "Mr. Food is tasty... I am happy...",
+   "chinese": "饭先生好吃……好幸胡捏……",
+   "english": "Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53349,8 +53349,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずい……でも がまんにぇ……",
-   "chinese": "饭鲜笋，难吃……不过忍一忍捏……",
-   "english": "Mr. Food is yucky... but I will bear it...",
+   "chinese": "饭先生难吃……忍一忍捏……",
+   "english": "Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53362,9 +53362,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "こわい……なみだ でる……でも たべるにぇ……",
-   "chinese": "好怕……流泪……可是吃捏……",
-   "english": "I am scared... tears come... but I will eat...",
+   "japanese": "ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53378,7 +53378,7 @@
    ],
    "japanese": "ぺっ……ごめん……いやにぇ……",
    "chinese": "呸……对不起……不要捏……",
-   "english": "Ptooey... sorry... I do not want it...",
+   "english": "Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53391,8 +53391,8 @@
     "food_complain"
    ],
    "japanese": "ごめん……これ、むりにぇ……",
-   "chinese": "对不起……这个吃不下捏……",
-   "english": "Sorry... I cannot manage this...",
+   "chinese": "对不起……窝吃不下捏……",
+   "english": "Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53405,8 +53405,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちいにぇ。",
-   "chinese": "饭鲜笋好吃捏。",
-   "english": "Mr. Food is tasty.",
+   "chinese": "饭先生好吃捏。",
+   "english": "Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53419,8 +53419,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずいにぇ。たべる。",
-   "chinese": "饭鲜笋难吃捏。还是吃。",
-   "english": "Mr. Food is yucky. I will still eat.",
+   "chinese": "饭先生难吃捏。还是嚼嚼。",
+   "english": "Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53448,7 +53448,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいにぇ。いらない。",
    "chinese": "呸、呸。难吃捏。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53461,8 +53461,8 @@
     "food_complain"
    ],
    "japanese": "これ、いらないにぇ。べつのが いい。",
-   "chinese": "这个不要捏。想要别的。",
-   "english": "I do not want this. I want another.",
+   "chinese": "介个不要捏。想要别的。",
+   "english": "No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53474,9 +53474,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ごはんさん、すばらしい！ もっと ほしいよ！",
-   "chinese": "饭先生太棒了！还想要哦！",
-   "english": "Mr. Food is wonderful! I want more!",
+   "japanese": "れいむは しあわせよ！",
+   "chinese": "{self}好幸福哦！",
+   "english": "Reimu is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53489,8 +53489,8 @@
     "food_grudge"
    ],
    "japanese": "ふん、こんな ごはんさん……たべてやるよ。",
-   "chinese": "哼，这种饭先生……吃给你看哦。",
-   "english": "Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "哼，这种饭先生……也嚼得下去哦。",
+   "english": "Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53573,8 +53573,8 @@
     "food_reluctant"
    ],
    "japanese": "いや……ぺこぺこ……なみだ でるよ……",
-   "chinese": "不要……彭彭饿……流泪哦……",
-   "english": "No... my tummy is hungry... tears come...",
+   "chinese": "不要……彭彭饿……眼泪掉下来了哦……",
+   "english": "No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53643,8 +53643,8 @@
     "food_reluctant"
    ],
    "japanese": "まずい……でも おなかが すいたよ。",
-   "chinese": "难吃……可是饿了哦。",
-   "english": "Yucky... but I am hungry.",
+   "chinese": "难吃……可是彭彭饿了哦。",
+   "english": "Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53658,7 +53658,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいよ。いらない。",
    "chinese": "呸、呸。难吃哦。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53685,7 +53685,7 @@
     "food_delight"
    ],
    "japanese": "ゆっ、ゆっ！ まんま、おいち！ もっと！",
-   "chinese": "油、油！饭饭好吃！还要，还要！",
+   "chinese": "油、油！饭饭好吃！还要、还要！",
    "english": "Yu, yu! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -53698,9 +53698,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ……まずいけど、たべる！",
-   "chinese": "油、油……难吃，但是吃！",
-   "english": "Yu, yu... Yucky, but I will eat!",
+   "japanese": "ゆっ、ゆっ！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "油、油！难吃吃！嚼嚼！",
+   "english": "Yu, yu! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53712,9 +53712,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……いや……でも ぺこぺこ……たべる……",
-   "chinese": "油、油……不要……可是彭彭饿……吃……",
-   "english": "Yu, yu... No... but my tummy is hungry... I will eat...",
+   "japanese": "ゆっ、ゆっ……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "油、油……彭彭先森饿惹……",
+   "english": "Yu, yu... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53740,9 +53740,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ！ これ、いや！ いいの もってきて！",
-   "chinese": "油、油！这个不要！拿好的来！",
-   "english": "Yu, yu! Not this! Bring a good one!",
+   "japanese": "ゆっ、ゆっ！ まんましゃん、やー！",
+   "chinese": "油、油！饭饭{mister}，不要哒！",
+   "english": "Yu, yu! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53756,7 +53756,7 @@
    ],
    "japanese": "ゆっ、ゆっ……まんま、おいち……",
    "chinese": "油、油……饭饭好吃……",
-   "english": "Yu, yu... Num-num is tasty...",
+   "english": "Yu, yu... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53768,9 +53768,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ……いや……でも たべる……",
-   "chinese": "油、油……不想要……可是吃……",
-   "english": "Yu, yu... I do not want it... but I will eat...",
+   "japanese": "ゆっ、ゆっ……まじゅ……むちゃ……",
+   "chinese": "油、油……难吃吃……嚼嚼……",
+   "english": "Yu, yu... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53782,9 +53782,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……なみだ……まずい……でも たべる……",
-   "chinese": "油、油……流泪……难吃……可是吃……",
-   "english": "Yu, yu... tears... yucky... but I will eat...",
+   "japanese": "ゆっ、ゆっ……ひっく……おなか、ぺこ……",
+   "chinese": "油、油……呜呜……彭彭饿……",
+   "english": "Yu, yu... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53798,7 +53798,7 @@
    ],
    "japanese": "ゆっ、ゆっ……ぺっ……いや……",
    "chinese": "油、油……呸……不要……",
-   "english": "Yu, yu... ptooey... no...",
+   "english": "Yu, yu... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53810,9 +53810,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ……こわい……いや……",
-   "chinese": "油、油……怕怕……不要……",
-   "english": "Yu, yu... scary... no...",
+   "japanese": "ゆっ、ゆっ……こあい……やぁ……",
+   "chinese": "油、油……口怕……不要哒……",
+   "english": "Yu, yu... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53826,7 +53826,7 @@
    ],
    "japanese": "ゆっ、ゆっ、まんま、おいちい。",
    "chinese": "油、油，饭饭好吃。",
-   "english": "Yu, yu, num-num is yummy.",
+   "english": "Yu, yu, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53838,9 +53838,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ、まずい。でも たべる。",
-   "chinese": "油、油，难吃。但是吃。",
-   "english": "Yu, yu, yucky. But I will eat.",
+   "japanese": "ゆっ、ゆっ、むーちゃ。まじゅい。",
+   "chinese": "油、油，嚼嚼。难吃吃。",
+   "english": "Yu, yu, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53852,9 +53852,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……まずい。でも たべる。",
-   "chinese": "油、油……难吃。但是吃。",
-   "english": "Yu, yu... Yucky. But I will eat.",
+   "japanese": "ゆっ、ゆっ……ぺこぺこ……むーちゃ……",
+   "chinese": "油、油……饿饿……嚼嚼……",
+   "english": "Yu, yu... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53880,9 +53880,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ、いや。べつのは ある？",
-   "chinese": "油、油，不要。有别的吗？",
-   "english": "Yu, yu, no. Is there another?",
+   "japanese": "ゆっ、ゆっ、いらにゃい。",
+   "chinese": "油、油，窝不要。",
+   "english": "Yu, yu, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -53895,7 +53895,7 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、さいこう！ もっと たべたいのじぇ！",
-   "chinese": "饭鲜笋最棒！还想吃惹杰！",
+   "chinese": "饭先生最棒！还想吃惹杰！",
    "english": "Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -53908,9 +53908,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "まずいけど、たべてやるのじぇ！",
-   "chinese": "虽然难吃，我吃给你看惹杰！",
-   "english": "It is yucky, but I will eat it anyway!",
+   "japanese": "まじゅいけど、まりちゃは むーちゃできるのじぇ！",
+   "chinese": "难吃归难吃，{self}还是能嚼嚼惹杰！",
+   "english": "Yucky, but Marisa can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53922,9 +53922,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ぺこぺこに まけたのじぇ……たべる……",
-   "chinese": "输给饿肚子了惹杰……吃……",
-   "english": "Hunger won... I will eat...",
+   "japanese": "ぽんぽんしゃん、ぺこぺこのじぇ……むーちゃ……",
+   "chinese": "彭彭先生饿扁惹惹杰……嚼嚼……",
+   "english": "Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53938,7 +53938,7 @@
    ],
    "japanese": "ぺっ、ぺっ！ まずい、いらないのじぇ！",
    "chinese": "呸、呸！难吃，不要惹杰！",
-   "english": "Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -53951,7 +53951,7 @@
     "food_complain"
    ],
    "japanese": "こんな ごはんしゃん、いらないのじぇ！",
-   "chinese": "这种饭鲜笋不要惹杰！",
+   "chinese": "这种饭先生不要惹杰！",
    "english": "I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -53965,8 +53965,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちい……しあわせのじぇ……",
-   "chinese": "饭鲜笋好吃……好幸福惹杰……",
-   "english": "Mr. Food is tasty... I am happy...",
+   "chinese": "饭先生好吃……好幸胡惹杰……",
+   "english": "Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53979,8 +53979,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずい……でも がまんのじぇ……",
-   "chinese": "饭鲜笋，难吃……不过忍一忍惹杰……",
-   "english": "Mr. Food is yucky... but I will bear it...",
+   "chinese": "饭先生难吃……忍一忍惹杰……",
+   "english": "Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -53992,9 +53992,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "こわい……なみだ でる……でも たべるのじぇ……",
-   "chinese": "好怕……流泪……可是吃惹杰……",
-   "english": "I am scared... tears come... but I will eat...",
+   "japanese": "ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54008,7 +54008,7 @@
    ],
    "japanese": "ぺっ……ごめん……いやのじぇ……",
    "chinese": "呸……对不起……不要惹杰……",
-   "english": "Ptooey... sorry... I do not want it...",
+   "english": "Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54021,8 +54021,8 @@
     "food_complain"
    ],
    "japanese": "ごめん……これ、むりのじぇ……",
-   "chinese": "对不起……这个吃不下惹杰……",
-   "english": "Sorry... I cannot manage this...",
+   "chinese": "对不起……窝吃不下惹杰……",
+   "english": "Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54035,8 +54035,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちいのじぇ。",
-   "chinese": "饭鲜笋好吃惹杰。",
-   "english": "Mr. Food is tasty.",
+   "chinese": "饭先生好吃惹杰。",
+   "english": "Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54049,8 +54049,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずいのじぇ。たべる。",
-   "chinese": "饭鲜笋难吃惹杰。还是吃。",
-   "english": "Mr. Food is yucky. I will still eat.",
+   "chinese": "饭先生难吃惹杰。还是嚼嚼。",
+   "english": "Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54078,7 +54078,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいのじぇ。いらない。",
    "chinese": "呸、呸。难吃惹杰。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54091,8 +54091,8 @@
     "food_complain"
    ],
    "japanese": "これ、いらないのじぇ。べつのが いい。",
-   "chinese": "这个不要惹杰。想要别的。",
-   "english": "I do not want this. I want another.",
+   "chinese": "介个不要惹杰。想要别的。",
+   "english": "No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54104,9 +54104,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ごはんさん、すばらしい！ もっと ほしいのぜ！",
-   "chinese": "饭先生太棒了！还想要贼！",
-   "english": "Mr. Food is wonderful! I want more!",
+   "japanese": "まりさは しあわせのぜ！",
+   "chinese": "{self}好幸福贼！",
+   "english": "Marisa is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54119,8 +54119,8 @@
     "food_grudge"
    ],
    "japanese": "ふん、こんな ごはんさん……たべてやるのぜ。",
-   "chinese": "哼，这种饭先生……吃给你看贼。",
-   "english": "Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "哼，这种饭先生……也嚼得下去贼。",
+   "english": "Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54203,8 +54203,8 @@
     "food_reluctant"
    ],
    "japanese": "いや……ぺこぺこ……なみだ でるのぜ……",
-   "chinese": "不要……彭彭饿……流泪贼……",
-   "english": "No... my tummy is hungry... tears come...",
+   "chinese": "不要……彭彭饿……眼泪掉下来了贼……",
+   "english": "No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54273,8 +54273,8 @@
     "food_reluctant"
    ],
    "japanese": "まずい……でも おなかが すいたのぜ。",
-   "chinese": "难吃……可是饿了贼。",
-   "english": "Yucky... but I am hungry.",
+   "chinese": "难吃……可是彭彭饿了贼。",
+   "english": "Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54288,7 +54288,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいのぜ。いらない。",
    "chinese": "呸、呸。难吃贼。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54315,7 +54315,7 @@
     "food_delight"
    ],
    "japanese": "ゆっ、ゆっ！ まんま、おいち！ もっと！",
-   "chinese": "油、油！饭饭好吃！还要，还要！",
+   "chinese": "油、油！饭饭好吃！还要、还要！",
    "english": "Yu, yu! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -54328,9 +54328,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ……まずいけど、たべる！",
-   "chinese": "油、油……难吃，但是吃！",
-   "english": "Yu, yu... Yucky, but I will eat!",
+   "japanese": "ゆっ、ゆっ！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "油、油！难吃吃！嚼嚼！",
+   "english": "Yu, yu! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54342,9 +54342,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……いや……でも ぺこぺこ……たべる……",
-   "chinese": "油、油……不要……可是彭彭饿……吃……",
-   "english": "Yu, yu... No... but my tummy is hungry... I will eat...",
+   "japanese": "ゆっ、ゆっ……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "油、油……彭彭先森饿惹……",
+   "english": "Yu, yu... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54370,9 +54370,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ！ これ、いや！ いいの もってきて！",
-   "chinese": "油、油！这个不要！拿好的来！",
-   "english": "Yu, yu! Not this! Bring a good one!",
+   "japanese": "ゆっ、ゆっ！ まんましゃん、やー！",
+   "chinese": "油、油！饭饭{mister}，不要哒！",
+   "english": "Yu, yu! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54386,7 +54386,7 @@
    ],
    "japanese": "ゆっ、ゆっ……まんま、おいち……",
    "chinese": "油、油……饭饭好吃……",
-   "english": "Yu, yu... Num-num is tasty...",
+   "english": "Yu, yu... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54398,9 +54398,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ……いや……でも たべる……",
-   "chinese": "油、油……不想要……可是吃……",
-   "english": "Yu, yu... I do not want it... but I will eat...",
+   "japanese": "ゆっ、ゆっ……まじゅ……むちゃ……",
+   "chinese": "油、油……难吃吃……嚼嚼……",
+   "english": "Yu, yu... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54412,9 +54412,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……なみだ……まずい……でも たべる……",
-   "chinese": "油、油……流泪……难吃……可是吃……",
-   "english": "Yu, yu... tears... yucky... but I will eat...",
+   "japanese": "ゆっ、ゆっ……ひっく……おなか、ぺこ……",
+   "chinese": "油、油……呜呜……彭彭饿……",
+   "english": "Yu, yu... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54428,7 +54428,7 @@
    ],
    "japanese": "ゆっ、ゆっ……ぺっ……いや……",
    "chinese": "油、油……呸……不要……",
-   "english": "Yu, yu... ptooey... no...",
+   "english": "Yu, yu... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54440,9 +54440,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ……こわい……いや……",
-   "chinese": "油、油……怕怕……不要……",
-   "english": "Yu, yu... scary... no...",
+   "japanese": "ゆっ、ゆっ……こあい……やぁ……",
+   "chinese": "油、油……口怕……不要哒……",
+   "english": "Yu, yu... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54456,7 +54456,7 @@
    ],
    "japanese": "ゆっ、ゆっ、まんま、おいちい。",
    "chinese": "油、油，饭饭好吃。",
-   "english": "Yu, yu, num-num is yummy.",
+   "english": "Yu, yu, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54468,9 +54468,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆっ、ゆっ、まずい。でも たべる。",
-   "chinese": "油、油，难吃。但是吃。",
-   "english": "Yu, yu, yucky. But I will eat.",
+   "japanese": "ゆっ、ゆっ、むーちゃ。まじゅい。",
+   "chinese": "油、油，嚼嚼。难吃吃。",
+   "english": "Yu, yu, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54482,9 +54482,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆっ、ゆっ……まずい。でも たべる。",
-   "chinese": "油、油……难吃。但是吃。",
-   "english": "Yu, yu... Yucky. But I will eat.",
+   "japanese": "ゆっ、ゆっ……ぺこぺこ……むーちゃ……",
+   "chinese": "油、油……饿饿……嚼嚼……",
+   "english": "Yu, yu... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54510,9 +54510,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆっ、ゆっ、いや。べつのは ある？",
-   "chinese": "油、油，不要。有别的吗？",
-   "english": "Yu, yu, no. Is there another?",
+   "japanese": "ゆっ、ゆっ、いらにゃい。",
+   "chinese": "油、油，窝不要。",
+   "english": "Yu, yu, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54525,7 +54525,7 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、さいこう！ もっと たべたいにょ！",
-   "chinese": "饭鲜笋最棒！还想吃哟！",
+   "chinese": "饭先生最棒！还想吃哟！",
    "english": "Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -54538,9 +54538,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "まずいけど、たべてやるにょ！",
-   "chinese": "虽然难吃，我吃给你看哟！",
-   "english": "It is yucky, but I will eat it anyway!",
+   "japanese": "まじゅいけど、ありちゅは むーちゃできるにょ！",
+   "chinese": "难吃归难吃，{self}还是能嚼嚼哟！",
+   "english": "Yucky, but Alice can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54552,9 +54552,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ぺこぺこに まけたにょ……たべる……",
-   "chinese": "输给饿肚子了哟……吃……",
-   "english": "Hunger won... I will eat...",
+   "japanese": "ぽんぽんしゃん、ぺこぺこにょ……むーちゃ……",
+   "chinese": "彭彭先生饿扁惹哟……嚼嚼……",
+   "english": "Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54568,7 +54568,7 @@
    ],
    "japanese": "ぺっ、ぺっ！ まずい、いらないにょ！",
    "chinese": "呸、呸！难吃，不要哟！",
-   "english": "Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54581,7 +54581,7 @@
     "food_complain"
    ],
    "japanese": "こんな ごはんしゃん、いらないにょ！",
-   "chinese": "这种饭鲜笋不要哟！",
+   "chinese": "这种饭先生不要哟！",
    "english": "I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -54595,8 +54595,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちい……しあわせにょ……",
-   "chinese": "饭鲜笋好吃……好幸福哟……",
-   "english": "Mr. Food is tasty... I am happy...",
+   "chinese": "饭先生好吃……好幸胡哟……",
+   "english": "Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54609,8 +54609,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずい……でも がまんにょ……",
-   "chinese": "饭鲜笋，难吃……不过忍一忍哟……",
-   "english": "Mr. Food is yucky... but I will bear it...",
+   "chinese": "饭先生难吃……忍一忍哟……",
+   "english": "Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54622,9 +54622,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "こわい……なみだ でる……でも たべるにょ……",
-   "chinese": "好怕……流泪……可是吃哟……",
-   "english": "I am scared... tears come... but I will eat...",
+   "japanese": "ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54638,7 +54638,7 @@
    ],
    "japanese": "ぺっ……ごめん……いやにょ……",
    "chinese": "呸……对不起……不要哟……",
-   "english": "Ptooey... sorry... I do not want it...",
+   "english": "Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54651,8 +54651,8 @@
     "food_complain"
    ],
    "japanese": "ごめん……これ、むりにょ……",
-   "chinese": "对不起……这个吃不下哟……",
-   "english": "Sorry... I cannot manage this...",
+   "chinese": "对不起……窝吃不下哟……",
+   "english": "Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54665,8 +54665,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちいにょ。",
-   "chinese": "饭鲜笋好吃哟。",
-   "english": "Mr. Food is tasty.",
+   "chinese": "饭先生好吃哟。",
+   "english": "Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54679,8 +54679,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずいにょ。たべる。",
-   "chinese": "饭鲜笋难吃哟。还是吃。",
-   "english": "Mr. Food is yucky. I will still eat.",
+   "chinese": "饭先生难吃哟。还是嚼嚼。",
+   "english": "Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54708,7 +54708,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいにょ。いらない。",
    "chinese": "呸、呸。难吃哟。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54721,8 +54721,8 @@
     "food_complain"
    ],
    "japanese": "これ、いらないにょ。べつのが いい。",
-   "chinese": "这个不要哟。想要别的。",
-   "english": "I do not want this. I want another.",
+   "chinese": "介个不要哟。想要别的。",
+   "english": "No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54734,9 +54734,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ごはんさん、すばらしい！ もっと ほしいわ！",
-   "chinese": "饭先生太棒了！还想要呢！",
-   "english": "Mr. Food is wonderful! I want more!",
+   "japanese": "ありすは しあわせわ！",
+   "chinese": "{self}好幸福呢！",
+   "english": "Alice is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54749,8 +54749,8 @@
     "food_grudge"
    ],
    "japanese": "ふん、こんな ごはんさん……たべてやるわ。",
-   "chinese": "哼，这种饭先生……吃给你看呢。",
-   "english": "Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "哼，这种饭先生……也嚼得下去呢。",
+   "english": "Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54833,8 +54833,8 @@
     "food_reluctant"
    ],
    "japanese": "いや……ぺこぺこ……なみだ でるわ……",
-   "chinese": "不要……彭彭饿……流泪呢……",
-   "english": "No... my tummy is hungry... tears come...",
+   "chinese": "不要……彭彭饿……眼泪掉下来了呢……",
+   "english": "No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -54903,8 +54903,8 @@
     "food_reluctant"
    ],
    "japanese": "まずい……でも おなかが すいたわ。",
-   "chinese": "难吃……可是饿了呢。",
-   "english": "Yucky... but I am hungry.",
+   "chinese": "难吃……可是彭彭饿了呢。",
+   "english": "Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54918,7 +54918,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいわ。いらない。",
    "chinese": "呸、呸。难吃呢。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -54945,7 +54945,7 @@
     "food_delight"
    ],
    "japanese": "ゆ、にゃっ！ まんま、おいち！ もっと！",
-   "chinese": "油、喵！饭饭好吃！还要，还要！",
+   "chinese": "油、喵！饭饭好吃！还要、还要！",
    "english": "Yu, nya! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -54958,9 +54958,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆ、にゃっ……まずいけど、たべる！",
-   "chinese": "油、喵……难吃，但是吃！",
-   "english": "Yu, nya... Yucky, but I will eat!",
+   "japanese": "ゆ、にゃっ！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "油、喵！难吃吃！嚼嚼！",
+   "english": "Yu, nya! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -54972,9 +54972,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆ、にゃっ……いや……でも ぺこぺこ……たべる……",
-   "chinese": "油、喵……不要……可是彭彭饿……吃……",
-   "english": "Yu, nya... No... but my tummy is hungry... I will eat...",
+   "japanese": "ゆ、にゃっ……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "油、喵……彭彭先森饿惹……",
+   "english": "Yu, nya... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55000,9 +55000,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆ、にゃっ！ これ、いや！ いいの もってきて！",
-   "chinese": "油、喵！这个不要！拿好的来！",
-   "english": "Yu, nya! Not this! Bring a good one!",
+   "japanese": "ゆ、にゃっ！ まんましゃん、やー！",
+   "chinese": "油、喵！饭饭{mister}，不要哒！",
+   "english": "Yu, nya! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55016,7 +55016,7 @@
    ],
    "japanese": "ゆ、にゃっ……まんま、おいち……",
    "chinese": "油、喵……饭饭好吃……",
-   "english": "Yu, nya... Num-num is tasty...",
+   "english": "Yu, nya... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55028,9 +55028,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆ、にゃっ……いや……でも たべる……",
-   "chinese": "油、喵……不想要……可是吃……",
-   "english": "Yu, nya... I do not want it... but I will eat...",
+   "japanese": "ゆ、にゃっ……まじゅ……むちゃ……",
+   "chinese": "油、喵……难吃吃……嚼嚼……",
+   "english": "Yu, nya... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55042,9 +55042,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆ、にゃっ……なみだ……まずい……でも たべる……",
-   "chinese": "油、喵……流泪……难吃……可是吃……",
-   "english": "Yu, nya... tears... yucky... but I will eat...",
+   "japanese": "ゆ、にゃっ……ひっく……おなか、ぺこ……",
+   "chinese": "油、喵……呜呜……彭彭饿……",
+   "english": "Yu, nya... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55058,7 +55058,7 @@
    ],
    "japanese": "ゆ、にゃっ……ぺっ……いや……",
    "chinese": "油、喵……呸……不要……",
-   "english": "Yu, nya... ptooey... no...",
+   "english": "Yu, nya... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55070,9 +55070,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆ、にゃっ……こわい……いや……",
-   "chinese": "油、喵……怕怕……不要……",
-   "english": "Yu, nya... scary... no...",
+   "japanese": "ゆ、にゃっ……こあい……やぁ……",
+   "chinese": "油、喵……口怕……不要哒……",
+   "english": "Yu, nya... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55086,7 +55086,7 @@
    ],
    "japanese": "ゆ、にゃっ、まんま、おいちい。",
    "chinese": "油、喵，饭饭好吃。",
-   "english": "Yu, nya, num-num is yummy.",
+   "english": "Yu, nya, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55098,9 +55098,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ゆ、にゃっ、まずい。でも たべる。",
-   "chinese": "油、喵，难吃。但是吃。",
-   "english": "Yu, nya, yucky. But I will eat.",
+   "japanese": "ゆ、にゃっ、むーちゃ。まじゅい。",
+   "chinese": "油、喵，嚼嚼。难吃吃。",
+   "english": "Yu, nya, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55112,9 +55112,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ゆ、にゃっ……まずい。でも たべる。",
-   "chinese": "油、喵……难吃。但是吃。",
-   "english": "Yu, nya... Yucky. But I will eat.",
+   "japanese": "ゆ、にゃっ……ぺこぺこ……むーちゃ……",
+   "chinese": "油、喵……饿饿……嚼嚼……",
+   "english": "Yu, nya... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55140,9 +55140,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ゆ、にゃっ、いや。べつのは ある？",
-   "chinese": "油、喵，不要。有别的吗？",
-   "english": "Yu, nya, no. Is there another?",
+   "japanese": "ゆ、にゃっ、いらにゃい。",
+   "chinese": "油、喵，窝不要。",
+   "english": "Yu, nya, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55155,7 +55155,7 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、さいこう！ もっと たべたいよぅ！",
-   "chinese": "饭鲜笋最棒！还想吃哟——！",
+   "chinese": "饭先生最棒！还想吃哟——！",
    "english": "Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -55168,9 +55168,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "まずいけど、たべてやるよぅ！",
-   "chinese": "虽然难吃，我吃给你看哟——！",
-   "english": "It is yucky, but I will eat it anyway!",
+   "japanese": "まじゅいけど、ちぇんは むーちゃできるよぅ！",
+   "chinese": "难吃归难吃，{self}还是能嚼嚼哟——！",
+   "english": "Yucky, but Chen can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55182,9 +55182,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ぺこぺこに まけたよぅ……たべる……",
-   "chinese": "输给饿肚子了哟——……吃……",
-   "english": "Hunger won... I will eat...",
+   "japanese": "ぽんぽんしゃん、ぺこぺこよぅ……むーちゃ……",
+   "chinese": "彭彭先生饿扁惹哟——……嚼嚼……",
+   "english": "Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55198,7 +55198,7 @@
    ],
    "japanese": "ぺっ、ぺっ！ まずい、いらないよぅ！",
    "chinese": "呸、呸！难吃，不要哟——！",
-   "english": "Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55211,7 +55211,7 @@
     "food_complain"
    ],
    "japanese": "こんな ごはんしゃん、いらないよぅ！",
-   "chinese": "这种饭鲜笋不要哟——！",
+   "chinese": "这种饭先生不要哟——！",
    "english": "I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -55225,8 +55225,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちい……しあわせよぅ……",
-   "chinese": "饭鲜笋好吃……好幸福哟——……",
-   "english": "Mr. Food is tasty... I am happy...",
+   "chinese": "饭先生好吃……好幸胡哟——……",
+   "english": "Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55239,8 +55239,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずい……でも がまんよぅ……",
-   "chinese": "饭鲜笋，难吃……不过忍一忍哟——……",
-   "english": "Mr. Food is yucky... but I will bear it...",
+   "chinese": "饭先生难吃……忍一忍哟——……",
+   "english": "Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55252,9 +55252,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "こわい……なみだ でる……でも たべるよぅ……",
-   "chinese": "好怕……流泪……可是吃哟——……",
-   "english": "I am scared... tears come... but I will eat...",
+   "japanese": "ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55268,7 +55268,7 @@
    ],
    "japanese": "ぺっ……ごめん……いやよぅ……",
    "chinese": "呸……对不起……不要哟——……",
-   "english": "Ptooey... sorry... I do not want it...",
+   "english": "Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55281,8 +55281,8 @@
     "food_complain"
    ],
    "japanese": "ごめん……これ、むりよぅ……",
-   "chinese": "对不起……这个吃不下哟——……",
-   "english": "Sorry... I cannot manage this...",
+   "chinese": "对不起……窝吃不下哟——……",
+   "english": "Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55295,8 +55295,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちいよぅ。",
-   "chinese": "饭鲜笋好吃哟——。",
-   "english": "Mr. Food is tasty.",
+   "chinese": "饭先生好吃哟——。",
+   "english": "Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55309,8 +55309,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずいよぅ。たべる。",
-   "chinese": "饭鲜笋难吃哟——。还是吃。",
-   "english": "Mr. Food is yucky. I will still eat.",
+   "chinese": "饭先生难吃哟——。还是嚼嚼。",
+   "english": "Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55338,7 +55338,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいよぅ。いらない。",
    "chinese": "呸、呸。难吃哟——。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55351,8 +55351,8 @@
     "food_complain"
    ],
    "japanese": "これ、いらないよぅ。べつのが いい。",
-   "chinese": "这个不要哟——。想要别的。",
-   "english": "I do not want this. I want another.",
+   "chinese": "介个不要哟——。想要别的。",
+   "english": "No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55364,9 +55364,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ごはんさん、すばらしい！ もっと ほしいよー！",
-   "chinese": "饭先生太棒了！还想要哟——！",
-   "english": "Mr. Food is wonderful! I want more!",
+   "japanese": "ちぇんは しあわせよー！",
+   "chinese": "{self}好幸福哟——！",
+   "english": "Chen is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55379,8 +55379,8 @@
     "food_grudge"
    ],
    "japanese": "ふん、こんな ごはんさん……たべてやるよー。",
-   "chinese": "哼，这种饭先生……吃给你看哟——。",
-   "english": "Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "哼，这种饭先生……也嚼得下去哟——。",
+   "english": "Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55463,8 +55463,8 @@
     "food_reluctant"
    ],
    "japanese": "いや……ぺこぺこ……なみだ でるよー……",
-   "chinese": "不要……彭彭饿……流泪哟——……",
-   "english": "No... my tummy is hungry... tears come...",
+   "chinese": "不要……彭彭饿……眼泪掉下来了哟——……",
+   "english": "No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55533,8 +55533,8 @@
     "food_reluctant"
    ],
    "japanese": "まずい……でも おなかが すいたよー。",
-   "chinese": "难吃……可是饿了哟——。",
-   "english": "Yucky... but I am hungry.",
+   "chinese": "难吃……可是彭彭饿了哟——。",
+   "english": "Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55548,7 +55548,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいよー。いらない。",
    "chinese": "呸、呸。难吃哟——。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55575,7 +55575,7 @@
     "food_delight"
    ],
    "japanese": "む、きゅっ！ まんま、おいち！ もっと！",
-   "chinese": "姆、啾！饭饭好吃！还要，还要！",
+   "chinese": "姆、啾！饭饭好吃！还要、还要！",
    "english": "Mu, kyu! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -55588,9 +55588,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "む、きゅっ……まずいけど、たべる！",
-   "chinese": "姆、啾……难吃，但是吃！",
-   "english": "Mu, kyu... Yucky, but I will eat!",
+   "japanese": "む、きゅっ！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "姆、啾！难吃吃！嚼嚼！",
+   "english": "Mu, kyu! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55602,9 +55602,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "む、きゅっ……いや……でも ぺこぺこ……たべる……",
-   "chinese": "姆、啾……不要……可是彭彭饿……吃……",
-   "english": "Mu, kyu... No... but my tummy is hungry... I will eat...",
+   "japanese": "む、きゅっ……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "姆、啾……彭彭先森饿惹……",
+   "english": "Mu, kyu... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55630,9 +55630,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "む、きゅっ！ これ、いや！ いいの もってきて！",
-   "chinese": "姆、啾！这个不要！拿好的来！",
-   "english": "Mu, kyu! Not this! Bring a good one!",
+   "japanese": "む、きゅっ！ まんましゃん、やー！",
+   "chinese": "姆、啾！饭饭{mister}，不要哒！",
+   "english": "Mu, kyu! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55646,7 +55646,7 @@
    ],
    "japanese": "む、きゅっ……まんま、おいち……",
    "chinese": "姆、啾……饭饭好吃……",
-   "english": "Mu, kyu... Num-num is tasty...",
+   "english": "Mu, kyu... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55658,9 +55658,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "む、きゅっ……いや……でも たべる……",
-   "chinese": "姆、啾……不想要……可是吃……",
-   "english": "Mu, kyu... I do not want it... but I will eat...",
+   "japanese": "む、きゅっ……まじゅ……むちゃ……",
+   "chinese": "姆、啾……难吃吃……嚼嚼……",
+   "english": "Mu, kyu... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55672,9 +55672,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "む、きゅっ……なみだ……まずい……でも たべる……",
-   "chinese": "姆、啾……流泪……难吃……可是吃……",
-   "english": "Mu, kyu... tears... yucky... but I will eat...",
+   "japanese": "む、きゅっ……ひっく……おなか、ぺこ……",
+   "chinese": "姆、啾……呜呜……彭彭饿……",
+   "english": "Mu, kyu... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55688,7 +55688,7 @@
    ],
    "japanese": "む、きゅっ……ぺっ……いや……",
    "chinese": "姆、啾……呸……不要……",
-   "english": "Mu, kyu... ptooey... no...",
+   "english": "Mu, kyu... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55700,9 +55700,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "む、きゅっ……こわい……いや……",
-   "chinese": "姆、啾……怕怕……不要……",
-   "english": "Mu, kyu... scary... no...",
+   "japanese": "む、きゅっ……こあい……やぁ……",
+   "chinese": "姆、啾……口怕……不要哒……",
+   "english": "Mu, kyu... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55716,7 +55716,7 @@
    ],
    "japanese": "む、きゅっ、まんま、おいちい。",
    "chinese": "姆、啾，饭饭好吃。",
-   "english": "Mu, kyu, num-num is yummy.",
+   "english": "Mu, kyu, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55728,9 +55728,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "む、きゅっ、まずい。でも たべる。",
-   "chinese": "姆、啾，难吃。但是吃。",
-   "english": "Mu, kyu, yucky. But I will eat.",
+   "japanese": "む、きゅっ、むーちゃ。まじゅい。",
+   "chinese": "姆、啾，嚼嚼。难吃吃。",
+   "english": "Mu, kyu, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55742,9 +55742,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "む、きゅっ……まずい。でも たべる。",
-   "chinese": "姆、啾……难吃。但是吃。",
-   "english": "Mu, kyu... Yucky. But I will eat.",
+   "japanese": "む、きゅっ……ぺこぺこ……むーちゃ……",
+   "chinese": "姆、啾……饿饿……嚼嚼……",
+   "english": "Mu, kyu... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55770,9 +55770,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "む、きゅっ、いや。べつのは ある？",
-   "chinese": "姆、啾，不要。有别的吗？",
-   "english": "Mu, kyu, no. Is there another?",
+   "japanese": "む、きゅっ、いらにゃい。",
+   "chinese": "姆、啾，窝不要。",
+   "english": "Mu, kyu, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55785,7 +55785,7 @@
     "food_delight"
    ],
    "japanese": "むきゅ。ごはんしゃん、さいこう！ もっと たべたいわ！",
-   "chinese": "姆啾。饭鲜笋最棒！还想吃惹哇！",
+   "chinese": "姆啾。饭先生最棒！还想吃惹哇！",
    "english": "Mukyu. Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -55798,9 +55798,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "むきゅ。まずいけど、たべてやるわ！",
-   "chinese": "姆啾。虽然难吃，我吃给你看惹哇！",
-   "english": "Mukyu. It is yucky, but I will eat it anyway!",
+   "japanese": "むきゅ。まじゅいけど、ぱちゅは むーちゃできるわ！",
+   "chinese": "姆啾。难吃归难吃，{self}还是能嚼嚼惹哇！",
+   "english": "Mukyu. Yucky, but Patchouli can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55812,9 +55812,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "むきゅ。ぺこぺこに まけたわ……たべる……",
-   "chinese": "姆啾。输给饿肚子了惹哇……吃……",
-   "english": "Mukyu. Hunger won... I will eat...",
+   "japanese": "むきゅ。ぽんぽんしゃん、ぺこぺこわ……むーちゃ……",
+   "chinese": "姆啾。彭彭先生饿扁惹惹哇……嚼嚼……",
+   "english": "Mukyu. Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55828,7 +55828,7 @@
    ],
    "japanese": "むきゅ。ぺっ、ぺっ！ まずい、いらないわ！",
    "chinese": "姆啾。呸、呸！难吃，不要惹哇！",
-   "english": "Mukyu. Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Mukyu. Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -55841,7 +55841,7 @@
     "food_complain"
    ],
    "japanese": "むきゅ。こんな ごはんしゃん、いらないわ！",
-   "chinese": "姆啾。这种饭鲜笋不要惹哇！",
+   "chinese": "姆啾。这种饭先生不要惹哇！",
    "english": "Mukyu. I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -55855,8 +55855,8 @@
     "food_delight"
    ],
    "japanese": "むきゅ。ごはんしゃん、おいちい……しあわせわ……",
-   "chinese": "姆啾。饭鲜笋好吃……好幸福惹哇……",
-   "english": "Mukyu. Mr. Food is tasty... I am happy...",
+   "chinese": "姆啾。饭先生好吃……好幸胡惹哇……",
+   "english": "Mukyu. Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55869,8 +55869,8 @@
     "food_grudge"
    ],
    "japanese": "むきゅ。ごはんしゃん、まずい……でも がまんわ……",
-   "chinese": "姆啾。饭鲜笋，难吃……不过忍一忍惹哇……",
-   "english": "Mukyu. Mr. Food is yucky... but I will bear it...",
+   "chinese": "姆啾。饭先生难吃……忍一忍惹哇……",
+   "english": "Mukyu. Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55882,9 +55882,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "むきゅ。こわい……なみだ でる……でも たべるわ……",
-   "chinese": "姆啾。好怕……流泪……可是吃惹哇……",
-   "english": "Mukyu. I am scared... tears come... but I will eat...",
+   "japanese": "むきゅ。ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "姆啾。彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Mukyu. Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55898,7 +55898,7 @@
    ],
    "japanese": "むきゅ。ぺっ……ごめん……いやわ……",
    "chinese": "姆啾。呸……对不起……不要惹哇……",
-   "english": "Mukyu. Ptooey... sorry... I do not want it...",
+   "english": "Mukyu. Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55911,8 +55911,8 @@
     "food_complain"
    ],
    "japanese": "むきゅ。ごめん……これ、むりわ……",
-   "chinese": "姆啾。对不起……这个吃不下惹哇……",
-   "english": "Mukyu. Sorry... I cannot manage this...",
+   "chinese": "姆啾。对不起……窝吃不下惹哇……",
+   "english": "Mukyu. Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -55925,8 +55925,8 @@
     "food_delight"
    ],
    "japanese": "むきゅ。ごはんしゃん、おいちいわ。",
-   "chinese": "姆啾。饭鲜笋好吃惹哇。",
-   "english": "Mukyu. Mr. Food is tasty.",
+   "chinese": "姆啾。饭先生好吃惹哇。",
+   "english": "Mukyu. Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55939,8 +55939,8 @@
     "food_grudge"
    ],
    "japanese": "むきゅ。ごはんしゃん、まずいわ。たべる。",
-   "chinese": "姆啾。饭鲜笋难吃惹哇。还是吃。",
-   "english": "Mukyu. Mr. Food is yucky. I will still eat.",
+   "chinese": "姆啾。饭先生难吃惹哇。还是嚼嚼。",
+   "english": "Mukyu. Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55968,7 +55968,7 @@
    ],
    "japanese": "むきゅ。ぺっ、ぺっ。まずいわ。いらない。",
    "chinese": "姆啾。呸、呸。难吃惹哇。不要。",
-   "english": "Mukyu. Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Mukyu. Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55981,8 +55981,8 @@
     "food_complain"
    ],
    "japanese": "むきゅ。これ、いらないわ。べつのが いい。",
-   "chinese": "姆啾。这个不要惹哇。想要别的。",
-   "english": "Mukyu. I do not want this. I want another.",
+   "chinese": "姆啾。介个不要惹哇。想要别的。",
+   "english": "Mukyu. No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -55994,9 +55994,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "むきゅ。ごはんさん、すばらしい！ もっと ほしいわ！",
-   "chinese": "姆啾。饭先生太棒了！还想要哇！",
-   "english": "Mukyu. Mr. Food is wonderful! I want more!",
+   "japanese": "むきゅ。ぱちゅりーは しあわせわ！",
+   "chinese": "姆啾。{self}好幸福哇！",
+   "english": "Mukyu. Patchouli is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56009,8 +56009,8 @@
     "food_grudge"
    ],
    "japanese": "むきゅ。ふん、こんな ごはんさん……たべてやるわ。",
-   "chinese": "姆啾。哼，这种饭先生……吃给你看哇。",
-   "english": "Mukyu. Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "姆啾。哼，这种饭先生……也嚼得下去哇。",
+   "english": "Mukyu. Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56093,8 +56093,8 @@
     "food_reluctant"
    ],
    "japanese": "むきゅ。いや……ぺこぺこ……なみだ でるわ……",
-   "chinese": "姆啾。不要……彭彭饿……流泪哇……",
-   "english": "Mukyu. No... my tummy is hungry... tears come...",
+   "chinese": "姆啾。不要……彭彭饿……眼泪掉下来了哇……",
+   "english": "Mukyu. No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56163,8 +56163,8 @@
     "food_reluctant"
    ],
    "japanese": "むきゅ。まずい……でも おなかが すいたわ。",
-   "chinese": "姆啾。难吃……可是饿了哇。",
-   "english": "Mukyu. Yucky... but I am hungry.",
+   "chinese": "姆啾。难吃……可是彭彭饿了哇。",
+   "english": "Mukyu. Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56178,7 +56178,7 @@
    ],
    "japanese": "むきゅ。ぺっ、ぺっ。まずいわ。いらない。",
    "chinese": "姆啾。呸、呸。难吃哇。不要。",
-   "english": "Mukyu. Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Mukyu. Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56205,7 +56205,7 @@
     "food_delight"
    ],
    "japanese": "うー、うー！ まんま、おいち！ もっと！",
-   "chinese": "呜——、呜——！饭饭好吃！还要，还要！",
+   "chinese": "呜——、呜——！饭饭好吃！还要、还要！",
    "english": "Uu, uu! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -56218,9 +56218,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "うー、うー……まずいけど、たべる！",
-   "chinese": "呜——、呜——……难吃，但是吃！",
-   "english": "Uu, uu... Yucky, but I will eat!",
+   "japanese": "うー、うー！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "呜——、呜——！难吃吃！嚼嚼！",
+   "english": "Uu, uu! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56232,9 +56232,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "うー、うー……いや……でも ぺこぺこ……たべる……",
-   "chinese": "呜——、呜——……不要……可是彭彭饿……吃……",
-   "english": "Uu, uu... No... but my tummy is hungry... I will eat...",
+   "japanese": "うー、うー……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "呜——、呜——……彭彭先森饿惹……",
+   "english": "Uu, uu... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56260,9 +56260,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "うー、うー！ これ、いや！ いいの もってきて！",
-   "chinese": "呜——、呜——！这个不要！拿好的来！",
-   "english": "Uu, uu! Not this! Bring a good one!",
+   "japanese": "うー、うー！ まんましゃん、やー！",
+   "chinese": "呜——、呜——！饭饭{mister}，不要哒！",
+   "english": "Uu, uu! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56276,7 +56276,7 @@
    ],
    "japanese": "うー、うー……まんま、おいち……",
    "chinese": "呜——、呜——……饭饭好吃……",
-   "english": "Uu, uu... Num-num is tasty...",
+   "english": "Uu, uu... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56288,9 +56288,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "うー、うー……いや……でも たべる……",
-   "chinese": "呜——、呜——……不想要……可是吃……",
-   "english": "Uu, uu... I do not want it... but I will eat...",
+   "japanese": "うー、うー……まじゅ……むちゃ……",
+   "chinese": "呜——、呜——……难吃吃……嚼嚼……",
+   "english": "Uu, uu... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56302,9 +56302,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "うー、うー……なみだ……まずい……でも たべる……",
-   "chinese": "呜——、呜——……流泪……难吃……可是吃……",
-   "english": "Uu, uu... tears... yucky... but I will eat...",
+   "japanese": "うー、うー……ひっく……おなか、ぺこ……",
+   "chinese": "呜——、呜——……呜呜……彭彭饿……",
+   "english": "Uu, uu... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56318,7 +56318,7 @@
    ],
    "japanese": "うー、うー……ぺっ……いや……",
    "chinese": "呜——、呜——……呸……不要……",
-   "english": "Uu, uu... ptooey... no...",
+   "english": "Uu, uu... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56330,9 +56330,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "うー、うー……こわい……いや……",
-   "chinese": "呜——、呜——……怕怕……不要……",
-   "english": "Uu, uu... scary... no...",
+   "japanese": "うー、うー……こあい……やぁ……",
+   "chinese": "呜——、呜——……口怕……不要哒……",
+   "english": "Uu, uu... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56346,7 +56346,7 @@
    ],
    "japanese": "うー、うー、まんま、おいちい。",
    "chinese": "呜——、呜——，饭饭好吃。",
-   "english": "Uu, uu, num-num is yummy.",
+   "english": "Uu, uu, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56358,9 +56358,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "うー、うー、まずい。でも たべる。",
-   "chinese": "呜——、呜——，难吃。但是吃。",
-   "english": "Uu, uu, yucky. But I will eat.",
+   "japanese": "うー、うー、むーちゃ。まじゅい。",
+   "chinese": "呜——、呜——，嚼嚼。难吃吃。",
+   "english": "Uu, uu, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56372,9 +56372,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "うー、うー……まずい。でも たべる。",
-   "chinese": "呜——、呜——……难吃。但是吃。",
-   "english": "Uu, uu... Yucky. But I will eat.",
+   "japanese": "うー、うー……ぺこぺこ……むーちゃ……",
+   "chinese": "呜——、呜——……饿饿……嚼嚼……",
+   "english": "Uu, uu... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56400,9 +56400,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "うー、うー、いや。べつのは ある？",
-   "chinese": "呜——、呜——，不要。有别的吗？",
-   "english": "Uu, uu, no. Is there another?",
+   "japanese": "うー、うー、いらにゃい。",
+   "chinese": "呜——、呜——，窝不要。",
+   "english": "Uu, uu, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56415,7 +56415,7 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、さいこう！ もっと たべたいなのだ！",
-   "chinese": "饭鲜笋最棒！还想吃呀！",
+   "chinese": "饭先生最棒！还想吃呀！",
    "english": "Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -56428,9 +56428,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "まずいけど、たべてやるなのだ！",
-   "chinese": "虽然难吃，我吃给你看呀！",
-   "english": "It is yucky, but I will eat it anyway!",
+   "japanese": "まじゅいけど、れみりゃは むーちゃできるなのだ！",
+   "chinese": "难吃归难吃，{self}还是能嚼嚼呀！",
+   "english": "Yucky, but Remilia can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56442,9 +56442,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ぺこぺこに まけたなのだ……たべる……",
-   "chinese": "输给饿肚子了呀……吃……",
-   "english": "Hunger won... I will eat...",
+   "japanese": "ぽんぽんしゃん、ぺこぺこなのだ……むーちゃ……",
+   "chinese": "彭彭先生饿扁惹呀……嚼嚼……",
+   "english": "Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56458,7 +56458,7 @@
    ],
    "japanese": "ぺっ、ぺっ！ まずい、いらないなのだ！",
    "chinese": "呸、呸！难吃，不要呀！",
-   "english": "Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56471,7 +56471,7 @@
     "food_complain"
    ],
    "japanese": "こんな ごはんしゃん、いらないなのだ！",
-   "chinese": "这种饭鲜笋不要呀！",
+   "chinese": "这种饭先生不要呀！",
    "english": "I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -56485,8 +56485,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちい……しあわせなのだ……",
-   "chinese": "饭鲜笋好吃……好幸福呀……",
-   "english": "Mr. Food is tasty... I am happy...",
+   "chinese": "饭先生好吃……好幸胡呀……",
+   "english": "Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56499,8 +56499,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずい……でも がまんなのだ……",
-   "chinese": "饭鲜笋，难吃……不过忍一忍呀……",
-   "english": "Mr. Food is yucky... but I will bear it...",
+   "chinese": "饭先生难吃……忍一忍呀……",
+   "english": "Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56512,9 +56512,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "こわい……なみだ でる……でも たべるなのだ……",
-   "chinese": "好怕……流泪……可是吃呀……",
-   "english": "I am scared... tears come... but I will eat...",
+   "japanese": "ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56528,7 +56528,7 @@
    ],
    "japanese": "ぺっ……ごめん……いやなのだ……",
    "chinese": "呸……对不起……不要呀……",
-   "english": "Ptooey... sorry... I do not want it...",
+   "english": "Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56541,8 +56541,8 @@
     "food_complain"
    ],
    "japanese": "ごめん……これ、むりなのだ……",
-   "chinese": "对不起……这个吃不下呀……",
-   "english": "Sorry... I cannot manage this...",
+   "chinese": "对不起……窝吃不下呀……",
+   "english": "Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56555,8 +56555,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちいなのだ。",
-   "chinese": "饭鲜笋好吃呀。",
-   "english": "Mr. Food is tasty.",
+   "chinese": "饭先生好吃呀。",
+   "english": "Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56569,8 +56569,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずいなのだ。たべる。",
-   "chinese": "饭鲜笋难吃呀。还是吃。",
-   "english": "Mr. Food is yucky. I will still eat.",
+   "chinese": "饭先生难吃呀。还是嚼嚼。",
+   "english": "Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56598,7 +56598,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいなのだ。いらない。",
    "chinese": "呸、呸。难吃呀。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56611,8 +56611,8 @@
     "food_complain"
    ],
    "japanese": "これ、いらないなのだ。べつのが いい。",
-   "chinese": "这个不要呀。想要别的。",
-   "english": "I do not want this. I want another.",
+   "chinese": "介个不要呀。想要别的。",
+   "english": "No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56624,9 +56624,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ごはんさん、すばらしい！ もっと ほしいのだ！",
-   "chinese": "饭先生太棒了！还想要呀！",
-   "english": "Mr. Food is wonderful! I want more!",
+   "japanese": "れみりあは しあわせのだ！",
+   "chinese": "{self}好幸福呀！",
+   "english": "Remilia is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56639,8 +56639,8 @@
     "food_grudge"
    ],
    "japanese": "ふん、こんな ごはんさん……たべてやるのだ。",
-   "chinese": "哼，这种饭先生……吃给你看呀。",
-   "english": "Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "哼，这种饭先生……也嚼得下去呀。",
+   "english": "Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56723,8 +56723,8 @@
     "food_reluctant"
    ],
    "japanese": "いや……ぺこぺこ……なみだ でるのだ……",
-   "chinese": "不要……彭彭饿……流泪呀……",
-   "english": "No... my tummy is hungry... tears come...",
+   "chinese": "不要……彭彭饿……眼泪掉下来了呀……",
+   "english": "No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56793,8 +56793,8 @@
     "food_reluctant"
    ],
    "japanese": "まずい……でも おなかが すいたのだ。",
-   "chinese": "难吃……可是饿了呀。",
-   "english": "Yucky... but I am hungry.",
+   "chinese": "难吃……可是彭彭饿了呀。",
+   "english": "Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56808,7 +56808,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいのだ。いらない。",
    "chinese": "呸、呸。难吃呀。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56835,7 +56835,7 @@
     "food_delight"
    ],
    "japanese": "うー、うー！ まんま、おいち！ もっと！",
-   "chinese": "呜——、呜——！饭饭好吃！还要，还要！",
+   "chinese": "呜——、呜——！饭饭好吃！还要、还要！",
    "english": "Uu, uu! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -56848,9 +56848,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "うー、うー……まずいけど、たべる！",
-   "chinese": "呜——、呜——……难吃，但是吃！",
-   "english": "Uu, uu... Yucky, but I will eat!",
+   "japanese": "うー、うー！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "呜——、呜——！难吃吃！嚼嚼！",
+   "english": "Uu, uu! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56862,9 +56862,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "うー、うー……いや……でも ぺこぺこ……たべる……",
-   "chinese": "呜——、呜——……不要……可是彭彭饿……吃……",
-   "english": "Uu, uu... No... but my tummy is hungry... I will eat...",
+   "japanese": "うー、うー……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "呜——、呜——……彭彭先森饿惹……",
+   "english": "Uu, uu... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56890,9 +56890,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "うー、うー！ これ、いや！ いいの もってきて！",
-   "chinese": "呜——、呜——！这个不要！拿好的来！",
-   "english": "Uu, uu! Not this! Bring a good one!",
+   "japanese": "うー、うー！ まんましゃん、やー！",
+   "chinese": "呜——、呜——！饭饭{mister}，不要哒！",
+   "english": "Uu, uu! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -56906,7 +56906,7 @@
    ],
    "japanese": "うー、うー……まんま、おいち……",
    "chinese": "呜——、呜——……饭饭好吃……",
-   "english": "Uu, uu... Num-num is tasty...",
+   "english": "Uu, uu... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56918,9 +56918,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "うー、うー……いや……でも たべる……",
-   "chinese": "呜——、呜——……不想要……可是吃……",
-   "english": "Uu, uu... I do not want it... but I will eat...",
+   "japanese": "うー、うー……まじゅ……むちゃ……",
+   "chinese": "呜——、呜——……难吃吃……嚼嚼……",
+   "english": "Uu, uu... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56932,9 +56932,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "うー、うー……なみだ……まずい……でも たべる……",
-   "chinese": "呜——、呜——……流泪……难吃……可是吃……",
-   "english": "Uu, uu... tears... yucky... but I will eat...",
+   "japanese": "うー、うー……ひっく……おなか、ぺこ……",
+   "chinese": "呜——、呜——……呜呜……彭彭饿……",
+   "english": "Uu, uu... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56948,7 +56948,7 @@
    ],
    "japanese": "うー、うー……ぺっ……いや……",
    "chinese": "呜——、呜——……呸……不要……",
-   "english": "Uu, uu... ptooey... no...",
+   "english": "Uu, uu... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56960,9 +56960,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "うー、うー……こわい……いや……",
-   "chinese": "呜——、呜——……怕怕……不要……",
-   "english": "Uu, uu... scary... no...",
+   "japanese": "うー、うー……こあい……やぁ……",
+   "chinese": "呜——、呜——……口怕……不要哒……",
+   "english": "Uu, uu... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -56976,7 +56976,7 @@
    ],
    "japanese": "うー、うー、まんま、おいちい。",
    "chinese": "呜——、呜——，饭饭好吃。",
-   "english": "Uu, uu, num-num is yummy.",
+   "english": "Uu, uu, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -56988,9 +56988,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "うー、うー、まずい。でも たべる。",
-   "chinese": "呜——、呜——，难吃。但是吃。",
-   "english": "Uu, uu, yucky. But I will eat.",
+   "japanese": "うー、うー、むーちゃ。まじゅい。",
+   "chinese": "呜——、呜——，嚼嚼。难吃吃。",
+   "english": "Uu, uu, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57002,9 +57002,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "うー、うー……まずい。でも たべる。",
-   "chinese": "呜——、呜——……难吃。但是吃。",
-   "english": "Uu, uu... Yucky. But I will eat.",
+   "japanese": "うー、うー……ぺこぺこ……むーちゃ……",
+   "chinese": "呜——、呜——……饿饿……嚼嚼……",
+   "english": "Uu, uu... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57030,9 +57030,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "うー、うー、いや。べつのは ある？",
-   "chinese": "呜——、呜——，不要。有别的吗？",
-   "english": "Uu, uu, no. Is there another?",
+   "japanese": "うー、うー、いらにゃい。",
+   "chinese": "呜——、呜——，窝不要。",
+   "english": "Uu, uu, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57045,7 +57045,7 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、さいこう！ もっと たべたいよぅ！",
-   "chinese": "饭鲜笋最棒！还想吃哦！",
+   "chinese": "饭先生最棒！还想吃哦！",
    "english": "Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -57058,9 +57058,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "まずいけど、たべてやるよぅ！",
-   "chinese": "虽然难吃，我吃给你看哦！",
-   "english": "It is yucky, but I will eat it anyway!",
+   "japanese": "まじゅいけど、ふりゃんは むーちゃできるよぅ！",
+   "chinese": "难吃归难吃，{self}还是能嚼嚼哦！",
+   "english": "Yucky, but Flandre can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57072,9 +57072,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ぺこぺこに まけたよぅ……たべる……",
-   "chinese": "输给饿肚子了哦……吃……",
-   "english": "Hunger won... I will eat...",
+   "japanese": "ぽんぽんしゃん、ぺこぺこよぅ……むーちゃ……",
+   "chinese": "彭彭先生饿扁惹哦……嚼嚼……",
+   "english": "Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57088,7 +57088,7 @@
    ],
    "japanese": "ぺっ、ぺっ！ まずい、いらないよぅ！",
    "chinese": "呸、呸！难吃，不要哦！",
-   "english": "Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57101,7 +57101,7 @@
     "food_complain"
    ],
    "japanese": "こんな ごはんしゃん、いらないよぅ！",
-   "chinese": "这种饭鲜笋不要哦！",
+   "chinese": "这种饭先生不要哦！",
    "english": "I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -57115,8 +57115,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちい……しあわせよぅ……",
-   "chinese": "饭鲜笋好吃……好幸福哦……",
-   "english": "Mr. Food is tasty... I am happy...",
+   "chinese": "饭先生好吃……好幸胡哦……",
+   "english": "Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57129,8 +57129,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずい……でも がまんよぅ……",
-   "chinese": "饭鲜笋，难吃……不过忍一忍哦……",
-   "english": "Mr. Food is yucky... but I will bear it...",
+   "chinese": "饭先生难吃……忍一忍哦……",
+   "english": "Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57142,9 +57142,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "こわい……なみだ でる……でも たべるよぅ……",
-   "chinese": "好怕……流泪……可是吃哦……",
-   "english": "I am scared... tears come... but I will eat...",
+   "japanese": "ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57158,7 +57158,7 @@
    ],
    "japanese": "ぺっ……ごめん……いやよぅ……",
    "chinese": "呸……对不起……不要哦……",
-   "english": "Ptooey... sorry... I do not want it...",
+   "english": "Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57171,8 +57171,8 @@
     "food_complain"
    ],
    "japanese": "ごめん……これ、むりよぅ……",
-   "chinese": "对不起……这个吃不下哦……",
-   "english": "Sorry... I cannot manage this...",
+   "chinese": "对不起……窝吃不下哦……",
+   "english": "Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57185,8 +57185,8 @@
     "food_delight"
    ],
    "japanese": "ごはんしゃん、おいちいよぅ。",
-   "chinese": "饭鲜笋好吃哦。",
-   "english": "Mr. Food is tasty.",
+   "chinese": "饭先生好吃哦。",
+   "english": "Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57199,8 +57199,8 @@
     "food_grudge"
    ],
    "japanese": "ごはんしゃん、まずいよぅ。たべる。",
-   "chinese": "饭鲜笋难吃哦。还是吃。",
-   "english": "Mr. Food is yucky. I will still eat.",
+   "chinese": "饭先生难吃哦。还是嚼嚼。",
+   "english": "Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57228,7 +57228,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいよぅ。いらない。",
    "chinese": "呸、呸。难吃哦。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57241,8 +57241,8 @@
     "food_complain"
    ],
    "japanese": "これ、いらないよぅ。べつのが いい。",
-   "chinese": "这个不要哦。想要别的。",
-   "english": "I do not want this. I want another.",
+   "chinese": "介个不要哦。想要别的。",
+   "english": "No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57254,9 +57254,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ごはんさん、すばらしい！ もっと ほしいよ！",
-   "chinese": "饭先生太棒了！还想要哦！",
-   "english": "Mr. Food is wonderful! I want more!",
+   "japanese": "ふらんは しあわせよ！",
+   "chinese": "{self}好幸福哦！",
+   "english": "Flandre is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57269,8 +57269,8 @@
     "food_grudge"
    ],
    "japanese": "ふん、こんな ごはんさん……たべてやるよ。",
-   "chinese": "哼，这种饭先生……吃给你看哦。",
-   "english": "Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "哼，这种饭先生……也嚼得下去哦。",
+   "english": "Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57353,8 +57353,8 @@
     "food_reluctant"
    ],
    "japanese": "いや……ぺこぺこ……なみだ でるよ……",
-   "chinese": "不要……彭彭饿……流泪哦……",
-   "english": "No... my tummy is hungry... tears come...",
+   "chinese": "不要……彭彭饿……眼泪掉下来了哦……",
+   "english": "No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57423,8 +57423,8 @@
     "food_reluctant"
    ],
    "japanese": "まずい……でも おなかが すいたよ。",
-   "chinese": "难吃……可是饿了哦。",
-   "english": "Yucky... but I am hungry.",
+   "chinese": "难吃……可是彭彭饿了哦。",
+   "english": "Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57438,7 +57438,7 @@
    ],
    "japanese": "ぺっ、ぺっ。まずいよ。いらない。",
    "chinese": "呸、呸。难吃哦。不要。",
-   "english": "Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57466,7 +57466,7 @@
     "food_delight"
    ],
    "japanese": "みょ、みょん！ まんま、おいち！ もっと！",
-   "chinese": "咪、咪呦！饭饭好吃！还要，还要！",
+   "chinese": "咪、咪呦！饭饭好吃！还要、还要！",
    "english": "Myo, myon! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -57480,9 +57480,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "みょ、みょん……まずいけど、たべる！",
-   "chinese": "咪、咪呦……难吃，但是吃！",
-   "english": "Myo, myon... Yucky, but I will eat!",
+   "japanese": "みょ、みょん！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "咪、咪呦！难吃吃！嚼嚼！",
+   "english": "Myo, myon! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57495,9 +57495,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "みょ、みょん……いや……でも ぺこぺこ……たべる……",
-   "chinese": "咪、咪呦……不要……可是彭彭饿……吃……",
-   "english": "Myo, myon... No... but my tummy is hungry... I will eat...",
+   "japanese": "みょ、みょん……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "咪、咪呦……彭彭先森饿惹……",
+   "english": "Myo, myon... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57525,9 +57525,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "みょ、みょん！ これ、いや！ いいの もってきて！",
-   "chinese": "咪、咪呦！这个不要！拿好的来！",
-   "english": "Myo, myon! Not this! Bring a good one!",
+   "japanese": "みょ、みょん！ まんましゃん、やー！",
+   "chinese": "咪、咪呦！饭饭{mister}，不要哒！",
+   "english": "Myo, myon! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57542,7 +57542,7 @@
    ],
    "japanese": "みょ、みょん……まんま、おいち……",
    "chinese": "咪、咪呦……饭饭好吃……",
-   "english": "Myo, myon... Num-num is tasty...",
+   "english": "Myo, myon... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57555,9 +57555,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "みょ、みょん……いや……でも たべる……",
-   "chinese": "咪、咪呦……不想要……可是吃……",
-   "english": "Myo, myon... I do not want it... but I will eat...",
+   "japanese": "みょ、みょん……まじゅ……むちゃ……",
+   "chinese": "咪、咪呦……难吃吃……嚼嚼……",
+   "english": "Myo, myon... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57570,9 +57570,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "みょ、みょん……なみだ……まずい……でも たべる……",
-   "chinese": "咪、咪呦……流泪……难吃……可是吃……",
-   "english": "Myo, myon... tears... yucky... but I will eat...",
+   "japanese": "みょ、みょん……ひっく……おなか、ぺこ……",
+   "chinese": "咪、咪呦……呜呜……彭彭饿……",
+   "english": "Myo, myon... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57587,7 +57587,7 @@
    ],
    "japanese": "みょ、みょん……ぺっ……いや……",
    "chinese": "咪、咪呦……呸……不要……",
-   "english": "Myo, myon... ptooey... no...",
+   "english": "Myo, myon... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57600,9 +57600,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "みょ、みょん……こわい……いや……",
-   "chinese": "咪、咪呦……怕怕……不要……",
-   "english": "Myo, myon... scary... no...",
+   "japanese": "みょ、みょん……こあい……やぁ……",
+   "chinese": "咪、咪呦……口怕……不要哒……",
+   "english": "Myo, myon... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57617,7 +57617,7 @@
    ],
    "japanese": "みょ、みょん、まんま、おいちい。",
    "chinese": "咪、咪呦，饭饭好吃。",
-   "english": "Myo, myon, num-num is yummy.",
+   "english": "Myo, myon, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57630,9 +57630,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "みょ、みょん、まずい。でも たべる。",
-   "chinese": "咪、咪呦，难吃。但是吃。",
-   "english": "Myo, myon, yucky. But I will eat.",
+   "japanese": "みょ、みょん、むーちゃ。まじゅい。",
+   "chinese": "咪、咪呦，嚼嚼。难吃吃。",
+   "english": "Myo, myon, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57645,9 +57645,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "みょ、みょん……まずい。でも たべる。",
-   "chinese": "咪、咪呦……难吃。但是吃。",
-   "english": "Myo, myon... Yucky. But I will eat.",
+   "japanese": "みょ、みょん……ぺこぺこ……むーちゃ……",
+   "chinese": "咪、咪呦……饿饿……嚼嚼……",
+   "english": "Myo, myon... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57675,9 +57675,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "みょ、みょん、いや。べつのは ある？",
-   "chinese": "咪、咪呦，不要。有别的吗？",
-   "english": "Myo, myon, no. Is there another?",
+   "japanese": "みょ、みょん、いらにゃい。",
+   "chinese": "咪、咪呦，窝不要。",
+   "english": "Myo, myon, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57691,7 +57691,7 @@
     "food_delight"
    ],
    "japanese": "みょん！ごはんしゃん、さいこう！ もっと たべたいみょ！",
-   "chinese": "咪呦！饭鲜笋最棒！还想吃哦！",
+   "chinese": "咪呦！饭先生最棒！还想吃哦！",
    "english": "Myon! Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -57705,9 +57705,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "みょん！まずいけど、たべてやるみょ！",
-   "chinese": "咪呦！虽然难吃，我吃给你看哦！",
-   "english": "Myon! It is yucky, but I will eat it anyway!",
+   "japanese": "みょん！まじゅいけど、みょんは むーちゃできるみょ！",
+   "chinese": "咪呦！难吃归难吃，{self}还是能嚼嚼哦！",
+   "english": "Myon! Yucky, but Myon can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57720,9 +57720,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "みょん！ぺこぺこに まけたみょ……たべる……",
-   "chinese": "咪呦！输给饿肚子了哦……吃……",
-   "english": "Myon! Hunger won... I will eat...",
+   "japanese": "みょん！ぽんぽんしゃん、ぺこぺこみょ……むーちゃ……",
+   "chinese": "咪呦！彭彭先生饿扁惹哦……嚼嚼……",
+   "english": "Myon! Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57737,7 +57737,7 @@
    ],
    "japanese": "みょん！ぺっ、ぺっ！ まずい、いらないみょ！",
    "chinese": "咪呦！呸、呸！难吃，不要哦！",
-   "english": "Myon! Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Myon! Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57751,7 +57751,7 @@
     "food_complain"
    ],
    "japanese": "みょん！こんな ごはんしゃん、いらないみょ！",
-   "chinese": "咪呦！这种饭鲜笋不要哦！",
+   "chinese": "咪呦！这种饭先生不要哦！",
    "english": "Myon! I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -57766,8 +57766,8 @@
     "food_delight"
    ],
    "japanese": "みょん！ごはんしゃん、おいちい……しあわせみょ……",
-   "chinese": "咪呦！饭鲜笋好吃……好幸福哦……",
-   "english": "Myon! Mr. Food is tasty... I am happy...",
+   "chinese": "咪呦！饭先生好吃……好幸胡哦……",
+   "english": "Myon! Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57781,8 +57781,8 @@
     "food_grudge"
    ],
    "japanese": "みょん！ごはんしゃん、まずい……でも がまんみょ……",
-   "chinese": "咪呦！饭鲜笋，难吃……不过忍一忍哦……",
-   "english": "Myon! Mr. Food is yucky... but I will bear it...",
+   "chinese": "咪呦！饭先生难吃……忍一忍哦……",
+   "english": "Myon! Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57795,9 +57795,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "みょん！こわい……なみだ でる……でも たべるみょ……",
-   "chinese": "咪呦！好怕……流泪……可是吃哦……",
-   "english": "Myon! I am scared... tears come... but I will eat...",
+   "japanese": "みょん！ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "咪呦！彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Myon! Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57812,7 +57812,7 @@
    ],
    "japanese": "みょん！ぺっ……ごめん……いやみょ……",
    "chinese": "咪呦！呸……对不起……不要哦……",
-   "english": "Myon! Ptooey... sorry... I do not want it...",
+   "english": "Myon! Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57826,8 +57826,8 @@
     "food_complain"
    ],
    "japanese": "みょん！ごめん……これ、むりみょ……",
-   "chinese": "咪呦！对不起……这个吃不下哦……",
-   "english": "Myon! Sorry... I cannot manage this...",
+   "chinese": "咪呦！对不起……窝吃不下哦……",
+   "english": "Myon! Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -57841,8 +57841,8 @@
     "food_delight"
    ],
    "japanese": "みょん！ごはんしゃん、おいちいみょ。",
-   "chinese": "咪呦！饭鲜笋好吃哦。",
-   "english": "Myon! Mr. Food is tasty.",
+   "chinese": "咪呦！饭先生好吃哦。",
+   "english": "Myon! Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57856,8 +57856,8 @@
     "food_grudge"
    ],
    "japanese": "みょん！ごはんしゃん、まずいみょ。たべる。",
-   "chinese": "咪呦！饭鲜笋难吃哦。还是吃。",
-   "english": "Myon! Mr. Food is yucky. I will still eat.",
+   "chinese": "咪呦！饭先生难吃哦。还是嚼嚼。",
+   "english": "Myon! Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57887,7 +57887,7 @@
    ],
    "japanese": "みょん！ぺっ、ぺっ。まずいみょ。いらない。",
    "chinese": "咪呦！呸、呸。难吃哦。不要。",
-   "english": "Myon! Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Myon! Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57901,8 +57901,8 @@
     "food_complain"
    ],
    "japanese": "みょん！これ、いらないみょ。べつのが いい。",
-   "chinese": "咪呦！这个不要哦。想要别的。",
-   "english": "Myon! I do not want this. I want another.",
+   "chinese": "咪呦！介个不要哦。想要别的。",
+   "english": "Myon! No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -57915,9 +57915,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "みょん！ごはんさん、すばらしい！ もっと ほしいよ！",
-   "chinese": "咪呦！饭先生太棒了！还想要哦！",
-   "english": "Myon! Mr. Food is wonderful! I want more!",
+   "japanese": "みょん！みょんは しあわせよ！",
+   "chinese": "咪呦！{self}好幸福哦！",
+   "english": "Myon! Myon is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -57931,8 +57931,8 @@
     "food_grudge"
    ],
    "japanese": "みょん！ふん、こんな ごはんさん……たべてやるよ。",
-   "chinese": "咪呦！哼，这种饭先生……吃给你看哦。",
-   "english": "Myon! Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "咪呦！哼，这种饭先生……也嚼得下去哦。",
+   "english": "Myon! Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58021,8 +58021,8 @@
     "food_reluctant"
    ],
    "japanese": "みょん！いや……ぺこぺこ……なみだ でるよ……",
-   "chinese": "咪呦！不要……彭彭饿……流泪哦……",
-   "english": "Myon! No... my tummy is hungry... tears come...",
+   "chinese": "咪呦！不要……彭彭饿……眼泪掉下来了哦……",
+   "english": "Myon! No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58096,8 +58096,8 @@
     "food_reluctant"
    ],
    "japanese": "みょん！まずい……でも おなかが すいたよ。",
-   "chinese": "咪呦！难吃……可是饿了哦。",
-   "english": "Myon! Yucky... but I am hungry.",
+   "chinese": "咪呦！难吃……可是彭彭饿了哦。",
+   "english": "Myon! Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58112,7 +58112,7 @@
    ],
    "japanese": "みょん！ぺっ、ぺっ。まずいよ。いらない。",
    "chinese": "咪呦！呸、呸。难吃哦。不要。",
-   "english": "Myon! Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Myon! Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58140,8 +58140,8 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ちん、ちーんぽー！ まんま、おいち！ もっと！",
-   "chinese": "金、金寶！饭饭好吃！还要，还要！",
+   "japanese": "ちん、ちーんぽ！ まんま、おいち！ もっと！",
+   "chinese": "金、金寶！饭饭好吃！还要、还要！",
    "english": "Chin, chinpo! Num-num yummy! More, more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -58155,9 +58155,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ちん、ちーんぽー……まずいけど、たべる！",
-   "chinese": "金、金寶……难吃，但是吃！",
-   "english": "Chin, chinpo... Yucky, but I will eat!",
+   "japanese": "ちん、ちーんぽ！ まじゅまじゅ！ むーちゃ！",
+   "chinese": "金、金寶！难吃吃！嚼嚼！",
+   "english": "Chin, chinpo! Yucky! Munch-munch!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58170,9 +58170,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ちん、ちーんぽー……いや……でも ぺこぺこ……たべる……",
-   "chinese": "金、金寶……不要……可是彭彭饿……吃……",
-   "english": "Chin, chinpo... No... but my tummy is hungry... I will eat...",
+   "japanese": "ちん、ちーんぽ……ぽんぽんしゃん、ぺこぺこ……",
+   "chinese": "金、金寶……彭彭先森饿惹……",
+   "english": "Chin, chinpo... Mr. Tummy... so hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58185,7 +58185,7 @@
    "events": [
     "food_spit"
    ],
-   "japanese": "ちん、ちーんぽー！ いや！ ぺっ、ぺっ！",
+   "japanese": "ちん、ちーんぽ！ いや！ ぺっ、ぺっ！",
    "chinese": "金、金寶！不要！呸、呸！",
    "english": "Chin, chinpo! No! Ptooey, ptooey!",
    "origin": "project-original",
@@ -58200,9 +58200,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ちん、ちーんぽー！ これ、いや！ いいの もってきて！",
-   "chinese": "金、金寶！这个不要！拿好的来！",
-   "english": "Chin, chinpo! Not this! Bring a good one!",
+   "japanese": "ちん、ちーんぽ！ まんましゃん、やー！",
+   "chinese": "金、金寶！饭饭{mister}，不要哒！",
+   "english": "Chin, chinpo! No, Mr. Num-num!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58215,9 +58215,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ちん、ちーんぽー……まんま、おいち……",
+   "japanese": "ちん、ちーんぽ……まんま、おいち……",
    "chinese": "金、金寶……饭饭好吃……",
-   "english": "Chin, chinpo... Num-num is tasty...",
+   "english": "Chin, chinpo... Num-num is yummy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58230,9 +58230,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ちん、ちーんぽー……いや……でも たべる……",
-   "chinese": "金、金寶……不想要……可是吃……",
-   "english": "Chin, chinpo... I do not want it... but I will eat...",
+   "japanese": "ちん、ちーんぽ……まじゅ……むちゃ……",
+   "chinese": "金、金寶……难吃吃……嚼嚼……",
+   "english": "Chin, chinpo... Yucky... munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58245,9 +58245,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ちん、ちーんぽー……なみだ……まずい……でも たべる……",
-   "chinese": "金、金寶……流泪……难吃……可是吃……",
-   "english": "Chin, chinpo... tears... yucky... but I will eat...",
+   "japanese": "ちん、ちーんぽ……ひっく……おなか、ぺこ……",
+   "chinese": "金、金寶……呜呜……彭彭饿……",
+   "english": "Chin, chinpo... Hic... tummy hungry...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58260,9 +58260,9 @@
    "events": [
     "food_spit"
    ],
-   "japanese": "ちん、ちーんぽー……ぺっ……いや……",
+   "japanese": "ちん、ちーんぽ……ぺっ……いや……",
    "chinese": "金、金寶……呸……不要……",
-   "english": "Chin, chinpo... ptooey... no...",
+   "english": "Chin, chinpo... Ptooey... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58275,9 +58275,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ちん、ちーんぽー……こわい……いや……",
-   "chinese": "金、金寶……怕怕……不要……",
-   "english": "Chin, chinpo... scary... no...",
+   "japanese": "ちん、ちーんぽ……こあい……やぁ……",
+   "chinese": "金、金寶……口怕……不要哒……",
+   "english": "Chin, chinpo... Scawy... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58290,9 +58290,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ちん、ちーんぽー、まんま、おいちい。",
+   "japanese": "ちん、ちーんぽ、まんま、おいちい。",
    "chinese": "金、金寶，饭饭好吃。",
-   "english": "Chin, chinpo, num-num is yummy.",
+   "english": "Chin, chinpo, num-num yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58305,9 +58305,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ちん、ちーんぽー、まずい。でも たべる。",
-   "chinese": "金、金寶，难吃。但是吃。",
-   "english": "Chin, chinpo, yucky. But I will eat.",
+   "japanese": "ちん、ちーんぽ、むーちゃ。まじゅい。",
+   "chinese": "金、金寶，嚼嚼。难吃吃。",
+   "english": "Chin, chinpo, munch-munch. Yucky.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58320,9 +58320,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ちん、ちーんぽー……まずい。でも たべる。",
-   "chinese": "金、金寶……难吃。但是吃。",
-   "english": "Chin, chinpo... Yucky. But I will eat.",
+   "japanese": "ちん、ちーんぽ……ぺこぺこ……むーちゃ……",
+   "chinese": "金、金寶……饿饿……嚼嚼……",
+   "english": "Chin, chinpo... Hungry... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58335,7 +58335,7 @@
    "events": [
     "food_spit"
    ],
-   "japanese": "ちん、ちーんぽー、ぺっ。いや。",
+   "japanese": "ちん、ちーんぽ、ぺっ。いや。",
    "chinese": "金、金寶，呸。不要。",
    "english": "Chin, chinpo, ptooey. No.",
    "origin": "project-original",
@@ -58350,9 +58350,9 @@
    "events": [
     "food_complain"
    ],
-   "japanese": "ちん、ちーんぽー、いや。べつのは ある？",
-   "chinese": "金、金寶，不要。有别的吗？",
-   "english": "Chin, chinpo, no. Is there another?",
+   "japanese": "ちん、ちーんぽ、いらにゃい。",
+   "chinese": "金、金寶，窝不要。",
+   "english": "Chin, chinpo, no want.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58366,7 +58366,7 @@
     "food_delight"
    ],
    "japanese": "ちーんぽ！ごはんしゃん、さいこう！ もっと たべたいよぅ！",
-   "chinese": "金寶！饭鲜笋最棒！还想吃哦！",
+   "chinese": "金寶！饭先生最棒！还想吃哦！",
    "english": "Chinpo! Mr. Food is the best! I want more!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -58380,9 +58380,9 @@
    "events": [
     "food_grudge"
    ],
-   "japanese": "ちーんぽ！まずいけど、たべてやるよぅ！",
-   "chinese": "金寶！虽然难吃，我吃给你看哦！",
-   "english": "Chinpo! It is yucky, but I will eat it anyway!",
+   "japanese": "ちーんぽ！まじゅいけど、ようむは むーちゃできるよぅ！",
+   "chinese": "金寶！难吃归难吃，{self}还是能嚼嚼哦！",
+   "english": "Chinpo! Yucky, but Youmu can munch it!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58395,9 +58395,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ちーんぽ！ぺこぺこに まけたよぅ……たべる……",
-   "chinese": "金寶！输给饿肚子了哦……吃……",
-   "english": "Chinpo! Hunger won... I will eat...",
+   "japanese": "ちーんぽ！ぽんぽんしゃん、ぺこぺこよぅ……むーちゃ……",
+   "chinese": "金寶！彭彭先生饿扁惹哦……嚼嚼……",
+   "english": "Chinpo! Mr. Tummy is empty... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58412,7 +58412,7 @@
    ],
    "japanese": "ちーんぽ！ぺっ、ぺっ！ まずい、いらないよぅ！",
    "chinese": "金寶！呸、呸！难吃，不要哦！",
-   "english": "Chinpo! Ptooey, ptooey! Yucky, I do not want it!",
+   "english": "Chinpo! Ptooey, ptooey! Yucky! No!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58426,7 +58426,7 @@
     "food_complain"
    ],
    "japanese": "ちーんぽ！こんな ごはんしゃん、いらないよぅ！",
-   "chinese": "金寶！这种饭鲜笋不要哦！",
+   "chinese": "金寶！这种饭先生不要哦！",
    "english": "Chinpo! I do not want this Mr. Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
@@ -58441,8 +58441,8 @@
     "food_delight"
    ],
    "japanese": "ちーんぽ！ごはんしゃん、おいちい……しあわせよぅ……",
-   "chinese": "金寶！饭鲜笋好吃……好幸福哦……",
-   "english": "Chinpo! Mr. Food is tasty... I am happy...",
+   "chinese": "金寶！饭先生好吃……好幸胡哦……",
+   "english": "Chinpo! Mr. Food is yummy... so happy...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58456,8 +58456,8 @@
     "food_grudge"
    ],
    "japanese": "ちーんぽ！ごはんしゃん、まずい……でも がまんよぅ……",
-   "chinese": "金寶！饭鲜笋，难吃……不过忍一忍哦……",
-   "english": "Chinpo! Mr. Food is yucky... but I will bear it...",
+   "chinese": "金寶！饭先生难吃……忍一忍哦……",
+   "english": "Chinpo! Mr. Food is yucky... I can bear it...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58470,9 +58470,9 @@
    "events": [
     "food_reluctant"
    ],
-   "japanese": "ちーんぽ！こわい……なみだ でる……でも たべるよぅ……",
-   "chinese": "金寶！好怕……流泪……可是吃哦……",
-   "english": "Chinpo! I am scared... tears come... but I will eat...",
+   "japanese": "ちーんぽ！ぺこぺこ……なみだ、ぽろぽろ……むーちゃ……",
+   "chinese": "金寶！彭彭饿……眼泪啪嗒啪嗒……嚼嚼……",
+   "english": "Chinpo! Tummy so hungry... drip, drip... munch-munch...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58487,7 +58487,7 @@
    ],
    "japanese": "ちーんぽ！ぺっ……ごめん……いやよぅ……",
    "chinese": "金寶！呸……对不起……不要哦……",
-   "english": "Chinpo! Ptooey... sorry... I do not want it...",
+   "english": "Chinpo! Ptooey... sorry... no...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58501,8 +58501,8 @@
     "food_complain"
    ],
    "japanese": "ちーんぽ！ごめん……これ、むりよぅ……",
-   "chinese": "金寶！对不起……这个吃不下哦……",
-   "english": "Chinpo! Sorry... I cannot manage this...",
+   "chinese": "金寶！对不起……窝吃不下哦……",
+   "english": "Chinpo! Sorry... I cannot eat this...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58516,8 +58516,8 @@
     "food_delight"
    ],
    "japanese": "ちーんぽ！ごはんしゃん、おいちいよぅ。",
-   "chinese": "金寶！饭鲜笋好吃哦。",
-   "english": "Chinpo! Mr. Food is tasty.",
+   "chinese": "金寶！饭先生好吃哦。",
+   "english": "Chinpo! Mr. Food is yummy.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58531,8 +58531,8 @@
     "food_grudge"
    ],
    "japanese": "ちーんぽ！ごはんしゃん、まずいよぅ。たべる。",
-   "chinese": "金寶！饭鲜笋难吃哦。还是吃。",
-   "english": "Chinpo! Mr. Food is yucky. I will still eat.",
+   "chinese": "金寶！饭先生难吃哦。还是嚼嚼。",
+   "english": "Chinpo! Mr. Food is yucky. Munch anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58562,7 +58562,7 @@
    ],
    "japanese": "ちーんぽ！ぺっ、ぺっ。まずいよぅ。いらない。",
    "chinese": "金寶！呸、呸。难吃哦。不要。",
-   "english": "Chinpo! Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Chinpo! Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58576,8 +58576,8 @@
     "food_complain"
    ],
    "japanese": "ちーんぽ！これ、いらないよぅ。べつのが いい。",
-   "chinese": "金寶！这个不要哦。想要别的。",
-   "english": "Chinpo! I do not want this. I want another.",
+   "chinese": "金寶！介个不要哦。想要别的。",
+   "english": "Chinpo! No to this. I want another.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58590,9 +58590,9 @@
    "events": [
     "food_delight"
    ],
-   "japanese": "ちーんぽ！ごはんさん、すばらしい！ もっと ほしいよ！",
-   "chinese": "金寶！饭先生太棒了！还想要哦！",
-   "english": "Chinpo! Mr. Food is wonderful! I want more!",
+   "japanese": "ちーんぽ！ようむは しあわせよ！",
+   "chinese": "金寶！{self}好幸福哦！",
+   "english": "Chinpo! Youmu is so happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58606,8 +58606,8 @@
     "food_grudge"
    ],
    "japanese": "ちーんぽ！ふん、こんな ごはんさん……たべてやるよ。",
-   "chinese": "金寶！哼，这种饭先生……吃给你看哦。",
-   "english": "Chinpo! Hmph, this Mr. Food... I will eat it anyway.",
+   "chinese": "金寶！哼，这种饭先生……也嚼得下去哦。",
+   "english": "Chinpo! Hmph, this Mr. Food... I can eat it anyway.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "proud"
@@ -58696,8 +58696,8 @@
     "food_reluctant"
    ],
    "japanese": "ちーんぽ！いや……ぺこぺこ……なみだ でるよ……",
-   "chinese": "金寶！不要……彭彭饿……流泪哦……",
-   "english": "Chinpo! No... my tummy is hungry... tears come...",
+   "chinese": "金寶！不要……彭彭饿……眼泪掉下来了哦……",
+   "english": "Chinpo! No... my tummy is hungry... here come the tears...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "timid"
@@ -58771,8 +58771,8 @@
     "food_reluctant"
    ],
    "japanese": "ちーんぽ！まずい……でも おなかが すいたよ。",
-   "chinese": "金寶！难吃……可是饿了哦。",
-   "english": "Chinpo! Yucky... but I am hungry.",
+   "chinese": "金寶！难吃……可是彭彭饿了哦。",
+   "english": "Chinpo! Yucky... but my tummy is hungry.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"
@@ -58787,7 +58787,7 @@
    ],
    "japanese": "ちーんぽ！ぺっ、ぺっ。まずいよ。いらない。",
    "chinese": "金寶！呸、呸。难吃哦。不要。",
-   "english": "Chinpo! Ptooey, ptooey. Yucky. I do not want it.",
+   "english": "Chinpo! Ptooey, ptooey. Yucky. No.",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780/11518905 speech rules; FG-03 graded eating reaction; project-original wording, voiced",
    "variant": "plain"

@@ -913,6 +913,15 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         reactionAction = action;
         return true;
     }
+
+    /** A reaction with a timed line at the start of the clip. */
+    public void showReactionCue(YukkuriAction action, String expression, String event) {
+        if (level().isClientSide || held() && !urgent(event)) return;
+        startReaction(expression, event, action.durationTicks());
+        reactionAction = action;
+        speakCue(event);
+    }
+
     /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
     /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}).
@@ -926,9 +935,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */
     public void forceReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
+        startReaction(expression, dialogue, ticks);
+        speak(reactionEvent);
+    }
+
+    private void startReaction(String expression, String dialogue, int ticks) {
         reactionAction = reactionAfter = null;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
-        speak(reactionEvent);
     }
     public void forceReaction(YukkuriAction action, String expression, String dialogue) {
         forceReaction(expression, dialogue, action.durationTicks());

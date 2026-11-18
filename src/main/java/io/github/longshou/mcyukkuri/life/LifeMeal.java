@@ -182,8 +182,7 @@ final class LifeMeal {
     boolean refuseAtReach(ItemStack food, UUID giver) {
         if (verdict(food, giver) != Verdict.REFUSE) return false;
         Item item = food.getItem();
-        if (o.level().getGameTime() >= complaints.getOrDefault(item, 0L)) {
-            showComplaint(item);
+        if (showComplaint(item)) {
             GameplayLog.event(o.entity(), "meal", "food_complain item={} grade={} verdict=REFUSE nutrition={} pickiness={} taste={} giver={}",
                     item, FoodTaste.grade(food).id(), o.nutrition(), o.pickiness(), tasteFor(giver), giver);
         }
@@ -196,9 +195,11 @@ final class LifeMeal {
         complaints.put(item, o.level().getGameTime() + COMPLAINT_TICKS);
     }
 
-    private void showComplaint(Item item) {
+    private boolean showComplaint(Item item) {
+        if (o.level().getGameTime() < complaints.getOrDefault(item, 0L)) return false;
         rememberComplaint(item);
-        o.entity().showReaction(YukkuriAction.IGNORE, "", "food_complain");
+        o.entity().showReactionCue(YukkuriAction.IGNORE, "", "food_complain");
+        return true;
     }
 
     private boolean mouthForMeal() {
@@ -585,13 +586,13 @@ final class LifeMeal {
                         : guarded ? "teary" : grass && !liked ? "teary"
                         : defiant ? "smug" : grateful ? "closed_smile" : liked ? "sparkle" : "happy";
                 String line = harmful ? "hurt" : waste ? "bitter" : reluctant ? "food_reluctant" : grudging ? "food_grudge"
-                        : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat : liked ? "food_delight" : fedLine;
+                        : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat
+                        : liked && fedLine.equals("fed") ? "food_delight" : fedLine;
                 if (!coughing() && (!eater.body().sick() || !harmful)
                         && eater.showReaction(face, harmful ? line : "",
                             harmful || waste || grass && !liked && !unhappy || preparedMeal ? 100 : SWALLOW_TICKS)
                         && !harmful && !line.isEmpty()) {
-                    if (line.equals("fed")) eater.speakCue(line, liked ? "proud" : "plain");
-                    else eater.speakCue(line);
+                    eater.speakCue(line, line.equals("fed") ? "plain" : null);
                 }
                 if (!harmful && !grass && !waste && !unhappy)
                     o.level().sendParticles(ParticleTypes.HEART, eater.getX(), eater.getY()+eater.getBbHeight(), eater.getZ(), 3, .1, .05, .1, 0);
@@ -717,7 +718,7 @@ final class LifeMeal {
             return false;
         }
         rememberComplaint(item.getItem());
-        if (o.entity().showReaction(YukkuriAction.REJECT_OR_SPIT, "bad_taste_small", "")) o.entity().speakCue("food_spit");
+        o.entity().showReactionCue(YukkuriAction.REJECT_OR_SPIT, "bad_taste_small", "food_spit");
         GameplayLog.event(o.entity(), "meal", "spat item={} grade={} pickiness={} taste={} nutrition={} verdict=REFUSE feeder={} tick={} drop={}",
                 item.getItem(), FoodTaste.grade(item).id(), o.pickiness(), tasteFor(feeder), o.nutrition(), feeder, mealTicks, dropped.getUUID());
         return true;
