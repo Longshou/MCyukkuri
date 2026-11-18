@@ -2023,22 +2023,6 @@
         }
       ]
     },
-    "behavior_hurt_cry": {
-      "loop": true,
-      "steps": [
-        {
-          "clip": "droop",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": [
-            [
-              0,
-              "cry"
-            ]
-          ]
-        }
-      ]
-    },
     "behavior_self_offer_insist": {
       "loop": true,
       "steps": [
@@ -5212,7 +5196,6 @@
     "sanction_bully": "behavior_sanction_bully",
     "self_defense": "behavior_self_defense",
     "comfort_receive": "behavior_comfort_receive",
-    "hurt_cry": "behavior_hurt_cry",
     "self_offer_insist": "behavior_self_offer_insist",
     "sing": "behavior_sing",
     "listen_song": "behavior_listen_song",

@@ -128,7 +128,8 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっーっ！ こあい！",
    "chinese": "油、油——！好口怕！",
@@ -141,7 +142,8 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆっ、ゆっーっ！ いちゃい！",
    "chinese": "油、油——！好痛！",
@@ -921,7 +923,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆわぁ！ こあいにぇ！",
    "chinese": "呜哇！好口怕捏！",
@@ -934,7 +937,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆぅ……いちゃいにぇ！",
    "chinese": "油呜……好痛捏！",
@@ -1441,7 +1445,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃにぇ……",
    "chinese": "油……得逃走捏……",
@@ -2169,7 +2174,8 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃよ……",
    "chinese": "油……得逃走哦……",
@@ -2507,7 +2513,8 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっーっ！ こあい！",
    "chinese": "油、油——！好口怕！",
@@ -2520,7 +2527,8 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆっ、ゆっーっ！ いちゃい！",
    "chinese": "油、油——！好痛！",
@@ -3300,7 +3308,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆわぁ！ こあいのじぇ！",
    "chinese": "呜哇！好口怕惹杰！",
@@ -3313,7 +3322,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆぅ……いちゃいのじぇ！",
    "chinese": "油呜……好痛惹杰！",
@@ -3820,7 +3830,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃのじぇ……",
    "chinese": "油……得逃走惹杰……",
@@ -4548,7 +4559,8 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃのぜ……",
    "chinese": "油……得逃走贼……",
@@ -4886,7 +4898,8 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっーっ！ こあい！",
    "chinese": "油、油——！好口怕！",
@@ -4899,7 +4912,8 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆっ、ゆっーっ！ いちゃい！",
    "chinese": "油、油——！好痛！",
@@ -5679,7 +5693,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆわぁ！ こあいにょ！",
    "chinese": "呜哇！好口怕哟！",
@@ -5692,7 +5707,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆぅ……いちゃいにょ！",
    "chinese": "油呜……好痛哟！",
@@ -6199,7 +6215,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃにょ……",
    "chinese": "油……得逃走哟……",
@@ -6927,7 +6944,8 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃわ……",
    "chinese": "油……得逃走呢……",
@@ -7265,7 +7283,8 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆ、にゃっーっ！ こあい！",
    "chinese": "油、喵——！好口怕！",
@@ -7278,7 +7297,8 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆ、にゃっーっ！ いちゃい！",
    "chinese": "油、喵——！好痛！",
@@ -8058,7 +8078,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆわぁ！ こあいよぅ！",
    "chinese": "呜哇！好口怕哟——！",
@@ -8071,7 +8092,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆぅ……いちゃいよぅ！",
    "chinese": "油呜……好痛哟——！",
@@ -8578,7 +8600,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃよぅ……",
    "chinese": "油……得逃走哟——……",
@@ -9306,7 +9329,8 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆっ……にげなきゃよー……",
    "chinese": "油……得逃走哟——……",
@@ -9644,7 +9668,8 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "む、きゅっーっ！ こあい！",
    "chinese": "姆、啾——！好口怕！",
@@ -9657,7 +9682,8 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "む、きゅっーっ！ いちゃい！",
    "chinese": "姆、啾——！好痛！",
@@ -10437,7 +10463,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "むきゅ。ゆわぁ！ こあいわ！",
    "chinese": "姆啾。呜哇！好口怕惹哇！",
@@ -10450,7 +10477,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "むきゅ。ゆぅ……いちゃいわ！",
    "chinese": "姆啾。油呜……好痛惹哇！",
@@ -10957,7 +10985,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "むきゅ。ゆっ……にげなきゃわ……",
    "chinese": "姆啾。油……得逃走惹哇……",
@@ -11997,7 +12026,8 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "むきゅ。ゆっ……にげなきゃわ……",
    "chinese": "姆啾。油……得逃走哇……",
@@ -12647,7 +12677,8 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、うーーっ！ こあい！",
    "chinese": "呜——、呜————！好口怕！",
@@ -12660,7 +12691,8 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、うーーっ！ いちゃい！",
    "chinese": "呜——、呜————！好痛！",
@@ -13440,7 +13472,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、ゆわぁ！ こあいなのだ！",
    "chinese": "呜——呜哇！好口怕呀！",
@@ -13453,7 +13486,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、ゆぅ……いちゃいなのだ！",
    "chinese": "呜——油呜……好痛呀！",
@@ -13960,7 +13994,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、ゆっ……にげなきゃなのだ……",
    "chinese": "呜——油……得逃走呀……",
@@ -14688,7 +14723,8 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、ゆっ……にげなきゃのだ……",
    "chinese": "呜——油……得逃走呀……",
@@ -15026,7 +15062,8 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、うーーっ！ こあい！",
    "chinese": "呜——、呜————！好口怕！",
@@ -15039,7 +15076,8 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、うーーっ！ いちゃい！",
    "chinese": "呜——、呜————！好痛！",
@@ -15819,7 +15857,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、ゆわぁ！ こあいよぅ！",
    "chinese": "呜——呜哇！好口怕哦！",
@@ -15832,7 +15871,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、ゆぅ……いちゃいよぅ！",
    "chinese": "呜——油呜……好痛哦！",
@@ -16339,7 +16379,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、ゆっ……にげなきゃよぅ……",
    "chinese": "呜——油……得逃走哦……",
@@ -17067,7 +17108,8 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、ゆっ……にげなきゃよ……",
    "chinese": "呜——油……得逃走哦……",
@@ -17414,7 +17456,8 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょ、みょんーっ！ こあい！",
    "chinese": "咪、咪呦——！好口怕！",
@@ -17428,7 +17471,8 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "みょ、みょんーっ！ いちゃい！",
    "chinese": "咪、咪呦——！好痛！",
@@ -18268,7 +18312,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！ゆわぁ！ こあいみょ！",
    "chinese": "咪呦！呜哇！好口怕哦！",
@@ -18282,7 +18327,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "みょん！ゆぅ……いちゃいみょ！",
    "chinese": "咪呦！油呜……好痛哦！",
@@ -18828,7 +18874,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "みょん！ゆっ……にげなきゃみょ……",
    "chinese": "咪呦！油……得逃走哦……",
@@ -19612,7 +19659,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "みょん！ゆっ……にげなきゃよ……",
    "chinese": "咪呦！油……得逃走哦……",
@@ -19976,7 +20024,8 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちん、ちーんぽーっ！ こあい！",
    "chinese": "金、金寶——！好口怕！",
@@ -19990,7 +20039,8 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ちん、ちーんぽーっ！ いちゃい！",
    "chinese": "金、金寶——！好痛！",
@@ -20830,7 +20880,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！ゆわぁ！ こあいよぅ！",
    "chinese": "金寶！呜哇！好口怕哦！",
@@ -20844,7 +20895,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ちーんぽ！ゆぅ……いちゃいよぅ！",
    "chinese": "金寶！油呜……好痛哦！",
@@ -21390,7 +21442,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ちーんぽ！ゆっ……にげなきゃよぅ……",
    "chinese": "金寶！油……得逃走哦……",
@@ -22174,7 +22227,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ちーんぽ！ゆっ……にげなきゃよ……",
    "chinese": "金寶！油……得逃走哦……",
@@ -23643,7 +23697,7 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ゆっ、ゆっ！ こあいけど、にげない！",
    "chinese": "油、油！好口怕，但不跑！",
@@ -23657,7 +23711,8 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっ——！ こあい！",
    "chinese": "油、油——！好口怕！",
@@ -23671,7 +23726,8 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっ……こあい……",
    "chinese": "油、油……好口怕……",
@@ -23685,7 +23741,7 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こあいけど……れいみゅ、がんばるにぇ！",
    "chinese": "好口怕……但灵梦要撑住捏！",
@@ -23699,7 +23755,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……にぇ……",
    "chinese": "好口怕……捏……",
@@ -23713,7 +23770,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……どうしよ……",
    "chinese": "好口怕……怎么办……",
@@ -23727,7 +23785,7 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こわいけど……れいむ、まけないよ！",
    "chinese": "好可怕……但灵梦不会输哦！",
@@ -23741,7 +23799,8 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……よ……",
    "chinese": "好可怕……哦……",
@@ -23755,7 +23814,8 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……どうしよう……",
    "chinese": "好可怕……怎么办……",
@@ -23769,7 +23829,7 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ゆっ、ゆっ！ いちゃいけど、がんばる！",
    "chinese": "油、油！好痛，但窝要撑住！",
@@ -23783,7 +23843,8 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆっ、ゆっ——！ いちゃい……",
    "chinese": "油、油——！好痛……",
@@ -23797,7 +23858,7 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ゆっ、ゆっ……いちゃい……",
    "chinese": "油、油……好痛……",
@@ -23811,7 +23872,7 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いちゃいけど……れいみゅ、まだ いけるにぇ！",
    "chinese": "好痛……但灵梦还能撑捏！",
@@ -23825,7 +23886,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いちゃい……にぇ……",
    "chinese": "好痛……捏……",
@@ -23839,7 +23901,7 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いちゃい……なおして……",
    "chinese": "好痛……治一治……",
@@ -23853,7 +23915,7 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いたいけど……れいむ、まだ たたかえるよ！",
    "chinese": "好痛……但灵梦还能打哦！",
@@ -23867,7 +23929,8 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いたい……よ……",
    "chinese": "好痛……哦……",
@@ -23881,7 +23944,7 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いたい……なおしてほしいよ……",
    "chinese": "好痛……想被治好哦……",
@@ -23909,7 +23972,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……にぇ……",
    "chinese": "得跑了……捏……",
@@ -23937,7 +24001,8 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……よ……",
    "chinese": "得跑了……哦……",
@@ -25225,7 +25290,7 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ゆっ、ゆっ！ こあいけど、にげない！",
    "chinese": "油、油！好口怕，但不跑！",
@@ -25239,7 +25304,8 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっ——！ こあい！",
    "chinese": "油、油——！好口怕！",
@@ -25253,7 +25319,8 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっ……こあい……",
    "chinese": "油、油……好口怕……",
@@ -25267,7 +25334,7 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こあいけど……まりちゃ、がんばるのじぇ！",
    "chinese": "好口怕……但魔理沙要撑住惹杰！",
@@ -25281,7 +25348,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……のじぇ……",
    "chinese": "好口怕……惹杰……",
@@ -25295,7 +25363,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……どうしよ……",
    "chinese": "好口怕……怎么办……",
@@ -25309,7 +25378,7 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こわいけど……まりさ、まけないのぜ！",
    "chinese": "好可怕……但魔理沙不会输贼！",
@@ -25323,7 +25392,8 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……のぜ……",
    "chinese": "好可怕……贼……",
@@ -25337,7 +25407,8 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……どうしよう……",
    "chinese": "好可怕……怎么办……",
@@ -25351,7 +25422,7 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ゆっ、ゆっ！ いちゃいけど、がんばる！",
    "chinese": "油、油！好痛，但窝要撑住！",
@@ -25365,7 +25436,8 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆっ、ゆっ——！ いちゃい……",
    "chinese": "油、油——！好痛……",
@@ -25379,7 +25451,7 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ゆっ、ゆっ……いちゃい……",
    "chinese": "油、油……好痛……",
@@ -25393,7 +25465,7 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いちゃいけど……まりちゃ、まだ いけるのじぇ！",
    "chinese": "好痛……但魔理沙还能撑惹杰！",
@@ -25407,7 +25479,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いちゃい……のじぇ……",
    "chinese": "好痛……惹杰……",
@@ -25421,7 +25494,7 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いちゃい……なおして……",
    "chinese": "好痛……治一治……",
@@ -25435,7 +25508,7 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いたいけど……まりさ、まだ たたかえるのぜ！",
    "chinese": "好痛……但魔理沙还能打贼！",
@@ -25449,7 +25522,8 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いたい……のぜ……",
    "chinese": "好痛……贼……",
@@ -25463,7 +25537,7 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いたい……なおしてほしいのぜ……",
    "chinese": "好痛……想被治好贼……",
@@ -25491,7 +25565,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……のじぇ……",
    "chinese": "得跑了……惹杰……",
@@ -25519,7 +25594,8 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……のぜ……",
    "chinese": "得跑了……贼……",
@@ -26807,7 +26883,7 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ゆっ、ゆっ！ こあいけど、にげない！",
    "chinese": "油、油！好口怕，但不跑！",
@@ -26821,7 +26897,8 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっ——！ こあい！",
    "chinese": "油、油——！好口怕！",
@@ -26835,7 +26912,8 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆっ、ゆっ……こあい……",
    "chinese": "油、油……好口怕……",
@@ -26849,7 +26927,7 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こあいけど……ありちゅ、がんばるにょ！",
    "chinese": "好口怕……但爱丽丝要撑住哟！",
@@ -26863,7 +26941,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……にょ……",
    "chinese": "好口怕……哟……",
@@ -26877,7 +26956,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……どうしよ……",
    "chinese": "好口怕……怎么办……",
@@ -26891,7 +26971,7 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こわいけど……ありす、まけないわ！",
    "chinese": "好可怕……但爱丽丝不会输呢！",
@@ -26905,7 +26985,8 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……わ……",
    "chinese": "好可怕……呢……",
@@ -26919,7 +27000,8 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……どうしよう……",
    "chinese": "好可怕……怎么办……",
@@ -26933,7 +27015,7 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ゆっ、ゆっ！ いちゃいけど、がんばる！",
    "chinese": "油、油！好痛，但窝要撑住！",
@@ -26947,7 +27029,8 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆっ、ゆっ——！ いちゃい……",
    "chinese": "油、油——！好痛……",
@@ -26961,7 +27044,7 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ゆっ、ゆっ……いちゃい……",
    "chinese": "油、油……好痛……",
@@ -26975,7 +27058,7 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いちゃいけど……ありちゅ、まだ いけるにょ！",
    "chinese": "好痛……但爱丽丝还能撑哟！",
@@ -26989,7 +27072,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いちゃい……にょ……",
    "chinese": "好痛……哟……",
@@ -27003,7 +27087,7 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いちゃい……なおして……",
    "chinese": "好痛……治一治……",
@@ -27017,7 +27101,7 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いたいけど……ありす、まだ たたかえるわ！",
    "chinese": "好痛……但爱丽丝还能打呢！",
@@ -27031,7 +27115,8 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いたい……わ……",
    "chinese": "好痛……呢……",
@@ -27045,7 +27130,7 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いたい……なおしてほしいわ……",
    "chinese": "好痛……想被治好呢……",
@@ -27073,7 +27158,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……にょ……",
    "chinese": "得跑了……哟……",
@@ -27101,7 +27187,8 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……わ……",
    "chinese": "得跑了……呢……",
@@ -28389,7 +28476,7 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ゆ、にゃっ！ こあいけど、にげない！",
    "chinese": "油、喵！好口怕，但不跑！",
@@ -28403,7 +28490,8 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆ、にゃっ——！ こあい！",
    "chinese": "油、喵——！好口怕！",
@@ -28417,7 +28505,8 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ゆ、にゃっ……こあい……",
    "chinese": "油、喵……好口怕……",
@@ -28431,7 +28520,7 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こあいけど……ちぇん、がんばるよぅ！",
    "chinese": "好口怕……但橙要撑住哟——！",
@@ -28445,7 +28534,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……よぅ……",
    "chinese": "好口怕……哟——……",
@@ -28459,7 +28549,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こあい……どうしよ……",
    "chinese": "好口怕……怎么办……",
@@ -28473,7 +28564,7 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "こわいけど……ちぇん、まけないよー！",
    "chinese": "好可怕……但橙不会输哟——！",
@@ -28487,7 +28578,8 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……よー……",
    "chinese": "好可怕……哟——……",
@@ -28501,7 +28593,8 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "こわい……どうしよう……",
    "chinese": "好可怕……怎么办……",
@@ -28515,7 +28608,7 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ゆ、にゃっ！ いちゃいけど、がんばる！",
    "chinese": "油、喵！好痛，但窝要撑住！",
@@ -28529,7 +28622,8 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆ、にゃっ——！ いちゃい……",
    "chinese": "油、喵——！好痛……",
@@ -28543,7 +28637,7 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ゆ、にゃっ……いちゃい……",
    "chinese": "油、喵……好痛……",
@@ -28557,7 +28651,7 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いちゃいけど……ちぇん、まだ いけるよぅ！",
    "chinese": "好痛……但橙还能撑哟——！",
@@ -28571,7 +28665,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いちゃい……よぅ……",
    "chinese": "好痛……哟——……",
@@ -28585,7 +28680,7 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いちゃい……なおして……",
    "chinese": "好痛……治一治……",
@@ -28599,7 +28694,7 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "いたいけど……ちぇん、まだ たたかえるよー！",
    "chinese": "好痛……但橙还能打哟——！",
@@ -28613,7 +28708,8 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "いたい……よー……",
    "chinese": "好痛……哟——……",
@@ -28627,7 +28723,7 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "いたい……なおしてほしいよー……",
    "chinese": "好痛……想被治好哟——……",
@@ -28655,7 +28751,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……よぅ……",
    "chinese": "得跑了……哟——……",
@@ -28683,7 +28780,8 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "にげなきゃ……よー……",
    "chinese": "得跑了……哟——……",
@@ -29971,7 +30069,7 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "む、きゅっ！ こあいけど、にげない！",
    "chinese": "姆、啾！好口怕，但不跑！",
@@ -29985,7 +30083,8 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "む、きゅっ——！ こあい！",
    "chinese": "姆、啾——！好口怕！",
@@ -29999,7 +30098,8 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "む、きゅっ……こあい……",
    "chinese": "姆、啾……好口怕……",
@@ -30013,7 +30113,7 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "むきゅ。こあいけど……ぱちゅ、がんばるわ！",
    "chinese": "姆啾。好口怕……但帕秋莉要撑住惹哇！",
@@ -30027,7 +30127,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "むきゅ。こあい……わ……",
    "chinese": "姆啾。好口怕……惹哇……",
@@ -30041,7 +30142,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "むきゅ。こあい……どうしよ……",
    "chinese": "姆啾。好口怕……怎么办……",
@@ -30055,7 +30157,7 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "むきゅ。こわいけど……ぱちゅりー、まけないわ！",
    "chinese": "姆啾。好可怕……但帕秋莉不会输哇！",
@@ -30069,7 +30171,8 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "むきゅ。こわい……わ……",
    "chinese": "姆啾。好可怕……哇……",
@@ -30083,7 +30186,8 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "むきゅ。こわい……どうしよう……",
    "chinese": "姆啾。好可怕……怎么办……",
@@ -30097,7 +30201,7 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "む、きゅっ！ いちゃいけど、がんばる！",
    "chinese": "姆、啾！好痛，但窝要撑住！",
@@ -30111,7 +30215,8 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "む、きゅっ——！ いちゃい……",
    "chinese": "姆、啾——！好痛……",
@@ -30125,7 +30230,7 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "む、きゅっ……いちゃい……",
    "chinese": "姆、啾……好痛……",
@@ -30139,7 +30244,7 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "むきゅ。いちゃいけど……ぱちゅ、まだ いけるわ！",
    "chinese": "姆啾。好痛……但帕秋莉还能撑惹哇！",
@@ -30153,7 +30258,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "むきゅ。いちゃい……わ……",
    "chinese": "姆啾。好痛……惹哇……",
@@ -30167,7 +30273,7 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "むきゅ。いちゃい……なおして……",
    "chinese": "姆啾。好痛……治一治……",
@@ -30181,7 +30287,7 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "むきゅ。いたいけど……ぱちゅりー、まだ たたかえるわ！",
    "chinese": "姆啾。好痛……但帕秋莉还能打哇！",
@@ -30195,7 +30301,8 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "むきゅ。いたい……わ……",
    "chinese": "姆啾。好痛……哇……",
@@ -30209,7 +30316,7 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "むきゅ。いたい……なおしてほしいわ……",
    "chinese": "姆啾。好痛……想被治好哇……",
@@ -30237,7 +30344,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "むきゅ。にげなきゃ……わ……",
    "chinese": "姆啾。得跑了……惹哇……",
@@ -30265,7 +30373,8 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "むきゅ。にげなきゃ……わ……",
    "chinese": "姆啾。得跑了……哇……",
@@ -31553,7 +31662,7 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "うー、うー！ こあいけど、にげない！",
    "chinese": "呜——、呜——！好口怕，但不跑！",
@@ -31567,7 +31676,8 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、うー——！ こあい！",
    "chinese": "呜——、呜————！好口怕！",
@@ -31581,7 +31691,8 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、うー……こあい……",
    "chinese": "呜——、呜——……好口怕……",
@@ -31595,7 +31706,7 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "うー、こあいけど……れみりゃ、がんばるなのだ！",
    "chinese": "呜——好口怕……但蕾米莉亚要撑住呀！",
@@ -31609,7 +31720,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こあい……なのだ……",
    "chinese": "呜——好口怕……呀……",
@@ -31623,7 +31735,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こあい……どうしよ……",
    "chinese": "呜——好口怕……怎么办……",
@@ -31637,7 +31750,7 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "うー、こわいけど……れみりあ、まけないのだ！",
    "chinese": "呜——好可怕……但蕾米莉亚不会输呀！",
@@ -31651,7 +31764,8 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こわい……のだ……",
    "chinese": "呜——好可怕……呀……",
@@ -31665,7 +31779,8 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こわい……どうしよう……",
    "chinese": "呜——好可怕……怎么办……",
@@ -31679,7 +31794,7 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "うー、うー！ いちゃいけど、がんばる！",
    "chinese": "呜——、呜——！好痛，但窝要撑住！",
@@ -31693,7 +31808,8 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、うー——！ いちゃい……",
    "chinese": "呜——、呜————！好痛……",
@@ -31707,7 +31823,7 @@
    "species": "remilia",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "うー、うー……いちゃい……",
    "chinese": "呜——、呜——……好痛……",
@@ -31721,7 +31837,7 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "うー、いちゃいけど……れみりゃ、まだ いけるなのだ！",
    "chinese": "呜——好痛……但蕾米莉亚还能撑呀！",
@@ -31735,7 +31851,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、いちゃい……なのだ……",
    "chinese": "呜——好痛……呀……",
@@ -31749,7 +31866,7 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "うー、いちゃい……なおして……",
    "chinese": "呜——好痛……治一治……",
@@ -31763,7 +31880,7 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "うー、いたいけど……れみりあ、まだ たたかえるのだ！",
    "chinese": "呜——好痛……但蕾米莉亚还能打呀！",
@@ -31777,7 +31894,8 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、いたい……のだ……",
    "chinese": "呜——好痛……呀……",
@@ -31791,7 +31909,7 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "うー、いたい……なおしてほしいのだ……",
    "chinese": "呜——好痛……想被治好呀……",
@@ -31819,7 +31937,8 @@
    "species": "remilia",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、にげなきゃ……なのだ……",
    "chinese": "呜——得跑了……呀……",
@@ -31847,7 +31966,8 @@
    "species": "remilia",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、にげなきゃ……のだ……",
    "chinese": "呜——得跑了……呀……",
@@ -33135,7 +33255,7 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "うー、うー！ こあいけど、にげない！",
    "chinese": "呜——、呜——！好口怕，但不跑！",
@@ -33149,7 +33269,8 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、うー——！ こあい！",
    "chinese": "呜——、呜————！好口怕！",
@@ -33163,7 +33284,8 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、うー……こあい……",
    "chinese": "呜——、呜——……好口怕……",
@@ -33177,7 +33299,7 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "うー、こあいけど……ふりゃん、がんばるよぅ！",
    "chinese": "呜——好口怕……但芙兰要撑住哦！",
@@ -33191,7 +33313,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こあい……よぅ……",
    "chinese": "呜——好口怕……哦……",
@@ -33205,7 +33328,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こあい……どうしよ……",
    "chinese": "呜——好口怕……怎么办……",
@@ -33219,7 +33343,7 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "うー、こわいけど……ふらん、まけないよ！",
    "chinese": "呜——好可怕……但芙兰不会输哦！",
@@ -33233,7 +33357,8 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こわい……よ……",
    "chinese": "呜——好可怕……哦……",
@@ -33247,7 +33372,8 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "うー、こわい……どうしよう……",
    "chinese": "呜——好可怕……怎么办……",
@@ -33261,7 +33387,7 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "うー、うー！ いちゃいけど、がんばる！",
    "chinese": "呜——、呜——！好痛，但窝要撑住！",
@@ -33275,7 +33401,8 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、うー——！ いちゃい……",
    "chinese": "呜——、呜————！好痛……",
@@ -33289,7 +33416,7 @@
    "species": "flandre",
    "age": "baby",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "うー、うー……いちゃい……",
    "chinese": "呜——、呜——……好痛……",
@@ -33303,7 +33430,7 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "うー、いちゃいけど……ふりゃん、まだ いけるよぅ！",
    "chinese": "呜——好痛……但芙兰还能撑哦！",
@@ -33317,7 +33444,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、いちゃい……よぅ……",
    "chinese": "呜——好痛……哦……",
@@ -33331,7 +33459,7 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "うー、いちゃい……なおして……",
    "chinese": "呜——好痛……治一治……",
@@ -33345,7 +33473,7 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "うー、いたいけど……ふらん、まだ たたかえるよ！",
    "chinese": "呜——好痛……但芙兰还能打哦！",
@@ -33359,7 +33487,8 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "うー、いたい……よ……",
    "chinese": "呜——好痛……哦……",
@@ -33373,7 +33502,7 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "うー、いたい……なおしてほしいよ……",
    "chinese": "呜——好痛……想被治好哦……",
@@ -33401,7 +33530,8 @@
    "species": "flandre",
    "age": "juvenile",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、にげなきゃ……よぅ……",
    "chinese": "呜——得跑了……哦……",
@@ -33429,7 +33559,8 @@
    "species": "flandre",
    "age": "adult",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "うー、にげなきゃ……よ……",
    "chinese": "呜——得跑了……哦……",
@@ -34805,7 +34936,7 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "みょ、みょん！ こあいけど、にげない！",
    "chinese": "咪、咪呦！好口怕，但不跑！",
@@ -34820,7 +34951,8 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょ、みょん——！ こあい！",
    "chinese": "咪、咪呦——！好口怕！",
@@ -34835,7 +34967,8 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょ、みょん……こあい……",
    "chinese": "咪、咪呦……好口怕……",
@@ -34850,7 +34983,7 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "みょん！こあいけど……みょん、がんばるみょ！",
    "chinese": "咪呦！好口怕……但妖梦要撑住哦！",
@@ -34865,7 +34998,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！こあい……みょ……",
    "chinese": "咪呦！好口怕……哦……",
@@ -34880,7 +35014,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！こあい……どうしよ……",
    "chinese": "咪呦！好口怕……怎么办……",
@@ -34895,7 +35030,7 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "みょん！こわいけど……みょん、まけないよ！",
    "chinese": "咪呦！好可怕……但妖梦不会输哦！",
@@ -34910,7 +35045,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！こわい……よ……",
    "chinese": "咪呦！好可怕……哦……",
@@ -34925,7 +35061,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！こわい……どうしよう……",
    "chinese": "咪呦！好可怕……怎么办……",
@@ -34940,7 +35077,7 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "みょ、みょん！ いちゃいけど、がんばる！",
    "chinese": "咪、咪呦！好痛，但窝要撑住！",
@@ -34955,7 +35092,8 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "みょ、みょん——！ いちゃい……",
    "chinese": "咪、咪呦——！好痛……",
@@ -34970,7 +35108,7 @@
    "age": "baby",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "みょ、みょん……いちゃい……",
    "chinese": "咪、咪呦……好痛……",
@@ -34985,7 +35123,7 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "みょん！いちゃいけど……みょん、まだ いけるみょ！",
    "chinese": "咪呦！好痛……但妖梦还能撑哦！",
@@ -35000,7 +35138,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "みょん！いちゃい……みょ……",
    "chinese": "咪呦！好痛……哦……",
@@ -35015,7 +35154,7 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "みょん！いちゃい……なおして……",
    "chinese": "咪呦！好痛……治一治……",
@@ -35030,7 +35169,7 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "みょん！いたいけど……みょん、まだ たたかえるよ！",
    "chinese": "咪呦！好痛……但妖梦还能打哦！",
@@ -35045,7 +35184,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "みょん！いたい……よ……",
    "chinese": "咪呦！好痛……哦……",
@@ -35060,7 +35200,7 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "みょん！いたい……なおしてほしいよ……",
    "chinese": "咪呦！好痛……想被治好哦……",
@@ -35090,7 +35230,8 @@
    "age": "juvenile",
    "quirk": "miyo",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "みょん！にげなきゃ……みょ……",
    "chinese": "咪呦！得跑了……哦……",
@@ -35120,7 +35261,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "みょん！にげなきゃ……よ……",
    "chinese": "咪呦！得跑了……哦……",
@@ -36500,7 +36642,7 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ちん、ちーんぽ！ こあいけど、にげない！",
    "chinese": "金、金寶！好口怕，但不跑！",
@@ -36515,7 +36657,8 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちん、ちーんぽ——！ こあい！",
    "chinese": "金、金寶——！好口怕！",
@@ -36530,7 +36673,8 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちん、ちーんぽ……こあい……",
    "chinese": "金、金寶……好口怕……",
@@ -36545,7 +36689,7 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ちーんぽ！こあいけど……ようむ、がんばるよぅ！",
    "chinese": "金寶！好口怕……但妖梦要撑住哦！",
@@ -36560,7 +36704,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！こあい……よぅ……",
    "chinese": "金寶！好口怕……哦……",
@@ -36575,7 +36720,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！こあい……どうしよ……",
    "chinese": "金寶！好口怕……怎么办……",
@@ -36590,7 +36736,7 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "hurt_defy"
    ],
    "japanese": "ちーんぽ！こわいけど……ようむ、まけないよ！",
    "chinese": "金寶！好可怕……但妖梦不会输哦！",
@@ -36605,7 +36751,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！こわい……よ……",
    "chinese": "金寶！好可怕……哦……",
@@ -36620,7 +36767,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！こわい……どうしよう……",
    "chinese": "金寶！好可怕……怎么办……",
@@ -36635,7 +36783,7 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ちん、ちーんぽ！ いちゃいけど、がんばる！",
    "chinese": "金、金寶！好痛，但窝要撑住！",
@@ -36650,7 +36798,8 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ちん、ちーんぽ——！ いちゃい……",
    "chinese": "金、金寶——！好痛……",
@@ -36665,7 +36814,7 @@
    "age": "baby",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ちん、ちーんぽ……いちゃい……",
    "chinese": "金、金寶……好痛……",
@@ -36680,7 +36829,7 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ちーんぽ！いちゃいけど……ようむ、まだ いけるよぅ！",
    "chinese": "金寶！好痛……但妖梦还能撑哦！",
@@ -36695,7 +36844,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ちーんぽ！いちゃい……よぅ……",
    "chinese": "金寶！好痛……哦……",
@@ -36710,7 +36860,7 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ちーんぽ！いちゃい……なおして……",
    "chinese": "金寶！好痛……治一治……",
@@ -36725,7 +36875,7 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "hurt_defy"
    ],
    "japanese": "ちーんぽ！いたいけど……ようむ、まだ たたかえるよ！",
    "chinese": "金寶！好痛……但妖梦还能打哦！",
@@ -36740,7 +36890,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ちーんぽ！いたい……よ……",
    "chinese": "金寶！好痛……哦……",
@@ -36755,7 +36906,7 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "hurt_tame_plea"
    ],
    "japanese": "ちーんぽ！いたい……なおしてほしいよ……",
    "chinese": "金寶！好痛……想被治好哦……",
@@ -36785,7 +36936,8 @@
    "age": "juvenile",
    "quirk": "kinbao",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ちーんぽ！にげなきゃ……よぅ……",
    "chinese": "金寶！得跑了……哦……",
@@ -36815,7 +36967,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "narrate_flee"
+    "narrate_flee",
+    "hurt_flee"
    ],
    "japanese": "ちーんぽ！にげなきゃ……よ……",
    "chinese": "金寶！得跑了……哦……",
@@ -42115,7 +42268,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！ こ、こわくない……こわくないっ！",
    "chinese": "咪呦！不、不怕……妖梦不怕！",
@@ -42129,7 +42283,8 @@
    "age": "young",
    "quirk": "miyo",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "みょん！ こ、こわくにゃい……ほんとだもん！",
    "chinese": "咪呦！不、不怕……真的不怕！",
@@ -46231,7 +46386,8 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "みょん！ いたい……！ でも、まだたたかえる！",
    "chinese": "咪呦！好痛……！但还能打！",
@@ -46245,7 +46401,8 @@
    "age": "young",
    "quirk": "miyo",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆんやぁぁ！ みょん！ いちゃいよぉぉ！",
    "chinese": "油嗯呀啊啊！咪呦！好痛痛——！",
@@ -47155,7 +47312,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！ こ、こわくない……こわくないっ！",
    "chinese": "金寶！不、不怕……妖梦不怕！",
@@ -47169,7 +47327,8 @@
    "age": "young",
    "quirk": "kinbao",
    "events": [
-    "afraid"
+    "afraid",
+    "hurt_freeze"
    ],
    "japanese": "ちーんぽ！ こ、こわくにゃい……ほんとだもん！",
    "chinese": "金寶！不、不怕……真的不怕！",
@@ -51271,7 +51430,8 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ちーんぽ！ いたい……！ でも、まだたたかえる！",
    "chinese": "金寶！好痛……！但还能打！",
@@ -51285,7 +51445,8 @@
    "age": "young",
    "quirk": "kinbao",
    "events": [
-    "wounded"
+    "wounded",
+    "hurt_endure"
    ],
    "japanese": "ゆんやぁぁ！ ちーんぽ！ いちゃいよぉぉ！",
    "chinese": "油嗯呀啊啊！金寶！好痛痛——！",
@@ -52337,7 +52498,8 @@
    "species": "reimu",
    "age": "baby",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こあい、ゆわぁ！",
    "chinese": "好口怕，呜哇！",
@@ -52350,7 +52512,8 @@
    "species": "reimu",
    "age": "juvenile",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆわぁ！ にげるよ！",
    "chinese": "呜哇！得跑了！",
@@ -52363,7 +52526,8 @@
    "species": "reimu",
    "age": "adult",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こわいよー！ にげるよー！",
    "chinese": "好可怕！要逃走啦——！",
@@ -52467,7 +52631,8 @@
    "species": "marisa",
    "age": "baby",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こあい、ゆわぁ！",
    "chinese": "好口怕，呜哇！",
@@ -52480,7 +52645,8 @@
    "species": "marisa",
    "age": "juvenile",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆわぁ！ にげるよ！",
    "chinese": "呜哇！得跑了！",
@@ -52493,7 +52659,8 @@
    "species": "marisa",
    "age": "adult",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こわいよー！ にげるよー！",
    "chinese": "好可怕！要逃走啦——！",
@@ -52597,7 +52764,8 @@
    "species": "alice",
    "age": "baby",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こあい、ゆわぁ！",
    "chinese": "好口怕，呜哇！",
@@ -52610,7 +52778,8 @@
    "species": "alice",
    "age": "juvenile",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆわぁ！ にげるよ！",
    "chinese": "呜哇！得跑了！",
@@ -52623,7 +52792,8 @@
    "species": "alice",
    "age": "adult",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こわいよー！ にげるよー！",
    "chinese": "好可怕！要逃走啦——！",
@@ -52727,7 +52897,8 @@
    "species": "chen",
    "age": "baby",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こあい、ゆわぁ！",
    "chinese": "好口怕，呜哇！",
@@ -52740,7 +52911,8 @@
    "species": "chen",
    "age": "juvenile",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆわぁ！ にげるよ！",
    "chinese": "呜哇！得跑了！",
@@ -52753,7 +52925,8 @@
    "species": "chen",
    "age": "adult",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こわいよー！ にげるよー！",
    "chinese": "好可怕！要逃走啦——！",
@@ -52857,7 +53030,8 @@
    "species": "patchouli",
    "age": "baby",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こあい、ゆわぁ！",
    "chinese": "好口怕，呜哇！",
@@ -52870,7 +53044,8 @@
    "species": "patchouli",
    "age": "juvenile",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆわぁ！ にげるよ！",
    "chinese": "呜哇！得跑了！",
@@ -52883,7 +53058,8 @@
    "species": "patchouli",
    "age": "adult",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こわいよー！ にげるよー！",
    "chinese": "好可怕！要逃走啦——！",
@@ -52987,7 +53163,8 @@
    "species": "myon",
    "age": "baby",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こあい、ゆわぁ！",
    "chinese": "好口怕，呜哇！",
@@ -53000,7 +53177,8 @@
    "species": "myon",
    "age": "juvenile",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "ゆわぁ！ にげるよ！",
    "chinese": "呜哇！得跑了！",
@@ -53013,7 +53191,8 @@
    "species": "myon",
    "age": "adult",
    "events": [
-    "protect_child_flee"
+    "protect_child_flee",
+    "hurt_flee"
    ],
    "japanese": "こわいよー！ にげるよー！",
    "chinese": "好可怕！要逃走啦——！",

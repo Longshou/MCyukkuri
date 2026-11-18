@@ -49,7 +49,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 61,
     "sound": "voice.native.marisa.adult.l0102"
@@ -412,7 +413,8 @@
     "species": "marisa",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 52,
     "sound": "voice.native.marisa.young.l0102"
@@ -775,7 +777,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 57,
     "sound": "voice.native.reimu.adult.l0101"
@@ -1138,7 +1141,8 @@
     "species": "reimu",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 50,
     "sound": "voice.native.reimu.young.l0101"
@@ -1597,7 +1601,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 64,
     "sound": "voice.native.alice.adult.l0101"
@@ -1984,7 +1989,8 @@
     "species": "alice",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 55,
     "sound": "voice.native.alice.young.l0101"
@@ -2392,7 +2398,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 53,
     "sound": "voice.native.chen.adult.l0101"
@@ -2484,7 +2491,8 @@
     "species": "chen",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.native.chen.young.l0101"
@@ -2576,7 +2584,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 68,
     "sound": "voice.native.patchouli.adult.l0101"
@@ -2668,7 +2677,8 @@
     "species": "patchouli",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 58,
     "sound": "voice.native.patchouli.young.l0101"
@@ -21453,7 +21463,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.native112.reimu.baby.h112_1128"
@@ -21465,7 +21476,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_flee"
     ],
     "ticks": 47,
     "sound": "voice.native112.reimu.baby.h112_4181"
@@ -21622,7 +21634,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.native112.marisa.baby.h112_1133"
@@ -21634,7 +21647,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_flee"
     ],
     "ticks": 48,
     "sound": "voice.native112.marisa.baby.h112_4183"
@@ -21754,7 +21768,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_flee"
     ],
     "ticks": 64,
     "sound": "voice.native112.reimu.adult.h112_4264"
@@ -21863,7 +21878,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_flee"
     ],
     "ticks": 65,
     "sound": "voice.native112.marisa.adult.h112_4265"
@@ -21984,7 +22000,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_flee"
     ],
     "ticks": 64,
     "sound": "voice.native112.alice.adult.h112_1037"
@@ -21996,7 +22013,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_flee"
     ],
     "ticks": 67,
     "sound": "voice.native112.alice.adult.h112_4264"
@@ -22852,7 +22870,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.baby.s_afraid"
@@ -22864,7 +22883,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.baby.s_wounded"
@@ -23584,7 +23604,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.s_afraid"
@@ -23596,7 +23617,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.s_wounded"
@@ -24064,7 +24086,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.s_narrate_flee"
@@ -24736,7 +24759,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 47,
     "sound": "voice.original.reimu.adult.s_narrate_flee"
@@ -25048,7 +25072,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.s_afraid"
@@ -25060,7 +25085,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.s_wounded"
@@ -25780,7 +25806,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.s_afraid"
@@ -25792,7 +25819,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.s_wounded"
@@ -26260,7 +26288,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 46,
     "sound": "voice.original.marisa.juvenile.s_narrate_flee"
@@ -26932,7 +26961,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 50,
     "sound": "voice.original.marisa.adult.s_narrate_flee"
@@ -27244,7 +27274,8 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.s_afraid"
@@ -27256,7 +27287,8 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.s_wounded"
@@ -27976,7 +28008,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.s_afraid"
@@ -27988,7 +28021,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.s_wounded"
@@ -28456,7 +28490,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.s_narrate_flee"
@@ -29128,7 +29163,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 46,
     "sound": "voice.original.alice.adult.s_narrate_flee"
@@ -29440,7 +29476,8 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.s_afraid"
@@ -29452,7 +29489,8 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.s_wounded"
@@ -30172,7 +30210,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.s_afraid"
@@ -30184,7 +30223,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.s_wounded"
@@ -30652,7 +30692,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.s_narrate_flee"
@@ -31324,7 +31365,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.s_narrate_flee"
@@ -31636,7 +31678,8 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.s_afraid"
@@ -31648,7 +31691,8 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.s_wounded"
@@ -32368,7 +32412,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 67,
     "sound": "voice.original.patchouli.juvenile.s_afraid"
@@ -32380,7 +32425,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 65,
     "sound": "voice.original.patchouli.juvenile.s_wounded"
@@ -32848,7 +32894,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 73,
     "sound": "voice.original.patchouli.juvenile.s_narrate_flee"
@@ -33808,7 +33855,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 80,
     "sound": "voice.original.patchouli.adult.s_narrate_flee"
@@ -34408,7 +34456,8 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.remilia.baby.s_afraid"
@@ -34420,7 +34469,8 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.remilia.baby.s_wounded"
@@ -35140,7 +35190,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 64,
     "sound": "voice.original.remilia.juvenile.s_afraid"
@@ -35152,7 +35203,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 62,
     "sound": "voice.original.remilia.juvenile.s_wounded"
@@ -35620,7 +35672,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 70,
     "sound": "voice.original.remilia.juvenile.s_narrate_flee"
@@ -36292,7 +36345,8 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 74,
     "sound": "voice.original.remilia.adult.s_narrate_flee"
@@ -36604,7 +36658,8 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.baby.s_afraid"
@@ -36616,7 +36671,8 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.baby.s_wounded"
@@ -37336,7 +37392,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 48,
     "sound": "voice.original.flandre.juvenile.s_afraid"
@@ -37348,7 +37405,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 46,
     "sound": "voice.original.flandre.juvenile.s_wounded"
@@ -37816,7 +37874,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 49,
     "sound": "voice.original.flandre.juvenile.s_narrate_flee"
@@ -38488,7 +38547,8 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 50,
     "sound": "voice.original.flandre.adult.s_narrate_flee"
@@ -38808,7 +38868,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 46,
     "sound": "voice.original.myon.miyo.baby.s_afraid",
@@ -38821,7 +38882,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 46,
     "sound": "voice.original.myon.miyo.baby.s_wounded",
@@ -39601,7 +39663,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 58,
     "sound": "voice.original.myon.miyo.juvenile.s_afraid",
@@ -39614,7 +39677,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 56,
     "sound": "voice.original.myon.miyo.juvenile.s_wounded",
@@ -40121,7 +40185,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 59,
     "sound": "voice.original.myon.miyo.juvenile.s_narrate_flee",
@@ -40849,7 +40914,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 64,
     "sound": "voice.original.myon.miyo.adult.s_narrate_flee",
@@ -41187,7 +41253,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 51,
     "sound": "voice.original.myon.kinbao.baby.s_afraid",
@@ -41200,7 +41267,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 51,
     "sound": "voice.original.myon.kinbao.baby.s_wounded",
@@ -41980,7 +42048,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 65,
     "sound": "voice.original.myon.kinbao.juvenile.s_afraid",
@@ -41993,7 +42062,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 63,
     "sound": "voice.original.myon.kinbao.juvenile.s_wounded",
@@ -42500,7 +42570,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 66,
     "sound": "voice.original.myon.kinbao.juvenile.s_narrate_flee",
@@ -43228,7 +43299,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 70,
     "sound": "voice.original.myon.kinbao.adult.s_narrate_flee",
@@ -44593,7 +44665,7 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 55,
     "sound": "voice.original.reimu.baby.v1_afraid",
@@ -44606,7 +44678,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 47,
     "sound": "voice.original.reimu.baby.v2_afraid",
@@ -44619,7 +44692,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.baby.v3_afraid",
@@ -44632,7 +44706,7 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 60,
     "sound": "voice.original.reimu.juvenile.v1_afraid",
@@ -44645,7 +44719,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.v2_afraid",
@@ -44658,7 +44733,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.v3_afraid",
@@ -44671,7 +44747,7 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 66,
     "sound": "voice.original.reimu.adult.v1_afraid",
@@ -44684,7 +44760,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.adult.v2_afraid",
@@ -44697,7 +44774,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.adult.v3_afraid",
@@ -44710,7 +44788,7 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 56,
     "sound": "voice.original.reimu.baby.v1_wounded",
@@ -44723,7 +44801,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.baby.v2_wounded",
@@ -44736,7 +44815,7 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.baby.v3_wounded",
@@ -44749,7 +44828,7 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 70,
     "sound": "voice.original.reimu.juvenile.v1_wounded",
@@ -44762,7 +44841,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.v2_wounded",
@@ -44775,7 +44855,7 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.v3_wounded",
@@ -44788,7 +44868,7 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 80,
     "sound": "voice.original.reimu.adult.v1_wounded",
@@ -44801,7 +44881,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.adult.v2_wounded",
@@ -44814,7 +44895,7 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 52,
     "sound": "voice.original.reimu.adult.v3_wounded",
@@ -44840,7 +44921,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.v2_narrate_flee",
@@ -44866,7 +44948,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.adult.v2_narrate_flee",
@@ -46062,7 +46145,7 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 55,
     "sound": "voice.original.marisa.baby.v1_afraid",
@@ -46075,7 +46158,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.v2_afraid",
@@ -46088,7 +46172,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.v3_afraid",
@@ -46101,7 +46186,7 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 64,
     "sound": "voice.original.marisa.juvenile.v1_afraid",
@@ -46114,7 +46199,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.v2_afraid",
@@ -46127,7 +46213,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.v3_afraid",
@@ -46140,7 +46227,7 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 70,
     "sound": "voice.original.marisa.adult.v1_afraid",
@@ -46153,7 +46240,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.adult.v2_afraid",
@@ -46166,7 +46254,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.adult.v3_afraid",
@@ -46179,7 +46268,7 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 56,
     "sound": "voice.original.marisa.baby.v1_wounded",
@@ -46192,7 +46281,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.v2_wounded",
@@ -46205,7 +46295,7 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.v3_wounded",
@@ -46218,7 +46308,7 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 74,
     "sound": "voice.original.marisa.juvenile.v1_wounded",
@@ -46231,7 +46321,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.v2_wounded",
@@ -46244,7 +46335,7 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.v3_wounded",
@@ -46257,7 +46348,7 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 85,
     "sound": "voice.original.marisa.adult.v1_wounded",
@@ -46270,7 +46361,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.adult.v2_wounded",
@@ -46283,7 +46375,7 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 55,
     "sound": "voice.original.marisa.adult.v3_wounded",
@@ -46309,7 +46401,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.v2_narrate_flee",
@@ -46335,7 +46428,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.adult.v2_narrate_flee",
@@ -47531,7 +47625,7 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 58,
     "sound": "voice.original.alice.baby.v1_afraid",
@@ -47544,7 +47638,8 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.v2_afraid",
@@ -47557,7 +47652,8 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.v3_afraid",
@@ -47570,7 +47666,7 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 63,
     "sound": "voice.original.alice.juvenile.v1_afraid",
@@ -47583,7 +47679,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.v2_afraid",
@@ -47596,7 +47693,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.v3_afraid",
@@ -47609,7 +47707,7 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 67,
     "sound": "voice.original.alice.adult.v1_afraid",
@@ -47622,7 +47720,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.adult.v2_afraid",
@@ -47635,7 +47734,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 47,
     "sound": "voice.original.alice.adult.v3_afraid",
@@ -47648,7 +47748,7 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 58,
     "sound": "voice.original.alice.baby.v1_wounded",
@@ -47661,7 +47761,8 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.v2_wounded",
@@ -47674,7 +47775,7 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.v3_wounded",
@@ -47687,7 +47788,7 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 73,
     "sound": "voice.original.alice.juvenile.v1_wounded",
@@ -47700,7 +47801,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.v2_wounded",
@@ -47713,7 +47815,7 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.v3_wounded",
@@ -47726,7 +47828,7 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 82,
     "sound": "voice.original.alice.adult.v1_wounded",
@@ -47739,7 +47841,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.adult.v2_wounded",
@@ -47752,7 +47855,7 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 54,
     "sound": "voice.original.alice.adult.v3_wounded",
@@ -47778,7 +47881,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.v2_narrate_flee",
@@ -47804,7 +47908,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.adult.v2_narrate_flee",
@@ -49000,7 +49105,7 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 46,
     "sound": "voice.original.chen.baby.v1_afraid",
@@ -49013,7 +49118,8 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.v2_afraid",
@@ -49026,7 +49132,8 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.v3_afraid",
@@ -49039,7 +49146,7 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 50,
     "sound": "voice.original.chen.juvenile.v1_afraid",
@@ -49052,7 +49159,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.v2_afraid",
@@ -49065,7 +49173,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.v3_afraid",
@@ -49078,7 +49187,7 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 55,
     "sound": "voice.original.chen.adult.v1_afraid",
@@ -49091,7 +49200,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.v2_afraid",
@@ -49104,7 +49214,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.v3_afraid",
@@ -49117,7 +49228,7 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 47,
     "sound": "voice.original.chen.baby.v1_wounded",
@@ -49130,7 +49241,8 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.v2_wounded",
@@ -49143,7 +49255,7 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.v3_wounded",
@@ -49156,7 +49268,7 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 58,
     "sound": "voice.original.chen.juvenile.v1_wounded",
@@ -49169,7 +49281,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.v2_wounded",
@@ -49182,7 +49295,7 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.v3_wounded",
@@ -49195,7 +49308,7 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 66,
     "sound": "voice.original.chen.adult.v1_wounded",
@@ -49208,7 +49321,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.v2_wounded",
@@ -49221,7 +49335,7 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.v3_wounded",
@@ -49247,7 +49361,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.v2_narrate_flee",
@@ -49273,7 +49388,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.v2_narrate_flee",
@@ -50469,7 +50585,7 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 62,
     "sound": "voice.original.patchouli.baby.v1_afraid",
@@ -50482,7 +50598,8 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.v2_afraid",
@@ -50495,7 +50612,8 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.v3_afraid",
@@ -50508,7 +50626,7 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 91,
     "sound": "voice.original.patchouli.juvenile.v1_afraid",
@@ -50521,7 +50639,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 59,
     "sound": "voice.original.patchouli.juvenile.v2_afraid",
@@ -50534,7 +50653,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 67,
     "sound": "voice.original.patchouli.juvenile.v3_afraid",
@@ -50547,7 +50667,7 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 109,
     "sound": "voice.original.patchouli.adult.v1_afraid",
@@ -50560,7 +50680,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 65,
     "sound": "voice.original.patchouli.adult.v2_afraid",
@@ -50573,7 +50694,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 77,
     "sound": "voice.original.patchouli.adult.v3_afraid",
@@ -50586,7 +50708,7 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 63,
     "sound": "voice.original.patchouli.baby.v1_wounded",
@@ -50599,7 +50721,8 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.v2_wounded",
@@ -50612,7 +50735,7 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.v3_wounded",
@@ -50625,7 +50748,7 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 104,
     "sound": "voice.original.patchouli.juvenile.v1_wounded",
@@ -50638,7 +50761,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 60,
     "sound": "voice.original.patchouli.juvenile.v2_wounded",
@@ -50651,7 +50775,7 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 68,
     "sound": "voice.original.patchouli.juvenile.v3_wounded",
@@ -50664,7 +50788,7 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 129,
     "sound": "voice.original.patchouli.adult.v1_wounded",
@@ -50677,7 +50801,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 65,
     "sound": "voice.original.patchouli.adult.v2_wounded",
@@ -50690,7 +50815,7 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 87,
     "sound": "voice.original.patchouli.adult.v3_wounded",
@@ -50716,7 +50841,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 66,
     "sound": "voice.original.patchouli.juvenile.v2_narrate_flee",
@@ -50742,7 +50868,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 72,
     "sound": "voice.original.patchouli.adult.v2_narrate_flee",
@@ -51938,7 +52065,7 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 59,
     "sound": "voice.original.remilia.baby.v1_afraid",
@@ -51951,7 +52078,8 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.remilia.baby.v2_afraid",
@@ -51964,7 +52092,8 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.remilia.baby.v3_afraid",
@@ -51977,7 +52106,7 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 91,
     "sound": "voice.original.remilia.juvenile.v1_afraid",
@@ -51990,7 +52119,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 56,
     "sound": "voice.original.remilia.juvenile.v2_afraid",
@@ -52003,7 +52133,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 57,
     "sound": "voice.original.remilia.juvenile.v3_afraid",
@@ -52016,7 +52147,7 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 101,
     "sound": "voice.original.remilia.adult.v1_afraid",
@@ -52029,7 +52160,8 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 59,
     "sound": "voice.original.remilia.adult.v2_afraid",
@@ -52042,7 +52174,8 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 66,
     "sound": "voice.original.remilia.adult.v3_afraid",
@@ -52055,7 +52188,7 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 60,
     "sound": "voice.original.remilia.baby.v1_wounded",
@@ -52068,7 +52201,8 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.remilia.baby.v2_wounded",
@@ -52081,7 +52215,7 @@
     "species": "remilia",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.remilia.baby.v3_wounded",
@@ -52094,7 +52228,7 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 104,
     "sound": "voice.original.remilia.juvenile.v1_wounded",
@@ -52107,7 +52241,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 57,
     "sound": "voice.original.remilia.juvenile.v2_wounded",
@@ -52120,7 +52255,7 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 58,
     "sound": "voice.original.remilia.juvenile.v3_wounded",
@@ -52133,7 +52268,7 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 120,
     "sound": "voice.original.remilia.adult.v1_wounded",
@@ -52146,7 +52281,8 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 58,
     "sound": "voice.original.remilia.adult.v2_wounded",
@@ -52159,7 +52295,7 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 81,
     "sound": "voice.original.remilia.adult.v3_wounded",
@@ -52185,7 +52321,8 @@
     "species": "remilia",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 63,
     "sound": "voice.original.remilia.juvenile.v2_narrate_flee",
@@ -52211,7 +52348,8 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 66,
     "sound": "voice.original.remilia.adult.v2_narrate_flee",
@@ -53407,7 +53545,7 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 50,
     "sound": "voice.original.flandre.baby.v1_afraid",
@@ -53420,7 +53558,8 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.baby.v2_afraid",
@@ -53433,7 +53572,8 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.baby.v3_afraid",
@@ -53446,7 +53586,7 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 64,
     "sound": "voice.original.flandre.juvenile.v1_afraid",
@@ -53459,7 +53599,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.juvenile.v2_afraid",
@@ -53472,7 +53613,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 46,
     "sound": "voice.original.flandre.juvenile.v3_afraid",
@@ -53485,7 +53627,7 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 67,
     "sound": "voice.original.flandre.adult.v1_afraid",
@@ -53498,7 +53640,8 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.adult.v2_afraid",
@@ -53511,7 +53654,8 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 50,
     "sound": "voice.original.flandre.adult.v3_afraid",
@@ -53524,7 +53668,7 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 50,
     "sound": "voice.original.flandre.baby.v1_wounded",
@@ -53537,7 +53681,8 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.baby.v2_wounded",
@@ -53550,7 +53695,7 @@
     "species": "flandre",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.baby.v3_wounded",
@@ -53563,7 +53708,7 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 72,
     "sound": "voice.original.flandre.juvenile.v1_wounded",
@@ -53576,7 +53721,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.juvenile.v2_wounded",
@@ -53589,7 +53735,7 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.juvenile.v3_wounded",
@@ -53602,7 +53748,7 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 79,
     "sound": "voice.original.flandre.adult.v1_wounded",
@@ -53615,7 +53761,8 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.adult.v2_wounded",
@@ -53628,7 +53775,7 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 56,
     "sound": "voice.original.flandre.adult.v3_wounded",
@@ -53654,7 +53801,8 @@
     "species": "flandre",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.juvenile.v2_narrate_flee",
@@ -53680,7 +53828,8 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.flandre.adult.v2_narrate_flee",
@@ -54963,7 +55112,7 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 59,
     "sound": "voice.original.myon.miyo.baby.v1_afraid",
@@ -54977,7 +55126,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.myon.miyo.baby.v2_afraid",
@@ -54991,7 +55141,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 45,
     "sound": "voice.original.myon.miyo.baby.v3_afraid",
@@ -55005,7 +55156,7 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 78,
     "sound": "voice.original.myon.miyo.juvenile.v1_afraid",
@@ -55019,7 +55170,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 50,
     "sound": "voice.original.myon.miyo.juvenile.v2_afraid",
@@ -55033,7 +55185,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 57,
     "sound": "voice.original.myon.miyo.juvenile.v3_afraid",
@@ -55047,7 +55200,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 86,
     "sound": "voice.original.myon.miyo.adult.v1_afraid",
@@ -55061,7 +55214,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 54,
     "sound": "voice.original.myon.miyo.adult.v2_afraid",
@@ -55075,7 +55229,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 65,
     "sound": "voice.original.myon.miyo.adult.v3_afraid",
@@ -55089,7 +55244,7 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 59,
     "sound": "voice.original.myon.miyo.baby.v1_wounded",
@@ -55103,7 +55258,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 45,
     "sound": "voice.original.myon.miyo.baby.v2_wounded",
@@ -55117,7 +55273,7 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 45,
     "sound": "voice.original.myon.miyo.baby.v3_wounded",
@@ -55131,7 +55287,7 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 89,
     "sound": "voice.original.myon.miyo.juvenile.v1_wounded",
@@ -55145,7 +55301,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 51,
     "sound": "voice.original.myon.miyo.juvenile.v2_wounded",
@@ -55159,7 +55316,7 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 57,
     "sound": "voice.original.myon.miyo.juvenile.v3_wounded",
@@ -55173,7 +55330,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 102,
     "sound": "voice.original.myon.miyo.adult.v1_wounded",
@@ -55187,7 +55344,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 54,
     "sound": "voice.original.myon.miyo.adult.v2_wounded",
@@ -55201,7 +55359,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 73,
     "sound": "voice.original.myon.miyo.adult.v3_wounded",
@@ -55229,7 +55387,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 53,
     "sound": "voice.original.myon.miyo.juvenile.v2_narrate_flee",
@@ -55257,7 +55416,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 58,
     "sound": "voice.original.myon.miyo.adult.v2_narrate_flee",
@@ -56545,7 +56705,7 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 64,
     "sound": "voice.original.myon.kinbao.baby.v1_afraid",
@@ -56559,7 +56719,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 50,
     "sound": "voice.original.myon.kinbao.baby.v2_afraid",
@@ -56573,7 +56734,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 47,
     "sound": "voice.original.myon.kinbao.baby.v3_afraid",
@@ -56587,7 +56749,7 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 87,
     "sound": "voice.original.myon.kinbao.juvenile.v1_afraid",
@@ -56601,7 +56763,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 57,
     "sound": "voice.original.myon.kinbao.juvenile.v2_afraid",
@@ -56615,7 +56778,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 62,
     "sound": "voice.original.myon.kinbao.juvenile.v3_afraid",
@@ -56629,7 +56793,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "hurt_defy"
     ],
     "ticks": 93,
     "sound": "voice.original.myon.kinbao.adult.v1_afraid",
@@ -56643,7 +56807,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 59,
     "sound": "voice.original.myon.kinbao.adult.v2_afraid",
@@ -56657,7 +56822,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 70,
     "sound": "voice.original.myon.kinbao.adult.v3_afraid",
@@ -56671,7 +56837,7 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 64,
     "sound": "voice.original.myon.kinbao.baby.v1_wounded",
@@ -56685,7 +56851,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 51,
     "sound": "voice.original.myon.kinbao.baby.v2_wounded",
@@ -56699,7 +56866,7 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 47,
     "sound": "voice.original.myon.kinbao.baby.v3_wounded",
@@ -56713,7 +56880,7 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 98,
     "sound": "voice.original.myon.kinbao.juvenile.v1_wounded",
@@ -56727,7 +56894,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 57,
     "sound": "voice.original.myon.kinbao.juvenile.v2_wounded",
@@ -56741,7 +56909,7 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 62,
     "sound": "voice.original.myon.kinbao.juvenile.v3_wounded",
@@ -56755,7 +56923,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_defy"
     ],
     "ticks": 110,
     "sound": "voice.original.myon.kinbao.adult.v1_wounded",
@@ -56769,7 +56937,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 59,
     "sound": "voice.original.myon.kinbao.adult.v2_wounded",
@@ -56783,7 +56952,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "hurt_tame_plea"
     ],
     "ticks": 78,
     "sound": "voice.original.myon.kinbao.adult.v3_wounded",
@@ -56811,7 +56980,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 60,
     "sound": "voice.original.myon.kinbao.juvenile.v2_narrate_flee",
@@ -56839,7 +57009,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "narrate_flee"
+      "narrate_flee",
+      "hurt_flee"
     ],
     "ticks": 63,
     "sound": "voice.original.myon.kinbao.adult.v2_narrate_flee",
@@ -61739,7 +61910,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 86,
     "sound": "voice.original.myon.miyo.adult.s_afraid",
@@ -61752,7 +61924,8 @@
     "species": "myon",
     "age": "young",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 71,
     "sound": "voice.original.myon.miyo.young.s_afraid",
@@ -65561,7 +65734,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 85,
     "sound": "voice.original.myon.miyo.adult.s_wounded",
@@ -65574,7 +65748,8 @@
     "species": "myon",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 63,
     "sound": "voice.original.myon.miyo.young.s_wounded",
@@ -66419,7 +66594,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 91,
     "sound": "voice.original.myon.kinbao.adult.s_afraid",
@@ -66432,7 +66608,8 @@
     "species": "myon",
     "age": "young",
     "events": [
-      "afraid"
+      "afraid",
+      "hurt_freeze"
     ],
     "ticks": 75,
     "sound": "voice.original.myon.kinbao.young.s_afraid",
@@ -70241,7 +70418,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 90,
     "sound": "voice.original.myon.kinbao.adult.s_wounded",
@@ -70254,7 +70432,8 @@
     "species": "myon",
     "age": "young",
     "events": [
-      "wounded"
+      "wounded",
+      "hurt_endure"
     ],
     "ticks": 67,
     "sound": "voice.original.myon.kinbao.young.s_wounded",
@@ -71231,7 +71410,8 @@
     "species": "reimu",
     "age": "baby",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.baby.retest_protect_child_flee"
@@ -71243,7 +71423,8 @@
     "species": "reimu",
     "age": "juvenile",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.juvenile.retest_protect_child_flee"
@@ -71255,7 +71436,8 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 48,
     "sound": "voice.original.reimu.adult.retest_protect_child_flee"
@@ -71351,7 +71533,8 @@
     "species": "marisa",
     "age": "baby",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.baby.retest_protect_child_flee"
@@ -71363,7 +71546,8 @@
     "species": "marisa",
     "age": "juvenile",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.marisa.juvenile.retest_protect_child_flee"
@@ -71375,7 +71559,8 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 48,
     "sound": "voice.original.marisa.adult.retest_protect_child_flee"
@@ -71471,7 +71656,8 @@
     "species": "alice",
     "age": "baby",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.baby.retest_protect_child_flee"
@@ -71483,7 +71669,8 @@
     "species": "alice",
     "age": "juvenile",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.alice.juvenile.retest_protect_child_flee"
@@ -71495,7 +71682,8 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 52,
     "sound": "voice.original.alice.adult.retest_protect_child_flee"
@@ -71591,7 +71779,8 @@
     "species": "chen",
     "age": "baby",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.baby.retest_protect_child_flee"
@@ -71603,7 +71792,8 @@
     "species": "chen",
     "age": "juvenile",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.juvenile.retest_protect_child_flee"
@@ -71615,7 +71805,8 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.retest_protect_child_flee"
@@ -71711,7 +71902,8 @@
     "species": "patchouli",
     "age": "baby",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.patchouli.baby.retest_protect_child_flee"
@@ -71723,7 +71915,8 @@
     "species": "patchouli",
     "age": "juvenile",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 47,
     "sound": "voice.original.patchouli.juvenile.retest_protect_child_flee"
@@ -71735,7 +71928,8 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 58,
     "sound": "voice.original.patchouli.adult.retest_protect_child_flee"
@@ -71831,7 +72025,8 @@
     "species": "myon",
     "age": "baby",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.myon.baby.retest_protect_child_flee"
@@ -71843,7 +72038,8 @@
     "species": "myon",
     "age": "juvenile",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 45,
     "sound": "voice.original.myon.juvenile.retest_protect_child_flee"
@@ -71855,7 +72051,8 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "protect_child_flee"
+      "protect_child_flee",
+      "hurt_flee"
     ],
     "ticks": 56,
     "sound": "voice.original.myon.adult.retest_protect_child_flee"

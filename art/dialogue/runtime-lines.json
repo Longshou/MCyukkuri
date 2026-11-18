@@ -85,7 +85,8 @@
       },
       "source_sha256": "4afdfe19b796caba690fa127d704c6d863260a419cc4e6d279ebdd046ccef331",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It hurts so much!"
     },
@@ -648,7 +649,8 @@
       },
       "source_sha256": "089406c4b0b1e87f0bb3ce2ca3548b1ab6d9fdd1aac262e6d5f40443790643e1",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It huwts!"
     },
@@ -1207,7 +1209,8 @@
       },
       "source_sha256": "f26668142dc9a7bf78c1730fbc5bf1fa94ad66244e9a0aff99db2bac7bbea5bd",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It hurts!"
     },
@@ -1770,7 +1773,8 @@
       },
       "source_sha256": "d81357c9517acdf8418fca27b6f8edfe75a89acbb8aa87619c4c9324a398e3a5",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It huwts!"
     },
@@ -2501,7 +2505,8 @@
       },
       "source_sha256": "f26668142dc9a7bf78c1730fbc5bf1fa94ad66244e9a0aff99db2bac7bbea5bd",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It hurts!"
     },
@@ -3132,7 +3137,8 @@
       },
       "source_sha256": "d81357c9517acdf8418fca27b6f8edfe75a89acbb8aa87619c4c9324a398e3a5",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It huwts!"
     },
@@ -3788,7 +3794,8 @@
       },
       "source_sha256": "61439448d6d2726b1a95a45096dac90b7b8cb597ee4267dff0a50a0100368803",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "It hurts! Do you get it?!"
     },
@@ -3928,7 +3935,8 @@
       },
       "source_sha256": "0f455341bf7c6568555996d52c0287a069be193bd5107b08b647e4ed1f30969c",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "It huwts! Do you get it?!"
     },
@@ -4068,7 +4076,8 @@
       },
       "source_sha256": "2842db29175630b50d4d37f30e96d31306f034de569361010cf695c0924533da",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Mukyu! It hurts!"
     },
@@ -4208,7 +4217,8 @@
       },
       "source_sha256": "669595c2606c03b6fa267ea3975df55a5d75b076fd15e9356c25cbbf308fd025",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Mukyu! It huwts!"
     },
@@ -31037,7 +31047,8 @@
       },
       "source_sha256": "8a4d8669edd875ebff14e8a3f103babbb5f18e42b81c54c06f5f360a669291ec",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It huwts!"
     },
@@ -31060,7 +31071,8 @@
       },
       "source_sha256": "e28c334f24e9bd905a97e9a8eb45c29c9c407a84de962304bb21f49fb8f0d705",
       "events": [
-        "afraid"
+        "afraid",
+        "hurt_flee"
       ],
       "english": "Yupeee! It's scawy!"
     },
@@ -31360,7 +31372,8 @@
       },
       "source_sha256": "8a4d8669edd875ebff14e8a3f103babbb5f18e42b81c54c06f5f360a669291ec",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It huwts!"
     },
@@ -31383,7 +31396,8 @@
       },
       "source_sha256": "0b0fb2833f77f09ea02a7c399b72368877fa3f4c03f7f72deef281435f8cf98a",
       "events": [
-        "afraid"
+        "afraid",
+        "hurt_flee"
       ],
       "english": "Yupeee! It's scawy!"
     },
@@ -31613,7 +31627,8 @@
       },
       "source_sha256": "ce7485686287b831ef206516f537325c4ec04fde834abe1a6907c1d40a0aa370",
       "events": [
-        "afraid"
+        "afraid",
+        "hurt_flee"
       ],
       "english": "Yupeee! I'm scared!"
     },
@@ -31821,7 +31836,8 @@
       },
       "source_sha256": "f9247684de399501f6201e8dea11b4894046b0cf89089ede1d0674a997c7694c",
       "events": [
-        "afraid"
+        "afraid",
+        "hurt_flee"
       ],
       "english": "Yupeee! I'm scared!"
     },
@@ -32052,7 +32068,8 @@
       },
       "source_sha256": "79fa999715021680e11f249021a50a2928992c406176cd50ead066ca7551e282",
       "events": [
-        "wounded"
+        "wounded",
+        "hurt_flee"
       ],
       "english": "Yunyaaa! It hurts!"
     },
@@ -32075,7 +32092,8 @@
       },
       "source_sha256": "69f043e91f52c9f1da5e9532345ad120f4fc5c1362aabc5b528a071c87c31df2",
       "events": [
-        "afraid"
+        "afraid",
+        "hurt_flee"
       ],
       "english": "Yupeee! I'm scared!"
     },
