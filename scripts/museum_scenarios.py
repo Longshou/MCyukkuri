@@ -513,11 +513,12 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
 
 _rubbish_stock = [('minecraft:apple', 1), ('minecraft:paper', 2), ('minecraft:stick', 2)]
 add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小的放弃', '流浪：翻垃圾桶，撞倒或放弃',
-    '西边两只倒着的桶里有苹果和废纸：看钻进去吃、衔纸走开放下。东边两只立着、装得一样满的桶前，胆大的魔理沙撞倒桶再绕到桶口吃，'
-    '胆小的撞几下推不动就放弃。中间倒着的桶里只有一件垃圾头饰，失饰的低自尊灵梦会直接戴上。立着的桶可右键打开，倒着的右键扶起。',
+    '西边两只立着的桶里只有一个苹果或一张废纸，桶轻，胆大的灵梦撞一两下就倒，再钻进桶口吃、衔纸走开放下。东边两只立着、装得一样满的桶前，'
+    '胆大的魔理沙撞倒桶再绕到桶口吃，胆小的撞几下推不动就放弃。中间倒着的桶里只有一件垃圾头饰（胆小的失饰者撞不动桶，所以它一开始就倒着），'
+    '失饰的低自尊灵梦会直接戴上。立着的桶可右键打开，倒着的右键扶起。',
     '约半分钟', [
-        *garbage_bin(-12, -1, [('minecraft:apple', 1)], True),
-        *garbage_bin(-26, -1, [('minecraft:paper', 1)], True),
+        *garbage_bin(-12, -1, [('minecraft:apple', 1)], False),
+        *garbage_bin(-26, -1, [('minecraft:paper', 1)], False),
         *garbage_bin(0, -1, [('mcyukkuri:junk_headwear', 1)], True),
         *garbage_bin(12, -1, _rubbish_stock, False),
         *garbage_bin(26, -1, _rubbish_stock, False),

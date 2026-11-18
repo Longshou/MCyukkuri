@@ -127,6 +127,19 @@ def tipped():
             | {'particle': tex('side')}, 'elements': [body, *ribs, cover, *spill]}
 
 
+# A ram that does not knock the bin over rocks it (project design, user 2026-11-17 feedback 25): the whole upright can leans
+# `degrees` toward `toward` on its bottom edge on that side (NeoForge root transform, applied before the blockstate turn), so a
+# strong shove (push close to the load) leans it far, a weak one a little, and it rocks back a little past upright as it settles.
+ROCK_DEGREES = {'strong': 12, 'weak': 6, 'settle': 3}
+ROCK_EDGE = {'south': ('x', 1, [.5, 0, 14 / 16]), 'north': ('x', -1, [.5, 0, 2 / 16]),
+             'east': ('z', -1, [14 / 16, 0, .5]), 'west': ('z', 1, [2 / 16, 0, .5])}
+
+
+def rocked(toward, degrees):
+    axis, sign, origin = ROCK_EDGE[toward]
+    return {'parent': 'mcyukkuri:block/garbage_bin', 'transform': {'rotation': {axis: sign * degrees}, 'origin': origin}}
+
+
 def outputs():
     files = {}
     for name, (painter, seed) in TEXTURES.items():
@@ -134,6 +147,9 @@ def outputs():
     js = lambda d: (json.dumps(d, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
     files[ASSETS / 'models/block/garbage_bin.json'] = js(upright())
     files[ASSETS / 'models/block/garbage_bin_tipped.json'] = js(tipped())
+    for toward in ROCK_EDGE:
+        for size, degrees in ROCK_DEGREES.items():
+            files[ASSETS / f'models/block/garbage_bin_rock_{toward}_{size}.json'] = js(rocked(toward, degrees))
     turn = {'south': 0, 'west': 90, 'north': 180, 'east': 270}
     files[ASSETS / 'blockstates/garbage_bin.json'] = js({'variants': {
         f'facing={d},tipped={str(t).lower()}': {'model': 'mcyukkuri:block/garbage_bin' + ('_tipped' if t else ''), **({'y': y} if y else {})}

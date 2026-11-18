@@ -8,7 +8,8 @@ swings out wide and down, so it never retraces the way up (a recipe `mirror` sti
 
 A key (`braid_keys`: [t, "rest"] or [t, {"tip", "root", "arrive"}], then "stop" and/or "turn") gives the tuft end (the
 farthest tuft vertex, where the young sits) and two directions in the model frame at that moment: the braid leaves its root
-along `root` and reaches the tip coming from `arrive`. The chain is laid along a cubic Bezier guide through them, every segment
+along `root` and reaches the tip coming from `arrive`. A clip with `braid_frame: "body"` gives its keys in the body's own
+rest frame instead (they turn and lean with the root track), for clips whose body turns while the braid works before it. The chain is laid along a cubic Bezier guide through them, every segment
 keeping its authored length, the guide's handles scaled until the last joint lands on the tip. Between keys the tip and both
 directions follow C1 cubics with Catmull-Rom tangents, zero only at keys marked "stop" (holds, the ends), and the chain is laid
 again on every sample, so the braid passes its other keys without stopping, turning back or re-folding.
@@ -17,7 +18,8 @@ A key marked "turn" is reached by turning the chain bones from the key before's 
 Between the hanging rest and a raised pose the braid has slack the guide can only take up by folding back on itself, and a
 chain laid on such a fold kinks and jumps from sample to sample (seen as the braid spinning round as it rises). Off rest the
 tuft leads and the root follows (`LEAD`), so the tuft curls up close beside her before the braid lifts; onto rest the root
-leads, the same curl played back.
+leads, the same curl played back. A key also marked "swap_lead" swaps the two (root first off rest, tuft first onto rest), for a braid that
+reaches out low beside her rather than curling up.
 
 The exported clip carries `tip`: the tuft end per sample from the exported tracks' own forward kinematics, which is where
 the game seats the young (family/ParentCarry). `gate` checks every sample: braid against her body skin (beyond its rest
@@ -176,8 +178,11 @@ def tracks(model, name, c, samples, root_tracks, palette):
     rest = {'tip': chain.rest[-1], 'root': chain.rest[1]-chain.rest[0], 'arrive': chain.rest[-2]-chain.rest[-1]}
     keys = c['braid_keys']; times = [k[0] for k in keys]; stops = ['stop' in k[2:] for k in keys]
     specs = [rest if k[1] == 'rest' else {f: np.asarray(v, float) for f, v in k[1].items()} for k in keys]
+    body = c.get('braid_frame') == 'body'  # keys in the body's own rest frame, turning and leaning with the root
+    root = next(i for i, b in enumerate(model['bones']) if b['name'] == 'root')
     def lay(spec, t, frame):
-        inv = np.linalg.inv(palette(model, own, t)[parent]) if frame else np.eye(4)
+        M = palette(model, own, t) if frame else None
+        inv = np.linalg.inv(M[parent])@(M[root] if body else np.eye(4)) if frame else np.eye(4)
         tip = (inv@np.r_[spec['tip'], 1])[:3]; dirs = [inv[:3, :3]@spec[f] for f in ('root', 'arrive')]
         return np.array([rotvec(R) for R in braid_chain.rotations(chain.rest, chain.lay(tip, *dirs))])
     # The rest guide is laid in the chain's own rest frame; its offset from the true rest eases out away from each rest key.
@@ -194,7 +199,7 @@ def tracks(model, name, c, samples, root_tracks, palette):
         j = next((j for j in ends if times[j-1] < u <= times[j]), None)
         if j is None: return laid(u)
         s = (u-times[j-1])/(times[j]-times[j-1])
-        return np.array([rotvec(R) for R in turned(*ends[j], s, keys[j-1][1] == 'rest')])
+        return np.array([rotvec(R) for R in turned(*ends[j], s, (keys[j-1][1] == 'rest') != ('swap_lead' in keys[j][2:]))])
     rows, last = {b: [] for b in chain.bones}, {}
     for t in samples:
         v = pose(at(t))
@@ -277,13 +282,13 @@ def gate(model, name, samples, all_tracks, tip, c, palette):
     for t, row in zip(samples, tip):
         P, S = skin(palette(model, all_tracks, t)); B = P[braid]
         note('braid_body', (-_closest(B, S)-base).max(), t)
-        note('braid_hat', max(depth(B, P[h]).max() for h in hats), t)
+        note('braid_hat', max((depth(B, P[h]).max() for h in hats), default=-math.inf), t)  # a hatless form (tsumuri)
         note('braid_floor', -B[:, 1].min(), t)
         if ride[0] <= t <= ride[1]:
             for r, h in YOUNG:
                 Y = cylinder(np.array(row[1:]), r, h)
                 note('young_body', -_closest(Y, S).min(), t)
-                note('young_hat', max(depth(Y, P[q]).max() for q in hats), t)
+                note('young_hat', max((depth(Y, P[q]).max() for q in hats), default=-math.inf), t)
     print(f'  {name}: '+', '.join(f'{k} {v[0]:+.2f}@{v[1]:.2f}' for k, v in worst.items()), flush=True)
     continuity(model, name, all_tracks)
     bad = {k: v for k, v in worst.items() if v[0] > TOUCH}

@@ -142,6 +142,17 @@ def state(action, t, c, height):
         r = [c['pitch']*lean, c['twist']*drag, c['roll']*lean]
         s = squash(.5*drag, .05, .08, .03)
         shift[1] = -c['reach']*height*(lean-drag)
+    elif action == 'braid_eat':
+        # Braid to mouth (recipe lore): turn the braid side toward the food and lean in while the tuft curls onto it (pick), turn
+        # back as it swings the food up before the face (lift) to the lips (mouth), a small chomp, then settle on eat's first pose.
+        m = c['markers']; P, L, M = m['pick'], m['lift'], m['mouth']
+        turn = keyed(t, [(0, 0), (P-.1, 1), (L, 1), (M-.1, .12), (d, 0)])
+        lean = keyed(t, [(0, 0), (P-.1, 1), (L, 1), (M-.15, 0)])
+        r = [keyed(t, [(0, 0), (P-.1, c['reach_pitch']), (L, c['reach_pitch']), (M-.15, -2), (M, c['bite_pitch']), (d, c['end_lean'])]),
+             c['yaw']*turn, c['roll']*lean]
+        effort = bump((t-(P-.2))/.45) if P-.2 <= t <= P+.25 else 0.
+        chomp = bump((t-(M-.05))/.3) if M-.05 <= t <= M+.25 else 0.
+        s = squash(effort, .02, .04, .02); s = times(s, squash(chomp, .015, .03, .015))
     elif action == 'paper_pull':
         # Bow to bite a folded sheet corner, brace with small loosening yaw twists, yank back on `tug` and settle upright.
         # Marisa's braid keys (braid_keys.py) press the bundle steady during the tug and return to rest.

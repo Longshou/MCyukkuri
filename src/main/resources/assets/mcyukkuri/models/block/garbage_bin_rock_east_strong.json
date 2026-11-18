@@ -1,0 +1,13 @@
+{
+  "parent": "mcyukkuri:block/garbage_bin",
+  "transform": {
+    "rotation": {
+      "z": -12
+    },
+    "origin": [
+      0.875,
+      0,
+      0.5
+    ]
+  }
+}
