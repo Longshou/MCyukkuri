@@ -535,7 +535,7 @@ add('stray_rubbish', 'forage', '流浪：翻垃圾桶，胆大的撞倒、胆小
         street_stray('stray_rubbish', 'marisa', 26, 3, 'bold_stray', nutrition=24, boldness=90, label='胆大的'),
     ], env=DAY, spot='street', vantage=(0, 12),
     capture=dict(shots=(35,), sequences=((40, 255, 2), (260, 420, 5)),
-                 views={'': dict(position=(23.9, .95, -.7), look_at=(26.4, .5, -.6),
+                 views={'': dict(position=(23.6, 1.0, -1.5), look_at=(26.4, .5, -.9),
                                   criteria='从侧面看冲到桶面、桶晃和倒下，再看辫梢取苹果并送到嘴边。')}),
     smoke=dict(ticks=700, forbid=[r'\[forage\][^\n]* garbage ram .*count=4'],
                expect=[r'\[forage\][^\n]* garbage pickup item=[^\n]* food=true',
