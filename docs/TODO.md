@@ -14,7 +14,6 @@
 | 接线：辫子送嘴、撞桶、住家宣言（21/24/25） | `.worktrees/wp-wire-1118` | life/LifeMeal.java settlement/GarbageSearch.java human/GarbageBin* event/HomeClaim.java event/HomeTerritoryGoal.java motions merge |
 | 街道宠物②：公园游玩与歇脚（14） | `.worktrees/wp-street-pets-2` | human/HumanStreet.java human/HumanWalk.java play/PlayLife.java park authoring |
 | 补美术：闪亮眼表情、翻垃圾桶嗅探与探头动作 | `.worktrees/wp-art-1118b` | expressions sparkle, motions bin_sniff bin_nose_in |
-| 橙贴墙尾巴上卷看得出 | `.worktrees/wp-art-chen-tail-tuck` | client tail tuck pose, Chen tail |
 
 ## 玩法待办
 
