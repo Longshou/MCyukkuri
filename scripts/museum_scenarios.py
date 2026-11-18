@@ -1820,7 +1820,7 @@ add('forage_empty','weather','没粮的饿灵梦四处找吃的','没粮的饿�
     env=DAY,spot='pred',give=['minecraft:apple 3'],reads=[('读主动寻粮',f'yukkuri status {sel("seeker")} raw')])
 
 add('shared_body','weather','普通种与捕食种同一身体结构','普通种与捕食种同一身体结构',
-    '同一主人的宠物普通魔理沙、蕾米莉亚、弗兰共用身体结构。绕到背面看油菊；按钮对照佩妮佩妮和马姆马姆伸缩，再看通用行走。伸缩仍互斥，默认收回；动作片段只验素材，不代表行为成功',
+    '同一主人的宠物普通魔理沙、蕾米莉亚、弗兰共用身体结构。绕到背面看油菊；按钮对照佩妮佩妮和马姆马姆伸缩，再看通用行走。伸缩仍互斥，默认收回；这里只验素材，不代表行为成功',
     '手动切换观察',[
         yk('marisa',-9,0,'ordinary',nutrition=100,also=('sharedbody',),lead=True),
         yk('marisa',-3,0,'second',nutrition=100,also=('sharedbody',)),
@@ -2785,9 +2785,6 @@ add(_kin_boxes, 'plant', '母子隔箱', '母子隔箱',
     ], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'minecraft:diamond_pickaxe', 'mcyukkuri:sweet_candy 3'],
     env=DAY, vantage=(_plant_x - 2, _plant_z + 19, 90, 15, 2),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _kin_cast])
-
-# ====================================================================================================== clips (buttons are built in build_museum_full.py)
-
 
 # Adult state demonstrations only set saved starting state; the normal server AI owns the rest.
 def agitation_start(phase):

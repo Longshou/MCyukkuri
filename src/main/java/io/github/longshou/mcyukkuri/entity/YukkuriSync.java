@@ -190,6 +190,7 @@ final class YukkuriSync {
     void syncBodyYaw(float yaw) { setChanged(BODY_YAW, yaw); }
     int subspeciesFlags() { return owner.getEntityData().get(SUBSPECIES); }
     void syncSubspecies(int flags) { if (!owner.level().isClientSide) owner.getEntityData().set(SUBSPECIES, flags); }
+    void previewSubspecies(int flags){owner.getEntityData().set(SUBSPECIES,flags);}
     ItemStack getCarriedItem(){return owner.getEntityData().get(CARRYING);}
     List<BodyWound> visibleMarks(){return marksCache;}
     void syncMarks(CompoundTag marks){if(owner.level().isClientSide)return;owner.getEntityData().set(MARKS,marks);marksCache=Marks.read(marks);}

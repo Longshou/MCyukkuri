@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Server-side sampling of authored face spans; clients only display the synchronized winner. */
+/** Sampling of authored face spans; the server picks the synchronized winner, and the menu preview reads a clip's span at its own clock. */
 public final class ExpressionClips {
     private record Span(float start,float end,String face){}
     private record Clip(float duration,boolean loop,List<Span> spans,Set<String> yields){}
@@ -28,6 +28,8 @@ public final class ExpressionClips {
         for(var span:clip.spans)if(time>=span.start&&time<span.end)return span.face;
         return fallback;
     }
+    /** A clip's own face at one second of its clock; the menu preview's face when none is pinned. */
+    public static String authored(String asset,String clip,float seconds){return sample(asset,clip,seconds,"neutral");}
     static String sukkiri(String asset,String action,float elapsed){
         // The excluded body rigs keep their own idle geometry and can display the generic authored faces.
         String source=MODELS.computeIfAbsent(asset,ExpressionClips::load).containsKey(action)?asset:"reimu";

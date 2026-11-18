@@ -26,7 +26,7 @@ DECK_APRON = 10        # field ground south of a deck that the visitor looks ove
 
 # theme groups, in lobby order: (id, title)
 GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
-          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '物种与动作')]
+          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '物种与形态')]
 
 
 def fill(x1, y1, z1, x2, y2, z2, block, mode=''):
@@ -594,12 +594,6 @@ class Plant(Field):
         return [fill(self.x1, GROUND, z - 3, self.x2, GROUND, z - 1, 'minecraft:dirt_path')]
 
 
-# ----------------------------------------------------------------------------------------------- clips
-class Clips(Field):
-    def base(self):
-        return super().base()
-
-
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
@@ -623,6 +617,5 @@ FIELDS = [
     Plant('plant', '加工所', 'human', -600, 700, 26, 27, 'minecraft:plains'),
     Village(384, 512),
     Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐、橙速度、魔理沙相扑'),
-    Clips('clips', '动作片段', 'misc', -300, 500, 18, 10, 'minecraft:plains', ground='minecraft:smooth_quartz', blurb='纯动作片段：身体、表情、体操、合唱'),
 ]
 BY_ID = {f.id: f for f in FIELDS}

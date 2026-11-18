@@ -47,6 +47,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -343,6 +344,8 @@ public final class YukkuriModel {
         careBlend=Math.clamp(progress,0,1);
     }
     private final Map<String, Clip> clips = new HashMap<>();
+    /** The motion clips this model carries, for the menu's clip picker. */
+    public Map<String, Clip> clips(){return Collections.unmodifiableMap(clips);}
     private record ExpressionSpan(float start, float end, String expression) {}
     private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
     /** Server faces that win over a clip's timeline, such as the injury cry. */

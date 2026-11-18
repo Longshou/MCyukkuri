@@ -119,9 +119,15 @@ final class CareInspection {
     /** The real individual's live model fitted into a box (also the shop's live-row portraits). */
     static void drawModel(GuiGraphics g, YukkuriEntity entity, int x, int y, int w, int h,
                                   float yaw, float pitch, float zoom) {
+        drawModel(g, entity, x, y, w, h, yaw, pitch, zoom,
+                Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+    }
+
+    /** The same box on a caller's own partial tick, so the menu can scrub and slow its preview. */
+    static void drawModel(GuiGraphics g, YukkuriEntity entity, int x, int y, int w, int h,
+                                  float yaw, float pitch, float zoom, float partial) {
         var mc = Minecraft.getInstance();
         var renderer = (YukkuriRenderer) mc.getEntityRenderDispatcher().getRenderer(entity);
-        float partial = mc.getTimer().getGameTimeDeltaPartialTick(false);
         float bodyYaw = Mth.rotLerp(partial, entity.previousBodyYaw(), entity.bodyYaw());
         float bodyHeight = entity.getBbHeight();
         // Collision size describes the body. Leave room for Marisa's crown and the wider aquatic brim.

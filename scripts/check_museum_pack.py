@@ -409,7 +409,7 @@ def main():
         museum.validate()
         world = scratch / 'saves' / museum.WORLD
         world.mkdir(parents=True)
-        checks, shown, texts = museum.build_pack(world)
+        checks, texts = museum.build_pack(world)
         for violation in museum_sites.VIOLATIONS:
             findings.append(f'text does not fit: {violation}')
         functions = world / 'datapacks/mcylab/data/mcylab/function'
@@ -454,7 +454,7 @@ def main():
                     for ref in re.findall(r'schedule function mcylab:([\w/]+)', text):
                         if ref not in pack:
                             findings.append(f'{where}: scheduled function mcylab:{ref} does not exist')
-                # a scenario never fixes, freezes or protects its individuals (only the nine clip actors do)
+                # a scenario never fixes, freezes or protects its individuals
                 for banned in ('nest_lint', 'food_scrap', 'settlement assign', 'settlement threat', 'settlement order'):
                     if banned in line:
                         findings.append(f'{where}: retired content ({banned})')
@@ -512,7 +512,7 @@ def main():
         for command in lobby_commands:
             if not re.search(r'run function mcylab:(go/[a-z_]+|guide)$', command):
                 findings.append(f'lobby: a control that is not a teleport or the guide: {command}')
-        for banned in ('util/', 'start/', 'field/', 'scn/', 'read/', 'extra/', 'season/', 'clip/', 'selfcheck'):
+        for banned in ('util/', 'start/', 'field/', 'scn/', 'read/', 'extra/', 'season/', 'selfcheck'):
             if any(banned in c for c in lobby_commands):
                 findings.append(f'lobby: a control that reaches {banned} (time, weather, speed, spawn, clear, reading ...)')
         for need in ('load', 'tick', 'probe', 'outdated', 'util/clear_all'):

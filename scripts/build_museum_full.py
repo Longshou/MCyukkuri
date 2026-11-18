@@ -1,7 +1,7 @@
 """Build the MCyukkuri playground (试玩场), the single in-game test world (Minecraft 1.21.1, NeoForge, Python 3.11+).
 
-Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow,
-motion-clip corner), each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
+Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow),
+each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
 creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every non-player
 entity recorded in its UUID history, including departed and unloaded copies, makes the world records forget what
 the field left behind and rebuilds its terrain, so nothing is ever refused and a scenario starts again from the same state. Minecraft builds the map from the generated data pack on first entry; this script writes the pack,
@@ -40,7 +40,7 @@ ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / '.local/setup/python'))
 sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
-from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
+from museum_actions import ACTION_META  # noqa: E402
 from museum_dsl import _text, _q, yk, OBJ  # noqa: E402
 import museum_fields  # noqa: E402
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, SKY, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
@@ -58,9 +58,6 @@ STAGING = (ROOT / '.local/experimental-map')
 ENV_TIME = {'noon': 'noon', 'dawn': '100', 'dusk': '12500', 'night': 'midnight'}
 SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200), ('20x', 400))
 SPRINTS = (('1分钟', 1200), ('5分钟', 6000), ('20分钟', 24000))
-CLIP_ACTORS = ('reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre', 'house_reimu', 'house_marisa')
-# categories played by the motion-clip corner; family and hat actions are driven by real behaviour in the scenarios
-CLIP_CATEGORIES = ('身体与移动', '日常生活', '交流与情绪', '宠物店与表情', '运输与篮子')
 
 
 def js(value):
@@ -119,35 +116,12 @@ def env_commands(env):
 
 
 # ============================================================================== layout
-def action_ticks(action):
-    """Time a clip needs; looping clips get two cycles so the loop is seen."""
-    seconds, loops = ACTION_META[action]
-    if loops:
-        return max(20, min(200, math.ceil(seconds * 20) * 2))
-    return max(20, math.ceil(seconds * 20))
-
-
-def clip_chains():
-    """[(category, [(action, ticks)])]: the sequence each clip button plays on every cast model that has the clip."""
-    clips, _ = load_clips()
-    out = []
-    for group, entries in CATEGORIES:
-        if group not in CLIP_CATEGORIES:
-            continue
-        out.append((group, [(a, action_ticks(a)) for a, _ in entries if a != 'sleep' and any(a in clips[m] for m in CLIP_ACTORS)]))
-    return out
-
-
 def validate():
-    clips, _ = load_clips()
     ids = set()
     for scenario in museum_scenarios.S:
         assert scenario.id not in ids, scenario.id
         ids.add(scenario.id)
         assert scenario.field in BY_ID, scenario.id
-    for group, seq in clip_chains():
-        for action, _ in seq:
-            assert action in ACTION_META and any(action in clips[m] for m in CLIP_ACTORS), action
     validate_builds()
 
 
@@ -186,7 +160,7 @@ def validate_builds():
 
 
 # ============================================================================== guide book
-def book_command(shown):
+def book_command():
     pages = ['油库里试玩场\n\n一块块开放的真实场地：玩法在里面按普通规则自然运行，没有玻璃罩，没有被固定的演员。\n\n'
              '1 大厅只有传送按钮：按主题分组，每个按钮去一个区的观察台。\n'
              '2 观察台上：落点面向按钮，近处是常用操作，再往里依次是倍速推进、时间天气、场景。红色清场按钮在常用排最右侧，单独隔开。\n'
@@ -209,9 +183,6 @@ def book_command(shown):
     pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、放下的帽子……），之后全由普通 AI 接手。\n'
                  '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签（默认关闭，用观察台按钮开启）：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
                  '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
-    for group, entries in CATEGORIES:
-        for start in range(0, len(entries), 7):
-            pages.append(group + ' · 动作目录\n\n' + '\n'.join(('● ' if a in shown else '○ ') + name for a, name in entries[start:start + 7]) + '\n\n● 动作片段区播放  ○ 仅目录／由真实行为触发')
     items = ','.join(_q(js({'text': page})) for page in pages)
     return 'give @s minecraft:written_book[minecraft:written_book_content={title:"油库里试玩场导览",author:"MCyukkuri",pages:[' + items + ']}]'
 
@@ -369,9 +340,6 @@ def build_pack(world):
                 cancel.append(f'schedule clear {NS}:scn/{scenario.id}_late')
                 for ri, retry in enumerate(r for r in scenario.late if not isinstance(r, str)):
                     cancel += [f'schedule clear {NS}:scn/{scenario.id}_retry{ri}_{k}' for k in range(retry.tries)]
-        if f.id == 'clips':
-            cancel += [f'schedule clear {NS}:clip/{ci}/{i}' for ci, (_, seq) in enumerate(clip_chains()) for i in range(len(seq) + 1)]
-            cancel.append(f'schedule clear {NS}:clip/rest')
         # Java retains every UUID that visited the field, even after capture, death or unloading.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
         sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + cancel + [clear_entities,
@@ -381,8 +349,7 @@ def build_pack(world):
             fn('field/village/reset', sweep)
             village_controls(fn, guarded, f, land)
             continue
-        fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
-           + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
+        fn(f'field/{f.id}/clear', sweep + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
         # Keep manual diagnostic functions available without putting readout buttons on the deck.
         fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
     start_guards = [
@@ -487,7 +454,7 @@ def build_pack(world):
         'tellraw @s ' + museum_scenarios._punishment_click,
     ])
 
-    # extras: the house activity buttons and clips
+    # extras: the house activity buttons and shop tiers
     house = BY_ID['house']
     hx, hz = house.anchor
     for name, caption, hint, lines in (
@@ -503,26 +470,6 @@ def build_pack(world):
             'execute unless entity @e[tag=mcylab_shop_access,limit=1] run title @s actionbar ' + _text('请先启动 SP-01、SP-02、SP-03、SP-05、SP-09、SP-10 或 SP-11。', 'yellow'),
         ])
         shop.extras.append((f'extra/shop_{tier}', caption, '设置本场店铺资格'))
-    clips = BY_ID['clips']
-    chains = clip_chains()
-    clip_lookup, _ = load_clips()
-    shown = {'idle'}
-    for ci, (group, seq) in enumerate(chains):
-        for i, (action, length) in enumerate(seq):
-            lines = [f'yukkuri action @e[tag=scn_{m}] {action}' for m in CLIP_ACTORS if action in clip_lookup[m]]
-            shown.add(action)
-            lines.append(f'schedule function {NS}:clip/{ci}/{i + 1} {length}t replace')
-            fn(f'clip/{ci}/{i}', lines)
-        fn(f'clip/{ci}/{len(seq)}', ['yukkuri action @e[tag=scn_clip_actor] idle'])
-        clips.extras.append((f'clip/{ci}/0', group, f'{len(seq)} 个动作'))
-    fn('clip/chorus', ['yukkuri action @e[tag=scn_clip_actor] sing', f'schedule function {NS}:clip/rest 120t replace'])
-    fn('clip/taiso', ['yukkuri action @e[tag=scn_clip_actor] taiso', f'schedule function {NS}:clip/rest 200t replace'])
-    fn('clip/rest', ['yukkuri action @e[tag=scn_clip_actor] idle'])
-    clips.extras += [('clip/chorus', '全体合唱', '每只都唱'), ('clip/taiso', '全体体操', '广播体操')]
-    # the only fixed individuals of the playground: nine clip actors that merely play motion clips
-    cast = [f'execute positioned {clips.cx - 16 + 4 * i} {FEET} {clips.cz - 2} run ' + yk(model, 0, 0, model, yaw=0, also=('clip_actor',), extra='NoAI:1b,Invulnerable:1b')
-            for i, model in enumerate(CLIP_ACTORS)]
-    fn('clip/cast', ['kill @e[tag=scn_clip_actor]'] + cast)
 
     # ---------------------------------------------------------------- utilities
     for tag_, command, text in (('dawn', 'time set 100', '清晨'), ('noon', 'time set noon', '正午'), ('dusk', 'time set 12500', '黄昏'), ('night', 'time set midnight', '夜晚')):
@@ -562,7 +509,7 @@ def build_pack(world):
         'tellraw @a ' + _text('全部清场：正在加载各场地（约 3 秒）……', 'yellow'),
     ] + loads + [f'schedule function {NS}:util/clear_all_do 3s replace'])
     fn('home', [f'function {NS}:go/lobby'])
-    fn('guide', [book_command(shown)])
+    fn('guide', [book_command()])
 
     # ---------------------------------------------------------------- teleports
     fn('go/lobby', [f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0',
@@ -576,7 +523,7 @@ def build_pack(world):
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
     fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
-                   'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。按 M 打开查看菜单：待看项一键前往并开始。', 'aqua')])
+                   'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。按 M 打开查看菜单：待看、动作、表情。', 'aqua')])
     shapes, blocks, items, entities = probe_lines([line for lines in texts.values() for line in lines])
     probes = {'commands': ['yukkuri clear air 0 64 0 0 64 0'] + [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],
               'blocks': [f'setblock 0 -64 0 {b}' for b in blocks], 'items': [f'give @s {i}' for i in items],
@@ -628,8 +575,6 @@ def build_pack(world):
         lines += [f'fill {x1} {GROUND} {z1} {x2} {DECK_TOP - 4} {z2} minecraft:oak_planks'] + deck_lines
         lines += field_deck_controls(f, land)
         lines += field_gate(f)
-        if f.id == 'clips':
-            lines.append(f'function {NS}:clip/cast')
         lines += [f'forceload remove {x} {z}' for x, z in chunks]
         fn(f'build/field_{f.id}_do', guarded(f'build/field_{f.id}_do', set(chunks), lines + [f'schedule function {NS}:{following} 1s replace']))
     fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:util/tag_fields', 'say MCYMUSEUM_BUILD_COMPLETE',
@@ -646,8 +591,7 @@ def build_pack(world):
               f'execute unless score #controls {OBJ} = #seen {OBJ} run tellraw @a ' + _text('有按钮缺失：建场尚未完成，或被后来的方块覆盖。', 'red'),
               f'execute if score #controls {OBJ} = #seen {OBJ} run tellraw @a ' + _text('已加载的按钮齐全。', 'green')]
     fn('selfcheck', check)
-    return dict(controls=n_controls, fields=len(FIELDS), scenarios=len(museum_scenarios.S), functions=len(names), texts=len(museum_sites.TEXTS),
-                shown=sorted(shown)), shown, texts
+    return dict(controls=n_controls, fields=len(FIELDS), scenarios=len(museum_scenarios.S), functions=len(names), texts=len(museum_sites.TEXTS)), texts
 
 
 def field_deck_controls(f, land):
@@ -866,7 +810,7 @@ def main():
         serverconfig = world / 'serverconfig'
         serverconfig.mkdir(parents=True, exist_ok=True)
         (serverconfig / 'mcyukkuri-server.toml').write_text('[debug]\nentitySaveViews = true\n', encoding='utf-8')
-    checks, shown, _ = build_pack(world)
+    checks, _ = build_pack(world)
     if museum_sites.VIOLATIONS:
         for violation in museum_sites.VIOLATIONS:
             print('TEXT DOES NOT FIT', violation, file=sys.stderr)
@@ -874,7 +818,7 @@ def main():
     manifest = {'world': str(final / 'saves' / WORLD), 'minecraft': '1.21.1', 'inputs_sha256': inputs_sha256(),
                 'fields': [{'id': f.id, 'title': f.title, 'centre': [f.cx, f.cz], 'half': [f.hx, f.hz], 'biome': f.biome, 'anchor': list(f.anchor),
                             'scenarios': [s.id for s in f.scenarios]} for f in FIELDS],
-                'registered_actions': len(ACTION_META), 'clip_actions': sorted(shown), 'checks': {k: v for k, v in checks.items() if k != 'shown'}}
+                'registered_actions': len(ACTION_META), 'checks': checks}
     (out / 'map-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     if not args.pack_only:
         (out / 'options.txt').write_text('lang:zh_cn\nguiScale:0\nrenderDistance:10\nsimulationDistance:8\nmaxFps:120\nonboardAccessibility:false\nautoJump:false\n'
@@ -885,7 +829,7 @@ def main():
         out.rename(final)
         out = final
     print(json.dumps({'output': str(out), 'fields': len(FIELDS), 'scenarios': len(museum_scenarios.S), 'registered_actions': len(ACTION_META),
-                      'clip_actions': len(shown), **{k: v for k, v in checks.items() if k != 'shown'}}, ensure_ascii=False))
+                      **checks}, ensure_ascii=False))
 
 
 if __name__ == '__main__':

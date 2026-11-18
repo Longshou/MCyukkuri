@@ -607,6 +607,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     public int subspeciesFlags() { return sync().subspeciesFlags(); }
     public void syncSubspecies(int flags) { sync().syncSubspecies(flags); }
+    /** Menu preview subject only; never added to a level. */
+    public void preview(int flags, String clip, long start, String face) {
+        if (!level().isClientSide) throw new IllegalStateException("Preview subject is client-only");
+        sync().previewSubspecies(flags);
+        sync().animationId(clip);
+        sync().animationStart(start);
+        sync().expression(face);
+    }
     public SettlementLife settlement() { return settlement; }
     /** The leaf swaddle on a child and its parents' care for it (docs/FEATURES.md). */
     public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }

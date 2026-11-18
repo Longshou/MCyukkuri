@@ -97,7 +97,7 @@ def build_pack(builder, pack_root, layout=False):
     builder.validate()
     world = pack_root / 'saves' / builder.WORLD
     world.mkdir(parents=True, exist_ok=False)
-    checks, shown, _ = builder.build_pack(world)
+    checks = builder.build_pack(world)[0]
     pack = world / 'datapacks' / builder.NS
     if not layout:
         observation = pack / 'data' / builder.NS / 'function/observe'
@@ -151,8 +151,7 @@ def build_pack(builder, pack_root, layout=False):
     if builder.museum_sites.VIOLATIONS:
         raise ValueError(f'Text displays do not fit: {builder.museum_sites.VIOLATIONS}')
     print(json.dumps({'output': str(pack_root), 'fields': len(builder.FIELDS),
-                      'scenarios': len(builder.museum_scenarios.S), 'clip_actions': len(shown),
-                      **{key: value for key, value in checks.items() if key != 'shown'}}, ensure_ascii=False), flush=True)
+                      'scenarios': len(builder.museum_scenarios.S), **checks}, ensure_ascii=False), flush=True)
     return pack
 
 

@@ -145,7 +145,7 @@ def outputs(bases=False):
     shared = set.intersection(*(set(m['selectable']) for m in models.values()))
     assert all(a == b['frames'][0] and set(b['frames']) <= shared and len(b['frame_ticks']) == len(b['frames']) >= 2
                and all(t > 0 for t in b['frame_ticks']) for a,b in animations.items())
-    files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases={**index['aliases'],**selection['aliases']},animations=animations,models=models,face_fallback=selection['face_fallback']))
+    files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases={**index['aliases'],**selection['aliases']},animations=animations,models=models,labels={n:[p['group'],p['label']] for n,p in faces.items()},face_fallback=selection['face_fallback']))
     ledger = read(ROOT/'art/runtime-sources.json')
     ledger['face_library'] = dict(selection='standards/yukkuri-library/expressions/runtime.json',
         exporter='scripts/export_ecology_expressions.py', helper='scripts/runtime_face_library.py',

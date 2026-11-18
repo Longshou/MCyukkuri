@@ -18,6 +18,7 @@ final class FaceLibrary {
     private static JsonObject data;
     private static Map<String, Set<String>> selectable;
     private static Map<String, Integer> cycles;
+    private static Map<String, String> labels;
 
     static JsonObject reload(ResourceManager manager) {
         try (var reader = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/face_library.json")).openAsReader()) {
@@ -35,12 +36,24 @@ final class FaceLibrary {
                 for (var frame : animation.getValue().getAsJsonObject().getAsJsonArray("frame_ticks")) cycle += frame.getAsInt();
                 durations.put(animation.getKey(), cycle);
             }
+            var names = new HashMap<String, String>();
+            for (var label : library.getAsJsonObject("labels").entrySet()) {
+                var pair = label.getValue().getAsJsonArray();
+                names.put(label.getKey(), pair.get(0).getAsString() + " · " + pair.get(1).getAsString());
+            }
             selectable = faces;
             cycles = durations;
+            labels = names;
             data = library;
             return models;
         } catch (IOException error) { throw new UncheckedIOException("Cannot load face library", error); }
     }
+
+    /** Faces one form can wear, for the menu's picker. */
+    static Set<String> selectable(String asset) { return selectable.get(asset); }
+
+    /** `组 · 名` for a face with a preset; a legacy face keeps its raw id. */
+    static String label(String face) { return labels.getOrDefault(face, face); }
 
     static String expression(YukkuriView entity, String expression) {
         var aliases = data.getAsJsonObject("aliases");

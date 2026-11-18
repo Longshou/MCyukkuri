@@ -44,7 +44,7 @@
   - 补审修复：已接入待试玩（商店里的货箱与托盘归统一保护门、漏斗不超容、抬高托盘连台阶掉落 [e3c259560](https://github.com/Longshou/MCyukkuri/commit/e3c259560)；帕秋莉咳嗽不再被吞咽盖住 [c7cb3cc7e](https://github.com/Longshou/MCyukkuri/commit/c7cb3cc7e)；魔理沙难过甩辫加强 [044372a59](https://github.com/Longshou/MCyukkuri/commit/044372a59)；贴身蹭先并排再贴、按体型与台阶高差对位，芙兰与蕾米莉亚无视转身收到 54° 免翅膀扫墙，徽章眼红改用无视转身露出嫉妒脸 [e905dc3fe](https://github.com/Longshou/MCyukkuri/commit/e905dc3fe)；草地 `meet`、徽章 `badge`、商店 `oni_shop`）。
   - 翅膀、辫子、头发、猫尾贴墙收拢：复测失败（见 11-17 晚试玩反馈）（[ad4737b34](https://github.com/Longshou/MCyukkuri/commit/ad4737b34)，运行版本 [29ce00a44](https://github.com/Longshou/MCyukkuri/commit/29ce00a44)；不理会转身上限 54° 取消、改 78°）；野外场 FG-08／FG-09 看魔理沙贴墙与箱内的辫子和头发，蕾米莉亚／芙兰靠墙转身与「不理会」时翅膀向下收拢，橙背靠墙时尾巴上卷；会馆徽章眼红时两只有翼种的嫉妒脸是否仍读得出。
   - 四个已做未调用的动作接上：已接入待试玩（[1d76ce63b](https://github.com/Longshou/MCyukkuri/commit/1d76ce63b)）；地上捡物改播叼起动作（不再是水生魔理沙的帽冠取粮）、口对口递食 `offer_bite`、亲油看护会划水的落水幼体时安抚、帽船采粮叼到入仓动作松口才进粮袋；帽船 PD 场景与善意分食。
-  - 打喷嚏三版：博物馆「动作片段」→「日常生活」→ 打喷嚏 A／B／C（[ec32ba703](https://github.com/Longshou/MCyukkuri/commit/ec32ba703)，仅动作片段，未接入行为）；用户选一版留用，其余删除。
+  - 打喷嚏三版：查看菜单（M）「动作」→「日常生活」→ 打喷嚏 A／B／C（[ec32ba703](https://github.com/Longshou/MCyukkuri/commit/ec32ba703)，仅动作片段，未接入行为）；用户选一版留用，其余删除。
   - 流浪偷摊货：已接入待试玩（[b3acba32e](https://github.com/Longshou/MCyukkuri/commit/b3acba32e)；集市西端胡萝卜箱降一格可叼，饿而胆大的流浪趁摊主不看偷一根，摊主看见按态度摆手／喝斥并记一阵、不再喂它；摊货玩家可补，不自动补货）；街道 TN-32「流浪油在摊前偷胡萝卜」；看谨慎者等转身、莽者直冲、箱沿叼取姿态（复用 `paper_pull`）。
   后续（均未做）：
   - 大小不一或有台阶的贴身蹭没有专门场景，靠试玩看。
