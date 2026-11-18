@@ -787,6 +787,13 @@
             "*_spawn_egg",
             "field_notebook"
           ]
+        },
+        {
+          "id": "viewer-menu",
+          "label": "动作与表情查看器目录",
+          "ids": [
+            "viewer_catalog"
+          ]
         }
       ]
     },
