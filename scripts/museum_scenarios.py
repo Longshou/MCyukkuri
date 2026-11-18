@@ -571,7 +571,6 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
                commands=[(1, block(-5, 0, -2, 'mcyukkuri:cardboard_shelter[facing=south,part=6]')),
                          (1, block(-3, 1, 0, 'mcyukkuri:cardboard_shelter[facing=south,part=43]')),
                          (1, 'data merge block ~-4 ~ ~-1 {Condition:0,Lining:1,FoundBedding:[{id:"minecraft:wheat",count:1}]}'),
-                         (1, f'tp {sel("rain_stray")} ~-4.3125 ~ ~-0.5'),
                          (140, 'execute if block ~-5 ~ ~-2 minecraft:air if block ~-3 ~1 ~ minecraft:air '
                                'if data block ~-4 ~ ~-1 {Condition:100,Lining:1} run say CARTON_LEGACY_RETAINED'),
                          (1120, 'execute positioned ~-3.5 ~ ~-0.5 '
