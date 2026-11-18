@@ -468,11 +468,13 @@ _TUCK_ROW = (('marisa', 7, 'tuck_marisa', '魔理沙：辫子'), ('reimu', 5, 't
 
 def _tuck_body(kind, x, name, label):
     # Prey at 30 still wants the second apple after the first (+20, LifeMeal FULL - 20 = 55). A predator takes loose food before
-    # hunting (PredatorLife scavenge) and at boldness 0 wants to hunt only below 45, so at 50 it eats both apples and hunts nobody.
+    # hunting (PredatorLife scavenge) and at boldness 0 wants to hunt only below 45, so at 50 it eats both apples and hunts nobody;
+    # at energy 40 (patrol needs above 45) it walks to its food and stays on the ground instead of flying a patrol over the screen.
     predator = kind in ('remilia', 'flandre')
     backed = name == 'tuck_chen'
     return yk(kind, x, 2 if backed else -1, name, uuid=uid('wall_tuck', name), label=label, yaw=180 if backed else 0,
-              lead=name == 'tuck_marisa', nutrition=50 if predator else 30, boldness=0 if predator else 55, social_wait=6000)
+              lead=name == 'tuck_marisa', nutrition=50 if predator else 30, boldness=0 if predator else 55,
+              energy=40 if predator else 95, social_wait=6000)
 
 
 add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收拢：辫子、翅膀、尾巴',
@@ -480,13 +482,13 @@ add('wall_tuck', 'forage', '贴墙收拢：辫子、翅膀、尾巴', '贴墙收
     '橙一开始就背靠槽底吃苹果，两条尾巴向上卷。吃完转身走出槽口去吃外面的第二个苹果时各自复原。最右边空地上的蕾米莉亚走同样的路，翅膀一直张开，作对照。',
     '约 10–20 秒', [
         box(-7, 0, 3, 8, 1, 3, 'minecraft:stone_bricks'),
-        box(0, 0, -8, 0, 1, 2, 'minecraft:stone_bricks'),
+        box(0, 0, -12, 0, 1, 2, 'minecraft:stone_bricks'),
         *[box(x, 0, 0, x, 1, 2, 'minecraft:glass') for x in (2, 4, 6, 8, -3, -5, -7)],
         *[_tuck_body(*entry) for entry in _TUCK_ROW],
         # Chen eats from where it stands: its apple lies just ahead of it, so its eating stand keeps its back at the back wall.
-        *[item('minecraft:apple', 1, x, 1.75 if name == 'tuck_chen' else 2, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
-        *[item('minecraft:apple', 1, x, -3, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
-    env=DAY, spot='wall_tuck', vantage=(0, -6, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
+        *[item('minecraft:apple', 1, x, 1.55 if name == 'tuck_chen' else 2, f'{name}_inner') for _, x, name, _ in _TUCK_ROW],
+        *[item('minecraft:apple', 1, x, -5, f'{name}_outer') for _, x, name, _ in _TUCK_ROW]],
+    env=DAY, spot='wall_tuck', vantage=(0, -7, 0, 30), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 500), sequences=((2, 360, 4),), observe=False,
                  views={'': {}, 'locks': dict(position=(5.5, 1.5, -1), look_at=(5.5, .3, 2.2)),
                         'wings': dict(position=(-4.5, 1.5, -1), look_at=(-4.5, .3, 2.2))}),
