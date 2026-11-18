@@ -14,6 +14,7 @@
 | 贴墙收拢演示场景（26） | `.worktrees/wp-wall-tuck-demo` | scripts/museum_scenarios.py new scene, museum_scene_numbers.json |
 | 甜化箱演示看得懂、大头针可拔出（2） | `.worktrees/wp-sweetbox-demo` | human/PlantSweetening.java interaction/OperationLife.java factory_sweet_box scene |
 | 舌肥分级进食反应（22） | `.worktrees/wp-picky-reactions` | life/LifeMeal.java picky reactions, graze scene |
+| 商店布景：去告示牌、铁门缝、货架遮盖（3/11/12） | `.worktrees/wp-shop-scenery` | shop structures, oni shop layout, goods shelf renderer |
 
 ## 玩法待办
 
