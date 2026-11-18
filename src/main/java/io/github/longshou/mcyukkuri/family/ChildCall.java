@@ -37,6 +37,7 @@ final class ChildCall {
     static final double EARSHOT = 24;
     private final FamilyLife o;
     private Phase phase = Phase.NONE;
+    private boolean beckon;
     private int ticks, rounds;
     /** Parent: the child her rounds count for, the tick her current call began and the earliest tick of the next one. */
     private UUID called;
@@ -71,10 +72,11 @@ final class ChildCall {
     /** The behaviour shown while a phase holds the body, else null. */
     String activity() {
         return switch (phase) {
-            case CALL -> Behaviors.CALL_CHILD;
+            case CALL -> beckon ? Behaviors.BECKON_CHILD : Behaviors.CALL_CHILD;
             case LISTEN -> o.glass().active() ? o.glass().activity() : Behaviors.CALL_LISTEN;
             case DROOP -> Behaviors.CALL_UNANSWERED;
-            case ANSWER -> waitingAtGlass() && ticks>length(Behaviors.ANSWER_CALL) ? glassParent.family().glass().watch() : Behaviors.ANSWER_CALL;
+            case ANSWER -> beckon ? Behaviors.ANSWER_BECKON
+                    : waitingAtGlass() && ticks>length(Behaviors.ANSWER_CALL) ? glassParent.family().glass().watch() : Behaviors.ANSWER_CALL;
             case NONE -> null;
         };
     }
@@ -111,6 +113,50 @@ final class ChildCall {
 
     boolean tickAbsence() {
         return tickSilence();
+    }
+
+    void beginBeckon(YukkuriEntity child) {
+        called = child.getUUID();
+        rounds = 0;
+        nextCall = 0;
+    }
+
+    boolean tickBeckon(YukkuriEntity child) {
+        var e = o.entity();
+        long now = o.level().getGameTime();
+        if (phase == Phase.NONE) {
+            if (now < nextCall || rounds >= rounds(e)) return false;
+            rounds++;
+            phase = Phase.CALL;
+            beckon = true;
+            ticks = 0;
+            callStart = now;
+            boolean spoken = e.speak("caregiver");
+            GameplayLog.event(e, "family", "beckon call child={} round={}/{} spoken={}",
+                    child.getUUID(), rounds, rounds(e), spoken);
+        } else if (++ticks >= length(phase == Phase.CALL ? Behaviors.BECKON_CHILD : Behaviors.CALL_LISTEN)) {
+            if (phase == Phase.CALL) {
+                phase = Phase.LISTEN;
+                ticks = 0;
+            } else {
+                phase = Phase.NONE;
+                beckon = false;
+                nextCall = now + interval(e);
+            }
+        }
+        return beckoning();
+    }
+
+    int beckonRounds() { return rounds; }
+    boolean beckoning() { return audible() && beckon; }
+    boolean answeringBeckon() { return phase == Phase.ANSWER && beckon; }
+    long callStart() { return callStart; }
+
+    void endBeckon() {
+        stop();
+        called = null;
+        rounds = 0;
+        nextCall = 0;
     }
 
     private boolean tickSilence() {
@@ -207,7 +253,7 @@ final class ChildCall {
             var call = parent.family().call();
             if (call.audible() && e.getUUID().equals(call.called) && !answered(id, call.callStart) && e.distanceToSqr(parent) <= EARSHOT * EARSHOT
                     && (!parent.family().glass().callingTo(e) || e.speechEnd()<=o.level().getGameTime())
-                    && !FamilySeparation.near(e, parent) && !e.hasLineOfSight(parent)) return parent;
+                    && (call.beckoning() || !FamilySeparation.near(e, parent) && !e.hasLineOfSight(parent))) return parent;
         }
         return null;
     }
@@ -215,7 +261,9 @@ final class ChildCall {
     /** It answers {@code parent}'s call: turns to her and calls back; {@link #tickAnswer} then hops, and its search walks on. */
     Vec3 answer(YukkuriEntity parent) {
         var e = o.entity();
-        answeredCalls.put(parent.getUUID(), parent.family().call().callStart);
+        var parentCall = parent.family().call();
+        answeredCalls.put(parent.getUUID(), parentCall.callStart);
+        beckon = parentCall.beckoning();
         heardFrom = parent.position();
         var glass=parent.family().glass();
         var previous=glassParent;
@@ -231,9 +279,9 @@ final class ChildCall {
             SurfaceApproach.halt(e);
             turnToward(heardFrom);
         }
-        boolean spoken=e.speak(glassParent==null?"lost_parent":"glass_child_answer");
-        GameplayLog.event(e, "family", "child heard parent call parent={} distance={} heardFrom={}",
-                parent.getUUID(), Math.round(e.distanceTo(parent) * 10) / 10.0, GameplayLog.at(heardFrom));
+        boolean spoken=e.speak(beckon?"caregiver":glassParent==null?"lost_parent":"glass_child_answer");
+        GameplayLog.event(e, "family", "child heard parent call parent={} distance={} heardFrom={} beckon={}",
+                parent.getUUID(), Math.round(e.distanceTo(parent) * 10) / 10.0, GameplayLog.at(heardFrom), beckon);
         if (glassParent!=null) {
             GameplayLog.event(e,"family","glass answer parent={} spoken={}",parent.getUUID(),spoken);
             return e.position();
@@ -247,7 +295,7 @@ final class ChildCall {
     boolean tickAnswer() {
         if (phase != Phase.ANSWER) return false;
         var e = o.entity();
-        if (++ticks <= length(Behaviors.ANSWER_CALL)) return true;
+        if (++ticks <= length(beckon ? Behaviors.ANSWER_BECKON : Behaviors.ANSWER_CALL)) return true;
         if (glassParent!=null) {
             if (!waitingAtGlass()) { stop(); return false; }
             if (!hopped) {
@@ -267,6 +315,7 @@ final class ChildCall {
         }
         if (e.motor().current() instanceof Gesture && e.motor().owner() == body) return true;
         phase = Phase.NONE;
+        beckon = false;
         return false;
     }
 
@@ -278,5 +327,6 @@ final class ChildCall {
         o.entity().motor().cancel(body,"family_call_ended");
         glassParent=null;glassApproach=null;atStand=false;
         phase = Phase.NONE;
+        beckon = false;
     }
 }

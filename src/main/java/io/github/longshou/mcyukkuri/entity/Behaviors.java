@@ -43,6 +43,7 @@ public final class Behaviors {
     public static final String GLASS_WATCH = "glass_watch", GLASS_WATCH_WEARY = "glass_watch_weary";
     /** A child that heard its parent call turns to her and answers. */
     public static final String ANSWER_CALL = "answer_call";
+    public static final String BECKON_CHILD = "beckon_child", ANSWER_BECKON = "answer_beckon";
     public static final String BULLY_PEER = "bully_peer";
     public static final String SELF_DEFENSE = "self_defense";
     public static final String CARE_FINISH = "care_finish";

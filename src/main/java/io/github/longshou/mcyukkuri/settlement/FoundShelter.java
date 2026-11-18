@@ -82,7 +82,7 @@ public final class FoundShelter implements MotorOwner {
     // The mouth and brim can meet inside a much smaller interval than an ordinary walking step.
     private static final double PAPER_CONTACT_STEP = SurfaceApproach.ARRIVAL / 10;
     private static final String BROUGHT_PAPER = "mcyukkuri_brought_paper";
-    private enum Phase { APPROACH, SNIFF, WAIT, PULL_PAPER, ENTER, PLACE_PAPER, DRAPE_CHILD, REST, EXIT, STEP_DOWN }
+    private enum Phase { APPROACH, SNIFF, BECKON, WAIT, PULL_PAPER, ENTER, PLACE_PAPER, DRAPE_CHILD, REST, EXIT, STEP_DOWN }
     public enum Step { ACTIVE, RESTING, ENDED }
 
     private final YukkuriEntity body;
@@ -110,6 +110,7 @@ public final class FoundShelter implements MotorOwner {
     private Action drapeAction;
     private boolean decidedSelfFirst;
     private int babyWaitTicks;
+    private YukkuriEntity beckoned;
     private Vec3 aim;
     private Phase phase;
     private long nextScan, deadline, began;
@@ -1035,8 +1036,9 @@ public final class FoundShelter implements MotorOwner {
         }
         if (phase == Phase.SNIFF) {
             if (now() < deadline) return Step.ACTIVE;
-            return inspect();
+            return beckonOrInspect();
         }
+        if (phase == Phase.BECKON) return tickBeckon();
         if (phase == Phase.APPROACH && body.distanceToSqr(aim) <= SNIFF_REACH * SNIFF_REACH
                 && SurfaceApproach.stands(body, body.position())) return sniff();
         var result = streetSpot != null && !streetStandValid() ? SurfaceApproach.Result.BLOCKED
@@ -1092,6 +1094,40 @@ public final class FoundShelter implements MotorOwner {
         deadline = now() + Math.max(1, ClipMarkers.of(Behaviors.HOUSE_SNIFF).length());
         GameplayLog.event(body, "habitat", "found sniff shelter={}", target());
         return Step.ACTIVE;
+    }
+
+    private Step beckonOrInspect() {
+        var family = body.family();
+        var child = shelter == null || beckoned != null ? null : family.childToBeckon(shelter::contains);
+        if (child == null) return inspect();
+        beckoned = child;
+        int patience = family.beckonPatience();
+        phase = Phase.BECKON;
+        began = now();
+        deadline = began + patience;
+        family.beginBeckon(child);
+        GameplayLog.event(body, "habitat", "found beckon child={} distance={} patience={}",
+                child.getUUID(), body.distanceTo(child), patience);
+        return Step.ACTIVE;
+    }
+
+    private Step tickBeckon() {
+        var family = body.family();
+        if (!beckoned.isAlive() || beckoned.level() != level() || !body.life().canRecognize(beckoned)) {
+            family.endBeckon();
+            return inspect();
+        }
+        if (shelter.contains(beckoned.blockPosition()) || family.beckonAnswered(beckoned) && body.distanceToSqr(beckoned) <= 2.5 * 2.5) {
+            GameplayLog.event(body, "habitat", "found beckon answered child={} after={}", beckoned.getUUID(), now() - began);
+        } else if (now() >= deadline) {
+            GameplayLog.event(body, "habitat", "found beckon unanswered child={} calls={}", beckoned.getUUID(), family.beckonRounds());
+        } else {
+            SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), beckoned.position()));
+            family.beckon(beckoned);
+            return Step.ACTIVE;
+        }
+        family.endBeckon();
+        return inspect();
     }
 
     private Step inspect() {
@@ -1296,6 +1332,8 @@ public final class FoundShelter implements MotorOwner {
 
     public void stop() {
         if (!active()) return;
+        if (phase == Phase.BECKON) body.family().endBeckon();
+        beckoned = null;
         body.motor().cancel(this, "found_cover_ended");
         body.life().releasePaperCover("left_cover");
         if (shelter != null && !shelter.isRemoved() && (exiting() || !shelter.contains(body.blockPosition())))
@@ -1319,6 +1357,10 @@ public final class FoundShelter implements MotorOwner {
             return Behaviors.PAPER_COVER_CHILD;
         if (coverAction != null && body.motor().current() == coverAction) return Behaviors.PAPER_COVER;
         if (phase == Phase.SNIFF) return Behaviors.HOUSE_SNIFF;
+        if (phase == Phase.BECKON) {
+            var call = body.family().callActivity();
+            return call != null ? call : Behaviors.WAIT_CHILD;
+        }
         if (phase == Phase.REST && restingInPlainGap() && body.life().temperature().cold()
                 && !(body.family().stage() == FamilyLife.Stage.BABY && body.life().hasPaperCover()))
             return Behaviors.COLD_SHIVER;

@@ -180,6 +180,26 @@ public final class FamilyLife {
     YukkuriEntity entity() { return entity; }
     Courtship courtship() { return courtship; }
     ChildCall call() { return call; }
+
+    public YukkuriEntity childToBeckon(Predicate<BlockPos> inside) {
+        if (!adult()) return null;
+        return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(ChildCall.EARSHOT),
+                        child -> child.isAlive() && !child.isPassenger() && Bonds.parentOf(entity, child) && caresFor(child)
+                                && child.childhood().shouldStayWithParents() && entity.life().canRecognize(child)
+                                && entity.distanceToSqr(child) <= ChildCall.EARSHOT * ChildCall.EARSHOT && !inside.test(child.blockPosition()))
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+
+    public int beckonPatience() {
+        var p = entity.life().personality();
+        return FamilyDutyMath.beckonPatience(p.attachment(), p.selfControl());
+    }
+    public void beginBeckon(YukkuriEntity child) { call.beginBeckon(child); }
+    public boolean beckon(YukkuriEntity child) { return call.tickBeckon(child); }
+    public boolean beckonAnswered(YukkuriEntity child) { return child.family().call.answered(entity.getUUID(), call.callStart()); }
+    public int beckonRounds() { return call.beckonRounds(); }
+    public String callActivity() { return call.activity(); }
+    public void endBeckon() { call.endBeckon(); }
     /** Observe movement ownership without advancing the drawn birth launch. */
     public boolean launchInFlight(){ return entity.motor().current() instanceof Launch; }
     UUID arrangedMate() { return courtship.arranged(); }
@@ -415,7 +435,8 @@ public final class FamilyLife {
             if(LiveBirth.MOTHER.equals(role.role())&&brood()!=null)return Behaviors.TEND_BROOD;
         }
         return switch(task) {
-            case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD; case FOLLOW -> Behaviors.FOLLOW_PARENT;
+            case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD;
+            case FOLLOW -> call.answeringBeckon() ? call.activity() : Behaviors.FOLLOW_PARENT;
             case WAIT_CHILD, WATCH_HOME -> Behaviors.WAIT_CHILD;
             case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:call.activity()!=null?call.activity():glass.active()?glass.activity():Behaviors.SEARCH_FAMILY;
             case ABSENCE -> absence().activity();
@@ -1172,6 +1193,8 @@ public final class FamilyLife {
                 }
             }
             if(emergencyForaging())return false;
+            var beckoner=call.heard();
+            if(beckoner!=null&&beckoner.family().call().beckoning()){answerParentCall(beckoner);return true;}
             if(subadult() && feeding.startCare())return true;
             if(startAbsence())return true;
             if(ordinaryLandFree(entity) && startHomeWatch())return true;
@@ -1199,7 +1222,7 @@ public final class FamilyLife {
             }
             // Only a child not kept to its nest leaves to answer a call; one at home stays there for the parent to come.
             var heard=call.heard();
-            if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;return true;}
+            if(heard!=null){answerParentCall(heard);return true;}
             target=closestParent();
             if(target!=null&&!withinFollowDistance(target)) { task=Task.FOLLOW;taskTicks=0;return true; }
             return false;
@@ -1281,6 +1304,15 @@ public final class FamilyLife {
     }
 
     private boolean owesFamilyDuty() { return entity.duty().holds(Kind.WATCH) || entity.duty().holds(Kind.SEARCH); }
+
+    private void answerParentCall(YukkuriEntity parent) {
+        var at = call.answer(parent);
+        boolean beckon = call.answeringBeckon();
+        task = beckon ? Task.FOLLOW : Task.SEARCH;
+        target = beckon ? parent : null;
+        searchAt = beckon ? null : at;
+        taskTicks = 0;
+    }
 
     /** An older dependant who has made its search can approach someone familiar before a greeting. */
     public boolean seekingFamilyHelp() {
@@ -1551,6 +1583,7 @@ public final class FamilyLife {
             var home=earlyHomeStand();return home!=null&&needsBedReturn(home);
         }
         if (task == Task.FOLLOW && target != null) {
+            if (call.answeringBeckon()) return target.isAlive() && target.level() == entity.level();
             UUID foster = fosterParent();
             if (target.getUUID().equals(foster)) {
                 if (!isActiveFoster(target) || target.life().nutrition() < 35 || withinFollowDistance(target)) return false;
@@ -1593,7 +1626,7 @@ public final class FamilyLife {
                 if(task!=Task.FOLLOW||target!=escort){task=Task.FOLLOW;target=escort;taskTicks=1;call.stop();}
             }else{
                 var heard=call.heard();
-                if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;}
+                if(heard!=null)answerParentCall(heard);
                 if(call.tickAnswer())return;
             }
         }

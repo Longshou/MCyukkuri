@@ -2272,6 +2272,17 @@
         }
       ]
     },
+    "behavior_beckon_child": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "call_child",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [[0, "open_smile"], [1.5, "happy"]]
+        }
+      ]
+    },
     "behavior_call_listen": {
       "loop": true,
       "steps": [
@@ -2349,6 +2360,17 @@
               "teary"
             ]
           ]
+        }
+      ]
+    },
+    "behavior_answer_beckon": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "boat_answer_call",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [[0, "surprise"], [0.25, "happy"]]
         }
       ]
     },
@@ -5199,11 +5221,13 @@
     "wait_child": "behavior_wait_child",
     "stay_home": "behavior_stay_home",
     "call_child": "behavior_call_child",
+    "beckon_child": "behavior_beckon_child",
     "call_listen": "behavior_call_listen",
     "glass_watch": "behavior_glass_watch",
     "glass_watch_weary": "behavior_glass_watch_weary",
     "call_unanswered": "behavior_call_unanswered",
     "answer_call": "behavior_answer_call",
+    "answer_beckon": "behavior_answer_beckon",
     "tend_brood": "behavior_tend_brood",
     "labor": "behavior_labor",
     "postpartum": "behavior_postpartum",
