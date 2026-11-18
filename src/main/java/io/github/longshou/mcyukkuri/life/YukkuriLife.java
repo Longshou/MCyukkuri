@@ -897,6 +897,10 @@ public final class YukkuriLife {
             task = Task.TEMPERATURE; resetSleep(); return true;
         }
         if ((task == Task.FOOD || task == Task.FOOD_GLASS) && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
+        if ((task == Task.NONE && planWait == 0 || task == Task.FOUND_COVER && foundCover.approachingPlainGap())
+                && entity.family().hearsColdCry()) {
+            stopGoal(); return false;
+        }
         if (task != Task.NONE) return true;
         if (stallTheft.carrying() && stallTheft.resumeCarry()) { task = Task.STALL; return true; }
         if (garbage.resumeCarry()) { task = Task.GARBAGE; return true; }

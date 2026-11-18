@@ -115,8 +115,8 @@ final class ThermalSourceCache {
             var pos = new BlockPos(x, y, z);
             var state = level.getBlockState(pos);
             if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) entry.sources.add(new Source(pos, .9, false));
-            // At the nearest safe stand (two blocks), a dry body in a snowy-plains winter night can recover.
-            if (litCampfire(state)) entry.sources.add(new Source(pos, 2.1, true));
+            // A dry body can recover at either of the inner stands, including the diagonal at sqrt(5) blocks.
+            if (litCampfire(state)) entry.sources.add(new Source(pos, 2.2, true));
         }
     }
 

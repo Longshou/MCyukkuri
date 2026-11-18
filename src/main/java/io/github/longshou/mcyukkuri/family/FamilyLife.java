@@ -186,9 +186,16 @@ public final class FamilyLife {
     public YukkuriEntity coldChildNearby() {
         if (!adult()) return null;
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(TravelRange.NURSE_RADIUS),
-                        child -> child.isAlive() && !child.isPassenger() && child.life().temperature().cold()
-                                && child.family().call().coldParent() == entity)
+                        child -> child.isAlive() && !child.isPassenger() && child.family().call().coldParent() == entity
+                                && child.life().temperature().needsKinWarmth())
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+
+    /** A cry can take precedence over walking to a bare wind gap. The normal family goal owns the response. */
+    public boolean hearsColdCry() {
+        if (!adult() || active() || urgentNeed() || !ordinaryLandFree(entity) || !entity.duty().mayTake(Kind.SEARCH)) return false;
+        return !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(ChildCall.EARSHOT),
+                child -> call.hearsColdCry(child) && canSearchForChild(child) && !reached(child)).isEmpty();
     }
 
     public YukkuriEntity childToBeckon(Predicate<BlockPos> inside) {

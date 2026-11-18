@@ -815,6 +815,7 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                          (770, block(9, 0, 2, 'minecraft:campfire[lit=true]'))],
                readout=[f'yukkuri status {sel("bold_paper")} raw', f'yukkuri status {sel("tired_paper")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
+                       r'\[body\][^\n]* (?:burn remembered|sole burned|accepted damage cause=(?:inFire|onFire|hotFloor|campfire))',
                        rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin',
                        rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover draped'],
                expect=[rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* wind cover paper approach',
@@ -825,7 +826,7 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                        rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* cold paper exhausted sleep',
                        rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin source=life',
                        r'\[temperature\][^\n]* cold onset .*line=dialogue\.mcyukkuri\.',
-                       rf'\[temperature\][^\n]* uuid={_bold_paper} [^\n]* campfire rest .*ring=(?:2|3)\.',
+                       rf'\[temperature\][^\n]* uuid={_bold_paper} [^\n]* campfire rest .*ring=2\..*rate=-',
                        r'MCYPAPER_STACKS_EMPTY']))
 
 _devoted_mother = uid('stray_paper_young', 'devoted_parent')
@@ -844,7 +845,7 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
         box(-6, 0, -1, -6, 1, -1, 'minecraft:spruce_planks'),
         box(6, 0, -1, 6, 1, -1, 'minecraft:spruce_planks'),
         block(0, 0, 0, 'mcyukkuri:newspaper_stack[bundles=2,facing=south,taken=0]'),
-        block(-4, 0, 4, 'minecraft:campfire[lit=false]'),
+        block(-4, 0, 3, 'minecraft:campfire[lit=false]'),
         street_stray('stray_paper_young', 'marisa', -2, 2, 'devoted_parent', intelligence=90, boldness=65, attachment=85, friendliness=85,
                      energy=88, rest_wait=0, yaw=180, label='重亲情魔理沙', lead=True),
         street_stray('stray_paper_young', 'marisa', -4, 0, 'devoted_baby', stage='baby', energy=58, rest_wait=0, yaw=180,
@@ -863,10 +864,11 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                  views={'side': dict(position=(-2.4, .75, 1.35), look_at=(-3.55, .28, -.5))}),
     smoke=dict(ticks=1290,
                commands=[(940, 'execute if block ~ ~ ~ mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_YOUNG_ONE_LEFT'),
-                         (950, block(-4, 0, 4, 'minecraft:campfire[lit=true]'))],
+                         (950, block(-4, 0, 3, 'minecraft:campfire[lit=true]'))],
                readout=[f'yukkuri status {sel("devoted_parent")} raw', f'yukkuri status {sel("devoted_baby")} raw',
                         f'yukkuri status {sel("self_parent")} raw', f'yukkuri status {sel("self_baby")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
+                       r'\[body\][^\n]* (?:burn remembered|sole burned|accepted damage cause=(?:inFire|onFire|hotFloor|campfire))',
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped on child=',
                        rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin'],
                expect=[rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* wind cover paper approach',
@@ -876,6 +878,7 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover kept for self child={_self_baby_txt}',
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped source=bedding item=minecraft:paper count=3',
                        r'\[temperature\][^\n]* cold onset .*line=dialogue\.mcyukkuri\..*\.baby\.s_cold parent=[0-9a-f-]+',
+                       rf'\[family\][^\n]* uuid={_devoted_parent_txt} [^\n]* heard cold cry child={_devoted_baby_txt}',
                        rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* campfire rest .*ring=2\..*shield_parent={_devoted_parent_txt}',
                        r'MCYPAPER_YOUNG_ONE_LEFT']))
 

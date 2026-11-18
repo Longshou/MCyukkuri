@@ -67,6 +67,9 @@ public final class TemperatureLife {
         return ThermalComfort.exposureRate(felt, coldLimit(), ageRate);
     }
     public boolean cold() { return tooCold(current.felt()); }
+    public boolean needsKinWarmth() {
+        return targetFire != null || (initialSample ? tooCold(sample(entity.blockPosition()).felt()) : cold());
+    }
     public boolean hot() { return current.felt() >= hotLimit(); }
     public boolean unsafeSleep() { return cold() || hot(); }
     public boolean comfortableAt(BlockPos pos) { return pos != null && level().hasChunkAt(pos) && comfortable(sample(pos).felt()); }
@@ -124,7 +127,8 @@ public final class TemperatureLife {
         current = sample(entity.blockPosition(), baskingNow());
         if (cold() && !wasCold && !entity.life().isSleeping() && !entity.isPanicking()) {
             var parent = entity.family().coldCryParent();
-            boolean spoken = entity.speakCue("cold");
+            // A nearby cold baby gets the family's first turn to complain.
+            boolean spoken = entity.family().coldChildNearby() == null && entity.speakCue("cold");
             if (spoken && parent != null) entity.showReaction("cry", "", 40);
             GameplayLog.event(entity, "temperature", "cold onset felt={} line={} parent={}", current.felt(),
                     spoken ? entity.getDialogueKey() : "silent", parent == null ? null : parent.getUUID());
@@ -324,9 +328,11 @@ public final class TemperatureLife {
         int dx = anchor.getX() - fire.getX(), dz = anchor.getZ() - fire.getZ();
         double length = Math.hypot(dx, dz);
         if (length == 0) return score;
-        // Each body chooses its own free stand on the same radial line. The child is inside the parent.
-        double x = pos.getX() - fire.getX() - preferred * dx / length;
-        double z = pos.getZ() - fire.getZ() - preferred * dz / length;
+        // A parent comes up on the child's nearer flank, leaving its inward path open.
+        double cross = dx * (entity.getZ() - fire.getZ() - .5) - dz * (entity.getX() - fire.getX() - .5);
+        double flank = baby == null ? 0 : Math.copySign(1, cross);
+        double x = pos.getX() - fire.getX() - (preferred * dx - flank * dz) / length;
+        double z = pos.getZ() - fire.getZ() - (preferred * dz + flank * dx) / length;
         return score + x * x + z * z;
     }
 
@@ -339,10 +345,10 @@ public final class TemperatureLife {
 
     private YukkuriEntity shieldingParent(BlockPos fire) {
         var parent = entity.family().coldCryParent();
-        if (parent == null || !parent.onGround() || parent.distanceToSqr(entity) > 2.25 || !entity.hasLineOfSight(parent)) return null;
+        if (parent == null || !parent.onGround() || parent.distanceToSqr(entity) > 1.65 * 1.65 || !entity.hasLineOfSight(parent)) return null;
         var outward = entity.position().subtract(Vec3.atBottomCenterOf(fire));
         var toParent = parent.position().subtract(entity.position());
-        return outward.x * toParent.x + outward.z * toParent.z >= .7 * outward.horizontalDistance() * toParent.horizontalDistance()
+        return outward.x * toParent.x + outward.z * toParent.z >= .6 * outward.horizontalDistance() * toParent.horizontalDistance()
                 && toParent.horizontalDistanceSqr() > .04 ? parent : null;
     }
     private boolean mayUse(BlockPos pos) {

@@ -132,6 +132,7 @@ public final class FoundShelter implements MotorOwner {
     public boolean exiting() { return phase == Phase.EXIT || phase == Phase.STEP_DOWN; }
     public boolean carryingPaper() { return shelter == null && streetSpot == null && gap != null; }
     public boolean restingInPlainGap() { return shelter == null && streetSpot == null && gap != null && phase == Phase.REST; }
+    public boolean approachingPlainGap() { return shelter == null && streetSpot == null && phase == Phase.ENTER && !holdingPaper(); }
     public boolean restingInPlainGapAt(BlockPos pos) { return restingInPlainGap() && gap.equals(pos); }
     public boolean readyToSleep() {
         if (phase != Phase.REST || now() < deadline || !facingOut() || coverAction != null) return false;
