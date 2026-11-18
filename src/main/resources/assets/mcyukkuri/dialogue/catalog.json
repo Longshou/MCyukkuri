@@ -65734,8 +65734,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded",
-      "hurt_endure"
+      "hurt_defy"
     ],
     "ticks": 85,
     "sound": "voice.original.myon.miyo.adult.s_wounded",
@@ -65749,7 +65748,8 @@
     "age": "young",
     "events": [
       "wounded",
-      "hurt_endure"
+      "hurt_endure",
+      "hurt_flee"
     ],
     "ticks": 63,
     "sound": "voice.original.myon.miyo.young.s_wounded",
@@ -70418,8 +70418,7 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "wounded",
-      "hurt_endure"
+      "hurt_defy"
     ],
     "ticks": 90,
     "sound": "voice.original.myon.kinbao.adult.s_wounded",
@@ -70433,7 +70432,8 @@
     "age": "young",
     "events": [
       "wounded",
-      "hurt_endure"
+      "hurt_endure",
+      "hurt_flee"
     ],
     "ticks": 67,
     "sound": "voice.original.myon.kinbao.young.s_wounded",

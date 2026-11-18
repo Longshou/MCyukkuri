@@ -46386,8 +46386,7 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "wounded",
-    "hurt_endure"
+    "hurt_defy"
    ],
    "japanese": "みょん！ いたい……！ でも、まだたたかえる！",
    "chinese": "咪呦！好痛……！但还能打！",
@@ -46402,7 +46401,8 @@
    "quirk": "miyo",
    "events": [
     "wounded",
-    "hurt_endure"
+    "hurt_endure",
+    "hurt_flee"
    ],
    "japanese": "ゆんやぁぁ！ みょん！ いちゃいよぉぉ！",
    "chinese": "油嗯呀啊啊！咪呦！好痛痛——！",
@@ -51430,8 +51430,7 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "wounded",
-    "hurt_endure"
+    "hurt_defy"
    ],
    "japanese": "ちーんぽ！ いたい……！ でも、まだたたかえる！",
    "chinese": "金寶！好痛……！但还能打！",
@@ -51446,7 +51445,8 @@
    "quirk": "kinbao",
    "events": [
     "wounded",
-    "hurt_endure"
+    "hurt_endure",
+    "hurt_flee"
    ],
    "japanese": "ゆんやぁぁ！ ちーんぽ！ いちゃいよぉぉ！",
    "chinese": "油嗯呀啊啊！金寶！好痛痛——！",
