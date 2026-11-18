@@ -51,7 +51,7 @@ def outputs():
     for name in ('food_bowl','yukkuri_nest','yukkuri_toilet'):
         emit(ASSETS / 'models/item' / (name+'.json'), {'parent':'mcyukkuri:block/'+name})
         emit(ASSETS / 'blockstates' / (name+'.json'), {'variants':{'':{'model':'mcyukkuri:block/'+name}}})
-    for name, texture in {'wash_cloth':'white_wool','yarn_ball':'magenta_wool','yukkuri_waste':'brown_terracotta','teaching_whistle':'copper_block'}.items():
+    for name, texture in {'yukkuri_waste':'brown_terracotta'}.items():
         emit(ASSETS / 'models/item' / (name+'.json'), {'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:block/'+texture}})
     inputs = {ROOT/path:(ROOT/path).read_bytes() for path in
               ('art/props/care-facilities/recipe.json',bowl['source_geometry'],bowl['source_texture'])}

@@ -1,9 +1,11 @@
-"""Original MC facility/toy candidates; parametric editable source, not approved standards.
+"""Original MC facility/toy candidates and the small care goods; parametric editable source, not approved standards.
 
-Uses the adjacent tool package's stable mesh primitives. No original game pixels.
-16 units = one block. --check verifies editable, selected and packaged exports.
+The four toys use the adjacent tool package's stable mesh primitives. The shop care goods (wash cloth, yarn ball,
+teaching whistle, companion cord) are exported here as prop items: the cloth and the ball are designed in
+care-props/small.py and snapshotted to selected/, the whistle and the cord are fixed snapshots in selected/.
+No original game pixels. 16 units = one block. --check verifies editable, selected and packaged exports.
 """
-import argparse, base64, io, json, runpy, sys, uuid
+import argparse, base64, importlib.util, io, json, runpy, sys, uuid
 from pathlib import Path
 from PIL import Image
 
@@ -17,8 +19,15 @@ primitive=runpy.run_path(str(BASE))
 box,rod,ball,geometry=(primitive[k] for k in ('box','rod','ball','geometry'))
 sub,cross,unit=(primitive[k] for k in ('sub','cross','unit'))
 sys.path.insert(0,str(HERE.parent/'care-props'))
-import kit as care_kit
+import kit as care_kit, small as care_small
+if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-props also has a `kit`
+    _spec=importlib.util.spec_from_file_location('block_props_kit',HERE.parent/'block-props/kit.py')
+    sys.modules['block_props_kit']=_module=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_module)
+block_kit=sys.modules['block_props_kit']
 H=care_kit.hex_of
+# Shop care goods: a design function (snapshotted to selected/<id>/) or None for a fixed snapshot; GUI transform overrides.
+GOODS={'wash_cloth':care_small.wash_cloth,'yarn_ball':care_small.yarn_ball,'teaching_whistle':None,'companion_cord':None}
+GOODS_GUI={'companion_cord':{'rotation':[50,225,0],'scale':[1.25,1.25,1.25]}}   # thin cord enlarged in the slot
 # Toy palette touched up to the shared care-prop ramps (art/props/palette.json); indices are unchanged.
 PALETTE=[H('paper',2),H('anko',0),H('wood',1),H('wood',2),H('wood',3),H('paper',3),H('berry',2),H('chili',1),H('anko',0),H('gold',2),H('sky',2),H('sky',3),H('steel',0),H('mint',1),H('ceramic',2),H('paper',3)]
 SNAPSHOT=ROOT/'art/props/care-expansion'
@@ -76,6 +85,22 @@ def outputs():
         emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[25,225,0],'scale':[.85,.85,.85]},'ground':{'translation':[0,3,0],'scale':[.5,.5,.5]},'thirdperson_righthand':{'translation':[0,3,0],'scale':[.5,.5,.5]}}})
         emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:'+x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
         index[name]={'bounds':bounds,'triangles':len(vertices)//24}
+    fixed={}
+    for name,design in GOODS.items():
+        folder=SNAPSHOT/'selected'/name
+        if design:
+            prop=design()
+            result[folder/f'{name}.mesh.json']=care_kit.dumps(prop.mesh());result[folder/f'{name}.bbmodel']=care_kit.dumps(prop.bbmodel())
+            result[folder/'texture.png']=preserve_equivalent_png(folder/'texture.png',prop.png())
+            mesh_bytes,texture=result[folder/f'{name}.mesh.json'],result[folder/'texture.png']
+        else:
+            for file in (folder/f'{name}.mesh.json',folder/f'{name}.bbmodel',folder/'texture.png'):fixed[file]=file.read_bytes()
+            mesh_bytes,texture=fixed[folder/f'{name}.mesh.json'],fixed[folder/'texture.png']
+        mesh=json.loads(mesh_bytes);vertices=mesh['vertices']
+        mesh['bounds']=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)];mesh['format']=1
+        emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
+        emit(ASSETS/f'models/item/{name}.json',block_kit.prop_item_model(name,GOODS_GUI.get(name)))
+        index[name]={'bounds':mesh['bounds'],'triangles':len(vertices)//24}
     emit(ASSETS/'yukkuri_props/facilities-index.json',index)
     language={}
     for i,locale in enumerate(('zh_cn','en_us')):
@@ -83,7 +108,7 @@ def outputs():
         strings={'item.mcyukkuri.'+name:labels[i] for name,labels in LABELS.items()}
         language[locale]=strings;changed=any(existing.get(k)!=v for k,v in strings.items());existing.update(strings)
         result[path]=(json.dumps(existing,ensure_ascii=False,indent=2)+'\n').encode() if changed else path.read_bytes()
-    emit(SNAPSHOT/'manifest.json',{'status':'pending-review-game-adaptation','source':str(HERE.relative_to(ROOT)).replace('\\','/')+'/build.py','language_keys':language,'inputs':fingerprints(ROOT,{p:p.read_bytes() for p in (Path(__file__).resolve(),BASE)},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
+    emit(SNAPSHOT/'manifest.json',{'status':'pending-review-game-adaptation','source':str(HERE.relative_to(ROOT)).replace('\\','/')+'/build.py','language_keys':language,'inputs':fingerprints(ROOT,{**{p:p.read_bytes() for p in (Path(__file__).resolve(),BASE,HERE.parent/'care-props/small.py',HERE.parent/'care-props/kit.py',HERE.parent/'block-props/kit.py')},**fixed},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
     return result
 
 if __name__=='__main__':

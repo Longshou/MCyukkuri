@@ -1,32 +1,6 @@
 {
   "status": "R2.3 peripheral integration authorized on 2026-09-13; selected R2.4 eggs match the subsequently approved egg standard; other standard confirmations pending",
   "files": {
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/teaching_whistle/teaching_whistle.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/teaching_whistle/teaching_whistle.mesh.json",
-      "sha256": "d53817a3ff9005aa360966fbf25ebf1b4ccd9559e79bda87f47e34cd2c52667a"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/teaching_whistle/teaching_whistle.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/teaching_whistle/teaching_whistle.bbmodel",
-      "sha256": "d633d4879fffed46e2ef0a1d1b2f727755f15c7c7cccfa36e6f7e2661e8245d5"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/teaching_whistle/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/teaching_whistle/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/companion_cord.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/companion_cord/companion_cord.mesh.json",
-      "sha256": "6e65b5ffc79fa740a95168ecc0333dc516d64efb34b0f7f0c68ddb7103b1763c",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/companion_cord.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/companion_cord/companion_cord.bbmodel",
-      "sha256": "1bea969503cab28113b1f1ca0a7de8a202317deb89fddbc6dac0d548425e9373",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/companion_cord/texture.png",
-      "sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
-    },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/reimu_ribbon/reimu_ribbon.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/reimu_ribbon/reimu_ribbon.mesh.json",
       "sha256": "50823c8b60348a678adb4938ce1492926421106a059c3d16098c71291654c1b4"
@@ -64,20 +38,6 @@
     "standards/yukkuri-library/drafts/peripheral-props/assembled/orange_juice/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/orange_juice/texture.png",
       "sha256": "134669d9e7c7e6bdd7fbcaa7c7edafd27f7c2c40aeb6af48d4cf936dea343479"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/mold_remover/mold_remover.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/mold_remover/mold_remover.mesh.json",
-      "sha256": "eee15b818b6ea01bc7c58267336ee32cc50afeb7d2a3554321fe7569c7b2a21d",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/mold_remover/mold_remover.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/mold_remover/mold_remover.bbmodel",
-      "sha256": "9c2b6127e09e51536466d9681e71e73a1378390c4b6c66253f07356ad50de391",
-      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
-    },
-    "standards/yukkuri-library/drafts/peripheral-props/assembled/mold_remover/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/mold_remover/texture.png",
-      "sha256": "c5e5e8649c84312bb52716289df33278b1ccdd4a3410c0a2d1da0cfbef07d103"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/burial_mound/burial_mound.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/burial_mound/burial_mound.mesh.json",
@@ -992,36 +952,6 @@
     "generated:art/props/runtime-peripheral/selected/leaked_filling/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/texture.png",
       "sha256": "76651a3f3d1291500a576051c0cff466d29d03daf64ed0f70f7dcf2d4c6030ab",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.mesh.json",
-      "sha256": "6a6e7ee75256981f2196f87d773dd32395825c285db77ad79c8b408804932fcd",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/wash_cloth.bbmodel",
-      "sha256": "f8668670df1c05f2f9f6e97f22ff385e329c0e13097f48d6c2e6873d83bbcf34",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/wash_cloth/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/wash_cloth/texture.png",
-      "sha256": "74a991ce02d4eeba2e06cf991972761e7bbbc57d5ffb1a770b4122437b87e70f",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.mesh.json",
-      "sha256": "ec8770bf7d5a66402613b0fa7c137763a2f8db6d72d6950870acfbe0fbee2aa5",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/yarn_ball.bbmodel",
-      "sha256": "1fef86ba122c3b27dff42a8ada38f2602c6ebc5481e1d20f6d290fc8caf48fbc",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yarn_ball/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yarn_ball/texture.png",
-      "sha256": "8429f9bedc3785ce761b974ac7afdabd61ed3d0d45c189df9b9f89bbf50e8d56",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json": {

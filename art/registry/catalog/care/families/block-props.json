@@ -1,0 +1,7 @@
+{
+  "id": "block-props",
+  "prefixes": [
+    "standards/yukkuri-library/drafts/block-props/"
+  ],
+  "_order": 10
+}

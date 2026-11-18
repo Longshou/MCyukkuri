@@ -8,16 +8,11 @@
     "velvet_nest",
     "yukkuri_toilet",
     "yukkuri_carrier",
-    "wash_cloth",
-    "teaching_whistle",
-    "yarn_ball",
-    "companion_cord",
     "food_scrap",
     "yukkuri_waste",
     "leaked_filling",
     "reimu_ribbon",
     "marisa_hat",
-    "mold_remover",
     "forage_pile"
   ],
   "blocks": [
@@ -178,20 +173,6 @@
     "chen": "chen_hat",
     "alice": "alice_headband",
     "patchouli": "patchouli_bonnet"
-  },
-  "gui_display": {
-    "companion_cord": {
-      "rotation": [
-        50,
-        225,
-        0
-      ],
-      "scale": [
-        1.25,
-        1.25,
-        1.25
-      ]
-    }
   },
   "item_sprites": "oil_grain_budget/regular/premium and orange_juice items are 16x16 item/generated sprites from scripts/export_supply_icons.py; their meshes stay as attachments for offline shop, nest and hat-cargo previews"
 }

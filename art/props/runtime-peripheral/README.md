@@ -18,4 +18,4 @@
 
 当前快照的制作源在[照料道具统一造型](../../../standards/yukkuri-library/drafts/care-props/README.md)等对应素材包；更新制作源后重新导出并登记新的快照指纹。
 
-橙汁预览网格瓶标、除霉剂瓶标与同伴绳的展示参数由 [shop_goods_v2.py](shop_goods_v2.py) 生成，GUI 旋转与缩放记录在 `recipe.json` 的 `gui_display`。
+橙汁预览网格的背面瓶标由 [shop_goods_v2.py](shop_goods_v2.py) 生成，逐件 GUI 旋转与缩放可记录在 `recipe.json` 的 `gui_display`。物品模型模板来自[方块道具工具](../../../standards/yukkuri-library/drafts/block-props/kit.py)。清洗布、毛线球、教导哨与同伴绳由[小玩具](../care-expansion/README.md)导出，除霉剂由[消耗品](../consumables/README.md)导出。

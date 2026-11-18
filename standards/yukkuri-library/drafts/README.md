@@ -9,6 +9,7 @@
 | [冷冻收容柜](cold-storage/README.md) | 冷冻收容设施草稿 |
 | [照料道具](care-props/README.md) | 食盆、窝、厕所等照料道具共用制作源 |
 | [操作器具](operation-tools/README.md) | 接触操作器具模型 |
+| `block-props/` | 原版风格世界道具共用工具：`kit.py`（体素长方体、贴图、`.bbmodel`、网格、图标挤出，色阶取自 `item-icons/draw.py`）与道具物品模型模板 |
 | [大型游具](playgrounds/README.md) | 陶管、滑梯、蹦床、水池 |
 | `consumables/` | 消耗品模型制作源（`build.py`、`recipe.json`） |
 | [物品栏图标](../../../art/props/item-icons/README.md) | `item-icons/`：立体道具类物品的 16×16 物品栏图标（`draw.py`、`preview.py`） |

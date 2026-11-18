@@ -5,13 +5,27 @@ Owns selected static meshes, item/block dispatch models and new survival recipes
 --check is read-only. Existing P1/P4 exporters defer the same paths to this owner.
 """
 import argparse
+import importlib.util
 import json
 import io
+import sys
 from asset_export_checks import check_output, fingerprint, fingerprints, provenance
 from pathlib import Path
 from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_block_kit():
+    """The block-prop kit under one module name (care-props has its own `kit`); its prop item model is shared."""
+    if 'block_props_kit' not in sys.modules:
+        spec = importlib.util.spec_from_file_location('block_props_kit', ROOT / 'standards/yukkuri-library/drafts/block-props/kit.py')
+        sys.modules['block_props_kit'] = module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    return sys.modules['block_props_kit']
+
+
+block_kit = load_block_kit()
 SOURCE = ROOT / 'art/props/runtime-peripheral'
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 DATA = ROOT / 'src/main/resources/data/mcyukkuri'
@@ -109,17 +123,7 @@ def outputs():
                 index[name] = entry
     emit(shared, index)
     for name in spec['items'] + list(spec.get('recolours', {})) + list(spec.get('species_accessories', {}).values()):
-        gui = {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85],
-               **spec.get('gui_display', {}).get(name, {})}   # per-item overrides, e.g. thin cord enlarged, nest turned to its opening
-        emit(ASSETS / f'models/item/{name}.json', {
-            'parent': 'minecraft:builtin/entity', 'gui_light': 'front',
-            'textures': {'particle': f'mcyukkuri:props/{name}'},
-            'display': {
-                'gui': gui,
-                'ground': {'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
-                'fixed': {'scale': [.75, .75, .75]},
-                'thirdperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
-                'firstperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [.6, .6, .6]}}})
+        emit(ASSETS / f'models/item/{name}.json', block_kit.prop_item_model(name, spec.get('gui_display', {}).get(name)))
     for name in spec['blocks']:
         emit(ASSETS / f'models/block/{name}.json', {'textures': {'particle': f'mcyukkuri:props/{name}'}, 'elements': []})
     for name, details in spec['recipes'].items():

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shop-goods readability pass for the R2.3 peripheral snapshot (oil-grain bags, juice/remover bottles, cord).
+"""Shop-goods readability pass for the R2.3 peripheral snapshot (the orange-juice bottle).
 
 Edits the selected snapshot files in place (the original authoring generator was deleted with the draft library).
 Every step is idempotent; run, then re-export with scripts/export_peripheral_assets.py.
@@ -7,9 +7,9 @@ Every step is idempotent; run, then re-export with scripts/export_peripheral_ass
 - (Retired) Oil-grain bags: tier marks (1/2/3 gold stars, premium also gets a gold frame) replace the tiny sub-lines on the
   printed label; premium bag swatch is lifted so it no longer reads black in an inventory slot; the printed label is
   repeated on the back (+Z) so a label faces the camera whichever way the GUI transform turns the model.
-- orange_juice / mold_remover: the wrapped label (orange slice / crossed-out mould) is repeated on the back.
-- companion_cord: tube thickened (hex ring pushed out along its normal), loops dark rope, knot and tassels red.
-- GUI display tweaks live in recipe.json ("gui_display"), applied by export_peripheral_assets.py.
+- orange_juice: the wrapped label (orange slice) is repeated on the back.
+- The mold remover and companion cord left this snapshot (consumables/, care-expansion/); their snapshots keep this pass's
+  result.
 """
 import argparse, base64, io, json, math, uuid, hashlib, sys
 from pathlib import Path
@@ -22,11 +22,10 @@ ROOT = HERE.parents[2]
 # The three oil-grain bags are now authored by standards/yukkuri-library/drafts/care-props/bags.py (one product line,
 # palette-shared, labels on both faces); this pass no longer touches them.
 BAGS = {}
-BOTTLES = ('orange_juice', 'mold_remover')
+BOTTLES = ('orange_juice',)
 GOLD, GOLD_LIGHT = (232, 170, 48), (252, 214, 104)
 LABEL = (256, 0, 512, 384)          # printed_front uv box in the 512 atlas
 STAR_TOP = 298                      # rows below hold only sub-lines that unreadable at inventory size
-CORD_GROW = 0.26                    # extra tube radius in mesh units (original ~0.13)
 
 
 def read_json(path):
@@ -144,44 +143,6 @@ def do_bottle(name):
     write_json(folder / f'{name}.mesh.json', mesh); write_json(folder / f'{name}.bbmodel', bb)
 
 
-def do_cord():
-    folder = SEL / 'companion_cord'; name = 'companion_cord'
-    mesh = read_json(folder / f'{name}.mesh.json'); bb = read_json(folder / f'{name}.bbmodel')
-    V = mesh['vertices']
-    loop = mesh['parts'][0]
-    ys = [V[i * 8 + 1] for i in range(loop['start'], loop['start'] + loop['count'])]
-    if max(ys) - min(ys) < .5:      # original tube is ~0.26 thick; skip when already grown
-        # one averaged outward normal per position so cap and wall vertices move together (no cracks)
-        acc = {}
-        for i in range(len(V) // 8):
-            key = tuple(round(c, 5) for c in V[i * 8:i * 8 + 3])
-            n = acc.setdefault(key, [0.0, 0.0, 0.0])
-            for k in range(3): n[k] += V[i * 8 + 5 + k]
-        def push(pos):
-            n = acc[tuple(round(c, 5) for c in pos)]; m = math.sqrt(sum(c * c for c in n)) or 1
-            return [round(pos[k] + CORD_GROW * n[k] / m, 6) for k in range(3)]
-        new = list(V)
-        for i in range(len(V) // 8):
-            new[i * 8:i * 8 + 3] = push(V[i * 8:i * 8 + 3])
-        for e in bb['elements']:
-            e['vertices'] = {k: push(p) for k, p in e['vertices'].items()}
-        mesh['vertices'] = new; V = new
-    # palette cells are 32 px: loops -> dark rope cell (col1,row4), knot + tassels -> red cell (col7,row3)
-    cells = {'paired_loop': (1, 4), 'knot': (7, 3), 'end': (7, 3)}
-    for part in mesh['parts']:
-        cx, cy = cells[part['name']]
-        for i in range(part['start'], part['start'] + part['count']):
-            u, v = V[i * 8 + 3], V[i * 8 + 4]
-            V[i * 8 + 3] = round((cx * 32 + round(u * 256, 3) % 32) / 256, 6)
-            V[i * 8 + 4] = round((cy * 32 + round(v * 256, 3) % 32) / 256, 6)
-    bb_parts = [p for p in mesh['parts']]
-    for e, part in zip(bb['elements'], bb_parts):
-        cx, cy = cells[part['name']]
-        for f in e['faces'].values():
-            f['uv'] = {k: [round(cx * 32 + uv[0] % 32, 3), round(cy * 32 + uv[1] % 32, 3)] for k, uv in f['uv'].items()}
-    write_json(folder / f'{name}.mesh.json', mesh); write_json(folder / f'{name}.bbmodel', bb)
-
-
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -203,8 +164,7 @@ def main():
         do_bag(name, tier)
     for name in BOTTLES:
         do_bottle(name)
-    do_cord()
-    update_selection(set(BAGS) | set(BOTTLES) | {'companion_cord'})
+    update_selection(set(BAGS) | set(BOTTLES))
     print('shop goods v2 applied')
 
 

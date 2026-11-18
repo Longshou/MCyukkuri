@@ -3,8 +3,8 @@
 Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png}. Run
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
-Props authored here: the three oil-grain bags, forage pile, food scrap, waste, leaked filling, wash cloth, yarn ball and
-carrier on the low-poly kit; the placed food bowl, its heap-only grain / wheat / forage fills, the cushion pet nest, the sand
+Props authored here: the three oil-grain bags, forage pile, food scrap, waste, leaked filling and carrier on
+the low-poly kit (the wash cloth and yarn ball designs in small.py are exported by care-expansion/build.py); the placed food bowl, its heap-only grain / wheat / forage fills, the cushion pet nest, the sand
 toilet (clean and dirty), the droppings and every non-default dye style of the placed goods (including the 2x2 woven nest
 and the ceramic / covered toilets) come from placed.py through vanilla_props.py. The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
@@ -39,8 +39,6 @@ BUILD = {
     'food_scrap': small.food_scrap,
     'yukkuri_waste': small.yukkuri_waste,
     'leaked_filling': small.leaked_filling,
-    'wash_cloth': small.wash_cloth,
-    'yarn_ball': small.yarn_ball,
     'yukkuri_carrier': small.yukkuri_carrier,
 }
 REMOVED = ('food_bowl_garbage', 'hat_provisions',
