@@ -36,7 +36,7 @@ public final class RestraintTableBlock extends Block implements EntityBlock {
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty()) return InteractionResult.PASS;
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RestraintTableBlockEntity table)
-            table.release("released");
+            table.release(player);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 

@@ -10,6 +10,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,6 +49,14 @@ public final class RestraintTableBlockEntity extends BlockEntity {
             placed.animal().operations().strap(actor, worldPosition);
         }
         return placed;
+    }
+
+    void release(Player player) {
+        var body = occupant();
+        if (body == null) return;
+        var reason = Custody.harmRefusal(player, body, worldPosition);
+        if (reason == null) body.operations().unstrap("released");
+        else InteractionDispatch.refuse(player, body, "release", reason);
     }
 
     void release(String reason) {

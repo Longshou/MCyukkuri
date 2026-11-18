@@ -2528,7 +2528,7 @@ _sweet_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1
 _sweet_cabinet = f'~{_plant_x - 1} ~2 ~{_plant_z + 16}'
 _sweet_b = '@e[type=mcyukkuri:reimu,distance=..2,limit=1]'
 _sweet_boards = (
-    (18, ('A 同龄对照', '用同一工具', '看它顶嘴或哭求', '双手空着可拔针')),
+    (18, ('A 同龄对照', '用同一工具', '看它顶嘴或哭求', '空手右键拔针')),
     (23, ('B 尚淡起步', '不安越久', '积甜越多', '看箱牌转普通甜')),
     (28, ('C 普通甜起步', '馅甜达到 65', '可送普通甜', '用放大镜查看')),
     (35, ('D 浓甜起步', '馅甜达到 75', '员工停手', '留它休息')),
@@ -2536,7 +2536,7 @@ _sweet_boards = (
 add(_sweet_box, 'plant', '甜化箱：加压、积甜与停手', '甜化箱：加压、积甜与停手',
     '看 B 箱门牌。灵梦的馅还淡，员工会按体况选工具。看它受惊、缩起或硬撑，用放大镜对比接触前后的不安与积甜，等箱牌从尚淡转为普通甜。'
     '沿走道看 C 箱的普通甜和 D 箱的浓甜，门牌写着员工对几只停手。到 A 箱对三只同龄个体用同一工具，比较它们对你的反应与恐惧。',
-    '观察约一分钟。拔针时双手空着，右键个体，再捡起针。',
+    '观察约一分钟。双手空着右键个体拔针。创造模式的针仍在物品栏，生存模式可从地上拾回。用运输篮带个体上固定台',
     [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north',
      # This existing, sound animal is close to the ordinary grade (11.25 accumulated). Its next gain is a real mind sample.
      f'execute positioned ~{_plant_x - 5.5} ~2 ~{_plant_z + 24.5} run data merge entity {_sweet_b} '
@@ -2551,7 +2551,7 @@ add(_sweet_box, 'plant', '甜化箱：加压、积甜与停手', '甜化箱：�
         f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
         f'data modify entity {sel(name)} {OWNED}.Owner set from entity {_sweet_site} UUID',
     )], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame',
-              'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x, _plant_z + 24, 113, -5, 2),
+              'mcyukkuri:yukkuri_carrier', 'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x, _plant_z + 24, 113, -5, 2),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _sweet_cast])
 
 _kin_boxes = 'factory_kin_boxes'
@@ -5763,6 +5763,7 @@ _wound_smoke['commands'].extend([
     (145, 'item replace entity @p[distance=..8] hotbar.2 with mcyukkuri:pin_tool[minecraft:custom_data={BD07:1b}]'),
     (145, 'yukkuri scenario tool_operator select 2'),
     (146, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
+    (147, f'yukkuri scenario care_click {sel("tool_frame")} empty_hand'),
     (150, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
     (151, f'execute if data entity {sel("tool_frame")} YukkuriOperations.Table '
           f'unless data entity {sel("tool_frame")} YukkuriOperations.PendingReturn '
@@ -5770,13 +5771,14 @@ _wound_smoke['commands'].extend([
           'run say MCY_BD07_PIN_OUT_TABLE_HELD'),
     (168, f'execute at {sel("tool_frame")} positioned ~1 ~ ~ run yukkuri scenario tool_click {sel("tool_frame")} hook_hang'),
     (169, 'yukkuri scenario tool_operator select 3'),
-    (170, 'yukkuri scenario shop_block_click ~ ~ ~4'),
+    (170, f'yukkuri scenario shop_stock_click {sel("tool_frame")}'),
     (171, 'yukkuri scenario tool_operator leave'),
     (185, f'yukkuri scenario care_click {sel("tool_pin")} orange_juice'),
 ])
 _wound_smoke['commands'].sort(key=lambda command: command[0])
 _wound_smoke['expect'].extend([
     'MCY_BD07_PIN_OUT_TABLE_HELD',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* interaction refused; [^\n]* action=release reason=owner',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* pose=PIN elapsed=\d+ remaining=[1-9]\d* reason=released',
     rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* accepted damage cause=mob [^\n]* loss=2\.0',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* tool used; [^\n]* action=PIERCE item=mcyukkuri:care_awl hand_count=1 -> 1 damage=0 -> 1',

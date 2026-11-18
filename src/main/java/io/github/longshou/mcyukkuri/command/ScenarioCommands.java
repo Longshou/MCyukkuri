@@ -508,14 +508,15 @@ public final class ScenarioCommands {
         var target = yukkuri(c, "target");
         if (target == null) return 0;
         var stack = switch (StringArgumentType.getString(c, "item")) {
+            case "empty_hand" -> ItemStack.EMPTY;
             case "wet_cloth" -> new ItemStack(ModItems.WASH_CLOTH.get());
             case "junk" -> new ItemStack(ModItems.JUNK_HEADWEAR.get());
             case "budget_grain" -> new ItemStack(ModItems.GRAIN_BUDGET.get());
             case "premium_grain" -> new ItemStack(ModItems.GRAIN_PREMIUM.get());
             case "orange_juice" -> new ItemStack(ModItems.ORANGE_JUICE.get());
-            default -> ItemStack.EMPTY;
+            default -> null;
         };
-        if (stack.isEmpty()) return 0;
+        if (stack == null) return 0;
         if (stack.is(ModItems.WASH_CLOTH.get())) CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt("Water", 1));
         var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
         player.setPos(target.getX() + 1, target.getY(), target.getZ());

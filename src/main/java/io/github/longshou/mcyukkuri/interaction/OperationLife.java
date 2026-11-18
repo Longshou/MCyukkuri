@@ -141,6 +141,9 @@ public final class OperationLife {
     boolean staffBinding(LivingEntity actor) {
         return pose == Pose.PIN && actor.getUUID().equals(operator) || actor.getUUID().equals(tableOperator);
     }
+    boolean releaseStaffBinding(LivingEntity actor) {
+        return actor.getUUID().equals(tableOperator) ? unstrap("released") : release();
+    }
     boolean release() {
         if (table!=null && !pinned()) return unstrap("released");
         Pose released = pose;

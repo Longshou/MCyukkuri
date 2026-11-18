@@ -206,7 +206,7 @@ public final class InteractionDispatch {
         if (reason == null && ExamSession.running(target)) reason = "busy";
         if (reason == null && !target.operations().staffBinding(actor)) reason = "no_operation";
         if (reason != null) return staffRefusal(actor, target, "release", reason);
-        if (target.operations().release()) return true;
+        if (target.operations().releaseStaffBinding(actor)) return true;
         return staffRefusal(actor, target, "release", "condition");
     }
 
@@ -235,7 +235,10 @@ public final class InteractionDispatch {
         if(reason!=null)return reason;
         if(ExamSession.running(target))return "busy";
         var operation=target.operations();
-        if(action==CareAction.RELEASE)return operation.canRelease()?null:"no_operation";
+        if(action==CareAction.RELEASE){
+            if(!operation.canRelease())return "no_operation";
+            return operation.pinned()||operation.table()!=null?Custody.harmRefusal(player,target,target.blockPosition()):null;
+        }
         if (action.harmful()) {
             reason = harmContactRefusal(player, target);
             if (reason != null) return reason;
