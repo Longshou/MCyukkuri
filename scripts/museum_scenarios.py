@@ -2801,9 +2801,9 @@ def arc_response(log, line, cause, mother):
     expected_awards = ['unauthorized_found', 'confession'] if cause == 'confession' else ['unauthorized_found']
     if events[:2] != [(line, '', ''), ('', cause, '')] or records != [line, cause, cause] or awards != expected_awards:
         return f'Expected {line}, then both {cause} parent records and {expected_awards}; got {events}'
-    if cause == 'babies':
+    if cause == 'naive_introduction':
         children = re.findall(rf'\[family\].*uuid=(\S+) .*born brood=\S+ .*mother={mother}\b', log)
-        subjects = re.findall(r'disqualified cause=babies .*subject=(\S+)', log)
+        subjects = re.findall(r'disqualified cause=naive_introduction .*subject=(\S+)', log)
         if len(children) != 1 or subjects != children * 2:
             return f'Expected both records to cite the actual child {children}; got {subjects}'
 
@@ -2855,7 +2855,7 @@ for sid, title, description, traits, child_pos in (
         if not hide:
             smoke['verify'] = arc_exchange
     else:
-        style, line, cause = ('CONFESS', 'confess', 'confession') if sid == 'arc_confess' else ('NAIVE', 'sukkiri_naive', 'babies')
+        style, line, cause = ('CONFESS', 'confess', 'confession') if sid == 'arc_confess' else ('NAIVE', 'sukkiri_naive', 'naive_introduction')
         smoke.update(expect=[rf'uuid={mother_id} .*arc style={style}', rf'uuid={mother_id} .*arc spoke={line}\b',
                              *(rf'disqualified cause={cause} .*parent={_uuid_text(sid, role)} .*observed=40' for role in ('mother', 'father'))],
                      forbid=[rf'disqualified cause=(?!{cause}\b)'],

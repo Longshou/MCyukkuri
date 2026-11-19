@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class ConscienceGoal extends Goal {
     private static final double BESIDE_CHILD = 1.5;
+    private static final int APPROACH_TICKS = 400;
     private final YukkuriEntity pet;
     private LivingEntity owner;
     private BadgeConduct.Case brood;
@@ -89,8 +90,10 @@ public final class ConscienceGoal extends Goal {
 
     @Override public void start() {
         pet.pet().conscience().reacted();
-        pet.duty().take(Duty.Kind.RULES, 400, 600, brood == null ? "confess" : style.name());
+        pet.duty().take(Duty.Kind.RULES, APPROACH_TICKS, 600, brood == null ? "confess" : style.name());
         if (brood == null) return;
+        if (style == ArcStyle.LIE || style == ArcStyle.CONFESS || style == ArcStyle.NAIVE)
+            pet.pet().discovery().beginExchange(pet, brood, APPROACH_TICKS);
         switch (style) {
             case HIDE -> {
                 // Join a child that already has cover. A mobile child in the open can follow a short retreat.
@@ -177,7 +180,8 @@ public final class ConscienceGoal extends Goal {
     private boolean say(YukkuriAction action, String face, String event, LivingEntity look) {
         if (!PetScenes.say(pet, action, face, event, look)) return false;
         GameplayLog.event(pet, "rules", "arc spoke={} brood={} owner={}", event, brood.brood, owner.getUUID());
-        if (style == ArcStyle.CONFESS || style == ArcStyle.LIE) pet.pet().discovery().spoke(pet, brood, owner, style == ArcStyle.CONFESS);
+        if (style != ArcStyle.DEFIANT)
+            pet.pet().discovery().spoke(pet, brood, style, owner, style == ArcStyle.NAIVE ? child.getUUID() : null);
         return true;
     }
 
@@ -189,6 +193,7 @@ public final class ConscienceGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void stop() {
+        if (brood != null) pet.pet().discovery().endApproach(pet);
         brood = null;
         stand = null;
         child = null;

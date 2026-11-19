@@ -127,6 +127,7 @@ final class YukkuriDamage {
         owner.dieBase(source);
     }
     void remove(Entity.RemovalReason reason) {
+        if (!owner.level().isClientSide && !owner.isRemoved()) owner.pet().abandonBroodExchange();
         if (!owner.level().isClientSide && !owner.isRemoved() && (reason == Entity.RemovalReason.UNLOADED_TO_CHUNK
                 || reason == Entity.RemovalReason.UNLOADED_WITH_PLAYER || reason == Entity.RemovalReason.CHANGED_DIMENSION)) {
             owner.family().interruptCourtship();

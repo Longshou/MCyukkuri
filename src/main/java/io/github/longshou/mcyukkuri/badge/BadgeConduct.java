@@ -12,10 +12,13 @@ import java.util.UUID;
 public final class BadgeConduct {
     public record Parent(UUID id, UUID owner, ArcStyle style) {}
     public record Verdict(String cause, long day, UUID judge) {}
+    public record Evidence(Verdict verdict, UUID parent, UUID subject, String clue) {}
     public static final class Case {
         public final UUID brood;
         public final List<Parent> parents;
         private Verdict verdict;
+        private final Map<UUID, Long> exchanges = new HashMap<>();
+        private Evidence heldSight;
 
         public Case(UUID brood, Parent mother, Parent father, Verdict verdict) {
             this.brood = brood;
@@ -26,7 +29,37 @@ public final class BadgeConduct {
         public boolean discover(Verdict proof) {
             if (verdict != null) return false;
             verdict = proof;
+            exchanges.clear();
+            heldSight = null;
             return true;
+        }
+
+        /** Transient exchange windows from the parents' running approaches and actual speech. */
+        public void exchange(UUID parent, long until) { exchanges.put(parent, until); }
+
+        public Evidence sight(Evidence proof, long now) {
+            if (verdict != null) return null;
+            // Keep the first completed observation, including its witness, across both parents' exchanges.
+            if (heldSight == null) heldSight = proof;
+            return expireExchanges(now);
+        }
+
+        public Evidence spoken(Evidence proof, long now) {
+            var until = exchanges.get(proof.parent());
+            if (until == null || now >= until) return expireExchanges(now);
+            return discover(proof.verdict()) ? proof : null;
+        }
+
+        public Evidence abandonExchange(UUID parent, long now) {
+            exchanges.remove(parent);
+            return expireExchanges(now);
+        }
+
+        public Evidence expireExchanges(long now) {
+            exchanges.values().removeIf(until -> now >= until);
+            if (!exchanges.isEmpty() || heldSight == null) return null;
+            var proof = heldSight;
+            return discover(proof.verdict()) ? proof : null;
         }
         public boolean judged(UUID pet) {
             return verdict != null && parents.stream().anyMatch(p -> p.id.equals(pet) && p.owner != null);

@@ -69,6 +69,7 @@ public final class PetLife {
     private Discovery discovery = new Discovery();
     private final Set<UUID> learnedDiscoveries = new HashSet<>();
     public Discovery discovery() { return discovery; }
+    public void abandonBroodExchange() { discovery.abandon(animal); }
     public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); conscience = new Conscience(animal); }
     public Conscience conscience() { return conscience; }
     public PetLessons lessons() { return lessons; }

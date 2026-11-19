@@ -152,7 +152,8 @@ public final class YukkuriComponents {
                 .tick(60, PetLife::tick)
                 .save(50, (c, tag) -> tag.put("YukkuriPet", c.save()))
                 .load(40, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriPet")))
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 10, (c, ctx) -> c.care().died()).build(),
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 10, (c, ctx) -> c.care().died())
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 15, (c, ctx) -> c.abandonBroodExchange()).build(),
         ComponentSpec.ready(SOCIAL, YukkuriEntity::social)
                 .tick(70, YukkuriSocial::tick)
                 .save(340, YukkuriSocial::save)

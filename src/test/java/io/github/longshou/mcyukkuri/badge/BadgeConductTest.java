@@ -75,4 +75,57 @@ class BadgeConductTest {
         assertEquals(2, registry.standing(motherCredits));
         assertEquals(1, registry.standing(fatherCredits));
     }
+
+    @Test void qualifiedSightFromEitherParentWaitsAndEachSpokenCauseCanWinOnce() {
+        for (String cause : List.of("lie_exposed", "confession", "naive_introduction")) {
+            var entry = new BadgeConduct.Case(brood, mother, father, null);
+            var sight = evidence("babies", father);
+            var spoken = evidence(cause, mother);
+            entry.exchange(mother.id(), 100);
+            assertNull(entry.sight(sight, 40));
+            assertNull(entry.verdict());
+            assertEquals(spoken, entry.spoken(spoken, 41));
+            assertEquals(spoken.verdict(), entry.verdict());
+            assertNull(entry.spoken(spoken, 42));
+            assertNull(entry.sight(sight, 42));
+            assertNull(entry.abandonExchange(mother.id(), 43));
+        }
+    }
+
+    @Test void theLastAbandonmentReleasesTheFirstQualifiedSightWithItsOriginalWitness() {
+        var entry = new BadgeConduct.Case(brood, mother, father, null);
+        var first = evidence("pregnancy", father);
+        entry.exchange(mother.id(), 100);
+        entry.exchange(father.id(), 120);
+        assertNull(entry.sight(first, 40));
+        assertNull(entry.sight(evidence("babies", mother), 41));
+        assertNull(entry.abandonExchange(mother.id(), 50));
+        assertNull(entry.expireExchanges(119));
+        assertEquals(first, entry.expireExchanges(120));
+        assertEquals(first.verdict(), entry.verdict());
+        assertNull(entry.expireExchanges(121));
+    }
+
+    @Test void abandonmentWithNoEvidenceLeavesTheOrdinarySightRuleIntact() {
+        var entry = new BadgeConduct.Case(brood, mother, father, null);
+        entry.exchange(mother.id(), 100);
+        assertNull(entry.abandonExchange(mother.id(), 30));
+        assertNull(entry.verdict());
+        assertNull(entry.spoken(evidence("lie_exposed", mother), 35));
+        var sight = evidence("babies", father);
+        assertEquals(sight, entry.sight(sight, 40));
+    }
+
+    @Test void aSpokenProofAtTheDeadlineCannotReplaceHeldSight() {
+        var entry = new BadgeConduct.Case(brood, mother, father, null);
+        var sight = evidence("babies", father);
+        entry.exchange(mother.id(), 100);
+        assertNull(entry.sight(sight, 40));
+        assertEquals(sight, entry.spoken(evidence("lie_exposed", mother), 100));
+    }
+
+    private static BadgeConduct.Evidence evidence(String cause, BadgeConduct.Parent witnessParent) {
+        return new BadgeConduct.Evidence(new BadgeConduct.Verdict(cause, 4, witnessParent.owner()),
+                witnessParent.id(), UUID.randomUUID(), cause);
+    }
 }
