@@ -147,11 +147,7 @@ public final class YukkuriPersonality {
         for (Trait trait : Trait.values()) {
             int slot = trait.ordinal();
             innate[slot] = bounds.clamp(trait, innate[slot]);
-            experience[slot] = Math.clamp(experience[slot], Math.max(-20, bounds.minimum(trait) - innate[slot]),
-                    Math.min(20, bounds.maximum(trait) - innate[slot]));
-            int effective = innate[slot] + experience[slot];
-            if (effective == bounds.minimum(trait) && experienceProgress[slot] < 0
-                    || effective == bounds.maximum(trait) && experienceProgress[slot] > 0) experienceProgress[slot] = 0;
+            applyExperience(slot, Upbringing.bounded(experience[slot], experienceProgress[slot], innate[slot], trait, bounds));
         }
     }
 
@@ -161,8 +157,8 @@ public final class YukkuriPersonality {
         if (trait == null) return false;
         int bounded = bounds().clamp(trait, target);
         int slot = trait.ordinal();
-        int nextExperience = Math.clamp(bounded - innate[slot], -20, 20);
-        int nextInnate = innate[slot] + nextExperience == bounded ? innate[slot] : bounds().clamp(trait, bounded - nextExperience);
+        int nextExperience = Math.clamp(bounded - innate[slot], -Upbringing.LIMIT, Upbringing.LIMIT);
+        int nextInnate = bounded - nextExperience;
         boolean changed = innate[slot] != nextInnate || experience[slot] != nextExperience;
         innate[slot] = nextInnate;
         experience[slot] = nextExperience;
@@ -207,24 +203,16 @@ public final class YukkuriPersonality {
         return 100 * (innate(trait) - min) / (bounds.maximum(trait) - min);
     }
 
-    /**
-     * Records one real, completed experience. Eight consistent units produce one bounded axis
-     * change; animations, observations, and repeated use of an already-known skill must not call it.
-     */
+    /** Records one real, completed experience. */
     public void experienced(Trait trait, int amount) {
-        if (trait == null || amount == 0) return;
         int slot = trait.ordinal();
-        experienceProgress[slot] = Math.clamp(experienceProgress[slot] + amount, -56, 56);
-        while (Math.abs(experienceProgress[slot]) >= 8) {
-            int direction = Integer.signum(experienceProgress[slot]);
-            TraitBounds bounds = bounds();
-            int lower = Math.max(-20, bounds.minimum(trait) - innate[slot]);
-            int upper = Math.min(20, bounds.maximum(trait) - innate[slot]);
-            int next = Math.clamp(experience[slot] + direction, lower, upper);
-            if (next == experience[slot]) { experienceProgress[slot] = 0; break; }
-            experience[slot] = next;
-            experienceProgress[slot] -= direction * 8;
-        }
+        var current = new Upbringing(experience[slot], experienceProgress[slot]);
+        applyExperience(slot, current.after(amount, !owner.family().adult(), innate[slot], trait, bounds()));
+    }
+
+    private void applyExperience(int slot, Upbringing learned) {
+        experience[slot] = learned.points();
+        experienceProgress[slot] = learned.remainder();
     }
 
     /** Formula 1: familiar/urgent callers contribute the documented maximum bonuses. */
@@ -362,17 +350,11 @@ public final class YukkuriPersonality {
         int[] born = tag.getIntArray("Innate");
         int[] learned = tag.getIntArray("Experience");
         int[] progress = tag.getIntArray("ExperienceProgress");
-        TraitBounds bounds = bounds();
-        if (born.length == Trait.values().length)
-            for (Trait trait : Trait.values()) innate[trait.ordinal()] = bounds.clamp(trait, born[trait.ordinal()]);
         for (Trait trait : Trait.values()) {
             int slot = trait.ordinal();
-            innate[slot] = bounds.clamp(trait, innate[slot]);
-            experience[slot] = learned.length == Trait.values().length ? Math.clamp(learned[slot], -20, 20) : 0;
-            experienceProgress[slot] = progress.length == Trait.values().length ? Math.clamp(progress[slot], -7, 7) : 0;
-            experience[slot] = Math.clamp(experience[slot],
-                    Math.max(-20, bounds.minimum(trait) - innate[slot]),
-                    Math.min(20, bounds.maximum(trait) - innate[slot]));
+            if (born.length == innate.length) innate[slot] = born[slot];
+            experience[slot] = learned.length == innate.length ? learned[slot] : 0;
+            experienceProgress[slot] = progress.length == innate.length ? progress[slot] : 0;
         }
         constrainToForm();
         talkWait = Math.clamp(tag.getInt("TalkWait"), 0, 300);

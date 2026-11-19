@@ -41,8 +41,8 @@ public final class SocialDisposition {
 
     public static double selfEsteem(YukkuriEntity entity) {
         var personality = entity.life().personality();
-        double base = Math.clamp(48 + .28 * (personality.innate(YukkuriPersonality.Trait.BOLDNESS) - 50)
-                - .18 * (personality.innate(YukkuriPersonality.Trait.FRIENDLINESS) - 50), 32, 72);
+        double base = Math.clamp(48 + .28 * (personality.boldness() - 50)
+                - .18 * (personality.friendliness() - 50), 32, 72);
         var hat = entity.life().custody();
         long now = entity.level().getGameTime();
         // Older hatless saves can lack the start of the loss.

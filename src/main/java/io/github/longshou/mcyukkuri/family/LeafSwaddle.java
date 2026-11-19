@@ -96,7 +96,7 @@ public final class LeafSwaddle {
     public double soil() { return soil; }
     private double constitution() {
         return entity.profile().traits().might() / entity.profile().traits().fatigue()
-                * (.9 + entity.life().personality().innate(Trait.SELF_CONTROL) / 500.0);
+                * (.9 + entity.life().personality().selfControl() / 500.0);
     }
     private double neglectAge() { return neglect / constitution(); }
     public int neglectStage() { return wrapped() && soil > 0 ? Math.min(4, 1 + (int)(neglectAge() / NEGLECT_BAND)) : 0; }
