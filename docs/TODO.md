@@ -11,7 +11,6 @@
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
-| 逃跑不跳下致命落差（共享逃跑规划） | `.worktrees/wp-flee-edge` | status/FlightPlanner.java (retreat/escape), motor steering, tests |
 | R1b 家规：菜单、忍耐与破戒、亲眼发现、愧疚 | `.worktrees/wp-house-rules` | pet/rules/*.java, interaction/CareMenu.java, client/CareScreen.java, pet/PetLife.java, family/Courtship.java, life/LifeMeal.java, social/DailyLife.java, entity/RoamingGoal.java, lang |
 | P5b 油霉：经验识别、DN05 狠心驱逐或不忍致全家传染、洞内缓慢传染 | `.worktrees/wp-mold-family` | settlement/MoldExile*.java, family/*, life/Mold*.java, art/dialogue (P5 lines), DN-05/06 scenes |
 
