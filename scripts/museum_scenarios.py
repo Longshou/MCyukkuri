@@ -1569,14 +1569,14 @@ _choice_scene(
     expect=[rf'uuid={_uuid_text(_ugly, "nest_declare")}[^\n]* declared site=.*spoken=true',
             rf'uuid={_uuid_text(_ugly, "nest_yield")}[^\n]* nest gave space '],
     late=[home('nest_declare', -7, -15), home('nest_yield', 7, -15),
-          yk('reimu', -7, -13.8, 'nest_peer_west', energy=55, yaw=180),
-          yk('reimu', 7, -13.8, 'nest_peer_east', energy=55, yaw=180)])
+          yk('reimu', -7, -13.2, 'nest_peer_west', energy=55, yaw=180),
+          yk('reimu', 7, -13.2, 'nest_peer_east', energy=55, yaw=180)])
 
 _choice_scene(
     'choice_food', '向拿苹果的人讨食：骂人索要或软声讨',
     '中间的人手里拿着一个苹果，两边各有一只同样饿的魔理沙。左边胆大不友善的骂着要吃的，右边友善的宠物软声讨食。',
     [human('caretaker_sister', 0, 0, 'apple_holder', 0, label='拿苹果的人')[:-1]
-     + ',NoAI:1b,HandItems:[{id:"minecraft:apple",count:1},{}]}',
+     + ',HandItems:[{id:"minecraft:apple",count:1},{}]}',
      _choice_actor('food_demand', -1.4, 0, yaw=-90, nutrition=38, social_wait=0, lead=True, **_pushy),
      _choice_actor('food_ask', 1.4, 0, yaw=90, nutrition=38, social_wait=0, **_considerate),
      *own('food_ask')],
@@ -1588,7 +1588,7 @@ _choice_scene(
     'choice_tool', '见人拿锥：装可爱求饶或退开',
     '围栏中间的人手里拿着锥，两边各有一只魔理沙看得见。左边胆大不友善的装可爱求饶，右边胆小友善的转身退到围栏边。',
     [human('caretaker_brother', 0, 0, 'tool_holder', 0, label='拿锥的人')[:-1]
-     + ',NoAI:1b,HandItems:[{id:"mcyukkuri:care_awl",count:1},{}]}',
+     + ',HandItems:[{id:"mcyukkuri:care_awl",count:1},{}]}',
      _choice_actor('tool_plead', -2, 0, yaw=-90, social_wait=0, lead=True, **_pushy),
      _choice_actor('tool_withdraw', 2, 0, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
      # Keep the display one opportunity: a viewer that leaves the 8-block holder memory resets. The retreat is a bounded walk or cower inside the pen.
