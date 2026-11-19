@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -45,6 +46,7 @@ public final class ShopRestock {
             YukkuriVariant.MARISA, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.ALICE,
             YukkuriVariant.PATCHOULI, YukkuriVariant.MYON);
     private static final List<YukkuriVariant> PREDATORS = List.of(YukkuriVariant.REMILIA, YukkuriVariant.FLANDRE);
+    private record FamilyDelivery(ShopLitter parents, long age) {}
 
     /** From any staff member's tick: the first restock is one period after the shop opens, then every period. */
     static void tick(ServerLevel level, ShopRegistry.Entry shop) {
@@ -67,6 +69,10 @@ public final class ShopRestock {
         var candidates = level.getEntitiesOfClass(YukkuriEntity.class, box, YukkuriEntity::isAlive);
         for (var y : candidates) {
             var custody = Custody.view(y);
+            if (shop.kind == ShopKind.PET && custody.role() == Custody.Role.STOCK && box.contains(y.position())
+                    && HumanCommerce.data(y).contains("Litter")) {
+                adoptLitter(y, ShopLitter.template(shop.id, HumanCommerce.data(y).getInt("Litter")));
+            }
             if (custody.role() != Custody.Role.STOCK || custody.ownedBy(shop.id)) continue;
             var owner = custody.owner();
             if (owner == null || !(level.getEntity(owner) instanceof HumanNpc staff) || registry.of(staff) != shop) continue;
@@ -79,6 +85,16 @@ public final class ShopRestock {
             if (custody.role() != Custody.Role.STOCK || !custody.ownedBy(shop.id)) continue;
             var tag = HumanCommerce.data(y);
             if (tag.contains(ShopTrade.FOR_SALE_SINCE)) continue;
+            if (shop.kind == ShopKind.PET && !shop.familyNests.isEmpty()) {
+                for (var be : ShopStaff.blockEntities(level, shop)) {
+                    if (!(be instanceof CareBlockEntity nest) || nest.kind() != CareBlock.Kind.NEST) continue;
+                    var room = ShopAccess.petRoom(shop, nest.getBlockPos());
+                    if (room != null && room.contains(y.position())) {
+                        y.life().assignHome(GlobalPos.of(level.dimension(), nest.getBlockPos()));
+                        break;
+                    }
+                }
+            }
             if (shop.kind == ShopKind.ONI) {
                 if (y.mind().preventionRemaining() == 0) shop.kind.prepareStock(y);
                 GameplayLog.event(y, "shop", "action=oni_stock shop={} form={} nutrition={} hygiene={} prevention={} price={} stage={} age={}",
@@ -87,6 +103,14 @@ public final class ShopRestock {
             }
             tag = tag.copy(); tag.putLong(ShopTrade.FOR_SALE_SINCE, now); HumanCommerce.set(y, tag);
         }
+    }
+
+    private static void adoptLitter(YukkuriEntity animal, ShopLitter parents) {
+        animal.family().wholesaleLitter(parents.mother(), parents.father());
+        var tag = HumanCommerce.data(animal).copy();
+        tag.remove("Litter");
+        tag.putBoolean("FamilyStock", true);
+        HumanCommerce.set(animal, tag);
     }
 
     static void reconcileReservations(ServerLevel level, ShopRegistry.Entry shop) {
@@ -198,21 +222,32 @@ public final class ShopRestock {
         int land = vacancies.singles(), predators = vacancies.predators();
         int arrived = 0;
         var random = ModRandom.world(level);
-        for (int i = 0; i < land + predators && dock != null; i++) {
-            int slot = ShopStaff.openDockSlot(dock);
-            if (slot < 0) break;
-            var returned = dock.getItem(slot);
-            if (!returned.isEmpty()) {
-                if (ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break;
-                dock.setItem(slot, ItemStack.EMPTY);
+        var slots = dock == null ? List.<Integer>of() : ShopStaff.openDockSlots(dock);
+        deliveries:
+        for (int i = 0; i < land + predators + vacancies.families() && arrived < slots.size(); i++) {
+            var species = i >= land && i < land + predators ? PREDATORS : LAND;
+            FamilyDelivery litter = null;
+            int count = 1;
+            if (i >= land + predators) {
+                long age = youngAge(random, random.nextInt(8));
+                count = ShopLitter.size(age, random.nextBoolean());
+                if (slots.size() - arrived < count) break;
+                litter = new FamilyDelivery(new ShopLitter(ModRandom.identity(random), ModRandom.identity(random)), age);
             }
-            boolean predator = i >= land;
-            var variant = (predator ? PREDATORS : LAND).get(random.nextInt((predator ? PREDATORS : LAND).size()));
-            var basket = arrive(level, shop, variant, random);
-            if (basket == null) break;
-            dock.setItem(slot, basket);
-            dock.setChanged();
-            arrived++;
+            var variant = species.get(random.nextInt(species.size()));
+            for (int member = 0; member < count; member++) {
+                int slot = slots.get(arrived);
+                var returned = dock.getItem(slot);
+                if (!returned.isEmpty()) {
+                    if (ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break deliveries;
+                    dock.setItem(slot, ItemStack.EMPTY);
+                }
+                var basket = arrive(level, shop, variant, random, litter);
+                if (basket == null) break deliveries;
+                dock.setItem(slot, basket);
+                dock.setChanged();
+                arrived++;
+            }
         }
         GameplayLog.world(level, "shop", "action=restock result=done shop={} stock={} adults={} ship_marked={} shipped={} free_land={} free_predator={} arrived={} next={}",
                 shop.id, stock.size(), adults, marked, shipped, land, predators, arrived, shop.nextRestock());
@@ -234,7 +269,7 @@ public final class ShopRestock {
      * A new individual from the wholesaler, always young, packed in a basket.
      * The temperament and condition reflect the shop's stock. It joins the world at the barrel for the tick of packing.
      */
-    private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, RandomSource random) {
+    private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, RandomSource random, FamilyDelivery litter) {
         var y = ModEntities.forVariant(variant).create(level);
         if (y == null) return null;
         var beside = shop.dock();
@@ -244,7 +279,7 @@ public final class ShopRestock {
         Motor.relocate(y, at, 0, "shop_arrival");
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(shop.dock()), MobSpawnType.COMMAND, null);
         y.setPersistenceRequired();
-        y.family().initializeGrowthAge(youngAge(random));
+        y.family().initializeGrowthAge(litter == null ? youngAge(random, random.nextInt(10)) : litter.age());
         if (shop.kind == ShopKind.ONI) {
             if (variant == YukkuriVariant.REIMU && random.nextInt(3) == 0)
                 y.subspecies().set(SubspeciesLife.Kind.WASA_REIMU, SubspeciesLife.Congenital.NORMAL);
@@ -261,6 +296,7 @@ public final class ShopRestock {
         y.life().setPickiness(y.life().pickiness() + 18);
         Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         if (!level.addFreshEntity(y)) return null;
+        if (litter != null) adoptLitter(y, litter.parents());
         var token = YukkuriWorldData.get(level).capture(y);
         if (token == null) return null; // it stays in the back room as stock, where staff and the roster see it
         GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} token={}", shop.id, y.family().stageId(), token);
@@ -269,8 +305,7 @@ public final class ShopRestock {
 
     /** Half the arrivals are babies and three in ten children: stock is frozen on the shelf, so the young do not grow out of it and
      *  the shop stays mostly 赤油 and 子油 with a few subadults. */
-    private static long youngAge(RandomSource random) {
-        int roll = random.nextInt(10);
+    private static long youngAge(RandomSource random, int roll) {
         if (roll < 5) return 48_000 + random.nextInt((int) GrowthTiming.BABY_END - 48_000);
         if (roll < 8) return GrowthTiming.BABY_END + random.nextInt((int) (GrowthTiming.SUBADULT_START - GrowthTiming.BABY_END));
         return GrowthTiming.SUBADULT_START + random.nextInt((int) (GrowthTiming.ADULT_START - GrowthTiming.SUBADULT_START));

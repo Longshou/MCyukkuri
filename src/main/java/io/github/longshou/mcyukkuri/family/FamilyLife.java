@@ -1208,6 +1208,22 @@ public final class FamilyLife {
                 second==null?null:second.life().personality(),entity.subspecies().congenital()!=SubspeciesLife.Congenital.NORMAL,entity.subspecies().kind()));
         linkParents(first, second);
     }
+    /** The breeder's parents are known only by identity. Affinity is with the actual littermates. */
+    public void wholesaleLitter(UUID mother, UUID father) {
+        this.mother = mother;
+        this.father = father;
+        var family = FamilyData.get(level());
+        family.register(entity);
+        var relations = YukkuriWorldData.get(level());
+        for (var sibling : family.children(mother)) {
+            if (sibling.equals(entity.getUUID())) continue;
+            relations.relate(entity.getUUID(), sibling, 30);
+            relations.relate(sibling, entity.getUUID(), 30);
+        }
+        entity.syncFamily();
+        GameplayLog.event(entity, "family", "wholesale litter mother={} father={} siblings={}", mother, father, family.children(mother));
+    }
+
     /** Records parentage and initial mutual affinity for an existing child. */
     public void linkParents(YukkuriEntity first, YukkuriEntity second) {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();

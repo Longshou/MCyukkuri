@@ -1307,12 +1307,13 @@ public final class ShopStaff {
         }
         return -1;
     }
-    static int openDockSlot(Container dock) {
+    static List<Integer> openDockSlots(Container dock) {
+        var slots = new ArrayList<Integer>();
         for (int slot = 0; slot < dock.getContainerSize(); slot++) {
             var item = dock.getItem(slot);
-            if (item.isEmpty() || item.is(ModItems.CARRIER.get()) && CarrierContents.tokens(item).isEmpty()) return slot;
+            if (item.isEmpty() || item.is(ModItems.CARRIER.get()) && CarrierContents.tokens(item).isEmpty()) slots.add(slot);
         }
-        return -1;
+        return slots;
     }
 
     static boolean holdsBasket(ServerLevel level, UUID token) {
