@@ -151,15 +151,10 @@ public final class Grab implements Action {
         if (source != null && ContactGeometry.braided(carrier)) {
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);
-            var stand = ContactGeometry.braidStandAfterTurn(carrier, target);
-            if (stand == null) return Feasibility.of(Reason.NO_SUPPORT, 0, "unstable_grip_stand");
-            double upright = ContactGeometry.braidGap(carrier, stand, target, false);
-            double low = ContactGeometry.braidGap(carrier, stand, target, true);
-            if (Math.min(upright, low) > 0) {
-                double shortfall = Math.min(upright, low);
-                return Feasibility.of(Reason.NO_CONTACT, shortfall, String.format(Locale.ROOT, "braid_gap=%.2f", shortfall));
-            }
-            chosen(Hold.BRAID, upright > 0, Math.min(upright, low));
+            var grip = ContactGeometry.braidGrip(carrier, target);
+            var ready = grip.check();
+            if (!ready.ok()) return ready;
+            chosen(Hold.BRAID, grip.lean(), grip.gap());
             rejected = "braid_lift";
             return Feasibility.pass();
         }

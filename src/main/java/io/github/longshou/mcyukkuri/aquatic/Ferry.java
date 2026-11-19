@@ -35,15 +35,54 @@ final class Ferry {
 
     private static Step act(Action action) { return new Step.Do(action); }
 
-    /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift: the boat is
-     *  brought alongside until the braid's own upright reach holds the young where it is now, so a grip begun from here is one
-     *  that holds; the low lean stays the reserve for a young that drifts while the braid closes. */
-    static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
-        var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> AquaticLife.ashore(child) || ContactGeometry.braidReachesUpright(carrier, child) ? null
-                : act(new Paddle(() -> child.isAlive() ? child.position() : null,
-                distance -> child.isPassenger() || AquaticLife.ashore(child) || ContactGeometry.braidReachesUpright(carrier, child))));
-        return steps;
+    /** One approach and up to two corrections before the shared lift. */
+    static List<Supplier<Step>> rescuePickup(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
+        return List.of(new Plan.Approach<>(3, () -> ContactGeometry.braidGrip(carrier, child).check(),
+                        reason -> rescueMove(carrier, hat, child, reason), Ferry::act),
+                () -> act(new Grab(child, hat)));
+    }
+
+    /** Stop to lift from an admitted stance or, within nominal reach of an unstable stance, to change footing. */
+    private static boolean alongside(YukkuriEntity carrier, YukkuriEntity child) {
+        if (child.isPassenger() || AquaticLife.ashore(child)) return true;
+        var grip = ContactGeometry.braidGrip(carrier, child);
+        return grip.ready() || !grip.supported() && ContactGeometry.inBraidReach(carrier, child);
+    }
+
+    private static Action rescueMove(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child, Reason reason) {
+        if (!child.isAlive() || child.isPassenger() || AquaticLife.ashore(child)) return null;
+        if (reason == Reason.NO_CONTACT)
+            return new Paddle(() -> child.isAlive() ? child.position() : null, distance -> alongside(carrier, child));
+
+        var stance = rescueStance(carrier, hat, child);
+        if (stance != null) GameplayLog.event(carrier, "aquatic",
+                "rescue change stance faller={} reason=unstable_grip_stand from={} to={}",
+                child.getUUID(), hat.riders().local(carrier.getUUID()), stance);
+        return stance == null ? null : new Hop(hat, stance);
+    }
+
+    /** Prefer a stand already in reach; a stable one farther away allows another stroke from there. */
+    private static Vec3 rescueStance(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
+        var stops = new ArrayList<>(hat.hopStops(carrier));
+        var rest = hat.restSpot(carrier);
+        if (rest != null) stops.add(rest.local());
+        var entry = hat.restEntry(carrier);
+        if (entry != null) stops.add(entry.local());
+        var frame = hat.frame();
+        stops.sort(Comparator.comparingDouble(stop -> frame.toWorld(stop).distanceToSqr(child.position())));
+        var search = new Hop.Search();
+        Vec3 supported = null;
+        for (var stop : stops) {
+            if (Waters.standsAt(hat, carrier, stop)) continue;
+            float yaw = Hop.arrivalYaw(carrier, carrier.position(), new SeatTarget(hat, stop));
+            var grip = ContactGeometry.braidGrip(carrier, hat, stop, yaw, child);
+            if (!grip.supported() || !grip.ready() && supported != null) continue;
+            var hop = new Hop(hat, stop);
+            if (!hop.check(carrier, search).ok()) continue;
+            if (grip.ready()) return stop;
+            supported = stop;
+        }
+        return supported;
     }
 
     /** Load one young from the bank: board the brim place its braid reaches it from and lift it into a seat; when no brim place
@@ -78,8 +117,7 @@ final class Ferry {
             var seat = new SeatTarget(hat, stop);
             float yaw = Hop.arrivalYaw(carrier, carrier.position(), seat);
             if (!seat.available(carrier, yaw)) continue;
-            var stand = ContactGeometry.braidStandAfterTurn(carrier, hat, stop, yaw, child);
-            if (stand != null && ContactGeometry.braidGap(carrier, stand, child) <= 0) out.add(stop);
+            if (ContactGeometry.braidGrip(carrier, hat, stop, yaw, child).ready()) out.add(stop);
         }
         return out;
     }

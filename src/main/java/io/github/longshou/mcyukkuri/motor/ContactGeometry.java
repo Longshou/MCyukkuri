@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.motor.geom.BraidGrip;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
@@ -117,18 +118,24 @@ public final class ContactGeometry {
         return gap(body, braid(body, at, braidYaw(at, target.position()), braidRootModel(lean)), target, sighted);
     }
 
-    /** The supported feet at pickup yaw, or null if the turn would slide the carrier off this stand. */
-    public static Vec3 braidStandAfterTurn(YukkuriEntity body, Entity target) {
-        if (!(body.getVehicle() instanceof SurfaceHost host)) return body.position();
+    /** The grip admission shared by the approach and the lift itself. */
+    public static BraidGrip braidGrip(YukkuriEntity body, Entity target) {
+        if (!(body.getVehicle() instanceof SurfaceHost host)) return braidGrip(body, body.position(), target);
         var spot = host.riders().spot(body.getUUID());
-        return braidStandAfterTurn(body, host, spot.local(), spot.yaw(), target);
+        return braidGrip(body, host, spot.local(), spot.yaw(), target);
     }
 
-    public static Vec3 braidStandAfterTurn(YukkuriEntity body, SurfaceHost host, Vec3 local, float localYaw, Entity target) {
+    /** The same check at a prospective rider spot and arrival yaw. */
+    public static BraidGrip braidGrip(YukkuriEntity body, SurfaceHost host, Vec3 local, float localYaw, Entity target) {
         var frame = host.frame();
         float yaw = braidYaw(frame.toWorld(local), target.position()) - host.entity().getYRot();
         var height = Floor.turnHeight(host, body, local, localYaw, yaw, true);
-        return height.isEmpty() ? null : frame.toWorld(new Vec3(local.x, height.getAsDouble(), local.z));
+        if (height.isEmpty()) return new BraidGrip(false, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return braidGrip(body, frame.toWorld(new Vec3(local.x, height.getAsDouble(), local.z)), target);
+    }
+
+    private static BraidGrip braidGrip(YukkuriEntity body, Vec3 stand, Entity target) {
+        return new BraidGrip(true, braidGap(body, stand, target, false), braidGap(body, stand, target, true));
     }
 
     private static double gap(YukkuriEntity body, Vec3 root, Entity target, boolean sighted) {
@@ -186,12 +193,6 @@ public final class ContactGeometry {
     /** Whether the braid reaches the target from where the body stands, upright or in the low lean. */
     public static boolean inBraidReach(YukkuriEntity body, Entity target) {
         return braidGap(body, target, false) <= 0 || braidGap(body, target, true) <= 0;
-    }
-
-    /** Whether the braid reaches the target upright: the reach a grip is begun with, the low lean only ever widening it, so an
-     *  approach that ends here leaves the lean as the reserve for a target that moves while the braid closes. */
-    public static boolean braidReachesUpright(YukkuriEntity body, Entity target) {
-        return braidGap(body, target, false) <= 0;
     }
 
     /** The yaw that turns the braid side to {@code target}: the bearing to it less the braid root's own angle off the face. */

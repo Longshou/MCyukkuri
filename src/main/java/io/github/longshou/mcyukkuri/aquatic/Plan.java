@@ -18,27 +18,32 @@ import java.util.function.Supplier;
  * Nothing is a stored phase: the next steps always follow from the facts.
  */
 final class Plan implements Method {
-    /** Allow one correcting walk and one refresh if the target moved during it. */
+    /** Allow one correcting move and one refresh if the contact changed during it. */
     static final class Approach<T> implements Supplier<Step> {
         private final Supplier<Feasibility> grip;
-        private final Supplier<T> contactStand;
-        private final Function<T, Step> walk;
-        private int walksLeft = 2;
+        private final Function<Reason, T> correction;
+        private final Function<T, Step> move;
+        private int movesLeft;
 
-        Approach(Supplier<Feasibility> grip, Supplier<T> contactStand, Function<T, Step> walk) {
+        Approach(Supplier<Feasibility> grip, Supplier<T> correction, Function<T, Step> move) {
+            this(2, grip, reason -> correction.get(), move);
+        }
+
+        Approach(int moves, Supplier<Feasibility> grip, Function<Reason, T> correction, Function<T, Step> move) {
+            movesLeft = moves;
             this.grip = grip;
-            this.contactStand = contactStand;
-            this.walk = walk;
+            this.correction = correction;
+            this.move = move;
         }
 
         @Override public Step get() {
-            if (walksLeft == 0) return null;
+            if (movesLeft == 0) return null;
             var reason = grip.get().reason();
             if (reason != Reason.NO_CONTACT && reason != Reason.NO_SUPPORT) return null;
-            var stand = contactStand.get();
-            if (stand == null) return null;
-            walksLeft--;
-            return walk.apply(stand);
+            var next = correction.apply(reason);
+            if (next == null) return null;
+            movesLeft--;
+            return move.apply(next);
         }
     }
 

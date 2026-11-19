@@ -19,8 +19,7 @@ public final class BraidFetch {
     public static int marker(String clip, String marker) { return Math.round(ClipMarkers.of(clip).markers().get(marker) * 20); }
     /** Can the braid reach the child's envelope after turning on this support? */
     public static boolean withinReach(YukkuriEntity carrier, YukkuriEntity child) {
-        var stand = ContactGeometry.braidStandAfterTurn(carrier, child);
-        return stand != null && ContactGeometry.braidGap(carrier, stand, child) <= 0;
+        return ContactGeometry.braidGrip(carrier, child).ready();
     }
     /** Face the child, then the shared tracking lift and lowering. */
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {

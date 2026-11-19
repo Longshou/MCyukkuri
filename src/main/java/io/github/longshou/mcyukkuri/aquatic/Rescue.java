@@ -127,8 +127,7 @@ final class Rescue implements Intent {
             return hat == null && !helper.life().custody().worn() ? null
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }
-        if (!ContactGeometry.braidReachesUpright(helper, faller)) return Ferry.chase(helper, faller);
-        return BraidFetch.lift(helper, faller, hat);
+        return Ferry.rescuePickup(helper, hat, faller);
     }
 
     /** A dry bank stand beside the faller's water she can walk to, from which a hold she has for it reaches it where it is now (the

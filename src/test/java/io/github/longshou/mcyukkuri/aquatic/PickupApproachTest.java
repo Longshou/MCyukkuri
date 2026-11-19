@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.geom.BraidGrip;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
@@ -64,6 +65,18 @@ class PickupApproachTest {
         assertEquals("right", ((Step.Wait) plan.next()).why());
         assertEquals("check grip", ((Step.Wait) plan.next()).why());
         assertTrue(stands.hasNext());
+    }
+
+    @Test void rescueApproachCanChangeFootingWithinTheSamePlan() {
+        var contact = List.of(new BraidGrip(true, .5, .4), new BraidGrip(false, -.1, -.2),
+                new BraidGrip(true, -.1, -.2)).iterator();
+        var grip = beat("grip");
+        var plan = Plan.of("lift", () -> List.of(new Plan.Approach<>(3, () -> contact.next().check(),
+                reason -> reason == Reason.NO_SUPPORT ? "hop" : "paddle", PickupApproachTest::beat), () -> grip));
+        assertEquals("paddle", ((Step.Wait) plan.next()).why());
+        assertEquals("hop", ((Step.Wait) plan.next()).why());
+        assertSame(grip, plan.next());
+        assertFalse(contact.hasNext());
     }
 
     private static Step.Wait beat(String name) { return new Step.Wait(() -> true, 1, name); }
