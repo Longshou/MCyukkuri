@@ -32,16 +32,20 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 
 public final class CareBlockEntity extends BlockEntity implements Container {
-    private final NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> items;
     private final LinkedHashMap<UUID,Integer> residents=new LinkedHashMap<>();
     private final LinkedHashMap<UUID,NestResting.Place> resting=new LinkedHashMap<>();
     public Vec3 restOffset(UUID id){var p=resting.get(id);return p==null?new Vec3(0,.1,0):p.offset();}
     private double wasteVolume;
+    private int water;
     private ItemStack displayFood = ItemStack.EMPTY;
     private int visibleFoodCount;
     /** Dye-selected look (CareStyles); "" is the default. Saved and synced with the block. */
     private String pattern="";
-    public CareBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.CARE.get(), pos, state); }
+    public CareBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlocks.CARE.get(), pos, state);
+        items = NonNullList.withSize(kind() == CareBlock.Kind.WATERER ? 0 : 9, ItemStack.EMPTY);
+    }
     public CareBlock.Kind kind() { return ((CareBlock)getBlockState().getBlock()).kind(); }
     public UUID resident() { return residents.keySet().stream().findFirst().orElse(null); }
     public boolean owns(UUID id){return residents.containsKey(id);}
@@ -76,6 +80,15 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     }
     public String occupancy(){return "residents="+residents+" large="+largeNest();}
     public double waste() { return wasteVolume; }
+    public int water() { return water; }
+    public boolean refillWater(boolean bucket) { return changeWater(WaterPortions.refill(water, bucket)); }
+    public boolean spendWater() { return changeWater(WaterPortions.spend(water)); }
+    private boolean changeWater(int portions) {
+        if (water == portions) return false;
+        water = portions;
+        changed();
+        return true;
+    }
     public int capacity(){return ((CareBlock)getBlockState().getBlock()).capacity();}
     public boolean acceptsWaste(ItemStack stack) {
         if (!stack.is(ModItems.WASTE.get())) return false;
@@ -213,6 +226,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         super.saveAdditional(tag, registries);
         ContainerHelper.saveAllItems(tag, items, registries);
         tag.putDouble("Waste", wasteVolume);
+        if (kind() == CareBlock.Kind.WATERER) tag.putInt("Water", water);
         if (resident() != null) {tag.putUUID("Resident", resident());tag.putInt("ResidentStage",residents.get(resident()));}
         tag.put("RestingPlaces",NestResting.save(resting));
         if(!pattern.isEmpty())tag.putString("Pattern",pattern);
@@ -224,6 +238,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         super.loadAdditional(tag, registries);
         items.clear(); ContainerHelper.loadAllItems(tag, items, registries);
         wasteVolume = Poops.loadVolume(tag, "Waste", "WastePortions", registries);
+        if (kind() == CareBlock.Kind.WATERER) water = Math.clamp(tag.getInt("Water"), 0, WaterPortions.CAPACITY);
         NestResting.load(tag.getList("RestingPlaces",Tag.TAG_COMPOUND),resting);
         String saved=tag.getString("Pattern");pattern=CareStyles.valid(blockId(),saved)?saved:"";
         residents.clear();if(tag.hasUUID("Resident"))residents.put(tag.getUUID("Resident"),tag.contains("ResidentStage")?Math.clamp(tag.getInt("ResidentStage"),0,2):2);
@@ -233,6 +248,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         // Inventory contents use the vanilla menu; only the visible fill level is broadcast.
         CompoundTag tag = new CompoundTag();
         tag.putDouble("Waste", wasteVolume);
+        if (kind() == CareBlock.Kind.WATERER) tag.putInt("Water", water);
         tag.putInt("FoodCount",foodCount());
         if(!pattern.isEmpty())tag.putString("Pattern",pattern);
         ItemStack food = items.stream().filter(stack -> stack.is(YukkuriEntity.FOOD)).findFirst().orElse(ItemStack.EMPTY);
@@ -241,6 +257,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     }
     @Override public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         wasteVolume = tag.getDouble("Waste");
+        if (kind() == CareBlock.Kind.WATERER) water = tag.getInt("Water");
         visibleFoodCount=Math.max(0,tag.getInt("FoodCount"));
         pattern=tag.getString("Pattern");
         displayFood = tag.contains("DisplayFood") ? ItemStack.parseOptional(registries,tag.getCompound("DisplayFood")) : ItemStack.EMPTY;
@@ -250,6 +267,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         handleUpdateTag(packet.getTag(), registries);
     }
     @Override public int getContainerSize() { return items.size(); }
+    @Override public boolean canPlaceItem(int slot, ItemStack stack) { return kind() != CareBlock.Kind.WATERER; }
     @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
     @Override public ItemStack getItem(int slot) { return items.get(slot); }
     @Override public ItemStack removeItem(int slot, int count) {

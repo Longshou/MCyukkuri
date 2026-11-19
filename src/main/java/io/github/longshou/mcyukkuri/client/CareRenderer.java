@@ -26,6 +26,7 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
     @Override public void render(CareBlockEntity care, float partial, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         String model=switch(care.kind()){
             case BOWL -> "food_bowl";
+            case WATERER -> "waterer";
             case NEST -> "yukkuri_nest";
             case TOILET -> "yukkuri_toilet";
         };
@@ -57,6 +58,7 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
             PropModels.render(model,units,pose,buffers,light,overlay);
         }
         if(fill!=null)PropModels.render(fill,units,pose,buffers,light,overlay);
+        if(care.kind()==CareBlock.Kind.WATERER&&care.water()>0)PropModels.render("waterer_water",care.water(),pose,buffers,light,overlay);
         pose.popPose();
         if(care.kind()==CareBlock.Kind.TOILET&&care.waste()>0){
             pose.pushPose();pose.translate(.5,.0625,.5);

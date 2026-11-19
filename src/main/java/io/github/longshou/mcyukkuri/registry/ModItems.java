@@ -115,6 +115,7 @@ public final class ModItems {
     public static final DeferredItem<CompanionCordItem> COMPANION_CORD = ITEMS.register("companion_cord",
             () -> new CompanionCordItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<BlockItem> FOOD_BOWL = ITEMS.registerSimpleBlockItem("food_bowl", ModBlocks.FOOD_BOWL);
+    public static final DeferredItem<BlockItem> WATERER = ITEMS.registerSimpleBlockItem("waterer", ModBlocks.WATERER);
     public static final DeferredItem<BlockItem> LARGE_NEST=ITEMS.registerSimpleBlockItem("large_yukkuri_nest",ModBlocks.LARGE_NEST);
     public static final DeferredItem<BlockItem> LARGE_WILD_NEST=ITEMS.registerSimpleBlockItem("large_wild_nest",ModBlocks.LARGE_WILD_NEST);
     public static final DeferredItem<BlockItem> STRAW_NEST = ITEMS.registerSimpleBlockItem("straw_nest", ModBlocks.STRAW_NEST);

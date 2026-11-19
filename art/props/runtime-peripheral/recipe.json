@@ -84,6 +84,14 @@
     "herbal_medicine"
   ],
   "recipes": {
+    "waterer": {
+      "ingredients": [
+        "minecraft:bowl",
+        "minecraft:clay_ball",
+        "minecraft:glass_bottle"
+      ],
+      "count": 1
+    },
     "yukkuri_carrier_fine": {
       "ingredients": [
         "minecraft:chest",

@@ -18,6 +18,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -43,7 +45,9 @@ import java.util.List;
 
 /** Small survival facilities. Inventory and residence are owned by the block entity. */
 public class CareBlock extends Block implements EntityBlock {
-    public enum Kind { BOWL, NEST, TOILET }
+    public enum Kind { BOWL, NEST, TOILET, WATERER }
+    public static final VoxelShape WATERER_DISH = box(1, 0, 1, 15, 2, 15);
+    private static final VoxelShape WATERER_SHAPE = Shapes.or(WATERER_DISH, box(5, 1, 5, 11, 12, 11));
     private final Kind kind;
     private final String style;
     private final int capacity;
@@ -102,6 +106,7 @@ public class CareBlock extends Block implements EntityBlock {
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
+            case WATERER -> WATERER_SHAPE;
             // The predator's twig ledge; the pet beds (PetNestBlock) and 2x2 nests (LargeNestBlock) have their own shapes.
             case NEST -> box(0,0,0,16,height,16);
             // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x.
@@ -117,9 +122,38 @@ public class CareBlock extends Block implements EntityBlock {
         if (stack.is(ModItems.FIELD_NOTEBOOK.get()) || stack.is(ModItems.WASH_CLOTH.get())
                 || kind == Kind.TOILET && stack.is(ModItems.WASTE.get()))
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        if (kind == Kind.WATERER) {
+            boolean bucket = stack.is(Items.WATER_BUCKET);
+            if (bucket || Consumables.water(stack)) return refillWaterer(stack, level, pos, player, hand, bucket);
+            if (stack.isEmpty()) {
+                var offhand = player.getOffhandItem();
+                if (!offhand.is(Items.WATER_BUCKET) && !Consumables.water(offhand))
+                    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        }
         if (stack.getItem() instanceof DyeItem dye && CareStyles.styled(id()))
             return restyle(dye.getDyeColor(), stack, level, owner(state, pos), player);
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+    private static ItemInteractionResult refillWaterer(ItemStack stack, Level level, BlockPos pos, Player player,
+            InteractionHand hand, boolean bucket) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (!(level.getBlockEntity(pos) instanceof CareBlockEntity care)) return ItemInteractionResult.CONSUME;
+        int before = care.water();
+        if (!care.refillWater(bucket)) {
+            player.displayClientMessage(Component.translatable("care.mcyukkuri.waterer.level", before, WaterPortions.CAPACITY), true);
+            GameplayLog.limited(player, "interaction", "waterer_full", 20, "waterer refill refused target={} reason=full water={}", pos, before);
+            return ItemInteractionResult.CONSUME;
+        }
+        var used = stack.getItem();
+        var returned = bucket ? Items.BUCKET : Items.GLASS_BOTTLE;
+        boolean creative = player.getAbilities().instabuild;
+        if (!creative) player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(returned)));
+        level.playSound(null, pos, bucket ? SoundEvents.BUCKET_EMPTY : SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1, 1);
+        GameplayLog.event(player, "interaction", "waterer filled player={} target={} item={} returned={} water={} -> {}",
+                player.getScoreboardName(), pos, used, creative ? used : returned, before, care.water());
+        return ItemInteractionResult.CONSUME;
     }
     private String id(){return BuiltInRegistries.BLOCK.getKey(this).getPath();}
     /** A dye of a listed colour switches the placed good to that style and is used up (not in creative). */
@@ -158,6 +192,8 @@ public class CareBlock extends Block implements EntityBlock {
             } else if (kind == Kind.NEST) {
                 player.displayClientMessage(Component.literal((care.largeNest()?"大窝（成/亚成 2＋赤 4，子 2 单独）":"普通窝（赤 4／子 2／成或亚成 1）")
                         +(grade()>0?" "+grade()+" 档 ":" ")+care.occupancy()), true);
+            } else if (kind == Kind.WATERER) {
+                player.displayClientMessage(Component.translatable("care.mcyukkuri.waterer.level", care.water(), WaterPortions.CAPACITY), true);
             } else {
                 player.displayClientMessage(Component.translatable("care.mcyukkuri.toilet.level", care.waste(), care.capacity()), true);
             }
