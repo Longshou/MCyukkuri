@@ -15,6 +15,7 @@
   "outputs": {
     "src/main/resources/assets/mcyukkuri/textures/block/care_bowl.png": "ecae350c80f0eca14c4a3b18b56f0c5971fbcdfa261a6a19a306ab057d17fc9c",
     "src/main/resources/assets/mcyukkuri/blockstates/food_bowl.json": "41ddfa98e28c9c6f4fbb888b34d5d7fb20242bbc35c5652f1f4e69510e12e3e1",
+    "src/main/resources/assets/mcyukkuri/blockstates/waterer.json": "73ccfeb55fbf95a1ce7480d2bcdd4615bb7fccbce052627edc5734e1554fe9d2",
     "src/main/resources/assets/mcyukkuri/blockstates/yukkuri_nest.json": "a931f0e11bdb8574da5a13d5ccf36663c66c69f468ead01f77b70da2bcfac00f",
     "src/main/resources/assets/mcyukkuri/blockstates/yukkuri_toilet.json": "9764b699e7f758734df54c652e411cfb7568af551b310c3027ff885cdac253d3",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json": "05da77703b49b213fd11d661143b76c702f487c8c0445f27dceaa84914db63b9"

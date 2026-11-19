@@ -219,6 +219,36 @@
       "sha256": "00ac78591700034fe704621d7fce1a1667c71c256b5839b07b6df348ab67b4ff",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
+    "generated:art/props/runtime-peripheral/selected/waterer/waterer.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/waterer/waterer.mesh.json",
+      "sha256": "c2aa04137407c89ba593a3b698e30324efa52e8e8e032c532697b5b1719bce43",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/waterer/waterer.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/waterer/waterer.bbmodel",
+      "sha256": "99d2ebd8d91e48d19e3354269e9edd06321d9852a753d08c8488f5dcd4a1292d",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/waterer/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/waterer/texture.png",
+      "sha256": "df4bfe3c79b3972b8389eba243838ea3756f56bc2b8cccc14caa8929e8de1b92",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/waterer_water/waterer_water.mesh.json": {
+      "snapshot": "art/props/runtime-peripheral/selected/waterer_water/waterer_water.mesh.json",
+      "sha256": "09cf14e967697b88df797de6d773f803cd19569f667564c549b2c5b78ddaa299",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/waterer_water/waterer_water.bbmodel": {
+      "snapshot": "art/props/runtime-peripheral/selected/waterer_water/waterer_water.bbmodel",
+      "sha256": "fd0aec10aad2f5c95fb0781c96eadd10dd0572b3af68c7a88c55d2d1ef2b9105",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/runtime-peripheral/selected/waterer_water/texture.png": {
+      "snapshot": "art/props/runtime-peripheral/selected/waterer_water/texture.png",
+      "sha256": "23d47967492f2d2bea27d04387c7b1332ceb9edb02a916682a937227ee51ee0f",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
     "generated:art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_toilet/yukkuri_toilet.mesh.json",
       "sha256": "71298949ac174a8e141e1d152f95e18810dd801418bffc072f73110df1adf421",

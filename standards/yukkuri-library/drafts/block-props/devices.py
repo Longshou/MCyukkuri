@@ -12,6 +12,14 @@ a stepped dome that contains heap k-1 and is wider and higher, so CareRenderer's
 last heaps rise above the rim as on the icon. Kibble is a field of lit and shaded grains, wheat golden stalks with ears,
 the grass fill cut blades.
 
+waterer: the bowl's sibling for water, radially symmetric (no facing). A saucer on the bowl's plan, only 2 high so the
+`drink` clip's low mouth meets the rim (the bowl is 3), with the bowl's rim line in blue; on a cork collar in the middle
+stands an inverted glass jar, 6 across and 9 high, its top at y 12. The glass is cut-out like vanilla glass: lit frame rows,
+solid stepped corners and clear panes with a glint, nothing drawn on its inside. waterer_water is the water alone, drawn
+inside the waterer like a bowl fill: one 4 x 4 row of the jar per portion (tank_u1 at the bottom to tank_u8, units 1-8)
+and the saucer's water ring (dish_water, unit 1), so drawing units 1..k shows a jar k rows full over a wet saucer and
+drawing none shows it dry.
+
 yukkuri_toilet and three dye styles, each with a dirty state: a rectangular litter tray 14 x 12, 3 high, clearly a tray
 beside the round bowl: a one-cell plastic rim with clipped corners round sand at y 2 in pixel grain. The dirty tray has
 damp clumps in the sand and two droppings.
@@ -189,6 +197,79 @@ def food_bowl_forage():
 
 
 # =====================================================================================================================
+# Waterer. Saucer rows: 0 foot (the bowl's inset), 1 wall; up faces: rim top at y 2 and the floor at y 1. The cork collar
+# stands on the floor to y 3; the glass jar is rows 3-10 with a stepped roof at 11.
+JAR = kit.octagon(3, 1)                              # collar and jar plan: 6 across with the corners cut
+JAR_CORE = kit.inset(JAR)                            # the 4 x 4 the water fills inside the one-cell glass
+JAR_Y, JAR_ROWS = 3, 8                               # first glass row; one row per portion
+
+
+def saucer_glaze(cell, face):
+    y = cell[1]
+    if face == 'up':
+        return ('WHITE', 4) if y else ('CREAM', 4)                 # lit rim; floor
+    if face == 'down':
+        return ('CREAM', 2)
+    if kit.inward(cell, face):
+        return ('CREAM', 3)
+    return ('SKY', 2) if y else ('CREAM', 3)                       # the bowl's rim line in blue; foot
+
+
+def cork(cell, face):
+    x, y, z = cell
+    if face == 'up':
+        return ('CORK', 3)
+    return ('CORK', 1 if y == 1 or mix(x, y, z) < 3 else 2)        # darker where it stands in the water; cork flecks
+
+
+def jar_glass(cell, face):
+    x, y, z = cell
+    if face == 'down' or kit.inward(cell, face):
+        return kit.CLEAR                                           # nothing inside: the water is drawn there
+    if face == 'up':
+        return ('WHITE', 4) if (x, z) == (-2, -2) else ('GLASS', 3)        # the jar's base, a glint at its top left
+    along, depth = (x, z) if face in ('north', 'south') else (z, x)
+    if y == JAR_Y + JAR_ROWS or depth not in (-3, 2):
+        return ('GLASS', 3)                                        # roof edge; the one-cell corner steps: the frame
+    if y == JAR_Y:
+        return ('GLASS', 2)
+    if y == JAR_Y + JAR_ROWS - 1:
+        return ('GLASS', 3)
+    if (along, y) in ((-2, 7), (-1, 8), (1, 5)):
+        return ('WHITE', 4)                                        # glints on the pane
+    return kit.CLEAR
+
+
+def waterer():
+    b = kit.Block('waterer')
+    ceramic = kit.Material('WHITE', top=0, bottom=0, bevel=False, pattern=saucer_glaze)
+    dish = b.part('dish')
+    dish.layer(WELL, 0, 1, ceramic)                                # foot and floor
+    dish.layer(BOWL - WELL, 1, 2, ceramic)                         # wall and rim
+    b.part('collar').layer(JAR, 1, JAR_Y, kit.Material('CORK', bevel=False, pattern=cork))
+    glass = kit.Material('GLASS', bevel=False, pattern=jar_glass)
+    jar = b.part('jar')
+    jar.layer(JAR - JAR_CORE, JAR_Y, JAR_Y + JAR_ROWS, glass)
+    jar.layer(JAR_CORE, JAR_Y + JAR_ROWS, JAR_Y + JAR_ROWS + 1, glass)     # the roof steps in one cell
+    return b
+
+
+def waterer_water():
+    b = kit.Block('waterer_water')
+
+    def ripple(cell, face):
+        x, y, z = cell
+        if face == 'up':
+            return 2 if mix(x, z) < 2 else 1                       # a few white ripples on the surface
+        return 0
+    water = kit.Material('WATER', step=2, top=0, bottom=0, bevel=False, pattern=ripple)
+    b.part('dish_water', 1).layer(WELL - JAR, 1, 2, water)
+    for k in range(1, JAR_ROWS + 1):
+        b.part(f'tank_u{k}', k).layer(JAR_CORE, JAR_Y + k - 1, JAR_Y + k, water)
+    return b
+
+
+# =====================================================================================================================
 # Sand toilet: CareBlock's sand tray box is 14.46 x 11.58 and 2.35 high; the sand top is at y 2.
 TRAY = kit.octagon(7, 1, half_z=6)
 SAND = kit.octagon(6, 1, half_z=5)                   # the sand's corners are clipped too, so the rim is closed round them
@@ -338,7 +419,7 @@ def variants():
 
 
 PROPS = {'food_bowl': food_bowl, 'food_bowl_regular': food_bowl_regular, 'food_bowl_wheat': food_bowl_wheat,
-         'food_bowl_forage': food_bowl_forage, 'yukkuri_toilet': yukkuri_toilet, 'yukkuri_toilet_dirty': yukkuri_toilet_dirty,
+         'food_bowl_forage': food_bowl_forage, 'waterer': waterer, 'waterer_water': waterer_water, 'yukkuri_toilet': yukkuri_toilet, 'yukkuri_toilet_dirty': yukkuri_toilet_dirty,
          'yukkuri_carrier': yukkuri_carrier, 'yukkuri_carrier_fine': yukkuri_carrier_fine,
          'yukkuri_carrier_large': yukkuri_carrier_large}
 ALL = {**PROPS, **variants()}

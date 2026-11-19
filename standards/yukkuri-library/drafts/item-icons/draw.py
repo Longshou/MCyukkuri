@@ -525,6 +525,34 @@ def food_bowl():
     return i
 
 
+def waterer():
+    """Pet waterer: a glass jar of water upside down on a cork collar in a white saucer with a blue rim line (the bowl's is red)."""
+    i = Icon('waterer')
+    i.rows(legend(o=(GLASS, 0), G=(GLASS, 3), g=(GLASS, 2), e=(GLASS, 1),
+                  a=(WATER, 4), r=(WATER, 3), b=(WATER, 2), A=(WATER, 1),
+                  j=(S.CORK, 3), k=(S.CORK, 2), K=(S.CORK, 0),
+                  c=(WHITE, 0), L=(WHITE, 4), l=(WHITE, 3), f=(WHITE, 2), F=(WHITE, 1),
+                  q=(SKY, 3), s=(SKY, 2), S=(SKY, 1)), [
+        "................",
+        "......oooo......",
+        ".....oGGggo.....",
+        ".....oGggeo.....",
+        ".....oaaaAo.....",
+        ".....orbbAo.....",
+        ".....oGbbAo.....",
+        ".....orbbAo.....",
+        ".....obbbAo.....",
+        ".....KjkkkK.....",
+        "..ccccjkkKcccc..",
+        ".cLarrjkkKrrbFc.",
+        ".cLllllllllllFc.",
+        ".cqsssssssssSSc.",
+        "..cLlllllllfFc..",
+        "...cccccccccc...",
+    ])
+    return i
+
+
 def yukkuri_nest():
     """Pet cushion nest (strawberry): a low, wide red bolster round a cream pad, darker toward the lower right, the dipped entrance at the front."""
     i = Icon('yukkuri_nest')
@@ -917,7 +945,7 @@ ICONS = {
     'marisa_doll': marisa_doll,
     'ceramic_tunnel': ceramic_tunnel, 'yukkuri_slide': yukkuri_slide, 'yukkuri_trampoline': yukkuri_trampoline,
     'yukkuri_pool': yukkuri_pool,
-    'food_bowl': food_bowl, 'straw_nest': straw_nest, 'yukkuri_nest': yukkuri_nest, 'velvet_nest': velvet_nest,
+    'food_bowl': food_bowl, 'waterer': waterer, 'straw_nest': straw_nest, 'yukkuri_nest': yukkuri_nest, 'velvet_nest': velvet_nest,
     'large_yukkuri_nest': large_yukkuri_nest,
     'large_wild_nest': large_wild_nest, 'predator_nest': predator_nest, 'yukkuri_toilet': yukkuri_toilet,
     'cardboard_shelter': cardboard_shelter, 'forage_pile': forage_pile,

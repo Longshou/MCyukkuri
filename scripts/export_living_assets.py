@@ -48,7 +48,7 @@ def outputs():
         is_block = name in ('yukkuri_nest','yukkuri_toilet')
         emit(ASSETS / ('models/block' if is_block else 'models/item') / (name+'.json'),
              {'parent':'minecraft:block/block','textures':textures,'elements':elements})
-    for name in ('food_bowl','yukkuri_nest','yukkuri_toilet'):
+    for name in ('food_bowl','waterer','yukkuri_nest','yukkuri_toilet'):
         emit(ASSETS / 'models/item' / (name+'.json'), {'parent':'mcyukkuri:block/'+name})
         emit(ASSETS / 'blockstates' / (name+'.json'), {'variants':{'':{'model':'mcyukkuri:block/'+name}}})
     for name, texture in {'yukkuri_waste':'brown_terracotta'}.items():

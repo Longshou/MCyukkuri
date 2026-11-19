@@ -3,6 +3,7 @@
   "source": "art/props/runtime-peripheral/selected",
   "items": [
     "food_bowl",
+    "waterer",
     "yukkuri_nest",
     "straw_nest",
     "velvet_nest",
@@ -19,6 +20,7 @@
   ],
   "blocks": [
     "food_bowl",
+    "waterer",
     "yukkuri_nest",
     "straw_nest",
     "velvet_nest",
@@ -30,6 +32,7 @@
     "food_bowl_regular",
     "food_bowl_forage",
     "food_bowl_wheat",
+    "waterer_water",
     "yukkuri_toilet_dirty",
     "house_egg",
     "house_egg_cracked",
