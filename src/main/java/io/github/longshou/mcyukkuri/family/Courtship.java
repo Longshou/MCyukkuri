@@ -564,12 +564,13 @@ final class Courtship {
         if(o.target().family().task()!=Task.COURT||o.target().family().target()!=o.entity()
                 ||!canReceive()){o.stop();return;}
         var leader=o.target().family();
-        if(leader.courtship().declinedRound){tickDeclinedAnswer(leader);return;}
-        if(leader.courtship().courtNearTicks<COURT_ACCEPT_TICKS) {
+        var court=leader.courtship();
+        if(court.declinedRound){tickDeclinedAnswer(leader);return;}
+        if(court.courtNearTicks<COURT_ACCEPT_TICKS) {
             o.entity().getNavigation().stop();o.entity().getLookControl().setLookAt(o.target(),20,20);return;
         }
-        if(leader.courtship().courtContactTicks==0)tickRearApproach(o,leader);
-        else faceRearContact(o,leader);
+        if(court.courtContactTicks==0)court.tickRearApproach(o,leader);
+        else court.faceRearContact(o,leader);
     }
 
     boolean canReceive() {
