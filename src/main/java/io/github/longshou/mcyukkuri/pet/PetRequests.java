@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -175,7 +176,7 @@ public final class PetRequests {
                 : wary >= .5 ? "teary"
                 : SocialDisposition.insistence(personality, esteem, wary, bond) >= .52 ? "cheek_puff"
                 : switch (kind) { case FOOD, WARM -> "teary"; case WALK -> "happy"; default -> "open_smile"; };
-        animal.playAction("beg"); animal.showReaction(face, event, 80);
+        animal.showReaction(YukkuriAction.BEG, face, event, 80);
         dropCard();
         var at = markPos();
         card = switch (kind) {
@@ -248,7 +249,7 @@ public final class PetRequests {
         }
         if (++ignoredNear >= SULK_AT && !sulked) {
             sulked = true;
-            animal.playAction("sulk"); animal.showReaction("teary", "request_sulk", 100);
+            animal.showReaction(YukkuriAction.SULK, "teary", "request_sulk", 100);
         }
         GameplayLog.event(animal,"request","expired kind={} owner={} ownerNearby=true ignoredToday={} sulking={} stress={} -> {}",
                 kind,nearbyOwner.getUUID(),ignoredNear,sulked,stressBefore,pet.stress());
