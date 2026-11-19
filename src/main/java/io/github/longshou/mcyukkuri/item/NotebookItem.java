@@ -128,7 +128,7 @@ public final class NotebookItem extends Item {
                 NotebookGuide.childhood(entity),
                 Component.translatable("notebook.mcyukkuri.body",entity.body().wound(),entity.body().infection(),Math.round(entity.getHealth()),Math.round(entity.getMaxHealth()),entity.body().mold()),
                 Component.translatable("notebook.mcyukkuri.consumables",Math.round(life.dryness()),life.constipated()?"✓":"—",
-                        life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
+                        life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,Math.round(entity.family().pentUp()),entity.family().babyTalk()?"✓":"—"),
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName())));
         Component claim = HomeClaim.page(entity);

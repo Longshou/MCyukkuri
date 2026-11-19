@@ -567,10 +567,11 @@ public final class AgitationLife {
         YukkuriEntity victim = target;
         entity.motor().cancel(motorOwner, "act_complete");
         victim.agitation().release(true);
+        entity.family().completedContact(victim, false);
         GameplayLog.event(entity,"agitation","contact ended target={} settled={} energy={} ticks={}",
                 victim.getUUID(),settled,entity.life().energy(),phaseTicks);
         if (entity.getRandom().nextBoolean()) entity.speak(entity.getRandom().nextBoolean() ? "rapem_review_bad" : "rapem_review_good");
-        // A settled hunter may immediately look for the next body (1.12 buffet wording).
+        // A settled hunter can have a shorter cooldown; a new episode still needs fresh pressure.
         if (settled && entity.getRandom().nextInt(3) == 0) {
             entity.speak("rapem_buffet");
             buffet = true;
@@ -589,8 +590,8 @@ public final class AgitationLife {
         encounterDescription = actSettled ? encounterDescription + "；" + reason : reason + "，未结算";
         YukkuriEntity victim = target;
         GameplayLog.limited(entity,"agitation","contact.interrupted",200,
-                "contact interrupted target={} reason={} ticks={} settled={}",
-                victim==null?null:victim.getUUID(),reason,phaseTicks,actSettled);
+                "contact interrupted target={} reason={} ticks={} settled={} pentUp={}",
+                victim==null?null:victim.getUUID(),reason,phaseTicks,actSettled,entity.family().pentUp());
         // Cancel the owner's Pin. Its peer execution ends at the same boundary.
         entity.motor().cancel(motorOwner, "act_interrupted");
         entity.speak("heat_refuse"); // 1.12 発情10: anger at whoever spoiled the sukkiri time
@@ -600,8 +601,8 @@ public final class AgitationLife {
     private void giveUpHunt(String reason) {
         encounterDescription = reason;
         GameplayLog.limited(entity,"agitation","pursuit.stopped",1200,
-                "pursuit stopped target={} reason={} phase={} ticks={} pathFailures={} lostSightTicks={} stalledTicks={}",
-                target==null?null:target.getUUID(),reason,phase,phaseTicks,pathFailures,lostSightTicks,stalledTicks);
+                "pursuit stopped target={} reason={} phase={} ticks={} pathFailures={} lostSightTicks={} stalledTicks={} pentUp={}",
+                target==null?null:target.getUUID(),reason,phase,phaseTicks,pathFailures,lostSightTicks,stalledTicks,entity.family().pentUp());
     }
 
     /** Victim-side entry: pinned face-forward by the hunter (1.12 相互れいぽうキャッチ). */

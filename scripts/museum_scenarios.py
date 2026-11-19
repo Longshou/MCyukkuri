@@ -3437,6 +3437,73 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
     reads=[('读寡妇的关系与求偶阶段', f'yukkuri status {sel("widow")} raw'),
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
+def _repeat_heat(log):
+    actor = _uuid_text('pentup_heat', 'restless')
+    changes = re.findall(rf'\[agitation\][^\n]*uuid={actor} t=(\d+) [^\n]* phase=(IDLE -> HEAT|HEAT -> HEAT_UNMET) [^\n]*pentUp=([\d.]+)', log)
+    if [phase for _, phase, _ in changes[:3]] != ['IDLE -> HEAT', 'HEAT -> HEAT_UNMET', 'IDLE -> HEAT']:
+        return f'missing natural heat, unmet exit or later heat for the same adult: {changes}'
+    (start, _, first), (end, _, unmet), (again, _, retained) = changes[:3]
+    # SC 45 puts this adult just above 55, at 45 + 25*(45-20)/60.
+    if not 55.4166 <= float(first) <= float(unmet) < float(retained) <= 100 or int(end) - int(start) < 1199 or int(again) - int(end) < 24000:
+        return f'pressure or loaded period/cooldown was lost: {changes[:3]}'
+
+
+_heat_food = 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32},{Slot:1b,id:"mcyukkuri:oil_grain_premium",count:32}]}'
+add('pentup_heat', 'family', '隔栏相望，发情未解又再来', '隔栏相望，发情未解又再来',
+    '灵梦在自己的窝边看得见喜欢的魔理沙，中间的隔板挡住接触。先看灵梦自己发情，再看一轮过去后的表情和手账积压。'
+    '两边都有食物、饮水和窝，可用倍速推进一天，看同一只灵梦再次发情。', '首次约半分钟；下一轮约一个游戏日', [
+        box(-6, 0, -4, 6, 4, 4, 'minecraft:air'),
+        *(box(-6, 0, z, 6, 1, z, 'minecraft:glass') for z in (-4, 4)),
+        *(box(x, 0, -3, x, 1, 3, 'minecraft:glass') for x in (-6, 6)),
+        box(0, 0, -3, 0, 0, 3, 'minecraft:stone_slab[type=top]'), box(0, 1, -3, 0, 2, 3, 'minecraft:glass'),
+        *(line for x, kind, name, label in ((-3, 'reimu', 'restless', '隔栏的灵梦'), (3, 'marisa', 'liked', '伴侣魔理沙')) for line in (
+            box(x - 2, 3, -3, x + 2, 3, 0, 'minecraft:oak_planks'),
+            block(x, 0, -2, 'mcyukkuri:yukkuri_nest'), block(x, 0, 2, _heat_food),
+            block(x + 1, 0, 2, 'mcyukkuri:waterer{Water:8}'), block(x - 1, 0, -2, 'mcyukkuri:yukkuri_toilet'),
+            yk(kind, x, 0, name, label=label, lead=name == 'restless', uuid=uid('pentup_heat', name),
+               kin='PentUp:55f' if name == 'restless' else '', self_control=45, **pair_ready()), *own(name), home(name, x, -2))),
+        f'yukkuri scenario bond {sel("restless")} {sel("liked")}',
+        f'yukkuri scenario mate {sel("restless")} {sel("liked")}'],
+    spot='carry_home', env=DAY, vantage=(-2, 8, 180, 16), give=['mcyukkuri:field_notebook'],
+    reads=[('读灵梦的积压', f'data get entity {sel("restless")} YukkuriFamily.PentUp')],
+    smoke=dict(ticks=28800, verify=_repeat_heat, expect=[r'phase=HEAT -> HEAT_UNMET'],
+               forbid=[r'courtship contact started', r'pressure reason=sukkiri']))
+
+
+def _held_pressure(log):
+    matches = re.findall(r'pressure reason=HOLD pentUp=([\d.]+) -> ([\d.]+)', log)
+    if not any(float(before) < 100 for before, _ in matches) or any(
+            abs(float(after) - min(100, float(before) + 2)) > .00001 for before, after in matches):
+        return f'expected the held adult to gain two pressure up to the cap: {matches}'
+
+
+for _sid, _title, _instruction, _control, _shift in (
+        ('pentup_hold', '禁止素鸡立：想却忍住', '面对这对宠物，看它们脸红、回望又退开，手账里的积压更高。', 85, 45),
+        ('pentup_breach', '主人不在就偷偷素鸡立', '离开院子或躲到遮挡后，等它们自行决定是否靠近；完成后回来比较两本手账。', 25, -45)):
+    _holding = _sid == 'pentup_hold'
+    _commands = [(1, 'yukkuri scenario tool_operator enter'),
+                 (8, f'yukkuri scenario owner_at {sel("mate")} watch'), (9, f'yukkuri scenario house_rules {sel("mate")} 1'),
+                 (10, f'yukkuri scenario owner_at {sel("rule_pet")} watch'), (11, f'yukkuri scenario house_rules {sel("rule_pet")} 1')]
+    if not _holding:
+        _commands.append((12, f'yukkuri scenario owner_at {sel("rule_pet")} away'))
+    _ticks = 1800 if _holding else 5400
+    add(_sid, 'town', _title, _title, '在家规中勾选「不准素鸡立」，不给指定伴侣许可。' + _instruction, '约半分钟至数分钟', [
+        box(-3, -1, -3, 3, -1, 3, 'minecraft:grass_block'), box(-3, 0, -3, 3, 3, 3, 'minecraft:air'),
+        *(box(-3, 0, z, 3, 1, z, 'minecraft:glass') for z in (-3, 3)),
+        *(box(x, 0, -2, x, 1, 2, 'minecraft:glass') for x in (-3, 3)),
+        box(-3, 3, -3, 3, 3, 0, 'minecraft:oak_planks'),
+        *(line for x, kind, name in ((-1, 'reimu', 'rule_pet'), (1, 'marisa', 'mate')) for line in (
+            block(x, 0, -2, 'mcyukkuri:yukkuri_nest'),
+            yk(kind, x, 0, name, lead=x < 0, uuid=uid(_sid, name), self_control=_control, intelligence=70,
+               kin='PentUp:80f', extra=f'YukkuriPet:{{Obedience:{_shift}}}', **pair_ready()), *own(name), home(name, x, -2))),
+        f'yukkuri scenario bond {sel("rule_pet")} {sel("mate")}', f'yukkuri scenario mate {sel("rule_pet")} {sel("mate")}'],
+        env=DAY, vantage=(0, 2 if _holding else 18, 180, 15), give=['mcyukkuri:field_notebook'],
+        reads=[('读' + label + '的积压', f'data get entity {sel(name)} YukkuriFamily.PentUp') for name, label in (('rule_pet', '灵梦'), ('mate', '魔理沙'))],
+        smoke=dict(ticks=_ticks, commands=_commands + [(_ticks - 1, 'yukkuri scenario tool_operator leave')],
+                   expect=[r'held rule=no_sukkiri'] if _holding else [r'courtship contact ended [^\n]*unauthorized=true', r'breach rule=no_sukkiri watched=false'],
+                   forbid=[r'courtship contact ended'] if _holding else [], **({'verify': _held_pressure} if _holding else {})))
+
+
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
     '爱丽丝带着癫狂笑蹦跳追击，目标发现她会喊出警报台词并逃跑。观察扑中后的接触循环、四拍台词与表情。释放时有尘粒和爱心，峰值持续 3 秒，期间受方仍被压住。峰值结束后受方脱身，爱丽丝接完成表情。喷雾或攻击可打断动作', '约半分钟，可重复观察', [
         yk('alice', 0, 0, 'hunter', lead=True, kin='PentUp:92f', self_control=30, **pair_ready()),
@@ -5978,6 +6045,7 @@ TOPICS = {
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'choice_nest': 'D1', 'choice_food': 'D1', 'choice_tool': 'D1', 'choice_snatch': 'D1', 'choice_toilet': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
+    'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
     'family_absence': 'W9',
@@ -6423,7 +6491,9 @@ def _sukkiri_timing(log, *, alice=False):
     return None
 
 
-_smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT',
+_smoke('alice_hunt', 1200, [r'\[agitation\] alice [^\n]* phase=IDLE -> ALICE_WATCH',
+    r'\[family\] alice [^\n]* pressure reason=sukkiri pentUp=9[\d.]+ -> 0\.0\b',
+    r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT',
     r'\[agitation\][^\n]* act release effect target=\S+ ticks=\d+ droplets=8 hearts=2\b',
     r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact ended target=',
     *(rf'\[agitation\][^\n]* finale beat=beat_{beat} line=heat_relief_{line} admitted=true ticks=\d+ climaxTick={tick}\b'

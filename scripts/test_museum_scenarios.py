@@ -1,7 +1,7 @@
-"""Deliberate-break log fixtures for Reimu lowering/release transaction pairing; no game."""
+"""Deliberate-break log fixtures for museum scenario verifiers; no game."""
 import unittest
 
-from museum_scenarios import _reimu_release_verify
+from museum_scenarios import _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text
 
 
 PARENT = '11111111-1111-1111-1111-111111111111'
@@ -68,6 +68,29 @@ class ReimuReleaseTransactions(unittest.TestCase):
 
     def test_non_reimu_scene_is_outside_this_check(self):
         self.assertIsNone(_reimu_release_verify(''))
+
+
+class PressureEpisodes(unittest.TestCase):
+    actor = _uuid_text('pentup_heat', 'restless')
+
+    def heat(self, tick, phase, pressure):
+        return f'[agitation] reimu #1 uuid={self.actor} t={tick} dim=overworld pos=0 phase={phase} energy=80 pentUp={pressure}\n'
+
+    def test_only_the_same_adult_reopens_after_a_full_unmet_period_and_cooldown(self):
+        first = self.heat(200, 'IDLE -> HEAT', 55.45)
+        unmet = self.heat(1400, 'HEAT -> HEAT_UNMET', 58)
+        later = self.heat(25600, 'IDLE -> HEAT', 92)
+        self.assertIsNone(_repeat_heat(first + unmet + later))
+        for broken in (first + later, first + unmet, first + unmet + later.replace(self.actor, 'other'),
+                       first + unmet + later.replace('25600', '25399'), first + unmet.replace('1400', '1000') + later,
+                       first + unmet + later.replace('92', '46'), first.replace('55.45', '55.1') + unmet + later):
+            self.assertIsNotNone(_repeat_heat(broken))
+
+    def test_an_actual_hold_must_raise_pressure(self):
+        held = 'pressure reason=HOLD pentUp=80.25 -> 82.25\n'
+        self.assertIsNone(_held_pressure(held))
+        self.assertIsNotNone(_held_pressure(held.replace('HOLD', 'WAIT')))
+        self.assertIsNotNone(_held_pressure(held + held.replace('82.25', '80.25')))
 
 
 if __name__ == '__main__':

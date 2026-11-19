@@ -242,13 +242,15 @@ final class Courtship {
     }
 
     private static Choice courtChoice(YukkuriEntity body, YukkuriEntity peer) {
-        return body.pet().conscience().tempted(HouseRule.NO_SUKKIRI, body.family().inBreedingPeriod() ? 1 : 0, 1,
+        return body.pet().conscience().tempted(HouseRule.NO_SUKKIRI, body.family().pentUp() / 100, 1,
                 body.pet().breedingPermitted(peer.getUUID()));
     }
 
     private static boolean resists(YukkuriEntity body, YukkuriEntity peer, Choice choice) {
-        if (choice == Choice.HOLD) PetScenes.courtshipHeld(body, peer);
-        return choice == Choice.HOLD || choice == Choice.WAIT;
+        if (choice != Choice.HOLD && choice != Choice.WAIT) return false;
+        body.family().addPentUp(PentUpMath.HELD, choice.name());
+        PetScenes.courtshipHeld(body, peer);
+        return true;
     }
 
     boolean allowCourt(YukkuriEntity other) {
@@ -403,10 +405,13 @@ final class Courtship {
             var body = o.entity();
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
+            o.completedContact(peer, true);
             if(brood!=null) {
                 mother.agitation().completePair(true,motherHeat);
                 father.agitation().completePair(false,fatherHeat);
             } else {
+                mother.family().endBreedingPeriod();father.family().endBreedingPeriod();
+                mother.agitation().markRelieved(true);father.agitation().markRelieved(false);
                 o.entity().showReaction("confused","",60);peer.showReaction("confused","",60);
             }
             boolean breached = body.pet().ownedBy(initiatingRuleOwner) && !body.pet().breedingPermitted(peer.getUUID())

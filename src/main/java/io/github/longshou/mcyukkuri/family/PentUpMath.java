@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import java.util.function.Consumer;
+
 public final class PentUpMath {
     private PentUpMath() {}
 
@@ -8,6 +10,20 @@ public final class PentUpMath {
     // A healthy adult on its own reaches the middle band in about 1.4 loaded days.
     private static final float DAY_GAIN = 40;
     public static final float ALICE_HUNT = 90;
+    static final float REPRESSED = 85, STIMULANT = 30, WITNESS = 10, VIBRATE = 2, HELD = 2;
+
+    static float add(float pressure, float gain) { return Math.min(100, pressure + gain); }
+    static float stimulant(float pressure, double patient) { return add(Math.max(pressure, band(patient)), STIMULANT); }
+
+    /** One completed encounter has two participants and one audience, even if both bodies are visible. */
+    static <T> void completed(T actor, T partner, boolean mutual, Iterable<T> audience,
+                              Consumer<T> relieve, Consumer<T> witness) {
+        relieve.accept(actor);
+        if (mutual) relieve.accept(partner);
+        for (T viewer : audience) {
+            if (viewer != actor && viewer != partner) witness.accept(viewer);
+        }
+    }
 
     static boolean eligible(boolean adult, boolean sterile, boolean elder, boolean canConceive, boolean predator) {
         return adult && !sterile && !elder && canConceive && !predator;

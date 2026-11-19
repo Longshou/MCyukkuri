@@ -803,7 +803,7 @@
   "item.mcyukkuri.spicy_grain": "Extra-spicy yukkuri feed",
   "activity.mcyukkuri.drink": "Drinking",
   "activity.mcyukkuri.seek_water": "Seeking drinking water",
-  "notebook.mcyukkuri.consumables": "Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s",
+  "notebook.mcyukkuri.consumables": "Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nPent-up pressure: %s/100\nBaby talk: %s",
   "death.attack.mcyukkuri.spicy_food": "%s succumbed to extra-spicy food",
   "death.attack.mcyukkuri.soaking": "%s dissolved in the rain",
   "human.mcyukkuri.stage_progress": "%s / %s%%",

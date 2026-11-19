@@ -308,6 +308,22 @@ public final class FamilyLife {
                 entity.profile().dangerToYukkuri());
     }
     public float pentUp() { return pentUp; }
+    public boolean repressed() { return pentUp >= PentUpMath.REPRESSED && !inBreedingPeriod(); }
+    private void setPressure(float value, String reason) {
+        float before = pentUp;
+        pentUp = value;
+        GameplayLog.event(entity, "family", "pressure reason={} pentUp={} -> {}", reason, before, pentUp);
+    }
+    void addPentUp(float gain, String reason) { setPressure(PentUpMath.add(pentUp, gain), reason); }
+    private void relievePentUp(String reason) { setPressure(0, reason); }
+
+    public void completedContact(YukkuriEntity peer, boolean mutual) {
+        var audience = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
+                viewer -> viewer.isAlive() && viewer.family().pressureEligible() && !viewer.life().isSleeping()
+                        && viewer.distanceToSqr(entity) <= 64 && viewer.hasLineOfSight(entity) && viewer.hasLineOfSight(peer));
+        PentUpMath.completed(entity, peer, mutual, audience, y -> y.family().relievePentUp("sukkiri"),
+                y -> y.family().addPentUp(PentUpMath.WITNESS, "witness"));
+    }
     public boolean inBreedingPeriod(){return sexDrive>0&&pressureEligible();}
     public boolean canTakeStimulant(){return sexDrive==0&&pressureEligible();}
     /** One saved server clock feeds both natural periods and the existing stimulant item. */
@@ -316,7 +332,11 @@ public final class FamilyLife {
         sexDrive=BREEDING_PERIOD_TICKS;entity.setPersistenceRequired();return true;
     }
     public void endBreedingPeriod(){sexDrive=0;}
-    public boolean takeStimulant(){return beginBreedingPeriod();}
+    public boolean takeStimulant() {
+        if (!beginBreedingPeriod()) return false;
+        setPressure(PentUpMath.stimulant(pentUp, entity.life().personality().temperament().patient()), "stimulant");
+        return true;
+    }
     public boolean adult() { return stage==Stage.ADULT; }
     private FamilyData.Foster foster() {
         var person = FamilyData.get(level()).person(entity.getUUID());
@@ -618,8 +638,18 @@ public final class FamilyLife {
     }
     public boolean sterile(){return sterile||!entity.subspecies().canReproduce();}
     public int stimulation(){return stimulation;}
-    public boolean stimulate(){if(!adult()||sterile()||!entity.status().identity().canConceive())return false;stimulation=Math.min(1200,stimulation+240);return true;}
-    public boolean sterilize(){if(!adult()||sterile()||stimulation==0)return false;sterile=true;stimulation=sexDrive=0;pentUp=0;return true;}
+    public boolean stimulate(){
+        if(!adult()||sterile()||!entity.status().identity().canConceive())return false;
+        stimulation=Math.min(1200,stimulation+240);
+        if (pressureEligible()) addPentUp(PentUpMath.VIBRATE, "vibration");
+        return true;
+    }
+    public boolean sterilize(){
+        if(!adult()||sterile()||stimulation==0)return false;
+        sterile=true;stimulation=sexDrive=0;
+        relievePentUp("castration");
+        return true;
+    }
     public void detached(){gestation=null;spentStemCount=0;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());stop();entity.syncFamily();}
     public void tick() {
         if(entity.level().isClientSide)return;
@@ -1859,7 +1889,12 @@ public final class FamilyLife {
         float rate = PentUpMath.rate(life.nutrition() >= 65, healthy, entity.mind().stage() != MindLife.Stage.CALM,
                 life.nutrition() < 40, body.mold() > 0 || body.toxin() > 0 || body.infection() > 0,
                 liked != null, entity.getVariant() == YukkuriVariant.ALICE);
-        pentUp = Math.min(100, pentUp + 20 * rate);
+        pentUp = PentUpMath.add(pentUp, 20 * rate);
+        if (entity.tickCount % 300 == 0 && !entity.agitation().active() && !inBreedingPeriod()
+                && entity.pet().calm() && !entity.hasReaction() && !entity.mind().active()) {
+            if (liked != null && pentUp >= 40 && entity.pet().isPet()) entity.pet().glanceAt(liked, 40);
+            if (repressed() && entity.tickCount % 600 == 0) entity.showReaction("endure", "heat_unmet", 80);
+        }
     }
 
     private YukkuriEntity visibleLikedAdult() {

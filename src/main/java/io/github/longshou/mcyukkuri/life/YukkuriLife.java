@@ -1329,7 +1329,10 @@ public final class YukkuriLife {
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
                             energy,nutrition,drugSleep(),restTime()?"rest_time":"energy");
                 }
-                if (sleepTicks >= 20 && wakeAt == 0) energy = Math.min(100, energy + .5f * (bedRead == null ? 1 : bedRead.rest()));
+                if (sleepTicks >= 20 && wakeAt == 0) {
+                    float rest = .5f * (bedRead == null ? 1 : bedRead.rest());
+                    energy = Math.min(100, energy + (entity.family().repressed() && !drugged ? .8f * rest : rest));
+                }
                 // Waking rested it lies there one long stretch and yawn (the wake clip); hunger gets it straight up to eat.
                 int stretch = ClipMarkers.of(Behaviors.WAKE).length();
                 if (drugged && drugSleep() == 0) wakeAt = SLEEP_TICKS + stretch; // a drug's sleep keeps its own finite wake
