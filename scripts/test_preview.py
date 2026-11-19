@@ -168,6 +168,36 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         library = json.loads((self.out/'library.json').read_text(encoding='utf-8'))
         self.assertIn('page:boundary', [entry['id'] for entry in library['entries']])
 
+    def test_inbox_look_only_links_and_migration(self):
+        from preview import refresh_inbox
+
+        target = self.out/'inbox'
+        target.mkdir(parents=True)
+        old = dict(id='old-viewer', title='Old clip', decision='Check motion',
+                   url='../clip-preview/viewer.html?model=reimu&clip=greet&expression=auto')
+        playtest = dict(id='playtest', title='Playtest', decision='Try the behavior',
+                        url='C:/Program Files/Git/.local/previews/boundary/index.html')
+        (target/'items.json').write_text(json.dumps([old, old, playtest]), encoding='utf-8')
+        entries = [dict(id='motion-greet-reimu', category='performances', model='reimu', clip='greet',
+                        tag='look-only')]
+        (self.out/'entries.json').write_text(json.dumps(dict(entries=entries)), encoding='utf-8')
+        refresh_inbox(self.out, entries)
+        fixed = json.loads((target/'items.json').read_text(encoding='utf-8'))
+        self.assertEqual([item['id'] for item in fixed], ['old-viewer', 'playtest'])
+        self.assertEqual(fixed[0]['entry'], 'motion-greet-reimu')
+        self.assertEqual(fixed[1]['url'], '../boundary/index.html')
+
+        for ident, link in [('new-motion', ['--entry', 'motion-greet-reimu']),
+                            ('static-art', ['--url', '../boundary/index.html', '--look-only']),
+                            ('invalid', ['--entry', 'unknown'])]:
+            result = self.run_cli('inbox', 'add', ident, '--title', ident, '--decision', 'Check', *link)
+            self.assertEqual(result.returncode, 1 if ident == 'invalid' else 0, result.stderr)
+        markup = (target/'index.html').read_text(encoding='utf-8')
+        self.assertIn('../player.html?entry=motion-greet-reimu', markup)
+        self.assertEqual(markup.count('data-verdict-id="motion-greet-reimu"'), 2)
+        self.assertIn('data-verdict-id="static-art"', markup)
+        self.assertNotIn('data-verdict-id="playtest"', markup)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
