@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 大小不一与隔台阶的贴身蹭展示场景 | `.worktrees/wp-peer-nuzzle` | scripts/museum_scenarios.py (new scene), museum_fields.py |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 | 帽船第一次伸辫子够到孩子 | `.worktrees/wp-boarding-grip` | aquatic/SetOut.java, motor/action/Grab.java, BraidFetch |
 | 大窝旋转、大体型进窝、单床争抢 | `.worktrees/wp-nest-access` | life/LargeNestBlock.java, life/NestDoorway.java, life/NestResting.java, life/CareBlockEntity.java |
