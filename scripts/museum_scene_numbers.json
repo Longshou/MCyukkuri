@@ -274,6 +274,10 @@
     "certify_silver_fail": "TN-45",
     "certify_platinum_talent": "TN-46",
     "pred_spawn_nest": "PT-01",
-    "pred_build_nest": "PT-02"
+    "pred_build_nest": "PT-02",
+    "rule_song_hold": "TN-47",
+    "rule_song_sneak": "TN-48",
+    "rule_eat_wait": "TN-49",
+    "rule_yard": "TN-50"
   }
 }

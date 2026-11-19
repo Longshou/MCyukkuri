@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.pet.PetRequests;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
@@ -58,7 +60,7 @@ final class LifeMeal {
     /** Project design: one portion of droppings feeds this much, and soils the eater this much hygiene. */
     static final float PIT_MEAL_NUTRITION = 20, PIT_MEAL_DIRT = 8;
     private int mealTicks;
-    private record TuftMeal(MealRoute route, MealRoute.Serving source, long start) {}
+    private record TuftMeal(MealRoute route, MealRoute.Serving source, long start, UUID breachOwner) {}
     private TuftMeal tuftMeal;
     private BlockPos tuftReleaseRefusedAt;
     /** The take-food beat ends when chewing or spitting begins. */
@@ -107,13 +109,13 @@ final class LifeMeal {
     long braidStart() { return tuftMeal.start(); }
     BlockPos braidMealBin() { return playingTuftMeal() ? tuftMeal.source().bin() : null; }
 
-    boolean beginTuftMeal(MealRoute route, MealRoute.Serving source) {
+    boolean beginTuftMeal(MealRoute route, MealRoute.Serving source, UUID breachOwner) {
         var body = o.entity();
         if (tuftMeal != null || !body.onGround() || body.motor().current() != null || !canEat()
                 || !Braid.mouthFree(body) || Braid.use(body) != Braid.Use.FREE || !route.reaches(body, source.contact().get())) return false;
         o.beginConsumption();
         SurfaceApproach.halt(body);
-        tuftMeal = new TuftMeal(route, source, o.level().getGameTime());
+        tuftMeal = new TuftMeal(route, source, o.level().getGameTime(), breachOwner);
         return true;
     }
 
@@ -142,6 +144,7 @@ final class LifeMeal {
             }
         } else if (tick == clip.ticks("mouth")) {
             startItemMeal(mouth(), null, false, verdict(mouth(), null));
+            if (body.pet().ownedBy(tuftMeal.breachOwner())) body.pet().conscience().breach(HouseRule.NO_EATING_UNASKED);
             if (source.bowl()) bowlMeal();
             GameplayLog.event(body, "meal", "braid handover item={} clip={} tick={}", mouth().getItem(), route.id(), tick);
             return false;

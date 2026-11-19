@@ -104,6 +104,7 @@ public final class YukkuriSocial implements MotorOwner {
 
     /** The existing empty-hand greeting, counted once at its actual player entry. */
     public void clickedTalk(Player player) {
+        if (entity.life().permitServing(player)) return;
         boolean feedback = entity.pet().lessons().praise(player)
                 || (entity.life().isSleeping() && entity.pet().care().praise(player));
         boolean accepted = feedback || talk(player, true);

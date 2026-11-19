@@ -2443,6 +2443,78 @@ def exam_hall():
             human('caretaker_brother', 0, 0, 'judge', 3, yaw=180, label='考官')]
 
 
+_rule_court = [
+    box(-6, -1, -8, 6, -1, 6, 'minecraft:grass_block'),
+    box(-6, 0, -8, 6, 3, 6, 'minecraft:air'),
+    *(box(-5, 0, z, 5, 0, z, 'minecraft:oak_fence[east=true,west=true]') for z in (-7, 5)),
+    *(box(x, 0, -6, x, 0, 4, 'minecraft:oak_fence[north=true,south=true]') for x in (-5, 5)),
+    block(0, 0, 5, 'minecraft:oak_fence_gate[facing=south]'), *shed(0, -4)]
+
+
+def _rule_owner(mask):
+    pet = sel('rule_pet')
+    return [(1, 'yukkuri scenario tool_operator enter'),
+            (10, f'yukkuri scenario owner_at {pet} watch'),
+            (11, f'yukkuri scenario house_rules {pet} {mask}')]
+
+
+def _song_discipline(window):
+    changes = re.findall(r'\[rules\][^\n]* obedience reason=(caught|scold) [^\n]*shift=(-?\d+) -> (-?\d+)[^\n]*closeness=(-?\d+) fear=(\d+)', window)
+    if len(changes) != 2 or [row[0] for row in changes] != ['caught', 'scold']:
+        return f'Expected one catch followed by one reprimand, got {changes}'
+    caught, scold = changes
+    if any(int(row[2]) - int(row[1]) != 4 for row in changes) or caught[2] != scold[1] or caught[3] != scold[3] or int(scold[4]) <= int(caught[4]):
+        return f'Wrong learning, closeness or fear after catch and reprimand: {changes}'
+
+
+def _permitted_meal(window):
+    beats = re.findall(r'\[(?:rules|meal)\] reimu [^\n]*? (waiting rule=no_eating_unasked|permitted rule=no_eating_unasked|pickup item=minecraft:apple count=1|swallowed item=minecraft:apple count=1)', window)
+    expected = ['waiting rule=no_eating_unasked', 'permitted rule=no_eating_unasked', 'pickup item=minecraft:apple count=1', 'swallowed item=minecraft:apple count=1']
+    if beats != expected:
+        return f'Expected one wait, permission, transfer and swallow in order, got {beats}'
+
+
+_rule_pet = sel('rule_pet')
+_rule_songs = _rule_owner(3) + [(12, f'yukkuri scenario owner_at {_rule_pet} away'),
+                               (12, 'scoreboard players set #rule_scold museum 0')]
+# The observer returns during an actual song. The ordinary reprimand becomes available when the singer finishes.
+for _tick in range(100, 4200, 40):
+    _rule_songs += [
+        (_tick, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
+        (_tick + 1, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} store success score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
+        (_tick + 2, 'execute if score #rule_scold museum matches 1 run yukkuri scenario tool_operator leave')]
+_rule_songs.append((4200, 'yukkuri scenario tool_operator leave'))
+
+for _sid, _title, _hint, _control in (
+        ('rule_song_hold', '禁止唱歌：想唱又憋回去', '在照料菜单的家规中勾选「不准唱歌」，面对灵梦，看它抬头又抿嘴。', 95),
+        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦，等它唱完，在照料菜单里冷言训斥。', 20)):
+    add(_sid, 'town', _title, _title, _hint, '约 1～3 分钟', [
+        *_rule_court, yk('reimu', 0, 1, 'rule_pet', lead=True, intelligence=80, self_control=_control, boldness=85,
+                          extra='YukkuriDailyLife:{Boredom:100,Affection:0,Cooldown:180}'),
+        *own('rule_pet'), home('rule_pet', 0, -4)], env=DAY, vantage=(0, 4),
+        smoke=dict(ticks=4250, commands=_rule_songs, verify=_song_discipline, forbid=[r'\[rules\][^\n]*caught rule=no_singing evidence=confession'],
+                   expect=[r'\[rules\][^\n]*breach rule=no_singing watched=false', r'\[rules\][^\n]*caught rule=no_singing evidence=sight'])
+        if _sid == 'rule_song_sneak' else None)
+
+add('rule_eat_wait', 'town', '禁止擅自吃：守着食盆等主人点头', '等主人允许才吃',
+    '勾选「不准擅自吃东西」，把苹果放进面前的食盆。灵梦流口水等候时空手右键，看一份苹果从盆里送进嘴再吞下。', '约 20 秒', [
+        *_rule_court, block(0, 0, 2, 'mcyukkuri:food_bowl'),
+        yk('reimu', 0, 1, 'rule_pet', lead=True, nutrition=40, self_control=95, boldness=10,
+           skills={'wait': 9, 'food_guard': 9}), *own('rule_pet'), home('rule_pet', 0, -4)],
+    env=DAY, vantage=(0, 4), give=['minecraft:apple'],
+    smoke=dict(ticks=700, expect=[r'\[rules\][^\n]*permitted rule=no_eating_unasked', r'\[meal\][^\n]*swallowed item=minecraft:apple'],
+               forbid=[r'\[rules\][^\n]*breach rule=no_eating_unasked'], verify=_permitted_meal,
+               commands=_rule_owner(9) + [(15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')] +
+               [(t, 'execute if data block ~ ~ ~2 Items[{Slot:0b,id:"minecraft:apple",count:1}] '
+                    f'run yukkuri scenario care_click {_rule_pet} serving') for t in range(20, 640, 5)] +
+               [(660, 'yukkuri scenario tool_operator leave')]))
+
+add('rule_yard', 'town', '禁止出院子：走到院边又回头', '不准出院子',
+    '在照料菜单里勾选「不准出院子」。窝外八格是界线，看爱散步的魔理沙在边上张望，或趁主人转身时越界。', '约 1～2 分钟',
+    [*shed(0, -4), yk('marisa', 0, 2, 'rule_pet', lead=True, self_control=85, boldness=80),
+     *own('rule_pet'), home('rule_pet', 0, -4)], env=DAY, vantage=(0, 6))
+
+
 def certify_smoke(target, *expected):
     return dict(ticks=480, commands=[(45, f'yukkuri scenario certify {sel("judge")} {sel("pet")}')],
                 expect=[rf'\[exam\][^\n]*action=start [^\n]*target={target}\b',
@@ -5926,6 +5998,7 @@ TOPICS = {
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
+    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

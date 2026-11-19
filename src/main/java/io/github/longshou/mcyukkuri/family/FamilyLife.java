@@ -1306,7 +1306,7 @@ public final class FamilyLife {
                 declined=target!=null;
             }
             var releasedGoal=comeback?courtship.consumeComeback():null;
-            if(target!=null&&!allowCourt(target)){target=null;return false;}
+            if(target!=null&&!declined&&!allowCourt(target)){target=null;return false;}
             if(target!=null) { task=Task.COURT;courtship.beginRound(declined,releasedGoal);taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
         }
         return false;

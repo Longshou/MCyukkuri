@@ -1,10 +1,15 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
+
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -40,6 +45,7 @@ public final class DailyLife {
         final float facing;
         int elapsed, contact, greetHold;
         boolean ended, greeted;
+        UUID songRuleOwner;
         /** A welcome home: the one at home greets the one who came in before it nuzzles it. */
         final boolean welcome;
         Session(YukkuriEntity leader, Entity companion, Kind kind, boolean welcome) {
@@ -202,6 +208,7 @@ public final class DailyLife {
         return trusted(player) && entity.hasLineOfSight(player) && canBegin(kind, player);
     }
     public boolean invite(Player player, Kind kind) {
+        if (kind == Kind.SING && !entity.pet().owned(player)) return begin(kind, player);
         start(kind, player, false);
         return true;
     }
@@ -221,7 +228,21 @@ public final class DailyLife {
     }
     private boolean begin(Kind kind, Entity companion, boolean welcome) {
         if (!canBegin(kind, companion)) return false;
+        Choice song = Choice.ALLOW;
+        if (kind == Kind.SING) {
+            song = entity.pet().conscience().tempted(HouseRule.NO_SINGING, boredom / 100.0, 1);
+            if (song == Choice.HOLD || song == Choice.WAIT) {
+                cooldown = 600;
+                if (song == Choice.HOLD) {
+                    boredom = Math.min(100, boredom + 5);
+                    PetScenes.act(entity, YukkuriAction.LOOK_AROUND, "open_smile", "", 12);
+                    PetScenes.later(entity, 12, () -> PetScenes.act(entity, YukkuriAction.LOOK_AROUND, "pursed", "", 28, entity.pet().presentOwner()));
+                }
+                return false;
+            }
+        }
         start(kind, companion, welcome);
+        if (song == Choice.BREAK) session.songRuleOwner = entity.pet().owner();
         return true;
     }
     private void start(Kind kind, Entity companion, boolean welcome) {
@@ -451,7 +472,11 @@ public final class DailyLife {
         current.contact++;
         if (current.contact == 1) {
             entity.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
+            if (entity.pet().ownedBy(current.songRuleOwner) && !entity.pet().conscience().breach(HouseRule.NO_SINGING))
+                current.songRuleOwner = null;
         }
+        if (current.contact > 1 && current.contact % 5 == 1 && entity.pet().ownedBy(current.songRuleOwner))
+            entity.pet().conscience().witnessedSong();
         if (current.kind == Kind.SING && current.contact % 20 == 1)
             level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
         int duration = current.kind == Kind.NUZZLE ? 60

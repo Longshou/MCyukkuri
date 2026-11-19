@@ -15,5 +15,9 @@ class HouseRulesTest {
         assertFalse(untold.known(owner, 3));
         assertTrue(untold.known(owner, 0));
         assertFalse(untold.known(null, 0));
+        assertTrue(heard.forbids(owner, 3, true, false));
+        assertFalse(heard.forbids(owner, 3, true, true));
+        assertFalse(heard.forbids(owner, 3, false, false));
+        assertFalse(untold.forbids(owner, 3, true, false));
     }
 }

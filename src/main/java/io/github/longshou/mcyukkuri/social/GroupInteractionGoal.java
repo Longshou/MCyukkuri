@@ -1,7 +1,12 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
+
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -29,6 +34,7 @@ public final class GroupInteractionGoal extends Goal {
         YukkuriEntity protectedPeer;
         int ticks, contactTicks;
         boolean ended;
+        Choice rule = Choice.ALLOW;
         Bout(YukkuriEntity first, YukkuriEntity second, Kind kind) { this.first=first;this.second=second;this.kind=kind; }
     }
     private final YukkuriEntity entity;
@@ -108,8 +114,19 @@ public final class GroupInteractionGoal extends Goal {
                             peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
             {
                 cooldown = 600;
-                if (entity.getRandom().nextInt(100) < personality.escalationScore()) return reserve(peer,Kind.BULLY);
-                return false;
+                if (entity.getRandom().nextInt(100) >= personality.escalationScore()) return false;
+                Choice choice = Choice.ALLOW;
+                if (peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner())) {
+                    choice = entity.pet().conscience().tempted(HouseRule.NO_BULLYING, personality.escalationScore() / 100.0, 1);
+                    if (choice == Choice.HOLD) {
+                        PetScenes.act(entity, YukkuriAction.PUFF, "cheek_puff", "", 30, peer);
+                        PetScenes.later(entity, 30, () -> PetScenes.act(entity, YukkuriAction.DROOP, "teary", "", 20));
+                    }
+                    if (choice == Choice.HOLD || choice == Choice.WAIT) return false;
+                }
+                if (!reserve(peer,Kind.BULLY)) return false;
+                bout.rule = choice;
+                return true;
             }
             // A hatless stranger is despised and bullied through headwear.Contempt and the sanction, not here.
         }
@@ -152,10 +169,13 @@ public final class GroupInteractionGoal extends Goal {
             boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
             if (hit) peer.life().personality().bulliedBy(entity.life().personality());
             GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
-            if(entity.treasure().snatchFrom(peer)) {
+            boolean stole = entity.treasure().snatchFrom(peer);
+            if(stole) {
                 entity.species().narrate("steal");
                 if (!hit) peer.respondToBullying(entity);
             }
+            if (current.rule.breached(hit || stole) && peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner()))
+                entity.pet().conscience().breach(HouseRule.NO_BULLYING);
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){
                 peer.mind().addSlavePressure(6,"bullied_hatless");peer.mind().feltSlavePressure(EmotionEvent.SOCIAL_HURT);
                 peer.showReaction("teary","settlement_hurt",100);

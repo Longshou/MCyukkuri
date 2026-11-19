@@ -1,5 +1,9 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -134,6 +138,9 @@ public final class YukkuriLife {
     private BlockPos refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private boolean useBowlNicely;
+    private Choice foodChoice;
+    private int permissionWait;
+    private long foodRuleAfter;
     private final LifeAccessory accessory;
     private int socialWait;
     private float dryness;
@@ -556,6 +563,7 @@ public final class YukkuriLife {
         }
         if (takingFromDish() && bowlBiteTicks > 0) return Behaviors.TAKE_FOOD;
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
+        if (task == Task.FOOD && permissionWait > 0) return Behaviors.WAIT;
         return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
@@ -732,7 +740,7 @@ public final class YukkuriLife {
     public boolean takeBinWithBraid(MealRoute route, Vec3 contact, GarbageBinBlockEntity bin,
                                    Predicate<Predicate<ItemStack>> hand) {
         return meal.beginTuftMeal(route, new MealRoute.Serving(() -> contact, hand::test,
-                one -> MealRoute.restore(entity, bin, one), false, bin.getBlockPos()));
+                one -> MealRoute.restore(entity, bin, one), false, bin.getBlockPos()), null);
     }
     public boolean beginOfferedMeal(ItemStack food, Player giver) {
         return meal.beginOfferedMeal(food, giver.getUUID(), !giver.getAbilities().instabuild);
@@ -757,7 +765,7 @@ public final class YukkuriLife {
         if (food != null) {
             var contact = groundFoodContact(food);
             var route = MealRoute.choose(entity, contact, entity.yBodyRot, false);
-            takeGroundFood(food, route != null && route.reaches(entity, contact) ? route : null);
+            takeGroundFood(food, route != null && route.reaches(entity, contact) ? route : null, null);
         }
     }
     public boolean beginCarriedMeal(MouthOccupancy.Purpose source) { return meal.beginCarriedMeal(source); }
@@ -945,7 +953,8 @@ public final class YukkuriLife {
             if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
-        if (!penned && canEat() && !stallTheft.carrying() && !entity.forageTrip().provisioningFirst()) {
+        if (!penned && canEat() && !stallTheft.carrying() && !entity.forageTrip().provisioningFirst()
+                && (nutrition <= 10 || level().getGameTime() >= foodRuleAfter || !entity.pet().conscience().binds(HouseRule.NO_EATING_UNASKED))) {
             boolean canCollect = EventHooks.canEntityGrief(level(), entity);
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && seeksFood(item.getItem()));
@@ -982,6 +991,8 @@ public final class YukkuriLife {
             if (targetFood != null || targetBlock != null) {
                 bowlStand = null;
                 bowlBiteTicks = 0;
+                foodChoice = null;
+                permissionWait = 0;
                 foodRoute = targetFood == null ? null : groundFoodRoute(targetFood);
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
             }
@@ -1553,6 +1564,55 @@ public final class YukkuriLife {
         SurfaceApproach.halt(entity);
     }
 
+    /** One decision at an accessible portion. The wait ends while the source still owns the food. */
+    private boolean waitsForServing(Vec3 point) {
+        var conscience = entity.pet().conscience();
+        if (foodChoice == null) {
+            foodChoice = conscience.tempted(HouseRule.NO_EATING_UNASKED, 1 - nutrition / 100, RulesMath.starvingGuard(nutrition));
+            if (foodChoice == Choice.HOLD) {
+                permissionWait = RulesMath.servingWait(queueBudget, entity.skills().grade(Ability.WAIT));
+                entity.showReaction("drool", "wait_turn", permissionWait);
+                GameplayLog.event(entity, "rules", "waiting rule=no_eating_unasked ticks={} source={}", permissionWait, GameplayLog.at(point));
+            }
+        }
+        if (foodChoice != Choice.HOLD && foodChoice != Choice.WAIT) return false;
+        if (!conscience.binds(HouseRule.NO_EATING_UNASKED) || nutrition <= 10) {
+            foodChoice = nutrition <= 10 ? Choice.BREAK : Choice.ALLOW;
+            permissionWait = 0;
+            return false;
+        }
+        if (foodChoice == Choice.WAIT || --permissionWait == 0) {
+            foodRuleAfter = level().getGameTime() + 400;
+            stopGoal();
+        } else {
+            pursuitTicks--; // Sitting at the source uses no approach budget.
+            SurfaceApproach.stopWalking(entity);
+            entity.getLookControl().setLookAt(point.x, point.y, point.z);
+        }
+        return true;
+    }
+
+    public boolean waitingForServing() { return task == Task.FOOD && foodChoice == Choice.HOLD && permissionWait > 0; }
+
+    public boolean permitServing(Player owner) {
+        if (!waitingForServing() || !entity.pet().owned(owner)) return false;
+        Vec3 contact;
+        if (targetFood != null) {
+            if (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem())) return false;
+            contact = groundFoodContact(targetFood);
+        } else {
+            if (bowlStand == null || !(level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl) || !bowl.hasFood(this::seeksFood)) return false;
+            contact = bowlStand.aboveLip();
+        }
+        if (!(foodRoute != null ? foodRoute.reaches(entity, contact) : targetFood != null ? ItemContact.reaches(entity, targetFood)
+                : bowlStand.reaches(entity))) return false;
+        foodChoice = Choice.ALLOW;
+        permissionWait = 0;
+        GameplayLog.event(entity, "rules", "permitted rule=no_eating_unasked owner={} source={}", owner.getUUID(), GameplayLog.at(contact));
+        seekFood();
+        return true;
+    }
+
     private void seekFood() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity)) { stopGoal(); return; }
         if (pursuitTicks > 240) {
@@ -1561,6 +1621,7 @@ public final class YukkuriLife {
             return;
         }
         if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem()))) {
+            if (foodChoice != null) { stopGoal(); return; }
             targetFood = null;
             foodRoute = null;
         }
@@ -1577,7 +1638,8 @@ public final class YukkuriLife {
                 if (behindRival && queueTicks++ < wait) {
                     entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
-                if (takeGroundFood(targetFood, foodRoute)) {
+                if (waitsForServing(groundFoodContact(targetFood))) return;
+                if (takeGroundFood(targetFood, foodRoute, foodChoice == Choice.BREAK ? entity.pet().owner() : null)) {
                     if (!useBowlNicely && targetBlock != null
                             && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
                         GameplayLog.event(entity, "lesson", "bowl skipped for loose food bowl={}", targetBlock);
@@ -1608,16 +1670,16 @@ public final class YukkuriLife {
                 return;
             }
             if (foodRoute != null && !braidAtFood(bowlStand.aboveLip())) return;
-            if (foodRoute == null) {
-                if (!meetDish()) { bowlBiteTicks = 0; return; }
-                if (++bowlBiteTicks <= DishFit.firstContact(ClipMarkers.of("eat").length(), false)) return;
-            }
+            if (foodRoute == null && !meetDish()) { bowlBiteTicks = 0; return; }
+            if (waitsForServing(bowlStand.aboveLip())) return;
+            if (foodRoute == null && ++bowlBiteTicks <= DishFit.firstContact(ClipMarkers.of("eat").length(), false)) return;
+            UUID breachOwner = foodChoice == Choice.BREAK ? entity.pet().owner() : null;
             if (useBowlNicely) {
                 if (foodRoute != null) {
                     var contact = bowlStand.aboveLip();
                     if (!meal.beginTuftMeal(foodRoute, new MealRoute.Serving(() -> contact,
                             receiver -> handBowlFood(bowl, receiver, "braid"),
-                            one -> MealRoute.restore(entity, bowl, one), true, null))) stopGoal();
+                            one -> MealRoute.restore(entity, bowl, one), true, null), breachOwner)) stopGoal();
                     return;
                 }
                 boolean taken = handBowlFood(bowl, one -> {
@@ -1626,6 +1688,7 @@ public final class YukkuriLife {
                     return true;
                 }, "mouth");
                 if (!taken) stopGoal();
+                else if (entity.pet().ownedBy(breachOwner)) entity.pet().conscience().breach(HouseRule.NO_EATING_UNASKED);
             } else {
                 entity.showReaction("surprise", "mine", 45);
                 if (bowl.handFood(this::seeksFood, one -> {
@@ -1693,10 +1756,12 @@ public final class YukkuriLife {
         return false;
     }
 
-    private boolean takeGroundFood(ItemEntity food, MealRoute route) {
+    private boolean takeGroundFood(ItemEntity food, MealRoute route, UUID breachOwner) {
         if (route != null) return meal.beginTuftMeal(route, new MealRoute.Serving(() -> groundFoodContact(food),
-                receiver -> handGroundFood(food, receiver, "braid"), one -> false, false, null));
-        return handGroundFood(food, one -> beginMeal(one, null, false), "mouth");
+                receiver -> handGroundFood(food, receiver, "braid"), one -> false, false, null), breachOwner);
+        boolean taken = handGroundFood(food, one -> beginMeal(one, null, false), "mouth");
+        if (taken && entity.pet().ownedBy(breachOwner)) entity.pet().conscience().breach(HouseRule.NO_EATING_UNASKED);
+        return taken;
     }
 
     private boolean handGroundFood(ItemEntity food, Predicate<ItemStack> receiver, String holder) {

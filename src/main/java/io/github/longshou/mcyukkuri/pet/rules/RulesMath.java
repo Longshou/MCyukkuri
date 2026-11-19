@@ -16,7 +16,18 @@ public final class RulesMath {
 
     public static boolean demandsSnack(int obedience) { return obedience < 65; }
 
-    public enum Choice { ALLOW, HOLD, WAIT, BREAK }
+    public enum Choice {
+        ALLOW, HOLD, WAIT, BREAK;
+
+        public boolean breached(boolean performed) { return this == BREAK && performed; }
+    }
+
+    public static double starvingGuard(double nutrition) { return Math.clamp((nutrition - 10) / 20, 0, 1); }
+
+    /** A hesitation uses a quarter of the normal queue patience, up to four seconds. */
+    public static int servingWait(int waitingTicks, int waitGrade) {
+        return Math.min(80, (int) Math.round(waitingTicks * .25 * (1 + .5 * waitGrade)));
+    }
 
     public static double hold(double patient, int obedience, double pressure) {
         return Math.clamp(.80 + .30 * (patient - .5) + .30 * (obedience / 100.0 - .5) - .40 * (pressure - .5), .05, .99);

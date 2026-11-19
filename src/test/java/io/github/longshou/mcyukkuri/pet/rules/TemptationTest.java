@@ -15,4 +15,22 @@ class TemptationTest {
         assertEquals(Choice.BREAK, choose(.9, .8, .7, false, 1));
         assertEquals(Choice.BREAK, choose(.9, .8, .3, true, 1));
     }
+
+    @Test void acuteHungerEndsEvenAWatchedCleverWait() {
+        assertEquals(0, starvingGuard(10));
+        assertEquals(.5, starvingGuard(20));
+        assertEquals(1, starvingGuard(30));
+        assertEquals(Choice.BREAK, choose(0, .99, 1, true, starvingGuard(9)));
+        assertEquals(Choice.BREAK, choose(.9, .99, .8, true, starvingGuard(20)));
+        assertTrue(servingWait(100, 2) > servingWait(100, 0));
+        assertEquals(80, servingWait(220, 3));
+    }
+
+    @Test void onlyACompletedUnauthorizedActionIsABreach() {
+        for (var choice : Choice.values()) assertFalse(choice.breached(false));
+        assertTrue(Choice.BREAK.breached(true));
+        assertFalse(Choice.ALLOW.breached(true));
+        assertFalse(Choice.HOLD.breached(true));
+        assertFalse(Choice.WAIT.breached(true));
+    }
 }

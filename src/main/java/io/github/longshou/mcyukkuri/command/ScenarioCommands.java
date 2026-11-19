@@ -65,6 +65,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import net.neoforged.neoforge.common.util.FakePlayer;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.HumanSight;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 
 /**
  * Operator tools of the playground (试玩场): scenario starting conditions that need code, forced field clearing and the
@@ -156,6 +159,12 @@ public final class ScenarioCommands {
                                 .executes(c -> staffTool(c, "pickup"))))))
                 .then(Commands.literal("care_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
+                .then(Commands.literal("owner_at").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.literal("watch").executes(c -> ownerAt(c, 4)))
+                        .then(Commands.literal("away").executes(c -> ownerAt(c, 30)))))
+                .then(Commands.literal("house_rules").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("mask", IntegerArgumentType.integer(0, (1 << HouseRule.values().length) - 1))
+                                .executes(ScenarioCommands::houseRules))))
                 .then(Commands.literal("tool_operator").requires(source->source.hasPermission(2))
                         .then(Commands.literal("enter").executes(context->toolOperator(context.getSource(),true)))
                         .then(Commands.literal("move").executes(context->moveToolOperator(context.getSource())))
@@ -404,6 +413,33 @@ public final class ScenarioCommands {
         return 1;
     }
 
+    private static int ownerAt(CommandContext<CommandSourceStack> c, int distance) throws CommandSyntaxException {
+        var level = c.getSource().getLevel();
+        var pet = yukkuri(c, "target");
+        if (pet == null || c.getSource().getEntity() != null || !(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer owner)) return 0;
+        if (!pet.pet().owned(owner)) Custody.assign(pet, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+        var ahead = Vec3.directionFromRotation(0, pet.getYHeadRot()).scale(distance);
+        for (int side = 0; side < 4; side++) {
+            owner.setPos(pet.position().add(ahead.yRot(side * (float) Math.PI / 2)));
+            owner.lookAt(EntityAnchorArgument.Anchor.EYES, pet.getEyePosition());
+            if (distance > 16 || level.noCollision(owner) && HumanSight.sees(owner, pet)) return 1;
+        }
+        return 0;
+    }
+
+    private static int houseRules(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var pet = yukkuri(c, "target");
+        if (pet == null || !(pet.pet().presentOwner() instanceof FakePlayer owner) || !owner.getUUID().equals(TOOL_OPERATOR)) return 0;
+        owner.lookAt(EntityAnchorArgument.Anchor.EYES, pet.getEyePosition());
+        var conscience = pet.pet().conscience();
+        int changed = conscience.household().mask(owner.getUUID()) ^ IntegerArgumentType.getInteger(c, "mask");
+        for (var rule : HouseRule.values()) {
+            if ((changed & rule.bit()) != 0) conscience.household().toggle(owner, pet, rule);
+        }
+        conscience.tell(owner);
+        return conscience.told() ? 1 : 0;
+    }
+
     private static int selectToolOperatorSlot(CommandContext<CommandSourceStack> c) {
         var source = c.getSource();
         if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
@@ -495,7 +531,15 @@ public final class ScenarioCommands {
     private static int careClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var target = yukkuri(c, "target");
         if (target == null) return 0;
-        var stack = switch (StringArgumentType.getString(c, "item")) {
+        String item = StringArgumentType.getString(c, "item");
+        if (item.equals("cold") || item.equals("serving")) {
+            if (!target.pet().ownedBy(TOOL_OPERATOR)) return 0;
+            if (!(target.pet().presentOwner() instanceof FakePlayer owner) || !owner.getUUID().equals(TOOL_OPERATOR)) return 0;
+            if (item.equals("cold")) return InteractionDispatch.perform(owner, target, CareAction.COLD) ? 1 : 0;
+            if (!target.life().waitingForServing() || !owner.getMainHandItem().isEmpty() || ownerAt(c, 2) == 0 || !InteractionDispatch.requireReach(owner, target, 5)) return 0;
+            return target.interact(owner, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
+        }
+        var stack = switch (item) {
             case "empty_hand" -> ItemStack.EMPTY;
             case "wet_cloth" -> new ItemStack(ModItems.WASH_CLOTH.get());
             case "junk" -> new ItemStack(ModItems.JUNK_HEADWEAR.get());

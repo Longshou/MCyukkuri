@@ -19,6 +19,8 @@ class DutyTest {
 
     @Test
     void familyDutiesOutrankCertification() {
+        assertTrue(Duty.mayReplace(Kind.RULES, Kind.EXAM));
+        assertFalse(Duty.mayReplace(Kind.EXAM, Kind.RULES));
         for (Kind family : new Kind[] {Kind.WATCH, Kind.SEARCH, Kind.SEAL}) {
             assertTrue(Duty.mayReplace(Kind.EXAM, family));
             assertFalse(Duty.mayReplace(family, Kind.EXAM));

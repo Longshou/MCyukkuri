@@ -6,6 +6,9 @@ import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -22,6 +25,8 @@ import net.minecraft.world.phys.Vec3;
 public final class RoamingGoal extends Goal {
     private final YukkuriEntity animal;
     private BlockPos origin, destination;
+    private BlockPos yard;
+    private Choice yardChoice;
     private long nextWalk, nextExpedition;
     private int radius, homeRadius, elapsed, failures, roll = -1;
     private boolean expedition, active, returning;
@@ -77,6 +82,21 @@ public final class RoamingGoal extends Goal {
         // Parents of unweaned young stay near them; other adults with a home stroll around it (expeditions and migration excepted).
         homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
         destination = choose();
+        yard = animal.life().homeStand();
+        yardChoice = null;
+        if (yard != null && (!insideYard(animal.position()) || !animal.pet().conscience().binds(HouseRule.NO_LEAVING_YARD))) yard = null;
+        if (yard != null && destination != null && !insideYard(Vec3.atBottomCenterOf(destination))) {
+            chooseYard();
+            if (yardChoice == Choice.WAIT) return false;
+            if (yardChoice == Choice.HOLD) {
+                var center = Vec3.atBottomCenterOf(yard);
+                var direction = Vec3.atBottomCenterOf(destination).subtract(center).multiply(1, 0, 1).normalize();
+                var edge = BlockPos.containing(center.add(direction.scale(7))).atY(destination.getY());
+                if (animal.getRandom().nextInt(4) == 0 && animal.life().dryStand(edge) && animal.life().reachable(edge, false)
+                        && animal.family().allowsIdleWalk(Vec3.atBottomCenterOf(edge)) && outsideFoundShelter(edge)) destination = edge;
+                else { hesitate(); return false; }
+            }
+        }
         result = destination == null ? "no_reachable_destination" : "planned";
         if (expedition && destination == null) GameplayLog.event(animal,"explore","start refused reason={} radius={}",result,radius);
         return destination != null;
@@ -134,6 +154,17 @@ public final class RoamingGoal extends Goal {
         if (!animal.life().navigate(destination,1,false)) failures++;
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
+    private boolean insideYard(Vec3 point) {
+        return point.subtract(Vec3.atBottomCenterOf(yard)).horizontalDistanceSqr() <= 64;
+    }
+    private void chooseYard() {
+        double pressure = Math.max(animal.dailyLife().boredom() / 100.0, animal.life().personality().temperament().curious());
+        yardChoice = animal.pet().conscience().tempted(HouseRule.NO_LEAVING_YARD, pressure, 1);
+    }
+    private void hesitate() {
+        PetScenes.act(animal, YukkuriAction.LOOK_AROUND, "teary", "", 40);
+        animal.getLookControl().setLookAt(yard.getX() + .5, animal.getEyeY(), yard.getZ() + .5);
+    }
     @Override public boolean canContinueToUse() {
         if (!active || !available() || !outsideFoundShelter(destination) || detour != null && !outsideFoundShelter(detour)
                 || elapsed >= (expedition ? 1600 : 600) || failures >= 4) return false;
@@ -142,6 +173,20 @@ public final class RoamingGoal extends Goal {
     }
     @Override public void tick() {
         elapsed++;
+        if (yard != null) {
+            var path = animal.getNavigation().getPath();
+            if (yardChoice == null && path != null && !path.isDone() && !insideYard(path.getNextEntityPos(animal))) chooseYard();
+            if ((yardChoice == Choice.HOLD || yardChoice == Choice.WAIT) && path != null && !path.isDone() && !insideYard(path.getNextEntityPos(animal))) {
+                stop();
+                if (yardChoice == Choice.HOLD) hesitate();
+                return;
+            }
+            if (!insideYard(animal.position())) {
+                if (yardChoice == Choice.BREAK) animal.pet().conscience().breach(HouseRule.NO_LEAVING_YARD);
+                yard = null;
+                yardChoice = null;
+            }
+        }
         if (elapsed % 20 == 0) {
             stuckTicks = animal.position().distanceToSqr(progressPosition) < .04 ? stuckTicks + 20 : 0;
             progressPosition = animal.position();
@@ -157,6 +202,7 @@ public final class RoamingGoal extends Goal {
             returning = true; destination = origin;
             GameplayLog.event(animal,"explore","return started reason={} nutrition={} energy={}",reached?"destination_reached":"needs",animal.life().nutrition(),animal.life().energy());
         } else if (reached) {
+            if (yardChoice == Choice.HOLD) hesitate();
             result = expedition ? "returned" : "arrived"; active = false; animal.getNavigation().stop(); return;
         }
         if (elapsed % 20 == 0 && !animal.life().navigate(destination,1,false)) failures++;

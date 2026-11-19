@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
+import io.github.longshou.mcyukkuri.pet.rules.ConscienceGoal;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
@@ -103,6 +104,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
         // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
         goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));
         goalSelector.addGoal(6, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 6)));

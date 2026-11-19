@@ -242,8 +242,8 @@ final class Courtship {
     }
 
     private static Choice courtChoice(YukkuriEntity body, YukkuriEntity peer) {
-        if (body.pet().breedingPermitted(peer.getUUID())) return Choice.ALLOW;
-        return body.pet().conscience().tempted(HouseRule.NO_SUKKIRI, body.family().inBreedingPeriod() ? 1 : 0, 1);
+        return body.pet().conscience().tempted(HouseRule.NO_SUKKIRI, body.family().inBreedingPeriod() ? 1 : 0, 1,
+                body.pet().breedingPermitted(peer.getUUID()));
     }
 
     private static boolean resists(YukkuriEntity body, YukkuriEntity peer, Choice choice) {

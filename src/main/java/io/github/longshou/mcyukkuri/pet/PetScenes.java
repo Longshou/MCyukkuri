@@ -34,6 +34,11 @@ public final class PetScenes {
         if (y.showReaction(action, face, "", ticks) && !event.isEmpty()) y.speakCue(event);
     }
 
+    public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
+        if (look != null) y.getLookControl().setLookAt(look, 30, 30);
+        act(y, action, face, event, ticks);
+    }
+
     /** Action + face + line in one go; a looping action is ended after ticks, and the animal keeps glancing at look (may be null) meanwhile. */
     public static void act(YukkuriEntity y, String action, String face, String event, int ticks, Entity look) {
         if (!(y.level() instanceof ServerLevel level) || !y.isAlive()) return;
@@ -95,11 +100,14 @@ public final class PetScenes {
             act(y, "droop", "teary", null, 50, null);
         }
     }
-    /** Courtship refused by the gate: the pet holds back (shy if it can control itself, otherwise droops); inside the cooldown only the teary face. */
-    public static void courtshipHeld(YukkuriEntity courting, YukkuriEntity other) {
-        var y = courting.pet().isPet() ? courting : other.pet().isPet() ? other : courting;
-        var peer = y == courting ? other : courting;
-        if (!y.pet().calm() || !ready(y, "held", 2400)) { y.showReaction("teary", "", 40); return; }
-        act(y, y.life().personality().temperament().is(Gate.PATIENT) ? "shy" : "droop", "teary", "courtship_held", 70, peer);
+    public static void courtshipHeld(YukkuriEntity y, YukkuriEntity peer) {
+        int hesitation = 20 + (int) (30 * y.life().personality().temperament().patient());
+        act(y, YukkuriAction.SHY, "flushed_smile", "courtship_held", hesitation, peer);
+        later(y, hesitation, () -> {
+            if (!y.isAlive() || y.hurtTime > 0 || y.isPanicking()) return;
+            var away = y.position().scale(2).subtract(peer.position());
+            y.getLookControl().setLookAt(away.x, y.getEyeY(), away.z);
+            act(y, YukkuriAction.TURN, "teary", "", 20);
+        });
     }
 }

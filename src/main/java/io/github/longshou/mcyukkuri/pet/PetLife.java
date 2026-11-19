@@ -470,6 +470,7 @@ public final class PetLife {
         if (examWildTag != null && !ExamSession.running(animal)) finishWildExam();
         if (cooldown > 0) cooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
+        if (animal.tickCount % 20 == 0) conscience.react();
         if (++dayClock >= 24000) {
             dayClock = 0;
             permits.values().removeIf(until -> until < now());
