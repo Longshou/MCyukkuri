@@ -371,7 +371,8 @@ public final class OperationLife {
         }
         return null;
     }
-    private Entity loadedOperator(ServerLevel level) {
+    public Entity loadedOperator() {
+        var level = (ServerLevel) entity.level();
         var player = level.getPlayerByUUID(operator);
         return player == null ? level.getEntity(operator) : player;
     }
@@ -407,7 +408,7 @@ public final class OperationLife {
             if(table==null)moveTo(anchor);
             return;
         }
-        if(!(loadedOperator(level) instanceof LivingEntity actor)
+        if(!(loadedOperator() instanceof LivingEntity actor)
                 ||InteractionDispatch.reachRefusal(actor,entity,InteractionDispatch.TOOL_REACH)!=null){end("operator_unreachable");return;}
         if(entity.isInWaterOrBubble()||entity.isOnFire()){end("danger");return;}
         if(--remaining<=0){end("timeout");return;}

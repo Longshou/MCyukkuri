@@ -42,6 +42,7 @@ import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.social.HookRescueGoal;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.Locale;
 import java.util.Set;
@@ -1056,10 +1057,15 @@ public final class Reactions {
     /** Emergency tier: stop what you are doing, watch, back away, hide. */
     public static final class ThreatGoal extends Goal {
         private final YukkuriEntity y;
-        public ThreatGoal(YukkuriEntity y) { this.y = y; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        private final HookRescueGoal hookRescue;
+        public ThreatGoal(YukkuriEntity y, HookRescueGoal hookRescue) {
+            this.y = y;
+            this.hookRescue = hookRescue;
+            setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        }
         private Threat threat() { return y.status().reactions().threat; }
-        @Override public boolean canUse() { return threat().wants(); }
-        @Override public boolean canContinueToUse() { return threat().keeps(); }
+        @Override public boolean canUse() { return threat().wants() && !hookRescue.canUse(); }
+        @Override public boolean canContinueToUse() { return threat().keeps() && !hookRescue.canUse(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { threat().start(); }
         @Override public void tick() { threat().tick(); }
