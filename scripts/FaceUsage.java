@@ -6,10 +6,11 @@ import javax.tools.*;
 
 /** Parse Java syntax without loading Minecraft: trace string values reaching face setters. */
 class FaceUsage {
-    record Method(MethodTree tree, String file, Map<String,List<ExpressionTree>> values, Map<String,Boolean> types) {}
+    record Method(MethodTree tree, String file, List<String> classes, Map<String,List<ExpressionTree>> values, Map<String,Boolean> types) {}
     record Call(MethodInvocationTree tree, Method owner) {}
     static final List<Method> methods = new ArrayList<>();
     static final List<Call> calls = new ArrayList<>();
+    static final Set<String> classNames = new HashSet<>();
     static final Map<String,List<ExpressionTree>> fields = new HashMap<>();
     static final Map<String,Boolean> fieldTypes = new HashMap<>();
     static final Map<String,Set<String>> emitted = new TreeMap<>();
@@ -53,6 +54,19 @@ class FaceUsage {
         if(!declared) result.add(0);
         return result;
     }
+    /** A call reaches the method it names only in its own class (or a class the select names); an instance receiver keeps
+     *  the name-only match, since a syntax scan cannot know its type. Same-named helpers of other classes must not cross
+     *  (`say(Player, String key, Object...)` for a chat line vs `say(YukkuriEntity, ..., String face, ...)` for a performance). */
+    static boolean targets(Call call,Method method) {
+        var select=call.tree.getMethodSelect();
+        if(select instanceof IdentifierTree) return call.owner.classes.contains(method.classes.getLast());
+        if(select instanceof MemberSelectTree m) {
+            String expression=m.getExpression().toString();
+            String simple=expression.substring(expression.lastIndexOf('.')+1);
+            if(classNames.contains(simple)) return method.classes.contains(simple);
+        }
+        return true;
+    }
     static Set<String> values(Tree tree,Method owner,Set<Tree> seen) {
         var result = new TreeSet<String>();
         if(tree==null || !seen.add(tree)) return result;
@@ -77,7 +91,7 @@ class FaceUsage {
             for(var e:fields.getOrDefault(key,List.of())) result.addAll(values(e,owner,seen));
             var params=owner.tree.getParameters();
             for(int i=0;i<params.size();i++) if(params.get(i).getName().contentEquals(key)) {
-                for(var call:calls) if(name(call.tree).equals(owner.tree.getName().toString()) && call.tree.getArguments().size()==params.size() && fits(call,params))
+                for(var call:calls) if(name(call.tree).equals(owner.tree.getName().toString()) && call.tree.getArguments().size()==params.size() && fits(call,params) && targets(call,owner))
                     result.addAll(values(call.tree.getArguments().get(i),call.owner,seen));
             }
         } else if(tree instanceof MethodInvocationTree call) {
@@ -102,9 +116,18 @@ class FaceUsage {
             var task=(JavacTask)compiler.getTask(null,manager,diagnostics,List.of("-proc:none"),null,manager.getJavaFileObjectsFromFiles(files));
             for(var unit:task.parse()) new TreeScanner<Void,Void>() {
                 Method owner;
+                final List<String> classes=new ArrayList<>();
+                @Override public Void visitClass(ClassTree tree,Void unused) {
+                    String simple=tree.getSimpleName().toString();
+                    // An anonymous class has no name to resolve a call against; its enclosing classes stay in sight.
+                    if(!simple.isEmpty()) { classNames.add(simple); classes.add(simple); }
+                    super.visitClass(tree,unused);
+                    if(!simple.isEmpty()) classes.remove(classes.size()-1);
+                    return null;
+                }
                 @Override public Void visitMethod(MethodTree tree,Void unused) {
                     var previous=owner;
-                    owner=new Method(tree,unit.getSourceFile().getName(),new HashMap<>(),new HashMap<>());methods.add(owner);
+                    owner=new Method(tree,unit.getSourceFile().getName(),List.copyOf(classes),new HashMap<>(),new HashMap<>());methods.add(owner);
                     super.visitMethod(tree,unused);owner=previous;return null;
                 }
                 @Override public Void visitVariable(VariableTree v,Void unused) {
