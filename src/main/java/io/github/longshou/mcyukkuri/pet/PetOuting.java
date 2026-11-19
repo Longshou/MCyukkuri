@@ -22,6 +22,7 @@ public final class PetOuting extends Goal {
     private HumanNpc escort, owner;
     private Vec3 stand;
     private boolean shelter;
+    private boolean picnicApproach;
     private boolean playAvailable;
 
     public PetOuting(YukkuriEntity pet) {
@@ -198,9 +199,11 @@ public final class PetOuting extends Goal {
     @Override public void tick() {
         if (!free()) return;
         if (owner != null) {
-            if (!owner.blockPosition().equals(escortAt)) {
+            boolean picnic = wantsPicnic(owner);
+            if (!owner.blockPosition().equals(escortAt) || picnic != picnicApproach) {
                 escortAt = owner.blockPosition();
-                stand = SurfaceApproach.beside(pet, owner, wantsPicnic(owner) ? 1 : innerDistance(), 1);
+                picnicApproach = picnic;
+                stand = SurfaceApproach.beside(pet, owner, picnic ? 1 : innerDistance(), 1);
             }
             // This leg ends at a fixed stand sampled behind the resident. Moving the resident's body
             // must not invalidate its path between samples.

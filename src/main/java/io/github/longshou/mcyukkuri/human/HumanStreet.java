@@ -152,7 +152,7 @@ final class HumanStreet {
                 || npc.level().isRaining() && (npc.level().canSeeSky(BlockPos.containing(npc.getEyePosition()))
                 || npc.level().canSeeSky(y.blockPosition()) || !SurfaceApproach.supportedGround(y, y.position()))) return false;
         boolean own = Custody.ownedBy(y, npc.getUUID());
-        if (own && npc.walking() && y.outing().sound() && !eligibleMeal(y)) return false;
+        if (npc.walking() && (!own || y.outing().sound() && !eligibleMeal(y))) return false;
         if (!own && (!y.status().identity().free() || Custody.harmRefusal(null, y, y.blockPosition()) != null)) return false;
         if (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork()) return false;
         var relation = y.life().personality().relation(npc.getUUID());
@@ -261,9 +261,6 @@ final class HumanStreet {
         double distance = toward.length();
         if (distance <= 1.5) return;
         var stand = BlockPos.containing(npc.position().add(toward.scale(Math.min(2, distance - 1.5) / distance)));
-        var level = npc.level();
-        if (stand.equals(npc.blockPosition()) || !npc.isWithinRestriction(stand) || !level.getFluidState(stand).isEmpty()
-                || !level.getBlockState(stand.below()).isFaceSturdy(level, stand.below(), Direction.UP)) return;
         cropShoo = new CropShoo(thief, stand, npc.position(), now() + 40);
         cropShooPath = null;
     }
@@ -275,8 +272,17 @@ final class HumanStreet {
         var thief = shoo.thief();
         var nav = npc.getNavigation();
         if (cropShooPath == null) {
-            cropShooPath = nav.createPath(shoo.stand(), 0);
-            if (cropShooPath == null || !cropShooPath.canReach() || cropShooPath.getNodeCount() > 4 || !nav.moveTo(cropShooPath, .85)) {
+            var level = npc.level();
+            for (var stand : BlockPos.withinManhattan(shoo.stand(), 1, 0, 1)) {
+                if (stand.equals(npc.blockPosition()) || !npc.isWithinRestriction(stand) || !level.getFluidState(stand).isEmpty()
+                        || !level.getBlockState(stand.below()).isFaceSturdy(level, stand.below(), Direction.UP)) continue;
+                var path = nav.createPath(stand, 0);
+                if (path != null && path.canReach() && path.getNodeCount() <= 4 && nav.moveTo(path, .85)) {
+                    cropShooPath = path;
+                    break;
+                }
+            }
+            if (cropShooPath == null) {
                 GameplayLog.event(npc, "npc-care", "action=street_shoo_refused target={} reason=unreachable stand={}", thief.getUUID(), shoo.stand());
                 stopCropShoo();
                 return;
@@ -649,6 +655,7 @@ final class HumanStreet {
 
     /** Selects ordinary reachable street stands; a blocked leg tries the other side, then heads home. */
     static final class Stroll extends Goal {
+        private static final int OUTING_INTERVAL = 3000;
         private enum Leg { NONE, TAKE, COLLECT, STOW }
 
         private final HumanNpc npc;
@@ -748,6 +755,7 @@ final class HumanStreet {
                 break;
             }
             if (!routed && !landmarks.isEmpty()) {
+                nextOuting = npc.level().getGameTime() + OUTING_INTERVAL;
                 finished = true;
                 return true;
             }
@@ -756,7 +764,7 @@ final class HumanStreet {
                 if (stand == null || !npc.level().canSeeSky(BlockPos.containing(stand)) || !route(stand)) return false;
             }
             companions = ready;
-            nextOuting = npc.level().getGameTime() + 3000; // the resident's existing rest between walks
+            nextOuting = npc.level().getGameTime() + OUTING_INTERVAL;
             for (var pet : companions) pet.outing().leave(npc, yard);
             lagTicks = 0;
             pace = .55;
@@ -1211,7 +1219,7 @@ final class HumanStreet {
         private void attachLeads(String phase) {
             for (var pet : companions) {
                 if (!pet.isAlive() || pet.isRemoved() || !escorts(pet) || !pet.canBeLeashed() || pet.isLeashed()
-                        || pet.isPassenger() || npc.distanceToSqr(pet) > 36) continue;
+                        || pet.pet().busy() || pet.isPassenger() || npc.distanceToSqr(pet) > 36) continue;
                 pet.setLeashedTo(npc, true);
                 GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=attach pet={}", phase, pet.getUUID());
             }

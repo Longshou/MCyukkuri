@@ -1137,6 +1137,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncWear() { sync().setWear(wornBits()); }
     /** Only a harnessed pet can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
+    @Override public boolean handleLeashAtDistance(Entity holder, float distance) {
+        // Outings use neither the vanilla moving restriction nor its close-range navigation.
+        return holder instanceof HumanNpc npc && npc.strollingWith(this) || super.handleLeashAtDistance(holder, distance);
+    }
     @Override public void closeRangeLeashBehaviour(Entity holder) {
         if (holder instanceof HumanNpc npc && npc.strollingWith(this)) return;
         if (life().pursuingFoodOnLead()) return;
