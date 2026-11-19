@@ -44,16 +44,23 @@ public final class PredatorNestFrameBlock extends Block implements EntityBlock {
 
         UUID founder() { return founder; }
         void setFounder(UUID founder) { this.founder = founder; missingSince = -1; setChanged(); }
+        void restoreFounder(FrameEntity previous) {
+            founder = previous.founder;
+            missingSince = previous.missingSince;
+            setChanged();
+        }
         void founderPresent() {
             if (missingSince >= 0) { missingSince = -1; setChanged(); }
         }
 
         boolean available(ServerLevel level) {
             if (founder == null) return true;
-            var owner = level.getEntity(founder);
-            if (owner != null) {
-                founderPresent();
-                return !owner.isAlive();
+            for (var dimension : level.getServer().getAllLevels()) {
+                var owner = dimension.getEntity(founder);
+                if (owner != null) {
+                    founderPresent();
+                    return !owner.isAlive();
+                }
             }
             // Give an unloaded founder one full game day from the first observed absence to return.
             if (missingSince < 0) { missingSince = level.getGameTime(); setChanged(); }

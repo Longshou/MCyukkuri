@@ -308,10 +308,11 @@ final class NestBuild {
             GameplayLog.event(body, "predator", "nest frame twigs={} site={}", twigs + 1, pos);
             return true;
         }
+        var previous = (PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos);
         if (!level().setBlock(pos, ModBlocks.PREDATOR_NEST.get().defaultBlockState(), Block.UPDATE_ALL)) return false;
         if (!body.life().assignHome(GlobalPos.of(level().dimension(), pos))) {
             level().setBlock(pos, old, Block.UPDATE_ALL);
-            if (frame != null) ((PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos)).setFounder(body.getUUID());
+            ((PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos)).restoreFounder(previous);
             return false;
         }
         frame = null;
