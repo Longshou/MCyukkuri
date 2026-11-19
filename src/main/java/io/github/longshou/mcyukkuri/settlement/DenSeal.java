@@ -305,7 +305,7 @@ public final class DenSeal {
     }
 
     private static boolean clearOfScreen(AABB body, List<BlockPos> cells) {
-        return cells.stream().noneMatch(cell -> body.intersects(new AABB(cell)));
+        return cells.stream().noneMatch(cell -> body.intersects(DenBarrierBlock.collisionAt(cell)));
     }
 
     private boolean begin(ServerLevel level, ShelterBlockEntity home, LivingEntity danger, List<UUID> parents) {
@@ -402,7 +402,8 @@ public final class DenSeal {
 
     private LivingEntity occupant(ServerLevel level, List<BlockPos> targets) {
         for (var cell : targets) {
-            var bodies = level.getEntitiesOfClass(LivingEntity.class, new AABB(cell), e -> e != y && e.isAlive() && !e.isSpectator());
+            var bodies = level.getEntitiesOfClass(LivingEntity.class, DenBarrierBlock.collisionAt(cell),
+                    e -> e != y && e.isAlive() && !e.isSpectator());
             if (!bodies.isEmpty()) return bodies.getFirst();
         }
         return null;

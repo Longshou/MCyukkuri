@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -23,6 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public final class DenBarrierBlock extends Block implements EntityBlock {
     private static final VoxelShape SHAPE = box(1, 0, 1, 15, 24, 15);
+    static AABB collisionAt(BlockPos cell) { return SHAPE.bounds().move(cell); }
 
     public DenBarrierBlock(Properties properties) { super(properties); }
 
