@@ -239,6 +239,7 @@ def _mold_family(sid, keep):
         nest = cell(0, -3)
         floor = [nest] + [cell(dx, dz) for dx in range(-1, 2) for dz in range(-4, -1) if (dx, dz) != (0, -3)]
         lines.insert(0, block(0, 0, -1, f'mcyukkuri:forest_burrow[facing=south]{{Condition:100,LargeBeds:[L;{nest}],'
+                              f'BedMaterials:[{{Pos:{nest},Materials:[{{id:"minecraft:oak_leaves",count:1}},{{id:"minecraft:short_grass",count:1}}]}}],'
                               f'NaturalBeds:[L;{",".join(floor)}],NaturalPile:{cell(-2, -4)},NaturalPileStand:{cell(-1, -4)}}}'))
         watch = '两位亲油舍不得赶走有斑点的赤油。留在洞内，看四口在野生大草窝各自的睡位躺好，白天醒来，入夜再睡。到第二夜结束时，全家会因接触陆续染病。醒来后，认得油霉的母油会惊叫，不认得的只喊痒。途中可用去霉药中断传染。'
         first_dawn, second_night, last_dawn = 1200, 2600, 4800  # Body ticks from the late setup.
@@ -311,7 +312,16 @@ def _mold_family(sid, keep):
                     infected.add(who)
             if infected != family.keys():
                 return 'Missing contact infection by second dawn: ' + ', '.join(sorted(family.keys() - infected))
-        S[-1].smoke.update(verify_trace=True, verify=verify_nights)
+        # Dig one edge after the family's second dawn. Check the core and both real drops before a resident can collect them.
+        smoke = S[-1].smoke
+        smoke.update(verify_trace=True, verify=verify_nights, commands=[
+            (5000, 'setblock ~1 ~-1 ~-4 minecraft:air'),
+            (5001, 'execute if block ~ ~ ~-1 mcyukkuri:forest_burrow unless data block ~ ~ ~-1 LargeBeds[0] '
+                   'unless data block ~ ~ ~-1 Residents[{Bed:0}] positioned ~0.5 ~ ~-2.5 '
+                   'if entity @e[type=item,distance=..2,nbt={Item:{id:"minecraft:oak_leaves",count:1}}] '
+                   'if entity @e[type=item,distance=..2,nbt={Item:{id:"minecraft:short_grass",count:1}}] '
+                   'run say MCY_BURROW_SALVAGED')])
+        smoke['expect'].append(r'MCY_BURROW_SALVAGED')
     else:
         x, z = BY_ID['den'].spots['family']
 

@@ -116,7 +116,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private int condition=100, moisture, lining, dirt, ticks;
     private int emptyTicks, rainStage;
-    private final List<ItemStack> foundBedding = new ArrayList<>();
+    private final BurrowBedding<BlockPos,ItemStack> bedding = new BurrowBedding<>();
+    private boolean firstFloorCheck = true;
     private boolean dismantling;
     /** Residential cells of a natural home, deepest first. The doorway cell (this core) and the store cell are not among them. */
     private List<BlockPos> naturalBeds=List.of();
@@ -141,7 +142,10 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     @Override public void onLoad() {
         super.onLoad();
-        if(level instanceof ServerLevel server)Homes.registerLoaded(server,this);
+        if(level instanceof ServerLevel server){
+            Homes.registerLoaded(server,this);
+            if(kind()==ShelterBlock.Kind.BURROW)watchFloors(server);
+        }
     }
     @Override public void onChunkUnloaded() {
         if(level instanceof ServerLevel server)LoadedShelters.unregister(server,this);
@@ -239,11 +243,15 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public void setNaturalSite(NaturalShelter.Site site) {
         naturalBeds=site==null?List.of():site.sleeping();naturalEntrance=site==null?null:site.entrance();
-        naturalPile=site==null?null:site.pile();naturalPileStand=site==null?null:site.pileStand();changed();
+        naturalPile=site==null?null:site.pile();naturalPileStand=site==null?null:site.pileStand();
+        if(level instanceof ServerLevel server)watchFloors(server);
+        changed();
     }
     /** The cavity was enlarged (or re-surveyed): keep every resident on the cell it already sleeps on. */
     public void refreshSite(NaturalShelter.Site site) {
         if(site==null||kind()!=ShelterBlock.Kind.BURROW)return;
+        var server=(ServerLevel)level;
+        reconcileFloors(server);
         var cellOf=new LinkedHashMap<UUID,BlockPos>();
         for(var entry:residents.entrySet())cellOf.put(entry.getKey(),entry.getValue()<naturalBeds.size()?naturalBeds.get(entry.getValue()):null);
         var next=new ArrayList<BlockPos>();
@@ -256,6 +264,7 @@ public final class ShelterBlockEntity extends BlockEntity {
             if(slot<0)slot=firstFreeSlot();
             if(slot>=0)residents.put(entry.getKey(),slot);
         }
+        watchFloors(server);
         changed();
     }
     private int firstFreeSlot() {
@@ -347,6 +356,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(work==1)GameplayLog.event(mother,"home","large wild nest preparation started bed={} lining={}",at,lining);
         if(work<120)return true;
         largeBedWork.remove(at);largeBeds.add(at);lining-=2;privateNests.remove(mother.getUUID());
+        bedding.enlarge(at);
+        watchFloors((ServerLevel)level);
         var mate=mother.family().partner();
         int slot=residents.get(mother.getUUID());
         if(mate!=null&&residents.containsKey(mate)&&level instanceof ServerLevel server&&server.getEntity(mate) instanceof YukkuriEntity partner
@@ -405,7 +416,10 @@ public final class ShelterBlockEntity extends BlockEntity {
     private boolean takeSlot(YukkuriEntity entity,int slot) {
         var id=entity.getUUID();
         var previous=residents.put(id,slot);
-        if(chooseResting(entity)){changed();return true;}
+        if(chooseResting(entity)){
+            if(previous!=null && previous!=slot && privateNests.remove(id))dropBedMaterials(beds().get(previous));
+            changed();return true;
+        }
         if(previous==null)residents.remove(id);else residents.put(id,previous);
         return false;
     }
@@ -496,13 +510,15 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(level==null||level.isClientSide||kind()!=ShelterBlock.Kind.BURROW||!owns(entity.getUUID())||privateNest(entity.getUUID())||sharesBed(entity.getUUID())||!usable(entity))return false;
         var project=nestProjects.get(entity.getUUID());
         if(project==null||project.materials.size()!=2||project.work<120)return false;
+        bedding.build(bed(entity.getUUID()),project.materials);
         nestProjects.remove(entity.getUUID());privateNests.add(entity.getUUID());changed();return true;
     }
     public void release(UUID id) {
         dropNestProject(id);
         resting.remove(id);
-        boolean released=residents.remove(id)!=null;
         boolean removedPrivate=privateNests.remove(id);
+        if(removedPrivate)dropBedMaterials(bed(id));
+        boolean released=residents.remove(id)!=null;
         if(released||removedPrivate)changed();
     }
     private void dropNestProject(UUID id){
@@ -557,7 +573,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if((lining<4||dirt>=30||moisture>=60)&&bedding(stack)){
             if (lining < 4) {
                 lining++;
-                if (kind().found()) foundBedding.add(stack.copy());
+                bedding.lining.add(stack.copy());
             } else if (kind().found()) return false;
             dirt=Math.max(0,dirt-30);moisture=Math.max(0,moisture-10);changed();return true;
         }
@@ -664,6 +680,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public void initializeEncounter(int count) {
         lining=4;branches=kind()==ShelterBlock.Kind.BURROW?2:0;
+        bedding.lining.clear();
+        for(int i=0;i<lining;i++)bedding.lining.add(new ItemStack(Items.SHORT_GRASS));
         // The first stock is a real heap of grass on the pile, if a spot beside the entrance is free.
         nextPileTry=0;var pile=ensurePile();
         if(pile!=null)pile.returnFood(new ItemStack(Items.SHORT_GRASS,Math.min(12,Math.max(2,count*2))));
@@ -682,33 +700,70 @@ public final class ShelterBlockEntity extends BlockEntity {
         dirt=0;moisture=Math.max(0,moisture-10);changed();
         player.displayClientMessage(Component.translatable("shelter.mcyukkuri.cleaned"),true);
     }
-    /** Burrow bedding is rendered by the doorway core, so its floor has no block of its own to receive updateShape. */
+    private void watchFloors(ServerLevel server) {
+        var cells=new LinkedHashSet<Long>();
+        for(var bed:naturalBeds)cells.add(bed.asLong());
+        for(var bed:largeBeds)for(var at:BlockPos.betweenClosed(bed.offset(-1,0,-1),bed.offset(1,0,1)))cells.add(at.asLong());
+        BurrowFloorData.of(server).watch(worldPosition,cells);
+    }
+    /** A floor can lose support while its doorway is in an unloaded chunk. Keep that event even if soil is replaced. */
     public static void floorChanged(ServerLevel level, BlockPos below) {
         var floor=below.above();
-        int radius=NaturalShelter.RADIUS+1;
-        for(var den:Homes.loadedWithin(level,floor.offset(-radius,0,-radius),floor.offset(radius,0,radius)))
-            if(den.kind()==ShelterBlock.Kind.BURROW)den.checkBeddingFloor(level,floor);
+        var data=BurrowFloorData.of(level);
+        var owners=data.floors.owners(floor.asLong());
+        if(owners.isEmpty() || NestSupport.below(level,floor))return;
+        for(long owner:Set.copyOf(owners)){
+            data.lost(owner,floor.asLong());
+            var at=BlockPos.of(owner);
+            var chunk=level.getChunkSource().getChunkNow(at.getX()>>4,at.getZ()>>4);
+            if(chunk!=null && chunk.getBlockEntities().get(at) instanceof ShelterBlockEntity den)den.applyLostFloors(level,data);
+        }
     }
-    private void checkBeddingFloor(ServerLevel server, BlockPos floor) {
-        if(NestSupport.below(server,floor))return;
+    private void reconcileFloors(ServerLevel server) {
+        var data=BurrowFloorData.of(server);
+        var watch=data.floors.homes.get(worldPosition.asLong());
+        if(watch==null)return;
+        for(long cell:watch.floors()){
+            var floor=BlockPos.of(cell);
+            if(server.hasChunkAt(floor) && !NestSupport.below(server,floor))data.lost(worldPosition.asLong(),cell);
+        }
+        applyLostFloors(server,data);
+    }
+    private static boolean largeBedFloor(BlockPos bed,BlockPos floor){
+        return bed.getY()==floor.getY() && Math.abs(bed.getX()-floor.getX())<=1 && Math.abs(bed.getZ()-floor.getZ())<=1;
+    }
+    private void applyLostFloors(ServerLevel server,BurrowFloorData data){
+        for(long cell:data.floors.pending(worldPosition.asLong())){
+            var floor=BlockPos.of(cell);
+            // Spawn the physical portions only when their actual beds can receive item entities.
+            if(!server.hasChunkAt(floor) || largeBeds.stream().anyMatch(bed->largeBedFloor(bed,floor)&&!server.hasChunkAt(bed)))continue;
+            removeFloor(server,floor);
+        }
+    }
+    private void dropBedMaterials(BlockPos bed){
+        var at=level.hasChunkAt(bed)?bed:worldPosition;
+        for(var item:bedding.take(bed))Block.popResource(level,at,item);
+    }
+    private void removeFloor(ServerLevel server, BlockPos floor) {
         for(var bed:List.copyOf(largeBeds)){
-            if(Math.abs(bed.getX()-floor.getX())<=1 && Math.abs(bed.getZ()-floor.getZ())<=1){
+            if(largeBedFloor(bed,floor)){
                 largeBeds.remove(bed);
-                Block.popResource(server,bed,new ItemStack(Items.SHORT_GRASS,2));
+                dropBedMaterials(bed);
                 releaseSleepers(server,bed);
-                changed();
             }
         }
         int slot=naturalBeds.indexOf(floor);
-        if(slot<0)return;
-        releaseSleepers(server,floor);
-        naturalBeds=naturalBeds.stream().filter(p->!p.equals(floor)).toList();
-        residents.replaceAll((id,index)->index>slot?index-1:index);
+        if(slot>=0){
+            releaseSleepers(server,floor);
+            naturalBeds=naturalBeds.stream().filter(p->!p.equals(floor)).toList();
+            residents.replaceAll((id,index)->index>slot?index-1:index);
+        }
+        largeBedWork.remove(floor);
+        watchFloors(server);
         changed();
     }
     private void releaseSleepers(ServerLevel server, BlockPos floor) {
         for(var id:residentIds())if(floor.equals(bed(id))){
-            if(privateNests.contains(id))Block.popResource(server,floor,new ItemStack(Items.SHORT_GRASS,2));
             if(server.getEntity(id) instanceof YukkuriEntity y && y.habitat().shelter()==this){
                 y.life().bedRemoved(floor);
                 y.habitat().release();
@@ -724,6 +779,11 @@ public final class ShelterBlockEntity extends BlockEntity {
             level.blockEntityChanged(worldPosition);
         }
         ticks++;
+        if(kind()==ShelterBlock.Kind.BURROW && (firstFloorCheck || ticks%100==0)){
+            if(firstFloorCheck)watchFloors(server);
+            firstFloorCheck=false;
+            reconcileFloors(server);
+        }
         if(ticks%100!=0) {
             if(kind()==ShelterBlock.Kind.CARDBOARD&&moisture>=80&&updateRainStage(server))changed();
             return;
@@ -734,12 +794,11 @@ public final class ShelterBlockEntity extends BlockEntity {
         if (kind()==ShelterBlock.Kind.CARDBOARD) removeOldCartonParts();
         if(!complete()) {dismantle();return;}
         var families=FamilyData.get(server);
-        if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED)
+        for(var id:residentIds()){
+            var p=families.person(id);
+            if(p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED)
                 || kind().found() && (!(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive()
-                        || !contains(y.blockPosition()) && !entrance().equals(y.blockPosition()));})) {
-            privateNests.retainAll(residents.keySet());
-            for(var id:List.copyOf(nestProjects.keySet()))if(!owns(id))dropNestProject(id);
-            changed();
+                        || !contains(y.blockPosition()) && !entrance().equals(y.blockPosition())))release(id);
         }
         if (kind().found()) {
             tickFound(server);
@@ -756,7 +815,10 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(waste>0)dirt=Math.min(100,dirt+Math.min(10,waste*2));
         else if(ticks%400==0&&residents.size()>0)dirt=Math.min(100,dirt+1);
         if(moisture>=60&&ticks%400==0)condition=Math.max(0,condition-1);
-        if(moisture>=75&&lining>0&&ticks%1200==0)lining--;
+        if(moisture>=75&&lining>0&&ticks%1200==0){
+            lining--;
+            if(!bedding.lining.isEmpty())bedding.lining.removeFirst();
+        }
         // Stores keep longer in autumn and winter air and spoil faster in summer heat. [original]
         int rot=moisture>=60?1200:6000;
         if(level instanceof ServerLevel&&Seasons.enabled()) {
@@ -858,11 +920,13 @@ public final class ShelterBlockEntity extends BlockEntity {
 
     private void clearStructure(boolean drops, String reason) {
         if(dismantling||level==null)return;dismantling=true;
+        if(kind()==ShelterBlock.Kind.BURROW && level instanceof ServerLevel server)BurrowFloorData.of(server).watch(worldPosition,Set.of());
         if (kind()==ShelterBlock.Kind.CARDBOARD) removeOldCartonParts();
         if(drops){
             for(var id:List.copyOf(nestProjects.keySet()))dropNestProject(id);
+            for(var bed:List.copyOf(bedding.beds.keySet()))dropBedMaterials(bed);
+            for(var stack:bedding.lining)dropFoundMaterial(stack,reason);
             if (kind().found()) {
-                for (var stack : foundBedding) dropFoundMaterial(stack, reason);
                 dropFoundMaterial(new ItemStack(Items.PAPER, condition > 0 ? 3 : 1), reason);
             } else Containers.dropItemStack(level, worldPosition.getX()+.5, worldPosition.getY(), worldPosition.getZ()+.5,
                     new ItemStack(Items.STICK, branches));
@@ -900,11 +964,18 @@ public final class ShelterBlockEntity extends BlockEntity {
         tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);
         if (kind().found()) {
             tag.putInt("EmptyTicks",emptyTicks);tag.putInt("RainStage",rainStage);
-            var bedding=new ListTag();for(var stack:foundBedding)bedding.add(stack.save(registries));tag.put("FoundBedding",bedding);
         }
+        tag.put("LiningMaterials",saveMaterials(bedding.lining,registries));
+        var beds=new ListTag();
+        bedding.beds.forEach((pos,portions)->{
+            var entry=new CompoundTag();entry.putLong("Pos",pos.asLong());
+            entry.put("Materials",saveMaterials(portions,registries));beds.add(entry);
+        });
+        tag.put("BedMaterials",beds);
         saveResidents(tag,registries);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
+        firstFloorCheck=true;
         super.loadAdditional(tag,registries);loadSite(tag);
         pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;
         // Old village templates supplied only the block entity ID and could save a zero-condition core.
@@ -914,8 +985,26 @@ public final class ShelterBlockEntity extends BlockEntity {
                 dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
         loadResidents(tag,registries);
         emptyTicks=tag.getInt("EmptyTicks");rainStage=tag.getInt("RainStage");
-        foundBedding.clear();
-        for(var raw:tag.getList("FoundBedding",Tag.TAG_COMPOUND))foundBedding.add(ItemStack.parseOptional(registries,(CompoundTag)raw));
+        bedding.lining.clear();
+        bedding.lining.addAll(loadMaterials(tag,tag.contains("LiningMaterials")?"LiningMaterials":"FoundBedding",registries));
+        bedding.beds.clear();
+        for(var raw:tag.getList("BedMaterials",Tag.TAG_COMPOUND)){
+            var entry=(CompoundTag)raw;
+            bedding.build(BlockPos.of(entry.getLong("Pos")),loadMaterials(entry,"Materials",registries));
+        }
+    }
+    private static ListTag saveMaterials(List<ItemStack> portions,HolderLookup.Provider registries){
+        var list=new ListTag();
+        for(var stack:portions)list.add(stack.save(registries));
+        return list;
+    }
+    private static List<ItemStack> loadMaterials(CompoundTag tag,String key,HolderLookup.Provider registries){
+        var portions=new ArrayList<ItemStack>();
+        for(var raw:tag.getList(key,Tag.TAG_COMPOUND)){
+            var stack=ItemStack.parseOptional(registries,(CompoundTag)raw);
+            if(!stack.isEmpty())portions.add(stack);
+        }
+        return portions;
     }
     private void saveResidents(CompoundTag tag,HolderLookup.Provider registries) {
         tag.put("RestingPlaces",NestResting.save(resting));
