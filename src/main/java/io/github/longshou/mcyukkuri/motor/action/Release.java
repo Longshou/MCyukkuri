@@ -307,7 +307,7 @@ public final class Release implements Action, MotorOwner {
         var out = new ArrayList<Vec3>();
         for (double x = -half; x <= half; x += step) for (double z = -half; z <= half; z += step) {
             var at = new Vec3(centre.x + x, bed.floorY(), centre.z + z);
-            if (bed.standsInside(x, z, child.getBbWidth()) && open(carrier, at, exit)) out.add(at);
+            if (bed.standsInside(x, z) && open(carrier, at, exit)) out.add(at);
         }
         out.sort(Comparator.comparingDouble(carrier::distanceToSqr));
         return out;

@@ -7,6 +7,10 @@ import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
+import io.github.longshou.mcyukkuri.motor.geom.BedSpace;
+import io.github.longshou.mcyukkuri.headwear.HeadTop;
+import java.util.ArrayList;
+import java.util.List;
 import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import net.minecraft.core.BlockPos;
@@ -19,12 +23,14 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 /** A nest bed as a container: the rounded hollow a body may lie in, its floor and the rim a footprint may rest on by accident; a shelter cell without a bed is no container. */
 public final class BedContainer implements Container {
     private final Vec3 centre;
-    private final Level level;
+    private final YukkuriEntity body;
+    private List<BedSpace.Box> space;
+    private double reach, brim, top;
     private final FloorShape floor;
     private final double floorY,rimY;
 
-    private BedContainer(Level level,Vec3 centre,FloorShape floor,double floorY,double rimY){
-        this.level=level;this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;
+    private BedContainer(YukkuriEntity body,Vec3 centre,FloorShape floor,double floorY,double rimY){
+        this.body=body;this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;
     }
 
     /** The nest bed at {@code bed}, or null when that block is not a nest bed. */
@@ -38,7 +44,7 @@ public final class BedContainer implements Container {
             var hollow=care.bed();
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
-            return new BedContainer(level,centre,lying(hollow),floorY,
+            return new BedContainer(e,centre,lying(hollow),floorY,
                     Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())));
         }
         var shelter=ShelterBlock.shelter(level,bed);
@@ -46,8 +52,8 @@ public final class BedContainer implements Container {
         // Bedding drawn on a burrow's real floor has no collision rim (NestResting marks it soft): its floor is its rim.
         var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE:NestResting.LEAF_BED;
         var centre=shelter.restSpot(bed);
-        double floorY=floorAt(e,centre,centre.y);
-        return new BedContainer(level,centre,lying(hollow),floorY,floorY);
+        double floorY=shelter.kind()==ShelterBlock.Kind.BURROW?centre.y:floorAt(e,centre,centre.y);
+        return new BedContainer(e,centre,lying(hollow),floorY,floorY);
     }
 
     /** The outline a body may lie within: the hollow plus the soft wall a rounded body may press into ({@link NestResting#RIM_PRESS}), so every place NestResting assigns is inside. */
@@ -56,14 +62,22 @@ public final class BedContainer implements Container {
         return new FloorShape.RoundedRect(half,Math.min(half,bed.corner()+NestResting.RIM_PRESS));
     }
 
-    /** Whether a body of {@code width} standing on the level floor at plane point (x,z) is fully supported inside the hollow. */
-    public boolean standsInside(double x,double z,float width){
+    /** Test the actual sleeper and worn brim against collision at the proposed feet. */
+    public boolean standsInside(double x,double z){
+        float width=body.getBbWidth();
         if(OccupancyMath.classify(x,z,floorY,Occupancy.foot(width),floor,floorY,rimY,true)!=OccupancyMath.Result.INSIDE_SUPPORTED)return false;
-        // The woven pad and its hem differ by a quarter pixel. A higher solid face under the
-        // square collision box lifts this sleeper onto the rim, even if its rounded outline fits.
-        double cx=centre.x+x,cz=centre.z+z,r=width*.5;
-        var sole=new AABB(cx-r,floorY+.25/16+.001,cz-r,cx+r,floorY+.25/16+.002,cz+r);
-        return !level.getBlockCollisions(null,sole).iterator().hasNext();
+        if(space==null){
+            reach=HeadTop.reach(body);brim=HeadTop.brimBottom(body);top=HeadTop.height(body);
+            double half=((FloorShape.RoundedRect)floor).half()+reach;
+            var bounds=new AABB(centre.x-half,floorY-.001,centre.z-half,centre.x+half,floorY+top,centre.z+half);
+            space=new ArrayList<>();
+            for(var shape:body.level().getBlockCollisions(body,bounds))for(var b:shape.toAabbs())
+                space.add(new BedSpace.Box(b.minX-centre.x,b.minY-floorY,b.minZ-centre.z,b.maxX-centre.x,b.maxY-floorY,b.maxZ-centre.z));
+        }
+        var level=body.level();
+        return level.hasChunksAt(BlockPos.containing(centre.x+x-reach,floorY,centre.z+z-reach),
+                BlockPos.containing(centre.x+x+reach,floorY+top,centre.z+z+reach))
+                && BedSpace.fits(space,x,z,width,body.getBbHeight(),reach,brim,top);
     }
 
     @Override public FloorShape floor(){return floor;}

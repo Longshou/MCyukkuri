@@ -49,6 +49,12 @@ public final class HeadTop {
         return worn == null ? y.getBbWidth() / 2 : Math.max(y.getBbWidth() / 2, worn[0]);
     }
 
+    /** Lowest worn vertex above the feet, including a brim or ribbon that hangs below the crown. */
+    public static double brimBottom(YukkuriEntity y) {
+        var worn = worn(y);
+        return worn == null ? y.getBbHeight() : worn[2];
+    }
+
     /** Horizontal reach from the body axis and top (blocks above the feet) of the worn piece, or null for a bare head. */
     private static double[] worn(YukkuriEntity y) {
         double body = y.growthScale() * y.getScale();
@@ -57,12 +63,14 @@ public final class HeadTop {
         if (junk != null) {
             var e = EXTENT.computeIfAbsent("junk_" + junk.id() + "@" + asset, key -> seated("junk_" + junk.id(), asset));
             // A full belly lifts the crown with everything on it (crownLift): measure from the real body top.
-            return new double[]{e[0] * body, y.getBbHeight() + (e[1] - BODY_UNITS / 16) * body};
+            return new double[]{e[0] * body, y.getBbHeight() + (e[1] - BODY_UNITS / 16) * body,
+                    y.getBbHeight() + (e[2] - BODY_UNITS / 16) * body};
         }
         if (!y.life().hasAccessory()) return null;
         var e = EXTENT.computeIfAbsent("accessory_" + asset, HeadTop::accessory);
         double hat = HatScale.of(y.growthScale(), y.subspeciesFlags()) * y.getScale();
-        return new double[]{e[0] * hat, y.getBbHeight() + Math.max(0, e[1] - BODY_UNITS / 16) * hat};
+        return new double[]{e[0] * hat, y.getBbHeight() + Math.max(0, e[1] - BODY_UNITS / 16) * hat,
+                y.getBbHeight() + (e[2] - BODY_UNITS / 16) * hat};
     }
 
     /** The junk prop's vertices through its seat for this form: reach from the body axis and top, in blocks at body scale 1. */
@@ -78,13 +86,14 @@ public final class HeadTop {
 
     private static double[] extent(JsonObject data, Matrix4f place) {
         var v = data.getAsJsonArray("vertices");
-        double reach = 0, top = -Double.MAX_VALUE;
+        double reach = 0, top = -Double.MAX_VALUE, bottom = Double.MAX_VALUE;
         var p = new Vector3f();
         for (int i = 0; i + 2 < v.size(); i += 8) {
             place.transformPosition(p.set(v.get(i).getAsFloat() / 16, v.get(i + 1).getAsFloat() / 16, v.get(i + 2).getAsFloat() / 16));
             reach = Math.max(reach, Math.hypot(p.x, p.z)); top = Math.max(top, p.y);
+            bottom = Math.min(bottom, p.y);
         }
-        return new double[]{reach, top};
+        return new double[]{reach, top, bottom};
     }
 
     /** The worn triangles at the actual action pose, in blocks relative to the feet. */

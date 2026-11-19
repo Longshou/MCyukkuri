@@ -37,7 +37,7 @@ public final class NestResting {
         var body = new Place(0,0,e.getBbWidth(),HeadTop.reach(e));
         double half = bed.box() + (bed.softBox() ? RIM_PRESS : 0);
         return NestLayout.choose(e.getUUID(),body,half,others,supported,
-                centre || bed.centreFirst() || others.isEmpty(), SurfaceApproach.ARRIVAL);
+                e.life().isSleeping(), centre || bed.centreFirst(), SurfaceApproach.ARRIVAL);
     }
     public static ListTag save(Map<UUID,Place> places){
         var list=new ListTag();places.forEach((id,p)->{var tag=new CompoundTag();tag.putUUID("Id",id);tag.putDouble("X",p.x());tag.putDouble("Z",p.z());tag.putFloat("Width",p.width());tag.putDouble("Reach",p.reach());list.add(tag);});return list;

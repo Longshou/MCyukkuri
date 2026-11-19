@@ -83,8 +83,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         var container=BedContainer.of(entity,at);
         if(container==null)return false;
         var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE:NestResting.LEAF_BED,peers,
-                p->container.standsInside(p.x(),p.z(),p.width()),CareBlockEntity.expecting(entity));
-        if(place!=null){peers.put(entity.getUUID(),place);if(peers.entrySet().stream().anyMatch(e->!e.getValue().equals(resting.get(e.getKey())))){resting.putAll(peers);setChanged();}}
+                p->container.standsInside(p.x(),p.z()),CareBlockEntity.expecting(entity));
+        if(place!=null && !place.equals(resting.put(entity.getUUID(),place)))setChanged();
         return place!=null;
     }
     private final Map<BlockPos,Integer> largeBedWork=new LinkedHashMap<>();

@@ -1,8 +1,5 @@
 package io.github.longshou.mcyukkuri.life;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -19,28 +16,15 @@ public final class NestLayout {
     private NestLayout() {}
 
     static Place choose(UUID id, Place body, double half, Map<UUID,Place> places, Predicate<Place> supported,
-                        boolean centre, double arrival) {
+                        boolean sleeping, boolean centre, double arrival) {
         var previous=places.get(id);
         if(previous!=null) {
             var kept=body.at(previous.x,previous.z);
+            if(sleeping)return free(id,kept,places,arrival) && supported.test(kept) ? kept : null;
             if ((!centre || !free(id,body,places,arrival) || !supported.test(body))
                     && free(id,kept,places,arrival) && supported.test(kept)) return kept;
         }
-        var direct=find(id,body,half,places,supported,centre,arrival);
-        if(direct!=null)return direct;
-        // Rearrange targets only when the existing places leave no opening. Commit the entire layout together.
-        var sizes=new LinkedHashMap<>(places);
-        sizes.put(id,body);
-        var order=new ArrayList<>(sizes.keySet());
-        order.sort(Comparator.comparingDouble((UUID key)->sizes.get(key).reach).reversed());
-        var layout=new LinkedHashMap<UUID,Place>();
-        for(var member:order){
-            var spot=find(member,sizes.get(member),half,layout,supported,false,arrival);
-            if(spot==null)return null;
-            layout.put(member,spot);
-        }
-        places.putAll(layout);
-        return layout.get(id);
+        return find(id,body,half,places,supported,centre,arrival);
     }
 
     private static boolean free(UUID id,Place p,Map<UUID,Place> others,double arrival) {

@@ -136,12 +136,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         if(!canClaim(entity))return false;
         residents.keySet().removeIf(member->{var person=FamilyData.get(server).person(member);return person!=null&&person.status!=FamilyData.Status.ALIVE;});
         resting.keySet().retainAll(residents.keySet());
-        var before=new LinkedHashMap<>(resting);
         var container=BedContainer.of(entity,worldPosition);
-        var place=NestResting.choose(entity,bed(),resting,p->container.standsInside(p.x(),p.z(),p.width()),expecting(entity));
+        var place=NestResting.choose(entity,bed(),resting,p->container.standsInside(p.x(),p.z()),expecting(entity));
         if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
                 worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
-        resting.put(id,place);if(!resting.equals(before))changed();
+        if(!place.equals(resting.put(id,place)))changed();
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
     }
