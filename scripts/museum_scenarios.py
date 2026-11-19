@@ -273,17 +273,20 @@ _seal_skill = {'den_seal': 2}
 _seal_assessed = 'YukkuriSkills:{Assessed:["den_seal"]}'
 
 
-def _screen_crossing(window, trace, residents):
+def _screen_crossing(window, trace, residents, prepared=False):
     sealed = re.search(r'\[home\][^\n]* t=(\d+) [^\n]* den seal completed ', window)
-    removed = re.search(r'\[home\] t=(\d+) [^\n]* den barrier removed pos=(-?\d+), (-?\d+), (-?\d+) ', window)
-    if not sealed or not removed or int(sealed[1]) >= int(removed[1]):
+    removed = re.search(r'\[home\] t=(\d+) [^\n]* den barrier removed pos=(-?\d+), (-?\d+), (-?\d+) [^\n]* age=(\d+) ', window)
+    if not removed or not prepared and not sealed:
+        return 'Missing a complete closed-screen interval'
+    start = int(removed[1]) - int(removed[5]) if prepared else int(sealed[1])
+    if start >= int(removed[1]):
         return 'Missing a complete closed-screen interval'
     # These south-facing dens have their one-cell notch at the removed screen's Z coordinate.
     mouth_x, mouth_z = int(removed[2]) + .5, int(removed[4]) + .5
     previous = {}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
-        if row['k'] != 'st' or row['u'] not in residents or not int(sealed[1]) <= row['t'] < int(removed[1]):
+        if row['k'] != 'st' or row['u'] not in residents or not start <= row['t'] < int(removed[1]):
             continue
         x, _, z = row['st']['p']
         last = previous.get(row['u'])
@@ -296,16 +299,17 @@ def _screen_crossing(window, trace, residents):
         return 'Missing resident positions while sealed'
 
 
-def _family_screen(sid, timeout):
-    names = ['mother', 'father', 'child'] if timeout else ['mother', 'father', 'child', 'learner']
+def _family_screen():
+    sid = 'den_barrier'
+    names = ['mother', 'father', 'child', 'learner']
     ids = {name: uid(sid, name) for name in names}
     mother, father = (_uuid_text(sid, n) for n in names[:2])
     kin = kin_of(Mother=ids['mother'], Father=ids['father'])
     lines = [
         box(-12, 0, -8, 12, 0, 6, 'minecraft:air', 'replace minecraft:short_grass'),
         box(-11, 0, 7, 11, 0, 17, 'minecraft:short_grass', 'keep'),
-        yk('reimu', 0, -2, 'mother', uuid=ids['mother'], label='会封洞的母油', lead=True, energy=20 if timeout else 40,
-           rest_wait=500 if timeout else 1200, nutrition=100, intelligence=90, self_control=100,
+        yk('reimu', 0, -2, 'mother', uuid=ids['mother'], label='会封洞的母油', lead=True, energy=40,
+           nutrition=100, intelligence=90, self_control=100,
            boldness=20, attachment=95, kin=kin_of(Partner=ids['father']), skills=_seal_skill),
         yk('marisa', 0, 6, 'father', uuid=ids['father'], label='出门采草的父油', energy=100, nutrition=86, boldness=96,
            kin=kin_of(Partner=ids['mother']), extra=_seal_assessed),
@@ -318,23 +322,17 @@ def _family_screen(sid, timeout):
         rf'den call caller={father} callee={mother} relation=PARTNER',
         rf'\[forage\][^\n]*uuid={father}\b[^\n]* deposit home=[^\n]* moved=[1-9]']
     reads = [('读留守母油', f'yukkuri status {sel("mother")} raw'), ('读采草父油', f'yukkuri status {sel("father")} raw')]
-    if timeout:
-        title = '母油睡着，父油呼唤无应答后自己拆屏'
-        watch = '采草父油回到洞口，按亲缘呼唤睡着的伴侣。等不到回应时，看它放下草、拆屏，再把草带回粮堆。'
-        expect.extend([rf'uuid={father}\b[^\n]* den call unanswered waited=',
-                       rf'den barrier removed [^\n]* reason=self_opened [^\n]*twig_returned=true opener={father}\b'])
-    else:
-        title = '父油出门采草，母油封洞口，父油回来呼唤'
-        watch = '父油去南边草地采草，留守母油压枝封洞。看亚成子油能否看见示范，再看父油呼唤伴侣、母油应声拆屏、父油把草送进粮堆。'
-        learner = _uuid_text(sid, 'learner')
-        lines.append(yk('reimu', 0, -3, 'learner', stage='teen', uuid=ids['learner'], nutrition=100, intelligence=96,
-                        attachment=100, kin=kin, extra=_seal_assessed,
-                        fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')))
-        reads.append(('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriSkills'))
-        expect.extend([(rf'\[childhood\][^\n]*uuid={learner}\b[^\n]* den seal demonstration parent={mother}\b[^\n]* roll=[\d.]+ learned=(true|false)'
-                        rf'|\[childhood\][^\n]*uuid={mother}\b[^\n]* den seal demonstration missed learner={learner}\b reason=(out_of_sight|asleep|away)\b'),
-                       rf'den call answered by={mother}\b',
-                       rf'den barrier removed [^\n]* reason=answered_call [^\n]*twig_returned=true opener={mother}\b'])
+    title = '父油出门采草，母油封洞口，父油回来呼唤'
+    watch = '父油去南边草地采草，留守母油压枝封洞。看亚成子油能否看见示范，再看父油呼唤伴侣、母油应声拆屏、父油把草送进粮堆。'
+    learner = _uuid_text(sid, 'learner')
+    lines.append(yk('reimu', 0, -3, 'learner', stage='teen', uuid=ids['learner'], nutrition=100, intelligence=96,
+                    attachment=100, kin=kin, extra=_seal_assessed,
+                    fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')))
+    reads.append(('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriSkills'))
+    expect.extend([(rf'\[childhood\][^\n]*uuid={learner}\b[^\n]* den seal demonstration parent={mother}\b[^\n]* roll=[\d.]+ learned=(true|false)'
+                    rf'|\[childhood\][^\n]*uuid={mother}\b[^\n]* den seal demonstration missed learner={learner}\b reason=(out_of_sight|asleep|away)\b'),
+                   rf'den call answered by={mother}\b',
+                   rf'den barrier removed [^\n]* reason=answered_call [^\n]*twig_returned=true opener={mother}\b'])
     residents = {_uuid_text(sid, n) for n in names}
     add(sid, 'den', title, title, watch, '约 1–2 分钟，可倍速',
         [*lines, *[home(n, 0, -1) for n in names], f'yukkuri scenario twigs {sel("mother")} 2'],
@@ -344,8 +342,41 @@ def _family_screen(sid, timeout):
                    forbid=[r'\[body\][^\n]* invariant\b', r'den seal aborted reason=(path_stuck|cells_changed)']))
 
 
-_family_screen('den_barrier', False)
-_family_screen('den_call_timeout', True)
+_family_screen()
+
+
+def _timeout_screen():
+    sid = 'den_call_timeout'
+    ids = {n: uid(sid, n) for n in ('mother', 'father', 'child')}
+    mother, father = (_uuid_text(sid, n) for n in ('mother', 'father'))
+    x, z = BY_ID['den'].spots['family']
+    core = (x << 38) | (((z - 1) & 0x3ffffff) << 12) | FEET
+    # This hand-off starts at the return: one real twig is already in the screen, one is still in stock.
+    screen = f'mcyukkuri:den_barrier{{Den:{core}L,Owner:{uuid_nbt(ids["mother"])},AbsentParents:[{uuid_nbt(ids["father"])}]}}'
+    title = '母油睡着，父油呼唤无应答后自己拆屏'
+    add(sid, 'den', title, title, '父油衔草回到已封的洞口，按亲缘呼唤睡着的伴侣。看它等候、放下草、拆屏，再把草送回粮堆。',
+        '约 1 分钟', [
+            yk('reimu', 0, -5, 'mother', uuid=ids['mother'], label='疲倦的母油', energy=20, rest_wait=0,
+               nutrition=100, kin=kin_of(Partner=ids['father']), skills=_seal_skill),
+            yk('marisa', 0, 3, 'father', uuid=ids['father'], label='衔草回家的父油', lead=True, energy=100,
+               attachment=25, self_control=30, nutrition=86, boldness=96, kin=kin_of(Partner=ids['mother']),
+               extra='YukkuriForageLoad:{id:"minecraft:short_grass",count:4}'),
+            yk('marisa', 1, -4, 'child', stage='child', uuid=ids['child'], nutrition=96,
+               kin=kin_of(Mother=ids['mother'], Father=ids['father'])),
+            *[home(n, 0, -1) for n in ids], f'yukkuri scenario twigs {sel("mother")} 1'],
+        late=[block(0, 0, 0, screen), 'execute store result block ~ ~ ~ LaidAt long 1 run time query gametime'],
+        env=DAY, spot='family', vantage=(3, 10),
+        reads=[('读疲倦母油', f'yukkuri status {sel("mother")} raw'), ('读衔草父油', f'yukkuri status {sel("father")} raw')],
+        smoke=dict(ticks=1800, expect=[rf'\[sleep\][^\n]*uuid={mother}\b[^\n]* begin ',
+                                       rf'den call caller={father} callee={mother} relation=PARTNER',
+                                       rf'uuid={father}\b[^\n]* den call unanswered waited=',
+                                       rf'den barrier removed [^\n]* reason=self_opened [^\n]*twig_returned=true opener={father}\b',
+                                       rf'\[forage\][^\n]*uuid={father}\b[^\n]* deposit home=[^\n]* moved=4\b'],
+                   forbid=[r'\[body\][^\n]* invariant\b', r'den call answered by='], verify_trace=True,
+                   verify=lambda w, tr: _screen_crossing(w, tr, {_uuid_text(sid, n) for n in ids}, prepared=True)))
+
+
+_timeout_screen()
 
 
 def _den_guard(name, spot):

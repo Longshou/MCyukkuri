@@ -222,7 +222,7 @@ public final class DenSeal {
         var mouth = Vec3.atCenterOf(home.entrance());
         if (danger != null && danger.distanceToSqr(mouth) < DOOR_SAFE_SQR && !holdsThroughHit()) { abort("danger_at_door"); return false; }
         if (phase == Phase.WALK) {
-            var step = SurfaceApproach.walkResult(y, stand.at(), null, WORK_PACE);
+            var step = walkTo(stand);
             if (step == SurfaceApproach.Result.ARRIVED) {
                 phase = Phase.WORK;
                 ticks = 0;
@@ -275,6 +275,12 @@ public final class DenSeal {
             if (Double.isFinite(length) && (best == null || length < best.route())) best = new Stand(at, length);
         }
         return best;
+    }
+
+    private SurfaceApproach.Result walkTo(Stand target) {
+        if (!SurfaceApproach.at(y, target.at()) && SurfaceApproach.tryStraightStep(y, target.at(), WORK_PACE))
+            return SurfaceApproach.Result.MOVING;
+        return SurfaceApproach.walkResult(y, target.at(), null, WORK_PACE);
     }
 
     private double travelTicks(Stand target) { return target.route() / (BodyAbility.of(y).walkSpeed() * WORK_PACE); }
@@ -548,7 +554,7 @@ public final class DenSeal {
                 return true;
             }
             if (phase == OpeningPhase.WALK) {
-                var step = SurfaceApproach.walkResult(y, target.at(), null, WORK_PACE);
+                var step = walkTo(target);
                 if (step != SurfaceApproach.Result.ARRIVED) {
                     if (step == SurfaceApproach.Result.BLOCKED || ++elapsed >= budget) refuse(barrier, "path_stuck");
                     return active();
