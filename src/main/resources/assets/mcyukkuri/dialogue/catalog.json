@@ -78962,6 +78962,30 @@
     }
   },
   {
+    "id": "parting_gaze.gone",
+    "key": "dialogue.mcyukkuri.original.parting_gaze.gone",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "parting_gaze"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "parting_over.sure",
+    "key": "dialogue.mcyukkuri.original.parting_over.sure",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "parting_over"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
     "id": "mold_notice.mr_mold",
     "key": "dialogue.mcyukkuri.original.mold_notice.mr_mold",
     "origin": "project-original",

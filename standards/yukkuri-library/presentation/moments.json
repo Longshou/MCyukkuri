@@ -4310,6 +4310,20 @@
         }
       ]
     },
+    "behavior_parting_gaze": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "crouch_watch",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [0, "teary_smile"],
+            [2.0, "closed_smile"]
+          ]
+        }
+      ]
+    },
     "behavior_glass_watch": {
       "loop": true,
       "steps": [
@@ -5213,6 +5227,7 @@
     "window_polite": "behavior_window_polite",
     "mourn": "behavior_mourn",
     "mourn_listless": "behavior_mourn_listless",
+    "parting_gaze": "behavior_parting_gaze",
     "shaken": "behavior_shaken",
     "shaken_wary": "behavior_shaken_wary",
     "fume": "behavior_fume",

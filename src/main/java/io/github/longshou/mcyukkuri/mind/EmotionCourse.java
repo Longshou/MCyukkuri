@@ -34,7 +34,7 @@ import net.minecraft.world.phys.Vec3;
  * character), {@link #frightened}/{@link #frightOver} (the shaking after a real danger), {@link #begin} for the rest.
  */
 public final class EmotionCourse {
-    public enum Kind { GRIEF, TERROR, RAGE, JOY }
+    public enum Kind { GRIEF, TERROR, RAGE, JOY, PARTING }
     public enum Stage { NONE, ONSET, PEAK, EASING, FADING }
     /** The trigger's own reaction (the bereaved clip, the flight, the puff) plays this long before the course shows. */
     static final int ONSET_TICKS = 100;
@@ -85,7 +85,7 @@ public final class EmotionCourse {
         return kind != null && switch (kind) {
             case GRIEF, TERROR -> s == Stage.ONSET || s == Stage.PEAK || s == Stage.EASING;
             case RAGE -> s == Stage.ONSET || s == Stage.PEAK;
-            case JOY -> false;
+            case JOY, PARTING -> false;
         };
     }
 
@@ -126,6 +126,7 @@ public final class EmotionCourse {
             case TERROR -> peak ? "horrified" : "teary";
             case RAGE -> peak ? "angry" : "down_angry";
             case JOY -> peak ? "happy" : "closed_smile";
+            case PARTING -> peak ? "teary_smile" : "closed_smile";
         };
     }
 
@@ -139,6 +140,7 @@ public final class EmotionCourse {
             case TERROR -> peak ? YukkuriAction.TREMBLE : YukkuriAction.NERVOUS;
             case RAGE -> YukkuriAction.SULK;
             case JOY -> peak ? YukkuriAction.SWAY : null;
+            case PARTING -> null;
         };
     }
 
@@ -151,17 +153,18 @@ public final class EmotionCourse {
             case TERROR -> s == Stage.PEAK ? Behaviors.SHAKEN : Behaviors.SHAKEN_WARY;
             case RAGE -> Behaviors.FUME;
             case JOY -> null;
+            case PARTING -> Behaviors.PARTING_GAZE;
         };
     }
 
-    /** 3 = the peak holds the body (grief, fright), 6 = it idles listlessly (easing grief and fright, peak anger), 0 = no goal. */
+    /** 3 = the feeling holds the body above errands, 6 = it holds the body above roaming, 0 = no goal. */
     int goalPriority() {
         if (kind == null) return 0;
         Stage s = stage();
         return switch (kind) {
             case GRIEF -> s == Stage.ONSET || s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
             case TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
-            case RAGE -> s == Stage.PEAK ? 6 : 0;
+            case RAGE, PARTING -> s == Stage.PEAK ? 6 : 0;
             case JOY -> 0;
         };
     }
@@ -204,9 +207,9 @@ public final class EmotionCourse {
         if (kind != null && now != Stage.FADING && next.ordinal() > kind.ordinal()) return false;
         power = Math.min(1, power);
         var p = entity.life().personality();
-        int span = Math.clamp(Math.round(length(next, power, p, entity.mind().unease(), hasDependants())
-                * (.9f + .2f * entity.getRandom().nextFloat())), 300, 24000);
-        kind = next; strength = power; length = span; elapsed = 0; about = cause; where = at;
+        float span = length(next, power, p, entity.mind().unease(), hasDependants());
+        if (next != Kind.PARTING) span *= .9f + .2f * entity.getRandom().nextFloat();
+        kind = next; strength = power; length = Math.clamp(Math.round(span), 300, 24000); elapsed = 0; about = cause; where = at;
         griefFocus = kind == Kind.GRIEF ? new GriefFocus(false) : null;
         lineClock = ONSET_TICKS + 40; recallClock = 0;
         GameplayLog.event(entity, "emotion", "course begun kind={} strength={} length={} about={} at={} attachment={} selfControl={} boldness={} unease={}",
@@ -228,6 +231,7 @@ public final class EmotionCourse {
             case TERROR -> lerp(600, 3600, strength) * (1.35f - .7f * bold) * (1.2f - .4f * self) * (1 + .4f * worry);
             case RAGE -> lerp(400, 2400, strength) * (1.4f - .8f * self) * (1.2f - .4f * friendly);
             case JOY -> lerp(400, 2400, strength) * (.7f + .6f * friendly) * (1 - .4f * worry);
+            case PARTING -> lerp(600, 2400, strength) * (.7f + .6f * attachment);
         };
     }
 
@@ -293,7 +297,7 @@ public final class EmotionCourse {
 
     /** A stage's own line: sobs at the peak of grief, a sigh of missing later; the shaking, the huff and the glow likewise. */
     private boolean voice(Stage stage) {
-        if (stage != Stage.PEAK && stage != Stage.EASING) return true;
+        if (stage != Stage.PEAK && (stage != Stage.EASING || kind == Kind.PARTING)) return true;
         if (!calm()) return false;
         boolean peak = stage == Stage.PEAK;
         if (kind == Kind.GRIEF && !peak && elapsed - easingStart() < VOW_WINDOW && about != null) {
@@ -312,6 +316,7 @@ public final class EmotionCourse {
             case TERROR -> peak ? "shaken_after" : "shaken_check";
             case RAGE -> peak ? "fume" : "sulk_huff";
             case JOY -> peak ? "glow" : "glow_hum";
+            case PARTING -> "parting_gaze";
         };
         entity.showReaction(event.equals("mourn_sob") ? "cry" : stageFace(), event, 60);
         return true;
@@ -333,7 +338,12 @@ public final class EmotionCourse {
     }
 
     private void finish() {
-        String closing = switch (kind) { case GRIEF -> "mourn_over"; case TERROR -> "shaken_over"; default -> null; };
+        String closing = switch (kind) {
+            case GRIEF -> "mourn_over";
+            case TERROR -> "shaken_over";
+            case PARTING -> "parting_over";
+            default -> null;
+        };
         String face = kind == Kind.GRIEF ? "teary_smile" : "satisfied";
         GameplayLog.event(entity, "emotion", "course ended kind={} length={} about={}", kind.name().toLowerCase(Locale.ROOT), length, about);
         kind = null; strength = 0; length = elapsed = 0; about = null; where = null;
@@ -509,6 +519,10 @@ public final class EmotionCourse {
                     face(y, point);
                 }
                 if (watched.result != null && yawError(y, point) <= 3) watched.reportEnd(y, point);
+            }
+            if (f.kind == Kind.PARTING) {
+                face(y, place(f));
+                return;
             }
             if (ticks == 1 && f.kind == Kind.RAGE && f.about != null && y.level() instanceof ServerLevel level
                     && level.getEntity(f.about) instanceof LivingEntity other

@@ -118,7 +118,8 @@ public final class Behaviors {
             INDEPENDENCE_LOOK_BACK = "independence_look_back", INDEPENDENCE_SEE_OFF = "independence_see_off",
             INDEPENDENCE_ANSWER = "independence_answer", INDEPENDENCE_SOB = "independence_sob";
     /** A strong feeling's own goal (mind/EmotionCourse): grief at its peak and easing, the shaking after danger, a fuming sulk. */
-    public static final String MOURN = "mourn", MOURN_LISTLESS = "mourn_listless", SHAKEN = "shaken", SHAKEN_WARY = "shaken_wary",
+    public static final String MOURN = "mourn", MOURN_LISTLESS = "mourn_listless", PARTING_GAZE = "parting_gaze",
+            SHAKEN = "shaken", SHAKEN_WARY = "shaken_wary",
             FUME = "fume";
     /** Driving out a moldy member (settlement/MoldExile): the residents' notice, warning, sorrow and scorn; the sick one's plea or
      *  protest, its walk away and its looks back. */

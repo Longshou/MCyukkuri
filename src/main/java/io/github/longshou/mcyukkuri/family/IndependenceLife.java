@@ -395,9 +395,9 @@ public final class IndependenceLife extends Goal {
         int attachment = t.attachment();
         GameplayLog.event(entity, "independence", "see off ended child={} departed={} attachment={} attachmentScore={}", seeing, gone, attachment,
                 String.format(Locale.ROOT, "%.2f", t.attached()));
-        // An attached parent is left missing it for a while (a light grief course); a cool one goes back to its day.
+        // An attached parent watches the road for a while; a cool one goes back to its day.
         if (gone && t.is(Gate.ATTACHED))
-            entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .15f + .25f * (attachment - 55) / 45f, seeing, child.blockPosition());
+            entity.mind().feeling().begin(EmotionCourse.Kind.PARTING, .15f + .25f * (attachment - 55) / 45f, seeing, child.blockPosition());
         seeing = null;
     }
     private YukkuriEntity parentNearby() {
