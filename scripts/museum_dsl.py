@@ -130,7 +130,7 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
     if childhood:
         parts.append('YukkuriChildhood:{' + childhood + '}')
     if grade is not None:
-        parts.append('YukkuriPet:{Grade:' + str(grade) + ',Worn:1b,IssuedAt:0L,ExpiresAt:-1L,Source:3,'
+        parts.append('YukkuriPet:{Grade:' + str(grade) + ',Worn:1b,IssuedAt:0L,Source:3,'
                      'Cooldown:0,History:[],Permits:[]}')
         if skills is None:
             skills = dict.fromkeys(('wait', 'toilet', 'food_guard', 'greeting'), 5)

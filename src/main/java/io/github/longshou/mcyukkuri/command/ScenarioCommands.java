@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -85,6 +86,21 @@ public final class ScenarioCommands {
         return 0;
     }
 
+    private static int certify(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var level = context.getSource().getLevel();
+        if (context.getSource().getEntity() != null || !level.players().isEmpty()) return 0;
+        var candidate = yukkuri(context, "candidate");
+        if (candidate == null || !(EntityArgument.getEntity(context, "examiner") instanceof HumanNpc examiner)) return 0;
+        var owner = FakePlayerFactory.getMinecraft(level);
+        owner.setPos(candidate.getX(), candidate.getY(), candidate.getZ() + 1);
+        owner.getInventory().clearContent();
+        int fee = ExamSession.fee(candidate.pet().grade().higher());
+        if (fee > 0) owner.getInventory().add(new ItemStack(Items.EMERALD, fee));
+        Custody.assign(candidate, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+        var reason = ExamSession.start(examiner, owner, candidate);
+        return reason == null ? 1 : refused(context.getSource(), candidate, "认证", reason);
+    }
+
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var at=BlockPosArgument.getLoadedBlockPos(c,"at");
         String reason=ScenarioSetup.spawn(c.getSource().getLevel(),at,IntegerArgumentType.getInteger(c,"count"));
@@ -127,6 +143,8 @@ public final class ScenarioCommands {
                             var body = yukkuri(c, "target");
                             return body == null ? 0 : ScenarioSetup.vary(c.getSource(), body, CompoundTagArgument.getCompoundTag(c, "spec"));
                         }))))
+                .then(Commands.literal("certify").then(Commands.argument("examiner", EntityArgument.entity())
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(ScenarioCommands::certify))))
                 .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
                 .then(Commands.literal("staff_tool").then(Commands.argument("staff", EntityArgument.entity())

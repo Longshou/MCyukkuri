@@ -264,6 +264,7 @@ public final class ExamSession {
         int hold = voice ? (int) Math.max(60, candidate.speechEnd() - level.getGameTime()) : 60;
         var reply = deficient ? Component.translatable("exam.mcyukkuri.reply.sound") : Component.translatable("exam.mcyukkuri.reply.name", name);
         nameCard = Staging.card(level, candidate.position().add(0, candidate.getBbHeight() + .6, 0), reply, hold, 1.3f);
+        GameplayLog.event(candidate, "exam", "action=introduce voice={} name_card={}", voice, nameCard);
     }
 
     private void verdict(Player owner) {

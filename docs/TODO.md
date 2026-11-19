@@ -154,7 +154,7 @@
   - 13 移动速度：已接入待试玩（[e3cc12142](https://github.com/Longshou/MCyukkuri/commit/e3cc12142)，自驱步态 1.75–3.87 格/秒，均低于人类步行；搬运中转身需试玩看）。用户：「油库里的移动速度不可能比人类更快 据此修正整体移速」
   - 14 运输篮：已接入待试玩（[973baa128](https://github.com/Longshou/MCyukkuri/commit/973baa128)、[31308d613](https://github.com/Longshou/MCyukkuri/commit/31308d613)；普通／高级／大号三种容量，街道 TN-06）。用户：「运输篮内有油库里时 需要显示相关信息。并且运输篮应该支持一次性运输多个非成体 简单处理可以按成长阶段来判断数量」「运输篮载荷可以通过做几种换色篮子做区分，比如有普通高级这种区分」
   - 16 TN02：已接入待试玩（[a44ed817b](https://github.com/Longshou/MCyukkuri/commit/a44ed817b)，银章与嫉妒双方停下交换表情动作；街道 TN-02）。用户：「TN02演出油库里会乱跑 而且这个也得做的更丰富 表情互动都要有吧」
-  - 17 徽章认证：认证演出已接入待试玩，观察等候、自我介绍、评语、通过时别章与交还旧章，以及公布结果时收费。店内核对用品折扣与银章亲代子女的报价。街道 TN-14／15 查看日常练习与数数。
+  - 17 徽章认证：已接入待试玩。街道 TN-43 看焦急等候与自我介绍，TN-44 看别银章、旧铜章入物品栏与扣费，TN-45 看考官指出等待不够熟练，TN-46 看考官夸天分与别钻石章。店内核对用品折扣与银章亲代子女的报价。街道 TN-15 看数数，TN-39～TN-41 看用餐、如厕与回窝。
   - 18 打招呼前倾：已接入待试玩（[81124f288](https://github.com/Longshou/MCyukkuri/commit/81124f288)，前倾只在面对面蹭脸时做，招呼站位按真实体型留出前倾空间；草地 MD-02、MD-18）。用户：「打招呼过程前倾动作会把对面的油库里撞得后退？不符合预期」
   - 19 抖动滥用：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「不要使用高频的抖动组成非害怕颤抖场景 商店的演出用那么多抖动干嘛」
   - 20 商店信息：复测失败（见 11-17 晚试玩反馈）（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店的油库里信息通过npc提供就可以了不要用告示牌 不然不好更新」

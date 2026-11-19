@@ -2350,89 +2350,61 @@ def exam_hall():
             human('caretaker_brother', 0, 0, 'judge', 3, yaw=180, label='考官')]
 
 
-def exam_study(pickup_delay=0):
-    return [item('minecraft:apple', 3, 1, 2, 'count_apples').replace('PickupDelay:0s', f'PickupDelay:{pickup_delay}s')]
+def certify_smoke(target, *expected):
+    return dict(ticks=480, commands=[(45, f'yukkuri scenario certify {sel("judge")} {sel("pet")}')],
+                expect=[rf'\[exam\][^\n]*action=start [^\n]*target={target}\b',
+                        rf'\[exam\][^\n]*action=look target={target}\b',
+                        *expected, rf'\[exam\][^\n]*action=end target={target} reason=result\b'],
+                forbid=[r'\[exam\][^\n]*action=interrupt'],
+                readout=[f'data get entity {sel("pet")} YukkuriPet.History'])
 
 
-def exam_candidate(grade, nutrition=72, bladder=0):
-    return [yk('reimu', 0, 2, 'pet', yaw=180, lead=True, nutrition=nutrition, intelligence=95,
-               friendliness=95, attachment=95, self_control=95, energy=95, social_wait=0, bladder=bladder,
-               skills=dict.fromkeys(('counting', 'wait', 'food_guard', 'toilet', 'greeting'), 9), cap=9),
-            *own('pet'), f'yukkuri scenario badge {sel("pet")} {grade} false']
+def silver_candidate(wait_points):
+    return yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, attachment=75,
+              grade=1, skills={'wait': wait_points, 'toilet': 5, 'greeting': 2, 'counting': 5}, cap=4)
 
 
-add('exam', 'town', '铜章考试：自我介绍', '铜章考试：自我介绍',
-    '右键考官选简易考试，观察考官问姓名、灵梦作答、考官复述，再看铜章结果。',
-    '约 10 秒', [*exam_hall(), yk('reimu', 0, 2, 'pet', label='灵梦', lead=True), *own('pet')],
-    env={'time': 'dawn'}, vantage=(0, 8), reads=[('读考生', f'yukkuri status {sel("pet")} raw')],
-    smoke=dict(ticks=340, commands=[(5, f'yukkuri scenario exam_bronze {sel("judge")} {sel("pet")}')],
-               expect=[r'(?s)action=line [^\n]*key=exam\.mcyukkuri\.say\.simple_name.*action=answer task=simple_check success=true.*key=exam\.mcyukkuri\.comment\.name.*action=result [^\n]*grade=NONE->BRONZE'],
-               forbid=[r'action=interrupt']))
-
-add('exam_obstructed', 'town', '铜章考试：视线被挡', '铜章考试：视线被挡',
-    '从考官一侧报名，考生在墙后。观察考官找路；一直无法接触时考试中断。',
-    '约 10 秒', [*exam_hall(), yk('reimu', 0, 2, 'pet', lead=True), *own('pet'),
-                  'fill ~-3 ~ ~1 ~3 ~2 ~1 minecraft:stone'], env={'time': 'dawn'}, vantage=(4, 6),
-    smoke=dict(ticks=250, commands=[(5, f'data merge entity {sel("judge")} {{NoAI:1b}}'),
-                                   (6, f'yukkuri scenario exam_bronze {sel("judge")} {sel("pet")}')],
-               expect=[r'action=start [^\n]*target=BRONZE', r'action=interrupt reason=site [^\n]*emeralds_used=0'],
-               forbid=[r'action=answer', r'action=result']))
-
-add('exam_silver', 'town', '银章考试：数数、等待与照料', '银章考试：数数、等待与照料',
-    '拿一份甜食在手上，右键考官选晋级。保持散食可见，让考生演示日常如厕。',
-    '约 1 分钟', [*exam_hall(), *exam_study(),
-                  block(-1, 0, 2, 'mcyukkuri:yukkuri_toilet'),
-                  *exam_candidate('bronze', 84, bladder=74)], env={'time': 'dawn'}, vantage=(0, 7),
-    give=['mcyukkuri:sweet_candy', 'minecraft:emerald 4'],
-    smoke=dict(ticks=1400, commands=[(5, f'yukkuri scenario exam_silver {sel("judge")} {sel("pet")}')],
-               expect=[r'action=answer task=count success=true',
-                       r'action=answer task=toilet success=true', r'action=answer task=wait success=true',
-                       r'action=result [^\n]*grade=BRONZE->SILVER emeralds_used=4'],
-               forbid=[r'action=interrupt']))
-
-def exam_promotion_expectation(before, target, *questions):
-    """Check each rolled answer and its comment, then the grade earned by those answers."""
-    exchange = [rf'(?s)action=start [^\n]*target={target} [^\n]*peer=(?P<exam_peer>[a-f0-9-]{{36}})']
-    result = f'outcome=0 grade={before}->{target}'
-    retained = f'outcome=2 grade={before}->{before}'
-    for question in questions:
-        failed = f'{question}_failed'
-        answer = f'action=answer task={question} success='
-        exchange.append(rf'.*?key=exam\.mcyukkuri\.question\.{question}\b')
-        if question in ('help', 'share'):
-            swallow = r'\[meal\][^\n]*uuid=(?P=exam_peer)[^\n]*swallowed item=minecraft:apple\b'
-            exchange.append(rf'.*?(?:{swallow}.*?{answer}true observed=received_(?:owner_)?food\b|{answer}(?P<{failed}>false)\b)')
-        else:
-            exchange.append(rf'.*?{answer}(?:true|(?P<{failed}>false))\b')
-        exchange.append(rf'.*?key=exam\.mcyukkuri\.comment\.{question}_(?({failed})fail|ok)\b')
-        result = f'(?({failed}){retained}|{result})'
-    return ''.join(exchange) + rf'.*?action=result [^\n]*{result} emeralds_used=4\b'
+_CERTIFY_VIEW = dict(env={'time': 'dawn'}, vantage=(0, 5),
+                     reads=[('读考生档案', f'data get entity {sel("pet")} YukkuriPet'),
+                            ('读考生技能', f'data get entity {sel("pet")} YukkuriSkills')])
 
 
-add('exam_gold', 'town', '金章考试：迎客与求助', '金章考试：迎客与求助',
-    '右键考官选晋级。观察考生怎样迎客；考生求助时可亲手喂饿着的同伴。',
-    '约 1 分钟', [*exam_hall(), *exam_candidate('silver', 92), human('caretaker_sister', 2, 1, 'visitor', 0),
-                  f'data merge entity {sel("visitor")} {{CareFood:0,NextRestock:24000L}}',
-                  yk('marisa', -2, 3, 'peer', nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
-    give=['minecraft:apple', 'minecraft:emerald 4'],
-    smoke=dict(ticks=1050, commands=[(5, f'yukkuri scenario exam_gold {sel("judge")} {sel("pet")}'),
-                                    (300, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
-               expect=[r'action=answer task=greet success=true',
-                       exam_promotion_expectation('SILVER', 'GOLD', 'help')],
-               forbid=[r'action=interrupt']))
+add('certify_bronze', 'town', '领铜章：报名后焦急等结果', '领铜章：报名后焦急等结果',
+    '右键考官选认证。看灵梦等候时发抖、介绍自己，最后免费领到铜章。',
+    '接触后约 10 秒', [*exam_hall(), yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, boldness=25), *own('pet')],
+    smoke=certify_smoke('BRONZE',
+                        r'\[exam\][^\n]*action=introduce [^\n]*name_card=[0-9a-f-]{36}\b',
+                        r'\[exam\][^\n]*action=result [^\n]*outcome=0 grade=NONE->BRONZE emeralds_used=0\b'),
+    **_CERTIFY_VIEW)
 
-add('exam_platinum', 'town', '钻石章考试：说明与分享', '钻石章考试：说明与分享',
-    '右键考官选晋级。听考官请考生从数堆改为一份一份数。宣布第二部分后，若考生向你求助，就把自己的一份食物喂给报名时选中的同伴。',
-    '约 1 分钟', [*exam_hall(), *exam_study(pickup_delay=900),
-                  *exam_candidate('gold', 90),
-                  yk('marisa', -2, 3, 'peer', yaw=-90, nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
-    give=['minecraft:emerald 4', 'minecraft:apple'], reads=[('读考生', f'yukkuri status {sel("pet")} raw'), ('读同伴', f'yukkuri status {sel("peer")} raw')],
-    smoke=dict(ticks=1050, commands=[(5, f'yukkuri scenario exam_platinum {sel("judge")} {sel("pet")}'),
-                                    (500, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
-               expect=[r'(?s)action=answer task=clarify_groups success=true observed=1.*?key=exam\.mcyukkuri\.say\.count_portions'
-                       r'.*?action=answer task=clarify success=(?:true|false)\b',
-                       exam_promotion_expectation('GOLD', 'PLATINUM', 'clarify', 'share')],
-               forbid=[r'action=interrupt']))
+add('certify_silver_pass', 'town', '银章认证：通过别章', '银章认证：通过别章',
+    '右键考官选认证。通过时看旧铜章进物品栏、考官别上银章、灵梦闪光庆祝，并在公布时支付 4 绿宝石。',
+    '接触后约 10 秒', [*exam_hall(), silver_candidate(5), *own('pet')], give=['minecraft:emerald 4'],
+    smoke=certify_smoke('SILVER',
+                        r'\[badge\][^\n]*issued grade=BRONZE -> SILVER\b',
+                        r'\[exam\][^\n]*action=result [^\n]*grade=BRONZE->SILVER emeralds_used=4\b'
+                        r'[^\n]*old_token=[0-9a-f-]{36} old_token_inventory_delta=1\b'),
+    **_CERTIFY_VIEW)
+
+add('certify_silver_fail', 'town', '银章认证：不会等待被说出来', '银章认证：不会等待被说出来',
+    '右键考官选认证。看考官指出等待不够熟练、灵梦低头落泪并保留铜章，公布时支付 4 绿宝石。',
+    '接触后约 10 秒', [*exam_hall(), silver_candidate(2), *own('pet')], give=['minecraft:emerald 4'],
+    smoke=certify_smoke('SILVER',
+                        r'\[exam\][^\n]*action=result [^\n]*outcome=2 grade=BRONZE->BRONZE emeralds_used=4 [^\n]*need=WAIT_2\b'),
+    **_CERTIFY_VIEW)
+
+add('certify_platinum_talent', 'town', '钻石章：考官夸天分', '钻石章：考官夸天分',
+    '右键考官选认证。看考官查看时夸灵梦有天分，接着为它别上钻石章。田野手册的性格页可查看天分评语。',
+    '接触后约 10 秒', [*exam_hall(),
+                       yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, grade=3, intelligence=90,
+                          friendliness=90, boldness=75, attachment=85, self_control=90, cap=9,
+                          skills=dict.fromkeys(('wait', 'toilet', 'food_guard', 'manners', 'greeting'), 9)),
+                       *own('pet')], give=['minecraft:emerald 4', 'mcyukkuri:field_notebook'],
+    smoke=certify_smoke('PLATINUM',
+                        r'\[exam\][^\n]*key=exam\.mcyukkuri\.say\.talent\b',
+                        r'\[exam\][^\n]*action=result [^\n]*outcome=0 grade=GOLD->PLATINUM emeralds_used=4\b'),
+    **_CERTIFY_VIEW)
+
 
 add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
     human('caretaker_brother', 4, -4, 'keeper', 4, yaw=180, label='店方饲养员'), *shed(-4, -3),
@@ -5850,8 +5822,8 @@ TOPICS = {
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
-    'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
-    'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
+    'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
+    'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

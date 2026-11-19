@@ -267,6 +267,10 @@
     "training_bowl": "TN-39",
     "training_toilet": "TN-40",
     "training_bed": "TN-41",
-    "street_stop": "TN-42"
+    "street_stop": "TN-42",
+    "certify_bronze": "TN-43",
+    "certify_silver_pass": "TN-44",
+    "certify_silver_fail": "TN-45",
+    "certify_platinum_talent": "TN-46"
   }
 }
