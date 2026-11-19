@@ -2705,101 +2705,128 @@ add('rule_yard', 'town', '禁止出院子：走到院边又回头', '不准出�
      *own('rule_pet'), home('rule_pet', 0, -4)], env=DAY, vantage=(0, 6))
 
 
-def elopement_result(log):
-    pet, wild = (_uuid_text('elope', role) for role in ('pet', 'wild'))
+def elopement_result(log, sid, prior_returns):
+    pet, wild = (_uuid_text(sid, role) for role in ('pet', 'wild'))
     point = r'\(([-.\d]+), ([-.\d]+), ([-.\d]+)\)'
-    stage, returns = '', 0
+    stage, returns = '', prior_returns
     last_return = None
     for line in log.splitlines():
         if '[rules]' not in line:
             continue
-        call = re.search(rf'uuid={wild} t=(\d+) [^\n]*tryst call pet={pet} at={point} yard={point}', line)
-        if call:
+        if f'uuid={wild} ' in line and f'tryst approach pet={pet} ' in line:
+            stage = 'approaching'
+        call = re.search(rf'uuid={wild} t=(\d+) [^\n]*tryst call pet={pet} at={point} yard={point} spoke=true', line)
+        if call and stage == 'approaching':
             tick, wx, _, wz, hx, _, hz = map(float, call.groups())
             if math.hypot(wx-hx, wz-hz) <= 8 or last_return is not None and tick-last_return < 3000:
                 return 'The wild partner must come back to the yard edge on a separate visit'
             stage = 'called'
         elif f'uuid={pet} ' in line:
-            if 'breach rule=no_leaving_yard ' in line and stage == 'called':
+            if 'breach rule=no_leaving_yard watched=false ' in line and stage == 'called':
                 stage = 'crossed'
-            met = re.search(rf'uuid={pet} t=(\d+) [^\n]*tryst met partner={wild} petAt={point} wildAt={point}', line)
+            met = re.search(rf't=(\d+) [^\n]*tryst met partner={wild} petAt={point} wildAt={point}', line)
             if met and stage == 'crossed':
                 met_tick, px, py, pz, wx, wy, wz = map(float, met.groups())
-                if math.hypot(px-hx, pz-hz) <= 8 or math.dist((px, py, pz), (wx, wy, wz)) > 1.5:
+                if min(math.hypot(px-hx, pz-hz), math.hypot(wx-hx, wz-hz)) <= 8 or math.dist((px, py, pz), (wx, wy, wz)) > 1.5:
                     return 'The pet and its caller must actually meet outside the yard'
                 stage = 'met'
+            draw = re.search(rf't=(\d+) [^\n]*departure opportunity partner={wild} visits=(\d+) chance=(\S+) roll=(\S+) '
+                             r'[^\n]* bond=(-?\d+) ownerTrust=(-?\d+)', line)
+            if draw and stage == 'met':
+                draw_tick, n, chance, roll, bond, trust = map(float, draw.groups())
+                if draw_tick - met_tick < 80:
+                    return 'The pair must spend the tryst together before deciding'
+                if prior_returns and 'pressure=100.0 neglect=85 attachment=5 obedience=0 selfControl=5 ' not in line:
+                    return 'The eligible opportunity must show the neglected pet’s staged values'
+                pull = .8775 * min(1, max(0, (bond-trust)/30)) if n >= 2 else 0
+                if n != returns or not math.isclose(chance, pull*pull*(3-2*pull)):
+                    return 'The departure opportunity did not use the saved returns and current bond'
+                stage = 'accepted' if roll < chance else 'staying'
             returned = re.search(rf'uuid={pet} t=(\d+) [^\n]*tryst returned partner={wild} visits=(\d+) bond=-?\d+ petAt={point} yard={point}', line)
             if returned:
-                tick, n, px, _, pz, hx, _, hz = map(float, returned.groups())
-                if stage != 'met' or tick <= met_tick or n != returns + 1 or math.hypot(px-hx, pz-hz) >= 8:
-                    return 'A visit needs its own call, yard breach, meeting and physical homecoming'
+                tick, n, px, _, pz, yard_x, _, yard_z = map(float, returned.groups())
+                if (stage not in ('staying', 'accepted') or n != returns + 1 or tick <= draw_tick or
+                        (yard_x, yard_z) != (hx, hz) or math.hypot(px-hx, pz-hz) > 2.02):
+                    return 'A counted return needs its own invitation, unwitnessed breach, meeting and physical homecoming'
+                if not prior_returns:
+                    return None
                 last_return = tick
                 returns += 1
-                stage = 'home'
             if f'departure started partner={wild} ' in line:
-                if returns < 2 or stage != 'met':
-                    return 'The pair left before two homecomings and a fresh invitation'
+                if not prior_returns or stage != 'accepted':
+                    return 'The departure needs a fresh accepted meeting with the staged partner'
                 stage = 'leaving'
             if 'departure ended reason=' in line and ' reason=arrived ' not in line:
                 stage = ''
-    if returns < 2 or stage != 'leaving':
-        return 'Missing the full tryst history before departure'
+    if not prior_returns:
+        return 'Missing the first secret tryst and return'
+    if stage != 'leaving':
+        return 'Missing the departure after the new invitation'
     issued = re.search(rf'uuid={pet} [^\n]*issued grade=NONE -> BRONZE [^\n]*serial=([\w-]+)', log)
-    start = re.search(rf'uuid={pet} [^\n]*departure started partner={wild} from={point} to={point} yard={point}', log)
     arrival = re.search(rf'uuid={pet} [^\n]*departure ended reason=arrived partner={wild} petAt={point} wildAt={point}', log)
-    if not (issued and start and arrival):
-        return 'Missing the issued token, departure or joint arrival for the staged pair'
-    px, _, pz, wx, _, wz = map(float, arrival.groups())
-    x, _, z = map(float, start.groups()[-3:])
-    if min(math.hypot(px - x, pz - z), math.hypot(wx - x, wz - z)) <= 24 or math.hypot(px - wx, pz - wz) > 4:
+    if not (issued and arrival):
+        return 'Missing the issued token or joint arrival for the staged pair'
+    px, py, pz, wx, wy, wz = map(float, arrival.groups())
+    if min(math.hypot(px-hx, pz-hz), math.hypot(wx-hx, wz-hz)) <= 24 or math.dist((px, py, pz), (wx, wy, wz)) > 4:
         return 'The two bodies did not arrive together beyond their yard'
-    events = re.findall(rf'uuid={pet} [^\n]*? (departure ended reason=arrived|changed from=pet to=wild_family cause=eloped|disqualified cause=eloped|eloped partner=)', log)
-    if events != ['departure ended reason=arrived', 'changed from=pet to=wild_family cause=eloped', 'disqualified cause=eloped', 'eloped partner=']:
-        return f'Expected one joint arrival, release and permanent verdict in order, got {events}'
+    events = re.findall(rf'uuid={pet} [^\n]*? (departure started partner=|departure ended reason=arrived|changed from=pet to=wild_family cause=eloped|disqualified cause=eloped|eloped partner=)', log)
+    if events != ['departure started partner=', 'departure ended reason=arrived', 'changed from=pet to=wild_family cause=eloped', 'disqualified cause=eloped', 'eloped partner=']:
+        return f'Expected one joint departure, arrival, release and permanent verdict in order, got {events}'
     if not re.search(rf'uuid={pet} [^\n]*eloped partner={wild} [^\n]*identity=wild_family token=BRONZE serial={issued[1]}\b', log):
         return 'Former pet did not retain the issued physical badge'
 
 
-def elopement_readout(readout):
+def elopement_readout(readout, prior_returns):
     identities = re.findall(r'\bidentity:\{[^}]*\bkind:"([a-z_]+)"[^}]*\bowner:"([^"]*)",pet_grade:"([a-z]+)"', readout)
-    if identities != [('wild_family', '', 'none'), ('wild_family', '', 'none')]:
-        return f'Expected two ownerless wild subjects with no effective grade, got {identities}'
+    wild = ('wild_family', '', 'none')
+    reimu = wild if prior_returns else ('pet', '2d4c7192-2a6d-4da4-9f94-c82721b9de87', 'bronze')
+    if identities != [reimu, wild]:
+        return f'Expected the staged identities and grades {[reimu, wild]}, got {identities}'
 
 
-_elope_neglect = 85
-add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
-    '在照料菜单里告诉灵梦「不准出院子」，再退到远处看。魔理沙会到院外招呼；数一数灵梦越界、贴贴又回窝的次数，'
-    '再跟到远窝核对铜章。重开后在私会时上前训斥，或朝院门喷驱油剂。', '多次来访，可用倍速观察', [
-        box(-18, -1, -5, 20, -1, 5, 'minecraft:grass_block'), box(-18, 0, -5, 20, 4, 5, 'minecraft:air'),
-        *(box(-18, 0, z, 20, 0, z, 'minecraft:oak_fence') for z in (-5, 5)),
-        *(box(x, 0, -5, x, 0, 5, 'minecraft:oak_fence') for x in (-18, 20)),
-        box(-2, 0, -5, -2, 0, -2, 'minecraft:oak_fence'), box(-2, 0, 2, -2, 0, 5, 'minecraft:oak_fence'),
-        box(-5, 0, 18, -3, 3, 20, 'minecraft:oak_planks'),
-        *shed(-10, 0), *shed(18, 0),
-        *(item for x in (-10, 2, 16) for item in (
-            block(x, 0, 3, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
-            block(x, 0, -3, 'mcyukkuri:waterer{Water:8}'), block(x + 1, 0, -3, 'mcyukkuri:yukkuri_toilet'))),
-        yk('reimu', -9, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=5, boldness=95,
-           attachment=5, kin='PentUp:100f', extra=f'YukkuriPet:{{Neglect:{_elope_neglect},Obedience:-50}}', **pair_ready()),
-        yk('marisa', 4, 0, 'wild', label='野生魔理沙', uuid=uid('elope', 'wild'), boldness=90, kin='PentUp:100f,Recovery:24000', **pair_ready()),
-        *own('pet'), f'yukkuri scenario badge {sel("pet")} bronze false', f'yukkuri scenario bond {sel("pet")} {sel("wild")}',
-        home('pet', -10, 0), home('wild', 18, 0)],
-    env=DAY, vantage=(-4, 19, -169, 14, 4), give=['mcyukkuri:field_notebook', 'mcyukkuri:household_guard', 'minecraft:oak_planks 8'],
-    reads=[('读私会次数', f'data get entity {sel("pet")} YukkuriPet.Conscience.Trysts'),
-           ('读灵梦归属', f'yukkuri status {sel("pet")} raw'), ('读魔理沙归属', f'yukkuri status {sel("wild")} raw')],
-    smoke=dict(ticks=24000, commands=[(1, 'yukkuri scenario tool_operator enter'),
-                                      (2, f'yukkuri scenario owner_at {sel("pet")} watch'),
-                                      (3, f'yukkuri scenario house_rules {sel("pet")} 5'),
-                                      (4, 'execute positioned ~ ~ ~-32 run yukkuri scenario tool_operator move'),
-                                      # Assigning the smoke player clears neglect for the new household.
-                                      (4, f'data modify entity {sel("pet")} YukkuriPet.Neglect set value {_elope_neglect}'),
-                                      (23999, 'yukkuri scenario tool_operator leave')],
-               expect=[rf'\[rules\][^\n]*uuid={_uuid_text("elope", "pet")} [^\n]*departure opportunity partner={_uuid_text("elope", "wild")} visits=[2-9]\d* chance=0\.95[^\n]*pressure=100\.0 neglect={_elope_neglect} attachment=5 obedience=0 selfControl=5 ',
-                       r'\[rules\][^\n]*tryst call pet=[^\n]*spoke=true',
-                       r'\[rules\][^\n]*eloped partner=', r'\[badge\][^\n]*disqualified cause=eloped'],
-               forbid=[r'cause=lost_contact', r'\[badge\][^\n]*revoked grade='],
-               readout=[f'yukkuri status {sel(role)} raw' for role in ('pet', 'wild')],
-               verify=elopement_result, verify_readout=elopement_readout))
+_elope_yard = [
+    box(-18, -1, -8, 22, -1, 7, 'minecraft:grass_block'), box(-18, 0, -8, 22, 5, 7, 'minecraft:air'),
+    *(box(-18, 0, z, 22, 0, z, 'minecraft:oak_fence') for z in (-8, 7)),
+    *(box(x, 0, -8, x, 0, 7, 'minecraft:oak_fence') for x in (-18, 22)),
+    box(-2, 0, -8, -2, 0, -6, 'minecraft:oak_fence'), box(-2, 0, 5, -2, 0, 7, 'minecraft:oak_fence'),
+    box(-2, -1, -5, -2, -1, 4, 'minecraft:coarse_dirt'),
+    box(1, 0, 18, 3, 7, 20, 'minecraft:oak_planks')]
+# The roofs cover each nest entrance. Their posts sit on the back rail, clear of the callers' eye-level route.
+for _x in (-10, 18):
+    _elope_yard += [*(box(x, 0, -8, x, 2, -8, 'minecraft:oak_log') for x in (_x-2, _x+2)),
+                    box(_x-2, 3, -8, _x+2, 3, -4, 'minecraft:oak_planks'), block(_x, 0, -6, 'mcyukkuri:yukkuri_nest[facing=south]'),
+                    block(_x, 0, 5, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
+                    block(_x, 0, 6, 'mcyukkuri:waterer{Water:8}'), block(_x+1, 0, 6, 'mcyukkuri:yukkuri_toilet')]
+
+for _sid, _title, _returns, _watch in (
+        ('elope', '被勾引，偷偷私会', 0, '看野生魔理沙从右侧来到篱笆缺口招呼。灵梦从左院溜出去贴贴，又独自回窝。'),
+        ('elope_leave', '跟野生伴侣离家', 2, '两只已有两次私会。看冷落已久的灵梦再次应邀越界，回望原窝，随魔理沙走向右侧远窝，再核对灵梦的原铜章和归属。')):
+    _pet, _wild = sel('pet'), sel('wild')
+    _bond = 8 + 6 * _returns
+    _history = ',Conscience:{Trysts:[{Partner:' + uuid_nbt(uid(_sid, 'wild')) + ',Returns:2}]}' if _returns else ''
+    add(_sid, 'town', _title, _title,
+        '先在照料菜单告诉灵梦「不准出院子」，再退到远台。' + _watch, '约 1～5 分钟，可用倍速观察', [
+            *_elope_yard,
+            yk('reimu', -7, -1, 'pet', label='家养灵梦', lead=True, uuid=uid(_sid, 'pet'), self_control=5, boldness=95,
+               attachment=5, kin='PentUp:100f', extra='YukkuriPet:{Neglect:85,Obedience:-50' + _history + '}', **pair_ready()),
+            yk('marisa', 5, 0, 'wild', label='野生魔理沙', uuid=uid(_sid, 'wild'), boldness=90, kin='PentUp:100f,Recovery:24000', **pair_ready()),
+            *own('pet'), f'yukkuri scenario badge {_pet} bronze false',
+            f'yukkuri status relate {_pet} {_wild} {_bond}', f'yukkuri status relate {_wild} {_pet} {_bond}',
+            home('pet', -10, -6), home('wild', 18, -6)],
+        env=DAY, vantage=(2, 19, 180, 24, 8), give=['mcyukkuri:field_notebook', 'mcyukkuri:household_guard', 'minecraft:oak_planks 8'],
+        reads=[('读私会次数', f'data get entity {_pet} YukkuriPet.Conscience.Trysts'),
+               ('读灵梦归属', f'yukkuri status {_pet} raw'), ('读魔理沙归属', f'yukkuri status {_wild} raw')],
+        smoke=dict(ticks=6000, commands=[(1, 'yukkuri scenario tool_operator enter'),
+                                         (2, f'yukkuri scenario owner_at {_pet} watch'), (3, f'yukkuri scenario house_rules {_pet} 5'),
+                                         (4, 'execute positioned ~ ~ ~-32 run yukkuri scenario tool_operator move'),
+                                         # Assigning the smoke player clears neglect for the new household.
+                                         (4, f'data modify entity {_pet} YukkuriPet.Neglect set value 85'),
+                                         (5999, 'yukkuri scenario tool_operator leave')],
+                   expect=[r'\[rules\][^\n]*tryst call pet=[^\n]*spoke=true'],
+                   forbid=[r'cause=lost_contact', r'\[badge\][^\n]*revoked grade='] + ([] if _returns else [r'departure started partner=', r'cause=eloped']),
+                   readout=[f'yukkuri status {actor} raw' for actor in (_pet, _wild)],
+                   verify=lambda log, sid=_sid, n=_returns: elopement_result(log, sid, n),
+                   verify_readout=lambda readout, n=_returns: elopement_readout(readout, n)))
 
 
 def certify_smoke(target, *expected):
@@ -6615,7 +6642,7 @@ TOPICS = {
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
-    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5',
+    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

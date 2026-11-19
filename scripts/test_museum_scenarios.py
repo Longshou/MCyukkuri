@@ -1,7 +1,7 @@
 """Deliberate-break log fixtures for museum scenario verifiers; no game."""
 import unittest
 
-from museum_scenarios import _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, elopement_result
+from museum_scenarios import S, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, elopement_result, sel, uid, uuid_nbt
 
 
 PARENT = '11111111-1111-1111-1111-111111111111'
@@ -93,40 +93,59 @@ class PressureEpisodes(unittest.TestCase):
         self.assertIsNotNone(_held_pressure(held + held.replace('82.25', '80.25')))
 
 
-class ElopementHistoryTests(unittest.TestCase):
-    pet, wild = (_uuid_text('elope', role) for role in ('pet', 'wild'))
+class ElopementScenes(unittest.TestCase):
+    def test_pair_history_and_affinity_are_start_conditions(self):
+        for sid, bond, visits in [('elope', 8, 0), ('elope_leave', 20, 2)]:
+            scene = next(s for s in S if s.id == sid)
+            pet = next(l for l in scene.lines if l.startswith('summon mcyukkuri:reimu '))
+            if visits:
+                partner = uuid_nbt(uid(sid, 'wild'))
+                self.assertIn('Conscience:{Trysts:[{Partner:' + partner + ',Returns:2}]}', pet)
+                self.assertIn('UUID:' + partner, next(l for l in scene.lines if l.startswith('summon mcyukkuri:marisa ')))
+            else:
+                self.assertNotIn('Trysts:', pet)
+            for a, b in [('pet', 'wild'), ('wild', 'pet')]:
+                self.assertIn(f'yukkuri status relate {sel(a)} {sel(b)} {bond}', scene.lines)
 
-    def visit(self, tick, returns):
-        p, w = self.pet, self.wild
-        lines = [
-            f'[rules] uuid={w} t={tick} dim=x tryst call pet={p} at=(10, 0, 0) yard=(0, 0, 0) spoke=true',
-            f'[rules] uuid={p} t={tick+50} dim=x breach rule=no_leaving_yard watched=false',
-            f'[rules] uuid={p} t={tick+70} dim=x tryst met partner={w} petAt=(9, 0, 0) wildAt=(10, 0, 0)',
-        ]
-        if returns:
-            lines += [f'[rules] uuid={p} t={tick+240} dim=x tryst returned partner={w} visits={returns} bond=42 petAt=(2, 0, 0) yard=(0, 0, 0)',
-                      f'[rules] uuid={p} t={tick+240} dim=x departure ended reason=returned partner={w}']
-        return '\n'.join(lines) + '\n'
-
-    def departure(self):
-        p, w = self.pet, self.wild
+    def meeting(self, sid, visits, chance):
+        p, w = (_uuid_text(sid, role) for role in ('pet', 'wild'))
         return '\n'.join([
-            f'[badge] uuid={p} t=2 dim=x issued grade=NONE -> BRONZE serial=token-12',
-            f'[rules] uuid={p} t=8999 dim=x departure started partner={w} from=(9, 0, 0) to=(26, 0, 0) yard=(0, 0, 0)',
-            f'[rules] uuid={p} t=9500 dim=x departure ended reason=arrived partner={w} petAt=(26, 0, 0) wildAt=(28, 0, 0)',
-            f'[custody] uuid={p} t=9500 dim=x changed from=pet to=wild_family cause=eloped',
-            f'[badge] uuid={p} t=9500 dim=x disqualified cause=eloped',
-            f'[rules] uuid={p} t=9500 dim=x eloped partner={w} wildAt=(28, 0, 0) identity=wild_family token=BRONZE serial=token-12'])
+            f'[rules] uuid={w} t=50 dim=x tryst approach pet={p} from=(15, 0, 0) edge=(10, 0, 0)',
+            f'[rules] uuid={w} t=100 dim=x tryst call pet={p} at=(10, 0, 0) yard=(0, 0, 0) spoke=true',
+            f'[rules] uuid={p} t=150 dim=x breach rule=no_leaving_yard watched=false owner=player',
+            f'[rules] uuid={p} t=170 dim=x tryst met partner={w} petAt=(9, 0, 0) wildAt=(10, 0, 0)',
+            f'[rules] uuid={p} t=250 dim=x departure opportunity partner={w} visits={visits} chance={chance} '
+            'roll=0.2 pressure=100.0 neglect=85 attachment=5 obedience=0 selfControl=5 bond=20 ownerTrust=0']) + '\n'
 
-    def test_two_returns_and_another_meeting_precede_arrival(self):
-        history = self.visit(100, 1) + self.visit(4000, 2) + self.visit(8000, 0)
-        self.assertIsNone(elopement_result(history + self.departure()))
-        for broken in [self.departure(), history.replace('no_leaving_yard', 'no_singing') + self.departure(),
-                       history.replace('petAt=(9, 0, 0)', 'petAt=(7, 0, 0)') + self.departure(),
-                       history.replace('petAt=(2, 0, 0)', 'petAt=(9, 0, 0)') + self.departure(),
-                       history.replace('visits=2', 'visits=1') + self.departure(),
-                       self.visit(100, 1) + self.visit(500, 2) + self.visit(8000, 0) + self.departure()]:
-            self.assertIsNotNone(elopement_result(broken))
+    def test_first_tryst_needs_a_real_return(self):
+        p, w = (_uuid_text('elope', role) for role in ('pet', 'wild'))
+        log = self.meeting('elope', 0, 0) + f'[rules] uuid={p} t=340 dim=x tryst returned partner={w} visits=1 bond=26 petAt=(2, 0, 0) yard=(0, 0, 0)'
+        self.assertIsNone(elopement_result(log, 'elope', 0))
+        for broken in (log.replace('tryst approach', 'wander'), log.replace('spoke=true', 'spoke=false'),
+                       log.replace('watched=false', 'watched=true'), log.replace('t=250', 't=171'),
+                       log.replace('petAt=(9', 'petAt=(7'), log.replace('petAt=(2', 'petAt=(7'),
+                       log.replace('visits=1', 'visits=2'), log.replace('tryst returned', 'returning')):
+            self.assertIsNotNone(elopement_result(broken, 'elope', 0))
+
+    def test_saved_pair_must_leave_together_and_keep_its_token(self):
+        sid = 'elope_leave'
+        p, w = (_uuid_text(sid, role) for role in ('pet', 'wild'))
+        pull = .8775 * 20 / 30
+        log = (f'[badge] uuid={p} t=2 dim=x issued grade=NONE -> BRONZE serial=token-12\n'
+               + self.meeting(sid, 2, pull*pull*(3-2*pull)) + '\n'.join([
+                   f'[rules] uuid={p} t=250 dim=x departure started partner={w} from=(9, 0, 0) to=(26, 0, 0) yard=(0, 0, 0)',
+                   f'[rules] uuid={p} t=500 dim=x departure ended reason=arrived partner={w} petAt=(26, 0, 0) wildAt=(28, 0, 0)',
+                   f'[custody] uuid={p} t=500 dim=x changed from=pet to=wild_family cause=eloped',
+                   f'[badge] uuid={p} t=500 dim=x disqualified cause=eloped',
+                   f'[rules] uuid={p} t=500 dim=x eloped partner={w} wildAt=(28, 0, 0) identity=wild_family token=BRONZE serial=token-12']))
+        self.assertIsNone(elopement_result(log, sid, 2))
+        release = next(l for l in log.splitlines() if '[custody]' in l)
+        for broken in (log.replace('visits=2', 'visits=0'), log.replace('roll=0.2', 'roll=0.99'),
+                       log.replace('petAt=(26', 'petAt=(24'), log.replace('wildAt=(28, 0', 'wildAt=(28, 5'),
+                       log.replace('tryst met', 'approaching'), log.replace(f'partner={w}', f'partner={p}', 1),
+                       log.replace(release, ''), log + '\n' + release, log.replace('disqualified cause=eloped', ''),
+                       log.replace('token=BRONZE serial=token-12', 'token=BRONZE serial=token-13')):
+            self.assertIsNotNone(elopement_result(broken, sid, 2))
 
 
 if __name__ == '__main__':
