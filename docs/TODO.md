@@ -17,7 +17,6 @@
 | 大头针不再几秒后消失 | `.worktrees/wp-pin-visibility` | interaction/OperationLife.java, InteractionDispatch, wound presentation |
 | 大窝旋转、大体型进窝、单床争抢 | `.worktrees/wp-nest-access` | life/LargeNestBlock.java, life/NestDoorway.java, life/NestResting.java, life/CareBlockEntity.java |
 | 演出放映室：头顶符号、水洼、漏尿水流、字幕与配音 | `.worktrees/wp-player-effects-1` | preview/review, pose/cli, mind/ExcitedLeak.java (pure Beat), scripts/preview.py |
-| 台词语料补齐 10 条情境事件记录 | `.worktrees/wp-corpus-events` | art/dialogue/corpus/situation.json |
 
 ## 玩法待办
 
