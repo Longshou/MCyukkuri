@@ -2419,6 +2419,18 @@ add('house_eggs', 'house', '窝脏了，家油把卵叼去新窝', '窝脏了，
         ('读新窝卵与接收记录', 'data get block ~5 ~ ~-2')],
     late=['execute if data block ~-5 ~ ~-2 EggSlots[{Present:1b}] run data merge block ~-5 ~ ~-2 {Dirt:8}'])
 
+_water_pet = _uuid_text('pet_water', 'water_pet')
+add('pet_water', 'house', '宠物渴了求水，玩家用水桶加满饮水器', '宠物渴了求水，玩家用水桶加满饮水器',
+    '看屋里右侧的灵梦抿嘴向你求水，头顶亮出饮水器图样。等它开口后，拿水桶右键旁边的空饮水器。'
+    '看提示消失、灵梦自己去喝，水位从八份降到七份。生存模式会收回空桶。重开也可以试一瓶清水，加三份并收回玻璃瓶。',
+    '约几秒求水；加水后几秒喝水', [
+        block(3, 0, 0, 'mcyukkuri:waterer'),
+        yk('reimu', 2, -1, 'water_pet', uuid=uid('pet_water', 'water_pet'), lead=True, yaw=0),
+        set_status('water_pet', 'needs.dryness', 50), *own('water_pet'),
+    ], give=['minecraft:water_bucket', 'minecraft:potion[minecraft:potion_contents={potion:"minecraft:water"}]'],
+    env=DAY, vantage=(2, 1, 190, 25, 0),
+    reads=[('读饮水器余水', 'data get block ~3 ~ ~ Water'), ('读灵梦的口渴与请求', f'yukkuri status {sel("water_pet")} raw')])
+
 # ====================================================================================================== town
 add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物、流浪与野生四类对照',
     '四角分别是玩家的宠物、胆大的饥饿流浪油、胆小的聚落成员、胆大的独居野生油。空手站定，转身观察迎人、辱骂索食、退避与停看。',
@@ -3292,17 +3304,33 @@ SHOP_ACCESS = {'shop_build': (8, 6), 'shop_window': (8, 6), 'shop_buy': (8, 6), 
                'shop_pick': (8, 6), 'shop_fetch': (8, 6), 'oni_shop': (11, 12)}
 SHOP_ACCESS_HINT = '在 M 菜单的「实用」页选“访客／会员／贵宾”，更换本店购买与预订资格。'
 # Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
-add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
-    '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、亚成芙兰），后院放养赤油与亚成油。'
+PET_SHOP = 'yukkuri human build shop ~8 ~ ~17 south'
+W1_BOWL, P1_BOWL = '~18 ~2 ~11', '~4 ~2 ~11'
+W1_WATER, YARD_WATER = '~16 ~2 ~13', '~8 ~2 ~-1'
+YARD_BOWL, YARD_NEST = '~12 ~2 ~-1', '~10 ~2 ~-2'
+BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1,sort=nearest]'
+ALICE, CHEN = BOOTH.format('alice', 3), BOOTH.format('chen', 0)
+
+
+def shop_animal(kind, x, z, name):
+    return (f'execute positioned ~{x} ~2 ~{z} run tag @e[type=mcyukkuri:{kind},distance=..1,sort=nearest,limit=1]'
+            f' add {tag(name)}')
+
+
+def shop_need(actor, need, value):
+    return f'yukkuri status set {actor} needs.{need} {value}'
+
+
+add('shop_build', 'shop', '宠物店分房：单间、同窝后院和店员日常照料', '宠物店分房：单间、同窝后院和店员日常照料',
+    '从街面看前排四个单间：金章爱丽丝、橙、银章蕾米莉亚和芙兰各住一间。进店穿过柜台旁的门，后院三只同窝灵梦共用一个草窝。'
     '正对进门处的柜台有店员值守，右键哪一位都打开同一个菜单。访客也能开门进展栏、柜台后方、后屋和后院。'
     + SHOP_ACCESS_HINT +
-    '展舱和捕食种房的食盆清空了、两个厕所放了便便：店员会进栏添粮，把便便清进后屋的桶。',
+    '爱丽丝和蕾米莉亚房间的食盆起初是空的；橙房间和后院的厕所待清。看店员把粮送进房间，把便便清进后屋的桶。',
     '建筑几秒；白天约 10–60 秒看店员添食、清厕',
-    ['yukkuri human build shop ~8 ~ ~17 south'],
-    # The shop opens with its bowls served; the street pen's and the predator room's are emptied so feeding starts in two pens at once
-    # (not three staff crossing the yard's one door together).
-    late=['data merge block ~18 ~2 ~10 {Items:[]}', 'data merge block ~4 ~2 ~10 {Items:[]}',
-          'data merge block ~12 ~2 ~10 {Waste:3.0d}', 'data merge block ~5 ~2 ~-12 {Waste:3.0d}'],
+    [PET_SHOP, f'data merge block {W1_BOWL} {{Items:[]}}', f'data merge block {P1_BOWL} {{Items:[]}}',
+     'data merge block ~14 ~2 ~11 {Waste:3.0d}', 'data merge block ~12 ~2 ~-4 {Waste:3.0d}',
+     f'yukkuri status set {ALICE} growth.age_ticks 148000', f'yukkuri status set {BOOTH.format("remilia", 2)} growth.age_ticks 156000',
+     shop_need(ALICE, 'nutrition', 42), shop_need(BOOTH.format('remilia', 2), 'nutrition', 42)],
     give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook', CORE_FILLING], env=DAY, vantage=(8, 21, 180, 0),
     capture=dict(shots=(60,), sequences=(), observe=False,
                  views={'facade': dict(position=(0.0, 3.5, 23.0), look_at=(0.0, 4.0, 14.0)),
@@ -3310,64 +3338,68 @@ add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放�
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
            ('读店内个体档案', f'yukkuri status {STOCK} raw'),
            ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
-# SP-02 changes only stock and relationship starting values inside the same authored shop.
-BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1,sort=nearest]'
 _care_feeder = '@e[type=mcyukkuri:caretaker_sister,nbt={SiteRole:"shop_staff"},distance=..32,sort=nearest,limit=1]'
+_care_toy = '@e[type=minecraft:item,nbt={Item:{id:"mcyukkuri:yarn_ball"}},distance=..0.5,limit=1]'
+_care_bowl = '~12 ~2 ~11'
 add('shop_care', 'shop', '店员照料：带伤、长霉和拥挤的食盆', '店员照料：带伤、长霉和拥挤的食盆',
-    '先看前排展栏：灵梦站在空食盆的入口，带粮的店员请它侧让后添粮。另一位店员带着药，照料受伤的爱丽丝、长霉的蕾米莉亚和感染的帕秋莉。',
+    '先看橙的单间：橙站在空食盆的入口，带粮的店员请它侧让后添粮。另一位店员带着药，照料受伤的爱丽丝、长霉的蕾米莉亚和后院感染的灵梦。',
     '约半分钟看治疗与添粮', [
-        'yukkuri human build shop ~8 ~ ~17 south',
-        f'yukkuri status set {BOOTH.format("alice", 3)} health.wound_at front:tear:2',
+        PET_SHOP,
+        shop_animal('reimu', 8.5, -3.5, 'care_yard'),
+        f'yukkuri status set {ALICE} health.wound_at front:tear:2',
         f'yukkuri status set {BOOTH.format("remilia", 2)} health.mold 2',
-        f'yukkuri status set {BOOTH.format("patchouli", 0)} health.infection 3',
+        set_status('care_yard', 'health.infection', 3),
         f'data modify entity {_care_feeder} Medicine set value 0',
-        f'tp {_care_feeder} ~15.5 ~2 ~7.5',
-        f'execute positioned ~15.5 ~2 ~10.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~',
-        'data merge block ~18 ~2 ~10 {Items:[]}',
-    ], env=DAY, vantage=(14, 18, 180, 8),
-    reads=[('读在售个体伤病', f'yukkuri status {STOCK} raw')])
+        f'tp {_care_feeder} ~13.5 ~2 ~8.0',
+        f'tp {CHEN} ~13.5 ~2 ~10.3',
+        f'execute positioned ~13.5 ~2 ~12.5 run tp {_care_toy} ~1 ~ ~',
+        shop_need(CHEN, 'nutrition', 92), shop_need(CHEN, 'energy', 100),
+        f'data merge block {_care_bowl} {{Items:[]}}',
+    ], env=DAY, vantage=(12, 7, 345, 18, 2),
+    reads=[('读在售个体伤病', f'yukkuri status {STOCK} raw'), ('读橙的食盆', f'data get block {_care_bowl} Items')])
 
-_window_alice = BOOTH.format('alice', 3)
 _window_flandre = BOOTH.format('flandre', 0)
 _window_west = sel('customer_west', 80)
 _window_wary = sel('customer_wary', 80)
 add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭',
-    '沿临街展舱和捕食种房慢慢走。子油灵梦会卖力展示，爱丽丝可亮出钻石章，没徽章的芙兰也能昂首。'
+    '沿临街的四个单间慢慢走。爱丽丝可亮出钻石章，没徽章的芙兰也能昂首。'
     '注意橙面对熟悉顾客时的鞠躬、面对害怕的人时的退藏，以及上架 17 天的蕾米莉亚转身失落。向仍在恳求的个体挥别时，看它的反应。'
     + SHOP_ACCESS_HINT,
     '建筑几秒；走到展舱 8 格内，1–2 秒内回应',
-    ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
+    [PET_SHOP, 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
      'scoreboard players remove #now scn_t 408000',
-     f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
-     f'data modify entity {_window_alice} YukkuriPet.Grade set value 4',
+     f'data modify entity {ALICE} YukkuriPet.Grade set value 4',
      f'data modify entity {_window_flandre} YukkuriLife.Personality.Innate set value [I;60,25,85,55,55]',
-     f'yukkuri status relate {BOOTH.format("chen", 0)} @s 20'],
+     f'yukkuri status relate {CHEN} @s 20'],
+    late=[
+     f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
+    ],
     env=DAY, vantage=(16, 18, 180, 0),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy', 'shop', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台', '买下金章爱丽丝：店员到展舱接她装篮，送到柜台',
     '先在「实用」页选“贵宾”。进店右键柜台或任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。空闲的外勤店员拿空运输篮开展舱铁门，'
-    '叫她来到门边，装篮那一刻才扣款。店员提篮交到你手上，或放在柜台上留给你。隔壁的子油橙看着她被带走。'
+    '叫她来到门边，装篮那一刻才扣款。店员提篮交到你手上，或放在柜台上留给你。隔着玻璃留意橙的反应。'
     '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱。'
     + SHOP_ACCESS_HINT,
-    '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
-    give=['minecraft:emerald 128'], env=DAY, vantage=(5, 14, 180, 10),
+    '建筑几秒；买下后约 10–30 秒交到手上', [PET_SHOP],
+    give=['minecraft:emerald 128'], env=DAY, vantage=(15, 6, 345, 8, 2),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
 add('shop_browse', 'shop', '自由逛店：进展栏、乱动被警告、稀有个体要会员', '自由逛店：进展栏、乱动被警告、稀有个体要会员',
-    '以访客身份打开铁门，逛展栏、后屋和后院。拿着 16 颗绿宝石找店员，在“在售”里试买或预订橙，看看还差多少消费。'
+    '以访客身份打开临街橙房间的单扇铁门，再逛后屋和后院。拿着 16 颗绿宝石找店员，在“在售”里试买或预订橙，看看还差多少消费。'
     '切到生存模式，在店里试挖玻璃，等空闲店员走来警告，再试挖一次。玻璃应完好，本店今天会拒绝交易，门仍能开。'
     '想试会员购买，可重开，在「实用」页切换会员后再试。',
-    '建筑几秒，试挖后等店员走近', ['yukkuri human build shop ~8 ~ ~17 south'],
+    '建筑几秒，试挖后等店员走近', [PET_SHOP],
     give=['minecraft:emerald 16'], env=DAY, vantage=(8, 21, 180, 0),
     reads=[('读店铺登记', 'yukkuri human shop list'), ('读在售子油橙', f'yukkuri status {BOOTH.format("chen", 0)} raw')])
-_pick_stock = (('pick_friendly', 14, 20, 85), ('pick_bold', 17, 85, 20))
+_pick_stock = (('pick_friendly', 'chen', CHEN, 20, 85), ('pick_bold', 'alice', ALICE, 85, 20))
 add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订后头顶标记', '在店里挑：潜行右键看卡片、了解、预订后头顶标记',
-    '进临街展栏，空主手右键或潜行右键在售的子油灵梦。比较两只的“了解”弹窗：一只胆小又体贴，另一只大胆又好奇。'
+    '进临街两个单间，空主手右键或潜行右键在售的橙与爱丽丝。比较两只的“了解”弹窗：橙胆小又体贴，爱丽丝大胆又好奇。'
     '预订一只，观察头顶的金色标记，另一位玩家看见的是灰色。再次打开卡片取消预订，标记随即消失，定金留在店里。'
-    '也可在预订后购买，等店员装进运输篮时付余款。放出买下的灵梦，用放大镜核对性格词。鬼威惨的库存评语见 SP-05。',
-    '建筑几秒，进临街展栏后即可选购', ['yukkuri human build shop ~8 ~ ~17 south',
-        *[command for name, x, boldness, friendliness in _pick_stock for command in (
-            f'yukkuri human shop stock {SHOP_STAFF} reimu ~{x} ~2 ~12',
-            f'execute positioned ~{x}.5 ~2 ~12.5 run tag @e[type=mcyukkuri:reimu,distance=..0.5,limit=1] add {tag(name)}',
+    '也可在预订后购买，等店员装进运输篮时付余款。放出买下的个体，用放大镜核对性格词。鬼威惨的库存评语见 SP-05。'
+    + SHOP_ACCESS_HINT,
+    '建筑几秒，进临街展栏后即可选购', [PET_SHOP,
+        *[command for name, _, actor, boldness, friendliness in _pick_stock for command in (
+            f'tag {actor} add {tag(name)}',
             set_status(name, 'growth.age_ticks', 148000),
             set_status(name, 'personality.boldness', boldness),
             set_status(name, 'personality.friendliness', friendliness),
@@ -3375,24 +3407,25 @@ add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订
             set_status(name, 'personality.intelligence', 50),
             set_status(name, 'personality.self_control', 50),
         )],
-    ], give=['minecraft:emerald 16', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(8, 21, 180, 0),
-    reads=[('读胆小体贴的灵梦', f'yukkuri status {sel("pick_friendly")} raw'),
-           ('读大胆好奇的灵梦', f'yukkuri status {sel("pick_bold")} raw')])
-_fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
+    ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 6, 0, 12, 2),
+    reads=[('读胆小体贴的橙', f'yukkuri status {sel("pick_friendly")} raw'),
+           ('读大胆好奇的爱丽丝', f'yukkuri status {sel("pick_bold")} raw')])
+_fetch_stock = (('fetch_corner', 'chen'), ('fetch_nest', 'alice'), ('fetch_yard', 'reimu'))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
-    '先在「实用」页选“会员”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'
+    '先在「实用」页选“贵宾”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的爱丽丝和后院远处戴着名称标签的灵梦。'
     '看店员在栏门口叫它们靠近，等约五秒仍够不着时伸手接进篮子，去后院取货时则会走进去。等店员提来每只装好的实篮再买下一只。',
-    '布置几秒，每单约 20 秒', ['yukkuri human build shop ~8 ~ ~17 south',
-        *[f'tag @e[type=mcyukkuri:{kind},distance=..40,limit=1,nbt={{YukkuriFamily:{{Age:{age}L}},'
-          f'NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}}] add {tag(name)}' for name, kind, age in _fetch_stock],
-        'clone ~12 ~2 ~10 ~12 ~2 ~10 ~13 ~2 ~10 replace move',
-        'fill ~13 ~2 ~11 ~13 ~3 ~13 minecraft:glass', 'fill ~12 ~2 ~10 ~12 ~3 ~10 minecraft:glass',
-        f'tp {sel("fetch_corner")} ~12.5 ~2 ~11.5',
-        f'data modify entity {sel("fetch_nest")} YukkuriLife.DrugSleep set value 600',
-        f'tp {sel("fetch_nest")} ~15.5 ~2.109375 ~13.5',
-        f'tp {sel("fetch_yard")} ~17.5 ~2 ~-11.5',
-    ], late=[f'yukkuri scenario home {sel("fetch_nest")} ~15 ~2 ~13'],
-    give=['minecraft:emerald 64'], env=DAY, vantage=(8, 17, 180, 8),
+    '布置几秒，每单约 20 秒', [PET_SHOP,
+        f'tag {CHEN} add {tag("fetch_corner")}', f'tag {ALICE} add {tag("fetch_nest")}',
+        shop_animal('reimu', 11.5, -3.5, 'fetch_yard'),
+        'clone ~12 ~2 ~11 ~12 ~2 ~11 ~13 ~2 ~11 replace move',
+        'fill ~13 ~2 ~10 ~13 ~3 ~10 minecraft:glass', 'fill ~12 ~2 ~11 ~12 ~3 ~11 minecraft:glass',
+        f'tp {sel("fetch_corner")} ~12.5 ~2 ~10.5',
+        f'data modify entity {sel("fetch_nest")} YukkuriLife.DrugSleep set value 2400',
+        f'tp {sel("fetch_nest")} ~18.5 ~2.109375 ~13.5',
+        f'tp {sel("fetch_yard")} ~17.5 ~2 ~-10.5',
+        f'data merge entity {sel("fetch_yard")} {{CustomName:\'{{"text":"后院的灵梦"}}\',CustomNameVisible:1b}}',
+    ],
+    give=['minecraft:emerald 128'], env=DAY, vantage=(14, 6, 0, 12, 2),
     reads=[('读展栏角落', f'yukkuri status {sel("fetch_corner")} raw'),
            ('读窝里睡觉的库存', f'yukkuri status {sel("fetch_nest")} raw'),
            ('读后院库存', f'yukkuri status {sel("fetch_yard")} raw')])
@@ -3439,19 +3472,53 @@ add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到�
     ], env=DAY, vantage=(4, 20, 180, 10),
     reads=[('读店内废物桶', 'data get block ~17 ~2 ~-6 Items'),
            ('读门外街桶', 'data get block ~5 ~ ~18 Items')])
-add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的幼油进窝', '三天补货：多余的成体装篮送走，新到的幼油进窝',
-    '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里不留成体，两只都被店员装篮送进后屋的进出货桶；'
-    '新到的幼油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。隔一会儿再读库存年龄，与购买放出后的年龄对照。'
-    '交了定金预订的个体不会被送走。下一次补货在三天后',
-    '建筑几秒；补货后约 1–2 分钟看店员出货、上架',
-    ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
+add('shop_restock', 'shop', '家庭房补货：同窝幼油逐只进草窝', '家庭房补货：同窝幼油逐只进草窝',
+    '后院的家庭房起初是空的，等一次三天补货。先看右侧后屋进出货桶里的实篮，再看店员一篮一只地把同窝幼油送到后院草窝。'
+    '后屋还有一只上架已久的成体魔理沙，店员会把它装篮送回同一个桶。',
+    '建筑几秒；补货后约 1–2 分钟看店员上架和出货',
+    [PET_SHOP, 'yukkuri clear ~10 ~2 ~-4 ~11 ~3 ~-4', 'yukkuri clear ~8 ~2 ~-3 ~8 ~3 ~-3',
+     'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
      'scoreboard players remove #now scn_t 120000'],
-    late=[f'yukkuri human shop stock {SHOP_STAFF} marisa ~13 ~2 ~-8', f'yukkuri human shop stock {SHOP_STAFF} marisa ~9 ~2 ~-9',
-          'execute as @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Stage:"ADULT"},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] '
-          'store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
+    late=[f'yukkuri human shop stock {SHOP_STAFF} marisa ~1 ~2 ~-8',
+          f'yukkuri status set {BOOTH.format("marisa", 0)} growth.age_ticks 340000',
+          f'execute as {BOOTH.format("marisa", 0)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
           f'yukkuri human shop restock {SHOP_STAFF}'],
-    env=DAY, vantage=(12, 0, 180, 30),
-    reads=[('店铺登记（shop list）', 'yukkuri human shop list'), ('读在售个体', f'yukkuri status {STOCK} raw')])
+    env=DAY, vantage=(7, -8, 330, 15, 2),
+    reads=[('读进出货桶', 'data get block ~-2 ~2 ~-2 Items'), ('读家庭窝住户', f'data get block {YARD_NEST}'),
+           ('读在售个体', f'yukkuri status {STOCK} raw')])
+
+add('shop_water', 'shop', '饮水器：口渴的去喝，喝空后店员提水加满', '饮水器：口渴的去喝，喝空后店员提水加满',
+    '从爱丽丝房间侧面看碟沿。爱丽丝喝掉最后一份，水位降到零；随后店员提桶进来添到八份，把桶收起。',
+    '约 2–4 秒先喝水，随后等店员走来', [PET_SHOP,
+        f'tp {_care_feeder} ~3.5 ~2 ~4.5',
+        f'tp {ALICE} ~16.5 ~2 ~12.5 0 0',
+        f'data merge block {W1_WATER} {{Water:1}}', shop_need(ALICE, 'dryness', 60),
+    ], env=DAY, vantage=(18, 12, 65, 32, 2),
+    reads=[('读碟里余水', f'data get block {W1_WATER} Water'), ('读爱丽丝的口渴', f'yukkuri status {ALICE} raw'),
+           ('读店员主手', 'execute as @e[nbt={SiteRole:"shop_staff"},distance=..40] run data get entity @s HandItems[0]')],
+    capture=dict(shots=(10, 40, 65, 120, 240), sequences=((10, 80, 5),), observe=False,
+                 views={'dish_side': dict(position=(17.9, 2.45, 12.75), look_at=(16.5, 2.18, 13.2),
+                                          criteria='从侧面看嘴贴住碟沿、水位降到零，再看店员补水。')}))
+
+_kin_room = (('kin_bold', 11.5, -3.5, 8.5, -2.0), ('kin_timid', 10.5, -3.5, 8.5, -3.4),
+             ('kin_kind', 8.5, -2.5, 11.5, -2.5))
+add('shop_kin_room', 'shop', '同窝兄弟：胆大的护着食盆和水，胆小的等，温和的让',
+    '同窝兄弟：胆大的护着食盆和水，胆小的等，温和的让',
+    '看右侧饮水器旁的三只同窝灵梦。胆大的抢先时会鼓脸，胆小的退开等空位，再走近喝水。等它们转去左侧食盆，'
+    '留意温和那只是否让同窝靠近。想看另一种拿到食水的顺序，可以重开。',
+    '约十几秒，看完喝水再看食盆', [PET_SHOP,
+        *[shop_animal('reimu', x, z, name) for name, x, z, _, _ in _kin_room],
+        *[command for name, _, _, x, z in _kin_room for command in (
+            f'tp {sel(name)} ~{x} ~2 ~{z} 180 0', set_status(name, 'growth.age_ticks', 148000),
+            set_status(name, 'needs.dryness', 55), set_status(name, 'needs.nutrition', 35),
+        )],
+        f'data merge block {YARD_WATER} {{Water:2}}',
+        f'data merge block {YARD_BOWL} {{Items:[{{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:1}}]}}',
+    ], env=DAY, vantage=(10, -5, 0, 22, 2),
+    reads=[('读后院余水', f'data get block {YARD_WATER} Water'), ('读后院食盆', f'data get block {YARD_BOWL} Items'),
+           ('读家庭窝住户', f'data get block {YARD_NEST}'),
+           *[(f'读{label}的灵梦', f'yukkuri status {sel(name)} raw')
+             for (name, *_), label in zip(_kin_room, ('胆大', '胆小', '温和'))]])
 
 _plant_x, _plant_z = BY_ID['plant'].entrance
 _plant_receiving = 'processing_plant'
@@ -6432,7 +6499,8 @@ TOPICS = {
     'family_absence': 'W9',
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
-    'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
+    'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
@@ -7332,7 +7400,7 @@ next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     # The operator stands directly over the stock animal, in the same pen cell: a small body can stand hard against the pen glass, so a
     # sideways offset would put the operator inside that glass and the tool refusal would read as a sight failure instead of the shop's own.
     (100, f'execute at {BOOTH.format("alice", 3)} positioned ~ ~1 ~ run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
-    (1500, 'execute if entity @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Age:65000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
+    (1500, 'execute if entity @e[type=mcyukkuri:alice,distance=..80,nbt={YukkuriFamily:{Age:148000L},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] run say MCYSHOP_PET_AGE_HELD'),
     (850, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator enter'),
     (851, 'yukkuri scenario shop_door_click ~15 ~3 ~5 south'),
     (852, 'execute if block ~14 ~3 ~5 minecraft:iron_door[open=true] if block ~15 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_COUNTER_OPEN'),
@@ -7342,9 +7410,9 @@ next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     (1160, 'yukkuri scenario shop_door_click ~14 ~2 ~5 north'),
     (1161, 'execute if block ~14 ~2 ~5 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_EGRESS'),
     (1162, 'execute positioned ~14.5 ~2 ~6.5 run yukkuri scenario tool_operator move'),
-    (1221, 'execute positioned ~14.5 ~2 ~8.5 run yukkuri scenario tool_operator move'),
-    (1222, 'yukkuri scenario shop_door_click ~14 ~3 ~9 north'),
-    (1223, 'execute if block ~14 ~3 ~9 minecraft:iron_door[open=true] if block ~15 ~2 ~9 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_PEN_OPEN'),
+    (1221, 'execute positioned ~13.5 ~2 ~8.5 run yukkuri scenario tool_operator move'),
+    (1222, 'yukkuri scenario shop_door_click ~13 ~3 ~9 north'),
+    (1223, 'execute if block ~13 ~3 ~9 minecraft:iron_door[open=true] if block ~13 ~2 ~9 minecraft:iron_door[open=true] run say MCYSHOP_VISITOR_PEN_OPEN'),
     (1229, 'yukkuri scenario tool_operator leave'),
 ]
 next(s for s in S if s.id == 'shop_build').smoke['expect'].extend([
@@ -7491,16 +7559,13 @@ _window_smoke = next(s for s in S if s.id == 'shop_window').smoke
 _window_smoke.update(verify=_shop_window_verify, verify_trace=True)
 _window_smoke['commands'] = [
     (70, f'tag {STOCK} add scn_stock'),
-    (70, f'execute positioned ~16.5 ~2 ~11.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~'),
-    (70, f'execute positioned ~17.5 ~2 ~11.5 run tp {BOOTH.format("alice", 4)} ~ ~ ~'),
-    (70, f'execute positioned ~16.5 ~2 ~10.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
-    (70, _window_customer(16.5, 'customer_west')),
-    (70, f'yukkuri status relate {BOOTH.format("chen", 0)} {_window_west} 20'),
-    (70, _window_customer(0.5, 'customer_flandre')),
-    (70, _window_customer(2.5, 'customer_remilia')),
-    (270, f'tp {_window_west} ~16.5 ~ ~25.5'),
-    (330, _window_customer(16.5, 'customer_wary')),
-    (330, f'yukkuri status fear {BOOTH.format("chen", 0)} {_window_wary} 60')]
+    (70, _window_customer(13.5, 'customer_west')),
+    (70, f'yukkuri status relate {CHEN} {_window_west} 20'),
+    (70, _window_customer(-0.5, 'customer_flandre')),
+    (70, _window_customer(3.5, 'customer_remilia')),
+    (270, f'tp {_window_west} ~13.5 ~ ~25.5'),
+    (330, _window_customer(13.5, 'customer_wary')),
+    (330, f'yukkuri status fear {CHEN} {_window_wary} 60')]
 # The tool wall has eight operation tools and vanilla shears, alongside seven shelf goods.
 _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=16\b',
                           r'\[shop\][^\n]* action=oni_stock [^\n]*form=reimu_wasa [^\n]*prevention=72000\b',
@@ -7778,7 +7843,7 @@ _smoke('shop_care', 1100, [
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],
     r'\[shop\][^\n]* action=job result=asked_way kind=FEED ',
     r'\[move\][^\n]* action=give_way ',
-    rf'\[npc-care\][^\n]* action=refill_bowl target={BY_ID["shop"].anchor[0] + 18}, {FEET + 2}, {BY_ID["shop"].anchor[1] + 10} transferred=4 ',
+    rf'\[npc-care\][^\n]* action=refill_bowl target={BY_ID["shop"].anchor[0] + 12}, {FEET + 2}, {BY_ID["shop"].anchor[1] + 11} transferred=4 ',
 ], forbid=[r'\[shop\][^\n]* action=job result=failed kind=(TREAT|FEED) '])
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
@@ -7797,49 +7862,154 @@ next(s for s in S if s.id == 'shop_browse').smoke['commands'] = [
 
 def _verify_shop_pick(readout):
     rows = re.findall(
-        r'^entity\.mcyukkuri\.reimu #(\d+) \{.*?growth:\{age_ticks:(\d+)L,[^}]*\bstage:"([^"]+)"[^}]*\}'
+        r'^entity\.mcyukkuri\.(chen|alice) #(\d+) \{.*?growth:\{age_ticks:(\d+)L,[^}]*\bstage:"([^"]+)"[^}]*\}'
         r'.*?identity:\{[^}]*\bkind:"([^"]+)"[^}]*\}.*?personality:\{[^}]*\bboldness:(\d+),friendliness:(\d+),',
         readout, re.M)
-    expected = [('148000', 'juvenile', 'stock', str(boldness), str(friendliness))
-                for _, _, boldness, friendliness in _pick_stock]
-    if [row[1:] for row in rows] != expected or len({row[0] for row in rows}) != len(expected):
-        return f'Expected two different stock Reimu with age, stage and effective traits {expected}; got {rows}'
+    expected = [(kind, '148000', 'juvenile', 'stock', str(boldness), str(friendliness))
+                for _, kind, _, boldness, friendliness in _pick_stock]
+    if [(row[0], *row[2:]) for row in rows] != expected or len({row[1] for row in rows}) != len(expected):
+        return f'Expected the two room residents with age, stage and effective traits {expected}; got {rows}'
 
 
 _smoke('shop_pick', 140, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=PET '],
-       readout=[f'yukkuri status {sel(name)} raw' for name, _, _, _ in _pick_stock])
+       readout=[f'yukkuri status {sel(name)} raw' for name, *_ in _pick_stock])
 next(s for s in S if s.id == 'shop_pick').smoke['verify_readout'] = _verify_shop_pick
 
 
-def _verify_shop_fetch(window):
-    animals = re.findall(r'\[shop\] (chen|reimu|marisa) [^\n]* uuid=(\S+)[^\n]* pos=([^\n]+?) action=buy_live result=accepted [^\n]* buyer=operator due=0 sleeping=(true|false)', window)
+def _shop_scene_actors(trace, names):
+    actors = {name: set() for name in names}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'geo':
+            for name in names:
+                if tag(name) in row.get('tags', ()):
+                    actors[name].add(row['u'])
+    return actors
+
+
+def _shop_cell(dx, dz):
+    x, z = BY_ID['shop'].anchor
+    return f'{x + dx}, {FEET + 2}, {z + dz}'
+
+
+def _verify_shop_fetch(window, trace):
+    animals = re.findall(r'\[shop\] (chen|alice|reimu) [^\n]* uuid=(\S+)[^\n]* pos=([^\n]+?) action=buy_live result=accepted [^\n]* buyer=operator due=0 sleeping=(true|false)', window)
     reaches = re.findall(r'\[shop\][^\n]* action=job result=reach kind=BUY reach=(hand|through) [^\n]* call_ticks=(\d+) target=(\S+)', window)
     packed = re.findall(r'\[shop\][^\n]* action=buy_live result=committed [^\n]* target=(\S+) token=(\S+) emeralds_used=0\b', window)
-    delivered = re.findall(r'\[shop\][^\n]* action=buy_live result=delivered [^\n]* token=(\S+) placement=counter\b', window)
-    if [kind for kind, _, _, _ in animals] != ['chen', 'reimu', 'marisa']:
+    delivered = re.findall(r'\[shop\][^\n]* action=buy_live result=delivered [^\n]* token=(\S+) placement=counter\b [^\n]* target=(\S+)', window)
+    names = [name for name, _ in _fetch_stock]
+    displayed = _shop_scene_actors(trace, names)
+    if [(kind, {animal}) for kind, animal, _, _ in animals] != [(kind, displayed[name]) for name, kind in _fetch_stock]:
         return f'Expected the three staged stock orders in order, got {animals}'
     ids = [animal for _, animal, _, _ in animals]
     if sorted(animal for _, _, animal in reaches) != sorted(ids) or ('through', '100', ids[0]) not in reaches \
             or not any(mode == 'hand' and animal == ids[2] for mode, _, animal in reaches):
         return f'Expected one reach per animal, with through after 100 ticks for the trapped corner and hand for the yard, got {reaches}'
-    if sorted(animal for animal, _ in packed) != sorted(ids) or sorted(token for _, token in packed) != sorted(delivered):
+    if [animal for animal, _ in packed] != ids or packed != [(animal, token) for token, animal in delivered]:
         return f'Expected all three packed tokens in carrier deliveries at the counter, got {packed} and {delivered}'
-    x, z = BY_ID['shop'].anchor
-    nest = f'{x + 15}, {FEET + 2}, {z + 13}'
-    if animals[1][2:] != (nest, 'true'):
-        return f'Expected Reimu to be asleep on the nest pad at purchase, got {animals[1][2:]}'
+    if animals[1][2:] != (_shop_cell(18, 13), 'true'):
+        return f'Expected Alice to be asleep on the nest pad at purchase, got {animals[1][2:]}'
 
 
 _smoke('shop_fetch', 1800, [r'\[shop\][^\n]* action=job result=reach kind=BUY ', r'\[shop\][^\n]* action=buy_live result=delivered '],
        forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* reason=unreachable\b'])
 _fetch_smoke = next(s for s in S if s.id == 'shop_fetch').smoke
-_fetch_smoke.update(verify=_verify_shop_fetch, commands=[
+_fetch_smoke.update(verify=_verify_shop_fetch, verify_trace=True, commands=[
     (100 + 400 * i, f'yukkuri human shop buy {SHOP_STAFF} {sel(name)} {_uuid_text("shop_fetch", "buyer")}')
-    for i, (name, _, _) in enumerate(_fetch_stock)])
+    for i, (name, _) in enumerate(_fetch_stock)])
+
+
+def _litter_parents(window):
+    return dict((animal, (mother, father)) for animal, mother, father in re.findall(
+        r'\[family\][^\n]* uuid=(\S+)[^\n]* wholesale litter mother=(\S+) father=(\S+)', window))
+
+
+def _litter_problem(window, members):
+    parents = _litter_parents(window)
+    if not members or not members <= parents.keys() or len({parents[animal] for animal in members}) != 1:
+        return f'Expected one parent pair for litter members {members}, got {parents}'
+    for line in window.splitlines():
+        if '[family]' in line and re.search(r'family search started|orphan|foster', line):
+            if any(animal in line for animal in members):
+                return f'Shop litter entered family separation: {line}'
+
+
+def _verify_shop_restock(window):
+    arrivals = re.findall(r'\[shop\][^\n]* uuid=(\S+)[^\n]* action=restock result=arrival [^\n]* token=(\S+)', window)
+    releases = re.findall(rf'\[shop\][^\n]* uuid=(\S+)[^\n]* action=settle result=released [^\n]* token=(\S+) nest={_shop_cell(10, -2)} home=true\b', window)
+    if len(arrivals) < 2 or len(set(arrivals)) != len(arrivals) or sorted(arrivals) != sorted(releases):
+        return f'Expected every litter basket to release a different resident at the family nest, got {arrivals} and {releases}'
+    return _litter_problem(window, {animal for animal, _ in releases})
+
+
 _smoke('shop_restock', 3600, [r'\[shop\][^\n]* action=restock result=done ', r'\[shop\][^\n]* action=restock result=ship_marked ',
                               r'\[shop\][^\n]* action=ship_out result=packed ', r'\[shop\][^\n]* action=stow_basket result=stored ',
                               r'\[shop\][^\n]* action=restock result=arrival ', r'\[shop\][^\n]* action=settle result=released '],
        forbid=[r'\[shop\][^\n]* action=job result=put_down '], readout=[f'yukkuri status {STOCK} raw'])
+next(s for s in S if s.id == 'shop_restock').smoke['verify'] = _verify_shop_restock
+
+_w1_first_sip = rf'\[needs\] alice [^\n]* drink source=BlockPos\{{x={BY_ID["shop"].anchor[0] + 16}, y={FEET + 2}, z={BY_ID["shop"].anchor[1] + 13}\}} kind=waterer water=1 -> 0 dryness=60\.0 -> 30\.0'
+_w1_refill = rf'\[npc-care\][^\n]* uuid=(\S+)[^\n]* action=refill_water target={_shop_cell(16, 13)} water=0 -> 8'
+
+
+def _verify_shop_water(window):
+    sip = re.search(_w1_first_sip, window)
+    refill = re.search(_w1_refill, window)
+    stow = re.search(rf'\[npc-care\][^\n]* uuid={refill[1]} [^\n]* action=stow_water_bucket\b', window) if refill else None
+    if not sip or not refill or not stow or not sip.start() < refill.start() <= stow.start():
+        return 'Expected Alice to drink the last portion before that staff member refills and stows the bucket'
+
+
+_smoke('shop_water', 650, [_w1_first_sip, _w1_refill, r'\[npc-care\][^\n]* action=stow_water_bucket '],
+       forbid=[r'\[shop\][^\n]* action=job result=failed kind=WATER '])
+next(s for s in S if s.id == 'shop_water').smoke['verify'] = _verify_shop_water
+
+
+def _verify_shop_kin_room(window, trace):
+    actors = _shop_scene_actors(trace, [name for name, *_ in _kin_room])
+    if any(len(ids) != 1 for ids in actors.values()):
+        return f'Expected three distinct staged littermates, got {actors}'
+    bold, timid, kind = (next(iter(ids)) for ids in actors.values())
+    if len({bold, timid, kind}) != 3:
+        return f'Expected three distinct staged littermates, got {actors}'
+    problem = _litter_problem(window, {bold, timid, kind})
+    if problem:
+        return problem
+    claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*x={BY_ID["shop"].anchor[0] + 10}, y={FEET + 2}, z={BY_ID["shop"].anchor[1] - 2}\}}', window))
+    if claims != {bold, timid, kind}:
+        return f'Expected only the three littermates to share the nest, got {claims}'
+    wait = re.search(rf'\[meal\][^\n]* supply guarded [^\n]* kind=water guard={bold} approacher={timid} reason=harsh', window)
+    drink = re.search(rf'\[needs\][^\n]* uuid={timid} [^\n]* drink [^\n]* kind=waterer water=[1-8] -> [0-7] dryness=55\.0 -> 25\.0', window)
+    if not wait or not drink or wait.start() >= drink.start():
+        return 'Expected the timid littermate to wait for the bold one and then drink'
+
+
+_smoke('shop_kin_room', 1100, [r'\[meal\][^\n]* supply guarded [^\n]* kind=water ', r'\[needs\][^\n]* drink [^\n]* kind=waterer '])
+next(s for s in S if s.id == 'shop_kin_room').smoke.update(verify=_verify_shop_kin_room, verify_trace=True)
+
+_water_beg = rf'\[request\][^\n]* uuid={_water_pet} [^\n]* started kind=WATER '
+_water_fill = r'\[interaction\][^\n]* waterer filled player=MuseumOperator [^\n]* item=minecraft:water_bucket returned=minecraft:bucket water=0 -> 8'
+_water_answer = rf'\[request\][^\n]* uuid={_water_pet} [^\n]* satisfied kind=WATER '
+_water_drink = rf'\[needs\][^\n]* uuid={_water_pet} [^\n]* drink [^\n]* kind=waterer water=8 -> 7 dryness=50\.0 -> 20\.0'
+
+
+def _verify_pet_water(window):
+    events = [re.search(pattern, window) for pattern in (_water_beg, _water_fill, _water_answer, _water_drink)]
+    if not all(events) or sorted(event.start() for event in events) != [event.start() for event in events]:
+        return 'Expected the request, survival bucket exchange, relief and sip in order'
+
+
+_smoke('pet_water', 480, [_water_beg, _water_fill, _water_answer, _water_drink],
+       readout=['data get block ~3 ~ ~ Water', f'yukkuri status {sel("water_pet")} raw'])
+next(s for s in S if s.id == 'pet_water').smoke.update(verify=_verify_pet_water, commands=[
+    (1, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator enter'),
+    (2, f'yukkuri scenario owner_at {sel("water_pet")} watch'),
+    (3, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator move'),
+    (3, 'gamemode survival @a[name=MuseumOperator]'),
+    (3, 'item replace entity @a[name=MuseumOperator] weapon.mainhand with minecraft:water_bucket'),
+    (120, 'yukkuri scenario shop_block_click ~3 ~ ~'),
+    (470, 'yukkuri scenario tool_operator leave'),
+])
 _plant_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
 _plant_staff = '@e[type=mcyukkuri:caretaker_brother,distance=..45,nbt={HumanJob:2}]'
 _plant_posts = ('counter', 'receive', 'sweetening', 'belt_steamer', 'classroom', 'packing', 'roller')
