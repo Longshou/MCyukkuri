@@ -1430,7 +1430,7 @@ public final class FamilyLife {
         if(familyTravelling())return migrationEscort();
         var parent = level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other)
-                &&!other.moldExile().leavesCareToResident(entity))
+                &&!other.moldExile().leavesCareToResident(entity)&&!entity.moldExile().exiledFrom(other))
                 .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
                 .filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).findFirst().orElse(null);
         if (parent != null) return parent;

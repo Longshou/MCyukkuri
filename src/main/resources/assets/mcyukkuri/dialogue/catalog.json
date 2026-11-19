@@ -79416,6 +79416,30 @@
     "sound": ""
   },
   {
+    "id": "keep_child.stay",
+    "key": "dialogue.mcyukkuri.original.keep_child.stay",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "keep_child"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "drive_child_tearful.go",
+    "key": "dialogue.mcyukkuri.original.drive_child_tearful.go",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "drive_child_tearful"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
     "id": "mold_itch.what",
     "key": "dialogue.mcyukkuri.original.mold_itch.what",
     "origin": "project-original",

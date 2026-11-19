@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Push;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.settlement.MoldVerdict.Verdict;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -91,12 +92,14 @@ public final class MoldExile extends Goal implements MotorOwner {
     private boolean driving, pushed;
     private long nextScan, nextWitness;
     private UUID lastWitnessed;
+    private int lastTier;
     private BlockPos failedFrom;
     private UUID failedWitness;
     private int failedStage;
     // The beats of this confrontation, decided at its start. Transient.
     private int noticeEnd, answerTicks, lookBacks, lookBackTicks;
     private boolean fond, harsh, resists;
+    private Verdict childVerdict;
     private Answer answer;
 
     public MoldExile(YukkuriEntity entity) {
@@ -107,7 +110,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     public String activity() {
         if (task == null) return null;
         return switch (task) {
-            case WITNESS -> ticks < noticeEnd ? Behaviors.MOLD_NOTICE : fond ? Behaviors.MOLD_SORROW
+            case WITNESS -> ticks < noticeEnd ? Behaviors.MOLD_NOTICE : fond || childVerdict == Verdict.DRIVE_TEARFUL ? Behaviors.MOLD_SORROW
                     : !driving ? null : harsh && ticks >= noticeEnd + SCORN_AFTER ? Behaviors.MOLD_SCORN : Behaviors.MOLD_WARN;
             case LEAVE -> ticks < LISTEN ? Behaviors.MOLD_NOTICE : ticks < LISTEN + answerTicks ? resists ? Behaviors.MOLD_RESIST : Behaviors.MOLD_PLEAD
                     : answer != Answer.FAREWELL ? null : lookBackTicks > 0 ? Behaviors.MOLD_LOOK_BACK : Behaviors.MOLD_LEAVE;
@@ -168,7 +171,13 @@ public final class MoldExile extends Goal implements MotorOwner {
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity subject) {
         if (observer == subject || observer.level().isClientSide || subject.body().mold() == 0 || !sees(observer, subject)) return false;
         var address = encounterHome(subject);
-        return address != null && resident(observer, address) && aversion(observer, subject) > 0;
+        if (address == null || !resident(observer, address)) return false;
+        if (guardian(observer, subject, address)) return MoldVerdict.decide(verdictInputs(observer, subject, address)) != Verdict.KEEP;
+        return aversion(observer, subject) > 0;
+    }
+
+    public boolean exiledFrom(YukkuriEntity resident) {
+        return exile != null && entity.body().mold() > 0 && local(exile.home) && resident(resident, exile.home);
     }
 
     public boolean allowsAddress(BlockPos pos) {
@@ -193,6 +202,7 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     void homeAccepted(ShelterBlockEntity den) {
         if (exile == null || exile.home.colony() || !local(exile.home) || !den.getBlockPos().equals(exile.home.den())) return;
+        greetParents(exile.home);
         var group = SettlementData.get(level()).group(exile.home.group());
         if (group != null && den.residentIds().stream().anyMatch(id -> !id.equals(entity.getUUID()) && group.role(id) != SettlementData.Role.FREE))
             entity.settlement().join(group);
@@ -225,9 +235,41 @@ public final class MoldExile extends Goal implements MotorOwner {
                 child -> child.isAlive() && child.childhood().shouldStayWithParents() && Bonds.parentOf(entity, child));
     }
 
-    private boolean canLeave(Home address) {
-        if (entity.isVehicle() || !entity.family().adult() && entity.childhood().shouldStayWithParents()) return false;
-        return dependants().stream().allMatch(child -> healthyParent(child, address) != null);
+    private static boolean guardian(YukkuriEntity parent, YukkuriEntity child, Home address) {
+        return !child.family().adult() && parent.isAlive() && !parent.body().dying() && parent.body().mold() == 0
+                && Bonds.parentOf(parent, child) && resident(parent, address) && parent.distanceToSqr(child) <= 12 * 12;
+    }
+
+    private List<YukkuriEntity> guardians(Home address) {
+        if (entity.family().adult()) return List.of();
+        return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12), y -> guardian(y, entity, address));
+    }
+
+    private static List<YukkuriEntity> siblings(YukkuriEntity child, Home address) {
+        return child.level().getEntitiesOfClass(YukkuriEntity.class, child.getBoundingBox().inflate(12), other ->
+                other.isAlive() && !other.body().dying() && other.body().mold() == 0 && resident(other, address) && WildEvents.siblings(child, other));
+    }
+
+    private static MoldVerdict.Inputs verdictInputs(YukkuriEntity parent, YukkuriEntity child, Home address) {
+        int bond = YukkuriWorldData.get((ServerLevel)parent.level()).affinity(parent.getUUID(), child.getUUID());
+        return new MoldVerdict.Inputs(parent.life().personality().temperament(), BodySigns.moldTier(child.body().mold()),
+                parent.skills().knows(Ability.MOLD_LORE), bond, !siblings(child, address).isEmpty());
+    }
+
+    private boolean canLeave(Home address, YukkuriEntity by) {
+        String reason = null;
+        if (entity.isVehicle() || dependants().stream().anyMatch(child -> healthyParent(child, address) == null))
+            reason = "dependent_or_carry";
+        else {
+            var parents = guardians(address);
+            if (!parents.isEmpty() && !parents.contains(by)) reason = "not_guardian";
+            else if (parents.stream().anyMatch(parent -> MoldVerdict.decide(verdictInputs(parent, entity, address)) == Verdict.KEEP))
+                reason = "parent_keeps";
+        }
+        if (reason == null) return true;
+        GameplayLog.limited(entity, "settlement", "mold_exile." + reason, 200,
+                "mold exile deferred reason={} witness={} den={}", reason, by.getUUID(), address.den());
+        return false;
     }
 
     /** Both ordinary follow and land care prefer a healthy resident parent while one parent is being driven off. */
@@ -273,21 +315,17 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (mold == 0 || !sees(entity, subject)) return false;
         var address = encounterHome(subject);
         if (address == null || !resident(entity, address) || !address.includes(subject.position())) return false;
-        if (level().getGameTime() < nextWitness && subject.getUUID().equals(lastWitnessed)) return false;
-        return aversion(entity, subject) > 0 || BodySigns.moldTier(mold) >= 2 && Bonds.careOrMate(entity, subject);
+        int tier = BodySigns.moldTier(mold);
+        if (level().getGameTime() < nextWitness && subject.getUUID().equals(lastWitnessed) && tier <= lastTier) return false;
+        return guardian(entity, subject, address) || aversion(entity, subject) > 0 || tier >= 2 && Bonds.careOrMate(entity, subject);
     }
 
     private YukkuriEntity driverForDeparture(Home address) {
         var witness = nearby().stream().filter(y -> y.moldExile().task == Task.WITNESS && y.moldExile().driving
                 && y.moldExile().ticks >= y.moldExile().noticeEnd && y.moldExile().peer == entity && sees(y, entity))
+                .filter(y -> canLeave(address, y))
                 .max(Comparator.comparingDouble(y -> aversion(y, entity))).orElse(null);
-        if (witness == null || failed(witness.getUUID())) return null;
-        if (!canLeave(address)) {
-            GameplayLog.limited(entity, "settlement", "mold_exile.care", 200,
-                    "mold exile deferred reason=dependent_or_carry witness={} den={}", witness.getUUID(), address.den());
-            return null;
-        }
-        return witness;
+        return witness == null || failed(witness.getUUID()) ? null : witness;
     }
 
     private boolean beginExileTask() {
@@ -331,18 +369,29 @@ public final class MoldExile extends Goal implements MotorOwner {
             boolean known = peer.getUUID().equals(lastWitnessed) && (peer.moldExile().task == Task.APPEAL
                     || level().getGameTime() < nextWitness + 1200);
             lastWitnessed = peer.getUUID();
+            lastTier = BodySigns.moldTier(peer.body().mold());
             nextWitness = level().getGameTime() + 200;
             noticeEnd = known ? 0 : NOTICE;
             fond = Bonds.careOrMate(entity, peer) && t.is(Gate.ATTACHED);
             // A harsh witness can drive off a stranger or kin it feels detached from.
             harsh = driving && t.is(Gate.HARSH)
                     && !(Bonds.careOrMate(entity, peer) && !t.is(Gate.DETACHED));
+            childVerdict = null;
+            if (guardian(entity, peer, home)) {
+                var inputs = verdictInputs(entity, peer, home);
+                childVerdict = MoldVerdict.decide(inputs);
+                GameplayLog.event(entity, "settlement", "mold child verdict child={} verdict={} resolve={} tier={} knows={} bond={} siblings={}",
+                        peer.getUUID(), childVerdict, MoldVerdict.resolve(inputs), inputs.tier(), inputs.knows(), inputs.bond(), inputs.siblings());
+                fond = childVerdict == Verdict.KEEP;
+                driving = harsh = !fond;
+                if (fond) nextWitness = level().getGameTime() + 2400;
+            }
             if (!known) entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
             else answer();
             GameplayLog.event(entity, "settlement", "mold witnessed subject={} stage={} distance={} aversion={} response={} fond={} harsh={}",
                     peer.getUUID(), peer.body().mold(), entity.distanceTo(peer), Math.round(aversion(entity, peer)), driving ? "drive" : "stay", fond, harsh);
             // A fond kin feels the loss while it still watches: a light grief of its own.
-            if (fond && !known && peer.moldExile().exile == null)
+            if (fond && childVerdict == null && !known && peer.moldExile().exile == null)
                 entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .3f, peer.getUUID(), peer.blockPosition());
         } else if (task == Task.LEAVE) {
             resists = exile == null && t.is(Gate.PROTESTS_EXILE);
@@ -393,7 +442,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     private void watch() {
         entity.getLookControl().setLookAt(peer, 30, 30);
         if (ticks == noticeEnd && noticeEnd > 0) answer();
-        if (harsh && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)
+        if (harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)
                 && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0) || pushed && !(entity.motor().current() instanceof Push)) return;
         if (!canPush()) {
@@ -411,6 +460,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         }
         if (!pushed) {
             pushed = true;
+            if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
             SurfaceApproach.stopWalking(entity);
             entity.motor().run(this, new Push(peer));
             GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", peer.getUUID(), harsh);
@@ -419,7 +469,10 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     /** The witness's answer to what it saw: a fond kin's sobbed apology, a driver's warning, or a wary watch. */
     private void answer() {
-        if (fond) {
+        if (childVerdict == Verdict.KEEP || childVerdict == Verdict.DRIVE_TEARFUL) {
+            if (entity.showReaction("puff_teary", "", WARN_HOLD))
+                entity.speakCue(childVerdict == Verdict.KEEP ? "keep_child" : "drive_child_tearful");
+        } else if (fond) {
             if (entity.skills().knows(Ability.MOLD_LORE)) {
                 if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue("mold_sorrow");
             } else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", WARN_HOLD);
@@ -432,7 +485,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     private boolean canPush() {
         if (!peer.onGround() || peer.isPassenger() || peer.isVehicle()
                 || ContactGeometry.mouthGap(entity, peer) > ContactGeometry.GRAB_MARGIN
-                || !pushed && !peer.moldExile().canLeave(home)) return false;
+                || !peer.moldExile().canLeave(home, entity)) return false;
         Vec3 away = peer.position().subtract(entity.position()).multiply(1, 0, 1).normalize();
         Vec3 at = peer.position().add(away.scale(peer.getBbWidth()));
         return away.dot(peer.position().subtract(home.centre())) > 0 && SurfaceApproach.stands(peer, at)
@@ -469,7 +522,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         int clearRange = home.radius() + EXIT_CLEARANCE;
         if (entity.position().subtract(home.centre()).horizontalDistanceSqr() >= clearRange * clearRange
                 && entity.onGround() && SurfaceApproach.stands(entity, entity.position())) {
-            if (exile == null && !canLeave(home)) { fail("dependent_needs_care"); return; }
+            if (exile == null && !canLeave(home, peer)) { end(); return; }
             completeLeave();
             return;
         }
@@ -484,14 +537,15 @@ public final class MoldExile extends Goal implements MotorOwner {
         entity.mind().felt(EmotionEvent.SOCIAL_HURT);
         switch (answer) {
             case CURSE -> {
-                if (entity.showReaction(YukkuriAction.STAMP, "angry", "", 60)) entity.speakCue("driven_curse");
+                if (entity.showReaction(YukkuriAction.STAMP, "angry", "", 60))
+                    entity.speakCue(exile == null && guardian(peer, entity, home) ? "child_curse_parent" : "driven_curse");
             }
             case FAREWELL -> entity.showReaction("cry", exile == null ? "settlement_hurt" : "", 40);
             case SHRUG -> entity.showReaction("hmph", "", 40);
         }
         GameplayLog.event(entity, "settlement", "mold exile answer={} fumes={}", answer, answer == Answer.CURSE);
         if (exile != null) return;
-        for (var child : dependants()) {
+        for (var child : entity.family().adult() ? dependants() : siblings(entity, home)) {
             String missed = child.distanceToSqr(entity) > 12 * 12 ? "out_of_range"
                     : !child.hasLineOfSight(entity) ? "out_of_sight" : null;
             if (missed != null) {
@@ -530,6 +584,12 @@ public final class MoldExile extends Goal implements MotorOwner {
                         child.getUUID(), parent.getUUID(), child.life().homeStand());
             }
             exile = new Exile(home, answer == Answer.CURSE ? Appeal.WITHDREW : Appeal.NONE);
+            for (var parent : guardians(home)) {
+                var verdict = MoldVerdict.decide(verdictInputs(parent, entity, home));
+                FamilyData.get(level()).dismissChild(parent, entity.getUUID());
+                if (verdict == Verdict.DRIVE_TEARFUL)
+                    parent.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .5f, entity.getUUID(), entity.blockPosition());
+            }
             entity.habitat().release();
             entity.life().releaseHome();
             entity.settlement().exile();
@@ -553,12 +613,22 @@ public final class MoldExile extends Goal implements MotorOwner {
         return outcome == SurfaceApproach.Result.ARRIVED;
     }
 
+    private void greetParents(Home address) {
+        for (var parent : nearby()) {
+            var id = parent.getUUID();
+            if ((id.equals(entity.family().mother()) || id.equals(entity.family().father())) && resident(parent, address)
+                    && sees(parent, entity) && FamilyData.get(level()).acknowledgeChild(parent, entity.getUUID()))
+                parent.showReaction("teary_smile", "known_peer", REACTION);
+        }
+    }
+
     private void visit() {
         if (home.colony() && reunionPeer() != null) {
             end();
             return;
         }
         if (!arrivedAtHome()) return;
+        greetParents(home);
         var den = home.colony() ? null : ShelterBlock.shelter(level(), home.den());
         if (den != null && entity.habitat().choose(den)) end();
         else fail("no_admission");
