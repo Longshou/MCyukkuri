@@ -1,9 +1,12 @@
 package io.github.longshou.mcyukkuri.mind;
 
 import io.github.longshou.mcyukkuri.mind.EmotionCourse.Kind;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse.LineClock;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse.RecallClock;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse.Stage;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,6 +45,60 @@ class EmotionCourseTest {
             assertEquals(expected[2], Stage.FADING.face(kind));
         }
         assertEquals(null, Stage.NONE.face(null));
+    }
+
+    @Test
+    void praiseAtTickFiftyKeepsTheHatReturnJoyToOnePeakLineAcrossReload() {
+        var clock = new LineClock();
+        clock.begin(Kind.JOY, false);
+        var peakLines = new ArrayList<Integer>();
+        var saved = new HashMap<String, Integer>();
+        int elapsed = 0;
+        int length = 2762;
+        for (int tick = 1; tick < length + 50; tick++) {
+            Stage before = Stage.at(elapsed++, length);
+            Stage stage = Stage.at(elapsed, length);
+            if (stage != before) clock.stageChanged();
+            if (clock.due(Kind.JOY, stage)) {
+                if (stage == Stage.PEAK) peakLines.add(tick);
+                clock.scheduleNext(Kind.JOY, stage, stage == Stage.PEAK ? 418 : 100_000);
+            }
+            if (tick == 50) {
+                elapsed = 0;
+                clock.begin(Kind.JOY, true);
+                clock.save(saved::put);
+                assertEquals(90, saved.get("LineClock"));
+            }
+            if (tick == 200) {
+                saved.clear();
+                clock.save(saved::put);
+                clock = new LineClock();
+                clock.load(key -> saved.getOrDefault(key, 0), true);
+            }
+        }
+        assertEquals(List.of(189), peakLines);
+    }
+
+    @Test
+    void onlyFreshJoyGetsAnotherPeakLine() {
+        var clock = new LineClock();
+        clock.begin(Kind.JOY, false);
+        clock.scheduleNext(Kind.JOY, Stage.PEAK, 1);
+        clock.begin(Kind.JOY, true);
+        assertFalse(clock.due(Kind.JOY, Stage.PEAK));
+        assertTrue(clock.due(Kind.JOY, Stage.EASING));
+        clock.begin(Kind.JOY, false);
+        clock.stageChanged();
+        for (int tick = 1; tick < 40; tick++) assertFalse(clock.due(Kind.JOY, Stage.PEAK));
+        assertTrue(clock.due(Kind.JOY, Stage.PEAK));
+
+        for (Kind kind : List.of(Kind.GRIEF, Kind.TERROR, Kind.RAGE, Kind.PARTING)) {
+            clock.scheduleNext(kind, Stage.PEAK, 1);
+            clock.begin(kind, true);
+            var saved = new HashMap<String, Integer>();
+            clock.save(saved::put);
+            assertEquals(140, saved.get("LineClock"));
+        }
     }
 
     @Test

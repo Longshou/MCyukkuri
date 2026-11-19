@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -288,7 +289,7 @@ public final class PetLessons {
         if (!awaitingFeedback() || !player.getUUID().equals(owner)) return false;
         if (completed) {
             animal.pet().feedback(owner, Feedback.PRAISE);
-            animal.pet().addStress(-3);
+            animal.mind().felt(EmotionEvent.PRAISED);
             SurvivalProgress.award(player, "lesson_praised");
             if (!animal.life().isSleeping() && animal.life().mealTicks() == 0) animal.playAction("joy_jump");
             animal.skills().practise(kind, 1, "feedback");

@@ -92,8 +92,7 @@ public final class EmotionCourse {
     /** Whom or what it is about, and where it happened; both optional. */
     private UUID about;
     private BlockPos where;
-    // The next line stays scheduled across reload, including the long interval after an easing vow.
-    private int lineClock;
+    private final LineClock lineClock = new LineClock();
     private final RecallClock recallClock = new RecallClock();
     private boolean running;
     private String publishedActivity;
@@ -255,7 +254,8 @@ public final class EmotionCourse {
         if (renewal) duration = Math.max(duration, length - elapsed);
         kind = next; strength = power; length = duration; elapsed = 0; about = cause; where = at;
         griefFocus = kind == Kind.GRIEF ? new GriefFocus(false) : null;
-        lineClock = ONSET_TICKS + 40; recallClock.schedule(0);
+        lineClock.begin(next, renewal);
+        recallClock.schedule(0);
         String feeling = kind.name().toLowerCase(Locale.ROOT);
         float loggedStrength = Math.round(power * 100) / 100f;
         if (renewal) GameplayLog.limited(entity, "emotion", "renew_" + feeling, ONSET_TICKS,
@@ -323,10 +323,13 @@ public final class EmotionCourse {
         if (now != before) {
             GameplayLog.event(entity, "emotion", "course stage kind={} stage={} elapsed={}/{} comforted={}",
                     kind.name().toLowerCase(Locale.ROOT), now.name().toLowerCase(Locale.ROOT), elapsed, length, comforted);
-            lineClock = Math.min(lineClock, 40);
+            lineClock.stageChanged();
             if (now == Stage.FADING) recallClock.schedule((length - elapsed) / 2);
         }
-        if (--lineClock <= 0) lineClock = voice(now) ? interval(now) : 40;
+        if (lineClock.due(kind, now)) {
+            if (voice(now)) lineClock.scheduleNext(kind, now, interval(now));
+            else lineClock.waitForCalm();
+        }
         if (now == Stage.FADING && kind == Kind.GRIEF && recallClock.due() && !recall()) recallClock.schedule(60);
     }
 
@@ -399,6 +402,40 @@ public final class EmotionCourse {
     }
 
     // ---- save --------------------------------------------------------------------------------------------------------------------
+    static final class LineClock {
+        private int ticks;
+        private boolean joyPeakSpent;
+
+        void begin(Kind kind, boolean renewal) {
+            if (kind == Kind.JOY && renewal) return;
+            ticks = ONSET_TICKS + 40;
+            joyPeakSpent = false;
+        }
+
+        void stageChanged() { ticks = Math.min(ticks, 40); }
+
+        boolean due(Kind kind, Stage stage) {
+            return !(kind == Kind.JOY && stage == Stage.PEAK && joyPeakSpent) && --ticks <= 0;
+        }
+
+        void scheduleNext(Kind kind, Stage stage, int delay) {
+            ticks = delay;
+            if (kind == Kind.JOY && stage == Stage.PEAK) joyPeakSpent = true;
+        }
+
+        void waitForCalm() { ticks = 40; }
+
+        void save(ObjIntConsumer<String> putInt) {
+            putInt.accept("LineClock", ticks);
+            if (joyPeakSpent) putInt.accept("JoyPeakLineSpent", 1);
+        }
+
+        void load(ToIntFunction<String> getInt, boolean hasLineClock) {
+            ticks = hasLineClock ? getInt.applyAsInt("LineClock") : 200;
+            joyPeakSpent = getInt.applyAsInt("JoyPeakLineSpent") != 0;
+        }
+    }
+
     static final class RecallClock {
         private int ticks;
 
@@ -412,7 +449,7 @@ public final class EmotionCourse {
         if (kind == null) return;
         var tag = new CompoundTag();
         tag.putString("Kind", kind.name()); tag.putFloat("Strength", strength); tag.putInt("Length", length); tag.putInt("Elapsed", elapsed);
-        tag.putInt("LineClock", lineClock);
+        lineClock.save(tag::putInt);
         recallClock.save(tag::putInt);
         if (griefFocus != null) tag.putBoolean("ApproachConsidered", griefFocus.peakSeen);
         if (about != null) tag.putUUID("About", about);
@@ -433,7 +470,7 @@ public final class EmotionCourse {
         where = tag.contains("Where") ? BlockPos.of(tag.getLong("Where")) : null;
         if (kind == Kind.GRIEF) griefFocus = new GriefFocus(tag.contains("ApproachConsidered")
                 ? tag.getBoolean("ApproachConsidered") : stage() != Stage.ONSET);
-        lineClock = tag.contains("LineClock") ? tag.getInt("LineClock") : 200;
+        lineClock.load(tag::getInt, tag.contains("LineClock"));
         recallClock.load(tag::getInt);
     }
 
