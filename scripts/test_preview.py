@@ -34,6 +34,15 @@ class PreviewBoundaryTests(unittest.TestCase):
         self.assertEqual(sorted(p.name for p in self.topic.iterdir()), ['index.html'])
         self.assertFalse((self.out/'library.json').exists())
 
+    def test_moment_opens_live_player_with_paper(self):
+        result = self.run_cli('moment', 'excited_leak', '--model', 'marisa', '--paper-cover')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('player.html?entry=leak&paper=1&model=marisa', result.stdout)
+        topic = self.out/'excited_leak'
+        self.assertIn('player.html?entry=leak&amp;paper=1&amp;model=marisa',
+                      (topic/'index.html').read_text(encoding='utf-8'))
+        self.assertEqual({p.name for p in topic.iterdir()}, {'index.html', 'topic.json'})
+
     def test_missing_frame_keeps_current_page(self):
         source = self.base/'capture'
         source.mkdir()

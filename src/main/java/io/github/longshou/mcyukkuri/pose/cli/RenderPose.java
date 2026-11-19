@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pose.cli;
 
 import com.google.gson.*;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.pose.*;
 import java.util.*;
 import java.io.*;
@@ -160,23 +161,71 @@ final class RenderPose implements Overlays.Contact {
             if(smooth)smooth(output,start,end,puff);
         }
         var out=new JsonObject();
-        if(request.has("vertexFormat")&&request.get("vertexFormat").getAsString().equals("float32le")){
-            var bytes=ByteBuffer.allocate(output.length*Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
-            bytes.asFloatBuffer().put(output);
-            out.addProperty("vertices",Base64.getEncoder().encodeToString(bytes.array()));
-            return out;
+        boolean packed = request.has("vertexFormat") && request.get("vertexFormat").getAsString().equals("float32le");
+        out.add("vertices", vertexData(output, packed));
+        if (request.has("leakStream")) out.add("leak_stream", vertexData(leakStream(output, scale), packed));
+        if (request.has("outlet")) {
+            var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray("outlet")))).mul(scale);
+            out.add("outlet", OfflineModel.array(new float[]{point.x, point.y, point.z}));
         }
-        out.add("vertices",OfflineModel.array(output));
         if(wantPaper){
             var grid=PaperTent.build(floatsOf(pBody),pBody.size(),floatsOf(pMesh),pMesh.size(),floatsOf(pHat),pHat.size(),
                     yield?faces:List.of(),yield&&!faces.isEmpty()?localToWall:null,Double.POSITIVE_INFINITY);
             if(grid!=null){
-                out.add("paper_top",OfflineModel.array(sheetTris(grid.top(),grid.rows(),grid.cols(),false,turn)));
-                out.add("paper_under",OfflineModel.array(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn)));
+                out.add("paper_top", vertexData(sheetTris(grid.top(),grid.rows(),grid.cols(),false,turn), packed));
+                out.add("paper_under", vertexData(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn), packed));
             }
         }
+        if (packed) return out;
         var matrices=new JsonArray();for(var m:world){var flat=new JsonArray();for(var row:Authoring.rows(m))for(var x:row.getAsJsonArray())flat.add(x);matrices.add(flat);}out.add("world",matrices);
         out.add("root_pose",OfflineModel.array(pose[root]));return out;
+    }
+    private static JsonElement vertexData(float[] vertices, boolean packed) {
+        if (!packed) return OfflineModel.array(vertices);
+        var bytes = ByteBuffer.allocate(vertices.length * Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
+        bytes.asFloatBuffer().put(vertices);
+        return new JsonPrimitive(Base64.getEncoder().encodeToString(bytes.array()));
+    }
+
+    private float[] leakStream(float[] posed, float scale) {
+        var parts = data.getAsJsonArray("parts");
+        for (int index = 0; index < parts.size(); index++) {
+            var part = parts.get(index).getAsJsonObject();
+            if (!part.get("name").getAsString().equals("face_effect_mouth")) continue;
+            if (puff > 0 && data.has("puff_attachments")) {
+                for (var raw : data.getAsJsonArray("puff_attachments")) {
+                    var attachment = raw.getAsJsonObject();
+                    if (attachment.get("part_index").getAsInt() == index) part = attachment;
+                }
+            }
+            int first = start(part) * 8, end = first + count(part) * 8;
+            var card = new Vector3f();
+            for (int i = first; i < end; i += 24)
+                if (source[i + 7] < -.15f) card.add(triangleNormal(posed, i));
+            boolean lifted = !data.get("id").getAsString().startsWith("house_") && card.lengthSquared() > 1e-16f;
+            if (lifted) card.normalize();
+            var output = new float[end - first];
+            int at = 0;
+            for (int i = first; i < end; i += 24) {
+                if (source[i + 7] >= -.15f) continue;
+                var normal = triangleNormal(posed, i);
+                if (normal.lengthSquared() < 1e-16f) continue;
+                var lift = lifted ? card : normal.normalize();
+                float amount = (ExcitedLeak.STREAM_LIFT + (lifted ? Skin.FACE_CARD_LIFT : 0)) * scale;
+                for (int vertex = i; vertex < i + 24; vertex += 8) {
+                    var point = new Vector3f(posed[vertex], posed[vertex + 1], posed[vertex + 2]).fma(amount, lift);
+                    at = emitVert(output, at, point, posed[vertex + 3], posed[vertex + 4], lift);
+                }
+            }
+            return Arrays.copyOf(output, at);
+        }
+        // The game skips the overlay on rigs without an authored mouth-effect card.
+        return new float[0];
+    }
+
+    private static Vector3f triangleNormal(float[] v, int i) {
+        return new Vector3f(v[i+8]-v[i], v[i+9]-v[i+1], v[i+10]-v[i+2])
+                .cross(v[i+16]-v[i], v[i+17]-v[i+1], v[i+18]-v[i+2]);
     }
     private static float[] floatsOf(List<Float> list){float[] r=new float[list.size()];for(int i=0;i<r.length;i++)r[i]=list.get(i);return r;}
     private static float[] sheetTris(float[][][] pts,int rows,int cols,boolean inward,Matrix4f turn){

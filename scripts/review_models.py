@@ -37,13 +37,16 @@ def runtime_inputs(ident):
     return model, fit, compatible_revisions(ident, model)
 
 
-def register_runtime(ident):
+def register_runtime(ident, review_scale=None):
     from pose_client import request
 
     model, fit, chain = runtime_inputs(ident)
     # The pose core owns mesh and clip splicing. Release intermediate rigs as soon as they're spliced.
     for index, revision in enumerate(chain or [None]):
-        result = request(dict(op='register', model=model, fit=fit, revision=revision))
+        payload = dict(op='register', model=model, fit=fit, revision=revision)
+        if review_scale is not None and index == max(0, len(chain) - 1):
+            payload['review'] = dict(model=ident, scale=review_scale)
+        result = request(payload)
         if index < len(chain) - 1:
             request(dict(op='release', id=result['id']))
         model, fit = result['model'], None

@@ -6,10 +6,13 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.network.BodyEffectPayload;
+import io.github.longshou.mcyukkuri.pose.BodyEffectLook;
+import io.github.longshou.mcyukkuri.pose.BodyEffectLook.Kind;
 import java.util.ArrayDeque;
+import java.util.EnumMap;
 import java.util.Iterator;
-import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -33,13 +36,18 @@ public final class BodyEffectsRenderer {
     private static final ArrayDeque<Fragment> FRAGMENTS = new ArrayDeque<>();
     /** In insertion order so pressure evicts the least recently refreshed trace first. */
     private static final ArrayDeque<Trace> TRACES = new ArrayDeque<>();
+    private static final EnumMap<Kind, RenderType> LAYERS = new EnumMap<>(Kind.class);
+    static {
+        for (var kind : Kind.values()) LAYERS.put(kind, RenderType.entityTranslucent(MCYukkuri.id(kind.texture)));
+    }
     private static ClientLevel clientLevel;
 
     private static final class Fragment {
-        Vec3 position, velocity;
+        Vec3 position;
+        Vec velocity;
         final float size;
         int age;
-        Fragment(Vec3 position, Vec3 velocity, float size) { this.position = position; this.velocity = velocity; this.size = size; }
+        Fragment(Vec3 position, Vec velocity, float size) { this.position = position; this.velocity = velocity; this.size = size; }
     }
     private static final class Trace {
         final Kind kind;
@@ -48,19 +56,6 @@ public final class BodyEffectsRenderer {
         long born;
         Trace(Kind kind, Vec3 position, float size, float yaw, long born) {
             this.kind = kind; this.position = position; this.size = size; this.yaw = yaw; this.born = born;
-        }
-    }
-
-    private enum Kind {
-        FILLING("textures/props/leaked_filling.png", 600, 100),
-        PUDDLE("textures/effects/leak_puddle.png", 1800, 600);
-
-        private final RenderType layer;
-        private final int lifetime, fadeTicks;
-        Kind(String path, int lifetime, int fadeTicks) {
-            layer = RenderType.entityTranslucent(MCYukkuri.id(path));
-            this.lifetime = lifetime;
-            this.fadeTicks = fadeTicks;
         }
     }
 
@@ -80,20 +75,10 @@ public final class BodyEffectsRenderer {
             }
             return;
         }
-        boolean healthLoss = payload.reason().equals("hit") || payload.reason().equals("leak");
-        float small = healthLoss ? .05f : .5f, medium = healthLoss ? .2f : 2f;
-        int tier = payload.amount() <= small ? 0 : payload.amount() <= medium ? 1 : 2;
-        if (payload.reason().contains("vomit")) tier = Math.max(tier, 1);
-        int count = new int[]{1, 3, 5}[tier];
-        float base = Math.max(.12f, new float[]{.25f, .4f, .6f}[tier] * Math.min(2, payload.scale()));
-        var random = new Random(31L * payload.sourceId() + payload.startTick() + payload.reason().hashCode() + Float.floatToIntBits(payload.amount()));
-        Vec3 direction = new Vec3(payload.directionX(), payload.directionY(), payload.directionZ());
-        if (direction.lengthSqr() < 1e-6) direction = new Vec3(0, 0, 1); else direction = direction.normalize();
-        for (int i = 0; i < count && FRAGMENTS.size() < 48; i++) {
-            Vec3 lateral = new Vec3(random.nextDouble() - .5, 0, random.nextDouble() - .5).normalize().scale(.025 + .025 * random.nextDouble());
-            Vec3 velocity = direction.scale(.045 + .025 * tier + .025 * random.nextDouble()).add(lateral).add(0, .035 + .018 * random.nextDouble(), 0);
-            FRAGMENTS.addLast(new Fragment(new Vec3(payload.x(), payload.y(), payload.z()), velocity, base / count * (1.4f + random.nextFloat())));
-        }
+        var direction = new Vec(payload.directionX(), payload.directionY(), payload.directionZ());
+        for (var shard : BodyEffectLook.shards(payload.sourceId(), payload.startTick(), payload.reason(),
+                payload.amount(), payload.scale(), direction, 48 - FRAGMENTS.size()))
+            FRAGMENTS.addLast(new Fragment(new Vec3(payload.x(), payload.y(), payload.z()), shard.velocity(), shard.size()));
     }
 
     public static void tick(ClientTickEvent.Post event) {
@@ -103,18 +88,19 @@ public final class BodyEffectsRenderer {
         long now = mc.level.getGameTime();
         for (Iterator<Fragment> it = FRAGMENTS.iterator(); it.hasNext();) {
             var fragment = it.next();
-            Vec3 next = fragment.position.add(fragment.velocity);
+            var velocity = fragment.velocity;
+            Vec3 next = fragment.position.add(velocity.x(), velocity.y(), velocity.z());
             HitResult hit = mc.player == null ? null : mc.level.clip(new ClipContext(fragment.position, next,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mc.player));
             if (hit != null && hit.getType() != HitResult.Type.MISS) {
                 if (hit instanceof BlockHitResult block && block.getDirection() == Direction.UP)
-                    addTrace(Kind.FILLING, hit.getLocation().add(0, .004, 0), fragment.size, 0, now);
+                    addTrace(Kind.FILLING, hit.getLocation().add(0, BodyEffectLook.FLOOR_LIFT, 0), fragment.size, 0, now);
                 it.remove();
                 continue;
             }
             fragment.position = next;
-            fragment.velocity = fragment.velocity.add(0, -.012, 0).scale(.92);
-            if (++fragment.age >= 12) {
+            fragment.velocity = BodyEffectLook.nextVelocity(velocity);
+            if (++fragment.age >= BodyEffectLook.AIR_TICKS) {
                 var support = grounded(mc, fragment.position, Kind.FILLING);
                 if (support != null) addTrace(Kind.FILLING, support, fragment.size, 0, now);
                 it.remove();
@@ -126,9 +112,10 @@ public final class BodyEffectsRenderer {
     private static void addTrace(Kind kind, Vec3 position, float size, float yaw, long now) {
         for (var it = TRACES.iterator(); it.hasNext();) {
             var trace = it.next();
-            if (trace.kind != kind || trace.position.distanceToSqr(position) >= .16) continue;
+            if (trace.kind != kind || !BodyEffectLook.touches(
+                    new Vec(trace.position.x, trace.position.y, trace.position.z), new Vec(position.x, position.y, position.z))) continue;
             trace.position = trace.position.scale(.5).add(position.scale(.5));
-            trace.size = Math.min(.6f, trace.size + size);
+            trace.size = BodyEffectLook.mergedSize(trace.size, size);
             trace.born = now;
             // Refresh insertion order too, so the recently extended puddle is not pressure-evicted.
             it.remove(); TRACES.addLast(trace);
@@ -137,7 +124,7 @@ public final class BodyEffectsRenderer {
         long chunk = chunk(position);
         while (tracesIn(chunk) >= MAX_PER_CHUNK) removeOldestIn(chunk);
         while (TRACES.size() >= MAX_TRACES) TRACES.removeFirst();
-        TRACES.addLast(new Trace(kind, position, Math.clamp(size, .12f, .6f), yaw, now));
+        TRACES.addLast(new Trace(kind, position, BodyEffectLook.traceSize(size), yaw, now));
     }
 
     /** A short shard that did not hit a wall still settles on the first visible support below it. */
@@ -147,7 +134,8 @@ public final class BodyEffectsRenderer {
         var hit = mc.level.clip(new ClipContext(position.add(0, .01, 0), position.add(0, puddle ? -4 : -1.5, 0),
                 ClipContext.Block.COLLIDER, puddle ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, mc.player));
         if (puddle && !mc.level.getFluidState(hit.getBlockPos()).isEmpty()) return null;
-        return hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP ? null : hit.getLocation().add(0, .004, 0);
+        return hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP ? null
+                : hit.getLocation().add(0, BodyEffectLook.FLOOR_LIFT, 0);
     }
 
     private static int tracesIn(long chunk) {
@@ -185,9 +173,9 @@ public final class BodyEffectsRenderer {
         for (var trace : TRACES) {
             if (trace.kind != kind) continue;
             long age = now - trace.born;
-            float fade = Math.clamp((kind.lifetime - age) / (float) kind.fadeTicks, 0f, 1f);
+            float fade = kind.fade(age);
             if (fade <= 0) continue;
-            if (splats == null) splats = buffers.getBuffer(kind.layer);
+            if (splats == null) splats = buffers.getBuffer(LAYERS.get(kind));
             int light = LevelRenderer.getLightColor(level, BlockPos.containing(trace.position));
             pose.pushPose();
             pose.translate(trace.position.x - camera.x, trace.position.y - camera.y, trace.position.z - camera.z);
@@ -198,13 +186,11 @@ public final class BodyEffectsRenderer {
     }
 
     private static void splat(Matrix4f matrix, VertexConsumer out, float size, float alpha, int light) {
-        float x = size * .5f, z = size * .34f;
+        float x = BodyEffectLook.halfX(size), z = BodyEffectLook.halfZ(size);
         int a = Math.round(255 * alpha);
         for (int i = 0; i < 12; i++) {
-            double angle = i * Math.PI / 6, next = (i + 1) * Math.PI / 6;
-            float radius = i % 3 == 0 ? .84f : 1, nextRadius = (i + 1) % 3 == 0 ? .84f : 1;
-            float ax = (float) Math.cos(angle) * radius, az = (float) Math.sin(angle) * radius;
-            float bx = (float) Math.cos(next) * nextRadius, bz = (float) Math.sin(next) * nextRadius;
+            float ax = BodyEffectLook.rimX(i), az = BodyEffectLook.rimZ(i);
+            float bx = BodyEffectLook.rimX(i + 1), bz = BodyEffectLook.rimZ(i + 1);
             vertex(matrix, out, 0, 0, 0, .5f, .5f, a, light);
             vertex(matrix, out, x * ax, 0, z * az, .5f + .5f * ax, .5f + .5f * az, a, light);
             vertex(matrix, out, x * bx, 0, z * bz, .5f + .5f * bx, .5f + .5f * bz, a, light);

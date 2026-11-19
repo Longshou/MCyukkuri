@@ -1,9 +1,10 @@
-export function buildTimeline(entry, clips) {
+export function buildTimeline(entry, clips, momentClips) {
     const steps = entry.steps ?? [{clip: entry.clip, faces: [], tempo: 1}];
     let duration = 0;
     const track = steps.map(step => {
         const start = duration;
-        duration += step.duration ?? clips[step.clip].duration / step.tempo;
+        const length = entry.moment ? momentClips[step.clip] ?? 1 : clips[step.clip].duration;
+        duration += step.duration ?? length / step.tempo;
         return {...step, start, end: duration};
     });
     return {track, duration, loop: entry.loop ?? clips[entry.clip].loop};
@@ -20,7 +21,24 @@ export function sampleTimeline(track, clips, seconds, expression) {
           ?? clip.faces.find(([start, end]) => clipTime >= start && clipTime < end)?.[2]
           ?? 'neutral'
         : expression;
-    return {clip: step.clip, time, intensity: step.intensity, face, caption: step.caption};
+    return {clip: step.clip, time, intensity: step.intensity, face, caption: step.caption,
+            emote: step.emote, stepSeconds: elapsed};
+}
+
+export function selectEmote(sample, elapsed, duration, stepSeconds, leakSweat = false) {
+    if (sample.face === 'leak_startle') return 'exclaim';
+    if (leakSweat) return 'sweat';
+    if (elapsed < duration && sample.stepSeconds < stepSeconds) return sample.emote;
+}
+
+export function leakSteps(steps, leak, end = leak.beat.endAt) {
+    const {flowAt, puddleAt, endAt} = leak.beat;
+    const starts = [0, flowAt, puddleAt, endAt];
+    const staged = steps.map((step, i) => ({
+        ...step, duration: (starts[i + 1] - starts[i]) / 20, faces: [[0, leak.faces[i]]]
+    }));
+    if (end > endAt) staged.push({clip: 'idle', tempo: 1, faces: [], duration: (end - endAt) / 20});
+    return staged;
 }
 
 export function textureFace(data, model, face, seconds) {

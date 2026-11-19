@@ -38,13 +38,4 @@ enum LeakProfile {
         return full * (float) Math.sqrt(released / (flow(control) * .5f));
     }
 
-    record Beat(long start, long flowAt, long puddleAt, long endAt, float width, float amount, boolean joy) {
-        boolean cooling(long now) { return now < start + 1200; }
-        String face(long now) {
-            if (now < flowAt) return "leak_startle";
-            if (now < puddleAt) return "leak_flow";
-            if (now < endAt) return joy ? "satisfied" : "side_teary";
-            return "";
-        }
-    }
 }

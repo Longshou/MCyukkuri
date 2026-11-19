@@ -207,17 +207,7 @@ def render_strip(args, stage, times, before=False, unyielded=False):
             # An atlas outside the face library (e.g. a wound-pipeline dry face) on the face id's geometry.
             a.setdefault('face', 'neutral')
             images = [(Path(args.texture).resolve(),None,[0,0],[1,1])]
-        if getattr(args, 'moment', None) and not prop:
-            from face_usage import resolve
-            a['moment'] = args.moment
-            library = read(ASSETS/'yukkuri_presentation/face_library.json')
-            names = {'neutral'} | {face for step in args.moment['steps'] for _, face in step['faces']}
-            names = {resolve(library, model, face) for face in names}
-            names |= {phase for face in list(names) for phase in library['animations'].get(face, {}).get('frames', [])}
-            names = sorted(names)
-            a['faceSlots'] = {face: len(textures)+i for i,face in enumerate(names)}
-            images = [(ASSETS/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
-        elif not prop and not before and not a.get('face') and not getattr(args, 'texture', None) and 'draftClip' not in a:
+        if not prop and not before and not a.get('face') and not getattr(args, 'texture', None) and 'draftClip' not in a:
             # A clip with authored face spans shows its own face at every sampled time (atlas and geometry together).
             from face_usage import resolve
             library = read(ASSETS/'yukkuri_presentation/face_library.json')
@@ -521,55 +511,30 @@ def collection(args, stage):
     return ''.join(media(copy_media(p, stage, p.stem), p.stem) for p in videos)
 
 
+def moment_url(args):
+    from build_player_entries import MOMENTS
+
+    if args.topic in ('excited_leak', 'leak'):
+        selection = {'entry': 'leak'}
+    elif args.topic in MOMENTS:
+        selection = {'entry': args.topic}
+    else:
+        selection = {'moment': args.topic}
+    if args.paper_cover:
+        selection['paper'] = 1
+    return '../player.html?' + urlencode(dict(selection, model=args.model))
+
+
 def moment(args, stage):
-    from export_moments import validate
-    data = validate(read(ROOT/'standards/yukkuri-library/presentation/moments.json'))
-    row = data['moments'][args.topic]
-    model = read(ASSETS/'yukkuri'/(args.model+'.json'))
-    clips = {**model['clips'], **model.get('behavior_clips', {}),
-             **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models'][args.model]['clips']}
-    durations = [clips[step['clip']]['duration']/step['tempo'] for step in row['steps']]
-    total = sum(durations)
-    opts = argparse.Namespace(model=args.model, prop=None, clip=row['steps'][0]['clip'], face=None,
-            partner=None, before=None, size=[360,360], view=[26,10], node=args.node, moment=row)
-    times = [i/20 for i in range(math.ceil(total*20))]
-    frames = render_strip(opts, stage, times)
-    atlas = Image.open(ASSETS/'textures/emote/atlas.png').convert('RGBA')
-    metadata = read(ASSETS/'textures/emote/emotes.json')
-    icons = {r['id']: r['cell'] for r in metadata['emotes']}
-    rendered = []
-    for elapsed, frame in zip(times, frames):
-        time = elapsed
-        for step, duration in zip(row['steps'], durations):
-            if time < duration: break
-            time -= duration
-        # The right panel exercises the name-tag see-through pass against an opaque ceiling.
-        panels = []
-        for blocked in (False, True):
-            panel = Image.new('RGBA', (360,420), '#ddd8cf')
-            panel.alpha_composite(frame, (0,60))
-            draw = ImageDraw.Draw(panel)
-            draw.text((10,8), '头顶遮挡' if blocked else '无遮挡', font=font(18), fill='#30271d')
-            if blocked: draw.rectangle((80,32,280,96), fill='#55514d')
-            if step.get('emote') and time < 2:
-                x,y = icons[step['emote']]
-                cell = metadata['cell_size']
-                icon = atlas.crop((x*cell,y*cell,(x+1)*cell,(y+1)*cell)).resize((48,48), Image.Resampling.NEAREST)
-                if blocked: icon.putalpha(icon.getchannel('A').point(lambda a: a//4))
-                panel.alpha_composite(icon, (156,40))
-            panels.append(panel)
-        joined = Image.new('RGB',(720,420))
-        for i,panel in enumerate(panels): joined.paste(panel,(i*360,0))
-        rendered.append(joined)
-    with tempfile.TemporaryDirectory(dir=stage) as directory:
-        work = Path(directory)
-        for i,frame in enumerate(rendered): frame.save(work/f'{i:05d}.png')
-        subprocess.run([str(ffmpeg_path()),'-hide_banner','-loglevel','error','-y','-framerate','20',
-                        '-i',str(work/'%05d.png'),'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',str(stage/'moment.mp4')],check=True)
-    indices = sorted({round(i*(len(rendered)-1)/7) for i in range(8)})
-    sheet([rendered[i] for i in indices],[f'{times[i]:.2f}s' for i in indices],stage/'strip.png',2,(720,420))
-    write_json(stage/'moment.json',row)
-    return '<p>真实运行模型与共享离线 pose 路径；右侧以不透明遮挡示意名牌的淡色透视通道。实际屋顶效果以游戏截图为准。</p>'+media('moment.mp4')+media('strip.png')
+    from build_player_entries import MOMENTS
+    from build_review_catalog import current_roles
+
+    if args.model not in {ident for ident, _, _ in current_roles()}:
+        raise ValueError(f'Unknown runtime model: {args.model}')
+    authored = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
+    if args.topic not in (*MOMENTS, 'excited_leak') and args.topic not in authored:
+        raise ValueError(f'Unknown moment: {args.topic}')
+    return f'<a href="{E(moment_url(args), quote=True)}">在放映室打开</a>'
 
 
 def kit(args, stage):
@@ -807,10 +772,10 @@ def parser():
     fp.add_argument('--title')
     fp.add_argument('--decision')
     commands.add_parser('hub', help='refresh the live player and preview home')
-    mp = commands.add_parser('moment',help='render a presentation data row and its blocked-above emote pass')
+    mp = commands.add_parser('moment',help='open a presentation data row in the live player')
     mp.add_argument('topic',type=valid_topic)
     mp.add_argument('--model',default='reimu')
-    mp.add_argument('--node',default='node')
+    mp.add_argument('--paper-cover', action='store_true')
     mp.add_argument('--title')
     mp.add_argument('--decision')
     kp = commands.add_parser('kit',help='approved faces and base/generic runtime clips')
@@ -855,7 +820,8 @@ def main():
             if args.decision:
                 inbox(argparse.Namespace(action='add', id=args.topic, title=title,
                        url=(f'../{args.topic}/viewer.html?'+viewer_query(args) if args.command == 'viewer'
-                            else f'../{args.topic}/index.html'), decision=args.decision,
+                            else (moment_url(args) if args.command == 'moment' else f'../{args.topic}/index.html')),
+                       decision=args.decision,
                        entry=None, look_only=args.command == 'viewer'))
         elif args.command == 'inbox':
             inbox(args)
@@ -867,6 +833,8 @@ def main():
         relative = f'{args.topic}/index.html' if hasattr(args, 'topic') else ('inbox/index.html' if args.command == 'inbox' else 'index.html')
         if args.command == 'viewer':
             relative = f'{args.topic}/viewer.html?' + viewer_query(args)
+        elif args.command == 'moment':
+            relative = moment_url(args).removeprefix('../')
         print('http://127.0.0.1:8766/.local/previews/'+relative)
     except (ValueError, OSError, RuntimeError, subprocess.CalledProcessError) as error:
         print(f'preview: {error}', file=sys.stderr)

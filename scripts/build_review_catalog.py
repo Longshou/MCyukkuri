@@ -88,6 +88,7 @@ def catalog():
             meta = manifest.get(ident, {})
             audio.append(dict(id=ident,species=species,age=age,events=entry['events'],
                 origin=entry['origin'],zh=zh.get(entry['key'],''),ja=ja.get(entry['key'],meta.get('japanese','')),
+                ticks=entry['ticks'], shared=entry['species'] == '*',
                 url=url(path),duration=meta.get('duration_seconds',0),hash=hashlib.sha256(path.read_bytes()).hexdigest()))
     songs=read(ROOT/'art/audio/ecology/manifest.json')['clips']
     for event in sounds:

@@ -6,6 +6,7 @@ from urllib.parse import unquote,urlsplit
 import argparse
 from base64 import b64decode
 import json
+import math
 import re
 from threading import Lock
 from pose_client import request
@@ -34,8 +35,8 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404);return
         try:
             value = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))))
-            if not isinstance(value, dict) or value.get('op') not in ('register', 'render', 'release'):
-                raise ValueError('Expected preview register/render request')
+            if not isinstance(value, dict) or value.get('op') not in ('register', 'render', 'release', 'leak', 'floorEffect'):
+                raise ValueError('Expected preview pose request')
             packed = value['op'] == 'render' and self.headers.get('Accept') == 'application/octet-stream'
             if packed:
                 value['vertexFormat'] = 'float32le'
@@ -44,10 +45,13 @@ class Handler(SimpleHTTPRequestHandler):
                     ident = value['modelId']
                     if not isinstance(ident, str) or not re.fullmatch(r'[a-z0-9_]+', ident):
                         raise ValueError('Invalid runtime model id')
-                    registered = register_runtime(ident)
+                    scale = value.get('scale', 1)
+                    if type(scale) not in (int, float) or not math.isfinite(scale) or scale <= 0:
+                        raise ValueError('Invalid review body scale')
+                    registered = register_runtime(ident, scale)
                     model = registered['model']
                     clips = {**model['clips'], **model.get('behavior_clips', {})}
-                    result = dict(id=registered['id'], clips={name: {
+                    result = dict(id=registered['id'], actor=registered['actor'], clips={name: {
                         'duration': clip['duration'], 'loop': clip.get('loop', False),
                         'faces': clip.get('expression_spans', [])} for name, clip in clips.items()})
                 else:

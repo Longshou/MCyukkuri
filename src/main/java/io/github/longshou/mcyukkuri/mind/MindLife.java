@@ -75,10 +75,10 @@ public final class MindLife {
     /** Last contribution per cause, rounded per minute, for status and traces. Transient. */
     private final Map<String, Float> causes = new LinkedHashMap<>();
     private final Map<String, Long> eventCooldown = new HashMap<>();
-    private final ExcitedLeak leak;
+    private final ExcitedLeakState leak;
     private final EmotionCourse feeling;
 
-    public MindLife(YukkuriEntity entity) { this.entity = entity; leak = new ExcitedLeak(entity); feeling = new EmotionCourse(entity); }
+    public MindLife(YukkuriEntity entity) { this.entity = entity; leak = new ExcitedLeakState(entity); feeling = new EmotionCourse(entity); }
 
     /** The course of the current strong feeling (grief, fright, anger, joy) and its stages. */
     public EmotionCourse feeling() { return feeling; }

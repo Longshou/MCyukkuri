@@ -485,7 +485,7 @@ public final class YukkuriModel {
     /** cos(47 degrees): above the 44 degree rounded seams and below the 50 degree corners of the shared body model. */
     private static final float SMOOTH_ANGLE_COS=(float)Math.cos(Math.toRadians(47));
     /** Model units the expression cards sit in front of their own plane, over the head skin they were measured against (about 0.02 deep at the mouth). */
-    static final float CARD_LIFT=.04f;
+    static final float CARD_LIFT=Skin.FACE_CARD_LIFT;
     private static final float REMAINS_LIFT=.015f;
     private void updateAngleNormals(AngleNormals smooth){
         for(int t=0;t<smooth.firsts.length;t++){
@@ -1495,7 +1495,7 @@ public final class YukkuriModel {
                 normal.normalize();
                 var card=cardNormals.get(part.name);
                 var lift=card==null?normal:card;
-                for(var point:triangle)point.fma(card==null?.01f:CARD_LIFT+.01f,lift);
+                for(var point:triangle)point.fma(card==null?ExcitedLeak.STREAM_LIFT:CARD_LIFT+ExcitedLeak.STREAM_LIFT,lift);
                 WoundRenderer.emit(stack,out,light,overlay,triangle[0],triangle[1],triangle[2],
                         triangleUv[0],triangleUv[1],triangleUv[2],triangleUv[3],triangleUv[4],triangleUv[5],lift,lift,lift,alpha);
             }

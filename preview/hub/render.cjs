@@ -29,7 +29,7 @@ const actors=job.actors.map(a=>{
  const pose=a.prop?null:new RuntimePose(model,a.scale,revised(a.id,model),fits[a.id]);
  // Walls stand beside the first actor only: it turns by the wall's yaw and, with yield, gives way as in the game.
  if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
- if(pose&&!a.moment&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
+ if(pose&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
  return {...a,model,pose};
 });
 const frames=job.times.map((t,frame)=>{
@@ -38,19 +38,10 @@ const frames=job.times.map((t,frame)=>{
   // Each actor stands beside its own copy of the walls: it turns by this frame's yaw and, with yield, gives way as in the game.
   if(a.pose&&job.wall)a.pose.wall={yaw:job.wall.yaws[frame],faces:job.wall.faces,yield:job.wall.yield};
   if(a.pose)a.pose.paperCover=a.paperSlots?(living[a.id]?.accessory_prefixes||[]):null;
-  let phase=0,clip=a.clip,time=t,intensity=1,momentFace=null;
-  if(a.moment){
-   for(const step of a.moment.steps){
-    const duration=a.pose.clips[step.clip].duration/step.tempo;
-    if(time>=duration){time-=duration;continue;}
-    clip=step.clip;intensity=step.intensity;
-    momentFace='neutral';for(const [at,face] of step.faces)if(time>=at)momentFace=face;
-    time*=step.tempo;break;
-   }
-  }
+  let phase=0;
   let selectedFace;
   if(a.pose){
-   let face=momentFace||a.face||a.pose.expressionFor(clip,time);
+   let face=a.face||a.pose.expressionFor(a.clip,t);
    if(faces){face=faces.aliases[face]||face;face=faces.models[a.id].face_aliases?.[face]||face;}
    const animation=a.draftFace?null:faces?.animations[face];
    if(animation){let tick=Math.floor(t*20)%animation.frame_ticks.reduce((a,b)=>a+b,0);while(tick>=animation.frame_ticks[phase])tick-=animation.frame_ticks[phase++];face=animation.frames[phase];}
@@ -58,7 +49,7 @@ const frames=job.times.map((t,frame)=>{
    if(a.face&&!faces)throw Error('Checkout has no face library: '+job.root);
    a.pose.expression(face);selectedFace=face;
   }
-  const raw=a.pose?a.pose.frame(clip,time,null,a.moment?intensity:null):a.model.vertices;
+  const raw=a.pose?a.pose.frame(a.clip,t):a.model.vertices;
   const parts=a.pose?[{start:0,count:raw.length/8,slot:a.faceSlots?a.faceSlots[selectedFace]:a.slots[a.face?phase:0]}]:a.model.parts.map((p,i)=>({...p,slot:a.slots[i]}));
   for(const p of parts)for(let i=p.start;i<p.start+p.count;i++){
    const k=i*8,v=Array.from(raw.slice(k,k+8));

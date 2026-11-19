@@ -13,16 +13,34 @@ MOMENTS = {
     'rain_huddle': ('雨中蜷缩', 'behavior_rain_huddle_left', ('缩起身体避雨',)),
     'thunder_cower': ('雷声中畏缩', 'behavior_thunder_cower', ('雷声响起', '缩着身子发抖')),
     'wake_stretch': ('醒来伸懒腰', 'behavior_wake', ('从睡梦中醒来，打哈欠并伸展',)),
+    'fright_vomit': ('受惊吐馅', 'reaction_afraid', ('受惊后吐出馅料',)),
 }
 
 
-def leak():
-    # A representative adult scare from ExcitedLeak: 8 ticks of startle, 30 of flow,
-    # 80 of aftermath. The body clips stage these three face beats.
-    return dict(loop=False, steps=[
-        dict(clip=clip, duration=ticks / 20, tempo=1, intensity=1, faces=[[0, face]])
-        for clip, ticks, face in [('startle', 8, 'leak_startle'), ('brace', 30, 'leak_flow'),
-                                  ('idle', 80, 'side_teary')]])
+def moment_clip_durations():
+    # ClipMarkers takes the first authored correction for each name, then Reimu's base clips.
+    revisions = read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models']
+    sources = [model['clips'] for model in revisions.values()]
+    sources.append(read(ASSETS/'yukkuri/reimu.json')['clips'])
+    durations = {}
+    for clips in sources:
+        for name, clip in clips.items():
+            durations.setdefault(name, clip['duration'])
+    return durations
+
+
+LEAK = dict(stage='adult', selfControl=50, stimulus='drop', seed=1, pressure=65)
+SPEECH = dict(leak='afraid', wet_relief='self_rescue_safe', rain_huddle='cold',
+              thunder_cower='afraid', wake_stretch='awake', fright_vomit='afraid')
+
+
+def performance_lines(audio, event):
+    lines = {}
+    candidates = sorted((line for line in audio if line['age'] == 'adult' and event in line['events']),
+                        key=lambda line: (line['shared'], line['events'][0] != event))
+    for line in candidates:
+        lines.setdefault(line['species'], dict(text=line['zh'], duration=line['ticks'] / 20, audio=line['url']))
+    return lines
 
 
 def build_entries(catalog, items):
@@ -33,15 +51,24 @@ def build_entries(catalog, items):
     entries = []
 
     for ident, (title, source, captions) in MOMENTS.items():
-        row = authored[source] if source else leak()
+        row = authored[source] if source else dict(loop=False, steps=[
+            dict(clip=clip, tempo=1, intensity=1, faces=[])
+            for clip in ('startle', 'brace', 'idle')])
         steps = [dict(step, caption=caption) for step, caption in zip(row['steps'], captions, strict=True)]
+        leak_faces = ('leak_startle', 'leak_flow', 'side_teary') if not source else ()
         variants = [model['id'] for model in models if all(
             step['clip'] in model['clips'] and
             all(resolve(faces, model['id'], face) in model['textures'] for _, face in step['faces'])
-            for step in steps)]
+            for step in steps) and all(face in model['textures'] for face in leak_faces)]
         assert variants, ident
-        entries.append(dict(id=ident, category='performances', tag='look-only', title=title,
-                            variants=variants, steps=steps, loop=row['loop']))
+        entry = dict(id=ident, category='performances', tag='look-only', title=title,
+                     variants=variants, steps=steps, loop=row['loop'], moment=source,
+                     speech=performance_lines(catalog['audio'], SPEECH[ident]))
+        if not source:
+            entry['leak'] = LEAK
+        if ident == 'fright_vomit':
+            entry.update(loop=False, filling=True)
+        entries.append(entry)
 
     for model in models:
         ident = model['id']
@@ -69,7 +96,7 @@ def build_entries(catalog, items):
         name=model['name'], scale=model['formScale'], textures=model['textures'],
         faceAliases=faces['models'][model['id']].get('face_aliases', {}),
         expressions=faces['models'][model['id']]['selectable']) for model in models},
-        faceAliases=faces['aliases'], faceAnimations=faces['animations'],
+        momentClips=moment_clip_durations(), faceAliases=faces['aliases'], faceAnimations=faces['animations'],
         faceLabels={ident: ' · '.join(label) for ident, label in faces['labels'].items()})
 
 

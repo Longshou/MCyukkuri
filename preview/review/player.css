@@ -1,6 +1,7 @@
 #detail { margin: 0 0 1rem; }
 .controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
 .controls label { display: inline-flex; align-items: center; gap: .4rem; }
+.controls label[hidden] { display: none; }
 .view-controls { margin-bottom: .65rem; }
 .angles { display: flex; gap: .35rem; }
 .zoom input { width: 7rem; }

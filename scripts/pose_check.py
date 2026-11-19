@@ -15,10 +15,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def preview_sources():
     """Inputs that invalidate cached core-backed preview pixels."""
-    base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
-    return [*sorted((base/'pose').rglob('*.java')), base/'motor/geom/BraidChain.java',
-            base/'body/ModelFingerprint.java', *[ROOT/'scripts'/name for name in
+    return [*java_sources(), *[ROOT/'scripts'/name for name in
             ('pose_check.py', 'pose_client.py', 'pose_client.cjs', 'pose_worker.cjs')]]
+
+
+def java_sources():
+    base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
+    return [*sorted((base/'pose').rglob('*.java')), base/'motor/geom/BraidChain.java', base/'motor/geom/Vec.java',
+            base/'body/ModelFingerprint.java', base/'body/BodyConstants.java', base/'entity/YukkuriVariant.java',
+            base/'mind/ExcitedLeak.java', base/'mind/LeakProfile.java', base/'dialogue/VoicePitch.java']
 
 
 def java_command():
@@ -36,9 +41,7 @@ def java_command():
         if not matches:
             raise RuntimeError(f'missing dependency {name} under .local/gradle-home')
         jars.append(matches[0])
-    base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
-    sources = sorted((base / 'pose').rglob('*.java'))
-    sources += [base / 'motor/geom/BraidChain.java', base / 'body/ModelFingerprint.java']
+    sources = java_sources()
     digest = hashlib.sha256(str(javac).encode())
     for path in sources + jars:
         digest.update(str(path).encode()); digest.update(path.read_bytes())

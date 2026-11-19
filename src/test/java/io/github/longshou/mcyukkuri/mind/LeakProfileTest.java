@@ -34,16 +34,32 @@ class LeakProfileTest {
     }
 
     @Test void restoredBeatObservesTheOriginalEmissionAndCooldownDeadlines() {
-        var beat = new LeakProfile.Beat(10, 18, 58, 138, .5f, 20, false);
+        var beat = new ExcitedLeak.Beat(10, 18, 58, 138, .5f, 20, false);
         assertEquals("leak_startle", beat.face(10));
         assertEquals("leak_flow", beat.face(18));
         assertEquals("side_teary", beat.face(58));
-        var loaded = new LeakProfile.Beat(beat.start(), beat.flowAt(), beat.puddleAt(), beat.endAt(), beat.width(), beat.amount(), beat.joy());
+        var loaded = new ExcitedLeak.Beat(beat.start(), beat.flowAt(), beat.puddleAt(), beat.endAt(), beat.width(), beat.amount(), beat.joy());
         assertEquals(20, loaded.amount());
         assertEquals(beat.face(57), loaded.face(57));
         assertEquals(beat.face(59), loaded.face(59));
         assertEquals("", loaded.face(138));
         assertTrue(loaded.cooling(1209));
         assertFalse(loaded.cooling(1210));
+    }
+
+    @Test void seededRollSuppliesTheGameBeatAndTraceFade() {
+        var drop = ExcitedLeak.roll("ADULT", 50, ExcitedLeak.Stimulus.DROP, 1, 40, 65, .8f);
+        assertEquals(.1f, drop.chance(), .00001f);
+        assertEquals(48, drop.beat().flowAt());
+        assertEquals(78, drop.beat().puddleAt());
+        assertEquals(171, drop.beat().endAt());
+        assertEquals(.48f, drop.beat().width(), .00001f);
+        assertEquals(15, drop.beat().amount());
+        assertNull(ExcitedLeak.roll("ADULT", 50, ExcitedLeak.Stimulus.SCARE, 1, 40, 65, .8f).beat());
+        var joy = ExcitedLeak.roll("BABY", 50, ExcitedLeak.Stimulus.JOY, 1, 0, 65, .1f).beat();
+        assertEquals("satisfied", joy.face(joy.puddleAt()));
+        assertEquals(255, ExcitedLeak.opacity(600));
+        assertEquals(128, ExcitedLeak.opacity(700));
+        assertEquals(0, ExcitedLeak.opacity(800));
     }
 }

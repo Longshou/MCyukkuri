@@ -317,8 +317,7 @@ final class WoundRenderer {
         if (ExcitedLeak.FLOW_FACE.equals(e.getExpressionId())) return 255;
         long start = e.leakTraceAt();
         if (start < 0) return 0;
-        long remaining = ExcitedLeak.TRACE_LIFETIME - (e.level().getGameTime() - start);
-        return Math.round(255 * Math.clamp(remaining / (float) ExcitedLeak.TRACE_FADE_TICKS, 0f, 1f));
+        return ExcitedLeak.opacity(e.level().getGameTime() - start);
     }
     static boolean deforms(List<BodyWound> wounds){
         for(var wound:wounds)if(wound.kind()==WoundKind.TEAR||wound.kind()==WoundKind.DENT||BodySigns.deep(wound))return true;

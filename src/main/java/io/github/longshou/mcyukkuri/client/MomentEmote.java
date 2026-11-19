@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
+import io.github.longshou.mcyukkuri.pose.EmoteCue;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -30,7 +31,7 @@ final class MomentEmote {
         } catch (IOException error) { throw new UncheckedIOException(error); }
     }
     static void leakSweat(YukkuriView entity, long at) {
-        LEAK_SWEAT_UNTIL.put(entity, at + 16);
+        LEAK_SWEAT_UNTIL.put(entity, at + EmoteCue.SWEAT_TICKS);
     }
 
     private static String select(YukkuriView e, float partial) {
@@ -42,7 +43,7 @@ final class MomentEmote {
         // A looping body pose must not turn a short punctuation mark into a permanent status icon.
         if (elapsed >= Moments.duration(e.getMomentId())) return "";
         var frame = Moments.frame(e.getMomentId(), elapsed);
-        return frame.seconds() < 2 ? frame.optional("emote") : "";
+        return frame.seconds() < EmoteCue.STEP_SECONDS ? frame.optional("emote") : "";
     }
 
     static void render(YukkuriView e, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
@@ -62,15 +63,15 @@ final class MomentEmote {
         pose.pushPose();
         pose.translate(0, height(e, scale), 0);
         pose.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-        pose.scale(.4f*scale, .4f*scale, .4f*scale);
+        float size = EmoteCue.size(scale);
+        pose.scale(size, size, size);
         var texture = MCYukkuri.id("textures/emote/atlas.png");
         quad(buffers.getBuffer(RenderType.textSeeThrough(texture)), pose.last().pose(), u,v,du,dv,64,light);
         quad(buffers.getBuffer(RenderType.text(texture)), pose.last().pose(), u,v,du,dv,255,light);
         pose.popPose();
     }
     static double height(YukkuriView e, float scale) {
-        double top = e.profile().houseBody() ? .35 : e.getVariant().assetId().endsWith("marisa") ? 1.25 : .87;
-        return Math.max(e.getBbHeight(), top * scale) + .12 * scale;
+        return EmoteCue.height(e.profile().houseBody(), e.getVariant().assetId(), e.getBbHeight(), scale);
     }
     private static void quad(VertexConsumer out, Matrix4f matrix, float u,float v,float du,float dv,int alpha,int light) {
         out.addVertex(matrix,-.5f,0,0).setColor(255,255,255,alpha).setUv(u,v+dv).setLight(light);

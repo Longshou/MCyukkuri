@@ -1,5 +1,6 @@
 """Headless live player checks. Build with scripts/build_preview_hub.py first."""
 from contextlib import contextmanager
+from base64 import b64decode
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from html.parser import HTMLParser
@@ -119,7 +120,8 @@ class PlayerTests(unittest.TestCase):
     def test_hub_and_player_html(self):
         for path, controls in [
             ('/', {'filters', 'catalog', 'status'}),
-            ('/player.html?entry=leak', {'view', 'variant', 'zoom', 'play', 'time', 'speed', 'caption', 'verdict'}),
+            ('/player.html?entry=leak', {'view', 'variant', 'zoom', 'play', 'time', 'speed', 'caption',
+                                         'paper', 'mute', 'verdict'}),
             ('/.local/previews/inbox/index.html', set()),
         ]:
             with urlopen(self.base+path) as response:
@@ -177,15 +179,19 @@ class PlayerTests(unittest.TestCase):
     def test_five_live_moment_timelines_and_transport_parity(self):
         script = """
 import {readFileSync} from 'node:fs';
-import {buildTimeline, sampleTimeline, textureFace} from './preview/review/timeline.mjs';
-const {data, id, clips} = JSON.parse(readFileSync(0));
+import {buildTimeline, leakSteps, sampleTimeline, selectEmote, textureFace} from './preview/review/timeline.mjs';
+const {data, id, clips, leak, actor} = JSON.parse(readFileSync(0));
 const entry = data.entries.find(row => row.id === id);
-const {track, duration} = buildTimeline(entry, clips);
+if (leak) entry.steps = leakSteps(entry.steps, leak);
+const {track, duration} = buildTimeline(entry, clips, data.momentClips);
 const times = track.flatMap(step => [step.start, (step.start + step.end) / 2]);
 times.push(duration);
 const previews = times.map(time => {
     const sample = sampleTimeline(track, clips, time, 'auto');
-    return {...sample, texture: textureFace(data, data.models.reimu, sample.face, time)};
+    const tick = Math.floor(time * 20);
+    const sweat = leak && tick >= leak.beat.puddleAt && tick < leak.sweatUntil;
+    return {...sample, texture: textureFace(data, data.models.reimu, sample.face, time),
+            symbol: selectEmote(sample, time, duration, actor.emoteSeconds, sweat)};
 });
 console.log(JSON.stringify(previews));
 """
@@ -196,13 +202,20 @@ console.log(JSON.stringify(previews));
         with self.actor('reimu') as actor:
             for ident, source in moments.items():
                 with self.subTest(moment=ident):
+                    entry = next(e for e in self.data['entries'] if e['id'] == ident)
                     if source:
-                        entry = next(e for e in self.data['entries'] if e['id'] == ident)
                         self.assertEqual(entry['loop'], runtime[source]['loop'])
                         self.assertEqual([{k: v for k, v in step.items() if k != 'caption'}
                                           for step in entry['steps']], runtime[source]['steps'])
+                    leak = self.pose(dict(op='leak', bodyWidth=actor['actor']['width'], **entry['leak'])) if 'leak' in entry else None
+                    cue = entry['speech']['reimu']
+                    self.assertTrue(cue['text'])
+                    self.assertGreater(cue['duration'], 0)
+                    with urlopen(self.base + cue['audio']) as voice:
+                        self.assertEqual(voice.read(4), b'OggS')
                     probes = subprocess.run(['node', '--input-type=module', '-e', script], check=True, cwd=ROOT,
-                                            input=json.dumps(dict(data=self.data, id=ident, clips=actor['clips'])),
+                                            input=json.dumps(dict(data=self.data, id=ident, clips=actor['clips'],
+                                                                  actor=actor['actor'], leak=leak)),
                                             capture_output=True, text=True, encoding='utf-8')
                     samples = json.loads(probes.stdout)
                     frames = []
@@ -219,11 +232,52 @@ console.log(JSON.stringify(previews));
                     if ident == 'leak':
                         self.assertEqual([sample['face'] for sample in samples[:-1:2]],
                                          ['leak_startle', 'leak_flow', 'side_teary'])
+                        self.assertEqual([sample.get('symbol') for sample in samples[:-1:2]], ['exclaim', None, 'sweat'])
+                    if ident in ('rain_huddle', 'thunder_cower', 'wet_relief'):
+                        self.assertIn(samples[0]['symbol'], ('sweat', 'shiver'))
+                        self.assertNotIn('symbol', samples[-1])
             payload.update(action='idle', expression='neutral')
             start = time.perf_counter()
             for frame in range(20):
                 self.pose(dict(payload, time=frame/20), packed=True)
             print(f"20 live Reimu frames over HTTP in {time.perf_counter() - start:.2f}s", flush=True)
+
+    def test_effects_geometry_and_lifetimes(self):
+        with self.actor('reimu') as actor, self.actor('house_marisa') as house:
+            self.assertAlmostEqual(actor['actor']['emoteHeight'], .99)
+            self.assertAlmostEqual(house['actor']['emoteHeight'], .47)
+            self.assertGreater(house['actor']['voicePitch'], actor['actor']['voicePitch'])
+            self.assertGreater(self.pose(dict(op='leak', stage='baby', selfControl=50, stimulus='joy', seed=1,
+                                              pressure=65, bodyWidth=.15))['beat']['puddleAt'], 40)
+            probe = dict(op='leak', stage='adult', selfControl=50, stimulus='drop', seed=1,
+                         pressure=65, bodyWidth=actor['actor']['width'])
+            leak = self.pose(probe)
+            self.assertEqual(leak['beat']['flowAt'], 8)
+            self.assertEqual(leak['beat']['puddleAt'], 38)
+            self.assertNotIn('beat', self.pose(dict(probe, stimulus='scare')))
+            self.assertEqual([leak['traceOpacity'][i] for i in (0, 600, 700, 800)], [255, 255, 128, 0])
+            render = dict(op='render', id=actor['id'], action='idle', time=0, expression='side_teary', scale=1,
+                          leakStream=True, outlet=actor['actor']['outlet'], paperCover=actor['actor']['paperAccessories'])
+            frame = self.pose(render)
+            packed = self.pose(dict(render, vertexFormat='float32le'))
+            for field in ('vertices', 'leak_stream', 'paper_top', 'paper_under'):
+                self.assertGreater(len(frame[field]), 0)
+                self.assertEqual(len(frame[field]) % 24, 0)
+                self.assertEqual(b64decode(packed[field]), struct.pack(f'<{len(frame[field])}f', *frame[field]))
+            x, y, z = frame['outlet']
+            event = dict(op='floorEffect', tick=38, sourceId=1, scale=1,
+                         position=dict(x=-x/16, y=y/16, z=-z/16+leak['puddleReach']), direction=dict(x=0, y=0, z=1))
+            puddle = self.pose(dict(event, reason='excited_leak', amount=leak['beat']['width']))
+            self.assertEqual(puddle['texture'], 'textures/effects/leak_puddle.png')
+            self.assertEqual(puddle['flights'], [])
+            self.assertEqual(puddle['traces'][0]['until'], 1838)
+            self.assertAlmostEqual(puddle['traces'][0]['halfX'], .24)
+            filling = self.pose(dict(event, reason='vomit', amount=1))
+            self.assertEqual(filling, self.pose(dict(event, reason='vomit', amount=1)))
+            self.assertEqual(filling['texture'], 'textures/props/leaked_filling.png')
+            self.assertEqual(len(filling['flights']), 3)
+            self.assertTrue(all(2 <= len(f['path']) <= 13 for f in filling['flights']))
+            self.assertEqual(filling['traces'][-1]['until'] - filling['traces'][-1]['tick'], 600)
 
     def test_raw_clip_preserves_authored_root_rotation(self):
         script = """

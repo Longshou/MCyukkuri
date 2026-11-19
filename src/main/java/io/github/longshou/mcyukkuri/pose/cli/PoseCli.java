@@ -14,8 +14,22 @@ public final class PoseCli {
     private static final Gson JSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
     private PoseCli() {}
     public static JsonObject run(Path assets, JsonObject request) throws IOException {
-        if(request.has("op")) return List.of("render","register","release").contains(request.get("op").getAsString())
-                ? RenderPose.run(request) : Authoring.run(request);
+        if (request.has("op")) {
+            return switch (request.get("op").getAsString()) {
+                case "render", "release" -> RenderPose.run(request);
+                case "leak" -> ReviewEffects.leak(request);
+                case "floorEffect" -> ReviewEffects.floor(request);
+                case "register" -> {
+                    var review = request.getAsJsonObject("review");
+                    var actor = review == null ? null : ReviewActor.describe(
+                            assets, PoseChecks.s(review, "model"), (float) PoseChecks.n(review, "scale"));
+                    var registered = RenderPose.run(request);
+                    if (actor != null) registered.add("actor", actor);
+                    yield registered;
+                }
+                default -> Authoring.run(request);
+            };
+        }
         var metrics = new ArrayList<String>(); for (var m : PoseChecks.need(request, "metric").getAsJsonArray()) metrics.add(m.getAsString());
         var frames = new ArrayList<JsonObject>(); var out = new JsonObject();
         var passResults = new JsonArray();

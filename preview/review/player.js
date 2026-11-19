@@ -1,5 +1,7 @@
 import {categories, entryURL, loadEntries} from './entries.js';
-import {buildTimeline, sampleTimeline, textureFace} from './timeline.mjs';
+import {buildTimeline, leakSteps, sampleTimeline, selectEmote, textureFace} from './timeline.mjs';
+import {actorMesh, loadEmote, loadFloor, loadPaper, loadTexture, updateMesh} from './effects.js';
+import {loadSpeech} from './speech.js';
 import {mountVerdicts} from './verdicts.js';
 
 const $ = id => document.getElementById(id);
@@ -14,6 +16,13 @@ async function pose(payload, packed = false) {
     });
     if (!response.ok) throw new Error((await response.json()).error ?? 'HTTP ' + response.status);
     return packed ? new Float32Array(await response.arrayBuffer()) : response.json();
+}
+
+function floatVertices(base64) {
+    const raw = atob(base64);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    return new Float32Array(bytes.buffer);
 }
 
 function media(entry) {
@@ -41,7 +50,7 @@ function media(entry) {
 
 function showVariants(data, entry, ident) {
     const choices = entry.steps
-        ? entry.variants.map(model => [model, entry.id])
+        ? (entry.variants ?? []).map(model => [model, entry.id])
         : data.entries.filter(row => row.category === entry.category && row.clip === entry.clip)
             .map(row => [row.model, row.id]);
     if (choices.length < 2) return;
@@ -50,7 +59,9 @@ function showVariants(data, entry, ident) {
     select.value = ident;
     select.onchange = () => {
         const [model, id] = choices.find(([candidate]) => candidate === select.value);
-        location.assign(entryURL(id, entry.steps ? model : undefined));
+        const url = new URL(entryURL(id, entry.steps ? model : undefined), location.origin);
+        if ($('paper').checked) url.searchParams.set('paper', '1');
+        location.assign(url);
     };
     $('variant-control').hidden = false;
 }
@@ -72,79 +83,125 @@ async function playEntry(data, entry) {
     const grid = new THREE.GridHelper(96, 12, 0x93a99a, 0xc5d5c9);
     grid.position.y = -.05;
     scene.add(grid);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(96, 96),
+        new THREE.MeshBasicMaterial({color: 0xe7eee8}));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -.06;
+    scene.add(ground);
     const material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, vertexColors: true, alphaTest: .05});
+    const mesh = actorMesh(scene, material);
 
-    const {id, clips} = await pose({op: 'register', modelId: ident});
+    const {id, clips, actor: proportions} = await pose({op: 'register', modelId: ident, scale: actor.scale});
     addEventListener('pagehide', event => {
         if (!event.persisted) fetch('/pose', {method: 'POST', keepalive: true,
             body: JSON.stringify({op: 'release', id})});
     });
-    const {track, duration, loop} = buildTimeline(entry, clips);
+    const leak = entry.leak && await pose({op: 'leak', ...entry.leak, bodyWidth: proportions.width * actor.scale});
+    let drawFloor, stream;
+    if (leak) {
+        const {puddleAt, width} = leak.beat;
+        const after = entry.steps[2];
+        const {outlet} = await pose({op: 'render', id, action: after.clip, time: 0, intensity: after.intensity,
+            expression: textureFace(data, actor, leak.faces[2], puddleAt / 20), scale: actor.scale,
+            outlet: proportions.outlet, vertexFormat: 'float32le'});
+        const floor = await pose({op: 'floorEffect', reason: 'excited_leak', amount: width, sourceId: 1,
+            scale: actor.scale * proportions.modelScale, tick: puddleAt,
+            position: {x: -outlet[0] / 16, y: outlet[1] / 16, z: -outlet[2] / 16 + leak.puddleReach},
+            direction: {x: 0, y: 0, z: 1}});
+        entry = {...entry, steps: leakSteps(entry.steps, leak, puddleAt + floor.lifetime)};
+        drawFloor = await loadFloor(scene, floor);
+        stream = actorMesh(scene, new THREE.MeshBasicMaterial({map: await loadTexture(actor.textures.leak_flow),
+            side: THREE.DoubleSide, transparent: true, depthWrite: false}));
+    } else if (entry.filling) {
+        const [x, y, z] = proportions.mouth.map(value => value * actor.scale / 16);
+        const floor = await pose({op: 'floorEffect', reason: 'vomit', amount: 1, sourceId: 1,
+            scale: actor.scale * proportions.modelScale, tick: 0, position: {x: -x, y, z: -z},
+            direction: {x: 0, y: 0, z: 1}});
+        const actionEnd = buildTimeline(entry, clips, data.momentClips).duration;
+        const tracesEnd = Math.max(...floor.traces.map(trace => trace.until)) / 20;
+        if (tracesEnd > actionEnd) {
+            const idle = {clip: 'idle', faces: [], tempo: 1, duration: tracesEnd - actionEnd};
+            entry = {...entry, steps: [...entry.steps, idle]};
+        }
+        drawFloor = await loadFloor(scene, floor);
+    }
+    const {track, duration, loop} = buildTimeline(entry, clips, data.momentClips);
+    const cover = $('paper');
+    cover.checked = params.get('paper') === '1';
+    let paper;
+    const emoteHeight = proportions.emoteHeight * actor.scale * 16;
+    const emoteSize = proportions.emoteSize * actor.scale * 16;
+    const emote = entry.steps && await loadEmote(scene, emoteHeight, emoteSize);
+    const mute = $('mute');
+    const cue = entry.speech?.[proportions.speaker];
+    const speech = cue && await loadSpeech(cue, proportions.voicePitch, mute);
+    $('mute-control').hidden = !speech;
     const timeline = $('time');
     timeline.max = duration;
-    $('caption').hidden = !entry.steps;
     const textures = new Map();
 
     function texture(face) {
         if (!textures.has(face)) {
-            textures.set(face, new THREE.TextureLoader().loadAsync(actor.textures[face]).then(image => {
-                image.flipY = false;
-                image.magFilter = THREE.NearestFilter;
-                image.minFilter = THREE.NearestFilter;
-                image.generateMipmaps = false;
-                image.needsUpdate = true;
-                return image;
-            }));
+            textures.set(face, loadTexture(actor.textures[face]));
         }
         return textures.get(face);
     }
 
     let azimuth = .45, elevation = .15;
-    let expression = 'auto', time = 0, lastTime, previous = performance.now();
+    let expression = 'auto', time = 0, elapsed = 0, lastTime, previous = performance.now();
     let playing = false, pending = false, dirty = true, revision = 0;
-    const geometry = new THREE.BufferGeometry();
-
-    async function drawFrame(seconds, version) {
+    async function drawFrame(seconds, elapsed, version) {
         const sample = sampleTimeline(track, clips, seconds, expression);
         const face = textureFace(data, actor, sample.face, seconds);
-        const [vertices, map] = await Promise.all([
-            pose({op: 'render', id, action: sample.clip, time: sample.time,
-                  intensity: sample.intensity, expression: face, scale: actor.scale}, true),
-            texture(face)
-        ]);
+        const tick = Math.floor(seconds * 20);
+        const alpha = leak && (leak.traceOpacity[tick - leak.beat.puddleAt] ?? 0);
+        const payload = {op: 'render', id, action: sample.clip, time: sample.time,
+            intensity: sample.intensity, expression: face, scale: actor.scale};
+        const streamVisible = alpha > 0 && face !== 'leak_flow';
+        const covered = cover.checked;
+        if (covered) {
+            payload.paperCover = proportions.paperAccessories;
+            paper ??= loadPaper(scene);
+        }
+        if (streamVisible) payload.leakStream = true;
+        const rich = streamVisible || covered;
+        if (rich) payload.vertexFormat = 'float32le';
+        const [frame, map, sheets] = await Promise.all([pose(payload, !rich), texture(face), paper]);
         if (version !== revision) return;
-        if (!geometry.hasAttribute('position')) {
-            const count = vertices.length / 8;
-            for (const [name, size] of [['position', 3], ['uv', 2], ['color', 3]]) {
-                geometry.setAttribute(name, new THREE.BufferAttribute(new Float32Array(count * size), size)
-                    .setUsage(THREE.DynamicDrawUsage));
+        updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame);
+        if (sheets) {
+            for (const [index, field] of ['paper_top', 'paper_under'].entries()) {
+                const sheet = sheets[index];
+                sheet.visible = covered && Boolean(frame[field]);
+                if (sheet.visible) updateMesh(sheet, floatVertices(frame[field]));
             }
         }
-        const {position, uv, color} = geometry.attributes;
-        for (let i = 0, v = 0; i < vertices.length; i += 8, v++) {
-            position.setXYZ(v, vertices[i], vertices[i + 1], vertices[i + 2]);
-            uv.setXY(v, vertices[i + 3], vertices[i + 4]);
-            const shade = .78 + .22 * Math.max(0, -.35 * vertices[i + 5] + .8 * vertices[i + 6] - .48 * vertices[i + 7]);
-            color.setXYZ(v, shade, shade, shade);
+        if (stream) {
+            stream.visible = streamVisible;
+            if (streamVisible) {
+                updateMesh(stream, floatVertices(frame.leak_stream), false);
+                stream.material.opacity = alpha / 255;
+            }
         }
-        position.needsUpdate = uv.needsUpdate = color.needsUpdate = true;
+        if (drawFloor) drawFloor(seconds);
         if (!material.map) material.needsUpdate = true;
         material.map = map;
-        if (sample.caption) $('caption').textContent = sample.caption;
+        const sweat = leak && tick >= leak.beat.puddleAt && tick < leak.sweatUntil;
+        if (emote) emote.set(selectEmote(sample, elapsed, duration, proportions.emoteSeconds, sweat));
+        const caption = speech?.caption(elapsed) || sample.caption;
+        $('caption').textContent = caption ?? '';
+        $('caption').hidden = !caption;
         $('clock').textContent = seconds.toFixed(2) + ' / ' + duration.toFixed(2) + ' 秒';
         timeline.value = seconds;
         lastTime = seconds;
         dirty = true;
     }
 
-    await drawFrame(0, revision);
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.scale.x = -1;
-    mesh.frustumCulled = false;
-    scene.add(mesh);
-    const bounds = new THREE.Box3().setFromBufferAttribute(geometry.attributes.position);
-    const centerY = (bounds.min.y + bounds.max.y) / 2;
-    const span = Math.max((bounds.max.y - bounds.min.y) * .77, 4);
+    await drawFrame(0, 0, revision);
+    const bounds = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position);
+    const top = emote ? Math.max(bounds.max.y, emoteHeight + emoteSize) : bounds.max.y;
+    const centerY = (bounds.min.y + top) / 2;
+    const span = Math.max((top - bounds.min.y) * .77, 4);
     const radius = Math.hypot(Math.max(-bounds.min.x, bounds.max.x), Math.max(-bounds.min.z, bounds.max.z));
     const zoom = $('zoom');
     function resize() {
@@ -188,21 +245,28 @@ async function playEntry(data, entry) {
 
     function setPlaying(value) {
         playing = value;
+        if (!value) speech?.sync(elapsed, false, 1);
         $('play').textContent = value ? '暂停' : '播放';
     }
-    function seek(seconds) {
+    function seek(seconds, sinceStart = seconds) {
         revision++;
         lastTime = undefined;
         time = seconds;
+        elapsed = sinceStart;
     }
     $('play').onclick = () => {
         if (time >= duration && !playing) seek(0);
+        if (!playing && !mute.checked) speech?.enable();
         setPlaying(!playing);
+    };
+    mute.onchange = () => {
+        if (!mute.checked) speech.enable();
     };
     timeline.oninput = () => {
         setPlaying(false);
         seek(Number(timeline.value));
     };
+    cover.onchange = () => seek(time, elapsed);
     if (entry.category === 'models') {
         const select = $('face');
         select.add(new Option('随动作', 'auto'));
@@ -219,15 +283,18 @@ async function playEntry(data, entry) {
         const dt = (now - previous) / 1000;
         previous = now;
         if (playing) {
-            time += dt * Number(speed.value);
+            const delta = dt * Number(speed.value);
+            time += delta;
+            elapsed += delta;
             if (time >= duration) {
                 time = loop ? time % duration : duration;
                 if (!loop) setPlaying(false);
             }
         }
+        speech?.sync(elapsed, playing, Number(speed.value));
         if (!pending && time !== lastTime) {
             pending = true;
-            drawFrame(time, revision).then(() => { pending = false; }).catch(error => {
+            drawFrame(time, elapsed, revision).then(() => { pending = false; }).catch(error => {
                 setPlaying(false);
                 $('play').disabled = timeline.disabled = true;
                 $('status').textContent = '姿态读取失败。' + error.message;
@@ -237,6 +304,7 @@ async function playEntry(data, entry) {
             camera.position.set(-150 * Math.sin(azimuth) * Math.cos(elevation),
                 centerY + 150 * Math.sin(elevation), -150 * Math.cos(azimuth) * Math.cos(elevation));
             camera.lookAt(0, centerY, 0);
+            if (emote) emote.face(camera);
             renderer.render(scene, camera);
             dirty = false;
         }
@@ -254,7 +322,15 @@ async function playEntry(data, entry) {
 }
 
 loadEntries().then(async data => {
-    const entry = data.entries.find(item => item.id === params.get('entry'));
+    const moment = params.get('moment');
+    let entry = data.entries.find(item => item.id === params.get('entry'));
+    if (moment) {
+        const response = await fetch('/src/main/resources/assets/mcyukkuri/yukkuri_presentation/moments.json');
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const row = (await response.json()).moments[moment];
+        const model = params.get('model');
+        if (row && data.models[model]) entry = {...row, moment, model, title: moment, category: 'performances'};
+    }
     if (!entry) throw new Error('未找到这个条目。');
     $('title').textContent = entry.title;
     document.title = entry.title + ' · 演出放映室';

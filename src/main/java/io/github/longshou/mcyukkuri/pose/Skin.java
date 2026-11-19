@@ -9,6 +9,7 @@ import org.joml.Vector3f;
 
 /** Skin math with explicit deformation inputs. Caller owns caches and scratch vectors. */
 public final class Skin {
+    public static final float FACE_CARD_LIFT = .04f;
     private Skin() {}
     public record Binding(int first,int second,float weight) {}
     public record Patch(int start,float[] values) {}
