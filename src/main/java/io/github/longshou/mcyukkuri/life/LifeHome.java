@@ -7,7 +7,11 @@ import java.util.Comparator;
 import java.util.List;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.play.PlayBlock;
+import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.SiteLife;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
@@ -224,9 +228,12 @@ final class LifeHome {
             .thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX);
 
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
+        return nearestCare(kind, requireFood, TravelRange.search(o.entity(), 8));
+    }
+
+    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, int radius) {
         var level = o.level();
         var entity = o.entity();
-        int radius = TravelRange.search(entity, 8);
         var here = entity.blockPosition();
         var min = here.offset(-radius, -2, -radius);
         var max = here.offset(radius, 2, radius);
@@ -250,7 +257,8 @@ final class LifeHome {
                     || !(level.getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
             if (requireFood && (o.avoidsField(scan) || !care.hasFood(o::seeksFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
                     || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
-                    || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;
+                    || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())
+                    || kind == CareBlock.Kind.WATERER && care.water() == 0) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {
                 boolean access = false;
@@ -258,6 +266,8 @@ final class LifeHome {
                     access = ToiletContact.facilitySeat(o.entity(), scan) != null && o.reachable(scan.above(), false);
                 } else if (kind == CareBlock.Kind.NEST) {
                     Vec3 stand = entrance(scan); access = stand != null && SurfaceApproach.canApproach(o.entity(), stand);
+                } else if (kind == CareBlock.Kind.WATERER) {
+                    access = ItemContact.bowlStand(entity, scan) != null;
                 } else for (Direction direction : Direction.Plane.HORIZONTAL) {
                     BlockPos stand = scan.relative(direction);
                     if (dryStand(stand) && o.reachable(stand,false)) { access=true; break; }
@@ -284,16 +294,43 @@ final class LifeHome {
         return best;
     }
 
-    boolean hasReachableDrink() { return nearestDrink() != null; }
+    /** An uncontained source has neither fixture. A depleted fixture remains identifiable until it is removed. */
+    record DrinkSource(CareBlockEntity waterer, PlayBlockEntity pool) {
+        boolean empty() { return waterer != null && waterer.water() == 0 || pool != null && pool.water() == 0; }
+        boolean spendWater() { return waterer != null ? waterer.spendWater() : pool == null || pool.spendWater(); }
+    }
 
-    BlockPos nearestDrink(){
-        BlockPos best=null;double distance=Double.MAX_VALUE;
-        for(var water:BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),6),-2,-TravelRange.search(o.entity(),6)),o.entity().blockPosition().offset(TravelRange.search(o.entity(),6),1,TravelRange.search(o.entity(),6)))){
-            if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!o.drinkableWater(water))continue;
+    DrinkSource drinkSource(BlockPos pos) {
+        var level = o.level();
+        if (!level.hasChunkAt(pos)) return null;
+        if (level.getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.WATERER)
+            return new DrinkSource(care, null);
+        var pool = PlayBlock.facility(level, pos);
+        boolean fluid = drinkableWater(pos);
+        if (pool != null && pool.kind() == PlayBlock.Kind.POOL && (fluid
+                || pool.water() == 0 && !FoundShelter.streetUser(o.entity()))) return new DrinkSource(null, pool);
+        return fluid ? new DrinkSource(null, null) : null;
+    }
+
+    private boolean drinkableWater(BlockPos pos) {
+        var water = o.level().getFluidState(pos);
+        return water.is(FluidTags.WATER) && (!FoundShelter.streetUser(o.entity()) || water.isSource());
+    }
+
+    BlockPos nearestDrink(boolean includeWaterers) {
+        var here = o.entity().blockPosition();
+        int radius = TravelRange.search(o.entity(), 6);
+        BlockPos waterer = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius) : null;
+        BlockPos best = null;
+        double distance = waterer == null ? Double.POSITIVE_INFINITY : o.entity().distanceToSqr(Vec3.atCenterOf(waterer));
+        for(var water:BlockPos.betweenClosed(here.offset(-radius,-2,-radius),here.offset(radius,1,radius))){
+            if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!drinkableWater(water))continue;
             double d=o.entity().distanceToSqr(Vec3.atCenterOf(water));
             if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
         }
-        return best==null?siteWater():best;
+        if (best != null) return best;
+        var site = siteWater();
+        return site != null && o.entity().distanceToSqr(Vec3.atCenterOf(site)) < distance ? site : waterer;
     }
 
     BlockPos siteWater(){

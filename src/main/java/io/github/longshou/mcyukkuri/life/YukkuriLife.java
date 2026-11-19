@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.GlassPress;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
@@ -72,10 +73,8 @@ import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
-import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.level.ClipContext;
@@ -158,6 +157,8 @@ public final class YukkuriLife {
     private static final int NAP_MIN_GAP = 300;
     /** Project design: baseline thirst, +1 dryness per minute awake (two for the young), i.e. the drink threshold of 40 after about 40 minutes; severe thirst only slows. */
     private static final int THIRST_INTERVAL = 1200;
+    public static final float THIRST_THRESHOLD = 40;
+    private static final int DRINK_TICKS = 40;
     private static final float SEVERE_THIRST = 90;
     public static final int PAPER_COVER_WEAR_BIT = 1 << 13;
     private ItemStack paperCover = ItemStack.EMPTY;
@@ -503,7 +504,8 @@ public final class YukkuriLife {
     public boolean hasUrgentNeed() { return nutrition < 30 || entity.family().stemFoodUrgent() || hasUrgentNonFoodNeed(); }
     public boolean hasUrgentNonFoodNeed() { return energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     /** Thirst at the threshold the daytime plan drinks by (dryness 40 or something spicy in the mouth), and only with a drink really in reach. */
-    private boolean thirstUrgent() { return (dryness >= 40 || spicyTicks() > 0) && nearestDrink() != null; }
+    private boolean needsDrink() { return dryness >= THIRST_THRESHOLD || spicyTicks() > 0; }
+    private boolean thirstUrgent() { return needsDrink() && hasReachableDrink(); }
     /** Bladder at {@link #hasUrgentNeed()}'s threshold, and only when the daytime toilet plan has somewhere to go, so waking always ends in relief. */
     private boolean bladderUrgent() {
         return bladder >= 90 && !constipated() && entity.childhood().firstToiletDone() && !entity.leafSwaddle().wrapped()
@@ -917,7 +919,10 @@ public final class YukkuriLife {
         }
         if (planWait > 0) return false;
         planWait = 20;
-        if(dryness>=40||spicyTicks()>0 || wantsStreetRinse()){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
+        if (needsDrink() || wantsStreetRinse()) {
+            var water = home.nearestDrink(needsDrink());
+            if (water != null) { beginDrinkAt(water); return true; }
+        }
         // Getting out of the rain is the status module's weather reaction (Reactions.WeatherGoal); here only the walk back to the own nest.
         if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30 && !entity.settlement().underway() && !ParentCarry.awaitsCarrier(entity)) {
             targetBlock = homeStand();
@@ -1075,11 +1080,12 @@ public final class YukkuriLife {
     }
     /** Unmet needs are not prohibitions on food: only an executable higher-priority plan takes over. */
     private boolean planWinterPriority() {
-        if (dryness >= 40 || spicyTicks() > 0) {
-            var water = nearestDrink();
+        if (needsDrink()) {
+            var water = home.nearestDrink(true);
             if (water != null) {
-                entity.wintering().stopMeal(); targetBlock = water; task = Task.DRINK;
-                drinkTicks = pursuitTicks = 0; return true;
+                entity.wintering().stopMeal();
+                beginDrinkAt(water);
+                return true;
             }
         }
         if (bladder >= 70 && planToilet()) { entity.wintering().stopMeal(); return true; }
@@ -1184,29 +1190,7 @@ public final class YukkuriLife {
                     task = Task.SLEEP; resetSleep(); targetBlock = null;
                 }
             }
-            case DRINK -> {
-                if(targetBlock==null||!drinkableWater(targetBlock)||pursuitTicks>240){stopGoal();return;}
-                if(entity.distanceToSqr(Vec3.atCenterOf(targetBlock))<2.25&&seesWater(targetBlock)
-                        && SurfaceApproach.supportedGround(entity, entity.position())){
-                    entity.getNavigation().stop();entity.getLookControl().setLookAt(targetBlock.getX()+.5,targetBlock.getY()+.4,targetBlock.getZ()+.5,20,20);
-                    if(++drinkTicks>=40){
-                        var pool=PlayBlock.facility(level(),targetBlock);
-                        if(pool==null||pool.spendWater()){
-                            float before=dryness;
-                            drink(30);
-                            if (FoundShelter.streetUser(entity) && pool == null) {
-                                if (hygiene < 60) poolRinse();
-                                streetDrinkAfter = level().getGameTime() + 2400;
-                            }
-                            GameplayLog.event(entity,"needs","drink source={} dryness={} -> {} pool={}",targetBlock,before,dryness,pool!=null);
-                        } else GameplayLog.limited(entity,"needs","water_empty",200,"drink refused source={} reason=pool_empty dryness={}",targetBlock,dryness);
-                        task=Task.NONE;drinkTicks=0;planWait=40;entity.gameEvent(GameEvent.DRINK);
-                    }
-                }else {
-                    drinkTicks = 0;
-                    if (pursuitTicks%10==1){var stand=drinkStand(targetBlock);if(stand==null||!navigate(stand,1,false))stopGoal();}
-                }
-            }
+            case DRINK -> tickDrink();
             case FOOD -> seekFood();
             case FOOD_GLASS -> seekFoodAtGlass();
             case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
@@ -1394,6 +1378,87 @@ public final class YukkuriLife {
         return refused == null || refused.distanceToSqr(source) >= .16;
     }
 
+    private void beginDrinkAt(BlockPos water) {
+        targetBlock = water;
+        task = Task.DRINK;
+        drinkTicks = pursuitTicks = 0;
+        bowlStand = null;
+    }
+
+    private void tickDrink() {
+        var source = home.drinkSource(targetBlock);
+        if (source == null || pursuitTicks > 240) { stopGoal(); return; }
+        if (source.empty()) { refuseEmptyDrink(); return; }
+        var waterer = source.waterer();
+        if (waterer != null) {
+            if (!drinkAtWaterer()) return;
+        } else {
+            if (entity.distanceToSqr(Vec3.atCenterOf(targetBlock)) >= 2.25 || !home.seesWater(targetBlock)
+                    || !SurfaceApproach.supportedGround(entity, entity.position())) {
+                drinkTicks = 0;
+                if (pursuitTicks % 10 == 1) {
+                    var stand = home.drinkStand(targetBlock);
+                    if (stand == null || !navigate(stand, 1, false)) stopGoal();
+                }
+                return;
+            }
+            entity.getNavigation().stop();
+            entity.getLookControl().setLookAt(targetBlock.getX()+.5,targetBlock.getY()+.4,targetBlock.getZ()+.5,20,20);
+        }
+        if (++drinkTicks < DRINK_TICKS) return;
+        int waterBefore = waterer == null ? 0 : waterer.water();
+        if (!source.spendWater()) { refuseEmptyDrink(); return; }
+        float before = dryness;
+        drink(30);
+        if (waterer != null) {
+            GameplayLog.event(entity, "needs", "drink source={} kind=waterer water={} -> {} dryness={} -> {}",
+                    targetBlock, waterBefore, waterer.water(), before, dryness);
+        } else {
+            if (FoundShelter.streetUser(entity) && source.pool() == null) {
+                if (hygiene < 60) poolRinse();
+                streetDrinkAfter = level().getGameTime() + 2400;
+            }
+            GameplayLog.event(entity,"needs","drink source={} dryness={} -> {} pool={}",targetBlock,before,dryness,source.pool()!=null);
+        }
+        task = Task.NONE;
+        drinkTicks = 0;
+        planWait = DRINK_TICKS;
+        entity.gameEvent(GameEvent.DRINK);
+    }
+
+    private boolean drinkAtWaterer() {
+        if (!entity.component(YukkuriComponents.MOUTH).freeForExternalWork()) { stopGoal(); return false; }
+        if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
+        if (bowlStand == null) { stopGoal(); return false; }
+        if (drinkTicks == 0 && entity.distanceToSqr(Vec3.atCenterOf(targetBlock)) < 4
+                && !level().getEntitiesOfClass(YukkuriEntity.class, new AABB(targetBlock).inflate(2), other ->
+                other != entity && other.isAlive() && other.life().task == Task.DRINK && other.life().drinkTicks > 0
+                        && targetBlock.equals(other.life().targetBlock)).isEmpty()) {
+            SurfaceApproach.halt(entity);
+            return false;
+        }
+        var feet = bowlStand.feet();
+        if (!SurfaceApproach.at(entity, feet) || !entity.onGround() || !SurfaceApproach.supportedGround(entity, entity.position())) {
+            drinkTicks = 0;
+            if (!SurfaceApproach.tryStraightStep(entity, feet, 1)
+                    && SurfaceApproach.walkToContact(entity, feet, null, 1) == SurfaceApproach.Result.BLOCKED) stopGoal();
+            return false;
+        }
+        SurfaceApproach.halt(entity);
+        var contact = bowlStand.contact();
+        var yaw = SurfaceApproach.yaw(entity.position(), contact);
+        SurfaceApproach.face(entity, yaw);
+        if (Math.abs(Mth.wrapDegrees(entity.bodyYaw() - yaw)) <= Face.FACE_ARRIVED && bowlStand.reaches(entity)) return true;
+        drinkTicks = 0;
+        return false;
+    }
+
+    private void refuseEmptyDrink() {
+        GameplayLog.limited(entity, "needs", "water_empty", 200, "drink refused source={} reason=source_empty dryness={}", targetBlock, dryness);
+        stopGoal();
+        replanNow();
+    }
+
     private void approachFood(Vec3 source, Vec3 stand, Vec3 face) {
         SurfaceApproach.walk(entity, stand, 1.15);
         if (SurfaceApproach.lastResult(entity, stand) == SurfaceApproach.Result.BLOCKED) {
@@ -1507,7 +1572,7 @@ public final class YukkuriLife {
                 return;
             }
             if (foodRoute != null && !braidAtFood(bowlStand.contact())) return;
-            if (foodRoute != null || ItemContact.reaches(entity, bowlStand.contact(), .06)) {
+            if (foodRoute != null || bowlStand.reaches(entity)) {
                 if (useBowlNicely) {
                     if (foodRoute != null) {
                         var contact = bowlStand.contact();
@@ -1628,7 +1693,7 @@ public final class YukkuriLife {
         entity.wintering().stopMeal();
         endFoodGlass();
         foodRoute = null;
-        task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = 0; planWait = 30;
+        task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = drinkTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }
 
@@ -1661,15 +1726,7 @@ public final class YukkuriLife {
     public BlockPos homeStand(){ return home.homeStand(); }
     private boolean maintainHome(){ return home.maintainHome(); }
     private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }
-    private boolean seesWater(BlockPos water){ return home.seesWater(water); }
-    private BlockPos drinkStand(BlockPos water){ return home.drinkStand(water); }
-    boolean hasReachableDrink(){ return home.hasReachableDrink(); }
-    private BlockPos nearestDrink(){ return home.nearestDrink(); }
-    boolean drinkableWater(BlockPos at) {
-        if (!level().hasChunkAt(at)) return false;
-        var water = level().getFluidState(at);
-        return water.is(FluidTags.WATER) && (!FoundShelter.streetUser(entity) || water.isSource());
-    }
+    public boolean hasReachableDrink() { return home.nearestDrink(true) != null; }
     private boolean wantsStreetRinse() {
         return hygiene < 60 && nutrition >= 30 && !rainOutside() && FoundShelter.streetUser(entity)
                 && level().getGameTime() >= streetDrinkAfter;
