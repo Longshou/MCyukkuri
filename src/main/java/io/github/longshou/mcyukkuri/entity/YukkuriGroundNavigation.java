@@ -91,6 +91,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private BlockPos surveyStart;
     private int followingNode=-1;
     private boolean closingCorner;
+    private Vec3 doorStep;
     private float searchMultiplier = 1;
 
     YukkuriGroundNavigation(YukkuriEntity animal, Level level) { super(animal, level); }
@@ -279,6 +280,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override protected void followThePath(){
+        if (path.getNextNode().type == PathType.DOOR_OPEN) {
+            var pos = path.getNextNodePos();
+            var door = GroundDoorway.at(mob, pos.getX(), pos.getY(), pos.getZ());
+            if (door == null) { stop(); return; }
+            var node = path.getNextEntityPos(mob);
+            int next = path.getNextNodeIndex() + 1;
+            var aim = door.aim(mob.position(), node, next < path.getNodeCount() ? path.getEntityPosAtNode(mob, next) : node);
+            if (mob.position().subtract(aim).horizontalDistanceSqr() > 1e-6) doorStep = aim;
+            else path.advance();
+            doStuckDetection(getTempMobPos());
+            return;
+        }
         followingNode=path.getNextNodeIndex();
         try{super.followThePath();}finally{followingNode=-1;}
     }
@@ -374,6 +387,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
             private PathType pathType(int x, int y, int z) {
                 PathType type = super.getCachedPathType(x, y, z);
+                if (type == PathType.DOOR_OPEN && GroundDoorway.at(mob, x, y, z) == null) return PathType.BLOCKED;
                 var feet=new Vec3(x+entityWidth*.5,y,z+entityDepth*.5);
                 if(mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,feet,feet))return PathType.FENCE;
                 if(planningObstacle!=null&&mob.getDimensions(mob.getPose()).makeBoundingBox(
@@ -441,14 +455,19 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         if (mob instanceof YukkuriEntity animal && !animal.level().isClientSide) watch(animal);
         closingCorner = false;
+        doorStep = null;
         super.tick();
         // The route knew the footprints as they were when it was planned: each step to the next node heads round them now,
         // where the way round stands on supported, open ground (never off a ledge or into a wall).
         var control = mob.getMoveControl();
         if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
+            if (doorStep != null) {
+                wanted = new Vec3(doorStep.x, wanted.y, doorStep.z);
+                control.setWantedPosition(wanted.x, wanted.y, wanted.z, control.getSpeedModifier());
+            }
             var aim = aim(wanted, true);
-            boolean align = closingCorner && aim == wanted;
+            boolean align = (doorStep != null || closingCorner) && aim == wanted;
             if (aim != null && aim != wanted && !NestDoorway.blocksLine(walker,walker.position(),aim)
                     && SurfaceApproach.supported(walker, aim)) {
                 control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
@@ -460,7 +479,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             // the water: it first centres on its own cell, which only lessens the water under it, and then goes on along the shore.
             if (dry.distanceToSqr(walker.position()) < 1.0E-8) dry = SurfaceApproach.dryAim(walker, new Vec3(walker.getBlockX() + .5, walker.getY(), walker.getBlockZ() + .5));
             if (dry.distanceToSqr(wanted) > 1.0E-8) control.setWantedPosition(dry.x, dry.y, dry.z, control.getSpeedModifier());
-            else if (align && SurfaceApproach.clearLastStep(walker, wanted))
+            else if (align && (doorStep != null || SurfaceApproach.clearLastStep(walker, wanted)))
                 step(wanted, control.getSpeedModifier());
         }
     }

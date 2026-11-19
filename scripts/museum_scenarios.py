@@ -7149,6 +7149,27 @@ def _home_greedy_retreat(window, trace):
     x, y, z = map(int, stage.groups())
     if end not in frames or math.dist(frames[end]['p'], (x + .5, y, z + .5)) < 16:
         return 'The claimant ended the retreat before reaching the 16-block exit radius'
+    # The velvet nest is two cells east and five north of the south-facing, left-hinged door.
+    door_x, door_z = x - 2, z + 5
+    boxes = (json.loads(row) for row in re.findall(r'MCYGEOMETRY (\{[^\n]+\})', window))
+    box = next((row['box'] for row in boxes if row['uuid'] == actor), None)
+    if box is None:
+        return 'Missing collision width of the claimant'
+    radius = (box[3] - box[0]) / 2
+    outside = next((t for t in range(start, end + 1) if t in frames and frames[t]['p'][2] >= door_z + 1 + radius), None)
+    if outside is None or frames[start]['p'][2] >= door_z - radius:
+        return 'The claimant did not walk from inside to outside the doorway'
+    crossing = []
+    for t in range(start, outside + 1):
+        if t not in frames:
+            return 'Missing frame during the doorway crossing'
+        px, py, pz = frames[t]['p']
+        if door_z - radius + 1e-7 < pz < door_z + 1 + radius - 1e-7:
+            if px - radius < door_x - 1e-7 or px + radius > door_x + 13/16 + 1e-7 or abs(py - y) > 1e-6:
+                return 'The claimant crossed outside the clear gap between the jamb and oak leaf'
+            crossing.append(pz)
+    if not any(door_z <= pz < door_z + .5 for pz in crossing) or not any(door_z + .5 <= pz < door_z + 1 for pz in crossing):
+        return 'The claimant skipped part of the door cell'
     flight = [frame['p'] for t, frame in frames.items() if t > end and frame['behavior'] == 'flee']
     if not flight or not any(math.dist(flight[0], pos) > .5 for pos in flight):
         return 'The claimant did not move during panic'
@@ -7165,9 +7186,12 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
         _spec['ticks'] = 1510
         _spec['commands'] += [
             # The visitor opens the existing door before asking the claimant to leave.
-            (698, block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower,open=true]')),
-            (698, block(5, 1, 8, 'minecraft:oak_door[facing=south,half=upper,open=true]')),
-            (700, 'execute positioned ~8 ~ ~2.65 run yukkuri scenario tool_operator enter'),
+            (697, 'execute positioned ~5.5 ~ ~9.5 run yukkuri scenario tool_operator enter'),
+            (698, 'yukkuri scenario shop_door_click ~5 ~ ~8 south'),
+            (699, 'execute if block ~5 ~ ~8 minecraft:oak_door[facing=south,half=lower,hinge=left,open=true] '
+                  'if block ~5 ~1 ~8 minecraft:oak_door[facing=south,half=upper,hinge=left,open=true] '
+                  'if block ~4 ~ ~8 minecraft:oak_planks if block ~6 ~ ~8 minecraft:oak_planks run say MCYCLAIM_DOOR_OPEN'),
+            (700, 'execute positioned ~8 ~ ~2.65 run yukkuri scenario tool_operator move'),
             (702, f'yukkuri scenario care_click {sel("greedy")} decline_event'),
             (1310, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator move'),
             (1312, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
@@ -7175,7 +7199,7 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
             (1365, f'damage {sel("greedy")} 1 minecraft:in_fire'),
             (1415, 'yukkuri scenario tool_operator leave'),
         ]
-        _spec['expect'] += [r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
+        _spec['expect'] += [r'MCYCLAIM_DOOR_OPEN', r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
                             r'\[home-claim\][^\n]* curse stamp spoken=true',
                             r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
         _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
