@@ -263,6 +263,9 @@
     "choice_food": "MD-23",
     "choice_tool": "MD-24",
     "choice_snatch": "MD-25",
-    "choice_toilet": "MD-26"
+    "choice_toilet": "MD-26",
+    "training_bowl": "TN-39",
+    "training_toilet": "TN-40",
+    "training_bed": "TN-41"
   }
 }

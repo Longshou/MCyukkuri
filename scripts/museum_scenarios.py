@@ -2259,24 +2259,58 @@ add('badge', 'town', '钻石章灵梦遇到嫉妒的野油', '钻石章灵梦遇
     yk('marisa', 1.5, 0, 'wild', yaw=90, nutrition=84, boldness=68, friendliness=0, attachment=0, self_control=38),
     f'yukkuri scenario badge {sel("pet")} platinum false'], env=DAY, vantage=(1, 8))
 
-_practice_home = []
-for _x, _kind, _name, _points in ((-7, 'reimu', 'practised', 8), (7, 'marisa', 'novice', 0)):
-    _practice_home += [
-        *shed(_x, -4), block(_x, 0, 5, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
-        block(_x + 2, 0, 4, 'mcyukkuri:yukkuri_toilet'), item('minecraft:apple', 2, _x - 1, 4, _name + '_apples'),
-        yk(_kind, _x, 3, _name, nutrition=48, energy=52, bladder=73, rest_wait=0, lead=_x < 0, yaw=0,
-           uuid=uid('training_home', _name),
-           label='练过的宠物' if _x < 0 else '刚开始练习',
-           self_control=95 if _x < 0 else 24,
-           skills={'food_guard': _points, 'toilet': _points}, extra=f'YukkuriPet:{{Neglect:{0 if _points else 60}}}'),
-        *own(_name), home(_name, _x, -4)]
-add('training_home', 'town', '宠物日常练习：吃饭、如厕、睡觉', '宠物日常练习：吃饭、如厕、睡觉',
-    '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。魔理沙刚开始练习，也有一阵子没受照料。看它是否略过食盆吃散食、在沙厕外留下要清理的排泄物，再看两只去哪儿休息。用田野手册查看技能。',
-    '入夜开始，约 1–2 分钟', _practice_home, env={'time': 'night'}, vantage=(0, 13),
-    give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
-    reads=[('读熟手技能', f'data get entity {sel("practised")} YukkuriSkills'),
-           ('读新手技能', f'data get entity {sel("novice")} YukkuriSkills')])
+_PRAISE_HINT = '宠物自己做对且饲主在旁看见时，头上会出现约 4 秒的「？」：这时空手摸它就是夸奖。'
 
+
+def _practice_scene(sid, title, hint, wait, props, env, vantage, expect, **need):
+    """A practised reimu (west) and a novice marisa (east) with the same need and the same furniture: one daily routine per scene."""
+    lines = []
+    for x, kind, name, points in ((-7, 'reimu', 'practised', 8), (7, 'marisa', 'novice', 0)):
+        lines += [
+            *shed(x, -4), *props(x, name),
+            yk(kind, x, 3, name, rest_wait=0, lead=x < 0, yaw=0, uuid=uid(sid, name),
+               label='练过的宠物' if x < 0 else '刚开始练习', self_control=95 if x < 0 else 24,
+               skills={'food_guard': points, 'toilet': points}, extra=f'YukkuriPet:{{Neglect:{0 if points else 60}}}',
+               **need),
+            *own(name), home(name, x, -4)]
+    add(sid, 'town', title, title, hint, wait, lines, env=env, vantage=vantage,
+        give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
+        reads=[('读熟手技能', f'data get entity {sel("practised")} YukkuriSkills'),
+               ('读新手技能', f'data get entity {sel("novice")} YukkuriSkills')],
+        smoke=dict(ticks=2100, expect=expect, forbid=[r'\[body\][^\n]* invariant\b'],
+                   readout=[f'data get entity {sel(n)} YukkuriSkills' for n in ('practised', 'novice')]))
+
+
+_practice_scene(
+    'training_bowl', '宠物日常练习：吃食盆还是吃散食',
+    '两只一样饿的宠物面前各有一个装着苹果的食盆，旁边地上还有两个散落的苹果。左边练过的灵梦到食盆吃，右边刚开始练习的魔理沙略过食盆去吃地上的。' + _PRAISE_HINT,
+    '约 1 分钟',
+    lambda x, name: [block(x, 0, 5, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
+                     item('minecraft:apple', 2, x - 1, 4, name + '_apples')],
+    DAY, (0, 12, 180, 15),
+    [r'\[skill\][^\n]* practice ability=FOOD_GUARD source=daily points=8 -> 9',
+     r'\[lesson\] marisa [^\n]*bowl skipped for loose food'],
+    nutrition=48)
+
+_practice_scene(
+    'training_toilet', '宠物日常练习：去沙厕还是拉在地上',
+    '两只宠物便意一样急，斜前方各有一个沙厕。左边练过的灵梦走进沙厕解决，右边刚开始练习的魔理沙就地拉在地上，留下要清理的排泄物。' + _PRAISE_HINT,
+    '约 1 分钟',
+    lambda x, name: [block(x + 2, 0, 4, 'mcyukkuri:yukkuri_toilet')],
+    DAY, (0, 12, 180, 15),
+    [r'\[needs\][^\n]*relieved source=facility',
+     r'\[needs\] marisa [^\n]*poop (?:placed|stays a loose item) ',
+     r'\[needs\] marisa [^\n]*relieved source=ground [^\n]*accident=true'],
+    bladder=73)
+
+_practice_scene(
+    'training_bed', '宠物日常练习：回窝睡觉',
+    '入夜，两只一样困的宠物身后各有一间带软窝的小棚。看灵梦和魔理沙各自去哪儿睡下。',
+    '入夜开始，约 1–2 分钟',
+    lambda x, name: [],
+    {'time': 'night'}, (0, 9, 180, 12),
+    [r'\[sleep\][^\n]*begin source=life'],
+    energy=52)
 add('training_study', 'town', '宠物数苹果', '宠物数苹果',
     '魔理沙面前有六个苹果。看它数过自己的上限时说「好多」，或者困惑答错。',
     '约 1 分钟', [
@@ -5818,7 +5852,7 @@ TOPICS = {
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
-    'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
+    'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
@@ -5966,14 +6000,6 @@ _smoke('badge', 1200, [r'\[badge\] marisa [^\n]*badge sight [^\n]*grade=4\b',
     readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
 _smoke('puff_response', 650, [r'\[social\][^\n]*puff response=(?:flee|ignore|puff_back|attack) [^\n]*esteem=[^\n]*wariness=[^\n]*insistence=[^\n]*combat='],
     readout=[f'yukkuri status {sel(f"puff_target{i}")} raw' for i in range(2)])
-_smoke('training_home', 2100, [
-    r'\[skill\][^\n]* practice ability=FOOD_GUARD source=daily points=8 -> 9',
-    r'\[needs\][^\n]*relieved source=facility',
-    r'\[sleep\][^\n]*begin source=life',
-    r'\[needs\] marisa [^\n]*poop (?:placed|stays a loose item) ',
-    r'\[needs\] marisa [^\n]*relieved source=ground [^\n]*accident=true',
-    r'\[lesson\] marisa [^\n]*bowl skipped for loose food',
-], readout=[f'data get entity {sel(n)} YukkuriSkills' for n in ('practised', 'novice')])
 def _lead_turns(window):
     """At a turn, willingness favors the patient pet. A miss either steps aside onto ground the log names or rejoins at once.
     Whether a step aside reaches
