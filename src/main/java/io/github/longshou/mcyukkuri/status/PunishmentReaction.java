@@ -94,7 +94,7 @@ public final class PunishmentReaction {
         return response.name();
     }
 
-    private static void respond(YukkuriEntity target, LivingEntity punisher, String incident,
+    private static void respond(YukkuriEntity target, YukkuriEntity punisher, String incident,
                                 int closenessChange, int fearGain, boolean humanInjury) {
         if (!target.isAlive() || target.body().dying()) {
             GameplayLog.event(target, "punishment", "victim actor={} incident={} response=collapse",
@@ -102,7 +102,6 @@ public final class PunishmentReaction {
             witness(target, punisher, incident, humanInjury);
             return;
         }
-        boolean human = isHuman(punisher);
         var personality = target.life().personality();
         int before = personality.fear(punisher.getUUID());
         personality.relationshipChanged(punisher.getUUID(), closenessChange, fearGain);
@@ -115,7 +114,7 @@ public final class PunishmentReaction {
         int wounds = target.body().condition().painSeverity();
         double sound = ramp(target.body().healthRatio(), .45, .95) * (1 - .3 * ramp(wounds, 0, 5));
         double energy = ramp(target.life().energy(), 25, 60);
-        boolean exit = (human || target.isPanicking()) && energy > 0 && Reactions.free(target)
+        boolean exit = target.isPanicking() && energy > 0 && Reactions.free(target)
                 && target.onGround() && !target.isLeashed() && !target.body().weak()
                 && !target.shellRetraction().available() && !target.grief().protecting()
                 && Reactions.escapeStand(target, punisher, 5, Set.of()) != null;
@@ -134,15 +133,9 @@ public final class PunishmentReaction {
         var feeling = target.mind().feeling();
         switch (response) {
             case DEFIANT, PROTECT -> feeling.begin(EmotionCourse.Kind.RAGE, .6f, punisher.getUUID(), target.blockPosition());
-            case FREEZE, ENDURE, PLEAD, SHRINK, TURN_TO_KIN -> {
+            case FREEZE, ENDURE, PLEAD, SHRINK, TURN_TO_KIN, ESCAPE -> {
                 target.setLastHurtByMob(punisher);
                 feeling.frightened(.6f);
-            }
-            case ESCAPE -> {
-                if (!target.isPanicking()) {
-                    target.fleeFrom(punisher);
-                    feeling.frightened(.6f);
-                }
             }
         }
         response.show(target, punisher);
