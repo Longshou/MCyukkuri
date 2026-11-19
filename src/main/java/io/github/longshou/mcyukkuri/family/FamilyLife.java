@@ -1260,12 +1260,8 @@ public final class FamilyLife {
         if(entity.isPanicking()||entity.isCommandPlaying()||urgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         if(task!=Task.NONE)return true;
         if(comfortTicks>0&&adult()){task=Task.COMFORT;taskTicks=0;return true;}
-        if(!adult() && !entity.isPassenger() && !entity.life().isSleeping() && !entity.childhood().needsNewbornCare()) {
-            var caller = call.denyingMother();
-            if(caller!=null && (entity.distanceToSqr(caller)<=4 || !ParentCarry.needsCarry(entity))) {
-                target=caller;task=Task.FOLLOW;taskTicks=0;return true;
-            }
-        }
+        var caller = denialResponse();
+        if(caller!=null) {target=caller;task=Task.FOLLOW;taskTicks=0;return true;}
         if(wait>0&&!owesFamilyDuty()&&!stockedChildMealDue())return false;wait=40;
         var pregnancy=brood();
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
@@ -1395,6 +1391,17 @@ public final class FamilyLife {
         if(!claimHomeWatch())return false;
         task=Task.WATCH_HOME;taskTicks=0;
         return true;
+    }
+
+    private YukkuriEntity denialResponse() {
+        if(adult() || entity.isPassenger() || entity.life().isSleeping() || entity.childhood().needsNewbornCare()) return null;
+        var mother = call.denyingMother();
+        return mother != null && (entity.distanceToSqr(mother)<=4 || !ParentCarry.needsCarry(entity)) ? mother : null;
+    }
+
+    public boolean canAnswerDenial() {
+        return denialResponse()!=null && !entity.isPanicking() && !entity.isCommandPlaying() && !urgentNeed()
+                && entity.life().mealTicks()==0 && !awaitingLanding;
     }
 
     /** Basic goals check the duty before their selector priority can keep FamilyGoal from starting. */
@@ -1682,7 +1689,7 @@ public final class FamilyLife {
             var home=earlyHomeStand();return home!=null&&needsBedReturn(home);
         }
         if (task == Task.FOLLOW && target != null) {
-            if (target == call.denyingMother() && (entity.distanceToSqr(target)<=4 || !ParentCarry.needsCarry(entity))) return true;
+            if (target == denialResponse()) return true;
             if (call.answeringBeckon()) return target.isAlive() && target.level() == entity.level();
             UUID foster = fosterParent();
             if (target.getUUID().equals(foster)) {
@@ -1751,7 +1758,7 @@ public final class FamilyLife {
             case COURT -> courtship.tickCourt();
             case RECEIVE_COURT -> courtship.tickReceiver();
             case FOLLOW -> {
-                boolean denial = target == call.denyingMother();
+                boolean denial = target == denialResponse();
                 if(denial ? call.addressMother(target) : !entity.life().canRecognize(target)||withinFollowDistance(target)){stop();return;}
                 entity.getLookControl().setLookAt(target,20,20);
                 var at = gatherAt(target);

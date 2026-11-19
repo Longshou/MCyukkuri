@@ -384,7 +384,8 @@ final class YukkuriGoals {
     }
     private final class SocialGoal extends Goal {
         @Override public boolean isInterruptable() {
-            return BehaviorContinuity.emergency(owner) || owner.social().humanContact() || !owner.social().active();
+            return BehaviorContinuity.emergency(owner) || owner.social().humanContact() || !owner.social().active()
+                    || owner.family().canAnswerDenial();
         }
         SocialGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return !owner.mind().feeling().subdued() && owner.social().canUse(); }
