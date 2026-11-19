@@ -50,13 +50,7 @@ public final class PresentationGoals {
     public static final Source<RoamingGoal> ROAMING = observed("roaming", RoamingGoal::activity);
     public static final Source<Goal> PROTECTION = state("protection", e -> e.grief().activity());
     public static final Source<Goal> MIND = state("mind", e -> e.mind().active() ? e.mind().activity() : null);
-    public static final Source<Goal> THREAT = state("threat", e -> switch (e.status().reactions().threat().stage()) {
-        case WATCH -> Behaviors.THREAT_WATCH;
-        case RETREAT -> Behaviors.THREAT_RETREAT;
-        case HIDE -> Behaviors.THREAT_HIDE;
-        case STRUCK -> Behaviors.STRUCK;
-        default -> null;
-    });
+    public static final Source<Goal> THREAT = state("threat", e -> nonIdle(e.status().reactions().threat().activity()));
     public static final Source<Goal> WEATHER = state("weather", e -> e.status().reactions().weather().stage() == Reactions.Weather.Stage.NONE
             ? null : e.status().reactions().weather().activity());
     public static final Source<Goal> SANCTION = state("sanction", e -> e.sanction().active() ? e.sanction().activity() : null);

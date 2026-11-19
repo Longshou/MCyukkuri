@@ -82,7 +82,7 @@ public final class DenSeal {
     public boolean finishingThreatSeal() {
         return (active() && dangerId != null || opening.active()) && y.level().getGameTime() - lastDrive <= RECHECK;
     }
-    public boolean pressing() { return phase == Phase.WORK; }
+    public boolean pressing() { return phase == Phase.WORK || opening.active() && opening.phase == OpeningPhase.REMOVE; }
     public String describe() { return phase == Phase.IDLE ? (threatDecision == ThreatDecision.DONE ? "done" : "idle") : phase.name().toLowerCase() + ":" + ticks; }
     public String familyActivity() { return pressing() ? Behaviors.NEST_PRESS : opening.activity(); }
 
@@ -127,12 +127,17 @@ public final class DenSeal {
         lastDrive = now;
         // Vanilla may forget the attacker partway through the work. Only an active seal needs to carry that memory.
         var danger = reported != null ? reported : active() ? dangerAt(level) : null;
-        if (danger == null || !danger.isAlive()) { abort("danger_lost"); return false; }
+        if (danger == null || !danger.isAlive()) {
+            opening.stop();
+            abort("danger_lost");
+            return false;
+        }
         var home = y.habitat().shelter();
         if (home != null && !home.contains(y.blockPosition()) && !committedOutside() && DenBarrier.sealed(home)) {
             if (!opening.active() && !opening.start(level, home, danger)) return false;
             return opening.tick(level, home, true);
         }
+        if (opening.active()) opening.stop();
         if (phase == Phase.IDLE) {
             if (threatDecision == ThreatDecision.DONE || now < nextCheck || danger.distanceToSqr(y) > WATCH_SQR) return false;
             nextCheck = now + (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) < 36 ? 3 : RECHECK);
@@ -155,7 +160,7 @@ public final class DenSeal {
 
     public boolean holdsThroughHit() {
         int press = y.childhood().denSealPressTicks();
-        return pressing() && HomeTactic.holdsThroughHit(press - ticks, press, y.life().personality().temperament());
+        return phase == Phase.WORK && HomeTactic.holdsThroughHit(press - ticks, press, y.life().personality().temperament());
     }
 
     public void commit(LivingEntity danger, Side side) {

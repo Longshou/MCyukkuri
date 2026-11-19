@@ -245,7 +245,7 @@ public final class PresentationArbiter {
             if (presentPredatorFlight(state)) { state.expression("surprise"); return; }
             var seal = e.status().reactions().threat().seal();
             if (seal.pressing() && seal.finishingThreatSeal()) {
-                state.animation(YukkuriAction.IDLE);
+                state.animation(EcologyPresentation.action(Behaviors.NEST_PRESS));
                 state.behavior(Behaviors.NEST_PRESS);
                 return;
             }

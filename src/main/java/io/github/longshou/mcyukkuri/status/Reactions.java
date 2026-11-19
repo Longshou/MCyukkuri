@@ -171,7 +171,7 @@ public final class Reactions {
             if (nearby && heard == y.getLastHurtByMob()) return heard;
             return seen != null && seen.isAlive() ? seen : nearby ? heard : null;
         }
-        String activity() {
+        public String activity() {
             if (seal.pressing()) return Behaviors.NEST_PRESS;
             return switch (stage) {
                 case WATCH -> Behaviors.THREAT_WATCH;
