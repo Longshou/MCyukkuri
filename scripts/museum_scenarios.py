@@ -2365,6 +2365,47 @@ add('pred_perch_hunt', 'grove', '高枝守望，俯冲捕猎', '高枝守望，�
                forbid=[r'\[predator\] remilia [^\n]* combat strike '],
                verify=_verify_perch_hunt))
 
+def _tree_family(sid, height, feeding):
+    mother, father = uid(sid, 'mother'), uid(sid, 'father')
+    young_kin = kin_of(Mother=mother, Father=father)
+    shelf = [] if feeding else [box(-1, 7, -1, 1, 7, 1, 'minecraft:air'),
+                                box(-1, 6, 0, 1, 6, 0, 'minecraft:oak_log[axis=x]')]
+    actors = [*shelf, block(0, height, 0, 'mcyukkuri:predator_nest'),
+              yk('remilia', 4 if feeding else -1, 4 if feeding else 0, 'mother', dy=0 if feeding else height,
+                 nutrition=65 if feeding else 98, energy=98, yaw=-90, uuid=mother, lead=True,
+                 friendliness=90, attachment=90, kin=kin_of(Partner=father)),
+              f'yukkuri scenario home {sel("mother")} ~ ~{height} ~']
+    if feeding:
+        actors.append(yk('flandre', -2, 0, 'father', dy=height, uuid=father, kin=kin_of(Partner=mother)))
+    for name, offset, boldness in [('bold', -.22, 85), ('timid', .22, 25)]:
+        actors.append(yk('remilia', offset, -.22 if feeding else .12, name, dy=height+.15,
+                         stage='baby' if feeding else 'child', share=0 if feeding else .44,
+                         uuid=uid(sid, name), kin=young_kin, boldness=boldness, nutrition=24 if feeding else 92,
+                         childhood=None if feeding else CHILDHOOD_CRAWLING_READY + ',WingPractice:0.45d'))
+    return actors
+
+
+add('pred_nest_feeding', 'grove', '育雏：叼小猎物回巢', '亲油叼小猎物回枝巢，赤油在巢里吃糜',
+    '从坡上看树下的幼小遗体与枝巢上的两只赤油。看亲油在哪里叼起猎物、从哪边着枝、放下后怎样嚼糜对嘴喂食',
+    '约一至两分钟', [*_tree_family('pred_nest_feeding', 6, True),
+                   remains(4.41, 4, 'small_prey', age='juvenile', scale=.4, dimensions=(.30, .138), food=3, capacity=3),
+                   yk('reimu', 9, 6, 'forager', stage='child', childhood=CHILDHOOD_CRAWLING_READY)],
+    spot='spawn', vantage=(7, 8, 150, 4), env={'time': 'dawn'},
+    reads=[('读亲油口中猎物', f'yukkuri status {sel("mother")} raw'), ('读赤油进食', f'yukkuri status {sel("bold")} raw')],
+    smoke=dict(ticks=2100, forbid=[], expect=[r'prey lifted remains=', r'prey carried to nest child=', r'feed portion from prey ',
+                                  r'feed mash prepared child=', r'feed handed to meal child=',
+                                  r'\[meal\] remilia [^\n]* swallowed item=[^\n]*prepared=true']))
+
+add('pred_fledging', 'grove', '雏鸟学飞：扑翅、跳枝、首飞', '枝巢里的两只子油试着起飞',
+    '七格高的巢垫上，两只子油已有同样的练习进度。看大胆的一只何时离枝、胆小的一只还练多久；失足后观察亲油是否落到树下守护',
+    '约一至两分钟', _tree_family('pred_fledging', 7, False),
+    spot='spawn', vantage=(7, 8, 145, 2), env={'time': 'dawn'},
+    reads=[('读大胆子油', f'yukkuri status {sel("bold")} raw'), ('读胆小子油', f'yukkuri status {sel("timid")} raw')],
+    smoke=dict(ticks=2000, forbid=[], expect=[r'fledge flap progress=', r'fledge hop progress=',
+               rf'uuid={_uuid_text("pred_fledging","bold")} [^\n]*first flight outcome=(?:landed|interrupted)'],
+               allow_fate=[dict(kind='death', who=f'uuid={_uuid_text("pred_fledging", slot)} ', match=r'cause=fall\b',
+                                why='a real fledgling fall from the branch') for slot in ('bold', 'timid')]))
+
 add('pred_noon_shade', 'grove', '正午躲荫，傍晚出猎', '正午躲荫，傍晚出猎',
     '正午树下已有子油。看营养为 50 的蕾米莉亚站在叶荫下守望。用「实用」切到傍晚，再看它发现猎物后离枝',
     '守望约半分钟后切换时间', [*_perch_resident(50), yk('reimu', 5, 6, 'shade_prey', stage='child', nutrition=46)],
@@ -6835,6 +6876,7 @@ TOPICS = {
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
+    'pred_nest_feeding': 'R2', 'pred_fledging': 'R2',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3', 'pet_door_return': 'D1',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
