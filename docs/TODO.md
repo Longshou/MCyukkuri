@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 | 动作衔接：换片段时姿势过渡不跳变 | `.worktrees/wp-pose-bridge` | client/PoseBridge.java (new), client/YukkuriModel.java, client/YukkuriRenderer.java, client/capture/PoseTap.java, AgitationPresentation |
-| 运输篮手持与展示框朝向实拍确认 | `.worktrees/wp-basket-display` | models/item/yukkuri_carrier*.json display |
 | 被赶走时先跺完诅咒再离开 | `.worktrees/wp-curse-hold` | event/HomeClaim.java |
 | 被夸与玩耍后的开心慢慢消退 | `.worktrees/wp-joy-tail` | mind/EmotionEvent.java, mind/MindLife.java |
 | 送别时高依恋亲油含泪目送 | `.worktrees/wp-parting-gaze` | EmotionCourse goal priority, IndependenceLife |
