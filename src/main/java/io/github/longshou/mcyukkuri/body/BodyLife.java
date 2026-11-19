@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public final class BodyLife {
     private static final int MAX_WOUNDS=8;
     private final YukkuriEntity entity;
     private int wound,infection,ticks;
-    private int mold,moldExposure;
+    private int mold,moldExposure,moldContact;
     private int burns,hairLoss;
     private final ArrayList<BodyWound> wounds=new ArrayList<>();
     private int releaseCursor;
@@ -239,6 +240,7 @@ public final class BodyLife {
     public boolean removeMold() {
         if(!treatmentAllowed()||mold==0||mold>=MOLD_TERMINAL)return false;
         int before=mold;
+        moldContact=0;
         if(mold<=MOLD_CURABLE){mold=moldExposure=moldSpread=0;entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);}
         else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","hurt",80);}
         entity.syncBody();GameplayLog.event(entity,"body","mold remover changed stage {} -> {}",before,mold);return true;
@@ -515,6 +517,7 @@ public final class BodyLife {
         if(life.wetness()>40&&life.hygiene()<40){
             if(++moldExposure>=1200){advanceMold("wet_dirty_skin");moldExposure=0;entity.syncBody();}
         }else moldExposure=Math.max(0,moldExposure-1);
+        if(mold==0&&ticks%MoldContagion.SAMPLE==0)sampleMoldContact();
         if(mold>0){
             // Mould spreads on dirty skin and holds still on clean skin; the terminal stage reaches the core.
             if(life.hygiene()<50&&++moldSpread>=6000){moldSpread=0;advanceMold("spread");entity.syncBody();}
@@ -549,6 +552,40 @@ public final class BodyLife {
         if(previousInfection!=infection)GameplayLog.event(entity,"body","infection {} -> {}; open_wound={} hygiene={}",previousInfection,infection,open,life.hygiene());
         if(previousToxin>=SICK_TOXIN&&toxin<SICK_TOXIN)GameplayLog.event(entity,"body","toxin sickness cleared; toxin {} -> {}",previousToxin,toxin);
     }
+    private static boolean atDen(YukkuriEntity resident, ShelterBlockEntity den) {
+        return den.contains(resident.blockPosition()) || resident.distanceToSqr(Vec3.atCenterOf(den.entrance())) <= 9;
+    }
+
+    private void sampleMoldContact() {
+        var den = entity.habitat().shelter();
+        YukkuriEntity source = null;
+        int tier = 0;
+        if (den != null && den.owns(entity.getUUID()) && atDen(entity, den)) {
+            var bed = den.bed(entity.getUUID());
+            var reach = entity.getBoundingBox().inflate(MoldContagion.TOUCH);
+            for (var id : den.residentIds()) {
+                if (!(((ServerLevel)entity.level()).getEntity(id) instanceof YukkuriEntity other)
+                        || !other.isAlive() || !atDen(other, den)) continue;
+                int visible = BodySigns.moldTier(other.body().mold());
+                if (visible > tier && (reach.intersects(other.getBoundingBox()) || entity.life().isSleeping()
+                        && other.life().isSleeping() && bed != null && bed.equals(den.bed(id)))) {
+                    source = other;
+                    tier = visible;
+                }
+            }
+        }
+        int before = moldContact;
+        moldContact = MoldContagion.next(before, MoldContagion.gain(tier, (int)entity.life().hygiene()));
+        if (moldContact >= MoldContagion.THRESHOLD) {
+            GameplayLog.event(entity, "body", "mold caught from={} exposure={}", source.getUUID(), moldContact);
+            moldContact = 0;
+            advanceMold("contact");
+            entity.syncBody();
+        } else if (before < MoldContagion.THRESHOLD / 2 && moldContact >= MoldContagion.THRESHOLD / 2) {
+            GameplayLog.limited(entity, "body", "mold_contact", 1200, "mold contact exposure={} tier={}", moldContact, tier);
+        }
+    }
+
     private void advanceMold(String reason){
         int before=mold;mold=Math.min(MOLD_TERMINAL,mold+1);
         if(before!=mold)GameplayLog.event(entity,"body","mold stage {} -> {}; reason={} hygiene={} wetness={}",
@@ -658,6 +695,7 @@ public final class BodyLife {
         tag.putBoolean("FaceMarks",faceMarks);
         if(lastBurnAt>=0)tag.putLong("LastBurnAt",lastBurnAt);
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
+        tag.putInt("MoldContact",moldContact);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
         // The centre filling is the sweetest part; unease before death sweetens it further (docs/FEATURES.md).
@@ -677,6 +715,7 @@ public final class BodyLife {
         faceMarks=tag.getBoolean("FaceMarks");
         lastBurnAt=tag.contains("LastBurnAt")?tag.getLong("LastBurnAt"):-1;
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
+        moldContact=Math.clamp(tag.getInt("MoldContact"),0,MoldContagion.THRESHOLD);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         // Saves from before the centre filling existed carry no flag: their core is unhurt.
         coreHurt=tag.getBoolean("CoreHurt");footBurned=tag.getBoolean("FootBurned");footScorch=Math.clamp(tag.getInt("FootScorch"),0,12);toxin=
