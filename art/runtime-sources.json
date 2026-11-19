@@ -135,6 +135,7 @@
       "art/props/care-expansion/selected",
       "art/props/consumables/selected",
       "art/props/predators/assembled/predator_nest",
+      "art/props/predators/assembled/predator_nest_frame",
       "art/props/wild-shelters"
     ],
     "exporters": [
@@ -199,6 +200,7 @@
         "large_wild_nest": "standards/yukkuri-library/drafts/block-props/nests.py, exported by large_nests.py",
         "forage_pile": "standards/yukkuri-library/drafts/block-props/nests.py",
         "predator_nest": "standards/yukkuri-library/drafts/block-props/nests.py, exported by art/props/predators/build.py (own atlas, no vanilla textures)",
+        "predator_nest_frame": "standards/yukkuri-library/drafts/block-props/nests.py, exported by art/props/predators/build.py as native block models predator_nest_frame_1..7 on one shared atlas (textures/block/predator_nest_frame.png)",
         "yarn_ball, glass_marble, pretty_stone, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/block-props/toys.py, exported by standards/yukkuri-library/drafts/care-expansion/build.py",
         "teaching_whistle, wash_cloth, companion_cord": "extruded inventory icons (cloth and cord laid flat), exported by standards/yukkuri-library/drafts/care-expansion/build.py",
         "mold_remover": "extruded inventory icon, exported by standards/yukkuri-library/drafts/consumables/build.py",

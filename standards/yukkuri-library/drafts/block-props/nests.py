@@ -375,29 +375,34 @@ STICKS = (((1, 0), 4, 2), ((0, 1), 3, -2), ((0, -1), 4, 1), ((1, 0), 3, -4), ((0
 FEATHERS = {(-4, 2), (-3, 2), (-2, 2), (3, -3), (3, -2), (4, -1), (1, 4), (2, 4)}
 
 
+PRED_COURSES = (8.6, 9.6, 10.5, 10.5, 10.2)    # course radii from the foot up: narrow foot, widest in the middle
+
+
+def pred_twig(cell, face):
+    """Paint of the twig bowl: twigs laid in courses, sticks crossing on top, lining up faces inside the hollow."""
+    x, y, z = cell
+    if face == 'down':
+        return ('TWIG', 0)
+    if (x, z) in PRED_HOLLOW and face == 'up':                     # the lining, dark in the hollow
+        if (x, z) in FEATHERS:
+            return ('PAPER', 4 if (x + z) % 2 else 3)
+        h = mix(x, z)
+        return ('STRAW', 2) if h == 0 else ('LEAF', 1) if h < 3 else ('TWIG', 1 if h < 11 else 0)
+    if face == 'up':
+        step = 3 if (x + y) % 3 == 0 or (z - y) % 4 == 0 else 2   # sticks crossing on the rim top
+    else:
+        course = (x + z + 3 * (y % 2)) % 5                         # twigs laid in courses, joints offset per course
+        step = 3 if course == 0 else 1 if course == 4 else 2
+    if kit.inward(cell, face):
+        step -= 1                                                  # the hollow's inner wall is dark
+    return ('TWIG', step)
+
+
 def predator_nest():
     b = kit.Block('predator_nest', offset=(0, -PRED_SINK, 0))
-
-    def twig(cell, face):
-        x, y, z = cell
-        if face == 'down':
-            return ('TWIG', 0)
-        if (x, z) in PRED_HOLLOW and face == 'up':                 # the lining, dark in the hollow
-            if (x, z) in FEATHERS:
-                return ('PAPER', 4 if (x + z) % 2 else 3)
-            h = mix(x, z)
-            return ('STRAW', 2) if h == 0 else ('LEAF', 1) if h < 3 else ('TWIG', 1 if h < 11 else 0)
-        if face == 'up':
-            step = 3 if (x + y) % 3 == 0 or (z - y) % 4 == 0 else 2   # sticks crossing on the rim top
-        else:
-            course = (x + z + 3 * (y % 2)) % 5                     # twigs laid in courses, joints offset per course
-            step = 3 if course == 0 else 1 if course == 4 else 2
-        if kit.inward(cell, face):
-            step -= 1                                              # the hollow's inner wall is dark
-        return ('TWIG', step)
-    wood = kit.Material('TWIG', pattern=twig, bevel=False)
+    wood = kit.Material('TWIG', pattern=pred_twig, bevel=False)
     nest = b.part('twig_bowl')
-    for y, radius in enumerate((8.6, 9.6, 10.5, 10.5, 10.2)):     # a bowl: narrow foot, widest at the middle courses
+    for y, radius in enumerate(PRED_COURSES):
         plan = kit.disc(radius)
         nest.layer(plan if y < PRED_FLOOR else plan - PRED_HOLLOW, y, y + 1, wood)
     for x, z in sorted(kit.disc(9.4) - PRED_HOLLOW):               # ragged top course
@@ -414,6 +419,61 @@ def predator_nest():
         nest.cells.pop(cell, None)
         plume.cell(cell, white)
     return b
+
+
+# Predator nest frame (art/props/predators/build.py exports it as native block models, one per `twigs` 1..7; the 8th
+# twig turns the block into predator_nest). The same twig bowl, unfinished, standing on its branch without the sink:
+# twigs 1-3 lay three loose sticks across the support (one along x, one diagonal under, one along z on top of both;
+# tops at 2), twigs 4-7 raise the bowl's own lower courses as a hollow ring with nothing in it but those sticks:
+# course 0 (4), course 1 in two ragged halves (5, 6), the first ragged half of course 2 (7, top 3). Every stage keeps
+# the cells of the last; the ring has the bowl's radii, hollow and paint, so the finished nest reads as the same bowl.
+FRAME_TWIGS = 7
+FRAME_STICKS = (
+    [(x, 0, 1) for x in range(-10, 10)],                                       # 1: along x
+    [(-1, 1, z) for z in range(-9, 9)],                                        # 2: along z, resting on 1 and 3
+    [c for k in range(-7, 7) for c in ((k, 0, -k - 1), (k + 1, 0, -k - 1))],  # 3: diagonal, beside 1 on the support
+)
+
+
+def frame_half(cell):
+    """0 or 1: which ragged half of a course a ring cell belongs to (by angle round the bowl, edges broken per cell)."""
+    x, y, z = cell
+    turn = (math.atan2(z + .5, x + .5) / math.tau + (mix(x, y, z) - 7.5) / 90 + .125 * y) % 1
+    return 0 if turn < .5 else 1
+
+
+def frame_stick(cell, face):
+    x, y, z = cell
+    if face == 'down':
+        return ('TWIG', 0)
+    if mix(x, y, z, 11) < 3:
+        return ('TWIG', 1)                                         # bark knots
+    return ('TWIG', 3 if face == 'up' else 2)
+
+
+def predator_nest_frame(twigs):
+    """The frame after `twigs` (1..FRAME_TWIGS) trips."""
+    b = kit.Block(f'predator_nest_frame_{twigs}')
+    part = b.part('twig_frame')
+    stick = kit.Material('TWIG', pattern=frame_stick, bevel=False)
+    wood = kit.Material('TWIG', pattern=pred_twig, bevel=False)
+    for cells in FRAME_STICKS[:twigs]:
+        for cell in cells:
+            part.cell(cell, stick)
+    for y, radius in enumerate(PRED_COURSES[:3]):
+        ring = kit.disc(radius) - PRED_HOLLOW
+        for x, z in sorted(ring):
+            laid = 4 if y == 0 else 5 + frame_half((x, y, z)) if y == 1 else 7 if frame_half((x, y, z)) == 0 else 8
+            if twigs >= laid and (x, y, z) not in part.cells:      # the loose sticks stay sticks, woven into the ring
+                part.cell((x, y, z), wood)
+    return b
+
+
+def predator_nest_frames():
+    """All frame stages on one shared atlas (the stages share cells, so the shared texture paints each cell once)."""
+    blocks = [predator_nest_frame(n) for n in range(1, FRAME_TWIGS + 1)]
+    kit.share_atlas(blocks)
+    return blocks
 
 
 # =====================================================================================================================
