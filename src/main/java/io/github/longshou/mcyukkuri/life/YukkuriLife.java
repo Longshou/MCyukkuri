@@ -93,7 +93,7 @@ import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE, FOUND_COVER, GARBAGE, CROP, STALL }
+    private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, CLAIM_BED, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE, FOUND_COVER, GARBAGE, CROP, STALL }
     private final YukkuriEntity entity;
     private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
@@ -590,7 +590,7 @@ public final class YukkuriLife {
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
         if (task == Task.FOOD && permissionWait > 0 || queueTicks > 0 && targetBlock != null && targetFood == null
                 && (task == Task.FOOD || task == Task.DRINK)) return Behaviors.WAIT;
-        return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
+        return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME, CLAIM_BED -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
             case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity();
@@ -1061,6 +1061,14 @@ public final class YukkuriLife {
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         }
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
+        if (!penned && !entity.settlement().underway() && !hasUrgentNeed()) {
+            targetBlock = home.unclaimedSingleBed();
+            if (targetBlock != null) {
+                task = Task.CLAIM_BED; pursuitTicks = 0;
+                GameplayLog.event(entity,"home","approaching unclaimed bed nest={}",targetBlock);
+                return true;
+            }
+        }
         if (entity.outing().restsHere() && homeProvider().ordinaryRestAllowed(this)) {
             var here = entity.blockPosition();
             if (!dryStand(here) || !SurfaceApproach.supportedGround(entity, entity.position()) || level().isRainingAt(here)) return false;
@@ -1283,6 +1291,7 @@ public final class YukkuriLife {
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
             }
+            case CLAIM_BED -> approachUnclaimedBed();
             case TOILET -> {
                 if (entity.leafSwaddle().wrapped() || !available(toiletKind)) { stopGoal(); return; }
                 if (targetBlock == null || !(level().getBlockEntity(targetBlock) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
@@ -1893,6 +1902,35 @@ public final class YukkuriLife {
     }
 
     public boolean dryStand(BlockPos pos){ return home.dryStand(pos); }
+
+    private double bedClaimStrength() {
+        return entity.getBbWidth() * entity.species().traits().might() * entity.body().healthRatio()
+                * (1 + personality.boldness() / 100.0);
+    }
+
+    private void approachUnclaimedBed() {
+        var bed = NestDoorway.bed(entity, targetBlock);
+        var stand = bed == null ? null : home.entrance(targetBlock);
+        if (stand == null || pursuitTicks > 600 || hasUrgentNeed() || home() != null && !naturalHome()) {
+            stopGoal(); return;
+        }
+        // Two bodies at a one-body lip cannot both put their centres on its approach point.
+        if (entity.distanceToSqr(stand) > entity.getBbWidth() * entity.getBbWidth() || !clearContact(targetBlock)) {
+            if (SurfaceApproach.walkResult(entity, stand, null, 1) == SurfaceApproach.Result.BLOCKED) stopGoal();
+            return;
+        }
+        var rival = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(2),
+                y -> y != entity && y.life().task == Task.CLAIM_BED && targetBlock.equals(y.life().targetBlock)
+                        && y.distanceToSqr(stand) <= Math.pow(y.getBbWidth() + entity.getBbWidth(), 2)
+                        && entity.hasLineOfSight(y) && y.life().bedClaimStrength() > bedClaimStrength()).stream().findFirst();
+        if (rival.isPresent() || !bed.canClaim(entity)) {
+            var winner = rival.map(Entity::getUUID).orElse(bed.resident());
+            entity.showReaction(personality.temperament().is(Gate.WARY) ? "teary" : "cheek_puff","wait_turn",60);
+            home.yieldedBed();
+            GameplayLog.event(entity,"home","yielded contested bed nest={} rival={}",targetBlock,winner);
+        } else assignHome(GlobalPos.of(level().dimension(),targetBlock));
+        stopGoal();
+    }
     private boolean restable(BlockPos pos){ return home.restable(pos); }
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }

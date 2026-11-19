@@ -222,8 +222,24 @@ final class LifeHome {
     boolean claimNearestNest() {
         if (HomeClaim.cooling(o.entity())) return false; // A just-driven-off claimant stays out of the nests it was evicted from.
         BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
-        return nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest));
+        return nest != null && !walkToClaim(nest) && assignHome(GlobalPos.of(o.level().dimension(), nest));
     }
+
+    private boolean walkToClaim(BlockPos pos) {
+        return o.entity().family().adult() && o.level().getBlockState(pos).getBlock() instanceof PetNestBlock;
+    }
+
+    private long nextNestSearch;
+    BlockPos unclaimedSingleBed() {
+        if (home != null && !naturalHome || o.entity().habitat().hasMemory() || !o.entity().family().adult()
+                || o.homeProvider() != HomeProvider.ORDINARY || o.entity().outing().away() || o.entity().mind().feeling().mourning()
+                || o.level().getGameTime() < nextNestSearch || HomeClaim.holds(o.entity()) || HomeClaim.cooling(o.entity())) return null;
+        nextNestSearch = o.level().getGameTime() + 200; // Same search interval as maintaining an address.
+        var bed = nearestCare(CareBlock.Kind.NEST, false);
+        return bed != null && walkToClaim(bed) ? bed : null;
+    }
+
+    void yieldedBed() { nextNestSearch = o.level().getGameTime() + 1200; }
 
     private static final Comparator<BlockPos> CARE_SCAN_ORDER = Comparator.comparingInt((BlockPos pos) -> pos.getZ())
             .thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX);
@@ -336,9 +352,10 @@ final class LifeHome {
                 && drinkableWater(water) && drinkStand(water) != null) return water;
         return best;
     }
-    void save(CompoundTag tag) { if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos",
+    void save(CompoundTag tag) { tag.putLong("NestSearchAfter", nextNestSearch); if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos",
             home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); } }
     void load(CompoundTag tag) {
+        nextNestSearch = tag.getLong("NestSearchAfter");
         home = null;
         ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));
         if (dimension!=null && tag.contains("HomePos")) home=GlobalPos.of(ResourceKey.create(Registries.DIMENSION,dimension),BlockPos.of(tag.getLong("HomePos")));

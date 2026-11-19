@@ -6692,12 +6692,38 @@ add('oversized_nest', 'family', '灵胖进大草窝过夜', '灵胖进大草窝�
     smoke=dict(ticks=1600, expect=[r'bed crossing [^\n]*direction=in [^\n]*opening=true source=walk',
         r'begin source=life occupancy=INSIDE_SUPPORTED', r'bed crossing [^\n]*direction=out [^\n]*opening=true source=walk']))
 
+_bold_bed = _uuid_text('single_bed_contest', 'bold')
+_shy_bed = _uuid_text('single_bed_contest', 'shy')
+
+
+def _verify_new_bed(log):
+    loss = re.search(rf'uuid={_shy_bed} t=(\d+) [^\n]*yielded contested bed nest=(BlockPos\{{[^}}]+\}}) rival={_bold_bed}', log)
+    alternative = re.search(rf'uuid={_shy_bed} t=(\d+) [^\n]*approaching unclaimed bed nest=(BlockPos\{{[^}}]+\}})', log[loss.end():]) if loss else None
+    if not alternative or int(alternative[1]) - int(loss[1]) < 1200 or loss[2] == alternative[2]:
+        return 'The losing adult did not approach a different free bed after sixty seconds'
+    for actor, bed in ((_bold_bed, loss[2]), (_shy_bed, alternative[2])):
+        if not re.search(rf'uuid={actor} [^\n]*assigned kind=care [^\n]*{re.escape(bed)}', log):
+            return f'{actor} did not claim {bed}'
+
+
+add('single_bed_contest', 'family', '两个成油争一个软垫窝', '两个成油争一个软垫窝',
+    '棚内只有一个空窝。看两个互不相识的成油走到窝前，胆大的认窝，另一只露出表情让开。一分钟后棚里添一个空窝，落选者可以改去那里。',
+    '约 1 分半钟', [*shed(0, 0, half=4),
+        *[line for name, x, bold in [('bold', -.65, 95), ('shy', .65, 12)] for line in
+          (yk('reimu', x, -2.3, name, uuid=uid('single_bed_contest', name), boldness=bold,
+              label='胆大' if name=='bold' else '胆小', lead=name=='shy'), *own(name))]],
+    late=[Retry(block(2, 0, 0, 'mcyukkuri:yukkuri_nest'), sel('shy'), tries=1, first=1250)],
+    env=DAY, spot='pet_birth', vantage=(0, -5, 0),
+    smoke=dict(ticks=2000, expect=[rf'uuid={who} [^\n]*approaching unclaimed bed' for who in (_bold_bed, _shy_bed)],
+               verify=_verify_new_bed))
+
 _number_scenes()
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
     'oversized_nest': 'D1',
+    'single_bed_contest': 'D1',
     'processing_plant': 'M2',
     'factory_sweet_box': 'M2',
     'factory_kin_boxes': 'M2',

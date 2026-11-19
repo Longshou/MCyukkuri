@@ -286,6 +286,7 @@
     "rule_yard": "TN-50",
     "pentup_heat": "FM-25",
     "oversized_nest": "FM-26",
+    "single_bed_contest": "FM-27",
     "pentup_hold": "TN-51",
     "pentup_breach": "TN-52",
     "den_mold_child_exile": "DN-11",
