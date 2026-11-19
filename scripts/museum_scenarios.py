@@ -252,6 +252,9 @@ def _mold_family(sid, keep):
             departure = re.search(rf'uuid={child} t=(\d+) [^\n]*mold exile departed scope=family', window)
             if not departure:
                 return 'The child never left the family'
+            protest = re.search(rf'uuid={child} [^\n]*mold exile protest\b', window)
+            if protest and re.search(rf'carry pickup [^\n]*purpose=RETRIEVE child={child}\b', window[protest.end():departure.start()]):
+                return 'A guardian carried the departing child home'
             for parent in (mother, father):
                 if not re.search(rf'uuid={parent} [^\n]*mold child verdict child={child} verdict=DRIVE_', window[:departure.start()]):
                     return f'The child left before guardian {parent} chose to drive it out'

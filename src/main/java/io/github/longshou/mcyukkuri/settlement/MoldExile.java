@@ -275,9 +275,13 @@ public final class MoldExile extends Goal implements MotorOwner {
         return false;
     }
 
-    /** Both ordinary follow and land care prefer a healthy resident parent while one parent is being driven off. */
+    /** A driving guardian leaves ordinary care to the others. A sick parent does the same when a healthy parent stays. */
     public boolean leavesCareToResident(YukkuriEntity child) {
-        if (entity.body().mold() == 0) return false;
+        if (entity.body().mold() == 0) {
+            var departing = child.moldExile();
+            return departing.task == Task.LEAVE && departing.exile == null && guardian(entity, child, departing.home)
+                    && MoldVerdict.decide(verdictInputs(entity, child, departing.home)) != Verdict.KEEP;
+        }
         var address = exile != null ? exile.home : task == Task.LEAVE ? home : null;
         return address != null && local(address) && child.childhood().shouldStayWithParents() && healthyParent(child, address) != null;
     }
@@ -457,11 +461,10 @@ public final class MoldExile extends Goal implements MotorOwner {
             // A harsh one, having shouted, goes right up to shove it out; the others push only one already within reach.
             // It comes up on the home side of the sick one, so its shove points out of the home.
             if (harsh && ticks > noticeEnd + SCORN_AFTER) {
-                var inward = home.centre().subtract(peer.position()).multiply(1, 0, 1);
-                if (inward.lengthSqr() < 1e-4) inward = entity.position().subtract(peer.position()).multiply(1, 0, 1);
-                var aim = peer.position().add(inward.normalize().scale((entity.getBbWidth() + peer.getBbWidth()) * .5 + .1));
-                var stand = SurfaceApproach.floor(entity, aim);
-                if (stand != null) SurfaceApproach.walkAround(entity, stand, peer, 1);
+                double spacing = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .1;
+                var stand = SurfaceApproach.beside(entity, peer, spacing, ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY,
+                        at -> ContactGeometry.inMouthReach(entity, at, peer) && dryOutwardStep(at));
+                if (stand != null) SurfaceApproach.walkToContact(entity, stand, peer, 1);
             }
             return;
         }
@@ -494,9 +497,13 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (!peer.onGround() || peer.isPassenger() || peer.isVehicle()
                 || ContactGeometry.mouthGap(entity, peer) > ContactGeometry.GRAB_MARGIN
                 || !peer.moldExile().canLeave(home, entity)) return false;
-        Vec3 away = peer.position().subtract(entity.position()).multiply(1, 0, 1).normalize();
+        return dryOutwardStep(entity.position());
+    }
+
+    private boolean dryOutwardStep(Vec3 from) {
+        Vec3 away = peer.position().subtract(from).multiply(1, 0, 1).normalize();
         Vec3 at = peer.position().add(away.scale(peer.getBbWidth()));
-        return away.dot(peer.position().subtract(home.centre())) > 0 && SurfaceApproach.stands(peer, at)
+        return away.lengthSqr() > 0 && away.dot(peer.position().subtract(home.centre())) >= 0 && SurfaceApproach.stands(peer, at)
                 && SurfaceApproach.dryStep(peer, peer.position(), at);
     }
 
