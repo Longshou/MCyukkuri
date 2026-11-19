@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** The two rules goals share the current walk. Each goal drives and stops only its own body. */
 final class Elopement {
+    private static final int RETRY_TICKS = 24000;
     private final YukkuriEntity body;
     private Walk walk;
     private long nextCheck;
@@ -85,7 +86,7 @@ final class Elopement {
             if (wildStand == null) continue;
             var petStand = SurfaceApproach.beside(body, wildStand, 2, at -> horizontalSq(at, yard) > 24 * 24
                     && horizontalSq(at, body.position()) > 4 * 4);
-            if (petStand == null || lastFailure != null && lastFailure.equals(failure(wild, wildStand))) continue;
+            if (petStand == null || lastFailure != null && lastFailure.equals(failure(wild, petStand, wildStand))) continue;
             nextCheck = now + 1200;
             double chance = RulesMath.departureChance(body.family().pentUp(), body.pet().obedience());
             boolean leaving = body.getRandom().nextDouble() < chance;
@@ -95,7 +96,7 @@ final class Elopement {
                     : body.pet().conscience().tempted(HouseRule.NO_LEAVING_YARD, body.family().pentUp() / 100, 1);
             if (rule == RulesMath.Choice.HOLD || rule == RulesMath.Choice.WAIT) {
                 PetScenes.act(body, YukkuriAction.LOOK_AROUND, "teary", "", YukkuriAction.LOOK_AROUND.durationTicks());
-                lastFailure = failure(wild, wildStand);
+                lastFailure = failure(wild, petStand, wildStand);
                 return false;
             }
             walk = new Walk(body, wild, owner, yard, petStand, wildStand, rule);
@@ -119,14 +120,17 @@ final class Elopement {
 
     private static double horizontalSq(Vec3 a, Vec3 b) { return a.subtract(b).horizontalDistanceSqr(); }
 
-    private record Failure(UUID wild, BlockPos petAt, BlockPos wildAt, BlockPos destination, int route, int conditions) {}
-    private Failure failure(YukkuriEntity wild, Vec3 destination) {
-        var end = BlockPos.containing(destination);
+    private record Failure(UUID wild, BlockPos petStand, BlockPos wildStand, int route, int conditions) {}
+    private Failure failure(YukkuriEntity wild, Vec3 petStand, Vec3 wildStand) {
+        var petEnd = BlockPos.containing(petStand);
+        var wildEnd = BlockPos.containing(wildStand);
         var rules = body.pet().conscience();
         int conditions = (ownerNear(body) ? 1 : 0) | (HumanSight.watching(body) ? 2 : 0)
-                | (rules.binds(HouseRule.NO_LEAVING_YARD) ? 4 : 0) | (mobile(body) && mobile(wild) ? 8 : 0);
-        return new Failure(wild.getUUID(), body.blockPosition(), wild.blockPosition(), end,
-                31 * route(body, end) + route(wild, end), conditions);
+                | (rules.binds(HouseRule.NO_LEAVING_YARD) ? 4 : 0) | (mobile(body) && mobile(wild) ? 8 : 0)
+                | (body.level() == wild.level() && body.distanceToSqr(wild) <= 256 && body.hasLineOfSight(wild) ? 16 : 0)
+                | (!needsCare(body) && !needsCare(wild) ? 32 : 0);
+        return new Failure(wild.getUUID(), petEnd, wildEnd,
+                31 * route(body, petEnd) + route(wild, wildEnd), conditions);
     }
     private static int route(YukkuriEntity y, BlockPos end) {
         var path = y.getNavigation().createPath(end, 1);
@@ -155,20 +159,26 @@ final class Elopement {
 
     void forgetOwner() { lastFailure = null; nextCheck = 0; }
     void save(CompoundTag tag) {
-        if (lastFailure == null) return;
+        long after = nextCheck;
         var f = lastFailure;
+        // A loaded body starts its ordinary goals again. The interrupted pair must earn another departure.
+        if (walk != null && walk.pet == body && walk.running()) {
+            f = failure(walk.wild, walk.petStand, walk.wildStand);
+            after = body.level().getGameTime() + RETRY_TICKS;
+        }
+        tag.putLong("NextDepartureCheck", after);
+        if (f == null) return;
         var failed = new CompoundTag();
-        failed.putUUID("Partner", f.wild); failed.putLong("PetAt", f.petAt.asLong()); failed.putLong("WildAt", f.wildAt.asLong());
-        failed.putLong("Destination", f.destination.asLong()); failed.putInt("Route", f.route);
-        failed.putInt("Conditions", f.conditions); failed.putLong("After", nextCheck);
+        failed.putUUID("Partner", f.wild); failed.putLong("PetStand", f.petStand.asLong()); failed.putLong("WildStand", f.wildStand.asLong());
+        failed.putInt("Route", f.route); failed.putInt("Conditions", f.conditions);
         tag.put("FailedDeparture", failed);
     }
     void load(CompoundTag tag) {
+        nextCheck = tag.getLong("NextDepartureCheck");
         var f = tag.getCompound("FailedDeparture");
         if (!f.hasUUID("Partner")) return;
-        lastFailure = new Failure(f.getUUID("Partner"), BlockPos.of(f.getLong("PetAt")), BlockPos.of(f.getLong("WildAt")),
-                BlockPos.of(f.getLong("Destination")), f.getInt("Route"), f.getInt("Conditions"));
-        nextCheck = f.getLong("After");
+        lastFailure = new Failure(f.getUUID("Partner"), BlockPos.of(f.getLong("PetStand")), BlockPos.of(f.getLong("WildStand")),
+                f.getInt("Route"), f.getInt("Conditions"));
     }
 
     private static final class Walk {
@@ -230,8 +240,8 @@ final class Elopement {
             reason = why; arrived = success;
             if (!success && pet.pet().ownedBy(owner)) {
                 var leaving = behavior(pet);
-                leaving.lastFailure = leaving.failure(wild, wildStand);
-                leaving.nextCheck = pet.level().getGameTime() + 24000;
+                leaving.lastFailure = leaving.failure(wild, petStand, wildStand);
+                leaving.nextCheck = pet.level().getGameTime() + RETRY_TICKS;
             }
             GameplayLog.event(pet, "rules", "departure ended reason={} partner={} petAt={} wildAt={}",
                     why, wild.getUUID(), pet.position(), wild.position());
