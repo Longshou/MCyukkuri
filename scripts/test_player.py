@@ -135,9 +135,24 @@ class PlayerTests(unittest.TestCase):
             self.assertIn(response.headers.get_content_type(), ('text/javascript', 'application/javascript'))
 
     def test_entries_resolve_to_runtime_assets(self):
+        from build_review_catalog import ASSETS, read
+        from preview_inventory import current_items
+
         entries = self.data['entries']
         self.assertEqual(len(entries), len({entry['id'] for entry in entries}))
         self.assertEqual({entry['category'] for entry in entries}, {'performances', 'models', 'props', 'sounds'})
+        variants = set(read(ASSETS/'yukkuri_presentation/living.json')['variants'])
+        variants.update(read(ASSETS/'yukkuri_presentation/subspecies.json'))
+        self.assertEqual(set(self.data['models']), variants)
+        self.assertEqual({e['model'] for e in entries if e['category'] == 'models'}, variants)
+        items = set(current_items()) - set(read(ROOT/'preview/hub/categories.json')['excludeItems'])
+        self.assertEqual({e['id'] for e in entries if e['category'] == 'props'}, {'item-'+i for i in items})
+        sounds = set()
+        for event in read(ASSETS/'sounds.json').values():
+            for sound in event['sounds']:
+                name = sound['name'] if isinstance(sound, dict) else sound
+                sounds.add('/src/main/resources/assets/'+name.replace(':', '/sounds/')+'.ogg')
+        self.assertEqual({e['audio'] for e in entries if e['category'] == 'sounds'}, sounds)
         clips = {}
         for model in self.data['models']:
             with self.subTest(model=model), self.actor(model) as actor:
@@ -151,6 +166,8 @@ class PlayerTests(unittest.TestCase):
                     self.assertLessEqual({step['clip'] for step in entry['steps']}, clips[model])
             if entry.get('model'):
                 self.assertIn(entry['clip'], clips[entry['model']])
+            if entry['category'] == 'props':
+                self.assertEqual(entry['tag'] == 'look-only', bool(entry['image']))
             if media := entry.get('audio') or entry.get('image'):
                 self.assertTrue(((ROOT if media.startswith('/') else OUT)/media.lstrip('/')).is_file(), media)
 
@@ -169,10 +186,18 @@ const previews = times.map(time => {
 });
 console.log(JSON.stringify(previews));
 """
-        moments = ('leak', 'wet_relief', 'rain_huddle', 'thunder_cower', 'wake_stretch')
+        from build_review_catalog import ASSETS, read
+        runtime = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
+        moments = {'leak': None, 'wet_relief': 'wet_relief', 'rain_huddle': 'behavior_rain_huddle_left',
+                   'thunder_cower': 'behavior_thunder_cower', 'wake_stretch': 'behavior_wake'}
         with self.actor('reimu') as actor:
-            for ident in moments:
+            for ident, source in moments.items():
                 with self.subTest(moment=ident):
+                    if source:
+                        entry = next(e for e in self.data['entries'] if e['id'] == ident)
+                        self.assertEqual(entry['loop'], runtime[source]['loop'])
+                        self.assertEqual([{k: v for k, v in step.items() if k != 'caption'}
+                                          for step in entry['steps']], runtime[source]['steps'])
                     probes = subprocess.run(['node', '--input-type=module', '-e', script], check=True, cwd=ROOT,
                                             input=json.dumps(dict(data=self.data, id=ident, clips=actor['clips'])),
                                             capture_output=True, text=True, encoding='utf-8')
@@ -196,6 +221,23 @@ console.log(JSON.stringify(previews));
             for frame in range(20):
                 self.pose(dict(payload, time=frame/20), packed=True)
             print(f"20 live Reimu frames over HTTP in {time.perf_counter() - start:.2f}s", flush=True)
+
+    def test_raw_clip_preserves_authored_root_rotation(self):
+        script = """
+import {buildTimeline, sampleTimeline} from './preview/review/timeline.mjs';
+import {readFileSync} from 'node:fs';
+const clips = JSON.parse(readFileSync(0));
+const {track} = buildTimeline({clip: 'hat_jostle'}, clips);
+console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
+"""
+        with self.actor('reimu') as actor:
+            sample = json.loads(subprocess.check_output(['node', '--input-type=module', '-e', script],
+                                input=json.dumps(actor['clips']), cwd=ROOT, text=True))
+            payload = dict(op='render', id=actor['id'], action=sample['clip'], time=sample['time'],
+                           expression=sample['face'], scale=1)
+            raw = self.pose(payload)['root_pose']
+            self.assertGreater(abs(raw[3]) + abs(raw[5]), 12)
+            self.assertEqual(self.pose(dict(payload, intensity=sample.get('intensity')))['root_pose'], raw)
 
     def verdict(self, data, content_type='application/json'):
         body = data if isinstance(data, bytes) else json.dumps(data, ensure_ascii=False).encode('utf-8')

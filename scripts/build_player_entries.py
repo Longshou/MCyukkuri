@@ -26,7 +26,7 @@ def leak():
 
 
 def build_entries(catalog, items):
-    authored = read(ROOT/'standards/yukkuri-library/presentation/moments.json')['moments']
+    authored = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
     action_names = {**NAMES, **read(ROOT/'preview/hub/categories.json')['actionLabels']}
     faces = read(ASSETS/'yukkuri_presentation/face_library.json')
     models = catalog['models']
@@ -52,7 +52,8 @@ def build_entries(catalog, items):
                                 title=action_names.get(clip, clip), model=ident, clip=clip))
 
     for item in items:
-        entries.append(dict(id=item['id'].replace(':', '-', 1), category='props', tag='look-only',
+        entries.append(dict(id=item['id'].replace(':', '-', 1), category='props',
+                            tag='look-only' if item['image'] else 'behaviour',
                             title=item['title'], image=item['image'], detail=item['visual'], summary=item['summary']))
 
     names = {model['id']: model['name'] for model in models}

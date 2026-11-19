@@ -68,27 +68,34 @@ def catalog():
             textureSize=model.get('texture_size',128)))
     zh=read(ASSETS/'lang/zh_cn.json'); ja=read(ASSETS/'lang/ja_jp.json')
     sounds=read(ASSETS/'sounds.json'); manifest=read(ROOT/'art/audio/aquestalk/manifest.json')['clips']
+    def sound_path(event):
+        sound = sounds[event]['sounds'][0]
+        name = sound['name'] if isinstance(sound, dict) else sound
+        return ASSETS/'sounds'/(name.split(':', 1)[-1]+'.ogg')
+
     audio=[]
     subtitles=[]
     for entry in read(ASSETS/'dialogue/catalog.json'):
-        if not entry['sound']:
+        voices = [(entry['id'], entry['species'], entry['age'], entry['sound'])] if entry['sound'] else []
+        for speaker, event in entry.get('voices', {}).items():
+            species, age = speaker.split('.')
+            voices.append((entry['id']+'.'+speaker, species, age, event))
+        if not voices:
             subtitles.append(dict(id=entry['id'],species=entry['species'],events=entry['events'],
                                   zh=zh.get(entry['key'],''),ja=ja.get(entry['key'],'')))
-            continue
-        sound=sounds[entry['sound']]['sounds'][0]
-        soundname=sound['name'] if isinstance(sound,dict) else sound
-        path=ASSETS/'sounds'/(soundname.split(':',1)[-1]+'.ogg')
-        assert path.is_file(),path
-        meta=manifest.get(entry['id'],{})
-        audio.append(dict(id=entry['id'],species=entry['species'],age=entry['age'],events=entry['events'],
-            origin=entry['origin'],zh=zh.get(entry['key'],''),ja=ja.get(entry['key'],meta.get('japanese','')),
-            url=url(path),duration=meta.get('duration_seconds',0),hash=hashlib.sha256(path.read_bytes()).hexdigest()))
+        for ident, species, age, event in voices:
+            path = sound_path(event)
+            meta = manifest.get(ident, {})
+            audio.append(dict(id=ident,species=species,age=age,events=entry['events'],
+                origin=entry['origin'],zh=zh.get(entry['key'],''),ja=ja.get(entry['key'],meta.get('japanese','')),
+                url=url(path),duration=meta.get('duration_seconds',0),hash=hashlib.sha256(path.read_bytes()).hexdigest()))
     songs=read(ROOT/'art/audio/ecology/manifest.json')['clips']
-    for species in ('reimu','marisa'):
-        path=ASSETS/'sounds/ecology'/f'{species}_song.ogg'
-        assert path.is_file()
-        audio.append(dict(id=f'ecology.song.{species}',species=species,age='song',events=['song'],origin='project-original',
-            zh='生态原创哼唱',ja='',url=url(path),duration=songs[species]['duration_seconds'],hash=hashlib.sha256(path.read_bytes()).hexdigest()))
+    for event in sounds:
+        if event.startswith('ecology.song.'):
+            species = event.removeprefix('ecology.song.')
+            path = sound_path(event)
+            audio.append(dict(id=event,species=species,age='song',events=['song'],origin='project-original',
+                zh='生态原创哼唱',ja='',url=url(path),duration=songs[species]['duration_seconds'],hash=hashlib.sha256(path.read_bytes()).hexdigest()))
     return dict(models=models,audio=audio,subtitles=subtitles,motions=url(motion_path),motionHash=motion_hash,fit=url(fit_path),fitHash=fit_hash)
 
 

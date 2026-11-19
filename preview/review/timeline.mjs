@@ -1,5 +1,5 @@
 export function buildTimeline(entry, clips) {
-    const steps = entry.steps ?? [{clip: entry.clip, faces: [], tempo: 1, intensity: 1}];
+    const steps = entry.steps ?? [{clip: entry.clip, faces: [], tempo: 1}];
     let duration = 0;
     const track = steps.map(step => {
         const start = duration;
