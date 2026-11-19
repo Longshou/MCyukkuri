@@ -50,6 +50,7 @@ import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.NestLayout;
+import io.github.longshou.mcyukkuri.life.NestSupport;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
@@ -679,6 +680,39 @@ public final class ShelterBlockEntity extends BlockEntity {
         }
         dirt=0;moisture=Math.max(0,moisture-10);changed();
         player.displayClientMessage(Component.translatable("shelter.mcyukkuri.cleaned"),true);
+    }
+    /** Burrow bedding is rendered by the doorway core, so its floor has no block of its own to receive updateShape. */
+    public static void floorChanged(ServerLevel level, BlockPos below) {
+        var floor=below.above();
+        int radius=NaturalShelter.RADIUS+1;
+        for(var den:Homes.loadedWithin(level,floor.offset(-radius,0,-radius),floor.offset(radius,0,radius)))
+            if(den.kind()==ShelterBlock.Kind.BURROW)den.checkBeddingFloor(level,floor);
+    }
+    private void checkBeddingFloor(ServerLevel server, BlockPos floor) {
+        if(NestSupport.below(server,floor))return;
+        for(var bed:List.copyOf(largeBeds)){
+            if(Math.abs(bed.getX()-floor.getX())<=1 && Math.abs(bed.getZ()-floor.getZ())<=1){
+                largeBeds.remove(bed);
+                Block.popResource(server,bed,new ItemStack(Items.SHORT_GRASS,2));
+                releaseSleepers(server,bed);
+                changed();
+            }
+        }
+        int slot=naturalBeds.indexOf(floor);
+        if(slot<0)return;
+        releaseSleepers(server,floor);
+        naturalBeds=naturalBeds.stream().filter(p->!p.equals(floor)).toList();
+        residents.replaceAll((id,index)->index>slot?index-1:index);
+        changed();
+    }
+    private void releaseSleepers(ServerLevel server, BlockPos floor) {
+        for(var id:residentIds())if(floor.equals(bed(id))){
+            if(privateNests.contains(id))Block.popResource(server,floor,new ItemStack(Items.SHORT_GRASS,2));
+            if(server.getEntity(id) instanceof YukkuriEntity y && y.habitat().shelter()==this){
+                y.life().bedRemoved(floor);
+                y.habitat().release();
+            }else release(id);
+        }
     }
     public void tick() {
         if(level==null||level.isClientSide||dismantling)return;

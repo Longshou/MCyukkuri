@@ -6,7 +6,21 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mcyukkuri:yukkuri_nest"
+          "name": "minecraft:hay_block"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:white_wool"
         }
       ],
       "conditions": [

@@ -148,6 +148,13 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     /** A mother carrying an unfinished brood lies in the middle of her bed (she gives birth there). */
     public static boolean expecting(YukkuriEntity entity){var brood=entity.family().brood();return brood!=null&&!brood.cancelled&&!brood.complete();}
     public void release(UUID id) { if(residents.remove(id)!=null){resting.remove(id);changed();} }
+    void releaseResidents(ServerLevel server) {
+        for(var id:residentIds())if(server.getEntity(id) instanceof YukkuriEntity resident){
+            var address=resident.life().home();
+            if(address!=null && address.dimension().equals(server.dimension()) && address.pos().equals(worldPosition))
+                resident.life().nestRemoved(worldPosition);
+        }
+    }
     public boolean relieve(ItemStack portion) {
         if (!(level instanceof ServerLevel server) || kind() != CareBlock.Kind.TOILET || !acceptsWaste(portion)) return false;
         double before = wasteVolume;

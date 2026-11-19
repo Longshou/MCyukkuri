@@ -6695,7 +6695,8 @@ add('oversized_nest', 'family', '灵胖进大草窝过夜', '灵胖进大草窝�
           Retry(item('minecraft:apple', 1, .5, 4), sel('deibu'), tries=1, first=800)],
     env={'time': 'night'}, spot='pet_birth', vantage=(4, 6, 140),
     smoke=dict(ticks=1600, expect=[r'bed crossing [^\n]*direction=in [^\n]*opening=true source=walk',
-        r'begin source=life occupancy=INSIDE_SUPPORTED', r'bed crossing [^\n]*direction=out [^\n]*opening=true source=walk']))
+        r'begin source=life occupancy=INSIDE_SUPPORTED', r'bed crossing [^\n]*direction=out [^\n]*opening=true source=walk'],
+        forbid=[r'nest doorway too narrow', r'bed crossing [^\n]*opening=false']))
 
 _bold_bed = _uuid_text('single_bed_contest', 'bold')
 _shy_bed = _uuid_text('single_bed_contest', 'shy')
@@ -6720,7 +6721,7 @@ add('single_bed_contest', 'family', '两个成油争一个软垫窝', '两个成
     late=[Retry(block(2, 0, 0, 'mcyukkuri:yukkuri_nest'), sel('shy'), tries=1, first=1250)],
     env=DAY, spot='pet_birth', vantage=(0, -5, 0),
     smoke=dict(ticks=2000, expect=[rf'uuid={who} [^\n]*approaching unclaimed bed' for who in (_bold_bed, _shy_bed)],
-               verify=_verify_new_bed))
+               forbid=[rf'uuid={_bold_bed} [^\n]*yielded contested bed'], verify=_verify_new_bed))
 
 _number_scenes()
 

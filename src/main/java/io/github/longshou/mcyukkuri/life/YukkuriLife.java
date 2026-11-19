@@ -1964,6 +1964,14 @@ public final class YukkuriLife {
         return true;
     }
     public void releaseHome(){ home.releaseHome(); }
+    public void bedRemoved(BlockPos pos) {
+        if((task==Task.SLEEP || task==Task.HOME) && pos.equals(targetBlock)) stopGoal();
+    }
+    void nestRemoved(BlockPos pos) {
+        bedRemoved(pos);
+        homeProvider().lostHome(entity,pos);
+        releaseHome();
+    }
     /** An individual without an address takes the nearest free nest its stage and body fit (also the shared nest's release of a grown child). */
     boolean claimNearestNest(){ return home.claimNearestNest(); }
     public BlockPos homeStand(){ return home.homeStand(); }

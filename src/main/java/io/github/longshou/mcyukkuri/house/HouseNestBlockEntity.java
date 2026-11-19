@@ -644,7 +644,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public void destroyNest(){
         if(destroyed)return;
-        int debris=materials+dirt+pendingDebris+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();
+        int debris=dirt+pendingDebris+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();
         if(level instanceof ServerLevel server){
             abandonEggRelocation();
             incomingEggRelocation=null;
@@ -653,6 +653,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
         }
         // Residents must drop an in-flight ticket instead of writing it back into a nest that is being removed.
         destroyed=true;disturb(true);
+        if(materials>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.NEST_LINT.get(),materials));
+        if(food>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.FOOD_SCRAP.get(),food));
         if(debris>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.WASTE.get(),debris));
         food=materials=dirt=pendingDebris=0;Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);broodId=null;changed();
     }

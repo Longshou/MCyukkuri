@@ -13,16 +13,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
 /** A nest bed as a container: the rounded hollow a body may lie in, its floor and the rim a footprint may rest on by accident; a shelter cell without a bed is no container. */
 public final class BedContainer implements Container {
     private final Vec3 centre;
+    private final Level level;
     private final FloorShape floor;
     private final double floorY,rimY;
 
-    private BedContainer(Vec3 centre,FloorShape floor,double floorY,double rimY){
-        this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;
+    private BedContainer(Level level,Vec3 centre,FloorShape floor,double floorY,double rimY){
+        this.level=level;this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;
     }
 
     /** The nest bed at {@code bed}, or null when that block is not a nest bed. */
@@ -30,13 +32,13 @@ public final class BedContainer implements Container {
         if(e==null||bed==null||e.level().isClientSide||!e.level().hasChunkAt(bed))return null;
         var level=e.level();
         var state=level.getBlockState(bed);
-        // A 2x2 nest stores its block entity only in the north-west quarter.
+        // All four quarters resolve to the transformed core.
         var origin=state.getBlock() instanceof LargeNestBlock?LargeNestBlock.origin(state,bed):bed;
         if(level.getBlockEntity(origin) instanceof CareBlockEntity care&&care.kind()==CareBlock.Kind.NEST){
             var hollow=care.bed();
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
-            return new BedContainer(centre,lying(hollow),floorY,
+            return new BedContainer(level,centre,lying(hollow),floorY,
                     Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())));
         }
         var shelter=ShelterBlock.shelter(level,bed);
@@ -45,7 +47,7 @@ public final class BedContainer implements Container {
         var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE:NestResting.LEAF_BED;
         var centre=shelter.restSpot(bed);
         double floorY=floorAt(e,centre,centre.y);
-        return new BedContainer(centre,lying(hollow),floorY,floorY);
+        return new BedContainer(level,centre,lying(hollow),floorY,floorY);
     }
 
     /** The outline a body may lie within: the hollow plus the soft wall a rounded body may press into ({@link NestResting#RIM_PRESS}), so every place NestResting assigns is inside. */
@@ -56,7 +58,12 @@ public final class BedContainer implements Container {
 
     /** Whether a body of {@code width} standing on the level floor at plane point (x,z) is fully supported inside the hollow. */
     public boolean standsInside(double x,double z,float width){
-        return OccupancyMath.classify(x,z,floorY,Occupancy.foot(width),floor,floorY,rimY,true)==OccupancyMath.Result.INSIDE_SUPPORTED;
+        if(OccupancyMath.classify(x,z,floorY,Occupancy.foot(width),floor,floorY,rimY,true)!=OccupancyMath.Result.INSIDE_SUPPORTED)return false;
+        // The woven pad and its hem differ by a quarter pixel. A higher solid face under the
+        // square collision box lifts this sleeper onto the rim, even if its rounded outline fits.
+        double cx=centre.x+x,cz=centre.z+z,r=width*.5;
+        var sole=new AABB(cx-r,floorY+.25/16+.001,cz-r,cx+r,floorY+.25/16+.002,cz+r);
+        return !level.getBlockCollisions(null,sole).iterator().hasNext();
     }
 
     @Override public FloorShape floor(){return floor;}

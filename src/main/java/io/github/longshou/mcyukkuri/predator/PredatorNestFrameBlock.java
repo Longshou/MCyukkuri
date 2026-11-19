@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.predator;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.life.NestSupport;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -35,6 +40,13 @@ public final class PredatorNestFrameBlock extends Block implements EntityBlock {
     }
 
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new FrameEntity(pos, state); }
+    @Override protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return NestSupport.below(level,pos);
+    }
+    @Override protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour, LevelAccessor level, BlockPos pos, BlockPos neighbourPos) {
+        if(side==Direction.DOWN && !canSurvive(state,level,pos))return Blocks.AIR.defaultBlockState();
+        return super.updateShape(state,side,neighbour,level,pos,neighbourPos);
+    }
 
     public static final class FrameEntity extends BlockEntity {
         private UUID founder;

@@ -22,6 +22,9 @@ import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -93,6 +96,13 @@ public class CareBlock extends Block implements EntityBlock {
     public CareBlock(Kind kind, Properties properties) { this(kind,properties,"",8,0); }
     public CareBlock(Kind kind, Properties properties,String style,int capacity,float height) { super(properties);this.kind=kind;this.style=style;this.capacity=capacity;this.height=height; }
     public Kind kind() { return kind; }
+    @Override protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return kind != Kind.NEST || NestSupport.below(level,pos);
+    }
+    @Override protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour, LevelAccessor level, BlockPos pos, BlockPos neighbourPos) {
+        if(side==Direction.DOWN && !canSurvive(state,level,pos))return Blocks.AIR.defaultBlockState();
+        return super.updateShape(state,side,neighbour,level,pos,neighbourPos);
+    }
     public String style(){return style;}
     public int capacity(){return capacity;}
     /** Bed grade (1 straw, 2 cushion or woven, 3 velvet; docs/FEATURES.md); 0 for the facilities that are no graded bed. */
@@ -211,6 +221,7 @@ public class CareBlock extends Block implements EntityBlock {
     }
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {
         if (!state.is(replacement.getBlock()) && level instanceof ServerLevel server && level.getBlockEntity(pos) instanceof CareBlockEntity care) {
+            if (kind==Kind.NEST) care.releaseResidents(server);
             Containers.dropContents(level, pos, care);
             if (care.waste() > 0) Poops.spill(server, pos, care.drainWaste(server));
         }

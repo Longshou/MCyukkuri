@@ -114,6 +114,7 @@ public final class LargeNestBlock extends CareBlock {
         var origin = context.getClickedPos();
         for (int part = 1; part < 4; part++) {
             var cell = at(origin, part);
+            if (!NestSupport.below(level,cell)) return null;
             if (!level.getBlockState(cell).canBeReplaced(context) || !level.getWorldBorder().isWithinBounds(cell)) {
                 if (level.isClientSide && context.getPlayer() != null)
                     context.getPlayer().displayClientMessage(Component.literal("大窝占 2×2 格：点击格的东侧、南侧和东南格须空出"), true);
