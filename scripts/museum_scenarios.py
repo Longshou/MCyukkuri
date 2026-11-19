@@ -228,7 +228,8 @@ def _mold_family(sid, keep):
               for who, verdict in ((mother, 'KEEP' if keep else 'DRIVE_COLD'), (father, 'KEEP' if keep else 'DRIVE_TEARFUL'))]
     if keep:
         watch = '洞里两位亲油都决定留下有斑点的子油。看它们守在一起，长时间贴近的家人也长出霉斑；认得的会惊叫，不认得的只会发痒。给病者去霉药可以中断传染。'
-        late.append('schedule function mcylab:util/time_dawn 2600t replace')
+        # Allow both generations of contact: 1200 ticks from the child, then 2400 from a newly infected adult.
+        late.append('schedule function mcylab:util/time_dawn 4000t replace')
         expect += [rf'uuid={who} [^\n]*mold caught from=' for who in (mother, father, baby)]
         expect += [rf'mold caught from={child}\b', rf'uuid=(?:{father}|{baby}) [^\n]*line event=mold_itch\b',
                    r'line event=keep_child\b']

@@ -22,7 +22,9 @@ import io.github.longshou.mcyukkuri.settlement.MoldVerdict.Verdict;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -92,7 +94,8 @@ public final class MoldExile extends Goal implements MotorOwner {
     private boolean driving, pushed;
     private long nextScan, nextWitness;
     private UUID lastWitnessed;
-    private int lastTier;
+    private record Kept(int tier, long until) {}
+    private final Map<UUID, Kept> keptChildren = new HashMap<>();
     private BlockPos failedFrom;
     private UUID failedWitness;
     private int failedStage;
@@ -202,7 +205,6 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     void homeAccepted(ShelterBlockEntity den) {
         if (exile == null || exile.home.colony() || !local(exile.home) || !den.getBlockPos().equals(exile.home.den())) return;
-        greetParents(exile.home);
         var group = SettlementData.get(level()).group(exile.home.group());
         if (group != null && den.residentIds().stream().anyMatch(id -> !id.equals(entity.getUUID()) && group.role(id) != SettlementData.Role.FREE))
             entity.settlement().join(group);
@@ -210,6 +212,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private void readmitted(Object by) {
+        greetParents(exile.home);
         GameplayLog.event(entity, "settlement", "mold exile readmitted group={} den={} by={}", exile.home.group(), exile.home.den(), by);
         exile = null;
     }
@@ -316,7 +319,10 @@ public final class MoldExile extends Goal implements MotorOwner {
         var address = encounterHome(subject);
         if (address == null || !resident(entity, address) || !address.includes(subject.position())) return false;
         int tier = BodySigns.moldTier(mold);
-        if (level().getGameTime() < nextWitness && subject.getUUID().equals(lastWitnessed) && tier <= lastTier) return false;
+        long now = level().getGameTime();
+        var kept = keptChildren.get(subject.getUUID());
+        if (kept != null && tier <= kept.tier() && now < kept.until()) return false;
+        if (kept == null && now < nextWitness && subject.getUUID().equals(lastWitnessed)) return false;
         return guardian(entity, subject, address) || aversion(entity, subject) > 0 || tier >= 2 && Bonds.careOrMate(entity, subject);
     }
 
@@ -369,7 +375,8 @@ public final class MoldExile extends Goal implements MotorOwner {
             boolean known = peer.getUUID().equals(lastWitnessed) && (peer.moldExile().task == Task.APPEAL
                     || level().getGameTime() < nextWitness + 1200);
             lastWitnessed = peer.getUUID();
-            lastTier = BodySigns.moldTier(peer.body().mold());
+            keptChildren.values().removeIf(kept -> kept.until() <= level().getGameTime());
+            keptChildren.remove(lastWitnessed);
             nextWitness = level().getGameTime() + 200;
             noticeEnd = known ? 0 : NOTICE;
             fond = Bonds.careOrMate(entity, peer) && t.is(Gate.ATTACHED);
@@ -384,7 +391,7 @@ public final class MoldExile extends Goal implements MotorOwner {
                         peer.getUUID(), childVerdict, MoldVerdict.resolve(inputs), inputs.tier(), inputs.knows(), inputs.bond(), inputs.siblings());
                 fond = childVerdict == Verdict.KEEP;
                 driving = harsh = !fond;
-                if (fond) nextWitness = level().getGameTime() + 2400;
+                if (fond) keptChildren.put(lastWitnessed, new Kept(inputs.tier(), level().getGameTime() + 2400));
             }
             if (!known) entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
             else answer();
@@ -460,10 +467,11 @@ public final class MoldExile extends Goal implements MotorOwner {
         }
         if (!pushed) {
             pushed = true;
-            if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
             SurfaceApproach.stopWalking(entity);
-            entity.motor().run(this, new Push(peer));
-            GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", peer.getUUID(), harsh);
+            if (entity.motor().run(this, new Push(peer))) {
+                if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
+                GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", peer.getUUID(), harsh);
+            }
         }
     }
 
