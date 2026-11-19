@@ -31,10 +31,6 @@ public final class EcologyPresentation {
         return e.getVariant() == YukkuriVariant.PATCHOULI ? YukkuriAction.COUGH_MUKYU : YukkuriAction.WATER_GASP;
     }
 
-    public static String pantFace(YukkuriEntity e) {
-        // Two tear frames for each shallow breath in the existing 1.6 s loop.
-        return (e.level().getGameTime() - e.getAnimationStartTick()) / 8 % 2 == 0 ? "teary_pant" : "teary_pant_b";
-    }
     public static void tell(YukkuriEntity entity, NeedWarnings needs) {
         var need = needs.leading();
         double intensity = NeedWarnings.insistence(entity.life().personality().temperament());

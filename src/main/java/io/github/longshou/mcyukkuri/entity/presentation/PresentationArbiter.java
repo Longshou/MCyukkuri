@@ -100,7 +100,7 @@ public final class PresentationArbiter {
         long start=e.getAnimationStartTick();
         if (e.species().catchingBreath() && !e.isInWaterOrBubble()
                 && (YukkuriAction.WATER_GASP.id().equals(clip) || e.predatorFlying() && e.species().sprintRequested()))
-            return EcologyPresentation.pantFace(e);
+            return "teary_pant"; // The face library plays both authored tear frames.
         if(YukkuriAction.sukkiri(clip)&&!e.body().dying())
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
         if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
