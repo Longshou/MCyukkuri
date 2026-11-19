@@ -2794,6 +2794,19 @@ def arc_exchange(log):
     return None if order == expected else f'Expected denial, child call, both verdicts and one award; got {order}'
 
 
+def arc_response(log, line, cause, mother):
+    events = re.findall(rf'arc spoke=({line})\b|disqualified cause=({cause})\b|advancement=(unauthorized_found|confession)\b', log)
+    order = [next(value for value in event if value) for event in events]
+    expected = [line, cause, cause, 'unauthorized_found'] + (['confession'] if cause == 'confession' else [])
+    if order != expected:
+        return f'Expected {expected}; got {order}'
+    if cause == 'babies':
+        children = re.findall(rf'\[family\].*uuid=(\S+) .*born brood=\S+ .*mother={mother}\b', log)
+        subjects = re.findall(r'disqualified cause=babies .*subject=(\S+)', log)
+        if len(children) != 1 or subjects != children * 2:
+            return f'Expected both records to cite the actual child {children}; got {subjects}'
+
+
 for sid, title, description, traits, child_pos in (
     ('arc_hide', '躲在遮挡后喂孩子', '站在屏风左边等灵梦躲开，看它在另一边把食物嚼成糜喂给孩子。绕过去才有机会看清亲缘。', dict(friendliness=100), '~3.5 ~ ~1.5'),
     ('arc_lie', '孩子叫妈妈拆穿谎话', '面对母油，听它别过脸说不是自己的孩子，再看亲生孩子追来喊妈妈。', dict(intelligence=70, friendliness=20, attachment=30, self_control=45), '~3.5 ~ ~0.5'),
@@ -2803,23 +2816,31 @@ for sid, title, description, traits, child_pos in (
     mother_id = _uuid_text(sid, 'mother')
     hide = sid == 'arc_hide'
     props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide or sid == 'arc_confess' else []
-    smoke = None
+    ticks = 600 if hide else 320
+    owner_pos = '~1.5 ~ ~-2.5' if sid == 'arc_naive' else '~0.5 ~ ~-4.5'
+    smoke = dict(ticks=ticks,
+                 commands=[(1, f'execute positioned {owner_pos} run yukkuri scenario tool_operator enter'),
+                           *((2, f'execute as @a[name=MuseumOperator,distance=..32] run {command}')
+                             for role in ('pet', 'father') for command in own(role)),
+                           (3, f'tp @a[name=MuseumOperator,distance=..32] {owner_pos} facing entity {sel("pet")} eyes'),
+                           (ticks - 1, 'yukkuri scenario tool_operator leave')],
+                 readout=[*_BROOD_STANDING, f'yukkuri status {sel("child")} raw'],
+                 verify_readout=lambda result, grades=(['silver', 'bronze', 'none'] if hide else ['none', 'none', 'none']): brood_standing(result, grades))
     if hide or sid == 'arc_lie':
-        smoke = dict(ticks=600 if hide else 320,
-                     commands=[(1, 'execute positioned ~0.5 ~ ~-4.5 run yukkuri scenario tool_operator enter'),
-                               *((2, f'execute as @a[name=MuseumOperator,distance=..32] run {line}') for role in ('pet', 'father') for line in own(role)),
-                               (3, f'tp @a[name=MuseumOperator,distance=..32] ~0.5 ~ ~-4.5 facing entity {sel("pet")} eyes'),
-                               (599 if hide else 319, 'yukkuri scenario tool_operator leave')],
-                     expect=([rf'uuid={mother_id} .*arc style=HIDE', r'arc arrived style=HIDE .*screened=true',
+        smoke.update(expect=([rf'uuid={mother_id} .*arc style=HIDE', r'arc arrived style=HIDE .*screened=true',
                               rf'uuid={mother_id} .*private feed brood=', rf'swallowed item=.*feeder={mother_id}']
                              if hide else [rf'uuid={mother_id} .*arc style=LIE',
                                            *(rf'disqualified cause=lie_exposed .*parent={_uuid_text(sid, role)} ' for role in ('mother', 'father')),
                                            r'advancement=unauthorized_found', r'advancement=lie_exposed']),
-                     forbid=[r'disqualified cause=|pending expired'] if hide else [r'disqualified cause=(babies|pregnancy|confession)'],
-                     readout=[*_BROOD_STANDING, f'yukkuri status {sel("child")} raw'],
-                     verify_readout=lambda result, grades=(['silver', 'bronze', 'none'] if hide else ['none', 'none', 'none']): brood_standing(result, grades))
+                     forbid=[r'disqualified cause=|pending expired'] if hide else [r'disqualified cause=(babies|pregnancy|confession)'])
         if not hide:
             smoke['verify'] = arc_exchange
+    else:
+        style, line, cause = ('CONFESS', 'confess', 'confession') if sid == 'arc_confess' else ('NAIVE', 'sukkiri_naive', 'babies')
+        smoke.update(expect=[rf'uuid={mother_id} .*arc style={style}', rf'uuid={mother_id} .*arc spoke={line}\b',
+                             *(rf'disqualified cause={cause} .*parent={_uuid_text(sid, role)} .*observed=40' for role in ('mother', 'father'))],
+                     forbid=[rf'disqualified cause=(?!{cause}\b)'],
+                     verify=lambda log, line=line, cause=cause, mother=mother_id: arc_response(log, line, cause, mother))
     add(sid, 'town', title, title, description, '安静等候约半分钟',
         [box(-5, -1, -6, 14, -1, 7, 'minecraft:grass_block'), box(-5, 0, -6, 14, 3, 7, 'minecraft:air'),
          *props, *shed(0, 5), block(2, 0, 5, 'mcyukkuri:yukkuri_nest'),
