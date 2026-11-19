@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.GriefVow.Lost;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -38,6 +39,8 @@ public final class EmotionCourse {
     /** The trigger's own reaction (the bereaved clip, the flight, the puff) plays this long before the course shows. */
     static final int ONSET_TICKS = 100;
     private static final float PEAK_END = .25f, EASING_END = .65f;
+    // The first easing line can become a vow; the next line is already outside its window.
+    private static final int VOW_WINDOW = 600;
 
     private final YukkuriEntity entity;
     private Kind kind;
@@ -144,7 +147,7 @@ public final class EmotionCourse {
         if (!running || goalPriority() == 0 || stage() == Stage.ONSET) return null;
         Stage s = stage();
         return switch (kind) {
-            case GRIEF -> s == Stage.PEAK ? Behaviors.MOURN : Behaviors.MOURN_LISTLESS;
+            case GRIEF -> s == Stage.PEAK ? Behaviors.MOURN : entity.hasReaction() ? null : Behaviors.MOURN_LISTLESS;
             case TERROR -> s == Stage.PEAK ? Behaviors.SHAKEN : Behaviors.SHAKEN_WARY;
             case RAGE -> Behaviors.FUME;
             case JOY -> null;
@@ -231,15 +234,23 @@ public final class EmotionCourse {
     /** Mate and own young 1, parents .9; anyone else (siblings, foster kin, a keeper) by how fond of them it was and its attachment. */
     private float closeness(UUID lost) {
         if (lost == null) return .9f;
-        var family = entity.family();
-        float base;
-        if (lost.equals(family.partner())) base = 1;
-        else if (FamilyData.get((ServerLevel)entity.level()).children(entity.getUUID()).contains(lost)) base = 1;
-        else if (lost.equals(family.mother()) || lost.equals(family.father())) base = .9f;
-        else base = 0;
+        float base = switch (lostRelation(lost, FamilyData.get((ServerLevel)entity.level()))) {
+            case PARTNER, CHILD -> 1;
+            case MOTHER, FATHER -> .9f;
+            case OTHER -> 0;
+        };
         int fondness = YukkuriWorldData.get((ServerLevel)entity.level()).affinity(entity.getUUID(), lost);
         if (base == 0) return .25f + .45f * ramp(fondness, 0, 60) + .2f * entity.life().personality().attachment() / 100f;
         return Math.clamp(base * (.85f + .3f * ramp(fondness, 0, 60)), .3f, 1);
+    }
+
+    private Lost lostRelation(UUID lost, FamilyData data) {
+        var family = entity.family();
+        if (lost.equals(family.partner())) return Lost.PARTNER;
+        if (data.children(entity.getUUID()).contains(lost)) return Lost.CHILD;
+        if (lost.equals(family.mother())) return Lost.MOTHER;
+        if (lost.equals(family.father())) return Lost.FATHER;
+        return Lost.OTHER;
     }
 
     private boolean hasDependants() {
@@ -269,9 +280,11 @@ public final class EmotionCourse {
     }
 
     private int interval(Stage stage) {
-        int base = switch (stage) { case PEAK -> 300; case EASING -> 600; default -> 100000; };
+        int base = switch (stage) { case PEAK -> 300; case EASING -> VOW_WINDOW; default -> 100000; };
         return base + entity.getRandom().nextInt(base * 2 / 3 + 1);
     }
+
+    private int easingStart() { return ONSET_TICKS + (int)Math.ceil(PEAK_END * (length - ONSET_TICKS)); }
 
     private boolean calm() {
         return !entity.hasReaction() && !entity.life().isSleeping() && !entity.isPanicking() && entity.life().mealTicks() == 0
@@ -283,6 +296,17 @@ public final class EmotionCourse {
         if (stage != Stage.PEAK && stage != Stage.EASING) return true;
         if (!calm()) return false;
         boolean peak = stage == Stage.PEAK;
+        if (kind == Kind.GRIEF && !peak && elapsed - easingStart() < VOW_WINDOW && about != null) {
+            var data = FamilyData.get((ServerLevel)entity.level());
+            var person = data.person(about);
+            // Social hurt and exile also use GRIEF. A vow addresses a confirmed death.
+            if (person != null && person.status == FamilyData.Status.DEAD) {
+                var lost = lostRelation(about, data);
+                var t = entity.life().personality().temperament();
+                String event = GriefVow.event(lost, t.is(Gate.SELFISH), hasDependants());
+                if (event != null) return vow(event, lost, GriefVow.style(t.is(Gate.ATTACHED), t.is(Gate.STOIC), t.is(Gate.BOLD)));
+            }
+        }
         String event = switch (kind) {
             case GRIEF -> peak ? "mourn_sob" : "mourn_miss";
             case TERROR -> peak ? "shaken_after" : "shaken_check";
@@ -291,6 +315,14 @@ public final class EmotionCourse {
         };
         entity.showReaction(event.equals("mourn_sob") ? "cry" : stageFace(), event, 60);
         return true;
+    }
+
+    private boolean vow(String event, Lost lost, String style) {
+        if (style.equals("proud")) entity.showReaction(YukkuriAction.PROUD, "satisfied", "", 80);
+        else entity.showReaction("teary_smile", "", 80);
+        boolean spoken = entity.speakCue(event, style);
+        GameplayLog.event(entity, "emotion", "grief vow event={} style={} lost={} spoken={}", event, style, lost, spoken);
+        return spoken;
     }
 
     /** Midway through a fading grief it remembers once: looks around, teary, and says so. */

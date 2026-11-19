@@ -78265,6 +78265,105 @@
     }
   },
   {
+    "id": "vow_partner_young.babies",
+    "key": "dialogue.mcyukkuri.original.vow_partner_young.babies",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_partner_young"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
+    "id": "vow_partner_young.watch",
+    "key": "dialogue.mcyukkuri.original.vow_partner_young.watch",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_partner_young"
+    ],
+    "ticks": 151,
+    "sound": "",
+    "variant": "timid"
+  },
+  {
+    "id": "vow_partner_young.leave_it",
+    "key": "dialogue.mcyukkuri.original.vow_partner_young.leave_it",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_partner_young"
+    ],
+    "ticks": 143,
+    "sound": "",
+    "variant": "proud"
+  },
+  {
+    "id": "vow_to_mother.live",
+    "key": "dialogue.mcyukkuri.original.vow_to_mother.live",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_to_mother"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "vow_to_mother.watch",
+    "key": "dialogue.mcyukkuri.original.vow_to_mother.watch",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_to_mother"
+    ],
+    "ticks": 131,
+    "sound": "",
+    "variant": "timid"
+  },
+  {
+    "id": "vow_to_father.share",
+    "key": "dialogue.mcyukkuri.original.vow_to_father.share",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_to_father"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "vow_blame_parent.left_me",
+    "key": "dialogue.mcyukkuri.original.vow_blame_parent.left_me",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_blame_parent"
+    ],
+    "ticks": 163,
+    "sound": ""
+  },
+  {
+    "id": "vow_for_child.guard",
+    "key": "dialogue.mcyukkuri.original.vow_for_child.guard",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "vow_for_child"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
     "id": "shaken_after.trembling",
     "key": "dialogue.mcyukkuri.original.shaken_after.trembling",
     "origin": "project-original",
