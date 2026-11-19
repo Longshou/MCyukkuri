@@ -50,10 +50,6 @@ public final class DutyClaim {
         GameplayLog.event(body, "duty", "released kind={} end={} why={} held={}", held, end, why, now - since);
     }
 
-    public void extend(Kind held, int ticks) {
-        if (holds(held)) deadline = now() + ticks;
-    }
-
     public void tick() {
         if (body.level().isClientSide || !claimed()) return;
         End end = Duty.lapse(now(), deadline, BehaviorContinuity.emergency(body) || body.hurtTime > 0);

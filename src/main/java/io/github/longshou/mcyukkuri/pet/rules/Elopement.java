@@ -33,7 +33,6 @@ final class Elopement {
     private final YukkuriEntity body;
     private final Map<UUID, Integer> visits = new HashMap<>();
     private Visit visit;
-    private Vec3 lastPet, lastWild;
     private long nextCheck, nextPoll;
     private Failure lastFailure;
 
@@ -130,7 +129,6 @@ final class Elopement {
     }
     void start() {
         body.duty().take(Duty.Kind.RULES, TRAVEL_TICKS, 0, "tryst");
-        lastPet = visit.pet.position(); lastWild = visit.wild.position();
         SurfaceApproach.halt(body);
         if (body == visit.wild)
             GameplayLog.event(body, "rules", "tryst approach pet={} from={} edge={} pressure={} boldness={} petNutrition={} petHygiene={}",
@@ -138,14 +136,7 @@ final class Elopement {
                     visit.pet.life().nutrition(), visit.pet.life().hygiene());
     }
     boolean continues() { return visit.reason == null && body.duty().holds(Duty.Kind.RULES); }
-    void tick() {
-        if (!continues()) return;
-        if (body.level().getGameTime() % 20 == 0 && (visit.pet.distanceToSqr(lastPet) >= .25 || visit.wild.distanceToSqr(lastWild) >= .25)) {
-            lastPet = visit.pet.position(); lastWild = visit.wild.position();
-            body.duty().extend(Duty.Kind.RULES, TRAVEL_TICKS);
-        }
-        visit.tick(body);
-    }
+    void tick() { if (continues()) visit.tick(body); }
     void stop() {
         if (visit.reason == null) visit.end("interrupted");
         body.duty().release(Duty.Kind.RULES, visit.completed() ? Duty.End.DONE : Duty.End.FAILED, visit.reason);
@@ -209,7 +200,7 @@ final class Elopement {
         Vec3 petStand, wildStand;
         Phase phase = Phase.EDGE;
         long since;
-        boolean crossed;
+        long crossedAt = -1;
         String reason;
 
         Visit(YukkuriEntity wild, YukkuriEntity pet, Vec3 yard, Vec3 edge) {
@@ -238,9 +229,11 @@ final class Elopement {
         void chase(String why, LivingEntity person) {
             var memory = of(pet);
             int before = memory.count(wild.getUUID()), after = RulesMath.visitsAfterCounter(before);
+            int bond = affinity(pet, wild), reciprocal = affinity(wild, pet);
             if (after != before) memory.recordVisits(wild, after);
             end(why);
-            GameplayLog.event(wild, "rules", "tryst chased pet={} reason={} returns={} -> {}", pet.getUUID(), why, before, after);
+            GameplayLog.event(wild, "rules", "tryst chased pet={} reason={} returns={} -> {} bond={} -> {} reciprocal={} -> {}",
+                    pet.getUUID(), why, before, after, bond, affinity(pet, wild), reciprocal, affinity(wild, pet));
             if (person != null) wild.fleeFrom(person);
         }
         void move(YukkuriEntity actor, Vec3 at, YukkuriEntity target) {
@@ -265,7 +258,8 @@ final class Elopement {
             if (familyCheck && (HouseholdProtection.protectedAt(level(pet), BlockPos.containing(edge))
                     || HouseholdProtection.protectedAt(level(pet), BlockPos.containing(yard))
                     || HouseholdProtection.protectedAt(level(pet), wild.blockPosition()))) { chase("repellent", null); return; }
-            if (actor == pet && crossed && flat(pet.position(), yard) > 64 && HumanSight.watching(pet)) pet.pet().conscience().witnessedYard();
+            if (actor == pet && crossedAt >= 0 && flat(pet.position(), yard) > 64 && HumanSight.watching(pet))
+                pet.pet().conscience().witnessedYard(crossedAt);
             if (phase == Phase.LEAVE && (!pet.hasLineOfSight(wild) || pet.distanceToSqr(wild) > 256)) { end("partner_lost"); return; }
             switch (phase) {
                 case EDGE -> {
@@ -285,10 +279,10 @@ final class Elopement {
                 case MEET -> {
                     if (actor != pet) return;
                     if (flat(wild.position(), yard) <= 64) { end("caller_left_edge"); return; }
-                    if (!crossed && flat(pet.position(), yard) <= 64 && pet.life().personality().temperament().clever() >= .5
+                    if (crossedAt < 0 && flat(pet.position(), yard) <= 64 && pet.life().personality().temperament().clever() >= .5
                             && HumanSight.watching(pet)) { SurfaceApproach.halt(pet); return; }
-                    if (!crossed && flat(pet.position(), yard) > 64) {
-                        crossed = true;
+                    if (crossedAt < 0 && flat(pet.position(), yard) > 64) {
+                        crossedAt = now;
                         pet.pet().conscience().breach(HouseRule.NO_LEAVING_YARD);
                     }
                     if (!pet.hasLineOfSight(wild)) { end("partner_lost"); return; }

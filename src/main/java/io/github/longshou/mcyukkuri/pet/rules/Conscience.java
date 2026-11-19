@@ -89,8 +89,8 @@ public final class Conscience {
         if (guilt == HouseRule.NO_SINGING && !caught && pet.pet().ownedBy(guiltOwner) && HumanSight.watching(pet)) caught("sight");
     }
 
-    void witnessedYard() {
-        if (guilt == HouseRule.NO_LEAVING_YARD && !caught && pet.pet().ownedBy(guiltOwner)) caught("sight");
+    void witnessedYard(long crossing) {
+        if (guilt == HouseRule.NO_LEAVING_YARD && at == crossing && !caught && pet.pet().ownedBy(guiltOwner)) caught("sight");
     }
 
     boolean undiscovered() {
