@@ -517,6 +517,8 @@ public final class IndependenceLife extends Goal {
         SurfaceApproach.halt(entity);
     }
     @Override public void stop() {
+        // The selector also stops a farewell that already ended itself during tick().
+        if (task == Task.NONE) return;
         if (task == Task.SEE_OFF) seeOffEnded();
         // A farewell that was already heard by the parent is not taken back by an interruption: the leaving goes ahead.
         if (task == Task.FAREWELL && said && contact >= ANSWER && !independent) leave();
