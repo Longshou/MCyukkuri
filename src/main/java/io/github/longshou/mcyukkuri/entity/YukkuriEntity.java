@@ -32,6 +32,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
+import io.github.longshou.mcyukkuri.cognition.Skills;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.shop.ShopWindow;
@@ -623,6 +624,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** The leaf swaddle on a child and its parents' care for it (docs/FEATURES.md). */
     public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }
     public DutyClaim duty() { return component(YukkuriComponents.DUTY); }
+    public Skills skills() { return component(YukkuriComponents.SKILLS); }
     /** Shop stock at its window: customers met by its own drives, a neighbour's departure seen off (docs/FEATURES.md). */
     public ShopWindow shopWindow() { return component(YukkuriComponents.SHOP_WINDOW); }
     public HabitatLife habitat() { return habitat; }

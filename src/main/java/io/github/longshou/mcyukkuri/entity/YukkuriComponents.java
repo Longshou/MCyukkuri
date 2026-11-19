@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.life.DutyClaim;
+import io.github.longshou.mcyukkuri.cognition.Skills;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
@@ -113,6 +114,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<LeafSwaddle> LEAF_SWADDLE = new ComponentKey<>("leafSwaddle", LeafSwaddle.class);
     public static final ComponentKey<ShopWindow> SHOP_WINDOW = new ComponentKey<>("shopWindow", ShopWindow.class);
     public static final ComponentKey<DutyClaim> DUTY = new ComponentKey<>("duty", DutyClaim.class);
+    public static final ComponentKey<Skills> SKILLS = new ComponentKey<>("skills", Skills.class);
     private static final ComponentKey<YukkuriEntity> HOOKS = new ComponentKey<>("entityHooks", YukkuriEntity.class);
 
     // Numeric orders follow the lifecycle baseline, with gaps for explicit insertions.
@@ -182,6 +184,10 @@ public final class YukkuriComponents {
                 .tick(100, ChildhoodLife::tick)
                 .save(170, (c, tag) -> tag.put("YukkuriChildhood", c.save()))
                 .load(180, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriChildhood"))).build(),
+        ComponentSpec.ready(SKILLS, Skills::new)
+                .tick(25, Skills::cap)
+                .save(175, (c, tag) -> tag.put("YukkuriSkills", c.save()))
+                .load(185, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSkills"))).build(),
         ComponentSpec.ready(HOUSE, YukkuriEntity::house)
                 .tick(110, EcologyRoutines::tick)
                 .save(180, (c, tag) -> tag.put("YukkuriHouse", c.save()))
