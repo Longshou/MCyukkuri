@@ -2262,6 +2262,46 @@ add('pred_build_nest', 'grove', '无巢捕食种选树、衔枝筑巢', '无巢�
                forbid=[r'\[predator\] flandre [^\n]* spawn nest placed'],
                verify=_verify_predator_build, readout=[f'yukkuri status {sel("build_pred")} raw']))
 
+def _perch_resident(nutrition):
+    # The western oak's roofed shelf, at the exact pad used by the natural-spawn scene.
+    return [block(0, 6, 0, 'mcyukkuri:predator_nest'),
+            yk('remilia', 0, 0, 'perch_pred', dy=6.15, lead=True, nutrition=nutrition, energy=100, boldness=55),
+            f'yukkuri scenario home {sel("perch_pred")} ~ ~6 ~']
+
+
+def _clearing_children():
+    return [yk('reimu', x, 6, name, stage='child', nutrition=46, childhood=CHILDHOOD_CRAWLING_READY,
+               uuid=uid('pred_perch_hunt', name)) for x, name in [(5, 'forager_a'), (9, 'forager_b')]]
+
+
+def _verify_perch_hunt(window):
+    beats = [r'\[predator\] remilia [^\n]* perch begin ', r'\[predator\] remilia [^\n]* prey selected ',
+             r'\[predator\] remilia [^\n]* phase CHASE -> DIVE', r'\[predator\] remilia [^\n]* feeding bite [^\n]*mouthful_accepted=true',
+             r'\[predator\] remilia [^\n]* eat pause ended; reason=feeding_bite', r'\[predator\] remilia [^\n]* perch begin ']
+    for beat in beats:
+        event = re.search(beat, window)
+        if not event:
+            return f'Missing next event in branch hunt: {beat}'
+        window = window[event.end():]
+    return None
+
+
+add('pred_perch_hunt', 'grove', '高枝守望，俯冲捕猎', '高枝守望，俯冲捕猎',
+    '从橡树枝巢望向林间空地。蕾米莉亚先在高枝收翅张望，两只觅食的子油出现后，看它飞离枝头、俯冲咬住一只、落地进食，再回枝上。可拆掉枝巢观察重新择址',
+    '约 1–2 分钟', _perch_resident(40), spot='spawn', vantage=(7, 8, 177, 4), env={'time': 'dawn'},
+    late=[Retry(child, sel('perch_pred'), first=240, tries=1) for child in _clearing_children()],
+    reads=[('读守望与追猎', f'yukkuri status {sel("perch_pred")} raw')],
+    smoke=dict(ticks=2000, expect=[r'\[home\] remilia [^\n]* assigned kind=care', r'\[meal\] remilia [^\n]* swallowed bodyFood'],
+               forbid=[r'\[predator\] remilia [^\n]* combat strike '],
+               verify=_verify_perch_hunt))
+
+add('pred_noon_shade', 'grove', '正午躲荫，傍晚出猎', '正午躲荫，傍晚出猎',
+    '正午树下已有子油。看营养为 50 的蕾米莉亚站在叶荫下守望。用「实用」切到傍晚，再看它发现猎物后离枝',
+    '守望约半分钟后切换时间', [*_perch_resident(50), yk('reimu', 5, 6, 'shade_prey', stage='child', nutrition=46)],
+    spot='spawn', vantage=(7, 8, 135, 0), env=DAY, reads=[('读正午守望', f'yukkuri status {sel("perch_pred")} raw')],
+    smoke=dict(ticks=320, expect=[r'\[home\] remilia [^\n]* assigned kind=care', r'\[predator\] remilia [^\n]* perch begin [^\n]*shade=true'],
+               forbid=[r'\[predator\] remilia [^\n]* prey selected ']))
+
 add('forage_empty','weather','没粮的饿灵梦四处找吃的','没粮的饿灵梦四处找吃的',
     '开始不放食物：先切到空手，饥饿灵梦立即主动搜索（同一游荡状态、流口水表情），搜不到也不定时退回idle；手持苹果时立即走向玩家，再丢下观察接近、吞咽与营养回升；读移速可见紧急修正。真实受阻仍会饿，不指定Goal',
     '约30秒后丢食物',[yk('reimu',0,0,'seeker',nutrition=18,energy=90,lead=True)],
@@ -6311,7 +6351,7 @@ TOPICS = {
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
-    'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2',
+    'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
