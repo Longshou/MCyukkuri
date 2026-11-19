@@ -68,7 +68,8 @@ public final class PetStudy {
         int count = exercise.count();
         if (done) pet.skills().countSucceeded(count);
         int cap = pet.skills().speechCap();
-        boolean success = done && count <= cap;
+        boolean counted = done && count <= pet.skills().cap();
+        boolean success = counted && count <= cap;
         Component answer = number(count, cap);
         boolean missing = success && exercise.source().equals("young") && pet.pet().lessons().noticesMissingYoung(count);
         if (missing) answer = Component.translatable("pet.mcyukkuri.practice.missing", answer);
@@ -83,8 +84,8 @@ public final class PetStudy {
         pet.showReaction(missing ? "teary" : done ? "happy" : "confused", event, length + 30);
         GameplayLog.event(pet, "lesson", "study answered skill={} source={} count={} success={} missing={}",
                 Ability.COUNTING, exercise.source(), count, success, missing);
-        if (success && caption != null && pet.pet().isPet()) pet.life().personality().experienced(Trait.INTELLIGENCE, 1);
-        pet.pet().lessons().performed(Ability.COUNTING, success);
+        if (counted && caption != null && pet.pet().isPet()) pet.life().personality().experienced(Trait.INTELLIGENCE, 1);
+        pet.pet().lessons().performed(Ability.COUNTING, counted);
         return new Answer(success, caption, length + 30);
     }
 

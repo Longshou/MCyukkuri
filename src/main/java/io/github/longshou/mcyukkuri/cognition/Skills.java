@@ -55,7 +55,6 @@ public final class Skills {
         int before = cap();
         int ceiling = entity.getVariant() == YukkuriVariant.PATCHOULI
                 ? SpeechCount.PATCHOULI_CAP : SkillMath.capCeiling(entity.life().personality().intelligence());
-        if (entity.family().youngVoice()) ceiling = Math.min(ceiling, SpeechCount.BABY_CAP);
         cap = SkillMath.capAfterCount(before, counted, ceiling);
         if (cap != before) GameplayLog.event(entity, "skill", "counting cap={} -> {}", before, cap);
     }
