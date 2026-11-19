@@ -2,7 +2,7 @@
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote,urlsplit
+from urllib.parse import quote,unquote,urlsplit
 import argparse
 from base64 import b64decode
 import json
@@ -17,10 +17,12 @@ POSE_LOCK=Lock()
 
 ROOT=Path(__file__).resolve().parents[1]
 class Handler(SimpleHTTPRequestHandler):
-    def respond(self, body, status=200, content_type='application/json'):
+    def respond(self, body, status=200, content_type='application/json', emote=None):
         self.send_response(status)
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', str(len(body)))
+        if emote is not None:
+            self.send_header('X-Pose-Emote', quote(emote, safe=''))
         self.end_headers()
         self.wfile.write(body)
 
@@ -60,7 +62,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.respond_json({'error': str(error)}, 400)
             return
         if packed:
-            self.respond(b64decode(result['vertices']), content_type='application/octet-stream')
+            self.respond(b64decode(result['vertices']), content_type='application/octet-stream', emote=result.get('emote'))
         else:
             self.respond_json(result)
 

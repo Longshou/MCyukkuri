@@ -826,7 +826,7 @@ def main():
         elif args.command == 'inbox':
             inbox(args)
         from build_preview_hub import build, register_topics
-        if args.command == 'hub':
+        if args.command == 'hub' or (args.command == 'moment' and not (OUT/'player.html').is_file()):
             build(OUT)
         else:
             register_topics(OUT)

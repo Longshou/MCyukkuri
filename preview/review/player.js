@@ -1,5 +1,5 @@
 import {categories, entryURL, loadEntries} from './entries.js';
-import {buildTimeline, leakSteps, sampleTimeline, selectEmote, textureFace} from './timeline.mjs';
+import {buildTimeline, emoteFrame, leakSteps, sampleTimeline, textureFace} from './timeline.mjs';
 import {actorMesh, loadEmote, loadFloor, loadPaper, loadTexture, updateMesh} from './effects.js';
 import {loadSpeech} from './speech.js';
 import {mountVerdicts} from './verdicts.js';
@@ -15,7 +15,9 @@ async function pose(payload, packed = false) {
         body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error((await response.json()).error ?? 'HTTP ' + response.status);
-    return packed ? new Float32Array(await response.arrayBuffer()) : response.json();
+    if (!packed) return response.json();
+    return {vertices: new Float32Array(await response.arrayBuffer()),
+            emote: decodeURIComponent(response.headers.get('X-Pose-Emote'))};
 }
 
 function floatVertices(base64) {
@@ -131,7 +133,7 @@ async function playEntry(data, entry) {
     let paper;
     const emoteHeight = proportions.emoteHeight * actor.scale * 16;
     const emoteSize = proportions.emoteSize * actor.scale * 16;
-    const emote = entry.steps && await loadEmote(scene, emoteHeight, emoteSize);
+    const emote = await loadEmote(scene, emoteHeight, emoteSize);
     const mute = $('mute');
     const cue = entry.speech?.[proportions.speaker];
     const speech = cue && await loadSpeech(cue, proportions.voicePitch, mute);
@@ -156,7 +158,8 @@ async function playEntry(data, entry) {
         const tick = Math.floor(seconds * 20);
         const alpha = leak && (leak.traceOpacity[tick - leak.beat.puddleAt] ?? 0);
         const payload = {op: 'render', id, action: sample.clip, time: sample.time,
-            intensity: sample.intensity, expression: face, scale: actor.scale};
+            intensity: sample.intensity, expression: face, scale: actor.scale,
+            emote: emoteFrame(sample, elapsed, duration, leak)};
         const streamVisible = alpha > 0 && face !== 'leak_flow';
         const covered = cover.checked;
         if (covered) {
@@ -168,7 +171,7 @@ async function playEntry(data, entry) {
         if (rich) payload.vertexFormat = 'float32le';
         const [frame, map, sheets] = await Promise.all([pose(payload, !rich), texture(face), paper]);
         if (version !== revision) return;
-        updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame);
+        updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame.vertices);
         if (sheets) {
             for (const [index, field] of ['paper_top', 'paper_under'].entries()) {
                 const sheet = sheets[index];
@@ -186,8 +189,7 @@ async function playEntry(data, entry) {
         if (drawFloor) drawFloor(seconds);
         if (!material.map) material.needsUpdate = true;
         material.map = map;
-        const sweat = leak && tick >= leak.beat.puddleAt && tick < leak.sweatUntil;
-        if (emote) emote.set(selectEmote(sample, elapsed, duration, proportions.emoteSeconds, sweat));
+        emote.set(frame.emote);
         const caption = speech?.caption(elapsed) || sample.caption;
         $('caption').textContent = caption ?? '';
         $('caption').hidden = !caption;
@@ -199,7 +201,7 @@ async function playEntry(data, entry) {
 
     await drawFrame(0, 0, revision);
     const bounds = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position);
-    const top = emote ? Math.max(bounds.max.y, emoteHeight + emoteSize) : bounds.max.y;
+    const top = Math.max(bounds.max.y, emoteHeight + emoteSize);
     const centerY = (bounds.min.y + top) / 2;
     const span = Math.max((top - bounds.min.y) * .77, 4);
     const radius = Math.hypot(Math.max(-bounds.min.x, bounds.max.x), Math.max(-bounds.min.z, bounds.max.z));
@@ -304,7 +306,7 @@ async function playEntry(data, entry) {
             camera.position.set(-150 * Math.sin(azimuth) * Math.cos(elevation),
                 centerY + 150 * Math.sin(elevation), -150 * Math.cos(azimuth) * Math.cos(elevation));
             camera.lookAt(0, centerY, 0);
-            if (emote) emote.face(camera);
+            emote.face(camera);
             renderer.render(scene, camera);
             dirty = false;
         }

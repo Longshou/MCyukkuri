@@ -25,10 +25,10 @@ export function sampleTimeline(track, clips, seconds, expression) {
             emote: step.emote, stepSeconds: elapsed};
 }
 
-export function selectEmote(sample, elapsed, duration, stepSeconds, leakSweat = false) {
-    if (sample.face === 'leak_startle') return 'exclaim';
-    if (leakSweat) return 'sweat';
-    if (elapsed < duration && sample.stepSeconds < stepSeconds) return sample.emote;
+export function emoteFrame(sample, elapsed, duration, leak) {
+    const tick = Math.floor(elapsed * 20);
+    const sweat = Boolean(leak && tick >= leak.beat.puddleAt && tick < leak.sweatUntil);
+    return {face: sample.face, sweat, elapsed, duration, stepSeconds: sample.stepSeconds, symbol: sample.emote ?? ''};
 }
 
 export function leakSteps(steps, leak, end = leak.beat.endAt) {

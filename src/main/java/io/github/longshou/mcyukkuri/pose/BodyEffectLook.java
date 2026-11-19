@@ -15,7 +15,8 @@ public final class BodyEffectLook {
         PUDDLE("textures/effects/leak_puddle.png", 1800, 600);
 
         public final String texture;
-        public final int lifetime, fadeTicks;
+        public final int lifetime;
+        private final int fadeTicks;
 
         Kind(String texture, int lifetime, int fadeTicks) {
             this.texture = texture;
@@ -23,7 +24,7 @@ public final class BodyEffectLook {
             this.fadeTicks = fadeTicks;
         }
 
-        public float fade(long age) { return Math.clamp((lifetime - age) / (float) fadeTicks, 0, 1); }
+        public int alpha(long age) { return Math.round(255 * Math.clamp((lifetime - age) / (float) fadeTicks, 0, 1)); }
     }
 
     public record Shard(Vec velocity, float size) {}

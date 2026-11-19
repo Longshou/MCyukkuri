@@ -42,6 +42,9 @@ class PreviewBoundaryTests(unittest.TestCase):
         self.assertIn('player.html?entry=leak&amp;paper=1&amp;model=marisa',
                       (topic/'index.html').read_text(encoding='utf-8'))
         self.assertEqual({p.name for p in topic.iterdir()}, {'index.html', 'topic.json'})
+        self.assertTrue((self.out/'player.html').is_file())
+        entries = json.loads((self.out/'entries.json').read_text(encoding='utf-8'))['entries']
+        self.assertIn('leak', {entry['id'] for entry in entries})
 
     def test_missing_frame_keeps_current_page(self):
         source = self.base/'capture'

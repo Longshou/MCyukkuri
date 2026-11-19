@@ -179,8 +179,8 @@ class PlayerTests(unittest.TestCase):
     def test_five_live_moment_timelines_and_transport_parity(self):
         script = """
 import {readFileSync} from 'node:fs';
-import {buildTimeline, leakSteps, sampleTimeline, selectEmote, textureFace} from './preview/review/timeline.mjs';
-const {data, id, clips, leak, actor} = JSON.parse(readFileSync(0));
+import {buildTimeline, emoteFrame, leakSteps, sampleTimeline, textureFace} from './preview/review/timeline.mjs';
+const {data, id, clips, leak} = JSON.parse(readFileSync(0));
 const entry = data.entries.find(row => row.id === id);
 if (leak) entry.steps = leakSteps(entry.steps, leak);
 const {track, duration} = buildTimeline(entry, clips, data.momentClips);
@@ -188,10 +188,8 @@ const times = track.flatMap(step => [step.start, (step.start + step.end) / 2]);
 times.push(duration);
 const previews = times.map(time => {
     const sample = sampleTimeline(track, clips, time, 'auto');
-    const tick = Math.floor(time * 20);
-    const sweat = leak && tick >= leak.beat.puddleAt && tick < leak.sweatUntil;
     return {...sample, texture: textureFace(data, data.models.reimu, sample.face, time),
-            symbol: selectEmote(sample, time, duration, actor.emoteSeconds, sweat)};
+            cue: emoteFrame(sample, time, duration, leak)};
 });
 console.log(JSON.stringify(previews));
 """
@@ -215,7 +213,7 @@ console.log(JSON.stringify(previews));
                         self.assertEqual(voice.read(4), b'OggS')
                     probes = subprocess.run(['node', '--input-type=module', '-e', script], check=True, cwd=ROOT,
                                             input=json.dumps(dict(data=self.data, id=ident, clips=actor['clips'],
-                                                                  actor=actor['actor'], leak=leak)),
+                                                                  leak=leak)),
                                             capture_output=True, text=True, encoding='utf-8')
                     samples = json.loads(probes.stdout)
                     frames = []
@@ -224,18 +222,23 @@ console.log(JSON.stringify(previews));
                         self.assertIn(sample['texture'], self.data['models']['reimu']['textures'])
                         payload = dict(op='render', id=actor['id'], action=sample['clip'],
                                        time=sample['time'], intensity=sample['intensity'],
-                                       expression=sample['texture'], scale=1)
-                        frames.append(self.pose(payload, packed=True))
+                                       expression=sample['texture'], scale=1, emote=sample['cue'])
+                        headers = {'Content-Type': 'application/json', 'Accept': 'application/octet-stream'}
+                        with urlopen(Request(self.base+'/pose', json.dumps(payload).encode(), headers)) as response:
+                            sample['symbol'] = response.headers['X-Pose-Emote']
+                            frames.append(response.read())
                     self.assertGreater(len(set(frames)), 1)
-                    json_vertices = self.pose(payload)['vertices']
+                    result = self.pose(payload)
+                    self.assertEqual(result['emote'], samples[-1]['symbol'])
+                    json_vertices = result['vertices']
                     self.assertEqual(frames[-1], struct.pack(f'<{len(json_vertices)}f', *json_vertices))
                     if ident == 'leak':
                         self.assertEqual([sample['face'] for sample in samples[:-1:2]],
                                          ['leak_startle', 'leak_flow', 'side_teary'])
-                        self.assertEqual([sample.get('symbol') for sample in samples[:-1:2]], ['exclaim', None, 'sweat'])
+                        self.assertEqual([sample['symbol'] for sample in samples[:-1:2]], ['exclaim', '', 'sweat'])
                     if ident in ('rain_huddle', 'thunder_cower', 'wet_relief'):
                         self.assertIn(samples[0]['symbol'], ('sweat', 'shiver'))
-                        self.assertNotIn('symbol', samples[-1])
+                        self.assertEqual(samples[-1]['symbol'], '')
             payload.update(action='idle', expression='neutral')
             start = time.perf_counter()
             for frame in range(20):
@@ -259,6 +262,7 @@ console.log(JSON.stringify(previews));
             render = dict(op='render', id=actor['id'], action='idle', time=0, expression='side_teary', scale=1,
                           leakStream=True, outlet=actor['actor']['outlet'], paperCover=actor['actor']['paperAccessories'])
             frame = self.pose(render)
+            self.assertNotIn('leak_stream', self.pose(dict(render, leakStream=False, vertexFormat='float32le')))
             packed = self.pose(dict(render, vertexFormat='float32le'))
             for field in ('vertices', 'leak_stream', 'paper_top', 'paper_under'):
                 self.assertGreater(len(frame[field]), 0)
@@ -271,6 +275,7 @@ console.log(JSON.stringify(previews));
             self.assertEqual(puddle['texture'], 'textures/effects/leak_puddle.png')
             self.assertEqual(puddle['flights'], [])
             self.assertEqual(puddle['traces'][0]['until'], 1838)
+            self.assertEqual([puddle['opacity'][i] for i in (1200, 1500, 1799)], [255, 128, 0])
             self.assertAlmostEqual(puddle['traces'][0]['halfX'], .24)
             filling = self.pose(dict(event, reason='vomit', amount=1))
             self.assertEqual(filling, self.pose(dict(event, reason='vomit', amount=1)))
@@ -278,6 +283,7 @@ console.log(JSON.stringify(previews));
             self.assertEqual(len(filling['flights']), 3)
             self.assertTrue(all(2 <= len(f['path']) <= 13 for f in filling['flights']))
             self.assertEqual(filling['traces'][-1]['until'] - filling['traces'][-1]['tick'], 600)
+            self.assertEqual([filling['opacity'][i] for i in (500, 550, 599)], [255, 128, 3])
 
     def test_raw_clip_preserves_authored_root_rotation(self):
         script = """

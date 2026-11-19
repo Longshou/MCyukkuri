@@ -123,7 +123,7 @@ export async function loadFloor(scene, effect) {
         const tick = Math.floor(seconds * 20);
         for (const {trace, mesh} of traces) {
             mesh.visible = tick >= trace.tick && tick < trace.until;
-            mesh.material.opacity = Math.min(1, (trace.tick + effect.lifetime - tick) / effect.fadeTicks);
+            if (mesh.visible) mesh.material.opacity = effect.opacity[tick - trace.tick] / 255;
         }
         const age = tick - effect.tick;
         for (const {path, mesh} of flights) {

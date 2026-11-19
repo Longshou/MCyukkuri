@@ -42,7 +42,6 @@ final class ReviewActor {
         out.addProperty("speaker", variant.dialogueSpecies());
         out.addProperty("emoteHeight", EmoteCue.height(variant.isHouse(), variant.assetId(), height, 1));
         out.addProperty("emoteSize", EmoteCue.size(1));
-        out.addProperty("emoteSeconds", EmoteCue.STEP_SECONDS);
         return out;
     }
 

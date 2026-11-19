@@ -163,7 +163,14 @@ final class RenderPose implements Overlays.Contact {
         var out=new JsonObject();
         boolean packed = request.has("vertexFormat") && request.get("vertexFormat").getAsString().equals("float32le");
         out.add("vertices", vertexData(output, packed));
-        if (request.has("leakStream")) out.add("leak_stream", vertexData(leakStream(output, scale), packed));
+        if (request.has("emote")) {
+            var cue = request.getAsJsonObject("emote");
+            out.addProperty("emote", EmoteCue.select(cue.get("face").getAsString(), cue.get("sweat").getAsBoolean(),
+                    cue.get("elapsed").getAsFloat(), cue.get("duration").getAsFloat(),
+                    () -> new EmoteCue.Step(cue.get("stepSeconds").getAsFloat(), cue.get("symbol").getAsString())));
+        }
+        if (request.has("leakStream") && request.get("leakStream").getAsBoolean())
+            out.add("leak_stream", vertexData(leakStream(output, scale), packed));
         if (request.has("outlet")) {
             var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray("outlet")))).mul(scale);
             out.add("outlet", OfflineModel.array(new float[]{point.x, point.y, point.z}));

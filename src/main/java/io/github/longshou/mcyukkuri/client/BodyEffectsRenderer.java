@@ -173,21 +173,20 @@ public final class BodyEffectsRenderer {
         for (var trace : TRACES) {
             if (trace.kind != kind) continue;
             long age = now - trace.born;
-            float fade = kind.fade(age);
-            if (fade <= 0) continue;
+            int alpha = kind.alpha(age);
+            if (alpha == 0) continue;
             if (splats == null) splats = buffers.getBuffer(LAYERS.get(kind));
             int light = LevelRenderer.getLightColor(level, BlockPos.containing(trace.position));
             pose.pushPose();
             pose.translate(trace.position.x - camera.x, trace.position.y - camera.y, trace.position.z - camera.z);
             if (kind == Kind.PUDDLE) pose.mulPose(Axis.YP.rotation(trace.yaw));
-            splat(pose.last().pose(), splats, trace.size, fade, light);
+            splat(pose.last().pose(), splats, trace.size, alpha, light);
             pose.popPose();
         }
     }
 
-    private static void splat(Matrix4f matrix, VertexConsumer out, float size, float alpha, int light) {
+    private static void splat(Matrix4f matrix, VertexConsumer out, float size, int a, int light) {
         float x = BodyEffectLook.halfX(size), z = BodyEffectLook.halfZ(size);
-        int a = Math.round(255 * alpha);
         for (int i = 0; i < 12; i++) {
             float ax = BodyEffectLook.rimX(i), az = BodyEffectLook.rimZ(i);
             float bx = BodyEffectLook.rimX(i + 1), bz = BodyEffectLook.rimZ(i + 1);

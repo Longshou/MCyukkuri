@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
-import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.pose.EmoteCue;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,15 +34,14 @@ final class MomentEmote {
     }
 
     private static String select(YukkuriView e, float partial) {
-        if (ExcitedLeak.STARTLE_FACE.equals(e.getExpressionId())) return "exclaim";
         long now = e.level().getGameTime();
-        if (now < LEAK_SWEAT_UNTIL.getOrDefault(e, 0L)) return "sweat";
-        if (e.getMomentId().isEmpty()) return "";
-        float elapsed = (now-e.getAnimationStartTick()+partial)/20f;
-        // A looping body pose must not turn a short punctuation mark into a permanent status icon.
-        if (elapsed >= Moments.duration(e.getMomentId())) return "";
-        var frame = Moments.frame(e.getMomentId(), elapsed);
-        return frame.seconds() < EmoteCue.STEP_SECONDS ? frame.optional("emote") : "";
+        String moment = e.getMomentId();
+        float elapsed = moment.isEmpty() ? 0 : (now-e.getAnimationStartTick()+partial)/20f;
+        return EmoteCue.select(e.getExpressionId(), now < LEAK_SWEAT_UNTIL.getOrDefault(e, 0L),
+                elapsed, moment.isEmpty() ? 0 : Moments.duration(moment), () -> {
+                    var frame = Moments.frame(moment, elapsed);
+                    return new EmoteCue.Step(frame.seconds(), frame.optional("emote"));
+                });
     }
 
     static void render(YukkuriView e, float partial, PoseStack pose, MultiBufferSource buffers, int light) {

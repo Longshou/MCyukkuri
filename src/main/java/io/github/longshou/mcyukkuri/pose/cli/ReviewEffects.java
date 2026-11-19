@@ -114,7 +114,9 @@ final class ReviewEffects {
         out.addProperty("texture", kind.texture);
         out.addProperty("yaw", puddle ? Math.atan2(direction.x(), direction.z()) : 0);
         out.addProperty("lifetime", kind.lifetime);
-        out.addProperty("fadeTicks", kind.fadeTicks);
+        var opacity = new JsonArray();
+        for (int age = 0; age < kind.lifetime; age++) opacity.add(kind.alpha(age));
+        out.add("opacity", opacity);
         out.addProperty("tick", tick);
         out.add("rim", rim);
         out.add("flights", gson.toJsonTree(flights));
