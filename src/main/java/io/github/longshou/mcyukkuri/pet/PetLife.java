@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
