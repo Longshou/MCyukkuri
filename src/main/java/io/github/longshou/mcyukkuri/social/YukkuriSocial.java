@@ -664,7 +664,7 @@ public final class YukkuriSocial implements MotorOwner {
             else stop();
             return;
         }
-        if (!approachHuman(HUMAN_CONTACT)) return;
+        if (!approachHuman(greetingReach())) return;
         greeted = true;
         if (task == Task.OWNER_RETURN) {
             welcomePhase = ContactPhase.GREETING;
@@ -708,13 +708,22 @@ public final class YukkuriSocial implements MotorOwner {
             duration = CONTACT_APPROACH;
             GameplayLog.event(entity, "pet", "owner return closing owner={} distance={}", target.getUUID(), entity.distanceTo(target));
         }
-        double reach = (entity.getBbWidth() + target.getBbWidth()) * .5 + .10;
+        double reach = ownerNuzzleReach();
         if (!approachHuman(reach)) return;
         welcomePhase = ContactPhase.NUZZLE;
         greetingBody("nuzzle");
         GameplayLog.event(entity, "pet", "owner return nuzzle owner={} distance={} reach={}",
                 target.getUUID(), entity.distanceTo(target), reach);
     }
+
+    private double greetingReach() {
+        if (!"joy_jump".equals(returnClip)) return HUMAN_CONTACT;
+        // Leave room for an owner who is still on their way home to move during the greeting.
+        double ownerStep = Math.hypot(target.getX() - target.xo, target.getZ() - target.zo);
+        return Math.max(ownerNuzzleReach(), HUMAN_CONTACT - ownerStep * ClipMarkers.of(returnClip).length());
+    }
+
+    private double ownerNuzzleReach() { return (entity.getBbWidth() + target.getBbWidth()) * .5 + .10; }
 
     private void hesitateAtOwner(double wariness) {
         entity.showReaction("side_teary", "", 40);
