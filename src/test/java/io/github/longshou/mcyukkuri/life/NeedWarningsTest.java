@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class NeedWarningsTest {
     private NeedWarnings sample(int urine, int stool, int thirst, int energy, int food, double felt, boolean breeding) {
-        return NeedWarnings.sample(urine, stool, thirst, energy, food, felt, 0, 10, breeding);
+        return NeedWarnings.sample(urine, stool, thirst, energy, food, felt, 0, 10, breeding, 0);
     }
 
     @Test void allEdgesClearAsSoonAsTheirOwnNeedIsRelieved() {
@@ -35,5 +35,15 @@ class NeedWarningsTest {
     @Test void quietAndDemandingIndividualsShowTheSameNeedDifferently() {
         assertEquals(0, NeedWarnings.insistence(new Temperament(50, 95, 10, 50, 95)));
         assertEquals(1, NeedWarnings.insistence(new Temperament(50, 5, 95, 50, 5)));
+    }
+
+    @Test void ongoingWarningsStayOnTheHudAndYieldTheNextTell() {
+        int told = URINE.bit();
+        var mixed = NeedWarnings.sample(69, 40, 0, 80, 70, 5, 0, 10, false, told);
+        assertEquals(URINE.bit() | STOOL.bit(), mixed.mask());
+        assertEquals(STOOL, mixed.leading());
+        assertNull(NeedWarnings.sample(69, 40, 0, 80, 70, 5, 0, 10, false, mixed.mask()).leading());
+        told &= sample(0, 40, 0, 80, 70, 5, false).mask();
+        assertEquals(URINE, NeedWarnings.sample(39, 0, 0, 80, 70, 5, 0, 10, false, told).leading());
     }
 }

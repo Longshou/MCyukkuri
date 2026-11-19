@@ -13,7 +13,7 @@ public record NeedWarnings(int mask, Need leading) {
     private static final Need[] ORDER = Need.values();
 
     public static NeedWarnings sample(float urine, float bowel, float dryness, float energy, float nutrition,
-                                      double felt, double cold, double hot, boolean breeding) {
+                                      double felt, double cold, double hot, boolean breeding, int alreadyTold) {
         // Start warning in the last tenth of the configured comfort span on either side.
         double margin = (hot - cold) * .1;
         int mask = 0;
@@ -32,7 +32,7 @@ public record NeedWarnings(int mask, Need leading) {
             };
             if (severity < 0) continue;
             mask |= need.bit();
-            if (need != Need.BREEDING && severity > strongest) {
+            if (need != Need.BREEDING && (alreadyTold & need.bit()) == 0 && severity > strongest) {
                 leading = need;
                 strongest = severity;
             }

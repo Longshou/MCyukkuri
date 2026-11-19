@@ -373,9 +373,9 @@ public final class YukkuriLife {
     public float hygiene() { return hygiene; }
     public float bowel() { return toiletNeeds.bowel; }
     public float urine() { return toiletNeeds.urine; }
-    public NeedWarnings needWarnings() {
+    public NeedWarnings needWarnings(int alreadyTold) {
         return NeedWarnings.sample(urine(), bowel(), dryness, energy, nutrition, temperature.felt(),
-                temperature.coldLimit(), temperature.hotLimit(), entity.family().inBreedingPeriod());
+                temperature.coldLimit(), temperature.hotLimit(), entity.family().inBreedingPeriod(), alreadyTold);
     }
     public ToiletNeeds.Kind leadingToiletNeed() {
         return toiletNeeds.leading(available(ToiletNeeds.Kind.STOOL));

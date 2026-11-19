@@ -73,6 +73,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 public final class Reactions {
     private final YukkuriEntity entity;
     private long nextNeedTell;
+    private int toldNeeds;
     private final Threat threat;
     private final Weather weather;
 
@@ -98,10 +99,12 @@ public final class Reactions {
         threat.scan();
         weather.scan();
         long now = entity.level().getGameTime();
+        var needs = entity.life().needWarnings(toldNeeds);
+        toldNeeds &= needs.mask();
         if (now < nextNeedTell || entity.hasReaction() || entity.speechEnd() > now || !allowsNeedTell()) return;
-        var needs = entity.life().needWarnings();
         if (needs.leading() != null) {
             EcologyPresentation.tell(entity, needs);
+            toldNeeds |= needs.leading().bit();
             nextNeedTell = now + 160; // A short cue, then eight seconds for the underlying activity.
         }
     }
