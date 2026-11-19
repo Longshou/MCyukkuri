@@ -502,6 +502,7 @@ final class LifeMeal {
     }
     /** False preserves the old interrupt-and-return from the entire life tick. */
     boolean tickChew() {
+        if (bowlMeal && o.guardingDish()) return true;
         if (!tickTuftMeal()) return true;
         if (mealTicks > 0) {
             ItemStack mouth = mouth();

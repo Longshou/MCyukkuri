@@ -9,6 +9,10 @@ import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.shop.ShopKind;
+import io.github.longshou.mcyukkuri.shop.ShopTrade;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
@@ -139,6 +143,7 @@ public final class YukkuriLife {
     private BlockPos refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private boolean useBowlNicely;
+    private boolean warnedAtDish;
     private Choice foodChoice;
     private int permissionWait;
     private long foodRuleAfter;
@@ -327,7 +332,7 @@ public final class YukkuriLife {
         }
         return true;
     }
-    void finishConsumption() { task = Task.NONE; planWait = 20; }
+    void finishConsumption() { task = Task.NONE; warnedAtDish = false; planWait = 20; }
     public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
     public int pickiness() { return Math.round(pickiness); }
@@ -571,6 +576,7 @@ public final class YukkuriLife {
     }
     public String activity() {
         if (fatigueActive()) return Behaviors.SLEEP;
+        if (guardingDish()) return Behaviors.FUME;
         if (!braidMealClip().isEmpty()) return braidMealClip();
         if (garbage.rummaging()) return Behaviors.BIN_NOSE_IN;
         if (mealTicks() > 0) {
@@ -582,7 +588,8 @@ public final class YukkuriLife {
         }
         if (takingFromDish() && bowlBiteTicks > 0) return Behaviors.TAKE_FOOD;
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
-        if (task == Task.FOOD && permissionWait > 0) return Behaviors.WAIT;
+        if (task == Task.FOOD && permissionWait > 0 || queueTicks > 0 && targetBlock != null && targetFood == null
+                && (task == Task.FOOD || task == Task.DRINK)) return Behaviors.WAIT;
         return switch (task) { case FOOD, FOOD_GLASS, CROP -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
@@ -1010,6 +1017,7 @@ public final class YukkuriLife {
             if (targetFood != null || targetBlock != null) {
                 bowlStand = null;
                 bowlBiteTicks = 0;
+                warnedAtDish = false;
                 foodChoice = null;
                 permissionWait = 0;
                 foodRoute = targetFood == null ? null : groundFoodRoute(targetFood);
@@ -1204,6 +1212,7 @@ public final class YukkuriLife {
     public void tickGoal() {
         if (mealTicks() > 0 && !garbage.rummaging()) { entity.getNavigation().stop(); return; }
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
+        if (guardingDish()) { SurfaceApproach.halt(entity); return; }
         pursuitTicks++;
         switch (task) {
             case FOUND_COVER -> {
@@ -1434,7 +1443,9 @@ public final class YukkuriLife {
     private void beginDrinkAt(BlockPos water) {
         targetBlock = water;
         task = Task.DRINK;
-        drinkTicks = pursuitTicks = 0;
+        drinkTicks = pursuitTicks = queueTicks = 0;
+        warnedAtDish = false;
+        queueBudget = personality.waitingTicks();
         bowlStand = null;
     }
 
@@ -1480,6 +1491,7 @@ public final class YukkuriLife {
         }
         task = Task.NONE;
         drinkTicks = 0;
+        warnedAtDish = false;
         planWait = DRINK_TICKS;
         entity.gameEvent(GameEvent.DRINK);
     }
@@ -1488,17 +1500,58 @@ public final class YukkuriLife {
         if (!entity.component(YukkuriComponents.MOUTH).freeForExternalWork()) { stopGoal(); return false; }
         // A descending body has no grounded last step to test yet.
         if (!entity.onGround()) { drinkTicks = 0; return false; }
+        if (drinkTicks == 0 && waitsAtSupply(SupplyGuard.WATER)) return false;
         if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
         if (bowlStand == null) { refuseDishRoute("no_reachable_dish_stand"); return false; }
-        if (drinkTicks == 0 && entity.distanceToSqr(Vec3.atCenterOf(targetBlock)) < 4
-                && !level().getEntitiesOfClass(YukkuriEntity.class, new AABB(targetBlock).inflate(2), other ->
-                other != entity && other.isAlive() && other.life().task == Task.DRINK && other.life().drinkTicks > 0
-                        && targetBlock.equals(other.life().targetBlock)).isEmpty()) {
-            SurfaceApproach.halt(entity);
-            return false;
-        }
         if (meetDish()) return true;
         drinkTicks = 0;
+        return false;
+    }
+
+    private boolean usingSupply(SupplyGuard supply, BlockPos dish) {
+        if (!dish.equals(targetBlock)) return false;
+        return supply == SupplyGuard.WATER ? task == Task.DRINK && drinkTicks > 0
+                : takingFromDish() && bowlBiteTicks > 0 || meal.fromBowl() && mealTicks() > 0;
+    }
+
+    boolean guardingDish() {
+        return warnedAtDish && targetBlock != null && entity.reactionAction() == YukkuriAction.PUFF;
+    }
+
+    private boolean waitsAtSupply(SupplyGuard supply) {
+        var centre = Vec3.atBottomCenterOf(targetBlock);
+        var away = entity.position().subtract(centre).multiply(1, 0, 1);
+        if (away.lengthSqr() > 4) return false;
+        for (var other : level().getEntitiesOfClass(YukkuriEntity.class, new AABB(targetBlock).inflate(2),
+                y -> y != entity && y.isAlive() && y.life().usingSupply(supply, targetBlock) && entity.hasLineOfSight(y))) {
+            var shop = ShopTrade.shopOfStock(other);
+            if (shop != null && shop.kind == ShopKind.ONI) continue;
+            var occupant = other.life();
+            var traits = occupant.personality.temperament();
+            boolean guards = supply.guards(traits, other.skills().grade(Ability.FOOD_GUARD), entity.family().careParentOf(other),
+                    FamilyData.get(level()).socialKin(other.getUUID(), entity.getUUID()), supply == SupplyGuard.WATER ? occupant.dryness : occupant.nutrition);
+            if (!guards && supply == SupplyGuard.BOWL) continue;
+            if (++queueTicks == 1 && guards) {
+                if (!occupant.warnedAtDish) {
+                    SurfaceApproach.face(other, SurfaceApproach.yaw(other.position(), entity.position()));
+                    other.getLookControl().setLookAt(entity, 30, 30);
+                    occupant.warnedAtDish = other.showReaction(YukkuriAction.PUFF, "angry", "mine", 60);
+                }
+                var waiting = personality.temperament();
+                entity.showReaction(waiting.is(Gate.WARY) ? "teary" : waiting.is(Gate.BOLDISH) ? "cheek_puff" : "neutral", "wait_turn", queueBudget);
+                GameplayLog.event(other, "meal", "supply guarded supply={} kind={} guard={} approacher={} reason={}", targetBlock,
+                        supply == SupplyGuard.WATER ? "water" : "bowl", other.getUUID(), entity.getUUID(), traits.is(Gate.HARSH) ? "harsh" : "need");
+            }
+            // Waiting spends the personality's queue budget, not the budget for finding a route to the dish.
+            pursuitTicks--;
+            if (queueTicks >= queueBudget) { stopGoal(); return true; }
+            if (guards && away.lengthSqr() < 1.5 * 1.5) {
+                var stand = SurfaceApproach.retreatFloor(entity, centre.add(away.normalize().scale(1.75)));
+                if (stand == null || SurfaceApproach.retreatResult(entity, stand, other, 1) == SurfaceApproach.Result.BLOCKED) stopGoal();
+            } else SurfaceApproach.halt(entity);
+            return true;
+        }
+        queueTicks = 0;
         return false;
     }
 
@@ -1521,6 +1574,7 @@ public final class YukkuriLife {
     }
 
     public Vec3 dishContact() {
+        if (guardingDish()) return Vec3.ZERO;
         if (bowlStand != null && targetBlock != null && (task == Task.DRINK && drinkTicks > 0 || takingFromDish() && bowlBiteTicks > 0
                 || meal.fromBowl() && mealTicks() > 0 && mealTicks() < LifeMeal.TAKE_TICKS)
                 && bowlStand.reaches(entity)) return bowlStand.contact().subtract(Vec3.atLowerCornerOf(entity.blockPosition()));
@@ -1698,6 +1752,7 @@ public final class YukkuriLife {
         } else if (targetBlock != null && !avoidsField(targetBlock)
                 && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
             if (!entity.onGround()) { bowlBiteTicks = 0; return; }
+            if (bowlBiteTicks == 0 && waitsAtSupply(SupplyGuard.BOWL)) return;
             if (bowlStand == null) {
                 bowlStand = ItemContact.bowlStand(entity, targetBlock);
                 if (bowlStand != null && useBowlNicely)
@@ -1728,7 +1783,7 @@ public final class YukkuriLife {
                 if (!taken) stopGoal();
                 else if (entity.pet().ownedBy(breachOwner)) entity.pet().conscience().breach(HouseRule.NO_EATING_UNASKED);
             } else {
-                entity.showReaction("surprise", "mine", 45);
+                entity.showReaction("surprise", "", 45);
                 if (bowl.handFood(this::seeksFood, one -> {
                     var dropped = ItemContact.release(entity, one, 0);
                     if (dropped == null) return false;
@@ -1831,6 +1886,7 @@ public final class YukkuriLife {
         stallTheft.stop();
         entity.wintering().stopMeal();
         endFoodGlass();
+        warnedAtDish = false;
         foodRoute = null;
         task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = drinkTicks = 0; planWait = 30;
         entity.getNavigation().stop();
