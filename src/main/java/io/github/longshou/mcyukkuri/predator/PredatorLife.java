@@ -1176,14 +1176,14 @@ public final class PredatorLife implements EcologyRoutine {
                 } else if (passTicks > STOOP_LIMIT || horizontal > 100) {
                     withdraw("contact_missed", target, contact);
                     directFlight(animal.position().add(0, .8, 0), .85);
-                } else fly(contact, 1.6, 49);
+                } else directFlight(contact, 1.6);
             }
             case WITHDRAW -> {
                 if (contactHold && passTicks <= CONTACT_HOLD) {
                     // The run ends with the body still on the target for a moment: a close foe gets its answering blow here.
                     Vec3 contact = biteApproach(target);
                     if (contact != null && flightSweepClear(animal.position(), contact)) {
-                        phase(Task.DIVE); fly(contact, .6, 49); return;
+                        phase(Task.DIVE); directFlight(contact, .6); return;
                     }
                     contactHold = false;
                 }

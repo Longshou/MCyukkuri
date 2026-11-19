@@ -2260,6 +2260,30 @@ add('pred_watch', 'weather', '不饿的捕食种在旁，普通油后退', '不�
                                    r'\[threat\] reimu #\d+ [^\n]* response started source=(?P=pred) stage=RETREAT\b'],
                forbid=[r'\[body\][^\n]* invariant\b']))
 
+def _range_pursuit(window, trace):
+    lock = re.search(r'\[predator\] flandre #\d+ uuid=([\da-f-]+) [^\n]* prey selected target=([\da-f-]+) [^\n]* distance=(?:4[2-9]|5[0-4])\.', window)
+    if not lock:
+        return 'No long-range acquisition'
+    hunter, prey = lock.groups()
+    episode = window[lock.end():]
+    flee = re.search(rf'\[threat\] reimu #\d+ uuid={prey} t=(\d+) [^\n]* flight away [^\n]* danger={hunter}\b', episode)
+    bite = re.search(rf'\[predator\] flandre #\d+ uuid={hunter} t=(\d+) [^\n]* feeding bite target=#\d+ uuid={prey} mouthful_accepted=true', episode)
+    if not flee or not bite:
+        return 'Selected Reimu must flee this Flandre and supply her accepted mouthful'
+    start = None
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] == prey and int(flee[1]) <= row['t'] < int(bite[1]):
+            state = row['st']
+            if state['behavior'] in ('flee', 'threat_retreat'):
+                x, _, z = state['p']
+                if start is None:
+                    start = x, z
+                elif math.dist(start, (x, z)) > 1:
+                    return
+    return 'Prey did not run a block before the bite'
+
+
 add('pred_range', 'weather', '饥饿芙兰远远飞来追猎灵梦', '饥饿芙兰远远飞来追猎灵梦',
     '芙兰与灵梦相距 48 格：芙兰站稳后开始饥饿，观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
     '约 1–2 分钟', [
@@ -6858,6 +6882,7 @@ next(s for s in S if s.id == 'alice_chores').smoke['verify'] = _alice_share_home
 _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry'])
 _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=(?:4[2-9]|5[0-4])\.',
                             r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true'])
+next(s for s in S if s.id == 'pred_range').smoke.update(verify=_range_pursuit, verify_trace=True)
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
     # The exile mourns its lost home (a grief course) before it comes back to ask: the refusal comes later than before.

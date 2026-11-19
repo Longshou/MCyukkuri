@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.life.NeedWarnings;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 
 /** Physical conditions keep priority; authored clips and faces live in the moment table. */
@@ -24,6 +25,15 @@ public final class EcologyPresentation {
     }
     private static String condition(String key) {
         return Moments.face(Moments.select("conditions", key, ""), 0, "");
+    }
+
+    public static YukkuriAction catchBreath(YukkuriEntity e) {
+        return e.getVariant() == YukkuriVariant.PATCHOULI ? YukkuriAction.COUGH_MUKYU : YukkuriAction.WATER_GASP;
+    }
+
+    public static String pantFace(YukkuriEntity e) {
+        // Two tear frames for each shallow breath in the existing 1.6 s loop.
+        return (e.level().getGameTime() - e.getAnimationStartTick()) / 8 % 2 == 0 ? "teary_pant" : "teary_pant_b";
     }
     public static void tell(YukkuriEntity entity, NeedWarnings needs) {
         var need = needs.leading();

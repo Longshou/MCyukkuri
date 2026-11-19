@@ -443,7 +443,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 fallDistance = 0;
             }
         } else if (!level().isClientSide && isCrawling() && canCrawlNow() && onGround()) {
-            double distance = crawlStep();
+            double distance = crawlStep() * species.stride(moveControl.getSpeedModifier());
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;
@@ -838,13 +838,15 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void aiStep() {
         if (!level().isClientSide && !crawler()) syncCrawl(false);
         if (!isCrawling()) crawlNudgeX = crawlNudgeZ = 0;
-        double movementX = getX(), movementZ = getZ();
+        double movementX = getX(), movementY = getY(), movementZ = getZ();
         boolean wasDeciding = BodyDriver.deciding();
         BodyDriver.deciding(true);
         try { super.aiStep(); } finally { BodyDriver.deciding(wasDeciding); }
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
         if (level().isClientSide) return;
         if (!isAlive()) return;
+        species.finishStride(travelledX * travelledX + travelledZ * travelledZ > 1e-8
+                || predatorFlying() && Math.abs(getY() - movementY) > .0001);
         boolean firstReactionTick = reactionStartedAt == level().getGameTime();
         if (!firstReactionTick && reactionTicks > 0 && --reactionTicks == 0 && reactionAfter != null) {
             var follow = reactionAfter;

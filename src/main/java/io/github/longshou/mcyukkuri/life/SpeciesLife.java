@@ -1,6 +1,9 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -54,6 +57,8 @@ public final class SpeciesLife {
     private SpeciesTraits traits;
     private int vomits, chores, addressed, counted, narrated;
     private float fatigueDebt;
+    private final SprintStamina stamina = new SprintStamina();
+    private int sprintTick = -1;
     private long fatigueSteps, fatigueCost;
     private long lastMeal = Long.MIN_VALUE / 2, vomitReady, lastNarrate = Long.MIN_VALUE / 2, lastCount = Long.MIN_VALUE / 2;
     private final Map<UUID, Long> addressedAt = new HashMap<>();
@@ -72,6 +77,31 @@ public final class SpeciesLife {
     public int cheekCapacity() { return traits().cheek(); }
     public int vomits() { return vomits; }
     public int chores() { return chores; }
+    public boolean catchingBreath() { return stamina.resting(); }
+
+    /** Called at propulsion, leaving the navigation request and its safe retreat path intact. */
+    public double stride(double request) {
+        if (request <= 0 || !(Gait.fast(request) || entity.getNavigation() instanceof YukkuriGroundNavigation ground
+                && (ground.retreating() || entity.isPanicking()))) return 1;
+        sprintTick = entity.tickCount;
+        return stamina.pace(entity.predatorFlying());
+    }
+
+    public boolean sprintRequested() { return sprintTick == entity.tickCount; }
+
+    /** One charge per tick of actual driven travel. A blocked, carried or resting body catches its breath. */
+    public void finishStride(boolean moved) {
+        boolean ran = sprintRequested() && moved && !entity.isPassenger() && !stamina.resting();
+        if (!ran && stamina.debt() == 0) return;
+        var build = SprintStamina.Build.of(entity.getVariant());
+        boolean resting = stamina.resting();
+        if (ran) stamina.run(SprintStamina.capacity(build, BodyAbility.fitness(entity), BodyAbility.growthPace(entity),
+                entity.growthScale() * entity.getScale(), entity.life().nutrition(), entity.pet().isPet()));
+        else stamina.recover(build);
+        if (resting != stamina.resting())
+            GameplayLog.event(entity, "move", "sprint {} build={} flying={} nutrition={} energy={}",
+                    stamina.resting() ? "spent" : "recovered", build, entity.predatorFlying(), entity.life().nutrition(), entity.life().energy());
+    }
     /** Portions currently held in the cheeks/mouth for the household chores or a foraging trip. */
     public int cheekLoad() { return Math.max(entity.habitat().carrying().getCount(), entity.forageTrip() == null ? 0 : entity.forageTrip().load().getCount()); }
     public String speechHooks() { return "address=" + addressed + ",count=" + counted + ",narrate=" + narrated; }
@@ -346,11 +376,13 @@ public final class SpeciesLife {
 
     public CompoundTag save() {
         var tag = new CompoundTag();
+        tag.putDouble("SprintDebt", stamina.debt()); tag.putBoolean("CatchingBreath", stamina.resting());
         tag.putInt("Vomits", vomits); tag.putInt("Chores", chores);
         tag.putInt("Addressed", addressed); tag.putInt("Counted", counted); tag.putInt("Narrated", narrated);
         return tag;
     }
     public void load(CompoundTag tag) {
+        stamina.restore(tag.getDouble("SprintDebt"), tag.getBoolean("CatchingBreath"));
         vomits = Math.max(0, tag.getInt("Vomits")); chores = Math.max(0, tag.getInt("Chores"));
         addressed = Math.max(0, tag.getInt("Addressed")); counted = Math.max(0, tag.getInt("Counted")); narrated = Math.max(0, tag.getInt("Narrated"));
         fatigueDebt = 0; fatigueSteps = fatigueCost = 0;

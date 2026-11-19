@@ -50,7 +50,8 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     }
 
     public static double flightPace(YukkuriEntity body, double request) {
-        return Gait.flight(body.getAttributeValue(Attributes.FLYING_SPEED), request, growthPace(body), temperament(body));
+        return Gait.flight(body.getAttributeValue(Attributes.FLYING_SPEED), request, growthPace(body), temperament(body))
+                * body.species().stride(request);
     }
 
     /** The pace it presses or swims with (blocks a tick): its swim speed in water, its walk speed out of it. */

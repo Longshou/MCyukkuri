@@ -12,8 +12,10 @@ public final class Gait {
 
     /** Fast ground requests (between ordinary 1.0 and retreat 1.2) use the hop-run clip. */
     public static boolean isRunning(boolean crawling, boolean canJump, double requestedModifier, boolean explicitRun) {
-        return !crawling && canJump && (requestedModifier >= 1.15 || explicitRun);
+        return !crawling && canJump && (fast(requestedModifier) || explicitRun);
     }
+
+    public static boolean fast(double request) { return request >= 1.15; }
 
     /** A cautious or bold body shifts its pace by up to six percent. */
     public static double temperament(int boldness) {
