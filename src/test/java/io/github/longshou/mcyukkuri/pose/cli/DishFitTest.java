@@ -24,10 +24,14 @@ class DishFitTest {
         int start = part.get("start").getAsInt(), end = start + part.get("count").getAsInt();
         for (String clip : new String[]{"drink", "eat"}) {
             int rim = clip.equals("drink") ? 2 : 3;
-            for (float scale : new float[]{.145f, .32f, .5f, 1f, 1.2f}) {
+            for (float scale : new float[]{.145f, .18f, .28f, .3f, .32f, .35f, .4f, .5f, 1f, 1.2f}) {
                 var stand = DishFit.stand(6.4 * scale, 5.376 * scale, -model.mouth.z * scale);
                 double reach = Math.hypot(stand.lipX() - stand.x(), stand.lipZ() - stand.z());
                 var target = new Vector3f(0, stand.perched() ? 0 : rim / scale, (float)(-reach / scale));
+                var ceramic = new Vector3f[4];
+                float yaw = (float) Math.atan2(stand.x() - stand.lipX(), stand.z() - stand.lipZ());
+                for (int i = 0; i < ceramic.length; i++)
+                    ceramic[i] = new Vector3f((i % 2) - .5f, 0, (i / 2) - .5f).rotateY(-yaw).div(scale);
                 for (int tick = 0; tick <= 32; tick++) {
                     model.sample(clip, tick / 20f, null);
                     var fit = new DishFit();
@@ -52,9 +56,18 @@ class DishFitTest {
                     }
                     assertTrue(gap * scale < .001, clip + " scale=" + scale + " tick=" + tick + " gap=" + gap * scale);
                     float sole = Float.POSITIVE_INFINITY;
+                    float ceramicGap = Float.POSITIVE_INFINITY;
                     for (int i = 0; i < model.floor.size(); i += 3) {
                         var corners = new Vector3f[]{model.skin(model.floor.get(i)), model.skin(model.floor.get(i+1)), model.skin(model.floor.get(i+2))};
                         for (var corner : corners) fit.press(corner);
+                        if (stand.perched()) {
+                            for (var foot : ceramic) {
+                                Intersectionf.findClosestPointOnTriangle(corners[0], corners[1], corners[2], foot, p);
+                                ceramicGap = Math.min(ceramicGap, p.distance(foot) * scale);
+                            }
+                            for (var corner : corners)
+                                assertTrue(Math.hypot(corner.x, corner.z) * scale < Math.sqrt(2) * (stand.x() - 3));
+                        }
                         float outer = target.z + 1 / scale;
                         for (int j = 0; j < 3; j++) {
                             var a = corners[j]; var b = corners[(j+1)%3];
@@ -67,6 +80,7 @@ class DishFitTest {
                         }
                     }
                     assertTrue(sole * scale < .01, "ungrounded sole " + sole * scale);
+                    if (stand.perched()) assertTrue(ceramicGap < .02, "gap over ceramic corner " + ceramicGap);
                 }
             }
         }

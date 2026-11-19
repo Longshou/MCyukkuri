@@ -101,8 +101,9 @@ public final class ItemContact {
             var stand = top.add(outward.scale(fit.x() / 16)).add(across.scale(fit.z() / 16));
             var contact = top.add(outward.scale(fit.lipX() / 16)).add(across.scale(fit.lipZ() / 16));
             var foot = SurfaceApproach.floor(actor, stand);
+            // Between perch and adult sizes the planted body stretches up to the rim from the dish's own floor.
             if (foot == null || (fit.perched() ? Math.abs(foot.y - rim.maxY) > .001
-                    : contact.y < foot.y || contact.y - foot.y > actor.getBbHeight())) continue;
+                    : contact.y < foot.y || contact.y - foot.y > Math.max(actor.getBbHeight(), rim.getYsize()))) continue;
             double distance = SurfaceApproach.routeLength(actor, foot, null);
             if (distance >= shortest) continue;
             shortest = distance;

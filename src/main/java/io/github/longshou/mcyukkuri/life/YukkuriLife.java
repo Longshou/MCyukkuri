@@ -1446,6 +1446,8 @@ public final class YukkuriLife {
     }
 
     private boolean meetDish() {
+        // A just-spawned or descending body has no grounded last step to test yet.
+        if (!entity.onGround()) return false;
         var feet = bowlStand.feet();
         if (!bowlStand.at(entity)) {
             if (!SurfaceApproach.tryStraightStep(entity, feet, 1)
