@@ -261,12 +261,16 @@ final class SetOut implements Intent, FamilyRendezvous {
     private List<Supplier<Step>> lift(YukkuriEntity child, Waters.Edge shore) {
         asked.add(child.getUUID());
         var grab = new Grab(child);
-        var approach = Ferry.approach(owner, grab);
-        return List.of(approach, () -> {
+        return List.of(() -> {
+                    if (grab.check(owner).ok()) return null;
+                    var stand = grab.contactStand(owner);
+                    return stand == null ? null : new Step.Do(Walk.stand(stand, 1));
+                }, () -> {
                     long until = owner.level().getGameTime() + WAIT_YOUNG;
                     return grab.check(owner).ok() ? null : new Step.Wait(() -> grab.check(owner).ok() || owner.level().getGameTime() >= until,
                             WAIT_YOUNG + 1, Behaviors.BOAT_CALL);
-                }, approach, // The caller and a crawling child can finish the call inside the worn brim lift's grip radius.
+                }, new Plan.Approach<>(() -> grab.check(owner), () -> grab.nextContactStand(owner),
+                        stand -> new Step.Do(Walk.stand(stand, 1, SurfaceApproach.ARRIVAL))),
                 () -> {
                     if (!grab.check(owner).ok()) {
                         GameplayLog.event(owner, "aquatic", "set_out carry skipped child={} reason=out_of_reach at={}", child.getUUID(),

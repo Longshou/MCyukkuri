@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -17,6 +18,16 @@ import java.util.function.Supplier;
  * Nothing is a stored phase: the next steps always follow from the facts.
  */
 final class Plan implements Method {
+    /** Read the live contact stand again after each walk. A null step hands off to the grip. */
+    record Approach<T>(Supplier<Feasibility> grip, Supplier<T> contactStand, Function<T, Step> walk) implements Supplier<Step> {
+        @Override public Step get() {
+            var reason = grip.get().reason();
+            if (reason != Reason.NO_CONTACT && reason != Reason.NO_SUPPORT) return null;
+            var stand = contactStand.get();
+            return stand == null ? null : walk.apply(stand);
+        }
+    }
+
     /** Builders tried in one {@link #next} call before it gives up (every one skipped means no way on). */
     private static final int SKIPS = 8;
 
@@ -54,7 +65,9 @@ final class Plan implements Method {
                 if (more == null || more.isEmpty()) return null;
                 queue.addAll(more);
             }
-            var step = queue.poll().get();
+            var builder = queue.getFirst();
+            var step = builder.get();
+            if (!(builder instanceof Approach<?>) || step == null) queue.removeFirst();
             if (step != null) return step;
         }
         return null;

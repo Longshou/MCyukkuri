@@ -89,7 +89,12 @@ public final class Walk implements Action {
 
     /** Walks to a stand beside another body: a supported floor point, so the last 0.1 blocks horizontally count as arrived (the stand's height need not equal the other body's). */
     public static Walk stand(Vec3 target, double speed) {
-        return new Walk(target, speed, STAND_ARRIVED);
+        return stand(target, speed, STAND_ARRIVED);
+    }
+
+    /** A contact pose can require a closer finish than an ordinary stand beside a peer. */
+    public static Walk stand(Vec3 target, double speed, double arrive) {
+        return new Walk(target, speed, arrive);
     }
 
     /** Walks to a target on {@code host}, in hat units of that host's frame. */

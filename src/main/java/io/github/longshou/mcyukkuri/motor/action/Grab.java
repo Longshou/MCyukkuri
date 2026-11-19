@@ -24,6 +24,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Predicate;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -91,17 +92,26 @@ public final class Grab implements Action {
 
     /** Approach a stand that can actually see and reach this body with an available hold. */
     public Vec3 contactStand(YukkuriEntity carrier) {
+        return contactStand(carrier, at -> true);
+    }
+
+    /** A refused ground grip needs a stand the walk will actually move to. */
+    public Vec3 nextContactStand(YukkuriEntity carrier) {
+        return awaitingLanding() ? null : contactStand(carrier, at -> !SurfaceApproach.at(carrier, at));
+    }
+
+    private Vec3 contactStand(YukkuriEntity carrier, Predicate<Vec3> usable) {
         var holds = source != null && ContactGeometry.braided(carrier) ? List.of(Hold.BRAID) : ParentCarry.holdsFor(carrier, target);
         // The brim lift takes the young off the ground at its clip's grip: the stand is where that grip lies on it.
         if (!holds.isEmpty() && holds.get(0) == Hold.BRIM)
             return SurfaceApproach.beside(carrier, target.position(), ParentCarry.brimReach(carrier), target,
-                    at -> brimContact(carrier, at, ParentCarry.brimYaw(at, target.position())).ok());
+                    at -> usable.test(at) && brimContact(carrier, at, ParentCarry.brimYaw(at, target.position())).ok());
         boolean mouth = holds.stream().anyMatch(h -> h.reach() == Reach.MOUTH);
         boolean braid = holds.stream().anyMatch(h -> h.reach() == Reach.BRAID);
         // Sixteen bearings round the target, not four: young already set down on the bank are obstacles to stand round, so a stand
         // another yukkuri occupies is no stand.
         return SurfaceApproach.beside(carrier, target.position(), (carrier.getBbWidth() + target.getBbWidth()) * .5 + .15, target,
-                at -> Math.abs(at.y - target.getY()) <= ContactGeometry.GRAB_HEIGHT && free(carrier, at)
+                at -> usable.test(at) && Math.abs(at.y - target.getY()) <= ContactGeometry.GRAB_HEIGHT && free(carrier, at)
                         && (mouth && ContactGeometry.inMouthReach(carrier, at, target)
                         || braid && ContactGeometry.braidGap(carrier, at, target) <= 0));
     }
