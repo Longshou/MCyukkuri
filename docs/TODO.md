@@ -15,7 +15,6 @@
 | 被夸与玩耍后的开心慢慢消退 | `.worktrees/wp-joy-tail` | mind/EmotionEvent.java, mind/MindLife.java |
 | 被嘲讽、执行制裁、发现霉斑后的情绪余韵 | `.worktrees/wp-scorn-tail` | headwear/Contempt.java, headwear/Sanction.java, body/BodyLife.java |
 | 送别时高依恋亲油含泪目送 | `.worktrees/wp-parting-gaze` | EmotionCourse goal priority, IndependenceLife |
-| 水中救子：子油被推后没落水（场景改用身体推动的推法，已接入待试玩） | `.worktrees/wp-rescue-child` | rescue_child scene, ScenarioCommands.java (scenario push) |
 | 隔台阶的贴身蹭：先到同一层再蹭 | `.worktrees/wp-step-nuzzle` | social/DailyLife.java, life/SurfaceApproach.java, motor/SideContact.java |
 | 新窝不得让别人已有的窝失效 | `.worktrees/wp-den-placement` | settlement/ShelterPlacement.java |
 
