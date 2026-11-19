@@ -472,8 +472,7 @@ public final class PredatorLife implements EcologyRoutine {
             cancelNestSearch(); return Result.NOT_FOUND;
         }
         if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
-        if (naturalSpawn || task == Task.FOUND || nestBuild.wants()) { cancelNestSearch(); return Result.DEFERRED; }
-        nestBuild.cancelSearch();
+        if (naturalSpawn || task == Task.FOUND || nestBuild.wantsSurvey()) { cancelNestSearch(); return Result.DEFERRED; }
         if (nestSearch != null && !nestSearch.current(level, animal)) cancelNestSearch();
         if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, false);
         var result = nestSearch.advance(animal, pos -> false, pos -> 0);
@@ -489,8 +488,11 @@ public final class PredatorLife implements EcologyRoutine {
             Vec3 feet = landingFeet(home);
             if (feet != null) { destination = feet; task = Task.RETURN; return true; }
         }
-        if (cooldown > 0 || animal.life().energy() < 20) return false;
-        if (animal.life().canEat()) {
+        double pressure = animal.onGround() ? nestBuild.framePressure() : 0;
+        if ((cooldown > 0 && pressure == 0) || animal.life().energy() < 20) return false;
+        // If even an available meal would lose, skip the food searches. Otherwise let a real target compete.
+        boolean seekFood = !FoundingFrame.chooseWork(pressure, animal.life().nutrition(), true);
+        if (seekFood && animal.life().canEat()) {
             food = level().getEntitiesOfClass(ItemEntity.class, animal.getBoundingBox().inflate(10), this::edibleDrop).stream()
                     .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
             corpse = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(10), this::edibleCorpse).stream()
@@ -501,7 +503,7 @@ public final class PredatorLife implements EcologyRoutine {
             corpse = null;
             if (food != null) { task = Task.SCAVENGE; return true; }
         }
-        if (wantsHunt()) {
+        if (seekFood && wantsHunt()) {
             prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(HUNT_RANGE, 8, HUNT_RANGE), this::mayHunt).stream()
                     .min(Comparator.<YukkuriEntity>comparingInt(y -> slowChild(y) ? 0 : 1)
                             .thenComparingDouble(y -> slowChild(y) ? y.getAttributeValue(Attributes.MOVEMENT_SPEED) : 0)
@@ -514,7 +516,7 @@ public final class PredatorLife implements EcologyRoutine {
             }
             if (restrain()) { cooldown = 20; return false; }
         }
-        if (animal.onGround() && nestBuild.canStart()) { task = Task.FOUND; return true; }
+        if (pressure > 0 || animal.onGround() && nestBuild.canSurvey()) { task = Task.FOUND; return true; }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
                 && !level().isNight() && !level().isRaining()) {
             var center = home == null ? animal.position() : Vec3.atBottomCenterOf(home);
@@ -558,7 +560,6 @@ public final class PredatorLife implements EcologyRoutine {
         contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
         if (task == Task.FOUND) { cancelNestSearch(); nestBuild.start(); }
-        else nestBuild.cancelSearch();
         GameplayLog.event(animal,"predator","activity started; task={} prey={} food={} corpse={} retaliation={} nutrition={} energy={} destination={}",
                 task,prey==null?"none":prey.getUUID(),food==null?"none":food.getUUID(),corpse==null?"none":corpse.getUUID(),
                 retaliation,animal.life().nutrition(),animal.life().energy(),destination);
@@ -1103,6 +1104,7 @@ public final class PredatorLife implements EcologyRoutine {
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Order", order.name()); tag.putInt("Cooldown", cooldown);
         tag.putBoolean("NaturalSpawn", naturalSpawn); if (commander != null) tag.putUUID("Commander", commander);
+        nestBuild.save(tag);
         if (lostNest != null && animal.level().getGameTime() < lostNestUntil) {
             var lost = new CompoundTag(); lost.putLong("Pos", lostNest.asLong()); lost.putLong("Until", lostNestUntil);
             tag.put("LostNest", lost);
@@ -1117,6 +1119,7 @@ public final class PredatorLife implements EcologyRoutine {
         stop(); try { order = Order.valueOf(tag.getString("Order")); } catch (IllegalArgumentException ignored) { order = Order.NATURAL; }
         commander = tag.hasUUID("Commander") ? tag.getUUID("Commander") : null;
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 400); naturalSpawn = tag.getBoolean("NaturalSpawn");
+        nestBuild.load(tag);
         var lost = tag.getCompound("LostNest");
         lostNest = lost.contains("Pos") ? BlockPos.of(lost.getLong("Pos")) : null;
         lostNestUntil = lost.getLong("Until");

@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -46,6 +47,7 @@ final class NestBuild {
     private Attempts sites = new Attempts(3);
     private boolean surveyed;
     private PredatorNestSearch search;
+    private FoundingFrame frame;
     private CanopySite site;
     private Phase phase;
     private Vec3 crown;
@@ -59,23 +61,54 @@ final class NestBuild {
     private ServerLevel level() { return (ServerLevel) body.level(); }
     private MouthOccupancy mouth() { return body.component(YukkuriComponents.MOUTH); }
 
-    boolean eligible() {
-        return (body.life().home() == null || body.life().naturalHome() && !body.habitat().hasMemory())
-                && body.family().adult() && body.status().identity().wild()
+    private boolean homeless() {
+        return !body.habitat().hasMemory() && (body.life().home() == null || body.life().naturalHome());
+    }
+
+    private boolean eligible() {
+        return body.family().adult() && body.status().identity().wild()
                 && !HumanCommerce.protectedAnimal(body) && EventHooks.canEntityGrief(level(), body);
     }
 
-    boolean wants() {
+    private boolean needsAttention() {
+        return body.life().drowsy() || body.life().hasUrgentNeed() || level().isRaining()
+                || !(mouth().purpose() == Purpose.NEST || mouth().freeForExternalWork());
+    }
+
+    private Attempts sitesToday() {
         long today = level().getGameTime() / DAY;
         if (day != today) { day = today; sites = new Attempts(3); surveyed = false; }
-        return !surveyed && !sites.exhausted() && !body.life().drowsy() && !level().isRaining()
-                && !body.life().hasUrgentNeed() && (mouth().purpose() == Purpose.NEST || mouth().freeForExternalWork())
-                && eligible();
+        return sites;
+    }
+
+    boolean wantsSurvey() {
+        return !sitesToday().exhausted() && !surveyed && frame == null && body.life().home() == null && !body.habitat().hasMemory()
+                && !needsAttention() && eligible();
+    }
+
+    /** Consult the physical block on selection. An unloaded address is still the founder's memory. */
+    double framePressure() {
+        if (frame == null || !frame.dimension().equals(level().dimension().location().toString())) return 0;
+        var pos = BlockPos.of(frame.pos());
+        if (!level().hasChunksAt(pos.offset(-2, 0, -2), pos.offset(2, 0, 2))) return 0;
+        if (!(level().getBlockEntity(pos) instanceof PredatorNestFrameBlock.FrameEntity block) || !body.getUUID().equals(block.founder())) {
+            frame = null;
+            return 0;
+        }
+        frame = frame.observed(block.getBlockState().getValue(PredatorNestFrameBlock.TWIGS));
+        boolean lacksNest = homeless();
+        double pressure = frame.pressure(level().getGameTime(), lacksNest, needsAttention() || !eligible());
+        if (!lacksNest) { block.setFounder(null); frame = null; }
+        if (pressure == 0) return 0;
+        site = CanopySite.inspect(level(), body, pos);
+        if (site != null) return pressure;
+        reject(pos, "site_changed", Reason.NO_ROOM);
+        return 0;
     }
 
     /** Keep ordinary ground activities until the sliced search actually sees a tree worth surveying. */
-    boolean canStart() {
-        if (!wants()) return false;
+    boolean canSurvey() {
+        if (!wantsSurvey()) return false;
         if (search != null && !search.current(level(), body)) cancelSearch();
         if (search == null) search = new PredatorNestSearch(level(), body, true);
         var result = scan();
@@ -83,7 +116,7 @@ final class NestBuild {
             surveyed = true;
             GameplayLog.limited(body, "predator", "nest_build_no_canopy_site", 200, "nest build refused reason=no_canopy_site");
         }
-        return site != null || search != null && search.seesCanopySite();
+        return result == Result.FOUND && site != null || search != null && search.seesCanopySite();
     }
 
     private Result scan() {
@@ -96,6 +129,11 @@ final class NestBuild {
     }
 
     void start() {
+        if (frame != null) {
+            GameplayLog.event(body, "predator", "nest work chosen site={} twigs={} age={}", site.cell(), frame.twigs(), level().getGameTime() - frame.since());
+            startTrip();
+            return;
+        }
         phase(Phase.SURVEY);
         crown = null;
         corners = body.life().personality().temperament().curious() >= .5 ? 8 : 4;
@@ -119,7 +157,7 @@ final class NestBuild {
 
     void tick(int legLimit) {
         if (++elapsed > legLimit) { failed("leg_timeout", Reason.NO_PATH); return; }
-        if (!eligible() || level().isNight() || level().isRaining() || body.life().hasUrgentNeed()) { flight.stop(); return; }
+        if (!eligible() || !homeless() || level().isNight() || level().isRaining() || body.life().hasUrgentNeed()) { flight.stop(); return; }
         switch (phase) {
             case SURVEY -> survey();
             case SOURCE -> source();
@@ -144,10 +182,6 @@ final class NestBuild {
             if (result == Result.NOT_FOUND) { failed("no_canopy_site", Reason.NO_ROOM); return; }
             if (result == Result.DEFERRED) return;
         }
-        if (level().getBlockState(site.cell()).is(ModBlocks.PREDATOR_NEST_FRAME.get())) {
-            startTrips();
-            return;
-        }
         if (elapsed <= ClipMarkers.of(LOOK).length()) return;
         if (crown == null) {
             crown = crown(site.cell());
@@ -169,7 +203,8 @@ final class NestBuild {
             corner++;
             return;
         }
-        startTrips();
+        GameplayLog.event(body, "predator", "nest site selected site={} stand={} tree_height={}", site.cell(), site.stand(), site.height());
+        startTrip();
     }
 
     private Vec3 surveyPoint(int index) {
@@ -177,8 +212,7 @@ final class NestBuild {
         return crown.add(Math.cos(angle) * SURVEY_RADIUS, 0, Math.sin(angle) * SURVEY_RADIUS);
     }
 
-    private void startTrips() {
-        GameplayLog.event(body, "predator", "nest site selected site={} stand={} tree_height={}", site.cell(), site.stand(), site.height());
+    private void startTrip() {
         phase(mouth().purpose() == Purpose.NEST ? Phase.PLACE : Phase.SOURCE);
     }
 
@@ -242,33 +276,44 @@ final class NestBuild {
         phase(Phase.PLACE);
     }
 
+    private boolean canPlaceAt(BlockPos cell) {
+        if (frame == null) return body.life().home() == null && CanopySite.available(level(), cell);
+        return level().getBlockEntity(cell) instanceof PredatorNestFrameBlock.FrameEntity block && body.getUUID().equals(block.founder());
+    }
+
     private void place() {
         var cell = site.cell();
         var current = CanopySite.inspect(level(), body, cell);
-        if (current == null || !CanopySite.canBuild(body, level().getBlockState(cell)) || !current.stand().equals(site.stand())) {
+        if (current == null || !current.stand().equals(site.stand()) || !canPlaceAt(cell)) {
             failed("site_changed", Reason.NO_ROOM); return;
         }
         if (!flight.landForBuild(current.stand()) || !face(current.pad())) return;
         if (++gesture < ClipMarkers.of(Behaviors.NEST_PLACE).length()) return;
         if (!mouth().handOne(Purpose.NEST, twig -> lay(cell))) { failed("placement_or_claim_refused", Reason.NO_ROOM); return; }
-        if (level().getBlockState(cell).is(ModBlocks.PREDATOR_NEST.get()) || body.life().restAfterWork()) flight.stop();
-        else phase(Phase.SOURCE);
+        flight.stop();
     }
 
     private boolean lay(BlockPos pos) {
         var old = level().getBlockState(pos);
         int twigs = old.isAir() ? 0 : old.getValue(PredatorNestFrameBlock.TWIGS);
         if (twigs < PredatorNestFrameBlock.MAX_TWIGS) {
-            var frame = ModBlocks.PREDATOR_NEST_FRAME.get().defaultBlockState().setValue(PredatorNestFrameBlock.TWIGS, twigs + 1);
-            if (!level().setBlock(pos, frame, Block.UPDATE_ALL)) return false;
+            var next = ModBlocks.PREDATOR_NEST_FRAME.get().defaultBlockState().setValue(PredatorNestFrameBlock.TWIGS, twigs + 1);
+            if (!level().setBlock(pos, next, Block.UPDATE_ALL)) return false;
+            if (frame == null) {
+                ((PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos)).setFounder(body.getUUID());
+                frame = new FoundingFrame(level().dimension().location().toString(), pos.asLong(), twigs + 1, level().getGameTime());
+                body.setPersistenceRequired();
+            } else frame = frame.observed(twigs + 1);
             GameplayLog.event(body, "predator", "nest frame twigs={} site={}", twigs + 1, pos);
             return true;
         }
         if (!level().setBlock(pos, ModBlocks.PREDATOR_NEST.get().defaultBlockState(), Block.UPDATE_ALL)) return false;
         if (!body.life().assignHome(GlobalPos.of(level().dimension(), pos))) {
             level().setBlock(pos, old, Block.UPDATE_ALL);
+            if (frame != null) ((PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos)).setFounder(body.getUUID());
             return false;
         }
+        frame = null;
         GameplayLog.event(body, "predator", "nest built home={} twigs={}", pos, twigs + 1);
         return true;
     }
@@ -280,14 +325,25 @@ final class NestBuild {
     }
 
     void failed(String reason, Reason why) {
-        if (site == null) surveyed = true;
-        else sites.fail(site.cell().toShortString(), why, 0, null);
-        GameplayLog.limited(body, "predator", "nest_build_" + reason, 200,
-                "nest build refused reason={} site={} used={}", reason, site == null ? "none" : site.cell(), sites.used());
+        reject(site == null ? null : site.cell(), reason, why);
         flight.stop();
     }
 
-    void cancelSearch() {
+    private void reject(BlockPos pos, String reason, Reason why) {
+        if (pos == null) surveyed = true;
+        else {
+            sitesToday().fail(pos.toShortString(), why, 0, null);
+            if (frame != null && level().hasChunksAt(pos.offset(-2, 0, -2), pos.offset(2, 0, 2))) {
+                if (level().getBlockEntity(pos) instanceof PredatorNestFrameBlock.FrameEntity block && body.getUUID().equals(block.founder()))
+                    block.setFounder(null);
+                frame = null;
+            }
+        }
+        GameplayLog.limited(body, "predator", "nest_build_" + reason, 200,
+                "nest build refused reason={} site={} used={}", reason, pos == null ? "none" : pos, sites.used());
+    }
+
+    private void cancelSearch() {
         if (search != null) { search.cancel(body); search = null; }
     }
 
@@ -295,5 +351,21 @@ final class NestBuild {
         cancelSearch();
         site = null; stick = null; leaf = null; gesture = 0;
         if (body.onGround()) mouth().releaseItems(Purpose.NEST, 20);
+    }
+
+    void save(CompoundTag tag) {
+        if (frame == null) return;
+        var data = new CompoundTag();
+        data.putString("Dimension", frame.dimension());
+        data.putLong("Pos", frame.pos());
+        data.putInt("Twigs", frame.twigs());
+        data.putLong("Since", frame.since());
+        tag.put("FoundingFrame", data);
+    }
+
+    void load(CompoundTag tag) {
+        var data = tag.getCompound("FoundingFrame");
+        frame = data.contains("Pos") ? new FoundingFrame(data.getString("Dimension"), data.getLong("Pos"),
+                data.getInt("Twigs"), data.getLong("Since")) : null;
     }
 }

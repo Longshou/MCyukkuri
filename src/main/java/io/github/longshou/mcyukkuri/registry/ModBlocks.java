@@ -67,6 +67,8 @@ public final class ModBlocks {
     public static final DeferredBlock<PredatorNestFrameBlock> PREDATOR_NEST_FRAME = BLOCKS.register("predator_nest_frame", () ->
             new PredatorNestFrameBlock(BlockBehaviour.Properties.of().strength(.4f).sound(SoundType.ROOTS).noOcclusion()
                     .pushReaction(PushReaction.DESTROY)));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PredatorNestFrameBlock.FrameEntity>> PREDATOR_NEST_FRAME_ENTITY =
+            BLOCK_ENTITIES.register("predator_nest_frame", () -> BlockEntityType.Builder.of(PredatorNestFrameBlock.FrameEntity::new, PREDATOR_NEST_FRAME.get()).build(null));
     public static final DeferredBlock<CareBlock> TOILET = register("yukkuri_toilet", CareBlock.Kind.TOILET, SoundType.WOOD);
     public static final DeferredBlock<ShelterBlock> FOREST_BURROW=BLOCKS.register("forest_burrow",
             ()->new ShelterBlock(ShelterBlock.Kind.BURROW,BlockBehaviour.Properties.of().strength(.8f).sound(SoundType.ROOTS).noOcclusion()));

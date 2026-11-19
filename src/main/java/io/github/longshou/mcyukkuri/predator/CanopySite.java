@@ -78,9 +78,11 @@ record CanopySite(BlockPos cell, Vec3 pad, Vec3 stand, int height, double cover,
 
     static boolean buildable(BlockState state) { return state.isAir() || state.is(ModBlocks.PREDATOR_NEST_FRAME.get()); }
 
-    /** A roof-sheltered founder can finish an existing frame and keeps its roof until the finished nest is claimed. */
-    static boolean canBuild(YukkuriEntity body, BlockState state) {
-        return buildable(state) && (!state.isAir() || body.life().home() == null);
+    /** Fresh surveys can pick an empty cell or an unowned frame, including frames from older worlds. */
+    static boolean available(ServerLevel level, BlockPos pos) {
+        var state = level.getBlockState(pos);
+        return state.isAir() || state.is(ModBlocks.PREDATOR_NEST_FRAME.get())
+                && level.getBlockEntity(pos) instanceof PredatorNestFrameBlock.FrameEntity frame && frame.founder() == null;
     }
 
     private static boolean clearable(BlockState state) {
