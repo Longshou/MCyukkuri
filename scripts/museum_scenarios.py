@@ -4673,7 +4673,7 @@ add('hatless_kin', 'headwear', '失饰子油：笨亲油认不出', '失饰子�
     env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读低智力亲油', f'yukkuri status {sel("mom_blind")} raw'), ('读高智力亲油', f'yukkuri status {sel("mom_sees")} raw'), ('读被驱赶孩子', f'yukkuri status {sel("kid_blind")} raw')])
 
 add('hatless_scorn', 'headwear', '没头饰：被鄙视、被凶的欺负', '没头饰：被鄙视、被凶的欺负',
-    '围栏里没戴头饰的灵梦（胆大、友善、健康）：智力普通的旁观者认不出它，生气说台词、走开，它哭、不安上涨；凶悍成体自然鄙视后发起欺负，'
+    '围栏里没戴头饰的灵梦（胆大、友善、健康）：智力普通的旁观者认不出它，生气说台词、走开，它先含泪，随后鼓脸生气；凶悍成体自然鄙视后发起欺负，'
     '它遇到咬、抢、推时按自身状态选择反击或逃跑，欺负者被反击也重新选择，低血量一律逃跑。高智力的橙（90）认得出，不鄙视也不躲。观察双方血量、实际 Goal、位置及反应读数',
     '鄙视约 10–30 秒出现，之后每 30–40 秒重复；欺负自然升级有概率，约 1–3 分钟', [
         # The pen keeps wandering actors in sight and leaves ground for a retreat.
@@ -7583,9 +7583,24 @@ next(s for s in S if s.id == 'learned_fire').smoke['commands'] = [
     (125, f'execute at {sel("burnt")} run setblock ~2 ~ ~ minecraft:campfire'),
     (125, f'execute at {sel("unburnt")} run setblock ~2 ~ ~ minecraft:campfire'),
 ]
-_smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
-                                 rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target=',
-                                 rf'uuid={_uuid_text("hatless_scorn", "bare")} [^\n]*course begun kind=rage strength=0\.35\b'])
+_scorn_executor = _uuid_text('hatless_scorn', 'drive_executor')
+_scorn_meek = _uuid_text('hatless_scorn', 'drive_meek')
+_smoke('hatless_scorn', 3600, [
+    r'\[contempt\][^\n]* scorn target=',
+    rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target=',
+    rf'uuid={_uuid_text("hatless_scorn", "bare")} [^\n]*course begun kind=rage strength=0\.35\b',
+    rf'uuid={_scorn_executor} [^\n]*drive off attempted target={_scorn_meek}\b',
+    rf'uuid={_scorn_executor} [^\n]*course begun kind=rage strength=0\.3 length=\d+ about={_scorn_meek}\b',
+], forbid=[rf'uuid={_scorn_meek} [^\n]*course (?:begun|renewed) kind=rage\b'])
+# The bold exhibit actor can interrupt the case by counterattacking. A separate smoke pair can carry out the final act.
+next(s for s in S if s.id == 'hatless_scorn').smoke['commands'] = [
+    *((1, block(x, 0, z, 'minecraft:oak_fence'))
+      for x in range(10, 15) for z in range(-2, 3) if x in (10, 14) or abs(z) == 2),
+    (1, yk('marisa', 11, 0, 'drive_executor', uuid=uid('hatless_scorn', 'drive_executor'),
+           yaw=-90, intelligence=35, friendliness=0, self_control=0, boldness=85, **pair_ready())),
+    (1, yk('reimu', 13, 0, 'drive_meek', uuid=uid('hatless_scorn', 'drive_meek'),
+           yaw=90, accessory=False, boldness=20, self_control=95, **pair_ready())),
+]
 _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[contempt\][^\n]* scorn target='])
 _fed = _uuid_text('feed_wild', 'street_hungry')
 _empty = _uuid_text('feed_wild', 'street_nofood')
