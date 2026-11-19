@@ -192,9 +192,10 @@ public final class YukkuriLife {
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !hotFloor.active() && !entity.body().dying()
                 && !level().isRainingAt(entity.blockPosition()) && !temperature.unsafeSleep();
     }
-    /** A nap is leisure: a body that really needs food stays awake to eat it; only a full sleep at energy 0 still starts. */
+    /** A nap is leisure: a body that really needs food stays awake to eat it; only a full sleep at energy 0 still starts.
+     *  A body still walking to or resting at a warmth refuge does not nap over it: it warms first and the refuge hands it over to sleep. */
     public boolean wantsFatigueRest() {
-        return !isSleeping() && !entity.family().stemFoodUrgent()
+        return !isSleeping() && !entity.family().stemFoodUrgent() && !temperature.active()
                 && (energy <= 0 || napReady && energy <= 25 && nutrition >= 30) && canFatigueRest();
     }
     public void startFatigueRest() {
@@ -1021,8 +1022,11 @@ public final class YukkuriLife {
             GameplayLog.event(entity, "pet", "outing rest begin energy={} band={}", energy, entity.outing().restBand());
             return true;
         }
+        // An uncovered body already too cold or hot to sleep does not lie down: the environment would wake it twenty ticks
+        // later, so it stays up and shivers unless a paper cover lets a baby sleep through the cold.
         if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
-                && !entity.family().mealAwaits() && homeProvider().ordinaryRestAllowed(this)) {
+                && !entity.family().mealAwaits() && homeProvider().ordinaryRestAllowed(this)
+                && (!temperature.unsafeSleep() || coldPaperSleepAllowed())) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
