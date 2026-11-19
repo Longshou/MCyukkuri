@@ -7904,6 +7904,7 @@
   "operation.mcyukkuri.ask": "问问它",
   "operation.mcyukkuri.help.ask": "问它现在怎么样；它正想要什么的话，会再说一遍。",
   "pet.mcyukkuri.request.food": "%s饿了，想吃东西。",
+  "pet.mcyukkuri.request.water": "%s渴了，想喝水。",
   "pet.mcyukkuri.request.warm": "%s冷得发抖，想暖和一点。",
   "pet.mcyukkuri.request.nuzzle": "%s想要亲近一下。",
   "pet.mcyukkuri.request.play": "%s觉得无聊，想玩一会儿。",

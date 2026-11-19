@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
+import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -28,7 +29,8 @@ import java.util.Locale;
  * driven by game ticks only. All numbers are project-original.
  */
 public final class PetRequests {
-    public enum Kind { FOOD, WARM, NUZZLE, PLAY, SNACK, WALK }
+    public enum Kind { FOOD, WARM, NUZZLE, PLAY, SNACK, WALK, WATER }
+    private static final int REQUEST_MASK = (1 << Kind.values().length) - 1;
     /** Ticks between looks for a need, between two requests of one pet, a request's lifetime; requests per pet and per owner and game day. */
     public static final int INTERVAL = 100, COOLDOWN = 2400, LIFETIME = 1200, PER_DAY = 6, PER_OWNER = 12;
     /** Unanswered requests (owner close by) in one day before the pet sulks; metres of walk that answer a walk request; the owner's reach. */
@@ -88,6 +90,7 @@ public final class PetRequests {
         var life = animal.life(); var daily = animal.dailyLife(); var pet = animal.pet();
         if (ready(Kind.FOOD) && life.nutrition() < 45
                 && animal.family().canEatIndependently() && animal.childhood().canEatSolid() && !bowlHasFood()) return Kind.FOOD;
+        if (ready(Kind.WATER) && life.dryness() >= YukkuriLife.THIRST_THRESHOLD && !life.hasReachableDrink()) return Kind.WATER;
         if (ready(Kind.WARM) && life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (ready(Kind.NUZZLE) && daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (ready(Kind.PLAY) && daily.boredom() >= 65) return Kind.PLAY;
@@ -101,6 +104,7 @@ public final class PetRequests {
     }
     private boolean ready(Kind kind) { return (expiredNeeds & 1 << kind.ordinal()) == 0; }
     private void relieved(Kind kind) { expiredNeeds &= ~(1 << kind.ordinal()); }
+    private static boolean waterAnswered(YukkuriLife life) { return life.dryness() <= 25 || life.hasReachableDrink(); }
 
     /** Sample the existing need values at the request cadence, even during cooldown or while the owner is away. */
     private void observeRelief() {
@@ -108,6 +112,7 @@ public final class PetRequests {
         var life = animal.life();
         var daily = animal.dailyLife();
         if (life.nutrition() >= 55) relieved(Kind.FOOD);
+        if (!ready(Kind.WATER) && waterAnswered(life)) relieved(Kind.WATER);
         if (!life.temperature().cold() || animal.pet().care().swaddled()) relieved(Kind.WARM);
         if (daily.affectionNeed() <= 50) relieved(Kind.NUZZLE);
         if (daily.boredom() <= 50) relieved(Kind.PLAY);
@@ -148,17 +153,26 @@ public final class PetRequests {
             hinted |= 1 << kind.ordinal();
             owner.displayClientMessage(Component.translatable("pet.mcyukkuri.request." + key(kind), animal.getDisplayName()), true);
         }
-        GameplayLog.event(animal,"request","started kind={} owner={} today={} nutrition={} affectionNeed={} boredom={}",
-                kind,owner.getUUID(),today,animal.life().nutrition(),baseAffection,baseBoredom);
+        GameplayLog.event(animal,"request","started kind={} owner={} today={} nutrition={} affectionNeed={} boredom={} dryness={}",
+                kind,owner.getUUID(),today,animal.life().nutrition(),baseAffection,baseBoredom,animal.life().dryness());
     }
     /** Action, face, speech and the icon card of the pending request (also repeated by "ask"). */
     private void voice(Kind kind) {
-        String event = switch (kind) { case FOOD -> "ask_food"; case WARM -> "cold"; case NUZZLE -> "want_nuzzle"; case PLAY -> "ask_play"; case SNACK -> "ask_snack"; case WALK -> "ask_walk"; };
+        String event = switch (kind) {
+            case FOOD -> "ask_food";
+            case WATER -> "ask_water";
+            case WARM -> "cold";
+            case NUZZLE -> "want_nuzzle";
+            case PLAY -> "ask_play";
+            case SNACK -> "ask_snack";
+            case WALK -> "ask_walk";
+        };
         var personality = animal.life().personality();
         var bond = personality.relation(animal.pet().owner());
         double esteem = SocialDisposition.selfEsteem(animal);
         double wary = SocialDisposition.wariness(animal, bond);
-        String face = wary >= .5 ? "teary"
+        String face = kind == Kind.WATER ? animal.life().dryness() >= 70 ? "teary_pant_b" : "pursed"
+                : wary >= .5 ? "teary"
                 : SocialDisposition.insistence(personality, esteem, wary, bond) >= .52 ? "cheek_puff"
                 : switch (kind) { case FOOD, WARM -> "teary"; case WALK -> "happy"; default -> "open_smile"; };
         animal.playAction("beg"); animal.showReaction(face, event, 80);
@@ -166,6 +180,7 @@ public final class PetRequests {
         var at = markPos();
         card = switch (kind) {
             case FOOD -> Staging.itemCard(level(), at, new ItemStack(ModItems.FOOD_BOWL.get()), 100, .55f);
+            case WATER -> Staging.itemCard(level(), at, new ItemStack(ModItems.WATERER.get()), 100, .55f);
             case WARM -> Staging.itemCard(level(), at, animal.family().adult() ? new ItemStack(Items.TORCH) : new ItemStack(ModItems.SWADDLE_CLOTH.get()), 100, .55f);
             case NUZZLE -> Staging.card(level(), at, Component.literal("♥"), 100, 1.5f);
             case PLAY -> Staging.itemCard(level(), at, new ItemStack(ModItems.TOY.get()), 100, .55f);
@@ -176,11 +191,12 @@ public final class PetRequests {
     private void dropCard() { if (card != null) Staging.removeCard(level(), card); card = null; }
     private void clear() { pending = null; left = 0; dropCard(); }
 
-    /** The state that ends the request: food in reach, warmth, comfort, play, a treat or the walk. */
+    /** The state that ends the request: food or water in reach, warmth, comfort, play, a treat or the walk. */
     private boolean satisfied() {
         var life = animal.life(); var daily = animal.dailyLife();
         return switch (pending) {
             case FOOD -> life.nutrition() >= 60 || bowlHasFood();
+            case WATER -> waterAnswered(life);
             case WARM -> !life.temperature().cold() || animal.pet().care().swaddled();
             case NUZZLE -> daily.affectionNeed() <= baseAffection - 15;
             case PLAY -> daily.boredom() <= baseBoredom - 15;
@@ -254,8 +270,8 @@ public final class PetRequests {
     public void load(CompoundTag tag) {
         clearQuiet();
         today = Math.clamp(tag.getInt("Today"), 0, 99); answered = Math.clamp(tag.getInt("Answered"), 0, 99);
-        ignoredNear = Math.clamp(tag.getInt("Ignored"), 0, 99); hinted = tag.getInt("Hinted") & 63;
-        expiredNeeds = tag.getInt("ExpiredNeeds") & 63;
+        ignoredNear = Math.clamp(tag.getInt("Ignored"), 0, 99); hinted = tag.getInt("Hinted") & REQUEST_MASK;
+        expiredNeeds = tag.getInt("ExpiredNeeds") & REQUEST_MASK;
         lastAt = tag.contains("LastAt") ? tag.getLong("LastAt") : Long.MIN_VALUE / 2; sulked = tag.getBoolean("Sulked");
     }
     private void clearQuiet() { pending = null; left = 0; card = null; }

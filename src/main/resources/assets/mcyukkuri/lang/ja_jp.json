@@ -7804,6 +7804,7 @@
   "operation.mcyukkuri.ask": "聞いてみる",
   "operation.mcyukkuri.help.ask": "今の気持ちを聞きます。ほしいものがあれば、もう一度言ってくれます。",
   "pet.mcyukkuri.request.food": "%sはおなかがすいて、ごはんをほしがっています。",
+  "pet.mcyukkuri.request.water": "%sはのどが渇いて、水をほしがっています。",
   "pet.mcyukkuri.request.warm": "%sは寒くて、あたたまりたがっています。",
   "pet.mcyukkuri.request.nuzzle": "%sは甘えたがっています。",
   "pet.mcyukkuri.request.play": "%sは退屈して、遊びたがっています。",

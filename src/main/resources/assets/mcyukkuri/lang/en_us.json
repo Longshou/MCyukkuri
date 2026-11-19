@@ -7906,6 +7906,7 @@
   "operation.mcyukkuri.ask": "Ask",
   "operation.mcyukkuri.help.ask": "Ask how it feels. If it wants something, it says so again.",
   "pet.mcyukkuri.request.food": "%s is hungry and wants food.",
+  "pet.mcyukkuri.request.water": "%s is thirsty and wants water.",
   "pet.mcyukkuri.request.warm": "%s is cold and wants to warm up.",
   "pet.mcyukkuri.request.nuzzle": "%s wants some affection.",
   "pet.mcyukkuri.request.play": "%s is bored and wants to play.",
