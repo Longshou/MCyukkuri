@@ -308,6 +308,8 @@ public final class YukkuriLife {
         if (!garbage.rummaging()) task = Task.NONE;
     }
     void beginDrugSleep() { task=Task.SLEEP;resetSleep(); }
+    /** A wild predator has landed on its covered sleeping branch. Life owns the sleep and its usual wake causes. */
+    public void roost() { targetBlock = null; task = Task.SLEEP; resetSleep(); }
     boolean beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
         return meal.beginDose(one, player, returnBottle);
     }

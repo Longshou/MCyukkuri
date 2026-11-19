@@ -223,6 +223,7 @@
   "behavior.mcyukkuri.predator_feed": "餡を食べる",
   "behavior.mcyukkuri.predator_return": "帰巣",
   "behavior.mcyukkuri.predator_survey": "樹冠を見回す",
+  "behavior.mcyukkuri.predator_perch": "枝で見張る",
   "behavior.mcyukkuri.predator_gather": "小枝を集める",
   "behavior.mcyukkuri.predator_build": "巣に小枝を置く",
   "block.mcyukkuri.predator_nest_frame": "捕食種の巣の骨組み",

@@ -915,6 +915,7 @@
   "behavior.mcyukkuri.predator_feed": "食用馅料",
   "behavior.mcyukkuri.predator_return": "降落归巢",
   "behavior.mcyukkuri.predator_survey": "盘旋勘察树冠",
+  "behavior.mcyukkuri.predator_perch": "栖枝守望",
   "behavior.mcyukkuri.predator_gather": "寻找细枝",
   "behavior.mcyukkuri.predator_build": "往枝巢放细枝",
   "block.mcyukkuri.predator_nest_frame": "捕食种枝巢架",

@@ -915,6 +915,7 @@
   "behavior.mcyukkuri.predator_feed": "Eating filling",
   "behavior.mcyukkuri.predator_return": "Returning to nest",
   "behavior.mcyukkuri.predator_survey": "Surveying the canopy",
+  "behavior.mcyukkuri.predator_perch": "Watching from a branch",
   "behavior.mcyukkuri.predator_gather": "Gathering a twig",
   "behavior.mcyukkuri.predator_build": "Adding a twig to the nest",
   "block.mcyukkuri.predator_nest_frame": "Predator Nest Frame",

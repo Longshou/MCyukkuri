@@ -5,6 +5,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -37,20 +38,38 @@ public final class PredatorNestFrameBlock extends Block implements EntityBlock {
 
     public static final class FrameEntity extends BlockEntity {
         private UUID founder;
+        private long missingSince = -1;
 
         public FrameEntity(BlockPos pos, BlockState state) { super(ModBlocks.PREDATOR_NEST_FRAME_ENTITY.get(), pos, state); }
 
         UUID founder() { return founder; }
-        void setFounder(UUID founder) { this.founder = founder; setChanged(); }
+        void setFounder(UUID founder) { this.founder = founder; missingSince = -1; setChanged(); }
+        void founderPresent() {
+            if (missingSince >= 0) { missingSince = -1; setChanged(); }
+        }
+
+        boolean available(ServerLevel level) {
+            if (founder == null) return true;
+            var owner = level.getEntity(founder);
+            if (owner != null) {
+                founderPresent();
+                return !owner.isAlive();
+            }
+            // Give an unloaded founder one full game day from the first observed absence to return.
+            if (missingSince < 0) { missingSince = level.getGameTime(); setChanged(); }
+            return level.getGameTime() - missingSince >= 24000;
+        }
 
         @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
             super.saveAdditional(tag, registries);
             if (founder != null) tag.putUUID("Founder", founder);
+            if (missingSince >= 0) tag.putLong("MissingSince", missingSince);
         }
 
         @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
             super.loadAdditional(tag, registries);
             founder = tag.hasUUID("Founder") ? tag.getUUID("Founder") : null;
+            missingSince = tag.contains("MissingSince") ? tag.getLong("MissingSince") : -1;
         }
     }
 }

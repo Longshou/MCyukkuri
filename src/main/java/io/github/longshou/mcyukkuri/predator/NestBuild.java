@@ -95,6 +95,7 @@ final class NestBuild {
             frame = null;
             return 0;
         }
+        block.founderPresent();
         frame = frame.observed(block.getBlockState().getValue(PredatorNestFrameBlock.TWIGS));
         boolean lacksNest = homeless();
         double pressure = frame.pressure(level().getGameTime(), lacksNest, needsAttention() || !eligible());

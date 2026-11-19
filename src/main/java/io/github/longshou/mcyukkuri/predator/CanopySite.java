@@ -78,11 +78,11 @@ record CanopySite(BlockPos cell, Vec3 pad, Vec3 stand, int height, double cover,
 
     static boolean buildable(BlockState state) { return state.isAir() || state.is(ModBlocks.PREDATOR_NEST_FRAME.get()); }
 
-    /** Fresh surveys can pick an empty cell or an unowned frame, including frames from older worlds. */
+    /** Both survey and placement consult the physical frame before another founder can continue it. */
     static boolean available(ServerLevel level, BlockPos pos) {
         var state = level.getBlockState(pos);
         return state.isAir() || state.is(ModBlocks.PREDATOR_NEST_FRAME.get())
-                && level.getBlockEntity(pos) instanceof PredatorNestFrameBlock.FrameEntity frame && frame.founder() == null;
+                && level.getBlockEntity(pos) instanceof PredatorNestFrameBlock.FrameEntity frame && frame.available(level);
     }
 
     private static boolean clearable(BlockState state) {
@@ -96,13 +96,17 @@ record CanopySite(BlockPos cell, Vec3 pad, Vec3 stand, int height, double cover,
 
     /** Heightmap finds exposed terrain, but a branch of logs also counts. Look below the tree in that column. */
     static int groundY(ServerLevel level, BlockPos from) {
+        return groundY(level, from, MAX_HEIGHT);
+    }
+
+    static int groundY(ServerLevel level, BlockPos from, int depth) {
         int top = Math.min(from.getY(), level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, from.getX(), from.getZ()));
         var cursor = new BlockPos.MutableBlockPos();
-        for (int y = top - 1; y >= Math.max(level.getMinBuildHeight(), from.getY() - MAX_HEIGHT - 1); y--) {
+        for (int y = top - 1; y >= Math.max(level.getMinBuildHeight(), from.getY() - depth - 1); y--) {
             var state = level.getBlockState(cursor.set(from.getX(), y, from.getZ()));
             if (state.blocksMotion() && !tree(state)) return y + 1;
         }
-        return from.getY() - MAX_HEIGHT - 1;
+        return from.getY() - depth - 1;
     }
 
     private static boolean visibleFromGround(ServerLevel level, YukkuriEntity body, BlockPos cell, Vec3 pad, List<BlockPos> clearing) {

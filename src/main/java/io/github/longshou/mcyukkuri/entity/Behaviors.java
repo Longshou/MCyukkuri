@@ -172,6 +172,7 @@ public final class Behaviors {
     public static final String PREDATOR_DIVE = "predator_dive";
     public static final String PREDATOR_FEED = "predator_feed";
     public static final String PREDATOR_FLY = "predator_fly";
+    public static final String PREDATOR_PERCH = "predator_perch";
     public static final String PREDATOR_GATHER = "predator_gather";
     public static final String PREDATOR_RETURN = "predator_return";
     public static final String PREDATOR_SURVEY = "predator_survey";
