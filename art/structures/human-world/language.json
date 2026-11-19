@@ -159,7 +159,7 @@
     "human.mcyukkuri.core.sold_factory": "工人高价收下了中枢馅，付你 %s 绿宝石。",
     "human.mcyukkuri.core.sold_shop": "店主收下了中枢馅，付你 %s 绿宝石。",
     "human.mcyukkuri.guide.shopkeeper": "店内售卖无章、银章和金章个体，用品按类别分页。初始受训库存有各自的五属性与已学技能；徽章不提高属性，也不保证识别失饰者。购买保留同一只个体、技能与徽章。稀有种展示位不售货。",
-    "human.mcyukkuri.help.16": "带上你的宠物去考官那里参加考试、查看记录或补发徽章。"
+    "human.mcyukkuri.help.16": "带上你的宠物去会馆，请考官认证、查看记录或补发徽章。"
   },
   "en_us": {
     "entity.mcyukkuri.oniisan": "Oniisan",
@@ -321,6 +321,6 @@
     "human.mcyukkuri.core.sold_factory": "The worker bought the core filling at a high price: %s emeralds.",
     "human.mcyukkuri.core.sold_shop": "The shopkeeper bought the core filling: %s emeralds.",
     "human.mcyukkuri.guide.shopkeeper": "The shop sells unbadged, silver and gold individuals, with supplies grouped by category. Initial trained stock has its own five traits and learned skills. Badges neither raise traits nor guarantee hatless recognition. Purchases preserve the individual, skills and badge. Rare-species displays are not for sale.",
-    "human.mcyukkuri.help.16": "Bring your pet to the Examiner for exams, records or a badge reissue."
+    "human.mcyukkuri.help.16": "Bring your pet to the hall examiner for certification, records or a badge reissue."
   }
 }

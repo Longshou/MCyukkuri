@@ -125,7 +125,6 @@ def language(zh):
         'peer':('你也有徽章呀！一起油库里吧！','You have a badge too! Take it easy together!')}.items():pairs['speech.'+key]=pair
     result={'badge.mcyukkuri.'+k:v[0 if zh else 1] for k,v in pairs.items()}
     result['item.mcyukkuri.badge_handbook']='宠物手册' if zh else 'Pet Handbook'
-    result['human.mcyukkuri.help.16']='带上你的宠物去会馆，请考官认证、查看记录或补发徽章。' if zh else 'Bring your pet to the hall examiner for certification, records or a badge reissue.'
     return result
 
 def handbook_png():
