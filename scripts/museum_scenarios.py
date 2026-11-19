@@ -4223,7 +4223,7 @@ _source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arro
                ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
 add('wound_sources','body','用真实武器和环境造成伤','用真实武器和环境造成伤',
     '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖从空手潜行右键的照料菜单操作。一次MC命中不虚构逐齿逐刺落点',
-    '先看右后追咬，再逐类手动操作。针和钩贴在各自刺出的伤口。双手空着右键个体拔针，在台上再点一次松绑。离开固定台使用吊钩需要顶板。剪发和剪饰物看头部掉落并听剪声。清场恢复地形与实体。',[
+    '先看右后追咬，再逐类手动操作。针和钩贴在各自刺出的伤口。扎针后走开超过 5 格等 20 秒再回来，看针仍在原处。双手空着右键个体拔针，听脱针声并看生存模式的原针从伤处落下，创造模式可在物品栏找到原针。在台上再点一次松绑。离开固定台使用吊钩需要顶板。剪发和剪饰物看头部掉落并听剪声。清场恢复地形与实体。',[
         *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
         box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
         yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95)],
@@ -7180,8 +7180,8 @@ next(s for s in S if s.id == 'family_search_pane').smoke['verify'] = _family_pan
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
 _smoke('wound_materials', 400, [], forbid=[r'\[body\][^\n]* death settled'])
-_smoke('wound_sources', 320, [
-    r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN duration=240 reserved_item=mcyukkuri:pin_tool count=1',
+_smoke('wound_sources', 490, [
+    r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN duration=untimed reserved_item=mcyukkuri:pin_tool count=1',
     r'\[interaction\][^\n]* operation ended; [^\n]* pose=PIN ',
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:pin_tool count=1',
     r'\[interaction\][^\n]* operation started; [^\n]* pose=BOX duration=400 reserved_item=mcyukkuri:iron_enclosure count=1',
@@ -7190,24 +7190,52 @@ _smoke('wound_sources', 320, [
     r'\[interaction\][^\n]* shear drop; item=mcyukkuri:trimmed_hair [^\n]*above_feet=0\.[1-9]',
     r'\[interaction\][^\n]* shear drop; item=mcyukkuri:reimu_ribbon [^\n]*above_feet=0\.[1-9]',
     r'\[interaction\][^\n]* action=CUT_ACCESSORY success=true',
-])
+], forbid=[r'\[interaction\][^\n]* operation ended; [^\n]* pose=PIN [^\n]* reason=(?:operator_unreachable|timeout)'])
+_floor_pin = 'mcyukkuri:pin_tool[minecraft:custom_data={BDFloor:1b}]'
+_floor_pin_drop = '@e[type=item,nbt={Item:{id:"mcyukkuri:pin_tool",count:1,components:{"minecraft:custom_data":{BDFloor:1b}}}},limit=1]'
+_pin_player = '@p[name=MuseumOperator]'
+_tool_stand = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
     (4, f'execute at {sel("blunt")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("blunt")} enclose'),
     (5, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
-    (5, 'item replace entity @p[distance=..40] hotbar.0 with mcyukkuri:pin_tool'),
+    (5, f'item replace entity {_pin_player} hotbar.0 with {_floor_pin}'),
     (6, f'yukkuri scenario shop_stock_click {sel("cut")}'),
-    (7, f'yukkuri scenario shop_stock_click {sel("cut")}'),
     (7, 'yukkuri scenario tool_operator leave'),
     (8, f'execute at {sel("arrow")} run setblock ~ ~3 ~ minecraft:glass'),
     (9, f'execute at {sel("arrow")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("arrow")} hook_hang'),
     (10, f'execute at {sel("thorn")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("thorn")} cut_left'),
     (12, f'execute at {sel("cone")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("cone")} cut_accessory'),
+    # A vanilla data edit round-trips entity NBT without touching the pin or wound fields.
+    (15, f'data modify entity {sel("cut")} CustomNameVisible set value 0b'),
     (45, f'execute at {sel("heat")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("heat")} pierce'),
+    (425, f'execute if data entity {sel("cut")} YukkuriOperations.PinWound '
+          f'if data entity {sel("cut")} YukkuriOperations.PendingReturn.components."minecraft:custom_data".BDFloor '
+          f'unless entity {_floor_pin_drop} run say MCY_BD07_PIN_STILL_ATTACHED'),
+    (426, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (427, f'yukkuri scenario shop_stock_click {sel("cut")}'),
+    (442, f'execute at {_floor_pin_drop} run yukkuri scenario tool_operator move'),
+    (443, f'yukkuri scenario tool_operator pick_up {_floor_pin_drop}'),
+    (444, f'execute if items entity {_pin_player} hotbar.0 {_floor_pin} unless entity {_floor_pin_drop} '
+          'run say MCY_BD07_SURVIVAL_PIN_RECOVERED'),
+    (445, yk('reimu', -5, 5, 'tool_creative', extra=_tool_stand,
+             uuid=uid('wound_sources', 'tool_creative'))),
+    (464, f'execute at {sel("tool_creative")} positioned ~ ~ ~1 run yukkuri scenario tool_operator move'),
+    (464, f'gamemode creative {_pin_player}'),
+    (464, f'item replace entity {_pin_player} hotbar.1 with mcyukkuri:pin_tool'),
+    (464, 'yukkuri scenario tool_operator select 1'),
+    (465, f'yukkuri scenario shop_stock_click {sel("tool_creative")}'),
+    (466, f'execute if data entity {sel("tool_creative")} YukkuriOperations.PinWound '
+          f'unless data entity {sel("tool_creative")} YukkuriOperations.PendingReturn '
+          f'if items entity {_pin_player} hotbar.1 mcyukkuri:pin_tool run say MCY_BD07_CREATIVE_PIN_RETAINED'),
+    (467, 'yukkuri scenario tool_operator select 2'),
+    (468, f'yukkuri scenario shop_stock_click {sel("tool_creative")}'),
+    (469, f'execute unless data entity {sel("tool_creative")} YukkuriOperations.PinWound '
+          f'if items entity {_pin_player} hotbar.1 mcyukkuri:pin_tool run say MCY_BD07_CREATIVE_PIN_EXTRACTED'),
+    (470, 'yukkuri scenario tool_operator leave'),
 ]
 
 _staff_tool_cases = (('awl', 'care_awl', -8), ('pin', 'pin_tool', 6))
 _wound_smoke = next(s for s in S if s.id == 'wound_sources').smoke
-_tool_stand = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 for case, tool, x in _staff_tool_cases:
     fixture = 'tool_' + case
     operator = 'staff_' + case
@@ -7261,8 +7289,12 @@ _wound_smoke['commands'].extend([
 _wound_smoke['commands'].sort(key=lambda command: command[0])
 _wound_smoke['expect'].extend([
     'MCY_BD07_PIN_OUT_TABLE_HELD',
+    'MCY_BD07_PIN_STILL_ATTACHED',
+    'MCY_BD07_SURVIVAL_PIN_RECOVERED',
+    'MCY_BD07_CREATIVE_PIN_RETAINED',
+    'MCY_BD07_CREATIVE_PIN_EXTRACTED',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* interaction refused; [^\n]* action=release reason=owner',
-    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* pose=PIN elapsed=\d+ remaining=[1-9]\d* reason=released',
+    rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* pose=PIN elapsed=\d+ remaining=0 reason=released',
     rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* accepted damage cause=mob [^\n]* loss=2\.0',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* tool used; [^\n]* action=PIERCE item=mcyukkuri:care_awl hand_count=1 -> 1 damage=0 -> 1',
     r'\[body\][^\n]* accepted damage cause=player [^\n]* loss=2\.0',
@@ -7276,17 +7308,21 @@ _wound_smoke['expect'].extend([
 def _wound_tool_binding(window):
     wounds = set(re.findall(r'\[body\][^\n]* uuid=([\w-]+) [^\n]* wound placed tear/puncture:[^\n]*; wound=([\w-]+)', window))
     attachments = re.findall(r'\[interaction\][^\n]* uuid=([\w-]+) [^\n]* binding wound; pose=(PIN|HOOK) wound=([\w-]+)', window)
-    if (sorted(pose for _, pose, _ in attachments) != ['HOOK', 'HOOK', 'PIN', 'PIN', 'PIN']
-            or len({wound for _, _, wound in attachments}) != 5
+    if (sorted(pose for _, pose, _ in attachments) != ['HOOK', 'HOOK', 'PIN', 'PIN', 'PIN', 'PIN']
+            or len({wound for _, _, wound in attachments}) != 6
             or any((actor, wound) not in wounds for actor, _, wound in attachments)):
-        return 'each of the three pins and two hooks must bind to its own committed puncture'
+        return 'each of the four pins and two hooks must bind to its own committed puncture'
     pulls = re.findall(r'\[interaction\][^\n]* uuid=(\S+) [^\n]* operation ended; actor=2d4c7192-2a6d-4da4-9f94-c82721b9de87 '
-                       r'pose=PIN elapsed=\d+ remaining=[1-9]\d* reason=released', window)
-    if len(set(pulls)) != 2:
-        return 'the player must pull a live pin on the floor and on the table'
-    for animal in pulls:
-        if len(re.findall(rf'\[interaction\][^\n]* uuid={animal} [^\n]* binding returned to world; [^\n]* item=mcyukkuri:pin_tool count=1', window)) != 1:
-            return f'pulling the pin from {animal} must return exactly one pin'
+                       r'pose=PIN elapsed=(\d+) remaining=0 reason=released', window)
+    creative = _uuid_text('wound_sources', 'tool_creative')
+    table = _uuid_text('wound_sources', 'tool_frame')
+    if (len(pulls) != 3 or pulls[0][0] != table or pulls[2][0] != creative
+            or pulls[1][0] in (table, creative) or int(pulls[1][1]) <= 400):
+        return f'expected table, long-held floor and Creative extractions in order: {pulls}'
+    for animal, _ in pulls:
+        drops = re.findall(rf'\[interaction\][^\n]* uuid={animal} [^\n]* binding returned to world; [^\n]* item=mcyukkuri:pin_tool count=1 contact=', window)
+        if len(drops) != int(animal != creative):
+            return f'incorrect drop count for {animal}: {len(drops)}'
     for case, tool, _ in _staff_tool_cases[1:]:
         target = _uuid_text('wound_sources', 'tool_' + case)
         drops = re.findall(rf'\[interaction\][^\n]* uuid={target} [^\n]* binding returned to world; drop=([\w-]+) item=mcyukkuri:{tool} count=1', window)

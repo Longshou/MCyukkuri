@@ -214,6 +214,7 @@ public final class BodyLife {
     /** Orange juice heals every injury grade and sole damage; existing scars are repaired with flour paste. */
     public boolean restorePhysical() {
         if(!treatmentAllowed() || !needsPhysicalRestoration())return false;
+        if(!entity.operations().releasePinForTreatment())return false;
         int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         float before=entity.getHealth();
         for(var healed:List.copyOf(wounds))if(injury(healed))entity.status().marks().healed(healed);
@@ -619,7 +620,7 @@ public final class BodyLife {
                 before,mold,reason,entity.life().hygiene(),entity.life().wetness());
     }
     /** The oldest light (not deep) wound that is not a burn closes one level. */
-    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!injury(w)||w.kind()==WoundKind.SCORCH||severe(w))continue;
+    private void healMild(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!injury(w)||w.kind()==WoundKind.SCORCH||severe(w)||entity.operations().pinsWound(w.id()))continue;
             healWound(i);refreshWounds();return;}}
     private boolean healBurn(){for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()!=WoundKind.SCORCH||severe(w))continue;
             healWound(i);refreshWounds();return true;}return false;}
@@ -646,11 +647,12 @@ public final class BodyLife {
     }
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return injury(w)&&!severe(w);}
-    public boolean canLickMend(){return wounds.stream().anyMatch(BodyLife::lickable);}
+    public boolean canLickMend(){return wounds.stream().anyMatch(this::canLickWound);}
+    private boolean canLickWound(BodyWound wound){return lickable(wound)&&!entity.operations().pinsWound(wound.id());}
     /** A finished lick: the oldest mild wound closes one level and a little health returns. Deep wounds are left alone. */
     public boolean lickMend(){
         if(entity.level().isClientSide||!entity.isAlive())return false;
-        for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!lickable(w))continue;
+        for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!canLickWound(w))continue;
             healWound(i);
             refreshWounds();entity.heal(2);return true;}
         return false;

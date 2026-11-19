@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
@@ -40,9 +41,12 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -56,7 +60,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/** Short, exclusive physical operations. Every exit keeps or returns each inserted object exactly once. */
+/** Exclusive physical operations and the durable pin bound to a wound. */
 public final class OperationLife {
     public enum Pose { NONE, LIFT, GRIP, SLIDE, RUB, ROLL, SUPINE, PIN, FIXED, WRAPPED, HOOK, RUMP, VIBRATE, BOX, ASSIST, HAT_REMOVE, HAT_RETURN }
     private static final int BOX_BEAT = 80, ROTOR_PLEA = 100;
@@ -94,6 +98,8 @@ public final class OperationLife {
     public boolean controlling(){return table!=null||pose!=Pose.NONE&&pose!=Pose.SLIDE;}
     public Pose pose(){return table!=null?Pose.FIXED:pose;}
     public boolean pinned(){return pose==Pose.PIN;}
+    public boolean pinsWound(UUID wound){return pinned()&&wound.equals(attachedWound);}
+    public boolean releasePinForTreatment(){return !pinned()||end("wound_closed");}
     public UUID operator(){return operator!=null?operator:tableOperator;}
     public BlockPos table(){return table;}
     public UUID hookWound(){return pose==Pose.HOOK?attachedWound:null;}
@@ -115,7 +121,7 @@ public final class OperationLife {
         return true;
     }
     public ItemStack inserted(){return inserted.copy();}
-    public void damaged(DamageSource source){if(pose!=Pose.NONE&&!ownDamage)end("interrupted");}
+    public void damaged(DamageSource source){if(pose!=Pose.NONE&&!ownDamage)end(pinned()?"impact":"interrupted");}
     boolean canRelease(){return active()||!inserted.isEmpty();}
     boolean ready(){return !canRelease()&&cooldown==0;}
     boolean toolReady(boolean insertedTool) {
@@ -137,6 +143,13 @@ public final class OperationLife {
         GameplayLog.event(entity,"interaction","table unstrapped; actor={} table={} reason={}",tableOperator,GameplayLog.at(RestraintTableBlock.surface(table)),reason);
         RestraintTableBlock.setOccupied(entity.level(),table,false);
         table=null;tableOperator=null;staffTable=false;
+        if(pinned()){
+            anchor=entity.position();
+            entity.syncOperation(Pose.PIN.name(),0);
+            entity.syncOperationAnchor(null);
+            entity.syncTableTool(Pose.NONE.name());
+            return true;
+        }
         return end(reason);
     }
     boolean hasRoom(){
@@ -147,12 +160,16 @@ public final class OperationLife {
         return pose == Pose.PIN && actor.getUUID().equals(operator) || actor.getUUID().equals(tableOperator);
     }
     boolean releaseStaffBinding(LivingEntity actor) {
-        return actor.getUUID().equals(tableOperator) ? unstrap("released") : release();
+        return pinned()&&actor.getUUID().equals(operator) ? release(actor) : unstrap("released");
     }
-    boolean release() {
+    boolean release(LivingEntity actor) {
         if (table!=null && !pinned()) return unstrap("released");
         Pose released = pose;
         boolean returned = end("released");
+        if (returned && released == Pose.PIN) {
+            actor.swing(InteractionHand.MAIN_HAND);
+            GameplayLog.event(entity,"interaction","pin extracted; actor={}",actor.getUUID());
+        }
         if (returned && released == Pose.VIBRATE)
             entity.showReaction(SocialDisposition.selfEsteem(entity) >= 50 ? "smug" : "puff", "", 40);
         return returned;
@@ -165,7 +182,7 @@ public final class OperationLife {
         int count = stack.getCount(), damage = stack.getDamageValue();
         float health = entity.getHealth();
         boolean done = switch (action) {
-            case PIN -> punctureAndBind(actor, Pose.PIN, 240, Tool.PIN, null);
+            case PIN -> punctureAndBind(actor, Pose.PIN, 0, Tool.PIN, null);
             case MALLET -> strike(actor, entity.getMaxHealth() + 20, WoundShape.BLUNT);
             case PIERCE, BURN -> strike(actor, 2, WoundShape.PUNCTURE);
             case WRAP_HANG -> begin(actor, Pose.WRAPPED, 300, Tool.SLING, ceiling(), null);
@@ -260,7 +277,7 @@ public final class OperationLife {
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
             case REMOVE_BADGE -> entity.pet().detach(player);
             case UNWRAP -> entity.pet().care().takeOffSwaddle(player);
-            case RELEASE -> release();
+            case RELEASE -> release(player);
             default -> throw new IllegalArgumentException(action.name());
         };
         if(done&&action!=CareAction.RELEASE){
@@ -334,7 +351,7 @@ public final class OperationLife {
         attachedWound=wound==null?null:wound.id();
         if(binding!=null&&!(actor instanceof Player player&&player.getAbilities().instabuild))inserted=actor.getMainHandItem().split(1);
         GameplayLog.event(entity,"interaction","operation started; actor={} pose={} duration={} reserved_item={} count={}",
-                operator,pose,duration,inserted.getItem(),inserted.getCount());
+                operator,pose,pinned()?"untimed":duration,inserted.getItem(),inserted.getCount());
         if(wound!=null)GameplayLog.event(entity,"interaction","binding wound; pose={} wound={} triangle={} u={} v={}",
                 pose,attachedWound,wound.triangle(),wound.u(),wound.v());
         entity.syncOperation(pose().name(),0);
@@ -381,14 +398,22 @@ public final class OperationLife {
             entity.getNavigation().stop();moveTo(surface);
         }
         if(pose==Pose.NONE){if(!inserted.isEmpty())returnInserted();return;}
+        if(pinned()){
+            if(entity.isInWaterOrBubble()||entity.isOnFire()){end("danger");return;}
+            if(entity.body().dying()||entity.life().hasUrgentNeed()){end("body_need");return;}
+            if(entity.isPassenger()||table==null&&!anchorSupported()){end("support_lost");return;}
+            if(table==null&&entity.position().distanceToSqr(anchor)>9){end("displaced");return;}
+            elapsed++;
+            if(table==null)moveTo(anchor);
+            return;
+        }
         if(!(loadedOperator(level) instanceof LivingEntity actor)
                 ||InteractionDispatch.reachRefusal(actor,entity,InteractionDispatch.TOOL_REACH)!=null){end("operator_unreachable");return;}
         if(entity.isInWaterOrBubble()||entity.isOnFire()){end("danger");return;}
         if(--remaining<=0){end("timeout");return;}
         if(attachedWound!=null&&!entity.body().hasWound(attachedWound)){end("wound_closed");return;}
-        if(pose==Pose.PIN&&table==null&&!anchorSupported()){end("support_lost");return;}
         if ((switch (pose) {
-            case PIN, WRAPPED, HOOK, BOX, VIBRATE, ASSIST, GRIP, ROLL -> true;
+            case WRAPPED, HOOK, BOX, VIBRATE, ASSIST, GRIP, ROLL -> true;
             default -> false;
         }) && (Custody.harmRefusal(actor, entity, entity.blockPosition()) != null || entity.isPassenger())) {
             end("contact_lost");
@@ -430,7 +455,7 @@ public final class OperationLife {
             moveTo(actor.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
             if(elapsed==1)entity.mind().spike(ExcitedLeak.Stimulus.SUDDEN_LIFT);
             if(pose==Pose.GRIP&&elapsed%40==0)strike(actor,1,WoundShape.BLUNT);
-        }else if(pose==Pose.PIN||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
+        }else if(pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             if(table==null)moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
             if (pose == Pose.VIBRATE && elapsed == ROTOR_PLEA)
@@ -479,11 +504,43 @@ public final class OperationLife {
         GameplayLog.event(entity,"interaction","binding returned to world; drop={} item={} count={}",item.getUUID(),inserted.getItem(),inserted.getCount());
         inserted=ItemStack.EMPTY;return true;
     }
-    public boolean end(){return table!=null?unstrap("interrupted"):end("interrupted");}
+    public boolean end(){return !pinned()&&(table!=null?unstrap("interrupted"):end("interrupted"));}
 
-    public void interrupt() { end("interrupted"); }
+    public void interrupt() { if(!pinned())end("interrupted"); }
+
+    public void died() {
+        if(pinned())end("death");
+        end();
+    }
+
+    private boolean detachPin(){
+        var wound=entity.body().wounds().stream().filter(w->pinsWound(w.id())).findFirst().orElseThrow();
+        var at=WoundPlacement.outlet(entity,wound);
+        var level=(ServerLevel)entity.level();
+        if(!inserted.isEmpty()){
+            // Clear the skin before the released item falls under gravity.
+            var velocity=WoundPlacement.outward(entity,wound).scale(.12).add(0,.12,0);
+            var drop=ItemContact.release(entity,inserted,at,velocity);
+            if(drop==null){
+                if(entity.isAlive()){
+                    GameplayLog.limited(entity,"interaction","pin_drop_refused",200,"pin release refused; wound={} reason=drop_refused",attachedWound);
+                    return false;
+                }
+                YukkuriWorldData.get(level).deferLitter(level,at,inserted);
+                GameplayLog.event(entity,"interaction","pin return deferred at death; wound={} item={}",attachedWound,inserted.getItem());
+            }else{
+                GameplayLog.event(entity,"interaction","binding returned to world; drop={} item={} count={} contact={}",
+                        drop.getUUID(),inserted.getItem(),inserted.getCount(),at);
+            }
+            inserted=ItemStack.EMPTY;
+        }
+        level.playSound(null,at.x,at.y,at.z,SoundEvents.FISHING_BOBBER_RETRIEVE,SoundSource.NEUTRAL,1,1);
+        level.sendParticles(ParticleTypes.CRIT,at.x,at.y,at.z,4,.025,.025,.025,.02);
+        return true;
+    }
 
     private boolean end(String reason){
+        if(pinned()&&!detachPin())return false;
         boolean recover = switch (pose) { case PIN, WRAPPED, HOOK, BOX, VIBRATE -> true; default -> false; };
         if(pose!=Pose.NONE)GameplayLog.event(entity,"interaction","operation ended; actor={} pose={} elapsed={} remaining={} reason={}",
                 operator,pose,elapsed,remaining,reason);
@@ -566,6 +623,7 @@ public final class OperationLife {
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putInt("Version",1);tag.putInt("Cooldown",cooldown);
         if(table!=null){tag.putLong("Table",table.asLong());tag.putUUID("TableOperator",tableOperator);tag.putBoolean("StaffTable",staffTable);}
+        if(pinned()){tag.putUUID("PinWound",attachedWound);tag.putUUID("PinOperator",operator);}
         if(!inserted.isEmpty())tag.put("PendingReturn",inserted.save(entity.registryAccess()));return tag;
     }
     public void load(CompoundTag tag){
@@ -574,9 +632,14 @@ public final class OperationLife {
         table=tag.contains("Table")?BlockPos.of(tag.getLong("Table")):null;
         tableOperator=table==null?null:tag.getUUID("TableOperator");
         staffTable=tag.getBoolean("StaffTable");
+        if(tag.hasUUID("PinWound")&&entity.body().hasWound(tag.getUUID("PinWound"))){
+            pose=Pose.PIN;attachedWound=tag.getUUID("PinWound");operator=tag.getUUID("PinOperator");
+            anchor=entity.position();
+        }
         if(table!=null)Motor.placementFacing(entity,RestraintTableBlock.lyingYaw(entity.getYRot()));
         entity.syncOperation(pose().name(),0);
         entity.syncOperationAnchor(table);
-        entity.syncTableTool(Pose.NONE.name());
+        entity.syncTableTool(table!=null?pose.name():Pose.NONE.name());
+        entity.syncOperationWound(attachedWound);
     }
 }

@@ -170,7 +170,7 @@ public final class YukkuriComponents {
                 .load(240, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriOperations")))
                 .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 20, (c, ctx) -> c.interrupt())
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 30, (c, ctx) -> c.end())
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 60, (c, ctx) -> c.end()).build(),
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 60, (c, ctx) -> c.died()).build(),
         ComponentSpec.ready(FAMILY, YukkuriEntity::family)
                 .sync(ParentCarry.HOLDS)
                 .tick(90, FamilyLife::tick)
