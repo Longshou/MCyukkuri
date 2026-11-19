@@ -12,7 +12,6 @@
 | DN-04 封洞：1.5 格结界、按威胁到达时间封洞、亲人呼唤拆除、引开威胁 | `.worktrees/wp-den-seal` | settlement/DenSeal.java, settlement/DenBarrierBlock.java, standards/yukkuri-library/ecology/wild-shelters/den_barrier.py, DN-04/07/08 scenes |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
-| 捕食种树上生活 A：枝巢搭建阶段与栖枝、扑翅动作 | `.worktrees/wp-tree-pred-art` | art/props/predators, standards/yukkuri-library/motions (predator_perch, predator_flap) |
 | P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
 | S3 野生性格中心按物种偏移 | `.worktrees/wp-species-centres` | social/TraitDraw.java, social/YukkuriPersonality.java, family/FamilyData.java, family/FamilyLife.java |
 
