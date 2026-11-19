@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -34,8 +36,7 @@ final class Courtship {
     private static final float REFUSAL_TURN=160;
     /** How near to facing him counts as her noticing him, the beat before she turns her back. */
     private static final float REFUSAL_NOTICE=30;
-    /** Temporary arrangement and the owner-unpermitted courtship partner. */
-    private UUID arranged, unauthorizedWith;
+    private UUID arranged, initiatingRuleOwner, receivingRuleOwner;
     /** This round is the refusal he came to hear; this round is his walk back to a partner another goal took from him. */
     private boolean declinedRound, returning;
     /** One failed attempt's real geometry and, only for a MOVE interruption, its named blocker. Not saved. */
@@ -65,7 +66,7 @@ final class Courtship {
                 failed=failure(peer,null);
         }
         resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;refusalFaced=false;sawNotice=false;
-        unauthorizedWith=null;
+        initiatingRuleOwner=receivingRuleOwner=null;
     }
 
     private FailedCourt failure(YukkuriEntity peer,String goal) {
@@ -240,14 +241,25 @@ final class Courtship {
         return !Bonds.biological(o.entity(), other);
     }
 
-    /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
+    private static Choice courtChoice(YukkuriEntity body, YukkuriEntity peer) {
+        if (body.pet().breedingPermitted(peer.getUUID())) return Choice.ALLOW;
+        return body.pet().conscience().tempted(HouseRule.NO_SUKKIRI, body.family().inBreedingPeriod() ? 1 : 0, 1);
+    }
+
+    private static boolean resists(YukkuriEntity body, YukkuriEntity peer, Choice choice) {
+        if (choice == Choice.HOLD) PetScenes.courtshipHeld(body, peer);
+        return choice == Choice.HOLD || choice == Choice.WAIT;
+    }
+
     boolean allowCourt(YukkuriEntity other) {
-        int gate=Math.max(o.entity().pet().courtshipGate(other),other.pet().courtshipGate(o.entity()));
-        GameplayLog.limited(o.entity(),"family","court.gate",200,
-                "courtship permission partner={} gate={} allowed={} unauthorized={}",
-                other.getUUID(),gate,gate!=2,gate==1);
-        if(gate==2){o.waitTicks(600);PetScenes.courtshipHeld(o.entity(),other);return false;}
-        unauthorizedWith=gate==1?other.getUUID():null;return true;
+        var body = o.entity();
+        var mine = courtChoice(body, other);
+        if (resists(body, other, mine)) { o.waitTicks(600); return false; }
+        var theirs = courtChoice(other, body);
+        if (resists(other, body, theirs)) { o.waitTicks(600); return false; }
+        initiatingRuleOwner = mine == Choice.BREAK ? body.pet().owner() : null;
+        receivingRuleOwner = theirs == Choice.BREAK ? other.pet().owner() : null;
+        return true;
     }
 
     boolean canReproduceWith(YukkuriEntity other) {
@@ -388,7 +400,10 @@ final class Courtship {
                     peer.getUUID(),contactTick,requiredTicks());
         }
         if(climaxTick==SukkiriTimeline.PEAK_END) {
-            boolean unauthorized=peer.getUUID().equals(unauthorizedWith);
+            var body = o.entity();
+            boolean unpermitted = body.pet().isPet() && !body.pet().breedingPermitted(peer.getUUID());
+            boolean peerUnpermitted = peer.pet().isPet() && !peer.pet().breedingPermitted(body.getUUID());
+            boolean unauthorized = unpermitted || peerUnpermitted;
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
             GameplayLog.event(o.entity(),"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
@@ -400,7 +415,8 @@ final class Courtship {
             } else {
                 o.entity().showReaction("confused","",60);peer.showReaction("confused","",60);
             }
-            unauthorizedWith=null;
+            if (unpermitted && body.pet().ownedBy(initiatingRuleOwner)) body.pet().conscience().breach(HouseRule.NO_SUKKIRI);
+            if (peerUnpermitted && peer.pet().ownedBy(receivingRuleOwner)) peer.pet().conscience().breach(HouseRule.NO_SUKKIRI);
             o.entity().social().noteContact(peer);peer.social().noteContact(o.entity());
             peer.family().stop();peer.family().waitTicks(200);
             o.stop();o.waitTicks(200);

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.interaction;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModMenus;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,6 +19,8 @@ public final class CareMenu extends AbstractContainerMenu {
     private final boolean shop;
     private final CareLineage lineage;
     private final SimpleContainerData available=new SimpleContainerData(4);
+    public static final int RULE_BUTTON = 120;
+    private final SimpleContainerData household = new SimpleContainerData(3);
 
     public CareMenu(int id,Inventory inventory,int entityId,boolean cutter,boolean shop,CareLineage lineage){
         super(ModMenus.CARE.get(),id);
@@ -27,12 +30,17 @@ public final class CareMenu extends AbstractContainerMenu {
         this.lineage=lineage;
         target=player.level().getEntity(entityId) instanceof YukkuriEntity value?value:null;
         addDataSlots(available);
+        addDataSlots(household);
         if(!player.level().isClientSide)updateActions();
     }
     public YukkuriEntity target(){return target;}
     public boolean cutter(){return cutter;}
     public boolean shop(){return shop;}
     public CareLineage lineage(){return lineage;}
+    public boolean rulesPage() { return household.get(2) > 0; }
+    public int rulesMask() { return household.get(0); }
+    public boolean told() { return household.get(1) != 0; }
+    public int obedienceBand() { return household.get(2); }
     public long actions(){
         // Vanilla menu data slots carry signed shorts.
         return (available.get(0)&0xffffL)|(available.get(1)&0xffffL)<<16|(available.get(2)&0xffffL)<<32|(available.get(3)&0xffffL)<<48;
@@ -51,6 +59,14 @@ public final class CareMenu extends AbstractContainerMenu {
             }
         }
         for(int slot=0;slot<available.getCount();slot++)available.set(slot,(short)(mask>>>(slot*16)));
+        boolean owner = !shop && !cutter && target != null && target.pet().isPet() && target.pet().owned(player);
+        if (owner) {
+            var conscience = target.pet().conscience();
+            household.set(0, conscience.household().mask(player.getUUID()));
+            household.set(1, conscience.told() ? 1 : 0);
+            int obedience = target.pet().obedience();
+            household.set(2, obedience <= 35 ? 1 : obedience >= 65 ? 3 : 2);
+        } else household.set(2, 0);
     }
     @Override public void broadcastChanges(){
         updateActions();
@@ -61,6 +77,12 @@ public final class CareMenu extends AbstractContainerMenu {
     }
     @Override public ItemStack quickMoveStack(Player player,int slot){return ItemStack.EMPTY;}
     @Override public boolean clickMenuButton(Player player,int id){
+        if (id >= RULE_BUTTON && id < RULE_BUTTON + HouseRule.values().length) {
+            if (cutter || shop || !stillValid(player) || !target.pet().owned(player) || !target.pet().isPet()) return false;
+            target.pet().conscience().household().toggle(player, target, HouseRule.values()[id - RULE_BUTTON]);
+            broadcastChanges();
+            return true;
+        }
         var action=CareAction.byId(id);
         if(action==null||!lists(action))return false;
         if (shop) {

@@ -59,7 +59,6 @@ public final class BadgeMenu extends AbstractContainerMenu {
         public static final int INTELLIGENCE = 10;
         public static final int STRESS = 17;
         public static final int LAST_OUTCOME = 19;
-        public static final int UNAUTHORIZED_BIRTHS = 24;
         public static final int OWNED = 25;
         public static final int NEAR = 26;
         public static final int PREDATOR = 27;
@@ -138,7 +137,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
         if (!history.isEmpty()) {
             var last = history.getLast(); data.set(Data.LAST_OUTCOME, last.outcome() + 1); data.set(Data.LAST_GRADE, last.result().id());
         }
-        data.set(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); data.set(Data.OWNED, b.owned(viewer) ? 1 : 0); data.set(Data.NEAR, b.near(viewer) ? 1 : 0);
+        data.set(Data.OWNED, b.owned(viewer) ? 1 : 0); data.set(Data.NEAR, b.near(viewer) ? 1 : 0);
         data.set(Data.PREDATOR, y.profile().dangerToYukkuri() ? 1 : 0); data.set(Data.OBEDIENT, y.predator().obedient() ? 1 : 0); data.set(Data.PREDATOR_ORDER, y.predator().order().ordinal());
         data.set(Data.BUSY, b.busy() ? 1 : 0); data.set(Data.ACCESSORY, y.life().hasAccessory() ? 1 : 0);
         var lessons = b.lessons();

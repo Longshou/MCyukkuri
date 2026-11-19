@@ -16,6 +16,17 @@ public final class RulesMath {
 
     public static boolean demandsSnack(int obedience) { return obedience < 65; }
 
+    public enum Choice { ALLOW, HOLD, WAIT, BREAK }
+
+    public static double hold(double patient, int obedience, double pressure) {
+        return Math.clamp(.80 + .30 * (patient - .5) + .30 * (obedience / 100.0 - .5) - .40 * (pressure - .5), .05, .99);
+    }
+
+    public static Choice choose(double roll, double hold, double clever, boolean watched, double restraint) {
+        if (roll < hold * restraint) return Choice.HOLD;
+        return watched && clever * restraint >= .5 ? Choice.WAIT : Choice.BREAK;
+    }
+
     public record Discipline(int closeness, int learning) {}
 
     public static Discipline discipline(boolean owner, boolean hurt, OptionalLong breachAge) {

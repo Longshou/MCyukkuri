@@ -300,7 +300,6 @@ public final class ShopMenu extends AbstractContainerMenu {
             if (b.title() == PetLife.TITLE_ETERNAL_SILVER) advice.add(12);
             if (b.title() == PetLife.TITLE_HIDDEN_GOLD) advice.add(13);
             if (b.stress() > BondLevels.UNEASE_CARE_LIMIT) advice.add(1);
-            if (b.unauthorizedBirths() > 0) advice.add(10);
             for (int i = 0; i < Math.min(3, advice.size()); i++) put(Data.ADVICE_BASE + i, advice.get(i));
             put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(shop.kind, y) : ShopPricing.price(shop.kind, y));
             put(Data.BUYBACK_RATE, ShopPricing.rate(y)); put(Data.BUYBACK_PENALTY, ShopPricing.penalty(y));

@@ -133,6 +133,7 @@ public final class InteractionDispatch {
     public static void openCare(ServerPlayer player,YukkuriEntity target){
         if (!requireReach(player, target, 5)) return;
         boolean shop = ShopTrade.shopOfStock(target) != null;
+        if (!shop && target.pet().isPet()) target.pet().conscience().tell(player);
         if (open(player, target, false, shop) && shop)
             GameplayLog.event(target, "shop", "action=card result=opened player={}", player.getUUID());
     }

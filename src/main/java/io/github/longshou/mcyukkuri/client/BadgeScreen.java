@@ -189,12 +189,12 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
                 minecraft.level.getEntity((menu.value(BadgeMenu.Data.PARTNER_ID_LOW) & 0xffff) | (menu.value(BadgeMenu.Data.PARTNER_ID_HIGH) << 16));
         line(g, BREED_TOP, "breed_partner", candidate == null ? Component.translatable("badge.mcyukkuri.no_subject") : candidate.getDisplayName(),
                 menu.value(BadgeMenu.Data.PARTNER_INDEX), menu.value(BadgeMenu.Data.PARTNER_COUNT));
-        if (menu.value(BadgeMenu.Data.PERMIT_ACTIVE) == 0) line(g, BREED_TOP + 10, "permit_none", menu.value(BadgeMenu.Data.UNAUTHORIZED_BIRTHS));
+        if (menu.value(BadgeMenu.Data.PERMIT_ACTIVE) == 0) line(g, BREED_TOP + 10, "permit_none");
         else {
             var holder = minecraft.level == null ? null : minecraft.level.getEntity((menu.value(BadgeMenu.Data.PERMIT_ID_LOW) & 0xffff) | (menu.value(BadgeMenu.Data.PERMIT_ID_HIGH) << 16));
             int hours = menu.value(BadgeMenu.Data.PERMIT_HOURS); // game hours left; a permit lasts one game day
             Component left = hours >= 24 ? Component.translatable("badge.mcyukkuri.profile.permit_left.day") : Component.translatable("badge.mcyukkuri.profile.permit_left.hours", Math.max(1, hours));
-            line(g, BREED_TOP + 10, "permit", holder == null ? "?" : holder.getDisplayName(), left, menu.value(BadgeMenu.Data.UNAUTHORIZED_BIRTHS));
+            line(g, BREED_TOP + 10, "permit", holder == null ? "?" : holder.getDisplayName(), left);
         }
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) {

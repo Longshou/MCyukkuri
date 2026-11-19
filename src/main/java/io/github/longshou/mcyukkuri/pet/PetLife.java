@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
+import io.github.longshou.mcyukkuri.pet.rules.Conscience;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
 import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
@@ -61,8 +62,10 @@ public final class PetLife {
     private final PetLessons lessons;
     private final BadgeLedger ledger = new BadgeLedger();
     private final PetCare care;
+    private final Conscience conscience;
     private int obedienceShift;
-    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); }
+    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); conscience = new Conscience(animal); }
+    public Conscience conscience() { return conscience; }
     public PetLessons lessons() { return lessons; }
     /** What this individual remembers of the badge-holders it has noticed (pet/social). */
     public BadgeLedger badgeLedger() { return ledger; }
@@ -178,13 +181,14 @@ public final class PetLife {
     public int obedience() { return RulesMath.obedience(meekness(), obedienceShift); }
 
     public void disciplined(UUID actor, boolean hurt, int fearGain) {
-        var effect = RulesMath.discipline(ownedBy(actor) && isPet(), hurt, OptionalLong.empty());
+        var effect = RulesMath.discipline(ownedBy(actor) && isPet(), hurt, conscience.breachAge(actor));
         animal.life().personality().relationshipChanged(actor, effect.closeness(), fearGain);
         if (effect.learning() != 0) learn(actor, effect.learning(), hurt ? "hurt" : "scold");
     }
     public void feedback(UUID actor, Feedback feedback) {
         if (ownedBy(actor) && isPet()) learn(actor, feedback.gain, feedback.name().toLowerCase(Locale.ROOT));
     }
+    public void caught(UUID owner) { learn(owner, 4, "caught"); }
     private void learn(UUID actor, int gain, String reason) {
         int base = meekness(), before = obedienceShift;
         obedienceShift = RulesMath.capShift(before + gain);
@@ -228,23 +232,10 @@ public final class PetLife {
         return best;
     }
     public void revokeBreeding(UUID partner) { permits.remove(partner); }
-    /** Rolled once per courtship attempt. 0 = no restriction or permitted, 1 = proceeds without permission, 2 = the pet backs off. */
-    public int courtshipGate(YukkuriEntity partner) {
-        if (!isPet() || breedingPermitted(partner.getUUID())) return 0;
-        // One decision per actual courtship opportunity. Pressure and a hidden "spoiled" score do
-        // not reopen the decision; self-control's shared rule curve is the only behavior weight.
-        return animal.getRandom().nextDouble() >= animal.life().personality().ruleProbability() ? 1 : 2;
-    }
-    /** Conception without permission: counted on every owned parent and reported once to each owner who is online. */
+    /** A private conception record; household guilt concerns the observed act. */
     public static void unauthorizedConception(YukkuriEntity a, YukkuriEntity b) {
-        Set<UUID> told = new HashSet<>();
-        for (var y : List.of(a, b)) if (y.pet().isPet()) {
-            y.pet().noteUnauthorizedBirth(); var owner = y.pet().owner(); var other = y == a ? b : a;
-            if (owner != null && told.add(owner) && y.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner) instanceof ServerPlayer sp)
-                sp.sendSystemMessage(Component.translatable("pet.mcyukkuri.breed.unauthorized", y.getDisplayName(), other.getDisplayName()));
-        }
+        for (var y : List.of(a, b)) if (y.pet().isPet()) y.pet().noteUnauthorizedBirth();
     }
-    public int unauthorizedBirths() { return unauthorized; }
     public void noteUnauthorizedBirth() { unauthorized = Math.min(99, unauthorized + 1); }
 
     // owner line: neglect and abandonment (docs/FEATURES.md)
@@ -263,10 +254,11 @@ public final class PetLife {
         if (animal.level().isClientSide || !ownedBy(who) || !isPet()) return;
         lastContact = now(); neglectClock = 0;
         if (!care) return;
+        if (presentOwner() instanceof Player player) conscience.tell(player);
         BadgePraise.contacted(animal, who);
         neglect = Math.max(0, neglect - 10); if (neglect < 40) noticeSent = false;
     }
-    private LivingEntity presentOwner() {
+    public LivingEntity presentOwner() {
         var person = ((ServerLevel) animal.level()).getEntity(owner());
         return person instanceof HumanNpc resident && resident.isAlive() ? resident
                 : person instanceof Player player && player.isAlive() && !player.isSpectator() ? player : null;
@@ -368,6 +360,7 @@ public final class PetLife {
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
+        conscience.forgetOwner();
         animal.life().personality().experienced(Trait.ATTACHMENT, -1, "abandoned");
         townRoots = true;
         care.ownerChanged(null);
@@ -390,6 +383,7 @@ public final class PetLife {
     }
     /** End NPC control while preserving the animal's badge and history. */
     public void ownerReleased(UUID former) {
+        conscience.forgetOwner();
         animal.outing().forget();
         townRoots = true;
         care.ownerChanged(null);
@@ -402,6 +396,7 @@ public final class PetLife {
         if (former.equals(examTemporaryOwner)) { examWildTag = null; examTemporaryOwner = null; }
     }
     public void lostContact() {
+        conscience.forgetOwner();
         townRoots = true;
         care.ownerChanged(null);
         neglect = 0; neglectClock = 0; searchClock = 0; ownerAbsence = 0; noticeSent = false;
@@ -497,6 +492,7 @@ public final class PetLife {
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
         tag.putBoolean("TownRoots", townRoots);
         tag.putInt("Obedience", obedienceShift);
+        tag.put("Conscience", conscience.save());
         tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday",
                 lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
@@ -520,6 +516,7 @@ public final class PetLife {
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
         townRoots = tag.contains("TownRoots") ? tag.getBoolean("TownRoots") : formerOwner != null;
         obedienceShift = RulesMath.capShift(tag.getInt("Obedience"));
+        conscience.load(tag.getCompound("Conscience"));
         ledger.load(tag.getCompound("BadgeLedger"));
         examWildTag = tag.contains("ExamWildTag", 10) && tag.hasUUID("ExamTemporaryOwner") ? tag.getCompound("ExamWildTag").copy() : null;
         examTemporaryOwner = examWildTag == null ? null : tag.getUUID("ExamTemporaryOwner");

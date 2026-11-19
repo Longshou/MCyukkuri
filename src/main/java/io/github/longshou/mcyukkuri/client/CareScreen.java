@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,7 +19,9 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     final ShopInfoPanel shopInfo = new ShopInfoPanel();
     private static final int MARGIN = 6, GAP = 5, CARD_PAD = 4, SECTION_HEAD = 15, FOOT_HEIGHT = 16;
     private static final int TAB_HEIGHT = 19;
-    private enum Page { ACTIONS, OBSERVE, LINEAGE }
+    private enum Page { ACTIONS, OBSERVE, LINEAGE, RULES }
+    private boolean rulesPage;
+    private int rulesMask;
     private final int[] rows = new int[CareAction.GROUP_COUNT];
     private final int[] sectionX = new int[CareAction.GROUP_COUNT];
     private final CareInspection inspection;
@@ -39,7 +42,8 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
 
     @Override protected void containerTick() {
         super.containerTick();
-        if (pageChanged || page == Page.ACTIONS && actions != menu.actions()) {
+        if (pageChanged || rulesPage != menu.rulesPage() || page == Page.RULES && rulesMask != menu.rulesMask()
+                || page == Page.ACTIONS && actions != menu.actions()) {
             pageChanged = false;
             buttons();
         }
@@ -55,6 +59,9 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
 
     private void buttons() {
         actions = menu.actions();
+        rulesPage = menu.rulesPage();
+        rulesMask = menu.rulesMask();
+        if (!rulesPage && page == Page.RULES) page = Page.ACTIONS;
         setFocused(null);
         clearWidgets();
         Arrays.fill(rows, 0);
@@ -92,8 +99,19 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
             tab(Page.ACTIONS, "actions", GuiKit.ICON_STATUS);
             tab(Page.OBSERVE, "observe", GuiKit.ICON_LIVE);
             tab(Page.LINEAGE, "lineage", GuiKit.ICON_PROFILE);
+            if (rulesPage) tab(Page.RULES, "rules", GuiKit.ICON_STATUS);
         }
         if (page == Page.ACTIONS) actionButtons(contentWidth);
+        if (page == Page.RULES) {
+            int pitch = Math.min(20, (contentHeight - 15) / HouseRule.values().length);
+            for (var rule : HouseRule.values()) {
+                var name = Component.translatable("rules.mcyukkuri." + rule.key());
+                var label = Component.translatable((rulesMask & rule.bit()) != 0 ? "options.on.composed" : "options.off.composed", name);
+                addRenderableWidget(Button.builder(label, b -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, CareMenu.RULE_BUTTON + rule.ordinal()))
+                        .bounds(leftPos + MARGIN, topPos + contentTop + 15 + pitch * rule.ordinal(), imageWidth - 2 * MARGIN, pitch - 1)
+                        .build(GuiKit.ActionButton::new));
+            }
+        }
         int footerY = topPos + imageHeight - MARGIN - FOOT_HEIGHT;
         if (page == Page.OBSERVE) {
             addRenderableWidget(Button.builder(CareInspection.text("reset"), button -> inspection.reset())
@@ -105,7 +123,8 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     }
 
     private void tab(Page target, String key, int icon) {
-        int tabWidth = (imageWidth - 2 * MARGIN - 2 * GAP) / 3;
+        int count = rulesPage ? Page.values().length : Page.values().length - 1;
+        int tabWidth = (imageWidth - 2 * MARGIN - (count - 1) * GAP) / count;
         var tab = new GuiKit.Tab(leftPos + MARGIN + target.ordinal() * (tabWidth + GAP), topPos + MARGIN,
                 tabWidth, TAB_HEIGHT, CareInspection.text(key), icon, button -> {
                     page = target;
@@ -149,6 +168,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
             inspection.renderLineage(g, font, x, y, w, contentHeight);
             return;
         }
+        if (page == Page.RULES) return;
         for (int group = 0; group < rows.length; group++) {
             if (rows[group] > 0) {
                 GuiKit.card(g, leftPos + sectionX[group], topPos + sectionsTop, columnWidth, sectionHeight(rows[group]), false);
@@ -157,6 +177,11 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     }
 
     @Override protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
+        if (page == Page.RULES) {
+            var state = Component.translatable(menu.told() ? "rules.mcyukkuri.told" : "rules.mcyukkuri.untold");
+            g.drawString(font, state.append(" · ").append(Component.translatable("rules.mcyukkuri.obedience." + menu.obedienceBand())),
+                    MARGIN + 2, contentTop + 2, GuiKit.INK, false);
+        }
         if (page != Page.ACTIONS) return;
         int headerWidth = imageWidth - 2 * MARGIN;
         if (menu.shop()) {

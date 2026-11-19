@@ -240,7 +240,7 @@ def badge(s):
     for k in range(4): button(c, 10 + k * 58, 172, 55, 20, tr(f'pet.mcyukkuri.ui.lesson.{k}'))
     button(c, 240, 172, 110, 20, tr('gui.done')); c.card(6, 196, 348, 26)
     fit(c, 14, 200, tr('badge.mcyukkuri.profile.breed_partner', 'Marisa', 1, 2), INK, 330, 'partner')
-    fit(c, 14, 211, tr('badge.mcyukkuri.profile.permit', 'Marisa', tr('badge.mcyukkuri.profile.permit_left.hours', 18), 0), INK, 330, 'permit')
+    fit(c, 14, 211, tr('badge.mcyukkuri.profile.permit', 'Marisa', tr('badge.mcyukkuri.profile.permit_left.hours', 18)), INK, 330, 'permit')
     for k in range(3): button(c, 10 + k * 115, 224, 110, 20, tr(f'badge.mcyukkuri.action.{30 + k}'))
     return c
 

@@ -251,6 +251,7 @@ public final class Custody {
                 return;
             }
         }
+        if (!animal.pet().ownedBy(owner)) animal.pet().conscience().forgetOwner();
         var tag = data(animal).copy(); tag.remove("PendingRole");
         if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); }
         tag.putUUID("Owner", owner); tag.putString("Use", use);
