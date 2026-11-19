@@ -436,7 +436,7 @@ public final class TemperatureLife {
         }
         // Vanilla advances a node once the body is within 0.75 - width/2 of its corner, so a narrow body can call itself
         // arrived while its block is still outside the stand; the last step onto a bed-less stand is walked.
-        if (occupancy == null && entity.getNavigation().isDone() && target.distManhattan(entity.blockPosition()) <= 1) {
+        if (occupancy == null && entity.getNavigation().isDone() && nextToStand(target)) {
             SurfaceApproach.walk(entity, Vec3.atBottomCenterOf(target), 1.15);
             return true;
         }
@@ -445,6 +445,12 @@ public final class TemperatureLife {
             if (path == null || !entity.getNavigation().moveTo(path, 1)) { stop(); return false; }
         }
         return true;
+    }
+    /** The stand or a block touching it: the navigation may park a small body at the stand's corner. */
+    private boolean nextToStand(BlockPos stand) {
+        var at = entity.blockPosition();
+        return Math.abs(stand.getX() - at.getX()) <= 1 && Math.abs(stand.getY() - at.getY()) <= 1
+                && Math.abs(stand.getZ() - at.getZ()) <= 1;
     }
     /** A refuge is reached on a real bed only inside it; a stand without a bed is a whole block, and the body stands in it. */
     private boolean reached(BlockPos site, Occupancy occupancy) {
