@@ -2713,7 +2713,7 @@ add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人�
         street_abuser(*_lot_spot('street', 18, 1), 'outing_oni'),
         street_trial('park_walk', ('chen', 'alice'), *_lot_spot('street', 19, 1), 'outing_stray', yaw=90,
                      friendliness=(30, 80), nutrition=(60, 90)),
-    ], env=DAY, spot='yard', vantage=(-7, 0, 180, 12),
+    ], env=DAY, spot='yard', vantage=(*_lot_spot('gate'), 30, 9),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
 add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带两只宠物去公园玩蹦床',
