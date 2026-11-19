@@ -272,9 +272,10 @@ final class SetOut implements Intent, FamilyRendezvous {
                 }, new Plan.Approach<>(() -> grab.check(owner), () -> grab.nextContactStand(owner),
                         stand -> new Step.Do(Walk.stand(stand, 1, SurfaceApproach.ARRIVAL))),
                 () -> {
-                    if (!grab.check(owner).ok()) {
-                        GameplayLog.event(owner, "aquatic", "set_out carry skipped child={} reason=out_of_reach at={}", child.getUUID(),
-                                GameplayLog.at(child.position()));
+                    var ready = grab.check(owner);
+                    if (!ready.ok()) {
+                        GameplayLog.event(owner, "aquatic", "set_out carry skipped child={} reason={} detail={} at={}", child.getUUID(),
+                                ready.reason(), ready.detail(), GameplayLog.at(child.position()));
                         return null;
                     }
                     GameplayLog.event(owner, "aquatic", "set_out carry child={} purpose=to_water at={} shore={}", child.getUUID(),

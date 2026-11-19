@@ -18,13 +18,27 @@ import java.util.function.Supplier;
  * Nothing is a stored phase: the next steps always follow from the facts.
  */
 final class Plan implements Method {
-    /** Read the live contact stand again after each walk. A null step hands off to the grip. */
-    record Approach<T>(Supplier<Feasibility> grip, Supplier<T> contactStand, Function<T, Step> walk) implements Supplier<Step> {
+    /** Allow one correcting walk and one refresh if the target moved during it. */
+    static final class Approach<T> implements Supplier<Step> {
+        private final Supplier<Feasibility> grip;
+        private final Supplier<T> contactStand;
+        private final Function<T, Step> walk;
+        private int walksLeft = 2;
+
+        Approach(Supplier<Feasibility> grip, Supplier<T> contactStand, Function<T, Step> walk) {
+            this.grip = grip;
+            this.contactStand = contactStand;
+            this.walk = walk;
+        }
+
         @Override public Step get() {
+            if (walksLeft == 0) return null;
             var reason = grip.get().reason();
             if (reason != Reason.NO_CONTACT && reason != Reason.NO_SUPPORT) return null;
             var stand = contactStand.get();
-            return stand == null ? null : walk.apply(stand);
+            if (stand == null) return null;
+            walksLeft--;
+            return walk.apply(stand);
         }
     }
 

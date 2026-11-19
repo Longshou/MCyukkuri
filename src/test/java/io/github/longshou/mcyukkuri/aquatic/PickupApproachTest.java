@@ -55,5 +55,16 @@ class PickupApproachTest {
         assertNull(noStand.get());
     }
 
+    @Test void movingChildCannotKeepTheApproachQueued() {
+        var stands = List.of("left", "right", "left").iterator();
+        var plan = Plan.of("lift", () -> List.of(new Plan.Approach<>(
+                () -> Feasibility.of(Reason.NO_CONTACT, .05, "braid_gap"), stands::next, PickupApproachTest::beat),
+                () -> beat("check grip")));
+        assertEquals("left", ((Step.Wait) plan.next()).why());
+        assertEquals("right", ((Step.Wait) plan.next()).why());
+        assertEquals("check grip", ((Step.Wait) plan.next()).why());
+        assertTrue(stands.hasNext());
+    }
+
     private static Step.Wait beat(String name) { return new Step.Wait(() -> true, 1, name); }
 }
