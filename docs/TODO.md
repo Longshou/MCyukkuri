@@ -11,7 +11,6 @@
 | 动作衔接：换片段时姿势过渡不跳变 | `.worktrees/wp-pose-bridge` | client/PoseBridge.java (new), client/YukkuriModel.java, client/YukkuriRenderer.java, client/capture/PoseTap.java, AgitationPresentation |
 | 被赶走时先跺完诅咒再离开 | `.worktrees/wp-curse-hold` | event/HomeClaim.java |
 | 隔台阶的贴身蹭：先到同一层再蹭 | `.worktrees/wp-step-nuzzle` | social/DailyLife.java, life/SurfaceApproach.java, motor/SideContact.java |
-| 水中救援先找站得稳的位置，不再站不稳就放弃 | `.worktrees/wp-rescue-footing` | aquatic/Rescue.java, aquatic/Ferry.java, motor/action/Grab.java, intent/AskLedger.java |
 | 挨打后的发抖或赌气接着出现，不回到平常脸 | `.worktrees/wp-threat-aftermath` | status/StruckResponse.java, status/PunishmentReaction.java |
 | 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 
