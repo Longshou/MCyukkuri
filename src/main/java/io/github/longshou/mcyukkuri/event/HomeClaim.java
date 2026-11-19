@@ -382,7 +382,7 @@ public final class HomeClaim {
     public static boolean declaring(YukkuriEntity body) {
         var action = body.reactionAction();
         return action == YukkuriAction.HOME_DECLARE || action == YukkuriAction.HOME_DECLARE_TIMID
-                || action == YukkuriAction.PROUD && body.homeDeclarationFollowup();
+                || action == YukkuriAction.PROUD && body.reactingTo("home_declare");
     }
     private static void hold(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, long now) {
         c.holdTicks+=TICK;
@@ -550,8 +550,7 @@ public final class HomeClaim {
     }
     /** The pathfinder only plans short hops, so flee toward the far anchor ten blocks at a time. */
     private static void retreatStep(YukkuriEntity y, Claim c) {
-        var reaction = y.reactionAction();
-        if (reaction != null && !reaction.walks()) {
+        if (y.reactingTo("driven_curse")) {
             SurfaceApproach.stopWalking(y);
             return;
         }

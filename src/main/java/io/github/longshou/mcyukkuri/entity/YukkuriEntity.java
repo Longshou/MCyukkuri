@@ -957,7 +957,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private YukkuriAction reactionAction, reactionAfter;
     private long reactionStartedAt = -1;
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
-    public boolean homeDeclarationFollowup() { return reactionEvent.equals("home_declare"); }
+    public boolean reactingTo(String event) { return reactionTicks > 0 && reactionEvent.equals(event); }
     public void cancelReaction() {
         reactionTicks = 0;
         reactionAction = reactionAfter = null;

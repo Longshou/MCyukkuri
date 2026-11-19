@@ -7135,12 +7135,13 @@ def _home_greedy_retreat(window, trace):
             frames[row['t']] = row['st']
     motions = Path(__file__).parents[1] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     stamp = json.loads(motions.read_text(encoding='utf-8'))['models']['marisa']['clips']['stamp']
-    stamps = [t for t, frame in frames.items() if frame['animation'] == 'stamp']
+    stamps = [t for t, frame in frames.items() if t < end and frame['animation'] == 'stamp']
     if stamps != list(range(start, start + round(stamp['duration'] * 20))) or len({tuple(frames[t]['p']) for t in stamps}) != 1:
         return 'The claimant must show one complete stationary stamp'
-    if not any(start + len(stamps) <= t < end and frame['animation'] == 'waddle' and frame['face'] == 'angry'
-               for t, frame in frames.items()):
-        return 'The stamp must hand over to an angry waddle during the retreat'
+    first_step = next((frame for t, frame in frames.items() if start + len(stamps) <= t < end
+                       and frame['p'] != frames[start]['p']), None)
+    if not first_step or (first_step['behavior'], first_step['animation'], first_step['face']) != ('home_claim_retreat', 'waddle', 'angry'):
+        return 'The claimant’s first moving retreat frame must be an angry waddle'
     x, y, z = map(int, stage.groups())
     if end not in frames or math.dist(frames[end]['p'], (x + .5, y, z + .5)) < 16:
         return 'The claimant ended the retreat before reaching the 16-block exit radius'
@@ -7159,8 +7160,9 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
     if _sid == 'home_greedy':
         _spec['ticks'] = 1510
         _spec['commands'] += [
-            # Keep the closed doorway case in the player scene and give the timing check a clear exit.
-            (698, box(4, 0, 8, 6, 1, 8, 'minecraft:air')),
+            # The visitor opens the existing door before asking the claimant to leave.
+            (698, block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower,open=true]')),
+            (698, block(5, 1, 8, 'minecraft:oak_door[facing=south,half=upper,open=true]')),
             (700, 'execute positioned ~8 ~ ~2.65 run yukkuri scenario tool_operator enter'),
             (702, f'yukkuri scenario care_click {sel("greedy")} decline_event'),
             (1310, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator move'),
