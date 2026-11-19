@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -294,6 +295,7 @@ public final class Kindness extends Goal {
         boolean handed = giver.component(YukkuriComponents.MOUTH)
                 .offerKindnessFood(item -> guest.life().beginKindnessMeal(giver, item));
         if (handed) {
+            giver.life().personality().experienced(Trait.FRIENDLINESS, 1, "shared_food");
             var receiver = of(guest);
             receiver.received = RECEIVER_REST;
             receiver.mealDonor = giver.getUUID();
