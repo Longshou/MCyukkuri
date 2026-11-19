@@ -63,7 +63,7 @@ public final class HumanCommerce {
         var bound = Custody.view(animal);
         if (!bound.ownedBy(npc.getUUID()) || bound.hasPendingStaffRole()) return;
         // Authored templates carry qualifications in YukkuriPet. Binding supplies the real
-        // issuer, serial and world-relative expiry without granting any skill or trait.
+        // issuer and serial without granting any skill or trait.
         var pet = animal.pet();
         if ((custody.role() == Custody.Role.STOCK || custody.role() == Custody.Role.STUD)
                 && pet.grade() != BadgeGrade.NONE && pet.serial() == null)

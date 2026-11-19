@@ -341,7 +341,6 @@ public final class PetLife {
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
-        if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
         townRoots = true;
         care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
@@ -354,10 +353,12 @@ public final class PetLife {
         animal.outing().forget();
         care.ownerChanged(owner);
         lastContact = now(); neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
-        if (formerOwner == null) return;
-        boolean same = formerOwner.equals(owner);
-        formerOwner = null; abandonStage = 0; waits = false;
-        if (same) { voidBadge = false; animal.playAction("tremble"); joyDelay = 30; }
+        if (formerOwner != null) {
+            boolean same = formerOwner.equals(owner);
+            formerOwner = null; abandonStage = 0; waits = false;
+            if (same) { voidBadge = false; animal.playAction("tremble"); joyDelay = 30; }
+        }
+        PetPrivileges.note(animal);
     }
     /** End NPC control while preserving the animal's badge and history. */
     public void ownerReleased(UUID former) {

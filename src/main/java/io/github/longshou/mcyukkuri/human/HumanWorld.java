@@ -93,16 +93,13 @@ public final class HumanWorld {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ExamMenu(id, inv, buf.readVarInt())));
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
-    public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, COMMODITY_HARSHNESS;
+    public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES;
     static {
         var b = new ModConfigSpec.Builder();
         ROAMING = b.comment("Allow rare daylight human encounters; structure residents are independent.").define("roamingResidents", true);
         CRUELTY = b.comment("Allow cruel residents to shoo or lightly nudge eligible street animals without injury. Off permits a warning only.").define("oniisanCruelty", true);
         TRADE_DAY_LIMIT = b.comment("Goods a single player can buy from one shopkeeper per game day (shelf stock is limited separately).").defineInRange("supplyTradesPerDay", 24, 1, 64);
         CARE_SUPPLIES = b.comment("Initial grain; caring residents receive at most eight portions once.").defineInRange("initialCareFood", 32, 0, 256);
-        COMMODITY_HARSHNESS = b
-                .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales punishment after a failed exam.")
-                .defineInRange("commodityHarshness", 1, 0, 3);
         SPEC = b.build();
     }
     private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(String id, HumanNpc.Look look) {

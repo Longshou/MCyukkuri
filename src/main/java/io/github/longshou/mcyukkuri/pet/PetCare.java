@@ -124,7 +124,6 @@ public final class PetCare {
         if (animal.isLeashed()) animal.dropLeash(true, true);
         if (newOwner != null && newOwner.equals(wearOwner)) return;
         stripWear(null);
-        PetPrivileges.note(animal); // a bought pet's badge counts for its new owner
     }
     /** Death: the gear stays behind where the pet fell. */
     public void died() {
@@ -261,7 +260,6 @@ public final class PetCare {
         rollDay();
         requests.tick(); walk.tick(); tickWear();
         animal.outing().releaseVacatedNest();
-        if (animal.tickCount % 100 == 61 && animal.pet().grade() != BadgeGrade.NONE) PetPrivileges.note(animal); // keeps the owner's recorded standing and its expiry current
         if (habitLeft > 0) {
             if (!animal.isAlive() || --habitLeft <= 0) closeHabit();
             else if (habitLeft % 4 == 0) Staging.moveCard(level(), habitCard, markPos());
