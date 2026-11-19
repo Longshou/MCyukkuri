@@ -95,7 +95,7 @@ class PressureEpisodes(unittest.TestCase):
 
 class ElopementScenes(unittest.TestCase):
     def test_pair_history_and_affinity_are_start_conditions(self):
-        for sid, bond, visits in [('elope', 8, 0), ('elope_leave', 20, 2)]:
+        for sid, pet_bond, wild_bond, boldness, visits in [('elope', 30, 8, 20, 0), ('elope_leave', 20, 20, 95, 2)]:
             scene = next(s for s in S if s.id == sid)
             pet = next(l for l in scene.lines if l.startswith('summon mcyukkuri:reimu '))
             if visits:
@@ -104,8 +104,9 @@ class ElopementScenes(unittest.TestCase):
                 self.assertIn('UUID:' + partner, next(l for l in scene.lines if l.startswith('summon mcyukkuri:marisa ')))
             else:
                 self.assertNotIn('Trysts:', pet)
-            for a, b in [('pet', 'wild'), ('wild', 'pet')]:
-                self.assertIn(f'yukkuri status relate {sel(a)} {sel(b)} {bond}', scene.lines)
+            self.assertIn(f'Innate:[I;55,70,{boldness},5,5]', pet)
+            self.assertIn(f'yukkuri status relate {sel("pet")} {sel("wild")} {pet_bond}', scene.lines)
+            self.assertIn(f'yukkuri status relate {sel("wild")} {sel("pet")} {wild_bond}', scene.lines)
 
     def meeting(self, sid, visits, chance):
         p, w = (_uuid_text(sid, role) for role in ('pet', 'wild'))

@@ -2798,20 +2798,20 @@ for _x in (-10, 18):
                     block(_x, 0, 5, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
                     block(_x, 0, 6, 'mcyukkuri:waterer{Water:8}'), block(_x+1, 0, 6, 'mcyukkuri:yukkuri_toilet')]
 
-for _sid, _title, _returns, _watch in (
-        ('elope', '被勾引，偷偷私会', 0, '看野生魔理沙从右侧来到篱笆缺口招呼。灵梦从左院溜出去贴贴，又独自回窝。'),
-        ('elope_leave', '跟野生伴侣离家', 2, '两只已有两次私会。看冷落已久的灵梦再次应邀越界，回望原窝，随魔理沙走向右侧远窝，再核对灵梦的原铜章和归属。')):
+for _sid, _title, _returns, _pet_bond, _pet_boldness, _watch in (
+        ('elope', '被勾引，偷偷私会', 0, 30, 20, '灵梦平时不爱走远，却很喜欢篱笆外的魔理沙。看魔理沙从右侧招呼、灵梦从左院溜出去贴贴，又独自回窝。'),
+        ('elope_leave', '跟野生伴侣离家', 2, 20, 95, '两只已有两次私会。看冷落已久的灵梦再次应邀越界，回望原窝，随魔理沙走向右侧远窝，再核对灵梦的原铜章和归属。')):
     _pet, _wild = sel('pet'), sel('wild')
-    _bond = 8 + 6 * _returns
+    _wild_bond = 8 + 6 * _returns
     _history = ',Conscience:{Trysts:[{Partner:' + uuid_nbt(uid(_sid, 'wild')) + ',Returns:2}]}' if _returns else ''
     add(_sid, 'town', _title, _title,
         '先在照料菜单告诉灵梦「不准出院子」，再退到远台。' + _watch, '约 1～5 分钟，可用倍速观察', [
             *_elope_yard,
-            yk('reimu', -7, -1, 'pet', label='家养灵梦', lead=True, uuid=uid(_sid, 'pet'), self_control=5, boldness=95,
+            yk('reimu', -7, -1, 'pet', label='家养灵梦', lead=True, uuid=uid(_sid, 'pet'), self_control=5, boldness=_pet_boldness,
                attachment=5, kin='PentUp:100f', extra='YukkuriPet:{Neglect:85,Obedience:-50' + _history + '}', **pair_ready()),
             yk('marisa', 5, 0, 'wild', label='野生魔理沙', uuid=uid(_sid, 'wild'), boldness=90, kin='PentUp:100f,Recovery:24000', **pair_ready()),
             *own('pet'), f'yukkuri scenario badge {_pet} bronze false',
-            f'yukkuri status relate {_pet} {_wild} {_bond}', f'yukkuri status relate {_wild} {_pet} {_bond}',
+            f'yukkuri status relate {_pet} {_wild} {_pet_bond}', f'yukkuri status relate {_wild} {_pet} {_wild_bond}',
             home('pet', -10, -6), home('wild', 18, -6)],
         env=DAY, vantage=(2, 19, 180, 24, 8), give=['mcyukkuri:field_notebook', 'mcyukkuri:household_guard', 'minecraft:oak_planks 8'],
         reads=[('读私会次数', f'data get entity {_pet} YukkuriPet.Conscience.Trysts'),
