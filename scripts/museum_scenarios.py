@@ -2690,15 +2690,17 @@ def _lot_keeper(name, extra=''):
 
 def _lot_pet(scene, keeper, kind, x, name, **stats):
     return [
-        yk(kind, x, -1, name, uuid=uid(scene, name), extra='YukkuriDailyLife:{Boredom:95,Affection:20}', lead=True, **stats),
+        yk(kind, x, -1, name, uuid=uid(scene, name), extra='YukkuriDailyLife:{Boredom:95,Affection:20}', grade=1, lead=True, **stats),
         f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
         f'data modify entity {sel(name)} {OWNED}.Owner set from entity {sel(keeper)} UUID',
+        f'data modify entity {sel(name)} YukkuriPet.Care.Harness set value 1b',
+        f'data modify entity {sel(name)} YukkuriPet.Care.WearOwner set from entity {sel(keeper)} UUID',
     ]
 
 
 _outing_pets = [('reimu', 'outing_shy', -2, 5, 95), ('marisa', 'outing_bold', 2, 95, 5)]
 add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
-    '院子在公园大门对面。院主带灵梦和魔理沙出院门，沿街往西走十来格再折回。灵梦贴着主人，魔理沙离得远些。'
+    '院子在公园大门对面。院主给灵梦和魔理沙系绳，带它们沿街往西走十来格再折回。看两只油自己跑跳、绳子何时拉紧、主人怎样回望。'
     '街上的鬼威惨先喝斥挡路的流浪油，不碰有主的宠物。',
     '约 1 分钟', [
         *_lot_yard(-2, 2),
@@ -2715,7 +2717,7 @@ add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人�
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
 add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带两只宠物去公园玩蹦床',
-    '院主带灵梦和魔理沙进公园，站到蹦床西侧等。两只宠物从北侧上床、朝街这一侧跳下。看较重、精力较少的灵梦和魔理沙弹得多高，'
+    '院主带灵梦和魔理沙进公园，到蹦床西侧解绳等候。两只宠物轮流从北侧上床、朝街这一侧跳下。看较重、精力较少的灵梦和魔理沙弹得多高，'
     '床面是否随落地压下回弹。也可以站上床面自己跳，试着落地接跳或潜行停弹。',
     '约 2 分钟', [
         *_lot_yard(-2, 2),
@@ -2739,6 +2741,7 @@ add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公
         block(_PARK_CRATE[0], 0, _PARK_CRATE[1], 'mcyukkuri:produce_crate[facing=west]'),
         f'item replace block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} container.0 with minecraft:apple 1',
         'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('gate', 1, -9))),
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_picnic"]}}'.format(*(v + .5 for v in _lot_spot('picnic', 2, 0))),
         _lot_keeper('picnic_keeper', f',YardCrate:{_lot_pos(*_PARK_CRATE)}L,HumanInitialized:1b,NextRestock:2147483647L,CareFood:0'),
         *_lot_pet('park_picnic', 'picnic_keeper', 'marisa', -2, 'picnic_pet', boldness=40, attachment=50, nutrition=40, energy=100),
         street_trial('park_picnic', 'chen', *_lot_spot('street', -6, 0), 'picnic_stray', nutrition=25),
@@ -2763,15 +2766,16 @@ add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱�
     reads=[('读住所宣言与驱离', 'yukkuri homeclaim status'),
            ('读流浪魔理沙状态', f'yukkuri status {sel("yard_stray")} raw')])
 
-add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', '田边：吃一口作物，居民看见后警告',
-    '灵梦在田边，正对成熟胡萝卜，右边的居民看得见它。开场几秒内灵梦咬下一口，作物退一阶，居民挥手喝斥；'
-    '灵梦在原地嚼完这一口（约 3 秒）才转身，朝远离居民的方向跑出十几格躲起来。旁边的幼苗不会被咬。', '约半分钟', [
+add('street_crops', 'town', '田边：居民赶走偷吃作物的灵梦', '田边：居民赶走偷吃作物的灵梦',
+    '灵梦在田边，正对成熟胡萝卜，右边的居民看得见它。开场几秒内灵梦咬下一口，作物退一阶。居民挥手喝斥、往田边上前几步，'
+    '胆小的灵梦丢下这一口胡萝卜，转身逃出去躲起来。旁边的幼苗不会被咬。', '约半分钟', [
         box(-3, -1, -3, 5, -1, 3, 'minecraft:polished_andesite'),
         block(1, -1, 0, 'minecraft:farmland[moisture=7]'),
         block(1, 0, 0, 'minecraft:carrots[age=7]'),
         block(2, -1, 0, 'minecraft:farmland[moisture=7]'),
         block(2, 0, 0, 'minecraft:carrots[age=0]'),
-        street_trial('street_crops', 'reimu', 0, 0, 'crop_eater', nutrition=25, yaw=-90, lead=True),
+        street_trial('street_crops', 'reimu', 0, 0, 'crop_eater', nutrition=25, yaw=-90, lead=True,
+                     boldness=25, friendliness=75, self_control=75),
         human('caretaker_brother', 3, -1, 'crop_witness', 0, attitude=2, yaw=65, label='看得见田的居民'),
     ], env=DAY, vantage=(0, 8), reads=[('读血量', f'data get entity {sel("crop_eater")} Health')])
 
@@ -6577,7 +6581,8 @@ next(s for s in S if s.id == 'street_stop').smoke['commands'] = [
 _smoke('street_crops', 500, [
     rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
     rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*site=BlockPos',
-    rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot',
+    rf'\[npc-care\][^\n]* action=street_shoo target={_crop_eater}\b moved=',
+    rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* interrupted item=minecraft:carrot count=1 [^\n]*drop=[\w-]+',
     rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source=[\w-]+ stage=RETREAT',
     rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response ended stage=HIDE [^\n]*cooldown=100',
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
@@ -6636,12 +6641,16 @@ def _crop_warning_retreat(log):
     warning = re.search(rf'\[npc-care\][^\n]* uuid=([\w-]+) [^\n]* action=street_warn target={_crop_eater}\b[^\n]* site=BlockPos', log)
     if warning is None:
         return 'the crop eater received no resident warning'
-    swallowed = re.search(rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot', log[warning.end():])
-    if swallowed is None:
-        return 'the crop eater did not swallow the carrot after the warning'
+    dropped = re.search(rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* interrupted item=minecraft:carrot count=1 phaseTick=([1-9])\b',
+                        log[warning.end():])
+    if dropped is None:
+        return 'the timid crop eater did not drop its carrot within the first few ticks of chewing'
     if not re.search(rf'\[threat\][^\n]* uuid={_crop_eater}\b[^\n]* response started source={warning[1]}\b stage=RETREAT',
-                     log[warning.end() + swallowed.end():]):
-        return 'the crop eater did not begin retreat from the resident who warned it after it swallowed'
+                     log[warning.end() + dropped.end():]):
+        return 'the crop eater did not retreat from the resident after dropping the carrot'
+    if not re.search(rf'\[npc-care\][^\n]* uuid={warning[1]}\b[^\n]* action=street_shoo target={_crop_eater}\b moved=',
+                     log[warning.end():]):
+        return 'the resident who gave the warning did not step toward the crop eater'
     return None
 
 
@@ -6983,19 +6992,33 @@ def _outing_crossings(window, trace):
 _lot_bowl = f'~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]}'
 _lot_crate = f'~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]}'
 _outing_ids = '|'.join(_uuid_text('park_walk', p[1]) for p in _outing_pets)
+
+
+def _outing_leads(scene, names, park):
+    phases = [('depart', 'attach'), ('park', 'detach'), ('return', 'attach'), ('home', 'detach')] if park else [
+        ('depart', 'attach'), ('home', 'detach')]
+    return [rf'action=outing_lead phase={phase} result={result} pet={_uuid_text(scene, name)}\b'
+            for name in names for phase, result in phases]
+
+
 _smoke('park_walk', 1100, [
     r'action=outing_depart pets=2 ', r'action=outing_home',
     rf'action=street_warn target={_uuid_text("park_walk", "outing_stray")}',
     *[rf'uuid={_uuid_text("park_walk", p[1])} [^\n]*outing reached home' for p in _outing_pets],
-    r'MCY_OUTING_BOWL_STOCKED', r'MCY_OUTING_BOTH_UNLEASHED',
+    *_outing_leads('park_walk', [p[1] for p in _outing_pets], False),
+    r'MCY_OUTING_BOWL_STOCKED', r'MCY_OUTING_HOME_LEADS_OFF',
 ], forbid=[rf'action=street_(?:warn|chase|kick) target=(?:{_outing_ids})'])
 next(s for s in S if s.id == 'park_walk').smoke.update(verify=_outing_crossings, verify_trace=True, commands=[
     (1, f'execute if data block {_lot_bowl} Items[{{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}}] run say MCY_OUTING_BOWL_STOCKED'),
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
-     f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_BOTH_UNLEASHED'),
+     f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_HOME_LEADS_OFF'),
 ])
 def _park_play_pet_fates(window):
     """Both pets rebound; before returning each finishes playing or rests and wakes."""
+    at_stand = re.search(r'action=outing_park_wait stand=(\([^\n]+\))', window)
+    left = re.search(r'action=outing_park_leave stand=(\([^\n]+\)) gap=([\d.]+)', window)
+    if not at_stand or not left or at_stand[1] != left[1] or float(left[2]) >= .5:
+        return 'the keeper did not finish waiting at her park stand'
     first = []
     for _, name, *_ in _outing_pets:
         actor = _uuid_text('park_play', name)
@@ -7004,6 +7027,8 @@ def _park_play_pet_fates(window):
         woke = re.search(rf'uuid={actor} [^\n]*end source=life cause=rested ', window)
         if not (played or (rest and woke and rest.start() < woke.start())):
             return f'{name} neither finished a trampoline session nor rested and woke'
+        if not at_stand.end() < (played or woke).start() < left.start():
+            return f'{name} finished outside the keeper’s wait at the park stand'
         bounce = re.search(rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
                            r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)
         if not bounce:
@@ -7030,6 +7055,7 @@ _smoke('park_play', 2600, [
     r'action=outing_turn reason=park_(?:done|time)',
     r'action=outing_home',
     *[rf'uuid={_uuid_text("park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
+    *_outing_leads('park_play', [p[1] for p in _outing_pets], True),
     r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
            r'\[body\][^\n]*accepted damage cause=fall\b'],
@@ -7053,6 +7079,7 @@ _picnic_transfers = [
 ]
 _smoke('park_picnic', 3200, [
     r'action=outing_depart pets=1 ', r'action=outing_park facility=', *_picnic_transfers,
+    *_outing_leads('park_picnic', ['picnic_pet'], True),
     r'action=picnic_half_gone', r'action=outing_home', rf'uuid={_picnic_pet} [^\n]*outing reached home',
     r'MCY_PICNIC_APPLES_ACCOUNTED_FOR',
 ], forbid=[r'picnic_refused reason=no_dry_ground', r'outing return blocked', r'action=outing_return_blocked',
