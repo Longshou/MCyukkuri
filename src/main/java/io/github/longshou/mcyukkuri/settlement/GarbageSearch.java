@@ -380,7 +380,7 @@ public final class GarbageSearch implements MotorOwner {
         if (rummaging()) putDownScrap();
         body.showReaction("surprise", "", 50);
         phase = Phase.RETREAT; deadline = now() + 100;
-        aim = DefaultRandomPos.getPosAway(body, 5, 2, from);
+        aim = body.status().reactions().threat().flight().destination(from, 5);
     }
     private void decline(String reason) { remember(reason); stop(); }
     private void remember(String reason) {
@@ -389,7 +389,10 @@ public final class GarbageSearch implements MotorOwner {
         refused.put(pos, now() + 2400);
         GameplayLog.event(body, "forage", "garbage gave_up point={} reason={} rams={} cooldown=2400", pos, reason, rams);
     }
-    private SurfaceApproach.Result walk() { return SurfaceApproach.walkResult(body, aim, null, 1); }
+    private SurfaceApproach.Result walk() {
+        return phase == Phase.RETREAT ? SurfaceApproach.retreatResult(body, aim, null, 1)
+                : SurfaceApproach.walkResult(body, aim, null, 1);
+    }
     private void putDownScrap() {
         refusedDrop = body.habitat().putDownMouthLoad() ? null : body.blockPosition();
     }
