@@ -323,7 +323,6 @@ public final class IndependenceLife extends Goal {
     }
 
     private void depart() {
-        departTicks++;
         var parent = level().getEntity(visitor) instanceof YukkuriEntity p && p.isAlive() ? p : null;
         double from = parent == null ? 0 : Math.sqrt(entity.distanceToSqr(parent));
         if (lookBackTicks > 0) {
@@ -345,6 +344,8 @@ public final class IndependenceLife extends Goal {
             else entity.showReaction(teary ? "teary_smile" : "happy", "", lookBackTicks);
             return;
         }
+        // The look-back beats have their own countdown and do not spend the walk's time allowance.
+        departTicks++;
         var result = SurfaceApproach.walkResult(entity, away, null, .8);
         if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) stop();
     }
