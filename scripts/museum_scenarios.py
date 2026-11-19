@@ -7167,8 +7167,8 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
             (702, f'yukkuri scenario care_click {sel("greedy")} decline_event'),
             (1310, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator move'),
             (1312, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
-            # Brief ignition exercises panic even when the blow selects a defiant stance.
-            (1365, f'data merge entity {sel("greedy")} {{Fire:4s}}'),
+            # Environmental damage triggers panic even when the player's blow selected defiance.
+            (1365, f'damage {sel("greedy")} 1 minecraft:in_fire'),
             (1415, 'yukkuri scenario tool_operator leave'),
         ]
         _spec['expect'] += [r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
