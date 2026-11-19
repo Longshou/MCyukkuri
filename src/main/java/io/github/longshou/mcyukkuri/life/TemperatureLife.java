@@ -439,10 +439,10 @@ public final class TemperatureLife {
         }
         return true;
     }
-    /** A refuge is reached on a real bed only inside it; a place without a bed keeps the off-centre tolerance. */
+    /** A refuge is reached on a real bed only inside it; a stand without a bed is a whole block, and the body stands in it. */
     private boolean reached(BlockPos site, Occupancy occupancy) {
         return occupancy != null ? occupancy == Occupancy.INSIDE_SUPPORTED
-                : entity.distanceToSqr(Vec3.atBottomCenterOf(site)) <= .2;
+                : entity.blockPosition().equals(site) && entity.onGround();
     }
     /** Transfers only a physically reached safe place, never home ownership or elapsed sleep. */
     public boolean beginSleepAtRefuge() {
