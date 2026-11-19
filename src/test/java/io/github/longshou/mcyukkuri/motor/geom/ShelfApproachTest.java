@@ -6,6 +6,18 @@ import java.util.function.BiPredicate;
 import org.junit.jupiter.api.Test;
 
 class ShelfApproachTest {
+    @Test void founderOrReturnLosesAdmissionWhenAnotherBodyArrivesDuringDescent() {
+        var min = new Vec(0, 64, 0);
+        var max = new Vec(.8, 64.6, .8);
+        boolean admitted = !ShelfApproach.occupied(false, min, max, new Vec(1, 64, 0), new Vec(1.75, 64.53, .75));
+        assertEquals(ShelfApproach.Landing.APPROACH, ShelfApproach.landing(admitted, false, false));
+        boolean stillClear = !ShelfApproach.occupied(false, min, max, new Vec(.7, 64, 0), new Vec(1.45, 64.53, .75));
+        assertEquals(ShelfApproach.Landing.REPICK, ShelfApproach.landing(stillClear, false, false));
+        assertEquals(ShelfApproach.Landing.REPICK, ShelfApproach.landing(stillClear, true, true));
+        assertEquals(ShelfApproach.Landing.REPICK, ShelfApproach.landing(true, true, false));
+        assertEquals(ShelfApproach.Landing.TOUCHDOWN, ShelfApproach.landing(true, true, true));
+    }
+
     private static final Vec GOAL = new Vec(-290.5, 72, 491.5);
 
     @Test void landingRejectsThePreysCellAndAnyOverlapFromANeighbour() {

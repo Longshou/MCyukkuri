@@ -19,5 +19,6 @@ public record BodyCondition(int wound, int burns, int infection, int mold, int f
     public boolean needsExtraRation() { return wound > 0 || infection > 0; }
     public boolean blocksBreedingApproach() { return wound > 0 || burns > 0 || infection > 0; }
     public boolean hasSicknessPressure() { return infection > 0 || mold > 0; }
-    public int painSeverity() { return Math.max(wound, burns); }
+    public int painSeverity() { return painSeverity(wound, burns); }
+    static int painSeverity(int wound, int burns) { return Math.max(wound, burns); }
 }

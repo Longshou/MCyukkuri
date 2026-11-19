@@ -70,7 +70,6 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
-import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -121,6 +120,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -420,8 +421,21 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire()) super.jumpFromGround();
     }
 
+    @Override public void moveRelative(float acceleration, Vec3 input) {
+        Vec3 before = getDeltaMovement();
+        super.moveRelative(acceleration, input);
+        Vec3 after = getDeltaMovement();
+        double dx = after.x - before.x, dz = after.z - before.z;
+        // Vanilla ground control supplies getSpeed() as forward input as well as its acceleration.
+        if (!level().isClientSide && (dx != 0 || dz != 0))
+            motor.propulsion(dx, 0, dz, acceleration * Math.min(1, getSpeed()));
+    }
+
     @Override public void move(MoverType type, Vec3 delta) {
+        Vec3 from = position();
         super.move(type, type == MoverType.SELF ? Motor.groundTravel(this, delta, xxa != 0 || zza != 0 || isCrawling()) : delta);
+        if (!level().isClientSide && type == MoverType.SELF)
+            motor.stride.resolved(tickCount, delta.x, delta.y, delta.z, getX() - from.x, getY() - from.y, getZ() - from.z);
     }
 
     /** Action sweeps and contact motion have already been solved by the motor. */
@@ -448,6 +462,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;
+            motor.propulsion(dx * fraction, 0, dz * fraction, distance);
             Motor.velocity(this, new Vec3(dx*fraction+crawlNudgeX, getDeltaMovement().y, dz*fraction+crawlNudgeZ), "crawl");
             crawlNudgeX*=.546;crawlNudgeZ*=.546;
             super.travel(Vec3.ZERO); // Vanilla move still resolves collision, gravity and steps.
@@ -565,15 +580,33 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(nudgeable())shove(-ux,-uz,strength*Math.clamp(2*theirs/(mine+theirs),.4,1.8)*(life.isSleeping()?.6:1));
         if(peer.nudgeable())peer.shove(ux,uz,strength*Math.clamp(2*mine/(mine+theirs),.4,1.8)*(peer.life.isSleeping()?.6:1));
     }
+    private static final EntityTypeTest<Entity, LivingEntity> LIVING = EntityTypeTest.forClass(LivingEntity.class);
+    private final List<LivingEntity> shoveNeighbours = new ArrayList<>();
+    private final FlightCourse.Shove shove = new FlightCourse.Shove(this::clearShove);
+
     /** Use retreat's dry landing rule for the displacement this impulse can carry, even while recoiling in the air. */
     private void shove(double x,double z,double strength) {
         if (level().isClientSide) return;
         var motion = getDeltaMovement();
-        var inertia = isCrawling() ? new Direction(crawlNudgeX, crawlNudgeZ) : new Direction(motion.x, motion.z);
-        var step = FlightCourse.shove(new Direction(x * strength, z * strength), inertia,
-                drift -> isInLiquid() || SurfaceApproach.canSteerOver(this, position().add(drift.x(), 0, drift.z())));
-        if (step.x() != 0 || step.z() != 0) nudge(step.x(), step.z());
-        else GameplayLog.limited(this,"move","shove.brace",200,"shove braced at brink both_sides");
+        level().getEntities(LIVING, getBoundingBox().inflate(strength, 0, strength), EntitySelector.NO_SPECTATORS, shoveNeighbours);
+        boolean clear = shove.choose(x * strength, z * strength, isCrawling() ? crawlNudgeX : motion.x,
+                isCrawling() ? crawlNudgeZ : motion.z);
+        shoveNeighbours.clear();
+        if (clear) nudge(shove.x(), shove.z());
+        else GameplayLog.limited(this,"move","shove.brace",200,"shove braced at obstruction or brink");
+    }
+
+    private boolean clearShove(double dx, double dz, double driftX, double driftZ) {
+        var here = getBoundingBox();
+        var next = here.move(dx, 0, dz);
+        if (!level().noCollision(this, next)) return false;
+        for (int i = 0; i < shoveNeighbours.size(); i++) {
+            var body = shoveNeighbours.get(i);
+            var box = body.getBoundingBox();
+            if (body != this && next.intersects(box) && !FlightCourse.clearsNeighbour(here.intersects(box),
+                    getX() - body.getX(), getZ() - body.getZ(), dx, dz)) return false;
+        }
+        return isInLiquid() || SurfaceApproach.canSteerOver(this, position().add(driftX, 0, driftZ));
     }
     /** A walking nudge. The crawl gait rewrites the horizontal velocity every tick, so crawlers keep a decaying carry. */
     public void nudge(double x,double z) {
@@ -836,15 +869,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void aiStep() {
         if (!level().isClientSide && !crawler()) syncCrawl(false);
         if (!isCrawling()) crawlNudgeX = crawlNudgeZ = 0;
-        double movementX = getX(), movementY = getY(), movementZ = getZ();
+        double movementX = getX(), movementZ = getZ();
         boolean wasDeciding = BodyDriver.deciding();
         BodyDriver.deciding(true);
         try { super.aiStep(); } finally { BodyDriver.deciding(wasDeciding); }
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
         if (level().isClientSide) return;
         if (!isAlive()) return;
-        species.finishStride(travelledX * travelledX + travelledZ * travelledZ > 1e-8
-                || predatorFlying() && Math.abs(getY() - movementY) > .0001);
+        species.finishStride(motor.stride.ran(tickCount));
         boolean firstReactionTick = reactionStartedAt == level().getGameTime();
         if (!firstReactionTick && reactionTicks > 0 && --reactionTicks == 0 && reactionAfter != null) {
             var follow = reactionAfter;

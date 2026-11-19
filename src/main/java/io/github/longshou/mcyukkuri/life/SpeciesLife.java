@@ -84,7 +84,10 @@ public final class SpeciesLife {
         if (request <= 0 || entity.isInLiquid() || !(Gait.fast(request)
                 || entity.getNavigation() instanceof YukkuriGroundNavigation ground
                 && (ground.retreating() || entity.isPanicking()
-                || entity.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT))) return 1;
+                || entity.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT))) {
+            sprintTick = -1;
+            return 1;
+        }
         sprintTick = entity.tickCount;
         return stamina.pace();
     }
@@ -92,8 +95,8 @@ public final class SpeciesLife {
     public boolean sprintRequested() { return sprintTick == entity.tickCount; }
 
     /** One charge per tick of actual driven travel. A blocked, carried or resting body catches its breath. */
-    public void finishStride(boolean moved) {
-        boolean ran = sprintRequested() && moved && !entity.isPassenger() && !stamina.resting();
+    public void finishStride(boolean driven) {
+        boolean ran = driven && !entity.isPassenger() && !stamina.resting();
         if (!ran && stamina.debt() == 0) return;
         var build = SprintStamina.Build.of(entity.getVariant());
         boolean resting = stamina.resting();

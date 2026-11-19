@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
+import io.github.longshou.mcyukkuri.motor.geom.DrivenStride;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
@@ -20,6 +21,12 @@ import net.minecraft.world.phys.Vec3;
 
 /** The MOTOR component: exactly one action drives a body at a time and every request to move goes through it. Server only, never saved, never driven by a passive clock. */
 public final class BodyDriver {
+    public final DrivenStride stride = new DrivenStride();
+
+    public void propulsion(double dx, double dy, double dz, double fullStroke) {
+        stride.drive(body.species().sprintRequested() ? body.tickCount : -1, dx, dy, dz, fullStroke);
+    }
+
     /** Current action's id, start tick and displacement source; one display snapshot, empty when idle. */
     public static final SyncSlot<CompoundTag> MOTOR_ACTION = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
     /** 0 Free, 1 Airborne, 2 OnHost, 3 Held. */

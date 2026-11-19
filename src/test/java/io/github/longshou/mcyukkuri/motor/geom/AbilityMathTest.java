@@ -9,6 +9,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** The numbers come from the coefficients, not from call sites. */
 class AbilityMathTest {
+    @Test void sprintFitnessMatchesFullAbilityAcrossInjuriesAndSpeciesCoefficients() {
+        var modifiers = new AbilityMath.Multipliers(Map.of("fitness_floor", .7, "pain_weight", 1.4,
+                "burn_penalty", .8, "energy_ref", 1.25));
+        for (double energy : new double[]{0, 55, 100}) for (boolean burned : new boolean[]{false, true}) {
+            var in = new AbilityMath.Inputs(.7, energy, 6, 10, 2, burned, true, false, false, 0);
+            double expected = AbilityMath.compute(in, C, modifiers).fitness();
+            assertEquals(expected, AbilityMath.fitness(energy, 6, 10, 2, burned, C, modifiers), EPS);
+        }
+    }
+
     private static final double EPS = 1e-9;
     private static final AbilityMath.Coefficients C = AbilityMath.Coefficients.DEFAULTS;
     private static final AbilityMath.Multipliers NONE = AbilityMath.Multipliers.IDENTITY;

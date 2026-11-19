@@ -131,6 +131,7 @@ public final class BodyLife {
         return new BodyCondition(wound, burns, infection, mold, filling(), weak(), dying(), sick(), footBurned);
     }
     public int wound(){return wound;}
+    public int painSeverity() { return BodyCondition.painSeverity(wound, burns); }
     public int infection(){return infection;}
     public int mold(){return mold;}
     public int burns(){return burns;}

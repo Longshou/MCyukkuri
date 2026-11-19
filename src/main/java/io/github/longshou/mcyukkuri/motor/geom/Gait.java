@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
 /** Locomotion rates are in blocks per tick at 20 ticks/s. */
 public final class Gait {
     public static final double HUMAN_WALK = 4.317 / 20;
+    private static final double FAST_REQUEST = 1.15;
     public static final double GROUND_ATTRIBUTE = .18, FLIGHT_ATTRIBUTE = .30;
     /** Ordinary dry ground: vanilla uses the control value for both acceleration and forward input. */
     private static final double GROUND_TRAVEL = .98 / (1 - .60 * Ballistic.AIR_DRAG);
@@ -15,7 +16,10 @@ public final class Gait {
         return !crawling && canJump && (fast(requestedModifier) || explicitRun);
     }
 
-    public static boolean fast(double request) { return request >= 1.15; }
+    public static boolean fast(double request) { return request >= FAST_REQUEST; }
+
+    /** The ordinary-sized stroke below a fast command's full pace. */
+    public static double ordinaryStroke(double fastStroke) { return fastStroke / FAST_REQUEST; }
 
     /** A cautious or bold body shifts its pace by up to six percent. */
     public static double temperament(int boldness) {

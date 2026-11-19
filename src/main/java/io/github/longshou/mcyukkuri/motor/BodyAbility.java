@@ -26,7 +26,10 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
                 ability.size());
     }
 
-    public static double fitness(YukkuriEntity body) { return values(body, 0).fitness(); }
+    public static double fitness(YukkuriEntity body) {
+        return AbilityMath.fitness(body.life().energy(), body.getHealth(), body.getMaxHealth(),
+                body.body().painSeverity(), body.body().footBurned(), AbilityTable.current(), AbilityModifier.of(body));
+    }
 
     private static AbilityMath.Values values(YukkuriEntity body, double load) {
         return AbilityMath.compute(inputs(body, load), AbilityTable.current(), AbilityModifier.of(body));
@@ -95,7 +98,7 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     }
 
     private static AbilityMath.Inputs inputs(YukkuriEntity body, double load) {
-        var condition = body.body().condition();
+        var condition = body.body();
         return new AbilityMath.Inputs(body.growthScale() * body.getScale(), body.life().energy(), body.getHealth(),
                 body.getMaxHealth(), condition.painSeverity(), condition.footBurned(),
                 body.family().adult() || body.childhood().canJump(), condition.dying(), body.life().isSleeping(), load);

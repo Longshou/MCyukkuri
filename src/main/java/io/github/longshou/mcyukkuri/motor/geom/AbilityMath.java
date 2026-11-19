@@ -52,7 +52,10 @@ public final class AbilityMath {
 
         public Multipliers { factors = Map.copyOf(factors); }
 
-        public double factor(String key) { return factors.getOrDefault(key, 1.0); }
+        public double factor(String key) {
+            Double factor = factors.get(key);
+            return factor == null ? 1 : factor;
+        }
 
         /** A species capability the data switches on (authored above 0), off where it authors none: {@code hat_boat}. */
         public boolean flag(String key) { return factors.getOrDefault(key, 0.0) > 0; }
@@ -84,10 +87,7 @@ public final class AbilityMath {
         Coefficients c = (modifiers == null ? Multipliers.IDENTITY : modifiers)
                 .apply(coefficients == null ? Coefficients.DEFAULTS : coefficients);
         double size = Math.sqrt(Math.clamp(in.size(), c.sizeMin(), c.sizeMax()));
-        double energy = Math.clamp(in.energy() / c.energyRef(), 0, 1);
-        double health = Math.clamp(in.health() / Math.max(1, in.maxHealth()), .1, 1);
-        double injury = 1 / (1 + c.painWeight() * in.painSeverity() + (in.footBurned() ? c.burnPenalty() : 0));
-        double fitness = (c.fitnessFloor() + (1 - c.fitnessFloor()) * energy) * Math.sqrt(health) * injury;
+        double fitness = fitness(in.energy(), in.health(), in.maxHealth(), in.painSeverity(), in.footBurned(), c, Multipliers.IDENTITY);
         double load = 1 / (1 + Math.max(0, in.load()) / c.loadRef());
         boolean jumps = in.adultOrCanJump() && in.energy() >= c.minJumpEnergy() && !in.dying() && !in.sleeping();
         return new Values(jumps, size, fitness, load,
@@ -96,6 +96,15 @@ public final class AbilityMath {
                 c.turnRate() * (c.turnFloor() + (1 - c.turnFloor()) * fitness),
                 c.swimSpeed() * size * fitness * load,
                 in.adultOrCanJump() ? c.climbRise() * size * (c.climbFloor() + (1 - c.climbFloor()) * fitness) : 0, fitness);
+    }
+
+    public static double fitness(double energy, double health, double maxHealth, double pain, boolean burned,
+                                 Coefficients c, Multipliers m) {
+        double stamina = Math.clamp(energy / (c.energyRef() * m.factor("energy_ref")), 0, 1);
+        double floor = c.fitnessFloor() * m.factor("fitness_floor");
+        double injury = 1 / (1 + c.painWeight() * m.factor("pain_weight") * pain
+                + (burned ? c.burnPenalty() * m.factor("burn_penalty") : 0));
+        return (floor + (1 - floor) * stamina) * Math.sqrt(Math.clamp(health / Math.max(1, maxHealth), .1, 1)) * injury;
     }
 
     private AbilityMath() {}

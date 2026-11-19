@@ -77,13 +77,20 @@ public final class Motor {
                 var control = body.getMoveControl();
                 var toward = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ()).subtract(body.position());
                 double pace = BodyAbility.flightPace(body, control.getSpeedModifier());
-                controlled = controlled.add(toward.normalize().scale(pace * (1 - drag)));
+                double thrust = pace * (1 - drag);
+                var drive = toward.normalize().scale(thrust);
+                double ordinary = Gait.ordinaryStroke(pace);
+                if (toward.lengthSqr() >= ordinary * ordinary)
+                    body.motor().propulsion(drive.x, drive.y, drive.z, thrust);
+                controlled = controlled.add(drive);
             }
         }
+        Vec3 wanted = controlled;
         double distance = controlled.length();
         if (distance > Gait.HUMAN_WALK) controlled = controlled.scale(Gait.HUMAN_WALK / distance);
         velocity(body, controlled, "predator_flight");
-        move(body, controlled, "predator_flight");
+        Vec3 moved = move(body, controlled, "predator_flight");
+        body.motor().stride.resolved(body.tickCount, wanted.x, wanted.y, wanted.z, moved.x, moved.y, moved.z);
         velocity(body, body.getDeltaMovement().scale(drag), "predator_drag");
     }
 
@@ -116,6 +123,7 @@ public final class Motor {
         body.getMoveControl().setWantedPosition(to.x,to.y,to.z,0);body.setSpeed(0);
         double pace=BodyAbility.of(body).walkSpeed()*BodyAbility.carrying(body)*speed*body.species().stride(speed);
         var v=distance>.001?limitHorizontal(delta.scale(Math.min(pace,distance)/distance)):Vec3.ZERO;
+        body.motor().propulsion(v.x, 0, v.z, Math.min(pace, Gait.HUMAN_WALK));
         if(faceStep&&distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
         velocity(body,new Vec3(v.x,body.getDeltaMovement().y,v.z),"straight_step");
         return SurfaceApproach.at(body,to);

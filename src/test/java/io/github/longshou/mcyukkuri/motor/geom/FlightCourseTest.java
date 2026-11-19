@@ -7,29 +7,48 @@ import static org.junit.jupiter.api.Assertions.*;
 class FlightCourseTest {
     @Test void airborneOverlapCannotCoastOffTheWt06EdgeAfterContactEnds() {
         double x = -347.795, y = 64.361, z = 291.83;
-        var impulse = new FlightCourse.Direction(-.015, 0);
-        var existing = new FlightCourse.Direction(-.012, 0);
+        double inertia = -.012;
         double drop = FlightCourse.safeDrop(3, 1, 1);
-        var step = FlightCourse.shove(impulse, existing, drift ->
-                Double.isFinite(FlightCourse.landingAfter(x, y, z, x + drift.x(), z + drift.z(), drop,
+        var step = new FlightCourse.Shove((dx, dz, driftX, driftZ) ->
+                Double.isFinite(FlightCourse.landingAfter(x, y, z, x + driftX, z + driftZ, drop,
                         (px, pz) -> px >= -348 ? 64 : -60)));
+        assertTrue(step.choose(-.015, 0, inertia, 0));
         assertEquals(0, step.x());
         assertNotEquals(0, step.z());
-        assertTrue(x + (step.x() + existing.x()) / (1 - Ballistic.AIR_DRAG) >= -348);
+        assertTrue(x + (step.x() + inertia) / (1 - Ballistic.AIR_DRAG) >= -348);
     }
 
     @Test void shoveCanDescendASafeStepAndBracesAtAnUnsupportedCorner() {
-        var impulse = new FlightCourse.Direction(.03, .03);
-        var still = new FlightCourse.Direction(0, 0);
         double drop = FlightCourse.safeDrop(3, .1, 1);
-        var allowed = FlightCourse.shove(impulse, still, drift ->
-                Double.isFinite(FlightCourse.landingAfter(.99, 64, .99, .99 + drift.x(), .99 + drift.z(), drop,
-                        (x, z) -> x < 1 && z < 1 ? 64 : 63)));
-        assertEquals(impulse.rotate(Math.toDegrees(.5)), allowed);
-        var braced = FlightCourse.shove(impulse, still, drift ->
-                Double.isFinite(FlightCourse.landingAfter(.99, 64, .99, .99 + drift.x(), .99 + drift.z(), drop,
-                        (x, z) -> x < 1 && z < 1 ? 64 : -60)));
-        assertEquals(still, braced);
+        double[] floor = {63};
+        var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) ->
+                Double.isFinite(FlightCourse.landingAfter(.99, 64, .99, .99 + driftX, .99 + driftZ, drop,
+                        (x, z) -> x < 1 && z < 1 ? 64 : floor[0])));
+        assertTrue(shove.choose(.03, .03, 0, 0));
+        var right = new FlightCourse.Direction(.03, .03).rotate(Math.toDegrees(.5));
+        assertEquals(right.x(), shove.x(), 1e-12);
+        assertEquals(right.z(), shove.z(), 1e-12);
+        floor[0] = -60;
+        assertFalse(shove.choose(.03, .03, 0, 0));
+        assertEquals(0, shove.x());
+        assertEquals(0, shove.z());
+    }
+
+    @Test void positiveXWallAndPositiveZDropLeaveTheNegativeZProjectionOpen() {
+        var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) -> dx <= 0 && driftZ <= 0);
+        assertTrue(shove.choose(.03, 0, 0, 0));
+        assertEquals(0, shove.x());
+        assertEquals(-.03 * Math.sin(.5), shove.z(), 1e-12);
+    }
+
+    @Test void aThirdBodyBlocksANewOverlapAndAllowsMotionOutOfAnExistingOne() {
+        assertFalse(FlightCourse.clearsNeighbour(false, .1, 0, .03, 0));
+        assertFalse(FlightCourse.clearsNeighbour(true, .1, 0, -.03, 0));
+        assertTrue(FlightCourse.clearsNeighbour(true, .1, 0, 0, -.03));
+        var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) ->
+                FlightCourse.clearsNeighbour(true, 0, -.2, dx, dz));
+        assertTrue(shove.choose(.03, 0, 0, 0));
+        assertTrue(shove.x() > 0 && shove.z() < 0);
     }
 
     @Test void crossingTheThreatIsRejectedEvenWithADistantEndpoint() {

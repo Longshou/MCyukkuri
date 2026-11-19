@@ -64,6 +64,7 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
+import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.ShelfApproach;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import net.minecraft.world.level.ClipContext;
@@ -304,7 +305,7 @@ public final class PredatorLife implements EcologyRoutine {
                     target.getUUID(), target.position(), target.getBbHeight(), mouthReach());
             return false;
         }
-        Landing escape = findDryLanding(target.blockPosition(), 24);
+        Landing escape = findDryLanding(target.blockPosition(), 24, null);
         if (escape != null) return true;
         GameplayLog.limited(animal, "predator", "water_prey_no_landing", 200,
                 "water prey refused target={} reason=no_reachable_dry_landing", target.getUUID());
@@ -497,7 +498,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (home != null && !roost && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
             Vec3 feet = landingFeet(home);
-            if (feet != null && canDepart(feet)) { destination = feet; task = Task.RETURN; return true; }
+            if (feet != null && canDepart(feet)) { landingStand = home; destination = feet; task = Task.RETURN; return true; }
         }
         double pressure = animal.onGround() ? nestBuild.framePressure() : 0;
         if ((cooldown > 0 && pressure == 0) || animal.life().energy() < 20) return false;
@@ -567,9 +568,11 @@ public final class PredatorLife implements EcologyRoutine {
 
     private void perch() {
         var pos = BlockPos.containing(destination);
-        if (!CanopySite.tree(level().getBlockState(pos.below())) || !destination.equals(landingFeet(pos))) { stop(); return; }
+        var admission = landingState(CanopySite.tree(level().getBlockState(pos.below())) && destination.equals(landingFeet(pos)),
+                SurfaceApproach.at(animal, destination));
+        if (admission == ShelfApproach.Landing.REPICK) { stop(); return; }
         if (watchTicks == 0) {
-            if (!animal.onGround() || !SurfaceApproach.at(animal, destination)) {
+            if (admission != ShelfApproach.Landing.TOUCHDOWN) {
                 if (ticks > OTHER_TASK_LIMIT) stop(); else flyToFeet(destination, true);
                 return;
             }
@@ -581,7 +584,7 @@ public final class PredatorLife implements EcologyRoutine {
             GameplayLog.event(animal, "predator", "perch begin stand={} shade={} watch_ticks={}",
                     pos, animal.life().covered(pos), watchTicks);
         }
-        if (!animal.onGround() || !SurfaceApproach.at(animal, destination)) { stop(); return; }
+        if (admission != ShelfApproach.Landing.TOUCHDOWN) { stop(); return; }
         if (ticks % 20 == 0) {
             double pressure = nestBuild.framePressure();
             if (!FoundingFrame.chooseWork(pressure, animal.life().nutrition(), true) && chooseFeeding()) {
@@ -690,8 +693,9 @@ public final class PredatorLife implements EcologyRoutine {
 
     /** Final descent uses the same route and supported feet the founder checked. */
     boolean landForBuild(Vec3 feet) {
-        if (!CanopySite.clearBody(level(), animal, feet)) { nestBuild.failed("stand_obstructed", Reason.NO_ROOM); return false; }
-        if (animal.onGround() && SurfaceApproach.at(animal, feet)) {
+        var admission = landingState(freeStand(feet), SurfaceApproach.at(animal, feet));
+        if (admission == ShelfApproach.Landing.REPICK) { nestBuild.failed("stand_obstructed", Reason.NO_ROOM); return false; }
+        if (admission == ShelfApproach.Landing.TOUCHDOWN) {
             animal.setPredatorFlying(false);
             return true;
         }
@@ -773,6 +777,8 @@ public final class PredatorLife implements EcologyRoutine {
         Vec3 horizontalChange = new Vec3(desired.x - inertia.x, 0, desired.z - inertia.z);
         if (horizontalChange.lengthSqr() > horizontalBudget * horizontalBudget)
             horizontalChange = horizontalChange.normalize().scale(horizontalBudget);
+        if (speed >= Gait.ordinaryStroke(maximum))
+            animal.motor().propulsion(horizontalChange.x, verticalChange, horizontalChange.z, maximum * (1 - Ballistic.AIR_DRAG));
         return inertia.add(horizontalChange).add(0, verticalChange, 0);
     }
     /** Solve v + v²/(2a) <= distance: one full next step plus the remaining finite braking distance. */
@@ -838,6 +844,7 @@ public final class PredatorLife implements EcologyRoutine {
         if(task!=Task.LAND)GameplayLog.event(animal,"predator","landing started; previous_task={} prey={} elapsed={} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.life().energy());
         if (task != Task.LAND || avoid != null && !avoid.equals(landingAvoid)) {
+            landingStand = null;
             nextLandingSearch = 0; landingSearchRadius = avoid == null ? 8 : 24; landingAvoid = avoid;
             animal.getNavigation().stop();
             if (animal.predatorFlying() && !dryLanded()) directFlight(animal.position().add(0, .8, 0), .85);
@@ -846,7 +853,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (level().getGameTime() < nextLandingSearch) return;
         nextLandingSearch = level().getGameTime() + 40;
         int searchedRadius = landingSearchRadius;
-        Landing landing = findDryLanding(animal.blockPosition(), searchedRadius);
+        Landing landing = findDryLanding(animal.blockPosition(), searchedRadius, landingStand);
         landingSearchRadius = Math.min(32, landingSearchRadius * 2);
         landingStand = landing == null ? null : landing.stand();
         destination = landing == null ? null : landing.feet();
@@ -857,6 +864,11 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean dryLanded() {
         return animal.onGround() && !animal.isInWaterOrBubble() && freeStand(animal.position());
+    }
+
+    private ShelfApproach.Landing landingState(boolean standClear, boolean arrived) {
+        boolean touching = arrived && animal.onGround();
+        return ShelfApproach.landing(standClear, touching, standClear && touching && dryLanded());
     }
     private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
     public boolean canCatchFall() {
@@ -922,7 +934,7 @@ public final class PredatorLife implements EcologyRoutine {
         return feet != null && feet.distanceToSqr(destination) < .0004;
     }
     /** Loaded dry surfaces only, closest first; bounded path probes retain real collision and reachability. */
-    private Landing findDryLanding(BlockPos center, int radius) {
+    private Landing findDryLanding(BlockPos center, int radius, BlockPos occupiedStand) {
         var candidates = new HashSet<BlockPos>();
         if (lastDryStand != null && level().hasChunkAt(lastDryStand) && animal.life().dryStand(lastDryStand)) candidates.add(lastDryStand);
         var home = animal.life().homeStand();
@@ -944,6 +956,7 @@ public final class PredatorLife implements EcologyRoutine {
             }
         }
         var ordered = new ArrayList<>(candidates);
+        ordered.remove(occupiedStand);
         // A beaten fighter does not come down at the victor's feet: those stands are not candidates for this landing.
         if (landingAvoid != null) ordered.removeIf(p -> Vec3.atCenterOf(p).distanceToSqr(landingAvoid) <= WITHDRAW_CLEARANCE_SQR);
         ordered.sort(Comparator.comparingDouble(p -> p.distSqr(center) + animal.distanceToSqr(Vec3.atBottomCenterOf(p)) * .1));
@@ -1043,23 +1056,29 @@ public final class PredatorLife implements EcologyRoutine {
                 }
                 stop();
             }
-        } else {
-            if (task == Task.LAND && !currentLanding()) {
-                destination = null; landingStand = null;
+        } else if (task == Task.LAND || task == Task.RETURN) {
+            boolean arrived = destination != null && animal.position().distanceToSqr(destination) < .36
+                    && animal.blockPosition().equals(BlockPos.containing(destination));
+            var admission = landingState(currentLanding(), arrived);
+            if (admission == ShelfApproach.Landing.REPICK) {
+                if (destination != null) animal.getNavigation().stop();
+                if (task == Task.RETURN) {
+                    Landing alternative = findDryLanding(landingStand, 8, landingStand);
+                    if (alternative != null) {
+                        landingStand = alternative.stand(); destination = alternative.feet();
+                        flyToFeet(destination, true); return;
+                    }
+                }
+                destination = null;
                 searchWhileFlying(); return;
             }
+            if (admission == ShelfApproach.Landing.APPROACH) { flyToFeet(destination, true); return; }
+            if (task == Task.LAND && pendingRest > 0) beginRest(pendingRest, restReason);
+            else { stop(); if (order() == Order.RETURN) order = Order.PEACEFUL; }
+        } else {
             if (destination == null) { stop(); return; }
-            Task current = task;
-            Vec3 goal = destination;
-            if (task == Task.LAND || task == Task.RETURN) flyToFeet(goal, true);
-            else fly(goal, .85);
-            if (task != current || destination != goal) return;
-            if (animal.position().distanceToSqr(goal) < .36) {
-                if (task == Task.LAND && !dryLanded()) return;
-                if (task == Task.PATROL) land();
-                else if (task == Task.LAND && pendingRest > 0) beginRest(pendingRest, restReason);
-                else { stop(); if (order() == Order.RETURN) order = Order.PEACEFUL; }
-            } else if (task == Task.PATROL && ticks > 200) land();
+            fly(destination, .85);
+            if (task == Task.PATROL && (animal.distanceToSqr(destination) < .36 || ticks > 200)) land();
         }
     }
     private void mode(boolean combat, String reason) {

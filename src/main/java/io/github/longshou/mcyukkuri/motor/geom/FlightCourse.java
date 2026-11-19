@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.function.DoubleBinaryOperator;
-import java.util.function.Predicate;
 
 /** Escape geometry, independent of the world and navigation lookup. */
 public final class FlightCourse {
@@ -34,17 +33,46 @@ public final class FlightCourse {
         return Math.min(damageFreeDistance, Math.max(stepHeight, damageFreeDistance * bodyScale));
     }
 
-    /** Overlapping bodies yield to the right, then left. At a brink keep just the safe component.
-     * The impulse coasts after contact ends; air drag bounds that drift even when the bite lifts the sole. */
-    public static Direction shove(Direction impulse, Direction inertia, Predicate<Direction> safeDrift) {
-        var right = impulse.rotate(Math.toDegrees(.5));
-        var left = impulse.rotate(Math.toDegrees(-.5));
-        for (var step : new Direction[]{right, left, new Direction(0, right.z), new Direction(right.x, 0)}) {
-            var drift = new Direction((inertia.x + step.x) / (1 - Ballistic.AIR_DRAG),
-                    (inertia.z + step.z) / (1 - Ballistic.AIR_DRAG));
-            if (safeDrift.test(drift)) return step;
+    @FunctionalInterface
+    public interface ShoveProbe {
+        boolean clear(double stepX, double stepZ, double driftX, double driftZ);
+    }
+
+    /** Per-body contact scratch. Prefer a turned shove, then its open axis along a wall or brink. */
+    public static final class Shove {
+        private static final double COS = Math.cos(.5), SIN = Math.sin(.5);
+        private final ShoveProbe probe;
+        private double x, z;
+
+        public Shove(ShoveProbe probe) { this.probe = probe; }
+        public double x() { return x; }
+        public double z() { return z; }
+
+        public boolean choose(double dx, double dz, double vx, double vz) {
+            double rx = dx * COS - dz * SIN, rz = dx * SIN + dz * COS;
+            double lx = dx * COS + dz * SIN, lz = -dx * SIN + dz * COS;
+            if (tryStep(rx, rz, vx, vz) || tryStep(lx, lz, vx, vz)
+                    || tryAxes(rx, rz, dx, dz, vx, vz) || tryAxes(lx, lz, dx, dz, vx, vz)) return true;
+            x = z = 0;
+            return false;
         }
-        return new Direction(0, 0);
+
+        private boolean tryAxes(double x, double z, double awayX, double awayZ, double vx, double vz) {
+            return (z * awayZ >= 0 && tryStep(0, z, vx, vz)) || (x * awayX >= 0 && tryStep(x, 0, vx, vz));
+        }
+
+        private boolean tryStep(double dx, double dz, double vx, double vz) {
+            if ((dx == 0 && dz == 0) || !probe.clear(dx, dz,
+                    (vx + dx) / (1 - Ballistic.AIR_DRAG), (vz + dz) / (1 - Ballistic.AIR_DRAG))) return false;
+            x = dx;
+            z = dz;
+            return true;
+        }
+    }
+
+    /** A touching neighbour may remain in the destination box only while the centres separate. */
+    public static boolean clearsNeighbour(boolean overlapsNow, double awayX, double awayZ, double dx, double dz) {
+        return overlapsNow && 2 * (awayX * dx + awayZ * dz) + dx * dx + dz * dz > 0;
     }
 
     /** Follow the supporting surface across the segment. A missing or wet landing has height -infinity. */

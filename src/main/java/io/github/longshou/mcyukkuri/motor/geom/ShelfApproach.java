@@ -6,6 +6,14 @@ import java.util.function.BiPredicate;
 public final class ShelfApproach {
     private ShelfApproach() {}
 
+    public enum Landing { REPICK, APPROACH, TOUCHDOWN }
+
+    /** Both the selected stand and the actual feet at ground contact must still be free. */
+    public static Landing landing(boolean standClear, boolean groundedAtStand, boolean feetClear) {
+        if (!standClear || groundedAtStand && !feetClear) return Landing.REPICK;
+        return groundedAtStand ? Landing.TOUCHDOWN : Landing.APPROACH;
+    }
+
     /** Living bodies can overlap in vanilla. A landing needs its own feet cell and disjoint body boxes. */
     public static boolean occupied(boolean sameCell, Vec min, Vec max, Vec otherMin, Vec otherMax) {
         return sameCell || Disc.level(min.x(), max.x(), otherMin.x(), otherMax.x())
