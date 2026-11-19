@@ -5,6 +5,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.motor.geom.SideProfile;
+import io.github.longshou.mcyukkuri.pose.SideSurface;
+import io.github.longshou.mcyukkuri.pose.SnugglePose;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.world.level.ClipContext;
@@ -16,19 +18,17 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class SideContact {
     private record Sides(SideProfile right, SideProfile left) {}
-    private record Profiles(Map<String, Sides> huddle, Map<String, Sides> snuggle) {}
-    private static final Profiles PROFILES = load();
+    private static final Map<String, Sides> HUDDLE = load();
     /** Offsets in front of or behind the partner tried for the stand (blocks): up to a quarter block, so bows and hair can pass. */
     private static final double[] BEHIND = {-.25, -.1875, -.125, -.0625, 0, .0625, .125, .1875, .25};
-    private static final double[] ALIGNED = {0};
 
     /**
      * The feet of {@code mover} pressed against {@code partner}'s right side ({@code right}) or left side, both facing {@code yaw}
      * (the partner holds still), on the partner's floor; the caller finds the real floor there.
      */
     public static Vec3 beside(YukkuriEntity mover, YukkuriEntity partner, float yaw, boolean right) {
-        var theirs = PROFILES.huddle().get(partner.subspecies().assetId());
-        var mine = PROFILES.huddle().get(mover.subspecies().assetId());
+        var theirs = HUDDLE.get(partner.subspecies().assetId());
+        var mine = HUDDLE.get(mover.subspecies().assetId());
         double across, behind = 0;
         if (theirs == null || mine == null) across = (mover.getBbWidth() + partner.getBbWidth()) * .5 + .02;
         else {
@@ -41,45 +41,28 @@ public final class SideContact {
         return offset(partner.position(), yaw, right, across, behind);
     }
 
-    /** The stand for the two mirrored snuggle clips, including clearance for hair and bows. */
+    /** The opening cheek contact with both sets of feet on the partner's floor. */
     public static Vec3 levelStand(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
-        var left = PROFILES.snuggle().get(partner.subspecies().assetId()).left();
-        var right = PROFILES.snuggle().get(mover.subspecies().assetId()).right();
-        // An adult and a smaller peer keep the original fore/aft alignment of their rub.
-        double mine = scale(mover), theirs = scale(partner);
-        var stand = SideProfile.closest(left, theirs, right, mine, 0, mine == theirs ? BEHIND : ALIGNED);
-        return stand == null ? null : offset(partner.position(), yaw, false, stand.across(), stand.behind());
+        return snuggleStand(mover, partner, yaw, 0, 0);
     }
 
-    /** Across a rise use only the mirrored snuggle clips and their posed side envelopes. */
+    /** The opening contact at the mover's current height has to share a real posed point across the rise. */
     public static Vec3 riseStand(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
-        double dy = mover.getY() - partner.getY();
-        var contact = snuggleContact(mover, partner, dy, 0);
+        return snuggleStand(mover, partner, yaw, mover.getY() - partner.getY(), 0);
+    }
+
+    public static Vec3 snuggleStand(YukkuriEntity mover, YukkuriEntity partner, float yaw, double lift, int tick) {
+        var left = SnugglePose.at(partner.subspecies().assetId(), false, tick);
+        var right = SnugglePose.at(mover.subspecies().assetId(), true, tick);
+        var contact = SideSurface.meet(left, scale(partner), right, scale(mover), lift, 0);
         if (contact == null) return null;
-        var at = offset(partner.position().add(0, dy, 0), yaw, false, contact.across(), 0);
-        return riseTouching(mover, at, partner, yaw) ? at : null;
-    }
-
-    /** Test settled feet as well as proposed ones. A solid riser cannot count as body contact. */
-    public static boolean riseTouching(YukkuriEntity mover, Vec3 feet, YukkuriEntity partner, float yaw) {
-        double rad = Math.toRadians(yaw);
-        var delta = feet.subtract(partner.position());
-        double across = Math.cos(rad) * delta.x + Math.sin(rad) * delta.z;
-        double behind = Math.sin(rad) * delta.x - Math.cos(rad) * delta.z;
-        // The rise stand has zero depth offset. Rotating world coordinates back can put an exact band edge a few ulps across it.
-        if (Math.abs(behind) > 1e-8) return false;
-        var contact = snuggleContact(mover, partner, delta.y, 0);
-        if (contact == null || !contact.within(across)) return false;
+        var stand = offset(partner.position().add(0, lift, 0), yaw, false, contact.separation(), 0);
+        if (lift == 0) return stand;
+        // The constraint is the shared skin point of this frame. A riser cannot form the contact.
         var from = offset(partner.position().add(0, contact.height(), 0), yaw, false, 0, contact.depth());
-        var to = offset(from, yaw, false, across, 0);
+        var to = offset(from, yaw, false, contact.separation(), 0);
         return mover.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mover))
-                .getType() == HitResult.Type.MISS;
-    }
-
-    private static SideProfile.Contact snuggleContact(YukkuriEntity mover, YukkuriEntity partner, double dy, double behind) {
-        var left = PROFILES.snuggle().get(partner.subspecies().assetId()).left();
-        var right = PROFILES.snuggle().get(mover.subspecies().assetId()).right();
-        return SideProfile.contact(left, scale(partner), right, scale(mover), dy, behind);
+                .getType() == HitResult.Type.MISS ? stand : null;
     }
 
     private static Vec3 offset(Vec3 partner, float yaw, boolean right, double across, double behind) {
@@ -92,11 +75,10 @@ public final class SideContact {
     /** Blocks per model unit of this body as drawn (growth and scale). */
     private static double scale(YukkuriEntity body) { return body.growthScale() * body.getScale() / 16; }
 
-    private static Profiles load() {
+    private static Map<String, Sides> load() {
         var json = GeometryJson.read("yukkuri_presentation/side_profile.json");
         double depthBand = json.number("band");
-        return new Profiles(load(json, "models", depthBand, depthBand, json.number("z0")),
-                load(json, "snuggle.models", json.number("snuggle.height_band"), depthBand, json.number("snuggle.z0")));
+        return load(json, "models", depthBand, depthBand, json.number("z0"));
     }
 
     private static Map<String, Sides> load(GeometryJson json, String field, double heightBand, double depthBand, double z0) {

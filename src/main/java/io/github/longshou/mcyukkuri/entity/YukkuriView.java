@@ -123,6 +123,7 @@ public interface YukkuriView {
     /** House hair-grip, forage or habitat load. */
     ItemStack getCarriedItem();
     int nuzzlePartnerId();
+    int peerRubTick();
     int carePartnerId();
     float careContactProgress();
     boolean isCrawling();

@@ -18,6 +18,13 @@ public final class WallYield {
     /** One collision face beside the body: unit horizontal direction from the body axis to its nearest point, the distance
      *  to it, and the height span of the shape it belongs to (above the feet). */
     public record Face(float x, float z, float distance, float low, float high) {}
+
+    /** A posed partner contributes its near silhouette. In open space between cheeks the two loose silhouettes split the gap. */
+    public static Face partnerFace(float x, float z, double separation, double ownReach, double peerReach, float low, float high) {
+        double near = separation - peerReach;
+        double middle = (separation + ownReach - peerReach) * .5;
+        return new Face(x, z, (float)Math.max(0, Math.min(near, middle) - 1.0 / 1024), low, high);
+    }
     /** The posed, unyielded position of one model vertex (model units). */
     @FunctionalInterface public interface Skinner { void skin(int index, Vector3f target); }
 

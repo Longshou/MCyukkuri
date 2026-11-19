@@ -19,4 +19,9 @@ class PeerNuzzleTest {
         assertTrue(PeerNuzzle.effort(2.5, .1, 90) < PeerNuzzle.effort(2, .1, 10));
         assertTrue(PeerNuzzle.effort(4, .1, 90) > PeerNuzzle.effort(2, .1, 10));
     }
+
+    @Test void interruptedContactCannotFinishTheLastBeat() {
+        assertEquals(0, PeerNuzzle.contactAfter(139, false));
+        assertEquals(140, PeerNuzzle.contactAfter(139, true));
+    }
 }

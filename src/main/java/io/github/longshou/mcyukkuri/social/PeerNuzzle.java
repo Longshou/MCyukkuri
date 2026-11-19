@@ -8,6 +8,10 @@ enum PeerNuzzle {
         return levelReachable ? LEVEL : riseContactReachable ? RISE : GREET;
     }
 
+    static int contactAfter(int elapsed, boolean touching) {
+        return touching ? elapsed + 1 : 0;
+    }
+
     /** Compare travel time against the actor's continuous willingness to make the trip. */
     static double effort(double distance, double pace, int affectionNeed) {
         return distance / (pace * (1 + affectionNeed / 100.0));

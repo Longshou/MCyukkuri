@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
 import io.github.longshou.mcyukkuri.pose.WallYield;
+import io.github.longshou.mcyukkuri.pose.SnugglePose;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,7 @@ final class WallClearance {
         originZ = origin.m32();
     }
 
-    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, Matrix4f origin, boolean paper) {
+    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, float yaw, Matrix4f origin, boolean paper) {
         YukkuriView entity = source;
         double scale = entity.getScale() * entity.growthScale();
         // Rest bounds plus room for the animated swing, lean and bounce.
@@ -88,8 +89,9 @@ final class WallClearance {
                 boxes[boxCount++] = maxX; boxes[boxCount++] = maxY; boxes[boxCount++] = maxZ;
             });
         }
-        if (boxCount == 0 && !Double.isFinite(paperCeiling)) return null;
-        var faces = new ArrayList<WallYield.Face>(boxCount / 6);
+        var partner = partnerFace(entity, action, partial, yaw, top + motion);
+        if (boxCount == 0 && partner == null && !Double.isFinite(paperCeiling)) return null;
+        var faces = new ArrayList<WallYield.Face>(boxCount / 6 + 1);
         for (int i = 0; i < boxCount; i += 6) {
             double minX = boxes[i], minY = boxes[i + 1], minZ = boxes[i + 2];
             double maxX = boxes[i + 3], maxY = boxes[i + 4], maxZ = boxes[i + 5];
@@ -103,7 +105,39 @@ final class WallClearance {
             faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
                     (float)(minY - feet.y), (float)(maxY - feet.y)));
         }
+        if (partner != null) faces.add(partner);
         return faces.isEmpty() && !Double.isFinite(paperCeiling) ? null : new WallClearance(faces, origin, paperCeiling);
+    }
+
+    private static YukkuriView rubPartner(YukkuriView entity) {
+        var peer = entity.yukkuriView(entity.nuzzlePartnerId());
+        return peer != null && peer.nuzzlePartnerId() == entity.getId() && peer.peerRubTick() >= 0 ? peer : null;
+    }
+
+    /** The mover publishes the phase for both renders, even when its partner's sync ran earlier in the server tick. */
+    static int contactTick(YukkuriView entity, String action) {
+        if (entity.peerRubTick() < 0) return -1;
+        if (action.equals("snuggle_right")) return entity.peerRubTick();
+        if (!action.equals("snuggle_left")) return -1;
+        var peer = rubPartner(entity);
+        return peer == null ? entity.peerRubTick() : peer.peerRubTick();
+    }
+
+    private static WallYield.Face partnerFace(YukkuriView entity, String action, float partial, float yaw, double top) {
+        if (entity.peerRubTick() < 0 || !action.equals("snuggle_left") && !action.equals("snuggle_right")) return null;
+        var peer = rubPartner(entity);
+        if (peer == null) return null;
+        boolean right = action.equals("snuggle_right");
+        int tick = right ? entity.peerRubTick() : peer.peerRubTick();
+        double angle = Math.toRadians(yaw);
+        float x = (float)Math.cos(angle) * (right ? -1 : 1), z = (float)Math.sin(angle) * (right ? -1 : 1);
+        var delta = peer.getPosition(partial).subtract(entity.getPosition(partial));
+        double scale = entity.growthScale() * entity.getScale(), peerScale = peer.growthScale() * peer.getScale();
+        double own = SnugglePose.at(entity.assetId(), right, tick).reach(right) * scale / 16;
+        double theirs = SnugglePose.at(peer.assetId(), !right, tick).reach(!right) * peerScale / 16;
+        double peerTop = peerScale * (YukkuriModel.get(peer.assetId()).restLooseBounds()[1] / 16 + .25);
+        return WallYield.partnerFace(x, z, x * delta.x + z * delta.z, own, theirs,
+                (float)Math.min(-scale / 4, delta.y - peerScale / 4), (float)Math.max(top, delta.y + peerTop));
     }
 
     private static boolean wallBelow(double x, double z, double bodyTop) {

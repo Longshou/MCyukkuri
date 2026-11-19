@@ -70,4 +70,20 @@ class WallYieldTest {
         assertTrue(WallYield.loose("braid_lock_core_1") && WallYield.loose("predator_wing_ridge_right_0"));
         assertFalse(WallYield.loose("rounded_body_surface") || WallYield.loose("face_eye_left") || WallYield.loose("rounded_rump_mark"));
     }
+
+    @Test void partnerFaceLetsLoosePartsGiveWayAtTheCheekSeam() {
+        var face = WallYield.partnerFace(1, 0, .94, .48, .49, -.1f, 1);
+        solve(face);
+        assertTrue(wing.turned());
+        var tip = new Vector3f();
+        skin(2, tip);
+        wing.apply(2, tip);
+        blocks.transformPosition(tip);
+        float tuck = WallYield.press(List.of(face), tip.x, tip.y, tip.z);
+        assertTrue(tip.x * tuck <= .45);
+        assertEquals(1, WallYield.press(List.of(face), .8f, 1.1f, 0));
+        assertFalse(WallYield.loose("rounded_body_surface"));
+        assertFalse(WallYield.loose("face_eye_left"));
+        assertFalse(WallYield.loose("mamu_left"));
+    }
 }

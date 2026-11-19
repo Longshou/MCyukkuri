@@ -100,10 +100,10 @@ public final class DailyLife {
     public int observedGreetingWait() { return active() ? session.greetHold : 0; }
     /** The actual shared side-press beat, before the existing rub. Players retain the face-to-face nuzzle. */
     public String contactClip() {
-        if (!inContact() || session.rub == null
-                || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
+        if (!inContact() || session.rub == null) return null;
         return session.rub.mover == entity ? "snuggle_right" : "snuggle_left";
     }
+    public int peerRubTick() { return contactClip() == null ? -1 : session.contact - 1; }
     private static boolean aligned(YukkuriEntity body, float yaw, double tolerance) {
         return Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= tolerance;
     }
@@ -440,7 +440,7 @@ public final class DailyLife {
                 peer.getUUID(), reason, affection);
     }
 
-    /** Both goals read the same stand. Only its mover walks or hops, and only the leader advances the shared clock. */
+    /** Both goals read the same stand. Its mover closes the pose's gap and advances their shared contact clock. */
     private boolean peerContact(Session current, YukkuriEntity other) {
         boolean lead = current.leader == entity;
         var peer = (YukkuriEntity)current.companion;
@@ -484,7 +484,8 @@ public final class DailyLife {
                     peer.getUUID(), rub.mover.getUUID(), rub.mode, rub.mover.position(), rub.route.feet());
         }
         var feet = rub.route.feet();
-        if (!grounded || hopping || !ContactStandSearch.sameLevel(rub.mover.getY(), feet.y) || !SurfaceApproach.at(rub.mover, feet)) {
+        if (!grounded || hopping || !ContactStandSearch.sameLevel(rub.mover.getY(), feet.y)
+                || current.contact == 0 && !SurfaceApproach.at(rub.mover, feet)) {
             current.contact = 0;
             if (rub.mover != entity) SurfaceApproach.halt(entity);
             else if (SurfaceApproach.moveToContact(entity, rub.route, other, .8, body) == SurfaceApproach.Result.BLOCKED)
@@ -492,25 +493,29 @@ public final class DailyLife {
             return false;
         }
         SurfaceApproach.halt(entity);
-        var contactFeet = feet.add(rub.anchor.position().subtract(rub.anchorAt));
-        if (!SurfaceApproach.atContact(rub.mover, contactFeet)) {
-            current.contact = 0;
-            if (rub.mover != entity) return false;
-            if (!SurfaceApproach.settleContact(entity, contactFeet, other)) {
-                greetInstead(current, "contact_stand_blocked");
-                return false;
-            }
-        }
         float yaw = rub.route.yaw();
         Motor.face(entity, yaw);
         if (!aligned(entity, yaw, .0001) || !aligned(other, yaw, .0001)) { current.contact = 0; return false; }
-        if (rub.mode == PeerNuzzle.RISE && !SideContact.riseTouching(rub.mover, rub.mover.position(), rub.anchor, yaw)) {
+        if (rub.mover != entity) return false;
+        var contactFeet = SideContact.snuggleStand(entity, other, yaw, feet.y - rub.anchorAt.y, current.contact);
+        if (contactFeet == null) {
             greetInstead(current, "posed_contact_lost");
             return false;
         }
-        if (lead && current.contact == 0)
-            GameplayLog.event(entity, "daily", "peer rub started partner={} mode={} lift={} moverAt={} anchorAt={}",
-                    peer.getUUID(), rub.mode, Math.abs(entity.getY() - other.getY()), rub.mover.position(), rub.anchor.position());
+        double gap = entity.position().subtract(contactFeet).horizontalDistance();
+        if (gap > BodyAbility.of(entity).walkSpeed() + SurfaceApproach.ARRIVAL) {
+            current.contact = 0;
+            return false;
+        }
+        boolean touching = SurfaceApproach.atContact(entity, contactFeet) || SurfaceApproach.settleContact(entity, contactFeet, other);
+        current.contact = PeerNuzzle.contactAfter(current.contact, touching);
+        if (current.contact == 0) {
+            greetInstead(current, "contact_stand_blocked");
+            return false;
+        }
+        if (current.contact == 1)
+            GameplayLog.event(current.leader, "daily", "peer rub started partner={} mode={} lift={} moverAt={} anchorAt={}",
+                    peer.getUUID(), rub.mode, Math.abs(entity.getY() - other.getY()), entity.position(), other.position());
         return true;
     }
 
@@ -538,12 +543,13 @@ public final class DailyLife {
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();
-        if (current.leader != entity) return;
+        if (!peerNuzzle && current.leader != entity) return;
         if (!peerNuzzle) current.elapsed++;
-        current.contact++;
+        var leader = current.leader;
+        if (!peerNuzzle) current.contact++;
         if (current.contact == 1) {
-            entity.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
-            if (entity.pet().ownedBy(current.songRuleOwner) && !entity.pet().conscience().breach(HouseRule.NO_SINGING))
+            leader.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
+            if (leader.pet().ownedBy(current.songRuleOwner) && !leader.pet().conscience().breach(HouseRule.NO_SINGING))
                 current.songRuleOwner = null;
         }
         if (current.contact > 1 && current.contact % 5 == 1 && entity.pet().ownedBy(current.songRuleOwner))
