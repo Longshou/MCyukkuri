@@ -4,6 +4,8 @@ import com.google.gson.*;
 import io.github.longshou.mcyukkuri.pose.*;
 import java.util.*;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.*;
 import org.joml.Matrix4f;
@@ -157,7 +159,14 @@ final class RenderPose implements Overlays.Contact {
             }
             if(smooth)smooth(output,start,end,puff);
         }
-        var out=new JsonObject();out.add("vertices",OfflineModel.array(output));
+        var out=new JsonObject();
+        if(request.has("vertexFormat")&&request.get("vertexFormat").getAsString().equals("float32le")){
+            var bytes=ByteBuffer.allocate(output.length*Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
+            bytes.asFloatBuffer().put(output);
+            out.addProperty("vertices",Base64.getEncoder().encodeToString(bytes.array()));
+            return out;
+        }
+        out.add("vertices",OfflineModel.array(output));
         if(wantPaper){
             var grid=PaperTent.build(floatsOf(pBody),pBody.size(),floatsOf(pMesh),pMesh.size(),floatsOf(pHat),pHat.size(),
                     yield?faces:List.of(),yield&&!faces.isEmpty()?localToWall:null,Double.POSITIVE_INFINITY);

@@ -142,7 +142,7 @@ def build(manifest, catalog, out):
                  source='docs/FEATURES.md', visual='可旋转模型'))
 
     import museum_actions
-    action_categories = {action:config['actionGroups'][group]
+    action_categories = {action:config['actionGroups'].get(group, 'other')
                          for group, actions in museum_actions.CATEGORIES for action, _ in actions}
     action_names = {**museum_actions.NAMES, **config['actionLabels']}
     for action in sorted({a for model in catalog['models'] for a in model['actions']}):

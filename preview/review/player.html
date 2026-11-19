@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>油库里演出放映室</title>
+  <link rel="stylesheet" href="/preview/hub/style.css">
+  <link rel="stylesheet" href="/preview/review/player.css">
+  <link rel="stylesheet" href="/preview/review/verdicts.css">
+  <script src="/preview/vendor/three.min.js" defer></script>
+  <script type="module" src="/preview/review/player.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" id="home" href="./index.html">演出放映室</a>
+    <a href="inbox/index.html">待你查看</a>
+  </header>
+  <main>
+    <h1 id="title">正在读取条目…</h1>
+    <p id="detail" class="muted" hidden></p>
+    <section id="preview" aria-label="三维预览" hidden>
+      <div class="controls view-controls">
+        <label id="variant-control" hidden>形态 <select id="variant"></select></label>
+        <label id="face-control" hidden>表情 <select id="face"></select></label>
+        <div class="angles" aria-label="视角">
+          <button type="button" data-angle="0">正面</button>
+          <button type="button" data-angle="1.570796">侧面</button>
+          <button type="button" data-angle="3.141593">背面</button>
+        </div>
+        <label class="zoom">缩放 <input id="zoom" type="range" min=".55" max="3" step=".01" value="1"></label>
+      </div>
+      <div id="stage"><canvas id="view" aria-label="拖动旋转，滚轮缩放"></canvas></div>
+      <p id="caption" aria-label="演出字幕" hidden></p>
+      <div class="controls transport">
+        <button id="play" type="button" disabled>播放</button>
+        <input id="time" type="range" min="0" max="1" step=".005" value="0" aria-label="进度" disabled>
+        <output id="clock" for="time"></output>
+        <label>速度 <select id="speed">
+          <option value=".25">0.25×</option><option value=".5">0.5×</option>
+          <option value="1" selected>1×</option><option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select></label>
+      </div>
+    </section>
+    <div id="media" hidden></div>
+    <p id="status" role="status"></p>
+    <section id="verdict" aria-label="外观审阅" hidden></section>
+  </main>
+</body>
+</html>

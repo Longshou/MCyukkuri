@@ -1,17 +1,22 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MCyukkuri · 预览室</title><link rel="stylesheet" href="style.css"></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>油库里演出放映室</title>
+  <link rel="stylesheet" href="/preview/hub/style.css">
+  <script type="module" src="/preview/hub/app.js"></script>
+</head>
 <body>
-<header class="topbar"><a class="brand" href="?view=all">MCyukkuri <span>预览室</span></a><nav id="sections" aria-label="内容类型"></nav></header>
-<main>
-<p><a href="inbox/index.html">待你查看</a></p>
-<section id="browse">
-  <div class="heading"><h1>随便看看。</h1><p>角色、动作、道具与声音。</p></div>
-  <form id="search-form" role="search"><label class="sr-only" for="search">搜索预览</label><input id="search" type="search" placeholder="搜索名称、角色或动作…" autocomplete="off"><button type="submit">搜索</button><button id="clear" type="button" hidden>清除筛选</button></form>
-  <div class="library-layout"><aside><nav id="categories" aria-label="游戏分类"></nav></aside><section aria-label="预览列表"><div class="results-heading"><h2 id="category-title"></h2><span id="result-count" role="status"></span></div><div id="entries" class="entry-grid"></div><p id="empty" hidden>没有找到相关内容。试试清除筛选或换个关键词。</p><nav id="pagination" aria-label="翻页"></nav></section></div>
-</section>
-<section id="detail" hidden><div class="detail-bar"><a id="back" href="?view=all">← 返回列表</a><span id="detail-category"></span><a id="standalone" target="_blank" rel="noopener" hidden>独立打开 ↗</a></div><h1 id="detail-title" tabindex="-1"></h1><p id="detail-description"></p><div id="content"></div><nav id="steps" aria-label="选择画面"></nav></section>
-<p id="error" role="alert" hidden></p>
-</main><footer><span>离线素材预览 · 完整玩法请在游戏中查看</span><span id="version"></span></footer>
-<script src="router.js"></script><script src="scene-player.js"></script><script src="app.js"></script>
-</body></html>
+  <header class="topbar">
+    <a class="brand" href="./index.html">油库里</a>
+    <a href="inbox/index.html">待你查看</a>
+  </header>
+  <main>
+    <h1>演出放映室</h1>
+    <nav id="filters" class="chips" aria-label="目录分类"></nav>
+    <div id="catalog"></div>
+    <p id="status" role="status">正在读取目录…</p>
+  </main>
+</body>
+</html>

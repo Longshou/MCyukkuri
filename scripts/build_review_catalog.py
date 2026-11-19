@@ -4,6 +4,7 @@ import hashlib
 import json
 import shutil
 from preview_inventory import referenced_actions
+from review_models import compatible_revisions
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
@@ -40,14 +41,10 @@ def current_roles():
     return roles
 
 
-def main():
-    OUT.mkdir(parents=True, exist_ok=True)
-    for name in ('index.html', 'style.css', 'app.js', 'pose.js', 'route.js'):
-        shutil.copy2(ROOT / 'preview/review' / name, OUT / name)
+def catalog():
     models=[]
     runtime_actions = referenced_actions()
     motion_path=ASSETS/'yukkuri_presentation/motion_corrections.json'
-    motions=read(motion_path)['models']
     motion_hash=hashlib.sha256(motion_path.read_bytes()).hexdigest()
     # Placement fit is spliced before the motion revision; both identify what a note was written against.
     fit_path=ASSETS/'yukkuri_presentation/placement_fit.json'
@@ -57,12 +54,17 @@ def main():
         raw=path.read_bytes(); model=json.loads(raw)
         textures={p.stem:url(p) for p in sorted((ASSETS/'textures/entity'/ident).glob('*.png'))}
         assert 'neutral' in textures
-        all_actions = list(dict.fromkeys([*model['clips'], *model.get('behavior_clips',{}), *motions.get(ident,{}).get('clips',{})]))
+        clips = dict(model['clips'])
+        for revision in compatible_revisions(ident, model):
+            clips.update(revision['clips'])
+        clips.update(model.get('behavior_clips', {}))
         models.append(dict(id=ident,name=name,group=group,url=url(path),
             hash=hashlib.sha256(raw+motion_hash.encode()+fit_hash.encode()).hexdigest(),geometryHash=hashlib.sha256(raw).hexdigest(),textures=textures,
             formScale=1.5 if ident in ('reimu_deibu','reimu_wasa_deibu') else 1,
-            actions=[action for action in all_actions if action in runtime_actions],
-            unconfirmedActions=[action for action in all_actions if action not in runtime_actions],
+            actions=[action for action in clips if action in runtime_actions],
+            unconfirmedActions=[action for action in clips if action not in runtime_actions],
+            clips={action: {'duration': clip['duration'], 'loop': clip.get('loop', False)}
+                   for action, clip in clips.items()},
             textureSize=model.get('texture_size',128)))
     zh=read(ASSETS/'lang/zh_cn.json'); ja=read(ASSETS/'lang/ja_jp.json')
     sounds=read(ASSETS/'sounds.json'); manifest=read(ROOT/'art/audio/aquestalk/manifest.json')['clips']
@@ -87,8 +89,18 @@ def main():
         assert path.is_file()
         audio.append(dict(id=f'ecology.song.{species}',species=species,age='song',events=['song'],origin='project-original',
             zh='生态原创哼唱',ja='',url=url(path),duration=songs[species]['duration_seconds'],hash=hashlib.sha256(path.read_bytes()).hexdigest()))
-    catalog=dict(models=models,audio=audio,subtitles=subtitles,motions=url(motion_path),motionHash=motion_hash,fit=url(fit_path),fitHash=fit_hash)
-    (OUT/'catalog.js').write_text('window.REVIEW_CATALOG='+json.dumps(catalog,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
-    print(f'Indexed {len(models)} current models, {len(audio)} playable sounds.')
+    return dict(models=models,audio=audio,subtitles=subtitles,motions=url(motion_path),motionHash=motion_hash,fit=url(fit_path),fitHash=fit_hash)
+
+
+def write(data, out=OUT):
+    out.mkdir(parents=True, exist_ok=True)
+    for name in ('index.html', 'style.css', 'app.js', 'pose.js', 'route.js'):
+        shutil.copy2(ROOT/'preview/review'/name, out/name)
+    (out/'catalog.js').write_text('window.REVIEW_CATALOG='+json.dumps(data,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
+    print(f"Indexed {len(data['models'])} current models, {len(data['audio'])} playable sounds.")
+
+
+def main():
+    write(catalog())
 
 if __name__=='__main__': main()

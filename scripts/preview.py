@@ -3,7 +3,6 @@ import argparse
 import base64
 from contextlib import contextmanager
 import html
-import hashlib
 from html.parser import HTMLParser
 import json
 import math
@@ -15,7 +14,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-from urllib.parse import urlencode
+from urllib.parse import parse_qs, unquote, urlencode, urlsplit
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -482,26 +481,13 @@ def viewer(args, stage):
     """Snapshot the game resources into the existing core-backed review viewer."""
     from pose_client import request
     from build_review_catalog import current_roles
+    from review_models import register_runtime
     roles = {ident: (name, group) for ident, name, group in current_roles()}
     if args.model not in roles:
         raise ValueError(f'Unknown model: {args.model}')
-    raw = (ASSETS/'yukkuri'/f'{args.model}.json').read_bytes()
-    model = json.loads(raw)
-    # Follow YukkuriModelLoader's fit/revision order through the shared splice core.
-    fit = read(ASSETS/'yukkuri_presentation/placement_fit.json')['models'].get(args.model)
-    hashes = {hashlib.sha256(value).hexdigest() for value in (raw, raw.replace(b'\r\n', b'\n'))}
-    if fit and fit['base_sha256'] not in hashes:
-        fit = None
-    for file in ('motion_corrections', 'house_ecology', 'toilet_contact', 'face_library'):
-        revision = read(ASSETS/'yukkuri_presentation'/f'{file}.json')['models'].get(args.model)
-        # The loader skips a revision authored for another skeleton; so does this snapshot.
-        if revision is not None and revision['bone_names'] != [bone['name'] for bone in model['bones']]:
-            revision = None
-        if revision is not None or fit is not None:
-            result = request(dict(op='register', model=model, fit=fit, revision=revision))
-            model = result['model']
-            request(dict(op='release', id=result['id']))
-        fit = None
+    result = register_runtime(args.model)
+    model = result['model']
+    request(dict(op='release', id=result['id']))
     clips = {**model['clips'], **model.get('behavior_clips', {})}
     if args.clip not in clips:
         raise ValueError(f'Unknown clip {args.model}/{args.clip}')
@@ -674,20 +660,74 @@ class InboxReader(HTMLParser):
 def inbox(args):
     target = OUT/'inbox'
     target.mkdir(parents=True, exist_ok=True)
-    database = target/'items.json'
-    items = read(database) if database.is_file() else []
-    if not database.exists() and (target/'index.html').is_file():
-        reader = InboxReader()
-        reader.feed((target/'index.html').read_text(encoding='utf-8'))
-        items = reader.items
+    items = read_inbox(target)
     if args.action == 'add':
-        items = [item for item in items if item['id'] != args.id]
-        items.append(dict(id=args.id, title=args.title, url=args.url, decision=args.decision))
+        from review_verdicts import validate_id
+
+        validate_id(args.id)
+        item = dict(id=args.id, title=args.title, url=args.url, decision=args.decision)
+        if entry := args.entry:
+            validate_id(entry)
+            if not any(row['id'] == entry and row['tag'] == 'look-only'
+                       for row in read(OUT/'entries.json')['entries']):
+                raise ValueError(f'Unknown look-only player entry: {entry}')
+            item.update(url='../player.html?'+urlencode({'entry': entry}), entry=entry)
+        if args.look_only or entry:
+            item['tag'] = 'look-only'
+        items = [old for old in items if old['id'] != args.id] + [item]
     else:
         items = [item for item in items if item['id'] != args.id]
-    write_json(database, items)
-    body = '<ul>'+''.join(f'<li><a href="{E(i["url"], quote=True)}">{E(i["title"])}</a><br><small>要你决定：{E(i["decision"])}</small></li>' for i in items)+'</ul>'
+    write_inbox(target, items)
+
+
+def read_inbox(target):
+    database = target/'items.json'
+    if database.is_file():
+        return read(database)
+    if (target/'index.html').is_file():
+        reader = InboxReader()
+        reader.feed((target/'index.html').read_text(encoding='utf-8'))
+        return reader.items
+    return []
+
+
+def write_inbox(target, items):
+    write_json(target/'items.json', items)
+    rows = []
+    for item in items:
+        link = f'<a href="{E(item["url"], quote=True)}">{E(item["title"])}</a>'
+        decision = f'<small>{E(item["decision"])}</small>'
+        verdict = ''
+        if item.get('tag') == 'look-only':
+            ident = E(item.get('entry', item['id']), quote=True)
+            verdict = f'<div data-verdict-id="{ident}"></div>'
+        rows.append(f'<li>{link}<br>{decision}{verdict}</li>')
+    body = '<ul>'+''.join(rows)+'</ul>' if rows else '<p>暂无待查看事项。</p>'
+    body += '<link rel="stylesheet" href="/preview/review/verdicts.css">'
+    body += '<script type="module" src="/preview/review/verdicts.js"></script>'
     (target/'index.html').write_text(page('待你查看', body), encoding='utf-8')
+
+
+def refresh_inbox(out, entries):
+    target = out/'inbox'
+    target.mkdir(parents=True, exist_ok=True)
+    items = {item['id']: item for item in read_inbox(target)}
+    live_clips = {(entry['model'], entry['clip']): entry['id'] for entry in entries
+                  if entry['category'] == 'performances' and 'clip' in entry}
+    for item in items.values():
+        url = urlsplit(item['url'])
+        query = parse_qs(url.query)
+        local = not url.netloc or url.hostname in ('127.0.0.1', 'localhost')
+        if local and url.path.endswith('/viewer.html') and query.get('expression', ['auto']) == ['auto']:
+            key = (query.get('model', [None])[0], query.get('clip', query.get('action', [None]))[0])
+            if entry := live_clips.get(key):
+                item.update(url='../player.html?'+urlencode({'entry': entry}), entry=entry, tag='look-only')
+        if url.scheme and not url.netloc and '/.local/previews/' in url.path:
+            relative = unquote(url.path.split('/.local/previews/', 1)[1])
+            path = (out/relative).resolve()
+            if path.is_relative_to(out) and path.is_file():
+                item['url'] = '../'+path.relative_to(out).as_posix()
+    write_inbox(target, list(items.values()))
 
 
 def parser():
@@ -744,8 +784,13 @@ def parser():
         p = ib.add_parser(action)
         p.add_argument('id')
         if action == 'add':
-            for key in ('title', 'url', 'decision'):
+            for key in ('title', 'decision'):
                 p.add_argument('--'+key, required=True)
+            link = p.add_mutually_exclusive_group(required=True)
+            link.add_argument('--url')
+            link.add_argument('--entry', help='live player entry id for look-only review')
+            p.add_argument('--look-only', action='store_true', help='show verdict buttons below a look-only URL')
+    commands.add_parser('verdicts', help='print the latest verdict per id as JSON')
     fp = commands.add_parser('faces', help='before/after runtime faces per beat on several forms')
     fp.add_argument('topic', type=valid_topic)
     fp.add_argument('--pair', action='append', required=True, metavar='LABEL|CLIP|BEFORE|AFTER[|TIME]')
@@ -755,7 +800,7 @@ def parser():
     fp.add_argument('--node', default='node')
     fp.add_argument('--title')
     fp.add_argument('--decision')
-    commands.add_parser('hub', help='register existing topic pages/media without rerendering')
+    commands.add_parser('hub', help='refresh the live player and preview home')
     mp = commands.add_parser('moment',help='render a presentation data row and its blocked-above emote pass')
     mp.add_argument('topic',type=valid_topic)
     mp.add_argument('--model',default='reimu')
@@ -778,6 +823,11 @@ def parser():
 def main():
     args = parser().parse_args()
     try:
+        if args.command == 'verdicts':
+            from review_verdicts import latest, LOG
+
+            print(json.dumps(latest(LOG), ensure_ascii=False, sort_keys=True, indent=2))
+            return 0
         if args.command not in ('inbox', 'hub'):
             if hasattr(args, 'columns') and args.columns < 1:
                 raise ValueError('columns must be positive')
@@ -799,11 +849,15 @@ def main():
             if args.decision:
                 inbox(argparse.Namespace(action='add', id=args.topic, title=title,
                        url=(f'../{args.topic}/viewer.html?'+viewer_query(args) if args.command == 'viewer'
-                            else f'../{args.topic}/index.html'), decision=args.decision))
+                            else f'../{args.topic}/index.html'), decision=args.decision,
+                       entry=None, look_only=args.command == 'viewer'))
         elif args.command == 'inbox':
             inbox(args)
-        from build_preview_hub import register_topics
-        register_topics(OUT)
+        from build_preview_hub import build, register_topics
+        if args.command == 'hub':
+            build(OUT)
+        else:
+            register_topics(OUT)
         relative = f'{args.topic}/index.html' if hasattr(args, 'topic') else ('inbox/index.html' if args.command == 'inbox' else 'index.html')
         if args.command == 'viewer':
             relative = f'{args.topic}/viewer.html?' + viewer_query(args)

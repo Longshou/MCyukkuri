@@ -2,7 +2,7 @@
 'use strict';
 const fs=require('fs'),path=require('path'),vm=require('vm');
 const {RuntimePose}=require('../preview/review/pose.js');
-const root=path.resolve(__dirname,'..'),out=path.join(root,'.local/previews'),work=path.join(out,'_work');
+const root=path.resolve(__dirname,'..'),out=process.argv[2]??path.join(root,'.local/previews'),work=path.join(out,'_work');
 const catalogContext={window:{}};
 vm.runInNewContext(fs.readFileSync(path.join(out,'models/catalog.js'),'utf8'),catalogContext);
 const catalog=catalogContext.window.REVIEW_CATALOG;

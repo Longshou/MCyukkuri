@@ -1,0 +1,4 @@
+[data-verdict-id] { margin: .65rem 0 1.15rem; }
+[data-verdict-id] textarea { box-sizing: border-box; width: min(100%, 29rem); border: 1px solid #84978c; }
+.verdict-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .25rem; }
+.verdict-controls button[aria-pressed="true"] { background: #235f4a; color: white; }
