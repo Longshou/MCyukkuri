@@ -13,6 +13,7 @@
 | P12 CODE-1 捕食种树冠选址、自带巢生成、衔枝筑巢 | `.worktrees/wp-tree-pred-1` | predator/CanopySite.java, predator/NestSiteScore.java, predator/PredatorNestSearch.java, predator/NestBuild.java, predator/PredatorLife.java, predator/PredatorNestFrameBlock.java, motor/MouthOccupancy.java, life/HomeProvider.java, museum_fields.py (grove) |
 | R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
+| 逃跑不跳下致命落差（共享逃跑规划） | `.worktrees/wp-flee-edge` | status/FlightPlanner.java (retreat/escape), motor steering, tests |
 
 ## 玩法待办
 
