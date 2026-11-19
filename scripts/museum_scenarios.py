@@ -26,13 +26,9 @@ from museum_fields import FIELDS, BY_ID, FEET, den  # noqa: E402
 # number is not given to another one). Field codes are fixed there too, one per field.
 NUMBERS = json.loads((Path(__file__).with_name('museum_scene_numbers.json')).read_text(encoding='utf-8'))
 
-CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
-# A real infant ready to follow its parent to the bank: it has already eaten, relieved itself and crawled, but cannot jump.
-CHILDHOOD_CRAWLING_READY = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
-# The same infant that has since learned its short hop (Jumped, landings): it can now climb up to its parent's brim by itself.
-CHILDHOOD_HOPPING = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:1b,Jumped:1b,JumpLandings:5,CrawlDistance:1.0d'
-# A young that has already sailed its own hat (its first voyage came back): it may climb, right and boat its own hat out of the water.
-CHILDHOOD_SAILED = 'Version:2,Newborn:0b,Sailed:1b'
+# Landed and fed, with newborn care finished. Crawling development determines whether it can jump.
+CHILDHOOD_CRAWLING_READY = 'Version:2,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b'
+CHILDHOOD_HOPPING = 'Version:2,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:1b,CrawlDistance:0.75d'
 OWNED = 'NeoForgeData.HumanCommerce'
 # A subadult in the fixed age interval, ready to live independently.
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
@@ -273,7 +269,8 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
                forbid=[r'occupation_refused', r'never_arrived']))
 
 # A previously learned skill as initial state. The family still decides who goes out and how to deal with the departure.
-_seal_skill = 'Version:2,DenSealLearned:1b'
+_seal_skill = {'den_seal': 2}
+_seal_assessed = 'YukkuriSkills:{Assessed:["den_seal"]}'
 _seal_mother, _seal_father, _seal_child, _seal_learner = (uid('den_barrier', n) for n in ('mother', 'father', 'child', 'learner'))
 _seal_kin = f'Mother:{uuid_nbt(_seal_mother)},Father:{uuid_nbt(_seal_father)}'
 _seal_mother_log, _seal_father_log, _seal_learner_log = (_uuid_text('den_barrier', n) for n in ('mother', 'father', 'learner'))
@@ -283,19 +280,19 @@ add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门�
         box(-12, 0, -8, 12, 0, 6, 'minecraft:air', 'replace minecraft:short_grass'),
         box(-11, 0, 7, 11, 0, 17, 'minecraft:short_grass', 'keep'),
         yk('reimu', -2, -4, 'mother', uuid=_seal_mother, label='会封洞的母油', lead=True, energy=33, nutrition=100,
-           intelligence=90, self_control=100, boldness=20, kin=f'Partner:{uuid_nbt(_seal_father)}', childhood=_seal_skill),
+           intelligence=90, self_control=100, boldness=20, kin=f'Partner:{uuid_nbt(_seal_father)}', skills=_seal_skill),
         yk('marisa', 0, 2, 'father', uuid=_seal_father, label='出门采草的父油', energy=100, nutrition=86, boldness=96,
-           kin=f'Partner:{uuid_nbt(_seal_mother)}', childhood='Version:2,DenSealLearned:0b'),
+           kin=f'Partner:{uuid_nbt(_seal_mother)}', extra=_seal_assessed),
         yk('marisa', 1, -4, 'child', stage='child', uuid=_seal_child, nutrition=96, kin=_seal_kin),
         yk('reimu', 0, -3, 'learner', stage='teen', uuid=_seal_learner, nutrition=100, intelligence=96, attachment=100,
-           kin=_seal_kin, childhood='Version:2,DenSealLearned:0b',
+           kin=_seal_kin, extra=_seal_assessed,
            fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')),
         *[home(n, 0, -1) for n in ('mother', 'father', 'child', 'learner')],
         f'yukkuri scenario twigs {sel("mother")} 2'],
     env=DAY, spot='family', vantage=(3, 10),
     reads=[('读留守母油', f'yukkuri status {sel("mother")} raw'),
            ('读采草父油', f'yukkuri status {sel("father")} raw'),
-           ('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriChildhood')],
+           ('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriSkills')],
     smoke=dict(ticks=3900, expect=[
         rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* begin role=FAMILY phase=OUT',
         rf'\[duty\][^\n]*uuid={_seal_mother_log}\b[^\n]* claimed kind=SEAL',
@@ -318,7 +315,7 @@ add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封�
     '会封洞的灵梦带着 2 根洞口枝条。灵梦进洞后，南面出现饥饿蕾米莉亚。看它察觉危险后封洞，等附近没有捕食种再拆开。',
     '约 1–2 分钟，可倍速', [
         box(-9, 0, -5, 9, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
-        yk('reimu', 0, -1, 'wise', label='会封洞的灵梦', boldness=20, self_control=100, childhood=_seal_skill, lead=True, **pair_ready()),
+        yk('reimu', 0, -1, 'wise', label='会封洞的灵梦', boldness=20, self_control=100, skills=_seal_skill, lead=True, **pair_ready()),
         home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
     late=[Retry(yk('remilia', 0, 6, 'hunter', label='饥饿捕食种', nutrition=48, energy=95, boldness=80),
                 _den_guard('wise', 'indep'), tries=20, every=20, first=1)],
@@ -342,7 +339,7 @@ add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '
     '约 1 分钟，可倍速', [
         box(-9, 0, -7, 9, 0, 16, 'minecraft:air', 'replace minecraft:short_grass'),
         yk('reimu', 0, 2, 'wise', uuid=uid('den_barrier_threat', 'wise'), label='会封洞的灵梦',
-           boldness=15, self_control=100, childhood=_seal_skill, lead=True,
+           boldness=15, self_control=100, skills=_seal_skill, lead=True,
            extra='YukkuriForageLoad:{id:"minecraft:short_grass",count:2}', **pair_ready()),
         # The resident starts well south of the mouth: it follows the panicking yukkuri slowly, so the doorway is clear while the screen goes up.
         human('oniisan', 3, 9, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
@@ -1580,11 +1577,6 @@ add('first_toilet', 'family', '新生儿吃第一口后才首次排便', '新生
     smoke=dict(ticks=2400,commands=[(100,item('minecraft:apple',3,0,0))],
                expect=[r'first toilet completed',r'poop placed [^\n]*volume='],forbid=[]))
 
-add('hop', 'family', '子油跟着亲油学会起跳', '子油跟着亲油学会起跳', '子油先爬行试探，亲油示范起跳，子油跟着练到学会', '约 1–2 分钟', [
-    yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
-    yk('chen', 3, 0, 'kid', stage='child', yaw=90, lead=True, childhood=CHILDHOOD_CAN_JUMP_SOON),
-    f'yukkuri scenario kin {sel("mom")} {sel("kid")} false'], spot='hop', vantage=(0, 10))
-
 add('growth', 'family', '五只差1 tick到龄：长大、变老、寿终', '五只差1 tick到龄：长大、变老、寿终',
     '五只灵梦从赤油、子油、亚成、老年、寿命边界前1 tick开始。下一tick依次成为子油、亚成、成油、老年和自然死亡；营养低不会延后年龄资格。之后按固定年龄继续成长，可用倍速观察',
     '下一模拟tick', [
@@ -1861,7 +1853,7 @@ add('nest_grades', 'family', '三档宠物窝：贴墙变形，按自尊各有�
         *[block(x, 0, z, bed) for _, bed, x, z, _ in _GRADE_BEDS],
         *[yk('reimu', p['x'], p['z'], name, label=p['label'], boldness=p['boldness'], friendliness=p['friendliness'],
              accessory=p.get('accessory', True), self_control=95, intelligence=90, energy=95, rest_wait=60, yaw=180,
-             lead=name == 'proud', extra='YukkuriPet:{SkillExperience:{bedtime:9999}}')
+             lead=name == 'proud')
           for name, p in _GRADE_PETS.items()],
         *[line for name in _GRADE_PETS for line in own(name)],
         f'yukkuri scenario badge {sel("proud")} gold false',
@@ -2116,7 +2108,7 @@ add('badge', 'town', '钻石章灵梦遇到嫉妒的野油', '钻石章灵梦遇
     f'yukkuri scenario badge {sel("pet")} platinum false'], env=DAY, vantage=(1, 8))
 
 _practice_home = []
-for _x, _kind, _name, _skill in ((-7, 'reimu', 'practised', 76), (7, 'marisa', 'novice', 0)):
+for _x, _kind, _name, _points in ((-7, 'reimu', 'practised', 8), (7, 'marisa', 'novice', 0)):
     _practice_home += [
         *shed(_x, -4), block(_x, 0, 5, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
         block(_x + 2, 0, 4, 'mcyukkuri:yukkuri_toilet'), item('minecraft:apple', 2, _x - 1, 4, _name + '_apples'),
@@ -2124,27 +2116,46 @@ for _x, _kind, _name, _skill in ((-7, 'reimu', 'practised', 76), (7, 'marisa', '
            uuid=uid('training_home', _name),
            label='练过的宠物' if _x < 0 else '刚开始练习',
            self_control=95 if _x < 0 else 24,
-           extra=f'YukkuriPet:{{Neglect:{0 if _skill else 60},SkillExperience:{{food_bowl:{_skill},toilet:{_skill},bedtime:{_skill}}}}}'),
+           skills={'food_guard': _points, 'toilet': _points}, extra=f'YukkuriPet:{{Neglect:{0 if _points else 60}}}'),
         *own(_name), home(_name, _x, -4)]
 add('training_home', 'town', '宠物日常练习：吃饭、如厕、睡觉', '宠物日常练习：吃饭、如厕、睡觉',
-    '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。魔理沙刚开始练习，也有一阵子没受照料。看它是否略过食盆吃散食、在沙厕外留下要清理的排泄物，或直接在地上睡下。用手册查看经验变化。',
+    '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。魔理沙刚开始练习，也有一阵子没受照料。看它是否略过食盆吃散食、在沙厕外留下要清理的排泄物，再看两只去哪儿休息。用田野手册查看技能。',
     '入夜开始，约 1–2 分钟', _practice_home, env={'time': 'night'}, vantage=(0, 13),
-    give=['mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
-    reads=[('读训练经验', f'data get entity {sel("practised")} YukkuriPet.SkillExperience'),
-           ('读新手经验', f'data get entity {sel("novice")} YukkuriPet.SkillExperience')])
+    give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
+    reads=[('读熟手技能', f'data get entity {sel("practised")} YukkuriSkills'),
+           ('读新手技能', f'data get entity {sel("novice")} YukkuriSkills')])
 
-add('training_study', 'town', '宠物读告示牌、数苹果', '宠物读告示牌、数苹果',
-    '灵梦能看见写有「苹果」的告示牌，魔理沙面前有六个苹果。看它们念出字、数到四以上说好多，或困惑答错。拿有字的书也可以从手册开课。',
+add('training_study', 'town', '宠物数苹果', '宠物数苹果',
+    '魔理沙面前有六个苹果。看它数过自己的上限时说「好多」，或者困惑答错。',
     '约 1 分钟', [
-        block(-5, 0, -2, 'minecraft:oak_sign[rotation=0]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
         item('minecraft:apple', 6, 6, 0, 'count_apples'),
-        yk('reimu', -5, 0, 'reader', nutrition=96, social_wait=0, lead=True, intelligence=90, self_control=86,
-           extra='YukkuriPet:{SkillExperience:{reading:76}}'), *own('reader'),
-        yk('marisa', 5, 0, 'counter', nutrition=96, social_wait=0, intelligence=90, self_control=86,
-           extra='YukkuriPet:{SkillExperience:{arithmetic:76}}'), *own('counter')],
-    env=DAY, vantage=(0, 8), give=['mcyukkuri:badge_handbook', 'minecraft:writable_book'],
-    reads=[('读读字经验', f'data get entity {sel("reader")} YukkuriPet.SkillExperience'),
-           ('读算术经验', f'data get entity {sel("counter")} YukkuriPet.SkillExperience')])
+        yk('marisa', 5, 0, 'counter', nutrition=96, social_wait=0, lead=True, intelligence=90, self_control=86,
+           skills={'counting': 8}, cap=3), *own('counter')],
+    env=DAY, vantage=(5, 8), give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook'],
+    reads=[('读数数技能', f'data get entity {sel("counter")} YukkuriSkills')])
+
+add('skills_magnifier', 'town', '放大镜看技能行', '放大镜看技能行',
+    '依次用放大镜看三只宠物。灵梦有等待★和如厕✓，魔理沙能数到六所以有数数✓，橙尚无技能。田野手册的技能页会写明等级和数数上限。',
+    '随时', [
+        yk('reimu', -3, 0, 'trained', stage='child', label='等待和如厕', skills={'wait': 9, 'toilet': 5}, cap=2, lead=True), *own('trained'),
+        yk('marisa', 0, 0, 'counting', stage='child', label='数到六', cap=6), *own('counting'),
+        yk('chen', 3, 0, 'untrained', stage='child', label='尚无技能', cap=2), *own('untrained')],
+    env=DAY, vantage=(0, 6), give=['mcyukkuri:magnifying_glass', 'mcyukkuri:field_notebook'],
+    reads=[(f'读{name}', f'data get entity {sel(actor)} YukkuriSkills') for name, actor in (
+        ('等待和如厕', 'trained'), ('数到六', 'counting'), ('尚无技能', 'untrained'))])
+
+add('skills_got_it', 'town', '如厕后学会了', '如厕后学会了',
+    '灵梦离如厕二级还差一点，有便意，旁边就是沙厕。等它自己用完沙厕，留意欢跳、闪光、台词和操作栏提示，再用田野手册查看学会记录。',
+    '约 10 秒', [
+        block(0, 0, 0, 'mcyukkuri:yukkuri_toilet'),
+        yk('reimu', 0, 2, 'learner', uuid=uid('skills_got_it', 'learner'), bladder=80, self_control=100, lead=True,
+           skills={'toilet': 4}), *own('learner')],
+    env=DAY, vantage=(0, 5), give=['mcyukkuri:field_notebook', 'mcyukkuri:magnifying_glass'],
+    reads=[('读如厕技能', f'data get entity {sel("learner")} YukkuriSkills')],
+    smoke=dict(ticks=320, expect=[r'\[needs\][^\n]* relieved source=facility',
+                                  r'\[skill\][^\n]* learned ability=TOILET grade=2 source=daily'],
+               forbid=[r'\[body\][^\n]* invariant\b'],
+               readout=[f'data get entity {sel("learner")} YukkuriSkills']))
 
 def exam_hall():
     return [block(-3, 0, 0, 'mcyukkuri:exam_podium[facing=east]'),
@@ -2152,14 +2163,13 @@ def exam_hall():
 
 
 def exam_study(pickup_delay=0):
-    return [block(-2, 0, 1, 'minecraft:oak_sign[rotation=4]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
-            item('minecraft:apple', 3, 1, 2, 'count_apples').replace('PickupDelay:0s', f'PickupDelay:{pickup_delay}s')]
+    return [item('minecraft:apple', 3, 1, 2, 'count_apples').replace('PickupDelay:0s', f'PickupDelay:{pickup_delay}s')]
 
 
 def exam_candidate(grade, nutrition=72, bladder=0):
     return [yk('reimu', 0, 2, 'pet', yaw=180, lead=True, nutrition=nutrition, intelligence=95,
                friendliness=95, attachment=95, self_control=95, energy=95, social_wait=0, bladder=bladder,
-               extra='YukkuriPet:{SkillExperience:{reading:80,arithmetic:80,wait:80,food_bowl:80,toilet:80,greeting:80,harness:80}}'),
+               skills=dict.fromkeys(('counting', 'wait', 'food_guard', 'toilet', 'greeting'), 9), cap=9),
             *own('pet'), f'yukkuri scenario badge {sel("pet")} {grade} false']
 
 
@@ -2180,14 +2190,14 @@ add('exam_obstructed', 'town', '铜章考试：视线被挡', '铜章考试：�
                expect=[r'action=start [^\n]*target=BRONZE', r'action=interrupt reason=site [^\n]*emeralds_used=0'],
                forbid=[r'action=answer', r'action=result']))
 
-add('exam_silver', 'town', '银章考试：读数、等待与照料', '银章考试：读数、等待与照料',
-    '拿一份甜食在手上，右键考官选晋级。保持告示牌和散食可见，让考生演示日常如厕。',
+add('exam_silver', 'town', '银章考试：数数、等待与照料', '银章考试：数数、等待与照料',
+    '拿一份甜食在手上，右键考官选晋级。保持散食可见，让考生演示日常如厕。',
     '约 1 分钟', [*exam_hall(), *exam_study(),
                   block(-1, 0, 2, 'mcyukkuri:yukkuri_toilet'),
                   *exam_candidate('bronze', 84, bladder=74)], env={'time': 'dawn'}, vantage=(0, 7),
     give=['mcyukkuri:sweet_candy', 'minecraft:emerald 4'],
     smoke=dict(ticks=1400, commands=[(5, f'yukkuri scenario exam_silver {sel("judge")} {sel("pet")}')],
-               expect=[r'action=answer task=read success=true', r'action=answer task=count success=true',
+               expect=[r'action=answer task=count success=true',
                        r'action=answer task=toilet success=true', r'action=answer task=wait success=true',
                        r'action=result [^\n]*grade=BRONZE->SILVER emeralds_used=4'],
                forbid=[r'action=interrupt']))
@@ -2211,18 +2221,15 @@ def exam_promotion_expectation(before, target, *questions):
     return ''.join(exchange) + rf'.*?action=result [^\n]*{result} emeralds_used=4\b'
 
 
-add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考试：牵引、迎客与求助',
-    '给银章考生系胴带和拴绳，右键考官选晋级。牵引题实际走一个转弯，随后观察迎客；考生求助时可亲手喂饿着的同伴。',
+add('exam_gold', 'town', '金章考试：迎客与求助', '金章考试：迎客与求助',
+    '右键考官选晋级。观察考生怎样迎客；考生求助时可亲手喂饿着的同伴。',
     '约 1 分钟', [*exam_hall(), *exam_candidate('silver', 92), human('caretaker_sister', 2, 1, 'visitor', 0),
                   f'data merge entity {sel("visitor")} {{CareFood:0,NextRestock:24000L}}',
                   yk('marisa', -2, 3, 'peer', nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
-    give=['mcyukkuri:pet_harness', 'minecraft:lead', 'minecraft:apple', 'minecraft:emerald 4'],
+    give=['minecraft:apple', 'minecraft:emerald 4'],
     smoke=dict(ticks=1050, commands=[(5, f'yukkuri scenario exam_gold {sel("judge")} {sel("pet")}'),
-                                    (78, 'yukkuri scenario exam_step_owner ~0.9 ~-0.0625 ~3.5'),
-                                    (83, 'yukkuri scenario exam_step_owner ~0.9 ~-0.0625 ~3.0'),
-                                    (440, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
-               expect=[r'harness turn owner=[^ ]+ waits=true', r'action=answer task=walk success=true',
-                       r'action=answer task=greet success=true',
+                                    (300, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
+               expect=[r'action=answer task=greet success=true',
                        exam_promotion_expectation('SILVER', 'GOLD', 'help')],
                forbid=[r'action=interrupt']))
 
@@ -2233,10 +2240,10 @@ add('exam_platinum', 'town', '钻石章考试：说明与分享', '钻石章考�
                   yk('marisa', -2, 3, 'peer', yaw=-90, nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
     give=['minecraft:emerald 4', 'minecraft:apple'], reads=[('读考生', f'yukkuri status {sel("pet")} raw'), ('读同伴', f'yukkuri status {sel("peer")} raw')],
     smoke=dict(ticks=1050, commands=[(5, f'yukkuri scenario exam_platinum {sel("judge")} {sel("pet")}'),
-                                    (700, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
+                                    (500, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
                expect=[r'(?s)action=answer task=clarify_groups success=true observed=1.*?key=exam\.mcyukkuri\.say\.count_portions'
                        r'.*?action=answer task=clarify success=(?:true|false)\b',
-                       exam_promotion_expectation('GOLD', 'PLATINUM', 'explain', 'clarify', 'share')],
+                       exam_promotion_expectation('GOLD', 'PLATINUM', 'clarify', 'share')],
                forbid=[r'action=interrupt']))
 
 add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
@@ -2253,9 +2260,8 @@ add('pred_pets', 'town', '饿了的宠物捕食种：受训的忍住', '饿了�
     f'yukkuri scenario badge {sel("rem")} silver false',
     yk('reimu', 5, 0, 'prey', grade=1, yaw=90), *own('prey'),
     f'yukkuri scenario badge {sel("prey")} bronze false',
-    yk('flandre', 10, 0, 'fla', grade=1, yaw=90, nutrition=100), *own('fla'),
+    yk('flandre', 10, 0, 'fla', grade=1, yaw=90, nutrition=100, skills={'toilet': 5, 'food_guard': 5, 'greeting': 5}), *own('fla'),
     f'yukkuri scenario badge {sel("fla")} bronze false',
-    f'data remove entity {sel("fla")} YukkuriPet.SkillExperience.wait',
     set_status('rem', 'needs.nutrition', 25), set_status('fla', 'needs.nutrition', 25),
     box(8, 0, -2, 12, 2, -2, 'minecraft:glass_pane'), box(8, 0, 2, 12, 2, 2, 'minecraft:glass_pane'),
     box(8, 0, -1, 8, 2, 1, 'minecraft:glass_pane'), box(12, 0, -1, 12, 2, 1, 'minecraft:glass_pane')],
@@ -2325,21 +2331,19 @@ add('harness_walk', 'town', '亲手给宠物系胴带牵着走', '亲手给宠�
     reads=[('读牵引宠物', f'yukkuri status {sel("harness_pet")} raw')], vantage=(0, 8))
 
 add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：停等或走偏',
-    '两位居民分别带练过的灵梦和新手魔理沙散步。观察转弯时宠物会停下来等主人，还是沿旧方向多走几步再跟上。', '约 1–2 分钟', [
+    '两位居民分别带自制力高的灵梦和自制力低的魔理沙散步。观察转弯时宠物会停下来等主人，还是沿旧方向多走几步再跟上。', '约 1–2 分钟', [
         'yukkuri human walker ~-10 ~ ~-14 brother reimu',
         'tag @e[type=mcyukkuri:reimu,distance=..30,sort=nearest,limit=1] add scn_walk_practised',
         f'tag {sel("walk_practised")} add scn',
         f'tag {sel("walk_practised")} add scn_lead',
-        f'data modify entity {sel("walk_practised")} YukkuriPet.SkillExperience.harness set value 80',
         f'yukkuri status set {sel("walk_practised")} personality.self_control 95',
         'yukkuri human walker ~10 ~ ~-14 sister marisa',
         'tag @e[type=mcyukkuri:marisa,distance=..30,sort=nearest,limit=1] add scn_walk_novice',
         f'tag {sel("walk_novice")} add scn',
-        f'data modify entity {sel("walk_novice")} YukkuriPet.Neglect set value 60',
         f'yukkuri status set {sel("walk_novice")} personality.self_control 24',
     ], env=DAY, vantage=(0, 8),
-    reads=[(label, f'data get entity {sel(name)} YukkuriPet.SkillExperience')
-           for label, name in (('读灵梦的牵引经验', 'walk_practised'), ('读魔理沙的牵引经验', 'walk_novice'))])
+    reads=[(label, f'yukkuri status {sel(name)} raw')
+           for label, name in (('读高自制力灵梦', 'walk_practised'), ('读低自制力魔理沙', 'walk_novice'))])
 
 def street_trial(scene, kind, x, z, name, *, extra='', boldness=90, **kwargs):
     return yk(kind, x, z, name, uuid=uid(scene, name), boldness=boldness,
@@ -2466,7 +2470,7 @@ add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎�
               sel('yard_keeper'), tries=1, first=680),
     ], env=DAY, vantage=(-4, 8, -155, 16),
     reads=[('读院宠状态', f'yukkuri status {sel("yard_pet")} raw'),
-           ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience')])
+           ('读院宠日常技能', f'data get entity {sel("yard_pet")} YukkuriSkills')])
 
 _outing_pets = [('reimu', 'outing_shy', 3, -1, 5, 95), ('marisa', 'outing_bold', 4, 1, 95, 5)]
 _outing_start = []
@@ -2830,7 +2834,6 @@ add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房�
             for name, kind, x, z, label, bold, control, friendly, *_ in _receiving_animals],
           *[set_status(name, 'mood.unease', unease) for name, _, _, _, _, _, _, _, unease, *_ in _receiving_animals],
           *[f'effect give {sel(name)} minecraft:weakness 120' for name, *_ in _receiving_animals],
-          f'data modify entity {sel("receive_plea")} YukkuriPet.SkillExperience.wait set value 24',
           yk('marisa', -5, -15, 'receive_pet', dy=2, label='大厅·魔理沙', uuid=uid(_plant_receiving, 'receive_pet'))],
     give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:sleep_spray 1'],
     env=DAY, vantage=(_plant_x, _plant_z - 3, 0, 0),
@@ -4795,7 +4798,7 @@ pond('worn_hat_boat', '戴着的帽子摘下当船自救', '戴着的帽子摘�
      '戴着帽子、已经初航过的水生魔理沙子油从岸旁水面上方落下：她先把自己的帽子摘下放到身旁的开阔水面上，帽子展开漂着，再游到帽檐、咬住爬进帽里坐好；高友善亲油只在附近面向她含泪围观，不再把她救上亲船。回到自帽后没有木棍也用辫子划水',
      '约 30–90 秒',
      [yk('marisa', bank_dx(3), 3, 'p', aquatic=True, friendliness=100, uuid=uid('worn_hat_boat', 'p'), **pair_ready()),
-      yk('marisa', bank_dx(0) + 3, 0, 'c', dy=1, stage='child', aquatic=True, yaw=-90, lead=True, childhood=CHILDHOOD_SAILED,
+      yk('marisa', bank_dx(0) + 3, 0, 'c', dy=1, stage='child', aquatic=True, yaw=-90, lead=True, skills={'sailing': 2},
          uuid=uid('worn_hat_boat', 'c'), kin=f'Mother:{uuid_nbt(uid("worn_hat_boat", "p"))}', **pair_ready()),
       afloat('p', water_at(3, 4), True, sel('p'))],
      vantage=(bank_dx(0) - 2, 1, -90, 18),
@@ -4978,7 +4981,7 @@ def _to_water_chain(sid, may_hop=False):
             + rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard=1/1\b')
 
 
-_FED_NEWBORN = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'
+_FED_NEWBORN = 'Version:2,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b'
 pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱赤油上帽船',
      '亲油与一只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，先跳上近侧帽檐，用辫子抓起岸边赤油并降低到前座，最后自己到船尾座位；两只实际入座后出航',
      '约 1–2 分钟',
@@ -5475,20 +5478,22 @@ pond('first_voyage', '子油跳上岸，自己放帽划一圈', '子油跳上岸
          **{**pair_ready(), 'energy': 20}),
       _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
       afloat('a', water_at(0, 1.45), True, sel('c1'))],
-     note='初态：子油位于初航欲望带，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油近岸低体力歇泊，子油从亲帽的真实座位开始初航。'
+     note='初态：子油位于初航欲望带，尚未学会航行，固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油近岸低体力歇泊，子油从亲帽的真实座位开始初航。'
           '日志：子油 [intent] start id=first_voyage（why 中 boldness、size、ratio）→ [aquatic] first_voyage start … from=parent_hat → [action] end id=hop outcome=DONE（离亲帽）→ [action] start id=walk（找船位）→ '
           '[aquatic] berth → [hat] placed … water=true kit=minecraft:stick → [action] start id=hop → [body] mount … → [aquatic] route purpose=first_voyage → '
           '[action] start id=paddle → [aquatic] first_voyage rounded → [intent] start id=come_ashore → [action] start id=hop → [action] start id=take_prop → '
-          '[aquatic] first_voyage success → [childhood] sailing learned how=first_voyage。帽子漂离岸沿时子油或亲油在岸边俯身用辫子划水把帽子招回：[action] start id=beckon … → '
+          '[skill] learned ability=SAILING grade=1 source=voyage → [aquatic] first_voyage success。帽子漂离岸沿时子油或亲油在岸边俯身用辫子划水把帽子招回：[action] start id=beckon … → '
           '[action] end id=beckon outcome=DONE detail=at_bank（招失败后同一次不再招，改等漂近）；帽子靠岸记 [hat] moored，帽檐搭上岸沿记 [hat] beached。'
           '初航记 [aquatic] first_voyage fail … in_water=true 与 first_voyage cooldown（第二天早上前不再试）。' + _DESIRE_NOTE,
-     reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
+     reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读航行技能', f'data get entity {sel("c1")} YukkuriSkills'),
+            ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                                    rf'\[aquatic\][^\n]*uuid={_uuid_text("first_voyage", "c1")}[^\n]* first_voyage start [^\n]*from=parent_hat\b'
                                    rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("first_voyage", "c1")}[^\n]* end id=hop outcome=DONE'
                                    rf'[\s\S]*\[hat\][^\n]* placed owner={_uuid_text("first_voyage", "c1")}\b',
                                    r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
-                                   r'\[aquatic\][^\n]* first_voyage success\b'],
+                                   r'\[aquatic\][^\n]* first_voyage success\b',
+                                   r'\[skill\][^\n]* learned ability=SAILING grade=1 source=voyage'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled\b'], readout=[f'yukkuri status {sel("c1")} raw']))
 
 
@@ -5502,13 +5507,13 @@ pond('first_voyage_brim', '子油在帽檐脱帽放水划一圈', '子油在帽�
          **{**pair_ready(), 'energy': 20}),
       _aquatic_young('first_voyage_brim', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
       afloat('a', water_at(0, 6), True, sel('c1'), food=4)],
-     note='初态：子油位于初航欲望带，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍；亲油在离岸 4 格以外的静水里低体力歇泊，'
+     note='初态：子油位于初航欲望带，尚未学会航行，固食、跳跃与学习条件已具备，自己的帽里有真实木棍；亲油在离岸 4 格以外的静水里低体力歇泊，'
           '帽里有四份苹果和一根木棍，子油站在亲帽帽檐的真实位置上，岸边没有可跳的落点。'
           '日志：子油 [intent] start id=first_voyage → [aquatic] first_voyage start … from=parent_hat → [aquatic] first_voyage route=brim reason=no_bank_in_hop_reach → '
           '[action] end id=face → [action] start id=place_prop → [hat] placed … water=true kit=minecraft:stick → '
           '[aquatic] first_voyage hat set on water → [action] start id=hop（亲帽帽檐跳进自己的帽，hop_leg 片段）→ [body] mount … cause=hop_contact → '
           '[aquatic] first_voyage hopped onto own hat … aboard=true → [aquatic] route purpose=first_voyage → [action] start id=paddle → [aquatic] first_voyage rounded → '
-          '[intent] start id=come_ashore → … → [action] start id=take_prop → [aquatic] first_voyage success … route=brim → [childhood] sailing learned how=first_voyage。'
+          '[intent] start id=come_ashore → … → [action] start id=take_prop → [skill] learned ability=SAILING grade=1 source=voyage → [aquatic] first_voyage success … route=brim。'
           '两顶帽子的帽檐相距 0.05 格并排漂着，不重叠；亲船静止（速度极小）时才出发。' + _DESIRE_NOTE,
      reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
@@ -5626,14 +5631,15 @@ TOPICS = {
     'stall_theft': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'yard_street_walk': 'M5', 'yard_park_play': 'M5', 'yard_park_picnic': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
-    'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
+    'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
-    'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
+    'badge': 'M5', 'training_home': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
+    'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
@@ -5781,16 +5787,16 @@ _smoke('badge', 1200, [r'\[badge\] marisa [^\n]*badge sight [^\n]*grade=4\b',
 _smoke('puff_response', 650, [r'\[social\][^\n]*puff response=(?:flee|ignore|puff_back|attack) [^\n]*esteem=[^\n]*wariness=[^\n]*insistence=[^\n]*combat='],
     readout=[f'yukkuri status {sel(f"puff_target{i}")} raw' for i in range(4)])
 _smoke('training_home', 2100, [
-    r'\[lesson\][^\n]*skill practice skill=FOOD_BOWL source=daily xp=76 -> 78',
+    r'\[skill\][^\n]* practice ability=FOOD_GUARD source=daily points=8 -> 9',
     r'\[needs\][^\n]*relieved source=facility',
     r'\[sleep\][^\n]*begin source=life',
     r'\[needs\] marisa [^\n]*poop (?:placed|stays a loose item) ',
     r'\[needs\] marisa [^\n]*relieved source=ground [^\n]*accident=true',
     r'\[lesson\] marisa [^\n]*bowl skipped for loose food',
-], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('practised', 'novice')])
+], readout=[f'data get entity {sel(n)} YukkuriSkills' for n in ('practised', 'novice')])
 def _lead_turns(window):
-    """A turn on the lead is a skill roll, not a fixed outcome: the practised pet waits at its likely roll, the novice misses at
-    its likely roll, and a miss either steps aside onto ground the log names or rejoins at once. Whether a step aside reaches
+    """At a turn, willingness favors the patient pet. A miss either steps aside onto ground the log names or rejoins at once.
+    Whether a step aside reaches
     its goal depends on the owner's walk, so only the decision is asserted."""
     turns = {'reimu': [], 'marisa': []}
     for line in window.splitlines():
@@ -5798,25 +5804,24 @@ def _lead_turns(window):
         if found is not None:
             turns[found[1]].append((found[2] == 'true', found[3] == 'true'))
     if not turns['reimu']:
-        return 'the practised pet never met a turn on the lead'
+        return 'the patient pet never met a turn on the lead'
     if not any(waited for waited, aside in turns['reimu']):
-        return f'the practised pet never waited at a turn: {turns["reimu"]}'
+        return f'the patient pet never waited at a turn: {turns["reimu"]}'
     if not turns['marisa']:
-        return 'the novice never met a turn on the lead'
+        return 'the impatient pet never met a turn on the lead'
     if all(waited for waited, aside in turns['marisa']):
-        return f'the novice waited at every turn: {turns["marisa"]}'
+        return f'the impatient pet waited at every turn: {turns["marisa"]}'
     return None
 
 
 _smoke('training_walk', 2300, [
     r'\[lesson\] reimu [^\n]*harness turn owner=[^ ]+ waits=true',
     r'\[lesson\] marisa [^\n]*harness turn owner=[^ ]+ waits=(?:true|false) aside=(?:true|false)',
-], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('walk_practised', 'walk_novice')])
+], readout=[f'yukkuri status {sel(n)} raw' for n in ('walk_practised', 'walk_novice')])
 next(s for s in S if s.id == 'training_walk').smoke['verify'] = _lead_turns
 _smoke('training_study', 1750, [
-    r'\[lesson\][^\n]*study answered skill=READING',
-    r'\[lesson\][^\n]*study answered skill=ARITHMETIC source=food count=6',
-], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('reader', 'counter')])
+    r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=6',
+], readout=[f'data get entity {sel("counter")} YukkuriSkills'])
 _smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
     readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
 next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(
@@ -6098,7 +6103,6 @@ next(s for s in S if s.id == 'aftermath_depletion').smoke['gating_checks'] = ('E
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
-_smoke('hop', 2400, [r'\[childhood\] chen[^\n]* jump learned landings=\d+ demonstrationSeen=\w+'])
 _smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed ',
                                r'\[family\][^\n]* child call started ', r'\[family\][^\n]* child heard parent call ',
                                r'\[family\][^\n]* glass vigil started ', r'\[family\][^\n]* glass farewell '])
@@ -6742,11 +6746,11 @@ _smoke('street_give_way', 300, [
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=(?:1\.\d+|[2-9]\d*(?:\.\d+)?) gap=(?:0\.[2-9]\d*|[1-9]\d*(?:\.\d+)?)\b',
 ])
 _smoke('yard_owner_return', 1250, [
-    r'\[pet\][^\n]* yard bond established owner=[^ ]+ closeness=24 bowl=1 toilet=1 bedtime=1',
+    r'\[pet\][^\n]* yard bond established owner=[^ ]+ closeness=24 bowl=1 toilet=1',
     r'\[pet\][^\n]* owner return approach owner=[^ ]+ clip=joy_jump distance=(?:[2-9]|1[0-2])\.',
     r'\[pet\][^\n]* owner return greeted owner=[^ ]+ clip=joy_jump',
     r'\[pet\][^\n]* owner return nuzzle owner=',
-], readout=[f'data get entity {sel("yard_pet")} YukkuriPet.SkillExperience',
+], readout=[f'data get entity {sel("yard_pet")} YukkuriSkills',
             f'data get entity {sel("yard_keeper")} CareFood', 'data get block ~5 ~ ~2 Items'])
 _smoke('yard_stray_scold', 1200, [
     r'\[home-claim\][^\n]* occupation chosen [^\n]*kind=bed',
@@ -7247,7 +7251,7 @@ _plant_smoke['commands'] += [
     (805, 'yukkuri scenario basket swap_hands'),
     (2100, f'execute as {sel("receive_plea")} if data entity @s {OWNED}{{OwnerKind:"npc",Use:"plant_stock"}} '
           f'if data entity @s YukkuriFamily{{Mother:{uuid_nbt(_receive_mother)}}} '
-          'if data entity @s YukkuriPet{Grade:1,SkillExperience:{wait:24}} run say MCY_PLANT_STOCK_PRESERVED'),
+          'if data entity @s YukkuriPet{Grade:1} if data entity @s YukkuriSkills{Points:{wait:5}} run say MCY_PLANT_STOCK_PRESERVED'),
 ]
 _plant_smoke['expect'].append(
     rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_plant_receiving, "receive_insult")} [^\n]* weakness=0\.0 ')

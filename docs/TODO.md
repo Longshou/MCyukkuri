@@ -11,7 +11,7 @@
 | 布景角色与首批场景整理：TN34-36 进公园、HD06、MD17、MD21、TN14、TN20、TN24 | `.worktrees/wp-stager-1` | docs/roles/stager.md, scripts/museum_scenarios.py, scripts/museum_fields.py (Park) |
 | DN-04 封洞：1.5 格结界、按威胁到达时间封洞、亲人呼唤拆除、引开威胁 | `.worktrees/wp-den-seal` | settlement/DenSeal.java, settlement/DenBarrierBlock.java, standards/yukkuri-library/ecology/wild-shelters/den_barrier.py, DN-04/07/08 scenes |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
-| 能力 v1：统一技能存储、删除旧技能与跳跃学习、放大镜标记、学会一拍 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetSkill.java, pet/PetLessons.java, family/ChildhoodLife.java |
+| 能力 v1：日常练习入技能页、删除旧技能与跳跃学习。在街道 TN-37 看技能标记与上限，TN-38 看如厕后二级反应与手册记录 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetLessons.java, family/ChildhoodLife.java, scripts/museum_scenarios.py |
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 | 捕食种树上生活 A：枝巢搭建阶段与栖枝、扑翅动作 | `.worktrees/wp-tree-pred-art` | art/props/predators, standards/yukkuri-library/motions (predator_perch, predator_flap) |
 | P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
@@ -19,7 +19,7 @@
 
 ## 玩法待办
 
-- S1 性格反应：已接入待试玩。用 FM-23 孤儿分食、BD-24 制裁反馈、CL-02 聚落分粮、HD-04 失饰鄙视、HD-06 噗咕反应、FM-06 起跳学习检查同一事件下的个体差异，以及出手、退避、分粮和学习能否自然结束。规则见[行为、性格与成长](FEATURES.md#行为性格与成长)。
+- S1 性格反应：已接入待试玩。用 FM-23 孤儿分食、BD-24 制裁反馈、CL-02 聚落分粮、HD-04 失饰鄙视、HD-06 噗咕反应检查同一事件下的个体差异，以及出手、退避、分粮和学习能否自然结束。规则见[行为、性格与成长](FEATURES.md#行为性格与成长)。
 
 - **2026-11-19 试玩反馈（第二批）**（运行版本 [2408e2c2f](https://github.com/Longshou/MCyukkuri/commit/2408e2c2f)；原话全文 `.local/refactor/briefs/fb-1119-feedback.md`，编号沿用原话；用户：「给出你的方案。然后收拾好准备clear」）：
   - 试玩场入口：已接入待试玩（[24b55d70d](https://github.com/Longshou/MCyukkuri/commit/24b55d70d)；需 `-Fresh`：大厅不再有告示与按钮，M 菜单是唯一入口，「场景」页按场地选场景直接跳到观察点，「实用」页放重开（重新随机个体）、速度、时间、天气、观察标签、房屋活动、商店会员级别与村庄样式；公园场地已预留、布景待做）。
@@ -156,7 +156,7 @@
   - 13 移动速度：已接入待试玩（[e3cc12142](https://github.com/Longshou/MCyukkuri/commit/e3cc12142)，自驱步态 1.75–3.87 格/秒，均低于人类步行；搬运中转身需试玩看）。用户：「油库里的移动速度不可能比人类更快 据此修正整体移速」
   - 14 运输篮：已接入待试玩（[973baa128](https://github.com/Longshou/MCyukkuri/commit/973baa128)、[31308d613](https://github.com/Longshou/MCyukkuri/commit/31308d613)；普通／高级／大号三种容量，街道 TN-06）。用户：「运输篮内有油库里时 需要显示相关信息。并且运输篮应该支持一次性运输多个非成体 简单处理可以按成长阶段来判断数量」「运输篮载荷可以通过做几种换色篮子做区分，比如有普通高级这种区分」
   - 16 TN02：已接入待试玩（[a44ed817b](https://github.com/Longshou/MCyukkuri/commit/a44ed817b)，银章与嫉妒双方停下交换表情动作；街道 TN-02）。用户：「TN02演出油库里会乱跑 而且这个也得做的更丰富 表情互动都要有吧」
-  - 17 考试：已接入待试玩（训练八项技能分等级、经验来自日常，[3b2310e6f](https://github.com/Longshou/MCyukkuri/commit/3b2310e6f)，街道 TN-14、TN-15；考试每题可见问答、到公布结果才收费、新增铂金章（[c2c041856](https://github.com/Longshou/MCyukkuri/commit/c2c041856)；街道 TN-03、TN-16～TN-19；铂金章冷白八角徽章已换正式美术）。用户：「考试过程演出对吗？我只测了铜章 提问名字后 我没看到油库里回答就过了。」15–17 合并处理，用户：「训练与考试相关建议全链路排查下 评估调整」钻石章已换（[60994ef7a](https://github.com/Longshou/MCyukkuri/commit/60994ef7a)，内部编号仍为 platinum 以保存档）：「铂金的徽章可以改成钻石的，风格延续其他徽章的样子」
+  - 17 考试：已接入待试玩（街道 TN-14／15 查看日常练习与数数，TN-16～19 查看每题问答与结果时收费）。用户：「考试过程演出对吗？我只测了铜章 提问名字后 我没看到油库里回答就过了。」15–17 合并处理，用户：「训练与考试相关建议全链路排查下 评估调整」钻石章已换（[60994ef7a](https://github.com/Longshou/MCyukkuri/commit/60994ef7a)，内部编号仍为 platinum 以保存档）：「铂金的徽章可以改成钻石的，风格延续其他徽章的样子」
   - 18 打招呼前倾：已接入待试玩（[81124f288](https://github.com/Longshou/MCyukkuri/commit/81124f288)，前倾只在面对面蹭脸时做，招呼站位按真实体型留出前倾空间；草地 MD-02、MD-18）。用户：「打招呼过程前倾动作会把对面的油库里撞得后退？不符合预期」
   - 19 抖动滥用：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「不要使用高频的抖动组成非害怕颤抖场景 商店的演出用那么多抖动干嘛」
   - 20 商店信息：复测失败（见 11-17 晚试玩反馈）（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店的油库里信息通过npc提供就可以了不要用告示牌 不然不好更新」
@@ -196,7 +196,7 @@
   - 态度第五片：已接入待试玩（[cbdf135ea](https://github.com/Longshou/MCyukkuri/commit/cbdf135ea)，被篮子抓、洗、给或取垃圾头饰、喂不同档粮时按数值挣扎／发抖／道谢／嫌弃；放大镜一行态度；脏污降自尊、招来嫌弃；缺帽流浪自拾垃圾头饰；草地 MD-19、街道 TN-21、流浪 FG-12）。
   - 让路与店内照料：复测失败（见晚试玩反馈 TN-21）（[ef57c0567](https://github.com/Longshou/MCyukkuri/commit/ef57c0567)，闲着的油库里给走过的玩家和居民让路；店员治疗受伤的待售个体）。
   - 走失找孩：已接入待试玩（[2f7decade](https://github.com/Longshou/MCyukkuri/commit/2f7decade)，亲油按自己亲眼看到的位置找走失的子油，不再全知）。
-  - 训练后果：已接入待试玩（[a132e71ef](https://github.com/Longshou/MCyukkuri/commit/a132e71ef)，没学会的技能在日常里真实出错：地上排泄、吃散食、牵绳走偏；街道 TN-14、TN-21）。
+  - 训练后果：已接入待试玩。街道 TN-14 检查护食与如厕等级偏低时的吃散食和地上排泄，TN-23 看自制力差异带来的牵引转弯停等或走偏。
   - 善意与收养：已接入待试玩（[0c1cc006e](https://github.com/Longshou/MCyukkuri/commit/0c1cc006e)，友善个体给非亲缘的饿油分一口、陪伴；孤儿由同群友善成体收养，谱系记养育者；让窝位暂缓）。
     - 收养者领地吓走孤儿：已接入待试玩（[5840c22e2](https://github.com/Longshou/MCyukkuri/commit/5840c22e2)，照料与喂食中的赤油不再被领地驱赶，陌生赤油按友善／自制／依恋区间容忍或警告，喂过后赤油按性格消退恐惧；出生与成长 FM-23「孤儿分食与认养亲」）；看邻居递苹果、孤儿吞下、贴近收养，族谱记养育者。
   - 学会的恐惧：已接入待试玩（[f17e50d86](https://github.com/Longshou/MCyukkuri/commit/f17e50d86)，见过工具和伤害的个体躲开持用者；亲属尝试从钩下救援，够不到就放弃；烧伤后怕火；身体 BD-21～BD-23）。

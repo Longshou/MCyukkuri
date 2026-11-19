@@ -79,11 +79,13 @@ def sel_all(name, radius=48):
 def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
-       intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None, identity=None):
+       intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None, identity=None,
+       skills=None, cap=None):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
     Varied actors require a fixed ``uid(scene, slot)``. Species, form, congenital shape and identity accept pools;
     the five axes, picky, nutrition and energy accept (lo, hi). Split multiline results before prefixing commands.
     grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge.
+    skills: ability keys mapped to practice points. cap: counting capacity.
     form: a subspecies kind (``SubspeciesLife.Kind``, e.g. LONGTAIL_CHEN) instead of NORMAL / AQUATIC_MARISA.
     kit: an item id tucked into the worn hat (a Marisa's stick, ``HatCustody`` Kit), as one picked up earlier would be."""
     variation = {}
@@ -128,8 +130,15 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
     if childhood:
         parts.append('YukkuriChildhood:{' + childhood + '}')
     if grade is not None:
-        parts.append('YukkuriPet:{KnownSkills:63,Grade:' + str(grade) + ',Worn:1b,IssuedAt:0L,ExpiresAt:-1L,Source:3,'
+        parts.append('YukkuriPet:{Grade:' + str(grade) + ',Worn:1b,IssuedAt:0L,ExpiresAt:-1L,Source:3,'
                      'Cooldown:0,History:[],Permits:[]}')
+        if skills is None:
+            skills = dict.fromkeys(('wait', 'toilet', 'food_guard', 'greeting'), 5)
+        if cap is None:
+            cap = 5
+    if skills is not None or cap is not None:
+        points = ','.join(f'{key}:{value}' for key, value in (skills or {}).items())
+        parts.append('YukkuriSkills:{Points:{' + points + '}' + (f',Cap:{cap}' if cap is not None else '') + '}')
     if extra:
         parts.append(extra)
     summon = f'yukkuri scenario summon "{",".join(kind)}"' if pooled else f'summon mcyukkuri:{kind}'

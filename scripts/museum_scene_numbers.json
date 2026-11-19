@@ -251,6 +251,8 @@
     "yard_park_picnic": "TN-36",
     "shop_browse": "SP-09",
     "shop_pick": "SP-10",
-    "shop_fetch": "SP-11"
+    "shop_fetch": "SP-11",
+    "skills_magnifier": "TN-37",
+    "skills_got_it": "TN-38"
   }
 }
