@@ -335,7 +335,17 @@
     {"id":"beg_help","event":"beg_help","zh":"跑到人身旁求助","ja":"人のそばで助けを求める","en":"Appealing to a person for help","basis":["P"],"status":"ready"},
     {"id":"beg_curse","event":"beg_curse","zh":"退开前抱怨","ja":"去る前に文句を言う","en":"Complaining before backing off","basis":["P"],"status":"ready"},
     {"id":"elope_invite","event":"elope_invite","zh":"在院外招呼伴侣","ja":"庭の外から誘う","en":"Call to a partner from outside the yard","basis":["P"],"status":"ready"},
-    {"id":"elope_leave","event":"elope_leave","zh":"和伴侣一起离家","ja":"伴侶と家を出る","en":"Leave home with a partner","basis":["P"],"status":"ready"}
+    {"id":"elope_leave","event":"elope_leave","zh":"和伴侣一起离家","ja":"伴侶と家を出る","en":"Leave home with a partner","basis":["P"],"status":"ready"},
+    {"id":"confess","event":"confess","zh":"私生被发现时低头向主人求饶","ja":"内緒の出産がばれて飼い主に頭を下げ、子の助命を願う","en":"Bow to the owner and beg mercy for a secret brood","basis":["P"],"status":"ready","axis_refs":["common.owner_address","special.pet_identity_voice"]},
+    {"id":"hurt_defy","event":"hurt_defy","zh":"挨打后鼓腮还嘴并试着轻撞","ja":"打たれて頬を膨らませて食ってかかり、軽く体当たりする","en":"Puff up and bump back after a blow","basis":["P"],"status":"rule","axis_refs":["common.puff","common.cry_yu"]},
+    {"id":"hurt_endure","event":"hurt_endure","zh":"挨打后忍着疼硬撑站住","ja":"打たれても痛みをこらえて踏みとどまる","en":"Endure the pain and stand its ground","basis":["P"],"status":"rule","axis_refs":["common.muffled_pain","special.stress_muffled_overlay"]},
+    {"id":"hurt_flee","event":"hurt_flee","zh":"挨打后转身逃走","ja":"打たれて背を向けて逃げ出す","en":"Turn and run from the blow","basis":["P"],"status":"rule","axis_refs":["common.narrate_own_action","common.cry_yu"]},
+    {"id":"hurt_freeze","event":"hurt_freeze","zh":"挨打后吓僵不动","ja":"打たれてすくんで動けない","en":"Freeze stiff from the blow","basis":["P"],"status":"rule","axis_refs":["common.cry_yu","special.stress_muffled_overlay"]},
+    {"id":"hurt_tame_plea","event":"hurt_tame_plea","zh":"挨打后哭着求饲主救治","ja":"打たれて泣きながら飼い主に手当てを願う","en":"Plead tearfully for the owner to treat the wound","basis":["P"],"status":"rule","axis_refs":["common.muffled_pain","special.pet_identity_voice"]},
+    {"id":"partner_blame","event":"partner_blame","zh":"把私通推给伴侣先开口","ja":"すっきりを誘ったのは伴侶だと責任を押しつける","en":"Blame the partner for starting the sukkiri","basis":["P"],"status":"ready","axis_refs":["common.narrate_own_action","common.third_person_self"]},
+    {"id":"sukkiri_defiant","event":"sukkiri_defiant","zh":"鼓脸顶嘴，拒不认错","ja":"頬を膨らませて食ってかかり、謝らない","en":"Puff up and refuse to apologize","basis":["P"],"status":"ready","axis_refs":["common.puff","common.refusal_da"]},
+    {"id":"sukkiri_lie","event":"sukkiri_lie","zh":"别过脸否认亲生","ja":"顔をそらして自分の子ではないと否定する","en":"Turn away and deny the little ones are its own","basis":["P"],"status":"ready","axis_refs":["common.refusal_da","common.little_one"]},
+    {"id":"sukkiri_naive","event":"sukkiri_naive","zh":"迎向主人，回头炫耀孩子","ja":"飼い主に駆け寄って、子を見せびらかす","en":"Run up to the owner and show off the little ones","basis":["P"],"status":"ready","axis_refs":["common.little_one","common.happiness"]}
   ],
   "lines": [
     {"id":"hello.fixed","event":"hello","zh":"油库里洗跌一跌捏！","ja":"ゆっくりしていってね！","en":"Take it easy!","basis":["D01"],"status":"ready","common_ref":"common.welcome_take_it_easy"},
