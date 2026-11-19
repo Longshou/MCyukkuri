@@ -370,7 +370,7 @@ public final class HabitatLife {
             if(hasNestProject())cancelNestProject();
             if(residence()==Residence.HOUSED&&home==null)
                 GameplayLog.limited(entity,"habitat","care.housed",6000,"housed by care nest address={} no vagrant project",entity.life().homeStand());
-            if(!freeForWork() || entity.mind().feeling().mourning())return seasonal.start(null);
+            if(!freeForWork() || entity.mind().feeling().mourning() || entity.mind().feeling().prefersPartingGaze())return seasonal.start(null);
             var project=homes.vagrantProject();
             if(project==Result.DEFERRED)return false;
             if(project==Result.FOUND)return true;
@@ -386,6 +386,7 @@ public final class HabitatLife {
         if(!freeForWork())return false;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal.start(value))return true;
+        if(entity.mind().feeling().prefersPartingGaze()&&!stockFirst()&&!rationLoad)return false;
         if(nestEligible(value)&&startNest(value))return true;
         if(homes.extensionWanted(value)&&homes.startExtension(value))return true;
         if(homes.relocationWanted(value)) {
@@ -486,6 +487,8 @@ public final class HabitatLife {
         if(task==Task.RELOCATE)return ticks<1200&&entity.isAlive()&&!entity.isPanicking()&&!entity.isPassenger()&&!entity.operations().active()
                 &&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&homes.travelContinues();
         if(!active()||!ready())return false;
+        if(entity.mind().feeling().prefersPartingGaze()&&!meal()&&!rationLoad&&!stockFirst()
+                && task!=Task.RATION&&task!=Task.STAY&&task!=Task.SIESTA)return false;
         if(!freeForWork() && switch(task) {
             case RATION, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, PICKUP, HARVEST, SURFACE_NEST -> true;
             default -> false;

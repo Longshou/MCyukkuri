@@ -42,7 +42,8 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
  */
 public final class IndependenceLife extends Goal {
     private enum Task { NONE, FAREWELL, DEPART, SEE_OFF }
-    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CALL_RANGE = 4, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
+    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CALL_RANGE = 4, PARENT_RANGE = 24;
+    private static final int PARENT_CHECK_INTERVAL = 200, PARENT_WAIT_TICKS = 8 * PARENT_CHECK_INTERVAL;
     /** Beats of the exchange, in ticks from the first word: the parent's answer, then the nuzzle (or the bow). */
     private static final int ANSWER = 40, CLOSE = 80, BOW_TICKS = 24, GO_LINE = 30;
     private static final int DEPART_LIMIT = 500, DEPART_DISTANCE = 10, SEE_OFF_LIMIT = 1800, SEE_OFF_RANGE = 16;
@@ -52,7 +53,8 @@ public final class IndependenceLife extends Goal {
     private boolean independent, armed, household;
     private UUID visitor;
     private Task task = Task.NONE;
-    private int wait = CHECK_INTERVAL, elapsed, contact, loadGrace, parentWaits, visits;
+    private int wait = CHECK_INTERVAL, elapsed, contact, loadGrace, visits;
+    private int parentWait = -1;
     private boolean running;
     private Vec3 target;
     private int stalled;
@@ -180,6 +182,7 @@ public final class IndependenceLife extends Goal {
         if (entity.level().isClientSide || entity.isNoAi()) return;
         if (loadGrace > 0) { loadGrace--; return; }
         if (wait > 0) wait--;
+        if (parentWait > 0) parentWait--;
     }
     public int departureChance() {
         var home = entity.habitat().shelter();
@@ -197,7 +200,7 @@ public final class IndependenceLife extends Goal {
         if (!eligible()) return false;
         // Departures are by day. A night-time roll is not spent: look again soon, not a full interval later.
         if (level().isNight()) { wait = 200; return false; }
-        if (!armed) {
+        if (!armed && parentWait < 0) {
             int roll = entity.getRandom().nextInt(100);
             int chance = departureChance();
             GameplayLog.event(entity, "independence", "departure decision chance={} roll={} accepted={}", chance, roll, roll < chance);
@@ -205,15 +208,17 @@ public final class IndependenceLife extends Goal {
         }
         var parent = parentNearby();
         if (parent == null) {
-            // Wants to say goodbye: waits a while for a parent to come home, then goes without.
-            if (++parentWaits <= WAITS_FOR_PARENT) {
-                GameplayLog.limited(entity, "independence", "parent.wait", 1200,
-                        "farewell waiting reason=no_available_parent waits={}", parentWaits);
-                wait = 200; return false;
+            // The parent has time to come home even while another goal owns this child's movement.
+            if (parentWait < 0) {
+                parentWait = PARENT_WAIT_TICKS;
+                GameplayLog.limited(entity, "independence", "parent.wait", PARENT_WAIT_TICKS,
+                        "farewell waiting reason=no_available_parent ticks={}", parentWait);
             }
+            if (parentWait > 0) { wait = PARENT_CHECK_INTERVAL; return false; }
             leave();
             return false;
         }
+        parentWait = -1;
         visitor = parent.getUUID(); task = Task.FAREWELL; return true;
     }
     @Override public void start() {
@@ -425,8 +430,9 @@ public final class IndependenceLife extends Goal {
         entity.habitat().release();
         entity.life().releaseHome();
         entity.setPersistenceRequired();
-        GameplayLog.event(entity, "independence", "departed origin={} parent={} contact={} elapsed={} parentWaits={}",
-                origin, visitor, contact, elapsed, parentWaits);
+        GameplayLog.event(entity, "independence", "departed origin={} parent={} contact={} elapsed={}",
+                origin, visitor, contact, elapsed);
+        parentWait = -1;
     }
 
     /** Called by the habitat when the leaver has taken a home of its own: a loose family group gets a household of its own. */
@@ -484,7 +490,7 @@ public final class IndependenceLife extends Goal {
         wait = tag.contains("Wait") ? Math.clamp(tag.getInt("Wait"), 0, CHECK_INTERVAL) : CHECK_INTERVAL;
         if (armed) wait = 0;
         visits = Math.max(0, tag.getInt("Visits"));
-        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; loadGrace = 100; parentWaits = 0;
+        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; loadGrace = 100; parentWait = -1;
         target = progress = null; stalled = 0;
     }
 }

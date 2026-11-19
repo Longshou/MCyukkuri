@@ -40,6 +40,8 @@ import net.minecraft.world.phys.Vec3;
  * character), {@link #frightened} (the course that starts with a real danger), {@link #begin} for the rest.
  */
 public final class EmotionCourse {
+    public static final int PARTING_PRIORITY = 7;
+
     public enum Kind { GRIEF, TERROR, RAGE, JOY, PARTING }
     public enum Stage {
         NONE, ONSET, PEAK, EASING, FADING;
@@ -194,13 +196,21 @@ public final class EmotionCourse {
                 "course goal behavior kind={} stage={} behavior={}", kind.name().toLowerCase(Locale.ROOT), phase, behavior);
     }
 
-    /** 3 = the feeling holds the body above errands, 6 = it holds the body above roaming, 0 = no goal. */
+    /** Ordinary errands give way over the attached range. The length of that peak already grows with attachment. */
+    public boolean prefersPartingGaze() {
+        Stage stage = stage();
+        return kind == Kind.PARTING && (stage == Stage.PEAK || stage == Stage.ONSET && !entity.hasReaction())
+                && entity.life().personality().temperament().is(Gate.ATTACHED);
+    }
+
+    /** The selector tier for the current stage, or 0 when it owns no goal. */
     int goalPriority() {
         if (kind == null) return 0;
         Stage s = stage().presentation();
         return switch (kind) {
             case GRIEF, TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
-            case RAGE, PARTING -> s == Stage.PEAK ? 6 : 0;
+            case RAGE -> s == Stage.PEAK ? 6 : 0;
+            case PARTING -> s == Stage.PEAK ? PARTING_PRIORITY : 0;
             case JOY -> 0;
         };
     }
@@ -505,7 +515,7 @@ public final class EmotionCourse {
     /**
      * The body side of the strong stages. The peak goal (priority 3, above errands) watches the place of a loss and sends a
      * frightened one home to tremble; the easing goal (priority 6, above roaming) sits listlessly and
-     * strolls a few slow steps between sits. Real needs, danger and family duties still outrank both; each ends with its stage.
+     * strolls a few slow steps between sits. The parting goal watches the departing child below needs and duties.
      */
     public static final class CourseGoal extends Goal {
         private final YukkuriEntity y;
@@ -523,7 +533,8 @@ public final class EmotionCourse {
             return f().goalPriority() == priority && y.isAlive() && !y.isNoAi() && !y.isPassenger() && !y.isPanicking()
                     && !y.isInWaterOrBubble() && !y.isOnFire() && !y.isCommandPlaying() && !y.operations().active()
                     && !y.life().hasUrgentNeed() && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.body().dying()
-                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y);
+                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)
+                    && (priority != PARTING_PRIORITY || !y.duty().claimed());
         }
         @Override public boolean canUse() { return wanted(); }
         @Override public boolean canContinueToUse() { return wanted(); }
@@ -569,7 +580,10 @@ public final class EmotionCourse {
                 if (watched.result != null && yawError(y, point) <= 3) watched.reportEnd(y, point);
             }
             if (f.kind == Kind.PARTING) {
-                face(y, place(f));
+                var level = (ServerLevel)y.level();
+                if (f.about != null && level.getEntity(f.about) instanceof YukkuriEntity child && child.isAlive())
+                    face(y, child.position());
+                else face(y, place(f));
                 return;
             }
             if (ticks == 1 && f.kind == Kind.RAGE && f.about != null && y.level() instanceof ServerLevel level

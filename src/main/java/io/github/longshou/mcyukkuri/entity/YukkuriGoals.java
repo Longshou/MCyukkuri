@@ -164,6 +164,9 @@ final class YukkuriGoals {
         goalSelector.addGoal(6, basicBinding(PresentationGoals.PLAY, new PlaygroundGoal()));
         owner.createWintering();
         goalSelector.addGoal(7, basicBinding(PresentationGoals.WINTERING, owner.wintering()));
+        // Needs and duties can take the flags from a parent that is watching its child leave.
+        goalSelector.addGoal(EmotionCourse.PARTING_PRIORITY, basicBinding(PresentationGoals.EMOTION,
+                new EmotionCourse.CourseGoal(owner, EmotionCourse.PARTING_PRIORITY)));
         roaming = new RoamingGoal(owner);
         goalSelector.addGoal(7, basicBinding(PresentationGoals.ROAMING, roaming));
         goalSelector.addGoal(8, landGoal(new LookAtPlayerGoal(owner, Player.class, 6.0F), true));

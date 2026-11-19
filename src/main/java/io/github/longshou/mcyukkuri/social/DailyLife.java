@@ -149,6 +149,8 @@ public final class DailyLife {
     private static boolean available(YukkuriEntity e) { return available(e, false); }
     private static boolean available(YukkuriEntity e, boolean continuing) {
         return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi()
+                && (!e.mind().feeling().prefersPartingGaze() || e.life().constipated()
+                    || continuing && e.dailyLife().inContact() && e.dailyLife().nuzzlePartnerId() >= 0)
                 // A session under way survives the step down a bank it is walking to (a friend in a hollow); a new one starts on the ground.
                 && (continuing || e.onGround()) && !e.isPassenger()
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.pet().lessons().directed()
