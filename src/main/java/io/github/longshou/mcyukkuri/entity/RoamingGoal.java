@@ -48,6 +48,7 @@ public final class RoamingGoal extends Goal {
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
+                && animal.reactionAction() != YukkuriAction.JOY_JUMP
                 && !BehaviorContinuity.emergency(animal) && outsideFoundShelter(animal.blockPosition());
     }
     private boolean outsideFoundShelter(BlockPos pos) { return ShelterBlock.foundInterior(animal.level(), pos) == null; }
