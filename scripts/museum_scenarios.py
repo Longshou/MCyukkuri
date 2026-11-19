@@ -2948,9 +2948,9 @@ add('shop_browse', 'shop', '自由逛店：进展栏、乱动被警告、稀有�
     reads=[('读店铺登记', 'yukkuri human shop list'), ('读在售子油橙', f'yukkuri status {BOOTH.format("chen", 0)} raw')])
 _pick_stock = (('pick_friendly', 14, 20, 85), ('pick_bold', 17, 85, 20))
 add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订后头顶标记', '在店里挑：潜行右键看卡片、了解、预订后头顶标记',
-    '进临街展栏，空主手右键或潜行右键在售的子油灵梦。比较两只的“了解”弹窗：一只怕生又亲人，另一只大胆又慢热。'
+    '进临街展栏，空主手右键或潜行右键在售的子油灵梦。比较两只的“了解”弹窗：一只胆小又体贴，另一只大胆又好奇。'
     '预订一只，观察头顶的金色标记，另一位玩家看见的是灰色。再次打开卡片取消预订，标记随即消失，定金留在店里。'
-    '也可在预订后购买，等店员装进运输篮时付余款。鬼威惨的库存评语见 SP-05。',
+    '也可在预订后购买，等店员装进运输篮时付余款。放出买下的灵梦，用放大镜核对性格词。鬼威惨的库存评语见 SP-05。',
     '建筑几秒，进临街展栏后即可选购', ['yukkuri human build shop ~8 ~ ~17 south',
         *[command for name, x, boldness, friendliness in _pick_stock for command in (
             f'yukkuri human shop stock {SHOP_STAFF} reimu ~{x} ~2 ~12',
@@ -2962,9 +2962,9 @@ add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订
             set_status(name, 'personality.intelligence', 50),
             set_status(name, 'personality.self_control', 50),
         )],
-    ], give=['minecraft:emerald 16'], env=DAY, vantage=(8, 21, 180, 0),
-    reads=[('读怕生亲人的灵梦', f'yukkuri status {sel("pick_friendly")} raw'),
-           ('读大胆慢热的灵梦', f'yukkuri status {sel("pick_bold")} raw')])
+    ], give=['minecraft:emerald 16', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(8, 21, 180, 0),
+    reads=[('读胆小体贴的灵梦', f'yukkuri status {sel("pick_friendly")} raw'),
+           ('读大胆好奇的灵梦', f'yukkuri status {sel("pick_bold")} raw')])
 _fetch_stock = (('fetch_corner', 'chen', 200000), ('fetch_nest', 'reimu', 148000), ('fetch_yard', 'marisa', 65000))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
     '先在「实用」页选“会员”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的子油灵梦和后院远处的魔理沙。'

@@ -4,10 +4,13 @@ import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.Identity;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
 
 /** Shared status card built from already-synced values. */
 public final class StatusStrip {
@@ -46,19 +49,15 @@ public final class StatusStrip {
             return Component.translatable("magnifier.mcyukkuri.header", displayedName, stage);
         }
 
-        Readout withMind(Component mind) {
-            return new Readout(name, stage, identityKey, Component.empty().append(status).append("\n").append(mind));
-        }
-
         private int chipWidth(Font font, Component identity) {
             return identityKey.isEmpty() ? 0 : font.width(identity) + 10;
         }
 
         Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h) {
-            return renderCard(g, font, x, y, w, h, Component.empty());
+            return renderCard(g, font, x, y, w, h, font.split(status, w - 2 * PAD));
         }
 
-        private Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h, Component outlook) {
+        private Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h, List<FormattedCharSequence> lines) {
             GuiKit.statusCard(g, x, y, w, h);
             GuiKit.icon(g, x + 5, y + 1, GuiKit.ICON_STATUS);
             Component identity = Component.translatable(identityKey);
@@ -67,26 +66,31 @@ public final class StatusStrip {
             Component shortName = GuiKit.ellipsize(font, name, titleRoom - font.width(title(Component.empty())));
             g.drawString(font, title(shortName), x + TEXT_LEFT, y + 6, GuiKit.INK, false);
             if (chip > 0) GuiKit.identityChip(g, font, identity, identityKey, x + w - PAD - chip, y + 4, chip);
-            var lines = font.split(status, w - 2 * PAD);
             for (int line = 0; line < lines.size(); line++) {
                 g.drawString(font, lines.get(line), x + PAD, y + STATUS_TOP + line * font.lineHeight, GuiKit.INK, false);
             }
-            if (!outlook.getString().isEmpty())
-                g.drawString(font, outlook, x + PAD, y + STATUS_TOP + lines.size() * font.lineHeight, GuiKit.INK, false);
             return shortName == name ? null : title(name);
         }
 
-        void renderHud(GuiGraphics g, Font font, int bottom, String outlookId) {
-            Component outlook = outlookId.isEmpty() ? Component.empty() : Component.translatable("magnifier.mcyukkuri.outlook." + outlookId);
+        HudLayout measureHud(Font font, int maxWidth, String outlookId, Component... details) {
+            var rows = new ArrayList<Component>();
+            rows.add(status);
+            rows.addAll(List.of(details));
+            if (!outlookId.isEmpty()) rows.add(Component.translatable("magnifier.mcyukkuri.outlook." + outlookId));
             int chip = chipWidth(font, Component.translatable(identityKey));
-            int w = Math.min(g.guiWidth() - 16,
-                    Math.max(Math.max(font.width(status), font.width(outlook)) + 2 * PAD,
-                            font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
-            int h = STATUS_TOP + font.split(status, w - 2 * PAD).size() * font.lineHeight + 4;
-            if (!outlookId.isEmpty()) h += font.lineHeight;
-            renderCard(g, font, (g.guiWidth() - w) / 2, bottom - h, w, h, outlook);
+            int textWidth = rows.stream().mapToInt(font::width).max().orElseThrow() + 2 * PAD;
+            int w = Math.min(maxWidth, Math.max(textWidth, font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
+            var lines = rows.stream().flatMap(row -> font.split(row, w - 2 * PAD).stream()).toList();
+            return new HudLayout(w, STATUS_TOP + lines.size() * font.lineHeight + 4, lines);
+        }
+
+        void renderHud(GuiGraphics g, Font font, int bottom, String outlookId, Component... details) {
+            var card = measureHud(font, g.guiWidth() - 16, outlookId, details);
+            renderCard(g, font, (g.guiWidth() - card.width()) / 2, bottom - card.height(), card.width(), card.height(), card.lines());
         }
     }
+
+    record HudLayout(int width, int height, List<FormattedCharSequence> lines) {}
 
     private static Component stage(YukkuriView view) {
         String id = switch (FamilyLife.Stage.values()[view.lifeStage()]) {

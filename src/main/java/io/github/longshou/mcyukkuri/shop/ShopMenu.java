@@ -13,7 +13,7 @@ import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+import io.github.longshou.mcyukkuri.social.CharacterWords;
 import java.util.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -211,14 +211,8 @@ public final class ShopMenu extends AbstractContainerMenu {
     // helpers
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
     static int stage(YukkuriEntity y) { return y.family().subadult() ? 3 : y.family().stage().ordinal(); }
-    private static int[] tags(YukkuriEntity y) {
-        var temperament = y.life().personality().temperament(); int[] out = {15, 15}; int n = 0;
-        int[] found = {temperament.is(Gate.CLINGY) ? 1 : 0, temperament.is(Gate.SELFISH) ? 2 : 0,
-                temperament.is(Gate.RESTLESS) ? 3 : 0, temperament.is(Gate.STOIC) ? 4 : 0,
-                temperament.is(Gate.TIMID) ? 5 : 0, temperament.is(Gate.BOLD) ? 6 : 0};
-        for (int t : found) if (t != 0 && n < 2) out[n++] = t;
-        if (n == 0) out[0] = 0;
-        return out;
+    private static int tags(YukkuriEntity y) {
+        return ShopTags.pack(CharacterWords.select(y.life().personality().temperament()));
     }
     private int flags(YukkuriEntity y) {
         var b = y.pet(); var d = shop == null ? null : shop.deposit(y.getUUID());
@@ -286,16 +280,16 @@ public final class ShopMenu extends AbstractContainerMenu {
         put(Data.STOCK_COUNT, roster.size()); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
         if (tab == LIVE) {
             for (int i = 0; i < PAGE_ROWS; i++) {
-                var y = listed(page * PAGE_ROWS + i); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE; var t = tags(y);
+                var y = listed(page * PAGE_ROWS + i); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE;
                 put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y)); put(k + LiveRow.SKILLS, y.skills().domesticMask());
-                put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION, Math.round(y.life().nutrition()));
+                put(k + LiveRow.TAGS, tags(y)); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION, Math.round(y.life().nutrition()));
                 var d = shop.deposit(y.getUUID());
                 put(k + LiveRow.PRICE, d != null && d.buyer().equals(viewer.getUUID()) ? d.price() - d.paid() : ShopPricing.price(shop.kind, y));
                 put(k + LiveRow.ENTITY_LOW, (short) y.getId()); put(k + LiveRow.ENTITY_HIGH, (short) (y.getId() >>> 16));
                 put(k + LiveRow.DAYS, Math.max(0, CommodityLife.forSaleDays(y))); put(k + LiveRow.MOOD, mood(y));
             }
         } else if (tab == BUYBACK || tab == CONSULT) {
-            var y = subject(); if (y == null) return; var b = y.pet(); var t = tags(y);
+            var y = subject(); if (y == null) return; var b = y.pet();
             put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y)); put(Data.SUBJECT_SKILLS, y.skills().domesticMask());
             var families = FamilyData.get(level);
             put(Data.SUBJECT_MOTHER_BADGE, families.badgeAcquired(y.family().mother())); put(Data.SUBJECT_FATHER_BADGE, families.badgeAcquired(y.family().father()));
@@ -310,7 +304,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(shop.kind, y) : ShopPricing.price(shop.kind, y));
             put(Data.BUYBACK_RATE, ShopPricing.rate(y)); put(Data.BUYBACK_PENALTY, ShopPricing.penalty(y));
             if (tab == BUYBACK) { String why = ShopTrade.sellRefusal(level, shop, y, viewer); put(Data.SELL_STATE, why == null ? 0 : SELL_STATES.indexOf(why)); }
-            put(Data.SUBJECT_TAGS, t[0] | t[1] << 4); put(Data.TITLE, b.title());
+            put(Data.SUBJECT_TAGS, tags(y)); put(Data.TITLE, b.title());
         }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }

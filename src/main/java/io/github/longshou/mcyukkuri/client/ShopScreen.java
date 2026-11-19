@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.shop.ShopKind;
 import io.github.longshou.mcyukkuri.shop.ShopMembership;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
+import io.github.longshou.mcyukkuri.shop.ShopTags;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.network.ShopRowPayload;
@@ -158,8 +159,9 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         return Component.translatable(I18n.exists("shop.mcyukkuri.sp." + id) ? "shop.mcyukkuri.sp." + id : "entity.mcyukkuri." + id);
     }
     private static MutableComponent tags(int packed) {
-        var c = Component.translatable("shop.mcyukkuri.tag." + (packed & 15)); int second = packed >> 4 & 15;
-        return second == 15 ? c : c.append(" / ").append(Component.translatable("shop.mcyukkuri.tag." + second));
+        var c = Component.translatable("shop.mcyukkuri.tag." + (packed & ShopTags.EMPTY));
+        int second = packed >> 4 & ShopTags.EMPTY;
+        return second == ShopTags.EMPTY ? c : c.append(" / ").append(Component.translatable("shop.mcyukkuri.tag." + second));
     }
     private static Component skills(int mask) {
         MutableComponent result = Component.empty(); boolean any = false;

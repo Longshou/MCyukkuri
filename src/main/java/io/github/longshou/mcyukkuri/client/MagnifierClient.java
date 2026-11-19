@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.CharacterWords;
 import java.util.Locale;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -116,12 +117,23 @@ public final class MagnifierClient {
                 mind.append(" · ").append(Component.translatable("magnifier.mcyukkuri.fear_of", name, fear.getInt(actor.toString())));
                 break;
             }
-            readout = readout.withMind(mind.append("\n").append(skills(mood.getCompound("skills"))));
+            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId(),
+                    character(mood.getIntArray("character")), mind, skills(mood.getCompound("skills")));
+        } else {
+            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
         }
-        readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
     }
 
     private static String decimal(float value) { return String.format(Locale.ROOT, "%.1f", value); }
+
+    private static Component character(int[] words) {
+        var text = Component.empty();
+        for (int i = 0; i < words.length; i++) {
+            if (i > 0) text.append(" · ");
+            text.append(Component.translatable(CharacterWords.byId(words[i]).translationKey()));
+        }
+        return text;
+    }
 
     private static Component skills(CompoundTag tag) {
         var marks = Component.empty();

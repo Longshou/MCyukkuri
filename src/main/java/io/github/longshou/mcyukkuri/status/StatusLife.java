@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile.Ecology;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.CharacterWords;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -61,6 +62,10 @@ public final class StatusLife {
             mood.putFloat("sweetness", entity.mind().sweetness());
             mood.putInt("filling", entity.mind().fillingSweetness());
             mood.put("skills", entity.skills().readout());
+            if (identity != Identity.STOCK) {
+                var words = CharacterWords.select(entity.life().personality().temperament());
+                mood.putIntArray("character", words.stream().mapToInt(CharacterWords::ordinal).toArray());
+            }
             var level = (ServerLevel) entity.level();
             var fear = new CompoundTag();
             var relations = YukkuriWorldData.get(level).relationsFrom(entity.getUUID());

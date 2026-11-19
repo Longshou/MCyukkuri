@@ -69,7 +69,7 @@ final class ShopInfoPanel {
             String note = SpeciesProfile.of(variant).dangerToYukkuri() ? "predator" : variant.assetId();
             body.add(Component.translatable("shop.mcyukkuri.about.note." + note));
         }
-        for (int hint : info.hints()) body.add(Component.translatable(prefix + ShopHint.values()[hint].key()));
+        for (int hint : info.hints()) body.add(Component.translatable(ShopHint.values()[hint].translationKey(info.oni())));
         var paragraphs = body.stream().map(text -> font.split(text, textWidth)).toList();
         int h = 2 * PAD + PORTRAIT + 32 + font.lineHeight
                 + paragraphs.stream().mapToInt(lines -> lines.size() * font.lineHeight + LINE_GAP).sum();
