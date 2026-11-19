@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 /** The two rules goals share the current walk. Each goal drives and stops only its own body. */
 final class Elopement {
     private static final int RETRY_TICKS = 24000;
+    private static final double DEPARTURE_STAND_DISTANCE = 24 + SurfaceApproach.ARRIVAL;
     private final YukkuriEntity body;
     private Walk walk;
     private long nextCheck;
@@ -79,12 +80,13 @@ final class Elopement {
                         bonds.affinity(body.getUUID(), y.getUUID()), bonds.affinity(y.getUUID(), body.getUUID()),
                         body.life().personality().trust(owner), body.pet().neglect())
                         && body.hasLineOfSight(y) && body.family().compatibleWith(y) && mobile(y) && !needsCare(y)
-                        && !y.duty().claimed() && FamilyData.get((ServerLevel) body.level()).canPair(body, y, true));
+                        && !y.duty().claimed() && y.canStartConscience()
+                        && FamilyData.get((ServerLevel) body.level()).canPair(body, y, true));
         candidates.sort(Comparator.comparingInt((YukkuriEntity y) -> bonds.affinity(body.getUUID(), y.getUUID())).reversed());
         for (var wild : candidates) {
             var wildStand = destination(wild, yard);
             if (wildStand == null) continue;
-            var petStand = SurfaceApproach.beside(body, wildStand, 2, at -> horizontalSq(at, yard) > 24 * 24
+            var petStand = SurfaceApproach.beside(body, wildStand, 2, at -> beyondYard(at, yard)
                     && horizontalSq(at, body.position()) > 4 * 4);
             if (petStand == null || lastFailure != null && lastFailure.equals(failure(wild, petStand, wildStand))) continue;
             nextCheck = now + 1200;
@@ -114,11 +116,14 @@ final class Elopement {
             toward = yard.add(direction.scale(28));
         }
         // Leave room for a second body beside the destination. The wild animal must travel there too.
-        return SurfaceApproach.beside(wild, toward, 2, at -> horizontalSq(at, yard) > 24 * 24
+        return SurfaceApproach.beside(wild, toward, 2, at -> beyondYard(at, yard)
                 && horizontalSq(at, wild.position()) > 4 * 4);
     }
 
     private static double horizontalSq(Vec3 a, Vec3 b) { return a.subtract(b).horizontalDistanceSqr(); }
+    private static boolean beyondYard(Vec3 stand, Vec3 yard) {
+        return horizontalSq(stand, yard) > DEPARTURE_STAND_DISTANCE * DEPARTURE_STAND_DISTANCE;
+    }
 
     private record Failure(UUID wild, BlockPos petStand, BlockPos wildStand, int route, int conditions) {}
     private Failure failure(YukkuriEntity wild, Vec3 petStand, Vec3 wildStand) {

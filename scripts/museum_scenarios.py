@@ -2742,7 +2742,7 @@ add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
         *(item for x in (-10, 2) for item in (
             block(x, 0, 3, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
             block(x, 0, -3, 'mcyukkuri:waterer{Water:8}'), block(x + 1, 0, -3, 'mcyukkuri:yukkuri_toilet'))),
-        yk('reimu', -10, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=5, boldness=95,
+        yk('reimu', -9, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=5, boldness=95,
            attachment=5, kin='PentUp:100f', extra='YukkuriPet:{Neglect:85,Obedience:-50}', **pair_ready()),
         yk('marisa', -8, 0, 'wild', label='野生魔理沙', uuid=uid('elope', 'wild'), kin='Recovery:12000', **pair_ready()),
         *own('pet'), f'yukkuri scenario badge {sel("pet")} bronze false', f'yukkuri scenario bond {sel("pet")} {sel("wild")}',
