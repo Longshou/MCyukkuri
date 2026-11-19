@@ -97,9 +97,13 @@ public final class FlightPlanner {
     public void retreatToward(Vec3 danger, Vec3 anchor) {
         double distance = body.position().distanceTo(anchor);
         if (distance < 1.5) return;
+        if (cornered(null)) return;
+        source = null;
+        plannedAt = body.level().getGameTime();
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         var path = fan(danger, Math.min(9, distance), direction, null, null);
-        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) SurfaceApproach.halt(body);
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) { noExit(); return; }
+        route = body.getNavigation().getPath();
     }
 
     private Path refuge(LivingEntity danger) {

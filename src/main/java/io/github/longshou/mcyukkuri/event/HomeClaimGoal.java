@@ -47,7 +47,8 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         if (!homing) return null;
         var claim = HomeClaim.of(entity);
         if (claim == null || !HomeClaim.away(entity, claim, true)) return null;
-        return claim.stage == HomeClaimData.Stage.RETREAT ? Behaviors.HOME_CLAIM_RETREAT : Behaviors.HOME_CLAIM_RETURN;
+        if (claim.stage != HomeClaimData.Stage.RETREAT) return Behaviors.HOME_CLAIM_RETURN;
+        return entity.status().reactions().threat().flight().cornered(null) ? Behaviors.THREAT_HIDE : Behaviors.HOME_CLAIM_RETREAT;
     }
 
     @Override public boolean canUse() {
@@ -137,6 +138,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
     @Override public void stop() {
         entity.motor().cancel(this,"home_claim_stopped");
         if (opening!=null && action!=null) endPane(entity.motor().last());
+        entity.status().reactions().threat().flight().forgetRoute();
         active=false; opening=null; action=null; crop=null; cropLook=0; homing=false; entity.getNavigation().stop();
     }
 }
