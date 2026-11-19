@@ -169,7 +169,7 @@ public final class SurfaceApproach {
     private static Vec3 top(YukkuriEntity actor, Vec3 near) {
         return top(actor.level(), actor, actor.getBbWidth(), near);
     }
-    private static Vec3 top(LevelReader level, Entity actor, double width, Vec3 near) {
+    public static Vec3 top(LevelReader level, Entity actor, double width, Vec3 near) {
         if(!level.hasChunkAt(BlockPos.containing(near)))return null;
         double half=width*.5-.005, top=Double.NEGATIVE_INFINITY;
         var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);

@@ -8,11 +8,12 @@ import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.NestResting;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 final class ShelterClearance {
     private record Proposal(List<BlockPos> footprint, Function<BlockPos, VoxelShape> shape) {
         boolean takes(BlockPos pos) {
-            return footprint.contains(pos) || footprint.contains(pos.below());
+            return HomeClearance.takes(footprint, pos, pos.below());
         }
 
         boolean crowds(AABB space) {
@@ -53,7 +54,7 @@ final class ShelterClearance {
                             || pos.getZ() < min.getZ() || pos.getZ() > max.getZ()) continue;
                     if (entity instanceof ShelterBlockEntity home && home.occupants() > 0 && blocks(level, build, home)) return false;
                     if (entity instanceof CareBlockEntity nest && nest.kind() == CareBlock.Kind.NEST && nest.resident() != null
-                            && nest.bed() != NestResting.LEDGE && blocks(level, build, nest)) return false;
+                            && blocks(level, build, nest)) return false;
                     if (entity instanceof HouseNestBlockEntity nest && !nest.destroyed() && build.takes(nest.entrance())) return false;
                 }
             }
@@ -75,31 +76,46 @@ final class ShelterClearance {
         // dryStand() also needs room for the resident's full body, potentially outside the bed or entrance block.
         var entry = Vec3.atBottomCenterOf(home.entrance());
         for (var id : home.residentIds()) {
-            if (build.crowds(standingBox(level, id, entry))) return true;
+            var body = standingBox(level.getEntity(id), entry);
+            if (build.crowds(body)) return true;
             var bed = home.bed(id);
-            if (bed != null && build.crowds(standingBox(level, id, Vec3.atBottomCenterOf(bed)))) return true;
+            if (bed != null) {
+                var atBed = body.move(Vec3.atBottomCenterOf(bed).subtract(entry));
+                if (build.crowds(atBed) || build.crowds(atBed.move(home.restOffset(id)))) return true;
+            }
         }
         return false;
     }
 
     private static boolean blocks(ServerLevel level, Proposal build, CareBlockEntity nest) {
-        var doorway = NestDoorway.shape(nest);
         var origin = nest.centre();
-        // The existing lip and the supported stands beyond it need to stay clear for each resident.
         for (var id : nest.residentIds()) {
-            var body = standingBox(level, id, origin);
+            var resident = level.getEntity(id);
+            var body = standingBox(resident, origin);
             double width = body.getXsize();
+            var rest = SurfaceApproach.top(level, resident, width, origin.add(nest.restOffset(id)));
+            if (rest != null && (build.takes(BlockPos.containing(rest)) || build.crowds(body.move(rest.subtract(origin))))) return true;
+            if (nest.bed() == NestResting.LEDGE) {
+                if (NestDoorway.openSide(nest.getBlockPos(),
+                        pos -> build.takes(pos) || build.crowds(body.move(Vec3.atBottomCenterOf(pos).subtract(origin)))) == null) continue;
+                // An unloaded resident has no selected side. Keep its possible entrances open until it returns.
+                if (!(resident instanceof YukkuriEntity y)) return true;
+                var stand = y.life().homeEntrance(nest.getBlockPos());
+                if (stand == null || build.takes(BlockPos.containing(stand)) || build.crowds(body.move(stand.subtract(origin)))) return true;
+                continue;
+            }
+            var doorway = NestDoorway.shape(nest);
             var opening = body.move(doorway.offset(0, doorway.outer()));
             var outer = body.move(doorway.offset(0, doorway.outer() + width * .5 + .05));
             var side = doorway.offset(doorway.opening(), 0);
-            if (build.crowds(opening.minmax(outer).minmax(outer.move(side)).minmax(outer.move(side.scale(-1))))
-                    || build.crowds(body)) return true;
+            // SurfaceApproach finds the supported top within half a block of the pad's ground height.
+            if (build.crowds(opening.minmax(outer.move(side)).minmax(outer.move(side.scale(-1))).inflate(0, .5, 0))) return true;
         }
         return false;
     }
 
-    private static AABB standingBox(ServerLevel level, UUID id, Vec3 feet) {
-        if (level.getEntity(id) instanceof YukkuriEntity resident) {
+    private static AABB standingBox(Entity resident, Vec3 feet) {
+        if (resident != null) {
             return resident.getBoundingBox().move(feet.subtract(resident.position()));
         }
         // The claim survives the resident unloading. Use the same standard adult as nest placement.

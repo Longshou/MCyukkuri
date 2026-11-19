@@ -8,6 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HomeClearanceTest {
+    @Test void aCollisionlessCoreStillTakesTheSurveyedCellOrItsSupport() {
+        var footprint = List.of(64);
+        assertTrue(HomeClearance.takes(footprint, 64, 63));
+        assertTrue(HomeClearance.takes(footprint, 65, 64));
+        assertFalse(HomeClearance.takes(footprint, 63, 62));
+    }
+
     @Test void rejectsNestFloorAcrossTheEntrance() {
         var entrance = new Box(.1, 0, .1, .9, .6, .9);
         var bedding = new Box(0, 0, 0, 1, .03125, 1);

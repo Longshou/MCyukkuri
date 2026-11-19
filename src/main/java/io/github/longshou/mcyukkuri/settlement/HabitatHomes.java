@@ -383,13 +383,17 @@ final class HabitatHomes {
         }
         var sites = new ArrayList<SurfaceSite>();
         for (var pos : BlockPos.betweenClosed(around.offset(-SURFACE_SEARCH, -1, -SURFACE_SEARCH), around.offset(SURFACE_SEARCH, 1, SURFACE_SEARCH))) {
-            if (!refusedSurfaceSites.contains(pos) && entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceFootprint(level(), pos))
+            if (!refusedSurfaceSites.contains(pos) && entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceGround(level(), pos))
                 sites.add(new SurfaceSite(pos.immutable(), ShelterPlacement.surfaceCovered(level(), pos)));
         }
         // Under cover first (a canopy or an overhang over the whole bed), then the nearest open patch.
         sites.sort(Comparator.comparing((SurfaceSite site) -> !site.covered()).thenComparingDouble(site -> around.distSqr(site.pos())));
-        for (var site : sites.stream().limit(8).toList()) {
+        int routes = 0;
+        for (var site : sites) {
+            if (routes == 8) break;
             var pos = site.pos();
+            if (!ShelterPlacement.surfacePreservesHomes(level(), pos)) continue;
+            routes++;
             if (!entity.life().reachable(pos.south(2), false)) continue;
             if (o.carrying().isEmpty() && !o.findSurfaceBedding(pos)) {
                 if (o.surfaceBeddingDeferred()) { o.retrySearch(); return Result.DEFERRED; }

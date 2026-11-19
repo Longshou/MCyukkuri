@@ -28,6 +28,15 @@ import java.util.function.Predicate;
 /** Physical nest openings, independent of residency. Routes end outside; a straight step crosses the low lip. */
 public final class NestDoorway {
     private NestDoorway() {}
+
+    /** A nest without a lip is approached from a covered stand on any open side. */
+    public static Vec3 openSide(BlockPos nest, Predicate<BlockPos> accepts) {
+        for (int radius = 1; radius <= 2; radius++) for (var direction : Direction.Plane.HORIZONTAL) {
+            var pos = nest.relative(direction, radius);
+            if (accepts.test(pos)) return Vec3.atBottomCenterOf(pos);
+        }
+        return null;
+    }
     /**
      * The opening in the nest's own frame, measured from {@link CareBlockEntity#centre()}: depth runs toward the entrance
      * ({@code facing}), lateral along its edge. {@code inner}: where the level floor ends toward the entrance; {@code outer}:

@@ -49,9 +49,11 @@ public final class ShelterPlacement {
         // Granary hollows, plazas, nurseries and the waste pit of a planned site are never a home, however well they survey.
         if(plan.kind==ShelterBlock.Kind.BURROW&&SettlementData.get(level).reserved(plan.center))return false;
         // A home is a recognised area: a roofed cavity with a way in and room enough for a nest and a store.
+        var entry=plan.center.relative(plan.facing);
         if(plan.kind==ShelterBlock.Kind.BURROW) {
             var site=NaturalShelter.survey(level,plan.center,plan.facing);
             if(site==null||site.beds().size()<Burrowing.MIN_CELLS)return false;
+            entry=site.entrance();
         }
         var footprint=positions(plan.center,plan.kind,plan.facing);
         for(var pos:footprint) {
@@ -62,7 +64,6 @@ public final class ShelterPlacement {
             if(pos.getY()==plan.center.getY() && (!level.getFluidState(pos.below()).isEmpty()
                     ||!level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)))return false;
         }
-        var entry=plan.entrance(level);
         if(!level.hasChunkAt(entry)||!level.getFluidState(entry).isEmpty()||!level.getBlockState(entry).getCollisionShape(level,entry).isEmpty()
                 ||!level.getBlockState(entry.below()).isFaceSturdy(level,entry.below(),Direction.UP))return false;
         if (!ShelterClearance.preserves(level, footprint, pos -> plan.kind == ShelterBlock.Kind.BURROW ? Shapes.empty() : shell(plan, pos)))
@@ -106,17 +107,25 @@ public final class ShelterPlacement {
         return new Placed(core,before);
     }
     /** A dry, level patch with standing room at the low southern entrance. */
-    static boolean surfaceFootprint(ServerLevel level, BlockPos origin) {
+    static boolean surfaceGround(ServerLevel level, BlockPos origin) {
         for (var cell : BlockPos.betweenClosed(origin, origin.offset(1, 0, 2))) {
             if (!NaturalShelter.stand(level, cell) || !level.getBlockState(cell).isAir() || !level.getBlockState(cell.above()).isAir()
                     || SettlementData.get(level).reserved(cell)) return false;
         }
+        return true;
+    }
+
+    static boolean surfacePreservesHomes(ServerLevel level, BlockPos origin) {
         var state = ModBlocks.LARGE_WILD_NEST.get().defaultBlockState();
         var footprint = List.of(origin, origin.east(), origin.south(), origin.south().east());
         return ShelterClearance.preserves(level, footprint, pos -> {
             int part = pos.getX() - origin.getX() + 2 * (pos.getZ() - origin.getZ());
             return state.setValue(LargeNestBlock.PART, part).getCollisionShape(level, pos);
         });
+    }
+
+    static boolean surfaceFootprint(ServerLevel level, BlockPos origin) {
+        return surfaceGround(level, origin) && surfacePreservesHomes(level, origin);
     }
 
     /** Something solid or leafy overhead of every cell of the 2x2 bed (a canopy, an overhang), as the rest check reads cover. */
