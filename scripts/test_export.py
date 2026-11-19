@@ -239,6 +239,11 @@ class ExportTests(unittest.TestCase):
         self.assertTrue(check_body(pipeline.ROOT, 'remilia', 'composed', data, clip, idle))
         clip['tracks'][1]['keys'] = [[0, 1, 0, 0]]
         self.assertFalse(check_body(pipeline.ROOT, 'remilia', 'small', data, clip, idle))
+        clip['tracks'][1]['keys'] = [[0, 2, 0, 0]]
+        self.assertFalse(check_body(pipeline.ROOT, 'remilia', 'at_limit', data, clip, idle))
+        clip['tracks'][0]['keys'] = [[0, 0, 90, 10]]
+        clip['tracks'][1]['keys'] = [[0, 10, 0, 0]]
+        self.assertFalse(check_body(pipeline.ROOT, 'remilia', 'root_yaw', data, clip, idle))
 
     def test_contact_gate_reports_all_failures_and_skips_missing_context(self):
         import argparse

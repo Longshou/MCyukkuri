@@ -86,7 +86,7 @@ def check_body(root, model, name, data, clip, idle):
     failures = []
     for t in sorted(times):
         value = tilt(t)
-        if value > limit:
+        if value > limit and not math.isclose(value, limit, rel_tol=0, abs_tol=1e-9):
             lean = '; '.join(f'{data["bones"][bone]["name"]} pitch={rotation(bone, t)[0]:g}, '
                              f'yaw={rotation(bone, t)[1]:g}, roll={rotation(bone, t)[2]:g}' for bone in spine)
             failures.append(f'{name}/{model} t={t:g}s tilt={value:.2f} deg > {limit:g} ({lean})')
