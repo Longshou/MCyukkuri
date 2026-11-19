@@ -7114,6 +7114,41 @@ def _struck_speech(window):
             return f'{actor} at {tick} chose {stance} but its speech was {lines}'
 
 
+def _home_greedy_retreat(window, trace):
+    if problem := _struck_speech(window):
+        return problem
+    answers = re.findall(r'\[home-claim\][^\n]* uuid=(\S+) t=(\d+) [^\n]* driven off member=\1 answer=CURSE', window)
+    if len(answers) != 1:
+        return f'Expected one curse from the claimant, found {answers}'
+    actor, start = answers[0]
+    start = int(start)
+    stage = re.search(rf'\[home-claim\][^\n]* HOLD -> RETREAT [^\n]*site=[^\n]* BlockPos'
+                      rf'\{{x=(-?\d+), y=(-?\d+), z=(-?\d+)\}} [^\n]*members=\[{actor}\]', window)
+    end = re.search(rf'\[home-claim\] t=(\d+)[^\n]* ended claim=[^\n]*members=\[{actor}\][^\n]* result=driven_off', window)
+    if not stage or not end:
+        return 'Missing start or end of the same claimant’s retreat'
+    end = int(end[1])
+    frames = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] == actor and row['t'] >= start:
+            frames[row['t']] = row['st']
+    motions = Path(__file__).parents[1] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
+    stamp = json.loads(motions.read_text(encoding='utf-8'))['models']['marisa']['clips']['stamp']
+    stamps = [t for t, frame in frames.items() if frame['animation'] == 'stamp']
+    if stamps != list(range(start, start + round(stamp['duration'] * 20))) or len({tuple(frames[t]['p']) for t in stamps}) != 1:
+        return 'The claimant must show one complete stationary stamp'
+    if not any(start + len(stamps) <= t < end and frame['animation'] == 'waddle' and frame['face'] == 'angry'
+               for t, frame in frames.items()):
+        return 'The stamp must hand over to an angry waddle during the retreat'
+    x, y, z = map(int, stage.groups())
+    if end not in frames or math.dist(frames[end]['p'], (x + .5, y, z + .5)) < 16:
+        return 'The claimant ended the retreat before reaching the 16-block exit radius'
+    flight = [frame['p'] for t, frame in frames.items() if t > end and frame['behavior'] == 'flee']
+    if not flight or not any(math.dist(flight[0], pos) > .5 for pos in flight):
+        return 'The claimant did not move during panic'
+
+
 # In headless smoke, stand an unrelated peer near the home as a visitor would. The residents still run ordinary AI.
 for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000, 1, -2)):
     _intruder = uid(_sid, 'territory_intruder')
@@ -7124,19 +7159,21 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
     if _sid == 'home_greedy':
         _spec['ticks'] = 1510
         _spec['commands'] += [
-            (698, block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower,open=true]')),
-            (698, block(5, 1, 8, 'minecraft:oak_door[facing=south,half=upper,open=true]')),
-            (700, f'execute at {sel("greedy")} positioned ~ ~ ~-1 run yukkuri scenario tool_operator enter'),
+            # Keep the closed doorway case in the player scene and give the timing check a clear exit.
+            (698, box(4, 0, 8, 6, 1, 8, 'minecraft:air')),
+            (700, 'execute positioned ~8 ~ ~2.65 run yukkuri scenario tool_operator enter'),
             (702, f'yukkuri scenario care_click {sel("greedy")} decline_event'),
             (1310, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator move'),
             (1312, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
+            # Brief ignition exercises panic even when the blow selects a defiant stance.
+            (1365, f'data merge entity {sel("greedy")} {{Fire:4s}}'),
             (1415, 'yukkuri scenario tool_operator leave'),
         ]
         _spec['expect'] += [r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
                             r'\[home-claim\][^\n]* curse stamp spoken=true',
                             r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
         _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
-        _spec['verify'] = _struck_speech
+        _spec.update(verify=_home_greedy_retreat, verify_trace=True)
 
 _warm_parent = _uuid_text('indep_near', 'warm_parent')
 _smoke('indep_near', 7200, [
