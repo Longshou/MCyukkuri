@@ -4179,9 +4179,11 @@ HARSH = 15                     # Low friendliness; fear and recognition remain s
 
 # ---- injuries and remains (open ground: nothing to eat, nothing to hide behind)
 add('body_mold', 'body', '油霉1／3／6／8级与去霉药', '油霉1／3／6／8级与去霉药',
-    '四只灵梦分别为油霉 1／3／6／8 级，对应四档灰绿菌落；先绕行看侧背面，再用去霉药核对真实阶段回退及原位菌落缩小。终末个体会自然进入濒死，完整皮面不应凭中枢损伤冒出创洞',
+    '四只灵梦分别为油霉 1／3／6／8 级，对应四档灰绿菌落；一级的认得油霉，惊叫后发抖，三级的初次遇到只摇身喊痒。先绕行看侧背面，再用去霉药核对真实阶段回退及原位菌落缩小。终末个体会自然进入濒死，完整皮面不应凭中枢损伤冒出创洞',
     '立即看外观；终末约 20 秒后濒死', [
-        *[yk('reimu', -6 + 4 * i, 0, f'mold{i}', lead=i == 0, label=f'油霉{level}', **pair_ready())
+        *[yk('reimu', -6 + 4 * i, 0, f'mold{i}', lead=i == 0, label=f'油霉{level}',
+             uuid=uid('body_mold', f'mold{i}'), skills={'mold_lore': 2} if i == 0 else None,
+             extra='YukkuriSkills:{Assessed:["mold_lore"]}' if i == 1 else '', **pair_ready())
           for i, level in enumerate((1, 3, 6, 8))],
         *[set_status(f'mold{i}', 'health.mold', level) for i, level in enumerate((1, 3, 6, 8))]],
     give=['mcyukkuri:mold_remover 8'], env=DAY, vantage=(0, 10),
@@ -4678,7 +4680,8 @@ add('hatless_scorn', 'headwear', '没头饰：被鄙视、被凶的欺负', '没
         *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-3, 4) for z in range(-3, 4) if abs(x) == 3 or abs(z) == 3),
         box(-1, 0, -5, 1, 0, -5, 'minecraft:oak_planks'),
         # Friendly to bystanders, still bold enough to defend itself after a hit.
-        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='胆大失饰者', friendliness=70, boldness=95, self_control=15, **pair_ready()),
+        yk('reimu', 0, 0, 'bare', uuid=uid('hatless_scorn', 'bare'), yaw=-90, lead=True, accessory=False, label='胆大失饰者',
+           friendliness=70, boldness=95, self_control=15, **pair_ready()),
         yk('marisa', 2, -2, 'a', yaw=90, **pair_ready()), yk('reimu', 2, 2, 'b', yaw=90, **pair_ready()),
         yk('marisa', 2, 0, 'b1', uuid=uid('hatless_scorn', 'b1'), yaw=90, label='凶悍欺负者', friendliness=0, boldness=80, self_control=0, **pair_ready()),
         yk('chen', -2, 1, 'c', yaw=-90, label='高智力', **pair_ready()), set_status('c', 'personality.intelligence', 90)],
@@ -6811,6 +6814,14 @@ def _smoke(sid, ticks, expect, forbid=(), readout=()):
     scene.smoke = dict(ticks=ticks, expect=list(expect), forbid=[r'\[body\][^\n]* invariant\b', *forbid], readout=list(readout))
 
 
+# The terminal specimen begins dying after 400 body ticks.
+_smoke('body_mold', 360, [
+    rf'uuid={_uuid_text("body_mold", "mold0")} [^\n]*line event=mold_self_aware\b',
+    rf'uuid={_uuid_text("body_mold", "mold0")} [^\n]*course begun kind=terror strength=0\.3 length=\d+ about=null\b',
+    rf'uuid={_uuid_text("body_mold", "mold0")} [^\n]*course goal behavior kind=terror stage=(?:onset|peak) behavior=shaken\b',
+    rf'uuid={_uuid_text("body_mold", "mold1")} [^\n]*line event=mold_itch\b',
+], forbid=[rf'uuid={_uuid_text("body_mold", "mold1")} [^\n]*course (?:begun|renewed) kind=terror\b'])
+
 _LICK = [r'\[comfort\][^\n]* approach started', r'\[comfort\][^\n]* mouth contact started']
 _smoke('hurt', 1800, _LICK)
 _smoke('kindness_adoption', 720, [
@@ -7573,7 +7584,8 @@ next(s for s in S if s.id == 'learned_fire').smoke['commands'] = [
     (125, f'execute at {sel("unburnt")} run setblock ~2 ~ ~ minecraft:campfire'),
 ]
 _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
-                                 rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target='])
+                                 rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target=',
+                                 rf'uuid={_uuid_text("hatless_scorn", "bare")} [^\n]*course begun kind=rage strength=0\.35\b'])
 _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[contempt\][^\n]* scorn target='])
 _fed = _uuid_text('feed_wild', 'street_hungry')
 _empty = _uuid_text('feed_wild', 'street_nofood')

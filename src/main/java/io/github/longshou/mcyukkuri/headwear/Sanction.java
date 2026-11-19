@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.Comparator;
@@ -303,6 +304,8 @@ public final class Sanction extends Goal {
         target.mind().add(3, "drive_off_attempt");
         PunishmentReaction.peer(target, entity, "drive_off", false);
         GameplayLog.event(entity, "sanction", "drive off attempted target={} response={}", target.getUUID(), resisted ? "counterattack" : "flee");
+        // A short huff about the accused, below the anger of being scorned.
+        entity.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, target.getUUID(), entity.blockPosition());
         finish(!resisted);
     }
     @Override public void stop() {

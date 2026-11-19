@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.mind.Naming;
@@ -577,6 +578,8 @@ public final class BodyLife {
         if (knows) entity.showReaction("horrified", "", 80);
         else entity.showReaction(YukkuriAction.SHAKE, "squeezed_frown", "", 60);
         entity.speakCue(knows ? "mold_self_aware" : "mold_itch");
+        // A slow danger weighs half as much as a blow from a non-predator (.6).
+        if (knows) entity.mind().feeling().begin(EmotionCourse.Kind.TERROR, .3f, null, entity.blockPosition());
         noticedMoldTier = tier;
     }
 
