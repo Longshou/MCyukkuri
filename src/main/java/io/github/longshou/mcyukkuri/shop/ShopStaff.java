@@ -36,6 +36,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,7 +54,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 /**
  * Shop staff work (docs/FEATURES.md, 宠物店). The counter clerk stays on the sales counter while the other staff take
  * the most pressing piece of work that the shop's real state calls for, in this order: an animal waiting for its buyer, a companion waiting to be
- * sold, a sick or injured animal, a hungry dependent youngster, a bowl running low, a basket waiting in the arrivals barrel or on the floor, an animal marked to ship out, a toilet or floor waste to
+ * sold, a sick or injured animal, a hungry dependent youngster, a bowl or waterer running low, a basket waiting in the arrivals barrel or on the floor, an animal marked to ship out, a toilet or floor waste to
  * clean. Staff choose work from the site's saved orders, bowls, toilets, barrels and baskets.
  * A job walks to its target (through the shop's iron staff doors), works at hand's reach (the same reach test admits and executes), and if it
  * holds something carries it to where it belongs: the counter, a free nest, the arrivals barrel, the waste barrel. A job is transient; what it
@@ -60,7 +62,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  * finished leaves the target to others for a while and anything held where it can be found again.
  */
 public final class ShopStaff {
-    enum Kind { COUNTER, REFUSE, BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, FEED_YOUNG, CLEAN, STREET_SCRAP }
+    enum Kind { COUNTER, REFUSE, BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, FEED_YOUNG, CLEAN, STREET_SCRAP, WATER }
     private enum Phase { GO, WORK, CARRY }
     private static final class Job {
         final UUID staff, shop; final Kind kind;
@@ -113,6 +115,8 @@ public final class ShopStaff {
     private static final int MAX_APPROACHES = 8;
     /** A bowl holding fewer portions than this is refilled with one serving of regular grain. */
     private static final int BOWL_LOW = 2, SERVING = 4;
+    /** A waterer gets a full bucket when fewer than two portions remain. */
+    private static final int WATER_LOW = 2;
     /** Hand's reach from the staff member's feet to the target's centre, with a clear line from its eyes. */
     private static final double REACH = 2.5, SPEED = .9;
     private static final double COUNTER_REACH = 1.5;
@@ -134,22 +138,28 @@ public final class ShopStaff {
 
     /** Every 20 ticks per staff member: the restock clock, waiting orders that cannot go on, and new work when free. */
     public static void tick(HumanNpc staff) {
-        if (!(staff.level() instanceof ServerLevel level) || staff.isNoAi()) return;
+        if (!(staff.level() instanceof ServerLevel level)) return;
+        if (staff.isNoAi()) { cancelWater(staff, "no_ai"); return; }
         if (!active(staff)) staff.returnUnusedDose();
         var shop = ShopRegistry.get(level).of(staff);
-        if (shop == null) return;
+        if (shop == null) { cancelWater(staff, "shop_missing"); return; }
         if (active(staff)) {
             ShopRestock.reconcileReservations(level, shop);
             return;
         }
         ShopRestock.tick(level, shop);
         reviewOrders(level, shop);
-        if (staff.hurtTime > 0 || staff.isTrading()) return;
+        if (staff.hurtTime > 0 || staff.isTrading()) {
+            putAwayWaterBucket(staff, staff.isTrading() ? "trade" : "hurt");
+            return;
+        }
         long now = level.getGameTime();
         if (UNREACHABLE.size() > 64) UNREACHABLE.prune(now);
         var clerks = shop.loadedStaff(level);
         var counter = counter(clerks, shop, now);
+        if (staff.resting() || counter == staff && clerks.size() > 1) putAwayWaterBucket(staff, "off_duty");
         if (counter == staff && !atCounter(staff.position(), Vec3.atBottomCenterOf(shop.counter()))) {
+            putAwayWaterBucket(staff, "counter");
             var job = new Job(staff.getUUID(), shop.id, Kind.COUNTER);
             job.target = shop.counter();
             start(staff, job, Vec3.atBottomCenterOf(job.target));
@@ -242,6 +252,14 @@ public final class ShopStaff {
                 var job = new Job(staff.getUUID(), shop.id, Kind.FEED); job.target = bowl.getBlockPos();
                 start(staff, job, bowl.getBlockPos().getCenter()); return;
             }
+        if (shop.kind == ShopKind.PET) {
+            var waterer = lowestWaterer(blocks, now);
+            if (waterer != null) {
+                staff.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.WATER_BUCKET));
+                startWater(staff, shop, waterer);
+                return;
+            }
+        }
         var dock = dockBasket(level, shop);
         if (dock >= 0 && free(shop.dock(), now) && destination(level, shop, ((Container) level.getBlockEntity(shop.dock())).getItem(dock), staff.position()) != null) {
             var job = new Job(staff.getUUID(), shop.id, Kind.SETTLE); job.target = shop.dock();
@@ -347,9 +365,44 @@ public final class ShopStaff {
                 job.animal != null ? job.animal : job.target, GameplayLog.at(toward), job.token);
     }
 
-    /** A staff member holding a basket or waste with no job carries it on to where it belongs. */
+    private static CareBlockEntity lowestWaterer(List<BlockEntity> blocks, long now) {
+        return blocks.stream().filter(CareBlockEntity.class::isInstance).map(CareBlockEntity.class::cast)
+                .filter(care -> care.kind() == CareBlock.Kind.WATERER && care.water() < WATER_LOW && free(care.getBlockPos(), now))
+                .min(Comparator.comparingInt(CareBlockEntity::water)).orElse(null);
+    }
+
+    private static void startWater(HumanNpc staff, ShopRegistry.Entry shop, CareBlockEntity waterer) {
+        var job = new Job(staff.getUUID(), shop.id, Kind.WATER);
+        job.target = waterer.getBlockPos();
+        start(staff, job, job.target.getCenter());
+    }
+
+    private static boolean holdsTapBucket(HumanNpc staff) {
+        return staff.getMainHandItem().is(Items.WATER_BUCKET) && staff.job() == HumanNpc.Job.SHOPKEEPER
+                && ShopKind.forStaff(staff) == ShopKind.PET;
+    }
+
+    private static void putAwayWaterBucket(HumanNpc staff, String reason) {
+        if (!holdsTapBucket(staff)) return;
+        staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        GameplayLog.event(staff, "npc-care", "action=stow_water_bucket reason={}", reason);
+    }
+
+    static void cancelWater(HumanNpc staff, String reason) {
+        var job = JOBS.get(staff.getUUID());
+        if (job != null && job.kind == Kind.WATER) end(staff, job, reason);
+        else putAwayWaterBucket(staff, reason);
+    }
+
+    /** Reconnect saved hand equipment to an eligible job when staff load. */
     private static boolean resume(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop) {
         var hand = staff.getMainHandItem();
+        if (holdsTapBucket(staff)) {
+            var waterer = shop.closed() ? null : lowestWaterer(blockEntities(level, shop), level.getGameTime());
+            if (waterer == null) putAwayWaterBucket(staff, "no_waterer");
+            else startWater(staff, shop, waterer);
+            return waterer != null;
+        }
         if (scrap(hand) && shop.kind == ShopKind.ONI && shop.trash() != null) {
             var to = streetBin(level, shop, hand);
             if (to == null) to = shop.trash();
@@ -408,7 +461,7 @@ public final class ShopStaff {
         var shop = ShopRegistry.get(level).shop(job.shop);
         if (shop == null || shop.closed()) { end(staff, job, "shop_closed"); return; }
         if (staff.isTrading() || staff.hurtTime > 0) {
-            if (job.hatchApproach != null || job.approach != null || !staff.getNavigation().isDone()) interrupt(staff);
+            if (job.kind == Kind.WATER || job.hatchApproach != null || job.approach != null || !staff.getNavigation().isDone()) interrupt(staff);
             return;
         }
         if (++job.leg > LEG) { fail(level, staff, shop, job, "leg_timeout"); return; }
@@ -436,10 +489,12 @@ public final class ShopStaff {
         }
     }
 
-    /** Keep the job and anything in hand while a player opens the menu or another goal briefly takes movement. */
+    /** Pause a job when another goal takes movement. The tap bucket is stowed until staff take up a refill again. */
     public static void interrupt(HumanNpc staff) {
         var job = JOBS.get(staff.getUUID());
         if (job == null) return;
+        String reason = staff.isTrading() ? "trade" : staff.hurtTime > 0 ? "hurt" : "goal";
+        if (job.kind == Kind.WATER) { end(staff, job, reason); return; }
         staff.getNavigation().stop();
         clearApproach(job);
         if (job.hatchApproach != null) {
@@ -448,7 +503,7 @@ public final class ShopStaff {
         }
         // The leg budget and the work timer stop with the walk: the pause is recorded, the job goes on once the menu closes or the flinch passes.
         GameplayLog.limited(staff, "shop", "job_paused", 100, "action=job result=paused kind={} phase={} reason={} leg_ticks={}",
-                job.kind, job.phase, staff.isTrading() ? "trade" : staff.hurtTime > 0 ? "hurt" : "goal", job.leg);
+                job.kind, job.phase, reason, job.leg);
     }
 
     private static YukkuriEntity animal(ServerLevel level, Job job) {
@@ -494,6 +549,12 @@ public final class ShopStaff {
             case FEED -> {
                 if (!(level.getBlockEntity(job.target) instanceof CareBlockEntity bowl) || bowl.foodCount() >= BOWL_LOW || staff.careFood() <= 0) return "fed";
             }
+            case WATER -> {
+                if (!level.hasChunkAt(job.target)) return "target_unloaded";
+                if (!(level.getBlockEntity(job.target) instanceof CareBlockEntity waterer)
+                        || waterer.kind() != CareBlock.Kind.WATERER) return "waterer_gone";
+                if (waterer.water() >= WATER_LOW) return "already_watered";
+            }
             case FEED_YOUNG -> {
                 if (staff.careFood() == 0 || !hungryYoung(shop, animal(level, job))) return "care_changed";
             }
@@ -536,7 +597,7 @@ public final class ShopStaff {
             if (!staff.reserveDose(y, job.dose)) { fail(level, staff, shop, job, "dose_unavailable"); return; }
             y.life().wakeForService();
             y.getLookControl().setLookAt(staff, 30, 30);
-        } else {
+        } else if (job.kind != Kind.WATER) {
             staff.swing(job.reachIn ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
         }
         if (y != null && job.kind != Kind.TREAT && job.kind != Kind.FEED_YOUNG) {
@@ -547,6 +608,16 @@ public final class ShopStaff {
         GameplayLog.event(staff, "shop", "action=job result=reach kind={} reach={} distance={} call_ticks={} target={} staff_at={} target_at={}", job.kind,
                 job.reachIn ? "through" : "hand", staff.position().distanceTo(point), callTicks,
                 y != null ? y.getUUID() : job.target, GameplayLog.at(staff.position()), GameplayLog.at(point));
+        if (job.kind == Kind.WATER) {
+            var waterer = (CareBlockEntity) level.getBlockEntity(job.target);
+            int before = waterer.water();
+            waterer.refillWater(true);
+            level.playSound(null, job.target, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1, 1);
+            staff.swing(InteractionHand.MAIN_HAND);
+            GameplayLog.event(staff, "npc-care", "action=refill_water target={} water={} -> {}",
+                    job.target.toShortString(), before, waterer.water());
+            end(staff, job, "watered");
+        }
     }
 
     private static boolean hatchFetch(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, YukkuriEntity y) {
@@ -854,7 +925,7 @@ public final class ShopStaff {
                 if (job.kind == Kind.BUY && obstruction instanceof ServerPlayer player) makeWay(staff, player);
             }
             // A feeder asks the stock occupying the next pace before it spends a full stall waiting.
-            if (obstruction != null || job.kind == Kind.FEED && job.leg % 5 == 0) {
+            if (obstruction != null || tendsSupply(job) && job.leg % 5 == 0) {
                 var inWay = obstruction != null ? obstruction : blocker(level, staff, toward);
                 if (inWay instanceof YukkuriEntity animal && !animal.getUUID().equals(job.animal)
                         && ShopTrade.stockOf(animal, shop.id) && YukkuriGroundNavigation.giveWay(animal, staff, toward))
@@ -882,7 +953,7 @@ public final class ShopStaff {
             if (!standAt.test(stand)) continue;
             var occupants = level.getEntitiesOfClass(LivingEntity.class, box, e -> e != staff && e.isAlive() && !e.isSpectator());
             if (occupants.isEmpty()) free.add(cell.immutable());
-            else if (job.kind == Kind.FEED && occupants.stream().allMatch(e -> e instanceof YukkuriEntity animal && ShopTrade.stockOf(animal, shop.id)))
+            else if (tendsSupply(job) && occupants.stream().allMatch(e -> e instanceof YukkuriEntity animal && ShopTrade.stockOf(animal, shop.id)))
                 occupiedByStock.add(cell.immutable());
             else if (job.kind == Kind.BUY) occupants.stream().filter(ServerPlayer.class::isInstance).map(ServerPlayer.class::cast)
                     .findFirst().ifPresent(player -> makeWay(staff, player));
@@ -900,12 +971,14 @@ public final class ShopStaff {
                         job.kind, job.phase, obstruction.getUUID(), job.approach.toShortString());
             return;
         }
-        if (obstruction != null || job.kind == Kind.FEED)
+        if (obstruction != null || tendsSupply(job))
             GameplayLog.limited(staff, "shop", "approach_blocked." + job.kind, 100,
                     "action=job result=no_route kind={} phase={} blocker={} free_stands={} stock_stands={}",
                     job.kind, job.phase, obstruction == null ? null : obstruction.getUUID(), free.size(), occupiedByStock.size());
         fail(level, staff, shop, job, "unreachable");
     }
+
+    private static boolean tendsSupply(Job job) { return job.kind == Kind.FEED || job.kind == Kind.WATER; }
 
     private static void clearApproach(Job job) {
         job.approach = null;
@@ -1014,6 +1087,7 @@ public final class ShopStaff {
         clearHatch(staff, job);
         staff.getNavigation().stop();
         if (job.kind == Kind.TREAT) staff.returnUnusedDose();
+        if (job.kind == Kind.WATER) putAwayWaterBucket(staff, reason);
         var hand = staff.getMainHandItem();
         if (hand.is(ModItems.CARRIER.get()) && CarrierContents.tokens(hand).isEmpty() && staff.level() instanceof ServerLevel level) {
             var shop = ShopRegistry.get(level).shop(job.shop);
@@ -1027,6 +1101,7 @@ public final class ShopStaff {
     public static void staffDied(HumanNpc staff, ServerLevel level) {
         var job = JOBS.remove(staff.getUUID());
         clearHatch(staff, job);
+        putAwayWaterBucket(staff, "death");
         var hand = staff.getMainHandItem();
         UUID token = CarrierContents.singleToken(hand);
         if (hand.isEmpty()) return;
@@ -1042,6 +1117,7 @@ public final class ShopStaff {
     public static void leaving(net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof HumanNpc staff && event.getLevel() instanceof ServerLevel) {
             clearHatch(staff, JOBS.remove(staff.getUUID()));
+            putAwayWaterBucket(staff, "unload");
         }
         if (event.getEntity() instanceof ServerPlayer player) ShopAccess.leaving(player);
     }

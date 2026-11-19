@@ -198,6 +198,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var registry = ShopRegistry.get(server.serverLevel());
         var shop = registry.of(npc);
         if (shop == null) { npc.endTrade(p); return; }
+        ShopStaff.cancelWater(npc, "trade");
         ShopRestock.reconcileReservations(server.serverLevel(), shop);
         registry.payRefunds(server);
         server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ShopMenu(id, inv, npc.getId()), npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
