@@ -45,6 +45,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.UUID;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -528,13 +529,21 @@ public final class Reactions {
     }
 
     static Vec3 escapeStand(YukkuriEntity body, Vec3 dangerAt, Entity danger, int distance, Set<BlockPos> tried) {
+        return escapeStand(body, dangerAt, danger, distance, tried, at -> true);
+    }
+
+    public static Vec3 escapeStand(YukkuriEntity body, Entity danger, int distance, Predicate<Vec3> acceptable) {
+        return escapeStand(body, danger.position(), danger, distance, Set.of(), acceptable);
+    }
+
+    private static Vec3 escapeStand(YukkuriEntity body, Vec3 dangerAt, Entity danger, int distance, Set<BlockPos> tried, Predicate<Vec3> acceptable) {
         var obstacle = danger==null?null:danger.getBoundingBox();
         double currentDistance = body.position().distanceTo(dangerAt);
         var away = body.status().reactions().threat().flight().destination(dangerAt, distance);
         if (away != null) {
             var stand = SurfaceApproach.floor(body, away);
             if (stand != null && body.distanceToSqr(stand) >= 1 && !tried.contains(BlockPos.containing(stand))
-                    && stand.distanceTo(dangerAt) > currentDistance
+                    && stand.distanceTo(dangerAt) > currentDistance && acceptable.test(stand)
                     && SurfaceApproach.canRetreatTo(body, stand, obstacle)) return stand;
         }
 
@@ -548,7 +557,7 @@ public final class Reactions {
             // Resolve the actual support from the current sole height, including slabs and paths.
             var stand = SurfaceApproach.floor(body, new Vec3(cell.getX() + .5, body.getY(), cell.getZ() + .5));
             if (stand == null || tried.contains(BlockPos.containing(stand)) || body.distanceToSqr(stand) < 1
-                    || !TravelRange.babyDestination(body, BlockPos.containing(stand))) continue;
+                    || !TravelRange.babyDestination(body, BlockPos.containing(stand)) || !acceptable.test(stand)) continue;
             var eye = stand.add(0, body.getEyeHeight(), 0);
             boolean screened = danger!=null&&level.clip(new ClipContext(danger.getEyePosition(), eye,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, danger)).getType() != HitResult.Type.MISS;

@@ -89,6 +89,8 @@ public final class Conscience {
 
     void reacted() { reactAfter = pet.level().getGameTime() + 1200; }
 
+    boolean responseDue() { return pet.level().getGameTime() >= reactAfter; }
+
     boolean confesses() { return pet.pet().obedience() >= 60 && pet.life().personality().temperament().is(Gate.CLEVER); }
 
     public void react() {

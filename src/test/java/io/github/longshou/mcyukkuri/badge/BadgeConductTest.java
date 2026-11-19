@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.badge;
 
 import static org.junit.jupiter.api.Assertions.*;
+import io.github.longshou.mcyukkuri.pet.rules.ArcStyle;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -12,7 +13,7 @@ class BadgeConductTest {
     private final BadgeConduct registry = new BadgeConduct();
     private final BadgeConduct.Parent mother = parent(), father = parent();
     private final UUID brood = UUID.randomUUID();
-    private static BadgeConduct.Parent parent() { return new BadgeConduct.Parent(UUID.randomUUID(), UUID.randomUUID()); }
+    private static BadgeConduct.Parent parent() { return new BadgeConduct.Parent(UUID.randomUUID(), UUID.randomUUID(), ArcStyle.HIDE); }
 
     @Test void aPaidArrangementUsesTheFamilyTransactionWithoutOpeningAVoluntaryCase() throws IOException {
         // Check the compiled call-site boundary without loading Minecraft or substituting a mock shop.
@@ -27,10 +28,10 @@ class BadgeConductTest {
     }
 
     @Test void permitCoversItsLastTickAndOnlyRegisteredParentsNeedOne() {
-        var wild = new BadgeConduct.Parent(father.id(), null);
-        assertFalse(registry.open(brood, mother, 20, wild, -1, 20));
-        assertFalse(registry.open(brood, mother, 20, father, 20, 20));
-        assertTrue(registry.open(brood, mother, 20, wild, -1, 21));
+        var wild = new BadgeConduct.Parent(father.id(), null, null);
+        assertFalse(registry.open(brood, mother, 20, wild, -1, 20, false));
+        assertFalse(registry.open(brood, mother, 20, father, 20, 20, false));
+        assertTrue(registry.open(brood, mother, 20, wild, -1, 21, false));
         var entry = registry.cases(wild.id()).getFirst();
         assertFalse(registry.disqualified(mother.id()));
         entry.discover(new BadgeConduct.Verdict("pregnancy", 4, mother.owner()));
@@ -39,9 +40,9 @@ class BadgeConductTest {
     }
 
     @Test void oneJudgmentIncludesAbsentFatherAndPreservesOtherHouseholdContributions() {
-        registry.open(brood, mother, 20, father, 19, 20);
+        registry.open(brood, mother, 20, father, 19, 20, false);
         var otherBrood = UUID.randomUUID();
-        registry.open(otherBrood, mother, -1, father, -1, 20);
+        registry.open(otherBrood, mother, -1, father, -1, 20, false);
         var cases = registry.cases(mother.id());
         assertEquals(2, cases.size());
         var credits = Map.of(father.id(), 3, UUID.randomUUID(), 2);
@@ -61,7 +62,7 @@ class BadgeConductTest {
     }
 
     @Test void anUnseenBroodKeepsBothGradesUntilItsEvidenceIsGone() {
-        assertTrue(registry.open(brood, mother, -1, father, -1, 1));
+        assertTrue(registry.open(brood, mother, -1, father, -1, 1, false));
         var motherCredits = Map.of(mother.id(), 2);
         var fatherCredits = Map.of(father.id(), 1);
         var entry = registry.cases(father.id()).getFirst();

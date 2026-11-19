@@ -77437,6 +77437,66 @@
     "variant": "plain"
   },
   {
+    "id": "confess",
+    "key": "dialogue.mcyukkuri.original.confess",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "confess"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "sukkiri_lie",
+    "key": "dialogue.mcyukkuri.original.sukkiri_lie",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "sukkiri_lie"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "sukkiri_naive",
+    "key": "dialogue.mcyukkuri.original.sukkiri_naive",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "sukkiri_naive"
+    ],
+    "ticks": 180,
+    "sound": ""
+  },
+  {
+    "id": "sukkiri_defiant",
+    "key": "dialogue.mcyukkuri.original.sukkiri_defiant",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "sukkiri_defiant"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "partner_blame",
+    "key": "dialogue.mcyukkuri.original.partner_blame",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "partner_blame"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
     "id": "glass_wait.parent",
     "key": "dialogue.mcyukkuri.original.glass_wait.parent",
     "origin": "project-original",

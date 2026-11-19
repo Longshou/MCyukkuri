@@ -54,6 +54,14 @@ public final class GlassSight {
         return observer.hasLineOfSight(target) || glassBetween(observer, observer.getEyePosition(), target) != null;
     }
 
+    /** The same one-layer glass exception for a proposed eye position. */
+    public static boolean clearTo(LivingEntity observer, Vec3 end) {
+        var eye = observer.getEyePosition();
+        var hit = observer.level().clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
+        return hit.getType() == HitResult.Type.MISS || glass(observer.level(), hit)
+                && beyond(observer, eye, end, ClipContext.Block.COLLIDER, hit, true).getType() == HitResult.Type.MISS;
+    }
+
     /** The nearest supported floor point on the body's side of {@code glass}, reachable by the body, from which {@code other}
      *  is still seen through that same glass cell; null when there is none. */
     public static Vec3 stand(YukkuriEntity body, Entity other, BlockPos glass) {

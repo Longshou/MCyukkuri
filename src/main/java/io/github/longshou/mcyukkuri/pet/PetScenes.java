@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -37,6 +38,14 @@ public final class PetScenes {
     public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
         act(y, action, face, event, ticks);
+    }
+
+    /** Report only intelligible words actually delivered, including when a speaker can only babble. */
+    public static boolean say(YukkuriEntity y, YukkuriAction action, String face, String event, Entity look) {
+        if (look != null) y.getLookControl().setLookAt(look, 30, 30);
+        if (!y.showReaction(action, face, "", action.durationTicks()) || !y.speakCue(event, null, 2)) return false;
+        var line = NativeDialogue.byKey(y.getDialogueKey());
+        return line != null && line.events().contains(event);
     }
 
     /** Action + face + line in one go; a looping action is ended after ticks, and the animal keeps glancing at look (may be null) meanwhile. */

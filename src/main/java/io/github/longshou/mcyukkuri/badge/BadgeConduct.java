@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.badge;
 
+import io.github.longshou.mcyukkuri.pet.rules.ArcStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 /** Cases are indexed under both biological parents. Only parents registered at conception have an owner on file. */
 public final class BadgeConduct {
-    public record Parent(UUID id, UUID owner) {}
+    public record Parent(UUID id, UUID owner, ArcStyle style) {}
     public record Verdict(String cause, long day, UUID judge) {}
     public static final class Case {
         public final UUID brood;
@@ -35,8 +36,8 @@ public final class BadgeConduct {
     private final Map<UUID, Case> broods = new HashMap<>();
     private final Map<UUID, List<Case>> byParent = new HashMap<>();
 
-    public boolean open(UUID brood, Parent mother, long motherPermit, Parent father, long fatherPermit, long now) {
-        if ((mother.owner == null || motherPermit >= now) && (father.owner == null || fatherPermit >= now)) return false;
+    public boolean open(UUID brood, Parent mother, long motherPermit, Parent father, long fatherPermit, long now, boolean brokeHouseRule) {
+        if (!brokeHouseRule && (mother.owner == null || motherPermit >= now) && (father.owner == null || fatherPermit >= now)) return false;
         add(new Case(brood, mother, father, null));
         return true;
     }

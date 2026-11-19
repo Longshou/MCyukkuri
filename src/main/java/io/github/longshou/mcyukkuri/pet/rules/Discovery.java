@@ -18,6 +18,19 @@ public final class Discovery {
     private List<BadgeConduct.Case> open = List.of();
     private List<HumanNpc> staff = List.of();
 
+    List<BadgeConduct.Case> open() { return open; }
+
+    public boolean leavesNest(YukkuriEntity mother, FamilyData.Brood brood) {
+        if (open.isEmpty() || !mother.pet().conscience().responseDue() || !mother.pet().isPet()) return false;
+        for (var entry : open) {
+            if (!entry.brood.equals(brood.id) || entry.verdict() != null) continue;
+            var style = entry.parents.getFirst().style();
+            return (style == ArcStyle.HIDE || style == ArcStyle.CONFESS && mother.pet().obedience() >= 80)
+                    && HumanSight.watching(mother);
+        }
+        return false;
+    }
+
     public void tick(YukkuriEntity parent) {
         var level = (ServerLevel) parent.level();
         if (parent.tickCount % 20 == 0) {

@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct.Parent;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.pet.rules.ArcStyle;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
@@ -88,15 +90,21 @@ public final class PetPrivileges extends SavedData {
     }
 
     private static Parent parent(YukkuriEntity y) {
-        return new Parent(y.getUUID(), y.pet().isPet() && y.pet().grade() != BadgeGrade.NONE ? y.pet().owner() : null);
+        var style = y.pet().isPet() ? ArcStyle.choose(y.life().personality().temperament(), y.pet().obedience()) : null;
+        return new Parent(y.getUUID(), style != null && y.pet().grade() != BadgeGrade.NONE ? y.pet().owner() : null, style);
     }
     public static void voluntaryBrood(UUID brood, YukkuriEntity mother, YukkuriEntity father) {
         var data = get((ServerLevel) mother.level());
         var a = parent(mother);
         var b = parent(father);
-        if (data.conduct.open(brood, a, mother.pet().permitUntil(b.id()), b, father.pet().permitUntil(a.id()), mother.level().getGameTime())) {
+        long now = mother.level().getGameTime(), am = mother.pet().permitUntil(b.id()), bf = father.pet().permitUntil(a.id());
+        boolean brokeHouseRule = am < now && mother.pet().conscience().binds(HouseRule.NO_SUKKIRI)
+                || bf < now && father.pet().conscience().binds(HouseRule.NO_SUKKIRI);
+        if (data.conduct.open(brood, a, am, b, bf, now, brokeHouseRule)) {
             data.setDirty();
             GameplayLog.event(mother, "badge", "pending brood={} mother={} father={}", brood, a, b);
+            if (a.style() != null) GameplayLog.event(mother, "rules", "arc style={} brood={}", a.style(), brood);
+            if (b.style() != null) GameplayLog.event(father, "rules", "arc style={} brood={}", b.style(), brood);
         }
     }
     public static void expire(ServerTickEvent.Post event) {
@@ -123,10 +131,13 @@ public final class PetPrivileges extends SavedData {
         var tag = new CompoundTag();
         tag.putUUID("Pet", parent.id());
         if (parent.owner() != null) tag.putUUID("Owner", parent.owner());
+        if (parent.style() != null) tag.putString("Response", parent.style().name());
         return tag;
     }
     private static Parent loadParent(CompoundTag tag) {
-        return new Parent(tag.getUUID("Pet"), tag.hasUUID("Owner") ? tag.getUUID("Owner") : null);
+        var owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+        var style = tag.contains("Response") ? ArcStyle.valueOf(tag.getString("Response")) : owner != null ? ArcStyle.HIDE : null;
+        return new Parent(tag.getUUID("Pet"), owner, style);
     }
 
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

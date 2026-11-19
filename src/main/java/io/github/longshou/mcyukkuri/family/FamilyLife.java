@@ -1264,7 +1264,7 @@ public final class FamilyLife {
         var pregnancy=brood();
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()
-                &&!entity.duty().holds(Kind.EXAM)) { task=Task.BROOD;taskTicks=0;return true; }
+                &&!entity.duty().holds(Kind.EXAM)&&!entity.pet().discovery().leavesNest(entity,pregnancy)) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
             var foster = fosterParent();
             if (foster != null && !ParentCarry.awaitsCarrier(entity)) {
@@ -1667,7 +1667,7 @@ public final class FamilyLife {
         if(task==Task.COMFORT)return comfortTicks>0;
         // Early nest tending yields to a booked exam and resumes when the duty ends.
         if(task==Task.BROOD){var pregnancy=brood();return pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&!birth.active()
-                &&!entity.duty().holds(Kind.EXAM);}
+                &&!entity.duty().holds(Kind.EXAM)&&!entity.pet().discovery().leavesNest(entity,pregnancy);}
         if((task==Task.FOLLOW||task==Task.SEARCH||task==Task.STAY_HOME)&&ParentCarry.awaitsCarrier(entity)) {
             GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry task={} ticks={}",task,taskTicks);
             return false;
