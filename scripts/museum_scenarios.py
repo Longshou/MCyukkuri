@@ -651,10 +651,14 @@ add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理
         yk('marisa', 0, 0, 'vagrant', yaw=180, lead=True, **pair_ready()),
         'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 6, 180),
     reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')],
-    # The mound is in reach: it digs there and never settles for a grass nest in the open.
-    smoke=dict(ticks=3000, forbid=[r'\[settlement\][^\n]* surface nest (begin|built)'],
+    # Give the digger the day to finish, then let the normal nighttime sleep drive test the bed it claimed.
+    smoke=dict(ticks=3000, commands=[(2100, 'time set midnight')],
+               forbid=[r'\[settlement\][^\n]* surface nest (begin|built)',
+                       r'\[habitat\][^\n]* dig end doorway=[^\n]*outcome=claim_refused'],
                expect=[r'\[habitat\][^\n]* dig begin mouth=',
-                       r'\[habitat\][^\n]* dig end doorway=[^\n]*(outcome=claimed|claimed=true)']))
+                       r'\[habitat\][^\n]* dig end doorway=[^\n]*(outcome=claimed|claimed=true)',
+                       r'\[habitat\] marisa #\d+ uuid=(\S+)[^\n]* home chosen [^\n]*bed=(BlockPos\{[^}]+\})'
+                       r'[\s\S]*?\[sleep\] marisa #\d+ uuid=\1 [^\n]*begin source=life occupancy=INSIDE_SUPPORTED bed=\2 ']))
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
 add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',

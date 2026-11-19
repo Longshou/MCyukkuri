@@ -42,6 +42,22 @@ public final class WallYield {
         double middle = (separation + ownReach - peerReach) * .5;
         return new Face(x, z, (float)Math.max(0, Math.min(near, middle) - 1.0 / 1024), low, high);
     }
+
+    @FunctionalInterface public interface SideSupport { boolean below(double x, double z, double bodyTop); }
+
+    /** A face can press loose parts sideways when it is beside the body and reaches down to it, possibly across a block seam. */
+    public static boolean pressesSide(double x, double z, double nearX, double nearZ, double low, double bodyTop,
+                                      SideSupport support) {
+        return (x != nearX || z != nearZ) && (low < bodyTop || support.below(nearX, nearZ, bodyTop));
+    }
+
+    /** Does this box reach body height at the face's nearest point? */
+    public static boolean supportsSide(double x, double z, double bodyTop,
+                                       double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return minY < bodyTop && maxY >= bodyTop && x >= minX - 1e-4 && x <= maxX + 1e-4
+                && z >= minZ - 1e-4 && z <= maxZ + 1e-4;
+    }
+
     /** The posed, unyielded position of one model vertex (model units). */
     @FunctionalInterface public interface Skinner { void skin(int index, Vector3f target); }
 

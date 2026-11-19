@@ -1,11 +1,16 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
+import io.github.longshou.mcyukkuri.pose.WallYield;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Block collision boxes relative to the bedding plane. The sole must be covered even between its corners. */
 public final class BedSpace {
-    public record Box(double x0,double y0,double z0,double x1,double y1,double z1) {}
+    public record Box(double x0,double y0,double z0,double x1,double y1,double z1) {
+        boolean supportsSide(double x,double z,double bodyTop) {
+            return WallYield.supportsSide(x,z,bodyTop,x0,y0,z0,x1,y1,z1);
+        }
+    }
     private record Rect(double x0,double z0,double x1,double z1) {
         void subtract(Box b,List<Rect> remainder) {
             double left=Math.max(x0,b.x0), right=Math.min(x1,b.x1);
@@ -30,8 +35,10 @@ public final class BedSpace {
             if(b.y1<=1e-7)continue;
             if(b.y0<height && b.x0<x+r && b.x1>x-r && b.z0<z+r && b.z1>z-r)return false;
             if(b.y0<top && b.y1>brim){
-                double dx=x-Math.clamp(x,b.x0,b.x1), dz=z-Math.clamp(z,b.z0,b.z1);
-                if(dx*dx+dz*dz<reach*reach)return false;
+                double nearX=Math.clamp(x,b.x0,b.x1), nearZ=Math.clamp(z,b.z0,b.z1);
+                double dx=x-nearX, dz=z-nearZ;
+                if(dx*dx+dz*dz<reach*reach && !WallYield.pressesSide(x,z,nearX,nearZ,b.y0,height,
+                        (px,pz,bodyTop)->boxes.stream().anyMatch(wall->wall.supportsSide(px,pz,bodyTop))))return false;
             }
         }
         return unsupported.isEmpty();

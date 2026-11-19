@@ -110,7 +110,7 @@ final class WallClearance {
             // A shape over the body axis is a floor or ceiling, and an overhead box (carton roof, burrow ceiling,
             // tabletop) only forms a side face where a wall below it actually blocks the body. Side faces use the nearest
             // point on the shape, giving a continuous separating plane around the outside of a corner.
-            if (distance <= 0 || distance >= reach || minY >= bodyTop && !wallBelow(px, pz, bodyTop)) continue;
+            if (distance >= reach || !WallYield.pressesSide(feet.x, feet.z, px, pz, minY, bodyTop, WallClearance::wallBelow)) continue;
             faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
                     (float)(minY - feet.y), (float)(maxY - feet.y)));
         }
@@ -187,8 +187,8 @@ final class WallClearance {
 
     private static boolean wallBelow(double x, double z, double bodyTop) {
         for (int i = 0; i < boxCount; i += 6)
-            if (boxes[i + 1] < bodyTop && boxes[i + 4] >= bodyTop && x >= boxes[i] - 1e-4 && x <= boxes[i + 3] + 1e-4
-                    && z >= boxes[i + 2] - 1e-4 && z <= boxes[i + 5] + 1e-4) return true;
+            if (WallYield.supportsSide(x, z, bodyTop, boxes[i], boxes[i + 1], boxes[i + 2],
+                    boxes[i + 3], boxes[i + 4], boxes[i + 5])) return true;
         return false;
     }
 

@@ -62,7 +62,7 @@ public final class BedContainer implements Container {
         return new FloorShape.RoundedRect(half,Math.min(half,bed.corner()+NestResting.RIM_PRESS));
     }
 
-    /** Test the actual sleeper and worn brim against collision at the proposed feet. */
+    /** Test floor support, the body and overhead headwear clearance at the proposed feet. Side walls press the brim. */
     public boolean standsInside(double x,double z){
         float width=body.getBbWidth();
         if(OccupancyMath.classify(x,z,floorY,Occupancy.foot(width),floor,floorY,rimY,true)!=OccupancyMath.Result.INSIDE_SUPPORTED)return false;
