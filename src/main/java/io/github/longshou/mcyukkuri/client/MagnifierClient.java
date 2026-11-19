@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.status.Identity;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -13,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
@@ -32,6 +34,8 @@ public final class MagnifierClient {
     private static final double REACH = 12.0;
     private static final double AIM_ASSIST = 0.12; // Allow a narrow margin around a small body.
     private static final int ITEM_NAME_INSET = 59, ITEM_NAME_NO_HEALTH_SHIFT = 14, ITEM_NAME_GAP = 5;
+    private static final Ability[] ABILITIES = Ability.values();
+    private static final String[] SKILL_MARKS = {"", "·", "✓", "★"};
     private static float previousZoom;
     private static float zoom;
 
@@ -112,12 +116,31 @@ public final class MagnifierClient {
                 mind.append(" · ").append(Component.translatable("magnifier.mcyukkuri.fear_of", name, fear.getInt(actor.toString())));
                 break;
             }
-            readout = readout.withMind(mind);
+            readout = readout.withMind(mind.append("\n").append(skills(mood.getCompound("skills"))));
         }
         readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
     }
 
     private static String decimal(float value) { return String.format(Locale.ROOT, "%.1f", value); }
+
+    private static Component skills(CompoundTag tag) {
+        var marks = Component.empty();
+        byte[] grades = tag.getByteArray("g");
+        int cap = tag.getInt("cap");
+        boolean found = false;
+        for (int i = 0; i < grades.length; i++) {
+            Ability ability = ABILITIES[i];
+            int grade = grades[i] & 7;
+            if (ability == Ability.COUNTING) grade = cap >= 8 ? 3 : cap >= 5 ? 2 : cap >= 3 ? 1 : 0;
+            if (grade == 0) continue;
+            if (found) marks.append(" ");
+            found = true;
+            marks.append(Component.translatable(ability.translationKey())).append(SKILL_MARKS[grade]);
+            if ((grades[i] & Ability.READOUT_PROGRESS) != 0) marks.append("↑");
+        }
+        return Component.translatable("magnifier.mcyukkuri.skills",
+                found ? marks : Component.translatable("magnifier.mcyukkuri.skills.none"));
+    }
 
     private static YukkuriView pick(LocalPlayer player, Camera camera) {
         Vec3 eye = camera.getPosition();

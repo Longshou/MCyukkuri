@@ -60,6 +60,7 @@ public final class StatusLife {
             mood.putFloat("unease", entity.mind().unease());
             mood.putFloat("sweetness", entity.mind().sweetness());
             mood.putInt("filling", entity.mind().fillingSweetness());
+            mood.put("skills", entity.skills().readout());
             var level = (ServerLevel) entity.level();
             var fear = new CompoundTag();
             var relations = YukkuriWorldData.get(level).relationsFrom(entity.getUUID());

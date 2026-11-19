@@ -176,10 +176,9 @@ public final class PetCare {
     }
     private ServerLevel level() { return (ServerLevel) animal.level(); }
 
-    // habit praise: after the pet used its bowl, toilet or bed on its own, a short window where gentle care teaches manners
+    // After the pet uses its bowl or toilet, its owner has a short window to praise it.
     public boolean habitWindow() { return habitLeft > 0; }
-    /** PetLife.routineCompleted: 0 bowl, 1 toilet, 2 bed. Opens the praise window when the owner is watching. */
-    public void habit(int kind) {
+    public void habit() {
         if (animal.level().isClientSide || !animal.isAlive() || !animal.pet().isPet() || habitLeft > 0 || animal.pet().lessons().awaitingFeedback()) return;
         rollDay();
         if (habits >= HABITS_PER_DAY) return;
@@ -223,7 +222,7 @@ public final class PetCare {
         }
     }
 
-    // "ask how it is" (CareAction.ASK): say the open request again, otherwise tell the mood; what it can explain grows with its lessons
+    // "Ask how it is" repeats an open request or lets the pet describe its mood.
     public boolean canAsk() {
         return !animal.life().isSleeping() && !animal.isPanicking() && animal.life().mealTicks()==0
                 && animal.level().getGameTime() >= askUntil;

@@ -168,7 +168,7 @@ public final class PetLife {
     /** Existing life completions route here after the facility actually worked. */
     public void routineCompleted(Ability ability) {
         lessons.performed(ability, true);
-        care.habit(ability == Ability.FOOD_GUARD ? 0 : 1);
+        care.habit();
     }
     /** A view of the individual's unease (mind/MindLife, docs/FEATURES.md): the pet line reads and writes the one shared value. */
     public int stress() { return animal.mind().stressView(); }

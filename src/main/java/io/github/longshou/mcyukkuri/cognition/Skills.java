@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerLevel;
 
 /** The server's skill practice and development record for one body. */
 public final class Skills {
-    public static final int PROGRESS = 8;
     private static final int MAX_POINTS = 9;
     private static final Ability[] ABILITIES = Ability.values();
 
@@ -131,7 +130,9 @@ public final class Skills {
     public CompoundTag readout() {
         var tag = new CompoundTag();
         byte[] grades = new byte[ABILITIES.length];
-        for (Ability ability : ABILITIES) grades[ability.ordinal()] = (byte) (grade(ability) | (ability == progressing ? PROGRESS : 0));
+        for (Ability ability : ABILITIES) {
+            grades[ability.ordinal()] = (byte) (grade(ability) | (ability == progressing ? Ability.READOUT_PROGRESS : 0));
+        }
         tag.putByteArray("g", grades);
         tag.putInt("cap", cap());
         return tag;
@@ -149,7 +150,7 @@ public final class Skills {
             page.append("\n").append(Component.translatable("notebook.mcyukkuri.skills.entry",
                     Component.translatable(ability.translationKey()), value));
         }
-        if (lastLearned != null) page.append("\n\n").append(Component.translatable("notebook.mcyukkuri.skills.last",
+        if (lastLearned != null) page.append("\n").append(Component.translatable("notebook.mcyukkuri.skills.last",
                 lastLearnedDay + 1, Component.translatable(lastLearned.translationKey())));
         return page;
     }

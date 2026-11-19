@@ -1017,9 +1017,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return heard;
     }
 
-    /** Say a quantity the way a yukkuri does: 1, 2, 3, then "lots" (see {@link SpeechCount}). */
+    /** Say a quantity up to this body's counting ability (see {@link SpeechCount}). */
     public boolean speakCount(String base, int quantity) {
-        String event = SpeechCount.event(base, quantity, variant.dialogueSpecies(), speechTier());
+        String event = SpeechCount.event(base, quantity, skills().speechCap());
         return event != null && speak(event);
     }
 

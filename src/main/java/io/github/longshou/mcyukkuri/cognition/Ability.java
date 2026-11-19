@@ -7,6 +7,7 @@ public enum Ability {
     COUNTING(true, true), DEN_SEAL(false, true), SAILING(false, false), MOLD_LORE(false, false),
     PAPER_COVER(false, false), LEAF_SWADDLE(false, false);
 
+    public static final int READOUT_PROGRESS = 8;
     public final boolean domestic;
     public final boolean graded;
     private final String key = name().toLowerCase(Locale.ROOT);
