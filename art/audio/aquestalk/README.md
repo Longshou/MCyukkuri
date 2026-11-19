@@ -27,7 +27,7 @@
 
 ## 制作
 
-`scripts/build_aquestalk_dialogue.py` 默认制作 `runtime-lines.json`、`speech-tiers.json`、52 条 `shared_runtime` 情境句和缺陷惨叫，逐条调用本机 AquesTalkPlayer 并编码 OGG。支持：
+`scripts/build_aquestalk_dialogue.py` 默认制作 `runtime-lines.json`、`speech-tiers.json`、81 条 `shared_runtime` 情境句和缺陷惨叫，逐条调用本机 AquesTalkPlayer 并编码 OGG。支持：
 
 - `--ids-json`：只制作指定 ID，接受字符串数组或 `{"ids": [...]}`；未选中的录音和母带保持不动。
 - `--player`、`--work-directory`：本机播放器与临时目录。

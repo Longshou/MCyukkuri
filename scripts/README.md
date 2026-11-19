@@ -164,7 +164,7 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 | `verify_wound_runtime.py` | 核对全部伤口与动作骨架；核对伤口源与输出指纹、有限数值及共点权重一致性，可传角色 ID 限定后者范围 | 只读，不启动游戏 |
 | `export_human_world.py` | 从制作源同步商店、三类工厂、生成规则、五套服装、原创机台与商品、生成蛋及中英语言；`--check` 核对指纹 | 默认写本模块资源与登记；检查只读，不启动游戏 |
 | `catalogue_hakkei_dialogue.py` | 只读原版八景 U 角色 CSV 与 ModLab 翻译／新增 TSV，生成分离的对白检索与来源指纹 | 写 `art/dialogue/native-u/`，不写来源游戏和运行资源 |
-| `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，输出 288 条 WAV／OGG、发音符号及试听页；204 原版与 84 原创分别标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；不打包程序、字典或 DLL |
+| `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，逐条输出 WAV／OGG、发音符号及试听页，并按原版或原创标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；`--ids-json` 只做指定条目；不打包程序、字典或 DLL |
 | `export_dialogue.py` | 核对原句／原创来源与录音文本，导出台词、语言资源、OGG、时长及声音索引，保留其他任务条目 | 默认写运行资源；`--stage` 先导出到指定待核对目录；`--check` 只读检查，不启动游戏 |
 | `check_speech_corpus.py` | 检查分轴语料的 JSON、必填字段、ID、物种与全部现有情境事件映射 | `--check` 只读；语料尚未接入对白生成器，不写现有选句或运行资源 |
 | `export_runtime_models.py` | 旧七模型批量接入配方；当前圆润选用存在时拒绝执行，避免覆盖模型 | 当前圆润形态用 `export_rounded_runtime.py`；家油定向导出仍复用其函数，见对应制作包 |
