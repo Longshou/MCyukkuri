@@ -605,6 +605,7 @@ public final class HomeClaim {
         for (UUID id:c.members) if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
             if(c.occupation&&c.site.equals(y.life().home()))y.life().releaseHome();
             if (y!=hit) {
+                if (declaring(y)) y.cancelReaction();
                 y.life().personality().confiscated(actor.getUUID());
                 var temperament = y.life().personality().temperament();
                 var answer = Ousting.answer(temperament);
