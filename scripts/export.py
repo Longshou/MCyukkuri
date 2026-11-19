@@ -421,6 +421,10 @@ def motion(args, rows):
     # The later clip revisions replace lore clips of the same name (motion_gate.exported), so their builders own these names.
     members = {'source:'+TOILET+'/build.py': read(ROOT/TOILET/'recipe.json')['clips'],
                'house-ecology': read(ROOT/'art/source/house-ecology-presentation/recipe.json')['clips'], **members}
+    # Predator flight and perch clips are authored with the species, then copied into the runtime models.
+    members['predator-assets'] = [c for c in read(ROOT/'standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json')['clips']
+                                  if c.startswith('predator_')]
+    chains = {'predator-assets': ['source:'+PREDATOR_AUTHOR, 'predator-assets']}
     families = []
     for clip in args.clips:
         matches = [name for name, clips in members.items() if clip in clips]
@@ -429,12 +433,15 @@ def motion(args, rows):
         families += matches[:1]
     for name in dict.fromkeys(families):
         from export_registry import prepare_export, finish_export
-        before = prepare_export(ROOT) if not args.check else None
-        result = run(rows[name], args.check, args.report.parent/(args.report.stem+'-logs'))
-        if not args.check:
-            finish_export(ROOT, before)
-        if result['status'] != 'PASS':
-            return 1
+        for step in chains.get(name, [name]):
+            if args.check and rows[step]['check'] is None:
+                continue
+            before = prepare_export(ROOT) if not args.check else None
+            result = run(rows[step], args.check, args.report.parent/(args.report.stem+'-logs'))
+            if not args.check:
+                finish_export(ROOT, before)
+            if result['status'] != 'PASS':
+                return 1
     failed = 0
     from motion_gate import body_gate
     for clip, model in product(args.clips, args.model):
