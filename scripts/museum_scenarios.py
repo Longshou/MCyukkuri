@@ -2239,7 +2239,8 @@ add('pred_watch', 'weather', '不饿的捕食种在旁，普通油后退', '不�
         yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 0, 2, 'b', yaw=-90),
         yk('remilia', 12, 0, 'pred', yaw=90, nutrition=100, energy=100)],
     env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')],
-    smoke=dict(ticks=1200, expect=[r'\[threat\] reimu #[0-9]+ [^\n]* response started source=[0-9a-f-]{36} stage=RETREAT\b'],
+    smoke=dict(ticks=1200, expect=[r'\[species\] remilia #\d+ uuid=(?P<pred>[0-9a-f-]{36})\b[\s\S]*?'
+                                   r'\[threat\] reimu #\d+ [^\n]* response started source=(?P=pred) stage=RETREAT\b'],
                forbid=[r'\[body\][^\n]* invariant\b']))
 
 add('pred_range', 'weather', '饥饿芙兰远远飞来追猎灵梦', '饥饿芙兰远远飞来追猎灵梦',
