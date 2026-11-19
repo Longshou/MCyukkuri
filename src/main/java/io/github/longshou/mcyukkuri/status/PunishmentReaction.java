@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.GlassSight;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -130,9 +131,19 @@ public final class PunishmentReaction {
         double escape = (.52 * wary + .28 * unease + .20 * energy) * (.55 + .45 * sound);
         if (exit && escape > best) response = Response.ESCAPE;
 
-        if (response == Response.ESCAPE && !target.isPanicking()) {
-            target.fleeFrom(punisher);
-            target.mind().feeling().frightened(.6f);
+        var feeling = target.mind().feeling();
+        switch (response) {
+            case DEFIANT, PROTECT -> feeling.begin(EmotionCourse.Kind.RAGE, .6f, punisher.getUUID(), target.blockPosition());
+            case FREEZE, ENDURE, PLEAD, SHRINK, TURN_TO_KIN -> {
+                target.setLastHurtByMob(punisher);
+                feeling.frightened(.6f);
+            }
+            case ESCAPE -> {
+                if (!target.isPanicking()) {
+                    target.fleeFrom(punisher);
+                    feeling.frightened(.6f);
+                }
+            }
         }
         response.show(target, punisher);
         GameplayLog.event(target, "punishment", "victim actor={} incident={} response={} fear={} -> {} health={} wounds={} unease={} exit={}",

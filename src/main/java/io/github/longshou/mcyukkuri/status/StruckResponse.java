@@ -3,7 +3,9 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.RamPerson;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
@@ -68,7 +70,10 @@ final class StruckResponse implements MotorOwner {
         body.setPanicTicks(0);
         SurfaceApproach.halt(body);
         if (choice == StruckStance.FLEE) {
-            if (loss == 0) body.fleeFrom(danger);
+            if (loss == 0) {
+                body.interrupt(Interrupt.FRIGHT);
+                body.life().involuntaryRelease("fright", false);
+            }
             flee(danger);
         }
         else {
@@ -83,6 +88,16 @@ final class StruckResponse implements MotorOwner {
                 case PUFF_FIGHT -> hold(YukkuriAction.PUFF, "angry", tame || body.getRandom().nextBoolean() ? "puff" : "hurt_defy", 50);
                 case PLEAD -> hold(YukkuriAction.BEG, "cry", tame ? "hurt_tame_plea" : "plea_sad", 48);
                 case ENDURE -> hold(YukkuriAction.STAND_GROUND, inputs.baby() ? "cry" : "teary", "hurt_endure", 40);
+            }
+            if (!inputs.baby()) {
+                var feeling = body.mind().feeling();
+                float power = threatPower(danger);
+                if (choice == StruckStance.PUFF_FIGHT) {
+                    feeling.begin(EmotionCourse.Kind.RAGE, power, danger.getUUID(), body.blockPosition());
+                } else {
+                    body.setLastHurtByMob(danger);
+                    feeling.frightened(power);
+                }
             }
         }
         GameplayLog.event(body, "threat", "struck stance={} attacker={} loss={} exit={} duration={} dialogue={}",
@@ -166,9 +181,12 @@ final class StruckResponse implements MotorOwner {
         body.setLastHurtByMob(danger);
         body.setPanicTicks(ticks);
         // A struck baby cries through the flight, then can follow kin or settle without the older body's terror course.
-        if (!body.newbornStage())
-            body.mind().feeling().frightened(danger instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri() ? 1 : .6f);
+        if (!body.newbornStage()) body.mind().feeling().frightened(threatPower(danger));
         return ticks;
+    }
+
+    private static float threatPower(LivingEntity danger) {
+        return danger instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri() ? 1 : .6f;
     }
 
     void flee(LivingEntity danger) {
