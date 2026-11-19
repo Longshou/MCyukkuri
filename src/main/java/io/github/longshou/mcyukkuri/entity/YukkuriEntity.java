@@ -467,6 +467,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public ItemStack getMouthItem() { return sync().getMouthItem(); }
     public boolean foodOnBraid() { return level().isClientSide ? sync().foodOnBraid() : life.braidHasFood(); }
     public BlockPos braidMealBin() { return sync().braidMealBin(); }
+    public Vec3 dishContact() { return sync().dishContact(); }
     public BodyFood.Bite getMouthBodyFood() { return sync().getMouthBodyFood(); }
     /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
     public void syncMouthBodyFood(BodyFood.Bite bite) { sync().syncMouthBodyFood(bite); }

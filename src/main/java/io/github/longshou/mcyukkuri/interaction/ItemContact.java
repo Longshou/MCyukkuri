@@ -8,12 +8,14 @@ import io.github.longshou.mcyukkuri.human.VillageBin;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.pose.DishFit;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,7 +27,6 @@ import net.minecraft.world.phys.Vec3;
 
 /** Server-side physical contact for ordinary ground food, sharing and interrupted meals. */
 public final class ItemContact {
-    private static final double BOWL_CONTACT_RADIUS = .06;
 
     public static boolean reaches(YukkuriEntity actor,Vec3 target,double radius) {
         return reaches(actor, MouthPlacement.position(actor), MouthPlacement.outward(actor), target, radius);
@@ -66,7 +67,17 @@ public final class ItemContact {
     }
 
     public record BowlStand(Vec3 feet, Vec3 contact) {
-        public boolean reaches(YukkuriEntity actor) { return ItemContact.reaches(actor, contact, BOWL_CONTACT_RADIUS); }
+        public boolean at(YukkuriEntity actor) {
+            return actor.onGround() && actor.position().distanceToSqr(feet) < 1.e-5
+                    && SurfaceApproach.supportedGround(actor, actor.position());
+        }
+
+        public boolean reaches(YukkuriEntity actor) {
+            if (!at(actor)) return false;
+            float yaw = SurfaceApproach.yaw(feet, contact);
+            if (Math.abs(Mth.wrapDegrees(yaw - actor.bodyYaw())) > .1) return false;
+            return clear(actor, actor.getEyePosition(), contact.add(0, .0001, 0));
+        }
     }
 
     /** A flat-sided bowl needs a body-sized stand off an exposed face. A radial step toward a corner can overlap its rim. */
@@ -74,25 +85,22 @@ public final class ItemContact {
         var level = actor.level();
         var state = level.getBlockState(bowl);
         boolean waterer = state.getBlock() instanceof CareBlock care && care.kind() == CareBlock.Kind.WATERER;
-        var rim = (waterer ? CareBlock.WATERER_DISH : state.getCollisionShape(level, bowl)).bounds().move(bowl);
+        var rim = (waterer ? CareBlock.WATERER_DISH : CareBlock.FOOD_DISH).bounds().move(bowl);
         var center = rim.getCenter();
         Vec3 mouth = MouthPlacement.position(actor).subtract(actor.position());
-        double clearance = Math.max(actor.getBbWidth() * .5 + .02, mouth.horizontalDistance());
+        var fit = DishFit.stand(actor.getBbWidth() * 8, SurfaceApproach.supportRadius(actor) * 16,
+                mouth.horizontalDistance() * 16);
+        var top = new Vec3(center.x, rim.maxY, center.z);
         double shortest = Double.POSITIVE_INFINITY;
         BowlStand chosen = null;
         for (Direction side : Direction.Plane.HORIZONTAL) {
             var outward = Vec3.atLowerCornerOf(side.getNormal());
-            double depth = side.getAxis() == Direction.Axis.X ? rim.getXsize() : rim.getZsize();
-            var face = center.add(outward.scale(depth * .5));
-            var foot = SurfaceApproach.floor(actor, new Vec3(face.x + outward.x * clearance, bowl.getY(), face.z + outward.z * clearance));
-            if (foot == null) continue;
-            var contact = new Vec3(face.x, rim.maxY + .02, face.z);
-            if (waterer) {
-                // Little mouths meet the outside of the saucer below the rim.
-                contact = new Vec3(face.x, Math.min(contact.y, foot.y + mouth.y), face.z).add(outward.scale(.005));
-                var facingMouth = foot.subtract(outward.scale(mouth.horizontalDistance())).add(0, mouth.y, 0);
-                if (!reaches(actor, facingMouth, outward.scale(-1), contact, BOWL_CONTACT_RADIUS)) continue;
-            }
+            var across = Vec3.atLowerCornerOf(side.getClockWise().getNormal());
+            var stand = top.add(outward.scale(fit.x() / 16)).add(across.scale(fit.z() / 16));
+            var contact = top.add(outward.scale(fit.lipX() / 16)).add(across.scale(fit.lipZ() / 16));
+            var foot = SurfaceApproach.floor(actor, stand);
+            if (foot == null || (fit.perched() ? Math.abs(foot.y - rim.maxY) > .001
+                    : contact.y < foot.y || contact.y - foot.y > actor.getBbHeight())) continue;
             double distance = SurfaceApproach.routeLength(actor, foot, null);
             if (distance >= shortest) continue;
             shortest = distance;

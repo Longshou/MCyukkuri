@@ -33,6 +33,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
 
@@ -221,6 +222,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     ||operated&&!entity.getMouthItem().isEmpty()
                     ||heldNow!=null&&heldNow.mouth());
             configureCareContact(entity,behavior,partialTick,model);
+            var dish = entity.dishContact();
+            if (!preview && (behavior.equals(Behaviors.DRINK) || behavior.equals(Behaviors.TAKE_FOOD)) && !dish.equals(Vec3.ZERO)) {
+                var offset = dish.add(Vec3.atLowerCornerOf(entity.blockPosition())).subtract(entity.getPosition(partialTick)).toVector3f();
+                start.transformPosition(offset);
+                model.dishTarget(new Matrix4f(pose.last().pose()).invert().transformPosition(offset).mul(16),
+                        1 / (entity.getScale() * entity.growthScale() * BodySigns.sagWidth(health,open)));
+            }
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             // A braid-held child is cradled; a carrier whose braid reaches plays the braid clip on its Grab's clock.

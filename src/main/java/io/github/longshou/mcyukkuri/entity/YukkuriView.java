@@ -117,6 +117,7 @@ public interface YukkuriView {
     ItemStack getMouthItem();
     boolean foodOnBraid();
     BlockPos braidMealBin();
+    Vec3 dishContact();
     /** A transient, non-item mouthful from a successful body-food bite. */
     BodyFood.Bite getMouthBodyFood();
     /** House hair-grip, forage or habitat load. */

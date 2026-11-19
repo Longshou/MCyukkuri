@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.pose.Clips;
 import io.github.longshou.mcyukkuri.pose.Clips.Clip;
 import io.github.longshou.mcyukkuri.pose.Clips.Track;
 import io.github.longshou.mcyukkuri.pose.Compose;
+import io.github.longshou.mcyukkuri.pose.DishFit;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.Intensity;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.pose.Overlays;
@@ -269,6 +271,12 @@ public final class YukkuriModel {
     private Vector3f[] gripPoints;
     private boolean gripping,carrying,mouthHolding;
     private final Matrix4f mouthAttachment=new Matrix4f();
+    private final DishFit dishFit = new DishFit();
+    private Vector3f dishTarget;
+    private float dishRimWidth, dishProgress;
+    private boolean pressingDish;
+
+    void dishTarget(Vector3f target, float rimWidth) { dishTarget = target; dishRimWidth = rimWidth; }
     /**
      * Small presentation-only addition to a contact-safe care clip.  The server has already
      * stopped the two bodies at its real mouth envelope; this uses their synchronized mouth
@@ -1176,6 +1184,29 @@ public final class YukkuriModel {
         }
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->Compose.feature(bones,world,bone,matrix,featureParentInverse));
+        if (dishTarget != null) {
+            boolean drinking = behavior.equals(Behaviors.DRINK);
+            dishProgress = Math.clamp(behaviorTicks / DishFit.firstContact(ClipMarkers.of(drinking ? "drink" : "eat").length(), drinking), 0, 1);
+            dishFit.begin(dishTarget, mouthPoint(), dishRimWidth);
+            for (var part : parts) if (part.name.equals("face_mouth")) {
+                for (int i = part.start; i < part.start + part.count; i += 3) {
+                    if (vertices[i * 8 + 7] >= -.15f) continue;
+                    for (int j = 0; j < 3; j++) skin(i + j, triangle[j]);
+                    dishFit.lipTriangle(triangle[0], triangle[1], triangle[2]);
+                }
+            }
+            if (dishTarget.y > 0) for (var part : parts) if (bodySurface(part.name) || part.name.equals("face_mouth")) {
+                for (int i = part.start; i < part.start + part.count; i += 3) {
+                    for (int j = 0; j < 3; j++) skin(i + j, triangle[j]);
+                    dishFit.rimTriangle(triangle[0], triangle[1], triangle[2]);
+                }
+            }
+            if (dishTarget.y > 0) for (int index : bodyFloorVertices) {
+                skin(index, triangle[0]);
+                dishFit.sole(triangle[0]);
+            }
+            pressingDish = true;
+        }
         // Contact solvers above change the bones repeatedly. Cache only after the final pose.
         skinningCache.begin();
         try {
@@ -1303,7 +1334,7 @@ public final class YukkuriModel {
                 }
                 // An affine, flat pair has the same source diagonal as a native quad.
                 // Keep nonlinear pregnancy/puff/delivery and damaged hats on their original triangles.
-                int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart&&woundDisplay==null?quadFourth[first]:-1;
+                int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart&&woundDisplay==null&&!pressingDish?quadFourth[first]:-1;
                 if(fourth>=0){skin(fourth,fourthCorner);if(curled!=null)curled.transformPosition(fourthCorner);
                     if(rearAnatomy)rearTransform.transformPosition(fourthCorner);}
                 int rotation=fourth>=0?quadRotation[first]:0;
@@ -1433,6 +1464,7 @@ public final class YukkuriModel {
             return contact;
         }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
+                pressingDish=false;dishTarget=null;
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
     }
 
@@ -1666,6 +1698,7 @@ public final class YukkuriModel {
         Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[index],crownLift,braidLift);
         if(wearClear&&overWearVertex(index)&&(retention<=0||rigidGroups()[index]!=1))CareWearRenderer.clearHair(target);
         if(wallTurns!=null)wallTurns.apply(index,target);
+        if(pressingDish)dishFit.press(target,dishProgress);
     }
     private int featuresBone=-1;
     /** The face and crown features' frame, present on every form (the worn hat bone's parent on hatted forms). */
@@ -1725,6 +1758,7 @@ public final class YukkuriModel {
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
         if(wearClear&&overWearVertex(triangle)&&(retention<=0||rigidGroups()[triangle]!=1))CareWearRenderer.clearHair(target);
         if(wallTurns!=null)wallTurns.apply(triangle,target);
+        if(pressingDish)dishFit.press(target,dishProgress);
     }
     private boolean woundAccessoryVertex(int vertex){
         if(woundAccessoryVertices==null){woundAccessoryVertices=new boolean[bindings.length];

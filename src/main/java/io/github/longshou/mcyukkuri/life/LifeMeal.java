@@ -731,6 +731,7 @@ final class LifeMeal {
     }
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
+    boolean fromBowl() { return bowlMeal; }
     boolean beginDose(ItemStack one, UUID player, boolean returnBottle) {
         if (!mouthForMeal() || !makeRoom("dose") || !occupancy().acquireMeal(one.copy())) return false;
         o.temperature().stop();

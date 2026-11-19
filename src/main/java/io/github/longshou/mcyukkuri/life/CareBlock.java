@@ -47,6 +47,7 @@ import java.util.List;
 public class CareBlock extends Block implements EntityBlock {
     public enum Kind { BOWL, NEST, TOILET, WATERER }
     public static final VoxelShape WATERER_DISH = box(1, 0, 1, 15, 2, 15);
+    public static final VoxelShape FOOD_DISH = box(1, 0, 1, 15, 3, 15);
     private static final VoxelShape WATERER_SHAPE = Shapes.or(WATERER_DISH, box(5, 1, 5, 11, 12, 11));
     private final Kind kind;
     private final String style;
@@ -105,7 +106,7 @@ public class CareBlock extends Block implements EntityBlock {
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch(kind){
-            case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
+            case BOWL -> FOOD_DISH;
             case WATERER -> WATERER_SHAPE;
             // The predator's twig ledge; the pet beds (PetNestBlock) and 2x2 nests (LargeNestBlock) have their own shapes.
             case NEST -> box(0,0,0,16,height,16);

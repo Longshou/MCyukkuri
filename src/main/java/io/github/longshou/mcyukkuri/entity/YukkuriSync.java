@@ -27,6 +27,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 /** Synchronized schema, values and decoded caches for exactly one entity. */
 final class YukkuriSync {
@@ -48,6 +50,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> SPEECH_SEQUENCE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<ItemStack> MOUTH = YukkuriEntity.defineSyncedValue( EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Boolean> FOOD_ON_BRAID = YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Vector3f> DISH_CONTACT = YukkuriEntity.defineSyncedValue(EntityDataSerializers.VECTOR3);
     private static final EntityDataAccessor<Optional<BlockPos>> BRAID_MEAL_BIN = YukkuriEntity.defineSyncedValue(EntityDataSerializers.OPTIONAL_BLOCK_POS);
     /** A body-food bite is display-only transport, deliberately separate from real mouth items. */
     private static final EntityDataAccessor<CompoundTag> MOUTH_BODY_FOOD = YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
@@ -172,6 +175,7 @@ final class YukkuriSync {
     String speechVoiceTier() { return owner.getEntityData().get(SPEECH_VOICE_TIER); }
     ItemStack getMouthItem() { return owner.getEntityData().get(MOUTH); }
     boolean foodOnBraid() { return owner.getEntityData().get(FOOD_ON_BRAID); }
+    Vec3 dishContact() { return new Vec3(owner.getEntityData().get(DISH_CONTACT)); }
     BlockPos braidMealBin() { return owner.getEntityData().get(BRAID_MEAL_BIN).orElse(null); }
     BodyFood.Bite getMouthBodyFood() { return BodyFood.Bite.load(owner.getEntityData().get(MOUTH_BODY_FOOD)); }
     void syncMouthBodyFood(BodyFood.Bite bite) {
@@ -369,6 +373,7 @@ final class YukkuriSync {
         if (!ItemStack.matches(owner.getEntityData().get(MOUTH), mouth)) owner.getEntityData().set(MOUTH, mouth.copy());
         owner.getEntityData().set(FOOD_ON_BRAID, owner.life().braidHasFood());
         owner.getEntityData().set(BRAID_MEAL_BIN, Optional.ofNullable(owner.life().braidMealBin()));
+        owner.getEntityData().set(DISH_CONTACT, owner.life().dishContact().toVector3f());
         if (!ItemStack.matches(owner.getEntityData().get(CARRYING), carried)) owner.getEntityData().set(CARRYING, carried.copy());
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
@@ -407,6 +412,7 @@ final class YukkuriSync {
         builder.define(RESERVED_BY, Optional.empty());
         builder.define(FOOD_ON_BRAID, false);
         builder.define(BRAID_MEAL_BIN, Optional.empty());
+        builder.define(DISH_CONTACT, new Vector3f());
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);
         builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);
