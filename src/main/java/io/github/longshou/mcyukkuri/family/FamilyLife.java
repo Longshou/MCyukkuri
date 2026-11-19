@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
@@ -36,6 +37,8 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -100,6 +103,7 @@ public final class FamilyLife {
     private boolean sterile;
     private int stimulation;
     private int sexDrive;
+    private float pentUp;
     private boolean babyTalk;
     /** A kit that came down on a nest's soft rim tumbles inward up to RIM_ROLLS times (transient, from the landing tick). */
     private int rimRolls;
@@ -299,8 +303,13 @@ public final class FamilyLife {
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
     public int sexDrive(){return sexDrive;}
-    public boolean inBreedingPeriod(){return adult()&&!sterile()&&!elder()&&sexDrive>0&&entity.status().identity().canConceive();}
-    public boolean canTakeStimulant(){return adult()&&!sterile()&&!elder()&&sexDrive==0&&entity.status().identity().canConceive();}
+    public boolean pressureEligible() {
+        return PentUpMath.eligible(adult(), sterile(), elder(), entity.status().identity().canConceive(),
+                entity.profile().dangerToYukkuri());
+    }
+    public float pentUp() { return pentUp; }
+    public boolean inBreedingPeriod(){return sexDrive>0&&pressureEligible();}
+    public boolean canTakeStimulant(){return sexDrive==0&&pressureEligible();}
     /** One saved server clock feeds both natural periods and the existing stimulant item. */
     public boolean beginBreedingPeriod(){
         if(entity.level().isClientSide||!canTakeStimulant())return false;
@@ -610,7 +619,7 @@ public final class FamilyLife {
     public boolean sterile(){return sterile||!entity.subspecies().canReproduce();}
     public int stimulation(){return stimulation;}
     public boolean stimulate(){if(!adult()||sterile()||!entity.status().identity().canConceive())return false;stimulation=Math.min(1200,stimulation+240);return true;}
-    public boolean sterilize(){if(!adult()||sterile()||stimulation==0)return false;sterile=true;stimulation=0;return true;}
+    public boolean sterilize(){if(!adult()||sterile()||stimulation==0)return false;sterile=true;stimulation=sexDrive=0;pentUp=0;return true;}
     public void detached(){gestation=null;spentStemCount=0;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());stop();entity.syncFamily();}
     public void tick() {
         if(entity.level().isClientSide)return;
@@ -649,7 +658,8 @@ public final class FamilyLife {
         if (!stock) tickGrowth(becameAdult);
         if(entity.tickCount==1||entity.tickCount%20==0)updateMovement();
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;
-        if(!adult()||sterile()||elder()||!entity.status().identity().canConceive())sexDrive=0;
+        if (!pressureEligible()) { sexDrive = 0; pentUp = 0; }
+        else if (entity.tickCount % 20 == 0) tickPressure();
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         // Natural lifetime is authoritative even while the body is boarded or in a flight arc.
         if(!stock&&FamilyConfig.AGING.get()&&age>=lifespan) {
@@ -1841,11 +1851,35 @@ public final class FamilyLife {
                 GameplayLog.event(other,"family","witnessed kin death dead={} distance={} mate={}",entity.getUUID(),Math.round(other.distanceTo(entity)*10)/10.0,Bonds.eitherMate(entity, other));
             }
     }
+    private void tickPressure() {
+        var life = entity.life();
+        var body = entity.body();
+        var liked = visibleLikedAdult();
+        boolean healthy = entity.getHealth() >= entity.getMaxHealth() * .8 && body.condition().readyForReproduction();
+        float rate = PentUpMath.rate(life.nutrition() >= 65, healthy, entity.mind().stage() != MindLife.Stage.CALM,
+                life.nutrition() < 40, body.mold() > 0 || body.toxin() > 0 || body.infection() > 0,
+                liked != null, entity.getVariant() == YukkuriVariant.ALICE);
+        pentUp = Math.min(100, pentUp + 20 * rate);
+    }
+
+    private YukkuriEntity visibleLikedAdult() {
+        if (entity.life().isSleeping()) return null;
+        var mate = partner();
+        var relations = YukkuriWorldData.get(level());
+        return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
+                other -> other != entity && other.isAlive() && entity.distanceToSqr(other) <= 64
+                        && (other.getUUID().equals(mate) || relations.affinity(entity.getUUID(), other.getUUID()) >= BondLevels.AFFINITY_COOPERATIVE)
+                        && other.status().identity().canConceive() && compatibleWith(other)
+                        && entity.life().canRecognize(other) && entity.hasLineOfSight(other))
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+
     public CompoundTag save() {
         CompoundTag tag=new CompoundTag();tag.putInt("Version",3);tag.putLong("Maturity",GrowthTiming.ADULT_START);tag.putString("Stage",stage.name());tag.putLong("Age",age);tag.putLong("Nourishment",nourishment);
         tag.putLong("Lifespan",GrowthTiming.LIFESPAN);tag.putFloat("AdultScale",adultScale);tag.putFloat("Scale",scale);tag.putFloat("BirthScale",birthScale);tag.putInt("Conceptions",conceptions);tag.putInt("Recovery",recovery);
         tag.putBoolean("Initialized",initialized);tag.putBoolean("AwaitingLanding",awaitingLanding);tag.putBoolean("JuvenileVoice",juvenileVoice);
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
+        tag.putFloat("PentUp", pentUp);
         tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);tag.putBoolean("StemDrained",stemDrained);
         if(awaitingLanding&&launch!=null)tag.put("BirthLaunch",BirthLaunch.save(launch));
         if(awaitingLanding&&launch!=null&&launched)tag.putBoolean("BirthLaunched",true);
@@ -1867,6 +1901,7 @@ public final class FamilyLife {
         conceptions=Math.max(0,tag.getInt("Conceptions"));recovery=Math.max(0,tag.getInt("Recovery"));initialized=tag.getBoolean("Initialized");
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
+        pentUp = pressureEligible() ? Math.clamp(tag.getFloat("PentUp"), 0, 100) : 0;
         babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,BREEDING_PERIOD_TICKS);
         stemDrained=tag.getBoolean("StemDrained");
         launch=awaitingLanding&&tag.contains("BirthLaunch",Tag.TAG_COMPOUND)

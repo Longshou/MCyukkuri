@@ -3252,7 +3252,7 @@ add(_kin_boxes, 'plant', '母子隔箱', '母子隔箱',
 
 # Adult state demonstrations only set saved starting state; the normal server AI owns the rest.
 def agitation_start(phase):
-    return f'YukkuriAgitation:{{Phase:"{phase}",PhaseTicks:0,Cooldown:0,NextCheck:2400}}'
+    return f'YukkuriAgitation:{{Phase:"{phase}",PhaseTicks:0,Cooldown:0}}'
 
 
 def _verify_leak_scene(window):
@@ -3439,7 +3439,7 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
 
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
     '爱丽丝带着癫狂笑蹦跳追击，目标发现她会喊出警报台词并逃跑。观察扑中后的接触循环、四拍台词与表情。释放时有尘粒和爱心，峰值持续 3 秒，期间受方仍被压住。峰值结束后受方脱身，爱丽丝接完成表情。喷雾或攻击可打断动作', '约半分钟，可重复观察', [
-        yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
+        yk('alice', 0, 0, 'hunter', lead=True, kin='PentUp:92f', self_control=30, **pair_ready()),
         yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
         yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
         *own('hunter'), *own('prey'), *own('witness')], env=DAY,

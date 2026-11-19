@@ -1,7 +1,8 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.family.PentUpMath;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -41,7 +42,7 @@ public final class AgitationLife {
         boolean heat() { return this==HEAT_FATHER||this==HEAT_MOTHER; }
         boolean mother() { return this==MOTHER||this==HEAT_MOTHER; }
     }
-    private static final int CHECK_INTERVAL = 1200, HEAT_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
+    private static final int HEAT_COOLDOWN = 24_000, ALICE_COOLDOWN = 48_000;
     private static final int FRIGHT_COOLDOWN = 400, EPISODE_LIMIT = 420;
     private static final int RELIEF_TICKS = YukkuriAction.SUKKIRI_AFTER_DAZED.durationTicks();
     private static final int UNMET_TICKS = 100;
@@ -50,7 +51,7 @@ public final class AgitationLife {
     private static final int SETTLE_CHANCE = 4, BUFFET_COOLDOWN = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
-    private int phaseTicks, cooldown, nextCheck = CHECK_INTERVAL, episodeTicks, frightCooldown;
+    private int phaseTicks, cooldown, episodeTicks, frightCooldown;
     private int pathFailures, lostSightTicks, stalledTicks, threatCooldown;
     private int actLoopTicks;
     private long phaseStart;
@@ -167,7 +168,6 @@ public final class AgitationLife {
         if (phase == Phase.HELD) { tickHeld(); return; }
         if (!entity.isAlive() || !eligible() || entity.isNoAi()) { stop(); return; }
         if (cooldown > 0) cooldown--;
-        if (nextCheck > 0) nextCheck--;
         if (phase == Phase.IDLE && entity.family().inBreedingPeriod()) beginHeat();
         if (phase == Phase.HEAT) {
             // Meals, care, threats and handling hide this cue without clearing FamilyLife's timer.
@@ -242,7 +242,7 @@ public final class AgitationLife {
 
     /** Adult, not a predator, and not shop stock waiting for a buyer (stock never comes into heat; once sold the clock simply resumes). */
     private boolean eligible() {
-        return entity.family().adult() && !entity.profile().dangerToYukkuri() && entity.status().identity() != Identity.STOCK
+        return entity.family().pressureEligible()
                 && (!alicePhase() && phase != Phase.ALICE_ACT || entity.getVariant() == YukkuriVariant.ALICE);
     }
     private boolean grounded() {
@@ -311,18 +311,17 @@ public final class AgitationLife {
         if (!available()) return false;
         if (alicePhase() || phase == Phase.ALICE_ACT) return true; // legitimate saved Alice states resume when the goal gets its turn
         if (active()&&!reliefRole.withoutHeat() || entity.family().inBreedingPeriod()) return false;
-        if (cooldown > 0 || nextCheck > 0) return false;
-        nextCheck = CHECK_INTERVAL + entity.getRandom().nextInt(401);
-        // The Alice gauge threshold (1.12 れいぽうモード=400) is far below every other species: she hunts.
-        if (entity.getVariant() == YukkuriVariant.ALICE && entity.getRandom().nextInt(80) == 0) {
+        var family = entity.family();
+        var temper = entity.life().personality().temperament();
+        var episode = PentUpMath.episode(family.pentUp(), temper.patient(),
+                entity.getVariant() == YukkuriVariant.ALICE && temper.is(Gate.IMPULSIVE),
+                FamilyConfig.NATURAL_PAIRING.get() || family.partner() != null, cooldown, family.recovery());
+        if (episode == PentUpMath.Episode.HUNT) {
             begin(Phase.ALICE_WATCH, ALICE_COOLDOWN);
             entity.speak("rapem_hunt");
             return true;
         }
-        if (entity.getRandom().nextInt(12) == 0
-                && (FamilyConfig.NATURAL_PAIRING.get() || entity.family().partner() != null)
-                && entity.family().recovery() == 0
-                && entity.family().beginBreedingPeriod()) beginHeat();
+        if (episode == PentUpMath.Episode.HEAT && family.beginBreedingPeriod()) beginHeat();
         // Starting a normal period is a state change, not a movement goal.
         return false;
     }
@@ -351,8 +350,8 @@ public final class AgitationLife {
         if (next != Phase.HEAT_RELIEVED) reliefRole=ReliefRole.NONE;
         if (controlling) entity.getNavigation().stop();
         if(previous!=next)GameplayLog.limited(entity,"agitation","phase."+next,1200,
-                "phase={} -> {} previousTicks={} target={} controlling={} energy={}",
-                previous,next,previousTicks,previousTarget,controlling,entity.life().energy());
+                "phase={} -> {} previousTicks={} target={} controlling={} energy={} pentUp={}",
+                previous,next,previousTicks,previousTarget,controlling,entity.life().energy(),entity.family().pentUp());
     }
     public void stop() {
         Phase previous=phase; int previousTicks=phaseTicks;
@@ -652,7 +651,7 @@ public final class AgitationLife {
     public CompoundTag save() {
         var tag = new CompoundTag();
         tag.putInt("Version", 5); tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks());
-        tag.putInt("Cooldown", cooldown); tag.putInt("NextCheck", nextCheck);
+        tag.putInt("Cooldown", cooldown);
         tag.putInt("EpisodeTicks", episodeTicks); tag.putInt("FrightCooldown", frightCooldown);
         tag.putBoolean("ActSettled", actSettled); tag.putString("ReliefRole",reliefRole.name());
         tag.putString("EncounterDescription", encounterDescription);
@@ -693,7 +692,6 @@ public final class AgitationLife {
         if (!eligible()) phase = Phase.IDLE;
         phaseTicks = Math.clamp(tag.getInt("PhaseTicks"), 0, 359);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, ALICE_COOLDOWN);
-        nextCheck = tag.contains("NextCheck") ? Math.clamp(tag.getInt("NextCheck"), 0, CHECK_INTERVAL + 400) : CHECK_INTERVAL;
         episodeTicks = Math.clamp(tag.getInt("EpisodeTicks"), 0, EPISODE_LIMIT);
         frightCooldown = Math.clamp(tag.getInt("FrightCooldown"), 0, FRIGHT_COOLDOWN);
         pathFailures = lostSightTicks = stalledTicks = 0;
