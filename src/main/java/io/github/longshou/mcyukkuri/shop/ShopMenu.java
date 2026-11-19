@@ -167,7 +167,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     public ItemStack goodsStack(int page, int row) { var good = good(page, row); return good == null ? ItemStack.EMPTY : good.stack(); }
     public int goodsPrice(int page, int row) {
         var good = good(page, row);
-        return good == null ? 0 : discountedPrice(good.price(), PetPrivileges.discountPercent(BadgeGrade.of(value(Data.STANDING))));
+        return good == null ? 0 : discountedPrice(good.price(), good.discountPercent(BadgeGrade.of(value(Data.STANDING))));
     }
 
     private static int discountedPrice(int price, int discount) {
@@ -320,7 +320,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var good = good(page, row);
         if (good == null) return false;
         var grade = PetPrivileges.grade(p);
-        int discount = PetPrivileges.discountPercent(grade);
+        int discount = good.discountPercent(grade);
         int price = discountedPrice(good.price(), discount);
         var stack = good.stack(); var stocks = ShopStock.get(level);
         String why = !level.isDay() ? "closed" : grade.id() < good.unlock() ? "locked." + good.unlock()

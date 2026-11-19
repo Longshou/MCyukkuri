@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,9 @@ public final class ShopCatalog {
     /** unlock: 0 free, 1 needs a bronze badge in the owner's keeping, 2 needs silver. */
     public record Good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) {
         public ItemStack stack() { return supplier.get(); }
+        public int discountPercent(BadgeGrade standing) {
+            return id.equals(RestraintTableBlock.ID) ? 0 : PetPrivileges.discountPercent(standing);
+        }
     }
     private static Good good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) { return new Good(id,
             category, supplier, price, cap, restock, unlock); }
@@ -73,7 +78,7 @@ public final class ShopCatalog {
         List<Good> goods = new ArrayList<>();
         for (var tool : OperationToolItem.Tool.values())
             goods.add(good(tool.id, TOOL_CATEGORY, () -> new ItemStack(tool.item()), 4, 3, 1, 0));
-        goods.add(3, good(RestraintTableBlock.ID, TOOL_CATEGORY, () -> new ItemStack(ModItems.RESTRAINT.get()), 4, 3, 1, 0));
+        goods.add(3, good(RestraintTableBlock.ID, TOOL_CATEGORY, () -> new ItemStack(ModItems.RESTRAINT.get()), ShopTrade.RESTRAINT_DEPOSIT, 3, 1, 0));
         // Every cut (hair, accessory, stem, sterilizing) is made with vanilla shears.
         goods.add(good("shears", TOOL_CATEGORY, () -> new ItemStack(Items.SHEARS), 2, 3, 1, 0));
         for (var dose : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT))
