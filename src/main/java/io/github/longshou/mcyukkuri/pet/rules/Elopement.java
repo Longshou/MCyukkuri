@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 /** The two rules goals share the current walk. Each goal drives and stops only its own body. */
 final class Elopement {
     private static final int RETRY_TICKS = 24000;
+    private static final int TRAVEL_TICKS = 2400;
     private static final double DEPARTURE_STAND_DISTANCE = 24 + SurfaceApproach.ARRIVAL;
     private final YukkuriEntity body;
     private Walk walk;
@@ -49,23 +50,35 @@ final class Elopement {
         return owner != null && pet.distanceToSqr(owner) <= 16 && pet.hasLineOfSight(owner);
     }
 
+    boolean answer() {
+        long now = body.level().getGameTime();
+        if (walk != null || now < nextCheck || !body.family().adult() || !body.status().identity().wild()) return false;
+        nextCheck = now + 40;
+        for (var other : body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(16))) {
+            var leaving = behavior(other).walk;
+            if (leaving == null || leaving.wild != body || !leaving.running() || !body.hasLineOfSight(other)) continue;
+            if (!mobile(body) || needsCare(body) || !body.duty().mayTake(Duty.Kind.RULES)) return false;
+            var bonds = YukkuriWorldData.get((ServerLevel) body.level());
+            int bond = bonds.affinity(body.getUUID(), other.getUUID());
+            double timid = body.life().personality().temperament().timid();
+            boolean joins = wantsToJoin(body, bond);
+            GameplayLog.event(body, "rules", "departure answer pet={} bond={} timid={} nutrition={} energy={} joins={}",
+                    other.getUUID(), bond, timid, body.life().nutrition(), body.life().energy(), joins);
+            if (!joins) { leaving.end("partner_declined", false); return false; }
+            walk = leaving;
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean wantsToJoin(YukkuriEntity wild, int bond) {
+        return RulesMath.wantsToJoin(bond, wild.life().personality().temperament().timid(), wild.life().nutrition(), wild.life().energy());
+    }
+
     boolean choose() {
         long now = body.level().getGameTime();
-        if (now < nextCheck || !body.family().adult()) return false;
-        var identity = body.status().identity();
-        if (identity.wild()) {
-            // Notice a neighbour actually looking back to leave, within one look-around clip.
-            nextCheck = now + 40;
-            for (var other : body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(16))) {
-                var leaving = behavior(other).walk;
-                if (leaving != null && leaving.wild == body && leaving.running() && body.hasLineOfSight(other)) {
-                    walk = leaving;
-                    return true;
-                }
-            }
-            return false;
-        }
-        if (identity != Identity.PET || body.family().pentUp() < 70) return false;
+        if (now < nextCheck || !body.family().adult() || body.family().pentUp() <= RulesMath.DEPARTURE_PRESSURE
+                || body.status().identity() != Identity.PET) return false;
         // A passing partner can appear between minute-long decisions. Only an actual opportunity spends that draw.
         nextCheck = now + 40;
         if (Custody.view(body).ownerKind() != Custody.OwnerKind.PLAYER || ownerNear(body) || !mobile(body) || needsCare(body)) return false;
@@ -74,13 +87,14 @@ final class Elopement {
         if (horizontalSq(body.position(), yard) > 24 * 24) return false;
         var bonds = YukkuriWorldData.get((ServerLevel) body.level());
         var owner = body.pet().owner();
+        var personality = body.life().personality();
+        int trust = personality.trust(owner);
         var candidates = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(16),
                 y -> y != body && body.distanceToSqr(y) <= 256 && horizontalSq(y.position(), yard) <= 24 * 24
                         && RulesMath.drawnTo(y.status().identity(),
-                        bonds.affinity(body.getUUID(), y.getUUID()), bonds.affinity(y.getUUID(), body.getUUID()),
-                        body.life().personality().trust(owner), body.pet().neglect())
+                        bonds.affinity(body.getUUID(), y.getUUID()), bonds.affinity(y.getUUID(), body.getUUID()), trust)
                         && body.hasLineOfSight(y) && body.family().compatibleWith(y) && mobile(y) && !needsCare(y)
-                        && !y.duty().claimed() && y.canStartConscience()
+                        && !y.duty().claimed() && y.canJoinDeparture()
                         && FamilyData.get((ServerLevel) body.level()).canPair(body, y, true));
         candidates.sort(Comparator.comparingInt((YukkuriEntity y) -> bonds.affinity(body.getUUID(), y.getUUID())).reversed());
         for (var wild : candidates) {
@@ -90,9 +104,14 @@ final class Elopement {
                     && horizontalSq(at, body.position()) > 4 * 4);
             if (petStand == null || lastFailure != null && lastFailure.equals(failure(wild, petStand, wildStand))) continue;
             nextCheck = now + 1200;
-            double chance = RulesMath.departureChance(body.family().pentUp(), body.pet().obedience());
-            boolean leaving = body.getRandom().nextDouble() < chance;
-            GameplayLog.event(body, "rules", "departure opportunity partner={} chance={} leaving={}", wild.getUUID(), chance, leaving);
+            int bond = bonds.affinity(body.getUUID(), wild.getUUID());
+            double chance = RulesMath.departureChance(body.family().pentUp(), body.pet().neglect(), personality.attachment(),
+                    body.pet().obedience(), bond, trust);
+            double roll = body.getRandom().nextDouble();
+            boolean leaving = roll < chance;
+            GameplayLog.event(body, "rules", "departure opportunity partner={} chance={} leaving={} roll={} pressure={} neglect={} attachment={} obedience={} bond={} ownerTrust={}",
+                    wild.getUUID(), chance, leaving, roll, body.family().pentUp(), body.pet().neglect(), personality.attachment(),
+                    body.pet().obedience(), bond, trust);
             if (!leaving) return false;
             var rule = home == null || horizontalSq(body.position(), yard) > 64 ? RulesMath.Choice.ALLOW
                     : body.pet().conscience().tempted(HouseRule.NO_LEAVING_YARD, body.family().pentUp() / 100, 1);
@@ -130,10 +149,11 @@ final class Elopement {
         var petEnd = BlockPos.containing(petStand);
         var wildEnd = BlockPos.containing(wildStand);
         var rules = body.pet().conscience();
+        int returnBond = YukkuriWorldData.get((ServerLevel) body.level()).affinity(wild.getUUID(), body.getUUID());
         int conditions = (ownerNear(body) ? 1 : 0) | (HumanSight.watching(body) ? 2 : 0)
                 | (rules.binds(HouseRule.NO_LEAVING_YARD) ? 4 : 0) | (mobile(body) && mobile(wild) ? 8 : 0)
                 | (body.level() == wild.level() && body.distanceToSqr(wild) <= 256 && body.hasLineOfSight(wild) ? 16 : 0)
-                | (!needsCare(body) && !needsCare(wild) ? 32 : 0);
+                | (!needsCare(body) && !needsCare(wild) ? 32 : 0) | (wantsToJoin(wild, returnBond) ? 64 : 0);
         return new Failure(wild.getUUID(), petEnd, wildEnd,
                 31 * route(body, petEnd) + route(wild, wildEnd), conditions);
     }
@@ -146,7 +166,7 @@ final class Elopement {
     }
 
     void start() {
-        body.duty().take(Duty.Kind.RULES, 2400, 0, "elope");
+        body.duty().take(Duty.Kind.RULES, TRAVEL_TICKS, 0, "elope");
         GameplayLog.event(body, "rules", "departure started partner={} from={} to={} yard={}",
                 walk.peer(body).getUUID(), body.position(), walk.stand(body), walk.yard);
         SurfaceApproach.halt(body);
@@ -195,11 +215,14 @@ final class Elopement {
         RulesMath.Choice yardRule;
         String reason;
         boolean arrived;
+        boolean met;
+        Vec3 lastApproachPosition;
 
         Walk(YukkuriEntity pet, YukkuriEntity wild, UUID owner, Vec3 yard, Vec3 petStand, Vec3 wildStand, RulesMath.Choice rule) {
             this.pet = pet; this.wild = wild; this.owner = owner; this.yard = yard;
             this.petStand = petStand; this.wildStand = wildStand; this.yardRule = rule;
             start = pet.level().getGameTime();
+            lastApproachPosition = wild.position();
             looks = pet.life().personality().temperament().is(Gate.ATTACHED) ? 2 : 1;
         }
         boolean running() { return reason == null; }
@@ -216,12 +239,24 @@ final class Elopement {
                             || !pet.family().compatibleWith(wild) || !FamilyData.get((ServerLevel) pet.level()).canPair(pet, wild, true)));
             if (stopped != null) { end(stopped, false); return; }
             int clip = YukkuriAction.LOOK_AROUND.durationTicks();
-            if (actor == pet && age < (long) looks * clip) {
+            boolean lookingBack = actor == pet && age < looks * clip;
+            if (lookingBack) {
                 if (age == clip) PetScenes.act(pet, YukkuriAction.LOOK_AROUND, "teary", "", clip);
                 pet.getLookControl().setLookAt(yard.x, pet.getEyeY(), yard.z);
-                return;
             }
-            if (behavior(wild).walk != this || !wild.duty().holds(Duty.Kind.RULES)) { end("partner_busy", false); return; }
+            if (!met) {
+                boolean answered = behavior(wild).walk == this && wild.duty().holds(Duty.Kind.RULES);
+                switch (RulesMath.meeting(answered, pet.distanceToSqr(wild) <= 2.5 * 2.5, age, looks * clip)) {
+                    case CALLING -> { return; }
+                    case MISSED -> { end("partner_unavailable", false); return; }
+                    case APPROACHING -> { if (actor == wild) approachPet(); return; }
+                    case TOGETHER -> {
+                        met = true;
+                        GameplayLog.event(wild, "rules", "departure met pet={} distance={}", pet.getUUID(), wild.distanceTo(pet));
+                    }
+                }
+            }
+            if (lookingBack) return;
             // Let the slower partner catch up, including when a bend puts the pet in front.
             if (pet.distanceToSqr(wild) > 36 && actor.distanceToSqr(wildStand) < peer(actor).distanceToSqr(wildStand)) {
                 SurfaceApproach.halt(actor);
@@ -240,6 +275,20 @@ final class Elopement {
                 return;
             }
             if (SurfaceApproach.walkResult(actor, stand(actor), null, .9) == SurfaceApproach.Result.BLOCKED) end("blocked", false);
+        }
+
+        private void approachPet() {
+            var beside = SurfaceApproach.beside(wild, pet, 1.75, 1, 2.5);
+            if (beside == null || SurfaceApproach.walkResult(wild, beside, pet, .9) == SurfaceApproach.Result.BLOCKED) {
+                end("meeting_blocked", false);
+                return;
+            }
+            // Credit real movement, including a detour around a post. A stalled approach keeps its deadline.
+            if (wild.distanceToSqr(lastApproachPosition) >= .25) {
+                lastApproachPosition = wild.position();
+                wild.duty().extend(Duty.Kind.RULES, TRAVEL_TICKS);
+                pet.duty().extend(Duty.Kind.RULES, TRAVEL_TICKS);
+            }
         }
         void end(String why, boolean success) {
             reason = why; arrived = success;

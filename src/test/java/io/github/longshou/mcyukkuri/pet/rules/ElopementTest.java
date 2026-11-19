@@ -12,17 +12,46 @@ import static org.junit.jupiter.api.Assertions.*;
 class ElopementTest {
     @Test void bothMustPreferTheMatchAndOnlyWildPartnersQualify() {
         for (Identity partner : Identity.values())
-            assertEquals(partner.wild(), RulesMath.drawnTo(partner, 12, 12, 9, 0));
+            assertEquals(partner.wild(), RulesMath.drawnTo(partner, 12, 12, 0));
         var wild = Identity.WILD_FAMILY;
-        assertFalse(RulesMath.drawnTo(wild, 11, 30, 0, 80));
-        assertFalse(RulesMath.drawnTo(wild, 30, 11, 0, 80));
-        assertFalse(RulesMath.drawnTo(wild, 30, 30, 30, 80));
-        assertFalse(RulesMath.drawnTo(wild, 30, 30, 20, 49));
-        assertTrue(RulesMath.drawnTo(wild, 30, 30, 20, 50));
-        assertEquals(0, RulesMath.departureChance(69, 0));
-        assertEquals(.25, RulesMath.departureChance(70, 0));
-        assertEquals(.125, RulesMath.departureChance(90, 50));
-        assertEquals(0, RulesMath.departureChance(100, 100));
+        assertFalse(RulesMath.drawnTo(wild, 11, 30, 0));
+        assertFalse(RulesMath.drawnTo(wild, 30, 11, 0));
+        assertFalse(RulesMath.drawnTo(wild, 30, 30, 30));
+    }
+
+    @Test void departureRangesFromCaredForToTheNeglectedYardPet() {
+        assertEquals(0, RulesMath.departureChance(70, 85, 5, 0, 30, 0));
+        assertEquals(0, RulesMath.departureChance(100, 85, 5, 100, 30, 0));
+        assertEquals(0, RulesMath.departureChance(100, 85, 5, 0, 30, 30));
+        double caredFor = RulesMath.departureChance(85, 0, 60, 60, 30, 20);
+        assertTrue(caredFor > 0 && caredFor < .001);
+        assertEquals(.972, RulesMath.departureChance(100, 85, 5, 0, 30, 0), 1e-12);
+        assertEquals(1, RulesMath.departureChance(100, 100, 0, 0, 100, 0));
+    }
+
+    @Test void everyMotiveChangesTheChanceWithinTheRange() {
+        double middle = RulesMath.departureChance(85, 49, 50, 45, 30, 10);
+        assertTrue(RulesMath.departureChance(84, 49, 50, 45, 30, 10) < middle);
+        assertTrue(RulesMath.departureChance(85, 50, 50, 45, 30, 10) > middle);
+        assertTrue(RulesMath.departureChance(85, 49, 51, 45, 30, 10) < middle);
+        assertTrue(RulesMath.departureChance(85, 49, 50, 46, 30, 10) < middle);
+        assertTrue(RulesMath.departureChance(85, 49, 50, 45, 31, 10) > middle);
+        assertTrue(RulesMath.departureChance(85, 49, 50, 45, 30, 11) < middle);
+    }
+
+    @Test void wildPartnerWeighsItsOwnBondWarinessAndPhysicalNeeds() {
+        assertTrue(RulesMath.wantsToJoin(30, .42, 74, 80)); // Marisa was heading for food on a full stomach.
+        assertFalse(RulesMath.wantsToJoin(12, .9, 74, 80));
+        assertTrue(RulesMath.wantsToJoin(12, .1, 74, 80));
+        assertFalse(RulesMath.wantsToJoin(30, .1, 40, 80));
+        assertFalse(RulesMath.wantsToJoin(30, .1, 74, 30));
+    }
+
+    @Test void theCallExpiresOnlyForAnUnansweredInvitation() {
+        assertEquals(RulesMath.Meeting.CALLING, RulesMath.meeting(false, true, 79, 80));
+        assertEquals(RulesMath.Meeting.MISSED, RulesMath.meeting(false, true, 80, 80));
+        assertEquals(RulesMath.Meeting.APPROACHING, RulesMath.meeting(true, false, 2401, 80));
+        assertEquals(RulesMath.Meeting.TOGETHER, RulesMath.meeting(true, true, 2402, 80));
     }
 
     @Test void interventionSeparationDangerAndDependantsInterrupt() {

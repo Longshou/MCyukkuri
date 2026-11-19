@@ -2730,6 +2730,7 @@ def elopement_readout(readout):
         return f'Expected two ownerless wild subjects with no effective grade, got {identities}'
 
 
+_elope_neglect = 85
 add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
     '站在院子侧面，留意灵梦告别后跟着魔理沙穿过篱笆缺口。跟到远处的窝边查看归属和原来的铜章。'
     '重开后在中途靠近灵梦，或用方块堵住缺口，再查归属。', '每分钟有一次机会，可用倍速观察', [
@@ -2743,7 +2744,7 @@ add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
             block(x, 0, 3, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
             block(x, 0, -3, 'mcyukkuri:waterer{Water:8}'), block(x + 1, 0, -3, 'mcyukkuri:yukkuri_toilet'))),
         yk('reimu', -9, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=5, boldness=95,
-           attachment=5, kin='PentUp:100f', extra='YukkuriPet:{Neglect:85,Obedience:-50}', **pair_ready()),
+           attachment=5, kin='PentUp:100f', extra=f'YukkuriPet:{{Neglect:{_elope_neglect},Obedience:-50}}', **pair_ready()),
         yk('marisa', -8, 0, 'wild', label='野生魔理沙', uuid=uid('elope', 'wild'), kin='Recovery:12000', **pair_ready()),
         *own('pet'), f'yukkuri scenario badge {sel("pet")} bronze false', f'yukkuri scenario bond {sel("pet")} {sel("wild")}',
         home('pet', -10, 0), home('wild', 18, 0)],
@@ -2751,8 +2752,13 @@ add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
     reads=[('读灵梦归属', f'yukkuri status {sel("pet")} raw'), ('读魔理沙归属', f'yukkuri status {sel("wild")} raw')],
     smoke=dict(ticks=12000, commands=[(1, 'execute positioned ~-9 ~ ~10 run yukkuri scenario tool_operator enter'),
                                       (2, f'yukkuri scenario owner_at {sel("pet")} away'),
+                                      # Assigning the smoke player clears neglect for the new household.
+                                      (2, f'data modify entity {sel("pet")} YukkuriPet.Neglect set value {_elope_neglect}'),
                                       (11999, 'yukkuri scenario tool_operator leave')],
-               expect=[r'\[rules\][^\n]*eloped partner=', r'\[badge\][^\n]*disqualified cause=eloped'],
+               expect=[rf'\[rules\][^\n]*uuid={_uuid_text("elope", "pet")} [^\n]*departure opportunity partner={_uuid_text("elope", "wild")} [^\n]*pressure=100\.0 neglect={_elope_neglect} attachment=5 obedience=0 ',
+                       rf'\[rules\][^\n]*uuid={_uuid_text("elope", "wild")} [^\n]*departure answer pet={_uuid_text("elope", "pet")} [^\n]*joins=true',
+                       rf'\[rules\][^\n]*uuid={_uuid_text("elope", "wild")} [^\n]*departure met pet={_uuid_text("elope", "pet")} ',
+                       r'\[rules\][^\n]*eloped partner=', r'\[badge\][^\n]*disqualified cause=eloped'],
                forbid=[r'cause=lost_contact', r'\[badge\][^\n]*revoked grade='],
                readout=[f'yukkuri status {sel(role)} raw' for role in ('pet', 'wild')],
                verify=elopement_result, verify_readout=elopement_readout))

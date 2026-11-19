@@ -1256,7 +1256,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public RoamingGoal roaming() { return goals == null ? null : goals.roaming(); }
     /** Actual selector entries only; observing never starts or probes a Goal. */
     public List<String> runningGoalIds() { return goals.runningGoalIds(); }
-    public boolean canStartConscience() { return goals.canStartConscience(); }
+    public boolean canJoinDeparture() { return goals.canJoinDeparture(); }
     public String competingMoveGoalId() { return goals.competingMoveGoalId(); }
     private YukkuriSync sync() {
         if (sync == null) sync = new YukkuriSync(this);

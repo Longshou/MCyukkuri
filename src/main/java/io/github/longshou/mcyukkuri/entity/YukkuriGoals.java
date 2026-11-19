@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.pet.rules.ConscienceGoal;
+import io.github.longshou.mcyukkuri.pet.rules.JoinDepartureGoal;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
@@ -51,7 +52,6 @@ import net.minecraft.world.phys.Vec3;
 
 /** Existing ordered goals and their presentation identity bindings. No second component catalogue. */
 final class YukkuriGoals {
-    private static final int CONSCIENCE_PRIORITY = 3;
     private static final int FAMILY_PRIORITY = 5;
     private final YukkuriEntity owner;
     private final GoalSelector goalSelector;
@@ -105,7 +105,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
-        goalSelector.addGoal(CONSCIENCE_PRIORITY, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
+        goalSelector.addGoal(JoinDepartureGoal.PRIORITY, landBinding(PresentationGoals.CONSCIENCE, new JoinDepartureGoal(owner)));
         // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
         goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));
         goalSelector.addGoal(6, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 6)));
@@ -523,9 +524,9 @@ final class YukkuriGoals {
         return goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)
                 .map(goal -> goal.getGoal().toString() + "@" + goal.getPriority()).toList();
     }
-    boolean canStartConscience() {
+    boolean canJoinDeparture() {
         return goalSelector.getAvailableGoals().stream().noneMatch(goal -> goal.isRunning()
-                && (goal.getPriority() <= CONSCIENCE_PRIORITY || !goal.isInterruptable())
+                && (goal.getPriority() <= JoinDepartureGoal.PRIORITY || !goal.isInterruptable())
                 && (goal.getFlags().contains(Goal.Flag.MOVE) || goal.getFlags().contains(Goal.Flag.LOOK)));
     }
     /** The actual higher-priority MOVE owner which can displace family, using the trace identity. */
