@@ -6240,6 +6240,12 @@ def _kin_young(sid, slot, dx, dz, stage, mother, father, **kw):
 RESCUE_BABY_DELAY = 190     # ticks the infant waits on the bank, so the first rescue is over before the second fall
 
 
+def pushed(name, dx, dz=0.0):
+    """A late shove off the bank into the pond through the body's own push. A raw Motion merge cannot move a crawler (the
+    crawl gait rewrites the horizontal velocity every tick), so the shove is the same nudge another body would give."""
+    return f'yukkuri scenario push {sel(name)} {dx} 0.0 {dz}'
+
+
 def _rescue_smoke(sid, slot):
     """The same child's rescue chain: lifted by the braid and lowered into a seat aboard, or (when she stands on the bank and it is
     within a hold's reach of a dry stand, FEATURES 落水救助) taken out over the bank and set down ashore."""
@@ -6263,7 +6269,7 @@ pond('rescue_child', '亲油用辫子救起落水的子油和赤油', '亲油用
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY),
       _aquatic_young('rescue_child', 'k1', bank_dx(-1), -1, 'baby', 'a'),
       afloat_now('a', water_at(0, 3), True, sel('a'), stick=True)],
-     late=[shoved('c1', .5), Retry(shoved('k1', .5), sel('k1'), tries=1, first=RESCUE_BABY_DELAY)], vantage=(bank_dx(0) - 2, 1, -90, 18),
+     late=[pushed('c1', .5), Retry(pushed('k1', .5), sel('k1'), tries=1, first=RESCUE_BABY_DELAY)], vantage=(bank_dx(0) - 2, 1, -90, 18),
      note=_INCIDENT_NOTE + '0.35 子油按真实身体净空与载重找落点。同一孩子 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true；self_climbed 只算自行脱险。赤油在子油救完之后才被推下水，走同一条链；亲油那时若已站在岸上、赤油在岸边站位够得着，则 grab → carry grip → release（放到干地）→ rescue end result=DONE outcome=set_down aboard=false，不再 start id=launch。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
             ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],

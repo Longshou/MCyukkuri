@@ -265,6 +265,16 @@ public final class ScenarioCommands {
                             var members = EntityArgument.getEntities(c, "members").stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast).toList();
                             return ScenarioSetup.community(leader, members, BlockPos.containing(c.getSource().getPosition()));
                         }))))
+                .then(Commands.literal("push").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("nudge", Vec3Argument.vec3()).executes(c -> {
+                            // A real shove through the body's own push: the crawl gait rewrites horizontal velocity every tick,
+                            // so a raw Motion merge cannot move a crawler, while this becomes its decaying carry.
+                            var body = yukkuri(c, "target");
+                            if (body == null) return 0;
+                            var nudge = Vec3Argument.getVec3(c, "nudge");
+                            body.nudge(nudge.x, nudge.z);
+                            return 1;
+                        }))))
                 .then(Commands.literal("wound").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
                     // A real, small injury: lost health plus a mild non-leaking dent on the skin (a generic hit leaves no wound).
                     int count = 0;
