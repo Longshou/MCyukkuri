@@ -46,7 +46,7 @@ public final class PresentationArbiter {
         publishMoment(id);
         var e = state.owner();
         String leakFace = e.mind().leakFace();
-        state.expression(leakFace.isEmpty() ? expression(id.equals("panic")) : leakFace);
+        state.expression(leakFace.isEmpty() ? expression(id) : leakFace);
         if (e.level().isClientSide) return;
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
@@ -87,7 +87,7 @@ public final class PresentationArbiter {
     }
 
     /** Physical operation and active performance precede the ordinary expression rules. */
-    private String expression(boolean panic){
+    private String expression(String source){
         var e=state.owner();
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
@@ -121,8 +121,8 @@ public final class PresentationArbiter {
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
         if (!e.life().isSleeping() && e.life().weakness() >= YukkuriLife.WEAKNESS_WARNING)
             return e.life().energy() <= 25 ? "sleepy" : "teary";
-        // Use the selected takeover, including the last flight frame after the panic timer decrements.
-        if (!panic) {
+        // The published emotion row and the last frame of a flight both precede resting faces.
+        if (!source.equals(EMOTION_GOAL) && !source.equals("panic")) {
             String mood = e.mind().face("neutral");
             if (!mood.equals("neutral")) return mood;
         }

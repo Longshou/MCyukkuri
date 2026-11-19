@@ -220,8 +220,9 @@ public final class MindLife {
         if (course == Course.FRENZY) return "dazed";
         if (course == Course.WITHERING) return "blank_cry";
         String felt = feeling.face();
+        if ((felt == null || feeling.kind() == EmotionCourse.Kind.RAGE && feeling.stage() == EmotionCourse.Stage.FADING)
+                && !entity.life().hasAccessory() && entity.headwear().uneasePerMinute() > 0) return "teary";
         if (felt != null) return felt;
-        if (!entity.life().hasAccessory() && entity.headwear().uneasePerMinute() > 0) return "teary";
         if (unease >= SWEETENED && "neutral".equals(fallback)) return "teary";
         return fallback;
     }
