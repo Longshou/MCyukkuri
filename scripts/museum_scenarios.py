@@ -1575,8 +1575,9 @@ _choice_scene(
 _choice_scene(
     'choice_food', '向拿苹果的人讨食：骂人索要或软声讨',
     '中间的人手里拿着一个苹果，两边各有一只同样饿的魔理沙。左边胆大不友善的骂着要吃的，右边友善的宠物软声讨食。',
-    [human('caretaker_sister', 0, 0, 'apple_holder', 0, label='拿苹果的人')[:-1]
-     + ',HandItems:[{id:"minecraft:apple",count:1},{}]}',
+    # Residents put away or eat a main-hand apple as picnic food. An offhand apple stays visible to both visitors.
+    [human('caretaker_sister', 0, 0, 'apple_holder', 0, label='拿苹果的人', attitude=2)[:-1]
+     + ',HandItems:[{},{id:"minecraft:apple",count:1}]}',
      _choice_actor('food_demand', -1.4, 0, yaw=-90, nutrition=38, social_wait=0, lead=True, **_pushy),
      _choice_actor('food_ask', 1.4, 0, yaw=90, nutrition=38, social_wait=0, **_considerate),
      *own('food_ask')],
@@ -1587,7 +1588,7 @@ _choice_scene(
 _choice_scene(
     'choice_tool', '见人拿锥：装可爱求饶或退开',
     '围栏中间的人手里拿着锥，两边各有一只魔理沙看得见。左边胆大不友善的装可爱求饶，右边胆小友善的先畏缩，有空地就退开。',
-    [human('caretaker_brother', 0, 0, 'tool_holder', 0, label='拿锥的人')[:-1]
+    [human('caretaker_brother', 0, 0, 'tool_holder', 0, label='拿锥的人', attitude=2)[:-1]
      + ',HandItems:[{id:"mcyukkuri:care_awl",count:1},{}]}',
      _choice_actor('tool_plead', -2, 0, yaw=-90, social_wait=0, lead=True, **_pushy),
      _choice_actor('tool_withdraw', 2, 0, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
