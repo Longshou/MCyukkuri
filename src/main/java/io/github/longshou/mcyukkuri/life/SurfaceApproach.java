@@ -34,6 +34,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ClipContext;
@@ -53,6 +54,7 @@ public final class SurfaceApproach {
     /** One second for a completed ground path to settle after a step or knockback. */
     private static final int LANDING_TICKS = 20;
     private static final double SAME_STAND_SQR = .0025;
+    private static final double BODY_CLEARANCE = .015;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -591,12 +593,26 @@ public final class SurfaceApproach {
                 && ContactStandSearch.insideMovementResolution(actor.position().subtract(feet).horizontalDistanceSqr());
     }
 
-    public static boolean settleContact(YukkuriEntity actor, Vec3 feet, Entity peer) {
-        if (!supported(actor, feet) || crossesBody(actor, actor.position(), feet, peer.getBoundingBox())) return false;
+    /** Settle at a stand solved by SideContact. During the rub that pose is the partner's clearance check. */
+    public static boolean settleContact(YukkuriEntity actor, Vec3 feet, Entity peer, boolean established) {
+        boolean at = atContact(actor, feet);
+        if (established) {
+            if (!supportedGround(actor, feet) || !clearContactFootprints(actor, feet, peer)) return false;
+        } else if (!at && (!supported(actor, feet) || crossesBody(actor, actor.position(), feet, peer.getBoundingBox()))) return false;
+        if (at) return true;
         Motor.move(actor, feet.subtract(actor.position()).multiply(1, 0, 1), "side_contact");
         // The pre-step steering target is now behind the mover. Retire it before MoveControl ticks and turns toward it.
         haltInput(actor);
         return atContact(actor, feet);
+    }
+
+    private static boolean clearContactFootprints(YukkuriEntity actor, Vec3 feet, Entity posedPartner) {
+        var from = actor.position();
+        var sweep = actor.getBoundingBox().expandTowards(feet.subtract(from)).inflate(BODY_CLEARANCE, 0, BODY_CLEARANCE);
+        var bodies = actor.level().getEntities(actor, sweep,
+                other -> actor.canCollideWith(other) || other instanceof LivingEntity && other.isAlive() && !other.isSpectator());
+        return ContactStandSearch.clearFootprints(bodies, posedPartner,
+                other -> crossesBody(actor, from, feet, other.getBoundingBox()));
     }
 
     /**
@@ -716,7 +732,7 @@ public final class SurfaceApproach {
     }
 
     public static boolean crossesBody(YukkuriEntity actor,Vec3 from,Vec3 to,AABB body){
-        double half=actor.getBbWidth()*.5+.015;
+        double half=actor.getBbWidth()*.5+BODY_CLEARANCE;
         var blocked=new AABB(body.minX-half,body.minY-actor.getBbHeight()+.01,body.minZ-half,
                 body.maxX+half,body.maxY-.01,body.maxZ+half);
         // Real overlap can happen after a push. Permit a retreat, never a route through the other's centre.

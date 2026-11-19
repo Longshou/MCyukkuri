@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
 /** Contact stands must land on the requested sole height, including on slabs and stairs. */
@@ -14,6 +15,14 @@ public final class ContactStandSearch {
 
     /** Below this squared displacement Entity.move leaves its position unchanged. */
     public static boolean insideMovementResolution(double distanceSquared) { return distanceSquared <= 1e-7; }
+
+    /** The touching partner has already been checked with its posed surface. All other footprints still block the step. */
+    public static <B> boolean clearFootprints(Iterable<B> bodies, B posedPartner, Predicate<B> crosses) {
+        for (B body : bodies) {
+            if (body != posedPartner && crosses.test(body)) return false;
+        }
+        return true;
+    }
 
     /** The candidates are ordered nearest first. Reject an unsupported or unreachable candidate and try the next bearing. */
     public static <B, S, R> R firstReachable(List<B> bearings, double level, Function<B, S> support,

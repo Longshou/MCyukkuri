@@ -509,7 +509,7 @@ public final class DailyLife {
             current.contact = 0;
             return false;
         }
-        boolean touching = SurfaceApproach.atContact(entity, contactFeet) || SurfaceApproach.settleContact(entity, contactFeet, other);
+        boolean touching = SurfaceApproach.settleContact(entity, contactFeet, other, current.contact > 0);
         current.contact = PeerNuzzle.contactAfter(current.contact, touching);
         if (current.contact == 0) {
             greetInstead(current, "contact_stand_blocked");
