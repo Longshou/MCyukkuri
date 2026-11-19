@@ -1,12 +1,11 @@
 package io.github.longshou.mcyukkuri.client;
 
+import com.google.common.collect.MapMaker;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,8 +19,9 @@ import org.joml.Vector3f;
 /** An occupant's stopped pose comes from the living model. Cache its drawn vertices and the basket layout on change. */
 final class CarrierPresentation {
     static final ResourceManagerReloadListener RELOAD = resources -> clear();
-    private static final Map<CustomData, Seat[][]> LAYOUTS = new IdentityHashMap<>();
-    private static final Map<Look, Mesh> MESHES = new HashMap<>();
+    // Stack copies share an immutable component. Its layout keeps the shared meshes alive while the stack exists.
+    private static final Map<CustomData, Seat[][]> LAYOUTS = new MapMaker().weakKeys().makeMap();
+    private static final Map<Look, Mesh> MESHES = new MapMaker().weakValues().makeMap();
     private static final Vector3f POSITION = new Vector3f();
     private static final Vector3f NORMAL = new Vector3f();
 
@@ -41,8 +41,6 @@ final class CarrierPresentation {
         int size = large ? 1 : 0;
         var layouts = LAYOUTS.get(data);
         if (layouts == null) {
-            // Bound both item revisions and baked appearances. Stack copies share their immutable CustomData.
-            if (LAYOUTS.size() >= 128 || MESHES.size() >= 32) clear();
             layouts = new Seat[2][];
             LAYOUTS.put(data, layouts);
         }
@@ -56,7 +54,7 @@ final class CarrierPresentation {
                     pose.pose().transformPosition(seat.x + v[i] * seat.scale, seat.y + v[i + 1] * seat.scale,
                             seat.z + v[i + 2] * seat.scale, POSITION);
                     pose.transformNormal(v[i + 5], v[i + 6], v[i + 7], NORMAL);
-                    out.addVertex(POSITION.x, POSITION.y, POSITION.z).setColor(Float.floatToRawIntBits(v[i + 8]))
+                    out.addVertex(POSITION.x, POSITION.y, POSITION.z).setColor(batch.colors[i / Batch.STRIDE])
                             .setUv(v[i + 3], v[i + 4]).setOverlay(overlay).setLight(light).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
                 }
             }
@@ -122,6 +120,7 @@ final class CarrierPresentation {
             batches = parts.values().toArray(Batch[]::new);
             for (var batch : batches) {
                 batch.vertices = Arrays.copyOf(batch.vertices, batch.length);
+                batch.colors = Arrays.copyOf(batch.colors, batch.length / Batch.STRIDE);
                 var v = batch.vertices;
                 for (int i = 0; i < v.length; i += Batch.STRIDE) {
                     minX = Math.min(minX, v[i]);     maxX = Math.max(maxX, v[i]);
@@ -134,33 +133,37 @@ final class CarrierPresentation {
 
     /** The runtime renderer supplies the quad order, material and normals. Light and overlay come from the current item. */
     private static final class Batch implements VertexConsumer {
-        static final int STRIDE = 9;
+        static final int STRIDE = 8;
         private final RenderType type;
         private float[] vertices = new float[STRIDE * 256];
+        private int[] colors = new int[256];
         private int length;
 
         Batch(RenderType type) { this.type = type; }
         @Override public VertexConsumer addVertex(float x, float y, float z) {
-            if (length == vertices.length) vertices = Arrays.copyOf(vertices, length * 2);
+            if (length == vertices.length) {
+                vertices = Arrays.copyOf(vertices, length * 2);
+                colors = Arrays.copyOf(colors, colors.length * 2);
+            }
             length += STRIDE;
-            vertices[length - 9] = x;
-            vertices[length - 8] = y;
-            vertices[length - 7] = z;
+            vertices[length - 8] = x;
+            vertices[length - 7] = y;
+            vertices[length - 6] = z;
             return this;
         }
         @Override public VertexConsumer setUv(float u, float v) {
-            vertices[length - 6] = u;
-            vertices[length - 5] = v;
+            vertices[length - 5] = u;
+            vertices[length - 4] = v;
             return this;
         }
         @Override public VertexConsumer setNormal(float x, float y, float z) {
-            vertices[length - 4] = x;
-            vertices[length - 3] = y;
-            vertices[length - 2] = z;
+            vertices[length - 3] = x;
+            vertices[length - 2] = y;
+            vertices[length - 1] = z;
             return this;
         }
         @Override public VertexConsumer setColor(int r, int g, int b, int a) {
-            vertices[length - 1] = Float.intBitsToFloat((a << 24) | (r << 16) | (g << 8) | b);
+            colors[length / STRIDE - 1] = (a << 24) | (r << 16) | (g << 8) | b;
             return this;
         }
         @Override public VertexConsumer setUv1(int u, int v) { return this; }
