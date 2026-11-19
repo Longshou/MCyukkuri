@@ -47,4 +47,13 @@ class SkillMathTest {
             assertEquals(ceilings[i], SkillMath.capCeiling(intelligence[i]));
         }
     }
+
+    @Test
+    void onlyTheNextExactCountRaisesCapacityAndLowerIntelligencePreservesLearning() {
+        assertEquals(3, SkillMath.capAfterCount(3, 2, 7));
+        assertEquals(4, SkillMath.capAfterCount(3, 4, 7));
+        assertEquals(3, SkillMath.capAfterCount(3, 5, 7));
+        assertEquals(7, SkillMath.capAfterCount(7, 8, 7));
+        assertEquals(7, SkillMath.capAfterCount(7, 8, 5));
+    }
 }

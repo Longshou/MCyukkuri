@@ -64,22 +64,23 @@ public final class PetStudy {
     }
 
     public static Answer answer(YukkuriEntity pet, Exercise exercise, boolean detailed) {
-        boolean success = pet.skills().attempt(Ability.COUNTING) == Attempt.DONE;
+        boolean done = pet.skills().attempt(Ability.COUNTING) == Attempt.DONE;
         int count = exercise.count();
-        if (success) pet.skills().countSucceeded(count);
+        if (done) pet.skills().countSucceeded(count);
         int cap = pet.skills().speechCap();
+        boolean success = done && count <= cap;
         Component answer = number(count, cap);
         boolean missing = success && exercise.source().equals("young") && pet.pet().lessons().noticesMissingYoung(count);
         if (missing) answer = Component.translatable("pet.mcyukkuri.practice.missing", answer);
-        if (!success) {
+        if (!done) {
             answer = count > 1 ? number(count - 1, cap) : Component.translatable("pet.mcyukkuri.practice.unsure");
         }
         if (detailed && success && !missing) answer = PetConversation.fullStudyReply(answer);
         int length = ClipMarkers.of("think").length();
         UUID caption = Staging.card((ServerLevel)pet.level(), pet.position().add(0, pet.getBbHeight() + .65, 0), answer, length + 30, 1.2f);
         String base = exercise.source().equals("young") ? SpeechCount.CHILDREN : SpeechCount.FOOD;
-        String event = success ? count == 0 ? "exam_answer" : SpeechCount.event(base, count, cap) : "exam_unsure";
-        pet.showReaction(missing ? "teary" : success ? "happy" : "confused", event, length + 30);
+        String event = done ? count == 0 ? "exam_answer" : SpeechCount.event(base, count, cap) : "exam_unsure";
+        pet.showReaction(missing ? "teary" : done ? "happy" : "confused", event, length + 30);
         GameplayLog.event(pet, "lesson", "study answered skill={} source={} count={} success={} missing={}",
                 Ability.COUNTING, exercise.source(), count, success, missing);
         if (success && caption != null && pet.pet().isPet()) pet.life().personality().experienced(Trait.INTELLIGENCE, 1);

@@ -41,4 +41,8 @@ public final class SkillMath {
     public static int capCeiling(int intelligence) {
         return 3 + intelligence / 15;
     }
+
+    public static int capAfterCount(int cap, int counted, int ceiling) {
+        return counted == cap + 1 && counted <= ceiling ? counted : cap;
+    }
 }
