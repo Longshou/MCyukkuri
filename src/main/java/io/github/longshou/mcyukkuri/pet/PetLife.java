@@ -448,7 +448,7 @@ public final class PetLife {
         return near(p) && owned(p) && !busy() && !animal.isNoAi() && !animal.isPassenger() && !animal.isPanicking()
                 && !animal.isCommandPlaying() && !animal.operations().active() && !animal.life().hasUrgentNeed()
                 && animal.life().mealTicks() == 0 && !animal.life().isSleeping() && animal.hurtTime == 0
-                && animal.life().bladder() < 80 && animal.life().hygiene() >= 30;
+                && animal.life().toiletPressure() < 80 && animal.life().hygiene() >= 30;
     }
 
     // social

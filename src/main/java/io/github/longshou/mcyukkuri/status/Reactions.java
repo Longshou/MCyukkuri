@@ -628,7 +628,7 @@ public final class Reactions {
         /** Body needs are the life goal's business; this goal does not hold a hungry individual under a roof. */
         private boolean pressing() {
             var life = y.life();
-            return life.nutrition() < DRY_NUTRITION || life.bladder() >= 90 || life.energy() < 10;
+            return life.nutrition() < DRY_NUTRITION || life.toiletPressure() >= 90 || life.energy() < 10;
         }
         /** Something it is already doing comes first: a meal or other life task, its family, company, play, comfort; null when idle. */
         private static String busy(YukkuriEntity e) {

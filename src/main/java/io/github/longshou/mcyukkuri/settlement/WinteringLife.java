@@ -67,7 +67,7 @@ public final class WinteringLife extends Goal {
     private boolean comfortable() { return !entity.life().temperature().unsafeSleep(); }
     private boolean stayReady() {
         return ready() && !entity.life().hasUrgentNeed() && !entity.life().needsFood()
-                && entity.life().dryness() < 40 && entity.life().bladder() < 70 && entity.life().spicyTicks() == 0
+                && entity.life().dryness() < 40 && entity.life().toiletPressure() < 70 && entity.life().spicyTicks() == 0
                 && !entity.independence().householdOuting() && entity.habitat().carrying().isEmpty()
                 && entity.settlement().duties().carrying().isEmpty() && comfortable();
     }
@@ -158,7 +158,7 @@ public final class WinteringLife extends Goal {
                         && !other.isLeashed() && !other.shellRetraction().active() && other.life().drugSleep() == 0 && other.life().sprayDelay() == 0
                         && !SettlementEvents.reserved(other)
                         && !other.family().active() && !other.family().awaitingLanding() && !other.independence().householdOuting()
-                        && !other.life().temperature().unsafeSleep() && other.life().dryness() < 40 && other.life().bladder() < 70 && other.life().spicyTicks() == 0
+                        && !other.life().temperature().unsafeSleep() && other.life().dryness() < 40 && other.life().toiletPressure() < 70 && other.life().spicyTicks() == 0
                         && (other.life().nutrition() + 10 < entity.life().nutrition()
                             || entity.family().adult() && !other.family().adult() && other.life().nutrition() <= entity.life().nutrition()))
                 .isEmpty();

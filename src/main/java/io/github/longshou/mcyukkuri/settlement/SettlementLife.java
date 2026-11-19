@@ -318,7 +318,7 @@ public final class SettlementLife {
                         "settlement goal refused in migration context reason={} group={} origin={} destination={} marching={} nutrition={} energy={} dryness={} bladder={} carried={}",
                         blocked, groupId, origin, blockedGroup.migrateTo == null ? blockedGroup.center : blockedGroup.migrateTo,
                         marching, entity.life().nutrition(), entity.life().energy(), entity.life().dryness(),
-                        entity.life().bladder(), entity.habitat().carrying().getCount());
+                        entity.life().bowel(), entity.habitat().carrying().getCount());
             return false;
         }
         if (active()) return true;
@@ -387,7 +387,7 @@ public final class SettlementLife {
     private boolean tiredOnlyUrgent() {
         var life = entity.life();
         return life.energy() < 25 && life.energy() >= 12 && life.nutrition() >= 30
-                && (life.bladder() < 90 || life.constipated())
+                && life.toiletPressure() < 90
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && life.wetness() <= 40;
     }
 

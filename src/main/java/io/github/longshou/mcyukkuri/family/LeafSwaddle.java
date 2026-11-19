@@ -118,7 +118,7 @@ public final class LeafSwaddle {
     public boolean catchesRelease() { return wrapped() && entity.isAlive(); }
     /** The swaddled child needs a parent: a real urge to go (not a dry, stuck bowel), stool in the wrap, or a wrap left open. */
     public boolean needsCare() {
-        return worn && (open || soil > 0 || entity.life().bladder() >= CARE_URGE && !entity.life().constipated());
+        return worn && (open || soil > 0 || entity.life().bowel() >= CARE_URGE && !entity.life().constipated());
     }
 
     public void tick() {
@@ -138,7 +138,7 @@ public final class LeafSwaddle {
         if (open) return;
         if (soil > 0) changeNeglect(neglect + 1);
         var life = entity.life();
-        if (life.bladder() >= SOIL_URGE && !life.constipated() && entity.level().getGameTime() >= soilRetryAt) soil("held");
+        if (life.bowel() >= SOIL_URGE && !life.constipated() && entity.level().getGameTime() >= soilRetryAt) soil("held");
         wearClock++;
         if (wearClock % EFFECT_TICKS == 0) {
             float hygiene = life.hygiene(), unease = entity.mind().unease();
@@ -159,7 +159,7 @@ public final class LeafSwaddle {
         if (needsCare() && entity.tickCount % 120 == 0 && !life.isSleeping() && !entity.isPanicking()) {
             entity.showReaction("teary", "need_toilet", 50);
             GameplayLog.limited(entity, "family", "leaf_swaddle.waiting", 1200,
-                    "leaf swaddle waiting for care soil={} bladder={} hygiene={} vehicle={}", soil, life.bladder(), life.hygiene(),
+                    "leaf swaddle waiting for care soil={} bladder={} hygiene={} vehicle={}", soil, life.bowel(), life.hygiene(),
                     entity.getVehicle() == null ? null : entity.getVehicle().getUUID());
         }
     }
@@ -182,7 +182,7 @@ public final class LeafSwaddle {
     public boolean soil(String cause) {
         int previousStage = neglectStage();
         var life = entity.life();
-        float bladder = life.bladder(), hygiene = life.hygiene();
+        float bladder = life.bowel(), hygiene = life.hygiene();
         double volume=DetachedItems.wasteAmount(entity), before=soil;
         if (retaining() || soil+volume <= MAX_SOIL) {
             life.releaseIntoWrap(); soil+=volume;
@@ -190,7 +190,7 @@ public final class LeafSwaddle {
             entity.mind().add(6, "soiled_swaddle");
             entity.showReaction("teary", "leak", 80);
             GameplayLog.event(entity, "family", "leaf swaddle soiled cause={} volume={} -> {} bladder={} -> {} hygiene={} -> {}",
-                    cause, before, soil, bladder, life.bladder(), hygiene, life.hygiene());
+                    cause, before, soil, bladder, life.bowel(), hygiene, life.hygiene());
             return true;
         }
         if (!dropStool(true)) {
@@ -203,7 +203,7 @@ public final class LeafSwaddle {
         entity.mind().add(8, "soiled_swaddle");
         entity.showReaction("teary", "leak", 80);
         GameplayLog.event(entity, "family", "leaf swaddle overflowed cause={} soil={} bladder={} -> {} hygiene={} -> {} dropped=1",
-                cause, soil, bladder, life.bladder(), hygiene, life.hygiene());
+                cause, soil, bladder, life.bowel(), hygiene, life.hygiene());
         return true;
     }
 
@@ -346,7 +346,7 @@ public final class LeafSwaddle {
         return touching ? Behaviors.SWADDLE_RECEIVE : Behaviors.CARE_WAIT;
     }
 
-    private static boolean canAssist(YukkuriEntity child) { return child.life().bladder() >= 10 && !child.life().constipated(); }
+    private static boolean canAssist(YukkuriEntity child) { return child.life().bowel() >= 10 && !child.life().constipated(); }
 
     public boolean canUse() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || task != Task.NONE || pollWait > 0) return false;
@@ -359,11 +359,11 @@ public final class LeafSwaddle {
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (swaddled != null) {
             var wrap = swaddled.leafSwaddle();
-            boolean urgent = wrap.soil > 0 || swaddled.life().bladder() >= 70;
+            boolean urgent = wrap.soil > 0 || swaddled.life().bowel() >= 70;
             if (!accepts(swaddled, "care", urgent)) return false;
             begin(swaddled, !wrap.open ? Task.UNWRAP : canAssist(swaddled) ? Task.ASSIST : Task.CLEAN);
             GameplayLog.event(entity, "family", "leaf swaddle care start child={} open={} soil={} bladder={} hygiene={}",
-                    target, wrap.open, wrap.soil, swaddled.life().bladder(), swaddled.life().hygiene());
+                    target, wrap.open, wrap.soil, swaddled.life().bowel(), swaddled.life().hygiene());
             return true;
         }
         var skills = entity.skills();
@@ -407,7 +407,7 @@ public final class LeafSwaddle {
         return !child.leafSwaddle().worn && swaddleAge(child)
                 && child.childhood().landed() && child.childhood().firstToiletDone() && child.getVehicle() == null
                 && !child.pet().care().swaddled() && !child.profile().houseBody()
-                && !child.profile().dangerToYukkuri() && child.life().bladder() < CARE_URGE;
+                && !child.profile().dangerToYukkuri() && child.life().bowel() < CARE_URGE;
     }
 
     private boolean ready(YukkuriEntity child) {
@@ -520,14 +520,14 @@ public final class LeafSwaddle {
                 int leafCount = wrap.material.stream().mapToInt(ItemStack::getCount).sum();
                 int dropped = wrap.openForCare();
                 GameplayLog.event(entity, "family", "leaf swaddle opened child={} soil={} droppedWaste={} discardedLeaves={} bladder={} constipated={}",
-                        target, soiled, dropped, soiled > 0 ? leafCount : 0, life.bladder(), life.constipated());
+                        target, soiled, dropped, soiled > 0 ? leafCount : 0, life.bowel(), life.constipated());
                 next(canAssist(child) ? Task.ASSIST : Task.CLEAN);
             }
             case ASSIST -> {
                 if (contactTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS + ToiletContact.RELEASE_TICKS) return;
-                float before = life.bladder();
+                float before = life.bowel();
                 if (!life.assistedRelease()) { stop("release_blocked"); return; }
-                GameplayLog.event(entity, "family", "leaf swaddle assisted toilet child={} bladder={} -> {}", target, before, life.bladder());
+                GameplayLog.event(entity, "family", "leaf swaddle assisted toilet child={} bladder={} -> {}", target, before, life.bowel());
                 next(Task.CLEAN);
             }
             case CLEAN -> {
@@ -548,7 +548,7 @@ public final class LeafSwaddle {
                 child.mind().add(-1, "leaf_swaddle");
                 life.personality().experienced(Trait.FRIENDLINESS, 1, "rewrapped");
                 GameplayLog.event(entity, "family", "leaf swaddle rewrapped child={} leaves={} hygiene={} bladder={}",
-                        target, describe(wrap.material), life.hygiene(), life.bladder());
+                        target, describe(wrap.material), life.hygiene(), life.bowel());
                 stop("done");
             }
             default -> stop("unknown_phase");

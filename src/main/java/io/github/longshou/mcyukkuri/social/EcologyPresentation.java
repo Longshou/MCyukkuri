@@ -30,7 +30,7 @@ public final class EcologyPresentation {
         if ((e.woundComfort().receiving() || e.woundComfort().soothed()) && e.body().condition().hasSkinOrBurnDamage())
             return condition(e.woundComfort().inContact() ? "soothed" : "discomfort");
         if (e.body().condition().needsPainExpression() || e.life().spicyTicks() > 0) return condition("hurt");
-        if (e.life().constipated() && e.life().bladder() >= 70) return condition("discomfort");
+        if (e.life().constipated() && e.life().bowel() >= 70) return condition("discomfort");
         String id = moment(e.getBehaviorId());
         var row = Moments.row(id);
         long start = id.equals(e.getMomentId()) ? e.getAnimationStartTick() : e.getBehaviorStartTick();
@@ -38,7 +38,7 @@ public final class EcologyPresentation {
         if (row.has("face_condition")) {
             boolean active = switch (row.get("face_condition").getAsString()) {
                 case "moving" -> e.getDeltaMovement().horizontalDistanceSqr() > .0001;
-                case "urgent_toilet" -> e.life().bladder() >= 90;
+                case "urgent_toilet" -> e.life().toiletPressure() >= 90;
                 default -> throw new IllegalArgumentException("Unknown face condition");
             };
             if (active) expression = row.get("condition_face").getAsString();

@@ -93,7 +93,7 @@ public final class PetLessons {
     public boolean careReady(Ability skill) {
         return switch (skill) {
             case FOOD_GUARD -> animal.life().canEat() && animal.life().canUseCareFacility(CareBlock.Kind.BOWL);
-            case TOILET -> animal.life().bladder() >= 70 && animal.life().canUseCareFacility(CareBlock.Kind.TOILET);
+            case TOILET -> animal.life().toiletPressure() >= 70 && animal.life().canUseCareFacility(CareBlock.Kind.TOILET);
             default -> throw new IllegalArgumentException("Not a care routine: " + skill);
         };
     }

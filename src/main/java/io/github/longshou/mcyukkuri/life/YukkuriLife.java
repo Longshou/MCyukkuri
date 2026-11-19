@@ -97,7 +97,8 @@ public final class YukkuriLife {
     private final GarbageSearch garbage;
     private final StallTheft stallTheft;
     private final YukkuriPersonality personality;
-    private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
+    private float nutrition = 60, energy = 80, hygiene = 100, wetness;
+    private final ToiletNeeds toiletNeeds = new ToiletNeeds();
     /** 舌肥 (FG-03): how choosey this body is about ordinary and coarse food; innate from the UUID, then moved by meals. */
     private float pickiness;
     private long ageTicks;
@@ -269,19 +270,19 @@ public final class YukkuriLife {
     }
     YukkuriEntity entity() { return entity; }
     HomeProvider homeProvider() { return HomeProvider.forEntity(entity); }
-    void emptyBladder() { bladder = 0; }
     LifeDoses doses() { return doses; }
     void addNutrition(float amount) {
         float before = nutrition; nutrition = Math.min(100, nutrition + amount);
         if (nutrition > before) entity.social().ate(nutrition);
         nutritionBoundary(before, "intake");
     }
-    void addBladder(float amount) { bladder = Math.min(100, bladder + amount); }
+    void drank() { toiletNeeds.drank(); }
+    void ate(float nutritionGain) { toiletNeeds.ate(nutritionGain); }
     void increaseDryness(float amount) { dryness = Math.min(100, dryness + amount); }
     void relieveDryness(float amount) { dryness = Math.max(0, dryness - amount); }
     private void releaseWaste() {
         double volume=DetachedItems.wasteAmount(entity);
-        bladder=Math.max(0,bladder-(float)(40*volume/DetachedItems.wasteVolume(entity)));
+        toiletNeeds.bowel=Math.max(0,toiletNeeds.bowel-(float)(40*volume/DetachedItems.wasteVolume(entity)));
     }
     void leaked() { releaseWaste();hygiene=Math.max(0,hygiene-15); }
     /** No sleep bookkeeping outlives a sleep: the next one starts from the enter clip with no wake tick. */
@@ -356,7 +357,8 @@ public final class YukkuriLife {
             case "nutrition" -> nutrition = v;
             case "energy" -> energy = v;
             case "hygiene" -> hygiene = v;
-            case "bladder" -> bladder = v;
+            case "bladder", "bowel" -> toiletNeeds.bowel = v;
+            case "urine" -> toiletNeeds.urine = v;
             case "wetness" -> wetness = v;
             case "dryness" -> dryness = v;
             default -> { return false; }
@@ -364,13 +366,18 @@ public final class YukkuriLife {
         return true;
     }
     public float hygiene() { return hygiene; }
-    public float bladder() { return bladder; }
+    public float bowel() { return toiletNeeds.bowel; }
+    public float urine() { return toiletNeeds.urine; }
+    public ToiletNeeds.Kind leadingToiletNeed() {
+        return toiletNeeds.leading(!constipated() && entity.childhood().firstToiletDone());
+    }
+    public float toiletPressure() { return toiletNeeds.pressure(leadingToiletNeed()); }
     /** A newborn's first stool is already stored at birth; only the assisted contact below may retire it. */
-    public void primeFirstStool() { bladder = Math.max(bladder, 12); }
+    public void primeFirstStool() { toiletNeeds.bowel = Math.max(toiletNeeds.bowel, 12); }
     /** Only the completed newborn-care contact may retire this first bowel load. */
     public boolean completeAssistedFirstToilet(YukkuriEntity parent){
         if (!(entity.level() instanceof ServerLevel) || !entity.childhood().assistedReleaseReady(parent)
-                || bladder < 10 || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
+                || toiletNeeds.bowel < 10 || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
                 || entity.isInWaterOrBubble() || isSleeping() || mealTicks() > 0) return false;
         var rear = ToiletContact.anus(entity, 0);
         if (rear == null) return false;
@@ -379,11 +386,11 @@ public final class YukkuriLife {
         entity.showReaction("happy", "toilet_done", 60);
         return true;
     }
-    /** Leaf swaddle (family/LeafSwaddle): one load goes into the closed wrap, with the same bladder and hygiene cost as a leak. */
+    /** Leaf swaddle (family/LeafSwaddle): one load goes into the closed wrap, with the same bowel and hygiene cost as a leak. */
     public void releaseIntoWrap() { leaked(); }
     /** Leaf swaddle care: after the parent's verified rear contact the opened child drops one real load from its anus. */
     public boolean assistedRelease() {
-        if (!(entity.level() instanceof ServerLevel) || bladder < 10 || constipated() || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
+        if (!(entity.level() instanceof ServerLevel) || toiletNeeds.bowel < 10 || constipated() || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
                 || entity.isInWaterOrBubble() || isSleeping() || mealTicks() > 0 || entity.leafSwaddle().wrapped()) return false;
         if (!ToiletContact.drop(entity, ToiletContact.anus(entity, 0))) return false;
         releaseWaste(); personality.relieveFear();
@@ -395,13 +402,13 @@ public final class YukkuriLife {
      * (blocks per tick); the same load and relief as a ground toilet. The flying item, or null when nothing left the body.
      */
     public ItemEntity relieveOutboard(Vec3 at, Vec3 velocity) {
-        if (!(entity.level() instanceof ServerLevel) || bladder < 10 || constipated() || !entity.isAlive() || isSleeping() || mealTicks() > 0) return null;
+        if (!(entity.level() instanceof ServerLevel) || toiletNeeds.bowel < 10 || constipated() || !entity.isAlive() || isSleeping() || mealTicks() > 0) return null;
         var stool = ToiletContact.launch(entity, at, velocity);
         if (stool == null) return null;
-        float before = bladder;
+        float before = toiletNeeds.bowel;
         releaseWaste(); personality.relieveFear();
         entity.showReaction("happy", "toilet_done", 60);
-        GameplayLog.event(entity, "needs", "relieved source=boat at={} bladder={} -> {}", GameplayLog.at(at), before, bladder);
+        GameplayLog.event(entity, "needs", "relieved source=boat at={} bladder={} -> {}", GameplayLog.at(at), before, toiletNeeds.bowel);
         return stool;
     }
     /** A real cleaning or soiling of the body surface, bounded like every other hygiene change. */
@@ -448,7 +455,7 @@ public final class YukkuriLife {
     public static final int DISTRESS_LEAK=80;
     /**
      * Sudden fright or extreme distress makes the body let go by itself (komicolle 11518802), adults included.
-     * The chance grows with the bladder; {@code force} skips the roll (status tool, scenes).
+     * The chance grows with bowel fullness; {@code force} skips the roll (status tool, scenes).
      */
     public boolean involuntaryRelease(String cause, boolean force){ return doses.involuntaryRelease(cause, force); }
     public boolean addicted(){ return doses.addicted(); }
@@ -510,20 +517,20 @@ public final class YukkuriLife {
     public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
     public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || entity.family().stemFoodUrgent() || hasUrgentNonFoodNeed(); }
-    public boolean hasUrgentNonFoodNeed() { return energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
+    public boolean hasUrgentNonFoodNeed() { return energy < 25 || toiletPressure() >= 90 || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     /** Thirst at the threshold the daytime plan drinks by (dryness 40 or something spicy in the mouth), and only with a drink really in reach. */
     private boolean needsDrink() { return dryness >= THIRST_THRESHOLD || spicyTicks() > 0; }
     private boolean thirstUrgent() { return needsDrink() && hasReachableDrink(); }
     /** Bladder at {@link #hasUrgentNeed()}'s threshold, and only when the daytime toilet plan has somewhere to go, so waking always ends in relief. */
-    private boolean bladderUrgent() {
-        return bladder >= 90 && !constipated() && entity.childhood().firstToiletDone() && !entity.leafSwaddle().wrapped()
+    private boolean toiletUrgent() {
+        return toiletPressure() >= 90 && entity.childhood().firstToiletDone() && !entity.leafSwaddle().wrapped()
                 && (dryStand(entity.blockPosition()) || nearestCare(CareBlock.Kind.TOILET, false) != null);
     }
     /** The real need that ends any full life sleep at once (same thresholds the daytime plan uses), or null: a drink in reach, a full
-     * bladder with somewhere to go, or an own hungry child awake within the family care range. */
+     * toilet pressure with somewhere to go, or an own hungry child awake within the family care range. */
     private String needWakeCause() {
         if (thirstUrgent()) return "thirst";
-        if (bladderUrgent()) return "toilet";
+        if (toiletUrgent()) return "toilet";
         return entity.family().hasChildAwaitingFeed() ? "child_hungry" : null;
     }
     public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
@@ -701,7 +708,7 @@ public final class YukkuriLife {
             }
         }
         if (!isSleeping() && ++thirstTicks >= (entity.family().adult() ? THIRST_INTERVAL : THIRST_INTERVAL * 2)) {
-            thirstTicks = 0; addDryness(1);
+            thirstTicks = 0; addDryness(1); toiletNeeds.awakeInterval();
             if (dryness == 40 || dryness == SEVERE_THIRST) GameplayLog.event(entity,"needs","thirst baseline dryness={} threshold={}",dryness,dryness >= SEVERE_THIRST ? "severe" : "drink");
         }
         if(energy > 25)napReady=false;
@@ -939,7 +946,7 @@ public final class YukkuriLife {
             if (targetBlock != null && covered(targetBlock) && mayReturnToBed(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
-        if (bladder >= 70 && planToilet()) return true;
+        if (toiletNeeds.bowel >= 70 && planToilet()) return true;
         // Executable urgent needs above still interrupt a stocked nest, shelter or egg-care routine.
         switch (homeProvider().beforeFood(this)) {
             case TEMPERATURE -> { task = Task.TEMPERATURE; return true; }
@@ -1017,7 +1024,7 @@ public final class YukkuriLife {
                 return true;
             }
         }
-        if (bladder < 70 && planToilet()) return true;
+        if (toiletNeeds.bowel < 70 && planToilet()) return true;
         if (!penned && nutrition < 30 && canEat() && level().getGameTime() >= cropSearchAfter
                 && Grazing.streetForager(entity) && EventHooks.canEntityGrief(level(), entity)) {
             cropSearchAfter = level().getGameTime() + 80;
@@ -1103,7 +1110,7 @@ public final class YukkuriLife {
                 return true;
             }
         }
-        if (bladder >= 70 && planToilet()) { entity.wintering().stopMeal(); return true; }
+        if (toiletNeeds.bowel >= 70 && planToilet()) { entity.wintering().stopMeal(); return true; }
         if (temperature.unsafeSleep() && temperature.plan()) {
             entity.wintering().stopMeal(); task = Task.TEMPERATURE; pursuitTicks = 0; return true;
         }
@@ -1115,17 +1122,17 @@ public final class YukkuriLife {
     }
     private boolean planToilet() {
         // A closed leaf swaddle keeps the young one from going by itself; only a parent's care opens it (family/LeafSwaddle).
-        if (!entity.childhood().firstToiletDone() || bladder < 40 || constipated() || entity.leafSwaddle().wrapped()) return false;
+        if (!entity.childhood().firstToiletDone() || toiletNeeds.bowel < 40 || constipated() || entity.leafSwaddle().wrapped()) return false;
         var toilet = nearestCare(CareBlock.Kind.TOILET, false);
         var here = entity.blockPosition();
         boolean pet = Custody.view(entity).owner() != null || home() != null && !naturalHome();
-        var spot = toilet == null && !pet && bladder >= 70 ? GroupPits.spot(entity) : null;
+        var spot = toilet == null && !pet && toiletNeeds.bowel >= 70 ? GroupPits.spot(entity) : null;
         var destination = toilet != null ? toilet : spot != null ? spot.stand() : null;
-        boolean groundReady = bladder >= 70 && dryStand(here) && !GroupPits.inCells(GroupPits.avoidedCells(entity), here);
+        boolean groundReady = toiletNeeds.bowel >= 70 && dryStand(here) && !GroupPits.inCells(GroupPits.avoidedCells(entity), here);
         if (groundReady && destination != null) {
             double distance = Math.sqrt(here.distSqr(destination));
             double impatience = .40 + .25 * SocialDisposition.ramp(distance, 1, 8)
-                    + .20 * SocialDisposition.ramp(bladder, 70, 100);
+                    + .20 * SocialDisposition.ramp(toiletNeeds.bowel, 70, 100);
             double restraint = .30 + .55 * SocialDisposition.ramp(personality.selfControl(), 35, 70)
                     + .45 * SocialDisposition.ramp(entity.skills().grade(Ability.TOILET), 0, 3);
             if (impatience > restraint) {
@@ -1133,7 +1140,7 @@ public final class YukkuriLife {
                 task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
                 toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0; toiletAccident = true;
                 GameplayLog.event(entity, "needs", "toilet skipped destination={} ground={} bladder={} impatience={} restraint={}",
-                        destination, here, bladder, impatience, restraint);
+                        destination, here, toiletNeeds.bowel, impatience, restraint);
                 return true;
             }
         }
@@ -1141,14 +1148,14 @@ public final class YukkuriLife {
             targetBlock = toilet;
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;
         }
-        if (bladder < (pet ? 90 : 70)) return false;
+        if (toiletNeeds.bowel < (pet ? 90 : 70)) return false;
         targetBlock = null; toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0;
         // A community member goes to the group's pit; lone wild yukkuri and families use ground away from home.
         if (spot != null) {
             targetBlock = spot.stand(); toiletPit = true; toiletPitCell = spot.pit(); toiletAccident = false;
             task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
             GameplayLog.event(entity,"needs","toilet pit trip start pit={} stand={} distance={} bladder={} portions={}",spot.pit(),spot.stand(),
-                    String.format("%.1f",Math.sqrt(spot.stand().distSqr(entity.blockPosition()))),bladder,GroupPits.waste((ServerLevel)level(),spot.pit()));
+                    String.format("%.1f",Math.sqrt(spot.stand().distSqr(entity.blockPosition()))),toiletNeeds.bowel,GroupPits.waste((ServerLevel)level(),spot.pit()));
             return true;
         }
         var found = foundShelter();
@@ -1250,17 +1257,17 @@ public final class YukkuriLife {
                 if (!entity.childhood().firstToiletDone()) { stopGoal(); return; }
                 if (targetBlock == null || !(level().getBlockEntity(targetBlock) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
                         || !care.acceptsWaste(DetachedItems.waste(entity)) || pursuitTicks > 240) { stopGoal(); return; }
-                if (constipated() || bladder < 40 || ToiletContact.facilitySeat(entity, targetBlock) == null) { stopGoal(); return; }
+                if (constipated() || toiletNeeds.bowel < 40 || ToiletContact.facilitySeat(entity, targetBlock) == null) { stopGoal(); return; }
                 if (ToiletContact.approachFacility(entity, targetBlock)) {
                     if (++toiletTicks == 1) entity.speak("need_toilet");
                     // The stool leaves the anus at the end of the second push; the clip then relaxes for a few ticks.
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
-                        float before=bladder;
+                        float before=toiletNeeds.bowel;
                         if (ToiletContact.facilityContact(entity, targetBlock) && care.relieve(DetachedItems.waste(entity))) {
                             releaseWaste(); personality.relieveFear();
                             entity.showReaction("happy", "toilet_done", 60);
                             entity.pet().routineCompleted(Ability.TOILET);
-                            GameplayLog.event(entity,"needs","relieved source=facility at={} bladder={} -> {} volume={}",targetBlock,before,bladder,care.waste());
+                            GameplayLog.event(entity,"needs","relieved source=facility at={} bladder={} -> {} volume={}",targetBlock,before,toiletNeeds.bowel,care.waste());
                         } else { stopGoal(); return; }
                     }
                     if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
@@ -1282,10 +1289,10 @@ public final class YukkuriLife {
                     }
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         // From the anus of this very model at this moment of the clip (see ToiletContact.anus); at the pit the portion lands in the pit cell behind it.
-                        float before=bladder;
-                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS), toiletPit ? toiletPitCell : null)) {
+                        float before=toiletNeeds.bowel;
+                        if (toiletNeeds.bowel >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS), toiletPit ? toiletPitCell : null)) {
                             releaseWaste(); personality.relieveFear();
-                            GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,before,bladder,toiletAccident);
+                            GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,before,toiletNeeds.bowel,toiletAccident);
                             if (toiletAccident) {
                                 hygiene = Math.max(0,hygiene-20);
                                 entity.pet().lessons().performed(Ability.TOILET, false);
@@ -1913,7 +1920,7 @@ public final class YukkuriLife {
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag(); tag.putInt("Version", 1);
         tag.putFloat("Nutrition", nutrition); tag.putFloat("Energy", energy); tag.putFloat("Hygiene", hygiene);
-        tag.putFloat("Bladder", bladder); tag.putFloat("Wetness", wetness); tag.putLong("AgeTicks", ageTicks);
+        tag.putFloat("Bladder", toiletNeeds.bowel); tag.putFloat("Urine", toiletNeeds.urine); tag.putFloat("Wetness", wetness); tag.putLong("AgeTicks", ageTicks);
         tag.putInt("ImmersionTicks", immersionTicks);
         tag.put("Temperature", temperature.save());
         tag.put("Wintering", entity.wintering().save());
@@ -1941,7 +1948,7 @@ public final class YukkuriLife {
     private int immersionInterval() { return entity.profile().aquatic() ? 60 : 20; }
     public void load(CompoundTag tag) {
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
-        bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
+        toiletNeeds.bowel = bounded(tag,"Bladder",0); toiletNeeds.urine = bounded(tag,"Urine",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
         // Old saves recorded a 0..19 phase of the universal twenty-tick clock.  Keep that phase intact while
         // allowing new aquatic saves to retain the longer sixty-tick phase.
         immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, immersionInterval()-1);

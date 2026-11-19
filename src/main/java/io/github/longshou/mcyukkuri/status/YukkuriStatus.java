@@ -163,7 +163,8 @@ public final class YukkuriStatus {
             default -> "平静";
         });
         if (y.family().inBreedingPeriod()) text.append(" 发情余").append((y.family().sexDrive()+19)/20).append("秒");
-        if ((int) get(y, StatusKey.BLADDER) >= 50) text.append(" 便").append(get(y, StatusKey.BLADDER));
+        if ((int) get(y, StatusKey.BOWEL) >= 50) text.append(" 便").append(get(y, StatusKey.BOWEL));
+        if ((int) get(y, StatusKey.URINE) >= 50) text.append(" 尿").append(get(y, StatusKey.URINE));
         if ((int) get(y, StatusKey.WETNESS) >= 20) text.append(" 湿").append(get(y, StatusKey.WETNESS));
         text.append(' ').append(switch(String.valueOf(get(y,StatusKey.STAGE))) {
             case "baby" -> "赤油"; case "juvenile" -> "子油"; case "subadult" -> "亚成体";

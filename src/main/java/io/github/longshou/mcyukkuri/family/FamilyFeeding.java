@@ -152,7 +152,7 @@ final class FamilyFeeding {
     private boolean careContinuationReady() {
         var life=o.entity().life();
         return careContextReady()&&life.nutrition()>=15&&life.energy()>=15
-                &&(life.bladder()<90||life.constipated())&&life.wetness()<=40;
+                &&life.toiletPressure() < 90&&life.wetness()<=40;
     }
 
     boolean hungryOwnChild(YukkuriEntity child) {

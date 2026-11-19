@@ -118,7 +118,7 @@ public final class NotebookItem extends Item {
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
                 Component.translatable("notebook.mcyukkuri.stats", entity.getName(), Component.translatable(entity.identityTranslationKey()),
                         Math.round(life.nutrition()), Math.round(life.energy()),
-                        Math.round(life.hygiene()), Math.round(life.wetness()), Math.round(life.bladder()),
+                        Math.round(life.hygiene()), Math.round(life.wetness()), Math.round(life.bowel()), Math.round(life.urine()),
                         Component.translatable("activity.mcyukkuri." + entity.getBehaviorId())),
                 Component.translatable("notebook.mcyukkuri.home", home, life.mouth().isEmpty() ? Component.translatable("notebook.mcyukkuri.empty_mouth") : life.mouth().getHoverName(),
                         life.hasAccessory() ? Component.translatable("notebook.mcyukkuri.accessory.present") : Component.translatable("notebook.mcyukkuri.accessory.absent")),

@@ -76,7 +76,7 @@ def sel_all(name, radius=48):
     return f'@e[tag={tag(name)},distance=..{radius}]'
 
 
-def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, hygiene=100,
+def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=None, nutrition=90, energy=95, bladder=0, urine=0, hygiene=100,
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
        intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None, identity=None,
@@ -117,7 +117,7 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
     parts = ['Tags:[' + ','.join(f'"{t}"' for t in tags) + ']', 'PersistenceRequired:1b', f'Rotation:[{float(yaw)}f,0f]']
     if label:
         parts += [f'CustomName:{_q(_text(label))}', 'CustomNameVisible:1b']
-    parts.append('YukkuriLife:{' + f'Nutrition:{nutrition}f,Energy:{energy}f,Hygiene:{hygiene}f,Bladder:{bladder}f,Accessory:{1 if accessory else 0}b,'
+    parts.append('YukkuriLife:{' + f'Nutrition:{nutrition}f,Energy:{energy}f,Hygiene:{hygiene}f,Bladder:{bladder}f,Urine:{urine}f,Accessory:{1 if accessory else 0}b,'
                  f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(intelligence, friendliness, boldness, attachment, self_control)
                  + (f',HatCustody:{{State:"WORN",Kit:{{id:"{kit}",count:1}}}}' if kit else '')
                  + (f',Pickiness:{float(picky)}f' if picky is not None else '') + '}')

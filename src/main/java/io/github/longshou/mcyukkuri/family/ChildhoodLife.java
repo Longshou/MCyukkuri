@@ -172,14 +172,14 @@ public final class ChildhoodLife {
     public void firstMealSwallowed() {
         if (!newborn || firstMealDone) return;
         firstMealDone = true;
-        GameplayLog.event(entity, "childhood", "first meal swallowed nutrition={} bladder={}", entity.life().nutrition(), entity.life().bladder());
+        GameplayLog.event(entity, "childhood", "first meal swallowed nutrition={} bladder={}", entity.life().nutrition(), entity.life().bowel());
         entity.setPersistenceRequired();
     }
 
     /** The child asks for its assisted first toilet only after a settled first meal and its actual stored urge. */
     public boolean needsAssistedFirstToilet() {
         return newborn && landed && firstMealDone && entity.life().mealTicks() == 0
-                && !firstToiletDone && entity.life().bladder() >= 10;
+                && !firstToiletDone && entity.life().bowel() >= 10;
     }
 
     /** A first toilet or unfinished ground movement keeps a current newborn in the care phase. */
@@ -265,7 +265,7 @@ public final class ChildhoodLife {
             if (child != null) {
                 if (!acceptsCare(child)) return false;
                 task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0;
-                GameplayLog.event(entity, "childhood", "first toilet approach child={} bladder={}", careTarget, child.life().bladder());
+                GameplayLog.event(entity, "childhood", "first toilet approach child={} bladder={}", careTarget, child.life().bowel());
                 BirthStaging.caption(entity, "赤油已吞咽首餐；亲油走到后侧，开始舔舐促进第一次排便");
                 return true;
             }
@@ -303,7 +303,7 @@ public final class ChildhoodLife {
 
     /** First-toilet help is chosen exactly once after a real child and safe contact path are available. */
     private boolean acceptsCare(YukkuriEntity child) {
-        boolean urgent=child.life().bladder()>=70||!child.childhood().firstToiletDone();
+        boolean urgent=child.life().bowel()>=70||!child.childhood().firstToiletDone();
         return entity.family().careDecisions().decide(child,CareDecisionLedger.Need.FIRST_TOILET,urgent).accepted();
     }
 
@@ -384,7 +384,7 @@ public final class ChildhoodLife {
         if (!assistedReleaseReady(parent) || !entity.life().completeAssistedFirstToilet(parent)) return false;
         firstToiletDone = true;
         parent.family().careDecisions().complete(entity,CareDecisionLedger.Need.FIRST_TOILET);
-        GameplayLog.event(entity, "childhood", "first toilet completed parent={} bladder={}", parent.getUUID(), entity.life().bladder());
+        GameplayLog.event(entity, "childhood", "first toilet completed parent={} bladder={}", parent.getUUID(), entity.life().bowel());
         BirthStaging.caption(parent, "赤油在吞咽首餐后排出了第一次便便，首便完成");
         entity.setPersistenceRequired();
         return true;

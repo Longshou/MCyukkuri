@@ -343,7 +343,7 @@ final class ScenarioSetup {
         for (var actor : new YukkuriEntity[]{parent, teen}) {
             var life = actor.life().save();
             life.putFloat("Nutrition", 100); life.putFloat("Energy", 100);
-            life.putFloat("Bladder", 0); life.putFloat("Dryness", 0);
+            life.putFloat("Bladder", 0); life.putFloat("Urine", 0); life.putFloat("Dryness", 0);
             actor.life().load(life);
         }
         teen.independence().arm();

@@ -206,7 +206,7 @@ public final class GroupPits {
     public static void refuse(YukkuriEntity entity, String reason, BlockPos pit) {
         REFUSED.put(entity, entity.level().getGameTime() + REFUSE_TICKS);
         GameplayLog.limited(entity, "needs", "pit_" + reason, 600, "toilet pit refused reason={} pit={} bladder={}",
-                reason, pit, entity.life().bladder());
+                reason, pit, entity.life().bowel());
     }
 
     /** True when {@code pos} is one of the group's pit cells (cleaners never pick waste up out of the pit). */

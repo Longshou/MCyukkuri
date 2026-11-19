@@ -15,7 +15,7 @@ public final class DetachedItems {
     }
     /** Bladder is relative fullness (0..100), not adult-volume units. */
     public static double wasteAmount(YukkuriEntity source) {
-        return wasteVolume(source)*Math.min(1,source.life().bladder()/40.0);
+        return wasteVolume(source)*Math.min(1,source.life().bowel()/40.0);
     }
     public static double volume(ItemStack stack) {
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

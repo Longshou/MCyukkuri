@@ -66,7 +66,7 @@ final class BoatToilet implements Intent {
     /** The want, from the real bladder and a place this body can really use. */
     static void offer(List<Desire> out, YukkuriEntity body, PlacedHatEntity hat) {
         var life = body.life();
-        double from = AquaticGoal.num("toilet_from", 70), bladder = life.bladder();
+        double from = AquaticGoal.num("toilet_from", 70), bladder = life.bowel();
         if (bladder < from || !body.childhood().firstToiletDone() || life.constipated() || body.leafSwaddle().wrapped()
                 || life.isSleeping() || life.mealTicks() > 0 || body.family().birthRole() != null || !hat.steady()) return;
         var place = PlayAboard.place(body, hat);
@@ -151,7 +151,7 @@ final class BoatToilet implements Intent {
         strained = true;
         int[] tick = {0};
         int length = ToiletContact.ticks(body, Behaviors.BOAT_TOILET);
-        double before = body.life().bladder();
+        double before = body.life().bowel();
         return new Step.Do(new Await(() -> {
             if (++tick[0] == ToiletContact.DROP_TICKS) relieved = drop(before);
             if (tick[0] == Math.min(landTick, length)) landed();
@@ -173,7 +173,7 @@ final class BoatToilet implements Intent {
         GameplayLog.event(body, "aquatic", "boat_toilet dropped hat={} place={} at={} release_distance={} push={} lands={} land_distance={} air_ticks={} bladder={} -> {}",
                 hat.getUUID(), PlayAboard.place(body, hat), GameplayLog.at(at), distance(at, middle),
                 String.format(Locale.ROOT, "%.3f", Math.sqrt(plan.push().lengthSqr())), GameplayLog.at(plan.lands()), distance(plan.lands(), middle),
-                plan.ticks(), Math.round(before), Math.round(body.life().bladder()));
+                plan.ticks(), Math.round(before), Math.round(body.life().bowel()));
         return true;
     }
 

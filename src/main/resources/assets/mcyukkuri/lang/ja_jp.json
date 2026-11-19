@@ -475,7 +475,7 @@
   "notebook.mcyukkuri.empty_mouth": "食べている物はありません",
   "notebook.mcyukkuri.accessory.present": "お飾りがあります",
   "notebook.mcyukkuri.accessory.absent": "お飾りをなくし、返してもらうのを待っています",
-  "notebook.mcyukkuri.stats": "%s・%s\n\n満腹度：%s / 100\n元気：%s / 100\n清潔度：%s / 100\n濡れ具合：%s / 100\nトイレ欲求：%s / 100\n\n現在：%s",
+  "notebook.mcyukkuri.stats": "%s・%s\n\n満腹度：%s / 100\n元気：%s / 100\n清潔度：%s / 100\n濡れ具合：%s / 100\n便意：%s / 100\n尿意：%s / 100\n\n現在：%s",
   "identity.mcyukkuri.house": "家ゆっくり",
   "identity.mcyukkuri.pet": "飼い",
   "identity.mcyukkuri.npc_companion": "住民の飼い",

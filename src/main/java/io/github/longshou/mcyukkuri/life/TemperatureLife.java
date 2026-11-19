@@ -262,7 +262,7 @@ public final class TemperatureLife {
                 && (brood == null || brood.cancelled || brood.complete() || brood.progress() < .9f)
                 && life.mealTicks() == 0 && life.drugSleep() == 0 && life.sprayDelay() == 0
                 && life.nutrition() >= 30
-                && (life.bladder() < 70 || life.constipated());
+                && life.toiletPressure() < 70;
     }
     public boolean plan() { return plan(false); }
     /** Preempts an active wind-gap shelter only for a real heat source, insulated nest, or winter sun — never bare biome-edge ground. */

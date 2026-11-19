@@ -20,7 +20,7 @@ final class LifeDoses {
 
     int drugSleep(){return drugSleep;}
 
-    void drink(float relief){o.relieveDryness(relief);spicyTicks=Math.max(0,spicyTicks-Math.round(relief*4));o.addBladder(2);}
+    void drink(float relief){o.relieveDryness(relief);spicyTicks=Math.max(0,spicyTicks-Math.round(relief*4));o.drank();}
 
     boolean canTakeDose(ItemStack dose){return Consumables.oral(dose)&&!o.entity().family().awaitingLanding()&&o.mouth().isEmpty()&&o.mealTicks()==0&&o.entity().isAlive()&&!o.entity().isNoAi()
             &&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.isSleeping()&&!o.entity().isInWaterOrBubble()&&Consumables.applicable(o.entity(),dose);}
@@ -41,8 +41,8 @@ final class LifeDoses {
     int distress(){return o.entity().mind().stressView();}
 
     boolean involuntaryRelease(String cause, boolean force){
-        if(o.entity().level().isClientSide||!o.entity().isAlive()||leakCooldown>0||o.bladder()<15||o.entity().isInWaterOrBubble()||o.entity().getVehicle()!=null&&!force)return false;
-        if(!force&&o.entity().getRandom().nextFloat()>=Math.min(1f,.3f+o.bladder()/100f))return false;
+        if(o.entity().level().isClientSide||!o.entity().isAlive()||leakCooldown>0||o.bowel()<15||o.entity().isInWaterOrBubble()||o.entity().getVehicle()!=null&&!force)return false;
+        if(!force&&o.entity().getRandom().nextFloat()>=Math.min(1f,.3f+o.bowel()/100f))return false;
         // A closed leaf swaddle catches it: the load goes into the wrap instead of onto the ground (family/LeafSwaddle).
         if(o.entity().leafSwaddle().catchesRelease()){if(!o.entity().leafSwaddle().soil("involuntary:"+cause))return false;leakCooldown=2400;return true;}
         Vec3 outlet=ToiletContact.anus(o.entity(),0);

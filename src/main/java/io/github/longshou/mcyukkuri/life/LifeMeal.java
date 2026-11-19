@@ -565,7 +565,7 @@ final class LifeMeal {
                 occupancy().clear(Purpose.MEAL);
                 complaints.remove(mouth.getItem());
                 o.entity().species().ate(o.nutrition(), waste);
-                o.addNutrition(gain); o.addBladder(gain * .5f);
+                o.addNutrition(gain); o.ate(o.nutrition() - nutritionBefore);
                 o.adjustPickiness(Taste.afterMeal(grade, nutritionBefore));
                 GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={} grade={} verdict={} pickiness={}",
                         swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal,
@@ -718,7 +718,7 @@ final class LifeMeal {
         float gain = swallowed.nutrition();
         o.entity().species().ate(o.nutrition(), false);
         o.addNutrition(gain);
-        o.addBladder(gain * .5f);
+        o.ate(o.nutrition() - nutritionBefore);
         GameplayLog.event(o.entity(),"meal","swallowed bodyFood portions={} odor={} nutrition={} -> {}",swallowed.portions(),swallowed.odor(),nutritionBefore,o.nutrition());
         o.entity().childhood().firstMealSwallowed();
         sated(nutritionBefore, swallowed.odor() < 40, false, false, false);

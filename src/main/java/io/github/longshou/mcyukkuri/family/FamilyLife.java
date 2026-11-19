@@ -1356,7 +1356,7 @@ public final class FamilyLife {
     private boolean urgentNeed(){
         var life=entity.life();
         if(!life.hasUrgentNeed())return false;
-        boolean hungerOnly=life.nutrition()<30&&life.energy()>=25&&(life.bladder()<90||life.constipated())&&life.wetness()<=40
+        boolean hungerOnly=life.nutrition()<30&&life.energy()>=25&&life.toiletPressure() < 90&&life.wetness()<=40
                 &&!entity.isInWaterOrBubble()&&!entity.isOnFire();
         return adult()||!hungerOnly||!entity.childhood().shouldStayWithParents();
     }

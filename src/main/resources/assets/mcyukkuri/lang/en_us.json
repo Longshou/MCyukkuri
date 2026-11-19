@@ -251,7 +251,7 @@
   "notebook.mcyukkuri.empty_mouth": "No food in mouth",
   "notebook.mcyukkuri.accessory.present": "Accessory present",
   "notebook.mcyukkuri.accessory.absent": "Accessory missing",
-  "notebook.mcyukkuri.stats": "%s · %s\n\nNutrition: %s / 100\nEnergy: %s / 100\nHygiene: %s / 100\nWetness: %s / 100\nToilet need: %s / 100\n\nActivity: %s",
+  "notebook.mcyukkuri.stats": "%s · %s\n\nNutrition: %s / 100\nEnergy: %s / 100\nHygiene: %s / 100\nWetness: %s / 100\nBowel: %s / 100\nBladder: %s / 100\n\nActivity: %s",
   "identity.mcyukkuri.house": "House yukkuri",
   "identity.mcyukkuri.pet": "Pet",
   "identity.mcyukkuri.npc_companion": "Resident's companion",

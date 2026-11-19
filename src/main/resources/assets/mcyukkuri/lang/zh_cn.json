@@ -251,7 +251,7 @@
   "notebook.mcyukkuri.empty_mouth": "没有正在吃的食物",
   "notebook.mcyukkuri.accessory.present": "饰品还在",
   "notebook.mcyukkuri.accessory.absent": "饰品丢失，等待归还",
-  "notebook.mcyukkuri.stats": "%s · %s\n\n饱食：%s / 100\n精力：%s / 100\n清洁：%s / 100\n湿透：%s / 100\n如厕需求：%s / 100\n\n正在：%s",
+  "notebook.mcyukkuri.stats": "%s · %s\n\n饱食：%s / 100\n精力：%s / 100\n清洁：%s / 100\n湿透：%s / 100\n便意：%s / 100\n尿意：%s / 100\n\n正在：%s",
   "identity.mcyukkuri.house": "家油",
   "identity.mcyukkuri.pet": "宠物",
   "identity.mcyukkuri.npc_companion": "居民伴侣",
