@@ -49,8 +49,8 @@ public final class Motor {
         Vec3 limited = driving ? limitHorizontal(motion) : motion;
         if (!body.level().isClientSide && limited.horizontalDistanceSqr() > 0
                 && body.getNavigation() instanceof YukkuriGroundNavigation ground && !body.isInLiquid()
-                && (body.onGround() || driving) && (body.hurtTicks() == 0 || body.onGround() && motion.y <= 0)
-                && (driving || ground.walking() || body.isPanicking() || body.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT)) {
+                && (ground.retreating() || body.isPanicking() || body.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT)
+                && (body.onGround() || motion.y <= 0) && (body.hurtTicks() == 0 || body.onGround() && motion.y <= 0)) {
             var from = body.position();
             var to = from.add(limited.x, 0, limited.z);
             if (!SurfaceApproach.canSteerOver(body, to)) {

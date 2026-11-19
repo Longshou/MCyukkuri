@@ -200,7 +200,7 @@ public final class CarrierItem extends Item {
             if (mobile && !weary && canReact(entity) && entity.life().weakness() < YukkuriLife.WEAKNESS_WARNING
                     && InteractionDispatch.reachRefusal(player, entity, 4) == null) {
                 var away = Reactions.escapeStand(entity, player, 5, Set.of());
-                if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
+                if (away != null) entity.life().retreatTo(BlockPos.containing(away), 1.1);
             }
             return true;
         });

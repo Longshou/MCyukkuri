@@ -209,8 +209,10 @@ final class StruckResponse implements MotorOwner {
     }
 
     YukkuriAction action() {
-        if (stance == StruckStance.LEAD_AWAY) return body.level().getGameTime() < nextTaunt - YukkuriAction.PUKU_TEARY.durationTicks()
-                ? YukkuriAction.PUKU_TEARY : YukkuriAction.RUN;
+        if (stance == StruckStance.LEAD_AWAY) {
+            if (body.level().getGameTime() < nextTaunt - YukkuriAction.PUKU_TEARY.durationTicks()) return YukkuriAction.PUKU_TEARY;
+            return body.status().reactions().threat().flight().cornered(actor) ? YukkuriAction.TREMBLE : YukkuriAction.RUN;
+        }
         return stance == StruckStance.FREEZE && body.level().getGameTime() - start >= YukkuriAction.BRACE.durationTicks()
                 ? YukkuriAction.TREMBLE : body.reactionAction();
     }

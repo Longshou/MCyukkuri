@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,7 +22,7 @@ public final class FlightPlanner {
     private final YukkuriEntity body;
     private LivingEntity source;
     private Direction heading;
-    private long plannedAt;
+    private long plannedAt = Long.MIN_VALUE / 2;
     private Path route;
     private Vec3 checkedDanger, shielded;
     private LivingEntity shieldedFrom;
@@ -46,7 +47,11 @@ public final class FlightPlanner {
         return safeRoute(direct, danger) ? direct : null;
     }
 
-    boolean safeRoute(Path path, Vec3 danger) {
+    private boolean safeRoute(Path path, Vec3 danger) {
+        return clearsThreat(path, danger) && SurfaceApproach.safeRetreatPath(body, path, null);
+    }
+
+    boolean clearsThreat(Path path, Vec3 danger) {
         var from = body.position();
         double clearance = FlightCourse.corridorClearance(Math.hypot(from.x - danger.x, from.z - danger.z), CLEARANCE);
         for (int i = path.getNextNodeIndex(); i < path.getNodeCount(); i++) {
@@ -54,7 +59,7 @@ public final class FlightPlanner {
             if (FlightCourse.segmentDistance(from.x, from.z, next.x, next.z, danger.x, danger.z) < clearance) return false;
             from = next;
         }
-        return SurfaceApproach.safeRetreatPath(body, path, null);
+        return true;
     }
 
     private Path fan(Vec3 danger, double reach, Direction direction, BlockPos stalled, Vec3 home) {
@@ -72,7 +77,7 @@ public final class FlightPlanner {
                 if (candidate <= score) continue;
                 var path = routeTo(stand, danger);
                 if (path != null && (home == null || !FlightCourse.passesNearThreat(body.getX(), body.getZ(),
-                        stand.x, stand.z, home.x, home.z, CLEARANCE) && safeRoute(path, home))) {
+                        stand.x, stand.z, home.x, home.z, CLEARANCE) && clearsThreat(path, home))) {
                     best = path; score = candidate;
                 }
             }
@@ -94,8 +99,7 @@ public final class FlightPlanner {
         if (distance < 1.5) return;
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         var path = fan(danger, Math.min(9, distance), direction, null, null);
-        if (path != null) body.getNavigation().moveTo(path, 1.2);
-        else SurfaceApproach.halt(body);
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) SurfaceApproach.halt(body);
     }
 
     private Path refuge(LivingEntity danger) {
@@ -127,7 +131,8 @@ public final class FlightPlanner {
                 var ray = away.rotate(angle);
                 var step = SurfaceApproach.retreatFloor(body, landing.add(ray.x(), 0, ray.z()));
                 if (step != null && !FlightCourse.passesNearThreat(landing.x, landing.z, step.x, step.z,
-                        danger.getX(), danger.getZ(), CLEARANCE) && SurfaceApproach.clearLastStep(body, landing, step)) return true;
+                        danger.getX(), danger.getZ(), CLEARANCE) && SurfaceApproach.clearLastStep(body, landing, step)
+                        && SurfaceApproach.safeRetreatStep(body, landing, step)) return true;
             }
             return false;
         }
@@ -146,8 +151,35 @@ public final class FlightPlanner {
 
     public void flee(LivingEntity danger) { run(danger, null); }
 
+    public void fleeWithoutSource() {
+        var navigation = body.getNavigation();
+        if (!navigation.isDone()) return;
+        long now = body.level().getGameTime();
+        if (source == null && route == null && now - plannedAt < 40) return;
+        if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
+        source = null;
+        plannedAt = now;
+        var target = DefaultRandomPos.getPos(body, 6, 3);
+        var path = target == null ? null : navigation.createPath(BlockPos.containing(target), 0);
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) { noExit(); return; }
+        route = navigation.getPath();
+    }
+
     public boolean cornered(LivingEntity danger) {
-        return danger != null && source == danger && route == null && body.level().getGameTime() - plannedAt < 40;
+        return source == danger && route == null && body.level().getGameTime() - plannedAt < 40
+                && (danger == null || danger.isAlive() && danger.level() == body.level() && body.distanceToSqr(danger) <= 576);
+    }
+
+    public void forgetRoute() {
+        source = null;
+        route = null;
+        plannedAt = Long.MIN_VALUE / 2;
+    }
+
+    private void noExit() {
+        route = null;
+        SurfaceApproach.halt(body);
+        GameplayLog.limited(body, "threat", "flight.cornered", 100, "flight cornered danger={}", source == null ? null : source.getUUID());
     }
 
     private void run(LivingEntity danger, Vec3 den) {
@@ -160,7 +192,7 @@ public final class FlightPlanner {
         if (!changed && now - plannedAt < 40 && (route == null || !navigation.isDone() && route == navigation.getPath())) {
             if (dangerAt.distanceToSqr(checkedDanger) < .25) return;
             if (!FlightCourse.shouldReplan(now - plannedAt, false, false, heading, away)
-                    && (route == null || safeRoute(route, dangerAt))) {
+                    && (route == null || clearsThreat(route, dangerAt))) {
                 checkedDanger = dangerAt;
                 return;
             }
@@ -175,10 +207,9 @@ public final class FlightPlanner {
         route = den == null ? refuge(danger) : null;
         if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled, shielded);
         if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled, shielded);
-        if (route == null) { SurfaceApproach.halt(body); return; }
+        if (route == null || !SurfaceApproach.startRetreat(body, route, body.newbornStage() ? .8 : 1.2)) { noExit(); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
-        if (!navigation.moveTo(route, body.newbornStage() ? .8 : 1.2)) { route = null; SurfaceApproach.halt(body); return; }
         route = navigation.getPath();
         GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={}",
                 BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body)));

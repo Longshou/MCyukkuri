@@ -95,7 +95,8 @@ public final class SurfaceApproach {
     }
 
     private static double safeDrop(YukkuriEntity actor) {
-        return FlightCourse.safeDrop(actor.getAttributeValue(Attributes.SAFE_FALL_DISTANCE), actor.growthScale() * actor.getScale());
+        return FlightCourse.safeDrop(actor.getAttributeValue(Attributes.SAFE_FALL_DISTANCE),
+                actor.growthScale() * actor.getScale(), actor.maxUpStep());
     }
 
     /** The first dry collider under the runner's centre, including slab and stair tops. */
@@ -116,14 +117,14 @@ public final class SurfaceApproach {
     }
 
     public static Vec3 retreatFloor(YukkuriEntity actor, Vec3 near) {
+        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation) || actor.isInLiquid()) return restingFloor(actor, near);
         double drop = safeDrop(actor);
         double y = dryLanding(actor, near.x, near.z, near.y + .5, near.y - drop);
         return near.y - y <= drop ? restingFloor(actor, new Vec3(near.x, y, near.z)) : null;
     }
 
     /** Survey each leg from the previous real sole height, even when the path finder rounds a node to a whole block. */
-    private static double retreatLanding(YukkuriEntity actor, Vec3 from, Vec3 to) {
-        double drop = safeDrop(actor);
+    private static double retreatLanding(YukkuriEntity actor, Vec3 from, Vec3 to, double drop) {
         double top = Math.max(from.y, to.y);
         return FlightCourse.landingAfter(from.x, from.y, from.z, to.x, to.z, drop,
                 (x, z) -> dryLanding(actor, x, z, top, from.y - drop));
@@ -131,23 +132,35 @@ public final class SurfaceApproach {
 
     public static boolean canSteerOver(YukkuriEntity actor, Vec3 to) {
         var from = actor.position();
-        double landing = retreatLanding(actor, from, to);
-        return from.y + actor.fallDistance - landing <= safeDrop(actor);
+        double drop = safeDrop(actor);
+        double landing = retreatLanding(actor, from, to, drop);
+        return from.y + actor.fallDistance - landing <= drop;
+    }
+
+    public static boolean safeRetreatStep(YukkuriEntity actor, Vec3 from, Vec3 to) {
+        return Double.isFinite(retreatLanding(actor, from, to, safeDrop(actor)));
     }
 
     /** Include the exact final step when the escape is a surface approach rather than a vanilla node target. */
     public static boolean safeRetreatPath(YukkuriEntity actor, Path path, Vec3 destination) {
-        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation)) return true;
+        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation) || actor.isInLiquid()) return true;
         var from = actor.position();
+        double drop = safeDrop(actor);
         if (path != null) {
             for (int i = path.getNextNodeIndex(); i < path.getNodeCount(); i++) {
                 var next = path.getEntityPosAtNode(actor, i);
-                double y = retreatLanding(actor, from, next);
+                double y = retreatLanding(actor, from, next, drop);
                 if (!Double.isFinite(y)) return false;
                 from = new Vec3(next.x, y, next.z);
             }
         }
-        return destination == null || Double.isFinite(retreatLanding(actor, from, destination));
+        return destination == null || Double.isFinite(retreatLanding(actor, from, destination, drop));
+    }
+
+    public static boolean startRetreat(YukkuriEntity actor, Path path, double speed) {
+        var navigation = actor.getNavigation();
+        return navigation instanceof YukkuriGroundNavigation ground
+                ? ground.moveToRetreat(path, speed) : navigation.moveTo(path, speed);
     }
     /** The highest collision top under the body's square footprint within half a block of {@code near}, unchecked. */
     public static Vec3 surface(YukkuriEntity actor, Vec3 near) { return top(actor,near); }
@@ -696,7 +709,11 @@ public final class SurfaceApproach {
 
     /** Drive one step and give the owner the actual outcome, including a terminal refusal it can act on. */
     public static Result walkResult(YukkuriEntity actor, Vec3 destination, Entity other, double speed) {
-        return controller(actor).walkStep(actor,destination,other==actor?null:other,speed);
+        return controller(actor).walkStep(actor,destination,other==actor?null:other,speed,false);
+    }
+
+    public static Result retreatResult(YukkuriEntity actor, Vec3 destination, Entity other, double speed) {
+        return controller(actor).walkStep(actor,destination,other,speed,true);
     }
 
     /** A live contact stand can move by less than the ordinary route cache's slack. */
@@ -716,9 +733,11 @@ public final class SurfaceApproach {
         return walkResult(actor,destination,null,speed)==Result.ARRIVED;
     }
 
-    private Result walkStep(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
+    private Result walkStep(YukkuriEntity actor,Vec3 destination,Entity other,double speed,boolean retreat){
         long started=System.nanoTime();
-        Result result=walkStepNow(actor,destination,other,speed);
+        Result result=walkStepNow(actor,destination,other,speed,retreat);
+        if(retreat&&result==Result.MOVING&&actor.getNavigation() instanceof YukkuriGroundNavigation ground)
+            ground.retreatSteering();
         long millis=(System.nanoTime()-started)/1_000_000;
         if(millis>=50)GameplayLog.limited(actor,"approach","slow",200,
                 "slow surface approach target={} elapsedMs={} pathDone={} horizontalCollision={}",
@@ -748,7 +767,7 @@ public final class SurfaceApproach {
                 owner==null?"none":owner.ownerId(),result);
     }
 
-    private Result walkStepNow(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
+    private Result walkStepNow(YukkuriEntity actor,Vec3 destination,Entity other,double speed,boolean retreat){
         var navigation=actor.getNavigation();
         var body=other==null?null:other.getBoundingBox();var peer=other==null?null:other.getUUID();
         long now=actor.level().getGameTime();
@@ -811,7 +830,7 @@ public final class SurfaceApproach {
             current.routed=true;current.target=null;current.lastStep=null;
         }
         if(!current.routed&&direct(actor,destination,body)){
-            if(steer(actor,destination,speed)){current.target=null;current.lastStep=null;return observed(actor,Result.MOVING);}
+            if(steer(actor,destination,speed,retreat)){current.target=null;current.lastStep=null;return observed(actor,Result.MOVING);}
             // the way round is no clear step: a planned route first, not a straight try every other tick
             current.routed=true;
         }
@@ -833,7 +852,7 @@ public final class SurfaceApproach {
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
             var node=current.lastStep;
-            if(direct(actor,destination,body)&&steer(actor,destination,speed)){
+            if(direct(actor,destination,body)&&steer(actor,destination,speed,retreat)){
                 current.lastStep=null;current.routed=false;
                 return observed(actor,Result.MOVING);
             }
@@ -842,14 +861,14 @@ public final class SurfaceApproach {
                 rememberStep(actor,destination,node,destination,body);
                 return blocked(actor,"last_segment_blocked");
             }
-            if(direct(actor,node,body)&&steer(actor,node,speed))
+            if(direct(actor,node,body)&&steer(actor,node,speed,retreat))
                 return observed(actor,Result.MOVING);
             rememberStep(actor,destination,node,node,body);
             return blocked(actor,"last_step_blocked");
         }
         if(current.result==Result.BLOCKED&&now<current.retryAt)return observed(actor,Result.BLOCKED);
         var route=plan(actor,destination,body,!current.routed);
-        if(route!=null&&route.path()!=null&&navigation.moveTo(route.path(),speed)){
+        if(route!=null&&route.path()!=null&&(retreat?startRetreat(actor,route.path(),speed):navigation.moveTo(route.path(),speed))){
             current.target=navigation.getTargetPos();
             GameplayLog.limited(actor,"approach","route",200,
                     "surface route started peer={} destination={} nodes={} length={}",peer,destination,route.path().getNodeCount(),route.length());
@@ -889,9 +908,10 @@ public final class SurfaceApproach {
     }
 
     /** Heads for the destination, round the first footprint on the way; false when that way round is not a clear step. */
-    private static boolean steer(YukkuriEntity actor,Vec3 destination,double speed){
+    private static boolean steer(YukkuriEntity actor,Vec3 destination,double speed,boolean retreat){
         var aim=aim(actor,destination,true);
         if(aim==null||aim!=destination&&!clearLastStep(actor,aim))return false;
+        if(retreat&&!safeRetreatPath(actor,null,aim))return false;
         actor.getNavigation().stop();
         double remaining=actor.position().distanceTo(destination);
         // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.

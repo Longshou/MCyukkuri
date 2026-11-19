@@ -46,7 +46,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -448,7 +447,7 @@ public final class YukkuriSocial implements MotorOwner {
                 SurfaceApproach.halt(entity);
                 reactToTool((LivingEntity) target);
             } else if (humanEscapeStand != null && entity.onGround()) {
-                var movement = SurfaceApproach.walkResult(entity, humanEscapeStand, target, 1.1);
+                var movement = SurfaceApproach.retreatResult(entity, humanEscapeStand, target, 1.1);
                 if (movement == SurfaceApproach.Result.ARRIVED || movement == SurfaceApproach.Result.BLOCKED) stop();
             }
             return;
@@ -535,8 +534,9 @@ public final class YukkuriSocial implements MotorOwner {
                 entity.showReaction("surprise", afraid ? "afraid" : "shy", 80);
             }
             if (elapsed % 10 == 1) {
-                Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
-                if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
+                var route = entity.status().reactions().threat().flight().retreatRoute(target.position(), 5);
+                if (route != null) SurfaceApproach.startRetreat(entity, route, 1.1);
+                else SurfaceApproach.halt(entity);
             }
             return;
         }
@@ -765,7 +765,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         // An empty stand after selection is the bounded cower. Keep it until the reaction or contact ends.
         if (humanEscapeStand == null) return;
-        var result = SurfaceApproach.walkResult(entity, humanEscapeStand, target, 1.1);
+        var result = SurfaceApproach.retreatResult(entity, humanEscapeStand, target, 1.1);
         if (result == SurfaceApproach.Result.ARRIVED) stop();
         else if (result == SurfaceApproach.Result.BLOCKED && EcologyMovement.supported(entity)) chooseHumanEscape(wariness);
     }
@@ -777,7 +777,7 @@ public final class YukkuriSocial implements MotorOwner {
             var stand = Reactions.escapeStand(entity, target, 5, triedStands);
             if (stand == null) break;
             triedStands.add(BlockPos.containing(stand));
-            var result = SurfaceApproach.walkResult(entity, stand, target, 1.1);
+            var result = SurfaceApproach.retreatResult(entity, stand, target, 1.1);
             if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) continue;
             humanEscapeStand = stand;
             GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=true stand={}",

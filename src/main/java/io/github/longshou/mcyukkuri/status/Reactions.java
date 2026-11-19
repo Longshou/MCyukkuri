@@ -175,7 +175,7 @@ public final class Reactions {
             if (seal.pressing()) return Behaviors.NEST_PRESS;
             return switch (stage) {
                 case WATCH -> Behaviors.THREAT_WATCH;
-                case RETREAT -> flight.cornered(source()) ? Behaviors.THREAT_HIDE : Behaviors.THREAT_RETREAT;
+                case RETREAT -> source() != null && flight.cornered(source()) ? Behaviors.THREAT_HIDE : Behaviors.THREAT_RETREAT;
                 case HIDE -> Behaviors.THREAT_HIDE;
                 case STRUCK -> Behaviors.STRUCK;
                 default -> Behaviors.IDLE;
@@ -378,6 +378,7 @@ public final class Reactions {
         }
         void end(int cooldown) {
             if (stage == Stage.STRUCK) response.clear();
+            flight.forgetRoute();
             y.family().carry().endFlight();
             if (!y.isPanicking() || !seal.committedTo(y.getLastHurtByMob())) seal.reset();
             if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
@@ -783,7 +784,7 @@ public final class Reactions {
                     else if (y.family().carry().tickFlight(null)) return;
                     if (ticks % 10 == 1 || y.getNavigation().isDone()) {
                         var away = y.status().reactions().threat().flight().destination(Vec3.atCenterOf(water), 8);
-                        if (away != null) life.navigate(BlockPos.containing(away), 1.4, false);
+                        if (away != null) life.retreatTo(BlockPos.containing(away), 1.4);
                     }
                 }
                 case RUN -> {

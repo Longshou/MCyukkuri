@@ -44,7 +44,6 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
@@ -243,17 +242,15 @@ final class YukkuriGoals {
             // A skilled resident that has reached its den can seal while fleeing, whatever drove it home.
             if (owner.status().reactions().threat().seal().drive(owner.getLastHurtByMob())) return;
             var threat = owner.getLastHurtByMob();
-            if (threat != null) owner.status().reactions().threat().flight().flee(threat);
-            else if (owner.directNavigation().isDone()) {
-                Vec3 target = DefaultRandomPos.getPos(owner, 6, 3);
-                var path = target == null ? null : owner.directNavigation().createPath(BlockPos.containing(target), 0);
-                if (path != null && SurfaceApproach.safeRetreatPath(owner, path, null)) owner.directNavigation().moveTo(path, 1.2);
-                else SurfaceApproach.halt(owner);
-            }
+            var flight = owner.status().reactions().threat().flight();
+            if (threat == null) flight.fleeWithoutSource();
+            else if (threat.isAlive() && threat.level() == owner.level() && threat.distanceToSqr(owner) <= 576) flight.flee(threat);
+            else SurfaceApproach.halt(owner);
         }
         @Override public void stop() {
             owner.family().carry().endFlight();
             owner.status().reactions().threat().seal().reset();
+            owner.status().reactions().threat().flight().forgetRoute();
             owner.directNavigation().stop();
         }
     }

@@ -316,7 +316,7 @@ public final class Cannibalism extends Goal {
         entity.life().interrupt(); entity.social().stop();
         if (mode == Mode.AVOID) {
             entity.showReaction("teary", "stench", 80);
-            entity.getNavigation().moveTo(away, 1.1);
+            SurfaceApproach.startRetreat(entity, away, 1.1);
             away = entity.getNavigation().getPath();
         }
         else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", 100);

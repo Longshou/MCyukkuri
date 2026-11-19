@@ -80,6 +80,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private final Map<Path, Query> queries = new WeakHashMap<>();
     private BlockPos walkingTarget;
     private Query walkingQuery;
+    private boolean retreating;
     private boolean forceSearch, stalled;
     /** Crawl progress window (ticks, as vanilla) and the share of the gait's own travel below which a crawler counts as stuck. */
     private static final int CRAWL_WINDOW=100;
@@ -174,7 +175,22 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /** Reissuing a walk is not progress: preserve the node index and timeout when the route is unchanged. */
     @Override public boolean moveTo(Path requested,double speed){
+        return moveTo(requested,speed,false);
+    }
+
+    public boolean moveToRetreat(Path requested,double speed){
+        if(requested==null||!requested.canReach()||!SurfaceApproach.safeRetreatPath((YukkuriEntity)mob,requested,null)){
+            stop();return false;
+        }
+        return moveTo(requested,speed,true);
+    }
+
+    public void retreatSteering(){retreating=true;}
+    public boolean retreating(){return retreating;}
+
+    private boolean moveTo(Path requested,double speed,boolean retreat){
         if(requested==null){stop();return false;}
+        retreating=retreat;
         var planned=queries.get(requested);
         if(path!=null&&!path.isDone()&&fits(walkingQuery)&&requested.getTarget().equals(walkingTarget)
                 &&requested.sameAs(path)&&requested.canReach()==path.canReach()){
@@ -193,6 +209,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     @Override public void stop(){
         super.stop();crawlCheckPos=null;crawlCheckTick=0;walkingTarget=null;walkingQuery=null;hasDelayedRecomputation=false;stalled=false;resetBlock();
+        retreating=false;
     }
 
     /** Rebuild the installed destination, never the last point inspected by a different goal. */
@@ -201,7 +218,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if(!canUpdatePath()||fits(walkingQuery)&&level.getGameTime()-timeLastRecompute<=20){hasDelayedRecomputation=true;return;}
         var replacement = rebuildPath(walkingTarget);
         timeLastRecompute=level.getGameTime();hasDelayedRecomputation=false;
-        moveTo(replacement,speedModifier);
+        if(retreating) moveToRetreat(replacement,speedModifier);
+        else moveTo(replacement,speedModifier);
     }
 
     /** Preserve the exact approach and its partner when replacing an installed route. */
@@ -666,7 +684,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         BlockPos target = getTargetPos();
         if (target == null) return false;
         var detour = rebuildPath(target);
-        if (detour == null || !detour.canReach() || detour.sameAs(path) || !moveTo(detour, speedModifier)) return false;
+        if (detour == null || !detour.canReach() || detour.sameAs(path)
+                || retreating && !SurfaceApproach.safeRetreatPath((YukkuriEntity)mob,detour,null)
+                || !moveTo(detour, speedModifier, retreating)) return false;
         replans++;
         return true;
     }

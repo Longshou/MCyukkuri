@@ -18,8 +18,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
@@ -229,7 +229,11 @@ public final class SettlementDuties {
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
         elapsed++;
-        if (task == Task.RETREAT) { if (approach(destination)) stop(); return; }
+        if (task == Task.RETREAT) {
+            if (entity.distanceToSqr(Vec3.atBottomCenterOf(destination)) < .64
+                    || elapsed % 20 == 1 && !entity.life().retreatTo(destination, 1)) stop();
+            return;
+        }
         if (task == Task.PICKUP) {
             if (item == null || !item.isAlive() || item.hasPickUpDelay() || !item.getItem().is(ModItems.WASTE.get())
                     || !workArea(item.blockPosition()) || !entity.hasLineOfSight(item)) { stop(); return; }

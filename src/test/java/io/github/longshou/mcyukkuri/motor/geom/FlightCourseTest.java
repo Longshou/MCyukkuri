@@ -25,10 +25,11 @@ class FlightCourseTest {
     }
 
     @Test void dropLimitFollowsBodySizeAndCannotExceedTheDamageFreeFall() {
-        double baby = FlightCourse.safeDrop(3, .30);
-        double adult = FlightCourse.safeDrop(3, 1.4);
+        double baby = FlightCourse.safeDrop(3, .10, 1);
+        double adult = FlightCourse.safeDrop(3, 1.4, 1);
         assertEquals(64, FlightCourse.landingAfter(0, 64.5, 0, 1, 0, baby, (x,z) -> 64));
-        assertEquals(Double.NEGATIVE_INFINITY, FlightCourse.landingAfter(0, 65, 0, 1, 0, baby, (x,z) -> 64));
+        assertEquals(64, FlightCourse.landingAfter(0, 65, 0, 1, 0, baby, (x,z) -> 64));
+        assertEquals(Double.NEGATIVE_INFINITY, FlightCourse.landingAfter(0, 65.5, 0, 1, 0, baby, (x,z) -> 64));
         assertEquals(61, FlightCourse.landingAfter(0, 64, 0, 1, 0, adult, (x,z) -> 61));
         assertEquals(Double.NEGATIVE_INFINITY, FlightCourse.landingAfter(0, 64, 0, 1, 0, adult, (x,z) -> 60.99));
     }

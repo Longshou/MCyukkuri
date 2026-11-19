@@ -1838,6 +1838,10 @@ public final class YukkuriLife {
         return entity.getNavigation().moveTo(path(target, escapeWater), speed);
     }
 
+    public boolean retreatTo(BlockPos target, double speed) {
+        return SurfaceApproach.startRetreat(entity, path(target, false), speed);
+    }
+
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag(); tag.putInt("Version", 1);
         tag.putFloat("Nutrition", nutrition); tag.putFloat("Energy", energy); tag.putFloat("Hygiene", hygiene);

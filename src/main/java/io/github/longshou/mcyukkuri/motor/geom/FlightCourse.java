@@ -29,8 +29,8 @@ public final class FlightCourse {
         return Math.min(clearance, start - Math.min(.35, start * .5)) - .001;
     }
 
-    public static double safeDrop(double damageFreeDistance, double bodyScale) {
-        return damageFreeDistance * Math.min(1, bodyScale);
+    public static double safeDrop(double damageFreeDistance, double bodyScale, double stepHeight) {
+        return Math.min(damageFreeDistance, Math.max(stepHeight, damageFreeDistance * bodyScale));
     }
 
     /** Follow the supporting surface across the segment. A missing or wet landing has height -infinity. */

@@ -162,7 +162,7 @@ public final class LearnedFear {
                 if(body.distanceToSqr(danger)>9){ticks=RETREAT_BUDGET;return;}
                 var navigation=body.getNavigation();
                 route=body.status().reactions().threat().flight().retreatRoute(danger,5);
-                if(route==null||!navigation.moveTo(route,1.2)){finish("no_route");return;}
+                if(route==null||!SurfaceApproach.startRetreat(body,route,1.2)){finish("no_route");return;}
                 stand=Vec3.atBottomCenterOf(route.getTarget());
                 route=navigation.getPath();
                 return;
@@ -170,7 +170,7 @@ public final class LearnedFear {
             var navigation=body.getNavigation();
             if(body.distanceToSqr(stand)<1)finish("away");
             else if(navigation.isDone()||navigation.getPath()!=route
-                    ||holder!=null&&!body.status().reactions().threat().flight().safeRoute(route,danger))finish("blocked");
+                    ||holder!=null&&!body.status().reactions().threat().flight().clearsThreat(route,danger))finish("blocked");
         }
 
         private void finish(String outcome) {
