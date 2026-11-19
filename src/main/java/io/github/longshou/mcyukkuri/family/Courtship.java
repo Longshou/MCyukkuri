@@ -401,22 +401,20 @@ final class Courtship {
         }
         if(climaxTick==SukkiriTimeline.PEAK_END) {
             var body = o.entity();
-            boolean unpermitted = body.pet().isPet() && !body.pet().breedingPermitted(peer.getUUID());
-            boolean peerUnpermitted = peer.pet().isPet() && !peer.pet().breedingPermitted(body.getUUID());
-            boolean unauthorized = unpermitted || peerUnpermitted;
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
-            GameplayLog.event(o.entity(),"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
-                    peer.getUUID(),mother.getUUID(),father.getUUID(),contactTick,brood!=null,unauthorized);
             if(brood!=null) {
                 mother.agitation().completePair(true,motherHeat);
                 father.agitation().completePair(false,fatherHeat);
-                if(unauthorized)PetLife.unauthorizedConception(mother,father);
             } else {
                 o.entity().showReaction("confused","",60);peer.showReaction("confused","",60);
             }
-            if (unpermitted && body.pet().ownedBy(initiatingRuleOwner)) body.pet().conscience().breach(HouseRule.NO_SUKKIRI);
-            if (peerUnpermitted && peer.pet().ownedBy(receivingRuleOwner)) peer.pet().conscience().breach(HouseRule.NO_SUKKIRI);
+            boolean breached = body.pet().ownedBy(initiatingRuleOwner) && !body.pet().breedingPermitted(peer.getUUID())
+                    && body.pet().conscience().breach(HouseRule.NO_SUKKIRI);
+            boolean peerBreached = peer.pet().ownedBy(receivingRuleOwner) && !peer.pet().breedingPermitted(body.getUUID())
+                    && peer.pet().conscience().breach(HouseRule.NO_SUKKIRI);
+            GameplayLog.event(body,"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
+                    peer.getUUID(),mother.getUUID(),father.getUUID(),contactTick,brood!=null,breached || peerBreached);
             o.entity().social().noteContact(peer);peer.social().noteContact(o.entity());
             peer.family().stop();peer.family().waitTicks(200);
             o.stop();o.waitTicks(200);

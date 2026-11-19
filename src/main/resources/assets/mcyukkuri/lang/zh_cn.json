@@ -1926,7 +1926,6 @@
   "badge.mcyukkuri.profile.abilities": "能力：规矩 %s / 学力 %s / 知力 %s / 应对 %s",
   "badge.mcyukkuri.profile.routines": "生活记录：食盆进食 %s · 如厕 %s · 睡眠 %s 次",
   "badge.mcyukkuri.profile.growth": "压力 %s · 溺爱 %s",
-  "badge.mcyukkuri.profile.unauthorized": "未经许可生育 %s 次",
   "badge.mcyukkuri.profile.pedigree": "馅统",
   "badge.mcyukkuri.profile.exam": "最近认证：%s · %s",
   "badge.mcyukkuri.profile.exam_none": "暂无认证记录",

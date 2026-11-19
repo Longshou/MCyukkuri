@@ -50,7 +50,7 @@ public final class PetLife {
     private BadgeGrade grade = BadgeGrade.NONE;
     private boolean worn = true;
     private long issuedAt;
-    private int source, cooldown, unauthorized, dayClock, lockGone;
+    private int source, cooldown, dayClock, lockGone;
     private UUID serial, issuer, lockedBy, formerOwner;
     private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay;
     private long lastContact, abandonedAt, dropPos;
@@ -232,12 +232,6 @@ public final class PetLife {
         return best;
     }
     public void revokeBreeding(UUID partner) { permits.remove(partner); }
-    /** A private conception record; household guilt concerns the observed act. */
-    public static void unauthorizedConception(YukkuriEntity a, YukkuriEntity b) {
-        for (var y : List.of(a, b)) if (y.pet().isPet()) y.pet().noteUnauthorizedBirth();
-    }
-    public void noteUnauthorizedBirth() { unauthorized = Math.min(99, unauthorized + 1); }
-
     // owner line: neglect and abandonment (docs/FEATURES.md)
     public int neglect() { return neglect; }
     public boolean voidBadge() { return voidBadge; }
@@ -494,7 +488,7 @@ public final class PetLife {
         tag.putBoolean("TownRoots", townRoots);
         tag.putInt("Obedience", obedienceShift);
         tag.put("Conscience", conscience.save());
-        tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday",
+        tag.putInt("Cooldown", cooldown); tag.putInt("LessonsToday",
                 lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
@@ -505,7 +499,7 @@ public final class PetLife {
     public void load(CompoundTag tag) {
         grade = BadgeGrade.of(tag.getInt("Grade")); worn = !tag.contains("Worn") || tag.getBoolean("Worn");
         issuedAt = tag.getLong("IssuedAt"); source = Math.clamp(tag.getInt("Source"), 0, ExamSession.CERTIFY);
-        cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
+        cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
         care.load(tag.getCompound("Care"));
         serial = tag.hasUUID("Serial") ? tag.getUUID("Serial") : null; issuer = tag.hasUUID("Issuer") ? tag.getUUID("Issuer") : null;

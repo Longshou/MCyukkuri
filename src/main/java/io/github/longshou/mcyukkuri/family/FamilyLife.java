@@ -1185,7 +1185,6 @@ public final class FamilyLife {
     public static boolean arrangedMatch(YukkuriEntity a,YukkuriEntity b) { return Courtship.arrangedMatch(a,b); }
     /** Long-lived compatibility for breeding permits: species rules and fertility, not momentary condition. */
     public boolean compatibleWith(YukkuriEntity other) { return courtship.compatibleWith(other); }
-    /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
     private boolean allowCourt(YukkuriEntity other) { return courtship.allowCourt(other); }
     public boolean canReproduceWith(YukkuriEntity other) { return courtship.canReproduceWith(other); }
     private void finishStem(FamilyData.Brood brood) {

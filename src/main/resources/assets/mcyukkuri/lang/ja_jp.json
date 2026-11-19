@@ -1814,7 +1814,6 @@
   "badge.mcyukkuri.profile.abilities": "能力：しつけ %s / 学力 %s / 知力 %s / 対応 %s",
   "badge.mcyukkuri.profile.routines": "記録：食器で食事 %s ・ トイレ %s ・ 睡眠 %s 回",
   "badge.mcyukkuri.profile.growth": "ストレス %s ・ 甘やかし %s",
-  "badge.mcyukkuri.profile.unauthorized": "無許可出産 %s 回",
   "badge.mcyukkuri.profile.pedigree": "餡統",
   "badge.mcyukkuri.profile.exam": "前回の認定：%s · %s",
   "badge.mcyukkuri.profile.exam_none": "認定の記録はまだありません",

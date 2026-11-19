@@ -194,7 +194,7 @@ def exam(s, refuse=True):
     fit(c, 27, 32, tr('exam.mcyukkuri.ui.grade', tr('badge.mcyukkuri.profile.grade.2'), tr('exam.mcyukkuri.ui.valid_days', 12)), INK, 300, 'grade')
     fit(c, 16, 42, tr('shop.mcyukkuri.abilities', 80, 60, 70, 75), INK, 308, 'abil')
     ped = tr('badge.mcyukkuri.profile.pedigree'); c.text(16, 52, ped, SOFT); px = 16 + c.width(ped) + 4; c.stars(px, 51, 62)
-    fit(c, px + 49 + 8, 52, tr('exam.mcyukkuri.ui.vitals', level(12)) + '  ' + tr('badge.mcyukkuri.profile.unauthorized', 1), SOFT, 308 - px - 57, 'vitals')
+    fit(c, px + 49 + 8, 52, tr('exam.mcyukkuri.ui.vitals', level(12)), SOFT, 308 - px - 57, 'vitals')
     fit(c, 16, 64, tr('exam.mcyukkuri.ui.hall') + '  ' + '  '.join(tr(f'shop.mcyukkuri.ability.{i}') + ' ✓' for i in range(4)), '#2f6b3f', 308, 'hall')
     fit(c, 16, 77, tr('exam.mcyukkuri.ui.last', tr('exam.mcyukkuri.type.4'), tr('exam.mcyukkuri.outcome.0', tr('badge.mcyukkuri.profile.grade.2'))), INK, 308, 'last')
     fit(c, 16, 87, tr('exam.mcyukkuri.ui.last_scores', 80, 70, '-', '-'), SOFT, 308, 'last_scores')
