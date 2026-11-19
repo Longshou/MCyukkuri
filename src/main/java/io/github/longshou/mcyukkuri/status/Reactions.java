@@ -191,6 +191,9 @@ public final class Reactions {
         public boolean holdingStance() { return response.active(); }
         public YukkuriAction stanceAction() { return response.action(); }
         public FlightPlanner flight() { return flight; }
+        boolean airEscape(LivingEntity danger) {
+            return PunishmentReaction.isHuman(danger) && y.predator().canWithdrawByAir();
+        }
 
         public Stage stage() { return stage; }
         public boolean responding() { return stage != Stage.NONE || wants(); }

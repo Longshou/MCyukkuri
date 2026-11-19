@@ -34,7 +34,8 @@ final class StruckResponse implements MotorOwner {
 
     private boolean exitOpen(LivingEntity danger) {
         return Reactions.freeToReact(body) && !body.isLeashed() && !body.grief().protecting()
-                && !body.shellRetraction().available() && body.status().reactions().threat().flight().hasExit(danger);
+                && !body.shellRetraction().available() && (body.status().reactions().threat().airEscape(danger)
+                || body.status().reactions().threat().flight().hasExit(danger));
     }
 
     StruckStance decide(LivingEntity danger, float loss) {
@@ -172,6 +173,7 @@ final class StruckResponse implements MotorOwner {
 
     void flee(LivingEntity danger) {
         int ticks = startFlight(danger);
+        if (body.status().reactions().threat().airEscape(danger)) body.predator().withdraw(danger);
         body.struckReaction(YukkuriAction.STARTLE, body.newbornStage() ? "cry" : body.body().weak() ? "teary" : "surprise",
                 body.newbornStage() || danger == null ? "wounded" : "hurt_flee", ticks);
     }

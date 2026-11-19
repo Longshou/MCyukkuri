@@ -49,6 +49,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -826,8 +827,8 @@ public final class PredatorLife implements EcologyRoutine {
     private void land(Vec3 avoid) {
         if(task!=Task.LAND)GameplayLog.event(animal,"predator","landing started; previous_task={} prey={} elapsed={} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.life().energy());
-        if (task != Task.LAND) {
-            nextLandingSearch = 0; landingSearchRadius = 8; landingAvoid = avoid;
+        if (task != Task.LAND || avoid != null && !avoid.equals(landingAvoid)) {
+            nextLandingSearch = 0; landingSearchRadius = avoid == null ? 8 : 24; landingAvoid = avoid;
             animal.getNavigation().stop();
             if (animal.predatorFlying() && !dryLanded()) directFlight(animal.position().add(0, .8, 0), .85);
         }
@@ -857,10 +858,19 @@ public final class PredatorLife implements EcologyRoutine {
         land();
     }
     /** Below its retreat ratio the beaten fighter leaves by air, not by dropping next to the one that beat it. */
-    private void withdraw(YukkuriEntity foe) {
+    public boolean canWithdrawByAir() {
+        return EcologyRoutines.predator(animal) && wildAdult() && readyForLanding();
+    }
+    public void withdraw(LivingEntity foe) {
+        interruptFounding();
+        watchTicks = pendingRest = 0;
         GameplayLog.event(animal, "predator", "withdrawing by air; foe={} health={}/{} distance={}",
                 foe.getUUID(), animal.getHealth(), animal.getMaxHealth(), animal.distanceTo(foe));
         land(foe.position());
+        if (!animal.predatorFlying()) {
+            ticks = 0; // A struck watcher starts its departure now, even after a long stay on the branch.
+            beginFlight();
+        }
     }
     /** A landing during a fight keeps its search away from the foe: a beaten or spent body does not come down at its feet. */
     private void landAvoidingFoe() {
@@ -1223,7 +1233,12 @@ public final class PredatorLife implements EcologyRoutine {
         }
         if(task!=Task.NONE)GameplayLog.event(animal,"predator","activity stopped; task={} prey={} elapsed={} health={}/{} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.getHealth(),animal.getMaxHealth(),animal.life().energy());
-        if (task == Task.LAND && animal.onGround()) animal.component(YukkuriComponents.MOUTH).releaseItems(Purpose.NEST, 20);
+        if (task == Task.LAND && animal.onGround()) {
+            animal.component(YukkuriComponents.MOUTH).releaseItems(Purpose.NEST, 20);
+            if (landingAvoid != null && animal.position().distanceToSqr(landingAvoid) > WITHDRAW_CLEARANCE_SQR)
+                animal.setPanicTicks(0);
+        }
+        landingAvoid = null;
         cancelNestSearch();
         mode(false, "stopped");
         task = Task.NONE; prey = null; food = null; corpse = null; destination = null; restTicks = pendingRest = 0; eatRemains = null;
