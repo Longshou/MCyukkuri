@@ -15,7 +15,6 @@
 | 帽船第一次伸辫子够到孩子 | `.worktrees/wp-boarding-grip` | aquatic/SetOut.java, motor/action/Grab.java, BraidFetch |
 | 大头针不再几秒后消失 | `.worktrees/wp-pin-visibility` | interaction/OperationLife.java, InteractionDispatch, wound presentation |
 | 大窝旋转、大体型进窝、单床争抢 | `.worktrees/wp-nest-access` | life/LargeNestBlock.java, life/NestDoorway.java, life/NestResting.java, life/CareBlockEntity.java |
-| 演出放映室：头顶符号、水洼、漏尿水流、字幕与配音 | `.worktrees/wp-player-effects-1` | preview/review, pose/cli, mind/ExcitedLeak.java (pure Beat), scripts/preview.py |
 | 情绪渐进平复：起势即见峰值、渐退表情、惊惧随逃跑开始并跨重载 | `.worktrees/wp-emotion-course` | mind/EmotionCourse.java, entity/YukkuriControl.java, status/TraceRecorder.java, scripts/smoke_checks.py |
 | 运输篮开口：看得见篮里的脸 | `.worktrees/wp-art-basket-opening` | art/props/runtime-peripheral/selected/yukkuri_carrier*, recipe.json, exported carrier models |
 
