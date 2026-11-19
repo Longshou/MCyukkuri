@@ -3506,9 +3506,12 @@ for _sid, _title, _instruction, _control, _shift in (
 
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
     '爱丽丝带着癫狂笑蹦跳追击，目标发现她会喊出警报台词并逃跑。观察扑中后的接触循环、四拍台词与表情。释放时有尘粒和爱心，峰值持续 3 秒，期间受方仍被压住。峰值结束后受方脱身，爱丽丝接完成表情。喷雾或攻击可打断动作', '约半分钟，可重复观察', [
+        *(box(-2, 0, z, 5, 1, z, 'minecraft:glass') for z in (-2, 2)),
+        *(box(x, 0, -1, x, 1, 1, 'minecraft:glass') for x in (-2, 5)),
+        box(-1, 0, 2, 4, 0, 2, 'minecraft:stone_slab[type=top]'),
         yk('alice', 0, 0, 'hunter', lead=True, kin='PentUp:92f', self_control=30, **pair_ready()),
-        yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
-        yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
+        yk('reimu', 2.5, 0, 'prey', yaw=-90, extra=agitation_start('IDLE'), **pair_ready()),
+        yk('marisa', 0, 4, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
         *own('hunter'), *own('prey'), *own('witness')], env=DAY,
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
     capture=dict(shots=(1, 40, 700), sequences=((60, 660, 2),),
