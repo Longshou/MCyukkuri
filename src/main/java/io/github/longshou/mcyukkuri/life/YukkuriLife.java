@@ -1731,8 +1731,6 @@ public final class YukkuriLife {
         return hygiene < 60 && nutrition >= 30 && !rainOutside() && FoundShelter.streetUser(entity)
                 && level().getGameTime() >= streetDrinkAfter;
     }
-    /** The shallow pool of a planned site: within 32 blocks the whole community drinks there. */
-    private BlockPos siteWater(){ return home.siteWater(); }
     private Path path(BlockPos target, boolean escapeWater) {
         // A nest occupies the feet cell with a fractional-height floor. Vanilla's walk node
         // sits at floor(y + collisionShape.max(Y) + .5), which for a low nest is the nest cell itself.

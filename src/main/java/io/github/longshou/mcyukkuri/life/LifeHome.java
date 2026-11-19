@@ -289,7 +289,7 @@ final class LifeHome {
         BlockPos best=null;double distance=Double.MAX_VALUE;
         for(var side:Direction.Plane.HORIZONTAL)for(int rise=0;rise<=1;rise++){
             var stand=water.relative(side).above(rise);double d=o.entity().distanceToSqr(Vec3.atBottomCenterOf(stand));
-            if(d<distance&&dryStand(stand)&&o.reachable(stand,false)){best=stand;distance=d;}
+            if(d<distance&&TravelRange.babyDestination(o.entity(),stand)&&dryStand(stand)&&o.reachable(stand,false)){best=stand;distance=d;}
         }
         return best;
     }
@@ -320,25 +320,20 @@ final class LifeHome {
     BlockPos nearestDrink(boolean includeWaterers) {
         var here = o.entity().blockPosition();
         int radius = TravelRange.search(o.entity(), 6);
-        BlockPos waterer = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius) : null;
-        BlockPos best = null;
-        double distance = waterer == null ? Double.POSITIVE_INFINITY : o.entity().distanceToSqr(Vec3.atCenterOf(waterer));
+        BlockPos best = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius) : null;
+        double distance = best == null ? Double.POSITIVE_INFINITY : o.entity().distanceToSqr(Vec3.atCenterOf(best));
         for(var water:BlockPos.betweenClosed(here.offset(-radius,-2,-radius),here.offset(radius,1,radius))){
             if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!drinkableWater(water))continue;
             double d=o.entity().distanceToSqr(Vec3.atCenterOf(water));
             if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
         }
-        if (best != null) return best;
-        var site = siteWater();
-        return site != null && o.entity().distanceToSqr(Vec3.atCenterOf(site)) < distance ? site : waterer;
-    }
-
-    BlockPos siteWater(){
-        var site=SiteLife.of(o.entity());
-        if(site==null)return null;
-        var water=SiteLife.water(site,o.entity().blockPosition());
-        return water!=null&&water.distSqr(o.entity().blockPosition())<=32*32&&o.level().hasChunkAt(water)
-                &&o.level().getFluidState(water).is(FluidTags.WATER)&&drinkStand(water)!=null?water.immutable():null;
+        // A known settlement pool extends the search to 32 blocks, under the same drinking rules.
+        var site = SiteLife.of(o.entity());
+        var water = site == null ? null : SiteLife.water(site, here);
+        if (water != null && water.distSqr(here) <= 32 * 32 && o.entity().distanceToSqr(Vec3.atCenterOf(water)) < distance
+                && TravelRange.babyDestination(o.entity(), water) && o.level().hasChunkAt(water)
+                && drinkableWater(water) && drinkStand(water) != null) return water;
+        return best;
     }
     void save(CompoundTag tag) { if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos",
             home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); } }
