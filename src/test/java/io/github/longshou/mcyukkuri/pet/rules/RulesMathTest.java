@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
+import io.github.longshou.mcyukkuri.cognition.SkillMath;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Discipline;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import java.util.OptionalLong;
@@ -42,5 +43,14 @@ class RulesMathTest {
         assertEquals(-3, Feedback.DEMAND.gain);
         assertEquals(-3, Feedback.sweet(false, false).gain);
         assertEquals(-2, Feedback.FAVOR.gain);
+    }
+
+    @Test void trainingWillingnessRisesAndSnackDemandsStopAt65() {
+        int base = RulesMath.meekness(.5, .5);
+        int before = RulesMath.obedience(base, 14);
+        int praised = RulesMath.obedience(base, 14 + Feedback.PRAISE.gain);
+        assertTrue(SkillMath.will(.5, 20, 5, praised / 100.0) > SkillMath.will(.5, 20, 5, before / 100.0));
+        assertTrue(RulesMath.demandsSnack(before));
+        assertFalse(RulesMath.demandsSnack(praised));
     }
 }

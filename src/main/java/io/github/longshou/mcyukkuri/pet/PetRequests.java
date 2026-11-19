@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -90,7 +91,8 @@ public final class PetRequests {
         if (ready(Kind.WARM) && life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (ready(Kind.NUZZLE) && daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (ready(Kind.PLAY) && daily.boredom() >= 65) return Kind.PLAY;
-        if (ready(Kind.SNACK) && life.personality().temperament().is(Gate.SELFISH) && life.nutrition() <= Sweets.FULL
+        if (ready(Kind.SNACK) && life.personality().temperament().is(Gate.SELFISH) && RulesMath.demandsSnack(pet.obedience())
+                && life.nutrition() <= Sweets.FULL
                 && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
         if (ready(Kind.WALK) && daily.boredom() >= 50 && level().isDay() && !level().isRaining()
                 && animal.family().adult() && !animal.isLeashed()

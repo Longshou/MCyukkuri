@@ -122,9 +122,9 @@ public final class Skills {
 
     public double will() {
         var pet = entity.pet();
-        // House rules supply learned obedience when they have their own source.
+        boolean companion = pet.isPet();
         return SkillMath.will(entity.life().personality().temperament().patient(), entity.mind().stressView(),
-                pet.isPet() ? pet.neglect() : 0, .5);
+                companion ? pet.neglect() : 0, companion ? pet.obedience() / 100.0 : .5);
     }
 
     public SkillMath.Attempt attempt(Ability ability) {

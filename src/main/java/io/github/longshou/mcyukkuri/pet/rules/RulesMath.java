@@ -14,6 +14,8 @@ public final class RulesMath {
 
     public static int obedience(int meekness, int shift) { return Math.clamp(meekness + shift, 0, 100); }
 
+    public static boolean demandsSnack(int obedience) { return obedience < 65; }
+
     public record Discipline(int closeness, int learning) {}
 
     public static Discipline discipline(boolean owner, boolean hurt, OptionalLong breachAge) {
