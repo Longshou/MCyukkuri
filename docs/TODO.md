@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 饿油猎食没头饰的同类（BD-18 稳定猎食） | `.worktrees/wp-hatless-hunting` | headwear/Contempt.java, social/Cannibalism.java, entity/YukkuriGoals.java, cannibal_hunt |
-| 宠物迎接主人后上前蹭蹭（TN-30） | `.worktrees/wp-owner-welcome` | social/YukkuriSocial.java, yard_owner_return |
 | 运输篮里看得到是谁（TN-33） | `.worktrees/wp-basket-view` | item/CarrierItem.java, client carrier renderer |
 | 大小不一与隔台阶的贴身蹭展示场景 | `.worktrees/wp-peer-nuzzle` | scripts/museum_scenarios.py (new scene), museum_fields.py |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
