@@ -1,18 +1,22 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.GlassSight;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 public final class HumanSight {
     private HumanSight() {}
 
     public static boolean sees(LivingEntity human, Entity target) {
-        return human.isAlive() && !human.isSleeping() && human.level() == target.level() && target.isAlive()
-                && human.distanceToSqr(target) <= 256 && human.hasLineOfSight(target)
-                && (!(human instanceof Player) || !human.isSpectator() && human.getViewVector(1)
-                        .dot(target.getEyePosition().subtract(human.getEyePosition()).normalize()) > .5);
+        var facing = human instanceof Player ? human.getViewVector(1) : Vec3.directionFromRotation(human.getXRot(), human.getYHeadRot());
+        return human.level() == target.level() && target.isAlive() && !target.isInvisible() && !human.isSpectator()
+                && Observation.inView(human.isAlive() && !human.isSleeping() && !(human instanceof HumanNpc npc && npc.resting()),
+                human.distanceToSqr(target), facing.dot(target.getEyePosition().subtract(human.getEyePosition()).normalize()))
+                && GlassSight.sees(human, target);
     }
 
     public static boolean watching(YukkuriEntity pet) {

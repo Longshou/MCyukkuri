@@ -16,7 +16,6 @@ import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
@@ -220,7 +219,7 @@ final class HumanStreet {
                 || ShelterBlock.shelter(y.level(), BlockPos.containing(y.position().add(0, .125, 0))) != null
                 || !SurfaceApproach.supportedGround(y, y.position())) return false;
         return !Custody.protectedAnimal(y) && Custody.harmRefusal(null, y, y.blockPosition()) == null
-                && BadgeSocial.visibleRank(y).id() < BadgeGrade.BRONZE.id()
+                && y.pet().humanRank().id() < BadgeGrade.BRONZE.id()
                 && (!(y.pet().voidBadge() || y.pet().abandoned()) || y.pet().visibleGrade() == BadgeGrade.NONE);
     }
 

@@ -1,6 +1,9 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
+import io.github.longshou.mcyukkuri.badge.BadgeConduct;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -54,6 +57,13 @@ public final class NotebookItem extends Item {
         if (level instanceof ServerLevel serverLevel) {
             var pages = new ArrayList<>(NotebookGuide.pages(player.getItemInHand(hand)));
             pages.add(0, SeasonCalendar.page(serverLevel, player.blockPosition()));
+            for (var entry : PetPrivileges.get(serverLevel).conduct().cases()) {
+                if (entry.verdict() == null) continue;
+                for (var p : entry.parents) if (player.getUUID().equals(p.owner())) {
+                    pages.add(verdictPage(serverLevel, entry, p.id()));
+                    PetPrivileges.award(player, entry);
+                }
+            }
             open(player, hand, pages);
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
@@ -133,7 +143,19 @@ public final class NotebookItem extends Item {
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName())));
         Component claim = HomeClaim.page(entity);
         if (claim != null) pages.add(claim);
+        var level = (ServerLevel) entity.level();
+        for (var entry : PetPrivileges.get(level).conduct().cases(entity.getUUID())) {
+            if (!entry.judged(entity.getUUID())) continue;
+            pages.add(verdictPage(level, entry, entity.getUUID()));
+            if (entry.parents.stream().anyMatch(p -> player.getUUID().equals(p.owner()))) PetPrivileges.award(player, entry);
+        }
         return List.copyOf(pages);
+    }
+    private static Component verdictPage(ServerLevel level, BadgeConduct.Case entry, UUID pet) {
+        var person = FamilyData.get(level).person(pet);
+        var verdict = entry.verdict();
+        return Component.translatable("notebook.mcyukkuri.badge_verdict", person.lastName(), identity(pet),
+                verdict.day(), Component.translatable("badge.mcyukkuri.evidence." + verdict.cause()), identity(entry.brood));
     }
     private static Component identity(UUID id) {
         return id==null?Component.translatable("family.mcyukkuri.unknown"):Component.literal(id.toString().substring(0,8));

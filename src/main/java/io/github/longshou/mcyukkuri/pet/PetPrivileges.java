@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct.Parent;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,14 @@ public final class PetPrivileges extends SavedData {
     private final Map<UUID, Map<UUID, Integer>> records = new HashMap<>();
     private final BadgeConduct conduct = new BadgeConduct();
     public BadgeConduct conduct() { return conduct; }
+    public static void award(Player player, BadgeConduct.Case entry) {
+        award(player, entry, "unauthorized_found");
+        if (entry.verdict().cause().equals("exam")) award(player, entry, "caught_at_exam");
+    }
+    private static void award(Player player, BadgeConduct.Case entry, String event) {
+        if (SurvivalProgress.award(player, event))
+            GameplayLog.event(player, "badge", "advancement={} brood={} owner={}", event, entry.brood, player.getUUID());
+    }
 
     public static PetPrivileges get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(PetPrivileges::new, PetPrivileges::load), NAME);

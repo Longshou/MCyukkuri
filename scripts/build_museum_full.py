@@ -201,6 +201,7 @@ PROBE_COMMANDS = {
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',
+    'scenario pending': 'yukkuri scenario pending @s @s',
     'scenario forage_out': 'yukkuri scenario forage_out @s',
     'scenario community': 'yukkuri scenario community @s @e',
     'scenario eggs': 'yukkuri scenario eggs @s @s',

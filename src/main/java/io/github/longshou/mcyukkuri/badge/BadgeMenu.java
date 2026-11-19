@@ -151,7 +151,8 @@ public final class BadgeMenu extends AbstractContainerMenu {
             }
             data.set(Data.LESSON_MASK, mask); data.set(Data.READY, b.readyFor(viewer) && b.cooldown() == 0 ? 1 : 0);
         }
-        data.set(Data.TITLE, b.title()); data.set(Data.NEGLECT, b.neglect()); data.set(Data.OWNER_STATE, b.voidBadge() ? 2 : b.abandoned() ? 1 : 0);
+        data.set(Data.TITLE, b.title()); data.set(Data.NEGLECT, b.neglect());
+        data.set(Data.OWNER_STATE, b.disqualified() ? 3 : b.voidBadge() ? 2 : b.abandoned() ? 1 : 0);
         var families = FamilyData.get((ServerLevel)y.level());
         data.set(Data.MOTHER_BADGE, families.badgeAcquired(y.family().mother()));
         data.set(Data.FATHER_BADGE, families.badgeAcquired(y.family().father()));

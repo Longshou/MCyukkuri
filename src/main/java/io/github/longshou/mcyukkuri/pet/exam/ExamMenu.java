@@ -93,7 +93,7 @@ public final class ExamMenu extends AbstractContainerMenu {
         data.set(Data.SUBJECT_COUNT, subjects.size());
         data.set(Data.SUBJECT_INDEX, selected + 1);
         data.set(Data.RELATION, pet.owned(viewer) ? 1 : 2);
-        data.set(Data.GRADE, pet.grade().id());
+        data.set(Data.GRADE, pet.effectiveGrade().id());
         data.set(Data.TARGET, next.id());
         data.set(Data.NEED, need == null ? 0 : need.ordinal() + 1);
         data.set(Data.SPECIES, y.getVariant().ordinal() + 1);

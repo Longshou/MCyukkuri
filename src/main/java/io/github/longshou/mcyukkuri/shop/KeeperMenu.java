@@ -156,10 +156,10 @@ public final class KeeperMenu extends AbstractContainerMenu {
         for (int i = 0; i < StudRow.COUNT && first + i < studs.size(); i++) {
             var y = studs.get(first + i); var b = y.pet(); int k = Data.STUD_BASE + i * StudRow.STRIDE;
             put(k, y.getVariant().ordinal() + 1);
-            put(k + StudRow.FLAGS, b.grade().id() | (b.busy() || FamilyData.get(level).busyParent(y.getUUID()) ? Flags.BUSY : 0));
+            put(k + StudRow.FLAGS, b.effectiveGrade().id() | (b.busy() || FamilyData.get(level).busyParent(y.getUUID()) ? Flags.BUSY : 0));
             put(k + StudRow.SELECTED, y == s ? 1 : 0);
         }
-        if (pet != null) { put(Data.SUBJECT_SPECIES, pet.getVariant().ordinal() + 1); put(Data.SUBJECT_GRADE, pet.pet().grade().id()); }
+        if (pet != null) { put(Data.SUBJECT_SPECIES, pet.getVariant().ordinal() + 1); put(Data.SUBJECT_GRADE, pet.pet().effectiveGrade().id()); }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
 

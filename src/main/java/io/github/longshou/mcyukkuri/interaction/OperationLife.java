@@ -258,6 +258,7 @@ public final class OperationLife {
             case COLLECT_NEAREST -> collect(player);
             case ASK -> entity.pet().care().ask(player);
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
+            case REMOVE_BADGE -> entity.pet().detach(player);
             case UNWRAP -> entity.pet().care().takeOffSwaddle(player);
             case RELEASE -> release();
             default -> throw new IllegalArgumentException(action.name());

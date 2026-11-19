@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.shop.ShopProtection;
@@ -56,7 +55,7 @@ public final class StallTheft implements MotorOwner {
     /** Also used by the witness. Dirt, injury and shelter never disqualify an actual sighting. */
     public static boolean maySteal(YukkuriEntity body) {
         return body.status().identity() == Identity.STRAY && !Custody.protectedAnimal(body)
-                && BadgeSocial.visibleRank(body).id() < BadgeGrade.BRONZE.id()
+                && body.pet().humanRank().id() < BadgeGrade.BRONZE.id()
                 && !body.family().hasDependentYoung();
     }
 

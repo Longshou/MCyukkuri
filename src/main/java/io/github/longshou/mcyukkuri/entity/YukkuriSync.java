@@ -183,7 +183,8 @@ final class YukkuriSync {
         var value = bite == null || bite.isEmpty() ? new CompoundTag() : bite.save();
         setChanged(MOUTH_BODY_FOOD, value);
     }
-    int visibleMedal() { return owner.getEntityData().get(MEDAL); }
+    int visibleMedal() { return owner.getEntityData().get(MEDAL) & 7; }
+    boolean visibleDisqualified() { return (owner.getEntityData().get(MEDAL) & 8) != 0; }
     Optional<UUID> reservedBy() { return owner.getEntityData().get(RESERVED_BY); }
     void showReservation(UUID player) { owner.getEntityData().set(RESERVED_BY, Optional.ofNullable(player)); }
     boolean hasVisibleAccessory() { return owner.getEntityData().get(ACCESSORY); }
@@ -375,7 +376,8 @@ final class YukkuriSync {
         owner.getEntityData().set(BRAID_MEAL_BIN, Optional.ofNullable(owner.life().braidMealBin()));
         owner.getEntityData().set(DISH_CONTACT, owner.life().dishContact().toVector3f());
         if (!ItemStack.matches(owner.getEntityData().get(CARRYING), carried)) owner.getEntityData().set(CARRYING, carried.copy());
-        owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
+        owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id() | (owner.pet().disqualified() ? 8 : 0));
+        owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
     }
     void syncHeldItem() {

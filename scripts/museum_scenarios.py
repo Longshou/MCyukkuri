@@ -2709,6 +2709,44 @@ add('certify_platinum_talent', 'town', '钻石章：考官夸天分', '钻石章
     **_CERTIFY_VIEW)
 
 
+def brood_parents(scene):
+    return [box(-3, -1, -1, 5, -1, 8, 'minecraft:grass_block'), box(-3, 0, 2, 5, 3, 8, 'minecraft:air'), *shed(0, 6),
+            block(-2, 0, 6, 'mcyukkuri:yukkuri_nest'), block(2, 0, 6, 'mcyukkuri:yukkuri_nest'),
+            yk('reimu', 0, 3, 'pet', grade=2, lead=True, uuid=uid(scene, 'mother'), **pair_ready()),
+            yk('marisa', 4, 4, 'father', grade=1, uuid=uid(scene, 'father'), **pair_ready()), *own('pet'), *own('father'),
+            f'yukkuri scenario bond {sel("pet")} {sel("father")}', home('pet', 0, 6)]
+
+
+_PENDING_BROOD = f'yukkuri scenario pending {sel("pet")} {sel("father")}'
+_BROOD_STANDING = [f'yukkuri status {sel(role)} raw' for role in ('pet', 'father')]
+
+
+def brood_standing(readout, expected):
+    actual = re.findall(r'pet_grade:"([a-z]+)"', readout)
+    return None if actual == expected else f'parent standings {actual}, expected {expected}'
+
+
+add('exam_caught', 'town', '检查时看出有孕', '检查时看出有孕',
+    '站在屏风北边右键考官，让他先走到窝边查看银章灵梦。看考官收章后再查看双亲的档案和手册。',
+    '报名后约十秒', [*exam_hall(), *brood_parents('exam_caught'), box(-1, 0, 1, 1, 1, 1, 'minecraft:oak_planks')],
+    late=[_PENDING_BROOD], give=['minecraft:emerald 4', 'mcyukkuri:field_notebook'], env={'time': 'dawn'}, vantage=(0, -2, 0),
+    smoke=dict(ticks=240, commands=[(45, f'yukkuri scenario certify {sel("judge")} {sel("pet")}')],
+               expect=[r'\[badge\].*pending brood=', r'mother_grade=SILVER father_grade=BRONZE', r'\[exam\].*action=look target=GOLD',
+                       *(rf'disqualified cause=exam .*parent={_uuid_text("exam_caught", role)} .*evidence=pregnancy .*observed=40'
+                         for role in ('mother', 'father')), r'\[badge\].*advancement=caught_at_exam', r'\[badge\].*advancement=unauthorized_found',
+                       r'\[exam\].*action=interrupt reason=disqualified phase=LOOK', r'\[badge\].*revoked grade=SILVER',
+                       rf'\[badge\].*collected pet={_uuid_text("exam_caught", "mother")} .*item=.*silver_yukkuri_badge'],
+               forbid=[r'\[exam\].*action=result', r'disqualified cause=(pregnancy|babies)'],
+               readout=_BROOD_STANDING, verify_readout=lambda result: brood_standing(result, ['none', 'none'])))
+
+add('brood_unseen', 'town', '主人离开后，双亲照常佩章', '主人离开后，双亲照常佩章',
+    '先在远处查看双亲的等级，再走近看灵梦隆起的肚子。留意判定前后的佩章和手册记录。',
+    '看见后约两秒', brood_parents('brood_unseen'), late=[_PENDING_BROOD], give=['mcyukkuri:field_notebook'],
+    env=DAY, vantage=(0, -15), reads=[('读双亲资格', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..28] raw')],
+    smoke=dict(ticks=230, expect=[r'\[badge\].*pending brood=', r'mother_grade=SILVER father_grade=BRONZE'],
+               forbid=[r'\[badge\].*(disqualified cause=|revoked grade=|pending expired)'], readout=_BROOD_STANDING,
+               verify_readout=lambda result: brood_standing(result, ['silver', 'bronze'])))
+
 add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
     human('caretaker_brother', 4, -4, 'keeper', 4, yaw=180, label='店方饲养员'), *shed(-4, -3),
     # Five is the largest ordinary live litter; two spare nests beside the mother's (centres two blocks apart, so the bolsters do not
@@ -6211,6 +6249,7 @@ TOPICS = {
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
+    'exam_caught': 'M5', 'brood_unseen': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',

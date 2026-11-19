@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.rules.Conscience;
+import io.github.longshou.mcyukkuri.pet.rules.Discovery;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
 import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
@@ -27,6 +28,7 @@ import java.util.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -64,6 +66,9 @@ public final class PetLife {
     private final PetCare care;
     private final Conscience conscience;
     private int obedienceShift;
+    private Discovery discovery = new Discovery();
+    private final Set<UUID> learnedDiscoveries = new HashSet<>();
+    public Discovery discovery() { return discovery; }
     public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); conscience = new Conscience(animal); }
     public Conscience conscience() { return conscience; }
     public PetLessons lessons() { return lessons; }
@@ -84,7 +89,8 @@ public final class PetLife {
     // grade
     private long now() { return animal.level().getGameTime(); }
     public BadgeGrade grade() { return grade; }
-    public BadgeGrade effectiveGrade() { return voidBadge ? BadgeGrade.NONE : grade; }
+    public boolean disqualified() { return PetPrivileges.get((ServerLevel) animal.level()).conduct().disqualified(animal.getUUID()); }
+    public BadgeGrade effectiveGrade() { return grade == BadgeGrade.NONE || voidBadge || disqualified() ? BadgeGrade.NONE : grade; }
     public int talent() {
         var p = animal.life().personality();
         return BadgeRequirements.talent(p.potential(Trait.INTELLIGENCE), p.potential(Trait.SELF_CONTROL),
@@ -99,7 +105,7 @@ public final class PetLife {
         examWildTag = null; examTemporaryOwner = null;
     }
     public BadgeGrade visibleGrade() { return worn && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
-    public BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : visibleGrade(); }
+    public BadgeGrade humanRank() { return effectiveGrade() == BadgeGrade.NONE ? BadgeGrade.NONE : visibleGrade(); }
     public boolean worn() { return worn; }
     public long issuedAt() { return issuedAt; }
     public int source() { return source; }
@@ -154,7 +160,7 @@ public final class PetLife {
     }
     /** New serial, old tokens die; the caller charges the fee and hands the stack over. */
     /** A sold animal's badge: new serial (every earlier token dies, detached or not) and the badge is worn again. */
-    public void rotateSerial() { if (grade == BadgeGrade.NONE) return; serial = ModRandom.identity(animal.getRandom()); worn = true; }
+    public void rotateSerial() { if (grade == BadgeGrade.NONE || disqualified()) return; serial = ModRandom.identity(animal.getRandom()); worn = true; }
     public ItemStack reissueToken() { if (grade == BadgeGrade.NONE) return ItemStack.EMPTY; serial = ModRandom.identity(animal.getRandom()); worn = false; return token(); }
     private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     public void markAccessory(ItemStack accessory) {
@@ -222,13 +228,21 @@ public final class PetLife {
     }
     public int cooldown() { return cooldown; }
     public void setCooldown(int ticks) { cooldown = Math.max(0, ticks); }
-    public boolean breedingPermitted(UUID partner) { var until = permits.get(partner); return until != null && now() <= until; }
+    public boolean breedingPermitted(UUID partner) { return permitUntil(partner) >= 0; }
     public void permitBreeding(UUID partner, long untilGameTime) { permits.put(partner, untilGameTime); }
-    public long permitUntil(UUID partner) { var until = permits.get(partner); return until != null && now() <= until ? until : -1; }
+    public long permitUntil(UUID partner) {
+        var until = permits.get(partner);
+        if (until == null || now() > until) return -1;
+        var conduct = PetPrivileges.get((ServerLevel) animal.level()).conduct();
+        return conduct.disqualified(animal.getUUID()) || conduct.disqualified(partner) ? -1 : until;
+    }
     /** The partner whose permit lasts longest, or null. */
     public UUID permitPartner() {
         UUID best = null; long t = -1;
-        for (var e : permits.entrySet()) if (now() <= e.getValue() && e.getValue() > t) { best = e.getKey(); t = e.getValue(); }
+        for (var id : permits.keySet()) {
+            long until = permitUntil(id);
+            if (until > t) { best = id; t = until; }
+        }
         return best;
     }
     public void revokeBreeding(UUID partner) { permits.remove(partner); }
@@ -465,7 +479,13 @@ public final class PetLife {
         if (examWildTag != null && !ExamSession.running(animal)) finishWildExam();
         if (cooldown > 0) cooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
-        if (animal.tickCount % 20 == 0) conscience.react();
+        discovery.tick(animal);
+        if (animal.tickCount % 20 == 0) {
+            var records = PetPrivileges.get((ServerLevel) animal.level()).conduct().cases(animal.getUUID());
+            for (var entry : records) if (entry.judged(animal.getUUID()) && learnedDiscoveries.add(entry.brood))
+                conscience.broodDiscovered(entry.parents.stream().filter(p -> p.id().equals(animal.getUUID())).findFirst().orElseThrow().owner());
+            conscience.react();
+        }
         if (++dayClock >= 24000) {
             dayClock = 0;
             permits.values().removeIf(until -> until < now());
@@ -488,6 +508,9 @@ public final class PetLife {
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
         tag.putBoolean("TownRoots", townRoots);
         tag.putInt("Obedience", obedienceShift);
+        var learned = new ListTag();
+        for (var brood : learnedDiscoveries) learned.add(NbtUtils.createUUID(brood));
+        tag.put("LearnedDiscoveries", learned);
         tag.put("Conscience", conscience.save());
         tag.putInt("Cooldown", cooldown); tag.putInt("LessonsToday",
                 lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
@@ -498,6 +521,9 @@ public final class PetLife {
         tag.put("Permits", permitList); tag.put("BadgeLedger", ledger.save()); tag.put("Care", care.save()); return tag;
     }
     public void load(CompoundTag tag) {
+        discovery = new Discovery();
+        learnedDiscoveries.clear();
+        for (var brood : tag.getList("LearnedDiscoveries", 11)) learnedDiscoveries.add(NbtUtils.loadUUID(brood));
         grade = BadgeGrade.of(tag.getInt("Grade")); worn = !tag.contains("Worn") || tag.getBoolean("Worn");
         issuedAt = tag.getLong("IssuedAt"); source = Math.clamp(tag.getInt("Source"), 0, ExamSession.CERTIFY);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000);

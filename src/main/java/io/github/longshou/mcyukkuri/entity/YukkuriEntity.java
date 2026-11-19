@@ -471,6 +471,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
     public void syncMouthBodyFood(BodyFood.Bite bite) { sync().syncMouthBodyFood(bite); }
     public int visibleMedal() { return sync().visibleMedal(); }
+    public boolean visibleDisqualified() { return sync().visibleDisqualified(); }
     @Override public Optional<UUID> reservedBy() { return sync().reservedBy(); }
     public void showReservation(UUID player) { sync().showReservation(player); }
     public boolean hasVisibleAccessory() { return sync().hasVisibleAccessory(); }

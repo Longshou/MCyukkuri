@@ -121,6 +121,11 @@ public final class Conscience {
         GameplayLog.event(pet, "rules", "caught rule={} evidence={} owner={}", guilt.key(), evidence, guiltOwner);
     }
 
+    public void broodDiscovered(UUID owner) {
+        if (guilt == HouseRule.NO_SUKKIRI && owner.equals(guiltOwner)) caught = true;
+        pet.pet().caught(owner);
+    }
+
     public void forgetOwner() {
         instruction = new HouseRule.Instruction(null, 0);
         guilt = null;

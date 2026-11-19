@@ -10,7 +10,7 @@ import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
+import io.github.longshou.mcyukkuri.pet.rules.HumanSight;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
@@ -270,6 +270,7 @@ public final class HumanNpc extends PathfinderMob {
             @Override public boolean canContinueToUse() { return !avoidingStreet() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(1, new CourierGoal());
+        goalSelector.addGoal(2, new CollectBadgeGoal());
         goalSelector.addGoal(2, new PlantTransfer(this));
         goalSelector.addGoal(2, new PlantSweetening(this));
         goalSelector.addGoal(2, new YardClaimGoal());
@@ -461,7 +462,6 @@ public final class HumanNpc extends PathfinderMob {
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (tickCount % 40 == 17 && tickCount >= nextBadgeGreeting && !resting() && !isTrading() && !avoidingStreet()
                 && !ExamSession.active(this)) greetBadge();
-        if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3) ShopStaff.tick(this);
     }
     private void greetBadge() {
@@ -469,7 +469,7 @@ public final class HumanNpc extends PathfinderMob {
         if (viewer == null || !(level() instanceof ServerLevel server)) return;
         var guest = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(4), y ->
                 y.isAlive() && !y.life().isSleeping() && !ExamSession.running(y) && hasLineOfSight(y)
-                        && BadgeSocial.visibleRank(y).id() >= BadgeGrade.SILVER.id()).stream()
+                        && y.pet().humanRank().id() >= BadgeGrade.SILVER.id()).stream()
                 .min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
         if (guest == null) return;
         nextBadgeGreeting = tickCount + 1200;
@@ -477,14 +477,56 @@ public final class HumanNpc extends PathfinderMob {
         Staging.card(server, position().add(0, getBbHeight() + .45, 0),
                 Component.translatable("human.mcyukkuri.greet_badge", guest.getDisplayName()), 60, 1.0f);
     }
-    /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
-    private void revokeVoidBadges() {
-        for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(6), v -> v.isAlive() && v.pet().voidBadge() && hasLineOfSight(v))) {
-            y.pet().revoke(); swing(InteractionHand.MAIN_HAND); PetScenes.revoked(y);
-            var near = level().getNearestPlayer(this, 16);
-            if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
-            return;
+    public boolean badgeStaff() { return job() == Job.EXAMINER || job() == Job.SHOPKEEPER; }
+    private boolean collectible(YukkuriEntity y) {
+        return y.pet().visibleGrade() != BadgeGrade.NONE && (y.pet().voidBadge() || y.pet().disqualified());
+    }
+    private boolean hasBadgeHand() { return getOffhandItem().isEmpty() || getMainHandItem().isEmpty(); }
+    public boolean collectBadge(YukkuriEntity y) {
+        if (!badgeStaff() || !collectible(y) || !hasBadgeHand() || !HumanSight.sees(this, y)
+                || !ShopStaff.reaches(this, y.getEyePosition(), null)) return false;
+        var hand = getOffhandItem().isEmpty() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        var token = y.pet().token();
+        var serial = y.pet().serial();
+        setItemInHand(hand, token);
+        setDropChance(hand == InteractionHand.OFF_HAND ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND, 2f);
+        y.pet().revoke();
+        swing(hand);
+        PetScenes.revoked(y);
+        GameplayLog.event(this, "badge", "collected pet={} serial={} hand={} distance={} item={}",
+                y.getUUID(), serial, hand, distanceTo(y), getItemInHand(hand).getItem());
+        var near = level().getNearestPlayer(this, 16);
+        if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
+        return true;
+    }
+    private final class CollectBadgeGoal extends Goal {
+        private YukkuriEntity subject;
+        private Path path;
+        private int nextScan;
+        CollectBadgeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        private boolean available() { return badgeStaff() && !resting() && !isTrading() && !ShopStaff.active(HumanNpc.this) && hasBadgeHand(); }
+        @Override public boolean canUse() {
+            if (!available() || tickCount < nextScan) return false;
+            nextScan = tickCount + 40;
+            subject = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(6),
+                    y -> collectible(y) && HumanSight.sees(HumanNpc.this, y)).stream()
+                    .min(Comparator.comparingDouble(HumanNpc.this::distanceToSqr)).orElse(null);
+            if (subject == null) return false;
+            if (ShopStaff.reaches(HumanNpc.this, subject.getEyePosition(), null)) return true;
+            path = getNavigation().createPath(subject, 0);
+            return path != null && path.canReach();
         }
+        @Override public void start() {
+            if (!collectBadge(subject)) getNavigation().moveTo(path, .9);
+        }
+        @Override public boolean canContinueToUse() {
+            return available() && subject.isAlive() && collectible(subject) && !getNavigation().isDone() && distanceToSqr(subject) <= 36;
+        }
+        @Override public void tick() {
+            getLookControl().setLookAt(subject, 30, 30);
+            if (collectBadge(subject)) getNavigation().stop();
+        }
+        @Override public void stop() { getNavigation().stop(); subject = null; path = null; }
     }
     void registerYardBowl(BlockPos bowl) {
         yardBowl = bowl;

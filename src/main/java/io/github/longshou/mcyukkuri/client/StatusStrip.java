@@ -21,12 +21,14 @@ public final class StatusStrip {
         if (Identity.STOCK.translationKey().equals(view.identityTranslationKey())) {
             var status = view.visibleSyndromePrevention()
                     ? Component.translatable("magnifier.mcyukkuri.syndrome_prevention") : Component.empty();
+            if (view.visibleDisqualified()) status.append(" ").append(Component.translatable("badge.mcyukkuri.profile.owner_state.3"));
             return new Readout(view.getDisplayName(), stage(view), view.identityTranslationKey(), status);
         }
         Component health = Component.translatable("magnifier.mcyukkuri.health",
                 Math.round(view.getHealth()), Math.round(view.getMaxHealth()));
-        Component badge = Component.translatable("magnifier.mcyukkuri.badge",
-                Component.translatable("badge.mcyukkuri.profile.grade." + view.visibleMedal()));
+        Component grade = Component.translatable("badge.mcyukkuri.profile.grade." + view.visibleMedal());
+        Component badge = Component.translatable("magnifier.mcyukkuri.badge", view.visibleDisqualified()
+                ? Component.translatable("badge.mcyukkuri.disqualified", grade) : grade);
         int mold = BodySigns.moldTier(view.visibleSigns() & BodySigns.MOLD_MASK);
         Component dirt = mold > 0
                 ? Component.translatable("magnifier.mcyukkuri.moldy", mold)

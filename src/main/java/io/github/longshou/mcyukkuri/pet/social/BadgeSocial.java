@@ -26,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 /** Sightings of badges (and of lost ones), turned into silent ledger records, rare one-liners or multi-beat arcs. Server only, driven by PetLife's 2-second
  *  tick; nothing here depends on rendering. Redesign of the old poll-and-perform scan: docs/FEATURES.md */
 public final class BadgeSocial {
-    public static BadgeGrade visibleRank(YukkuriEntity subject) { return subject.pet().visibleEffective(); }
+    public static BadgeGrade visibleRank(YukkuriEntity subject) { return subject.pet().visibleGrade(); }
     /** Affinity moved by badge reactions stays inside these guard rails: far from the bully (-20) and nuzzle (+10) thresholds. */
     public static final int FLOOR = -10, CEILING = 8;
     private static final int SCAN_RADIUS = 8, DWELL_TICKS = 40, FORGET_VIEW_TICKS = 100, ROLL_EVERY = 200, AUDIENCE_RADIUS = 32;

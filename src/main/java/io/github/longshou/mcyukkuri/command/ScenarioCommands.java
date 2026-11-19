@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
@@ -39,7 +40,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -94,14 +98,41 @@ public final class ScenarioCommands {
         if (context.getSource().getEntity() != null || !level.players().isEmpty()) return 0;
         var candidate = yukkuri(context, "candidate");
         if (candidate == null || !(EntityArgument.getEntity(context, "examiner") instanceof HumanNpc examiner)) return 0;
-        var owner = FakePlayerFactory.getMinecraft(level);
+        // NeoForge's ordinary FakePlayer discards every award. The exam operator uses vanilla criterion
+        // progress for this booking, without loading a player's history or registering automatic triggers.
+        var server = level.getServer();
+        var owner = new FakePlayer(level, FakePlayerFactory.getMinecraft(level).getGameProfile()) {
+            private final PlayerAdvancements progress = new PlayerAdvancements(server.getFixerUpper(), server.getPlayerList(),
+                    server.getAdvancements(), server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR).resolve("museum-exam.json"), this) {
+                @Override protected void load(ServerAdvancementManager advancements) {}
+            };
+            @Override public PlayerAdvancements getAdvancements() { return progress; }
+        };
         owner.setPos(candidate.getX(), candidate.getY(), candidate.getZ() + 1);
-        owner.getInventory().clearContent();
         int fee = ExamSession.fee(candidate.pet().grade().higher());
         if (fee > 0) owner.getInventory().add(new ItemStack(Items.EMERALD, fee));
         Custody.assign(candidate, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
         var reason = ExamSession.start(examiner, owner, candidate);
         return reason == null ? 1 : refused(context.getSource(), candidate, "认证", reason);
+    }
+
+    private static int pending(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var mother = yukkuri(c, "mother");
+        var father = yukkuri(c, "father");
+        if (mother == null || father == null) return 0;
+        var level = c.getSource().getLevel();
+        if (level.players().isEmpty()) {
+            var owner = FakePlayerFactory.getMinecraft(level);
+            for (var parent : List.of(mother, father))
+                Custody.assign(parent, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+        }
+        String reason = ScenarioSetup.birth(mother, father, "pregnant");
+        if (reason != null) return refused(c.getSource(), mother, "准备胎次", reason);
+        var brood = mother.family().brood();
+        PetPrivileges.voluntaryBrood(brood.id, mother, father);
+        GameplayLog.event(mother, "scenario", "brood={} mother_grade={} father_grade={}", brood.id,
+                mother.pet().effectiveGrade(), father.pet().effectiveGrade());
+        return 1;
     }
 
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
@@ -148,6 +179,8 @@ public final class ScenarioCommands {
                         }))))
                 .then(Commands.literal("certify").then(Commands.argument("examiner", EntityArgument.entity())
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(ScenarioCommands::certify))))
+                .then(Commands.literal("pending").then(Commands.argument("mother", EntityArgument.entity())
+                        .then(Commands.argument("father", EntityArgument.entity()).executes(ScenarioCommands::pending))))
                 .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
                 .then(Commands.literal("staff_tool").then(Commands.argument("staff", EntityArgument.entity())
@@ -319,7 +352,7 @@ public final class ScenarioCommands {
                 .then(Commands.literal("birth").then(Commands.argument("mother", EntityArgument.entity())
                         .then(Commands.argument("father", EntityArgument.entity())
                                 .then(Commands.argument("outcome", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"natural", "caught", "stem", "near_term"}, b))
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"natural", "caught", "stem", "near_term", "pregnant"}, b))
                                         .executes(c -> {
                                             var mother = yukkuri(c, "mother"); var father = yukkuri(c, "father");
                                             if (mother == null || father == null) return 0;

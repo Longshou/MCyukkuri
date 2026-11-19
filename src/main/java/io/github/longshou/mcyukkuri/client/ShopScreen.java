@@ -174,6 +174,10 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static Component parentBadge(int grade) {
         return grade < 0 ? Component.translatable("pet.mcyukkuri.profile.unknown") : GuiKit.gradeName(grade);
     }
+    private static Component standing(int flags) {
+        return (flags & ShopMenu.Flags.DISQUALIFIED) != 0 ? Component.translatable("badge.mcyukkuri.profile.owner_state.3")
+                : GuiKit.gradeName(flags & ShopMenu.Flags.GRADE_MASK);
+    }
     /** The row's animal on this client (its network id travels as two shorts), or null when it is not loaded here. */
     private Entity portrait(int k) {
         int id = menu.liveEntityId((k - ShopMenu.LiveRow.BASE) / ShopMenu.LiveRow.STRIDE);
@@ -192,7 +196,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             g.drawString(font, tier, x + 4, y + 5, INK, false);
         }
         g.drawString(font, ellipsize(font, Component.translatable("shop.mcyukkuri.row.head2",
-                GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." +
+                standing(f), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." +
                 menu.value(k + ShopMenu.LiveRow.STAGE))), TEXT_W - CHIP_WIDTH - tierWidth), TEXT_X + CHIP_WIDTH, y + 5, INK, false);
         Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(k + ShopMenu.LiveRow.SKILLS)));
         g.drawString(font, ellipsize(font, knownSkills, TEXT_W), TEXT_X, y + 5 + LINE, SOFT, false);
@@ -254,7 +258,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             if (menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(ShopMenu.Data.SUBJECT_FLAGS);
             line(g, 38, INK, Component.translatable("shop.mcyukkuri.subject", menu.value(ShopMenu.Data.SUBJECT_INDEX),
-                    menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK),
+                    menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), standing(f),
                     Component.translatable("human.mcyukkuri.stage." + menu.value(ShopMenu.Data.SUBJECT_STAGE))));
             Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ShopMenu.Data.SUBJECT_SKILLS)));
             line(g, 52, INK, ellipsize(font, knownSkills, 308));

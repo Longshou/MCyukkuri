@@ -135,6 +135,7 @@ public interface YukkuriView {
     /** Where that stack physically is (her grip, her mouth, lying in her set-down hat) and the beat moving it, as synchronized. */
     Held heldPlace();
     int visibleMedal();
+    boolean visibleDisqualified();
     Optional<UUID> reservedBy();
     int visibleHeadwear();
     int visibleWear();

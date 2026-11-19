@@ -126,7 +126,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, RENT = 5, DATA_SIZE = Data.COUNT;
     public static final class Flags {
-        public static final int GRADE_MASK = 7, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
+        public static final int GRADE_MASK = 7, DISQUALIFIED = 8, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
         public static final int REQUIRED_SHIFT = 8, REQUIRED_MASK = 3;
         private Flags() {}
     }
@@ -183,7 +183,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private final List<UUID> roster = new ArrayList<>();
     private final List<UUID> mine = new ArrayList<>();
     private final ContainerData data = new SimpleContainerData(DATA_SIZE);
-    private int tab, page, selected, standing, standingClock;
+    private int tab, page, selected;
 
     public ShopMenu(int id, Inventory inventory, int entityId) {
         super(HumanWorld.SHOP_MENU.get(), id); viewer = inventory.player;
@@ -217,7 +217,8 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     private int flags(YukkuriEntity y) {
         var b = y.pet(); var d = shop == null ? null : shop.deposit(y.getUUID());
-        return b.grade().id() | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0)
+        return b.effectiveGrade().id() | (b.disqualified() ? Flags.DISQUALIFIED : 0)
+                | (b.effectiveGrade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0)
                 | (ShopTrade.order(y) ? Flags.ORDERED : 0)
                 | (d == null ? 0 : d.buyer().equals(viewer.getUUID()) ? Flags.RESERVED_YOU : Flags.RESERVED_OTHER)
                 | (ShopMembership.required(y).ordinal() << Flags.REQUIRED_SHIFT);
@@ -229,7 +230,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private void rebuildRoster() {
         roster.clear();
         if (shop == null || !(viewer.level() instanceof ServerLevel level)) return;
-        ShopRegistry.liveStock(level, shop).stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
+        ShopRegistry.liveStock(level, shop).stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().effectiveGrade().id())
                 .thenComparingInt(y -> y.getVariant().ordinal()).thenComparing(YukkuriEntity::getUUID)).limit(64).forEach(y -> roster.add(y.getUUID()));
     }
     private YukkuriEntity listed(int index) {
@@ -260,8 +261,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         put(Data.SERVICE_REFUSAL, ShopAccess.service(level, shop, (ServerPlayer) viewer).ordinal());
         put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.id, viewer.getUUID()));
         put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
-        if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
-        put(Data.STANDING, standing);
+        put(Data.STANDING, PetPrivileges.grade(viewer).id());
         if (tab == GOODS) {
             var stocks = ShopStock.get(level);
             for (int row = 0; row < GOODS_ROWS; row++) {

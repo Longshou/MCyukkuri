@@ -91,6 +91,10 @@ public final class ExamSession {
     }
     public static boolean running(YukkuriEntity candidate) { return candidateSession(candidate) != null; }
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
+    public static boolean examines(HumanNpc examiner, YukkuriEntity candidate) {
+        var session = ACTIVE.get(examiner.getUUID());
+        return session != null && session.candidate == candidate;
+    }
     /** Run after the examiner's routine has taken MOVE and LOOK from its previous goal. */
     public static boolean steer(HumanNpc examiner) {
         var session = ACTIVE.get(examiner.getUUID());
@@ -148,6 +152,7 @@ public final class ExamSession {
         if (!examiner.level().isDay()) return "night";
         if (running(y)) return "busy";
         var pet = y.pet();
+        if (pet.disqualified()) return "disqualified";
         if (!eligibleOwner(y, p) || reissue && !pet.owned(p)) return "not_owned";
         if (y.isPassenger() || pet.busy() || y.isNoAi()) return "not_ready";
         var grade = pet.grade();
@@ -214,6 +219,8 @@ public final class ExamSession {
                 } else if (phaseTicks >= APPROACH_TICKS) interrupt("site");
             }
             case LOOK -> {
+                candidate.pet().discovery().inspect(candidate, examiner, owner);
+                if (candidate.pet().disqualified()) { interrupt("disqualified"); return; }
                 if (phaseTicks == 20) introduce();
                 if (phaseTicks == 40) examiner.swing(InteractionHand.MAIN_HAND);
                 if (phaseTicks == LOOK_TICKS) {
@@ -251,6 +258,7 @@ public final class ExamSession {
         if (!candidate.duty().holds(Duty.Kind.EXAM) || !LOCK.equals(candidate.pet().busyWith())) return "duty";
         if (owner == null || !owner.isAlive()) return "owner_gone";
         if (owner.level() != level || owner.distanceToSqr(candidate) > 144) return "owner_far";
+        if (phase != Phase.RESULT && candidate.pet().disqualified()) return "disqualified";
         if (phase != Phase.RESULT && (!eligibleOwner(candidate, owner) || candidate.pet().grade() != before
                 || candidate.pet().effectiveGrade() != before)) return "not_owned";
         if (phase != Phase.APPROACH && !inContact()) return "site";

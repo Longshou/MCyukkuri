@@ -265,7 +265,7 @@ final class ScenarioSetup {
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome,List<Float> sizes) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !mother.family().adult() || !father.family().adult()) return "接生场景要在同一维度放两只成年个体。";
-        if (!Set.of("natural", "caught", "stem", "near_term").contains(outcome)) return "结果必须为 natural、caught、stem 或 near_term。";
+        if (!Set.of("natural", "caught", "stem", "near_term", "pregnant").contains(outcome)) return "结果必须为 natural、caught、stem、near_term 或 pregnant。";
         if(sizes.size()>5||sizes.stream().anyMatch(size->!Float.isFinite(size)||size<.1f||size>.19f))return "出生体型须为一至五个 0.10–0.19 的数值。";
         boolean stem = outcome.equals("stem");
         if (mother.distanceToSqr(father) > 256) return "父油要在母油十六格内。";
@@ -293,7 +293,9 @@ final class ScenarioSetup {
             father.family().arrange(null);
         }
         if (brood == null) return "真实受孕没有成功。";
-        if (!stem) {
+        if (outcome.equals("pregnant")) {
+            brood.elapsed = brood.duration / 4;
+        } else if (!stem) {
             var helper = FamilyLife.catcher(mother, brood);
             // A catcher joins her at once and takes his hat off only near term (LiveBirth hat_wait); joining her and setting the hat
             // down took 143-358 ticks in ten smoke runs and her labour waits for the hat, so 400 ticks start the scene close to term.

@@ -256,7 +256,7 @@ public final class InteractionDispatch {
         reason=action.shears()?(operation.toolReady(false)?null:"busy"):operationRefusal(target);
         if(reason!=null)return reason;
         if(action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
-        if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_HARNESS||action==CareAction.UNWRAP){
+        if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_BADGE||action==CareAction.REMOVE_HARNESS||action==CareAction.UNWRAP){
             if(!ownsPet(player,target))return "owner";
         }
         if(action==CareAction.ASK&&target.pet().busy())return "busy";
@@ -283,6 +283,7 @@ public final class InteractionDispatch {
             case DECLINE_EVENT -> target.social().canDismissFoodRequest(player) || WildEvents.canDecline(target,player) ? null : "request";
             case SING, EXERCISE -> target.dailyLife().canInvite(player,action==CareAction.SING?DailyLife.Kind.SING:DailyLife.Kind.EXERCISE)?null:"leisure";
             case REMOVE_HARNESS -> target.pet().care().harnessed()?null:"harness";
+            case REMOVE_BADGE -> target.pet().busy() ? "busy" : target.pet().visibleGrade().id() == 0 ? "badge" : null;
             case UNWRAP -> target.pet().care().swaddled()?null:"swaddle";
             case TRIM_HAIR, CUT_LEFT, CUT_RIGHT -> (~target.body().hairLoss()&action.hairParts())!=0?null:"hair";
             case STERILIZE -> !target.family().adult()||target.family().sterile()||target.family().stimulation()==0?"condition":null;

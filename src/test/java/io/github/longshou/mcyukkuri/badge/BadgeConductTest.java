@@ -1,6 +1,9 @@
 package io.github.longshou.mcyukkuri.badge;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,18 @@ class BadgeConductTest {
     private final BadgeConduct.Parent mother = parent(), father = parent();
     private final UUID brood = UUID.randomUUID();
     private static BadgeConduct.Parent parent() { return new BadgeConduct.Parent(UUID.randomUUID(), UUID.randomUUID()); }
+
+    @Test void aPaidArrangementUsesTheFamilyTransactionWithoutOpeningAVoluntaryCase() throws IOException {
+        // Check the compiled call-site boundary without loading Minecraft or substituting a mock shop.
+        for (String path : List.of("family/Courtship", "house/HouseNestBlockEntity", "shop/ShopDate", "family/FamilyData")) {
+            try (var file = getClass().getResourceAsStream("/io/github/longshou/mcyukkuri/" + path + ".class")) {
+                var symbols = new String(file.readAllBytes(), StandardCharsets.ISO_8859_1);
+                assertTrue(symbols.contains("conceive"), path);
+                assertEquals(path.equals("family/Courtship") || path.equals("house/HouseNestBlockEntity"),
+                        symbols.contains("voluntaryBrood"), path);
+            }
+        }
+    }
 
     @Test void permitCoversItsLastTickAndOnlyRegisteredParentsNeedOne() {
         var wild = new BadgeConduct.Parent(father.id(), null);
@@ -43,5 +58,20 @@ class BadgeConductTest {
         assertEquals(1, cases.size());
         assertTrue(registry.disqualified(mother.id()));
         assertFalse(registry.disqualified(otherBrood));
+    }
+
+    @Test void anUnseenBroodKeepsBothGradesUntilItsEvidenceIsGone() {
+        assertTrue(registry.open(brood, mother, -1, father, -1, 1));
+        var motherCredits = Map.of(mother.id(), 2);
+        var fatherCredits = Map.of(father.id(), 1);
+        var entry = registry.cases(father.id()).getFirst();
+        assertNull(entry.verdict());
+        assertEquals(2, registry.standing(motherCredits));
+        assertEquals(1, registry.standing(fatherCredits));
+        registry.remove(entry);
+        assertTrue(registry.cases(mother.id()).isEmpty());
+        assertTrue(registry.cases(father.id()).isEmpty());
+        assertEquals(2, registry.standing(motherCredits));
+        assertEquals(1, registry.standing(fatherCredits));
     }
 }
