@@ -230,7 +230,7 @@ public final class ExamSession {
         if (candidate.hurtTime > 0) return "hurt";
         if (candidate.isPanicking()) return "panic";
         if (!candidate.duty().holds(Duty.Kind.EXAM) || !LOCK.equals(candidate.pet().busyWith())) return "duty";
-        if (owner == null) return "owner_gone";
+        if (owner == null || !owner.isAlive()) return "owner_gone";
         if (owner.level() != level || owner.distanceToSqr(candidate) > 144) return "owner_far";
         if (phase != Phase.RESULT && (!eligibleOwner(candidate, owner) || candidate.pet().grade() != before
                 || candidate.pet().effectiveGrade() != before)) return "not_owned";
@@ -339,8 +339,8 @@ public final class ExamSession {
             String prefix = REASONS.contains(reason) ? "exam.mcyukkuri.refuse." : "exam.mcyukkuri.interrupt.";
             owner.displayClientMessage(Component.translatable("exam.mcyukkuri.interrupted", Component.translatable(prefix + reason)), false);
         }
-        GameplayLog.event(candidate, "exam", "action=interrupt reason={} phase={} target={} need={} fee={} talent={} emeralds_used=0",
-                reason, phase, target, firstMissing(target, candidate), fee(target), pet.talent());
+        GameplayLog.event(candidate, "exam", "action=interrupt reason={} phase={} target={} need={} fee={} talent={} emeralds_used=0 owner_emeralds={}",
+                reason, phase, target, firstMissing(target, candidate), fee(target), pet.talent(), owner == null ? null : emeralds(owner));
         release(Duty.End.FAILED, reason);
     }
 
