@@ -91,18 +91,14 @@ public final class NestDoorway {
             }
             double outer = boxes.stream().mapToDouble(b -> b.maxZ).max().orElseThrow();
             double top = boxes.stream().mapToDouble(b -> b.maxY).max().orElseThrow();
-            double threshold = (height(boxes, 0, 0) + top) * .5, opening = 0;
-            // The authored meshes use at least quarter-pixel collision cells. Sample the whole rim, not just its inside lip.
-            for (double x = 0; x < inner; x += 1.0 / 64) {
-                if (crest(boxes, x, inner) > threshold || crest(boxes, -x, inner) > threshold) break;
-                opening = x;
-            }
+            // On a large bed the stepped shoulders are part of the low entrance, up to the first
+            // full-height wall. Vanilla resolves the actual step under the walking body's box.
+            double threshold = large ? Math.nextDown(top) : (height(boxes, 0, 0) + top) * .5;
+            double opening = boxes.stream().filter(b -> b.maxZ >= inner && b.maxY > threshold)
+                    .mapToDouble(b -> Math.max(0, Math.max(b.minX, -b.maxX))).min().orElse(inner);
+            opening = Math.min(inner, opening);
             return new Doorway(frame.facing(), inner, outer, opening, reach);
         });
-    }
-
-    private static double crest(List<AABB> boxes, double x, double inner) {
-        return boxes.stream().filter(b -> b.minX <= x && b.maxX >= x && b.maxZ >= inner).mapToDouble(b -> b.maxY).max().orElse(0);
     }
 
     private static double height(List<AABB> boxes, double x, double z) {
@@ -231,7 +227,7 @@ public final class NestDoorway {
     }
 
     /** The footprint that has to pass the opening (a full-term belly squeezes through). */
-    private static double passFoot(YukkuriEntity actor) { return Occupancy.foot(LiveBirthGeometry.passWidth(actor)); }
+    private static double passFoot(YukkuriEntity actor) { return LiveBirthGeometry.passWidth(actor) * .5; }
 
     /** Align inside the hollow before the one straight crossing: level with the stand across the opening, at the origin's depth. */
     public static Vec3 inner(YukkuriEntity actor, CareBlockEntity bed, Vec3 stand) {
@@ -263,7 +259,7 @@ public final class NestDoorway {
         var origin = large ? Vec3.atLowerCornerOf(pos).add(1, 0, 1) : Vec3.atBottomCenterOf(pos);
         var shape = shape(state, facing, large ? NestResting.LARGE.box() : PetNestBlock.entranceReach(state));
         var adult = LiveBirthGeometry.adultDimensions(YukkuriVariant.REIMU);
-        double room = shape.opening() - Occupancy.foot(adult.width()) - SurfaceApproach.ARRIVAL;
+        double room = shape.opening() - adult.width() * .5 - SurfaceApproach.ARRIVAL;
         return room >= 0 && stand(shape, origin, adult.width(), room, 0,
                 at -> SurfaceApproach.restingFloor(level, adult, at)) != null;
     }

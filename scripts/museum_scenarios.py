@@ -6679,11 +6679,25 @@ add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输�
           for i, before, after in ((2, 0, 1), (3, 1, 3), (4, 3, 5))],
     ], forbid=[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text(_basket_comparison, "basket_healthy")}\b']))
 
+add('oversized_nest', 'family', '灵胖进大草窝过夜', '灵胖进大草窝过夜',
+    '体长到成体上限的胖灵梦从低沿迈进大草窝，躺下睡觉。天亮后窝外有食物，观察它从同一侧出窝。',
+    '约 1 分钟', [*shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
+        yk('reimu', .5, 3, 'deibu', lead=True, nutrition=72, rest_wait=60,
+           fam='Version:3,Initialized:1b,Age:672000L,Nourishment:672000L,AdultScale:1.2f,Scale:1.2f').replace('Deibu:0b', 'Deibu:1b'),
+        *own('deibu'), home('deibu', 0, 0)],
+    late=[Retry('function mcylab:util/time_dawn', sel('deibu'), tries=1, first=800),
+          Retry(set_status('deibu', 'needs.nutrition', 25), sel('deibu'), tries=1, first=800),
+          Retry(item('minecraft:apple', 1, .5, 4), sel('deibu'), tries=1, first=800)],
+    env={'time': 'night'}, spot='pet_birth', vantage=(4, 6, 140),
+    smoke=dict(ticks=1600, expect=[r'bed crossing [^\n]*direction=in [^\n]*opening=true source=walk',
+        r'begin source=life occupancy=INSIDE_SUPPORTED', r'bed crossing [^\n]*direction=out [^\n]*opening=true source=walk']))
+
 _number_scenes()
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
+    'oversized_nest': 'D1',
     'processing_plant': 'M2',
     'factory_sweet_box': 'M2',
     'factory_kin_boxes': 'M2',

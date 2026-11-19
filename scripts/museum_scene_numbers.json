@@ -285,6 +285,7 @@
     "rule_eat_wait": "TN-49",
     "rule_yard": "TN-50",
     "pentup_heat": "FM-25",
+    "oversized_nest": "FM-26",
     "pentup_hold": "TN-51",
     "pentup_breach": "TN-52",
     "den_mold_child_exile": "DN-11",
