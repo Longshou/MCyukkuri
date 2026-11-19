@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.RamPerson;
+import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import net.minecraft.world.entity.LivingEntity;
 
 /** The victim's response window. ThreatGoal steers a held stance and FleeGoal owns flight. */
@@ -29,6 +30,15 @@ final class StruckResponse implements MotorOwner {
     }
 
     StruckStance decide(LivingEntity danger, float loss) {
+        var seal = body.status().reactions().threat().seal();
+        if (seal.holdsThroughHit() || !seal.active() && seal.tryCommit(danger, DenSeal.Side.INSIDE)) {
+            var home = body.habitat().shelter();
+            seal.commit(danger, home.contains(body.blockPosition()) ? DenSeal.Side.INSIDE : DenSeal.Side.OUTSIDE);
+            flee(danger);
+            body.showReaction("teary", "hurt_endure", 20);
+            GameplayLog.event(body, "threat", "struck stance=SEAL attacker={} loss={}", danger.getUUID(), loss);
+            return StruckStance.SEAL;
+        }
         var p = body.life().personality();
         var id = body.status().identity();
         int young = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(6), body.family()::caresFor).size();

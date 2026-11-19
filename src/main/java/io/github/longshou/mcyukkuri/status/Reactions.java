@@ -279,7 +279,7 @@ public final class Reactions {
 
         public void struck(DamageSource source, float loss, BodyHit.Kind kind, String incident) {
             if (y.isAlive()) y.interrupt(InterruptContext.hurt(source), InterruptPhase.AFTER_DANGER_STRIKE);
-            seal.abort("attacked");
+            if (!seal.holdsThroughHit()) seal.abort("attacked");
             var actor = source.getEntity() instanceof LivingEntity other && other != y ? other : null;
             boolean human = PunishmentReaction.isHuman(actor);
             int before = 0;

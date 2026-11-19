@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.life.Duty.End;
 import io.github.longshou.mcyukkuri.life.Duty.Kind;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -13,10 +14,12 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.HomeTactic;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -54,6 +57,7 @@ public final class DenSeal {
     private long nextCheck, lastDrive;
     private BlockPos den;
     private UUID dangerId;
+    private Side committedSide;
     private record Stand(Vec3 at, double route) {}
     private Stand stand;
     private int walkBudget, paused;
@@ -81,7 +85,7 @@ public final class DenSeal {
     /** A new threat episode starts clean; ending one while she works stops the work. */
     public void reset() {
         if (active() && absent.isEmpty()) abort("response_ended");
-        dangerId = null;
+        dangerId = null; committedSide = null;
         threatDecision = ThreatDecision.UNDECIDED; nextCheck = 0;
     }
 
@@ -100,7 +104,8 @@ public final class DenSeal {
     public boolean drive(LivingEntity reported) {
         var level = (ServerLevel) y.level();
         long now = level.getGameTime();
-        if (active() && (!absent.isEmpty() || now - lastDrive > RECHECK)) abort("interrupted");
+        if (active() && (dangerId == null || now - lastDrive > RECHECK)) abort("interrupted");
+        if (reported != null && dangerId != null && !dangerId.equals(reported.getUUID())) reset();
         lastDrive = now;
         // Vanilla may forget the attacker partway through the work. Only an active seal needs to carry that memory.
         var danger = reported != null ? reported : dangerAt(level);
@@ -109,13 +114,13 @@ public final class DenSeal {
         if (phase == Phase.IDLE) {
             if (threatDecision == ThreatDecision.DONE || now < nextCheck || danger.distanceToSqr(y) > WATCH_SQR) return false;
             nextCheck = now + (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) < 36 ? 3 : RECHECK);
-            if (!canSeal(home) || !home.contains(y.blockPosition())) return false;
+            if (!skilledResident(home) || !home.contains(y.blockPosition()) && committedSide != Side.OUTSIDE) return false;
             // A member of the household still outside is not shut out; the sealer keeps the mouth open while it waits.
             if (familyOutside(level, home)) {
                 GameplayLog.limited(y, "threat", "seal_family_outside", 200, "den seal waiting reason=family_outside den={}", home.getBlockPos());
                 return false;
             }
-            if (!decidesToSeal(danger, home) || !begin(level, home, danger, List.of())) return false;
+            if (!begin(level, home, danger, List.of())) return false;
         }
         if (danger.distanceToSqr(y) > WATCH_SQR) { abort("danger_lost"); return false; }
         dangerId = danger.getUUID();
@@ -126,19 +131,52 @@ public final class DenSeal {
         return dangerId != null && level.getEntity(dangerId) instanceof LivingEntity other ? other : null;
     }
 
-    /** Skill and self-control decide once per danger episode whether the frightened resident does the extra work. */
-    private boolean decidesToSeal(LivingEntity danger, ShelterBlockEntity home) {
-        if (threatDecision != ThreatDecision.UNDECIDED) return threatDecision == ThreatDecision.SEAL;
-        var traits = y.life().personality();
-        double chance = chance(traits), roll = y.getRandom().nextDouble();
-        boolean seals = roll < chance;
-        GameplayLog.event(y, "home", "den seal decided den={} danger={} self_control={} chance={} roll={} seals={}",
-                home.getBlockPos(), danger.getUUID(), traits.selfControl(), chance, roll, seals);
+    public boolean holdsThroughHit() {
+        int press = y.childhood().denSealPressTicks();
+        return pressing() && HomeTactic.holdsThroughHit(press - ticks, press, y.life().personality().temperament());
+    }
+
+    public void commit(LivingEntity danger, Side side) {
+        dangerId = danger.getUUID();
+        committedSide = side;
+        threatDecision = ThreatDecision.SEAL;
+        lastDrive = y.level().getGameTime();
+    }
+
+    public boolean committedOutside() { return committedSide == Side.OUTSIDE && threatDecision == ThreatDecision.SEAL; }
+
+    public boolean tryCommit(LivingEntity danger, Side side) {
+        var home = y.habitat().shelter();
+        if (!skilledResident(home) || home.contains(y.blockPosition()) != (side == Side.INSIDE)) return false;
+        var level = (ServerLevel) y.level();
+        var plan = planFor(level, home);
+        if (plan.refusal() != null || home.branches() < plan.cells().size() || familyOutside(level, home)) return false;
+        var target = standFor(home, plan.cells(), side);
+        if (target == null || !decidesToSeal(danger, home, target)) return false;
+        commit(danger, side);
+        return true;
+    }
+
+    private boolean decidesToSeal(LivingEntity danger, ShelterBlockEntity home, Stand target) {
+        if (danger.getUUID().equals(dangerId) && threatDecision != ThreatDecision.UNDECIDED)
+            return threatDecision == ThreatDecision.SEAL;
+        var t = y.life().personality().temperament();
+        double step = Math.hypot(danger.getX() - danger.xo, danger.getZ() - danger.zo);
+        double eta = HomeTactic.eta(danger.position().distanceTo(Vec3.atBottomCenterOf(home.entrance())), step);
+        double need = travelTicks(target) + y.childhood().denSealPressTicks();
+        boolean seals = HomeTactic.inTime(eta, need, t);
+        GameplayLog.event(y, "home", "den seal decided den={} danger={} {}", home.getBlockPos(), danger.getUUID(),
+                String.format(Locale.ROOT, "eta=%.2f need=%.2f slack=%.2f seals=%b", eta, need, HomeTactic.slack(t), seals));
+        dangerId = danger.getUUID();
         threatDecision = seals ? ThreatDecision.SEAL : ThreatDecision.DONE;
+        if (seals && !mouthFree()) {
+            y.interrupt(Interrupt.FRIGHT);
+            y.habitat().dropCarrying();
+        }
         return seals;
     }
 
-    /** The shared remembered-rule chance: the family outing and the threat response draw the same number. */
+    /** One remembered-rule roll per family outing. */
     private static double chance(YukkuriPersonality traits) {
         return traits.ruleProbability() * (.20 + .008 * traits.selfControl());
     }
@@ -160,17 +198,20 @@ public final class DenSeal {
                 && y.settlement().role() != SettlementData.Role.UNUN_SLAVE;
     }
 
-    private boolean canSeal(ShelterBlockEntity home) {
+    private boolean skilledResident(ShelterBlockEntity home) {
         return y.skills().knows(Ability.DEN_SEAL) && y.childhood().canLearnDenSeal() && available()
-                && home != null && home.kind() == ShelterBlock.Kind.BURROW && home.owns(y.getUUID())
-                && y.life().mealTicks() == 0 && y.component(YukkuriComponents.MOUTH).freeForExternalWork()
+                && home != null && home.kind() == ShelterBlock.Kind.BURROW && home.owns(y.getUUID());
+    }
+
+    private boolean mouthFree() {
+        return y.life().mealTicks() == 0 && y.component(YukkuriComponents.MOUTH).freeForExternalWork()
                 && y.forageTrip().load().isEmpty() && y.habitat().carrying().isEmpty();
     }
 
     private boolean work(ServerLevel level, ShelterBlockEntity home, LivingEntity danger) {
-        if (!canSeal(home) || !den.equals(home.getBlockPos())) { abort("den_or_body_changed"); return false; }
+        if (!skilledResident(home) || !mouthFree() || !den.equals(home.getBlockPos())) { abort("den_or_body_changed"); return false; }
         var mouth = Vec3.atCenterOf(home.entrance());
-        if (danger != null && danger.distanceToSqr(mouth) < DOOR_SAFE_SQR) { abort("danger_at_door"); return false; }
+        if (danger != null && danger.distanceToSqr(mouth) < DOOR_SAFE_SQR && !holdsThroughHit()) { abort("danger_at_door"); return false; }
         if (phase == Phase.WALK) {
             var step = SurfaceApproach.walkResult(y, stand.at(), null, WORK_PACE);
             if (step == SurfaceApproach.Result.ARRIVED) {
@@ -256,8 +297,10 @@ public final class DenSeal {
             GameplayLog.limited(y, "threat", "seal_cell", 200, "den seal waiting reason=cell_occupied den={}", home.getBlockPos());
             return false;
         }
-        stand = standFor(home, plan.cells(), home.contains(y.blockPosition()) || plan.cells().size() > 1 ? Side.INSIDE : Side.OUTSIDE);
-        if (stand == null) return false;
+        var side = danger != null && committedSide != null ? committedSide :
+                home.contains(y.blockPosition()) || plan.cells().size() > 1 ? Side.INSIDE : Side.OUTSIDE;
+        stand = standFor(home, plan.cells(), side);
+        if (stand == null || danger != null && !decidesToSeal(danger, home, stand) || !mouthFree()) return false;
         walkBudget = (int) Math.ceil(2 * travelTicks(stand));
         paused = 0;
         if (!parents.isEmpty() && !y.duty().take(Kind.SEAL, walkBudget + y.childhood().denSealPressTicks() + DOORWAY_WAIT + RECHECK, 0, "den_seal_outing"))
@@ -369,7 +412,7 @@ public final class DenSeal {
             if (level.getGameTime() - lastDrive <= RECHECK) return false;
             abort("interrupted");
         }
-        if (!canSeal(home) || DenBarrier.sealed(home) || level.getGameTime() < nextCheck) return false;
+        if (!skilledResident(home) || !mouthFree() || DenBarrier.sealed(home) || level.getGameTime() < nextCheck) return false;
         nextCheck = level.getGameTime() + RECHECK;
         if (!home.contains(y.blockPosition()) && y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR) return false;
         var parents = departure(level, home, DEPARTED_SQR);
@@ -451,7 +494,7 @@ public final class DenSeal {
         }
 
         @Override public void stop() {
-            if (opening == null) seal().abort("family_work_interrupted");
+            if (opening == null && seal().dangerId == null) seal().abort("family_work_interrupted");
             opening = null;
             SurfaceApproach.halt(y);
         }
