@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
-| 帽船第一次伸辫子够到孩子 | `.worktrees/wp-boarding-grip` | aquatic/SetOut.java, motor/action/Grab.java, BraidFetch |
 | 大窝旋转、大体型进窝、单床争抢 | `.worktrees/wp-nest-access` | life/LargeNestBlock.java, life/NestDoorway.java, life/NestResting.java, life/CareBlockEntity.java |
 | 钩子救亲：亲油被吓跑出救援范围（排查与修复） | `.worktrees/wp-hook-rescue` | hook_kin_rescue scene, rescue/threat owner if code |
 
