@@ -333,7 +333,8 @@
     {"id":"beg_chase","event":"beg_chase","zh":"追赶抢食者","ja":"食べ物を取った相手を追う","en":"Chasing the food thief","basis":["P"],"status":"ready"},
     {"id":"beg_grudge","event":"beg_grudge","zh":"记住抢食者","ja":"取った相手を覚える","en":"Remembering the food thief","basis":["P"],"status":"ready"},
     {"id":"beg_help","event":"beg_help","zh":"跑到人身旁求助","ja":"人のそばで助けを求める","en":"Appealing to a person for help","basis":["P"],"status":"ready"},
-    {"id":"beg_curse","event":"beg_curse","zh":"退开前抱怨","ja":"去る前に文句を言う","en":"Complaining before backing off","basis":["P"],"status":"ready"}
+    {"id":"beg_curse","event":"beg_curse","zh":"退开前抱怨","ja":"去る前に文句を言う","en":"Complaining before backing off","basis":["P"],"status":"ready"},
+    {"id":"elope_leave","event":"elope_leave","zh":"和伴侣一起离家","ja":"伴侶と家を出る","en":"Leave home with a partner","basis":["P"],"status":"ready"}
   ],
   "lines": [
     {"id":"hello.fixed","event":"hello","zh":"油库里洗跌一跌捏！","ja":"ゆっくりしていってね！","en":"Take it easy!","basis":["D01"],"status":"ready","common_ref":"common.welcome_take_it_easy"},
