@@ -176,6 +176,7 @@ public final class DenSeal {
         var home = y.habitat().shelter();
         if (!skilledResident(home) || home.contains(y.blockPosition()) != (side == Side.INSIDE)) return false;
         var level = (ServerLevel) y.level();
+        if (!EventHooks.canEntityGrief(level, y)) return false;
         var plan = planFor(level, home);
         if (plan.refusal() != null || home.branches() < plan.cells().size() || familyOutside(level, home)) return false;
         var target = standFor(home, plan.cells(), side);
@@ -606,7 +607,11 @@ public final class DenSeal {
                 if (flight || emergency()) reason = "emergency";
                 else if (elapsed >= patience) {
                     var answer = callee == null ? null : callee.status().reactions().threat().seal().opening;
-                    if (answer != null && answer.barrier == barrier && answer.phase == OpeningPhase.REMOVE) return true;
+                    if (answer != null && callee.isAlive() && answer.barrier == barrier && answer.phase == OpeningPhase.REMOVE
+                            && elapsed < patience + callee.childhood().denSealPressTicks() / 2) {
+                        elapsed++;
+                        return true;
+                    }
                     reason = "self_opened";
                     GameplayLog.event(y, "home", "den call unanswered waited={}", elapsed);
                 } else {
