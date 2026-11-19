@@ -13,6 +13,7 @@
 | DN-04 封洞：1.5 格结界、按威胁到达时间封洞、亲人呼唤拆除、引开威胁 | `.worktrees/wp-den-seal` | settlement/DenSeal.java, settlement/DenBarrierBlock.java, standards/yukkuri-library/ecology/wild-shelters/den_barrier.py, DN-04/07/08 scenes |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | 能力 v1：统一技能存储、删除旧技能与跳跃学习、放大镜标记、学会一拍 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetSkill.java, pet/PetLessons.java, family/ChildhoodLife.java |
+| P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 
 ## 玩法待办
 
