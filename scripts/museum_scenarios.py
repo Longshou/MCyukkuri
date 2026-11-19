@@ -3819,14 +3819,18 @@ add('hatless_kin', 'headwear', '失饰子油：笨亲油认不出', '失饰子�
     env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读低智力亲油', f'yukkuri status {sel("mom_blind")} raw'), ('读高智力亲油', f'yukkuri status {sel("mom_sees")} raw'), ('读被驱赶孩子', f'yukkuri status {sel("kid_blind")} raw')])
 
 add('hatless_scorn', 'headwear', '没头饰：被鄙视、被凶的欺负', '没头饰：被鄙视、被凶的欺负',
-    '没戴头饰的灵梦（胆大、健康）：智力普通的旁观者认不出它，生气说台词、走开，它哭、不安上涨；凶悍成体自然鄙视后发起欺负，'
+    '围栏里没戴头饰的灵梦（胆大、友善、健康）：智力普通的旁观者认不出它，生气说台词、走开，它哭、不安上涨；凶悍成体自然鄙视后发起欺负，'
     '它遇到咬、抢、推时按自身状态选择反击或逃跑，欺负者被反击也重新选择，低血量一律逃跑。高智力的橙（90）认得出，不鄙视也不躲。观察双方血量、实际 Goal、位置及反应读数',
     '鄙视约 10–30 秒出现，之后每 30–40 秒重复；欺负自然升级有概率，约 1–3 分钟', [
-        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='胆大失饰者', friendliness=15, boldness=95, self_control=15, **pair_ready()),
-        yk('marisa', 4, 0, 'a', yaw=90, **pair_ready()), yk('reimu', 4, 4, 'b', yaw=90, **pair_ready()),
-        yk('marisa', 3, -3, 'b1', uuid=uid('hatless_scorn', 'b1'), yaw=90, label='凶悍欺负者', friendliness=0, boldness=80, self_control=0, **pair_ready()),
-        yk('chen', -4, 3, 'c', yaw=180, label='高智力', **pair_ready()), set_status('c', 'personality.intelligence', 90)],
-    env=DAY, note=NEW, vantage=(0, 10),
+        # The pen keeps wandering actors in sight and leaves ground for a retreat.
+        *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-3, 4) for z in range(-3, 4) if abs(x) == 3 or abs(z) == 3),
+        box(-1, 0, -5, 1, 0, -5, 'minecraft:oak_planks'),
+        # Friendly to bystanders, still bold enough to defend itself after a hit.
+        yk('reimu', 0, 0, 'bare', yaw=-90, lead=True, accessory=False, label='胆大失饰者', friendliness=70, boldness=95, self_control=15, **pair_ready()),
+        yk('marisa', 2, -2, 'a', yaw=90, **pair_ready()), yk('reimu', 2, 2, 'b', yaw=90, **pair_ready()),
+        yk('marisa', 2, 0, 'b1', uuid=uid('hatless_scorn', 'b1'), yaw=90, label='凶悍欺负者', friendliness=0, boldness=80, self_control=0, **pair_ready()),
+        yk('chen', -2, 1, 'c', yaw=-90, label='高智力', **pair_ready()), set_status('c', 'personality.intelligence', 90)],
+    env=DAY, note=NEW, vantage=(0, -5, 0, 23),
     reads=[('读失饰者（含欺凌伤口）', f'yukkuri status {sel("bare")} raw'), ('读欺负者', f'yukkuri status {sel("b1")} raw')])
 
 add('hatless_monster', 'headwear', '失饰重伤才像怪物，普通伤不算', '失饰重伤才像怪物，普通伤不算',
