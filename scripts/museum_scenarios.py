@@ -268,7 +268,7 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
                                   r'\[home-claim\][^\n]* declared site=.*spoken=true'],
                forbid=[r'occupation_refused', r'never_arrived']))
 
-# A previously learned skill as initial state. The family still decides who goes out and how to deal with the departure.
+# A previously learned skill as initial state. The resident decides whether to seal during the outing.
 _seal_skill = {'den_seal': 2}
 _seal_assessed = 'YukkuriSkills:{Assessed:["den_seal"]}'
 
@@ -308,14 +308,15 @@ def _family_screen():
     lines = [
         box(-12, 0, -8, 12, 0, 6, 'minecraft:air', 'replace minecraft:short_grass'),
         box(-11, 0, 7, 11, 0, 17, 'minecraft:short_grass', 'keep'),
-        yk('reimu', 0, -2, 'mother', uuid=ids['mother'], label='会封洞的母油', lead=True, energy=40,
+        yk('reimu', 0, -5, 'mother', uuid=ids['mother'], label='会封洞的母油', lead=True, energy=40,
            nutrition=100, intelligence=90, self_control=100,
            boldness=20, attachment=95, kin=kin_of(Partner=ids['father']), skills=_seal_skill),
-        yk('marisa', 0, 6, 'father', uuid=ids['father'], label='出门采草的父油', energy=100, nutrition=86, boldness=96,
+        yk('marisa', 0, 11, 'father', uuid=ids['father'], label='出门采草的父油', energy=100, nutrition=86, boldness=96,
            kin=kin_of(Partner=ids['mother']), extra=_seal_assessed),
         yk('marisa', 1, -4, 'child', stage='child', uuid=ids['child'], nutrition=96, kin=kin)]
     expect = [
         rf'\[forage\][^\n]*uuid={father}\b[^\n]* begin role=FAMILY phase=OUT',
+        rf'\[forage\][^\n]*uuid={father}\b[^\n]* phase=GATHER -> BACK [^\n]* gathered=[1-9]\d* carried=[1-9]',
         rf'\[duty\][^\n]*uuid={mother}\b[^\n]* claimed kind=SEAL',
         rf'\[home\][^\n]*uuid={mother}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{father}\]',
         rf'\[duty\][^\n]*uuid={mother}\b[^\n]* released kind=SEAL end=DONE',
@@ -323,9 +324,9 @@ def _family_screen():
         rf'\[forage\][^\n]*uuid={father}\b[^\n]* deposit home=[^\n]* moved=[1-9]']
     reads = [('读留守母油', f'yukkuri status {sel("mother")} raw'), ('读采草父油', f'yukkuri status {sel("father")} raw')]
     title = '父油出门采草，母油封洞口，父油回来呼唤'
-    watch = '父油去南边草地采草，留守母油压枝封洞。看亚成子油能否看见示范，再看父油呼唤伴侣、母油应声拆屏、父油把草送进粮堆。'
+    watch = '开场时父油已到南边草地，母油和孩子在洞里。看母油压枝封洞、亚成子油观察示范，再看父油采草回来呼唤伴侣、母油应声拆屏、父油把草送进粮堆。'
     learner = _uuid_text(sid, 'learner')
-    lines.append(yk('reimu', 0, -3, 'learner', stage='teen', uuid=ids['learner'], nutrition=100, intelligence=96,
+    lines.append(yk('reimu', -1, -3, 'learner', stage='teen', uuid=ids['learner'], nutrition=100, intelligence=96,
                     attachment=100, kin=kin, extra=_seal_assessed,
                     fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')))
     reads.append(('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriSkills'))
@@ -334,11 +335,22 @@ def _family_screen():
                    rf'den call answered by={mother}\b',
                    rf'den barrier removed [^\n]* reason=answered_call [^\n]*twig_returned=true opener={mother}\b'])
     residents = {_uuid_text(sid, n) for n in names}
+
+    def first_handoff(window, trace):
+        opened = re.search(r'\[home\] t=\d+ [^\n]* den barrier removed [^\n]+', window)
+        if not opened or 'reason=answered_call' not in opened[0] or f'opener={mother}' not in opened[0]:
+            return 'The mother did not open the first screen for the returning father'
+        call = window.find(f'den call caller={father} callee={mother} relation=PARTNER')
+        answer = window.find(f'den call answered by={mother}', call)
+        if not 0 <= call < answer < opened.start():
+            return 'Missing the partner call and answer before the first screen opened'
+        return _screen_crossing(window, trace, residents)
+
     add(sid, 'den', title, title, watch, '约 1–2 分钟，可倍速',
         [*lines, *[home(n, 0, -1) for n in names], f'yukkuri scenario twigs {sel("mother")} 2'],
+        late=[f'yukkuri scenario forage_out {sel("father")}'],
         env=DAY, spot='family', vantage=(3, 10), reads=reads,
-        smoke=dict(ticks=3900, expect=expect, verify_trace=True,
-                   verify=lambda window, trace: _screen_crossing(window, trace, residents),
+        smoke=dict(ticks=3900, expect=expect, verify_trace=True, verify=first_handoff,
                    forbid=[r'\[body\][^\n]* invariant\b', r'den seal aborted reason=(path_stuck|cells_changed)']))
 
 
