@@ -375,7 +375,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (reactWait > 0) reactWait--;
         if (restrainWait > 0) restrainWait--;
         if (active() && !runnable()) stop();
-        if (dryLanded()) lastDryStand = animal.blockPosition();
+        if (!animal.blockPosition().equals(lastDryStand) && dryLanded()) lastDryStand = animal.blockPosition();
         if (animal.predatorFlying() && !active()) {
             if (dryLanded() || !canSustainFlight()) animal.setPredatorFlying(false);
             else land();
@@ -855,7 +855,9 @@ public final class PredatorLife implements EcologyRoutine {
         else GameplayLog.limited(animal, "predator", "landing.route", 100,
                 "landing route selected stand={} feet={} energy={} flying={}", landingStand, destination, animal.life().energy(), animal.predatorFlying());
     }
-    private boolean dryLanded() { return animal.onGround() && !animal.isInWaterOrBubble() && animal.life().dryStand(animal.blockPosition()); }
+    private boolean dryLanded() {
+        return animal.onGround() && !animal.isInWaterOrBubble() && freeStand(animal.position());
+    }
     private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
     public boolean canCatchFall() {
         return EcologyRoutines.predator(animal) && animal.family().adult() && !animal.isNoAi() && canSustainFlight();
@@ -899,7 +901,20 @@ public final class PredatorLife implements EcologyRoutine {
         if (!level().hasChunkAt(stand) || !animal.life().dryStand(stand)) return null;
         var feet = level().getBlockEntity(stand) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
                 ? FamilyNest.restPosition(animal, care) : SurfaceApproach.restingFloor(animal, Vec3.atBottomCenterOf(stand));
-        return feet != null && CanopySite.clearBody(level(), animal, feet) && SurfaceApproach.supported(animal, feet) ? feet : null;
+        return feet != null && freeStand(feet) ? feet : null;
+    }
+    private boolean freeStand(Vec3 feet) {
+        if (!CanopySite.clearBody(level(), animal, feet) || !SurfaceApproach.supported(animal, feet)) return false;
+        var cell = BlockPos.containing(feet);
+        var box = bodyAt(feet);
+        var min = Floor.vec(box.getMinPosition());
+        var max = Floor.vec(box.getMaxPosition());
+        return level().getEntities(animal, box.minmax(new AABB(cell)), other -> {
+            if (other.isSpectator() || !(other instanceof LivingEntity || other instanceof RemainsEntity)) return false;
+            var bounds = other.getBoundingBox();
+            return ShelfApproach.occupied(cell.equals(other.blockPosition()), min, max,
+                    Floor.vec(bounds.getMinPosition()), Floor.vec(bounds.getMaxPosition()));
+        }).isEmpty();
     }
     private boolean currentLanding() {
         if (landingStand == null || destination == null) return false;
@@ -932,10 +947,12 @@ public final class PredatorLife implements EcologyRoutine {
         // A beaten fighter does not come down at the victor's feet: those stands are not candidates for this landing.
         if (landingAvoid != null) ordered.removeIf(p -> Vec3.atCenterOf(p).distanceToSqr(landingAvoid) <= WITHDRAW_CLEARANCE_SQR);
         ordered.sort(Comparator.comparingDouble(p -> p.distSqr(center) + animal.distanceToSqr(Vec3.atBottomCenterOf(p)) * .1));
-        for (int i = 0; i < Math.min(8, ordered.size()); i++) {
-            BlockPos stand = ordered.get(i);
+        int routeChecks = 0;
+        for (BlockPos stand : ordered) {
             Vec3 feet = landingFeet(stand);
-            if (feet != null && canDepart(feet) && canFlyToFeet(feet)) return new Landing(stand, feet);
+            if (feet == null) continue;
+            if (canDepart(feet) && canFlyToFeet(feet)) return new Landing(stand, feet);
+            if (++routeChecks == 8) break;
         }
         return null;
     }
@@ -1062,7 +1079,8 @@ public final class PredatorLife implements EcologyRoutine {
     }
     /** Stay and eat where the bite or the kill happened; land first if still in the air. */
     private void rest(int ticks, String reason) {
-        if (animal.onGround() && !animal.isInWaterOrBubble()) { beginRest(ticks, reason); return; }
+        if (dryLanded()) { beginRest(ticks, reason); return; }
+        animal.setPredatorFlying(true);
         land();
         if (task == Task.LAND) { pendingRest = ticks; restReason = reason; }
     }

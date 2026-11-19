@@ -6,6 +6,13 @@ import java.util.function.BiPredicate;
 public final class ShelfApproach {
     private ShelfApproach() {}
 
+    /** Living bodies can overlap in vanilla. A landing needs its own feet cell and disjoint body boxes. */
+    public static boolean occupied(boolean sameCell, Vec min, Vec max, Vec otherMin, Vec otherMax) {
+        return sameCell || Disc.level(min.x(), max.x(), otherMin.x(), otherMax.x())
+                && Disc.level(min.y(), max.y(), otherMin.y(), otherMax.y())
+                && Disc.level(min.z(), max.z(), otherMin.z(), otherMax.z());
+    }
+
     public static Vec next(Vec from, Vec goal, BiPredicate<Vec, Vec> clear) {
         var leg = across(from, goal, clear);
         if (leg != null) return leg;

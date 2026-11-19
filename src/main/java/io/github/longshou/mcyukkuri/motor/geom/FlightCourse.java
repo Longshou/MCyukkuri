@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.Predicate;
 
 /** Escape geometry, independent of the world and navigation lookup. */
 public final class FlightCourse {
@@ -31,6 +32,19 @@ public final class FlightCourse {
 
     public static double safeDrop(double damageFreeDistance, double bodyScale, double stepHeight) {
         return Math.min(damageFreeDistance, Math.max(stepHeight, damageFreeDistance * bodyScale));
+    }
+
+    /** Overlapping bodies yield to the right, then left. At a brink keep just the safe component.
+     * The impulse coasts after contact ends; air drag bounds that drift even when the bite lifts the sole. */
+    public static Direction shove(Direction impulse, Direction inertia, Predicate<Direction> safeDrift) {
+        var right = impulse.rotate(Math.toDegrees(.5));
+        var left = impulse.rotate(Math.toDegrees(-.5));
+        for (var step : new Direction[]{right, left, new Direction(0, right.z), new Direction(right.x, 0)}) {
+            var drift = new Direction((inertia.x + step.x) / (1 - Ballistic.AIR_DRAG),
+                    (inertia.z + step.z) / (1 - Ballistic.AIR_DRAG));
+            if (safeDrift.test(drift)) return step;
+        }
+        return new Direction(0, 0);
     }
 
     /** Follow the supporting surface across the segment. A missing or wet landing has height -infinity. */

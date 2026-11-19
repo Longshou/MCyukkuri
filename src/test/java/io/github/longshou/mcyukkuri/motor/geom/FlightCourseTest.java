@@ -5,6 +5,33 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FlightCourseTest {
+    @Test void airborneOverlapCannotCoastOffTheWt06EdgeAfterContactEnds() {
+        double x = -347.795, y = 64.361, z = 291.83;
+        var impulse = new FlightCourse.Direction(-.015, 0);
+        var existing = new FlightCourse.Direction(-.012, 0);
+        double drop = FlightCourse.safeDrop(3, 1, 1);
+        var step = FlightCourse.shove(impulse, existing, drift ->
+                Double.isFinite(FlightCourse.landingAfter(x, y, z, x + drift.x(), z + drift.z(), drop,
+                        (px, pz) -> px >= -348 ? 64 : -60)));
+        assertEquals(0, step.x());
+        assertNotEquals(0, step.z());
+        assertTrue(x + (step.x() + existing.x()) / (1 - Ballistic.AIR_DRAG) >= -348);
+    }
+
+    @Test void shoveCanDescendASafeStepAndBracesAtAnUnsupportedCorner() {
+        var impulse = new FlightCourse.Direction(.03, .03);
+        var still = new FlightCourse.Direction(0, 0);
+        double drop = FlightCourse.safeDrop(3, .1, 1);
+        var allowed = FlightCourse.shove(impulse, still, drift ->
+                Double.isFinite(FlightCourse.landingAfter(.99, 64, .99, .99 + drift.x(), .99 + drift.z(), drop,
+                        (x, z) -> x < 1 && z < 1 ? 64 : 63)));
+        assertEquals(impulse.rotate(Math.toDegrees(.5)), allowed);
+        var braced = FlightCourse.shove(impulse, still, drift ->
+                Double.isFinite(FlightCourse.landingAfter(.99, 64, .99, .99 + drift.x(), .99 + drift.z(), drop,
+                        (x, z) -> x < 1 && z < 1 ? 64 : -60)));
+        assertEquals(still, braced);
+    }
+
     @Test void crossingTheThreatIsRejectedEvenWithADistantEndpoint() {
         var away = FlightCourse.awayUnit(2, 0, 0, 0, 0);
         assertEquals(Double.NEGATIVE_INFINITY, FlightCourse.scoreCandidate(2, 0, -8, 0, 0, 0, away));

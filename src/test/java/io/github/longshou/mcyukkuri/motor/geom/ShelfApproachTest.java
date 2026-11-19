@@ -8,6 +8,20 @@ import org.junit.jupiter.api.Test;
 class ShelfApproachTest {
     private static final Vec GOAL = new Vec(-290.5, 72, 491.5);
 
+    @Test void landingRejectsThePreysCellAndAnyOverlapFromANeighbour() {
+        // The failed WT-06 stand at (-347.5,64,291.5), and the Reimu at (-347.795,64,291.83).
+        var min = new Vec(-347.9, 64, 291.1);
+        var max = new Vec(-347.1, 64.6, 291.9);
+        var preyMin = new Vec(-348.17, 64, 291.455);
+        var preyMax = new Vec(-347.42, 64.53, 292.205);
+        assertTrue(ShelfApproach.occupied(true, min, max, preyMin, preyMax));
+        assertTrue(ShelfApproach.occupied(false, min, max, preyMin, preyMax));
+        var shift = new Vec(1, 0, 0);
+        assertFalse(ShelfApproach.occupied(false, min.add(shift), max.add(shift), preyMin, preyMax));
+        assertTrue(ShelfApproach.occupied(true, min, max, new Vec(-347.05, 64, 291.4), new Vec(-347.01, 64.1, 291.45)));
+        assertFalse(ShelfApproach.occupied(false, min, max, new Vec(-347.8, 64.6, 291.4), new Vec(-347.4, 65, 291.8)));
+    }
+
     @Test void leaveTheOverhangBeforeClimbingOntoTheShelf() {
         var stuck = new Vec(-290.5636557, 70.39999998, 492.3993233);
         // The body's half-width is .4. It can move below the log, above it, or rise in the outside column.
