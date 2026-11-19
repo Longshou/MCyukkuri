@@ -13,6 +13,7 @@
 | 挨打后的发抖或赌气接着出现，不回到平常脸 | `.worktrees/wp-threat-aftermath` | status/StruckResponse.java, status/PunishmentReaction.java |
 | 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 | 戴帽子的挖洞油能睡进自己挖的洞 | `.worktrees/wp-dig-brim` | bed/claim fit (NestResting/BedContainer), burrow cut planning |
+| 加门的两格入口能斜着蹭出去（DN-06） | `.worktrees/wp-doorway-exit` | movement/path through doors (walker, path nodes) |
 
 ## 玩法待办
 
