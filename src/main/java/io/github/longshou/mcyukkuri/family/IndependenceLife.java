@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
@@ -18,13 +19,17 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import java.util.Locale;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 
@@ -38,7 +43,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
  * cool child only bows; it says "I'm off" and walks away, looking back once or twice when attached; the parent watches it go,
  * and an attached parent is left grieving a little (mind/EmotionCourse). The parent's part is its own goal ({@link Task#SEE_OFF})
  * that it takes up only when free; the child's farewell never waits for it, so neither can be stuck by the other: a child
- * that cannot reach a parent within {@link #FAREWELL_LIMIT} ticks says goodbye from a few blocks off, or leaves anyway.
+ * that cannot get close tries to say goodbye from a stand in sight of the parent.
  */
 public final class IndependenceLife extends Goal {
     private enum Task { NONE, FAREWELL, DEPART, SEE_OFF }
@@ -59,6 +64,7 @@ public final class IndependenceLife extends Goal {
     private Vec3 target;
     private int stalled;
     private Vec3 progress;
+    private final FarewellStands<Vec3> stands = new FarewellStands<>((a, b) -> a.distanceToSqr(b) < .0625);
     // The exchange as decided at its first word, the walk away and its looks back. Transient.
     private boolean touching, teary;
     private int closeTicks, lookBacks, lookBackTicks, departTicks;
@@ -260,28 +266,45 @@ public final class IndependenceLife extends Goal {
     // ---- the child's goodbye -----------------------------------------------------------------------------------------------------
     private void farewell() {
         if (!(level().getEntity(visitor) instanceof YukkuriEntity parent) || !parent.isAlive() || parent.isPanicking() || parent.isCommandPlaying()) {
-            leave(); stop(); return;
+            stop(); return;
         }
         if (!said) {
-            // Walks right up to the parent so they can touch; a parent it cannot reach is called from a few blocks off in sight.
             double reach = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .15;
-            // Close enough to lean in for a nuzzle: about a body's width apart (inside a den the last step is often blocked).
-            boolean visible = entity.hasLineOfSight(parent);
-            boolean close = entity.distanceToSqr(parent) <= (reach + 1) * (reach + 1) && visible;
-            boolean callable = entity.distanceToSqr(parent) <= CALL_RANGE * CALL_RANGE && visible;
-            var stand = close ? null : contactStand(parent);
-            if (!close && !(callable && (stand == null || stalled >= 60 || elapsed > FAREWELL_LIMIT * 3 / 4))) {
-                if (elapsed > FAREWELL_LIMIT || stand == null && !callable) { leave(); stop(); return; }
-                if (stand != null) approach(stand, parent); else SurfaceApproach.halt(entity);
-                return;
+            double distance = entity.distanceToSqr(parent);
+            boolean visible = distance <= SEE_OFF_RANGE * SEE_OFF_RANGE && parent.hasLineOfSight(entity);
+            boolean close = visible && distance <= (reach + 1) * (reach + 1);
+            boolean canWalk = !close && elapsed < FAREWELL_LIMIT;
+            if (canWalk && target == null) {
+                target = standNear(parent, reach, at -> Math.abs(at.y - parent.getY()) <= .35 && visibleFrom(parent, at));
+                if (target == null)
+                    target = standNear(parent, reach + .65, at -> visibleFrom(parent, at));
+                if (target == null && !visible)
+                    target = standNear(parent, CALL_RANGE - .5, at -> visibleFrom(parent, at));
             }
-            begin(parent, close);
+            switch (FarewellStands.exchange(close, canWalk && target != null, visible)) {
+                case CLOSE -> begin(parent, true);
+                case CALL -> {
+                    SurfaceApproach.halt(entity);
+                    if (!faceParent(parent)) return;
+                    begin(parent, false);
+                }
+                case WALK -> { approach(parent); return; }
+                case UNREACHABLE -> {
+                    GameplayLog.limited(entity, "independence", "farewell.sight", CHECK_INTERVAL,
+                            "farewell interrupted reason=no_visible_stand parent={}", visitor);
+                    stop();
+                    wait = CHECK_INTERVAL;
+                    return;
+                }
+            }
         }
         // Just before and during the nuzzle it closes the last gap to touch; otherwise it stands where it is.
         double touch = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .25;
-        var lean = nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch
-                ? contactStand(parent) : null;
-        if (lean != null && stalled < 40) approach(lean, parent); else SurfaceApproach.halt(entity);
+        if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch) {
+            if (target == null) target = standNear(parent, touch - .10, at -> Math.abs(at.y - parent.getY()) <= .35);
+            if (target != null) approach(parent);
+        } else SurfaceApproach.halt(entity);
+        if (!touching) faceParent(parent);
         entity.getLookControl().setLookAt(parent, 25, 25);
         contact++;
         if (contact == 1) entity.showReaction(teary ? "teary_smile" : "happy", teary ? "farewell_say_teary" : "farewell_say", ANSWER);
@@ -300,6 +323,7 @@ public final class IndependenceLife extends Goal {
     /** The exchange is decided at the first word, from both their values. */
     private void begin(YukkuriEntity parent, boolean close) {
         said = true; touching = close; contact = 0; stalled = 0; target = progress = null;
+        stands.clear();
         var t = entity.life().personality().temperament();
         int own = t.attachment(), theirs = parent.life().personality().attachment();
         teary = t.is(Gate.ATTACHED);
@@ -315,11 +339,9 @@ public final class IndependenceLife extends Goal {
 
     /** It walks away from the parent, stopping to look back once or twice when attached; then the habitat takes over. */
     private void beginDeparture(YukkuriEntity parent) {
-        task = Task.DEPART; departTicks = 0; lookBackTicks = 0;
-        Vec3 centre = new Vec3(parent.getX(), entity.getY(), parent.getZ());
-        away = SurfaceApproach.beside(entity, centre, DEPART_DISTANCE, stand -> true);
-        if (away == null) away = SurfaceApproach.beside(entity, centre, DEPART_DISTANCE / 2.0, stand -> true);
-        GameplayLog.event(entity, "independence", "departure walk parent={} away={} lookBacks={}", parent.getUUID(), away, lookBacks);
+        task = Task.DEPART; departTicks = 0; lookBackTicks = 0; away = null;
+        stands.clear();
+        GameplayLog.event(entity, "independence", "departure walk parent={} lookBacks={}", parent.getUUID(), lookBacks);
     }
 
     private void depart() {
@@ -331,7 +353,12 @@ public final class IndependenceLife extends Goal {
             if (--lookBackTicks == 0) GameplayLog.event(entity, "independence", "looked back parent={} distance={} count={}/{}", visitor, Math.round(from), looked, lookBacks);
             return;
         }
-        if (parent == null || away == null) { stop(); return; }
+        if (parent == null) { stop(); return; }
+        if (away == null) {
+            away = departureStand(parent);
+            if (away == null) { stop(); return; }
+            GameplayLog.event(entity, "independence", "farewell departure stand parent={} stand={}", visitor, away);
+        }
         // A look back at about 4 and 7 blocks (or a single one at 5); the most attached call out at the last one.
         double mark = lookBacks >= 2 ? (looked == 0 ? 4 : 7) : 5;
         if (looked < lookBacks && from >= mark) {
@@ -346,8 +373,9 @@ public final class IndependenceLife extends Goal {
         }
         // The look-back beats have their own countdown and do not spend the walk's time allowance.
         departTicks++;
-        var result = SurfaceApproach.walkResult(entity, away, null, .8);
-        if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) stop();
+        var result = SurfaceApproach.walkResult(entity, away, parent, .8);
+        if (result == SurfaceApproach.Result.BLOCKED) reject(away, "blocked");
+        else if (result == SurfaceApproach.Result.ARRIVED) stop();
     }
     private int looked;
 
@@ -414,7 +442,7 @@ public final class IndependenceLife extends Goal {
                         && !other.isPanicking() && !other.isCommandPlaying() && !other.operations().active() && !other.family().active()
                         && !other.life().isSleeping() && !other.life().hasUrgentNeed() && home.owns(other.getUUID())
                         && entity.life().canRecognize(other) && other.life().canRecognize(entity))
-                .stream().filter(other -> entity.life().reachable(other.blockPosition(), false))
+                .stream().filter(other -> other.hasLineOfSight(entity) || entity.life().reachable(other.blockPosition(), false))
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** The child lets go of its place in the parents' home and becomes a vagrant. Kinship and affinity stay. */
@@ -446,15 +474,47 @@ public final class IndependenceLife extends Goal {
         if (home.owns(entity.getUUID()) && home.usable(entity) && (group == null || !group.center.equals(home.getBlockPos())))
             entity.settlement().establishHousehold(home);
     }
-    private Vec3 contactStand(YukkuriEntity other) {
-        double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .15;
-        return SurfaceApproach.beside(entity,other,reach,.35);
+    private Vec3 departureStand(YukkuriEntity parent) {
+        Vec3 stand = standNear(parent, DEPART_DISTANCE, at -> true);
+        // A shorter route can still pass the second look-back mark at seven blocks.
+        if (stand == null && lookBacks == 2) stand = standNear(parent, 8, at -> true);
+        return stand == null ? standNear(parent, DEPART_DISTANCE / 2.0, at -> true) : stand;
     }
-    private void approach(Vec3 destination,YukkuriEntity parent) {
-        if (target == null || target.distanceToSqr(destination) > .0025) { target = destination; progress = entity.position(); stalled = 0; }
-        if (progress == null || entity.position().distanceToSqr(progress) > .0036) { progress = entity.position(); stalled = 0; } else stalled++;
-        if (stalled >= 120) { elapsed = FAREWELL_LIMIT; return; }
-        SurfaceApproach.walkAround(entity,destination,parent,.8);
+
+    private Vec3 standNear(YukkuriEntity parent, double distance, Predicate<Vec3> suitable) {
+        var candidates = SurfaceApproach.contactStands(entity, parent.position(), distance, parent, suitable);
+        return stands.next(candidates, at -> Double.isFinite(SurfaceApproach.routeLength(entity, at, parent.getBoundingBox())));
+    }
+
+    private boolean visibleFrom(YukkuriEntity parent, Vec3 stand) {
+        return level().clip(new ClipContext(parent.getEyePosition(), stand.add(0, entity.getEyeHeight(), 0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, parent)).getType() == HitResult.Type.MISS;
+    }
+
+    private boolean faceParent(YukkuriEntity parent) {
+        float yaw = SurfaceApproach.yaw(entity.position(), parent.position());
+        SurfaceApproach.face(entity, yaw);
+        return Math.abs(Mth.wrapDegrees(yaw - entity.getYRot())) <= Face.FACE_ARRIVED;
+    }
+
+    private void approach(YukkuriEntity parent) {
+        if (progress == null || entity.position().distanceToSqr(progress) > .0036) {
+            progress = entity.position(); stalled = 0;
+        } else stalled++;
+        if (stalled >= 60) { reject(target, "stalled"); return; }
+        var result = SurfaceApproach.walkToContact(entity, target, parent, .8);
+        if (result == SurfaceApproach.Result.BLOCKED) reject(target, "blocked");
+        else if (result == SurfaceApproach.Result.ARRIVED) {
+            stands.refuse(target);
+            target = progress = null;
+        }
+    }
+
+    private void reject(Vec3 stand, String reason) {
+        stands.refuse(stand);
+        GameplayLog.event(entity, "independence", "farewell stand refused phase={} stand={} reason={}", task, stand, reason);
+        target = progress = away = null;
+        SurfaceApproach.halt(entity);
     }
     @Override public void stop() {
         if (task == Task.SEE_OFF) seeOffEnded();
@@ -464,6 +524,7 @@ public final class IndependenceLife extends Goal {
                 "farewell stopped parent={} departed={} elapsed={} contact={} stalled={} walked={}", visitor, independent, elapsed, contact, stalled, departTicks);
         task = Task.NONE; running = false; visitor = null; elapsed = contact = departTicks = lookBackTicks = 0; wait = 40; target = progress = null;
         stalled = 0; said = false; sobbing = false; away = null;
+        stands.clear();
         SurfaceApproach.halt(entity);
     }
     public void dropCarrying() {}
@@ -494,6 +555,6 @@ public final class IndependenceLife extends Goal {
         visits = Math.max(0, tag.getInt("Visits"));
         parentWait = tag.contains("ParentWait") ? tag.getInt("ParentWait") : -1;
         task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; loadGrace = 100;
-        target = progress = null; stalled = 0;
+        target = progress = null; stalled = 0; stands.clear();
     }
 }

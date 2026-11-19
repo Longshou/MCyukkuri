@@ -353,15 +353,16 @@ _mold_family('den_mold_keep', True)
 
 
 # The teen's independence is armed in NBT (Force); each family has its den as a starting home, and the farewell or departure is
-# ordinary. The warm family lives in the independence mound, the cool one in the small stone den 18 blocks east, both parents at
+# ordinary. The warm family lives in the independence mound and the cool one in the roomy earthen den 32 blocks east, both parents at
 # home; the far one in the family mound 18 blocks west, its parent walled in a closed stone-brick room far out of PARENT_RANGE (24),
 # so it cannot wander back during the wait. Only the five-axis attachment differs between warm and cool.
 _indep = []
-for _lane, _dx, _stays, _attach, _label in (('warm', 0, True, 85, '亚成·依恋高'), ('cool', 18, True, 20, '亚成·依恋低'),
-                                            ('far', -18, False, 60, '亚成·亲油不在')):
+for _lane, _dx, _parent_z, _teen_z, _attach, _label in (('warm', 0, 3, 4, 85, '亚成·依恋高'),
+                                                     ('cool', 32, -2, -3, 20, '亚成·依恋低'),
+                                                     ('far', -18, 3, 4, 60, '亚成·亲油不在')):
     _pm, _pc = uid('indep_near', f'{_lane}_parent'), uid('indep_near', f'{_lane}_teen')
-    _indep += [yk('reimu', _dx, 3, f'{_lane}_parent', uuid=_pm, yaw=180, label='亲油', attachment=_attach, **pair_ready()),
-               yk('reimu', _dx + 1, 4, f'{_lane}_teen', stage='teen', uuid=_pc, yaw=180, lead=_lane == 'warm', nutrition=100, energy=100,
+    _indep += [yk('reimu', _dx, _parent_z, f'{_lane}_parent', uuid=_pm, yaw=180, label='亲油', attachment=_attach, **pair_ready()),
+               yk('reimu', _dx + 1, _teen_z, f'{_lane}_teen', stage='teen', uuid=_pc, yaw=180, lead=_lane == 'warm', nutrition=100, energy=100,
                   attachment=_attach, label=_label, kin=f'Mother:{uuid_nbt(_pm)}', extra='YukkuriIndependence:{Force:1b}'),
                f'yukkuri scenario kin {sel(f"{_lane}_parent")} {sel(f"{_lane}_teen")} false',
                *[f'yukkuri scenario home {sel(f"{_lane}_{who}")} ~{_dx} ~ ~-1' for who in ('parent', 'teen')]]
