@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.ArrayList;
@@ -62,11 +63,18 @@ public final class Custody {
         public boolean ownedBy(UUID id) { return owner != null && owner.equals(id); }
     }
 
+    private static final View EMPTY_VIEW = new View(null, OwnerKind.NONE, Role.NONE, "", "", false, "");
+
     /** Live-tag compatibility access; server reads backfill positive identity and normalize confirmed deaths, without world effects. */
     public static CompoundTag data(YukkuriEntity animal) {
-        var tag = animal.getPersistentData().getCompound("HumanCommerce");
-        if (animal.level() instanceof ServerLevel level && normalize(level, tag))
-            animal.getPersistentData().put("HumanCommerce", tag);
+        var tag = liveTag(animal.getPersistentData(), animal.level());
+        return tag == null ? new CompoundTag() : tag;
+    }
+
+    private static @Nullable CompoundTag liveTag(CompoundTag persistent, Level level) {
+        if (!(persistent.get("HumanCommerce") instanceof CompoundTag tag)) return null;
+        if (level instanceof ServerLevel server && normalize(server, tag))
+            persistent.put("HumanCommerce", tag);
         return tag;
     }
 
@@ -223,7 +231,12 @@ public final class Custody {
                 animal.life().personality().attachment(), animal.mind().unease());
     }
 
-    public static View view(YukkuriEntity animal) { return read(data(animal)); }
+    public static View view(YukkuriEntity animal) { return view(animal.getPersistentData(), animal.level()); }
+
+    static View view(CompoundTag persistent, Level level) {
+        var tag = liveTag(persistent, level);
+        return tag == null || tag.isEmpty() ? EMPTY_VIEW : read(tag);
+    }
 
     /** Reads a bare commerce tag, including saved rollback data. */
     public static View fromData(CompoundTag tag) { return read(tag); }
