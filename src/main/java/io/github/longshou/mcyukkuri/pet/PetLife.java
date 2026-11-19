@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -295,8 +296,8 @@ public final class PetLife {
 
     public void startYardBond(UUID owner) {
         animal.life().personality().relationshipChanged(owner, 24, 0);
-        animal.skills().practise(Ability.FOOD_GUARD, 2, "yard");
-        animal.skills().practise(Ability.TOILET, 2, "yard");
+        animal.skills().startWithGrade(Ability.FOOD_GUARD, 1);
+        animal.skills().startWithGrade(Ability.TOILET, 1);
         GameplayLog.event(animal, "pet", "yard bond established owner={} closeness={} bowl={} toilet={}",
                 owner, animal.life().personality().trust(owner), animal.skills().grade(Ability.FOOD_GUARD),
                 animal.skills().grade(Ability.TOILET));
@@ -322,6 +323,7 @@ public final class PetLife {
             neglectClock = 0; int before = neglect; neglect = Math.min(100, neglect + 1); addStress(2);
             if (before < 50 && neglect >= 50 && !noticeSent) {
                 noticeSent = true;
+                animal.life().personality().experienced(Trait.ATTACHMENT, -1, "neglect_notice");
                 if (animal.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner()) instanceof ServerPlayer sp)
                     sp.displayClientMessage(Component.translatable("pet.mcyukkuri.neglect.notice", animal.getDisplayName()), true);
             }
@@ -341,6 +343,7 @@ public final class PetLife {
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
+        animal.life().personality().experienced(Trait.ATTACHMENT, -1, "abandoned");
         townRoots = true;
         care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;

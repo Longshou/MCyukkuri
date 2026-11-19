@@ -196,16 +196,25 @@ public final class PetCare {
      * (a little stress relief); a reprimand or a flick teaches nothing and only stresses the pet.
      */
     public void affection(Player player) {
-        if (animal.pet().owned(player) && requests.pending() == PetRequests.Kind.NUZZLE) {
-            animal.dailyLife().comfort(15); requests.answer(PetRequests.Kind.NUZZLE);
-        }
+        if (!animal.pet().owned(player)) return;
+        answerNuzzle();
+        animal.life().personality().experienced(Trait.ATTACHMENT, 1, "owner_rub");
+    }
+    private boolean answerNuzzle() {
+        if (requests.pending() != PetRequests.Kind.NUZZLE) return false;
+        animal.dailyLife().comfort(15); requests.answer(PetRequests.Kind.NUZZLE);
+        return true;
     }
     public boolean praise(Player player) {
+        if (!animal.pet().owned(player)) return false;
         boolean sleeping = animal.life().isSleeping();
-        if (!sleeping) affection(player);
-        if (!animal.pet().owned(player) || habitLeft <= 0) return false;
+        boolean comforted = !sleeping && answerNuzzle();
+        if (habitLeft <= 0) {
+            if (comforted) animal.life().personality().experienced(Trait.ATTACHMENT, 1, "requested_affection");
+            return false;
+        }
         habits++;
-        animal.life().personality().experienced(Trait.ATTACHMENT, 1);
+        animal.life().personality().experienced(Trait.ATTACHMENT, 1, "habit_praise");
         animal.pet().addStress(-1);
         if (sleeping) animal.mind().felt(EmotionEvent.PRAISED, null);
         else {

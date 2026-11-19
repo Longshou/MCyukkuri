@@ -84,7 +84,7 @@ public final class PetStudy {
         pet.showReaction(missing ? "teary" : done ? "happy" : "confused", event, length + 30);
         GameplayLog.event(pet, "lesson", "study answered skill={} source={} count={} success={} missing={}",
                 Ability.COUNTING, exercise.source(), count, success, missing);
-        if (counted && caption != null && pet.pet().isPet()) pet.life().personality().experienced(Trait.INTELLIGENCE, 1);
+        if (success) pet.life().personality().experienced(Trait.INTELLIGENCE, 1, "counted");
         pet.pet().lessons().performed(Ability.COUNTING, counted);
         return new Answer(success, caption, length + 30);
     }

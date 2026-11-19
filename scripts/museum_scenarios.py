@@ -2318,13 +2318,20 @@ _practice_scene(
     [r'\[sleep\][^\n]*begin source=life'],
     energy=52)
 add('training_study', 'town', '宠物数苹果', '宠物数苹果',
-    '魔理沙面前有六个苹果。看它数过自己的上限时说「好多」，或者困惑答错。',
+    '魔理沙面前有六个苹果，超过上限时会说「好多」，也可能困惑答错。约 20 秒后漏斗收走黄垫上的三个，看它下次能否数清剩下的三个。',
     '约 1 分钟', [
-        item('minecraft:apple', 6, 6, 0, 'count_apples'),
+        *(block(x, 0, z, 'minecraft:oak_fence') for x in range(3, 9) for z in range(-2, 4)
+          if x in (3, 8) or z in (-2, 3)),
+        block(5, 0, 3, 'minecraft:oak_fence_gate[facing=south]'),
+        item('minecraft:apple', 3, 6, 0, 'count_apples'),
+        block(6, -1, 2, 'minecraft:hopper{TransferCooldown:400}'),
+        block(6, 0, 2, 'minecraft:yellow_carpet'),
+        item('minecraft:apple', 3, 6, 2, 'hopper_apples', dy=.1),
         yk('marisa', 5, 0, 'counter', nutrition=96, social_wait=0, lead=True, intelligence=90, self_control=86,
            skills={'counting': 8}, cap=3), *own('counter')],
     env=DAY, vantage=(5, 8), give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook'],
-    reads=[('读数数技能', f'data get entity {sel("counter")} YukkuriSkills')])
+    reads=[('读数数技能', f'data get entity {sel("counter")} YukkuriSkills'),
+           ('读养育经历', f'data get entity {sel("counter")} YukkuriLife.Personality')])
 
 add('skills_magnifier', 'town', '放大镜看技能行', '放大镜看技能行',
     '依次用放大镜看三只宠物。灵梦有等待★和如厕✓，魔理沙能数到六所以有数数✓，橙尚无技能。田野手册的技能页会写明等级和数数上限。',
@@ -6000,9 +6007,25 @@ _smoke('training_walk', 2300, [
     r'\[lesson\] marisa [^\n]*harness turn owner=[^ ]+ waits=(?:true|false) aside=(?:true|false)',
 ], readout=[f'yukkuri status {sel(n)} raw' for n in ('walk_practised', 'walk_novice')])
 next(s for s in S if s.id == 'training_walk').smoke['verify'] = _lead_turns
+def _counting_experience(window):
+    answers = re.findall(r'\[lesson\][^\n]*uuid=(\S+) t=(\d+)[^\n]* study answered [^\n]*success=(true|false)', window)
+    awards = []
+    for actor, tick, before, after, old, new in re.findall(
+            r'\[upbringing\][^\n]*uuid=(\S+) t=(\d+)[^\n]* cause=(?:counted|learned_counting) trait=INTELLIGENCE'
+            r' value=(\d+) -> (\d+) remainder=(-?\d+) -> (-?\d+)', window):
+        if 4 * (int(after) - int(before)) + int(new) - int(old) != 1:
+            return f'{actor} at {tick}: expected one adult counting unit'
+        awards.append((actor, tick))
+    successes = [(actor, tick) for actor, tick, success in answers if success == 'true']
+    if sorted(successes) != sorted(awards):
+        return f'counting successes {successes} differ from intelligence awards {awards}'
+
+
 _smoke('training_study', 1750, [
     r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=6',
-], readout=[f'data get entity {sel("counter")} YukkuriSkills'])
+    r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=3',
+], readout=[f'data get entity {sel("counter")} YukkuriSkills', f'data get entity {sel("counter")} YukkuriLife.Personality'])
+next(s for s in S if s.id == 'training_study').smoke['verify'] = _counting_experience
 _smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
     readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
 next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(

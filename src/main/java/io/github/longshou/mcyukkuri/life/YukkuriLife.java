@@ -37,6 +37,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
@@ -672,6 +673,10 @@ public final class YukkuriLife {
             starvingTicks=0;
             float before=entity.getHealth();
             boolean accepted=entity.hurt(level().damageSources().starve(),1);
+            if (accepted) {
+                personality.experienced(Trait.INTELLIGENCE, -1, "starvation");
+                personality.experienced(Trait.FRIENDLINESS, -1, "starvation");
+            }
             GameplayLog.event(entity,"needs","starvation damage accepted={} health={} -> {}",accepted,before,entity.getHealth());
         }
         if (ageTicks % 20 == 0) {
@@ -718,6 +723,7 @@ public final class YukkuriLife {
 
     /** The caller commits exactly one real portion when the mouth accepts it. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
+    public boolean beginWaitTreat(ItemStack sweet, UUID owner, boolean waited) { return meal.beginWaitTreat(sweet, owner, waited); }
     public boolean beginBinMeal(ItemStack transferred) { return meal.beginBinMeal(transferred); }
     public boolean takeBinWithBraid(MealRoute route, Vec3 contact, GarbageBinBlockEntity bin,
                                    Predicate<Predicate<ItemStack>> hand) {

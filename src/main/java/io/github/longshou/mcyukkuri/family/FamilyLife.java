@@ -1828,7 +1828,8 @@ public final class FamilyLife {
         for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
             if(age<1200&&(Bonds.parentOf(other, entity))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.
-                other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.BIRTH_LOSS,entity.getUUID(),entity.blockPosition());
+                other.life().personality().experienced(Trait.BOLDNESS, -3, "birth_loss");
+                other.bereave(EmotionEvent.BIRTH_LOSS,entity.getUUID(),entity.blockPosition());
             } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other)
                     || entity.getUUID().equals(other.family().fosterParent()) && other.family().orphaned())
                     &&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)
@@ -1836,7 +1837,8 @@ public final class FamilyLife {
                         && source.getEntity() instanceof LivingEntity punisher && PunishmentReaction.sees(other, entity, punisher))) {
                 // Kin and the mate who see it die first grieve where they stand.
                 other.family().absence().witness(entity.getUUID(),entity.blockPosition());
-                other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH,entity.getUUID(),entity.blockPosition());
+                other.life().personality().experienced(Trait.BOLDNESS, -3, "kin_death");
+                other.bereave(EmotionEvent.FAMILY_DEATH,entity.getUUID(),entity.blockPosition());
                 GameplayLog.event(other,"family","witnessed kin death dead={} distance={} mate={}",entity.getUUID(),Math.round(other.distanceTo(entity)*10)/10.0,Bonds.eitherMate(entity, other));
             }
     }

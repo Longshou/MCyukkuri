@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UpbringingTest {
     private static final Upbringing BIRTH = new Upbringing(0, 0);
@@ -66,5 +68,26 @@ class UpbringingTest {
         assertEquals(new Upbringing(limit, 0), capped);
         assertEquals(capped, capped.after(sign, false, innate, trait, form));
         assertEquals(new Upbringing(limit, -sign), capped.after(-sign, false, innate, trait, form));
+    }
+
+    @Test
+    void equallyBornYoungstersDivergeThroughWaitingCareAndIndulgence() {
+        var care = BIRTH;
+        var wait = BIRTH;
+        var friendly = BIRTH;
+        var control = BIRTH;
+        for (int n = 0; n < 30; n++) {
+            care = care.after(1, true, 50, Trait.ATTACHMENT, ORDINARY);
+            wait = event(wait, 1, true);
+            friendly = friendly.after(-1, true, 50, Trait.FRIENDLINESS, ORDINARY);
+            control = event(control, -1, true);
+        }
+        var praised = new Temperament(50, 50, 50, 50 + care.points(), 50 + wait.points());
+        var indulged = new Temperament(50, 50 + friendly.points(), 50, 50, 50 + control.points());
+        assertTrue(praised.is(Temperament.Gate.PATIENT));
+        assertTrue(praised.is(Temperament.Gate.ATTACHED));
+        assertFalse(praised.is(Temperament.Gate.SELFISH));
+        assertTrue(indulged.is(Temperament.Gate.SELFISH));
+        assertFalse(indulged.is(Temperament.Gate.PATIENT));
     }
 }

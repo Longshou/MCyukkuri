@@ -53,8 +53,6 @@ public final class LeafSwaddle {
     public static final int MAX_SOIL = 3;
     /** Effect period of a worn wrap, ticks: a clean wrap restores 1 hygiene and eases 1 unease; each soiled load costs as much. */
     static final int EFFECT_TICKS = 600;
-    /** Clean wear that counts as one unit of friendliness experience (eight units make one point). */
-    static final int FRIENDLY_TICKS = 2400;
     /** Hygiene the parent's cleaning restores. */
     static final int CLEAN_HYGIENE = 25;
     /** An opened wrap that nobody closes again within this time falls off. */
@@ -146,14 +144,13 @@ public final class LeafSwaddle {
             float hygiene = life.hygiene(), unease = entity.mind().unease();
             if (soil == 0) {
                 life.changeHygiene(1); entity.mind().add(-1, "leaf_swaddle");
-                if (wearClock % FRIENDLY_TICKS == 0) entity.life().personality().experienced(Trait.FRIENDLINESS, 1);
             } else {
                 // The cost follows the soiled stage the wrap shows (wearBits), not the raw volume: a newborn's wrap is as unpleasant as a child's.
                 float stage = (float)Math.ceil(soil) + neglectStage() - 1;
                 life.changeHygiene(-stage); entity.mind().add(stage, "soiled_swaddle");
                 if (!life.isSleeping()) entity.showReaction("teary", "leak", 60);
             }
-            if (wearClock % FRIENDLY_TICKS == 0) GameplayLog.limited(entity, "family", "leaf_swaddle.wear", FRIENDLY_TICKS,
+            GameplayLog.limited(entity, "family", "leaf_swaddle.wear", 2400,
                     "leaf swaddle wear soil={} hygiene={} -> {} unease={} -> {} friendliness={}", soil, hygiene, life.hygiene(),
                     unease, entity.mind().unease(), life.personality().friendliness());
         }
@@ -220,7 +217,7 @@ public final class LeafSwaddle {
         material.clear(); wrap.forEach(stack -> material.add(stack.copy()));
         worn = true; open = false; openAt = null; soil = wearClock = openClock = 0; wrapper = parent.getUUID();
         entity.mind().add(-2, "leaf_swaddle");
-        entity.life().personality().experienced(Trait.FRIENDLINESS, 1);
+        entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "swaddled");
         entity.showReaction("happy", "swaddle_on", 80);
     }
 
@@ -549,7 +546,7 @@ public final class LeafSwaddle {
                 if (contactTicks < REWRAP_TICKS) return;
                 wrap.open = false; wrap.openClock = 0; wrap.openAt = null;
                 child.mind().add(-1, "leaf_swaddle");
-                life.personality().experienced(Trait.FRIENDLINESS, 1);
+                life.personality().experienced(Trait.FRIENDLINESS, 1, "rewrapped");
                 GameplayLog.event(entity, "family", "leaf swaddle rewrapped child={} leaves={} hygiene={} bladder={}",
                         target, describe(wrap.material), life.hygiene(), life.bladder());
                 stop("done");

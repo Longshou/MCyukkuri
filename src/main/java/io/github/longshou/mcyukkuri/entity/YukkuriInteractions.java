@@ -89,7 +89,6 @@ final class YukkuriInteractions {
         ItemStack one = stack.copyWithCount(1);
         boolean fed = prepared ? owner.life().beginPreparedMeal(ownerMash ? InfantFood.mash(one, player.getUUID()) : one, player.getUUID())
                 : owner.life().beginOfferedMeal(one, player);
-        if (fed && sweet) owner.pet().lessons().reward(player, one);
         if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         if (prepared && !fed) owner.showReaction("cheek_puff","refuse",60);
         GameplayLog.event(owner,"interaction","food offered; player={} item={} meal_started={} item_count={} -> {} prepared={}",

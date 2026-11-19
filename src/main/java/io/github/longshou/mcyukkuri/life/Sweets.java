@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.PetRequests;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
 import net.minecraft.core.registries.Registries;
@@ -39,18 +40,21 @@ public final class Sweets {
     /**
      * Called at the server step that grants the nutrition. Returns the speech event to use instead of "fed" (null keeps "fed").
      */
-    public static String eaten(YukkuriEntity y, ItemStack food, UUID feeder) {
+    public static String eaten(YukkuriEntity y, ItemStack food, UUID feeder, float nutritionBefore, boolean lessonReward) {
         var pet = y.pet();
         if (premium(food)) {
             if (pet.isPet()) pet.addStress(-2);
             y.heal(2);
             return null;
         }
-        if (!is(food) || !pet.isPet() || !pet.ownedBy(feeder)) return null;
+        boolean ownerSweet = is(food) && pet.isPet() && pet.ownedBy(feeder);
         var care = pet.care();
-        int count = care.countSnack();
+        boolean greedy = ownerSweet && care.countSnack() > DAILY_FREE;
+        boolean demanded = care.requests().pending() == PetRequests.Kind.SNACK;
+        if (Indulgence.sweet(ownerSweet, lessonReward, demanded, greedy, nutritionBefore))
+            y.life().personality().indulged(demanded ? "snack_demand" : "surplus_sweet");
+        if (!ownerSweet) return null;
         int stress = pudding(food) ? 12 : candy(food) ? 4 : 6, bored = pudding(food) ? 20 : candy(food) ? 8 : 10;
-        boolean greedy = count > DAILY_FREE;
         pet.addStress(-stress);
         y.dailyLife().entertained(bored);
         care.snackEaten();

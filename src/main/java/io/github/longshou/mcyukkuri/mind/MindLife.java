@@ -329,7 +329,7 @@ public final class MindLife {
     private void put(String cause, float perMinute) { causes.merge(cause, perMinute, Float::sum); }
 
     /** Body contact that soothes: a nuzzle, a comforting lick, a rain huddle or a keeper's rub. */
-    private boolean comforted() {
+    public boolean comforted() {
         return entity.dailyLife().nuzzlePartnerId() >= 0 && entity.dailyLife().inContact() || entity.woundComfort().receiving() && entity.woundComfort().inContact()
                 || entity.status().reactions().weather().huddled() || entity.contactPose().equals("RUB");
     }

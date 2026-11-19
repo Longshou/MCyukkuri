@@ -73,6 +73,8 @@ final class LifeMeal {
     private UUID feeder, lastFeeder;
     private long lastFedAt;
     private boolean sharedMeal, preparedMeal, bowlMeal;
+    private boolean waitedForTreat;
+    private Ability sweetFeedback;
     private int fleeCropAt;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
     static final float FULL = 75;
@@ -229,6 +231,12 @@ final class LifeMeal {
                 && startMeal(transferred, fromPlayer, alreadyShared);
     }
 
+    boolean beginWaitTreat(ItemStack sweet, UUID owner, boolean waited) {
+        if (!beginMeal(sweet, owner, false)) return false;
+        waitedForTreat = waited;
+        return true;
+    }
+
     /** The bin clip already plays the take-food beat. Its last pose leads straight into chewing. */
     boolean beginBinMeal(ItemStack transferred) {
         if (!beginMeal(transferred, null, false)) return false;
@@ -254,6 +262,7 @@ final class LifeMeal {
             o.entity().showReaction("cheek_puff", "refuse", 60);
             return false;
         }
+        if (offered != Verdict.REFUSE && Sweets.is(food)) sweetFeedback = o.entity().pet().lessons().offeredReward(giver);
         return true;
     }
 
@@ -390,7 +399,7 @@ final class LifeMeal {
             if (food.is(Items.APPLE))
                 GameplayLog.event(o.entity(), "meal", "serving split input={} input_count=1 output={} output_count=2 recipient={}",
                         food.getItem(), ModItems.APPLE_HALF.get(), peer.getUUID());
-            o.personality().experienced(Trait.FRIENDLINESS, 1);
+            o.personality().experienced(Trait.FRIENDLINESS, 1, "shared_food");
             o.personality().decided("share_food");
         }
         return passed;
@@ -450,6 +459,8 @@ final class LifeMeal {
     }
 
     private void clearTransfer() {
+        waitedForTreat = false;
+        sweetFeedback = null;
         tuftMeal = null; tuftReleaseRefusedAt = null;
         fleeCropAt = 0;
         feeder = null; mealTicks = 0; mealVerdict = Verdict.PLAIN; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
@@ -470,7 +481,7 @@ final class LifeMeal {
         int score=o.personality().shareScore(o.nutrition(),peer.life().nutrition(),o.entity().family().caresFor(peer),YukkuriWorldData.get(o.level()).affinity(o.entity().getUUID(),peer.getUUID()));
         if(o.entity().getRandom().nextInt(100)>=score){o.personality().decided("keep_food");return;}
         if (transferTo(peer, o.entity().getUUID())) {
-            o.personality().experienced(Trait.FRIENDLINESS, 1); o.entity().showReaction("happy", "share", 100);
+            o.personality().experienced(Trait.FRIENDLINESS, 1, "shared_food"); o.entity().showReaction("happy", "share", 100);
             o.personality().decided("share_food");
         }
     }
@@ -562,9 +573,15 @@ final class LifeMeal {
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
                 if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2);
                 if (!spicy) { o.personality().fed(feeder, pleasant); WildEvents.fed(o.entity(),feeder); }
-                if (sharedMeal && pleasant) eater.kindness().swallowed(feeder);
+                if (sharedMeal && pleasant && feeder != null) {
+                    eater.kindness().swallowed(feeder);
+                    o.personality().experienced(Trait.FRIENDLINESS, 1, "received_food");
+                }
                 o.entity().pet().contact(feeder, !spicy);
-                String treat = Sweets.eaten(o.entity(), swallowed, feeder);
+                String treat = Sweets.eaten(eater, swallowed, feeder, nutritionBefore, waitedForTreat || sweetFeedback != null);
+                if (sweetFeedback != null && eater.pet().ownedBy(feeder)) eater.pet().lessons().ateReward(sweetFeedback);
+                sweetFeedback = null;
+                waitedForTreat = false;
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
                 boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);
                 boolean grateful = ordinaryAdult && feeder != null && (bond.closeness() >= 10
@@ -762,6 +779,8 @@ final class LifeMeal {
         content = false; meltFace = meltTail = finishFace = null;
     }
     void save(CompoundTag tag) {
+        if (waitedForTreat) tag.putBoolean("WaitedForTreat", true);
+        if (sweetFeedback != null) tag.putString("SweetFeedback", sweetFeedback.key());
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal",
                 bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
         if (lastFeeder != null && o.level().getGameTime() - lastFedAt < RECENT_FEED_TICKS) {
@@ -771,6 +790,10 @@ final class LifeMeal {
         if (mealVerdict == Verdict.REFUSE) tag.putBoolean("SpitMeal", true);
     }
     void load(CompoundTag tag) {
+        waitedForTreat = tag.getBoolean("WaitedForTreat");
+        sweetFeedback = null;
+        String feedback = tag.getString("SweetFeedback");
+        for (Ability skill : Ability.values()) if (skill.key().equals(feedback)) sweetFeedback = skill;
         ItemStack mouth = tag.contains("Mouth",Tag.TAG_COMPOUND) ? ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("Mouth")) : ItemStack.EMPTY;
         BodyFood.Bite bodyFood = tag.contains("BodyFood", Tag.TAG_COMPOUND) ? BodyFood.Bite.load(tag.getCompound("BodyFood")) : BodyFood.Bite.EMPTY;
         occupancy().importMeal(mouth, bodyFood, edible(mouth) || Consumables.oral(mouth) || mouth.is(ModItems.WASTE.get()));

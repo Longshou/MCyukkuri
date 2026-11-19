@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -210,9 +211,17 @@ public final class OperationLife {
             case SING -> entity.dailyLife().invite(player,DailyLife.Kind.SING);
             case EXERCISE -> entity.dailyLife().invite(player,DailyLife.Kind.EXERCISE);
             case FAVOR,DISLIKE -> {
-                boolean favored=action==CareAction.FAVOR;
-                entity.life().personality().treatment(player.getUUID(),favored);
-                if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction(favored?"happy":"surprise",favored?"caregiver":"afraid",100);yield true;
+                boolean favored = action == CareAction.FAVOR;
+                var personality = entity.life().personality();
+                int fear = personality.fear(player.getUUID());
+                if (!personality.treatment(player.getUUID(), favored)) yield false;
+                if (favored && !entity.family().adult() && fear == 0 && !entity.isPanicking()
+                        && entity.mind().stage() == MindLife.Stage.CALM && entity.mind().comforted()
+                        && entity.dailyLife().affectionNeed() >= personality.affectionThreshold())
+                    personality.indulged("excess_favor");
+                if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED);
+                entity.showReaction(favored?"happy":"surprise", favored?"caregiver":"afraid", 100);
+                yield true;
             }
             case LIFT -> {
                 if(!begin(player,Pose.LIFT,160,null))yield false;

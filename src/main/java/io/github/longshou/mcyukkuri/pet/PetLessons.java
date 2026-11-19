@@ -73,7 +73,7 @@ public final class PetLessons {
     /** Call once at a real action's outcome. Repeated sampling or planning never awards practice. */
     public void performed(Ability skill, boolean success) {
         boolean lesson = practicing(skill);
-        if (success && skill == Ability.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1);
+        if (success && skill == Ability.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1, "waited");
         if (lesson) finishLesson(success);
         if (success) animal.skills().practise(skill, lesson && coached ? 3 : 1, lesson && coached ? "lesson" : "daily");
     }
@@ -227,7 +227,7 @@ public final class PetLessons {
                 var sweet = snack(player);
                 if (sweet == null || animal.distanceToSqr(player) > 4 || !animal.hasLineOfSight(player)) { interrupt(); return; }
                 var one = sweet.copyWithCount(1);
-                if (!animal.life().beginMeal(one, player.getUUID(), false)) { interrupt(); return; }
+                if (!animal.life().beginWaitTreat(one, player.getUUID(), success)) { interrupt(); return; }
                 if (!player.getAbilities().instabuild) sweet.shrink(1);
                 snackGiven = true;
                 animal.showReaction(success ? "happy" : "teary", success ? "wait_learned" : "lesson_refused", 60);
@@ -291,6 +291,7 @@ public final class PetLessons {
             SurvivalProgress.award(player, "lesson_praised");
             if (!animal.life().isSleeping() && animal.life().mealTicks() == 0) animal.playAction("joy_jump");
             animal.skills().practise(kind, 1, "feedback");
+            animal.life().personality().experienced(Trait.SELF_CONTROL, 1, "lesson_praise");
         }
         end();
         return true;
@@ -301,7 +302,19 @@ public final class PetLessons {
         animal.pet().addStress(action == CareAction.FLICK ? 10 : 4);
         end();
     }
-    public void reward(Player player, ItemStack sweet) { if (awaitingFeedback() && player.getUUID().equals(owner) && Sweets.is(sweet)) { if (completed) { animal.skills().practise(kind, 2, "feedback"); animal.pet().addStress(-5); } end(); } }
+    /** The accepted serving carries any timely feedback until it is swallowed or leaves this mouth. */
+    public Ability offeredReward(UUID giver) {
+        if (!awaitingFeedback() || !owner.equals(giver)) return null;
+        Ability earned = completed ? kind : null;
+        end();
+        return earned;
+    }
+
+    public void ateReward(Ability skill) {
+        animal.skills().practise(skill, 2, "feedback");
+        animal.pet().addStress(-5);
+        animal.life().personality().experienced(Trait.SELF_CONTROL, 1, "lesson_reward");
+    }
     private void end() {
         state = State.IDLE;
         feedbackLeft = routineObserveLeft = 0;

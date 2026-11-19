@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.GriefVow.Lost;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
 import java.util.Locale;
@@ -198,7 +199,9 @@ public final class EmotionCourse {
     public void frightOver(LivingEntity threat) {
         float power = entity.level().getGameTime() - frightAt <= FRIGHT_MEMORY ? fright : 0;
         fright = 0;
-        if (power > 0) begin(Kind.TERROR, power, threat == null ? null : threat.getUUID(), entity.blockPosition());
+        if (power > 0 && begin(Kind.TERROR, power, threat == null ? null : threat.getUUID(), entity.blockPosition())
+                && threat != null && (!(threat instanceof YukkuriEntity peer) || peer.profile().dangerToYukkuri()))
+            entity.life().personality().experienced(Trait.BOLDNESS, -1, "terrified");
     }
 
     /** Start a course of {@code next} at strength 0-1. A weaker kind does not replace a stronger one before it fades. */

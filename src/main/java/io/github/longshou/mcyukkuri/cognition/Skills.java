@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -34,6 +35,11 @@ public final class Skills {
     public int points(Ability ability) { return points.getOrDefault(ability, 0); }
     public int grade(Ability ability) { return SkillMath.grade(points(ability), ability.graded); }
     public boolean knows(Ability ability) { return grade(ability) >= 1; }
+
+    /** Starting training of a newly placed pet. */
+    public void startWithGrade(Ability ability, int grade) {
+        points.put(ability, SkillMath.pointsForGrade(grade, ability.graded));
+    }
 
     public int domesticMask() {
         int mask = 0;
@@ -74,6 +80,8 @@ public final class Skills {
             lastLearned = ability;
             lastLearnedDay = day();
             GameplayLog.event(entity, "skill", "learned ability={} grade={} source={}", ability, newGrade, source);
+            if (ability != Ability.COUNTING)
+                entity.life().personality().experienced(Trait.INTELLIGENCE, 1, "learned_" + ability.key());
             gotIt(ability, newGrade);
         } else progressing = ability;
     }

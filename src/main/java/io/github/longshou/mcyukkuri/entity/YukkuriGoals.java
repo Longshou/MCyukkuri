@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.EscapeWater;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -443,6 +444,7 @@ final class YukkuriGoals {
             halt("escape_safe");
             runner = null;
             AskLedger.server().settle(incident, owner.getVehicle() instanceof YukkuriEntity ? "held" : owner.isPassenger() ? "aboard" : "ashore");
+            if (owner.isAlive()) owner.life().personality().experienced(Trait.BOLDNESS, 1, "water_escape");
             incident = null;
         }
     }

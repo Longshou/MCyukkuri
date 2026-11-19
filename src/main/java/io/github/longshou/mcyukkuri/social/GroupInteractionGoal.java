@@ -150,7 +150,11 @@ public final class GroupInteractionGoal extends Goal {
             stop();
             float healthBefore = peer.getHealth();
             boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
-            if(hit)entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,-1);
+            if (hit) {
+                entity.life().personality().experienced(Trait.FRIENDLINESS, -1, "bullied_peer");
+                peer.life().personality().experienced(Trait.FRIENDLINESS, -1, "bullied");
+                peer.life().personality().experienced(Trait.BOLDNESS, -1, "bullied");
+            }
             GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
             if(entity.treasure().snatchFrom(peer)) {
                 entity.species().narrate("steal");
@@ -179,7 +183,8 @@ public final class GroupInteractionGoal extends Goal {
             var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
             stop();winner.showReaction("happy","puff",120);loser.showReaction("surprise","shy",120);
             var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
-            entity.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,1);peer.life().personality().experienced(YukkuriPersonality.Trait.FRIENDLINESS,1);
+            entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
+            peer.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
             if(YukkuriConfig.SUMO_DAMAGE.get())loser.hurtInBout(level().damageSources().mobAttack(winner),1);
             GameplayLog.event(entity, "social", "sumo completed winner={} loser={} winnerHealth={} loserHealth={} contact={}",
                     winner.getUUID(), loser.getUUID(), winner.getHealth(), loser.getHealth(), current.contactTicks);

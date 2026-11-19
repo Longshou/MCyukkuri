@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Objects;
 import java.util.UUID;
@@ -204,10 +205,19 @@ public final class YukkuriPersonality {
     }
 
     /** Records one real, completed experience. */
-    public void experienced(Trait trait, int amount) {
+    public void experienced(Trait trait, int amount, String cause) {
         int slot = trait.ordinal();
         var current = new Upbringing(experience[slot], experienceProgress[slot]);
-        applyExperience(slot, current.after(amount, !owner.family().adult(), innate[slot], trait, bounds()));
+        var next = current.after(amount, !owner.family().adult(), innate[slot], trait, bounds());
+        applyExperience(slot, next);
+        if (!next.equals(current)) GameplayLog.event(owner, "upbringing",
+                "cause={} trait={} value={} -> {} remainder={} -> {}", cause, trait,
+                innate[slot] + current.points(), innate[slot] + next.points(), current.remainder(), next.remainder());
+    }
+
+    public void indulged(String cause) {
+        experienced(Trait.FRIENDLINESS, -1, cause);
+        experienced(Trait.SELF_CONTROL, -1, cause);
     }
 
     private void applyExperience(int slot, Upbringing learned) {

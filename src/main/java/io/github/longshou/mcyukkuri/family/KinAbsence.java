@@ -116,7 +116,7 @@ final class KinAbsence {
                 var corpse = RemainsEntity.find(family.level(), e, entry.getKey(), 8);
                 if (corpse != null) {
                     witness(entry.getKey(), corpse.blockPosition());
-                    e.life().personality().experienced(Trait.BOLDNESS, -3);
+                    e.life().personality().experienced(Trait.BOLDNESS, -3, "found_kin_remains");
                     e.bereave(EmotionEvent.FAMILY_DEATH, entry.getKey(), corpse.blockPosition());
                     GameplayLog.event(e, "family", "missing kin found remains kin={} at={}", entry.getKey(), corpse.blockPosition());
                 }
