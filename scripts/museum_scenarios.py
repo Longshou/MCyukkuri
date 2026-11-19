@@ -6015,7 +6015,8 @@ _smoke('den_family', 9000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat
                             rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course begun kind=grief\b',
                             rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course stage kind=grief stage=easing\b',
                             rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* mourn focus target=remains[^\n]* approach=true\b',
-                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* grief vow event=vow_partner_young [^\n]*spoken=true\b'],
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* grief vow event=vow_partner_young [^\n]*spoken=true\b',
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "child")} [^\n]* grief vow event=(?:vow_to_father|vow_blame_parent) [^\n]*lost=FATHER spoken=true\b'],
        readout=[f'yukkuri status {sel("mother")} raw'])
 
 
@@ -6044,9 +6045,12 @@ def _den_family_verify(log):
     distance, yaw_error = map(float, focus[0][1])
     if not (0 < distance <= 6 and yaw_error <= 15):
         return f'den family: maternal approach started at {distance} blocks with yaw error {yaw_error}'
-    end = events(mother, 'emotion', r'mourn approach ended result=(arrived|blocked|timeout) distance=\S+ yawError=(\S+)')
-    if len(end) != 1 or float(end[0][1][1]) > 15:
-        return f'den family: expected one aligned approach ending, saw {end}'
+    end = events(mother, 'emotion', r'mourn approach ended result=(?:arrived|blocked|timeout) distance=(\S+) yawError=(\S+)')
+    if len(end) != 1:
+        return f'den family: expected one approach ending, saw {end}'
+    remaining, yaw_error = map(float, end[0][1])
+    if not (0 <= remaining < distance and yaw_error <= 15):
+        return f'den family: mother went from {distance} to {remaining} blocks with final yaw error {yaw_error}'
     if re.search(r'\[emotion\][^\n]* mourn focus [^\n]* approach=true attached=false\b', log):
         return 'den family: an unattached mourner started walking'
 
