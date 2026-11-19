@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -91,6 +92,8 @@ public final class NotebookItem extends Item {
     }
     public static List<Component> observe(YukkuriEntity entity, Player player) {
         var life = entity.life(); var personality = life.personality();
+        int talent = entity.pet().talent();
+        String talentBand = talent >= BadgeRequirements.TALENT ? "high" : talent >= 75 ? "good" : "plain";
         Component home = life.home() == null ? Component.translatable("notebook.mcyukkuri.homeless") : Component.literal(
                 life.home().dimension().location() + "\n" + life.home().pos().toShortString());
         var pages = new ArrayList<Component>(List.of(
@@ -111,7 +114,8 @@ public final class NotebookItem extends Item {
                         life.hasAccessory() ? Component.translatable("notebook.mcyukkuri.accessory.present") : Component.translatable("notebook.mcyukkuri.accessory.absent")),
                 Component.translatable("notebook.mcyukkuri.emotional_needs",entity.dailyLife().affectionNeed(),entity.dailyLife().boredom(),
                         entity.dailyLife().nuzzles(),entity.dailyLife().songs(),entity.dailyLife().exercises()),
-                Component.translatable("notebook.mcyukkuri.dispositions",personality.intelligence(),personality.friendliness(),personality.boldness(),personality.attachment(),personality.selfControl(),Component.translatable("decision.mcyukkuri."+personality.lastDecision())),
+                Component.translatable("notebook.mcyukkuri.dispositions",personality.intelligence(),personality.friendliness(),personality.boldness(),personality.attachment(),personality.selfControl(),Component.translatable("decision.mcyukkuri."+personality.lastDecision()))
+                        .append("\n").append(Component.translatable("notebook.mcyukkuri.talent." + talentBand)),
                 entity.skills().observation(),
                 Component.translatable("notebook.mcyukkuri.memory", personality.trust(player.getUUID()), personality.fear(player.getUUID())),
                 Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+entity.family().stageId()),

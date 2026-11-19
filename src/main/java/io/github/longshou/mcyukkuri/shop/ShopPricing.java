@@ -3,12 +3,15 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * Single quote formula for the shop, buyback and consultation (docs/FEATURES.md, 宠物店). The value is the species base (rarer species and
- * predators more) plus the effective badge, halved without a badge; adults sell for {@link #ADULT} of it, like a pet shop's grown animals.
+ * predators more) plus the effective badge, halved without a badge. Shop quotes add 25% for offspring of a parent who earned silver.
+ * Adults sell for {@link #ADULT} of their value, like a pet shop's grown animals.
  * Buyback pays the shop's rate of the value and each learned skill, scaled by health and cut by stress: the better the individual, the more.
  */
 public final class ShopPricing {
@@ -23,7 +26,9 @@ public final class ShopPricing {
     }
 
     private static double value(YukkuriEntity y) {
-        return value(y, y.pet().effectiveGrade());
+        var families = FamilyData.get((ServerLevel) y.level());
+        int parentBadge = Math.max(families.badgeAcquired(y.family().mother()), families.badgeAcquired(y.family().father()));
+        return value(y, y.pet().effectiveGrade()) * (parentBadge >= BadgeGrade.SILVER.id() ? 1.25 : 1);
     }
 
     /** Species and age at the unbadged raw-material rate, regardless of the individual's badge. */

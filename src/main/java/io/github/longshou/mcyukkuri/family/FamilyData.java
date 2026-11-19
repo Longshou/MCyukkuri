@@ -88,8 +88,8 @@ public final class FamilyData extends SavedData {
         private UUID partner;
         private final List<UUID> partnerHistory = new ArrayList<>();
         private final Set<UUID> dismissedChildren = new HashSet<>();
-        /** Informational genealogy records only; never used as an attribute, price, or qualification. */
-        private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(3);
+        /** First acquisition of each badge, used by genealogy and the offspring's shop quote. */
+        private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(4);
         public PartnerState partnerState() { return partnerState; }
         public UUID partner() { return partner; }
         public Foster foster() { return foster; }
@@ -248,10 +248,10 @@ public final class FamilyData extends SavedData {
         }
         childrenIndexDirty=true;partnerIndexDirty=true;setDirty();
     }
-    /** Records the first real acquisition of each badge level, independently of later expiry or loss. */
+    /** Records the first real acquisition of each badge level, independently of later loss. */
     public void recordBadge(UUID identity, int grade, long acquiredAt) {
         Person person = people.get(identity);
-        if (person == null || grade < 1 || grade > 3
+        if (person == null || grade < 1 || grade > 4
                 || person.badgeAcquisitions.stream().anyMatch(record -> record.grade() == grade)) return;
         person.badgeAcquisitions.add(new BadgeAcquisition(grade, Math.max(0, acquiredAt)));
         setDirty();
@@ -891,7 +891,7 @@ public final class FamilyData extends SavedData {
             for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child"))person.dismissedChildren.add(dismissedEntry.getUUID("Child"));}
             for (Tag badgeEntry : value.getList("BadgeAcquisitions", Tag.TAG_COMPOUND)) {
                 CompoundTag badge = (CompoundTag) badgeEntry; int grade = badge.getInt("Grade");
-                if (grade >= 1 && grade <= 3 && person.badgeAcquisitions.stream().noneMatch(record -> record.grade() == grade))
+                if (grade >= 1 && grade <= 4 && person.badgeAcquisitions.stream().noneMatch(record -> record.grade() == grade))
                     person.badgeAcquisitions.add(new BadgeAcquisition(grade, Math.max(0, badge.getLong("AcquiredAt"))));
             }
             data.putPerson(person);

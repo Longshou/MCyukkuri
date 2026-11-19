@@ -165,7 +165,14 @@ public final class ShopMenu extends AbstractContainerMenu {
         return row >= 0 && row < goods.size() ? goods.get(row) : null;
     }
     public ItemStack goodsStack(int page, int row) { var good = good(page, row); return good == null ? ItemStack.EMPTY : good.stack(); }
-    public int goodsPrice(int page, int row) { var good = good(page, row); return good == null ? 0 : good.price(); }
+    public int goodsPrice(int page, int row) {
+        var good = good(page, row);
+        return good == null ? 0 : discountedPrice(good.price(), PetPrivileges.discountPercent(BadgeGrade.of(value(Data.STANDING))));
+    }
+
+    private static int discountedPrice(int price, int discount) {
+        return Math.max(1, Math.round(price * (100 - discount) / 100f));
+    }
     /** The deposit that reserves an animal at this price (shown on the reserve button). */
     public static int deposit(int price) { return ShopTrade.deposit(price); }
 
@@ -312,8 +319,11 @@ public final class ShopMenu extends AbstractContainerMenu {
     private boolean buyGood(ServerLevel level, Player p, int row) {
         var good = good(page, row);
         if (good == null) return false;
-        int price = good.price(); var stack = good.stack(); var stocks = ShopStock.get(level);
-        String why = !level.isDay() ? "closed" : !PetPrivileges.allows(p, good.unlock()) ? "locked." + good.unlock()
+        var grade = PetPrivileges.grade(p);
+        int discount = PetPrivileges.discountPercent(grade);
+        int price = discountedPrice(good.price(), discount);
+        var stack = good.stack(); var stocks = ShopStock.get(level);
+        String why = !level.isDay() ? "closed" : grade.id() < good.unlock() ? "locked." + good.unlock()
                 : stocks.stock(level, shop.id, good) <= 0 ? "sold_out" : stocks.tradesLeft(level, shop.id, p.getUUID()) <= 0 ? "trade_limit"
                 : ShopTrade.emeralds(p) < price ? "emeralds" : !room(p) ? "inventory_full" : null;
         if (why != null) {
@@ -330,8 +340,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         ShopTrade.debit(p, price); if (!p.getInventory().add(stack)) p.drop(stack, false); stocks.useTrade(level, shop.id, p.getUUID());
         ShopRegistry.get(level).recordSpend(level, shop, p.getUUID(), price);
         ShopTrade.say(p, "goods.bought", stack.getHoverName(), price);
-        GameplayLog.event(p, "shop", "action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} stock={}->{}",
-                shop.id, item, delivered, style == null ? null : style.id, price, stockBefore, stocks.stock(level, shop.id, good));
+        GameplayLog.event(p, "shop", "action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} discount={} stock={}->{}",
+                shop.id, item, delivered, style == null ? null : style.id, price, discount, stockBefore, stocks.stock(level, shop.id, good));
         return true;
     }
     public static int liveRow(int button) {

@@ -94,14 +94,14 @@ def language(zh):
     """Badge keys this script owns (the pet-shop UI strings live in the lang files directly; the badge page, handbook name and wear states are kept in sync here)."""
     pairs={
         'title':('宠物手册','Pet Handbook'),
-        'shop':('考试 / 补发徽章','Exams / Badge reissue'),
+        'shop':('认证 / 补发徽章','Certification / Badge reissue'),
         'subject':('对象：%s（%s/%s）','Subject: %s (%s/%s)'),
         'no_subject':('请把你的油库里带到身边','Bring your yukkuri over'),
         'unavailable':('现在办不了：它要是你的、在近处、没在忙。','Not possible right now: it must be yours, close by and not busy.'),
         'token_refused':('别不上这枚徽章：它得是这只油库里的有效徽章，而且它要戴着饰物、当前没别着别的徽章。','Cannot pin this badge: it must be a valid badge for this yukkuri, which must be wearing its accessory with no other badge on.'),
         'token_hint':('只属于一只油库里的圆牌；手持它右键原来的油库里即可别上。空白章和旧章无效。','A badge bound to one yukkuri. Hold it and right-click that yukkuri to pin it on. Blank or old badges do not count.'),
-        'book_hint':('右键你的油库里：查看档案、上课、办繁殖许可。考试请找考官。','Right-click your yukkuri: view its page, start lessons, grant breeding permits. Exams are with the Examiner.'),
-        'guide':('徽章记录本人的资格与考试结果；技能要通过真实练习掌握。','Badges record individual qualifications and exam outcomes. Skills require real practice.'),
+        'book_hint':('右键你的油库里：查看档案、上课、办繁殖许可。认证请找会馆考官。','Right-click your yukkuri: view its page, start lessons, grant breeding permits. Visit the hall examiner for certification.'),
+        'guide':('徽章记录本人的资格与认证结果；技能要通过真实练习掌握。','Badges record individual qualifications and certification results. Skills require real practice.'),
         'wear.0':('徽章已摘下','Badge off'),
         'wear.1':('徽章佩戴中','Badge on'),
         'wear.2':('饰物离身','No accessory'),
@@ -125,7 +125,7 @@ def language(zh):
         'peer':('你也有徽章呀！一起油库里吧！','You have a badge too! Take it easy together!')}.items():pairs['speech.'+key]=pair
     result={'badge.mcyukkuri.'+k:v[0 if zh else 1] for k,v in pairs.items()}
     result['item.mcyukkuri.badge_handbook']='宠物手册' if zh else 'Pet Handbook'
-    result['human.mcyukkuri.help.16']='带上你的宠物去考官那里参加考试、查看记录或补发徽章。' if zh else 'Bring your pet to the Examiner for exams, records or a badge reissue.'
+    result['human.mcyukkuri.help.16']='带上你的宠物去会馆，请考官认证、查看记录或补发徽章。' if zh else 'Bring your pet to the hall examiner for certification, records or a badge reissue.'
     return result
 
 def handbook_png():

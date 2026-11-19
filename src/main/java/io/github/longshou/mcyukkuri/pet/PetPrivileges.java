@@ -51,9 +51,6 @@ public final class PetPrivileges extends SavedData {
             best = Math.max(best, Math.min(y.pet().effectiveGrade().id(), BadgeGrade.GOLD.id()));
         return BadgeGrade.of(best);
     }
-    /** Whether the player may use something that needs this grade (0 is always allowed). */
-    public static boolean allows(Player player, int needed) { return needed <= 0 || grade(player).id() >= needed; }
-
     /** A breeding permit needs a badge on both pets. */
     public static boolean mayPermitBreeding(YukkuriEntity a, YukkuriEntity b) {
         return a.pet().effectiveGrade().id() >= BREEDING && b.pet().effectiveGrade().id() >= BREEDING;
@@ -64,6 +61,10 @@ public final class PetPrivileges extends SavedData {
     /** Share of the quote the shop pays when buying a pet back, in percent. */
     public static int resalePercent(BadgeGrade effective) {
         return switch (effective) { case NONE, BRONZE -> 60; case SILVER -> 70; case GOLD, PLATINUM -> 80; };
+    }
+
+    public static int discountPercent(BadgeGrade effective) {
+        return switch (effective) { case NONE, BRONZE -> 0; case SILVER -> 10; case GOLD, PLATINUM -> 20; };
     }
 
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

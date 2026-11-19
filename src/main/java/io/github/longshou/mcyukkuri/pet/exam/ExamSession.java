@@ -289,7 +289,8 @@ public final class ExamSession {
                 case BRONZE -> SurvivalProgress.award(owner, "pet_registered");
                 case SILVER -> SurvivalProgress.award(owner, "badge_silver");
                 case GOLD -> SurvivalProgress.award(owner, "badge_gold");
-                default -> {}
+                case PLATINUM -> SurvivalProgress.award(owner, "badge_platinum");
+                case NONE -> throw new IllegalStateException("Certification must award a badge");
             }
             PetPrivileges.note(candidate);
             examiner.swing(InteractionHand.MAIN_HAND);

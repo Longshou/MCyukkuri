@@ -272,7 +272,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 return;
             }
             line(g, 104, SOFT, Component.translatable("shop.mcyukkuri.consult.stress", level(menu.value(ShopMenu.Data.SUBJECT_STRESS))));
-            line(g, 116, SOFT, Component.translatable("shop.mcyukkuri.consult.exam_tasks"));
+            line(g, 116, SOFT, Component.translatable("shop.mcyukkuri.consult.certification"));
             line(g, 128, SOFT, Component.translatable("pet.mcyukkuri.profile.parent_badges", parentBadge(menu.value(ShopMenu.Data.SUBJECT_MOTHER_BADGE)),
                     parentBadge(menu.value(ShopMenu.Data.SUBJECT_FATHER_BADGE))));
             line(g, 154, INK, Component.translatable("shop.mcyukkuri.advice_title"));
