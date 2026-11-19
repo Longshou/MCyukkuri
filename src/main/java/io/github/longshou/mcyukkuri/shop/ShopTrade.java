@@ -351,11 +351,12 @@ public final class ShopTrade {
                 && staff.hasLineOfSight(player) && player.getInventory().add(basket.copy());
         if (!hands && drop(level, buyer, atCounter ? counterTop(level, shop) : staff.position(), basket.copy()) == null) return false;
         staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        if (hands || buyer == null) ShopRegistry.get(level).endOrder(shop, YukkuriWorldData.get(level).captiveIdentity(token));
+        var target = YukkuriWorldData.get(level).captiveIdentity(token);
+        if (hands || buyer == null) ShopRegistry.get(level).endOrder(shop, target);
         staff.swing(InteractionHand.MAIN_HAND);
         ShopRegistry.get(level).tell(level, buyer, hands ? "buy.delivered" : atCounter ? "buy.on_counter" : "buy.on_floor");
-        GameplayLog.event(staff, "shop", "action=buy_live result=delivered shop={} buyer={} token={} placement={} handoff_at={}",
-                shop.id, buyer == null ? "operator" : buyer, token, hands ? "inventory" : atCounter ? "counter" : "floor", staff.blockPosition().toShortString());
+        GameplayLog.event(staff, "shop", "action=buy_live result=delivered shop={} buyer={} token={} placement={} handoff_at={} target={}",
+                shop.id, buyer == null ? "operator" : buyer, token, hands ? "inventory" : atCounter ? "counter" : "floor", staff.blockPosition().toShortString(), target);
         return true;
     }
 
