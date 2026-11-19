@@ -76,7 +76,9 @@ public final class ItemContact {
             if (!at(actor)) return false;
             float yaw = SurfaceApproach.yaw(feet, contact);
             if (Math.abs(Mth.wrapDegrees(yaw - actor.bodyYaw())) > .1) return false;
-            return clear(actor, actor.getEyePosition(), contact.add(0, .0001, 0));
+            // The muzzle folds over the ceramic. A small body's eyes can be below the lip.
+            var lip = contact.add(0, .0001, 0);
+            return clear(actor, new Vec3(actor.getX(), Math.max(actor.getEyeY(), lip.y), actor.getZ()), lip);
         }
     }
 

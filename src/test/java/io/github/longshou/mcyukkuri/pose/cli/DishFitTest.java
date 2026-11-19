@@ -34,7 +34,10 @@ class DishFitTest {
                     fit.begin(target, model.mouth(), 1 / scale);
                     var lip = new Vector3f[end - start];
                     for (int i = start; i < end; i++) lip[i - start] = model.skin(i);
-                    for (int i = 0; i < lip.length; i += 3) fit.lipTriangle(lip[i], lip[i+1], lip[i+2]);
+                    for (int i = 0; i < lip.length; i += 3) {
+                        if (model.vertices[(start + i) * 8 + 7] < -.15f)
+                            fit.lipTriangle(lip[i], lip[i+1], lip[i+2]);
+                    }
                     for (int i = 0; i < model.floor.size(); i += 3)
                         fit.rimTriangle(model.skin(model.floor.get(i)),model.skin(model.floor.get(i+1)),model.skin(model.floor.get(i+2)));
                     for (int i = start; i < end; i += 3) fit.rimTriangle(model.skin(i),model.skin(i+1),model.skin(i+2));
@@ -43,6 +46,7 @@ class DishFitTest {
                     var p = new Vector3f();
                     float gap = Float.POSITIVE_INFINITY;
                     for (int i = 0; i < lip.length; i += 3) {
+                        if (model.vertices[(start + i) * 8 + 7] >= -.15f) continue;
                         Intersectionf.findClosestPointOnTriangle(lip[i], lip[i+1], lip[i+2], target, p);
                         gap = Math.min(gap, p.distance(target));
                     }
