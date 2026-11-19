@@ -11,7 +11,6 @@
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
-| 导出工具：身体倾斜门槛与圆角附件导出器只写自有文件 | `.worktrees/wp-export-tool-fixes` | scripts/motion_gate.py, scripts/export_rounded_attachments.py, scripts/README.md |
 | R3a 违规生育私下登记、亲眼证据才失格 | `.worktrees/wp-badge-discovery` | pet/PetPrivileges.java, pet/rules/Discovery.java, family/FamilyData.java, family/Courtship.java, house/HouseNestBlockEntity.java, pet/exam/ExamSession.java, badge/* |
 
 ## 玩法待办
