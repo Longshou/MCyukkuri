@@ -16,12 +16,15 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.GreetingStance;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.SideContact;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.geom.ContactStandSearch;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,16 +45,24 @@ public final class DailyLife {
         final YukkuriEntity leader;
         final Entity companion;
         final Kind kind;
-        final float facing;
         int elapsed, contact, greetHold;
         boolean ended, greeted;
+        String greeting;
         UUID songRuleOwner;
-        /** A welcome home: the one at home greets the one who came in before it nuzzles it. */
-        final boolean welcome;
+        PeerRub rub;
         Session(YukkuriEntity leader, Entity companion, Kind kind, boolean welcome) {
-            this.leader = leader; this.companion = companion; this.kind = kind; this.welcome = welcome;
-            facing = companion == null ? leader.getYRot()
-                    : (float)Math.toDegrees(Math.atan2(companion.getZ()-leader.getZ(), companion.getX()-leader.getX())) - 180;
+            this.leader = leader; this.companion = companion; this.kind = kind;
+            if (kind == Kind.NUZZLE && companion instanceof YukkuriEntity peer)
+                greeting = welcome ? "welcome" : leader.social().greetingDue(peer);
+        }
+    }
+    private record PeerRub(PeerNuzzle mode, YukkuriEntity mover, YukkuriEntity anchor, Vec3 anchorAt,
+                           SurfaceApproach.ContactRoute route) {
+        private PeerRub(PeerNuzzle mode, YukkuriEntity mover, YukkuriEntity anchor, SurfaceApproach.ContactRoute route) {
+            this(mode, mover, anchor, anchor.position(), route);
+        }
+        private double effort() {
+            return PeerNuzzle.effort(route.length(), BodyAbility.of(mover).walkSpeed(), mover.dailyLife().affection);
         }
     }
     private final YukkuriEntity entity;
@@ -66,6 +77,7 @@ public final class DailyLife {
     /** A nuzzle broken off before any contact (the one who asked was called away by its own need) is asked for again soon. */
     private static final int INTERRUPTED_COOLDOWN = 200;
     private static final double LEAN = 1.1;
+    private static final double PLAYER_LEAN_STEP = .35;
     private int affection = 20, boredom = 20, clock, cooldown, scanWait;
     private int nuzzles, songs, exercises;
     private final Map<UUID, Integer> invitations = new HashMap<>();
@@ -88,20 +100,12 @@ public final class DailyLife {
     public int observedGreetingWait() { return active() ? session.greetHold : 0; }
     /** The actual shared side-press beat, before the existing rub. Players retain the face-to-face nuzzle. */
     public String contactClip() {
-        if (!inContact() || !sidePress(session) || !sideBySide(session)
+        if (!inContact() || session.rub == null
                 || session.contact > ClipMarkers.of("snuggle_right").length()) return null;
-        return session.leader == entity ? "snuggle_right" : "snuggle_left";
+        return session.rub.mover == entity ? "snuggle_right" : "snuggle_left";
     }
-    /** Two peers on about one level press side by side; a player, or a peer a step up or down, is nuzzled face to face. */
-    private static boolean sidePress(Session session) {
-        return session.kind == Kind.NUZZLE && session.companion instanceof YukkuriEntity
-                && Math.abs(session.leader.getY() - session.companion.getY()) <= SideContact.SNUGGLE_STEP;
-    }
-    private static boolean sideBySide(YukkuriEntity body, float facing) {
-        return Math.abs(Mth.wrapDegrees(facing - body.yBodyRot)) <= Face.FACE_ARRIVED;
-    }
-    private static boolean sideBySide(Session session) {
-        return sideBySide(session.leader, session.facing) && sideBySide((YukkuriEntity)session.companion, session.facing);
+    private static boolean aligned(YukkuriEntity body, float yaw, double tolerance) {
+        return Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= tolerance;
     }
     public String detail() {
         return !active() ? "idle" : "kind=" + session.kind
@@ -387,90 +391,148 @@ public final class DailyLife {
             stand = SurfaceApproach.beside(entity, other.position().add(0, lift, 0), distance, at -> Math.abs(at.y - other.getY()) <= LEAN);
         return stand;
     }
+
+    private static PeerRub surveyRub(YukkuriEntity mover, YukkuriEntity anchor, PeerNuzzle mode) {
+        var route = mode == PeerNuzzle.LEVEL
+                ? SurfaceApproach.contactRoute(mover, anchor, anchor.getY(), yaw -> SideContact.levelStand(mover, anchor, yaw))
+                : SurfaceApproach.contactRoute(mover, anchor, mover.getY(), yaw -> SideContact.riseStand(mover, anchor, yaw));
+        return route == null ? null : new PeerRub(mode, mover, anchor, route);
+    }
+
+    private static PeerRub easier(PeerRub first, PeerRub second) {
+        return first == null || second != null && second.effort() < first.effort() ? second : first;
+    }
+
+    private static PeerRub peerRub(YukkuriEntity leader, YukkuriEntity peer, boolean sameLevel) {
+        var level = surveyRub(leader, peer, PeerNuzzle.LEVEL);
+        if (level != null && sameLevel) return level;
+        level = easier(level, surveyRub(peer, leader, PeerNuzzle.LEVEL));
+        var rise = level == null && !sameLevel
+                ? easier(surveyRub(leader, peer, PeerNuzzle.RISE), surveyRub(peer, leader, PeerNuzzle.RISE)) : null;
+        return switch (PeerNuzzle.choose(level != null, rise != null)) {
+            case LEVEL -> level;
+            case RISE -> rise;
+            case GREET -> new PeerRub(PeerNuzzle.GREET, leader, peer, null);
+        };
+    }
+
+    private void greetPeer(Session current, YukkuriEntity peer, String greeting, boolean onlyGreeting) {
+        if (current.leader != entity) { SurfaceApproach.halt(entity); turnToFace(peer); return; }
+        var arrival = GreetingStance.approach(entity, peer, .8, LEAN);
+        if (arrival == SurfaceApproach.Result.BLOCKED) {
+            if (onlyGreeting) stop();
+            else current.greeting = null;
+            return;
+        }
+        if (arrival != SurfaceApproach.Result.ARRIVED || !turnToFace(peer)) return;
+        current.greeted = true;
+        current.greeting = null;
+        entity.social().noteContact(peer);
+        entity.social().startGreeting(peer, greeting);
+        current.greetHold = 2 * ClipMarkers.of("greet").length() - 1;
+    }
+
+    private void greetInstead(Session current, String reason) {
+        current.contact = 0;
+        var peer = (YukkuriEntity)current.companion;
+        current.rub = new PeerRub(PeerNuzzle.GREET, current.leader, peer, null);
+        GameplayLog.event(entity, "daily", "peer rub unavailable partner={} reason={} affectionNeed={}",
+                peer.getUUID(), reason, affection);
+    }
+
+    /** Both goals read the same stand. Only its mover walks or hops, and only the leader advances the shared clock. */
+    private boolean peerContact(Session current, YukkuriEntity other) {
+        boolean lead = current.leader == entity;
+        var peer = (YukkuriEntity)current.companion;
+        if (current.greetHold > 0) {
+            SurfaceApproach.halt(entity);
+            turnToFace(other);
+            if (lead) {
+                if (current.greetHold == ClipMarkers.of("greet").length()
+                        && peer.onGround() && GreetingStance.clear(peer, peer.position(), entity))
+                    peer.social().answerGreeting(entity, "greet", "nuzzle");
+                current.greetHold--;
+            }
+            return false;
+        }
+        if (lead) current.elapsed++;
+        boolean grounded = entity.onGround() && other.onGround();
+        boolean sameLevel = ContactStandSearch.sameLevel(entity.getY(), other.getY());
+        boolean hopping = entity.motor().current() instanceof Hop || other.motor().current() instanceof Hop;
+        var rub = current.rub;
+        if (rub != null && rub.mode == PeerNuzzle.GREET) {
+            if (current.greeted) stop();
+            else if (grounded && !hopping)
+                greetPeer(current, other, current.greeting == null ? "nuzzle_out_of_reach" : current.greeting, true);
+            return false;
+        }
+        if (grounded && !hopping && current.greeting != null && (sameLevel || rub != null && rub.mode == PeerNuzzle.RISE)) {
+            greetPeer(current, other, current.greeting, false);
+            return false;
+        }
+        if (rub == null || !hopping && (!SurfaceApproach.at(rub.anchor, rub.anchorAt)
+                || !ContactStandSearch.sameLevel(rub.anchor.getY(), rub.anchorAt.y))) {
+            current.contact = 0;
+            SurfaceApproach.halt(entity);
+            if (!lead || !grounded) return false;
+            rub = current.rub = peerRub(entity, peer, sameLevel);
+            if (rub.mode == PeerNuzzle.GREET) {
+                greetInstead(current, "no_contact_stand");
+                return false;
+            }
+            GameplayLog.event(entity, "daily", "peer rub approach partner={} mover={} mode={} origin={} stand={}",
+                    peer.getUUID(), rub.mover.getUUID(), rub.mode, rub.mover.position(), rub.route.feet());
+        }
+        var feet = rub.route.feet();
+        if (!grounded || hopping || !ContactStandSearch.sameLevel(rub.mover.getY(), feet.y) || !SurfaceApproach.at(rub.mover, feet)) {
+            current.contact = 0;
+            if (rub.mover != entity) SurfaceApproach.halt(entity);
+            else if (SurfaceApproach.moveToContact(entity, rub.route, other, .8, body) == SurfaceApproach.Result.BLOCKED)
+                greetInstead(current, "contact_route_blocked");
+            return false;
+        }
+        SurfaceApproach.halt(entity);
+        float yaw = rub.route.yaw();
+        Motor.face(entity, yaw);
+        // Use the profile at its posed bearing before admitting contact across a rise.
+        double tolerance = rub.mode == PeerNuzzle.RISE ? .1 : Face.FACE_ARRIVED;
+        if (!aligned(entity, yaw, tolerance) || !aligned(other, yaw, tolerance)) { current.contact = 0; return false; }
+        if (rub.mode == PeerNuzzle.RISE && !SideContact.riseTouching(rub.mover, rub.mover.position(), rub.anchor, yaw)) {
+            greetInstead(current, "posed_contact_lost");
+            return false;
+        }
+        if (lead && current.contact == 0)
+            GameplayLog.event(entity, "daily", "peer rub started partner={} mode={} lift={} moverAt={} anchorAt={}",
+                    peer.getUUID(), rub.mode, Math.abs(entity.getY() - other.getY()), rub.mover.position(), rub.anchor.position());
+        return true;
+    }
+
     public void tickGoal() {
         if (!valid()) { stop(); return; }
         var current = session;
         var other = current.leader == entity ? current.companion : current.leader;
-        // Once greeted, a side-pressing pair faces along its shared tangent; a look at the partner would turn the body back to it.
-        boolean pressing = current.greeted && current.greetHold == 0 && sidePress(current);
-        if (other != null && !pressing) entity.getLookControl().setLookAt(other, 30, 30);
-        if (current.kind == Kind.NUZZLE && other != null) {
-            if (current.greetHold > 0) {
-                SurfaceApproach.halt(entity);
-                turnToFace(other);
-                if (current.leader == entity) {
-                    if (current.greetHold == ClipMarkers.of("greet").length() && other instanceof YukkuriEntity peer
-                            && GreetingStance.clear(peer, peer.position(), entity))
-                        peer.social().answerGreeting(entity, "greet", "nuzzle");
-                    current.greetHold--;
-                }
-                return;
-            }
+        boolean peerNuzzle = current.kind == Kind.NUZZLE && other instanceof YukkuriEntity;
+        if (peerNuzzle) {
+            if (!peerContact(current, (YukkuriEntity)other)) return;
+        } else if (other != null) {
+            entity.getLookControl().setLookAt(other, 30, 30);
+        }
+        if (current.kind == Kind.NUZZLE && other instanceof Player) {
             double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .10;
-            // A nuzzle leans over one block of height (a friend on the bank, a hollow below it), and the lean itself reaches that much further.
             double lift = Math.abs(entity.getY() - other.getY());
-            boolean sidePress = sidePress(current);
-            Vec3 sideStand = sidePress ? SideContact.snuggle(current.leader, (YukkuriEntity)current.companion, current.facing) : null;
-            boolean touching = sidePress ? sideStand != null && current.leader.onGround() && current.companion.onGround()
-                    && Math.abs(current.leader.getY() - sideStand.y) <= SideContact.SUPPORT_EPSILON && SurfaceApproach.at(current.leader, sideStand)
-                    : lift <= LEAN && entity.position().subtract(other.position()).horizontalDistance() <= reach + (lift > SideContact.SNUGGLE_STEP ? LEAN : 0);
-            var partner = current.companion instanceof YukkuriEntity peer ? peer : null;
-            String greeting = current.greeted || partner == null ? null
-                    : current.welcome ? "welcome" : current.leader.social().greetingDue(partner);
-            if (greeting != null && (sideStand == null || !GreetingStance.clear(current.leader, sideStand, partner)
-                    || touching && !GreetingStance.clear(current.leader, current.leader.position(), partner))) {
-                // The side-press stand is for the side pose. Reach a clear frontal stance before either peer bows.
-                if (current.leader != entity) { SurfaceApproach.halt(entity); turnToFace(other); return; }
-                var arrival = GreetingStance.approach(entity, partner, .8, LEAN);
-                if (arrival == SurfaceApproach.Result.BLOCKED) { stop(); return; }
-                if (arrival != SurfaceApproach.Result.ARRIVED) { current.elapsed++; return; }
-                touching = true;
-            }
-            if (!touching) {
-                // One member approaches the consenting partner. Two centre-seeking controllers otherwise push
-                // each other past their contact envelope, especially when their bodies meet diagonally.
-                if(current.leader==entity){
-                    var stand=sidePress ? sideStand : standBeside(other,reach-.04);
-                    if (stand == null || (sidePress ? SurfaceApproach.walkToContact(entity, stand, other, .8)
-                            : SurfaceApproach.walkResult(entity, stand, other, .8)) == SurfaceApproach.Result.BLOCKED) {
-                        stop();
-                        return;
-                    }
-                    current.contact=0;current.elapsed++;
-                }else SurfaceApproach.halt(entity);
+            if (lift > LEAN || entity.position().subtract(other.position()).horizontalDistance() > reach + (lift > PLAYER_LEAN_STEP ? LEAN : 0)) {
+                var stand = standBeside(other, reach - .04);
+                if (stand == null || SurfaceApproach.walkResult(entity, stand, other, .8) == SurfaceApproach.Result.BLOCKED) stop();
+                else { current.contact = 0; current.elapsed++; }
                 return;
             }
             SurfaceApproach.halt(entity);
-            // A peer whose greeting is due is greeted first, then nuzzled.
-            if (!current.greeted && other instanceof YukkuriEntity peer) {
-                if (current.leader != entity) { turnToFace(other); return; }
-                if (greeting != null && !turnToFace(other)) { current.elapsed++; return; }
-                current.greeted = true;
-                entity.social().noteContact(peer);
-                if (greeting != null) {
-                    peer.social().noteContact(entity);
-                    entity.social().startGreeting(peer, greeting);
-                    current.greetHold = 2 * ClipMarkers.of("greet").length();
-                    current.greetHold--;
-                    return;
-                }
-            }
+            Motor.face(entity, SurfaceApproach.yaw(entity.position(), other.position()));
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();
-        if (other != null && current.kind == Kind.NUZZLE) {
-            // Both peer bodies face along the contact tangent; mirrored clips press their touching sides.
-            float yaw = sidePress(current) ? current.facing
-                    : (float)Math.toDegrees(Math.atan2(other.getZ()-entity.getZ(),other.getX()-entity.getX())) - 90;
-            Motor.face(entity, yaw);
-        }
         if (current.leader != entity) return;
-        current.elapsed++;
-        // A peer that comes back down to this level must turn again before the side press resumes.
-        if (sidePress(current) && !sideBySide(current)) {
-            current.contact = 0;
-            return;
-        }
+        if (!peerNuzzle) current.elapsed++;
         current.contact++;
         if (current.contact == 1) {
             entity.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
@@ -481,8 +543,8 @@ public final class DailyLife {
             entity.pet().conscience().witnessedSong();
         if (current.kind == Kind.SING && current.contact % 20 == 1)
             level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
-        int duration = current.kind == Kind.NUZZLE ? 60
-                + (sidePress(current) ? ClipMarkers.of("snuggle_right").length() : 0)
+        int duration = current.kind == Kind.NUZZLE
+                ? (peerNuzzle ? ClipMarkers.of("snuggle_right").length() + (current.rub.mode == PeerNuzzle.LEVEL ? 60 : 0) : 60)
                 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);
@@ -520,7 +582,8 @@ public final class DailyLife {
                 current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,current.contact);
         if (current.companion != null) current.leader.life().personality().releaseRelation(current.companion.getUUID());
         if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
-        boolean unanswered = current.kind == Kind.NUZZLE && current.contact == 0;
+        boolean unanswered = current.kind == Kind.NUZZLE && current.contact == 0
+                && (current.rub == null || current.rub.mode != PeerNuzzle.GREET);
         current.leader.dailyLife().session = null;
         // Either partner can end the session after the other has handed MOVE to a higher-priority goal.
         if (current.leader.competingMoveGoalId() == null) current.leader.getNavigation().stop();

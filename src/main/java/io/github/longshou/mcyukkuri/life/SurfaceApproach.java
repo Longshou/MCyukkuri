@@ -3,12 +3,16 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
+import io.github.longshou.mcyukkuri.motor.geom.ContactStandSearch;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.motor.surface.CollisionBoxes;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -22,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
@@ -503,6 +508,81 @@ public final class SurfaceApproach {
     /** The same around a live peer: selection and the walk ({@link #walkAround}) route round that same body. */
     public static Vec3 beside(YukkuriEntity actor, Vec3 point, double distance, Entity peer, Predicate<Vec3> contact) {
         return nearestReachable(actor, contactStands(actor, point, distance, peer, contact), peer.getBoundingBox());
+    }
+
+    /** A supported contact stand and its access from this body's current floor. */
+    public static final class ContactRoute {
+        private final Vec3 feet, takeoff;
+        private final float yaw;
+        private final double length;
+        private Hop flight;
+
+        private ContactRoute(Vec3 feet, float yaw, Vec3 takeoff, double length) {
+            this.feet = feet; this.yaw = yaw; this.takeoff = takeoff; this.length = length;
+        }
+        public Vec3 feet() { return feet; }
+        public float yaw() { return yaw; }
+        public double length() { return length; }
+    }
+
+    private record ContactStand(Vec3 feet, float yaw) {}
+
+    /** Try the near side first, then the other supported bearings around the stationary peer. */
+    public static ContactRoute contactRoute(YukkuriEntity actor, Entity peer, double level, Function<Float, Vec3> pose) {
+        return ContactStandSearch.firstReachable(bearings(actor, peer.position()), level, direction -> {
+            float yaw = yaw(Vec3.ZERO, direction) + 90;
+            var near = pose.apply(yaw);
+            var at = near == null ? null : floor(actor, near);
+            return at == null ? null : new ContactStand(at, yaw);
+        }, stand -> stand.feet.y, stand -> contactRoute(actor, peer, stand));
+    }
+
+    private static ContactRoute contactRoute(YukkuriEntity actor, Entity peer, ContactStand stand) {
+        var feet = stand.feet;
+        var obstacle = peer.getBoundingBox();
+        double length = exactContactWalk(actor, feet, obstacle);
+        if (Double.isFinite(length)) return new ContactRoute(feet, stand.yaw, null, length);
+        var ability = BodyAbility.of(actor);
+        double rise = feet.y - actor.getY();
+        if (rise <= 0 || rise > ability.hopHeight() || !ability.canJump()) return null;
+        var hop = new Hop(feet);
+        var search = Hop.Search.admission();
+        var from = actor.position();
+        if (hop.checkFrom(actor, from, search).ok())
+            return new ContactRoute(feet, stand.yaw, from, from.distanceTo(feet));
+        double reach = ability.runningReach(0, rise);
+        // Find a walk-up on the approach side of the ledge, inside the body's horizontal hop reach.
+        for (var bearing : bearings(actor, feet)) {
+            for (double distance : new double[]{reach * .5, reach}) {
+                var near = feet.add(bearing.scale(distance));
+                var at = floor(actor, new Vec3(near.x, from.y, near.z));
+                if (at == null || !ContactStandSearch.sameLevel(at.y, from.y) || !hop.checkFrom(actor, at, search).ok()) continue;
+                length = exactContactWalk(actor, at, obstacle);
+                if (Double.isFinite(length)) return new ContactRoute(feet, stand.yaw, at, length + at.distanceTo(feet));
+            }
+        }
+        return null;
+    }
+
+    private static double exactContactWalk(YukkuriEntity actor, Vec3 stand, AABB obstacle) {
+        if (outside(actor, stand, obstacle) != stand) return Double.POSITIVE_INFINITY;
+        return routeLength(actor, stand, obstacle, stand.y < actor.getY());
+    }
+
+    /** Execute the surveyed walk or walk-up and one hop. A refused hop ends this route. */
+    public static Result moveToContact(YukkuriEntity actor, ContactRoute route, Entity peer, double speed, MotorOwner owner) {
+        if (route.takeoff != null) {
+            if (route.flight == null) {
+                var approach = walkToContact(actor, route.takeoff, peer, speed);
+                if (approach != Result.ARRIVED) return approach;
+                if (!actor.onGround()) return Result.WAITING;
+                route.flight = new Hop(route.feet);
+                return actor.motor().run(owner, route.flight) ? Result.MOVING : Result.BLOCKED;
+            }
+            if (actor.motor().current() == route.flight) return Result.MOVING;
+            if (!route.flight.contacted()) return Result.BLOCKED;
+        }
+        return walkToContact(actor, route.feet, peer, speed);
     }
 
     /**

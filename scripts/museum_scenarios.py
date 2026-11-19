@@ -1629,8 +1629,8 @@ _SHAPES = {name: uid('nuzzle_shapes', name) for name in ('wide', 'small', 'high'
 
 add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也凑近', '大小与台阶的贴身蹭',
     '西边一大一小（成体与子油）是熟识的一对：大的走进小的身边并排贴蹭，看两身的侧面如何对齐、接触处有没有穿模。'
-    '东边两只同身成体隔着一格高的草地台阶，上面的站在台沿。看下面那只凑近时两身之间的空隙，'
-    '再看它们各自站在什么高度。',
+    '东边两只同身成体隔着一格高的草地台阶，上面的站在台沿。看哪只自己换到同一层，'
+    '两只落稳、侧面贴上后再蹭，接触处有没有穿模。',
     '约 30–60 秒（暂停不计时）', [
         box(2, 0, -4, 6, 0, 0, 'minecraft:grass_block'),
         yk('reimu', -6, 3, 'wide', uuid=_SHAPES['wide'], yaw=-90, affection=95, attachment=80, label='成体·宽身', lead=True),
@@ -7278,6 +7278,8 @@ _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\
 _smoke('nuzzle_shapes', 2400, [
     rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["wide"])} [^\n]*session result kind=NUZZLE\b',
     rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["low"])} [^\n]*session result kind=NUZZLE\b',
+    rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["wide"])} [^\n]*peer rub started partner={_uuid_of(_SHAPES["small"])} mode=LEVEL\b',
+    rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["low"])} [^\n]*peer rub started partner={_uuid_of(_SHAPES["high"])} mode=LEVEL\b',
 ])
 _wide_greeter = _uuid_of(_CLOSE_GREETERS['wide'])
 _bean_greeter = _uuid_of(_CLOSE_GREETERS['bean'])

@@ -7,6 +7,8 @@ import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.motor.geom.SideProfile;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -16,9 +18,6 @@ public final class SideContact {
     private record Sides(SideProfile right, SideProfile left) {}
     private record Profiles(Map<String, Sides> huddle, Map<String, Sides> snuggle) {}
     private static final Profiles PROFILES = load();
-    public static final double SNUGGLE_STEP = .35;
-    /** Sole heights come from collision shapes; allow for the floating-point error of reaching a surface. */
-    public static final double SUPPORT_EPSILON = 1e-4;
     /** Offsets in front of or behind the partner tried for the stand (blocks): up to a quarter block, so bows and hair can pass. */
     private static final double[] BEHIND = {-.25, -.1875, -.125, -.0625, 0, .0625, .125, .1875, .25};
 
@@ -41,27 +40,42 @@ public final class SideContact {
         return offset(partner.position(), yaw, right, across, behind);
     }
 
-    /** A snuggle on the real stand surface. An unequal pair lines up fore and aft to keep the rub clear of hair and bows. */
-    public static Vec3 snuggle(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
-        double mine = scale(mover), theirs = scale(partner);
-        var floor = mine == theirs ? SurfaceApproach.floor(mover, beside(mover, partner, yaw, false))
-                : snuggleFloor(mover, partner, yaw, mine, theirs, 0);
-        if (floor == null) return null;
-        double dy = floor.y - partner.getY();
-        if (Math.abs(dy) <= SUPPORT_EPSILON) return floor;
-        if (Math.abs(dy) > SNUGGLE_STEP) return null;
-        var at = snuggleFloor(mover, partner, yaw, mine, theirs, dy);
-        return at != null && Math.abs(at.y - floor.y) <= SUPPORT_EPSILON ? at : null;
+    /** Target for the existing level rub. The caller finds the supported floor and route. */
+    public static Vec3 levelStand(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
+        if (scale(mover) == scale(partner)) return beside(mover, partner, yaw, false);
+        var contact = snuggleContact(mover, partner, 0, 0);
+        // The level choreography allows a light press during the existing side-to-rub transition.
+        return offset(partner.position(), yaw, false, contact.across() - 2 * SurfaceApproach.ARRIVAL, 0);
     }
 
-    private static Vec3 snuggleFloor(YukkuriEntity mover, YukkuriEntity partner, float yaw, double mine, double theirs, double dy) {
+    /** Across a rise use only the mirrored snuggle clips and their posed side envelopes. */
+    public static Vec3 riseStand(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
+        double dy = mover.getY() - partner.getY();
+        var contact = snuggleContact(mover, partner, dy, 0);
+        if (contact == null) return null;
+        // Allow the walking arrival error on the open side of the contact plane.
+        var at = offset(partner.position().add(0, dy, 0), yaw, false, contact.across() + SurfaceApproach.ARRIVAL, 0);
+        return riseTouching(mover, at, partner, yaw) ? at : null;
+    }
+
+    /** Test settled feet as well as proposed ones. A solid riser cannot count as body contact. */
+    public static boolean riseTouching(YukkuriEntity mover, Vec3 feet, YukkuriEntity partner, float yaw) {
+        double rad = Math.toRadians(yaw);
+        var delta = feet.subtract(partner.position());
+        double across = Math.cos(rad) * delta.x + Math.sin(rad) * delta.z;
+        double behind = Math.sin(rad) * delta.x - Math.cos(rad) * delta.z;
+        var contact = snuggleContact(mover, partner, delta.y, behind);
+        if (contact == null || !contact.within(across, 2 * SurfaceApproach.ARRIVAL)) return false;
+        var from = offset(partner.position().add(0, contact.height(), 0), yaw, false, 0, contact.depth());
+        var to = offset(from, yaw, false, across, 0);
+        return mover.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mover))
+                .getType() == HitResult.Type.MISS;
+    }
+
+    private static SideProfile.Contact snuggleContact(YukkuriEntity mover, YukkuriEntity partner, double dy, double behind) {
         var left = PROFILES.snuggle().get(partner.subspecies().assetId()).left();
         var right = PROFILES.snuggle().get(mover.subspecies().assetId()).right();
-        double across = SideProfile.touching(left, theirs, right, mine, dy, 0);
-        if (across == 0) return null;
-        // The posed envelope includes different beats of the clip. Allow a light press and keep it inside walking's arrival slack.
-        double stand = across - 2 * SurfaceApproach.ARRIVAL;
-        return SurfaceApproach.floor(mover, offset(partner.position().add(0, dy, 0), yaw, false, stand, 0));
+        return SideProfile.contact(left, scale(partner), right, scale(mover), dy, behind);
     }
 
     private static Vec3 offset(Vec3 partner, float yaw, boolean right, double across, double behind) {

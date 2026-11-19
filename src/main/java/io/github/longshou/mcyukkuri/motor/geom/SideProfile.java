@@ -24,6 +24,14 @@ public final class SideProfile {
      *  the first it stands (blocks; negative: in front). */
     public record Stand(double across, double behind) {}
 
+    /** The shared height and depth of the limiting cells, in blocks relative to the first body's feet. */
+    public record Contact(double across, double height, double depth) {
+        public boolean within(double separation, double arrival) {
+            double gap = separation - across;
+            return gap >= -1e-9 && gap <= arrival;
+        }
+    }
+
     /** The closest stand among the offsets {@code behind} (blocks): a little in front or behind lets bows and hair pass each
      *  other; on a tie the smaller offset. Scales are blocks per model unit; {@code dy}: the second's feet above the first's. */
     public static Stand closest(SideProfile a, double scaleA, SideProfile b, double scaleB, double dy, double[] behind) {
@@ -39,28 +47,36 @@ public final class SideProfile {
     /** Centre distance (blocks) at which {@code b}, its feet {@code dy} above {@code a}'s and {@code behind} blocks behind it, just
      *  meets {@code a}; 0 when no cell of one shares a height and depth with the other. */
     public static double touching(SideProfile a, double scaleA, SideProfile b, double scaleB, double dy, double behind) {
+        var contact = contact(a, scaleA, b, scaleB, dy, behind);
+        return contact == null ? 0 : contact.across();
+    }
+
+    public static Contact contact(SideProfile a, double scaleA, SideProfile b, double scaleB, double dy, double behind) {
         double out = 0;
+        double height = 0, depth = 0;
         for (int y = 0; y < a.reach.length; y++) {
             double h0 = y * a.heightBand * scaleA, h1 = h0 + a.heightBand * scaleA;
             for (int z = 0; z < a.reach[y].length; z++) {
                 double ra = a.reach[y][z];
                 if (ra <= 0) continue;
                 double d0 = (a.z0 + z * a.depthBand) * scaleA, d1 = d0 + a.depthBand * scaleA;
-                double rb = b.farthest((h0 - dy) / scaleB, (h1 - dy) / scaleB, (d0 - behind) / scaleB, (d1 - behind) / scaleB);
-                if (rb > 0) out = Math.max(out, ra * scaleA + rb * scaleB);
+                int by0 = Math.max(0, (int) Math.floor((h0 - dy) / (b.heightBand * scaleB)));
+                int by1 = Math.min(b.reach.length - 1, (int) Math.ceil((h1 - dy) / (b.heightBand * scaleB)) - 1);
+                int bz0 = Math.max(0, (int) Math.floor(((d0 - behind) / scaleB - b.z0) / b.depthBand));
+                for (int by = by0; by <= by1; by++) {
+                    int bz1 = Math.min(b.reach[by].length - 1, (int) Math.ceil(((d1 - behind) / scaleB - b.z0) / b.depthBand) - 1);
+                    for (int bz = bz0; bz <= bz1; bz++) {
+                        double rb = b.reach[by][bz], across = ra * scaleA + rb * scaleB;
+                        if (rb <= 0 || across <= out) continue;
+                        double bh = by * b.heightBand * scaleB + dy;
+                        double bd = (b.z0 + bz * b.depthBand) * scaleB + behind;
+                        height = (Math.max(h0, bh) + Math.min(h1, bh + b.heightBand * scaleB)) * .5;
+                        depth = (Math.max(d0, bd) + Math.min(d1, bd + b.depthBand * scaleB)) * .5;
+                        out = across;
+                    }
+                }
             }
         }
-        return out;
-    }
-
-    /** The farthest reach over the cells overlapping heights [h0, h1) and depths [d0, d1) (model units), 0 when none. */
-    double farthest(double h0, double h1, double d0, double d1) {
-        int y0 = Math.max(0, (int) Math.floor(h0 / heightBand)), y1 = Math.min(reach.length - 1, (int) Math.ceil(h1 / heightBand) - 1);
-        double out = 0;
-        for (int y = y0; y <= y1; y++) {
-            int z0i = Math.max(0, (int) Math.floor((d0 - z0) / depthBand)), z1i = Math.min(reach[y].length - 1, (int) Math.ceil((d1 - z0) / depthBand) - 1);
-            for (int z = z0i; z <= z1i; z++) out = Math.max(out, reach[y][z]);
-        }
-        return out;
+        return out == 0 ? null : new Contact(out, height, depth);
     }
 }

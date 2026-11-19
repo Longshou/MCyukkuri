@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.motor.geom;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Two bodies side by side meet where their side reaches, added at the same height and depth, are widest. */
 class SideProfileTest {
@@ -49,5 +52,15 @@ class SideProfileTest {
         var hatted = new SideProfile(.25, 1, -1, new double[][] {{5, 5}, {6, 6}, {6, 6}, {12, 12}});
         assertEquals(24 * UNIT, SideProfile.touching(hatted, UNIT, hatted, UNIT, 0, .5 * UNIT), 1e-9);
         assertEquals(18 * UNIT, SideProfile.touching(hatted, UNIT, hatted, UNIT, .25 * UNIT, .5 * UNIT), 1e-9);
+    }
+
+    @Test void aRiseRequiresOverlappingPosedCellsAndNonPenetratingSeparation() {
+        var body = box(6);
+        assertNull(SideProfile.contact(body, UNIT, body, UNIT, 4 * UNIT, 0));
+        var contact = SideProfile.contact(body, UNIT, body, UNIT, 3 * UNIT, 0);
+        assertEquals(3.5 * UNIT, contact.height(), 1e-9);
+        assertTrue(contact.within(12 * UNIT, .04));
+        assertFalse(contact.within(12 * UNIT - .01, .04));
+        assertFalse(contact.within(12 * UNIT + .05, .04));
     }
 }
