@@ -23,4 +23,11 @@ class CannibalDriveTest {
         assertTrue(CannibalDrive.hunt(8, willing, 0, -2, 51).willing());
         assertFalse(CannibalDrive.hunt(8, reluctant, 0, -2, 0).willing());
     }
+
+    @Test
+    void lowScornStillRequiresTheWillingnessFloor() {
+        var traits = new Temperament(55, 20, 0, 60, 20);
+        assertTrue(CannibalDrive.hunt(10, traits, 6, 0, 42).willing());
+        assertFalse(CannibalDrive.hunt(10, traits, 7, 0, 42).willing());
+    }
 }

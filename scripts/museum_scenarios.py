@@ -4495,8 +4495,6 @@ add('cannibal_hunt', 'body', '饿油捕食没头饰的同类', '饿油捕食没�
     reads=[(f'读{role}·{label}', f'yukkuri status {sel(role + "_" + label)} raw')
            for label in ('willing','reluctant') for role in ('hunter','prey')],
     smoke=dict(ticks=900, expect=[
-        rf'\[cannibal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_willing")} [^\n]* hunt meal handed off prey={_uuid_text("cannibal_hunt", "prey_willing")}\b',
-        rf'\[meal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_willing")} [^\n]* swallowed bodyFood portions=',
         rf'\[cannibal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_reluctant")} [^\n]* decision=hunt_unwilling target={_uuid_text("cannibal_hunt", "prey_reluctant")}\b',
         rf'\[threat\][^\n]*uuid={_uuid_text("cannibal_hunt", "prey_willing")} [^\n]* struck stance=FLEE\b',
         rf'\[threat\][^\n]*uuid={_uuid_text("cannibal_hunt", "prey_willing")} [^\n]* flight away stand=',
@@ -4505,9 +4503,20 @@ add('cannibal_hunt', 'body', '饿油捕食没头饰的同类', '饿油捕食没�
     verify_trace=True))
 
 
-def _hunt_flight(window, trace):
+def _verify_cannibal_hunt(window, trace):
     prey = _uuid_text('cannibal_hunt', 'prey_willing')
     hunter = _uuid_text('cannibal_hunt', 'hunter_willing')
+    handoff = re.search(rf'\[cannibal\][^\n]*uuid={hunter} [^\n]* hunt meal handed off prey={prey}\b', window)
+    if not handoff:
+        return 'The willing hunter took no meal from its prey'
+    after_handoff = window[handoff.end():]
+    swallow = re.search(rf'\[meal\][^\n]*uuid={hunter} [^\n]* swallowed bodyFood portions=[\d.]+ odor=\d+ nutrition=([\d.]+) -> ([\d.]+)',
+                        after_handoff)
+    if not swallow or float(swallow[2]) <= float(swallow[1]):
+        return 'The willing hunter did not gain nutrition by swallowing its meal after the handoff'
+    before_swallow = window[:handoff.end() + swallow.start()]
+    if re.search(rf'\[sanction\][^\n]*uuid={prey} [^\n]* case opened reason=hatless [^\n]* accuser={hunter}\b', before_swallow):
+        return 'The willing hunter opened a hatless sanction before eating its prey meal'
     hit = re.search(rf'\[threat\][^\n]*uuid={prey} t=(\d+)[^\n]* struck stance=FLEE attacker={hunter}\b', window)
     if not hit:
         return 'The willing hunter never made its prey flee'
@@ -4526,7 +4535,7 @@ def _hunt_flight(window, trace):
         return 'Struck prey must show the run clip and gain ground on its attacker'
 
 
-next(s for s in S if s.id == 'cannibal_hunt').smoke['verify'] = _hunt_flight
+next(s for s in S if s.id == 'cannibal_hunt').smoke['verify'] = _verify_cannibal_hunt
 
 
 

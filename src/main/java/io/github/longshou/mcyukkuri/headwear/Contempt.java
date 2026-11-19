@@ -47,10 +47,6 @@ public final class Contempt {
     private static AABB sightBox(YukkuriEntity observer) {
         return observer.getBoundingBox().inflate(RANGE, 3, RANGE);
     }
-    /** The hunt has already checked recognition and line of sight for this prey. */
-    public static boolean canNoticePrey(YukkuriEntity observer, YukkuriEntity prey) {
-        return perceives(observer) && sightBox(observer).intersects(prey.getBoundingBox()) && observer.headwear().readyForHatlessContact(prey);
-    }
     static String describe(YukkuriEntity observer) {
         var nearby = observer.level().getEntitiesOfClass(YukkuriEntity.class, sightBox(observer),
                         y -> y != observer && y.isAlive() && !y.life().hasAccessory())
@@ -64,16 +60,22 @@ public final class Contempt {
     static int observe(YukkuriEntity observer) {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
         boolean mocks = observer.life().personality().temperament().is(Gate.HARSH);
-        var target = level.getEntitiesOfClass(YukkuriEntity.class, sightBox(observer),
+        var nearby = level.getEntitiesOfClass(YukkuriEntity.class, sightBox(observer),
                         y -> y != observer && y.isAlive() && !y.profile().dangerToYukkuri()
                                 && (Recognition.unrecognizedHatless(observer, y) || mocks && Recognition.junkCovered(y)
                                 || rejectsDirt(observer, y))
                                 && observer.headwear().readyForHatlessContact(y) && observer.hasLineOfSight(y))
-                .stream().min(Comparator.comparingDouble(observer::distanceToSqr)).orElse(null);
-        if (target == null) return IDLE_WAIT;
-        if (Recognition.unrecognizedHatless(observer, target)) return react(level, observer, target);
-        if (mocks && Recognition.junkCovered(target)) return mock(level, observer, target);
-        return snubDirt(observer, target);
+                .stream().sorted(Comparator.comparingDouble(observer::distanceToSqr)).toList();
+        for (var target : nearby) {
+            if (Recognition.unrecognizedHatless(observer, target)) {
+                boolean grotesque = Recognition.grotesque(target);
+                if (!grotesque && observer.cannibalism().chooseHuntOverScorn(target)) continue;
+                return react(level, observer, target, grotesque);
+            }
+            if (mocks && Recognition.junkCovered(target)) return mock(level, observer, target);
+            return snubDirt(observer, target);
+        }
+        return IDLE_WAIT;
     }
 
     private static boolean rejectsDirt(YukkuriEntity observer, YukkuriEntity target) {
@@ -111,12 +113,16 @@ public final class Contempt {
     }
     /**
      * {@code observer} faces a hatless individual it cannot recognise: a monster when horribly hurt, otherwise despised.
-     * Also used when a greeting walks up to one (YukkuriSocial). Returns the ticks until the observer looks again.
+     * Used when a greeting walks up to one (YukkuriSocial).
      */
-    public static int react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
-        if (!Recognition.unrecognizedHatless(observer, target) || !observer.headwear().readyForHatlessContact(target)) return IDLE_WAIT;
+    public static void react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
+        if (!Recognition.unrecognizedHatless(observer, target) || !observer.headwear().readyForHatlessContact(target)) return;
         boolean grotesque = Recognition.grotesque(target);
-        if (!grotesque && observer.cannibalism().chooseHuntOverScorn(target)) return IDLE_WAIT;
+        if (!grotesque && observer.cannibalism().chooseHuntOverScorn(target)) return;
+        react(level, observer, target, grotesque);
+    }
+
+    private static int react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target, boolean grotesque) {
         int wait = grotesque ? monster(level, observer, target) : scorn(level, observer, target);
         observer.headwear().recordContact(target, grotesque);
         observer.headwear().coolHatlessContact(target, wait);
