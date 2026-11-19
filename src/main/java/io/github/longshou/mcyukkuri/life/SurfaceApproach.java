@@ -45,6 +45,8 @@ public final class SurfaceApproach {
     public static final double ARRIVAL = .02;
     /** Ticks between two {@code walk.sample} detail lines; the retry gate of a blocked request; how often a walk rechecks the hats round its goal. */
     private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
+    /** One second for a completed ground path to settle after a step or knockback. */
+    private static final int LANDING_TICKS = 20;
     private static final double SAME_STAND_SQR = .0025;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
@@ -59,7 +61,7 @@ public final class SurfaceApproach {
         /** Where it is walked to: the destination, or the nearest point just clear of a hat's brim it lies under. */
         Vec3 goal,lastStep;
         /** The hats round the destination when the goal was found (signature, and when last compared). */
-        long retryAt,touched,hatsSig,hatsChecked;
+        long retryAt,touched,hatsSig,hatsChecked,landBy;
         String why;
         /** The straight approach stalled against a footprint, or its way round is no clear step: a planned route until it is walked. */
         boolean routed;
@@ -824,19 +826,21 @@ public final class SurfaceApproach {
             haltInput(actor);current.target=null;current.lastStep=null;
             return observed(actor,Result.ARRIVED);
         }
-        // A falling/briefly ungrounded body cannot search yet. That is not evidence that this site is unreachable.
-        if(navigation instanceof YukkuriGroundNavigation ground&&!ground.canPlanApproach())return observed(actor,Result.WAITING);
-        if(navigation instanceof YukkuriGroundNavigation ground&&ground.takeStall()&&!current.routed){
+        var active=current.target==null?null:navigation.getPath();
+        boolean completed=active!=null&&active.isDone()&&active.canReach()&&current.target.equals(active.getTarget());
+        boolean ready=!(navigation instanceof YukkuriGroundNavigation ground)||ground.canPlanApproach();
+        // Only an owned, completed route has a last-step deadline. A fall before planning still waits for a stand.
+        if(!ready&&!completed&&current.lastStep==null)return observed(actor,Result.WAITING);
+        if(ready&&navigation instanceof YukkuriGroundNavigation ground&&ground.takeStall()&&!current.routed){
             current.routed=true;current.target=null;current.lastStep=null;
         }
-        if(!current.routed&&direct(actor,destination,body)){
+        if(ready&&!current.routed&&direct(actor,destination,body)){
             if(steer(actor,destination,speed,retreat)){current.target=null;current.lastStep=null;return observed(actor,Result.MOVING);}
             // the way round is no clear step: a planned route first, not a straight try every other tick
             current.routed=true;
         }
         if(current.result==Result.BLOCKED&&now<current.retryAt){stopInput(actor);return observed(actor,Result.BLOCKED);}
         if(current.target!=null){
-            var active=navigation.getPath();
             // Another owner stopping the route (a wild beat, a lesson) took the path away; it is not a refused way, so plan it again.
             if(active==null){current.target=null;current.lastStep=null;current.routed=false;}
             else {
@@ -847,13 +851,16 @@ public final class SurfaceApproach {
                 current.lastStep=floor(actor,active.getEntityPosAtNode(actor,active.getNodeCount()-1));
                 current.target=null;current.routed=false;
                 if(current.lastStep==null)return blocked(actor,"last_node_unsupported");
+                current.landBy=now+LANDING_TICKS;
             }
         }
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
-            // Navigation can finish a one-node path above solid ground before vanilla registers the landing.
-            // Both direct segments require grounded feet. Only test and record a refusal once they can be walked.
-            if(navigation instanceof YukkuriGroundNavigation && !actor.onGround())return observed(actor,Result.WAITING);
+            if(navigation instanceof YukkuriGroundNavigation&&!actor.onGround()){
+                if(now<current.landBy&&!actor.isInWaterOrBubble()&&!actor.onClimbable()&&!actor.isPassenger())
+                    return observed(actor,Result.WAITING);
+                return blocked(actor,"last_step_no_ground_contact");
+            }
             var node=current.lastStep;
             if(direct(actor,destination,body)&&steer(actor,destination,speed,retreat)){
                 current.lastStep=null;current.routed=false;
