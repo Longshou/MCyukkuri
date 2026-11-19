@@ -190,11 +190,6 @@ public final class ContactGeometry {
                 || braidGap(body, at, target, false, sighted) <= 0 || braidGap(body, at, target, true, sighted) <= 0;
     }
 
-    /** Whether the braid reaches the target from where the body stands, upright or in the low lean. */
-    public static boolean inBraidReach(YukkuriEntity body, Entity target) {
-        return braidGap(body, target, false) <= 0 || braidGap(body, target, true) <= 0;
-    }
-
     /** The yaw that turns the braid side to {@code target}: the bearing to it less the braid root's own angle off the face. */
     public static float braidYaw(YukkuriEntity body, Entity target) { return braidYaw(body, target.position()); }
     /** The same for a point. */

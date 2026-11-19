@@ -42,11 +42,11 @@ final class Ferry {
                 () -> act(new Grab(child, hat)));
     }
 
-    /** Stop to lift from an admitted stance or, within nominal reach of an unstable stance, to change footing. */
+    /** Stop rowing when the grip is ready or its next correction needs different footing. */
     private static boolean alongside(YukkuriEntity carrier, YukkuriEntity child) {
         if (child.isPassenger() || AquaticLife.ashore(child)) return true;
         var grip = ContactGeometry.braidGrip(carrier, child);
-        return grip.ready() || !grip.supported() && ContactGeometry.inBraidReach(carrier, child);
+        return grip.ready() || !grip.supported();
     }
 
     private static Action rescueMove(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child, Reason reason) {
@@ -54,35 +54,35 @@ final class Ferry {
         if (reason == Reason.NO_CONTACT)
             return new Paddle(() -> child.isAlive() ? child.position() : null, distance -> alongside(carrier, child));
 
-        var stance = rescueStance(carrier, hat, child);
-        if (stance != null) GameplayLog.event(carrier, "aquatic",
-                "rescue change stance faller={} reason=unstable_grip_stand from={} to={}",
-                child.getUUID(), hat.riders().local(carrier.getUUID()), stance);
-        return stance == null ? null : new Hop(hat, stance);
-    }
-
-    /** Prefer a stand already in reach; a stable one farther away allows another stroke from there. */
-    private static Vec3 rescueStance(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
-        var stops = new ArrayList<>(hat.hopStops(carrier));
+        var from = hat.riders().local(carrier.getUUID());
         var rest = hat.restSpot(carrier);
-        if (rest != null) stops.add(rest.local());
+        var stops = new ArrayList<>(hat.hopStops(carrier));
         var entry = hat.restEntry(carrier);
         if (entry != null) stops.add(entry.local());
         var frame = hat.frame();
         stops.sort(Comparator.comparingDouble(stop -> frame.toWorld(stop).distanceToSqr(child.position())));
-        var search = new Hop.Search();
-        Vec3 supported = null;
+        if (rest != null) stops.addFirst(rest.local());
+        var search = Hop.Search.admission();
+        Hop move = null;
+        Vec3 destination = null;
         for (var stop : stops) {
             if (Waters.standsAt(hat, carrier, stop)) continue;
-            float yaw = Hop.arrivalYaw(carrier, carrier.position(), new SeatTarget(hat, stop));
+            // Inside the cabin the seating move crosses the floor before turning. A direct jump
+            // would need a supported takeoff turn at the very spot that refused the grip.
+            boolean reseat = rest != null && stop.equals(rest.local()) && hat.insideFloor(from);
+            float yaw = reseat ? hat.restFacing(carrier) - hat.getYRot()
+                    : Hop.arrivalYaw(carrier, carrier.position(), new SeatTarget(hat, stop));
             var grip = ContactGeometry.braidGrip(carrier, hat, stop, yaw, child);
-            if (!grip.supported() || !grip.ready() && supported != null) continue;
-            var hop = new Hop(hat, stop);
+            if (!grip.supported() || !grip.ready() && move != null) continue;
+            var hop = reseat ? new Hop(hat) : new Hop(hat, stop);
             if (!hop.check(carrier, search).ok()) continue;
-            if (grip.ready()) return stop;
-            supported = stop;
+            destination = stop;
+            move = hop;
+            if (grip.ready()) break;
         }
-        return supported;
+        if (move != null) GameplayLog.event(carrier, "aquatic", "rescue change stance faller={} reason=unstable_grip_stand from={} to={}",
+                child.getUUID(), from, destination);
+        return move;
     }
 
     /** Load one young from the bank: board the brim place its braid reaches it from and lift it into a seat; when no brim place
