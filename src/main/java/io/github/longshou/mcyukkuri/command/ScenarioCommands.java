@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.command;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -266,15 +267,13 @@ public final class ScenarioCommands {
                             return ScenarioSetup.community(leader, members, BlockPos.containing(c.getSource().getPosition()));
                         }))))
                 .then(Commands.literal("push").then(Commands.argument("target", EntityArgument.entity())
-                        .then(Commands.argument("nudge", Vec3Argument.vec3()).executes(c -> {
-                            // A real shove through the body's own push: the crawl gait rewrites horizontal velocity every tick,
-                            // so a raw Motion merge cannot move a crawler, while this becomes its decaying carry.
-                            var body = yukkuri(c, "target");
-                            if (body == null) return 0;
-                            var nudge = Vec3Argument.getVec3(c, "nudge");
-                            body.nudge(nudge.x, nudge.z);
-                            return 1;
-                        }))))
+                        .then(Commands.argument("dx", DoubleArgumentType.doubleArg())
+                                .then(Commands.argument("dz", DoubleArgumentType.doubleArg()).executes(c -> {
+                                    var body = yukkuri(c, "target");
+                                    if (body == null) return 0;
+                                    body.nudge(DoubleArgumentType.getDouble(c, "dx"), DoubleArgumentType.getDouble(c, "dz"));
+                                    return 1;
+                                })))))
                 .then(Commands.literal("wound").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
                     // A real, small injury: lost health plus a mild non-leaking dent on the skin (a generic hit leaves no wound).
                     int count = 0;

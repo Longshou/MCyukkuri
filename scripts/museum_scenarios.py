@@ -6243,7 +6243,7 @@ RESCUE_BABY_DELAY = 190     # ticks the infant waits on the bank, so the first r
 def pushed(name, dx, dz=0.0):
     """A late shove off the bank into the pond through the body's own push. A raw Motion merge cannot move a crawler (the
     crawl gait rewrites the horizontal velocity every tick), so the shove is the same nudge another body would give."""
-    return f'yukkuri scenario push {sel(name)} {dx} 0.0 {dz}'
+    return f'yukkuri scenario push {sel(name)} {dx} {dz}'
 
 
 def _rescue_smoke(sid, slot):
