@@ -207,8 +207,15 @@ def _mold_family(sid, keep):
     unaware = 'YukkuriSkills:{Assessed:["mold_lore"]}'
     aware = {'mold_lore': 2}
     needs = dict(nutrition=100, energy=100, hygiene=30 if keep else 95, rest_wait=220 if keep else 1200)
-    # At night the family starts inside the mound. Leave room in the meadow to approach the departing child from the den side.
-    spots = ((-.65, -1.8), (.65, -1.8), (0, -1.8), (0, -2.2)) if keep else ((0, 4), (-.8, 4.2), (0, 4.9), (.6, 3.9))
+    if keep:
+        # Surveyed leaf cells and the family's established resting places (offset from cell centre, body width).
+        beds = ((0, -3, -.02, -.05, .8), (0, -4, -.02, .07, .8),
+                (-1, -4, .38, .24, .32), (-1, -3, .40, -.12, .144))
+        spots = [(dx + ox, dz + oz) for dx, dz, ox, oz, width in beds]
+        claims = ('child', 'father', 'mother', 'baby')
+    else:
+        spots = ((0, 4), (-.8, 4.2), (0, 4.9), (.6, 3.9))
+        claims = names
     title = '舍不得赶走，全家染上油霉' if keep else '油霉子油被亲油狠心赶走'
     lines = [
         yk('reimu', *spots[0], 'mother', uuid=ids['mother'], yaw=0, label='母油', skills=aware,
@@ -221,15 +228,22 @@ def _mold_family(sid, keep):
         yk('reimu', *spots[2], 'child', uuid=ids['child'], yaw=0, label='有斑点的子油', stage='child', lead=True, kin=kin,
            attachment=(40, 85), boldness=(30, 65), friendliness=(30, 60), self_control=50, extra=unaware, **needs),
         yk('marisa', *spots[3], 'baby', uuid=ids['baby'], label='赤油', stage='baby', kin=kin, extra=unaware, **needs),
-        *[home(n, 0, -1) for n in names],
+        *[home(n, 0, -1) for n in claims],
         box(-4, 0, 6, 12, 0, 13, 'minecraft:short_grass', 'keep')]
     late = [f'yukkuri scenario bond {sel(n)} {sel("child")}' for n in names[:2]] + [set_status('child', 'health.mold', 4)]
     expect = [rf'uuid={who} [^\n]*mold child verdict child={child} verdict={verdict}\b'
               for who, verdict in ((mother, 'KEEP' if keep else 'DRIVE_COLD'), (father, 'KEEP' if keep else 'DRIVE_TEARFUL'))]
     if keep:
-        watch = '洞里两位亲油都决定留下有斑点的子油。看它们守在一起，长时间贴近的家人也长出霉斑；认得的会惊叫，不认得的只会发痒。给病者去霉药可以中断传染。'
-        # Allow both generations of contact: 1200 ticks from the child, then 2400 from a newly infected adult.
-        late.append('schedule function mcylab:util/time_dawn 4000t replace')
+        # The survey leaves the rear pantry clear and allocates the four adjacent cells to the family.
+        lines[:0] = [box(-2, 0, -5, -2, 1, -3, 'minecraft:dirt'), box(1, 0, -5, 2, 1, -3, 'minecraft:dirt')]
+        watch = '从洞内看两位亲油留下有斑点的子油。夜里一家四口分睡在相邻的叶窝，贴近的家人会陆续长出霉斑。等天亮，看认得油霉的惊叫，不认得的只喊痒。给病者用去霉药可以中断传染。'
+        resting = [f'{{Id:{uuid_nbt(ids[n])},X:{ox}d,Z:{oz}d,Width:{width}f}}' for n, (_, _, ox, oz, width) in zip(names, beds)]
+        late += ['data modify block ~ ~ ~-1 RestingPlaces set value [' + ','.join(resting) + ']',
+                 'schedule function mcylab:util/time_dawn 5200t replace']
+        x, z = BY_ID['den'].spots['family']
+        for who, (dx, dz, _, _, _) in zip((mother, father, child, baby), beds):
+            bed = re.escape(f'BlockPos{{x={x+dx}, y={FEET}, z={z+dz}}}')
+            expect.append(rf'uuid={who} [^\n]*home chosen [^\n]*bed={bed}')
         expect += [rf'uuid={who} [^\n]*mold caught from=' for who in (mother, father, baby)]
         expect += [rf'mold caught from={child}\b', rf'uuid=(?:{father}|{baby}) [^\n]*line event=mold_itch\b',
                    r'line event=keep_child\b']
@@ -240,12 +254,31 @@ def _mold_family(sid, keep):
                    rf'uuid={child} [^\n]*mold exile answer=(CURSE|FAREWELL|SHRUG)\b', r'line event=drive_child_tearful\b',
                    *[rf'uuid={who} [^\n]*parent dismissed child={child}\b' for who in (mother, father)]]
         forbid = [r'mold exile deferred reason=dependent_or_carry']
-    add(sid, 'den', title, title, watch, '约 2–4 分钟，可倍速' if keep else '约 1 分钟', lines, late=late,
-        give=['mcyukkuri:mold_remover'], env={'time': 'night'} if keep else DAY, spot='family', vantage=(0, 8, 180, 8),
+    add(sid, 'den', title, title, watch, '约 4 分半钟，可倍速' if keep else '约 1 分钟', lines, late=late,
+        give=['mcyukkuri:mold_remover'], env={'time': 'night'} if keep else DAY, spot='family',
+        vantage=(0, -1, 168, 24, 0) if keep else (0, 8, 180, 8),
         reads=[('读全家身体与住所', 'yukkuri status @e[tag=scn,distance=..48] raw')],
-        smoke=dict(ticks=4200 if keep else 1400, expect=expect, forbid=forbid))
+        smoke=dict(ticks=5400 if keep else 1400, expect=expect, forbid=forbid))
 
-    if not keep:
+    if keep:
+        def verify_night(window, trace):
+            family = {who: {} for who in (mother, father, child, baby)}
+            since = None
+            for line in trace:
+                row = json.loads(line.split('[trace] ', 1)[1])
+                if row['k'] != 'st' or row['u'] not in family:
+                    continue
+                family[row['u']].update(row['st'])
+                if all(s.get('sleeping') and s.get('nest') == 'INSIDE_SUPPORTED' for s in family.values()):
+                    if since is None:
+                        since = row['t']
+                    elif row['t'] - since >= 1200:  # Twelve samples of contact with the original tier-2 source.
+                        return
+                else:
+                    since = None
+            return 'The family did not sleep together in their beds for 1200 ticks'
+        S[-1].smoke.update(verify_trace=True, verify=verify_night)
+    else:
         x, z = BY_ID['den'].spots['family']
 
         def verify_departure(window, trace):
