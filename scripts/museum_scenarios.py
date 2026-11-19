@@ -7193,7 +7193,7 @@ _smoke('wound_sources', 490, [
 ], forbid=[r'\[interaction\][^\n]* operation ended; [^\n]* pose=PIN [^\n]* reason=(?:operator_unreachable|timeout)'])
 _floor_pin = 'mcyukkuri:pin_tool[minecraft:custom_data={BDFloor:1b}]'
 _floor_pin_drop = '@e[type=item,nbt={Item:{id:"mcyukkuri:pin_tool",count:1,components:{"minecraft:custom_data":{BDFloor:1b}}}},limit=1]'
-_pin_player = '@p[name=MuseumOperator]'
+_pin_player = '@p[name=MuseumOperator,distance=..40]'
 _tool_stand = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
     (4, f'execute at {sel("blunt")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("blunt")} enclose'),
