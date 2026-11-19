@@ -157,7 +157,8 @@ def _den_family_death():
 
 add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土丘洞',
     '父母和子油自己认领同一个土丘洞。三只刚入住、家里还缺粮时，场景让父油死亡。看母油目睹后的哀悼过程：先愣住再哭喊，'
-    '之后在原地垂头哭泣、不时抽泣（高峰，约 1–2 分钟），再无精打采地慢慢挪动、偶尔说想念（缓和），这期间才出洞采草、存粮，走得比平时慢；'
+    '起初转向遗体，依恋高且遗体近、路通时会走到旁边垂头抽泣。缓和时，母油为伴侣许诺照顾孩子，子油会按自己的性格对粑粑说话。'
+    '随后慢慢出洞采草、存粮，走得比平时慢；'
     '最后表情恢复，回想一次后说「连你的那份一起油库里」。孩子吃到食物。洞口的草已吃过，外面还有草。',
     '入住约半分钟到一分钟，之后再看数分钟（可五倍速）', [
         yk('reimu', 0, 3, 'mother', uuid=_dm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_df)}', **pair_ready()),
@@ -211,7 +212,7 @@ for _lane, _dx, _stays, _attach, _label in (('warm', 0, True, 85, '亚成·依�
 _indep += [box(38, 0, 1, 42, 3, 5, 'minecraft:stone_bricks'), box(39, 0, 2, 41, 2, 4, 'minecraft:air')]
 add('indep_near', 'den', '亚成离巢：亲油在就告别', '亚成离巢：亲油在就告别',
     '三只亚成同时到了独立的时候。中间（依恋高）：亚成走到亲油跟前含泪说要去找自己的家，亲油哭着「要常回来看看」，两只贴脸好一会儿，'
-    '亚成说「我走了」后离开，途中两次回头、最后喊「要保重」，亲油原地抽泣目送，之后低落一阵。右边（依恋低）：亚成爽快告别，亲油祝福，'
+    '亚成说「我走了」后离开，途中两次回头、最后喊「要保重」。送别时亲油会抽泣，孩子走远后则含泪微笑看着道路。右边（依恋低）：亚成爽快告别，亲油祝福，'
     '亚成鞠个躬就走，不回头，亲油看一眼就回去过日子。左边亲油被关在远处，约 3 分钟后亚成不告别直接离开。之后各自去找空洞或挖穴，亲缘与好感保留',
     '约 3 分钟内离开（可倍速）', _indep, env=DAY, spot='indep', retry='先“清空本场地”（洞口格要空）', vantage=(0, 16),
     # The far parent leaves only once the home is hers: a teen whose parents own another home is not yet of the family den.
@@ -248,7 +249,8 @@ add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一�
 
 add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝，可驱离',
     '草窝和空丝绒窝都在屋檐下。胆大、低友善的魔理沙已有草窝，却自己走向丝绒窝并说住家宣言。'
-    '等它到新窝后走近，观察转身、警告、鼓脸；停在近处还可能被轻撞。照料菜单选拒绝事件、抱起或攻击可赶走它。',
+    '等它到新窝后走近，观察转身、警告、鼓脸；停在近处还可能被轻撞。拒绝事件、抱起或贴近驱赶时，'
+    '它会按性格骂回去、道别或哼一声。直接打它时看它如何应对这一击。',
     '约 30 秒', [
         box(1, -1, 1, 9, 3, 8, 'minecraft:oak_planks', 'hollow'),
         block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower]'),
@@ -4038,14 +4040,15 @@ COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
 _mold_colony_x, _mold_colony_z = COLONY.spots['colony']
 _mold_outer_den, _ = den(_mold_colony_x, _mold_colony_z + 28)
 add('colony_mold_exile', 'colony', '聚落驱逐油霉成员', '聚落驱逐油霉成员',
-    '看附近成员发现油霉后鼓脸施压，患病成员退到聚落日常活动范围外，回头央求时再次受拒。',
+    '看附近成员发现油霉后鼓脸施压，患病成员含泪转身、回头道别，离开聚落的日常活动范围后回来央求一次，再次受拒。',
     '约 1–2 分钟', [
         *_mold_outer_den,
         box(-8, 0, 8, 8, 0, 25, 'minecraft:short_grass', 'keep'),
         yk('patchouli', -2, 0, 'leader', label='族长', also=('mold_colony_member',), **pair_ready()),
         yk('chen', 0, 1, 'witness', yaw=0, label='近处成员', also=('mold_colony_member',),
            friendliness=24, boldness=32, **pair_ready()),
-        yk('marisa', 0, 2, 'molded', lead=True, label='患油霉的成员', also=('mold_colony_member',), **pair_ready()),
+        yk('marisa', 0, 2, 'molded', lead=True, label='患油霉的成员', also=('mold_colony_member',),
+           attachment=70, boldness=35, self_control=60, **pair_ready()),
         f'yukkuri scenario community {sel("leader")} {sel_all("mold_colony_member")}',
         *[f'yukkuri scenario bond {sel(n)} {sel("molded")}' for n in ('leader', 'witness')],
         set_status('molded', 'health.mold', 5)],
@@ -5879,6 +5882,7 @@ for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile',
         rf'\[settlement\][^\n]* mold exile departed scope={_scope}\b',
         r'\[settlement\][^\n]* mold exile refused return\b',
         r'\[settlement\][^\n]* mold exile withdrew after refusal\b',
+        *([r'\[settlement\] marisa [^\n]* mold exile answer=FAREWELL\b'] if _scope == 'colony' else []),
         *([rf'\[family\][^\n]*uuid={_uuid_text("den_mold_exile", "molded")} [^\n]* mold exile child stays '
            rf'child={_uuid_text("den_mold_exile", "baby")} healthy_parent={_uuid_text("den_mold_exile", "healthy")}\b',
            r'\[settlement\][^\n]* mold witnessed [^\n]* fond=true\b',
@@ -6007,7 +6011,9 @@ next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(
 _smoke('den_family', 9000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',
                             r'\[forage\] reimu [^\n]* begin role=',
                             rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course begun kind=grief\b',
-                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course stage kind=grief stage=easing\b'],
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* course stage kind=grief stage=easing\b',
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* mourn focus target=remains[^\n]* approach=true\b',
+                            rf'\[emotion\][^\n]*uuid={_uuid_text("den_family", "mother")} [^\n]* grief vow event=vow_partner_young [^\n]*spoken=true\b'],
        readout=[f'yukkuri status {sel("mother")} raw'])
 
 
@@ -6029,6 +6035,18 @@ def _den_family_verify(log):
         homes.append(claims[-1] if claims else None)
     if not homes[0] or len(set(homes)) != 1:
         return 'den family: parents and child did not claim one home before the death'
+
+    focus = events(mother, 'emotion', r'mourn focus target=remains distance=(\S+) approach=true attached=true yawError=(\S+)')
+    if len(focus) != 1:
+        return f'den family: expected one maternal approach to the remains, saw {focus}'
+    distance, yaw_error = map(float, focus[0][1])
+    if not (0 < distance <= 6 and yaw_error <= 15):
+        return f'den family: maternal approach started at {distance} blocks with yaw error {yaw_error}'
+    end = events(mother, 'emotion', r'mourn approach ended result=(arrived|blocked|timeout) distance=\S+ yawError=(\S+)')
+    if len(end) != 1 or float(end[0][1][1]) > 15:
+        return f'den family: expected one aligned approach ending, saw {end}'
+    if re.search(r'\[emotion\][^\n]* mourn focus [^\n]* approach=true attached=false\b', log):
+        return 'den family: an unattached mourner started walking'
 
     outings = events(mother, 'forage', r'begin role=FAMILY phase=OUT\b')
     departures = [tick for tick, _ in outings if tick > death_tick]
@@ -6083,6 +6101,7 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
         _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
         _spec['verify'] = _struck_speech
 
+_warm_parent = _uuid_text('indep_near', 'warm_parent')
 _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* farewell started',
     r'\[independence\][^\n]* farewell exchange [^\n]* attachment=85 parentAttachment=85 nuzzleTicks=[1-9]\d* lookBacks=2\b',
@@ -6090,9 +6109,28 @@ _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* see off answer [^\n]* attached=true\b',
     r'\[independence\][^\n]* see off answer [^\n]* attached=false\b',
     r'\[independence\][^\n]* looked back [^\n]* count=2/2\b',
-    rf'\[emotion\][^\n]*uuid={_uuid_text("indep_near", "warm_parent")} [^\n]* course begun kind=grief\b'],
+    rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course begun kind=parting\b',
+    rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course goal started kind=parting stage=peak behavior=parting_gaze\b',
+    rf'\[speech\][^\n]*uuid={_warm_parent} [^\n]* line event=parting_gaze\b'],
+    forbid=[rf'\[speech\][^\n]*uuid={_warm_parent} [^\n]* line event=mourn_sob\b'],
     readout=[f'yukkuri status {sel("warm_parent")} raw'])
-next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 3, 'teens that left home')
+
+
+def _indep_near_verify(log):
+    departed = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 3, 'teens that left home')(log)
+    if departed:
+        return departed
+    course = rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course '
+    start = re.search(course + r'begun kind=parting\b', log)
+    end = re.search(course + r'ended kind=parting\b', log)
+    if not start or not end or end.start() <= start.end():
+        return 'indep near: the warm parent did not finish parting'
+    if re.search(rf'\[status\][^\n]*uuid={_warm_parent} [^\n]* behavior\.animation: [^\n]* -> droop\b',
+                 log[start.end():end.start()]):
+        return 'indep near: the warm parent drooped during parting'
+
+
+next(s for s in S if s.id == 'indep_near').smoke['verify'] = _indep_near_verify
 _forage_mother, _forage_father = (_uuid_text('forage', n) for n in ('mother', 'father'))
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=FAMILY', r'\[forage\][^\n]* deposit home=[^\n]* moved=[1-9]',
                        rf'\[duty\][^\n]*uuid={_forage_mother} [^\n]* claimed kind=WATCH',
