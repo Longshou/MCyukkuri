@@ -7,7 +7,7 @@
       33
     ],
     "blocks": 11949,
-    "entities": 55,
+    "entities": 60,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -18,7 +18,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 55,
+    "entities": 60,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -29,7 +29,7 @@
       41
     ],
     "blocks": 12300,
-    "entities": 55,
+    "entities": 60,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -40,7 +40,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 55,
+    "entities": 60,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -51,7 +51,7 @@
       41
     ],
     "blocks": 12433,
-    "entities": 55,
+    "entities": 60,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -62,7 +62,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 55,
+    "entities": 60,
     "source": "art/structures/human-world/build.py"
   },
   {
