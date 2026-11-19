@@ -14,6 +14,7 @@
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 | P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
 | S3 野生性格中心按物种偏移 | `.worktrees/wp-species-centres` | social/TraitDraw.java, social/YukkuriPersonality.java, family/FamilyData.java, family/FamilyLife.java |
+| P12 CODE-1 捕食种树冠选址、自带巢生成、衔枝筑巢 | `.worktrees/wp-tree-pred-1` | predator/CanopySite.java, predator/NestSiteScore.java, predator/PredatorNestSearch.java, predator/NestBuild.java, predator/PredatorLife.java, predator/PredatorNestFrameBlock.java, motor/MouthOccupancy.java, life/HomeProvider.java, museum_fields.py (grove) |
 
 ## 玩法待办
 
