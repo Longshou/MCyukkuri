@@ -118,7 +118,7 @@ final class HumanStreet {
     private long day() { return Math.floorDiv(npc.level().getDayTime(), DAY); }
 
     YukkuriEntity pick() {
-        if (!npc.streetActive() || !observable()) return null;
+        if (!npc.streetActive() || !npc.onGround() || !observable()) return null;
         if (actionDay != day()) { actionDay = day(); actions = 0; }
         warnings.values().removeIf(warning -> now() >= Math.max(warning.at + DAY, warning.blockedUntil));
         return switch (npc.attitude()) {
@@ -719,7 +719,8 @@ final class HumanStreet {
         }
 
         @Override public boolean canUse() {
-            return npc.tickCount >= nextAt && !npc.leadingWalk() && !npc.isUsingItem()
+            // Ground navigation cannot create a path during the first airborne tick after a spawn.
+            return npc.onGround() && npc.tickCount >= nextAt && !npc.leadingWalk() && !npc.isUsingItem()
                     && (homeward || npc.streetResident() && npc.holdsPicnicFood() ? !npc.isTrading() : npc.streetActive());
         }
 
@@ -1285,6 +1286,8 @@ final class HumanStreet {
                 callUntil = npc.tickCount + ROUTE_TICKS;
                 fetchAt = null;
                 callPet();
+                GameplayLog.event(npc, "npc-care", "action=outing_call phase={} pet={} gap={} wait={}",
+                        homeward ? "return" : "depart", called.getUUID(), npc.distanceTo(called), ROUTE_TICKS);
             } else if (homeward) {
                 continueHome();
             } else if (companions.isEmpty()) {
