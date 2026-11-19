@@ -35,7 +35,7 @@ final class StruckResponse implements MotorOwner {
     private boolean exitOpen(LivingEntity danger) {
         return Reactions.freeToReact(body) && !body.isLeashed() && !body.grief().protecting()
                 && !body.shellRetraction().available() && (body.status().reactions().threat().airEscape(danger)
-                || body.status().reactions().threat().flight().hasExit(danger));
+                ? body.predator().hasAirExit() : body.status().reactions().threat().flight().hasExit(danger));
     }
 
     StruckStance decide(LivingEntity danger, float loss) {

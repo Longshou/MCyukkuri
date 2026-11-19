@@ -490,13 +490,14 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean canUse() {
         if (active()) return runnable();
         if (naturalSpawn || !ready()) return false;
+        if (!hasAirExit()) return false;
         var home = animal.life().homeStand();
         boolean wildAdult = wildAdult();
         boolean roost = wildAdult && needsRoost(home);
         if (home != null && !roost && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
             Vec3 feet = landingFeet(home);
-            if (feet != null) { destination = feet; task = Task.RETURN; return true; }
+            if (feet != null && canDepart(feet)) { destination = feet; task = Task.RETURN; return true; }
         }
         double pressure = animal.onGround() ? nestBuild.framePressure() : 0;
         if ((cooldown > 0 && pressure == 0) || animal.life().energy() < 20) return false;
@@ -640,34 +641,43 @@ public final class PredatorLife implements EcologyRoutine {
     }
 
     private void beginFlight() {
-        var pos = animal.blockPosition();
-        boolean nest = level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get());
-        if (!animal.predatorFlying() && animal.onGround() && animal.life().covered(pos)
-                && (nest || CanopySite.tree(level().getBlockState(pos.below())))
+        var feet = animal.position();
+        var pos = BlockPos.containing(feet);
+        if (!animal.predatorFlying() && animal.onGround() && needsSideExit(pos)
                 && (destination == null || !SurfaceApproach.at(animal, destination))) {
-            var feet = animal.position();
-            var entrance = nest ? animal.life().homeEntrance(pos) : null;
-            var toward = entrance != null ? entrance : prey != null ? prey.position() : destination;
-            var directions = new ArrayList<Vec3>();
-            for (var side : Direction.Plane.HORIZONTAL)
-                directions.add(new Vec3(side.getStepX(), 0, side.getStepZ()));
-            if (toward != null) directions.sort(Comparator.comparingDouble(dir -> feet.add(dir).distanceToSqr(toward)));
-            for (var dir : directions) {
-                // Measure the clear leg from the entrance (or the branch edge), beyond the overhanging leaf.
-                double edge = .5 + Vec3.atBottomCenterOf(pos).subtract(feet).dot(dir);
-                if (entrance != null) edge = Math.max(edge, entrance.subtract(feet).dot(dir));
-                var exit = feet.add(dir.scale(edge + 1.5));
-                if (flightSweepClear(feet, exit) && flightSweepClear(exit, exit.add(0, 1.2, 0))) {
-                    takeoffExit = exit;
-                    break;
-                }
-            }
+            takeoffExit = sideExit(pos, feet, prey != null ? prey.position() : destination);
             if (takeoffExit == null) {
                 GameplayLog.limited(animal, "predator", "takeoff_enclosed", 200, "takeoff refused reason=no_open_side stand={}", pos);
                 stop(); return;
             }
         }
         animal.setPredatorFlying(true);
+    }
+
+    private boolean needsSideExit(BlockPos pos) {
+        return animal.life().covered(pos) && (level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())
+                || CanopySite.tree(level().getBlockState(pos.below())));
+    }
+
+    boolean canDepart(Vec3 feet) {
+        var pos = BlockPos.containing(feet);
+        return !needsSideExit(pos) || sideExit(pos, feet, null) != null;
+    }
+
+    private Vec3 sideExit(BlockPos pos, Vec3 feet, Vec3 toward) {
+        var entrance = level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get()) ? animal.life().homeEntrance(pos) : null;
+        var aim = entrance == null ? toward : entrance;
+        var directions = new ArrayList<Vec3>();
+        for (var side : Direction.Plane.HORIZONTAL) directions.add(new Vec3(side.getStepX(), 0, side.getStepZ()));
+        if (aim != null) directions.sort(Comparator.comparingDouble(dir -> feet.add(dir).distanceToSqr(aim)));
+        for (var dir : directions) {
+            // Measure the clear leg from the entrance (or the branch edge), beyond the overhanging leaf.
+            double edge = .5 + Vec3.atBottomCenterOf(pos).subtract(feet).dot(dir);
+            if (entrance != null) edge = Math.max(edge, entrance.subtract(feet).dot(dir));
+            var exit = feet.add(dir.scale(edge + 1.5));
+            if (flightSweepClear(feet, exit) && flightSweepClear(exit, exit.add(0, 1.2, 0))) return exit;
+        }
+        return null;
     }
     private void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
 
@@ -832,7 +842,7 @@ public final class PredatorLife implements EcologyRoutine {
             animal.getNavigation().stop();
             if (animal.predatorFlying() && !dryLanded()) directFlight(animal.position().add(0, .8, 0), .85);
         }
-        prey = null; food = null; corpse = null; mode(false, "landing"); task = Task.LAND;
+        prey = null; food = null; corpse = null; watchTicks = 0; mode(false, "landing"); task = Task.LAND;
         if (level().getGameTime() < nextLandingSearch) return;
         nextLandingSearch = level().getGameTime() + 40;
         int searchedRadius = landingSearchRadius;
@@ -853,6 +863,7 @@ public final class PredatorLife implements EcologyRoutine {
     public void catchFall() {
         if (animal.predatorFlying() || !canCatchFall()) return;
         interruptFounding();
+        animal.life().wakeForDanger("fall");
         GameplayLog.event(animal, "predator", "fall recovery distance={}", animal.fallDistance);
         animal.setPredatorFlying(true);
         land();
@@ -861,9 +872,12 @@ public final class PredatorLife implements EcologyRoutine {
     public boolean canWithdrawByAir() {
         return EcologyRoutines.predator(animal) && wildAdult() && readyForLanding();
     }
+    public boolean hasAirExit() {
+        return !animal.onGround() || canDepart(animal.position());
+    }
     public void withdraw(LivingEntity foe) {
         interruptFounding();
-        watchTicks = pendingRest = 0;
+        pendingRest = 0;
         GameplayLog.event(animal, "predator", "withdrawing by air; foe={} health={}/{} distance={}",
                 foe.getUUID(), animal.getHealth(), animal.getMaxHealth(), animal.distanceTo(foe));
         land(foe.position());
@@ -921,7 +935,7 @@ public final class PredatorLife implements EcologyRoutine {
         for (int i = 0; i < Math.min(8, ordered.size()); i++) {
             BlockPos stand = ordered.get(i);
             Vec3 feet = landingFeet(stand);
-            if (feet != null && canFlyToFeet(feet)) return new Landing(stand, feet);
+            if (feet != null && canDepart(feet) && canFlyToFeet(feet)) return new Landing(stand, feet);
         }
         return null;
     }

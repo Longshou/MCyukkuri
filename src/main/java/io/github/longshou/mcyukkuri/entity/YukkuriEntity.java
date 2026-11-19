@@ -429,9 +429,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     @Override public void travel(Vec3 input) {
-        if (!level().isClientSide && fallDistance > 1 && !isInWaterOrBubble()) predator.catchFall();
         if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
         if (!level().isClientSide && family.birthTravel()) return;
+        if (!level().isClientSide && fallDistance > 1 && !isInWaterOrBubble()) predator.catchFall();
         if (ParentCarry.bracingForPickup(this)) {
             SurfaceApproach.halt(this);
             crawlNudgeX = crawlNudgeZ = 0;

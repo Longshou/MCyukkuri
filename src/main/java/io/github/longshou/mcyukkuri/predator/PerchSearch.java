@@ -53,7 +53,8 @@ final class PerchSearch {
         }
         return branches.stream().sorted(Comparator.comparingDouble(Branch::score).reversed()
                         .thenComparingDouble(branch -> body.distanceToSqr(branch.feet())))
-                .limit(8).map(Branch::feet).filter(body.predator()::canFlyToFeet).findFirst().orElse(null);
+                .limit(8).map(Branch::feet).filter(body.predator()::canDepart)
+                .filter(body.predator()::canFlyToFeet).findFirst().orElse(null);
     }
 
     private static int view(ServerLevel level, YukkuriEntity body, BlockPos pos, Vec3 feet) {
