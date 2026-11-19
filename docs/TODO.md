@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 布景角色与首批场景整理：TN34-36 进公园、HD06、MD17、MD21、TN14、TN20、TN24 | `.worktrees/wp-stager-1` | docs/roles/stager.md, scripts/museum_scenarios.py, scripts/museum_fields.py (Park) |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 | P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
