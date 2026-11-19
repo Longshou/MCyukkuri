@@ -261,6 +261,10 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 30, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(PREDATOR, YukkuriEntity::predator)
                 .tick(230, EcologyRoutines::tick)
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 95, (c, ctx) -> c.interruptFounding())
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 95, (c, ctx) -> c.interruptFounding())
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 95, (c, ctx) -> c.interruptFounding())
+                .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 95, (c, ctx) -> c.interruptFounding())
                 .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 60, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 50, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(STATUS, YukkuriEntity::status)

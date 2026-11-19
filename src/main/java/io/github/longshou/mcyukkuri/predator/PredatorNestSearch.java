@@ -10,7 +10,7 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -68,7 +68,7 @@ final class PredatorNestSearch {
 
     CanopySite selected() { return selected; }
 
-    Result advance(YukkuriEntity body, Set<BlockPos> refused, ToDoubleFunction<BlockPos> penalty) {
+    Result advance(YukkuriEntity body, Predicate<BlockPos> refused, ToDoubleFunction<BlockPos> penalty) {
         if (lastSlice == level.getGameTime()) return Result.DEFERRED;
         var lease = SearchBudget.request(level, body, Purpose.PREDATOR_NEST, generation, new Cost(SLICE, 0, ROUTES * 3));
         if (lease == null) return Result.DEFERRED;
@@ -78,7 +78,7 @@ final class PredatorNestSearch {
             while (nests.hasNext() && probes > 0 && routes > 0) {
                 var pos = nests.next();
                 SearchBudget.probe(level); probes--;
-                if (refused.contains(pos) || !level.hasChunkAt(pos) || !level.getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())
+                if (refused.test(pos) || !level.hasChunkAt(pos) || !level.getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())
                         || !(level.getBlockEntity(pos) instanceof CareBlockEntity bed) || !bed.canClaim(body)) continue;
                 routes--;
                 if (body.life().assignHome(GlobalPos.of(level.dimension(), pos))) return Result.FOUND;
@@ -88,7 +88,7 @@ final class PredatorNestSearch {
             while (cells.hasNext() && probes > 0) {
                 var pos = cells.next();
                 SearchBudget.probe(level); probes--;
-                if (refused.contains(pos) || !level.hasChunkAt(pos) || !level.getBlockState(pos).isAir()) continue;
+                if (refused.test(pos) || !level.hasChunkAt(pos) || !CanopySite.buildable(level.getBlockState(pos))) continue;
                 var site = CanopySite.inspect(level, body, pos);
                 if (site != null) sites.add(site);
             }
@@ -106,7 +106,7 @@ final class PredatorNestSearch {
         }
             while (ranked.hasNext() && routes-- > 0) {
                 var site = CanopySite.inspect(level, body, ranked.next().cell());
-                if (site != null && level.getBlockState(site.cell()).isAir() && site.reachable(body)) {
+                if (site != null && CanopySite.buildable(level.getBlockState(site.cell())) && site.reachable(body)) {
                     selected = site;
                     return Result.FOUND;
                 }
@@ -119,7 +119,7 @@ final class PredatorNestSearch {
         var cell = site.cell();
         double distance = Math.sqrt(origin.distSqr(cell));
         double score = NestSiteScore.score(site.height(), site.cover(), pathDistance(level, cell, paths), distance, timid);
-        return new Ranked(site, score - penalty.applyAsDouble(cell), distance);
+        return new Ranked(site, level.getBlockState(cell).is(ModBlocks.PREDATOR_NEST_FRAME.get()), score - penalty.applyAsDouble(cell), distance);
     }
 
     static boolean pathOrFarm(ServerLevel level, BlockPos column) {
@@ -137,7 +137,8 @@ final class PredatorNestSearch {
         return Math.min(distance, level.sectionsToVillage(SectionPos.of(site)) * 16.0);
     }
 
-    private record Ranked(CanopySite site, double score, double distance) {
-        static final Comparator<Ranked> ORDER = (a, b) -> NestSiteScore.compare(b.score, b.distance, a.score, a.distance);
+    private record Ranked(CanopySite site, boolean frame, double score, double distance) {
+        static final Comparator<Ranked> ORDER = Comparator.comparing(Ranked::frame).reversed()
+                .thenComparing((a, b) -> NestSiteScore.compare(b.score, b.distance, a.score, a.distance));
     }
 }

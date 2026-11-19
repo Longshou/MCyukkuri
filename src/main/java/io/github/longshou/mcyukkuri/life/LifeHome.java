@@ -195,6 +195,7 @@ final class LifeHome {
             // Unloaded or other-dimension homes remain memories, not destroyed homes.
             if (!home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return false;
             if (homeStand() != null) return false;
+            if (!naturalHome) o.homeProvider().lostHome(o.entity(), home.pos());
             releaseHome();
         }
         if (o.entity().mind().feeling().mourning() || o.entity().outing().away()) return false;

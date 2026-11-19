@@ -41,7 +41,11 @@ public final class Attempts {
     /** Counts one blocked end of {@code method}; the caller counts each action outcome once. */
     public void fail(Method method, Reason reason, double shortfall, WorldSignature signature) {
         if (method == null || reason == null) return;
-        failures.add(new Failure(method.id(), reason, shortfall, signature));
+        fail(method.id(), reason, shortfall, signature);
+    }
+
+    public void fail(String methodId, Reason reason, double shortfall, WorldSignature signature) {
+        failures.add(new Failure(methodId, reason, shortfall, signature));
         used++;
     }
 
@@ -55,10 +59,13 @@ public final class Attempts {
 
     /** True when {@code method} already failed under {@code signature}, or is marked incapable. */
     public boolean excluded(Method method, WorldSignature signature) {
-        if (method == null) return true;
-        if (incapable.contains(method.id())) return true;
+        return method == null || excluded(method.id(), signature);
+    }
+
+    public boolean excluded(String methodId, WorldSignature signature) {
+        if (incapable.contains(methodId)) return true;
         for (Failure f : failures) {
-            if (f.methodId().equals(method.id()) && Objects.equals(f.signature(), signature)) return true;
+            if (f.methodId().equals(methodId) && Objects.equals(f.signature(), signature)) return true;
         }
         return false;
     }

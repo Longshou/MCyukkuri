@@ -25,16 +25,19 @@ record CanopySite(BlockPos cell, Vec3 pad, Vec3 stand, int height, double cover)
         var state = level.getBlockState(cell);
         var below = cell.below();
         var support = level.getBlockState(below);
-        if (!(state.isAir() || state.is(ModBlocks.PREDATOR_NEST.get())) || !tree(support)
-                || !support.isFaceSturdy(level, below, Direction.UP) || !body.life().covered(cell)) return null;
+        if (!(buildable(state) || state.is(ModBlocks.PREDATOR_NEST.get())) || !tree(support)
+                || !support.isFaceSturdy(level, below, Direction.UP) || !body.life().covered(cell.above())) return null;
         int height = cell.getY() - groundY(level, cell);
         if (height < MIN_HEIGHT || height > MAX_HEIGHT) return null;
         // Use the complete nest's actual flat top to validate both the eventual pad and its headroom.
         double top = ModBlocks.PREDATOR_NEST.get().defaultBlockState().getCollisionShape(level, cell).max(Direction.Axis.Y);
         var pad = Vec3.atBottomCenterOf(cell).add(0, top, 0);
-        if (!clearBody(level, body, pad) || !SurfaceApproach.supported(body, state.isAir() ? Vec3.atBottomCenterOf(cell) : pad)) return null;
+        var existingFloor = state.isAir() ? Vec3.atBottomCenterOf(cell) : Vec3.atBottomCenterOf(cell)
+                .add(0, state.getCollisionShape(level, cell).max(Direction.Axis.Y), 0);
+        if (!clearBody(level, body, pad) || !SurfaceApproach.supported(body, existingFloor)) return null;
         var stand = body.life().homeEntrance(cell);
-        if (stand == null || !SurfaceApproach.supported(body, stand) || !visibleFromGround(level, body, cell, pad)) return null;
+        if (stand == null || stand.distanceToSqr(Vec3.atBottomCenterOf(cell)) > 1
+                || !SurfaceApproach.supported(body, stand) || !visibleFromGround(level, body, cell, pad)) return null;
         int covered = 0;
         for (int z = -1; z <= 1; z++) for (int x = -1; x <= 1; x++) {
             if (tree(level.getBlockState(cell.offset(x, 1, z)))) covered++;
@@ -44,8 +47,10 @@ record CanopySite(BlockPos cell, Vec3 pad, Vec3 stand, int height, double cover)
     }
 
     boolean reachable(YukkuriEntity body) {
-        return body.distanceToSqr(stand) < .16 || body.predator().canFlyTo(BlockPos.containing(stand));
+        return body.predator().canFlyToFeet(stand);
     }
+
+    static boolean buildable(BlockState state) { return state.isAir() || state.is(ModBlocks.PREDATOR_NEST_FRAME.get()); }
 
     static boolean clearBody(ServerLevel level, YukkuriEntity body, Vec3 feet) {
         return level.noCollision(body, body.getBoundingBox().move(feet.subtract(body.position())));

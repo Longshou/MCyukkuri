@@ -168,10 +168,13 @@ public final class Behaviors {
     public static final String POOL_EDGE = "pool_edge";
     public static final String POSTPARTUM = "postpartum";
     public static final String PREDATOR_CHASE = "predator_chase";
+    public static final String PREDATOR_BUILD = "predator_build";
     public static final String PREDATOR_DIVE = "predator_dive";
     public static final String PREDATOR_FEED = "predator_feed";
     public static final String PREDATOR_FLY = "predator_fly";
+    public static final String PREDATOR_GATHER = "predator_gather";
     public static final String PREDATOR_RETURN = "predator_return";
+    public static final String PREDATOR_SURVEY = "predator_survey";
     public static final String PREDATOR_TAKEOFF = "predator_takeoff";
     public static final String PROTECT_PEER = "protect_peer";
     /** Pressed beside a kin or friend under a roof in the rain, the partner on its left or right (the clip leans that way). */

@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
@@ -52,6 +53,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -65,7 +68,7 @@ public final class PredatorLife implements EcologyRoutine {
     private static final double FLIGHT_PATH_SEGMENT = 24;
     private static final double PATROL_RADIUS = 60;
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
-    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT }
+    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND }
     /** One attack run: climb above the target, stoop onto it, pull away, circle back (project design, after the Phantom's swoop). */
     private enum Pass { APPROACH, STOOP, WITHDRAW }
     /** A feeding bite and a combat strike hurt less than the former 2.0 so a blocker survives several passes (project design). */
@@ -78,6 +81,9 @@ public final class PredatorLife implements EcologyRoutine {
     private static final int PURSUIT_LIMIT = 1200, OTHER_TASK_LIMIT = 800;
     private static final double SWOOP_HEIGHT = 4.5;
     private final YukkuriEntity animal;
+    private final NestBuild nestBuild;
+    private BlockPos lostNest;
+    private long lostNestUntil;
     private Task task = Task.NONE;
     private Order order = Order.NATURAL;
     private UUID commander;
@@ -112,7 +118,7 @@ public final class PredatorLife implements EcologyRoutine {
     private static final DeadlineMap<UUID> ALERTED = new DeadlineMap<>();
     private boolean naturalSpawn;
 
-    public PredatorLife(YukkuriEntity animal) { this.animal = animal; }
+    public PredatorLife(YukkuriEntity animal) { this.animal = animal; nestBuild = new NestBuild(animal, this); }
     /** Owner alerts never outlive their server. */
     public static void resetAlerts() { ALERTED.clear(); }
     public static void forget(Set<UUID> ids) { for (UUID id : ids) ALERTED.remove(id); }
@@ -127,10 +133,12 @@ public final class PredatorLife implements EcologyRoutine {
             case EAT -> Behaviors.PREDATOR_FEED;
             case RETURN, LAND -> Behaviors.PREDATOR_RETURN;
             case PATROL -> Behaviors.PREDATOR_FLY;
+            case FOUND -> nestBuild.activity();
             default -> Behaviors.IDLE;
         };
     }
     public String animation() {
+        if (task == Task.FOUND) return nestBuild.animation();
         if (task == Task.LAND && animal.predatorFlying()) return animal.isInWaterOrBubble() ? "predator_fly" : "predator_land";
         if (biteTicks > 0) return "predator_bite";
         if (!animal.predatorFlying()) return null;
@@ -234,6 +242,7 @@ public final class PredatorLife implements EcologyRoutine {
                     attacker==null?"none":attacker.getUUID(),animal.getHealth(),animal.getMaxHealth(),animal.life().energy(),order(),retaliationReady());
             return false;
         }
+        interruptFounding();
         prey = attacker; food = null; corpse = null; destination = null;
         task = Task.TAKEOFF; mode(true, "struck_by " + attacker.getUUID());
         // The Goal may already be running for a previous target; reset its shared pursuit setup now.
@@ -366,6 +375,18 @@ public final class PredatorLife implements EcologyRoutine {
         var path = navigation.createPath(pos, 0);
         return path != null && path.canReach();
     }
+    boolean canFlyToFeet(Vec3 feet) {
+        return flightSweepClear(animal.position(), feet) || canFlyTo(BlockPos.containing(feet));
+    }
+
+    public void lostNest(BlockPos pos) {
+        lostNest = pos.immutable();
+        lostNestUntil = level().getGameTime() + 3 * 24000;
+        GameplayLog.event(animal, "predator", "nest lost site={} avoid_until={}", pos, lostNestUntil);
+    }
+    double lostNestPenalty(BlockPos site) {
+        return lostNest != null && level().getGameTime() < lostNestUntil && lostNest.distSqr(site) <= 16 ? .5 : 0;
+    }
     private PredatorNestSearch nestSearch;
     private void cancelNestSearch() {
         if (nestSearch != null) { nestSearch.cancel(animal); nestSearch = null; }
@@ -376,9 +397,10 @@ public final class PredatorLife implements EcologyRoutine {
             cancelNestSearch(); return Result.NOT_FOUND;
         }
         if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
+        if (task == Task.FOUND || nestBuild.wants()) { cancelNestSearch(); return Result.DEFERRED; }
         if (nestSearch != null && !nestSearch.current(level, animal)) cancelNestSearch();
         if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, false);
-        var result = nestSearch.advance(animal, Set.of(), pos -> 0);
+        var result = nestSearch.advance(animal, pos -> false, pos -> 0);
         if (result != Result.DEFERRED) cancelNestSearch();
         return result;
     }
@@ -416,6 +438,7 @@ public final class PredatorLife implements EcologyRoutine {
             }
             if (restrain()) { cooldown = 20; return false; }
         }
+        if (animal.onGround() && nestBuild.wants()) { task = Task.FOUND; return true; }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
                 && !level().isNight() && !level().isRaining()) {
             var center = home == null ? animal.position() : Vec3.atBottomCenterOf(home);
@@ -458,15 +481,42 @@ public final class PredatorLife implements EcologyRoutine {
         if (task != Task.LAND) pendingRest = 0;
         contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
+        if (task == Task.FOUND) { cancelNestSearch(); nestBuild.start(); }
         GameplayLog.event(animal,"predator","activity started; task={} prey={} food={} corpse={} retaliation={} nutrition={} energy={} destination={}",
                 task,prey==null?"none":prey.getUUID(),food==null?"none":food.getUUID(),corpse==null?"none":corpse.getUUID(),
                 retaliation,animal.life().nutrition(),animal.life().energy(),destination);
-        if (task != Task.SCAVENGE || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1) animal.setPredatorFlying(true);
+        if (task != Task.FOUND && (task != Task.SCAVENGE || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1))
+            animal.setPredatorFlying(true);
     }
-    private void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
+    void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
+
+    /** Final descent uses the same supported feet the founder picked. An overhead leaf need not allow a vertical approach. */
+    boolean landForBuild(Vec3 feet) {
+        if (animal.onGround() && SurfaceApproach.at(animal, feet)) {
+            animal.setPredatorFlying(false);
+            return true;
+        }
+        animal.setPredatorFlying(true);
+        Vec3 from = animal.position();
+        if (from.y < feet.y && !flightSweepClear(from, feet)) {
+            // Climb in the open column before crossing the lip of a higher shelf.
+            var rise = new Vec3(from.x, feet.y + .08, from.z);
+            if (flightSweepClear(from, rise) && flightSweepClear(rise, feet)) {
+                fly(rise, .85, 64);
+                return false;
+            }
+        }
+        fly(feet, .85, 64, animal.position().subtract(feet).horizontalDistanceSqr() < .16
+                && Math.abs(animal.getY() - feet.y) < .3);
+        return false;
+    }
     /** A clear line within directRange squared is flown straight instead of by path nodes. */
     private void fly(Vec3 goal, double speed, double directRange) {
-        if (!level().hasChunkAt(BlockPos.containing(goal))) { land(); return; }
+        fly(goal, speed, directRange, task == Task.LAND);
+    }
+
+    private void fly(Vec3 goal, double speed, double directRange, boolean descend) {
+        if (!level().hasChunkAt(BlockPos.containing(goal))) { flightBlocked(); return; }
         if (recoveringFlight() && animal.isInWaterOrBubble()) {
             // First lift the actual body clear. A diagonal path to a bank can scrape the water all the way there.
             Vec3 rise = animal.position().add(0, Math.max(.6, flightFloor(animal.position()) - animal.getY() + .35), 0);
@@ -479,7 +529,7 @@ public final class PredatorLife implements EcologyRoutine {
         // exact position, otherwise the animal circles just outside bite or landing range.
         if (animal.distanceToSqr(goal) < directRange && flightSweepClear(animal.position(), goal)) {
             // Only the final clear approach presses into the support surface. Pathfinding still targets the dry air cell.
-            directFlight(task == Task.LAND ? goal.add(0, -.08, 0) : goal, speed);
+            directFlight(descend ? goal.add(0, -.08, 0) : goal, speed);
             return;
         }
         if (ticks % 10 == 1 || animal.getNavigation().isDone()) {
@@ -488,9 +538,13 @@ public final class PredatorLife implements EcologyRoutine {
                 GameplayLog.limited(animal,"predator","path_refused",200,"flight path refused; task={} prey={} destination={} elapsed={}",
                         task,prey==null?"none":prey.getUUID(),goal,ticks);
                 // Let the pathfinder try a short rising waypoint before abandoning a blocked approach.
-                if (ticks > 60) land();
+                if ((task == Task.FOUND ? nestBuild.elapsed() : ticks) > 60) flightBlocked();
             }
         }
+    }
+    private void flightBlocked() {
+        if (task == Task.FOUND) nestBuild.failed("no_flight_route", Reason.NO_PATH);
+        else land();
     }
     private void directFlight(Vec3 goal, double speed) {
         animal.getNavigation().stop();
@@ -662,10 +716,14 @@ public final class PredatorLife implements EcologyRoutine {
     private void tickGoal() {
         ticks++;
         boolean pursuing = task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE;
-        boolean timedOut = task != Task.LAND && ticks > (pursuing ? PURSUIT_LIMIT : OTHER_TASK_LIMIT);
+        boolean timedOut = task != Task.LAND && task != Task.FOUND && ticks > (pursuing ? PURSUIT_LIMIT : OTHER_TASK_LIMIT);
         if (!runnable() || timedOut) {
             GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",timedOut?"timeout":"not_ready",ticks);
             stop(); return;
+        }
+        if (task == Task.FOUND) {
+            if (animal.life().energy() < 15) stop(); else nestBuild.tick(OTHER_TASK_LIMIT);
+            return;
         }
         if (animal.life().energy() < 15 && task != Task.LAND && task != Task.EAT) landAvoidingFoe();
         if (task == Task.NONE) return;
@@ -934,6 +992,7 @@ public final class PredatorLife implements EcologyRoutine {
         task=next;
     }
     public void stop() {
+        if (task == Task.FOUND) nestBuild.stop();
         if (animal.predatorFlying() && !dryLanded() && canSustainFlight()) {
             cancelNestSearch();
             if (task != Task.LAND) { pendingRest = 0; restTicks = 0; eatRemains = null; landAvoidingFoe(); }
@@ -941,15 +1000,21 @@ public final class PredatorLife implements EcologyRoutine {
         }
         if(task!=Task.NONE)GameplayLog.event(animal,"predator","activity stopped; task={} prey={} elapsed={} health={}/{} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.getHealth(),animal.getMaxHealth(),animal.life().energy());
+        if (task == Task.LAND && animal.onGround()) animal.component(YukkuriComponents.MOUTH).releaseItems(Purpose.NEST, 20);
         cancelNestSearch();
         mode(false, "stopped");
         task = Task.NONE; prey = null; food = null; corpse = null; destination = null; restTicks = pendingRest = 0; eatRemains = null;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         cooldown = Math.max(cooldown, 20);
     }
+    public void interruptFounding() { if (task == Task.FOUND) stop(); }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Order", order.name()); tag.putInt("Cooldown", cooldown);
         tag.putBoolean("NaturalSpawn", naturalSpawn); if (commander != null) tag.putUUID("Commander", commander);
+        if (lostNest != null && level().getGameTime() < lostNestUntil) {
+            var lost = new CompoundTag(); lost.putLong("Pos", lostNest.asLong()); lost.putLong("Until", lostNestUntil);
+            tag.put("LostNest", lost);
+        }
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -960,6 +1025,9 @@ public final class PredatorLife implements EcologyRoutine {
         stop(); try { order = Order.valueOf(tag.getString("Order")); } catch (IllegalArgumentException ignored) { order = Order.NATURAL; }
         commander = tag.hasUUID("Commander") ? tag.getUUID("Commander") : null;
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 400); naturalSpawn = tag.getBoolean("NaturalSpawn");
+        var lost = tag.getCompound("LostNest");
+        lostNest = lost.contains("Pos") ? BlockPos.of(lost.getLong("Pos")) : null;
+        lostNestUntil = lost.getLong("Until");
     }
     public static final class BehaviorGoal extends Goal {
         private final YukkuriEntity animal;

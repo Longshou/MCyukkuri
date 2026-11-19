@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.interaction.RestraintTableBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
+import io.github.longshou.mcyukkuri.predator.PredatorNestFrameBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.SoundType;
@@ -63,6 +64,9 @@ public final class ModBlocks {
     public static final DeferredBlock<CareBlock> PREDATOR_NEST = BLOCKS.register("predator_nest", () ->
             new CareBlock(CareBlock.Kind.NEST, BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.ROOTS).noOcclusion(),
                     "predator_nest", 1, 2.4f));
+    public static final DeferredBlock<PredatorNestFrameBlock> PREDATOR_NEST_FRAME = BLOCKS.register("predator_nest_frame", () ->
+            new PredatorNestFrameBlock(BlockBehaviour.Properties.of().strength(.4f).sound(SoundType.ROOTS).noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
     public static final DeferredBlock<CareBlock> TOILET = register("yukkuri_toilet", CareBlock.Kind.TOILET, SoundType.WOOD);
     public static final DeferredBlock<ShelterBlock> FOREST_BURROW=BLOCKS.register("forest_burrow",
             ()->new ShelterBlock(ShelterBlock.Kind.BURROW,BlockBehaviour.Properties.of().strength(.8f).sound(SoundType.ROOTS).noOcclusion()));
