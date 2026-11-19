@@ -566,6 +566,7 @@
   "operation.mcyukkuri.refuse.bottle": "副手需要拿一瓶水。",
   "operation.mcyukkuri.refuse.owner": "只有这只宠物的饲主能这么做。",
   "operation.mcyukkuri.refuse.busy": "等它有空再试。",
+  "operation.mcyukkuri.refuse.pinned": "先双手空着右键拔针，再装篮。",
   "operation.mcyukkuri.refuse.harness": "它需要先戴上胴带。",
   "operation.mcyukkuri.refuse.swaddle": "它没有裹襁褓布。",
   "operation.mcyukkuri.refuse.carried": "它正在被抱着。",

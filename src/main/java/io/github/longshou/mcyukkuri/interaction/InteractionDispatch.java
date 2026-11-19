@@ -98,9 +98,9 @@ public final class InteractionDispatch {
     public static boolean allowCapture(Player player,YukkuriEntity target){
         if(!requireReach(player,target,4))return false;
         if (ExamSession.running(target)||target.operations().table()!=null) { refuse(player, target, "capture", "busy"); return false; }
-        if(HumanCommerce.mayCapture(player,target))return true;
-        refuse(player,target,"capture","custody");
-        return false;
+        if(!HumanCommerce.mayCapture(player,target)){refuse(player,target,"capture","custody");return false;}
+        if(target.operations().pinned()){refuse(player,target,"capture","pinned");return false;}
+        return true;
     }
     public static boolean assist(Player player,YukkuriEntity target,InteractionHand hand){
         if(!requireHarmContact(player,target,1.5,"assist"))return false;

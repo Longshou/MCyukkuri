@@ -566,6 +566,7 @@
   "operation.mcyukkuri.refuse.bottle": "Hold a water bottle in your off hand.",
   "operation.mcyukkuri.refuse.owner": "Only this pet’s owner can do that.",
   "operation.mcyukkuri.refuse.busy": "Wait until the yukkuri is free.",
+  "operation.mcyukkuri.refuse.pinned": "Right-click with both hands empty to remove the pin before using the basket.",
   "operation.mcyukkuri.refuse.harness": "This yukkuri needs to be wearing a harness.",
   "operation.mcyukkuri.refuse.swaddle": "This yukkuri is not wearing a swaddle.",
   "operation.mcyukkuri.refuse.carried": "This yukkuri is being carried.",

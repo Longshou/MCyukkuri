@@ -7212,6 +7212,10 @@ next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
           f'if data entity {sel("cut")} YukkuriOperations.PendingReturn.components."minecraft:custom_data".BDFloor '
           f'unless entity {_floor_pin_drop} run say MCY_BD07_PIN_STILL_ATTACHED'),
     (426, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (426, f'item replace entity {_pin_player} hotbar.1 with mcyukkuri:yukkuri_carrier'),
+    (426, 'yukkuri scenario tool_operator select 1'),
+    (426, f'yukkuri scenario shop_stock_click {sel("cut")}'),
+    (426, 'yukkuri scenario tool_operator select 0'),
     (427, f'yukkuri scenario shop_stock_click {sel("cut")}'),
     (442, f'execute at {_floor_pin_drop} run yukkuri scenario tool_operator move'),
     (443, f'yukkuri scenario tool_operator pick_up {_floor_pin_drop}'),
@@ -7293,6 +7297,7 @@ _wound_smoke['expect'].extend([
     'MCY_BD07_SURVIVAL_PIN_RECOVERED',
     'MCY_BD07_CREATIVE_PIN_RETAINED',
     'MCY_BD07_CREATIVE_PIN_EXTRACTED',
+    r'\[interaction\][^\n]* interaction refused; [^\n]* action=capture reason=pinned',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* interaction refused; [^\n]* action=release reason=owner',
     rf'\[interaction\][^\n]* uuid={_uuid_text("wound_sources", "tool_frame")} [^\n]* pose=PIN elapsed=\d+ remaining=0 reason=released',
     rf'\[body\][^\n]* uuid={_uuid_text("wound_sources", "tool_awl")} [^\n]* accepted damage cause=mob [^\n]* loss=2\.0',
