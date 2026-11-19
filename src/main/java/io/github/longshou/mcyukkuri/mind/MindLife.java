@@ -174,8 +174,9 @@ public final class MindLife {
         // A fresh strong stimulus is independent of unease's shared fright bucket.
         if (spike != null && (until == null || until <= now || spike == ExcitedLeak.Stimulus.PREDATOR))
             leak.spike(spike, now);
-        // Getting a lost accessory back is the one great joy with its own afterglow; a repeat inside the cooldown still glows.
-        if (event == EmotionEvent.ACCESSORY_RETURNED) feeling.begin(EmotionCourse.Kind.JOY, 1, null, null);
+        // The unease cooldown limits relief; a fresh event can still renew the feeling.
+        var eventCourse = event.course;
+        if (eventCourse != null && !entity.life().isSleeping()) feeling.begin(eventCourse.kind(), eventCourse.power(), null, null);
         if (until != null && until > now) return;
         if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
         float delta = event.delta > 0 ? Math.min(event.delta, Math.max(0, ceiling - unease)) : event.delta;
