@@ -3443,6 +3443,40 @@ def _verify_leak_scene(window):
     return None
 
 
+def _verify_need_tell(window):
+    for actor, need, before, after, volume in (
+            ('fidget', 'URINE', 40, 0, '0.0'), ('strain', 'STOOL', 55, 15, '')):
+        subject = rf'\[needs\][^\n]*uuid={_uuid_text("need_tell", actor)} t=(\d+) [^\n]*'
+        tell = re.search(subject + rf' tell need={need}\b', window)
+        relief = re.findall(subject + rf' relieved source=facility [^\n]*kind={need} pressure=(\S+) -> (\S+) volume=(\S+)', window)
+        if not tell or len(relief) != 1:
+            return f'{actor}: expected a {need} warning and one facility release, found {relief}'
+        tick, start, end, stored = relief[0]
+        if int(tick) <= int(tell[1]) or float(start) != before or abs(float(end) - after) > .01:
+            return f'{actor}: wrong order or pressure delta {relief}'
+        if (volume and stored != volume) or (not volume and float(stored) <= 0):
+            return f'{actor}: unexpected solid inventory {stored}'
+    return None
+
+
+add('need_tell', 'meadow', '尿急与便急的预兆', '尿急与便急的预兆',
+    '两栏各有一个沙厕。左边性急的灵梦先扭动，一分钟后尿意自然涨到够用沙厕，留意尿流。'
+    '右边沉稳的灵梦便急，先绷紧身体再去排便。用放大镜看各自的需求图标何时消失，用手册对照余量。',
+    '右栏约十秒，左栏约一分钟', [
+        *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-6, 7) for z in range(-3, 5)
+          if x in (-6, 0, 6) or z in (-3, 4)),
+        *(block(x, 0, -2, 'mcyukkuri:yukkuri_toilet') for x in (-3, 3)),
+        yk('reimu', -3, 2, 'fidget', label='尿急', uuid=uid('need_tell', 'fidget'), urine=39, self_control=15,
+           boldness=80, friendliness=20, lead=True),
+        yk('reimu', 3, 2, 'strain', label='便急', uuid=uid('need_tell', 'strain'), bladder=55, self_control=85,
+           boldness=35, friendliness=70)],
+    env=DAY, vantage=(0, 8, 180, 15), give=['mcyukkuri:magnifying_glass', 'mcyukkuri:field_notebook'],
+    reads=[('读左栏尿意', f'data get entity {sel("fidget")} YukkuriLife.Urine'),
+           ('读右栏便意', f'data get entity {sel("strain")} YukkuriLife.Bladder')],
+    smoke=dict(ticks=1720, expect=[r'\[needs\][^\n]*tell need=URINE', r'\[needs\][^\n]*tell need=STOOL'],
+               forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_need_tell))
+
+
 add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿', '短落差受惊：赤油、子油、成油漏尿',
     '从左到右是自制较低的赤油、子油和成油各一只，前排另有一只矮身豆油。开场从两格多的安全高度落下，各自真实抽签。'
     '看第一股、漏 A 与脚底湿边，矮身豆油可对照脸部是否干净。皮肤上的尿痕随个体移动，小水滩留在原地逐渐淡去。'
@@ -6240,7 +6274,7 @@ TOPICS = {
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
-    'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
+    'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',

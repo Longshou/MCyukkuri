@@ -4,6 +4,11 @@ import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.life.NeedWarnings.Need;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.Font;
@@ -15,6 +20,8 @@ import net.minecraft.util.FormattedCharSequence;
 /** Shared status card built from already-synced values. */
 public final class StatusStrip {
     static final int CARD_HEIGHT = 40;
+    private static final int ICON = 16;
+    private static final Need[] NEEDS = Need.values();
     private static final int TEXT_LEFT = 25, CHIP_GAP = 5, PAD = 6, STATUS_TOP = 20;
 
     static Readout of(YukkuriView view) {
@@ -74,25 +81,49 @@ public final class StatusStrip {
             return shortName == name ? null : title(name);
         }
 
-        HudLayout measureHud(Font font, int maxWidth, String outlookId, Component... details) {
+        HudLayout measureHud(Font font, int maxWidth, String outlookId, int needs, Component... details) {
             var rows = new ArrayList<Component>();
             rows.add(status);
             rows.addAll(List.of(details));
             if (!outlookId.isEmpty()) rows.add(Component.translatable("magnifier.mcyukkuri.outlook." + outlookId));
             int chip = chipWidth(font, Component.translatable(identityKey));
             int textWidth = rows.stream().mapToInt(font::width).max().orElseThrow() + 2 * PAD;
-            int w = Math.min(maxWidth, Math.max(textWidth, font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
+            int needsWidth = Integer.bitCount(needs) * ICON + 2 * PAD;
+            int w = Math.min(maxWidth, Math.max(Math.max(needsWidth, textWidth), font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
             var lines = rows.stream().flatMap(row -> font.split(row, w - 2 * PAD).stream()).toList();
-            return new HudLayout(w, STATUS_TOP + lines.size() * font.lineHeight + 4, lines);
+            int columns = Math.max(1, (w - 2 * PAD) / ICON);
+            int iconRows = Math.ceilDiv(Integer.bitCount(needs), columns);
+            return new HudLayout(w, STATUS_TOP + lines.size() * font.lineHeight + iconRows * ICON + 4, lines, columns);
         }
 
-        void renderHud(GuiGraphics g, Font font, int bottom, String outlookId, Component... details) {
-            var card = measureHud(font, g.guiWidth() - 16, outlookId, details);
-            renderCard(g, font, (g.guiWidth() - card.width()) / 2, bottom - card.height(), card.width(), card.height(), card.lines());
+        void renderHud(GuiGraphics g, Font font, int bottom, String outlookId, int needs, Component... details) {
+            var card = measureHud(font, g.guiWidth() - 16, outlookId, needs, details);
+            int x = (g.guiWidth() - card.width()) / 2, y = bottom - card.height();
+            renderCard(g, font, x, y, card.width(), card.height(), card.lines());
+            int top = y + STATUS_TOP + card.lines().size() * font.lineHeight;
+            int index = 0;
+            for (var need : NEEDS) {
+                if ((needs & need.bit()) == 0) continue;
+                icon(g, need, x + PAD + index % card.columns() * ICON, top + index / card.columns() * ICON);
+                index++;
+            }
         }
     }
 
-    record HudLayout(int width, int height, List<FormattedCharSequence> lines) {}
+    record HudLayout(int width, int height, List<FormattedCharSequence> lines, int columns) {}
+
+    private static void icon(GuiGraphics g, Need need, int x, int y) {
+        switch (need) {
+            case URINE -> g.blit(MCYukkuri.id("textures/effects/leak_puddle.png"), x, y, ICON, ICON, 0, 0, 16, 16, 16, 16);
+            case STOOL -> g.renderItem(ModItems.WASTE.get().getDefaultInstance(), x, y);
+            case THIRST -> g.renderItem(Items.WATER_BUCKET.getDefaultInstance(), x, y);
+            case SLEEP -> g.renderItem(Items.RED_BED.getDefaultInstance(), x, y);
+            case HUNGER -> g.renderItem(Items.BREAD.getDefaultInstance(), x, y);
+            case COLD -> g.renderItem(Items.SNOWBALL.getDefaultInstance(), x, y);
+            case OVERHEATING -> g.renderItem(Items.BLAZE_POWDER.getDefaultInstance(), x, y);
+            case BREEDING -> g.blitSprite(ResourceLocation.withDefaultNamespace("hud/heart/full"), x + 2, y + 2, 12, 12);
+        }
+    }
 
     private static Component stage(YukkuriView view) {
         String id = switch (FamilyLife.Stage.values()[view.lifeStage()]) {

@@ -866,6 +866,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
         if (!isAlive()) return;
         components.tick(ComponentSpec.TickPhase.AFTER_ALIVE_CHECK);
+        if (hasReaction() && reactionEvent.equals("need_tell") && !status().reactions().allowsNeedTell()) cancelReaction();
         presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ);
         sync().syncHeldItem();
     }
@@ -911,6 +912,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             setAnimation(action, true);
         }
         return true;
+    }
+
+    public void showNeedTell(YukkuriAction action, String face, int ticks) {
+        startReaction(face, "need_tell", ticks);
+        reactionAction = action;
     }
 
     public boolean hasReaction() { return reactionTicks > 0; }

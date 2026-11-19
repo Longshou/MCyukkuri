@@ -53,9 +53,10 @@ public final class TemperatureLife {
 
     public TemperatureLife(YukkuriEntity entity) { this.entity = entity; }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
-    private double coldLimit() { return YukkuriConfig.COLD_THRESHOLD.get(); }
+    double felt() { return current.felt(); }
+    double coldLimit() { return YukkuriConfig.COLD_THRESHOLD.get(); }
     private double freezeLimit() { return Math.min(coldLimit(), YukkuriConfig.FREEZE_THRESHOLD.get()); }
-    private double hotLimit() { return Math.max(coldLimit() + .5, YukkuriConfig.HOT_THRESHOLD.get()); }
+    double hotLimit() { return Math.max(coldLimit() + .5, YukkuriConfig.HOT_THRESHOLD.get()); }
     public int coldExposure() { return (int)coldExposure; }
     /** Actual reached-refuge rest counter, read without evaluating a thermal task. */
     public int observedRestTicks() { return restTicks; }

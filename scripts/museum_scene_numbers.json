@@ -285,6 +285,7 @@
     "den_mold_child_exile": "DN-11",
     "den_mold_keep": "DN-12",
     "exam_caught": "TN-53",
-    "brood_unseen": "TN-54"
+    "brood_unseen": "TN-54",
+    "need_tell": "MD-27"
   }
 }

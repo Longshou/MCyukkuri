@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.life.NeedWarnings;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -176,7 +177,10 @@ public final class PetRequests {
                 : wary >= .5 ? "teary"
                 : SocialDisposition.insistence(personality, esteem, wary, bond) >= .52 ? "cheek_puff"
                 : switch (kind) { case FOOD, WARM -> "teary"; case WALK -> "happy"; default -> "open_smile"; };
-        animal.showReaction(YukkuriAction.BEG, face, event, 80);
+        boolean demand = (kind == Kind.FOOD || kind == Kind.SNACK) && wary < .5
+                && NeedWarnings.insistence(personality.temperament()) >= .75;
+        animal.showReaction(demand ? YukkuriAction.STAMP : YukkuriAction.BEG, demand ? "cheek_puff" : face,
+                demand ? "human_food_demand" : event, 80);
         dropCard();
         var at = markPos();
         card = switch (kind) {

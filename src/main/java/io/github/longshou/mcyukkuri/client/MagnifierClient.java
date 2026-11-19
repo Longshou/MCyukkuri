@@ -99,7 +99,7 @@ public final class MagnifierClient {
         int itemNameTop = g.guiHeight() - inset + (minecraft.gameMode.canHurtPlayer() ? 0 : ITEM_NAME_NO_HEALTH_SHIFT);
         var readout = StatusStrip.of(aim);
         if (Identity.STOCK.translationKey().equals(aim.identityTranslationKey())) {
-            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, "");
+            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, "", 0);
             return;
         }
         var mood = aim.moodReadout();
@@ -117,10 +117,10 @@ public final class MagnifierClient {
                 mind.append(" · ").append(Component.translatable("magnifier.mcyukkuri.fear_of", name, fear.getInt(actor.toString())));
                 break;
             }
-            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId(),
+            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId(), mood.getInt("needs"),
                     character(mood.getIntArray("character")), mind, skills(mood.getCompound("skills")));
         } else {
-            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId());
+            readout.renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP, aim.outlookId(), 0);
         }
     }
 

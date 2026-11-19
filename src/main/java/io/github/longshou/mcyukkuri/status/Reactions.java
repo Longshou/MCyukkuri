@@ -72,6 +72,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
  */
 public final class Reactions {
     private final YukkuriEntity entity;
+    private long nextNeedTell;
     private final Threat threat;
     private final Weather weather;
 
@@ -93,7 +94,27 @@ public final class Reactions {
         return threat.stage != Threat.Stage.NONE ? threat.describe() : weather.stage != Weather.Stage.NONE ? weather.describe()
                 : threat.seal.active() ? "den seal=" + threat.seal.describe() : "none";
     }
-    void scan() { threat.scan(); weather.scan(); }
+    void scan() {
+        threat.scan();
+        weather.scan();
+        long now = entity.level().getGameTime();
+        if (now < nextNeedTell || entity.hasReaction() || entity.speechEnd() > now || !allowsNeedTell()) return;
+        var needs = entity.life().needWarnings();
+        if (needs.leading() != null) {
+            EcologyPresentation.tell(entity, needs);
+            nextNeedTell = now + 160; // A short cue, then eight seconds for the underlying activity.
+        }
+    }
+
+    public boolean allowsNeedTell() {
+        return freeToReact(entity) && !active() && !entity.isPanicking() && entity.hurtTime == 0
+                && !entity.body().dying() && !entity.body().condition().needsPainExpression()
+                && !entity.life().protectsStep() && !entity.life().isSleeping() && !entity.life().temperature().active()
+                && !entity.family().active() && !entity.childhood().active() && !entity.agitation().active()
+                && entity.pet().care().requests().pending() == null && entity.mind().leakFace().isEmpty()
+                && (entity.getBehaviorId().equals(Behaviors.IDLE) || entity.getBehaviorId().equals(Behaviors.SEEK_TOILET)
+                || entity.getBehaviorId().equals(Behaviors.SEEK_WATER) || entity.getBehaviorId().equals(Behaviors.SEEK_FOOD));
+    }
     void stop() { threat.response.clear(); threat.seal.abort("response_stopped"); threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
 
     // ---- shared predicates -------------------------------------------------------------------------------------

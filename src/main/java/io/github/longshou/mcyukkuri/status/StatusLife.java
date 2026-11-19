@@ -63,6 +63,7 @@ public final class StatusLife {
             mood.putInt("filling", entity.mind().fillingSweetness());
             mood.put("skills", entity.skills().readout());
             if (identity != Identity.STOCK) {
+                mood.putInt("needs", entity.life().needWarnings().mask());
                 var words = CharacterWords.select(entity.life().personality().temperament());
                 mood.putIntArray("character", words.stream().mapToInt(CharacterWords::ordinal).toArray());
             }
