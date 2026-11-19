@@ -1,9 +1,8 @@
-package io.github.longshou.mcyukkuri.mind;
+package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.mind.Ousting;
 import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
-import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
-import io.github.longshou.mcyukkuri.social.TraitDraw;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 
