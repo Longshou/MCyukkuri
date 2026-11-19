@@ -5,8 +5,8 @@ import math
 from export_registry import load
 
 # standards/yukkuri-library/AGENTS.md: the whole body's pitch and roll together stay about 12 degrees.
-# PoseChecks.tilt applies it to the composed root up axis and lets a clip override it through
-# parameters.tilt_max with a written tilt_why (the toilet strain clip alone does).
+# PoseChecks.tilt applies it to the composed root up axis; a clip that leans further on purpose declares
+# parameters.tilt_max with a one-line tilt_why in its authoring source, and the exporters carry both into runtime.
 TILT_MAX = 12
 
 

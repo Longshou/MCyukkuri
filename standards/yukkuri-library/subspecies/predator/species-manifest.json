@@ -12,7 +12,7 @@
       "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.remilia",
       "model_sha256": "ec26454d05948882b6d19239f347aa67074965cc1aa75190fe636b6ef085badd",
-      "rig_sha256": "8bcbdf97fac4ae101257ce2b31df6d658ec7ddc73dec58932fbdd7c0682d6405",
+      "rig_sha256": "c9900398fb5f0b2a0d867934a9dfa797f8b52858e896fb95bfb68bd4f36c0175",
       "elements": 69,
       "triangles": 3382,
       "bones": 265,
@@ -138,7 +138,7 @@
       "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.flandre",
       "model_sha256": "489e5f2c3cc1a3afa45c4daa46cc978419c3e3b76415021989a462f444a319ae",
-      "rig_sha256": "1db32376461344fbf9d12830f0e0d8f9a33a6acc389ffbd070a58003152eb784",
+      "rig_sha256": "d23833b049bea64d4160a0671a0972114a151c177a95498858cbad8f827f2bcb",
       "elements": 73,
       "triangles": 3370,
       "bones": 273,
@@ -257,6 +257,6 @@
   "inputs": {
     "species.json": "4518949b65793cf1b48bf124798aa9b39e2c27e470ae1b2a198557978c0a988f",
     "species_geometry.py": "eb34b8db80b0bb59df9f70e273cf15ff384ca35f46f1e4d63359ce30886e3849",
-    "author_species.py": "1269f30b87a2317e129259bd981717fa226bd285415b125acaa04f73b28a4312"
+    "author_species.py": "19495791d5f2f3237e46cfa490e73f2cda5f49b066d953ae797da6362b8d6dda"
   }
 }

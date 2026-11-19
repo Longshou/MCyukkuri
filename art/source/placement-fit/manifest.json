@@ -991,7 +991,7 @@
     },
     "marisa_tsumuri": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "base_sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
+      "base_sha256": "a8ed66fb632a43447f173383c0f9b6e114797663f344cbf3ced77ca6d80c6aaa",
       "parts": [
         "crown",
         "back_hair",
@@ -1369,12 +1369,12 @@
     },
     "remilia": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "base_sha256": "3724156e4fd63c65477ba5d27620bd591a4eb8c798f64c25e3747ed67d3d0620",
+      "base_sha256": "1dd89f7d1e256403400dd3ef988e9d068c02930b485367f817d43f6080490ce9",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "flandre": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "base_sha256": "f36ffb8d8d028156c1a39161d184e54cd22e8bb181ae6586714dd4b1bf2d46e8",
+      "base_sha256": "343628b2da3e5317eaac68600bec56cc8688756d62ad0e38e961705c80a34cbb",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "myon": {
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "67664451d24206ecfef40231926f74754db44163a77a1922e317a9fa4b8e41fc"
+  "runtime_sha256": "5f24a7e3b655216fa45e0b686046ce8d008db27a6506d0295aa13ef32c463bde"
 }

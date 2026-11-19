@@ -64,6 +64,7 @@ def export(ident):
         clips[name]=dict(duration=clip['duration'],loop=clip['loop'],tracks=[dict(bone=names[bone],channel=channel,
             keys=[[float(t),*value] for t,value in sorted(keys.items(),key=lambda pair:float(pair[0]))])
             for bone,channels in clip['tracks'].items() for channel,keys in channels.items()])
+        if 'parameters' in clip:clips[name]['parameters']=clip['parameters']
     behavior={k:clips.pop(k) for k in list(clips) if k.startswith('predator_')}
     model=dict(format=1,id=ident,units_per_block=16,house=False,texture_size=256,
                vertices=flat,weights=weights,parts=parts,bones=[dict(name=b['name'],parent=-1 if b['parent'] is None else names[b['parent']],pivot=b['pivot']) for b in rig['bones']],

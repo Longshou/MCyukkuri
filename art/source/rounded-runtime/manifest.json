@@ -1,7 +1,7 @@
 {
   "version": 1,
   "exporter": "scripts/export_rounded_runtime.py",
-  "exporter_sha256": "800079d2756134e208168b12a92aac19e08bb5d6a54f5e0a9f3d96416f0b0479",
+  "exporter_sha256": "e0806d77e26b0cbcd02c7ec964ba76f0f090ea3401eff59fc09015f827366802",
   "standard_recipe": "standards/yukkuri-library/body-standard/recipe.json",
   "standard_recipe_sha256": "7806e426031917b35fec519c4caa1bcb585a265d55783fe769e68c7f9542dd9c",
   "models": {
@@ -957,7 +957,7 @@
       "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
       "selected_model_sha256": "26a408119a9208cabb21e04534c2e4e8490b2476298a3dca01154a21e5680dea",
       "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
-      "selected_rig_sha256": "3b0919bd52066f5dcfa31bff351e9e19fea4f49fab9ae3787aff4a967b9265ee",
+      "selected_rig_sha256": "b6a70c4c559f2e68c098efd24e48f6cfd51038cfb9f77ccee135178b3afffab9",
       "selected_runtime_sha256": "4e1cd628016797cf68e525296b8b2a72af2c3a2e5e4617672c8cb8cbaff8c144",
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
@@ -970,7 +970,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "runtime_sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
+      "runtime_sha256": "a8ed66fb632a43447f173383c0f9b6e114797663f344cbf3ced77ca6d80c6aaa",
       "rig": "art/source/rounded-runtime/marisa_tsumuri/animation-rig.json",
       "bone_count": 269,
       "clips": [

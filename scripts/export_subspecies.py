@@ -243,6 +243,7 @@ def export(ident, base, selection, stage, preserve_textures=False):
         clips[key]={'duration':clip['duration'],'loop':clip['loop'],'tracks':[
             {'bone':names[n],'channel':ch,'keys':[[float(t),*v] for t,v in sorted(keys.items(),key=lambda x:float(x[0]))]}
             for n,channels in clip['tracks'].items() for ch,keys in channels.items()]}
+        if 'parameters' in clip:clips[key]['parameters']=clip['parameters']
     # Idle defaults must preserve the selected shell and puff visibility.
     clips['idle']={'duration':rig['clips']['idle']['duration'],'loop':True,'tracks':[
         {'bone':names[n],'channel':ch,'keys':[[float(t),*v] for t,v in sorted(keys.items(),key=lambda x:float(x[0]))]}

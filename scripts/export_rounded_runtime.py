@@ -58,9 +58,13 @@ def fill_actions(rig,source,aliases=None):
 def compile_model(model,rig,ident):
     names={b['name']:i for i,b in enumerate(rig['bones'])}
     model['bones']=[{'name':b['name'],'parent':names[b['parent']]if b['parent']is not None else -1,'pivot':b['pivot']}for b in rig['bones']]
-    model['clips']={key:{'duration':c['duration'],'loop':c['loop'],'tracks':[
-        {'bone':names[n],'channel':channel,'keys':[[float(t),*v]for t,v in sorted(keys.items(),key=lambda item:float(item[0]))]}
-        for n,channels in c['tracks'].items()for channel,keys in channels.items()]}for key,c in rig['clips'].items()}
+    clips={}
+    for key,c in rig['clips'].items():
+        clips[key]={'duration':c['duration'],'loop':c['loop'],'tracks':[
+            {'bone':names[n],'channel':channel,'keys':[[float(t),*v]for t,v in sorted(keys.items(),key=lambda item:float(item[0]))]}
+            for n,channels in c['tracks'].items()for channel,keys in channels.items()]}
+        if 'parameters'in c:clips[key]['parameters']=c['parameters']
+    model['clips']=clips
     model['id']=ident;model['body_profile']='rounded_standard_v1';model['form_scale']=1.5 if 'deibu' in ident else 1
     model.pop('birth',None);model.pop('anatomy',None)
     for p,g in zip(model['parts'],rig['groups']):

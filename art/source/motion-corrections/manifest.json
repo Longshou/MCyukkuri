@@ -26,11 +26,11 @@
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
   "braid_rescue_author_sha256": "f076bc22f9d8e17051182f318b7eee96b58d2622b355caadc278ee2a384cc244",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "63dbb236da22e75dcc82cf411158803e190ede651e42bbfa39e7f2b9dbd8d527",
+  "braid_rescue_geometry_sha256": "a328d610fed0a7b22a44898bb466b045ce08e93b368d21927c122d85c358be80",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "6f4c6d43ab74174a1d0222ac0291ea61bd6966a06b71874204a5b4879c583de3",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "67664451d24206ecfef40231926f74754db44163a77a1922e317a9fa4b8e41fc",
+  "placement_fit_sha256": "5f24a7e3b655216fa45e0b686046ce8d008db27a6506d0295aa13ef32c463bde",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
   "runtime_sha256": "8eee7952644506a093386a996dc169a8c7ab21c445fa260eb40c4dc5ea0fc1ff",
   "models": {
@@ -100,7 +100,7 @@
     },
     "flandre": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "sha256": "f36ffb8d8d028156c1a39161d184e54cd22e8bb181ae6586714dd4b1bf2d46e8",
+      "sha256": "343628b2da3e5317eaac68600bec56cc8688756d62ad0e38e961705c80a34cbb",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
@@ -228,7 +228,7 @@
     },
     "marisa_tsumuri": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
+      "sha256": "a8ed66fb632a43447f173383c0f9b6e114797663f344cbf3ced77ca6d80c6aaa",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/angry.png",
@@ -404,7 +404,7 @@
     },
     "remilia": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "sha256": "3724156e4fd63c65477ba5d27620bd591a4eb8c798f64c25e3747ed67d3d0620",
+      "sha256": "1dd89f7d1e256403400dd3ef988e9d068c02930b485367f817d43f6080490ce9",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/angry.png",

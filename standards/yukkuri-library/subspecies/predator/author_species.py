@@ -251,6 +251,9 @@ def rig_for(original, config, added_bones):
         for b in added_bones:
             if b['parent']=='features_squash':
                 clip['tracks'][b['name']]['position']=skin_shift(clip['tracks'],slice_bones,b['pivot'])
+    # A lean past the 12 degree body budget is declared with the clip: the gate and PoseChecks read both keys.
+    tilt_budgets={'predator_dive':(20,'The airborne dive pitches the whole body nose-down at the prey below the perch.'),
+                  'predator_bite':(16,'The lunge drives the whole body forward into the bite at the prey.')}
     for name,duration,amp,tilt,loop in [('predator_fly',.6,28,-6,True),('predator_dive',.6,13,-18,True),
                                          ('predator_land',.8,36,10,False),('predator_bite',.8,9,-14,False)]:
         tracks={'body_motion':{'rotation':{'0':[tilt,0,0]}},'world_motion':{'position':{'0':[0,0,0]}}}
@@ -265,6 +268,8 @@ def rig_for(original, config, added_bones):
             if 'crystal' in b['name']:
                 tracks[b['name']]={'rotation':{'0':[0,0,-8],str(duration/2):[0,0,8],str(duration):[0,0,-8]}}
         rig['clips'][name]=dict(duration=duration,loop=loop,tracks=tracks)
+        if name in tilt_budgets:
+            budget,why=tilt_budgets[name];rig['clips'][name]['parameters']={'tilt_max':budget,'tilt_why':why}
     rig['clips'].update(perch_flap(config,added_bones))
     return rig
 

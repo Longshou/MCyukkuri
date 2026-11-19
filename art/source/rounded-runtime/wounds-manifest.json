@@ -33,8 +33,8 @@
       "total_vertices": 100716
     },
     "marisa_tsumuri": {
-      "runtime_sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
-      "surface_sha256": "14ed1e0cb700444a357f85ec9a023a7b1b505edda582966c8d3113bbf6612357",
+      "runtime_sha256": "a8ed66fb632a43447f173383c0f9b6e114797663f344cbf3ced77ca6d80c6aaa",
+      "surface_sha256": "34a8928eb553b2d886d5947647c3f35e59dce31870e08a1fac72247bf28f755a",
       "skin_vertices": 50124,
       "total_vertices": 100716
     },

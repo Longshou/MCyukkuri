@@ -1,6 +1,10 @@
 {
   "duration": 6,
   "loop": true,
+  "parameters": {
+    "tilt_max": 27,
+    "tilt_why": "Withdrawing into the shell rocks the whole body back; the side hair splays clear instead of folding through the compressed body."
+  },
   "tracks": {
     "body_motion": {
       "position": {
