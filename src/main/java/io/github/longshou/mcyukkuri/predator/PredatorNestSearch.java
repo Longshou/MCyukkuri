@@ -137,7 +137,34 @@ final class PredatorNestSearch {
         return Math.min(distance, level.sectionsToVillage(SectionPos.of(site)) * 16.0);
     }
 
-    private record Ranked(CanopySite site, boolean frame, double score, double distance) {
+    /** 11×11×9 site cells and the 24-block path neighbourhood of that square total fewer than 4096 probes. */
+    static ArrayList<Ranked> initialSites(ServerLevel level, YukkuriEntity body) {
+        int radius = 5;
+        var origin = body.blockPosition();
+        var ground = origin.atY(CanopySite.groundY(level, origin));
+        var paths = new ArrayList<BlockPos>();
+        int reach = RADIUS + radius;
+        for (int z = -reach; z <= reach; z++) for (int x = -reach; x <= reach; x++) {
+            int dx = Math.max(0, Math.abs(x) - radius), dz = Math.max(0, Math.abs(z) - radius);
+            if (dx * dx + dz * dz > RADIUS * RADIUS) continue;
+            var pos = origin.offset(x, 0, z);
+            if (pathOrFarm(level, pos)) paths.add(pos);
+        }
+        double timid = body.life().personality().temperament().timid();
+        var found = new ArrayList<Ranked>();
+        for (var pos : BlockPos.betweenClosed(ground.offset(-radius, CanopySite.MIN_HEIGHT, -radius),
+                ground.offset(radius, CanopySite.MAX_HEIGHT, radius))) {
+            var site = CanopySite.inspect(level, body, pos, true);
+            if (site == null || !level.getBlockState(pos).isAir() && !site.clearing().contains(pos)) continue;
+            double distance = Math.sqrt(origin.distSqr(pos));
+            double score = NestSiteScore.score(site.height(), site.cover(), pathDistance(level, pos, paths), distance, timid);
+            found.add(new Ranked(site, false, score, distance));
+        }
+        found.sort(Comparator.comparing((Ranked rank) -> !rank.site().clearing().isEmpty()).thenComparing(Ranked.ORDER));
+        return found;
+    }
+
+    record Ranked(CanopySite site, boolean frame, double score, double distance) {
         static final Comparator<Ranked> ORDER = Comparator.comparing(Ranked::frame).reversed()
                 .thenComparing((a, b) -> NestSiteScore.compare(b.score, b.distance, a.score, a.distance));
     }

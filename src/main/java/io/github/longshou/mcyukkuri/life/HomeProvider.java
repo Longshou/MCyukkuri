@@ -27,6 +27,10 @@ enum HomeProvider {
     PREDATOR {
         @Override boolean acceptsPredatorNest() { return true; }
 
+        @Override boolean standsOnLeaves(YukkuriEntity entity, BlockPos support) {
+            return entity.predator().supportsCanopyStand(support);
+        }
+
         @Override void lostHome(YukkuriEntity entity, BlockPos pos) {
             if (!entity.level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())) entity.predator().lostNest(pos);
         }
@@ -61,6 +65,7 @@ enum HomeProvider {
 
     BlockPos homeStand(YukkuriEntity entity) { return null; }
     boolean acceptsPredatorNest() { return false; }
+    boolean standsOnLeaves(YukkuriEntity entity, BlockPos support) { return false; }
     boolean canFlyTo(YukkuriEntity entity, BlockPos stand) { return false; }
     void lostHome(YukkuriEntity entity, BlockPos pos) {}
 

@@ -54,7 +54,8 @@ final class LifeHome {
                 && o.level().noCollision(o.entity(), new AABB(pos.getX()+.5-o.entity().getBbWidth()/2,
                         pos.getY(),pos.getZ()+.5-o.entity().getBbWidth()/2,pos.getX()+.5+o.entity().getBbWidth()/2,
                         pos.getY()+o.entity().getBbHeight(),pos.getZ()+.5+o.entity().getBbWidth()/2))
-                && o.level().getBlockState(pos.below()).isFaceSturdy(o.level(), pos.below(), Direction.UP);
+                && (o.level().getBlockState(pos.below()).isFaceSturdy(o.level(), pos.below(), Direction.UP)
+                    || o.homeProvider().standsOnLeaves(o.entity(), pos.below()));
     }
 
     boolean restable(BlockPos pos) {

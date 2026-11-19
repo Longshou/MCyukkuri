@@ -28,6 +28,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.nbt.CompoundTag;
@@ -53,12 +55,16 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.neoforged.neoforge.event.EventHooks;
 
 /** A bounded, interruptible hunt. Movement uses the engine's flying paths and block collision. */
 public final class PredatorLife implements EcologyRoutine {
@@ -345,6 +351,10 @@ public final class PredatorLife implements EcologyRoutine {
         return !animal.level().isClientSide && EcologyRoutines.predator(animal);
     }
     @Override public void passiveTick() {
+        if (naturalSpawn) {
+            naturalSpawn = false;
+            placeInitialNest();
+        }
         if (bittenPrey != null && level().getGameTime() - bittenAt >= 100) bittenPrey = null;
         if (cooldown > 0) cooldown--;
         if (biteTicks > 0) biteTicks--;
@@ -367,6 +377,61 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.predatorFlying() && animal.tickCount % 20 == 0)
             animal.life().spendEnergy(Math.min(1, animal.life().energy()));
     }
+
+    private boolean playerNear(Vec3 feet) {
+        return level().players().stream().anyMatch(player -> player.distanceToSqr(feet) <= 32 * 32);
+    }
+
+    /** Initial placement consumes the request once, including saved chunk-generation spawns. */
+    private void placeInitialNest() {
+        String refusal = initialNestRefusal();
+        if (refusal != null) {
+            GameplayLog.event(animal, "predator", "spawn nest refused reason={}", refusal);
+            return;
+        }
+        var sites = PredatorNestSearch.initialSites(level(), animal);
+        int siteChecks = 0;
+        String reason = "no_site";
+        for (var rank : sites) {
+            var site = rank.site();
+            if (playerNear(site.pad())) { reason = "player_near_site"; continue; }
+            // A candidate and the ordinary home assignment can each make one flight check.
+            if (++siteChecks > 4) break;
+            if (!site.reachable(animal)) { reason = "no_flight_route"; continue; }
+            if (!placeInitialNest(site)) { reason = "placement_or_claim_refused"; continue; }
+            GameplayLog.event(animal, "predator", "spawn nest placed site={} tree_height={} score={} cleared_leaves={} candidates={}",
+                    site.cell(), site.height(), rank.score(), site.clearing().size(), sites.size());
+            return;
+        }
+        GameplayLog.event(animal, "predator", "spawn nest refused reason={} candidates={}", reason, sites.size());
+    }
+
+    private String initialNestRefusal() {
+        if (animal.isNoAi() || animal.isPassenger()) return "body_unavailable";
+        if (playerNear(animal.position())) return "player_near_spawn";
+        if (animal.life().home() != null || HumanCommerce.protectedAnimal(animal)) return "protected";
+        if (!EventHooks.canEntityGrief(level(), animal)) return "mob_griefing";
+        return null;
+    }
+
+    private boolean placeInitialNest(CanopySite site) {
+        var level = level();
+        var cell = site.cell();
+        var old = level.getBlockState(cell);
+        var above = cell.above();
+        var roof = level.getBlockState(above);
+        boolean clearAbove = site.clearing().contains(above);
+        if (clearAbove && !level.setBlock(above, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL)) return false;
+        boolean placed = level.setBlock(cell, ModBlocks.PREDATOR_NEST.get().defaultBlockState(), Block.UPDATE_ALL);
+        var actual = placed ? CanopySite.inspect(level, animal, cell) : null;
+        if (actual != null && animal.life().assignHome(GlobalPos.of(level.dimension(), cell))) {
+            Motor.relocate(animal, actual.pad(), SurfaceApproach.yaw(actual.pad(), actual.stand()), "spawn_nest_perch");
+            return true;
+        }
+        if (placed) level.setBlock(cell, old, Block.UPDATE_ALL);
+        if (clearAbove) level.setBlock(above, roof, Block.UPDATE_ALL);
+        return false;
+    }
     public boolean canFlyTo(BlockPos pos) {
         if (!level().hasChunkAt(pos) || !level().getFluidState(pos).isEmpty()) return false;
         var navigation = new FlyingPathNavigation(animal, level());
@@ -377,6 +442,10 @@ public final class PredatorLife implements EcologyRoutine {
     }
     boolean canFlyToFeet(Vec3 feet) {
         return flightSweepClear(animal.position(), feet) || canFlyTo(BlockPos.containing(feet));
+    }
+
+    public boolean supportsCanopyStand(BlockPos support) {
+        return CanopySite.leafTop(level(), support, level().getBlockState(support));
     }
 
     public void lostNest(BlockPos pos) {
@@ -397,7 +466,7 @@ public final class PredatorLife implements EcologyRoutine {
             cancelNestSearch(); return Result.NOT_FOUND;
         }
         if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
-        if (task == Task.FOUND || nestBuild.wants()) { cancelNestSearch(); return Result.DEFERRED; }
+        if (naturalSpawn || task == Task.FOUND || nestBuild.wants()) { cancelNestSearch(); return Result.DEFERRED; }
         if (nestSearch != null && !nestSearch.current(level, animal)) cancelNestSearch();
         if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, false);
         var result = nestSearch.advance(animal, pos -> false, pos -> 0);
@@ -406,7 +475,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean canUse() {
         if (active()) return runnable();
-        if (!ready()) return false;
+        if (naturalSpawn || !ready()) return false;
         var home = animal.life().homeStand();
         if (home != null && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
@@ -1011,7 +1080,7 @@ public final class PredatorLife implements EcologyRoutine {
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Order", order.name()); tag.putInt("Cooldown", cooldown);
         tag.putBoolean("NaturalSpawn", naturalSpawn); if (commander != null) tag.putUUID("Commander", commander);
-        if (lostNest != null && level().getGameTime() < lostNestUntil) {
+        if (lostNest != null && animal.level().getGameTime() < lostNestUntil) {
             var lost = new CompoundTag(); lost.putLong("Pos", lostNest.asLong()); lost.putLong("Until", lostNestUntil);
             tag.put("LostNest", lost);
         }
