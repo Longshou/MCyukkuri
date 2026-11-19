@@ -235,12 +235,13 @@ public final class DenSeal {
         var mouth = Vec3.atCenterOf(home.entrance());
         if (danger != null && danger.distanceToSqr(mouth) < DOOR_SAFE_SQR && !holdsThroughHit()) { abort("danger_at_door"); return false; }
         if (phase == Phase.WALK) {
-            var step = walkTo(stand);
+            var step = walkTo(stand, walkBudget - ticks);
             if (step == SurfaceApproach.Result.ARRIVED) {
                 phase = Phase.WORK;
                 ticks = 0;
             } else {
-                if (step == SurfaceApproach.Result.BLOCKED || ++ticks >= walkBudget) abort("path_stuck");
+                if (step == SurfaceApproach.Result.BLOCKED) abort("path_stuck");
+                else ticks++;
                 return active();
             }
         }
@@ -290,13 +291,18 @@ public final class DenSeal {
         return best;
     }
 
-    private SurfaceApproach.Result walkTo(Stand target) {
-        if (!SurfaceApproach.at(y, target.at()) && SurfaceApproach.tryStraightStep(y, target.at(), WORK_PACE))
+    private SurfaceApproach.Result walkTo(Stand target, int remaining) {
+        // Motor.step takes effect during travel, after this goal tick.
+        if (SurfaceApproach.at(y, target.at())) return SurfaceApproach.Result.ARRIVED;
+        if (remaining == 0) return SurfaceApproach.Result.BLOCKED;
+        if (SurfaceApproach.tryStraightStep(y, target.at(), WORK_PACE))
             return SurfaceApproach.Result.MOVING;
         return SurfaceApproach.walkResult(y, target.at(), null, WORK_PACE);
     }
 
-    private double travelTicks(Stand target) { return target.route() / (BodyAbility.of(y).walkSpeed() * WORK_PACE); }
+    private double travelTicks(Stand target) {
+        return target.route() / (BodyAbility.of(y).walkSpeed() * BodyAbility.carrying(y) * WORK_PACE);
+    }
 
     private static boolean clearOfScreen(AABB body, List<BlockPos> cells) {
         return cells.stream().noneMatch(cell -> body.intersects(new AABB(cell)));
@@ -570,9 +576,10 @@ public final class DenSeal {
                 return true;
             }
             if (phase == OpeningPhase.WALK) {
-                var step = walkTo(target);
+                var step = walkTo(target, budget - elapsed);
                 if (step != SurfaceApproach.Result.ARRIVED) {
-                    if (step == SurfaceApproach.Result.BLOCKED || ++elapsed >= budget) refuse(barrier, "path_stuck");
+                    if (step == SurfaceApproach.Result.BLOCKED) refuse(barrier, "path_stuck");
+                    else elapsed++;
                     return active();
                 }
                 SurfaceApproach.halt(y);
