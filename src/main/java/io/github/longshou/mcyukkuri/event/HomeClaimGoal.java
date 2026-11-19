@@ -84,7 +84,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         var claim=HomeClaim.of(entity);
         if (claim==null || !HomeClaim.mayAct(entity)) return false;
         if (opening!=null) return claim.stage!=HomeClaimData.Stage.RETREAT;
-        if (crop!=null) return elapsed<300 && Grazing.cropAt(entity,crop);
+        if (crop!=null) return claim.stage!=HomeClaimData.Stage.RETREAT && elapsed<300 && Grazing.cropAt(entity,crop);
         return HomeClaim.away(entity,claim,homing) && (claim.stage==HomeClaimData.Stage.RETREAT
                 || HomeClaim.reachable(entity,claim));
     }

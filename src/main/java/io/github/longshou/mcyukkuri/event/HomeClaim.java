@@ -507,7 +507,7 @@ public final class HomeClaim {
 
     // --- movement (used by HomeClaimGoal) ---------------------------------------------------------------------
     public static boolean mayAct(YukkuriEntity y) {
-        if (declaring(y) || y.reactionAction() == YukkuriAction.STAMP && retreating(y)) return false;
+        if (declaring(y)) return false;
         if (!decisionReady(y) || !y.isAlive() || y.isNoAi() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
                 || y.life().mealTicks()!=0 || y.isInWaterOrBubble() || y.isPassenger()) return false;
         var life=y.life(); // Only hunger may be answered here; other urgent needs go back to their own goals.
@@ -541,8 +541,8 @@ public final class HomeClaim {
         return at!=null&&y.distanceToSqr(at)<= (c.occupation?.36:1) && reachable(y,c);
     }
     public static void step(YukkuriEntity y, Claim c) {
-        if ((!c.occupation||c.stage==Stage.RETREAT) && !y.getNavigation().isDone() && y.tickCount%40!=0) return;
         if (c.stage==Stage.RETREAT) { if (c.retreat!=null) retreatStep(y,c); return; }
+        if (!c.occupation && !y.getNavigation().isDone() && y.tickCount%40!=0) return;
         if(c.occupation) {
             var at=stand(y,c);
             if(at!=null)SurfaceApproach.walkResult(y,at,null,1);
@@ -550,6 +550,12 @@ public final class HomeClaim {
     }
     /** The pathfinder only plans short hops, so flee toward the far anchor ten blocks at a time. */
     private static void retreatStep(YukkuriEntity y, Claim c) {
+        var reaction = y.reactionAction();
+        if (reaction != null && !reaction.walks()) {
+            SurfaceApproach.stopWalking(y);
+            return;
+        }
+        if (!y.getNavigation().isDone() && y.tickCount%40!=0) return;
         var site = Vec3.atBottomCenterOf(c.site.pos());
         var anchor = Vec3.atBottomCenterOf(c.retreat.pos());
         var actor = y.status().reactions().threat().source();
@@ -612,7 +618,10 @@ public final class HomeClaim {
                 if (answer != Answer.CURSE) y.mind().felt(EmotionEvent.FRIGHTENED);
                 switch (answer) {
                     case CURSE -> {
-                        if (y.showReaction(YukkuriAction.STAMP, "angry", "", 80)) y.speakCue("driven_curse");
+                        var stamp = YukkuriAction.STAMP;
+                        if (y.showReactionDelayed(stamp, "angry", "driven_curse", ClipMarkers.of(stamp.id()).length(),
+                                1, null, spoken -> GameplayLog.event(y, "home-claim", "curse stamp spoken={}", spoken))
+                                && !y.isPanicking()) SurfaceApproach.halt(y);
                     }
                     case FAREWELL -> {
                         if (y.showReaction("teary", "", 80)) y.speakCue("driven_farewell");

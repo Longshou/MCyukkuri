@@ -407,7 +407,7 @@ add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一�
 add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝，可驱离',
     '草窝和空丝绒窝都在屋檐下。胆大、低友善的魔理沙已有草窝，却自己走向丝绒窝并说住家宣言。'
     '等它到新窝后走近，观察转身、警告、鼓脸；停在近处还可能被轻撞。拒绝事件、抱起或贴近驱赶时，'
-    '它会按性格骂回去、道别或哼一声。直接打它时看它如何应对这一击。',
+    '它会按性格骂回去、道别或哼一声。看魔理沙跺完脚再转身退走，离开时仍带怒容。直接打它时看它如何应对这一击。',
     '约 30 秒', [
         box(1, -1, 1, 9, 3, 8, 'minecraft:oak_planks', 'hollow'),
         block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower]'),
@@ -7122,12 +7122,19 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
     _spec['expect'] += [rf'\[home-claim\][^\n]* territory {beat} target={_uuid_text(_sid, "territory_intruder")}\b'
                         for beat in ('warn', 'chase')]
     if _sid == 'home_greedy':
+        _spec['ticks'] = 1510
         _spec['commands'] += [
-            (700, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator enter'),
-            (702, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
-            (805, 'yukkuri scenario tool_operator leave'),
+            (698, block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower,open=true]')),
+            (698, block(5, 1, 8, 'minecraft:oak_door[facing=south,half=upper,open=true]')),
+            (700, f'execute at {sel("greedy")} positioned ~ ~ ~-1 run yukkuri scenario tool_operator enter'),
+            (702, f'yukkuri scenario care_click {sel("greedy")} decline_event'),
+            (1310, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator move'),
+            (1312, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
+            (1415, 'yukkuri scenario tool_operator leave'),
         ]
-        _spec['expect'] += [r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
+        _spec['expect'] += [r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
+                            r'\[home-claim\][^\n]* curse stamp spoken=true',
+                            r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
         _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
         _spec['verify'] = _struck_speech
 

@@ -391,7 +391,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean runningGait(String behavior) {
         return moveControl instanceof HouseCrawlControl ground && Gait.isRunning(isCrawling(), childhood.canJump() && !body.footBurned(),
                 ground.lastRequestedSpeed(), behavior.equals(Behaviors.FLEE) || behavior.equals(Behaviors.THREAT_RETREAT)
-                        || behavior.equals(Behaviors.RAIN_RUN) || behavior.equals(Behaviors.HOME_CLAIM_RETREAT));
+                        || behavior.equals(Behaviors.RAIN_RUN));
     }
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
     /** Blocks the crawl gait covers per tick on average: one stroke's travel spread over its period, at this body's size and speed. */

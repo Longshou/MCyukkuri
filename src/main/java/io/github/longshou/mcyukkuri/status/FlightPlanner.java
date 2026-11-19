@@ -102,7 +102,7 @@ public final class FlightPlanner {
         plannedAt = body.level().getGameTime();
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         var path = fan(danger, Math.min(9, distance), direction, null, null);
-        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) { noExit(); return; }
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1)) { noExit(); return; }
         route = body.getNavigation().getPath();
     }
 

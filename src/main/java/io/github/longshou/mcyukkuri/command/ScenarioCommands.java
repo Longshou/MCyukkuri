@@ -591,6 +591,10 @@ public final class ScenarioCommands {
         var target = yukkuri(c, "target");
         if (target == null) return 0;
         String item = StringArgumentType.getString(c, "item");
+        if (item.equals("decline_event")) {
+            var player = c.getSource().getLevel().getPlayerByUUID(TOOL_OPERATOR);
+            return player instanceof FakePlayer && InteractionDispatch.perform(player, target, CareAction.DECLINE_EVENT) ? 1 : 0;
+        }
         if (item.equals("cold") || item.equals("serving")) {
             if (!target.pet().ownedBy(TOOL_OPERATOR)) return 0;
             if (!(target.pet().presentOwner() instanceof FakePlayer owner) || !owner.getUUID().equals(TOOL_OPERATOR)) return 0;
