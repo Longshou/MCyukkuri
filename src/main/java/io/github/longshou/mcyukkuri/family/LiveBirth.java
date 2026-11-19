@@ -441,6 +441,8 @@ final class LiveBirth extends Choreography {
         if(receiver instanceof Cabin)return null;
         var m=o.entity();var care=FamilyNest.care(m);var shelter=m.habitat().shelter();
         BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(m.getUUID()):null;
+        var canopy = o.canopyBirth();
+        if (canopy != null) return new GoTo("birth_site", m, canopy.stand(), now()+Math.max(NEST_GRACE,toTerm())).facing(canopy.yaw());
         if(!live&&receiver instanceof Nest){
             var centre=FamilyNest.largeCentre(m);var brood=brood();
             var support=BedContainer.of(m,bed);
@@ -468,7 +470,7 @@ final class LiveBirth extends Choreography {
     private Intent stemSite(){
         var m=o.entity();
         var hat=placedHat();var c=catcher();
-        if(hat==null||c==null)return receiver instanceof Nest?site():null;
+        if(hat==null||c==null)return receiver instanceof Nest || o.canopyBirth()!=null ? site() : null;
         if(self())return null;
         if(meeting!=null){
             var stand=meeting.site();
@@ -486,7 +488,7 @@ final class LiveBirth extends Choreography {
         }
         return best==null?null:new GoTo("stem_drop_site",m,best,now()+NEST_GRACE).around(c).facing(facing);
     }
-    private static Vec3 ripeFruit(YukkuriEntity mother,FamilyData.Brood brood,int index){
+    static Vec3 ripeFruit(YukkuriEntity mother,FamilyData.Brood brood,int index){
         var child=brood.children.get(index);
         return FamilyGeometry.childBase(brood.children.size(),index,1,mother.growthScale(),brood.variation,
                 mother.getVariant(),child.variant,GrowthSize.physicalBirth(brood.kind,child));

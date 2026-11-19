@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -549,6 +550,7 @@ public final class FamilyLife {
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
      *  Danger or a hunger emergency can displace a catcher. Ordinary comfort waits while the catch is under way. */
     public Conductor.Role birthRole() {
+        if (entity.getVariant().isPredator() && entity.predator().needsBroodFlight()) return null;
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
         if(role.choreography().host()==entity&&shoreLanding())return null;
@@ -559,6 +561,8 @@ public final class FamilyLife {
     public void holdBirthRole(Conductor.Role role) {
         if(role.choreography() instanceof LiveBirth ceremony && ceremony.host()==entity && ceremony.anchorsMother()){
             SurfaceApproach.halt(entity);
+            var canopy = canopyBirth();
+            if (canopy != null) face(canopy.yaw());
             entity.life().eatAtStand();
         }else entity.getNavigation().stop();
         var cabin=birthCabin();
@@ -802,7 +806,27 @@ public final class FamilyLife {
         FamilyData.get(level()).setDirty();return "";
     }
     /** A ripe fruit still needs a physically available mother to drop from. */
+    public record CanopyBirth(Vec3 stand, float yaw) {}
+    public CanopyBirth canopyBirth() {
+        var brood = brood();
+        if (brood == null || brood.complete() || brood.cancelled || brood.kind != FamilyData.BirthKind.STEM
+                || !entity.getVariant().isPredator() || !entity.status().identity().wild()) return null;
+        var pad = nestStand();
+        if (pad == null || !level().getBlockState(pad).is(ModBlocks.PREDATOR_NEST.get())) return null;
+        var entrance = entity.life().homeEntrance(pad);
+        if (entrance == null) return null;
+        var centre = Vec3.atBottomCenterOf(pad);
+        double first = -LiveBirth.ripeFruit(entity, brood, 0).z * entity.getScale();
+        double last = -LiveBirth.ripeFruit(entity, brood, brood.children.size()-1).z * entity.getScale();
+        double depth = CanopyBirthGeometry.depth(first, last, entity.getBbWidth());
+        var stand = centre.add(entrance.subtract(centre).normalize().scale(depth));
+        return new CanopyBirth(stand, SurfaceApproach.yaw(stand, centre));
+    }
+
     boolean readyForStemDrop(){
+        var canopy = canopyBirth();
+        if (canopy != null && (!SurfaceApproach.at(entity, canopy.stand())
+                || Math.abs(Mth.wrapDegrees(entity.yBodyRot - canopy.yaw())) > Face.FACE_ARRIVED)) return false;
         return !entity.operations().active()&&!entity.isPanicking()&&!entity.isOnFire()&&!entity.isInWaterOrBubble()
                 &&!entity.isPassenger()&&supported()
                 &&!entity.isCommandPlaying()&&!entity.body().condition().blocksBreedingApproach()
@@ -916,7 +940,8 @@ public final class FamilyLife {
     }
     /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {
-        boolean pad=FamilyNest.cushions(entity),hat=entity.getVehicle()!=null;
+        boolean pad=FamilyNest.cushions(entity) || entity.getVariant().isPredator() && entity.onGround()
+                && entity.childhood().padUnderfoot()!=null,hat=entity.getVehicle()!=null;
         var rim=entity.isInWaterOrBubble()||pad?null:hat?Occupancy.hollow(entity):FamilyNest.rimCentre(entity);
         if(rim!=null&&rimRolls<RIM_ROLLS){
             // On the soft rim or bolster it tumbles down the inner slope toward the floor (project design); on a hat's brim it tumbles
@@ -1781,6 +1806,12 @@ public final class FamilyLife {
         }
         switch(task) {
             case BROOD -> {
+                var canopy = canopyBirth();
+                if (canopy != null) {
+                    SurfaceApproach.halt(entity);
+                    face(canopy.yaw());
+                    return;
+                }
                 // Early pregnancy: home to the nest to tend the brood (the last APPROACH_LEAD ticks are LiveBirth's site beat).
                 BlockPos home=nestStand();
                 var shelter=entity.habitat().shelter();

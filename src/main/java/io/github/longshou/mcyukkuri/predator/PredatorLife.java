@@ -84,7 +84,7 @@ public final class PredatorLife implements EcologyRoutine {
     private static final double FLIGHT_PATH_SEGMENT = 24;
     private static final double PATROL_RADIUS = 60;
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
-    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT }
+    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT, BROOD_FLIGHT }
     /** One attack run: climb above the target, stoop onto it, pull away, circle back (project design, after the Phantom's swoop). */
     private enum Pass { APPROACH, STOOP, WITHDRAW }
     /** A feeding bite and a combat strike hurt less than the former 2.0 so a blocker survives several passes (project design). */
@@ -157,7 +157,7 @@ public final class PredatorLife implements EcologyRoutine {
             case PERCH -> watchTicks > 0 ? Behaviors.PREDATOR_PERCH : Behaviors.PREDATOR_FLY;
             case FLAP -> Behaviors.PREDATOR_FLAP;
             case BRANCH_HOP -> Behaviors.PREDATOR_PERCH;
-            case FIRST_FLIGHT -> Behaviors.PREDATOR_FLY;
+            case FIRST_FLIGHT, BROOD_FLIGHT -> Behaviors.PREDATOR_FLY;
             case FOUND -> nestBuild.activity();
             default -> Behaviors.IDLE;
         };
@@ -232,7 +232,19 @@ public final class PredatorLife implements EcologyRoutine {
         return readyExceptMeal() && animal.life().mealTicks() == 0;
     }
     /** An eat pause (or the landing that leads into it) is the very meal, so a mouthful does not end it. */
+    public boolean needsBroodFlight() {
+        if (task == Task.BROOD_FLIGHT) return true;
+        var site = animal.family().canopyBirth();
+        return site != null && !SurfaceApproach.at(animal, site.stand()) && broodFlightReady() && freeStand(site.stand());
+    }
+
+    private boolean broodFlightReady() {
+        return canSustainFlight() && !animal.isNoAi() && !animal.isPanicking() && !animal.isCommandPlaying()
+                && !animal.operations().active() && !animal.isOnFire() && !animal.life().isSleeping();
+    }
+
     private boolean runnable() {
+        if (task == Task.BROOD_FLIGHT) return broodFlightReady() && animal.family().canopyBirth() != null;
         return task == Task.LAND && animal.predatorFlying() ? readyForLanding()
                 : task == Task.EAT ? readyExceptMeal() : ready();
     }
@@ -241,7 +253,8 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean readyForLanding() {
         return EcologyRoutines.predator(animal) && canSustainFlight() && !animal.isNoAi()
                 && !animal.isCommandPlaying() && !animal.operations().active() && !animal.pet().busy()
-                && !animal.life().isSleeping() && !animal.family().active() && animal.family().brood() == null;
+                && !animal.life().isSleeping() && (!animal.family().active() && animal.family().brood() == null
+                || animal.family().canopyBirth() != null);
     }
     private boolean readyExceptMeal() {
         return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
@@ -499,6 +512,11 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean canUse() {
         if (active()) return runnable();
+        if (EcologyRoutines.predator(animal) && needsBroodFlight() && hasAirExit()) {
+            destination = animal.family().canopyBirth().stand();
+            task = Task.BROOD_FLIGHT;
+            return true;
+        }
         if (naturalSpawn || !ready()) return false;
         if (animal.childhood().nestling()) {
             if (animal.status().identity().wild() && choosePractice()) return true;
@@ -1089,6 +1107,15 @@ public final class PredatorLife implements EcologyRoutine {
             return;
         }
         if (task == Task.PERCH) { perch(); return; }
+        if (task == Task.BROOD_FLIGHT) {
+            if (!freeStand(destination)) { stop(); return; }
+            if (landingState(true, SurfaceApproach.at(animal,destination)) == ShelfApproach.Landing.TOUCHDOWN) {
+                animal.setPredatorFlying(false);
+                GameplayLog.event(animal,"family","brood landed at nest entrance feet={}",animal.position());
+                stop();
+            } else flyToFeet(destination,true);
+            return;
+        }
         if (task == Task.FLAP) {
             if (!animal.onGround() || !SurfaceApproach.supported(animal, destination)) { stop(); return; }
             if (!SurfaceApproach.at(animal, destination)) {

@@ -12,7 +12,11 @@ public record SpeciesProfile(Ecology ecology, BreedingPool pool, FamilyData.Birt
                              boolean boundBySocialRules, boolean hatVessel, boolean jumps, boolean diurnal,
                              int metabolismDivisor, float modelScale, float portionScale, SpeciesTraits traits, Diet diet) {
     public enum Ecology { WILD, HOUSE, PREDATOR, AQUATIC }
-    public enum BreedingPool { LAND, AQUATIC, HOUSE, PREDATOR }
+    public enum BreedingPool {
+        LAND(5), AQUATIC(3), HOUSE(4), PREDATOR(2);
+        public final int maxYoung;
+        BreedingPool(int maxYoung) { this.maxYoung = maxYoung; }
+    }
 
     private static final EnumMap<YukkuriVariant, EnumMap<SubspeciesLife.Kind, SpeciesProfile>> PROFILES = create();
 
