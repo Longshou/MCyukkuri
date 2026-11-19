@@ -843,6 +843,14 @@ _devoted_parent_txt = _uuid_text('stray_paper_young', 'devoted_parent')
 _devoted_baby_txt = _uuid_text('stray_paper_young', 'devoted_baby')
 _self_parent_txt = _uuid_text('stray_paper_young', 'self_parent')
 _self_baby_txt = _uuid_text('stray_paper_young', 'self_baby')
+def _no_sleep_before_fire(log):
+    """The covered baby must not sleep while it is still cold in the gap; at the lit fire it warms, and a warm nap is its own."""
+    marker = re.search(rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* campfire rest', log)
+    if not marker:
+        return None
+    if re.search(rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin', log[:marker.start()]):
+        return 'devoted baby slept before it warmed at the fire'
+    return None
 add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自利者先盖自身', '流浪：亲油叼纸盖赤油',
     '雪原冬夜，东西两处矮木板檐缝各歇着一户母子，中央有两捆报纸。西侧重亲情的魔理沙先叼一张给赤油披上，再逐张叼三张盖自己。东侧自利的灵梦先盖自己。听赤油哭诉，披好纸后点亮西侧篝火，观察赤油朝火、亲油靠外。',
     '约一分钟', [
@@ -877,8 +885,7 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                         f'yukkuri status {sel("self_parent")} raw', f'yukkuri status {sel("self_baby")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
                        r'\[body\][^\n]* (?:burn remembered|sole burned|accepted damage cause=(?:inFire|onFire|hotFloor|campfire))',
-                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped on child=',
-                       rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin'],
+                       rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped on child='],
                expect=[rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* wind cover paper approach',
                        rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* baby paper cover approach child={_devoted_baby_txt}',
                        rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped on child={_devoted_baby_txt} item=minecraft:paper count=1',
@@ -888,7 +895,8 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                        r'\[temperature\][^\n]* cold onset .*line=dialogue\.mcyukkuri\..*\.baby\.s_cold parent=[0-9a-f-]+',
                        rf'\[family\][^\n]* uuid={_devoted_parent_txt} [^\n]* heard cold cry child={_devoted_baby_txt}',
                        rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* campfire rest .*ring=2\..*shield_parent={_devoted_parent_txt}',
-                       r'MCYPAPER_YOUNG_ONE_LEFT']))
+                       r'MCYPAPER_YOUNG_ONE_LEFT'],
+               verify=_no_sleep_before_fire))
 
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
