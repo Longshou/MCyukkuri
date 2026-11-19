@@ -33,7 +33,9 @@ public final class Conscience {
     final Elopement departure;
     public Conscience(YukkuriEntity pet) { this.pet = pet; departure = new Elopement(pet); }
 
-    public void ownerIntervened() { departure.interrupt("owner_intervened"); }
+    public void ownerIntervened(UUID actor) { departure.counter(actor); }
+    public void sprayedBy(Player sprayer) { departure.sprayedBy(sprayer); }
+    public boolean trystWith(YukkuriEntity peer) { return departure.trystWith(peer); }
     public HouseRules household() { return HouseRules.get((ServerLevel) pet.level()); }
     public boolean told() { return instruction.known(pet.pet().owner(), household().version(pet.pet().owner())); }
     public boolean binds(HouseRule rule) { return binds(rule, false); }
@@ -85,6 +87,10 @@ public final class Conscience {
 
     public void witnessedSong() {
         if (guilt == HouseRule.NO_SINGING && !caught && pet.pet().ownedBy(guiltOwner) && HumanSight.watching(pet)) caught("sight");
+    }
+
+    void witnessedYard() {
+        if (guilt == HouseRule.NO_LEAVING_YARD && !caught && pet.pet().ownedBy(guiltOwner)) caught("sight");
     }
 
     boolean undiscovered() {

@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.pet.PetLife;
-import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -87,7 +86,9 @@ final class Courtship {
     /** Only a receiver which was participating and actually lost MOVE can earn the one return. */
     boolean receiverInterrupted() {
         if(declinedRound||o.target()==null||!o.target().isAlive())return false;
-        var peer=o.target();var goal=peer.competingMoveGoalId();
+        var peer=o.target();
+        if(peer.family().courting(o.entity()) && peer.pet().conscience().trystWith(o.entity()))return false;
+        var goal=peer.competingMoveGoalId();
         if(goal==null)return false;
         if(courtNearTicks>0&&o.inBreedingPeriod()&&peer.family().inBreedingPeriod()) {
             failed=failure(peer,goal);
@@ -108,8 +109,9 @@ final class Courtship {
     /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
     FamilyLife presentingCourt() {
         var leader=leader();
-        if(o.entity().level().isClientSide||leader==null||leader.courtship().courtNearTicks==0
-                ||!safeContact(o.target())||!leader.courtship().climax()&&(!ready()||!o.target().family().ready()))return null;
+        if(o.entity().level().isClientSide||leader==null||leader.courtship().courtNearTicks==0||!safeContact(o.target()))return null;
+        boolean needHome=!o.entity().pet().conscience().trystWith(o.target());
+        if(!leader.courtship().climax()&&(!ready(needHome)||!o.target().family().ready(needHome)))return null;
         return leader;
     }
 
@@ -250,8 +252,7 @@ final class Courtship {
 
     private static boolean resists(YukkuriEntity body, YukkuriEntity peer, Choice choice) {
         if (choice != Choice.HOLD && choice != Choice.WAIT) return false;
-        body.family().addPentUp(PentUpMath.HELD, choice.name());
-        PetScenes.courtshipHeld(body, peer);
+        body.family().heldCourtship(peer, choice);
         return true;
     }
 
@@ -279,7 +280,8 @@ final class Courtship {
     }
     private boolean pairingAllowed(YukkuriEntity other,boolean declined) {
         boolean arr=other.getUUID().equals(arranged)||o.entity().getUUID().equals(other.family().arrangedMate());
-        if(other==o.entity()||!arr&&(o.entity().dailyLife().active()||other.dailyLife().active())||o.entity().level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)
+        boolean tryst=o.entity().pet().conscience().trystWith(other);
+        if(other==o.entity()||!arr&&(o.entity().dailyLife().active()||other.dailyLife().active())||o.entity().level()!=other.level()||!ready(!arr&&!tryst)||!other.family().ready(!arr&&!tryst)
                 ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||!arr
                         &&(!o.entity().life().canRecognize(other)||!other.life().canRecognize(o.entity())))return false;
         if(!FamilyData.get(o.level()).canPair(o.entity(),other,true,declined))return false;
@@ -289,7 +291,7 @@ final class Courtship {
         if(Bonds.biological(o.entity(),
                 other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),
                         o.entity().getUUID())<BondLevels.AFFINITY_COOPERATIVE))return false;
-        if(arr)return true;
+        if(arr||tryst)return true;
         var a=o.nestStand();var b=other.family().nestStand();
         return a!=null&&b!=null&&a.distSqr(b)<=64;
     }

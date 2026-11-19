@@ -1,8 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
-import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.OptionalLong;
 
 /** Learned habits are bounded around the pet's current temperament. */
@@ -19,33 +17,35 @@ public final class RulesMath {
 
     public static boolean demandsSnack(int obedience) { return obedience < 65; }
 
-    public static boolean drawnTo(Identity partner, int toward, int returned, int ownerTrust) {
-        return partner.wild() && toward > ownerTrust
-                && toward >= BondLevels.AFFINITY_COOPERATIVE && returned >= BondLevels.AFFINITY_COOPERATIVE;
+    public static boolean receptive(int bond, float pressure, int attachment) {
+        return bond >= 0 && (Temperament.ramp(bond, 0, 30) + pressure / 100.0) / 2 > .20 + .45 * attachment / 100;
     }
 
-    public static final int DEPARTURE_PRESSURE = 70;
+    /** The visitor notices a healthy, well-groomed pet; a hungry or tired visitor tends to itself. */
+    public static boolean lures(float pressure, double bold, double nutrition, double energy,
+                                double petNutrition, double petHygiene, int affinity) {
+        double attraction = (petNutrition + petHygiene) / 200;
+        double desire = Temperament.ramp(pressure, 40, 100) * (.35 + .65 * bold) * (.35 + .65 * attraction);
+        return affinity >= 0 && desire > Math.max(.42 - .12 * Temperament.ramp(affinity, 0, 30),
+                Math.max(1 - Temperament.ramp(nutrition, 40, 70), 1 - Temperament.ramp(energy, 30, 65)));
+    }
+
+    public static int visitsAfterReturn(int visits) { return visits + 1; }
+    public static boolean witnessedCounter(boolean owner, boolean seesPet, boolean seesWild) {
+        return owner && (seesPet || seesWild);
+    }
+    public static int visitsAfterCounter(int visits) { return Math.max(0, visits - 2); }
+    public static int bondChange(int before, int after) { return (after - before) * 6; }
+    public static int nextVisitTicks(double timid) { return 3000 + (int) (6000 * timid); }
 
     /** A thirty-point preference for the partner is a strong bond. Smoothstep keeps modest motives weak. */
-    public static double departureChance(float pressure, int neglect, int attachment, int obedience, int toward, int ownerTrust) {
+    public static double departureChance(float pressure, int neglect, int attachment, int obedience, int selfControl,
+                                         int toward, int ownerTrust, int visits) {
         double discontent = (neglect + 100 - attachment) / 200.0;
-        double pull = Temperament.ramp(pressure, DEPARTURE_PRESSURE, 100) * discontent * (1 - obedience / 100.0)
-                * Temperament.ramp(toward - ownerTrust, 0, 30);
+        double pull = Temperament.ramp(pressure, 70, 100) * discontent * (1 - obedience / 100.0)
+                * (1 - selfControl / 200.0) * Temperament.ramp(toward - ownerTrust, 0, 30)
+                * Temperament.ramp(visits, 1, 2);
         return pull * pull * (3 - 2 * pull);
-    }
-
-    /** The wild adult weighs its own bond against wariness and the need to eat or rest. */
-    public static boolean wantsToJoin(int returnBond, double timid, double nutrition, double energy) {
-        double hunger = 1 - Temperament.ramp(nutrition, 40, 70);
-        double fatigue = 1 - Temperament.ramp(energy, 30, 65);
-        return Temperament.ramp(returnBond, 0, 30) > Math.max(.25 + .5 * timid, Math.max(hunger, fatigue));
-    }
-
-    public enum Meeting { CALLING, MISSED, APPROACHING, TOGETHER }
-
-    public static Meeting meeting(boolean answered, boolean beside, long elapsed, int lookTicks) {
-        if (answered) return beside ? Meeting.TOGETHER : Meeting.APPROACHING;
-        return elapsed < lookTicks ? Meeting.CALLING : Meeting.MISSED;
     }
 
     public static String interrupted(boolean ownerNear, boolean together, boolean freeToTravel, boolean familyNeedsCare) {

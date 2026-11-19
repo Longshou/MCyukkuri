@@ -188,6 +188,7 @@ public final class PetLife {
     public int obedience() { return RulesMath.obedience(meekness(), obedienceShift); }
 
     public void disciplined(UUID actor, boolean hurt, int fearGain) {
+        conscience.ownerIntervened(actor);
         var effect = RulesMath.discipline(ownedBy(actor) && isPet(), hurt, conscience.breachAge(actor));
         animal.life().personality().relationshipChanged(actor, effect.closeness(), fearGain);
         if (effect.learning() != 0) learn(actor, effect.learning(), hurt ? "hurt" : "scold");
@@ -261,7 +262,7 @@ public final class PetLife {
     /** Owner feeding, talking or caring for the pet, or merely being near it. Cruel actions refresh presence only. */
     public void contact(UUID who, boolean care) {
         if (animal.level().isClientSide || !ownedBy(who) || !isPet()) return;
-        conscience.ownerIntervened();
+        conscience.ownerIntervened(who);
         lastContact = now(); neglectClock = 0;
         if (!care) return;
         if (presentOwner() instanceof Player player) conscience.tell(player);

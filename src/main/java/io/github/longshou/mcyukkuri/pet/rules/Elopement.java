@@ -3,160 +3,167 @@ package io.github.longshou.mcyukkuri.pet.rules;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.PentUpMath;
+import io.github.longshou.mcyukkuri.house.HouseholdProtection;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.Duty;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
-import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
-/** The two rules goals share the current walk. Each goal drives and stops only its own body. */
+/** The visitor calls. The pet's own goal decides when to cross the yard. Each moves only its own body. */
 final class Elopement {
-    private static final int RETRY_TICKS = 24000;
-    private static final int TRAVEL_TICKS = 2400;
-    private static final double DEPARTURE_STAND_DISTANCE = 24 + SurfaceApproach.ARRIVAL;
+    private static final int TRAVEL_TICKS = 2400, RETRY_TICKS = 24000;
+    private enum Phase { EDGE, CALL, MEET, TRYST, COURT, RETURN, LEAVE }
     private final YukkuriEntity body;
-    private Walk walk;
-    private long nextCheck;
+    private final Map<UUID, Integer> visits = new HashMap<>();
+    private Visit visit;
+    private Vec3 lastPet, lastWild;
+    private long nextCheck, nextPoll;
     private Failure lastFailure;
 
     Elopement(YukkuriEntity body) { this.body = body; }
-    boolean active() { return walk != null; }
-    private static Elopement behavior(YukkuriEntity y) { return y.pet().conscience().departure; }
-
-    private static boolean mobile(YukkuriEntity y) {
+    private static Elopement of(YukkuriEntity y) { return y.pet().conscience().departure; }
+    private static ServerLevel level(YukkuriEntity y) { return (ServerLevel) y.level(); }
+    private static double flat(Vec3 a, Vec3 b) { return a.subtract(b).horizontalDistanceSqr(); }
+    private static int affinity(YukkuriEntity from, YukkuriEntity to) {
+        return YukkuriWorldData.get(level(from)).affinity(from.getUUID(), to.getUUID());
+    }
+    private static boolean free(YukkuriEntity y) {
         return !BehaviorContinuity.emergency(y) && y.hurtTime == 0 && !y.isNoAi() && !y.isPassenger()
                 && !y.isVehicle() && !y.isLeashed() && !y.pet().busy() && !y.operations().active()
                 && !y.life().sedated() && !y.life().isSleeping() && !y.life().protectsStep()
-                && !y.life().hasUrgentNeed() && !y.house().active() && y.family().yieldsToComfort();
+                && !y.life().hasUrgentNeed() && !y.house().active();
     }
-
     private static boolean needsCare(YukkuriEntity y) {
-        return y.family().hasDependentYoung() || FamilyData.get((ServerLevel) y.level()).busyParent(y.getUUID());
+        return y.family().hasDependentYoung() || FamilyData.get(level(y)).busyParent(y.getUUID());
     }
-
-    private static boolean ownerNear(YukkuriEntity pet) {
+    private static boolean watched(YukkuriEntity pet, YukkuriEntity subject) {
         var owner = pet.pet().presentOwner();
-        return owner != null && pet.distanceToSqr(owner) <= 16 && pet.hasLineOfSight(owner);
+        return owner != null && HumanSight.sees(owner, subject);
     }
-
-    boolean answer() {
-        long now = body.level().getGameTime();
-        if (walk != null || now < nextCheck || !body.family().adult() || !body.status().identity().wild()) return false;
-        nextCheck = now + 40;
-        for (var other : body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(16))) {
-            var leaving = behavior(other).walk;
-            if (leaving == null || leaving.wild != body || !leaving.running() || !body.hasLineOfSight(other)) continue;
-            if (!mobile(body) || needsCare(body) || !body.duty().mayTake(Duty.Kind.RULES)) return false;
-            var bonds = YukkuriWorldData.get((ServerLevel) body.level());
-            int bond = bonds.affinity(body.getUUID(), other.getUUID());
-            double timid = body.life().personality().temperament().timid();
-            boolean joins = wantsToJoin(body, bond);
-            GameplayLog.event(body, "rules", "departure answer pet={} bond={} timid={} nutrition={} energy={} joins={}",
-                    other.getUUID(), bond, timid, body.life().nutrition(), body.life().energy(), joins);
-            if (!joins) { leaving.end("partner_declined", false); return false; }
-            walk = leaving;
-            return true;
+    private int count(UUID wild) { return visits.getOrDefault(wild, 0); }
+    private void recordVisits(YukkuriEntity wild, int after) {
+        int change = RulesMath.bondChange(count(wild.getUUID()), after);
+        if (after == 0) visits.remove(wild.getUUID()); else visits.put(wild.getUUID(), after);
+        var relations = YukkuriWorldData.get(level(body));
+        relations.relate(body.getUUID(), wild.getUUID(), change);
+        relations.relate(wild.getUUID(), body.getUUID(), change);
+    }
+    private boolean available() {
+        return free(body) && body.family().yieldsToComfort() && !needsCare(body) && body.duty().mayTake(Duty.Kind.RULES);
+    }
+    private Visit caller() {
+        for (var y : body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(32))) {
+            var v = of(y).visit;
+            if (v != null && v.pet == body && v.wild == y && v.reason == null) return v;
         }
-        return false;
+        return null;
     }
-
-    private static boolean wantsToJoin(YukkuriEntity wild, int bond) {
-        return RulesMath.wantsToJoin(bond, wild.life().personality().temperament().timid(), wild.life().nutrition(), wild.life().energy());
-    }
-
     boolean choose() {
         long now = body.level().getGameTime();
-        if (now < nextCheck || !body.family().adult() || body.family().pentUp() <= RulesMath.DEPARTURE_PRESSURE
-                || body.status().identity() != Identity.PET) return false;
-        // A passing partner can appear between minute-long decisions. Only an actual opportunity spends that draw.
-        nextCheck = now + 40;
-        if (Custody.view(body).ownerKind() != Custody.OwnerKind.PLAYER || ownerNear(body) || !mobile(body) || needsCare(body)) return false;
-        var home = body.life().homeStand();
-        var yard = home == null ? body.position() : Vec3.atBottomCenterOf(home);
-        if (horizontalSq(body.position(), yard) > 24 * 24) return false;
-        var bonds = YukkuriWorldData.get((ServerLevel) body.level());
-        var owner = body.pet().owner();
-        var personality = body.life().personality();
-        int trust = personality.trust(owner);
-        var candidates = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(16),
-                y -> y != body && body.distanceToSqr(y) <= 256 && horizontalSq(y.position(), yard) <= 24 * 24
-                        && RulesMath.drawnTo(y.status().identity(),
-                        bonds.affinity(body.getUUID(), y.getUUID()), bonds.affinity(y.getUUID(), body.getUUID()), trust)
-                        && body.hasLineOfSight(y) && body.family().compatibleWith(y) && mobile(y) && !needsCare(y)
-                        && !y.duty().claimed() && y.canJoinDeparture()
-                        && FamilyData.get((ServerLevel) body.level()).canPair(body, y, true));
-        candidates.sort(Comparator.comparingInt((YukkuriEntity y) -> bonds.affinity(body.getUUID(), y.getUUID())).reversed());
-        for (var wild : candidates) {
-            var wildStand = destination(wild, yard);
-            if (wildStand == null) continue;
-            var petStand = SurfaceApproach.beside(body, wildStand, 2, at -> beyondYard(at, yard)
-                    && horizontalSq(at, body.position()) > 4 * 4);
-            if (petStand == null || lastFailure != null && lastFailure.equals(failure(wild, petStand, wildStand))) continue;
-            nextCheck = now + 1200;
-            int bond = bonds.affinity(body.getUUID(), wild.getUUID());
-            double chance = RulesMath.departureChance(body.family().pentUp(), body.pet().neglect(), personality.attachment(),
-                    body.pet().obedience(), bond, trust);
-            double roll = body.getRandom().nextDouble();
-            boolean leaving = roll < chance;
-            GameplayLog.event(body, "rules", "departure opportunity partner={} chance={} leaving={} roll={} pressure={} neglect={} attachment={} obedience={} bond={} ownerTrust={}",
-                    wild.getUUID(), chance, leaving, roll, body.family().pentUp(), body.pet().neglect(), personality.attachment(),
-                    body.pet().obedience(), bond, trust);
-            if (!leaving) return false;
-            var rule = home == null || horizontalSq(body.position(), yard) > 64 ? RulesMath.Choice.ALLOW
-                    : body.pet().conscience().tempted(HouseRule.NO_LEAVING_YARD, body.family().pentUp() / 100, 1);
-            if (rule == RulesMath.Choice.HOLD || rule == RulesMath.Choice.WAIT) {
-                PetScenes.act(body, YukkuriAction.LOOK_AROUND, "teary", "", YukkuriAction.LOOK_AROUND.durationTicks());
-                lastFailure = failure(wild, petStand, wildStand);
-                return false;
+        if (now < nextCheck || now < nextPoll || !body.family().adult()) return false;
+        nextPoll = now + 20;
+        if (body.status().identity() == Identity.PET) {
+            if (body.life().homeStand() == null || !available()) return false;
+            var v = caller();
+            if (v == null || v.phase != Phase.CALL || !body.hasLineOfSight(v.wild)) return false;
+            var traits = body.life().personality();
+            // An observant pet checks the owner's gaze before committing its one house-rule choice.
+            if (now - v.since < traits.temperament().clever() * YukkuriAction.LOOK_AROUND.durationTicks()
+                    || traits.temperament().clever() >= .5 && HumanSight.watching(body)) return false;
+            if (flat(body.position(), v.yard) > 64 || !RulesMath.receptive(affinity(body, v.wild), body.family().pentUp(), traits.attachment())) {
+                v.end("declined"); return false;
             }
-            walk = new Walk(body, wild, owner, yard, petStand, wildStand, rule);
+            var conscience = body.pet().conscience();
+            var rule = conscience.tempted(HouseRule.NO_LEAVING_YARD, body.family().pentUp() / 100,
+                    1 - .65 * Math.clamp(affinity(body, v.wild) / 30.0, 0, 1));
+            if (rule == RulesMath.Choice.HOLD || rule == RulesMath.Choice.WAIT) {
+                if (rule == RulesMath.Choice.HOLD) body.family().heldCourtship(v.wild, rule);
+                v.end("stayed_home"); return false;
+            }
+            visit = v;
+            v.phase = Phase.MEET;
             return true;
         }
-        if (!candidates.isEmpty()) nextCheck = now + 1200;
+        if (!body.status().identity().wild() || body.family().pentUp() <= 40 || !available()) return false;
+        nextPoll = now + 100;
+        var pets = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(32),
+                p -> p.status().identity() == Identity.PET && p.life().homeStand() != null
+                        && Custody.view(p).ownerKind() == Custody.OwnerKind.PLAYER
+                        && flat(p.position(), Vec3.atBottomCenterOf(p.life().homeStand())) <= 64
+                        && of(p).visit == null && now >= of(p).nextCheck && of(p).available() && p.canJoinDeparture() && of(p).caller() == null
+                        && body.hasLineOfSight(p) && !watched(p, body) && body.family().compatibleWith(p)
+                        && FamilyData.get(level(body)).canPair(body, p, true)
+                        && RulesMath.lures(body.family().pentUp(), 1 - body.life().personality().temperament().timid(),
+                                body.life().nutrition(), body.life().energy(), p.life().nutrition(), p.life().hygiene(), affinity(body, p)));
+        pets.sort(Comparator.comparingInt((YukkuriEntity p) -> affinity(body, p)).reversed());
+        for (var p : pets) {
+            var yard = Vec3.atBottomCenterOf(p.life().homeStand());
+            var edge = SurfaceApproach.beside(body, yard, 10, at -> flat(at, yard) > 81
+                    && !HouseholdProtection.protectedAt(level(body), BlockPos.containing(at)));
+            if (edge == null || HouseholdProtection.protectedAt(level(body), p.life().homeStand())) continue;
+            visit = new Visit(body, p, yard, edge);
+            return true;
+        }
         return false;
     }
 
-    private Vec3 destination(YukkuriEntity wild, Vec3 yard) {
-        var home = wild.life().homeStand();
-        var toward = home == null ? wild.position() : Vec3.atBottomCenterOf(home);
-        if (horizontalSq(toward, yard) < 27 * 27) {
-            var direction = wild.position().subtract(yard).multiply(1, 0, 1).normalize();
-            toward = yard.add(direction.scale(28));
+    boolean trystWith(YukkuriEntity peer) {
+        return visit != null && visit.reason == null && (visit.phase == Phase.TRYST || visit.phase == Phase.COURT)
+                && visit.peer(body) == peer;
+    }
+    void start() {
+        body.duty().take(Duty.Kind.RULES, TRAVEL_TICKS, 0, "tryst");
+        lastPet = visit.pet.position(); lastWild = visit.wild.position();
+        SurfaceApproach.halt(body);
+        if (body == visit.wild)
+            GameplayLog.event(body, "rules", "tryst approach pet={} from={} edge={} pressure={} boldness={} petNutrition={} petHygiene={}",
+                    visit.pet.getUUID(), body.position(), visit.edge, body.family().pentUp(), body.life().personality().boldness(),
+                    visit.pet.life().nutrition(), visit.pet.life().hygiene());
+    }
+    boolean continues() { return visit.reason == null && body.duty().holds(Duty.Kind.RULES); }
+    void tick() {
+        if (!continues()) return;
+        if (body.level().getGameTime() % 20 == 0 && (visit.pet.distanceToSqr(lastPet) >= .25 || visit.wild.distanceToSqr(lastWild) >= .25)) {
+            lastPet = visit.pet.position(); lastWild = visit.wild.position();
+            body.duty().extend(Duty.Kind.RULES, TRAVEL_TICKS);
         }
-        // Leave room for a second body beside the destination. The wild animal must travel there too.
-        return SurfaceApproach.beside(wild, toward, 2, at -> beyondYard(at, yard)
-                && horizontalSq(at, wild.position()) > 4 * 4);
+        visit.tick(body);
+    }
+    void stop() {
+        if (visit.reason == null) visit.end("interrupted");
+        body.duty().release(Duty.Kind.RULES, visit.completed() ? Duty.End.DONE : Duty.End.FAILED, visit.reason);
+        SurfaceApproach.stopWalking(body);
+        visit = null;
     }
 
-    private static double horizontalSq(Vec3 a, Vec3 b) { return a.subtract(b).horizontalDistanceSqr(); }
-    private static boolean beyondYard(Vec3 stand, Vec3 yard) {
-        return horizontalSq(stand, yard) > DEPARTURE_STAND_DISTANCE * DEPARTURE_STAND_DISTANCE;
+    void counter(UUID actor) {
+        Visit v = visit;
+        if (v == null && body.status().identity() == Identity.PET && body.pet().ownedBy(actor)) v = caller();
+        if (v != null && v.reason == null && RulesMath.witnessedCounter(v.owner.equals(actor), watched(v.pet, v.pet), watched(v.pet, v.wild)))
+            v.chase("owner_intervened", v.pet.pet().presentOwner());
+    }
+    void sprayedBy(LivingEntity sprayer) {
+        if (visit != null && visit.reason == null && visit.wild == body) visit.chase("repellent", sprayer);
     }
 
     private record Failure(UUID wild, BlockPos petStand, BlockPos wildStand, int route, int conditions) {}
-    private Failure failure(YukkuriEntity wild, Vec3 petStand, Vec3 wildStand) {
-        var petEnd = BlockPos.containing(petStand);
-        var wildEnd = BlockPos.containing(wildStand);
-        var rules = body.pet().conscience();
-        int returnBond = YukkuriWorldData.get((ServerLevel) body.level()).affinity(wild.getUUID(), body.getUUID());
-        int conditions = (ownerNear(body) ? 1 : 0) | (HumanSight.watching(body) ? 2 : 0)
-                | (rules.binds(HouseRule.NO_LEAVING_YARD) ? 4 : 0) | (mobile(body) && mobile(wild) ? 8 : 0)
-                | (body.level() == wild.level() && body.distanceToSqr(wild) <= 256 && body.hasLineOfSight(wild) ? 16 : 0)
-                | (!needsCare(body) && !needsCare(wild) ? 32 : 0) | (wantsToJoin(wild, returnBond) ? 64 : 0);
-        return new Failure(wild.getUUID(), petEnd, wildEnd,
-                31 * route(body, petEnd) + route(wild, wildEnd), conditions);
-    }
     private static int route(YukkuriEntity y, BlockPos end) {
         var path = y.getNavigation().createPath(end, 1);
         if (path == null || !path.canReach()) return 0;
@@ -164,32 +171,18 @@ final class Elopement {
         for (int i = 0; i < path.getNodeCount(); i++) hash = 31 * hash + path.getNodePos(i).hashCode();
         return hash;
     }
-
-    void start() {
-        body.duty().take(Duty.Kind.RULES, TRAVEL_TICKS, 0, "elope");
-        GameplayLog.event(body, "rules", "departure started partner={} from={} to={} yard={}",
-                walk.peer(body).getUUID(), body.position(), walk.stand(body), walk.yard);
-        SurfaceApproach.halt(body);
-        if (body == walk.pet) PetScenes.say(body, YukkuriAction.LOOK_AROUND, "teary", "elope_leave", null);
-    }
-    boolean continues() { return walk.running() && body.duty().holds(Duty.Kind.RULES); }
-    void tick() { if (continues()) walk.tick(body); }
-    void interrupt(String reason) { if (active() && walk.running()) walk.end(reason, false); }
-    void stop() {
-        interrupt("interrupted");
-        body.duty().release(Duty.Kind.RULES, walk.arrived ? Duty.End.DONE : Duty.End.FAILED, walk.reason);
-        SurfaceApproach.stopWalking(body);
-        walk = null;
-    }
-
     void forgetOwner() { lastFailure = null; nextCheck = 0; }
     void save(CompoundTag tag) {
-        long after = nextCheck;
+        var history = new ListTag();
+        visits.forEach((id, n) -> {
+            var entry = new CompoundTag(); entry.putUUID("Partner", id); entry.putInt("Returns", n); history.add(entry);
+        });
+        if (!history.isEmpty()) tag.put("Trysts", history);
         var f = lastFailure;
-        // A loaded body starts its ordinary goals again. The interrupted pair must earn another departure.
-        if (walk != null && walk.pet == body && walk.running()) {
-            f = failure(walk.wild, walk.petStand, walk.wildStand);
-            after = body.level().getGameTime() + RETRY_TICKS;
+        long after = nextCheck;
+        if (visit != null && visit.reason == null) {
+            after = body.level().getGameTime() + (visit.phase == Phase.LEAVE ? RETRY_TICKS : RulesMath.nextVisitTicks(visit.wild.life().personality().temperament().timid()));
+            if (body == visit.pet && visit.phase == Phase.LEAVE) f = visit.failure();
         }
         tag.putLong("NextDepartureCheck", after);
         if (f == null) return;
@@ -199,106 +192,201 @@ final class Elopement {
         tag.put("FailedDeparture", failed);
     }
     void load(CompoundTag tag) {
+        visits.clear();
+        for (var element : tag.getList("Trysts", Tag.TAG_COMPOUND)) {
+            var entry = (CompoundTag) element; visits.put(entry.getUUID("Partner"), entry.getInt("Returns"));
+        }
         nextCheck = tag.getLong("NextDepartureCheck");
         var f = tag.getCompound("FailedDeparture");
-        if (!f.hasUUID("Partner")) return;
-        lastFailure = new Failure(f.getUUID("Partner"), BlockPos.of(f.getLong("PetStand")), BlockPos.of(f.getLong("WildStand")),
-                f.getInt("Route"), f.getInt("Conditions"));
+        if (f.hasUUID("Partner")) lastFailure = new Failure(f.getUUID("Partner"), BlockPos.of(f.getLong("PetStand")),
+                BlockPos.of(f.getLong("WildStand")), f.getInt("Route"), f.getInt("Conditions"));
     }
 
-    private static final class Walk {
-        final YukkuriEntity pet, wild;
+    private static final class Visit {
+        final YukkuriEntity wild, pet;
         final UUID owner;
-        final Vec3 yard, petStand, wildStand;
-        final long start;
-        final int looks;
-        RulesMath.Choice yardRule;
+        final Vec3 yard, edge;
+        Vec3 petStand, wildStand;
+        Phase phase = Phase.EDGE;
+        long since;
+        boolean crossed;
         String reason;
-        boolean arrived;
-        boolean met;
-        Vec3 lastApproachPosition;
 
-        Walk(YukkuriEntity pet, YukkuriEntity wild, UUID owner, Vec3 yard, Vec3 petStand, Vec3 wildStand, RulesMath.Choice rule) {
-            this.pet = pet; this.wild = wild; this.owner = owner; this.yard = yard;
-            this.petStand = petStand; this.wildStand = wildStand; this.yardRule = rule;
-            start = pet.level().getGameTime();
-            lastApproachPosition = wild.position();
-            looks = pet.life().personality().temperament().is(Gate.ATTACHED) ? 2 : 1;
+        Visit(YukkuriEntity wild, YukkuriEntity pet, Vec3 yard, Vec3 edge) {
+            this.wild = wild; this.pet = pet; this.yard = yard; this.edge = edge;
+            owner = pet.pet().owner();
         }
-        boolean running() { return reason == null; }
-        YukkuriEntity peer(YukkuriEntity actor) { return actor == pet ? wild : pet; }
-        Vec3 stand(YukkuriEntity actor) { return actor == pet ? petStand : wildStand; }
+        YukkuriEntity peer(YukkuriEntity y) { return y == pet ? wild : pet; }
+        boolean completed() { return "returned".equals(reason) || "arrived".equals(reason); }
+        Failure failure() {
+            var p = BlockPos.containing(petStand); var w = BlockPos.containing(wildStand);
+            int conditions = (HumanSight.watching(pet) ? 2 : 0) | (pet.pet().conscience().binds(HouseRule.NO_LEAVING_YARD) ? 4 : 0)
+                    | (free(pet) && free(wild) ? 8 : 0) | (wild.hasLineOfSight(pet) ? 16 : 0)
+                    | (!needsCare(pet) && !needsCare(wild) ? 32 : 0);
+            return new Failure(wild.getUUID(), p, w, 31 * route(pet, p) + route(wild, w), conditions);
+        }
+        void end(String why) {
+            reason = why;
+            if (phase == Phase.COURT) { wild.family().interruptCourtship(); pet.family().interruptCourtship(); }
+            var memory = of(pet);
+            boolean failedDeparture = phase == Phase.LEAVE && !completed();
+            if (failedDeparture) memory.lastFailure = failure();
+            long delay = failedDeparture ? RETRY_TICKS : RulesMath.nextVisitTicks(wild.life().personality().temperament().timid());
+            memory.nextCheck = of(wild).nextCheck = pet.level().getGameTime() + delay;
+            GameplayLog.event(pet, "rules", "departure ended reason={} partner={} petAt={} wildAt={}", why, wild.getUUID(), pet.position(), wild.position());
+        }
+        void chase(String why, LivingEntity person) {
+            var memory = of(pet);
+            int before = memory.count(wild.getUUID()), after = RulesMath.visitsAfterCounter(before);
+            if (after != before) memory.recordVisits(wild, after);
+            end(why);
+            GameplayLog.event(wild, "rules", "tryst chased pet={} reason={} returns={} -> {}", pet.getUUID(), why, before, after);
+            if (person != null) wild.fleeFrom(person);
+        }
+        void move(YukkuriEntity actor, Vec3 at, YukkuriEntity target) {
+            if (at == null || SurfaceApproach.walkResult(actor, at, target, .9) == SurfaceApproach.Result.BLOCKED) end("blocked");
+        }
         void tick(YukkuriEntity actor) {
-            long age = pet.level().getGameTime() - start;
-            boolean bothAt = SurfaceApproach.at(pet, petStand) && SurfaceApproach.at(wild, wildStand);
-            boolean checkFamily = age % 20 == 0 || bothAt;
-            String stopped = RulesMath.interrupted(pet.pet().ownedBy(owner) && ownerNear(pet),
-                    pet.pet().ownedBy(owner) && wild.status().identity().wild() && pet.level() == wild.level()
-                            && pet.distanceToSqr(wild) <= 256 && pet.hasLineOfSight(wild),
-                    mobile(pet) && mobile(wild), checkFamily && (needsCare(pet) || needsCare(wild)
-                            || !pet.family().compatibleWith(wild) || !FamilyData.get((ServerLevel) pet.level()).canPair(pet, wild, true)));
-            if (stopped != null) { end(stopped, false); return; }
-            int clip = YukkuriAction.LOOK_AROUND.durationTicks();
-            boolean lookingBack = actor == pet && age < looks * clip;
-            if (lookingBack) {
-                if (age == clip) PetScenes.act(pet, YukkuriAction.LOOK_AROUND, "teary", "", clip);
-                pet.getLookControl().setLookAt(yard.x, pet.getEyeY(), yard.z);
-            }
-            if (!met) {
-                boolean answered = behavior(wild).walk == this && wild.duty().holds(Duty.Kind.RULES);
-                switch (RulesMath.meeting(answered, pet.distanceToSqr(wild) <= 2.5 * 2.5, age, looks * clip)) {
-                    case CALLING -> { return; }
-                    case MISSED -> { end("partner_unavailable", false); return; }
-                    case APPROACHING -> { if (actor == wild) approachPet(); return; }
-                    case TOGETHER -> {
-                        met = true;
-                        GameplayLog.event(wild, "rules", "departure met pet={} distance={}", pet.getUUID(), wild.distanceTo(pet));
-                    }
-                }
-            }
-            if (lookingBack) return;
-            // Let the slower partner catch up, including when a bend puts the pet in front.
-            if (pet.distanceToSqr(wild) > 36 && actor.distanceToSqr(wildStand) < peer(actor).distanceToSqr(wildStand)) {
-                SurfaceApproach.halt(actor);
+            long now = actor.level().getGameTime();
+            boolean returning = phase == Phase.RETURN;
+            boolean familyCheck = now % 20 == 0;
+            var person = pet.pet().presentOwner();
+            boolean intervened = phase == Phase.LEAVE && person != null && pet.distanceToSqr(person) <= 16 && HumanSight.sees(person, pet);
+            String stopped = RulesMath.interrupted(intervened,
+                    pet.isAlive() && wild.isAlive() && pet.pet().ownedBy(owner) && wild.status().identity().wild()
+                            && pet.level() == wild.level() && (returning || pet.distanceToSqr(wild) <= (phase == Phase.EDGE ? 32*32 : 20*20)),
+                    free(actor) && (phase == Phase.COURT || actor.family().yieldsToComfort()),
+                    familyCheck && !returning && phase != Phase.COURT && (needsCare(pet) || needsCare(wild)
+                            || !pet.family().compatibleWith(wild) || !FamilyData.get(level(pet)).canPair(pet, wild, true)));
+            if (stopped != null) {
+                if (intervened) chase(stopped, person); else end(stopped);
                 return;
             }
-            if (actor == pet && yardRule == RulesMath.Choice.BREAK && horizontalSq(pet.position(), yard) > 64) {
-                pet.pet().conscience().breach(HouseRule.NO_LEAVING_YARD);
-                yardRule = RulesMath.Choice.ALLOW;
+            if (familyCheck && (HouseholdProtection.protectedAt(level(pet), BlockPos.containing(edge))
+                    || HouseholdProtection.protectedAt(level(pet), BlockPos.containing(yard))
+                    || HouseholdProtection.protectedAt(level(pet), wild.blockPosition()))) { chase("repellent", null); return; }
+            if (actor == pet && crossed && flat(pet.position(), yard) > 64 && HumanSight.watching(pet)) pet.pet().conscience().witnessedYard();
+            if (phase == Phase.LEAVE && (!pet.hasLineOfSight(wild) || pet.distanceToSqr(wild) > 256)) { end("partner_lost"); return; }
+            switch (phase) {
+                case EDGE -> {
+                    if (!SurfaceApproach.at(wild, edge)) { move(wild, edge, null); return; }
+                    if (!wild.hasLineOfSight(pet) || watched(pet, wild)) { end("no_private_call"); return; }
+                    SurfaceApproach.halt(wild);
+                    boolean spoke = PetScenes.say(wild, YukkuriAction.BANK_BECKON, "happy", "elope_invite", pet);
+                    GameplayLog.event(wild, "rules", "tryst call pet={} at={} yard={} spoke={}", pet.getUUID(), wild.position(), yard, spoke);
+                    since = now; phase = Phase.CALL;
+                }
+                case CALL -> {
+                    wild.getLookControl().setLookAt(pet, 30, 30);
+                    if (now - since == YukkuriAction.BANK_BECKON.durationTicks())
+                        PetScenes.act(wild, YukkuriAction.PUFF, "happy", "", YukkuriAction.PUFF.durationTicks(), pet);
+                    if (now - since >= 3 * YukkuriAction.LOOK_AROUND.durationTicks()) end("unanswered");
+                }
+                case MEET -> {
+                    if (actor != pet) return;
+                    if (flat(wild.position(), yard) <= 64) { end("caller_left_edge"); return; }
+                    if (!crossed && flat(pet.position(), yard) <= 64 && pet.life().personality().temperament().clever() >= .5
+                            && HumanSight.watching(pet)) { SurfaceApproach.halt(pet); return; }
+                    if (!crossed && flat(pet.position(), yard) > 64) {
+                        crossed = true;
+                        pet.pet().conscience().breach(HouseRule.NO_LEAVING_YARD);
+                    }
+                    if (!pet.hasLineOfSight(wild)) { end("partner_lost"); return; }
+                    if (flat(pet.position(), yard) <= 64 || pet.distanceToSqr(wild) > 2.25) {
+                        move(pet, SurfaceApproach.beside(pet, wild, 1.35, 1, 1.5, at -> flat(at, yard) > 64), wild);
+                        return;
+                    }
+                    SurfaceApproach.halt(pet);
+                    PetScenes.act(pet, YukkuriAction.NUZZLE, "happy", "", YukkuriAction.LOOK_AROUND.durationTicks(), wild);
+                    PetScenes.act(wild, YukkuriAction.NUZZLE, "happy", "", YukkuriAction.LOOK_AROUND.durationTicks(), pet);
+                    GameplayLog.event(pet, "rules", "tryst met partner={} petAt={} wildAt={}", wild.getUUID(), pet.position(), wild.position());
+                    since = now; phase = Phase.TRYST;
+                }
+                case TRYST -> {
+                    if (actor != pet) return;
+                    if (flat(pet.position(), yard) <= 64 || flat(wild.position(), yard) <= 64
+                            || pet.distanceToSqr(wild) > 2.5*2.5) { end("partner_lost"); return; }
+                    if (now - since < YukkuriAction.LOOK_AROUND.durationTicks()) return;
+                    if (depart()) return;
+                    if ((pet.family().pentUp() >= PentUpMath.band(pet.life().personality().temperament().patient())
+                            || wild.family().inBreedingPeriod()) && wild.family().beginTrystCourt(pet)) { phase = Phase.COURT; return; }
+                    returnHome();
+                }
+                case COURT -> {
+                    if (actor.family().courting(peer(actor))) actor.family().tickGoal();
+                    if (!wild.family().courting(pet) || !pet.family().courting(wild)) {
+                        pet.family().interruptCourtship(); wild.family().interruptCourtship();
+                        returnHome();
+                    }
+                }
+                case RETURN -> {
+                    if (actor == wild) {
+                        if (wildStand != null && SurfaceApproach.walkResult(wild, wildStand, null, .9) == SurfaceApproach.Result.BLOCKED)
+                            wildStand = null;
+                        return;
+                    }
+                    if (!SurfaceApproach.at(pet, petStand)) { move(pet, petStand, null); return; }
+                    var memory = of(pet);
+                    int n = RulesMath.visitsAfterReturn(memory.count(wild.getUUID()));
+                    memory.recordVisits(wild, n);
+                    GameplayLog.event(pet, "rules", "tryst returned partner={} visits={} bond={} petAt={} yard={}",
+                            wild.getUUID(), n, affinity(pet, wild), pet.position(), yard);
+                    end("returned");
+                }
+                case LEAVE -> travel(actor);
+            }
+        }
+        void returnHome() {
+            petStand = SurfaceApproach.beside(pet, yard, 2, at -> flat(at, yard) < 64);
+            var home = wild.life().homeStand();
+            Vec3 away = home == null || flat(Vec3.atBottomCenterOf(home), yard) <= 100
+                    ? edge.add(edge.subtract(yard).normalize().scale(6)) : Vec3.atBottomCenterOf(home);
+            wildStand = SurfaceApproach.beside(wild, away, 2, at -> flat(at, yard) > 64);
+            phase = Phase.RETURN;
+            if (petStand == null) end("blocked");
+        }
+        boolean depart() {
+            var memory = of(pet);
+            var traits = pet.life().personality();
+            int visits = memory.count(wild.getUUID()), bond = affinity(pet, wild), trust = traits.trust(owner);
+            double chance = RulesMath.departureChance(pet.family().pentUp(), pet.pet().neglect(), traits.attachment(),
+                    pet.pet().obedience(), traits.selfControl(), bond, trust, visits);
+            double roll = pet.getRandom().nextDouble();
+            GameplayLog.event(pet, "rules", "departure opportunity partner={} visits={} chance={} roll={} pressure={} neglect={} attachment={} obedience={} selfControl={} bond={} ownerTrust={}",
+                    wild.getUUID(), visits, chance, roll, pet.family().pentUp(), pet.pet().neglect(), traits.attachment(), pet.pet().obedience(), traits.selfControl(), bond, trust);
+            if (roll >= chance) return false;
+            var home = wild.life().homeStand();
+            var toward = home == null ? edge : Vec3.atBottomCenterOf(home);
+            if (flat(toward, yard) < 27*27) toward = yard.add(edge.subtract(yard).multiply(1,0,1).normalize().scale(28));
+            double limit = Math.pow(24 + SurfaceApproach.ARRIVAL, 2);
+            wildStand = SurfaceApproach.beside(wild, toward, 2, at -> flat(at, yard) > limit);
+            petStand = wildStand == null ? null : SurfaceApproach.beside(pet, wildStand, 2, at -> flat(at, yard) > limit);
+            if (petStand == null || memory.lastFailure != null && memory.lastFailure.equals(failure())) return false;
+            phase = Phase.LEAVE; since = pet.level().getGameTime();
+            PetScenes.say(pet, YukkuriAction.LOOK_AROUND, "teary", "elope_leave", null);
+            GameplayLog.event(pet, "rules", "departure started partner={} from={} to={} yard={}", wild.getUUID(), pet.position(), petStand, yard);
+            return true;
+        }
+        void travel(YukkuriEntity actor) {
+            int clip = YukkuriAction.LOOK_AROUND.durationTicks();
+            long age = pet.level().getGameTime() - since;
+            if (actor == pet && age < clip * (1 + Math.round(pet.life().personality().temperament().attached()))) {
+                pet.getLookControl().setLookAt(yard.x, pet.getEyeY(), yard.z);
+                if (age == clip) PetScenes.act(pet, YukkuriAction.LOOK_AROUND, "teary", "", clip);
+                return;
             }
             if (actor == pet && RulesMath.departed(SurfaceApproach.at(pet, petStand), SurfaceApproach.at(wild, wildStand),
-                    horizontalSq(pet.position(), yard), horizontalSq(wild.position(), yard), pet.distanceToSqr(wild))) {
-                end("arrived", true);
+                    flat(pet.position(), yard), flat(wild.position(), yard), pet.distanceToSqr(wild))) {
+                end("arrived");
                 PetPrivileges.eloped(pet, owner);
                 GameplayLog.event(pet, "rules", "eloped partner={} wildAt={} identity={} token={} serial={}", wild.getUUID(),
                         wild.position(), pet.status().identity().id(), pet.pet().visibleGrade(), pet.pet().serial());
                 return;
             }
-            if (SurfaceApproach.walkResult(actor, stand(actor), null, .9) == SurfaceApproach.Result.BLOCKED) end("blocked", false);
-        }
-
-        private void approachPet() {
-            var beside = SurfaceApproach.beside(wild, pet, 1.75, 1, 2.5);
-            if (beside == null || SurfaceApproach.walkResult(wild, beside, pet, .9) == SurfaceApproach.Result.BLOCKED) {
-                end("meeting_blocked", false);
-                return;
+            if (pet.distanceToSqr(wild) > 36 && actor.distanceToSqr(wildStand) < peer(actor).distanceToSqr(wildStand)) {
+                SurfaceApproach.halt(actor); return;
             }
-            // Credit real movement, including a detour around a post. A stalled approach keeps its deadline.
-            if (wild.distanceToSqr(lastApproachPosition) >= .25) {
-                lastApproachPosition = wild.position();
-                wild.duty().extend(Duty.Kind.RULES, TRAVEL_TICKS);
-                pet.duty().extend(Duty.Kind.RULES, TRAVEL_TICKS);
-            }
-        }
-        void end(String why, boolean success) {
-            reason = why; arrived = success;
-            if (!success && pet.pet().ownedBy(owner)) {
-                var leaving = behavior(pet);
-                leaving.lastFailure = leaving.failure(wild, petStand, wildStand);
-                leaving.nextCheck = pet.level().getGameTime() + RETRY_TICKS;
-            }
-            GameplayLog.event(pet, "rules", "departure ended reason={} partner={} petAt={} wildAt={}",
-                    why, wild.getUUID(), pet.position(), wild.position());
+            move(actor, actor == pet ? petStand : wildStand, null);
         }
     }
 }

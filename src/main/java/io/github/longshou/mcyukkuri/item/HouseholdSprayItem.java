@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.house.HouseholdProtection;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
 import java.util.List;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.AABB;
 
 /** A finite spray bottle; stacked bottles separate only after a successful application. */
 public final class HouseholdSprayItem extends Item {
@@ -53,6 +55,9 @@ public final class HouseholdSprayItem extends Item {
             if(!HouseholdProtection.get(server).spray(pos,server.getGameTime())){
                 player.displayClientMessage(Component.translatable("house.mcyukkuri.guard.full"),true);return InteractionResult.FAIL;
             }
+            var covered = new AABB(pos).inflate(HouseholdProtection.RADIUS, HouseholdProtection.HEIGHT, HouseholdProtection.RADIUS);
+            for (var y : server.getEntitiesOfClass(YukkuriEntity.class, covered))
+                if (covered.contains(y.position())) y.pet().conscience().sprayedBy(player);
             if(!player.getAbilities().instabuild){
                 if(stack.getCount()>1){
                     var unused=stack.copyWithCount(stack.getCount()-1);stack.setCount(1);

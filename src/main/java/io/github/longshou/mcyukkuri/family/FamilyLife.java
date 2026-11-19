@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
@@ -1242,6 +1244,30 @@ public final class FamilyLife {
     public static boolean arrangedMatch(YukkuriEntity a,YukkuriEntity b) { return Courtship.arrangedMatch(a,b); }
     /** Long-lived compatibility for breeding permits: species rules and fertility, not momentary condition. */
     public boolean compatibleWith(YukkuriEntity other) { return courtship.compatibleWith(other); }
+    public void heldCourtship(YukkuriEntity other, Choice choice) {
+        addPentUp(PentUpMath.HELD, choice.name());
+        PetScenes.courtshipHeld(entity, other);
+    }
+    public boolean courting(YukkuriEntity other) {
+        return (task == Task.COURT || task == Task.RECEIVE_COURT) && target == other;
+    }
+    /** Both are already attending the meeting. The same two tasks own contact, consent and any resulting brood. */
+    public boolean beginTrystCourt(YukkuriEntity other) {
+        if (!courtship.mayStart(other) || !canReproduceWith(other) || !allowCourt(other)) return false;
+        target = other;
+        beginCourt(false, null);
+        other.family().target = entity;
+        other.family().receiveCourt();
+        return true;
+    }
+    private void beginCourt(boolean declined, String releasedGoal) {
+        task = Task.COURT; courtship.beginRound(declined, releasedGoal); taskTicks = 0;
+        entity.showReaction("happy", "courtship", 100);
+    }
+    private void receiveCourt() {
+        task = Task.RECEIVE_COURT; courtship.resetAttempt(); taskTicks = 0;
+        entity.showReaction("happy", "courtship", 100);
+    }
     private boolean allowCourt(YukkuriEntity other) { return courtship.allowCourt(other); }
     public boolean canReproduceWith(YukkuriEntity other) { return courtship.canReproduceWith(other); }
     private void finishStem(FamilyData.Brood brood) {
@@ -1346,7 +1372,7 @@ public final class FamilyLife {
             if(data.busyParent(entity.getUUID()))return false;
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     other.family().task()==Task.COURT&&other.family().target()==entity&&canReproduceWith(other)).stream().findFirst().orElse(null);
-            if(target!=null) { task=Task.RECEIVE_COURT;courtship.resetAttempt();taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
+            if(target!=null) { receiveCourt();return true; }
             // A candidate she cannot pair with while her partner stands still gets a real answer: she turns her back on him.
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),
                     other->other.family().target()==entity&&Courtship.askingForRefusal(other)).stream().findFirst().orElse(null);
@@ -1366,7 +1392,7 @@ public final class FamilyLife {
             }
             var releasedGoal=comeback?courtship.consumeComeback():null;
             if(target!=null&&!declined&&!allowCourt(target)){target=null;return false;}
-            if(target!=null) { task=Task.COURT;courtship.beginRound(declined,releasedGoal);taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
+            if(target!=null) { beginCourt(declined,releasedGoal);return true; }
         }
         return false;
     }

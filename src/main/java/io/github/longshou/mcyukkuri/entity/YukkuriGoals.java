@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.pet.rules.ConscienceGoal;
-import io.github.longshou.mcyukkuri.pet.rules.JoinDepartureGoal;
+import io.github.longshou.mcyukkuri.pet.rules.TrystGoal;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
@@ -106,7 +106,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
-        goalSelector.addGoal(JoinDepartureGoal.PRIORITY, landBinding(PresentationGoals.CONSCIENCE, new JoinDepartureGoal(owner)));
+        goalSelector.addGoal(TrystGoal.PRIORITY, landBinding(PresentationGoals.TRYST, new TrystGoal(owner)));
         // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
         goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));
         goalSelector.addGoal(6, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 6)));
@@ -526,7 +526,7 @@ final class YukkuriGoals {
     }
     boolean canJoinDeparture() {
         return goalSelector.getAvailableGoals().stream().noneMatch(goal -> goal.isRunning()
-                && (goal.getPriority() <= JoinDepartureGoal.PRIORITY || !goal.isInterruptable())
+                && (goal.getPriority() <= TrystGoal.PRIORITY || !goal.isInterruptable())
                 && (goal.getFlags().contains(Goal.Flag.MOVE) || goal.getFlags().contains(Goal.Flag.LOOK)));
     }
     /** The actual higher-priority MOVE owner which can displace family, using the trace identity. */

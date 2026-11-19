@@ -68,6 +68,7 @@ public final class PresentationGoals {
     public static final Source<Goal> TEMPT = state("food_in_hand", e -> Behaviors.SEEK_FOOD);
     public static final Source<Goal> LIFE = state("life", e -> nonIdle(e.life().activity()));
     public static final Source<Goal> CONSCIENCE = state("conscience", e -> Behaviors.SEEK_AFFECTION);
+    public static final Source<Goal> TRYST = state("tryst", e -> e.family().active() ? e.family().activity() : Behaviors.SEEK_AFFECTION);
     public static final Source<HomeClaimGoal> HOME_CLAIM = observed("home_claim", HomeClaimGoal::activity);
     public static final Source<HomeTerritoryGoal> HOME_TERRITORY = observed("home_territory", HomeTerritoryGoal::activity);
     public static final Source<Goal> HOUSE = state("house", e -> e.house().active() ? e.house().activity() : null);
