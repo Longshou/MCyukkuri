@@ -239,6 +239,10 @@ final class Elopement {
         void move(YukkuriEntity actor, Vec3 at, YukkuriEntity target) {
             if (at == null || SurfaceApproach.walkResult(actor, at, target, .9) == SurfaceApproach.Result.BLOCKED) end("blocked");
         }
+        boolean familyBlocks() {
+            return needsCare(pet) || needsCare(wild) || !pet.family().compatibleWith(wild)
+                    || !FamilyData.get(level(pet)).canPair(pet, wild, true);
+        }
         void tick(YukkuriEntity actor) {
             long now = actor.level().getGameTime();
             boolean returning = phase == Phase.RETURN;
@@ -249,8 +253,7 @@ final class Elopement {
                     pet.isAlive() && wild.isAlive() && pet.pet().ownedBy(owner) && wild.status().identity().wild()
                             && pet.level() == wild.level() && (returning || pet.distanceToSqr(wild) <= (phase == Phase.EDGE ? 32*32 : 20*20)),
                     free(actor) && (phase == Phase.COURT || actor.family().yieldsToComfort()),
-                    familyCheck && !returning && phase != Phase.COURT && (needsCare(pet) || needsCare(wild)
-                            || !pet.family().compatibleWith(wild) || !FamilyData.get(level(pet)).canPair(pet, wild, true)));
+                    familyCheck && !returning && phase != Phase.COURT && familyBlocks());
             if (stopped != null) {
                 if (intervened) chase(stopped, person); else end(stopped);
                 return;
@@ -371,6 +374,8 @@ final class Elopement {
             }
             if (actor == pet && RulesMath.departed(SurfaceApproach.at(pet, petStand), SurfaceApproach.at(wild, wildStand),
                     flat(pet.position(), yard), flat(wild.position(), yard), pet.distanceToSqr(wild))) {
+                if (!free(wild) || !wild.family().yieldsToComfort()) { end("unable_to_travel"); return; }
+                if (familyBlocks()) { end("family_care"); return; }
                 end("arrived");
                 PetPrivileges.eloped(pet, owner);
                 GameplayLog.event(pet, "rules", "eloped partner={} wildAt={} identity={} token={} serial={}", wild.getUUID(),
