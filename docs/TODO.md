@@ -13,6 +13,7 @@
 | 运输篮里看得到是谁（TN-33） | `.worktrees/wp-basket-view` | item/CarrierItem.java, client carrier renderer |
 | 大小不一与隔台阶的贴身蹭展示场景 | `.worktrees/wp-peer-nuzzle` | scripts/museum_scenarios.py (new scene), museum_fields.py |
 | 仅字幕台词补配音 | `.worktrees/wp-voices` | art/audio/aquestalk, dialogue export |
+| 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 
 ## 玩法待办
 
