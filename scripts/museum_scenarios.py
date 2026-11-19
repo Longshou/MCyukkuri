@@ -6032,9 +6032,12 @@ pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱�
             ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
                                    r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
-                                   r'\[family\][^\n]* carry grip [^\n]*hold=braid',
+                                   r'\[hat\][^\n]* boarded rider=[^\n]*own=true\b[\s\S]*'
+                                   r'\[family\][^\n]* carry grip [^\n]*hold=braid\b[\s\S]*'
+                                   r'\[family\][^\n]* carry lowering hold=braid\b[\s\S]*'
                                    r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
                 forbid=[r'death settled into remains', r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
+                        r'\[action\][^\n]* end id=grab outcome=BLOCKED [^\n]*detail=braid_grip_out_of_reach',
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b',
                         r'\[hat\][^\n]* pickup cause=grounded'],

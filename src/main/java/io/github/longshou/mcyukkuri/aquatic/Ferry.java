@@ -53,19 +53,18 @@ final class Ferry {
         if (AquaticLife.aboard(carrier, hat))
             return BraidFetch.withinReach(carrier, child) ? BraidFetch.steps(carrier, child, hat)
                     : List.<Supplier<Step>>of(() -> boardHop(carrier, hat, child, beckoning));
+        if (!reachingStops(carrier, hat, child).isEmpty()) return boardNear(carrier, hat, child, beckoning);
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(approach(carrier, child));
-        // A brim place her braid cannot reach it from is no boarding: it is taken from the ground and carried aboard instead.
-        if (reachingStops(carrier, hat, child).isEmpty()) steps.addAll(BraidFetch.steps(carrier, child, hat));
-        else steps.addAll(boardNear(carrier, hat, child, beckoning));
+        steps.add(approach(carrier, child, hat));
+        steps.addAll(BraidFetch.steps(carrier, child, hat));
         return steps;
     }
 
     /** Walk up to the young on the bank (nothing when the braid already reaches it). */
-    private static Supplier<Step> approach(YukkuriEntity carrier, YukkuriEntity child) {
+    private static Supplier<Step> approach(YukkuriEntity carrier, YukkuriEntity child, PlacedHatEntity hat) {
         return () -> {
             if (BraidFetch.withinReach(carrier, child)) return null;
-            var stand = SurfaceApproach.beside(carrier, child, (carrier.getBbWidth() + child.getBbWidth()) / 2 + .15, 1.2);
+            var stand = new Grab(child, hat).contactStand(carrier);
             return stand == null ? null : act(Walk.around(stand, child));
         };
     }
@@ -83,8 +82,11 @@ final class Ferry {
                 .sorted(Comparator.comparingDouble(stop -> frame.toWorld(stop).distanceToSqr(child.position()))).toList()) {
             if (asked++ >= STOPS) break;
             if (AquaticLife.aboard(carrier, hat) && Waters.standsAt(hat, carrier, stop)) continue;
-            if (!new SeatTarget(hat, stop).available(carrier)) continue;
-            if (ContactGeometry.braidGap(carrier, frame.toWorld(stop), child) <= 0) out.add(stop);
+            var seat = new SeatTarget(hat, stop);
+            float yaw = Hop.arrivalYaw(carrier, carrier.position(), seat);
+            if (!seat.available(carrier, yaw)) continue;
+            var stand = ContactGeometry.braidStandAfterTurn(carrier, hat, stop, yaw, child);
+            if (stand != null && ContactGeometry.braidGap(carrier, stand, child) <= 0) out.add(stop);
         }
         return out;
     }
@@ -160,8 +162,9 @@ final class Ferry {
             var hop = new Hop(hat, stop);
             if (hop.check(body).ok()) return act(hop);
         }
+        if (AquaticLife.aboard(body, hat)) return hopAshore(body).get();
         var seat = hat.restSpot(body);
-        if (seat != null && !(AquaticLife.aboard(body, hat) && Waters.standsAt(hat, body, seat.local()))) {
+        if (seat != null) {
             var hop = new Hop(hat, seat.local());
             if (hop.check(body).ok()) return act(hop);
         }

@@ -249,7 +249,7 @@ public final class Hop implements Action {
     }
 
     /** Judge seat room at admission and launch with the heading the body will land with, relative to the host. */
-    private static float arrivalYaw(YukkuriEntity body, Vec3 from, SeatTarget seat) {
+    public static float arrivalYaw(YukkuriEntity body, Vec3 from, SeatTarget seat) {
         var host = seat.host();
         float yaw = body.getVehicle() == host.entity()
                 ? heading(body, host, host.riders().local(body.getUUID()), seat.local(), body.yBodyRot)

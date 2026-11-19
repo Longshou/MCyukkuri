@@ -17,10 +17,10 @@ public final class BraidFetch {
     public static final String REACH = "braid_rescue_reach", HOLD = "braid_rescue_hold", SETTLE = "braid_rescue_settle";
     private BraidFetch() {}
     public static int marker(String clip, String marker) { return Math.round(ClipMarkers.of(clip).markers().get(marker) * 20); }
-    /** Approach the child's centre; Grab checks the actual body envelope at contact. */
+    /** Can the braid reach the child's envelope after turning on this support? */
     public static boolean withinReach(YukkuriEntity carrier, YukkuriEntity child) {
-        var point = child.getBoundingBox().getCenter();
-        return ContactGeometry.braidGap(carrier, point, false) <= 0 || ContactGeometry.braidGap(carrier, point, true) <= 0;
+        var stand = ContactGeometry.braidStandAfterTurn(carrier, child);
+        return stand != null && ContactGeometry.braidGap(carrier, stand, child) <= 0;
     }
     /** Face the child, then the shared tracking lift and lowering. */
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {

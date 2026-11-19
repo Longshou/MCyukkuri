@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
@@ -104,12 +105,30 @@ public final class ContactGeometry {
     /** The same with the body turned to {@code yaw}: its real braid root there, not one swung onto the target's bearing. */
     public static double braidGap(YukkuriEntity body, float yaw, Entity target, boolean lean) {
         return body == null || target == null || !braided(body) ? Double.POSITIVE_INFINITY
-                : gap(body, body.position().add(BRAID[lean ? 2 : 0].scale(body.growthScale() * body.getScale() / 16).yRot((float) Math.toRadians(180 - yaw))), target, true);
+                : gap(body, braid(body, body.position(), yaw, braidRootModel(lean)), target, true);
+    }
+
+    public static double braidGap(YukkuriEntity body, Vec3 at, Entity target, boolean lean) {
+        return braidGap(body, at, target, lean, true);
     }
 
     private static double braidGap(YukkuriEntity body, Vec3 at, Entity target, boolean lean, boolean sighted) {
         if (!braided(body)) return Double.POSITIVE_INFINITY;
-        return gap(body, root(body, at, target.position(), lean), target, sighted);
+        return gap(body, braid(body, at, braidYaw(at, target.position()), braidRootModel(lean)), target, sighted);
+    }
+
+    /** The supported feet at pickup yaw, or null if the turn would slide the carrier off this stand. */
+    public static Vec3 braidStandAfterTurn(YukkuriEntity body, Entity target) {
+        if (!(body.getVehicle() instanceof SurfaceHost host)) return body.position();
+        var spot = host.riders().spot(body.getUUID());
+        return braidStandAfterTurn(body, host, spot.local(), spot.yaw(), target);
+    }
+
+    public static Vec3 braidStandAfterTurn(YukkuriEntity body, SurfaceHost host, Vec3 local, float localYaw, Entity target) {
+        var frame = host.frame();
+        float yaw = braidYaw(frame.toWorld(local), target.position()) - host.entity().getYRot();
+        var height = Floor.turnHeight(host, body, local, localYaw, yaw, true);
+        return height.isEmpty() ? null : frame.toWorld(new Vec3(local.x, height.getAsDouble(), local.z));
     }
 
     private static double gap(YukkuriEntity body, Vec3 root, Entity target, boolean sighted) {
@@ -179,7 +198,11 @@ public final class ContactGeometry {
     public static float braidYaw(YukkuriEntity body, Entity target) { return braidYaw(body, target.position()); }
     /** The same for a point. */
     public static float braidYaw(YukkuriEntity body, Vec3 target) {
-        return (float) (Math.toDegrees(Math.atan2(target.z - body.getZ(), target.x - body.getX())) - 90
+        return braidYaw(body.position(), target);
+    }
+
+    private static float braidYaw(Vec3 stand, Vec3 target) {
+        return (float) (Math.toDegrees(Math.atan2(target.z - stand.z, target.x - stand.x)) - 90
                 - Math.toDegrees(Math.atan2(BRAID[0].x, -BRAID[0].z)));
     }
 

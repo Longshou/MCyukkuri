@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.function.Function;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -234,8 +235,21 @@ public final class Floor {
 
     /** Read-only support sweep for a planned turn, with the same step sizes and rise limit as the executed turn. */
     public static OptionalDouble turnHeight(SurfaceHost host, YukkuriEntity body, Vec3 local, float from, float to) {
-        double left = Mth.wrapDegrees(to - from);
-        while (Math.abs(left) > Face.FACE_ARRIVED) {
+        return turnHeight(host, body, local, from, to, false);
+    }
+
+    /** A stationary reach also needs footing through the turn and while the braid closes. */
+    public static OptionalDouble turnHeight(SurfaceHost host, YukkuriEntity body, Vec3 local, float from, float to, boolean stationary) {
+        while (true) {
+            if (stationary) {
+                var footprint = shape(host, body, from);
+                var support = host.support(local, footprint);
+                if (support.isEmpty()) return OptionalDouble.empty();
+                local = new Vec3(local.x, support.getAsDouble(), local.z);
+                if (downhill(host, body, local, at -> host.support(at, footprint)) != null) return OptionalDouble.empty();
+            }
+            double left = Mth.wrapDegrees(to - from);
+            if (Math.abs(left) <= Face.FACE_ARRIVED) return OptionalDouble.of(local.y);
             float step = (float) Math.copySign(Math.min(Math.abs(left), BodyAbility.of(body).turnRate()), left);
             OptionalDouble height = OptionalDouble.empty();
             for (int attempt = 0; attempt < 3; attempt++, step /= 2) {
@@ -248,29 +262,31 @@ public final class Floor {
             if (height.isEmpty() || step == 0) return OptionalDouble.empty();
             local = new Vec3(local.x, height.getAsDouble(), local.z);
             from += step;
-            left = Mth.wrapDegrees(to - from);
         }
-        return OptionalDouble.of(local.y);
+    }
+
+    /** One downhill step available under this footprint, before checking room around the rider. */
+    private static Vec3 downhill(SurfaceHost host, YukkuriEntity body, Vec3 from, Function<Vec3, OptionalDouble> support) {
+        double unit = host.frame().unit();
+        var container = host.container();
+        if (!container.floor().contains(from.x * unit, from.z * unit)
+                || from.y * unit <= container.floorY() + Occupancy.MARGIN) return null;
+        var toward = new Vec3(-from.x, 0, -from.z);
+        double distance = toward.length();
+        if (distance == 0) return null;
+        var next = from.add(toward.scale(Math.min(distance, BodyAbility.of(body).walkSpeed() / unit) / distance));
+        var height = support.apply(next);
+        return height.isEmpty() || height.getAsDouble() >= from.y ? null : new Vec3(next.x, height.getAsDouble(), next.z);
     }
 
     public static void settle(SurfaceHost host) {
         if (host.capsized()) return;
-        double unit = host.frame().unit();
-        var container = host.container();
         for (var passenger : host.entity().getPassengers()) if (passenger instanceof YukkuriEntity body) {
             // A body between the legs of its own hop stands where the leg came down: the next takeoff was admitted from there.
             if (!standing(body) || body.motor().current() instanceof Hop) continue;
             var spot = host.riders().spot(body.getUUID()); var from = spot.local();
-            if (!container.floor().contains(from.x * unit, from.z * unit)
-                    || from.y * unit <= container.floorY() + Occupancy.MARGIN || !host.room(body, from)) continue;
-            var toward = new Vec3(-from.x, 0, -from.z);
-            double distance = toward.length();
-            if (distance == 0) continue;
-            var next = from.add(toward.scale(Math.min(distance, BodyAbility.of(body).walkSpeed() / unit) / distance));
-            var height = host.support(next, body);
-            if (height.isEmpty() || height.getAsDouble() >= from.y) continue;
-            next = new Vec3(next.x, height.getAsDouble(), next.z);
-            if (!host.room(body, next) || !Motor.clearSpot(host, body, next)) continue;
+            var next = downhill(host, body, from, at -> host.support(at, body));
+            if (next == null || !host.room(body, from) || !host.room(body, next) || !Motor.clearSpot(host, body, next)) continue;
             Motor.spot(host, body, next, spot.yaw(), "settle");
             GameplayLog.limited(host.entity(), "hat", "settle." + body.getUUID(), 100,
                     "settled rider={} from={} to={}", body.getUUID(), from, next);

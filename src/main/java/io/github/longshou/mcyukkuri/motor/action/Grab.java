@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.List;
 import java.util.Locale;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -90,7 +91,7 @@ public final class Grab implements Action {
 
     /** Approach a stand that can actually see and reach this body with an available hold. */
     public Vec3 contactStand(YukkuriEntity carrier) {
-        var holds = ParentCarry.holdsFor(carrier, target);
+        var holds = source != null && ContactGeometry.braided(carrier) ? List.of(Hold.BRAID) : ParentCarry.holdsFor(carrier, target);
         // The brim lift takes the young off the ground at its clip's grip: the stand is where that grip lies on it.
         if (!holds.isEmpty() && holds.get(0) == Hold.BRIM)
             return SurfaceApproach.beside(carrier, target.position(), ParentCarry.brimReach(carrier), target,
@@ -140,8 +141,10 @@ public final class Grab implements Action {
         if (source != null && ContactGeometry.braided(carrier)) {
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);
-            // The same reach the lift re-reads every tick (upright, else the low lean): a grip begun here is one that holds.
-            double upright = ContactGeometry.braidGap(carrier, target, false), low = ContactGeometry.braidGap(carrier, target, true);
+            var stand = ContactGeometry.braidStandAfterTurn(carrier, target);
+            if (stand == null) return Feasibility.of(Reason.NO_SUPPORT, 0, "unstable_grip_stand");
+            double upright = ContactGeometry.braidGap(carrier, stand, target, false);
+            double low = ContactGeometry.braidGap(carrier, stand, target, true);
             if (Math.min(upright, low) > 0) {
                 double shortfall = Math.min(upright, low);
                 return Feasibility.of(Reason.NO_CONTACT, shortfall, String.format(Locale.ROOT, "braid_gap=%.2f", shortfall));
@@ -246,14 +249,16 @@ public final class Grab implements Action {
             turn.start(carrier);
         }
         // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
-        double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
+        var progress = turn.tick(carrier);
+        if (progress instanceof Outcome outcome && !(outcome instanceof Outcome.Done)) return outcome;
+        double angle = progress instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
         if (hold.reach() == Reach.MOUTH && !ContactGeometry.inMouthReach(carrier, target))
             return Outcome.of(Reason.NO_CONTACT, ContactGeometry.mouthGap(carrier, target), "mouth_grip_out_of_reach");
         if (way > 0) {
-            lean = ContactGeometry.braidGap(carrier, target, false) > 0;
-            gap = ContactGeometry.braidGap(carrier, target, lean);
+            lean = ContactGeometry.braidGap(carrier, carrier.bodyYaw(), target, false) > 0;
+            gap = ContactGeometry.braidGap(carrier, carrier.bodyYaw(), target, lean);
         }
         if (way > 0 && gap > GRIP_SLACK) {
             int left = lift + ClipMarkers.of(BraidFetch.REACH).length() - ticks;
