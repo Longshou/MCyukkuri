@@ -7,9 +7,10 @@ public record Temperament(int intelligence, int friendliness, int boldness, int 
 
     public double timid() { return 1 - ramp(boldness, 20, 80); }
     public double patient() { return ramp(selfControl, 20, 80); }
-    public double caring() { return ramp(.70 * friendliness + .30 * attachment, 27, 73); }
-    public double selfish() { return ramp(.70 * (100 - friendliness) + .30 * (100 - selfControl), 27, 73); }
-    public double curious() { return ramp(.60 * boldness + .40 * intelligence, 28, 72); }
+    // Sum in tenths so equal weighted totals land on the same inclusive gate boundary.
+    public double caring() { return ramp(7 * friendliness + 3 * attachment, 270, 730); }
+    public double selfish() { return ramp(7 * (100 - friendliness) + 3 * (100 - selfControl), 270, 730); }
+    public double curious() { return ramp(6 * boldness + 4 * intelligence, 280, 720); }
 
     /** Trait contribution to insistence. */
     public double cocky() {

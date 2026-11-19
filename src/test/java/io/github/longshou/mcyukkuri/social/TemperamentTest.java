@@ -70,6 +70,17 @@ class TemperamentTest {
     }
 
     @Test
+    void weightedScoresIncludeActorsExactlyAtTheCut() {
+        boundary(Gate.KINDLY,   new Temperament(50, 34, 50, 72, 50), new Temperament(50, 34, 50, 71, 50));
+        boundary(Gate.WARM,     new Temperament(50, 48, 50, 70, 50), new Temperament(50, 48, 50, 69, 50));
+        boundary(Gate.DEVOTED,  new Temperament(50, 63, 50, 58, 50), new Temperament(50, 63, 50, 57, 50));
+        boundary(Gate.HARSH,    new Temperament(50, 52, 50, 50, 30), new Temperament(50, 52, 50, 50, 31));
+        boundary(Gate.SELFISH,  new Temperament(50, 37, 50, 50, 42), new Temperament(50, 37, 50, 50, 43));
+        boundary(Gate.GREEDY,   new Temperament(50, 36, 50, 50, 29), new Temperament(50, 36, 50, 50, 30));
+        boundary(Gate.EXPLORER, new Temperament( 7, 50, 97, 50, 50), new Temperament( 6, 50, 97, 50, 50));
+    }
+
+    @Test
     void cockyPreservesTheTraitPartOfInsistence() {
         for (int friendliness = 0; friendliness <= 100; friendliness += 5) {
             for (int control = 0; control <= 100; control += 5) {
