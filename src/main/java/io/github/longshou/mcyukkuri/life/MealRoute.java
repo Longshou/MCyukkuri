@@ -8,7 +8,7 @@ import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
@@ -40,7 +40,7 @@ public record MealRoute(String id, ClipMarkers.Clip clip, float yaw, Vec3 stand)
         String id = bin ? Behaviors.BRAID_EAT_BIN : Behaviors.BRAID_EAT;
         if (!ClipMarkers.tipped(body.assetId(), id) || !braidIntact(body) || Braid.use(body) != Braid.Use.FREE || !Braid.mouthFree(body)) return null;
         double chance = bin ? .85 : .25 + .25 * Mth.clamp((body.life().nutrition() - 10) / 20, 0, 1)
-                + (body.pet().lessons().level(PetSkill.FOOD_BOWL) > 0 ? .2 : 0);
+                + (body.skills().knows(Ability.FOOD_GUARD) ? .2 : 0);
         if (body.getRandom().nextDouble() >= chance) return null;
         var clip = ClipMarkers.tuftClip(body.assetId(), id);
         var offset = offset(body, clip, clip.markers().get("pick"), yaw);

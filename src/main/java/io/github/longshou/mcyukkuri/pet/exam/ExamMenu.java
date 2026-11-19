@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.pet.exam;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -101,11 +100,6 @@ public final class ExamMenu extends AbstractContainerMenu {
         selected = subjects.isEmpty() ? 0 : Math.min(selected, subjects.size() - 1);
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
-    private static int skills(YukkuriEntity y) {
-        int mask = 0;
-        for (var skill : PetSkill.values()) if (y.pet().lessons().knows(skill)) mask |= 1 << skill.ordinal();
-        return mask;
-    }
     private void refresh() {
         if (viewer.level().isClientSide || target == null) return;
         if (++rescanClock >= 40) { rescanClock = 0; var keep = subjects.isEmpty() ? null : subjects.get(Math.min(selected,
@@ -120,7 +114,7 @@ public final class ExamMenu extends AbstractContainerMenu {
         put(Data.VALIDITY, b.grade().id() < 2 || b.expiresAt() < 0 ? 0 : b.expired() ? 2 : 1);
         put(Data.VALID_DAYS, b.expiresAt() < 0 ? 0 : (int)Math.min(9999, Math.max(0, (b.expiresAt() - y.level().getGameTime() + 23999) / 24000)));
         var personality = y.life().personality();
-        put(Data.SKILL_MASK, skills(y)); put(Data.INTELLIGENCE, personality.intelligence());
+        put(Data.SKILL_MASK, y.skills().domesticMask()); put(Data.INTELLIGENCE, personality.intelligence());
         put(Data.FRIENDLINESS, personality.friendliness()); put(Data.SELF_CONTROL, personality.selfControl());
         put(Data.COOLDOWN_SECONDS, (b.cooldown() + 19) / 20); put(Data.STRESS, b.stress()); put(Data.SPECIES,
                 y.getVariant().ordinal() + 1); put(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths());

@@ -136,11 +136,8 @@ public final class PetCare {
     }
     /** Ordinary session locks and carrier capture return the lead to its holder. */
     public void released() {
-        released(false);
-    }
-    void released(boolean keepLead) {
         if (animal.level().isClientSide) return;
-        if (!keepLead && animal.isLeashed()) animal.dropLeash(true, true);
+        if (animal.isLeashed()) animal.dropLeash(true, true);
         PetPrivileges.note(animal); // about to leave the world in a carrier or a session: the owner's standing is on record
     }
     private void stripWear(Player preferred) {
@@ -240,7 +237,7 @@ public final class PetCare {
         String mood = bad ? "bad" : good ? "good" : "ok";
         animal.playAction(bad ? "droop" : good ? "greet" : "look_around");
         animal.showReaction(bad ? "teary" : good ? "happy" : "neutral", "mood_" + mood, 90);
-        if (pet.lessons().knows(PetSkill.READING)) player.displayClientMessage(Component.translatable("pet.mcyukkuri.ask.mood." + mood, animal.getDisplayName()), true);
+        if (life.personality().temperament().is(Gate.CLEVER)) player.displayClientMessage(Component.translatable("pet.mcyukkuri.ask.mood." + mood, animal.getDisplayName()), true);
         if (!good && life.personality().temperament().is(Gate.CLEVER)) {
             String why = life.nutrition() < 45 ? "hungry" : life.temperature().cold() ? "cold" : requests.sulking() || requests.ignoredToday() > 0 ? "ignored"
                     : pet.neglect() >= 30 || daily.affectionNeed() >= 65 ? "lonely" : daily.boredom() >= 65 ? "bored" : life.energy() < 30 ? "tired"

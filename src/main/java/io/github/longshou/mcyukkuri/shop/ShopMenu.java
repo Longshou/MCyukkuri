@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -221,11 +220,6 @@ public final class ShopMenu extends AbstractContainerMenu {
                 | (d == null ? 0 : d.buyer().equals(viewer.getUUID()) ? Flags.RESERVED_YOU : Flags.RESERVED_OTHER)
                 | (ShopMembership.required(y).ordinal() << Flags.REQUIRED_SHIFT);
     }
-    private static int skills(YukkuriEntity y) {
-        int mask = 0;
-        for (var skill : PetSkill.values()) if (y.pet().lessons().knows(skill)) mask |= 1 << skill.ordinal();
-        return mask;
-    }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
     private int pageCount() { return tab == LIVE ? Math.max(1, (roster.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages().size() : 1; }
 
@@ -286,7 +280,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (tab == LIVE) {
             for (int i = 0; i < PAGE_ROWS; i++) {
                 var y = listed(page * PAGE_ROWS + i); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE; var t = tags(y);
-                put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y)); put(k + LiveRow.SKILLS, skills(y));
+                put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y)); put(k + LiveRow.SKILLS, y.skills().domesticMask());
                 put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION, Math.round(y.life().nutrition()));
                 var d = shop.deposit(y.getUUID());
                 put(k + LiveRow.PRICE, d != null && d.buyer().equals(viewer.getUUID()) ? d.price() - d.paid() : ShopPricing.price(shop.kind, y));
@@ -295,7 +289,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             }
         } else if (tab == BUYBACK || tab == CONSULT) {
             var y = subject(); if (y == null) return; var b = y.pet(); var t = tags(y);
-            put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y)); put(Data.SUBJECT_SKILLS, skills(y));
+            put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y)); put(Data.SUBJECT_SKILLS, y.skills().domesticMask());
             var families = FamilyData.get(level);
             put(Data.SUBJECT_MOTHER_BADGE, families.badgeAcquired(y.family().mother())); put(Data.SUBJECT_FATHER_BADGE, families.badgeAcquired(y.family().father()));
             put(Data.SUBJECT_HEALTH, Math.round(y.getHealth())); put(Data.SUBJECT_NUTRITION, Math.round(y.life().nutrition())); put(Data.SUBJECT_HYGIENE, Math.round(y.life().hygiene()));

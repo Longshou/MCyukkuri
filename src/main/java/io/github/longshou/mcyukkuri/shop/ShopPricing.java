@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
 
 /**
  * Single quote formula for the shop, buyback and consultation (docs/FEATURES.md, 宠物店). The value is the species base (rarer species and
@@ -54,8 +53,7 @@ public final class ShopPricing {
     }
 
     private static double qualityQuote(YukkuriEntity y) {
-        int skills = 0;
-        for (var skill : PetSkill.values()) if (y.pet().lessons().knows(skill)) skills++;
+        int skills = Integer.bitCount(y.skills().domesticMask());
         double health = y.getHealth() / Math.max(1, y.getMaxHealth());
         return (value(y) + skills * SKILL) * (.5 + .5 * health) * (rate(y) / 100.0) * ((100 - penalty(y)) / 100.0);
     }

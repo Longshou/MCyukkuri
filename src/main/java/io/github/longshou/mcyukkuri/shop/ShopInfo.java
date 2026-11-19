@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.network.ShopInfoPayload;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -50,8 +49,7 @@ final class ShopInfo {
     private static ShopHint petExtra(YukkuriEntity animal) {
         if (animal.pet().stress() > BondLevels.UNEASE_CARE_LIMIT) return TENSE;
         if (animal.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()) return STANDOUT;
-        int skills = 0;
-        for (var skill : PetSkill.values()) if (animal.pet().lessons().knows(skill)) skills++;
+        int skills = Integer.bitCount(animal.skills().domesticMask());
         return skills == 0 ? NEW_TO_TRAINING : skills < 3 ? SOME_TRAINING : WELL_TRAINED;
     }
 

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -165,11 +166,9 @@ public final class PetLife {
 
     // real skills and shared unease
     /** Existing life completions route here after the facility actually worked. */
-    public void routineCompleted(int kind) {
-        if (animal.level().isClientSide) return;
-        PetSkill skill = switch (kind) { case 0 -> PetSkill.FOOD_BOWL; case 1 -> PetSkill.TOILET; case 2 -> PetSkill.BEDTIME; default -> null; };
-        if (skill != null) lessons.performed(skill, true);
-        care.habit(kind);
+    public void routineCompleted(Ability ability) {
+        lessons.performed(ability, true);
+        care.habit(ability == Ability.FOOD_GUARD ? 0 : 1);
     }
     /** A view of the individual's unease (mind/MindLife, docs/FEATURES.md): the pet line reads and writes the one shared value. */
     public int stress() { return animal.mind().stressView(); }
@@ -292,7 +291,7 @@ public final class PetLife {
         double joy = Math.max(SocialDisposition.ramp(neglect, 20, 40),
                 SocialDisposition.ramp(animal.dailyLife().affectionNeed(), 55, 80));
         if (animal.getRandom().nextDouble() < joy) return "joy_jump";
-        double manners = SocialDisposition.ramp(lessons.level(PetSkill.GREETING), 1, 3)
+        double manners = SocialDisposition.ramp(animal.skills().grade(Ability.GREETING), 1, 3)
                 * SocialDisposition.ramp(personality.selfControl(), 45, 65);
         return animal.getRandom().nextDouble() < manners ? "bow" : "greet";
     }
@@ -307,10 +306,11 @@ public final class PetLife {
 
     public void startYardBond(UUID owner) {
         animal.life().personality().relationshipChanged(owner, 24, 0);
-        lessons.startYardHabits();
-        GameplayLog.event(animal, "pet", "yard bond established owner={} closeness={} bowl={} toilet={} bedtime={}",
-                owner, animal.life().personality().trust(owner), lessons.level(PetSkill.FOOD_BOWL),
-                lessons.level(PetSkill.TOILET), lessons.level(PetSkill.BEDTIME));
+        animal.skills().practise(Ability.FOOD_GUARD, 2, "yard");
+        animal.skills().practise(Ability.TOILET, 2, "yard");
+        GameplayLog.event(animal, "pet", "yard bond established owner={} closeness={} bowl={} toilet={}",
+                owner, animal.life().personality().trust(owner), animal.skills().grade(Ability.FOOD_GUARD),
+                animal.skills().grade(Ability.TOILET));
     }
 
     /** Ordinary presence pauses neglect. A visible return opens a separate approach window. */
@@ -352,7 +352,6 @@ public final class PetLife {
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
-        lessons.separated();
         if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
         townRoots = true;
         care.ownerChanged(null);
@@ -364,7 +363,6 @@ public final class PetLife {
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
         animal.outing().forget();
-        lessons.reunited();
         care.ownerChanged(owner);
         lastContact = now(); neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
         if (formerOwner == null) return;
@@ -375,7 +373,6 @@ public final class PetLife {
     /** End NPC control while preserving the animal's badge and history. */
     public void ownerReleased(UUID former) {
         animal.outing().forget();
-        lessons.separated();
         townRoots = true;
         care.ownerChanged(null);
         care.walk().tick(); // no owner/lead: clear only the transient walking position
@@ -387,7 +384,6 @@ public final class PetLife {
         if (former.equals(examTemporaryOwner)) { examWildTag = null; examTemporaryOwner = null; }
     }
     public void lostContact() {
-        lessons.separated();
         townRoots = true;
         care.ownerChanged(null);
         neglect = 0; neglectClock = 0; searchClock = 0; ownerAbsence = 0; noticeSent = false;
@@ -414,12 +410,9 @@ public final class PetLife {
     public String busyWith() { return lockKind == null ? "" : lockKind; }
     public UUID lockedBy() { return lockedBy; }
     public boolean lock(String kind, UUID by) {
-        return lock(kind, by, false);
-    }
-    public boolean lock(String kind, UUID by, boolean keepLead) {
         if (busy() || kind == null || kind.isEmpty()) return false;
         animal.interrupt(Interrupt.PET_LOCK);
-        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(keepLead); return true;
+        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(); return true;
     }
     public void unlock(String kind) {
         if (lockKind == null || kind != null && !kind.equals(lockKind)) return;
@@ -491,14 +484,13 @@ public final class PetLife {
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();
         permits.forEach((id, until) -> { var e = new CompoundTag(); e.putUUID("Partner", id); e.putLong("Until", until); permitList.add(e); });
-        tag.put("Permits", permitList); tag.put("BadgeLedger", ledger.save()); tag.put("Care", care.save()); lessons.save(tag); return tag;
+        tag.put("Permits", permitList); tag.put("BadgeLedger", ledger.save()); tag.put("Care", care.save()); return tag;
     }
     public void load(CompoundTag tag) {
         grade = BadgeGrade.of(tag.getInt("Grade")); worn = !tag.contains("Worn") || tag.getBoolean("Worn");
         issuedAt = tag.getLong("IssuedAt"); expiresAt = tag.contains("ExpiresAt") ? tag.getLong("ExpiresAt") : -1; source = Math.clamp(tag.getInt("Source"), 0, 6);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
-        lessons.load(tag);
         care.load(tag.getCompound("Care"));
         serial = tag.hasUUID("Serial") ? tag.getUUID("Serial") : null; issuer = tag.hasUUID("Issuer") ? tag.getUUID("Issuer") : null;
         history.clear(); for (var e : tag.getList("History", 10)) { history.add(ExamRecord.load((CompoundTag)e)); }

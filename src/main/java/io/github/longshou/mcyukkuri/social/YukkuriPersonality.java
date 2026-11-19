@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Objects;
 import java.util.UUID;
@@ -300,7 +300,7 @@ public final class YukkuriPersonality {
     }
     public String lastDecision() { return lastDecision; }
     public void decided(String reason) { lastDecision = reason == null || reason.length() > 64 ? "none" : reason; }
-    public boolean knowsWait() { return owner != null && owner.pet().lessons().knows(PetSkill.WAIT); }
+    public boolean knowsWait() { return owner != null && owner.skills().grade(Ability.WAIT) >= 2; }
 
     // Behavior queries derived from the five axes and the world relation.
     public int shareScore(float nutrition, float peerNutrition, boolean child, int closeness) {

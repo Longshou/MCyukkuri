@@ -1,4 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
+
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.life.Taste.Verdict;
@@ -581,7 +583,6 @@ final class LifeMeal {
                         ? (o.level().getEntity(bondTarget) instanceof HumanNpc ? "badge_thanks" : "request_thanks") : "fed";
                 if (pleasant && feeder != null) { lastFeeder = feeder; lastFedAt = o.level().getGameTime(); }
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
-                if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 eater.gameEvent(GameEvent.EAT);
                 boolean harmful = spicy || toxic > 0;
                 String face = harmful ? "surprise" : waste ? "teary" : reluctant ? "squeezed_cry_tears" : grudging ? "pursed"
@@ -598,6 +599,7 @@ final class LifeMeal {
                 }
                 if (!harmful && !grass && !waste && !unhappy)
                     o.level().sendParticles(ParticleTypes.HEART, eater.getX(), eater.getY()+eater.getBbHeight(), eater.getZ(), 3, .1, .05, .1, 0);
+                if (bowlMeal) { bowlMeal = false; eater.pet().routineCompleted(Ability.FOOD_GUARD); }
                 }
             }
             if (mealTicks == swallowAt + SWALLOW_TICKS && !coughing()) {
@@ -699,11 +701,11 @@ final class LifeMeal {
         o.entity().pet().contact(null, true);
         WildEvents.fed(o.entity(), null);
         o.entity().mind().ate(swallowed);
-        if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
         // Same rule as an item meal: a melting body keeps the swallow face only to the end of the swallow.
         o.entity().gameEvent(GameEvent.EAT);
         if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy",
                 swallowed.odor() >= 40 ? "hurt" : "fed", content ? SWALLOW_TICKS : 100);
+        if (bowlMeal) { bowlMeal = false; o.entity().pet().routineCompleted(Ability.FOOD_GUARD); }
     }
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }

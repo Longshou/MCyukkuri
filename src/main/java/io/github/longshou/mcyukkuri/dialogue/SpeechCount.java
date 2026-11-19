@@ -23,8 +23,12 @@ public final class SpeechCount {
 
     /** Dialogue event for saying {@code quantity} of {@code base}; {@code null} when there is nothing to count. */
     public static String event(String base, int quantity, String species, String tier) {
-        String bucket = bucket(quantity, species, tier);
-        return bucket == null ? null : base + "_" + bucket;
+        return event(base, quantity, cap(species, tier));
+    }
+
+    public static String event(String base, int quantity, int cap) {
+        if (quantity <= 0) return null;
+        return base + "_" + (quantity > cap ? "many" : quantity);
     }
 
     private SpeechCount() {}

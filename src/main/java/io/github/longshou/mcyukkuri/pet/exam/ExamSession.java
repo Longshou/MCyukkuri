@@ -13,7 +13,8 @@ import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.ExamRecord;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.PetStudy;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -45,8 +46,8 @@ public final class ExamSession implements ExamContext {
     private static final String PEER_LOCK = "exam_peer";
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready",
             "cooldown", "no_accessory", "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee",
-            "no_management", "too_late", "stage", "deficient", "sick", "uneasy", "labor", "occupied", "need_sweet", "need_reading",
-            "need_count", "need_care", "need_walk", "no_participant", "same_conditions", "need_gold", "platinum_potential",
+            "no_management", "too_late", "stage", "deficient", "sick", "uneasy", "labor", "occupied", "need_sweet",
+            "need_count", "need_care", "no_participant", "same_conditions", "need_gold", "platinum_potential",
             "platinum_skills", "platinum_traits", "share_nutrition");
     private static final Set<String> PLAYER_CAUSES = Set.of("owner_far", "owner_gone", "hurt", "panic", "fire", "water", "held", "accessory", "lost");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
@@ -73,7 +74,7 @@ public final class ExamSession implements ExamContext {
     private boolean done;
 
     private ExamSession(ServerLevel level, HumanNpc examiner, Player owner, YukkuriEntity candidate, int service,
-                        BadgeGrade target, List<ExamPlan.Question> questions, ExamRecord resume, int fee, YukkuriEntity hungryPeer) {
+                        BadgeGrade target, List<ExamPlan.Question> questions, ExamPlan.Saved resume, int fee, YukkuriEntity hungryPeer) {
         this.level = level;
         this.examiner = examiner;
         this.candidate = candidate;
@@ -160,16 +161,18 @@ public final class ExamSession implements ExamContext {
         for (var record : y.pet().history().reversed()) if (record.target() == target) return record;
         return null;
     }
-    private static ExamRecord pending(ExamRecord record) {
-        return record != null && record.outcome() == 4 && !record.questions().isEmpty() ? record : null;
+    private static ExamPlan.Saved pending(ExamRecord record) {
+        if (record == null || record.outcome() != 4 || record.questions().isEmpty()) return null;
+        var saved = ExamPlan.decode(record);
+        return saved.questions().isEmpty() ? null : saved;
     }
     private static String evidence(ExamPlan.Question question, HumanNpc examiner, Player p, YukkuriEntity y) {
         var skill = question.skill;
         var personality = y.life().personality();
         String example = switch (question) {
-            case READ, COUNT, EXPLAIN, CLARIFY -> {
-                var sample = ExamPlan.example(question, p, y);
-                yield sample == null ? "" : sample.source() + "/" + sample.example().getString();
+            case COUNT, CLARIFY -> {
+                var sample = PetStudy.foodCount(y);
+                yield sample == null ? "" : sample.source() + "/" + sample.count() + "/" + y.skills().cap();
             }
             case GREET -> {
                 var guest = ExamPlan.visitor(y, p, examiner);
@@ -180,16 +183,15 @@ public final class ExamSession implements ExamContext {
                 var peer = session != null ? session.hungryPeer : ExamPlan.needy(y, question);
                 yield peer == null ? "" : peer.getUUID().toString();
             }
-            case BED -> String.valueOf(y.life().homeStand());
             default -> "";
         };
         int aptitude = switch (question) {
             case NAME, GREET -> personality.attachment();
-            case READ, COUNT, EXPLAIN, CLARIFY -> Math.min(personality.intelligence(), personality.selfControl());
-            case WAIT, BOWL, TOILET, BED, WALK -> personality.selfControl();
+            case COUNT, CLARIFY -> Math.min(personality.intelligence(), personality.selfControl());
+            case WAIT, BOWL, TOILET -> personality.selfControl();
             case HELP, SHARE -> personality.friendliness();
         };
-        return question.name() + "|" + (skill == null ? 0 : y.pet().lessons().xp(skill))
+        return question.name() + "|" + (skill == null ? 0 : y.skills().points(skill))
                 + "|" + y.pet().stress() / 5 + "|" + personality.fear(examiner.getUUID()) / 5
                 + "|" + aptitude + "|" + example;
     }
@@ -242,8 +244,8 @@ public final class ExamSession implements ExamContext {
         if (target == BadgeGrade.PLATINUM) {
             if (type == PROMOTION && pet.effectiveGrade() != BadgeGrade.GOLD) return "need_gold";
             if (!PetConversation.hasPotential(y)) return "platinum_potential";
-            for (var skill : List.of(PetSkill.READING, PetSkill.ARITHMETIC, PetSkill.WAIT, PetSkill.GREETING))
-                if (pet.lessons().level(skill) < 4) return "platinum_skills";
+            if (y.skills().grade(Ability.WAIT) < 3 || y.skills().grade(Ability.GREETING) < 3 || y.skills().cap() < 8)
+                return "platinum_skills";
             if (PetConversation.explanation(y) == 0 || PetConversation.considerate(y) == 0) return "platinum_traits";
         }
         if (y.isVehicle() || y.family().carry().carrying() || y.family().awaitingLanding()) return "occupied";
@@ -254,15 +256,15 @@ public final class ExamSession implements ExamContext {
         if (emeralds(p) < fee(type)) return "no_fee";
         var prior = previous(y, target);
         var resume = pending(prior);
-        var plan = resume == null ? ExamPlan.questions(type, target, p, y) : ExamPlan.decode(resume.questions());
+        var plan = resume == null ? ExamPlan.questions(type, target, y) : resume.questions();
         for (int i = resume == null ? 0 : resume.next(); i < plan.size(); i++) {
             String reason = ExamPlan.refusal(plan.get(i), examiner, p, y);
             if (reason != null) return reason;
         }
         if (prior != null && prior.outcome() >= 2 && prior.outcome() != 4 && !prior.evidence().isEmpty()) {
             var old = prior.evidence().split("\\|", 6);
-            if (old.length == 6) {
-                var failed = ExamPlan.Question.valueOf(old[0]);
+            var failed = ExamPlan.byName(old[0]);
+            if (old.length == 6 && failed != null) {
                 var current = evidence(failed, examiner, p, y).split("\\|", 6);
                 if (!improved(old, current)) return "same_conditions";
             }
@@ -276,12 +278,12 @@ public final class ExamSession implements ExamContext {
         if (why != null) return why;
         var target = target(type, candidate);
         var resume = pending(previous(candidate, target));
-        var plan = resume == null ? ExamPlan.questions(type, target, owner, candidate) : ExamPlan.decode(resume.questions());
+        var plan = resume == null ? ExamPlan.questions(type, target, candidate) : resume.questions();
         var remaining = plan.subList(resume == null ? 0 : resume.next(), plan.size());
         var peerQuestion = remaining.stream().filter(ExamPlan.Question::needsHungryPeer).findFirst().orElse(null);
         var peer = peerQuestion == null ? null : reserveHungryPeer(candidate, examiner, peerQuestion);
         if (peerQuestion != null && peer == null) return "no_participant";
-        if (!candidate.pet().lock(LOCK, owner.getUUID(), remaining.contains(ExamPlan.Question.WALK))) {
+        if (!candidate.pet().lock(LOCK, owner.getUUID())) {
             if (peer != null) peer.pet().unlock(PEER_LOCK);
             return "busy";
         }
@@ -309,7 +311,7 @@ public final class ExamSession implements ExamContext {
             }
         }
     }
-    public static void performed(YukkuriEntity y, PetSkill skill, boolean success) {
+    public static void performed(YukkuriEntity y, Ability skill, boolean success) {
         var session = candidateSession(y);
         if (session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice
                 && session.questions.get(session.index).skill == skill) practice.performed(session, success);
@@ -317,7 +319,7 @@ public final class ExamSession implements ExamContext {
     public static void greeted(YukkuriEntity y, Entity guest, boolean success) {
         var session = candidateSession(y);
         if (session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice && practice.guest(guest))
-            performed(y, PetSkill.GREETING, success);
+            performed(y, Ability.GREETING, success);
     }
     public static void fed(YukkuriEntity receiver, UUID feeder) {
         for (var session : ACTIVE.values())
@@ -365,7 +367,7 @@ public final class ExamSession implements ExamContext {
             presentResult();
             return;
         }
-        if (!LOCK.equals(candidate.pet().busyWith()) && !candidate.pet().lock(LOCK, ownerId, questions.get(index) == ExamPlan.Question.WALK)) {
+        if (!LOCK.equals(candidate.pet().busyWith()) && !candidate.pet().lock(LOCK, ownerId)) {
             interrupt("site");
             return;
         }

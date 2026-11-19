@@ -38,7 +38,7 @@ final class ExamPracticeItem implements ExamItem {
                 : ExamPlan.refusal(question, ctx.examiner(), ctx.owner(), y);
         if (why != null) { ctx.interrupt(why); return; }
         switch (question) {
-            case READ, COUNT, EXPLAIN, CLARIFY -> example = ExamPlan.example(question, ctx.owner(), y);
+            case COUNT, CLARIFY -> example = PetStudy.foodCount(y);
             case GREET -> participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
             case HELP, SHARE -> participant = ctx.hungryPeer();
             default -> { }
@@ -94,7 +94,7 @@ final class ExamPracticeItem implements ExamItem {
             return false;
         }
         if (completed == null && now >= until) {
-            if (question == ExamPlan.Question.WALK || question == ExamPlan.Question.GREET) ctx.interrupt("site");
+            if (question == ExamPlan.Question.GREET) ctx.interrupt("site");
             else if (ctx.inContact()) comment(ctx, false, "no_answer");
         } else if (completed != null && now >= until && ctx.inContact()) comment(ctx, completed, observed);
         return false;
@@ -104,8 +104,8 @@ final class ExamPracticeItem implements ExamItem {
         var y = ctx.candidate();
         if (ctx.owner() == null) { ctx.interrupt("owner_gone"); return; }
         if (example != null) {
-            var actual = ExamPlan.example(question, ctx.owner(), y);
-            if (actual == null || !example.sameExample(actual)) { ctx.interrupt("site"); return; }
+            var actual = PetStudy.foodCount(y);
+            if (!example.equals(actual)) { ctx.interrupt("site"); return; }
             y.getLookControl().setLookAt(ctx.examiner());
             boolean detailed = question.grade == BadgeGrade.PLATINUM && y.getRandom().nextDouble() < PetConversation.explanation(y);
             var answer = PetStudy.answer(y, actual, detailed);
@@ -135,7 +135,7 @@ final class ExamPracticeItem implements ExamItem {
         until = now + 420;
         if (question == ExamPlan.Question.WAIT && !y.pet().lessons().examWait(ctx.owner())) ctx.interrupt("need_sweet");
         if (question == ExamPlan.Question.GREET && !y.social().greetForPractice(participant)) ctx.interrupt("no_participant");
-        if (question == ExamPlan.Question.BOWL || question == ExamPlan.Question.TOILET || question == ExamPlan.Question.BED)
+        if (question == ExamPlan.Question.BOWL || question == ExamPlan.Question.TOILET)
             y.life().replanNow();
         if (question == ExamPlan.Question.SHARE) y.life().replanNow();
     }

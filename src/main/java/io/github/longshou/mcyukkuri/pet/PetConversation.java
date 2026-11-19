@@ -47,7 +47,7 @@ public final class PetConversation {
         y.showReaction("teary", "afraid", 60);
     }
 
-    public static Component fullStudyReply(PetSkill skill, Component answer) {
-        return Component.translatable(skill == PetSkill.READING ? "pet.mcyukkuri.reply.full_read" : "pet.mcyukkuri.reply.full_count", answer);
+    public static Component fullStudyReply(Component answer) {
+        return Component.translatable("pet.mcyukkuri.reply.full_count", answer);
     }
 }

@@ -78,15 +78,15 @@ public final class NestComfort {
 
     /**
      * Chooses and shows the settling reaction. A refusal stays up {@link #REFUSAL_WAIT}; the next look after a refusal gives in.
-     * {@code lesson}: the owner is teaching it bedtime, so it does not refuse; at {@code energy} 20 or less it is too tired to.
+     * At {@code energy} 20 or less it is too tired to refuse.
      */
-    public static Look settle(YukkuriEntity e, CareBlockEntity bed, boolean refusedBefore, float energy, boolean lesson) {
+    public static Look settle(YukkuriEntity e, CareBlockEntity bed, boolean refusedBefore, float energy) {
         var r = read(e, bed.grade());
         double pride = r.deficit() * r.sensitivity(), joy = r.surplus() * r.sensitivity(), unworthy = r.unworthy() * (r.grade() - 1) / 2;
         double roll = e.getRandom().nextDouble();
         Settle settle;
         if (refusedBefore) settle = Settle.GIVE_IN;
-        else if (!lesson && energy > 20 && roll < ramp(pride, 1.0, 1.6)) settle = Settle.REFUSE;
+        else if (energy > 20 && roll < ramp(pride, 1.0, 1.6)) settle = Settle.REFUSE;
         else if (roll < ramp(pride, .3, 1.0)) settle = Settle.GRUMBLE;
         else if (roll < ramp(unworthy, .2, .8)) settle = Settle.UNEASY;
         else if (roll < ramp(joy, .5, 1.5)) settle = Settle.DELIGHTED;

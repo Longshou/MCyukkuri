@@ -47,7 +47,7 @@ public final class Cognition {
 
     /**
      * Confirms a real teacher/student demonstration. It grants no generic cognition points: this
-     * card has no named transferable skill. Named lessons complete their PetSkill at their own
+     * card has no named transferable skill. Named lessons practise their ability at their own
      * actual finish point.
      */
     public static TeachingResult commitTeaching(YukkuriEntity teacher, YukkuriEntity student, UUID classroom) {

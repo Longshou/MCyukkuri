@@ -1,7 +1,8 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.badge.BadgeMenu;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.cognition.SkillMath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -14,12 +15,12 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
     private static final int LESSON_COLUMNS = 3;
-    private static final int SHEET_HEIGHT = 255, PROFILE_X = 14, BUTTON_X = 10, BUTTON_HEIGHT = 17, ROW = 19;
-    private static final int ACTION_TOP = 115, LESSON_TOP = 155, BREED_TOP = 212, BREED_BUTTON_Y = 234, DONE_WIDTH = 56;
+    private static final int SHEET_HEIGHT = 236, PROFILE_X = 14, BUTTON_X = 10, BUTTON_HEIGHT = 17, ROW = 19;
+    private static final int ACTION_TOP = 115, LESSON_TOP = 155, BREED_TOP = 193, BREED_BUTTON_Y = 215, DONE_WIDTH = 56;
     private static final int[] BUTTONS = {BadgeMenu.ButtonId.DETACH, BadgeMenu.ButtonId.ATTACH, BadgeMenu.ButtonId.NEXT_SUBJECT,
             BadgeMenu.ButtonId.ORDER_PEACEFUL, BadgeMenu.ButtonId.ORDER_HUNT, BadgeMenu.ButtonId.ORDER_RETURN};
     private final Button[] buttons = new Button[BadgeMenu.ButtonId.COUNT];
-    private final String[] lessonTip = new String[PetSkill.values().length];
+    private final String[] lessonTip = new String[BadgeMenu.LESSONS.size()];
     private int scroll;
 
     public BadgeScreen(BadgeMenu m, Inventory inv, Component title) { super(m, inv, title); imageHeight = SHEET_HEIGHT; }
@@ -37,9 +38,9 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
             }).bounds(leftPos + BUTTON_X + n % 3 * pitch, topPos + ACTION_TOP + n / 3 * ROW, buttonWidth, BUTTON_HEIGHT)
                     .tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build(ActionButton::new));
         }
-        for (int k = 0; k < PetSkill.values().length; k++) {
-            final int id = BadgeMenu.ButtonId.LESSON_WAIT + k;
-            var skill = PetSkill.values()[k];
+        for (int k = 0; k < BadgeMenu.LESSONS.size(); k++) {
+            final int id = BadgeMenu.ButtonId.LESSON_START + k;
+            var skill = BadgeMenu.LESSONS.get(k);
             buttons[id] = addRenderableWidget(Button.builder(skillLabel(skill), b -> {
                 if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
             }).bounds(leftPos + BUTTON_X + k % LESSON_COLUMNS * pitch, topPos + LESSON_TOP + k / LESSON_COLUMNS * ROW,
@@ -86,19 +87,19 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         buttons[BadgeMenu.ButtonId.ATTACH].active = own && idle && menu.value(BadgeMenu.Data.GRADE) > 0 && menu.value(BadgeMenu.Data.WORN) == 0 && menu.value(BadgeMenu.Data.ACCESSORY) == 1;
         buttons[BadgeMenu.ButtonId.NEXT_SUBJECT].active = menu.value(BadgeMenu.Data.SUBJECT_COUNT) > 1;
         boolean free = own && idle && menu.value(BadgeMenu.Data.LESSON_STATE) == 0;
-        for (int k = 0; k < PetSkill.values().length; k++) {
-            var skill = PetSkill.values()[k];
+        for (int k = 0; k < BadgeMenu.LESSONS.size(); k++) {
+            var skill = BadgeMenu.LESSONS.get(k);
             String reason = !own ? "owner" : !idle || menu.value(BadgeMenu.Data.LESSON_STATE) != 0 ? "busy" : menu.value(BadgeMenu.Data.READY) == 0 ?
                     (menu.value(BadgeMenu.Data.COOLDOWN_SECONDS) > 0 ? "cooldown" : "not_ready") :
-                    (menu.value(BadgeMenu.Data.LESSON_MASK) >> k & 1) == 0 ? "need_" + skill.key() : "ok." + skill.key();
-            var button = buttons[BadgeMenu.ButtonId.LESSON_WAIT + k];
+                    (menu.value(BadgeMenu.Data.LESSON_MASK) >> skill.ordinal() & 1) == 0 ? "need_" + skill.key() : "ok." + skill.key();
+            var button = buttons[BadgeMenu.ButtonId.LESSON_START + k];
             button.active = free;
             button.setMessage(skillLabel(skill));
-            String tip = reason + ":" + skillXp(skill);
+            String tip = reason + ":" + skillPoints(skill);
             if (!tip.equals(lessonTip[k])) {
                 lessonTip[k] = tip;
                 String key = "pet.mcyukkuri.ui.tip." + reason;
-                button.setTooltip(Tooltip.create(Component.translatable("pet.mcyukkuri.practice.experience", skillLabel(skill), skillXp(skill))
+                button.setTooltip(Tooltip.create(Component.translatable("pet.mcyukkuri.practice.experience", skillLabel(skill), skillPoints(skill))
                         .append("\n").append(Component.translatable(key, menu.value(BadgeMenu.Data.COOLDOWN_SECONDS)))));
             }
         }
@@ -127,14 +128,14 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         var label = Component.translatable("badge.mcyukkuri.profile." + key, args);
         g.drawString(font, ellipsize(font, label, right - x), x, y, INK, false);
     }
-    private int skillXp(PetSkill skill) { return menu.value(BadgeMenu.Data.SKILL_XP_START + skill.ordinal()); }
-    private Component skillLabel(PetSkill skill) {
+    private int skillPoints(Ability skill) { return menu.value(BadgeMenu.Data.SKILL_POINTS_START + skill.ordinal()); }
+    private Component skillLabel(Ability skill) {
         return Component.translatable("pet.mcyukkuri.practice.level",
-                Component.translatable("pet.mcyukkuri.skill." + skill.key()), PetSkill.levelAt(skillXp(skill)));
+                Component.translatable(skill.translationKey()), SkillMath.grade(skillPoints(skill), skill.graded));
     }
     private Component skills() {
         var result = Component.empty();
-        for (var skill : PetSkill.values()) {
+        for (var skill : Ability.values()) if (skill.domestic) {
             if (skill.ordinal() > 0) result.append(", ");
             result.append(skillLabel(skill));
         }
@@ -174,7 +175,7 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
                 GuiKit.gradeName(menu.value(BadgeMenu.Data.LAST_GRADE)));
         int ls = menu.value(BadgeMenu.Data.LESSON_STATE); // one status line: what it is doing now, plus rest time and today's lessons only when they matter
         Component state = ls == BadgeMenu.AWAITING_FEEDBACK ? Component.translatable("pet.mcyukkuri.ui.state.awaiting")
-                : ls > 0 ? Component.translatable("pet.mcyukkuri.ui.state.running", Component.translatable("pet.mcyukkuri.skill." + PetSkill.values()[ls - 1].key()))
+                : ls > 0 ? Component.translatable("pet.mcyukkuri.ui.state.running", Component.translatable(Ability.values()[ls - 1].translationKey()))
                 : Component.translatable(menu.value(BadgeMenu.Data.BUSY) == 1 ? "pet.mcyukkuri.ui.state.busy" : "pet.mcyukkuri.ui.state.idle");
         var status = Component.translatable("badge.mcyukkuri.profile.status", state);
         if (menu.value(BadgeMenu.Data.COOLDOWN_SECONDS) > 0) status.append(" · ").append(Component.translatable("pet.mcyukkuri.ui.rest", menu.value(BadgeMenu.Data.COOLDOWN_SECONDS)));

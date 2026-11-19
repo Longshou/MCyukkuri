@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.cognition.SkillMath.Attempt;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
@@ -15,63 +17,50 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/** Practice belongs to the individual. A lesson observes the same outcome as everyday behavior. */
+/** Runs owner lessons and routes their real outcomes to the individual's skills. */
 public final class PetLessons {
     public static final String LOCK = "lesson";
     public static final int FEEDBACK_WINDOW = 80, COOLDOWN = 200, DAY = 24000;
-    private static final int WILD_DECAY = 7 * DAY;
     public enum State { IDLE, RUNNING, AWAITING }
 
     private final YukkuriEntity animal;
-    private final int[] experience = new int[PetSkill.values().length];
     private State state = State.IDLE;
-    private PetSkill kind;
+    private Ability kind;
     private UUID owner, markCard;
     private boolean completed;
     private boolean coached;
-    private int feedbackLeft, today, dayClock, routineObserveLeft, wildDays = -1;
+    private int feedbackLeft, today, dayClock, routineObserveLeft;
     private long nextStudy;
-    private PetSkill lastStudy;
     private int lastSeenYoung;
 
     public PetLessons(YukkuriEntity animal) { this.animal = animal; }
     public State state() { return state; }
-    public PetSkill kind() { return kind; }
+    public Ability kind() { return kind; }
     public boolean running() { return state == State.RUNNING; }
     public boolean awaitingFeedback() { return state == State.AWAITING && feedbackLeft > 0; }
     public int today() { return today; }
     public int dayClock() { return dayClock; }
-    public int xp(PetSkill skill) { return experience[skill.ordinal()]; }
-    public int level(PetSkill skill) { return PetSkill.levelAt(xp(skill)); }
-    /** Exam eligibility keeps a single projection of practiced skill. */
-    public boolean knows(PetSkill skill) { return level(skill) >= 2; }
-
-    public boolean practicing(PetSkill skill) { return running() && kind == skill; }
+    public boolean practicing(Ability skill) { return running() && kind == skill; }
     public boolean directed() { return running() && LOCK.equals(animal.pet().busyWith()); }
 
-    public boolean studyWith(Player player) {
-        var exercise = studyExample(player);
+    public boolean studyWithOwner() {
+        var exercise = studyExample();
         if (exercise == null) return false;
         PetStudy.answer(animal, exercise);
         return true;
     }
 
-    public PetStudy.Exercise studyExample(Player player) {
+    public PetStudy.Exercise studyExample() {
         long now = level().getGameTime();
         if (!animal.pet().isPet() || state != State.IDLE || now < nextStudy || !animal.childhood().canLearn()) return null;
         nextStudy = now + 600;
-        PetSkill first = lastStudy == PetSkill.READING ? PetSkill.ARITHMETIC : PetSkill.READING;
-        var exercise = PetStudy.find(animal, player, first);
-        if (exercise == null) exercise = PetStudy.find(animal, player, first == PetSkill.READING ? PetSkill.ARITHMETIC : PetSkill.READING);
-        if (exercise != null) lastStudy = exercise.skill();
-        return exercise;
+        return PetStudy.counting(animal);
     }
 
     boolean hasCountedYoung() { return lastSeenYoung > 0; }
@@ -81,107 +70,37 @@ public final class PetLessons {
         return missing;
     }
 
-    public boolean attempt(PetSkill skill) {
-        return attempt(skill, 0);
-    }
-
-    public boolean everydayAttempt(PetSkill skill) {
-        int neglect = practicing(skill) || ExamSession.running(animal) ? 0 : animal.pet().neglect();
-        return attempt(skill, neglect);
-    }
-
-    private boolean attempt(PetSkill skill, int neglect) {
-        var p = animal.life().personality();
-        double aptitude = (p.selfControl() * .65 + p.intelligence() * .35) / 100;
-        // Even at maximum neglect the penalty is smaller than one level of practice.
-        double chance = Math.clamp(.17 + .15 * level(skill) + .27 * aptitude
-                - .001 * (animal.mind().stressView() + neglect), .08, .98);
-        double roll = animal.getRandom().nextDouble();
-        boolean success = roll < chance;
-        GameplayLog.limited(animal, "lesson", "attempt." + skill, 200,
-                "skill attempt skill={} level={} chance={} roll={} success={} neglect={}", skill, level(skill), chance, roll, success, neglect);
-        return success;
-    }
-
     /** Call once at a real action's outcome. Repeated sampling or planning never awards practice. */
-    public void performed(PetSkill skill, boolean success) {
-        if (!animal.pet().isPet() || animal.level().isClientSide) return;
+    public void performed(Ability skill, boolean success) {
         boolean lesson = practicing(skill);
-        if (success) addPractice(skill, lesson && coached ? 6 : 2, lesson && coached ? "lesson" : "daily");
-        if (success && skill == PetSkill.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1);
+        if (success && skill == Ability.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1);
         if (lesson) finishLesson(success);
-        if (skill == PetSkill.WAIT || skill == PetSkill.FOOD_BOWL || skill == PetSkill.TOILET || skill == PetSkill.BEDTIME)
+        if (success) animal.skills().practise(skill, lesson && coached ? 3 : 1, lesson && coached ? "lesson" : "daily");
+        if (skill == Ability.WAIT || skill == Ability.FOOD_GUARD || skill == Ability.TOILET)
             ExamSession.performed(animal, skill, success);
     }
 
-    private void addPractice(PetSkill skill, int gain, String source) {
-        int before = xp(skill), tier = level(skill);
-        experience[skill.ordinal()] = Math.min(PetSkill.maximumXp(), before + gain);
-        if (before != xp(skill)) GameplayLog.limited(animal, "lesson", "practice." + skill + "." + source, 100,
-                "skill practice skill={} source={} xp={} -> {} level={} -> {}", skill, source, before, xp(skill), tier, level(skill));
-    }
-
-    void startYardHabits() {
-        int basic = PetSkill.xpForLevel(1);
-        experience[PetSkill.FOOD_BOWL.ordinal()] = basic;
-        experience[PetSkill.TOILET.ordinal()] = basic;
-        experience[PetSkill.BEDTIME.ordinal()] = basic;
-    }
-
-    void separated() { wildDays = 0; }
-    void reunited() { wildDays = -1; }
-
-    private void tickWildLife() {
-        if (wildDays < 0) return;
-        if (!animal.status().identity().wild()) { wildDays = 0; return; }
-        if (++wildDays < WILD_DECAY) return;
-        wildDays = -1;
-        for (var skill : PetSkill.values()) {
-            int tier = level(skill);
-            if (tier == 0) continue;
-            experience[skill.ordinal()] = PetSkill.xpForLevel(tier - 1);
-            GameplayLog.event(animal, "lesson", "skill faded skill={} level={} -> {} cause=extended_wild_life", skill, tier, tier - 1);
-        }
-    }
-
     public void restore(int today, int dayClock) { this.today = Math.clamp(today, 0, 999); this.dayClock = Math.clamp(dayClock, 0, DAY); }
-    public void save(CompoundTag tag) {
-        var skills = new CompoundTag();
-        for (var skill : PetSkill.values()) if (xp(skill) > 0) skills.putInt(skill.key(), xp(skill));
-        tag.put("SkillExperience", skills);
-        if (wildDays >= 0) tag.putInt("SkillWildTicks", wildDays);
-    }
-    public void load(CompoundTag tag) {
-        var skills = tag.getCompound("SkillExperience");
-        int mask = tag.contains("SkillExperience") ? 0 : tag.getInt("KnownSkills");
-        for (var skill : PetSkill.values())
-            experience[skill.ordinal()] = (mask & 1 << skill.ordinal()) != 0 ? PetSkill.xpForLevel(2)
-                    : Math.clamp(skills.getInt(skill.key()), 0, PetSkill.maximumXp());
-        wildDays = tag.contains("SkillWildTicks") ? Math.clamp(tag.getInt("SkillWildTicks"), 0, WILD_DECAY - 1) : -1;
-    }
     private ServerLevel level() { return (ServerLevel) animal.level(); }
 
-    public boolean preconditionOk(Player player, PetSkill skill) {
-        if (skill == null) return false;
+    public boolean preconditionOk(Player player, Ability skill) {
         return switch (skill) {
             case WAIT -> snack(player) != null;
-            case FOOD_BOWL, TOILET -> facility(skill) != null;
-            case BEDTIME -> animal.life().homeStand() != null;
-            case READING, ARITHMETIC -> PetStudy.find(animal, player, skill) != null;
+            case FOOD_GUARD, TOILET -> facility(skill) != null;
+            case COUNTING -> PetStudy.counting(animal) != null;
             case GREETING -> PetStudy.visitor(animal) != null;
-            case HARNESS -> animal.getLeashHolder() == player;
+            default -> throw new IllegalArgumentException("Not a lesson: " + skill);
         };
     }
-    public boolean careReady(PetSkill skill) {
+    public boolean careReady(Ability skill) {
         return switch (skill) {
-            case FOOD_BOWL -> animal.life().canEat() && animal.life().canUseCareFacility(CareBlock.Kind.BOWL);
+            case FOOD_GUARD -> animal.life().canEat() && animal.life().canUseCareFacility(CareBlock.Kind.BOWL);
             case TOILET -> animal.life().bladder() >= 70 && animal.life().canUseCareFacility(CareBlock.Kind.TOILET);
-            case BEDTIME -> animal.life().drowsy() && animal.life().homeStand() != null;
             default -> throw new IllegalArgumentException("Not a care routine: " + skill);
         };
     }
     /** Preview stays side-effect free. */
-    public String refusal(Player player, PetSkill skill) {
+    public String refusal(Player player, Ability skill) {
         if (animal.isPanicking() || animal.life().personality().fear(player.getUUID()) >= BondLevels.SOCIAL_FEAR_LIMIT) return "scared";
         if (!animal.childhood().canLearn() || !animal.subspecies().acceptsLesson(player.getUUID())) return "distracted";
         if (animal.life().nutrition() < 30) return "hungry";
@@ -191,21 +110,21 @@ public final class PetLessons {
         if (animal.pet().cooldown() > 0) return "cooldown";
         return preconditionOk(player, skill) ? null : "need_" + skill.key();
     }
-    public boolean start(Player player, PetSkill skill) {
+    public boolean start(Player player, Ability skill) {
         return !ExamSession.running(animal) && request(player, skill, true);
     }
     public boolean orderWait(Player player) {
-        return !ExamSession.running(animal) && request(player, PetSkill.WAIT, false);
+        return !ExamSession.running(animal) && request(player, Ability.WAIT, false);
     }
-    public boolean examWait(Player player) { return request(player, PetSkill.WAIT, false); }
+    public boolean examWait(Player player) { return request(player, Ability.WAIT, false); }
     public void stopExamWait() {
-        if (directed() && kind == PetSkill.WAIT) {
+        if (directed() && kind == Ability.WAIT) {
             animal.pet().unlock(LOCK);
             end();
         }
     }
-    private boolean request(Player player, PetSkill skill, boolean lesson) {
-        if (animal.level().isClientSide || state != State.IDLE || skill == null) return false;
+    private boolean request(Player player, Ability skill, boolean lesson) {
+        if (animal.level().isClientSide || state != State.IDLE) return false;
         var reason = refusal(player, skill);
         if (reason != null) {
             GameplayLog.limited(animal, "lesson", "start." + reason, 20,
@@ -222,14 +141,13 @@ public final class PetLessons {
         coached = lesson;
         return begin(player,skill);
     }
-    private boolean begin(Player player,PetSkill skill) {
-        if (skill != PetSkill.WAIT && skill != PetSkill.READING && skill != PetSkill.ARITHMETIC) {
+    private boolean begin(Player player, Ability skill) {
+        if (skill != Ability.WAIT && skill != Ability.COUNTING) {
             state = State.RUNNING; kind = skill; owner = player.getUUID(); completed = false; routineObserveLeft = 1200;
             var example = switch (skill) {
-                case FOOD_BOWL, TOILET -> Vec3.atCenterOf(facility(skill).block());
-                case BEDTIME -> Vec3.atCenterOf(animal.life().homeStand());
+                case FOOD_GUARD, TOILET -> Vec3.atCenterOf(facility(skill).block());
                 case GREETING -> PetStudy.visitor(animal).position();
-                default -> player.position();
+                default -> throw new IllegalArgumentException("Not a routine lesson: " + skill);
             };
             markCard = Staging.card(level(), example.add(0, 1.2, 0),
                     Component.translatable("pet.mcyukkuri.skill." + skill.key()), ClipMarkers.of("think").length(), 1.2f);
@@ -250,13 +168,12 @@ public final class PetLessons {
     }
 
     private record Stand(BlockPos block, BlockPos stand, CareBlock.Kind kind) {}
-    private Stand facility(PetSkill skill) {
+    private Stand facility(Ability skill) {
         CareBlock.Kind needed = switch (skill) {
-            case FOOD_BOWL -> CareBlock.Kind.BOWL;
+            case FOOD_GUARD -> CareBlock.Kind.BOWL;
             case TOILET -> CareBlock.Kind.TOILET;
-            default -> null;
+            default -> throw new IllegalArgumentException("Not a facility lesson: " + skill);
         };
-        if (needed == null) return null;
         var origin = animal.blockPosition(); Stand best = null; double nearest = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-8, -2, -8), origin.offset(8, 2, 8))) {
             if (!level().hasChunkAt(pos) || !(level().getBlockEntity(pos) instanceof CareBlockEntity care) || care.kind() != needed) continue;
@@ -277,21 +194,21 @@ public final class PetLessons {
     }
 
     public void swallowed(UUID feeder, ItemStack food) {
-        if (practicing(PetSkill.WAIT) && animal.pet().director() instanceof Run run
+        if (practicing(Ability.WAIT) && animal.pet().director() instanceof Run run
                 && run.snackGiven && owner.equals(feeder) && Sweets.is(food)) run.swallowed = true;
     }
 
     private final class Run implements PetLife.Director {
         private final Player player;
-        private final PetSkill skill;
+        private final Ability skill;
         private final PetStudy.Exercise exercise;
         private int ticks, waitTicks;
         private UUID card;
         private boolean snackGiven, swallowed, success;
 
-        Run(Player player, PetSkill skill) {
+        Run(Player player, Ability skill) {
             this.player = player; this.skill = skill;
-            exercise = skill == PetSkill.WAIT ? null : PetStudy.find(animal, player, skill);
+            exercise = skill == Ability.WAIT ? null : PetStudy.counting(animal);
         }
         @Override public void tick(YukkuriEntity ignored) {
             if (!player.isAlive() || player.level() != animal.level() || player.distanceToSqr(animal) > 144 || animal.isPanicking()
@@ -300,8 +217,8 @@ public final class PetLessons {
             ticks++;
             switch (skill) {
                 case WAIT -> waitForSnack();
-                case READING, ARITHMETIC -> study();
-                default -> interrupt();
+                case COUNTING -> study();
+                default -> throw new IllegalStateException("Not a directed lesson: " + skill);
             }
         }
         private void waitForSnack() {
@@ -309,7 +226,7 @@ public final class PetLessons {
             animal.getLookControl().setLookAt(player, 30, 30);
             if (ticks == 1) {
                 waitTicks = animal.life().personality().waitingTicks();
-                success = attempt(skill);
+                success = animal.skills().attempt(skill) == Attempt.DONE;
                 animal.showReaction("drool", "lesson_start", waitTicks);
                 card = Staging.card(level(), player.position().add(0, player.getBbHeight() + 1.1, 0),
                         Component.translatable("pet.mcyukkuri.card.promise"), waitTicks + FEEDBACK_WINDOW, 1.0f);
@@ -339,8 +256,8 @@ public final class PetLessons {
                 animal.showReaction("surprise", "lesson_start", ClipMarkers.of("think").length());
             }
             if (ticks >= ClipMarkers.of("think").length()) {
-                var actual = PetStudy.find(animal, player, skill);
-                if (actual == null || !exercise.sameExample(actual)) { interrupt(); return; }
+                var actual = PetStudy.counting(animal);
+                if (!exercise.equals(actual)) { interrupt(); return; }
                 PetStudy.answer(animal, actual);
             }
         }
@@ -355,7 +272,7 @@ public final class PetLessons {
 
     private void finishLesson(boolean success) {
         if (state != State.RUNNING) return;
-        if (kind == PetSkill.WAIT && ExamSession.running(animal)) {
+        if (kind == Ability.WAIT && ExamSession.running(animal)) {
             animal.pet().unlock(LOCK);
             end();
             return;
@@ -365,8 +282,8 @@ public final class PetLessons {
         animal.pet().setCooldown(COOLDOWN);
         if (dayClock <= 0) dayClock = 1;
         today++; state = State.AWAITING; feedbackLeft = FEEDBACK_WINDOW;
-        GameplayLog.event(animal, "lesson", "lesson ended owner={} skill={} success={} xp={} awaitingFeedbackTicks={}",
-                owner, kind, success, xp(kind), feedbackLeft);
+        GameplayLog.event(animal, "lesson", "lesson ended owner={} skill={} success={} awaitingFeedbackTicks={}",
+                owner, kind, success, feedbackLeft);
         animal.pet().unlock(LOCK);
         if (markCard != null) Staging.removeCard(level(), markCard);
         markCard = Staging.card(level(), animal.position().add(0, animal.getBbHeight() + .6, 0), Component.translatable("pet.mcyukkuri.card.feedback"), FEEDBACK_WINDOW + 10, 1.6f);
@@ -384,21 +301,21 @@ public final class PetLessons {
     public boolean praise(Player player) {
         if (!awaitingFeedback() || !player.getUUID().equals(owner)) return false;
         if (completed) {
-            addPractice(kind, 3, "praise");
             animal.pet().addStress(-3);
             SurvivalProgress.award(player, "lesson_praised");
             if (!animal.life().isSleeping() && animal.life().mealTicks() == 0) animal.playAction("joy_jump");
+            animal.skills().practise(kind, 1, "feedback");
         }
         end();
         return true;
     }
     public void reprimand(Player player, CareAction action) {
         if (!awaitingFeedback() || !player.getUUID().equals(owner)) return;
-        addPractice(kind, 1, "correction");
+        animal.skills().practise(kind, 1, "feedback");
         animal.pet().addStress(action == CareAction.FLICK ? 10 : 4);
         end();
     }
-    public void reward(Player player, ItemStack sweet) { if (awaitingFeedback() && player.getUUID().equals(owner) && Sweets.is(sweet)) { if (completed) { addPractice(kind, 5, "treat"); animal.pet().addStress(-5); } end(); } }
+    public void reward(Player player, ItemStack sweet) { if (awaitingFeedback() && player.getUUID().equals(owner) && Sweets.is(sweet)) { if (completed) { animal.skills().practise(kind, 2, "feedback"); animal.pet().addStress(-5); } end(); } }
     private void end() {
         state = State.IDLE;
         feedbackLeft = routineObserveLeft = 0;
@@ -409,7 +326,6 @@ public final class PetLessons {
     }
     public void tick() {
         if (animal.level().isClientSide) return;
-        tickWildLife();
         if (dayClock > 0 && ++dayClock >= DAY) { dayClock = 0; today = 0; }
         if (state == State.RUNNING && routineObserveLeft > 0) {
             var player = level().getPlayerByUUID(owner);

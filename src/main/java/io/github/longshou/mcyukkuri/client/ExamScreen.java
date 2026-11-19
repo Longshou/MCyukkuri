@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import net.minecraft.client.gui.GuiGraphics;
@@ -48,7 +48,7 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
     private static Component grade(int id) { return GuiKit.gradeName(id); }
     private static Component skills(int mask) {
         var result = Component.empty(); boolean any = false;
-        for (var skill : PetSkill.values()) if ((mask & 1 << skill.ordinal()) != 0) {
+        for (var skill : Ability.values()) if ((mask & 1 << skill.ordinal()) != 0) {
             if (any) result.append(", ");
             result.append(Component.translatable("pet.mcyukkuri.skill." + skill.key())); any = true;
         }

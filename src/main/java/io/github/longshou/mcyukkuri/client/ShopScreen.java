@@ -9,7 +9,7 @@ import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.network.ShopRowPayload;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -167,7 +167,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     }
     private static Component skills(int mask) {
         MutableComponent result = Component.empty(); boolean any = false;
-        for (var skill : PetSkill.values()) if ((mask & 1 << skill.ordinal()) != 0) {
+        for (var skill : Ability.values()) if ((mask & 1 << skill.ordinal()) != 0) {
             if (any) result.append(", ");
             result.append(Component.translatable("pet.mcyukkuri.skill." + skill.key())); any = true;
         }

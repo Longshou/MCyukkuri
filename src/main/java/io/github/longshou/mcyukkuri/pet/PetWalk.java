@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -50,7 +49,7 @@ public final class PetWalk {
     }
 
     private boolean manners() {
-        if (manners == null) manners = animal.pet().lessons().everydayAttempt(PetSkill.HARNESS);
+        if (manners == null) manners = animal.getRandom().nextDouble() < animal.skills().will();
         return manners;
     }
 
@@ -111,15 +110,15 @@ public final class PetWalk {
                 long nowTick = animal.level().getGameTime();
                 if (canTurn && nowTick >= turnUntil && heading != null && heading.dot(direction) < .35
                         && animal.distanceToSqr(owner) < TURN_RANGE_SQR) {
-                    waitsAtTurn = animal.pet().lessons().everydayAttempt(PetSkill.HARNESS);
+                    double will = animal.skills().will();
+                    waitsAtTurn = animal.getRandom().nextDouble() < will;
                     manners = waitsAtTurn;
                     int duration = ClipMarkers.of("look_around").length();
                     turnUntil = nowTick + duration;
                     turnAside = waitsAtTurn ? null : aside(owner);
                     animal.showReaction(waitsAtTurn ? "neutral" : "teary", waitsAtTurn ? "wait_turn" : "harness_tug", duration);
-                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={} aside={}", owner.getUUID(), waitsAtTurn, turnAside != null);
-                    animal.pet().lessons().performed(PetSkill.HARNESS, waitsAtTurn);
-                    ExamSession.performed(animal, PetSkill.HARNESS, waitsAtTurn);
+                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={} aside={} will={}",
+                            owner.getUUID(), waitsAtTurn, turnAside != null, will);
                 }
                 heading = direction;
             }
@@ -131,10 +130,10 @@ public final class PetWalk {
                 animal.pet().care().requests().walked(moved);
                 if (led) {
                     carry += moved;
-                    while (carry >= UNIT) { carry -= UNIT; unit(owner, true); }
+                    while (carry >= UNIT) { carry -= UNIT; unit(owner); }
                 } else {
                     freeCarry += moved;
-                    while (freeCarry >= UNIT) { freeCarry -= UNIT; unit(owner, false); }
+                    while (freeCarry >= UNIT) { freeCarry -= UNIT; unit(owner); }
                 }
             }
         }
@@ -152,10 +151,9 @@ public final class PetWalk {
         return stand != null && owner.distanceToSqr(stand) < TURN_RANGE_SQR ? stand : null;
     }
 
-    private void unit(LivingEntity owner, boolean led) {
+    private void unit(LivingEntity owner) {
         if (units >= UNITS_PER_DAY) return;
         units++;
-        if (led) animal.pet().lessons().performed(PetSkill.HARNESS, true);
         manners = null;
         var daily = animal.dailyLife(); var pet = animal.pet();
         daily.entertained(6); daily.comfort(4); pet.addStress(-2);

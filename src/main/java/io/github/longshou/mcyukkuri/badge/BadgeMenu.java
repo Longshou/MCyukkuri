@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
-import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import java.util.*;
 import net.minecraft.network.chat.Component;
@@ -17,13 +17,15 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 
 /** Read-only pet profile. The server keeps a stable subject list; client button packets never supply an animal UUID.
- * Button ids: 5 detach, 8 cycle subject, 10 attach, 11-13 predator orders; 20-27 start a concrete lesson, 30 cycle breeding
- * partner, 31 permit breeding with it for a day, 32 revoke the current permit. The lesson buttons follow {@link PetSkill#ordinal()}.
- *  Data 40-44: lesson state (0 idle, 1-8 running kind+1, 9 awaiting reaction), cooldown seconds, lessons today, precondition bitmask, ready flag.
+ * Button ids: 5 detach, 8 cycle subject, 10 attach, 11-13 predator orders; 20-24 start a concrete lesson, 30 cycle breeding
+ * partner, 31 permit breeding with it for a day, 32 revoke the current permit. The lesson buttons follow {@link #LESSONS}.
+ *  Data 40-44: lesson state (0 idle, ability ordinal+1 while running, {@link #AWAITING_FEEDBACK} after), cooldown seconds,
+ *  lessons today, precondition bitmask, ready flag.
  *  Data 45-53: breeding. 45 candidate count, 46 candidate index+1, 47/48 candidate entity id (low/high), 49 permit active, 50/51 permit partner entity id (low/high, 0 if not loaded),
  * 52 permit hours left, 53 permit already covers the candidate. 56 neglect level (0-100), 58 title (0 none, 1 eternal silver, 2 hidden gold), 57
  * owner-line status (0 none, 1 abandoned, 2 registry void badge). */
 public final class BadgeMenu extends AbstractContainerMenu {
+    public static final List<Ability> LESSONS = List.of(Ability.WAIT, Ability.TOILET, Ability.FOOD_GUARD, Ability.GREETING, Ability.COUNTING);
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
         public static final int DETACH = 5;
@@ -33,15 +35,8 @@ public final class BadgeMenu extends AbstractContainerMenu {
         public static final int ORDER_HUNT = 12;
         public static final int ORDER_RETURN = 13;
         public static final int ORDER_END = 14;
-        public static final int LESSON_WAIT = 20;
-        public static final int LESSON_FOOD_BOWL = 21;
-        public static final int LESSON_TOILET = 22;
-        public static final int LESSON_BEDTIME = 23;
-        public static final int LESSON_READING = 24;
-        public static final int LESSON_ARITHMETIC = 25;
-        public static final int LESSON_GREETING = 26;
-        public static final int LESSON_HARNESS = 27;
-        public static final int LESSON_END = 28;
+        public static final int LESSON_START = 20;
+        public static final int LESSON_END = LESSON_START + LESSONS.size();
         public static final int NEXT_PARTNER = 30;
         public static final int PERMIT = 31;
         public static final int REVOKE = 32;
@@ -51,8 +46,8 @@ public final class BadgeMenu extends AbstractContainerMenu {
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class Data {
-        public static final int SKILL_XP_START = 61;
-        public static final int COUNT = SKILL_XP_START + PetSkill.values().length;
+        public static final int SKILL_POINTS_START = 61;
+        public static final int COUNT = SKILL_POINTS_START + Ability.values().length;
         public static final int LEGACY_ENTITY_ID = 0;
         public static final int SUBJECT_COUNT = 1;
         public static final int SUBJECT_INDEX = 2;
@@ -105,7 +100,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
     private final List<UUID> partners = new ArrayList<>();
     private int partner, scanClock;
     private int maskClock, mask;
-    public static final int AWAITING_FEEDBACK = PetSkill.values().length + 1;
+    public static final int AWAITING_FEEDBACK = Ability.values().length + 1;
     public BadgeMenu(int id, Inventory inventory, int subjectId) {
         super(HumanWorld.BADGE_MENU.get(), id); viewer = inventory.player;
         if (!viewer.level().isClientSide) {
@@ -140,7 +135,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
         data.set(Data.VALID_DAYS, b.expiresAt() < 0 ? 0 : (int)Math.min(9999, Math.max(0, (b.expiresAt() - y.level().getGameTime() + 23999) / 24000)));
         data.set(Data.WORN, !b.worn() ? 0 : y.life().hasAccessory() ? 1 : 2); data.set(Data.SOURCE, b.source());
         data.set(Data.SERIAL, b.serial() == null ? 0 : (int)(b.serial().getLeastSignificantBits() & 0xffff));
-        for (var skill : PetSkill.values()) data.set(Data.SKILL_XP_START + skill.ordinal(), b.lessons().xp(skill));
+        for (var skill : Ability.values()) data.set(Data.SKILL_POINTS_START + skill.ordinal(), y.skills().points(skill));
         data.set(Data.INTELLIGENCE, y.life().personality().intelligence()); data.set(Data.STRESS, b.stress());
         var history = b.history();
         if (!history.isEmpty()) {
@@ -153,7 +148,11 @@ public final class BadgeMenu extends AbstractContainerMenu {
         data.set(Data.LESSON_STATE, lessons.running() ? 1 + lessons.kind().ordinal() : lessons.awaitingFeedback() ? AWAITING_FEEDBACK : 0);
         data.set(Data.COOLDOWN_SECONDS, (b.cooldown() + 19) / 20); data.set(Data.LESSONS_TODAY, lessons.today());
         if (b.owned(viewer) && b.near(viewer)) {
-            if (maskClock-- <= 0) { maskClock = 20; mask = 0; for (var skill : PetSkill.values()) if (lessons.preconditionOk(viewer, skill)) mask |= 1 << skill.ordinal(); }
+            if (maskClock-- <= 0) {
+                maskClock = 20;
+                mask = 0;
+                for (var skill : LESSONS) if (lessons.preconditionOk(viewer, skill)) mask |= 1 << skill.ordinal();
+            }
             data.set(Data.LESSON_MASK, mask); data.set(Data.READY, b.readyFor(viewer) && b.cooldown() == 0 ? 1 : 0);
         }
         data.set(Data.TITLE, b.title()); data.set(Data.NEGLECT, b.neglect()); data.set(Data.OWNER_STATE, b.voidBadge() ? 2 : b.abandoned() ? 1 : 0);
@@ -190,7 +189,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player p, int id) {
         boolean knownButton = id == ButtonId.DETACH || id == ButtonId.NEXT_SUBJECT || id == ButtonId.ATTACH
                 || id >= ButtonId.ORDER_PEACEFUL && id < ButtonId.ORDER_END
-                || id >= ButtonId.LESSON_WAIT && id < ButtonId.LESSON_END
+                || id >= ButtonId.LESSON_START && id < ButtonId.LESSON_END
                 || id >= ButtonId.NEXT_PARTNER && id <= ButtonId.REVOKE;
         if (p != viewer || p.level().isClientSide || !stillValid(p) || !knownButton) return false;
         if (id == ButtonId.NEXT_SUBJECT) { if (!subjects.isEmpty()) selected = (selected + 1) % subjects.size(); maskClock = 0; scanClock = 0;
@@ -222,17 +221,19 @@ public final class BadgeMenu extends AbstractContainerMenu {
             if (!done) p.displayClientMessage(Component.translatable("badge.mcyukkuri.unavailable"), true);
             broadcastChanges(); return done;
         }
+        if (id >= ButtonId.LESSON_START && id < ButtonId.LESSON_END) {
+            boolean started = b.owned(p) && b.lessons().start(p, LESSONS.get(id - ButtonId.LESSON_START));
+            if (started) p.closeContainer();
+            else broadcastChanges();
+            return started;
+        }
         boolean ok = switch (id) {
             case ButtonId.DETACH -> b.detach(p);
             case ButtonId.ATTACH -> b.attach(p, p.getMainHandItem());
-            case ButtonId.LESSON_WAIT, ButtonId.LESSON_FOOD_BOWL, ButtonId.LESSON_TOILET, ButtonId.LESSON_BEDTIME,
-                    ButtonId.LESSON_READING, ButtonId.LESSON_ARITHMETIC, ButtonId.LESSON_GREETING, ButtonId.LESSON_HARNESS ->
-                    b.owned(p) && b.lessons().start(p, PetSkill.values()[id - ButtonId.LESSON_WAIT]);
             case ButtonId.ORDER_PEACEFUL, ButtonId.ORDER_HUNT, ButtonId.ORDER_RETURN -> y.predator().command(p, PredatorLife.Order.values()[id - ButtonId.ORDER_ORDINAL_OFFSET]);
             default -> false;
         };
-        if (ok && id >= ButtonId.LESSON_WAIT && id < ButtonId.LESSON_END) { p.closeContainer(); return true; } // the owner watches the lesson in the world
-        if (!ok && !(id >= ButtonId.LESSON_WAIT && id < ButtonId.LESSON_END)) p.displayClientMessage(Component.translatable("badge.mcyukkuri.unavailable"), true);
+        if (!ok) p.displayClientMessage(Component.translatable("badge.mcyukkuri.unavailable"), true);
         broadcastChanges(); return ok;
     }
 }
