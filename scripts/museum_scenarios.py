@@ -3340,7 +3340,7 @@ add('shop_build', 'shop', '宠物店分房：单间、同窝后院和店员日�
            ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
 _care_feeder = '@e[type=mcyukkuri:caretaker_sister,nbt={SiteRole:"shop_staff"},distance=..32,sort=nearest,limit=1]'
 _care_toy = '@e[type=minecraft:item,nbt={Item:{id:"mcyukkuri:yarn_ball"}},distance=..0.5,limit=1]'
-_care_bowl = '~12 ~2 ~11'
+_care_bowl = '~12 ~2 ~12'
 add('shop_care', 'shop', '店员照料：带伤、长霉和拥挤的食盆', '店员照料：带伤、长霉和拥挤的食盆',
     '先看橙的单间：橙站在空食盆的入口，带粮的店员请它侧让后添粮。另一位店员带着药，照料受伤的爱丽丝、长霉的蕾米莉亚和后院感染的灵梦。',
     '约半分钟看治疗与添粮', [
@@ -3351,9 +3351,10 @@ add('shop_care', 'shop', '店员照料：带伤、长霉和拥挤的食盆', '�
         set_status('care_yard', 'health.infection', 3),
         f'data modify entity {_care_feeder} Medicine set value 0',
         f'tp {_care_feeder} ~13.5 ~2 ~8.0',
-        f'tp {CHEN} ~13.5 ~2 ~10.3',
+        f'tp {CHEN} ~13.5 ~2 ~10.5',
         f'execute positioned ~13.5 ~2 ~12.5 run tp {_care_toy} ~1 ~ ~',
         shop_need(CHEN, 'nutrition', 92), shop_need(CHEN, 'energy', 100),
+        f'clone ~12 ~2 ~11 ~12 ~2 ~11 {_care_bowl} replace move',
         f'data merge block {_care_bowl} {{Items:[]}}',
     ], env=DAY, vantage=(12, 7, 345, 18, 2),
     reads=[('读在售个体伤病', f'yukkuri status {STOCK} raw'), ('读橙的食盆', f'data get block {_care_bowl} Items')])
@@ -3412,7 +3413,7 @@ add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订
            ('读大胆好奇的爱丽丝', f'yukkuri status {sel("pick_bold")} raw')])
 _fetch_stock = (('fetch_corner', 'chen'), ('fetch_nest', 'alice'), ('fetch_yard', 'reimu'))
 add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处的三只都拿得到', '店员取货：角落、睡在窝里、后院远处的三只都拿得到',
-    '先在「实用」页选“贵宾”。右键店员，在“在售”里依次买下玻璃角落里的橙、窝里药睡的爱丽丝和后院远处戴着名称标签的灵梦。'
+    '先在「实用」页选“贵宾”。依次空主手右键玻璃角落里的橙、窝里药睡的爱丽丝和后院远处戴着名称标签的灵梦，从选购卡买下。'
     '看店员在栏门口叫它们靠近，等约五秒仍够不着时伸手接进篮子，去后院取货时则会走进去。等店员提来每只装好的实篮再买下一只。',
     '布置几秒，每单约 20 秒', [PET_SHOP,
         f'tag {CHEN} add {tag("fetch_corner")}', f'tag {ALICE} add {tag("fetch_nest")}',
@@ -7843,7 +7844,7 @@ _smoke('shop_care', 1100, [
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER', 'HERB')],
     r'\[shop\][^\n]* action=job result=asked_way kind=FEED ',
     r'\[move\][^\n]* action=give_way ',
-    rf'\[npc-care\][^\n]* action=refill_bowl target={BY_ID["shop"].anchor[0] + 12}, {FEET + 2}, {BY_ID["shop"].anchor[1] + 11} transferred=4 ',
+    rf'\[npc-care\][^\n]* action=refill_bowl target={BY_ID["shop"].anchor[0] + 12}, {FEET + 2}, {BY_ID["shop"].anchor[1] + 12} transferred=4 ',
 ], forbid=[r'\[shop\][^\n]* action=job result=failed kind=(TREAT|FEED) '])
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
