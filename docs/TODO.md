@@ -12,6 +12,7 @@
 | R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
 | P7-C 宠物店房间布局：一屋一只、同窝家庭房、饮水器、货架 | `.worktrees/wp-shop-rooms-art` | human-world structures build.py shop(), check_structure.py, preview_shop.py |
+| R3c 私奔：被冷落的宠物随野生伴侣离开 | `.worktrees/wp-elopement` | pet/rules/Elopement*.java, human/Custody.java, family/Courtship.java, pet/PetLife.java, badge standing, TN scene |
 
 ## 玩法待办
 
