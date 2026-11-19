@@ -179,6 +179,8 @@ def capture(parser, args):
     for scene, view_id, settings in views:
         settings = {key: value for key, value in settings.items() if value is not None}
         settings['tick_rate'] = args.tick_rate
+        if args.sample_window is not None:
+            settings['sample_window'] = True
         for point in ('look_at', 'position'):
             if point in settings:
                 x, y, z = settings[point]
@@ -186,6 +188,13 @@ def capture(parser, args):
         view = f'function mcylab:view/{scene.id}'
         interactions = (f'function mcylab:smoke/{scene.id}/start\n'
                         if args.smoke_commands and scene.smoke and scene.smoke.get('commands') else '')
+        if 'prepare' in settings:
+            tick, commands = settings.pop('prepare')
+            x, z = scene.anchor
+            (functions / f'capture/{view_id}_prepare.mcfunction').write_text(
+                ''.join(f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}\n' for command in commands),
+                encoding='utf-8')
+            interactions += f'schedule function mcylab:capture/{view_id}_prepare {tick}t\n'
         camera = ''
         geometry = ''
         if args.vantage:

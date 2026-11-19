@@ -123,7 +123,7 @@ public final class MuseumCapture {
         screenCapture = scene.settings.has("screen") ? new CaptureScreen(
                 scene.settings.get("screen").getAsString(), scene.settings.get("target").getAsString(),
                 scene.settings.has("magnifier_distance") ? scene.settings.get("magnifier_distance").getAsDouble() : null) : null;
-        Minecraft.getInstance().options.hideGui = screenCapture == null;
+        Minecraft.getInstance().options.hideGui = screenCapture == null && !scene.settings.has("first_person_hand");
         current = scene;
         nextFrame = 0;
         follow=null;followId=-1;cameraFrame=-1;sectionsRefreshed=false;
@@ -236,7 +236,8 @@ public final class MuseumCapture {
         boolean screenReady = screenCapture == null || screenCapture.ready(mc, tick);
         boolean scheduled = nextFrame < current.ticks.length && tick >= current.ticks[nextFrame];
         boolean shot = screenCapture == null
-                ? scheduled || tick >= 0 && nextFrame < current.ticks.length && (PoseTap.markerFrame()||metricHit)
+                ? scheduled || !current.settings.has("sample_window") && tick >= 0
+                    && nextFrame < current.ticks.length && (PoseTap.markerFrame() || metricHit)
                 : scheduled && screenReady;
         boolean cameraReady=current.settings==null||!(current.settings.has("follow")||current.settings.has("look_at"))
                 ||cameraFrame==PoseTap.frameId();

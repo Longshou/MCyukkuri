@@ -112,7 +112,17 @@ def outputs():
                 index[name] = entry
     emit(shared, index)
     for name in spec['items'] + list(spec.get('species_accessories', {}).values()):
-        emit(ASSETS / f'models/item/{name}.json', block_kit.prop_item_model(name, spec.get('gui_display', {}).get(name)))
+        model = block_kit.prop_item_model(name, spec.get('gui_display', {}).get(name))
+        if name in ('yukkuri_carrier', 'yukkuri_carrier_fine', 'yukkuri_carrier_large'):
+            # The FIXED context's +Z points into the frame backing. Turn the opening out toward the room.
+            model['display']['fixed']['rotation'] = [0, 180, 0]
+            # Move the scaled rear wall clear of the backing. The large basket is two model units deeper.
+            model['display']['fixed']['translation'] = [0, 0, -4 if name == 'yukkuri_carrier_large' else -3]
+            # Counter the arm transform in third person. In first person, lift the opening into the viewport.
+            model['display']['thirdperson_righthand']['rotation'] = [90, 180, 0]
+            model['display']['firstperson_righthand']['rotation'] = [-20, -35, 0]
+            model['display']['firstperson_righthand']['translation'] = [0, 5, 0]
+        emit(ASSETS / f'models/item/{name}.json', model)
     for name in spec['blocks']:
         emit(ASSETS / f'models/block/{name}.json', {'textures': {'particle': f'mcyukkuri:props/{name}'}, 'elements': []})
     for name, details in spec['recipes'].items():

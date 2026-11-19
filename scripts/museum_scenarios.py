@@ -6650,8 +6650,11 @@ _basket_display_yukkuri = [
     ('reimu', 'baby', True), ('chen', 'child', True), ('marisa', 'child', False),
 ]
 _basket_display_frames = ['empty', 'plain', 'fine', 'large']
+_basket_display_shopkeeper = 'basket_display_shopkeeper'
+_basket_display_plain_frame = sel('basket_frame_plain')
+_basket_display_fine_frame = sel('basket_frame_fine')
 add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输篮：健康、受伤与药睡',
-    '先用空篮点健康油，再看受伤油的入篮反应。去石地放出受伤油。给第三只喷雾，趁没睡点一次，睡着后再试，随后也放回石地。用另一排药睡的个体试三种篮，把装好的篮放上展示框，从上方向内看。',
+    '先用空篮点健康油，再看受伤油的入篮反应。去石地放出受伤油。给第三只喷雾，趁没睡点一次，睡着后再试，随后也放回石地。用另一排药睡的个体试三种篮，先在手上看，再把装好的篮放上展示框，从正面辨认篮里的个体。',
     '喷雾约 5 秒后入睡', [
         yk('reimu', -5, 0, 'basket_healthy', uuid=uid(_basket_comparison, 'basket_healthy'), label='健康·陌生', lead=True),
         yk('reimu', 0, 0, 'basket_injured', uuid=uid(_basket_comparison, 'basket_injured'), label='受伤·陌生', extra='Health:4.0f'),
@@ -6670,9 +6673,17 @@ add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输�
           for i in range(len(_basket_display_yukkuri))],
     ], give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:sleep_spray 1',
              'mcyukkuri:yukkuri_carrier_fine', 'mcyukkuri:yukkuri_carrier_large'], env=DAY, vantage=(0, 7),
-    capture=dict(shots=(40, 225, 240), sequences=(), observe=False, views={
-        'above': dict(position=(0, 4.1, -9.8), look_at=(0, 1.5, -8.2)),
-        'large': dict(position=(1.5, 3.8, -8.7), look_at=(1.5, 1.5, -8.2)),
+    capture=dict(shots=(240,), sequences=(), observe=False, views={
+        'player': dict(first_person_hand=True, prepare=(220, [
+            f'item replace entity @p weapon.mainhand from entity {_basket_display_plain_frame} container.0',
+            f'item replace entity {_basket_display_plain_frame} container.0 with minecraft:air',
+        ])),
+        'shopkeeper': dict(position=(5.15, 1.20, -1.15), look_at=(5.15, 1.02, -2.25), prepare=(220, [
+            human('caretaker_sister', 5, -3, _basket_display_shopkeeper, 1, yaw=0)[:-1] + ',NoAI:1b}',
+            f'item replace entity {sel(_basket_display_shopkeeper)} weapon.mainhand from entity {_basket_display_fine_frame} container.0',
+            f'item replace entity {_basket_display_fine_frame} container.0 with minecraft:air',
+        ])),
+        'frame': dict(position=(1.5, 1.5, -9.8), look_at=(1.5, 1.5, -8.5)),
     }),
     smoke=dict(ticks=240, commands=[
         (50, 'yukkuri scenario basket plain'),
