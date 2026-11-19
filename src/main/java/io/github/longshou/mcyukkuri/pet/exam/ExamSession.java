@@ -307,7 +307,7 @@ public final class ExamSession {
         String custom = candidate.getCustomName() == null ? "" : candidate.getCustomName().getString();
         String given = Naming.ownName(candidate, custom) ? custom : candidate.mind().givenName();
         var name = given.isBlank() ? candidate.getType().getDescription() : Component.literal(given);
-        candidate.showReaction(shy ? YukkuriAction.SHY : YukkuriAction.BOW, shy ? "shy" : "closed_smile", "");
+        candidate.showReaction(shy ? YukkuriAction.SHY : YukkuriAction.BOW, shy ? "flushed_smile" : "closed_smile", "");
         int sequence = candidate.speechSequence();
         boolean spoken = candidate.speakCue("introduced", null, 2) && candidate.speechSequence() != sequence;
         var line = NativeDialogue.byKey(candidate.getDialogueKey());
