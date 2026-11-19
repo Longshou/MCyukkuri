@@ -150,11 +150,7 @@ public final class GroupInteractionGoal extends Goal {
             stop();
             float healthBefore = peer.getHealth();
             boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
-            if (hit) {
-                entity.life().personality().experienced(Trait.FRIENDLINESS, -1, "bullied_peer");
-                peer.life().personality().experienced(Trait.FRIENDLINESS, -1, "bullied");
-                peer.life().personality().experienced(Trait.BOLDNESS, -1, "bullied");
-            }
+            if (hit) peer.life().personality().bulliedBy(entity.life().personality());
             GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
             if(entity.treasure().snatchFrom(peer)) {
                 entity.species().narrate("steal");

@@ -40,7 +40,8 @@ public final class Sweets {
     /**
      * Called at the server step that grants the nutrition. Returns the speech event to use instead of "fed" (null keeps "fed").
      */
-    public static String eaten(YukkuriEntity y, ItemStack food, UUID feeder, float nutritionBefore, boolean lessonReward) {
+    public static String eaten(YukkuriEntity y, ItemStack food, UUID feeder, float nutritionBefore,
+                               boolean lessonReward, boolean offeredForDemand) {
         var pet = y.pet();
         if (premium(food)) {
             if (pet.isPet()) pet.addStress(-2);
@@ -50,7 +51,7 @@ public final class Sweets {
         boolean ownerSweet = is(food) && pet.isPet() && pet.ownedBy(feeder);
         var care = pet.care();
         boolean greedy = ownerSweet && care.countSnack() > DAILY_FREE;
-        boolean demanded = care.requests().pending() == PetRequests.Kind.SNACK;
+        boolean demanded = offeredForDemand || care.requests().pending() == PetRequests.Kind.SNACK;
         if (Indulgence.sweet(ownerSweet, lessonReward, demanded, greedy, nutritionBefore))
             y.life().personality().indulged(demanded ? "snack_demand" : "surplus_sweet");
         if (!ownerSweet) return null;

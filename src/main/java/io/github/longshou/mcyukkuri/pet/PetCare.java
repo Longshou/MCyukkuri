@@ -200,6 +200,11 @@ public final class PetCare {
         answerNuzzle();
         animal.life().personality().experienced(Trait.ATTACHMENT, 1, "owner_rub");
     }
+    public void nuzzled(Player player) {
+        if (!animal.pet().owned(player)) return;
+        if (requests.pending() == PetRequests.Kind.NUZZLE) requests.answer(PetRequests.Kind.NUZZLE);
+        animal.life().personality().experienced(Trait.ATTACHMENT, 1, "owner_nuzzle");
+    }
     private boolean answerNuzzle() {
         if (requests.pending() != PetRequests.Kind.NUZZLE) return false;
         animal.dailyLife().comfort(15); requests.answer(PetRequests.Kind.NUZZLE);

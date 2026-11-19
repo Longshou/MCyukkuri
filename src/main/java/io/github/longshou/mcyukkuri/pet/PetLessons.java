@@ -73,7 +73,6 @@ public final class PetLessons {
     /** Call once at a real action's outcome. Repeated sampling or planning never awards practice. */
     public void performed(Ability skill, boolean success) {
         boolean lesson = practicing(skill);
-        if (success && skill == Ability.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1, "waited");
         if (lesson) finishLesson(success);
         if (success) animal.skills().practise(skill, lesson && coached ? 3 : 1, lesson && coached ? "lesson" : "daily");
     }

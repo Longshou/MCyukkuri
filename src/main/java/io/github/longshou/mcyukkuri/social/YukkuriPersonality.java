@@ -220,6 +220,12 @@ public final class YukkuriPersonality {
         experienced(Trait.SELF_CONTROL, -1, cause);
     }
 
+    public void bulliedBy(YukkuriPersonality attacker) {
+        attacker.experienced(Trait.FRIENDLINESS, -1, "bullied_peer");
+        experienced(Trait.FRIENDLINESS, -1, "bullied");
+        experienced(Trait.BOLDNESS, -1, "bullied");
+    }
+
     private void applyExperience(int slot, Upbringing learned) {
         experience[slot] = learned.points();
         experienceProgress[slot] = learned.remainder();

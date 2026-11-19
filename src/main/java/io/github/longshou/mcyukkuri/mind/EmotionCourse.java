@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.UUID;
@@ -200,7 +201,7 @@ public final class EmotionCourse {
         float power = entity.level().getGameTime() - frightAt <= FRIGHT_MEMORY ? fright : 0;
         fright = 0;
         if (power > 0 && begin(Kind.TERROR, power, threat == null ? null : threat.getUUID(), entity.blockPosition())
-                && threat != null && (!(threat instanceof YukkuriEntity peer) || peer.profile().dangerToYukkuri()))
+                && (PunishmentReaction.isHuman(threat) || threat instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri()))
             entity.life().personality().experienced(Trait.BOLDNESS, -1, "terrified");
     }
 

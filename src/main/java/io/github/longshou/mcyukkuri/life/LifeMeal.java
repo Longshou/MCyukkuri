@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.pet.PetRequests;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -74,6 +75,8 @@ final class LifeMeal {
     private long lastFedAt;
     private boolean sharedMeal, preparedMeal, bowlMeal;
     private boolean waitedForTreat;
+    /** The serving answered a demand at handoff, even if that request ends before the swallow. */
+    private boolean offeredForDemand;
     private Ability sweetFeedback;
     private int fleeCropAt;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
@@ -426,6 +429,8 @@ final class LifeMeal {
         bowlMeal = false;
         syncBodyFood();
         feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false;
+        offeredForDemand = Sweets.is(transferred) && o.entity().pet().ownedBy(fromPlayer)
+                && o.entity().pet().care().requests().pending() == PetRequests.Kind.SNACK;
         meltFace = meltTail = finishFace = null; mealTicks = 1;
         o.entity().social().mealStarted();
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
@@ -460,6 +465,7 @@ final class LifeMeal {
 
     private void clearTransfer() {
         waitedForTreat = false;
+        offeredForDemand = false;
         sweetFeedback = null;
         tuftMeal = null; tuftReleaseRefusedAt = null;
         fleeCropAt = 0;
@@ -578,10 +584,13 @@ final class LifeMeal {
                     o.personality().experienced(Trait.FRIENDLINESS, 1, "received_food");
                 }
                 o.entity().pet().contact(feeder, !spicy);
-                String treat = Sweets.eaten(eater, swallowed, feeder, nutritionBefore, waitedForTreat || sweetFeedback != null);
+                String treat = Sweets.eaten(eater, swallowed, feeder, nutritionBefore,
+                        waitedForTreat || sweetFeedback != null, offeredForDemand);
+                if (waitedForTreat) o.personality().experienced(Trait.SELF_CONTROL, 1, "waited");
                 if (sweetFeedback != null && eater.pet().ownedBy(feeder)) eater.pet().lessons().ateReward(sweetFeedback);
                 sweetFeedback = null;
                 waitedForTreat = false;
+                offeredForDemand = false;
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
                 boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);
                 boolean grateful = ordinaryAdult && feeder != null && (bond.closeness() >= 10
@@ -780,6 +789,7 @@ final class LifeMeal {
     }
     void save(CompoundTag tag) {
         if (waitedForTreat) tag.putBoolean("WaitedForTreat", true);
+        if (offeredForDemand) tag.putBoolean("OfferedForDemand", true);
         if (sweetFeedback != null) tag.putString("SweetFeedback", sweetFeedback.key());
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal",
                 bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
@@ -791,6 +801,7 @@ final class LifeMeal {
     }
     void load(CompoundTag tag) {
         waitedForTreat = tag.getBoolean("WaitedForTreat");
+        offeredForDemand = tag.getBoolean("OfferedForDemand");
         sweetFeedback = null;
         String feedback = tag.getString("SweetFeedback");
         for (Ability skill : Ability.values()) if (skill.key().equals(feedback)) sweetFeedback = skill;

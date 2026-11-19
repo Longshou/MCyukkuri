@@ -266,6 +266,7 @@ public final class Sanction extends Goal {
             damageAccepted = accepted;
             if (accepted && target.getHealth() < before) {
                 recordDamage(target);
+                target.life().personality().bulliedBy(entity.life().personality());
                 if (target.life().hasAccessory() && entity.getRandom().nextInt(3) == 0) target.headwear().harm(1, "sanction", false);
                 what = "bite";
             } else {

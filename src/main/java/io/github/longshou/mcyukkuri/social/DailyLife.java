@@ -459,6 +459,8 @@ public final class DailyLife {
                 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);
+        if (current.kind == Kind.NUZZLE && current.companion instanceof Player player)
+            current.leader.pet().care().nuzzled(player);
         if(current.companion!=null&&current.kind==Kind.NUZZLE) {
             current.leader.life().personality().relationshipChanged(current.companion.getUUID(), 3, -2);
             if(current.companion instanceof YukkuriEntity peer)peer.life().personality().relationshipChanged(current.leader.getUUID(), 3, -2);
