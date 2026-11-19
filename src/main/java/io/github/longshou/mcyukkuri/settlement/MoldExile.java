@@ -90,7 +90,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             case WITNESS -> ticks < noticeEnd ? Behaviors.MOLD_NOTICE : fond ? Behaviors.MOLD_SORROW
                     : !driving ? null : harsh && ticks >= noticeEnd + SCORN_AFTER ? Behaviors.MOLD_SCORN : Behaviors.MOLD_WARN;
             case LEAVE -> ticks < LISTEN ? Behaviors.MOLD_NOTICE : ticks < LISTEN + answerTicks ? resists ? Behaviors.MOLD_RESIST : Behaviors.MOLD_PLEAD
-                    : lookBackTicks > 0 ? Behaviors.MOLD_LOOK_BACK : Behaviors.MOLD_LEAVE;
+                    : answer != Answer.FAREWELL ? null : lookBackTicks > 0 ? Behaviors.MOLD_LOOK_BACK : Behaviors.MOLD_LEAVE;
             case VISIT -> visitingSick && arrivedAt > 0 ? Behaviors.MOLD_PLEAD : null;
         };
     }
@@ -427,6 +427,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             return;
         }
         if (ticks == LISTEN + answerTicks) turnAway();
+        if (entity.reactionAction() == YukkuriAction.STAMP) return;
         if (lookBackTicks > 0) {
             SurfaceApproach.stopWalking(entity);
             SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), home.centre()));
@@ -461,7 +462,9 @@ public final class MoldExile extends Goal implements MotorOwner {
     private void turnAway() {
         entity.mind().felt(EmotionEvent.SOCIAL_HURT);
         switch (answer) {
-            case CURSE -> entity.showReaction(YukkuriAction.STAMP, "angry", "driven_curse", 60);
+            case CURSE -> {
+                if (entity.showReaction(YukkuriAction.STAMP, "angry", "", 60)) entity.speakCue("driven_curse");
+            }
             case FAREWELL -> entity.showReaction("cry", exile == null ? "settlement_hurt" : "", 40);
             case SHRUG -> entity.showReaction("hmph", "", 40);
         }

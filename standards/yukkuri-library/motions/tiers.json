@@ -185,7 +185,7 @@
     "farewell": {"source": "lore", "family": "social_greeting", "tier": "composite", "classification": {"kind": "really_composite", "base_motions": ["turn", "droop"]}, "callers": ["moments:behavior_glass_farewell"]},
     "nod": {"source": "lore", "family": "social_greeting", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "bow"}, "callers": ["no caller"]},
     "lunge_ram": {"source": "lore", "family": "locomotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:RamContact.CLIP"]},
-    "crouch_watch": {"source": "lore", "family": "emotion", "tier": "composite", "classification": {"kind": "really_composite", "base_motions": ["idle", "stretch_shape", "look_around"]}, "callers": ["moments:behavior_glass_watch", "moments:behavior_window_watch"]},
+    "crouch_watch": {"source": "lore", "family": "emotion", "tier": "composite", "classification": {"kind": "really_composite", "base_motions": ["idle", "stretch_shape", "look_around"]}, "callers": ["moments:behavior_glass_watch", "moments:behavior_parting_gaze", "moments:behavior_window_watch"]},
     "crouch_watch_weary": {"source": "lore", "family": "emotion", "tier": "composite", "classification": {"kind": "really_composite", "base_motions": ["idle", "droop", "look_around"]}, "callers": ["moments:behavior_glass_watch_weary"]},
     "mood_flutter": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:YukkuriAction.MOOD_FLUTTER"]},
     "mood_flick": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:YukkuriAction.MOOD_FLICK"]},

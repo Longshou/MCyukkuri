@@ -149,10 +149,12 @@ def _den_family_death():
     field = BY_ID['den']
     origin_x, origin_z = field.spots['family']
     father = sel('father', 64)
+    # Let the family choose its own home and wait for a separation the attached mother can actually close.
+    mother = f'@e[tag={tag("mother")},distance=1.5..5,limit=1]'
     for x, y, z in field.doorways.values():
         doorway = f'~{x - origin_x} ~{y - FEET} ~{z - origin_z}'
         claims = ' '.join(f'if data block {doorway} Residents[{{Id:{uuid_nbt(member)}}}]' for member in (_dm, _df, _dc))
-        yield Retry(f'execute {claims} run kill {father}', father, tries=80, every=20, first=400)
+        yield Retry(f'execute {claims} as {father} at @s if entity {mother} run kill @s', father, tries=80, every=20, first=400)
 
 
 add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土丘洞',

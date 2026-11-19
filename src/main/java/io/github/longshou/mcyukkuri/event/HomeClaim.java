@@ -507,7 +507,7 @@ public final class HomeClaim {
 
     // --- movement (used by HomeClaimGoal) ---------------------------------------------------------------------
     public static boolean mayAct(YukkuriEntity y) {
-        if (declaring(y)) return false;
+        if (declaring(y) || y.reactionAction() == YukkuriAction.STAMP && retreating(y)) return false;
         if (!decisionReady(y) || !y.isAlive() || y.isNoAi() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
                 || y.life().mealTicks()!=0 || y.isInWaterOrBubble() || y.isPassenger()) return false;
         var life=y.life(); // Only hunger may be answered here; other urgent needs go back to their own goals.
@@ -610,8 +610,12 @@ public final class HomeClaim {
                 var answer = Ousting.answer(temperament);
                 if (answer != Answer.CURSE) y.mind().felt(EmotionEvent.FRIGHTENED);
                 switch (answer) {
-                    case CURSE -> y.showReaction(YukkuriAction.STAMP, "angry", "driven_curse", 80);
-                    case FAREWELL -> y.showReaction("teary", "driven_farewell", 80);
+                    case CURSE -> {
+                        if (y.showReaction(YukkuriAction.STAMP, "angry", "", 80)) y.speakCue("driven_curse");
+                    }
+                    case FAREWELL -> {
+                        if (y.showReaction("teary", "", 80)) y.speakCue("driven_farewell");
+                    }
                     case SHRUG -> y.showReaction("hmph", "", 60);
                 }
                 y.mind().feeling().wronged(actor.getUUID(), .5f, c.site.pos());

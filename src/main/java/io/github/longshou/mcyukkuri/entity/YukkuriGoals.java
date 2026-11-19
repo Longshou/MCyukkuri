@@ -206,7 +206,8 @@ final class YukkuriGoals {
     private final class HoldActionGoal extends Goal {
         HoldActionGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
-            return owner.requestedActionValue() != null || owner.bereaving()
+            // The grief course holds and turns the body during a running bereavement.
+            return owner.requestedActionValue() != null || owner.bereaving() && !owner.mind().feeling().stricken()
                     || HomeClaim.declaring(owner) && !homeTerritory.active() && !homeTerritory.declarationChallenged();
         }
         @Override public boolean requiresUpdateEveryTick() { return true; }
