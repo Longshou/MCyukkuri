@@ -4366,7 +4366,7 @@ add('colony_mold_exile', 'colony', '聚落驱逐油霉成员', '聚落驱逐油�
         box(-8, 0, 8, 8, 0, 25, 'minecraft:short_grass', 'keep'),
         yk('patchouli', -2, 0, 'leader', label='族长', also=('mold_colony_member',), **pair_ready()),
         yk('chen', 0, 1, 'witness', yaw=0, label='近处成员', also=('mold_colony_member',),
-           friendliness=24, boldness=32, **pair_ready()),
+           friendliness=24, boldness=32, skills={'mold_lore': 2}, **pair_ready()),
         yk('marisa', 0, 2, 'molded', lead=True, label='患油霉的成员', also=('mold_colony_member',),
            attachment=70, boldness=35, self_control=60, **pair_ready()),
         f'yukkuri scenario community {sel("leader")} {sel_all("mold_colony_member")}',
