@@ -18,4 +18,9 @@ final class PerchScore {
         long time = Math.floorMod(dayTime, 24000);
         return clear && time >= 3500 && time < 8500;
     }
+
+    static double huntThreshold(int boldness, boolean midday) {
+        int ordinary = 45 + boldness / 5;
+        return midday ? ordinary - (18 - .12 * boldness) : ordinary;
+    }
 }

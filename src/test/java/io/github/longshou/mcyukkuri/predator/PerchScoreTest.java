@@ -23,4 +23,20 @@ class PerchScoreTest {
         assertFalse(PerchScore.eligible(6, 5, 2, 1L, 2L));
         assertTrue(PerchScore.eligible(6, 5, 3, 1L, 2L));
     }
+
+    @Test void morningEveningAndRainKeepOrdinaryHunger() {
+        assertFalse(PerchScore.midday(3499, true));
+        assertTrue(PerchScore.midday(3500, true));
+        assertTrue(PerchScore.midday(24000 + 8499, true));
+        assertFalse(PerchScore.midday(8500, true));
+        assertFalse(PerchScore.midday(6000, false));
+        assertFalse(PerchScore.midday(18000, true));
+        assertEquals(55, PerchScore.huntThreshold(54, false));
+    }
+
+    @Test void clearNoonShiftsHungerByBoldness() {
+        assertEquals(45 - 18, PerchScore.huntThreshold(0, true));
+        assertEquals(55 - 12, PerchScore.huntThreshold(50, true));
+        assertEquals(65 - 6, PerchScore.huntThreshold(100, true));
+    }
 }

@@ -242,8 +242,8 @@ public final class PredatorLife implements EcologyRoutine {
     public boolean wantsHunt() {
         if (!ready() || !animal.family().adult() || animal.life().energy() < 30 || !CombatCourage.willing(animal)) return false;
         if (order() == Order.PEACEFUL || order() == Order.RETURN) return false;
-        int threshold = 45 + animal.life().personality().trait(Trait.BOLDNESS) / 5;
-        if (order() == Order.HUNT) threshold = 75;
+        boolean midday = wildAdult() && PerchScore.midday(level().getDayTime(), !level().isRaining());
+        double threshold = order() == Order.HUNT ? 75 : PerchScore.huntThreshold(animal.life().personality().trait(Trait.BOLDNESS), midday);
         return animal.life().nutrition() < threshold;
     }
     /**
