@@ -106,7 +106,7 @@ final class HomeWatch {
         var mouth = Vec3.atBottomCenterOf(FamilyProvision.entrance(e));
         var chosen = new ArrayList<Station>();
         Vec3 bed = bedStand(shelter);
-        if (stance() == Stance.PATROL && !sealed) {
+        if (patrolOutside(shelter)) {
             var p = e.life().personality();
             var facing = shelter == null ? Direction.SOUTH : shelter.facing();
             var axis = Vec3.atLowerCornerOf(facing.getNormal());
@@ -128,6 +128,10 @@ final class HomeWatch {
         } else if (bed != null) chosen.add(new Station(bed, true));
         stations = chosen;
         stationIndex = blockedRun = dwell = 0;
+    }
+
+    private boolean patrolOutside(ShelterBlockEntity shelter) {
+        return stance() == Stance.PATROL && (!sealed || !shelter.contains(body().blockPosition()));
     }
 
     private Vec3 bedStand(ShelterBlockEntity shelter) {
@@ -198,7 +202,7 @@ final class HomeWatch {
         var seen = family.absence().lastSeen(kin);
         var trail = visible instanceof YukkuriEntity peer && peer.isAlive() && e.hasLineOfSight(peer)
                 ? peer.position() : seen == null ? mouth : Vec3.atBottomCenterOf(seen);
-        var facing = stance() == Stance.PATROL && !sealed ? trail : mouth;
+        var facing = patrolOutside(shelter) ? trail : mouth;
         SurfaceApproach.face(e, SurfaceApproach.yaw(e.position(), facing));
         var p = e.life().personality();
         if (++dwell % FamilyDutyMath.lookEvery(p.intelligence()) == 0) {

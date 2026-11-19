@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
@@ -97,6 +98,8 @@ public final class ChildhoodLife {
             else if (entity.family().needsMash() && entity.life().nutrition() < 45) entity.showReaction("teary", "hungry", 60);
         }
     }
+
+    public int denSealPressTicks() { return DenSeal.WORK_TICKS; }
 
     public boolean canLearnDenSeal() {
         var profile = entity.profile();

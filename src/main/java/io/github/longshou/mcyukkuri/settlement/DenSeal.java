@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.Duty.End;
 import io.github.longshou.mcyukkuri.life.Duty.Kind;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -34,12 +35,16 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** A skilled den resident uses the real doorway stock to close a burrow against any danger that drives it home, or during a family outing. */
 public final class DenSeal {
-    static final int WORK_TICKS = 40, WALK_LIMIT = 100, RECHECK = 10, RETRY = 100, MAX_CELLS = 3;
+    public static final int WORK_TICKS = 40;
+    // Allow one press-length for another resident to pass through the narrow mouth.
+    private static final int DOORWAY_WAIT = WORK_TICKS, RECHECK = 10, RETRY = 100, MAX_CELLS = 3;
+    private static final double WORK_PACE = 1.2;
+    public enum Side { INSIDE, OUTSIDE }
     private static final double WATCH_SQR = 24 * 24, DOOR_SAFE_SQR = 9;
     // Start after the parent leaves the doorstep. During work, cancel if they actually approach the mouth again.
     private static final double DEPARTED_SQR = 5 * 5, RETURN_SQR = 4.5 * 4.5;
     private static final double MOUTH_APPROACH_SQR = 2 * 2;
-    private enum Phase { IDLE, WALK, CLEAR, WORK }
+    private enum Phase { IDLE, WALK, WORK }
     private enum ThreatDecision { UNDECIDED, SEAL, DONE }
 
     private final YukkuriEntity y;
@@ -49,7 +54,9 @@ public final class DenSeal {
     private long nextCheck, lastDrive;
     private BlockPos den;
     private UUID dangerId;
-    private Vec3 clearStand;
+    private record Stand(Vec3 at, double route) {}
+    private Stand stand;
+    private int walkBudget, paused;
     private List<BlockPos> cells = List.of();
     private List<UUID> absent = List.of(), considered = List.of();
     private boolean remembered;
@@ -81,7 +88,11 @@ public final class DenSeal {
     public void abort(String reason) {
         if (!active()) return;
         if (!absent.isEmpty()) y.duty().release(Kind.SEAL, End.FAILED, reason);
-        GameplayLog.event(y, "home", "den seal aborted reason={} phase={} ticks={} den={} cells={} twigs_spent=0", reason, phase, ticks, den, cells.size());
+        boolean spent = !reason.equals("doorway_held");
+        if (spent && !absent.isEmpty()) remembered = false;
+        if (spent && absent.isEmpty()) threatDecision = ThreatDecision.DONE;
+        GameplayLog.event(y, "home", "den seal aborted reason={} phase={} ticks={} den={} cells={} spent={} twigs_spent=0",
+                reason, phase, ticks, den, cells.size(), spent);
         phase = Phase.IDLE; ticks = 0; dangerId = null; SurfaceApproach.halt(y);
         nextCheck = y.level().getGameTime() + RETRY;
     }
@@ -160,56 +171,59 @@ public final class DenSeal {
         if (!canSeal(home) || !den.equals(home.getBlockPos())) { abort("den_or_body_changed"); return false; }
         var mouth = Vec3.atCenterOf(home.entrance());
         if (danger != null && danger.distanceToSqr(mouth) < DOOR_SAFE_SQR) { abort("danger_at_door"); return false; }
+        if (phase == Phase.WALK) {
+            var step = SurfaceApproach.walkResult(y, stand.at(), null, WORK_PACE);
+            if (step == SurfaceApproach.Result.ARRIVED) {
+                phase = Phase.WORK;
+                ticks = 0;
+            } else {
+                if (step == SurfaceApproach.Result.BLOCKED || ++ticks >= walkBudget) abort("path_stuck");
+                return active();
+            }
+        }
+        if (!SurfaceApproach.at(y, stand.at()) || !clearOfScreen(y.getBoundingBox(), cells)) { abort("left_stand"); return false; }
+        var occupant = occupant(level, cells);
+        if (occupant != null) {
+            y.getLookControl().setLookAt(occupant, 30, 30);
+            GameplayLog.limited(y, "home", "doorway_occupied", DOORWAY_WAIT,
+                    "den seal paused reason=doorway_occupied occupant={}", occupant.getUUID());
+            if (++paused >= DOORWAY_WAIT) abort("doorway_held");
+            return active();
+        }
         ticks++;
-        if (phase != Phase.WORK && !approach(home, danger)) return active();
-        if (!home.contains(y.blockPosition())) { abort("left_den"); return false; }
-        if (!clearOfScreen(y.getBoundingBox(), cells)) { abort("sealer_in_screen"); return false; }
         SurfaceApproach.halt(y);
-        SurfaceApproach.face(y, home.facing().toYRot());
+        SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), mouth));
         y.getLookControl().setLookAt(mouth.x, mouth.y + .2, mouth.z, 30, 30);
         if (ticks % 8 == 4) {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.defaultBlockState()),
                     mouth.x, mouth.y + .3, mouth.z, 3, .25, .15, .25, .02);
             level.playSound(null, y.blockPosition(), SoundType.GRASS.getPlaceSound(), SoundSource.NEUTRAL, .5f, 1.1f);
         }
-        if (ticks >= WORK_TICKS) complete(level, home, danger);
+        if (ticks >= y.childhood().denSealPressTicks()) complete(level, home, danger);
         return true;
     }
 
-    private boolean approach(ShelterBlockEntity home, LivingEntity danger) {
-        if (y.onGround() && (phase == Phase.WALK ? den.equals(y.blockPosition()) : home.contains(y.blockPosition()))) {
-            if (clearOfScreen(y.getBoundingBox(), cells)) {
-                phase = Phase.WORK; ticks = 0;
-                return true;
-            }
-            if (phase == Phase.WALK) {
-                clearStand = clearStandAt(den);
-                if (clearStand == null) {
-                    clearStand = home.beds().stream().map(this::clearStandAt).filter(Objects::nonNull)
-                            .min(Comparator.comparingDouble(at -> at.distanceToSqr(Vec3.atBottomCenterOf(den)))).orElse(null);
-                }
-                if (clearStand == null) {
-                    abort("no_clear_stand");
-                    if (danger != null) threatDecision = ThreatDecision.DONE;
-                    return false;
-                }
-                // Reaching the doorway finishes the walk. Back away from the screen before starting the work.
-                phase = Phase.CLEAR; ticks = 0;
-                GameplayLog.event(y, "home", "den seal clearing screen den={} stand={}", den, clearStand);
-            }
+    private Stand standFor(ShelterBlockEntity home, List<BlockPos> targets, Side side) {
+        if (side == Side.OUTSIDE && targets.size() != 1) return null;
+        var axis = Vec3.atLowerCornerOf(home.facing().getNormal());
+        var center = Vec3.atBottomCenterOf(side == Side.INSIDE ? home.getBlockPos() : home.entrance().relative(home.facing()));
+        double edge = .5 - y.getBbWidth() / 2 - .05;
+        var candidates = targets.size() > 1 ? List.of(center)
+                : List.of(center, center.add(axis.scale(side == Side.INSIDE ? edge : -edge)));
+        Stand best = null;
+        for (var candidate : candidates) {
+            var at = SurfaceApproach.restingFloor(y, candidate);
+            if (at == null) continue;
+            var box = y.getBoundingBox().move(at.subtract(y.position()));
+            if (!clearOfScreen(box, targets) || !y.level().getEntitiesOfClass(LivingEntity.class, box,
+                    other -> other != y && other.isAlive() && !other.isSpectator()).isEmpty()) continue;
+            double length = SurfaceApproach.routeLength(y, at, null);
+            if (Double.isFinite(length) && (best == null || length < best.route())) best = new Stand(at, length);
         }
-        var target = phase == Phase.CLEAR ? clearStand : Vec3.atBottomCenterOf(den);
-        if (ticks <= WALK_LIMIT && (phase == Phase.CLEAR && SurfaceApproach.tryStraightStep(y, target, 1.2)
-                || SurfaceApproach.walkResult(y, target, null, 1.2) != SurfaceApproach.Result.BLOCKED)) return false;
-        abort(phase == Phase.CLEAR ? "clear_stand_unreachable" : "path_stuck");
-        if (danger != null) threatDecision = ThreatDecision.DONE;
-        return false;
+        return best;
     }
 
-    private Vec3 clearStandAt(BlockPos cell) {
-        var at = SurfaceApproach.restingFloor(y, Vec3.atBottomCenterOf(cell));
-        return at != null && clearOfScreen(y.getBoundingBox().move(at.subtract(y.position())), cells) ? at : null;
-    }
+    private double travelTicks(Stand target) { return target.route() / (BodyAbility.of(y).walkSpeed() * WORK_PACE); }
 
     private static boolean clearOfScreen(AABB body, List<BlockPos> cells) {
         return cells.stream().noneMatch(cell -> body.intersects(new AABB(cell)));
@@ -238,11 +252,15 @@ public final class DenSeal {
             return false;
         }
         // On a family outing the sealer may still be standing in its own doorway as it heads inside.
-        if (occupiedByOthers(level, plan.cells())) {
+        if (occupant(level, plan.cells()) != null) {
             GameplayLog.limited(y, "threat", "seal_cell", 200, "den seal waiting reason=cell_occupied den={}", home.getBlockPos());
             return false;
         }
-        if (!parents.isEmpty() && !y.duty().take(Kind.SEAL, WALK_LIMIT + WORK_TICKS + RECHECK, 0, "den_seal_outing"))
+        stand = standFor(home, plan.cells(), home.contains(y.blockPosition()) || plan.cells().size() > 1 ? Side.INSIDE : Side.OUTSIDE);
+        if (stand == null) return false;
+        walkBudget = (int) Math.ceil(2 * travelTicks(stand));
+        paused = 0;
+        if (!parents.isEmpty() && !y.duty().take(Kind.SEAL, walkBudget + y.childhood().denSealPressTicks() + DOORWAY_WAIT + RECHECK, 0, "den_seal_outing"))
             return false;
         den = home.getBlockPos().immutable(); cells = plan.cells(); absent = parents;
         phase = Phase.WALK; ticks = 0;
@@ -255,7 +273,7 @@ public final class DenSeal {
         if (!EventHooks.canEntityGrief(level, y)) { abort("mob_griefing_off"); return; }
         if (danger != null && familyOutside(level, home)) { abort("family_outside"); return; }
         var plan = planFor(level, home);
-        if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size() || occupiedByOthers(level, cells)) {
+        if (plan.refusal() != null || !plan.cells().equals(cells) || home.branches() < cells.size()) {
             abort(plan.refusal() != null ? plan.refusal() : home.branches() < cells.size() ? "twigs_gone" : "cells_changed"); return;
         }
         // Check sight before the screen goes up. Record the outcome only if the parent finishes the work.
@@ -271,7 +289,10 @@ public final class DenSeal {
         GameplayLog.event(y, "home", "den seal {} den={} cells={} placed={} twigs {} -> {} danger={} absent={} work_ticks={}",
                 placed == cells.size() ? "completed" : "placement_refused", den, cells, placed, before, home.branches(),
                 danger == null ? null : danger.getUUID(), absent, ticks);
-        if (!absent.isEmpty()) y.duty().release(Kind.SEAL, placed == cells.size() ? End.DONE : End.FAILED, "seal_finished");
+        if (!absent.isEmpty()) {
+            remembered = false;
+            y.duty().release(Kind.SEAL, placed == cells.size() ? End.DONE : End.FAILED, "seal_finished");
+        }
         if (placed == cells.size()) for (var demonstration : demonstrations) {
             var learner = demonstration.learner();
             if (demonstration.missed() == null) learner.childhood().sawDenSeal(y);
@@ -297,11 +318,12 @@ public final class DenSeal {
         return result;
     }
 
-    private boolean occupiedByOthers(ServerLevel level, List<BlockPos> targets) {
-        for (var cell : targets)
-            if (!level.getEntitiesOfClass(LivingEntity.class, new AABB(cell),
-                    e -> e != y && e.isAlive() && !e.isSpectator()).isEmpty()) return true;
-        return false;
+    private LivingEntity occupant(ServerLevel level, List<BlockPos> targets) {
+        for (var cell : targets) {
+            var bodies = level.getEntitiesOfClass(LivingEntity.class, new AABB(cell), e -> e != y && e.isAlive() && !e.isSpectator());
+            if (!bodies.isEmpty()) return bodies.getFirst();
+        }
+        return null;
     }
 
     private static List<YukkuriEntity> residents(ServerLevel level, ShelterBlockEntity home) {
@@ -361,10 +383,7 @@ public final class DenSeal {
             GameplayLog.event(y, "home", "den seal remembered den={} absent={} self_control={} chance={} roll={} remembered={}",
                     home.getBlockPos(), parents, traits.selfControl(), chance, roll, remembered);
         }
-        if (!remembered || !begin(level, home, null, parents)) return false;
-        // One seal per departure. Reopening for hunger, danger or a returning parent ends this attempt.
-        remembered = false;
-        return true;
+        return remembered && begin(level, home, null, parents);
     }
 
     /** Family work yields to ordinary life needs and threat goals. The same worker owns the threat route above. */
@@ -373,7 +392,7 @@ public final class DenSeal {
         private DenBarrierBlockEntity opening;
         private BlockPos stand;
         private BlockPos refusedFrom;
-        private int walkTicks;
+        private int walkTicks, openBudget;
 
         public FamilyGoal(YukkuriEntity y) {
             this.y = y;
@@ -391,6 +410,7 @@ public final class DenSeal {
                 var outer = home.entrance().relative(home.facing());
                 if (y.blockPosition().equals(refusedFrom) || !y.life().reachable(outer, false)) return false;
                 opening = barrier; stand = outer; walkTicks = 0;
+                openBudget = (int) Math.ceil(2 * SurfaceApproach.routeLength(y, Vec3.atBottomCenterOf(outer), null) / BodyAbility.of(y).walkSpeed());
                 return true;
             }
             return seal().startFamily(level, home);
@@ -398,7 +418,7 @@ public final class DenSeal {
 
         @Override public boolean canContinueToUse() {
             return !y.isPanicking() && !y.life().hasUrgentNeed() && seal().available()
-                    && (opening == null ? seal().active() : walkTicks < WALK_LIMIT && opening.canOpen(y));
+                    && (opening == null ? seal().active() : walkTicks <= openBudget && opening.canOpen(y));
         }
 
         @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -414,9 +434,9 @@ public final class DenSeal {
                     y.getLookControl().setLookAt(mouth.x, mouth.y, mouth.z, 30, 30);
                     y.showReaction(YukkuriAction.BOW, "happy", null);
                     opening.open(y);
-                } else if (step == SurfaceApproach.Result.BLOCKED || walkTicks >= WALK_LIMIT) {
+                } else if (step == SurfaceApproach.Result.BLOCKED || walkTicks >= openBudget) {
                     refusedFrom = y.blockPosition().immutable();
-                    walkTicks = WALK_LIMIT;
+                    walkTicks = openBudget + 1;
                     GameplayLog.event(y, "home", "den barrier opening refused reason=path_stuck mouth={}", opening.getBlockPos());
                 }
                 return;
@@ -425,7 +445,7 @@ public final class DenSeal {
             if (!seal.active()) return;
             var level = (ServerLevel) y.level();
             var home = y.habitat().shelter();
-            if (home != null && (seal.ticks % RECHECK == 0 || seal.ticks + 1 >= WORK_TICKS)
+            if (home != null && (seal.ticks % RECHECK == 0 || seal.ticks + 1 >= y.childhood().denSealPressTicks())
                     && !seal.absent.equals(seal.departure(level, home, MOUTH_APPROACH_SQR))) seal.abort("departure_changed");
             else seal.work(level, home, null);
         }
