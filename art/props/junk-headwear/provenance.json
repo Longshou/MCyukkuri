@@ -5,7 +5,7 @@
     "art/props/junk-headwear/build.py": "f536ca56bec21bc17f9219006916133321ec13d0aaa39b85caba4d26d93f110c",
     "standards/yukkuri-library/drafts/care-props/kit.py": "d2f0968a59062a8d0c6d230bf3091a2844d09de59b7fcc63334739e60015a702",
     "art/props/palette.json": "2c0fa3c1f31f2069048f6c3e76b4f39622568515c3f52243bd3ed22ef52bc634",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "67664451d24206ecfef40231926f74754db44163a77a1922e317a9fa4b8e41fc",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "5f24a7e3b655216fa45e0b686046ce8d008db27a6506d0295aa13ef32c463bde",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json": "05da77703b49b213fd11d661143b76c702f487c8c0445f27dceaa84914db63b9",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/subspecies.json": "c28393e6131f754100782c5d31c776127b0cbb6dfdd105df04613610a11365d2",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "37709d9af1ff33f19915c6ebf0b7f07cfd9946523ca5c1710433d57d14666ba3",
@@ -13,7 +13,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/chen.json": "0da1136a7a65d7317c59de3c84343e45881b81856283dd112904e454ebe582f3",
     "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json": "6a94cd92b5ce79cbc0722cab5daaef0fc853cf67479f70fc23f80df610caf9c3",
     "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json": "ed6c5edadc380031c0e6e56ea6f7c4f4def84e8229f093e913bfec29fd62927f",
-    "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json": "f36ffb8d8d028156c1a39161d184e54cd22e8bb181ae6586714dd4b1bf2d46e8",
+    "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json": "343628b2da3e5317eaac68600bec56cc8688756d62ad0e38e961705c80a34cbb",
     "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
     "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",
@@ -21,7 +21,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "fe9a80167f1f4de806cba3d9fa7a97f4ce224783d5e18d32a251ba56cbf3f0da",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json": "cbcd8df19828d2da1a438328c3492d327d14f3515d247c8fb08bdb3b734c5007",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "a6c6afd32490cbd9a72529f883678424862608bf40e33fee8c57e7a63ab17b66",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json": "a8ed66fb632a43447f173383c0f9b6e114797663f344cbf3ced77ca6d80c6aaa",
     "src/main/resources/assets/mcyukkuri/yukkuri/myon.json": "2e8fd3a250604241fcee0ac19ac105be9ca3be9bdb1997304b583572ede3452a",
     "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json": "9f3651fdc13c369382ea6a887f50cae966ac1ee6cf7397ea3f529bb70413a826",
     "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json": "229b21884860a0277cd13b84a7ae325c4ea749deee6d7c0f749a0dc9239bc2cd",
@@ -32,7 +32,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json": "2bd247f55800c5a8d74ae0933482bb1d983fc7e9e26f6d0e793c0d8eac019931",
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json": "ba46852b1d895c1270023c301ab7d6ab44f0872d8a203efed8d88b5e9a787eec",
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json": "53923e185a24c993f6794ac5e22ca54a1b52806e8b1355de95e9eef7c3a3d675",
-    "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json": "3724156e4fd63c65477ba5d27620bd591a4eb8c798f64c25e3747ed67d3d0620"
+    "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json": "1dd89f7d1e256403400dd3ef988e9d068c02930b485367f817d43f6080490ce9"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/junk_paper_box.json": "9ef8fca960fba034fb34dda9b9a1d2763c01fea89700befa46b2b0f190c2c19f",
