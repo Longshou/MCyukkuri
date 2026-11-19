@@ -90,12 +90,13 @@ public final class PredatorLife implements EcologyRoutine {
     /** Ticks a predator stays and eats after one feeding bite, and stays settled after a combat kill (project design). */
     private static final int EAT_PAUSE = 160, KILL_PAUSE = 100;
     private static final int SWOOP_GAP = 40, CONTACT_HOLD = 5;
-    /** A 7-block stoop and a 6-block pull-away with up to 4.5 blocks of lift need time to accelerate and brake. */
-    private static final int STOOP_LIMIT = 60, WITHDRAW_LIMIT = 64;
+    /** A 6-block pull-away with up to 4.5 blocks of lift needs time to accelerate and brake. */
+    private static final int WITHDRAW_LIMIT = 64;
     private static final int PURSUIT_LIMIT = 1200, OTHER_TASK_LIMIT = 800;
     private static final double SWOOP_HEIGHT = 4.5;
     private final YukkuriEntity animal;
     private final NestBuild nestBuild;
+    private final StoopProgress stoop = new StoopProgress();
     private BlockPos lostNest;
     private long lostNestUntil;
     private Task task = Task.NONE;
@@ -1210,7 +1211,7 @@ public final class PredatorLife implements EcologyRoutine {
                         && (retaliation || animal.life().canAcceptBodyFood())) {
                     if (hit(target)) return;
                     contactHold = true; withdrawGoal = null; setPass(Pass.WITHDRAW);
-                } else if (passTicks > STOOP_LIMIT || horizontal > 100) {
+                } else if (horizontal > 100 || stoop.stalled(passTicks, animal.position().distanceTo(contact), mouthReach())) {
                     withdraw("contact_missed", target, contact);
                     directFlight(animal.position().add(0, .8, 0), .85);
                 } else directFlight(contact, 1.6);
