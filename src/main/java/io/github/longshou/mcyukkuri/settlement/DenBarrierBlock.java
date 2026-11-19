@@ -18,10 +18,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * A den resident's loose twig and leaf screen (see {@link DenSeal}). It blocks collision and paths,
- * and a player can break it by hand.
+ * and a player can break it by hand. The shape stands at fence height (24 px): no step, hop or jump crosses it,
+ * so residents pass only after the screen is really removed.
  */
 public final class DenBarrierBlock extends Block implements EntityBlock {
-    private static final VoxelShape SHAPE = box(1, 0, 1, 15, 16, 15);
+    private static final VoxelShape SHAPE = box(1, 0, 1, 15, 24, 15);
 
     public DenBarrierBlock(Properties properties) { super(properties); }
 
