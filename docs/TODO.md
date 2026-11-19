@@ -12,7 +12,6 @@
 | 帽船第一次伸辫子够到孩子 | `.worktrees/wp-boarding-grip` | aquatic/SetOut.java, motor/action/Grab.java, BraidFetch |
 | 大窝旋转、大体型进窝、单床争抢 | `.worktrees/wp-nest-access` | life/LargeNestBlock.java, life/NestDoorway.java, life/NestResting.java, life/CareBlockEntity.java |
 | 情绪渐进平复：起势即见峰值、渐退表情、惊惧随逃跑开始并跨重载 | `.worktrees/wp-emotion-course` | mind/EmotionCourse.java, entity/YukkuriControl.java, status/TraceRecorder.java, scripts/smoke_checks.py |
-| 主线失败的两项检查：错用的表情 ID 与 carry_home 时间线期望 | `.worktrees/wp-check-fixes` | caller of buy.accepted, scripts/fixtures/timeline |
 | 钩子救亲：亲油被吓跑出救援范围（排查与修复） | `.worktrees/wp-hook-rescue` | hook_kin_rescue scene, rescue/threat owner if code |
 
 ## 玩法待办
