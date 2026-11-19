@@ -875,7 +875,7 @@ final class HumanStreet {
             sheltering = false;
             resume = null;
             detours = 0;
-            nextPet();
+            nextPet(0);
         }
 
         private void continueHome() {
@@ -1176,7 +1176,7 @@ final class HumanStreet {
                 } else if (atDestination()) {
                     clearLeg();
                     for (var pet : companions) pet.outing().leave(npc, npc.yardBowl());
-                    nextPet();
+                    nextPet(0);
                 }
                 return;
             }
@@ -1279,16 +1279,26 @@ final class HumanStreet {
 
         private boolean atDestination() { return npc.distanceToSqr(destination) < .5; }
 
-        private void nextPet() {
+        private void nextPet(int first) {
             npc.getNavigation().stop();
-            called = companions.stream().filter(pet -> pet.getLeashHolder() != npc).findFirst().orElse(null);
+            called = companions.stream().skip(first).filter(pet -> pet.getLeashHolder() != npc).findFirst().orElse(null);
             if (called != null) {
                 callUntil = npc.tickCount + ROUTE_TICKS;
                 fetchAt = null;
                 callPet();
                 GameplayLog.event(npc, "npc-care", "action=outing_call phase={} pet={} gap={} wait={}",
                         homeward ? "return" : "depart", called.getUUID(), npc.distanceTo(called), ROUTE_TICKS);
-            } else if (homeward) {
+                return;
+            }
+            // A lead can snap while the owner fetches the other pet. Each pet gets one call per assembly.
+            for (var pets = companions.iterator(); pets.hasNext();) {
+                var pet = pets.next();
+                if (pet.getLeashHolder() == npc) continue;
+                GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=separated pet={} reason=lead_lost",
+                        homeward ? "return" : "depart", pet.getUUID());
+                pets.remove();
+            }
+            if (homeward) {
                 continueHome();
             } else if (companions.isEmpty()) {
                 finished = true;
@@ -1314,13 +1324,14 @@ final class HumanStreet {
                 npc.swing(InteractionHand.MAIN_HAND);
                 GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=attach pet={} gap={}",
                         phase, pet.getUUID(), Math.sqrt(gap));
-                nextPet();
+                nextPet(companions.indexOf(pet) + 1);
             } else if (!present || npc.tickCount >= callUntil) {
                 callPet();
                 GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result={} pet={} reason={} gap={}",
                         phase, homeward ? "separated" : "left_home", pet.getUUID(), present ? "unreachable" : "unavailable", Math.sqrt(gap));
-                companions.remove(pet);
-                nextPet();
+                int index = companions.indexOf(pet);
+                companions.remove(index);
+                nextPet(index);
             } else if (homeward && (gap > CALL_RANGE * CALL_RANGE || npc.tickCount >= callUntil - ROUTE_TICKS / 2)
                     && !pet.blockPosition().equals(fetchAt)) {
                 fetchAt = pet.blockPosition();
