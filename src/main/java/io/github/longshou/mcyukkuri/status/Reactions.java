@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
+import io.github.longshou.mcyukkuri.life.NeedWarnings.Need;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -99,7 +100,14 @@ public final class Reactions {
         threat.scan();
         weather.scan();
         long now = entity.level().getGameTime();
-        var needs = entity.life().needWarnings(toldNeeds);
+        int requested = switch (entity.pet().care().requests().pending()) {
+            case FOOD -> Need.HUNGER.bit();
+            case WATER -> Need.THIRST.bit();
+            case WARM -> Need.COLD.bit();
+            case null -> 0;
+            case NUZZLE, PLAY, SNACK, WALK -> 0;
+        };
+        var needs = entity.life().needWarnings(toldNeeds | requested);
         toldNeeds &= needs.mask();
         if (now < nextNeedTell || entity.hasReaction() || entity.speechEnd() > now || !allowsNeedTell()) return;
         if (needs.leading() != null) {
@@ -114,7 +122,7 @@ public final class Reactions {
                 && !entity.body().dying() && !entity.body().condition().needsPainExpression()
                 && !entity.life().protectsStep() && !entity.life().isSleeping() && !entity.life().temperature().active()
                 && !entity.family().active() && !entity.childhood().active() && !entity.agitation().active()
-                && entity.pet().care().requests().pending() == null && entity.mind().leakFace().isEmpty()
+                && entity.mind().leakFace().isEmpty()
                 && (entity.getBehaviorId().equals(Behaviors.IDLE) || entity.getBehaviorId().equals(Behaviors.SEEK_TOILET)
                 || entity.getBehaviorId().equals(Behaviors.SEEK_WATER) || entity.getBehaviorId().equals(Behaviors.SEEK_FOOD));
     }

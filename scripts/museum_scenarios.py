@@ -3475,15 +3475,21 @@ def _verify_leak_scene(window):
 
 
 def _verify_need_tell(window):
-    for actor, need, before, after, volume in (
-            ('fidget', 'URINE', 40, 0, '0.0'), ('strain', 'STOOL', 55, 15, '')):
-        subject = rf'\[needs\][^\n]*uuid={_uuid_text("need_tell", actor)} t=(\d+) [^\n]*'
-        tell = re.search(subject + rf' tell need={need}\b', window)
-        relief = re.findall(subject + rf' relieved source=facility [^\n]*kind={need} pressure=(\S+) -> (\S+) volume=(\S+)', window)
-        if not tell or len(relief) != 1:
-            return f'{actor}: expected a {need} warning and one facility release, found {relief}'
+    for actor, need, face, before, after, volume in (
+            ('fidget', 'URINE', 'pursed', 40, 0, '0.0'), ('strain', 'STOOL', 'chewing_closed', 55, 15, '')):
+        subject = rf'[^\n]*uuid={_uuid_text("need_tell", actor)} t=(\d+) [^\n]*'
+        tells = re.findall(r'\[needs\]' + subject + rf' tell need={need}\b', window)
+        relief = re.findall(r'\[needs\]' + subject + rf' relieved source=facility [^\n]*kind={need} pressure=(\S+) -> (\S+) volume=(\S+)', window)
+        if len(tells) != 1 or len(relief) != 1:
+            return f'{actor}: expected one {need} warning and one facility release, found {tells} and {relief}'
         tick, start, end, stored = relief[0]
-        if int(tick) <= int(tell[1]) or float(start) != before or abs(float(end) - after) > .01:
+        faces = re.findall(r'\[status\]' + subject + rf' behavior\.expression: (?:{face} -> \w+|\w+ -> {face})\b', window)
+        if not any(int(tells[0]) <= int(at) < int(tick) for at in faces):
+            return f'{actor}: expected a published {face} before release'
+        practice = re.findall(r'\[skill\]' + subject + r' practice ability=TOILET\b', window)
+        if practice != [tick]:
+            return f'{actor}: expected one toilet practice credit at {tick}, found {practice}'
+        if float(start) != before or abs(float(end) - after) > .01:
             return f'{actor}: wrong order or pressure delta {relief}'
         if (volume and stored != volume) or (not volume and float(stored) <= 0):
             return f'{actor}: unexpected solid inventory {stored}'
