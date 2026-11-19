@@ -1,13 +1,14 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
 import static org.junit.jupiter.api.Assertions.*;
+import io.github.longshou.mcyukkuri.pet.rules.Observation.Kind;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class DiscoveryTest {
     private final UUID brood = UUID.randomUUID();
     private final Observation sight = new Observation();
-    private final Observation.Sign sign = new Observation.Sign(brood, 1, 7, false);
+    private final Observation.Sign sign = new Observation.Sign(brood, 1, 7, false, Kind.YOUNG);
 
     @Test void theJudgeMustBeAwakeNearbyAndFacingTheSubject() {
         assertTrue(Observation.inView(true, 256, 1));
@@ -61,10 +62,10 @@ class DiscoveryTest {
         assertEquals("lie_exposed", Observation.words(true, true, false, true));
     }
     @Test void witnessesSubjectsAndInspectionWindowsCannotPoolAndReloadStartsFresh() {
-        var secondJudge = new Observation.Sign(brood, 2, 7, false);
-        var sibling = new Observation.Sign(brood, 1, 8, false);
-        var otherBrood = new Observation.Sign(UUID.randomUUID(), 1, 7, false);
-        var inspection = new Observation.Sign(brood, 1, 7, true);
+        var secondJudge = new Observation.Sign(brood, 2, 7, false, Kind.YOUNG);
+        var sibling = new Observation.Sign(brood, 1, 8, false, Kind.YOUNG);
+        var otherBrood = new Observation.Sign(UUID.randomUUID(), 1, 7, false, Kind.YOUNG);
+        var inspection = new Observation.Sign(brood, 1, 7, true, Kind.YOUNG);
         for (int t = 0; t < 39; t++) {
             assertFalse(sight.seen(sign, t));
             assertFalse(sight.seen(sign, t));
@@ -75,5 +76,13 @@ class DiscoveryTest {
         assertTrue(sight.seen(sign, 60));
         sight.expire(260);
         assertFalse(sight.seen(sign, 260));
+    }
+
+    @Test void seeingPregnancyDoesNotCountTowardHearingTheAdmission() {
+        var pregnancy = new Observation.Sign(brood, 1, 7, false, Kind.PREGNANCY);
+        var admission = new Observation.Sign(brood, 1, 7, false, Kind.ADMISSION);
+        for (int t = 1; t < 40; t++) assertFalse(sight.seen(pregnancy, t));
+        for (int t = 40; t < 79; t++) assertFalse(sight.seen(admission, t));
+        assertTrue(sight.seen(admission, 79));
     }
 }

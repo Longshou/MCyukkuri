@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.pet.rules.Observation.Kind;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -52,7 +53,7 @@ public final class Discovery {
         calls.clear();
         heard.clear();
         if (HumanSight.sees(owner, parent)) heard.add(owner.getId());
-        for (var npc : staff) if (npc.badgeStaff() && HumanSight.sees(npc, parent)) heard.add(npc.getId());
+        for (var npc : nearbyStaff(parent)) if (HumanSight.sees(npc, parent)) heard.add(npc.getId());
     }
 
     /** Children hear the actual denial even when the owner missed it. No exchange survives an unload. */
@@ -67,12 +68,12 @@ public final class Discovery {
         GameplayLog.event(child, "rules", "arc spoke=addr_mother brood={} mother={}", exchange.brood, mother.getUUID());
         var owner = mother.pet().presentOwner();
         if (owner != null) heardCall(mother, child, owner);
-        for (var npc : staff) if (npc.badgeStaff()) heardCall(mother, child, npc);
+        for (var npc : nearbyStaff(mother)) if (npc != owner) heardCall(mother, child, npc);
     }
 
     private void heardCall(YukkuriEntity mother, YukkuriEntity child, LivingEntity judge) {
         if (!heard.contains(judge.getId()) || !HumanSight.sees(judge, mother) || !visibleYoung(child) || !HumanSight.sees(judge, child)) return;
-        calls.add(new Observation.Sign(exchange.brood, judge.getId(), child.getId(), false));
+        calls.add(new Observation.Sign(exchange.brood, judge.getId(), child.getId(), false, Kind.YOUNG));
         if (!(judge instanceof HumanNpc npc && ExamSession.examines(npc, mother))) witness(mother, judge, false, null);
     }
 
@@ -83,7 +84,7 @@ public final class Discovery {
             var style = entry.parents.getFirst().style();
             var owner = mother.pet().presentOwner();
             return (style == ArcStyle.HIDE || style == ArcStyle.CONFESS && mother.pet().obedience() >= 80)
-                    && owner != null && HumanSight.sees(owner, mother) && mother.pet().conscience().mayApproach(entry.brood, owner, null);
+                    && owner != null && HumanSight.sees(owner, mother) && mother.pet().conscience().mayApproach(entry, owner, null);
         }
         return false;
     }
@@ -94,14 +95,18 @@ public final class Discovery {
         if (parent.tickCount % 20 == 0) {
             var cases = PetPrivileges.get(level).conduct().cases(parent.getUUID());
             open = cases.isEmpty() ? List.of() : cases.stream().filter(c -> c.verdict() == null).toList();
-            staff = open.isEmpty() ? List.of() : level.getEntitiesOfClass(HumanNpc.class,
-                    parent.getBoundingBox().inflate(16), HumanNpc::badgeStaff);
+            parent.pet().conscience().retainEncounters(open);
+            staff = open.isEmpty() ? List.of() : nearbyStaff(parent);
             observation.expire(level.getGameTime());
         }
         if (open.isEmpty()) return;
         var owner = parent.pet().owner() == null ? null : parent.pet().presentOwner();
         if (owner != null && !(owner instanceof HumanNpc npc && npc.badgeStaff())) witness(parent, owner, false, null);
         for (var npc : staff) if (npc.badgeStaff() && !ExamSession.examines(npc, parent)) witness(parent, npc, false, null);
+    }
+
+    private static List<HumanNpc> nearbyStaff(YukkuriEntity parent) {
+        return parent.level().getEntitiesOfClass(HumanNpc.class, parent.getBoundingBox().inflate(16), HumanNpc::badgeStaff);
     }
 
     /** Called on each actual LOOK tick, with the booking owner available for immediate advancement delivery. */
@@ -117,11 +122,11 @@ public final class Discovery {
             boolean witnessed = entry == exchange && heard.contains(judge.getId());
             String admission = Observation.words(witnessed, parent.speechSequence() == sequence && level.getGameTime() < parent.speechEnd(),
                     confession, false);
-            if (admission != null && record(parent, judge, entry, parent, admission, exam, attendee)) continue;
+            if (admission != null && record(parent, judge, entry, parent, admission, Kind.ADMISSION, exam, attendee)) continue;
             if (attached != null && Observation.pregnancy(entry.brood, attached.id, !attached.complete() && !attached.cancelled,
                     attached.kind == FamilyData.BirthKind.STEM && attached.detachedHolder == null && parent.broodProgress() > 0
                     || attached.kind == FamilyData.BirthKind.LIVE && parent.livePregnancyProgress() > .001f)) {
-                record(parent, judge, entry, parent, "pregnancy", exam, attendee);
+                record(parent, judge, entry, parent, "pregnancy", Kind.PREGNANCY, exam, attendee);
             } else {
                 var brood = families.brood(entry.brood);
                 for (var member : brood.children) {
@@ -130,9 +135,9 @@ public final class Discovery {
                     if (Observation.young(entry.brood, parent.getUUID(), person.brood, person.mother, person.father, child.family().adult(),
                             visibleYoung(child) && HumanSight.sees(judge, child))) {
                         boolean denial = witnessed && !confession;
-                        var sign = new Observation.Sign(entry.brood, judge.getId(), child.getId(), false);
+                        var sign = new Observation.Sign(entry.brood, judge.getId(), child.getId(), false, Kind.YOUNG);
                         String evidence = denial ? Observation.words(true, true, false, calls.contains(sign)) : "babies";
-                        if (record(parent, judge, entry, child, evidence, exam, attendee)) break;
+                        if (record(parent, judge, entry, child, evidence, Kind.YOUNG, exam, attendee)) break;
                     }
                 }
             }
@@ -143,9 +148,9 @@ public final class Discovery {
                 && ParentCarry.hold(carrier, child) == ParentCarry.Hold.MOUTH);
     }
     private boolean record(YukkuriEntity parent, LivingEntity judge, BadgeConduct.Case entry, YukkuriEntity subject,
-                           String evidence, boolean exam, Player attendee) {
+                           String evidence, Kind kind, boolean exam, Player attendee) {
         var level = (ServerLevel) parent.level();
-        var sign = new Observation.Sign(entry.brood, judge.getId(), subject.getId(), exam);
+        var sign = new Observation.Sign(entry.brood, judge.getId(), subject.getId(), exam, kind);
         if (!observation.seen(sign, level.getGameTime()) || evidence == null) return false;
         String cause = exam ? "exam" : evidence;
         if (!entry.discover(new BadgeConduct.Verdict(cause, level.getDayTime() / 24000 + 1, judge.getUUID()))) return false;
@@ -167,8 +172,8 @@ public final class Discovery {
             var parent = entry.parents.get(i);
             if (!(level.getEntity(parent.id()) instanceof YukkuriEntity pet) || !pet.pet().isPet()
                     || !HumanSight.sees(judge, pet) || pet.isPanicking() || pet.hurtTime > 0) continue;
-            if (parent.style() == ArcStyle.DEFIANT && PetScenes.ready(pet, "brood_defiance", 1200))
-                PetScenes.say(pet, YukkuriAction.PUFF, "cheek_puff", "sukkiri_defiant", judge);
+            if (parent.style() == ArcStyle.DEFIANT && PetScenes.ready(pet, "brood_defiance", 1200)
+                    && PetScenes.say(pet, YukkuriAction.PUFF, "cheek_puff", "sukkiri_defiant", judge)) continue;
             if (level.getEntity(entry.parents.get(1-i).id()) instanceof YukkuriEntity partner && partner.isAlive()
                     && partner.pet().isPet() && partner.pet().ownedBy(pet.pet().owner()) && pet.distanceToSqr(partner) <= 64
                     && pet.hasLineOfSight(partner) && pet.pet().obedience() < partner.pet().obedience()

@@ -40,7 +40,7 @@ public final class ConscienceGoal extends Goal {
             owner = pet.pet().presentOwner();
             if (owner != null && HumanSight.sees(owner, pet)) {
                 for (var entry : pet.pet().discovery().open())
-                    if (entry.verdict() == null && wantsResponse(entry) && conscience.mayApproach(entry.brood, owner, child)) { brood = entry; return true; }
+                    if (entry.verdict() == null && wantsResponse(entry) && conscience.mayApproach(entry, owner, child)) { brood = entry; return true; }
             }
         }
         if (!conscience.undiscovered() || !conscience.confesses()) return false;
@@ -51,7 +51,8 @@ public final class ConscienceGoal extends Goal {
     private boolean freeForBrood() {
         return !BehaviorContinuity.emergency(pet) && pet.hurtTime == 0 && !pet.isPassenger() && !pet.isLeashed()
                 && !pet.pet().busy() && !pet.life().protectsStep() && !pet.life().hasUrgentNeed() && !pet.life().isSleeping()
-                && !pet.house().active() && !pet.family().carry().carrying() && pet.family().yieldsToComfort();
+                && !pet.house().active() && !pet.family().carry().carrying() && pet.family().yieldsToComfort()
+                && !pet.family().hasUrgentlyHungryChild();
     }
 
     private boolean wantsResponse(BadgeConduct.Case entry) {
@@ -170,7 +171,7 @@ public final class ConscienceGoal extends Goal {
     }
 
     private void finish(Duty.End end, String reason) {
-        if (brood != null && end == Duty.End.FAILED) pet.pet().conscience().approachFailed(brood.brood, owner, child);
+        if (brood != null) pet.pet().conscience().approachEnded(brood, owner, child);
         pet.duty().release(Duty.Kind.RULES, end, reason);
     }
 

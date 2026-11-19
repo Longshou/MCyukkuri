@@ -7,7 +7,8 @@ import java.util.UUID;
 
 /** One loaded parent. Entity IDs distinguish two separate loads of the same witness or child. */
 final class Observation {
-    record Sign(UUID brood, int judge, int subject, boolean inspection) {}
+    enum Kind { PREGNANCY, YOUNG, ADMISSION }
+    record Sign(UUID brood, int judge, int subject, boolean inspection, Kind kind) {}
     private final Map<Sign, ArrayDeque<Long>> ticks = new HashMap<>();
 
     boolean seen(Sign sign, long now) {
