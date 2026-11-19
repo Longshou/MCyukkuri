@@ -12,6 +12,7 @@
 | 宠物迎接主人后上前蹭蹭（TN-30） | `.worktrees/wp-owner-welcome` | social/YukkuriSocial.java, yard_owner_return |
 | 运输篮里看得到是谁（TN-33） | `.worktrees/wp-basket-view` | item/CarrierItem.java, client carrier renderer |
 | 大小不一与隔台阶的贴身蹭展示场景 | `.worktrees/wp-peer-nuzzle` | scripts/museum_scenarios.py (new scene), museum_fields.py |
+| 仅字幕台词补配音 | `.worktrees/wp-voices` | art/audio/aquestalk, dialogue export |
 
 ## 玩法待办
 
