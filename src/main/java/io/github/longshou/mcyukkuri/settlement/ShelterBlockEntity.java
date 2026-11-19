@@ -348,8 +348,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(work<120)return true;
         largeBedWork.remove(at);largeBeds.add(at);lining-=2;privateNests.remove(mother.getUUID());
         var mate=mother.family().partner();
+        int slot=residents.get(mother.getUUID());
         if(mate!=null&&residents.containsKey(mate)&&level instanceof ServerLevel server&&server.getEntity(mate) instanceof YukkuriEntity partner
-                &&acceptsAt(residents.get(mother.getUUID()),partner))residents.put(mate,residents.get(mother.getUUID()));
+                &&acceptsAt(slot,partner))takeSlot(partner,slot);
         changed();
         GameplayLog.event(mother,"home","large wild nest prepared bed={} liningSpent=2 lining={}",at,lining);
         return true;

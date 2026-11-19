@@ -3,8 +3,8 @@
 Writes the snapshot art/props/large-nests/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png} with manifest fingerprints, and the
 runtime mesh, palette texture, particle-only block model, builtin item model, blockstate, loot table and zh_cn / en_us names.
 Meshes are centred on the 2x2 footprint (origin = shared corner of the four blocks), entrance on +z. The block
-(life/LargeNestBlock) occupies those four cells: part 0 is the north-west cell, part bits 1 / 2 the +x / +z cells; the
-blockstate lists the four parts and only part 0 drops the item. The props join the shared
+(life/LargeNestBlock) occupies those four cells: part 0 remains the owner under structure transforms and drops the
+salvaged materials. The props join the shared
 yukkuri_props/index.json as owner entries, which scripts/export_peripheral_assets.py keeps. --check is read-only.
 """
 import argparse, hashlib, json, sys
@@ -24,6 +24,20 @@ GENERATOR = 'standards/yukkuri-library/drafts/care-props/large_nests.py'
 BUILD = vanilla_props.LARGE
 LABELS = {'large_yukkuri_nest': ('油库里大编织软窝', 'Large Woven Yukkuri Nest'),
           'large_wild_nest': ('野生大草窝', 'Large Wild Grass Nest')}
+SALVAGE = {'large_yukkuri_nest': (('mcyukkuri:yukkuri_nest', 2), ('minecraft:white_wool', 1)),
+           'large_wild_nest': (('minecraft:short_grass', 1),)}
+
+
+def loot(name):
+    conditions = [{'condition': 'minecraft:survives_explosion'},
+                  {'condition': 'minecraft:block_state_property', 'block': f'mcyukkuri:{name}', 'properties': {'part': '0'}}]
+    pools = []
+    for item, count in SALVAGE[name]:
+        entry = {'type': 'minecraft:item', 'name': item}
+        if count != 1:
+            entry['functions'] = [{'function': 'minecraft:set_count', 'count': count}]
+        pools.append({'rolls': 1, 'entries': [entry], 'conditions': conditions})
+    return {'type': 'minecraft:block', 'pools': pools}
 
 
 def outputs():
@@ -51,9 +65,7 @@ def outputs():
                         'fixed': {'scale': [.4, .4, .4]},
                         'thirdperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [.25, .25, .25]},
                         'firstperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [.3, .3, .3]}}})
-        emit(DATA / f'loot_table/blocks/{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
-            {'type': 'minecraft:item', 'name': f'mcyukkuri:{name}'}], 'conditions': [{'condition': 'minecraft:survives_explosion'},
-            {'condition': 'minecraft:block_state_property', 'block': f'mcyukkuri:{name}', 'properties': {'part': '0'}}]}]})
+        emit(DATA / f'loot_table/blocks/{name}.json', loot(name))
     emit(ASSETS / 'yukkuri_props/index.json', index)
     for i, locale in enumerate(('zh_cn', 'en_us')):
         path = ASSETS / f'lang/{locale}.json'

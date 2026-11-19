@@ -81,7 +81,8 @@ def outputs():
     out[ASSETS/'yukkuri_props/predators-index.json']=dumps({k:v for k,v in index.items() if 'mesh' in v})
     out[ASSETS/'models/block/predator_nest.json']=dumps({'textures':{'particle':'mcyukkuri:props/predator_nest'},'elements':[]})
     out[ASSETS/'blockstates/predator_nest.json']=dumps({'variants':{'':{'model':'mcyukkuri:block/predator_nest'}}})
-    out[DATA/'loot_table/blocks/predator_nest.json']=dumps({'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'mcyukkuri:predator_nest'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+    out[DATA/'loot_table/blocks/predator_nest.json']=dumps({'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item',
+        'name':'minecraft:stick','functions':[{'function':'minecraft:set_count','count':7}]}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
     out[DATA/'recipe/predator_nest.json']=dumps({'type':'minecraft:crafting_shaped','category':'misc','pattern':['S S','SWS','SSS'],'key':{'S':{'item':'minecraft:stick'},'W':{'item':'minecraft:wheat'}},'result':{'id':'mcyukkuri:predator_nest','count':1}})
     out[SOURCE/'provenance.json']=dumps({'status':'pending_confirmation','source':'build.py; block-props/nests.py; selected predator cap elements','outputs':index})
     return out
