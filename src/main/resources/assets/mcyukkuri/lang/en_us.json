@@ -1,4 +1,10 @@
 {
+  "badge.mcyukkuri.evidence.lie_exposed": "Her own child called her Mama",
+  "badge.mcyukkuri.evidence.confession": "The parent confessed",
+  "advancement.mcyukkuri.lie_exposed.title": "They're not my little ones!",
+  "advancement.mcyukkuri.lie_exposed.description": "Witness a child call its mother Mama after she denies being its parent.",
+  "advancement.mcyukkuri.confession.title": "Please spare the little ones",
+  "advancement.mcyukkuri.confession.description": "Hear your pet admit to an unauthorized brood.",
   "badge.mcyukkuri.profile.owner_state.3": "Disqualified",
   "badge.mcyukkuri.disqualified": "%s (disqualified)",
   "notebook.mcyukkuri.badge_verdict": "Badge record\n%s (%s)\nDay %s · %s\nBrood %s",

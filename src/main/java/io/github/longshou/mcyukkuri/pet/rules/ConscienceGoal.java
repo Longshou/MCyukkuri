@@ -20,6 +20,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
 public final class ConscienceGoal extends Goal {
+    private static final double BESIDE_CHILD = 1.5;
     private final YukkuriEntity pet;
     private LivingEntity owner;
     private BadgeConduct.Case brood;
@@ -39,7 +40,7 @@ public final class ConscienceGoal extends Goal {
             owner = pet.pet().presentOwner();
             if (owner != null && HumanSight.sees(owner, pet)) {
                 for (var entry : pet.pet().discovery().open())
-                    if (entry.verdict() == null && wantsResponse(entry)) { brood = entry; return true; }
+                    if (entry.verdict() == null && wantsResponse(entry) && conscience.mayApproach(entry.brood, owner, child)) { brood = entry; return true; }
             }
         }
         if (!conscience.undiscovered() || !conscience.confesses()) return false;
@@ -69,9 +70,9 @@ public final class ConscienceGoal extends Goal {
                 continue;
             }
             if (!young.childhood().shouldStayWithParents()) continue;
+            if (!young.childhood().firstMealDone() || young.life().nutrition() < 30 || young.isPanicking()) return false;
             if (style == ArcStyle.HIDE && (ParentCarry.needsCarry(young) || young.isPassenger()
-                    || !young.childhood().firstMealDone() || young.life().nutrition() < 30
-                    || young.isPanicking() || young.life().isSleeping() || pet.distanceToSqr(young) > 36)) return false;
+                    || young.life().isSleeping() || pet.distanceToSqr(young) > 36)) return false;
             if (child == null || pet.distanceToSqr(young) < pet.distanceToSqr(child)) child = young;
         }
         if (!born) return mother && pet.pet().discovery().leavesNest(pet, family);
@@ -90,8 +91,10 @@ public final class ConscienceGoal extends Goal {
         if (brood == null) return;
         switch (style) {
             case HIDE -> {
-                stand = Reactions.escapeStand(pet, owner, 6, at -> !GlassSight.clearTo(owner, at.add(0, pet.getEyeHeight(), 0))
-                        && (child == null || child.distanceToSqr(at) <= 36));
+                // Join a child that already has cover. A mobile child in the open can follow a short retreat.
+                stand = child != null && !GlassSight.clearTo(owner, child.getEyePosition())
+                        ? SurfaceApproach.beside(pet, child, 1, .5, BESIDE_CHILD, this::screened)
+                        : Reactions.escapeStand(pet, owner, 6, at -> screened(at) && (child == null || child.distanceToSqr(at) <= 36));
                 PetScenes.act(pet, YukkuriAction.SHY, "teary", "exam_hide_fail", 30, owner);
                 if (stand == null) finish(Duty.End.FAILED, "no_cover");
             }
@@ -104,18 +107,25 @@ public final class ConscienceGoal extends Goal {
                 if (stand == null) finish(Duty.End.DONE, "denial_ended");
             }
             case DEFIANT -> {
-                say(YukkuriAction.PUFF, "cheek_puff", "sukkiri_defiant", owner);
+                if (PetScenes.ready(pet, "brood_defiance", 1200)) say(YukkuriAction.PUFF, "cheek_puff", "sukkiri_defiant", owner);
                 finish(Duty.End.DONE, "confronted");
             }
             default -> {}
         }
     }
 
+    private boolean screened(Vec3 at) { return !GlassSight.clearTo(owner, at.add(0, pet.getEyeHeight(), 0)); }
+
+    private boolean reachedCover() {
+        return screened(pet.position()) && (child == null || pet.distanceToSqr(child) <= BESIDE_CHILD * BESIDE_CHILD
+                && pet.hasLineOfSight(child) && !GlassSight.clearTo(owner, child.getEyePosition()));
+    }
+
     @Override public boolean canContinueToUse() {
         if (brood != null) return pet.duty().holds(Duty.Kind.RULES) && brood.verdict() == null && freeForBrood()
                 && pet.pet().ownedBy(owner.getUUID()) && owner.isAlive() && owner.level() == pet.level() && pet.distanceToSqr(owner) <= 256
                 && (style == ArcStyle.HIDE || HumanSight.sees(owner, pet)) && (child == null || child.isAlive() && child.level() == pet.level())
-                && (style != ArcStyle.HIDE || child == null || child.life().nutrition() >= 30 && !child.isPanicking());
+                && (child == null || child.life().nutrition() >= 30 && !child.isPanicking());
         return pet.duty().holds(Duty.Kind.RULES) && pet.pet().conscience().undiscovered() && pet.pet().canWelcomeOwner()
                 && pet.distanceToSqr(owner) <= 36 && HumanSight.sees(owner, pet) && pet.hasLineOfSight(owner);
     }
@@ -123,7 +133,8 @@ public final class ConscienceGoal extends Goal {
     @Override public void tick() {
         if (!pet.duty().holds(Duty.Kind.RULES)) return;
         if (brood != null && (style == ArcStyle.HIDE || style == ArcStyle.LIE)) {
-            var result = SurfaceApproach.retreatResult(pet, stand, style == ArcStyle.HIDE ? owner : child, .9);
+            var result = style == ArcStyle.HIDE && reachedCover() ? SurfaceApproach.Result.ARRIVED
+                    : SurfaceApproach.retreatResult(pet, stand, style == ArcStyle.HIDE ? owner : child, .9);
             if (result == SurfaceApproach.Result.ARRIVED) {
                 GameplayLog.event(pet, "rules", "arc arrived style={} brood={} screened={}", style, brood.brood,
                         !GlassSight.clearTo(owner, pet.getEyePosition()));
@@ -133,23 +144,35 @@ public final class ConscienceGoal extends Goal {
         }
         if (pet.distanceToSqr(owner) <= 2.25) {
             if (brood == null) pet.pet().conscience().caught("confession");
-            else if (style == ArcStyle.CONFESS) say(YukkuriAction.BOW, "teary", "confess", owner);
+            else if (style == ArcStyle.CONFESS) {
+                if (say(YukkuriAction.BOW, "teary", "confess", owner)) {
+                    int line = pet.speechSequence();
+                    PetScenes.later(pet, YukkuriAction.BOW.durationTicks(), () -> {
+                        if (pet.isAlive() && !BehaviorContinuity.emergency(pet) && pet.speechSequence() == line)
+                            PetScenes.act(pet, YukkuriAction.BEG, "teary", "", YukkuriAction.BEG.durationTicks());
+                    });
+                }
+            }
             else say(YukkuriAction.JOY_JUMP, "happy", "sukkiri_naive", child);
             finish(Duty.End.DONE, "met_owner");
         } else {
             var stand = SurfaceApproach.beside(pet, owner, 1, .5, 1.5);
             if (stand == null || SurfaceApproach.walkResult(pet, stand, owner, .8) == SurfaceApproach.Result.BLOCKED)
-                pet.duty().release(Duty.Kind.RULES, Duty.End.FAILED, "unreachable");
+                finish(Duty.End.FAILED, "unreachable");
         }
     }
 
     private boolean say(YukkuriAction action, String face, String event, LivingEntity look) {
         if (!PetScenes.say(pet, action, face, event, look)) return false;
         GameplayLog.event(pet, "rules", "arc spoke={} brood={} owner={}", event, brood.brood, owner.getUUID());
+        if (style == ArcStyle.CONFESS || style == ArcStyle.LIE) pet.pet().discovery().spoke(pet, brood, owner, style == ArcStyle.CONFESS);
         return true;
     }
 
-    private void finish(Duty.End end, String reason) { pet.duty().release(Duty.Kind.RULES, end, reason); }
+    private void finish(Duty.End end, String reason) {
+        if (brood != null && end == Duty.End.FAILED) pet.pet().conscience().approachFailed(brood.brood, owner, child);
+        pet.duty().release(Duty.Kind.RULES, end, reason);
+    }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
 

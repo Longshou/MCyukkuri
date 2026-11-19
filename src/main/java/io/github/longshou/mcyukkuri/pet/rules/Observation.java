@@ -26,4 +26,14 @@ final class Observation {
     static boolean young(UUID brood, UUID parent, UUID birth, UUID mother, UUID father, boolean adult, boolean seenTogether) {
         return brood.equals(birth) && (parent.equals(mother) || parent.equals(father)) && !adult && seenTogether;
     }
+
+    static boolean identifyingCall(UUID brood, UUID denyingParent, UUID birth, UUID mother, boolean dependent, boolean spoken) {
+        return spoken && dependent && brood.equals(birth) && denyingParent.equals(mother);
+    }
+
+    static String words(boolean witness, boolean delivered, boolean confession, boolean sawCall) {
+        if (!witness || !delivered) return null;
+        if (confession) return "confession";
+        return sawCall ? "lie_exposed" : null;
+    }
 }

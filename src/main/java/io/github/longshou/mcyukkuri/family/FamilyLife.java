@@ -1260,6 +1260,12 @@ public final class FamilyLife {
         if(entity.isPanicking()||entity.isCommandPlaying()||urgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         if(task!=Task.NONE)return true;
         if(comfortTicks>0&&adult()){task=Task.COMFORT;taskTicks=0;return true;}
+        if(!adult() && !entity.isPassenger() && !entity.life().isSleeping() && !entity.childhood().needsNewbornCare()) {
+            var caller = call.denyingMother();
+            if(caller!=null && (entity.distanceToSqr(caller)<=4 || !ParentCarry.needsCarry(entity))) {
+                target=caller;task=Task.FOLLOW;taskTicks=0;return true;
+            }
+        }
         if(wait>0&&!owesFamilyDuty()&&!stockedChildMealDue())return false;wait=40;
         var pregnancy=brood();
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
@@ -1676,6 +1682,7 @@ public final class FamilyLife {
             var home=earlyHomeStand();return home!=null&&needsBedReturn(home);
         }
         if (task == Task.FOLLOW && target != null) {
+            if (target == call.denyingMother() && (entity.distanceToSqr(target)<=4 || !ParentCarry.needsCarry(entity))) return true;
             if (call.answeringBeckon()) return target.isAlive() && target.level() == entity.level();
             UUID foster = fosterParent();
             if (target.getUUID().equals(foster)) {
@@ -1744,7 +1751,8 @@ public final class FamilyLife {
             case COURT -> courtship.tickCourt();
             case RECEIVE_COURT -> courtship.tickReceiver();
             case FOLLOW -> {
-                if(!entity.life().canRecognize(target)||withinFollowDistance(target)){stop();return;}
+                boolean denial = target == call.denyingMother();
+                if(denial ? call.addressMother(target) : !entity.life().canRecognize(target)||withinFollowDistance(target)){stop();return;}
                 entity.getLookControl().setLookAt(target,20,20);
                 var at = gatherAt(target);
                 if(at!=null)SurfaceApproach.walk(entity,at,1.15);

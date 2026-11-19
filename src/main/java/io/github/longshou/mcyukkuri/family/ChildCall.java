@@ -1,7 +1,10 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
+import io.github.longshou.mcyukkuri.dialogue.SpeechAddress;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
@@ -43,6 +46,7 @@ final class ChildCall {
     /** Parent: the child her rounds count for, the tick her current call began and the earliest tick of the next one. */
     private UUID called;
     private long callStart = -1, nextCall;
+    private long answeredDenial = -1;
     /** Child: the latest call answered for each parent, where the current answer came from, and whether its hop was asked for. */
     private final Map<UUID,Long> answeredCalls = new HashMap<>(2);
     private Vec3 heardFrom;
@@ -64,6 +68,21 @@ final class ChildCall {
     };
 
     ChildCall(FamilyLife owner) { o = owner; }
+
+    YukkuriEntity denyingMother() {
+        if (o.mother() == null || !(o.level().getEntity(o.mother()) instanceof YukkuriEntity mother)
+                || !mother.isAlive() || !o.entity().life().canRecognize(mother)) return null;
+        return mother.pet().discovery().denialHeard(mother, o.entity()) > answeredDenial ? mother : null;
+    }
+
+    boolean addressMother(YukkuriEntity mother) {
+        var child = o.entity();
+        if (child.distanceToSqr(mother) > 4) return false;
+        answeredDenial = mother.pet().discovery().denialHeard(mother, child);
+        if (PetScenes.say(child, YukkuriAction.JOY_JUMP, "happy", SpeechAddress.kin(SpeechAddress.Kin.MOTHER), mother))
+            mother.pet().discovery().addressed(mother, child);
+        return true;
+    }
 
     /** A baby's cold complaint is addressed to its nearest recognized caregiver in earshot. */
     YukkuriEntity coldParent() {

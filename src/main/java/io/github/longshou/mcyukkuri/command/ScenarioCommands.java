@@ -100,14 +100,7 @@ public final class ScenarioCommands {
         if (candidate == null || !(EntityArgument.getEntity(context, "examiner") instanceof HumanNpc examiner)) return 0;
         // NeoForge's ordinary FakePlayer discards every award. The exam operator uses vanilla criterion
         // progress for this booking, without loading a player's history or registering automatic triggers.
-        var server = level.getServer();
-        var owner = new FakePlayer(level, FakePlayerFactory.getMinecraft(level).getGameProfile()) {
-            private final PlayerAdvancements progress = new PlayerAdvancements(server.getFixerUpper(), server.getPlayerList(),
-                    server.getAdvancements(), server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR).resolve("museum-exam.json"), this) {
-                @Override protected void load(ServerAdvancementManager advancements) {}
-            };
-            @Override public PlayerAdvancements getAdvancements() { return progress; }
-        };
+        var owner = museumWitness(level, FakePlayerFactory.getMinecraft(level).getGameProfile());
         owner.setPos(candidate.getX(), candidate.getY(), candidate.getZ() + 1);
         int fee = ExamSession.fee(candidate.pet().grade().higher());
         if (fee > 0) owner.getInventory().add(new ItemStack(Items.EMERALD, fee));
@@ -116,7 +109,18 @@ public final class ScenarioCommands {
         return reason == null ? 1 : refused(context.getSource(), candidate, "认证", reason);
     }
 
-    private static int pending(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+    private static FakePlayer museumWitness(ServerLevel level, GameProfile profile) {
+        var server = level.getServer();
+        return new FakePlayer(level, profile) {
+            private final PlayerAdvancements progress = new PlayerAdvancements(server.getFixerUpper(), server.getPlayerList(),
+                    server.getAdvancements(), server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR).resolve("museum-witness.json"), this) {
+                @Override protected void load(ServerAdvancementManager advancements) {}
+            };
+            @Override public PlayerAdvancements getAdvancements() { return progress; }
+        };
+    }
+
+    private static int pending(CommandContext<CommandSourceStack> c, Vec3 childStand) throws CommandSyntaxException {
         var mother = yukkuri(c, "mother");
         var father = yukkuri(c, "father");
         if (mother == null || father == null) return 0;
@@ -126,10 +130,18 @@ public final class ScenarioCommands {
             for (var parent : List.of(mother, father))
                 Custody.assign(parent, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
         }
-        String reason = ScenarioSetup.birth(mother, father, "pregnant");
+        String reason = childStand == null ? ScenarioSetup.birth(mother, father, "pregnant")
+                : ScenarioSetup.birth(mother, father, "stem", List.of(.15f));
         if (reason != null) return refused(c.getSource(), mother, "准备胎次", reason);
         var brood = mother.family().brood();
         PetPrivileges.voluntaryBrood(brood.id, mother, father);
+        if (childStand != null) {
+            brood.elapsed = brood.duration;
+            var child = FamilyData.get(level).birth(brood, 0, level, childStand);
+            if (child == null) return refused(c.getSource(), mother, "准备幼体", FamilyData.get(level).birthBlock(brood));
+            child.addTag("scn");
+            child.addTag("scn_child");
+        }
         GameplayLog.event(mother, "scenario", "brood={} mother_grade={} father_grade={}", brood.id,
                 mother.pet().effectiveGrade(), father.pet().effectiveGrade());
         return 1;
@@ -180,7 +192,8 @@ public final class ScenarioCommands {
                 .then(Commands.literal("certify").then(Commands.argument("examiner", EntityArgument.entity())
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(ScenarioCommands::certify))))
                 .then(Commands.literal("pending").then(Commands.argument("mother", EntityArgument.entity())
-                        .then(Commands.argument("father", EntityArgument.entity()).executes(ScenarioCommands::pending))))
+                        .then(Commands.argument("father", EntityArgument.entity()).executes(c -> pending(c, null))
+                                .then(Commands.argument("childStand", Vec3Argument.vec3()).executes(c -> pending(c, Vec3Argument.getVec3(c, "childStand")))))))
                 .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
                 .then(Commands.literal("staff_tool").then(Commands.argument("staff", EntityArgument.entity())
@@ -434,7 +447,7 @@ public final class ScenarioCommands {
             return 1;
         }
         if(current!=null)return 0;
-        var player=new FakePlayer(level,new GameProfile(TOOL_OPERATOR,"MuseumOperator"));
+        var player=museumWitness(level,new GameProfile(TOOL_OPERATOR,"MuseumOperator"));
         player.setPos(source.getPosition());
         level.addNewPlayer(player);
         return level.getPlayerByUUID(TOOL_OPERATOR)==player?1:0;

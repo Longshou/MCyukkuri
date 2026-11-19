@@ -1,4 +1,10 @@
 {
+  "badge.mcyukkuri.evidence.lie_exposed": "実子が母親を呼んだ",
+  "badge.mcyukkuri.evidence.confession": "親が目の前で告白した",
+  "advancement.mcyukkuri.lie_exposed.title": "うちのおちびじゃないよ！",
+  "advancement.mcyukkuri.lie_exposed.description": "知らないと言った親を、その子が「おかあさん」と呼ぶ場に居合わせる。",
+  "advancement.mcyukkuri.confession.title": "おちびちゃんだけはゆるしてね",
+  "advancement.mcyukkuri.confession.description": "ペットから無許可で子をもうけたと打ち明けられる。",
   "badge.mcyukkuri.profile.owner_state.3": "失格",
   "badge.mcyukkuri.disqualified": "%s（失格）",
   "notebook.mcyukkuri.badge_verdict": "バッジの記録\n%s（%s）\n%s日目 · %s\n出産記録 %s",

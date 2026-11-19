@@ -2787,6 +2787,53 @@ add('brood_unseen', 'town', '主人离开后，双亲照常佩章', '主人离�
                forbid=[r'\[badge\].*(disqualified cause=|revoked grade=|pending expired)'], readout=_BROOD_STANDING,
                verify_readout=lambda result: brood_standing(result, ['silver', 'bronze'])))
 
+def arc_exchange(log):
+    events = re.findall(r'arc spoke=(sukkiri_lie|addr_mother)|disqualified cause=(lie_exposed)|advancement=(lie_exposed)', log)
+    order = [next(value for value in event if value) for event in events]
+    expected = ['sukkiri_lie', 'addr_mother', 'lie_exposed', 'lie_exposed', 'lie_exposed']
+    return None if order == expected else f'Expected denial, child call, both verdicts and one award; got {order}'
+
+
+for sid, title, description, traits, child_pos in (
+    ('arc_hide', '躲在遮挡后喂孩子', '站在屏风左边等灵梦躲开，看它在另一边把食物嚼成糜喂给孩子。绕过去才有机会看清亲缘。', dict(friendliness=100), '~3.5 ~ ~1.5'),
+    ('arc_lie', '孩子叫妈妈拆穿谎话', '面对母油，听它别过脸说不是自己的孩子，再看亲生孩子追来喊妈妈。', dict(intelligence=70, friendliness=20, attachment=30, self_control=45), '~3.5 ~ ~0.5'),
+    ('arc_confess', '聪明的坦白求饶', '面对聪明又依恋主人的灵梦，等它走近鞠躬，请你饶过孩子。', dict(intelligence=80, attachment=80), '~4.5 ~ ~3.5'),
+    ('arc_naive', '带着孩子找主人炫耀', '面对灵梦，看它朝你走来，回头向自己的孩子笑，邀你一起油库里。', dict(intelligence=30), '~3.5 ~ ~0.5'),
+):
+    mother_id = _uuid_text(sid, 'mother')
+    hide = sid == 'arc_hide'
+    props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide or sid == 'arc_confess' else []
+    smoke = None
+    if hide or sid == 'arc_lie':
+        smoke = dict(ticks=600 if hide else 320,
+                     commands=[(1, 'execute positioned ~0.5 ~ ~-4.5 run yukkuri scenario tool_operator enter'),
+                               *((2, f'execute as @a[name=MuseumOperator,distance=..32] run {line}') for role in ('pet', 'father') for line in own(role)),
+                               (3, f'tp @a[name=MuseumOperator,distance=..32] ~0.5 ~ ~-4.5 facing entity {sel("pet")} eyes'),
+                               (599 if hide else 319, 'yukkuri scenario tool_operator leave')],
+                     expect=([rf'uuid={mother_id} .*arc style=HIDE', r'arc arrived style=HIDE .*screened=true',
+                              rf'uuid={mother_id} .*private feed brood=', rf'swallowed item=.*feeder={mother_id}']
+                             if hide else [rf'uuid={mother_id} .*arc style=LIE',
+                                           *(rf'disqualified cause=lie_exposed .*parent={_uuid_text(sid, role)} ' for role in ('mother', 'father')),
+                                           r'advancement=unauthorized_found', r'advancement=lie_exposed']),
+                     forbid=[r'disqualified cause=|pending expired'] if hide else [r'disqualified cause=(babies|pregnancy|confession)'],
+                     readout=[*_BROOD_STANDING, f'yukkuri status {sel("child")} raw'],
+                     verify_readout=lambda result, grades=(['silver', 'bronze', 'none'] if hide else ['none', 'none', 'none']): brood_standing(result, grades))
+        if not hide:
+            smoke['verify'] = arc_exchange
+    add(sid, 'town', title, title, description, '安静等候约半分钟',
+        [box(-5, -1, -6, 14, -1, 7, 'minecraft:grass_block'), box(-5, 0, -6, 14, 3, 7, 'minecraft:air'),
+         *props, *shed(0, 5), block(2, 0, 5, 'mcyukkuri:yukkuri_nest'),
+         box(10, 0, 0, 14, 1, 4, 'minecraft:oak_planks'), box(11, 0, 1, 13, 1, 3, 'minecraft:air'),
+         yk('reimu', 0, 0, 'pet', grade=2, lead=True, uuid=uid(sid, 'mother'),
+            extra='YukkuriMouth:{Purpose:"CARE",Items:[{id:"minecraft:apple",count:1}]}' if hide else '', **pair_ready(), **traits),
+         yk('marisa', 12, 2, 'father', grade=1, uuid=uid(sid, 'father'), **pair_ready()),
+         *own('pet'), *own('father'), f'yukkuri scenario bond {sel("pet")} {sel("father")}', home('pet', 0, 5)],
+        late=[f'{_PENDING_BROOD} {child_pos}',
+              f'data merge entity {sel("child")} {{YukkuriFamily:{{Age:76000L,Nourishment:76000L,Scale:0.40f,AwaitingLanding:0b}},'
+              f'YukkuriChildhood:{{{CHILDHOOD_HOPPING}}},YukkuriLife:{{Nutrition:{45 if hide else 85}f}}}}'],
+        give=['mcyukkuri:field_notebook'], smoke=smoke, env=DAY, vantage=(0, -5, 0, 9))
+
+
 add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
     human('caretaker_brother', 4, -4, 'keeper', 4, yaw=180, label='店方饲养员'), *shed(-4, -3),
     # Five is the largest ordinary live litter; two spare nests beside the mother's (centres two blocks apart, so the bolsters do not
@@ -6359,6 +6406,7 @@ TOPICS = {
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
+    'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',

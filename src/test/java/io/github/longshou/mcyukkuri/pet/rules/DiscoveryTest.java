@@ -37,6 +37,29 @@ class DiscoveryTest {
         for (int t = 202; t <= 220; t++) assertFalse(sight.seen(sign, t));
         assertTrue(sight.seen(sign, 221));
     }
+
+    @Test void onlyAnIntelligibleDeliveredAdmissionCountsForItsWitness() {
+        assertEquals("confession", Observation.words(true, true, true, false));
+        assertNull(Observation.words(true, false, true, false));
+        assertNull(Observation.words(false, true, true, false));
+    }
+
+    @Test void theIdentifyingCallNeedsTheSameBroodAndBiologicalMother() {
+        UUID mother = UUID.randomUUID(), foster = UUID.randomUUID();
+        assertTrue(Observation.identifyingCall(brood, mother, brood, mother, true, true));
+        assertFalse(Observation.identifyingCall(brood, foster, brood, mother, true, true));
+        assertFalse(Observation.identifyingCall(brood, mother, UUID.randomUUID(), mother, true, true));
+        assertFalse(Observation.identifyingCall(brood, mother, brood, mother, true, false));
+        assertFalse(Observation.identifyingCall(brood, mother, brood, mother, false, true));
+    }
+
+    @Test void aWitnessedCallCanCompleteTheDecisiveObservation() {
+        for (int tick = 1; tick < 40; tick++) assertFalse(sight.seen(sign, tick));
+        assertNull(Observation.words(true, true, false, false)); // denial alone
+        assertNull(Observation.words(false, true, false, true)); // missed the denial
+        assertTrue(sight.seen(sign, 40));
+        assertEquals("lie_exposed", Observation.words(true, true, false, true));
+    }
     @Test void witnessesSubjectsAndInspectionWindowsCannotPoolAndReloadStartsFresh() {
         var secondJudge = new Observation.Sign(brood, 2, 7, false);
         var sibling = new Observation.Sign(brood, 1, 8, false);

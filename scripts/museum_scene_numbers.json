@@ -291,6 +291,10 @@
     "den_mold_keep": "DN-12",
     "exam_caught": "TN-53",
     "brood_unseen": "TN-54",
-    "need_tell": "MD-27"
+    "need_tell": "MD-27",
+    "arc_hide": "TN-55",
+    "arc_lie": "TN-56",
+    "arc_confess": "TN-57",
+    "arc_naive": "TN-58"
   }
 }

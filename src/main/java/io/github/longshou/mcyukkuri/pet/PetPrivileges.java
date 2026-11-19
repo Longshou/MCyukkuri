@@ -39,7 +39,10 @@ public final class PetPrivileges extends SavedData {
     public BadgeConduct conduct() { return conduct; }
     public static void award(Player player, BadgeConduct.Case entry) {
         award(player, entry, "unauthorized_found");
-        if (entry.verdict().cause().equals("exam")) award(player, entry, "caught_at_exam");
+        switch (entry.verdict().cause()) {
+            case "exam" -> award(player, entry, "caught_at_exam");
+            case "lie_exposed", "confession" -> award(player, entry, entry.verdict().cause());
+        }
     }
     private static void award(Player player, BadgeConduct.Case entry, String event) {
         if (SurvivalProgress.award(player, event))

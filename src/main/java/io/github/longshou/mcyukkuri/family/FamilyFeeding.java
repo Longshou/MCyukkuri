@@ -506,6 +506,7 @@ final class FamilyFeeding {
         if(carrying().isEmpty())return false;
         boolean handed=child.family().needsMash() ? child.life().beginParentMeal(o.entity(),carrying()) : child.life().beginMeal(carrying(),o.entity().getUUID(),true);
         if(!handed)return false;
+        o.entity().pet().discovery().fed(o.entity(), child);
         GameplayLog.event(o.entity(),"family","feed handed to meal child={} item={} mealTicks={} nutrition={}",
                 child.getUUID(),carrying(),child.life().mealTicks(),child.life().nutrition());
         o.careDecisions().complete(child,CareDecisionLedger.Need.FEED);

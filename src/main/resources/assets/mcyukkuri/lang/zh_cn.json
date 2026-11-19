@@ -1,4 +1,10 @@
 {
+  "badge.mcyukkuri.evidence.lie_exposed": "孩子叫了妈妈",
+  "badge.mcyukkuri.evidence.confession": "亲代当面坦白",
+  "advancement.mcyukkuri.lie_exposed.title": "不是我的小贝比！",
+  "advancement.mcyukkuri.lie_exposed.description": "亲眼看见刚否认亲缘的母油被自己的孩子叫了妈妈。",
+  "advancement.mcyukkuri.confession.title": "只求饶了孩子",
+  "advancement.mcyukkuri.confession.description": "听宠物亲口承认未经许可的胎次。",
   "badge.mcyukkuri.profile.owner_state.3": "失格",
   "badge.mcyukkuri.disqualified": "%s（失格）",
   "notebook.mcyukkuri.badge_verdict": "徽章档案\n%s（%s）\n第 %s 天 · %s\n胎次 %s",

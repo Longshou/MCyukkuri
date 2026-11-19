@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.OptionalLong;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
@@ -22,6 +23,8 @@ public final class Conscience {
     private long at;
     private boolean caught;
     private long reactAfter;
+    private record Encounter(UUID brood, int owner, BlockPos ownerAt, BlockPos parentAt, BlockPos childAt) {}
+    private Encounter refused;
 
     public Conscience(YukkuriEntity pet) { this.pet = pet; }
     public HouseRules household() { return HouseRules.get((ServerLevel) pet.level()); }
@@ -90,6 +93,14 @@ public final class Conscience {
     void reacted() { reactAfter = pet.level().getGameTime() + 1200; }
 
     boolean responseDue() { return pet.level().getGameTime() >= reactAfter; }
+
+    private Encounter encounter(UUID brood, LivingEntity owner, YukkuriEntity child) {
+        return new Encounter(brood, owner.getId(), owner.blockPosition(), pet.blockPosition(), child == null ? null : child.blockPosition());
+    }
+    boolean mayApproach(UUID brood, LivingEntity owner, YukkuriEntity child) {
+        return refused == null || !refused.equals(encounter(brood, owner, child));
+    }
+    void approachFailed(UUID brood, LivingEntity owner, YukkuriEntity child) { refused = encounter(brood, owner, child); }
 
     boolean confesses() { return pet.pet().obedience() >= 60 && pet.life().personality().temperament().is(Gate.CLEVER); }
 
