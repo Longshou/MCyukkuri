@@ -24,9 +24,11 @@ yukkuri_toilet and three dye styles, each with a dirty state: a rectangular litt
 beside the round bowl: a one-cell plastic rim with clipped corners round sand at y 2 in pixel grain. The dirty tray has
 damp clumps in the sand and two droppings.
 
-Carriers: an open woven basket with an arched handle across, in the three icon tints (natural STRAW, blue NAVYW, green
-SAGEW) with the pale lining folded over below the rim; the large carrier (12 places) is two units wider and deeper and
-one taller than the other two (4 and 6 places).
+Carriers: an open woven basket with an arched handle, in the three icon tints (natural STRAW, blue NAVYW, green SAGEW)
+with the pale lining folded over below the rim; the +Z front opens down to the y=1 floor with stepped wicker shoulders so
+seated occupants' faces stay visible (the fine carrier adds open-weave side viewing windows and iron handle clasps; the
+large carrier is two units wider and deeper and one taller, with its arched handle moved to the rear rim so it never
+crosses the multi-occupant seats).
 """
 import importlib.util, sys
 from pathlib import Path
@@ -351,46 +353,107 @@ def yukkuri_toilet_dirty(style=''):
 
 # =====================================================================================================================
 # Carriers: (half width, half depth, body height, wicker ramp, lining ramp).
+# Occupants face +Z on the y=1 floor (inner footprint 8x6 for plain/fine, 10x8 for large). At render scales 0.18-0.40
+# eyes sit at y=1.57-3.63 and faces at y=1.05-4.20, so the +Z front opens down to y=1 and the large handle moves to the
+# rear rim (z=-6..-5) so it never crosses the multi-occupant seats from above.
 CARRIERS = {'yukkuri_carrier': (6, 5, 7, 'STRAW', 'CREAM'), 'yukkuri_carrier_fine': (6, 5, 7, 'NAVYW', 'PAPER'),
             'yukkuri_carrier_large': (7, 6, 8, 'SAGEW', 'PAPER')}
 
 
 def carrier(name):
     hx, hz, top, wicker, lining = CARRIERS[name]
+    fine = name == 'yukkuri_carrier_fine'
+    large = name == 'yukkuri_carrier_large'
     b = kit.Block(name)
+    plan = kit.octagon(hx, 2, half_z=hz)
+    foot = kit.inset(plan)
+    inner = kit.inset(foot)
+    wall_ring = plan - foot
+    open_x = range(-4, 4) if large else range(-3, 3)
+
+    # Local wall height on the outer ring: wide +Z front opening down to y=1, stepped shoulders rising to full height.
+    def wall_top(x, z):
+        if z == hz - 1:
+            if x in open_x:
+                return 0
+            return 5 if fine else 4
+        if z == hz - 2 and x in (-hx + 1, hx - 2):
+            return 6 if fine else 5
+        if z == hz - 3 and x in (-hx, hx - 1):
+            return top if fine else 6
+        if large and z in (1, 2) and x in (-hx, hx - 1):
+            return 7
+        return top
+
+    # Precompute basket cells so weave() knows local rims, cut edges and window frames.
+    wall_cells = set()
+    for x, z in foot:
+        wall_cells.add((x, 0, z))
+    for x, z in foot - inner:
+        if not (z == hz - 2 and x in open_x):
+            wall_cells.add((x, 1, z))
+    for x, z in wall_ring:
+        h = wall_top(x, z)
+        for y in range(2, h):
+            # Fine basket: framed open-weave viewing windows on both sides forward of the handle posts (solid sill at y=2).
+            if fine and x in (-hx, hx - 1) and z in (1, 2) and 3 <= y <= 4:
+                continue
+            wall_cells.add((x, y, z))
 
     def weave(cell, face):
         x, y, z = cell
         if face == 'down':
             return (wicker, 0)
         if face == 'up':
-            return (lining, 3) if y < top - 1 else (wicker, 4)    # floor inside; lit rim
+            if y == 0:
+                if z == hz - 2 and x in open_x:
+                    return (wicker, 3)                             # woven threshold across the open front
+                return (lining, 3)                                 # lined floor
+            return (wicker, 4)                                     # lit braided rim on any wall top or sill
+        # Cut edges bordering the front opening or fine side windows read as bound wicker trim, not raw lining.
+        if face in ('east', 'west') and (x, z) in wall_ring and z >= hz - 3:
+            if (x + (1 if face == 'east' else -1), y, z) not in wall_cells and not kit.inward(cell, face):
+                return (wicker, 3 if y % 2 else 2)
+        if fine and x in (-hx, hx - 1) and face in ('north', 'south') and z in (0, 3) and 2 <= y <= 4:
+            return (wicker, 3 if y % 2 else 2)
         if kit.inward(cell, face):
             return (lining, 2 if y < top - 2 else 3)               # the lining inside
-        if y == top - 1:
+        is_rim = (x, y + 1, z) not in wall_cells and y >= 2
+        if is_rim:
             return (wicker, 4 if (x + z) % 2 else 3)              # braided rim
-        if y == top - 2:
-            return (lining, 3)                                     # the lining folded over below the rim
+        if y == top - 2 and (x, y + 1, z) in wall_cells:
+            return (lining, 3)                                     # the lining folded over below the full rim
         k = (x + z + 2 * y) % 4                                    # over-under weave, rows offset by two
         return (wicker, 3 if k == 0 else 1 if k == 3 else 2)
+
     basket = kit.Material(wicker, pattern=weave, bevel=False)
-    plan = kit.octagon(hx, 2, half_z=hz)
-    foot = kit.inset(plan)
     body = b.part('basket')
-    body.layer(foot, 0, 1, basket)                                 # base, one cell in from the wall: a tapered foot
-    body.layer(foot - kit.inset(foot), 1, 2, basket)
-    body.layer(plan - foot, 2, top, basket)
+    for cell in sorted(wall_cells):
+        body.cell(cell, basket)
 
     def cane(cell, face):
         x, y, z = cell
+        if (fine or large) and y == top:
+            return ('IRON', 4 if face == 'up' else 3 if (x + z) % 2 else 2)  # iron handle clasps (matches recipe)
         return (wicker, 4 if face == 'up' else 3 if (x + y) % 2 else 2)
+
     handle = b.part('handle')
     cane_material = kit.Material(wicker, pattern=cane, bevel=False)
-    for x in (-hx, hx - 1):                                        # posts on the side rims, stepping in to the bar
-        handle.box((x, top, -1), (x + 1, top + 2, 1), cane_material)
-    handle.box((-hx + 1, top + 2, -1), (-hx + 2, top + 3, 1), cane_material)
-    handle.box((hx - 2, top + 2, -1), (hx - 1, top + 3, 1), cane_material)
-    handle.box((-hx + 2, top + 3, -1), (hx - 2, top + 4, 1), cane_material)
+    if large:
+        # Rear-mounted arched handle over the back rim (z=-6..-5), completely behind the 10x8 seating area (z=-4..4).
+        for x in (-hx + 1, hx - 2):
+            handle.box((x, top, -hz + 1), (x + 1, top + 1, -hz + 2), cane_material)
+        for x in (-hx + 2, hx - 3):
+            handle.box((x, top, -hz), (x + 1, top + 3, -hz + 1), cane_material)
+        handle.box((-hx + 3, top + 2, -hz), (-hx + 4, top + 3, -hz + 1), cane_material)
+        handle.box((hx - 4, top + 2, -hz), (hx - 3, top + 3, -hz + 1), cane_material)
+        handle.box((-hx + 3, top + 3, -hz), (hx - 3, top + 4, -hz + 1), cane_material)
+    else:
+        for x in (-hx, hx - 1):                                    # posts on the side rims, stepping in to the bar
+            handle.box((x, top, -1), (x + 1, top + 2, 1), cane_material)
+        handle.box((-hx + 1, top + 2, -1), (-hx + 2, top + 3, 1), cane_material)
+        handle.box((hx - 2, top + 2, -1), (hx - 1, top + 3, 1), cane_material)
+        handle.box((-hx + 2, top + 3, -1), (hx - 2, top + 4, 1), cane_material)
     return b
 
 
