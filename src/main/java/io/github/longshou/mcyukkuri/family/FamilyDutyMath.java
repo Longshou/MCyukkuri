@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
-final class FamilyDutyMath {
+public final class FamilyDutyMath {
     private FamilyDutyMath() {}
 
     static double patrolRadius(int boldness, int attachment) {
@@ -18,7 +18,7 @@ final class FamilyDutyMath {
     }
 
     static double searchSpread(int intelligence) { return 20 + .4 * intelligence; }
-    static int beckonPatience(int attachment, int selfControl) { return 200 + 3 * attachment + 2 * selfControl; }
+    public static int beckonPatience(int attachment, int selfControl) { return 200 + 3 * attachment + 2 * selfControl; }
 
     static double[][] patrolOffsets(double radius, boolean hasMouth) {
         var angles = hasMouth ? new int[]{60, -60, 90, -90} : new int[]{45, 135, 225, 315};
