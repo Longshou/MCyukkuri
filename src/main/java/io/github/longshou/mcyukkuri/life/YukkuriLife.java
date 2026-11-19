@@ -129,8 +129,8 @@ public final class YukkuriLife {
     private int bowlBiteTicks;
     private MealRoute foodRoute;
     /** Only rejected food destinations in reach of the present approach origin. */
-    private final Map<BlockPos, Vec3> refusedFood = new HashMap<>();
-    private Vec3 refusedFoodFrom;
+    private final Map<BlockPos, Vec3> refusedServings = new HashMap<>();
+    private Vec3 refusedServingFrom;
     private BlockPos refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private boolean useBowlNicely;
@@ -959,7 +959,7 @@ public final class YukkuriLife {
             for (var item : offered.stream().sorted(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                     .thenComparingDouble(entity::distanceToSqr)).toList()) {
                 if (!TravelRange.babyDestination(entity, item.blockPosition())) { outOfBabyRange++; continue; }
-                if (canCollect && !item.hasPickUpDelay() && foodRouteAvailable(item.position())
+                if (canCollect && !item.hasPickUpDelay() && servingRouteAvailable(item.position())
                         && (entity.distanceToSqr(item) < .5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(), false))) {
                     targetFood = item;
                     break;
@@ -1375,9 +1375,9 @@ public final class YukkuriLife {
     /** A slave kept in its group's waste pit lives on what lies there (settlement/PitSlave): no food or bed errands outside it. */
     private boolean penned() { return entity.settlement().duties().pit().penned(); }
 
-    boolean foodRouteAvailable(Vec3 source) {
-        if (refusedFoodFrom == null || entity.distanceToSqr(refusedFoodFrom) >= 4) return true;
-        var refused = refusedFood.get(BlockPos.containing(source));
+    boolean servingRouteAvailable(Vec3 source) {
+        if (refusedServingFrom == null || entity.distanceToSqr(refusedServingFrom) >= 4) return true;
+        var refused = refusedServings.get(BlockPos.containing(source));
         return refused == null || refused.distanceToSqr(source) >= .16;
     }
 
@@ -1390,9 +1390,14 @@ public final class YukkuriLife {
 
     private void tickDrink() {
         var source = home.drinkSource(targetBlock);
-        if (source == null || pursuitTicks > 240) { stopGoal(); return; }
+        if (source == null) { stopGoal(); return; }
         if (source.empty()) { refuseEmptyDrink(); return; }
         var waterer = source.waterer();
+        if (pursuitTicks > 240) {
+            if (waterer != null) refuseDishRoute("dish_pursuit_expired");
+            else stopGoal();
+            return;
+        }
         if (waterer != null) {
             if (!drinkAtWaterer()) return;
         } else {
@@ -1431,8 +1436,10 @@ public final class YukkuriLife {
 
     private boolean drinkAtWaterer() {
         if (!entity.component(YukkuriComponents.MOUTH).freeForExternalWork()) { stopGoal(); return false; }
+        // A descending body has no grounded last step to test yet.
+        if (!entity.onGround()) { drinkTicks = 0; return false; }
         if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
-        if (bowlStand == null) { stopGoal(); return false; }
+        if (bowlStand == null) { refuseDishRoute("no_reachable_dish_stand"); return false; }
         if (drinkTicks == 0 && entity.distanceToSqr(Vec3.atCenterOf(targetBlock)) < 4
                 && !level().getEntitiesOfClass(YukkuriEntity.class, new AABB(targetBlock).inflate(2), other ->
                 other != entity && other.isAlive() && other.life().task == Task.DRINK && other.life().drinkTicks > 0
@@ -1446,20 +1453,17 @@ public final class YukkuriLife {
     }
 
     private boolean meetDish() {
-        // A just-spawned or descending body has no grounded last step to test yet.
-        if (!entity.onGround()) return false;
         var feet = bowlStand.feet();
         if (!bowlStand.at(entity)) {
             if (!SurfaceApproach.tryStraightStep(entity, feet, 1)
-                    && SurfaceApproach.walkToContact(entity, feet, null, 1) == SurfaceApproach.Result.BLOCKED) {
-                if (task == Task.FOOD) refuseFoodRoute(Vec3.atBottomCenterOf(targetBlock), feet, SurfaceApproach.why(entity, feet));
-                else stopGoal();
-            }
+                    && SurfaceApproach.walkToContact(entity, feet, null, 1) == SurfaceApproach.Result.BLOCKED)
+                refuseDishRoute(SurfaceApproach.why(entity, feet));
             return false;
         }
         SurfaceApproach.halt(entity);
-        SurfaceApproach.face(entity, SurfaceApproach.yaw(feet, bowlStand.contact()));
-        return bowlStand.reaches(entity);
+        if (!bowlStand.clearFrom(entity, entity.position())) { refuseDishRoute("muzzle_path_blocked"); return false; }
+        SurfaceApproach.face(entity, bowlStand.yaw());
+        return bowlStand.facing(entity);
     }
 
     private boolean takingFromDish() {
@@ -1482,20 +1486,26 @@ public final class YukkuriLife {
     private void approachFood(Vec3 source, Vec3 stand, Vec3 face) {
         SurfaceApproach.walk(entity, stand, 1.15);
         if (SurfaceApproach.lastResult(entity, stand) == SurfaceApproach.Result.BLOCKED) {
-            refuseFoodRoute(source, stand, SurfaceApproach.why(entity, stand));
+            refuseServingRoute(source, stand, SurfaceApproach.why(entity, stand));
             return;
         }
         SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), face));
     }
 
-    private void refuseFoodRoute(Vec3 source, Vec3 stand, String reason) {
+    private void refuseDishRoute(String reason) {
+        refuseServingRoute(Vec3.atBottomCenterOf(targetBlock), bowlStand == null ? null : bowlStand.feet(), reason);
+    }
+
+    private void refuseServingRoute(Vec3 source, Vec3 stand, String reason) {
         // Two blocks means a new approach origin, beyond the small motions at a blocked last step.
-        if (refusedFoodFrom == null || entity.distanceToSqr(refusedFoodFrom) >= 4) {
-            refusedFoodFrom = entity.position();
-            refusedFood.clear();
+        if (refusedServingFrom == null || entity.distanceToSqr(refusedServingFrom) >= 4) {
+            refusedServingFrom = entity.position();
+            refusedServings.clear();
         }
-        refusedFood.put(BlockPos.containing(source), source);
-        GameplayLog.limited(entity,"meal","food_route",200,"food approach refused source={} stand={} reason={}",
+        refusedServings.put(BlockPos.containing(source), source);
+        boolean drink = task == Task.DRINK;
+        GameplayLog.limited(entity, drink ? "needs" : "meal", drink ? "water_route" : "food_route", 200,
+                "{} approach refused source={} stand={} reason={}", drink ? "water" : "food",
                 GameplayLog.at(source), stand == null ? "-" : GameplayLog.at(stand), reason);
         SurfaceApproach.stopWalking(entity);
         stopGoal();
@@ -1543,7 +1553,12 @@ public final class YukkuriLife {
     }
 
     private void seekFood() {
-        if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240) { stopGoal(); return; }
+        if (!canEat() || !EventHooks.canEntityGrief(level(), entity)) { stopGoal(); return; }
+        if (pursuitTicks > 240) {
+            if (targetFood == null && targetBlock != null) refuseDishRoute("dish_pursuit_expired");
+            else stopGoal();
+            return;
+        }
         if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !seeksFood(targetFood.getItem()))) {
             targetFood = null;
             foodRoute = null;
@@ -1581,24 +1596,24 @@ public final class YukkuriLife {
             }
         } else if (targetBlock != null && !avoidsField(targetBlock)
                 && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
-            Vec3 source = Vec3.atBottomCenterOf(targetBlock);
+            if (!entity.onGround()) { bowlBiteTicks = 0; return; }
             if (bowlStand == null) {
                 bowlStand = ItemContact.bowlStand(entity, targetBlock);
                 if (bowlStand != null && useBowlNicely)
-                    foodRoute = MealRoute.choose(entity, bowlStand.contact(), SurfaceApproach.yaw(bowlStand.feet(), bowlStand.contact()), false);
+                    foodRoute = MealRoute.choose(entity, bowlStand.aboveLip(), bowlStand.yaw(), false);
             }
             if (bowlStand == null) {
-                refuseFoodRoute(source, null, "no_reachable_bowl_face");
+                refuseDishRoute("no_reachable_dish_stand");
                 return;
             }
-            if (foodRoute != null && !braidAtFood(bowlStand.contact())) return;
+            if (foodRoute != null && !braidAtFood(bowlStand.aboveLip())) return;
             if (foodRoute == null) {
                 if (!meetDish()) { bowlBiteTicks = 0; return; }
                 if (++bowlBiteTicks <= DishFit.firstContact(ClipMarkers.of("eat").length(), false)) return;
             }
             if (useBowlNicely) {
                 if (foodRoute != null) {
-                    var contact = bowlStand.contact();
+                    var contact = bowlStand.aboveLip();
                     if (!meal.beginTuftMeal(foodRoute, new MealRoute.Serving(() -> contact,
                             receiver -> handBowlFood(bowl, receiver, "braid"),
                             one -> MealRoute.restore(entity, bowl, one), true, null))) stopGoal();
@@ -1875,6 +1890,6 @@ public final class YukkuriLife {
         entity.syncWear();
         pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
         personality.load(tag.getCompound("Personality"));
-        task=Task.NONE; targetFood=null; targetBlock=null; refusedFood.clear(); refusedFoodFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
+        task=Task.NONE; targetFood=null; targetBlock=null; refusedServings.clear(); refusedServingFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
     }
 }

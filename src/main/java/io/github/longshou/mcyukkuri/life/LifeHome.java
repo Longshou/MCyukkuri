@@ -255,23 +255,20 @@ final class LifeHome {
         for (BlockPos scan : candidates) {
             if (!TravelRange.babyDestination(entity, scan) || !level.hasChunkAt(scan)
                     || !(level.getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
-            if (requireFood && (o.avoidsField(scan) || !care.hasFood(o::seeksFood) || !o.foodRouteAvailable(Vec3.atBottomCenterOf(scan)))
+            if (requireFood && (o.avoidsField(scan) || !care.hasFood(o::seeksFood))
                     || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
                     || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())
                     || kind == CareBlock.Kind.WATERER && care.water() == 0) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {
-                boolean access = false;
-                if (kind == CareBlock.Kind.TOILET) {
-                    access = ToiletContact.facilitySeat(o.entity(), scan) != null && o.reachable(scan.above(), false);
-                } else if (kind == CareBlock.Kind.NEST) {
-                    Vec3 stand = entrance(scan); access = stand != null && SurfaceApproach.canApproach(o.entity(), stand);
-                } else if (kind == CareBlock.Kind.WATERER) {
-                    access = ItemContact.bowlStand(entity, scan) != null;
-                } else for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    BlockPos stand = scan.relative(direction);
-                    if (dryStand(stand) && o.reachable(stand,false)) { access=true; break; }
-                }
+                boolean access = switch (kind) {
+                    case BOWL, WATERER -> o.servingRouteAvailable(Vec3.atBottomCenterOf(scan)) && ItemContact.bowlStand(entity, scan) != null;
+                    case TOILET -> ToiletContact.facilitySeat(o.entity(), scan) != null && o.reachable(scan.above(), false);
+                    case NEST -> {
+                        Vec3 stand = entrance(scan);
+                        yield stand != null && SurfaceApproach.canApproach(o.entity(), stand);
+                    }
+                };
                 if (access) { best = scan.immutable(); distance = candidate; }
             }
         }

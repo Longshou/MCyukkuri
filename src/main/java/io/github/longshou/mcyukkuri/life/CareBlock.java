@@ -46,8 +46,8 @@ import java.util.List;
 /** Small survival facilities. Inventory and residence are owned by the block entity. */
 public class CareBlock extends Block implements EntityBlock {
     public enum Kind { BOWL, NEST, TOILET, WATERER }
-    public static final VoxelShape WATERER_DISH = box(1, 0, 1, 15, 2, 15);
-    public static final VoxelShape FOOD_DISH = box(1, 0, 1, 15, 3, 15);
+    private static final VoxelShape WATERER_DISH = box(1, 0, 1, 15, 2, 15);
+    private static final VoxelShape FOOD_DISH = box(1, 0, 1, 15, 3, 15);
     private static final VoxelShape WATERER_SHAPE = Shapes.or(WATERER_DISH, box(5, 1, 5, 11, 12, 11));
     private final Kind kind;
     private final String style;
@@ -104,6 +104,14 @@ public class CareBlock extends Block implements EntityBlock {
         // A toilet is a low step with a standing surface, not an open cell at ground height.
         return kind != Kind.TOILET && super.isPathfindable(state, type);
     }
+    public VoxelShape dish() {
+        return switch (kind) {
+            case BOWL -> FOOD_DISH;
+            case WATERER -> WATERER_DISH;
+            default -> throw new IllegalStateException("Care block has no dish: " + kind);
+        };
+    }
+
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch(kind){
             case BOWL -> FOOD_DISH;

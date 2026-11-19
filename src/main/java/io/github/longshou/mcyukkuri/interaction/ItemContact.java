@@ -72,22 +72,27 @@ public final class ItemContact {
                     && SurfaceApproach.supportedGround(actor, actor.position());
         }
 
-        public boolean reaches(YukkuriEntity actor) {
-            if (!at(actor)) return false;
-            float yaw = SurfaceApproach.yaw(feet, contact);
-            if (Math.abs(Mth.wrapDegrees(yaw - actor.bodyYaw())) > .1) return false;
+        public float yaw() { return SurfaceApproach.yaw(feet, contact); }
+
+        public boolean facing(YukkuriEntity actor) {
+            return Math.abs(Mth.wrapDegrees(yaw() - actor.bodyYaw())) <= .1;
+        }
+
+        public boolean reaches(YukkuriEntity actor) { return at(actor) && facing(actor) && clearFrom(actor, actor.position()); }
+
+        public Vec3 aboveLip() { return contact.add(0, .0001, 0); }
+
+        public boolean clearFrom(YukkuriEntity actor, Vec3 stand) {
             // The muzzle folds over the ceramic. A small body's eyes can be below the lip.
-            var lip = contact.add(0, .0001, 0);
-            return clear(actor, new Vec3(actor.getX(), Math.max(actor.getEyeY(), lip.y), actor.getZ()), lip);
+            var lip = aboveLip();
+            return clear(actor, new Vec3(stand.x, Math.max(stand.y + actor.getEyeHeight(), lip.y), stand.z), lip);
         }
     }
 
     /** A flat-sided bowl needs a body-sized stand off an exposed face. A radial step toward a corner can overlap its rim. */
     public static BowlStand bowlStand(YukkuriEntity actor, BlockPos bowl) {
         var level = actor.level();
-        var state = level.getBlockState(bowl);
-        boolean waterer = state.getBlock() instanceof CareBlock care && care.kind() == CareBlock.Kind.WATERER;
-        var rim = (waterer ? CareBlock.WATERER_DISH : CareBlock.FOOD_DISH).bounds().move(bowl);
+        var rim = ((CareBlock) level.getBlockState(bowl).getBlock()).dish().bounds().move(bowl);
         var center = rim.getCenter();
         Vec3 mouth = MouthPlacement.position(actor).subtract(actor.position());
         var fit = DishFit.stand(actor.getBbWidth() * 8, SurfaceApproach.supportRadius(actor) * 16,
@@ -101,13 +106,15 @@ public final class ItemContact {
             var stand = top.add(outward.scale(fit.x() / 16)).add(across.scale(fit.z() / 16));
             var contact = top.add(outward.scale(fit.lipX() / 16)).add(across.scale(fit.lipZ() / 16));
             var foot = SurfaceApproach.floor(actor, stand);
-            // Between perch and adult sizes the planted body stretches up to the rim from the dish's own floor.
+            // Between perch and adult sizes the planted body stretches up from the floor beside the dish.
             if (foot == null || (fit.perched() ? Math.abs(foot.y - rim.maxY) > .001
                     : contact.y < foot.y || contact.y - foot.y > Math.max(actor.getBbHeight(), rim.getYsize()))) continue;
+            var candidate = new BowlStand(foot, contact);
+            if (!candidate.clearFrom(actor, foot)) continue;
             double distance = SurfaceApproach.routeLength(actor, foot, null);
             if (distance >= shortest) continue;
             shortest = distance;
-            chosen = new BowlStand(foot, contact);
+            chosen = candidate;
         }
         return chosen;
     }
