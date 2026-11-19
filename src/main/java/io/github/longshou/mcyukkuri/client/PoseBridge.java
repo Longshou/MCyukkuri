@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.Clips;
+import io.github.longshou.mcyukkuri.pose.ClipBlend;
+import io.github.longshou.mcyukkuri.pose.ContactBounds;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Set;
@@ -25,6 +27,11 @@ final class PoseBridge {
     };
 
     private PoseBridge() {}
+
+    static State drawn(YukkuriView entity) {
+        var state = history.get(entity);
+        return state != null && state.owner.get() == entity ? state : null;
+    }
 
     static Mode mode(boolean preview, boolean constrained, int hurt, int death, String water, String behavior) {
         if (preview) return Mode.OFF;
@@ -70,11 +77,14 @@ final class PoseBridge {
         private final float[] from, last;
         private String clip;
         private boolean looping;
+        boolean contactFit;
         private long lastSeen;
         private double changed;
         private float window, contactTick, fromPuff;
         String fromClip;
         float weight, puff;
+        final ContactBounds bounds = new ContactBounds();
+        long boundsFrame = -1;
 
         State(YukkuriView entity, float[][] rig) {
             owner = new WeakReference<>(entity);
@@ -83,11 +93,18 @@ final class PoseBridge {
             last = new float[from.length];
         }
 
-        void sample(Mode mode, String incoming, boolean loop, float sampleTicks, float tempo, double now, float incomingPuff) {
+        void takeContactFrame(ClipBlend fit) {
+            contactFit = true;
+            if (!fit.takeContactFrame(rig, last)) weight = 1;
+        }
+
+        void sample(Mode mode, String incoming, boolean loop, float sampleTicks, float tempo, double now, float incomingPuff,
+                    ClipBlend fit, boolean external) {
             if (!incoming.equals(clip)) {
                 fromClip = clip;
                 changed = now;
                 window = 0;
+                contactFit = false;
                 // A fresh packet can be a tick or two late. Further into the clip, join its live clock.
                 if (clip != null && mode == Mode.BLEND && sampleTicks <= 3) {
                     contactTick = firstContactTick(incoming, clip);
@@ -101,15 +118,13 @@ final class PoseBridge {
             }
             if (mode == Mode.RECORD || sampleTicks >= contactTick) window = 0;
             weight = window > 0 ? Clips.smooth((float)((now - changed) / window)) : 1;
-            puff = weight < 1 ? fromPuff + weight * (incomingPuff - fromPuff) : incomingPuff;
+            // Once a contact took its incoming frame, a later draw order must not pull it back.
+            if (weight < 1 && external) contactFit = true;
+            puff = weight < 1 && !fit.keepPuff(contactFit) ? fromPuff + weight * (incomingPuff - fromPuff) : incomingPuff;
+            if (weight < 1 && !fit.apply(rig, from, weight, contactFit) && fit.keepPuff(contactFit)) weight = 1;
             for (int i = 0; i < rig.length; i++) {
                 float[] bone = rig[i];
                 int offset = i * 9;
-                if (weight < 1) for (int k = 0; k < 9; k++) {
-                    float start = from[offset + k], delta = bone[k] - start;
-                    if (k >= 3 && k < 6) delta -= 360 * Math.floor((delta + 180) / 360);
-                    bone[k] = start + weight * delta;
-                }
                 System.arraycopy(bone, 0, last, offset, 9);
             }
         }

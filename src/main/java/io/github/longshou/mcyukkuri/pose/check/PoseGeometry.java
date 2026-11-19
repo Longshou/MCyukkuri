@@ -7,10 +7,12 @@ import org.joml.Vector3f;
 
 /** Geometry evidence assembled from the already evaluated core skin, in common world mu. */
 public final class PoseGeometry {
+    public static final int PARTNER_BLOCKS = 2;
+    private static final Set<String> BODY_PARTS = Set.of("rounded_body_surface", "house_body_surface", "predator_body_surface", "deficient_body_surface");
     private PoseGeometry() {}
     public static String group(String name) {
         if(name.startsWith("braid_lock"))return "braid";
-        if(name.startsWith("soft_head_slice_")||List.of("rounded_body_surface","house_body_surface","predator_body_surface","deficient_body_surface").contains(name))return "body";
+        if(name.startsWith("soft_head_slice_")||BODY_PARTS.contains(name))return "body";
         if(name.contains("hair")||name.startsWith("bang")||name.startsWith("back_lock"))return "hair";
         if(name.startsWith("hat_")||name.startsWith("brim_")||name.startsWith("bow_"))return "hat";
         if(name.contains("tail"))return "tail";
@@ -56,7 +58,7 @@ public final class PoseGeometry {
             var om=other.getAsJsonObject("meshes");
             boolean host=entry.getKey().equals(hostId);
             double distance=PoseChecks.vector(f.get("position")).distance(PoseChecks.vector(other.get("position")));
-            if(!host&&distance>32)continue;
+            if(!host&&distance>16*PARTNER_BLOCKS)continue;
             if(other.has("geometry_error"))f.addProperty("geometry_error","partner: "+other.get("geometry_error").getAsString());
             String prefix=entry.getKey()+"/";
             for(String group:List.of("body","hair","hat","tail"))if(om.has(group))meshes.add(prefix+group,om.get(group));

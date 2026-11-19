@@ -31,6 +31,7 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 /** Client-only entry point; never referenced by common startup. */
@@ -85,6 +86,9 @@ public final class ClientRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, BodyEffectsRenderer::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, ParentCarryPresentation::tick);
         NeoForge.EVENT_BUS.addListener(EntityTickEvent.Post.class, WallClearance::observePartner);
+        NeoForge.EVENT_BUS.addListener(EntityJoinLevelEvent.class, PoseNeighbors::join);
+        NeoForge.EVENT_BUS.addListener(EntityLeaveLevelEvent.class, PoseNeighbors::leave);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, PoseNeighbors::stage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, InputEvent.InteractionKeyMappingTriggered.class, HatInteractionTrace::trace);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, RenderLevelStageEvent.class, WoundLod::stage);

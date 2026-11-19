@@ -11,6 +11,9 @@ import io.github.longshou.mcyukkuri.pose.Compose;
 import io.github.longshou.mcyukkuri.pose.DishFit;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.Intensity;
+import io.github.longshou.mcyukkuri.pose.ClipBlend;
+import io.github.longshou.mcyukkuri.pose.BraidClearance;
+import io.github.longshou.mcyukkuri.pose.ContactBounds;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.PaperTent;
@@ -59,6 +62,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.BiConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
@@ -93,6 +97,7 @@ public final class YukkuriModel {
     private final float[] restVertices;
     private final int[] featureBones;
     private final Map<Integer,Matrix4f> featureTransforms=new HashMap<>();
+    private final BiConsumer<Integer,Matrix4f> updateFeature=this::updateFeature;
     private final Map<String,List<Patch>> expressionPatches=new HashMap<>();
     private List<Patch> activePatches=List.of();
     private final String id;
@@ -177,6 +182,9 @@ public final class YukkuriModel {
     private JsonObject badgeMount;
     private final BadgeDraw badgeDraw=new BadgeDraw(this);
     private final Binding[] bindings;
+    private final ClipBlend fitted;
+    private final BraidClearance braidClearance;
+    private final WallYield.Skinner fittedSkin = this::skin;
     private final Bone[] bones;
     private final List<Part> parts = new ArrayList<>();
     private final Map<Part,Integer> staticHairMasks = new IdentityHashMap<>();
@@ -870,6 +878,8 @@ public final class YukkuriModel {
                 Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
             }
         }
+        fitted = new ClipBlend(bones, bindings, data.getAsJsonArray("parts"));
+        braidClearance = BraidClearance.of(data.getAsJsonArray("parts"));
         if(data.has("puff_surface")) {
             puffOffsets=new float[vertices.length/8*3];
             JsonObject surface=data.getAsJsonObject("puff_surface");puffPartIndex=surface.get("part_index").getAsInt();
@@ -1124,10 +1134,27 @@ public final class YukkuriModel {
         boolean allowPuff = !gripping && !drawingSurfaceMarks && woundDisplay == null;
         bridgeWeight = 1;
         bridgeFrom = null;
+        PoseBridge.State bridge = null;
+        boolean measure = false, trial = false;
         if (mode != PoseBridge.Mode.OFF) {
             long tick = entity.level().getGameTime();
-            var bridge = PoseBridge.history(entity, pose, tick);
-            bridge.sample(mode, sampledClip, drawn.loop, sampledTime * 20, tempo, (double)tick + partial, puffAmount);
+            bridge = PoseBridge.history(entity, pose, tick);
+            bridge.boundsFrame = -1;
+            boolean near = PoseNeighbors.near;
+            // A solver in an external frame can move the skin even under a common rigid bone transform.
+            boolean constrained = wallClearance != null || dishTarget != null || wear != 0 || delivery != null || pregnancyBelly > 0
+                    || woundDisplay != null || drawingSurfaceMarks || holdingItem || mouthHolding || gripping || braidPose.active()
+                    || Float.isFinite(careTargetMouthY) || Float.isFinite(boardingPitch) || carryLean > 0 || selfHatPose != null
+                    || carryCurlLeft > 0 || carryCurlRight > 0 || carryLoad > 0 || carryCheeks > 0 || hatInBraid > 0
+                    || entity.isPassenger() || entity.isVehicle() || !ContactBounds.uniformFrame(stack.last().pose())
+                    || braidClearance != null && (puffAmount > 0 || hatScale != 1);
+            // Replacement and damaged hats emit additional surfaces outside the ordinary skinned parts.
+            measure = near && !constrained
+                    && hatProp == null && Headwear.visualJunk(entity.visibleHeadwear()) == null
+                    && hatDamageDraw.level() == 0 && hatDamageDraw.fit() == 1 && puffAmount == 0;
+            trial = measure && PoseNeighbors.complete && fitted.keepPuff(false) && hatScale == 1;
+            boolean external = constrained || near && !trial;
+            bridge.sample(mode, sampledClip, drawn.loop, sampledTime * 20, tempo, (double)tick + partial, puffAmount, fitted, external);
             bridgeWeight = bridge.weight;
             bridgeFrom = bridge.fromClip;
             if (!allowPuff) bridge.puff = 0;
@@ -1208,7 +1235,7 @@ public final class YukkuriModel {
             }
         }
         if (delivery != null) delivery.follow(world[rootBone()]);
-        featureTransforms.forEach((bone,matrix)->Compose.feature(bones,world,bone,matrix,featureParentInverse));
+        featureTransforms.forEach(updateFeature);
         if (dishTarget != null) {
             boolean drinking = behavior.equals(Behaviors.DRINK);
             float progress = Math.clamp(behaviorTicks / DishFit.firstContact(ClipMarkers.of(drinking ? "drink" : "eat").length(), drinking), 0, 1);
@@ -1254,14 +1281,70 @@ public final class YukkuriModel {
             // A swaddle or leaf lies under the hair: read the final posed skin before any hair is drawn (CareWearRenderer.clearHair).
             wearClear=false;
             if(wear!=0)wearClear=CareWearRenderer.prepareClearance(this,wear);
-            renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss);
+            ContactBounds observe = measure ? bridge.bounds : null;
+            if (observe != null) observe.clear();
+            if (bridgeWeight < 1 && !bridge.contactFit) {
+                boolean clear = braidClearance == null || braidClearance.clear(fittedSkin, PoseNeighbors.basis);
+                if (clear && trial) {
+                    posedBounds(observe, accessory, hairLoss);
+                    observe.place(PoseNeighbors.basis);
+                    clear = PoseNeighbors.separate(observe);
+                    if (clear) observe = null; // The tested bounds already describe the draw.
+                }
+                if (!clear) {
+                    bridge.takeContactFrame(fitted);
+                    bridgeWeight = bridge.weight;
+                    composeWorld();
+                    featureTransforms.forEach(updateFeature);
+                    skinningCache.begin();
+                    if (observe != null) observe.clear();
+                }
+            }
+            renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss,observe);
+            if (observe != null) observe.place(PoseNeighbors.basis);
+            if (measure) bridge.boundsFrame = PoseNeighbors.frame;
         } finally {
             skinningCache.end();
         }
     }
 
+    private void updateFeature(Integer bone, Matrix4f matrix) {
+        Compose.feature(bones,world,bone,matrix,featureParentInverse);
+    }
+
+    private static int boundGroup(Part part, boolean worn) {
+        return switch (worn ? "hat" : PoseGeometry.group(part.name)) {
+            case "body" -> ContactBounds.BODY;
+            case "hair" -> ContactBounds.HAIR;
+            case "hat" -> ContactBounds.HAT;
+            default -> -1;
+        };
+    }
+
+    private void posedBounds(ContactBounds bounds, boolean accessory, int hairLoss) {
+        var point = triangle[0];
+        for (int i = 0; i < parts.size(); i++) {
+            var part = parts.get(i);
+            boolean worn = accessoryPart(part);
+            if (worn && !accessory || hairHidden(part, hairLoss)) continue;
+            int group = boundGroup(part, worn);
+            if (group < 0) continue;
+            var curled = tailCurl == null ? null : tailCurl.part(i);
+            for (int v = part.start; v < part.start + part.count; v++) {
+                skin(v, point);
+                if (curled != null) curled.transformPosition(point);
+                // The draw computes a unit card normal later. Enclose every possible lift direction.
+                if (part.cardNormal != null) {
+                    bounds.add(group, point.sub(CARD_LIFT, CARD_LIFT, CARD_LIFT));
+                    point.add(2 * CARD_LIFT, 2 * CARD_LIFT, 2 * CARD_LIFT);
+                }
+                bounds.add(group, point);
+            }
+        }
+    }
+
     private void renderPosed(String action,PoseStack stack,VertexConsumer buffer,int light,int overlay,
-                             boolean accessory,int hairLoss) {
+                             boolean accessory,int hairLoss,ContactBounds observe) {
         PoseStack.Pose transform=stack.last();
         if(accessory&&hatDamageDraw.fit()<.999f)hatDamageDraw.poseHatSeat();
         if(puffNormals!=null&&puffAmount>0&&!drawingWoundedBody){
@@ -1308,6 +1391,7 @@ public final class YukkuriModel {
         var bodyBuffer=buffer;
         for (int partIndex=0;partIndex<parts.size();partIndex++) {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
+            int bound = observe == null ? -1 : boundGroup(part, accessoryPart(part));
             buffer=evidenceBuffer(part.name,bodyBuffer);
             if(drawingWoundedBody&&WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
@@ -1367,6 +1451,7 @@ public final class YukkuriModel {
                     int index=fourth>=0?(rotation+corner)%3:Math.min(corner,2);
                     boolean last=fourth>=0&&corner==3;
                     Vector3f point=last?fourthCorner:triangle[index];
+                    if (bound >= 0) observe.add(bound, point);
                     int vertex=last?fourth:first+index;
                     int uv = vertex * 8 + 3;
                     Vector3f vertexNormal=houseNormals!=null&&houseNormals.groups[vertex]>=0
@@ -1700,7 +1785,8 @@ public final class YukkuriModel {
     }
     boolean accessoryPart(Part part){
         // This configuration reloads after model construction, so read the current prefixes.
-        for(String prefix:LivingPresentation.variants.get(id).accessoryPrefixes())if(part.name.startsWith(prefix))return true;
+        var prefixes=LivingPresentation.variants.get(id).accessoryPrefixes();
+        for(int i=0;i<prefixes.size();i++)if(part.name.startsWith(prefixes.get(i)))return true;
         return false;
     }
     private boolean hairHidden(Part part,int loss){

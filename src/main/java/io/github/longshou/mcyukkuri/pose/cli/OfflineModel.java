@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pose.cli;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import io.github.longshou.mcyukkuri.body.ModelFingerprint;
 import io.github.longshou.mcyukkuri.pose.*;
 import io.github.longshou.mcyukkuri.pose.check.PoseChecks;
@@ -30,6 +31,21 @@ final class OfflineModel implements Overlays.Contact {
     static JsonObject read(Path path) throws IOException {
         try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) { return JsonParser.parseReader(reader).getAsJsonObject(); }
     }
+    private static JsonObject revision(Path path, String id) throws IOException {
+        try (var reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                if (!reader.nextName().equals("models")) { reader.skipValue(); continue; }
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    if (reader.nextName().equals(id)) return JsonParser.parseReader(reader).getAsJsonObject();
+                    reader.skipValue();
+                }
+                return null;
+            }
+            throw new IllegalArgumentException("missing models in " + path);
+        }
+    }
     OfflineModel(Path assets, String id) throws IOException {
         if (!id.matches("[a-z0-9_]+")) throw new IllegalArgumentException("invalid model id");
         this.id = id;
@@ -38,8 +54,7 @@ final class OfflineModel implements Overlays.Contact {
         data = JsonParser.parseString(new String(base, StandardCharsets.UTF_8)).getAsJsonObject();
         var chain = new StringBuilder(hash.lf());
         for (String file : List.of("placement_fit", "motion_corrections", "house_ecology", "toilet_contact", "face_library")) {
-            var source = read(assets.resolve("yukkuri_presentation/" + file + ".json"));
-            var revision = source.getAsJsonObject("models").getAsJsonObject(id);
+            var revision = revision(assets.resolve("yukkuri_presentation/" + file + ".json"), id);
             if (revision == null) continue; // A model may have no revision in a resource.
             boolean applied = file.equals("placement_fit") ? Splice.fit(data, revision, hash::matches) : Splice.revision(data, revision);
             if (!applied) throw new IllegalArgumentException("incompatible " + file + " for " + id);

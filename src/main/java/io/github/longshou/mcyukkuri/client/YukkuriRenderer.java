@@ -265,6 +265,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // Brim hops and steps are carried draws too. A slide still owns contact even with a live clip.
             var mode = PoseBridge.mode(preview, carried || hatCarrier || braidTransfer || !contact.equals("NONE") || adultPose,
                     entity.hurtTicks(), entity.deathTicks(), entity.waterDistressPhase(), entity.getBehaviorId());
+            if (mode != PoseBridge.Mode.OFF) PoseNeighbors.collect(source, partialTick, start, pose.last().pose());
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance,
                     adultPose,mode,partialTick);
