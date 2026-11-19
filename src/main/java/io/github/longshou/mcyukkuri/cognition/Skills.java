@@ -81,8 +81,10 @@ public final class Skills {
 
     private void gotIt(Ability ability, int grade) {
         if (entity.onGround() && entity.life().mealTicks() == 0 && !entity.life().isSleeping()) {
-            entity.showReaction(YukkuriAction.JOY_JUMP, "sparkle", "lesson_learned", 60);
-        } else entity.showReaction("sparkle", "lesson_learned", 60);
+            entity.showReactionCue(YukkuriAction.JOY_JUMP, "sparkle", "lesson_learned");
+        } else if (entity.showReaction("sparkle", "", 60)) {
+            entity.speakCue("lesson_learned");
+        }
         var level = (ServerLevel) entity.level();
         Staging.sparkle(level, entity.position().add(0, entity.getBbHeight() * .5, 0));
         var ownerId = entity.pet().owner();
