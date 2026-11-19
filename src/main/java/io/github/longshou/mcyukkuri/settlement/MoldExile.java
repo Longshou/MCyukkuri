@@ -31,8 +31,8 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Residents answer visible mould. The affected individual owns its walk, and leaves only on reaching safe ground outside.
  * <p>The confrontation in beats (docs/FEATURES.md 油霉驱逐), each chosen by the values on both sides: a resident notices the mould
- * with a start ("Mr. Mold...!"); a fond kin sobs an apology, a driver puffs up and warns it off, and a harsh one (unfriendly or
- * bold, and not attached to it) shouts it out and pushes; the sick one first stares, then pleads (meek, attached) or protests (bold, cold), and
+ * with a start ("Mr. Mold...!"); a fond kin sobs an apology, a driver puffs up and warns it off, and a {@link Gate#HARSH} driver
+ * shouts and pushes a stranger or detached kin. The sick one first stares, then pleads or protests ({@link Gate#PROTESTS_EXILE}), and
  * walks off with looks back the more attached it is, saying goodbye at the last; a young it leaves behind cries after it. Once
  * outside, the exile grieves its lost home (mind/EmotionCourse) before it comes back to ask again.
  */

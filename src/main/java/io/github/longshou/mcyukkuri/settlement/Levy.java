@@ -20,7 +20,7 @@ import io.github.longshou.mcyukkuri.status.StatusEvents;
  * <li>Communal hunt: one third ({@link #HUNT_RATE}). The leader called it, the party walked out together and the
  *     commons is what it was called for (a 6-portion load pays 2).</li>
  * <li>A greedy leader ({@link Gate#GREEDY}) asks a tenth more and the payers feel it
- *     ({@code heavy_levy}); a generous one (friendliness &gt; 65) a twentieth less.</li>
+ *     ({@code heavy_levy}); a {@link Gate#DEVOTED} leader asks a twentieth less.</li>
  * <li>A hunt in shortage or famine adds 15 % (relief comes from the commons).</li>
  * <li>Nothing is due when the common store already holds its target ({@link Rations#storeTarget}) and from a family
  *     trip of a household that is itself short ({@link Rations#isShort}): relief would only hand it back.</li>

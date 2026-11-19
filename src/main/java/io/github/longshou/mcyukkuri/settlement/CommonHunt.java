@@ -20,8 +20,8 @@ import java.util.Locale;
  *
  * <p>Project design: on a fair morning (day time 1000-6000, in famine until 7500) when the common store is below its
  * target ({@link Rations#storeTarget}), the leader calls the adults within {@value #CALL_RANGE} blocks. Able adults
- * come (pregnant members, elders and, outside famine, parents of babies on mash stay home); a defiant one (low
- * attachment, selfish, little self-control) refuses, which is recorded as {@link CommunityRules.Offence#DEFIANCE}.
+ * come (pregnant members, elders and, outside famine, parents of babies on mash stay home). Members with
+ * {@link Gate#DEFIES_HUNT} refuse, which is recorded as {@link CommunityRules.Offence#DEFIANCE}.
  * The party gathers at the centre, walks out behind the leader to a meadow {@code radius} blocks away, each member
  * gathers a load of up to six real portions, carries the levy (a third, {@link Levy}) into the
  * common store and the rest home to its own household. One hunt a day, two in famine. Family trips go on as usual (user

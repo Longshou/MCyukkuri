@@ -654,7 +654,7 @@ final class LifeMeal {
 
     /**
      * The bite that takes it past {@link #FULL}: it melts in place a moment (しあわせー, project design), unless the food was unpleasant,
-     * it rides a host, it is a composed adult (self-control 90 and above), or it melted not long ago (a young one sooner again).
+     * it rides a host, it is a {@link Gate#COMPOSED} adult, or it melted not long ago (a young one sooner again).
      */
     private void sated(float before, boolean pleasant, boolean unhappy, boolean guarded, boolean defiant) {
         if (before > FULL || o.nutrition() <= FULL) return;

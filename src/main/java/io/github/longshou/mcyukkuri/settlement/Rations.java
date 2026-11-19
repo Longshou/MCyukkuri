@@ -461,8 +461,8 @@ public final class Rations {
     }
 
     /**
-     * Whether a hungry member with no ration left takes from the store anyway (project design): the starving give way
-     * unless very self-controlled; otherwise only the selfish with little self-control. Famine makes it likelier.
+     * A starving member needs {@link Gate#STOIC} to leave the store alone. During a famine a hungry member
+     * holds back with {@link Gate#PATIENT}. At other times only {@link Gate#SELFISH} members steal.
      */
     public static boolean wouldSteal(YukkuriEntity entity) {
         var t = entity.life().personality().temperament();
