@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 布景角色与首批场景整理：TN34-36 进公园、HD06、MD17、MD21、TN14、TN20、TN24 | `.worktrees/wp-stager-1` | docs/roles/stager.md, scripts/museum_scenarios.py, scripts/museum_fields.py (Park) |
-| 寒冷与取暖：按差值累积寒冷、篝火取暖站位、冷的台词与赤油哭诉、纸张收集、盖纸掉帧 | `.worktrees/wp-cold-warmth` | cold/warmth code, client/YukkuriModel.java (paper tent cache), FG-14 scene |
 | DN-04 封洞：1.5 格结界、按威胁到达时间封洞、亲人呼唤拆除、引开威胁 | `.worktrees/wp-den-seal` | settlement/DenSeal.java, settlement/DenBarrierBlock.java, standards/yukkuri-library/ecology/wild-shelters/den_barrier.py, DN-04/07/08 scenes |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | 能力 v1：统一技能存储、删除旧技能与跳跃学习、放大镜标记、学会一拍 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetSkill.java, pet/PetLessons.java, family/ChildhoodLife.java |
