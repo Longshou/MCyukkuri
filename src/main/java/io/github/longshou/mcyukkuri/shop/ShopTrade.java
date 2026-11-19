@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
-import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -411,7 +410,7 @@ public final class ShopTrade {
         if (!shop.kind.accepts(y)) return "oni_predator";
         if (!shop.contains(y.position())) return "outside";
         if (y.pet().busy() || shop.orders.containsKey(y.getUUID()) || y.isPassenger() || y.isVehicle()) return "busy";
-        return !shop.legacy() && ShopStaff.freePlace(level, shop, SpeciesProfile.of(y.getVariant()).dangerToYukkuri(), y.position()) == null ? "no_nest" : null;
+        return !shop.legacy() && ShopStaff.freePlace(level, shop, y) == null ? "no_nest" : null;
     }
 
     /** The player sells its companion: it waits beside the seller for a staff member with a basket; the seller is paid when it is in it. */

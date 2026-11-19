@@ -1,6 +1,9 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
@@ -60,6 +63,7 @@ public final class ShopRegistry extends SavedData {
         public final BlockPos pos;
         public final ShopKind kind;
         private BlockPos first, second, counter, dock, trash;
+        final Set<BlockPos> familyNests = new LinkedHashSet<>();
         private AABB protection;
         private Direction legacyFront;
         private boolean legacy, closed, closing;
@@ -84,6 +88,21 @@ public final class ShopRegistry extends SavedData {
         public BlockPos counter() { return counter == null ? pos : counter; }
         BlockPos dock() { return dock; }
         BlockPos trash() { return trash; }
+        public boolean acceptsStock(ServerLevel level, CareBlockEntity nest, YukkuriEntity animal) {
+            var tag = Custody.data(animal);
+            return acceptsStock(level, nest, animal.getUUID(), NestOccupancy.stage(animal), animal.profile().dangerToYukkuri(),
+                    tag.getBoolean("FamilyStock") || tag.contains("Litter"));
+        }
+        boolean acceptsStock(ServerLevel level, CareBlockEntity nest, UUID animal, int stage, boolean predator, boolean litter) {
+            if (nest.getBlockState().is(ModBlocks.PREDATOR_NEST.get()) != predator
+                    || familyNests.contains(nest.getBlockPos()) != litter) return false;
+            Predicate<UUID> mayShare = resident -> litter && FamilyData.get(level).socialKin(animal, resident);
+            if (!nest.fits(animal, stage, mayShare)) return false;
+            var room = ShopAccess.petRoom(this, nest.getBlockPos());
+            return room == null || level.getEntitiesOfClass(YukkuriEntity.class, room, other -> other.isAlive()
+                    && !other.getUUID().equals(animal) && Custody.view(other).role() == Custody.Role.STOCK
+                    && !mayShare.test(other.getUUID())).isEmpty();
+        }
         public boolean authored() { return first != null; }
         boolean legacy() { return legacy; }
         Direction legacyFront() { return legacyFront; }
@@ -398,6 +417,7 @@ public final class ShopRegistry extends SavedData {
             if (!footprint.contains(m.position())) continue;
             if (m.getTags().contains(prefix + "counter")) shop.counter = m.blockPosition();
             else if (m.getTags().contains(prefix + "dock")) shop.dock = m.blockPosition();
+            else if (shop.kind == ShopKind.PET && m.getTags().contains("mcy_shop_family")) shop.familyNests.add(m.blockPosition());
             else if (m.getTags().contains(prefix + "trash")) shop.trash = m.blockPosition();
             else if (m.getTags().contains(FRAME)) hangFrame(level, m);
         }
@@ -617,6 +637,7 @@ public final class ShopRegistry extends SavedData {
             }
             if (shop.counter != null) c.put("Counter", NbtUtils.writeBlockPos(shop.counter));
             if (shop.dock != null) c.put("Dock", NbtUtils.writeBlockPos(shop.dock));
+            if (!shop.familyNests.isEmpty()) c.putLongArray("Family", shop.familyNests.stream().mapToLong(BlockPos::asLong).toArray());
             if (shop.trash != null) c.put("Trash", NbtUtils.writeBlockPos(shop.trash));
             var deposits = new ListTag();
             shop.deposits.forEach((id, d) -> {
@@ -691,6 +712,7 @@ public final class ShopRegistry extends SavedData {
             else if (shop.first != null && !shop.legacy) shop.protection = authoredProtection(shop);
             shop.counter = NbtUtils.readBlockPos(c, "Counter").orElse(null);
             shop.dock = NbtUtils.readBlockPos(c, "Dock").orElse(null);
+            for (long pos : c.getLongArray("Family")) shop.familyNests.add(BlockPos.of(pos));
             shop.trash = NbtUtils.readBlockPos(c, "Trash").orElse(null);
             for (var raw : c.getList("Deposits", 10)) {
                 var e = (CompoundTag) raw;

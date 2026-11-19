@@ -253,7 +253,7 @@ public final class Custody {
         }
         if (!animal.pet().ownedBy(owner)) animal.pet().conscience().forgetOwner();
         var tag = data(animal).copy(); tag.remove("PendingRole");
-        if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); }
+        if (!use.equals("stock")) { tag.remove("ForSaleSince"); tag.remove("StaleCuts"); tag.remove("FamilyStock"); tag.remove("Litter"); }
         tag.putUUID("Owner", owner); tag.putString("Use", use);
         if (kind == OwnerKind.PLAYER) tag.putString("OwnerKind", "player");
         else if (kind == OwnerKind.NPC) tag.putString("OwnerKind", "npc");

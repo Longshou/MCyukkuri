@@ -8,6 +8,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.LinkedHashMap;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.shop.ShopKind;
+import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
@@ -70,13 +73,21 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public int grade(){return ((CareBlock)getBlockState().getBlock()).grade();}
     public boolean canClaim(YukkuriEntity entity){
         if(kind()!=CareBlock.Kind.NEST||!entity.moldExile().allowsAddress(worldPosition))return false;
+        if (level instanceof ServerLevel server && Custody.view(entity).role() == Custody.Role.STOCK) {
+            var shop = ShopRegistry.get(server).shopAt(server, worldPosition.getCenter());
+            if (shop != null && shop.kind == ShopKind.PET) return shop.acceptsStock(server, this, entity);
+        }
+        return fits(entity.getUUID(), NestOccupancy.stage(entity), resident -> true);
+    }
+    public boolean fits(UUID incoming, int stage, Predicate<UUID> mayShare) {
         var current=new LinkedHashMap<UUID,Integer>();
-        residents.forEach((id,stage)->{
+        residents.forEach((id,savedStage)->{
             var person=level instanceof ServerLevel server?FamilyData.get(server).person(id):null;
             if(person==null||person.status==FamilyData.Status.ALIVE)
-                current.put(id,level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):stage);
+                current.put(id,level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):savedStage);
         });
-        return NestOccupancy.accepts(largeNest(),current,entity);
+        return current.keySet().stream().allMatch(id -> id.equals(incoming) || mayShare.test(id))
+                && NestOccupancy.accepts(largeNest(),current,incoming,stage);
     }
     public String occupancy(){return "residents="+residents+" large="+largeNest();}
     public double waste() { return wasteVolume; }

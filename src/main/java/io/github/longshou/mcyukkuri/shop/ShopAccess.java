@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -45,6 +46,11 @@ final class ShopAccess {
             area(21, 8, 22, 19, false, 21, 20, Direction.SOUTH),
             area(2, 19, 22, 23, false, 7, 19, Direction.NORTH));
 
+    /** Already placed shops keep their undivided front pens and the original two doors. */
+    private static final List<Area> UNSPLIT_PET = Stream.concat(Stream.of(
+            area(2, 4, 8, 7, true, 5, 8, Direction.SOUTH),
+            area(16, 4, 22, 7, true, 19, 8, Direction.SOUTH)), PET.stream().filter(area -> !area.pen())).toList();
+
     private static Area area(int x0, int z0, int x1, int z1, boolean pen, int x, int z, Direction out) {
         return new Area(new AABB(x0, 2.5, z0, x1 + 1, 8, z1 + 1), pen, new BlockPos(x, 3, z), out);
     }
@@ -55,10 +61,9 @@ final class ShopAccess {
         if (rotation == null) return null;
         Hatch closest = null;
         double best = Double.MAX_VALUE;
-        for (var area : shop.kind == ShopKind.PET ? PET : ONI) {
-            var floor = area.floor();
-            var room = new AABB(world(shop, rotation, new Vec3(floor.minX, floor.minY, floor.minZ)),
-                    world(shop, rotation, new Vec3(floor.maxX, floor.maxY, floor.maxZ)));
+        var areas = shop.kind == ShopKind.ONI ? ONI : shop.familyNests.isEmpty() ? UNSPLIT_PET : PET;
+        for (var area : areas) {
+            var room = floor(shop, rotation, area);
             if (!room.intersects(animal.getBoundingBox())) continue;
             var out = rotation.rotate(area.out());
             var first = BlockPos.containing(world(shop, rotation, area.exit().getCenter()));
@@ -72,6 +77,24 @@ final class ShopAccess {
             }
         }
         return closest;
+    }
+
+    /** The authored room around this bed, including stock that has not claimed the bed yet. */
+    static AABB petRoom(ShopRegistry.Entry shop, BlockPos nest) {
+        if (shop.familyNests.isEmpty()) return null; // Earlier templates had multiple beds in one pen.
+        var rotation = ShopRegistry.authoredRotation(shop);
+        for (var area : PET) {
+            if (!area.pen() && !shop.familyNests.contains(nest)) continue;
+            var room = floor(shop, rotation, area);
+            if (room.contains(nest.getCenter())) return room;
+        }
+        return null;
+    }
+
+    private static AABB floor(ShopRegistry.Entry shop, Rotation rotation, Area area) {
+        var floor = area.floor();
+        return new AABB(world(shop, rotation, new Vec3(floor.minX, floor.minY, floor.minZ)),
+                world(shop, rotation, new Vec3(floor.maxX, floor.maxY, floor.maxZ)));
     }
 
     static Service service(ServerLevel level, ShopRegistry.Entry shop, ServerPlayer player) {

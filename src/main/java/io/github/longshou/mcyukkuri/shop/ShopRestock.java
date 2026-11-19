@@ -20,8 +20,10 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -139,7 +141,7 @@ public final class ShopRestock {
         var custody = YukkuriWorldData.get(level);
         var stock = ShopRegistry.liveStock(level, shop);
         var dock = level.getBlockEntity(shop.dock()) instanceof Container c ? c : null;
-        int shipped = 0, waitingLand = 0, waitingPredator = 0;
+        int shipped = 0, waitingLand = 0;
         var departure = ShopRegistry.departure(level, shop);
         if (dock != null && departure != null) for (int slot = 0; slot < dock.getContainerSize(); slot++) {
             var stack = dock.getItem(slot);
@@ -167,10 +169,12 @@ public final class ShopRestock {
             GameplayLog.world(level, "shop", "action=restock result=shipped shop={} token={} species={}", shop.id, token, snapshot.getString("id"));
         }
         int waitingAdults = 0;
+        var waiting = new ArrayList<CompoundTag>();
         for (var token : ShopRegistry.stockBaskets(level, shop)) {
             var snapshot = custody.captiveSnapshot(token);
             if (ShopStaff.shipOut(snapshot)) continue;
-            if (ShopStaff.predator(snapshot)) waitingPredator++; else waitingLand++;
+            if (shop.kind == ShopKind.PET) waiting.add(snapshot);
+            else if (!ShopStaff.predator(snapshot)) waitingLand++;
             if ("adult".equals(FamilyLife.savedStageId(snapshot.getCompound("YukkuriFamily")))) waitingAdults++;
         }
         // Adults go out longest on the shelf first. Reservations, their grace period and current orders keep stock on sale.
@@ -185,14 +189,13 @@ public final class ShopRestock {
             marked++;
             GameplayLog.event(y, "shop", "action=restock result=ship_marked shop={} days={}", shop.id, CommodityLife.forSaleDays(y));
         }
-        int leavingLand = 0, leavingPredator = 0, landStock = 0, predatorStock = 0;
-        for (var y : stock) {
-            boolean predator = SpeciesProfile.of(y.getVariant()).dangerToYukkuri(), leaving = ShopStaff.shipOut(y);
-            if (predator) { predatorStock++; if (leaving) leavingPredator++; } else { landStock++; if (leaving) leavingLand++; }
+        ShopVacancy vacancies;
+        if (shop.kind == ShopKind.PET) vacancies = ShopStaff.vacancies(level, shop, stock, waiting);
+        else {
+            int staying = (int) stock.stream().filter(y -> !SpeciesProfile.of(y.getVariant()).dangerToYukkuri() && !ShopStaff.shipOut(y)).count();
+            vacancies = new ShopVacancy(Math.max(0, ShopStaff.oniPlaces(level, shop) - staying - waitingLand), 0, 0);
         }
-        // Places: the pet shop's nests, the oni shop's pens (it keeps no beds).
-        int land = Math.max(0, ShopStaff.places(level, shop, false) - (landStock - leavingLand) - waitingLand);
-        int predators = Math.max(0, ShopStaff.places(level, shop, true) - (predatorStock - leavingPredator) - waitingPredator);
+        int land = vacancies.singles(), predators = vacancies.predators();
         int arrived = 0;
         var random = ModRandom.world(level);
         for (int i = 0; i < land + predators && dock != null; i++) {
