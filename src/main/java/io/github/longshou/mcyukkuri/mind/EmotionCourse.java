@@ -49,7 +49,7 @@ public final class EmotionCourse {
     /** Whom or what it is about, and where it happened; both optional. */
     private UUID about;
     private BlockPos where;
-    // Transient: the next line, the recall beat of a fading grief, the fright gathered during one panic, and the running goal.
+    // The next line stays scheduled across reload, including the long interval after an easing vow.
     private int lineClock, recallClock;
     private float fright;
     private long frightAt;
@@ -356,6 +356,8 @@ public final class EmotionCourse {
         if (kind == null) return;
         var tag = new CompoundTag();
         tag.putString("Kind", kind.name()); tag.putFloat("Strength", strength); tag.putInt("Length", length); tag.putInt("Elapsed", elapsed);
+        tag.putInt("LineClock", lineClock);
+        if (griefFocus != null) tag.putBoolean("ApproachConsidered", griefFocus.peakSeen);
         if (about != null) tag.putUUID("About", about);
         if (where != null) tag.putLong("Where", where.asLong());
         mind.put("Feeling", tag);
@@ -371,8 +373,10 @@ public final class EmotionCourse {
         elapsed = Math.clamp(tag.getInt("Elapsed"), 0, length);
         about = tag.hasUUID("About") ? tag.getUUID("About") : null;
         where = tag.contains("Where") ? BlockPos.of(tag.getLong("Where")) : null;
-        if (kind == Kind.GRIEF) griefFocus = new GriefFocus(stage() != Stage.ONSET);
-        lineClock = 200; recallClock = 0;
+        if (kind == Kind.GRIEF) griefFocus = new GriefFocus(tag.contains("ApproachConsidered")
+                ? tag.getBoolean("ApproachConsidered") : stage() != Stage.ONSET);
+        lineClock = tag.contains("LineClock") ? tag.getInt("LineClock") : 200;
+        recallClock = 0;
     }
 
     static float ramp(float x, float a, float b) { return Math.clamp((x - a) / (b - a), 0f, 1f); }
