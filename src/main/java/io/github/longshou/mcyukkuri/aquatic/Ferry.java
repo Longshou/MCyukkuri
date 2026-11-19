@@ -55,17 +55,17 @@ final class Ferry {
                     : List.<Supplier<Step>>of(() -> boardHop(carrier, hat, child, beckoning));
         if (!reachingStops(carrier, hat, child).isEmpty()) return boardNear(carrier, hat, child, beckoning);
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(approach(carrier, child, hat));
+        steps.add(approach(carrier, new Grab(child, hat)));
         steps.addAll(BraidFetch.steps(carrier, child, hat));
         return steps;
     }
 
-    /** Walk up to the young on the bank (nothing when the braid already reaches it). */
-    private static Supplier<Step> approach(YukkuriEntity carrier, YukkuriEntity child, PlacedHatEntity hat) {
+    /** Approach the stand for this grip and the child's current position, circling the child if needed. */
+    static Supplier<Step> approach(YukkuriEntity carrier, Grab grab) {
         return () -> {
-            if (BraidFetch.withinReach(carrier, child)) return null;
-            var stand = new Grab(child, hat).contactStand(carrier);
-            return stand == null ? null : act(Walk.around(stand, child));
+            if (grab.check(carrier).ok()) return null;
+            var stand = grab.contactStand(carrier);
+            return stand == null || SurfaceApproach.arrived(carrier, stand) ? null : act(Walk.around(stand, grab.target()));
         };
     }
 
