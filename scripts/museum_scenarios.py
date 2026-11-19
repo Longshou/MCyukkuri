@@ -1590,12 +1590,12 @@ _choice_scene(
     '围栏中间的人手里拿着锥，两边各有一只魔理沙看得见。左边胆大不友善的装可爱求饶，右边胆小友善的先畏缩，有空地就退开。',
     [human('caretaker_brother', 0, 0, 'tool_holder', 0, label='拿锥的人', attitude=2)[:-1]
      + ',HandItems:[{id:"mcyukkuri:care_awl",count:1},{}]}',
-     _choice_actor('tool_plead', -2, 0, yaw=-90, social_wait=0, lead=True, **_pushy),
-     _choice_actor('tool_withdraw', 2, 0, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
-     # Keep the display one opportunity: a viewer that leaves the 8-block holder memory resets. The retreat is a bounded walk or cower inside the pen.
-     *(block(nx, 0, nz, 'minecraft:oak_fence') for nx in range(-5, 6) for nz in range(-5, 6)
-       if abs(nx) == 5 or abs(nz) == 5)],
-    (0, 9, 180, 15),
+     _choice_actor('tool_plead', -1.5, 0, yaw=-90, social_wait=0, lead=True, **_pushy),
+     _choice_actor('tool_withdraw', 1.5, 0, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
+     # Even from opposite corners the holder and yukkuri stay within the 8-block recognition distance.
+     *(block(nx, 0, nz, 'minecraft:oak_fence') for nx in range(-4, 5) for nz in range(-2, 3)
+       if abs(nx) == 4 or abs(nz) == 2)],
+    (0, 6, 180, 15),
     [('tool_plead', r'tool response [^\n]*choice=plead'), ('tool_withdraw', r'tool response [^\n]*choice=withdraw')])
 
 _choice_scene(

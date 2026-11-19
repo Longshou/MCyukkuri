@@ -637,7 +637,7 @@ class Park(Field):
     FENCE, LANE = 6, (8, 10)
     FACILITIES = (('yukkuri_trampoline', 13, 0, 1), ('yukkuri_slide', 19, -1, 2), ('ceramic_tunnel', 25, 0, 1), ('yukkuri_pool', 30, 0, 1))
     WAIT = ((10, 0), (16, 0), (13, 4))   # the owner's cells beside the trampoline
-    OFFSETS = {'gate': (0, 6), 'walk': (8, 1), 'picnic': (6, -1), 'fountain': (0, -13), 'pavilion': (-22, -13),
+    OFFSETS = {'gate': (0, 6), 'walk': (8, 1), 'picnic': (5, -1), 'fountain': (0, -13), 'pavilion': (-22, -13),
                'trampoline': (13, 0), 'slide': (19, -1), 'tunnel': (25, 0), 'pool': (30, 0), 'yard': (0, 16), 'street': (-6, 9)}
     VANTAGE = (4, 6, -150, 10)   # from the gate: the lot across the street, over the picnic lawn and playground to the fountain
 
@@ -738,9 +738,9 @@ class Park(Field):
         seat('bench', [(6, z) for z in (fz - 4, fz - 3, fz - 2)], 'z')
         for x, z in [(-5, fz - 5), (5, fz - 5), (-5, fz + 5), (5, fz + 5)]:
             lamp(x, z)
-        # Picnic lawn between the spine and the playground: a shade oak, a checked cloth, a table between two benches, lamps by the spine.
+        # Keep the grass east of the cloth clear for a resident approaching a pet from the trampoline.
         tree(4, -5)
-        for x in range(5, 8):
+        for x in range(4, 7):
             for z in (-2, -1):
                 c.put(x, 1, z, 'minecraft:red_carpet' if (x + z) % 2 else 'minecraft:white_carpet')
         seat('table', [(4, 2), (4, 3)])
