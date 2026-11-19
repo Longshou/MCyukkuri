@@ -4485,27 +4485,33 @@ _hunt_lines = []
 for _label, _x, _friend, _control in (('willing', -16, 10, 10), ('reluctant', 16, 95, 95)):
     _hunt_lines += [
         yk('reimu', _x, 0, 'hunter_' + _label, label='低克制' if _label == 'willing' else '高克制',
-           nutrition=9, energy=95, friendliness=_friend, self_control=_control, boldness=60, lead=_label == 'willing'),
+           uuid=uid('cannibal_hunt', 'hunter_' + _label), yaw=-90, nutrition=8, energy=95,
+           friendliness=_friend, self_control=_control, boldness=60, lead=_label == 'willing'),
         yk('marisa', _x + 2, 0, 'prey_' + _label, accessory=False, boldness=40, energy=0, nutrition=100,
            uuid=uid('cannibal_hunt', 'prey_' + _label))]
 add('cannibal_hunt', 'body', '饿油捕食没头饰的同类', '饿油捕食没头饰的同类',
-    '两组饥饿灵梦的营养都是9，旁边的失饰成体正因疲倦入睡，挨咬会惊醒。左低友善低自制，右高友善高自制。读猎食判分与真实追咬：数值拒绝不算卡住；失饰识别不等于必攻击，低血和体力不足会退避。只有实际伤害形成食物、吞下才加营养',
+    '两只灵梦的营养都是8，各自面前有一只正因疲倦入睡的失饰魔理沙。左边的灵梦友善和自制都低，饥饿压过鄙视，会追咬取食；魔理沙惊醒后朝远离它的方向跑。右边的灵梦友善和自制都高，会放弃猎食。读猎食判分、伤口和营养，吃下咬出的馅料后营养才会上升',
     '约10–60秒；饥饿继续加深时意愿也会改变', _hunt_lines, note=NEW, vantage=(0, 12),
     reads=[(f'读{role}·{label}', f'yukkuri status {sel(role + "_" + label)} raw')
            for label in ('willing','reluctant') for role in ('hunter','prey')],
     smoke=dict(ticks=900, expect=[
-        r'\[cannibal\][^\n]* hunt meal handed off prey=',
+        rf'\[cannibal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_willing")} [^\n]* hunt meal handed off prey={_uuid_text("cannibal_hunt", "prey_willing")}\b',
+        rf'\[meal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_willing")} [^\n]* swallowed bodyFood portions=',
+        rf'\[cannibal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_reluctant")} [^\n]* decision=hunt_unwilling target={_uuid_text("cannibal_hunt", "prey_reluctant")}\b',
         rf'\[threat\][^\n]*uuid={_uuid_text("cannibal_hunt", "prey_willing")} [^\n]* struck stance=FLEE\b',
         rf'\[threat\][^\n]*uuid={_uuid_text("cannibal_hunt", "prey_willing")} [^\n]* flight away stand=',
-    ], forbid=[r'\[body\][^\n]* invariant\b'], verify_trace=True))
+    ], forbid=[r'\[body\][^\n]* invariant\b',
+               rf'\[cannibal\][^\n]*uuid={_uuid_text("cannibal_hunt", "hunter_reluctant")} [^\n]* started mode=HUNT\b'],
+    verify_trace=True))
 
 
 def _hunt_flight(window, trace):
     prey = _uuid_text('cannibal_hunt', 'prey_willing')
-    hit = re.search(rf'\[threat\][^\n]*uuid={prey} t=(\d+)[^\n]* struck stance=FLEE attacker=([\da-f-]+)', window)
+    hunter = _uuid_text('cannibal_hunt', 'hunter_willing')
+    hit = re.search(rf'\[threat\][^\n]*uuid={prey} t=(\d+)[^\n]* struck stance=FLEE attacker={hunter}\b', window)
     if not hit:
         return 'The willing hunter never made its prey flee'
-    tick, hunter = int(hit[1]), hit[2]
+    tick = int(hit[1])
     positions = {}
     running = False
     for line in trace:

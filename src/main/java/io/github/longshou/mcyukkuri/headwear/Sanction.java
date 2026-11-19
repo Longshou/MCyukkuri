@@ -195,6 +195,7 @@ public final class Sanction extends Goal {
     boolean take(YukkuriEntity accused, String why) {
         if (target == accused) return true;
         if (target != null) return false;
+        if (why.equals("hatless") && entity.cannibalism().chooseHuntOverScorn(accused)) return false;
         target = accused; reason = why; ticks = 0; actWait = 0; acts = 0; declared = false; declareTicks = 0; snatched = false;
         entity.social().stop(); entity.dailyLife().stop(); entity.groupInteraction().stop(); entity.playLife().stop();
         return true;

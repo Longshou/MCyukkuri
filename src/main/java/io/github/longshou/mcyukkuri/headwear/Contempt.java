@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Contempt for the hatless, the root of the hatless individual's misery (user correction 2026-10-18; komicolle 40720
@@ -43,9 +44,15 @@ public final class Contempt {
     private static boolean mobile(YukkuriEntity e) {
         return !e.isPassenger() && e.life().mealTicks() == 0 && !e.family().active() && !e.life().hasUrgentNeed();
     }
-    /** Harsh enough to bully (the same disposition the sanction asks of its executors). */
+    private static AABB sightBox(YukkuriEntity observer) {
+        return observer.getBoundingBox().inflate(RANGE, 3, RANGE);
+    }
+    /** The hunt has already checked recognition and line of sight for this prey. */
+    public static boolean canNoticePrey(YukkuriEntity observer, YukkuriEntity prey) {
+        return perceives(observer) && sightBox(observer).intersects(prey.getBoundingBox()) && observer.headwear().readyForHatlessContact(prey);
+    }
     static String describe(YukkuriEntity observer) {
-        var nearby = observer.level().getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
+        var nearby = observer.level().getEntitiesOfClass(YukkuriEntity.class, sightBox(observer),
                         y -> y != observer && y.isAlive() && !y.life().hasAccessory())
                 .stream().sorted(Comparator.comparingDouble(observer::distanceToSqr)).limit(6)
                 .map(y -> "#" + y.getId() + "[known=" + Recognition.recognizes(observer, y)
@@ -57,7 +64,7 @@ public final class Contempt {
     static int observe(YukkuriEntity observer) {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
         boolean mocks = observer.life().personality().temperament().is(Gate.HARSH);
-        var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
+        var target = level.getEntitiesOfClass(YukkuriEntity.class, sightBox(observer),
                         y -> y != observer && y.isAlive() && !y.profile().dangerToYukkuri()
                                 && (Recognition.unrecognizedHatless(observer, y) || mocks && Recognition.junkCovered(y)
                                 || rejectsDirt(observer, y))
@@ -109,6 +116,7 @@ public final class Contempt {
     public static int react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
         if (!Recognition.unrecognizedHatless(observer, target) || !observer.headwear().readyForHatlessContact(target)) return IDLE_WAIT;
         boolean grotesque = Recognition.grotesque(target);
+        if (!grotesque && observer.cannibalism().chooseHuntOverScorn(target)) return IDLE_WAIT;
         int wait = grotesque ? monster(level, observer, target) : scorn(level, observer, target);
         observer.headwear().recordContact(target, grotesque);
         observer.headwear().coolHatlessContact(target, wait);

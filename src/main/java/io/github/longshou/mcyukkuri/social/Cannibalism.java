@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.Contempt;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -27,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.pathfinder.Path;
 
@@ -157,10 +159,22 @@ public final class Cannibalism extends Goal {
                 - p.friendliness() * .35 - p.selfControl() * .3 - stage * 8
                 - (relatedBody(remains) ? 20 : 0) - Math.max(0, affection) * .2;
     }
-    private double huntScore(YukkuriEntity target) {
+    private CannibalDrive huntDrive(YukkuriEntity target, boolean considersScorn) {
         var p = entity.life().personality();
-        return 55 + (12 - entity.life().nutrition()) * 3 + p.boldness() * .25
-                - p.friendliness() * .45 - p.selfControl() * .2 - p.fear(target.getUUID()) * .5 + powerDifference(target);
+        return CannibalDrive.hunt(entity.life().nutrition(), p.temperament(), p.fear(target.getUUID()),
+                powerDifference(target), considersScorn ? p.escalationScore() : 0);
+    }
+    private boolean readyToHunt() {
+        return entity.life().nutrition() < 12 && free() && entity.family().adult() && huntCooldown() == 0
+                && YukkuriConfig.CANNIBAL_UNRECOGNIZED.get() && !entity.sanction().active() && entity.life().canAcceptBodyFood();
+    }
+    /** A sighting or an invitation to bully is also a chance to recognise prey. */
+    public boolean chooseHuntOverScorn(YukkuriEntity target) {
+        if (active()) return mode == Mode.HUNT && prey == target;
+        if (!readyToHunt() || !eligible() || !combatFit() || !huntDrive(target, true).willing()
+                || !preyRange().intersects(target.getBoundingBox()) || !huntablePrey(target) || ordinaryFoodAvailable()) return false;
+        scanWait = 0;
+        return true;
     }
     private double powerDifference(YukkuriEntity target) {
         double own = entity.getBbWidth() * entity.body().healthRatio() * entity.species().traits().might();
@@ -171,14 +185,14 @@ public final class Cannibalism extends Goal {
         return entity.body().healthRatio() > .4f && entity.life().energy() >= 15
                 && !entity.isOnFire() && !entity.body().footBurned();
     }
-    private boolean decide(String kind, Entity target, double score, double threshold, boolean capable) {
-        decisionScore = score;
-        boolean accepted = capable && score >= threshold;
+    private boolean decide(String kind, Entity target, CannibalDrive drive, boolean capable) {
+        decisionScore = drive.score();
+        boolean accepted = capable && drive.willing();
         decision = kind + (accepted ? "_accepted" : capable ? "_unwilling" : "_unfit");
         var p = entity.life().personality();
         GameplayLog.limited(entity, "cannibal", decision, 200,
                 "decision={} target={} score={} threshold={} nutrition={} health={} energy={} friendliness={} selfControl={} boldness={}",
-                decision, target.getUUID(), score, threshold, entity.life().nutrition(), entity.body().healthRatio(),
+                decision, target.getUUID(), drive.score(), drive.threshold(), entity.life().nutrition(), entity.body().healthRatio(),
                 entity.life().energy(), p.friendliness(), p.selfControl(), p.boldness());
         lastReason = decision;
         return accepted;
@@ -197,7 +211,7 @@ public final class Cannibalism extends Goal {
             int affection = YukkuriWorldData.get(level()).affinity(entity.getUUID(), remains.data().getUUID("Identity"));
             double score = p.friendliness() * .7 + p.selfControl() * .2 + Math.max(0, affection) * .2
                     - Math.max(0, 15 - entity.life().nutrition()) * 1.5;
-            if (!decide("guard", eater, score, 50, entity.body().healthRatio() > .2f && entity.life().energy() >= 10)) {
+            if (!decide("guard", eater, new CannibalDrive(score, 50), entity.body().healthRatio() > .2f && entity.life().energy() >= 10)) {
                 guardCooldown = 100;
                 return false;
             }
@@ -222,14 +236,14 @@ public final class Cannibalism extends Goal {
         if (entity.life().canEat() && !foodAvailable && nutrition < 40) {
             var meal = level().getEntitiesOfClass(RemainsEntity.class, entity.getBoundingBox().inflate(12, 4, 12), this::mayEat).stream()
                     .filter(this::reachable).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if (meal != null && (offeredToMe(meal.data()) || decide("carrion", meal, carrionScore(meal), 35, true))) {
+            if (meal != null && (offeredToMe(meal.data()) || decide("carrion", meal, new CannibalDrive(carrionScore(meal), 35), true))) {
                 body = meal; offeredBody = offeredToMe(meal.data());
                 return begin(Mode.CARRION, offeredBody ? "offered" : "carrion");
             }
         }
-        if (free() && nutrition < 12 && huntCooldown() == 0 && YukkuriConfig.CANNIBAL_UNRECOGNIZED.get() && entity.family().adult() && !foodAvailable) {
+        if (!foodAvailable && readyToHunt()) {
             var target = findPrey();
-            if (target != null && decide("hunt", target, huntScore(target), 45, combatFit())) {
+            if (target != null && decide("hunt", target, huntDrive(target, Contempt.canNoticePrey(entity, target)), combatFit())) {
                 prey = target; return begin(Mode.HUNT, "hunt");
             }
         }
@@ -287,13 +301,15 @@ public final class Cannibalism extends Goal {
     }
     /** A living adult, free-living, unrecognised hatless yukkuri that is not a pet and not a monster; kin and group get no exemption. */
     private YukkuriEntity findPrey() {
-        return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
-                        && !y.profile().dangerToYukkuri() && !y.profile().houseBody() && y.family().adult()
-                        && Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
-                        && !Recognition.grotesque(y)
-                        && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
-                        && entity.hasLineOfSight(y) && reachable(y)).stream()
+        return level().getEntitiesOfClass(YukkuriEntity.class, preyRange(), this::huntablePrey).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+    private AABB preyRange() { return entity.getBoundingBox().inflate(10, 3, 10); }
+    private boolean huntablePrey(YukkuriEntity y) {
+        return y != entity && y.isAlive() && !y.profile().dangerToYukkuri() && !y.profile().houseBody() && y.family().adult()
+                && Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying() && !Recognition.grotesque(y)
+                && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
+                && entity.hasLineOfSight(y) && reachable(y);
     }
 
     @Override public boolean canContinueToUse() {
