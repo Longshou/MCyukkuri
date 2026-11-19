@@ -90,7 +90,7 @@ final class PredatorNestSearch {
             while (cells.hasNext() && probes > 0) {
                 var pos = cells.next();
                 SearchBudget.probe(level); probes--;
-                if (refused.test(pos) || !level.hasChunkAt(pos) || !CanopySite.buildable(level.getBlockState(pos))) continue;
+                if (refused.test(pos) || !level.hasChunkAt(pos) || !CanopySite.canBuild(body, level.getBlockState(pos))) continue;
                 var site = CanopySite.inspect(level, body, pos);
                 if (site != null) sites.add(site);
             }
@@ -108,7 +108,7 @@ final class PredatorNestSearch {
         }
             while (ranked.hasNext() && routes-- > 0) {
                 var site = CanopySite.inspect(level, body, ranked.next().cell());
-                if (site != null && CanopySite.buildable(level.getBlockState(site.cell())) && site.reachable(body)) {
+                if (site != null && CanopySite.canBuild(body, level.getBlockState(site.cell())) && site.reachable(body)) {
                     selected = site;
                     return Result.FOUND;
                 }

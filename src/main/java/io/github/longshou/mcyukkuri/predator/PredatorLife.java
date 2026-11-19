@@ -582,18 +582,23 @@ public final class PredatorLife implements EcologyRoutine {
             return true;
         }
         animal.setPredatorFlying(true);
+        flyToFeet(feet, true);
+        return false;
+    }
+
+    /** Fixed waypoints share their admission route. Only landing presses down on the final clear leg. */
+    void flyToFeet(Vec3 feet, boolean landing) {
         var leg = shelfApproach(feet);
         if (leg == null) {
             fly(feet, .85, 0);
         } else {
-            boolean descend = leg.equals(feet) && animal.position().subtract(feet).horizontalDistanceSqr() < .16
+            boolean descend = landing && leg.equals(feet) && animal.position().subtract(feet).horizontalDistanceSqr() < .16
                     && Math.abs(animal.getY() - feet.y) < .3;
             directFlight(descend ? feet.add(0, -.08, 0) : leg, .85);
         }
-        return false;
     }
     /** A clear line within directRange squared is flown straight instead of by path nodes. */
-    void fly(Vec3 goal, double speed, double directRange) {
+    private void fly(Vec3 goal, double speed, double directRange) {
         if (!level().hasChunkAt(BlockPos.containing(goal))) { flightBlocked(); return; }
         if (recoveringFlight() && animal.isInWaterOrBubble()) {
             // First lift the actual body clear. A diagonal path to a bank can scrape the water all the way there.
@@ -606,8 +611,7 @@ public final class PredatorLife implements EcologyRoutine {
         // Path nodes end at block centers. Finish the last approach at the moving target's
         // exact position, otherwise the animal circles just outside bite or landing range.
         if (animal.distanceToSqr(goal) < directRange && flightSweepClear(animal.position(), goal)) {
-            // Only the final clear approach presses into the support surface. Pathfinding still targets the dry air cell.
-            directFlight(task == Task.LAND ? goal.add(0, -.08, 0) : goal, speed);
+            directFlight(goal, speed);
             return;
         }
         if (ticks % 10 == 1 || animal.getNavigation().isDone()) {
@@ -789,7 +793,7 @@ public final class PredatorLife implements EcologyRoutine {
         for (int i = 0; i < Math.min(8, ordered.size()); i++) {
             BlockPos stand = ordered.get(i);
             Vec3 feet = landingFeet(stand);
-            if (feet != null && canFlyTo(BlockPos.containing(feet))) return new Landing(stand, feet);
+            if (feet != null && canFlyToFeet(feet)) return new Landing(stand, feet);
         }
         return null;
     }
@@ -877,10 +881,8 @@ public final class PredatorLife implements EcologyRoutine {
             if (destination == null) { stop(); return; }
             Task current = task;
             Vec3 goal = destination;
-            double across = animal.position().subtract(goal).horizontalDistanceSqr();
-            Vec3 approach = task == Task.LAND && across > .36
-                    ? new Vec3(goal.x, Math.max(goal.y + .65, flightFloor(animal.position()) + .65), goal.z) : goal;
-            fly(approach, .85);
+            if (task == Task.LAND || task == Task.RETURN) flyToFeet(goal, true);
+            else fly(goal, .85);
             if (task != current || destination != goal) return;
             if (animal.position().distanceToSqr(goal) < .36) {
                 if (task == Task.LAND && !dryLanded()) return;

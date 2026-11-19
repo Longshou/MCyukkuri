@@ -631,6 +631,20 @@ public final class YukkuriLife {
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
     /** Tired enough, or it is its rest time: sleep, not some other pastime, is what it wants next. */
     public boolean drowsy() { return energy <= restThreshold() || restTime(); }
+    /** A work trip can end at a sheltered stand where the ordinary sleep goal can take over. */
+    public boolean restAfterWork() {
+        if (!wantsOrdinaryRest() || !canFatigueRest() || !dryStand(entity.blockPosition()) || !restable(entity.blockPosition())) return false;
+        targetBlock = null;
+        task = Task.SLEEP;
+        resetSleep();
+        return true;
+    }
+
+    private boolean wantsOrdinaryRest() {
+        return !entity.family().stemFoodUrgent() && restWait == 0 && drowsy()
+                && !entity.family().mealAwaits() && homeProvider().ordinaryRestAllowed(this)
+                && (!temperature.unsafeSleep() || coldPaperSleepAllowed());
+    }
     boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || RareForms.summerDormant(entity); }
     /** Project design: the day/night half of the rest time, which is what a sleep runs out: the night for ordinary bodies, the day for a house
      * body. Seasonal dormancy (a summer Kotatsu) makes the body drowsy all day but never ends, so it does not hold one sleep going. Every life
@@ -1035,9 +1049,7 @@ public final class YukkuriLife {
         }
         // An uncovered body already too cold or hot to sleep does not lie down: the environment would wake it twenty ticks
         // later, so it stays up and shivers unless a paper cover lets a baby sleep through the cold.
-        if (!entity.family().stemFoodUrgent() && restWait == 0 && (energy <= restThreshold() || restTime())
-                && !entity.family().mealAwaits() && homeProvider().ordinaryRestAllowed(this)
-                && (!temperature.unsafeSleep() || coldPaperSleepAllowed())) {
+        if (wantsOrdinaryRest()) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }

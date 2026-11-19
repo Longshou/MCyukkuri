@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -59,14 +60,15 @@ final class NestBuild {
     private MouthOccupancy mouth() { return body.component(YukkuriComponents.MOUTH); }
 
     boolean eligible() {
-        return body.life().home() == null && body.family().adult() && body.status().identity().wild()
+        return (body.life().home() == null || body.life().naturalHome() && !body.habitat().hasMemory())
+                && body.family().adult() && body.status().identity().wild()
                 && !HumanCommerce.protectedAnimal(body) && EventHooks.canEntityGrief(level(), body);
     }
 
     boolean wants() {
         long today = level().getGameTime() / DAY;
         if (day != today) { day = today; sites = new Attempts(3); surveyed = false; }
-        return !surveyed && !sites.exhausted() && !level().isNight() && !level().isRaining() && body.life().energy() >= 35
+        return !surveyed && !sites.exhausted() && !body.life().drowsy() && !level().isRaining()
                 && !body.life().hasUrgentNeed() && (mouth().purpose() == Purpose.NEST || mouth().freeForExternalWork())
                 && eligible();
     }
@@ -89,16 +91,14 @@ final class NestBuild {
         if (result != Result.DEFERRED) {
             site = search.selected();
             cancelSearch();
-            if (site != null) crown = crown(site.cell());
         }
         return result;
     }
 
     void start() {
         phase(Phase.SURVEY);
-        corner = 0;
+        crown = null;
         corners = body.life().personality().temperament().curious() >= .5 ? 8 : 4;
-        GameplayLog.event(body, "predator", "nest survey begin circles={}", corners / 4);
     }
 
     String activity() {
@@ -144,20 +144,40 @@ final class NestBuild {
             if (result == Result.NOT_FOUND) { failed("no_canopy_site", Reason.NO_ROOM); return; }
             if (result == Result.DEFERRED) return;
         }
+        if (level().getBlockState(site.cell()).is(ModBlocks.PREDATOR_NEST_FRAME.get())) {
+            startTrips();
+            return;
+        }
+        if (elapsed <= ClipMarkers.of(LOOK).length()) return;
+        if (crown == null) {
+            crown = crown(site.cell());
+            corner = IntStream.range(0, 4).boxed().sorted(Comparator.comparingDouble(i -> body.distanceToSqr(surveyPoint(i))))
+                    .filter(i -> flight.canFlyToFeet(surveyPoint(i))).findFirst().orElse(-1);
+            if (corner < 0) { failed("no_survey_route", Reason.NO_PATH); return; }
+            GameplayLog.event(body, "predator", "nest survey begin crown={} circles={}", crown, corners / 4);
+            corners += corner;
+        }
         // Complete the loop, then look down over the chosen site before searching for a twig.
         if (corner <= corners + 1) {
-            if (elapsed <= ClipMarkers.of(LOOK).length()) return;
             body.setPredatorFlying(true);
-            double angle = corner * Math.PI / 2;
-            var goal = corner > corners ? crown : crown.add(Math.cos(angle) * SURVEY_RADIUS, 0, Math.sin(angle) * SURVEY_RADIUS);
+            var goal = corner > corners ? crown : surveyPoint(corner);
             if (!CanopySite.clearBody(level(), body, goal)) { failed("survey_obstructed", Reason.NO_ROOM); return; }
             if (body.onGround() || body.distanceToSqr(goal) > 1) {
-                flight.fly(goal, .85, 64);
+                flight.flyToFeet(goal, false);
                 return;
             }
             corner++;
             return;
         }
+        startTrips();
+    }
+
+    private Vec3 surveyPoint(int index) {
+        double angle = index * Math.PI / 2;
+        return crown.add(Math.cos(angle) * SURVEY_RADIUS, 0, Math.sin(angle) * SURVEY_RADIUS);
+    }
+
+    private void startTrips() {
         GameplayLog.event(body, "predator", "nest site selected site={} stand={} tree_height={}", site.cell(), site.stand(), site.height());
         phase(mouth().purpose() == Purpose.NEST ? Phase.PLACE : Phase.SOURCE);
     }
@@ -176,7 +196,7 @@ final class NestBuild {
             if (level().hasChunkAt(pos) && level().getBlockState(pos).is(BlockTags.LEAVES)
                     && SurfaceApproach.supported(body, leafFeet(pos))) leaves.add(pos.immutable());
         }
-        leaves.sort(Comparator.comparingDouble(stand::distSqr));
+        leaves.sort(Comparator.comparingDouble(pos -> site.stand().distanceToSqr(leafFeet(pos))));
         leaf = leaves.stream().limit(8).filter(pos -> flight.canFlyToFeet(leafFeet(pos))).findFirst().orElse(null);
         if (leaf == null) { failed("no_reachable_twig_source", Reason.NO_CONTACT); return; }
         sourceFeet = leafFeet(leaf);
@@ -225,13 +245,13 @@ final class NestBuild {
     private void place() {
         var cell = site.cell();
         var current = CanopySite.inspect(level(), body, cell);
-        if (current == null || !CanopySite.buildable(level().getBlockState(cell)) || !current.stand().equals(site.stand())) {
+        if (current == null || !CanopySite.canBuild(body, level().getBlockState(cell)) || !current.stand().equals(site.stand())) {
             failed("site_changed", Reason.NO_ROOM); return;
         }
         if (!flight.landForBuild(current.stand()) || !face(current.pad())) return;
         if (++gesture < ClipMarkers.of(Behaviors.NEST_PLACE).length()) return;
         if (!mouth().handOne(Purpose.NEST, twig -> lay(cell))) { failed("placement_or_claim_refused", Reason.NO_ROOM); return; }
-        if (body.life().home() != null) flight.stop();
+        if (level().getBlockState(cell).is(ModBlocks.PREDATOR_NEST.get()) || body.life().restAfterWork()) flight.stop();
         else phase(Phase.SOURCE);
     }
 
