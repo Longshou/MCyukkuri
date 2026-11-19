@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
@@ -298,7 +299,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         ticks = nextExit = arrivedAt = 0;
         pushed = false;
         lookBackTicks = 0;
-        var personality = entity.life().personality();
+        var t = entity.life().personality().temperament();
         if (task == Task.WITNESS) {
             // A sight already known to it (the same sick one coming back) skips the start and goes straight to the warning.
             boolean known = peer.getUUID().equals(lastWitnessed) && (peer.moldExile().task == Task.VISIT
@@ -306,10 +307,10 @@ public final class MoldExile extends Goal implements MotorOwner {
             lastWitnessed = peer.getUUID();
             nextWitness = level().getGameTime() + 200;
             noticeEnd = known ? 0 : NOTICE;
-            fond = Bonds.careOrMate(entity, peer) && personality.attachment() >= 55;
-            // Harsh: unfriendly or bold, and not held back by real attachment to this one (a cold mate can be harsh too).
-            harsh = driving && (personality.friendliness() < 40 || personality.boldness() >= 65)
-                    && !(Bonds.careOrMate(entity, peer) && personality.attachment() >= 40);
+            fond = Bonds.careOrMate(entity, peer) && t.is(Gate.ATTACHED);
+            // A harsh witness can drive off a stranger or kin it feels detached from.
+            harsh = driving && t.is(Gate.HARSH)
+                    && !(Bonds.careOrMate(entity, peer) && !t.is(Gate.DETACHED));
             if (!known) entity.showReaction("surprise", "mold_notice", NOTICE);
             else answer();
             GameplayLog.event(entity, "settlement", "mold witnessed subject={} stage={} distance={} aversion={} response={} fond={} harsh={}",
@@ -319,10 +320,10 @@ public final class MoldExile extends Goal implements MotorOwner {
                 entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .3f, peer.getUUID(), peer.blockPosition());
         } else if (task == Task.LEAVE) {
             // Resuming a spent appeal goes straight to the retreat, without replaying the plea or look-backs.
-            // A bold, cold exile protests the first departure. A return is an appeal to stay.
-            resists = exile == null && personality.boldness() >= 60 && personality.friendliness() < 60;
-            answerTicks = resists ? 50 + personality.boldness() / 3 : 50 + personality.attachment() / 2;
-            lookBacks = personality.attachment() >= 70 ? 2 : personality.attachment() >= 35 ? 1 : 0;
+            // A cocky exile protests its first departure. A return is an appeal to stay.
+            resists = exile == null && t.is(Gate.PROTESTS_EXILE);
+            answerTicks = resists ? 50 + t.boldness() / 3 : 50 + t.attachment() / 2;
+            lookBacks = t.is(Gate.DEVOTED_KIN) ? 2 : t.is(Gate.ALOOF) ? 0 : 1;
             if (exile != null && exile.appeal() == Appeal.PLEADED) {
                 ticks = LISTEN + answerTicks;
                 lookBacks = 0;

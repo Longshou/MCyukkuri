@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -193,7 +194,7 @@ public final class GarbageSearch implements MotorOwner {
         if (!rummaging() && (!present(bin) || serving(bin) < 0)) {
             retreat(Vec3.atCenterOf(pos), "emptied_or_broken"); return true;
         }
-        if (body.life().personality().boldness() < 45) {
+        if (body.life().personality().temperament().is(Gate.WARY)) {
             var person = level().getEntitiesOfClass(LivingEntity.class, body.getBoundingBox().inflate(3),
                     y -> (y instanceof AbstractVillager || y instanceof Player && !y.isSpectator()) && body.distanceToSqr(y) <= 9
                             && body.hasLineOfSight(y)).stream().findFirst().orElse(null);

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -124,7 +125,7 @@ public final class Kindness extends Goal {
 
     private Decision decide(YukkuriEntity target, Act request) {
         if (relations().fear(target.getUUID(), giver.getUUID()) >= (request == Act.ADOPT ? 30 : 25)) return Decision.REFUSE;
-        double willingness = SocialDisposition.ramp(giver.life().personality().friendliness(), 60, 90);
+        double willingness = giver.life().personality().temperament().willingToGive();
         return giver.getRandom().nextDouble() < willingness ? Decision.GIVE : Decision.IGNORE;
     }
 
@@ -174,7 +175,7 @@ public final class Kindness extends Goal {
     @Override public boolean canUse() {
         if (act != null) return !running && valid();
         if (cooldown > 0 || nextScan > 0 || giver.life().mealTicks() > 0 || !ready()
-                || SocialDisposition.ramp(giver.life().personality().friendliness(), 60, 90) == 0) return false;
+                || giver.life().personality().temperament().willingToGive() == 0) return false;
         nextScan = 40;
         var peers = level().getEntitiesOfClass(YukkuriEntity.class, giver.getBoundingBox().inflate(8), this::peer);
         for (var target : peers.stream().sorted(Comparator.comparingDouble(giver::distanceToSqr)).toList()) {
@@ -201,7 +202,7 @@ public final class Kindness extends Goal {
             return false;
         var best = level().getEntitiesOfClass(YukkuriEntity.class, giver.getBoundingBox().inflate(8), other ->
                 of(other).ready() && of(other).peer(giver) && other.family().canAdopt(giver)
-                        && other.life().personality().friendliness() > 60
+                        && other.life().personality().temperament().is(Gate.WARM)
                         && (other == candidate || of(other).cooldown == 0)
                         && relations().fear(giver.getUUID(), other.getUUID()) < 30
                         && (mealDonor.equals(other.getUUID()) || relations().affinity(giver.getUUID(), other.getUUID()) >= 3))

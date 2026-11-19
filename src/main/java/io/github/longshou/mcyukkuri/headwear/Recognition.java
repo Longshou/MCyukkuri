@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
@@ -14,24 +15,17 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
  * the observer's badge, kinship or friendship (user correction 2026-10-18). A parent that cannot see past the missing hat
  * treats its own child as a hatless stranger: no feeding, no defending, the same contempt.
  *
- * <p>Recognition reads the innate-and-experienced intelligence axis directly. At {@value #THRESHOLD} or above an observer
- * can recognise a hatless yukkuri; below it, the accessory remains necessary. This is independent of badge grade,
- * lineage or a separate cognition score.
+ * <p>Land observers recognise a hatless peer when their effective intelligence meets {@link Gate#SEES_PAST_HAT}.
  */
 public final class Recognition {
-    /** Intellect needed to recognise a yukkuri that has lost its accessory (project number). */
-    public static final int THRESHOLD = 80;
     /** Project threshold: three active facial injuries, or any severe injury. */
     public static final int MONSTER_FACE_WOUNDS = 3;
 
     private Recognition() {}
 
-    public static int intellect(YukkuriEntity e) {
-        return e.life().personality().intelligence();
-    }
     /** Aquatic Marisa knows the hatless as yukkuri by nature; other observers still need sufficient intellect. */
     public static boolean seesPastAccessory(YukkuriEntity observer) {
-        return observer.profile().aquatic() || intellect(observer) >= THRESHOLD;
+        return observer.profile().aquatic() || observer.life().personality().temperament().is(Gate.SEES_PAST_HAT);
     }
 
     /** A set-down or ridden physical hat is visible to other yukkuri; unresolved custody only calms its owner. */

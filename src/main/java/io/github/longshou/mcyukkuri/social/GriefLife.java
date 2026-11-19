@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -13,6 +14,7 @@ import java.util.EnumSet;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 
@@ -216,10 +218,12 @@ public final class GriefLife {
                 decision = "diverted"; sacrificeWait = 3600;
                 challenger.showReaction("angry","protect_angered",60);
                 int affinity = YukkuriWorldData.get(level()).affinity(protectedChild.getUUID(),entity.getUUID());
-                int friendliness = protectedChild.life().personality().friendliness();
-                String response = affinity >= 40 && friendliness >= 40 ? "protect_child_worry" : friendliness < 35 ? "protect_child_selfish" : "protect_child_flee";
+                var t = protectedChild.life().personality().temperament();
+                String response = affinity >= 40 && !t.is(Gate.HARSH) ? "protect_child_worry"
+                        : t.is(Gate.SELFISH) ? "protect_child_selfish" : "protect_child_flee";
                 protectedChild.showReactionDelayed(affinity >= 40 ? "teary" : "surprise",response,80,12);
-                GameplayLog.event(entity,"grief","protection diverted predator={} child={} affinity={} friendliness={} response={}",challenger.getUUID(),protectedChild.getUUID(),affinity,friendliness,response);
+                GameplayLog.event(entity,"grief","protection diverted predator={} child={} affinity={} friendliness={} response={} selfish={}",
+                        challenger.getUUID(),protectedChild.getUUID(),affinity,t.friendliness(),response,String.format(Locale.ROOT, "%.2f", t.selfish()));
             } else {
                 decision = "divert_blocked"; protectTicks = 160;
                 GameplayLog.event(entity,"grief","taunt refused predator={} state={}",challenger.getUUID(),challenger.predator().describe());

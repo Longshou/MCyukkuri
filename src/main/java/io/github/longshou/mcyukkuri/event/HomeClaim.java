@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -188,7 +189,7 @@ public final class HomeClaim {
         var contact=SocialDisposition.contact(e,human);
         double greed=.45*personality.boldness()/100+.35*(1-personality.friendliness()/100.0)
                 +.20*SocialDisposition.confidence(contact.esteem())-.55*contact.wariness();
-        if(greed<.38 || human!=null&&e.distanceToSqr(human)<36&&personality.selfControl()>55) return null;
+        if(greed<.38 || human!=null&&e.distanceToSqr(human)<36&&personality.temperament().is(Gate.PATIENT)) return null;
         var current=e.life().home();
         int grade=current!=null&&current.dimension().equals(level.dimension())
                 &&level.hasChunkAt(current.pos())&&level.getBlockEntity(current.pos()) instanceof CareBlockEntity bed?bed.grade():1;

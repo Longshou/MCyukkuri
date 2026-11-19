@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
@@ -494,7 +495,7 @@ public final class FoundShelter implements MotorOwner {
                 && NewspaperStackBlock.sheets(lvl.getBlockState(pos)) > 0
                 && !lvl.isRainingAt(pos.above())
                 && !lvl.isRainingAt(actor.blockPosition())
-                && !(actor.life().personality().boldness() < 45 && humanNearStack(actor, pos));
+                && !(actor.life().personality().temperament().is(Gate.WARY) && humanNearStack(actor, pos));
     }
 
     private Set<Direction> triedSidesAt(BlockPos pos) {

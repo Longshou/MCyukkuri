@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -99,7 +100,7 @@ public final class GroupInteractionGoal extends Goal {
             if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return true;
             var personality=entity.life().personality();
             // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
-            if(personality.friendliness()<40&&available(peer)&&!peer.groupInteraction().active()
+            if(personality.temperament().is(Gate.HARSH)&&available(peer)&&!peer.groupInteraction().active()
                     &&!SettlementSociety.sparesHatlessBlame(entity,peer)&&!SettlementSociety.sparesHatlessBlame(peer,entity)
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
                     &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||

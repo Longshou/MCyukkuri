@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.predator;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
@@ -138,7 +139,7 @@ public final class PredatorLife implements EcologyRoutine {
     /** The certificate belongs to this animal; putting on someone else's token cannot teach commands. */
     public boolean obedient() {
         return EcologyRoutines.predator(animal) && animal.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()
-                && animal.life().personality().knowsWait() && animal.life().personality().intelligence() >= 60;
+                && animal.life().personality().knowsWait() && animal.life().personality().temperament().is(Gate.CLEVER);
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }
     public boolean command(Player player, Order requested) {

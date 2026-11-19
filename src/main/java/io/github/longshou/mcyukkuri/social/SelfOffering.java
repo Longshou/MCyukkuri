@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -11,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -121,9 +123,8 @@ public final class SelfOffering extends Goal {
     private boolean desperate(YukkuriEntity target) {
         return target.life().nutrition() <= 2 && target.body().healthRatio() <= .5f;
     }
-    private boolean willingState(YukkuriEntity target) {
-        var p = entity.life().personality();
-        return entity.life().nutrition() <= 15 && p.friendliness() >= 70 && p.boldness() >= 40
+    private boolean willingState(YukkuriEntity target, Temperament t) {
+        return entity.life().nutrition() <= 15 && t.is(Gate.SELF_OFFER)
                 && YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID()) >= 0;
     }
     /** The one to give oneself to: a starving child first, then the partner. */
@@ -156,12 +157,13 @@ public final class SelfOffering extends Goal {
         if (target == null) { hungerScans = 0; starvingRecipient = null; lastReason = "no_unrescued_desperate_recipient"; forced = false; return false; }
         if (!target.getUUID().equals(starvingRecipient)) { hungerScans = 0; starvingRecipient = target.getUUID(); }
         if (!forced) {
-            if (!willingState(target)) {
+            var t = entity.life().personality().temperament();
+            if (!willingState(target, t)) {
                 hungerScans = 0; lastReason = "own_state_or_willingness";
                 GameplayLog.limited(entity,"offering",lastReason,400,
-                        "offering refused recipient={} nutrition={} friendliness={} boldness={} affinity={}",target.getUUID(),
-                        entity.life().nutrition(),entity.life().personality().friendliness(),entity.life().personality().boldness(),
-                        YukkuriWorldData.get(level()).affinity(entity.getUUID(),target.getUUID()));
+                        "offering refused recipient={} nutrition={} friendliness={} boldness={} affinity={} caring={} timid={}",target.getUUID(),
+                        entity.life().nutrition(),t.friendliness(),t.boldness(),YukkuriWorldData.get(level()).affinity(entity.getUUID(),target.getUUID()),
+                        String.format(Locale.ROOT, "%.2f", t.caring()), String.format(Locale.ROOT, "%.2f", t.timid()));
                 return false;
             }
             if (++hungerScans < DESPERATE_SCANS) { lastReason = "desperate_scan_" + hungerScans; return false; }
@@ -263,7 +265,7 @@ public final class SelfOffering extends Goal {
         var target = near.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (target == null || remedyAvailable(target)) return false;
         int chance = offerChance(target), roll = entity.getRandom().nextInt(100);
-        boolean accepted = entity.life().personality().friendliness() >= 70 && roll < chance;
+        boolean accepted = entity.life().personality().temperament().is(Gate.DEVOTED) && roll < chance;
         lastChance = chance; lastRoll = roll;
         GameplayLog.event(entity,"offering","dying dedication decision recipient={} chance={} roll={} accepted={}",
                 target.getUUID(),chance,roll,accepted);

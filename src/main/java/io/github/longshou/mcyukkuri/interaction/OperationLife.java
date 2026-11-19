@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -421,7 +422,7 @@ public final class OperationLife {
             if(table==null)moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
             if (pose == Pose.VIBRATE && elapsed == ROTOR_PLEA)
-                entity.showReaction(entity.life().personality().intelligence() >= 70 ? "teary" : "sukkiri_squeeze", "", remaining);
+                entity.showReaction(entity.life().personality().temperament().is(Gate.SHARP) ? "teary" : "sukkiri_squeeze", "", remaining);
         }else if(pose==Pose.ROLL){
             var forward=entity.position().subtract(actor.position()).multiply(1,0,1).normalize();
             Motor.move(entity,forward.scale(.045).add(0,-.04,0),"operation_roll");
@@ -446,7 +447,7 @@ public final class OperationLife {
     /** A bold one that does not fear this operator and is not already uneasy dozes in the box instead of panicking. */
     public boolean calmInBox() {
         var personality = entity.life().personality();
-        return pose == Pose.BOX && personality.boldness() >= 60 && personality.fear(operator) <= 30 && entity.mind().unease() < 60;
+        return pose == Pose.BOX && personality.temperament().is(Gate.BOLDISH) && personality.fear(operator) <= 30 && entity.mind().unease() < 60;
     }
     private void moveTo(Vec3 desired){
         var delta=desired.subtract(entity.position());

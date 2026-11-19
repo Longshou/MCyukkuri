@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.life;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.life.Taste.Verdict;
 import io.github.longshou.mcyukkuri.body.BodyEffects;
@@ -30,6 +31,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
@@ -574,7 +576,7 @@ final class LifeMeal {
                 if (feeder != null) ExamSession.fed(o.entity(), feeder);
                 boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);
                 boolean grateful = ordinaryAdult && feeder != null && (bond.closeness() >= 10
-                        || premium && o.personality().friendliness() >= 55) && !guarded && !defiant;
+                        || premium && o.personality().temperament().is(Gate.WARM)) && !guarded && !defiant;
                 String fedLine = answered ? "request_thanks" : grateful
                         ? (o.level().getEntity(bondTarget) instanceof HumanNpc ? "badge_thanks" : "request_thanks") : "fed";
                 if (pleasant && feeder != null) { lastFeeder = feeder; lastFedAt = o.level().getGameTime(); }
@@ -659,9 +661,10 @@ final class LifeMeal {
         var e = o.entity();
         long now = o.level().getGameTime();
         boolean young = !e.family().adult();
-        int composure = o.personality().selfControl();
+        var t = o.personality().temperament();
+        int composure = t.selfControl();
         String reason = !pleasant ? "unpleasant" : unhappy ? "reluctant" : guarded ? "guarded" : e.isPassenger() ? "aboard"
-                : !young && composure >= 90 ? "composed" : now < contentAfter ? "recent" : null;
+                : !young && t.is(Gate.COMPOSED) ? "composed" : now < contentAfter ? "recent" : null;
         content = reason == null;
         if (content) {
             contentAfter = now + 1200 + (young ? 0 : 24 * composure);
@@ -671,12 +674,13 @@ final class LifeMeal {
             if (o.nutrition() >= 95 || o.energy() < 25) { meltFace = "sleepy"; meltTail = "yawn"; }
             else if (before < 25) { meltFace = "teary_smile"; meltTail = "satisfied"; }
             else if (young) { meltFace = "drool"; meltTail = "open_smile"; }
-            else if (composure < 40) { meltFace = "open_drool"; meltTail = "open_smile"; }
+            else if (t.is(Gate.IMPULSIVE)) { meltFace = "open_drool"; meltTail = "open_smile"; }
             else if (defiant) { meltFace = "smug"; meltTail = "closed_smile"; }
             else { meltFace = "satisfied"; meltTail = "closed_smile"; }
         } else if (reason.equals("composed")) finishFace = "closed_smile";
-        GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={} face={}", before, o.nutrition(), content,
-                reason == null ? "melt" : reason, composure, meltFace != null ? meltFace : finishFace != null ? finishFace : "-");
+        GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={} face={} patient={}", before, o.nutrition(), content,
+                reason == null ? "melt" : reason, composure, meltFace != null ? meltFace : finishFace != null ? finishFace : "-",
+                String.format(Locale.ROOT, "%.2f", t.patient()));
     }
 
     private void swallowBodyFood() {

@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.family;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,8 +42,6 @@ import net.minecraft.world.phys.Vec3;
  * riding in a hat keeps soiling the wrap until it is ashore again.</p>
  */
 public final class LeafSwaddle {
-    /** Parents who make and put on a wrap: friendliness and intelligence at least these (project design). */
-    public static final int MAKER_FRIENDLINESS = 60, MAKER_INTELLIGENCE = 50;
     /** Leaf blocks harvested for one wrap: the swaddle is a single leaf worn like a diaper (user ruling, docs/FEATURES.md). */
     public static final int LEAVES_PER_WRAP = 1;
     /** A closed wrap asks for care from this bowel load (the ordinary toilet minimum); at the urgent load it soils the wrap. */
@@ -274,8 +274,7 @@ public final class LeafSwaddle {
     // ---- parent side ----------------------------------------------------------------------------------------------
     /** Only a friendly and clever parent makes a wrap; any caring parent may still answer a swaddled child. */
     public boolean maker() {
-        var p = entity.life().personality();
-        return p.friendliness() >= MAKER_FRIENDLINESS && p.intelligence() >= MAKER_INTELLIGENCE;
+        return entity.life().personality().temperament().is(Gate.SWADDLER);
     }
     public boolean caring() { return target != null && task.ordinal() >= Task.WRAP.ordinal(); }
     public boolean caringFor(YukkuriEntity child) { return caring() && child.getUUID().equals(target) && entity.careApproach().cooperatingWith(child); }
@@ -505,8 +504,9 @@ public final class LeafSwaddle {
                 String used = describe(leaves());
                 wrap.putOn(entity, takeLeaves());
                 folded = false;
-                GameplayLog.event(entity, "family", "leaf swaddle wrapped child={} leaves={} unease={} friendliness={}",
-                        target, used, child.mind().unease(), life.personality().friendliness());
+                var t = life.personality().temperament();
+                GameplayLog.event(entity, "family", "leaf swaddle wrapped child={} leaves={} unease={} friendliness={} caring={}",
+                        target, used, child.mind().unease(), t.friendliness(), String.format(Locale.ROOT, "%.2f", t.caring()));
                 stop("done");
             }
             case UNWRAP -> {

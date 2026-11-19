@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
@@ -8,6 +9,7 @@ import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
+import java.util.Locale;
 import java.util.EnumSet;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
@@ -50,9 +52,8 @@ public final class RoamingGoal extends Goal {
     }
     private boolean outsideFoundShelter(BlockPos pos) { return ShelterBlock.foundInterior(animal.level(), pos) == null; }
     private boolean qualifies() {
-        var p = animal.life().personality();
         return animal.getVariant() == YukkuriVariant.MARISA && animal.family().stage() == Stage.JUVENILE
-                && !animal.family().subadult() && p.boldness() >= 65 && p.intelligence() >= 40
+                && !animal.family().subadult() && animal.life().personality().temperament().is(Gate.EXPLORER)
                 && animal.life().energy() >= 60 && animal.life().nutrition() >= 50 && !animal.level().isRaining();
     }
     @Override public boolean canUse() {
@@ -66,9 +67,10 @@ public final class RoamingGoal extends Goal {
             nextExpedition = now + 1200;
             roll = animal.getRandom().nextInt(100);
             expedition = roll < 5;
-            GameplayLog.event(animal,"explore","decision chance=5 roll={} accepted={} boldness={} intelligence={} nutrition={} energy={} normalRadius={}",
-                    roll,expedition,animal.life().personality().boldness(),animal.life().personality().intelligence(),
-                    animal.life().nutrition(),animal.life().energy(),radius);
+            var t = animal.life().personality().temperament();
+            GameplayLog.event(animal,"explore","decision chance=5 roll={} accepted={} boldness={} intelligence={} nutrition={} energy={} normalRadius={} curious={}",
+                    roll,expedition,t.boldness(),t.intelligence(),animal.life().nutrition(),animal.life().energy(),radius,
+                    String.format(Locale.ROOT, "%.2f", t.curious()));
             if (expedition) radius *= 2;
         }
         // Parents of unweaned young stay near them; other adults with a home stroll around it (expeditions and migration excepted).

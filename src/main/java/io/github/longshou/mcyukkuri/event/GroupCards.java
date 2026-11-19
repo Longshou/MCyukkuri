@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
@@ -61,7 +62,7 @@ public final class GroupCards {
     }
     private static boolean monopoly(YukkuriEntity e, List<YukkuriEntity> peers, ServerLevel level) {
         var shelter = e.habitat().shelter();
-        if (shelter == null || !e.family().adult() || e.life().personality().friendliness() > 35
+        if (shelter == null || !e.family().adult() || !e.life().personality().temperament().is(Gate.SELFISH)
                 || e.getRandom().nextInt(YukkuriConfig.MONOPOLY_ONE_IN.get()) != 0
                 || e.blockPosition().distSqr(shelter.getBlockPos()) > 36 || !shelter.usable(e)) return false;
         var family = FamilyData.get(level);

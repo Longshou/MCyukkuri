@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.entity;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -998,9 +999,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         var feeling = mind.feeling();
         if (feeling.subdued()) return "timid";
         if (feeling.kind() == EmotionCourse.Kind.JOY) return "proud";
-        int boldness = life.personality().boldness();
-        if (mind.unease() >= 55 || boldness < 35) return "timid";
-        if (boldness >= 65 && mind.unease() < 40) return "proud";
+        var temperament = life.personality().temperament();
+        if (mind.unease() >= 55 || temperament.is(Gate.TIMID)) return "timid";
+        if (temperament.is(Gate.BOLD) && mind.unease() < 40) return "proud";
         return "plain";
     }
     /** A line can still sound like an echo once the nearby quiet gap ends. */
