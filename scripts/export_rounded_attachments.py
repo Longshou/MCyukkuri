@@ -6,6 +6,19 @@ ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 OUT=ROOT/'art/source/rounded-runtime'
 def read(p):return json.loads(p.read_text(encoding='utf-8'))
 def save(p,d):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+def save_recipe(p,d):
+    # The family recipe is hand-formatted (inline curve knots); only the stem anchors below are derived
+    # here, so splice the variants block into the existing bytes and leave everything else untouched.
+    old=read(p)
+    if d==old:return
+    if {k:v for k,v in d.items()if k!='variants'}!={k:v for k,v in old.items()if k!='variants'}:
+        raise ValueError(f'{p}: rounded attachments change keys outside variants')
+    def block(v):
+        lines=json.dumps(v,ensure_ascii=False,indent=2).splitlines()
+        return '\n'.join(lines[:1]+['  '+line for line in lines[1:]])
+    text=p.read_text(encoding='utf-8');before=block(old['variants'])
+    if text.count(before)!=1:raise ValueError(f'{p}: variants block is not in its exported layout')
+    p.write_text(text.replace(before,block(d['variants'])),encoding='utf-8',newline='\n')
 def bounds(v):return [[min(v[k::8]),max(v[k::8])]for k in range(3)]
 def part(model,name):
     p=next(p for p in model['parts']if p['name']==name)
@@ -17,15 +30,17 @@ def main(only=None):
     for ident in ('marisa_sparse','marisa_face','reimu_sparse','reimu_face'):
         if read(ASSETS/'yukkuri'/f'{ident}.json').get('revision')in ('rounded-marisa-deficient-v1','rounded-reimu-deficient-v1'):
             selections[ident]={'base_species':ident.split('_')[0]}
-    source=read(ROOT/'art/props/badges/mounts.json'); mounts={'variants':{},'detached':{}};index={};sources={}
+    source=read(ROOT/'art/props/badges/mounts.json'); mounts={'variants':{},'detached':{}};detached={};sources={}
+    # Other exporters (rare forms, deficient Marisa) own their own rounded-index entries; keep them.
+    index=read(ASSETS/'yukkuri_props/rounded-index.json')
     if only:
         if only not in selections:raise ValueError('Unknown selected runtime model: '+only)
         # A mount adjustment must not refresh unrelated, separately maintained accessories.
         previous=read(OUT/'attachments.json')
-        mounts=previous['badge_mounts'];index=previous['detached'];sources=previous['sources']
+        mounts=previous['badge_mounts'];detached=previous['detached'];sources=previous['sources']
         mounts['variants'].pop(only,None);mounts['detached'].pop('accessory_'+only,None)
         selections={only:selections[only]}
-    family=read(ROOT/'art/props/family-life/recipe.json')
+    original=read(ROOT/'art/props/family-life/recipe.json');family=copy.deepcopy(original)
     for ident,record in selections.items():
         path=ASSETS/'yukkuri'/f'{ident}.json';model=read(path)
         source_key=next((k for k in sources if k.replace('\\','/')==path.relative_to(ROOT).as_posix()),path.relative_to(ROOT).as_posix())
@@ -39,7 +54,9 @@ def main(only=None):
         prop='accessory_'+ident
         if vertices:
             save(ASSETS/'yukkuri_props'/f'{prop}.json',{'format':1,'units_per_block':16,'vertices':vertices,'parts':parts,'bounds':bounds(vertices)})
-            index[prop]={'source_model':ident}
+            detached[prop]=index[prop]={'source_model':ident}
+        else:
+            detached.pop(prop,None);index.pop(prop,None)
         base=record['base_species'];spec=copy.deepcopy(source['variants'].get(ident,source['variants'].get(base)))
         if spec and any(p['name']==spec['part']for p in model['parts']):
             old_id=ident if (OUT/'baseline/src/main/resources/assets/mcyukkuri/yukkuri'/f'{ident}.json').exists()else base
@@ -56,10 +73,10 @@ def main(only=None):
             p=min((v[i:i+3]for i in range(0,len(v),8)),key=lambda p:sum((p[k]-target[k])**2 for k in range(3)))
             shape=family['variants'][ident];shape['root']=[round(x,5)for x in p];shape['crown_height']=9.6
     save(ASSETS/'yukkuri_props/rounded-index.json',index)
-    save(OUT/'attachments.json',{'sources':sources,'badge_mounts':mounts,'detached':index})
+    save(OUT/'attachments.json',{'sources':sources,'badge_mounts':mounts,'detached':detached})
     family['rounded_source']='art/source/rounded-runtime/attachments.json'
-    save(ROOT/'art/props/family-life/recipe.json',family)
-    print('Derived attachments for',only or 'all selected models',';',len(index),'accessories and',len(mounts['variants']),'badge mounts registered.')
+    save_recipe(ROOT/'art/props/family-life/recipe.json',family)
+    print('Derived attachments for',only or 'all selected models',';',len(detached),'accessories and',len(mounts['variants']),'badge mounts registered.')
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--only',help='Refresh one model while preserving unrelated attachment exports.')
