@@ -26,9 +26,8 @@ public final class SideProfile {
 
     /** The shared height and depth of the limiting cells, in blocks relative to the first body's feet. */
     public record Contact(double across, double height, double depth) {
-        public boolean within(double separation, double arrival) {
-            double gap = separation - across;
-            return gap >= -1e-9 && gap <= arrival;
+        public boolean within(double separation) {
+            return Math.abs(separation - across) <= 1e-8;
         }
     }
 
@@ -38,6 +37,7 @@ public final class SideProfile {
         Stand best = null;
         for (double offset : behind) {
             double across = touching(a, scaleA, b, scaleB, dy, offset);
+            if (across == 0) continue;
             if (best == null || across < best.across() - 1e-9
                     || Math.abs(across - best.across()) <= 1e-9 && Math.abs(offset) < Math.abs(best.behind())) best = new Stand(across, offset);
         }

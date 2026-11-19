@@ -40,12 +40,12 @@ public final class SideContact {
         return offset(partner.position(), yaw, right, across, behind);
     }
 
-    /** Target for the existing level rub. The caller finds the supported floor and route. */
+    /** The stand for the two mirrored snuggle clips, including clearance for hair and bows. */
     public static Vec3 levelStand(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
-        if (scale(mover) == scale(partner)) return beside(mover, partner, yaw, false);
-        var contact = snuggleContact(mover, partner, 0, 0);
-        // The level choreography allows a light press during the existing side-to-rub transition.
-        return offset(partner.position(), yaw, false, contact.across() - 2 * SurfaceApproach.ARRIVAL, 0);
+        var left = PROFILES.snuggle().get(partner.subspecies().assetId()).left();
+        var right = PROFILES.snuggle().get(mover.subspecies().assetId()).right();
+        var stand = SideProfile.closest(left, scale(partner), right, scale(mover), 0, BEHIND);
+        return offset(partner.position(), yaw, false, stand.across(), stand.behind());
     }
 
     /** Across a rise use only the mirrored snuggle clips and their posed side envelopes. */
@@ -53,8 +53,7 @@ public final class SideContact {
         double dy = mover.getY() - partner.getY();
         var contact = snuggleContact(mover, partner, dy, 0);
         if (contact == null) return null;
-        // Allow the walking arrival error on the open side of the contact plane.
-        var at = offset(partner.position().add(0, dy, 0), yaw, false, contact.across() + SurfaceApproach.ARRIVAL, 0);
+        var at = offset(partner.position().add(0, dy, 0), yaw, false, contact.across(), 0);
         return riseTouching(mover, at, partner, yaw) ? at : null;
     }
 
@@ -64,8 +63,10 @@ public final class SideContact {
         var delta = feet.subtract(partner.position());
         double across = Math.cos(rad) * delta.x + Math.sin(rad) * delta.z;
         double behind = Math.sin(rad) * delta.x - Math.cos(rad) * delta.z;
-        var contact = snuggleContact(mover, partner, delta.y, behind);
-        if (contact == null || !contact.within(across, 2 * SurfaceApproach.ARRIVAL)) return false;
+        // The rise stand has zero depth offset. Rotating world coordinates back can put an exact band edge a few ulps across it.
+        if (Math.abs(behind) > 1e-8) return false;
+        var contact = snuggleContact(mover, partner, delta.y, 0);
+        if (contact == null || !contact.within(across)) return false;
         var from = offset(partner.position().add(0, contact.height(), 0), yaw, false, 0, contact.depth());
         var to = offset(from, yaw, false, across, 0);
         return mover.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mover))

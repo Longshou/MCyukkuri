@@ -492,11 +492,18 @@ public final class DailyLife {
             return false;
         }
         SurfaceApproach.halt(entity);
+        var contactFeet = feet.add(rub.anchor.position().subtract(rub.anchorAt));
+        if (!SurfaceApproach.atContact(rub.mover, contactFeet)) {
+            current.contact = 0;
+            if (rub.mover != entity) return false;
+            if (!SurfaceApproach.settleContact(entity, contactFeet, other)) {
+                greetInstead(current, "contact_stand_blocked");
+                return false;
+            }
+        }
         float yaw = rub.route.yaw();
         Motor.face(entity, yaw);
-        // Use the profile at its posed bearing before admitting contact across a rise.
-        double tolerance = rub.mode == PeerNuzzle.RISE ? .1 : Face.FACE_ARRIVED;
-        if (!aligned(entity, yaw, tolerance) || !aligned(other, yaw, tolerance)) { current.contact = 0; return false; }
+        if (!aligned(entity, yaw, .0001) || !aligned(other, yaw, .0001)) { current.contact = 0; return false; }
         if (rub.mode == PeerNuzzle.RISE && !SideContact.riseTouching(rub.mover, rub.mover.position(), rub.anchor, yaw)) {
             greetInstead(current, "posed_contact_lost");
             return false;

@@ -585,6 +585,17 @@ public final class SurfaceApproach {
         return walkToContact(actor, route.feet, peer, speed);
     }
 
+    /** Finish the last walking tolerance against world collision before a posed contact is counted. */
+    public static boolean atContact(YukkuriEntity actor, Vec3 feet) {
+        return actor.position().subtract(feet).horizontalDistanceSqr() < 1e-16;
+    }
+
+    public static boolean settleContact(YukkuriEntity actor, Vec3 feet, Entity peer) {
+        if (!supported(actor, feet) || crossesBody(actor, actor.position(), feet, peer.getBoundingBox())) return false;
+        Motor.move(actor, feet.subtract(actor.position()).multiply(1, 0, 1), "side_contact");
+        return atContact(actor, feet);
+    }
+
     /**
      * The supported stands {@code distance} from a contact point on the bearings of {@link #beside}, each resolved where a walk
      * there actually ends (clear of a hat's brim, round {@code peer}) and admitted by {@code contact} there; nearest the actor

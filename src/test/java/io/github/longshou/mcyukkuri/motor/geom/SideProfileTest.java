@@ -59,8 +59,15 @@ class SideProfileTest {
         assertNull(SideProfile.contact(body, UNIT, body, UNIT, 4 * UNIT, 0));
         var contact = SideProfile.contact(body, UNIT, body, UNIT, 3 * UNIT, 0);
         assertEquals(3.5 * UNIT, contact.height(), 1e-9);
-        assertTrue(contact.within(12 * UNIT, .04));
-        assertFalse(contact.within(12 * UNIT - .01, .04));
-        assertFalse(contact.within(12 * UNIT + .05, .04));
+        assertTrue(contact.within(12 * UNIT));
+        assertFalse(contact.within(12 * UNIT - .01));
+        assertFalse(contact.within(12 * UNIT + .01));
+    }
+
+    @Test void separatedDepthBandsCannotWinAsTheClosestSideContact() {
+        var narrow = box(6);
+        var stand = SideProfile.closest(narrow, UNIT, narrow, UNIT, 0, new double[]{1, 0});
+        assertEquals(12 * UNIT, stand.across());
+        assertEquals(0, stand.behind());
     }
 }
