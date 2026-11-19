@@ -2725,9 +2725,9 @@ def elopement_result(log):
 
 
 def elopement_readout(readout):
-    identities = re.findall(r'\bkind:"(wild_family|wild_settlement|pet|stray)"', readout)
-    if identities != ['wild_family', 'wild_family'] or re.findall(r'pet_grade:"([a-z]+)"', readout) != ['none', 'none']:
-        return f'Expected both free subjects to remain locally findable with no effective grade, got {identities}'
+    identities = re.findall(r'\bidentity:\{[^}]*\bkind:"([a-z_]+)"[^}]*\bowner:"([^"]*)",pet_grade:"([a-z]+)"', readout)
+    if identities != [('wild_family', '', 'none'), ('wild_family', '', 'none')]:
+        return f'Expected two ownerless wild subjects with no effective grade, got {identities}'
 
 
 add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
@@ -2738,15 +2738,15 @@ add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
         *(box(x, 0, -5, x, 0, 5, 'minecraft:oak_fence') for x in (-18, 20)),
         box(-6, 0, -5, -6, 0, -2, 'minecraft:oak_fence'), box(-6, 0, 2, -6, 0, 5, 'minecraft:oak_fence'),
         box(-13, 0, 8, -11, 2, 10, 'minecraft:oak_planks'),
-        *shed(-14, 0), *shed(16, 0),
-        *(item for x in (-12, 14) for item in (
+        *shed(-10, 0), *shed(18, 0),
+        *(item for x in (-10, 2) for item in (
             block(x, 0, 3, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
             block(x, 0, -3, 'mcyukkuri:waterer{Water:8}'), block(x + 1, 0, -3, 'mcyukkuri:yukkuri_toilet'))),
-        yk('reimu', -13, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=10, boldness=95,
-           attachment=35, kin='PentUp:90f', extra='YukkuriPet:{Neglect:60,Obedience:-40}', **pair_ready()),
-        yk('marisa', -8, 1, 'wild', label='野生魔理沙', uuid=uid('elope', 'wild'), kin='Recovery:12000', **pair_ready()),
+        yk('reimu', -10, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=5, boldness=95,
+           attachment=5, kin='PentUp:100f', extra='YukkuriPet:{Neglect:85,Obedience:-50}', **pair_ready()),
+        yk('marisa', -8, 0, 'wild', label='野生魔理沙', uuid=uid('elope', 'wild'), kin='Recovery:12000', **pair_ready()),
         *own('pet'), f'yukkuri scenario badge {sel("pet")} bronze false', f'yukkuri scenario bond {sel("pet")} {sel("wild")}',
-        home('pet', -14, 0), home('wild', 16, 0)],
+        home('pet', -10, 0), home('wild', 18, 0)],
     env=DAY, vantage=(-12, 9, -169, 23, 3), give=['mcyukkuri:field_notebook', 'minecraft:oak_planks 8'],
     reads=[('读灵梦归属', f'yukkuri status {sel("pet")} raw'), ('读魔理沙归属', f'yukkuri status {sel("wild")} raw')],
     smoke=dict(ticks=12000, commands=[(1, 'execute positioned ~-9 ~ ~10 run yukkuri scenario tool_operator enter'),
