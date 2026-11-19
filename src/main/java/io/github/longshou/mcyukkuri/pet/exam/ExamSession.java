@@ -191,14 +191,16 @@ public final class ExamSession implements ExamContext {
             case WAIT, BOWL, TOILET -> personality.selfControl();
             case HELP, SHARE -> personality.friendliness();
         };
-        return question.name() + "|" + (skill == null ? 0 : y.skills().points(skill))
+        return question.name() + "|p" + (skill == null ? 0 : y.skills().points(skill))
                 + "|" + y.pet().stress() / 5 + "|" + personality.fear(examiner.getUUID()) / 5
                 + "|" + aptitude + "|" + example;
     }
 
     private static boolean improved(String[] old, String[] current) {
         try {
-            return Integer.parseInt(current[1]) > Integer.parseInt(old[1])
+            // Unmarked evidence used XP. That store was retired, so new practice starts at zero.
+            int priorPoints = old[1].startsWith("p") ? Integer.parseInt(old[1].substring(1)) : 0;
+            return Integer.parseInt(current[1].substring(1)) > priorPoints
                     || Integer.parseInt(current[2]) < Integer.parseInt(old[2])
                     || Integer.parseInt(current[3]) < Integer.parseInt(old[3])
                     || Integer.parseInt(current[4]) > Integer.parseInt(old[4])
