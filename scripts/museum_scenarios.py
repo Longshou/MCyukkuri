@@ -789,6 +789,14 @@ add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进�
 
 _bold_paper = _uuid_text('stray_paper', 'bold_paper')
 _tired_paper = _uuid_text('stray_paper', 'tired_paper')
+def _no_sleep_before_stacks_empty(log):
+    """Only after both stacks are empty may the bold paper marisa hand off to sleep; before that a sleep means its chain stalled."""
+    marker = log.find('MCYPAPER_STACKS_EMPTY')
+    if marker < 0:
+        return None
+    if re.search(rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin', log[:marker]):
+        return 'bold paper slept before both stacks were empty'
+    return None
 add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '流浪：抽报纸盖身',
     '雪原冬夜，疲倦的亚成灵梦从西边报纸堆取两张盖身，体力耗尽后睡着。东边魔理沙衔走散纸和最后一张报纸，两张只够垫身。看完盖纸，用打火石点亮东边篝火，观察魔理沙在火外一圈歇脚。',
     '约半分钟', [
@@ -816,7 +824,6 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                readout=[f'yukkuri status {sel("bold_paper")} raw', f'yukkuri status {sel("tired_paper")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
                        r'\[body\][^\n]* (?:burn remembered|sole burned|accepted damage cause=(?:inFire|onFire|hotFloor|campfire))',
-                       rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin[^\n]*\n[\s\S]*?\[Server\] MCYPAPER_STACKS_EMPTY',
                        rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover draped'],
                expect=[rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* wind cover paper approach',
                        rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* gathered item=minecraft:paper count=1 source=[0-9a-f-]{{36}} left=0',
@@ -827,7 +834,8 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                        rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin source=life',
                        r'\[temperature\][^\n]* cold onset .*line=dialogue\.mcyukkuri\.',
                        rf'\[temperature\][^\n]* uuid={_bold_paper} [^\n]* campfire rest .*ring=2\..*rate=-',
-                       r'MCYPAPER_STACKS_EMPTY']))
+                       r'MCYPAPER_STACKS_EMPTY'],
+               verify=_no_sleep_before_stacks_empty))
 
 _devoted_mother = uid('stray_paper_young', 'devoted_parent')
 _self_mother = uid('stray_paper_young', 'self_parent')
@@ -862,9 +870,9 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
            ('读无纸赤油（继续发抖）', f'yukkuri status {sel("self_baby")} raw')],
     capture=dict(shots=(1, 140, 240, 500), sequences=((80, 300, 4),), observe=False,
                  views={'side': dict(position=(-2.4, .75, 1.35), look_at=(-3.55, .28, -.5))}),
-    smoke=dict(ticks=1290,
-               commands=[(940, 'execute if block ~ ~ ~ mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_YOUNG_ONE_LEFT'),
-                         (950, block(-3, 0, 3, 'minecraft:campfire[lit=true]'))],
+    smoke=dict(ticks=1560,
+               commands=[(1050, 'execute if block ~ ~ ~ mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_YOUNG_ONE_LEFT'),
+                         (1250, block(-3, 0, 3, 'minecraft:campfire[lit=true]'))],
                readout=[f'yukkuri status {sel("devoted_parent")} raw', f'yukkuri status {sel("devoted_baby")} raw',
                         f'yukkuri status {sel("self_parent")} raw', f'yukkuri status {sel("self_baby")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
