@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 | 动作衔接：换片段时姿势过渡不跳变 | `.worktrees/wp-pose-bridge` | client/PoseBridge.java (new), client/YukkuriModel.java, client/YukkuriRenderer.java, client/capture/PoseTap.java, AgitationPresentation |
 | 被赶走时先跺完诅咒再离开 | `.worktrees/wp-curse-hold` | event/HomeClaim.java |
 | 隔台阶的贴身蹭：先到同一层再蹭 | `.worktrees/wp-step-nuzzle` | social/DailyLife.java, life/SurfaceApproach.java, motor/SideContact.java |
