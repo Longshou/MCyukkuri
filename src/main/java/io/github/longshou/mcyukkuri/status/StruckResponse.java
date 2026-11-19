@@ -32,7 +32,7 @@ final class StruckResponse implements MotorOwner {
         var p = body.life().personality();
         var id = body.status().identity();
         int young = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(6), body.family()::caresFor).size();
-        var inputs = new StruckStance.Inputs(p.boldness(), p.selfControl(), p.intelligence(), p.friendliness(), p.attachment(),
+        var inputs = new StruckStance.Inputs(p.temperament(),
                 body.mind().unease(), p.fear(danger.getUUID()), body.body().healthRatio(), loss, body.getMaxHealth(),
                 id, body.newbornStage(), young, exitOpen(danger), danger.getUUID().equals(body.pet().owner())
                 && p.trust(danger.getUUID()) >= 0, !body.body().weak() && body.life().energy() >= 15,

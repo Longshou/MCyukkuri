@@ -1,16 +1,17 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.Optional;
 
 public enum StruckStance {
     FLEE, FREEZE, PUFF_FIGHT, PLEAD, ENDURE, LEAD_AWAY, SEAL;
 
-    public record Inputs(int boldness, int selfControl, int intelligence, int friendliness, int attachment,
+    public record Inputs(Temperament temperament,
                          double unease, int fearAfter, double healthRatio, double loss, double maxHealth,
                          Identity identity, boolean baby, int dependantsNearby, boolean exitOpen,
                          boolean trustedOwner, boolean canFight, boolean wasFrozen) {
         private double paralysis() {
-            return (1 - boldness / 100.) * (.35 + .65 * unease / 100) * (1 - .70 * selfControl / 100);
+            return (1 - temperament.boldness() / 100.) * (.35 + .65 * unease / 100) * (1 - .70 * temperament.selfControl() / 100);
         }
 
         public int freezeTicks() { return 40 + (int) Math.round(60 * paralysis()); }
@@ -26,8 +27,9 @@ public enum StruckStance {
     public static StruckStance decide(Inputs i) {
         var family = familyResponse(i);
         if (family.isPresent()) return family.get();
-        double b = i.boldness / 100., sc = i.selfControl / 100., intel = i.intelligence / 100.;
-        double fr = i.friendliness / 100., att = i.attachment / 100., un = i.unease / 100.;
+        var t = i.temperament();
+        double b = t.boldness() / 100., sc = t.selfControl() / 100., intel = t.intelligence() / 100.;
+        double fr = t.friendliness() / 100., att = t.attachment() / 100., un = i.unease / 100.;
         double wary = Math.clamp((i.fearAfter - 10.) / 45, 0, 1);
         double pain = Math.clamp(i.loss / Math.max(4, i.maxHealth * .35), .18, 1);
         double instinct = Math.clamp(.58 * (1 - .55 * wary) + .42 * pain + .35 * wary, 0, 1);
@@ -43,7 +45,7 @@ public enum StruckStance {
                 : (.28 + .44 * (1 - b) + .28 * sc + .18 * un) * (1 - .55 * weak);
         // An actual first human blow gives even a bold adult 19 fear. Repeated blows erode its nerve.
         double cowed = Math.clamp((i.fearAfter - 19.) / 16, 0, 1);
-        double drive = Math.clamp((i.boldness + 25 * dep - 45.) / 27, 0, 1);
+        double drive = Math.clamp((t.boldness() + 25 * dep - 45.) / 27, 0, 1);
         double fight = i.canFight && !i.baby && i.healthRatio > .45
                 ? Math.max(0, .54 * b + .26 * gesu + .30 * dep + .14 * (1 - un) - .22 * tame * (1 - dep))
                 * (1 - .65 * cowed) * (.55 + .45 * i.healthRatio) * drive : 0;

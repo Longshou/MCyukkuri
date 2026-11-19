@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
 import org.junit.jupiter.api.Test;
 import static io.github.longshou.mcyukkuri.status.StruckStance.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StruckStanceTest {
     private Inputs hit(int bold, int control, int friendly, int attached, int uneasy, int fear, double hp,
                        boolean baby, boolean open, boolean owner, boolean frozen) {
-        return new Inputs(bold, control, 50, friendly, attached, uneasy, fear, hp, 1, 10,
+        return new Inputs(new Temperament(50, friendly, bold, attached, control), uneasy, fear, hp, 1, 10,
                 owner ? Identity.PET : Identity.WILD_FAMILY, baby, 0, open, owner, true, frozen);
     }
 
