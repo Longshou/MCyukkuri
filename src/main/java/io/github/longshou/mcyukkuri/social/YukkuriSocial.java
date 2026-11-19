@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.GreetingStance;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -53,6 +54,7 @@ import net.minecraft.world.phys.Vec3;
 /** Optional social goals yield to physiology, commands and danger. */
 public final class YukkuriSocial implements MotorOwner {
     private static final double HUMAN_CONTACT = 1.5, FOOD_HANDOFF = 2.5;
+    private static final int CONTACT_APPROACH = 200;
     private static final float ASK_NUTRITION_MIN = 30, ASK_NUTRITION_MAX = 50, FED_NUTRITION = 55;
     private enum Task { NONE, PLAYER, OWNER_RETURN, TOOL, PEER, TOY, ACCESSORY, ANSWER, STUDY }
     private final YukkuriEntity entity;
@@ -85,6 +87,7 @@ public final class YukkuriSocial implements MotorOwner {
     private long greetUntil;
     private String greetClip = "greet";
     private String returnClip;
+    private ContactPhase welcomePhase = ContactPhase.APPROACH;
     /** A stopped retrieval is not restarted on the next goal evaluation. */
     private long accessoryRetry;
     public int greetClicks() { return greetClicks; }
@@ -207,10 +210,12 @@ public final class YukkuriSocial implements MotorOwner {
             returnClip = entity.pet().ownerWelcomeClip();
             startHuman(returning, false);
             task = Task.OWNER_RETURN;
-            duration += ClipMarkers.of(returnClip).length();
-            if (returnClip.equals("joy_jump")) duration += ClipMarkers.of("nuzzle").length();
-            GameplayLog.event(entity, "pet", "owner return approach owner={} clip={} distance={}",
-                    returning.getUUID(), returnClip, entity.distanceTo(returning));
+            double distance = entity.distanceTo(returning);
+            // Keep the ordinary approach allowance for turns and detours, plus the walk from the return sight range.
+            double walk = BodyAbility.of(entity).walkSpeed() * BodyAbility.carrying(entity);
+            duration += (int) Math.ceil(Math.max(0, distance - HUMAN_CONTACT) / walk);
+            GameplayLog.event(entity, "pet", "owner return approach owner={} clip={} distance={} budget={}",
+                    returning.getUUID(), returnClip, distance, duration);
             return true;
         }
         boolean regular = entity.life().nutrition() >= 40;
@@ -291,7 +296,7 @@ public final class YukkuriSocial implements MotorOwner {
         if(ask&&LearnedFear.waryOf(entity,person))return false;
         double wariness = SocialDisposition.humanWariness(entity, person, relation);
         // Watching or backing away needs no route toward the person.
-        if (wariness < .50 && !atHumanContact(person) && humanStand(person) == null) {
+        if (wariness < .50 && !atHumanContact(person) && humanStand(person, HUMAN_CONTACT) == null) {
             GameplayLog.limited(entity, "social", "human_unreachable", 200,
                     "human contact blocked target={} reason=no_dry_stand", person.getUUID());
             return false;
@@ -304,7 +309,7 @@ public final class YukkuriSocial implements MotorOwner {
         task = Task.PLAYER;
         target = person;
         elapsed = 0;
-        duration = 200;
+        duration = CONTACT_APPROACH;
         humanMayAsk = ask;
         humanRetreatRoll = entity.getRandom().nextDouble();
         protectContact(person);
@@ -373,20 +378,15 @@ public final class YukkuriSocial implements MotorOwner {
                 plead ? "plead" : "withdraw", appeal, caution, humanEscapeStand);
     }
 
-    private boolean atHumanContact(Entity person) { return atContact(person, humanReach(person)); }
+    private boolean atHumanContact(Entity person) { return atContact(person, HUMAN_CONTACT); }
 
     private boolean atContact(Entity person, double reach) {
         return entity.distanceToSqr(person) <= reach * reach && EcologyMovement.supported(entity)
                 && SurfaceApproach.supportedGround(entity, entity.position());
     }
 
-    private Vec3 humanStand(Entity person) {
-        double reach = humanReach(person);
+    private Vec3 humanStand(Entity person, double reach) {
         return SurfaceApproach.beside(entity, person, Math.min(1.25, reach - .04), reach, reach);
-    }
-
-    private double humanReach(Entity person) {
-        return "joy_jump".equals(returnClip) ? (entity.getBbWidth() + person.getBbWidth()) * .5 + .10 : HUMAN_CONTACT;
     }
     /** Nothing of its own under way (needs, leisure, errands, events): it may take up a social goal now. */
     private boolean freeForSocial() {
@@ -425,13 +425,13 @@ public final class YukkuriSocial implements MotorOwner {
         if (task == Task.OWNER_RETURN) return entity.pet().canWelcomeOwner() && target.isAlive()
                 && target.level() == entity.level() && entity.pet().nearReturningOwner((LivingEntity) target)
                 && !(target instanceof Player player && player.isSpectator()) && !urgent()
-                && elapsed < duration;
+                && contactPhase().canTick(elapsed, duration);
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
                 && !attachedTo(target)
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
                 && entity.life().mealTicks() == 0 && !entity.isCommandPlaying()
-                && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : elapsed < duration || holdingPeerGreeting())
+                && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : contactPhase().canTick(elapsed, duration))
                 && (!humanContact() || !entity.isPassenger() && !entity.life().hasUrgentNeed() && !entity.operations().active()
                         && !entity.waterDistress().active() && !(target instanceof Player player && player.isSpectator()))
                 && (task != Task.TOOL || holdingTool((LivingEntity) target) && availableForSocial())
@@ -441,7 +441,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (!canContinue()) { stop(); return; }
         // The visible tool chooses the contact even before landing. The reaction needs footing.
         if (task == Task.TOOL && !entity.onGround()) return;
-        elapsed++;
+        elapsed = contactPhase().elapsedAfterTick(elapsed);
         if (task == Task.TOOL) {
             entity.getLookControl().setLookAt(target, 30, 30);
             if (elapsed == 1) {
@@ -616,9 +616,15 @@ public final class YukkuriSocial implements MotorOwner {
         }
     }
     private boolean holdingPeerGreeting() {
-        if (task != Task.PEER || !greeted || !(target instanceof YukkuriEntity peer)) return false;
+        if (task != Task.PEER || !greeted || retreat || !(target instanceof YukkuriEntity peer)) return false;
         var answer = peer.social();
         return greeting() || answer.task == Task.ANSWER && answer.target == entity && answer.answerDelay > 0;
+    }
+
+    private ContactPhase contactPhase() {
+        if (task == Task.OWNER_RETURN && !retreat) return welcomePhase;
+        return holdingPeerGreeting() || task == Task.PLAYER && greeted && !retreat && greeting()
+                ? ContactPhase.GREETING : ContactPhase.APPROACH;
     }
 
     private void tickHumanContact() {
@@ -630,6 +636,7 @@ public final class YukkuriSocial implements MotorOwner {
             retreat = true;
             greeted = false;
             replyUntil = 0;
+            if (task == Task.OWNER_RETURN) greetUntil = 0;
             duration = elapsed + 80;
         }
         if (retreat) {
@@ -637,20 +644,8 @@ public final class YukkuriSocial implements MotorOwner {
             return;
         }
         if (greeted) {
-            if (task == Task.OWNER_RETURN) {
-                // A walking owner keeps nudging the pet; the close approach reach sits inside that push, so the welcome keeps the ordinary contact reach.
-                if (!atContact(target, HUMAN_CONTACT)) { stop(); return; }
-                if (!greeting()) {
-                    if (greetClip.equals("joy_jump")) {
-                        if (!faceContact(target)) return;
-                        greetingBody("nuzzle");
-                        GameplayLog.event(entity, "pet", "owner return nuzzle owner={} distance={}",
-                                target.getUUID(), entity.distanceTo(target));
-                    } else stop();
-                }
-                return;
-            }
-            if (!atHumanContact(target)) stop();
+            if (task == Task.OWNER_RETURN) tickOwnerWelcome(wariness);
+            else if (!atHumanContact(target)) stop();
             return;
         }
         if (wariness >= .18 && humanWatchUntil == 0) {
@@ -665,23 +660,14 @@ public final class YukkuriSocial implements MotorOwner {
             return;
         }
         if (wariness > .50) {
-            stop();
+            if (task == Task.OWNER_RETURN) hesitateAtOwner(wariness);
+            else stop();
             return;
         }
-        if (!atHumanContact(target)) {
-            Vec3 stand = humanStand(target);
-            if (stand == null || (task == Task.OWNER_RETURN ? SurfaceApproach.walkToContact(entity, stand, target, 1)
-                    : SurfaceApproach.walkResult(entity, stand, target, 1)) == SurfaceApproach.Result.BLOCKED) {
-                GameplayLog.limited(entity, "social", "human_route_ended", 200,
-                        "human contact blocked target={} reason={}", target.getUUID(), stand == null ? "no_dry_stand" : "route_blocked");
-                stop();
-            }
-            return;
-        }
-        EcologyMovement.halt(entity);
-        if (!faceContact(target)) return;
+        if (!approachHuman(HUMAN_CONTACT)) return;
         greeted = true;
         if (task == Task.OWNER_RETURN) {
+            welcomePhase = ContactPhase.GREETING;
             greetingBody(returnClip);
             entity.showReaction("happy", "caregiver", ClipMarkers.of(returnClip).length());
             entity.pet().ownerWelcomed(target.getUUID(), returnClip);
@@ -702,6 +688,53 @@ public final class YukkuriSocial implements MotorOwner {
         if (visitor) entity.pet().lessons().performed(Ability.GREETING, true);
         GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}",
                 entity.status().identity().id(), target.getUUID(), line, wariness);
+    }
+
+    private void tickOwnerWelcome(double wariness) {
+        if (!atHumanContact(target)) { stop(); return; }
+        if (wariness > .50) { hesitateAtOwner(wariness); return; }
+        if (welcomePhase == ContactPhase.NUZZLE && !ContactGeometry.inMouthReach(entity, target)) { stop(); return; }
+        if (greeting()) return;
+        if (welcomePhase == ContactPhase.NUZZLE) {
+            GameplayLog.event(entity, "pet", "owner return nuzzle completed owner={} distance={}",
+                    target.getUUID(), entity.distanceTo(target));
+            stop();
+            return;
+        }
+        if (welcomePhase == ContactPhase.GREETING) {
+            if (!returnClip.equals("joy_jump")) { stop(); return; }
+            welcomePhase = ContactPhase.CLOSE;
+            elapsed = welcomePhase.elapsedAfterTick(0);
+            duration = CONTACT_APPROACH;
+            GameplayLog.event(entity, "pet", "owner return closing owner={} distance={}", target.getUUID(), entity.distanceTo(target));
+        }
+        double reach = (entity.getBbWidth() + target.getBbWidth()) * .5 + .10;
+        if (!approachHuman(reach)) return;
+        welcomePhase = ContactPhase.NUZZLE;
+        greetingBody("nuzzle");
+        GameplayLog.event(entity, "pet", "owner return nuzzle owner={} distance={} reach={}",
+                target.getUUID(), entity.distanceTo(target), reach);
+    }
+
+    private void hesitateAtOwner(double wariness) {
+        entity.showReaction("side_teary", "", 40);
+        GameplayLog.event(entity, "pet", "owner return hesitation owner={} wariness={}", target.getUUID(), wariness);
+        stop();
+    }
+
+    private boolean approachHuman(double reach) {
+        if (atContact(target, reach)) {
+            EcologyMovement.halt(entity);
+            return faceContact(target);
+        }
+        Vec3 stand = humanStand(target, reach);
+        if (stand == null || (task == Task.OWNER_RETURN ? SurfaceApproach.walkToContact(entity, stand, target, 1)
+                : SurfaceApproach.walkResult(entity, stand, target, 1)) == SurfaceApproach.Result.BLOCKED) {
+            GameplayLog.limited(entity, "social", "human_route_ended", 200,
+                    "human contact blocked target={} reason={}", target.getUUID(), stand == null ? "no_dry_stand" : "route_blocked");
+            stop();
+        }
+        return false;
     }
 
     private boolean faceContact(Entity person) {
@@ -850,7 +883,7 @@ public final class YukkuriSocial implements MotorOwner {
                 Math.round(gap * 1000) / 1000.0, Math.round(GreetingStance.visualDistance(entity, other) * 1000) / 1000.0);
     }
     private void approachPeer(String why) {
-        task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = why;
+        task = Task.PEER; duration = CONTACT_APPROACH; elapsed = 0; greeted = false; greetWhy = why;
         choosePeerApproach(target);
         if (!retreat && target instanceof YukkuriEntity peer) peer.social().noticeApproach(entity);
     }
@@ -935,8 +968,8 @@ public final class YukkuriSocial implements MotorOwner {
     public void stop() {
         entity.motor().cancel(this,"social_stop");
         if(humanContact()||task==Task.PEER)GameplayLog.limited(entity,"social","contact.ended",200,
-                "social contact ended target={} greeted={} retreat={} elapsed={}/{}",
-                target==null?null:target.getUUID(),greeted,retreat,elapsed,duration);
+                "social contact ended target={} greeted={} retreat={} elapsed={}/{} phase={}",
+                target.getUUID(),greeted,retreat,elapsed,duration,contactPhase());
         if(task==Task.TOY)GameplayLog.limited(entity,"social","toy.stopped",1200,
                 "toy session stopped toy={} elapsed={} contactTicks={} touches={}",
                 target==null?null:target.getUUID(),elapsed,toyContact,toyTouches);
@@ -955,6 +988,7 @@ public final class YukkuriSocial implements MotorOwner {
         humanWatchUntil = 0; replyUntil = 0; foodDemand = false;
         humanEscapeStand = null;
         returnClip = null;
+        welcomePhase = ContactPhase.APPROACH;
         triedStands.clear();
         entity.getNavigation().stop();
     }

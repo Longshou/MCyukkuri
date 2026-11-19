@@ -3203,8 +3203,8 @@ _yard_pet_pick = '@e[type=#mcylab:yukkuri,distance=..14,sort=nearest,limit=1]'
 _yard_marker = 'summon minecraft:marker ~3.5 ~ ~0.5 {Rotation:[180f,0f],'
 _yard_bounds = 'data:{Low:[-2,-1,-2],High:[4,3,2]}'
 add('yard_owner_return', 'town', '宠物院子：主人归来，宠物上前迎接', '宠物院子：主人归来，宠物上前迎接',
-    '院宠留在院内，主人在街另一端。约半分钟后主人步行回院，看宠物转身迎上，在主人身边欢跳和蹭蹭。',
-    '约 40 秒', [
+    '院宠留在院内，主人在街另一端。约半分钟后主人步行回院，看宠物转身迎上、欢跳问候，再贴近蹭一下，接着恢复日常活动。',
+    '约 1 分钟', [
         *_yard_ground(False),
         block(4, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
         block(7, 0, 2, 'mcyukkuri:yukkuri_toilet'),
@@ -7808,7 +7808,9 @@ _smoke('yard_owner_return', 1250, [
     r'\[pet\][^\n]* yard bond established owner=[^ ]+ closeness=24 bowl=1 toilet=1',
     r'\[pet\][^\n]* owner return approach owner=[^ ]+ clip=joy_jump distance=(?:[2-9]|1[0-2])\.',
     r'\[pet\][^\n]* owner return greeted owner=[^ ]+ clip=joy_jump',
+    r'\[pet\][^\n]* owner return closing owner=',
     r'\[pet\][^\n]* owner return nuzzle owner=',
+    r'\[pet\][^\n]* owner return nuzzle completed owner=',
 ], readout=[f'data get entity {sel("yard_pet")} YukkuriSkills',
             f'data get entity {sel("yard_keeper")} CareFood', 'data get block ~5 ~ ~2 Items'])
 _smoke('yard_stray_scold', 1200, [
