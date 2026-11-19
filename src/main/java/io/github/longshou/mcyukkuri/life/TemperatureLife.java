@@ -328,11 +328,10 @@ public final class TemperatureLife {
         int dx = anchor.getX() - fire.getX(), dz = anchor.getZ() - fire.getZ();
         double length = Math.hypot(dx, dz);
         if (length == 0) return score;
-        // A parent comes up on the child's nearer flank, leaving its inward path open.
-        double cross = dx * (entity.getZ() - fire.getZ() - .5) - dz * (entity.getX() - fire.getX() - .5);
-        double flank = baby == null ? 0 : Math.copySign(1, cross);
-        double x = pos.getX() - fire.getX() - (preferred * dx - flank * dz) / length;
-        double z = pos.getZ() - fire.getZ() - (preferred * dz + flank * dx) / length;
+        // The parent comes up directly outward of the child, between it and the cold; a one-block flank rounds to the
+        // child's side instead, where a shielding check fails.
+        double x = pos.getX() - fire.getX() - preferred * dx / length;
+        double z = pos.getZ() - fire.getZ() - preferred * dz / length;
         return score + x * x + z * z;
     }
 
