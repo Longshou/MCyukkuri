@@ -344,11 +344,15 @@ class EndChecks(unittest.TestCase):
                 'carry lift started child=' + child,
                 'carry pickup hold=tail_left purpose=RETRIEVE child=' + child,
                 'carry put down reason=nest_rim_to_cushion hold=tail_left cause=release child=' + child + ' nest=INSIDE_SUPPORTED')) + '\n'
-        text = ''.join(map(chain, children)) + 'MCYSMOKE_END_TICK 100\n'
+        # The scene verifier has required Marisa's brim hop since 619ddff76; the carry chains themselves still
+        # need only two children, so Reimu is never carried here.
+        hop = ('[family] marisa #1 uuid=' + ACTOR + ' t=40 dim=minecraft:overworld '
+               'brim hop child=' + scenes._uuid_text('carry_home', 'marisa_0') + ' hops=1\n')
+        text = hop + ''.join(map(chain, children)) + 'MCYSMOKE_END_TICK 100\n'
         self.assertTrue(all(re.search(pattern, text) for pattern in smoke['expect']))
         self.assertIsNone(smoke['verify'](text))
         self.assertIsNotNone(smoke['verify'](text.replace('nest=INSIDE_SUPPORTED', 'nest=OUTSIDE', 1)))
-        self.assertIsNotNone(smoke['verify'](chain(children[0]) + 'MCYSMOKE_END_TICK 100\n'))
+        self.assertIsNotNone(smoke['verify'](hop + chain(children[0]) + 'MCYSMOKE_END_TICK 100\n'))
         self.assertIsNotNone(smoke['verify'](text.replace('cause=release', 'cause=fetch_ended', 1)))
         self.assertIsNotNone(smoke['verify'](text + '[family] marisa #2 carry pickup hold=brim child=' + HAT))
         self.assertIsNotNone(scenes._reimu_release_verify('[family] reimu #3 carry pickup hold=mouth child=' + HAT))
