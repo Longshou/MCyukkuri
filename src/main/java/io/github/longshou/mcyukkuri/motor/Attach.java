@@ -80,6 +80,8 @@ public final class Attach {
                 new Vec3(0, 0, -Motor.NUDGE_MAX)
         };
         for (Vec3 delta : tries) {
+            delta = Motor.nestStep(body, delta);
+            if (delta.lengthSqr() == 0) continue;
             if (!Motor.nudge(body, delta, "settle")) return;
             if (body.level().noCollision(body)) return;
             Motor.nudge(body, delta.scale(-1), "settle_revert");

@@ -10,6 +10,12 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -52,6 +58,64 @@ public final class ChildhoodLife {
     private int practiceRest;
     private long begAfter;
     private boolean kinWater;
+    private double wingPractice;
+    private boolean fledged;
+    private long flapDay, nextPractice;
+    private int flapBouts;
+    private final MotorOwner branchHop = new MotorOwner() {
+        public String ownerId() { return "branch_hop"; }
+        public boolean active() { return entity.predator().practisingHop(); }
+        public void finished(Action action, Outcome outcome) {
+            if (outcome instanceof Outcome.Done && ((Hop)action).contacted()) practise(true);
+        }
+    };
+
+    public boolean nestling() {
+        return entity.getVariant().isPredator() && !entity.family().adult() && !entity.family().subadult() && !fledged;
+    }
+    public boolean readyToFly() {
+        return !nestling() || practiceAge() && wingPractice >= FledgeMath.threshold(entity.life().personality().trait(Trait.BOLDNESS));
+    }
+    private boolean practiceAge() { return entity.family().stage() == FamilyLife.Stage.JUVENILE && entity.growthScale() >= .35; }
+    public boolean practiceDue() {
+        return practiceAge() && entity.level().getGameTime() >= nextPractice && entity.onGround()
+                && !entity.family().awaitingLanding() && !entity.life().hasUrgentNeed();
+    }
+    public boolean canFlap() { return flapDay != entity.level().getDayTime() / 24000 || flapBouts < 6; }
+    public void restWings() {
+        var temperament = entity.life().personality().temperament();
+        int neighbours = entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(1)).size();
+        // Older, curious young in a crowded nest take shorter pauses between bouts.
+        nextPractice = entity.level().getGameTime() + (long)(200 / (1 + entity.growthScale() + temperament.curious() + neighbours * .25));
+    }
+    public void practise(boolean hop) {
+        if (!hop) {
+            long day = entity.level().getDayTime() / 24000;
+            if (flapDay != day) { flapDay = day; flapBouts = 0; }
+            flapBouts++;
+        }
+        wingPractice = FledgeMath.practise(wingPractice, hop);
+        GameplayLog.event(entity, "childhood", "fledge {} progress={} threshold={}", hop ? "hop" : "flap", wingPractice,
+                FledgeMath.threshold(entity.life().personality().trait(Trait.BOLDNESS)));
+    }
+    public boolean hopTo(Vec3 feet) { return entity.motor().run(branchHop, new Hop(feet)); }
+    public boolean hopping() { return entity.motor().owner() == branchHop; }
+    public void stopHop() { entity.motor().cancel(branchHop, "practice_ended"); }
+    public void fledged() { fledged = true; entity.setPersistenceRequired(); }
+    public double wingPractice() { return wingPractice; }
+    public float fallingHeight(float height) { return nestling() ? FledgeMath.effectiveFall(height, wingPractice) : height; }
+
+    /** An airborne shove still belongs to the pad beneath the feet. Launch, practice and falling after losing support use real physics. */
+    public BlockPos padUnderfoot() {
+        var cell = entity.blockPosition();
+        for (int i = 0; i <= 2; i++) {
+            var at = cell.below(i);
+            var state = entity.level().getBlockState(at);
+            if (state.is(ModBlocks.PREDATOR_NEST.get())) return at;
+            if (!state.isAir()) break;
+        }
+        return null;
+    }
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -469,6 +533,13 @@ public final class ChildhoodLife {
         tag.putBoolean("Crawled", crawled);
         tag.putInt("PracticeRest", practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
+        if (entity.getVariant().isPredator()) {
+            tag.putDouble("WingPractice", wingPractice);
+            tag.putBoolean("Fledged", fledged);
+            tag.putLong("FlapDay", flapDay);
+            tag.putInt("FlapBouts", flapBouts);
+            tag.putLong("NextWingPractice", nextPractice);
+        }
         return tag;
     }
 
@@ -476,6 +547,11 @@ public final class ChildhoodLife {
     public void load(CompoundTag tag) {
         stop();
         lastPosition = null;
+        wingPractice = Math.clamp(tag.getDouble("WingPractice"), 0, 1);
+        fledged = tag.getBoolean("Fledged");
+        flapDay = tag.getLong("FlapDay");
+        flapBouts = tag.getInt("FlapBouts");
+        nextPractice = tag.getLong("NextWingPractice");
         if (!tag.contains("Version")) {
             newborn = false;
             landed = firstMealDone = firstToiletDone = crawled = true;

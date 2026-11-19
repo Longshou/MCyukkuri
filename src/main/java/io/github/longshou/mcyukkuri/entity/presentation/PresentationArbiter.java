@@ -441,7 +441,8 @@ public final class PresentationArbiter {
     /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */
     private static String predatorAnimation(YukkuriEntity e, Actions actions) {
         String animation = e.predator().animation();
-        return actions == Actions.PREDATOR || e.predatorFlying() || "predator_bite".equals(animation) ? animation : null;
+        return actions == Actions.PREDATOR || e.predatorFlying() || "predator_bite".equals(animation)
+                || Behaviors.PREDATOR_FLAP.equals(animation) ? animation : null;
     }
 
     /** The walk, or a reaction clip that carries its own steps (YukkuriAction.walks) played in its place while travelling. */

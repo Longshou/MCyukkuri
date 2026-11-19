@@ -60,6 +60,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -82,7 +84,7 @@ public final class PredatorLife implements EcologyRoutine {
     private static final double FLIGHT_PATH_SEGMENT = 24;
     private static final double PATROL_RADIUS = 60;
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
-    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH }
+    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT }
     /** One attack run: climb above the target, stoop onto it, pull away, circle back (project design, after the Phantom's swoop). */
     private enum Pass { APPROACH, STOOP, WITHDRAW }
     /** A feeding bite and a combat strike hurt less than the former 2.0 so a blocker survives several passes (project design). */
@@ -153,11 +155,17 @@ public final class PredatorLife implements EcologyRoutine {
             case RETURN, LAND -> Behaviors.PREDATOR_RETURN;
             case PATROL -> Behaviors.PREDATOR_FLY;
             case PERCH -> watchTicks > 0 ? Behaviors.PREDATOR_PERCH : Behaviors.PREDATOR_FLY;
+            case FLAP -> Behaviors.PREDATOR_FLAP;
+            case BRANCH_HOP -> Behaviors.PREDATOR_PERCH;
+            case FIRST_FLIGHT -> Behaviors.PREDATOR_FLY;
             case FOUND -> nestBuild.activity();
             default -> Behaviors.IDLE;
         };
     }
     public String animation() {
+        if (task == Task.FLAP && watchTicks > 0) return Behaviors.PREDATOR_FLAP;
+        if (animal.fallDistance > 0 && animal.childhood().nestling() && animal.childhood().wingPractice() > 0
+                && !animal.family().awaitingLanding()) return Behaviors.PREDATOR_FLAP;
         if (task == Task.PERCH && watchTicks > 0) return Behaviors.PREDATOR_PERCH;
         if (task == Task.FOUND) return nestBuild.animation();
         if (task == Task.LAND && animal.predatorFlying()) return animal.isInWaterOrBubble() ? "predator_fly" : "predator_land";
@@ -492,6 +500,13 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean canUse() {
         if (active()) return runnable();
         if (naturalSpawn || !ready()) return false;
+        if (animal.childhood().nestling()) {
+            if (animal.status().identity().wild() && choosePractice()) return true;
+            if (cooldown > 0 || !animal.family().canEatIndependently()) return false;
+            if (chooseFeeding()) return true;
+            cooldown = 20;
+            return false;
+        }
         if (!hasAirExit()) return false;
         var home = animal.life().homeStand();
         boolean wildAdult = wildAdult();
@@ -532,6 +547,68 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean slowChild(YukkuriEntity target) {
         return !target.family().adult() && !target.family().subadult()
                 && target.getAttributeValue(Attributes.MOVEMENT_SPEED) < Gait.GROUND_ATTRIBUTE;
+    }
+    public boolean practisingHop() { return task == Task.BRANCH_HOP; }
+
+    private BlockPos familyPad() {
+        var pad = animal.childhood().padUnderfoot();
+        if (pad != null) return pad;
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var beside = animal.blockPosition().relative(side);
+            if (level().getBlockState(beside).is(ModBlocks.PREDATOR_NEST.get())) return beside;
+        }
+        for (var id : animal.family().caregiverIds()) {
+            if (id != null && level().getEntity(id) instanceof YukkuriEntity parent) {
+                var home = parent.life().homeStand();
+                if (home != null && level().getBlockState(home).is(ModBlocks.PREDATOR_NEST.get())) return home;
+            }
+        }
+        return null;
+    }
+
+    private boolean choosePractice() {
+        var young = animal.childhood();
+        if (!young.practiceDue()) return false;
+        var pad = familyPad();
+        if (pad == null) return false;
+        var here = animal.blockPosition();
+        boolean onPad = pad.equals(young.padUnderfoot());
+        boolean onBranch = !onPad && CanopySite.tree(level().getBlockState(here.below())) && here.distSqr(pad) <= 4;
+        var branches = new ArrayList<Vec3>();
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var at = pad.relative(side);
+            if (!CanopySite.tree(level().getBlockState(at.below()))) continue;
+            var feet = landingFeet(at);
+            if (feet != null && !SurfaceApproach.at(animal, feet)) branches.add(feet);
+        }
+        young.restWings();
+        if (young.readyToFly() && !branches.isEmpty() && hasAirExit() && (onPad || onBranch || firstFlightLift() > Ballistic.GRAVITY)) {
+            destination = branches.getFirst();
+            task = Task.FIRST_FLIGHT;
+            return true;
+        }
+        if (onBranch || onPad && animal.getRandom().nextBoolean()) {
+            for (var feet : onBranch ? List.of(padFeet(pad)) : branches) {
+                if (!SurfaceApproach.supported(animal, feet) || !CanopySite.clearBody(level(), animal, feet)
+                        || !new Hop(feet).check(animal, Hop.Search.admission()).ok()) continue;
+                destination = feet;
+                task = Task.BRANCH_HOP;
+                return true;
+            }
+        }
+        if (!young.canFlap()) return false;
+        // Face and approach the open edge without putting the sole outside the pad.
+        var edge = onPad && !branches.isEmpty() ? branches.getFirst().subtract(Vec3.atBottomCenterOf(pad)).multiply(1, 0, 1).normalize() : Vec3.ZERO;
+        destination = onPad ? padFeet(pad).add(edge.scale(.5 - SurfaceApproach.supportRadius(animal) - SurfaceApproach.ARRIVAL)) : animal.position();
+        task = Task.FLAP;
+        return true;
+    }
+
+    private Vec3 padFeet(BlockPos pad) {
+        return Vec3.atBottomCenterOf(pad).add(0, level().getBlockState(pad).getCollisionShape(level(), pad).max(Direction.Axis.Y), 0);
+    }
+    private double firstFlightLift() {
+        return flightAcceleration() * Math.sqrt(animal.childhood().wingPractice()) * BodyAbility.fitness(animal);
     }
     private boolean chooseFeeding() {
         if (animal.life().canEat()) {
@@ -635,10 +712,16 @@ public final class PredatorLife implements EcologyRoutine {
         if (task != Task.LAND) pendingRest = 0;
         contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
+        if (task == Task.FLAP) { animal.getNavigation().stop(); return; }
+        if (task == Task.BRANCH_HOP) {
+            if (!animal.childhood().hopTo(destination)) stop();
+            return;
+        }
         if (task == Task.FOUND) { cancelNestSearch(); nestBuild.start(); }
         GameplayLog.event(animal,"predator","activity started; task={} prey={} food={} corpse={} retaliation={} nutrition={} energy={} destination={}",
                 task,prey==null?"none":prey.getUUID(),food==null?"none":food.getUUID(),corpse==null?"none":corpse.getUUID(),
                 retaliation,animal.life().nutrition(),animal.life().energy(),destination);
+        if (task == Task.SCAVENGE && animal.childhood().nestling()) return;
         if (task != Task.FOUND && (task != Task.SCAVENGE || CanopySite.tree(level().getBlockState(animal.blockPosition().below()))
                 || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1))
             beginFlight();
@@ -647,7 +730,7 @@ public final class PredatorLife implements EcologyRoutine {
     private void beginFlight() {
         var feet = animal.position();
         var pos = BlockPos.containing(feet);
-        if (!animal.predatorFlying() && animal.onGround() && needsSideExit(pos)
+        if (!animal.predatorFlying() && animal.onGround() && (needsSideExit(pos) || task == Task.FIRST_FLIGHT)
                 && (destination == null || !SurfaceApproach.at(animal, destination))) {
             takeoffExit = sideExit(pos, feet, prey != null ? prey.position() : destination);
             if (takeoffExit == null) {
@@ -751,6 +834,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private void flightBlocked() {
         if (task == Task.FOUND) nestBuild.failed("no_flight_route", Reason.NO_PATH);
+        else if (task == Task.FIRST_FLIGHT) stop();
         else land();
     }
     private void directFlight(Vec3 goal, double speed) {
@@ -764,7 +848,7 @@ public final class PredatorLife implements EcologyRoutine {
         Vec3 delta = flightGoal.subtract(animal.position());
         double distance = delta.length();
         double maximum = BodyAbility.flightPace(animal, flightSpeed);
-        double acceleration = .12 * Math.sqrt(Math.max(.1, animal.life().energy() / 100.0));
+        double acceleration = flightAcceleration();
         // Include the next tick's displacement in the braking envelope. Weak flight starts braking earlier;
         // the ordinary .91 drag after travel only shortens this conservative no-drag stopping distance.
         double speed = Math.min(maximum, Math.min(distance * .35, brakingSpeed(distance, acceleration)));
@@ -786,6 +870,7 @@ public final class PredatorLife implements EcologyRoutine {
     private static double brakingSpeed(double distance, double acceleration) {
         return Math.sqrt(acceleration * acceleration + 2 * acceleration * Math.max(0, distance)) - acceleration;
     }
+    private double flightAcceleration() { return .12 * Math.sqrt(Math.max(.1, animal.life().energy() / 100.0)); }
     private AABB bodyAt(Vec3 feet) { return animal.getBoundingBox().move(feet.subtract(animal.position())); }
     /** Required sole height over real water columns under the whole body footprint. */
     private double flightFloor(Vec3 feet) {
@@ -871,9 +956,10 @@ public final class PredatorLife implements EcologyRoutine {
         boolean touching = arrived && animal.onGround();
         return ShelfApproach.landing(standClear, touching, standClear && touching && dryLanded());
     }
-    private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
+    private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0
+            && !animal.isPassenger() && animal.childhood().readyToFly(); }
     public boolean canCatchFall() {
-        return EcologyRoutines.predator(animal) && animal.family().adult() && !animal.isNoAi() && canSustainFlight();
+        return EcologyRoutines.predator(animal) && !animal.childhood().nestling() && !animal.isNoAi() && canSustainFlight();
     }
     public void catchFall() {
         if (animal.predatorFlying() || !canCatchFall()) return;
@@ -992,7 +1078,7 @@ public final class PredatorLife implements EcologyRoutine {
             if (animal.distanceToSqr(takeoffExit) > .015) {
                 if (!flightSweepClear(animal.position(), takeoffExit) || ticks > 60) {
                     takeoffExit = null;
-                    land();
+                    if (task == Task.FIRST_FLIGHT) stop(); else land();
                 } else directFlight(takeoffExit, 1);
                 return;
             }
@@ -1003,6 +1089,31 @@ public final class PredatorLife implements EcologyRoutine {
             return;
         }
         if (task == Task.PERCH) { perch(); return; }
+        if (task == Task.FLAP) {
+            if (!animal.onGround() || !SurfaceApproach.supported(animal, destination)) { stop(); return; }
+            if (!SurfaceApproach.at(animal, destination)) {
+                watchTicks = 0;
+                Motor.step(animal, destination, .75);
+                return;
+            }
+            SurfaceApproach.halt(animal);
+            if (++watchTicks >= ClipMarkers.of(Behaviors.PREDATOR_FLAP).length()) { animal.childhood().practise(false); stop(); }
+            return;
+        }
+        if (task == Task.BRANCH_HOP) { if (!animal.childhood().hopping()) stop(); return; }
+        if (task == Task.FIRST_FLIGHT) {
+            if (!canSustainFlight() || !freeStand(destination) || !animal.onGround() && firstFlightLift() <= Ballistic.GRAVITY) {
+                stop(); return;
+            }
+            var admission = landingState(true, SurfaceApproach.at(animal, destination));
+            if (admission == ShelfApproach.Landing.TOUCHDOWN) {
+                animal.childhood().fledged();
+                GameplayLog.event(animal, "childhood", "first flight outcome=landed feet={}", animal.position());
+                animal.setPredatorFlying(false);
+                stop();
+            } else flyToFeet(destination, true);
+            return;
+        }
         if (animal.life().energy() < 15 && task != Task.LAND && task != Task.EAT) landAvoidingFoe();
         if (task == Task.NONE) return;
         if (task == Task.EAT) { eat(); return; }
@@ -1027,7 +1138,7 @@ public final class PredatorLife implements EcologyRoutine {
             if (corpse != null) {
                 if (!edibleCorpse(corpse) || !animal.life().canAcceptBodyFood()) { stop(); return; }
                 var feeding = corpse;
-                fly(feeding.position(), 1);
+                approachFood(feeding.position());
                 if (task != Task.SCAVENGE || corpse != feeding) return;
                 double reach = (animal.getBbWidth() + corpse.getBbWidth()) * .5 + .18;
                 if (animal.distanceToSqr(corpse) <= reach * reach && animal.hasLineOfSight(corpse)) {
@@ -1038,7 +1149,7 @@ public final class PredatorLife implements EcologyRoutine {
             }
             if (food == null || !edibleDrop(food) || !animal.life().canEat()) { stop(); return; }
             var feeding = food;
-            fly(feeding.position(), 1);
+            approachFood(feeding.position());
             if (task != Task.SCAVENGE || food != feeding) return;
             if (animal.distanceToSqr(feeding) < 1 && animal.hasLineOfSight(feeding)) {
                 var stack = feeding.getItem();
@@ -1088,6 +1199,10 @@ public final class PredatorLife implements EcologyRoutine {
         GameplayLog.event(animal,"predator","mode {} -> {}; reason={} task={} prey={} nutrition={} health={}/{}",
                 combat?"predation":"combat",combat?"combat":"predation",reason,task,prey==null?"none":prey.getUUID(),
                 animal.life().nutrition(),animal.getHealth(),animal.getMaxHealth());
+    }
+    private void approachFood(Vec3 at) {
+        if (!animal.childhood().nestling()) fly(at, 1);
+        else if (SurfaceApproach.walkResult(animal, at, null, 1) == SurfaceApproach.Result.BLOCKED) stop();
     }
     /** Mouthful of world remains by an eating or scavenging predator. */
     private void takeRemains(RemainsEntity remains, String via) {
@@ -1275,6 +1390,11 @@ public final class PredatorLife implements EcologyRoutine {
         task=next;
     }
     public void stop() {
+        if (task == Task.BRANCH_HOP && animal.childhood().hopping()) animal.childhood().stopHop();
+        if (task == Task.FIRST_FLIGHT && animal.childhood().nestling()) {
+            GameplayLog.event(animal, "childhood", "first flight outcome=interrupted feet={} energy={}", animal.position(), animal.life().energy());
+            animal.setPredatorFlying(false);
+        }
         watchTicks = 0;
         takeoffExit = null;
         if (task == Task.FOUND) nestBuild.stop();

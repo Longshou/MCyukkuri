@@ -90,18 +90,23 @@ public final class ClipMarkers {
             MCYukkuri.LOGGER.warn("[body] clip markers unreadable, using built-in timing: {}", failure.toString());
         }
         // Base clips are authored in the species model rather than in the correction layer.
-        try (var stream = ClipMarkers.class.getResourceAsStream("/assets/mcyukkuri/yukkuri/reimu.json")) {
+        readSpeciesClips("reimu", "clips", out);
+        readSpeciesClips("remilia", "behavior_clips", out);
+        return new Data(Map.copyOf(out), Map.copyOf(tipped));
+    }
+
+    private static void readSpeciesClips(String species, String group, Map<String, Clip> out) {
+        try (var stream = ClipMarkers.class.getResourceAsStream("/assets/mcyukkuri/yukkuri/" + species + ".json")) {
             var reader = new JsonReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             reader.beginObject();
             while (reader.hasNext()) {
-                if (!reader.nextName().equals("clips")) { reader.skipValue(); continue; }
+                if (!reader.nextName().equals(group)) { reader.skipValue(); continue; }
                 reader.beginObject();
                 while (reader.hasNext()) { String name = reader.nextName(); out.putIfAbsent(name, clip(reader)); }
                 reader.endObject();
             }
             reader.endObject();
         } catch (IOException failure) { throw new java.io.UncheckedIOException(failure); }
-        return new Data(Map.copyOf(out), Map.copyOf(tipped));
     }
 
     private static Clip clip(JsonReader reader) throws IOException {

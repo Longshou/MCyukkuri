@@ -47,6 +47,7 @@ public final class Motor {
     public static Vec3 groundTravel(YukkuriEntity body, Vec3 motion, boolean driving) {
         if (body.family().freeFalling() || body.motor().current() instanceof Launch) return motion;
         Vec3 limited = driving ? limitHorizontal(motion) : motion;
+        limited = nestStep(body, limited);
         if (!body.level().isClientSide && limited.horizontalDistanceSqr() > 0
                 && body.getNavigation() instanceof YukkuriGroundNavigation ground && !body.isInLiquid()
                 && (ground.retreating() || body.isPanicking() || body.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT)
@@ -66,6 +67,26 @@ public final class Motor {
         }
         if (limited != motion) body.setDeltaMovement(limited);
         return limited;
+    }
+
+    public static void brakeFledglingFall(YukkuriEntity body) {
+        var v = body.getDeltaMovement();
+        if (v.y < 0 && body.fallDistance > 0 && body.childhood().nestling() && !body.family().awaitingLanding()
+                && body.childhood().wingPractice() > 0)
+            velocity(body, new Vec3(v.x, body.childhood().fallingHeight((float)v.y), v.z), "fledge_flap");
+    }
+
+    static Vec3 nestStep(YukkuriEntity body, Vec3 delta) {
+        if (body.level().isClientSide || !body.childhood().nestling() || body.isPassenger()
+                || body.family().awaitingLanding() || body.childhood().hopping() || body.predatorFlying()) return delta;
+        var pad = body.childhood().padUnderfoot();
+        if (pad == null) return delta;
+        double radius = SurfaceApproach.supportRadius(body);
+        double x = Mth.clamp(body.getX() + delta.x, pad.getX() + radius, pad.getX() + 1 - radius);
+        double z = Mth.clamp(body.getZ() + delta.z, pad.getZ() + radius, pad.getZ() + 1 - radius);
+        // A foot already on the rim may move inward under its own power.
+        return new Vec3(Math.clamp(x - body.getX(), Math.min(0, delta.x), Math.max(0, delta.x)), delta.y,
+                Math.clamp(z - body.getZ(), Math.min(0, delta.z), Math.max(0, delta.z)));
     }
 
     /** Path-node steering uses the same three-dimensional pace as a direct flight command. */
@@ -154,7 +175,7 @@ public final class Motor {
     public static Vec3 move(Entity body, Vec3 delta, String cause) {
         if (body == null || delta == null) return Vec3.ZERO;
         Vec3 from = body.position();
-        if (body instanceof YukkuriEntity animal) animal.moveByMotor(delta);
+        if (body instanceof YukkuriEntity animal) animal.moveByMotor(nestStep(animal, delta));
         else body.move(MoverType.SELF, delta);
         return body.position().subtract(from);
     }
