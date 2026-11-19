@@ -292,6 +292,13 @@ public final class HabitatLife {
     }
     /** A hungry own child comes before the bed: harvested grass goes onto the food pile, not into the lining. */
     private boolean stockFirst() { return entity.family().hasChildAwaitingFeed(); }
+    private boolean supplyingHungryChild() {
+        return switch(task) {
+            case HARVEST -> stockFirst();
+            case DEPOSIT, GRAIN_PUT -> carrying.is(YukkuriEntity.FOOD)&&stockFirst();
+            default -> false;
+        };
+    }
     private boolean meal() { return task==Task.FOOD||task==Task.GRAIN_TAKE; }
     /** Own store empty and hungry: walk to the nearest granary pile that holds something this animal eats. */
     private boolean startGranaryTake() {
@@ -386,12 +393,16 @@ public final class HabitatLife {
         if(!freeForWork())return false;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal.start(value))return true;
-        if(entity.mind().feeling().prefersPartingGaze()&&!stockFirst()&&!rationLoad)return false;
-        if(nestEligible(value)&&startNest(value))return true;
-        if(homes.extensionWanted(value)&&homes.startExtension(value))return true;
-        if(homes.relocationWanted(value)) {
-            homes.relocate(value);
-            return task==Task.RELOCATE;
+        boolean gazing=entity.mind().feeling().prefersPartingGaze();
+        if(gazing) {
+            if(!stockFirst()||!carrying.isEmpty()&&!carrying.is(YukkuriEntity.FOOD))return false;
+        } else {
+            if(nestEligible(value)&&startNest(value))return true;
+            if(homes.extensionWanted(value)&&homes.startExtension(value))return true;
+            if(homes.relocationWanted(value)) {
+                homes.relocate(value);
+                return task==Task.RELOCATE;
+            }
         }
         if(hasNestProject()) {
             if(!nestProjectValid())cancelNestProject();
@@ -402,7 +413,7 @@ public final class HabitatLife {
             if(!carrying.isEmpty()&&entity.life().dryStand(entity.blockPosition()))dropCarrying();
             return false;
         }
-        if(seasonal.shareStart(value))return true;
+        if(!gazing&&seasonal.shareStart(value))return true;
         if(carrying.isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
         boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=40&&entity.life().energy()>=35;
         if(!carrying.isEmpty()) {
@@ -410,6 +421,7 @@ public final class HabitatLife {
             task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;
         }
         if(!mayWork)return false;
+        if(gazing)return planHarvest(value);
         targetItem=value.wasteInside().stream().filter(item->!item.hasPickUpDelay()).findFirst().orElse(null);
         if(targetItem==null)targetItem=level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(10),item->item.isAlive()&&!item.hasPickUpDelay()
                 &&wantsMaterial(value,item.getItem()))
@@ -487,8 +499,8 @@ public final class HabitatLife {
         if(task==Task.RELOCATE)return ticks<1200&&entity.isAlive()&&!entity.isPanicking()&&!entity.isPassenger()&&!entity.operations().active()
                 &&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&homes.travelContinues();
         if(!active()||!ready())return false;
-        if(entity.mind().feeling().prefersPartingGaze()&&!meal()&&!rationLoad&&!stockFirst()
-                && task!=Task.RATION&&task!=Task.STAY&&task!=Task.SIESTA)return false;
+        if(entity.mind().feeling().prefersPartingGaze()&&!meal()&&!rationLoad
+                && task!=Task.RATION&&task!=Task.STAY&&task!=Task.SIESTA&&!supplyingHungryChild())return false;
         if(!freeForWork() && switch(task) {
             case RATION, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, PICKUP, HARVEST, SURFACE_NEST -> true;
             default -> false;

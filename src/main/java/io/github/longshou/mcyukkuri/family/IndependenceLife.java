@@ -180,9 +180,9 @@ public final class IndependenceLife extends Goal {
     /** Loaded-time clock only; a paused or captured individual never leaves offline. */
     public void clock() {
         if (entity.level().isClientSide || entity.isNoAi()) return;
+        if (parentWait > 0) parentWait--;
         if (loadGrace > 0) { loadGrace--; return; }
         if (wait > 0) wait--;
-        if (parentWait > 0) parentWait--;
     }
     public int departureChance() {
         var home = entity.habitat().shelter();
@@ -480,6 +480,7 @@ public final class IndependenceLife extends Goal {
         var tag = new CompoundTag(); FamilyData.putPosition(tag, "Origin", origin);
         tag.putString("Why", why()); tag.putBoolean("Force", armed); tag.putBoolean("Independent", independent); tag.putBoolean("Household",
                 household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
+        if (parentWait >= 0) tag.putInt("ParentWait", parentWait);
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -491,7 +492,8 @@ public final class IndependenceLife extends Goal {
         wait = tag.contains("Wait") ? Math.clamp(tag.getInt("Wait"), 0, CHECK_INTERVAL) : CHECK_INTERVAL;
         if (armed) wait = 0;
         visits = Math.max(0, tag.getInt("Visits"));
-        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; loadGrace = 100; parentWait = -1;
+        parentWait = tag.contains("ParentWait") ? tag.getInt("ParentWait") : -1;
+        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; loadGrace = 100;
         target = progress = null; stalled = 0;
     }
 }

@@ -168,9 +168,9 @@ final class YukkuriGoals {
         goalSelector.addGoal(EmotionCourse.PARTING_PRIORITY, basicBinding(PresentationGoals.EMOTION,
                 new EmotionCourse.CourseGoal(owner, EmotionCourse.PARTING_PRIORITY)));
         roaming = new RoamingGoal(owner);
-        goalSelector.addGoal(7, basicBinding(PresentationGoals.ROAMING, roaming));
-        goalSelector.addGoal(8, landGoal(new LookAtPlayerGoal(owner, Player.class, 6.0F), true));
-        goalSelector.addGoal(9, landGoal(new RandomLookAroundGoal(owner), true));
+        goalSelector.addGoal(9, basicBinding(PresentationGoals.ROAMING, roaming));
+        goalSelector.addGoal(10, landGoal(new LookAtPlayerGoal(owner, Player.class, 6.0F), true));
+        goalSelector.addGoal(11, landGoal(new RandomLookAroundGoal(owner), true));
     }
     /** The bound wrapper retains its selector identity and delegates the real goal only in its land territory. */
     private <G extends Goal> Goal landBinding(PresentationGoals.Source<G> source, G delegate) {

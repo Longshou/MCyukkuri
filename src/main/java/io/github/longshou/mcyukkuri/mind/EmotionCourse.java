@@ -40,7 +40,7 @@ import net.minecraft.world.phys.Vec3;
  * character), {@link #frightened} (the course that starts with a real danger), {@link #begin} for the rest.
  */
 public final class EmotionCourse {
-    public static final int PARTING_PRIORITY = 7;
+    public static final int PARTING_PRIORITY = 8;
 
     public enum Kind { GRIEF, TERROR, RAGE, JOY, PARTING }
     public enum Stage {

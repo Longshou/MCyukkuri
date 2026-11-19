@@ -146,10 +146,10 @@ public final class DailyLife {
         }
         if (active() && !valid()) stop();
     }
-    private static boolean available(YukkuriEntity e) { return available(e, false); }
-    private static boolean available(YukkuriEntity e, boolean continuing) {
+    private static boolean available(YukkuriEntity e) { return available(e, false, false); }
+    private static boolean available(YukkuriEntity e, boolean continuing, boolean exercise) {
         return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi()
-                && (!e.mind().feeling().prefersPartingGaze() || e.life().constipated()
+                && (!e.mind().feeling().prefersPartingGaze() || exercise && e.life().constipated()
                     || continuing && e.dailyLife().inContact() && e.dailyLife().nuzzlePartnerId() >= 0)
                 // A session under way survives the step down a bank it is walking to (a friend in a hollow); a new one starts on the ground.
                 && (continuing || e.onGround()) && !e.isPassenger()
@@ -223,7 +223,7 @@ public final class DailyLife {
     }
     private boolean begin(Kind kind, Entity companion) { return begin(kind, companion, false); }
     private boolean canBegin(Kind kind, Entity companion) {
-        if (entity.level().isClientSide || !available(entity) || active() || cooldown > 0) return false;
+        if (entity.level().isClientSide || !available(entity, false, kind == Kind.EXERCISE) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
         return kind == Kind.NUZZLE || room() && TravelRange.nearHomeForLeisure(entity);
@@ -274,7 +274,7 @@ public final class DailyLife {
         if (active()) return valid();
         if (cooldown > 0 || entity.social().active()) return false;
         if (entity.tickCount % 10 == 0 && welcomeHome() == Welcome.STARTED) return true;
-        if (scanWait > 0 || !available(entity)) return false;
+        if (scanWait > 0 || !available(entity, false, entity.childhood().canExercise())) return false;
         // Someone of its own just came in and is still busy (setting its load down, eating): it keeps an eye on them for the
         // welcome rather than starting a song or a game of its own.
         if (welcomeHome() == Welcome.WATCHING) { scanWait = 10; return false; }
@@ -352,7 +352,7 @@ public final class DailyLife {
     private YukkuriEntity inEarshot(YukkuriEntity companion) { return companion != null && entity.distanceToSqr(companion) <= 25 ? companion : null; }
 
     public boolean valid() {
-        if (!active() || !available(session.leader, true) || session.elapsed >= 320) return false;
+        if (!active() || !available(session.leader, true, session.kind == Kind.EXERCISE) || session.elapsed >= 320) return false;
         if (session.kind != Kind.SING && (session.leader.isPassenger()
                 || session.companion instanceof YukkuriEntity peer && peer.isPassenger())) return false;
         var other = session.companion;
@@ -361,7 +361,7 @@ public final class DailyLife {
                 || session.leader.distanceToSqr(other) > (session.kind == Kind.NUZZLE ? NUZZLE_SIGHT * NUZZLE_SIGHT : 36)
                 || session.leader.distanceToSqr(other) > 4 && !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
-            return available(peer, true) && peer.dailyLife().session == session
+            return available(peer, true, session.kind == Kind.EXERCISE) && peer.dailyLife().session == session
                     && peer.life().personality().fear(session.leader.getUUID()) < 60
                     && session.leader.life().personality().fear(peer.getUUID()) < 60;
         return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
