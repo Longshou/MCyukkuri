@@ -58,7 +58,7 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     /** The former address is a memory, and confers neither an occupied bed nor membership. */
     private enum Appeal { NONE, PLEADED, WITHDREW }
-    private record Exile(Home home, Appeal appeal) {}
+    private record Exile(Home home, Appeal appeal, UUID refusedBy) {}
     private enum Task { WITNESS, LEAVE, VISIT }
 
     private final YukkuriEntity entity;
@@ -329,6 +329,8 @@ public final class MoldExile extends Goal implements MotorOwner {
             answer = Ousting.answer(t);
             lookBacks = answer == Answer.FAREWELL ? t.is(Gate.DEVOTED_KIN) ? 2 : 1 : 0;
             if (exile != null && exile.appeal() == Appeal.PLEADED) {
+                // A resident can refuse after the exile has already pleaded at the entrance.
+                if (peer != null) exile = new Exile(home, Appeal.PLEADED, peer.getUUID());
                 ticks = LISTEN + answerTicks;
                 lookBacks = 0;
             }
@@ -501,25 +503,26 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     private void completeLeave() {
         boolean first = exile == null;
+        UUID witness = first ? peer.getUUID() : exile.refusedBy();
         if (first) {
             for (var child : dependants()) {
                 var parent = healthyParent(child, home);
                 GameplayLog.event(entity, "family", "mold exile child stays child={} healthy_parent={} child_home={}",
                         child.getUUID(), parent.getUUID(), child.life().homeStand());
             }
-            exile = new Exile(home, answer == Answer.CURSE ? Appeal.WITHDREW : Appeal.NONE);
+            exile = new Exile(home, answer == Answer.CURSE ? Appeal.WITHDREW : Appeal.NONE, null);
             entity.habitat().release();
             entity.life().releaseHome();
             entity.settlement().exile();
             GameplayLog.event(entity, "settlement", "mold exile departed scope={} group={} den={} at={} witness={} stage={}",
-                    home.colony() ? "colony" : "family", home.group(), home.den(), entity.blockPosition(), peer.getUUID(), entity.body().mold());
+                    home.colony() ? "colony" : "family", home.group(), home.den(), entity.blockPosition(), witness, entity.body().mold());
         } else {
-            exile = new Exile(home, Appeal.WITHDREW);
+            exile = new Exile(home, Appeal.WITHDREW, null);
             GameplayLog.event(entity, "settlement", "mold exile withdrew {} witness={} stage={}",
-                    peer == null ? "without answer" : "after refusal", peer == null ? null : peer.getUUID(), entity.body().mold());
+                    witness == null ? "without answer" : "after refusal", witness, entity.body().mold());
         }
         // Outside, it feels the loss of its home most strongly on the first departure.
-        entity.mind().feeling().wronged(peer == null ? null : peer.getUUID(), first ? 1f : .6f, BlockPos.containing(home.centre()));
+        entity.mind().feeling().wronged(witness, first ? 1f : .6f, BlockPos.containing(home.centre()));
         entity.habitat().seekHomeNow();
         end();
     }
@@ -550,7 +553,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private void pleadForReturn() {
-        exile = new Exile(home, Appeal.PLEADED);
+        exile = new Exile(home, Appeal.PLEADED, peer == null ? null : peer.getUUID());
         boolean spoken = entity.showReaction("teary", "", REACTION) && entity.speakCue("mold_plea");
         GameplayLog.event(entity, "settlement", "mold exile return plea spoken={}", spoken);
     }
@@ -591,6 +594,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         memory.putBoolean("Colony", address.colony());
         memory.putBoolean("Appealed", exile.appeal() != Appeal.NONE);
         if (exile.appeal() == Appeal.PLEADED) memory.putBoolean("Withdrawing", true);
+        if (exile.refusedBy() != null) memory.putUUID("RefusedBy", exile.refusedBy());
         tag.put("MoldExile", memory);
     }
 
@@ -599,6 +603,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         var range = FamilyData.position(memory, "Range");
         exile = range == null ? null : new Exile(new Home(range, memory.hasUUID("Group") ? memory.getUUID("Group") : null,
                 memory.contains("Den") ? BlockPos.of(memory.getLong("Den")) : null, memory.getBoolean("Colony")),
-                memory.getBoolean("Withdrawing") ? Appeal.PLEADED : memory.getBoolean("Appealed") ? Appeal.WITHDREW : Appeal.NONE);
+                memory.getBoolean("Withdrawing") ? Appeal.PLEADED : memory.getBoolean("Appealed") ? Appeal.WITHDREW : Appeal.NONE,
+                memory.hasUUID("RefusedBy") ? memory.getUUID("RefusedBy") : null);
     }
 }
