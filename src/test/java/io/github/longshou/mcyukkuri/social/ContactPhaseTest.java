@@ -7,6 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 class ContactPhaseTest {
+    @Test void travelAllowanceUsesTheGapAndTheWalkingBody() {
+        assertEquals(0, ContactPhase.walkTicks(.5, .75, .1));
+        assertEquals(8, ContactPhase.walkTicks(1.5, .75, .1));
+        assertEquals(15, ContactPhase.walkTicks(1.5, .75, .05));
+    }
+
     @Test void travelConsumesItsOwnBudget() {
         for (var phase : new ContactPhase[] {ContactPhase.APPROACH, ContactPhase.CLOSE}) {
             assertTrue(phase.canTick(9, 10));

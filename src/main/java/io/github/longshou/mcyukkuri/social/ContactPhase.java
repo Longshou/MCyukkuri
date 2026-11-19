@@ -8,6 +8,10 @@ enum ContactPhase {
 
     ContactPhase(boolean usesApproachBudget) { this.usesApproachBudget = usesApproachBudget; }
 
+    static int walkTicks(double distance, double reach, double pace) {
+        return (int) Math.ceil(Math.max(0, distance - reach) / pace);
+    }
+
     boolean canTick(int elapsed, int budget) { return !usesApproachBudget || elapsed < budget; }
 
     int elapsedAfterTick(int elapsed) { return usesApproachBudget ? elapsed + 1 : elapsed; }

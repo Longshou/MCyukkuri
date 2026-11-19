@@ -211,9 +211,7 @@ public final class YukkuriSocial implements MotorOwner {
             startHuman(returning, false);
             task = Task.OWNER_RETURN;
             double distance = entity.distanceTo(returning);
-            // Keep the ordinary approach allowance for turns and detours, plus the walk from the return sight range.
-            double walk = BodyAbility.of(entity).walkSpeed() * BodyAbility.carrying(entity);
-            duration += (int) Math.ceil(Math.max(0, distance - HUMAN_CONTACT) / walk);
+            duration = welcomeTravelBudget(distance, returnClip.equals("joy_jump") ? ownerNuzzleReach() : HUMAN_CONTACT);
             GameplayLog.event(entity, "pet", "owner return approach owner={} clip={} distance={} budget={}",
                     returning.getUUID(), returnClip, distance, duration);
             return true;
@@ -424,14 +422,13 @@ public final class YukkuriSocial implements MotorOwner {
         if (task == Task.STUDY) return elapsed < duration && freeForSocial() && !entity.pet().busy();
         if (task == Task.OWNER_RETURN) return entity.pet().canWelcomeOwner() && target.isAlive()
                 && target.level() == entity.level() && entity.pet().nearReturningOwner((LivingEntity) target)
-                && !(target instanceof Player player && player.isSpectator()) && !urgent()
-                && contactPhase().canTick(elapsed, duration);
+                && !(target instanceof Player player && player.isSpectator()) && !urgent();
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
                 && !attachedTo(target)
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
                 && entity.life().mealTicks() == 0 && !entity.isCommandPlaying()
-                && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : contactPhase().canTick(elapsed, duration))
+                && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : elapsed < duration || holdingPeerGreeting())
                 && (!humanContact() || !entity.isPassenger() && !entity.life().hasUrgentNeed() && !entity.operations().active()
                         && !entity.waterDistress().active() && !(target instanceof Player player && player.isSpectator()))
                 && (task != Task.TOOL || holdingTool((LivingEntity) target) && availableForSocial())
@@ -441,7 +438,16 @@ public final class YukkuriSocial implements MotorOwner {
         if (!canContinue()) { stop(); return; }
         // The visible tool chooses the contact even before landing. The reaction needs footing.
         if (task == Task.TOOL && !entity.onGround()) return;
-        elapsed = contactPhase().elapsedAfterTick(elapsed);
+        var phase = contactPhase();
+        if (task == Task.OWNER_RETURN && !phase.canTick(elapsed, duration)) {
+            if (!retreat) {
+                entity.showReaction("side_teary", "", 40);
+                GameplayLog.event(entity, "pet", "owner return gave up pursuit owner={} phase={} travelTicks={}", target.getUUID(), phase, elapsed);
+            }
+            stop();
+            return;
+        }
+        elapsed = phase.elapsedAfterTick(elapsed);
         if (task == Task.TOOL) {
             entity.getLookControl().setLookAt(target, 30, 30);
             if (elapsed == 1) {
@@ -622,9 +628,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     private ContactPhase contactPhase() {
-        if (task == Task.OWNER_RETURN && !retreat) return welcomePhase;
-        return holdingPeerGreeting() || task == Task.PLAYER && greeted && !retreat && greeting()
-                ? ContactPhase.GREETING : ContactPhase.APPROACH;
+        return task == Task.OWNER_RETURN && !retreat ? welcomePhase : ContactPhase.APPROACH;
     }
 
     private void tickHumanContact() {
@@ -664,7 +668,7 @@ public final class YukkuriSocial implements MotorOwner {
             else stop();
             return;
         }
-        if (!approachHuman(greetingReach())) return;
+        if (!approachGreeting()) return;
         greeted = true;
         if (task == Task.OWNER_RETURN) {
             welcomePhase = ContactPhase.GREETING;
@@ -705,7 +709,7 @@ public final class YukkuriSocial implements MotorOwner {
             if (!returnClip.equals("joy_jump")) { stop(); return; }
             welcomePhase = ContactPhase.CLOSE;
             elapsed = welcomePhase.elapsedAfterTick(0);
-            duration = CONTACT_APPROACH;
+            duration = welcomeTravelBudget(entity.distanceTo(target), ownerNuzzleReach());
             GameplayLog.event(entity, "pet", "owner return closing owner={} distance={}", target.getUUID(), entity.distanceTo(target));
         }
         double reach = ownerNuzzleReach();
@@ -716,14 +720,20 @@ public final class YukkuriSocial implements MotorOwner {
                 target.getUUID(), entity.distanceTo(target), reach);
     }
 
-    private double greetingReach() {
-        if (!"joy_jump".equals(returnClip)) return HUMAN_CONTACT;
-        // Leave room for an owner who is still on their way home to move during the greeting.
+    private boolean approachGreeting() {
+        if (!"joy_jump".equals(returnClip)) return approachHuman(HUMAN_CONTACT);
+        // Follow to rubbing distance if the owner is passing through. Start the stationary clip once they can stay in reach.
         double ownerStep = Math.hypot(target.getX() - target.xo, target.getZ() - target.zo);
-        return Math.max(ownerNuzzleReach(), HUMAN_CONTACT - ownerStep * ClipMarkers.of(returnClip).length());
+        double greetingReach = HUMAN_CONTACT - ownerStep * ClipMarkers.of(returnClip).length();
+        return approachHuman(Math.max(ownerNuzzleReach(), greetingReach)) && entity.distanceTo(target) <= greetingReach;
     }
 
     private double ownerNuzzleReach() { return (entity.getBbWidth() + target.getBbWidth()) * .5 + .10; }
+
+    private int welcomeTravelBudget(double distance, double reach) {
+        double walk = BodyAbility.of(entity).walkSpeed() * BodyAbility.carrying(entity);
+        return CONTACT_APPROACH + ContactPhase.walkTicks(distance, reach, walk);
+    }
 
     private void hesitateAtOwner(double wariness) {
         entity.showReaction("side_teary", "", 40);

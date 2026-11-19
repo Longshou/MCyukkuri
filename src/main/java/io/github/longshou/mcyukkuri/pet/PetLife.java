@@ -300,8 +300,12 @@ public final class PetLife {
         var bond = personality.relation(person.getUUID());
         double affection = SocialDisposition.ramp(animal.dailyLife().affectionNeed(), 40, 80);
         double chance = Math.min(1, .35 + .60 * SocialDisposition.ramp(personality.attachment(), 30, 80) + .25 * affection);
-        return SocialDisposition.humanWariness(animal, person, bond) < .50
-                && (neglect >= 30 || animal.getRandom().nextDouble() < chance) ? person : null;
+        double wariness = SocialDisposition.humanWariness(animal, person, bond);
+        if (wariness < .50 && (neglect >= 30 || animal.getRandom().nextDouble() < chance)) return person;
+        animal.showReaction("side_teary", "", 40);
+        animal.life().deferSocial(600);
+        GameplayLog.event(animal, "pet", "owner return declined owner={} wariness={} approachChance={}", person.getUUID(), wariness, chance);
+        return null;
     }
 
     public String ownerWelcomeClip() {
