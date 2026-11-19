@@ -99,6 +99,7 @@ public final class FlightPlanner {
     }
 
     private Path refuge(LivingEntity danger) {
+        if (shieldsHomeFrom(danger)) return null;
         var parent = ParentCarry.flightEscort(body, danger);
         if (parent != null) {
             var path = routeTo(parent.position(), danger.position());
@@ -110,7 +111,6 @@ public final class FlightPlanner {
             var path = routeTo(keeper.position(), danger.position());
             if (path != null) return path;
         }
-        if (shieldsHomeFrom(danger)) return null;
         var shelter = body.habitat().shelter();
         if (shelter != null && !shelter.contains(body.blockPosition()) && DenBarrier.sealed(shelter))
             return routeTo(Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing())), danger.position());

@@ -19,9 +19,9 @@ public final class ProtectivePuff {
     private static final int REACTION_TICKS = 45;
 
     /** Records the draws for one accepted hit; true when the victim itself answered at the attacker. */
-    public static boolean witnessedHit(YukkuriEntity victim, Entity attacker) {
+    public static boolean witnessedHit(YukkuriEntity victim, Entity attacker, boolean victimCanPuff) {
         if (attacker == null || attacker == victim || !(victim.level() instanceof ServerLevel level)) return false;
-        boolean puffed = puff(victim, victim, attacker);
+        boolean puffed = victimCanPuff && puff(victim, victim, attacker);
         for (var parent : level.getEntitiesOfClass(YukkuriEntity.class,
                 victim.getBoundingBox().inflate(WITNESS_RANGE), e -> e != attacker && parentOf(victim, e)))
             puff(parent, victim, attacker);

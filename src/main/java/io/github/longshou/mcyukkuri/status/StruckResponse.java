@@ -30,7 +30,7 @@ final class StruckResponse implements MotorOwner {
         return stance != null && body.level().getGameTime() < until && actor.isAlive() && actor.level() == body.level();
     }
 
-    boolean leading() { return stance == StruckStance.LEAD_AWAY; }
+    boolean leadingFrom(LivingEntity danger) { return stance == StruckStance.LEAD_AWAY && actor == danger && active(); }
 
     private boolean exitOpen(LivingEntity danger) {
         return Reactions.freeToReact(body) && !body.isLeashed() && !body.grief().protecting()
@@ -40,6 +40,10 @@ final class StruckResponse implements MotorOwner {
     StruckStance decide(LivingEntity danger, float loss) {
         var seal = body.status().reactions().threat().seal();
         boolean finish = seal.holdsThroughHit();
+        if ((!finish || leadingFrom(danger)) && homeTactic(danger)) {
+            GameplayLog.event(body, "threat", "struck stance=LEAD_AWAY attacker={} loss={}", danger.getUUID(), loss);
+            return StruckStance.LEAD_AWAY;
+        }
         if (finish || !seal.active() && seal.tryCommit(danger, DenSeal.Side.INSIDE)) {
             if (finish) {
                 var home = body.habitat().shelter();
@@ -50,7 +54,6 @@ final class StruckResponse implements MotorOwner {
             GameplayLog.event(body, "threat", "struck stance=SEAL attacker={} loss={}", danger.getUUID(), loss);
             return StruckStance.SEAL;
         }
-        if (homeTactic(danger)) return StruckStance.LEAD_AWAY;
         var p = body.life().personality();
         var id = body.status().identity();
         int young = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(6), body.family()::caresFor).size();
@@ -97,13 +100,14 @@ final class StruckResponse implements MotorOwner {
         if (!(body.family().adult() || body.family().subadult()) || body.body().weak() || !Reactions.freeToReact(body)
                 || body.isLeashed() || home == null || !home.owns(body.getUUID()) || home.contains(body.blockPosition())) return false;
         var door = Vec3.atBottomCenterOf(home.entrance());
-        if (body.distanceToSqr(door) > 256) return false;
+        boolean continuing = leadingFrom(danger);
+        if (!continuing && body.distanceToSqr(door) > 256) return false;
         var p = body.life().personality();
         var t = p.temperament();
         int young = dependants(home).size();
         double score = HomeTactic.lead(t, p.fear(danger.getUUID()), body.body().healthRatio(), young);
         if (score < HomeTactic.LEAD_AT) return false;
-        if (stance == StruckStance.LEAD_AWAY && actor == danger && active()) return true;
+        if (continuing) return true;
         clear();
         actor = danger;
         stance = StruckStance.LEAD_AWAY;
