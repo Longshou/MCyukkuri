@@ -481,20 +481,18 @@ public final class HumanNpc extends PathfinderMob {
     private boolean collectible(YukkuriEntity y) {
         return y.pet().visibleGrade() != BadgeGrade.NONE && (y.pet().voidBadge() || y.pet().disqualified());
     }
-    private boolean hasBadgeHand() { return getOffhandItem().isEmpty() || getMainHandItem().isEmpty(); }
     public boolean collectBadge(YukkuriEntity y) {
-        if (!badgeStaff() || !collectible(y) || !hasBadgeHand() || !HumanSight.sees(this, y)
+        if (!badgeStaff() || !collectible(y) || !getOffhandItem().isEmpty() || !HumanSight.sees(this, y)
                 || !ShopStaff.reaches(this, y.getEyePosition(), null)) return false;
-        var hand = getOffhandItem().isEmpty() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         var token = y.pet().token();
         var serial = y.pet().serial();
-        setItemInHand(hand, token);
-        setDropChance(hand == InteractionHand.OFF_HAND ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND, 2f);
+        setItemInHand(InteractionHand.OFF_HAND, token);
+        setDropChance(EquipmentSlot.OFFHAND, 2f);
         y.pet().revoke();
-        swing(hand);
+        swing(InteractionHand.OFF_HAND);
         PetScenes.revoked(y);
         GameplayLog.event(this, "badge", "collected pet={} serial={} hand={} distance={} item={}",
-                y.getUUID(), serial, hand, distanceTo(y), getItemInHand(hand).getItem());
+                y.getUUID(), serial, InteractionHand.OFF_HAND, distanceTo(y), getOffhandItem().getItem());
         var near = level().getNearestPlayer(this, 16);
         if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
         return true;
@@ -504,7 +502,7 @@ public final class HumanNpc extends PathfinderMob {
         private Path path;
         private int nextScan;
         CollectBadgeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        private boolean available() { return badgeStaff() && !resting() && !isTrading() && !ShopStaff.active(HumanNpc.this) && hasBadgeHand(); }
+        private boolean available() { return badgeStaff() && !resting() && !isTrading() && !ShopStaff.active(HumanNpc.this) && getOffhandItem().isEmpty(); }
         @Override public boolean canUse() {
             if (!available() || tickCount < nextScan) return false;
             nextScan = tickCount + 40;

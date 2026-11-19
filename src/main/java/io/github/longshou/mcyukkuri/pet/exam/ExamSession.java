@@ -220,7 +220,11 @@ public final class ExamSession {
             }
             case LOOK -> {
                 candidate.pet().discovery().inspect(candidate, examiner, owner);
-                if (candidate.pet().disqualified()) { interrupt("disqualified"); return; }
+                if (candidate.pet().disqualified()) {
+                    examiner.collectBadge(candidate);
+                    interrupt("disqualified");
+                    return;
+                }
                 if (phaseTicks == 20) introduce();
                 if (phaseTicks == 40) examiner.swing(InteractionHand.MAIN_HAND);
                 if (phaseTicks == LOOK_TICKS) {

@@ -79,7 +79,6 @@ public final class Discovery {
             Player recipient = attendee != null && p.owner().equals(attendee.getUUID()) ? attendee : level.getServer().getPlayerList().getPlayer(p.owner());
             if (recipient != null) PetPrivileges.award(recipient, entry);
         }
-        if (judge instanceof HumanNpc npc && npc.badgeStaff()) npc.collectBadge(parent);
         return true;
     }
 }
