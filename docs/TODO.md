@@ -13,6 +13,7 @@
 | P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
 | P12 CODE-1 捕食种树冠选址、自带巢生成、衔枝筑巢 | `.worktrees/wp-tree-pred-1` | predator/CanopySite.java, predator/NestSiteScore.java, predator/PredatorNestSearch.java, predator/NestBuild.java, predator/PredatorLife.java, predator/PredatorNestFrameBlock.java, motor/MouthOccupancy.java, life/HomeProvider.java, museum_fields.py (grove) |
 | B1 徽章认证演出（替代考试题） | `.worktrees/wp-badge-cert` | badge/BadgeRequirements.java, pet/exam/ExamSession.java, pet/PetLife.java, pet/PetPrivileges.java, life/Duty.java, shop/ShopPricing.java, museum_scenarios.py (certify_*) |
+| S2 养育影响五项性格 | `.worktrees/wp-upbringing` | social/YukkuriPersonality.java, life/LifeMeal.java, life/Sweets.java, pet/PetCare.java, pet/PetLife.java (narrow), family/KinAbsence.java |
 
 ## 玩法待办
 
