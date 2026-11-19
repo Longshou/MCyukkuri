@@ -77449,6 +77449,18 @@
     "sound": ""
   },
   {
+    "id": "elope_leave",
+    "key": "dialogue.mcyukkuri.original.elope_leave",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "elope_leave"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
     "id": "sukkiri_lie",
     "key": "dialogue.mcyukkuri.original.sukkiri_lie",
     "origin": "project-original",

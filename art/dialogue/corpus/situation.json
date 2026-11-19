@@ -406,6 +406,7 @@
     {"id":"eat_kin.reluctant","event":"eat_kin","zh":"好臭……彭彭好饿……对不起……","ja":"くさい……ぽんぽんがすいた……ごめんね……","en":"It reeks... my tummy's so hungry... sorry...","basis":["L36","P"],"status":"ready"},
     {"id":"hunt_sweet.driven","event":"hunt_sweet","zh":"甜甜……彭彭好饿……","ja":"あまあま……ぽんぽんがすいた……","en":"Sweeties... my tummy's so hungry...","basis":["P"],"status":"ready"},
     {"id":"confess","event":"confess","zh":"是偷偷生下来的……主人，求求你，饶了小贝比酱吧……","ja":"ないしょでうんだよ……かいぬしさん、おちびちゃんだけはゆるしてね……","en":"I had them in secret… Master, please spare the little ones…","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"elope_leave","event":"elope_leave","zh":"人家要跟你一起走了……","ja":"ゆっくりしないでいくよ…","en":"I'm leaving with you…","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"sukkiri_lie","event":"sukkiri_lie","zh":"不认识！才不是人家的小贝比酱！","ja":"しらないよ！ うちのおちびちゃんじゃないよ！","en":"I don't know them! Those aren't my little ones!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"sukkiri_naive","event":"sukkiri_naive","zh":"快看！小贝比酱好能油库里！主人也能一起油库里了！","ja":"みてね！ とってもゆっくりしたおちびちゃんだよ！ かいぬしさんもいっしょにゆっくりできるね！","en":"Look how easy my little ones take it! Now you can take it easy with us, Master!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"sukkiri_defiant","event":"sukkiri_defiant","zh":"生小贝比有什么错！才不会道歉呢！","ja":"おちびちゃんをうんでなにがわるいの！ あやまらないよ！","en":"What's wrong with having little ones? I won't say sorry!","basis":["P"],"status":"ready","shared_runtime":true},

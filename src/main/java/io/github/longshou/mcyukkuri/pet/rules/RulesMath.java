@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.OptionalLong;
 
 /** Learned habits are bounded around the pet's current temperament. */
@@ -15,6 +17,27 @@ public final class RulesMath {
     public static int obedience(int meekness, int shift) { return Math.clamp(meekness + shift, 0, 100); }
 
     public static boolean demandsSnack(int obedience) { return obedience < 65; }
+
+    public static boolean drawnTo(Identity partner, int toward, int returned, int ownerTrust, int neglect) {
+        return partner.wild() && toward >= BondLevels.AFFINITY_COOPERATIVE && returned >= BondLevels.AFFINITY_COOPERATIVE
+                && toward > ownerTrust && (ownerTrust < BondLevels.TRUST_FAMILIAR || neglect >= 50);
+    }
+
+    public static double departureChance(float pressure, int obedience) {
+        return pressure >= 70 ? .25 * (1 - obedience / 100.0) : 0;
+    }
+
+    public static String interrupted(boolean ownerNear, boolean together, boolean freeToTravel, boolean familyNeedsCare) {
+        if (ownerNear) return "owner_intervened";
+        if (!together) return "partner_lost";
+        if (!freeToTravel) return "unable_to_travel";
+        return familyNeedsCare ? "family_care" : null;
+    }
+
+    public static boolean departed(boolean petArrived, boolean wildArrived, double petFromYardSq,
+                                   double wildFromYardSq, double gapSq) {
+        return petArrived && wildArrived && petFromYardSq > 24 * 24 && wildFromYardSq > 24 * 24 && gapSq <= 4 * 4;
+    }
 
     public enum Choice {
         ALLOW, HOLD, WAIT, BREAK;

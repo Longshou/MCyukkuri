@@ -30,7 +30,10 @@ public final class Conscience {
     private record Encounter(int owner, BlockPos ownerAt, BlockPos parentAt, BlockPos childAt) {}
     private final Map<BadgeConduct.Case, Encounter> encounters = new HashMap<>();
 
-    public Conscience(YukkuriEntity pet) { this.pet = pet; }
+    final Elopement departure;
+    public Conscience(YukkuriEntity pet) { this.pet = pet; departure = new Elopement(pet); }
+
+    public void ownerIntervened() { departure.interrupt("owner_intervened"); }
     public HouseRules household() { return HouseRules.get((ServerLevel) pet.level()); }
     public boolean told() { return instruction.known(pet.pet().owner(), household().version(pet.pet().owner())); }
     public boolean binds(HouseRule rule) { return binds(rule, false); }
@@ -147,6 +150,7 @@ public final class Conscience {
     }
 
     public void forgetOwner() {
+        departure.forgetOwner();
         instruction = new HouseRule.Instruction(null, 0);
         guilt = null;
         guiltOwner = null;
@@ -154,6 +158,7 @@ public final class Conscience {
 
     public CompoundTag save() {
         var tag = new CompoundTag();
+        departure.save(tag);
         if (instruction.owner() != null) {
             tag.putUUID("ToldOwner", instruction.owner());
             tag.putInt("Version", instruction.version());
@@ -170,6 +175,7 @@ public final class Conscience {
 
     public void load(CompoundTag tag) {
         forgetOwner();
+        departure.load(tag);
         if (tag.hasUUID("ToldOwner")) instruction = new HouseRule.Instruction(tag.getUUID("ToldOwner"), tag.getInt("Version"));
         if (tag.hasUUID("Owner")) {
             for (var rule : HouseRule.values()) if (rule.key().equals(tag.getString("Rule"))) guilt = rule;

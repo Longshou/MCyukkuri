@@ -38,6 +38,7 @@ public final class ConscienceGoal extends Goal {
     @Override public boolean canUse() {
         var conscience = pet.pet().conscience();
         if (!pet.duty().mayTake(Duty.Kind.RULES)) return false;
+        if (conscience.departure.choose()) return true;
         if (conscience.responseDue() && !pet.pet().discovery().open().isEmpty() && pet.pet().isPet() && freeForBrood()) {
             owner = pet.pet().presentOwner();
             if (owner != null && HumanSight.sees(owner, pet)) {
@@ -89,6 +90,8 @@ public final class ConscienceGoal extends Goal {
     }
 
     @Override public void start() {
+        var departure = pet.pet().conscience().departure;
+        if (departure.active()) { departure.start(); return; }
         pet.pet().conscience().reacted();
         pet.duty().take(Duty.Kind.RULES, APPROACH_TICKS, 600, brood == null ? "confess" : style.name());
         if (brood == null) return;
@@ -127,6 +130,8 @@ public final class ConscienceGoal extends Goal {
     }
 
     @Override public boolean canContinueToUse() {
+        var departure = pet.pet().conscience().departure;
+        if (departure.active()) return departure.continues();
         if (brood != null) return pet.duty().holds(Duty.Kind.RULES) && (brood.verdict() == null || confessionAt >= 0) && freeForBrood()
                 && pet.pet().ownedBy(owner.getUUID()) && owner.isAlive() && owner.level() == pet.level() && pet.distanceToSqr(owner) <= 256
                 && (style == ArcStyle.HIDE || HumanSight.sees(owner, pet)) && (child == null || child.isAlive() && child.level() == pet.level())
@@ -136,6 +141,8 @@ public final class ConscienceGoal extends Goal {
     }
 
     @Override public void tick() {
+        var departure = pet.pet().conscience().departure;
+        if (departure.active()) { departure.tick(); return; }
         if (!pet.duty().holds(Duty.Kind.RULES)) return;
         if (confessionAt >= 0) {
             long elapsed = pet.level().getGameTime() - confessionAt;
@@ -193,6 +200,8 @@ public final class ConscienceGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void stop() {
+        var departure = pet.pet().conscience().departure;
+        if (departure.active()) { departure.stop(); return; }
         if (brood != null) pet.pet().discovery().endApproach(pet);
         brood = null;
         stand = null;

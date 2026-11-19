@@ -332,7 +332,7 @@ public final class FamilyData extends SavedData {
         return true;
     }
     /** Read eligibility after one-time migration; a single own slot may still have incoming claims. */
-    boolean canPair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow) {
+    public boolean canPair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow) {
         return canPair(first,second,allowWidow,false);
     }
     /** Same admission/ledger checks; a declined court alone may ask despite the standing partner. */

@@ -261,6 +261,7 @@ public final class PetLife {
     /** Owner feeding, talking or caring for the pet, or merely being near it. Cruel actions refresh presence only. */
     public void contact(UUID who, boolean care) {
         if (animal.level().isClientSide || !ownedBy(who) || !isPet()) return;
+        conscience.ownerIntervened();
         lastContact = now(); neglectClock = 0;
         if (!care) return;
         if (presentOwner() instanceof Player player) conscience.tell(player);
