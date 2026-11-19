@@ -5,6 +5,12 @@ import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.body.BodyEffects;
+import io.github.longshou.mcyukkuri.body.WoundPlacement;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import net.minecraft.core.particles.ParticleTypes;
+import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -235,10 +241,49 @@ public final class ToiletContact {
         return SupplyPiles.supported(level, cell.below()) ? cell.below() : null;
     }
 
+    /** Lower front skin between the reproductive opening and chin, under the current clip and handling pose. */
+    public static Vec3 urineOutlet(YukkuriEntity actor) {
+        var mesh = WoundSurface.get(actor.assetId());
+        var bounds = mesh.bounds();
+        var opening = LiveBirthGeometry.modelOutlet(actor, 0, 0);
+        var from = new Vector3f(opening.x, bounds[1] - 1, (opening.z + bounds[2]) * .5f);
+        var hit = mesh.ray(from, new Vector3f(0, 1, 0), null, List.of());
+        if (hit != null) from.y += hit.distance();
+        else from.set(opening);
+        LiveBirthGeometry.deform(from, actor.livePregnancyProgress(), 0);
+        WoundPlacement.posedRoot(actor).transformPosition(from);
+        WoundPlacement.transform(actor).transformPosition(from);
+        return actor.position().add(new Vec3(from));
+    }
+
+    static boolean urinate(YukkuriEntity actor, BlockPos stand, boolean ground) {
+        var outlet = urineOutlet(actor);
+        var forward = Vec3.directionFromRotation(0, actor.bodyYaw());
+        var end = outlet.add(forward.scale(ground ? actor.getBbWidth() * .35 : 0));
+        var hit = actor.level().clip(new ClipContext(end.add(0, .05, 0), end.add(0, -1, 0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
+        if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP
+                || !actor.level().getFluidState(hit.getBlockPos()).isEmpty() || !ground && !hit.getBlockPos().equals(stand)) return false;
+        float amount = actor.life().dischargeUrine(actor.life().urine());
+        stream(actor, outlet, hit.getLocation(), amount);
+        if (ground) BodyEffects.emit(actor, "urine_puddle", actor.getBbWidth() * amount / 100, hit.getLocation(), forward);
+        return true;
+    }
+
+    public static void stream(YukkuriEntity actor, Vec3 from, Vec3 to, float amount) {
+        var level = (ServerLevel) actor.level();
+        int drops = Math.max(2, Math.round(amount / 5));
+        for (int i = 0; i < drops; i++) {
+            var at = from.lerp(to, (i + .5) / drops);
+            level.sendParticles(ParticleTypes.FALLING_WATER, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+        }
+    }
+
     /** Stand on the actual collision surface, facing along the tray's longer axis. */
-    public static Vec3 facilitySeat(YukkuriEntity actor, BlockPos pos) {
+    public static Vec3 facilitySeat(YukkuriEntity actor, BlockPos pos, ToiletNeeds.Kind kind) {
         if (pos == null || !(actor.level().getBlockEntity(pos) instanceof CareBlockEntity care)
-                || care.kind() != CareBlock.Kind.TOILET || !care.acceptsWaste(DetachedItems.waste(actor))) return null;
+                || care.kind() != CareBlock.Kind.TOILET || (kind == ToiletNeeds.Kind.URINE
+                ? care.waste() >= care.capacity() : !care.acceptsWaste(DetachedItems.waste(actor)))) return null;
         var shape = actor.level().getBlockState(pos).getCollisionShape(actor.level(), pos);
         if (shape.isEmpty()) return null;
         var bounds = shape.bounds();
@@ -253,13 +298,13 @@ public final class ToiletContact {
         return seat;
     }
 
-    public static boolean approachFacility(YukkuriEntity actor, BlockPos pos) {
-        var seat = facilitySeat(actor, pos);
+    public static boolean approachFacility(YukkuriEntity actor, BlockPos pos, ToiletNeeds.Kind kind) {
+        var seat = facilitySeat(actor, pos, kind);
         if (seat == null) return false;
         if (SurfaceApproach.arrived(actor, seat)) {
             SurfaceApproach.halt(actor);
-            SurfaceApproach.face(actor, -90); // face east; rear points into the tray
-            return facilityContact(actor, pos);
+            SurfaceApproach.face(actor, kind == ToiletNeeds.Kind.URINE ? 90 : -90);
+            return facilityContact(actor, pos, kind);
         }
         // Once on the low tray, close the last centimetres straight: ground steering circles a point this close.
         if (actor.onGround() && Math.abs(actor.getY() - seat.y) < .08
@@ -272,14 +317,14 @@ public final class ToiletContact {
         return false;
     }
 
-    public static boolean facilityContact(YukkuriEntity actor, BlockPos pos) {
-        var seat = facilitySeat(actor, pos);
+    public static boolean facilityContact(YukkuriEntity actor, BlockPos pos, ToiletNeeds.Kind kind) {
+        var seat = facilitySeat(actor, pos, kind);
         if (seat == null || !actor.onGround() || !SurfaceApproach.arrived(actor, seat)
-                || Vec3.directionFromRotation(0, actor.getYRot()).dot(new Vec3(1, 0, 0)) < .98) return false;
-        var rear = rear(actor);
+                || Vec3.directionFromRotation(0, actor.getYRot()).dot(new Vec3(kind == ToiletNeeds.Kind.URINE ? -1 : 1, 0, 0)) < .98) return false;
+        var rear = kind == ToiletNeeds.Kind.URINE ? urineOutlet(actor) : rear(actor);
         var shape = actor.level().getBlockState(pos).getCollisionShape(actor.level(), pos).bounds().move(pos);
         if (rear.x < shape.minX || rear.x > shape.maxX || rear.z < shape.minZ || rear.z > shape.maxZ) return false;
-        var hit = actor.level().clip(new ClipContext(rear, rear.add(0, -.15, 0),
+        var hit = actor.level().clip(new ClipContext(rear, rear.add(0, kind == ToiletNeeds.Kind.URINE ? -actor.getBbHeight() : -.15, 0),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor));
         return hit.getType() == HitResult.Type.BLOCK && hit.getBlockPos().equals(pos) && hit.getDirection() == Direction.UP;
     }

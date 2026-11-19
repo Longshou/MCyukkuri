@@ -344,7 +344,7 @@ final class YukkuriSync {
     void syncAgitation() { owner.getEntityData().set(AGITATION, owner.agitation().state()); }
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
     void syncCare() {
-        setChanged(TOILET_VOLUME,(float)DetachedItems.wasteAmount(owner));
+        setChanged(TOILET_VOLUME, owner.life().urinating() ? 0f : (float) DetachedItems.wasteAmount(owner));
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;

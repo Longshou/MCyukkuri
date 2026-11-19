@@ -23,6 +23,20 @@ class ToiletNeedsTest {
         assertEquals(100, needs.bowel);
     }
 
+    @Test void aReleasedPortionCanOnlyBeSpentOnce() {
+        var needs = new ToiletNeeds();
+        needs.bowel = 83;
+        needs.urine = 65;
+        var selected = needs.leading(true);
+        for (int i = 0; i < 12; i++) needs.drank();
+        assertEquals(ToiletNeeds.Kind.STOOL, selected);
+        assertEquals(83, needs.bowel);
+        assertEquals(20, needs.dischargeUrine(20));
+        assertEquals(69, needs.dischargeUrine(100));
+        assertEquals(0, needs.dischargeUrine(20));
+        assertEquals(83, needs.bowel);
+    }
+
     @Test void tieAndConstipationSelectAmongFeasibleNeeds() {
         var needs = new ToiletNeeds();
         needs.bowel = needs.urine = 90;

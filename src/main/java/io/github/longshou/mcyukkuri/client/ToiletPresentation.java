@@ -119,7 +119,7 @@ final class ToiletPresentation {
      */
     static void renderStool(YukkuriView actor, String behavior, float ticks, PoseStack pose, MultiBufferSource buffers, int light) {
         if (!(behavior.equals(Behaviors.TOILET) || behavior.equals(Behaviors.GROUND_TOILET) || behavior.equals(Behaviors.BOAT_TOILET) || behavior.equals(Behaviors.TOILET_ACCIDENT))) return;
-        if (ticks < ToiletContact.EMERGE_FROM_TICKS || ticks >= ToiletContact.DROP_TICKS) return;
+        if (actor.toiletVolume() <= 0 || ticks < ToiletContact.EMERGE_FROM_TICKS || ticks >= ToiletContact.DROP_TICKS) return;
         var stool = ToiletContact.stool(actor, behavior, ticks);
         if (stool == null) return;
         var at = stool.bottom();

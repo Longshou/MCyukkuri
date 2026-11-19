@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.ToiletContact;
+import io.github.longshou.mcyukkuri.life.ToiletNeeds;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Await;
@@ -57,8 +58,9 @@ final class BoatToilet implements Intent {
     private ItemEntity stool;
     private int landTick;
 
-    private BoatToilet(YukkuriEntity body, PlacedHatEntity hat) {
+    private BoatToilet(YukkuriEntity body, PlacedHatEntity hat, ToiletNeeds.Kind kind) {
         this.body = body;
+        body.life().selectToiletNeed(kind);
         this.hat = hat;
         started = body.level().getGameTime();
     }
@@ -66,8 +68,9 @@ final class BoatToilet implements Intent {
     /** The want, from the real bladder and a place this body can really use. */
     static void offer(List<Desire> out, YukkuriEntity body, PlacedHatEntity hat) {
         var life = body.life();
-        double from = AquaticGoal.num("toilet_from", 70), bladder = life.bowel();
-        if (bladder < from || !body.childhood().firstToiletDone() || life.constipated() || body.leafSwaddle().wrapped()
+        var kind = life.leadingToiletNeed();
+        double from = AquaticGoal.num("toilet_from", 70), pressure = life.toiletPressure();
+        if (pressure < from || body.leafSwaddle().wrapped()
                 || life.isSleeping() || life.mealTicks() > 0 || body.family().birthRole() != null || !hat.steady()) return;
         var place = PlayAboard.place(body, hat);
         boolean adult = body.family().adult();
@@ -75,9 +78,9 @@ final class BoatToilet implements Intent {
         // A young does not go out over the rim of a hull being paddled: it would come down ahead of the moving hull (the captain in turn
         // does not set off while it is out there, overboard).
         if (!adult && hat.owner() != null && hat.owner().motor().current() instanceof Paddle) return;
-        double want = AquaticGoal.num("toilet_want", 40) + (bladder - from) * AquaticGoal.num("toilet_slope", 2);
-        out.add(Desire.of("boat_toilet", want, List.of(hat.getUUID(), place), () -> String.format(Locale.ROOT, "bladder=%.0f place=%s", bladder, place),
-                () -> new BoatToilet(body, hat)));
+        double want = AquaticGoal.num("toilet_want", 40) + (pressure - from) * AquaticGoal.num("toilet_slope", 2);
+        out.add(Desire.of("boat_toilet", want, List.of(hat.getUUID(), place, kind), () -> String.format(Locale.ROOT, "%s=%.0f place=%s", kind, pressure, place),
+                () -> new BoatToilet(body, hat, kind)));
     }
 
     /** A young of {@code parent} is out on the brim of {@code hat} relieving itself over the rim: paddled on now, the hull would run over its stool. */
@@ -129,7 +132,7 @@ final class BoatToilet implements Intent {
             GameplayLog.limited(body, "aquatic", "toilet_water:none", 200, "boat_toilet refused hat={} reason=no_open_water_throw_beyond_rim", hat.getUUID());
             return null;
         }
-        float yaw = yawToward(out.reverse());
+        float yaw = releaseYaw(out);
         if (Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= Face.FACE_ARRIVED) return null;
         GameplayLog.event(body, "aquatic", "boat_toilet turn hat={} place={} rear_out={} yaw={}", hat.getUUID(), PlayAboard.place(body, hat),
                 GameplayLog.at(out), Math.round(yaw));
@@ -151,17 +154,31 @@ final class BoatToilet implements Intent {
         strained = true;
         int[] tick = {0};
         int length = ToiletContact.ticks(body, Behaviors.BOAT_TOILET);
-        double before = body.life().bowel();
         return new Step.Do(new Await(() -> {
-            if (++tick[0] == ToiletContact.DROP_TICKS) relieved = drop(before);
+            if (++tick[0] == ToiletContact.DROP_TICKS) relieved = drop();
             if (tick[0] == Math.min(landTick, length)) landed();
             return finished = tick[0] >= length;
         }, length + 10, Behaviors.BOAT_TOILET));
     }
 
-    private boolean drop(double before) {
+    private boolean drop() {
+        var life = body.life();
+        double before = life.urinating() ? life.urine() : life.bowel();
         var plan = plan(out, body.yBodyRot);
         var middle = hat.position();
+        if (plan != null && life.urinating()) {
+            if (before < 40 || !hat.steady() || PlayAboard.place(body, hat) == null || !open(out)) return false;
+            float amount = life.dischargeUrine(life.urine());
+            var path = Ballistic.itemPath(new Vec(plan.push().x, plan.push().y, plan.push().z), plan.lands().y - plan.release().at().y);
+            for (int i = 1; i < path.size(); i++) {
+                var a = path.get(i - 1);
+                var b = path.get(i);
+                var at = plan.release().at();
+                ToiletContact.stream(body, at.add(a.x(), a.y(), a.z()), at.add(b.x(), b.y(), b.z()), amount / (path.size() - 1));
+            }
+            GameplayLog.event(body, "needs", "relieved source=boat kind=URINE pressure={} -> {} lands={}", before, life.urine(), plan.lands());
+            return true;
+        }
         stool = plan == null ? null : body.life().relieveOutboard(plan.release().at(), plan.push());
         if (stool == null) {
             GameplayLog.event(body, "aquatic", "boat_toilet refused hat={} place={} reason={} bladder={}", hat.getUUID(), PlayAboard.place(body, hat),
@@ -199,7 +216,12 @@ final class BoatToilet implements Intent {
      * can give does. The choice of the rear side (outward) and the release itself (drop) both ask this.
      */
     private Throw plan(Vec3 out, float yaw) {
-        var release = ToiletContact.release(body, Behaviors.BOAT_TOILET, yaw);
+        ToiletContact.Release release;
+        if (body.life().urinating()) {
+            var relative = ToiletContact.urineOutlet(body).subtract(body.position());
+            var at = body.position().add(relative.yRot((float) Math.toRadians(body.yBodyRot - yaw)));
+            release = new ToiletContact.Release(at, out.add(0, .45, 0).normalize(), 0);
+        } else release = ToiletContact.release(body, Behaviors.BOAT_TOILET, yaw);
         var middle = hat.position();
         double rim = rim(), water = HullAfloat.surface(body.level(), middle.x + out.x * rim, middle.y - 2, middle.z + out.z * rim);
         if (release == null || Double.isNaN(water)) return null;
@@ -265,12 +287,12 @@ final class BoatToilet implements Intent {
         }
         // The owner turns least: the water sides in the order of her turn, the first whose stool clears the rim.
         return IntStream.range(0, 16).mapToObj(k -> new Vec3(Math.cos(k * Math.PI / 8), 0, Math.sin(k * Math.PI / 8)))
-                .sorted(Comparator.comparingDouble(dir -> Math.abs(Mth.wrapDegrees(yawToward(dir.reverse()) - body.yBodyRot))))
+                .sorted(Comparator.comparingDouble(dir -> Math.abs(Mth.wrapDegrees(releaseYaw(dir) - body.yBodyRot))))
                 .filter(this::usable).findFirst().orElse(null);
     }
 
     /** Open water beyond the rim on that side, and a stool released with the rear turned there comes down in it. */
-    private boolean usable(Vec3 dir) { return open(dir) && plan(dir, yawToward(dir.reverse())) != null; }
+    private boolean usable(Vec3 dir) { return open(dir) && plan(dir, releaseYaw(dir)) != null; }
 
     /** Water at the level of the hull's own surface just beyond the rim. */
     private boolean open(Vec3 dir) {
@@ -281,6 +303,8 @@ final class BoatToilet implements Intent {
         }
         return true;
     }
+
+    private float releaseYaw(Vec3 dir) { return yawToward(body.life().urinating() ? dir : dir.reverse()); }
 
     private static float yawToward(Vec3 dir) { return (float) (Math.toDegrees(Math.atan2(dir.z, dir.x)) - 90); }
 

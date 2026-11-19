@@ -69,8 +69,8 @@ public final class BodyEffectsRenderer {
         var mc = Minecraft.getInstance();
         if (mc.level == null) return;
         resetFor(mc.level);
-        if (ExcitedLeak.PUDDLE.equals(payload.reason())) {
-            if (mc.level.getEntity(payload.sourceId()) instanceof YukkuriView entity)
+        if (ExcitedLeak.PUDDLE.equals(payload.reason()) || "urine_puddle".equals(payload.reason())) {
+            if (ExcitedLeak.PUDDLE.equals(payload.reason()) && mc.level.getEntity(payload.sourceId()) instanceof YukkuriView entity)
                 MomentEmote.leakSweat(entity, payload.startTick());
             var outlet = new Vec3(payload.x(), payload.y(), payload.z());
             var support = grounded(mc, outlet, Kind.PUDDLE);

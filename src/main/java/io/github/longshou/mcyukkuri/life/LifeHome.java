@@ -1,5 +1,4 @@
 package io.github.longshou.mcyukkuri.life;
-import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 
 import java.util.ArrayList;
@@ -230,10 +229,14 @@ final class LifeHome {
             .thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX);
 
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
-        return nearestCare(kind, requireFood, TravelRange.search(o.entity(), 8));
+        return nearestCare(kind, requireFood, TravelRange.search(o.entity(), 8), kind == CareBlock.Kind.TOILET ? o.leadingToiletNeed() : null);
     }
 
-    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, int radius) {
+    BlockPos nearestToilet(ToiletNeeds.Kind need) {
+        return nearestCare(CareBlock.Kind.TOILET, false, TravelRange.search(o.entity(), 8), need);
+    }
+
+    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, int radius, ToiletNeeds.Kind need) {
         var level = o.level();
         var entity = o.entity();
         var here = entity.blockPosition();
@@ -258,14 +261,13 @@ final class LifeHome {
             if (!TravelRange.babyDestination(entity, scan) || !level.hasChunkAt(scan)
                     || !(level.getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
             if (requireFood && (o.avoidsField(scan) || !care.hasFood(o::seeksFood))
-                    || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
                     || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())
                     || kind == CareBlock.Kind.WATERER && care.water() == 0) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {
                 boolean access = switch (kind) {
                     case BOWL, WATERER -> o.servingRouteAvailable(Vec3.atBottomCenterOf(scan)) && ItemContact.bowlStand(entity, scan) != null;
-                    case TOILET -> ToiletContact.facilitySeat(o.entity(), scan) != null && o.reachable(scan.above(), false);
+                    case TOILET -> ToiletContact.facilitySeat(o.entity(), scan, need) != null && o.reachable(scan.above(), false);
                     case NEST -> {
                         Vec3 stand = entrance(scan);
                         yield stand != null && SurfaceApproach.canApproach(o.entity(), stand);
@@ -319,7 +321,7 @@ final class LifeHome {
     BlockPos nearestDrink(boolean includeWaterers) {
         var here = o.entity().blockPosition();
         int radius = TravelRange.search(o.entity(), 6);
-        BlockPos best = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius) : null;
+        BlockPos best = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius, null) : null;
         double distance = best == null ? Double.POSITIVE_INFINITY : o.entity().distanceToSqr(Vec3.atCenterOf(best));
         for(var water:BlockPos.betweenClosed(here.offset(-radius,-2,-radius),here.offset(radius,1,radius))){
             if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!drinkableWater(water))continue;
