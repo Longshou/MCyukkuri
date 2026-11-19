@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -95,6 +95,6 @@ public final class PetScenes {
         var y = courting.pet().isPet() ? courting : other.pet().isPet() ? other : courting;
         var peer = y == courting ? other : courting;
         if (!y.pet().calm() || !ready(y, "held", 2400)) { y.showReaction("teary", "", 40); return; }
-        act(y, y.life().personality().selfControl() >= Temperament.SELF_CONTROL_AT_50 ? "shy" : "droop", "teary", "courtship_held", 70, peer);
+        act(y, y.life().personality().temperament().is(Gate.PATIENT) ? "shy" : "droop", "teary", "courtship_held", 70, peer);
     }
 }

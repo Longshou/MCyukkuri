@@ -14,7 +14,7 @@ import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -206,10 +206,10 @@ public final class ShopMenu extends AbstractContainerMenu {
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
     static int stage(YukkuriEntity y) { return y.family().subadult() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
-        var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
-        int[] found = {p.attachment() >= Temperament.ATTACHMENT_AT_65 ? 1 : 0, p.friendliness() <= 35 ? 2 : 0,
-                p.selfControl() <= Temperament.SELF_CONTROL_AT_35 ? 3 : 0, p.selfControl() >= Temperament.SELF_CONTROL_AT_65 ? 4 : 0,
-                p.boldness() <= Temperament.BOLDNESS_AT_35 ? 5 : 0, p.boldness() >= Temperament.BOLDNESS_AT_65 ? 6 : 0};
+        var temperament = y.life().personality().temperament(); int[] out = {15, 15}; int n = 0;
+        int[] found = {temperament.is(Gate.CLINGY) ? 1 : 0, temperament.is(Gate.SELFISH) ? 2 : 0,
+                temperament.is(Gate.RESTLESS) ? 3 : 0, temperament.is(Gate.STOIC) ? 4 : 0,
+                temperament.is(Gate.TIMID) ? 5 : 0, temperament.is(Gate.BOLD) ? 6 : 0};
         for (int t : found) if (t != 0 && n < 2) out[n++] = t;
         if (n == 0) out[0] = 0;
         return out;

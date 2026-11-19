@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
@@ -78,10 +78,6 @@ public final class SettlementSociety {
         return relations.affinity(entity.getUUID(), guest.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED
                 && relations.affinity(guest.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL;
     }
-    private static boolean harsh(YukkuriEntity observer) {
-        var p = observer.life().personality();
-        return Temperament.harshForSettlement(p);
-    }
     private static boolean available(YukkuriEntity member) {
         return member.isAlive() && !member.isNoAi() && !member.isPanicking() && !member.isCommandPlaying()
                 && !member.operations().active() && !member.life().isSleeping() && !member.life().hasUrgentNeed()
@@ -89,7 +85,7 @@ public final class SettlementSociety {
     }
     /** Recognition past a missing hat is the observer's intellect (headwear.Recognition). */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {
-        return sameGroup(observer, target) && accepted(observer) && harsh(observer)
+        return sameGroup(observer, target) && accepted(observer) && observer.life().personality().temperament().is(Gate.HARSH)
                 && Recognition.unrecognizedHatless(observer, target);
     }
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity target) {
@@ -133,10 +129,8 @@ public final class SettlementSociety {
         if (record.rejections >= 2 && accepted(entity)) record.role = SettlementData.Role.SHUNNED;
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {
             var beforeIdentity = entity.status().identity();
-            var p = entity.life().personality();
             // These thresholds are project design. Attachment alone is never equated with obedience.
-            boolean docile = entity.family().adult() && p.friendliness() >= 60 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
-                    && p.attachment() >= Temperament.ATTACHMENT_AT_55;
+            boolean docile = entity.family().adult() && entity.life().personality().temperament().is(Gate.DOCILE);
             // A colony keeps one 嗯嗯奴隶 (project design, feedback 4): its place in the pit is single, the next one is driven off.
             boolean taken = data.hasSlave(group, entity.getUUID());
             record.role = docile && !taken ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
@@ -180,7 +174,7 @@ public final class SettlementSociety {
             if (last != null && now - last < 400) continue;
             MOCKED.put(slave, now);
             var witnesses = new ArrayList<>(LoadedGroupMembers.query(level(), group.id, slave.getBoundingBox().inflate(6),
-                    peer -> peer != slave && peer.isAlive() && accepted(peer) && harsh(peer) && peer.hasLineOfSight(slave)));
+                    peer -> peer != slave && peer.isAlive() && accepted(peer) && peer.life().personality().temperament().is(Gate.HARSH) && peer.hasLineOfSight(slave)));
             if (witnesses.size() > 3) witnesses.subList(3, witnesses.size()).clear();
             for (var witness : witnesses) {
                 witness.getLookControl().setLookAt(slave, 25, 25);

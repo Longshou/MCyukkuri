@@ -117,6 +117,10 @@ public final class YukkuriPersonality {
         return bounds().clamp(trait, innate[trait.ordinal()] + experience[trait.ordinal()]);
     }
 
+    public Temperament temperament() {
+        return new Temperament(intelligence(), friendliness(), boldness(), attachment(), selfControl());
+    }
+
     public int trait(Trait trait) { return value(trait); }
     public int intelligence() { return value(Trait.INTELLIGENCE); }
     public int friendliness() { return value(Trait.FRIENDLINESS); }
@@ -304,7 +308,6 @@ public final class YukkuriPersonality {
         return Math.round(100 * helpProbability(closeness, child || peerNutrition < nutrition));
     }
     public int escalationScore() { return Math.round(100 * Math.clamp(.60f * (1 - friendliness() / 100f) - .003f * selfControl(), 0, .60f)); }
-    public boolean protects() { return friendliness() >= Temperament.PROTECT_FRIENDLINESS; }
     public int affectionThreshold() { return 65 - attachment() / 2; }
 
     public boolean canTalk() { return talkWait == 0; }

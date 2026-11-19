@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -142,12 +142,6 @@ public final class CommonHunt {
             if (level.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && child.family().needsMash()) return true;
         return false;
     }
-    /** The documented band (project design): little attachment, a selfish nature and little self-control. */
-    private static boolean defiant(YukkuriEntity m) {
-        var p = m.life().personality();
-        return p.attachment() < 40 && p.friendliness() <= 40 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
-    }
-
     /**
      * The leader calls a hunt. Without {@code force} the time, weather, store and daily limit apply; with it (test
      * command) only the people and the meadow must be there. Returns null on success, otherwise the reason.
@@ -192,11 +186,12 @@ public final class CommonHunt {
         for (var m : candidates) {
             if (party.size() >= MAX_PARTY - 1) break;
             if (!able(m, famine)) continue;
-            if (defiant(m)) {
+            var t = m.life().personality().temperament();
+            if (t.is(Gate.DEFIES_HUNT)) {
                 hunt.defied.add(m.getUUID());
-                var p = m.life().personality();
-                GameplayLog.event(m, "settlement", "hunt call refused leader={} attachment={} friendliness={} selfControl={}", leader.getUUID(),
-                        p.attachment(), p.friendliness(), p.selfControl());
+                GameplayLog.event(m, "settlement", "hunt call refused leader={} attachment={} friendliness={} selfControl={} attached={} selfish={}", leader.getUUID(),
+                        t.attachment(), t.friendliness(), t.selfControl(),
+                        String.format(Locale.ROOT, "%.2f", t.attached()), String.format(Locale.ROOT, "%.2f", t.selfish()));
                 m.showReaction("angry", "hunt_refuse", 60);
                 continue;
             }

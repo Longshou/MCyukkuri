@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -39,7 +39,7 @@ import java.util.IdentityHashMap;
  *     two checks of failed foraging or with most members hungry; 1 (short) below two days or when the commons cannot
  *     cover the short households; a famine ends only at two days or more. In famine the leader hunts twice a day,
  *     nobody may court and theft weighs one step heavier.</li>
- * <li>A selfish leader (selfishness &ge; 65, self-control &lt; 50) takes half again for its own household when that one
+ * <li>A greedy leader ({@link Gate#GREEDY}) takes half again for its own household when that one
  *     is short; the others feel it ({@code unfair_ration}).</li>
  * </ul>
  * Households fetch their share themselves (HabitatLife RATION errand: a real walk to the store, a real mouthful of up to
@@ -179,8 +179,11 @@ public final class Rations {
         if (!urgent && (time < START || time >= END)) return;
         var helper = present.stream().filter(m -> m.family().adult() && SettlementSociety.accepted(m) && available(m)
                         && m.status().identity().wild() && !m.profile().dangerToYukkuri()
-                        && Temperament.protects(m.life().personality()) && !Levy.greedy(m)
                         && m.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 16 * 16)
+                .filter(m -> {
+                    var t = m.life().personality().temperament();
+                    return t.is(Gate.KINDLY) && !t.is(Gate.GREEDY);
+                })
                 .min(Comparator.comparingInt((YukkuriEntity m) -> -m.life().personality().friendliness())
                         .thenComparing(m -> m.getUUID().toString())).orElse(null);
         if (helper == null) return;
@@ -304,7 +307,7 @@ public final class Rations {
         long now = level.getGameTime(), day = level.getDayTime() / 24000;
         boolean winter = Seasons.on(level, group.center, Season.WINTER);
         int available = Math.max(0, stock);
-        boolean unfair = leader != null && Levy.greedy(leader);
+        boolean unfair = leader != null && leader.life().personality().temperament().is(Gate.GREEDY);
         int wanted = 0;
         var list = new ArrayList<ReliefTarget>();
         for (var h : homes.values()) {
@@ -462,13 +465,13 @@ public final class Rations {
      * unless very self-controlled; otherwise only the selfish with little self-control. Famine makes it likelier.
      */
     public static boolean wouldSteal(YukkuriEntity entity) {
-        var p = entity.life().personality();
+        var t = entity.life().personality().temperament();
         float nutrition = entity.life().nutrition();
         var group = entity.settlement().group();
         boolean famine = group != null && group.commons.famine >= 2;
-        if (nutrition < 15) return p.selfControl() < Temperament.SELF_CONTROL_AT_70;
-        if (famine && nutrition < 25) return p.selfControl() < Temperament.SELF_CONTROL_AT_60;
-        return p.friendliness() <= 40 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
+        if (nutrition < 15) return !t.is(Gate.STOIC);
+        if (famine && nutrition < 25) return !t.is(Gate.PATIENT);
+        return t.is(Gate.SELFISH);
     }
 
     private Rations() {}

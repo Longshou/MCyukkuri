@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.item.AccessoryItem;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -367,7 +368,7 @@ public final class BadgeArcs {
                     var bond = p.relation(o.getUUID());
                     double esteem = SocialDisposition.selfEsteem(sub);
                     double wariness = SocialDisposition.wariness(sub, bond);
-                    if (wariness >= .5 || SocialDisposition.confidence(esteem) < .35 && p.selfControl() < 50) {
+                    if (wariness >= .5 || SocialDisposition.confidence(esteem) < .35 && !p.temperament().is(Gate.PATIENT)) {
                         s.result = "flee"; sub.mind().felt(EmotionEvent.FRIGHTENED);
                         PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub);
                     } else if (SocialDisposition.insistence(p, esteem, wariness, bond) >= .2) {
@@ -427,7 +428,7 @@ public final class BadgeArcs {
                 if (o.distanceToSqr(player) <= 9) {
                     quiet(o);
                     PetScenes.act(o, o.getRandom().nextBoolean() ? "beg" : "shy", "teary", "wild_plea_keep", 40, player);
-                    boolean possessive = sub.life().personality().friendliness() <= 40;
+                    boolean possessive = sub.life().personality().temperament().is(Gate.HARSH);
                     if (possessive) PetScenes.act(sub, "puff", "angry", null, 40, o); else PetScenes.act(sub, "greet", "happy", null, 40, o);
                     next(s);
                 } else if (t >= 220) end(level, s, Phase.REFUSED, "plea_unreached");
@@ -487,7 +488,7 @@ public final class BadgeArcs {
             case 1 -> {
                 if (t == 1) {
                     PetScenes.act(o, "puff", "smug", "mine", 70, sub);
-                    s.result = sub.life().personality().protects() ? "guard" : "yield";
+                    s.result = sub.life().personality().temperament().is(Gate.KINDLY) ? "guard" : "yield";
                     var owner = BadgeSocial.ownerWithin(level, sub, 24);
                     if (owner != null) tell(level, owner, "pet.mcyukkuri.badge.home", sub, false);
                 }
@@ -712,7 +713,7 @@ public final class BadgeArcs {
                     note(o, sub, BadgeLedger.PLEADED_OWNER, now);
                     BadgeSocial.spread(level, o, Rumours.HUMAN_KIND, asked, 1);
                     if (result.equals("plea_adopted")) {
-                        if (sub.life().personality().friendliness() <= 40) sub.pet().addStress(2);
+                        if (sub.life().personality().temperament().is(Gate.HARSH)) sub.pet().addStress(2);
                         o.showReaction("happy", "badge_thanks", 80);
                     } else o.showReaction("happy", "badge_thanks", 80);
                 } else if (result.equals("player_declined")) {
@@ -720,7 +721,7 @@ public final class BadgeArcs {
                     o.showReaction("teary", "plea_sad", 80); PetScenes.act(o, "droop", "teary", null, 60, human0);
                 } else if (result.equals("plea_ignored")) {
                     o.showReaction("teary", "plea_sad", 80); PetScenes.act(o, "sulk", "teary", null, 60, null);
-                    if (sub.life().personality().friendliness() <= 40) like(level, o, sub, -1);
+                    if (sub.life().personality().temperament().is(Gate.HARSH)) like(level, o, sub, -1);
                 }
             }
             case PITY -> {

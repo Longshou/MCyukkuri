@@ -87,8 +87,7 @@ public final class SocialDisposition {
     public static double confidence(double esteem) { return ramp(esteem, 44, 56); }
 
     public static double insistence(YukkuriPersonality personality, double esteem, double wariness, Relation relation) {
-        double restraint = Math.min(1 - ramp(personality.friendliness(), 35, 62), 1 - ramp(personality.selfControl(), 35, 62));
-        return Math.min(confidence(esteem), Math.min(restraint, ramp(personality.boldness(), 35, 72)))
+        return Math.min(confidence(esteem), personality.temperament().cocky())
                 * (1 - .50 * wariness) * (1 - ramp(relation.closeness(), 0, 20));
     }
 

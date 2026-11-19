@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
@@ -379,12 +380,13 @@ final class AquaticGoal extends Goal {
                 boolean[] fresh = {false};
                 var decision = ledger.decide(ask, refusal == null ? 1 : 0,
                         () -> { fresh[0] = true; return body.getRandom().nextDouble(); }, body);
+                boolean kindly = body.life().personality().temperament().is(Gate.KINDLY);
                 if (fresh[0] && decision != null && !decision.accepted()) {
                     GameplayLog.event(body, "aquatic", "rescue refused faller={} incident={} reason={} protected={}",
-                            y.getUUID(), id, refusal, body.life().personality().protects());
+                            y.getUUID(), id, refusal, kindly);
                 }
                 if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); return; }
-                if ("can_sail".equals(refusal) && watching == null && body.life().personality().protects()) { watching = y; watched = id; }
+                if ("can_sail".equals(refusal) && watching == null && kindly) { watching = y; watched = id; }
             }
             if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
             else if (watching != null) out.add(watch(watching, watched));

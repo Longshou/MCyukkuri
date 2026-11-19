@@ -5,8 +5,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
-import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -80,7 +79,7 @@ public final class Expedition {
     }
     private static boolean eligibleCaptain(YukkuriEntity e) {
         return WildEvents.available(e)&&WildEvents.forest(e)&&e.level().isDay()&&e.family().adult()
-                &&e.getVariant().dialogueSpecies().equals("marisa")&&e.life().personality().trait(Trait.BOLDNESS)>=Temperament.BOLDNESS_AT_60
+                &&e.getVariant().dialogueSpecies().equals("marisa")&&e.life().personality().temperament().is(Gate.EXPLORER)
                 &&e.life().nutrition()>=55&&e.life().energy()>=65;
     }
     private static boolean eligibleMember(YukkuriEntity captain,YukkuriEntity e) {

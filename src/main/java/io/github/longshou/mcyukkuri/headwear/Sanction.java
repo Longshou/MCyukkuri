@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
@@ -170,7 +171,7 @@ public final class Sanction extends Goal {
                 || e.profile().houseBody() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
                 || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.body().healthRatio() < .6f
                 || e.sanction().target != null && e.sanction().target != target) return false;
-        if (!Contempt.harsh(e)) return false;
+        if (!e.life().personality().temperament().is(Gate.HARSH)) return false;
         // A slave kept by the group is no stranger to it: the group's own harshness toward it is the pit mockery, not a beating.
         if (reason.equals("hatless") && SettlementSociety.sparesHatlessBlame(e, target)) return false;
         boolean knows = Recognition.recognizes(e, target);

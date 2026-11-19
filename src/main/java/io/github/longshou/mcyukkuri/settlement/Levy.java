@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 
@@ -19,7 +19,7 @@ import io.github.longshou.mcyukkuri.status.StatusEvents;
  *     pays 1).</li>
  * <li>Communal hunt: one third ({@link #HUNT_RATE}). The leader called it, the party walked out together and the
  *     commons is what it was called for (a 6-portion load pays 2).</li>
- * <li>A selfish leader (selfishness &ge; 65, self-control &lt; 50) asks a tenth more and the payers feel it
+ * <li>A greedy leader ({@link Gate#GREEDY}) asks a tenth more and the payers feel it
  *     ({@code heavy_levy}); a generous one (friendliness &gt; 65) a twentieth less.</li>
  * <li>A hunt in shortage or famine adds 15 % (relief comes from the commons).</li>
  * <li>Nothing is due when the common store already holds its target ({@link Rations#storeTarget}) and from a family
@@ -43,17 +43,12 @@ public final class Levy {
         float rate = hunt ? HUNT_RATE : TRIP_RATE;
         var leader = CommunityRules.leader(level, group);
         if (leader != null) {
-            var p = leader.life().personality();
-            if (greedy(leader)) rate += .1f;
-            else if (p.friendliness() > 65) rate -= .05f;
+            var t = leader.life().personality().temperament();
+            if (t.is(Gate.GREEDY)) rate += .1f;
+            else if (t.is(Gate.DEVOTED)) rate -= .05f;
         }
         if (hunt && group.commons.famine >= 1) rate += .15f;
         return Math.clamp(rate, 0f, MAX_RATE);
-    }
-
-    static boolean greedy(YukkuriEntity leader) {
-        var p = leader.life().personality();
-        return p.friendliness() <= 35 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     /** Portions of a load of {@code load} owed at {@code rate}. */
@@ -72,7 +67,7 @@ public final class Levy {
         group.commons.levyToday += portions;
         group.commons.levyTotal += portions;
         var leader = CommunityRules.leader(level, group);
-        if (leader != null && leader != payer && greedy(leader)) payer.mind().add(1, "heavy_levy");
+        if (leader != null && leader != payer && leader.life().personality().temperament().is(Gate.GREEDY)) payer.mind().add(1, "heavy_levy");
         StatusEvents.note(payer, "levy " + portions + (hunt ? " hunt" : " trip"));
         SettlementData.get(level).setDirty();
     }

@@ -15,7 +15,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -585,8 +585,7 @@ final class Migration {
     /** A member at the gathering hears the leader out (once per move): the bold and attached object, the others agree. */
     static void discuss(YukkuriEntity member, SettlementData.Group group) {
         if (member.getUUID().equals(group.leader)) return;
-        var p = member.life().personality();
-        if (p.trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_60 && p.attachment() >= Temperament.ATTACHMENT_AT_65) {
+        if (member.life().personality().temperament().is(Gate.OBJECTS_TO_MOVE)) {
             member.showReaction("angry", "migrate_object", 80);
             member.mind().add(2, "migrate_object");
         } else member.showReaction("teary", "migrate_agree", 80);

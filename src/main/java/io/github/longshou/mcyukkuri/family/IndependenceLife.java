@@ -13,10 +13,11 @@ import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
+import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
@@ -86,7 +87,7 @@ public final class IndependenceLife extends Goal {
                     : Behaviors.INDEPENDENCE_FAREWELL;
             case DEPART -> lookBackTicks > 0 ? Behaviors.INDEPENDENCE_LOOK_BACK : Behaviors.INDEPENDENCE_SEE_OFF;
             case SEE_OFF -> sobbing ? Behaviors.INDEPENDENCE_SOB : seenBeat() >= ANSWER && seenBeat() < CLOSE
-                    ? entity.life().personality().attachment() >= 55 ? Behaviors.INDEPENDENCE_SOB : Behaviors.INDEPENDENCE_ANSWER
+                    ? entity.life().personality().temperament().is(Gate.ATTACHED) ? Behaviors.INDEPENDENCE_SOB : Behaviors.INDEPENDENCE_ANSWER
                     : seenBeat() >= CLOSE && seenBeat() < seenCloseEnd() && seenNuzzle() ? Behaviors.INDEPENDENCE_NUZZLE
                     : Behaviors.INDEPENDENCE_SEE_OFF;
             case NONE -> Behaviors.IDLE;
@@ -185,7 +186,7 @@ public final class IndependenceLife extends Goal {
         if (home == null) return 0;
         // Original balancing, not a density inferred from EH11's panels: a crowded home pushes its grown young out sooner.
         int chance = home.crowded() ? 30 : 10;
-        if (entity.life().personality().attachment() >= Temperament.ATTACHMENT_AT_65) chance -= 5;
+        if (entity.life().personality().temperament().is(Gate.CLINGY)) chance -= 5;
         return chance;
     }
     @Override public boolean canUse() {
@@ -294,16 +295,17 @@ public final class IndependenceLife extends Goal {
     /** The exchange is decided at the first word, from both their values. */
     private void begin(YukkuriEntity parent, boolean close) {
         said = true; touching = close; contact = 0; stalled = 0; target = progress = null;
-        int own = entity.life().personality().attachment(), theirs = parent.life().personality().attachment();
-        teary = own >= 55;
+        var t = entity.life().personality().temperament();
+        int own = t.attachment(), theirs = parent.life().personality().attachment();
+        teary = t.is(Gate.ATTACHED);
         // An attached pair nuzzle the longer the more attached they are; a cool pair or one called from afar only bows.
         int bond = own + theirs;
         closeTicks = close && bond >= 100 ? 40 + (bond - 100) / 2 : BOW_TICKS;
-        lookBacks = own >= 70 ? 2 : own >= 40 ? 1 : 0;
+        lookBacks = t.is(Gate.DEVOTED_KIN) ? 2 : t.is(Gate.DETACHED) ? 0 : 1;
         looked = 0;
         SurfaceApproach.halt(entity);
-        GameplayLog.event(entity, "independence", "farewell exchange parent={} touching={} attachment={} parentAttachment={} nuzzleTicks={} lookBacks={}",
-                parent.getUUID(), close, own, theirs, nuzzling() ? closeTicks : 0, lookBacks);
+        GameplayLog.event(entity, "independence", "farewell exchange parent={} touching={} attachment={} parentAttachment={} nuzzleTicks={} lookBacks={} attachmentScore={}",
+                parent.getUUID(), close, own, theirs, nuzzling() ? closeTicks : 0, lookBacks, String.format(Locale.ROOT, "%.2f", t.attached()));
     }
 
     /** It walks away from the parent, stopping to look back once or twice when attached; then the habitat takes over. */
@@ -333,7 +335,7 @@ public final class IndependenceLife extends Goal {
             lookBackTicks = 40 + entity.life().personality().attachment() / 4;
             SurfaceApproach.halt(entity);
             SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), parent.position()));
-            if (entity.life().personality().attachment() >= 70 && looked == lookBacks)
+            if (entity.life().personality().temperament().is(Gate.DEVOTED_KIN) && looked == lookBacks)
                 entity.showReaction("teary_smile", "farewell_look_back", lookBackTicks);
             else entity.showReaction(teary ? "teary_smile" : "happy", "", lookBackTicks);
             return;
@@ -371,14 +373,15 @@ public final class IndependenceLife extends Goal {
         SurfaceApproach.halt(entity);
         entity.getLookControl().setLookAt(child, 30, 30);
         if (beat < ANSWER) return;
-        boolean attached = entity.life().personality().attachment() >= 55;
+        var t = entity.life().personality().temperament();
+        boolean attached = t.is(Gate.ATTACHED);
         if (contact == 0) {
             // Its answer, once, by its own attachment: a glad blessing, or a sob and "come back sometimes".
             contact = 1;
             entity.mind().felt(EmotionEvent.COMFORTED);
             entity.showReaction(attached ? "teary" : "happy", attached ? "farewell_cry" : "farewell_bless", 60);
-            GameplayLog.event(entity, "independence", "see off answer child={} attached={} attachment={}", seeing, attached,
-                    entity.life().personality().attachment());
+            GameplayLog.event(entity, "independence", "see off answer child={} attached={} attachment={} attachmentScore={}", seeing, attached,
+                    t.attachment(), String.format(Locale.ROOT, "%.2f", t.attached()));
         }
         // While the child walks away the attached one sobs where it stands; the cool one just watches it go.
         sobbing = attached && beat == Integer.MAX_VALUE;
@@ -388,10 +391,12 @@ public final class IndependenceLife extends Goal {
     private void seeOffEnded() {
         var child = seen();
         boolean gone = child != null && child.independence().independent();
-        int attachment = entity.life().personality().attachment();
-        GameplayLog.event(entity, "independence", "see off ended child={} departed={} attachment={}", seeing, gone, attachment);
+        var t = entity.life().personality().temperament();
+        int attachment = t.attachment();
+        GameplayLog.event(entity, "independence", "see off ended child={} departed={} attachment={} attachmentScore={}", seeing, gone, attachment,
+                String.format(Locale.ROOT, "%.2f", t.attached()));
         // An attached parent is left missing it for a while (a light grief course); a cool one goes back to its day.
-        if (gone && attachment >= 55)
+        if (gone && t.is(Gate.ATTACHED))
             entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .15f + .25f * (attachment - 55) / 45f, seeing, child.blockPosition());
         seeing = null;
     }

@@ -14,7 +14,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
@@ -141,7 +141,7 @@ public final class WildCards {
             case "little-gap" -> first.getBbWidth()>=second.getBbWidth()*1.5 && close(first,second,2) && caring(first,second);
             case "rivalry" -> affinity<=BondLevels.AFFINITY_DISLIKED && relations.affinity(second.getUUID(),first.getUUID())<BondLevels.AFFINITY_NEUTRAL && WildEvents.recognizes(first,second);
             case "crowd" -> all.size()==3 && all.stream().allMatch(p -> close(first,p,1.6));
-            case "territory" -> first.life().personality().friendliness()<=35
+            case "territory" -> first.life().personality().temperament().is(Gate.SELFISH)
                     && affinity<=BondLevels.AFFINITY_NEUTRAL && !Bonds.careKin(first, second) && close(first,second,2);
             case "plea" -> first.life().nutrition()<40 && second.life().nutrition()>60 && WildEvents.recognizes(first,second);
             case "lookout" -> familiar(first,second) && level.getNearestPlayer(first,6)!=null
@@ -151,7 +151,7 @@ public final class WildCards {
             case "mate-touch" -> second.getUUID().equals(first.family().partner()) && first.getUUID().equals(second.family().partner())
                     && WildEvents.friendly(first,second);
             case "imitate" -> !first.getVariant().dialogueSpecies().equals(second.getVariant().dialogueSpecies())
-                    && first.childhood().canLearn() && first.life().personality().boldness()>=Temperament.BOLDNESS_AT_60 && WildEvents.friendly(first,second);
+                    && first.childhood().canLearn() && first.life().personality().temperament().is(Gate.EXPLORER) && WildEvents.friendly(first,second);
             case "teach" -> Cognition.canTeach(first,second) && space(first) && space(second);
             case "ornament" -> !second.life().hasAccessory() && caring(first,second)
                     && (resource=target(second,item -> AccessoryItem.matches(second,item.getItem())))!=null;
@@ -159,7 +159,7 @@ public final class WildCards {
                     && caring(first,second) && first.distanceToSqr(second)>4;
             case "young-call" -> WildEvents.childOf(second,first) && first.distanceToSqr(second)>9 && WildEvents.friendly(first,second);
             case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE
-                    && first.life().personality().friendliness()>=Temperament.CARE_AT_60 && WildEvents.recognizes(first,second);
+                    && first.life().personality().temperament().is(Gate.WARM) && WildEvents.recognizes(first,second);
             case "group-turn" -> Bonds.sameGroupId(first, second)
                     && first.life().canEat() && second.life().canEat()
                     && first.life().nutrition()<65 && second.life().nutrition()<65

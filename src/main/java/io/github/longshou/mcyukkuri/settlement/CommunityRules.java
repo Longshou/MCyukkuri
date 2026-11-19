@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.Expulsion;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
@@ -134,9 +134,7 @@ public final class CommunityRules {
             if (now - s.lastIntrusion < INTRUSION_GAP) continue;
             if (Recognition.unrecognizedHatless(member, other)
                     && group.commons.has(Commons.NO_HATLESS)) {
-                var p = member.life().personality();
-                if (p.friendliness() > 50
-                        && p.friendliness() > 40) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
+                if (member.life().personality().temperament().is(Gate.KINDLY)) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
                         60); s.lastIntrusion = now; continue; }
                 if (now - s.lastIntrusion > 24000) s.intrusions = 0;
                 s.lastIntrusion = now; s.intrusions++;
@@ -233,8 +231,7 @@ public final class CommunityRules {
         if (!famine && dependants(level, entity.habitat().shelter()) < commons.birthLimit) return true;
         long now = level.getGameTime();
         var s = commons.standing(entity.getUUID());
-        var p = entity.life().personality();
-        if (p.selfControl() >= Temperament.SELF_CONTROL_AT_45 || p.attachment() >= Temperament.ATTACHMENT_AT_65) {
+        if (entity.life().personality().temperament().is(Gate.KEEPS_RULE)) {
             if (now - s.lastBlocked > 2400) {
                 s.lastBlocked = now;
                 entity.showReaction("teary", "rule_blocked", 80);

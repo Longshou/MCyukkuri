@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -44,10 +44,6 @@ public final class Contempt {
         return !e.isPassenger() && e.life().mealTicks() == 0 && !e.family().active() && !e.life().hasUrgentNeed();
     }
     /** Harsh enough to bully (the same disposition the sanction asks of its executors). */
-    static boolean harsh(YukkuriEntity e) {
-        var p = e.life().personality();
-        return Temperament.harshForContempt(p);
-    }
     static String describe(YukkuriEntity observer) {
         var nearby = observer.level().getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
                         y -> y != observer && y.isAlive() && !y.life().hasAccessory())
@@ -60,7 +56,7 @@ public final class Contempt {
     /** One look around by {@code observer} (from Headwear.clock); returns the ticks until the next look. */
     static int observe(YukkuriEntity observer) {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
-        boolean mocks = harsh(observer);
+        boolean mocks = observer.life().personality().temperament().is(Gate.HARSH);
         var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
                         y -> y != observer && y.isAlive() && !y.profile().dangerToYukkuri()
                                 && (Recognition.unrecognizedHatless(observer, y) || mocks && Recognition.junkCovered(y)
@@ -127,7 +123,7 @@ public final class Contempt {
         if (affinity > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), Math.max(SCORN, SCORN_FLOOR - affinity));
         affinity = relations.affinity(observer.getUUID(), target.getUUID());
         observer.getLookControl().setLookAt(target, 30, 30);
-        boolean bully = observer.family().adult() && harsh(observer) && Sanction.eligibleTarget(target) && Sanction.enabled()
+        boolean bully = observer.family().adult() && observer.life().personality().temperament().is(Gate.HARSH) && Sanction.eligibleTarget(target) && Sanction.enabled()
                 && observer.getRandom().nextInt(100) < observer.life().personality().escalationScore();
         if (bully && Sanction.request(target, "hatless", observer)) {
             GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_accepted",
@@ -155,7 +151,7 @@ public final class Contempt {
         observer.mind().add(6, "monster");
         observer.showReaction("surprise", "hatless_monster", 100);
         suffer(target, "cry", "settlement_hurt", 100, 2, "feared_as_monster", false);
-        boolean drive = observer.family().adult() && harsh(observer) && Sanction.eligibleTarget(target) && Sanction.enabled();
+        boolean drive = observer.family().adult() && observer.life().personality().temperament().is(Gate.HARSH) && Sanction.eligibleTarget(target) && Sanction.enabled();
         boolean accepted = drive && Sanction.request(target, "monster", observer);
         boolean frightened = false;
         if (!accepted) {

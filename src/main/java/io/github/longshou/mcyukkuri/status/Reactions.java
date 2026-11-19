@@ -13,7 +13,7 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.mind.MindLife;
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -644,7 +644,7 @@ public final class Reactions {
             var personality = y.life().personality();
             float bearable = MindLife.UNEASY * (.5f + personality.boldness() / 100f) * (y.family().adult() ? 1 : .75f);
             return y.life().temperature().cold() || y.mind().unease() >= bearable
-                    || Sky.open(y.level(), y.blockPosition()) == Sky.STORM && personality.boldness() < Temperament.BOLDNESS_AT_35;
+                    || Sky.open(y.level(), y.blockPosition()) == Sky.STORM && personality.temperament().is(Gate.TIMID);
         }
         boolean wants() {
             if (stage != Stage.NONE) return true;

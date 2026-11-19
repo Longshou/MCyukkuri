@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.life.TravelRange;
@@ -141,7 +143,7 @@ public final class DailyLife {
         if (++clock >= 200) {
             clock = 0;
             if (!entity.life().isSleeping()) {
-                affection = Math.min(100, affection + (entity.life().personality().attachment() >= Temperament.SOCIABILITY_AT_65 ? 2 : 1)
+                affection = Math.min(100, affection + (entity.life().personality().temperament().is(Gate.CLINGY) ? 2 : 1)
                         + (entity.getRandom().nextFloat() < entity.species().traits().affection() - 1 ? 1 : 0));
                 boredom = Math.min(100, boredom + 1);
             }
