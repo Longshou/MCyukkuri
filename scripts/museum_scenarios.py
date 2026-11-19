@@ -2701,7 +2701,7 @@ def _lot_pet(scene, keeper, kind, x, name, **stats):
 _outing_pets = [('reimu', 'outing_shy', -2, 5, 95), ('marisa', 'outing_bold', 2, 95, 5)]
 add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
     '院子在公园大门对面。院主给灵梦和魔理沙系绳，带它们沿街往西走十来格再折回。看两只油自己跑跳、绳子何时拉紧、主人怎样回望。'
-    '街上的鬼威惨先喝斥挡路的流浪油，不碰有主的宠物。',
+    '街道东边的鬼威惨喝斥面前的流浪油，院主带宠物往西走。',
     '约 1 分钟', [
         *_lot_yard(-2, 2),
         f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
@@ -2709,9 +2709,9 @@ add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人�
         _lot_keeper('outing_keeper'),
         *(line for kind, name, x, bold, bond in _outing_pets
           for line in _lot_pet('park_walk', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, **pair_ready())),
-        # More than six blocks from the keeper, who would otherwise call the warning off before it is given.
-        street_abuser(*_lot_spot('street', 0, 1), 'outing_oni'),
-        street_trial('park_walk', ('chen', 'alice'), *_lot_spot('street', 1, 1), 'outing_stray', yaw=90,
+        # The Oni faces east. The warned stray can retreat along the street clear of the westbound party and its gate.
+        street_abuser(*_lot_spot('street', 18, 1), 'outing_oni'),
+        street_trial('park_walk', ('chen', 'alice'), *_lot_spot('street', 19, 1), 'outing_stray', yaw=90,
                      friendliness=(30, 80), nutrition=(60, 90)),
     ], env=DAY, spot='yard', vantage=(-7, 0, 180, 12),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
