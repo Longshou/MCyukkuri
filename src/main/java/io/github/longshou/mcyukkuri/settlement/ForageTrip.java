@@ -447,6 +447,24 @@ public final class ForageTrip extends Goal {
         if (!load.isEmpty() && (why.equals("death") || ItemContact.hasReleaseSupport(entity, entity.getEyePosition()))) dropLoad();
         if (outing()) finish(false);
     }
+    ItemEntity putDownLoad() {
+        var drop = ItemContact.releaseSupported(entity, load, 0);
+        if (drop != null) {
+            GameplayLog.event(entity, "forage", "set down item={} count={} drop={}", load.getItem(), load.getCount(), drop.getUUID());
+            load = ItemStack.EMPTY;
+        }
+        return drop;
+    }
+
+    void recoverLoad(ItemEntity drop) {
+        if (!drop.isAlive() || !canCarryForage() || !load.isEmpty()
+                || !entity.getBoundingBox().inflate(.15).intersects(drop.getBoundingBox())) return;
+        load = drop.getItem();
+        entity.take(drop, load.getCount());
+        drop.discard();
+        GameplayLog.event(entity, "forage", "recovered item={} count={} drop={}", load.getItem(), load.getCount(), drop.getUUID());
+    }
+
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }
         var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load.copy()), entity.getRandom()); drop.setPickUpDelay(100);

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
+import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -105,6 +106,9 @@ public final class FlightPlanner {
             var path = routeTo(keeper.position(), danger.position());
             if (path != null) return path;
         }
+        var shelter = body.habitat().shelter();
+        if (shelter != null && !shelter.contains(body.blockPosition()) && DenBarrier.sealed(shelter))
+            return routeTo(Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing())), danger.position());
         var home = body.life().homeStand();
         return home == null ? null : routeTo(Vec3.atBottomCenterOf(home), danger.position());
     }

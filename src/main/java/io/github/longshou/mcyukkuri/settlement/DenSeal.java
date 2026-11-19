@@ -1,17 +1,19 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.dialogue.SpeechAddress;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
+import io.github.longshou.mcyukkuri.family.FamilyDutyMath;
+import io.github.longshou.mcyukkuri.life.SpeciesLife;
 import io.github.longshou.mcyukkuri.life.Duty.End;
 import io.github.longshou.mcyukkuri.life.Duty.Kind;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
-import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.HomeTactic;
@@ -30,6 +32,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.AABB;
@@ -64,6 +67,7 @@ public final class DenSeal {
     private List<BlockPos> cells = List.of();
     private List<UUID> absent = List.of(), considered = List.of();
     private boolean remembered;
+    private final Opening opening = new Opening();
 
     public DenSeal(YukkuriEntity y) { this.y = y; }
 
@@ -76,14 +80,15 @@ public final class DenSeal {
 
     public boolean active() { return phase != Phase.IDLE; }
     public boolean finishingThreatSeal() {
-        return active() && dangerId != null && y.level().getGameTime() - lastDrive <= RECHECK;
+        return (active() && dangerId != null || opening.active()) && y.level().getGameTime() - lastDrive <= RECHECK;
     }
     public boolean pressing() { return phase == Phase.WORK; }
     public String describe() { return phase == Phase.IDLE ? (threatDecision == ThreatDecision.DONE ? "done" : "idle") : phase.name().toLowerCase() + ":" + ticks; }
-    public String familyActivity() { return pressing() ? Behaviors.NEST_PRESS : Behaviors.RETURN_HOME; }
+    public String familyActivity() { return pressing() ? Behaviors.NEST_PRESS : opening.activity(); }
 
     /** A new threat episode starts clean; ending one while she works stops the work. */
     public void reset() {
+        opening.stop();
         if (active() && absent.isEmpty()) abort("response_ended");
         dangerId = null; committedSide = null;
         threatDecision = ThreatDecision.UNDECIDED; nextCheck = 0;
@@ -111,6 +116,10 @@ public final class DenSeal {
         var danger = reported != null ? reported : dangerAt(level);
         if (danger == null || !danger.isAlive()) { abort("danger_lost"); return false; }
         var home = y.habitat().shelter();
+        if (home != null && !home.contains(y.blockPosition()) && !committedOutside() && DenBarrier.sealed(home)) {
+            if (!opening.active() && !opening.start(level, home, true)) return false;
+            return opening.tick(level, home, true);
+        }
         if (phase == Phase.IDLE) {
             if (threatDecision == ThreatDecision.DONE || now < nextCheck || danger.distanceToSqr(y) > WATCH_SQR) return false;
             nextCheck = now + (home != null && y.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) < 36 ? 3 : RECHECK);
@@ -232,16 +241,20 @@ public final class DenSeal {
             return active();
         }
         ticks++;
+        press(level, mouth, ticks);
+        if (ticks >= y.childhood().denSealPressTicks()) complete(level, home, danger);
+        return true;
+    }
+
+    private void press(ServerLevel level, Vec3 mouth, int progress) {
         SurfaceApproach.halt(y);
         SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), mouth));
         y.getLookControl().setLookAt(mouth.x, mouth.y + .2, mouth.z, 30, 30);
-        if (ticks % 8 == 4) {
+        if (progress % 8 == 4) {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.defaultBlockState()),
                     mouth.x, mouth.y + .3, mouth.z, 3, .25, .15, .25, .02);
             level.playSound(null, y.blockPosition(), SoundType.GRASS.getPlaceSound(), SoundSource.NEUTRAL, .5f, 1.1f);
         }
-        if (ticks >= y.childhood().denSealPressTicks()) complete(level, home, danger);
-        return true;
     }
 
     private Stand standFor(ShelterBlockEntity home, List<BlockPos> targets, Side side) {
@@ -429,73 +442,201 @@ public final class DenSeal {
         return remembered && begin(level, home, null, parents);
     }
 
-    /** Family work yields to ordinary life needs and threat goals. The same worker owns the threat route above. */
+    private enum OpeningPhase { WALK, CALL, ANSWER, REMOVE }
+
+    /** The caller and responder observe one another's current work at the same screen. */
+    private final class Opening {
+        private DenBarrierBlockEntity barrier, refusedBarrier;
+        private BlockPos refusedFrom;
+        private OpeningPhase phase;
+        private Stand target;
+        private String reason;
+        private YukkuriEntity callee;
+        private ItemEntity forage;
+        private int elapsed, budget, patience;
+
+        boolean active() { return barrier != null && !barrier.isRemoved(); }
+
+        String activity() {
+            if (!active()) return Behaviors.RETURN_HOME;
+            return switch (phase) {
+                case WALK -> Behaviors.RETURN_HOME;
+                case CALL -> elapsed % (3 * callLength()) < callLength() ? Behaviors.CALL_CHILD : Behaviors.CALL_LISTEN;
+                case ANSWER -> Behaviors.ANSWER_CALL;
+                case REMOVE -> Behaviors.NEST_PRESS;
+            };
+        }
+
+        private int callLength() { return EcologyPresentation.duration(Behaviors.CALL_CHILD); }
+
+        private boolean emergency() {
+            var danger = y.status().reactions().threat().source();
+            return y.isPanicking() || y.hurtTime > 0 || danger != null && y.distanceToSqr(danger) <= 144;
+        }
+
+        boolean start(ServerLevel level, ShelterBlockEntity home, boolean flight) {
+            if (!home.owns(y.getUUID()) || !(level.getBlockEntity(home.entrance()) instanceof DenBarrierBlockEntity screen)
+                    || screen == refusedBarrier && y.blockPosition().equals(refusedFrom)) return false;
+            boolean inside = home.contains(y.blockPosition());
+            String why = null;
+            if (inside) {
+                var callers = level.getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(8), caller -> {
+                    var other = caller.status().reactions().threat().seal().opening;
+                    return other.barrier == screen && other.phase == OpeningPhase.CALL && other.callee == y && y.distanceToSqr(caller) <= 64;
+                });
+                if (!callers.isEmpty()) {
+                    var danger = y.status().reactions().threat().source();
+                    if (danger != null && y.distanceToSqr(danger) <= 256) {
+                        y.showReaction("teary", "afraid", 40);
+                        refuse(screen, "afraid");
+                        return false;
+                    }
+                    why = "answered_call";
+                } else why = screen.calm() ? "danger_passed" : screen.familyReason(y, home);
+                if (why == null) return false;
+            } else {
+                if (!(y.family().adult() || y.family().subadult()) || y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR)
+                    return false;
+                if (flight || emergency()) why = "emergency";
+                else if (y.getUUID().equals(screen.owner()) && !departure(level, home, RETURN_SQR).isEmpty()) return false;
+            }
+            var cells = new ArrayList<BlockPos>();
+            for (var side : Direction.Plane.HORIZONTAL) {
+                var cell = home.getBlockPos().relative(side);
+                if (level.getBlockEntity(cell) instanceof DenBarrierBlockEntity) cells.add(cell);
+            }
+            target = standFor(home, inside ? cells : List.of(home.entrance()), inside ? Side.INSIDE : Side.OUTSIDE);
+            if (target == null) { refuse(screen, "no_stand"); return false; }
+            barrier = screen;
+            reason = why;
+            budget = (int) Math.ceil(2 * travelTicks(target));
+            elapsed = 0;
+            if ("answered_call".equals(reason)) {
+                phase = OpeningPhase.ANSWER;
+                y.showReaction("happy", "heard", EcologyPresentation.duration(Behaviors.ANSWER_CALL));
+                GameplayLog.event(y, "home", "den call answered by={}", y.getUUID());
+            } else phase = OpeningPhase.WALK;
+            return true;
+        }
+
+        private int rank(YukkuriEntity other) {
+            var kin = SpeciesLife.kinAddress(y, other);
+            if (kin == null) return 5;
+            return switch (kin) {
+                case PARTNER -> 0;
+                case MOTHER -> 1;
+                case FATHER -> 2;
+                case CHILD -> 3;
+                case ELDER_SIBLING, YOUNGER_SIBLING -> 4;
+                case LEADER -> 5;
+            };
+        }
+
+        private void call(ServerLevel level, ShelterBlockEntity home) {
+            callee = residents(level, home).stream().min(Comparator.comparingInt(this::rank)
+                    .thenComparingInt(other -> -y.life().personality().trust(other.getUUID()))).orElse(null);
+            var kin = callee == null ? null : SpeciesLife.kinAddress(y, callee);
+            y.showReaction("teary", kin == null ? "wait_family" : SpeechAddress.kin(kin), callLength());
+            GameplayLog.event(y, "home", "den call caller={} callee={} relation={} patience={}", y.getUUID(),
+                    callee == null ? null : callee.getUUID(), kin, patience);
+        }
+
+        boolean tick(ServerLevel level, ShelterBlockEntity home, boolean flight) {
+            if (!active() || home == null || !barrier.getBlockPos().equals(home.entrance())) { stop(); return false; }
+            if (phase == OpeningPhase.ANSWER) {
+                if (++elapsed >= EcologyPresentation.duration(Behaviors.ANSWER_CALL)) { phase = OpeningPhase.WALK; elapsed = 0; }
+                return true;
+            }
+            if (phase == OpeningPhase.WALK) {
+                var step = SurfaceApproach.walkResult(y, target.at(), null, WORK_PACE);
+                if (step != SurfaceApproach.Result.ARRIVED) {
+                    if (step == SurfaceApproach.Result.BLOCKED || ++elapsed >= budget) refuse(barrier, "path_stuck");
+                    return active();
+                }
+                SurfaceApproach.halt(y);
+                elapsed = 0;
+                if (reason == null && !flight && !emergency()) {
+                    var t = y.life().personality().temperament();
+                    patience = FamilyDutyMath.beckonPatience(t.attachment(), t.selfControl());
+                    phase = OpeningPhase.CALL;
+                } else {
+                    if (reason == null) reason = "emergency";
+                    phase = OpeningPhase.REMOVE;
+                }
+            }
+            if (!SurfaceApproach.at(y, target.at())) { refuse(barrier, "left_stand"); return false; }
+            var mouth = Vec3.atCenterOf(home.entrance());
+            SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), mouth));
+            if (phase == OpeningPhase.CALL) {
+                if (flight || emergency()) reason = "emergency";
+                else if (elapsed >= patience) {
+                    var answer = callee == null ? null : callee.status().reactions().threat().seal().opening;
+                    if (answer != null && answer.barrier == barrier && answer.phase == OpeningPhase.REMOVE) return true;
+                    reason = "self_opened";
+                    GameplayLog.event(y, "home", "den call unanswered waited={}", elapsed);
+                } else {
+                    if (elapsed % (3 * callLength()) == 0) call(level, home);
+                    elapsed++;
+                    return true;
+                }
+                phase = OpeningPhase.REMOVE;
+                elapsed = 0;
+            }
+            if (elapsed == 0 && !y.forageTrip().load().isEmpty()) forage = y.forageTrip().putDownLoad();
+            if (!mouthFree()) { refuse(barrier, "mouth_busy"); return false; }
+            press(level, mouth, ++elapsed);
+            if (elapsed >= y.childhood().denSealPressTicks() / 2) {
+                barrier.open(y, reason);
+                if (forage != null) y.forageTrip().recoverLoad(forage);
+                stop();
+            }
+            return true;
+        }
+
+        private void refuse(DenBarrierBlockEntity screen, String why) {
+            refusedFrom = y.blockPosition().immutable();
+            refusedBarrier = screen;
+            GameplayLog.event(y, "home", "den barrier opening refused reason={} mouth={}", why, screen.getBlockPos());
+            stop();
+        }
+
+        void stop() {
+            barrier = null;
+            callee = null;
+            forage = null;
+        }
+    }
+
     public static final class FamilyGoal extends Goal {
         private final YukkuriEntity y;
-        private DenBarrierBlockEntity opening;
-        private BlockPos stand;
-        private BlockPos refusedFrom;
-        private int walkTicks, openBudget;
-
         public FamilyGoal(YukkuriEntity y) {
             this.y = y;
             setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
-
         private DenSeal seal() { return y.status().reactions().threat().seal(); }
-
         @Override public boolean canUse() {
-            if (!(y.level() instanceof ServerLevel level) || y.isPanicking() || y.life().hasUrgentNeed() || !seal().available()) return false;
+            if (!(y.level() instanceof ServerLevel level) || y.isPanicking() || !seal().available()) return false;
             var home = y.habitat().shelter();
-            if (home != null && y.family().adult() && home.owns(y.getUUID()) && !home.contains(y.blockPosition())
-                    && y.distanceToSqr(Vec3.atCenterOf(home.entrance())) <= RETURN_SQR
-                    && level.getBlockEntity(home.entrance()) instanceof DenBarrierBlockEntity barrier && barrier.canOpen(y)) {
-                var outer = home.entrance().relative(home.facing());
-                if (y.blockPosition().equals(refusedFrom) || !y.life().reachable(outer, false)) return false;
-                opening = barrier; stand = outer; walkTicks = 0;
-                openBudget = (int) Math.ceil(2 * SurfaceApproach.routeLength(y, Vec3.atBottomCenterOf(outer), null) / BodyAbility.of(y).walkSpeed());
-                return true;
-            }
-            return seal().startFamily(level, home);
+            if (home != null && seal().opening.start(level, home, false)) return true;
+            return !y.life().hasUrgentNeed() && seal().startFamily(level, home);
         }
-
         @Override public boolean canContinueToUse() {
-            return !y.isPanicking() && !y.life().hasUrgentNeed() && seal().available()
-                    && (opening == null ? seal().active() : walkTicks <= openBudget && opening.canOpen(y));
+            return !y.isPanicking() && seal().available() && (seal().opening.active() || seal().active() && !y.life().hasUrgentNeed());
         }
-
         @Override public boolean requiresUpdateEveryTick() { return true; }
-
         @Override public void tick() {
-            if (opening != null) {
-                var step = SurfaceApproach.walkResult(y, Vec3.atBottomCenterOf(stand), null, 1);
-                walkTicks++;
-                if (step == SurfaceApproach.Result.ARRIVED || y.onGround() && stand.equals(y.blockPosition())) {
-                    refusedFrom = null;
-                    var mouth = Vec3.atCenterOf(opening.getBlockPos());
-                    SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), mouth));
-                    y.getLookControl().setLookAt(mouth.x, mouth.y, mouth.z, 30, 30);
-                    y.showReaction(YukkuriAction.BOW, "happy", null);
-                    opening.open(y);
-                } else if (step == SurfaceApproach.Result.BLOCKED || walkTicks >= openBudget) {
-                    refusedFrom = y.blockPosition().immutable();
-                    walkTicks = openBudget + 1;
-                    GameplayLog.event(y, "home", "den barrier opening refused reason=path_stuck mouth={}", opening.getBlockPos());
-                }
-                return;
-            }
             var seal = seal();
-            if (!seal.active()) return;
             var level = (ServerLevel) y.level();
             var home = y.habitat().shelter();
+            if (seal.opening.active()) { seal.opening.tick(level, home, false); return; }
+            if (!seal.active()) return;
             if (home != null && (seal.ticks % RECHECK == 0 || seal.ticks + 1 >= y.childhood().denSealPressTicks())
                     && !seal.absent.equals(seal.departure(level, home, MOUTH_APPROACH_SQR))) seal.abort("departure_changed");
             else seal.work(level, home, null);
         }
-
         @Override public void stop() {
-            if (opening == null && seal().dangerId == null) seal().abort("family_work_interrupted");
-            opening = null;
+            if (seal().dangerId == null) seal().abort("family_work_interrupted");
+            seal().opening.stop();
             SurfaceApproach.halt(y);
         }
     }

@@ -283,26 +283,30 @@ public final class SpeciesLife {
 
     private void greetKin() {
         if (entity.getRandom().nextFloat() >= .15f) return;
-        var family = entity.family();
-        var group = entity.settlement().group();
         for (var other : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(4),
                 o -> o != entity && o.isAlive() && !o.life().isSleeping() && !o.isPanicking()
                         && o.profile().ecology() != SpeciesProfile.Ecology.PREDATOR
                         && o.status().reactions().threat().stage() == Reactions.Threat.Stage.NONE
                         && Recognition.recognizes(entity, o) && entity.hasLineOfSight(o))) {
-            var id = other.getUUID();
-            SpeechAddress.Kin kin = null;
-            if (id.equals(family.mother())) kin = SpeechAddress.Kin.MOTHER;
-            else if (id.equals(family.father())) kin = SpeechAddress.Kin.FATHER;
-            else if (id.equals(family.partner()) || entity.getUUID().equals(other.family().partner())) kin = SpeechAddress.Kin.PARTNER;
-            else if (Bonds.parentOf(entity, other)) kin = SpeechAddress.Kin.CHILD;
-            else if (group != null && id.equals(group.leader)) kin = SpeechAddress.Kin.LEADER;
-            else if ((family.mother() != null && family.mother().equals(other.family().mother()))
-                    || (family.father() != null && family.father().equals(other.family().father())))
-                kin = other.growthScale() >= entity.growthScale() ? SpeechAddress.Kin.ELDER_SIBLING : SpeechAddress.Kin.YOUNGER_SIBLING;
-            if (kin == null || !fresh(id)) continue;
+            var kin = kinAddress(entity, other);
+            if (kin == null || !fresh(other.getUUID())) continue;
             if (address(other, SpeechAddress.kin(kin))) return;
         }
+    }
+
+    public static SpeechAddress.Kin kinAddress(YukkuriEntity speaker, YukkuriEntity other) {
+        var id = other.getUUID();
+        var family = speaker.family();
+        if (id.equals(family.mother())) return SpeechAddress.Kin.MOTHER;
+        if (id.equals(family.father())) return SpeechAddress.Kin.FATHER;
+        if (id.equals(family.partner()) || speaker.getUUID().equals(other.family().partner())) return SpeechAddress.Kin.PARTNER;
+        if (Bonds.parentOf(speaker, other)) return SpeechAddress.Kin.CHILD;
+        var group = speaker.settlement().group();
+        if (group != null && id.equals(group.leader)) return SpeechAddress.Kin.LEADER;
+        if ((family.mother() != null && family.mother().equals(other.family().mother()))
+                || (family.father() != null && family.father().equals(other.family().father())))
+            return other.growthScale() >= speaker.growthScale() ? SpeechAddress.Kin.ELDER_SIBLING : SpeechAddress.Kin.YOUNGER_SIBLING;
+        return null;
     }
 
     private void greetPredator() {

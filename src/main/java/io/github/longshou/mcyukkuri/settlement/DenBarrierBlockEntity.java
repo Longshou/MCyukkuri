@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -30,14 +29,14 @@ import net.minecraft.world.phys.AABB;
 /** One cell of a den-mouth screen and the conditions under which its twig comes out. */
 public final class DenBarrierBlockEntity extends BlockEntity {
     /** Ticks without a danger within {@link #WATCH_RANGE} before the owner takes the screen down, and the most it stands (project design). */
-    static final int CALM_TICKS = 200, DECAY_TICKS = 4800, WATCH_RANGE = 20, CHECK = 20, PUSH_TICKS = 60;
+    static final int CALM_TICKS = 200, DECAY_TICKS = 4800, WATCH_RANGE = 20, CHECK = 20;
     /** How long the danger that drove the builder home still counts as present after it stops acting. */
     static final int THREAT_MEMORY = 1200;
     private UUID owner, threat;
     private List<UUID> absent = List.of();
     private BlockPos den;
     private long laidAt;
-    private int calm, push;
+    private int calm;
     private boolean released;
 
     public DenBarrierBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.DEN_BARRIER_ENTITY.get(), pos, state); }
@@ -49,14 +48,15 @@ public final class DenBarrierBlockEntity extends BlockEntity {
     }
     public UUID owner() { return owner; }
 
-    boolean canOpen(YukkuriEntity parent) {
-        return !released && absent.contains(parent.getUUID()) && parent.life().mealTicks() == 0
-                && parent.component(YukkuriComponents.MOUTH).freeForExternalWork();
+    boolean calm() { return absent.isEmpty() && calm >= CALM_TICKS; }
+
+    String familyReason(YukkuriEntity resident, ShelterBlockEntity home) {
+        if (absent.isEmpty() || resident.family().adult()) return null;
+        if (resident.life().nutrition() < 30 && home.food() == 0) return "child_hungry";
+        return absent.stream().anyMatch(resident.family()::kinOverdue) ? "parent_overdue" : null;
     }
 
-    void open(YukkuriEntity parent) {
-        releaseMouth((ServerLevel) level, "parent_returned", parent);
-    }
+    void open(YukkuriEntity opener, String reason) { releaseMouth((ServerLevel) level, reason, opener); }
 
     void tick() {
         if (!(level instanceof ServerLevel server) || released || server.getGameTime() % CHECK != 0) return;
@@ -69,11 +69,8 @@ public final class DenBarrierBlockEntity extends BlockEntity {
             releaseMouth(server, "danger_inside", nearbyBuilder(server));
             return;
         }
-        if (!absent.isEmpty()) {
-            if (home != null) checkFamily(server, home, age);
-            else if (age >= DECAY_TICKS) release("decayed", null);
-            return;
-        }
+        if (age >= DECAY_TICKS) { release("decayed", nearbyBuilder(server)); return; }
+        if (!absent.isEmpty()) return;
         // Remember the specific attacker for a limited time. Nearby predators can still keep the screen up until decay.
         boolean danger = !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(WATCH_RANGE, 8, WATCH_RANGE),
                 p -> p.isAlive() && p.profile().dangerToYukkuri()).isEmpty()
@@ -81,15 +78,7 @@ public final class DenBarrierBlockEntity extends BlockEntity {
                         && other.distanceToSqr(worldPosition.getX() + .5, worldPosition.getY() + .5, worldPosition.getZ() + .5)
                                 <= (double) WATCH_RANGE * WATCH_RANGE;
         calm = danger ? 0 : calm + CHECK;
-        // A resident that stands calm against the screen from inside pushes it aside (it is only loose twigs) — but only
-        // while the screen's own danger scan is clear: behind it with a predator outside, the body stays put.
-        boolean pushing = !danger && home != null && !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(1.6, 1, 1.6),
-                y -> y.isAlive() && home.owns(y.getUUID()) && !y.life().isSleeping() && !y.isPanicking()).isEmpty();
-        push = pushing ? push + CHECK : 0;
         setChanged();
-        if (push >= PUSH_TICKS) release("pushed_through", nearbyBuilder(server));
-        else if (calm >= CALM_TICKS) release("danger_passed", nearbyBuilder(server));
-        else if (age >= DECAY_TICKS) release("decayed", nearbyBuilder(server));
     }
 
     void releaseForDeparture(ShelterBlockEntity shelter, String reason, YukkuriEntity resident) {
@@ -98,15 +87,6 @@ public final class DenBarrierBlockEntity extends BlockEntity {
         release(reason, absent.isEmpty() ? nearbyBuilder(server) : resident);
     }
 
-    private void checkFamily(ServerLevel server, ShelterBlockEntity home, long age) {
-        for (var child : server.getEntitiesOfClass(YukkuriEntity.class, home.interior(),
-                y -> y.isAlive() && !y.family().adult() && home.owns(y.getUUID()) && home.contains(y.blockPosition()))) {
-            if (child.life().isSleeping() || child.isPassenger()) continue;
-            if (child.life().nutrition() < 30 && home.food() == 0) { releaseMouth(server, "child_hungry", child); return; }
-            if (absent.stream().anyMatch(child.family()::kinOverdue)) { releaseMouth(server, "parent_overdue", child); return; }
-        }
-        if (age >= DECAY_TICKS) releaseMouth(server, "decayed", nearbyBuilder(server));
-    }
 
     private ShelterBlockEntity home(ServerLevel server) {
         return den != null && server.hasChunkAt(den) && server.getBlockEntity(den) instanceof ShelterBlockEntity home ? home : null;
