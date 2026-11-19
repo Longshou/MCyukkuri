@@ -2560,26 +2560,14 @@ add('oniisan_prey', 'town', '虐派居民喝斥挡路的爱丽丝', '虐派居�
     ], env=DAY, vantage=(-2, -4, -22, 16),
     reads=[('读爱丽丝血量', f'data get entity {sel("street_free")} Health')])
 
-add('street_mixed', 'town', '街道对照：爱派喝止、玩家喂熟、店门保护', '街道对照：爱派喝止、玩家喂熟、店门保护',
-    '西边爱派看得见虐派和独行灵梦。另有已吃过玩家两份粮的橙，以及鬼威惨商店门口的一只流浪油。看爱派喝止、店员留岗与个体继续各自活动。',
-    '约半分钟', [
-        # The shop stands on the east side of the street with its door facing west: its back wall is 21 blocks south of the deck
-        # edge, so the shop is beside the scene instead of filling the ground the town deck looks over.
-        'yukkuri human build oni_shop ~11 ~ ~0 west',
-        street_abuser(-16, 0, 'street_stopped', label='被喝止的虐派'),
-        human('caretaker_sister', -15, 3, 'street_helper', 0, label='目击的爱派'),
-        street_trial('street_mixed', 'reimu', -15, 0, 'street_intervened', yaw=90, lead=True),
-        'execute if entity @s[type=minecraft:player] run ' + street_abuser(-10, 6, 'street_trust_npc', label='路过的虐派'),
-        street_trial('street_mixed', 'chen', -9, 6, 'street_trust', yaw=90, nutrition=66),
-        'execute if entity @s[type=minecraft:player] run ' + f'yukkuri status relate {sel("street_trust")} @s 16',
-        street_abuser(9, 0, 'street_door_npc', label='店门附近的居民'),
-        street_trial('street_mixed', 'marisa', 15, 0, 'street_door', dy=2, yaw=90),
-        human('caretaker_brother', 7, 0, 'street_passer', 0, attitude=2, label='普通路人'),
-    ], env=DAY, vantage=(-4, 14, 180, 15), give=['mcyukkuri:oil_grain_regular 8'],
-    reads=[('读吃过玩家粮的橙', f'yukkuri status {sel("street_trust")} raw'),
-           ('读店门流浪油血量', f'data get entity {sel("street_door")} Health'),
-           ('读商店库存与店员', 'yukkuri human shop list')])
-
+add('street_stop', 'town', '爱派居民喝止虐派', '爱派居民喝止虐派',
+    '虐派居民面前是挡路的流浪灵梦，三格外站着看得见他们的爱派居民。看爱派皱眉喝止，虐派停手，这一天不再找灵梦的麻烦。',
+    '开场几秒内', [
+        street_abuser(-1, 0, 'street_stopped', label='虐派居民'),
+        human('caretaker_sister', 0, 3, 'street_helper', 0, label='目击的爱派'),
+        street_trial('street_stop', 'reimu', 0, 0, 'street_intervened', yaw=90, lead=True),
+    ], env=DAY, vantage=(-2, -4, -22, 16),
+    reads=[('读灵梦血量', f'data get entity {sel("street_intervened")} Health')])
 add('attack_witness', 'town', '你打灵梦：看见的逃，墙后的不知', '你打灵梦：看见的逃，墙后的不知',
     '徒手打一下中间的灵梦：右侧陌生油能看见现场，会受惊逃开；左侧被实墙遮住的陌生油不会隔墙感知。个体仍会自由移动', '靠近后直接操作', [
         yk('reimu', 0, 0, 'attack_victim', label='被攻击者', lead=True, **pair_ready()),
@@ -5850,7 +5838,7 @@ TOPICS = {
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_mixed': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
@@ -6536,13 +6524,12 @@ _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[cont
 _fed = _uuid_text('feed_wild', 'street_hungry')
 _empty = _uuid_text('feed_wild', 'street_nofood')
 _free = _uuid_text('oniisan_prey', 'street_free')
-_stopped = _uuid_text('street_mixed', 'street_intervened')
+_stopped = _uuid_text('street_stop', 'street_intervened')
 _crop_eater = _uuid_text('street_crops', 'crop_eater')
 _bench_stray = _uuid_text('street_furniture', 'bench_stray')
 _water_stray = _uuid_text('street_furniture', 'water_stray')
 _barrel_stray = _uuid_text('street_furniture', 'barrel_stray')
 _awning_stray = _uuid_text('street_furniture', 'awning_stray')
-_mixed_protected = [_uuid_text('street_mixed', name) for name in ('street_intervened', 'street_door', 'street_trust')]
 
 
 def _street_health_reads(*names):
@@ -6574,11 +6561,11 @@ _smoke('street_tidy', 1800, [
     r'MCYTIDY_UNMARKED_STILL_ON_GROUND',
 ], [r'\[npc-care\][^\n]* action=bin_refill bin=' + _tidy_wedged_bin + r'\b'],
        readout=['execute if entity ' + sel('tidy_player_paper') + ' run say MCYTIDY_UNMARKED_STILL_ON_GROUND'])
-_smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b',
-       r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI ', r'MCYSTALL_TEMPLATE'],
-       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],
-       readout=_street_health_reads('street_intervened', 'street_door', 'street_trust'))
-next(s for s in S if s.id == 'street_mixed').smoke['commands'] = [
+_smoke('street_stop', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_stopped}\b', r'MCYSTALL_TEMPLATE'],
+       [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target={_stopped}\b'],
+       readout=_street_health_reads('street_intervened'))
+# The village stall template is checked here, away from the scene: the town field has the room and this smoke is short.
+next(s for s in S if s.id == 'street_stop').smoke['commands'] = [
     (210, 'place template mcyukkuri:village/plains/stall ~-32 ~-1 ~-25'),
     (230, 'execute if block ~-28 ~ ~-16 mcyukkuri:produce_crate[facing=north] '
           'if data block ~-28 ~ ~-16 {Stall:1b,Items:[{Slot:2b,id:"minecraft:carrot",count:3}]} run say MCYSTALL_TEMPLATE'),

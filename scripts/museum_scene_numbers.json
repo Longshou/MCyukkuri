@@ -266,6 +266,7 @@
     "choice_toilet": "MD-26",
     "training_bowl": "TN-39",
     "training_toilet": "TN-40",
-    "training_bed": "TN-41"
+    "training_bed": "TN-41",
+    "street_stop": "TN-42"
   }
 }
