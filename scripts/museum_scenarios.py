@@ -1599,16 +1599,16 @@ _choice_scene(
 
 _choice_scene(
     'choice_snatch', '同伴嘴里有苹果：抢走或讨不到就离开',
-    '树篱两边各有一只叼着苹果的灵梦和一只很饿的魔理沙。左边胆大不友善的凑上去讨，被拒绝后把苹果抢走；右边友善的讨不到便走开。'
+    '左右两头各有一只叼着苹果的灵梦和一只很饿的魔理沙。左边胆大不友善的凑上去讨，被拒绝后把苹果抢走；右边友善的讨不到便走开。'
     '站在八格以外看，人在近旁时魔理沙不敢抢。',
-    [box(0, 0, -5, 0, 1, 5, 'minecraft:oak_leaves[persistent=true]'),
-     *(line for x, name, step, traits in ((-9, 'food_snatch', 4, _pushy), (9, 'food_polite', -4, _considerate))
+    # The two pairs stay 30 blocks apart: nearer, only one of the two beggars approaches.
+    [*(line for x, name, step, traits in ((-19, 'food_snatch', 4, _pushy), (19, 'food_polite', -4, _considerate))
        for line in (_choice_actor(name, x, 0, yaw=-90 if step > 0 else 90, nutrition=18, lead=step > 0, **traits),
                     yk('reimu', x + step, 0, 'serving_' + name, uuid=uid(_ugly, 'serving_' + name),
                        yaw=90 if step > 0 else -90, nutrition=52, boldness=70, friendliness=10, picky=0,
                        extra=_apple_in_mouth),
                     f'data merge entity {sel("serving_" + name)} {{YukkuriLife:{{MealTicks:1}}}}'))],
-    (0, 12, 180, 14),
+    (0, 20, 180, 12),
     [('food_snatch', r'beg transfer [^\n]*result=snatched received=minecraft:apple retained=minecraft:air'),
      ('food_polite', r'beg refusal [^\n]*response=LEAVE')])
 
@@ -2719,8 +2719,9 @@ add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带�
     '约 2 分钟', [
         *_lot_yard(-2, 2),
         f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
-        # North-west of the keeper's waiting cell: the pets arrive on the side they mount from, so their run-up does not pass her.
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -4, -2))),
+        # Straight through the gate from the yard (the owner's path search gives up on a detour round the fence) and north of the
+        # line to her waiting cell, so the pets trail in on the side they mount from and their run-up does not pass her.
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('gate', 1, -9))),
         _lot_keeper('outing_keeper'),
         *(line for kind, name, x, bold, bond in _outing_pets
           for line in _lot_pet('park_play', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, nutrition=100,
@@ -2736,7 +2737,7 @@ add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公
         *_lot_yard(-2),
         block(_PARK_CRATE[0], 0, _PARK_CRATE[1], 'mcyukkuri:produce_crate[facing=west]'),
         f'item replace block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} container.0 with minecraft:apple 1',
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('picnic', 2, 0))),
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('gate', 1, -9))),
         _lot_keeper('picnic_keeper', f',YardCrate:{_lot_pos(*_PARK_CRATE)}L,HumanInitialized:1b,NextRestock:2147483647L,CareFood:0'),
         *_lot_pet('park_picnic', 'picnic_keeper', 'marisa', -2, 'picnic_pet', boldness=40, attachment=50, nutrition=40, energy=100),
         street_trial('park_picnic', 'chen', *_lot_spot('street', -6, 0), 'picnic_stray', nutrition=25),
