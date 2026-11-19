@@ -13,6 +13,7 @@
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
 | P5b 油霉：经验识别、DN05 狠心驱逐或不忍致全家传染、洞内缓慢传染 | `.worktrees/wp-mold-family` | settlement/MoldExile*.java, family/*, life/Mold*.java, art/dialogue (P5 lines), DN-05/06 scenes |
 | 导出工具：身体倾斜门槛与圆角附件导出器只写自有文件 | `.worktrees/wp-export-tool-fixes` | scripts/motion_gate.py, scripts/export_rounded_attachments.py, scripts/README.md |
+| R3a 违规生育私下登记、亲眼证据才失格 | `.worktrees/wp-badge-discovery` | pet/PetPrivileges.java, pet/rules/Discovery.java, family/FamilyData.java, family/Courtship.java, house/HouseNestBlockEntity.java, pet/exam/ExamSession.java, badge/* |
 
 ## 玩法待办
 
