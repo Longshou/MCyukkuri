@@ -207,8 +207,8 @@ def _mold_family(sid, keep):
     unaware = 'YukkuriSkills:{Assessed:["mold_lore"]}'
     aware = {'mold_lore': 2}
     needs = dict(nutrition=100, energy=100, hygiene=30 if keep else 95, rest_wait=220 if keep else 1200)
-    # At night the family starts close together just inside the mound. The departing family faces the open meadow.
-    spots = ((-.65, -1.8), (.65, -1.8), (0, -1.8), (0, -2.2)) if keep else ((0, 1), (-.8, 1.2), (0, 1.9), (.6, .9))
+    # At night the family starts inside the mound. Leave room in the meadow to approach the departing child from the den side.
+    spots = ((-.65, -1.8), (.65, -1.8), (0, -1.8), (0, -2.2)) if keep else ((0, 4), (-.8, 4.2), (0, 4.9), (.6, 3.9))
     title = '舍不得赶走，全家染上油霉' if keep else '油霉子油被亲油狠心赶走'
     lines = [
         yk('reimu', *spots[0], 'mother', uuid=ids['mother'], yaw=0, label='母油', skills=aware,
@@ -252,6 +252,8 @@ def _mold_family(sid, keep):
             departure = re.search(rf'uuid={child} t=(\d+) [^\n]*mold exile departed scope=family', window)
             if not departure:
                 return 'The child never left the family'
+            if not re.search(rf'\[action\][^\n]* end id=push [^\n]*target={child} moved=(?!0\.000\b)\d+\.\d+\b', window[:departure.start()]):
+                return 'The shove did not move the child before it left'
             protest = re.search(rf'uuid={child} [^\n]*mold exile protest\b', window)
             if protest and re.search(rf'carry pickup [^\n]*purpose=RETRIEVE child={child}\b', window[protest.end():departure.start()]):
                 return 'A guardian carried the departing child home'
