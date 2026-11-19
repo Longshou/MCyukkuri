@@ -1263,7 +1263,8 @@ public final class FamilyLife {
         if(wait>0&&!owesFamilyDuty()&&!stockedChildMealDue())return false;wait=40;
         var pregnancy=brood();
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
-        if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()) { task=Task.BROOD;taskTicks=0;return true; }
+        if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()
+                &&!entity.duty().holds(Kind.EXAM)) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
             var foster = fosterParent();
             if (foster != null && !ParentCarry.awaitsCarrier(entity)) {
@@ -1664,8 +1665,9 @@ public final class FamilyLife {
         if(task==Task.RECEIVE_COURT&&!courtship.canReceive())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
-        // She stays settled with the unborn until a real need (above) takes her out or the birth's own beats begin.
-        if(task==Task.BROOD){var pregnancy=brood();return pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&!birth.active();}
+        // Early nest tending yields to a booked exam and resumes when the duty ends.
+        if(task==Task.BROOD){var pregnancy=brood();return pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&!birth.active()
+                &&!entity.duty().holds(Kind.EXAM);}
         if((task==Task.FOLLOW||task==Task.SEARCH||task==Task.STAY_HOME)&&ParentCarry.awaitsCarrier(entity)) {
             GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry task={} ticks={}",task,taskTicks);
             return false;
@@ -1847,7 +1849,7 @@ public final class FamilyLife {
             if(end!=null)entity.duty().release(Kind.SEARCH,end,"kin_search_over");
         }
         if(task==Task.WATCH_HOME)watch.finishIfDue();
-        if(task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);
+        if(task==Task.BROOD||task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}
         choreHat=null;
         if(task==Task.COMFORT)comfortNear=0;

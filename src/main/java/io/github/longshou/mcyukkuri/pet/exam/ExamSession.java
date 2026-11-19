@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.pet.ExamRecord;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -244,7 +245,7 @@ public final class ExamSession {
     }
 
     private boolean inContact() {
-        return examiner.distanceToSqr(candidate) <= 6.25 && examiner.hasLineOfSight(candidate) && candidate.hasLineOfSight(examiner);
+        return ShopStaff.reaches(examiner, candidate.getEyePosition(), null) && candidate.hasLineOfSight(examiner);
     }
 
     private String interruption(Player owner) {
