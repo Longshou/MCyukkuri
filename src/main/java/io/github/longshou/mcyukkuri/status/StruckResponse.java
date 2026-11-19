@@ -7,7 +7,10 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.RamPerson;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import java.util.List;
 
 /** The victim's response window. ThreatGoal steers a held stance and FleeGoal owns flight. */
 final class StruckResponse implements MotorOwner {
@@ -17,6 +20,8 @@ final class StruckResponse implements MotorOwner {
     private long start, until;
     private double initialDistance;
     private RamPerson bump;
+    private Vec3 mouth;
+    private long nextTaunt;
 
     StruckResponse(YukkuriEntity body) { this.body = body; }
     @Override public String ownerId() { return Behaviors.STRUCK; }
@@ -39,6 +44,7 @@ final class StruckResponse implements MotorOwner {
             GameplayLog.event(body, "threat", "struck stance=SEAL attacker={} loss={}", danger.getUUID(), loss);
             return StruckStance.SEAL;
         }
+        if (homeTactic(danger)) return StruckStance.LEAD_AWAY;
         var p = body.life().personality();
         var id = body.status().identity();
         int young = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(6), body.family()::caresFor).size();
@@ -67,13 +73,73 @@ final class StruckResponse implements MotorOwner {
                 case PUFF_FIGHT -> hold(YukkuriAction.PUFF, "angry", tame || body.getRandom().nextBoolean() ? "puff" : "hurt_defy", 50);
                 case PLEAD -> hold(YukkuriAction.BEG, "cry", tame ? "hurt_tame_plea" : "plea_sad", 48);
                 case ENDURE -> hold(YukkuriAction.STAND_GROUND, inputs.baby() ? "cry" : "teary", "hurt_endure", 40);
-                default -> throw new IllegalStateException("Unimplemented family stance " + choice);
             }
         }
         GameplayLog.event(body, "threat", "struck stance={} attacker={} loss={} exit={} duration={} dialogue={}",
                 choice, danger.getUUID(), loss, inputs.exitOpen(), choice == StruckStance.FLEE ? body.newbornStage() ? 96 : 104 : until - start,
                 body.getDialogueKey());
         return choice;
+    }
+
+    private List<YukkuriEntity> dependants(ShelterBlockEntity home) {
+        return body.level().getEntitiesOfClass(YukkuriEntity.class, home.interior(), child -> child.isAlive()
+                && home.owns(child.getUUID()) && home.contains(child.blockPosition()) && body.family().caresFor(child));
+    }
+
+    boolean homeTactic(LivingEntity danger) {
+        var home = body.habitat().shelter();
+        if (!(body.family().adult() || body.family().subadult()) || body.body().weak() || !Reactions.freeToReact(body)
+                || body.isLeashed() || home == null || !home.owns(body.getUUID()) || home.contains(body.blockPosition())) return false;
+        var door = Vec3.atBottomCenterOf(home.entrance());
+        if (body.distanceToSqr(door) > 256) return false;
+        var p = body.life().personality();
+        var t = p.temperament();
+        int young = dependants(home).size();
+        double score = HomeTactic.lead(t, p.fear(danger.getUUID()), body.body().healthRatio(), young);
+        if (score < HomeTactic.LEAD_AT) return false;
+        if (stance == StruckStance.LEAD_AWAY && actor == danger && active()) return true;
+        clear();
+        actor = danger;
+        stance = StruckStance.LEAD_AWAY;
+        mouth = door;
+        start = body.level().getGameTime();
+        until = start + HomeTactic.leadTicks(t);
+        nextTaunt = start;
+        body.setPanicTicks(0);
+        var seal = body.status().reactions().threat().seal();
+        boolean first = !seal.active() && seal.tryCommit(danger, DenSeal.Side.OUTSIDE);
+        GameplayLog.event(body, "threat", "home tactic stance=LEAD_AWAY score={} dependants={} sealFirst={} den={}",
+                score, young, first, home.getBlockPos());
+        return true;
+    }
+
+    private boolean leadTick(long now) {
+        var t = body.life().personality().temperament();
+        double fromDen = body.position().distanceTo(mouth);
+        String end = !actor.isAlive() || actor.level() != body.level() || body.distanceToSqr(actor) > 576 ? "threat_lost"
+                : fromDen >= HomeTactic.leadRange(t) && actor.distanceToSqr(mouth) >= 144 ? "led_away"
+                : now >= until ? "expired" : null;
+        if (end != null) {
+            GameplayLog.event(body, "threat", "lead away ended reason={} fromDen={} elapsed={}", end, fromDen, now - start);
+            clear();
+            return false;
+        }
+        var threat = body.status().reactions().threat();
+        if (threat.seal().committedOutside() && threat.seal().drive(actor)) return true;
+        int clip = YukkuriAction.PUKU_TEARY.durationTicks();
+        if (now >= nextTaunt && body.distanceTo(actor) > HomeTactic.tauntGap(t)) {
+            SurfaceApproach.halt(body);
+            body.getLookControl().setLookAt(actor, 30, 30);
+            body.showReaction(YukkuriAction.PUKU_TEARY, "puff_teary", "protect_taunt", clip);
+            var home = body.habitat().shelter();
+            if (home != null && actor instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri())
+                for (var child : dependants(home))
+                    if (predator.predator().divert(body, child)) break;
+            GameplayLog.limited(body, "threat", "lead_taunt", 60, "lead away taunt distance={} attacker={}",
+                    body.distanceTo(actor), actor.getUUID());
+            nextTaunt = now + clip * 2L;
+        } else if (now >= nextTaunt - clip) threat.flight().lead(actor, mouth);
+        return true;
     }
 
     private void hold(YukkuriAction action, String face, String line, int duration) {
@@ -104,6 +170,7 @@ final class StruckResponse implements MotorOwner {
     /** Called only by the goal holding MOVE/LOOK, including its last tick. */
     boolean tick() {
         long now = body.level().getGameTime();
+        if (stance == StruckStance.LEAD_AWAY) return leadTick(now);
         if (stance == null || !actor.isAlive() || actor.level() != body.level()) { clear(); return false; }
         double distance = body.distanceToSqr(actor);
         boolean expired = now >= until;
@@ -126,6 +193,8 @@ final class StruckResponse implements MotorOwner {
     }
 
     YukkuriAction action() {
+        if (stance == StruckStance.LEAD_AWAY) return body.level().getGameTime() < nextTaunt - YukkuriAction.PUKU_TEARY.durationTicks()
+                ? YukkuriAction.PUKU_TEARY : YukkuriAction.RUN;
         return stance == StruckStance.FREEZE && body.level().getGameTime() - start >= YukkuriAction.BRACE.durationTicks()
                 ? YukkuriAction.TREMBLE : body.reactionAction();
     }

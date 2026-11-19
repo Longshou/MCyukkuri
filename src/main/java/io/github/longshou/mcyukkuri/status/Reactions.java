@@ -229,9 +229,9 @@ public final class Reactions {
                     know(best, now);
                     fright(best, 80);
                     StatusEvents.note(y, "alarm threat #" + best.getId());
-                    fleeFromPredator(best);
+                    if (!response.homeTactic(best)) fleeFromPredator(best);
                     warnKin(best, false);
-                } else if (d <= 4 || hunting) fleeFromPredator(best);
+                } else if ((d <= 4 || hunting) && !response.homeTactic(best)) fleeFromPredator(best);
             }
         }
         /** Preserve the existing panic/FleeGoal route for predators; cruel residents use this goal's direct retreat. */
@@ -360,8 +360,9 @@ public final class Reactions {
             if (holdingStance()) { stage = Stage.STRUCK; return; }
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();
-            stage = danger != null && y.hasLineOfSight(danger) ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
             seal.reset();
+            if (danger != null && response.homeTactic(danger)) { stage = Stage.STRUCK; return; }
+            stage = danger != null && y.hasLineOfSight(danger) ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
             GameplayLog.limited(y, "threat", "start", 1200, "response started source={} stage={}",
                     danger == null ? null : danger.getUUID(), stage);
             y.life().interrupt();

@@ -23,7 +23,7 @@ public final class FlightPlanner {
     private Direction heading;
     private long plannedAt;
     private Path route;
-    private Vec3 checkedDanger;
+    private Vec3 checkedDanger, shielded;
 
     FlightPlanner(YukkuriEntity body) { this.body = body; }
 
@@ -71,7 +71,10 @@ public final class FlightPlanner {
                         danger.x, danger.z, direction);
                 if (candidate <= score) continue;
                 var path = routeTo(stand, danger);
-                if (path != null) { best = path; score = candidate; }
+                if (path != null && (shielded == null || !FlightCourse.passesNearThreat(body.getX(), body.getZ(),
+                        stand.x, stand.z, shielded.x, shielded.z, CLEARANCE) && clearsThreat(path, shielded))) {
+                    best = path; score = candidate;
+                }
             }
         }
         return best;
@@ -106,6 +109,7 @@ public final class FlightPlanner {
             var path = routeTo(keeper.position(), danger.position());
             if (path != null) return path;
         }
+        if (shielded != null && source == danger) return null;
         var shelter = body.habitat().shelter();
         if (shelter != null && !shelter.contains(body.blockPosition()) && DenBarrier.sealed(shelter))
             return routeTo(Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing())), danger.position());
@@ -129,14 +133,18 @@ public final class FlightPlanner {
         return refuge(danger) != null || destination(danger.position(), 5) != null;
     }
 
-    public void flee(LivingEntity danger) {
+    public void lead(LivingEntity danger, Vec3 den) { run(danger, den); }
+
+    public void flee(LivingEntity danger) { run(danger, null); }
+
+    private void run(LivingEntity danger, Vec3 den) {
         long now = body.level().getGameTime();
         var dangerAt = danger.position();
         var navigation = body.getNavigation();
-        boolean changed = source != danger;
+        boolean changed = source != danger || den != null && !den.equals(shielded);
+        var away = away(den == null ? dangerAt : dangerAt.lerp(den, .5));
         if (!changed && now - plannedAt < 40 && (route == null || !navigation.isDone() && route == navigation.getPath())) {
             if (dangerAt.distanceToSqr(checkedDanger) < .25) return;
-            var away = away(dangerAt);
             if (!FlightCourse.shouldReplan(now - plannedAt, false, false, heading, away)
                     && (route == null || clearsThreat(route, dangerAt))) {
                 checkedDanger = dangerAt;
@@ -145,13 +153,13 @@ public final class FlightPlanner {
         }
         // Knockback can leave a grounded runner airborne between deciding to flee and starting the goal.
         if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
-        var away = away(dangerAt);
         if (changed || heading.dot(away) < .25) heading = away;
+        if (den != null || changed) shielded = den;
         var stalled = !changed && route != null && navigation.isStuck() ? route.getTarget() : null;
         source = danger;
         checkedDanger = dangerAt;
         plannedAt = now;
-        route = refuge(danger);
+        route = den == null ? refuge(danger) : null;
         if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled);
         if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled);
         if (route == null) { navigation.stop(); return; }

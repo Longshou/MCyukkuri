@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
-import java.util.Optional;
 
 public enum StruckStance {
     FLEE, FREEZE, PUFF_FIGHT, PLEAD, ENDURE, LEAD_AWAY, SEAL;
@@ -21,12 +20,7 @@ public enum StruckStance {
         return elapsed >= 6 && exitOpen && distanceSqr < Math.min(9, initialDistanceSqr * .55);
     }
 
-    /** Family tactics may take precedence when the household can act on the threat. */
-    private static Optional<StruckStance> familyResponse(Inputs i) { return Optional.empty(); }
-
     public static StruckStance decide(Inputs i) {
-        var family = familyResponse(i);
-        if (family.isPresent()) return family.get();
         var t = i.temperament();
         double b = t.boldness() / 100., sc = t.selfControl() / 100., intel = t.intelligence() / 100.;
         double fr = t.friendliness() / 100., att = t.attachment() / 100., un = i.unease / 100.;
