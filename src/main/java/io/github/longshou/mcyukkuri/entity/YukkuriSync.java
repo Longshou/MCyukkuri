@@ -40,6 +40,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Long> BEHAVIOR_START = YukkuriEntity.defineSyncedValue( EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> NUZZLE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> PEER_RUB_TICK = YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> PEER_RUB_SPACING = YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> CARE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> CARE_PROGRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> TOILET_VOLUME = YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
@@ -159,6 +160,7 @@ final class YukkuriSync {
     long getBehaviorStartTick() { return owner.getEntityData().get(BEHAVIOR_START); }
     int nuzzlePartnerId() { return owner.getEntityData().get(NUZZLE_PARTNER); }
     int peerRubTick() { return owner.getEntityData().get(PEER_RUB_TICK); }
+    float peerRubSpacing() { return owner.getEntityData().get(PEER_RUB_SPACING); }
     int carePartnerId() { return owner.getEntityData().get(CARE_PARTNER); }
     float careContactProgress() { return owner.getEntityData().get(CARE_PROGRESS); }
     float toiletVolume() { return owner.getEntityData().get(TOILET_VOLUME); }
@@ -349,6 +351,7 @@ final class YukkuriSync {
         setChanged(TOILET_VOLUME, owner.life().urinating() ? 0f : (float) DetachedItems.wasteAmount(owner));
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         owner.getEntityData().set(PEER_RUB_TICK,owner.dailyLife().peerRubTick());
+        owner.getEntityData().set(PEER_RUB_SPACING,owner.dailyLife().peerRubSpacing());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
         if (owner.childhood().active() && owner.childhood().careTargetId() != null) {
@@ -409,7 +412,8 @@ final class YukkuriSync {
         builder.define(BEHAVIOR, "idle"); builder.define(DIALOGUE, "");
         builder.define(SPEECH_START, 0L); builder.define(SPEECH_END, 0L); builder.define(SPEECH_SEQUENCE, 0);
         builder.define(BEHAVIOR_START, 0L);
-        builder.define(NUZZLE_PARTNER, -1); builder.define(PEER_RUB_TICK, -1); builder.define(CARE_PARTNER, -1); builder.define(CARE_PROGRESS, 0f);
+        builder.define(NUZZLE_PARTNER, -1); builder.define(PEER_RUB_TICK, -1); builder.define(PEER_RUB_SPACING, 0f);
+        builder.define(CARE_PARTNER, -1); builder.define(CARE_PROGRESS, 0f);
         builder.define(TOILET_VOLUME,0f);
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);

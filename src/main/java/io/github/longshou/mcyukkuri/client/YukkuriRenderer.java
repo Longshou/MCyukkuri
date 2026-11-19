@@ -126,6 +126,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.translate(offset.x,0,offset.z);
             }
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
+            int rubTick = preview ? -1 : WallClearance.contactTick(entity, entity.getAnimationId());
+            if (rubTick >= 0) renderedBodyYaw = entity.bodyYaw();
+            var rubOffset = rubTick < 0 ? Vec3.ZERO : WallClearance.rubOffset(entity, partialTick, renderedBodyYaw);
+            pose.translate(rubOffset.x, rubOffset.y, rubOffset.z);
             // A carried child is drawn on the carrier's live lips, brim, tail or braid; a child just set down eases to the ground.
             if(carried&&!preview)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,pose,partialTick);
             else {
@@ -189,7 +193,6 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     : entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick;
             float elapsed = Math.max(0, animationTicks / 20f);
             elapsed = WaterMotionClock.seconds(entity, partialTick, elapsed);
-            int rubTick = WallClearance.contactTick(entity, entity.getAnimationId());
             if (rubTick >= 0) elapsed = rubTick / 20f;
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             String expression = expression(entity);
@@ -254,7 +257,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
             model.setWear(wear);
-            var wallClearance=preview||operated?null:WallClearance.nearby(source,model,action,partialTick,renderedBodyYaw,start,(wear&CareWearRenderer.PAPER_COVER)!=0);
+            var wallOrigin = rubOffset == Vec3.ZERO ? start : new Matrix4f(start).translate((float)rubOffset.x, 0, (float)rubOffset.z);
+            var wallClearance=preview||operated?null:WallClearance.nearby(source,model,action,partialTick,renderedBodyYaw,rubOffset,wallOrigin,
+                    (wear&CareWearRenderer.PAPER_COVER)!=0);
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance);
             // Captured before anything else poses this shared model (stem fruits reuse it).

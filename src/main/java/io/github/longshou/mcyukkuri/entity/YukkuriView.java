@@ -124,6 +124,7 @@ public interface YukkuriView {
     ItemStack getCarriedItem();
     int nuzzlePartnerId();
     int peerRubTick();
+    float peerRubSpacing();
     int carePartnerId();
     float careContactProgress();
     boolean isCrawling();

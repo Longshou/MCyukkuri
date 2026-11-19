@@ -12,6 +12,9 @@ public final class ContactStandSearch {
         return Math.abs(feet - level) <= SOLE_EPSILON;
     }
 
+    /** Below this squared displacement Entity.move leaves its position unchanged. */
+    public static boolean insideMovementResolution(double distanceSquared) { return distanceSquared <= 1e-7; }
+
     /** The candidates are ordered nearest first. Reject an unsupported or unreachable candidate and try the next bearing. */
     public static <B, S, R> R firstReachable(List<B> bearings, double level, Function<B, S> support,
                                              ToDoubleFunction<S> height, Function<S, R> route) {

@@ -5,7 +5,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ContactStandSearchTest {
     @Test void findsAnAccessibleStandAtThePartnersSoleHeight() {
@@ -30,5 +32,10 @@ class ContactStandSearchTest {
         var landing = Ballistic.samples(new Vec(plan.vh(), plan.vy(), 0), plan.ticks()).getLast();
         assertEquals(shelf.x(), landing.x(), .005);
         assertEquals(shelf.y(), landing.y(), 1e-8);
+    }
+
+    @Test void aContactCorrectionBelowVanillaMovementResolutionCanSettle() {
+        assertTrue(ContactStandSearch.insideMovementResolution(.000152 * .000152));
+        assertFalse(ContactStandSearch.insideMovementResolution(.001818 * .001818));
     }
 }

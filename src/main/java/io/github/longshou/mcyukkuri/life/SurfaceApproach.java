@@ -587,12 +587,15 @@ public final class SurfaceApproach {
 
     /** Finish the last walking tolerance against world collision before a posed contact is counted. */
     public static boolean atContact(YukkuriEntity actor, Vec3 feet) {
-        return actor.position().subtract(feet).horizontalDistanceSqr() < 1e-16;
+        return ContactStandSearch.sameLevel(actor.getY(), feet.y)
+                && ContactStandSearch.insideMovementResolution(actor.position().subtract(feet).horizontalDistanceSqr());
     }
 
     public static boolean settleContact(YukkuriEntity actor, Vec3 feet, Entity peer) {
         if (!supported(actor, feet) || crossesBody(actor, actor.position(), feet, peer.getBoundingBox())) return false;
         Motor.move(actor, feet.subtract(actor.position()).multiply(1, 0, 1), "side_contact");
+        // The pre-step steering target is now behind the mover. Retire it before MoveControl ticks and turns toward it.
+        haltInput(actor);
         return atContact(actor, feet);
     }
 

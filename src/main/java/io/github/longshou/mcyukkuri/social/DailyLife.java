@@ -46,6 +46,7 @@ public final class DailyLife {
         final Entity companion;
         final Kind kind;
         int elapsed, contact, greetHold;
+        float rubSpacing;
         boolean ended, greeted;
         String greeting;
         UUID songRuleOwner;
@@ -104,6 +105,7 @@ public final class DailyLife {
         return session.rub.mover == entity ? "snuggle_right" : "snuggle_left";
     }
     public int peerRubTick() { return contactClip() == null ? -1 : session.contact - 1; }
+    public float peerRubSpacing() { return peerRubTick() < 0 ? 0 : session.rubSpacing; }
     private static boolean aligned(YukkuriEntity body, float yaw, double tolerance) {
         return Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= tolerance;
     }
@@ -513,6 +515,7 @@ public final class DailyLife {
             greetInstead(current, "contact_stand_blocked");
             return false;
         }
+        current.rubSpacing = (float)contactFeet.subtract(other.position()).horizontalDistance();
         if (current.contact == 1)
             GameplayLog.event(current.leader, "daily", "peer rub started partner={} mode={} lift={} moverAt={} anchorAt={}",
                     peer.getUUID(), rub.mode, Math.abs(entity.getY() - other.getY()), entity.position(), other.position());
