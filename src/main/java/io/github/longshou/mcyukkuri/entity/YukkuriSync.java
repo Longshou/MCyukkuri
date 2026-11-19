@@ -347,11 +347,18 @@ final class YukkuriSync {
     void syncKanroken() { owner.getEntityData().set(KANROKEN, owner.myon().hasKanroken()); }
     void syncAgitation() { owner.getEntityData().set(AGITATION, owner.agitation().state()); }
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
+    /** Publish the resolved frame to either partner, including one whose ordinary tick already ran. */
+    void showPeerRub(String clip, int frame, float spacing) {
+        animationId(clip);
+        animationStart(owner.level().getGameTime() - frame);
+        owner.getEntityData().set(NUZZLE_PARTNER, owner.dailyLife().nuzzlePartnerId());
+        owner.getEntityData().set(PEER_RUB_TICK, frame);
+        owner.getEntityData().set(PEER_RUB_SPACING, spacing);
+    }
     void syncCare() {
         setChanged(TOILET_VOLUME, owner.life().urinating() ? 0f : (float) DetachedItems.wasteAmount(owner));
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
-        owner.getEntityData().set(PEER_RUB_TICK,owner.dailyLife().peerRubTick());
-        owner.getEntityData().set(PEER_RUB_SPACING,owner.dailyLife().peerRubSpacing());
+        if (owner.dailyLife().contactClip() == null) owner.getEntityData().set(PEER_RUB_TICK, -1);
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
         if (owner.childhood().active() && owner.childhood().careTargetId() != null) {

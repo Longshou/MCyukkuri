@@ -380,13 +380,12 @@ public final class PresentationArbiter {
                     || behavior.equals(Behaviors.NUZZLE) || behavior.equals(Behaviors.SING)
                     || behavior.equals(Behaviors.LISTEN_SONG) || behavior.equals(Behaviors.EXERCISE_WATCH)
                     || behavior.equals(Behaviors.UNUN_EXERCISE);
-            if (contactGoal && e.social().greeting()) {
+            if (behavior.equals(Behaviors.NUZZLE) && e.dailyLife().contactClip() != null) {
+                state.animationId(e.dailyLife().contactClip());
+                state.animationStart(e.level().getGameTime() - (e.dailyLife().observedContactTicks() - 1));
+            } else if (contactGoal && e.social().greeting()) {
                 state.animationId(e.social().greetingClip());
                 state.animationStart(e.social().greetStart());
-            } else if (behavior.equals(Behaviors.NUZZLE) && e.dailyLife().contactClip() != null) {
-                String clip = e.dailyLife().contactClip();
-                state.animationId(clip);
-                state.animationStart(e.level().getGameTime() - e.dailyLife().observedContactTicks());
             }
         }
         // EcologyPresentation.expression reads this new behavior/start; keep fallback evaluation here.

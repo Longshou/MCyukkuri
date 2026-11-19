@@ -385,6 +385,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long getBehaviorStartTick() { return sync().getBehaviorStartTick(); }
     public int nuzzlePartnerId() { return sync().nuzzlePartnerId(); }
     public int peerRubTick() { return sync().peerRubTick(); }
+    public void showPeerRub(String clip, int frame, float spacing) { sync().showPeerRub(clip, frame, spacing); }
     public float peerRubSpacing() { return sync().peerRubSpacing(); }
     public int carePartnerId() { return sync().carePartnerId(); }
     public float careContactProgress() { return sync().careContactProgress(); }

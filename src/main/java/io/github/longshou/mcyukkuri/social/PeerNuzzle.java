@@ -8,8 +8,17 @@ enum PeerNuzzle {
         return levelReachable ? LEVEL : riseContactReachable ? RISE : GREET;
     }
 
-    static int contactAfter(int elapsed, boolean touching) {
-        return touching ? elapsed + 1 : 0;
+    interface Display {
+        void show(String clip, int frame, float spacing);
+    }
+
+    static String clip(boolean mover) { return mover ? "snuggle_right" : "snuggle_left"; }
+
+    static int contactAfter(int elapsed, boolean touching, float spacing, Display mover, Display anchor) {
+        if (!touching) return 0;
+        anchor.show(clip(false), elapsed, spacing);
+        mover.show(clip(true), elapsed, spacing);
+        return elapsed + 1;
     }
 
     /** Compare travel time against the actor's continuous willingness to make the trip. */

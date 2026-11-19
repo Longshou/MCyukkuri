@@ -46,7 +46,7 @@ public final class DailyLife {
         final Entity companion;
         final Kind kind;
         int elapsed, contact, greetHold;
-        float rubSpacing;
+        long completedAt = -1;
         boolean ended, greeted;
         String greeting;
         UUID songRuleOwner;
@@ -102,10 +102,8 @@ public final class DailyLife {
     /** The actual shared side-press beat, before the existing rub. Players retain the face-to-face nuzzle. */
     public String contactClip() {
         if (!inContact() || session.rub == null) return null;
-        return session.rub.mover == entity ? "snuggle_right" : "snuggle_left";
+        return PeerNuzzle.clip(session.rub.mover == entity);
     }
-    public int peerRubTick() { return contactClip() == null ? -1 : session.contact - 1; }
-    public float peerRubSpacing() { return peerRubTick() < 0 ? 0 : session.rubSpacing; }
     private static boolean aligned(YukkuriEntity body, float yaw, double tolerance) {
         return Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= tolerance;
     }
@@ -358,7 +356,9 @@ public final class DailyLife {
     private YukkuriEntity inEarshot(YukkuriEntity companion) { return companion != null && entity.distanceToSqr(companion) <= 25 ? companion : null; }
 
     public boolean valid() {
-        if (!active() || !available(session.leader, true, session.kind == Kind.EXERCISE) || session.elapsed >= 320) return false;
+        if (!active()) return false;
+        if (session.completedAt >= 0) return session.completedAt == level().getGameTime();
+        if (!available(session.leader, true, session.kind == Kind.EXERCISE) || session.elapsed >= 320) return false;
         if (session.kind != Kind.SING && (session.leader.isPassenger()
                 || session.companion instanceof YukkuriEntity peer && peer.isPassenger())) return false;
         var other = session.companion;
@@ -510,12 +510,12 @@ public final class DailyLife {
             return false;
         }
         boolean touching = SurfaceApproach.settleContact(entity, contactFeet, other, current.contact > 0);
-        current.contact = PeerNuzzle.contactAfter(current.contact, touching);
+        float spacing = (float)contactFeet.subtract(other.position()).horizontalDistance();
+        current.contact = PeerNuzzle.contactAfter(current.contact, touching, spacing, entity::showPeerRub, other::showPeerRub);
         if (current.contact == 0) {
             greetInstead(current, "contact_stand_blocked");
             return false;
         }
-        current.rubSpacing = (float)contactFeet.subtract(other.position()).horizontalDistance();
         if (current.contact == 1)
             GameplayLog.event(current.leader, "daily", "peer rub started partner={} mode={} lift={} moverAt={} anchorAt={}",
                     peer.getUUID(), rub.mode, Math.abs(entity.getY() - other.getY()), entity.position(), other.position());
@@ -525,6 +525,7 @@ public final class DailyLife {
     public void tickGoal() {
         if (!valid()) { stop(); return; }
         var current = session;
+        if (current.completedAt >= 0) return;
         var other = current.leader == entity ? current.companion : current.leader;
         boolean peerNuzzle = current.kind == Kind.NUZZLE && other instanceof YukkuriEntity;
         if (peerNuzzle) {
@@ -574,7 +575,9 @@ public final class DailyLife {
             complete(peer, current.kind);
             if (current.kind == Kind.NUZZLE) { current.leader.social().noteContact(peer); peer.social().noteContact(current.leader); }
         }
-        stop();
+        // The last admitted contact gets a full displayed tick in either entity order.
+        if (peerNuzzle) current.completedAt = level().getGameTime();
+        else stop();
     }
     private static void complete(YukkuriEntity e, Kind kind) {
         var daily = e.dailyLife();
