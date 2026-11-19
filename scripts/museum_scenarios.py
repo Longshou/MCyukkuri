@@ -3481,9 +3481,12 @@ for _sid, _title, _instruction, _control, _shift in (
         ('pentup_hold', '禁止素鸡立：想却忍住', '面对这对宠物，看它们脸红、回望又退开，手账里的积压更高。', 85, 45),
         ('pentup_breach', '主人不在就偷偷素鸡立', '离开院子或躲到遮挡后，等它们自行决定是否靠近；完成后回来比较两本手账。', 25, -45)):
     _holding = _sid == 'pentup_hold'
-    _commands = [(1, 'yukkuri scenario tool_operator enter'),
-                 (8, f'yukkuri scenario owner_at {sel("mate")} watch'), (9, f'yukkuri scenario house_rules {sel("mate")} 1'),
-                 (10, f'yukkuri scenario owner_at {sel("rule_pet")} watch'), (11, f'yukkuri scenario house_rules {sel("rule_pet")} 1')]
+    # Give the smoke owner the player's standing point inside the glass. Telling each pet faces it from that point.
+    _commands = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter')]
+    for _tick, _name in ((8, 'rule_pet'), (10, 'mate')):
+        _commands.extend([
+            (_tick, f'data modify entity {sel(_name)} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID'),
+            (_tick + 1, f'yukkuri scenario house_rules {sel(_name)} 1')])
     if not _holding:
         _commands.append((12, f'yukkuri scenario owner_at {sel("rule_pet")} away'))
     _ticks = 1800 if _holding else 5400
@@ -3500,7 +3503,7 @@ for _sid, _title, _instruction, _control, _shift in (
         env=DAY, vantage=(0, 2 if _holding else 18, 180, 15), give=['mcyukkuri:field_notebook'],
         reads=[('读' + label + '的积压', f'data get entity {sel(name)} YukkuriFamily.PentUp') for name, label in (('rule_pet', '灵梦'), ('mate', '魔理沙'))],
         smoke=dict(ticks=_ticks, commands=_commands + [(_ticks - 1, 'yukkuri scenario tool_operator leave')],
-                   expect=[r'held rule=no_sukkiri'] if _holding else [r'courtship contact ended [^\n]*unauthorized=true', r'breach rule=no_sukkiri watched=false'],
+                   expect=[r'held rule=no_sukkiri', r'tempted rule=no_sukkiri [^\n]*choice=HOLD watched=true'] if _holding else [r'courtship contact ended [^\n]*unauthorized=true', r'breach rule=no_sukkiri watched=false'],
                    forbid=[r'courtship contact ended'] if _holding else [], **({'verify': _held_pressure} if _holding else {})))
 
 
