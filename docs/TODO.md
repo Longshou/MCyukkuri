@@ -11,7 +11,6 @@
 | 布景角色与首批场景整理：TN34-36 进公园、HD06、MD17、MD21、TN14、TN20、TN24 | `.worktrees/wp-stager-1` | docs/roles/stager.md, scripts/museum_scenarios.py, scripts/museum_fields.py (Park) |
 | DN-04 封洞：1.5 格结界、按威胁到达时间封洞、亲人呼唤拆除、引开威胁 | `.worktrees/wp-den-seal` | settlement/DenSeal.java, settlement/DenBarrierBlock.java, standards/yukkuri-library/ecology/wild-shelters/den_barrier.py, DN-04/07/08 scenes |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
-| 能力 v1：日常练习入技能页、删除旧技能与跳跃学习。在街道 TN-37 看技能标记与上限，TN-38 看如厕后二级反应与手册记录 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetLessons.java, family/ChildhoodLife.java, scripts/museum_scenarios.py |
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 | 捕食种树上生活 A：枝巢搭建阶段与栖枝、扑翅动作 | `.worktrees/wp-tree-pred-art` | art/props/predators, standards/yukkuri-library/motions (predator_perch, predator_flap) |
 | P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
