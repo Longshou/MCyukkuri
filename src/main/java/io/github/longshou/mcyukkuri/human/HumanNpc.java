@@ -423,7 +423,11 @@ public final class HumanNpc extends PathfinderMob {
         if (street.frownPose > 0) street.frownPose--;
         if (level().isClientSide || !isAlive()) return;
         if (tickCount % 100 == 1) legacyOutput.collect(this);
-        if (isNoAi() || job() == Job.FACTORY) return;
+        if (isNoAi()) {
+            if (job() == Job.SHOPKEEPER) ShopStaff.cancelWater(this, "no_ai");
+            return;
+        }
+        if (job() == Job.FACTORY) return;
         if (streetResident() && !getNavigation().isDone())
             YukkuriGroundNavigation.noticePassage(this, before);
         if (tickCount == 1) returnUnusedDose();

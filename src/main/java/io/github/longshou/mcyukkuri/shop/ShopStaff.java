@@ -139,7 +139,6 @@ public final class ShopStaff {
     /** Every 20 ticks per staff member: the restock clock, waiting orders that cannot go on, and new work when free. */
     public static void tick(HumanNpc staff) {
         if (!(staff.level() instanceof ServerLevel level)) return;
-        if (staff.isNoAi()) { cancelWater(staff, "no_ai"); return; }
         if (!active(staff)) staff.returnUnusedDose();
         var shop = ShopRegistry.get(level).of(staff);
         if (shop == null) { cancelWater(staff, "shop_missing"); return; }
@@ -388,7 +387,7 @@ public final class ShopStaff {
         GameplayLog.event(staff, "npc-care", "action=stow_water_bucket reason={}", reason);
     }
 
-    static void cancelWater(HumanNpc staff, String reason) {
+    public static void cancelWater(HumanNpc staff, String reason) {
         var job = JOBS.get(staff.getUUID());
         if (job != null && job.kind == Kind.WATER) end(staff, job, reason);
         else putAwayWaterBucket(staff, reason);
@@ -550,6 +549,7 @@ public final class ShopStaff {
                 if (!(level.getBlockEntity(job.target) instanceof CareBlockEntity bowl) || bowl.foodCount() >= BOWL_LOW || staff.careFood() <= 0) return "fed";
             }
             case WATER -> {
+                if (!staff.getMainHandItem().is(Items.WATER_BUCKET)) return "bucket_gone";
                 if (!level.hasChunkAt(job.target)) return "target_unloaded";
                 if (!(level.getBlockEntity(job.target) instanceof CareBlockEntity waterer)
                         || waterer.kind() != CareBlock.Kind.WATERER) return "waterer_gone";
