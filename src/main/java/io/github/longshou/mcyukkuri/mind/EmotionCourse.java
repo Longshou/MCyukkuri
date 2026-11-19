@@ -16,8 +16,11 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -34,12 +37,47 @@ import net.minecraft.world.phys.Vec3;
  * cause, shifted by the individual's values; kin who nuzzle it and a night's sleep carry it through sooner. One course at a
  * time: a stronger kind replaces a weaker one, and a fading course gives way to any new one.
  * <p>Shared entries: {@link #mourn} (a death or a loss of kin), {@link #wronged} (something taken by force: anger or sorrow by
- * character), {@link #frightened}/{@link #frightOver} (the shaking after a real danger), {@link #begin} for the rest.
+ * character), {@link #frightened} (the course that starts with a real danger), {@link #begin} for the rest.
  */
 public final class EmotionCourse {
     public enum Kind { GRIEF, TERROR, RAGE, JOY, PARTING }
-    public enum Stage { NONE, ONSET, PEAK, EASING, FADING }
-    /** The trigger's own reaction (the bereaved clip, the flight, the puff) plays this long before the course shows. */
+    public enum Stage {
+        NONE, ONSET, PEAK, EASING, FADING;
+
+        static Stage at(int elapsed, int length) {
+            if (elapsed < ONSET_TICKS) return ONSET;
+            float fraction = (elapsed - ONSET_TICKS) / (float)(length - ONSET_TICKS);
+            return fraction < PEAK_END ? PEAK : fraction < EASING_END ? EASING : FADING;
+        }
+
+        Stage presentation() { return this == ONSET ? PEAK : this; }
+
+        String face(Kind kind) {
+            return switch (this) {
+                case ONSET, PEAK -> switch (kind) {
+                    case GRIEF -> "teary";
+                    case TERROR -> "horrified";
+                    case RAGE -> "angry";
+                    case JOY -> "happy";
+                    case PARTING -> "teary_smile";
+                };
+                case EASING -> switch (kind) {
+                    case GRIEF -> "side_teary";
+                    case TERROR -> "teary";
+                    case RAGE -> "down_angry";
+                    case JOY, PARTING -> "closed_smile";
+                };
+                case FADING -> switch (kind) {
+                    case GRIEF -> "pursed";
+                    case TERROR -> "confused_small";
+                    case RAGE -> "hmph";
+                    case JOY, PARTING -> null;
+                };
+                case NONE -> null;
+            };
+        }
+    }
+    /** The opening beat of the clock. The peak look can show as soon as the trigger reaction ends. */
     static final int ONSET_TICKS = 100;
     private static final float PEAK_END = .25f, EASING_END = .65f;
     // The first easing line can become a vow; the next line is already outside its window.
@@ -53,24 +91,18 @@ public final class EmotionCourse {
     private UUID about;
     private BlockPos where;
     // The next line stays scheduled across reload, including the long interval after an easing vow.
-    private int lineClock, recallClock;
-    private float fright;
-    private long frightAt;
+    private int lineClock;
+    private final RecallClock recallClock = new RecallClock();
     private boolean running;
+    private String publishedActivity;
+    private Stage publishedStage;
     private GriefFocus griefFocus;
-    /** A blow counts toward the shaking only if the panic it started ends within this many ticks. */
-    private static final int FRIGHT_MEMORY = 400;
 
     EmotionCourse(YukkuriEntity entity) { this.entity = entity; }
 
     // ---- reads -------------------------------------------------------------------------------------------------------------------
     public Kind kind() { return kind; }
-    public Stage stage() {
-        if (kind == null) return Stage.NONE;
-        if (elapsed < ONSET_TICKS) return Stage.ONSET;
-        float f = (elapsed - ONSET_TICKS) / (float)(length - ONSET_TICKS);
-        return f < PEAK_END ? Stage.PEAK : f < EASING_END ? Stage.EASING : Stage.FADING;
-    }
+    public Stage stage() { return kind == null ? Stage.NONE : Stage.at(elapsed, length); }
     public UUID about() { return about; }
     public BlockPos where() { return where; }
     public boolean mourning() { return kind == Kind.GRIEF && stage() != Stage.FADING && stage() != Stage.NONE; }
@@ -116,27 +148,16 @@ public final class EmotionCourse {
 
     /** The face it wears over ordinary behaviour, or null; meals keep their chewing faces, its own goal its presentation row. */
     public String face() {
-        if (kind == null || running || entity.life().mealTicks() > 0) return null;
+        if (kind == null || running && goalPriority() != 0 || entity.life().mealTicks() > 0) return null;
         if (entity.life().isSleeping()) return mourning() && stage() != Stage.ONSET ? "tear_sleep" : null;
         return stageFace();
     }
-    private String stageFace() {
-        Stage s = stage();
-        if (kind == null || s == Stage.ONSET || s == Stage.FADING || s == Stage.NONE) return null;
-        boolean peak = s == Stage.PEAK;
-        return switch (kind) {
-            case GRIEF -> peak ? "teary" : "side_teary";
-            case TERROR -> peak ? "horrified" : "teary";
-            case RAGE -> peak ? "angry" : "down_angry";
-            case JOY -> peak ? "happy" : "closed_smile";
-            case PARTING -> peak ? "teary_smile" : "closed_smile";
-        };
-    }
+    private String stageFace() { return stage().face(kind); }
 
     /** The pose it falls into when it has nothing else to do, or null. */
     public YukkuriAction idle() {
-        Stage s = stage();
-        if (kind == null || s == Stage.ONSET || s == Stage.FADING) return null;
+        Stage s = stage().presentation();
+        if (kind == null || s == Stage.FADING) return null;
         boolean peak = s == Stage.PEAK;
         return switch (kind) {
             case GRIEF -> YukkuriAction.DROOP;
@@ -149,24 +170,36 @@ public final class EmotionCourse {
 
     /** The behaviour shown while its own goal runs. */
     public String activity() {
-        if (!running || goalPriority() == 0 || stage() == Stage.ONSET) return null;
         Stage s = stage();
+        if (!running || goalPriority() == 0 || s == Stage.ONSET && entity.hasReaction()) return null;
+        boolean peak = s.presentation() == Stage.PEAK;
         return switch (kind) {
-            case GRIEF -> s == Stage.PEAK ? Behaviors.MOURN : entity.hasReaction() ? null : Behaviors.MOURN_LISTLESS;
-            case TERROR -> s == Stage.PEAK ? Behaviors.SHAKEN : Behaviors.SHAKEN_WARY;
+            case GRIEF -> peak ? Behaviors.MOURN : entity.hasReaction() ? null : Behaviors.MOURN_LISTLESS;
+            case TERROR -> peak ? Behaviors.SHAKEN : Behaviors.SHAKEN_WARY;
             case RAGE -> Behaviors.FUME;
             case JOY -> null;
             case PARTING -> Behaviors.PARTING_GAZE;
         };
     }
 
+    /** Observes the selected presentation row after the arbiter publishes it. */
+    public void observeActivity(String behavior) {
+        Stage stage = stage();
+        if (stage == publishedStage && Objects.equals(behavior, publishedActivity)) return;
+        publishedStage = stage;
+        publishedActivity = behavior;
+        if (behavior == null) return;
+        String phase = stage.name().toLowerCase(Locale.ROOT);
+        GameplayLog.limited(entity, "emotion", "goal_" + phase + "_" + behavior, ONSET_TICKS,
+                "course goal behavior kind={} stage={} behavior={}", kind.name().toLowerCase(Locale.ROOT), phase, behavior);
+    }
+
     /** 3 = the feeling holds the body above errands, 6 = it holds the body above roaming, 0 = no goal. */
     int goalPriority() {
         if (kind == null) return 0;
-        Stage s = stage();
+        Stage s = stage().presentation();
         return switch (kind) {
-            case GRIEF -> s == Stage.ONSET || s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
-            case TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
+            case GRIEF, TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
             case RAGE, PARTING -> s == Stage.PEAK ? 6 : 0;
             case JOY -> 0;
         };
@@ -189,18 +222,10 @@ public final class EmotionCourse {
         return begin(fumes ? Kind.RAGE : Kind.GRIEF, fumes ? power : power * .5f, by, at);
     }
 
-    /** A real danger during the current panic (a hit, a predator); the shaking starts when the panic ends ({@link #frightOver}). */
+    /** A real danger starts the course immediately; panic owns the presentation of the flight. */
     public void frightened(float power) {
-        long now = entity.level().getGameTime();
-        fright = now - frightAt > FRIGHT_MEMORY ? power : Math.max(fright, power);
-        frightAt = now;
-    }
-
-    /** Called once when a panic runs out, using the danger that actually started or prolonged the panic. */
-    public void frightOver(LivingEntity threat) {
-        float power = entity.level().getGameTime() - frightAt <= FRIGHT_MEMORY ? fright : 0;
-        fright = 0;
-        if (power > 0 && begin(Kind.TERROR, power, threat == null ? null : threat.getUUID(), entity.blockPosition())
+        LivingEntity threat = entity.getLastHurtByMob();
+        if (begin(Kind.TERROR, power, threat == null ? null : threat.getUUID(), entity.blockPosition())
                 && (PunishmentReaction.isHuman(threat) || threat instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri()))
             entity.life().personality().experienced(Trait.BOLDNESS, -1, "terrified");
     }
@@ -210,16 +235,23 @@ public final class EmotionCourse {
         if (entity.level().isClientSide || !entity.isAlive() || next == null || power <= 0 || entity.profile().dangerToYukkuri()) return false;
         Stage now = stage();
         if (kind != null && now != Stage.FADING && next.ordinal() > kind.ordinal()) return false;
+        boolean renewal = next == kind && now != Stage.FADING;
         power = Math.min(1, power);
+        if (renewal) power = Math.max(strength, power);
         var p = entity.life().personality();
         float span = length(next, power, p, entity.mind().unease(), hasDependants());
         if (next != Kind.PARTING) span *= .9f + .2f * entity.getRandom().nextFloat();
-        kind = next; strength = power; length = Math.clamp(Math.round(span), 300, 24000); elapsed = 0; about = cause; where = at;
+        int duration = Math.clamp(Math.round(span), 300, 24000);
+        if (renewal) duration = Math.max(duration, length - elapsed);
+        kind = next; strength = power; length = duration; elapsed = 0; about = cause; where = at;
         griefFocus = kind == Kind.GRIEF ? new GriefFocus(false) : null;
-        lineClock = ONSET_TICKS + 40; recallClock = 0;
-        GameplayLog.event(entity, "emotion", "course begun kind={} strength={} length={} about={} at={} attachment={} selfControl={} boldness={} unease={}",
-                kind.name().toLowerCase(Locale.ROOT), Math.round(power * 100) / 100f, length, about, where,
-                p.attachment(), p.selfControl(), p.boldness(), Math.round(entity.mind().unease()));
+        lineClock = ONSET_TICKS + 40; recallClock.schedule(0);
+        String feeling = kind.name().toLowerCase(Locale.ROOT);
+        float loggedStrength = Math.round(power * 100) / 100f;
+        if (renewal) GameplayLog.limited(entity, "emotion", "renew_" + feeling, ONSET_TICKS,
+                "course renewed kind={} strength={} length={} about={} at={}", feeling, loggedStrength, length, about, where);
+        else GameplayLog.event(entity, "emotion", "course begun kind={} strength={} length={} about={} at={} attachment={} selfControl={} boldness={} unease={}",
+                feeling, loggedStrength, length, about, where, p.attachment(), p.selfControl(), p.boldness(), Math.round(entity.mind().unease()));
         return true;
     }
 
@@ -282,10 +314,10 @@ public final class EmotionCourse {
             GameplayLog.event(entity, "emotion", "course stage kind={} stage={} elapsed={}/{} comforted={}",
                     kind.name().toLowerCase(Locale.ROOT), now.name().toLowerCase(Locale.ROOT), elapsed, length, comforted);
             lineClock = Math.min(lineClock, 40);
-            if (now == Stage.FADING) recallClock = (length - elapsed) / 2;
+            if (now == Stage.FADING) recallClock.schedule((length - elapsed) / 2);
         }
         if (--lineClock <= 0) lineClock = voice(now) ? interval(now) : 40;
-        if (now == Stage.FADING && kind == Kind.GRIEF && recallClock > 0 && --recallClock == 0 && !recall()) recallClock = 60;
+        if (now == Stage.FADING && kind == Kind.GRIEF && recallClock.due() && !recall()) recallClock.schedule(60);
     }
 
     private int interval(Stage stage) {
@@ -357,18 +389,29 @@ public final class EmotionCourse {
     }
 
     // ---- save --------------------------------------------------------------------------------------------------------------------
+    static final class RecallClock {
+        private int ticks;
+
+        void schedule(int delay) { ticks = delay; }
+        boolean due() { return ticks > 0 && --ticks == 0; }
+        void save(ObjIntConsumer<String> putInt) { putInt.accept("RecallClock", ticks); }
+        void load(ToIntFunction<String> getInt) { ticks = getInt.applyAsInt("RecallClock"); }
+    }
+
     void save(CompoundTag mind) {
         if (kind == null) return;
         var tag = new CompoundTag();
         tag.putString("Kind", kind.name()); tag.putFloat("Strength", strength); tag.putInt("Length", length); tag.putInt("Elapsed", elapsed);
         tag.putInt("LineClock", lineClock);
+        recallClock.save(tag::putInt);
         if (griefFocus != null) tag.putBoolean("ApproachConsidered", griefFocus.peakSeen);
         if (about != null) tag.putUUID("About", about);
         if (where != null) tag.putLong("Where", where.asLong());
         mind.put("Feeling", tag);
     }
     void load(CompoundTag mind) {
-        kind = null; strength = 0; length = elapsed = 0; about = null; where = null; fright = 0; running = false;
+        kind = null; strength = 0; length = elapsed = 0; about = null; where = null; running = false;
+        publishedStage = null; publishedActivity = null;
         griefFocus = null;
         if (!mind.contains("Feeling")) return;
         var tag = mind.getCompound("Feeling");
@@ -381,7 +424,7 @@ public final class EmotionCourse {
         if (kind == Kind.GRIEF) griefFocus = new GriefFocus(tag.contains("ApproachConsidered")
                 ? tag.getBoolean("ApproachConsidered") : stage() != Stage.ONSET);
         lineClock = tag.contains("LineClock") ? tag.getInt("LineClock") : 200;
-        recallClock = 0;
+        recallClock.load(tag::getInt);
     }
 
     static float ramp(float x, float a, float b) { return Math.clamp((x - a) / (b - a), 0f, 1f); }
@@ -495,8 +538,6 @@ public final class EmotionCourse {
                 var home = y.life().homeStand();
                 if (home != null && home.distSqr(y.blockPosition()) > 4 && home.distSqr(y.blockPosition()) <= 32 * 32) stroll = home;
             }
-            GameplayLog.event(y, "emotion", "course goal started kind={} stage={} behavior={}",
-                    f.kind.name().toLowerCase(Locale.ROOT), f.stage().name().toLowerCase(Locale.ROOT), f.activity());
         }
         @Override public void tick() {
             var f = f();

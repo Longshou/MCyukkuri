@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 
 /** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
 public final class PresentationArbiter {
+    private static final String EMOTION_GOAL = "goal." + PresentationGoals.EMOTION.id();
     private final PresentationAccess state;
     // Observation only, never loaded or used by gameplay. Serialization shares the D4 view gate.
     private String lastSource;
@@ -45,8 +46,9 @@ public final class PresentationArbiter {
         publishMoment(id);
         var e = state.owner();
         String leakFace = e.mind().leakFace();
-        state.expression(leakFace.isEmpty() ? expression() : leakFace);
+        state.expression(leakFace.isEmpty() ? expression(id.equals("panic")) : leakFace);
         if (e.level().isClientSide) return;
+        e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
         String clip = e.getAnimationId();
         if (behavior != null && (!behavior.equals(lastBirthBehavior) || !clip.equals(lastBirthClip)))
@@ -85,7 +87,7 @@ public final class PresentationArbiter {
     }
 
     /** Physical operation and active performance precede the ordinary expression rules. */
-    private String expression(){
+    private String expression(boolean panic){
         var e=state.owner();
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
@@ -119,8 +121,11 @@ public final class PresentationArbiter {
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
         if (!e.life().isSleeping() && e.life().weakness() >= YukkuriLife.WEAKNESS_WARNING)
             return e.life().energy() <= 25 ? "sleepy" : "teary";
-        String mood=e.mind().face("neutral");
-        if(!mood.equals("neutral"))return mood;
+        // Use the selected takeover, including the last flight frame after the panic timer decrements.
+        if (!panic) {
+            String mood = e.mind().face("neutral");
+            if (!mood.equals("neutral")) return mood;
+        }
         switch(e.getBehaviorId()){
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
                  Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}

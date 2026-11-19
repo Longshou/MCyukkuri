@@ -2238,7 +2238,10 @@ add('pred_watch', 'weather', '不饿的捕食种在旁，普通油后退', '不�
     '约 1 分钟', [
         yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 0, 2, 'b', yaw=-90),
         yk('remilia', 12, 0, 'pred', yaw=90, nutrition=100, energy=100)],
-    env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')])
+    env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')],
+    smoke=dict(ticks=1200, expect=[rf'\[threat\][^\n]*uuid={_uuid_text("pred_watch", "a")} [^\n]* response started '
+                                    rf'source={_uuid_text("pred_watch", "pred")} stage=RETREAT\b'],
+               forbid=[r'\[body\][^\n]* invariant\b']))
 
 add('pred_range', 'weather', '饥饿芙兰远远飞来追猎灵梦', '饥饿芙兰远远飞来追猎灵梦',
     '芙兰与灵梦相距 48 格：芙兰站稳后开始饥饿，观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
@@ -7017,7 +7020,7 @@ _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* see off answer [^\n]* attached=false\b',
     r'\[independence\][^\n]* looked back [^\n]* count=2/2\b',
     rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course begun kind=parting\b',
-    rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course goal started kind=parting stage=peak behavior=parting_gaze\b',
+    rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course goal behavior kind=parting stage=peak behavior=parting_gaze\b',
     rf'\[speech\][^\n]*uuid={_warm_parent} [^\n]* line event=parting_gaze\b'],
     forbid=[rf'\[speech\][^\n]*uuid={_warm_parent} [^\n]* line event=mourn_sob\b'],
     readout=[f'yukkuri status {sel("warm_parent")} raw'])

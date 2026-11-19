@@ -66,4 +66,6 @@ def fixture(check, kind):
         rows = [record('win', 0, None, scene='fixture', field='land'), state(1), state(20)]
         rows += [record('geo', t, clear=not (positive and check == 'SPAWN'), drop=0, player=True,
                         vis=2 if positive and check == 'VANTAGE' else 9, scr=.2) for t in (1, 20)]
-    return log(rows), end, ('suspect' if check == 'VANTAGE' else 'fail') if positive else 'pass'
+    elif check == 'PRESENTATION':
+        rows = [state(t, animation='idle', face='neutral' if positive and 3 <= t <= 4 else 'teary') for t in range(8)]
+    return log(rows), end, ('suspect' if check in ('VANTAGE', 'PRESENTATION') else 'fail') if positive else 'pass'

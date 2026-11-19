@@ -145,7 +145,7 @@ def fate_main():
 
 # Hypothesis bands below are the reviewed observation-layer design §2. They are report-only.
 # Frozen tolerances (spawn drop, ledger offset, fate) retain the design's exact values.
-CHECKS = ('FATE', 'LOOP', 'PROGRESS', 'JUMP', 'LEDGER', 'ORPHAN', 'END', 'LAG', 'SPAWN', 'VANTAGE')
+CHECKS = ('FATE', 'LOOP', 'PROGRESS', 'JUMP', 'LEDGER', 'ORPHAN', 'END', 'LAG', 'SPAWN', 'VANTAGE', 'PRESENTATION')
 RANK = {'pass': 0, 'no-evidence': 1, 'suspect': 2, 'fail': 3}
 
 
@@ -372,6 +372,42 @@ def actor_samples(rows):
     for row in rows:
         groups[row['u']].append(row)
     return groups
+
+
+def presentation_churn(samples, dense):
+    actors = actor_samples(row for row in samples if 'goals' in row['state']) if dense else {}
+    out = []
+    for field in ('animation', 'face'):
+        if not actors:
+            out.append(result('PRESENTATION', 'no-evidence', f'{field} needs dense actor samples'))
+        for rows in actors.values():
+            runs = deque(maxlen=3)
+            previous_tick = None
+            observed = False
+            count, first = 0, None
+            for row in rows:
+                value = row['state'].get(field)
+                if value is None or previous_tick is None or row['t'] != previous_tick + 1:
+                    runs.clear()
+                previous_tick = row['t']
+                if value is None:
+                    continue
+                observed = True
+                if not runs or runs[-1][0] != value:
+                    runs.append((value, row))
+                if len(runs) != 3:
+                    continue
+                (before, a), (_, b), (after, c) = runs
+                # Count the brief middle run once, when the returning value has lasted three ticks.
+                if row['t'] == c['t'] + 2 and before == after and b['t'] - a['t'] > 2 and c['t'] - b['t'] <= 2:
+                    count += 1
+                    if first is None:
+                        first = b
+            if count:
+                out.append(result('PRESENTATION', 'suspect', f'{field} churn', first, count=count))
+            elif not observed:
+                out.append(result('PRESENTATION', 'no-evidence', f'{field} missing', rows[0]))
+    return out
 
 
 def loops(records, samples):
@@ -1239,6 +1275,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
     findings += progress(samples, records) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense, raw) + orphans(samples, records)
     findings += endings(records, samples, end, raw if end_raw is None else end_raw)
+    findings += presentation_churn(samples, dense)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:
         if 'stall_ms' in r and r['stall_ms'] > 5000:

@@ -24,10 +24,19 @@ class Checks(unittest.TestCase):
                 with self.subTest(check=check, fixture=kind):
                     text, end, expected = fixture(check, kind)
                     records, issues = timeline.parse([text])
-                    report = checks.observations(records, issues, text, end=end, seed=123, rerun='fixture', evidence='F')
+                    report = checks.observations(records, issues, text, end=end, seed=123, rerun='fixture', evidence='F',
+                                                 dense=check == 'PRESENTATION')
                     actual = next(r['verdict'] for r in report['summary'] if r['check'] == check)
                     self.assertEqual(expected, actual)
                     print(f'{check}/{kind}: {actual}')
+
+    def test_presentation_churn_counts_only_short_contiguous_returns(self):
+        rows = [state(t, animation=value) for t, value in enumerate(
+            ['a'] * 3 + ['b'] + ['a'] * 3 + ['c'] * 2 + ['a'] * 3 + ['d'] * 3 + ['a'] * 3 + ['e'] + ['a'] * 3)]
+        rows = [row for row in rows if row['t'] != 19]
+        findings = checks.presentation_churn(timeline.states(rows), dense=True)
+        self.assertEqual([('animation churn', 'suspect', 3, 2), ('face missing', 'no-evidence', 0, None)],
+                         [(f['detail'], f['verdict'], f['t'], f.get('count')) for f in findings])
 
     def test_delta_null_window_and_lifecycle(self):
         rows = [state(0), record('st', 1, st={'p': [1, 0, 0]}), record('st', 2, st={'hp': None}),
