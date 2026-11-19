@@ -101,14 +101,15 @@ public final class ExamSession {
         var session = ACTIVE.get(examiner.getUUID());
         if (session == null) return false;
         examiner.getLookControl().setLookAt(session.candidate, 30, 30);
-        if (session.phase == Phase.APPROACH) {
+        if (session.phase == Phase.APPROACH || session.phase == Phase.LOOK) {
             var target = session.candidate.blockPosition();
             if (session.inContact()) {
-                examiner.getNavigation().stop();
-                session.approachTarget = null;
+                session.stopApproach();
             } else if (!target.equals(session.approachTarget)) {
                 session.approachTarget = target;
-                examiner.getNavigation().moveTo(session.candidate, .9);
+                if (examiner.getNavigation().moveTo(session.candidate, .9) && session.phase == Phase.LOOK)
+                    GameplayLog.event(examiner, "exam", "action=look_reapproach candidate={} distance={}",
+                            session.candidate.getUUID(), examiner.distanceTo(session.candidate));
             }
         }
         return true;
@@ -201,17 +202,21 @@ public final class ExamSession {
     }
 
     private void tick() {
-        phaseTicks++;
         var owner = owner();
         var reason = interruption(owner);
         if (reason != null) { interrupt(reason); return; }
+        if (phase == Phase.LOOK && !inContact()) {
+            if (approachTarget != null && examiner.getNavigation().isDone()) interrupt("site");
+            return;
+        }
+        phaseTicks++;
         switch (phase) {
             case APPROACH -> {
                 if (phaseTicks % 20 == 1) {
                     waitingBeat(owner);
                 }
                 if (phaseTicks >= 20 && inContact()) {
-                    examiner.getNavigation().stop();
+                    stopApproach();
                     face(examiner);
                     next(Phase.LOOK);
                     var need = firstMissing(target, candidate);
@@ -244,6 +249,11 @@ public final class ExamSession {
         }
     }
 
+    private void stopApproach() {
+        examiner.getNavigation().stop();
+        approachTarget = null;
+    }
+
     private boolean inContact() {
         return ShopStaff.reaches(examiner, candidate.getEyePosition(), null) && candidate.hasLineOfSight(examiner);
     }
@@ -266,7 +276,7 @@ public final class ExamSession {
         if (phase != Phase.RESULT && candidate.pet().disqualified()) return "disqualified";
         if (phase != Phase.RESULT && (!eligibleOwner(candidate, owner) || candidate.pet().grade() != before
                 || candidate.pet().effectiveGrade() != before)) return "not_owned";
-        if (phase != Phase.APPROACH && !inContact()) return "site";
+        if ((phase == Phase.VERDICT || phase == Phase.RESULT) && !inContact()) return "site";
         return null;
     }
 
