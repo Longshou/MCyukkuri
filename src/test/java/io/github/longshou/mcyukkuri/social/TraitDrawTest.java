@@ -40,16 +40,26 @@ class TraitDrawTest {
         double unknownTotal = 0;
         for (int n = 0; n < SAMPLES; n++) {
             long seed = seeds.nextLong();
-            int child = TraitDraw.inherit(seed, 0, .30, .70, 0, 100);
-            assertEquals(child, TraitDraw.inherit(seed, 0, .30, .70, 0, 100));
+            int child = TraitDraw.inherit(seed, 0, 30, 70, 0, 100);
+            assertEquals(child, TraitDraw.inherit(seed, 0, 30, 70, 0, 100));
             assertTrue(child >= 35 && child <= 65);
             knownTotal += child;
-            double unknown = TraitDraw.unknownParent(seed, 1);
-            unknownTotal += TraitDraw.inherit(seed, 1, .80, unknown, 0, 100);
-            int deficient = TraitDraw.inherit(seed, 0, .30, .70, 0, 25);
+            int unknown = TraitDraw.unknownParent(seed, 1);
+            unknownTotal += TraitDraw.inherit(seed, 1, 80, unknown, 0, 100);
+            int deficient = TraitDraw.inherit(seed, 0, 30, 70, 0, 25);
             assertTrue(deficient >= 0 && deficient <= 25);
         }
         assertEquals(50, knownTotal / SAMPLES, 1);
         assertEquals(65, unknownTotal / SAMPLES, 1.5);
+    }
+
+    @Test
+    void halfPointsRoundUpInOrdinaryAndNarrowForms() {
+        assertEquals(15, TraitDraw.inForm(58, 0, 25));
+        assertEquals(90, TraitDraw.inForm(58, 75, 100));
+        for (long seed = 0; seed < 100; seed++) {
+            int noise = TraitDraw.inherit(seed, 0, 50, 50, 0, 100) - 50;
+            assertEquals(25 + noise, TraitDraw.inherit(seed, 0, 19, 30, 0, 100));
+        }
     }
 }

@@ -177,9 +177,8 @@ public final class YukkuriPersonality {
         TraitBounds bounds = TraitBounds.forForm(deficient, kind);
         int[] values = new int[Trait.values().length];
         for (Trait trait : Trait.values()) {
-            int min = bounds.minimum(trait);
-            double normalized = TraitDraw.wild(seed, trait.ordinal(), TraitDraw.WILD_CENTRE) / 100.0;
-            values[trait.ordinal()] = (int) Math.round(min + normalized * (bounds.maximum(trait) - min));
+            int percent = TraitDraw.wild(seed, trait.ordinal(), TraitDraw.WILD_CENTRE);
+            values[trait.ordinal()] = TraitDraw.inForm(percent, bounds.minimum(trait), bounds.maximum(trait));
         }
         return BirthProfile.fromInnateValues(values);
     }
@@ -195,17 +194,18 @@ public final class YukkuriPersonality {
         int[] values = new int[Trait.values().length];
         for (Trait trait : Trait.values()) {
             int axis = trait.ordinal();
-            double second = parentB == null ? TraitDraw.unknownParent(seed, axis) : parentB.normalizedInnate(trait);
-            values[axis] = TraitDraw.inherit(seed, axis, parentA.normalizedInnate(trait), second,
+            int second = parentB == null ? TraitDraw.unknownParent(seed, axis) : parentB.innatePercent(trait);
+            values[axis] = TraitDraw.inherit(seed, axis, parentA.innatePercent(trait), second,
                     childBounds.minimum(trait), childBounds.maximum(trait));
         }
         return BirthProfile.fromInnateValues(values);
     }
 
-    private double normalizedInnate(Trait trait) {
+    /** Both form widths (25 and 100) express every innate point as a whole percentage. */
+    private int innatePercent(Trait trait) {
         TraitBounds bounds = bounds();
-        int width = bounds.maximum(trait) - bounds.minimum(trait);
-        return width == 0 ? .5 : Math.clamp((innate(trait) - bounds.minimum(trait)) / (double) width, 0, 1);
+        int min = bounds.minimum(trait);
+        return 100 * (innate(trait) - min) / (bounds.maximum(trait) - min);
     }
 
     /**

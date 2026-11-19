@@ -21,14 +21,17 @@ public final class TraitDraw {
         return Math.clamp((int) Math.round(centre + WILD_SD * random.nextGaussian()), WILD_MIN, WILD_MAX);
     }
 
-    static double unknownParent(long seed, int axis) {
-        return wild(seed ^ UNKNOWN_SALT, axis, WILD_CENTRE) / 100.0;
+    static int unknownParent(long seed, int axis) {
+        return wild(seed ^ UNKNOWN_SALT, axis, WILD_CENTRE);
     }
 
-    public static int inherit(long seed, int axis, double first, double second, int min, int max) {
+    static int inForm(double percent, int min, int max) {
+        return min + (int) Math.round(percent * (max - min) / 100);
+    }
+
+    public static int inherit(long seed, int axis, int firstPercent, int secondPercent, int min, int max) {
         var random = new Random(seed ^ (AXIS_SALT * (axis + 1L)) ^ INHERIT_SALT);
-        double noise = (random.nextInt(2 * INHERIT_NOISE + 1) - INHERIT_NOISE) / 100.0;
-        double normalized = Math.clamp((first + second) / 2 + noise, 0, 1);
-        return Math.clamp((int) Math.round(min + normalized * (max - min)), min, max);
+        int noise = random.nextInt(2 * INHERIT_NOISE + 1) - INHERIT_NOISE;
+        return inForm(Math.clamp((firstPercent + secondPercent) / 2.0 + noise, 0, 100), min, max);
     }
 }
