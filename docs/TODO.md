@@ -12,7 +12,6 @@
 | R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
 | P5b 油霉：经验识别、DN05 狠心驱逐或不忍致全家传染、洞内缓慢传染 | `.worktrees/wp-mold-family` | settlement/MoldExile*.java, family/*, life/Mold*.java, art/dialogue (P5 lines), DN-05/06 scenes |
-| R2 性欲积压替代发情骰 | `.worktrees/wp-pentup` | family/PentUpMath.java, family/FamilyLife.java, family/Courtship.java, life/AgitationLife.java, life/YukkuriLife.java, pet/PetLife.java, pet/rules (sukkiri pressure input) |
 | 导出工具：身体倾斜门槛与圆角附件导出器只写自有文件 | `.worktrees/wp-export-tool-fixes` | scripts/motion_gate.py, scripts/export_rounded_attachments.py, scripts/README.md |
 
 ## 玩法待办
