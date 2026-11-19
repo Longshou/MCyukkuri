@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.life.Taste.Verdict;
@@ -274,10 +275,10 @@ final class LifeMeal {
     }
 
     void warnedAtCrop() {
-        var traits = o.personality();
-        double defiance = .65 * traits.boldness() + .25 * (100 - traits.friendliness()) + .10 * (100 - traits.selfControl());
+        var traits = o.personality().temperament();
+        double defiance = .65 * (1 - traits.timid()) + .35 * traits.selfish();
         // Timid thieves drop almost at once. A bold, selfish one risks up to another second of chewing.
-        fleeCropAt = mealTicks + 2 + (int) (22 * Math.clamp((defiance - 30) / 50, 0, 1));
+        fleeCropAt = mealTicks + 2 + (int) (22 * Temperament.ramp(defiance, .25, .80));
     }
 
     /** A caller checks this before consuming a body's one-shot resource. */
