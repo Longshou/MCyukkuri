@@ -227,6 +227,19 @@ class ExportTests(unittest.TestCase):
         clip['parameters'] = dict(tilt_max=31, tilt_why='test')
         self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'allowed', data, clip, idle))
 
+    def test_tilt_gate_composes_root_and_body_motion(self):
+        from motion_gate import check_body
+        data = dict(bones=[dict(name='root'), dict(name='body_motion')])
+        idle = dict(tracks=[])
+        clip = dict(duration=1, tracks=[dict(bone=1, channel='rotation', keys=[[0, -18, 0, 0]])])
+        self.assertTrue(check_body(pipeline.ROOT, 'remilia', 'dive', data, clip, idle))
+        # Each bone is under the budget alone; the visible body lean is their composition.
+        clip['tracks'] = [dict(bone=0, channel='rotation', keys=[[0, 10, 0, 0]]),
+                          dict(bone=1, channel='rotation', keys=[[0, 10, 0, 0]])]
+        self.assertTrue(check_body(pipeline.ROOT, 'remilia', 'composed', data, clip, idle))
+        clip['tracks'][1]['keys'] = [[0, 1, 0, 0]]
+        self.assertFalse(check_body(pipeline.ROOT, 'remilia', 'small', data, clip, idle))
+
     def test_contact_gate_reports_all_failures_and_skips_missing_context(self):
         import argparse
         import contextlib
