@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
+import io.github.longshou.mcyukkuri.settlement.MoldExile;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -150,6 +151,7 @@ public final class WoundComfort {
     private static String needReason(YukkuriEntity victim) {
         if (victim.body().condition().hasSkinOrBurnDamage()) return "wound";
         if (victim.body().dying()) return "dying";
+        if (victim.body().mold() > 0) return "mold";
         return victim.woundComfort().hurtAt >= 0 && victim.level().getGameTime() - victim.woundComfort().hurtAt <= WITNESS_WINDOW ? "witnessed_hurt" : null;
     }
 
@@ -173,6 +175,7 @@ public final class WoundComfort {
         UUID me = entity.getUUID(), other = victim.getUUID();
         if (!entity.life().canRecognize(victim)) return "unrecognized";
         if (!(Bonds.comfortFamily(entity, victim))) return "not_kin";
+        if (MoldExile.avoids(entity, victim)) return "avoids_mold";
         if (YukkuriWorldData.get(level()).affinity(me, other) < BondLevels.AFFINITY_NEUTRAL) return "dislikes";
         return null;
     }
