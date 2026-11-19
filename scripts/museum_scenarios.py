@@ -870,7 +870,7 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
            ('读无纸赤油（继续发抖）', f'yukkuri status {sel("self_baby")} raw')],
     capture=dict(shots=(1, 140, 240, 500), sequences=((80, 300, 4),), observe=False,
                  views={'side': dict(position=(-2.4, .75, 1.35), look_at=(-3.55, .28, -.5))}),
-    smoke=dict(ticks=1560,
+    smoke=dict(ticks=1620,
                commands=[(1050, 'execute if block ~ ~ ~ mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_YOUNG_ONE_LEFT'),
                          (1250, block(-3, 0, 3, 'minecraft:campfire[lit=true]'))],
                readout=[f'yukkuri status {sel("devoted_parent")} raw', f'yukkuri status {sel("devoted_baby")} raw',

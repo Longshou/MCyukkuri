@@ -381,6 +381,8 @@ public final class TemperatureLife {
     private Path safePath(BlockPos pos) {
         var path = entity.getNavigation().createPath(pos, 0);
         if (path == null || !path.canReach()) return null;
+        // A stand without a bed is walked into: a route ending beside it (a body in the way) would park the body at the neighbour.
+        if (FamilyNest.bedOccupancy(entity, pos) == null && !pos.equals(path.getNodePos(path.getNodeCount() - 1))) return null;
         // Permit departure from the starting block; no later node may enter a hazard.
         for (int i = 1; i < path.getNodeCount(); i++) {
             var node = path.getNode(i);
