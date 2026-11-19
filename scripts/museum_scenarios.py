@@ -2808,6 +2808,24 @@ def arc_response(log, line, cause, mother):
             return f'Expected both records to cite the actual child {children}; got {subjects}'
 
 
+def arc_confession(log, trace, mother):
+    problem = arc_response(log, 'confess', 'confession', mother)
+    if problem:
+        return problem
+    admission = re.search(rf'uuid={mother} t=(\d+) [^\n]*arc spoke=confess\b', log)
+    if not admission:
+        return 'Missing admission from the mother'
+    saw_bow = False
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] == mother and row['t'] >= int(admission[1]):
+            pose = row['st'].get('animation')
+            if pose == 'beg' and saw_bow:
+                return None
+            saw_bow |= pose == 'bow'
+    return 'Missing the mother’s bow and subsequent pleading pose after the admission'
+
+
 for sid, title, description, traits, child_pos in (
     ('arc_hide', '躲在遮挡后喂孩子', '站在屏风左边等灵梦躲开，看它在另一边把食物嚼成糜喂给孩子。绕过去才有机会看清亲缘。', dict(friendliness=100), '~3.5 ~ ~1.5'),
     ('arc_lie', '孩子叫妈妈拆穿谎话', '面对母油，听它别过脸说不是自己的孩子，再看亲生孩子追来喊妈妈。', dict(intelligence=70, friendliness=20, attachment=30, self_control=45), '~3.5 ~ ~0.5'),
@@ -2842,6 +2860,8 @@ for sid, title, description, traits, child_pos in (
                              *(rf'disqualified cause={cause} .*parent={_uuid_text(sid, role)} .*observed=40' for role in ('mother', 'father'))],
                      forbid=[rf'disqualified cause=(?!{cause}\b)'],
                      verify=lambda log, line=line, cause=cause, mother=mother_id: arc_response(log, line, cause, mother))
+        if sid == 'arc_confess':
+            smoke.update(verify_trace=True, verify=lambda log, trace, mother=mother_id: arc_confession(log, trace, mother))
     add(sid, 'town', title, title, description, '安静等候约半分钟',
         [box(-5, -1, -6, 14, -1, 7, 'minecraft:grass_block'), box(-5, 0, -6, 14, 3, 7, 'minecraft:air'),
          *props, *shed(0, 5), block(2, 0, 5, 'mcyukkuri:yukkuri_nest'),

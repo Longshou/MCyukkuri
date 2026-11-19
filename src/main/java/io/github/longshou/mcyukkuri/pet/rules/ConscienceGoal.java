@@ -27,6 +27,7 @@ public final class ConscienceGoal extends Goal {
     private ArcStyle style;
     private YukkuriEntity child;
     private Vec3 stand;
+    private long confessionAt = -1;
 
     public ConscienceGoal(YukkuriEntity pet) {
         this.pet = pet;
@@ -123,7 +124,7 @@ public final class ConscienceGoal extends Goal {
     }
 
     @Override public boolean canContinueToUse() {
-        if (brood != null) return pet.duty().holds(Duty.Kind.RULES) && brood.verdict() == null && freeForBrood()
+        if (brood != null) return pet.duty().holds(Duty.Kind.RULES) && (brood.verdict() == null || confessionAt >= 0) && freeForBrood()
                 && pet.pet().ownedBy(owner.getUUID()) && owner.isAlive() && owner.level() == pet.level() && pet.distanceToSqr(owner) <= 256
                 && (style == ArcStyle.HIDE || HumanSight.sees(owner, pet)) && (child == null || child.isAlive() && child.level() == pet.level())
                 && (child == null || child.life().nutrition() >= 30 && !child.isPanicking());
@@ -133,6 +134,13 @@ public final class ConscienceGoal extends Goal {
 
     @Override public void tick() {
         if (!pet.duty().holds(Duty.Kind.RULES)) return;
+        if (confessionAt >= 0) {
+            long elapsed = pet.level().getGameTime() - confessionAt;
+            int bow = YukkuriAction.BOW.durationTicks();
+            if (elapsed == bow) PetScenes.act(pet, YukkuriAction.BEG, "teary", "", YukkuriAction.BEG.durationTicks(), owner);
+            if (elapsed >= bow + YukkuriAction.BEG.durationTicks()) finish(Duty.End.DONE, "confessed");
+            return;
+        }
         if (brood != null && (style == ArcStyle.HIDE || style == ArcStyle.LIE)) {
             boolean sheltered = style == ArcStyle.HIDE && reachedCover();
             var result = sheltered ? SurfaceApproach.Result.ARRIVED
@@ -151,12 +159,10 @@ public final class ConscienceGoal extends Goal {
         if (pet.distanceToSqr(owner) <= 2.25) {
             if (brood == null) pet.pet().conscience().caught("confession");
             else if (style == ArcStyle.CONFESS) {
+                SurfaceApproach.halt(pet);
                 if (say(YukkuriAction.BOW, "teary", "confess", owner)) {
-                    int line = pet.speechSequence();
-                    PetScenes.later(pet, YukkuriAction.BOW.durationTicks(), () -> {
-                        if (pet.isAlive() && !BehaviorContinuity.emergency(pet) && pet.speechSequence() == line)
-                            PetScenes.act(pet, YukkuriAction.BEG, "teary", "", YukkuriAction.BEG.durationTicks());
-                    });
+                    confessionAt = pet.level().getGameTime();
+                    return;
                 }
             }
             else say(YukkuriAction.JOY_JUMP, "happy", "sukkiri_naive", child);
@@ -186,6 +192,7 @@ public final class ConscienceGoal extends Goal {
         brood = null;
         stand = null;
         child = null;
+        confessionAt = -1;
         SurfaceApproach.stopWalking(pet);
         pet.duty().release(Duty.Kind.RULES, Duty.End.YIELDED, "interrupted");
     }
