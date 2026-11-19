@@ -369,11 +369,12 @@ public final class LeafSwaddle {
                     target, wrap.open, wrap.soil, swaddled.life().bladder(), swaddled.life().hygiene());
             return true;
         }
-        if (!canHoldLeaves()) return false;
+        var skills = entity.skills();
+        if (!canHoldLeaves() || skills.assessed(Ability.LEAF_SWADDLE) && !skills.knows(Ability.LEAF_SWADDLE)) return false;
         var bare = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SEARCH_RADIUS),
                 child -> entity.family().caresFor(child) && wrapCandidate(child) && ready(child)).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        if (bare == null || !maker()) return false;
+        if (bare == null) return false;
         // The leaf source is found before the decision is rolled, so a busy shared search budget never re-rolls a decision.
         boolean gather = !folded && leafCount() < LEAVES_PER_WRAP;
         if (gather && !plants.find(entity.blockPosition(), LEAF_RADIUS, pos -> entity.level().getBlockState(pos).is(BlockTags.LEAVES))) {
@@ -384,7 +385,7 @@ public final class LeafSwaddle {
             }
             return false;
         }
-        if (!accepts(bare, "make", false)) { if (gather) plants.stop(); return false; }
+        if (!maker() || !accepts(bare, "make", false)) { if (gather) plants.stop(); return false; }
         begin(bare, folded ? Task.WRAP : gather ? Task.GATHER : Task.FOLD);
         GameplayLog.event(entity, "family", "leaf swaddle make start child={} task={} carried={} folded={} source={}",
                 target, task, leafCount(), folded, gather ? plants.source() : null);

@@ -451,17 +451,22 @@ public final class FoundShelter implements MotorOwner {
         return mouth.purpose() == MouthOccupancy.Purpose.PAPER && !mouth.items(MouthOccupancy.Purpose.PAPER).isEmpty();
     }
 
-    private boolean wantsSelfCover() {
-        if (!body.life().temperature().cold() || !body.life().paperCover().isEmpty() || !canWearPaperCoverNow()) return false;
+    private boolean needsSelfCover() {
+        return body.life().temperature().cold() && body.life().paperCover().isEmpty() && canWearPaperCoverNow();
+    }
+
+    private void discoverPaperCover() {
         var skills = body.skills();
-        if (!skills.assessed(Ability.PAPER_COVER) && !skills.knows(Ability.PAPER_COVER)) {
-            var personality = body.life().personality();
-            int intelligence = personality.intelligence(), selfControl = personality.selfControl();
-            // Self-control shifts the minimum intelligence for a cover from 75 down to 55.
-            skills.discover(Ability.PAPER_COVER, intelligence >= 75 - .20 * selfControl,
-                    "cold_gap intelligence=" + intelligence + " self_control=" + selfControl);
-        }
-        return skills.knows(Ability.PAPER_COVER);
+        if (skills.assessed(Ability.PAPER_COVER) || skills.knows(Ability.PAPER_COVER)
+                || !canPullPaperBody(body) || !needsSelfCover() || !holdingPaper() && broughtPaperAt(gap).isEmpty()) return;
+        var personality = body.life().personality();
+        int intelligence = personality.intelligence(), selfControl = personality.selfControl();
+        skills.discover(Ability.PAPER_COVER, intelligence >= 75 - .20 * selfControl,
+                "cold_gap intelligence=" + intelligence + " self_control=" + selfControl);
+    }
+
+    private boolean wantsSelfCover() {
+        return body.skills().knows(Ability.PAPER_COVER) && needsSelfCover();
     }
 
     private boolean wantsPaperBedding() {
@@ -899,6 +904,7 @@ public final class FoundShelter implements MotorOwner {
             if (shelter != null && !facingOut()) SurfaceApproach.face(body, outward());
             if (!checkRest(false)) return exiting() ? Step.ACTIVE : Step.ENDED;
             if (restingInPlainGap() && !body.life().isSleeping()) {
+                discoverPaperCover();
                 if (holdingPaper()) {
                     var baby = coldUncoveredBabyInSameGap();
                     if (baby != null) {
