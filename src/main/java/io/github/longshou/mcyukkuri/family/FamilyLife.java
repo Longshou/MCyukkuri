@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
@@ -320,7 +321,7 @@ public final class FamilyLife {
     public void completedContact(YukkuriEntity peer, boolean mutual) {
         var audience = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
                 viewer -> viewer.isAlive() && viewer.family().pressureEligible() && !viewer.life().isSleeping()
-                        && viewer.distanceToSqr(entity) <= 64 && viewer.hasLineOfSight(entity) && viewer.hasLineOfSight(peer));
+                        && viewer.distanceToSqr(entity) <= 64 && GlassSight.sees(viewer, entity) && GlassSight.sees(viewer, peer));
         PentUpMath.completed(entity, peer, mutual, audience, y -> y.family().relievePentUp("sukkiri"),
                 y -> y.family().addPentUp(PentUpMath.WITNESS, "witness"));
     }
@@ -1905,7 +1906,7 @@ public final class FamilyLife {
                 other -> other != entity && other.isAlive() && entity.distanceToSqr(other) <= 64
                         && (other.getUUID().equals(mate) || relations.affinity(entity.getUUID(), other.getUUID()) >= BondLevels.AFFINITY_COOPERATIVE)
                         && other.status().identity().canConceive() && compatibleWith(other)
-                        && entity.life().canRecognize(other) && entity.hasLineOfSight(other))
+                        && entity.life().canRecognize(other) && GlassSight.sees(entity, other))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
