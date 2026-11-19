@@ -40,6 +40,7 @@ import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.RemainsWater;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -47,6 +48,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import java.util.function.BooleanSupplier;
+import java.util.UUID;
 
 /** Persistent physical remains. Only deliberate collection transfers them to an inventory. */
 public final class RemainsEntity extends Entity {
@@ -98,6 +100,17 @@ public final class RemainsEntity extends Entity {
     /** The synced stack itself, replaced (never edited in place) whenever the remains data changes; clients use it to detect change. */
     public ItemStack syncedRemains(){return entityData.get(REMAINS);}
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
+
+    public UUID identity() {
+        var tag = data();
+        return tag.hasUUID("Identity") ? tag.getUUID("Identity") : null;
+    }
+
+    public static RemainsEntity find(ServerLevel level, YukkuriEntity near, UUID identity, double range) {
+        var matches = level.getEntitiesOfClass(RemainsEntity.class, near.getBoundingBox().inflate(range),
+                body -> identity.equals(body.identity()) && body.distanceToSqr(near) <= range * range && near.hasLineOfSight(body));
+        return matches.isEmpty() ? null : matches.getFirst();
+    }
     public void setRemains(ItemStack stack){CorpseFood.migrate(stack);entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
             CustomData.EMPTY).copyTag().getLong("Rot");var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             soak=Math.max(0,tag.getLong(RemainsWater.SOAK));waterStage=RemainsWater.stage(tag);

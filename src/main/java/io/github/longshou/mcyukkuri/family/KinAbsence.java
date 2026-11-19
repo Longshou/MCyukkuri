@@ -113,15 +113,12 @@ final class KinAbsence {
         for (var entry : kin.entrySet()) {
             var memory = entry.getValue();
             if (!memory.confirmed && memory.away >= expectation()) {
-                for (var corpse : family.level().getEntitiesOfClass(RemainsEntity.class, e.getBoundingBox().inflate(8), e::hasLineOfSight)) {
-                    var data = corpse.data();
-                    if (data.hasUUID("Identity") && entry.getKey().equals(data.getUUID("Identity"))) {
-                        witness(entry.getKey(), corpse.blockPosition());
-                        e.life().personality().experienced(Trait.BOLDNESS, -3);
-                        e.bereave(EmotionEvent.FAMILY_DEATH, entry.getKey(), corpse.blockPosition());
-                        GameplayLog.event(e, "family", "missing kin found remains kin={} at={}", entry.getKey(), corpse.blockPosition());
-                        break;
-                    }
+                var corpse = RemainsEntity.find(family.level(), e, entry.getKey(), 8);
+                if (corpse != null) {
+                    witness(entry.getKey(), corpse.blockPosition());
+                    e.life().personality().experienced(Trait.BOLDNESS, -3);
+                    e.bereave(EmotionEvent.FAMILY_DEATH, entry.getKey(), corpse.blockPosition());
+                    GameplayLog.event(e, "family", "missing kin found remains kin={} at={}", entry.getKey(), corpse.blockPosition());
                 }
             }
             if (memory.away > 0 && !memory.confirmed && baby() && memory.phase == Phase.MOVED_ON

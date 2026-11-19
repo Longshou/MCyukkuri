@@ -1834,7 +1834,7 @@ public final class FamilyLife {
                     &&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)
                     &&(other.hasLineOfSight(entity) || PunishmentReaction.isHuman(source.getEntity())
                         && source.getEntity() instanceof LivingEntity punisher && PunishmentReaction.sees(other, entity, punisher))) {
-                // Kin and the mate who see it die grieve where they stand (no walk to the body).
+                // Kin and the mate who see it die first grieve where they stand.
                 other.family().absence().witness(entity.getUUID(),entity.blockPosition());
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH,entity.getUUID(),entity.blockPosition());
                 GameplayLog.event(other,"family","witnessed kin death dead={} distance={} mate={}",entity.getUUID(),Math.round(other.distanceTo(entity)*10)/10.0,Bonds.eitherMate(entity, other));

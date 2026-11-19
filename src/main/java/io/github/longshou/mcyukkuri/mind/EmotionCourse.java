@@ -1,11 +1,14 @@
 package io.github.longshou.mcyukkuri.mind;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
@@ -14,6 +17,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
@@ -47,6 +51,7 @@ public final class EmotionCourse {
     private float fright;
     private long frightAt;
     private boolean running;
+    private GriefFocus griefFocus;
     /** A blow counts toward the shaking only if the panic it started ends within this many ticks. */
     private static final int FRIGHT_MEMORY = 400;
 
@@ -136,7 +141,7 @@ public final class EmotionCourse {
 
     /** The behaviour shown while its own goal runs. */
     public String activity() {
-        if (!running || goalPriority() == 0) return null;
+        if (!running || goalPriority() == 0 || stage() == Stage.ONSET) return null;
         Stage s = stage();
         return switch (kind) {
             case GRIEF -> s == Stage.PEAK ? Behaviors.MOURN : Behaviors.MOURN_LISTLESS;
@@ -151,7 +156,8 @@ public final class EmotionCourse {
         if (kind == null) return 0;
         Stage s = stage();
         return switch (kind) {
-            case GRIEF, TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
+            case GRIEF -> s == Stage.ONSET || s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
+            case TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;
             case RAGE -> s == Stage.PEAK ? 6 : 0;
             case JOY -> 0;
         };
@@ -198,6 +204,7 @@ public final class EmotionCourse {
         int span = Math.clamp(Math.round(length(next, power, p, entity.mind().unease(), hasDependants())
                 * (.9f + .2f * entity.getRandom().nextFloat())), 300, 24000);
         kind = next; strength = power; length = span; elapsed = 0; about = cause; where = at;
+        griefFocus = kind == Kind.GRIEF ? new GriefFocus(false) : null;
         lineClock = ONSET_TICKS + 40; recallClock = 0;
         GameplayLog.event(entity, "emotion", "course begun kind={} strength={} length={} about={} at={} attachment={} selfControl={} boldness={} unease={}",
                 kind.name().toLowerCase(Locale.ROOT), Math.round(power * 100) / 100f, length, about, where,
@@ -298,6 +305,7 @@ public final class EmotionCourse {
         String face = kind == Kind.GRIEF ? "teary_smile" : "satisfied";
         GameplayLog.event(entity, "emotion", "course ended kind={} length={} about={}", kind.name().toLowerCase(Locale.ROOT), length, about);
         kind = null; strength = 0; length = elapsed = 0; about = null; where = null;
+        griefFocus = null;
         if (closing != null && calm()) entity.showReaction(face, closing, 70);
     }
 
@@ -312,6 +320,7 @@ public final class EmotionCourse {
     }
     void load(CompoundTag mind) {
         kind = null; strength = 0; length = elapsed = 0; about = null; where = null; fright = 0; running = false;
+        griefFocus = null;
         if (!mind.contains("Feeling")) return;
         var tag = mind.getCompound("Feeling");
         try { kind = Kind.valueOf(tag.getString("Kind")); } catch (IllegalArgumentException ex) { return; }
@@ -320,6 +329,7 @@ public final class EmotionCourse {
         elapsed = Math.clamp(tag.getInt("Elapsed"), 0, length);
         about = tag.hasUUID("About") ? tag.getUUID("About") : null;
         where = tag.contains("Where") ? BlockPos.of(tag.getLong("Where")) : null;
+        if (kind == Kind.GRIEF) griefFocus = new GriefFocus(stage() != Stage.ONSET);
         lineClock = 200; recallClock = 0;
     }
 
@@ -327,9 +337,82 @@ public final class EmotionCourse {
     private static float lerp(float a, float b, float t) { return a + (b - a) * t; }
 
     // ---- body --------------------------------------------------------------------------------------------------------------------
+    /** One look/approach per course, shared across the peak and easing goals and their interruptions. */
+    private static final class GriefFocus {
+        private RemainsEntity remains;
+        private Vec3 stand;
+        private long nextSearch, walkUntil;
+        private boolean peakSeen;
+        private String result;
+
+        private GriefFocus(boolean peakSeen) { this.peakSeen = peakSeen; }
+
+        private Vec3 target(YukkuriEntity y, EmotionCourse f, long now) {
+            if (now >= nextSearch) {
+                remains = f.about == null ? null : RemainsEntity.find((ServerLevel)y.level(), y, f.about, 16);
+                nextSearch = now + 40;
+            }
+            Vec3 point = remains == null || remains.isRemoved() ? place(f) : remains.position();
+            return point != null && y.distanceToSqr(point) <= 16 * 16 ? point : null;
+        }
+
+        private void plan(YukkuriEntity y, Vec3 point, long now) {
+            peakSeen = true;
+            boolean attached = y.life().personality().temperament().is(Gate.ATTACHED);
+            double distance = point == null ? -1 : y.position().distanceTo(point);
+            var body = remains != null && !remains.isRemoved() ? remains : null;
+            double stop = y.getBbWidth() / 2 + (body == null ? .5 : body.getBbWidth() / 2 + .3);
+            if (attached && distance > stop && distance <= 6) {
+                Vec3 outward = y.position().subtract(point).multiply(1, 0, 1).normalize();
+                var at = SurfaceApproach.floor(y, point.add(outward.scale(stop)));
+                if (at != null && y.moldExile().allowsAddress(BlockPos.containing(at)) && SurfaceApproach.canApproach(y, at)) {
+                    stand = at;
+                    walkUntil = now + 200;
+                }
+            }
+            GameplayLog.event(y, "emotion", "mourn focus target={} distance={} approach={} attached={} yawError={}",
+                    point == null ? "none" : body == null ? "place" : "remains", distance, stand != null, attached, yawError(y, point));
+        }
+
+        private void walk(YukkuriEntity y, Vec3 point, long now) {
+            if (now >= walkUntil) result = "timeout";
+            else if (point == null) result = "blocked";
+            else {
+                var outcome = SurfaceApproach.walkResult(y, stand, remains != null && !remains.isRemoved() ? remains : null, .7);
+                if (outcome == SurfaceApproach.Result.ARRIVED) result = "arrived";
+                if (outcome == SurfaceApproach.Result.BLOCKED) result = "blocked";
+            }
+            if (result == null) return;
+            stand = null;
+            SurfaceApproach.halt(y);
+        }
+
+        private void reportEnd(YukkuriEntity y, Vec3 point) {
+            GameplayLog.event(y, "emotion", "mourn approach ended result={} distance={} yawError={}", result,
+                    point == null ? -1 : y.position().distanceTo(point), yawError(y, point));
+            result = null;
+        }
+
+        private void stop(YukkuriEntity y) {
+            if (stand != null || result != null) {
+                stand = null;
+                GameplayLog.event(y, "emotion", "mourn approach interrupted walkResult={}", result);
+                result = null;
+            }
+        }
+    }
+
+    private static Vec3 place(EmotionCourse f) { return f.where == null ? null : Vec3.atBottomCenterOf(f.where); }
+    private static float yawError(YukkuriEntity y, Vec3 point) {
+        return point == null ? 0 : Math.abs(Mth.wrapDegrees(SurfaceApproach.yaw(y.position(), point) - y.getYRot()));
+    }
+    private static void face(YukkuriEntity y, Vec3 point) {
+        if (yawError(y, point) > 3) SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), point));
+    }
+
     /**
-     * The body side of the strong stages. The peak goal (priority 3, above errands) keeps a mourner where it is, facing where it
-     * happened, and sends a frightened one home to tremble; the easing goal (priority 6, above roaming) sits listlessly and
+     * The body side of the strong stages. The peak goal (priority 3, above errands) watches the place of a loss and sends a
+     * frightened one home to tremble; the easing goal (priority 6, above roaming) sits listlessly and
      * strolls a few slow steps between sits. Real needs, danger and family duties still outrank both; each ends with its stage.
      */
     public static final class CourseGoal extends Goal {
@@ -337,6 +420,7 @@ public final class EmotionCourse {
         private final int priority;
         private int sit, ticks;
         private BlockPos stroll;
+        private GriefFocus watched;
 
         public CourseGoal(YukkuriEntity y, int priority) {
             this.y = y; this.priority = priority;
@@ -347,7 +431,7 @@ public final class EmotionCourse {
             return f().goalPriority() == priority && y.isAlive() && !y.isNoAi() && !y.isPassenger() && !y.isPanicking()
                     && !y.isInWaterOrBubble() && !y.isOnFire() && !y.isCommandPlaying() && !y.operations().active()
                     && !y.life().hasUrgentNeed() && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.body().dying()
-                    && !y.family().laboring() && !y.mind().nonYukkuri();
+                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y);
         }
         @Override public boolean canUse() { return wanted(); }
         @Override public boolean canContinueToUse() { return wanted(); }
@@ -357,6 +441,7 @@ public final class EmotionCourse {
             sit = 60 + y.getRandom().nextInt(80);
             SurfaceApproach.halt(y);
             var f = f();
+            watched = f.griefFocus;
             if (f.kind == Kind.TERROR && priority == 3) {
                 var home = y.life().homeStand();
                 if (home != null && home.distSqr(y.blockPosition()) > 4 && home.distSqr(y.blockPosition()) <= 32 * 32) stroll = home;
@@ -367,6 +452,12 @@ public final class EmotionCourse {
         @Override public void tick() {
             var f = f();
             ticks++;
+            if (watched != f.griefFocus) {
+                if (watched != null) watched.stop(y);
+                watched = f.griefFocus;
+                stroll = null;
+                SurfaceApproach.halt(y);
+            }
             if (stroll != null) {
                 // Going somewhere: home to tremble in (fright), or a few aimless steps (easing). Slow unless frightened.
                 double speed = f.kind == Kind.TERROR && priority == 3 ? 1.1 : .7;
@@ -375,8 +466,18 @@ public final class EmotionCourse {
                 if (stroll == null) { SurfaceApproach.halt(y); ticks = 0; }
                 return;
             }
-            if (ticks == 1 && f.kind == Kind.GRIEF && f.where != null && f.where.distSqr(y.blockPosition()) <= 16 * 16)
-                SurfaceApproach.face(y, SurfaceApproach.yaw(y.position(), Vec3.atBottomCenterOf(f.where)));
+            if (watched != null) {
+                long now = y.level().getGameTime();
+                Vec3 point = watched.target(y, f, now);
+                if (watched.stand == null) face(y, point);
+                if (f.stage() == Stage.PEAK && !watched.peakSeen) watched.plan(y, point, now);
+                if (watched.stand != null) {
+                    watched.walk(y, point, now);
+                    if (watched.stand != null) return;
+                    face(y, point);
+                }
+                if (watched.result != null && yawError(y, point) <= 3) watched.reportEnd(y, point);
+            }
             if (ticks == 1 && f.kind == Kind.RAGE && f.about != null && y.level() instanceof ServerLevel level
                     && level.getEntity(f.about) instanceof LivingEntity other
                     && other.distanceToSqr(y) <= 144) y.getLookControl().setLookAt(other, 30, 30);
@@ -390,6 +491,8 @@ public final class EmotionCourse {
             if (to != null && y.moldExile().allowsAddress(BlockPos.containing(to))) stroll = BlockPos.containing(to);
         }
         @Override public void stop() {
+            if (watched != null) watched.stop(y);
+            watched = null;
             f().running = false; stroll = null;
             SurfaceApproach.halt(y);
         }
