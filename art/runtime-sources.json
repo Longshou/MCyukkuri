@@ -305,7 +305,7 @@
       "src/main/resources/assets/mcyukkuri/textures/block/den_barrier.png"
     ],
     "status": "selected_for_runtime_pending_user_review",
-    "scope": "Den-mouth screen block (settlement/DenBarrierBlock, collision 14x16x14, no facing): native cuboid block model of twigs wedged into the soil, leaned along each side or tipped inward against the opposite side, a few fallen at 45 degrees, two forked shoots, a crossed loose wad of leaf litter in the middle, leaves pushed into gaps and scattered at the foot; nothing tied, knotted or woven; uneven tops and visible gaps. Hand-painted 64x64 texture from the wild_kit ramps. Project design (user request); no user visual acceptance yet."
+    "scope": "Den-mouth screen block (settlement/DenBarrierBlock, collision 14x24x14, fence height, no facing): native cuboid block model of twigs 15-23.5 long wedged into the soil, leaned along each side or tipped inward against the opposite side, a few fallen at 45 degrees, two forked shoots, a crossed loose wad of leaf litter in the middle, leaves pushed into gaps and scattered at the foot; nothing tied, knotted or woven; uneven tops and visible gaps. Hand-painted 64x64 texture from the wild_kit ramps. Project design (user request); no user visual acceptance yet."
   },
   "derived_faces": {
     "exporter": "standards/yukkuri-library/expressions/derived/faces.py",

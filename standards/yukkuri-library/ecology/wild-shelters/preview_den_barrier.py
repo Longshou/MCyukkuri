@@ -95,7 +95,7 @@ def main():
     sheet.save(OUT / 'current.png')
     (OUT / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>洞口结界屏障</title><h1>洞口结界屏障</h1>'
                                     '<p>den_barrier 原生方块模型：插进土里互相斜靠的细枝、脚下横放叠压两根、一根横枝搁在枝杈上，'
-                                    '枝后推进一层落叶，缝里塞几片叶子；无绳结捆扎，有缝。碰撞 14×16×14。外观待用户确认。</p>'
+                                    '枝后推进一层落叶，缝里塞几片叶子；无绳结捆扎，有缝。碰撞 14×24×14（栅栏高，洞顶下上部插进顶土）。外观待用户确认。</p>'
                                     '<img src="current.png" alt="洞口结界屏障当前预览">', encoding='utf-8')
     print(OUT / 'current.png')
 

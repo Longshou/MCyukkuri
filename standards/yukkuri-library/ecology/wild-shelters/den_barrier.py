@@ -5,14 +5,17 @@ wedged into the soil, some upright, some leaned along the opening, some tipped i
 rest against each other; a loose wad of fallen leaves pushed into the middle, a leaf or two pushed into a gap, a few
 leaves and two short twigs dropped at the foot. Tops stay uneven and the upper corners open.
 Nothing is tied, knotted or woven. The look is the twig and leaf material of the wild shelters (nest_boundary twigs,
-wild_kit leaf litter and leaves), visibly gappy, filling the block's 14 x 16 x 14 collision (settlement/DenBarrierBlock).
+wild_kit leaf litter and leaves), visibly gappy, filling the block's 14 x 24 x 14 collision (settlement/DenBarrierBlock).
+The collision stands at fence height so nobody steps, hops or jumps over the screen; the stakes stand up to it with
+uneven tops (about 16..22), and under a roofed mouth their upper third sits inside the roof block, wedged floor to roof.
 
 The block has no facing (the mouth can be any side of the den and a wide mouth takes several cells), so every side of
 the cell carries its own screen layer; whichever side faces out reads as a closed mouth. Element rotations are the vanilla
-steps 0 / +-22.5 / +-45; everything stays inside the cell (y 0..16, x / z 0..16) except twig feet sunk a fraction into the ground.
+steps 0 / +-22.5 / +-45; everything stays inside the column (y 0..24, x / z 0..16) except twig feet sunk a fraction into
+the ground.
 
 Texture: 64 x 64 at 1 texel per unit, painted from the wild_kit ramps and painters (bark, cut ends, leaf litter, leaf
-sprites); nothing is copied from Minecraft. Writes the runtime model, texture and blockstate and the snapshot
+sprites); nothing is copied from Minecraft. The upright bark strips are 24 texels long, tiled from the seamless 16 tile. Writes the runtime model, texture and blockstate and the snapshot
 art/source/den-barrier/ with a manifest of fingerprints. --check is read-only.
 """
 import argparse, hashlib, io, json, math, sys
@@ -35,12 +38,22 @@ U = 4          # texture pixels per model uv unit (64 px over uv 0..16)
 
 
 # ---- texture -----------------------------------------------------------------------------------------------------------
-# y 0..15   bark with grain down the tile (upright twigs) | bark with grain across (lying twigs) | cut end | older bark, down
-# y 16..31  leaf sprites: dry, old nibbled, green, slim dry
-# y 32..47  three pushed-in leaf mats (litter with see-through gaps and a ragged top)
+# y 0..23   bark with grain down the strip (upright twigs, 24 long) | bark with grain across (lying twigs, y 0..15) |
+#           cut end (y 0..15) | older bark, down (24 long)
+# y 24..39  leaf sprites: dry, old nibbled, green, slim dry
+# y 40..55  three pushed-in leaf mats (litter with see-through gaps and a ragged top)
 BARK_V, BARK_H, END, BARK_OLD = (0, 0), (16, 0), (32, 0), (48, 0)
-LEAVES = {'dry': (0, 16), 'old': (16, 16), 'green': (32, 16), 'slim': (48, 16)}
-MATS = [(0, 32), (16, 32), (32, 32)]
+STRIP = 24     # texels along the grain of the upright bark strips: the longest stake
+LEAVES = {'dry': (0, 24), 'old': (16, 24), 'green': (32, 24), 'slim': (48, 24)}
+MATS = [(0, 40), (16, 40), (32, 40)]
+
+
+def strip(tile):
+    """A seamless 16 tile repeated down the grain to the length of the longest stake."""
+    out = Image.new('RGBA', (16, STRIP), (0, 0, 0, 0))
+    for y in range(0, STRIP, 16):
+        out.paste(tile.crop((0, 0, 16, min(16, STRIP - y))), (0, y))
+    return out
 
 
 def mat_tile(key):
@@ -88,10 +101,10 @@ def small_leaf(ramp, nibbled=False):
 
 def texture():
     img = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    img.paste(K.bark('den_bark').rotate(90), BARK_V)
+    img.paste(strip(K.bark('den_bark').rotate(90)), BARK_V)
     img.paste(K.bark('den_bark_h'), BARK_H)
     img.paste(K.wood_end(), END)
-    old = K.bark('den_bark_old').rotate(90).convert('RGBA')
+    old = strip(K.bark('den_bark_old').rotate(90).convert('RGBA'))
     rgb = old.convert('RGB').point(lambda v: int(v * .86))   # older, greyer twigs one step darker
     img.paste(Image.merge('RGBA', (*rgb.split(), old.getchannel('A'))), BARK_OLD)
     sprites = {'dry': small_leaf(K.DRYLEAF), 'old': small_leaf(K.OLD, nibbled=True),
@@ -113,18 +126,21 @@ def texture():
 # cell so twigs from opposite sides rest against each other, '' stands upright. fork: (fraction up the twig, length, lean)
 # of a side shoot growing from it.
 # leaves: (sprite, s, y, d, tilt) pushed into a gap between the twigs, tilt in 22.5 degree steps about the side normal.
+# Stakes run 15..23.5 long (tops about 16..22 after the lean, never level); the 45 degree fallen ones stay short so they
+# rest inside the cell.
 SCREEN_A = dict(
-    twigs=[(2.2, .3, 1.5, 15.5, 's+', False), (5.6, .8, 1.0, 12.0, 'in', True), (9.6, .2, 1.75, 13.0, 's-', False),
-           (13.8, .5, 1.25, 15.0, 's-', False, (.55, 4.0, 's+')), (11.0, 1.4, 1.0, 9.0, 's--', True)],
-    leaves=[('green', 8.0, 6.5, 1.2, 0), ('dry', 6.2, 2.0, 1.6, 1)])
+    twigs=[(2.2, .3, 1.5, 22.0, 's+', False), (5.6, .8, 1.0, 17.5, 'in', True), (9.6, .2, 1.75, 20.0, 's-', False),
+           (13.8, .5, 1.25, 23.5, 's-', False, (.55, 5.5, 's+')), (11.0, 1.4, 1.0, 12.5, 's--', True)],
+    leaves=[('green', 8.0, 10.0, 1.2, 0), ('dry', 6.2, 4.5, 1.6, 1)])
 SCREEN_B = dict(
-    twigs=[(1.6, .4, 1.25, 13.0, 's+', False, (.6, 3.5, 's++')), (4.8, .3, 1.75, 15.5, 'in', True),
-           (7.4, .5, 1.0, 11.0, 's++', False), (14.4, .2, 1.5, 15.5, 's-', False), (10.4, 1.2, 1.25, 12.5, 's-', True)],
-    leaves=[('dry', 8.0, 5.5, 1.0, -1), ('green', 11.0, 2.5, 1.8, 0)])
+    twigs=[(1.6, .4, 1.25, 19.5, 's+', False, (.6, 5.0, 's++')), (4.8, .3, 1.75, 19.0, 'in', True),
+           (7.4, .5, 1.0, 11.0, 's++', False), (14.4, .2, 1.5, 23.0, 's-', False), (10.4, 1.2, 1.25, 18.0, 's-', True)],
+    leaves=[('dry', 8.0, 9.0, 1.0, -1), ('green', 11.0, 4.0, 1.8, 0)])
 # side name: (screen, mirrored); the opposite sides carry different screens so the cell is not a repeated box
 SIDES = {'north': (SCREEN_A, False), 'south': (SCREEN_B, False), 'west': (SCREEN_B, True), 'east': (SCREEN_A, True)}
-# fallen leaves pushed in as a loose wad in the middle, two crossed planes: (mat, width, height, yaw)
-STUFFING = [(0, 12.0, 11.5, 45.0), (1, 10.0, 9.5, -45.0)]
+# fallen leaves pushed in as a loose wad around mid height, wedged between the inward twigs, two crossed planes:
+# (mat, width, bottom, height, yaw)
+STUFFING = [(0, 12.0, 2.5, 15.5, 45.0), (1, 10.0, 1.0, 13.0, -45.0)]
 # leaves dropped at the foot: (sprite, x, z, yaw), and two short twigs lying on the ground: (x0, x1, z, width, yaw, along)
 LITTER = [('dry', 5.8, 10.2, 22.5), ('old', 10.2, 5.8, -22.5), ('green', 10.2, 10.2, 45.0), ('dry', 4.0, 5.0, 0.0),
           ('slim', 12.2, 10.8, 0.0)]
@@ -175,7 +191,7 @@ def uv_box(size, long_axis, salt, region_v, region_h):
 
 def stick(lo, hi, long_axis, rotation, salt, old=False):
     size = {'x': hi[0] - lo[0], 'y': hi[1] - lo[1], 'z': hi[2] - lo[2]}
-    assert max(size.values()) <= 16, (salt, size)
+    assert max(size.values()) <= STRIP, (salt, size)
     faces = uv_box(size, long_axis, salt, BARK_OLD if old else BARK_V, BARK_H)
     e = {'from': [r(v) for v in lo], 'to': [r(v) for v in hi],
          'faces': {k: {'uv': v, 'texture': '#screen'} for k, v in faces.items()}}
@@ -230,11 +246,11 @@ def sprite_uv(key):
 
 def middle_elements():
     out = []
-    for i, w, h, yaw in STUFFING:
+    for i, w, y0, h, yaw in STUFFING:
         mx, my = MATS[i]
         uv = [r(mx / U), r(my / U), r((mx + w) / U), r((my + h) / U)]
-        out.append({'from': [r(8 - w / 2), 0, 8], 'to': [r(8 + w / 2), h, 8],
-                    'rotation': {'angle': yaw, 'axis': 'y', 'origin': [8, 0, 8]},
+        out.append({'from': [r(8 - w / 2), y0, 8], 'to': [r(8 + w / 2), y0 + h, 8],
+                    'rotation': {'angle': yaw, 'axis': 'y', 'origin': [8, y0, 8]},
                     'faces': {f: {'uv': uv, 'texture': '#screen'} for f in ('north', 'south')}})
     for n, (key, x, z, yaw) in enumerate(LITTER):
         bx0, by0, bx1, by1 = BOXES[key]
@@ -275,7 +291,7 @@ def model():
         elements += side_elements(side, screen, mirrored)
     for e in elements:
         for x, y, z in corners(e):
-            assert -.1 <= x <= 16.1 and -.5 <= y <= 16.0 + 1e-6 and -.1 <= z <= 16.1, (e, (x, y, z))
+            assert -.1 <= x <= 16.1 and -.5 <= y <= 24.0 + 1e-6 and -.1 <= z <= 16.1, (e, (x, y, z))
     return {'ambientocclusion': False, 'render_type': 'minecraft:cutout',
             'textures': {'particle': TEX, 'screen': TEX}, 'elements': elements}
 
@@ -297,7 +313,7 @@ def outputs():
     files = {p.relative_to(ROOT).as_posix(): hashlib.sha256(v).hexdigest() for p, v in result.items()}
     result[SNAPSHOT / 'manifest.json'] = (json.dumps({
         'id': NAME, 'status': 'pending_user_confirmation', 'generator': GENERATOR,
-        'elements': len(model()['elements']), 'collision': [1, 0, 1, 15, 16, 15],
+        'elements': len(model()['elements']), 'collision': [1, 0, 1, 15, 24, 15],
         'texture': '64x64, 1 texel per unit, wild_kit bark / wood end / leaf litter / leaf sprites',
         'files': files}, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
     return result
