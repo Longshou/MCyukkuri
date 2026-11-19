@@ -6022,9 +6022,10 @@ def _counting_experience(window):
 
 
 _smoke('training_study', 1750, [
-    r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=6',
-    r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=3',
-], readout=[f'data get entity {sel("counter")} YukkuriSkills', f'data get entity {sel("counter")} YukkuriLife.Personality'])
+    r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=6 success=false',
+    r'\[lesson\][^\n]*study answered skill=COUNTING source=food count=3 success=true',
+], readout=[f'data get entity {sel("counter")} YukkuriSkills', f'data get entity {sel("counter")} YukkuriLife.Personality',
+            'data get block ~6 ~-1 ~2 Items'])
 next(s for s in S if s.id == 'training_study').smoke['verify'] = _counting_experience
 _smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
     readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
