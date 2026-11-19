@@ -6703,6 +6703,13 @@ _shy_bed = _uuid_text('single_bed_contest', 'shy')
 
 
 def _verify_new_bed(log):
+    failed = {}
+    for who, tick, event, bed, side in re.findall(r'uuid=([\w-]+) t=(\d+) [^\n]*?(refused bed approach|approaching unclaimed bed) nest=(BlockPos\{[^}]+\}) side=(\w+)', log):
+        opening = (who, bed, side)
+        if event == 'refused bed approach':
+            failed[opening] = int(tick)
+        elif opening in failed and int(tick) - failed[opening] < 1200:
+            return f'{who} retried the blocked {side} opening at {bed}'
     loss = re.search(rf'uuid={_shy_bed} t=(\d+) [^\n]*yielded contested bed nest=(BlockPos\{{[^}}]+\}}) rival={_bold_bed}', log)
     alternative = re.search(rf'uuid={_shy_bed} t=(\d+) [^\n]*approaching unclaimed bed nest=(BlockPos\{{[^}}]+\}})', log[loss.end():]) if loss else None
     if not alternative or int(alternative[1]) - int(loss[1]) < 1200 or loss[2] == alternative[2]:

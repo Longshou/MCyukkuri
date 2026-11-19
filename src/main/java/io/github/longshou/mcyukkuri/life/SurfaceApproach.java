@@ -851,6 +851,9 @@ public final class SurfaceApproach {
         }
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
+            // Navigation can finish a one-node path above solid ground before vanilla registers the landing.
+            // Both direct segments require grounded feet. Only test and record a refusal once they can be walked.
+            if(navigation instanceof YukkuriGroundNavigation && !actor.onGround())return observed(actor,Result.WAITING);
             var node=current.lastStep;
             if(direct(actor,destination,body)&&steer(actor,destination,speed,retreat)){
                 current.lastStep=null;current.routed=false;

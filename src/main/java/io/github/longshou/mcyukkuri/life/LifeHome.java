@@ -230,6 +230,14 @@ final class LifeHome {
     }
 
     private long nextNestSearch;
+    private final BedApproachMemory approaches = new BedApproachMemory();
+    private BedApproachMemory.Opening opening(CareBlockEntity bed) {
+        return new BedApproachMemory.Opening(o.level().dimension().location().toString(), bed.getBlockPos().asLong(), bed.entrance().get2DDataValue());
+    }
+    void refusedApproach(CareBlockEntity bed) {
+        approaches.refuse(opening(bed), o.level().getGameTime());
+        GameplayLog.event(o.entity(),"home","refused bed approach nest={} side={}",bed.getBlockPos(),bed.entrance());
+    }
     BlockPos unclaimedSingleBed() {
         if (home != null && !naturalHome || o.entity().habitat().hasMemory() || !o.entity().family().adult()
                 || o.homeProvider() != HomeProvider.ORDINARY || o.entity().outing().away() || o.entity().mind().feeling().mourning()
@@ -239,7 +247,7 @@ final class LifeHome {
         return bed != null && walkToClaim(bed) ? bed : null;
     }
 
-    void yieldedBed() { nextNestSearch = o.level().getGameTime() + 1200; }
+    void yieldedBed() { nextNestSearch = o.level().getGameTime() + BedApproachMemory.WAIT; }
 
     private static final Comparator<BlockPos> CARE_SCAN_ORDER = Comparator.comparingInt((BlockPos pos) -> pos.getZ())
             .thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX);
@@ -285,6 +293,7 @@ final class LifeHome {
                     case BOWL, WATERER -> o.servingRouteAvailable(Vec3.atBottomCenterOf(scan)) && ItemContact.bowlStand(entity, scan) != null;
                     case TOILET -> ToiletContact.facilitySeat(o.entity(), scan, need) != null && o.reachable(scan.above(), false);
                     case NEST -> {
+                        if (walkToClaim(scan) && !approaches.available(opening(care), level.getGameTime())) yield false;
                         Vec3 stand = entrance(scan);
                         yield stand != null && SurfaceApproach.canApproach(o.entity(), stand);
                     }
@@ -352,9 +361,22 @@ final class LifeHome {
                 && drinkableWater(water) && drinkStand(water) != null) return water;
         return best;
     }
-    void save(CompoundTag tag) { tag.putLong("NestSearchAfter", nextNestSearch); if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos",
+    void save(CompoundTag tag) {
+        var failed = new net.minecraft.nbt.ListTag();
+        approaches.until.forEach((key,end) -> {
+            var entry = new CompoundTag();
+            entry.putString("Dimension",key.dimension()); entry.putLong("Bed",key.bed()); entry.putInt("Side",key.side()); entry.putLong("Until",end);
+            failed.add(entry);
+        });
+        tag.put("FailedBedOpenings",failed);
+        tag.putLong("NestSearchAfter", nextNestSearch); if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos",
             home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); } }
     void load(CompoundTag tag) {
+        approaches.until.clear();
+        for (var raw : tag.getList("FailedBedOpenings",net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+            var entry=(CompoundTag)raw;
+            approaches.until.put(new BedApproachMemory.Opening(entry.getString("Dimension"),entry.getLong("Bed"),entry.getInt("Side")),entry.getLong("Until"));
+        }
         nextNestSearch = tag.getLong("NestSearchAfter");
         home = null;
         ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));

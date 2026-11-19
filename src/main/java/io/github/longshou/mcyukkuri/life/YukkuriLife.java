@@ -1065,7 +1065,8 @@ public final class YukkuriLife {
             targetBlock = home.unclaimedSingleBed();
             if (targetBlock != null) {
                 task = Task.CLAIM_BED; pursuitTicks = 0;
-                GameplayLog.event(entity,"home","approaching unclaimed bed nest={}",targetBlock);
+                GameplayLog.event(entity,"home","approaching unclaimed bed nest={} side={}",targetBlock,
+                        NestDoorway.bed(entity,targetBlock).entrance());
                 return true;
             }
         }
@@ -1921,12 +1922,20 @@ public final class YukkuriLife {
     private void approachUnclaimedBed() {
         var bed = NestDoorway.bed(entity, targetBlock);
         var stand = bed == null ? null : home.entrance(targetBlock);
-        if (stand == null || pursuitTicks > 600 || hasUrgentNeed() || home() != null && !naturalHome()) {
+        if (bed == null || hasUrgentNeed() || home() != null && !naturalHome()) {
+            stopGoal(); return;
+        }
+        if (stand == null || pursuitTicks > 600) {
+            home.refusedApproach(bed);
             stopGoal(); return;
         }
         // Two bodies at a one-body lip cannot both put their centres on its approach point.
         if (entity.distanceToSqr(stand) > entity.getBbWidth() * entity.getBbWidth() || !clearContact(targetBlock)) {
-            if (SurfaceApproach.walkResult(entity, stand, null, 1) == SurfaceApproach.Result.BLOCKED) stopGoal();
+            if (!SurfaceApproach.tryStraightStep(entity,stand,1)
+                    && SurfaceApproach.walkResult(entity,stand,null,1) == SurfaceApproach.Result.BLOCKED) {
+                home.refusedApproach(bed);
+                stopGoal();
+            }
             return;
         }
         var rival = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(2),
@@ -1938,7 +1947,7 @@ public final class YukkuriLife {
             entity.showReaction(personality.temperament().is(Gate.WARY) ? "teary" : "cheek_puff","wait_turn",60);
             home.yieldedBed();
             GameplayLog.event(entity,"home","yielded contested bed nest={} rival={}",targetBlock,winner);
-        } else assignHome(GlobalPos.of(level().dimension(),targetBlock));
+        } else if (!assignHome(GlobalPos.of(level().dimension(),targetBlock))) home.refusedApproach(bed);
         stopGoal();
     }
     private boolean restable(BlockPos pos){ return home.restable(pos); }
