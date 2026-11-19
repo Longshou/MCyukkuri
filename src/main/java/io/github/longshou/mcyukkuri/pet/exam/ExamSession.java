@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -188,6 +189,7 @@ public final class ExamSession {
                 }
                 if (phaseTicks >= 20 && inContact()) {
                     examiner.getNavigation().stop();
+                    face(examiner);
                     next(Phase.LOOK);
                     var need = firstMissing(target, candidate);
                     GameplayLog.event(candidate, "exam", "action=look target={} need={} fee={} talent={}",
@@ -240,12 +242,22 @@ public final class ExamSession {
 
     private void waitingBeat(Player owner) {
         var t = candidate.life().personality().temperament();
+        Entity look = examiner;
         if (t.is(Gate.TIMID))
-            PetScenes.act(candidate, YukkuriAction.TREMBLE, "afraid", phaseTicks == 1 ? "exam_nervous" : "", 20, examiner);
-        else if (t.is(Gate.BOLD)) PetScenes.act(candidate, YukkuriAction.PROUD, "smug", "", 20, examiner);
+            PetScenes.act(candidate, YukkuriAction.TREMBLE, "afraid", phaseTicks == 1 ? "exam_nervous" : "", 20);
+        else if (t.is(Gate.BOLD)) PetScenes.act(candidate, YukkuriAction.PROUD, "smug", "", 20);
         else if (t.is(Gate.ATTACHED) && candidate.hasLineOfSight(owner)) {
-            PetScenes.act(candidate, YukkuriAction.IDLE, "teary", "", 20, owner);
-        } else PetScenes.act(candidate, YukkuriAction.LOOK_AROUND, "surprise", "", 20, examiner);
+            look = owner;
+            PetScenes.act(candidate, YukkuriAction.IDLE, "teary", "", 20);
+        } else PetScenes.act(candidate, YukkuriAction.LOOK_AROUND, "surprise", "", 20);
+        face(look);
+    }
+
+    private void face(Entity subject) {
+        candidate.pet().direct(body -> {
+            body.getNavigation().stop();
+            body.getLookControl().setLookAt(subject, 30, 30);
+        });
     }
 
     private void introduce() {
@@ -257,7 +269,7 @@ public final class ExamSession {
         var name = given.isBlank() ? candidate.getType().getDescription() : Component.literal(given);
         candidate.showReaction(shy ? YukkuriAction.SHY : YukkuriAction.BOW, shy ? "shy" : "closed_smile", "");
         int sequence = candidate.speechSequence();
-        boolean spoken = candidate.speakCue("introduced") && candidate.speechSequence() != sequence;
+        boolean spoken = candidate.speakCue("introduced", null, 2) && candidate.speechSequence() != sequence;
         var line = NativeDialogue.byKey(candidate.getDialogueKey());
         boolean voice = spoken && (deficient ? candidate.getDialogueKey().equals("dialogue.mcyukkuri.deficient.babble")
                 : line != null && line.events().contains("introduced"));
@@ -297,15 +309,15 @@ public final class ExamSession {
             examiner.swing(InteractionHand.MAIN_HAND);
             Staging.sparkle(level, candidate.position());
             Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.2f);
-            PetScenes.act(candidate, YukkuriAction.JOY_JUMP, "sparkle", "exam_pass", 50, examiner);
+            PetScenes.act(candidate, YukkuriAction.JOY_JUMP, "sparkle", "exam_pass", 50);
             say(owner, "exam.mcyukkuri.say.pass", gradeName(target));
         } else {
             var t = candidate.life().personality().temperament();
             if (t.is(Gate.TIMID) || t.is(Gate.ATTACHED))
-                PetScenes.act(candidate, YukkuriAction.DROOP, "cry", "exam_fail", RESULT_TICKS, examiner);
+                PetScenes.act(candidate, YukkuriAction.DROOP, "cry", "exam_fail", RESULT_TICKS);
             else if (t.is(Gate.BOLD) || t.is(Gate.HARSH))
-                PetScenes.act(candidate, YukkuriAction.PUFF, "cheek_puff", "request_sulk", RESULT_TICKS, examiner);
-            else PetScenes.act(candidate, YukkuriAction.DROOP, "teary_frown", "exam_sorry", RESULT_TICKS, examiner);
+                PetScenes.act(candidate, YukkuriAction.PUFF, "cheek_puff", "request_sulk", RESULT_TICKS);
+            else PetScenes.act(candidate, YukkuriAction.DROOP, "teary_frown", "exam_sorry", RESULT_TICKS);
             say(owner, "exam.mcyukkuri.say.missing", Component.translatable("exam.mcyukkuri.need." + need.key()));
         }
         int outcome = passed ? 0 : 2;
@@ -319,7 +331,7 @@ public final class ExamSession {
 
     private void pinnedBeat() {
         if (candidate.life().personality().temperament().is(Gate.BOLD))
-            PetScenes.act(candidate, YukkuriAction.PROUD, "smug", "badge_proud", 40, examiner);
+            PetScenes.act(candidate, YukkuriAction.PROUD, "smug", "badge_proud", 40);
         else candidate.speakCue("badge_pinned");
     }
 

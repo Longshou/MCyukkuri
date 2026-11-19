@@ -1032,7 +1032,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public boolean speakCue(String event, String style) {
-        boolean spoken = speak(event, speechTier(), true, style, 0);
+        return speakCue(event, style, 0);
+    }
+
+    public boolean speakCue(String event, String style, int priorityFloor) {
+        boolean spoken = speak(event, speechTier(), true, style, priorityFloor);
         if (StatusEvents.trace()) GameplayLog.event(this, "speech", "cue event={} spoken={}", event, spoken);
         return spoken;
     }

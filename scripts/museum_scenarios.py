@@ -2373,7 +2373,7 @@ add('certify_bronze', 'town', '领铜章：报名后焦急等结果', '领铜章
     '右键考官选认证。看灵梦等候时发抖、介绍自己，最后免费领到铜章。',
     '接触后约 10 秒', [*exam_hall(), yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, boldness=25), *own('pet')],
     smoke=certify_smoke('BRONZE',
-                        r'\[exam\][^\n]*action=introduce [^\n]*name_card=[0-9a-f-]{36}\b',
+                        r'\[exam\][^\n]*action=introduce voice=true name_card=[0-9a-f-]{36}\b',
                         r'\[exam\][^\n]*action=result [^\n]*outcome=0 grade=NONE->BRONZE emeralds_used=0\b'),
     **_CERTIFY_VIEW)
 
