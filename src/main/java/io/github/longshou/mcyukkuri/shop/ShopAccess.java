@@ -27,8 +27,10 @@ final class ShopAccess {
     private static final Map<UUID, UUID> SPOKEN = new HashMap<>();
 
     private static final List<Area> PET = List.of(
-            area(2, 4, 8, 7, true, 5, 8, Direction.SOUTH),
-            area(16, 4, 22, 7, true, 19, 8, Direction.SOUTH),
+            area(2, 4, 4, 7, true, 3, 8, Direction.SOUTH),
+            area(6, 4, 8, 7, true, 7, 8, Direction.SOUTH),
+            area(16, 4, 18, 7, true, 17, 8, Direction.SOUTH),
+            area(20, 4, 22, 7, true, 21, 8, Direction.SOUTH),
             area(2, 13, 22, 16, false, 5, 12, Direction.NORTH),
             area(2, 13, 22, 16, false, 18, 12, Direction.NORTH),
             area(2, 18, 15, 29, false, 16, 21, Direction.EAST),
