@@ -147,7 +147,9 @@ final class Elopement {
     void counter(UUID actor) {
         Visit v = visit;
         if (v == null && body.status().identity() == Identity.PET && body.pet().ownedBy(actor)) v = caller();
-        if (v != null && v.reason == null && RulesMath.witnessedCounter(v.owner.equals(actor), watched(v.pet, v.pet), watched(v.pet, v.wild)))
+        if (v == null || v.reason != null || !v.pet.pet().ownedBy(v.owner)) return;
+        boolean petOutside = v.crossedAt >= 0 && flat(v.pet.position(), v.yard) > 64;
+        if (RulesMath.witnessedCounter(v.owner.equals(actor), petOutside && watched(v.pet, v.pet), watched(v.pet, v.wild)))
             v.chase("owner_intervened", v.pet.pet().presentOwner());
     }
     void sprayedBy(LivingEntity sprayer) {
