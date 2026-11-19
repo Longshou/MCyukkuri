@@ -48,6 +48,16 @@ public final class FamilyNest {
         var c=care(e);if(c!=null)return c.largeNest();
         var shelter=e.habitat().shelter();return shelter!=null&&shelter.largeBed(e.getUUID());
     }
+    public static boolean shared(YukkuriEntity e, BlockPos bed) {
+        var care=care(e);
+        if(care!=null)return care.getBlockPos().equals(bed)&&care.residentIds().size()>1;
+        var den=e.habitat().shelter();
+        return den!=null&&bed.equals(den.bed(e.getUUID()))&&den.sharesBed(e.getUUID());
+    }
+    public static boolean atPlace(YukkuriEntity e, BlockPos bed) {
+        var spot=restPosition(e,bed);
+        return spot!=null&&SurfaceApproach.at(e,spot);
+    }
     public static Vec3 restPosition(YukkuriEntity e,CareBlockEntity c){
         return SurfaceApproach.restingFloor(e,c.centre().add(c.restOffset(e.getUUID())));
     }

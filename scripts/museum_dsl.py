@@ -51,7 +51,7 @@ def uuid_nbt(values):
     return '[I;' + ','.join(str(v) for v in values) + ']'
 
 
-def family(stage, share=None, kin=''):
+def family(stage, share=None, kin='', adult_scale=1):
     """YukkuriFamily compound. ``kin`` is extra text such as ``Mother:[I;..],Father:[I;..]`` (real parents written into NBT)."""
     extra = (',' + kin) if kin else ''
     if stage in STAGES:
@@ -60,7 +60,7 @@ def family(stage, share=None, kin=''):
         return (f'YukkuriFamily:{{Version:2,Initialized:1b,Stage:"{name}",Age:{value}L,Nourishment:{value}L,Maturity:{MATURITY}L,'
                 f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:{scale}f{extra}}}')
     return (f'YukkuriFamily:{{Version:2,Initialized:1b,Stage:"ADULT",Age:{MATURITY * 2}L,Nourishment:{MATURITY * 2}L,Maturity:{MATURITY}L,'
-            f'Lifespan:{LIFESPAN}L,AdultScale:1f,Scale:1f{extra}}}')
+            f'Lifespan:{LIFESPAN}L,AdultScale:{adult_scale}f,Scale:{adult_scale}f{extra}}}')
 
 
 def tag(name):
@@ -80,7 +80,7 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
        rest_wait=1200, social_wait=2400, accessory=True, aquatic=False, grade=None, affection=None, boldness=55, lead=False,
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
        intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None, picky=None, identity=None,
-       skills=None, cap=None):
+       skills=None, cap=None, adult_scale=1, deibu=False):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
     Varied actors require a fixed ``uid(scene, slot)``. Species, form, congenital shape and identity accept pools;
     the five axes, picky, nutrition and energy accept (lo, hi). Split multiline results before prefixing commands.
@@ -121,10 +121,10 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
                  f'RestWait:{rest_wait},SocialWait:{social_wait},' + personality(intelligence, friendliness, boldness, attachment, self_control)
                  + (f',HatCustody:{{State:"WORN",Kit:{{id:"{kit}",count:1}}}}' if kit else '')
                  + (f',Pickiness:{float(picky)}f' if picky is not None else '') + '}')
-    parts.append('YukkuriFamily:{' + fam + (',' + kin if kin else '') + '}' if fam else family(stage, share, kin))
+    parts.append('YukkuriFamily:{' + fam + (',' + kin if kin else '') + '}' if fam else family(stage, share, kin, adult_scale))
     if uuid:
         parts.append('UUID:' + uuid_nbt(uuid))
-    parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + (form or ('AQUATIC_MARISA' if aquatic else 'NORMAL')) + '",Congenital:"' + congenital + '",Deibu:0b}')
+    parts.append('YukkuriSubspecies:{Initialized:1b,Kind:"' + (form or ('AQUATIC_MARISA' if aquatic else 'NORMAL')) + '",Congenital:"' + congenital + f'",Deibu:{int(deibu)}b}}')
     if affection is not None:
         parts.append(f'YukkuriDailyLife:{{Affection:{affection},Boredom:20}}')
     if childhood:

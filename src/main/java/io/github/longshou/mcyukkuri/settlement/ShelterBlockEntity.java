@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -50,6 +49,7 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.NestResting;
+import io.github.longshou.mcyukkuri.life.NestLayout;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
@@ -73,20 +73,18 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** Residents that have spent real bedding to make a small, personal nest in this natural burrow. */
     private final Set<UUID> privateNests=new LinkedHashSet<>();
     private final Set<BlockPos> largeBeds=new LinkedHashSet<>();
-    private final Map<UUID,NestResting.Place> resting=new LinkedHashMap<>();
-    public Vec3 restOffset(UUID id){var p=resting.get(id);return p==null?Vec3.ZERO:p.offset().multiply(1,0,1);}
+    private final Map<UUID,NestLayout.Place> resting=new LinkedHashMap<>();
+    public Vec3 restOffset(UUID id){var p=resting.get(id);return p==null?Vec3.ZERO:new Vec3(p.x(),0,p.z());}
     private boolean chooseResting(YukkuriEntity entity){
         var at=bed(entity.getUUID());if(at==null)return false;
-        var peers=new LinkedHashMap<UUID,NestResting.Place>();
+        var peers=new LinkedHashMap<UUID,NestLayout.Place>();
         resting.forEach((id,place)->{if(at.equals(bed(id)))peers.put(id,place);});
-        var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE_BED:NestResting.LEAF_BED,peers,
-                standingInside(BedContainer.of(entity,at)),CareBlockEntity.expecting(entity));
+        var container=BedContainer.of(entity,at);
+        if(container==null)return false;
+        var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE:NestResting.LEAF_BED,peers,
+                p->container.standsInside(p.x(),p.z(),p.width()),CareBlockEntity.expecting(entity));
         if(place!=null){peers.put(entity.getUUID(),place);if(peers.entrySet().stream().anyMatch(e->!e.getValue().equals(resting.get(e.getKey())))){resting.putAll(peers);setChanged();}}
         return place!=null;
-    }
-    /** A place counts only where that body's whole footprint would stand inside the bed, not merely on a top. */
-    private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
-        return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }
     private final Map<BlockPos,Integer> largeBedWork=new LinkedHashMap<>();
     private static final class NestProject {
@@ -318,8 +316,10 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(entity.family().partner()!=null&&residents.containsKey(entity.family().partner())){
             int mateSlot=residents.get(entity.family().partner());
             if(mateSlot!=slot&&largeBeds.contains(beds().get(mateSlot))&&acceptsAt(mateSlot,entity)){
-                residents.put(entity.getUUID(),mateSlot);changed();slot=mateSlot;
-                GameplayLog.event(entity,"home","joined partner large nest bed={}",beds().get(mateSlot));
+                if(takeSlot(entity,mateSlot)){
+                    slot=mateSlot;
+                    GameplayLog.event(entity,"home","joined partner large nest bed={}",beds().get(mateSlot));
+                }
             }
         }
         // In a large family bed it is the newly grown child who leaves, not a parent ticking first.
@@ -368,15 +368,14 @@ public final class ShelterBlockEntity extends BlockEntity {
                 &&(residents.containsKey(person.mother)||residents.containsKey(person.father));
         int incoming=families.reservedForResidents(entity.getUUID()::equals);
         Integer shared=parentSlot(entity, foster);
-        if(shared!=null){residents.put(entity.getUUID(),shared);changed();return true;}
-        boolean young=shared!=null||reservedChild;
+        if(shared!=null && takeSlot(entity,shared))return true;
+        boolean young=reservedChild;
         int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
         if(!fitsResident(young,reservedYoung))return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
                 || foster != null && id.equals(foster.getUUID())
                 ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!Recognition.recognizes(res,
                         entity))))return false;
-        if(shared!=null&&shared<capacity()){residents.put(entity.getUUID(),shared);changed();return true;}
         int chosen=-1;double nearest=Double.MAX_VALUE;
         var beds=beds();var extras=nestExtras(sharers()+reservedYoung);
         for(int slot=0;slot<capacity();slot++)if(!residents.containsValue(slot)&&!reservedByLargeBed(beds.get(slot))&&!extras.contains(beds.get(slot))) {
@@ -390,16 +389,22 @@ public final class ShelterBlockEntity extends BlockEntity {
             if(chosen<0||distance<nearest){chosen=slot;nearest=distance;}
         }
         if(chosen<0)chosen=firstFreeSlot();
-        if(chosen>=0) {
-            residents.put(entity.getUUID(),chosen);
+        if(chosen>=0 && takeSlot(entity,chosen)) {
             // Young of this parent that were taken in first (a household is claimed in no fixed order) move into the parent's cell.
             for(var id:List.copyOf(residents.keySet())) {
                 if(id.equals(entity.getUUID())||privateNests.contains(id)||sharesBed(id))continue;
                 if(server.getEntity(id) instanceof YukkuriEntity kid&&!kid.family().adult()&&!kid.family().readyForOwnNest()
-                        &&(Bonds.parentOf(entity, kid))&&acceptsAt(chosen,kid))residents.put(id,chosen);
+                        &&(Bonds.parentOf(entity, kid))&&acceptsAt(chosen,kid))takeSlot(kid,chosen);
             }
             changed();return true;
         }
+        return false;
+    }
+    private boolean takeSlot(YukkuriEntity entity,int slot) {
+        var id=entity.getUUID();
+        var previous=residents.put(id,slot);
+        if(chooseResting(entity)){changed();return true;}
+        if(previous==null)residents.remove(id);else residents.put(id,previous);
         return false;
     }
 

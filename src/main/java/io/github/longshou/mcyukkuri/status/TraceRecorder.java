@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
+import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
@@ -653,6 +654,10 @@ public final class TraceRecorder {
         out.addProperty("dailyGreetingWait", entity.dailyLife().observedGreetingWait());
         out.addProperty("thermalRestTicks", entity.life().temperature().observedRestTicks());
         out.addProperty("sleeping", entity.life().isSleeping());
+        if(entity.life().isSleeping()){
+            out.addProperty("sleepWidth", entity.getBbWidth());
+            out.addProperty("sleepReach", HeadTop.reach(entity));
+        }
         out.addProperty("pitPhase", entity.settlement().duties().pit().observedPhase());
         out.add("hold", hold(entity));
         out.addProperty("dep", entity.childhood().shouldStayWithParents());

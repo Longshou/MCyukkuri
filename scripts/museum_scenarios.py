@@ -213,10 +213,10 @@ def _mold_family(sid, keep):
         spots = ((0, 4), (-.8, 4.2), (0, 4.9), (.6, 3.9))
     title = '舍不得赶走，全家染上油霉' if keep else '油霉子油被亲油狠心赶走'
     lines = [
-        yk('reimu', *spots[0], 'mother', uuid=ids['mother'], yaw=0, label='母油', skills=aware,
+        yk('reimu', *spots[0], 'mother', uuid=ids['mother'], yaw=0, label='母油', skills=aware, adult_scale=.88 if keep else 1,
            intelligence=50, friendliness=70 if keep else 25, boldness=40 if keep else 60,
            attachment=85 if keep else 30, self_control=35 if keep else 40, kin=kin_of(Partner=ids['father']), **needs),
-        yk('marisa', *spots[1], 'father', uuid=ids['father'], yaw=0, label='父油',
+        yk('marisa', *spots[1], 'father', uuid=ids['father'], yaw=0, label='父油', adult_scale=.88 if keep else 1,
            intelligence=55 if keep else 60, friendliness=70 if keep else 50, boldness=55 if keep else 45,
            attachment=60 if keep else 50, self_control=70 if keep else 65, kin=kin_of(Partner=ids['mother']),
            skills=None if keep else aware, extra=unaware if keep else '', **needs),
@@ -235,12 +235,12 @@ def _mold_family(sid, keep):
         def cell(dx, dz):
             return f'{((x + dx) << 38) | (((z + dz) & 0x3ffffff) << 12) | FEET}L'
 
-        # An established burrow with one woven nest on its supported 3×3 floor. Residents claim it and choose their own places.
+        # The burrow renderer uses the catalog's large_wild_nest on this supported 3×3 floor.
         nest = cell(0, -3)
         floor = [nest] + [cell(dx, dz) for dx in range(-1, 2) for dz in range(-4, -1) if (dx, dz) != (0, -3)]
         lines.insert(0, block(0, 0, -1, f'mcyukkuri:forest_burrow[facing=south]{{Condition:100,LargeBeds:[L;{nest}],'
                               f'NaturalBeds:[L;{",".join(floor)}],NaturalPile:{cell(-2, -4)},NaturalPileStand:{cell(-1, -4)}}}'))
-        watch = '两位亲油舍不得赶走有斑点的赤油。留在洞内，看父母和两只赤油同睡一个大编织窝，白天醒来，入夜再睡。到第二夜结束时，全家会因接触陆续染病。醒来后，认得油霉的母油会惊叫，不认得的只喊痒。途中可用去霉药中断传染。'
+        watch = '两位亲油舍不得赶走有斑点的赤油。留在洞内，看四口在野生大草窝各自的睡位躺好，白天醒来，入夜再睡。到第二夜结束时，全家会因接触陆续染病。醒来后，认得油霉的母油会惊叫，不认得的只喊痒。途中可用去霉药中断传染。'
         first_dawn, second_night, last_dawn = 1200, 2600, 4800  # Body ticks from the late setup.
         for when, clock in ((first_dawn, 'dawn'), (second_night, 'night'), (last_dawn, 'dawn')):
             late.append(Retry(f'function mcylab:util/time_{clock}', sel('mother'), tries=1, first=when))
@@ -267,6 +267,7 @@ def _mold_family(sid, keep):
         def verify_nights(window, trace):
             family = {who: {} for who in (mother, father, child, baby)}
             slept = {who: set() for who in family}
+            positions = {}
             woke = set()
             setup = None
             for line in trace:
@@ -280,6 +281,11 @@ def _mold_family(sid, keep):
                 state.update(row['st'])
                 if state.get('sleeping') and state.get('nest') == 'INSIDE_SUPPORTED' and state.get('home') == shared_bed:
                     slept[who].add(tick)
+                    x, _, z = state['p']
+                    for px, pz, width, reach in positions.setdefault(tick, []):
+                        if max(abs(x-px), abs(z-pz)) < (width + state['sleepWidth']) / 2 or math.hypot(x-px,z-pz) < reach + state['sleepReach']:
+                            return f'Overlapping sleepers in DN-12 at +{tick}'
+                    positions[tick].append((x,z,state['sleepWidth'],state['sleepReach']))
                 if first_dawn < tick < second_night and state.get('sleeping') is False:
                     woke.add(who)
             if setup is None:
@@ -2096,8 +2102,8 @@ add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六
     '先看六口同窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝；清空或重开场景会恢复 1 倍速', ['function mcylab:util/speed_3x',
     *shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
-    yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], lead=True),
-    yk('marisa', 2, 2, 'father', uuid=_nest_ids['father']),
+    yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], adult_scale=.88, lead=True),
+    yk('marisa', 2, 2, 'father', uuid=_nest_ids['father'], adult_scale=.88),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
     *[yk_on_nest('reimu', x, z, f'b{i}', large=True, stage='baby', share=_NEST_SHARE[f'b{i}'], uuid=_nest_ids[f'b{i}'],
                  kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate(_NEST_CELLS)],
@@ -2134,8 +2140,8 @@ def _night_sleep_verify(log):
 add('night_sleep', 'family', '夜里睡到天亮，惊扰才醒', '夜里睡到天亮，惊扰才醒',
     '夜里（「实用」页的“正午”可换白天对照）：父母和两只赤油精力满、困值不满，到了作息时间照样认窝、进窝睡下；睡下的那几只整夜不自己醒，约两分钟后自动天亮，它们伸懒腰打哈欠醒来（日志 cause=rested_dawn）。还在储粮或找孩子的那只不一定整夜在窝里；中途按“夜晚”重开或打雷、搬走窝才提前醒',
     '整夜约2分钟，天亮后自动醒', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
-    yk('reimu', -1, -.5, 'mother', uuid=_night_ids['mother'], energy=100, nutrition=100, rest_wait=60, lead=True),
-    yk('marisa', 2, 2, 'father', uuid=_night_ids['father'], energy=100, nutrition=100, rest_wait=60),
+    yk('reimu', -1, -.5, 'mother', uuid=_night_ids['mother'], adult_scale=.88, energy=100, nutrition=100, rest_wait=60, lead=True),
+    yk('marisa', 2, 2, 'father', uuid=_night_ids['father'], adult_scale=.88, energy=100, nutrition=100, rest_wait=60),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
     *[yk('reimu', x, z, f'b{i}', stage='baby', uuid=_night_ids[f'b{i}'], energy=100, nutrition=100, rest_wait=60,
          kin=f'Mother:{uuid_nbt(_night_ids["mother"])},Father:{uuid_nbt(_night_ids["father"])}')
@@ -6682,8 +6688,7 @@ add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输�
 add('oversized_nest', 'family', '灵胖进大草窝过夜', '灵胖进大草窝过夜',
     '体长到成体上限的胖灵梦从低沿迈进大草窝，躺下睡觉。天亮后窝外有食物，观察它从同一侧出窝。',
     '约 1 分钟', [*shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
-        yk('reimu', .5, 3, 'deibu', lead=True, nutrition=72, rest_wait=60,
-           fam='Version:3,Initialized:1b,Age:672000L,Nourishment:672000L,AdultScale:1.2f,Scale:1.2f').replace('Deibu:0b', 'Deibu:1b'),
+        yk('reimu', .5, 3, 'deibu', lead=True, nutrition=72, rest_wait=60, adult_scale=1.2, deibu=True),
         *own('deibu'), home('deibu', 0, 0)],
     late=[Retry('function mcylab:util/time_dawn', sel('deibu'), tries=1, first=800),
           Retry(set_status('deibu', 'needs.nutrition', 25), sel('deibu'), tries=1, first=800),

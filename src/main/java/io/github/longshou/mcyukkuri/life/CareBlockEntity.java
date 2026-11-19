@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.List;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -37,8 +36,8 @@ import net.minecraft.network.Connection;
 public final class CareBlockEntity extends BlockEntity implements Container {
     private final NonNullList<ItemStack> items;
     private final LinkedHashMap<UUID,Integer> residents=new LinkedHashMap<>();
-    private final LinkedHashMap<UUID,NestResting.Place> resting=new LinkedHashMap<>();
-    public Vec3 restOffset(UUID id){var p=resting.get(id);return p==null?new Vec3(0,.1,0):p.offset();}
+    private final LinkedHashMap<UUID,NestLayout.Place> resting=new LinkedHashMap<>();
+    public Vec3 restOffset(UUID id){var p=resting.get(id);return p==null?new Vec3(0,.1,0):new Vec3(p.x(),.1,p.z());}
     private double wasteVolume;
     private int water;
     private ItemStack displayFood = ItemStack.EMPTY;
@@ -139,16 +138,12 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         resting.keySet().retainAll(residents.keySet());
         var before=new LinkedHashMap<>(resting);
         var container=BedContainer.of(entity,worldPosition);
-        var place=NestResting.choose(entity,bed(),resting,standingInside(container),expecting(entity));
+        var place=NestResting.choose(entity,bed(),resting,p->container.standsInside(p.x(),p.z(),p.width()),expecting(entity));
         if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
                 worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
         resting.put(id,place);if(!resting.equals(before))changed();
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
-    }
-    /** A place is supported only where that body's whole footprint would stand inside the bed, not merely on a top. */
-    private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
-        return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }
     /** A mother carrying an unfinished brood lies in the middle of her bed (she gives birth there). */
     public static boolean expecting(YukkuriEntity entity){var brood=entity.family().brood();return brood!=null&&!brood.cancelled&&!brood.complete();}

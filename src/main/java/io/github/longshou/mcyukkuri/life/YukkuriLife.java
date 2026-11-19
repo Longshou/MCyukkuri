@@ -1093,10 +1093,12 @@ public final class YukkuriLife {
             targetBlock = penned || ParentCarry.awaitsCarrier(entity) ? null : homeStand();
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
             if (targetBlock != null && entity.family().prepareHomeCarry()) return false;
-            boolean dependentAtHome = entity.childhood().shouldStayWithParents() && nestOccupancy == Occupancy.INSIDE_SUPPORTED;
+            boolean shared = nestOccupancy != null && FamilyNest.shared(entity,targetBlock);
+            boolean atPlace = shared && nestOccupancy == Occupancy.INSIDE_SUPPORTED && FamilyNest.atPlace(entity,targetBlock);
+            boolean dependentAtHome = entity.childhood().shouldStayWithParents() && nestOccupancy == Occupancy.INSIDE_SUPPORTED && (!shared || atPlace);
             boolean bedRefused = targetBlock != null && !mayReturnToBed(targetBlock) && !dependentAtHome;
             if (bedRefused) targetBlock = null;
-            if (targetBlock != null && !dependentAtHome && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
+            if (targetBlock != null && !dependentAtHome && ( (shared ? !atPlace : entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16) || !restable(entity.blockPosition())
                     || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
             // A slave in the open pit, or shop stock kept without a bed (the oni shop's pens), curls up where it stands at rest
             // time: dry ground is all it has.
@@ -1259,8 +1261,9 @@ public final class YukkuriLife {
                 var nestOccupancy = FamilyNest.bedOccupancy(entity, targetBlock);
                 boolean inside = nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED;
                 // A dependent already supported inside the assigned bed can rest at its actual feet.
-                boolean restingHere = nestOccupancy == Occupancy.INSIDE_SUPPORTED && entity.childhood().shouldStayWithParents();
-                if (!restingHere && !dryStand(targetBlock)) { stopGoal(); homeWait = 0; return; }
+                boolean shared = nestOccupancy != null && FamilyNest.shared(entity,targetBlock);
+                boolean restingHere = !shared && nestOccupancy == Occupancy.INSIDE_SUPPORTED && entity.childhood().shouldStayWithParents();
+                if (!restingHere && !shared && !dryStand(targetBlock)) { stopGoal(); homeWait = 0; return; }
                 // The same pursuit budget ends a walk that never gets the whole footprint into the bed (no new wait).
                 if (pursuitTicks > 600) {
                     if (!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
@@ -1275,12 +1278,16 @@ public final class YukkuriLife {
                             "home walk stopped reason=nest_not_inside nest={} occupancy={} cause=no_rest_place", targetBlock, nestOccupancy);
                     stopGoal();return;
                 }
-                if (!restingHere && (entity.distanceToSqr(bedCentre) >= .16 || !inside)
+                boolean settled = inside && (shared ? SurfaceApproach.at(entity,bedCentre) : entity.distanceToSqr(bedCentre) < .16);
+                if(shared && inside && !settled && entity.getNavigation() instanceof YukkuriGroundNavigation ground) {
+                    ground.step(bedCentre,1); return;
+                }
+                if (!restingHere && !settled
                         && (!mayReturnToBed(targetBlock) || !walkToBed(targetBlock, bedCentre, 1.15))) {
                     stopGoal();
                     return;
                 }
-                if (restingHere || inside && entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
+                if (restingHere || settled && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
                     if (!entity.family().stemFoodUrgent() && restWait == 0
                             && (energy <= restThreshold() || restTime()) && !entity.family().mealAwaits()) {
@@ -1373,6 +1380,9 @@ public final class YukkuriLife {
                     stopGoal(); break;
                 }
                 if (sampleBed) {
+                    if (nestOccupancy != null && FamilyNest.shared(entity,site) && !FamilyNest.atPlace(entity,site)) {
+                        stopGoal(); break;
+                    }
                     var bed = nestOccupancy == null ? null : FamilyNest.care(entity);
                     bedRead = bed != null && bed.getBlockPos().equals(site) && bed.grade() > 0 ? NestComfort.read(entity, bed.grade()) : null;
                 }
