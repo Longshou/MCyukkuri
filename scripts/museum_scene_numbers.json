@@ -281,6 +281,8 @@
     "rule_yard": "TN-50",
     "pentup_heat": "FM-25",
     "pentup_hold": "TN-51",
-    "pentup_breach": "TN-52"
+    "pentup_breach": "TN-52",
+    "den_mold_child_exile": "DN-11",
+    "den_mold_keep": "DN-12"
   }
 }

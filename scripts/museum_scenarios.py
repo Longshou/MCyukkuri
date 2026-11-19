@@ -181,10 +181,11 @@ add('den_mold_exile', 'den', '油霉亲油离巢', '油霉亲油离巢',
     '患病亲油出了家的范围后先坐着哀悼一阵，之后回来央求一次，被拒后离开。',
     '约 3–4 分钟', [
         yk('reimu', 0, 1, 'healthy', uuid=_em, yaw=0, label='健康亲油', friendliness=24, boldness=35,
-           attachment=28, kin=f'Partner:{uuid_nbt(_ef)}', **pair_ready()),
+           attachment=28, skills={'mold_lore': 2}, kin=f'Partner:{uuid_nbt(_ef)}', **pair_ready()),
         yk('marisa', 0, 3, 'molded', uuid=_ef, lead=True, label='患油霉的亲油', attachment=80, boldness=30,
            kin=f'Mother:{uuid_nbt(_eg)},Partner:{uuid_nbt(_em)}', **pair_ready()),
-        yk('reimu', -1, 1, 'grandparent', uuid=_eg, yaw=0, label='年长亲油', friendliness=86, attachment=90, **pair_ready()),
+        yk('reimu', -1, 1, 'grandparent', uuid=_eg, yaw=0, label='年长亲油', friendliness=86, attachment=90,
+           skills={'mold_lore': 2}, **pair_ready()),
         yk('reimu', 0, 0, 'baby', stage='baby', uuid=_ec, yaw=0, label='赤油', nutrition=100,
            kin=f'Mother:{uuid_nbt(_em)},Father:{uuid_nbt(_ef)}'),
         box(-4, 0, 6, 23, 0, 13, 'minecraft:short_grass', 'keep')],
@@ -196,6 +197,76 @@ add('den_mold_exile', 'den', '油霉亲油离巢', '油霉亲油离巢',
     note='等患病亲油回头被拒后，可用去霉药，看它能否重新认领原洞。',
     reads=[('读患病亲油与住所', f'yukkuri status {sel("molded")} raw'),
            ('读赤油与住所', f'yukkuri status {sel("baby")} raw')])
+
+
+def _mold_family(sid, keep):
+    names = ('mother', 'father', 'child', 'baby')
+    ids = {n: uid(sid, n) for n in names}
+    mother, father, child, baby = (_uuid_text(sid, n) for n in names)
+    kin = kin_of(Mother=ids['mother'], Father=ids['father'])
+    unaware = 'YukkuriSkills:{Assessed:["mold_lore"]}'
+    aware = {'mold_lore': 2}
+    needs = dict(nutrition=100, energy=100, hygiene=30 if keep else 95, rest_wait=220 if keep else 1200)
+    # At night the family starts close together just inside the mound. The departing family faces the open meadow.
+    spots = ((-.65, -1.8), (.65, -1.8), (0, -1.8), (0, -2.2)) if keep else ((0, 1), (-.8, 1.2), (0, 1.9), (.6, .9))
+    title = '舍不得赶走，全家染上油霉' if keep else '油霉子油被亲油狠心赶走'
+    lines = [
+        yk('reimu', *spots[0], 'mother', uuid=ids['mother'], yaw=0, label='母油', skills=aware,
+           intelligence=50, friendliness=70 if keep else 25, boldness=40 if keep else 60,
+           attachment=85 if keep else 30, self_control=35 if keep else 40, kin=kin_of(Partner=ids['father']), **needs),
+        yk('marisa', *spots[1], 'father', uuid=ids['father'], yaw=0, label='父油',
+           intelligence=55 if keep else 60, friendliness=70 if keep else 50, boldness=55 if keep else 45,
+           attachment=60 if keep else 50, self_control=70 if keep else 65, kin=kin_of(Partner=ids['mother']),
+           skills=None if keep else aware, extra=unaware if keep else '', **needs),
+        yk('reimu', *spots[2], 'child', uuid=ids['child'], yaw=0, label='有斑点的子油', stage='child', lead=True, kin=kin,
+           attachment=(40, 85), boldness=(30, 65), friendliness=(30, 60), self_control=50, extra=unaware, **needs),
+        yk('marisa', *spots[3], 'baby', uuid=ids['baby'], label='赤油', stage='baby', kin=kin, extra=unaware, **needs),
+        *[home(n, 0, -1) for n in names],
+        box(-4, 0, 6, 12, 0, 13, 'minecraft:short_grass', 'keep')]
+    late = [f'yukkuri scenario bond {sel(n)} {sel("child")}' for n in names[:2]] + [set_status('child', 'health.mold', 4)]
+    expect = [rf'uuid={who} [^\n]*mold child verdict child={child} verdict={verdict}\b'
+              for who, verdict in ((mother, 'KEEP' if keep else 'DRIVE_COLD'), (father, 'KEEP' if keep else 'DRIVE_TEARFUL'))]
+    if keep:
+        watch = '洞里两位亲油都决定留下有斑点的子油。看它们守在一起，长时间贴近的家人也长出霉斑；认得的会惊叫，不认得的只会发痒。给病者去霉药可以中断传染。'
+        late.append('schedule function mcylab:util/time_dawn 2600t replace')
+        expect += [rf'uuid={who} [^\n]*mold caught from=' for who in (mother, father, baby)]
+        expect += [rf'mold caught from={child}\b', rf'uuid=(?:{father}|{baby}) [^\n]*line event=mold_itch\b',
+                   r'line event=keep_child\b']
+        forbid = [r'mold exile departed']
+    else:
+        watch = '洞口母油冷着脸，父油哭着让孩子走。看子油怎样回应推挤：会顶嘴咒骂，也会含泪回头道别。出了家门范围亲油才放弃照护。用去霉药治好后，可以再看亲子相认。'
+        expect += [rf'mold exile push subject={child}\b', rf'uuid={child} [^\n]*mold exile departed scope=family\b',
+                   rf'uuid={child} [^\n]*mold exile answer=(CURSE|FAREWELL|SHRUG)\b', r'line event=drive_child_tearful\b',
+                   *[rf'uuid={who} [^\n]*parent dismissed child={child}\b' for who in (mother, father)]]
+        forbid = [r'mold exile deferred reason=dependent_or_carry']
+    add(sid, 'den', title, title, watch, '约 2–4 分钟，可倍速' if keep else '约 1 分钟', lines, late=late,
+        give=['mcyukkuri:mold_remover'], env={'time': 'night'} if keep else DAY, spot='family', vantage=(0, 8, 180, 8),
+        reads=[('读全家身体与住所', 'yukkuri status @e[tag=scn,distance=..48] raw')],
+        smoke=dict(ticks=4200 if keep else 1400, expect=expect, forbid=forbid))
+
+    if not keep:
+        x, z = BY_ID['den'].spots['family']
+
+        def verify_departure(window, trace):
+            departure = re.search(rf'uuid={child} t=(\d+) [^\n]*mold exile departed scope=family', window)
+            if not departure:
+                return 'The child never left the family'
+            for parent in (mother, father):
+                if not re.search(rf'uuid={parent} [^\n]*mold child verdict child={child} verdict=DRIVE_', window[:departure.start()]):
+                    return f'The child left before guardian {parent} chose to drive it out'
+            if re.search(rf'uuid={child} [^\n]*home chosen [^\n]* home=BlockPos\{{x={x}, y={FEET}, z={z-1}\}}', window[departure.end():]):
+                return 'The sick child reclaimed its old den'
+            for line in trace:
+                row = json.loads(line.split('[trace] ', 1)[1])
+                if row['k'] == 'st' and row['u'] == child and 'p' in row['st'] and row['t'] >= int(departure[1]):
+                    px, py, pz = map(math.floor, row['st']['p'])
+                    if x-2 <= px <= x+2 and z-5 <= pz < z and py == FEET:
+                        return 'The sick child walked back inside its old den'
+        S[-1].smoke.update(verify_trace=True, verify=verify_departure)
+
+
+_mold_family('den_mold_child_exile', False)
+_mold_family('den_mold_keep', True)
 
 
 # The teen's independence is armed in NBT (Force); each family has its den as a starting home, and the farewell or departure is
@@ -6054,6 +6125,7 @@ TOPICS = {
     'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
+    'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1',
     'family_absence': 'W9',
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
@@ -6128,7 +6200,7 @@ for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile',
         rf'\[settlement\][^\n]* mold exile departed scope={_scope}\b',
         r'\[settlement\][^\n]* mold exile refused return\b',
         r'\[settlement\][^\n]* mold exile withdrew after refusal\b',
-        *([r'\[settlement\] marisa [^\n]* mold exile answer=FAREWELL\b'] if _scope == 'colony' else []),
+        r'\[settlement\] marisa [^\n]* mold exile answer=FAREWELL\b',
         *([rf'\[family\][^\n]*uuid={_uuid_text("den_mold_exile", "molded")} [^\n]* mold exile child stays '
            rf'child={_uuid_text("den_mold_exile", "baby")} healthy_parent={_uuid_text("den_mold_exile", "healthy")}\b',
            r'\[settlement\][^\n]* mold witnessed [^\n]* fond=true\b',
@@ -7895,6 +7967,11 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+_scene_end('den_mold_child_exile', [(n, _DRY) for n in ('mother', 'father', 'child', 'baby')],
+           [('child', 'seen:settlement:mold exile protest'), ('child', 'seen:settlement:mold exile departed')])
+_scene_end('den_mold_keep', [(n, _DRY) for n in ('mother', 'father', 'child', 'baby')],
+           *[[(n, 'seen:body:mold caught from=')] for n in ('mother', 'father', 'baby')])
 
 _scene_end(_sweet_box, [(name, _DRY) for name, *_ in _sweet_cast])
 _scene_end('park_picnic', [('picnic_pet', _DRY), ('picnic_stray', _DRY)])
