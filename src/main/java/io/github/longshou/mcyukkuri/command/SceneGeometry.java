@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -55,7 +56,12 @@ final class SceneGeometry {
             for (double v : new double[]{box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ}) bounds.add(v);
             row.add("box", bounds);
             row.addProperty("clear", !source.getLevel().getBlockCollisions(entity, box.deflate(1e-5)).iterator().hasNext());
-            row.addProperty("supported", supported(entity, box));
+            if (entity instanceof HangingEntity hanging) {
+                row.addProperty("hanging", true);
+                row.addProperty("supported", hanging.survives());
+            } else {
+                row.addProperty("supported", supported(entity, box));
+            }
             row.addProperty("drop", drop(entity, box));
             if (player) vantage(source, entity, row);
             row.addProperty("vehicle", entity.isPassenger() ? entity.getRootVehicle().getUUID().toString() : "");

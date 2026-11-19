@@ -810,6 +810,18 @@ class Calibration(unittest.TestCase):
         report = checks.observations(rows)
         self.assertEqual(next(f['verdict'] for f in report['summary'] if f['check'] == 'SPAWN'), 'pass')
 
+    def test_hanging_spawn_requires_a_clear_box_and_valid_attachment(self):
+        for clear, supported, drop, expected in ((True, True, 1.1875, 'pass'),
+                                                  (False, True, 1.1875, 'fail'),
+                                                  (True, False, 0, 'fail'),
+                                                  (True, None, 0, 'no-evidence')):
+            with self.subTest(clear=clear, supported=supported):
+                rows = [record('win', 0, None), state(1), state(20)]
+                rows += [record('geo', t, hanging=True, clear=clear, supported=supported, drop=drop)
+                         for t in (1, 20)]
+                report = checks.observations(rows)
+                self.assertEqual(next(f['verdict'] for f in report['summary'] if f['check'] == 'SPAWN'), expected)
+
     def test_unsupported_drop_and_obstruction_still_fail(self):
         for clear, supported, drop in ((True, False, .0626), (False, True, 0)):
             with self.subTest(clear=clear, supported=supported, drop=drop):

@@ -1284,6 +1284,11 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         if start is not None and r['t'] - start in (1, 20):
             if not known(r, 'clear', 'drop'):
                 findings.append(result('SPAWN', 'no-evidence', 'geometry clear/drop missing', r))
+            elif r.get('hanging') and r['clear']:
+                if not known(r, 'supported'):
+                    findings.append(result('SPAWN', 'no-evidence', 'hanging attachment read missing', r))
+                elif not r['supported']:
+                    findings.append(result('SPAWN', 'fail', 'invalid hanging attachment', r))
             elif not r['clear'] or (r['drop'] > .0625 and r.get('supported') is not True
                                     and not (r['t'] - start == 1 and r.get('u') in settling)):
                 # SceneGeometry.supported includes fluid/contact support. Its drop scan can
