@@ -6592,14 +6592,35 @@ add('kindness_adoption', 'family', '孤儿分食与认养亲', '孤儿分食与�
         ('读赤油营养', f'yukkuri status {sel("orphan")} raw'), ('读邻居照护', f'yukkuri status {sel("foster")} raw')])
 
 _basket_comparison = 'basket_weakness'
+_basket_display_yukkuri = [
+    ('marisa', 'adult', True), ('reimu', 'adult', True),
+    ('reimu', 'baby', True), ('chen', 'juvenile', True), ('marisa', 'juvenile', False),
+]
+_basket_display_frames = ['empty', 'plain', 'fine', 'large']
 add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输篮：健康、受伤与药睡',
-    '先用空篮点健康油，再看受伤油的表情和入篮反应。去石地放出受伤油。对第三只用喷雾，趁还没睡点一次，睡着后再试，最后也放回石地。',
+    '先用空篮点健康油，再看受伤油的入篮反应。去石地放出受伤油。给第三只喷雾，趁没睡点一次，睡着后再试，随后也放回石地。用另一排药睡的个体试三种篮，把装好的篮放上展示框，从上方向内看。',
     '喷雾约 5 秒后入睡', [
         yk('reimu', -5, 0, 'basket_healthy', uuid=uid(_basket_comparison, 'basket_healthy'), label='健康·陌生', lead=True),
         yk('reimu', 0, 0, 'basket_injured', uuid=uid(_basket_comparison, 'basket_injured'), label='受伤·陌生', extra='Health:4.0f'),
         yk('reimu', 5, 0, 'basket_sprayed', uuid=uid(_basket_comparison, 'basket_sprayed'), label='待喷雾·陌生'),
         box(-6, -1, 4, -2, -1, 7, 'minecraft:stone'),
-    ], give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:sleep_spray 1'], env=DAY, vantage=(0, 7),
+        box(-2, 1, -3, 1, 1, -3, 'minecraft:stripped_oak_wood'),
+        *[f'summon minecraft:item_frame ~{i - 1.5} ~1.5 ~-3.5 '
+          f'{{Facing:2b,Tags:["scn","{tag("basket_frame_" + name)}"]'
+          + (',Item:{id:"mcyukkuri:yukkuri_carrier",count:1}' if name == 'empty' else '') + '}'
+          for i, name in enumerate(_basket_display_frames)],
+        *[yk(kind, -3 + 1.5 * i, 2, f'basket_display_{i}', stage=stage, accessory=accessory,
+             uuid=uid(_basket_comparison, f'basket_display_{i}'),
+             extra='YukkuriBody:{HairLoss:1}' if not accessory else '')
+          for i, (kind, stage, accessory) in enumerate(_basket_display_yukkuri)],
+        *[f'data merge entity {sel(f"basket_display_{i}")} {{YukkuriLife:{{DrugSleep:600}}}}'
+          for i in range(len(_basket_display_yukkuri))],
+    ], give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:sleep_spray 1',
+             'mcyukkuri:yukkuri_carrier_fine', 'mcyukkuri:yukkuri_carrier_large'], env=DAY, vantage=(0, 7),
+    capture=dict(shots=(40, 225, 240), sequences=(), observe=False, views={
+        'above': dict(position=(0, 4.1, -4.8), look_at=(0, 1.5, -3.2)),
+        'front': dict(position=(0, 1.5, -6.4), look_at=(0, 1.5, -3.2)),
+    }),
     smoke=dict(ticks=240, commands=[
         (50, 'yukkuri scenario basket plain'),
         (55, f'yukkuri scenario basket capture {sel("basket_healthy")}'),
@@ -6609,6 +6630,14 @@ add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输�
         (76, f'yukkuri scenario basket capture {sel("basket_sprayed")}'),
         (180, f'yukkuri scenario basket capture {sel("basket_sprayed")}'),
         (190, 'yukkuri scenario basket release ~-2 ~-1 ~5'),
+        (196, f'yukkuri scenario basket capture {sel("basket_display_0")}'),
+        (197, f'yukkuri scenario basket frame {sel("basket_frame_plain")}'),
+        (198, 'yukkuri scenario basket fine'),
+        (199, f'yukkuri scenario basket capture {sel("basket_display_1")}'),
+        (200, f'yukkuri scenario basket frame {sel("basket_frame_fine")}'),
+        (201, 'yukkuri scenario basket large'),
+        *[(202 + i, f'yukkuri scenario basket capture {sel(f"basket_display_{i + 2}")}') for i in range(3)],
+        (205, f'yukkuri scenario basket frame {sel("basket_frame_large")}'),
     ], expect=[
         rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_basket_comparison, "basket_healthy")} [^\n]* weakness=0\.0 ',
         rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_basket_comparison, "basket_sprayed")} [^\n]* spray_delay=[1-9]\d* ',
@@ -6616,6 +6645,8 @@ add(_basket_comparison, 'town', '运输篮：健康、受伤与药睡', '运输�
           for name, admission in (('basket_injured', 'WEAK'), ('basket_sprayed', 'UNCONSCIOUS'))],
         *[rf'\[carrier\][^\n]* action=release result=committed target={_uuid_text(_basket_comparison, name)} [^\n]* remaining=0\b'
           for name in ('basket_injured', 'basket_sprayed')],
+        *[rf'\[scenario\][^\n]* action=basket_frame item=mcyukkuri:yukkuri_carrier{suffix} occupants={count}\b'
+          for suffix, count in (('', 1), ('_fine', 1), ('_large', 3))],
     ], forbid=[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text(_basket_comparison, "basket_healthy")}\b']))
 
 _number_scenes()

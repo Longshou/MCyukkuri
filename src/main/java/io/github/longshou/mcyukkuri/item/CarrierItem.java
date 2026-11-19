@@ -30,6 +30,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +39,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 public final class CarrierItem extends Item {
     public enum Grade {
@@ -59,7 +62,7 @@ public final class CarrierItem extends Item {
     }
 
     private static void prepareBasket(YukkuriWorldData world, ItemStack stack) {
-        CarrierContents.upgradeLegacy(stack, world);
+        if (CarrierContents.needsAppearance(stack)) CarrierContents.refreshAppearance(stack, world);
         for (UUID token : CarrierContents.tokens(stack)) {
             if (world.hasToken(token) && !world.freezer.contains(token)) continue;
             CarrierContents.remove(stack, token);
@@ -67,8 +70,26 @@ public final class CarrierItem extends Item {
     }
 
     @Override public void inventoryTick(ItemStack stack, Level level, Entity holder, int slot, boolean selected) {
-        if (level instanceof ServerLevel server && CarrierContents.hasLegacyToken(stack))
-            CarrierContents.upgradeLegacy(stack, YukkuriWorldData.get(server));
+        if (level instanceof ServerLevel server && CarrierContents.needsAppearance(stack))
+            CarrierContents.refreshAppearance(stack, YukkuriWorldData.get(server));
+    }
+
+    /** Old baskets can already be on the ground or in a frame when the world is loaded. */
+    public static void joining(EntityJoinLevelEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (event.getEntity() instanceof ItemEntity item) {
+            var stack = item.getItem();
+            if (CarrierContents.isBasket(stack) && CarrierContents.needsAppearance(stack)) {
+                var copy = stack.copy();
+                if (CarrierContents.refreshAppearance(copy, YukkuriWorldData.get(level))) item.setItem(copy);
+            }
+        } else if (event.getEntity() instanceof ItemFrame frame) {
+            var stack = frame.getItem();
+            if (CarrierContents.isBasket(stack) && CarrierContents.needsAppearance(stack)) {
+                var copy = stack.copy();
+                if (CarrierContents.refreshAppearance(copy, YukkuriWorldData.get(level))) frame.setItem(copy, false);
+            }
+        }
     }
 
     @Override public Component getName(ItemStack stack) {

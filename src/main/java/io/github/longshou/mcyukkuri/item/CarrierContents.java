@@ -1,10 +1,15 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.body.BodyLife;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -12,10 +17,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
-/** An ordered list of custody tokens and their read-only tooltip summaries. */
+/** An ordered list of custody tokens and their read-only display summaries. */
 public final class CarrierContents {
     private static final String OCCUPANTS = "BasketOccupants";
     private static final String LEGACY_TOKEN = "CaptiveToken";
@@ -23,10 +31,6 @@ public final class CarrierContents {
     private CarrierContents() {}
 
     public static boolean isBasket(ItemStack stack) { return stack.getItem() instanceof CarrierItem; }
-    static boolean hasLegacyToken(ItemStack stack) {
-        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).contains(LEGACY_TOKEN);
-    }
-
     private static CompoundTag data(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
     }
@@ -71,16 +75,39 @@ public final class CarrierContents {
         write(stack, data, entries);
     }
 
-    /** Upgrade old baskets from the ledger when a server can see them. */
-    public static void upgradeLegacy(ItemStack stack, YukkuriWorldData world) {
+    static boolean needsAppearance(ItemStack stack) {
+        var data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).getUnsafe();
+        if (data.hasUUID(LEGACY_TOKEN)) return true;
+        if (data.get(OCCUPANTS) instanceof ListTag entries) {
+            for (int i = 0; i < entries.size(); i++) {
+                var entry = entries.getCompound(i);
+                if (entry.hasUUID("Token") && !entry.contains("Model")) return true;
+            }
+        }
+        return false;
+    }
+
+    /** Upgrade old summaries using the original captive records. */
+    static boolean refreshAppearance(ItemStack stack, YukkuriWorldData world) {
         var data = data(stack);
-        if (!data.hasUUID(LEGACY_TOKEN)) return;
-        var token = data.getUUID(LEGACY_TOKEN);
-        var snapshot = world.captiveSnapshot(token);
-        if (snapshot.isEmpty()) return;
-        var entries = new ListTag();
-        entries.add(entry(token, snapshot));
-        write(stack, data, entries);
+        var entries = entries(data);
+        boolean changed = false;
+        for (int i = 0; i < entries.size(); i++) {
+            var entry = entries.getCompound(i);
+            if (entry.contains("Model") || !entry.hasUUID("Token")) continue;
+            var token = entry.getUUID("Token");
+            var snapshot = world.captiveSnapshot(token);
+            if (snapshot.isEmpty()) continue;
+            entries.set(i, entry(token, snapshot));
+            changed = true;
+        }
+        if (changed) write(stack, data, entries);
+        return changed;
+    }
+
+    /** The client reads these tags directly as an immutable projection of the item component. */
+    public static ListTag appearances(CustomData data) {
+        return data.getUnsafe().getList(OCCUPANTS, Tag.TAG_COMPOUND);
     }
 
     private static void write(ItemStack stack, CompoundTag data, ListTag entries) {
@@ -103,13 +130,44 @@ public final class CarrierContents {
         entry.putUUID("Token", token);
         entry.putString("Species", snapshot.getString("id").replace(':', '.'));
         entry.putString("Stage", stage(snapshot));
-        entry.putInt("Badge", snapshot.getCompound("YukkuriPet").getInt("Grade"));
+        var pet = snapshot.getCompound("YukkuriPet");
+        entry.putInt("Badge", pet.getInt("Grade"));
+        entry.putBoolean("BadgeWorn", pet.getBoolean("Worn"));
         if (snapshot.contains("CustomName", Tag.TAG_STRING)) entry.putString("Name", snapshot.getString("CustomName"));
         var life = snapshot.getCompound("YukkuriLife");
         entry.putBoolean("Hungry", life.getFloat("Nutrition") < 30);
         entry.putBoolean("Hurt", snapshot.getBoolean("TransportHurt") || BodyLife.savedInjury(snapshot.getCompound("YukkuriBody")));
         entry.putBoolean("Asleep", snapshot.getBoolean("TransportAsleep") || life.getInt("DrugSleep") > 0);
+        var savedForm = snapshot.getCompound("YukkuriSubspecies");
+        var kind = savedForm.contains("Kind") ? SubspeciesLife.Kind.valueOf(savedForm.getString("Kind")) : SubspeciesLife.Kind.NORMAL;
+        var form = savedForm.contains("Congenital") ? SubspeciesLife.Congenital.valueOf(savedForm.getString("Congenital")) : SubspeciesLife.Congenital.NORMAL;
+        boolean deibu = savedForm.getBoolean("Deibu");
+        int flags = kind.ordinal() | form.ordinal() << 4 | (deibu ? SubspeciesLife.DEIBU_FLAG : 0);
+        var variant = YukkuriVariant.valueOf(snapshot.getString("id").substring("mcyukkuri:".length()).toUpperCase(Locale.ROOT));
+        float growth = Math.clamp(snapshot.getCompound("YukkuriFamily").getFloat("Scale"), .1f, 1.2f);
+        boolean accessory = !life.contains("Accessory") || life.getBoolean("Accessory");
+        var headwear = snapshot.getCompound("YukkuriHeadwear");
+        var junk = JunkHeadwear.read(life.getCompound("HatCustody"));
+        entry.putString("Model", SubspeciesLife.assetId(variant, flags));
+        entry.putInt("Form", flags);
+        entry.putFloat("RenderScale", growth * (deibu ? 1.5f : 1f) * attributeScale(snapshot));
+        entry.putInt("HairLoss", snapshot.getCompound("YukkuriBody").getInt("HairLoss"));
+        entry.putBoolean("Accessory", accessory);
+        entry.putInt("Headwear", Headwear.savedVisual(headwear, accessory, growth, junk));
         return entry;
+    }
+
+    private static float attributeScale(CompoundTag snapshot) {
+        String scaleId = Attributes.SCALE.unwrapKey().orElseThrow().location().toString();
+        var attributes = snapshot.getList(LivingEntity.ATTRIBUTES_FIELD, Tag.TAG_COMPOUND);
+        for (int i = 0; i < attributes.size(); i++) {
+            var saved = attributes.getCompound(i);
+            if (!scaleId.equals(saved.getString(AttributeInstance.ID_FIELD))) continue;
+            var scale = new AttributeInstance(Attributes.SCALE, ignored -> {});
+            scale.load(saved);
+            return (float) scale.getValue();
+        }
+        return (float) Attributes.SCALE.value().getDefaultValue();
     }
 
     static void appendOccupants(ItemStack stack, HolderLookup.Provider registries, List<Component> tooltip) {

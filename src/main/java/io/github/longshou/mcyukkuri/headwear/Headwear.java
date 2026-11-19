@@ -148,7 +148,9 @@ public final class Headwear extends Goal implements MotorOwner {
     public UUID shardToken() { return shardToken; }
     /** Hat size relative to the owner's body (1 = fits). */
     public float relativeFit() {
-        float body = entity.family().scale();
+        return relativeFit(fit, entity.family().scale());
+    }
+    private static float relativeFit(float fit, float body) {
         return body <= 0 || fit <= 0 ? 1 : Math.clamp(fit / body, MIN_FIT, 1f);
     }
     public String describe() {
@@ -192,8 +194,16 @@ public final class Headwear extends Goal implements MotorOwner {
     public int visual() {
         var s = state();
         int level = s == State.WORN ? damage : s == State.REASSEMBLING ? 3 : 0;
-        var junk = entity.life().custody().junk();
-        return level | Math.round(relativeFit() * 100) << 4 | (junk == null ? 0 : junk.visualId()) << 11;
+        return packVisual(level, relativeFit(), entity.life().custody().junk());
+    }
+    public static int savedVisual(CompoundTag tag, boolean worn, float bodyScale, JunkHeadwear junk) {
+        boolean pieced = !tag.getBoolean("Lost") && tag.getBoolean("Shattered") && tag.hasUUID("ShardToken")
+                && tag.getInt("ShardsHeld") >= tag.getInt("ShardsTotal");
+        int level = worn ? Math.clamp(tag.getInt("Damage"), 0, TORN) : pieced ? 3 : 0;
+        return packVisual(level, relativeFit(tag.getFloat("Fit"), bodyScale), junk);
+    }
+    private static int packVisual(int level, float fit, JunkHeadwear junk) {
+        return level | Math.round(fit * 100) << 4 | (junk == null ? 0 : junk.visualId()) << 11;
     }
     public static JunkHeadwear visualJunk(int packed) { return JunkHeadwear.fromVisual(packed >> 11 & 3); }
     public static int nativeVisual(int packed) { return packed & 0x7ff; }

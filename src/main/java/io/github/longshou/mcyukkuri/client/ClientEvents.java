@@ -70,6 +70,7 @@ public final class ClientEvents {
         event.registerReloadListener(PropModels.RELOAD);
         event.registerReloadListener(RestraintStraps.RELOAD);
         event.registerReloadListener(HatDamageMask.RELOAD);
+        event.registerReloadListener(CarrierPresentation.RELOAD);
     }
 
     static void warmWoundSurface(EntityJoinLevelEvent event) {

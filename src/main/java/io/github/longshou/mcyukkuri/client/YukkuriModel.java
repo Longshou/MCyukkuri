@@ -1558,6 +1558,30 @@ public final class YukkuriModel {
         }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatProp=null;hatDamageDraw.reset();setExpression("");
             wear=0;retention=0;wearClear=false;}
     }
+    /** Sample a stopped living pose using the same body and headwear passes as the entity. */
+    void renderBasketOccupant(int form, boolean accessory, int headwear, int hairLoss, int medal, boolean asleep,
+                              PoseStack stack, MultiBufferSource buffers) {
+        String face = asleep ? "sleep" : "neutral";
+        setCarrying(false);
+        setHeldItem(false, false, false);
+        setExpression(face);
+        hatScale = HatScale.factor(form);
+        hatProp = SubspeciesLife.kindFromFlags(form).hatProp();
+        hatDamageDraw.visual(headwear);
+        hatDamageDraw.deferCaps();
+        boolean showHat = accessory || hatDamageDraw.level() == 3;
+        var body = buffers.getBuffer(RenderType.entityCutoutNoCull(HairWoundAssets.texture(id, face, 0)));
+        render(asleep ? "sleep" : "idle", 0, stack, body, 0, 0, showHat, Behaviors.IDLE, 0, hairLoss);
+        hatDamageDraw.drawCaps(buffers);
+        if (showHat) renderReplacementHat(stack, buffers, 0, 0);
+        if (accessory) renderBadge(medal, stack, buffers, 0, 0);
+        renderJunkHat(Headwear.visualJunk(headwear), stack, buffers, 0, 0);
+        hatDamageDraw.reset();
+        hatScale = 1;
+        hatProp = null;
+        setExpression("");
+    }
+
     /** The prop uses the same authored hat frame, final braid pose and pregnancy lift as the original accessory. */
     private void renderReplacementHat(PoseStack stack,MultiBufferSource buffers,int light,int overlay){
         if(hatProp==null)return;

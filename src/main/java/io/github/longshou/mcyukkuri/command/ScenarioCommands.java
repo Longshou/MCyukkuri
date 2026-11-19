@@ -47,6 +47,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -234,6 +235,9 @@ public final class ScenarioCommands {
                         .then(Commands.literal("fear").then(Commands.argument("target", EntityArgument.entity())
                                 .then(Commands.argument("fear", IntegerArgumentType.integer(0, 100)).executes(ScenarioCommands::basketFear))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
+                        .then(Commands.literal("large").executes(c -> basketHand(c, new ItemStack(ModItems.LARGE_CARRIER.get()))))
+                        .then(Commands.literal("frame").then(Commands.argument("frame", EntityArgument.entity())
+                                .executes(ScenarioCommands::basketFrame)))
                         .then(Commands.literal("upgrade_check").executes(ScenarioCommands::basketUpgradeCheck))
                         .then(Commands.literal("spray").then(Commands.argument("target", EntityArgument.entity())
                                 .executes(c -> basketClick(c, true))))
@@ -639,6 +643,19 @@ public final class ScenarioCommands {
         var result = player.getItemInHand(hand).interactLivingEntity(player, target, hand);
         if (spray) player.setItemInHand(hand, ItemStack.EMPTY);
         return result.consumesAction() ? 1 : 0;
+    }
+
+    private static int basketFrame(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var level = c.getSource().getLevel();
+        var player = FakePlayerFactory.getMinecraft(level);
+        if (!(EntityArgument.getEntity(c, "frame") instanceof ItemFrame frame)
+                || !frame.getItem().isEmpty() || !CarrierContents.isBasket(player.getMainHandItem())) return 0;
+        frame.interact(player, InteractionHand.MAIN_HAND);
+        var displayed = frame.getItem();
+        if (displayed.isEmpty()) return 0;
+        GameplayLog.world(level, "scenario", "action=basket_frame item={} occupants={}",
+                BuiltInRegistries.ITEM.getKey(displayed.getItem()), CarrierContents.tokens(displayed).size());
+        return 1;
     }
 
     private static int basketFear(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
