@@ -15,6 +15,7 @@
 | 能力 v1：统一技能存储、删除旧技能与跳跃学习、放大镜标记、学会一拍 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetSkill.java, pet/PetLessons.java, family/ChildhoodLife.java |
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 | 捕食种树上生活 A：枝巢搭建阶段与栖枝、扑翅动作 | `.worktrees/wp-tree-pred-art` | art/props/predators, standards/yukkuri-library/motions (predator_perch, predator_flap) |
+| 演出放映室：实时三维播放器、四类目录首页、通过／不通过按钮 | `.worktrees/wp-player-core` | preview/review/, scripts/serve_review.py, scripts/preview.py, scripts/build_preview_hub.py |
 
 ## 玩法待办
 
