@@ -19,6 +19,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** Small shelter footprints never excavate, replace solid blocks or force-load chunks. */
 public final class ShelterPlacement {
@@ -64,18 +65,22 @@ public final class ShelterPlacement {
         var entry=plan.entrance(level);
         if(!level.hasChunkAt(entry)||!level.getFluidState(entry).isEmpty()||!level.getBlockState(entry).getCollisionShape(level,entry).isEmpty()
                 ||!level.getBlockState(entry.below()).isFaceSturdy(level,entry.below(),Direction.UP))return false;
+        if (!ShelterClearance.preserves(level, footprint, pos -> plan.kind == ShelterBlock.Kind.BURROW ? Shapes.empty() : shell(plan, pos)))
+            return false;
         var bounds=plan.kind==ShelterBlock.Kind.CARDBOARD ? ShelterBlock.cartonBounds(plan.center,plan.facing).inflate(1)
                 : new AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
         for(var occupant:level.getEntitiesOfClass(LivingEntity.class,bounds,entity->entity.isAlive()&&!entity.isSpectator())) {
             var body=Shapes.create(plan.kind==ShelterBlock.Kind.CARDBOARD&&occupant instanceof YukkuriEntity y
                     ? FoundShelter.turnBounds(y.position(),HeadTop.reach(y),HeadTop.height(y)) : occupant.getBoundingBox());
             for(var pos:footprint) {
-                var offset=pos.subtract(plan.center);
-                var shell=ShelterGeometry.shape(plan.kind,plan.facing,ShelterBlock.part(offset.getX(),offset.getY(),offset.getZ())).move(pos.getX(),pos.getY(),pos.getZ());
-                if(Shapes.joinIsNotEmpty(shell,body,BooleanOp.AND))return false;
+                if(Shapes.joinIsNotEmpty(shell(plan, pos).move(pos.getX(),pos.getY(),pos.getZ()),body,BooleanOp.AND))return false;
             }
         }
         return true;
+    }
+    private static VoxelShape shell(Plan plan, BlockPos pos) {
+        var offset = pos.subtract(plan.center);
+        return ShelterGeometry.shape(plan.kind, plan.facing, ShelterBlock.part(offset.getX(), offset.getY(), offset.getZ()));
     }
     public static Placed place(ServerLevel level,Plan plan) {
         SearchBudget.probe(level);
@@ -106,7 +111,12 @@ public final class ShelterPlacement {
             if (!NaturalShelter.stand(level, cell) || !level.getBlockState(cell).isAir() || !level.getBlockState(cell.above()).isAir()
                     || SettlementData.get(level).reserved(cell)) return false;
         }
-        return true;
+        var state = ModBlocks.LARGE_WILD_NEST.get().defaultBlockState();
+        var footprint = List.of(origin, origin.east(), origin.south(), origin.south().east());
+        return ShelterClearance.preserves(level, footprint, pos -> {
+            int part = pos.getX() - origin.getX() + 2 * (pos.getZ() - origin.getZ());
+            return state.setValue(LargeNestBlock.PART, part).getCollisionShape(level, pos);
+        });
     }
 
     /** Something solid or leafy overhead of every cell of the 2x2 bed (a canopy, an overhang), as the rest check reads cover. */
