@@ -25,7 +25,7 @@ import java.util.Set;
 /** Queries and ownership transitions for the existing NeoForgeData.HumanCommerce storage. */
 public final class Custody {
     public enum OwnerKind { NONE, UNKNOWN, PLAYER, NPC }
-    public enum ReleaseReason { ABANDON, LOST_CONTACT, PLANT_EXIT, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
+    public enum ReleaseReason { ABANDON, LOST_CONTACT, PLANT_EXIT, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED, ELOPED }
     private static final String PENDING_RELEASE = "PendingCustodyRelease";
     private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
@@ -287,7 +287,7 @@ public final class Custody {
     /** Callers retain scene creation and exam eligibility guards; each reason keeps its original cleanup order. */
     public static void release(YukkuriEntity animal, ReleaseReason reason, @Nullable UUID formerOwner, @Nullable CompoundTag previous) {
         switch (reason) {
-            case ABANDON, LOST_CONTACT, PLANT_EXIT -> {
+            case ABANDON, LOST_CONTACT, PLANT_EXIT, ELOPED -> {
                 var before = animal.status().identity();
                 if (reason == ReleaseReason.ABANDON) animal.pet().abandonedBy(Objects.requireNonNull(formerOwner));
                 animal.settlement().exile();
@@ -295,13 +295,16 @@ public final class Custody {
                 for (var key : ACTIVE_KEYS) tag.remove(key);
                 set(animal, tag);
                 if (reason == ReleaseReason.LOST_CONTACT) animal.pet().lostContact();
-                if (reason == ReleaseReason.PLANT_EXIT) animal.pet().ownerReleased(Objects.requireNonNull(formerOwner));
+                if (reason == ReleaseReason.PLANT_EXIT || reason == ReleaseReason.ELOPED)
+                    animal.pet().ownerReleased(Objects.requireNonNull(formerOwner));
+                if (reason == ReleaseReason.ELOPED) animal.pet().leaveTownLife();
                 animal.habitat().release();
                 animal.life().releaseHome(); animal.social().stop(); animal.dailyLife().stop(); animal.setPersistenceRequired();
                 YukkuriStatus.identityChanged(animal, before, switch (reason) {
                     case ABANDON -> "abandon";
                     case LOST_CONTACT -> "lost_contact";
                     case PLANT_EXIT -> "plant_exit";
+                    case ELOPED -> "eloped";
                     default -> throw new IllegalStateException(reason.name());
                 });
             }

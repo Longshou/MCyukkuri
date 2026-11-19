@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.Duty;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -63,15 +64,17 @@ final class Elopement {
             return false;
         }
         if (identity != Identity.PET || body.family().pentUp() < 70) return false;
-        nextCheck = now + 1200;
+        // A passing partner can appear between minute-long decisions. Only an actual opportunity spends that draw.
+        nextCheck = now + 40;
         if (Custody.view(body).ownerKind() != Custody.OwnerKind.PLAYER || ownerNear(body) || !mobile(body) || needsCare(body)) return false;
         var home = body.life().homeStand();
         var yard = home == null ? body.position() : Vec3.atBottomCenterOf(home);
-        if (horizontalSq(body.position(), yard) > 64) return false;
+        if (horizontalSq(body.position(), yard) > 24 * 24) return false;
         var bonds = YukkuriWorldData.get((ServerLevel) body.level());
         var owner = body.pet().owner();
         var candidates = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(16),
-                y -> y != body && body.distanceToSqr(y) <= 256 && RulesMath.drawnTo(y.status().identity(),
+                y -> y != body && body.distanceToSqr(y) <= 256 && horizontalSq(y.position(), yard) <= 24 * 24
+                        && RulesMath.drawnTo(y.status().identity(),
                         bonds.affinity(body.getUUID(), y.getUUID()), bonds.affinity(y.getUUID(), body.getUUID()),
                         body.life().personality().trust(owner), body.pet().neglect())
                         && body.hasLineOfSight(y) && body.family().compatibleWith(y) && mobile(y) && !needsCare(y)
@@ -80,10 +83,15 @@ final class Elopement {
         for (var wild : candidates) {
             var wildStand = destination(wild, yard);
             if (wildStand == null) continue;
-            var petStand = SurfaceApproach.beside(body, wildStand, 2, at -> horizontalSq(at, yard) > 24 * 24);
+            var petStand = SurfaceApproach.beside(body, wildStand, 2, at -> horizontalSq(at, yard) > 24 * 24
+                    && horizontalSq(at, body.position()) > 4 * 4);
             if (petStand == null || lastFailure != null && lastFailure.equals(failure(wild, wildStand))) continue;
-            if (body.getRandom().nextDouble() >= RulesMath.departureChance(body.family().pentUp(), body.pet().obedience())) return false;
-            var rule = home == null ? RulesMath.Choice.ALLOW
+            nextCheck = now + 1200;
+            double chance = RulesMath.departureChance(body.family().pentUp(), body.pet().obedience());
+            boolean leaving = body.getRandom().nextDouble() < chance;
+            GameplayLog.event(body, "rules", "departure opportunity partner={} chance={} leaving={}", wild.getUUID(), chance, leaving);
+            if (!leaving) return false;
+            var rule = home == null || horizontalSq(body.position(), yard) > 64 ? RulesMath.Choice.ALLOW
                     : body.pet().conscience().tempted(HouseRule.NO_LEAVING_YARD, body.family().pentUp() / 100, 1);
             if (rule == RulesMath.Choice.HOLD || rule == RulesMath.Choice.WAIT) {
                 PetScenes.act(body, YukkuriAction.LOOK_AROUND, "teary", "", YukkuriAction.LOOK_AROUND.durationTicks());
@@ -93,6 +101,7 @@ final class Elopement {
             walk = new Walk(body, wild, owner, yard, petStand, wildStand, rule);
             return true;
         }
+        if (!candidates.isEmpty()) nextCheck = now + 1200;
         return false;
     }
 
@@ -129,8 +138,8 @@ final class Elopement {
 
     void start() {
         body.duty().take(Duty.Kind.RULES, 2400, 0, "elope");
-        GameplayLog.event(body, "rules", "departure started partner={} from={} to={}",
-                walk.peer(body).getUUID(), body.position(), walk.stand(body));
+        GameplayLog.event(body, "rules", "departure started partner={} from={} to={} yard={}",
+                walk.peer(body).getUUID(), body.position(), walk.stand(body), walk.yard);
         SurfaceApproach.halt(body);
         if (body == walk.pet) PetScenes.say(body, YukkuriAction.LOOK_AROUND, "teary", "elope_leave", null);
     }
@@ -210,6 +219,9 @@ final class Elopement {
             if (actor == pet && RulesMath.departed(SurfaceApproach.at(pet, petStand), SurfaceApproach.at(wild, wildStand),
                     horizontalSq(pet.position(), yard), horizontalSq(wild.position(), yard), pet.distanceToSqr(wild))) {
                 end("arrived", true);
+                PetPrivileges.eloped(pet, owner);
+                GameplayLog.event(pet, "rules", "eloped partner={} wildAt={} identity={} token={} serial={}", wild.getUUID(),
+                        wild.position(), pet.status().identity().id(), pet.pet().visibleGrade(), pet.pet().serial());
                 return;
             }
             if (SurfaceApproach.walkResult(actor, stand(actor), null, .9) == SurfaceApproach.Result.BLOCKED) end("blocked", false);

@@ -2705,6 +2705,59 @@ add('rule_yard', 'town', '禁止出院子：走到院边又回头', '不准出�
      *own('rule_pet'), home('rule_pet', 0, -4)], env=DAY, vantage=(0, 6))
 
 
+def elopement_result(log):
+    pet, wild = (_uuid_text('elope', role) for role in ('pet', 'wild'))
+    point = r'\(([-.\d]+), ([-.\d]+), ([-.\d]+)\)'
+    issued = re.search(rf'uuid={pet} [^\n]*issued grade=NONE -> BRONZE [^\n]*serial=([\w-]+)', log)
+    start = re.search(rf'uuid={pet} [^\n]*departure started partner={wild} from={point} to={point} yard={point}', log)
+    arrival = re.search(rf'uuid={pet} [^\n]*departure ended reason=arrived partner={wild} petAt={point} wildAt={point}', log)
+    if not (issued and start and arrival):
+        return 'Missing the issued token, departure or joint arrival for the staged pair'
+    px, _, pz, wx, _, wz = map(float, arrival.groups())
+    x, _, z = map(float, start.groups()[-3:])
+    if min(math.hypot(px - x, pz - z), math.hypot(wx - x, wz - z)) <= 24 or math.hypot(px - wx, pz - wz) > 4:
+        return 'The two bodies did not arrive together beyond their yard'
+    events = re.findall(rf'uuid={pet} [^\n]*? (departure ended reason=arrived|changed from=pet to=wild_family cause=eloped|disqualified cause=eloped|eloped partner=)', log)
+    if events != ['departure ended reason=arrived', 'changed from=pet to=wild_family cause=eloped', 'disqualified cause=eloped', 'eloped partner=']:
+        return f'Expected one joint arrival, release and permanent verdict in order, got {events}'
+    if not re.search(rf'uuid={pet} [^\n]*eloped partner={wild} [^\n]*identity=wild_family token=BRONZE serial={issued[1]}\b', log):
+        return 'Former pet did not retain the issued physical badge'
+
+
+def elopement_readout(readout):
+    identities = re.findall(r'\bkind:"(wild_family|wild_settlement|pet|stray)"', readout)
+    if identities != ['wild_family', 'wild_family'] or re.findall(r'pet_grade:"([a-z]+)"', readout) != ['none', 'none']:
+        return f'Expected both free subjects to remain locally findable with no effective grade, got {identities}'
+
+
+add('elope', 'town', '跟野生伴侣离家', '跟野生伴侣离家',
+    '站在院子侧面，留意灵梦告别后跟着魔理沙穿过篱笆缺口。跟到远处的窝边查看归属和原来的铜章。'
+    '重开后在中途靠近灵梦，或用方块堵住缺口，再查归属。', '每分钟有一次机会，可用倍速观察', [
+        box(-18, -1, -5, 20, -1, 5, 'minecraft:grass_block'), box(-18, 0, -5, 20, 4, 5, 'minecraft:air'),
+        *(box(-18, 0, z, 20, 0, z, 'minecraft:oak_fence') for z in (-5, 5)),
+        *(box(x, 0, -5, x, 0, 5, 'minecraft:oak_fence') for x in (-18, 20)),
+        box(-6, 0, -5, -6, 0, -2, 'minecraft:oak_fence'), box(-6, 0, 2, -6, 0, 5, 'minecraft:oak_fence'),
+        box(-13, 0, 8, -11, 2, 10, 'minecraft:oak_planks'),
+        *shed(-14, 0), *shed(16, 0),
+        *(item for x in (-12, 14) for item in (
+            block(x, 0, 3, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:32}]}'),
+            block(x, 0, -3, 'mcyukkuri:waterer{Water:8}'), block(x + 1, 0, -3, 'mcyukkuri:yukkuri_toilet'))),
+        yk('reimu', -13, 1, 'pet', label='离家的灵梦', lead=True, uuid=uid('elope', 'pet'), self_control=10, boldness=95,
+           attachment=35, kin='PentUp:90f', extra='YukkuriPet:{Neglect:60,Obedience:-40}', **pair_ready()),
+        yk('marisa', -8, 1, 'wild', label='野生魔理沙', uuid=uid('elope', 'wild'), kin='Recovery:12000', **pair_ready()),
+        *own('pet'), f'yukkuri scenario badge {sel("pet")} bronze false', f'yukkuri scenario bond {sel("pet")} {sel("wild")}',
+        home('pet', -14, 0), home('wild', 16, 0)],
+    env=DAY, vantage=(-12, 9, -169, 23, 3), give=['mcyukkuri:field_notebook', 'minecraft:oak_planks 8'],
+    reads=[('读灵梦归属', f'yukkuri status {sel("pet")} raw'), ('读魔理沙归属', f'yukkuri status {sel("wild")} raw')],
+    smoke=dict(ticks=12000, commands=[(1, 'execute positioned ~-9 ~ ~10 run yukkuri scenario tool_operator enter'),
+                                      (2, f'yukkuri scenario owner_at {sel("pet")} away'),
+                                      (11999, 'yukkuri scenario tool_operator leave')],
+               expect=[r'\[rules\][^\n]*eloped partner=', r'\[badge\][^\n]*disqualified cause=eloped'],
+               forbid=[r'cause=lost_contact', r'\[badge\][^\n]*revoked grade='],
+               readout=[f'yukkuri status {sel(role)} raw' for role in ('pet', 'wild')],
+               verify=elopement_result, verify_readout=elopement_readout))
+
+
 def certify_smoke(target, *expected):
     return dict(ticks=480, commands=[(45, f'yukkuri scenario certify {sel("judge")} {sel("pet")}')],
                 expect=[rf'\[exam\][^\n]*action=start [^\n]*target={target}\b',
@@ -6518,7 +6571,7 @@ TOPICS = {
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
-    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5',
+    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

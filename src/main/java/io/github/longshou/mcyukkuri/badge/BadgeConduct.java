@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.badge;
 import io.github.longshou.mcyukkuri.pet.rules.ArcStyle;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,20 @@ public final class BadgeConduct {
 
     private final Map<UUID, Case> broods = new HashMap<>();
     private final Map<UUID, List<Case>> byParent = new HashMap<>();
+    private final Map<UUID, Long> elopements = new HashMap<>();
+
+    /** Arrival consumes the old custody once. A pet without a badge still leaves. */
+    public boolean eloped(UUID pet, boolean stillOwned, boolean registered, long day, Runnable release) {
+        if (!stillOwned) return false;
+        release.run();
+        if (!registered || disqualified(pet)) return false;
+        elopements.put(pet, day);
+        return true;
+    }
+
+    public Map<UUID, Long> elopements() { return Collections.unmodifiableMap(elopements); }
+    public void loadElopement(UUID pet, long day) { elopements.put(pet, day); }
+    public void forgetElopements(Collection<UUID> pets) { elopements.keySet().removeAll(pets); }
 
     public boolean open(UUID brood, Parent mother, long motherPermit, Parent father, long fatherPermit, long now, boolean brokeHouseRule) {
         if (!brokeHouseRule && (mother.owner == null || motherPermit >= now) && (father.owner == null || fatherPermit >= now)) return false;
@@ -89,6 +104,7 @@ public final class BadgeConduct {
     public Collection<Case> cases() { return broods.values(); }
     public List<Case> cases(UUID parent) { return byParent.getOrDefault(parent, List.of()); }
     public boolean disqualified(UUID pet) {
+        if (elopements.containsKey(pet)) return true;
         for (Case entry : cases(pet)) if (entry.judged(pet)) return true;
         return false;
     }

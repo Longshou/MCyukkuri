@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct.Parent;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.pet.rules.ArcStyle;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
@@ -37,6 +38,17 @@ public final class PetPrivileges extends SavedData {
     private final Map<UUID, Map<UUID, Integer>> records = new HashMap<>();
     private final BadgeConduct conduct = new BadgeConduct();
     public BadgeConduct conduct() { return conduct; }
+
+    public static void eloped(YukkuriEntity pet, UUID owner) {
+        var level = (ServerLevel) pet.level();
+        var data = get(level);
+        long day = level.getDayTime() / 24000 + 1;
+        if (data.conduct.eloped(pet.getUUID(), pet.pet().ownedBy(owner), pet.pet().grade() != BadgeGrade.NONE, day,
+                () -> Custody.release(pet, Custody.ReleaseReason.ELOPED, owner, null))) {
+            data.setDirty();
+            GameplayLog.event(pet, "badge", "disqualified cause=eloped owner={} day={} serial={}", owner, day, pet.pet().serial());
+        }
+    }
     public static void award(Player player, BadgeConduct.Case entry) {
         award(player, entry, "unauthorized_found");
         switch (entry.verdict().cause()) {
@@ -123,6 +135,7 @@ public final class PetPrivileges extends SavedData {
         }
     }
     public void forget(Set<UUID> people, Set<UUID> broods) {
+        conduct.forgetElopements(people);
         for (var entry : List.copyOf(conduct.cases()))
             if (broods.contains(entry.brood) || entry.parents.stream().anyMatch(p -> people.contains(p.id()))) conduct.remove(entry);
         records.values().forEach(pets -> pets.keySet().removeAll(people));
@@ -163,10 +176,20 @@ public final class PetPrivileges extends SavedData {
             cases.add(c);
         }
         tag.put("Conduct", cases);
+        var elopers = new ListTag();
+        conduct.elopements().forEach((pet, day) -> {
+            var entry = new CompoundTag();
+            entry.putUUID("Pet", pet); entry.putLong("Day", day); elopers.add(entry);
+        });
+        tag.put("Elopements", elopers);
         return tag;
     }
     public static PetPrivileges load(CompoundTag tag, HolderLookup.Provider registries) {
         var data = new PetPrivileges();
+        for (var item : tag.getList("Elopements", 10)) {
+            var entry = (CompoundTag) item;
+            data.conduct.loadElopement(entry.getUUID("Pet"), entry.getLong("Day"));
+        }
         for (var item : tag.getList("Contributions", 10)) {
             var c = (CompoundTag) item;
             data.records.computeIfAbsent(c.getUUID("Player"), id -> new HashMap<>()).put(c.getUUID("Pet"), c.getInt("Grade"));

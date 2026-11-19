@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
+import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.status.Identity;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,5 +40,29 @@ class ElopementTest {
         assertFalse(RulesMath.departed(true, true, 625, 576, 4));
         assertFalse(RulesMath.departed(true, true, 625, 729, 25));
         assertTrue(RulesMath.departed(true, true, 625, 729, 4));
+    }
+
+    @Test void completionConsumesCustodyOnceAndOnlyRegisteredAnimalsLoseStanding() {
+        var book = new BadgeConduct();
+        var pet = UUID.randomUUID();
+        var wild = UUID.randomUUID();
+        var owner = UUID.randomUUID();
+        var keeper = new AtomicReference<>(owner);
+        var count = new AtomicInteger();
+        Runnable release = () -> { count.incrementAndGet(); keeper.set(null); };
+        assertTrue(book.eloped(pet, owner.equals(keeper.get()), true, 3, release));
+        assertFalse(book.eloped(pet, owner.equals(keeper.get()), true, 4, release));
+        assertEquals(1, count.get());
+        assertEquals(Map.of(pet, 3L), book.elopements());
+        assertEquals(0, book.standing(Map.of(pet, 3)));
+        assertFalse(book.disqualified(wild));
+        var loaded = new BadgeConduct();
+        book.elopements().forEach(loaded::loadElopement);
+        assertTrue(loaded.disqualified(pet));
+        var unbadged = UUID.randomUUID();
+        assertFalse(loaded.eloped(unbadged, true, false, 5, release));
+        assertEquals(2, count.get());
+        assertFalse(loaded.disqualified(unbadged));
+        assertTrue(loaded.cases(unbadged).isEmpty());
     }
 }
