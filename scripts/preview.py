@@ -512,11 +512,11 @@ def collection(args, stage):
 
 
 def moment_url(args):
-    from build_player_entries import MOMENTS
+    from build_player_entries import ATTACHMENT_MOMENTS, MOMENTS
 
     if args.topic in ('excited_leak', 'leak'):
         selection = {'entry': 'leak'}
-    elif args.topic in MOMENTS:
+    elif args.topic in MOMENTS or args.topic in ATTACHMENT_MOMENTS:
         selection = {'entry': args.topic}
     else:
         selection = {'moment': args.topic}
@@ -526,13 +526,13 @@ def moment_url(args):
 
 
 def moment(args, stage):
-    from build_player_entries import MOMENTS
+    from build_player_entries import ATTACHMENT_MOMENTS, MOMENTS
     from build_review_catalog import current_roles
 
     if args.model not in {ident for ident, _, _ in current_roles()}:
         raise ValueError(f'Unknown runtime model: {args.model}')
     authored = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
-    if args.topic not in (*MOMENTS, 'excited_leak') and args.topic not in authored:
+    if args.topic not in (*MOMENTS, *ATTACHMENT_MOMENTS, 'excited_leak') and args.topic not in authored:
         raise ValueError(f'Unknown moment: {args.topic}')
     return f'<a href="{E(moment_url(args), quote=True)}">在放映室打开</a>'
 

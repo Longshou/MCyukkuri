@@ -29,6 +29,9 @@ final class RenderPose implements Overlays.Contact {
     final Map<Integer,Matrix4f> featureTransforms=new HashMap<>();
     final Map<String,Clips.Clip> clips=new HashMap<>();
     final int root;
+    private int hat = -1;
+    private float hatScale = 1;
+    private Vector3f hatAnchor;
     final Vector3f scratch=new Vector3f();
     Vector3f anchor;
     float puff,retention;
@@ -72,8 +75,28 @@ final class RenderPose implements Overlays.Contact {
     }
     private static int start(JsonObject p){return p.get("start").getAsInt();}
     private static int count(JsonObject p){return p.get("count").getAsInt();}
+    private int bone(String name) {
+        for (int i = 0; i < bones.length; i++) if (bones[i].name.equals(name)) return i;
+        throw new IllegalArgumentException("Unknown attachment bone: " + name);
+    }
+    private Matrix4f mouthAttachment(String mouthBone) {
+        var grip = new LipGrip(world[bone(mouthBone)]);
+        for (var raw : data.getAsJsonArray("parts")) {
+            var part = raw.getAsJsonObject();
+            if (part.get("name").getAsString().equals("face_mouth"))
+                for (int i = start(part); i < start(part) + count(part); i++) grip.include(skin(i));
+        }
+        return new Matrix4f().translationRotate(grip.point(), grip.rotation());
+    }
+    private Clips.Track itemTrack(JsonObject clip) {
+        var item = clip.getAsJsonObject("props").getAsJsonObject("item");
+        var keys = item.getAsJsonArray("keys");
+        var samples = new float[keys.size()][];
+        for (int i = 0; i < samples.length; i++) samples[i] = Rig.floats(keys.get(i).getAsJsonArray());
+        return new Clips.Track(bone(item.get("bone").getAsString()), 0, samples);
+    }
     private void offsets(JsonObject p){var v=Rig.floats(p.getAsJsonArray("offsets"));System.arraycopy(v,0,offsets,start(p)*3,v.length);}
-    public void compose(){composer.world(pose,world,-1,1,null,null);updateFeatures();}
+    public void compose(){composer.world(pose,world,hat,hatScale,hatAnchor,null);updateFeatures();}
     private void updateFeatures(){featureTransforms.forEach((b,m)->Compose.feature(bones,world,b,m,new Matrix4f()));}
     private Vector3f skin(int i){var p=new Vector3f();Skin.base(i,p,scratch,source,bindings,world,retention>0?retain:null,puff,offsets,features,featureTransforms);return p;}
     public float minimumY(){float min=Float.POSITIVE_INFINITY;for(var raw:data.getAsJsonArray("parts")){
@@ -103,6 +126,14 @@ final class RenderPose implements Overlays.Contact {
             var patch=raw.getAsJsonObject();var part=data.getAsJsonArray("parts").get(patch.get("index").getAsInt()).getAsJsonObject();
             var values=Rig.floats(patch.getAsJsonArray("vertices"));System.arraycopy(values,0,source,start(part)*8,values.length);
         }
+        var worn = request.getAsJsonObject("hat");
+        if (worn != null) {
+            hat = bone("hat_follow");
+            hatScale = worn.get("scale").getAsFloat();
+            hatAnchor = new Vector3f(Rig.floats(worn.getAsJsonArray("anchor")));
+        } else {
+            hatScale = 1;
+        }
         compose();
         if(request.has("care")){
             var care=request.getAsJsonObject("care");anchor=new Vector3f(Rig.floats(care.getAsJsonArray("anchor")));
@@ -125,6 +156,8 @@ final class RenderPose implements Overlays.Contact {
         boolean wantPaper=request.has("paperCover")&&request.get("paperCover").isJsonArray();
         List<String> accPrefixes=new ArrayList<>();
         if(wantPaper)for(var raw:request.getAsJsonArray("paperCover"))accPrefixes.add(raw.getAsString());
+        var replaced = new ArrayList<String>();
+        if (worn != null) for (var item : worn.getAsJsonArray("accessories")) replaced.add(item.getAsString());
         List<Float> pBody=wantPaper?new ArrayList<>():null,pMesh=wantPaper?new ArrayList<>():null,pHat=wantPaper?new ArrayList<>():null;
         Matrix4f localToWall=turn!=null?new Matrix4f(turn).scale(1/16f):new Matrix4f().scale(1/16f);
         Matrix4f wallToLocal=new Matrix4f(localToWall).invert();
@@ -140,6 +173,7 @@ final class RenderPose implements Overlays.Contact {
             boolean isBody=OfflineModel.group(origName).equals("body")||origName.endsWith("_rump_mark");
             boolean isAcc=wantPaper&&accPrefixes.stream().anyMatch(origName::startsWith);
             boolean skipTent=origName.startsWith("face_")||origName.contains("puff");
+            if (worn != null && replaced.stream().anyMatch(origName::startsWith)) continue;
             for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);p.mul(scale);
                 if(wantPaper&&!skipTent){
                     var tp=new Vector3f(p);
@@ -171,11 +205,30 @@ final class RenderPose implements Overlays.Contact {
         }
         if (request.has("leakStream") && request.get("leakStream").getAsBoolean())
             out.add("leak_stream", vertexData(leakStream(output, scale), packed));
-        if (request.has("outlet")) {
-            var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray("outlet")))).mul(scale);
-            out.add("outlet", OfflineModel.array(new float[]{point.x, point.y, point.z}));
+        for (String field : new String[]{"outlet", "contactAnchor"}) if (request.has(field)) {
+            var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray(field)))).mul(scale);
+            out.add(field, OfflineModel.array(new float[]{point.x, point.y, point.z}));
         }
+        if (request.has("held")) {
+            var held = request.getAsJsonObject("held");
+            Matrix4f matrix = switch (held.get("joint").getAsString()) {
+                case "mouth" -> mouthAttachment(held.get("mouthBone").getAsString());
+                case "item" -> new Matrix4f().scale(16).mul(Overlays.item(bones, world, itemTrack(clip),
+                        null, clips.get(action).time(t), 0)).scale(1 / 16f);
+                default -> throw new IllegalArgumentException("Unknown held prop joint");
+            };
+            out.add("held", Authoring.rows(new Matrix4f().scale(scale).mul(matrix)));
+        }
+        if (worn != null) out.add("hat", Authoring.rows(new Matrix4f().scale(scale).mul(world[hat])));
         if(wantPaper){
+            if (worn != null) {
+                var outline = Rig.floats(worn.getAsJsonArray("outline"));
+                var point = new Vector3f();
+                for (int i = 0; i < outline.length; i += 3) {
+                    world[hat].transformPosition(point.set(outline[i], outline[i + 1], outline[i + 2])).mul(scale);
+                    pHat.add(point.x); pHat.add(point.y); pHat.add(point.z);
+                }
+            }
             var grid=PaperTent.build(floatsOf(pBody),pBody.size(),floatsOf(pMesh),pMesh.size(),floatsOf(pHat),pHat.size(),
                     yield?faces:List.of(),yield&&!faces.isEmpty()?localToWall:null,Double.POSITIVE_INFINITY);
             if(grid!=null){

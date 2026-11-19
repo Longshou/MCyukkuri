@@ -25,6 +25,11 @@ export function sampleTimeline(track, clips, seconds, expression) {
             emote: step.emote, stepSeconds: elapsed};
 }
 
+export function placePoint([x, y, z], [dx, dy, dz], yaw) {
+    const c = Math.cos(yaw), s = Math.sin(yaw);
+    return [dx + c * x + s * z, dy + y, dz - s * x + c * z];
+}
+
 export function emoteFrame(sample, elapsed, duration, leak) {
     const tick = Math.floor(elapsed * 20);
     const sweat = Boolean(leak && tick >= leak.beat.puddleAt && tick < leak.sweatUntil);

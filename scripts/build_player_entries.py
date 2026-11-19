@@ -33,6 +33,18 @@ LEAK = dict(stage='adult', selfControl=50, stimulus='drop', seed=1, pressure=65)
 SPEECH = dict(leak='afraid', wet_relief='self_rescue_safe', rain_huddle='cold',
               thunder_cower='afraid', wake_stretch='awake', fright_vomit='afraid')
 
+ATTACHMENT_MOMENTS = {
+    'held_kanroken': dict(title='叼着棍剑走动', model='myon', loop=True,
+                         steps=[dict(clip='waddle', faces=[], tempo=1)],
+                         held=dict(mesh='kanroken', joint='mouth')),
+    'worn_damaged_hat': dict(title='戴着破帽摇头', model='marisa', loop=True,
+                             steps=[dict(clip='hat_jostle', faces=[], tempo=1)],
+                             hat=dict(mesh='aquatic_basin_hat', form='aquatic_marisa', damage=2)),
+    'parent_child_contact': dict(title='亲子贴嘴', model='reimu', moment='behavior_feed_child',
+                                 partner=dict(model='reimu', clip='idle', scale=.65,
+                                              offset=[0, 0, -8.8], yaw=180, blend=1)),
+}
+
 
 def performance_lines(audio, event):
     lines = {}
@@ -69,6 +81,10 @@ def build_entries(catalog, items):
         if ident == 'fright_vomit':
             entry.update(loop=False, filling=True)
         entries.append(entry)
+
+    for ident, row in ATTACHMENT_MOMENTS.items():
+        moment = authored[row['moment']] if 'moment' in row else {}
+        entries.append(dict(id=ident, category='performances', tag='look-only', **{**moment, **row}))
 
     for model in models:
         ident = model['id']

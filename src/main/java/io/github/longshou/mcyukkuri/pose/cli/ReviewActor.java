@@ -31,9 +31,11 @@ final class ReviewActor {
         var out = new JsonObject();
         out.addProperty("width", width);
         out.add("outlet", bodies.getAsJsonObject(bodies.has(id) ? id : "reimu").get("outlet"));
-        var living = read(assets, "living").getAsJsonObject("variants");
+        var presentation = read(assets, "living");
+        var living = presentation.getAsJsonObject("variants");
         var form = (living.has(id) ? living : read(assets, "subspecies")).getAsJsonObject(id);
         out.add("mouth", form.get("mouth"));
+        out.add("mouthBone", presentation.get("mouth_bone"));
         out.add("paperAccessories", form.get("accessory_prefixes"));
         float modelScale = variant.isHouse() ? BodyConstants.HOUSE_SOURCE_SCALE : 1;
         out.addProperty("modelScale", modelScale);

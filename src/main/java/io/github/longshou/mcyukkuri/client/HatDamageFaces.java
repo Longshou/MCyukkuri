@@ -59,7 +59,7 @@ final class HatDamageFaces {
             for(int i=0;i<n;i++)for(int j=0;j<m;j++){
                 float u=(i+.5f)/n,w=(j+.5f)/m;
                 float su=bilerp(uv0[0],uv1[0],uv2[0],uv3[0],u,w),sv=bilerp(uv0[1],uv1[1],uv2[1],uv3[1],u,w);
-                int[] color=sampler==null?new int[]{200,200,200}:sampler.sample(su,sv);var colors=capRim(color[0],color[1],color[2]);
+                int[] color=sampler==null?new int[]{200,200,200}:sampler.sample(su,sv);var colors=HatDamageGeometry.capRim(color[0],color[1],color[2]);
                 cap[i*m+j]=colors[0];rim[i*m+j]=colors[1];
             }
             faces[k]=new Face(-1,0,corners,n,m,layout.codes(),cap,rim,layout.flip());
@@ -67,30 +67,6 @@ final class HatDamageFaces {
         return faces;
     }
 
-    /** {packed cap, packed rim} using the local cloth colour. */
-    private static int[] capRim(float r, float g, float b) {
-        float luma = (r + g + b) / 3f;
-        float cr, cg, cb, rr, rg, rb;
-        if (luma < 70f) {
-            cr = r * 2f; cg = g * 2f; cb = b * 2f;
-            rr = r * 1.2f; rg = g * 1.2f; rb = b * 1.2f;
-        } else if (luma < 170f) {
-            cr = r * 1.25f; cg = g * 1.25f; cb = b * 1.25f;
-            rr = r * .62f; rg = g * .62f; rb = b * .62f;
-        } else {
-            float mean = (r + g + b) / 3f;
-            float tr = mean + (r - mean) * 2.2f, tg = mean + (g - mean) * 2.2f, tb = mean + (b - mean) * 2.2f;
-            cr = tr * .78f; cg = tg * .78f; cb = tb * .78f;
-            rr = tr * .55f; rg = tg * .55f; rb = tb * .55f;
-        }
-        return new int[]{pack(cr, cg, cb), pack(rr, rg, rb)};
-    }
-
-    private static int pack(float r, float g, float b) {
-        return (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
-    }
-
-    private static int clamp(float value) { return Math.max(0, Math.min(255, Math.round(value))); }
     private static float[] uv(float[] v, int index) { return new float[]{v[index * 8 + 3], v[index * 8 + 4]}; }
     private static float bilerp(float a, float b, float c, float d, float u, float v) {
         return a + (b - a) * u + (d - a) * v + (a - b + c - d) * u * v;

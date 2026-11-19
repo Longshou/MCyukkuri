@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from html.parser import HTMLParser
 import json
+from math import dist
 from pathlib import Path
 import struct
 import subprocess
@@ -163,14 +164,17 @@ class PlayerTests(unittest.TestCase):
             with self.subTest(model=model), self.actor(model) as actor:
                 clips[model] = set(actor['clips'])
                 listed = {entry['clip'] for entry in entries
-                          if entry['category'] == 'performances' and entry.get('model') == model}
+                          if entry['category'] == 'performances' and entry.get('model') == model and 'clip' in entry}
                 self.assertEqual(listed, clips[model])
         for entry in entries:
             if 'steps' in entry:
-                for model in entry['variants']:
+                for model in [entry['model']] if 'model' in entry else entry['variants']:
                     self.assertLessEqual({step['clip'] for step in entry['steps']}, clips[model])
-            if entry.get('model'):
+            elif entry.get('model'):
                 self.assertIn(entry['clip'], clips[entry['model']])
+            if 'partner' in entry:
+                partner = entry['partner']
+                self.assertIn(partner['clip'], clips[partner['model']])
             if entry['category'] == 'props':
                 self.assertEqual(entry['tag'] == 'look-only', bool(entry['image']))
             if media := entry.get('audio') or entry.get('image'):
@@ -301,6 +305,65 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
             raw = self.pose(payload)['root_pose']
             self.assertGreater(abs(raw[3]) + abs(raw[5]), 12)
             self.assertEqual(self.pose(dict(payload, intensity=sample.get('intensity')))['root_pose'], raw)
+
+    def test_live_attachments_and_partner_contact(self):
+        from build_review_catalog import ASSETS, read
+
+        entries = {entry['id']: entry for entry in self.data['entries']}
+        held = entries['held_kanroken']['held']
+        prop = self.pose(dict(op='prop', **held))
+        submitted = [v for mesh in prop['meshes'] for v in mesh['vertices']]
+        original = read(ASSETS/'yukkuri_props/kanroken.json')['vertices']
+        self.assertEqual(struct.pack(f'<{len(submitted)}f', *submitted), struct.pack(f'<{len(original)}f', *original))
+        with self.actor('myon') as actor:
+            payload = dict(op='render', id=actor['id'], action='waddle', time=.1, expression='neutral', scale=1,
+                           held=dict(held, mouthBone=actor['actor']['mouthBone']))
+            first = self.pose(payload)['held']
+            second = self.pose(dict(payload, time=.4))['held']
+            self.assertNotEqual(first, second)
+            self.assertLess(first[2][3], -4)
+            self.assertAlmostEqual(sum(row[0]**2 for row in first), 1, places=5)
+
+        worn = entries['worn_damaged_hat']['hat']
+        hat = self.pose(dict(op='prop', **worn))
+        intact = self.pose(dict(op='prop', **{**worn, 'damage': 0}))
+        self.assertEqual(hat['fit'], intact['fit'])
+        self.assertEqual([mesh['texture'] for mesh in hat['meshes'][:-1]],
+                         [mesh['texture'] for mesh in intact['meshes']])
+        self.assertNotEqual(hat['meshes'][0]['vertices'], intact['meshes'][0]['vertices'])
+        caps = hat['meshes'][-1]
+        self.assertEqual(caps['texture'], 'mcyukkuri/textures/props/hat_damage_inner.png')
+        self.assertEqual(len(caps['vertices']), 8 * len(caps['colors']))
+        self.assertGreater(len(caps['colors']), 0)
+        for texture in {mesh['texture'] for mesh in hat['meshes'] + prop['meshes']}:
+            with urlopen(self.base+'/src/main/resources/assets/'+texture) as response:
+                self.assertEqual(response.headers.get_content_type(), 'image/png')
+        with self.actor('marisa') as actor:
+            payload = dict(op='render', id=actor['id'], action='hat_jostle', time=.1, expression='neutral', scale=1)
+            fit = dict(hat['fit'], accessories=actor['actor']['paperAccessories'])
+            frame = self.pose(dict(payload, hat=fit))
+            self.assertNotEqual(frame['hat'], self.pose(dict(payload, hat=fit, time=.4))['hat'])
+            self.assertGreater(frame['vertices'].count(0), self.pose(payload)['vertices'].count(0))
+            covered = self.pose(dict(payload, hat=dict(fit, outline=hat['outline']),
+                                     paperCover=fit['accessories'], vertexFormat='float32le'))
+            self.assertTrue(covered['paper_top'] and covered['paper_under'])
+            grip = self.pose(dict(payload, action='braid_item_hold', held=dict(joint='item')))['held']
+            self.assertGreater(grip[0][3], 5)
+
+        spec = entries['parent_child_contact']['partner']
+        with self.actor('reimu') as parent, self.actor(spec['model']) as child:
+            mouth = child['actor']['mouth']
+            kid = self.pose(dict(op='render', id=child['id'], action=spec['clip'], time=.2, scale=spec['scale'],
+                                 expression='neutral', contactAnchor=mouth, vertexFormat='float32le'))
+            x, y, z = kid['contactAnchor']
+            target = [-x, y, spec['offset'][2] - z]
+            payload = dict(op='render', id=parent['id'], action='nuzzle', time=.2, scale=1, expression='satisfied',
+                           contactAnchor=parent['actor']['mouth'], vertexFormat='float32le')
+            free = self.pose(payload)
+            care = dict(anchor=parent['actor']['mouth'], target=target, blend=spec['blend'])
+            touching = self.pose(dict(payload, care=care))
+            self.assertLess(dist(touching['contactAnchor'], target), dist(free['contactAnchor'], target))
+            self.assertNotEqual(touching['vertices'], kid['vertices'])
 
     def verdict(self, data, content_type='application/json'):
         body = data if isinstance(data, bytes) else json.dumps(data, ensure_ascii=False).encode('utf-8')

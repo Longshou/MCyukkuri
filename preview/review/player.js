@@ -1,6 +1,7 @@
 import {categories, entryURL, loadEntries} from './entries.js';
-import {buildTimeline, emoteFrame, leakSteps, sampleTimeline, textureFace} from './timeline.mjs';
+import {buildTimeline, emoteFrame, leakSteps, placePoint, sampleTimeline, textureFace} from './timeline.mjs';
 import {actorMesh, loadEmote, loadFloor, loadPaper, loadTexture, updateMesh} from './effects.js';
+import {loadProp} from './props.js';
 import {loadSpeech} from './speech.js';
 import {mountVerdicts} from './verdicts.js';
 
@@ -25,6 +26,62 @@ function floatVertices(base64) {
     const bytes = new Uint8Array(raw.length);
     for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
     return new Float32Array(bytes.buffer);
+}
+
+async function registerActor(modelId, scale) {
+    const actor = await pose({op: 'register', modelId, scale});
+    addEventListener('pagehide', event => {
+        if (!event.persisted) fetch('/pose', {method: 'POST', keepalive: true,
+            body: JSON.stringify({op: 'release', id: actor.id})});
+    });
+    return actor;
+}
+
+function actorMaterial() {
+    return new THREE.MeshBasicMaterial({side: THREE.DoubleSide, vertexColors: true, alphaTest: .05});
+}
+
+function actorTexture(actor) {
+    const textures = new Map();
+    return face => {
+        if (!textures.has(face)) textures.set(face, loadTexture(actor.textures[face]));
+        return textures.get(face);
+    };
+}
+
+function setMap(material, map) {
+    if (!material.map) material.needsUpdate = true;
+    material.map = map;
+}
+
+async function createPartner(scene, data, spec) {
+    const model = data.models[spec.model];
+    const scale = model.scale * spec.scale;
+    const {id, clips, actor} = await registerActor(spec.model, scale);
+    const {track} = buildTimeline(spec, clips, data.momentClips);
+    const material = actorMaterial();
+    const placed = new THREE.Group();
+    const yaw = spec.yaw * Math.PI / 180;
+    placed.position.set(-spec.offset[0], spec.offset[1], spec.offset[2]);
+    placed.rotation.y = -yaw;
+    scene.add(placed);
+    const mesh = actorMesh(placed, material);
+    const texture = actorTexture(model);
+    return {
+        group: placed,
+        async sample(seconds) {
+            const sample = sampleTimeline(track, clips, seconds, 'auto');
+            const face = textureFace(data, model, sample.face, seconds);
+            const [frame, map] = await Promise.all([pose({op: 'render', id, action: sample.clip,
+                time: sample.time, intensity: sample.intensity, expression: face, scale,
+                contactAnchor: actor.mouth, vertexFormat: 'float32le'}), texture(face)]);
+            return {frame, map, target: placePoint(frame.contactAnchor, spec.offset, yaw)};
+        },
+        draw({frame, map}) {
+            updateMesh(mesh, floatVertices(frame.vertices));
+            setMap(material, map);
+        }
+    };
 }
 
 function media(entry) {
@@ -90,14 +147,12 @@ async function playEntry(data, entry) {
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -.06;
     scene.add(ground);
-    const material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, vertexColors: true, alphaTest: .05});
+    const material = actorMaterial();
     const mesh = actorMesh(scene, material);
 
-    const {id, clips, actor: proportions} = await pose({op: 'register', modelId: ident, scale: actor.scale});
-    addEventListener('pagehide', event => {
-        if (!event.persisted) fetch('/pose', {method: 'POST', keepalive: true,
-            body: JSON.stringify({op: 'release', id})});
-    });
+    const {id, clips, actor: proportions} = await registerActor(ident, actor.scale);
+    const [held, hat, partner] = await Promise.all([entry.held && loadProp(scene, entry.held, pose),
+        entry.hat && loadProp(scene, entry.hat, pose), entry.partner && createPartner(scene, data, entry.partner)]);
     const leak = entry.leak && await pose({op: 'leak', ...entry.leak, bodyWidth: proportions.width * actor.scale});
     let drawFloor, stream;
     if (leak) {
@@ -140,14 +195,7 @@ async function playEntry(data, entry) {
     $('mute-control').hidden = !speech;
     const timeline = $('time');
     timeline.max = duration;
-    const textures = new Map();
-
-    function texture(face) {
-        if (!textures.has(face)) {
-            textures.set(face, loadTexture(actor.textures[face]));
-        }
-        return textures.get(face);
-    }
+    const texture = actorTexture(actor);
 
     let azimuth = .45, elevation = .15;
     let expression = 'auto', time = 0, elapsed = 0, lastTime, previous = performance.now();
@@ -167,11 +215,20 @@ async function playEntry(data, entry) {
             paper ??= loadPaper(scene);
         }
         if (streamVisible) payload.leakStream = true;
-        const rich = streamVisible || covered;
+        if (held) payload.held = {...entry.held, mouthBone: proportions.mouthBone};
+        if (hat) payload.hat = {...hat.fit, accessories: proportions.paperAccessories,
+            outline: covered ? hat.outline : undefined};
+        const peer = partner && await partner.sample(seconds);
+        if (peer) payload.care = {anchor: proportions.mouth,
+            target: peer.target.map(value => value / actor.scale), blend: entry.partner.blend};
+        const rich = streamVisible || covered || held || hat;
         if (rich) payload.vertexFormat = 'float32le';
         const [frame, map, sheets] = await Promise.all([pose(payload, !rich), texture(face), paper]);
         if (version !== revision) return;
         updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame.vertices);
+        if (held) held.set(frame.held);
+        if (hat) hat.set(frame.hat);
+        if (partner) partner.draw(peer);
         if (sheets) {
             for (const [index, field] of ['paper_top', 'paper_under'].entries()) {
                 const sheet = sheets[index];
@@ -187,8 +244,7 @@ async function playEntry(data, entry) {
             }
         }
         if (drawFloor) drawFloor(seconds);
-        if (!material.map) material.needsUpdate = true;
-        material.map = map;
+        setMap(material, map);
         emote.set(frame.emote);
         const caption = speech?.caption(elapsed) || sample.caption;
         $('caption').textContent = caption ?? '';
@@ -200,11 +256,14 @@ async function playEntry(data, entry) {
     }
 
     await drawFrame(0, 0, revision);
-    const bounds = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position);
+    const bounds = new THREE.Box3().setFromObject(mesh);
+    for (const prop of [held, hat]) if (prop) bounds.expandByObject(prop.group);
+    if (partner) bounds.expandByObject(partner.group);
     const top = Math.max(bounds.max.y, emoteHeight + emoteSize);
     const centerY = (bounds.min.y + top) / 2;
+    const {x: centerX, z: centerZ} = bounds.getCenter(new THREE.Vector3());
     const span = Math.max((top - bounds.min.y) * .77, 4);
-    const radius = Math.hypot(Math.max(-bounds.min.x, bounds.max.x), Math.max(-bounds.min.z, bounds.max.z));
+    const radius = Math.hypot(bounds.max.x - centerX, bounds.max.z - centerZ);
     const zoom = $('zoom');
     function resize() {
         const width = canvas.clientWidth, height = canvas.clientHeight;
@@ -303,9 +362,9 @@ async function playEntry(data, entry) {
             });
         }
         if (dirty) {
-            camera.position.set(-150 * Math.sin(azimuth) * Math.cos(elevation),
-                centerY + 150 * Math.sin(elevation), -150 * Math.cos(azimuth) * Math.cos(elevation));
-            camera.lookAt(0, centerY, 0);
+            camera.position.set(centerX - 150 * Math.sin(azimuth) * Math.cos(elevation),
+                centerY + 150 * Math.sin(elevation), centerZ - 150 * Math.cos(azimuth) * Math.cos(elevation));
+            camera.lookAt(centerX, centerY, centerZ);
             emote.face(camera);
             renderer.render(scene, camera);
             dirty = false;

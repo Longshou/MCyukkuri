@@ -278,6 +278,31 @@ public final class HatDamageGeometry {
         return a + (b - a) * u + (d - a) * v + (a - b + c - d) * u * v;
     }
 
+    /** {packed cap, packed rim} using the local cloth colour. */
+    public static int[] capRim(float r, float g, float b) {
+        float luma = (r + g + b) / 3f;
+        float cr, cg, cb, rr, rg, rb;
+        if (luma < 70f) {
+            cr = r * 2f; cg = g * 2f; cb = b * 2f;
+            rr = r * 1.2f; rg = g * 1.2f; rb = b * 1.2f;
+        } else if (luma < 170f) {
+            cr = r * 1.25f; cg = g * 1.25f; cb = b * 1.25f;
+            rr = r * .62f; rg = g * .62f; rb = b * .62f;
+        } else {
+            float mean = (r + g + b) / 3f;
+            float tr = mean + (r - mean) * 2.2f, tg = mean + (g - mean) * 2.2f, tb = mean + (b - mean) * 2.2f;
+            cr = tr * .78f; cg = tg * .78f; cb = tb * .78f;
+            rr = tr * .55f; rg = tg * .55f; rb = tb * .55f;
+        }
+        return new int[]{pack(cr, cg, cb), pack(rr, rg, rb)};
+    }
+
+    private static int pack(float r, float g, float b) {
+        return (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
+    }
+
+    private static int clamp(float value) { return Math.clamp(Math.round(value), 0, 255); }
+
     /** Input corners have already been skinned and hat-scaled/fitted. Writes caller-owned scratch only. */
     public static boolean cell(Vector3f[] face,int n,int m,int i,int j,byte code,boolean flip,
                                Vector3f[] out,Vector3f normal,Vector3f temp){

@@ -19,6 +19,7 @@ public final class PoseCli {
                 case "render", "release" -> RenderPose.run(request);
                 case "leak" -> ReviewEffects.leak(request);
                 case "floorEffect" -> ReviewEffects.floor(request);
+                case "prop" -> ReviewProps.load(assets, request);
                 case "register" -> {
                     var review = request.getAsJsonObject("review");
                     var actor = review == null ? null : ReviewActor.describe(

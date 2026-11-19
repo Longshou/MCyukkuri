@@ -37,7 +37,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404);return
         try:
             value = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))))
-            if not isinstance(value, dict) or value.get('op') not in ('register', 'render', 'release', 'leak', 'floorEffect'):
+            if not isinstance(value, dict) or value.get('op') not in ('register', 'render', 'release', 'leak', 'floorEffect', 'prop'):
                 raise ValueError('Expected preview pose request')
             packed = value['op'] == 'render' and self.headers.get('Accept') == 'application/octet-stream'
             if packed:

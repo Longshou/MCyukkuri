@@ -23,7 +23,8 @@ def java_sources():
     base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
     return [*sorted((base/'pose').rglob('*.java')), base/'motor/geom/BraidChain.java', base/'motor/geom/Vec.java',
             base/'body/ModelFingerprint.java', base/'body/BodyConstants.java', base/'entity/YukkuriVariant.java',
-            base/'mind/ExcitedLeak.java', base/'mind/LeakProfile.java', base/'dialogue/VoicePitch.java']
+            base/'mind/ExcitedLeak.java', base/'mind/LeakProfile.java', base/'dialogue/VoicePitch.java',
+            base/'headwear/HatDamageGeometry.java']
 
 
 def java_command():
