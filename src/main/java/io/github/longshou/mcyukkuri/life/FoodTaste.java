@@ -20,6 +20,8 @@ public final class FoodTaste {
 
     /** What one serving of this stack gives at the swallow; the one authority the meal and the taste grade both read. */
     public static float serving(ItemStack food) {
+        var bite = InfantFood.preyBite(food);
+        if (!bite.isEmpty()) return bite.nutrition();
         var data = food.get(DataComponents.FOOD);
         float gain = FillingResource.isFilling(food) ? FillingResource.nutrition(food)
                 : food.is(ModItems.FOOD_SCRAP.get()) ? 10 : data == null ? 20 : Math.clamp(data.nutrition() * 5, 10, 35);

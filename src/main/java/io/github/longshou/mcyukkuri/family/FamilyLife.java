@@ -1386,7 +1386,7 @@ public final class FamilyLife {
         if(ordinaryLandFree(entity)) {
             if(startLandChildSearch())return true;
             if(startAbsence()||startHomeWatch())return true;
-        } else if(!entity.profile().landSettler()) {
+        } else if(!entity.profile().landSettler() && !entity.getVariant().isPredator()) {
             var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
                     &&other.childhood().shouldStayWithParents()&&Bonds.parentOf(entity,other)&&entity.life().canRecognize(other))
                     .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);

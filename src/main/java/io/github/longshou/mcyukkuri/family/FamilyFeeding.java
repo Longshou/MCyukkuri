@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.RemainsEntity;
+import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
@@ -45,6 +47,7 @@ final class FamilyFeeding {
     private final FamilyLife o;
     /** A single real portion survives interruption and reload. */
     private ItemEntity foodSource;
+    private RemainsEntity preySource;
     private BlockPos foodStore;
     private PileContact storeContact;
     private BlockPos plantSource;
@@ -78,12 +81,13 @@ final class FamilyFeeding {
         return careContinuationReady()&&(careFinishTicks>0&&o.target()!=null&&o.target().isAlive()||validCareTarget())&&o.taskTicks()<1200;
     }
     void reset() {
-        foodSource=null;foodStore=null;careOfferTicks=careFinishTicks=0;
+        foodSource=null;preySource=null;foodStore=null;careOfferTicks=careFinishTicks=0;
         hatLarder=null;hatLarderStand=null;
         clearPlant();searchTicks=0;
     }
     private void clearPlant(){ForageClaims.release(plantClaim);plantClaim=null;plantSource=null;plantStand=null;plantContact=0;}
     void died() {
+        if (carrying().is(ModItems.REMAINS.get())) { releaseCareFood("death"); return; }
         if(!carrying().isEmpty()) {
             var dropped=carrying().copy();
             var food=ItemContact.releaseSupported(o.entity(),carrying(),40);
@@ -126,7 +130,7 @@ final class FamilyFeeding {
     }
 
     private boolean careContextReady(boolean mouthAvailable) {
-        return (o.adult()||o.subadult())&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
+        return (o.adult()||o.subadult())&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()
                 &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
                 &&!o.entity().life().isSleeping()&&mouthAvailable&&!o.entity().independence().active()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
@@ -156,7 +160,9 @@ final class FamilyFeeding {
     }
 
     boolean hungryOwnChild(YukkuriEntity child) {
-        return child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
+        return (!o.entity().getVariant().isPredator() || child.family().needsMash()
+                && (!carrying().isEmpty() || o.entity().predator().careSource(child) != null))
+                &&child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()
                 // A sleeping child cannot be served (CareApproach stills a sleeping actor), so it is no request to walk after now.
                 &&!child.life().isSleeping()
@@ -221,6 +227,7 @@ final class FamilyFeeding {
         clearPlant();searchTicks=0;
         boolean ration=o.entity().habitat().hasMoveFoodFor(o.target());
         if(carrying().isEmpty()&&!ration)selectFoodSource();
+        if (o.entity().getVariant().isPredator() && carrying().isEmpty() && preySource==null) { o.target(null); return false; }
         if(carrying().isEmpty()&&!ration&&!sourceChosen()&&FamilyProvision.home(o.entity())!=null
                 &&(o.entity().habitat().shelter()!=null||!FamilyProvision.canFetchOutside(o.entity()))){
             o.target(null);return false;
@@ -240,6 +247,10 @@ final class FamilyFeeding {
      *  that lies about inland, and falls back on what her hat keeps. */
     void selectFoodSource() {
         foodSource=null;foodStore=null;hatLarder=null;hatLarderStand=null;
+        if (o.entity().getVariant().isPredator()) {
+            preySource=o.entity().predator().careSource(o.target());
+            return;
+        }
         var diet=o.entity().profile().diet();
         for(var step:diet.sources()) {
             switch(step) {
@@ -255,7 +266,7 @@ final class FamilyFeeding {
                 foodSource==null?null:foodSource.getUUID(),foodStore,plantSource,hatLarder==null?null:hatLarder.getUUID());
     }
 
-    private boolean sourceChosen() { return foodSource!=null||foodStore!=null||plantSource!=null||hatLarder!=null; }
+    private boolean sourceChosen() { return preySource!=null||foodSource!=null||foodStore!=null||plantSource!=null||hatLarder!=null; }
 
     boolean fetchingOutside() {
         if(o.task()!=Task.FEED_CHILD)return false;
@@ -332,6 +343,7 @@ final class FamilyFeeding {
                 &&(!carrying().isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null||plantSource!=null))return true;
         if(!careReady(mouthAvailable)||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
         if(!carrying().isEmpty()||o.entity().habitat().hasMoveFoodFor(child))return true;
+        if(o.entity().getVariant().isPredator())return o.entity().predator().careSource(child)!=null;
         if(stockedShelter(child)!=null)return true;
         return EventHooks.canEntityGrief(o.level(),o.entity())&&o.level().getEntitiesOfClass(ItemEntity.class,
                 o.entity().getBoundingBox().inflate(24),item->item.isAlive()&&!item.hasPickUpDelay()
@@ -343,6 +355,7 @@ final class FamilyFeeding {
     /** A cancelled handoff does not mint or erase food: return the held portion or leave it where the parent stands. */
     void settleCareFood() {
         if(carrying().isEmpty()){careCarryTicks=careChewTicks=careOfferTicks=0;return;}
+        if(carrying().is(ModItems.REMAINS.get()))return;
         if(o.task()==Task.FEED_CHILD){careCarryTicks=0;return;}
         if(++careCarryTicks<200)return;
         var home=o.entity().habitat().shelter();var heap=home==null?null:home.pile();
@@ -361,6 +374,11 @@ final class FamilyFeeding {
     /** A mouth can take the next serving only once the held care portion really exists in the world. */
     boolean releaseCareFood(String reason) {
         if(carrying().isEmpty())return true;
+        if(carrying().is(ModItems.REMAINS.get())) {
+            boolean released=o.entity().predator().releasePrey(null);
+            GameplayLog.event(o.entity(),"predator","carried prey release reason={} placed={}",reason,released);
+            return released;
+        }
         var food=ItemContact.releaseSupported(o.entity(),carrying(),40);
         if(food==null){
             GameplayLog.limited(o.entity(),"family","care_food.release_refused",200,
@@ -391,6 +409,14 @@ final class FamilyFeeding {
                 endCare("food_search_exhausted");return;
             }
             if(!sourceChosen()&&searchTicks%40==1)selectFoodSource();
+            if (preySource!=null) {
+                if (o.entity().predator().careSource(o.target())!=preySource) { preySource=null; return; }
+                if (!o.entity().predator().touchesPrey(preySource)) { o.entity().predator().approachCarcass(preySource); return; }
+                var bite=CorpseFood.take(preySource,1);
+                store(InfantFood.preyPortion(bite));careChewTicks=careOfferTicks=0;
+                GameplayLog.event(o.entity(),"family","feed portion from prey remains={} portions={} remaining={}",preySource.getUUID(),bite.portions(),CorpseFood.remaining(preySource.data()));
+                preySource=null;return;
+            }
             if(foodSource!=null) {
                 if(!foodSource.isAlive()||foodSource.hasPickUpDelay()||!o.entity().life().acceptsFood(foodSource.getItem())) { foodSource=null;return; }
                 o.entity().getLookControl().setLookAt(foodSource,20,20);
