@@ -175,7 +175,7 @@ public final class Reactions {
             if (seal.pressing()) return Behaviors.NEST_PRESS;
             return switch (stage) {
                 case WATCH -> Behaviors.THREAT_WATCH;
-                case RETREAT -> Behaviors.THREAT_RETREAT;
+                case RETREAT -> flight.cornered(source()) ? Behaviors.THREAT_HIDE : Behaviors.THREAT_RETREAT;
                 case HIDE -> Behaviors.THREAT_HIDE;
                 case STRUCK -> Behaviors.STRUCK;
                 default -> Behaviors.IDLE;
@@ -499,7 +499,7 @@ public final class Reactions {
             var stand = SurfaceApproach.floor(body, away);
             if (stand != null && body.distanceToSqr(stand) >= 1 && !tried.contains(BlockPos.containing(stand))
                     && stand.distanceTo(dangerAt) > currentDistance
-                    && Double.isFinite(SurfaceApproach.routeLength(body, stand, obstacle))) return stand;
+                    && SurfaceApproach.canRetreatTo(body, stand, obstacle)) return stand;
         }
 
         var origin = body.blockPosition();
@@ -525,7 +525,7 @@ public final class Reactions {
             // Keep one blocked corner from consuming the whole route budget.
             for (int i = 0; i < Math.min(8, candidates.size()); i++) {
                 var stand = candidates.get(i);
-                if (Double.isFinite(SurfaceApproach.routeLength(body, stand, obstacle))) return stand;
+                if (SurfaceApproach.canRetreatTo(body, stand, obstacle)) return stand;
             }
         }
         return null;

@@ -37,25 +37,24 @@ public final class FlightPlanner {
             return null;
         var path = body.getNavigation().createPath(BlockPos.containing(stand), 0);
         if (path == null || !path.canReach()) return null;
-        if (clearsThreat(path, danger)) return path;
+        if (safeRoute(path, danger)) return path;
         // In its starting cell the runner can already be farther from danger than the node centre.
         if (path.getNextNodeIndex() != 0 || path.getNodeCount() < 2 || !path.getNodePos(0).equals(body.blockPosition())
                 || !SurfaceApproach.clearLastStep(body, path.getEntityPosAtNode(body, 1))) return null;
         var direct = path.copy();
         direct.advance();
-        return clearsThreat(direct, danger) ? direct : null;
+        return safeRoute(direct, danger) ? direct : null;
     }
 
-    boolean clearsThreat(Path path, Vec3 danger) {
-        double x = body.getX(), z = body.getZ();
-        double clearance = FlightCourse.corridorClearance(Math.hypot(x - danger.x, z - danger.z), CLEARANCE);
+    boolean safeRoute(Path path, Vec3 danger) {
+        var from = body.position();
+        double clearance = FlightCourse.corridorClearance(Math.hypot(from.x - danger.x, from.z - danger.z), CLEARANCE);
         for (int i = path.getNextNodeIndex(); i < path.getNodeCount(); i++) {
             var next = path.getEntityPosAtNode(body, i);
-            if (FlightCourse.segmentDistance(x, z, next.x, next.z, danger.x, danger.z) < clearance) return false;
-            x = next.x;
-            z = next.z;
+            if (FlightCourse.segmentDistance(from.x, from.z, next.x, next.z, danger.x, danger.z) < clearance) return false;
+            from = next;
         }
-        return true;
+        return SurfaceApproach.safeRetreatPath(body, path, null);
     }
 
     private Path fan(Vec3 danger, double reach, Direction direction, BlockPos stalled, Vec3 home) {
@@ -66,14 +65,14 @@ public final class FlightPlanner {
             for (double stride : STRIDES) {
                 double distance = reach * stride;
                 var near = body.position().add(ray.x() * distance, 0, ray.z() * distance);
-                var stand = SurfaceApproach.restingFloor(body, near);
+                var stand = SurfaceApproach.retreatFloor(body, near);
                 if (stand == null || BlockPos.containing(stand).equals(stalled)) continue;
                 double candidate = FlightCourse.scoreCandidate(body.getX(), body.getZ(), stand.x, stand.z,
                         danger.x, danger.z, direction);
                 if (candidate <= score) continue;
                 var path = routeTo(stand, danger);
                 if (path != null && (home == null || !FlightCourse.passesNearThreat(body.getX(), body.getZ(),
-                        stand.x, stand.z, home.x, home.z, CLEARANCE) && clearsThreat(path, home))) {
+                        stand.x, stand.z, home.x, home.z, CLEARANCE) && safeRoute(path, home))) {
                     best = path; score = candidate;
                 }
             }
@@ -96,6 +95,7 @@ public final class FlightPlanner {
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         var path = fan(danger, Math.min(9, distance), direction, null, null);
         if (path != null) body.getNavigation().moveTo(path, 1.2);
+        else SurfaceApproach.halt(body);
     }
 
     private Path refuge(LivingEntity danger) {
@@ -125,7 +125,7 @@ public final class FlightPlanner {
             var away = away(danger.position());
             for (int angle : FAN) {
                 var ray = away.rotate(angle);
-                var step = SurfaceApproach.restingFloor(body, landing.add(ray.x(), 0, ray.z()));
+                var step = SurfaceApproach.retreatFloor(body, landing.add(ray.x(), 0, ray.z()));
                 if (step != null && !FlightCourse.passesNearThreat(landing.x, landing.z, step.x, step.z,
                         danger.getX(), danger.getZ(), CLEARANCE) && SurfaceApproach.clearLastStep(body, landing, step)) return true;
             }
@@ -146,6 +146,10 @@ public final class FlightPlanner {
 
     public void flee(LivingEntity danger) { run(danger, null); }
 
+    public boolean cornered(LivingEntity danger) {
+        return danger != null && source == danger && route == null && body.level().getGameTime() - plannedAt < 40;
+    }
+
     private void run(LivingEntity danger, Vec3 den) {
         long now = body.level().getGameTime();
         var dangerAt = danger.position();
@@ -156,7 +160,7 @@ public final class FlightPlanner {
         if (!changed && now - plannedAt < 40 && (route == null || !navigation.isDone() && route == navigation.getPath())) {
             if (dangerAt.distanceToSqr(checkedDanger) < .25) return;
             if (!FlightCourse.shouldReplan(now - plannedAt, false, false, heading, away)
-                    && (route == null || clearsThreat(route, dangerAt))) {
+                    && (route == null || safeRoute(route, dangerAt))) {
                 checkedDanger = dangerAt;
                 return;
             }
@@ -171,10 +175,10 @@ public final class FlightPlanner {
         route = den == null ? refuge(danger) : null;
         if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled, shielded);
         if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled, shielded);
-        if (route == null) { navigation.stop(); return; }
+        if (route == null) { SurfaceApproach.halt(body); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
-        if (!navigation.moveTo(route, body.newbornStage() ? .8 : 1.2)) { route = null; return; }
+        if (!navigation.moveTo(route, body.newbornStage() ? .8 : 1.2)) { route = null; SurfaceApproach.halt(body); return; }
         route = navigation.getPath();
         GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={}",
                 BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body)));

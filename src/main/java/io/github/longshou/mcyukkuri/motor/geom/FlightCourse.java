@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** Horizontal route checks, independent of the floor and navigation lookup. */
+import java.util.function.DoubleBinaryOperator;
+
+/** Escape geometry, independent of the world and navigation lookup. */
 public final class FlightCourse {
     public record Direction(double x, double z) {
         public double dot(Direction other) { return x * other.x + z * other.z; }
@@ -25,6 +27,24 @@ public final class FlightCourse {
     public static double corridorClearance(double start, double clearance) {
         // Allow for the first grid node without letting a route cross the threat at close quarters.
         return Math.min(clearance, start - Math.min(.35, start * .5)) - .001;
+    }
+
+    public static double safeDrop(double damageFreeDistance, double bodyScale) {
+        return damageFreeDistance * Math.min(1, bodyScale);
+    }
+
+    /** Follow the supporting surface across the segment. A missing or wet landing has height -infinity. */
+    public static double landingAfter(double x, double y, double z, double endX, double endZ,
+                                      double safeDrop, DoubleBinaryOperator dryFloor) {
+        // Quarter-block samples also see partial-block supports between vanilla's node centres.
+        int steps = Math.max(1, (int)Math.ceil(Math.hypot(endX - x, endZ - z) * 4));
+        for (int i = 1; i <= steps; i++) {
+            double t = (double)i / steps;
+            double floor = dryFloor.applyAsDouble(x + (endX - x) * t, z + (endZ - z) * t);
+            if (y - floor > safeDrop) return Double.NEGATIVE_INFINITY;
+            y = floor;
+        }
+        return y;
     }
 
     public static double segmentDistance(double x, double z, double endX, double endZ, double threatX, double threatZ) {

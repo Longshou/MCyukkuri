@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Launch;
@@ -10,6 +11,7 @@ import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.Locale;
 import java.util.function.Consumer;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -41,10 +43,27 @@ public final class Motor {
         return motion.multiply(scale, 1, scale);
     }
 
-    /** Cap combined drive and inertia. A body in a drawn launch follows the admitted ballistic path. */
-    public static Vec3 limitDrivenTravel(YukkuriEntity body, Vec3 motion) {
+    /** Check the actual turn and inertia after steering, including a direct step with no path. */
+    public static Vec3 groundTravel(YukkuriEntity body, Vec3 motion, boolean driving) {
         if (body.family().freeFalling() || body.motor().current() instanceof Launch) return motion;
-        Vec3 limited = limitHorizontal(motion);
+        Vec3 limited = driving ? limitHorizontal(motion) : motion;
+        if (!body.level().isClientSide && limited.horizontalDistanceSqr() > 0
+                && body.getNavigation() instanceof YukkuriGroundNavigation ground && !body.isInLiquid()
+                && (body.onGround() || driving) && (body.hurtTicks() == 0 || body.onGround() && motion.y <= 0)
+                && (driving || ground.walking() || body.isPanicking() || body.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT)) {
+            var from = body.position();
+            var to = from.add(limited.x, 0, limited.z);
+            if (!SurfaceApproach.canSteerOver(body, to)) {
+                // Keep any safe motion along the brink while MoveControl turns back onto its route.
+                if (limited.z != 0 && SurfaceApproach.canSteerOver(body, from.add(0, 0, limited.z)))
+                    limited = limited.multiply(0, 1, 1);
+                else if (limited.x != 0 && SurfaceApproach.canSteerOver(body, from.add(limited.x, 0, 0)))
+                    limited = limited.multiply(1, 1, 0);
+                else limited = limited.multiply(0, 1, 0);
+                GameplayLog.limited(body, "move", "unsafe_drop", 100, "avoided unsafe landing toward={} step={}",
+                        GameplayLog.at(to), GameplayLog.at(limited));
+            }
+        }
         if (limited != motion) body.setDeltaMovement(limited);
         return limited;
     }

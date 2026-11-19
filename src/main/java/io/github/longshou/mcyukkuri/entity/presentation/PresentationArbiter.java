@@ -250,6 +250,12 @@ public final class PresentationArbiter {
                 return;
             }
             boolean shell = e.shellRetraction().active();
+            if (!shell && !e.isInWaterOrBubble() && e.status().reactions().threat().flight().cornered(e.getLastHurtByMob())) {
+                state.behavior(Behaviors.THREAT_HIDE);
+                state.animation(EcologyPresentation.action(Behaviors.THREAT_HIDE));
+                state.expression("teary");
+                return;
+            }
             if (!shell) state.animation(e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE : panicTicks > 100 ? YukkuriAction.STARTLE
                     : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
             // The frame retains the pre-decrement count used to choose the clip.

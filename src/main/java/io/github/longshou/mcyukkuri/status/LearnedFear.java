@@ -170,7 +170,7 @@ public final class LearnedFear {
             var navigation=body.getNavigation();
             if(body.distanceToSqr(stand)<1)finish("away");
             else if(navigation.isDone()||navigation.getPath()!=route
-                    ||holder!=null&&!body.status().reactions().threat().flight().clearsThreat(route,danger))finish("blocked");
+                    ||holder!=null&&!body.status().reactions().threat().flight().safeRoute(route,danger))finish("blocked");
         }
 
         private void finish(String outcome) {

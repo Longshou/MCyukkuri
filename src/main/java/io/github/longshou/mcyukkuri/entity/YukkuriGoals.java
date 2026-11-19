@@ -246,7 +246,9 @@ final class YukkuriGoals {
             if (threat != null) owner.status().reactions().threat().flight().flee(threat);
             else if (owner.directNavigation().isDone()) {
                 Vec3 target = DefaultRandomPos.getPos(owner, 6, 3);
-                if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.2);
+                var path = target == null ? null : owner.directNavigation().createPath(BlockPos.containing(target), 0);
+                if (path != null && SurfaceApproach.safeRetreatPath(owner, path, null)) owner.directNavigation().moveTo(path, 1.2);
+                else SurfaceApproach.halt(owner);
             }
         }
         @Override public void stop() {

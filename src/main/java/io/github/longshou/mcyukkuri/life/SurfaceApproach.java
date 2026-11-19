@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
+import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.motor.surface.CollisionBoxes;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
 public final class SurfaceApproach {
@@ -90,6 +92,62 @@ public final class SurfaceApproach {
     /** A planned rest target ignores temporary occupants; walking still checks real collisions. */
     public static Vec3 restingFloor(YukkuriEntity actor, Vec3 near) {
         return floor(actor,near,true);
+    }
+
+    private static double safeDrop(YukkuriEntity actor) {
+        return FlightCourse.safeDrop(actor.getAttributeValue(Attributes.SAFE_FALL_DISTANCE), actor.growthScale() * actor.getScale());
+    }
+
+    /** The first dry collider under the runner's centre, including slab and stair tops. */
+    private static double dryLanding(YukkuriEntity actor, double x, double z, double top, double bottom) {
+        var from = new Vec3(x, top + .025, z);
+        var to = new Vec3(x, bottom - .025, z);
+        var level = actor.level();
+        if (!level.hasChunkAt(BlockPos.containing(from))) return Double.NEGATIVE_INFINITY;
+        var hit = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
+        if (hit.getType() == HitResult.Type.MISS) return Double.NEGATIVE_INFINITY;
+        var pos = hit.getBlockPos();
+        if (!level.getFluidState(pos).isEmpty()) {
+            // A waterlogged block can still have a dry top above the fluid.
+            var solid = level.getBlockState(pos).getCollisionShape(level, pos, CollisionContext.of(actor)).clip(from, to, pos);
+            if (solid == null || solid.getLocation().y < hit.getLocation().y) return Double.NEGATIVE_INFINITY;
+        }
+        return hit.getLocation().y;
+    }
+
+    public static Vec3 retreatFloor(YukkuriEntity actor, Vec3 near) {
+        double drop = safeDrop(actor);
+        double y = dryLanding(actor, near.x, near.z, near.y + .5, near.y - drop);
+        return near.y - y <= drop ? restingFloor(actor, new Vec3(near.x, y, near.z)) : null;
+    }
+
+    /** Survey each leg from the previous real sole height, even when the path finder rounds a node to a whole block. */
+    private static double retreatLanding(YukkuriEntity actor, Vec3 from, Vec3 to) {
+        double drop = safeDrop(actor);
+        double top = Math.max(from.y, to.y);
+        return FlightCourse.landingAfter(from.x, from.y, from.z, to.x, to.z, drop,
+                (x, z) -> dryLanding(actor, x, z, top, from.y - drop));
+    }
+
+    public static boolean canSteerOver(YukkuriEntity actor, Vec3 to) {
+        var from = actor.position();
+        double landing = retreatLanding(actor, from, to);
+        return from.y + actor.fallDistance - landing <= safeDrop(actor);
+    }
+
+    /** Include the exact final step when the escape is a surface approach rather than a vanilla node target. */
+    public static boolean safeRetreatPath(YukkuriEntity actor, Path path, Vec3 destination) {
+        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation)) return true;
+        var from = actor.position();
+        if (path != null) {
+            for (int i = path.getNextNodeIndex(); i < path.getNodeCount(); i++) {
+                var next = path.getEntityPosAtNode(actor, i);
+                double y = retreatLanding(actor, from, next);
+                if (!Double.isFinite(y)) return false;
+                from = new Vec3(next.x, y, next.z);
+            }
+        }
+        return destination == null || Double.isFinite(retreatLanding(actor, from, destination));
     }
     /** The highest collision top under the body's square footprint within half a block of {@code near}, unchecked. */
     public static Vec3 surface(YukkuriEntity actor, Vec3 near) { return top(actor,near); }
@@ -345,6 +403,14 @@ public final class SurfaceApproach {
 
     /** Read-only planning, including the last step from a vanilla node to the exact physical stand. */
     public static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle){
+        return routeLength(actor,destination,obstacle,false);
+    }
+
+    public static boolean canRetreatTo(YukkuriEntity actor,Vec3 destination,AABB obstacle){
+        return Double.isFinite(routeLength(actor,destination,obstacle,true));
+    }
+
+    private static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle,boolean retreat){
         var goal=outside(actor,destination,obstacle);
         var bed=goal==null?null:NestDoorway.at(actor,goal);
         if(bed!=null){
@@ -352,7 +418,7 @@ public final class SurfaceApproach {
             goal=NestDoorway.stand(actor,bed,goal);
         }
         var route=goal==null?null:plan(actor,goal,obstacle,true);
-        return route==null?Double.POSITIVE_INFINITY:route.length();
+        return route==null||retreat&&!safeRetreatPath(actor,route.path(),goal)?Double.POSITIVE_INFINITY:route.length();
     }
 
     /** Where the latest request for {@code destination} is walked to (moved clear of a hat's brim), or null without a recent one. */
