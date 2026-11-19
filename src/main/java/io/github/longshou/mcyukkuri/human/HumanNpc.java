@@ -715,7 +715,7 @@ public final class HumanNpc extends PathfinderMob {
         }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
-            if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
+            if (ExamSession.steer(HumanNpc.this)) return;
             if (isTrading()) { street.stopHelp(); street.stopCropShoo(); getNavigation().stop(); return; }
             if (street.shooingCrop()) {
                 clearAttention();

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -60,6 +61,7 @@ public final class ExamSession {
     private final BadgeGrade before, target;
     private Phase phase = Phase.APPROACH;
     private int phaseTicks;
+    private BlockPos approachTarget;
     private UUID sayCard, nameCard;
     private boolean passed;
 
@@ -89,6 +91,23 @@ public final class ExamSession {
     }
     public static boolean running(YukkuriEntity candidate) { return candidateSession(candidate) != null; }
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
+    /** Run after the examiner's routine has taken MOVE and LOOK from its previous goal. */
+    public static boolean steer(HumanNpc examiner) {
+        var session = ACTIVE.get(examiner.getUUID());
+        if (session == null) return false;
+        examiner.getLookControl().setLookAt(session.candidate, 30, 30);
+        if (session.phase == Phase.APPROACH) {
+            var target = session.candidate.blockPosition();
+            if (session.inContact()) {
+                examiner.getNavigation().stop();
+                session.approachTarget = null;
+            } else if (!target.equals(session.approachTarget)) {
+                session.approachTarget = target;
+                examiner.getNavigation().moveTo(session.candidate, .9);
+            }
+        }
+        return true;
+    }
     public static boolean ownerPresent(YukkuriEntity candidate, UUID id) {
         var session = candidateSession(candidate);
         return session != null && session.ownerId.equals(id) && session.owner() != null;
@@ -180,10 +199,8 @@ public final class ExamSession {
         var owner = owner();
         var reason = interruption(owner);
         if (reason != null) { interrupt(reason); return; }
-        examiner.getLookControl().setLookAt(candidate, 30, 30);
         switch (phase) {
             case APPROACH -> {
-                if (phaseTicks == 1 && !inContact()) examiner.getNavigation().moveTo(candidate, .9);
                 if (phaseTicks % 20 == 1) {
                     waitingBeat(owner);
                 }
