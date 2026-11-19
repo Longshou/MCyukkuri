@@ -2796,10 +2796,11 @@ def arc_exchange(log):
 
 def arc_response(log, line, cause, mother):
     events = re.findall(rf'arc spoke=({line})\b|disqualified cause=({cause})\b|advancement=(unauthorized_found|confession)\b', log)
-    order = [next(value for value in event if value) for event in events]
-    expected = [line, cause, cause, 'unauthorized_found'] + (['confession'] if cause == 'confession' else [])
-    if order != expected:
-        return f'Expected {expected}; got {order}'
+    records = [spoken or verdict for spoken, verdict, _ in events if spoken or verdict]
+    awards = [award for _, _, award in events if award]
+    expected_awards = ['unauthorized_found', 'confession'] if cause == 'confession' else ['unauthorized_found']
+    if events[:2] != [(line, '', ''), ('', cause, '')] or records != [line, cause, cause] or awards != expected_awards:
+        return f'Expected {line}, then both {cause} parent records and {expected_awards}; got {events}'
     if cause == 'babies':
         children = re.findall(rf'\[family\].*uuid=(\S+) .*born brood=\S+ .*mother={mother}\b', log)
         subjects = re.findall(r'disqualified cause=babies .*subject=(\S+)', log)
