@@ -23,7 +23,7 @@ public final class BedSpace {
         }
     }
 
-    public static boolean fits(List<Box> boxes,double x,double z,double width,double height,double reach,double brim,double top) {
+    public static boolean fits(List<Box> boxes,double x,double z,double width,double height,double reach,double brim,double top,boolean yieldingBrim) {
         double r=width*.5;
         List<Rect> unsupported=List.of(new Rect(x-r,z-r,x+r,z+r));
         for(var b:boxes) {
@@ -37,7 +37,8 @@ public final class BedSpace {
             if(b.y0<top && b.y1>brim){
                 double nearX=Math.clamp(x,b.x0,b.x1), nearZ=Math.clamp(z,b.z0,b.z1);
                 double dx=x-nearX, dz=z-nearZ;
-                if(dx*dx+dz*dz<reach*reach && !WallYield.pressesSide(x,z,nearX,nearZ,b.y0,height,
+                if(dx*dx+dz*dz>=reach*reach)continue;
+                if(!yieldingBrim || !WallYield.pressesSide(x,z,nearX,nearZ,b.y0,height,
                         (px,pz,bodyTop)->boxes.stream().anyMatch(wall->wall.supportsSide(px,pz,bodyTop))))return false;
             }
         }

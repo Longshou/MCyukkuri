@@ -51,6 +51,11 @@ public final class HatGeometry {
     private static final JsonObject WORN=GeometryJson.read("yukkuri_presentation/hat_interactions.json").data();
     /** The worn hat of a hatted form (bone, lift and forward of its take-off motion), or null for a form without one. */
     public static JsonObject worn(String assetId){return WORN.getAsJsonObject("variants").getAsJsonObject(assetId);}
+    /** The authored hat geometry of a form with a brim, or null for other headwear. */
+    public static JsonObject brim(YukkuriView body) {
+        var hat = worn(body.assetId());
+        return hat != null && hat.has("ring") ? hat : null;
+    }
     private static final Map<String,Double> HALF_WIDTHS=new ConcurrentHashMap<>();
     /** Half width of a form's authored boxes, hair and ribbons included (model units); Reimu's when the form has none. */
     public static double formHalfWidth(String assetId){

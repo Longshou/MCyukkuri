@@ -827,14 +827,12 @@ public final class ParentCarry {
 
     // ---- the brim: free room on the hat's brim top, by the shared footprint rule
 
-    /** The worn hat of a hatted form with a brim, or null. */
-    private static JsonObject brim(YukkuriView carrier) { var hat = HatGeometry.worn(carrier.assetId()); return hat != null && hat.has("ring") ? hat : null; }
     /** A brim takes children only while the hat is visibly worn. */
-    public static boolean brimmed(YukkuriView carrier) { return carrier.hasVisibleAccessory() && brim(carrier) != null; }
+    public static boolean brimmed(YukkuriView carrier) { return carrier.hasVisibleAccessory() && HatGeometry.brim(carrier) != null; }
     /** The hat bone of the carrier's steady carry pose (idle or walk), model units. */
     public static Matrix4f hatPose(YukkuriView carrier, float partial) {
         float elapsed = Math.max(0, (carrier.level().getGameTime() - carrier.getAnimationStartTick() + partial) / 20f);
-        var pose = new Matrix4f(WoundSurface.get(carrier.assetId()).pose(carryAction(carrier), elapsed)[brim(carrier).get("bone").getAsInt()]);
+        var pose = new Matrix4f(WoundSurface.get(carrier.assetId()).pose(carryAction(carrier), elapsed)[HatGeometry.brim(carrier).get("bone").getAsInt()]);
         var anchor = HatGeometry.anchor();
         return pose.translate(anchor).scale(HatScale.factor(carrier.subspeciesFlags())).translate(anchor.negate());
     }
@@ -961,7 +959,7 @@ public final class ParentCarry {
 
     /** A hop clears the worn hat's crown and gets its footprint past the brim before descending through brim height. */
     public static Predicate<Vec3> brimExitClearance(YukkuriEntity carrier, YukkuriEntity child, float yaw) {
-        var hat = brim(carrier);
+        var hat = HatGeometry.brim(carrier);
         var faces = tops(hat, carrier.assetId());
         var obstacles = new ArrayList<float[]>();
         for (var box : hat.getAsJsonArray("obstacles")) obstacles.add(floats(box.getAsJsonArray()));
@@ -1037,7 +1035,7 @@ public final class ParentCarry {
     }
     /** The first brim spot ({@link #brimSpots}) this child fits beside the given discs (x, z, radius), or null when the brim has no room for it. */
     private static float[] freeBrimSpot(YukkuriView carrier, YukkuriView child, List<float[]> taken) {
-        var hat = brim(carrier);
+        var hat = HatGeometry.brim(carrier);
         if (hat == null) return null;
         float r = radius(carrier, child);
         var from = new Matrix4f(hatPose(carrier, 0)).invert().transformPosition(edge());
@@ -1066,7 +1064,7 @@ public final class ParentCarry {
     }
     /** A brim child's spot (hat-bone model units x, y, z) and its outward facing (degrees), or null when it has none. */
     public static float[] brimSeat(YukkuriView carrier, YukkuriView child) {
-        var hat = brim(carrier);
+        var hat = HatGeometry.brim(carrier);
         var e = entry(carrier, child.getUUID());
         if (hat == null || !e.contains("X")) return null;
         float x = e.getFloat("X"), z = e.getFloat("Z"), top = top(tops(hat, carrier.assetId()), x, z, 0);

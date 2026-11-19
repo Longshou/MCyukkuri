@@ -8,10 +8,10 @@ import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.BedSpace;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import java.util.ArrayList;
 import java.util.List;
-import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +26,7 @@ public final class BedContainer implements Container {
     private final YukkuriEntity body;
     private List<BedSpace.Box> space;
     private double reach, brim, top;
+    private boolean yieldingBrim;
     private final FloorShape floor;
     private final double floorY,rimY;
 
@@ -64,10 +65,13 @@ public final class BedContainer implements Container {
 
     /** Test floor support, the body and overhead headwear clearance at the proposed feet. Side walls press the brim. */
     public boolean standsInside(double x,double z){
-        float width=body.getBbWidth();
-        if(OccupancyMath.classify(x,z,floorY,Occupancy.foot(width),floor,floorY,rimY,true)!=OccupancyMath.Result.INSIDE_SUPPORTED)return false;
+        return Occupancy.at(this,new Vec3(centre.x+x,floorY,centre.z+z),body.getBbWidth(),true)==Occupancy.INSIDE_SUPPORTED;
+    }
+
+    boolean spaceFits(double x,double z){
         if(space==null){
             reach=HeadTop.reach(body);brim=HeadTop.brimBottom(body);top=HeadTop.height(body);
+            yieldingBrim=body.life().hasAccessory() && HatGeometry.brim(body)!=null;
             double half=((FloorShape.RoundedRect)floor).half()+reach;
             var bounds=new AABB(centre.x-half,floorY-.001,centre.z-half,centre.x+half,floorY+top,centre.z+half);
             space=new ArrayList<>();
@@ -77,7 +81,7 @@ public final class BedContainer implements Container {
         var level=body.level();
         return level.hasChunksAt(BlockPos.containing(centre.x+x-reach,floorY,centre.z+z-reach),
                 BlockPos.containing(centre.x+x+reach,floorY+top,centre.z+z+reach))
-                && BedSpace.fits(space,x,z,width,body.getBbHeight(),reach,brim,top);
+                && BedSpace.fits(space,x,z,body.getBbWidth(),body.getBbHeight(),reach,brim,top,yieldingBrim);
     }
 
     @Override public FloorShape floor(){return floor;}

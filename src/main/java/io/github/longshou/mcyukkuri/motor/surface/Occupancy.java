@@ -39,7 +39,7 @@ public enum Occupancy {
         if (c == null || feet == null) return OUTSIDE;
         Vec3 p = c.toPlane(feet);
         return switch (OccupancyMath.classify(p.x, p.z, p.y, foot(bbWidth), c.floor(), c.floorY(), c.rimY(), supported)) {
-            case INSIDE_SUPPORTED -> INSIDE_SUPPORTED;
+            case INSIDE_SUPPORTED -> c instanceof BedContainer bed && !bed.spaceFits(p.x,p.z) ? PARTIAL : INSIDE_SUPPORTED;
             case ON_RIM -> ON_RIM;
             case PARTIAL -> PARTIAL;
             case OUTSIDE -> OUTSIDE;
