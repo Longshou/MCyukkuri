@@ -79416,6 +79416,67 @@
     "sound": ""
   },
   {
+    "id": "mold_itch.what",
+    "key": "dialogue.mcyukkuri.original.mold_itch.what",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_itch"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "mold_itch.skin",
+    "key": "dialogue.mcyukkuri.original.mold_itch.skin",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_itch"
+    ],
+    "ticks": 123,
+    "sound": "",
+    "variant": "timid"
+  },
+  {
+    "id": "mold_self_aware.no",
+    "key": "dialogue.mcyukkuri.original.mold_self_aware.no",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_self_aware"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "mold_notice_unaware.spots",
+    "key": "dialogue.mcyukkuri.original.mold_notice_unaware.spots",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_notice_unaware"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "mold_shun_unaware.gross",
+    "key": "dialogue.mcyukkuri.original.mold_shun_unaware.gross",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "mold_shun_unaware"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
     "id": "beg_ask.bite",
     "key": "dialogue.mcyukkuri.original.beg_ask.bite",
     "origin": "project-original",

@@ -6,6 +6,9 @@ import net.minecraft.world.damagesource.DamageTypes;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.cognition.SkillMath;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -50,7 +53,7 @@ public final class BodyLife {
     private static final int MAX_WOUNDS=8;
     private final YukkuriEntity entity;
     private int wound,infection,ticks;
-    private int mold,moldExposure,moldContact;
+    private int mold,moldExposure,moldContact,noticedMoldTier;
     private int burns,hairLoss;
     private final ArrayList<BodyWound> wounds=new ArrayList<>();
     private int releaseCursor;
@@ -241,7 +244,11 @@ public final class BodyLife {
         if(!treatmentAllowed()||mold==0||mold>=MOLD_TERMINAL)return false;
         int before=mold;
         moldContact=0;
-        if(mold<=MOLD_CURABLE){mold=moldExposure=moldSpread=0;entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);}
+        if(mold<=MOLD_CURABLE){
+            mold=moldExposure=moldSpread=noticedMoldTier=0;
+            entity.skills().practise(Ability.MOLD_LORE, SkillMath.pointsForGrade(1, Ability.MOLD_LORE.graded), "cured");
+            entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);
+        }
         else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","hurt",80);}
         entity.syncBody();GameplayLog.event(entity,"body","mold remover changed stage {} -> {}",before,mold);return true;
     }
@@ -519,6 +526,7 @@ public final class BodyLife {
         }else moldExposure=Math.max(0,moldExposure-1);
         if(mold==0&&ticks%MoldContagion.SAMPLE==0)sampleMoldContact();
         if(mold>0){
+            noticeOwnMold();
             // Mould spreads on dirty skin and holds still on clean skin; the terminal stage reaches the core.
             if(life.hygiene()<50&&++moldSpread>=6000){moldSpread=0;advanceMold("spread");entity.syncBody();}
             if(ticks%400==0){if(mold>=MOLD_TERMINAL){damageCore("mold");return;}if(mold>=3)damage(.25f+mold*.1f,"mold");}
@@ -552,6 +560,25 @@ public final class BodyLife {
         if(previousInfection!=infection)GameplayLog.event(entity,"body","infection {} -> {}; open_wound={} hygiene={}",previousInfection,infection,open,life.hygiene());
         if(previousToxin>=SICK_TOXIN&&toxin<SICK_TOXIN)GameplayLog.event(entity,"body","toxin sickness cleared; toxin {} -> {}",previousToxin,toxin);
     }
+    public void discoverMold(String reason) {
+        if (!entity.skills().assessed(Ability.MOLD_LORE)) {
+            double chance = .15 + .30 * entity.life().personality().temperament().clever();
+            entity.skills().discover(Ability.MOLD_LORE, entity.getRandom().nextDouble() < chance, reason);
+        }
+    }
+
+    private void noticeOwnMold() {
+        discoverMold("own_mold");
+        int tier = BodySigns.moldTier(mold);
+        boolean knows = entity.skills().knows(Ability.MOLD_LORE);
+        if (tier == noticedMoldTier && (knows || ticks % 2400 != 0)) return;
+        if (entity.hasReaction() || entity.life().isSleeping() || entity.isPanicking() || entity.life().mealTicks() > 0) return;
+        if (knows) entity.showReaction("horrified", "", 80);
+        else entity.showReaction(YukkuriAction.SHAKE, "squeezed_frown", "", 60);
+        entity.speakCue(knows ? "mold_self_aware" : "mold_itch");
+        noticedMoldTier = tier;
+    }
+
     private static boolean atDen(YukkuriEntity resident, ShelterBlockEntity den) {
         return den.contains(resident.blockPosition()) || resident.distanceToSqr(Vec3.atCenterOf(den.entrance())) <= 9;
     }
@@ -696,6 +723,7 @@ public final class BodyLife {
         if(lastBurnAt>=0)tag.putLong("LastBurnAt",lastBurnAt);
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
         tag.putInt("MoldContact",moldContact);
+        tag.putInt("NoticedMoldTier",noticedMoldTier);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
         // The centre filling is the sweetest part; unease before death sweetens it further (docs/FEATURES.md).
@@ -716,6 +744,7 @@ public final class BodyLife {
         lastBurnAt=tag.contains("LastBurnAt")?tag.getLong("LastBurnAt"):-1;
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         moldContact=Math.clamp(tag.getInt("MoldContact"),0,MoldContagion.THRESHOLD);
+        noticedMoldTier=Math.clamp(tag.getInt("NoticedMoldTier"),0,4);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         // Saves from before the centre filling existed carry no flag: their core is unhurt.
         coreHurt=tag.getBoolean("CoreHurt");footBurned=tag.getBoolean("FootBurned");footScorch=Math.clamp(tag.getInt("FootScorch"),0,12);toxin=

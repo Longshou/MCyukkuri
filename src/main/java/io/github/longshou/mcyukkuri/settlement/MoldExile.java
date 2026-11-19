@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.BodySigns;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -40,6 +41,7 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class MoldExile extends Goal implements MotorOwner {
     private static final int SIGHT = 6;
+    private static final int UNAWARE_RELIEF = 12; // Spots alone lack the fear of catching it.
     private static final int REACTION = 60;
     /** Witness beats: the start at the sight, then the warning, then (harsh ones) the scorn and the push. */
     private static final int NOTICE = 30, SCORN_AFTER = 50, WARN_HOLD = 80, SCORN_HOLD = 150;
@@ -159,7 +161,8 @@ public final class MoldExile extends Goal implements MotorOwner {
         };
         double ties = Bonds.careOrMate(observer, subject) ? 12 + .55 * personality.attachment() : 0;
         return 9 * visibleSeverity + 12 * closeness + .18 * (100 - personality.friendliness())
-                + .12 * (100 - personality.boldness()) - 38 - .30 * bond - ties;
+                + .12 * (100 - personality.boldness()) - 38 - .30 * bond - ties
+                - (observer.skills().knows(Ability.MOLD_LORE) ? 0 : UNAWARE_RELIEF);
     }
 
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity subject) {
@@ -254,7 +257,6 @@ public final class MoldExile extends Goal implements MotorOwner {
                 task = Task.WITNESS;
                 peer = observed;
                 home = encounterHome(observed);
-                driving = aversion(entity, observed) > 0;
                 return true;
             }
         }
@@ -323,6 +325,8 @@ public final class MoldExile extends Goal implements MotorOwner {
         lookBackTicks = 0;
         var t = entity.life().personality().temperament();
         if (task == Task.WITNESS) {
+            entity.body().discoverMold("mold_sight");
+            driving = aversion(entity, peer) > 0;
             // A sight already known to it (the same sick one coming back) skips the start and goes straight to the warning.
             boolean known = peer.getUUID().equals(lastWitnessed) && (peer.moldExile().task == Task.APPEAL
                     || level().getGameTime() < nextWitness + 1200);
@@ -333,7 +337,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             // A harsh witness can drive off a stranger or kin it feels detached from.
             harsh = driving && t.is(Gate.HARSH)
                     && !(Bonds.careOrMate(entity, peer) && !t.is(Gate.DETACHED));
-            if (!known) entity.showReaction("surprise", "mold_notice", NOTICE);
+            if (!known) entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
             else answer();
             GameplayLog.event(entity, "settlement", "mold witnessed subject={} stage={} distance={} aversion={} response={} fond={} harsh={}",
                     peer.getUUID(), peer.body().mold(), entity.distanceTo(peer), Math.round(aversion(entity, peer)), driving ? "drive" : "stay", fond, harsh);
@@ -389,7 +393,8 @@ public final class MoldExile extends Goal implements MotorOwner {
     private void watch() {
         entity.getLookControl().setLookAt(peer, 30, 30);
         if (ticks == noticeEnd && noticeEnd > 0) answer();
-        if (harsh && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)) entity.speakCue("mold_scorn");
+        if (harsh && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)
+                && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0) || pushed && !(entity.motor().current() instanceof Push)) return;
         if (!canPush()) {
             if (pushed) { entity.motor().cancel(this, "contact_ended"); return; }
@@ -415,9 +420,11 @@ public final class MoldExile extends Goal implements MotorOwner {
     /** The witness's answer to what it saw: a fond kin's sobbed apology, a driver's warning, or a wary watch. */
     private void answer() {
         if (fond) {
-            if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue("mold_sorrow");
+            if (entity.skills().knows(Ability.MOLD_LORE)) {
+                if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue("mold_sorrow");
+            } else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", WARN_HOLD);
         } else if (driving) {
-            if (entity.showReaction("puff", "", 50)) entity.speakCue("mold_warn");
+            if (entity.showReaction("puff", "", 50)) entity.speakCue(entity.skills().knows(Ability.MOLD_LORE) ? "mold_warn" : "mold_shun_unaware");
         }
         else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 40);
     }
