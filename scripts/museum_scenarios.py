@@ -2481,7 +2481,7 @@ _rule_songs = _rule_owner(3) + [(12, f'yukkuri scenario owner_at {_rule_pet} awa
 for _tick in range(100, 4200, 40):
     _rule_songs += [
         (_tick, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
-        (_tick + 1, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} store success score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
+        (_tick + 1, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
         (_tick + 2, 'execute if score #rule_scold museum matches 1 run yukkuri scenario tool_operator leave')]
 _rule_songs.append((4200, 'yukkuri scenario tool_operator leave'))
 
