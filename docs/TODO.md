@@ -14,6 +14,7 @@
 | 新窝不得让别人已有的窝失效 | `.worktrees/wp-den-placement` | settlement/ShelterPlacement.java |
 | 水中救援先找站得稳的位置，不再站不稳就放弃 | `.worktrees/wp-rescue-footing` | aquatic/Rescue.java, aquatic/Ferry.java, motor/action/Grab.java, intent/AskLedger.java |
 | 挨打后的发抖或赌气接着出现，不回到平常脸 | `.worktrees/wp-threat-aftermath` | status/StruckResponse.java, status/PunishmentReaction.java |
+| 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 
 ## 玩法待办
 
