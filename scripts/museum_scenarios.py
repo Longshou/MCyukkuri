@@ -1559,18 +1559,18 @@ _choice_scene(
     'choice_nest', '同伴走近草窝：鼓腮宣言或让开',
     '两个棚子各有一只魔理沙守着自己的草窝，开场两秒后各来一只灵梦走近。左边胆大不友善的鼓腮宣告这是自己的窝，右边友善的挪开让出位置。',
     [*(line for x, name, traits in ((-7, 'nest_declare', _pushy), (7, 'nest_yield', _considerate))
-       for line in (box(x - 2, 3, -3, x + 2, 3, 3, 'minecraft:oak_planks'),
+       for line in (box(x - 2, 3, -18, x + 2, 3, -12, 'minecraft:oak_planks'),
                     *(block(nx, 0, nz, 'minecraft:oak_fence') for nx in range(x - 2, x + 3)
-                      for nz in range(-3, 4) if abs(nx - x) == 2 or nz in (-3, 3)),
-                    block(x, 0, 0, 'mcyukkuri:straw_nest[facing=south]'),
-                    _choice_actor(name, x - .85, 1.2, yaw=0, energy=55, lead=x < 0, **traits)))],
-    (0, 11, 180, 12),
+                      for nz in range(-18, -11) if abs(nx - x) == 2 or nz in (-18, -12)),
+                    block(x, 0, -15, 'mcyukkuri:straw_nest[facing=south]'),
+                    _choice_actor(name, x - .85, -13.8, yaw=0, energy=55, lead=x < 0, **traits)))],
+    (0, -4, 180, 12),
     [('nest_declare', r'nest dispute [^\n]*response=declare'), ('nest_yield', r'nest dispute [^\n]*response=yield')],
     expect=[rf'uuid={_uuid_text(_ugly, "nest_declare")}[^\n]* declared site=.*spoken=true',
             rf'uuid={_uuid_text(_ugly, "nest_yield")}[^\n]* nest gave space '],
-    late=[home('nest_declare', -7, 0), home('nest_yield', 7, 0),
-          yk('reimu', -7, 1.2, 'nest_peer_west', energy=55, yaw=180),
-          yk('reimu', 7, 1.2, 'nest_peer_east', energy=55, yaw=180)])
+    late=[home('nest_declare', -7, -15), home('nest_yield', 7, -15),
+          yk('reimu', -7, -13.8, 'nest_peer_west', energy=55, yaw=180),
+          yk('reimu', 7, -13.8, 'nest_peer_east', energy=55, yaw=180)])
 
 _choice_scene(
     'choice_food', '向拿苹果的人讨食：骂人索要或软声讨',
