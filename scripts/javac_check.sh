@@ -40,6 +40,7 @@ if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
     --select-package io.github.longshou.mcyukkuri.pose --select-package io.github.longshou.mcyukkuri.interaction --select-package io.github.longshou.mcyukkuri.social \
     --select-package io.github.longshou.mcyukkuri.cognition --select-package io.github.longshou.mcyukkuri.badge --select-package io.github.longshou.mcyukkuri.mind \
     --select-package io.github.longshou.mcyukkuri.pet.rules \
+    --select-package io.github.longshou.mcyukkuri.predator \
     --details=tree --disable-banner --disable-ansi-colors 2>&1 | grep -aE "tests (successful|failed|found)|✘|\[X\]|expected|Exception" | head -30
   RC=${PIPESTATUS[0]}
   fi
