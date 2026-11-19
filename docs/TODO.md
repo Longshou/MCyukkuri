@@ -12,6 +12,7 @@
 | P12 CODE-1 捕食种树冠选址、自带巢生成、衔枝筑巢 | `.worktrees/wp-tree-pred-1` | predator/CanopySite.java, predator/NestSiteScore.java, predator/PredatorNestSearch.java, predator/NestBuild.java, predator/PredatorLife.java, predator/PredatorNestFrameBlock.java, motor/MouthOccupancy.java, life/HomeProvider.java, museum_fields.py (grove) |
 | 逃跑不跳下致命落差（共享逃跑规划） | `.worktrees/wp-flee-edge` | status/FlightPlanner.java (retreat/escape), motor steering, tests |
 | R1b 家规：菜单、忍耐与破戒、亲眼发现、愧疚 | `.worktrees/wp-house-rules` | pet/rules/*.java, interaction/CareMenu.java, client/CareScreen.java, pet/PetLife.java, family/Courtship.java, life/LifeMeal.java, social/DailyLife.java, entity/RoamingGoal.java, lang |
+| P5b 油霉：经验识别、DN05 狠心驱逐或不忍致全家传染、洞内缓慢传染 | `.worktrees/wp-mold-family` | settlement/MoldExile*.java, family/*, life/Mold*.java, art/dialogue (P5 lines), DN-05/06 scenes |
 
 ## 玩法待办
 
