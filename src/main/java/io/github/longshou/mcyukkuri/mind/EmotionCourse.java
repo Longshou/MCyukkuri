@@ -166,9 +166,12 @@ public final class EmotionCourse {
 
     /** Something taken or spoiled by another: a bold or quick-tempered one fumes, a meek or self-controlled one is hurt and sad. */
     public boolean wronged(UUID by, float power) {
-        var p = entity.life().personality();
-        float temper = .6f * ramp(p.boldness(), 30, 70) + .4f * (1 - ramp(p.selfControl(), 30, 70));
-        return begin(temper >= .5f ? Kind.RAGE : Kind.GRIEF, temper >= .5f ? power : power * .5f, by, entity.blockPosition());
+        return wronged(by, power, entity.blockPosition());
+    }
+
+    public boolean wronged(UUID by, float power, BlockPos at) {
+        boolean fumes = Ousting.fumes(entity.life().personality().temperament());
+        return begin(fumes ? Kind.RAGE : Kind.GRIEF, fumes ? power : power * .5f, by, at);
     }
 
     /** A real danger during the current panic (a hit, a predator); the shaking starts when the panic ends ({@link #frightOver}). */
