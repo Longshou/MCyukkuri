@@ -61,6 +61,19 @@ class PoseBridgeTest {
         assertEquals(.5f, state.puff);
     }
 
+    @Test void mirroredPressIsAlreadyInContactOnTheFirstDraw() {
+        for (String side : new String[]{"snuggle_left", "snuggle_right"}) {
+            draw("greet", false, 0, 1);
+            rig[0][0] = 4;
+            state.sample(BLEND, side, true, 2.68f, 1, 1, 0);
+            assertEquals(1, state.weight);
+            assertEquals(4, rig[0][0]);
+            draw("idle", true, 2, 9);
+            assertEquals(0, state.weight);
+            assertEquals(4, rig[0][0]);
+        }
+    }
+
     @Test void constrainedPoseCutsABridgeAndRemainsTheReleaseSource() {
         draw("idle", true, 0, 2);
         draw("waddle", true, 1, 8);
