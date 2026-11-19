@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.Ousting;
+import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
@@ -600,8 +602,16 @@ public final class HomeClaim {
             if(c.occupation&&c.site.equals(y.life().home()))y.life().releaseHome();
             if (y!=hit) {
                 y.life().personality().confiscated(actor.getUUID());
-                y.mind().felt(EmotionEvent.FRIGHTENED);
-                y.showReaction("surprise","afraid",80);
+                var temperament = y.life().personality().temperament();
+                var answer = Ousting.answer(temperament);
+                if (answer != Answer.CURSE) y.mind().felt(EmotionEvent.FRIGHTENED);
+                switch (answer) {
+                    case CURSE -> y.showReaction(YukkuriAction.STAMP, "angry", "driven_curse", 80);
+                    case FAREWELL -> y.showReaction("teary", "driven_farewell", 80);
+                    case SHRUG -> y.showReaction("hmph", "", 60);
+                }
+                y.mind().feeling().wronged(actor.getUUID(), .5f, c.site.pos());
+                GameplayLog.event(y, "home-claim", "driven off member={} answer={} temper={}", id, answer, Ousting.temper(temperament));
             }
         }
         return true;

@@ -79231,6 +79231,68 @@
     }
   },
   {
+    "id": "driven_curse.fine",
+    "key": "dialogue.mcyukkuri.original.driven_curse.fine",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "driven_curse"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
+    "id": "driven_curse.remember",
+    "key": "dialogue.mcyukkuri.original.driven_curse.remember",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "driven_curse"
+    ],
+    "ticks": 119,
+    "sound": "",
+    "variant": "proud"
+  },
+  {
+    "id": "driven_farewell.bye",
+    "key": "dialogue.mcyukkuri.original.driven_farewell.bye",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "driven_farewell"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "driven_farewell.sorry",
+    "key": "dialogue.mcyukkuri.original.driven_farewell.sorry",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "driven_farewell"
+    ],
+    "ticks": 95,
+    "sound": "",
+    "variant": "timid"
+  },
+  {
+    "id": "child_curse_parent.no_home",
+    "key": "dialogue.mcyukkuri.original.child_curse_parent.no_home",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "child_curse_parent"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
     "id": "beg_ask.bite",
     "key": "dialogue.mcyukkuri.original.beg_ask.bite",
     "origin": "project-original",

@@ -11,6 +11,8 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.Ousting;
+import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Push;
@@ -75,6 +77,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     // The beats of this confrontation, decided at its start. Transient.
     private int noticeEnd, answerTicks, lookBacks, lookBackTicks;
     private boolean fond, harsh, resists;
+    private Answer answer;
 
     public MoldExile(YukkuriEntity entity) {
         this.entity = entity;
@@ -323,7 +326,8 @@ public final class MoldExile extends Goal implements MotorOwner {
             // A cocky exile protests its first departure. A return is an appeal to stay.
             resists = exile == null && t.is(Gate.PROTESTS_EXILE);
             answerTicks = resists ? 50 + t.boldness() / 3 : 50 + t.attachment() / 2;
-            lookBacks = t.is(Gate.DEVOTED_KIN) ? 2 : t.is(Gate.ALOOF) ? 0 : 1;
+            answer = Ousting.answer(t);
+            lookBacks = answer == Answer.FAREWELL ? t.is(Gate.DEVOTED_KIN) ? 2 : 1 : 0;
             if (exile != null && exile.appeal() == Appeal.PLEADED) {
                 ticks = LISTEN + answerTicks;
                 lookBacks = 0;
@@ -453,10 +457,15 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (outcome == SurfaceApproach.Result.BLOCKED || outcome == SurfaceApproach.Result.ARRIVED) destination = null;
     }
 
-    /** It gives in and turns to go: hurt, and a young it must leave behind cries after it and is left grieving. */
+    /** It turns to go, and any young it must leave behind cry after it. */
     private void turnAway() {
         entity.mind().felt(EmotionEvent.SOCIAL_HURT);
-        entity.showReaction("cry", exile == null ? "settlement_hurt" : "", 40);
+        switch (answer) {
+            case CURSE -> entity.showReaction(YukkuriAction.STAMP, "angry", "driven_curse", 60);
+            case FAREWELL -> entity.showReaction("cry", exile == null ? "settlement_hurt" : "", 40);
+            case SHRUG -> entity.showReaction("hmph", "", 40);
+        }
+        GameplayLog.event(entity, "settlement", "mold exile answer={} fumes={}", answer, answer == Answer.CURSE);
         if (exile != null) return;
         for (var child : dependants()) {
             String missed = child.distanceToSqr(entity) > 12 * 12 ? "out_of_range"
@@ -488,13 +497,14 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private void completeLeave() {
-        if (exile == null) {
+        boolean first = exile == null;
+        if (first) {
             for (var child : dependants()) {
                 var parent = healthyParent(child, home);
                 GameplayLog.event(entity, "family", "mold exile child stays child={} healthy_parent={} child_home={}",
                         child.getUUID(), parent.getUUID(), child.life().homeStand());
             }
-            exile = new Exile(home, Appeal.NONE);
+            exile = new Exile(home, answer == Answer.CURSE ? Appeal.WITHDREW : Appeal.NONE);
             entity.habitat().release();
             entity.life().releaseHome();
             entity.settlement().exile();
@@ -505,8 +515,8 @@ public final class MoldExile extends Goal implements MotorOwner {
             GameplayLog.event(entity, "settlement", "mold exile withdrew {} witness={} stage={}",
                     peer == null ? "without answer" : "after refusal", peer == null ? null : peer.getUUID(), entity.body().mold());
         }
-        // Outside, it grieves the home and family it lost (less after a second refusal) before it looks for another.
-        entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, exile.appeal() == Appeal.WITHDREW ? .3f : .5f, null, BlockPos.containing(home.centre()));
+        // Outside, it feels the loss of its home most strongly on the first departure.
+        entity.mind().feeling().wronged(peer == null ? null : peer.getUUID(), first ? 1f : .6f, BlockPos.containing(home.centre()));
         entity.habitat().seekHomeNow();
         end();
     }

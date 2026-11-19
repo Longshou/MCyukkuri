@@ -133,6 +133,7 @@ public final class NativeDialogue {
             case "accessory_torn", "famine" -> 3;
             // The farewell's and the mould exile's beats are in step with their poses: none may be swallowed by chatter.
             case "farewell_say", "farewell_say_teary", "farewell_bless", "farewell_cry", "farewell_go", "farewell_look_back",
+                 "driven_curse", "driven_farewell", "child_curse_parent",
                  "mold_notice", "mold_warn", "mold_scorn", "mold_sorrow", "mold_plea", "mold_resist", "mold_leave", "mold_child_cry" -> 2;
             case "hunt_call", "hunt_join", "hunt_refuse", "hunt_back", "ration_give", "ration_get", "rule_blocked",
                  "migrate_discuss", "migrate_object", "migrate_agree", "migrate_pack", "shard_gathered", "accessory_mended",
