@@ -279,8 +279,9 @@ public final class Reactions {
 
         public void struck(DamageSource source, float loss, BodyHit.Kind kind, String incident) {
             if (y.isAlive()) y.interrupt(InterruptContext.hurt(source), InterruptPhase.AFTER_DANGER_STRIKE);
-            if (!seal.holdsThroughHit()) seal.abort("attacked");
             var actor = source.getEntity() instanceof LivingEntity other && other != y ? other : null;
+            boolean homeResponse = actor != null && (seal.holdsThroughHit() || response.leading());
+            seal.struck(actor);
             boolean human = PunishmentReaction.isHuman(actor);
             int before = 0;
             if (actor != null) {
@@ -292,7 +293,7 @@ public final class Reactions {
                         && peer.sanction().target() == y)) LearnedFear.witnessed(y, actor, "hurt");
             }
             if (!y.isAlive()) return;
-            boolean puff = !human && ProtectivePuff.witnessedHit(y, actor);
+            boolean puff = !homeResponse && !human && ProtectivePuff.witnessedHit(y, actor);
             if (!human) y.life().personality().hurt(actor == null ? null : actor.getUUID());
             if (y.body().dying()) return;
             if (human && loss > 0) y.mind().felt(EmotionEvent.FRIGHTENED);
@@ -303,9 +304,9 @@ public final class Reactions {
                 y.shellRetraction().tick(112);
                 return;
             }
-            if (puff || actor instanceof YukkuriEntity peer && (y.profile().dangerToYukkuri()
+            if (!homeResponse && (puff || actor instanceof YukkuriEntity peer && (y.profile().dangerToYukkuri()
                     ? y.predator().retaliate(peer) : !peer.profile().dangerToYukkuri() && y.getVariant() != YukkuriVariant.MYON
-                    && !y.newbornStage() && y.groupInteraction().defense().respond(peer)) || y.myon().standGround(source)) {
+                    && !y.newbornStage() && y.groupInteraction().defense().respond(peer)) || y.myon().standGround(source))) {
                 response.clear();
                 y.setPanicTicks(0);
                 return;
@@ -378,7 +379,7 @@ public final class Reactions {
         void end(int cooldown) {
             if (stage == Stage.STRUCK) response.clear();
             y.family().carry().endFlight();
-            seal.reset();
+            if (!y.isPanicking() || !seal.committedTo(y.getLastHurtByMob())) seal.reset();
             if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
                     "response ended stage={} phaseTicks={} cooldown={}", stage, ticks, cooldown);
             stage = Stage.NONE; ticks = 0; cooldownUntil = y.level().getGameTime() + cooldown;

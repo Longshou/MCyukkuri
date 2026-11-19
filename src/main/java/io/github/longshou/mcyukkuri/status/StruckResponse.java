@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.RamPerson;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
+import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import java.util.List;
@@ -29,6 +30,8 @@ final class StruckResponse implements MotorOwner {
         return stance != null && body.level().getGameTime() < until && actor.isAlive() && actor.level() == body.level();
     }
 
+    boolean leading() { return stance == StruckStance.LEAD_AWAY; }
+
     private boolean exitOpen(LivingEntity danger) {
         return Reactions.freeToReact(body) && !body.isLeashed() && !body.grief().protecting()
                 && !body.shellRetraction().available() && body.status().reactions().threat().flight().hasExit(danger);
@@ -36,11 +39,14 @@ final class StruckResponse implements MotorOwner {
 
     StruckStance decide(LivingEntity danger, float loss) {
         var seal = body.status().reactions().threat().seal();
-        if (seal.holdsThroughHit() || !seal.active() && seal.tryCommit(danger, DenSeal.Side.INSIDE)) {
-            var home = body.habitat().shelter();
-            seal.commit(danger, home.contains(body.blockPosition()) ? DenSeal.Side.INSIDE : DenSeal.Side.OUTSIDE);
-            flee(danger);
-            body.showReaction("teary", "hurt_endure", 20);
+        boolean finish = seal.holdsThroughHit();
+        if (finish || !seal.active() && seal.tryCommit(danger, DenSeal.Side.INSIDE)) {
+            if (finish) {
+                var home = body.habitat().shelter();
+                seal.commit(danger, home.contains(body.blockPosition()) ? DenSeal.Side.INSIDE : DenSeal.Side.OUTSIDE);
+                startFlight(danger);
+                body.struckReaction(EcologyPresentation.action(Behaviors.NEST_PRESS), "teary", "hurt_endure", 20);
+            } else flee(danger);
             GameplayLog.event(body, "threat", "struck stance=SEAL attacker={} loss={}", danger.getUUID(), loss);
             return StruckStance.SEAL;
         }
@@ -102,6 +108,7 @@ final class StruckResponse implements MotorOwner {
         actor = danger;
         stance = StruckStance.LEAD_AWAY;
         mouth = door;
+        body.status().reactions().threat().flight().shield(danger, door);
         start = body.level().getGameTime();
         until = start + HomeTactic.leadTicks(t);
         nextTaunt = start;
@@ -148,7 +155,7 @@ final class StruckResponse implements MotorOwner {
         body.struckReaction(action, face, line, duration);
     }
 
-    void flee(LivingEntity danger) {
+    private int startFlight(LivingEntity danger) {
         clear();
         int ticks = danger == null ? 90 : body.newbornStage() ? 96 : 104;
         body.setLastHurtByMob(danger);
@@ -156,6 +163,11 @@ final class StruckResponse implements MotorOwner {
         // A struck baby cries through the flight, then can follow kin or settle without the older body's terror course.
         if (!body.newbornStage())
             body.mind().feeling().frightened(danger instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri() ? 1 : .6f);
+        return ticks;
+    }
+
+    void flee(LivingEntity danger) {
+        int ticks = startFlight(danger);
         body.struckReaction(YukkuriAction.STARTLE, body.newbornStage() ? "cry" : body.body().weak() ? "teary" : "surprise",
                 body.newbornStage() || danger == null ? "wounded" : "hurt_flee", ticks);
     }

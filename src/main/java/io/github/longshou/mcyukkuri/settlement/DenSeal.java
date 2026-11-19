@@ -89,9 +89,22 @@ public final class DenSeal {
     /** A new threat episode starts clean; ending one while she works stops the work. */
     public void reset() {
         opening.stop();
-        if (active() && absent.isEmpty()) abort("response_ended");
+        if (active() && dangerId != null) abort("response_ended");
         dangerId = null; committedSide = null;
         threatDecision = ThreatDecision.UNDECIDED; nextCheck = 0;
+    }
+
+    public boolean committedTo(LivingEntity danger) {
+        return danger != null && threatDecision == ThreatDecision.SEAL && danger.getUUID().equals(dangerId);
+    }
+
+    public void struck(LivingEntity danger) {
+        if (!active() || holdsThroughHit()) return;
+        abort("attacked");
+        if (danger != null) {
+            threatDecision = ThreatDecision.DONE;
+            dangerId = danger.getUUID();
+        }
     }
 
     public void abort(String reason) {
@@ -99,10 +112,10 @@ public final class DenSeal {
         if (!absent.isEmpty()) y.duty().release(Kind.SEAL, End.FAILED, reason);
         boolean spent = !reason.equals("doorway_held");
         if (spent && !absent.isEmpty()) remembered = false;
-        if (spent && absent.isEmpty()) threatDecision = ThreatDecision.DONE;
+        if (spent && dangerId != null) threatDecision = ThreatDecision.DONE;
         GameplayLog.event(y, "home", "den seal aborted reason={} phase={} ticks={} den={} cells={} spent={} twigs_spent=0",
                 reason, phase, ticks, den, cells.size(), spent);
-        phase = Phase.IDLE; ticks = 0; dangerId = null; SurfaceApproach.halt(y);
+        phase = Phase.IDLE; ticks = 0; SurfaceApproach.halt(y);
         nextCheck = y.level().getGameTime() + RETRY;
     }
 
@@ -113,11 +126,11 @@ public final class DenSeal {
         if (reported != null && dangerId != null && !dangerId.equals(reported.getUUID())) reset();
         lastDrive = now;
         // Vanilla may forget the attacker partway through the work. Only an active seal needs to carry that memory.
-        var danger = reported != null ? reported : dangerAt(level);
+        var danger = reported != null ? reported : active() ? dangerAt(level) : null;
         if (danger == null || !danger.isAlive()) { abort("danger_lost"); return false; }
         var home = y.habitat().shelter();
         if (home != null && !home.contains(y.blockPosition()) && !committedOutside() && DenBarrier.sealed(home)) {
-            if (!opening.active() && !opening.start(level, home, true)) return false;
+            if (!opening.active() && !opening.start(level, home, danger)) return false;
             return opening.tick(level, home, true);
         }
         if (phase == Phase.IDLE) {
@@ -324,6 +337,7 @@ public final class DenSeal {
         paused = 0;
         if (!parents.isEmpty() && !y.duty().take(Kind.SEAL, walkBudget + y.childhood().denSealPressTicks() + DOORWAY_WAIT + RECHECK, 0, "den_seal_outing"))
             return false;
+        if (danger == null) { dangerId = null; committedSide = null; }
         den = home.getBlockPos().immutable(); cells = plan.cells(); absent = parents;
         phase = Phase.WALK; ticks = 0;
         GameplayLog.event(y, "home", "den seal started den={} cells={} twigs={} danger={} absent={}",
@@ -361,7 +375,7 @@ public final class DenSeal {
             else GameplayLog.event(y, "childhood", "den seal demonstration missed learner={} reason={}",
                     learner.getUUID(), demonstration.missed());
         }
-        phase = Phase.IDLE; ticks = 0; dangerId = null;
+        phase = Phase.IDLE; ticks = 0;
         if (danger != null) threatDecision = ThreatDecision.DONE;
     }
 
@@ -480,7 +494,7 @@ public final class DenSeal {
             return y.isPanicking() || y.hurtTime > 0 || danger != null && y.distanceToSqr(danger) <= 144;
         }
 
-        boolean start(ServerLevel level, ShelterBlockEntity home, boolean flight) {
+        boolean start(ServerLevel level, ShelterBlockEntity home, LivingEntity fleeingFrom) {
             if (!home.owns(y.getUUID()) || !(level.getBlockEntity(home.entrance()) instanceof DenBarrierBlockEntity screen)
                     || screen == refusedBarrier && y.blockPosition().equals(refusedFrom)) return false;
             boolean inside = home.contains(y.blockPosition());
@@ -503,7 +517,9 @@ public final class DenSeal {
             } else {
                 if (!(y.family().adult() || y.family().subadult()) || y.distanceToSqr(Vec3.atCenterOf(home.entrance())) > RETURN_SQR)
                     return false;
-                if (flight || emergency()) why = "emergency";
+                var threat = y.status().reactions().threat();
+                if (threat.flight().shieldsHomeFrom(fleeingFrom != null ? fleeingFrom : threat.source())) return false;
+                if (fleeingFrom != null || emergency()) why = "emergency";
                 else if (y.getUUID().equals(screen.owner()) && !departure(level, home, RETURN_SQR).isEmpty()) return false;
             }
             var cells = new ArrayList<BlockPos>();
@@ -623,7 +639,7 @@ public final class DenSeal {
         @Override public boolean canUse() {
             if (!(y.level() instanceof ServerLevel level) || y.isPanicking() || !seal().available()) return false;
             var home = y.habitat().shelter();
-            if (home != null && seal().opening.start(level, home, false)) return true;
+            if (home != null && seal().opening.start(level, home, null)) return true;
             return !y.life().hasUrgentNeed() && seal().startFamily(level, home);
         }
         @Override public boolean canContinueToUse() {
