@@ -19,17 +19,17 @@ class SprintStaminaTest {
         assertEquals(burst, capacity);
         for (int tick = 1; tick < burst; tick++) reserve.run(capacity);
         assertFalse(reserve.resting());
-        assertTrue(reserve.pace(kind.isPredator()) < 1);
+        assertTrue(reserve.pace() < 1);
         // Floating-point addition can take one extra tick to fill the last fraction.
         reserve.run(capacity);
         if (!reserve.resting()) reserve.run(capacity);
         assertTrue(reserve.resting());
-        assertEquals(kind.isPredator() ? .5 : 0, reserve.pace(kind.isPredator()));
+        assertEquals(.5, reserve.pace());
         int ticks = 0;
         while (reserve.resting() && ticks < recovery) { reserve.recover(build); ticks++; }
         assertEquals(.8 * recovery, ticks, 1);
         assertFalse(reserve.resting());
-        assertEquals(1, reserve.pace(kind.isPredator()));
+        assertEquals(1, reserve.pace());
     }
 
     @Test void individualConditionAndFormShiftTheSameReserve() {
@@ -52,7 +52,7 @@ class SprintStaminaTest {
         for (int tick = 0; tick < 90; tick++) {
             reserve.recover(Build.ORDINARY);
             loaded.recover(Build.ORDINARY);
-            assertEquals(reserve.pace(false), loaded.pace(false));
+            assertEquals(reserve.pace(), loaded.pace());
         }
         assertEquals(0, loaded.debt());
     }

@@ -48,9 +48,9 @@ public final class SprintStamina {
         if (debt <= .20) resting = false;
     }
 
-    /** Ease out of a burst over its last quarter. Spent wings still provide lift at a cruising pace. */
-    double pace(boolean flying) {
-        if (resting) return flying ? .5 : 0;
+    /** Ease out of a burst over its last quarter, then recover at half pace. */
+    double pace() {
+        if (resting) return .5;
         return 1 - Math.max(0, debt - .75) * 1.6;
     }
 }

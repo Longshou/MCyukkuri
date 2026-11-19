@@ -81,10 +81,12 @@ public final class SpeciesLife {
 
     /** Called at propulsion, leaving the navigation request and its safe retreat path intact. */
     public double stride(double request) {
-        if (request <= 0 || !(Gait.fast(request) || entity.getNavigation() instanceof YukkuriGroundNavigation ground
-                && (ground.retreating() || entity.isPanicking()))) return 1;
+        if (request <= 0 || entity.isInLiquid() || !(Gait.fast(request)
+                || entity.getNavigation() instanceof YukkuriGroundNavigation ground
+                && (ground.retreating() || entity.isPanicking()
+                || entity.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT))) return 1;
         sprintTick = entity.tickCount;
-        return stamina.pace(entity.predatorFlying());
+        return stamina.pace();
     }
 
     public boolean sprintRequested() { return sprintTick == entity.tickCount; }

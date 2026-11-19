@@ -44,8 +44,8 @@ public final class HouseCrawlControl extends MoveControl {
         double requested = speedModifier;
         speedModifier = BodyAbility.groundModifier(entity, requested);
         // Vanilla consumes this value for both forward input and acceleration.
-        double stride = moving ? entity.species().stride(requested) : 1;
-        speedModifier *= Math.sqrt(stride);
+        if (moving || operation == Operation.JUMPING)
+            speedModifier *= Math.sqrt(entity.species().stride(requested));
         super.tick();
         speedModifier = requested;
         // Low rims (nests) are crossed by ordinary step-up collision; vanilla would jump on every tick inside them.
@@ -56,7 +56,7 @@ public final class HouseCrawlControl extends MoveControl {
                 if (entity.getJumpControl() instanceof YukkuriJumpControl jump) jump.cancel();
             }
         }
-        boolean crawl = wanted && stride > 0 && operation != Operation.JUMPING && entity.onGround()
+        boolean crawl = wanted && operation != Operation.JUMPING && entity.onGround()
                 && entity.canCrawlNow()
                 && (!entity.childhood().canJump() || entity.body().footBurned() || entity.house().wantsCrawl()
                 || entity.life().wantsCrawl() || entity.treasure().wantsCrawl());
