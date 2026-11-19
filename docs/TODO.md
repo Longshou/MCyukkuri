@@ -11,7 +11,6 @@
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
 | S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
-| R3b 私生之后：藏起、说谎、坦白、天真、嚣张 | `.worktrees/wp-sukkiri-arc` | pet/rules/ConscienceGoal.java, pet/rules/Discovery.java, family/FamilyFeeding*.java, pet/PetLife.java, art/dialogue (rules lines), TN scenes |
 | P7-C 宠物店房间布局：一屋一只、同窝家庭房、饮水器、货架 | `.worktrees/wp-shop-rooms-art` | human-world structures build.py shop(), check_structure.py, preview_shop.py |
 
 ## 玩法待办
