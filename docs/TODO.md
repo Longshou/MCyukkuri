@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 饿油猎食没头饰的同类（BD-18 稳定猎食） | `.worktrees/wp-hatless-hunting` | headwear/Contempt.java, social/Cannibalism.java, entity/YukkuriGoals.java, cannibal_hunt |
 
 ## 玩法待办
 
