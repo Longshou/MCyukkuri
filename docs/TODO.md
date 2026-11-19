@@ -11,7 +11,6 @@
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 | 动作衔接：换片段时姿势过渡不跳变 | `.worktrees/wp-pose-bridge` | client/PoseBridge.java (new), client/YukkuriModel.java, client/YukkuriRenderer.java, client/capture/PoseTap.java, AgitationPresentation |
 | 被赶走时先跺完诅咒再离开 | `.worktrees/wp-curse-hold` | event/HomeClaim.java |
-| 被夸与玩耍后的开心慢慢消退 | `.worktrees/wp-joy-tail` | mind/EmotionEvent.java, mind/MindLife.java |
 | 隔台阶的贴身蹭：先到同一层再蹭 | `.worktrees/wp-step-nuzzle` | social/DailyLife.java, life/SurfaceApproach.java, motor/SideContact.java |
 | 新窝不得让别人已有的窝失效 | `.worktrees/wp-den-placement` | settlement/ShelterPlacement.java |
 | 水中救援先找站得稳的位置，不再站不稳就放弃 | `.worktrees/wp-rescue-footing` | aquatic/Rescue.java, aquatic/Ferry.java, motor/action/Grab.java, intent/AskLedger.java |
