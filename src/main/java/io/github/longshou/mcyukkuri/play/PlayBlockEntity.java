@@ -37,9 +37,12 @@ public final class PlayBlockEntity extends BlockEntity {
         if(water()==0||!e.isInWater()||e.life().hygiene()>=99)return false;
         e.life().poolRinse();setWater(water()-1);return true;
     }
+    public boolean occupiedByOther(YukkuriEntity e){
+        return player!=null&&!player.equals(e.getUUID())&&leaseUntil>=level.getGameTime();
+    }
     public boolean reserve(YukkuriEntity e){
         if(level==null||isRemoved()||dismantling)return false;
-        if(player!=null&&!player.equals(e.getUUID())&&leaseUntil>=level.getGameTime())return false;
+        if(occupiedByOther(e))return false;
         player=e.getUUID();leaseUntil=level.getGameTime()+40;return true;
     }
     public void release(YukkuriEntity e){if(e.getUUID().equals(player)){player=null;leaseUntil=0;}}

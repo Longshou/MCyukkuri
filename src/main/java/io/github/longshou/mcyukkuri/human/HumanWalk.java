@@ -14,13 +14,12 @@ import net.minecraft.server.level.ServerLevel;
  * (custody Owner = the resident, Use = companion, harness on), so the pet systems treat it as any owner's pet: the lead needs the harness, and the walk
  * counts blocks in {@code PetWalk} exactly as it does for a player (boredom, affection, stress, energy; the pet follows through the vanilla lead).
  *
- * Only an explicit walker request fits the lead. Ordinary street outings use the resident's street stroll.
+ * An explicit walker request uses vanilla close following. Street outings use the resident's street stroll and the pet's own following goal.
  */
 final class HumanWalk {
     static final int WALK_TICKS = 3600, LAG_BLOCKS = 5;
     private final HumanNpc npc;
     private UUID petId;
-    private UUID legacyLedPet;
     private boolean walking, returning;
     private long walkUntil;
     private BlockPos waypoint;
@@ -29,6 +28,7 @@ final class HumanWalk {
     HumanWalk(HumanNpc npc) { this.npc = npc; }
 
     boolean walking() { return walking; }
+    boolean leads(YukkuriEntity pet) { return walking && pet.getUUID().equals(petId); }
 
     YukkuriEntity pet() {
         return petId != null && npc.level() instanceof ServerLevel level && level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
@@ -101,7 +101,6 @@ final class HumanWalk {
     }
 
     void save(CompoundTag t) {
-        if (legacyLedPet != null) t.putUUID("LegacyLedPet", legacyLedPet);
         if (walking) {
             t.putUUID("LedPet", petId);
             t.putBoolean("WalkReturning", returning);
@@ -109,18 +108,10 @@ final class HumanWalk {
         }
     }
     void load(CompoundTag t) {
-        // The old walk could end while its pet was unloaded, leaving the lead in the pet's save.
-        legacyLedPet = t.hasUUID("LegacyLedPet") ? t.getUUID("LegacyLedPet")
-                : t.hasUUID("WalkPet") ? t.getUUID("WalkPet") : null;
         walking = t.hasUUID("LedPet");
         petId = walking ? t.getUUID("LedPet") : null;
         returning = t.getBoolean("WalkReturning");
         walkUntil = t.getLong("WalkUntil");
     }
 
-    void releaseLegacyLead(YukkuriEntity pet) {
-        if (!pet.getUUID().equals(legacyLedPet)) return;
-        legacyLedPet = null;
-        if (!pet.getUUID().equals(petId)) pet.dropLeash(true, false);
-    }
 }

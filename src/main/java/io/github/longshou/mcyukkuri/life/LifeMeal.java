@@ -73,6 +73,7 @@ final class LifeMeal {
     private UUID feeder, lastFeeder;
     private long lastFedAt;
     private boolean sharedMeal, preparedMeal, bowlMeal;
+    private int fleeCropAt;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
     static final float FULL = 75;
     /** This meal left it full and it lets itself melt in contentment after the swallow (meal_content); transient, like the clock below. */
@@ -272,6 +273,13 @@ final class LifeMeal {
         return true;
     }
 
+    void warnedAtCrop() {
+        var traits = o.personality();
+        double defiance = .65 * traits.boldness() + .25 * (100 - traits.friendliness()) + .10 * (100 - traits.selfControl());
+        // Timid thieves drop almost at once. A bold, selfish one risks up to another second of chewing.
+        fleeCropAt = mealTicks + 2 + (int) (22 * Math.clamp((defiance - 30) / 50, 0, 1));
+    }
+
     /** A caller checks this before consuming a body's one-shot resource. */
     boolean canAcceptBodyFood() { return tuftMeal == null && canEat() && occupancy().canHold(Purpose.MEAL); }
 
@@ -452,6 +460,7 @@ final class LifeMeal {
 
     private void clearTransfer() {
         tuftMeal = null; tuftReleaseRefusedAt = null;
+        fleeCropAt = 0;
         feeder = null; mealTicks = 0; mealVerdict = Verdict.PLAIN; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
     }
 
@@ -496,6 +505,11 @@ final class LifeMeal {
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { o.interrupt(); return false; }
             if (mealVerdict == null) restoreVerdict(mouth);
             int swallowAt = swallowTick();
+            if (fleeCropAt != 0 && mealTicks >= Math.min(fleeCropAt, swallowAt - 1)) {
+                fleeCropAt = 0;
+                o.interrupt();
+                return false;
+            }
             if (mealVerdict == Verdict.REFUSE && mealTicks >= TAKE_TICKS - 1) {
                 mealTicks = TAKE_TICKS;
                 Vec3 at = MouthPlacement.position(o.entity());

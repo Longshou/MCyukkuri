@@ -15,15 +15,14 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.Vec3;
 
-/** An unled companion follows outside its comfort distance. If separated, it remembers the way into its yard. */
+/** A companion follows outside its comfort distance. If separated, it remembers the way into its yard. */
 public final class PetOuting extends Goal {
     private final YukkuriEntity pet;
     private BlockPos home, blockedAt, escortAt;
     private HumanNpc escort, owner;
     private Vec3 stand;
     private boolean shelter;
-    private int playAttempts;
-    private long playTryAt;
+    private boolean playAvailable;
 
     public PetOuting(YukkuriEntity pet) {
         this.pet = pet;
@@ -41,7 +40,7 @@ public final class PetOuting extends Goal {
     public boolean sound() {
         var body = pet.body().condition();
         return pet.isAlive() && !pet.isNoAi() && pet.family().adult() && pet.family().brood() == null
-                && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle() && !pet.isLeashed()
+                && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle() && freeOfOtherLead()
                 && !pet.profile().aquatic() && !pet.profile().houseBody() && !pet.profile().dangerToYukkuri()
                 && body.readyForPlay() && !body.weak() && !body.dying() && !body.sick() && !body.hasSicknessPressure()
                 && !body.footBurned() && pet.body().toxin() == 0 && !pet.life().temperature().cold()
@@ -70,26 +69,30 @@ public final class PetOuting extends Goal {
     public boolean tryParkPlay() {
         var resident = escort();
         var facility = resident == null ? null : resident.parkFacility();
-        long now = pet.level().getGameTime();
-        if (facility == null || now < playTryAt || tired() || playAttempts == 0
-                || resident.holdsPicnicFood() && pet.life().nutrition() <= picnicBand()
-                || pet.dailyLife().boredom() < 60 - pet.life().personality().boldness() / 5.0
+        if (facility == null || tired() || !wantsParkPlay() || wantsPicnic(resident)
                 || !nearFacility(facility)) return false;
-        playTryAt = now + 200;
+        if (facility.occupiedByOther(pet)) {
+            GameplayLog.limited(pet, "pet", "park_occupied", 600, "outing play waiting kind={} at={}",
+                    facility.kind(), facility.getBlockPos());
+            return false;
+        }
         var play = pet.playLife();
         if (play.begin(facility)) return true;
-        // Give a current player time to finish. Other refusals end this pet's play search for this visit.
-        playAttempts = play.refused().equals("occupied") ? playAttempts - 1 : 0;
+        playAvailable = false;
         GameplayLog.event(pet, "pet", "outing play refused reason={} kind={} at={}",
                 play.refused(), facility.kind(), facility.getBlockPos());
         return false;
     }
 
-    public void finishedParkPlay() { playAttempts = 0; }
+    private boolean wantsParkPlay() {
+        return playAvailable && pet.dailyLife().boredom() >= 60 - pet.life().personality().boldness() / 5.0;
+    }
+
+    public void finishedParkPlay() { playAvailable = false; }
 
     public boolean doneAtPark() {
         return !pet.life().isSleeping() && !pet.life().outingResting() && !pet.playLife().active() && !tired()
-                && (playAttempts == 0 || pet.dailyLife().boredom() <= 45 - pet.life().personality().boldness() / 4.0);
+                && !wantsParkPlay();
     }
 
     public boolean wants(HumanNpc resident) {
@@ -102,12 +105,11 @@ public final class PetOuting extends Goal {
         escort = resident;
         home = yard;
         blockedAt = null;
-        playAttempts = 2;
-        playTryAt = 0;
+        playAvailable = true;
         GameplayLog.event(pet, "pet", "outing joined yard={} follow={}..{}", yard.toShortString(), innerDistance(), outerDistance());
     }
 
-    public void forget() { home = null; escort = null; playAttempts = 0; playTryAt = 0; }
+    public void forget() { home = null; escort = null; playAvailable = false; }
     public boolean onOuting() { return home != null; }
     public boolean escorted() { return escort() != null; }
     public boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }
@@ -123,8 +125,13 @@ public final class PetOuting extends Goal {
                 && escort.strollingWith(pet) ? escort : null;
     }
 
+    private boolean freeOfOtherLead() {
+        var resident = escort();
+        return !pet.isLeashed() || resident != null && pet.getLeashHolder() == resident;
+    }
+
     private boolean free() {
-        return home != null && !pet.isLeashed() && !pet.isPassenger() && !pet.isPanicking()
+        return home != null && freeOfOtherLead() && !pet.isPassenger() && !pet.isPanicking()
                 && !pet.operations().active() && !pet.isCommandPlaying() && !pet.pet().busy()
                 && !pet.life().isSleeping() && pet.life().mealTicks() == 0 && !pet.playLife().active();
     }
@@ -137,8 +144,13 @@ public final class PetOuting extends Goal {
     }
 
     private boolean shouldFollow(double comfortDistance) {
+        if (wantsPicnic(owner)) return pet.distanceToSqr(owner) > 4 || !pet.hasLineOfSight(owner);
         var facility = owner.parkFacility();
         return pet.distanceTo(owner) > comfortDistance && (facility == null || !nearFacility(facility));
+    }
+
+    private boolean wantsPicnic(HumanNpc resident) {
+        return resident.parkLingering() && resident.holdsPicnicFood() && pet.life().nutrition() <= picnicBand();
     }
 
     @Override public void start() {
@@ -188,7 +200,7 @@ public final class PetOuting extends Goal {
         if (owner != null) {
             if (!owner.blockPosition().equals(escortAt)) {
                 escortAt = owner.blockPosition();
-                stand = SurfaceApproach.beside(pet, owner, innerDistance(), 1);
+                stand = SurfaceApproach.beside(pet, owner, wantsPicnic(owner) ? 1 : innerDistance(), 1);
             }
             // This leg ends at a fixed stand sampled behind the resident. Moving the resident's body
             // must not invalidate its path between samples.

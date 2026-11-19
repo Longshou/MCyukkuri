@@ -728,6 +728,7 @@ public final class YukkuriLife {
         return meal.beginOfferedMeal(food, giver.getUUID(), !giver.getAbilities().instabuild);
     }
     public boolean beginCropMeal(ItemStack serving, BooleanSupplier harvest) { return meal.beginHarvestMeal(serving, harvest); }
+    public void warnedAtCrop() { meal.warnedAtCrop(); }
     public boolean avoidsField(BlockPos at) {
         return avoidedField != null && level().getGameTime() < avoidFieldUntil && avoidedField.distSqr(at) <= 64;
     }

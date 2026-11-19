@@ -89,6 +89,9 @@ final class HumanStreet {
     private record Help(YukkuriEntity pet, YukkuriEntity stray, BlockPos site, long until) {}
     private Help help;
     private Path helpPath;
+    private record CropShoo(YukkuriEntity thief, BlockPos stand, Vec3 from, long until) {}
+    private CropShoo cropShoo;
+    private Path cropShooPath;
     private YukkuriEntity lastPetted;
     private long nextDirtLook;
     int kickPose, frownPose;
@@ -248,7 +251,49 @@ final class HumanStreet {
         witness.street.expulsionCue(y, crop, "crop");
         GameplayLog.event(witness, "npc-care", "action=street_warn target={} health={} site={} attitude={}",
                 y.getUUID(), y.getHealth(), crop, witness.attitude());
+        y.life().warnedAtCrop();
+        witness.street.prepareCropShoo(y);
     }
+
+    private void prepareCropShoo(YukkuriEntity thief) {
+        var toward = thief.position().subtract(npc.position()).multiply(1, 0, 1);
+        // Take up to two steps into the open space, leaving room for the thief to turn and flee.
+        double distance = toward.length();
+        if (distance <= 1.5) return;
+        var stand = BlockPos.containing(npc.position().add(toward.scale(Math.min(2, distance - 1.5) / distance)));
+        var level = npc.level();
+        if (stand.equals(npc.blockPosition()) || !npc.isWithinRestriction(stand) || !level.getFluidState(stand).isEmpty()
+                || !level.getBlockState(stand.below()).isFaceSturdy(level, stand.below(), Direction.UP)) return;
+        cropShoo = new CropShoo(thief, stand, npc.position(), now() + 40);
+        cropShooPath = null;
+    }
+
+    boolean shooingCrop() { return cropShoo != null; }
+
+    void cropShooStep() {
+        var shoo = cropShoo;
+        var thief = shoo.thief();
+        var nav = npc.getNavigation();
+        if (cropShooPath == null) {
+            cropShooPath = nav.createPath(shoo.stand(), 0);
+            if (cropShooPath == null || !cropShooPath.canReach() || cropShooPath.getNodeCount() > 4 || !nav.moveTo(cropShooPath, .85)) {
+                GameplayLog.event(npc, "npc-care", "action=street_shoo_refused target={} reason=unreachable stand={}", thief.getUUID(), shoo.stand());
+                stopCropShoo();
+                return;
+            }
+        }
+        npc.getLookControl().setLookAt(thief, 15, 15);
+        if (!nav.isDone() && now() < shoo.until() && npc.distanceToSqr(thief) > 2.25) return;
+        nav.stop();
+        if (npc.distanceToSqr(shoo.from()) >= .25) {
+            cue(npc, thief, "crop");
+            GameplayLog.event(npc, "npc-care", "action=street_shoo target={} moved={}",
+                    thief.getUUID(), npc.position().distanceTo(shoo.from()));
+        }
+        stopCropShoo();
+    }
+
+    void stopCropShoo() { cropShoo = null; cropShooPath = null; }
 
     private boolean seesSite(BlockPos site) {
         var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), site.getCenter(),
@@ -604,7 +649,7 @@ final class HumanStreet {
 
     /** Selects ordinary reachable street stands; a blocked leg tries the other side, then heads home. */
     static final class Stroll extends Goal {
-        private enum Leg { NONE, TAKE, OFFER, COLLECT, STOW }
+        private enum Leg { NONE, TAKE, COLLECT, STOW }
 
         private final HumanNpc npc;
         private Vec3 destination;
@@ -618,15 +663,19 @@ final class HumanStreet {
         private boolean homeward;
         private boolean sheltering;
         private int lagTicks;
+        private double pace;
+        private YukkuriEntity glance;
+        private int glanceAt;
         private long nextOuting;
         private Vec3 resume;
-        private boolean toPark;
+        private Vec3 parkDestination;
         private PlayBlockEntity facility;
-        private int lingerTicks, tiredTicks;
+        private long parkOpened;
+        private int tiredTicks;
         private Leg leg = Leg.NONE;
         private Vec3 legThen, watch;
-        private YukkuriEntity legPet;
         private UUID picnicHalf;
+        private boolean offered;
         private int halfTicks;
         private long picnicTryAt;
         private BlockPos picnicRefusedAt;
@@ -634,13 +683,13 @@ final class HumanStreet {
 
         Stroll(HumanNpc npc) {
             this.npc = npc;
-            setFlags(EnumSet.of(Flag.MOVE));
+            setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
         boolean outing() { return homeward || !companions.isEmpty(); }
         boolean handlingPicnic() { return outing() && (npc.holdsPicnicFood() || picnicHalf != null); }
-        boolean escorts(YukkuriEntity pet) { return !homeward && companions.contains(pet); }
-        boolean parkLingering() { return facility != null && (leg != Leg.NONE || resume == null && atDestination()); }
+        boolean escorts(YukkuriEntity pet) { return companions.contains(pet) && pet.pet().ownedBy(npc.getUUID()); }
+        boolean parkLingering() { return parkOpened != 0; }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
 
         void save(CompoundTag tag) {
@@ -691,10 +740,16 @@ final class HumanStreet {
             // As with the companion cover search, bound route probes when several lots overlap.
             boolean routed = false;
             for (var marker : landmarks.stream().limit(8).toList()) {
-                if (!route(marker.position())) continue;
+                if (marker.getTags().contains("mcy_park_walk")) {
+                    if (!routePark(marker.position())) continue;
+                    parkDestination = marker.position();
+                } else if (!route(marker.position())) continue;
                 routed = true;
-                toPark = marker.getTags().contains("mcy_park_walk");
                 break;
+            }
+            if (!routed && !landmarks.isEmpty()) {
+                finished = true;
+                return true;
             }
             if (!routed) {
                 var stand = DefaultRandomPos.getPos(npc, 12, 2);
@@ -704,12 +759,14 @@ final class HumanStreet {
             nextOuting = npc.level().getGameTime() + 3000; // the resident's existing rest between walks
             for (var pet : companions) pet.outing().leave(npc, yard);
             lagTicks = 0;
+            pace = .55;
+            glanceAt = npc.tickCount;
             GameplayLog.event(npc, "npc-care", "action=outing_depart pets={} destination={}", companions.size(), GameplayLog.at(destination));
+            attachLeads("depart");
             var crate = crate();
-            if (toPark && npc.getMainHandItem().isEmpty() && crate != null && PicnicFood.apple(crate.frontItem())
+            if (parkDestination != null && npc.getMainHandItem().isEmpty() && crate != null && PicnicFood.apple(crate.frontItem())
                     && ready.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand() + 15)) {
-                var park = destination;
-                if (!crateLeg(Leg.TAKE, park))
+                if (!crateLeg(Leg.TAKE, parkDestination))
                     GameplayLog.event(npc, "npc-care", "action=picnic_take result=unreachable crate={}", npc.yardCrate());
             }
             return true;
@@ -760,7 +817,10 @@ final class HumanStreet {
 
         private void returnHome(String reason) {
             if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
+            endGlance();
             homeward = true;
+            lagTicks = 0;
+            if (parkLingering()) attachLeads("return");
             clearPark();
             clearLeg();
             if (npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
@@ -790,8 +850,8 @@ final class HumanStreet {
         }
 
         private boolean beginLinger() {
-            toPark = false;
-            var center = BlockPos.containing(destination);
+            var center = BlockPos.containing(parkDestination);
+            parkDestination = null;
             var level = npc.level();
             var found = BlockPos.betweenClosedStream(center.offset(-12, -2, -12), center.offset(12, 2, 12))
                     .filter(level::hasChunkAt).map(level::getBlockEntity)
@@ -799,18 +859,32 @@ final class HumanStreet {
                     .min(Comparator.comparingDouble(play -> play.getBlockPos().distSqr(center))).orElse(null);
             if (found == null) return false;
             var facing = found.facing();
+            if (npc.holdsPicnicFood()) {
+                var spots = level.getEntitiesOfClass(Marker.class, new AABB(center).inflate(12),
+                        marker -> marker.getTags().contains("mcy_park_picnic"));
+                spots.sort(Comparator.comparingDouble(npc::distanceToSqr));
+                for (var spot : spots) {
+                    if (routeLeg(spot.blockPosition())) {
+                        parkStand(found);
+                        return true;
+                    }
+                }
+            }
             for (var side : List.of(facing.getClockWise(), facing.getCounterClockWise(), facing)) {
                 var pos = found.getBlockPos().relative(side, found.kind().depth + (side == facing ? 3 : 2));
-                var stand = Vec3.atBottomCenterOf(pos);
-                if (!standable(pos) || !route(stand)) continue;
-                facility = found;
-                watch = stand;
-                detours = 0;
-                GameplayLog.event(npc, "npc-care", "action=outing_park facility={} kind={} stand={}",
-                        facility.getBlockPos(), facility.kind(), GameplayLog.at(stand));
+                if (!routeLeg(pos)) continue;
+                parkStand(found);
                 return true;
             }
             return false;
+        }
+
+        private void parkStand(PlayBlockEntity found) {
+            facility = found;
+            watch = destination;
+            detours = 0;
+            GameplayLog.event(npc, "npc-care", "action=outing_park facility={} kind={} stand={}",
+                    facility.getBlockPos(), facility.kind(), GameplayLog.at(watch));
         }
 
         private boolean standable(BlockPos pos) {
@@ -831,51 +905,43 @@ final class HumanStreet {
         }
 
         private boolean beginOffer() {
-            if (!npc.holdsPicnicFood() || tried.contains(Leg.OFFER) || npc.level().getGameTime() < picnicTryAt) return false;
-            var pet = companions.stream().filter(this::readyForHalf).filter(p -> !p.blockPosition().equals(picnicRefusedAt))
+            if (!npc.holdsPicnicFood() || offered || npc.level().getGameTime() < picnicTryAt) return false;
+            var pet = companions.stream().filter(this::readyForHalf).filter(this::offerReach)
+                    .filter(p -> !p.blockPosition().equals(picnicRefusedAt))
                     .min(Comparator.comparingDouble(p -> p.life().nutrition())).orElse(null);
             if (pet == null) return false;
-            var toward = npc.position().subtract(pet.position()).multiply(1, 0, 1).normalize();
-            var stand = BlockPos.containing(pet.position().add(toward.scale(pet.getBbWidth() / 2 + .9)));
-            legPet = pet;
-            if (offerReach(pet) || routeLeg(stand)) {
-                beginLeg(Leg.OFFER, watch);
-                return true;
-            }
-            refuseOffer("unreachable");
-            clearLeg();
-            return false;
+            offerHalf(pet);
+            return true;
         }
 
-        private void refuseOffer(String reason) {
-            GameplayLog.event(npc, "npc-care", "action=picnic_refused reason={} pet={}", reason, legPet.getUUID());
+        private void refuseOffer(YukkuriEntity pet, String reason) {
+            GameplayLog.event(npc, "npc-care", "action=picnic_refused reason={} pet={}", reason, pet.getUUID());
             picnicTryAt = npc.level().getGameTime() + ROUTE_TICKS;
-            picnicRefusedAt = legPet.blockPosition();
+            picnicRefusedAt = pet.blockPosition();
         }
 
-        private void offerHalf() {
-            if (!readyForHalf(legPet) || !npc.holdsPicnicFood()) { refuseOffer("pet_changed"); return; }
-            var inFront = legPet.position().add(0, .3, 0)
-                    .add(MouthPlacement.outward(legPet).scale(legPet.getBbWidth() / 2 + .3));
-            var at = ItemContact.releaseSurface(legPet, inFront);
-            if (at == null) { refuseOffer("no_dry_ground"); return; }
+        private void offerHalf(YukkuriEntity pet) {
+            var inFront = pet.position().add(0, .3, 0)
+                    .add(MouthPlacement.outward(pet).scale(pet.getBbWidth() / 2 + .3));
+            var at = ItemContact.releaseSurface(pet, inFront);
+            if (at == null) { refuseOffer(pet, "no_dry_ground"); return; }
             var hand = npc.getMainHandItem();
             var input = hand.getItem();
             var id = UUID.randomUUID();
             var kept = hand.is(Items.APPLE) ? PicnicFood.split(hand) : ItemStack.EMPTY;
             var serving = hand.is(Items.APPLE) ? kept.copy() : hand.copyWithCount(1);
             var drop = ItemContact.release(npc, PicnicFood.serving(serving, id), at.add(0, .05, 0), Vec3.ZERO);
-            if (drop == null) { refuseOffer("spawn_refused"); return; }
+            if (drop == null) { refuseOffer(pet, "spawn_refused"); return; }
             if (hand.is(Items.APPLE)) npc.setItemSlot(EquipmentSlot.MAINHAND, kept);
             else hand.shrink(1);
-            npc.getLookControl().setLookAt(legPet, 30, 30);
+            npc.getLookControl().setLookAt(pet, 30, 30);
             npc.swing(InteractionHand.MAIN_HAND);
             if (!kept.isEmpty()) npc.startUsingItem(InteractionHand.MAIN_HAND);
             picnicHalf = id;
             halfTicks = 0;
-            tried.add(Leg.OFFER);
+            offered = true;
             GameplayLog.event(npc, "npc-care", "action=picnic_offer pet={} input={} kept={} placed item={} count=1 drop={} age={} serving={} at={}",
-                    legPet.getUUID(), input, kept, serving.getItem(), drop.getUUID(), drop.getAge(), id, GameplayLog.at(at));
+                    pet.getUUID(), input, kept, serving.getItem(), drop.getUUID(), drop.getAge(), id, GameplayLog.at(at));
         }
 
         private ItemEntity looseHalf() {
@@ -921,7 +987,7 @@ final class HumanStreet {
             if (hand.isEmpty()) npc.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
 
-        private void clearLeg() { leg = Leg.NONE; legPet = null; legThen = null; }
+        private void clearLeg() { leg = Leg.NONE; legThen = null; }
 
         private void afterLeg() {
             var then = legThen;
@@ -929,7 +995,7 @@ final class HumanStreet {
             detours = 0;
             resume = null;
             if (homeward) continueHome();
-            else if (!route(then)) blockedOutingLeg();
+            else if (!(parkDestination != null ? routePark(then) : route(then))) blockedOutingLeg();
         }
 
         private boolean legStep() {
@@ -937,7 +1003,6 @@ final class HumanStreet {
             switch (leg) {
                 case NONE -> { return false; }
                 case TAKE -> { if (!atCrate()) return false; takeApple(); }
-                case OFFER -> { if (!offerReach(legPet)) return false; offerHalf(); }
                 case COLLECT -> {
                     var half = looseHalf();
                     if (half == null) {
@@ -962,7 +1027,6 @@ final class HumanStreet {
 
         private void legBlocked() {
             switch (leg) {
-                case OFFER -> refuseOffer("unreachable");
                 case COLLECT -> GameplayLog.event(npc, "npc-care", "action=picnic_collect result=unreachable serving={}", picnicHalf);
                 case TAKE, STOW -> GameplayLog.event(npc, "npc-care", "action=picnic_{} result=unreachable crate={}",
                         leg == Leg.TAKE ? "take" : "stow", npc.yardCrate());
@@ -973,7 +1037,8 @@ final class HumanStreet {
 
         private void linger() {
             npc.getNavigation().stop();
-            npc.getLookControl().setLookAt(facility.getBlockPos().getCenter());
+            stalled = detours = 0;
+            if (!npc.isUsingItem()) npc.getLookControl().setLookAt(facility.getBlockPos().getCenter());
             if (picnicHalf != null) {
                 var half = looseHalf();
                 if (half == null) {
@@ -990,17 +1055,23 @@ final class HumanStreet {
                 done &= pet.outing().doneAtPark();
             }
             tiredTicks = waitingForRest ? tiredTicks + 1 : 0;
-            lingerTicks++;
-            if (done && !npc.isUsingItem() && (picnicHalf == null || tried.contains(Leg.COLLECT))) returnHome("park_done");
+            long lingerTicks = npc.level().getGameTime() - parkOpened;
+            boolean waitingToShare = npc.holdsPicnicFood() && !offered
+                    && companions.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand());
+            if (done && !waitingToShare && !npc.isUsingItem() && (picnicHalf == null || tried.contains(Leg.COLLECT))) returnHome("park_done");
             else if (tiredTicks > 300) returnHome("tired");
             else if (lingerTicks >= 3000 || lingerTicks >= 2400 && !playing) returnHome("park_time");
         }
 
         private void clearPark() {
-            toPark = false;
+            if (parkLingering()) GameplayLog.event(npc, "npc-care", "action=outing_park_leave stand={} gap={}",
+                    GameplayLog.at(watch), npc.distanceToSqr(watch));
+            parkDestination = null;
             facility = null;
             watch = null;
-            lingerTicks = tiredTicks = 0;
+            parkOpened = 0;
+            tiredTicks = 0;
+            offered = false;
             picnicTryAt = 0;
             picnicRefusedAt = null;
         }
@@ -1014,6 +1085,7 @@ final class HumanStreet {
             picnicHalf = null;
             tried.clear();
             homeward = false;
+            detachLeads(result);
             companions = List.of();
             finished = true;
         }
@@ -1061,7 +1133,7 @@ final class HumanStreet {
                         returnHome("companion");
                         return;
                     }
-                    if (facility != null) continue;
+                    if (parkLingering()) continue;
                     double behind = npc.distanceTo(pet) - pet.outing().outerDistance();
                     if (behind > lag) {
                         lagging = pet;
@@ -1070,15 +1142,25 @@ final class HumanStreet {
                 }
                 if (facility != null) {
                     if (facility.isRemoved()) { returnHome("park_done"); return; }
-                    if (leg == Leg.NONE && parkLingering()) { linger(); return; }
-                } else if (lagging != null) {
-                    npc.getLookControl().setLookAt(lagging, 30, 30);
-                    npc.getNavigation().setSpeedModifier(.30);
-                    if (++lagTicks >= ROUTE_TICKS) { returnHome("lagging"); return; }
-                } else {
-                    lagTicks = 0;
-                    npc.getNavigation().setSpeedModifier(.55);
+                    if (leg == Leg.NONE && resume == null) {
+                        if (atDestination()) {
+                            if (!parkLingering()) {
+                                endGlance();
+                                parkOpened = npc.level().getGameTime();
+                                detachLeads("park");
+                                GameplayLog.event(npc, "npc-care", "action=outing_park_wait stand={}", GameplayLog.at(watch));
+                            }
+                            linger();
+                            return;
+                        }
+                        if (parkLingering() && npc.getNavigation().isDone() && stalled == 0) {
+                            GameplayLog.event(npc, "npc-care", "action=outing_park_recover stand={}", GameplayLog.at(watch));
+                            if (!route(watch)) { returnHome("blocked"); return; }
+                            stalled = 1;
+                        }
+                    }
                 }
+                if (!parkLingering() && followPace(lagging)) { returnHome("lagging"); return; }
             }
             if (homeward && leg == Leg.NONE && !sheltering && collectForHome()) return;
             if (legStep()) return;
@@ -1092,7 +1174,10 @@ final class HumanStreet {
                 } else if (leg != Leg.NONE) {
                     legBlocked();
                 } else if (!homeward && !companions.isEmpty()) {
-                    if (!toPark || !beginLinger()) returnHome("destination");
+                    if (parkDestination == null) returnHome("destination");
+                    else if (BlockPos.containing(destination).equals(BlockPos.containing(parkDestination))) {
+                        if (!beginLinger()) returnHome("destination");
+                    } else if (!routePark(parkDestination)) blockedOutingLeg();
                 } else if (homeward) {
                     finishReturn(sheltering ? "shelter" : "home");
                 } else {
@@ -1123,6 +1208,48 @@ final class HumanStreet {
 
         private boolean atDestination() { return npc.distanceToSqr(destination) < .5; }
 
+        private void attachLeads(String phase) {
+            for (var pet : companions) {
+                if (!pet.isAlive() || pet.isRemoved() || !escorts(pet) || !pet.canBeLeashed() || pet.isLeashed()
+                        || pet.isPassenger() || npc.distanceToSqr(pet) > 36) continue;
+                pet.setLeashedTo(npc, true);
+                GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=attach pet={}", phase, pet.getUUID());
+            }
+        }
+
+        private void detachLeads(String phase) {
+            for (var pet : companions) {
+                if (pet.getLeashHolder() != npc) continue;
+                pet.dropLeash(true, false);
+                GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=detach pet={}", phase, pet.getUUID());
+            }
+        }
+
+        private boolean followPace(YukkuriEntity lagging) {
+            // Half a stride of clearance before speeding back up. Ramp over roughly half a second.
+            if (lagging != null || lagTicks > 0 && companions.stream()
+                    .anyMatch(pet -> npc.distanceTo(pet) > pet.outing().outerDistance() - .75)) lagTicks++;
+            else lagTicks = 0;
+            pace += Math.clamp((lagTicks == 0 ? .55 : .30) - pace, -.025, .025);
+            npc.getNavigation().setSpeedModifier(pace);
+            if (glance != null && npc.tickCount >= glanceAt + 24) endGlance();
+            if (glance == null && lagging != null && npc.tickCount >= glanceAt) {
+                glance = lagging;
+                glanceAt = npc.tickCount;
+                GameplayLog.event(npc, "npc-care", "action=outing_glance result=start pet={}", glance.getUUID());
+            }
+            if (glance != null) npc.getLookControl().setLookAt(glance, 12, 12);
+            return lagTicks >= ROUTE_TICKS;
+        }
+
+        private void endGlance() {
+            if (glance == null) return;
+            GameplayLog.event(npc, "npc-care", "action=outing_glance result=end pet={} held={}",
+                    glance.getUUID(), npc.tickCount - glanceAt);
+            glance = null;
+            glanceAt = npc.tickCount + 24;
+        }
+
         private void blockedOutingLeg() {
             if (!homeward) returnHome("blocked");
             else if (!sheltering) findReturnShelter();
@@ -1146,6 +1273,26 @@ final class HumanStreet {
             return true;
         }
 
+        private boolean routePark(Vec3 to) {
+            var nav = npc.getNavigation();
+            var path = nav.createPath(BlockPos.containing(to), 0);
+            if (path != null) {
+                var end = Vec3.atBottomCenterOf(path.getEndNode().asBlockPos());
+                // A partial path may spend another search budget only after walking closer by at least a block.
+                if ((path.canReach() || end.distanceTo(to) + 1 <= npc.position().distanceTo(to))
+                        && nav.moveTo(path, .65)) {
+                    last = npc.position();
+                    stalled = 0;
+                    destination = path.canReach() ? to : end;
+                    if (!path.canReach()) GameplayLog.event(npc, "npc-care", "action=park_route result=partial target={} via={}",
+                            GameplayLog.at(to), GameplayLog.at(end));
+                    return true;
+                }
+            }
+            GameplayLog.event(npc, "npc-care", "action=park_route result=refused reason=unreachable target={}", GameplayLog.at(to));
+            return false;
+        }
+
         private boolean routeLeg(BlockPos stand) {
             if (!standable(stand)) return false;
             var nav = npc.getNavigation();
@@ -1156,11 +1303,13 @@ final class HumanStreet {
         }
 
         @Override public void stop() {
+            endGlance();
             clearPark();
             clearLeg();
             if (!finished && npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
             if (!companions.isEmpty()) {
                 if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason=interrupted");
+                detachLeads("interrupted");
                 homeward = true;
                 companions = List.of();
             }

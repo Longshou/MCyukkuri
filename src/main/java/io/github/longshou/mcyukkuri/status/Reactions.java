@@ -262,7 +262,7 @@ public final class Reactions {
             }
         }
         void heard(LivingEntity danger, long now) { heard(danger, now, HEARD); }
-        /** A guard's visible warning or shoo, whatever its kind: the ordinary threat goal waits for a meal to finish before it can steer. */
+        /** A guard's visible warning or shoo. The threat goal can steer once the mouth is free to move. */
         public void warnedBy(LivingEntity guard) {
             long now = y.level().getGameTime();
             cooldownUntil = now;

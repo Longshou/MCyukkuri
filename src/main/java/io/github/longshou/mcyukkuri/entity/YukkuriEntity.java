@@ -8,6 +8,7 @@ import java.util.Locale;
 import net.minecraft.network.chat.Component;
 
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -1137,6 +1138,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Only a harnessed pet can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override public void closeRangeLeashBehaviour(Entity holder) {
+        if (holder instanceof HumanNpc npc && npc.strollingWith(this)) return;
         if (life().pursuingFoodOnLead()) return;
         if (shouldStayCloseToLeashHolder() && !isPanicking() && !life().isSleeping()
                 && pet().care().walk().followTurn(holder, followLeashSpeed())) return;

@@ -91,7 +91,7 @@ public final class HumanNpc extends PathfinderMob {
     private HumanStreet.Stroll stroll() { if (stroll == null) stroll = new HumanStreet.Stroll(this); return stroll; }
     public UUID walkPetId() { return animals(Custody.Role.COMPANION).stream().findFirst().map(Entity::getUUID).orElse(null); }
     public boolean walking() { return walk().walking() || stroll().outing(); }
-    public void releaseLegacyLead(YukkuriEntity pet) { walk().releaseLegacyLead(pet); }
+    public boolean holdsLeadFor(YukkuriEntity pet) { return walk().leads(pet) || stroll().escorts(pet); }
     boolean leadingWalk() { return walk().walking(); }
     public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
     public PlayBlockEntity parkFacility() { return stroll().parkFacility(); }
@@ -690,7 +690,7 @@ public final class HumanNpc extends PathfinderMob {
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
             if (job() == Job.FACTORY) return false;
-            if (street.helping()) return true;
+            if (street.helping() || street.shooingCrop()) return true;
             if (isTrading() || goingHome()) return true;
             // Shop staff tend their stock as jobs (ShopStaff) through the staff doors; this routine only keeps their trading and rest.
             if (routineDelay > 0 || job() == Job.SHOPKEEPER) return false;
@@ -704,7 +704,7 @@ public final class HumanNpc extends PathfinderMob {
             return attention != null;
         }
         @Override public boolean canContinueToUse() {
-            return isTrading() || goingHome() || street.helping() || attention != null && attention.isAlive() && elapsed < 140
+            return isTrading() || goingHome() || street.helping() || street.shooingCrop() || attention != null && attention.isAlive() && elapsed < 140
                     && approach < (streetResident() ? HumanStreet.ROUTE_TICKS : 600);
         }
         @Override public void start() {
@@ -714,7 +714,12 @@ public final class HumanNpc extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
-            if (isTrading()) { street.stopHelp(); getNavigation().stop(); return; }
+            if (isTrading()) { street.stopHelp(); street.stopCropShoo(); getNavigation().stop(); return; }
+            if (street.shooingCrop()) {
+                clearAttention();
+                street.cropShooStep();
+                return;
+            }
             if (resting() && street.helping()) {
                 street.stopHelp();
                 getNavigation().stop();
@@ -779,6 +784,7 @@ public final class HumanNpc extends PathfinderMob {
         }
         @Override public void stop() {
             street.stopHelp();
+            street.stopCropShoo();
             clearAttention();
             getNavigation().stop();
             if (routineDelay >= 0) routineDelay = Math.max(routineDelay, 200);

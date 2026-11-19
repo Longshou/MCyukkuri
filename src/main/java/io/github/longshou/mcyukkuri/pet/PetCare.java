@@ -148,8 +148,11 @@ public final class PetCare {
     private void tickWear() {
         if (animal.isLeashed()) {
             var holder = animal.getLeashHolder();
-            // Let vanilla resolve the saved holder before matching the old WalkPet UUID.
-            if (holder instanceof HumanNpc npc && animal.pet().ownedBy(npc.getUUID())) npc.releaseLegacyLead(animal);
+            // Once vanilla resolves the saved holder, release an NPC lead whose walk has ended or did not resume.
+            if (holder instanceof HumanNpc npc && !npc.holdsLeadFor(animal)) {
+                animal.dropLeash(true, false);
+                GameplayLog.event(animal, "pet", "outing lead detached inactive_holder={}", npc.getUUID());
+            }
             if (animal.isLeashed() && (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())))
                 animal.dropLeash(true, true);
         }

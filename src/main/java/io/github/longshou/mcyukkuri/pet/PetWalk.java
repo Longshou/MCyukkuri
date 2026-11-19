@@ -105,7 +105,7 @@ public final class PetWalk {
             double px = petNow.x - lastPet.x, pz = petNow.z - lastPet.z;
             double ownerMoved = Math.hypot(dx, dz), petMoved = Math.hypot(px, pz);
             // A strolling resident can take smaller steps than a player and still make a real turn.
-            if (led && ownerMoved > .02 && ownerMoved <= 1) {
+            if (led && animal.outing().escort() == null && ownerMoved > .02 && ownerMoved <= 1) {
                 Vec3 direction = new Vec3(dx / ownerMoved, 0, dz / ownerMoved);
                 long nowTick = animal.level().getGameTime();
                 if (canTurn && nowTick >= turnUntil && heading != null && heading.dot(direction) < .35
