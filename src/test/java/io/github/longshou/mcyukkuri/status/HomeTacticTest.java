@@ -22,7 +22,7 @@ class HomeTacticTest {
         assertEquals(patience, FamilyDutyMath.beckonPatience(t.attachment(), t.selfControl()));
     }
 
-    @Test void familyResponses() {
+    @Test void responsesAtTheDen() {
         check(mother, .315, true, 12, .84, 610);
         check(new Temperament(50, 50, 60, 50, 40), .58, false, 8, .14, 430);
         check(new Temperament(40, 30, 20, 35, 25), .675, false, 7, 0, 355);

@@ -271,38 +271,81 @@ add('home_greedy', 'den', '贪心占丝绒窝，可驱离', '贪心占丝绒窝�
 # A previously learned skill as initial state. The family still decides who goes out and how to deal with the departure.
 _seal_skill = {'den_seal': 2}
 _seal_assessed = 'YukkuriSkills:{Assessed:["den_seal"]}'
-_seal_mother, _seal_father, _seal_child, _seal_learner = (uid('den_barrier', n) for n in ('mother', 'father', 'child', 'learner'))
-_seal_kin = f'Mother:{uuid_nbt(_seal_mother)},Father:{uuid_nbt(_seal_father)}'
-_seal_mother_log, _seal_father_log, _seal_learner_log = (_uuid_text('den_barrier', n) for n in ('mother', 'father', 'learner'))
-add('den_barrier', 'den', '父油出门采草，母油封洞口', '父油出门采草，母油封洞口',
-    '洞内缺粮。父油去南边草地采草，留守灵梦记得用枝叶封洞口。看亚成子油能否从示范中学会，再看父油回来拆屏、把草送进粮堆。',
-    '约 1–2 分钟，可倍速', [
+
+
+def _screen_crossing(window, trace, residents):
+    sealed = re.search(r'\[home\][^\n]* t=(\d+) [^\n]* den seal completed ', window)
+    removed = re.search(r'\[home\] t=(\d+) [^\n]* den barrier removed pos=(-?\d+), (-?\d+), (-?\d+) ', window)
+    if not sealed or not removed or int(sealed[1]) >= int(removed[1]):
+        return 'Missing a complete closed-screen interval'
+    # These south-facing dens have their one-cell notch at the removed screen's Z coordinate.
+    mouth_x, mouth_z = int(removed[2]) + .5, int(removed[4]) + .5
+    previous = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] != 'st' or row['u'] not in residents or not int(sealed[1]) <= row['t'] < int(removed[1]):
+            continue
+        x, _, z = row['st']['p']
+        last = previous.get(row['u'])
+        if last and (last[1] >= mouth_z) != (z >= mouth_z):
+            crossing_x = last[0] + (x - last[0]) * (mouth_z - last[1]) / (z - last[1])
+            if abs(crossing_x - mouth_x) <= .5:
+                return f"Resident {row['u']} crossed the sealed mouth at tick {row['t']}"
+        previous[row['u']] = (x, z)
+    if set(previous) != set(residents):
+        return 'Missing resident positions while sealed'
+
+
+def _family_screen(sid, timeout):
+    names = ['mother', 'father', 'child'] if timeout else ['mother', 'father', 'child', 'learner']
+    ids = {name: uid(sid, name) for name in names}
+    mother, father = (_uuid_text(sid, n) for n in names[:2])
+    kin = kin_of(Mother=ids['mother'], Father=ids['father'])
+    lines = [
         box(-12, 0, -8, 12, 0, 6, 'minecraft:air', 'replace minecraft:short_grass'),
         box(-11, 0, 7, 11, 0, 17, 'minecraft:short_grass', 'keep'),
-        yk('reimu', -2, -4, 'mother', uuid=_seal_mother, label='会封洞的母油', lead=True, energy=33, nutrition=100,
-           intelligence=90, self_control=100, boldness=20, kin=f'Partner:{uuid_nbt(_seal_father)}', skills=_seal_skill),
-        yk('marisa', 0, 2, 'father', uuid=_seal_father, label='出门采草的父油', energy=100, nutrition=86, boldness=96,
-           kin=f'Partner:{uuid_nbt(_seal_mother)}', extra=_seal_assessed),
-        yk('marisa', 1, -4, 'child', stage='child', uuid=_seal_child, nutrition=96, kin=_seal_kin),
-        yk('reimu', 0, -3, 'learner', stage='teen', uuid=_seal_learner, nutrition=100, intelligence=96, attachment=100,
-           kin=_seal_kin, extra=_seal_assessed,
-           fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')),
-        *[home(n, 0, -1) for n in ('mother', 'father', 'child', 'learner')],
-        f'yukkuri scenario twigs {sel("mother")} 2'],
-    env=DAY, spot='family', vantage=(3, 10),
-    reads=[('读留守母油', f'yukkuri status {sel("mother")} raw'),
-           ('读采草父油', f'yukkuri status {sel("father")} raw'),
-           ('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriSkills')],
-    smoke=dict(ticks=3900, expect=[
-        rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* begin role=FAMILY phase=OUT',
-        rf'\[duty\][^\n]*uuid={_seal_mother_log}\b[^\n]* claimed kind=SEAL',
-        rf'\[home\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{_seal_father_log}\]',
-        rf'\[duty\][^\n]*uuid={_seal_mother_log}\b[^\n]* released kind=SEAL end=DONE',
-        (rf'\[childhood\][^\n]*uuid={_seal_learner_log}\b[^\n]* den seal demonstration parent={_seal_mother_log}\b[^\n]* roll=[\d.]+ learned=(true|false)'
-         rf'|\[childhood\][^\n]*uuid={_seal_mother_log}\b[^\n]* den seal demonstration missed learner={_seal_learner_log}\b reason=(out_of_sight|asleep|away)\b'),
-        rf'\[home\][^\n]*den barrier removed [^\n]* reason=parent_returned [^\n]*twig_returned=true opener={_seal_father_log}\b',
-        rf'\[forage\][^\n]*uuid={_seal_father_log}\b[^\n]* deposit home=[^\n]* moved=[1-9]'],
-        forbid=[r'\[body\][^\n]* invariant\b']))
+        yk('reimu', 0, -2, 'mother', uuid=ids['mother'], label='会封洞的母油', lead=True, energy=20 if timeout else 40,
+           rest_wait=500 if timeout else 1200, nutrition=100, intelligence=90, self_control=100,
+           boldness=20, attachment=95, kin=kin_of(Partner=ids['father']), skills=_seal_skill),
+        yk('marisa', 0, 6, 'father', uuid=ids['father'], label='出门采草的父油', energy=100, nutrition=86, boldness=96,
+           kin=kin_of(Partner=ids['mother']), extra=_seal_assessed),
+        yk('marisa', 1, -4, 'child', stage='child', uuid=ids['child'], nutrition=96, kin=kin)]
+    expect = [
+        rf'\[forage\][^\n]*uuid={father}\b[^\n]* begin role=FAMILY phase=OUT',
+        rf'\[duty\][^\n]*uuid={mother}\b[^\n]* claimed kind=SEAL',
+        rf'\[home\][^\n]*uuid={mother}\b[^\n]* den seal completed [^\n]* twigs 2 -> 1 danger=null absent=\[{father}\]',
+        rf'\[duty\][^\n]*uuid={mother}\b[^\n]* released kind=SEAL end=DONE',
+        rf'den call caller={father} callee={mother} relation=PARTNER',
+        rf'\[forage\][^\n]*uuid={father}\b[^\n]* deposit home=[^\n]* moved=[1-9]']
+    reads = [('读留守母油', f'yukkuri status {sel("mother")} raw'), ('读采草父油', f'yukkuri status {sel("father")} raw')]
+    if timeout:
+        title = '母油睡着，父油呼唤无应答后自己拆屏'
+        watch = '采草父油回到洞口，按亲缘呼唤睡着的伴侣。等不到回应时，看它放下草、拆屏，再把草带回粮堆。'
+        expect.extend([rf'uuid={father}\b[^\n]* den call unanswered waited=',
+                       rf'den barrier removed [^\n]* reason=self_opened [^\n]*twig_returned=true opener={father}\b'])
+    else:
+        title = '父油出门采草，母油封洞口，父油回来呼唤'
+        watch = '父油去南边草地采草，留守母油压枝封洞。看亚成子油能否看见示范，再看父油呼唤伴侣、母油应声拆屏、父油把草送进粮堆。'
+        learner = _uuid_text(sid, 'learner')
+        lines.append(yk('reimu', 0, -3, 'learner', stage='teen', uuid=ids['learner'], nutrition=100, intelligence=96,
+                        attachment=100, kin=kin, extra=_seal_assessed,
+                        fam=TEEN_FAMILY.replace('Nourishment:276000L', 'Nourishment:160000L')))
+        reads.append(('读亚成封洞技能', f'data get entity {sel("learner")} YukkuriSkills'))
+        expect.extend([(rf'\[childhood\][^\n]*uuid={learner}\b[^\n]* den seal demonstration parent={mother}\b[^\n]* roll=[\d.]+ learned=(true|false)'
+                        rf'|\[childhood\][^\n]*uuid={mother}\b[^\n]* den seal demonstration missed learner={learner}\b reason=(out_of_sight|asleep|away)\b'),
+                       rf'den call answered by={mother}\b',
+                       rf'den barrier removed [^\n]* reason=answered_call [^\n]*twig_returned=true opener={mother}\b'])
+    residents = {_uuid_text(sid, n) for n in names}
+    add(sid, 'den', title, title, watch, '约 1–2 分钟，可倍速',
+        [*lines, *[home(n, 0, -1) for n in names], f'yukkuri scenario twigs {sel("mother")} 2'],
+        env=DAY, spot='family', vantage=(3, 10), reads=reads,
+        smoke=dict(ticks=3900, expect=expect, verify_trace=True,
+                   verify=lambda window, trace: _screen_crossing(window, trace, residents),
+                   forbid=[r'\[body\][^\n]* invariant\b', r'den seal aborted reason=(path_stuck|cells_changed)']))
+
+
+_family_screen('den_barrier', False)
+_family_screen('den_call_timeout', True)
 
 
 def _den_guard(name, spot):
@@ -315,13 +358,15 @@ add('den_barrier_predator', 'den', '会封洞的灵梦躲避捕食种', '会封�
     '会封洞的灵梦带着 2 根洞口枝条。灵梦进洞后，南面出现饥饿蕾米莉亚。看它察觉危险后封洞，等附近没有捕食种再拆开。',
     '约 1–2 分钟，可倍速', [
         box(-9, 0, -5, 9, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
+        item('mcyukkuri:core_filling', 1, 0, 21, 'filling'),
         yk('reimu', 0, -1, 'wise', label='会封洞的灵梦', boldness=20, self_control=100, skills=_seal_skill, lead=True, **pair_ready()),
         home('wise', 0, -1), f'yukkuri scenario twigs {sel("wise")} 2'],
-    late=[Retry(yk('remilia', 0, 6, 'hunter', label='饥饿捕食种', nutrition=48, energy=95, boldness=80),
+    late=[Retry(yk('remilia', 0, 12, 'hunter', label='饥饿捕食种', nutrition=48, energy=95, boldness=80),
                 _den_guard('wise', 'indep'), tries=20, every=20, first=1)],
     env=DAY, spot='indep', vantage=(4, 12),
     reads=[('读灵梦', f'yukkuri status {sel("wise")} raw'), ('读捕食种', f'yukkuri status {sel("hunter")} raw')],
-    smoke=dict(ticks=1800, expect=[r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]'],
+    smoke=dict(ticks=1800, expect=[r'\[home\][^\n]* den seal completed [^\n]* danger=[0-9a-f-]{36} absent=\[\]',
+                                   r'den barrier removed [^\n]* reason=danger_passed [^\n]*twig_returned=true'],
                forbid=[r'\[body\][^\n]* invariant\b']))
 
 _seal_threat_wise = _uuid_text('den_barrier_threat', 'wise')
@@ -339,7 +384,7 @@ add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '
     '约 1 分钟，可倍速', [
         box(-9, 0, -7, 9, 0, 16, 'minecraft:air', 'replace minecraft:short_grass'),
         yk('reimu', 0, 2, 'wise', uuid=uid('den_barrier_threat', 'wise'), label='会封洞的灵梦',
-           boldness=15, self_control=100, skills=_seal_skill, lead=True,
+           intelligence=85, boldness=15, self_control=100, skills=_seal_skill, lead=True,
            extra='YukkuriForageLoad:{id:"minecraft:short_grass",count:2}', **pair_ready()),
         # The resident starts well south of the mouth: it follows the panicking yukkuri slowly, so the doorway is clear while the screen goes up.
         human('oniisan', 3, 9, 'threat', 0, attitude=0, yaw=180, label='虐派居民'),
@@ -352,10 +397,51 @@ add('den_barrier_threat', 'den', '会封洞的灵梦被居民打回家封洞', '
         rf'\[threat\][^\n]*uuid={_seal_threat_wise}\b[^\n]* struck stance=FLEE\b',
         rf'\[forage\][^\n]*uuid={_seal_threat_wise}\b[^\n]* drop item=minecraft:short_grass count=2 reason=hurt\b',
         rf'\[punishment\][^\n]*uuid={_seal_threat_wise}\b[^\n]* response=ESCAPE\b',
-        rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal decided [^\n]* seals=true',
+        rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal decided [^\n]* eta=[\d.]+ need=[\d.]+ slack=[\d.]+ seals=true',
         rf'\[home\][^\n]*uuid={_seal_threat_wise}\b[^\n]* den seal completed [^\n]* placed=1 twigs 2 -> 1 danger=[0-9a-f-]{{36}} absent=\[\]',
-        rf'\[home\][^\n]*den barrier removed [^\n]*owner={_seal_threat_wise}\b reason=(danger_passed|pushed_through) [^\n]*twig_returned=true'],
+        rf'\[home\][^\n]*den barrier removed [^\n]*owner={_seal_threat_wise}\b reason=danger_passed [^\n]*twig_returned=true opener={_seal_threat_wise}\b'],
         forbid=[r'\[body\][^\n]* invariant\b'], verify=_seal_threat_press, verify_trace=True))
+
+_decoy = 'den_lead_away'
+_decoy_x, _decoy_z = BY_ID['den'].spots['family']
+_decoy_mother, _decoy_hunter = (_uuid_text(_decoy, n) for n in ('mother', 'hunter'))
+
+
+def _decoy_distance(window, trace):
+    chosen = re.search(rf'uuid={_decoy_mother} t=(\d+)[^\n]*home tactic stance=LEAD_AWAY', window)
+    ended = re.search(rf'uuid={_decoy_mother} t=(\d+)[^\n]*lead away ended', window)
+    if not chosen or not ended:
+        return 'Missing a complete decoy episode'
+    frames = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] in (_decoy_mother, _decoy_hunter) and int(chosen[1]) <= row['t'] <= int(ended[1]):
+            frames.setdefault(row['t'], {})[row['u']] = row['st']['p']
+    for pair in frames.values():
+        if len(pair) == 2:
+            mother, hunter = pair[_decoy_mother], pair[_decoy_hunter]
+            if math.hypot(mother[0] - _decoy_x - .5, mother[2] - _decoy_z - .5) >= 12 and math.dist(mother, hunter) <= 16:
+                return
+    return 'The decoy never reached 12 blocks from the mouth with the hunter within 16'
+
+
+add(_decoy, 'den', '母油把捕食种引离有孩子的洞', '母油把捕食种引离有孩子的洞',
+    '两只赤油留在洞内。看灵梦留在洞外，朝远离家的地方跑，回身鼓脸喊话，把蕾米莉亚引走。',
+    '约 1 分钟', [
+        yk('reimu', 0, 3, 'mother', uuid=uid(_decoy, 'mother'), label='引开捕食种的母油', lead=True,
+           intelligence=85, self_control=70, attachment=90, friendliness=80, boldness=50, skills=_seal_skill),
+        *[yk('reimu', x, -4, name, uuid=uid(_decoy, name), stage='baby', kin=kin_of(Mother=uid(_decoy, 'mother')),
+             childhood=CHILDHOOD_CRAWLING_READY) for x, name in ((-1, 'baby1'), (1, 'baby2'))],
+        *[home(n, 0, -1) for n in ('mother', 'baby1', 'baby2')], f'yukkuri scenario twigs {sel("mother")} 2'],
+    late=[Retry(yk('remilia', 0, 14, 'hunter', uuid=uid(_decoy, 'hunter'), label='饥饿捕食种', nutrition=48, energy=95, boldness=80),
+                f'@e[tag={tag("mother")},x={_decoy_x-8},y={FEET},z={_decoy_z+1},dx=16,dy=2,dz=14]', first=1, every=20)],
+    env=DAY, spot='family', vantage=(5, 13), reads=[('读引敌母油', f'yukkuri status {sel("mother")} raw')],
+    smoke=dict(ticks=1000, expect=[rf'uuid={_decoy_mother}\b[^\n]* home tactic stance=LEAD_AWAY',
+                                  rf'uuid={_decoy_mother}\b[^\n]* lead away taunt [^\n]*attacker={_decoy_hunter}',
+                                  rf'uuid={_decoy_mother}\b[^\n]* lead away ended reason=(led_away|expired|threat_lost)'],
+               verify_trace=True, verify=_decoy_distance,
+               forbid=[rf'feeding bite target=#\d+ uuid={_uuid_text(_decoy, n)}\b' for n in ('baby1', 'baby2')],
+               allow_fate=[dict(kind='death', who=f'uuid={_decoy_mother} ', match=r'cause=mob\b', why='the decoy takes the real hunt')]))
 
 # ====================================================================================================== vagrants and foraging
 add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理沙在土丘挖洞安家', '没有家的野生成体走到土丘边，先挖通地面，再向上挖内部第二层。入口一格高、内部两格高，每块约 6 秒。',
@@ -5623,7 +5709,7 @@ TOPICS = {
     'everyday_choices': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
-    'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8',
+    'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
     'family_absence': 'W9',
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
