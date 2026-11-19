@@ -134,9 +134,14 @@ public final class ConscienceGoal extends Goal {
     @Override public void tick() {
         if (!pet.duty().holds(Duty.Kind.RULES)) return;
         if (brood != null && (style == ArcStyle.HIDE || style == ArcStyle.LIE)) {
-            var result = style == ArcStyle.HIDE && reachedCover() ? SurfaceApproach.Result.ARRIVED
+            boolean sheltered = style == ArcStyle.HIDE && reachedCover();
+            var result = sheltered ? SurfaceApproach.Result.ARRIVED
                     : SurfaceApproach.retreatResult(pet, stand, style == ArcStyle.HIDE ? owner : child, .9);
             if (result == SurfaceApproach.Result.ARRIVED) {
+                if (style == ArcStyle.HIDE && !sheltered) {
+                    finish(Duty.End.FAILED, "cover_lost");
+                    return;
+                }
                 GameplayLog.event(pet, "rules", "arc arrived style={} brood={} screened={}", style, brood.brood,
                         !GlassSight.clearTo(owner, pet.getEyePosition()));
                 finish(Duty.End.DONE, "arrived");
