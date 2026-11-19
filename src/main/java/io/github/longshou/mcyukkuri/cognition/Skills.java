@@ -86,7 +86,9 @@ public final class Skills {
         } else entity.showReaction("sparkle", "lesson_learned", 60);
         var level = (ServerLevel) entity.level();
         Staging.sparkle(level, entity.position().add(0, entity.getBbHeight() * .5, 0));
-        var owner = level.getPlayerByUUID(entity.pet().owner());
+        var ownerId = entity.pet().owner();
+        if (ownerId == null) return;
+        var owner = level.getPlayerByUUID(ownerId);
         if (owner != null && entity.distanceToSqr(owner) <= 32 * 32) {
             owner.displayClientMessage(Component.translatable("pet.mcyukkuri.skill.learned", entity.getDisplayName(),
                     Component.translatable(ability.translationKey()), gradeWord(ability, grade)), true);
