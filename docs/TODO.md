@@ -8,9 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
-| R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
-| S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
 
 ## 玩法待办
 
