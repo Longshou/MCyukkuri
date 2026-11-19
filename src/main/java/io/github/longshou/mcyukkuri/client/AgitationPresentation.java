@@ -47,18 +47,16 @@ final class AgitationPresentation {
 
     private static final class DisplayedPose {
         final WeakReference<YukkuriView> owner;
-        final String phase;
-        final long start;
-        final double transitionStart;
-        float[] from, value;
+        String phase;
+        long start;
+        double transitionStart = Double.NEGATIVE_INFINITY;
+        final float[] from = new float[6], value = new float[6];
         long lastSeen;
 
-        DisplayedPose(YukkuriView entity, String phase, long start, double now, float[] from) {
+        DisplayedPose(YukkuriView entity, String phase, long start) {
             this.owner = new WeakReference<>(entity);
             this.phase = phase;
             this.start = start;
-            this.transitionStart = now;
-            this.from = from == null ? null : from.clone();
         }
     }
 
@@ -202,31 +200,30 @@ final class AgitationPresentation {
         if (keys == null) { displayed.remove(entity); return; }
         int i = 0;
         while (i + 2 < keys.length && progress > keys[i+1][0]) i++;
-        float[] a = keys[i], b = keys[i+1], value = new float[6];
-        float mix = Mth.clamp((progress-a[0])/(b[0]-a[0]), 0, 1);
-        mix = smooth(mix);
-        for (int k = 0; k < 6; k++) value[k] = Mth.lerp(mix, a[k+1], b[k+1]);
-
         var previous = displayed.get(entity);
         // Entity equality may be based on a recycled numeric ID; a replacement has no visual history.
         if (previous != null && previous.owner.get() != entity) {
             displayed.remove(entity);
             previous = null;
         }
-        if (previous == null || !previous.phase.equals(phase) || previous.start != start) {
-            // Sample the current phase from the server's Start, but bridge from what was actually
-            // seen. A late packet must not skip the bridge; a newly visible entity has no bridge.
-            previous = new DisplayedPose(entity, phase, start, now, previous == null ? null : previous.value);
+        if (previous == null) {
+            previous = new DisplayedPose(entity, phase, start);
             displayed.put(entity, previous);
+        } else if (!previous.phase.equals(phase) || previous.start != start) {
+            System.arraycopy(previous.value, 0, previous.from, 0, 6);
+            previous.phase = phase;
+            previous.start = start;
+            previous.transitionStart = now;
         }
-        if (previous.from != null) {
+        float[] a = keys[i], b = keys[i+1], value = previous.value;
+        float mix = smooth(Mth.clamp((progress-a[0])/(b[0]-a[0]), 0, 1));
+        for (int k = 0; k < 6; k++) value[k] = Mth.lerp(mix, a[k+1], b[k+1]);
+        if (now - previous.transitionStart < TRANSITION_TICKS) {
             float blend = smooth(Mth.clamp((float) ((now-previous.transitionStart)/TRANSITION_TICKS), 0, 1));
             for (int k = 0; k < 6; k++) value[k] = Mth.lerp(blend, previous.from[k], value[k]);
-            if (blend >= 1) previous.from = null;
         }
         // The fixed 'from' is never overwritten during a bridge. Repeated render passes at the
         // same time therefore produce the same pose instead of advancing a frame-based filter.
-        previous.value = value.clone();
         previous.lastSeen = gameTick;
         // All attached presentation shares the transform. Only grounding can translate it;
         // actual approach and retreat remain exclusively server navigation.

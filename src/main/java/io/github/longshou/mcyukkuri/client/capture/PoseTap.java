@@ -61,8 +61,13 @@ public final class PoseTap {
         run = directory.getParent().getFileName().toString(); window = directory.getFileName().toString();
         frame = 0; timedFrame=-1;clockStart=System.nanoTime();CURRENT.clear(); PREVIOUS.clear();
     }
-    public static void model(YukkuriView entity, YukkuriModel model, boolean accessory, int hairLoss) {
-        if (active()) CURRENT.put(entity.getUUID().toString(), model.capturePose(accessory,hairLoss));
+    public static void model(YukkuriView entity, YukkuriModel model, boolean accessory, int hairLoss, float weight, String from) {
+        if (!active()) return;
+        var frame = model.capturePose(accessory,hairLoss);
+        frame.addProperty("bw", weight);
+        frame.addProperty("bfrom", from);
+        frame.addProperty("hurt", entity.hurtTicks());
+        CURRENT.put(entity.getUUID().toString(), frame);
     }
     /** Append surfaces emitted after the main model snapshot, in their actual draw frame. */
     public static void surfaces(YukkuriView entity, Matrix4f start, Matrix4f drawn, float partial, JsonObject meshes) {

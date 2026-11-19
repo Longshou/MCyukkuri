@@ -101,6 +101,9 @@ public final class YukkuriModel {
     private final Map<String, JsonObject> poseClips = new HashMap<>();
     private String sampledClip;
     private float sampledTime;
+    private float bridgeWeight;
+    private String bridgeFrom;
+    private final float[] heldPose = new float[9];
     private DrawEvidence drawEvidence;
     private WallClearance wallClearance;
     /** Limbs that turn away from nearby walls; {@code wallTurns} is set while this frame's turns apply to the skin. */
@@ -736,6 +739,7 @@ public final class YukkuriModel {
     private PaperTent.Grid paperTent(YukkuriView entity, PoseStack stack, boolean showHat, int hairLoss, JunkHeadwear junk) {
         // The loose paper settles over a sampled pose while the body shivers under it. Sample the fold at 5 Hz.
         long inputs = 31L * sampledClip.hashCode() + (int)(sampledTime * 5);
+        inputs = 31 * inputs + Math.round(bridgeWeight * 8);
         inputs = 31 * inputs + (showHat ? 1 : 0);
         inputs = 31 * inputs + hairLoss;
         inputs = 31 * inputs + entity.visibleHeadwear();
@@ -1054,6 +1058,11 @@ public final class YukkuriModel {
     }
     public void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay,
             boolean accessory, String behavior, float behaviorTicks,int hairLoss) {
+        render(action, elapsed, stack, buffer, light, overlay, accessory, behavior, behaviorTicks, hairLoss,
+                null, PoseBridge.Mode.OFF, 0);
+    }
+    private void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay,
+            boolean accessory, String behavior, float behaviorTicks, int hairLoss, YukkuriView entity, PoseBridge.Mode mode, float partial) {
         for(int i=0;i<pose.length;i++)System.arraycopy(defaultPose[i],0,pose[i],0,9);
         String selected=action;
         if(gripBones!=null&&(action.equals("idle")||action.equals("waddle"))){
@@ -1089,15 +1098,42 @@ public final class YukkuriModel {
         if (adultStatePose && !authoredAdult) selected="idle";
         float adultTime = adultStatePose ? (authoredAdult ? elapsed : 0)
                 : selected.equals(action) ? elapsed : behaviorTicks/20f;
+        float tempo = 1;
         if (momentFrame != null && !adultStatePose && selected.equals(action)) {
             selected = momentFrame.clip();
-            adultTime = momentFrame.seconds()*momentFrame.tempo();
+            tempo = momentFrame.tempo();
+            adultTime = momentFrame.seconds()*tempo;
         }
-        clips.getOrDefault(selected, clips.get("idle")).sample(adultTime, pose);
         sampledClip = clips.containsKey(selected) ? selected : "idle";
-        sampledTime = clips.get(sampledClip).time(adultTime);
+        Clip drawn = clips.get(sampledClip);
+        drawn.sample(adultTime, pose);
+        sampledTime = drawn.time(adultTime);
         if (momentFrame != null && !adultStatePose && selected.equals(momentFrame.clip()))
             Intensity.apply(pose, defaultPose, rootBone(), momentFrame.intensity());
+        if (selected.equals("house_carry") && action.equals("waddle")) {
+            // Walking owns the body; the carry clip retains the two closed locks.
+            sampledClip = "waddle";
+            drawn = clips.get(sampledClip);
+            drawn.sample(elapsed, pose);
+            sampledTime = drawn.time(elapsed);
+            tempo = 1;
+        }
+        float[] envelope = puffEnvelopes.get(sampledClip);
+        puffAmount = envelope != null && puffSurface != null ? puffEnvelope(envelope, sampledTime) : 0;
+        // Those contact meshes have no puff morph bindings. Suppress even a puff fading out of the last clip.
+        boolean allowPuff = !gripping && !drawingSurfaceMarks && woundDisplay == null;
+        bridgeWeight = 1;
+        bridgeFrom = null;
+        if (mode != PoseBridge.Mode.OFF) {
+            long tick = entity.level().getGameTime();
+            var bridge = PoseBridge.history(entity, pose, tick);
+            bridge.sample(mode, sampledClip, drawn.loop, sampledTime * 20, tempo, (double)tick + partial, puffAmount);
+            bridgeWeight = bridge.weight;
+            bridgeFrom = bridge.fromClip;
+            if (!allowPuff) bridge.puff = 0;
+            puffAmount = bridge.puff;
+        }
+        else if (!allowPuff) puffAmount = 0;
         if(reproductiveAnatomy!=null&&reproductiveAmount>0&&delivery==null) {
             Clip extend=clips.get("anatomy_"+reproductiveAnatomy+"_extend");
             if(extend!=null)for(var track:extend.tracks)if(bones[track.bone].name.startsWith("anatomy_"))
@@ -1106,26 +1142,9 @@ public final class YukkuriModel {
         if(carryLoad>0&&selected.equals("waddle")){
             Overlays.gait(pose,defaultPose,carryLoad);
         }
-        puffAmount=0;
-        float[] envelope=puffEnvelopes.get(selected);
-        if (envelope!=null&&puffSurface!=null) {
-            Clip clip=clips.get(selected);
-            float time=selected.equals(action)?elapsed:behaviorTicks/20f;
-            time=clip.loop?time%clip.duration:Math.min(time,clip.duration);
-            puffAmount=puffEnvelope(envelope,time);
-        }
         if(carryCheeks>0){
             // Babies in the mouth fill her out like the puff clip's held root swell, more with each one (up to 1.2 wide at three).
             Overlays.cheeks(pose[rootBone()],carryCheeks);
-        }
-        // The gripping locks and the wound renderer own different contact
-        // geometry. Keep their original mesh until those combined poses have
-        // their own morph bindings; never detach a held item or move wound ink.
-        // The side-lock swing is part of the same morph, so it stops with it.
-        if(gripping||drawingSurfaceMarks||woundDisplay!=null)puffAmount=0;
-        if (selected.equals("house_carry") && action.equals("waddle")) {
-            // Walking owns the body; the carry clip retains the two closed locks.
-            clips.get("waddle").sample(elapsed, pose);
         }
         if(carrying&&gripBones!=null&&!selected.equals("house_pickup")&&!selected.equals("house_deposit")&&!selected.equals("house_carry")){
             // Carry survives interruption; only the lock joints override another body action.
@@ -1135,12 +1154,11 @@ public final class YukkuriModel {
         if(hold>0){
             // Her braid keeps the held item: only the braid chain takes the hold pose, so the body clip's walking,
             // sitting and rowing stay untouched (the house_carry locks work the same way). Handing over, it blends.
-            float[] held=new float[9];
             for(Track track:clips.get(heldClip()).tracks)if(bones[track.bone].name().startsWith("hand_right")){
                 float[] target=pose[track.bone];
                 if(hold>=1){track.sample(0,target);continue;}
-                System.arraycopy(target,0,held,0,9);track.sample(0,held);
-                for(int k=track.offset;k<track.offset+3;k++)target[k]+=(held[k]-target[k])*hold;
+                System.arraycopy(target,0,heldPose,0,9);track.sample(0,heldPose);
+                for(int k=track.offset;k<track.offset+3;k++)target[k]+=(heldPose[k]-target[k])*hold;
             }
         }
         boolean slowChew = behavior.equals(Behaviors.CHEW_GRUDGE) || behavior.equals(Behaviors.CHEW_RELUCTANT);
@@ -1398,7 +1416,7 @@ public final class YukkuriModel {
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     WoundRenderer.Contact renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,String expression,
-            MultiBufferSource buffers,WallClearance clearance){
+            MultiBufferSource buffers,WallClearance clearance,boolean adultPose,PoseBridge.Mode mode,float partial){
         try{
             wallClearance=clearance;
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
@@ -1424,7 +1442,7 @@ public final class YukkuriModel {
             setExpression(expression);
             drain=entity.aftermathDrain();
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
-            adultStatePose=AgitationPresentation.selected(entity);
+            adultStatePose=adultPose;
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
             hatScale=HatScale.factor(entity.subspeciesFlags());
@@ -1444,7 +1462,8 @@ public final class YukkuriModel {
             // The moment row runs on the animation clock, which `elapsed` already samples.
             momentFrame = entity.getMomentId().isEmpty() ? null : Moments.frame(entity.getMomentId(), elapsed);
             try {
-                render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+                render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),
+                        behavior,behaviorTicks,hairLoss,entity,mode,partial);
             } finally { momentFrame = null; }
             if(woundDisplay!=null)WoundLod.time(WoundLod.BODY,bodyStart);
             // The shared per-asset model keeps the last capture; every mouth-held prop, including a Myon's
@@ -1467,7 +1486,7 @@ public final class YukkuriModel {
             renderJunkHat(junk,stack,buffers,light,overlay);
             if ((wear & CareWearRenderer.PAPER_COVER) != 0) paperTentGrid = paperTent(entity, stack, showHat, hairLoss, junk);
             else { paperFits.remove(entity); paperTentGrid = null; }
-            PoseTap.model(entity, this, accessory, hairLoss);
+            PoseTap.model(entity, this, accessory, hairLoss, bridgeWeight, bridgeFrom);
             return contact;
         }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);

@@ -260,8 +260,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var wallOrigin = rubOffset == Vec3.ZERO ? start : new Matrix4f(start).translate((float)rubOffset.x, 0, (float)rubOffset.z);
             var wallClearance=preview||operated?null:WallClearance.nearby(source,model,action,partialTick,rubMover,rubOffset,wallOrigin,
                     (wear&CareWearRenderer.PAPER_COVER)!=0);
+            boolean adultPose = AgitationPresentation.selected(entity);
+            // Brim hops and steps are carried draws too. A slide still owns contact even with a live clip.
+            var mode = PoseBridge.mode(preview, carried || hatCarrier || braidClip != null || !contact.equals("NONE") || adultPose,
+                    entity.hurtTicks(), entity.deathTicks(), entity.waterDistressPhase(), entity.getBehaviorId());
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
-                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance);
+                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance,
+                    adultPose,mode,partialTick);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             PoseTap.body(entity,start,pose.last().pose(),partialTick);
             if(!preview&&!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
