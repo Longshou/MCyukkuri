@@ -217,12 +217,11 @@ public final class BadgeSocial {
     }
 
     static BadgeArcPolicy.Observer observer(YukkuriEntity o, List<YukkuriEntity> around) {
-        var p = o.life().personality();
         var group = o.settlement().group();
         boolean childNear = around.stream().anyMatch(y -> WildEvents.childOf(o, y));
         boolean elder = o.family().adult() && (group != null && o.getUUID().equals(group.leader) || childNear);
-        return new BadgeArcPolicy.Observer(o.pet().isPet(), !o.family().adult(), elder, childNear, p.intelligence(), p.friendliness(), p.boldness(),
-                p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), visibleRank(o).id(),
+        return new BadgeArcPolicy.Observer(o.pet().isPet(), !o.family().adult(), elder, childNear, o.life().personality().temperament(),
+                Math.round(o.life().nutrition()), visibleRank(o).id(),
                 Math.round(o.getBbWidth() * 100));
     }
 

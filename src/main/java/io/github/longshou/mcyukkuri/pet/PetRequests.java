@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -89,8 +90,7 @@ public final class PetRequests {
         if (ready(Kind.WARM) && life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (ready(Kind.NUZZLE) && daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (ready(Kind.PLAY) && daily.boredom() >= 65) return Kind.PLAY;
-        if (ready(Kind.SNACK) && life.personality().friendliness() < 45
-                && life.personality().selfControl() < 45 && life.nutrition() <= Sweets.FULL
+        if (ready(Kind.SNACK) && life.personality().temperament().is(Gate.SELFISH) && life.nutrition() <= Sweets.FULL
                 && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
         if (ready(Kind.WALK) && daily.boredom() >= 50 && level().isDay() && !level().isRaining()
                 && animal.family().adult() && !animal.isLeashed()

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -357,8 +358,7 @@ public final class PetLife {
         care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
-        var p = animal.life().personality();
-        waits = p.attachment() >= 60 && p.friendliness() > 60 || !animal.family().adult();
+        waits = animal.life().personality().temperament().is(Gate.WAITS_FOR_OWNER) || !animal.family().adult();
         neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
@@ -397,10 +397,9 @@ public final class PetLife {
     private void tickAbandoned() {
         if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
         if (!townRoots || !abandoned() || now() - abandonedAt < 240 || !calm()) return;
-        var p = animal.life().personality();
         if (abandonStage == 0) {
             abandonStage = 1;
-            if (!waits && p.friendliness() <= 60) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
+            if (!waits && !animal.life().personality().temperament().is(Gate.WARM)) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
         }
         if (!waits || now() - abandonedAt > 24000) return;
         if (--searchClock > 0) return;

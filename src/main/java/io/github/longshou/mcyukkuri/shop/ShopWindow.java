@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -241,7 +242,7 @@ public final class ShopWindow implements MotorOwner {
     boolean reservationEnded(UUID buyer) {
         if (busy() != null) return false;
         var personality = entity.life().personality();
-        if (personality.attachment() < 55 || personality.relation(buyer).closeness() < BondLevels.TRUST_FAMILIAR) return false;
+        if (!personality.temperament().is(Gate.ATTACHED) || personality.relation(buyer).closeness() < BondLevels.TRUST_FAMILIAR) return false;
         entity.playAction("droop");
         entity.showReaction("cry", "plea_sad", 60);
         return true;

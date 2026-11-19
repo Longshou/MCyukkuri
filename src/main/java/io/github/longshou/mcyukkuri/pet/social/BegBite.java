@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -250,7 +251,7 @@ public final class BegBite {
         boolean kin = Bonds.careKin(pet, stray);
         int share = p.shareScore(pet.life().nutrition(), stray.life().nutrition(), kin, view.closeness());
         var helper = helper(level, pet);
-        var answer = BadgeArcPolicy.begAnswer(pet.life().nutrition(), share, view.wariness(), p.boldness(), p.attachment(), kin, helper != null);
+        var answer = BadgeArcPolicy.begAnswer(pet.life().nutrition(), share, view.wariness(), p.temperament(), kin, helper != null);
         GameplayLog.event(pet, "badge", "beg answer stray={} answer={} hunger={} esteem={} wariness={} share={} closeness={}",
                 stray.getUUID(), answer, pet.life().nutrition(), view.esteem(), view.wariness(), share, view.closeness());
         switch (answer) {
@@ -265,7 +266,7 @@ public final class BegBite {
 
     private void guard(Scene scene, YukkuriEntity stray, YukkuriEntity pet) {
         human = null;
-        pose(scene, Beat.GUARD, pet, pet.life().personality().selfControl() >= 55 ? STAND_GROUND : PUFF,
+        pose(scene, Beat.GUARD, pet, pet.life().personality().temperament().is(Gate.PATIENT) ? STAND_GROUND : PUFF,
                 SocialDisposition.selfEsteem(pet) >= 50 ? "cheek_puff" : "pursed", "beg_refuse", 2);
         stray.showReaction(SHY, "teary_frown", "");
     }
@@ -284,9 +285,10 @@ public final class BegBite {
         boolean contest = !people && !young && !Bonds.careKin(stray, pet) && view.closeness() < 10
                 && SocialDisposition.ramp(strength, .8, 1.1) * drive
                         * (1 - SocialDisposition.ramp(p.friendliness(), 35, 62)) >= .30;
-        var refusal = p.friendliness() >= 62 || view.closeness() >= 10 ? BadgeArcPolicy.BegRefusal.LEAVE
+        var t = p.temperament();
+        var refusal = t.is(Gate.WARM) || view.closeness() >= 10 ? BadgeArcPolicy.BegRefusal.LEAVE
                 : BadgeArcPolicy.begRefusal(stray.life().nutrition(), view.wariness(), confidence, view.insistence(),
-                p.relation(pet.getUUID()).fearBand(), p.selfControl(), p.escalationScore(),
+                p.relation(pet.getUUID()).fearBand(), t.is(Gate.IMPULSIVE), p.escalationScore(),
                 contest);
         GameplayLog.event(stray, "badge", "beg refusal pet={} response={} nutrition={} esteem={} wariness={} confidence={} insistence={} harshness={}",
                 this.pet, refusal, stray.life().nutrition(), view.esteem(), view.wariness(), confidence, view.insistence(), p.escalationScore());
@@ -366,7 +368,7 @@ public final class BegBite {
             travel(pet, helper, 1.2);
         } else if (actor == pet && beat == Beat.TURN_AWAY) {
             travel(pet, stray, .7);
-        } else if (actor == pet && snatch && beat == Beat.BACK && pet.life().personality().boldness() >= 55) {
+        } else if (actor == pet && snatch && beat == Beat.BACK && !pet.life().personality().temperament().is(Gate.WARY)) {
             look(pet, stray);
             if (chase == null && gap(pet, stray) >= distance) {
                 chase = SurfaceApproach.floor(pet, stray.position().add(pet.position().subtract(stray.position())

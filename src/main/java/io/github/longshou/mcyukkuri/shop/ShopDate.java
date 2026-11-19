@@ -12,7 +12,7 @@ import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.*;
 import java.util.function.IntPredicate;
 import net.minecraft.core.GlobalPos;
@@ -51,9 +51,10 @@ public final class ShopDate implements IntPredicate {
     /** Both animals must already be locked "date". */
     ShopDate(ServerLevel level, UUID keeperId, YukkuriEntity pet, YukkuriEntity stud, UUID buyer, Vec3 origin, Vec3 meet) {
         this.level = level; this.keeperId = keeperId; petId = pet.getUUID(); studId = stud.getUUID(); this.buyer = buyer; this.origin = origin; this.meet = meet;
-        int bold = pet.life().personality().trait(Trait.BOLDNESS), studBold = stud.life().personality().trait(Trait.BOLDNESS);
-        shy = (bold >= 55 ? 24 : bold <= 35 ? 60 : 36) + (studBold <= 35 ? 10 : 0);
-        flourish = bold > 35 && pet.pet().visibleGrade().id() > stud.pet().visibleGrade().id() ? "proud" : bold >= 55 ? "greet" : null;
+        var t = pet.life().personality().temperament();
+        boolean timid = t.is(Gate.TIMID), boldish = t.is(Gate.BOLDISH);
+        shy = (boldish ? 24 : timid ? 60 : 36) + (stud.life().personality().temperament().is(Gate.TIMID) ? 10 : 0);
+        flourish = !timid && pet.pet().visibleGrade().id() > stud.pet().visibleGrade().id() ? "proud" : boldish ? "greet" : null;
         var relations = YukkuriWorldData.get(level);
         fondBefore = relations.affinity(petId, studId) >= BondLevels.AFFINITY_CLOSE && relations.affinity(studId, petId) >= BondLevels.AFFINITY_CLOSE;
         walk = new Walk(studId); pet.pet().direct(walk);

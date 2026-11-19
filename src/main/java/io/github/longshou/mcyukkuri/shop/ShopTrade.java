@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -254,7 +255,7 @@ public final class ShopTrade {
         double esteem = SocialDisposition.selfEsteem(y);
         double wary = SocialDisposition.humanWariness(y, p, bond);
         boolean guarded = wary >= .4;
-        boolean joyful = !guarded && (SocialDisposition.confidence(esteem) >= .55 || personality.friendliness() >= 65
+        boolean joyful = !guarded && (SocialDisposition.confidence(esteem) >= .55 || personality.temperament().is(Gate.DEVOTED)
                 || bond.closeness() >= BondLevels.TRUST_FAMILIAR);
         y.playAction(joyful ? "joy_jump" : "bow");
         y.showReaction(guarded ? "flushed_smile" : "happy", guarded ? "hello" : line, 40);

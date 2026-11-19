@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +19,9 @@ public final class BadgeArcPolicy {
         public static Arc byId(String id) { for (var a : values()) if (a.id.equals(id)) return a; return null; }
     }
 
-    /** Behavior axes and needs are 0..100; grade runs from 0 (none) to 4 (platinum). */
-    public record Observer(boolean pet, boolean child, boolean elder, boolean childNear, int intelligence, int friendliness, int boldness,
-                           int attachment, int selfControl, int nutrition, int ownGrade, int sizePercent) {}
+    /** Needs are 0..100; grade runs from 0 (none) to 4 (platinum). */
+    public record Observer(boolean pet, boolean child, boolean elder, boolean childNear, Temperament temperament,
+                           int nutrition, int ownGrade, int sizePercent) {}
     public record Subject(int grade, boolean pet, boolean eating, boolean ownerNear, boolean trustedPlayerNear, boolean homeNear, boolean aloneFromOwner,
                           boolean hasAccessory, int sizePercent) {}
     /** What the observer remembers (ledger) plus the directed affinity. {@code cooling}: an arc with this subject played within the last game day. */
@@ -49,25 +51,26 @@ public final class BadgeArcPolicy {
     enum BegAnswer { SHARE, REFUSE, HELP }
     enum BegRefusal { LEAVE, PESTER, SNATCH }
 
-    static BegAnswer begAnswer(float nutrition, int share, double wariness, int boldness, int attachment, boolean kin, boolean human) {
-        if (wariness >= .5 || boldness < 35 && attachment >= 55 && !kin) return human ? BegAnswer.HELP : BegAnswer.REFUSE;
+    static BegAnswer begAnswer(float nutrition, int share, double wariness, Temperament temperament, boolean kin, boolean human) {
+        if (wariness >= .5 || temperament.is(Gate.SHY_REFUSAL) && !kin) return human ? BegAnswer.HELP : BegAnswer.REFUSE;
         return nutrition >= 40 && share >= 50 ? BegAnswer.SHARE : BegAnswer.REFUSE;
     }
 
     static BegRefusal begRefusal(float nutrition, double wariness, double confidence, double insistence, int fearBand,
-                                 int selfControl, int harshness, boolean ableToSnatch) {
+                                 boolean impulsive, int harshness, boolean ableToSnatch) {
         if (wariness >= .5 || confidence < .25 || fearBand > 0) return BegRefusal.LEAVE;
-        return ableToSnatch && confidence >= .4 && selfControl < 40 && (nutrition < 30 || insistence >= .35 && harshness >= 20)
+        return ableToSnatch && confidence >= .4 && impulsive && (nutrition < 30 || insistence >= .35 && harshness >= 20)
                 ? BegRefusal.SNATCH : BegRefusal.PESTER;
     }
 
     /** Every arc the situation allows with its own probability (unscaled). Empty means a silent record. */
     public static List<Candidate> candidates(Observer o, Subject s, Relation r, Context c) {
         List<Candidate> out = new ArrayList<>();
+        var t = o.temperament();
         if (r.lapsed()) {
             // The badge the observer remembers is gone (accessory lost, registry void or lapsed).
-            if (o.friendliness() <= 35) out.add(new Candidate(Arc.PITY, "scorn", .45));
-            else out.add(new Candidate(Arc.PITY, "pity", o.friendliness() > 50 ? .6 : .15));
+            if (t.is(Gate.SELFISH)) out.add(new Candidate(Arc.PITY, "scorn", .45));
+            else out.add(new Candidate(Arc.PITY, "pity", t.is(Gate.KINDLY) ? .6 : .15));
             return out;
         }
         if (r.cooling()) return out;
@@ -76,30 +79,29 @@ public final class BadgeArcPolicy {
         boolean hungry = o.nutrition() < 50;
         if (s.grade() > 0 && s.pet() && s.ownerNear() && o.elder() && o.childNear() && !o.pet() && novel)
             out.add(new Candidate(Arc.ELDER_WARN, c.kindRumour() && !c.waryRumour() ? "kind" : "warn", clamp01(.35 * (c.waryRumour() ? 1.5 : 1))));
-        if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && o.friendliness() <= 35
-                && o.selfControl() < 40
+        if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && t.is(Gate.SELFISH)
                 && r.seenCount() >= 2 && (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.MOCKED)) != 0 && !r.related())
             out.add(new Candidate(Arc.SNATCH, "", .12));
-        if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && o.friendliness() <= 45
+        if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && t.is(Gate.HARSH)
                 && o.nutrition() < 60 && !r.related())
             out.add(new Candidate(Arc.HOME_CLAIM, "", .2));
         if (!o.pet() && s.grade() > 0) {
             if (s.trustedPlayerNear()) out.add(new Candidate(Arc.PLEA, "", clamp01(.4 * (c.waryRumour() ? .3 : c.kindRumour() ? 1.3 : 1))));
-            else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && o.attachment() >= 55)
+            else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && t.is(Gate.ATTACHED))
                 out.add(new Candidate(Arc.PLEA, "", .12 * (c.waryRumour() ? .3 : 1)));
         }
         if (!o.pet() && r.affinity() < BondLevels.AFFINITY_NEUTRAL && s.grade() > 0 && !r.related()
                 && o.nutrition() >= 30 && o.sizePercent() * 10 >= s.sizePercent() * 9)
             out.add(new Candidate(Arc.PROVOKE, "", .45 * r.insistence()));
-        if (!o.pet() && s.grade() > 0 && novel && o.friendliness() >= 35)
-            out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.intelligence() + .001 * (100 - o.boldness())
+        if (!o.pet() && s.grade() > 0 && novel && !t.is(Gate.SELFISH))
+            out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * t.intelligence() + .001 * (100 - t.boldness())
                     + (o.child() ? .12 : 0) + .05 * Math.max(0, s.grade() - o.ownGrade() - 1)))));
         boolean above = o.pet() ? s.grade() > o.ownGrade() : s.grade() > 0;
         // A first silent roll did not spend this opportunity. Continued sight can still matter, with the lower familiarity weight.
         if (above) {
-            double p = .03 + .008 * (60 - o.friendliness()) + .12 * Math.max(0, s.grade() - o.ownGrade() - 1)
+            double p = .03 + .008 * (60 - t.friendliness()) + .12 * Math.max(0, s.grade() - o.ownGrade() - 1)
                     + (hungry ? .1 : 0) + .12 * r.confidence() - .18 * r.wariness() - r.affinity() / 300.0;
-            if (p > .01) out.add(new Candidate(Arc.ENVY, "", clamp01(nov * p * (1 - o.attachment() / 200.0))));
+            if (p > .01) out.add(new Candidate(Arc.ENVY, "", clamp01(nov * p * (1 - t.attachment() / 200.0))));
         }
         if (o.pet() && o.ownGrade() > s.grade() && novel) {
             double show = r.confidence() * (1 - r.wariness());
