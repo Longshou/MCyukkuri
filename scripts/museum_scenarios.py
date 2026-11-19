@@ -1594,8 +1594,9 @@ _choice_scene(
      _choice_actor('tool_withdraw', 1.5, 0, yaw=90, social_wait=0, boldness=25, friendliness=76, self_control=80),
      # Even from opposite corners the holder and yukkuri stay within the 8-block recognition distance.
      *(block(nx, 0, nz, 'minecraft:oak_fence') for nx in range(-4, 5) for nz in range(-2, 3)
-       if abs(nx) == 4 or abs(nz) == 2)],
-    (0, 6, 180, 15),
+       if abs(nx) == 4 or abs(nz) == 2),
+     block(0, 0, 4, 'minecraft:hay_block'), box(0, 0, 3, 0, 1, 3, 'minecraft:hay_block')],
+    (0, 3, 180, 42),
     [('tool_plead', r'tool response [^\n]*choice=plead'), ('tool_withdraw', r'tool response [^\n]*choice=withdraw')])
 
 _choice_scene(
