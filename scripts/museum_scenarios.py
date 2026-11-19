@@ -3494,7 +3494,7 @@ add('shop_water', 'shop', '饮水器：口渴的去喝，喝空后店员提水�
         f'tp {_care_feeder} ~3.5 ~2 ~4.5',
         f'tp {ALICE} ~16.5 ~2 ~12.5 0 0',
         f'data merge block {W1_WATER} {{Water:1}}', shop_need(ALICE, 'dryness', 60),
-    ], env=DAY, vantage=(18, 12, 65, 32, 2),
+    ], env=DAY, vantage=(18, 10, 34, 25, 2),
     reads=[('读碟里余水', f'data get block {W1_WATER} Water'), ('读爱丽丝的口渴', f'yukkuri status {ALICE} raw'),
            ('读店员主手', 'execute as @e[nbt={SiteRole:"shop_staff"},distance=..40] run data get entity @s HandItems[0]')],
     capture=dict(shots=(10, 40, 65, 120, 240), sequences=((10, 80, 5),), observe=False,
@@ -7977,15 +7977,18 @@ def _verify_shop_kin_room(window, trace):
     if problem:
         return problem
     claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*x={BY_ID["shop"].anchor[0] + 10}, y={FEET + 2}, z={BY_ID["shop"].anchor[1] - 2}\}}', window))
-    if claims != {bold, timid, kind}:
-        return f'Expected only the three littermates to share the nest, got {claims}'
+    # The round nest supports two juveniles. The third sibling shares the yard and the supplies.
+    if len(claims) != 2 or not claims <= {bold, timid, kind}:
+        return f'Expected the nest to be shared by two of the three juvenile littermates, got {claims}'
     wait = re.search(rf'\[meal\][^\n]* supply guarded [^\n]* kind=water guard={bold} approacher={timid} reason=harsh', window)
     drink = re.search(rf'\[needs\][^\n]* uuid={timid} [^\n]* drink [^\n]* kind=waterer water=[1-8] -> [0-7] dryness=55\.0 -> 25\.0', window)
     if not wait or not drink or wait.start() >= drink.start():
         return 'Expected the timid littermate to wait for the bold one and then drink'
 
 
-_smoke('shop_kin_room', 1100, [r'\[meal\][^\n]* supply guarded [^\n]* kind=water ', r'\[needs\][^\n]* drink [^\n]* kind=waterer '])
+_smoke('shop_kin_room', 1100, [r'\[meal\][^\n]* supply guarded [^\n]* kind=water ',
+                              r'\[meal\][^\n]* supply guarded [^\n]* kind=bowl ',
+                              r'\[needs\][^\n]* drink [^\n]* kind=waterer '])
 next(s for s in S if s.id == 'shop_kin_room').smoke.update(verify=_verify_shop_kin_room, verify_trace=True)
 
 _water_beg = rf'\[request\][^\n]* uuid={_water_pet} [^\n]* started kind=WATER '
@@ -8000,15 +8003,17 @@ def _verify_pet_water(window):
         return 'Expected the request, survival bucket exchange, relief and sip in order'
 
 
-_smoke('pet_water', 480, [_water_beg, _water_fill, _water_answer, _water_drink],
+_smoke('pet_water', 480, [_water_beg, _water_fill, _water_answer, _water_drink, r'MCY_PET_WATER_BUCKET_RETURN'],
        readout=['data get block ~3 ~ ~ Water', f'yukkuri status {sel("water_pet")} raw'])
+_water_operator = '@p[name=MuseumOperator,distance=..32]'
 next(s for s in S if s.id == 'pet_water').smoke.update(verify=_verify_pet_water, commands=[
     (1, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator enter'),
     (2, f'yukkuri scenario owner_at {sel("water_pet")} watch'),
     (3, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator move'),
-    (3, 'gamemode survival @a[name=MuseumOperator]'),
-    (3, 'item replace entity @a[name=MuseumOperator] weapon.mainhand with minecraft:water_bucket'),
+    (4, f'gamemode survival {_water_operator}'),
+    (5, f'item replace entity {_water_operator} weapon.mainhand with minecraft:water_bucket'),
     (120, 'yukkuri scenario shop_block_click ~3 ~ ~'),
+    (121, f'execute if items entity {_water_operator} weapon.mainhand minecraft:bucket if data block ~3 ~ ~ {{Water:8}} run say MCY_PET_WATER_BUCKET_RETURN'),
     (470, 'yukkuri scenario tool_operator leave'),
 ])
 _plant_site = '@e[type=minecraft:marker,tag=mcy_plant_site,distance=..45,limit=1]'
