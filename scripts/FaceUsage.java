@@ -10,7 +10,7 @@ class FaceUsage {
     record Call(MethodInvocationTree tree, Method owner) {}
     static final List<Method> methods = new ArrayList<>();
     static final List<Call> calls = new ArrayList<>();
-    static final Set<String> classNames = new HashSet<>();
+    static final Map<String,List<Method>> classMethods = new HashMap<>();
     static final Map<String,List<ExpressionTree>> fields = new HashMap<>();
     static final Map<String,Boolean> fieldTypes = new HashMap<>();
     static final Map<String,Set<String>> emitted = new TreeMap<>();
@@ -54,16 +54,28 @@ class FaceUsage {
         if(!declared) result.add(0);
         return result;
     }
-    /** A call reaches the method it names only in its own class (or a class the select names); an instance receiver keeps
-     *  the name-only match, since a syntax scan cannot know its type. Same-named helpers of other classes must not cross
-     *  (`say(Player, String key, Object...)` for a chat line vs `say(YukkuriEntity, ..., String face, ...)` for a performance). */
+    static boolean declares(String owner,Call call) {
+        int arity=call.tree.getArguments().size();
+        for(var candidate:classMethods.getOrDefault(owner,List.of())) {
+            if(!candidate.tree.getName().contentEquals(name(call.tree))) continue;
+            var params=candidate.tree.getParameters();
+            if(!params.isEmpty() && params.getLast().toString().contains("...")) {
+                int fixed=params.size()-1;
+                if(arity>=fixed && fits(call,params.subList(0,fixed))) return true;
+            } else if(arity==params.size() && fits(call,params)) return true;
+        }
+        return false;
+    }
+    /** Limit a call to an apparent declaration. Keep uncertain receivers, inherited calls and static imports in the scan. */
     static boolean targets(Call call,Method method) {
         var select=call.tree.getMethodSelect();
-        if(select instanceof IdentifierTree) return call.owner.classes.contains(method.classes.getLast());
+        String owner=method.classes.getLast();
+        if(select instanceof IdentifierTree) return call.owner.classes.contains(owner)
+                || call.owner.classes.stream().noneMatch(c->declares(c,call));
         if(select instanceof MemberSelectTree m) {
             String expression=m.getExpression().toString();
             String simple=expression.substring(expression.lastIndexOf('.')+1);
-            if(classNames.contains(simple)) return method.classes.contains(simple);
+            return owner.equals(simple) || !declares(simple,call);
         }
         return true;
     }
@@ -120,7 +132,7 @@ class FaceUsage {
                 @Override public Void visitClass(ClassTree tree,Void unused) {
                     String simple=tree.getSimpleName().toString();
                     // An anonymous class has no name to resolve a call against; its enclosing classes stay in sight.
-                    if(!simple.isEmpty()) { classNames.add(simple); classes.add(simple); }
+                    if(!simple.isEmpty()) classes.add(simple);
                     super.visitClass(tree,unused);
                     if(!simple.isEmpty()) classes.remove(classes.size()-1);
                     return null;
@@ -128,6 +140,7 @@ class FaceUsage {
                 @Override public Void visitMethod(MethodTree tree,Void unused) {
                     var previous=owner;
                     owner=new Method(tree,unit.getSourceFile().getName(),List.copyOf(classes),new HashMap<>(),new HashMap<>());methods.add(owner);
+                    classMethods.computeIfAbsent(classes.getLast(),k->new ArrayList<>()).add(owner);
                     super.visitMethod(tree,unused);owner=previous;return null;
                 }
                 @Override public Void visitVariable(VariableTree v,Void unused) {
