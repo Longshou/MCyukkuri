@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.family.ShedStemDrops;
 import io.github.longshou.mcyukkuri.house.HouseholdEcologyData;
 import io.github.longshou.mcyukkuri.house.HouseholdProtection;
@@ -144,6 +145,7 @@ public final class PlaygroundTools {
         var forgotten = FamilyData.get(level).forgetPlayground(level, box, removed);
         var individuals = new HashSet<UUID>(removed);
         individuals.addAll(forgotten.people());
+        PetPrivileges.get(level).forget(individuals, forgotten.broods());
         HomeClaim.forget(level, box, individuals);
         WildEvents.forget(level, box, individuals);
         var records = custody.forgetIndividuals(individuals);

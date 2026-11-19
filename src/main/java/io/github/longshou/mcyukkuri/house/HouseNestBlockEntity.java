@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
+
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -603,7 +605,10 @@ public final class HouseNestBlockEntity extends BlockEntity {
             outer:for(int i=0;i<candidates.size();i++)for(int j=i+1;j<candidates.size();j++){
                 var a=candidates.get(i);var b=candidates.get(j);
                 if((a.family().partner()==null||a.family().partner().equals(b.getUUID()))&&(b.family().partner()==null||b.family().partner().equals(a.getUUID()))){
-                    if(createClutch(a,b)){a.showReaction("happy","laid_eggs",100);break outer;}
+                    if(createClutch(a,b)){
+                        PetPrivileges.voluntaryBrood(broodId, a, b);
+                        a.showReaction("happy","laid_eggs",100);break outer;
+                    }
                 }
             }
         }

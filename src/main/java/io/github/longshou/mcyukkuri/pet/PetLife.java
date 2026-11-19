@@ -461,6 +461,7 @@ public final class PetLife {
     public void tick() {
         if (animal.level().isClientSide) return;
         // Run after all entity/NeoForge data has loaded, before ownership-dependent routines.
+        if (animal.tickCount == 1) PetPrivileges.note(animal);
         if (examWildTag != null && !ExamSession.running(animal)) finishWildExam();
         if (cooldown > 0) cooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();

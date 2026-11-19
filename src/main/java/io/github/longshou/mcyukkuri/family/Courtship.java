@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -407,6 +409,7 @@ final class Courtship {
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
             o.completedContact(peer, true);
             if(brood!=null) {
+                PetPrivileges.voluntaryBrood(brood.id, mother, father);
                 mother.agitation().completePair(true,motherHeat);
                 father.agitation().completePair(false,fatherHeat);
             } else {

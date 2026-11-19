@@ -756,6 +756,14 @@ public final class FamilyData extends SavedData {
         }
         return true;
     }
+    /** Only known adult or terminal young close a conduct case. Basketed and unloaded young keep it open. */
+    public boolean youngResolved(UUID id) {
+        var brood = brood(id);
+        return brood != null && brood.children.stream().allMatch(child -> {
+            var person = people.get(child.id);
+            return person.status == Status.LOST || person.status == Status.DEAD || "adult".equals(person.lastStage());
+        });
+    }
     public void cancel(Brood brood) {
         cancel(brood,null,"unspecified");
     }

@@ -1,6 +1,12 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.badge.BadgeConduct;
+import io.github.longshou.mcyukkuri.badge.BadgeConduct.Parent;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.List;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -10,6 +16,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
  * What a badge is good for in the shop and in the family (docs/FEATURES.md).
@@ -24,29 +31,33 @@ import net.minecraft.world.level.saveddata.SavedData;
 public final class PetPrivileges extends SavedData {
     public static final int HARNESS = 1, BREEDING = 1, MATCHMAKING = 2;
     private static final String NAME = "mcyukkuri_pet_privileges";
-    private final Map<UUID, boolean[]> records = new HashMap<>();
+    private final Map<UUID, Map<UUID, Integer>> records = new HashMap<>();
+    private final BadgeConduct conduct = new BadgeConduct();
+    public BadgeConduct conduct() { return conduct; }
 
     public static PetPrivileges get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(PetPrivileges::new, PetPrivileges::load), NAME);
     }
 
-    /** Remembers the grade and every lower one when a pet earns a badge or is bought with one. */
+    /** Keep the individual behind each earned household privilege, including while it is unloaded. */
     public static void note(YukkuriEntity pet) {
         if (!(pet.level() instanceof ServerLevel level) || !pet.pet().isPet() || pet.pet().owner() == null) return;
         var grade = pet.pet().effectiveGrade();
         if (grade == BadgeGrade.NONE) return;
         var data = get(level); var owner = pet.pet().owner();
-        boolean[] r = data.records.computeIfAbsent(owner, id -> new boolean[3]);
-        for (int g = 0; g < Math.min(grade.id(), r.length); g++) r[g] = true;
-        data.setDirty();
+        var pets = data.records.computeIfAbsent(owner, id -> new HashMap<>());
+        int contribution = Math.min(grade.id(), BadgeGrade.GOLD.id());
+        if (contribution > pets.getOrDefault(pet.getUUID(), 0)) {
+            pets.put(pet.getUUID(), contribution);
+            data.setDirty();
+        }
     }
 
     /** The best of the recorded grades and the effective grades of their pets within 32 blocks. */
     public static BadgeGrade grade(Player player) {
         if (!(player.level() instanceof ServerLevel level)) return BadgeGrade.NONE;
-        int best = 0;
-        boolean[] r = get(level).records.get(player.getUUID());
-        if (r != null) for (int g = 0; g < r.length; g++) if (r[g]) best = g + 1;
+        var data = get(level);
+        int best = data.conduct.standing(data.records.getOrDefault(player.getUUID(), Map.of()));
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, player.getBoundingBox().inflate(32), e -> e.isAlive() && e.pet().isPet() && e.pet().ownedBy(player.getUUID())))
             best = Math.max(best, Math.min(y.pet().effectiveGrade().id(), BadgeGrade.GOLD.id()));
         return BadgeGrade.of(best);
@@ -67,30 +78,80 @@ public final class PetPrivileges extends SavedData {
         return switch (effective) { case NONE, BRONZE -> 0; case SILVER -> 10; case GOLD, PLATINUM -> 20; };
     }
 
+    private static Parent parent(YukkuriEntity y) {
+        return new Parent(y.getUUID(), y.pet().isPet() && y.pet().grade() != BadgeGrade.NONE ? y.pet().owner() : null);
+    }
+    public static void voluntaryBrood(UUID brood, YukkuriEntity mother, YukkuriEntity father) {
+        var data = get((ServerLevel) mother.level());
+        var a = parent(mother);
+        var b = parent(father);
+        if (data.conduct.open(brood, a, mother.pet().permitUntil(b.id()), b, father.pet().permitUntil(a.id()), mother.level().getGameTime())) {
+            data.setDirty();
+            GameplayLog.event(mother, "badge", "pending brood={} mother={} father={}", brood, a, b);
+        }
+    }
+    public static void expire(ServerTickEvent.Post event) {
+        var level = event.getServer().overworld();
+        if (level.getGameTime() % 1200 != 0) return;
+        var data = get(level);
+        var families = FamilyData.get(level);
+        for (var entry : List.copyOf(data.conduct.cases())) {
+            if (entry.verdict() != null || !families.youngResolved(entry.brood)) continue;
+            data.conduct.remove(entry);
+            data.setDirty();
+            GameplayLog.world(level, "badge", "pending expired brood={}", entry.brood);
+        }
+    }
+    public void forget(Set<UUID> people, Set<UUID> broods) {
+        for (var entry : List.copyOf(conduct.cases()))
+            if (broods.contains(entry.brood) || entry.parents.stream().anyMatch(p -> people.contains(p.id()))) conduct.remove(entry);
+        records.values().forEach(pets -> pets.keySet().removeAll(people));
+        records.values().removeIf(Map::isEmpty);
+        setDirty();
+    }
+
+    private static CompoundTag saveParent(Parent parent) {
+        var tag = new CompoundTag();
+        tag.putUUID("Pet", parent.id());
+        if (parent.owner() != null) tag.putUUID("Owner", parent.owner());
+        return tag;
+    }
+    private static Parent loadParent(CompoundTag tag) {
+        return new Parent(tag.getUUID("Pet"), tag.hasUUID("Owner") ? tag.getUUID("Owner") : null);
+    }
+
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         var list = new ListTag();
-        records.forEach((id, r) -> {
-            int mask = 0;
-            for (int g = 0; g < r.length; g++) if (r[g]) mask |= 1 << g;
+        records.forEach((owner, pets) -> pets.forEach((pet, grade) -> {
             var c = new CompoundTag();
-            c.putUUID("Player", id); c.putInt("Grades", mask); list.add(c);
-        });
-        tag.put("Records", list); return tag;
+            c.putUUID("Player", owner); c.putUUID("Pet", pet); c.putInt("Grade", grade); list.add(c);
+        }));
+        tag.put("Contributions", list);
+        var cases = new ListTag();
+        for (var entry : conduct.cases()) {
+            var c = new CompoundTag();
+            c.putUUID("Brood", entry.brood);
+            c.put("Mother", saveParent(entry.parents.getFirst()));
+            c.put("Father", saveParent(entry.parents.getLast()));
+            var verdict = entry.verdict();
+            if (verdict != null) {
+                c.putString("Cause", verdict.cause()); c.putLong("Day", verdict.day()); c.putUUID("Judge", verdict.judge());
+            }
+            cases.add(c);
+        }
+        tag.put("Conduct", cases);
+        return tag;
     }
     public static PetPrivileges load(CompoundTag tag, HolderLookup.Provider registries) {
         var data = new PetPrivileges();
-        for (var item : tag.getList("Records", 10)) {
+        for (var item : tag.getList("Contributions", 10)) {
             var c = (CompoundTag) item;
-            if (!c.hasUUID("Player")) continue;
-            var grades = new boolean[3];
-            if (c.contains("Grades")) {
-                int mask = c.getInt("Grades");
-                for (int g = 0; g < grades.length; g++) grades[g] = (mask & 1 << g) != 0;
-            } else {
-                var earned = c.getLongArray("Until");
-                for (int g = 0; g < Math.min(earned.length, grades.length); g++) grades[g] = earned[g] != Long.MIN_VALUE;
-            }
-            data.records.put(c.getUUID("Player"), grades);
+            data.records.computeIfAbsent(c.getUUID("Player"), id -> new HashMap<>()).put(c.getUUID("Pet"), c.getInt("Grade"));
+        }
+        for (var item : tag.getList("Conduct", 10)) {
+            var c = (CompoundTag) item;
+            var verdict = c.hasUUID("Judge") ? new BadgeConduct.Verdict(c.getString("Cause"), c.getLong("Day"), c.getUUID("Judge")) : null;
+            data.conduct.add(new BadgeConduct.Case(c.getUUID("Brood"), loadParent(c.getCompound("Mother")), loadParent(c.getCompound("Father")), verdict));
         }
         return data;
     }
