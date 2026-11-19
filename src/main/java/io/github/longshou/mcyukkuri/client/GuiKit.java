@@ -73,8 +73,6 @@ public final class GuiKit {
         if (grade >= 1 && grade <= BadgeGrade.GOLD.id()) blit(g, x, y, (grade - 1) * 9, 48, 9, 9);
         else if (grade == BadgeGrade.PLATINUM.id()) blit(g, x, y, 36, 48, 9, 9);
     }
-    /** Grey chip with a red cross for a badge that has expired. */
-    public static void expiredChip(GuiGraphics g, int x, int y) { blit(g, x, y, 27, 48, 9, 9); }
     public static final int CHIP_WIDTH = 11;
 
     /** 0-100 values shown as words (Low / Mid / High); the thresholds live only here. */
@@ -97,11 +95,6 @@ public final class GuiKit {
     public static MutableComponent gradeName(int grade) {
         int id = BadgeGrade.of(grade).id();
         return Component.translatable("badge.mcyukkuri.profile.grade." + id).withStyle(s -> s.withColor(GRADE_TEXT[id] & 0xffffff));
-    }
-
-    /** Grade name greyed and struck through (expired badge). */
-    public static MutableComponent expiredGradeName(int grade) {
-        return Component.translatable("badge.mcyukkuri.profile.grade." + BadgeGrade.of(grade).id()).withStyle(s -> s.withColor(SOFT & 0xffffff).withStrikethrough(true));
     }
 
     /** Keeps vanilla click handling and narration while drawing the shared action sprites. */

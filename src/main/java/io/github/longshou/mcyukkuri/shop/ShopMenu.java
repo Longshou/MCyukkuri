@@ -33,7 +33,7 @@ import net.minecraft.world.item.Items;
  *  page; 14-17 buy goods row; 18 sell subject; 20/21 prev/next subject; 22-24 open the info panel for a live row;
  *  25 orders tab, 26-28 deliver order 1-3; 29 rental tab, 30 borrow or return the restraint table.
  *  Data slots (shorts): 0 tab, 1 the buyer's trades left today, 2 daytime, 3 page, 4 page count, 5 stock animals in the shop, 6 subject count,
- *  7 subject index+1; from 8, live rows of 12: species+1, stage, flags (grade | expired<<3 | display<<4 | ordered<<5 | reserved by you<<6 |
+ *  7 subject index+1; from 8, live rows of 12: species+1, stage, flags (grade | display<<4 | ordered<<5 | reserved by you<<6 |
  *  reserved by another<<7), learned-skill mask, entity id low/high short, days on the shelf, mood ({@link Mood}), tags (a|b<<4, 15 none), health,
  *  nutrition, price due from this viewer;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, health 16, nutrition 17, hygiene 18, stress 19,
@@ -126,7 +126,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, RENT = 5, DATA_SIZE = Data.COUNT;
     public static final class Flags {
-        public static final int GRADE_MASK = 7, EXPIRED = 8, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
+        public static final int GRADE_MASK = 7, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
         public static final int REQUIRED_SHIFT = 8, REQUIRED_MASK = 3;
         private Flags() {}
     }
@@ -215,7 +215,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     private int flags(YukkuriEntity y) {
         var b = y.pet(); var d = shop == null ? null : shop.deposit(y.getUUID());
-        return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0)
+        return b.grade().id() | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0)
                 | (ShopTrade.order(y) ? Flags.ORDERED : 0)
                 | (d == null ? 0 : d.buyer().equals(viewer.getUUID()) ? Flags.RESERVED_YOU : Flags.RESERVED_OTHER)
                 | (ShopMembership.required(y).ordinal() << Flags.REQUIRED_SHIFT);
@@ -298,7 +298,6 @@ public final class ShopMenu extends AbstractContainerMenu {
             if (b.title() == PetLife.TITLE_ETERNAL_SILVER) advice.add(12);
             if (b.title() == PetLife.TITLE_HIDDEN_GOLD) advice.add(13);
             if (b.stress() > BondLevels.UNEASE_CARE_LIMIT) advice.add(1);
-            if (b.expired()) advice.add(9);
             if (b.unauthorizedBirths() > 0) advice.add(10);
             for (int i = 0; i < Math.min(3, advice.size()); i++) put(Data.ADVICE_BASE + i, advice.get(i));
             put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(shop.kind, y) : ShopPricing.price(shop.kind, y));

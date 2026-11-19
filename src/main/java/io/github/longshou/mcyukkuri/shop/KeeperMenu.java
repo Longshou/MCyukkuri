@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
  *  Data slots (shorts): 0 daytime, 1 stud count, 2-5 unused, 6 subject count, 7 subject index+1,
  * 8 stud index+1, 9 booking state (0 ok, 1 night, 2 not enough emeralds, 3 no animal, 4 no stud, 5 cannot mate now, 6 pet has no nest of its own, 7
  * too crowded where it lives, 8 too hungry, 9 the pet needs a silver badge), 10 fee, 11 emeralds held,
- *  12-27 four stud rows of (species+1, grade | expired<<2 | pregnant-or-busy<<3, reserved, selected) for the page holding the selected stud,
+ *  12-27 four stud rows of (species+1, grade | pregnant-or-busy<<4, reserved, selected) for the page holding the selected stud,
  *  28 subject species+1, 29 reserved, 30 subject grade. */
 public final class KeeperMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -72,7 +72,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         private StudRow() {}
     }
     public static final class Flags {
-        public static final int GRADE_MASK = 7, EXPIRED = 8, BUSY = 16;
+        public static final int GRADE_MASK = 7, BUSY = 16;
         private Flags() {}
     }
     public static final int FEE = 6;
@@ -156,7 +156,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         for (int i = 0; i < StudRow.COUNT && first + i < studs.size(); i++) {
             var y = studs.get(first + i); var b = y.pet(); int k = Data.STUD_BASE + i * StudRow.STRIDE;
             put(k, y.getVariant().ordinal() + 1);
-            put(k + StudRow.FLAGS, b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.busy() || FamilyData.get(level).busyParent(y.getUUID()) ? Flags.BUSY : 0));
+            put(k + StudRow.FLAGS, b.grade().id() | (b.busy() || FamilyData.get(level).busyParent(y.getUUID()) ? Flags.BUSY : 0));
             put(k + StudRow.SELECTED, y == s ? 1 : 0);
         }
         if (pet != null) { put(Data.SUBJECT_SPECIES, pet.getVariant().ordinal() + 1); put(Data.SUBJECT_GRADE, pet.pet().grade().id()); }

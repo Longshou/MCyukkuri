@@ -23,7 +23,6 @@ import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
-import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -104,7 +103,7 @@ final class LifeMeal {
 
     boolean beginTuftMeal(MealRoute route, MealRoute.Serving source) {
         var body = o.entity();
-        if (tuftMeal != null || !body.onGround() || body.motor().current() != null || !canEat() || !ExamSession.allowsPeerFeeding(body, null)
+        if (tuftMeal != null || !body.onGround() || body.motor().current() != null || !canEat()
                 || !Braid.mouthFree(body) || Braid.use(body) != Braid.Use.FREE || !route.reaches(body, source.contact().get())) return false;
         o.beginConsumption();
         SurfaceApproach.halt(body);
@@ -264,7 +263,7 @@ final class LifeMeal {
 
     /** A crop and its serving commit together. A refused world change leaves the mouth empty. */
     boolean beginHarvestMeal(ItemStack serving, BooleanSupplier harvest) {
-        if (tuftMeal != null || !canEat() || !acceptsFood(serving) || refuseAtReach(serving, null) || !ExamSession.allowsPeerFeeding(o.entity(), null)
+        if (tuftMeal != null || !canEat() || !acceptsFood(serving) || refuseAtReach(serving, null)
                 || !occupancy().freeForExternalWork() || !occupancy().acquireMeal(serving)) return false;
         if (!harvest.getAsBoolean()) {
             occupancy().clear(Purpose.MEAL);
@@ -358,7 +357,7 @@ final class LifeMeal {
     }
 
     private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, Verdict verdict) {
-        if (tuftMeal != null || !ExamSession.allowsPeerFeeding(o.entity(), fromPlayer)) return false;
+        if (tuftMeal != null) return false;
         if (!makeRoom("meal") || !occupancy().acquireMeal(transferred.copy())) return false;
         startItemMeal(transferred, fromPlayer, alreadyShared, verdict);
         return true;
@@ -444,15 +443,6 @@ final class LifeMeal {
         return true;
     }
 
-    boolean handOverMouth(YukkuriEntity peer, String event) {
-        if (mealVerdict == Verdict.REFUSE || mouth().isEmpty() || mealTicks == 0 || mealTicks >= swallowTick()
-                || peer == o.entity() || !peer.isAlive()) return false;
-        if (!transferTo(peer, o.entity().getUUID())) return false;
-        o.personality().experienced(Trait.FRIENDLINESS, 1); o.entity().showReaction("happy", event, 100);
-        o.personality().decided("share_food");
-        return true;
-    }
-
     private boolean transferTo(YukkuriEntity peer, UUID from) {
         if (!occupancy().releaseMeal(item -> peer.life().beginMeal(item, from, true), bite -> false)) return false;
         clearTransfer();
@@ -467,30 +457,16 @@ final class LifeMeal {
 
     void tryShare() {
         var donor = o.entity();
-        var requested = ExamSession.sharingTarget(donor);
         var peer = o.level().getEntitiesOfClass(YukkuriEntity.class, o.entity().getBoundingBox().inflate(1.5), other ->
                 other != o.entity() && other.isAlive() && other.life().canEat() && other.life().nutrition() < o.nutrition() - 15
-                        && (requested == null ? Bonds.careKin(donor, other) : other == requested)
-                        && (o.canRecognize(other) || other == requested) && o.entity().hasLineOfSight(other)
+                        && Bonds.careKin(donor, other) && o.canRecognize(other) && donor.hasLineOfSight(other)
                         && !ExamSession.running(other) && ItemContact.mouthsMeet(o.entity(), other)).stream()
                 .min(Comparator.comparingDouble(donor::distanceToSqr)).orElse(null);
         if (peer == null) {
-            if (requested == null && canOfferMeal()) donor.kindness().offerMeal();
+            if (canOfferMeal()) donor.kindness().offerMeal();
             return;
         }
         if (mouth().isEmpty()) return;
-        if (requested != null) {
-            if (PetConversation.sharingDanger(donor, peer)) {
-                UUID owner = donor.pet().owner();
-                if (owner != null) PetConversation.callOwnerForDanger(donor, peer, o.level().getPlayerByUUID(owner));
-                return;
-            }
-            if (o.nutrition() >= 60 && peer.life().nutrition() < 40 && !bowlMeal && feeder == null
-                    && !donor.dailyLife().sharedFoodToday(peer.getUUID())
-                    && handOverMouth(peer, "share"))
-                donor.dailyLife().sharedFoodWith(peer.getUUID());
-            return;
-        }
         int score=o.personality().shareScore(o.nutrition(),peer.life().nutrition(),o.entity().family().caresFor(peer),YukkuriWorldData.get(o.level()).affinity(o.entity().getUUID(),peer.getUUID()));
         if(o.entity().getRandom().nextInt(100)>=score){o.personality().decided("keep_food");return;}
         if (transferTo(peer, o.entity().getUUID())) {
@@ -590,7 +566,6 @@ final class LifeMeal {
                 o.entity().pet().contact(feeder, !spicy);
                 String treat = Sweets.eaten(o.entity(), swallowed, feeder);
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
-                if (feeder != null) ExamSession.fed(o.entity(), feeder);
                 boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);
                 boolean grateful = ordinaryAdult && feeder != null && (bond.closeness() >= 10
                         || premium && o.personality().temperament().is(Gate.WARM)) && !guarded && !defiant;

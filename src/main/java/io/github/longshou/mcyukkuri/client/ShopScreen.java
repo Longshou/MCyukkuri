@@ -157,10 +157,6 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         String id = YukkuriVariant.values()[v - 1].assetId();
         return Component.translatable(I18n.exists("shop.mcyukkuri.sp." + id) ? "shop.mcyukkuri.sp." + id : "entity.mcyukkuri." + id);
     }
-    private static Component grade(int flags) {
-        var c = GuiKit.gradeName(flags & ShopMenu.Flags.GRADE_MASK);
-        return (flags & ShopMenu.Flags.EXPIRED) != 0 ? c.append(Component.translatable("shop.mcyukkuri.expired")) : c;
-    }
     private static MutableComponent tags(int packed) {
         var c = Component.translatable("shop.mcyukkuri.tag." + (packed & 15)); int second = packed >> 4 & 15;
         return second == 15 ? c : c.append(" / ").append(Component.translatable("shop.mcyukkuri.tag." + second));
@@ -182,8 +178,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         return minecraft.level == null ? null : minecraft.level.getEntity(id);
     }
     private void drawRow(GuiGraphics g, int k, int y) {
-        int f = menu.value(k + ShopMenu.LiveRow.FLAGS); boolean expired = (f & ShopMenu.Flags.EXPIRED) != 0;
-        if (expired) expiredChip(g, TEXT_X, y + 4); else chip(g, TEXT_X, y + 4, f & ShopMenu.Flags.GRADE_MASK);
+        int f = menu.value(k + ShopMenu.LiveRow.FLAGS);
+        chip(g, TEXT_X, y + 4, f & ShopMenu.Flags.GRADE_MASK);
         var required = ShopMembership.byId(f >> ShopMenu.Flags.REQUIRED_SHIFT & ShopMenu.Flags.REQUIRED_MASK);
         int tierWidth = 0;
         if (required != ShopMembership.VISITOR) {
@@ -193,7 +189,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             g.fill(x, y + 4, TEXT_X + TEXT_W, y + 15, 0xFFEFE0BC);
             g.drawString(font, tier, x + 4, y + 5, INK, false);
         }
-        g.drawString(font, ellipsize(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & ShopMenu.Flags.GRADE_MASK) :
+        g.drawString(font, ellipsize(font, Component.translatable("shop.mcyukkuri.row.head2",
                 GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." +
                 menu.value(k + ShopMenu.LiveRow.STAGE))), TEXT_W - CHIP_WIDTH - tierWidth), TEXT_X + CHIP_WIDTH, y + 5, INK, false);
         Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(k + ShopMenu.LiveRow.SKILLS)));
@@ -256,7 +252,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             if (menu.value(ShopMenu.Data.SUBJECT_COUNT) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(ShopMenu.Data.SUBJECT_FLAGS);
             line(g, 38, INK, Component.translatable("shop.mcyukkuri.subject", menu.value(ShopMenu.Data.SUBJECT_INDEX),
-                    menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), grade(f),
+                    menu.value(ShopMenu.Data.SUBJECT_COUNT), species(menu.value(ShopMenu.Data.SUBJECT_SPECIES)), GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK),
                     Component.translatable("human.mcyukkuri.stage." + menu.value(ShopMenu.Data.SUBJECT_STAGE))));
             Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ShopMenu.Data.SUBJECT_SKILLS)));
             line(g, 52, INK, ellipsize(font, knownSkills, 308));

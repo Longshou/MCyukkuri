@@ -158,11 +158,8 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         }
         g.drawString(font, ellipsize(font, head, headRight - PROFILE_X), PROFILE_X, 10, INK, false);
         int grade = menu.value(BadgeMenu.Data.GRADE);
-        Component validity = grade < 2 || menu.value(BadgeMenu.Data.VALIDITY) == 0 && menu.value(BadgeMenu.Data.VALID_DAYS) == 0 ? Component.translatable("badge.mcyukkuri.profile.validity.never")
-                : menu.value(BadgeMenu.Data.VALIDITY) == 2 ? Component.translatable("badge.mcyukkuri.profile.validity.expired") :
-                        Component.translatable("badge.mcyukkuri.profile.validity.days", menu.value(BadgeMenu.Data.VALID_DAYS));
         if (grade == 0) line(g, 21, "grade_plain", GuiKit.gradeName(0));
-        else lineAt(g, 14 + CHIP_WIDTH, 21, "grade", GuiKit.gradeName(grade), validity, Component.translatable("badge.mcyukkuri.wear." + menu.value(BadgeMenu.Data.WORN)));
+        else lineAt(g, 14 + CHIP_WIDTH, 21, "grade", GuiKit.gradeName(grade), Component.translatable("badge.mcyukkuri.wear." + menu.value(BadgeMenu.Data.WORN)));
         var source = Component.translatable("badge.mcyukkuri.profile.source." + menu.value(BadgeMenu.Data.SOURCE));
         int serial = menu.value(BadgeMenu.Data.SERIAL) & 0xffff;
         if (grade == 0 || serial == 0) line(g, 31, "source", source); else line(g, 31, "source_no", source, String.format("No.%04X", serial));
@@ -170,8 +167,7 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         g.drawString(font, ellipsize(font, knownSkills, imageWidth - 2 * PROFILE_X), PROFILE_X, 41, INK, false);
         g.drawString(font, Component.translatable("pet.mcyukkuri.profile.intelligence_stress", menu.value(BadgeMenu.Data.INTELLIGENCE), level(menu.value(BadgeMenu.Data.STRESS))), 14, 51, INK, false);
         if (menu.value(BadgeMenu.Data.LAST_OUTCOME) == 0) line(g, 61, "exam_none");
-        else line(g, 61, "exam", Component.translatable("badge.mcyukkuri.profile.type."+menu.value(BadgeMenu.Data.LAST_TYPE)),
-                Component.translatable("badge.mcyukkuri.profile.outcome."+(menu.value(BadgeMenu.Data.LAST_OUTCOME)-1)),
+        else line(g, 61, "exam", Component.translatable("badge.mcyukkuri.profile.outcome."+(menu.value(BadgeMenu.Data.LAST_OUTCOME)-1)),
                 GuiKit.gradeName(menu.value(BadgeMenu.Data.LAST_GRADE)));
         int ls = menu.value(BadgeMenu.Data.LESSON_STATE); // one status line: what it is doing now, plus rest time and today's lessons only when they matter
         Component state = ls == BadgeMenu.AWAITING_FEEDBACK ? Component.translatable("pet.mcyukkuri.ui.state.awaiting")

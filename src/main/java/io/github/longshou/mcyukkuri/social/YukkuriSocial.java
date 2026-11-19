@@ -30,7 +30,6 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.SkillMath.Attempt;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
-import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
@@ -699,10 +698,7 @@ public final class YukkuriSocial implements MotorOwner {
         boolean visitor = visitor(target);
         greetingBody(visitor ? "bow" : "greet");
         entity.showReaction(wariness >= .18 ? "surprise" : "happy", line, 80);
-        if (visitor) {
-            entity.pet().lessons().performed(Ability.GREETING, true);
-            ExamSession.greeted(entity, target, true);
-        }
+        if (visitor) entity.pet().lessons().performed(Ability.GREETING, true);
         GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}",
                 entity.status().identity().id(), target.getUUID(), line, wariness);
     }
@@ -763,10 +759,7 @@ public final class YukkuriSocial implements MotorOwner {
             greeted = true;
             boolean afraid = wariness >= .62;
             if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
-            if (visitor(target)) {
-                entity.pet().lessons().performed(Ability.GREETING, false);
-                ExamSession.greeted(entity, target, false);
-            }
+            if (visitor(target)) entity.pet().lessons().performed(Ability.GREETING, false);
             if (chooseHumanEscape(wariness)) entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
             return;
         }

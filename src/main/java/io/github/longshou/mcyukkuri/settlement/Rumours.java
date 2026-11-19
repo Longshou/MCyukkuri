@@ -13,7 +13,7 @@ public final class Rumours {
     public static final int HUMAN_KIND = 0, BADGE_FED = 1, THIEF = 2, BULLY = 3, WARY_HUMAN = 4;
     public static final int MAX = 6, MAX_STRENGTH = 3;
     public static final long LIFETIME = 72000L, DAY = 24000L;
-    public record Rumour(int kind, UUID subject, int strength, long expiresAt) {}
+    public record Rumour(int kind, UUID subject, int strength, long deadline) {}
     private Rumours() {}
 
     /**
@@ -23,17 +23,17 @@ public final class Rumours {
      */
     public static void add(SettlementData data, SettlementData.Group group, int kind, UUID subject, int strength, long now) {
         if (data == null || group == null || strength <= 0) return;
-        group.rumours.removeIf(r -> r.expiresAt() <= now);
+        group.rumours.removeIf(r -> r.deadline() <= now);
         for (int i = 0; i < group.rumours.size(); i++) {
             var r = group.rumours.get(i);
             if (r.kind() == kind && Objects.equals(r.subject(), subject)) {
-                if (now - (r.expiresAt() - LIFETIME) < DAY) return;
+                if (now - (r.deadline() - LIFETIME) < DAY) return;
                 group.rumours.set(i, new Rumour(kind, subject, Math.min(MAX_STRENGTH, r.strength() + strength), now + LIFETIME));
                 data.setDirty(); return;
             }
         }
         if (group.rumours.size() >= MAX) {
-            var weakest = group.rumours.stream().min(Comparator.comparingInt(Rumour::strength).thenComparingLong(Rumour::expiresAt)).orElse(null);
+            var weakest = group.rumours.stream().min(Comparator.comparingInt(Rumour::strength).thenComparingLong(Rumour::deadline)).orElse(null);
             if (weakest != null) group.rumours.remove(weakest);
         }
         group.rumours.add(new Rumour(kind, subject, Math.min(MAX_STRENGTH, strength), now + LIFETIME));
@@ -45,8 +45,8 @@ public final class Rumours {
         if (group == null) return 0;
         int total = 0;
         for (var r : group.rumours) {
-            if (r.kind() != kind || r.expiresAt() <= now) continue;
-            long age = now - (r.expiresAt() - LIFETIME);
+            if (r.kind() != kind || r.deadline() <= now) continue;
+            long age = now - (r.deadline() - LIFETIME);
             total += Math.max(0, r.strength() - (int)Math.max(0, age / DAY));
         }
         return Math.min(MAX_STRENGTH, total);
@@ -56,8 +56,8 @@ public final class Rumours {
         if (group == null) return 0;
         int total = 0;
         for (var r : group.rumours) {
-            if (r.kind() != kind || r.expiresAt() <= now || !Objects.equals(r.subject(), subject)) continue;
-            long age = now - (r.expiresAt() - LIFETIME);
+            if (r.kind() != kind || r.deadline() <= now || !Objects.equals(r.subject(), subject)) continue;
+            long age = now - (r.deadline() - LIFETIME);
             total += Math.max(0, r.strength() - (int)Math.max(0, age / DAY));
         }
         return Math.min(MAX_STRENGTH, total);
@@ -66,7 +66,7 @@ public final class Rumours {
     static ListTag save(SettlementData.Group group) {
         var list = new ListTag();
         for (var r : group.rumours) {
-            var n = new CompoundTag(); n.putInt("Kind", r.kind()); n.putInt("Strength", r.strength()); n.putLong("Expires", r.expiresAt());
+            var n = new CompoundTag(); n.putInt("Kind", r.kind()); n.putInt("Strength", r.strength()); n.putLong("Expires", r.deadline());
             if (r.subject() != null) n.putUUID("Subject", r.subject());
             list.add(n);
         }

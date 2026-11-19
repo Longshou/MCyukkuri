@@ -18,6 +18,14 @@ class DutyTest {
     }
 
     @Test
+    void familyDutiesOutrankCertification() {
+        for (Kind family : new Kind[] {Kind.WATCH, Kind.SEARCH, Kind.SEAL}) {
+            assertTrue(Duty.mayReplace(Kind.EXAM, family));
+            assertFalse(Duty.mayReplace(family, Kind.EXAM));
+        }
+    }
+
+    @Test
     void emergencyTakesPrecedenceOverTheDeadline() {
         assertNull(Duty.lapse(99, 100, false));
         assertEquals(End.DEADLINE, Duty.lapse(100, 100, false));

@@ -21,7 +21,6 @@ import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -86,35 +85,6 @@ public final class ScenarioCommands {
         return 0;
     }
 
-    private static int examFixture(CommandContext<CommandSourceStack> context, BadgeGrade startingGrade) throws CommandSyntaxException {
-        if (context.getSource().getEntity() != null || !context.getSource().getLevel().players().isEmpty()) return 0;
-        var candidate = yukkuri(context, "candidate");
-        if (candidate == null || !(EntityArgument.getEntity(context, "examiner") instanceof HumanNpc examiner)) return 0;
-        var owner = FakePlayerFactory.getMinecraft(context.getSource().getLevel());
-        owner.setPos(candidate.getX(), candidate.getY(), candidate.getZ() + 1);
-        Custody.assign(candidate, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
-        int service = startingGrade == BadgeGrade.NONE ? ExamSession.SIMPLE : ExamSession.PROMOTION;
-        if (startingGrade != BadgeGrade.NONE) {
-            candidate.pet().issue(startingGrade, ExamSession.SIMPLE, examiner.getUUID());
-            owner.getInventory().clearContent();
-            owner.setItemInHand(InteractionHand.MAIN_HAND, startingGrade == BadgeGrade.BRONZE
-                    ? new ItemStack(ModItems.SWEET_CANDY.get()) : new ItemStack(Items.APPLE));
-            owner.getInventory().add(new ItemStack(Items.EMERALD, ExamSession.fee(service)));
-        }
-        var reason = ExamSession.start(examiner, owner, candidate, service, true);
-        return reason == null ? 1 : refused(context.getSource(), candidate, "exam_fixture", reason);
-    }
-
-    private static int feedExamPeer(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var level = context.getSource().getLevel();
-        if (context.getSource().getEntity() != null || !level.players().isEmpty()) return 0;
-        var peer = yukkuri(context, "target");
-        if (peer == null) return 0;
-        var owner = FakePlayerFactory.getMinecraft(level);
-        if (owner.distanceToSqr(peer) > 16 || !owner.hasLineOfSight(peer)) return 0;
-        return owner.interactOn(peer, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
-    }
-
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var at=BlockPosArgument.getLoadedBlockPos(c,"at");
         String reason=ScenarioSetup.spawn(c.getSource().getLevel(),at,IntegerArgumentType.getInteger(c,"count"));
@@ -157,15 +127,6 @@ public final class ScenarioCommands {
                             var body = yukkuri(c, "target");
                             return body == null ? 0 : ScenarioSetup.vary(c.getSource(), body, CompoundTagArgument.getCompoundTag(c, "spec"));
                         }))))
-                .then(Commands.literal("exam_bronze").then(Commands.argument("examiner", EntityArgument.entity())
-                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.NONE)))))
-                .then(Commands.literal("exam_silver").then(Commands.argument("examiner", EntityArgument.entity())
-                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.BRONZE)))))
-                .then(Commands.literal("exam_gold").then(Commands.argument("examiner", EntityArgument.entity())
-                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.SILVER)))))
-                .then(Commands.literal("exam_platinum").then(Commands.argument("examiner", EntityArgument.entity())
-                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.GOLD)))))
-                .then(Commands.literal("exam_feed_peer").then(Commands.argument("target", EntityArgument.entity()).executes(ScenarioCommands::feedExamPeer)))
                 .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
                 .then(Commands.literal("staff_tool").then(Commands.argument("staff", EntityArgument.entity())

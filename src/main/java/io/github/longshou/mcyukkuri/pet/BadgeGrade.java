@@ -5,6 +5,5 @@ public enum BadgeGrade {
     NONE, BRONZE, SILVER, GOLD, PLATINUM;
     public int id() { return ordinal(); }
     public static BadgeGrade of(int id) { var all = values(); return all[Math.clamp(id, 0, all.length - 1)]; }
-    public BadgeGrade lower() { return of(ordinal() - 1); }
     public BadgeGrade higher() { return of(ordinal() + 1); }
 }

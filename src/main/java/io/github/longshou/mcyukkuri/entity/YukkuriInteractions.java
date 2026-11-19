@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.Toxins;
-import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -54,10 +53,6 @@ final class YukkuriInteractions {
                 || stack.is(ModItems.WASTE.get()) && (owner.level().isClientSide || owner.life().acceptsFood(stack));
         if(!food)return owner.mobInteractBase(player,hand);
         if(owner.level().isClientSide)return InteractionResult.SUCCESS;
-        if (!ExamSession.allowsPeerFeeding(owner, player.getUUID())) {
-            InteractionDispatch.refuse(player, owner, "exam", "busy");
-            return InteractionResult.FAIL;
-        }
         if (Consumables.kind(stack) == Consumables.Kind.SPICY
                 && !InteractionDispatch.requireHarmContact(player, owner, 3, "spicy_feed")) return InteractionResult.FAIL;
         if(!InteractionDispatch.gentleOwnerContact(player,owner)){

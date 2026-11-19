@@ -9,7 +9,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-/** A formal exam uses a hall podium. The real requirements of each question are checked on the candidate. */
+/** Certification is offered at an examiner's hall podium. */
 public final class ExamHall {
     private record Cached(long time, boolean podium) {}
     private static final Map<UUID, Cached> CACHE = new HashMap<>();

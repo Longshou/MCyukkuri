@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import java.util.*;
 import net.minecraft.network.chat.Component;
@@ -52,8 +53,6 @@ public final class BadgeMenu extends AbstractContainerMenu {
         public static final int SUBJECT_COUNT = 1;
         public static final int SUBJECT_INDEX = 2;
         public static final int GRADE = 3;
-        public static final int VALIDITY = 4;
-        public static final int VALID_DAYS = 5;
         public static final int WORN = 6;
         public static final int SOURCE = 7;
         public static final int SERIAL = 8;
@@ -67,7 +66,6 @@ public final class BadgeMenu extends AbstractContainerMenu {
         public static final int OBEDIENT = 28;
         public static final int PREDATOR_ORDER = 29;
         public static final int BUSY = 30;
-        public static final int LAST_TYPE = 31;
         public static final int LAST_GRADE = 32;
         public static final int ACCESSORY = 34;
         public static final int ENTITY_ID_LOW = 38;
@@ -131,15 +129,14 @@ public final class BadgeMenu extends AbstractContainerMenu {
         if (y == null) return;
         data.set(Data.ENTITY_ID_LOW, y.getId() & 0xffff); data.set(Data.ENTITY_ID_HIGH, y.getId() >>> 16);
         var b = y.pet(); data.set(Data.GRADE, b.grade().id());
-        data.set(Data.VALIDITY, b.grade().id() < 2 || b.expiresAt() < 0 ? 0 : b.expired() ? 2 : 1);
-        data.set(Data.VALID_DAYS, b.expiresAt() < 0 ? 0 : (int)Math.min(9999, Math.max(0, (b.expiresAt() - y.level().getGameTime() + 23999) / 24000)));
-        data.set(Data.WORN, !b.worn() ? 0 : y.life().hasAccessory() ? 1 : 2); data.set(Data.SOURCE, b.source());
+        data.set(Data.WORN, !b.worn() ? 0 : y.life().hasAccessory() ? 1 : 2);
+        data.set(Data.SOURCE, b.source() >= 3 ? ExamSession.CERTIFY : b.source());
         data.set(Data.SERIAL, b.serial() == null ? 0 : (int)(b.serial().getLeastSignificantBits() & 0xffff));
         for (var skill : Ability.values()) data.set(Data.SKILL_POINTS_START + skill.ordinal(), y.skills().points(skill));
         data.set(Data.INTELLIGENCE, y.life().personality().intelligence()); data.set(Data.STRESS, b.stress());
         var history = b.history();
         if (!history.isEmpty()) {
-            var last = history.get(history.size() - 1); data.set(Data.LAST_OUTCOME, last.outcome() + 1); data.set(Data.LAST_TYPE, last.type()); data.set(Data.LAST_GRADE, last.result().id());
+            var last = history.getLast(); data.set(Data.LAST_OUTCOME, last.outcome() + 1); data.set(Data.LAST_GRADE, last.result().id());
         }
         data.set(Data.UNAUTHORIZED_BIRTHS, b.unauthorizedBirths()); data.set(Data.OWNED, b.owned(viewer) ? 1 : 0); data.set(Data.NEAR, b.near(viewer) ? 1 : 0);
         data.set(Data.PREDATOR, y.profile().dangerToYukkuri() ? 1 : 0); data.set(Data.OBEDIENT, y.predator().obedient() ? 1 : 0); data.set(Data.PREDATOR_ORDER, y.predator().order().ordinal());

@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 public final class Duty {
     /** A later kind may replace an earlier one. */
-    public enum Kind { WATCH, SEARCH, SEAL }
+    public enum Kind { EXAM, WATCH, SEARCH, SEAL }
     public enum End { DONE, FAILED, DEADLINE, EMERGENCY, YIELDED, REPLACED }
 
     /** Five seconds for danger at the edge of sight to settle before reclaiming. */

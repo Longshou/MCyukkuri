@@ -29,6 +29,12 @@ public final class PetScenes {
         for (var key : COOLDOWN.snapshot().keySet()) if (ids.contains(key.animal)) COOLDOWN.remove(key);
     }
 
+    /** Ordinary reaction beats for a performer that already holds a duty. */
+    public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
+        y.getLookControl().setLookAt(look, 30, 30);
+        if (y.showReaction(action, face, "", ticks)) y.speakCue(event);
+    }
+
     /** Action + face + line in one go; a looping action is ended after ticks, and the animal keeps glancing at look (may be null) meanwhile. */
     public static void act(YukkuriEntity y, String action, String face, String event, int ticks, Entity look) {
         if (!(y.level() instanceof ServerLevel level) || !y.isAlive()) return;

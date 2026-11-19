@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -18,6 +19,7 @@ import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
 import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -44,7 +46,7 @@ public final class PetLife {
     private final Map<UUID, Long> permits = new HashMap<>();
     private BadgeGrade grade = BadgeGrade.NONE;
     private boolean worn = true;
-    private long issuedAt, expiresAt = -1;
+    private long issuedAt;
     private int source, cooldown, unauthorized, dayClock, lockGone;
     private UUID serial, issuer, lockedBy, formerOwner;
     private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay;
@@ -76,8 +78,12 @@ public final class PetLife {
     // grade
     private long now() { return animal.level().getGameTime(); }
     public BadgeGrade grade() { return grade; }
-    public boolean expired() { return expiresAt >= 0 && now() > expiresAt; }
-    public BadgeGrade effectiveGrade() { return voidBadge ? BadgeGrade.NONE : expired() ? grade.lower() : grade; }
+    public BadgeGrade effectiveGrade() { return voidBadge ? BadgeGrade.NONE : grade; }
+    public int talent() {
+        var p = animal.life().personality();
+        return BadgeRequirements.talent(p.potential(Trait.INTELLIGENCE), p.potential(Trait.SELF_CONTROL),
+                p.potential(Trait.FRIENDLINESS), p.potential(Trait.ATTACHMENT));
+    }
     /** Rollback for a temporary wild-candidate owner from an older save. */
     private CompoundTag examWildTag;
     private UUID examTemporaryOwner;
@@ -87,33 +93,21 @@ public final class PetLife {
         examWildTag = null; examTemporaryOwner = null;
     }
     public BadgeGrade visibleGrade() { return worn && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
-    public BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : expired() ? visibleGrade().lower() : visibleGrade(); }
+    public BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : visibleGrade(); }
     public boolean worn() { return worn; }
     public long issuedAt() { return issuedAt; }
-    public long expiresAt() { return expiresAt; }
     public int source() { return source; }
     public UUID serial() { return serial; }
     public UUID issuer() { return issuer; }
-    private long expiry(BadgeGrade g) {
-        int days; try { days = HumanWorld.BADGE_VALIDITY_DAYS.get(); } catch (RuntimeException e) { days = 20; }
-        return g.id() >= BadgeGrade.SILVER.id() && days > 0 ? now() + days * 24000L : -1;
-    }
     public void issue(BadgeGrade g, int source, UUID issuer) {
         if (g == null || g == BadgeGrade.NONE) { revoke(); return; }
         BadgeGrade previous = grade;
-        if (grade == BadgeGrade.NONE) animal.getPersistentData().putInt("ExamUnauthBase", unauthorized); // births before the first badge are not held against it
-        grade = g; this.source = source; this.issuer = issuer; serial = ModRandom.identity(animal.getRandom()); issuedAt = now(); expiresAt = expiry(g); worn = true; voidBadge = false;
-        GameplayLog.event(animal, "badge", "issued grade={} -> {} issuer={} serial={} source={} expiresAt={}", previous, grade, issuer, serial, source, expiresAt);
-    }
-    public void renew(UUID issuer) {
-        if (grade == BadgeGrade.NONE) return;
-        long before = expiresAt;
-        this.issuer = issuer; source = 6; issuedAt = now(); expiresAt = expiry(grade); voidBadge = false;
-        GameplayLog.event(animal, "badge", "renewed grade={} issuer={} serial={} expiresAt={} -> {}", grade, issuer, serial, before, expiresAt);
+        grade = g; this.source = source; this.issuer = issuer; serial = ModRandom.identity(animal.getRandom()); issuedAt = now(); worn = true; voidBadge = false;
+        GameplayLog.event(animal, "badge", "issued grade={} -> {} issuer={} serial={} source={}", previous, grade, issuer, serial, source);
     }
     public void revoke() {
         BadgeGrade previous = grade; UUID previousSerial = serial;
-        grade = BadgeGrade.NONE; source = 0; issuer = null; serial = null; issuedAt = 0; expiresAt = -1; worn = true; voidBadge = false;
+        grade = BadgeGrade.NONE; source = 0; issuer = null; serial = null; issuedAt = 0; worn = true; voidBadge = false;
         if (previous != BadgeGrade.NONE) GameplayLog.event(animal, "badge", "revoked grade={} serial={}", previous, previousSerial);
     }
 
@@ -177,29 +171,24 @@ public final class PetLife {
     // records
     public List<ExamRecord> history() { return Collections.unmodifiableList(history); }
     public void record(ExamRecord r) {
-        if (!history.isEmpty() && r.attempt() >= 0 && history.getLast().attempt() == r.attempt())
-            history.set(history.size() - 1, r);
-        else history.add(r);
+        history.add(r);
         if (history.size() > 16) history.removeFirst();
     }
     /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/FEATURES.md. */
     public static final int TITLE_ETERNAL_SILVER = 1, TITLE_HIDDEN_GOLD = 2;
     public int title() { return title(history, grade); }
     public static int title(List<ExamRecord> records, BadgeGrade now) {
-        var cur = BadgeGrade.NONE; int silverMisses = 0, fails = 0; long bronzeSince = -1; boolean hidden = false;
+        int goldMisses = 0, failures = 0;
+        boolean hidden = false;
         for (var r : records) {
-            if (r.outcome() == 4) continue;
-            if (cur == BadgeGrade.SILVER && (r.type() == 4 || r.type() == 5) && r.outcome() >= 1 && r.outcome() <= 3) silverMisses++;
-            if (r.outcome() == 2) fails++;
-            if (r.result() == BadgeGrade.GOLD && r.outcome() == 0) {
-                boolean low = cur.id() <= BadgeGrade.BRONZE.id();
-                hidden = r.type() == 4 && low && (bronzeSince >= 0 && r.gameTime() - bronzeSince >= 48000 || fails >= 2);
+            if (r.type() != ExamSession.CERTIFY) continue;
+            if (r.outcome() == 2) {
+                failures++;
+                if (r.result() == BadgeGrade.SILVER) goldMisses++;
             }
-            if (r.result() == BadgeGrade.BRONZE && cur != BadgeGrade.BRONZE) bronzeSince = r.gameTime();
-            else if (r.result() == BadgeGrade.NONE) bronzeSince = -1;
-            cur = r.result();
+            if (r.outcome() == 0 && r.result() == BadgeGrade.GOLD) hidden = failures >= 2;
         }
-        return now == BadgeGrade.SILVER && silverMisses >= 3 ? TITLE_ETERNAL_SILVER : now == BadgeGrade.GOLD && hidden ? TITLE_HIDDEN_GOLD : 0;
+        return now == BadgeGrade.SILVER && goldMisses >= 3 ? TITLE_ETERNAL_SILVER : now == BadgeGrade.GOLD && hidden ? TITLE_HIDDEN_GOLD : 0;
     }
     public int cooldown() { return cooldown; }
     public void setCooldown(int ticks) { cooldown = Math.max(0, ticks); }
@@ -473,7 +462,7 @@ public final class PetLife {
         if (examWildTag != null && examTemporaryOwner != null) {
             tag.put("ExamWildTag", examWildTag.copy()); tag.putUUID("ExamTemporaryOwner", examTemporaryOwner);
         }
-        tag.putInt("Grade", grade.id()); tag.putBoolean("Worn", worn); tag.putLong("IssuedAt", issuedAt); tag.putLong("ExpiresAt", expiresAt); tag.putInt("Source", source);
+        tag.putInt("Grade", grade.id()); tag.putBoolean("Worn", worn); tag.putLong("IssuedAt", issuedAt); tag.putInt("Source", source);
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
@@ -488,7 +477,7 @@ public final class PetLife {
     }
     public void load(CompoundTag tag) {
         grade = BadgeGrade.of(tag.getInt("Grade")); worn = !tag.contains("Worn") || tag.getBoolean("Worn");
-        issuedAt = tag.getLong("IssuedAt"); expiresAt = tag.contains("ExpiresAt") ? tag.getLong("ExpiresAt") : -1; source = Math.clamp(tag.getInt("Source"), 0, 6);
+        issuedAt = tag.getLong("IssuedAt"); source = Math.clamp(tag.getInt("Source"), 0, ExamSession.CERTIFY);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
         care.load(tag.getCompound("Care"));

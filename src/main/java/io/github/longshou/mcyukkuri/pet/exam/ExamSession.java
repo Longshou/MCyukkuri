@@ -1,100 +1,75 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
+import io.github.longshou.mcyukkuri.badge.BadgeRequirements.Need;
+import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.Duty;
+import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
-import io.github.longshou.mcyukkuri.pet.AbandonLog;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.ExamRecord;
-import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
-import io.github.longshou.mcyukkuri.pet.PetStudy;
-import io.github.longshou.mcyukkuri.cognition.Ability;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.common.util.FakePlayer;
 
-/** One examiner and candidate, with question receipts written before any result transaction. */
-public final class ExamSession implements ExamContext {
-    public static final int SIMPLE = 3, JUDGMENT = 4, PROMOTION = 5, RENEWAL = 6, COOLDOWN = 1200, REISSUE = 7;
-    public static final String LOCK = "exam";
-    private static final String PEER_LOCK = "exam_peer";
-    public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready",
-            "cooldown", "no_accessory", "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee",
-            "no_management", "too_late", "stage", "deficient", "sick", "uneasy", "labor", "occupied", "need_sweet",
-            "need_count", "need_care", "no_participant", "same_conditions", "need_gold", "platinum_potential",
-            "platinum_skills", "platinum_traits", "share_nutrition");
-    private static final Set<String> PLAYER_CAUSES = Set.of("owner_far", "owner_gone", "hurt", "panic", "fire", "water", "held", "accessory", "lost");
+/** One examiner and candidate. The verdict commits the fee and any badge change together. */
+public final class ExamSession {
+    public static final int CERTIFY = 8, REISSUE_FEE = 1;
+    public static final List<String> REASONS = List.of("", "busy", "far", "night", "not_owned", "not_ready", "labor",
+            "sick", "uneasy", "scared", "cooldown", "no_accessory", "max_grade", "deficient", "too_late", "no_hall",
+            "no_fee", "occupied", "disqualified", "need_badge");
+    private static final String LOCK = "exam";
+    private static final int COOLDOWN = 1200;
+    private static final int DUTY_TICKS = 600, APPROACH_TICKS = 180, LOOK_TICKS = 80, RESULT_TICKS = 90;
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
-    private enum Phase { APPROACH, ITEM, PAYMENT, RESULT }
+    private enum Phase { APPROACH, LOOK, VERDICT, RESULT }
 
     private final ServerLevel level;
     private final HumanNpc examiner;
     private final YukkuriEntity candidate;
-    private final YukkuriEntity hungryPeer;
     private final UUID ownerId;
     private final FakePlayer fixtureOwner;
     private final BadgeGrade before, target;
-    private final int service, fee;
-    private final long attempt;
-    private final List<ExamPlan.Question> questions;
-    private final List<String> notes = new ArrayList<>();
-    private final List<UUID> cards = new ArrayList<>();
     private Phase phase = Phase.APPROACH;
-    private ExamItem item;
-    private UUID sayCard;
-    private BlockPos examinerGoal;
-    private int index, successes, phaseTicks, itemTicks, farTicks, offlineTicks;
-    private String firstFailure;
-    private boolean done;
+    private int phaseTicks;
+    private UUID sayCard, nameCard;
+    private boolean passed;
 
-    private ExamSession(ServerLevel level, HumanNpc examiner, Player owner, YukkuriEntity candidate, int service,
-                        BadgeGrade target, List<ExamPlan.Question> questions, ExamPlan.Saved resume, int fee, YukkuriEntity hungryPeer) {
-        this.level = level;
+    private ExamSession(HumanNpc examiner, Player owner, YukkuriEntity candidate) {
+        this.level = (ServerLevel) examiner.level();
         this.examiner = examiner;
         this.candidate = candidate;
-        this.hungryPeer = hungryPeer;
-        this.ownerId = owner.getUUID();
-        this.fixtureOwner = owner instanceof FakePlayer fake ? fake : null;
-        this.before = candidate.pet().grade();
-        this.target = target;
-        this.service = service;
-        this.fee = fee;
-        this.questions = questions;
-        var history = candidate.pet().history();
-        this.attempt = history.isEmpty() ? level.getGameTime() : Math.max(level.getGameTime(), history.getLast().attempt() + 1);
-        if (resume != null) {
-            index = resume.next();
-            successes = resume.passed();
-            firstFailure = resume.evidence().isEmpty() ? null : resume.evidence();
-            String savedNotes = candidate.getPersistentData().getString("ExamNotes");
-            if (!savedNotes.isEmpty()) notes.addAll(List.of(savedNotes.split("\\|")));
-        }
+        ownerId = owner.getUUID();
+        fixtureOwner = owner instanceof FakePlayer fake ? fake : null;
+        before = candidate.pet().grade();
+        target = before.higher();
     }
 
     public static void reset() { ACTIVE.clear(); }
@@ -104,32 +79,21 @@ public final class ExamSession implements ExamContext {
     }
     public static void forget(Set<UUID> ids) {
         for (var session : List.copyOf(ACTIVE.values()))
-            if (ids.contains(session.examiner.getUUID()) || ids.contains(session.candidate.getUUID())
-                    || session.hungryPeer != null && ids.contains(session.hungryPeer.getUUID())
-                    || ids.contains(session.ownerId) || ids.contains(session.sayCard) || session.cards.stream().anyMatch(ids::contains))
+            if (ids.contains(session.examiner.getUUID()) || ids.contains(session.candidate.getUUID()) || ids.contains(session.ownerId))
                 session.interrupt("unload");
     }
-    private static ExamSession candidateSession(YukkuriEntity y) {
-        for (var session : ACTIVE.values())
-            if (!session.done && session.phase != Phase.RESULT && session.candidate.getUUID().equals(y.getUUID())) return session;
+    private static ExamSession candidateSession(YukkuriEntity candidate) {
+        for (var session : ACTIVE.values()) if (session.candidate == candidate) return session;
         return null;
     }
     public static boolean running(YukkuriEntity candidate) { return candidateSession(candidate) != null; }
+    public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
     public static boolean ownerPresent(YukkuriEntity candidate, UUID id) {
         var session = candidateSession(candidate);
         return session != null && session.ownerId.equals(id) && session.owner() != null;
     }
-    public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
-    public static boolean assisting(Entity entity) {
-        for (var session : ACTIVE.values())
-            if ((session.phase != Phase.RESULT && session.hungryPeer == entity)
-                    || (session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice && practice.guest(entity))) return true;
-        return false;
-    }
-    public static ExamSession of(HumanNpc examiner) { return ACTIVE.get(examiner.getUUID()); }
-    public static int fee(int type) {
-        return switch (type) { case JUDGMENT -> 9; case PROMOTION -> 4; case RENEWAL -> 2; case REISSUE -> 1; default -> 0; };
-    }
+
+    public static int fee(BadgeGrade target) { return target == BadgeGrade.BRONZE ? 0 : 4; }
     public static int emeralds(Player p) {
         return p.getInventory().items.stream().filter(s -> s.is(Items.EMERALD)).mapToInt(ItemStack::getCount).sum();
     }
@@ -142,431 +106,261 @@ public final class ExamSession implements ExamContext {
         }
     }
     public static void giveTo(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
-    public static BadgeGrade targetOf(int type, BadgeGrade current) {
-        return switch (type) { case JUDGMENT -> BadgeGrade.GOLD; case PROMOTION -> current.higher(); case RENEWAL -> current; default -> BadgeGrade.BRONZE; };
-    }
-    private static BadgeGrade target(int type, YukkuriEntity y) {
-        if (type == JUDGMENT && y.subspecies().congenital() != Congenital.NORMAL) return BadgeGrade.BRONZE;
-        if (type == JUDGMENT && (!y.family().adult() || y.pet().grade() == BadgeGrade.NONE)) return BadgeGrade.SILVER;
-        return targetOf(type, y.pet().grade());
-    }
-    public static boolean unmanaged(Player p) {
-        if (!(p.level() instanceof ServerLevel level)) return false;
-        return AbandonLog.get(level).recent(p.getUUID(), level.getGameTime())
-                || !level.getEntitiesOfClass(YukkuriEntity.class, p.getBoundingBox().inflate(32),
-                y -> y.isAlive() && y.pet().owned(p) && y.pet().isPet() && y.pet().neglect() >= 60).isEmpty();
+
+    public static Need firstMissing(BadgeGrade target, YukkuriEntity y) {
+        var s = y.skills();
+        var t = y.life().personality().temperament();
+        return BadgeRequirements.firstMissing(target.id(), new BadgeRequirements.Candidate(
+                s.grade(Ability.WAIT), s.grade(Ability.TOILET), s.grade(Ability.FOOD_GUARD), s.grade(Ability.MANNERS),
+                s.grade(Ability.GREETING), s.cap(), t.is(Gate.WARM), t.is(Gate.DEVOTED), y.pet().talent()));
     }
 
-    private static ExamRecord previous(YukkuriEntity y, BadgeGrade target) {
-        for (var record : y.pet().history().reversed()) if (record.target() == target) return record;
-        return null;
-    }
-    private static ExamPlan.Saved pending(ExamRecord record) {
-        if (record == null || record.outcome() != 4 || record.questions().isEmpty()) return null;
-        var saved = ExamPlan.decode(record);
-        return saved.questions().isEmpty() ? null : saved;
-    }
-    private static String evidence(ExamPlan.Question question, HumanNpc examiner, Player p, YukkuriEntity y) {
-        var skill = question.skill;
-        var personality = y.life().personality();
-        String example = switch (question) {
-            case COUNT, CLARIFY -> {
-                var sample = PetStudy.foodCount(y);
-                yield sample == null ? "" : sample.source() + "/" + sample.count() + "/" + y.skills().cap();
-            }
-            case GREET -> {
-                var guest = ExamPlan.visitor(y, p, examiner);
-                yield guest == null ? "" : guest.getUUID().toString();
-            }
-            case HELP, SHARE -> {
-                var session = candidateSession(y);
-                var peer = session != null ? session.hungryPeer : ExamPlan.needy(y, question);
-                yield peer == null ? "" : peer.getUUID().toString();
-            }
-            default -> "";
-        };
-        int aptitude = switch (question) {
-            case NAME, GREET -> personality.attachment();
-            case COUNT, CLARIFY -> Math.min(personality.intelligence(), personality.selfControl());
-            case WAIT, BOWL, TOILET -> personality.selfControl();
-            case HELP, SHARE -> personality.friendliness();
-        };
-        return question.name() + "|p" + (skill == null ? 0 : y.skills().points(skill))
-                + "|" + y.pet().stress() / 5 + "|" + personality.fear(examiner.getUUID()) / 5
-                + "|" + aptitude + "|" + example;
+    private static boolean eligibleOwner(YukkuriEntity y, Player p) {
+        var pet = y.pet();
+        return pet.owner() != null ? pet.isPet() && pet.owned(p)
+                : pet.grade() == BadgeGrade.NONE
+                && y.status().identity() != Identity.WILD_SETTLEMENT && WildEvents.canAdopt(y, p);
     }
 
-    private static boolean improved(String[] old, String[] current) {
-        try {
-            // Unmarked evidence used XP. That store was retired, so new practice starts at zero.
-            int priorPoints = old[1].startsWith("p") ? Integer.parseInt(old[1].substring(1)) : 0;
-            return Integer.parseInt(current[1].substring(1)) > priorPoints
-                    || Integer.parseInt(current[2]) < Integer.parseInt(old[2])
-                    || Integer.parseInt(current[3]) < Integer.parseInt(old[3])
-                    || Integer.parseInt(current[4]) > Integer.parseInt(old[4])
-                    || !current[5].isEmpty() && !old[5].equals(current[5]);
-        } catch (NumberFormatException legacy) {
-            return true;
-        }
-    }
-
-    public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type) {
-        if (examiner.job() != HumanNpc.Job.EXAMINER) return "busy";
+    public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, boolean reissue) {
+        if (examiner.job() != HumanNpc.Job.EXAMINER || active(examiner)) return "busy";
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
-        if (active(examiner) || assisting(examiner) || running(y) || assisting(y)) return "busy";
+        if (running(y)) return "busy";
         var pet = y.pet();
-        boolean mine = pet.isPet() && pet.owned(p);
-        if (!mine) {
-            if (pet.owner() != null || y.status().identity() == Identity.WILD_SETTLEMENT || !WildEvents.canAdopt(y, p))
-                return "not_owned";
-            if (type != SIMPLE) return "wild_simple_only";
-        }
+        if (!eligibleOwner(y, p) || reissue && !pet.owned(p)) return "not_owned";
         if (y.isPassenger() || pet.busy() || y.isNoAi()) return "not_ready";
         var grade = pet.grade();
-        if (type == REISSUE) return grade == BadgeGrade.NONE ? "need_badge" : emeralds(p) < fee(type) ? "no_fee" : null;
+        if (reissue) return grade == BadgeGrade.NONE ? "need_badge" : emeralds(p) < REISSUE_FEE ? "no_fee" : null;
+        if (pet.effectiveGrade() != grade) return "not_owned";
         if (y.profile().aquatic() || y.profile().dangerToYukkuri() || y.profile().houseBody()) return "not_ready";
         if (y.family().laboring() || y.family().birthDuty()) return "labor";
         if (y.body().mold() > 0 || y.body().toxin() > 0 || y.body().condition().infection() > 0 || y.mind().nonYukkuri()
                 || y.getHealth() <= y.getMaxHealth() * .3f) return "sick";
         if (y.mind().sweetness() >= 60 || y.mind().unease() >= 60) return "uneasy";
-        if (y.isPanicking() || y.hurtTime > 0 || y.operations().active() || y.life().isSleeping()
-                || y.life().mealTicks() > 0 || y.isInWaterOrBubble() || y.isOnFire()) return "not_ready";
+        if (y.life().personality().fear(examiner.getUUID()) >= 50) return "scared";
+        if (y.isPanicking() || y.hurtTime > 0 || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
+                || y.life().mealTicks() > 0 || y.isInWaterOrBubble() || y.isOnFire() || y.life().hasUrgentNeed()) return "not_ready";
         if (pet.cooldown() > 0) return "cooldown";
         if (!y.life().hasAccessory()) return "no_accessory";
-        if (type == SIMPLE && grade != BadgeGrade.NONE) return "already_badged";
-        if (type == SIMPLE && unmanaged(p)) return "no_management";
-        if (type == PROMOTION && grade == BadgeGrade.NONE) return "need_badge";
-        if (type == PROMOTION && grade.higher() == grade) return "max_grade";
-        if (type == RENEWAL && grade.id() < BadgeGrade.SILVER.id()) return "need_silver";
-        if (type == RENEWAL && pet.expiresAt() < 0) return "not_needed";
-        var target = target(type, y);
-        if (y.family().stage() == FamilyLife.Stage.BABY || target.id() >= BadgeGrade.GOLD.id() && !y.family().adult()) return "stage";
-        if (target.id() >= BadgeGrade.SILVER.id() && y.subspecies().congenital() != Congenital.NORMAL) return "deficient";
-        if (target == BadgeGrade.PLATINUM) {
-            if (type == PROMOTION && pet.effectiveGrade() != BadgeGrade.GOLD) return "need_gold";
-            if (!PetConversation.hasPotential(y)) return "platinum_potential";
-            if (y.skills().grade(Ability.WAIT) < 3 || y.skills().grade(Ability.GREETING) < 3 || y.skills().cap() < 8)
-                return "platinum_skills";
-            if (PetConversation.explanation(y) == 0 || PetConversation.considerate(y) == 0) return "platinum_traits";
-        }
+        if (grade == BadgeGrade.PLATINUM) return "max_grade";
+        if (grade != BadgeGrade.NONE && y.subspecies().congenital() != Congenital.NORMAL) return "deficient";
         if (y.isVehicle() || y.family().carry().carrying() || y.family().awaitingLanding()) return "occupied";
-        if (y.life().hasUrgentNeed()) return "not_ready";
+        if (!y.duty().mayTake(Duty.Kind.EXAM)) return "busy";
         long day = Math.floorMod(examiner.level().getDayTime(), 24000);
-        if (day < 12000 && 12000 - day < (target == BadgeGrade.BRONZE ? 600 : 6000)) return "too_late";
-        if (target.id() >= BadgeGrade.SILVER.id() && !ExamHall.of(examiner)) return "no_hall";
-        if (emeralds(p) < fee(type)) return "no_fee";
-        var prior = previous(y, target);
-        var resume = pending(prior);
-        var plan = resume == null ? ExamPlan.questions(type, target, y) : resume.questions();
-        for (int i = resume == null ? 0 : resume.next(); i < plan.size(); i++) {
-            String reason = ExamPlan.refusal(plan.get(i), examiner, p, y);
-            if (reason != null) return reason;
-        }
-        if (prior != null && prior.outcome() >= 2 && prior.outcome() != 4 && !prior.evidence().isEmpty()) {
-            var old = prior.evidence().split("\\|", 6);
-            var failed = ExamPlan.byName(old[0]);
-            if (old.length == 6 && failed != null) {
-                var current = evidence(failed, examiner, p, y).split("\\|", 6);
-                if (!improved(old, current)) return "same_conditions";
-            }
-        }
+        if (day < 12000 && 12000 - day < DUTY_TICKS) return "too_late";
+        if (!ExamHall.of(examiner)) return "no_hall";
+        if (emeralds(p) < fee(grade.higher())) return "no_fee";
         return null;
     }
 
-    public static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, boolean charge) {
-        if (!(examiner.level() instanceof ServerLevel level) || type < SIMPLE || type > RENEWAL) return "busy";
-        var why = refusal(examiner, owner, candidate, type);
+    public static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate) {
+        var why = refusal(examiner, owner, candidate, false);
         if (why != null) return why;
-        var target = target(type, candidate);
-        var resume = pending(previous(candidate, target));
-        var plan = resume == null ? ExamPlan.questions(type, target, candidate) : resume.questions();
-        var remaining = plan.subList(resume == null ? 0 : resume.next(), plan.size());
-        var peerQuestion = remaining.stream().filter(ExamPlan.Question::needsHungryPeer).findFirst().orElse(null);
-        var peer = peerQuestion == null ? null : reserveHungryPeer(candidate, examiner, peerQuestion);
-        if (peerQuestion != null && peer == null) return "no_participant";
-        if (!candidate.pet().lock(LOCK, owner.getUUID())) {
-            if (peer != null) peer.pet().unlock(PEER_LOCK);
-            return "busy";
-        }
-        var session = new ExamSession(level, examiner, owner, candidate, type, target, plan, resume, charge ? fee(type) : 0, peer);
+        var pet = candidate.pet();
+        pet.lock(LOCK, owner.getUUID());
+        candidate.duty().take(Duty.Kind.EXAM, DUTY_TICKS, COOLDOWN, "certify");
+        var session = new ExamSession(examiner, owner, candidate);
         ACTIVE.put(examiner.getUUID(), session);
         candidate.setPersistenceRequired();
-        GameplayLog.event(candidate, "exam", "action=start examiner={} owner={} type={} target={} questions={} next={} peer={}",
-                examiner.getUUID(), owner.getUUID(), type, target, ExamPlan.encode(plan), session.index, peer == null ? null : peer.getUUID());
+        GameplayLog.event(candidate, "exam", "action=start examiner={} owner={} target={} need={} fee={} talent={}",
+                examiner.getUUID(), owner.getUUID(), session.target, firstMissing(session.target, candidate), fee(session.target), pet.talent());
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
         return null;
     }
 
-    private static YukkuriEntity reserveHungryPeer(YukkuriEntity candidate, HumanNpc examiner, ExamPlan.Question question) {
-        var peer = ExamPlan.needy(candidate, question);
-        return peer != null && peer.pet().lock(PEER_LOCK, examiner.getUUID()) ? peer : null;
-    }
-
     public static void tick(ServerTickEvent.Post event) {
-        for (var session : List.copyOf(ACTIVE.values())) {
-            if (session.level.getServer() != event.getServer()) continue;
-            try { session.tick(); }
-            catch (RuntimeException e) {
-                MCYukkuri.LOGGER.warn("Exam session failed", e);
-                session.interrupt("error");
-            }
-        }
-    }
-    public static void performed(YukkuriEntity y, Ability skill, boolean success) {
-        var session = candidateSession(y);
-        if (session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice
-                && session.questions.get(session.index).skill == skill) practice.performed(session, success);
-    }
-    public static void greeted(YukkuriEntity y, Entity guest, boolean success) {
-        var session = candidateSession(y);
-        if (session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice && practice.guest(guest))
-            performed(y, Ability.GREETING, success);
-    }
-    public static void fed(YukkuriEntity receiver, UUID feeder) {
-        for (var session : ACTIVE.values())
-            if (session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice)
-                practice.fed(session, receiver, feeder);
-    }
-    public static YukkuriEntity sharingTarget(YukkuriEntity donor) {
-        var session = candidateSession(donor);
-        return session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice
-                ? practice.sharingTarget() : null;
-    }
-    public static boolean allowsPeerFeeding(YukkuriEntity peer, UUID feeder) {
-        if (!PEER_LOCK.equals(peer.pet().busyWith())) return true;
-        for (var session : ACTIVE.values())
-            if (session.hungryPeer == peer && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice)
-                return practice.allowsHelpFeeder(session, feeder);
-        return false;
+        for (var session : List.copyOf(ACTIVE.values()))
+            if (session.level.getServer() == event.getServer()) session.tick();
     }
 
     private void tick() {
         phaseTicks++;
-        if (phase == Phase.RESULT) {
-            if (phaseTicks >= 90 || !candidate.isAlive() || !examiner.isAlive()) release();
-            return;
+        var owner = owner();
+        var reason = interruption(owner);
+        if (reason != null) { interrupt(reason); return; }
+        examiner.getLookControl().setLookAt(candidate, 30, 30);
+        switch (phase) {
+            case APPROACH -> {
+                if (phaseTicks == 1 && !inContact()) examiner.getNavigation().moveTo(candidate, .9);
+                if (phaseTicks % 20 == 1) {
+                    waitingBeat(owner);
+                }
+                if (phaseTicks >= 20 && inContact()) {
+                    examiner.getNavigation().stop();
+                    next(Phase.LOOK);
+                    var need = firstMissing(target, candidate);
+                    GameplayLog.event(candidate, "exam", "action=look target={} need={} fee={} talent={}",
+                            target, need, fee(target), candidate.pet().talent());
+                } else if (phaseTicks >= APPROACH_TICKS) interrupt("site");
+            }
+            case LOOK -> {
+                if (phaseTicks == 20) introduce();
+                if (phaseTicks == 40) examiner.swing(InteractionHand.MAIN_HAND);
+                if (phaseTicks == LOOK_TICKS) {
+                    if (candidate.pet().talent() >= BadgeRequirements.TALENT) say(owner, "exam.mcyukkuri.say.talent");
+                    next(Phase.VERDICT);
+                }
+            }
+            case VERDICT -> {
+                // Let the examiner's talent remark read before it is replaced with the result.
+                if (candidate.pet().talent() < BadgeRequirements.TALENT || phaseTicks >= 40) verdict(owner);
+            }
+            case RESULT -> {
+                if (passed && phaseTicks == 50) pinnedBeat();
+                if (phaseTicks >= RESULT_TICKS) release(Duty.End.DONE, "result");
+            }
         }
-        var why = interruption();
-        if (why != null) { interrupt(why); return; }
-        examinerLookAt(candidate);
-        if (phase == Phase.ITEM) {
-            if (++itemTicks >= 1200) { interrupt("timeout"); return; }
-            if (!inContact() && phaseTicks % 20 == 1) examinerWalkTo(candidate.blockPosition());
-            else if (inContact()) { examiner.getNavigation().stop(); examinerGoal = null; }
-            if (item.tick(this) && !done) finishQuestion();
-            return;
-        }
-        if (!inContact()) {
-            if (phaseTicks % 20 == 1) examinerWalkTo(candidate.blockPosition());
-            if (phaseTicks >= 180 && phase != Phase.PAYMENT) interrupt("site");
-            else if (phase == Phase.PAYMENT && phaseTicks >= 2400) interrupt("site");
-            return;
-        }
-        examiner.getNavigation().stop();
-        examinerGoal = null;
-        if (phase == Phase.PAYMENT || index >= questions.size()) {
-            presentResult();
-            return;
-        }
-        if (!LOCK.equals(candidate.pet().busyWith()) && !candidate.pet().lock(LOCK, ownerId)) {
-            interrupt("site");
-            return;
-        }
-        phase = Phase.ITEM;
-        phaseTicks = itemTicks = 0;
-        item = questions.get(index).item();
-        checkpoint(4, before, index, firstFailure);
-        GameplayLog.event(candidate, "exam", "action=task_start task={} index={}", item.id(), index);
-        item.start(this);
     }
 
-    @Override public boolean inContact() {
+    private boolean inContact() {
         return examiner.distanceToSqr(candidate) <= 6.25 && examiner.hasLineOfSight(candidate) && candidate.hasLineOfSight(examiner);
     }
 
-    private String interruption() {
+    private String interruption(Player owner) {
         if (candidate.isDeadOrDying()) return "lost";
         if (candidate.level() != level || candidate.isPassenger() || candidate.operations().active()) return "held";
-        if (candidate.isRemoved() || level.getEntity(candidate.getUUID()) != candidate)
-            return candidate.getRemovalReason() == Entity.RemovalReason.DISCARDED ? "lost" : "unload";
-        if (!examiner.isAlive() || examiner.isRemoved() || examiner.level() != level
+        if (level.getEntity(candidate.getUUID()) != candidate) return "unload";
+        if (!examiner.isAlive() || level.getEntity(examiner.getUUID()) != examiner
                 || examiner.distanceToSqr(Vec3.atCenterOf(examiner.home())) > 576) return "examiner";
-        if (hungryPeer != null && (!hungryPeer.isAlive() || hungryPeer.isRemoved() || hungryPeer.level() != level
-                || hungryPeer.isPassenger() || hungryPeer.operations().active() || level.getEntity(hungryPeer.getUUID()) != hungryPeer
-                || !PEER_LOCK.equals(hungryPeer.pet().busyWith()))) return "peer_left";
         if (!level.isDay()) return "night";
         if (!candidate.life().hasAccessory()) return "accessory";
         if (candidate.isInWaterOrBubble()) return "water";
         if (candidate.isOnFire()) return "fire";
         if (candidate.hurtTime > 0) return "hurt";
         if (candidate.isPanicking()) return "panic";
-        var owner = owner();
-        if (owner == null) {
-            if (++offlineTicks > 200) return "owner_gone";
-        } else {
-            offlineTicks = 0;
-            if (owner.level() != level || owner.distanceToSqr(candidate) > 144) {
-                if (farTicks++ == 0) owner.displayClientMessage(Component.translatable("exam.mcyukkuri.stay_near"), true);
-                if (farTicks > 60) return "owner_far";
-            } else farTicks = 0;
-        }
+        if (!candidate.duty().holds(Duty.Kind.EXAM) || !LOCK.equals(candidate.pet().busyWith())) return "duty";
+        if (owner == null) return "owner_gone";
+        if (owner.level() != level || owner.distanceToSqr(candidate) > 144) return "owner_far";
+        if (phase != Phase.RESULT && (!eligibleOwner(candidate, owner) || candidate.pet().grade() != before
+                || candidate.pet().effectiveGrade() != before)) return "not_owned";
+        if (phase != Phase.APPROACH && !inContact()) return "site";
         return null;
     }
 
-    private void finishQuestion() {
-        var question = questions.get(index);
-        if (item.passed()) successes |= 1 << index;
-        else if (firstFailure == null && owner() != null) firstFailure = evidence(question, examiner, owner(), candidate);
-        GameplayLog.event(candidate, "exam", "action=task_end task={} passed={} elapsed={}", item.id(), item.passed(), itemTicks);
-        item.abort(this);
-        item = null;
-        clearCards();
-        index++;
-        checkpoint(4, before, index, firstFailure);
-        phase = Phase.APPROACH;
-        phaseTicks = 0;
+    private void waitingBeat(Player owner) {
+        var t = candidate.life().personality().temperament();
+        if (t.is(Gate.TIMID))
+            PetScenes.act(candidate, YukkuriAction.TREMBLE, "afraid", phaseTicks == 1 ? "exam_nervous" : "", 20, examiner);
+        else if (t.is(Gate.BOLD)) PetScenes.act(candidate, YukkuriAction.PROUD, "smug", "", 20, examiner);
+        else if (t.is(Gate.ATTACHED) && candidate.hasLineOfSight(owner)) {
+            PetScenes.act(candidate, YukkuriAction.IDLE, "teary", "", 20, owner);
+        } else PetScenes.act(candidate, YukkuriAction.LOOK_AROUND, "surprise", "", 20, examiner);
     }
 
-    private void presentResult() {
-        var owner = owner();
-        if (owner == null || owner.level() != level || owner.distanceToSqr(candidate) > 144) return;
-        if (emeralds(owner) < fee) {
-            if (phase != Phase.PAYMENT) {
-                phase = Phase.PAYMENT;
-                phaseTicks = 0;
-                examinerSay("exam.mcyukkuri.say.need_payment", fee);
-            } else if (phaseTicks >= 2400) interrupt("no_fee");
-            return;
-        }
-        var pet = candidate.pet();
-        boolean unauthorized = (service == PROMOTION || service == RENEWAL)
-                && pet.unauthorizedBirths() > candidate.getPersistentData().getInt("ExamUnauthBase");
-        BadgeGrade earned = BadgeGrade.NONE;
-        if (service == JUDGMENT) {
-            for (var grade : BadgeGrade.values())
-                if (grade.id() <= target.id() && ExamPlan.meets(grade, questions, successes, true)) earned = grade;
-        } else if (!unauthorized && ExamPlan.meets(target, questions, successes, false)) earned = target;
-        int outcome;
-        BadgeGrade result = before;
-        if (unauthorized && service == RENEWAL) {
-            outcome = 3;
-            result = before.lower();
-            note("exam.mcyukkuri.log.renew_demoted");
-        } else if (earned.id() > before.id()) {
-            outcome = 0;
-            result = earned;
-        } else if (earned != BadgeGrade.NONE && earned == before) outcome = 1;
-        else outcome = 2;
+    private void introduce() {
+        int fear = candidate.life().personality().fear(examiner.getUUID());
+        boolean shy = fear > 20 || candidate.mind().unease() >= 50;
+        boolean deficient = candidate.subspecies().congenital() != Congenital.NORMAL;
+        String custom = candidate.getCustomName() == null ? "" : candidate.getCustomName().getString();
+        String given = Naming.ownName(candidate, custom) ? custom : candidate.mind().givenName();
+        var name = given.isBlank() ? candidate.getType().getDescription() : Component.literal(given);
+        candidate.showReaction(shy ? YukkuriAction.SHY : YukkuriAction.BOW, shy ? "shy" : "closed_smile", "");
+        int sequence = candidate.speechSequence();
+        boolean spoken = candidate.speakCue("introduced") && candidate.speechSequence() != sequence;
+        var line = NativeDialogue.byKey(candidate.getDialogueKey());
+        boolean voice = spoken && (deficient ? candidate.getDialogueKey().equals("dialogue.mcyukkuri.deficient.babble")
+                : line != null && line.events().contains("introduced"));
+        int hold = voice ? (int) Math.max(60, candidate.speechEnd() - level.getGameTime()) : 60;
+        var reply = deficient ? Component.translatable("exam.mcyukkuri.reply.sound") : Component.translatable("exam.mcyukkuri.reply.name", name);
+        nameCard = Staging.card(level, candidate.position().add(0, candidate.getBbHeight() + .6, 0), reply, hold, 1.3f);
+    }
 
-        if (outcome == 0 && pet.owner() == null) {
-            if (!WildEvents.canAdopt(candidate, owner)) { interrupt("not_owned"); return; }
-            Custody.assign(candidate, ownerId, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
-        }
+    private void verdict(Player owner) {
+        int fee = fee(target);
+        if (emeralds(owner) < fee) { interrupt("no_fee"); return; }
+        var pet = candidate.pet();
+        var need = firstMissing(target, candidate);
+        passed = need == null;
+        var oldGrade = pet.visibleGrade();
+        var old = passed && oldGrade != BadgeGrade.NONE ? pet.token() : ItemStack.EMPTY;
+        var oldItem = old.getItem();
+        int oldBefore = old.isEmpty() ? 0 : owner.getInventory().countItem(oldItem);
+        UUID oldSerial = old.isEmpty() ? null : pet.serial();
         debit(owner, fee);
-        if (service == JUDGMENT && earned.id() >= BadgeGrade.SILVER.id() && fee > 0)
-            giveTo(owner, new ItemStack(Items.EMERALD, 3));
-        if (outcome == 0 || outcome == 3) pet.issue(result, service, examiner.getUUID());
-        else if (outcome == 1) pet.renew(examiner.getUUID());
-        if (outcome == 0) {
+        if (passed) {
+            if (pet.owner() == null) Custody.assign(candidate, owner, Custody.Role.COMPANION);
+            pet.issue(target, CERTIFY, examiner.getUUID());
+            if (!old.isEmpty()) giveTo(owner, old);
             var families = FamilyData.get(level);
             families.register(candidate);
-            families.recordBadge(candidate.getUUID(), result.id(), level.getGameTime());
-            if (before == BadgeGrade.NONE) SurvivalProgress.award(owner, "pet_registered");
-            if (result.id() >= BadgeGrade.SILVER.id()) SurvivalProgress.award(owner, "badge_silver");
-            if (result.id() >= BadgeGrade.GOLD.id()) SurvivalProgress.award(owner, "badge_gold");
-        }
-        if (outcome <= 1) PetPrivileges.note(candidate);
-        if ((service == PROMOTION || service == RENEWAL) && outcome != 2)
-            candidate.getPersistentData().putInt("ExamUnauthBase", pet.unauthorizedBirths());
-        pet.setCooldown(COOLDOWN);
-        checkpoint(outcome, result, index, firstFailure);
-        phase = Phase.RESULT;
-        if (hungryPeer != null) hungryPeer.pet().unlock(PEER_LOCK);
-        phaseTicks = 0;
-        var gradeName = Component.translatable("badge.mcyukkuri.profile.grade." + result.id());
-        examinerSay(outcome <= 1 ? outcome == 0 ? "exam.mcyukkuri.say.pass" : "exam.mcyukkuri.say.keep" : "exam.mcyukkuri.say.fail");
-        card(candidate.position().add(0, candidate.getBbHeight() + .7, 0),
-                Component.translatable("exam.mcyukkuri.outcome." + outcome, gradeName), 90, 1.5f);
-        owner.sendSystemMessage(Component.translatable("exam.mcyukkuri.outcome." + outcome, gradeName));
-        if (outcome == 0) {
-            examinerSwing();
+            families.recordBadge(candidate.getUUID(), target.id(), level.getGameTime());
+            switch (target) {
+                case BRONZE -> SurvivalProgress.award(owner, "pet_registered");
+                case SILVER -> SurvivalProgress.award(owner, "badge_silver");
+                case GOLD -> SurvivalProgress.award(owner, "badge_gold");
+                default -> {}
+            }
+            PetPrivileges.note(candidate);
+            examiner.swing(InteractionHand.MAIN_HAND);
             Staging.sparkle(level, candidate.position());
             Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.2f);
+            PetScenes.act(candidate, YukkuriAction.JOY_JUMP, "sparkle", "exam_pass", 50, examiner);
+            say(owner, "exam.mcyukkuri.say.pass", gradeName(target));
+        } else {
+            var t = candidate.life().personality().temperament();
+            if (t.is(Gate.TIMID) || t.is(Gate.ATTACHED))
+                PetScenes.act(candidate, YukkuriAction.DROOP, "cry", "exam_fail", RESULT_TICKS, examiner);
+            else if (t.is(Gate.BOLD) || t.is(Gate.HARSH))
+                PetScenes.act(candidate, YukkuriAction.PUFF, "cheek_puff", "request_sulk", RESULT_TICKS, examiner);
+            else PetScenes.act(candidate, YukkuriAction.DROOP, "teary_frown", "exam_sorry", RESULT_TICKS, examiner);
+            say(owner, "exam.mcyukkuri.say.missing", Component.translatable("exam.mcyukkuri.need." + need.key()));
         }
-        GameplayLog.event(candidate, "exam", "action=result examiner={} owner={} type={} outcome={} grade={}->{} emeralds_used={}",
-                examiner.getUUID(), ownerId, service, outcome, before, result, fee);
-        allowRoutine();
+        int outcome = passed ? 0 : 2;
+        pet.record(new ExamRecord(CERTIFY, level.getGameTime(), pet.grade(), outcome, examiner.getUUID(), passed ? "" : need.key()));
+        pet.setCooldown(COOLDOWN);
+        GameplayLog.event(candidate, "exam", "action=result examiner={} owner={} outcome={} grade={}->{} emeralds_used={} target={} need={} fee={} talent={} old_token={} old_token_inventory_delta={}",
+                examiner.getUUID(), ownerId, outcome, before, pet.grade(), fee, target, need, fee, pet.talent(), oldSerial,
+                oldSerial == null ? 0 : owner.getInventory().countItem(oldItem) - oldBefore);
+        next(Phase.RESULT);
     }
 
-    private void checkpoint(int outcome, BadgeGrade result, int next, String evidence) {
-        candidate.pet().record(new ExamRecord(service, level.getGameTime(), result, outcome, examiner.getUUID(),
-                target, ExamPlan.encode(questions), next, successes, evidence == null ? "" : evidence, attempt));
-        candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
+    private void pinnedBeat() {
+        if (candidate.life().personality().temperament().is(Gate.BOLD))
+            PetScenes.act(candidate, YukkuriAction.PROUD, "smug", "badge_proud", 40, examiner);
+        else candidate.speakCue("badge_pinned");
     }
 
-    @Override public void interrupt(String reason) {
-        if (done) return;
-        if (phase == Phase.RESULT) { release(); return; }
-        if (item != null) item.abort(this);
-        checkpoint(4, before, index, firstFailure);
-        if (PLAYER_CAUSES.contains(reason)) candidate.pet().setCooldown(COOLDOWN);
+    private void next(Phase next) { phase = next; phaseTicks = 0; }
+
+    private Player owner() {
+        return fixtureOwner != null ? fixtureOwner : level.getServer().getPlayerList().getPlayer(ownerId);
+    }
+
+    private void interrupt(String reason) {
+        if (phase == Phase.RESULT) { release(Duty.End.DONE, "result"); return; }
+        var pet = candidate.pet();
+        pet.record(new ExamRecord(CERTIFY, level.getGameTime(), pet.grade(), 4, examiner.getUUID(), ""));
+        pet.setCooldown(COOLDOWN);
         var owner = owner();
         if (owner != null) {
             String prefix = REASONS.contains(reason) ? "exam.mcyukkuri.refuse." : "exam.mcyukkuri.interrupt.";
             owner.displayClientMessage(Component.translatable("exam.mcyukkuri.interrupted", Component.translatable(prefix + reason)), false);
         }
-        GameplayLog.event(candidate, "exam", "action=interrupt reason={} phase={} next={} emeralds_used=0",
-                reason, phase, index);
-        release();
-        if (reason.equals("examiner") && candidate.isAlive() && !candidate.life().isSleeping()) candidate.playAction("droop");
-    }
-    private void clearCards() {
-        for (var id : cards) Staging.removeCard(level, id);
-        cards.clear();
-        Staging.removeCard(level, sayCard);
-        sayCard = null;
-    }
-    private void release() {
-        done = true;
-        clearCards();
-        allowRoutine();
-        candidate.pet().finishWildExam();
-        if (phase != Phase.RESULT && hungryPeer != null) hungryPeer.pet().unlock(PEER_LOCK);
-        examiner.getNavigation().stop();
-        ACTIVE.remove(examiner.getUUID());
+        GameplayLog.event(candidate, "exam", "action=interrupt reason={} phase={} target={} need={} fee={} talent={} emeralds_used=0",
+                reason, phase, target, firstMissing(target, candidate), fee(target), pet.talent());
+        release(Duty.End.FAILED, reason);
     }
 
-    @Override public ServerLevel level() { return level; }
-    @Override public HumanNpc examiner() { return examiner; }
-    @Override public YukkuriEntity candidate() { return candidate; }
-    @Override public YukkuriEntity hungryPeer() { return hungryPeer; }
-    @Override public Player owner() { return fixtureOwner != null ? fixtureOwner : level.getServer().getPlayerList().getPlayer(ownerId); }
-    @Override public int itemTicks() { return itemTicks; }
-    @Override public void examinerSay(String key, Object... args) {
-        var text = Component.translatable(key, args);
+    private void release(Duty.End end, String reason) {
         Staging.removeCard(level, sayCard);
-        sayCard = Staging.card(level, examiner.position().add(0, examiner.getBbHeight() + .45, 0), text, 60, 1.0f);
-        var p = owner();
-        if (p != null) p.displayClientMessage(text, true);
+        Staging.removeCard(level, nameCard);
+        candidate.pet().unlock(LOCK);
+        candidate.duty().release(Duty.Kind.EXAM, end, reason);
+        examiner.getNavigation().stop();
+        ACTIVE.remove(examiner.getUUID());
+        GameplayLog.event(candidate, "exam", "action=end target={} reason={}", target, reason);
+    }
+
+    private void say(Player owner, String key, Object... args) {
+        var line = Component.translatable(key, args);
+        Staging.removeCard(level, sayCard);
+        sayCard = Staging.card(level, examiner.position().add(0, examiner.getBbHeight() + .45, 0), line, 60, 1f);
+        owner.displayClientMessage(line, true);
         GameplayLog.event(candidate, "exam", "action=line examiner={} key={}", examiner.getUUID(), key);
     }
-    @Override public UUID card(Vec3 at, Component text, int ticks, float scale) {
-        var id = Staging.card(level, at, text, ticks, scale);
-        if (id != null) cards.add(id);
-        return id;
-    }
-    @Override public void examinerWalkTo(BlockPos pos) {
-        if (!pos.equals(examinerGoal)) {
-            examinerGoal = pos;
-            examiner.getNavigation().moveTo(pos.getX() + .5, pos.getY(), pos.getZ() + .5, .9);
-        }
-    }
-    @Override public void examinerLookAt(Entity entity) { examiner.getLookControl().setLookAt(entity, 30, 30); }
-    @Override public void examinerSwing() { examiner.swing(InteractionHand.MAIN_HAND); }
-    @Override public void allowRoutine() { candidate.pet().unlock(LOCK); }
-    @Override public void note(String key) { if (notes.size() < 12 && !notes.contains(key)) notes.add(key); }
-    @Override public void answer(String task, boolean success, String observed) {
-        GameplayLog.event(candidate, "exam", "action=answer task={} success={} observed={}", task, success, observed);
+
+    public static Component gradeName(BadgeGrade grade) {
+        return Component.translatable("badge.mcyukkuri.profile.grade." + grade.id());
     }
 }

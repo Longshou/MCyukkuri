@@ -12,48 +12,41 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * What a badge is good for in the shop and in the family (docs/FEATURES.md). One place decides, always by the effective grade
- * (a lapsed silver or gold counts one lower, a voided badge counts as none):
+ * What a badge is good for in the shop and in the family (docs/FEATURES.md).
  * <ul>
  * <li>bronze: the harness can be bought; a breeding permit can be given (both pets need a badge); resale 60%;</li>
  * <li>silver: premium grain and pudding can be bought; matchmaking with the keeper can be booked; resale 70%;</li>
  * <li>gold: the same, resale 80%.</li>
  * </ul>
- * A player standing is the best effective grade among their pets in 32 blocks, or what was recorded when one of their pets passed an exam,
- * renewed, or was bought (so a pet that waits in a carrier or at home still counts). Bronze is kept for good, silver and gold until their expiry.
+ * Player standing is the best effective grade among their pets within 32 blocks or the permanent grade earned through
+ * a pet's certification or purchase.
  */
 public final class PetPrivileges extends SavedData {
     public static final int HARNESS = 1, BREEDING = 1, MATCHMAKING = 2;
     private static final String NAME = "mcyukkuri_pet_privileges";
-    private static final long NONE = Long.MIN_VALUE, PERMANENT = -1;
-    /** Per player and grade (bronze, silver, gold): none, permanent, or the game time until which the record counts. */
-    private final Map<UUID, long[]> records = new HashMap<>();
+    private final Map<UUID, boolean[]> records = new HashMap<>();
 
     public static PetPrivileges get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(PetPrivileges::new, PetPrivileges::load), NAME);
     }
 
-    /** Called when a pet of a player earns, renews or is bought with a badge: remembers the grade and every lower one. */
+    /** Remembers the grade and every lower one when a pet earns a badge or is bought with one. */
     public static void note(YukkuriEntity pet) {
         if (!(pet.level() instanceof ServerLevel level) || !pet.pet().isPet() || pet.pet().owner() == null) return;
         var grade = pet.pet().effectiveGrade();
         if (grade == BadgeGrade.NONE) return;
-        long until = pet.pet().expiresAt();
         var data = get(level); var owner = pet.pet().owner();
-        long[] r = data.records.computeIfAbsent(owner, id -> new long[] {NONE, NONE, NONE});
-        for (int g = 1; g <= Math.min(grade.id(), BadgeGrade.GOLD.id()); g++) {
-            long next = g == 1 || until < 0 ? PERMANENT : until;
-            if (r[g - 1] != PERMANENT && (r[g - 1] == NONE || next == PERMANENT || next > r[g - 1])) r[g - 1] = next;
-        }
+        boolean[] r = data.records.computeIfAbsent(owner, id -> new boolean[3]);
+        for (int g = 0; g < Math.min(grade.id(), r.length); g++) r[g] = true;
         data.setDirty();
     }
 
-    /** The player standing: best of the recorded grades still valid and the effective grades of their pets within 32 blocks. */
+    /** The best of the recorded grades and the effective grades of their pets within 32 blocks. */
     public static BadgeGrade grade(Player player) {
         if (!(player.level() instanceof ServerLevel level)) return BadgeGrade.NONE;
-        int best = 0; long now = level.getGameTime();
-        long[] r = get(level).records.get(player.getUUID());
-        if (r != null) for (int g = 1; g <= 3; g++) if (r[g - 1] != NONE && (r[g - 1] == PERMANENT || r[g - 1] >= now)) best = g;
+        int best = 0;
+        boolean[] r = get(level).records.get(player.getUUID());
+        if (r != null) for (int g = 0; g < r.length; g++) if (r[g]) best = g + 1;
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, player.getBoundingBox().inflate(32), e -> e.isAlive() && e.pet().isPet() && e.pet().ownedBy(player.getUUID())))
             best = Math.max(best, Math.min(y.pet().effectiveGrade().id(), BadgeGrade.GOLD.id()));
         return BadgeGrade.of(best);
@@ -76,16 +69,27 @@ public final class PetPrivileges extends SavedData {
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         var list = new ListTag();
         records.forEach((id, r) -> {
-            var c = new CompoundTag(); c.putUUID("Player", id); c.putLongArray("Until", r.clone()); list.add(c);
+            int mask = 0;
+            for (int g = 0; g < r.length; g++) if (r[g]) mask |= 1 << g;
+            var c = new CompoundTag();
+            c.putUUID("Player", id); c.putInt("Grades", mask); list.add(c);
         });
         tag.put("Records", list); return tag;
     }
     public static PetPrivileges load(CompoundTag tag, HolderLookup.Provider registries) {
         var data = new PetPrivileges();
         for (var item : tag.getList("Records", 10)) {
-            var c = (CompoundTag) item; var until = c.getLongArray("Until");
-            if (!c.hasUUID("Player") || until.length != 3) continue;
-            data.records.put(c.getUUID("Player"), until);
+            var c = (CompoundTag) item;
+            if (!c.hasUUID("Player")) continue;
+            var grades = new boolean[3];
+            if (c.contains("Grades")) {
+                int mask = c.getInt("Grades");
+                for (int g = 0; g < grades.length; g++) grades[g] = (mask & 1 << g) != 0;
+            } else {
+                var earned = c.getLongArray("Until");
+                for (int g = 0; g < Math.min(earned.length, grades.length); g++) grades[g] = earned[g] != Long.MIN_VALUE;
+            }
+            data.records.put(c.getUUID("Player"), grades);
         }
         return data;
     }

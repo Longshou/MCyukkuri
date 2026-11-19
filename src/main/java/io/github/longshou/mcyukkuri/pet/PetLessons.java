@@ -76,8 +76,6 @@ public final class PetLessons {
         if (success && skill == Ability.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1);
         if (lesson) finishLesson(success);
         if (success) animal.skills().practise(skill, lesson && coached ? 3 : 1, lesson && coached ? "lesson" : "daily");
-        if (skill == Ability.WAIT || skill == Ability.FOOD_GUARD || skill == Ability.TOILET)
-            ExamSession.performed(animal, skill, success);
     }
 
     public void restore(int today, int dayClock) { this.today = Math.clamp(today, 0, 999); this.dayClock = Math.clamp(dayClock, 0, DAY); }
@@ -115,13 +113,6 @@ public final class PetLessons {
     }
     public boolean orderWait(Player player) {
         return !ExamSession.running(animal) && request(player, Ability.WAIT, false);
-    }
-    public boolean examWait(Player player) { return request(player, Ability.WAIT, false); }
-    public void stopExamWait() {
-        if (directed() && kind == Ability.WAIT) {
-            animal.pet().unlock(LOCK);
-            end();
-        }
     }
     private boolean request(Player player, Ability skill, boolean lesson) {
         if (animal.level().isClientSide || state != State.IDLE) return false;
@@ -272,11 +263,6 @@ public final class PetLessons {
 
     private void finishLesson(boolean success) {
         if (state != State.RUNNING) return;
-        if (kind == Ability.WAIT && ExamSession.running(animal)) {
-            animal.pet().unlock(LOCK);
-            end();
-            return;
-        }
         completed = success;
         routineObserveLeft = 0;
         animal.pet().setCooldown(COOLDOWN);
