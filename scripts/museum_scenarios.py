@@ -6972,21 +6972,24 @@ def _outing_crossings(window, trace):
     departed = re.search(r' t=(\d+) [^\n]*action=outing_depart pets=2 ', window)
     if not departed:
         return 'the resident never left with both pets'
+    turned = re.search(r' t=(\d+) [^\n]*action=outing_turn reason=(\w+)', window[departed.end():])
+    if not turned or turned[2] != 'destination':
+        return 'the resident did not reach the street destination before turning home'
     for _, name, *_ in _outing_pets:
         actor = _uuid_text('park_walk', name)
         reached = re.search(rf'uuid={actor} t=(\d+) [^\n]*outing reached home', window)
-        if not reached:
+        if not reached or int(reached[1]) <= int(turned[1]):
             return f'{name} did not return to the yard'
         for line in trace:
             if actor not in line:
                 continue
             row = json.loads(line.split('[trace] ', 1)[1])
             # North of the yard's street-side fence: on the sidewalk or the street.
-            if (row['k'] == 'st' and 'p' in row['st'] and int(departed[1]) <= row['t'] < int(reached[1])
+            if (row['k'] == 'st' and 'p' in row['st'] and int(departed[1]) <= row['t'] <= int(turned[1])
                     and row['st']['p'][2] < _lot_z - 5):
                 break
         else:
-            return f'{name} never walked outside the yard before returning'
+            return f'{name} never crossed the yard boundary on the outward walk'
 
 
 _lot_bowl = f'~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]}'
