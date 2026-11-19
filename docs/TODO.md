@@ -14,6 +14,7 @@
 | 能力 v1：统一技能存储、删除旧技能与跳跃学习、放大镜标记、学会一拍 | `.worktrees/wp-abilities-1` | cognition/Ability.java, cognition/Skills.java, cognition/SkillMath.java, pet/PetSkill.java, pet/PetLessons.java, family/ChildhoodLife.java |
 | P5a 哀悼朝向与靠近、振作誓言、告别不是哀悼 | `.worktrees/wp-grief-parting` | mind/EmotionCourse.java, grief/farewell code, DN-01/DN-02 scenes, art/dialogue |
 | 捕食种树上生活 A：枝巢搭建阶段与栖枝、扑翅动作 | `.worktrees/wp-tree-pred-art` | art/props/predators, standards/yukkuri-library/motions (predator_perch, predator_flap) |
+| P7-B 饮水器、喝水、口渴请求与店员加水 | `.worktrees/wp-shop-water` | life/CareBlock*.java, life/LifeHome.java, life/YukkuriLife.java, pet/PetRequests.java, shop/ShopStaff.java, shop/ShopCatalog.java, client/CareRenderer.java |
 
 ## 玩法待办
 
