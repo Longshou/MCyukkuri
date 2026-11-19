@@ -111,7 +111,7 @@ public final class FamilyNest {
         double feetY = e.getY();
         double highest = Double.NEGATIVE_INFINITY;
         for (int part = 0; part < (large ? 4 : 1); part++) {
-            var at = origin.offset(part & 1, 0, part >> 1);
+            var at = nest.northWest().offset(part & 1, 0, part >> 1);
             if (!level.hasChunkAt(at)) continue;
             var state = level.getBlockState(at);
             if (large && (!(state.getBlock() instanceof LargeNestBlock) || !LargeNestBlock.origin(state, at).equals(origin))) continue;

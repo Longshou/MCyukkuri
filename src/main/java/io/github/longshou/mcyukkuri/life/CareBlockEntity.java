@@ -55,7 +55,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public List<UUID> residentIds(){return List.copyOf(residents.keySet());}
     public boolean largeNest(){return ((CareBlock)getBlockState().getBlock()).style().startsWith("large_");}
     /** Ground centre of the bed: this block's centre, or for a 2x2 nest the shared corner of its four cells. */
-    public Vec3 centre(){return largeNest()?Vec3.atLowerCornerOf(worldPosition).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
+    public BlockPos northWest(){return largeNest()?LargeNestBlock.northWest(getBlockState(),worldPosition):worldPosition;}
+    public Vec3 centre(){return largeNest()?Vec3.atLowerCornerOf(northWest()).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
     /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting), around {@link #centre()}. */
     public NestResting.Bed bed(){
         if(getBlockState().getBlock() instanceof PetNestBlock)return PetNestBlock.bed(getBlockState());

@@ -37,7 +37,7 @@ public final class BedContainer implements Container {
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
             return new BedContainer(centre,lying(hollow),floorY,
-                    Math.max(floorY,base+shellTop(level,origin,care.largeNest())));
+                    Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())));
         }
         var shelter=ShelterBlock.shelter(level,bed);
         if(shelter==null||!shelter.beds().contains(bed))return null;

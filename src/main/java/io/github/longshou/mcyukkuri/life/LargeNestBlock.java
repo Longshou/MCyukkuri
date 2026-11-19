@@ -17,6 +17,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -36,6 +38,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public final class LargeNestBlock extends CareBlock {
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 3);
+    private static final IntegerProperty CORE = IntegerProperty.create("core", 0, 3);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     private final VoxelShape[][] collision = new VoxelShape[4][4];
     private final VoxelShape[] outline = new VoxelShape[4];
@@ -43,7 +46,7 @@ public final class LargeNestBlock extends CareBlock {
 
     public LargeNestBlock(Properties properties, String style) {
         super(Kind.NEST, properties, style, 6, 0);
-        registerDefaultState(stateDefinition.any().setValue(PART, 0).setValue(FACING, Direction.SOUTH));
+        registerDefaultState(stateDefinition.any().setValue(PART, 0).setValue(CORE, 0).setValue(FACING, Direction.SOUTH));
         boolean wild = style.equals("large_wild_nest");
         grade = wild ? 1 : 2;
         VoxelShape whole = wild ? wildShape() : authoredShape(style, 16);
@@ -59,7 +62,7 @@ public final class LargeNestBlock extends CareBlock {
     }
     /** Wild bedding 1, the woven pet basket 2 (docs/FEATURES.md). */
     @Override public int grade() { return grade; }
-    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(PART, FACING); }
+    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(PART, CORE, FACING); }
     /** Wild bedding (drafts/care-props/wild.py large_wild_nest): rounded 32-unit footprint centred on the shared corner, a 0.5 leaf
      *  floor, a 2.6 pressed-grass rim outside a 14.75 rounded square and a low southern (+z) entrance. */
     private static VoxelShape wildShape() {
@@ -79,16 +82,32 @@ public final class LargeNestBlock extends CareBlock {
         }
         return shape.optimize();
     }
+    private static NestQuarter quarter(BlockState state) { return NestQuarter.of(state.getValue(PART), state.getValue(CORE)); }
+    private static BlockState orient(BlockState state, NestQuarter q, Direction facing) {
+        return state.setValue(PART, q.part()).setValue(CORE, q.core()).setValue(FACING, facing);
+    }
+    @Override protected BlockState rotate(BlockState state, Rotation rotation) {
+        return orient(state, quarter(state).rotate(turns(Direction.SOUTH, rotation.rotate(Direction.SOUTH))), rotation.rotate(state.getValue(FACING)));
+    }
+    @Override protected BlockState mirror(BlockState state, Mirror mirror) {
+        int mask = switch (mirror) { case NONE -> 0; case LEFT_RIGHT -> 2; case FRONT_BACK -> 1; };
+        return orient(state, quarter(state).mirror(mask), mirror.mirror(state.getValue(FACING)));
+    }
+    static BlockState cellState(BlockState state, int cell) { return state.setValue(PART, cell ^ state.getValue(CORE)); }
+    public static BlockPos northWest(BlockState state, BlockPos pos) {
+        int cell = quarter(state).cell();
+        return pos.offset(-(cell & 1), 0, -(cell >> 1));
+    }
     public static BlockPos origin(BlockState state, BlockPos pos) {
-        int part = state.getValue(PART);
-        return pos.offset(-(part & 1), 0, -(part >> 1));
+        var q = quarter(state);
+        return pos.offset(-q.dx(), 0, -q.dz());
     }
     private static BlockPos at(BlockPos origin, int part) { return origin.offset(part & 1, 0, part >> 1); }
     @Override protected BlockPos owner(BlockState state, BlockPos pos) { return origin(state, pos); }
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return state.getValue(PART) == 0 ? super.newBlockEntity(pos, state) : null; }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return outline[state.getValue(PART)]; }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return collision[turns(Direction.SOUTH, state.getValue(FACING))][state.getValue(PART)];
+        return collision[turns(Direction.SOUTH, state.getValue(FACING))][quarter(state).cell()];
     }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         var level = context.getLevel();
@@ -140,11 +159,11 @@ public final class LargeNestBlock extends CareBlock {
     }
     /** A part whose +x / +z partner (or -x / -z, by its place) is gone becomes air, so the whole nest goes together. */
     @Override protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour, LevelAccessor level, BlockPos pos, BlockPos neighbourPos) {
-        int part = state.getValue(PART);
+        int part = quarter(state).cell();
         Direction xPartner = (part & 1) == 0 ? Direction.EAST : Direction.WEST, zPartner = (part >> 1) == 0 ? Direction.SOUTH : Direction.NORTH;
         if (side == xPartner || side == zPartner) {
             int expected = part ^ (side == xPartner ? 1 : 2);
-            return neighbour.is(this) && neighbour.getValue(PART) == expected ? state : Blocks.AIR.defaultBlockState();
+            return neighbour.is(this) && neighbour.getValue(CORE).equals(state.getValue(CORE)) && quarter(neighbour).cell() == expected ? state : Blocks.AIR.defaultBlockState();
         }
         // Anything else beside the footprint: the north-west part checks the entrance on the next tick (all four parts turn together).
         if (side.getAxis().isHorizontal() && !level.isClientSide()) {
@@ -157,11 +176,12 @@ public final class LargeNestBlock extends CareBlock {
      *  next supported open side clockwise; with no such side it stays. Scheduled from updateShape and from the block entity's load. */
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(PART) != 0 || !level.isAreaLoaded(pos, 2)) return;
-        var target = fitted(level, pos, state);
+        var nw = northWest(state, pos);
+        var target = fitted(level, nw, state);
         if (target == null || target.getValue(FACING) == state.getValue(FACING)) return;
         Direction facing = state.getValue(FACING), entrance = target.getValue(FACING);
         for (int part = 0; part < 4; part++) {
-            var cell = at(pos, part);
+            var cell = at(nw, part);
             var other = level.getBlockState(cell);
             if (other.is(this)) level.setBlock(cell, other.setValue(FACING, entrance), UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
         }
@@ -170,7 +190,7 @@ public final class LargeNestBlock extends CareBlock {
     /** Creative breaking removes the other parts without a drop; in survival they go through updateShape and only part 0 drops. */
     @Override public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide && player.isCreative()) {
-            var origin = origin(state, pos);
+            var origin = northWest(state, pos);
             for (int part = 0; part < 4; part++) {
                 var cell = at(origin, part);
                 var other = level.getBlockState(cell);

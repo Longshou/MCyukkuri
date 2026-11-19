@@ -79,7 +79,7 @@ public final class NestDoorway {
             var boxes = new ArrayList<AABB>();
             double reach = 0;
             for (int part = 0; part < (large ? 4 : 1); part++) {
-                var quarter = large ? state.setValue(LargeNestBlock.PART, part) : state;
+                var quarter = large ? LargeNestBlock.cellState(state, part) : state;
                 for (var box : quarter.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).toAabbs()) {
                     var a = new Vec3(box.minX + (part & 1) - centre, 0, box.minZ + (part >> 1) - centre);
                     var b = new Vec3(box.maxX + (part & 1) - centre, 0, box.maxZ + (part >> 1) - centre);

@@ -20,7 +20,7 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
     public CareRenderer(BlockEntityRendererProvider.Context context) {}
     /** The cushion nest's bolster overhangs its block a little; a 2x2 nest covers the three cells beside its owner. */
     @Override public AABB getRenderBoundingBox(CareBlockEntity care) {
-        var cell=new AABB(care.getBlockPos());
+        var cell=new AABB(care.northWest());
         return care.largeNest()?cell.expandTowards(1,0,1):care.kind()==CareBlock.Kind.NEST?cell.inflate(.25,0,.25):cell;
     }
     @Override public void render(CareBlockEntity care, float partial, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
@@ -45,8 +45,8 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         int units=Math.min(8,care.visibleFoodCount());
         // A 2x2 nest is drawn from its north-west part around the shared corner of its four cells, turned to its entrance
         // (authored on +z); a pet bed is authored with its entrance on -z and drawn flattened against the blocks beside it.
-        double centre=care.largeNest()?1:.5;
-        pose.pushPose();pose.translate(centre,0,centre);
+        var centre=care.centre();
+        pose.pushPose();pose.translate(centre.x-care.getBlockPos().getX(),0,centre.z-care.getBlockPos().getZ());
         var state=care.getBlockState();
         if(state.getBlock() instanceof PetNestBlock){
             pose.mulPose(Axis.YP.rotationDegrees(180-state.getValue(PetNestBlock.FACING).toYRot()));
