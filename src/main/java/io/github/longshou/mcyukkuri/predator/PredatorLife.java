@@ -89,7 +89,7 @@ public final class PredatorLife implements EcologyRoutine {
     private BlockPos lastDryStand;
     private long nextLandingSearch;
     private int landingSearchRadius = 8;
-    private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
+    private int ticks, cooldown, biteTicks, patrolWait = 160, reactWait, restrainWait;
     /** A beaten fighter's landing search keeps this far from the body that beat it. */
     private static final int WITHDRAW_CLEARANCE_SQR = 256;
     private static final double ARMED_PREY_PENALTY = 60;
@@ -340,7 +340,6 @@ public final class PredatorLife implements EcologyRoutine {
         if (cooldown > 0) cooldown--;
         if (biteTicks > 0) biteTicks--;
         if (patrolWait > 0) patrolWait--;
-        if (nestWait > 0) nestWait--;
         if (reactWait > 0) reactWait--;
         if (restrainWait > 0) restrainWait--;
         if (active() && !runnable()) stop();
@@ -356,11 +355,6 @@ public final class PredatorLife implements EcologyRoutine {
             stop();
         }
         if (animal.isNoAi()) { cancelNestSearch(); return; }
-        if (naturalSpawn && nestWait == 0) {
-            var result = findNest(true);
-            nestWait = result == Result.DEFERRED ? 1 : 400;
-            if (result == Result.FOUND) naturalSpawn = false;
-        }
         if (animal.predatorFlying() && animal.tickCount % 20 == 0)
             animal.life().spendEnergy(Math.min(1, animal.life().energy()));
     }
@@ -377,16 +371,14 @@ public final class PredatorLife implements EcologyRoutine {
         if (nestSearch != null) { nestSearch.cancel(animal); nestSearch = null; }
     }
     /** Claims real existing nests first; budget deferral retains the cursor and never reports absence. */
-    public Result findNest(boolean weave) {
+    public Result findNest() {
         if (!(animal.level() instanceof ServerLevel level) || !EcologyRoutines.predator(animal) || !animal.isAlive()) {
             cancelNestSearch(); return Result.NOT_FOUND;
         }
         if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
-        if (nestSearch != null && (!nestSearch.current(level, animal) || weave && !nestSearch.weave)) cancelNestSearch();
-        if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, weave);
-        // Home maintenance must not downgrade or complete a founder's weave-capable search.
-        if (!weave && nestSearch.weave) return Result.DEFERRED;
-        var result = nestSearch.advance(level, animal);
+        if (nestSearch != null && !nestSearch.current(level, animal)) cancelNestSearch();
+        if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, false);
+        var result = nestSearch.advance(animal, Set.of(), pos -> 0);
         if (result != Result.DEFERRED) cancelNestSearch();
         return result;
     }

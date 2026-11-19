@@ -31,7 +31,7 @@ enum HomeProvider {
         }
 
         @Override SearchResult findHome(YukkuriEntity entity) {
-            return switch (entity.predator().findNest(false)) {
+            return switch (entity.predator().findNest()) {
                 case FOUND -> SearchResult.FOUND;
                 case NOT_FOUND -> SearchResult.NOT_FOUND;
                 case DEFERRED -> SearchResult.DEFERRED;

@@ -1,93 +1,143 @@
 package io.github.longshou.mcyukkuri.predator;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.function.ToDoubleFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Heightmap;
 
-/** Existing nests first, then optional weaving; all world reads and writes stay on the server thread. */
+/** Claims loaded complete nests first. Founders then rank the surveyed canopy, checking flight in score order. */
 final class PredatorNestSearch {
-    private static final int SLICE = 4096, ASSIGN_PATHS = 512, WEAVE_PATHS = 768;
-    private final WeakReference<ServerLevel> world;
+    private static final int RADIUS = 24, SLICE = 2048, ROUTES = 8;
+    private final ServerLevel level;
     private final BlockPos origin;
     private final long generation = SearchBudget.generation();
-    final boolean weave;
-    private Iterator<BlockPos> cells;
-    private boolean weaving;
-    private BlockPos pending;
+    private final Iterator<BlockPos> nests;
+    private final Iterator<BlockPos> cells;
+    private final Iterator<BlockPos> pathColumns;
+    private final ArrayList<CanopySite> sites = new ArrayList<>();
+    private final ArrayList<BlockPos> paths = new ArrayList<>();
+    private Iterator<CanopySite> ranked;
+    private CanopySite selected;
     private long lastSlice = Long.MIN_VALUE;
 
-    PredatorNestSearch(ServerLevel level, YukkuriEntity animal, boolean weave) {
-        world = new WeakReference<>(level); origin = animal.blockPosition().immutable(); this.weave = weave;
-        cells = BlockPos.betweenClosed(origin.offset(-20, -3, -20), origin.offset(20, 8, 20)).iterator();
-    }
-    boolean current(ServerLevel level, YukkuriEntity animal) {
-        // Small movement does not restart thousands of probes; assignment still checks the actual distance.
-        return world.get() == level && origin.distSqr(animal.blockPosition()) <= 16;
-    }
-    void cancel(YukkuriEntity animal) {
-        var level = world.get();
-        if (level != null) SearchBudget.cancel(level, animal, Purpose.PREDATOR_NEST, generation);
+    PredatorNestSearch(ServerLevel level, YukkuriEntity body, boolean founding) {
+        this.level = level;
+        origin = body.blockPosition();
+        nests = completeNests().iterator();
+        var ground = origin.atY(CanopySite.groundY(level, origin));
+        cells = founding ? BlockPos.betweenClosed(ground.offset(-RADIUS, CanopySite.MIN_HEIGHT, -RADIUS),
+                ground.offset(RADIUS, CanopySite.MAX_HEIGHT, RADIUS)).iterator() : null;
+        pathColumns = founding ? BlockPos.betweenClosed(origin.offset(-2 * RADIUS, 0, -2 * RADIUS),
+                origin.offset(2 * RADIUS, 0, 2 * RADIUS)).iterator() : null;
     }
 
-    Result advance(ServerLevel level, YukkuriEntity animal) {
+    private ArrayList<BlockPos> completeNests() {
+        var found = new ArrayList<BlockPos>();
+        for (int z = (origin.getZ() - RADIUS) >> 4; z <= (origin.getZ() + RADIUS) >> 4; z++) {
+            for (int x = (origin.getX() - RADIUS) >> 4; x <= (origin.getX() + RADIUS) >> 4; x++) {
+                var chunk = level.getChunkSource().getChunkNow(x, z);
+                if (chunk == null) continue;
+                for (var pos : chunk.getBlockEntitiesPos())
+                    if (pos.distSqr(origin) <= RADIUS * RADIUS && chunk.getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get()))
+                        found.add(pos);
+            }
+        }
+        found.sort(Comparator.comparingDouble(origin::distSqr).thenComparing(Comparator.naturalOrder()));
+        return found;
+    }
+
+    boolean current(ServerLevel world, YukkuriEntity body) {
+        return level == world && (cells != null || origin.distSqr(body.blockPosition()) <= 16);
+    }
+
+    void cancel(YukkuriEntity body) { SearchBudget.cancel(level, body, Purpose.PREDATOR_NEST, generation); }
+
+    CanopySite selected() { return selected; }
+
+    Result advance(YukkuriEntity body, Set<BlockPos> refused, ToDoubleFunction<BlockPos> penalty) {
         if (lastSlice == level.getGameTime()) return Result.DEFERRED;
-        var lease = SearchBudget.request(level, animal, Purpose.PREDATOR_NEST, generation, new Cost(SLICE, 0, 0));
+        var lease = SearchBudget.request(level, body, Purpose.PREDATOR_NEST, generation, new Cost(SLICE, 0, ROUTES * 3));
         if (lease == null) return Result.DEFERRED;
         lastSlice = level.getGameTime();
-        try (lease; var scope = lease.bind(animal)) {
-            int left = SLICE;
-            boolean weavingChecked = false;
-            while (left > 0) {
-                if (pending == null) {
-                    if (!cells.hasNext()) {
-                        if (weaving || !weave) return Result.NOT_FOUND;
-                        weaving = true;
-                        cells = BlockPos.betweenClosed(origin.offset(-16, 1, -16), origin.offset(16, 6, 16)).iterator();
-                    }
-                    pending = cells.next().immutable();
-                }
-                if (weaving && !weavingChecked) {
-                    if (HumanCommerce.protectedAnimal(animal) || !EventHooks.canEntityGrief(level, animal)) return Result.NOT_FOUND;
-                    weavingChecked = true;
-                }
-                var pos = pending;
-                SearchBudget.probe(level); left--;
-                if (!level.hasChunkAt(pos)) { pending = null; continue; }
-                if (!weaving) {
-                    if (!level.getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())) { pending = null; continue; }
-                    if (left < ASSIGN_PATHS) return Result.DEFERRED;
-                    pending = null; left -= ASSIGN_PATHS;
-                    if (animal.life().assignHome(GlobalPos.of(level.dimension(), pos))) return Result.FOUND;
-                    continue;
-                }
-                if (!level.getBlockState(pos).isAir() || !animal.life().covered(pos)
-                        || !level.getFluidState(pos).isEmpty()) { pending = null; continue; }
-                var entrance = animal.life().entrance(pos);
-                if (entrance == null) { pending = null; continue; }
-                var support = level.getBlockState(pos.below());
-                if (!(support.is(BlockTags.LOGS) || support.is(BlockTags.BASE_STONE_OVERWORLD) || support.is(BlockTags.DIRT))) {
-                    pending = null; continue;
-                }
-                if (left < WEAVE_PATHS) return Result.DEFERRED;
-                pending = null; left -= WEAVE_PATHS;
-                if (!animal.predator().canFlyTo(entrance)) continue;
-                if (!level.setBlock(pos, ModBlocks.PREDATOR_NEST.get().defaultBlockState(), 3)) continue;
-                // Claim or undo within this lease: no partially woven nest survives a deferral.
-                if (animal.life().assignHome(GlobalPos.of(level.dimension(), pos))) return Result.FOUND;
-                level.removeBlock(pos, false);
+        try (lease; var scope = lease.bind(body)) {
+            int probes = SLICE, routes = ROUTES;
+            while (nests.hasNext() && probes > 0 && routes > 0) {
+                var pos = nests.next();
+                SearchBudget.probe(level); probes--;
+                if (refused.contains(pos) || !level.hasChunkAt(pos) || !level.getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get())
+                        || !(level.getBlockEntity(pos) instanceof CareBlockEntity bed) || !bed.canClaim(body)) continue;
+                routes--;
+                if (body.life().assignHome(GlobalPos.of(level.dimension(), pos))) return Result.FOUND;
             }
-            return Result.DEFERRED;
+            if (nests.hasNext()) return Result.DEFERRED;
+            if (cells == null) return Result.NOT_FOUND;
+            while (cells.hasNext() && probes > 0) {
+                var pos = cells.next();
+                SearchBudget.probe(level); probes--;
+                if (refused.contains(pos) || !level.hasChunkAt(pos) || !level.getBlockState(pos).isAir()) continue;
+                var site = CanopySite.inspect(level, body, pos);
+                if (site != null) sites.add(site);
+            }
+            if (cells.hasNext()) return Result.DEFERRED;
+            if (sites.isEmpty()) return Result.NOT_FOUND;
+            while (pathColumns.hasNext() && probes > 0) {
+                var pos = pathColumns.next();
+                SearchBudget.probe(level); probes--;
+                if (pathOrFarm(level, pos)) paths.add(pos.immutable());
+            }
+            if (pathColumns.hasNext()) return Result.DEFERRED;
+        if (ranked == null) {
+            double timid = body.life().personality().temperament().timid();
+            ranked = sites.stream().map(site -> rank(site, timid, penalty)).sorted(Ranked.ORDER).map(Ranked::site).iterator();
         }
+            while (ranked.hasNext() && routes-- > 0) {
+                var site = CanopySite.inspect(level, body, ranked.next().cell());
+                if (site != null && level.getBlockState(site.cell()).isAir() && site.reachable(body)) {
+                    selected = site;
+                    return Result.FOUND;
+                }
+            }
+            return ranked.hasNext() ? Result.DEFERRED : Result.NOT_FOUND;
+        }
+    }
+
+    private Ranked rank(CanopySite site, double timid, ToDoubleFunction<BlockPos> penalty) {
+        var cell = site.cell();
+        double distance = Math.sqrt(origin.distSqr(cell));
+        double score = NestSiteScore.score(site.height(), site.cover(), pathDistance(level, cell, paths), distance, timid);
+        return new Ranked(site, score - penalty.applyAsDouble(cell), distance);
+    }
+
+    static boolean pathOrFarm(ServerLevel level, BlockPos column) {
+        if (!level.hasChunkAt(column)) return false;
+        int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
+        int y = CanopySite.groundY(level, column.atY(top));
+        var state = level.getBlockState(column.atY(y - 1));
+        return state.is(Blocks.DIRT_PATH) || state.is(Blocks.FARMLAND);
+    }
+
+    static double pathDistance(ServerLevel level, BlockPos site, Iterable<BlockPos> paths) {
+        double nearest = RADIUS * RADIUS + 1;
+        for (var path : paths) nearest = Math.min(nearest, site.atY(path.getY()).distSqr(path));
+        double distance = nearest <= RADIUS * RADIUS ? Math.sqrt(nearest) : Double.POSITIVE_INFINITY;
+        return Math.min(distance, level.sectionsToVillage(SectionPos.of(site)) * 16.0);
+    }
+
+    private record Ranked(CanopySite site, double score, double distance) {
+        static final Comparator<Ranked> ORDER = (a, b) -> NestSiteScore.compare(b.score, b.distance, a.score, a.distance);
     }
 }
