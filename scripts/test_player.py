@@ -133,6 +133,9 @@ class PlayerTests(unittest.TestCase):
                         self.assertEqual(resource.status, 200)
         with urlopen(self.base+'/preview/review/timeline.mjs') as response:
             self.assertIn(response.headers.get_content_type(), ('text/javascript', 'application/javascript'))
+            with urlopen(Request(response.url, method='HEAD')) as headers:
+                self.assertEqual(headers.headers['Content-Length'], response.headers['Content-Length'])
+                self.assertEqual(headers.read(), b'')
 
     def test_entries_resolve_to_runtime_assets(self):
         from build_review_catalog import ASSETS, read
@@ -268,7 +271,9 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
         self.assertEqual(self.verdict(dict(id='art.test_1', verdict='pass', note='𠮷' * 500))['note'], '𠮷' * 500)
         self.assertEqual(self.verdict(dict(id='art.test_1', verdict='fail'))['note'], '')
         self.assertEqual(self.latest()['art.test_1']['verdict'], 'fail')
-        self.assertNotIn('verdicts.jsonl', self.latest())
+        from review_verdicts import LOG
+        self.assertEqual(LOG, ROOT/'.local/reports/verdicts.jsonl')
+        subprocess.run(['git', 'check-ignore', '-q', str(LOG.relative_to(ROOT))], cwd=ROOT, check=True)
 
         cli = """
 from pathlib import Path

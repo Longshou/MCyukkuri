@@ -91,17 +91,17 @@ class Handler(SimpleHTTPRequestHandler):
         if requested in aliases:
             target=aliases[requested]+('?' + parsed.query if parsed.query else '')
             self.send_response(302);self.send_header('Location',target);self.end_headers();return
-        if requested.startswith('/.local/previews/_'):
-            self.send_error(404);return
-        if not requested.startswith(('/.local/previews/','/preview/','/src/main/resources/assets/','/art/','/standards/','/docs/')):
-            self.send_error(404);return
-        target=(ROOT/requested.lstrip('/')).resolve()
+        super().do_GET()
+
+    def send_head(self):
+        # GET and HEAD must check the same file that the static handler opens.
+        target = Path(self.translate_path(self.path)).resolve()
         allowed = [ROOT / p for p in ('.local/previews', 'preview', 'src/main/resources/assets', 'art', 'standards', 'docs')]
         private = ROOT / '.local/previews'
-        if (not any(target.is_relative_to(base) for base in allowed) or target.is_dir()
+        if (not any(target.is_relative_to(base) for base in allowed) or not target.is_file()
                 or target.is_relative_to(private) and target.relative_to(private).parts[0].startswith('_')):
             self.send_error(404);return
-        super().do_GET()
+        return super().send_head()
     def end_headers(self):
         self.send_header('Cache-Control','no-cache')
         super().end_headers()

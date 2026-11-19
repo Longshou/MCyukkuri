@@ -141,7 +141,7 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 
 整身鼓腮、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和当前骨架生成动作覆盖资源，并生成各形态的 `cheek_puff.png`。默认按片段缓存编译、辫子跟随与辫节传播；缓存键包含配方项及其 base／镜像依赖、共享参数、所属模型与位置适配、表情文件名和编译代码／外部几何指纹，持物交接校验另含持物尺寸与两种起始持物姿态。缓存位于当前工作树 `.local/cache/motion-compile/`，可直接删除；输入或缓存内容指纹不符即重编。`--check` 复用未变片段、重编变化输入，并核对完整输出文件 SHA-256 与贴图，不写运行资源或来源清单（可填充本地缓存）。`--full` 忽略缓存重编全部，也可由 `export.py --full` 传入。`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行；`--update-only id,...` 只重建这些形态并保留其他形态的已选片段，可与 `--check` 合用。工具自查：`<py> scripts/test_motion_compile_cache.py`；加 `--integration` 在 `.local/tmp/` 隔离副本中运行全量基线、单片段／位置适配改动的字节对比、耗时与损坏缓存反例（耗时较长）。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
 
-素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[素材检查室](../preview/README.md)。
+素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的放映室服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[演出放映室](../preview/README.md)。
 
 灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑。当前运行模型统一用 `build_preview_hub.py --render` 离线预览。`preview_reimu_deficient.py`／`preview_marisa_deficient.py` 保留源、快照、运行资源指纹与动作采样检查，使用 Python、Pillow、numpy 与 Node.js，预览写入 `.local/previews/<reimu|marisa>-deficient-rounded/`，报告写入 `.local/reports/` 下同名主题目录；运行后重建预览总入口。通用预览不替代这些专项检查。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
 
@@ -158,7 +158,7 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 | `export_predator_assets.py` | 从捕食种配方导出的模型同步两种实体快照、256 图集、19+4 动作与来源登记 | 只导蕾米莉亚、弗兰，不替换现有七种；按元素自带骨骼绑定，骨架分组或顶点数与制作源元素不符即失败；`--check` 只读核对同一批输出，不写文件 |
 | `preview_predators.py` | 生成两种运行数据交互预览和八视图拼图 | 使用实际导出网格离线渲染，不启动游戏 |
 | `check_render_orientation.cjs` | 用魔理沙的单辫、非对称贴图及遮挡样例核对共用预览相机 | Node 只读检查，不启动浏览器或游戏 |
-| `settlement_site_preview.py` | 用本机 JDK 编译模组源码与 `settlement_site_preview/SiteDump.java`，由真实的 `SitePlanner`／`SiteBuilder` 在内存里的合成坡地／平地上建出各适居群系的小群与村，镜像 `NaturalShelter.survey` 逐洞勘测并检查空地到洞口、嗯嗯坑的可达（`--seeds N`），出等轴预览 | 不用 Gradle、不启动游戏；需要主检出的 `.local/tools/java`、`build/moddev/artifacts` 合并 jar 与 `.local/gradle-home`；预览写 `.local/previews/wild-settlements/`，`build_preview_hub.py` 只收录输入指纹一致的现有输出，不调用此编译脚本 |
+| `settlement_site_preview.py` | 用本机 JDK 编译模组源码与 `settlement_site_preview/SiteDump.java`，由真实的 `SitePlanner`／`SiteBuilder` 在内存里的合成坡地／平地上建出各适居群系的小群与村，镜像 `NaturalShelter.survey` 逐洞勘测并检查空地到洞口、嗯嗯坑的可达（`--seeds N`），出等轴预览 | 不用 Gradle、不启动游戏；需要主检出的 `.local/tools/java`、`build/moddev/artifacts` 合并 jar 与 `.local/gradle-home`；专项预览写入 `.local/previews/wild-settlements/`，需更新时单独运行此脚本 |
 | `export_predator_language.py` | 增量合并捕食种专属语言、生成蛋模型和低权重森林生成规则 | 保留其他任务语言键 |
 | `export_wound_surfaces.cjs` | 读取七种当前运行角色与选定 R3.1 源，导出外皮细分、五官挂接、骨架、动作及材质；记录来源指纹；`--check` 只读核对每份伤口的来源指纹与当前运行模型一致，`--ids=` 限定角色，圆润体型由 `rounded_wound_surface.cjs` 管理 | 写 `yukkuri_wounds/` 与伤口适配包，不修改标准角色源，不启动游戏 |
 | `verify_wound_runtime.py` | 核对全部伤口与动作骨架；核对伤口源与输出指纹、有限数值及共点权重一致性，可传角色 ID 限定后者范围 | 只读，不启动游戏 |
