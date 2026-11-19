@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
@@ -65,7 +66,8 @@ final class Elopement {
         relations.relate(wild.getUUID(), body.getUUID(), change);
     }
     private boolean available() {
-        return free(body) && body.family().yieldsToComfort() && !needsCare(body) && body.duty().mayTake(Duty.Kind.RULES);
+        return free(body) && body.family().yieldsToComfort() && !needsCare(body)
+                && body.duty().mayTake(Duty.Kind.RULES) && !BadgeArcs.running(body);
     }
     private Visit caller() {
         for (var y : body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(32))) {

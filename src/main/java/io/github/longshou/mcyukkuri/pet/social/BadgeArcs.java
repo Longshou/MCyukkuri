@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.life.Duty;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
@@ -68,7 +69,8 @@ public final class BadgeArcs {
     /** Whether the participant may be pulled into an arc right now; no tasks or sessions that this would break. */
     static boolean usable(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.pet().busy() && !e.operations().active() && !e.isInWaterOrBubble()
-                && !e.isOnFire() && !e.isPassenger() && !e.life().isSleeping() && e.hurtTime == 0 && e.family().brood() == null;
+                && !e.isOnFire() && !e.isPassenger() && !e.life().isSleeping() && e.hurtTime == 0 && e.family().brood() == null
+                && !e.duty().holds(Duty.Kind.RULES);
     }
     public static boolean running(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level)) return false;
@@ -92,7 +94,7 @@ public final class BadgeArcs {
     /** Null when the arc could start; otherwise a short machine reason (shown by the admin command). */
     public static String check(ServerLevel level, Arc arc, YukkuriEntity o, YukkuriEntity s, Player player, YukkuriEntity extra) {
         if (o == s || !o.isAlive() || !s.isAlive() || o.level() != level || s.level() != level) return "invalid_pair";
-        if (!WildEvents.availableForOpportunity(o)) return "observer_unavailable";
+        if (!usable(o) || !WildEvents.availableForOpportunity(o)) return "observer_unavailable";
         if (!subjectReady(s, arc == Arc.BEG_BITE)) return "subject_unavailable";
         if (!WildEventData.get(level).opportunitySlot(s.getUUID())) return "subject_in_scene";
         if (o.distanceToSqr(s) > 144 || !o.hasLineOfSight(s)) return "not_in_sight";
@@ -133,7 +135,7 @@ public final class BadgeArcs {
         // A conflicting optional participant rejects this roster; ordinary cooldown fallback below stays local.
         boolean nearbyExtra = extra != null && extra != o && extra != s && extra.level() == level && extra.distanceToSqr(o) <= 100;
         if (nearbyExtra && !data.opportunitySlot(extra.getUUID())) return null;
-        boolean third = nearbyExtra && WildEvents.availableForOpportunity(extra);
+        boolean third = nearbyExtra && usable(extra) && WildEvents.availableForOpportunity(extra);
         if (third) all.add(extra);
         UUID viewer = player == null ? null : player.getUUID();
         var begging = arc == Arc.BEG_BITE ? BegBite.plan(o, s) : null;
