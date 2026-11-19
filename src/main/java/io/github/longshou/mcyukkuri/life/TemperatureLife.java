@@ -435,6 +435,12 @@ public final class TemperatureLife {
             SurfaceApproach.walk(entity, place != null ? place : Vec3.atBottomCenterOf(target), 1.15);
             return true;
         }
+        // Vanilla advances a node once the body is within 0.75 - width/2 of its corner, so a narrow body can call itself
+        // arrived while its block is still outside the stand; the last step onto a bed-less stand is walked.
+        if (occupancy == null && entity.getNavigation().isDone() && target.distManhattan(entity.blockPosition()) <= 1) {
+            SurfaceApproach.walk(entity, Vec3.atBottomCenterOf(target), 1.15);
+            return true;
+        }
         if (taskTicks % 20 == 1) {
             var path = safePath(target);
             if (path == null || !entity.getNavigation().moveTo(path, 1)) { stop(); return false; }
