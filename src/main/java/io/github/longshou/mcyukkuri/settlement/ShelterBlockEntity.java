@@ -415,7 +415,9 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private boolean takeSlot(YukkuriEntity entity,int slot) {
         var id=entity.getUUID();
-        var previous=residents.put(id,slot);
+        var previous=residents.get(id);
+        if(previous!=null && previous!=slot && entity.life().isSleeping())return false;
+        residents.put(id,slot);
         if(chooseResting(entity)){
             if(previous!=null && previous!=slot && privateNests.remove(id))dropBedMaterials(beds().get(previous));
             changed();return true;
@@ -501,6 +503,7 @@ public final class ShelterBlockEntity extends BlockEntity {
             if(distance<nearest){chosen=free;nearest=distance;}
         }
         if(chosen<0)return false;
+        if(entity.life().isSleeping())entity.life().bedRemoved(current);
         residents.put(entity.getUUID(),chosen);changed();return true;
     }
     /** True when the family has outgrown the cave: no free cell is left for a new adult or the nest's young. */

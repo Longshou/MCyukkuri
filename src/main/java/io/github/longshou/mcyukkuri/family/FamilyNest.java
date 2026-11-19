@@ -181,13 +181,13 @@ public final class FamilyNest {
     }
     public static void tick(YukkuriEntity e){
         var c=care(e);
-        if(e.family().brood()!=null&&!large(e)&&e.tickCount%200==0){
+        if(!e.life().isSleeping()&&e.family().brood()!=null&&!large(e)&&e.tickCount%200==0){
             for(var pos:BlockPos.betweenClosed(e.blockPosition().offset(-8,-1,-8),e.blockPosition().offset(8,1,8))){
                 if(e.level().hasChunkAt(pos)&&e.level().getBlockEntity(pos) instanceof CareBlockEntity nest&&nest.largeNest()&&nest.canClaim(e)
                         &&e.life().assignHome(GlobalPos.of(e.level().dimension(),pos.immutable()))){c=nest;break;}
             }
         }
-        if(e.family().adult()&&e.family().partner()!=null&&((ServerLevel)e.level()).getEntity(e.family().partner()) instanceof YukkuriEntity mate){
+        if(!e.life().isSleeping()&&e.family().adult()&&e.family().partner()!=null&&((ServerLevel)e.level()).getEntity(e.family().partner()) instanceof YukkuriEntity mate){
             var shared=care(mate);
             if(shared!=null&&shared.largeNest()&&shared!=c&&e.distanceToSqr(mate)<64&&shared.canClaim(e)&&e.life().assignHome(mate.life().home()))c=shared;
         }
