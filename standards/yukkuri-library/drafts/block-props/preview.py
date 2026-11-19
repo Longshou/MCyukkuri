@@ -6,7 +6,8 @@ fixed display (mouth hold, item frame) from the holder's front and side when the
 beside an adult and a baby yukkuri at their real size. Meshes and textures are read from the runtime resources, so run the
 exporters first. Uses the care-prop software renderer.
 
-Usage: preview.py <out dir> <prop id>... [--before origin/main] [--fill <prop>:<fill id>:<units>] [--turn <prop>]
+Usage: preview.py <out dir> <prop id>... [--before origin/main] [--fill <prop>:<fill id>:<units>] [--levels <prop>:<fill id>]
+       [--turn <prop>]
 Then publish with `scripts/preview.py collection <topic> --source <out dir> --decision ...`.
 """
 import argparse, io, json, os, subprocess, sys, tarfile, tempfile
@@ -93,7 +94,7 @@ def icon_of(name):
     return ICONS / f'{stem}.png' if (ICONS / f'{stem}.png').exists() else ICONS / 'yukkuri_nest.png'
 
 
-def sheet(name, old, new, fills, turned=False):
+def sheet(name, old, new, fills, turned=False, levels=None):
     icon = Image.open(icon_of(name)).convert('RGBA')
     has_old = (old.assets / f'yukkuri_props/{name}.json').exists()
     sources = [('旧', old)] * has_old + [('新', new)]
@@ -126,6 +127,11 @@ def sheet(name, old, new, fills, turned=False):
         tiles = [on(BG, shot(new, [(name, 8, 0, 0, 0, 1, yaw, new)], (16, 16))[0]) for yaw in range(0, 360, 45)]
         views.append(label(row([row([pad(t, 24) for t in tiles], 2), row([t.resize((64, 64), Image.NEAREST) for t in tiles], 6)], 24),
                            '新 · 每 45° 一面（1× 与 4×）'))
+    if levels:      # a fill drawn per portion (bowl heaps, waterer water): the prop with 0..8 units of it
+        _, frame = shot(new, [(name, 8, 0, 0, 0, 1), (levels, 8, 0, 0, 0, 1)], (132, 150))
+        tiles = [label(on(BG, shot(new, [(name, 8, 0, 0, 0, 1)] + [(levels, k, 0, 0, 0, 1)] * bool(k), (132, 150), lock=frame)[0]), str(k), 22)
+                 for k in range(9)]
+        views.append(label(row(tiles, 4), f'新 · {levels} 每份一档（0–8）'))
     world = []
     frame = None
     def scene(src):
@@ -149,19 +155,22 @@ def main():
     parser.add_argument('--before', default='origin/main', help='Git ref holding the previous runtime meshes')
     parser.add_argument('--fill', action='append', default=[], metavar='PROP:FILL:UNITS',
                         help='also draw a fill mesh with the prop, e.g. food_bowl:food_bowl_regular:8')
+    parser.add_argument('--levels', action='append', default=[], metavar='PROP:FILL',
+                        help='also show the prop with 0 to 8 units of a per-portion fill, e.g. waterer:waterer_water')
     parser.add_argument('--turn', action='append', default=[], metavar='PROP', help='also show this prop from eight sides (rolling toys)')
     args = parser.parse_args()
     fills = {}
     for spec in args.fill:
         prop, fill, units = spec.split(':')
         fills.setdefault(prop, []).append((fill, int(units)))
+    levels = dict(spec.split(':') for spec in args.levels)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
         old, new = before_tree(args.before, work), R.Source(ROOT)
         for name in args.props:
             path = out / f'{name}.png'
-            sheet(name, old, new, fills, name in args.turn).convert('RGB').save(path)
+            sheet(name, old, new, fills, name in args.turn, levels.get(name)).convert('RGB').save(path)
             print(path)
 
 

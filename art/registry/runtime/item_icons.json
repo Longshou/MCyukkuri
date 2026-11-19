@@ -7,6 +7,7 @@
     "ceramic_tunnel": "src/main/resources/assets/mcyukkuri/textures/item/ceramic_tunnel.png",
     "companion_cord": "src/main/resources/assets/mcyukkuri/textures/item/companion_cord.png",
     "food_bowl": "src/main/resources/assets/mcyukkuri/textures/item/food_bowl.png",
+    "waterer": "src/main/resources/assets/mcyukkuri/textures/item/waterer.png",
     "forage_pile": "src/main/resources/assets/mcyukkuri/textures/item/forage_pile.png",
     "glass_marble": "src/main/resources/assets/mcyukkuri/textures/item/glass_marble.png",
     "household_guard": "src/main/resources/assets/mcyukkuri/textures/item/household_guard.png",
