@@ -1,14 +1,14 @@
 {
   "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",
-  "selected_model_sha256": "0f4a449a3e2b53ea3a3cebe4f3b6b6164a524dafff8704e8ad5ce47258343664",
+  "selected_model_sha256": "ec26454d05948882b6d19239f347aa67074965cc1aa75190fe636b6ef085badd",
   "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
-  "selected_rig_sha256": "803ba51233bad22c8d11379308efbbca1fb455d5c5e3e08a194386fe404bfdb5",
+  "selected_rig_sha256": "8bcbdf97fac4ae101257ce2b31df6d658ec7ddc73dec58932fbdd7c0682d6405",
   "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
-  "standard_motion_sha256": "803ba51233bad22c8d11379308efbbca1fb455d5c5e3e08a194386fe404bfdb5",
+  "standard_motion_sha256": "8bcbdf97fac4ae101257ce2b31df6d658ec7ddc73dec58932fbdd7c0682d6405",
   "snapshot": "art/source/standard-runtime/remilia/remilia.bbmodel",
   "rig": "art/source/standard-runtime/remilia/animation-rig.json",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-  "runtime_sha256": "3d4cbf1c9d2a1d0fce029e2b23d44d4f3c038329c9168506694a3c9fc0b81477",
+  "runtime_sha256": "3724156e4fd63c65477ba5d27620bd591a4eb8c798f64c25e3747ed67d3d0620",
   "geometry_identifier": "remilia",
   "bone_count": 265,
   "clips": [
@@ -36,7 +36,9 @@
     "predator_fly",
     "predator_dive",
     "predator_land",
-    "predator_bite"
+    "predator_bite",
+    "predator_perch",
+    "predator_flap"
   ],
   "textures": {
     "neutral": {

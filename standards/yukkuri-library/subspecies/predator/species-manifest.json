@@ -11,8 +11,8 @@
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
       "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.remilia",
-      "model_sha256": "0f4a449a3e2b53ea3a3cebe4f3b6b6164a524dafff8704e8ad5ce47258343664",
-      "rig_sha256": "803ba51233bad22c8d11379308efbbca1fb455d5c5e3e08a194386fe404bfdb5",
+      "model_sha256": "ec26454d05948882b6d19239f347aa67074965cc1aa75190fe636b6ef085badd",
+      "rig_sha256": "8bcbdf97fac4ae101257ce2b31df6d658ec7ddc73dec58932fbdd7c0682d6405",
       "elements": 69,
       "triangles": 3382,
       "bones": 265,
@@ -137,8 +137,8 @@
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
       "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.flandre",
-      "model_sha256": "6a3c6abfb49b5a01f8fe0c744c5406b891f8bd2d2c5d6f703ba55e986a20fade",
-      "rig_sha256": "455ff5c7bfee6aecf07114ef0995ac6675f7a092b7ca67baf0d0f4e3a686617a",
+      "model_sha256": "489e5f2c3cc1a3afa45c4daa46cc978419c3e3b76415021989a462f444a319ae",
+      "rig_sha256": "1db32376461344fbf9d12830f0e0d8f9a33a6acc389ffbd070a58003152eb784",
       "elements": 73,
       "triangles": 3370,
       "bones": 273,
@@ -257,6 +257,6 @@
   "inputs": {
     "species.json": "4518949b65793cf1b48bf124798aa9b39e2c27e470ae1b2a198557978c0a988f",
     "species_geometry.py": "eb34b8db80b0bb59df9f70e273cf15ff384ca35f46f1e4d63359ce30886e3849",
-    "author_species.py": "576a1c2d6c23d0da13ddd88817509812a3b0702bdc3b7cb6357dc7d6e08a2cc1"
+    "author_species.py": "7a56ef0afd2a4e091f1e9231705af036be1786d02473002dbb1d87d0a29b571b"
   }
 }

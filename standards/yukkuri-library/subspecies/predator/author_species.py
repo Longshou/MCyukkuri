@@ -264,7 +264,44 @@ def rig_for(original, config, added_bones):
             if 'crystal' in b['name']:
                 tracks[b['name']]={'rotation':{'0':[0,0,-8],str(duration/2):[0,0,8],str(duration):[0,0,-8]}}
         rig['clips'][name]=dict(duration=duration,loop=loop,tracks=tracks)
+    rig['clips'].update(perch_flap(config,added_bones))
     return rig
+
+
+def perch_flap(config, added_bones):
+    """The two grounded wing clips (looping; the sole never leaves its support, no neck or limbs):
+    predator_perch (3.2 s): perched on a branch watching below - leaning 4 degrees forward onto the front of the sole with
+    a slow breath, wings folded tighter than at rest, one ruffle of the right wing at about 2/3 (a lift, a shake, a fold).
+    predator_flap (0.8 s): wings at full span beating twice in place (fledgling practice, the first half of a screech
+    display); the body stretches a little as each downstroke pushes and settles on the upstroke, no lift."""
+    keys=lambda pairs:{str(round(t,5)):[round(c,5)+0.0 for c in v] for t,v in pairs}
+    crystals=[b['name'] for b in added_bones if 'crystal' in b['name']]
+    fold=lambda sign,yaw,roll:[0,sign*yaw,-sign*roll]
+    tight=(config['wing']['fold_yaw']+4,config['wing']['fold_roll']+4)
+    # Perch: (time, yaw, roll) of the right wing's ruffle, folded tight before and after.
+    ruffle=[(0,*tight),(1.95,*tight),(2.07,30,2),(2.15,42,16),(2.23,30,1),(2.31,42,17),(2.39,34,6),(2.65,*tight),(3.2,*tight)]
+    perch={'body_motion':{'rotation':keys([(0,[-4,0,0]),(.8,[-4.4,0,0]),(1.6,[-4.8,0,0]),(2.05,[-4.4,0,1.2]),(2.25,[-4.2,0,-.6]),
+                                           (2.6,[-4.2,0,0]),(3.2,[-4,0,0])])},
+           'body_stretch':{'scale':keys([(0,[1,1,1]),(1.6,[.996,1.012,.996]),(3.2,[1,1,1])])},
+           'world_motion':{'position':keys([(0,[0,0,0])])},
+           'predator_wing_left':{'rotation':keys([(0,fold(-1,*tight))])},
+           'predator_wing_right':{'rotation':keys([(t,fold(1,y,r)) for t,y,r in ruffle])}}
+    for name in crystals:   # hanging still, swinging only on the shaken wing
+        swing=[(0,-2),(1.6,2),(3.2,-2)] if '_left_' in name else [(0,-2),(1.6,2),(2.05,-9),(2.2,8),(2.35,-5),(2.6,1),(3.2,-2)]
+        perch[name]={'rotation':keys([(t,[0,0,a]) for t,a in swing])}
+    # Flap: two beats in 0.8 s; the right wing's roll is 36 sin(phase) (up first), the left mirrors it.
+    beat,steps=.4,16
+    times=[i*2*beat/steps for i in range(steps+1)]
+    phase=lambda t:t/beat*math.tau
+    # Leaning 1-3 degrees forward rocks on the front of the sole (body_motion's pivot); a backward lean would sink the rear.
+    flap={'body_motion':{'rotation':keys([(t,[-2-math.sin(phase(t)-math.pi/2),0,0]) for t in times])},
+          'body_stretch':{'scale':keys([(t,[1-.006*s,1+.005+.015*s,1-.006*s]) for t in times for s in [math.sin(phase(t)-math.pi*1.15)]])},
+          'world_motion':{'position':keys([(0,[0,0,0])])}}
+    for side,sign in [('left',-1),('right',1)]:
+        flap['predator_wing_'+side]={'rotation':keys([(t,[0,sign*6,sign*36*math.sin(phase(t))]) for t in times])}
+    for name in crystals:   # trailing the beat
+        flap[name]={'rotation':keys([(t,[0,0,12*math.sin(phase(t)-1.2)]) for t in times])}
+    return {'predator_perch':dict(duration=3.2,loop=True,tracks=perch),'predator_flap':dict(duration=2*beat,loop=True,tracks=flap)}
 
 
 def export(ident, config):

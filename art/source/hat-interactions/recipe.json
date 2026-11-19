@@ -13,7 +13,7 @@
   "exporter": "scripts/export_hat_interactions.py",
   "exporter_sha256": "3f459c6e30765f6bf023048eef95d3a9456cec4744a5e8e4dd03196a5c321c13",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
-  "runtime_sha256": "fa399b59baa13d790b0b693e71498298c948af117a43d75f9589f74111252559",
+  "runtime_sha256": "1457e48b9d3be5e82683f6b649200ed13a099ecfe5be1d907acb7f7903389da0",
   "sources": {
     "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",

@@ -1369,12 +1369,12 @@
     },
     "remilia": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "base_sha256": "3d4cbf1c9d2a1d0fce029e2b23d44d4f3c038329c9168506694a3c9fc0b81477",
+      "base_sha256": "3724156e4fd63c65477ba5d27620bd591a4eb8c798f64c25e3747ed67d3d0620",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "flandre": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "base_sha256": "4cd132d6c6ded29d9618613c519094e3cc40f047655907c911bb247b0412eacc",
+      "base_sha256": "f36ffb8d8d028156c1a39161d184e54cd22e8bb181ae6586714dd4b1bf2d46e8",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "myon": {

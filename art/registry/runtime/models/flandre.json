@@ -1,14 +1,14 @@
 {
   "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/flandre/flandre.bbmodel",
-  "selected_model_sha256": "6a3c6abfb49b5a01f8fe0c744c5406b891f8bd2d2c5d6f703ba55e986a20fade",
+  "selected_model_sha256": "489e5f2c3cc1a3afa45c4daa46cc978419c3e3b76415021989a462f444a319ae",
   "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
-  "selected_rig_sha256": "455ff5c7bfee6aecf07114ef0995ac6675f7a092b7ca67baf0d0f4e3a686617a",
+  "selected_rig_sha256": "1db32376461344fbf9d12830f0e0d8f9a33a6acc389ffbd070a58003152eb784",
   "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
-  "standard_motion_sha256": "455ff5c7bfee6aecf07114ef0995ac6675f7a092b7ca67baf0d0f4e3a686617a",
+  "standard_motion_sha256": "1db32376461344fbf9d12830f0e0d8f9a33a6acc389ffbd070a58003152eb784",
   "snapshot": "art/source/standard-runtime/flandre/flandre.bbmodel",
   "rig": "art/source/standard-runtime/flandre/animation-rig.json",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-  "runtime_sha256": "4cd132d6c6ded29d9618613c519094e3cc40f047655907c911bb247b0412eacc",
+  "runtime_sha256": "f36ffb8d8d028156c1a39161d184e54cd22e8bb181ae6586714dd4b1bf2d46e8",
   "geometry_identifier": "flandre",
   "bone_count": 273,
   "clips": [
@@ -36,7 +36,9 @@
     "predator_fly",
     "predator_dive",
     "predator_land",
-    "predator_bite"
+    "predator_bite",
+    "predator_perch",
+    "predator_flap"
   ],
   "textures": {
     "neutral": {
