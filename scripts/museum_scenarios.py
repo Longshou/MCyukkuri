@@ -1623,21 +1623,21 @@ add('greet_close', 'meadow', '贴近的豆形子油与成油打招呼', '异体�
 # Two ordinary friend pairs side by side, one geometry question each. West: an adult and a child of clearly different body
 # size on flat grass. East: two adults of one size across a real one-block grass terrace (no slab), the upper one standing
 # .375 inside the west edge -- as near that edge as its support rule allows while the lower body stays clear of the step.
-# Each pair is bonded; only the one that asks is lonely, so the rub is its own choice, and each pair's own nuzzle is what the
-# smoke reads from the log.
+# Each pair is bonded. The west adult and both east adults start lonely; the lower east peer stands beside the riser, where
+# ordinary solo leisure has less room. Either east adult can ask for the rub.
 _SHAPES = {name: uid('nuzzle_shapes', name) for name in ('wide', 'small', 'high', 'low')}
 
 add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也凑近', '大小与台阶的贴身蹭',
     '西边一大一小（成体与子油）是熟识的一对：大的走进小的身边并排贴蹭，看两身的侧面如何对齐、接触处有没有穿模。'
-    '东边两只同身成体隔着一格高的草地台阶，上面的站在台沿。看哪只自己换到同一层，'
+    '东边两只同身成体都想亲近，分别站在一格高的草地台阶上下。看哪只自己换到同一层，'
     '两只落稳、侧面贴上后再蹭，接触处有没有穿模。',
     '约 30–60 秒（暂停不计时）', [
         box(2, 0, -4, 6, 0, 0, 'minecraft:grass_block'),
         yk('reimu', -6, 3, 'wide', uuid=_SHAPES['wide'], yaw=-90, affection=95, attachment=80, label='成体·宽身', lead=True),
         yk('reimu', -2.5, 3, 'small', uuid=_SHAPES['small'], yaw=90, stage='child', affection=0, attachment=95, label='子油·小身'),
         f'yukkuri scenario bond {sel("wide")} {sel("small")}',
-        yk('reimu', 1.875, -2, 'high', uuid=_SHAPES['high'], yaw=90, dy=1, affection=0, attachment=95, label='台阶上'),
-        yk('reimu', -2, -2, 'low', uuid=_SHAPES['low'], yaw=-90, affection=95, attachment=80, label='台阶下'),
+        yk('reimu', 1.875, -2, 'high', uuid=_SHAPES['high'], yaw=90, dy=1, affection=95, attachment=95, label='台阶上'),
+        yk('reimu', .5, -2, 'low', uuid=_SHAPES['low'], yaw=-90, affection=95, attachment=80, label='台阶下'),
         f'yukkuri scenario bond {sel("high")} {sel("low")}',
     ], env=DAY, vantage=(-2, -8, 0, 15),
     reads=[('读四只的状态', 'yukkuri status @e[tag=scn,distance=..12] raw')])
@@ -7275,11 +7275,13 @@ next(s for s in S if s.id == 'food_behind_glass').smoke['verify'] = lambda log: 
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
+_step_low, _step_high = (_uuid_of(_SHAPES[name]) for name in ('low', 'high'))
 _smoke('nuzzle_shapes', 2400, [
     rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["wide"])} [^\n]*session result kind=NUZZLE\b',
-    rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["low"])} [^\n]*session result kind=NUZZLE\b',
+    rf'\[daily\][^\n]*uuid={_step_low} [^\n]*session result kind=NUZZLE\b',
     rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["wide"])} [^\n]*peer rub started partner={_uuid_of(_SHAPES["small"])} mode=LEVEL\b',
-    rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["low"])} [^\n]*peer rub started partner={_uuid_of(_SHAPES["high"])} mode=LEVEL\b',
+    (rf'\[daily\][^\n]*(?:uuid={_step_low} [^\n]*peer rub started partner={_step_high}'
+     rf'|uuid={_step_high} [^\n]*peer rub started partner={_step_low}) mode=LEVEL\b'),
 ])
 _wide_greeter = _uuid_of(_CLOSE_GREETERS['wide'])
 _bean_greeter = _uuid_of(_CLOSE_GREETERS['bean'])
