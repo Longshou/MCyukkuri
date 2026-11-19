@@ -1054,7 +1054,7 @@ public final class YukkuriModel {
         // Ecology state is more specific than the shared base action: care must never collapse
         // into ordinary nuzzling, and early learning keeps its low crawl/short-hop rig.
         if (behavior.equals(Behaviors.FEED_CHILD) || behavior.equals(Behaviors.FIRST_TOILET_ASSIST)
-                || behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP)
+                || behavior.equals(Behaviors.NEWBORN_CRAWL)
                 || ToiletPresentation.authored(behavior)) selected=behavior;
         // Leaf-swaddle care reuses the first-toilet rear contact; harvesting and folding the leaves reuse the bedding clips.
         if (ToiletPresentation.rearCare(behavior)) selected=Behaviors.FIRST_TOILET_ASSIST;
@@ -1064,7 +1064,7 @@ public final class YukkuriModel {
         // (Marisa's left lock is ordinary hair) and tilts the child independently of the live contact.
         boolean liftClip=action.equals(YukkuriAction.BRAID_CRADLE_LIFT.id())||action.equals(YukkuriAction.MOUTH_BITE_HOLD.id())
                 ||action.equals(YukkuriAction.BE_CRADLED.id());
-        if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.LEARN_WATCH)||behavior.equals(Behaviors.CARE_FINISH)||
+        if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.CARE_FINISH)||
                 !liftClip&&(behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY))
                 ||behavior.equals(Behaviors.NEST_HARVEST)||behavior.equals(Behaviors.NEST_PLACE)||behavior.equals(Behaviors.NEST_SPREAD)||behavior.equals(Behaviors.NEST_PRESS))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";

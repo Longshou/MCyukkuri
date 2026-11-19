@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
@@ -149,7 +150,7 @@ public final class DenSeal {
     }
 
     private boolean canSeal(ShelterBlockEntity home) {
-        return y.childhood().knowsDenSeal() && y.childhood().canLearnDenSeal() && available()
+        return y.skills().knows(Ability.DEN_SEAL) && y.childhood().canLearnDenSeal() && available()
                 && home != null && home.kind() == ShelterBlock.Kind.BURROW && home.owns(y.getUUID())
                 && y.life().mealTicks() == 0 && y.component(YukkuriComponents.MOUTH).freeForExternalWork()
                 && y.forageTrip().load().isEmpty() && y.habitat().carrying().isEmpty();
@@ -286,7 +287,7 @@ public final class DenSeal {
         for (var id : home.residentIds()) {
             if (!(level.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive()
                     || !child.family().subadult() || !child.childhood().canLearnDenSeal()
-                    || child.childhood().knowsDenSeal() || !y.family().careParentOf(child)) continue;
+                    || child.skills().knows(Ability.DEN_SEAL) || !y.family().careParentOf(child)) continue;
             String missed = null;
             if (!home.contains(child.blockPosition()) || child.distanceToSqr(y) > 16) missed = "away";
             else if (child.life().isSleeping()) missed = "asleep";
@@ -332,7 +333,7 @@ public final class DenSeal {
         var mother = resident(level, home, y.family().mother());
         var father = resident(level, home, y.family().father());
         if (!departed(mother, home, clearDistanceSqr) || !departed(father, home, clearDistanceSqr)) return List.of();
-        var oldest = inside.stream().filter(child -> child.family().subadult() && child.childhood().knowsDenSeal()
+        var oldest = inside.stream().filter(child -> child.family().subadult() && child.skills().knows(Ability.DEN_SEAL)
                 && Objects.equals(child.family().mother(), mother.getUUID()) && Objects.equals(child.family().father(), father.getUUID()))
                 .max(Comparator.comparingLong((YukkuriEntity child) -> child.family().age()).thenComparing(YukkuriEntity::getUUID));
         return oldest.orElseThrow() == y ? List.of(mother.getUUID(), father.getUUID()) : List.of();

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -15,16 +16,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.ToiletContact;
-import io.github.longshou.mcyukkuri.motor.MotorOwner;
-import io.github.longshou.mcyukkuri.motor.action.Launch;
 import java.util.Comparator;
 
 /**
- * Server-owned newborn care and learned early movement.
+ * Server-owned newborn care and grounded crawling.
  *
  * <p>The normal family age/nourishment clock remains the source of growth. This class records the
  * things that elapsed time alone must not grant: an actually settled birth, a successfully swallowed
- * first meal, the one assisted first toilet, grounded crawling and (except for shell forms) a real short jump. The subadult
+ * first meal, the one assisted first toilet and grounded crawling. The subadult
  * capability gate is a practical qualification, not a fourth saved stage.</p>
  */
 public final class ChildhoodLife {
@@ -37,40 +36,28 @@ public final class ChildhoodLife {
     /** Ground distance, rather than a wait, required to learn basic crawling. */
     public static final double CRAWL_DISTANCE_REQUIRED = .75;
 
-    private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP, BEG }
-    private enum SealSkill { UNASSESSED, UNLEARNED, LEARNED }
+    private enum Task { NONE, FIRST_TOILET, WAIT_CARE, CRAWL, BEG }
     /** A hungry baby asks its parent again after this long; the parent's own draw whether to answer is unchanged. */
     private static final int BEG_TICKS = 40, BEG_PAUSE = 240;
 
     private final YukkuriEntity entity;
-    /** The goal's own claim on the body: the demonstration and practice hops are real actions (Launch). */
-    private static final MotorOwner PRACTICE = new MotorOwner() {
-        @Override public String ownerId() { return "childhood_practice"; }
-        @Override public boolean active() { return true; }
-    };
     private Task task = Task.NONE;
     private UUID careTarget;
     private BlockPos practiceTarget;
     private Vec3 lastPosition;
     private double crawlDistance;
     private int careTicks, taskTicks;
-    private boolean newborn, landed, firstMealDone = true, firstToiletDone = true, crawled, jumped;
-    private boolean jumpLaunched, jumpAirborne, demonstrationSeen;
-    /** It handled its own hat on the water once (a first voyage that came back): sailing is a learned skill, see {@link #canSail}. */
-    private boolean sailed;
-    private SealSkill sealSkill = SealSkill.UNASSESSED;
-    private double launchY;
-    private int jumpLandings,practiceRest,watchedTicks;
+    private boolean newborn, landed, firstMealDone = true, firstToiletDone = true, crawled;
+    private int practiceRest;
     private long begAfter;
     private boolean kinWater;
-    private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }
 
     /** Called only when a new birth has created this entity; existing saves use {@link #load}. */
     public void newborn() {
         if (entity.profile().houseBody() || entity.profile().dangerToYukkuri()) {
-            newborn = false; landed = firstMealDone = firstToiletDone = crawled = jumped = true;
+            newborn = false; landed = firstMealDone = firstToiletDone = crawled = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
             return;
         }
@@ -79,9 +66,7 @@ public final class ChildhoodLife {
         firstMealDone = false;
         firstToiletDone = false;
         crawled = false;
-        jumped = false;
-        jumpLaunched = jumpAirborne = demonstrationSeen = sailed = false;
-        jumpLandings=practiceRest=watchedTicks=0;
+        practiceRest = 0;
         crawlDistance = 0;
         careTicks = taskTicks = 0;
         careTarget = null;
@@ -96,7 +81,8 @@ public final class ChildhoodLife {
     /** Updates settled-birth and actual movement evidence after the regular entity physics tick. */
     public void tick() {
         if (entity.level().isClientSide) return;
-        if (sealSkill == SealSkill.UNASSESSED && entity.isAlive() && canLearnDenSeal()) assessDenSeal();
+        var skills = entity.skills();
+        if (!skills.knows(Ability.DEN_SEAL) && !skills.assessed(Ability.DEN_SEAL) && entity.isAlive() && canLearnDenSeal()) assessDenSeal();
         if (!newborn) return;
         if(practiceRest>0)practiceRest--;
         if (!landed && settled()) {
@@ -112,8 +98,6 @@ public final class ChildhoodLife {
         }
     }
 
-    public boolean knowsDenSeal() { return sealSkill == SealSkill.LEARNED; }
-
     public boolean canLearnDenSeal() {
         var profile = entity.profile();
         return (entity.family().subadult() || entity.family().adult())
@@ -126,23 +110,22 @@ public final class ChildhoodLife {
         double chance = traits.learningProbability(entity.mind().stressView())
                 * (.20 + .005 * traits.selfControl() + (entity.getVariant() == YukkuriVariant.REIMU ? .20 : 0));
         double roll = entity.getRandom().nextDouble();
-        sealSkill = roll < chance ? SealSkill.LEARNED : SealSkill.UNLEARNED;
+        entity.skills().discover(Ability.DEN_SEAL, roll < chance, "subadult");
         GameplayLog.event(entity, "childhood", "den seal discovery age={} intelligence={} self_control={} chance={} roll={} learned={}",
-                entity.family().age(), traits.intelligence(), traits.selfControl(), chance, roll, knowsDenSeal());
+                entity.family().age(), traits.intelligence(), traits.selfControl(), chance, roll, entity.skills().knows(Ability.DEN_SEAL));
     }
 
     /** The parent finished a real seal that this learner watched from the den. */
     public void sawDenSeal(YukkuriEntity parent) {
+        var skills = entity.skills();
+        if (!skills.watched(Ability.DEN_SEAL)) return;
         var traits = entity.life().personality();
         double roll = entity.getRandom().nextDouble();
         double attention = .65 + .0035 * traits.attachment();
-        if (Cognition.learningSucceeds(entity, roll / attention)) {
-            sealSkill = SealSkill.LEARNED;
-            entity.showReaction("happy", null, 40);
-        }
+        if (Cognition.learningSucceeds(entity, roll / attention)) skills.practise(Ability.DEN_SEAL, 2, "watch");
         GameplayLog.event(entity, "childhood", "den seal demonstration parent={} intelligence={} attention={} chance={} roll={} learned={}",
                 parent.getUUID(), traits.intelligence(), attention, attention * traits.learningProbability(entity.mind().stressView()),
-                roll, knowsDenSeal());
+                roll, skills.knows(Ability.DEN_SEAL));
     }
 
     private boolean settled() {
@@ -162,12 +145,6 @@ public final class ChildhoodLife {
                 completeCrawl();
             }
         }
-        if (task == Task.JUMP && jumpLaunched && safePracticeState() && !entity.isPassenger()) {
-            if (!entity.onGround() && entity.getY() > launchY + .02) jumpAirborne = true;
-            if (jumpAirborne && entity.onGround() && Math.abs(entity.getY() - launchY) < .5) {
-                finishPracticeJump();
-            }
-        }
         lastPosition = here;
     }
 
@@ -181,7 +158,6 @@ public final class ChildhoodLife {
     public boolean active() { return task != Task.NONE; }
     public CompoundTag debug() {
         var tag=save();tag.putString("Task",task.name());tag.putInt("TaskTicks",taskTicks);
-        tag.putBoolean("JumpLaunched",jumpLaunched);tag.putBoolean("JumpAirborne",jumpAirborne);
         return tag;
     }
     /** Current parent being sought or providing care; null outside a live care action. */
@@ -213,10 +189,10 @@ public final class ChildhoodLife {
         return (!newborn || landed) && entity.family().canEatIndependently();
     }
 
-    /** Shell forms graduate by grounded crawling; all other newborns also need an actual short jump. */
+    /** Grounded crawling makes jumping available as the newborn develops. */
     public boolean canJump() {
         if (!newborn) return true;
-        return landed && !shellForm() && jumped;
+        return movementReady() && !shellForm();
     }
 
     /** Gymnastics and play must follow the assisted first toilet and learned movement. */
@@ -229,12 +205,12 @@ public final class ChildhoodLife {
 
     /** It sails its own hat: an adult does, a young once its first voyage came back (AQUATIC 初航; the own-hat ways out of the
      *  water need it). */
-    public boolean canSail() { return sailed || entity.family().adult(); }
+    public boolean canSail() { return entity.skills().knows(Ability.SAILING) || entity.family().adult(); }
 
     /** Its first voyage came back: from now on it sails. */
     public void learnSailing(String how) {
-        if (sailed) return;
-        sailed = true;
+        if (entity.skills().knows(Ability.SAILING)) return;
+        entity.skills().practise(Ability.SAILING, 2, "voyage");
         GameplayLog.event(entity, "childhood", "sailing learned how={} scale={}", how, entity.family().scale());
         entity.setPersistenceRequired();
     }
@@ -260,11 +236,8 @@ public final class ChildhoodLife {
         return switch (task) {
             case FIRST_TOILET -> careTicks >= FIRST_TOILET_CONTACT_TICKS ? Behaviors.CARE_FINISH : careTicks > 0 ? Behaviors.FIRST_TOILET_ASSIST : Behaviors.FIRST_TOILET_SEEK;
             case WAIT_CARE -> rearCareResponse();
-            case DEMONSTRATE -> Behaviors.LEARN_JUMP;
-            case WATCH -> Behaviors.LEARN_WATCH;
             case BEG -> Behaviors.BEG_FOOD;
             case CRAWL -> Behaviors.NEWBORN_CRAWL;
-            case JUMP -> Behaviors.LEARN_JUMP;
             default -> Behaviors.IDLE;
         };
     }
@@ -293,11 +266,6 @@ public final class ChildhoodLife {
                 BirthStaging.caption(entity, "赤油已吞咽首餐；亲油走到后侧，开始舔舐促进第一次排便");
                 return true;
             }
-            var learner = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
-                    other -> entity.family().caresFor(other) && other.childhood().readyToPractiseJump()
-                            && !other.childhood().demonstrationSeen && entity.hasLineOfSight(other)).stream().findFirst().orElse(null);
-            // A parent on her way to a child she searches for greets that child first; the demonstration follows afterwards.
-            if (learner != null && !entity.isPassenger() && !entity.family().searchingChild()) { task = Task.DEMONSTRATE; careTarget = learner.getUUID(); taskTicks = 0; return true; }
         }
         if (!newborn || !landed || !childAvailable(entity)) return false;
         if (!needsAssistedFirstToilet() && entity.tickCount >= begAfter && hungryForCare()) {
@@ -317,18 +285,8 @@ public final class ChildhoodLife {
         }
         if (entity.isPassenger() || !safePracticeState() || !firstToiletDone) return false;
         if(practiceRest>0)return false;
-        var demonstrator=availableParent();
-        if(demonstrator!=null&&demonstrator.childhood().task==Task.DEMONSTRATE&&entity.getUUID().equals(demonstrator.childhood().careTarget)){
-            task=Task.WATCH;careTarget=demonstrator.getUUID();taskTicks=0;return true;
-        }
         if (!crawled) { task = Task.CRAWL; taskTicks = 0; return true; }
-        if (readyToPractiseJump()) { task = Task.JUMP; taskTicks = 0; return true; }
         return false;
-    }
-
-    private boolean readyToPractiseJump() {
-        return newborn && landed && firstToiletDone && crawled && !shellForm() && !jumped
-                && !entity.isPassenger() && safePracticeState();
     }
 
     private boolean mayHelp(YukkuriEntity child) {
@@ -353,11 +311,8 @@ public final class ChildhoodLife {
                     && entity.family().caresFor(target) && CareApproach.sameFloor(entity,target) && childAvailable(target) && target.childhood().needsAssistedFirstToilet();
             case WAIT_CARE -> taskTicks < 300 && childAvailable(entity) && needsAssistedFirstToilet() && target != null
                     && target.childhood().task == Task.FIRST_TOILET && entity.getUUID().equals(target.childhood().careTarget);
-            case DEMONSTRATE -> taskTicks < 100 && parentAvailable(entity) && target != null && target.childhood().readyToPractiseJump();
-            case WATCH -> taskTicks<100&&safePracticeState()&&target!=null&&target.childhood().task==Task.DEMONSTRATE&&entity.getUUID().equals(target.childhood().careTarget);
             case BEG -> taskTicks < BEG_TICKS && !entity.isPassenger() && childAvailable(entity) && hungryForCare() && !entity.careApproach().waiting() && target != null && childAvailable(target);
             case CRAWL -> !crawled && taskTicks < 240 && !entity.isPassenger() && safePracticeState() && firstToiletDone;
-            case JUMP -> !jumped && taskTicks < 120 && !entity.isPassenger() && safePracticeState() && firstToiletDone;
             default -> false;
         };
     }
@@ -368,39 +323,12 @@ public final class ChildhoodLife {
         switch (task) {
             case FIRST_TOILET -> tickFirstToilet();
             case WAIT_CARE -> entity.getNavigation().stop();
-            case DEMONSTRATE -> {
-                SurfaceApproach.halt(entity);
-                var child = person(careTarget);
-                boolean watches=child!=null&&child.childhood().task==Task.WATCH&&child.hasLineOfSight(entity)
-                        &&child.getLookAngle().multiply(1,0,1).normalize().dot(entity.position().subtract(child.position()).multiply(1,0,1).normalize())>.8;
-                if(watches)watchedTicks++;
-                else if(!demonstrationLaunched)watchedTicks=0;
-                if(!demonstrationLaunched&&watches&&watchedTicks>=10&&entity.onGround()
-                        &&entity.motor().run(PRACTICE,new Launch(new Vec3(0,.24,0),"childhood_demonstrate"))){
-                    launchY=entity.getY();demonstrationLaunched=demonstrationWitnessed=true;
-                }
-                if(demonstrationLaunched&&!watches)demonstrationWitnessed=false;
-                if(demonstrationLaunched&&!entity.onGround()&&entity.getY()>launchY+.04){
-                    demonstrationAirborne=true;
-                }
-                if(demonstrationAirborne&&entity.onGround()){
-                    // A short hop has only a few airborne ticks. Require an observed takeoff and
-                    // landing, rather than a timer longer than the actual demonstration can last.
-                    if(watches&&demonstrationWitnessed)child.childhood().demonstrationSeen=true;
-                    stop();
-                }
-            }
-            case WATCH -> {
-                var parent=person(careTarget);SurfaceApproach.halt(entity);
-                if(parent!=null)SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),parent.position()));
-            }
             case BEG -> {
                 var parent = person(careTarget);
                 SurfaceApproach.halt(entity);
                 SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), parent.position()));
             }
             case CRAWL -> tickCrawl();
-            case JUMP -> tickJump();
             default -> { }
         }
     }
@@ -414,8 +342,6 @@ public final class ChildhoodLife {
         careTarget = null;
         practiceTarget = null;
         careTicks = taskTicks = 0;
-        jumpLaunched = jumpAirborne = false;
-        demonstrationLaunched=demonstrationAirborne=demonstrationWitnessed=false;watchedTicks=0;
     }
 
     private void tickFirstToilet() {
@@ -467,36 +393,13 @@ public final class ChildhoodLife {
         if (taskTicks % 10 == 1 && !entity.getNavigation().moveTo(practiceTarget.getX() + .5, practiceTarget.getY(), practiceTarget.getZ() + .5, .40)) stop();
     }
 
-    private void tickJump() {
-        if (!entity.onGround()) return;
-        entity.getNavigation().stop();
-        if (!jumpLaunched && taskTicks >= 10 && entity.motor().current() == null && entity.life().spendEnergy(.25f)) {
-            // The pre-jump gate in YukkuriEntity deliberately rejects normal jumps. This is a small
-            // physical practice impulse, run as the same Launch action a thrown body uses; observeMovement
-            // grants the ability only after a real takeoff.
-            Vec3 velocity = entity.getDeltaMovement();
-            if (entity.motor().run(PRACTICE, new Launch(new Vec3(velocity.x,
-                    Math.max(velocity.y, .16+.025*Math.min(3,jumpLandings)), velocity.z), "childhood_practice_jump"))) {
-                jumpLaunched = true; jumpAirborne = false; launchY = entity.getY();
-            }
-        }
-    }
-
-    private void finishPracticeJump(){
-        boolean wasJumped = jumped;
-        jumpLandings++;jumped=jumpLandings>=(demonstrationSeen?3:5);
-        if (!wasJumped && jumped) GameplayLog.event(entity, "childhood",
-                "jump learned landings={} demonstrationSeen={}", jumpLandings, demonstrationSeen);
-        jumpLaunched=jumpAirborne=false;practiceRest=24;entity.setPersistenceRequired();
-        stop();
-    }
     private void completeCrawl() {
         if (crawlDistance < CRAWL_DISTANCE_REQUIRED) return;
         if (!crawled) GameplayLog.event(entity, "childhood", "crawl learned distance={}", crawlDistance);
         crawled = true;
     }
 
-    private boolean movementReady() { return !newborn || landed && crawled && (shellForm() || jumped); }
+    private boolean movementReady() { return !newborn || landed && crawled; }
     private boolean shellForm() { return entity.subspecies().kind() == SubspeciesLife.Kind.SHELL_MARISA; }
 
     private boolean safePracticeState() {
@@ -561,11 +464,7 @@ public final class ChildhoodLife {
         tag.putBoolean("FirstMealDone", firstMealDone);
         tag.putBoolean("FirstToiletDone", firstToiletDone);
         tag.putBoolean("Crawled", crawled);
-        tag.putBoolean("Jumped", jumped);
-        tag.putBoolean("DemonstrationSeen", demonstrationSeen);
-        tag.putBoolean("Sailed", sailed);
-        if (sealSkill != SealSkill.UNASSESSED) tag.putBoolean("DenSealLearned", knowsDenSeal());
-        tag.putInt("JumpLandings",jumpLandings);tag.putInt("PracticeRest",practiceRest);
+        tag.putInt("PracticeRest", practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
         return tag;
     }
@@ -574,12 +473,9 @@ public final class ChildhoodLife {
     public void load(CompoundTag tag) {
         stop();
         lastPosition = null;
-        sailed = tag.getBoolean("Sailed");
-        sealSkill = !tag.contains("DenSealLearned") ? SealSkill.UNASSESSED
-                : tag.getBoolean("DenSealLearned") ? SealSkill.LEARNED : SealSkill.UNLEARNED;
         if (!tag.contains("Version")) {
             newborn = false;
-            landed = firstMealDone = firstToiletDone = crawled = jumped = true;
+            landed = firstMealDone = firstToiletDone = crawled = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
             return;
         }
@@ -590,15 +486,11 @@ public final class ChildhoodLife {
         // contract; every unfinished one waits for a newly observed swallow instead of inferring from bladder.
         firstMealDone = firstToiletDone || tag.contains("FirstMealDone") && tag.getBoolean("FirstMealDone");
         crawled = tag.getBoolean("Crawled");
-        jumped = tag.getBoolean("Jumped");
-        jumpLandings=Math.clamp(tag.getInt("JumpLandings"),0,5);
-        if(jumped)jumpLandings=Math.max(3,jumpLandings);
-        practiceRest=Math.clamp(tag.getInt("PracticeRest"),0,24);
-        demonstrationSeen = tag.getBoolean("DemonstrationSeen");
+        practiceRest = Math.clamp(tag.getInt("PracticeRest"), 0, 20);
         crawlDistance = Math.clamp(tag.getDouble("CrawlDistance"), 0, CRAWL_DISTANCE_REQUIRED);
         if (!newborn) {
             // A non-newborn has no first-toilet contract; never let missing booleans lock ordinary adults.
-            firstMealDone = firstToiletDone = crawled = jumped = true;
+            firstMealDone = firstToiletDone = crawled = true;
             landed = true;
             crawlDistance = CRAWL_DISTANCE_REQUIRED;
         }

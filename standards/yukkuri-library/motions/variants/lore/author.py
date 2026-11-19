@@ -410,13 +410,6 @@ def state(action, t, c, height):
         s = [1.04, c['height'], 1.07]
         r = [c['lean'], 0., c['wobble']*math.sin(phase)]
         shift[1] = -c['push']*height*(.5+.5*math.sin(phase))
-    elif action in ('learn_jump',):
-        # The server owns the actual launch and landing; do not add a second visual jump.
-        tuck = bump(t/d)
-        s = [1+.025*tuck, 1-.04*tuck, 1+.025*tuck]
-        r[0] = c['look_down']*tuck
-    elif action == 'learn_watch':
-        r[0] = 4+2*math.sin(math.tau*t/d)
     elif action == 'care_finish':
         r[0] = -3; s[1] = .985+.006*math.sin(math.tau*t/d)
     elif action == 'nest_harvest':

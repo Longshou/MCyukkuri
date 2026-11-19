@@ -80,7 +80,7 @@ public final class NotebookGuide {
                         InfantFood.isMash(family.carrying())?Component.translatable("notebook.mcyukkuri.childhood.mash",family.carrying().getHoverName()):family.carrying().getHoverName(),
                 Component.translatable("notebook.mcyukkuri.childhood."+(family.needsMash()?"dependent":"self_feeding")))
                 .append(Component.translatable("notebook.mcyukkuri.childhood.skills",
-                        entity.childhood().firstToiletDone()?"✓":"—", entity.childhood().canJump()?"✓":"—",
+                        entity.childhood().firstToiletDone()?"✓":"—",
                         entity.childhood().canExercise()?"✓":"—", entity.childhood().canLearn()?"✓":"—",
                         entity.childhood().canLiveIndependently()?"✓":"—"));
     }

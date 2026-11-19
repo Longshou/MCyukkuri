@@ -1427,22 +1427,6 @@
         }
       ]
     },
-    "behavior_learn_jump": {
-      "loop": true,
-      "steps": [
-        {
-          "clip": "hop",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": [
-            [
-              0,
-              "happy"
-            ]
-          ]
-        }
-      ]
-    },
     "behavior_newborn_wait": {
       "loop": true,
       "steps": [
@@ -1471,17 +1455,6 @@
       ]
     },
     "behavior_care_finish": {
-      "loop": true,
-      "steps": [
-        {
-          "clip": "idle",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": []
-        }
-      ]
-    },
-    "behavior_learn_watch": {
       "loop": true,
       "steps": [
         {
@@ -5170,11 +5143,9 @@
     "first_toilet_seek": "behavior_first_toilet_seek",
     "newborn_crawl": "behavior_newborn_crawl",
     "hat_walk": "behavior_hat_walk",
-    "learn_jump": "behavior_learn_jump",
     "newborn_wait": "behavior_newborn_wait",
     "first_toilet_wait": "behavior_first_toilet_wait",
     "care_finish": "behavior_care_finish",
-    "learn_watch": "behavior_learn_watch",
     "nest_gather": "behavior_nest_gather",
     "independence_farewell": "behavior_independence_farewell",
     "glass_farewell": "behavior_glass_farewell",

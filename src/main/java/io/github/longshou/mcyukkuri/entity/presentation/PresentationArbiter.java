@@ -392,7 +392,7 @@ public final class PresentationArbiter {
         if (e.life().isSleeping()) return YukkuriAction.SLEEP;
         if (e.life().mealTicks() > 0) return EcologyPresentation.action(behavior);
         // Crawling, hopping and the first-toilet beats keep their own clips inside the hat.
-        if (behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP) || behavior.equals(Behaviors.BOAT_TOILET)
+        if (behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.BOAT_TOILET)
                 || behavior.equals(Behaviors.FIRST_TOILET_WAIT) || behavior.equals(Behaviors.FIRST_TOILET_STIMULATED))
             return EcologyPresentation.action(behavior);
         // Its own reaction keeps its own clip aboard: startled by the rocking hull, afraid, relieved after a rescue, a

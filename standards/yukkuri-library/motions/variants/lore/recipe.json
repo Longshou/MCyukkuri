@@ -486,23 +486,6 @@
         "hat_walk while actually traversing a supported route"
       ]
     },
-    "learn_watch": {
-      "label": "看亲油起跳落地",
-      "duration": 1.4,
-      "loop": true,
-      "applies": "all",
-      "faces": [
-        [
-          0,
-          1.4,
-          "surprise"
-        ]
-      ],
-      "lore": "The child stops, faces its parent and observes an actual demonstrated landing before gaining the practice benefit.",
-      "triggers": [
-        "learn_watch"
-      ]
-    },
     "care_finish": {
       "label": "留在身边等照料结束",
       "duration": 2.4,
@@ -2067,35 +2050,6 @@
       "lore": "Project first locomotion: a newborn stays low and makes short supported crawls. It does not prove independent travel, adult work, or a jump capability.",
       "triggers": [
         "newborn crawl activity in a safe nearby space"
-      ]
-    },
-    "learn_jump": {
-      "label": "子油短跳练习",
-      "duration": 1.2,
-      "loop": true,
-      "applies": "all",
-      "hop_ratio": 0.055,
-      "look_down": -5,
-      "faces": [
-        [
-          0,
-          0.25,
-          "surprise"
-        ],
-        [
-          0.25,
-          0.95,
-          "happy"
-        ],
-        [
-          0.95,
-          1.2,
-          "satisfied"
-        ]
-      ],
-      "lore": "Project learning presentation: a child repeats a low, short hop after a safe demonstrated landing. This is distinct from escape movement and does not bypass nourishment or stage gates.",
-      "triggers": [
-        "learn_jump"
       ]
     },
     "sing": {
