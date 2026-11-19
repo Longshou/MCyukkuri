@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -409,12 +410,10 @@ public final class EmotionCourse {
             var body = remains != null && !remains.isRemoved() ? remains : null;
             double stop = y.getBbWidth() / 2 + (body == null ? .5 : body.getBbWidth() / 2 + .3);
             if (attached && distance > stop && distance <= 6) {
-                Vec3 outward = y.position().subtract(point).multiply(1, 0, 1).normalize();
-                var at = SurfaceApproach.floor(y, point.add(outward.scale(stop)));
-                if (at != null && y.moldExile().allowsAddress(BlockPos.containing(at)) && SurfaceApproach.canApproach(y, at)) {
-                    stand = at;
-                    walkUntil = now + 200;
-                }
+                Predicate<Vec3> allowed = at -> y.moldExile().allowsAddress(BlockPos.containing(at));
+                stand = body == null ? SurfaceApproach.beside(y, point, stop, allowed)
+                        : SurfaceApproach.beside(y, point, stop, body, allowed);
+                if (stand != null) walkUntil = now + 200;
             }
             GameplayLog.event(y, "emotion", "mourn focus target={} distance={} approach={} attached={} yawError={}",
                     point == null ? "none" : body == null ? "place" : "remains", distance, stand != null, attached, yawError(y, point));
