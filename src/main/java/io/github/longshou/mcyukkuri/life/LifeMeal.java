@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.pet.PetRequests;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -265,7 +266,11 @@ final class LifeMeal {
             o.entity().showReaction("cheek_puff", "refuse", 60);
             return false;
         }
-        if (offered != Verdict.REFUSE && Sweets.is(food)) sweetFeedback = o.entity().pet().lessons().offeredReward(giver);
+        if (offered != Verdict.REFUSE && Sweets.is(food)) {
+            var pet = o.entity().pet();
+            sweetFeedback = pet.lessons().offeredReward(giver);
+            pet.feedback(giver, Feedback.sweet(sweetFeedback != null, offeredForDemand));
+        }
         return true;
     }
 

@@ -68,7 +68,7 @@ public final class PunishmentReaction {
         if (target.isAlive() && !target.body().dying()) {
             double resistance = (2 * mind.boldness() + mind.selfControl()) / 3.0;
             int gain = (int) Math.round((loss > 0 ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
-            mind.relationshipChanged(punisher.getUUID(), loss > 0 ? -20 : -6, gain);
+            target.pet().disciplined(punisher.getUUID(), loss > 0, gain);
         } else GameplayLog.event(target, "punishment", "victim actor={} incident={} response=collapse", punisher.getUUID(), incident);
         witness(target, punisher, incident, loss > 0);
         return before;

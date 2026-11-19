@@ -317,7 +317,8 @@ public final class YukkuriPersonality {
     public boolean talk(UUID object, boolean gentle) {
         if (!canTalk()) return false;
         talkWait = 160 + (100 - selfControl());
-        relationshipChanged(object, gentle ? 3 : -6, gentle ? -2 : 8);
+        if (gentle) relationshipChanged(object, 3, -2);
+        else owner.pet().disciplined(object, false, 8);
         return true;
     }
     private int gentleFearChange(UUID object, int ordinary) {

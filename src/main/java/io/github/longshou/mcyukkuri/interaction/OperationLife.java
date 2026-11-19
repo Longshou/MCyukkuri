@@ -34,6 +34,7 @@ import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -215,6 +216,7 @@ public final class OperationLife {
                 var personality = entity.life().personality();
                 int fear = personality.fear(player.getUUID());
                 if (!personality.treatment(player.getUUID(), favored)) yield false;
+                if (favored) entity.pet().feedback(player.getUUID(), Feedback.FAVOR);
                 if (favored && !entity.family().adult() && fear == 0 && !entity.isPanicking()
                         && entity.mind().stage() == MindLife.Stage.CALM && entity.mind().comforted()
                         && entity.dailyLife().affectionNeed() >= personality.affectionThreshold())

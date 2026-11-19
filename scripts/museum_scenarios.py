@@ -3468,6 +3468,7 @@ add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制�
              kin=kin_of(Mother=uid(_punishment_scene, 'a3_kin')) if x == -2 else '',
              lead=x == 0, uuid=uid(_punishment_scene, name))
           for name, x, label, bold, control, _ in _punishment_targets],
+        *own('a3_plead'),
         yk('reimu', 2, 2, 'a3_shrink', label='旁观·缩脸', boldness=25, self_control=30, uuid=uid(_punishment_scene, 'a3_shrink')),
         yk('reimu', 0, 2, 'a3_still', label='旁观·噤声', boldness=45, self_control=80, uuid=uid(_punishment_scene, 'a3_still')),
         yk('reimu', -2, 2, 'a3_kin', label='旁观·看向孩子', boldness=30, attachment=80, uuid=uid(_punishment_scene, 'a3_kin')),
@@ -3476,7 +3477,8 @@ add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制�
         set_status('a3_plead', 'health.health', 8),
         f'tellraw @s {_punishment_click}'],
     env=DAY, vantage=(0, -2, 0, 38), give=['mcyukkuri:care_awl', 'mcyukkuri:orange_juice 3'],
-    reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, label, *_ in _punishment_targets])
+    reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, label, *_ in _punishment_targets]
+          + [('读哭求宠物的服从养成值', f'data get entity {sel("a3_plead")} YukkuriPet.Obedience')])
 
 add('wound_leak', 'body', '伤口漏馅，橙汁止漏', '伤口漏馅，橙汁止漏',
     '五只灵梦：1／2／3级裂口、多处三级裂口、血3且三级大裂口露核；每10秒漏血0／0.5／1／1／1。绕行看大伤口普通馅与唯一中枢创腔，橙汁闭伤补血止漏并原位留疤，面粉糊只去疤；露核者真实漏血可致死，及时治疗',
@@ -6489,6 +6491,7 @@ _smoke(_punishment_scene, 190, [
 _punishment_smoke = next(s for s in S if s.id == _punishment_scene).smoke
 _punishment_smoke['commands'] = [
     (44, 'execute positioned ~0.5 ~2.5 ~-0.5 run yukkuri scenario tool_operator enter'),
+    (45, f'data modify entity {sel("a3_plead")} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID'),
     (46, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
     (47, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
     (90, 'execute as @e[type=minecraft:player,name=MuseumOperator,distance=..16,limit=1] at @s run function mcylab:extra/punishment_hit'),
@@ -6496,6 +6499,11 @@ _punishment_smoke['commands'] = [
 ]
 
 def _verify_punishment(window):
+    pet = _uuid_text(_punishment_scene, 'a3_plead')
+    learning = re.findall(r'\[rules\][^\n]* uuid=(\S+) [^\n]* obedience reason=hurt owner=(\S+) shift=(-?\d+) -> (-?\d+)'
+                          r' value=\d+ -> \d+ closeness=(-?\d+) fear=\d+', window)
+    if learning != [(pet, _fear_holder, '0', '4', '0'), (pet, _fear_holder, '4', '8', '0')]:
+        return f'Only the owned pet learns from the two accepted blows and keeps its closeness: {learning}'
     for victim, first in (('a3_freeze', 'FREEZE'), ('a3_plead', 'PLEAD'), ('a3_defy', 'DEFIANT')):
         hits = re.findall(_punishment_victim.format(uuid=_uuid_text(_punishment_scene, victim), actor=_fear_holder)
                           + r'(\w+) fear=(\d+) -> (\d+)', window)

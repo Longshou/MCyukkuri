@@ -15,6 +15,8 @@ import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
 import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -59,6 +61,7 @@ public final class PetLife {
     private final PetLessons lessons;
     private final BadgeLedger ledger = new BadgeLedger();
     private final PetCare care;
+    private int obedienceShift;
     public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); }
     public PetLessons lessons() { return lessons; }
     /** What this individual remembers of the badge-holders it has noticed (pet/social). */
@@ -167,6 +170,29 @@ public final class PetLife {
     /** A view of the individual's unease (mind/MindLife, docs/FEATURES.md): the pet line reads and writes the one shared value. */
     public int stress() { return animal.mind().stressView(); }
     public void addStress(int d) { animal.mind().add(d, "pet"); }
+
+    private int meekness() {
+        var temperament = animal.life().personality().temperament();
+        return RulesMath.meekness(temperament.patient(), temperament.timid());
+    }
+    public int obedience() { return RulesMath.obedience(meekness(), obedienceShift); }
+
+    public void disciplined(UUID actor, boolean hurt, int fearGain) {
+        var effect = RulesMath.discipline(ownedBy(actor) && isPet(), hurt, OptionalLong.empty());
+        animal.life().personality().relationshipChanged(actor, effect.closeness(), fearGain);
+        if (effect.learning() != 0) learn(actor, effect.learning(), hurt ? "hurt" : "scold");
+    }
+    public void feedback(UUID actor, Feedback feedback) {
+        if (ownedBy(actor) && isPet()) learn(actor, feedback.gain, feedback.name().toLowerCase(Locale.ROOT));
+    }
+    private void learn(UUID actor, int gain, String reason) {
+        int base = meekness(), before = obedienceShift;
+        obedienceShift = RulesMath.capShift(before + gain);
+        var bond = animal.life().personality().relation(actor);
+        GameplayLog.event(animal, "rules", "obedience reason={} owner={} shift={} -> {} value={} -> {} closeness={} fear={}",
+                reason, actor, before, obedienceShift, RulesMath.obedience(base, before), RulesMath.obedience(base, obedienceShift),
+                bond.closeness(), bond.fear());
+    }
 
     // records
     public List<ExamRecord> history() { return Collections.unmodifiableList(history); }
@@ -470,6 +496,7 @@ public final class PetLife {
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
         tag.putBoolean("TownRoots", townRoots);
+        tag.putInt("Obedience", obedienceShift);
         tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday",
                 lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
@@ -492,6 +519,7 @@ public final class PetLife {
         voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = BadgeGrade.of(tag.getInt("AbandonedGrade")).id(); dropPos = tag.getLong("DropPos");
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
         townRoots = tag.contains("TownRoots") ? tag.getBoolean("TownRoots") : formerOwner != null;
+        obedienceShift = RulesMath.capShift(tag.getInt("Obedience"));
         ledger.load(tag.getCompound("BadgeLedger"));
         examWildTag = tag.contains("ExamWildTag", 10) && tag.hasUUID("ExamTemporaryOwner") ? tag.getCompound("ExamWildTag").copy() : null;
         examTemporaryOwner = examWildTag == null ? null : tag.getUUID("ExamTemporaryOwner");

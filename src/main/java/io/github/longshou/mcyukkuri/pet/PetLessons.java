@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -286,6 +287,7 @@ public final class PetLessons {
     public boolean praise(Player player) {
         if (!awaitingFeedback() || !player.getUUID().equals(owner)) return false;
         if (completed) {
+            animal.pet().feedback(owner, Feedback.PRAISE);
             animal.pet().addStress(-3);
             SurvivalProgress.award(player, "lesson_praised");
             if (!animal.life().isSleeping() && animal.life().mealTicks() == 0) animal.playAction("joy_jump");
@@ -297,6 +299,7 @@ public final class PetLessons {
     }
     public void reprimand(Player player, CareAction action) {
         if (!awaitingFeedback() || !player.getUUID().equals(owner)) return;
+        if (!completed) animal.pet().feedback(owner, Feedback.CORRECTION);
         animal.skills().practise(kind, 1, "feedback");
         animal.pet().addStress(action == CareAction.FLICK ? 10 : 4);
         end();

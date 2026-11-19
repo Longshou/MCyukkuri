@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -137,7 +138,9 @@ public final class LearnedFear {
             ticks=0;
             lastBody=body.blockPosition();
             lastDanger=holder==null?fire:holder.blockPosition();
-            body.showReaction("afraid","afraid",60);
+            if (holder != null && body.pet().ownedBy(holder.getUUID()))
+                body.showReaction(YukkuriAction.TREMBLE, "afraid", "afraid", WARNING_TICKS);
+            else body.showReaction("afraid","afraid",60);
             GameplayLog.limited(body,"threat","learned_cue",200,"learned retreat cue holder={} fire={}",
                     holder==null?null:holder.getUUID(),fire);
         }
