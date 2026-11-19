@@ -429,6 +429,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     @Override public void travel(Vec3 input) {
+        if (!level().isClientSide && fallDistance > 1 && !isInWaterOrBubble()) predator.catchFall();
         if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
         if (!level().isClientSide && family.birthTravel()) return;
         if (ParentCarry.bracingForPickup(this)) {
@@ -741,6 +742,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         super.checkFallDamage(dy, landed, surface, at);
     }
     @Override public boolean causeFallDamage(float distance,float multiplier,DamageSource damage) {
+        if (predator != null && predator.canCatchFall()) return false;
         return family!=null&&family.awaitingLanding()?false:super.causeFallDamage(distance,multiplier*Facilities.landing(Facilities.floor(this)),damage);
     }
 

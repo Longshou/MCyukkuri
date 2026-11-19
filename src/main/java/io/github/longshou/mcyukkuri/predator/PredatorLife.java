@@ -744,6 +744,16 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean dryLanded() { return animal.onGround() && !animal.isInWaterOrBubble() && animal.life().dryStand(animal.blockPosition()); }
     private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
+    public boolean canCatchFall() {
+        return EcologyRoutines.predator(animal) && animal.family().adult() && !animal.isNoAi() && canSustainFlight();
+    }
+    public void catchFall() {
+        if (animal.predatorFlying() || !canCatchFall()) return;
+        interruptFounding();
+        GameplayLog.event(animal, "predator", "fall recovery distance={}", animal.fallDistance);
+        animal.setPredatorFlying(true);
+        land();
+    }
     /** Below its retreat ratio the beaten fighter leaves by air, not by dropping next to the one that beat it. */
     private void withdraw(YukkuriEntity foe) {
         GameplayLog.event(animal, "predator", "withdrawing by air; foe={} health={}/{} distance={}",
@@ -756,11 +766,14 @@ public final class PredatorLife implements EcologyRoutine {
         else land();
     }
     private record Landing(BlockPos stand, Vec3 feet) {}
+    private static final List<Heightmap.Types> LANDING_SURFACES = List.of(
+            Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
     /** The candidate and the final flight use the same supported feet, including a nest's pad and assigned rest offset. */
     private Vec3 landingFeet(BlockPos stand) {
         if (!level().hasChunkAt(stand) || !animal.life().dryStand(stand)) return null;
-        return level().getBlockEntity(stand) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
+        var feet = level().getBlockEntity(stand) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
                 ? FamilyNest.restPosition(animal, care) : SurfaceApproach.restingFloor(animal, Vec3.atBottomCenterOf(stand));
+        return feet != null && CanopySite.clearBody(level(), animal, feet) && SurfaceApproach.supported(animal, feet) ? feet : null;
     }
     private boolean currentLanding() {
         if (landingStand == null || destination == null) return false;
@@ -782,8 +795,10 @@ public final class PredatorLife implements EcologyRoutine {
                 for (var p : new BlockPos[]{center.offset(side,0,-ring), center.offset(side,0,ring),
                         center.offset(-ring,0,side), center.offset(ring,0,side)}) {
                     if (!level().hasChunkAt(p) || !level().getWorldBorder().isWithinBounds(p)) continue;
-                    var surface = new BlockPos(p.getX(), level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ()), p.getZ());
-                    if (Math.abs(surface.getY() - animal.getY()) <= 16 && animal.life().dryStand(surface)) candidates.add(surface);
+                    for (var map : LANDING_SURFACES) {
+                        var surface = level().getHeightmapPos(map, p);
+                        if (Math.abs(surface.getY() - animal.getY()) <= 16 && animal.life().dryStand(surface)) candidates.add(surface);
+                    }
                 }
             }
         }
