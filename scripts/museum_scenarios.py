@@ -2298,6 +2298,53 @@ _practice_scene(
      r'\[lesson\] marisa [^\n]*bowl skipped for loose food'],
     nutrition=48)
 
+
+def _verify_bowl_treats(window):
+    pet = _uuid_text('training_bowl', 'practised')
+    actor = rf'[^\n]* uuid={pet} t=(\d+) [^\n]* '
+    wait = re.search(r'\[lesson\]' + actor + r'wait treat taken owner=(\S+) early=(true|false)', window)
+    if not wait:
+        return 'Missing the trained pet’s whistle treat handover'
+    owner, early = wait[2], wait[3] == 'true'
+    treat = rf' item=mcyukkuri:sweet_candy count=1[^\n]* feeder={owner}\b'
+    received = re.findall(r'\[meal\]' + actor + r'received' + treat, window)
+    swallowed = re.findall(r'\[meal\]' + actor + r'swallowed' + treat, window)
+    learned = re.findall(r'\[rules\]' + actor + rf'obedience reason=(\w+) owner={owner} shift=(-?\d+) -> (-?\d+)', window)
+    shift = '-3' if early else '1'
+    if len(received) != 2 or wait[1] != received[0] or learned != [
+            (received[0], 'sweet' if early else 'reward', '0', shift),
+            (received[1], 'sweet', shift, str(int(shift) - 3))]:
+        return f'Expected exactly one obedience update per handover: received={received}, learned={learned}'
+    upbringing = re.findall(r'\[upbringing\]' + actor + r'cause=(waited|surplus_sweet) trait=(\w+)', window)
+    if len(swallowed) != 2:
+        return f'Expected both sweets to be swallowed: {swallowed}'
+    expected = [(swallowed[0], 'waited', 'SELF_CONTROL')]
+    if early:
+        expected = [(swallowed[0], 'surplus_sweet', trait) for trait in ('FRIENDLINESS', 'SELF_CONTROL')]
+    expected += [(swallowed[1], 'surplus_sweet', trait) for trait in ('FRIENDLINESS', 'SELF_CONTROL')]
+    if upbringing != expected:
+        return f'Expected the wait and surplus upbringing to settle only at swallow: {upbringing}'
+
+
+_bowl_smoke = next(s for s in S if s.id == 'training_bowl').smoke
+_bowl_pet = sel('practised')
+_bowl_owner = '@p[name=MuseumOperator,distance=..48]'
+_bowl_smoke['commands'] = [
+    (440, f'execute at {_bowl_pet} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
+    (441, f'data modify entity {_bowl_pet} {OWNED}.Owner set from entity {_bowl_owner} UUID'),
+    (441, f'data modify entity {_bowl_pet} YukkuriSkills.Points.wait set value 9'),
+    (442, set_status('practised', 'needs.nutrition', 82)),
+    (442, f'item replace entity {_bowl_owner} hotbar.0 with mcyukkuri:teaching_whistle'),
+    (442, f'item replace entity {_bowl_owner} weapon.offhand with mcyukkuri:sweet_candy'),
+    (443, f'yukkuri scenario shop_stock_click {_bowl_pet}'),
+    (930, f'execute at {_bowl_pet} positioned ~ ~ ~1 run yukkuri scenario tool_operator move'),
+    (930, f'item replace entity {_bowl_owner} hotbar.0 with mcyukkuri:sweet_candy'),
+    (931, f'yukkuri scenario shop_stock_click {_bowl_pet}'),
+    (1100, 'yukkuri scenario tool_operator leave'),
+]
+_bowl_smoke['verify'] = _verify_bowl_treats
+
+
 _practice_scene(
     'training_toilet', '宠物日常练习：去沙厕还是拉在地上',
     '两只宠物便意一样急，斜前方各有一个沙厕。左边练过的灵梦走进沙厕解决，右边刚开始练习的魔理沙就地拉在地上，留下要清理的排泄物。' + _PRAISE_HINT,

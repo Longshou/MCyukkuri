@@ -238,6 +238,7 @@ final class LifeMeal {
     boolean beginWaitTreat(ItemStack sweet, UUID owner, boolean waited) {
         if (!beginMeal(sweet, owner, false)) return false;
         waitedForTreat = waited;
+        o.entity().pet().feedback(owner, Feedback.sweet(waited, offeredForDemand));
         return true;
     }
 
