@@ -443,6 +443,7 @@ public final class MindLife {
         if (preventionUntil > 0) tag.putLong("PreventionUntil", preventionUntil);
         tag.putInt("Namings", namings); tag.putString("GivenName", givenName); tag.putBoolean("Migrated", true);
         feeling.save(tag);
+        leak.save(tag);
         return tag;
     }
     /** {@code pet}: the old PetLife tag, whose Stress seeds unease once for saves written before the mind existed. */
@@ -458,6 +459,7 @@ public final class MindLife {
         }
         reported = stage(); causes.clear(); eventCooldown.clear();
         feeling.load(tag);
+        leak.load(tag);
     }
 
     /** While broken it hops about screaming and keeps no ordinary life (priority 1, under water and operations); only urgent needs get through. */

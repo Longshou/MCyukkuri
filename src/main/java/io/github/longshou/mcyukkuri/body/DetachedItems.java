@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.ToiletNeeds;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -13,9 +14,9 @@ public final class DetachedItems {
     public static double wasteVolume(YukkuriEntity source) {
         return wasteVolume(source.growthScale()*source.getScale()*source.profile().modelScale());
     }
-    /** Bladder is relative fullness (0..100), not adult-volume units. */
+    /** Bowel pressure is relative fullness (0..100), not adult-volume units. */
     public static double wasteAmount(YukkuriEntity source) {
-        return wasteVolume(source)*Math.min(1,source.life().bowel()/40.0);
+        return wasteVolume(source)*Math.min(1,(double)source.life().bowel()/ToiletNeeds.STOOL_PORTION);
     }
     public static double volume(ItemStack stack) {
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

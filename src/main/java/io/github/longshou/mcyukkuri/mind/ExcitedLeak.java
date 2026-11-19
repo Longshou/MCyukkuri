@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.mind;
 import io.github.longshou.mcyukkuri.body.BodyEffects;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.random.ModRandom;
+import io.github.longshou.mcyukkuri.life.ToiletContact;
+import net.minecraft.nbt.CompoundTag;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.SplittableRandom;
@@ -14,12 +16,6 @@ public final class ExcitedLeak {
     public static final String PUDDLE = "excited_leak";
     public static final float STARTLED_FALL_DISTANCE = 1.5f;
     public static final int TRACE_LIFETIME = 800, TRACE_FADE_TICKS = 200;
-    private static final int COOLDOWN = 1200;
-    private static final int FLOW_RANGE = 20;
-    private static final Band BABY = new Band(.50f, .80f, .20f, .40f, 40);
-    private static final Band CHILD = new Band(.25f, .45f, .05f, .15f, 30);
-    private static final Band ADULT = new Band(.05f, .15f, 0, 0, 20);
-
     public enum Stimulus {
         SCARE(false), SCOLD(false), LOUD_NOISE(false), JOY(false),
         SUDDEN_LIFT(true), DROP(true), PREDATOR(true), DYING(true);
@@ -28,70 +24,88 @@ public final class ExcitedLeak {
         Stimulus(boolean strong) { this.strong = strong; }
     }
 
-    private record Band(float strongMin, float strongMax, float moderateMin, float moderateMax, int minFlow) {
-        float chance(Stimulus stimulus, float impulse) {
-            return stimulus.strong ? strongMin + (strongMax - strongMin) * impulse
-                    : moderateMin + (moderateMax - moderateMin) * impulse;
-        }
-    }
-
     private final YukkuriEntity entity;
-    private long nextLeak;
-    private Beat beat;
+    private LeakProfile.Beat beat;
     private boolean puddleEmitted;
-
-    private record Beat(long flowAt, long puddleAt, long endAt, float width, String afterFace) {}
 
     ExcitedLeak(YukkuriEntity entity) { this.entity = entity; }
 
     void spike(Stimulus stimulus, long now) {
-        if (!entity.isAlive() || now < nextLeak) return;
+        if (!entity.isAlive()) return;
         var stage = entity.family().stage();
-        Band band = switch (stage) {
-            case BABY -> BABY;
-            case JUVENILE -> CHILD;
-            case ADULT -> ADULT;
-        };
+        var profile = LeakProfile.valueOf(stage.name());
         int control = entity.life().personality().selfControl();
-        float impulse = 1f - control / 100f;
-        float chance = band.chance(stimulus, impulse);
-        if (chance <= 0) return;
+        float pressure = entity.life().urine();
+        String stageId = stage.name().toLowerCase(Locale.ROOT);
+        if (beat != null && beat.cooling(now)) {
+            if (stimulus == Stimulus.DROP)
+                GameplayLog.event(entity, "leak", "stage={} stimulus=drop result=cooldown pressure={} eligible_at={}",
+                        stageId, pressure, beat.start() + 1200);
+            return;
+        }
+        float chance = profile.chance(stimulus.strong, control, pressure);
+        if (chance == 0 && stimulus != Stimulus.DROP) return;
         // Keep this presentation draw off the entity's gameplay stream, including during seeded smoke runs.
         var id = entity.getUUID();
         var runSeed = ModRandom.runSeed();
         var random = new SplittableRandom(id.getMostSignificantBits() ^ id.getLeastSignificantBits()
                 ^ Long.rotateLeft(now, 32) ^ (runSeed == null ? 0 : runSeed));
         float roll = random.nextFloat();
-        if (roll >= chance) return;
+        if (!new LeakProfile.Draw(roll, chance).wins()) {
+            if (stimulus == Stimulus.DROP)
+                GameplayLog.event(entity, "leak", "stage={} self_control={} stimulus=drop result=dry roll={} chance={} pressure={}",
+                        stageId, control, roll, chance, pressure);
+            return;
+        }
 
-        int start = random.nextInt(6, 11), flow = band.minFlow + Math.round(FLOW_RANGE * impulse);
-        float width = Math.max(.12f, entity.getBbWidth() * (.5f + .2f * (flow - band.minFlow) / FLOW_RANGE));
-        long puddleAt = now + start + flow;
-        beat = new Beat(now + start, puddleAt, puddleAt + random.nextInt(60, 101), width,
-                stimulus == Stimulus.JOY ? "satisfied" : "side_teary");
+        // The startle atlas already shows the first spurt. Charge the whole bounded serving here.
+        float amount = entity.life().dischargeUrine(profile.portion(control, pressure));
+        long flowAt = now + random.nextInt(6, 11), puddleAt = flowAt + profile.flow(control);
+        float width = profile.width(control, entity.getBbWidth(), amount);
+        beat = new LeakProfile.Beat(now, flowAt, puddleAt, puddleAt + random.nextInt(60, 101), width, amount, stimulus == Stimulus.JOY);
         puddleEmitted = false;
-        nextLeak = now + COOLDOWN;
-        GameplayLog.event(entity, "leak", "stage={} self_control={} stimulus={} roll={} chance={} flow_at={} puddle_at={} width={}",
-                stage.name().toLowerCase(Locale.ROOT), control, stimulus.name().toLowerCase(Locale.ROOT),
-                roll, chance, beat.flowAt, puddleAt, width);
+        GameplayLog.event(entity, "leak", "stage={} self_control={} stimulus={} result=flow roll={} chance={} flow_at={} puddle_at={} width={} pressure={} -> {} released={}",
+                stageId, control, stimulus.name().toLowerCase(Locale.ROOT), roll, chance, flowAt, puddleAt, width,
+                pressure, entity.life().urine(), amount);
     }
 
     void tick(long now) {
         if (beat == null) return;
-        if (now >= beat.endAt) {
+        if (!beat.cooling(now)) {
             beat = null;
-        } else if (now >= beat.puddleAt && !puddleEmitted) {
-            puddleEmitted = true;
-            entity.syncLeakTrace(now);
-            Vec3 forward = Vec3.directionFromRotation(0, entity.bodyYaw());
-            Vec3 outlet = entity.position().add(forward.scale(entity.getBbWidth() / 2 + .2 * beat.width));
-            BodyEffects.emit(entity, PUDDLE, beat.width, outlet, forward);
+        } else if (now >= beat.puddleAt()) {
+            if (entity.leakTraceAt() != beat.puddleAt()) entity.syncLeakTrace(beat.puddleAt());
+            if (!puddleEmitted && now == beat.puddleAt()) {
+                puddleEmitted = true;
+                Vec3 forward = Vec3.directionFromRotation(0, entity.bodyYaw());
+                Vec3 outlet = ToiletContact.urineOutlet(entity);
+                Vec3 end = outlet.add(forward.scale(.2 * beat.width()));
+                ToiletContact.stream(entity, outlet, end.add(0, -beat.width() * .25, 0), beat.amount());
+                BodyEffects.emit(entity, PUDDLE, beat.width(), end, forward);
+            }
         }
     }
 
-    String face(long now) {
-        if (beat == null) return "";
-        if (now < beat.flowAt) return STARTLE_FACE;
-        return now < beat.puddleAt ? FLOW_FACE : beat.afterFace;
+    String face(long now) { return beat == null ? "" : beat.face(now); }
+
+    void save(CompoundTag mind) {
+        if (beat == null) return;
+        var tag = new CompoundTag();
+        tag.putLong("Start", beat.start());
+        tag.putLong("FlowAt", beat.flowAt());
+        tag.putLong("PuddleAt", beat.puddleAt());
+        tag.putLong("End", beat.endAt());
+        tag.putFloat("Width", beat.width());
+        tag.putFloat("Amount", beat.amount());
+        tag.putBoolean("Joy", beat.joy());
+        tag.putBoolean("PuddleEmitted", puddleEmitted);
+        mind.put("StartleLeak", tag);
+    }
+
+    void load(CompoundTag mind) {
+        var tag = mind.getCompound("StartleLeak");
+        beat = tag.isEmpty() ? null : new LeakProfile.Beat(tag.getLong("Start"), tag.getLong("FlowAt"),
+                tag.getLong("PuddleAt"), tag.getLong("End"), tag.getFloat("Width"), tag.getFloat("Amount"), tag.getBoolean("Joy"));
+        puddleEmitted = tag.getBoolean("PuddleEmitted");
     }
 }

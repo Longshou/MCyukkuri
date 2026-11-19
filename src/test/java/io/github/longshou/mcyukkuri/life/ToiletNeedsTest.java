@@ -37,6 +37,26 @@ class ToiletNeedsTest {
         assertEquals(83, needs.bowel);
     }
 
+    @Test void onlyTheSelectedOutputCommitsItsQuantityAtContact() {
+        var needs = new ToiletNeeds();
+        needs.bowel = 75;
+        needs.urine = 65;
+        for (var kind : ToiletNeeds.Kind.values()) {
+            assertFalse(needs.release(kind, () -> false, () -> false));
+            assertEquals(75, needs.bowel);
+            assertEquals(65, needs.urine);
+        }
+        int[] solidPortions = {0};
+        assertTrue(needs.release(ToiletNeeds.Kind.URINE, () -> fail("urine produced stool"), () -> true));
+        assertEquals(0, needs.urine);
+        assertEquals(75, needs.bowel);
+        assertFalse(needs.release(ToiletNeeds.Kind.URINE, () -> fail(), () -> fail("spent urine again")));
+        assertTrue(needs.release(ToiletNeeds.Kind.STOOL, () -> ++solidPortions[0] == 1, () -> fail("stool emitted urine")));
+        assertEquals(1, solidPortions[0]);
+        assertEquals(35, needs.bowel);
+        assertFalse(needs.release(ToiletNeeds.Kind.STOOL, () -> fail("spent stool again"), () -> fail()));
+    }
+
     @Test void tieAndConstipationSelectAmongFeasibleNeeds() {
         var needs = new ToiletNeeds();
         needs.bowel = needs.urine = 90;

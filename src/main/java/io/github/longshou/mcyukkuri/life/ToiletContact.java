@@ -7,10 +7,8 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyEffects;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
-import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import net.minecraft.core.particles.ParticleTypes;
-import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -241,16 +239,9 @@ public final class ToiletContact {
         return SupplyPiles.supported(level, cell.below()) ? cell.below() : null;
     }
 
-    /** Lower front skin between the reproductive opening and chin, under the current clip and handling pose. */
+    /** The same low front anatomical anchor as the leak artwork, under the current clip and handling pose. */
     public static Vec3 urineOutlet(YukkuriEntity actor) {
-        var mesh = WoundSurface.get(actor.assetId());
-        var bounds = mesh.bounds();
-        var opening = LiveBirthGeometry.modelOutlet(actor, 0, 0);
-        var from = new Vector3f(opening.x, bounds[1] - 1, (opening.z + bounds[2]) * .5f);
-        var hit = mesh.ray(from, new Vector3f(0, 1, 0), null, List.of());
-        if (hit != null) from.y += hit.distance();
-        else from.set(opening);
-        LiveBirthGeometry.deform(from, actor.livePregnancyProgress(), 0);
+        var from = LiveBirthGeometry.modelOutlet(actor, actor.livePregnancyProgress(), 0);
         WoundPlacement.posedRoot(actor).transformPosition(from);
         WoundPlacement.transform(actor).transformPosition(from);
         return actor.position().add(new Vec3(from));
@@ -264,7 +255,7 @@ public final class ToiletContact {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
         if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP
                 || !actor.level().getFluidState(hit.getBlockPos()).isEmpty() || !ground && !hit.getBlockPos().equals(stand)) return false;
-        float amount = actor.life().dischargeUrine(actor.life().urine());
+        float amount = actor.life().urine();
         stream(actor, outlet, hit.getLocation(), amount);
         if (ground) BodyEffects.emit(actor, "urine_puddle", actor.getBbWidth() * amount / 100, hit.getLocation(), forward);
         return true;

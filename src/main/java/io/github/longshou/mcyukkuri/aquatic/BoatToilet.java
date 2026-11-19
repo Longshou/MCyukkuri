@@ -148,7 +148,7 @@ final class BoatToilet implements Intent {
         return false;
     }
 
-    /** The straining clip; the stool is let go at its drop tick, and only that real release empties the bladder. */
+    /** The straining clip releases its selected load at the drop tick if the outboard route is still open. */
     private Step strain() {
         if (out == null) return null;
         strained = true;

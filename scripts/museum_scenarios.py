@@ -3440,6 +3440,27 @@ def _verify_leak_scene(window):
             return f'{actor}: invalid roll or first-spurt duration'
         if not re.search(rf'\[status\][^\n]*uuid={actor}\b[^\n]*behavior\.leak_trace_at: -1 -> {puddle}\b', window):
             return f'{actor}: no skin trace at the puddle tick'
+    adult = _uuid_text('excited_leak', 'adult')
+    attempts = re.findall(rf'\[leak\][^\n]*uuid={adult} t=(\d+) [^\n]*stage=adult (?:self_control=0 )?stimulus=drop result=(\w+)([^\n]*)', window)
+    if len(attempts) != 7:
+        return f'Expected seven visible adult falls, found {len(attempts)}'
+    winner = None
+    for tick, result, detail in attempts:
+        if winner is not None:
+            if result != 'cooldown' or f'eligible_at={winner + 1200}' not in detail:
+                return f'Adult fall at {tick} escaped the active cooldown'
+            continue
+        draw = re.search(r'roll=(\S+) chance=(\S+).* pressure=(\S+)', detail)
+        if not draw or abs(float(draw[2]) - .15) > 1e-6 or float(draw[3]) < 65:
+            return f'Adult fall at {tick} lacks its full natural chance: {detail}'
+        if result != ('flow' if float(draw[1]) < float(draw[2]) else 'dry'):
+            return f'Adult fall at {tick} contradicts its own roll'
+        if result == 'flow':
+            winner = int(tick)
+    for actor, start, roll, chance, flow, puddle in rolls:
+        debit = re.search(rf'\[leak\][^\n]*uuid={actor} t={start} [^\n]*result=flow [^\n]*pressure=(\S+) -> (\S+) released=(\S+)', window)
+        if not debit or not 0 < float(debit[3]) <= float(debit[1]) or abs(float(debit[1]) - float(debit[2]) - float(debit[3])) > .001:
+            return f'{actor}: visible flow without exactly one bounded debit'
     return None
 
 
@@ -3466,11 +3487,12 @@ add('need_tell', 'meadow', '尿急与便急的预兆', '尿急与便急的预兆
         *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-6, 7) for z in range(-3, 5)
           if x in (-6, 0, 6) or z in (-3, 4)),
         *(block(x, 0, -2, 'mcyukkuri:yukkuri_toilet') for x in (-3, 3)),
+        *(box(-1, 0, z, 1, 10 - z, z, 'minecraft:hay_block') for z in (8, 9, 10)),
         yk('reimu', -3, 2, 'fidget', label='尿急', uuid=uid('need_tell', 'fidget'), urine=39, self_control=15,
            boldness=80, friendliness=20, lead=True),
         yk('reimu', 3, 2, 'strain', label='便急', uuid=uid('need_tell', 'strain'), bladder=55, self_control=85,
            boldness=35, friendliness=70)],
-    env=DAY, vantage=(0, 8, 180, 15), give=['mcyukkuri:magnifying_glass', 'mcyukkuri:field_notebook'],
+    env=DAY, vantage=(0, 8, 180, 27), give=['mcyukkuri:magnifying_glass', 'mcyukkuri:field_notebook'],
     reads=[('读左栏尿意', f'data get entity {sel("fidget")} YukkuriLife.Urine'),
            ('读右栏便意', f'data get entity {sel("strain")} YukkuriLife.Bladder')],
     smoke=dict(ticks=1720, expect=[r'\[needs\][^\n]*tell need=URINE', r'\[needs\][^\n]*tell need=STOOL'],
@@ -3481,13 +3503,16 @@ add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿'
     '从左到右是自制较低的赤油、子油和成油各一只，前排另有一只矮身豆油。开场从两格多的安全高度落下，各自真实抽签。'
     '看第一股、漏 A 与脚底湿边，矮身豆油可对照脸部是否干净。皮肤上的尿痕随个体移动，小水滩留在原地逐渐淡去。'
     '右边的成油每隔 8 秒再从同样高度落一次，共 7 次。漏尿前，每次落地都有约 15% 的机会；'
-    '也可以把它突然抱起再放下，同样算一次强刺激。整场没漏就重开。',
-    '赤油和子油在开场 1–4 秒，成油在 1 分钟内；水滩可继续观察', [
-        yk('reimu', -2, 0, 'leak_baby', dy=2.5, stage='baby', yaw=0, label='赤油', self_control=0, also=('leak_actor',)),
-        yk('reimu', 0, 0, 'leak_child', dy=2.5, stage='child', yaw=0, label='子油', lead=True, self_control=0, also=('leak_actor',)),
-        yk('reimu', 2, 0, 'leak_adult', dy=2.5, yaw=0, label='成油', self_control=0, also=('leak_actor',)),
+    '也可以把它突然抱起再放下，同样算一次强刺激。七次都干爽也是可能的结果。',
+    '赤油和子油在开场 1–4 秒，成油看满约 1 分钟；水滩可继续观察', [
+        # The adult can wander between lifts. Clear sides keep the last fall in view from the original vantage.
+        *(box(x, 0, -2, x, 2, 1, 'minecraft:glass_pane[north=true,south=true]') for x in (1, 4)),
+        *(box(1, 0, z, 4, 2, z, 'minecraft:glass_pane[east=true,west=true]') for z in (-2, 1)),
+        yk('reimu', -2, 0, 'leak_baby', dy=2.5, stage='baby', yaw=0, label='赤油', self_control=0, urine=65, also=('leak_actor',)),
+        yk('reimu', 0, 0, 'leak_child', dy=2.5, stage='child', yaw=0, label='子油', lead=True, self_control=0, urine=65, also=('leak_actor',)),
+        yk('reimu', 2, 0, 'leak_adult', dy=2.5, yaw=0, label='成油', uuid=uid('excited_leak', 'adult'), bladder=0, self_control=0, urine=65, also=('leak_actor',)),
         yk('reimu', -1, 2, 'leak_bean', dy=2.5, stage='baby', yaw=0, label='豆油', congenital='BEAN_BODY',
-           self_control=0, also=('leak_actor',)),
+           self_control=0, urine=65, also=('leak_actor',)),
     ], late=[
         # An adult's strong-stimulus chance tops out at 15 % (ExcitedLeak.ADULT), so it gets six more real falls of the same
         # height, far enough apart for a leak's whole beat (at most 150 ticks) to play before the next one.
@@ -3496,9 +3521,8 @@ add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿'
     ], env=DAY, vantage=(0, 6, 180, 15),
     # A single adult is unlikely to leak even on two genuine falls. Check a real winning drop and its
     # presentation, then validate the timing and skin trace of every logged winner.
-    smoke=dict(ticks=390,
-               commands=[(180, 'execute as @e[tag=scn_leak_actor] at @s run tp @s ~ ~2.5 ~')],
-               expect=[r'\[leak\][^\n]*stage=(?:baby|juvenile|adult) self_control=0 stimulus=drop\b',
+    smoke=dict(ticks=1180,
+               expect=[r'\[leak\][^\n]*stage=(?:baby|juvenile|adult) self_control=0 stimulus=drop result=flow\b',
                        r'\[status\][^\n]*behavior\.expression: \w+ -> leak_flow',
                        r'\[status\][^\n]*behavior\.expression: leak_flow -> side_teary'],
                forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_leak_scene))

@@ -51,7 +51,7 @@ public enum StatusKey {
     ENERGY("needs", "energy", 10, y -> Math.round(y.life().energy()), need("energy")),
     SLEEPINESS("needs", "sleepiness", 0, y -> 100 - Math.round(y.life().energy()), null),
     HYGIENE("needs", "hygiene", 10, y -> Math.round(y.life().hygiene()), need("hygiene")),
-    BOWEL("needs", "bladder", 10, y -> Math.round(y.life().bowel()), need("bowel")),
+    BOWEL("needs", "bowel", 10, y -> Math.round(y.life().bowel()), need("bowel")),
     URINE("needs", "urine", 10, y -> Math.round(y.life().urine()), need("urine")),
     /** Leaf swaddle: on a child the wrap that blocks its own toileting (closed/open, stool loads, leaves inside); on a parent its care task and carried leaves. */
     LEAF_SWADDLE("needs", "leaf_swaddle", 0, y -> y.leafSwaddle().statusDetail(), null),
@@ -217,8 +217,8 @@ public enum StatusKey {
         if (raw.trim().equalsIgnoreCase("false")) { y.body().mendFoot(); return null; }
         return "true or false";
     }),
-    /** Write-only: let go by itself, as in sudden fright ({@code force} skips the bladder roll). */
-    LEAK("needs", "leak", 0, null, (y, raw) -> y.life().involuntaryRelease("status", true) ? null : "nothing released (bladder under 15, on cooldown, or blocked)"),
+    /** Write-only: let go by itself, as in sudden fright ({@code force} skips the bowel roll). */
+    LEAK("needs", "leak", 0, null, (y, raw) -> y.life().involuntaryRelease("status", true) ? null : "nothing released (bowel under 15, on cooldown, or blocked)"),
     FLOUR_ADDICTION("health", "flour_addiction", 0, y -> y.life().addicted(), null),
     // ---- marks (appearance) -----------------------------------------------------------------------------------
     FACE_MARKS("marks", "face", 0, y -> y.body().faceMarks(), (y, raw) -> {
@@ -483,6 +483,7 @@ public enum StatusKey {
     }
 
     public static StatusKey byId(String id) {
+        if (id.equals("bladder") || id.equals("needs.bladder")) return BOWEL;
         for (var key : values()) if (key.id().equals(id)) return key;
         for (var key : values()) if (key.name.equals(id)) return key;
         return null;
