@@ -20,6 +20,7 @@ public final class SideContact {
     private static final Profiles PROFILES = load();
     /** Offsets in front of or behind the partner tried for the stand (blocks): up to a quarter block, so bows and hair can pass. */
     private static final double[] BEHIND = {-.25, -.1875, -.125, -.0625, 0, .0625, .125, .1875, .25};
+    private static final double[] ALIGNED = {0};
 
     /**
      * The feet of {@code mover} pressed against {@code partner}'s right side ({@code right}) or left side, both facing {@code yaw}
@@ -44,8 +45,10 @@ public final class SideContact {
     public static Vec3 levelStand(YukkuriEntity mover, YukkuriEntity partner, float yaw) {
         var left = PROFILES.snuggle().get(partner.subspecies().assetId()).left();
         var right = PROFILES.snuggle().get(mover.subspecies().assetId()).right();
-        var stand = SideProfile.closest(left, scale(partner), right, scale(mover), 0, BEHIND);
-        return offset(partner.position(), yaw, false, stand.across(), stand.behind());
+        // An adult and a smaller peer keep the original fore/aft alignment of their rub.
+        double mine = scale(mover), theirs = scale(partner);
+        var stand = SideProfile.closest(left, theirs, right, mine, 0, mine == theirs ? BEHIND : ALIGNED);
+        return stand == null ? null : offset(partner.position(), yaw, false, stand.across(), stand.behind());
     }
 
     /** Across a rise use only the mirrored snuggle clips and their posed side envelopes. */

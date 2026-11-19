@@ -69,5 +69,6 @@ class SideProfileTest {
         var stand = SideProfile.closest(narrow, UNIT, narrow, UNIT, 0, new double[]{1, 0});
         assertEquals(12 * UNIT, stand.across());
         assertEquals(0, stand.behind());
+        assertNull(SideProfile.closest(narrow, UNIT, narrow, UNIT, 0, new double[]{1}));
     }
 }
