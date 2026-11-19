@@ -13,7 +13,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.UUID;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.BirthProfile;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
@@ -122,7 +122,7 @@ public final class SubspeciesLife {
                 && nearOpenWater()
                 && new Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
             set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
-        entity.life().personality().applyBirthProfile(YukkuriPersonality.wildBirth(entity.getUUID(),
+        entity.life().personality().applyBirthProfile(BirthProfile.wild(entity.getUUID(), entity.getVariant(),
                 congenital!=Congenital.NORMAL,kind));
         // Animals born wild are used to coarse food and complain less (舌肥, FG-03).
         entity.life().setPickiness(entity.life().pickiness() - 10);

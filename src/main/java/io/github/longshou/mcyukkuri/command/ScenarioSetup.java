@@ -173,12 +173,7 @@ final class ScenarioSetup {
             return null;
         }
         var level = (ServerLevel)parent.level();
-        var growth = child.family().save();
-        child.family().generatedChild(parent, null);
-        var linked = child.family().save();
-        for (String key : List.of("Stage", "Age", "Nourishment", "Maturity", "Lifespan", "Scale", "AdultScale"))
-            if (growth.contains(key)) linked.put(key, growth.get(key).copy());
-        child.family().load(linked);
+        child.family().linkParents(parent, null);
         if (newborn) child.childhood().newborn();
         FamilyData.get(level).register(child);
         return null;

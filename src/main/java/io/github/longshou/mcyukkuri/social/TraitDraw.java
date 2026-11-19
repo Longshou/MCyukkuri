@@ -1,10 +1,14 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Random;
 
 /** Deterministic draws for new innate traits. Each axis and draw uses its own salt. */
 public final class TraitDraw {
-    static final int WILD_CENTRE = 50;
+    private static final int WILD_CENTRE = 50;
+    // Seven points express a species tendency within the wider 15-point spread.
+    private static final int SPECIES_SHIFT = 7;
     private static final int WILD_SD = 15;
     private static final int WILD_MIN = 10;
     private static final int WILD_MAX = 90;
@@ -16,13 +20,46 @@ public final class TraitDraw {
 
     private TraitDraw() {}
 
-    public static int wild(long seed, int axis, int centre) {
+    private static int centre(YukkuriVariant variant, Trait trait) {
+        int shift = switch (variant) {
+            case REIMU -> trait == Trait.ATTACHMENT ? 1 : 0;
+            case MARISA -> switch (trait) {
+                case BOLDNESS -> 1;
+                case SELF_CONTROL -> -1;
+                default -> 0;
+            };
+            case CHEN, HOUSE_REIMU, HOUSE_MARISA -> trait == Trait.BOLDNESS ? -1 : 0;
+            case ALICE -> trait == Trait.SELF_CONTROL || trait == Trait.FRIENDLINESS ? 1 : 0;
+            case PATCHOULI -> switch (trait) {
+                case INTELLIGENCE -> 1;
+                case BOLDNESS -> -1;
+                default -> 0;
+            };
+            case MYON -> switch (trait) {
+                case BOLDNESS -> 1;
+                case INTELLIGENCE -> -1;
+                default -> 0;
+            };
+            case REMILIA, FLANDRE -> switch (trait) {
+                case BOLDNESS -> 1;
+                case FRIENDLINESS -> -1;
+                default -> 0;
+            };
+        };
+        return WILD_CENTRE + SPECIES_SHIFT * shift;
+    }
+
+    static int wild(long seed, Trait trait, YukkuriVariant variant) {
+        return wild(seed, trait.ordinal(), centre(variant, trait));
+    }
+
+    static int wild(long seed, int axis, int centre) {
         var random = new Random(seed ^ (AXIS_SALT * (axis + 1L)) ^ WILD_SALT);
         return Math.clamp((int) Math.round(centre + WILD_SD * random.nextGaussian()), WILD_MIN, WILD_MAX);
     }
 
-    static int unknownParent(long seed, int axis) {
-        return wild(seed ^ UNKNOWN_SALT, axis, WILD_CENTRE);
+    static int unknownParent(long seed, Trait trait, YukkuriVariant childVariant) {
+        return wild(seed ^ UNKNOWN_SALT, trait, childVariant);
     }
 
     static int inForm(double percent, int min, int max) {

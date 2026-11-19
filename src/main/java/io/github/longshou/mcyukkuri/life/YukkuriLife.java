@@ -92,7 +92,7 @@ public final class YukkuriLife {
     private final FoundShelter foundCover;
     private final GarbageSearch garbage;
     private final StallTheft stallTheft;
-    private YukkuriPersonality personality;
+    private final YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     /** 舌肥 (FG-03): how choosey this body is about ordinary and coarse food; innate from the UUID, then moved by meals. */
     private float pickiness;
@@ -1792,7 +1792,7 @@ public final class YukkuriLife {
                 ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("PaperCover")) : ItemStack.EMPTY;
         entity.syncWear();
         pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
-        personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
+        personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; refusedFood.clear(); refusedFoodFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
     }
 }

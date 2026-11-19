@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -47,6 +48,17 @@ public final class YukkuriPersonality {
                 throw new IllegalArgumentException("Five innate trait values are required");
             return new BirthProfile(values[0], values[1], values[2], values[3], values[4]);
         }
+
+        public static BirthProfile wild(UUID identity, YukkuriVariant variant, boolean deficient, SubspeciesLife.Kind kind) {
+            long seed = identity.getMostSignificantBits() ^ identity.getLeastSignificantBits();
+            TraitBounds bounds = TraitBounds.forForm(deficient, kind);
+            int[] values = new int[Trait.values().length];
+            for (Trait trait : Trait.values()) {
+                int percent = TraitDraw.wild(seed, trait, variant);
+                values[trait.ordinal()] = TraitDraw.inForm(percent, bounds.minimum(trait), bounds.maximum(trait));
+            }
+            return fromInnateValues(values);
+        }
     }
 
     /** The legal interval for each axis of one visible form. */
@@ -77,7 +89,7 @@ public final class YukkuriPersonality {
     }
 
     private final YukkuriEntity owner;
-    private final int[] innate = new int[Trait.values().length];
+    private final int[] innate;
     private final int[] experience = new int[Trait.values().length];
     /** Real completed experiences accumulate before changing an axis by one point. */
     private final int[] experienceProgress = new int[Trait.values().length];
@@ -86,9 +98,7 @@ public final class YukkuriPersonality {
 
     public YukkuriPersonality(YukkuriEntity owner) {
         this.owner = Objects.requireNonNull(owner);
-        UUID identity = owner.getUUID();
-        long seed = identity.getMostSignificantBits() ^ identity.getLeastSignificantBits();
-        for (int i = 0; i < innate.length; i++) innate[i] = TraitDraw.wild(seed, i, TraitDraw.WILD_CENTRE);
+        innate = BirthProfile.wild(owner.getUUID(), owner.getVariant(), false, SubspeciesLife.Kind.NORMAL).innateValues();
         protectOwnerRelation();
     }
 
@@ -172,29 +182,18 @@ public final class YukkuriPersonality {
         }
     }
 
-    public static BirthProfile wildBirth(UUID identity, boolean deficient, SubspeciesLife.Kind kind) {
-        long seed = identity.getMostSignificantBits() ^ identity.getLeastSignificantBits();
-        TraitBounds bounds = TraitBounds.forForm(deficient, kind);
-        int[] values = new int[Trait.values().length];
-        for (Trait trait : Trait.values()) {
-            int percent = TraitDraw.wild(seed, trait.ordinal(), TraitDraw.WILD_CENTRE);
-            values[trait.ordinal()] = TraitDraw.inForm(percent, bounds.minimum(trait), bounds.maximum(trait));
-        }
-        return BirthProfile.fromInnateValues(values);
-    }
-
     /**
      * Normalize each parent's innate values in its form interval before mapping to the child's.
-     * The first parent is required. An unknown second parent contributes a wild draw.
+     * An unknown second parent contributes an independent wild draw for the child's variant.
      */
-    public static BirthProfile inheritBirth(UUID childIdentity, YukkuriPersonality parentA,
+    public static BirthProfile inheritBirth(UUID childIdentity, YukkuriVariant childVariant, YukkuriPersonality parentA,
             YukkuriPersonality parentB, boolean deficient, SubspeciesLife.Kind childKind) {
         long seed = childIdentity.getMostSignificantBits() ^ childIdentity.getLeastSignificantBits();
         TraitBounds childBounds = TraitBounds.forForm(deficient, childKind);
         int[] values = new int[Trait.values().length];
         for (Trait trait : Trait.values()) {
             int axis = trait.ordinal();
-            int second = parentB == null ? TraitDraw.unknownParent(seed, axis) : parentB.innatePercent(trait);
+            int second = parentB == null ? TraitDraw.unknownParent(seed, trait, childVariant) : parentB.innatePercent(trait);
             values[axis] = TraitDraw.inherit(seed, axis, parentA.innatePercent(trait), second,
                     childBounds.minimum(trait), childBounds.maximum(trait));
         }
@@ -359,6 +358,7 @@ public final class YukkuriPersonality {
 
     /** Only the five-axis format is read. This playtest-only change deliberately has no legacy conversion. */
     public void load(CompoundTag tag) {
+        protectOwnerRelation();
         int[] born = tag.getIntArray("Innate");
         int[] learned = tag.getIntArray("Experience");
         int[] progress = tag.getIntArray("ExperienceProgress");

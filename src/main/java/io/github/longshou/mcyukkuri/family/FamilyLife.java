@@ -1159,13 +1159,17 @@ public final class FamilyLife {
         entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
     public void generatedChild(YukkuriEntity first, YukkuriEntity second) {
-        initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
         maturity = GrowthTiming.ADULT_START; lifespan = GrowthTiming.LIFESPAN;
         age = GrowthTiming.BABY_END+(GrowthTiming.SUBADULT_START-GrowthTiming.BABY_END)/2; nourishment = age;
         stage = Stage.JUVENILE; adultScale = 1; scale = GrowthSize.scale(stage, nourishment, maturity, adultScale, entity.profile().houseBody());
         entity.subspecies().initializeBirth(SubspeciesLife.birthFlags(entity.getUUID(),entity.getVariant(),first.subspecies().kind(),second==null?null:second.subspecies().kind()));
-        entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),first.life().personality(),
+        entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),entity.getVariant(),first.life().personality(),
                 second==null?null:second.life().personality(),entity.subspecies().congenital()!=SubspeciesLife.Congenital.NORMAL,entity.subspecies().kind()));
+        linkParents(first, second);
+    }
+    /** Records parentage and initial mutual affinity for an existing child. */
+    public void linkParents(YukkuriEntity first, YukkuriEntity second) {
+        initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
         entity.syncFamily();
         var relations = YukkuriWorldData.get(level());
         for (YukkuriEntity parent : second == null ? List.of(first) : List.of(first, second)) {
