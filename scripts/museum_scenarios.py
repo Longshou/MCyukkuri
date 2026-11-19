@@ -2089,6 +2089,41 @@ add('pred_range', 'weather', '饥饿芙兰远远飞来追猎灵梦', '饥饿芙�
     env=DAY, spot='pred', vantage=(0, 18),
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
+add('pred_spawn_nest', 'grove', '捕食种自然生成，带着巢出现在树冠', '捕食种自然生成，带着巢出现在树冠',
+    '从东南坡看林间大橡树：蕾米莉亚从自然生成起点自行选枝，出生时和枝巢一起出现在树冠。读住所，再飞近看它站的枝巢',
+    '开场即见', [yk('remilia', 0, 0, 'spawn_pred', nutrition=100, energy=100, lead=True,
+                     extra='YukkuriPredator:{NaturalSpawn:1b}')], env=DAY, spot='spawn', vantage=(36, 32, 131, -7),
+    reads=[('读枝巢住所', f'yukkuri status {sel("spawn_pred")} raw')],
+    smoke=dict(ticks=100, expect=[r'\[predator\] remilia [^\n]* spawn nest placed site=[^\n]* tree_height=(?:[4-9]|1[0-2])\b',
+                                  r'\[home\] remilia [^\n]* assigned kind=care',
+                                  r'\[body\] remilia [^\n]* relocate cause=spawn_nest_perch'],
+               forbid=[r'\[predator\] remilia [^\n]* spawn nest refused'],
+               readout=[f'yukkuri status {sel("spawn_pred")} raw']),
+    capture=dict(shots=(1, 40, 100), sequences=(),
+                 views={'canopy': dict(position=(-1.5, 7.1, -3.2), look_at=(.5, 6.45, .5))}))
+
+
+def _verify_predator_build(window):
+    twigs = re.findall(r'\[predator\] flandre [^\n]* nest frame twigs=(\d+) site=([^\r\n]+)', window)
+    sources = re.findall(r'\[predator\] flandre [^\n]* nest twig taken source=(stick|leaf)\b', window)
+    completed = re.findall(r'\[predator\] flandre [^\n]* nest built home=([^\n]+) twigs=8', window)
+    if [int(count) for count, _ in twigs] != list(range(1, 8)) or len(completed) != 1 or any(site != completed[0] for _, site in twigs):
+        return f'Expected seven increasing stages and one completed nest at the same site, got {twigs}, {completed}'
+    if sources != ['stick'] * 3 + ['leaf'] * 5:
+        return f'Expected three loose sticks followed by five plucked twigs, got {sources}'
+    return None
+
+
+add('pred_build_nest', 'grove', '无巢捕食种选树、衔枝筑巢', '无巢捕食种选树、衔枝筑巢',
+    '无巢芙兰先盘旋选树，再从树下捡三根木棍；用完后落到叶上啄细枝。看每趟衔一根、落在巢旁低头放下，巢架由散枝变成枝环，最后认领枝巢',
+    '约 1–2 分钟', [yk('flandre', 0, 0, 'build_pred', nutrition=100, energy=100, lead=True),
+                    item('minecraft:stick', 3, -1, 3, name='build_sticks')],
+    env=DAY, spot='build', vantage=(21, 33, 131, -7), reads=[('读筑巢活动与住所', f'yukkuri status {sel("build_pred")} raw')],
+    smoke=dict(ticks=3000, expect=[r'\[predator\] flandre [^\n]* nest survey begin',
+                                   r'\[predator\] flandre [^\n]* nest built home=', r'\[home\] flandre [^\n]* assigned kind=care'],
+               forbid=[r'\[predator\] flandre [^\n]* spawn nest placed'],
+               verify=_verify_predator_build, readout=[f'yukkuri status {sel("build_pred")} raw']))
+
 add('forage_empty','weather','没粮的饿灵梦四处找吃的','没粮的饿灵梦四处找吃的',
     '开始不放食物：先切到空手，饥饿灵梦立即主动搜索（同一游荡状态、流口水表情），搜不到也不定时退回idle；手持苹果时立即走向玩家，再丢下观察接近、吞咽与营养回升；读移速可见紧急修正。真实受阻仍会饿，不指定Goal',
     '约30秒后丢食物',[yk('reimu',0,0,'seeker',nutrition=18,energy=90,lead=True)],
@@ -5884,6 +5919,7 @@ TOPICS = {
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
+    'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',

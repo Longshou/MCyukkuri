@@ -10,6 +10,8 @@
 | --- | --- | --- |
 | 宠物店饮水器建模 | `.worktrees/wp-shop-waterer-art` | standards/yukkuri-library/drafts/block-props (waterer), care-props |
 | P12 CODE-1 捕食种树冠选址、自带巢生成、衔枝筑巢 | `.worktrees/wp-tree-pred-1` | predator/CanopySite.java, predator/NestSiteScore.java, predator/PredatorNestSearch.java, predator/NestBuild.java, predator/PredatorLife.java, predator/PredatorNestFrameBlock.java, motor/MouthOccupancy.java, life/HomeProvider.java, museum_fields.py (grove) |
+| R1a 服从度：主人惩罚与反馈养成 | `.worktrees/wp-obedience` | pet/PetLife.java, pet/rules/RulesMath.java, cognition/Skills.java, status/PunishmentReaction.java, social/YukkuriPersonality.java, pet/PetRequests.java |
+| S5 放大镜性格词与商店提示 | `.worktrees/wp-character-words` | social/CharacterWords.java, status/StatusLife.java, client/MagnifierClient.java, client/StatusStrip.java, shop descriptions, lang |
 | 逃跑不跳下致命落差（共享逃跑规划） | `.worktrees/wp-flee-edge` | status/FlightPlanner.java (retreat/escape), motor steering, tests |
 | R1b 家规：菜单、忍耐与破戒、亲眼发现、愧疚 | `.worktrees/wp-house-rules` | pet/rules/*.java, interaction/CareMenu.java, client/CareScreen.java, pet/PetLife.java, family/Courtship.java, life/LifeMeal.java, social/DailyLife.java, entity/RoamingGoal.java, lang |
 | P5b 油霉：经验识别、DN05 狠心驱逐或不忍致全家传染、洞内缓慢传染 | `.worktrees/wp-mold-family` | settlement/MoldExile*.java, family/*, life/Mold*.java, art/dialogue (P5 lines), DN-05/06 scenes |
@@ -21,6 +23,9 @@
 - S5 放大镜换行：已接入待试玩。街道 TN-37。看点：缩窄画面看性格、态度和技能行是否完整。
 - S5 技能进展箭头：已接入待试玩。街道 TN-15。看点：练习数数时用放大镜看进展箭头是否清楚。
 - S2 养育差异：已接入待试玩。比较先天相同的两只子油，分别练等待并及时夸奖、应讨要或吃饱后给点心，看手账里的依恋、友善和自制如何分化，再交换养法看差异能否扭转。对照成油的变化速度。街道 TN-15「宠物数苹果」看同一只魔理沙先回答六个，再尝试剩下的三个，核对数对才有智力经历。
+
+- 捕食种树冠住处：部分接入。捕食种林地 PT-01「捕食种自然生成，带着巢出现在树冠」待试玩，看蕾米莉亚是否落在巢垫上。PT-02「无巢捕食种选树、衔枝筑巢」第二趟回巢可能卡在枝桠边，修复后看芙兰逐根捡枝、啄枝、放下并认巢。规则见[捕食种](FEATURES.md#捕食种)。
+
 - S1 性格反应：已接入待试玩。用 FM-23 孤儿分食、BD-24 制裁反馈、CL-02 聚落分粮、HD-04 失饰鄙视、HD-06 噗咕反应检查同一事件下的个体差异，以及出手、退避、分粮和学习能否自然结束。规则见[行为、性格与成长](FEATURES.md#行为性格与成长)。
 
 - **2026-11-19 试玩反馈（第二批）**（运行版本 [2408e2c2f](https://github.com/Longshou/MCyukkuri/commit/2408e2c2f)；原话全文 `.local/refactor/briefs/fb-1119-feedback.md`，编号沿用原话；用户：「给出你的方案。然后收拾好准备clear」）：

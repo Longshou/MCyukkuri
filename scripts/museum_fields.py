@@ -360,6 +360,52 @@ class Weather(Field):
         return roof(*self.roof_at, half=4)
 
 
+class Grove(Field):
+    """Forest clearing, with log shelves under the crowns of the two central oaks."""
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.spots = {'spawn': (self.cx - 8, self.cz - 8), 'build': (self.cx + 7, self.cz - 9)}
+
+    def features(self):
+        cx, cz = self.cx, self.cz
+        out = grass_cover(cx - 5, cz - 3, cx + 5, cz + 8)
+        out.append(fill(cx - 36, GROUND, cz + 29, cx + 36, GROUND, cz + 29, 'minecraft:dirt_path'))
+        for rise in range(4):
+            r = 6 - rise
+            out.append(fill(cx + 28 - r, FEET + rise, cz + 24 - r, cx + 28 + r, FEET + rise,
+                            cz + 24 + r, 'minecraft:grass_block'))
+        for dx, dz, height, branch, side in [(-11, -8, 11, 5, 1), (11, -9, 13, 7, -1)]:
+            x, z = cx + dx, cz + dz
+            lo, hi = sorted((x + side, x + 4 * side))
+            inner, tip = sorted((x + 2 * side, x + 4 * side))
+            out += [fill(x, FEET, z, x, FEET + height - 1, z, 'minecraft:oak_log'),
+                    fill(lo, FEET + branch, z, hi, FEET + branch, z, 'minecraft:oak_log[axis=x]'),
+                    fill(inner, FEET + branch + 2, z - 1, tip, FEET + branch + 2, z + 1, 'minecraft:oak_leaves[persistent=true]'),
+                    fill(x - 3, FEET + height - 3, z - 3, x + 3, FEET + height - 2, z + 3,
+                         'minecraft:oak_leaves[persistent=true]', 'keep'),
+                    fill(x - 2, FEET + height - 1, z - 2, x + 2, FEET + height, z + 2,
+                         'minecraft:oak_leaves[persistent=true]', 'keep'),
+                    fill(x + 3 * side, FEET + branch - 1, z + 1, x + 3 * side, FEET + branch - 1, z + 3,
+                         'minecraft:oak_leaves[persistent=true]')]
+        for dx, dz, height in [(-25, 13, 9), (24, -17, 10)]:
+            x, z = cx + dx, cz + dz
+            out += [fill(x, FEET, z, x + 1, FEET + height - 1, z + 1, 'minecraft:dark_oak_log'),
+                    fill(x - 3, FEET + height - 3, z - 3, x + 4, FEET + height - 2, z + 4,
+                         'minecraft:dark_oak_leaves[persistent=true]', 'keep'),
+                    fill(x - 2, FEET + height - 1, z - 2, x + 3, FEET + height, z + 3,
+                         'minecraft:dark_oak_leaves[persistent=true]', 'keep')]
+        for dx, dz, height in [(-28, -19, 12), (29, 4, 14)]:
+            x, z = cx + dx, cz + dz
+            out.append(fill(x, FEET, z, x, FEET + height - 1, z, 'minecraft:spruce_log'))
+            for y, r in [(height - 8, 3), (height - 5, 2), (height - 3, 2), (height - 1, 1), (height, 0)]:
+                out.append(fill(x - r, FEET + y, z - r, x + r, FEET + y, z + r,
+                                'minecraft:spruce_leaves[persistent=true]', 'keep'))
+        for dx, dz, height in [(-19, 6, 5), (15, 11, 6), (-5, 18, 5), (4, -21, 6)]:
+            out += tree(cx + dx, cz + dz, height=height)
+        return out
+
+
 class Open(Field):
     """Bare ground with a few trees along the edges: nothing to eat, nothing to hide behind (injuries and remains, headwear)."""
     def features(self):
@@ -800,6 +846,7 @@ FIELDS = [
            blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
+    Grove('grove', '捕食种林地', 'react', -300, 500, 40, 32, 'minecraft:forest', blurb='树冠生成、盘旋选树与衔枝筑巢'),
     Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
     Open('headwear', '头饰与认知', 'react', 0, 500, 28, 24, 'minecraft:plains', blurb='头饰损坏自愈、碎裂拼回、失饰者认不出、鄙视、怪物、欺负'),
     Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='水生魔理沙：出航返岸、亲子上船、落水自救与救援、岸边分娩、帽子翻覆与搁浅'),
