@@ -15,6 +15,7 @@
 | 仅字幕台词补配音 | `.worktrees/wp-voices` | art/audio/aquestalk, dialogue export |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 | 帽船第一次伸辫子够到孩子 | `.worktrees/wp-boarding-grip` | aquatic/SetOut.java, motor/action/Grab.java, BraidFetch |
+| 大头针不再几秒后消失 | `.worktrees/wp-pin-visibility` | interaction/OperationLife.java, InteractionDispatch, wound presentation |
 
 ## 玩法待办
 
