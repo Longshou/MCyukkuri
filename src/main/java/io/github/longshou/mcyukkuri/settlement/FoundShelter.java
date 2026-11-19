@@ -458,7 +458,8 @@ public final class FoundShelter implements MotorOwner {
     private void discoverPaperCover() {
         var skills = body.skills();
         if (skills.assessed(Ability.PAPER_COVER) || skills.knows(Ability.PAPER_COVER)
-                || !canPullPaperBody(body) || !needsSelfCover() || !holdingPaper() && broughtPaperAt(gap).isEmpty()) return;
+                || !needsSelfCover() || !holdingPaper() && (now() < nextPaperScan || broughtPaperAt(gap).isEmpty())
+                || !canPullPaperBody(body)) return;
         var personality = body.life().personality();
         int intelligence = personality.intelligence(), selfControl = personality.selfControl();
         skills.discover(Ability.PAPER_COVER, intelligence >= 75 - .20 * selfControl,
