@@ -38,6 +38,7 @@ import java.util.EnumSet;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -46,6 +47,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -53,12 +55,15 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
+import io.github.longshou.mcyukkuri.motor.geom.ShelfApproach;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -441,7 +446,8 @@ public final class PredatorLife implements EcologyRoutine {
         return path != null && path.canReach();
     }
     boolean canFlyToFeet(Vec3 feet) {
-        return flightSweepClear(animal.position(), feet) || canFlyTo(BlockPos.containing(feet));
+        return CanopySite.clearBody(level(), animal, feet)
+                && (shelfApproach(feet) != null || canFlyTo(BlockPos.containing(feet)));
     }
 
     public boolean supportsCanopyStand(BlockPos support) {
@@ -467,6 +473,7 @@ public final class PredatorLife implements EcologyRoutine {
         }
         if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
         if (naturalSpawn || task == Task.FOUND || nestBuild.wants()) { cancelNestSearch(); return Result.DEFERRED; }
+        nestBuild.cancelSearch();
         if (nestSearch != null && !nestSearch.current(level, animal)) cancelNestSearch();
         if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, false);
         var result = nestSearch.advance(animal, pos -> false, pos -> 0);
@@ -507,7 +514,7 @@ public final class PredatorLife implements EcologyRoutine {
             }
             if (restrain()) { cooldown = 20; return false; }
         }
-        if (animal.onGround() && nestBuild.wants()) { task = Task.FOUND; return true; }
+        if (animal.onGround() && nestBuild.canStart()) { task = Task.FOUND; return true; }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
                 && !level().isNight() && !level().isRaining()) {
             var center = home == null ? animal.position() : Vec3.atBottomCenterOf(home);
@@ -551,40 +558,42 @@ public final class PredatorLife implements EcologyRoutine {
         contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
         if (task == Task.FOUND) { cancelNestSearch(); nestBuild.start(); }
+        else nestBuild.cancelSearch();
         GameplayLog.event(animal,"predator","activity started; task={} prey={} food={} corpse={} retaliation={} nutrition={} energy={} destination={}",
                 task,prey==null?"none":prey.getUUID(),food==null?"none":food.getUUID(),corpse==null?"none":corpse.getUUID(),
                 retaliation,animal.life().nutrition(),animal.life().energy(),destination);
         if (task != Task.FOUND && (task != Task.SCAVENGE || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1))
             animal.setPredatorFlying(true);
     }
-    void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
+    private void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
 
-    /** Final descent uses the same supported feet the founder picked. An overhead leaf need not allow a vertical approach. */
+    private Vec3 shelfApproach(Vec3 feet) {
+        if (animal.distanceToSqr(feet) > 64) return null;
+        var leg = ShelfApproach.next(Floor.vec(animal.position()), Floor.vec(feet),
+                (a, b) -> flightSweepClear(Floor.point(a), Floor.point(b)));
+        return leg == null ? null : Floor.point(leg);
+    }
+
+    /** Final descent uses the same route and supported feet the founder checked. */
     boolean landForBuild(Vec3 feet) {
+        if (!CanopySite.clearBody(level(), animal, feet)) { nestBuild.failed("stand_obstructed", Reason.NO_ROOM); return false; }
         if (animal.onGround() && SurfaceApproach.at(animal, feet)) {
             animal.setPredatorFlying(false);
             return true;
         }
         animal.setPredatorFlying(true);
-        Vec3 from = animal.position();
-        if (from.y < feet.y && !flightSweepClear(from, feet)) {
-            // Climb in the open column before crossing the lip of a higher shelf.
-            var rise = new Vec3(from.x, feet.y + .08, from.z);
-            if (flightSweepClear(from, rise) && flightSweepClear(rise, feet)) {
-                fly(rise, .85, 64);
-                return false;
-            }
+        var leg = shelfApproach(feet);
+        if (leg == null) {
+            fly(feet, .85, 0);
+        } else {
+            boolean descend = leg.equals(feet) && animal.position().subtract(feet).horizontalDistanceSqr() < .16
+                    && Math.abs(animal.getY() - feet.y) < .3;
+            directFlight(descend ? feet.add(0, -.08, 0) : leg, .85);
         }
-        fly(feet, .85, 64, animal.position().subtract(feet).horizontalDistanceSqr() < .16
-                && Math.abs(animal.getY() - feet.y) < .3);
         return false;
     }
     /** A clear line within directRange squared is flown straight instead of by path nodes. */
-    private void fly(Vec3 goal, double speed, double directRange) {
-        fly(goal, speed, directRange, task == Task.LAND);
-    }
-
-    private void fly(Vec3 goal, double speed, double directRange, boolean descend) {
+    void fly(Vec3 goal, double speed, double directRange) {
         if (!level().hasChunkAt(BlockPos.containing(goal))) { flightBlocked(); return; }
         if (recoveringFlight() && animal.isInWaterOrBubble()) {
             // First lift the actual body clear. A diagonal path to a bank can scrape the water all the way there.
@@ -598,18 +607,24 @@ public final class PredatorLife implements EcologyRoutine {
         // exact position, otherwise the animal circles just outside bite or landing range.
         if (animal.distanceToSqr(goal) < directRange && flightSweepClear(animal.position(), goal)) {
             // Only the final clear approach presses into the support surface. Pathfinding still targets the dry air cell.
-            directFlight(descend ? goal.add(0, -.08, 0) : goal, speed);
+            directFlight(task == Task.LAND ? goal.add(0, -.08, 0) : goal, speed);
             return;
         }
         if (ticks % 10 == 1 || animal.getNavigation().isDone()) {
             Vec3 pathGoal = flightPathGoal(goal);
-            if (!animal.getNavigation().moveTo(pathGoal.x, pathGoal.y, pathGoal.z, speed)) {
+            if (!followFlightPath(pathGoal, speed)) {
                 GameplayLog.limited(animal,"predator","path_refused",200,"flight path refused; task={} prey={} destination={} elapsed={}",
                         task,prey==null?"none":prey.getUUID(),goal,ticks);
-                // Let the pathfinder try a short rising waypoint before abandoning a blocked approach.
-                if ((task == Task.FOUND ? nestBuild.elapsed() : ticks) > 60) flightBlocked();
+                if (task == Task.FOUND || ticks > 60) flightBlocked();
             }
         }
+    }
+    private boolean followFlightPath(Vec3 goal, double speed) {
+        var navigation = animal.getNavigation();
+        if (task != Task.FOUND) return navigation.moveTo(goal.x, goal.y, goal.z, speed);
+        // A founder needs the actual survey point or supported stand. A partial path cannot complete that leg.
+        var path = navigation.createPath(BlockPos.containing(goal), 0);
+        return path != null && path.canReach() && navigation.moveTo(path, speed);
     }
     private void flightBlocked() {
         if (task == Task.FOUND) nestBuild.failed("no_flight_route", Reason.NO_PATH);
@@ -646,13 +661,13 @@ public final class PredatorLife implements EcologyRoutine {
     private static double brakingSpeed(double distance, double acceleration) {
         return Math.sqrt(acceleration * acceleration + 2 * acceleration * Math.max(0, distance)) - acceleration;
     }
-    private AABB bodyAt(Vec3 feet) { return animal.getBoundingBox().move(feet.subtract(animal.position())).deflate(.002); }
+    private AABB bodyAt(Vec3 feet) { return animal.getBoundingBox().move(feet.subtract(animal.position())); }
     /** Required sole height over real water columns under the whole body footprint. */
     private double flightFloor(Vec3 feet) {
         AABB box = bodyAt(feet);
         double floor = Double.NEGATIVE_INFINITY;
-        for (int x = Mth.floor(box.minX); x <= Mth.floor(box.maxX); x++)
-            for (int z = Mth.floor(box.minZ); z <= Mth.floor(box.maxZ); z++)
+        for (int x = Mth.floor(box.minX); x < Mth.ceil(box.maxX); x++)
+            for (int z = Mth.floor(box.minZ); z < Mth.ceil(box.maxZ); z++)
                 for (int y = Mth.floor(feet.y) - 1; y <= Mth.floor(box.maxY) + 1; y++) {
                     BlockPos p = new BlockPos(x, y, z);
                     if (!level().hasChunkAt(p)) continue;
@@ -669,10 +684,16 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean blockSweepClear(Vec3 from, Vec3 to) {
         int count = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .15));
+        Vec3 previous = from;
         for (int i = 1; i <= count; i++) {
             Vec3 feet = from.lerp(to, (double)i / count);
-            if (!level().hasChunkAt(BlockPos.containing(feet)) || !level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))
-                    || level().getBlockCollisions(animal, bodyAt(feet)).iterator().hasNext()) return false;
+            var pos = BlockPos.containing(feet);
+            if (!level().hasChunkAt(pos) || !level().getWorldBorder().isWithinBounds(pos)) return false;
+            var step = feet.subtract(previous);
+            // Use vanilla's movement clipping, including its vertical-first step at a ceiling or ledge.
+            if (Entity.collideBoundingBox(animal, step, bodyAt(previous), level(), List.of())
+                    .distanceToSqr(step) > Shapes.EPSILON * Shapes.EPSILON) return false;
+            previous = feet;
         }
         return true;
     }

@@ -61,12 +61,14 @@ final class PredatorNestSearch {
     }
 
     boolean current(ServerLevel world, YukkuriEntity body) {
-        return level == world && (cells != null || origin.distSqr(body.blockPosition()) <= 16);
+        return level == world && origin.distSqr(body.blockPosition()) <= (cells == null ? 16 : RADIUS * RADIUS);
     }
 
     void cancel(YukkuriEntity body) { SearchBudget.cancel(level, body, Purpose.PREDATOR_NEST, generation); }
 
     CanopySite selected() { return selected; }
+
+    boolean seesCanopySite() { return !sites.isEmpty(); }
 
     Result advance(YukkuriEntity body, Predicate<BlockPos> refused, ToDoubleFunction<BlockPos> penalty) {
         if (lastSlice == level.getGameTime()) return Result.DEFERRED;

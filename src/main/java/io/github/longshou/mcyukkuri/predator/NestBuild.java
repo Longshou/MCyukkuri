@@ -37,6 +37,7 @@ import net.neoforged.neoforge.event.EventHooks;
 final class NestBuild {
     private enum Phase { SURVEY, SOURCE, GATHER, PLACE }
     private static final int DAY = 24000;
+    private static final int SURVEY_RADIUS = 4;
     private static final String LOOK = YukkuriAction.LOOK_AROUND.id();
     private final YukkuriEntity body;
     private final PredatorLife flight;
@@ -70,16 +71,35 @@ final class NestBuild {
                 && eligible();
     }
 
-    void start() {
-        search = new PredatorNestSearch(level(), body, true);
-        phase(Phase.SURVEY);
-        crown = crown();
-        corner = 0;
-        corners = body.life().personality().temperament().curious() >= .5 ? 8 : 4;
-        GameplayLog.event(body, "predator", "nest survey begin crown={} circles={}", crown, corners / 4);
+    /** Keep ordinary ground activities until the sliced search actually sees a tree worth surveying. */
+    boolean canStart() {
+        if (!wants()) return false;
+        if (search != null && !search.current(level(), body)) cancelSearch();
+        if (search == null) search = new PredatorNestSearch(level(), body, true);
+        var result = scan();
+        if (result == Result.NOT_FOUND) {
+            surveyed = true;
+            GameplayLog.limited(body, "predator", "nest_build_no_canopy_site", 200, "nest build refused reason=no_canopy_site");
+        }
+        return site != null || search != null && search.seesCanopySite();
     }
 
-    int elapsed() { return elapsed; }
+    private Result scan() {
+        var result = search.advance(body, pos -> sites.excluded(pos.toShortString(), null), flight::lostNestPenalty);
+        if (result != Result.DEFERRED) {
+            site = search.selected();
+            cancelSearch();
+            if (site != null) crown = crown(site.cell());
+        }
+        return result;
+    }
+
+    void start() {
+        phase(Phase.SURVEY);
+        corner = 0;
+        corners = body.life().personality().temperament().curious() >= .5 ? 8 : 4;
+        GameplayLog.event(body, "predator", "nest survey begin circles={}", corners / 4);
+    }
 
     String activity() {
         return switch (phase) {
@@ -108,44 +128,38 @@ final class NestBuild {
         }
     }
 
-    private Vec3 crown() {
-        var origin = body.blockPosition();
-        BlockPos best = null;
-        for (var column : BlockPos.betweenClosed(origin.offset(-12, 0, -12), origin.offset(12, 0, 12))) {
+    private Vec3 crown(BlockPos tree) {
+        int y = tree.getY();
+        int radius = SURVEY_RADIUS + Mth.ceil(body.getBbWidth() / 2);
+        for (var column : BlockPos.betweenClosed(tree.offset(-radius, 0, -radius), tree.offset(radius, 0, radius))) {
             if (!level().hasChunkAt(column)) continue;
-            var top = level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, column);
-            if (top.getY() - CanopySite.groundY(level(), top) < CanopySite.MIN_HEIGHT
-                    || !CanopySite.tree(level().getBlockState(top.below()))) continue;
-            if (best == null || origin.distSqr(top) < origin.distSqr(best)) best = top;
+            y = Math.max(y, level().getHeight(Heightmap.Types.MOTION_BLOCKING, column.getX(), column.getZ()));
         }
-        return best == null ? null : Vec3.atBottomCenterOf(best).add(0, 1, 0);
+        return Vec3.atBottomCenterOf(tree.atY(y + 1));
     }
 
     private void survey() {
         if (search != null) {
-            var result = search.advance(body, pos -> sites.excluded(pos.toShortString(), null), flight::lostNestPenalty);
+            var result = scan();
             if (result == Result.NOT_FOUND) { failed("no_canopy_site", Reason.NO_ROOM); return; }
-            if (result == Result.FOUND) {
-                site = search.selected();
-                cancelSearch();
-                if (site == null) { flight.stop(); return; } // A complete nest was claimed.
-            }
+            if (result == Result.DEFERRED) return;
         }
-        if (crown != null && corner <= corners) {
+        // Complete the loop, then look down over the chosen site before searching for a twig.
+        if (corner <= corners + 1) {
             if (elapsed <= ClipMarkers.of(LOOK).length()) return;
             body.setPredatorFlying(true);
             double angle = corner * Math.PI / 2;
-            var goal = crown.add(Math.cos(angle) * 4, 0, Math.sin(angle) * 4);
-            if (body.distanceToSqr(goal) > 1 && CanopySite.clearBody(level(), body, goal)) {
-                flight.fly(goal, .85);
+            var goal = corner > corners ? crown : crown.add(Math.cos(angle) * SURVEY_RADIUS, 0, Math.sin(angle) * SURVEY_RADIUS);
+            if (!CanopySite.clearBody(level(), body, goal)) { failed("survey_obstructed", Reason.NO_ROOM); return; }
+            if (body.onGround() || body.distanceToSqr(goal) > 1) {
+                flight.fly(goal, .85, 64);
                 return;
             }
             corner++;
+            return;
         }
-        if (site != null) {
-            GameplayLog.event(body, "predator", "nest site selected site={} stand={} tree_height={}", site.cell(), site.stand(), site.height());
-            phase(mouth().purpose() == Purpose.NEST ? Phase.PLACE : Phase.SOURCE);
-        }
+        GameplayLog.event(body, "predator", "nest site selected site={} stand={} tree_height={}", site.cell(), site.stand(), site.height());
+        phase(mouth().purpose() == Purpose.NEST ? Phase.PLACE : Phase.SOURCE);
     }
 
     private void source() {
@@ -253,7 +267,7 @@ final class NestBuild {
         flight.stop();
     }
 
-    private void cancelSearch() {
+    void cancelSearch() {
         if (search != null) { search.cancel(body); search = null; }
     }
 
