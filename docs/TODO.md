@@ -12,7 +12,6 @@
 | 宠物迎接主人后上前蹭蹭（TN-30） | `.worktrees/wp-owner-welcome` | social/YukkuriSocial.java, yard_owner_return |
 | 运输篮里看得到是谁（TN-33） | `.worktrees/wp-basket-view` | item/CarrierItem.java, client carrier renderer |
 | 大小不一与隔台阶的贴身蹭展示场景 | `.worktrees/wp-peer-nuzzle` | scripts/museum_scenarios.py (new scene), museum_fields.py |
-| 仅字幕台词补配音 | `.worktrees/wp-voices` | art/audio/aquestalk, dialogue export |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
 | 帽船第一次伸辫子够到孩子 | `.worktrees/wp-boarding-grip` | aquatic/SetOut.java, motor/action/Grab.java, BraidFetch |
 | 大头针不再几秒后消失 | `.worktrees/wp-pin-visibility` | interaction/OperationLife.java, InteractionDispatch, wound presentation |
