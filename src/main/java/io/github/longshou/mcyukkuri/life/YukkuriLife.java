@@ -1458,8 +1458,8 @@ public final class YukkuriLife {
             foodRoute = null;
         }
         if (targetFood != null) {
-            entity.getLookControl().setLookAt(targetFood, 20, 20);
-            if (foodRoute != null && !braidAtFood(groundFoodContact(targetFood))) return;
+            if (foodRoute == null) entity.getLookControl().setLookAt(targetFood, 20, 20);
+            else if (!braidAtFood(groundFoodContact(targetFood))) return;
             if (foodRoute != null || ItemContact.reaches(entity, targetFood)) {
                 if (!WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
