@@ -26,10 +26,12 @@ public final class DishFit {
     }
 
     private final Vector3f target = new Vector3f(), probe = new Vector3f(), nearest = new Vector3f(), delta = new Vector3f();
-    private float best, front, low, high, outer, chin, rearFloor;
+    private float best, front, low, high, outer, chin, rearFloor, progress;
 
-    public void begin(Vector3f target, Vector3f mouth, float rimWidth) {
+    public void begin(Vector3f target, Vector3f mouth, float rimWidth, float progress) {
         this.target.set(target);
+        // On a perch the full fit keeps the sole on the small ceramic corner from the first frame.
+        this.progress = target.y <= 0 ? 1 : progress;
         chin = outer = target.z + rimWidth;
         rearFloor = target.y;
         // A perched body dips its lower lip; a grounded body presents the lip at the rim's height.
@@ -53,7 +55,7 @@ public final class DishFit {
         float depth = Math.clamp(p.z / front, 0, 1);
         float height = p.y >= low ? 1 : Math.clamp(p.y / low, 0, 1);
         float cheek = Math.clamp(1 - Math.max(0, p.y - high) / -front, 0, 1);
-        float weight = depth * height * cheek;
+        float weight = depth * height * cheek * progress;
         // The patch rests flat on the wetted inner edge. Its neighbouring skin folds over the ceramic.
         p.y += weight * (target.y - Math.clamp(p.y, low, high));
         p.x += weight * delta.x;
@@ -61,7 +63,7 @@ public final class DishFit {
         p.y = Math.max(0, p.y);
     }
 
-    /** Lift the complete facets that pass over the ceramic, including their corners on its outside. */
+    /** Lift the complete facets that pass over the ceramic at the current pose, including during the approach. */
     public void rimTriangle(Vector3f a, Vector3f b, Vector3f c) {
         reach(a); reach(b); reach(c);
         if (Math.min(a.z, Math.min(b.z, c.z)) < outer && Math.min(a.y, Math.min(b.y,c.y)) < target.y)
@@ -79,11 +81,5 @@ public final class DishFit {
         if (p.z <= chin) p.y = Math.max(p.y, target.y);
         else if (p.y < target.y && rearFloor < target.y)
             p.y = Math.max(0, target.y * (p.y - rearFloor) / (target.y - rearFloor));
-    }
-
-    public void press(Vector3f p, float progress) {
-        float x = p.x, y = p.y, z = p.z;
-        press(p);
-        p.set(x + (p.x - x) * progress, y + (p.y - y) * progress, z + (p.z - z) * progress);
     }
 }

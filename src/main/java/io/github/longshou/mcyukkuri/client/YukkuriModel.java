@@ -273,7 +273,7 @@ public final class YukkuriModel {
     private final Matrix4f mouthAttachment=new Matrix4f();
     private final DishFit dishFit = new DishFit();
     private Vector3f dishTarget;
-    private float dishRimWidth, dishProgress;
+    private float dishRimWidth;
     private boolean pressingDish;
 
     void dishTarget(Vector3f target, float rimWidth) { dishTarget = target; dishRimWidth = rimWidth; }
@@ -1186,8 +1186,8 @@ public final class YukkuriModel {
         featureTransforms.forEach((bone,matrix)->Compose.feature(bones,world,bone,matrix,featureParentInverse));
         if (dishTarget != null) {
             boolean drinking = behavior.equals(Behaviors.DRINK);
-            dishProgress = Math.clamp(behaviorTicks / DishFit.firstContact(ClipMarkers.of(drinking ? "drink" : "eat").length(), drinking), 0, 1);
-            dishFit.begin(dishTarget, mouthPoint(), dishRimWidth);
+            float progress = Math.clamp(behaviorTicks / DishFit.firstContact(ClipMarkers.of(drinking ? "drink" : "eat").length(), drinking), 0, 1);
+            dishFit.begin(dishTarget, mouthPoint(), dishRimWidth, progress);
             for (var part : parts) if (part.name.equals("face_mouth")) {
                 for (int i = part.start; i < part.start + part.count; i += 3) {
                     if (vertices[i * 8 + 7] >= -.15f) continue;
@@ -1698,7 +1698,7 @@ public final class YukkuriModel {
         Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[index],crownLift,braidLift);
         if(wearClear&&overWearVertex(index)&&(retention<=0||rigidGroups()[index]!=1))CareWearRenderer.clearHair(target);
         if(wallTurns!=null)wallTurns.apply(index,target);
-        if(pressingDish)dishFit.press(target,dishProgress);
+        if(pressingDish)dishFit.press(target);
     }
     private int featuresBone=-1;
     /** The face and crown features' frame, present on every form (the worn hat bone's parent on hatted forms). */
@@ -1758,7 +1758,7 @@ public final class YukkuriModel {
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
         if(wearClear&&overWearVertex(triangle)&&(retention<=0||rigidGroups()[triangle]!=1))CareWearRenderer.clearHair(target);
         if(wallTurns!=null)wallTurns.apply(triangle,target);
-        if(pressingDish)dishFit.press(target,dishProgress);
+        if(pressingDish)dishFit.press(target);
     }
     private boolean woundAccessoryVertex(int vertex){
         if(woundAccessoryVertices==null){woundAccessoryVertices=new boolean[bindings.length];
