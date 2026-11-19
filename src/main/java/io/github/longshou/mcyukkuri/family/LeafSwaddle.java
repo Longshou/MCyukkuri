@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -272,9 +273,15 @@ public final class LeafSwaddle {
     }
 
     // ---- parent side ----------------------------------------------------------------------------------------------
-    /** Only a friendly and clever parent makes a wrap; any caring parent may still answer a swaddled child. */
-    public boolean maker() {
-        return entity.life().personality().temperament().is(Gate.SWADDLER);
+    /** Discover wrapping at a real care opportunity. Cleaning an existing wrap uses the separate care path. */
+    private boolean maker() {
+        var skills = entity.skills();
+        if (!skills.assessed(Ability.LEAF_SWADDLE) && !skills.knows(Ability.LEAF_SWADDLE)) {
+            var traits = entity.life().personality().temperament();
+            skills.discover(Ability.LEAF_SWADDLE, traits.is(Gate.SWADDLER),
+                    "swaddle_need caring=" + traits.caring() + " clever=" + traits.clever());
+        }
+        return skills.knows(Ability.LEAF_SWADDLE);
     }
     public boolean caring() { return target != null && task.ordinal() >= Task.WRAP.ordinal(); }
     public boolean caringFor(YukkuriEntity child) { return caring() && child.getUUID().equals(target) && entity.careApproach().cooperatingWith(child); }
@@ -362,11 +369,11 @@ public final class LeafSwaddle {
                     target, wrap.open, wrap.soil, swaddled.life().bladder(), swaddled.life().hygiene());
             return true;
         }
-        if (!maker() || !canHoldLeaves()) return false;
+        if (!canHoldLeaves()) return false;
         var bare = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SEARCH_RADIUS),
                 child -> entity.family().caresFor(child) && wrapCandidate(child) && ready(child)).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        if (bare == null) return false;
+        if (bare == null || !maker()) return false;
         // The leaf source is found before the decision is rolled, so a busy shared search budget never re-rolls a decision.
         boolean gather = !folded && leafCount() < LEAVES_PER_WRAP;
         if (gather && !plants.find(entity.blockPosition(), LEAF_RADIUS, pos -> entity.level().getBlockState(pos).is(BlockTags.LEAVES))) {

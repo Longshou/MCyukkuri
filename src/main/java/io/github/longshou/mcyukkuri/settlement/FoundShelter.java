@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.body.PaperCeiling;
+import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
@@ -191,11 +192,8 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private static boolean canPullPaperBody(YukkuriEntity y) {
-        var personality = y.life().personality();
-        // Self-control shifts the minimum intelligence for gathering several pieces into a cover from 75 down to 55.
         return y.level() instanceof ServerLevel level
                 && y.profile().landSettler() && y.family().stage() != FamilyLife.Stage.BABY
-                && personality.intelligence() >= 75 - .20 * personality.selfControl()
                 && !y.isPassenger() && !y.isInWaterOrBubble() && !y.isOnFire()
                 && !y.operations().active() && !y.body().dying()
                 && EventHooks.canEntityGrief(level, y);
@@ -454,7 +452,16 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private boolean wantsSelfCover() {
-        return body.life().temperature().cold() && body.life().paperCover().isEmpty() && canWearPaperCoverNow();
+        if (!body.life().temperature().cold() || !body.life().paperCover().isEmpty() || !canWearPaperCoverNow()) return false;
+        var skills = body.skills();
+        if (!skills.assessed(Ability.PAPER_COVER) && !skills.knows(Ability.PAPER_COVER)) {
+            var personality = body.life().personality();
+            int intelligence = personality.intelligence(), selfControl = personality.selfControl();
+            // Self-control shifts the minimum intelligence for a cover from 75 down to 55.
+            skills.discover(Ability.PAPER_COVER, intelligence >= 75 - .20 * selfControl,
+                    "cold_gap intelligence=" + intelligence + " self_control=" + selfControl);
+        }
+        return skills.knows(Ability.PAPER_COVER);
     }
 
     private boolean wantsPaperBedding() {
@@ -572,7 +579,8 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private boolean eligibleOwnColdBaby(YukkuriEntity child) {
-        return child != body && child.isAlive() && child.family().stage() == FamilyLife.Stage.BABY
+        return body.skills().knows(Ability.PAPER_COVER)
+                && child != body && child.isAlive() && child.family().stage() == FamilyLife.Stage.BABY
                 && body.family().adult() && body.family().caresFor(child) && body.life().canRecognize(child)
                 && !triedChildDrape.contains(child.getUUID())
                 && child.life().temperature().cold() && child.life().paperCover().isEmpty()
