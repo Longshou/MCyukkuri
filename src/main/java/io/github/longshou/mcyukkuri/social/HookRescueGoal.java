@@ -8,8 +8,8 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -20,7 +20,7 @@ public final class HookRescueGoal extends Goal {
     private final YukkuriEntity helper;
     private YukkuriEntity target;
     private UUID wound;
-    private final Set<UUID> attemptedWounds = new HashSet<>();
+    private final Map<YukkuriEntity,UUID> attemptedWounds = new HashMap<>();
     private Vec3 contact, stand;
     private int ticks, contactTicks;
     private long nextScan;
@@ -46,9 +46,10 @@ public final class HookRescueGoal extends Goal {
         if(!available())return false;
         if(!sameHook()){
             target=null;wound=null;
-            findHook();
+        }else if(seesKin(target)&&willing(target)){
+            return true;
         }
-        return target!=null && seesKin(target) && willing();
+        return findHook();
     }
 
     private boolean sameHook() {
@@ -62,33 +63,41 @@ public final class HookRescueGoal extends Goal {
                 && (Bonds.directParentChild(helper,kin)||Bonds.eitherMate(helper,kin));
     }
 
-    private void findHook() {
+    private boolean findHook() {
         long now=helper.level().getGameTime();
-        if(now<nextScan)return;
+        if(now<nextScan)return false;
         nextScan=now+WARNING_TICKS;
         double best=RANGE*RANGE;
+        boolean ready=false;
         var nearby=helper.level().getEntitiesOfClass(YukkuriEntity.class,helper.getBoundingBox().inflate(RANGE),
                 kin->kin.operations().hookWound()!=null);
-        attemptedWounds.retainAll(nearby.stream().map(kin->kin.operations().hookWound()).toList());
+        attemptedWounds.entrySet().removeIf(entry->!entry.getKey().isAlive()
+                ||!entry.getValue().equals(entry.getKey().operations().hookWound()));
         for(var kin:nearby){
             var candidate=kin.operations().hookWound();
             double distance=helper.distanceToSqr(kin);
-            if(kin==helper||attemptedWounds.contains(candidate)||distance>best||!kin.isAlive()||!seesKin(kin))continue;
-            target=kin;wound=candidate;best=distance;
+            if(kin==helper||candidate.equals(attemptedWounds.get(kin))||distance>best||!kin.isAlive()||!seesKin(kin))continue;
+            if(willing(kin)){
+                target=kin;wound=candidate;best=distance;ready=true;
+            }else if(target==null){
+                target=kin;wound=candidate;
+            }
         }
+        return ready;
     }
 
-    private boolean willing() {
+    private boolean willing(YukkuriEntity kin) {
         var threat=helper.status().reactions().threat();
-        var operator=target.operations().loadedOperator();
+        var operator=kin.operations().loadedOperator();
         var danger=threat.source();
-        if(operator==null||threat.holdingStance()||danger!=null&&danger!=operator)return false;
+        if(operator==null||kin.hurtTime>0||helper.hurtTime>0||threat.holdingStance()
+                ||threat.seesThreat()||danger!=null&&danger!=operator)return false;
         var personality=helper.life().personality();
         var temperament=personality.temperament();
         int fear=personality.fear(operator.getUUID());
         double drive=(temperament.caring()+temperament.attached())*.5;
         // Judge both ends of the approach. Stepping away alone cannot make a guard at the hook less threatening.
-        double distance=Math.min(helper.distanceTo(operator),target.distanceTo(operator));
+        double distance=Math.min(helper.distanceTo(operator),kin.distanceTo(operator));
         double proximity=1-SocialDisposition.ramp(distance,1,personality.threatDistance(fear));
         double pressure=proximity*(.5+.5*SocialDisposition.ramp(fear,0,65));
         return drive>pressure;
@@ -96,6 +105,7 @@ public final class HookRescueGoal extends Goal {
 
     @Override public void start() {
         ticks=contactTicks=0;result=null;
+        attemptedWounds.put(target,wound);
         helper.showReaction("teary","afraid",60);
         var personality=helper.life().personality();
         GameplayLog.event(helper,"social","hook rescue cue target={} wound={} fear={} attachment={} boldness={} friendliness={}",
@@ -105,7 +115,7 @@ public final class HookRescueGoal extends Goal {
 
     @Override public boolean canContinueToUse() {
         if(ticks>=BUDGET||result!=null||!available()||!sameHook())return false;
-        if(willing())return true;
+        if(willing(target))return true;
         result="danger";
         return false;
     }
@@ -153,10 +163,6 @@ public final class HookRescueGoal extends Goal {
         GameplayLog.event(helper,"social","hook rescue end target={} wound={} result={} ticks={}",
                 target.getUUID(),wound,result==null?(ticks>=BUDGET?"timeout":"interrupted"):result,ticks);
         SurfaceApproach.halt(helper);
-        if(ticks>=BUDGET||result!=null&&!result.equals("danger")){
-            attemptedWounds.add(wound);
-            target=null;wound=null;
-        }
-        stand=null;contact=null;
+        target=null;wound=null;stand=null;contact=null;
     }
 }

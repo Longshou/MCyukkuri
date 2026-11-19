@@ -191,6 +191,7 @@ public final class Reactions {
             response = new StruckResponse(y);
         }
         public boolean holdingStance() { return response.active(); }
+        public boolean seesThreat() { return seen != null && seen.isAlive(); }
         public YukkuriAction stanceAction() { return response.action(); }
         public FlightPlanner flight() { return flight; }
         boolean airEscape(LivingEntity danger) {
@@ -206,7 +207,7 @@ public final class Reactions {
             long now = y.level().getGameTime();
             boolean nearby = heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576;
             if (nearby && heard == y.getLastHurtByMob()) return heard;
-            return seen != null && seen.isAlive() ? seen : nearby ? heard : null;
+            return seesThreat() ? seen : nearby ? heard : null;
         }
         public String activity() {
             if (seal.pressing()) return Behaviors.NEST_PRESS;
@@ -1065,7 +1066,12 @@ public final class Reactions {
         }
         private Threat threat() { return y.status().reactions().threat; }
         @Override public boolean canUse() { return threat().wants() && !hookRescue.canUse(); }
-        @Override public boolean canContinueToUse() { return threat().keeps() && !hookRescue.canUse(); }
+        @Override public boolean canContinueToUse() {
+            if (!threat().keeps()) return false;
+            if (!hookRescue.canUse()) return true;
+            threat().end(0);
+            return false;
+        }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { threat().start(); }
         @Override public void tick() { threat().tick(); }
