@@ -131,10 +131,11 @@ def check(b):
         for x, z in ring if pen['hatch'] else ():
             if any(name_at(b, x, yy, z) == AIR for yy in range(y, y + 5)):
                 errors.append(f"pen {pen['name']}: wall at {(x, z)} is open below y{y + 5}")
-        # The predator room is sealed overhead too: a flying predator cannot leave it.
-        if pen['name'] == 'predator' and any(name_at(b, x, y + 5, z) == AIR for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)):
-            errors.append('pen predator: open ceiling')
-        if pen['hatch']: errors += hatch_errors(b, pen, seen)
+        # Predator rooms (marked `sealed=True`) are sealed overhead too: a flying predator cannot leave them.
+        if pen.get('sealed') and any(name_at(b, x, y + 5, z) == AIR for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)):
+            errors.append(f"pen {pen['name']}: open ceiling")
+        if pen['hatch']: errors += shop_pen_errors(b, pen) + hatch_errors(b, pen, seen)
+    errors += shop_marker_errors(b) + [e.split(': ', 1)[1] for e in stock_nest_clearance(b)]
     level = light_levels(b)
     dark = [(x, z, level.get((x, 3, z), 0)) for x, z in walk_cells(b) if level.get((x, 3, z), 0) < 8]
     if dark: errors.append(f'{len(dark)} walkable cells below light 8, first {dark[:6]}')
@@ -169,11 +170,85 @@ def reachable(b):
             if n not in seen and ok(*n): seen.add(n); queue.append(n)
     return seen
 
+def shop_pen_errors(b, pen):
+    """Pet-shop sale pen rules: exactly one nest, bowl + waterer + toilet present, every facility within baby reach (3 blocks,
+    TravelRange.babyDestination) of both the nest's home stand and its entrance cell, and predator nests sealed overhead."""
+    x0, z0, x1, z1 = pen['interior']; y = pen['y']; name = pen['name']; errors = []
+    cells = [(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)]
+    nests = [c for c in cells if name_at(b, c[0], y, c[1]).endswith('nest')]
+    bowls = [c for c in cells if name_at(b, c[0], y, c[1]) == 'mcyukkuri:food_bowl']
+    waterers = [c for c in cells if name_at(b, c[0], y, c[1]) == 'mcyukkuri:waterer']
+    toilets = [c for c in cells if name_at(b, c[0], y, c[1]) == 'mcyukkuri:yukkuri_toilet']
+    if len(pen['nests']) != 1 or nests != list(pen['nests']):
+        errors.append(f'pen {name}: expected 1 nest matching {pen["nests"]}, found {nests}')
+    if pen.get('waterer') is None or waterers != [pen['waterer']]:
+        errors.append(f'pen {name}: expected 1 waterer at {pen.get("waterer")}, found {waterers}')
+    if bowls != [pen['bowl']]:
+        errors.append(f'pen {name}: expected 1 bowl at {pen["bowl"]}, found {bowls}')
+    if len(toilets) != 1 or (pen.get('toilet') is not None and toilets != [pen['toilet']]):
+        errors.append(f'pen {name}: expected 1 toilet at {pen.get("toilet")}, found {toilets}')
+    if len(nests) == 1:
+        nx, nz = nests[0]; nest_name, props = state_at(b, nx, y, nz)
+        if nest_name == 'mcyukkuri:predator_nest':
+            if not pen.get('sealed'): errors.append(f'pen {name}: predator nest at {(nx, nz)} requires sealed=True')
+            stands = [(nx + dx, nz + dz) for dx, dz in ((0, -1), (1, 0), (0, 1), (-1, 0))
+                      if x0 <= nx + dx <= x1 and z0 <= nz + dz <= z1 and free(name_at(b, nx + dx, y, nz + dz)) and covered(b, nx + dx, y, nz + dz)]
+            if not stands: errors.append(f'pen {name}: predator nest {(nx, nz)} has no covered clear approach cell')
+            stand = stands[0] if stands else (nx, nz)
+        else:
+            dx, dz = {'north': (0, -1), 'south': (0, 1), 'east': (1, 0), 'west': (-1, 0)}[props.get('facing', 'north')]
+            stand = (nx + dx, nz + dz)
+            if not (x0 <= stand[0] <= x1 and z0 <= stand[1] <= z1 and free(name_at(b, stand[0], y, stand[1])) and covered(b, stand[0], y, stand[1])):
+                errors.append(f'pen {name}: nest {(nx, nz)} entrance {stand} is blocked, uncovered or outside pen')
+        for label, group in (('bowl', bowls), ('waterer', waterers), ('toilet', toilets)):
+            for fx, fz in group:
+                if (fx - nx) ** 2 + (fz - nz) ** 2 > 9 or (fx - stand[0]) ** 2 + (fz - stand[1]) ** 2 > 9:
+                    errors.append(f'pen {name}: {label} {(fx, fz)} beyond 3 blocks of nest {(nx, nz)} / stand {stand}')
+    return errors
+
+def shop_marker_errors(b):
+    """Verify the pet shop's 32 goods frames (backed by a solid wall) and its mcy_shop_family nest marker."""
+    errors = []; frames = []; families = []
+    for ent in b.entities:
+        nbt = ent['nbt'][1]
+        if nbt['id'][1] != 'minecraft:marker': continue
+        tag = nbt['Tags'][1][1][0]; cx, cy, cz = ent['blockPos'][1][1]
+        if tag == 'mcy_shop_frame':
+            frames.append(nbt['data'][1]['Item'][1]['id'][1])
+            if name_at(b, cx, cy, cz) != AIR or not any(
+                    full_block(name_at(b, cx - dx, cy, cz - dz)) and not full_block(name_at(b, cx + dx, cy, cz + dz))
+                    for dx, dz in ((0, -1), (1, 0), (0, 1), (-1, 0))):
+                errors.append(f'frame at {(cx, cy, cz)} lacks an air cell and solid backing wall')
+        elif tag == 'mcy_shop_family':
+            families.append((cx, cy, cz))
+            nest_name, props = state_at(b, cx, cy, cz)
+            if nest_name != 'mcyukkuri:yukkuri_nest': errors.append(f'mcy_shop_family at {(cx, cy, cz)} is not on a yukkuri_nest ({nest_name})')
+            elif any(props.get(d) == 'true' for d in ('north', 'east', 'south', 'west')):
+                errors.append(f'mcy_shop_family nest at {(cx, cy, cz)} is pressed flat and cannot fit two children')
+    if len(frames) != 32 or len(set(frames)) != 32:
+        errors.append(f'expected 32 distinct mcy_shop_frame goods, found {len(frames)} ({len(set(frames))} distinct)')
+    if len(families) != 1:
+        errors.append(f'expected 1 mcy_shop_family marker, found {families}')
+    return errors
+
 def hatch_errors(b, pen, seen):
-    """A pen's staff door: a 2-high iron door in its wall ring, one clear interior cell inside it, and outside it a floor cell staff walk to."""
+    """A pen's staff door: a 2-high iron door in its wall ring (framed by full blocks/pair and lintel), one clear interior cell inside it,
+    and outside it a floor cell staff walk to."""
     x0, z0, x1, z1 = pen['interior']; y = pen['y']; hx, hz = pen['hatch']; name = pen['name']
     if name_at(b, hx, y, hz) != 'minecraft:iron_door' or name_at(b, hx, y + 1, hz) != 'minecraft:iron_door':
         return [f'pen {name}: no 2-high iron service door at {(hx, y, hz)}']
+    _, lo = state_at(b, hx, y, hz)
+    dx, dz = {'north': (1, 0), 'east': (0, 1), 'south': (-1, 0), 'west': (0, -1)}[lo['facing']]
+    other_hinge = 'right' if lo['hinge'] == 'left' else 'left'
+    if other_hinge == 'left': dx, dz = -dx, -dz
+    for sx, sz in ((hx + dx, hz + dz), (hx - dx, hz - dz)):
+        for yy in (y, y + 1):
+            side, props = state_at(b, sx, yy, sz)
+            paired = (sx, sz) == (hx + dx, hz + dz) and side == 'minecraft:iron_door' and props == {**lo, 'half': 'upper' if yy > y else 'lower', 'hinge': other_hinge}
+            if not paired and not full_block(side):
+                return [f'pen {name}: iron door {(hx, yy, hz)} is not framed at {(sx, yy, sz)} ({side})']
+    if not full_block(name_at(b, hx, y + 2, hz)):
+        return [f'pen {name}: iron door {(hx, y, hz)} lacks a full lintel at {(hx, y + 2, hz)} ({name_at(b, hx, y + 2, hz)})']
     inside = [(hx + dx, hz + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)) if x0 <= hx + dx <= x1 and z0 <= hz + dz <= z1]
     if len(inside) != 1: return [f'pen {name}: service door {(hx, hz)} is not in its wall ring']
     ix, iz = inside[0]
