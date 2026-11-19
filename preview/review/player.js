@@ -247,6 +247,7 @@ async function playEntry(data, entry) {
     });
     $('status').textContent = '';
     $('play').disabled = timeline.disabled = false;
+    setPlaying(params.get('autoplay') === '1');
     resize();
     previous = performance.now();
     requestAnimationFrame(animate);

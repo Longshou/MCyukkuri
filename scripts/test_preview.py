@@ -173,19 +173,28 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
 
         target = self.out/'inbox'
         target.mkdir(parents=True)
-        old = dict(id='old-viewer', title='Old clip', decision='Check motion',
-                   url='../clip-preview/viewer.html?model=reimu&clip=greet&expression=auto')
+        old = dict(id='boundary', title='Old clip', decision='Check motion',
+                   url='../boundary/viewer.html?model=reimu&clip=greet&expression=auto&autoplay=1')
+        inputs = dict(model='reimu', clip='greet', expression='auto', decision=old['decision'])
+        (self.topic/'topic.json').write_text(json.dumps(dict(command='viewer', title=old['title'],
+                                                             inputs=inputs)), encoding='utf-8')
         playtest = dict(id='playtest', title='Playtest', decision='Try the behavior',
                         url='C:/Program Files/Git/.local/previews/boundary/index.html')
-        (target/'items.json').write_text(json.dumps([old, old, playtest]), encoding='utf-8')
+        other = dict(old, title='Other request', decision='Check the snapshot',
+                     url='http://localhost:9000/boundary/viewer.html?model=reimu&clip=greet')
+        database = target/'items.json'
+        database.write_text(json.dumps([old, other, playtest]), encoding='utf-8')
+        original = database.read_bytes()
         entries = [dict(id='motion-greet-reimu', category='performances', model='reimu', clip='greet',
                         tag='look-only')]
         (self.out/'entries.json').write_text(json.dumps(dict(entries=entries)), encoding='utf-8')
         refresh_inbox(self.out, entries)
-        fixed = json.loads((target/'items.json').read_text(encoding='utf-8'))
-        self.assertEqual([item['id'] for item in fixed], ['old-viewer', 'playtest'])
-        self.assertEqual(fixed[0]['entry'], 'motion-greet-reimu')
-        self.assertEqual(fixed[1]['url'], '../boundary/index.html')
+        self.assertEqual(database.read_bytes(), original)
+        markup = (target/'index.html').read_text(encoding='utf-8')
+        self.assertIn('entry=motion-greet-reimu&amp;autoplay=1', markup)
+        self.assertIn('href="../boundary/index.html"', markup)
+        self.assertIn('localhost:9000/boundary/viewer.html', markup)
+        self.assertIn(other['decision'], markup)
 
         for ident, link in [('new-motion', ['--entry', 'motion-greet-reimu']),
                             ('static-art', ['--url', '../boundary/index.html', '--look-only']),
@@ -197,6 +206,18 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         self.assertEqual(markup.count('data-verdict-id="motion-greet-reimu"'), 2)
         self.assertIn('data-verdict-id="static-art"', markup)
         self.assertNotIn('data-verdict-id="playtest"', markup)
+
+    def test_refresh_preserves_handwritten_inbox(self):
+        from preview import refresh_inbox
+
+        target = self.out/'inbox'
+        target.mkdir()
+        page = target/'index.html'
+        page.write_bytes(b'<p>Pending decisions and hand-written instructions</p>')
+        before = page.read_bytes()
+        refresh_inbox(self.out, [])
+        self.assertEqual(page.read_bytes(), before)
+        self.assertFalse((target/'items.json').exists())
 
 
 if __name__ == '__main__':

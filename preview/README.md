@@ -19,6 +19,6 @@ python scripts/serve_review.py --port 8766
 
 ## 外观审阅
 
-纯外观条目可点“通过”或“不通过”，并附最多 500 字的备注。播放器和“待你查看”中指向同一条目的按钮共享该条目的最新结果。单独登记的外观对比页按待查看编号记录。审阅记录写入当前服务检出目录的 `.local/reports/verdicts.jsonl`。在同一检出运行 `python scripts/preview.py verdicts` 可读取每个编号的最新结果。
+显示外观的条目可点“通过”或“不通过”，并附最多 500 字的备注。尚无预览图的道具须到试玩场查看。播放器和“待你查看”中指向同一条目的按钮共享该条目的最新结果。单独登记的外观对比页按待查看编号记录。重建时，符合原登记信息的自动表情查看器链接在页面中转向实时播放器，原登记保存在 `inbox/items.json`。审阅记录写入当前服务检出目录的 `.local/reports/verdicts.jsonl`。在同一检出运行 `python scripts/preview.py verdicts` 可读取每个编号的最新结果。
 
 “待你查看”的登记命令见[脚本说明](../scripts/README.md#预览与导出)，验收和结项按[协作约定](../docs/roles/lead.md#待办维护)执行。

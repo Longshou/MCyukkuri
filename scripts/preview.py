@@ -14,7 +14,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-from urllib.parse import parse_qs, unquote, urlencode, urlsplit
+from urllib.parse import urlencode
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -677,7 +677,9 @@ def inbox(args):
         items = [old for old in items if old['id'] != args.id] + [item]
     else:
         items = [item for item in items if item['id'] != args.id]
-    write_inbox(target, items)
+    write_json(target/'items.json', items)
+    catalog = OUT/'entries.json'
+    refresh_inbox(OUT, read(catalog)['entries'] if catalog.is_file() else [])
 
 
 def read_inbox(target):
@@ -691,8 +693,7 @@ def read_inbox(target):
     return []
 
 
-def write_inbox(target, items):
-    write_json(target/'items.json', items)
+def write_inbox_page(target, items):
     rows = []
     for item in items:
         link = f'<a href="{E(item["url"], quote=True)}">{E(item["title"])}</a>'
@@ -711,23 +712,28 @@ def write_inbox(target, items):
 def refresh_inbox(out, entries):
     target = out/'inbox'
     target.mkdir(parents=True, exist_ok=True)
-    items = {item['id']: item for item in read_inbox(target)}
+    if not (target/'items.json').exists() and (target/'index.html').exists():
+        return  # A hand-written inbox is imported only on an explicit add/remove.
     live_clips = {(entry['model'], entry['clip']): entry['id'] for entry in entries
                   if entry['category'] == 'performances' and 'clip' in entry}
-    for item in items.values():
-        url = urlsplit(item['url'])
-        query = parse_qs(url.query)
-        local = not url.netloc or url.hostname in ('127.0.0.1', 'localhost')
-        if local and url.path.endswith('/viewer.html') and query.get('expression', ['auto']) == ['auto']:
-            key = (query.get('model', [None])[0], query.get('clip', query.get('action', [None]))[0])
-            if entry := live_clips.get(key):
-                item.update(url='../player.html?'+urlencode({'entry': entry}), entry=entry, tag='look-only')
-        if url.scheme and not url.netloc and '/.local/previews/' in url.path:
-            relative = unquote(url.path.split('/.local/previews/', 1)[1])
-            path = (out/relative).resolve()
-            if path.is_relative_to(out) and path.is_file():
-                item['url'] = '../'+path.relative_to(out).as_posix()
-    write_inbox(target, list(items.values()))
+    items = read_inbox(target)
+    for item in items:
+        url = item['url']
+        viewer = re.fullmatch(r'\.\./([\w-]+)/viewer\.html\?(.+)', url)
+        if viewer and viewer[1] == item['id']:
+            source = out/viewer[1]/'topic.json'
+            topic = read(source) if source.is_file() else {}
+            if topic.get('command') == 'viewer':
+                inputs = argparse.Namespace(**topic['inputs'])
+                entry = live_clips.get((inputs.model, inputs.clip))
+                if (entry and inputs.expression == 'auto' and viewer[2] == viewer_query(inputs)
+                        and item['decision'] == inputs.decision and item['title'] == topic['title']):
+                    item.update(url='../player.html?'+urlencode({'entry': entry, 'autoplay': 1}),
+                                entry=entry, tag='look-only')
+        legacy = re.fullmatch(r'C:/Program Files/Git/\.local/previews/([\w-]+/index\.html)', url)
+        if legacy and (out/legacy[1]).is_file():
+            item['url'] = '../'+legacy[1]
+    write_inbox_page(target, items)
 
 
 def parser():
