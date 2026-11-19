@@ -1603,6 +1603,28 @@ add('greet_close', 'meadow', '贴近的豆形子油与成油打招呼', '异体�
     env=DAY, vantage=(0, 4, 180, 15),
     reads=[('读两只的站位和动作', 'yukkuri status @e[tag=scn,distance=..12] raw')])
 
+# Two ordinary friend pairs side by side, one geometry question each. West: an adult and a child of clearly different body
+# size on flat grass. East: two adults of one size across a real one-block grass terrace (no slab), the upper one standing
+# .375 inside the west edge -- as near that edge as its support rule allows while the lower body stays clear of the step.
+# Each pair is bonded; only the one that asks is lonely, so the rub is its own choice, and each pair's own nuzzle is what the
+# smoke reads from the log.
+_SHAPES = {name: uid('nuzzle_shapes', name) for name in ('wide', 'small', 'high', 'low')}
+
+add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也凑近', '大小与台阶的贴身蹭',
+    '西边一大一小（成体与子油）是熟识的一对：大的走进小的身边并排贴蹭，看两身的侧面如何对齐、接触处有没有穿模。'
+    '东边两只同身成体隔着一格高的草地台阶，上面的站在台沿；下面那只走近后是自己上到台面还是隔着台阶凑近，'
+    '看它们最后各自站在什么高度、身体有没有对齐。',
+    '约 30–60 秒（暂停不计时）', [
+        box(2, 0, -4, 6, 0, 0, 'minecraft:grass_block'),
+        yk('reimu', -6, 3, 'wide', uuid=_SHAPES['wide'], yaw=-90, affection=95, attachment=80, label='成体·宽身', lead=True),
+        yk('reimu', -2.5, 3, 'small', uuid=_SHAPES['small'], yaw=90, stage='child', affection=0, attachment=95, label='子油·小身'),
+        f'yukkuri scenario bond {sel("wide")} {sel("small")}',
+        yk('reimu', 1.875, -2, 'high', uuid=_SHAPES['high'], yaw=90, dy=1, affection=0, attachment=95, label='台阶上'),
+        yk('reimu', -2, -2, 'low', uuid=_SHAPES['low'], yaw=-90, affection=95, attachment=80, label='台阶下'),
+        f'yukkuri scenario bond {sel("high")} {sel("low")}',
+    ], env=DAY, vantage=(-2, -8, 0, 15),
+    reads=[('读四只的状态', 'yukkuri status @e[tag=scn,distance=..12] raw')])
+
 # Three hungry-ish bodies, each with an apple at its feet: the bite takes each past full (nutrition 60 + 20 > 75). The adult and the
 # child melt in contentment; the composed adult (self-control 95) keeps to the ordinary after-meal face.
 _content_ids = {name: uid('meal_content', name) for name in ('adult', 'child', 'composed')}
@@ -6676,7 +6698,7 @@ TOPICS = {
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5',
-    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
@@ -7084,6 +7106,10 @@ next(s for s in S if s.id == 'food_behind_glass').smoke['verify'] = lambda log: 
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
+_smoke('nuzzle_shapes', 2400, [
+    rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["wide"])} [^\n]*session result kind=NUZZLE\b',
+    rf'\[daily\][^\n]*uuid={_uuid_of(_SHAPES["low"])} [^\n]*session result kind=NUZZLE\b',
+])
 _wide_greeter = _uuid_of(_CLOSE_GREETERS['wide'])
 _bean_greeter = _uuid_of(_CLOSE_GREETERS['bean'])
 _smoke('greet_close', 620, [
