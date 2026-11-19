@@ -74,6 +74,15 @@ class PoseBridgeTest {
         }
     }
 
+    @Test void mirroredPressHandsBackToTheLiveRub() {
+        for (String side : new String[]{"snuggle_left", "snuggle_right"}) {
+            draw(side, true, 0, 4);
+            draw("nuzzle", true, 4, 9);
+            assertEquals(1, state.weight);
+            assertEquals(9, rig[0][0]);
+        }
+    }
+
     @Test void constrainedPoseCutsABridgeAndRemainsTheReleaseSource() {
         draw("idle", true, 0, 2);
         draw("waddle", true, 1, 8);

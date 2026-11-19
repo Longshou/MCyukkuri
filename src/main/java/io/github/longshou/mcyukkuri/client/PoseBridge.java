@@ -32,9 +32,10 @@ final class PoseBridge {
                 ? Mode.RECORD : Mode.BLEND;
     }
 
-    private static float firstContactTick(String clip) {
-        // DailyLife.contactClip publishes the mirrored press only after the two peers reach contact.
-        if (clip.equals("snuggle_left") || clip.equals("snuggle_right")) return 0;
+    private static float firstContactTick(String clip, String previous) {
+        // The mirrored press and the rub that follows it share the contact already reached by both peers.
+        String press = clip.equals("nuzzle") ? previous : clip;
+        if (press.equals("snuggle_left") || press.equals("snuggle_right")) return 0;
         float first = Float.POSITIVE_INFINITY;
         var markers = ClipMarkers.of(clip).markers();
         for (String name : CONTACTS) {
@@ -89,7 +90,7 @@ final class PoseBridge {
                 window = 0;
                 // A fresh packet can be a tick or two late. Further into the clip, join its live clock.
                 if (clip != null && mode == Mode.BLEND && sampleTicks <= 3) {
-                    contactTick = firstContactTick(incoming);
+                    contactTick = firstContactTick(incoming, clip);
                     // Reactions start quickly, loops settle, and a finished action gets a longer release.
                     window = Math.min(!loop ? 3 : looping ? 6 : 8, (contactTick - sampleTicks) / tempo);
                     System.arraycopy(last, 0, from, 0, last.length);
