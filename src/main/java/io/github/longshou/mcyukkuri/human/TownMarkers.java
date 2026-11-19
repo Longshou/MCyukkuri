@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.play.PlayItem;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -131,11 +132,13 @@ public final class TownMarkers {
     }
 
     static boolean yardContains(ServerLevel level, BlockPos bowl, BlockPos site) {
-        return !level.getEntitiesOfClass(Marker.class, new AABB(bowl).inflate(HOME_TO_START, 4, HOME_TO_START), marker -> {
-            if (!marker.getTags().contains(SPAWNED)) return false;
-            var bounds = yardBounds(marker);
-            return bounds.contains(bowl.getCenter()) && bounds.contains(site.getCenter());
-        }).isEmpty();
+        return yards(level, bowl).anyMatch(bounds -> bounds.contains(site.getCenter()));
+    }
+
+    static Stream<AABB> yards(ServerLevel level, BlockPos bowl) {
+        return level.getEntitiesOfClass(Marker.class, new AABB(bowl).inflate(HOME_TO_START, 4, HOME_TO_START),
+                marker -> marker.getTags().contains(SPAWNED)).stream().map(TownMarkers::yardBounds)
+                .filter(bounds -> bounds.contains(bowl.getCenter()));
     }
 
     private static AABB yardBounds(Marker marker) {

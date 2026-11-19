@@ -96,7 +96,7 @@ public final class HumanNpc extends PathfinderMob {
     public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
     public PlayBlockEntity parkFacility() { return stroll().parkFacility(); }
     public boolean parkLingering() { return stroll().parkLingering(); }
-    boolean handlingPicnic() { return stroll().handlingPicnic(); }
+    public boolean callingPet(YukkuriEntity pet) { return stroll().calling(pet); }
     /** Gives the resident this individual as its companion and fits its harness. */
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
     /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */
@@ -200,7 +200,7 @@ public final class HumanNpc extends PathfinderMob {
     boolean avoidingStreet() { return routineDelay < 0; }
     boolean streetObservable() { return street.observable(); }
     boolean streetActive() {
-        return streetResident() && initialized && isAlive() && !isNoAi() && !avoidingStreet()
+        return streetResident() && !stroll().outing() && initialized && isAlive() && !isNoAi() && !avoidingStreet()
                 && level().isDay() && !isTrading();
     }
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
@@ -216,7 +216,7 @@ public final class HumanNpc extends PathfinderMob {
     BlockPos yardBowl() { return yardBowl; }
     /** Its own pet ran to its feet about a beggar; the resident answers in its own manner (HumanStreet.helpPet). */
     public boolean helpPet(YukkuriEntity pet, YukkuriEntity stray) {
-        if (isNoAi()) return false;
+        if (isNoAi() || stroll().outing()) return false;
         street.helpPet(pet, stray);
         return true;
     }
@@ -278,7 +278,9 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(3, walk().goal());
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(3, new StaffDoorGoal());
-        goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
+        goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85) {
+            @Override public boolean canUse() { return !stroll().outing() && super.canUse(); }
+        });
         goalSelector.addGoal(4, new VillageBin.Sweep(this));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
             @Override public boolean canUse() { return job() != Job.SHOPKEEPER && job() != Job.FACTORY && !streetResident() && !resting() && !isTrading() && super.canUse(); }
@@ -696,7 +698,7 @@ public final class HumanNpc extends PathfinderMob {
             if (routineDelay > 0 || job() == Job.SHOPKEEPER) return false;
             if (streetResident()) {
                 attention = street.pick();
-                return attention != null;
+                return attention != null && !(stroll().canUse() && !stroll().readyPets().isEmpty());
             }
             if (attitude() != Attitude.CARING) return false;
             attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(12), y -> y.isAlive() && mayTend(y))

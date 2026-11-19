@@ -154,7 +154,7 @@ public final class HumanScenes {
         var pet = createPet(level, petVariant(npc), at);
         if (pet == null) return null;
         if (!SurfaceApproach.stands(pet, at) || !level.noCollision(pet) || !level.addFreshEntity(pet)) return null;
-        Custody.assign(pet, npc, Custody.Role.COMPANION);
+        npc.adoptPet(pet);
         pet.pet().startYardBond(npc.getUUID());
         return pet;
     }

@@ -25,6 +25,7 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -147,7 +148,7 @@ final class HumanStreet {
     }
 
     boolean canCare(YukkuriEntity y) {
-        if (!npc.streetActive() || npc.handlingPicnic() || !observable() || npc.attitude() != HumanNpc.Attitude.CARING || !available(y) || !npc.mayTend(y)
+        if (!npc.streetActive() || !observable() || npc.attitude() != HumanNpc.Attitude.CARING || !available(y) || !npc.mayTend(y)
                 || !npc.hasLineOfSight(y) || !y.hasLineOfSight(npc) || y.isPanicking()
                 || npc.level().isRaining() && (npc.level().canSeeSky(BlockPos.containing(npc.getEyePosition()))
                 || npc.level().canSeeSky(y.blockPosition()) || !SurfaceApproach.supportedGround(y, y.position()))) return false;
@@ -327,7 +328,7 @@ final class HumanStreet {
         var owner = Custody.view(eater).owner();
         if (shop != null && (shop.id.equals(owner) || shop.staff(owner))) return;
         var witness = level.getEntitiesOfClass(HumanNpc.class, eater.getBoundingBox().inflate(12), npc ->
-                !npc.isNoAi() && npc.isAlive() && npc.distanceToSqr(eater) <= 144
+                !npc.isNoAi() && npc.isAlive() && !npc.walking() && npc.distanceToSqr(eater) <= 144
                         && !npc.getUUID().equals(owner)
                         && (npc.ownsYardBowl(bowl) || shop != null && shop.staff(npc.getUUID()))
                         && npc.hasLineOfSight(eater) && npc.street.seesSite(bowl))
@@ -656,7 +657,9 @@ final class HumanStreet {
     /** Selects ordinary reachable street stands; a blocked leg tries the other side, then heads home. */
     static final class Stroll extends Goal {
         private static final int OUTING_INTERVAL = 3000;
-        private enum Leg { NONE, TAKE, COLLECT, STOW }
+        private enum Leg { NONE, GATE, TAKE, COLLECT, STOW }
+        // Beyond the park's twelve-block calling distance the owner goes to the pet herself.
+        private static final double CALL_RANGE = 12;
 
         private final HumanNpc npc;
         private Vec3 destination;
@@ -666,6 +669,9 @@ final class HumanStreet {
         private int nextAt;
         private int detours;
         private List<YukkuriEntity> companions = List.of();
+        private YukkuriEntity called;
+        private int callUntil;
+        private BlockPos fetchAt;
         private final Predicate<YukkuriEntity> obstacle = y -> y.isAlive() && !companions.contains(y);
         private boolean homeward;
         private boolean sheltering;
@@ -694,7 +700,7 @@ final class HumanStreet {
         }
 
         boolean outing() { return homeward || !companions.isEmpty(); }
-        boolean handlingPicnic() { return outing() && (npc.holdsPicnicFood() || picnicHalf != null); }
+        boolean calling(YukkuriEntity pet) { return called == pet; }
         boolean escorts(YukkuriEntity pet) { return companions.contains(pet) && pet.pet().ownedBy(npc.getUUID()); }
         boolean parkLingering() { return parkOpened != 0; }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
@@ -706,6 +712,7 @@ final class HumanStreet {
         }
         void load(CompoundTag tag) {
             companions = List.of();
+            called = null;
             homeward = tag.getBoolean("OutingReturn");
             nextOuting = tag.getLong("NextOuting");
             picnicHalf = tag.hasUUID("PicnicHalf") ? tag.getUUID("PicnicHalf") : null;
@@ -720,7 +727,15 @@ final class HumanStreet {
             detours = 0;
             finished = false;
             resume = null;
-            if (homeward) { returnHome("resume"); return; }
+            if (homeward) {
+                if (companions.isEmpty()) {
+                    companions = new ArrayList<>(npc.animals(Custody.Role.COMPANION).stream()
+                            .filter(pet -> pet.outing().onOuting()).toList());
+                    for (var pet : companions) pet.outing().leave(npc, npc.yardBowl());
+                }
+                returnHome("resume");
+                return;
+            }
             if (npc.holdsPicnicFood()) { returnHome("stow"); return; }
             if (npc.level().isRaining()) {
                 if (npc.level().canSeeSky(npc.blockPosition()) && shelter()) return;
@@ -732,13 +747,47 @@ final class HumanStreet {
             route(stand == null ? Vec3.atBottomCenterOf(npc.home()) : stand);
         }
 
-        private boolean startOuting() {
+        List<YukkuriEntity> readyPets() {
             var yard = npc.yardBowl();
             if (yard == null || npc.attitude() != HumanNpc.Attitude.CARING || npc.level().getGameTime() < nextOuting
-                    || npc.blockPosition().distSqr(npc.home()) > 100) return false;
-            var ready = npc.animals(Custody.Role.COMPANION).stream()
-                    .filter(pet -> pet.blockPosition().distSqr(yard) <= 100 && pet.outing().wants(npc)).limit(2).toList();
+                    || npc.level().isRaining() || npc.blockPosition().distSqr(npc.home()) > 100) return List.of();
+            return npc.animals(Custody.Role.COMPANION).stream()
+                    .filter(pet -> pet.blockPosition().distSqr(yard) <= 100 && pet.pet().care().harnessed() && pet.outing().wants(npc))
+                    .limit(2).toList();
+        }
+
+        private boolean startOuting() {
+            var ready = readyPets();
             if (ready.isEmpty()) return false;
+            nextOuting = npc.level().getGameTime() + OUTING_INTERVAL;
+            var yard = npc.yardBowl();
+            if (!routeGate(yard)) {
+                GameplayLog.event(npc, "npc-care", "action=outing_gate result=unreachable yard={}", yard);
+                finished = true;
+                return true;
+            }
+            companions = new ArrayList<>(ready);
+            leg = Leg.GATE;
+            return true;
+        }
+
+        private boolean routeGate(BlockPos bowl) {
+            // Use the open crossing of the actual rotated yard boundary, including yards with a wide gap in the fence.
+            var yard = TownMarkers.yards((ServerLevel) npc.level(), bowl).findFirst().orElse(null);
+            if (yard == null) return false;
+            var gates = new ArrayList<BlockPos>();
+            for (var inside : BlockPos.betweenClosed((int) yard.minX, bowl.getY(), (int) yard.minZ,
+                    (int) yard.maxX - 1, bowl.getY(), (int) yard.maxZ - 1)) {
+                for (var side : Direction.Plane.HORIZONTAL) {
+                    var outside = inside.relative(side);
+                    if (!yard.contains(outside.getCenter()) && standable(inside) && standable(outside)) gates.add(outside);
+                }
+            }
+            gates.sort(Comparator.comparingDouble(pos -> npc.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+            return gates.stream().anyMatch(this::routeLeg);
+        }
+
+        private void depart() {
             var landmarks = npc.level().getEntitiesOfClass(Marker.class, new AABB(npc.home()).inflate(18),
                     m -> npc.isWithinRestriction(m.blockPosition()) && (m.getTags().contains("mcy_park_walk")
                             || m.getTags().contains("mcy_yard_street")));
@@ -754,30 +803,21 @@ final class HumanStreet {
                 routed = true;
                 break;
             }
-            if (!routed && !landmarks.isEmpty()) {
-                nextOuting = npc.level().getGameTime() + OUTING_INTERVAL;
-                finished = true;
-                return true;
-            }
-            if (!routed) {
+            if (landmarks.isEmpty()) {
                 var stand = DefaultRandomPos.getPos(npc, 12, 2);
-                if (stand == null || !npc.level().canSeeSky(BlockPos.containing(stand)) || !route(stand)) return false;
+                routed = stand != null && npc.level().canSeeSky(BlockPos.containing(stand)) && route(stand);
             }
-            companions = ready;
-            nextOuting = npc.level().getGameTime() + OUTING_INTERVAL;
-            for (var pet : companions) pet.outing().leave(npc, yard);
+            if (!routed) { returnHome("destination_unreachable"); return; }
             lagTicks = 0;
             pace = .55;
             glanceAt = npc.tickCount;
             GameplayLog.event(npc, "npc-care", "action=outing_depart pets={} destination={}", companions.size(), GameplayLog.at(destination));
-            attachLeads("depart");
             var crate = crate();
             if (parkDestination != null && npc.getMainHandItem().isEmpty() && crate != null && PicnicFood.apple(crate.frontItem())
-                    && ready.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand() + 15)) {
+                    && companions.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand() + 15)) {
                 if (!crateLeg(Leg.TAKE, parkDestination))
                     GameplayLog.event(npc, "npc-care", "action=picnic_take result=unreachable crate={}", npc.yardCrate());
             }
-            return true;
         }
 
         private ProduceCrateBlockEntity crate() {
@@ -828,14 +868,13 @@ final class HumanStreet {
             endGlance();
             homeward = true;
             lagTicks = 0;
-            if (parkLingering()) attachLeads("return");
             clearPark();
             clearLeg();
             if (npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
             sheltering = false;
             resume = null;
             detours = 0;
-            continueHome();
+            nextPet();
         }
 
         private void continueHome() {
@@ -1010,6 +1049,7 @@ final class HumanStreet {
             if (resume != null) return false;
             switch (leg) {
                 case NONE -> { return false; }
+                case GATE -> throw new IllegalStateException("Gate handled before picnic tasks");
                 case TAKE -> { if (!atCrate()) return false; takeApple(); }
                 case COLLECT -> {
                     var half = looseHalf();
@@ -1038,7 +1078,7 @@ final class HumanStreet {
                 case COLLECT -> GameplayLog.event(npc, "npc-care", "action=picnic_collect result=unreachable serving={}", picnicHalf);
                 case TAKE, STOW -> GameplayLog.event(npc, "npc-care", "action=picnic_{} result=unreachable crate={}",
                         leg == Leg.TAKE ? "take" : "stow", npc.yardCrate());
-                case NONE -> throw new IllegalStateException("No picnic leg");
+                case NONE, GATE -> throw new IllegalStateException("No picnic leg");
             }
             afterLeg();
         }
@@ -1060,7 +1100,7 @@ final class HumanStreet {
                 boolean atPlay = pet.playLife().active();
                 playing |= atPlay;
                 waitingForRest |= pet.outing().tired() && !pet.life().isSleeping() && !atPlay;
-                done &= pet.outing().doneAtPark();
+                done &= pet.outing().doneAtPark() || offered && !atPlay && !pet.life().isSleeping() && !pet.outing().tired();
             }
             tiredTicks = waitingForRest ? tiredTicks + 1 : 0;
             long lingerTicks = npc.level().getGameTime() - parkOpened;
@@ -1126,6 +1166,28 @@ final class HumanStreet {
         @Override public void tick() {
             // Vanilla still ticks running goals before its next continuation check.
             if (finished) return;
+            if (leg == Leg.GATE) {
+                if (!npc.level().isDay() || npc.level().isRaining() || npc.avoidingStreet()
+                        || !atDestination() && (npc.getNavigation().isDone() || ++stalled >= ROUTE_TICKS)) {
+                    GameplayLog.event(npc, "npc-care", "action=outing_gate result=cancelled at={}", GameplayLog.at(destination));
+                    companions = List.of();
+                    finished = true;
+                } else if (atDestination()) {
+                    clearLeg();
+                    for (var pet : companions) pet.outing().leave(npc, npc.yardBowl());
+                    nextPet();
+                }
+                return;
+            }
+            if (called != null) {
+                if (!homeward && (!npc.level().isDay() || npc.level().isRaining() || npc.avoidingStreet())) {
+                    companions.removeIf(pet -> pet.getLeashHolder() != npc);
+                    returnHome("conditions");
+                    return;
+                }
+                gatherPet();
+                return;
+            }
             if (!homeward && !companions.isEmpty()) {
                 if (!npc.level().isDay()) { returnHome("night"); return; }
                 if (npc.level().isRaining()) { returnHome("rain"); return; }
@@ -1216,12 +1278,52 @@ final class HumanStreet {
 
         private boolean atDestination() { return npc.distanceToSqr(destination) < .5; }
 
-        private void attachLeads(String phase) {
-            for (var pet : companions) {
-                if (!pet.isAlive() || pet.isRemoved() || !escorts(pet) || !pet.canBeLeashed() || pet.isLeashed()
-                        || pet.pet().busy() || pet.isPassenger() || npc.distanceToSqr(pet) > 36) continue;
+        private void nextPet() {
+            npc.getNavigation().stop();
+            called = companions.stream().filter(pet -> pet.getLeashHolder() != npc).findFirst().orElse(null);
+            if (called != null) {
+                callUntil = npc.tickCount + ROUTE_TICKS;
+                fetchAt = null;
+                callPet();
+            } else if (homeward) {
+                continueHome();
+            } else if (companions.isEmpty()) {
+                finished = true;
+            } else {
+                depart();
+            }
+        }
+
+        private void callPet() {
+            npc.getLookControl().setLookAt(called, 30, 30);
+            npc.swing(InteractionHand.MAIN_HAND);
+            npc.level().playSound(null, npc.blockPosition(), SoundEvents.VILLAGER_AMBIENT, SoundSource.NEUTRAL, .85f, 1.2f);
+        }
+
+        private void gatherPet() {
+            var pet = called;
+            String phase = homeward ? "return" : "depart";
+            double gap = npc.distanceToSqr(pet);
+            boolean present = pet.isAlive() && !pet.isRemoved() && escorts(pet);
+            if (present && pet.canBeLeashed() && !pet.isLeashed() && !pet.isPassenger() && !pet.pet().busy()
+                    && (homeward || pet.outing().fit()) && gap <= 6.25 && npc.hasLineOfSight(pet)) {
                 pet.setLeashedTo(npc, true);
-                GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=attach pet={}", phase, pet.getUUID());
+                npc.swing(InteractionHand.MAIN_HAND);
+                GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=attach pet={} gap={}",
+                        phase, pet.getUUID(), Math.sqrt(gap));
+                nextPet();
+            } else if (!present || npc.tickCount >= callUntil) {
+                callPet();
+                GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result={} pet={} reason={} gap={}",
+                        phase, homeward ? "separated" : "left_home", pet.getUUID(), present ? "unreachable" : "unavailable", Math.sqrt(gap));
+                companions.remove(pet);
+                nextPet();
+            } else if (homeward && (gap > CALL_RANGE * CALL_RANGE || npc.tickCount >= callUntil - ROUTE_TICKS / 2)
+                    && !pet.blockPosition().equals(fetchAt)) {
+                fetchAt = pet.blockPosition();
+                var path = npc.getNavigation().createPath(fetchAt, 1);
+                boolean walking = path != null && npc.getNavigation().moveTo(path, .85);
+                GameplayLog.event(npc, "npc-care", "action=outing_fetch pet={} at={} walking={}", pet.getUUID(), fetchAt, walking);
             }
         }
 
@@ -1313,13 +1415,13 @@ final class HumanStreet {
         @Override public void stop() {
             endGlance();
             clearPark();
+            if (leg == Leg.GATE) companions = List.of();
             clearLeg();
+            called = null;
             if (!finished && npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
             if (!companions.isEmpty()) {
                 if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason=interrupted");
-                detachLeads("interrupted");
                 homeward = true;
-                companions = List.of();
             }
             npc.getNavigation().stop();
             nextAt = npc.tickCount + 40 + npc.getRandom().nextInt(80);
