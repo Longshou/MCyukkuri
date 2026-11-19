@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 捕食种远距离追猎咬中移动猎物 | `.worktrees/wp-pred-pursuit` | predator/PredatorLife.java (pursuit/stoop) |
-| 钩子救亲：亲油被吓跑出救援范围（排查与修复） | `.worktrees/wp-hook-rescue` | hook_kin_rescue scene, rescue/threat owner if code |
 | 动作衔接：换片段时姿势过渡不跳变 | `.worktrees/wp-pose-bridge` | client/PoseBridge.java (new), client/YukkuriModel.java, client/YukkuriRenderer.java, client/capture/PoseTap.java, AgitationPresentation |
 | 运输篮手持与展示框朝向实拍确认 | `.worktrees/wp-basket-display` | models/item/yukkuri_carrier*.json display |
 | 被赶走时先跺完诅咒再离开 | `.worktrees/wp-curse-hold` | event/HomeClaim.java |
