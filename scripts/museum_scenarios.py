@@ -2900,16 +2900,17 @@ add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放�
            ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
 # SP-02 changes only stock and relationship starting values inside the same authored shop.
 BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1,sort=nearest]'
+_care_feeder = '@e[type=mcyukkuri:caretaker_sister,nbt={SiteRole:"shop_staff"},distance=..32,sort=nearest,limit=1]'
 add('shop_care', 'shop', '店员照料：带伤、长霉和拥挤的食盆', '店员照料：带伤、长霉和拥挤的食盆',
-    '爱丽丝带伤，蕾米莉亚长霉，后院帕秋莉有感染。看店员进栏、亮出对症药品并处理；前排食盆空了，几只油挤在添粮路线旁。',
+    '先看前排展栏：灵梦站在空食盆的入口，带粮的店员请它侧让后添粮。另一位店员带着药，照料受伤的爱丽丝、长霉的蕾米莉亚和感染的帕秋莉。',
     '约半分钟看治疗与添粮', [
         'yukkuri human build shop ~8 ~ ~17 south',
         f'yukkuri status set {BOOTH.format("alice", 3)} health.wound_at front:tear:2',
         f'yukkuri status set {BOOTH.format("remilia", 2)} health.mold 2',
         f'yukkuri status set {BOOTH.format("patchouli", 0)} health.infection 3',
-        f'tp {BOOTH.format("alice", 3)} ~17.5 ~2 ~11.5',
-        f'tp {BOOTH.format("chen", 0)} ~16.5 ~2 ~10.5',
-        f'tp {BOOTH.format("reimu", 0)} ~15.5 ~2 ~10.5',
+        f'data modify entity {_care_feeder} Medicine set value 0',
+        f'tp {_care_feeder} ~15.5 ~2 ~7.5',
+        f'execute positioned ~15.5 ~2 ~10.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~',
         'data merge block ~18 ~2 ~10 {Items:[]}',
     ], env=DAY, vantage=(14, 18, 180, 8),
     reads=[('读在售个体伤病', f'yukkuri status {STOCK} raw')])
