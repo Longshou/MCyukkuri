@@ -17,6 +17,7 @@
 | 被嘲讽、执行制裁、发现霉斑后的情绪余韵 | `.worktrees/wp-scorn-tail` | headwear/Contempt.java, headwear/Sanction.java, body/BodyLife.java |
 | 送别时高依恋亲油含泪目送 | `.worktrees/wp-parting-gaze` | EmotionCourse goal priority, IndependenceLife |
 | 水中救子：子油被推后没落水（排查） | `.worktrees/wp-rescue-child` | rescue_child scene / shove path |
+| 隔台阶的贴身蹭：先到同一层再蹭 | `.worktrees/wp-step-nuzzle` | social/DailyLife.java, life/SurfaceApproach.java, motor/SideContact.java |
 
 ## 玩法待办
 
