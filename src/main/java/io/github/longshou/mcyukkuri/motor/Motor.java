@@ -166,7 +166,8 @@ public final class Motor {
     public static void bodyTurn(YukkuriEntity body) {
         if (body.isPassenger()) return;
         double dx = body.getX() - body.xo, dz = body.getZ() - body.zo;
-        if (dx * dx + dz * dz > MoveControl.MIN_SPEED_SQR) {
+        // A walker pushing into a wall still needs to turn toward its next path node.
+        if (dx * dx + dz * dz > MoveControl.MIN_SPEED_SQR || body.horizontalCollision && body.zza > 0) {
             body.setYBodyRot(turnYaw(body, body.getYRot()));
             body.setYHeadRot(Mth.rotateIfNecessary(body.bodyYaw(), body.getYHeadRot(), (float) body.getMaxHeadYRot()));
         } else {
