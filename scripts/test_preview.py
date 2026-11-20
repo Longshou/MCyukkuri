@@ -35,7 +35,8 @@ class PreviewBoundaryTests(unittest.TestCase):
         self.assertFalse((self.out/'library.json').exists())
 
     def test_moment_opens_live_player_with_paper(self):
-        result = self.run_cli('moment', 'excited_leak', '--model', 'marisa', '--paper-cover')
+        result = self.run_cli('moment', 'excited_leak', '--model', 'marisa', '--paper-cover',
+                              '--decision', 'Check the paper cover')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('player.html?entry=leak&paper=1&model=marisa', result.stdout)
         topic = self.out/'excited_leak'
@@ -45,6 +46,17 @@ class PreviewBoundaryTests(unittest.TestCase):
         self.assertTrue((self.out/'player.html').is_file())
         entries = json.loads((self.out/'entries.json').read_text(encoding='utf-8'))['entries']
         self.assertIn('leak', {entry['id'] for entry in entries})
+        inbox = json.loads((self.out/'inbox/items.json').read_text(encoding='utf-8'))
+        self.assertEqual(inbox[0]['entry'], 'leak')
+        self.assertEqual(inbox[0]['url'], '../player.html?entry=leak&paper=1&model=marisa')
+
+        result = self.run_cli('moment', 'behavior_sunbathe')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('player.html?entry=moment-behavior_sunbathe', result.stdout)
+        self.assertEqual({p.name for p in (self.out/'behavior_sunbathe').iterdir()}, {'index.html', 'topic.json'})
+        self.assertFalse((self.out/'recent.json').exists())
+        library = json.loads((self.out/'library.json').read_text(encoding='utf-8'))
+        self.assertEqual({entry['kind'] for entry in library['entries']}, {'item', 'model', 'scenario'})
 
     def test_missing_frame_keeps_current_page(self):
         source = self.base/'capture'
@@ -98,8 +110,7 @@ class PreviewBoundaryTests(unittest.TestCase):
                 items = json.loads((self.out/'inbox/items.json').read_text(encoding='utf-8'))
                 self.assertEqual(len(items), 1)
                 self.assertTrue(link.endswith(items[0]['url'].removeprefix('../')))
-                library = json.loads((self.out/'library.json').read_text(encoding='utf-8'))
-                self.assertIn('page:boundary', [entry['id'] for entry in library['entries']])
+                self.assertFalse((self.out/'library.json').exists())
 
     def test_viewer_unknown_inputs_keep_current_page(self):
         for options, message in [(['--model', 'missing', '--clip', 'greet'], 'Unknown model:'),
@@ -177,8 +188,7 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         result = self.run_cli('inbox', 'remove', 'boundary')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(json.loads((target/'items.json').read_text(encoding='utf-8'))), 1)
-        library = json.loads((self.out/'library.json').read_text(encoding='utf-8'))
-        self.assertIn('page:boundary', [entry['id'] for entry in library['entries']])
+        self.assertFalse((self.out/'library.json').exists())
 
     def test_inbox_look_only_links_and_migration(self):
         from preview import refresh_inbox

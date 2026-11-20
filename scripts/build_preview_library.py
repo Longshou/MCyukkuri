@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import sys
+from datetime import datetime
 from preview_inventory import current_items
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,7 +105,7 @@ def item_visual(ident, model, out, warnings):
     return None, '外观待补'
 
 
-def build(manifest, catalog, out):
+def build(catalog, out):
     config = read(ROOT/'preview/hub/categories.json')
     categories = config['categories']
     category_ids = {c['id'] for c in categories}
@@ -120,43 +121,12 @@ def build(manifest, catalog, out):
             raise ValueError(f'Unknown category: {entry}')
         entries.append(entry)
 
-    def add_chapter(chapter, category):
-        first = next((s.get('image') for s in chapter['steps'] if s.get('image')), None)
-        first = first or next((g['src'] for g in chapter.get('gallery', [])), None)
-        add(dict(id='scene:'+chapter['id'], category=category, kind='scene',
-                 title=chapter.get('label', chapter['title']), summary=chapter['summary'],
-                 chapter=chapter['id'], image=first, source=chapter.get('source'),
-                 visual=chapter.get('visual', '基础外观对照')))
-
-    for chapter in manifest['chapters']:
-        add_chapter(chapter, chapter.get('category') or config['chapters'].get(chapter['id'], 'other'))
-    for gap in config['previewGaps']:
-        add(dict(id='reference:'+gap['id'], category=gap['category'], kind='reference',
-                 title=gap['title'], summary=gap['reason'], source=gap['source'], visual='预览缺口'))
-
     for model in catalog['models']:
         category = 'house' if model['id'].startswith('house_') else 'species'
         add(dict(id='model:'+model['id'], category=category, kind='model', title=model['name'],
                  summary=f"{model['group']} · {len(model['actions'])} 个有运行引用的片段 · {len(model['textures'])} 套贴图；仅基础模型，不含状态附加渲染",
                  model=model['id'], image=f"models/thumbs/{model['id']}.png",
                  source='docs/FEATURES.md', visual='可旋转模型'))
-
-    import museum_actions
-    action_categories = {action:config['actionGroups'].get(group, 'other')
-                         for group, actions in museum_actions.CATEGORIES for action, _ in actions}
-    action_names = {**museum_actions.NAMES, **config['actionLabels']}
-    for action in sorted({a for model in catalog['models'] for a in model['actions']}):
-        models = [m for m in catalog['models'] if action in m['actions']]
-        category = next((category for pattern, category in config['actionRules'] if re.search(pattern, action)),
-                        action_categories.get(action, 'other'))
-        preferred = 'marisa' if category=='water' else 'house_reimu' if category=='house' else 'reimu'
-        for prefix, ident in [('predator_', 'remilia'), ('shell_', 'marisa_tsumuri'), ('house_', 'house_reimu')]:
-            if action.startswith(prefix): preferred = ident
-        model = next((m for m in models if m['id']==preferred), models[0])
-        add(dict(id='motion:'+action, category=category, kind='motion', title=action_names.get(action, action),
-                 summary=f"{model['name']}演示 · 仅播放模型片段，不含目标、道具、环境和身体状态，不代表该形态具备对应玩法能力。",
-                 model=model['id'], action=action, image=f"models/thumbs/{model['id']}.png",
-                 source='docs/FEATURES.md', visual='可播放动作'))
 
     lang = read(ASSETS/'lang/zh_cn.json')
     registered = current_items()
@@ -195,17 +165,11 @@ def build(manifest, catalog, out):
                  note=scenario.note, retry=scenario.retry, sceneId=scenario.id,
                  source='docs/FEATURES.md', visual='游戏试玩入口'))
 
-    for species in dict.fromkeys(a['species'] for a in catalog['audio']):
-        name = lang.get('entity.mcyukkuri.'+species, species)
-        count = sum(a['species']==species for a in catalog['audio'])
-        add(dict(id='audio:'+species, category='social', kind='audio', title=name+' · 声音试听',
-                 summary=f'{count} 条已有打包音频，可按场景和台词筛选。', species=species,
-                 source='docs/FEATURES.md', visual='声音'))
     ids = [e['id'] for e in entries]
     if len(ids) != len(set(ids)):
         raise ValueError('Duplicate preview entry id')
     result = dict(categories=[{k:c[k] for k in ('id','label','description','source')} for c in categories],
-                  entries=entries, generatedAt=manifest['generatedAt'])
+                  entries=entries, generatedAt=datetime.now().astimezone().isoformat(timespec='seconds'))
     (out/'library.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     report = ROOT/'.local/reports/preview-library.json'
     report.parent.mkdir(parents=True, exist_ok=True)
@@ -213,7 +177,6 @@ def build(manifest, catalog, out):
                                       missingRenderInputs=warnings,
                                       unconfirmedItemResources=unconfirmed,
                                       unconfirmedActions=sorted({a for m in catalog['models'] for a in m['unconfirmedActions']}),
-                                      previewGaps=config['previewGaps'],
                                       itemAppearanceGaps=[e['id'] for e in entries if e['kind']=='item' and not e['image']]), ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(f'Indexed {len(entries)} gameplay entries; {sum(e["category"]=="other" for e in entries)} unclassified; {len(warnings)} missing render inputs.')
     return result

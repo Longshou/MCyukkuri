@@ -404,15 +404,7 @@ async function playEntry(data, entry) {
 }
 
 loadEntries().then(async data => {
-    const moment = params.get('moment');
-    let entry = data.entries.find(item => item.id === params.get('entry'));
-    if (moment) {
-        const response = await fetch('/src/main/resources/assets/mcyukkuri/yukkuri_presentation/moments.json');
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const row = (await response.json()).moments[moment];
-        const model = params.get('model');
-        if (row && data.models[model]) entry = {...row, moment, model, title: moment, category: 'performances'};
-    }
+    const entry = data.entries.find(item => item.id === params.get('entry'));
     if (!entry) throw new Error('未找到这个条目。');
     $('title').textContent = entry.title;
     document.title = entry.title + ' · 演出放映室';

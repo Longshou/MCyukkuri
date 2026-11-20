@@ -2,7 +2,7 @@
 
 The in-context image is 1280x720 with each body about 1/8 of the screen height (museum viewing distance) and the icon
 at half the body height (3x its 16 px), over sky and over grass. Heads come from the shared offline renderer
-(`scripts/preview.py`); the page goes to `.local/previews/emote-atlas/` and is registered on the preview hub.
+(`scripts/preview.py`); the page goes to `.local/previews/emote-atlas/`.
 
     python standards/yukkuri-library/emotes/preview.py
 """
@@ -14,7 +14,6 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(ROOT/'scripts'))
 import preview  # noqa: E402
-from build_preview_hub import register_topics  # noqa: E402
 
 TOPIC = 'emote-atlas'
 SCREEN, BODY, ICON_SCALE = (1280, 720), 90, 3
@@ -76,7 +75,6 @@ def main():
                 + '<table><tr><th>ID</th><th>含义</th><th>建议用途</th></tr>'+rows+'</table>')
         (stage/'index.html').write_text(preview.page('头顶情绪符号', body), encoding='utf-8')
         preview.write_json(stage/'topic.json', dict(title='头顶情绪符号', command='emotes/preview.py', inputs={}))
-    register_topics(preview.OUT)
     print('http://127.0.0.1:8765/.local/previews/'+TOPIC+'/index.html')
 
 

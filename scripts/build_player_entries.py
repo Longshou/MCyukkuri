@@ -16,6 +16,19 @@ MOMENTS = {
     'fright_vomit': ('受惊吐馅', 'reaction_afraid', ('受惊后吐出馅料',)),
 }
 
+# These feature entries already play the authored row. The filling performance
+# adds an effect to reaction_afraid, so the unmodified reaction has its own entry.
+MOMENT_ALIASES = {source: ident for ident, (_, source, _) in MOMENTS.items()
+                  if source and ident != 'fright_vomit'}
+MOMENT_TITLES = {
+    'behavior_meal_content': '饭后满足',
+    'behavior_call_child': '呼唤孩子',
+    'behavior_sunbathe': '晒太阳',
+    'behavior_sleep_enter': '入睡',
+    'behavior_sleep': '睡眠',
+    'behavior_rain_huddle_right': '雨中向右蜷缩',
+}
+
 
 def moment_clip_durations():
     # ClipMarkers takes the first authored correction for each name, then Reimu's base clips.
@@ -46,6 +59,21 @@ ATTACHMENT_MOMENTS = {
 }
 
 
+def moment_entry_id(ident):
+    if ident == 'excited_leak':
+        return 'leak'
+    if ident in MOMENTS or ident in ATTACHMENT_MOMENTS:
+        return ident
+    return MOMENT_ALIASES.get(ident, 'moment-'+ident)
+
+
+def compatible_models(models, faces, steps, extra_faces=()):
+    clips = {step['clip'] for step in steps}
+    expressions = {face for step in steps for _, face in step['faces']}.union(extra_faces)
+    return [model['id'] for model in models if clips <= model['clips'].keys() and all(
+        resolve(faces, model['id'], face) in model['textures'] for face in expressions)]
+
+
 def performance_lines(audio, event):
     lines = {}
     candidates = sorted((line for line in audio if line['age'] == 'adult' and event in line['events']),
@@ -58,6 +86,7 @@ def performance_lines(audio, event):
 def build_entries(catalog, items):
     authored = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
     action_names = {**NAMES, **read(ROOT/'preview/hub/categories.json')['actionLabels']}
+    lang = read(ASSETS/'lang/zh_cn.json')
     faces = read(ASSETS/'yukkuri_presentation/face_library.json')
     models = catalog['models']
     entries = []
@@ -68,10 +97,7 @@ def build_entries(catalog, items):
             for clip in ('startle', 'brace', 'idle')])
         steps = [dict(step, caption=caption) for step, caption in zip(row['steps'], captions, strict=True)]
         leak_faces = ('leak_startle', 'leak_flow', 'side_teary') if not source else ()
-        variants = [model['id'] for model in models if all(
-            step['clip'] in model['clips'] and
-            all(resolve(faces, model['id'], face) in model['textures'] for _, face in step['faces'])
-            for step in steps) and all(face in model['textures'] for face in leak_faces)]
+        variants = compatible_models(models, faces, steps, leak_faces)
         assert variants, ident
         entry = dict(id=ident, category='performances', tag='look-only', title=title,
                      variants=variants, steps=steps, loop=row['loop'], moment=source,
@@ -95,6 +121,19 @@ def build_entries(catalog, items):
         dict(clip='startle', faces=[[0, 'surprise']], tempo=1, scratch=scratch, caption='受击'),
         dict(clip='idle', faces=[[0, 'side_teary']], tempo=1, duration=2.5, scratch=scratch, caption='脸颊与头发留下擦伤'),
     ]))
+
+    for source, row in authored.items():
+        if source in MOMENT_ALIASES:
+            continue
+        variants = compatible_models(models, faces, row['steps'],
+                                     [row['condition_face']] if 'condition_face' in row else ())
+        assert variants, source
+        title = MOMENT_TITLES.get(source) or lang.get('behavior.mcyukkuri.'+source.removeprefix('behavior_'))
+        if not title:
+            clip_name = action_names.get(row['steps'][0]['clip'])
+            title = f'{clip_name} · {source}' if clip_name else source
+        entries.append(dict(id=moment_entry_id(source), category='performances', tag='look-only',
+                            title=title, variants=variants, moment=source, **row))
 
     for model in models:
         ident = model['id']

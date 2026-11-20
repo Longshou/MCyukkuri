@@ -271,7 +271,7 @@ def render_strip(args, stage, times, before=False, unyielded=False):
         if before or unyielded:
             job['camera'] = read(stage/'camera.json')
         write_json(work/'job.json', job)
-        subprocess.run([args.node, str(ROOT/'preview/hub/render.cjs'), str(work/'job.json')], check=True)
+        subprocess.run([args.node, str(ROOT/'scripts/render_preview_strip.cjs'), str(work/'job.json')], check=True)
         if not before:
             shutil.copy2(work/'camera.json', stage/'camera.json')
         frames = [Image.frombytes('RGBA', tuple(args.size), (work/f'{i}.rgba').read_bytes()) for i in range(len(times))]
@@ -512,32 +512,40 @@ def collection(args, stage):
 
 
 def moment_url(args):
-    from build_player_entries import ATTACHMENT_MOMENTS, MOMENTS
+    from build_player_entries import moment_entry_id
 
-    if args.topic in ('excited_leak', 'leak'):
-        selection = {'entry': 'leak'}
-    elif args.topic in MOMENTS or args.topic in ATTACHMENT_MOMENTS:
-        selection = {'entry': args.topic}
-    else:
-        selection = {'moment': args.topic}
+    selection = {'entry': moment_entry_id(args.topic)}
     if args.paper_cover:
         selection['paper'] = 1
-    return '../player.html?' + urlencode(dict(selection, model=args.model))
+    if args.model:
+        selection['model'] = args.model
+    return '../player.html?' + urlencode(selection)
 
 
 def moment(args, stage):
-    from build_player_entries import ATTACHMENT_MOMENTS, MOMENTS
+    from build_player_entries import ATTACHMENT_MOMENTS, MOMENTS, moment_entry_id
+    from build_preview_hub import build
     from build_review_catalog import current_roles
 
-    if args.model not in {ident for ident, _, _ in current_roles()}:
+    if args.model and args.model not in {ident for ident, _, _ in current_roles()}:
         raise ValueError(f'Unknown runtime model: {args.model}')
     authored = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
     if args.topic not in (*MOMENTS, *ATTACHMENT_MOMENTS, 'excited_leak') and args.topic not in authored:
         raise ValueError(f'Unknown moment: {args.topic}')
+    ident = moment_entry_id(args.topic)
+    catalog = OUT/'entries.json'
+    entries = read(catalog)['entries'] if catalog.is_file() else []
+    if not (OUT/'player.html').is_file() or not any(entry['id'] == ident for entry in entries):
+        entries = build(OUT)['entries']
+    entry = next(entry for entry in entries if entry['id'] == ident)
+    if args.model and args.model not in ([entry['model']] if 'model' in entry else entry['variants']):
+        raise ValueError(f'Model {args.model} cannot play moment {args.topic}')
     return f'<a href="{E(moment_url(args), quote=True)}">在放映室打开</a>'
 
 
 def kit(args, stage):
+    from build_player_entries import moment_entry_id
+
     library = ROOT/'standards/yukkuri-library'
     entries = read(library/'provenance/standard-expressions.json')['entries']
     selection = read(library/'expressions/runtime.json')
@@ -552,7 +560,7 @@ def kit(args, stage):
         spans.update((clip,a,b,face) for clip,row in selected.items() for a,b,face in row.get('expression_spans',[]))
     moments = read(ROOT/'standards/yukkuri-library/presentation/moments.json')['moments']
     usage = {}
-    cards = []
+    usage_rows = []
     for row in entries:
         ident = row['id']
         count = len(re.findall(r'"'+re.escape(ident)+r'"',java))
@@ -560,10 +568,12 @@ def kit(args, stage):
         moment_count = sum(any(face==ident for step in row['steps'] for _,face in step['faces'])
                            or row.get('condition_face')==ident for row in moments.values())
         usage[ident] = dict(java=count,face_spans=span_count,moments=moment_count)
-        shutil.copy2(library/'expressions/thumbnails'/(ident+'.png'),stage/(ident+'.png'))
-        cards.append(f'<figure><img loading="lazy" src="{ident}.png"><figcaption>{E(row["label"])} · {ident}<br>Java {count} / 片段表情段 {span_count} / 演出行 {moment_count}'+(' · <strong>未使用</strong>' if count+span_count+moment_count==0 else '')+'</figcaption></figure>')
+        usage_rows.append(f'<li>{E(row["label"])} · {ident} · Java {count} / 片段表情段 {span_count} / 演出行 {moment_count}'
+                          + (' · <strong>未使用</strong>' if count+span_count+moment_count==0 else '')+'</li>')
     write_json(stage/'usage.json',usage)
-    body = '<p>认可表情；引用数为 Java 字符串出现次数和全部模型运行片段的表情段数（相同片段及表情段跨模型去重），不代表游玩频率。A/B 相位单列；客户端自动轮播基础 ID。</p><div style="display:flex;flex-wrap:wrap">'+''.join(cards)+'</div>'
+    body = ('<p>在放映室打开<a href="../player.html?entry=model-reimu">灵梦模型</a>，用表情菜单查看。'
+            '引用数按 Java 字符串、片段表情段和演出行统计，片段表情段跨模型去重。A/B 相位单列。</p>'
+            '<ul>'+''.join(usage_rows)+'</ul>')
     proof = [r['id'] for r in entries if sum(usage[r['id']].values())==0 and not r['id'].endswith('_b')][:6]
     body += '<h2>运行资源实绘：灵梦／魔理沙</h2>'
     for species in ('reimu','marisa'):
@@ -577,13 +587,11 @@ def kit(args, stage):
     body += '<h2>基本／通用动作</h2>'
     for ident in selection['kit_clips']:
         clip = clips[ident]
-        opts=argparse.Namespace(model='reimu',prop=None,clip=ident,face=None,partner=None,before=None,
-                                size=[160,150],view=[26,10],node=args.node)
-        frames=render_strip(opts,stage,[clip['duration']*i/12 for i in range(12)])
-        frames[0].save(stage/(ident+'.gif'),save_all=True,append_images=frames[1:],duration=max(20,round(clip['duration']*1000/12)),loop=0)
         count=len(re.findall(r'"'+re.escape(ident)+r'"|\b'+re.escape(ident.upper())+r'\b',java))
-        body += f'<figure><img loading="lazy" src="{ident}.gif"><figcaption>{ident} · {clip["duration"]:g} 秒 · Java {count}'+(' · <strong>未使用</strong>' if count==0 else '')+'</figcaption></figure>'
-    body += '<h2>演出数据行</h2><ul>'+''.join('<li>'+E(ident)+'：'+E(' → '.join(s['clip'] for s in row['steps']))+'</li>' for ident,row in moments.items())+'</ul>'
+        body += f'<p><a href="../player.html?entry=motion-{ident}-reimu">{ident}</a> · {clip["duration"]:g} 秒 · Java {count}</p>'
+    body += '<h2>演出数据行</h2><ul>'+''.join(
+        f'<li><a href="../player.html?entry={moment_entry_id(ident)}">{E(ident)}</a> · '
+        + E(' → '.join(step['clip'] for step in row['steps']))+'</li>' for ident, row in moments.items())+'</ul>'
     emotes = read(ASSETS/'textures/emote/emotes.json')
     shutil.copy2(ASSETS/'textures/emote/atlas.png',stage/'emotes.png')
     body += '<h2>头顶符号</h2>'+media('emotes.png')+'<ul>'+''.join('<li>'+E(row['id']+'：'+row['meaning'])+'</li>' for row in emotes['emotes'])+'</ul>'
@@ -636,7 +644,7 @@ def inbox(args):
             if not any(row['id'] == entry and row['tag'] == 'look-only'
                        for row in read(OUT/'entries.json')['entries']):
                 raise ValueError(f'Unknown look-only player entry: {entry}')
-            item.update(url='../player.html?'+urlencode({'entry': entry}), entry=entry)
+            item.update(url=args.url or '../player.html?'+urlencode({'entry': entry}), entry=entry)
         if args.look_only or entry:
             item['tag'] = 'look-only'
         items = [old for old in items if old['id'] != args.id] + [item]
@@ -774,7 +782,7 @@ def parser():
     commands.add_parser('hub', help='refresh the live player and preview home')
     mp = commands.add_parser('moment',help='open a presentation data row in the live player')
     mp.add_argument('topic',type=valid_topic)
-    mp.add_argument('--model',default='reimu')
+    mp.add_argument('--model')
     mp.add_argument('--paper-cover', action='store_true')
     mp.add_argument('--title')
     mp.add_argument('--decision')
@@ -818,18 +826,20 @@ def main():
                 (stage/'index.html').write_text(page(title, body), encoding='utf-8')
                 write_json(stage/'topic.json', dict(title=title, command=args.command, inputs=vars(args)))
             if args.decision:
+                from build_player_entries import moment_entry_id
+
                 inbox(argparse.Namespace(action='add', id=args.topic, title=title,
                        url=(f'../{args.topic}/viewer.html?'+viewer_query(args) if args.command == 'viewer'
                             else (moment_url(args) if args.command == 'moment' else f'../{args.topic}/index.html')),
                        decision=args.decision,
-                       entry=None, look_only=args.command == 'viewer'))
+                       entry=moment_entry_id(args.topic) if args.command == 'moment' else None,
+                       look_only=args.command == 'viewer'))
         elif args.command == 'inbox':
             inbox(args)
-        from build_preview_hub import build, register_topics
-        if args.command == 'hub' or (args.command == 'moment' and not (OUT/'player.html').is_file()):
+        if args.command == 'hub' or (args.command == 'kit' and not (OUT/'player.html').is_file()):
+            from build_preview_hub import build
+
             build(OUT)
-        else:
-            register_topics(OUT)
         relative = f'{args.topic}/index.html' if hasattr(args, 'topic') else ('inbox/index.html' if args.command == 'inbox' else 'index.html')
         if args.command == 'viewer':
             relative = f'{args.topic}/viewer.html?' + viewer_query(args)

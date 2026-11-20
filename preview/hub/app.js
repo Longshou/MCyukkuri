@@ -34,6 +34,14 @@ function groupBy(rows, key) {
     return groups;
 }
 
+function expandableList(label, list) {
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    details.append(summary, list);
+    return details;
+}
+
 function render({entries, models}) {
     for (const [id, label] of Object.entries({all: '全部', ...categories})) {
         const link = document.createElement('a');
@@ -50,18 +58,17 @@ function render({entries, models}) {
         section.append(title);
         const rows = entries.filter(entry => entry.category === id);
         if (id === 'performances') {
-            section.append(entryList(rows.filter(entry => entry.steps), () => ''));
+            const authored = rows.filter(entry => entry.id.startsWith('moment-'));
+            authored.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
+            section.append(entryList(rows.filter(entry => entry.steps && !entry.id.startsWith('moment-')), () => ''));
+            section.append(expandableList('演出片段', entryList(authored, () => '')));
             const clips = groupBy(rows.filter(entry => entry.clip), entry => entry.clip);
-            const details = document.createElement('details');
-            const summary = document.createElement('summary');
-            summary.textContent = '动作片段';
             const featured = [...clips.values()].map(group => group[0]);
             featured.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
-            details.append(summary, entryList(featured, entry => {
+            section.append(expandableList('动作片段', entryList(featured, entry => {
                 const count = clips.get(entry.clip).length;
                 return count > 1 ? count + ' 种形态' : models[entry.model].name;
-            }));
-            section.append(details);
+            })));
         } else if (id === 'sounds') {
             for (const [speaker, sounds] of groupBy(rows, entry => entry.speaker)) {
                 const details = document.createElement('details');

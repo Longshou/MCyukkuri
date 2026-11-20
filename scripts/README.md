@@ -30,7 +30,7 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 试玩场默认使用 `/yukkuri status trace light`；`off` 关闭，`dense` 每 tick 输出完整状态及耗时。结构化 `[trace]` 行写入服务端原日志，`st` 中缺失的键表示不变，`null` 表示未知。light 每 tick 观察依附关系、持物、动作身份和危险状态，位置、速度、帽船坐标系及其他连续读数每 40 tick 比较一次，仅写变化；异常跳变保留前后两帧。详细状态表的 `ch` 在 light 每 200 tick 观察一次（dense 为 20 tick），不保留其间的短暂诊断变化，也不重复输出同一次状态变化的文本和 `ev`；普通玩法事件照常记录。场景窗口重置后首帧完整，未加载区块的窒息几何记为未知，不为录制加载区块。
 
-演出数据由 `export_moments.py [--check]` 导出并检查片段、表情及符号引用。`test_moments.py` 检查错误引用和非法时间。`preview.py moment <ID> [--model NAME] [--paper-cover]` 生成实时[放映室](../preview/README.md)链接，`excited_leak` 打开受惊漏尿。`preview.py kit` 包含演出行与头顶符号目录。格式见[演出数据](../standards/yukkuri-library/presentation/README.md)。
+演出数据由 `export_moments.py [--check]` 导出并检查片段、表情及符号引用。`test_moments.py` 检查错误引用和非法时间。`preview.py moment <ID> [--model NAME] [--paper-cover]` 生成实时[放映室](../preview/README.md)条目链接，`excited_leak` 打开受惊漏尿。`preview.py kit` 收录演出与动作的实时链接及头顶符号目录。格式见[演出数据](../standards/yukkuri-library/presentation/README.md)。
 
 姿态 JSON 协议的 `leak` 操作接收 `stage`、`selfControl`、`stimulus`、`seed`、`pressure` 和 `bodyWidth`，返回概率、抽签和命中后的时间点、表情及水流透明度。`floorEffect` 接收 `reason`、`amount`、`sourceId`、`tick`、`scale`、`position` 和 `direction`，返回平地上的贴花、逐 tick 透明度和馅料轨迹。坐标以方块为单位，`position` 和 `direction` 为含 `x/y/z` 的对象。`render` 请求可用 `leakStream: true` 取水流网格，`outlet: [x,y,z]` 取当前姿态下的出口坐标，单位均为模型像素。加入 `vertexFormat: "float32le"` 并使用 JSON 响应时，三角形顶点流以 Base64 返回。
 
@@ -127,9 +127,9 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `<py> scripts/preview.py viewer <主题> --model marisa --clip braid_head_set --decision "确认动作节奏与接触"` 输出一个打开即播放的查看器链接，并把同一链接登记待查看；例如 `--model reimu --clip greet` 看灵梦问候。可带 `--expression happy` 固定表情，默认随动作。复用 `preview/review/` 查看器及共享姿态核心，保存当前工作树的实际运行模型、贴图和按游戏加载顺序合并的动作覆盖快照，包含 lore／variant 导出片段，不按玩法引用过滤；需要 JDK 21 和已有核心依赖，生成时只编译纯姿态核心，不用 Gradle。直达地址参数为 `model`、`clip`（兼容 `action`）、`expression`、`autoplay=1`；支持播放／暂停、时间轴、正侧背视角和拖动旋转。主题首页嵌入相同查看器，重复命令刷新快照。预览不代替游戏内道具、AI 与演出验收。
 
-所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
+专项预览写到 `.local/previews/<主题>/`，通过生成命令输出的地址打开；需要用户决定的条目用 `--decision` 登记到「待你查看」。截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
-`<py> scripts/build_preview_hub.py` 生成放映室首页、实时播放器目录、模型／物品缩略图和声音索引。`--render` 另行重建专项图，部分专项依赖原版资源。目录使用当前包内模型、片段、物品和声音。`build_preview_props.py` 只读当前打包网格和贴图。用 `<py> scripts/serve_review.py --port 8766` 启动本机服务，手动打开输出地址。播放器使用 JDK 21 的纯姿态核心。界面和审阅记录见 [预览说明](../preview/README.md)。
+`<py> scripts/build_preview_hub.py` 生成放映室首页与共用的 `entries.json`。目录使用当前包内演出、模型、物品和声音，每条链接打开 `player.html?entry=…`。`--render` 同时重建专项图，部分专项依赖原版资源。`build_preview_props.py` 只读当前打包网格和贴图。用 `<py> scripts/serve_review.py --port 8766` 启动本机服务，手动打开输出地址。播放器使用 JDK 21 的纯姿态核心。界面和审阅记录见[预览说明](../preview/README.md)。
 
 放映室的 `render` 请求可带 `leakAge`（距水洼出现的 tick 数）或 `scratch`（擦伤的等级 `grade` 和射线瞄点 `sites`，依次填写方位弧度和相对身体中枢的高度）。姿态核心读取包内受伤表面和伤口配置，返回与当前骨架同步的三角形、UV、材质路径和透明度。
 
@@ -137,7 +137,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果。
 
-总入口调用 `build_preview_library.py`，按 `preview/hub/categories.json` 生成游戏分类目录、物品缩略图及试玩入口；`preview_block_model.py` 适配原生方块元素供离线渲染；`preview_inventory.py` 从 Java 注册与运行引用过滤残留资源。它们只读资源与场景源码，输出在 `.local/previews/`，分类缺口报告在 `.local/reports/preview-library.json`；不会生成试玩世界或运行场景。
+总入口调用 `build_preview_library.py` 生成物品缩略图及物品、模型、试玩场景索引 `library.json`。`preview_block_model.py` 渲染原生方块元素，`preview_inventory.py` 从 Java 注册与运行引用识别当前物品。分类与资源缺口写到 `.local/reports/preview-library.json`。
 
 `asset_export_checks.py` 是各导出器 `--check` 共用的只读比较库（生活、家庭、家油照料与周边）。普通 JSON 仅容忍 LF／CRLF 差异，仍核对字段顺序、空格与结尾换行；PNG 检查按字节比较，生成器仅在格式、模式、尺寸和像素完全一致时复用现有编码。三个道具包的网格生成器仅复用符号零（`-0.0`／`0.0`）等值的既有表示；其 Blockbench 模型按 JSON 内容比较，仅容忍顶点坐标不超过 `1e-15` 的计算尾差和内嵌 PNG 的等价编码。草麦食盆先核对预览图集裁切像素，再复用所选原始调色板字节。生活口部数据从圆润选用网格重新推导并对照选用记录；遗体物品模型从 `art/props/house-care/yukkuri_remains.item.json` 复制当前渲染配置。
 
@@ -204,7 +204,7 @@ E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）�
 | `export_subspecies_wounds.cjs` | 读取八套实际运行几何与既有受伤表面算法，仅重建对应受伤表面和指纹；需 Node.js |
 | `preview_subspecies.py` | 从当前运行三角面和贴图生成离线交互页、六角度拼图与40幅生态表情图；需 Python/Pillow 和现有 Node.js，不启动游戏 |
 
-日常生态入口：`export_ecology_expressions.py` 按标准库 `expressions/runtime.json` 导出全部认可表情（共享辅助模块 `runtime_face_library.py`），保留已选贴图来源，补齐其他贴图与几何补丁；已烘焙预设按制作源记录的几何输入指纹复用权威补丁，输入变化的草稿从共享源网格按同一烘焙规则重算，新预设与身体构建器、库导出同步工具共用 `expression_geometry.py` 的偏移规则；双帧逐帧时长（`frame_ticks` 与 `frames` 一一对应）、模型清单、缺失表情的显式别名和目录动作清单在该数据中维护。新增标准表情时先 `--bases` 只写基底模型的贴图，重建稀有形态（`export.py --family source:standards/yukkuri-library/subspecies/rare-forms/build.py --family rare-forms`）后再完整导出。`--check` 同时调用 `face_usage.py`／`FaceUsage.java`：使用本机 JDK 的语法树收集表情调用（表情取调用所匹配重载的第一个字符串参数）、字符串返回的表情提供者及其局部变量／参数转发，另读全部运行片段的 `expression_spans`，要求每个发出 ID 在全部模型上均可选或显式映射，并有对应贴图；缺失时报 ID、模型及来源。该检查不推断物种可达性，包含被覆盖片段与条件分支，任意外部输入仍由客户端未知 ID 报错处理。`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。`preview.py kit` 生成表情与基本／通用动作目录（认可缩略图、Java 与片段表情段引用数、真实运行资源实绘及共享 pose 模块的动画预览），只登记预览总入口。`preview.py strip --face <ID>` 可指定运行表情并按逐帧时长播放 A/B 帧。说明见[日常生态](../docs/FEATURES.md#日常生态)。
+日常生态入口：`export_ecology_expressions.py` 按标准库 `expressions/runtime.json` 导出全部认可表情（共享辅助模块 `runtime_face_library.py`），保留已选贴图来源，补齐其他贴图与几何补丁；已烘焙预设按制作源记录的几何输入指纹复用权威补丁，输入变化的草稿从共享源网格按同一烘焙规则重算，新预设与身体构建器、库导出同步工具共用 `expression_geometry.py` 的偏移规则；双帧逐帧时长（`frame_ticks` 与 `frames` 一一对应）、模型清单、缺失表情的显式别名和目录动作清单在该数据中维护。新增标准表情时先 `--bases` 只写基底模型的贴图，重建稀有形态（`export.py --family source:standards/yukkuri-library/subspecies/rare-forms/build.py --family rare-forms`）后再完整导出。`--check` 同时调用 `face_usage.py`／`FaceUsage.java`：使用本机 JDK 的语法树收集表情调用（表情取调用所匹配重载的第一个字符串参数）、字符串返回的表情提供者及其局部变量／参数转发，另读全部运行片段的 `expression_spans`，要求每个发出 ID 在全部模型上均可选或显式映射，并有对应贴图；缺失时报 ID、模型及来源。该检查不推断物种可达性，包含被覆盖片段与条件分支，任意外部输入仍由客户端未知 ID 报错处理。`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。`preview.py kit` 生成表情使用统计和运行资源实绘，表情从实时播放器的模型页选择。`preview.py strip --face <ID>` 可指定运行表情并按逐帧时长播放 A/B 帧。说明见[日常生态](../docs/FEATURES.md#日常生态)。
 
 头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；稀有形态沿用其基础形态的适配，部件索引按自身模型重映射。`--check` 只核对，`--only id,... --out 文件` 写试验结果；`--update-only id,...` 只更新这些模型并保留其他适配。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配](../art/source/placement-fit/README.md)。
 

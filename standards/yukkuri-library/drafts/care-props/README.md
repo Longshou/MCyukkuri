@@ -29,7 +29,7 @@
 
 `build.py` 之后执行 `scripts/export_peripheral_assets.py`。小玩具、清洗布、教导哨与同伴绳由 `drafts/care-expansion/build.py` 导出；超辣油粮与食糜由 `drafts/consumables/build.py`；捕食种枝巢（`block-props/nests.py`）由 `art/props/predators/build.py`；叶床、个人小叶巢、叶束（`wild.py`）及纸箱由 `ecology/wild-shelters/build.py` 导出，结界等其余件的输出指纹不变；2×2 编织大窝默认款与野生大窝由 `large_nests.py` 导出。
 
-被替换的原三档袋“标签位图”改动脚本 `art/props/runtime-peripheral/shop_goods_v2.py` 不再处理油粮袋。厨余盆 `food_bowl_garbage` 无任何代码引用，已删除。旧导出的 `nest_lining` 不由游戏代码使用，但仍被动作预览 `preview/hub/actions.json` 引用，保留不动。
+被替换的原三档袋“标签位图”改动脚本 `art/props/runtime-peripheral/shop_goods_v2.py` 不再处理油粮袋。厨余盆 `food_bowl_garbage` 无任何代码引用，已删除。
 
 ## 放置用品制作说明
 

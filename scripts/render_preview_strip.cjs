@@ -1,7 +1,7 @@
 /* Command-line adapter. Bone composition and rasterization stay in their shared modules. */
 'use strict';
 const fs=require('fs'),path=require('path'),vm=require('vm');
-const {RuntimePose}=require('../review/pose.js');
+const {RuntimePose}=require('../preview/review/pose.js');
 const job=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 const raster={};
 vm.runInNewContext(fs.readFileSync(path.join(job.root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);

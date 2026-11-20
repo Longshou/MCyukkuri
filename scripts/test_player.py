@@ -160,12 +160,11 @@ class PlayerTests(unittest.TestCase):
             self.pose(dict(op='release', id=record['id']))
 
     def test_hub_and_player_html(self):
-        for path, controls in [
-            ('/', {'filters', 'catalog', 'status'}),
-            ('/player.html?entry=leak', {'view', 'variant', 'zoom', 'play', 'time', 'speed', 'caption',
-                                         'paper', 'mute', 'verdict'}),
-            ('/.local/previews/inbox/index.html', set()),
-        ]:
+        player_controls = {'view', 'variant', 'zoom', 'play', 'time', 'speed', 'caption', 'paper', 'mute', 'verdict'}
+        pages = [('/', {'filters', 'catalog', 'status'}), ('/.local/previews/inbox/index.html', set())]
+        pages.extend((f'/player.html?entry={ident}', player_controls)
+                     for ident in ('leak', 'moment-behavior_sunbathe', 'moment-behavior_call_child'))
+        for path, controls in pages:
             with urlopen(self.base+path) as response:
                 parser = Document()
                 parser.feed(response.read().decode('utf-8'))
@@ -183,6 +182,7 @@ class PlayerTests(unittest.TestCase):
 
     def test_entries_resolve_to_runtime_assets(self):
         from build_review_catalog import ASSETS, read
+        from build_player_entries import moment_entry_id
         from preview_inventory import current_items
 
         entries = self.data['entries']
@@ -200,6 +200,16 @@ class PlayerTests(unittest.TestCase):
                 name = sound['name'] if isinstance(sound, dict) else sound
                 sounds.add('/src/main/resources/assets/'+name.replace(':', '/sounds/')+'.ogg')
         self.assertEqual({e['audio'] for e in entries if e['category'] == 'sounds'}, sounds)
+        by_id = {entry['id']: entry for entry in entries}
+        authored = read(ASSETS/'yukkuri_presentation/moments.json')['moments']
+        for ident, row in authored.items():
+            entry = by_id[moment_entry_id(ident)]
+            self.assertEqual(entry['moment'], ident)
+            self.assertEqual(entry['tag'], 'look-only')
+            self.assertEqual(entry['loop'], row['loop'])
+            self.assertEqual([{k: v for k, v in step.items() if k != 'caption'}
+                              for step in entry['steps']], row['steps'])
+            self.assertTrue(entry['variants'])
         clips = {}
         for model in self.data['models']:
             with self.subTest(model=model), self.actor(model) as actor:

@@ -7,7 +7,6 @@ import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime
 
 import build_review_catalog
 import build_preview_library
@@ -20,47 +19,6 @@ OUT = ROOT / '.local/previews'
 def font(size):
     from preview import font as preview_font
     return preview_font(size)
-
-
-def register_topics(out):
-    """Publish local pages independently of the specialized renderer freshness gates.
-
-    These entries describe saved local artifacts, not verified current runtime media.
-    A full hub build and the lightweight preview command use the same registration.
-    """
-    from preview import page, media
-    out.mkdir(parents=True, exist_ok=True)
-    library_path, recent_path = out/'library.json', out/'recent.json'
-    library = json.loads(library_path.read_text(encoding='utf-8')) if library_path.is_file() else dict(
-        categories=json.loads((ROOT/'preview/hub/categories.json').read_text(encoding='utf-8'))['categories'], entries=[])
-    recent = json.loads(recent_path.read_text(encoding='utf-8')) if recent_path.is_file() else dict(chapters=[])
-    topics = []
-    for folder in sorted(out.iterdir()):
-        if not folder.is_dir() or folder.name.startswith('_') or folder.name in ('models', 'library', 'scenes', 'playtest'):
-            continue
-        images = sorted(p for p in folder.iterdir() if p.suffix.lower() in ('.png', '.jpg', '.gif', '.mp4', '.webm'))
-        index = folder/'index.html'
-        if not index.is_file() and images:
-            index.write_text(page(folder.name, '<p>本地留存预览；制作版本以所属材料为准。</p>' +
-                             ''.join(media(p.name, p.stem) for p in images)), encoding='utf-8')
-        if not index.is_file():
-            continue
-        metadata = folder/'topic.json'
-        title = json.loads(metadata.read_text(encoding='utf-8'))['title'] if metadata.is_file() else folder.name
-        topics.append(dict(id=folder.name, title=title, page=f'{folder.name}/index.html'))
-    library['entries'] = [e for e in library['entries'] if not e['id'].startswith('page:')]
-    for topic in topics:
-        folder = out/topic['id']
-        thumb = next((p for p in (folder/'contact.png', folder/'strip.png', folder/'current.png') if p.is_file()), None)
-        library['entries'].append(dict(id='page:'+topic['id'], category='other', kind='page',
-            title=topic['title'], summary='本地预览页面', page=topic['page'],
-            image=thumb.relative_to(out).as_posix() if thumb else None))
-    recent['topics'] = topics
-    for path, data in ((library_path, library), (recent_path, recent)):
-        temporary = path.with_suffix('.tmp')
-        temporary.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-        temporary.replace(path)
-    print(f'Registered {len(topics)} local preview topics.')
 
 
 def render_models(node, out):
@@ -125,16 +83,13 @@ def build(out, node='node', render=False):
     refresh_model_thumbs(catalog, out, node, render)
     if render:
         render_specialists(out, node)
-    archive = out/'recent.json'
-    manifest = build_review_catalog.read(archive) if archive.is_file() else dict(chapters=[])
-    manifest['generatedAt'] = datetime.now().astimezone().isoformat(timespec='seconds')
-    library = build_preview_library.build(manifest, catalog, out)
+    library = build_preview_library.build(catalog, out)
     data = write_entries(catalog, (entry for entry in library['entries'] if entry['kind'] == 'item'), out)
     shutil.copy2(ROOT/'preview/hub/index.html', out/'index.html')
     shutil.copy2(ROOT/'preview/review/player.html', out/'player.html')
     refresh_inbox(out, data['entries'])
-    register_topics(out)
     print(out/'index.html')
+    return data
 
 
 def main():
