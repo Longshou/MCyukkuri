@@ -46,19 +46,18 @@ class PairContactClockTest {
     @Test void aPasserByCanYieldWithoutSpendingFramesAndAStayingBlockerTimesOut() {
         var clock = new PairContactClock(2);
         clock.publish(100, frame -> assertEquals(0, frame), frame -> assertEquals(0, frame));
-        assertTrue(clock.waitsForClearance(101, 20));
-        assertTrue(clock.waitsForClearance(121, 20));
-        assertFalse(clock.waitsForClearance(122, 20));
-        assertEquals(1, clock.releasedTicks(122));
+        for (long tick = 101; tick <= 120; tick++) assertTrue(clock.waitsForClearance(tick, 20));
+        assertFalse(clock.waitsForClearance(121, 20));
+        assertEquals(1, clock.releasedTicks(121));
 
         var resumed = new PairContactClock(3);
         resumed.publish(100, frame -> assertEquals(0, frame), frame -> assertEquals(0, frame));
         assertTrue(resumed.waitsForClearance(101, 20));
         resumed.publish(118, frame -> assertEquals(1, frame), frame -> assertEquals(1, frame));
         assertTrue(resumed.waitsForClearance(119, 20));
-        assertTrue(resumed.waitsForClearance(139, 20));
-        resumed.publish(140, frame -> assertEquals(2, frame), frame -> assertEquals(2, frame));
-        assertTrue(resumed.finished(141));
-        assertEquals(3, resumed.releasedTicks(141));
+        assertTrue(resumed.waitsForClearance(138, 20));
+        resumed.publish(139, frame -> assertEquals(2, frame), frame -> assertEquals(2, frame));
+        assertTrue(resumed.finished(140));
+        assertEquals(3, resumed.releasedTicks(140));
     }
 }

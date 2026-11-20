@@ -401,7 +401,6 @@ public final class DailyLife {
         if (!active()) return false;
         if (session.pair != null && session.pair.complete()) return !session.pair.finished();
         if (!available(session.leader, true, session.kind == Kind.EXERCISE) || !session.hasTime()) return false;
-        if (session.pair != null && BehaviorContinuity.emergency(entity)) return false;
         if (session.kind != Kind.SING && (session.leader.isPassenger()
                 || session.companion instanceof YukkuriEntity peer && peer.isPassenger())) return false;
         var other = session.companion;
@@ -411,6 +410,7 @@ public final class DailyLife {
                 || session.leader.distanceToSqr(other) > 4 && !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
             return available(peer, true, session.kind == Kind.EXERCISE) && peer.dailyLife().session == session
+                    && (session.pair == null || !BehaviorContinuity.emergency(session.leader) && !BehaviorContinuity.emergency(peer))
                     && peer.life().personality().fear(session.leader.getUUID()) < 60
                     && session.leader.life().personality().fear(peer.getUUID()) < 60;
         return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
