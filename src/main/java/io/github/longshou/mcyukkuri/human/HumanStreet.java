@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.rules.YardArrival;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
@@ -30,8 +31,10 @@ import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.EnumSet;
 import java.util.function.Predicate;
@@ -46,8 +49,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -713,6 +717,9 @@ final class HumanStreet {
         private final Predicate<YukkuriEntity> obstacle = y -> y.isAlive() && !companions.contains(y);
         private boolean homeward;
         private boolean sheltering;
+        private List<AABB> homeYards = List.of();
+        private final Set<BlockPos> missedHomeStands = new HashSet<>();
+        private Path homePath;
         private int lagTicks;
         private HumanNpc.DoorExit doorWait;
         private int doorUntil;
@@ -811,7 +818,7 @@ final class HumanStreet {
         KioskCounter kioskWindow() {
             return kioskArrived && npc.streetActive() && !npc.walking() && !npc.resting() && !npc.isUsingItem()
                     && npc.onGround() && !npc.isOnFire() && npc.hurtTime == 0 && !npc.level().isRaining()
-                    && atDestination() && dryFooting(kiosk.stand())
+                    && nearDestination() && !npc.finishingDoorway() && dryFooting(kiosk.stand())
                     && !npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()
                     && kiosk.valance(npc.level()) && kiosk.hasCrate(npc.level())
                     ? kiosk : null;
@@ -829,6 +836,7 @@ final class HumanStreet {
                                 kiosk.stand().toShortString(), kiosk.home().toShortString());
                     }
                 } else {
+                    if (npc.finishingDoorway()) return;
                     if (npc.position().distanceToSqr(last) > .25) { last = npc.position(); stalled = 0; }
                     if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) return;
                 }
@@ -991,10 +999,56 @@ final class HumanStreet {
                 GameplayLog.event(npc, "npc-care", "action=picnic_stow result=unreachable crate={}", npc.yardCrate());
             }
             var home = Vec3.atBottomCenterOf(npc.home());
-            if (npc.distanceToSqr(home) < .5) {
+            var bowl = npc.yardBowl();
+            homeYards = bowl == null ? List.of() : TownMarkers.yards((ServerLevel) npc.level(), bowl).toList();
+            missedHomeStands.clear();
+            if (returningToYard()) {
+                homePath = null;
+                last = npc.position();
+                if (!arriveInYard(home)) routeHome(home, null);
+            } else if (npc.distanceToSqr(home) < .5) {
                 if (npc.clearBeforeStopping(home)) finishReturn("home");
                 else { destination = home; last = npc.position(); }
             } else if (!route(home)) findReturnShelter();
+        }
+
+        private boolean returningToYard() { return homeward && leg == Leg.NONE && !sheltering && !homeYards.isEmpty(); }
+
+        private boolean homeStand(Vec3 home, Vec3 stand) {
+            return YardArrival.withinReach(home.distanceToSqr(stand), Leashable.LEASH_TOO_FAR_DIST)
+                    && homeYards.stream().anyMatch(yard -> yard.contains(stand));
+        }
+
+        private boolean arriveInYard(Vec3 home) {
+            var feet = npc.position();
+            if (!npc.onGround() || !homeStand(home, feet)) return false;
+            var stand = npc.freeFloor(feet);
+            if (stand == null || Math.abs(stand.y - feet.y) > .125) return false;
+            if (npc.clearBeforeStopping(home)) finishReturn("home");
+            return true;
+        }
+
+        private void routeHome(Vec3 home, AABB blocker) {
+            var cells = homeYards.stream().flatMap(yard -> BlockPos.betweenClosedStream(yard)
+                    .filter(cell -> !missedHomeStands.contains(cell) && homeStand(home, Vec3.atBottomCenterOf(cell)))
+                    .map(BlockPos::immutable)).toList();
+            var stands = YardArrival.stands(cells, cell -> npc.freeFloor(Vec3.atBottomCenterOf(cell)),
+                    stand -> homeStand(home, stand));
+            var nav = npc.getNavigation();
+            nav.stop();
+            var path = stands.isEmpty() ? null : npc.yardPath(stands, blocker);
+            if (path != null && path.canReach() && homePath != null && path.sameAs(homePath)) {
+                missedHomeStands.add(homePath.getTarget());
+                stands.remove(homePath.getTarget());
+                path = stands.isEmpty() ? null : npc.yardPath(stands, blocker);
+            }
+            if (path != null && path.canReach() && nav.moveTo(path, .65)) {
+                homePath = path;
+                last = npc.position();
+                stalled = 0;
+            } else {
+                findReturnShelter();
+            }
         }
 
         private boolean collectForHome() {
@@ -1350,6 +1404,21 @@ final class HumanStreet {
             }
             if (homeward && leg == Leg.NONE && !sheltering && collectForHome()) return;
             if (legStep()) return;
+            if (returningToYard()) {
+                var home = Vec3.atBottomCenterOf(npc.home());
+                if (arriveInYard(home) || npc.finishingDoorway()) return;
+                if (npc.position().distanceToSqr(last) > .25) {
+                    last = npc.position();
+                    missedHomeStands.clear();
+                    stalled = 0;
+                }
+                var nav = npc.getNavigation();
+                if (!nav.isDone() && ++stalled < ROUTE_TICKS) return;
+                var blocker = homePath == null ? null : yardBlocker(homePath);
+                if (homePath != null && blocker == null) missedHomeStands.add(homePath.getTarget());
+                routeHome(home, blocker);
+                return;
+            }
             if (atDestination()) {
                 if (resume != null) {
                     var next = resume;
@@ -1393,7 +1462,17 @@ final class HumanStreet {
             else finished = true;
         }
 
-        private boolean atDestination() { return npc.distanceToSqr(destination) < .5 && (leg == Leg.GATE || npc.clearBeforeStopping(destination)); }
+        private boolean nearDestination() { return npc.distanceToSqr(destination) < .5; }
+        private boolean atDestination() { return nearDestination() && (leg == Leg.GATE || npc.clearBeforeStopping(destination)); }
+
+        private AABB yardBlocker(Path path) {
+            var node = path.getNodePos(Math.min(path.getNextNodeIndex(), path.getNodeCount() - 1));
+            var toward = Vec3.atBottomCenterOf(node).subtract(npc.position()).multiply(1, 0, 1).normalize();
+            var ahead = npc.getBoundingBox().expandTowards(toward.scale(.65));
+            return npc.level().getEntitiesOfClass(LivingEntity.class, ahead,
+                    other -> other != npc && other.isAlive() && !other.isSpectator()).stream()
+                    .min(Comparator.comparingDouble(npc::distanceToSqr)).map(Entity::getBoundingBox).orElse(null);
+        }
 
         private boolean doorStep() {
             if (doorWait == null) {
@@ -1424,7 +1503,7 @@ final class HumanStreet {
                 }
                 case LAGGING -> {
                     doorWait = null;
-                    if (homeward) blockedOutingLeg();
+                    if (homeward) finishReturn("return_lagging");
                     else returnHome("lagging");
                     yield true;
                 }

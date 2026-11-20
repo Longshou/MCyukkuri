@@ -40,6 +40,10 @@ public final class DoorPassage {
         return inside == otherInside ? otherFirst : otherInside;
     }
 
+    public static boolean awaitingPassage(boolean approaching, boolean inFrame, boolean cleared) {
+        return !cleared && (approaching || inFrame);
+    }
+
     public static boolean close(boolean occupied, boolean needed, long now, long until) {
         return !occupied && (!needed || now >= until);
     }

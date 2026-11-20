@@ -65,4 +65,17 @@ class DoorPassageTest {
             assertTrue(DoorPassage.cleared(edge - radius, edge + radius, positive));
         }
     }
+
+    @Test void aClearStopYieldsUntilTheOtherWalkersTrailingEdgeClears() {
+        for (boolean positive : new boolean[]{false, true}) {
+            assertTrue(DoorPassage.awaitingPassage(true, false, false));
+            double partlyOut = positive ? 1.2 : -.2;
+            assertTrue(DoorPassage.awaitingPassage(false, true,
+                    DoorPassage.cleared(partlyOut - .3, partlyOut + .3, positive)));
+            double fullyOut = positive ? 1.5 : -.5;
+            assertFalse(DoorPassage.awaitingPassage(true, false,
+                    DoorPassage.cleared(fullyOut - .3, fullyOut + .3, positive)));
+            assertFalse(DoorPassage.awaitingPassage(false, false, false));
+        }
+    }
 }
