@@ -1088,17 +1088,8 @@ public final class YukkuriLife {
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         }
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
-        if (!penned && !entity.settlement().underway() && !hasUrgentNeed() && !entity.social().canContinue()) {
-            var bed = home.unclaimedSingleBed();
-            if (bed != null && BedClaimDrive.prefersBed(energy, personality.boldness(), socialWait == 0,
-                    restTime() || rainOutside() && !covered(entity.blockPosition()), entity.distanceToSqr(Vec3.atCenterOf(bed)))) {
-                targetBlock = bed;
-                task = Task.CLAIM_BED; pursuitTicks = 0;
-                GameplayLog.event(entity,"home","approaching unclaimed bed nest={} side={}",targetBlock,
-                        NestDoorway.bed(entity,targetBlock).entrance());
-                return true;
-            }
-        }
+        boolean wantsRest = wantsOrdinarySleep();
+        if (planBedClaim(penned, wantsRest)) return true;
         if (entity.outing().restsHere() && homeProvider().ordinaryRestAllowed(this)) {
             var here = entity.blockPosition();
             if (!dryStand(here) || !SurfaceApproach.supportedGround(entity, entity.position()) || level().isRainingAt(here)) return false;
@@ -1111,8 +1102,7 @@ public final class YukkuriLife {
         }
         // An uncovered body already too cold or hot to sleep does not lie down: the environment would wake it twenty ticks
         // later, so it stays up and shivers unless a paper cover lets a baby sleep through the cold.
-        if (!entity.family().stemFoodUrgent() && restWait == 0 && drowsy()
-                && !entity.family().mealAwaits() && homeProvider().ordinaryRestAllowed(this)
+        if (wantsRest && homeProvider().ordinaryRestAllowed(this)
                 && (!temperature.unsafeSleep() || coldPaperSleepAllowed())) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
@@ -1143,6 +1133,22 @@ public final class YukkuriLife {
         }
         return false;
     }
+
+    private boolean wantsOrdinarySleep() {
+        return !entity.family().stemFoodUrgent() && restWait == 0 && drowsy() && !entity.family().mealAwaits();
+    }
+
+    private boolean planBedClaim(boolean penned, boolean wantsRest) {
+        if (penned || entity.settlement().underway() || hasUrgentNeed() || entity.social().canContinue()) return false;
+        var bed = home.unclaimedSingleBed(wantsRest || restTime() || rainOutside() && !covered(entity.blockPosition()));
+        if (bed == null) return false;
+        targetBlock = bed;
+        task = Task.CLAIM_BED; pursuitTicks = 0;
+        GameplayLog.event(entity,"home","approaching unclaimed bed nest={} side={}",targetBlock,
+                NestDoorway.bed(entity,targetBlock).entrance());
+        return true;
+    }
+
     /**
      * Lying down in its own graded bed it first looks it over (NestComfort.settle): true while that reaction plays or after it
      * refused the bed, so it stays up for now (restWait); the next look after a refusal gives in. A recent look is not repeated.
@@ -1322,8 +1328,8 @@ public final class YukkuriLife {
                 }
                 if (restingHere || settled && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
-                    if (!entity.family().stemFoodUrgent() && restWait == 0
-                            && (energy <= restThreshold() || restTime()) && !entity.family().mealAwaits()) {
+                    if (wantsOrdinarySleep()) {
+                        if (planBedClaim(penned(), true)) return;
                         // Arrived to sleep: it looks its own bed over first (it may stay up a while, see settleIntoBed).
                         if (settleIntoBed()) { task = Task.NONE; planWait = 0; } else { task = Task.SLEEP; resetSleep(); }
                     }

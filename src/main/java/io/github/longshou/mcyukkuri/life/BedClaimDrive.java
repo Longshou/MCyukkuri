@@ -9,4 +9,8 @@ final class BedClaimDrive {
         double range = (100 - energy) / 10.0 + boldness / 100.0;
         return distanceSquared <= range * range;
     }
+
+    static long nextSearchAfter(long now, boolean deferred) {
+        return deferred ? now : now + 200; // Same search interval as maintaining an address.
+    }
 }

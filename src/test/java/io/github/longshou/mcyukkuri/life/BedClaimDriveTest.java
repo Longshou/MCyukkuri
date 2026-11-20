@@ -25,4 +25,15 @@ class BedClaimDriveTest {
         assertTrue(BedClaimDrive.prefersBed(95, 12, true, true, 36));
         assertTrue(BedClaimDrive.prefersBed(95, 12, false, false, 36));
     }
+
+    @Test
+    void daytimeDeferralLeavesTheBedAvailableWhenRestBecomesDue() {
+        long daylight = 100;
+        long dusk = 180;
+        boolean deferred = !BedClaimDrive.prefersBed(95, 55, true, false, 16);
+        assertTrue(deferred);
+        assertTrue(BedClaimDrive.nextSearchAfter(daylight, deferred) <= dusk);
+        assertTrue(BedClaimDrive.prefersBed(95, 55, true, true, 16));
+        assertTrue(BedClaimDrive.nextSearchAfter(daylight, false) > dusk);
+    }
 }

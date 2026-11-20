@@ -248,13 +248,17 @@ final class LifeHome {
         approaches.refuse(opening(bed), o.level().getGameTime());
         GameplayLog.event(o.entity(),"home","refused bed approach nest={} side={}",bed.getBlockPos(),bed.entrance());
     }
-    BlockPos unclaimedSingleBed() {
+    BlockPos unclaimedSingleBed(boolean wantsShelter) {
+        long now = o.level().getGameTime();
         if (home != null && !naturalHome || o.entity().habitat().hasMemory() || !o.entity().family().adult()
                 || o.homeProvider() != HomeProvider.ORDINARY || o.entity().outing().away() || o.entity().mind().feeling().mourning()
-                || o.level().getGameTime() < nextNestSearch || HomeClaim.holds(o.entity()) || HomeClaim.cooling(o.entity())) return null;
-        nextNestSearch = o.level().getGameTime() + 200; // Same search interval as maintaining an address.
+                || now < nextNestSearch || HomeClaim.holds(o.entity()) || HomeClaim.cooling(o.entity())) return null;
         var bed = nearestCare(CareBlock.Kind.NEST, false);
-        return bed != null && walkToClaim(bed) ? bed : null;
+        boolean claimable = bed != null && walkToClaim(bed);
+        boolean deferred = claimable && !BedClaimDrive.prefersBed(o.energy(), o.personality().boldness(), o.socialWait() == 0,
+                wantsShelter, o.entity().distanceToSqr(Vec3.atCenterOf(bed)));
+        nextNestSearch = BedClaimDrive.nextSearchAfter(now, deferred);
+        return claimable && !deferred ? bed : null;
     }
 
     void yieldedBed() { nextNestSearch = o.level().getGameTime() + BedApproachMemory.WAIT; }
