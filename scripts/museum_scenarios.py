@@ -7857,11 +7857,10 @@ _demanding_stray = sel('food_demand')
 _food_choice_smoke['commands'] = [
     (1, 'scoreboard players set #choice_food_struck museum 0'),
     # Sample spawn support at +1 and +20 before a blow can lift the beggar.
-    # Strike once, during the voiced demand and after the polite control has also asked.
+    # askForFood sets LastFoodRequestNutrition only after delivering the request.
     *((tick, f'execute if score #choice_food_struck museum matches 0 if data entity {_demanding_stray} LastFoodRequestNutrition '
-             f'if data entity {sel("food_ask")} LastFoodRequestNutrition store success score #choice_food_struck museum '
-             f'run damage {_demanding_stray} 1 minecraft:mob_attack by {sel("apple_holder")}')
-      for tick in range(24, 201, 4)),
+             f'store success score #choice_food_struck museum run damage {_demanding_stray} 1 minecraft:mob_attack by {sel("apple_holder")}')
+      for tick in range(24, _food_choice_smoke['ticks'], 20)),
 ]
 
 
