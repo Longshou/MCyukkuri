@@ -19,6 +19,23 @@ public final class WallYield {
      *  to it, and the height span of the shape it belongs to (above the feet). */
     public record Face(float x, float z, float distance, float low, float high) {}
 
+    /** Loose-part sweep about the feet, including the swing allowance and any worn prop. */
+    public record Bounds(double reach, double low, double high) {
+        public boolean overlaps(Bounds peer, double dx, double dy, double dz) {
+            double span = reach + peer.reach;
+            return dx * dx + dz * dz < span * span && low < dy + peer.high && dy + peer.low < high;
+        }
+    }
+
+    /** While the pair walks and turns, measure the face toward the partner's actual interpolated feet. */
+    public static Face passingFace(double dx, double dy, double dz, double ownReach, double peerReach,
+                                   Bounds own, Bounds peer) {
+        double spacing = Math.hypot(dx, dz);
+        if (spacing == 0 || !own.overlaps(peer, dx, dy, dz)) return null;
+        return partnerFace((float)(dx / spacing), (float)(dz / spacing), spacing, ownReach, peerReach,
+                (float)Math.min(own.low, dy + peer.low), (float)Math.max(own.high, dy + peer.high));
+    }
+
     /** A posed partner contributes its near silhouette. In open space between cheeks the two loose silhouettes split the gap. */
     public static Face partnerFace(float x, float z, double separation, double ownReach, double peerReach, float low, float high) {
         double near = separation - peerReach;

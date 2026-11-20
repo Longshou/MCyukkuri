@@ -125,10 +125,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 var offset=reproduction.offset();
                 pose.translate(offset.x,0,offset.z);
             }
-            float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
-            int rubTick = preview ? -1 : WallClearance.contactTick(entity, entity.getAnimationId());
-            if (rubTick >= 0) renderedBodyYaw = entity.bodyYaw();
-            var rubOffset = rubTick < 0 ? Vec3.ZERO : WallClearance.rubOffset(entity, partialTick, renderedBodyYaw);
+            var rubMover = preview ? null : WallClearance.rubMover(entity);
+            float renderedBodyYaw = rubMover == null ? Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw()) : rubMover.bodyYaw();
+            var rubOffset = rubMover == entity ? WallClearance.rubOffset(rubMover, partialTick) : Vec3.ZERO;
             pose.translate(rubOffset.x, rubOffset.y, rubOffset.z);
             // A carried child is drawn on the carrier's live lips, brim, tail or braid; a child just set down eases to the ground.
             if(carried&&!preview)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,pose,partialTick);
@@ -193,7 +192,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     : entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick;
             float elapsed = Math.max(0, animationTicks / 20f);
             elapsed = WaterMotionClock.seconds(entity, partialTick, elapsed);
-            if (rubTick >= 0) elapsed = rubTick / 20f;
+            if (rubMover != null) elapsed = rubMover.peerRubTick() / 20f;
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             String expression = expression(entity);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, expression)));
@@ -247,6 +246,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             boolean brimHopping=carried&&ParentCarry.brimHopping(parent,entity);
             boolean leavingBrim=carried&&ParentCarry.hold(parent,entity)==Hold.BRIM&&entity.motorAction().equals(Hop.ID);
             String action=braidClip!=null?braidClip:brimHopping?"hop_leg":carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried&&!leavingBrim?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
+            if (rubMover != null) action = rubMover == entity ? "snuggle_right" : "snuggle_left";
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
                     :brimHopping?ParentCarry.brimHopClock(parent,entity,partialTick)
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
@@ -258,7 +258,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
             model.setWear(wear);
             var wallOrigin = rubOffset == Vec3.ZERO ? start : new Matrix4f(start).translate((float)rubOffset.x, 0, (float)rubOffset.z);
-            var wallClearance=preview||operated?null:WallClearance.nearby(source,model,action,partialTick,renderedBodyYaw,rubOffset,wallOrigin,
+            var wallClearance=preview||operated?null:WallClearance.nearby(source,model,action,partialTick,rubMover,rubOffset,wallOrigin,
                     (wear&CareWearRenderer.PAPER_COVER)!=0);
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance);

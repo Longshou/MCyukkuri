@@ -86,4 +86,23 @@ class WallYieldTest {
         assertFalse(WallYield.loose("face_eye_left"));
         assertFalse(WallYield.loose("mamu_left"));
     }
+
+    @Test void turningAndSeparatingPartnersYieldTowardEachOtherUntilTheirLoosePartsClear() {
+        var adult = new WallYield.Bounds(.95, -.25, 1.2);
+        var young = new WallYield.Bounds(.4, -.1, .55);
+        for (double distance : new double[]{1.3, .65, .7, 1.34}) {
+            var a = WallYield.passingFace(.6 * distance, .125, .8 * distance, .5, .2, adult, young);
+            var b = WallYield.passingFace(-.6 * distance, -.125, -.8 * distance, .2, .5, young, adult);
+            assertEquals(.6, a.x(), 1e-6);
+            assertEquals(-.8, b.z(), 1e-6);
+            assertTrue(a.distance() + b.distance() < distance);
+            assertEquals(a.high(), b.high() + .125, 1e-6);
+        }
+        assertNull(WallYield.passingFace(1.36, 0, 0, .5, .2, adult, young));
+        assertNull(WallYield.passingFace(.65, 1.4, 0, .5, .2, adult, young));
+        // A turning adult's posed skin projects past its walking collision radius.
+        var face = WallYield.passingFace(.635, 0, 0, .19, .51, young, adult);
+        assertTrue(face.distance() < .635 - .51);
+        assertTrue(.3 * WallYield.press(List.of(face), .3f, .25f, 0) < .635 - .51);
+    }
 }

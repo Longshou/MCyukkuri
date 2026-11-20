@@ -63,6 +63,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -624,15 +625,21 @@ public final class YukkuriModel {
     float bodyDepth(boolean rear) { return rear ? bodyRearDepth : bodyFrontDepth; }
 
     record ContactReach(double body,double accessory) {}
-    /** Project the same body and worn mesh used for the courtship separating plane, including the clip's motion. */
-    ContactReach contactReach(String action,float elapsed,float[] cue,Vec3 bearing,float scale,boolean body,boolean accessory) {
+    /** Project the fitted body and worn mesh toward a partner in world space, including the clip's motion. */
+    ContactReach contactReach(YukkuriView entity,double now,float partial,float[] cue,Vec3 toward,boolean body,boolean accessory) {
+        float yaw=Mth.rotLerp(partial,entity.previousBodyYaw(),entity.bodyYaw());
+        var bearing=toward.yRot((yaw-180)*Mth.DEG_TO_RAD);
+        float elapsed=(float)Math.max(0,now-entity.getAnimationStartTick())/20;
+        float scale=HatScale.factor(entity.subspeciesFlags());
         // Runs before renderLiving, which initializes this model's pose again before drawing.
         for(int i=0;i<pose.length;i++)System.arraycopy(defaultPose[i],0,pose[i],0,9);
-        clips.getOrDefault(action,clips.get("idle")).sample(elapsed,pose);
+        clips.getOrDefault(entity.getAnimationId(),clips.get("idle")).sample(elapsed,pose);
         int hat=hatFollowBone();
         composer.world(pose,world,hat,scale,scale!=1&&hat>=0?HatGeometry.anchor():null,null);
-        var outer=Overlays.presentation(cue);
-        for(var bone:world)bone.mulLocal(outer);
+        if(cue!=null) {
+            var outer=Overlays.presentation(cue);
+            for(var bone:world)bone.mulLocal(outer);
+        }
         var point=new Vector3f();
         var second=new Vector3f();
         double bodyReach=0,accessoryReach=0;

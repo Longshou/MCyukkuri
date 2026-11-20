@@ -13,6 +13,8 @@ import io.github.longshou.mcyukkuri.pose.SnugglePose;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.WeakHashMap;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.phys.AABB;
@@ -27,6 +29,7 @@ final class WallClearance {
     // Render-thread scratch so crowded indoor scenes do not allocate box lists per colliding block.
     private static double[] boxes = new double[48];
     private static int boxCount;
+    private static final WeakHashMap<YukkuriView, Integer> lastPartners = new WeakHashMap<>();
 
     private final List<WallYield.Face> faces;
     private final double paperCeiling;
@@ -42,9 +45,7 @@ final class WallClearance {
         originZ = origin.m32();
     }
 
-    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, float yaw, Vec3 rubOffset,
-                                Matrix4f origin, boolean paper) {
-        YukkuriView entity = source;
+    private static WallYield.Bounds bounds(YukkuriView entity, YukkuriModel model) {
         double scale = entity.getScale() * entity.growthScale();
         // Rest bounds plus room for the animated swing, lean and bounce.
         double motion = scale / 4;
@@ -64,11 +65,18 @@ final class WallClearance {
             reach = Math.max(reach, scale * wornScale * Math.hypot(Math.max(-low.x, high.x), Math.max(-low.z, high.z)));
             top = Math.max(top, scale * Math.max(high.y, high.y * wornScale));
         }
-        reach += motion;
+        return new WallYield.Bounds(reach + motion, -motion, top + motion);
+    }
+
+    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, YukkuriView mover, Vec3 rubOffset,
+                                Matrix4f origin, boolean paper) {
+        YukkuriView entity = source;
+        var bounds = bounds(entity, model);
+        double reach = bounds.reach();
         var feet = new Vec3(Mth.lerp(partial, source.xOld, source.getX()), Mth.lerp(partial, source.yOld, source.getY()),
                 Mth.lerp(partial, source.zOld, source.getZ())).add(rubOffset);
         double paperCeiling = paper ? PaperCeiling.height(source, feet) : Double.POSITIVE_INFINITY;
-        var sweep = new AABB(-reach, 0, -reach, reach, top + motion, reach).move(feet);
+        var sweep = new AABB(-reach, 0, -reach, reach, bounds.high(), reach).move(feet);
         double bodyTop = feet.y + source.getBbHeight();
         boxCount = 0;
         // The bin's solid collision box spans its open mouth. A reaching tuft keeps the authored pose there.
@@ -90,7 +98,7 @@ final class WallClearance {
                 boxes[boxCount++] = maxX; boxes[boxCount++] = maxY; boxes[boxCount++] = maxZ;
             });
         }
-        var partner = partnerFace(entity, action, partial, yaw, top + motion);
+        var partner = partnerFace(entity, mover, partial, bounds);
         if (boxCount == 0 && partner == null && !Double.isFinite(paperCeiling)) return null;
         var faces = new ArrayList<WallYield.Face>(boxCount / 6 + 1);
         for (int i = 0; i < boxCount; i += 6) {
@@ -110,45 +118,71 @@ final class WallClearance {
         return faces.isEmpty() && !Double.isFinite(paperCeiling) ? null : new WallClearance(faces, origin, paperCeiling);
     }
 
-    private static YukkuriView rubPartner(YukkuriView entity) {
-        var peer = entity.yukkuriView(entity.nuzzlePartnerId());
-        return peer != null && peer.nuzzlePartnerId() == entity.getId() && peer.peerRubTick() >= 0 ? peer : null;
-    }
-
-    /** The mover publishes the phase for both renders, even when its partner's sync ran earlier in the server tick. */
-    static int contactTick(YukkuriView entity, String action) {
-        if (entity.peerRubTick() < 0) return -1;
-        if (action.equals("snuggle_right")) return entity.peerRubTick();
-        if (!action.equals("snuggle_left")) return -1;
-        var peer = rubPartner(entity);
-        return peer == null ? entity.peerRubTick() : peer.peerRubTick();
+    /** Both renders observe the same admission even if the anchor's animation packet is still in flight. */
+    static YukkuriView rubMover(YukkuriView entity) {
+        int id = entity.nuzzlePartnerId();
+        if (id < 0) return null;
+        var peer = entity.yukkuriView(id);
+        if (peer == null || peer.nuzzlePartnerId() != entity.getId()) return null;
+        if (entity.peerRubTick() >= 0 && entity.getAnimationId().equals("snuggle_right")) return entity;
+        return peer.peerRubTick() >= 0 && peer.getAnimationId().equals("snuggle_right") ? peer : null;
     }
 
     /** Draw the resolved stance at its pose spacing while the two network positions interpolate independently. */
-    static Vec3 rubOffset(YukkuriView entity, float partial, float yaw) {
-        if (entity.peerRubTick() < 0 || !entity.getAnimationId().equals("snuggle_right")) return Vec3.ZERO;
-        var peer = rubPartner(entity);
-        if (peer == null) return Vec3.ZERO;
-        double angle = Math.toRadians(yaw), spacing = entity.peerRubSpacing();
-        var delta = peer.getPosition(partial).subtract(entity.getPosition(partial));
+    static Vec3 rubOffset(YukkuriView mover, float partial) {
+        double angle = Math.toRadians(mover.bodyYaw()), spacing = mover.peerRubSpacing();
+        var delta = mover.yukkuriView(mover.nuzzlePartnerId()).getPosition(partial).subtract(mover.getPosition(partial));
         return new Vec3(delta.x + Math.cos(angle) * spacing, 0, delta.z + Math.sin(angle) * spacing);
     }
 
-    private static WallYield.Face partnerFace(YukkuriView entity, String action, float partial, float yaw, double top) {
-        if (entity.peerRubTick() < 0 || !action.equals("snuggle_left") && !action.equals("snuggle_right")) return null;
-        var peer = rubPartner(entity);
+    /** Retain a former partner only while the two loose-part sweeps can still meet, even off camera. */
+    static void observePartner(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof YukkuriView entity) || !entity.level().isClientSide) return;
+        int id = entity.nuzzlePartnerId();
+        if (id >= 0 && entity.yukkuriView(id) != null) {
+            lastPartners.put(entity, id);
+            return;
+        }
+        var last = lastPartners.get(entity);
+        if (last == null) return;
+        var peer = entity.yukkuriView(last);
+        if (peer != null) {
+            var own = bounds(entity, YukkuriModel.get(entity.assetId()));
+            var theirs = bounds(peer, YukkuriModel.get(peer.assetId()));
+            var before = peer.getPosition(0).subtract(entity.getPosition(0));
+            var now = peer.position().subtract(entity.position());
+            if (own.overlaps(theirs, before.x, before.y, before.z) || own.overlaps(theirs, now.x, now.y, now.z)) return;
+        }
+        lastPartners.remove(entity);
+    }
+
+    private static WallYield.Face partnerFace(YukkuriView entity, YukkuriView mover, float partial, WallYield.Bounds ownBounds) {
+        int id = entity.nuzzlePartnerId();
+        if (id < 0) id = lastPartners.getOrDefault(entity, -1);
+        if (id < 0) return null;
+        var peer = entity.yukkuriView(id);
         if (peer == null) return null;
-        boolean right = action.equals("snuggle_right");
-        int tick = right ? entity.peerRubTick() : peer.peerRubTick();
-        double angle = Math.toRadians(yaw);
-        float x = (float)Math.cos(angle) * (right ? -1 : 1), z = (float)Math.sin(angle) * (right ? -1 : 1);
-        double lift = peer.getPosition(partial).y - entity.getPosition(partial).y;
+        var peerModel = YukkuriModel.get(peer.assetId());
+        var peerBounds = bounds(peer, peerModel);
+        var delta = peer.getPosition(partial).subtract(entity.getPosition(partial));
         double scale = entity.growthScale() * entity.getScale(), peerScale = peer.growthScale() * peer.getScale();
+        if (mover == null) {
+            if (!ownBounds.overlaps(peerBounds, delta.x, delta.y, delta.z)) return null;
+            var toward = delta.multiply(1, 0, 1).normalize();
+            double now = entity.level().getGameTime() + (double)partial;
+            double own = YukkuriModel.get(entity.assetId()).contactReach(entity, now, partial, null, toward, true, false).body() * scale;
+            double theirs = peerModel.contactReach(peer, now, partial, null, toward.reverse(), true, false).body() * peerScale;
+            return WallYield.passingFace(delta.x, delta.y, delta.z, own, theirs, ownBounds, peerBounds);
+        }
+        boolean right = entity == mover;
+        int tick = mover.peerRubTick();
+        double angle = Math.toRadians(mover.bodyYaw());
+        float x = (float)Math.cos(angle) * (right ? -1 : 1), z = (float)Math.sin(angle) * (right ? -1 : 1);
+        double lift = delta.y;
         double own = SnugglePose.at(entity.assetId(), right, tick).reach(right) * scale / 16;
         double theirs = SnugglePose.at(peer.assetId(), !right, tick).reach(!right) * peerScale / 16;
-        double peerTop = peerScale * (YukkuriModel.get(peer.assetId()).restLooseBounds()[1] / 16 + .25);
-        return WallYield.partnerFace(x, z, right ? entity.peerRubSpacing() : peer.peerRubSpacing(), own, theirs,
-                (float)Math.min(-scale / 4, lift - peerScale / 4), (float)Math.max(top, lift + peerTop));
+        return WallYield.partnerFace(x, z, mover.peerRubSpacing(), own, theirs,
+                (float)Math.min(ownBounds.low(), lift + peerBounds.low()), (float)Math.max(ownBounds.high(), lift + peerBounds.high()));
     }
 
     private static boolean wallBelow(double x, double z, double bodyTop) {

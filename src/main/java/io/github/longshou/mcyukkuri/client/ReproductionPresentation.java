@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
-import io.github.longshou.mcyukkuri.headwear.HatScale;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 import java.util.Map;
@@ -124,12 +123,10 @@ final class ReproductionPresentation {
         double scale=entity.growthScale()*entity.getScale(),peerScale=peer.growthScale()*peer.getScale();
         var delta=peer.getPosition(partialTick).subtract(entity.getPosition(partialTick)).multiply(1,0,1);
         var toward=delta.normalize();
-        var bearing=localBearing(entity,partialTick,toward);
-        var peerBearing=localBearing(peer,partialTick,toward.reverse());
         var cue=contact==null?releasePose(entity,now):contact.cue();
         var peerCue=other==null?releasePose(peer,now):other.cue();
-        var reach=contactReach(model,entity,now,cue,bearing,touching,ornaments);
-        var peerReach=contactReach(peerModel,peer,now,peerCue,peerBearing,touching,ornaments);
+        var reach=model.contactReach(entity,now,partialTick,cue,toward,touching,ornaments);
+        var peerReach=peerModel.contactReach(peer,now,partialTick,peerCue,toward.reverse(),touching,ornaments);
         double distance=delta.horizontalDistance();
         double limit=Double.POSITIVE_INFINITY;
         if(ornaments) {
@@ -142,12 +139,6 @@ final class ReproductionPresentation {
         double posed=reach.body()*scale+peerReach.body()*peerScale;
         double close=Math.clamp((distance-Math.max(rest+CONTACT_CLEARANCE,posed))/2,0,MAX_OFFSET);
         return new Spacing(toward,close,limit,true);
-    }
-
-    private static YukkuriModel.ContactReach contactReach(YukkuriModel model,YukkuriView entity,double now,float[] cue,
-                                                         Vec3 bearing,boolean body,boolean accessory) {
-        float elapsed=(float)Math.max(0,now-entity.getAnimationStartTick())/20;
-        return model.contactReach(entity.getAnimationId(),elapsed,cue,bearing,HatScale.factor(entity.subspeciesFlags()),body,accessory);
     }
 
     private static boolean relief(YukkuriView entity) {
@@ -173,11 +164,6 @@ final class ReproductionPresentation {
             }
         }
         return site.rearPlacement(height);
-    }
-
-    private static Vec3 localBearing(YukkuriView entity,float partialTick,Vec3 toward) {
-        float yaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
-        return toward.yRot((yaw-180)*Mth.DEG_TO_RAD);
     }
 
     static Frame frame(YukkuriView entity,float partialTick) {
