@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
-| 公园里等主人：本地流浪赠食并提供去处 | `.worktrees/wp-park-aid` | social/Kindness.java, pet/PetLife.java (waiting) |
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 | FG-02 留守亲油不再在洞口两侧巡看（main 上失败） | `.worktrees/wp-forage-patrol` | family/HomeWatch, settlement patrol stands |
