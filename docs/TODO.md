@@ -13,7 +13,6 @@
 
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 
-| 困在小沙嘴上出不去、落水后贴着岸边上不来 | `.worktrees/wp-ledge-trap` | movement/water-exit shared layer |
 
 ## 玩法待办
 
