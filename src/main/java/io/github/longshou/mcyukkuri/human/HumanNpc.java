@@ -50,6 +50,7 @@ import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.shop.ShopDoors;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -405,7 +406,11 @@ public final class HumanNpc extends PathfinderMob {
             return Vec3.atBottomCenterOf(door).add(axis() == Direction.Axis.X ? offset : 0, 0,
                     axis() == Direction.Axis.Z ? offset : 0);
         }
-        boolean keeperInPlace(HumanNpc keeper) { return keeper.distanceToSqr(stand(true)) < .04; }
+        boolean keeperInPlace(HumanNpc keeper) {
+            var target = stand(true);
+            return keeper.onGround() && Math.abs(target.y - keeper.getY()) <= .5
+                    && keeper.position().subtract(target).horizontalDistanceSqr() < .04;
+        }
     }
 
     private final class HumanNavigation extends GroundPathNavigation {
@@ -478,8 +483,8 @@ public final class HumanNpc extends PathfinderMob {
             var escort = stroll().doorWait();
             if (escort != null && escort.cleared(mob)) {
                 lastTimeoutCheck = level.getGameTime();
-                var stand = escort.stand(true);
-                if (escort.keeperInPlace(HumanNpc.this) || !clearStand(stand)) Motor.waitOnFoot(mob);
+                var stand = escort.keeperInPlace(HumanNpc.this) ? null : freeFloor(escort.stand(true));
+                if (stand == null) Motor.waitOnFoot(mob);
                 else mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, speedModifier);
                 return;
             }
@@ -517,20 +522,21 @@ public final class HumanNpc extends PathfinderMob {
         }
 
         private boolean doorWaitingStand(DoorExit door) {
-            var follower = door.stand(false);
-            var keeper = door.stand(true);
-            return clearStand(follower) && clearStand(keeper)
-                    && level.noCollision(mob, mob.getDimensions(mob.getPose()).makeBoundingBox(follower)
-                            .expandTowards(keeper.subtract(follower)));
+            var follower = freeFloor(door.stand(false));
+            var keeper = freeFloor(door.stand(true));
+            if (follower == null || keeper == null) return false;
+            var higher = follower.with(Direction.Axis.Y, Math.max(follower.y, keeper.y));
+            return level.noCollision(mob, mob.getDimensions(mob.getPose()).makeBoundingBox(higher)
+                    .expandTowards(keeper.x - follower.x, 0, keeper.z - follower.z));
         }
 
-        private boolean clearStand(Vec3 stand) {
-            var feet = BlockPos.containing(stand);
-            var body = mob.getDimensions(mob.getPose()).makeBoundingBox(stand);
-            return level.hasChunkAt(feet) && level.getFluidState(feet).isEmpty()
-                    && level.getBlockState(feet.below()).isFaceSturdy(level, feet.below(), Direction.UP)
-                    && level.noCollision(mob, body) && level.getEntitiesOfClass(LivingEntity.class, body,
-                            other -> other != mob && other.isAlive() && !other.isSpectator()).isEmpty();
+        private Vec3 freeFloor(Vec3 near) {
+            var size = mob.getDimensions(mob.getPose());
+            var stand = SurfaceApproach.restingFloor(level, size, near);
+            if (stand == null) return null;
+            var body = size.makeBoundingBox(stand);
+            return level.noCollision(mob, body) && level.getEntitiesOfClass(LivingEntity.class, body,
+                    other -> other != mob && other.isAlive() && !other.isSpectator()).isEmpty() ? stand : null;
         }
 
         private boolean giveWayAtDoor() {
@@ -568,7 +574,7 @@ public final class HumanNpc extends PathfinderMob {
         }
 
         private boolean clearStep(Vec3 stand) {
-            return clearStand(stand) && level.noCollision(mob, mob.getBoundingBox().expandTowards(stand.subtract(mob.position())));
+            return freeFloor(stand) != null && level.noCollision(mob, mob.getBoundingBox().expandTowards(stand.subtract(mob.position())));
         }
 
         @Override protected void followThePath() {

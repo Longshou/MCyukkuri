@@ -209,7 +209,7 @@ public final class SurfaceApproach {
     }
 
     /** The same terrain stand check with a body size, for placement before any resident exists. */
-    static Vec3 restingFloor(LevelReader level, EntityDimensions body, Vec3 near) {
+    public static Vec3 restingFloor(LevelReader level, EntityDimensions body, Vec3 near) {
         var bounds = body.makeBoundingBox(near);
         if (!level.hasChunksAt(BlockPos.containing(bounds.minX, near.y, bounds.minZ),
                 BlockPos.containing(bounds.maxX, near.y, bounds.maxZ))) return null;
