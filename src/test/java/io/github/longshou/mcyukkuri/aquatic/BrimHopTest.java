@@ -9,29 +9,62 @@ import io.github.longshou.mcyukkuri.motor.geom.HopPath;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BrimHopTest {
-    @Test void shoreKeeperCanBoardFromDryFeetAlignedWithTheDrawnHull() {
-        // PD-13, before the refused hops at 5171 and 5421. The near-side seats are inset for the adult.
+    @Test void shoreKeeperNeedsReachFromDryFeetAtTheDrawnHullsActualPose() {
+        // PD-13, the last full hull and keeper frames before each refusal. Feet are in blocks, body yaw in degrees.
+        checkShoreStand(new Vec(-147.19592348, 63.91471390, 310.04074004), -1.9021131, .5, -926.2947, 60.35321, false);
+        checkShoreStand(new Vec(-147.17221154, 63.91259272, 310.08737478), 1.9021131, .8660254, -566.6814, 59.35321, true);
+    }
+
+    private static void checkShoreStand(Vec hull, double roll, double pitch, double bodyYaw, double energy,
+                                        boolean reachableBeforeFacing) {
         var oldStand = new Vec(-146.5, 64, 311.425);
         var adjacent = new Vec(-147.5, 64, 311.425);
-        var waterward = new Vec(0, 0, -1);
-        var ability = AbilityMath.compute(new AbilityMath.Inputs(1, 60, 10, 10, 0, false, true, false, false, 0),
+        var stand = BankStand.alongFace(adjacent, new Vec(0, 0, -1), hull);
+        assertEquals(hull.x(), stand.x(), 1e-9);
+        assertTrue(stand.z() - .8 / 2 >= 311);
+        var ability = AbilityMath.compute(new AbilityMath.Inputs(1, energy, 10, 10, 0, false, true, false, false, 0),
                 AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
-        for (var hull : List.of(new Vec(-147.196, 63.915, 310.041), new Vec(-147.172, 63.913, 310.087))) {
-            var stand = BankStand.alongFace(adjacent, waterward, hull);
-            assertEquals(hull.x(), stand.x(), 1e-9);
-            assertTrue(stand.z() - .8 / 2 >= 311);
-            var stops = HullBounds.brimPlaces("marisa", .8, .6, HullBounds.SCALE, 0).stream()
-                    .map(p -> p.scale(HullBounds.UNIT).add(hull)).toList();
+        double hullYaw = 7.9770646; // HostFrame yaw is in radians. Its Minecraft heading is 180° minus that turn.
+        for (double facing : List.of(bodyYaw, 180.0)) { // From the aligned stand the keeper faces due north to draw the hat.
+            var stops = posedStops(hull, hullYaw, roll, pitch, facing);
             assertTrue(stops.stream().allMatch(p -> p.sub(oldStand).hlen() > ability.hopReach() + ArcSolver.REACH_SLACK));
-            assertTrue(stops.stream().anyMatch(p -> ArcSolver.lowest(stand, p, ability.hopHeight(), ability.hopReach(),
+            boolean reachable = stops.stream().anyMatch(p -> ArcSolver.lowest(stand, p, ability.hopHeight(), ability.hopReach(),
                     ability.size(), points -> points.stream().map(stand::add).allMatch(feet ->
                             (feet.z() + .8 / 2 <= 311 || feet.y() >= 64)
-                                    && feet.y() + .553 >= 64)) instanceof ArcSolver.Plan));
+                                    && feet.y() + .553 >= 64)) instanceof ArcSolver.Plan);
+            assertEquals(facing == 180 || reachableBeforeFacing, reachable);
         }
+    }
+
+    @Test void aLoadedKeeperCanHopToTheSupportedCornerBeforeBoarding() {
+        // PD-13 t6102: the stroke has finished alongside the corner of the bank block at (-160, 63, 304).
+        var from = new Vec(-159.431, 64, 304.504);
+        var hull = new Vec(-158.089, 63.928, 303.658);
+        var lip = BankStand.nearest(new Vec(-159, 64, 304.5), new Vec(1, 0, 0), .05, hull);
+        var stops = posedStops(hull, -3.8971138, .25066647, -.809017, 237.74524);
+        var ability = AbilityMath.compute(new AbilityMath.Inputs(1, 52.738, 10, 10, 0, false, true, false, false, 0),
+                AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
+        assertTrue(stops.stream().allMatch(p -> p.sub(from).hlen() > ability.hopReach() + ArcSolver.REACH_SLACK));
+        assertEquals(new Vec(-159.05, 64, 304.05), lip);
+        assertInstanceOf(ArcSolver.Plan.class, ArcSolver.lowest(from, lip, ability.hopHeight(), ability.hopReach(),
+                ability.size(), points -> points.stream().map(from::add).allMatch(feet -> feet.y() >= 64), true, false));
+        assertTrue(stops.stream().anyMatch(p -> ArcSolver.lowest(lip, p, ability.hopHeight(), ability.hopReach(),
+                ability.size(), points -> points.stream().map(lip::add).allMatch(feet ->
+                        (feet.x() - .4 >= -159 || feet.z() + .4 <= 304 || feet.y() >= 64)
+                                && feet.y() + .346 >= 64)) instanceof ArcSolver.Plan));
+    }
+
+    private static List<Vec> posedStops(Vec hull, double hullYaw, double roll, double pitch, double facing) {
+        double localYaw = Math.toRadians(facing - 180) + hullYaw;
+        return HullBounds.brimPlaces("marisa", .8, .6, HullBounds.SCALE, localYaw).stream()
+                .map(p -> new Vector3d(p.x(), p.y(), p.z()).mul(HullBounds.UNIT)
+                        .rotateX(Math.toRadians(pitch)).rotateZ(Math.toRadians(roll)).rotateY(hullYaw))
+                .map(p -> hull.add(new Vec(p.x, p.y, p.z))).toList();
     }
 
     @Test void clearBankBoardsAndLeavesThroughTheBrimWithinUnchangedHopAbility() {
