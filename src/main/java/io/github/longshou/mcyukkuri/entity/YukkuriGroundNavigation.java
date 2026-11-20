@@ -97,6 +97,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     YukkuriGroundNavigation(YukkuriEntity animal, Level level) { super(animal, level); }
 
+    @Override public boolean shouldRecomputePath(BlockPos changed) {
+        ((YukkuriEntity)mob).status().reactions().threat().flight().collisionChanged(changed);
+        return super.shouldRecomputePath(changed);
+    }
+
     /** A body standing on solid ground may plan even when vanilla's ground flag is clear: an action that moved it without gravity (a grab, a
      *  carry) leaves the flag false until the next physics tick, and a walk planned in that tick was refused as having no route. */
     @Override protected boolean canUpdatePath() {

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
@@ -20,6 +21,7 @@ public final class FlightPlanner {
     private static final double[] STRIDES = {1, .6, .3};
     private static final double CLEARANCE = 3.8;
     private final YukkuriEntity body;
+    private final FailedRetreat<Vec3> failed = new FailedRetreat<>();
     private LivingEntity source;
     private Direction heading;
     private long plannedAt = Long.MIN_VALUE / 2;
@@ -97,12 +99,13 @@ public final class FlightPlanner {
     public void retreatToward(Vec3 danger, Vec3 anchor) {
         double distance = body.position().distanceTo(anchor);
         if (distance < 1.5) return;
-        if (cornered(null)) return;
+        if (failed.holds(null, body.position(), danger, anchor)) return;
+        failed.clear();
         source = null;
         plannedAt = body.level().getGameTime();
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         var path = fan(danger, Math.min(9, distance), direction, null, null);
-        if (path == null || !SurfaceApproach.startRetreat(body, path, 1)) { noExit(); return; }
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1)) { noExit(danger, anchor); return; }
         route = body.getNavigation().getPath();
     }
 
@@ -158,29 +161,39 @@ public final class FlightPlanner {
     public void fleeWithoutSource() {
         var navigation = body.getNavigation();
         if (!navigation.isDone()) return;
-        long now = body.level().getGameTime();
-        if (source == null && route == null && now - plannedAt < 40) return;
+        if (failed.holds(null, body.position(), null, null)) return;
         if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
+        failed.clear();
         source = null;
-        plannedAt = now;
+        plannedAt = body.level().getGameTime();
         var target = DefaultRandomPos.getPos(body, 6, 3);
         var path = target == null ? null : navigation.createPath(BlockPos.containing(target), 0);
-        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) { noExit(); return; }
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) { noExit(null, null); return; }
         route = navigation.getPath();
     }
 
     public boolean cornered(LivingEntity danger) {
-        return source == danger && route == null && body.level().getGameTime() - plannedAt < 40
-                && (danger == null || danger.isAlive() && danger.level() == body.level() && body.distanceToSqr(danger) <= 576);
+        return danger == null ? failed.cornered(null, body.position(), null)
+                : danger.isAlive() && danger.level() == body.level() && body.distanceToSqr(danger) <= 576
+                    && failed.cornered(danger.getUUID(), body.position(), danger.position());
+    }
+
+    /** Vanilla notifies even idle navigations when a block's collision changes, including opening a door. */
+    public void collisionChanged(BlockPos pos) {
+        var feet = failed.feet();
+        if (feet != null && pos.closerToCenterThan(feet, TravelRange.PATH_RANGE)) failed.clear();
     }
 
     public void forgetRoute() {
+        // A panic/goal handoff can still be the same pursuer. Anonymous panics and evictions end with their goal.
+        if (failed.cornered(null, body.position(), null)) failed.clear();
         source = null;
         route = null;
         plannedAt = Long.MIN_VALUE / 2;
     }
 
-    private void noExit() {
+    private void noExit(Vec3 danger, Vec3 destination) {
+        failed.remember(source == null ? null : source.getUUID(), body.position(), danger, destination);
         route = null;
         SurfaceApproach.halt(body);
         GameplayLog.limited(body, "threat", "flight.cornered", 100, "flight cornered danger={}", source == null ? null : source.getUUID());
@@ -191,18 +204,20 @@ public final class FlightPlanner {
         var dangerAt = danger.position();
         var navigation = body.getNavigation();
         if (danger != shieldedFrom) { shieldedFrom = null; shielded = null; }
+        if (failed.holds(danger.getUUID(), body.position(), dangerAt, den)) return;
         boolean changed = source != danger;
         var away = away(den == null ? dangerAt : dangerAt.lerp(den, .5));
-        if (!changed && now - plannedAt < 40 && (route == null || !navigation.isDone() && route == navigation.getPath())) {
+        if (!changed && now - plannedAt < 40 && route != null && !navigation.isDone() && route == navigation.getPath()) {
             if (dangerAt.distanceToSqr(checkedDanger) < .25) return;
             if (!FlightCourse.shouldReplan(now - plannedAt, false, false, heading, away)
-                    && (route == null || clearsThreat(route, dangerAt))) {
+                    && clearsThreat(route, dangerAt)) {
                 checkedDanger = dangerAt;
                 return;
             }
         }
         // Knockback can leave a grounded runner airborne between deciding to flee and starting the goal.
         if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
+        failed.clear();
         if (changed || heading.dot(away) < .25) heading = away;
         var stalled = !changed && route != null && navigation.isStuck() ? route.getTarget() : null;
         source = danger;
@@ -211,7 +226,7 @@ public final class FlightPlanner {
         route = den == null ? refuge(danger) : null;
         if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled, shielded);
         if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled, shielded);
-        if (route == null || !SurfaceApproach.startRetreat(body, route, body.newbornStage() ? .8 : 1.2)) { noExit(); return; }
+        if (route == null || !SurfaceApproach.startRetreat(body, route, body.newbornStage() ? .8 : 1.2)) { noExit(dangerAt, den); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         route = navigation.getPath();

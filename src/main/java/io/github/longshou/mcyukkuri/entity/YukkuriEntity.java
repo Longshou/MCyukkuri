@@ -363,7 +363,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         navigation.stop();
         sync().predatorFlight(flying); setNoGravity(flying); fallDistance = 0;
         if (flying) {
-            var flight = new FlyingPathNavigation(this, level());
+            var flight = new FlyingPathNavigation(this, level()) {
+                @Override public boolean shouldRecomputePath(BlockPos changed) {
+                    status().reactions().threat().flight().collisionChanged(changed);
+                    return super.shouldRecomputePath(changed);
+                }
+            };
             flight.setCanPassDoors(!TravelRange.staysBehindDoors(this));
             navigation = flight;
         } else navigation = new YukkuriGroundNavigation(this, level());

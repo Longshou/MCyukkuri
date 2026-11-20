@@ -450,10 +450,11 @@ public final class Reactions {
                     double d = s.distanceTo(y);
                     if (safeAt(s)) { stage = Stage.HIDE; ticks = 0; return; }
                     flight.flee(s);
-                    if (d > 20 || ticks > 400) { stage = Stage.HIDE; ticks = 0; }
+                    if (flight.cornered(s) || d > 20 || ticks > 400 && d > 16) { stage = Stage.HIDE; ticks = 0; }
                 }
                 case HIDE -> {
                     if (s != null && seal.drive(s)) return;
+                    if (s != null && flight.cornered(s)) return;
                     if (s != null && s.distanceToSqr(y) <= 256 && !safeAt(s)) { stage = Stage.RETREAT; ticks = 0; return; }
                     y.getNavigation().stop();
                     if (lostSince != 0 && now - lostSince > 80) { end(100); return; }
