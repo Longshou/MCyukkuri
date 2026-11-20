@@ -63,6 +63,21 @@ class PoseNeighborGridTest {
         assertEquals(Set.of(0, 1), found(grid, 2f, 0, 0));
     }
 
+    @Test void scaledHeadwearCanTouchBeyondTheOrdinaryTwoBlockNeighborhood() {
+        var grid = new PoseNeighborGrid();
+        grid.begin(1, .5f);
+        grid.add(0, 0, 0, 0);
+        grid.add(1, 3, 0, 0);
+        grid.includeRadius(2.5);
+        assertEquals(Set.of(0), found(grid, 0, 0, 0));
+        assertEquals(2, grid.findLoose(0, 0, 0, .75));
+        grid.begin(2, .5f);
+        grid.add(0, 0, 0, 0);
+        grid.add(1, 3, 0, 0);
+        grid.includeRadius(.75);
+        assertEquals(1, grid.findLoose(0, 0, 0, .75));
+    }
+
     private static Set<Integer> found(PoseNeighborGrid grid, float x, float y, float z) {
         int count = grid.find(x, y, z);
         var result = new HashSet<Integer>();

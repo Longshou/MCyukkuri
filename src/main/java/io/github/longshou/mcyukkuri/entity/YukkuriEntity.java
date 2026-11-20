@@ -35,7 +35,6 @@ import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.cognition.Skills;
-import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -70,7 +69,6 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
-import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -123,8 +121,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -575,67 +571,21 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A newborn crossing from its mother's outlet to the hat is not shoved off its arc by the body it overlaps. */
     @Override public boolean isPushable() { return !(family != null && family.newbornLaunching()) && super.isPushable(); }
     @Override public void push(Entity other) {
-        // Vanilla's extra proximity push otherwise separates a consenting pair before mouths can meet.
-        // Actual body overlap, players and unrelated animals retain ordinary collision response.
-        if(other instanceof YukkuriEntity peer&&careApproach.cooperatingWith(peer)
-                &&!getBoundingBox().intersects(peer.getBoundingBox()))return;
-        if(other instanceof YukkuriEntity rival&&rival!=this){bodyPush(rival);return;}
-        super.push(other);
+        if (other instanceof YukkuriEntity peer) {
+            if (!level().isClientSide && peer != this) {
+                pushedBy(peer);
+                peer.pushedBy(this);
+            }
+        } else super.push(other);
     }
     /** Bodies that move on their own may be shoved; carried, boarded or launched ones follow their own carrier. */
-    boolean nudgeable() {
+    public boolean nudgeable() {
         return isPushable()&&!isPassenger()&&!isVehicle()&&!predatorFlying()&&!family.freeFalling();
     }
-    private double bodyMass() { return getBbWidth()*getBbWidth()*getBbHeight(); }
-    /**
-     * Mutual body push between two yukkuri. Vanilla's 0.05 impulse is lost against a walking gait, so overlapping
-     * bodies press apart harder; the lighter body yields more, a resting one yields less, and both turn to their own
-     * right so a head-on pair slides past instead of cancelling. Called once per overlapping tick from each side.
-     */
-    private void bodyPush(YukkuriEntity peer) {
-        if(isPassengerOfSameVehicle(peer)||noPhysics||peer.noPhysics||(!nudgeable()&&!peer.nudgeable()))return;
-        // Nest-mates walk to separate resting places without shoving each other off the pad.
-        if(!level().isClientSide&&FamilyNest.sameNest(this,peer)&&FamilyNest.atAssignedNest(this)&&FamilyNest.atAssignedNest(peer))return;
-        double dx=peer.getX()-getX(),dz=peer.getZ()-getZ(),reach=(getBbWidth()+peer.getBbWidth())*.5;
-        double distance=Math.hypot(dx,dz);
-        if(distance<.01){ // exactly stacked bodies still separate, along an axis both sides agree on
-            double angle=Math.abs(getId()-peer.getId())*2.399963+Math.min(getId(),peer.getId());
-            dx=Math.cos(angle);dz=Math.sin(angle);
-            if(getId()>peer.getId()){dx=-dx;dz=-dz;}
-            distance=1;
-        }
-        double ux=dx/distance,uz=dz/distance,closeness=Math.clamp(1-distance/Math.max(reach,.05),0,1);
-        double strength=.035*(.5+.5*closeness),mine=bodyMass(),theirs=peer.bodyMass();
-        if(nudgeable())shove(-ux,-uz,strength*Math.clamp(2*theirs/(mine+theirs),.4,1.8)*(life.isSleeping()?.6:1));
-        if(peer.nudgeable())peer.shove(ux,uz,strength*Math.clamp(2*mine/(mine+theirs),.4,1.8)*(peer.life.isSleeping()?.6:1));
-    }
-    private static final EntityTypeTest<Entity, LivingEntity> LIVING = EntityTypeTest.forClass(LivingEntity.class);
-    private final List<LivingEntity> shoveNeighbours = new ArrayList<>();
-    private final FlightCourse.Shove shove = new FlightCourse.Shove(this::clearShove);
-
-    /** Use retreat's dry landing rule for the displacement this impulse can carry, even while recoiling in the air. */
-    private void shove(double x,double z,double strength) {
-        if (level().isClientSide) return;
+    private void pushedBy(YukkuriEntity peer) {
         var motion = getDeltaMovement();
-        level().getEntities(LIVING, getBoundingBox().inflate(strength, 0, strength), EntitySelector.NO_SPECTATORS, shoveNeighbours);
-        boolean clear = shove.choose(x * strength, z * strength, isCrawling() ? crawlNudgeX : motion.x,
+        motor.contact.pushedBy(peer, isCrawling() ? crawlNudgeX : motion.x,
                 isCrawling() ? crawlNudgeZ : motion.z);
-        shoveNeighbours.clear();
-        if (clear) nudge(shove.x(), shove.z());
-        else GameplayLog.limited(this,"move","shove.brace",200,"shove braced at obstruction or brink");
-    }
-
-    private boolean clearShove(double dx, double dz, double driftX, double driftZ) {
-        var here = getBoundingBox();
-        var next = here.move(dx, 0, dz);
-        if (!level().noCollision(this, next)) return false;
-        for (int i = 0; i < shoveNeighbours.size(); i++) {
-            var body = shoveNeighbours.get(i);
-            var box = body.getBoundingBox();
-            if (body != this && next.intersects(box) && !FlightCourse.clearsNeighbour(here.intersects(box),
-                    getX() - body.getX(), getZ() - body.getZ(), dx, dz)) return false;
-        }
-        return isInLiquid() || SurfaceApproach.canSteerOver(this, position().add(driftX, 0, driftZ));
     }
     /** A walking nudge. The crawl gait rewrites the horizontal velocity every tick, so crawlers keep a decaying carry. */
     public void nudge(double x,double z) {

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.pose.ContactBounds;
+import io.github.longshou.mcyukkuri.pose.WallYield;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import net.minecraft.util.Mth;
@@ -74,11 +75,26 @@ final class PoseNeighbors {
             first.begin(frame, partial);
             for (int i = 0; i < actors.size(); i++) {
                 var actor = actors.get(i);
+                first.includeRadius(projection(actor).bounds(actor).radius());
                 first.add(i, (float)Mth.lerp(partial, actor.xo, actor.getX()),
                         (float)Mth.lerp(partial, actor.yo, actor.getY()), (float)Mth.lerp(partial, actor.zo, actor.getZ()));
             }
         }
         return first;
+    }
+
+    static void crowdFaces(YukkuriEntity self, float partial, WallYield.Bounds own, WallClearance clearance, int knownPartner) {
+        var at = self.getPosition(partial);
+        var grid = grid(partial);
+        int count = grid.findLoose((float)at.x, (float)at.y, (float)at.z, own.radius());
+        for (int i = 0; i < count; i++) {
+            var peer = actors.get(grid.actor(i));
+            if (peer == self || peer.level() != self.level() || peer.getId() == knownPartner || !peer.usesCrowdSpacing()) continue;
+            var delta = peer.getPosition(partial).subtract(at);
+            var theirs = projection(peer).bounds(peer);
+            if (own.overlaps(theirs, delta.x, delta.y, delta.z))
+                clearance.passingFace(self, peer, partial, own, theirs, delta);
+        }
     }
 
     static void collect(YukkuriEntity self, float partial, Matrix4f start, Matrix4f posed) {

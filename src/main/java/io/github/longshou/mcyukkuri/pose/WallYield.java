@@ -21,6 +21,8 @@ public final class WallYield {
 
     /** Loose-part sweep about the feet, including the swing allowance and any worn prop. */
     public record Bounds(double reach, double low, double high) {
+        public double radius() { return Math.hypot(reach, Math.max(-low, high)); }
+
         public boolean overlaps(Bounds peer, double dx, double dy, double dz) {
             double span = reach + peer.reach;
             return dx * dx + dz * dz < span * span && low < dy + peer.high && dy + peer.low < high;

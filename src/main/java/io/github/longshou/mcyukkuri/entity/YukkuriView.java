@@ -107,6 +107,10 @@ public interface YukkuriView {
     String outlookId();
     CompoundTag moodReadout();
     String getBehaviorId();
+    default boolean usesCrowdSpacing() {
+        return !isPassenger() && !isVehicle() && nuzzlePartnerId() < 0 && carePartnerId() < 0
+                && (Behaviors.crowdSpacing(getBehaviorId()) || getAnimationId().equals("idle") && motorAction().isEmpty());
+    }
     long getBehaviorStartTick();
     String getDialogueKey();
     long speechStart();

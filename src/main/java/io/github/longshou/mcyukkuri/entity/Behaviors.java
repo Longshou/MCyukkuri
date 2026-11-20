@@ -297,5 +297,14 @@ public final class Behaviors {
             WINDOW_LETDOWN = "window_letdown", WINDOW_HMPH = "window_hmph", WINDOW_FAREWELL = "window_farewell", WINDOW_ENVY = "window_envy",
             WINDOW_WATCH = "window_watch", WINDOW_POLITE = "window_polite";
 
+    /** Ordinary ground activities whose feet can yield to a crowd. Contact performances place their own actors. */
+    public static boolean crowdSpacing(String behavior) {
+        return switch (behavior) {
+            case IDLE, ROAM, MARISA_EXPLORE, WAIT, STAY_HOME, RETURN_HOME, SHADE_REST, SLEEP_ENTER, SLEEP, WAKE,
+                    SEEK_FOOD, SEEK_WATER, SEEK_TOILET, CHEW, SWALLOW, MEAL_CONTENT -> true;
+            default -> false;
+        };
+    }
+
     private Behaviors() {}
 }

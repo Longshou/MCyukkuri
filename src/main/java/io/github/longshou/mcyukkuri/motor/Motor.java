@@ -80,6 +80,14 @@ public final class Motor {
         }
         if (!body.level().isClientSide) limited = body.motor().departureStep(limited);
         if (limited != motion) body.setDeltaMovement(limited);
+        if (!body.level().isClientSide) {
+            var step = body.motor().contact.groundStep(limited);
+            if (step != limited) {
+                // A separating footstep does not leave shove momentum for vanilla to integrate on the next tick.
+                body.setDeltaMovement(new Vec3(0, limited.y, 0));
+                return step;
+            }
+        }
         return limited;
     }
 
@@ -97,12 +105,17 @@ public final class Motor {
         // The walking pose can extend past the collision box, as when each partner turns after a side press.
         double clearance = GreetingStance.visualDistance(body, partner);
         var wanted = new Vec(motion.x, motion.y, motion.z);
-        var step = SeparationStep.away(body.getX() - partner.getX(), body.getZ() - partner.getZ(), clearance, wanted, candidate -> {
-            var at = body.position().add(candidate.x(), 0, candidate.z());
-            return SurfaceApproach.canSteerOver(body, at) && (body.onGround() ? SurfaceApproach.stands(body, at)
-                    : SurfaceApproach.dryStep(body, body.position(), at));
-        });
+        var step = SeparationStep.away(body.getX() - partner.getX(), body.getZ() - partner.getZ(), clearance, wanted,
+                candidate -> safeContactStep(body, candidate));
         return step == wanted ? motion : new Vec3(step.x(), motion.y, step.z());
+    }
+
+    static boolean safeContactStep(YukkuriEntity body, Vec candidate) {
+        var delta = new Vec3(candidate.x(), 0, candidate.z());
+        if (!nestStep(body, delta).equals(delta)) return false;
+        var at = body.position().add(delta);
+        return SurfaceApproach.canSteerOver(body, at) && (body.onGround() ? SurfaceApproach.stands(body, at)
+                : SurfaceApproach.dryStep(body, body.position(), at));
     }
 
     public static void brakeFledglingFall(YukkuriEntity body) {

@@ -40,7 +40,7 @@ final class WallClearance {
     private float low, high;
     private final Tuck tuck = new Tuck();
 
-    private static WallYield.Bounds bounds(YukkuriView entity, YukkuriModel model) {
+    static WallYield.Bounds bounds(YukkuriView entity, YukkuriModel model) {
         double scale = entity.getScale() * entity.growthScale();
         // Rest bounds plus room for the animated swing, lean and bounce.
         double motion = scale / 4;
@@ -66,7 +66,8 @@ final class WallClearance {
     WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, YukkuriView mover, Vec3 rubOffset,
                          Matrix4f origin, boolean paper) {
         YukkuriView entity = source;
-        var bounds = bounds(entity, model);
+        var projection = PoseNeighbors.projection(entity);
+        var bounds = projection == null ? bounds(entity, model) : projection.bounds(entity);
         double reach = bounds.reach();
         double feetX = Mth.lerp(partial, source.xOld, source.getX()) + rubOffset.x;
         double feetY = Mth.lerp(partial, source.yOld, source.getY()) + rubOffset.y;
@@ -84,7 +85,6 @@ final class WallClearance {
         reachedBin = bin;
         var collisions = new BlockCollisions<>(entity.level(), source, sweep, false, collectShape);
         while (collisions.hasNext()) collisions.next();
-        var partner = partnerFace(entity, mover, partial, bounds);
         faces.clear();
         low = Float.POSITIVE_INFINITY;
         high = Float.NEGATIVE_INFINITY;
@@ -102,7 +102,13 @@ final class WallClearance {
             add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
                     (float)(minY - feetY), (float)(maxY - feetY)));
         }
-        if (partner != null) add(partner);
+        if (projection != null) {
+            int partner = entity.nuzzlePartnerId();
+            if (partner < 0) partner = projection.lastPartner;
+            var peer = partner < 0 ? null : entity.yukkuriView(partner);
+            if (peer != null && PoseNeighbors.projection(peer) != null) partnerFace(entity, peer, mover, partial, bounds);
+            if (entity.usesCrowdSpacing()) PoseNeighbors.crowdFaces(source, partial, bounds, this, partner);
+        }
         originX = origin.m30();
         originY = origin.m31();
         originZ = origin.m32();
@@ -159,7 +165,7 @@ final class WallClearance {
         if (last < 0) return;
         var peer = entity.yukkuriView(last);
         if (peer != null) {
-            var own = bounds(entity, YukkuriModel.get(entity.assetId()));
+            var own = projection.bounds(entity);
             var theirs = bounds(peer, YukkuriModel.get(peer.assetId()));
             var before = peer.getPosition(0).subtract(entity.getPosition(0));
             var now = peer.position().subtract(entity.position());
@@ -168,25 +174,15 @@ final class WallClearance {
         projection.lastPartner = -1;
     }
 
-    private static WallYield.Face partnerFace(YukkuriView entity, YukkuriView mover, float partial, WallYield.Bounds ownBounds) {
-        var projection = PoseNeighbors.projection(entity);
-        if (projection == null) return null; // Spawner displays render without joining the level or receiving partner sync.
-        int id = entity.nuzzlePartnerId();
-        if (id < 0) id = projection.lastPartner;
-        if (id < 0) return null;
-        var peer = entity.yukkuriView(id);
-        if (peer == null) return null;
-        var peerModel = YukkuriModel.get(peer.assetId());
-        var peerBounds = bounds(peer, peerModel);
+    private void partnerFace(YukkuriView entity, YukkuriView peer, YukkuriView mover, float partial, WallYield.Bounds ownBounds) {
+        var peerBounds = PoseNeighbors.projection(peer).bounds(peer);
         var delta = peer.getPosition(partial).subtract(entity.getPosition(partial));
-        double scale = entity.growthScale() * entity.getScale(), peerScale = peer.growthScale() * peer.getScale();
         if (mover == null) {
-            if (!ownBounds.overlaps(peerBounds, delta.x, delta.y, delta.z)) return null;
-            var toward = delta.multiply(1, 0, 1).normalize();
-            double own = bodyReach(entity, partial, toward.x, toward.z) * scale;
-            double theirs = bodyReach(peer, partial, -toward.x, -toward.z) * peerScale;
-            return WallYield.passingFace(delta.x, delta.y, delta.z, own, theirs, ownBounds, peerBounds);
+            if (ownBounds.overlaps(peerBounds, delta.x, delta.y, delta.z))
+                passingFace(entity, peer, partial, ownBounds, peerBounds, delta);
+            return;
         }
+        double scale = entity.growthScale() * entity.getScale(), peerScale = peer.growthScale() * peer.getScale();
         boolean right = entity == mover;
         int tick = mover.peerRubTick();
         double angle = Math.toRadians(mover.bodyYaw());
@@ -194,8 +190,17 @@ final class WallClearance {
         double lift = delta.y;
         double own = SnugglePose.at(entity.assetId(), right, tick).reach(right) * scale / 16;
         double theirs = SnugglePose.at(peer.assetId(), !right, tick).reach(!right) * peerScale / 16;
-        return WallYield.partnerFace(x, z, mover.peerRubSpacing(), own, theirs,
-                (float)Math.min(ownBounds.low(), lift + peerBounds.low()), (float)Math.max(ownBounds.high(), lift + peerBounds.high()));
+        add(WallYield.partnerFace(x, z, mover.peerRubSpacing(), own, theirs,
+                (float)Math.min(ownBounds.low(), lift + peerBounds.low()), (float)Math.max(ownBounds.high(), lift + peerBounds.high())));
+    }
+
+    void passingFace(YukkuriView entity, YukkuriView peer, float partial, WallYield.Bounds ownBounds,
+                     WallYield.Bounds peerBounds, Vec3 delta) {
+        var toward = delta.multiply(1, 0, 1).normalize();
+        double own = bodyReach(entity, partial, toward.x, toward.z) * (entity.growthScale() * entity.getScale());
+        double theirs = bodyReach(peer, partial, -toward.x, -toward.z) * (peer.growthScale() * peer.getScale());
+        var face = WallYield.passingFace(delta.x, delta.y, delta.z, own, theirs, ownBounds, peerBounds);
+        if (face != null) add(face);
     }
 
     private static double bodyReach(YukkuriView entity, float partial, double x, double z) {

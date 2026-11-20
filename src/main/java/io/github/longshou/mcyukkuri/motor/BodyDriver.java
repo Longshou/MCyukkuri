@@ -40,6 +40,7 @@ public final class BodyDriver {
 
     private final YukkuriEntity body;
     private final BlockPos.MutableBlockPos buoyancySample = new BlockPos.MutableBlockPos();
+    public final BodyContact contact;
     private YukkuriEntity leavingPartner;
     private long separationUntil;
     private Action current;
@@ -59,6 +60,7 @@ public final class BodyDriver {
 
     public BodyDriver(YukkuriEntity body) {
         this.body = body;
+        contact = new BodyContact(body);
     }
 
     void separatingFrom(YukkuriEntity partner, long until) {

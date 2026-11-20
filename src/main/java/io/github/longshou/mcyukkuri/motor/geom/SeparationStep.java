@@ -6,9 +6,32 @@ import java.util.function.Predicate;
 public final class SeparationStep {
     private SeparationStep() {}
 
+    // A quarter model unit of daylight before releasing a pair. Re-entry requires actual body contact.
+    public static final double RELEASE_GAP = 1.0 / 64;
+    public static final double SHOVE = .035;
+
+    public static boolean clear(double x, double z, double clearance, double dx, double dz) {
+        return clear(x, dx, clearance) || clear(z, dz, clearance);
+    }
+
+    /** Start at the real body face. Once pressed, finish opening a little daylight even at rest. */
+    public static Vec crowd(double x, double z, double width, boolean pressed, int order, double yield,
+                            Vec wanted, Predicate<Vec> walkable) {
+        if (clear(x, z, pressed ? width + RELEASE_GAP : width, wanted.x(), wanted.z())) return wanted;
+        double gap = Math.max(Math.abs(x), Math.abs(z));
+        double pace = Math.min(SHOVE * yield, width + RELEASE_GAP - gap);
+        // Coincident feet choose opposite normals in the two calls.
+        if (x == 0 && z == 0) x = Math.copySign(0.0, order);
+        if (wanted.hlen() < pace) {
+            wanted = Math.abs(x) >= Math.abs(z) ? new Vec(Math.copySign(pace, x), wanted.y(), 0)
+                    : new Vec(0, wanted.y(), Math.copySign(pace, z));
+        }
+        return away(x, z, width + RELEASE_GAP, wanted, walkable);
+    }
+
     public static Vec away(double x, double z, double clearance, Vec wanted, Predicate<Vec> walkable) {
         // One separating face for the entire step stays safe even if a wall clips either component.
-        if (clear(x, wanted.x(), clearance) || clear(z, wanted.z(), clearance)) return wanted;
+        if (clear(x, z, clearance, wanted.x(), wanted.z())) return wanted;
         boolean acrossX = Math.abs(x) >= Math.abs(z);
         double gap = acrossX ? x : z;
         double outward = Math.copySign(1, gap);
