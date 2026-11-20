@@ -134,7 +134,7 @@ public final class StallTheft implements MotorOwner {
 
     private boolean available(BlockPos pos) {
         return level().hasChunkAt(pos) && level().getBlockState(pos).is(ModBlocks.PRODUCE_CRATE.get())
-                && level().getBlockEntity(pos) instanceof ProduceCrateBlockEntity crate && crate.stall()
+                && level().getBlockEntity(pos) instanceof ProduceCrateBlockEntity crate && crate.theftTarget()
                 && !crate.frontItem().isEmpty() && body.life().seeksFood(crate.frontItem())
                 && !body.life().avoidsField(pos) && !ShopProtection.guarded(level(), pos);
     }

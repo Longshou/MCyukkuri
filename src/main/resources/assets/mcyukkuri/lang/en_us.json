@@ -8365,5 +8365,15 @@
   "exam.mcyukkuri.refuse.share_nutrition": "Let the candidate recover to at least 60 nutrition.",
   "exam.mcyukkuri.hint.5": "Attempt the next grade. A missed answer leaves the current grade in place.",
   "pet.mcyukkuri.reply.help_danger": "%s calls for help. %s is in danger!",
-  "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first."
+  "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first.",
+  "human.mcyukkuri.street.kiosk_gentle": "Please give the customers some room.",
+  "human.mcyukkuri.kiosk.offer": "%s · One emerald each. Use an emerald to buy.",
+  "human.mcyukkuri.kiosk.sold": "Bought %s.",
+  "human.mcyukkuri.kiosk.emerald": "Use an emerald to buy.",
+  "human.mcyukkuri.kiosk.unstaffed": "The keeper is away from the hatch.",
+  "human.mcyukkuri.kiosk.busy": "The keeper is busy. Try again in a moment.",
+  "human.mcyukkuri.kiosk.blocked": "The serving hatch is blocked.",
+  "human.mcyukkuri.kiosk.empty": "This crate has sold out.",
+  "human.mcyukkuri.kiosk.till_full": "This crate has no room for the emerald.",
+  "human.mcyukkuri.kiosk.inventory_full": "There is no room in your inventory."
 }

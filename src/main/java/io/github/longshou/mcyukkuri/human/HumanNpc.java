@@ -210,6 +210,14 @@ public final class HumanNpc extends PathfinderMob {
     public BlockPos householdHome() {
         return residentAvailable() && hurtTime == 0 ? home : null;
     }
+    KioskCounter kioskWindow() { return stroll().kioskWindow(); }
+    boolean kioskBusy() { return stroll().kioskBusy(); }
+    public boolean attendingKiosk() { return kioskWindow() != null; }
+    public boolean offersKioskFoodTo(YukkuriEntity y) {
+        var counter = kioskWindow();
+        return counter != null && !kioskBusy() && street.kioskGuest(y, counter) && counter.hasFood(y);
+    }
+
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
     public static void witnessedStreetHurt(YukkuriEntity animal, Player player) { HumanStreet.witnessedHurt(animal, player); }
     public static void witnessedCropTheft(YukkuriEntity animal, BlockPos crop) { HumanStreet.witnessedCropTheft(animal, crop); }
@@ -275,6 +283,10 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(1, new PanicGoal(this, 1.25) {
             @Override public boolean canUse() { return !avoidingStreet() && super.canUse(); }
             @Override public boolean canContinueToUse() { return !avoidingStreet() && super.canContinueToUse(); }
+        });
+        goalSelector.addGoal(1, new AvoidEntityGoal<>(this, YukkuriEntity.class, 6, .85, 1.15,
+                predator -> ((YukkuriEntity) predator).profile().dangerToYukkuri()) {
+            @Override public boolean canUse() { return attendingKiosk() && super.canUse(); }
         });
         goalSelector.addGoal(1, new CourierGoal());
         goalSelector.addGoal(2, new CollectBadgeGoal());
@@ -353,9 +365,19 @@ public final class HumanNpc extends PathfinderMob {
             nodeEvaluator = new WalkNodeEvaluator() {
                 @Override public PathType getPathTypeOfMob(PathfindingContext context, int x, int y, int z, Mob mob) {
                     // An overlapping body must not mark the worker's own departure node blocked.
-                    if (shopBlocker != null && !mob.blockPosition().equals(new BlockPos(x, y, z)) && mob.getDimensions(mob.getPose())
-                            .makeBoundingBox(x + .5, y, z + .5).intersects(shopBlocker)) return PathType.BLOCKED;
-                    return super.getPathTypeOfMob(context, x, y, z, mob);
+                    var at = new BlockPos(x, y, z);
+                    var type = super.getPathTypeOfMob(context, x, y, z, mob);
+                    if (mob.blockPosition().equals(at)) return type;
+                    var size = mob.getDimensions(mob.getPose());
+                    if (shopBlocker != null && size.makeBoundingBox(x + .5, y, z + .5).intersects(shopBlocker)) return PathType.BLOCKED;
+                    if (type != PathType.WALKABLE) return type;
+                    // Thin overhead shapes can leave a walking node open while still clipping a human's head.
+                    var above = at.above();
+                    var ceiling = context.getBlockState(above).getCollisionShape(level, above);
+                    if (ceiling.isEmpty()) return type;
+                    var body = size.makeBoundingBox(x + .5, getFloorLevel(at), z + .5);
+                    for (var part : ceiling.toAabbs()) if (part.move(above).intersects(body)) return PathType.BLOCKED;
+                    return type;
                 }
 
                 @Override public PathType getPathType(PathfindingContext context, int x, int y, int z) {
@@ -426,7 +448,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override public void handleEntityEvent(byte id) {
         if (id == HumanStreet.KICK_EVENT) street.kickPose = HumanStreet.KICK_POSE_TICKS;
-        else if (id == HumanStreet.FROWN_EVENT) street.frownPose = 30;
+        else if (id == HumanStreet.FROWN_EVENT) street.frownPose = HumanStreet.FROWN_TICKS;
         else super.handleEntityEvent(id);
     }
     @Override public void aiStep() {
@@ -753,6 +775,7 @@ public final class HumanNpc extends PathfinderMob {
             // Shop staff tend their stock as jobs (ShopStaff) through the staff doors; this routine only keeps their trading and rest.
             if (routineDelay > 0 || job() == Job.SHOPKEEPER) return false;
             if (streetResident()) {
+                if (attendingKiosk()) return false;
                 attention = street.pick();
                 return attention != null && !(stroll().canUse() && !stroll().readyPets().isEmpty());
             }

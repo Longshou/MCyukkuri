@@ -3856,6 +3856,33 @@ add('stall_theft', 'town', '流浪油在摊前偷胡萝卜', '流浪油在摊前
            ('读嘴中货物', f'data get entity {sel("stall_stray")} YukkuriMouth'),
            ('读流浪油状态', f'yukkuri status {sel("stall_stray")} raw')])
 
+_kiosk_keeper = sel('kiosk_keeper')
+_kiosk_stray = sel('kiosk_stray')
+_kiosk_grain = 'mcyukkuri:oil_grain_regular'
+_kiosk_goods, _kiosk_paper = '~-1 ~1 ~', '~ ~1 ~'
+_kiosk_build = [
+    box(-9, -1, -9, 9, -1, 9, 'minecraft:polished_andesite'),
+    'place template mcyukkuri:village/plains/kiosk ~-4 ~-1 ~-3',
+    f'execute positioned ~0.5 ~ ~2.5 run tag @e[type=mcyukkuri:caretaker_sister,distance=..0.5,limit=1] add {tag("kiosk_keeper")}',
+]
+_kiosk_rows = [('读粮箱存货和收款', f'data get block {_kiosk_goods} Items'),
+               ('读纸箱存货和收款', f'data get block {_kiosk_paper} Items'),
+               ('读店主的站位', f'data get entity {_kiosk_keeper} Pos')]
+add('kiosk_buy', 'town', '在小卖亭用绿宝石买油粮和纸', '在小卖亭用绿宝石买油粮和纸',
+    '先看店主从柜台后的住处走后门、绕到遮阳篷下。空手从街边点货箱看货，再手持绿宝石各买一件油粮和纸。'
+    '看实物离开货箱，绿宝石留在箱内。也可试着买空左边的粮箱。', '约半分钟',
+    _kiosk_build, give=['minecraft:emerald 7'], env={'time': 'noon', 'weather': 'clear'},
+    vantage=(-3, -5, -45, 8), reads=_kiosk_rows + [('读自己的背包', 'data get entity @s Inventory')])
+
+add('kiosk_shoo', 'town', '流浪油在售货口讨食，店主挥手赶开', '流浪油在售货口讨食，店主挥手赶开',
+    '看饥饿的流浪灵梦走到在岗的店主旁开口索食。店主挥手喝止，灵梦自己跑开；货箱里的食物还在。'
+    '站在街边给灵梦让路，挥手结束就能继续买东西。', '约半分钟',
+    _kiosk_build, give=['minecraft:emerald 2'], env={'time': 'noon', 'weather': 'clear'}, vantage=(5, -6, 40, 8),
+    late=[Retry(street_trial('kiosk_shoo', 'reimu', -2, -4, 'kiosk_stray', nutrition=42, social_wait=0,
+                             boldness=75, friendliness=75, self_control=75, picky=10, yaw=-20, lead=True),
+                _kiosk_keeper, tries=1, first=370)],
+    reads=_kiosk_rows + [('读流浪灵梦的状态', f'yukkuri status {_kiosk_stray} raw')])
+
 add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐下躲雨', '流浪油：长椅歇息、饮水、木桶檐下躲雨',
     '西边困倦的魔理沙会在檐下长椅的椅面或椅脚歇息。口渴的灵梦能在干岸饮水。东边两只流浪油附近各有一处遮雨地，分别是抬高木桶和遮篷。', '约半分钟', [
         box(-11, -1, -4, 12, -1, 4, 'minecraft:polished_andesite'),
@@ -7265,7 +7292,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
-    'stall_theft': 'M5',
+    'stall_theft': 'M5', 'kiosk_buy': 'M5', 'kiosk_shoo': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
@@ -8364,6 +8391,78 @@ _smoke('stall_theft', 700, [
 next(s for s in S if s.id == 'stall_theft').smoke['commands'] = [
     (320, f'execute if block {_stall_box} mcyukkuri:produce_crate unless data block {_stall_box} Items[0] run say MCYSTALL_EMPTY'),
 ]
+
+_kiosk_buyer = '@a[name=MuseumOperator,distance=..8,limit=1]'
+_kiosk_keeper_id = r'[0-9a-f-]{36}'
+_kiosk_staffed = rf'\[npc-care\][^\n]* uuid=({_kiosk_keeper_id})\b[^\n]* action=kiosk_staffed'
+
+
+def _kiosk_check(tick, label, crate, rows, coins, goods):
+    checks = [f'if data block {crate} {{Items:[{{Slot:{slot}b,id:"{item_id}",count:{count}}}]}}'
+              for slot, item_id, count in rows]
+    checks.append(f'unless data block {crate} Items[{len(rows)}]')
+    counts = [('minecraft:emerald', coins), (_kiosk_grain, goods[0]), ('minecraft:bread', goods[1]), ('minecraft:paper', goods[2])]
+    return [(tick, f'execute store result score #kiosk_{i} museum run clear {_kiosk_buyer} {item_id} 0')
+            for i, (item_id, _) in enumerate(counts)] + [
+        (tick, 'execute ' + ' '.join([f'if score #kiosk_{i} museum matches {count}' for i, (_, count) in enumerate(counts)]
+                                    + checks) + f' run say MCYKIOSK_{label}')]
+
+
+_kiosk_coins = 'minecraft:emerald'
+_kiosk_bread = 'minecraft:bread'
+_kiosk_food_start = [(0, _kiosk_bread, 3), (1, _kiosk_grain, 2)]
+_kiosk_paper_start = [(0, 'minecraft:paper', 3), (1, 'minecraft:paper', 2)]
+_kiosk_sale = rf'\[shop\][^\n]* uuid={_kiosk_keeper_id}\b[^\n]* action=kiosk_sale'
+_smoke('kiosk_buy', 560, [
+    _kiosk_staffed, _kiosk_sale + rf'[^\n]* goods={_kiosk_grain}\b',
+    _kiosk_sale + r'[^\n]* goods=minecraft:paper\b',
+    r'\[shop\][^\n]* action=kiosk_refused [^\n]*reason=unstaffed',
+    r'\[shop\][^\n]* action=kiosk_refused [^\n]*reason=empty',
+    *[f'MCYKIOSK_{label}\\b' for label in ('UNSTAFFED', 'INSPECT', 'GRAIN', 'PAPER', 'LAST_GRAIN', 'BREAD_1', 'BREAD_2', 'LAST_BREAD', 'EMPTY')],
+], readout=[command for _, command in _kiosk_rows])
+_kiosk_click = 'yukkuri scenario shop_block_click'
+next(s for s in S if s.id == 'kiosk_buy').smoke['commands'] = [
+    (1, 'execute positioned ~-0.5 ~ ~-2.5 run yukkuri scenario tool_operator enter'),
+    (2, f'gamemode survival {_kiosk_buyer}'),
+    (2, f'give {_kiosk_buyer} minecraft:emerald 7'),
+    (3, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(4, 'UNSTAFFED', _kiosk_goods, _kiosk_food_start, 7, (0, 0, 0)),
+    (410, 'yukkuri scenario tool_operator select 1'),
+    (411, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(412, 'INSPECT', _kiosk_goods, _kiosk_food_start, 7, (0, 0, 0)),
+    (420, 'yukkuri scenario tool_operator select 0'),
+    (421, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(422, 'GRAIN', _kiosk_goods, [(0, _kiosk_bread, 3), (1, _kiosk_grain, 1), (2, _kiosk_coins, 1)], 6, (1, 0, 0)),
+    (430, f'{_kiosk_click} {_kiosk_paper} up'),
+    *_kiosk_check(431, 'PAPER', _kiosk_paper, [(0, 'minecraft:paper', 3), (1, 'minecraft:paper', 1), (2, _kiosk_coins, 1)], 5, (1, 0, 1)),
+    (440, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(441, 'LAST_GRAIN', _kiosk_goods, [(0, _kiosk_bread, 3), (2, _kiosk_coins, 2)], 4, (2, 0, 1)),
+    (450, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(451, 'BREAD_1', _kiosk_goods, [(0, _kiosk_bread, 2), (2, _kiosk_coins, 3)], 3, (2, 1, 1)),
+    (460, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(461, 'BREAD_2', _kiosk_goods, [(0, _kiosk_bread, 1), (2, _kiosk_coins, 4)], 2, (2, 2, 1)),
+    (470, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(471, 'LAST_BREAD', _kiosk_goods, [(0, _kiosk_coins, 1), (2, _kiosk_coins, 4)], 1, (2, 3, 1)),
+    (480, f'{_kiosk_click} {_kiosk_goods} north'),
+    *_kiosk_check(481, 'EMPTY', _kiosk_goods, [(0, _kiosk_coins, 1), (2, _kiosk_coins, 4)], 1, (2, 3, 1)),
+    (510, 'yukkuri scenario tool_operator leave'),
+]
+
+_kiosk_beggar = _uuid_text('kiosk_shoo', 'kiosk_stray')
+_smoke('kiosk_shoo', 750, [
+    _kiosk_staffed + rf'[^\n]*\n[\s\S]*?\[social\][^\n]* uuid={_kiosk_beggar}\b[^\n]* human food request target=\1\b'
+    + rf'[^\n]*\n[\s\S]*?\[npc-care\][^\n]* uuid=\1\b[^\n]* action=kiosk_shoo target={_kiosk_beggar}\b[^\n]* attitude=NEUTRAL'
+    + rf'[^\n]*\n[\s\S]*?\[threat\][^\n]* uuid={_kiosk_beggar}\b[^\n]* response started source=\1\b stage=RETREAT',
+    r'MCYKIOSK_RETREATED',
+], forbid=[rf'\[body\][^\n]* uuid={_kiosk_beggar}\b[^\n]* accepted damage',
+           rf'\[forage\][^\n]* uuid={_kiosk_beggar}\b[^\n]* stall pickup'],
+    readout=[command for _, command in _kiosk_rows] + _street_health_reads('kiosk_stray'))
+next(s for s in S if s.id == 'kiosk_shoo').smoke['commands'] = [
+    (705, f'execute positioned ~0.5 ~ ~-0.5 if entity @e[tag={tag("kiosk_stray")},distance=3..,limit=1] '
+          f'positioned ~-0.5 ~ ~0.5 if data block {_kiosk_goods} {{Items:[{{Slot:0b,id:"minecraft:bread",count:3}},'
+          f'{{Slot:1b,id:"{_kiosk_grain}",count:2}}]}} unless data block {_kiosk_goods} Items[2] run say MCYKIOSK_RETREATED'),
+]
+
 _street_cover_arrival = (
     rf'\[(?:weather|habitat)\][^\n]* uuid=({_barrel_stray}|{_awning_stray})\b[^\n]* '
     r'(?:street rain cover reached|street rest) spot=(BARREL|AWNING) '

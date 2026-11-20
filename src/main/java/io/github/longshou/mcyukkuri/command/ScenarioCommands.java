@@ -226,7 +226,10 @@ public final class ScenarioCommands {
                 .then(Commands.literal("shop_door_click").then(Commands.argument("door", BlockPosArgument.blockPos())
                         .then(Commands.argument("face", StringArgumentType.word()).executes(ScenarioCommands::shopDoorClick))))
                 .then(Commands.literal("shop_block_click").then(Commands.argument("pos", BlockPosArgument.blockPos())
-                        .executes(c -> shopBlockClick(c, BlockPosArgument.getBlockPos(c, "pos"), Direction.UP))))
+                        .executes(c -> shopBlockClick(c, BlockPosArgument.getBlockPos(c, "pos"), Direction.UP))
+                        .then(Commands.argument("face", StringArgumentType.word()).executes(c ->
+                                shopBlockClick(c, BlockPosArgument.getBlockPos(c, "pos"),
+                                        Direction.byName(StringArgumentType.getString(c, "face")))))))
                 .then(Commands.literal("shop_stock_click").then(Commands.argument("target", EntityArgument.entity())
                         .executes(ScenarioCommands::shopStockClick)))
                 .then(Commands.literal("shop_rental_click").requires(source -> source.hasPermission(2))

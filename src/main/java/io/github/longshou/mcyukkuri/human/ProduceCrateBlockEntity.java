@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import java.util.function.Predicate;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.shop.ShopProtection;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,15 +36,68 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Worldl
      */
     public boolean put(ItemStack stack) {
         if (stack.isEmpty()) return false;
+        int row = insertionRow(stack, -1);
+        if (row < 0) return false;
+        insertOne(row, stack);
+        setChanged();
+        return true;
+    }
+
+    private int insertionRow(ItemStack stack, int withdrawn) {
         int free = -1;
         for (int row = 0; row < ROWS; row++) {
             var held = items.get(row);
-            if (held.isEmpty()) { if (free < 0) free = row; continue; }
-            if (canPlaceItem(row, stack) && ItemStack.isSameItemSameComponents(held, stack)) { held.grow(1); setChanged(); return true; }
+            int count = held.getCount() - (row == withdrawn ? 1 : 0);
+            if (count == 0) { if (free < 0) free = row; continue; }
+            if (count < getMaxStackSize(stack) && ItemStack.isSameItemSameComponents(held, stack)) return row;
         }
-        if (free < 0) return false;
-        items.set(free, stack.copyWithCount(1)); setChanged();
-        return true;
+        return free;
+    }
+
+    private void insertOne(int row, ItemStack stack) {
+        if (items.get(row).isEmpty()) items.set(row, stack.copyWithCount(1));
+        else items.get(row).grow(1);
+    }
+
+    ItemStack kioskOffer() {
+        int row = saleRow();
+        return row < 0 ? ItemStack.EMPTY : items.get(row);
+    }
+
+    private int saleRow() {
+        for (int row = ROWS - 1; row >= 0; row--) if (KioskCounter.saleable(items.get(row))) return row;
+        return -1;
+    }
+
+    boolean hasKioskFood(Predicate<ItemStack> seeks) {
+        return items.stream().anyMatch(stack -> KioskCounter.saleable(stack) && seeks.test(stack));
+    }
+
+    enum Sale { SOLD, EMPTY, TILL_FULL, INVENTORY_FULL }
+
+    /** Called on the server with the buyer's held emerald. Both destinations are chosen before either stack moves. */
+    Sale sellOne(Player buyer, ItemStack emerald) {
+        int offer = saleRow();
+        if (offer < 0) return Sale.EMPTY;
+        int till = insertionRow(emerald, offer);
+        if (till < 0) return Sale.TILL_FULL;
+        var goods = items.get(offer);
+        var inventory = buyer.getInventory();
+        int slot = inventory.getSlotWithRemainingSpace(goods);
+        if (slot < 0) slot = inventory.getFreeSlot();
+        if (slot < 0 && emerald.getCount() == 1 && emerald == buyer.getMainHandItem()) slot = inventory.selected;
+        if (slot < 0) return Sale.INVENTORY_FULL;
+
+        var delivered = goods.split(1);
+        if (goods.isEmpty()) items.set(offer, ItemStack.EMPTY);
+        insertOne(till, emerald);
+        emerald.shrink(1);
+        var held = inventory.getItem(slot);
+        if (held.isEmpty()) inventory.setItem(slot, delivered);
+        else held.grow(1);
+        inventory.setChanged();
+        setChanged();
+        return Sale.SOLD;
     }
 
     /** Takes one item from the front-most occupied row; empty when the crate is empty. */
@@ -62,6 +117,11 @@ public final class ProduceCrateBlockEntity extends BlockEntity implements Worldl
     }
 
     public boolean stall() { return stall; }
+
+    public boolean theftTarget() {
+        return stall && !frontItem().is(Items.EMERALD)
+                && KioskCounter.at(level, worldPosition, getBlockState().getValue(ProduceCrateBlock.FACING)) == null;
+    }
 
     @Override public void setChanged() {
         super.setChanged();

@@ -8363,5 +8363,15 @@
   "exam.mcyukkuri.refuse.share_nutrition": "请等考生营养恢复到 60 再来。",
   "exam.mcyukkuri.hint.5": "挑战高一级徽章，答错时保留现有等级。",
   "pet.mcyukkuri.reply.help_danger": "%s在求助，%s有危险！",
-  "exam.mcyukkuri.interrupt.danger": "请先帮同伴脱离危险。"
+  "exam.mcyukkuri.interrupt.danger": "请先帮同伴脱离危险。",
+  "human.mcyukkuri.street.kiosk_gentle": "这里要招待客人，到别处看看吧。",
+  "human.mcyukkuri.kiosk.offer": "%s · 每件 1 绿宝石。手持绿宝石右键购买。",
+  "human.mcyukkuri.kiosk.sold": "买到了%s。",
+  "human.mcyukkuri.kiosk.emerald": "请用绿宝石购买。",
+  "human.mcyukkuri.kiosk.unstaffed": "店主现在不在售货口。",
+  "human.mcyukkuri.kiosk.busy": "店主在忙，请稍等。",
+  "human.mcyukkuri.kiosk.blocked": "售货口被挡住了。",
+  "human.mcyukkuri.kiosk.empty": "这箱的货卖完了。",
+  "human.mcyukkuri.kiosk.till_full": "这箱装不下绿宝石了。",
+  "human.mcyukkuri.kiosk.inventory_full": "背包没有空位。"
 }

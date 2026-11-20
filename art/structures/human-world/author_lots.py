@@ -343,7 +343,8 @@ def kiosk(p):
         b.block(x, 1, 3, p.planks()); b.block(x, 3, 3, 'air')
         b.block(x, 4, 3, *p.state(p.beam, 'x'))
     for x, item in [(3, 'minecraft:bread'), (4, 'minecraft:paper'), (5, 'mcyukkuri:sweet_candy')]:
-        produce_crate(b, x, 2, 3, 'north', [(item, 3), (item, 2)])
+        front = 'mcyukkuri:oil_grain_regular' if item == 'minecraft:bread' else item
+        produce_crate(b, x, 2, 3, 'north', [(item, 3), (front, 2)])
     b.door(4, 1, 7, 'south', p.wood)
     panes(b, [(2, 3, 4), (6, 3, 4), (6, 3, 6), (3, 3, 7)])
     # Roof: ridge along z with overhanging eaves; the west eave runs on down over the bench nook as a lean-to.

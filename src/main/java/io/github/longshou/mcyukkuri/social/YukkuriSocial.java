@@ -280,7 +280,7 @@ public final class YukkuriSocial implements MotorOwner {
                                 && entity.distanceToSqr(person) <= 36).stream()
                 .map(person -> new HumanCandidate(person, personality().relation(person.getUUID())))
                 .filter(candidate -> candidate.relation().closeness() >= 0 && (!ask || mayRequestFrom(candidate.person())))
-                .sorted(Comparator.comparing((HumanCandidate candidate) -> ask && entity.life().seeksOfferedFood(candidate.person())).reversed()
+                .sorted(Comparator.comparing((HumanCandidate candidate) -> ask && offersFood(candidate.person())).reversed()
                         .thenComparing(Comparator.comparingInt((HumanCandidate candidate) -> candidate.relation().closeness()).reversed())
                         .thenComparingDouble(candidate -> entity.distanceToSqr(candidate.person())))
                 .toList();
@@ -332,10 +332,15 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     private boolean mayRequestFrom(LivingEntity person) {
+        if (person instanceof HumanNpc resident && resident.attendingKiosk()) return resident.offersKioskFoodTo(entity);
         if (entity.life().seeksOfferedFood(person) || entity.status().identity().free()) return true;
         var custody = Custody.view(entity);
         return person instanceof HumanNpc staff && staff.sweeteningStaff() && custody.role() == Custody.Role.PLANT_STOCK
                 && custody.ownedBy(staff.plantSite());
+    }
+
+    private boolean offersFood(LivingEntity person) {
+        return entity.life().seeksOfferedFood(person) || person instanceof HumanNpc resident && resident.offersKioskFoodTo(entity);
     }
 
     private static boolean holdingTool(LivingEntity person) {

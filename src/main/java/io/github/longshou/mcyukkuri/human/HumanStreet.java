@@ -43,6 +43,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -64,7 +65,7 @@ final class HumanStreet {
     static final int DAY = 24000, ROUTE_TICKS = 200;
     static final byte KICK_EVENT = 91;
     static final byte FROWN_EVENT = 92;
-    static final int KICK_POSE_TICKS = 10;
+    static final int KICK_POSE_TICKS = 10, FROWN_TICKS = 30;
     private static final int FEED_INTERVAL = 2400;
     /**
      * Ticks a resident keeps an animal it drove off out of its care: longer than a street routing beat, far shorter
@@ -160,6 +161,29 @@ final class HumanStreet {
                 && (own || y.social().contactWith(npc) || y.status().identity() == Identity.STRAY && npc.distanceToSqr(y) <= CONTACT_SQ)
                 && (lastPetted != y || eligibleMeal(y))
                 && !remembersScold(y);
+    }
+
+    boolean kioskGuest(YukkuriEntity y, KioskCounter counter) {
+        return y.status().identity() == Identity.STRAY && (y.family().adult() || y.family().subadult())
+                && y.childhood().canLiveIndependently() && !Custody.protectedAnimal(y)
+                && available(y) && y.onGround() && !y.isPanicking()
+                && counter.onPublicSide(y.position()) && !y.life().avoidsField(counter.stand());
+    }
+
+    private YukkuriEntity kioskRequest(KioskCounter counter) {
+        return nearest(1.5, y -> kioskGuest(y, counter) && y.social().foodRequestTo(npc) && npc.hasLineOfSight(y));
+    }
+
+    private void answerKiosk(YukkuriEntity stray, KioskCounter counter) {
+        if (eligibleMeal(stray) && care(stray)) {
+            stray.social().stop();
+            return;
+        }
+        var line = npc.attitude() == HumanNpc.Attitude.CARING ? "kiosk_gentle" : "warning";
+        expulsionCue(stray, counter.stand(), line);
+        stray.social().stop();
+        GameplayLog.event(npc, "npc-care", "action=kiosk_shoo target={} stand={} attitude={} nutrition={} health={}",
+                stray.getUUID(), counter.stand().toShortString(), npc.attitude(), stray.life().nutrition(), stray.getHealth());
     }
 
     /** A resident that just scolded an animal keeps it out of its care; the refusal is logged with that real reason. */
@@ -302,13 +326,19 @@ final class HumanStreet {
     void stopCropShoo() { cropShoo = null; cropShooPath = null; }
 
     private boolean seesSite(BlockPos site) {
-        var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), site.getCenter(),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
+        return seesSite(npc, site);
+    }
+
+    static boolean seesSite(LivingEntity observer, BlockPos site) {
+        var sight = observer.level().clip(new ClipContext(observer.getEyePosition(), site.getCenter(),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
         return sight.getType() == HitResult.Type.MISS || sight.getBlockPos().equals(site);
     }
 
     static HumanNpc witnessedStallTake(YukkuriEntity y, BlockPos crate, Vec3 contact) {
-        if (y.level().isRaining() || !StallTheft.maySteal(y)) return null;
+        if (y.level().isRaining() || !StallTheft.maySteal(y)
+                || !(y.level().getBlockEntity(crate) instanceof ProduceCrateBlockEntity stock)
+                || KioskCounter.at(y.level(), crate, stock.getBlockState().getValue(ProduceCrateBlock.FACING)) != null) return null;
         var witness = y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(12),
                 npc -> npc.streetActive() && !npc.resting() && !npc.walking() && npc.street.observable()
                         && npc.distanceToSqr(y) <= 144 && npc.isWithinRestriction(crate)
@@ -668,6 +698,9 @@ final class HumanStreet {
         private int stalled;
         private int nextAt;
         private int detours;
+        private KioskCounter kiosk;
+        private boolean kioskArrived;
+        private long kioskBusyUntil;
         private List<YukkuriEntity> companions = List.of();
         private YukkuriEntity called;
         private int callUntil;
@@ -744,11 +777,62 @@ final class HumanStreet {
                 return;
             }
             if (startOuting()) return;
-            if (npc.getTags().contains(ShelterCartons.VOLUNTEER))
+            if (npc.getTags().contains(ShelterCartons.VOLUNTEER)) {
                 strollSite = TownMarkers.shelterSupply((ServerLevel) npc.level(), npc.home());
+            } else {
+                var counter = KioskCounter.atHome(npc.level(), npc.home());
+                if (counter != null && standable(counter.stand()) && route(Vec3.atBottomCenterOf(counter.stand()))) {
+                    kiosk = counter;
+                    return;
+                }
+            }
             Vec3 stand = DefaultRandomPos.getPos(npc, 8, 2);
             route(stand == null || strollSite != null && !strollSite.grounds().contains(stand)
                     ? Vec3.atBottomCenterOf(npc.home()) : stand);
+        }
+
+        KioskCounter kioskWindow() {
+            return kioskArrived && npc.streetActive() && !npc.walking() && !npc.resting() && !npc.isUsingItem()
+                    && npc.onGround() && !npc.isOnFire() && npc.hurtTime == 0 && !npc.level().isRaining()
+                    && atDestination() && !npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()
+                    && kiosk.valance(npc.level()) && kiosk.hasCrate(npc.level())
+                    ? kiosk : null;
+        }
+
+        boolean kioskBusy() { return npc.level().getGameTime() < kioskBusyUntil; }
+
+        private void kioskStep() {
+            if (!kioskArrived && npc.streetActive() && !npc.level().isRaining()) {
+                if (atDestination()) {
+                    npc.getNavigation().stop();
+                    kioskArrived = true;
+                    if (kioskWindow() != null) {
+                        GameplayLog.event(npc, "npc-care", "action=kiosk_staffed stand={} home={}",
+                                kiosk.stand().toShortString(), kiosk.home().toShortString());
+                    }
+                } else {
+                    if (npc.position().distanceToSqr(last) > .25) { last = npc.position(); stalled = 0; }
+                    if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) return;
+                }
+            }
+            if (kioskWindow() == null) {
+                GameplayLog.event(npc, "npc-care", "action=kiosk_closed stand={} reason={}",
+                        kiosk.stand().toShortString(), kioskArrived ? "unavailable" : "route_ended");
+                finished = true;
+                return;
+            }
+            if (kioskBusy()) return;
+            var stray = npc.street.kioskRequest(kiosk);
+            if (stray != null) {
+                // Hold service through the existing frown gesture.
+                kioskBusyUntil = npc.level().getGameTime() + FROWN_TICKS;
+                npc.street.answerKiosk(stray, kiosk);
+                return;
+            }
+            if (!npc.swinging) {
+                var outward = Vec3.atLowerCornerOf(kiosk.front().getNormal());
+                npc.getLookControl().setLookAt(npc.getX() + outward.x, npc.getEyeY(), npc.getZ() + outward.z, 30, 30);
+            }
         }
 
         List<YukkuriEntity> readyPets() {
@@ -1170,6 +1254,7 @@ final class HumanStreet {
         @Override public void tick() {
             // Vanilla still ticks running goals before its next continuation check.
             if (finished) return;
+            if (kiosk != null) { kioskStep(); return; }
             if (leg == Leg.GATE) {
                 if (!npc.level().isDay() || npc.level().isRaining() || npc.avoidingStreet()
                         || !atDestination() && (npc.getNavigation().isDone() || ++stalled >= ROUTE_TICKS)) {
@@ -1432,6 +1517,9 @@ final class HumanStreet {
 
         @Override public void stop() {
             endGlance();
+            kiosk = null;
+            kioskArrived = false;
+            kioskBusyUntil = 0;
             clearPark();
             if (leg == Leg.GATE) companions = List.of();
             clearLeg();
