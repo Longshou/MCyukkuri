@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.house.HouseEggs;
 import io.github.longshou.mcyukkuri.house.HouseholdEcology;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
+import io.github.longshou.mcyukkuri.human.HumanDoors;
 import io.github.longshou.mcyukkuri.human.PicnicFood;
 import io.github.longshou.mcyukkuri.human.TownPools;
 import io.github.longshou.mcyukkuri.human.TownMarkers;
@@ -170,6 +171,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, ShopStaff::leaving);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, net.neoforged.neoforge.event.entity.living.LivingDeathEvent.class, ShopRegistry::animalDied);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, net.neoforged.neoforge.event.tick.LevelTickEvent.Post.class, ShopRegistry::levelTick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, net.neoforged.neoforge.event.tick.LevelTickEvent.Post.class, HumanDoors::tick);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityMountEvent.class, Motor::mounting);
 

@@ -22,6 +22,7 @@ public final class PetOuting extends Goal {
     private BlockPos home, blockedAt, escortAt;
     private HumanNpc escort, owner;
     private Vec3 stand;
+    private Vec3 doorwayStand;
     private boolean shelter;
     private boolean closeApproach;
     private boolean playAvailable;
@@ -146,6 +147,7 @@ public final class PetOuting extends Goal {
     }
 
     private boolean shouldFollow(double comfortDistance) {
+        if (owner.doorFollowerStand(pet) != null) return true;
         if (owner.callingPet(pet) || wantsPicnic(owner)) return pet.distanceToSqr(owner) > 4 || !pet.hasLineOfSight(owner);
         var facility = owner.parkFacility();
         return (pet.distanceTo(owner) > comfortDistance || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
@@ -201,6 +203,17 @@ public final class PetOuting extends Goal {
     @Override public void tick() {
         if (!free()) return;
         if (owner != null) {
+            var through = owner.doorFollowerStand(pet);
+            if (through != null) {
+                if (!through.equals(doorwayStand)) {
+                    doorwayStand = through;
+                    stand = SurfaceApproach.restingFloor(pet, through);
+                    escortAt = null;
+                }
+                if (stand != null) SurfaceApproach.walkResult(pet, stand, null, 1.15);
+                return;
+            }
+            doorwayStand = null;
             boolean close = owner.callingPet(pet) || wantsPicnic(owner);
             if (!owner.blockPosition().equals(escortAt) || close != closeApproach) {
                 escortAt = owner.blockPosition();
@@ -225,7 +238,7 @@ public final class PetOuting extends Goal {
         }
     }
 
-    @Override public void stop() { SurfaceApproach.stopWalking(pet); owner = null; escortAt = null; stand = null; shelter = false; }
+    @Override public void stop() { SurfaceApproach.stopWalking(pet); owner = null; escortAt = null; doorwayStand = null; stand = null; shelter = false; }
 
     public void save(CompoundTag tag) {
         if (home != null) {

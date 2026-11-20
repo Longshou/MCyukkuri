@@ -21,6 +21,7 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -46,6 +47,12 @@ public final class Motor {
         if (distance <= Gait.HUMAN_WALK) return motion;
         double scale = Gait.HUMAN_WALK / distance;
         return motion.multiply(scale, 1, scale);
+    }
+
+    public static void waitOnFoot(Mob body) {
+        body.getMoveControl().setWantedPosition(body.getX(), body.getY(), body.getZ(), 0);
+        body.setSpeed(0);
+        velocity(body, body.getDeltaMovement().multiply(0, 1, 0), "passage_wait");
     }
 
     /** Check the actual turn and inertia after steering, including a direct step with no path. */

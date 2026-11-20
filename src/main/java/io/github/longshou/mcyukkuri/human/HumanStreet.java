@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.motor.geom.DoorPassage;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -711,6 +714,8 @@ final class HumanStreet {
         private boolean homeward;
         private boolean sheltering;
         private int lagTicks;
+        private HumanNpc.DoorExit doorWait;
+        private int doorUntil;
         private double pace;
         private YukkuriEntity glance;
         private int glanceAt;
@@ -738,6 +743,15 @@ final class HumanStreet {
         void restBeforeNextStroll() { nextAt = npc.tickCount + 40 + npc.getRandom().nextInt(80); }
         boolean calling(YukkuriEntity pet) { return called == pet; }
         boolean escorts(YukkuriEntity pet) { return companions.contains(pet) && pet.pet().ownedBy(npc.getUUID()); }
+        HumanNpc.DoorExit doorWait() { return doorWait; }
+        Vec3 doorFollowerStand(YukkuriEntity pet) {
+            return doorWait != null && doorWait.keeperInPlace(npc) && trailing(doorWait, pet)
+                    ? doorWait.stand(false) : null;
+        }
+
+        private boolean trailing(HumanNpc.DoorExit crossing, YukkuriEntity pet) {
+            return pet.getLeashHolder() == npc && !crossing.cleared(pet);
+        }
         boolean parkLingering() { return parkOpened != 0; }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
 
@@ -958,6 +972,7 @@ final class HumanStreet {
         private void returnHome(String reason) {
             if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
             endGlance();
+            doorWait = null;
             homeward = true;
             lagTicks = 0;
             clearPark();
@@ -1285,6 +1300,7 @@ final class HumanStreet {
                 gatherPet();
                 return;
             }
+            if (homeward && doorStep()) return;
             if (!homeward && !companions.isEmpty()) {
                 if (!npc.level().isDay()) { returnHome("night"); return; }
                 if (npc.level().isRaining()) { returnHome("rain"); return; }
@@ -1307,6 +1323,7 @@ final class HumanStreet {
                         lag = behind;
                     }
                 }
+                if (doorStep()) return;
                 if (facility != null) {
                     if (facility.isRemoved()) { returnHome("park_done"); return; }
                     if (leg == Leg.NONE && resume == null) {
@@ -1373,7 +1390,43 @@ final class HumanStreet {
             else finished = true;
         }
 
-        private boolean atDestination() { return npc.distanceToSqr(destination) < .5 && !npc.clearingDoorway(); }
+        private boolean atDestination() { return npc.distanceToSqr(destination) < .5 && !npc.crossingDoorway(); }
+
+        private boolean doorStep() {
+            if (doorWait == null) {
+                var crossing = npc.crossedDoorway();
+                if (crossing == null || companions.stream().noneMatch(pet -> trailing(crossing, pet))
+                        || !npc.doorWaitingStand(crossing)) return false;
+                doorWait = crossing;
+                doorUntil = npc.tickCount + ROUTE_TICKS;
+                GameplayLog.event(npc, "npc-care", "action=outing_door_wait door={} stand={}",
+                        crossing.door().toShortString(), GameplayLog.at(crossing.stand(true)));
+            }
+            return switch (DoorPassage.escort(companions.stream().anyMatch(pet -> trailing(doorWait, pet)), npc.tickCount, doorUntil)) {
+                case WAIT -> {
+                    for (var follower : companions) {
+                        var stand = doorFollowerStand(follower);
+                        if (stand == null) continue;
+                        var landing = follower.getDimensions(follower.getPose()).makeBoundingBox(stand);
+                        for (var companion : companions)
+                            if (!trailing(doorWait, companion) && landing.intersects(companion.getBoundingBox()))
+                                YukkuriGroundNavigation.giveWay(companion, follower, stand);
+                    }
+                    yield true;
+                }
+                case CLEARED -> {
+                    doorWait = null;
+                    stalled = lagTicks = 0;
+                    yield false;
+                }
+                case LAGGING -> {
+                    doorWait = null;
+                    if (homeward) blockedOutingLeg();
+                    else returnHome("lagging");
+                    yield true;
+                }
+            };
+        }
 
         private void nextPet(int first) {
             npc.getNavigation().stop();
@@ -1528,6 +1581,7 @@ final class HumanStreet {
             kiosk = null;
             kioskArrived = false;
             kioskBusyUntil = 0;
+            doorWait = null;
             clearPark();
             if (leg == Leg.GATE) companions = List.of();
             clearLeg();

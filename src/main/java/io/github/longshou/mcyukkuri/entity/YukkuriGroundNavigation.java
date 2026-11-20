@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.Passage;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -733,11 +734,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private static final int MAX_YIELD_NOTICE = 3;
     private static final double STAFF_PASSAGE_RANGE = 1.75;
     // Keep at least .2 blocks beyond both hitboxes. An eager sidestep leaves up to .6 blocks of breathing room.
-    public static final double YIELD_MARGIN = .2;
+    public static final double YIELD_MARGIN = Passage.MARGIN;
     private static final double PASSAGE_RANGE = 4;
     private record PlayerPosition(Level level, Vec3 position) {}
     private static final Map<ServerPlayer, PlayerPosition> PLAYER_POSITIONS = new WeakHashMap<>();
-    private static final class Passage {
+    private static final class Yield {
         final UUID walker;
         final Vec3 start, stand;
         final long began;
@@ -746,7 +747,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         final boolean mayInterruptWalk;
         boolean stepped, done;
 
-        Passage(UUID walker, Vec3 start, Vec3 stand, long began, int notice, double pace, boolean mayInterruptWalk) {
+        Yield(UUID walker, Vec3 start, Vec3 stand, long began, int notice, double pace, boolean mayInterruptWalk) {
             this.walker = walker;
             this.start = start;
             this.stand = stand;
@@ -757,7 +758,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             this.done = stand == null;
         }
     }
-    private Passage passage;
+    private Yield passage;
 
     /**
      * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
@@ -809,11 +810,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 && !body.life().protectsStep() && !body.pairedContact() && body.motor().current() == null;
     }
 
-    private static double projectedHalfWidth(Entity entity, Vec3 axis) {
-        var box = entity.getBoundingBox();
-        return (box.getXsize() * Math.abs(axis.x) + box.getZsize() * Math.abs(axis.z)) * .5;
-    }
-
     /** Staff can also ask for a sidestep when a body is blocking their next waypoint. */
     public static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 toward) {
         var line = toward.subtract(walker.position()).multiply(1, 0, 1);
@@ -825,7 +821,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     public static void giveWayForContact(YukkuriEntity blocker, YukkuriEntity anchor, YukkuriEntity mover, Vec3 feet) {
         var heading = feet.subtract(anchor.position()).multiply(1, 0, 1).normalize();
         var side = right(heading);
-        double width = Math.max(projectedHalfWidth(anchor, side), projectedHalfWidth(mover, side));
+        double width = Math.max(Passage.halfWidth(anchor, side), Passage.halfWidth(mover, side));
         giveWay(blocker, anchor, heading, 0, true, width);
     }
 
@@ -836,7 +832,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     private static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 heading, double walkerPace, boolean mayInterruptWalk) {
-        return giveWay(blocker, walker, heading, walkerPace, mayInterruptWalk, projectedHalfWidth(walker, right(heading)));
+        return giveWay(blocker, walker, heading, walkerPace, mayInterruptWalk, Passage.halfWidth(walker, right(heading)));
     }
 
     private static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 heading, double walkerPace,
@@ -847,7 +843,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var side = right(heading);
         var offset = blocker.position().subtract(walker.position());
         if (offset.dot(side) < 0) side = side.reverse();
-        double width = projectedHalfWidth(blocker, side) + walkerHalfWidth;
+        double width = Passage.halfWidth(blocker, side) + walkerHalfWidth;
         double lateral = offset.dot(side);
         if (lateral >= width + YIELD_MARGIN) return false;
         var temperament = blocker.life().personality();
@@ -863,19 +859,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             if (ahead < -.1 || ahead > lead) return false;
         }
         var start = blocker.position();
-        Vec3 stand = null;
-        for (var direction : List.of(side, side.reverse())) {
-            var closest = start.add(direction.scale(width + YIELD_MARGIN - offset.dot(direction)));
-            if (!clearYieldStand(blocker, closest)) continue;
-            var roomier = closest.add(direction.scale(margin - YIELD_MARGIN));
-            stand = clearYieldStand(blocker, roomier) ? roomier : closest;
-            break;
-        }
+        Vec3 stand = Passage.aside(start, offset, side, width, margin, at -> clearYieldStand(blocker, at));
         if (stand != null) {
             blocker.getLookControl().setLookAt(walker, 30, 30);
             if (!blocker.hasReaction()) blocker.showReaction(eagerness > .5 ? "surprise" : "pursed", "", 12);
         }
-        nav.passage = new Passage(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk);
+        nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk);
         return stand != null;
     }
 
@@ -921,7 +910,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var side = passage.stand.subtract(passage.start).normalize();
             double distance = body.position().subtract(passage.start).dot(side);
             double gap = body.position().subtract(walker.position()).dot(side)
-                    - projectedHalfWidth(body, side) - projectedHalfWidth(walker, side);
+                    - Passage.halfWidth(body, side) - Passage.halfWidth(walker, side);
             GameplayLog.event(body, "move", "action=give_way_done walker={} distance={} gap={}",
                     walker.getUUID(), distance, gap);
         }

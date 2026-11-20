@@ -15,6 +15,9 @@ import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.Passage;
+import io.github.longshou.mcyukkuri.motor.geom.DoorPassage;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
@@ -382,10 +385,30 @@ public final class HumanNpc extends PathfinderMob {
         return ((HumanNavigation) getNavigation()).shopPath(stands, blocker);
     }
 
-    boolean clearingDoorway() { return ((HumanNavigation) getNavigation()).clearingDoorway(); }
+    boolean crossingDoorway() { return ((HumanNavigation) getNavigation()).crossingDoorway(); }
+    DoorExit crossedDoorway() { return ((HumanNavigation) getNavigation()).crossedDoorway(); }
+    boolean holdsDoor(BlockPos at) { return isAlive() && !isNoAi() && ((HumanNavigation) getNavigation()).holdsDoor(at); }
+    boolean doorWaitingStand(DoorExit door) { return ((HumanNavigation) getNavigation()).doorWaitingStand(door); }
+    public Vec3 doorFollowerStand(YukkuriEntity pet) { return stroll().doorFollowerStand(pet); }
+
+    record DoorExit(BlockPos door, Direction exit) {
+        Direction.Axis axis() { return exit.getAxis(); }
+        boolean positive() { return exit.getAxisDirection() == Direction.AxisDirection.POSITIVE; }
+        double along(Vec3 position) { return position.get(axis()) - axis().choose(door.getX(), door.getY(), door.getZ()); }
+        boolean cleared(Entity body) {
+            var box = body.getBoundingBox();
+            double origin = axis().choose(door.getX(), door.getY(), door.getZ());
+            return DoorPassage.cleared(box.min(axis()) - origin, box.max(axis()) - origin, positive());
+        }
+        Vec3 stand(boolean keeper) {
+            double offset = DoorPassage.stand(positive(), keeper) - .5;
+            return Vec3.atBottomCenterOf(door).add(axis() == Direction.Axis.X ? offset : 0, 0,
+                    axis() == Direction.Axis.Z ? offset : 0);
+        }
+        boolean keeperInPlace(HumanNpc keeper) { return keeper.distanceToSqr(stand(true)) < .04; }
+    }
 
     private final class HumanNavigation extends GroundPathNavigation {
-        private final Set<BlockPos> openedDoors = new HashSet<>();
         private AABB shopBlocker;
 
         private HumanNavigation(Level level) { super(HumanNpc.this, level); }
@@ -446,14 +469,106 @@ public final class HumanNpc extends PathfinderMob {
         }
 
         @Override public void tick() {
-            BlockPos next = null, after = null;
             if (!isDone()) {
                 int index = path.getNextNodeIndex();
-                next = openDoorAt(path.getNodePos(index));
-                if (index + 1 < path.getNodeCount()) after = openDoorAt(path.getNodePos(index + 1));
+                if (giveWayAtDoor()) return;
+                openDoorAt(path.getNodePos(index));
+                if (index + 1 < path.getNodeCount()) openDoorAt(path.getNodePos(index + 1));
             }
-            closeDoors(next, after);
+            var escort = stroll().doorWait();
+            if (escort != null && escort.cleared(mob)) {
+                lastTimeoutCheck = level.getGameTime();
+                var stand = escort.stand(true);
+                if (escort.keeperInPlace(HumanNpc.this) || !clearStand(stand)) Motor.waitOnFoot(mob);
+                else mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, speedModifier);
+                return;
+            }
             super.tick();
+        }
+
+        private DoorExit doorExit(int index) {
+            if (index < 0 || index + 1 >= path.getNodeCount()) return null;
+            var door = handDoor(path.getNodePos(index));
+            if (door == null) return null;
+            var axis = level.getBlockState(door).getValue(DoorBlock.FACING).getAxis();
+            var after = path.getNodePos(index + 1).subtract(door);
+            int offset = axis.choose(after.getX(), after.getY(), after.getZ());
+            return offset == 0 ? null : new DoorExit(door, Direction.fromAxisAndDirection(axis,
+                    offset > 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE));
+        }
+
+        private DoorExit nearbyExit() {
+            if (isDone()) return null;
+            int next = path.getNextNodeIndex();
+            for (int i = Math.max(0, next - 1); i <= next + 1; i++) {
+                var exit = doorExit(i);
+                if (exit != null && !exit.cleared(mob)) return exit;
+            }
+            return null;
+        }
+
+        private DoorExit crossedDoorway() {
+            return clearingDoorway() ? doorExit(path.getNextNodeIndex() - 1) : null;
+        }
+
+        private boolean crossingDoorway() {
+            var exit = nearbyExit();
+            return exit != null && HumanDoors.frame(exit.door()).intersects(mob.getBoundingBox());
+        }
+
+        private boolean doorWaitingStand(DoorExit door) {
+            var follower = door.stand(false);
+            var keeper = door.stand(true);
+            return clearStand(follower) && clearStand(keeper)
+                    && level.noCollision(mob, mob.getDimensions(mob.getPose()).makeBoundingBox(follower)
+                            .expandTowards(keeper.subtract(follower)));
+        }
+
+        private boolean clearStand(Vec3 stand) {
+            var feet = BlockPos.containing(stand);
+            var body = mob.getDimensions(mob.getPose()).makeBoundingBox(stand);
+            return level.hasChunkAt(feet) && level.getFluidState(feet).isEmpty()
+                    && level.getBlockState(feet.below()).isFaceSturdy(level, feet.below(), Direction.UP)
+                    && level.noCollision(mob, body) && level.getEntitiesOfClass(LivingEntity.class, body,
+                            other -> other != mob && other.isAlive() && !other.isSpectator()).isEmpty();
+        }
+
+        private boolean giveWayAtDoor() {
+            var exit = nearbyExit();
+            if (exit == null || mob.distanceToSqr(exit.stand(false)) > 9) return false;
+            var frame = HumanDoors.frame(exit.door());
+            for (var other : level.getEntitiesOfClass(HumanNpc.class, frame.inflate(1.25, 0, 1.25),
+                    candidate -> candidate != mob && candidate.isAlive())) {
+                var opposite = ((HumanNavigation) other.getNavigation()).nearbyExit();
+                if (!(opposite != null && opposite.door().equals(exit.door()) && opposite.exit() == exit.exit().getOpposite())
+                        && !frame.intersects(other.getBoundingBox())) continue;
+                if (opposite != null && opposite.door().equals(exit.door()) && opposite.exit() == exit.exit()) continue;
+                if (!DoorPassage.yields(exit.along(mob.position()), exit.along(other.position()),
+                        other.getUUID().compareTo(mob.getUUID()) < 0)) continue;
+                var side = Vec3.atLowerCornerOf(exit.exit().getClockWise().getNormal());
+                var from = mob.position();
+                var offset = from.subtract(Vec3.atBottomCenterOf(exit.door()));
+                if (offset.dot(side) < 0) side = side.reverse();
+                double width = Passage.halfWidth(mob, side) + Passage.halfWidth(other, side);
+                boolean inLane = offset.dot(side) < width + Passage.MARGIN;
+                Vec3 stand = inLane ? Passage.aside(from, offset, side, width, Passage.MARGIN, this::clearStep) : null;
+                if (inLane && stand == null) {
+                    var back = new DoorExit(exit.door(), exit.exit().getOpposite()).stand(true);
+                    if (clearStep(back)) stand = back;
+                }
+                if (stand == null || mob.distanceToSqr(stand) < .04) Motor.waitOnFoot(mob);
+                else mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, speedModifier);
+                ++tick;
+                doStuckDetection(getTempMobPos());
+                GameplayLog.limited(mob, "move", "door_give_way", 40, "action=door_give_way walker={} door={} aside={}",
+                        other.getUUID(), exit.door().toShortString(), stand != null);
+                return true;
+            }
+            return false;
+        }
+
+        private boolean clearStep(Vec3 stand) {
+            return clearStand(stand) && level.noCollision(mob, mob.getBoundingBox().expandTowards(stand.subtract(mob.position())));
         }
 
         @Override protected void followThePath() {
@@ -475,37 +590,26 @@ public final class HumanNpc extends PathfinderMob {
             return state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
         }
 
-        private BlockPos openDoorAt(BlockPos pos) {
+        private void openDoorAt(BlockPos pos) {
             // The next two nodes are within vanilla's door interaction reach only as we approach the doorway.
-            if (mob.distanceToSqr(Vec3.atBottomCenterOf(pos)) > 2.25) return null;
+            if (mob.distanceToSqr(Vec3.atBottomCenterOf(pos)) > 2.25) return;
             var at = handDoor(pos);
-            if (at == null) return null;
+            if (at == null) return;
             var state = level.getBlockState(at);
             if (state.getBlock() instanceof DoorBlock door && door.type().canOpenByHand() && !state.getValue(DoorBlock.OPEN)) {
                 door.setOpen(mob, level, state, at, true);
-                openedDoors.add(at);
+                HumanDoors.opened((ServerLevel) level, at, HumanNpc.this);
                 GameplayLog.event(mob, "npc-care", "action=walk_door result=opened door={}", at.toShortString());
             }
-            return at;
         }
 
-        private void closeDoors(BlockPos next, BlockPos after) {
-            for (var doors = openedDoors.iterator(); doors.hasNext();) {
-                var at = doors.next();
-                if (at.equals(next) || at.equals(after) || !level.hasChunkAt(at)) continue;
-                var state = level.getBlockState(at);
-                if (!(state.getBlock() instanceof DoorBlock door) || !door.type().canOpenByHand()
-                        || !state.getValue(DoorBlock.OPEN) || state.getValue(DoorBlock.POWERED)) {
-                    doors.remove();
-                    continue;
-                }
-                var doorway = new AABB(at).expandTowards(0, 1, 0);
-                if (!level.getEntitiesOfClass(LivingEntity.class, doorway, e -> e.isAlive() && !e.isSpectator()).isEmpty()) continue;
-                if (mob.isAlive() && leadThrough(doorway, state.getValue(DoorBlock.FACING).getAxis())) continue;
-                door.setOpen(mob, level, state, at, false);
-                GameplayLog.event(mob, "npc-care", "action=walk_door result=closed door={}", at.toShortString());
-                doors.remove();
+        private boolean holdsDoor(BlockPos at) {
+            if (!isDone()) {
+                int next = path.getNextNodeIndex();
+                for (int i = next; i < Math.min(next + 2, path.getNodeCount()); i++)
+                    if (at.equals(handDoor(path.getNodePos(i)))) return true;
             }
+            return leadThrough(HumanDoors.frame(at), level.getBlockState(at).getValue(DoorBlock.FACING).getAxis());
         }
 
         private boolean leadThrough(AABB doorway, Direction.Axis axis) {
@@ -536,7 +640,6 @@ public final class HumanNpc extends PathfinderMob {
             } else Custody.ownerDied(this);
         }
         super.die(source);
-        if (!level().isClientSide) ((HumanNavigation) getNavigation()).closeDoors(null, null);
     }
 
     @Override public void onAddedToLevel() {
@@ -549,11 +652,6 @@ public final class HumanNpc extends PathfinderMob {
         }
         VillageBin.dropLitter(this);
     }
-    @Override public void onRemovedFromLevel() {
-        super.onRemovedFromLevel();
-        if (!level().isClientSide) ((HumanNavigation) getNavigation()).closeDoors(null, null);
-    }
-
     @Override public void remove(RemovalReason reason) {
         if (reason.shouldDestroy() && level() instanceof ServerLevel server && server.getEntity(getUUID()) == this) {
             dropPicnicFood("removal");
@@ -591,7 +689,6 @@ public final class HumanNpc extends PathfinderMob {
         if (level().isClientSide || !isAlive()) return;
         if (tickCount % 100 == 1) legacyOutput.collect(this);
         if (isNoAi()) {
-            ((HumanNavigation) getNavigation()).closeDoors(null, null);
             if (job() == Job.SHOPKEEPER) ShopStaff.cancelWater(this, "no_ai");
             return;
         }
@@ -947,8 +1044,8 @@ public final class HumanNpc extends PathfinderMob {
             }
             if (goingHome()) {
                 clearAttention();
-                if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2) getNavigation().stop();
-                else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
+                if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2 && !crossingDoorway()) getNavigation().stop();
+                else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, 0, .8);
                 return;
             }
             if (attention == null) return;
