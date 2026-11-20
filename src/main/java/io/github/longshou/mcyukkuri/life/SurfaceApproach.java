@@ -612,16 +612,21 @@ public final class SurfaceApproach {
 
     private static Result contactClearance(YukkuriEntity actor, Vec3 feet, YukkuriEntity posedPartner) {
         var from = actor.position();
-        var sweep = actor.getBoundingBox().expandTowards(feet.subtract(from)).inflate(BODY_CLEARANCE, 0, BODY_CLEARANCE);
+        var anchor = posedPartner.position();
+        double margin = BODY_CLEARANCE + YukkuriGroundNavigation.YIELD_MARGIN;
+        var sweep = actor.getBoundingBox().expandTowards(feet.subtract(from)).minmax(posedPartner.getBoundingBox())
+                .inflate(margin, 0, margin);
         var bodies = actor.level().getEntities(actor, sweep,
                 other -> actor.canCollideWith(other) || other instanceof LivingEntity && other.isAlive() && !other.isSpectator());
-        var blocker = ContactStandSearch.blockingFootprint(bodies, posedPartner,
-                other -> crossesBody(actor, from, feet, other.getBoundingBox()));
+        Predicate<AABB> blocks = box -> crossesBody(actor, from, feet, box) || crossesBody(posedPartner, anchor, anchor, box);
+        for (var body : bodies) {
+            if (body instanceof YukkuriEntity intruder && intruder != posedPartner
+                    && blocks.test(YukkuriGroundNavigation.approachingFootprint(intruder)))
+                YukkuriGroundNavigation.giveWayForContact(intruder, posedPartner, actor, feet);
+        }
+        var blocker = ContactStandSearch.blockingFootprint(bodies, posedPartner, other -> blocks.test(other.getBoundingBox()));
         if (blocker == null) return Result.ARRIVED;
-        if (!(blocker instanceof LivingEntity)) return Result.BLOCKED;
-        if (blocker instanceof YukkuriEntity intruder)
-            YukkuriGroundNavigation.giveWayForContact(intruder, posedPartner, actor, feet);
-        return Result.WAITING;
+        return blocker instanceof LivingEntity ? Result.WAITING : Result.BLOCKED;
     }
 
     /**

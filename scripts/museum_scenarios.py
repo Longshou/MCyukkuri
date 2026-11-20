@@ -1596,8 +1596,8 @@ add('meet', 'meadow', '熟的走近蹭蹭，生的先问候', '熟的走近蹭�
     '北边一对橙和爱丽丝互相认识、想亲近，会自己走近、问候、蹭蹭；南边一对橙和爱丽丝素不相识（亲近度 0），一只走过去时另一只停下看着它，接触时先问候、对方回礼，'
     '之后读数里出现彼此的关系、亲近度大于 0；再靠近看陌生的两只能否主动问候中立的你', '持续观察约 2 分钟（暂停不计时）', [
     yk('chen', -2, -3, 'a', uuid=uid('meet', 'a'), intelligence=(45, 65),
-       yaw=-90, affection=95, social_wait=0, lead=True),
-    yk('alice', 2, -3, 'b', yaw=90, affection=95, social_wait=0),
+       yaw=-90, affection=95, attachment=100, social_wait=0, lead=True),
+    yk('alice', 2, -3, 'b', yaw=90, affection=95, attachment=100, social_wait=0),
     f'yukkuri scenario bond {sel("a")} {sel("b")}',
     yk('chen', -2, 3, 'stranger_a', label='陌生橙', yaw=-90, attachment=95, affection=0, social_wait=0),
     yk('alice', 2, 3, 'stranger_b', label='陌生爱丽丝', yaw=90, attachment=95, affection=0, social_wait=0)],
@@ -1626,8 +1626,8 @@ add('greet_close', 'meadow', '贴近的豆形子油与成油打招呼', '异体�
 # Two ordinary friend pairs side by side, one geometry question each. West: an adult and a child of clearly different body
 # size on flat grass. East: two adults of one size across a real one-block grass terrace (no slab), the upper one standing
 # .375 inside the west edge -- as near that edge as its support rule allows while the lower body stays clear of the step.
-# Each pair is bonded. The west adult and both east adults start lonely; the lower east peer stands beside the riser, where
-# ordinary solo leisure has less room. Either east adult can ask for the rub.
+# Each pair is bonded. The west adult and both east adults start lonely, with strongly attached partners who are more
+# likely to accept. The lower east peer stands beside the riser, where ordinary solo leisure has less room.
 _SHAPES = {name: uid('nuzzle_shapes', name) for name in ('wide', 'small', 'high', 'low')}
 
 add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也凑近', '大小与台阶的贴身蹭',
@@ -1637,10 +1637,10 @@ add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也
     '约 30–60 秒（暂停不计时）', [
         box(2, 0, -4, 6, 0, 0, 'minecraft:grass_block'),
         yk('reimu', -6, 3, 'wide', uuid=_SHAPES['wide'], yaw=-90, affection=95, attachment=80, label='成体·宽身', lead=True),
-        yk('reimu', -2.5, 3, 'small', uuid=_SHAPES['small'], yaw=90, stage='child', affection=0, attachment=95, label='子油·小身'),
+        yk('reimu', -2.5, 3, 'small', uuid=_SHAPES['small'], yaw=90, stage='child', affection=0, attachment=100, label='子油·小身'),
         f'yukkuri scenario bond {sel("wide")} {sel("small")}',
-        yk('reimu', 1.875, -2, 'high', uuid=_SHAPES['high'], yaw=90, dy=1, affection=95, attachment=95, label='台阶上'),
-        yk('reimu', .5, -2, 'low', uuid=_SHAPES['low'], yaw=-90, affection=95, attachment=80, label='台阶下'),
+        yk('reimu', 1.875, -2, 'high', uuid=_SHAPES['high'], yaw=90, dy=1, affection=95, attachment=100, label='台阶上'),
+        yk('reimu', .5, -2, 'low', uuid=_SHAPES['low'], yaw=-90, affection=95, attachment=100, label='台阶下'),
         f'yukkuri scenario bond {sel("high")} {sel("low")}',
     ], env=DAY, vantage=(-2, -8, 0, 15),
     reads=[('读四只的状态', 'yukkuri status @e[tag=scn,distance=..12] raw')])

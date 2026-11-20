@@ -721,9 +721,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
     private static final double YIELD_PACE = .16;
     public static final int YIELD_LIMIT = 20;
+    private static final int MAX_YIELD_NOTICE = 3;
     private static final double STAFF_PASSAGE_RANGE = 1.75;
     // Keep at least .2 blocks beyond both hitboxes. An eager sidestep leaves up to .6 blocks of breathing room.
-    private static final double YIELD_MARGIN = .2, PASSAGE_RANGE = 4;
+    public static final double YIELD_MARGIN = .2;
+    private static final double PASSAGE_RANGE = 4;
     private record PlayerPosition(Level level, Vec3 position) {}
     private static final Map<ServerPlayer, PlayerPosition> PLAYER_POSITIONS = new WeakHashMap<>();
     private static final class Passage {
@@ -818,6 +820,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         giveWay(blocker, anchor, heading, 0, true, width);
     }
 
+    /** Leave room for noticing the pair and for the walker to start its sidestep. */
+    public static AABB approachingFootprint(YukkuriEntity walker) {
+        int lead = MAX_YIELD_NOTICE + 2;
+        return walker.getBoundingBox().expandTowards(walker.getDeltaMovement().multiply(lead, 0, lead));
+    }
+
     private static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 heading, double walkerPace, boolean mayInterruptWalk) {
         return giveWay(blocker, walker, heading, walkerPace, mayInterruptWalk, projectedHalfWidth(walker, right(heading)));
     }
@@ -838,7 +846,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         double eagerness = ((100 - temperament.boldness()) / 100.0 + 1 - confidence) / 2;
         double margin = YIELD_MARGIN + .4 * eagerness;
         double stepPace = .18 + .12 * eagerness;
-        int notice = (int)Math.round(3 * (1 - eagerness));
+        int notice = (int)Math.round(MAX_YIELD_NOTICE * (1 - eagerness));
         if (!mayInterruptWalk) {
             double ahead = offset.dot(heading);
             // Allow the whole step before the front edges meet, including the two-tick player sampling interval.
