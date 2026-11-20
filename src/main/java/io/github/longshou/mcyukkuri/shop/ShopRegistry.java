@@ -148,6 +148,7 @@ public final class ShopRegistry extends SavedData {
         }
         if (!shop.authored() && kind == ShopKind.ONI) return null;
         shops.put(shop.id, shop);
+        ShopBeddingDock.openingDelivery(level, shop);
         shop.staff.add(founder.getUUID());
         setDirty();
         GameplayLog.event(founder, "shop", "action=found shop={} authored={}", shop.id, shop.authored());

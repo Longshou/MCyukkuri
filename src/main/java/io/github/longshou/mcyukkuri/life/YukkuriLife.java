@@ -144,8 +144,7 @@ public final class YukkuriLife {
     /** Only rejected food destinations in reach of the present approach origin. */
     private final Map<BlockPos, Vec3> refusedServings = new HashMap<>();
     private Vec3 refusedServingFrom;
-    private record RefusedBedRoute(BlockPos from, BlockPos bed) {}
-    private RefusedBedRoute refusedBed;
+    private BedRouteRefusal refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private boolean useBowlNicely;
     private boolean warnedAtDish;
@@ -331,17 +330,22 @@ public final class YukkuriLife {
     void deferHomeMaintenance() { homeWait = 200; }
     public void seekHomeNow() { homeWait = 0; }
     public boolean mayReturnToBed(BlockPos bed) {
-        return refusedBed == null || !bed.equals(refusedBed.bed()) || !entity.blockPosition().equals(refusedBed.from());
+        return refusedBed == null || refusedBed.permits(entity.blockPosition().asLong(), bed.asLong(), level().getGameTime(), () -> {
+            var place = FamilyNest.restPosition(entity, bed);
+            return place != null && SurfaceApproach.canApproach(entity, place);
+        });
     }
 
     public boolean walkToBed(BlockPos bed, Vec3 position, double speed) {
         SurfaceApproach.walk(entity, position, speed);
-        if (entity.childhood().shouldStayWithParents()
-                && SurfaceApproach.lastResult(entity, position) == SurfaceApproach.Result.BLOCKED
-                && SurfaceApproach.why(entity, position).startsWith("no_complete_surface_route")) {
-            refusedBed = new RefusedBedRoute(entity.blockPosition(), bed);
-            return false;
+        if (entity.childhood().shouldStayWithParents() && SurfaceApproach.lastResult(entity, position) == SurfaceApproach.Result.BLOCKED) {
+            var reason = SurfaceApproach.why(entity, position);
+            if (reason.startsWith("no_complete_surface_route") || reason.equals("doorway_unreachable")) {
+                refusedBed = new BedRouteRefusal(entity.blockPosition().asLong(), bed.asLong(), level().getGameTime());
+                return false;
+            }
         }
+        refusedBed = null;
         return true;
     }
     void finishConsumption() { task = Task.NONE; warnedAtDish = false; planWait = 20; }
@@ -1445,6 +1449,17 @@ public final class YukkuriLife {
                     stopGoal(); break;
                 }
                 if (sampleBed) {
+                    if (!drugged && targetBlock == null && refusedBed != null && !outingRest && !foundCover.active()
+                            && !temperature.hasTemporarySleepSite() && !penned() && !ParentCarry.awaitsCarrier(entity)) {
+                        var bed = homeStand();
+                        if (bed != null && bed.asLong() == refusedBed.bed && mayReturnToBed(bed)) {
+                            GameplayLog.event(entity, "sleep", "end source=life cause=bed_reachable nest={}", bed);
+                            refusedBed = null;
+                            stopGoal();
+                            replanNow();
+                            break;
+                        }
+                    }
                     if (nestOccupancy != null && FamilyNest.shared(entity,site) && !FamilyNest.atPlace(entity,site)) {
                         stopGoal(); break;
                     }

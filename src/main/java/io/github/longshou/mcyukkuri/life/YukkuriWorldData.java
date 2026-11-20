@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -526,7 +526,9 @@ public final class YukkuriWorldData extends SavedData {
         try { added = level.addFreshEntity(entity); }
         finally { releasing.remove(entity.getUUID()); }
         if (!added) return releaseRefused(token,level,position,"entity_add_rejected");
-        captives.remove(token);forgetCustody(held.entity);setDirty();
+        if (!BasketAdmission.finish(() -> nest == null || entity.life().assignHome(GlobalPos.of(level.dimension(), nest)),
+                entity::discard, () -> { captives.remove(token); forgetCustody(held.entity); setDirty(); }))
+            return releaseRefused(token, level, position, "nest_claim_refused");
         Custody.cleanup(entity);
         GameplayLog.event(entity,"transport","action=release result=committed token={} owner={} role={} captive_count={}",
                 token,Custody.view(entity).owner(),Custody.view(entity).role(),captives.size());

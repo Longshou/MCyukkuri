@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +34,11 @@ class ShopFamilyBedTest {
 
     private static ShopFamilyBed choose(int count, int stage, float width, double reach, int secondZ) {
         var member = new ShopFamilyBed.Member(stage, new NestLayout.Place(0, 0, width, reach));
-        return ShopFamilyBed.choose(Collections.nCopies(count, member), layout -> switch (layout) {
+        return choose(Collections.nCopies(count, member), secondZ);
+    }
+
+    private static ShopFamilyBed choose(List<ShopFamilyBed.Member> members, int secondZ) {
+        return ShopFamilyBed.choose(members, layout -> switch (layout) {
             case CUSHION -> List.of(pad("pet_nest_0", NestResting.CUSHION, 0, 0));
             case WOVEN -> List.of(pad("large_yukkuri_nest", NestResting.LARGE, 0, 0));
             case ADJACENT -> List.of(pad("pet_nest_6", NestResting.CUSHION, 0, 0),
@@ -46,5 +51,16 @@ class ShopFamilyBedTest {
         assertEquals(ShopFamilyBed.WOVEN, choose(2, 1, .46f, .40, 1));
         assertEquals(ShopFamilyBed.ADJACENT, choose(2, 1, .64f, .549, 1));
         assertNull(choose(2, 1, .64f, .549, 0)); // Centres one block apart cannot clear both ribbons.
+    }
+
+    @Test void aDelayedJuvenileKeepsItsAdjacentCushionUntilReleased() {
+        var parents = ShopLitter.template(new UUID(0, 1), 1);
+        var juvenile = new ShopFamilyBed.Member(1, new NestLayout.Place(0, 0, .64f, .549));
+        var siblings = List.of(juvenile, juvenile);
+        assertEquals(ShopFamilyBed.CUSHION, choose(List.of(juvenile), 1));
+        for (int live = 0; live <= siblings.size(); live++) {
+            var family = ShopLitter.groups(siblings.subList(0, live), siblings.subList(live, siblings.size()), body -> parents).get(parents);
+            assertEquals(ShopFamilyBed.ADJACENT, choose(family.all(), 1));
+        }
     }
 }

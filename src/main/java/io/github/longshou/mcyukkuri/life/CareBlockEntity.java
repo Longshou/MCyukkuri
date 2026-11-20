@@ -152,14 +152,17 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         if(!canClaim(entity))return false;
         residents.keySet().removeIf(member->{var person=FamilyData.get(server).person(member);return person!=null&&person.status!=FamilyData.Status.ALIVE;});
         resting.keySet().retainAll(residents.keySet());
-        var container=BedContainer.of(entity,worldPosition);
-        // Each canopy resident must fit the pad individually. The family roosts on real branches around it.
-        var place=NestResting.choose(entity,bed(),canopyNest()?Map.of():resting,p->container.standsInside(p.x(),p.z()),expecting(entity));
+        var place=supportedPlace(entity);
         if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}", () -> new Object[]{
                     worldPosition,blockId(),entity.getBbWidth(),residents.size()});return false;}
         if(!place.equals(resting.put(id,place)))changed();
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
+    }
+    public NestLayout.Place supportedPlace(YukkuriEntity entity) {
+        var container=BedContainer.of(entity,worldPosition);
+        // Each canopy resident must fit the pad individually. The family roosts on real branches around it.
+        return NestResting.choose(entity,bed(),canopyNest()?Map.of():resting,p->container.standsInside(p.x(),p.z()),expecting(entity));
     }
     /** A mother carrying an unfinished brood lies in the middle of her bed (she gives birth there). */
     public static boolean expecting(YukkuriEntity entity){var brood=entity.family().brood();return brood!=null&&!brood.cancelled&&!brood.complete();}

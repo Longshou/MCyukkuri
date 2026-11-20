@@ -20,7 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.Container;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.Block;
@@ -38,14 +38,18 @@ final class ShopFamilyRoom extends PathNavigationRegion {
     private final BlockPos anchor;
     private final List<BlockPos> cells;
     private final Map<BlockPos,BlockState> planned = new LinkedHashMap<>();
+    private final ShopBeddingDock dock;
+    private List<DockBedding.Slot> dockAfter;
+    private int cushionsReturned, wovenReturned;
 
-    private ShopFamilyRoom(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor) {
+    private ShopFamilyRoom(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, Container barrel) {
         super(level, anchor.offset(-4, -1, -4), anchor.offset(4, 3, 4));
         this.server = level;
         this.shop = shop;
         this.anchor = anchor;
         this.rotation = ShopRegistry.authoredRotation(shop);
         this.cells = cells(anchor, rotation);
+        this.dock = new ShopBeddingDock(barrel);
     }
     // Opposite corners give two ribboned juveniles a full diagonal of turning clearance.
     static List<BlockPos> cells(BlockPos anchor, Rotation rotation) {
@@ -58,20 +62,22 @@ final class ShopFamilyRoom extends PathNavigationRegion {
         return state == null ? super.getBlockState(pos) : state;
     }
 
-    static List<BlockPos> prepare(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, List<YukkuriEntity> litter) {
-        var room = new ShopFamilyRoom(level, shop, anchor);
+    static List<BlockPos> prepare(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, List<YukkuriEntity> litter, int basketPlaces) {
+        if (shop.dock() == null || !(level.getBlockEntity(shop.dock()) instanceof Container barrel)) return List.of();
+        var room = new ShopFamilyRoom(level, shop, anchor, barrel);
         var bodies = litter.stream().map(y -> new ShopFamilyBed.Member(NestOccupancy.stage(y),
                 new NestLayout.Place(0, 0, y.getBbWidth(), HeadTop.reach(y)))).toList();
-        var choice = ShopFamilyBed.choose(bodies, layout -> room.preview(layout, litter));
-        if (choice == null || !room.install(choice, litter.size())) {
-            GameplayLog.world(level, "shop", "action=family_bed result=refused reason={} shop={} nest={} count={}",
-                    choice == null ? "no_supported_layout" : "unavailable_bedding", shop.id, anchor, bodies.size());
+        var choice = ShopFamilyBed.choose(bodies, layout -> room.preview(layout, litter, basketPlaces));
+        if (choice == null) {
+            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=no_available_layout shop={} nest={} count={}",
+                    shop.id, anchor, bodies.size());
             return List.of();
         }
+        room.install(choice, litter.size());
         return choice == ShopFamilyBed.ADJACENT ? room.cells.subList(0, litter.size()) : List.of(anchor);
     }
 
-    private List<ShopFamilyBed.Pad> preview(ShopFamilyBed layout, List<YukkuriEntity> litter) {
+    private List<ShopFamilyBed.Pad> preview(ShopFamilyBed layout, List<YukkuriEntity> litter, int basketPlaces) {
         planned.clear();
         for (var pos : cells) {
             var old = server.getBlockState(pos);
@@ -101,11 +107,18 @@ final class ShopFamilyRoom extends PathNavigationRegion {
                 planned.put(pos, fitted);
             }
         }
+        cushionsReturned = 0;
+        wovenReturned = 0;
         for (var entry : planned.entrySet()) {
             var pos = entry.getKey();
-            if (server.getBlockState(pos).getBlock() != entry.getValue().getBlock()
+            var old = server.getBlockState(pos);
+            cushionsReturned += ShopBeddingDock.cushions(old) - ShopBeddingDock.cushions(entry.getValue());
+            wovenReturned += ShopBeddingDock.woven(old) - ShopBeddingDock.woven(entry.getValue());
+            if (old.getBlock() != entry.getValue().getBlock()
                     && !server.getEntitiesOfClass(LivingEntity.class, new AABB(pos)).isEmpty()) return List.of();
         }
+        dockAfter = dock.exchange(cushionsReturned, wovenReturned, basketPlaces);
+        if (dockAfter.isEmpty()) return List.of();
         var pads = new ArrayList<ShopFamilyBed.Pad>();
         for (var pos : beds) {
             var state = getBlockState(pos);
@@ -117,28 +130,12 @@ final class ShopFamilyRoom extends PathNavigationRegion {
         return pads;
     }
 
-    private boolean install(ShopFamilyBed layout, int count) {
+    private void install(ShopFamilyBed layout, int count) {
         var changes = planned.entrySet().stream().filter(e -> server.getBlockState(e.getKey()) != e.getValue()).toList();
-        if (changes.isEmpty()) return true;
-        int cushions = 0;
-        ItemStack returned = ItemStack.EMPTY;
-        for (var change : changes) {
-            var old = server.getBlockState(change.getKey());
-            if (old.is(change.getValue().getBlock())) continue;
-            if (change.getValue().is(ModBlocks.NEST.get())) cushions++;
-            if (old.is(ModBlocks.NEST.get()) || old.is(ModBlocks.LARGE_NEST.get()) && old.getValue(LargeNestBlock.PART) == 0) {
-                if (returned.isEmpty()) returned = new ItemStack(old.getBlock());
-                else returned.grow(1);
-            }
-        }
-        var shelf = ShopStock.get(server);
-        var cushion = ShopCatalog.find(shop.kind, "yukkuri_nest");
-        if (shelf.stock(server, shop.id, cushion) < cushions) return false;
-        if (!returned.isEmpty() && ShopTrade.drop(server, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), returned) == null) return false;
-        for (int i = 0; i < cushions; i++) shelf.take(server, shop.id, cushion);
+        if (changes.isEmpty()) return;
+        dock.apply(dockAfter);
         for (var change : changes) server.setBlock(change.getKey(), change.getValue(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-        GameplayLog.world(server, "shop", "action=family_bed result=installed grade={} shop={} nest={} count={} shelf_cushions={} returned={}",
-                layout.name().toLowerCase(Locale.ROOT), shop.id, anchor, count, cushions, returned);
-        return true;
+        GameplayLog.world(server, "shop", "action=family_bed result=installed grade={} shop={} nest={} count={} dock_cushion_delta={} dock_woven_delta={}",
+                layout.name().toLowerCase(Locale.ROOT), shop.id, anchor, count, cushionsReturned, wovenReturned);
     }
 }

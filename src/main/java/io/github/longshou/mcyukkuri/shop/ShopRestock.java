@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -30,6 +31,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -80,7 +82,8 @@ public final class ShopRestock {
             GameplayLog.event(y, "shop", "action=adopt shop={} from_staff={}", shop.id, owner);
         }
         if (!shop.familyNests.isEmpty() && candidates.stream().anyMatch(y -> ShopTrade.stockOf(y, shop.id)
-                && !HumanCommerce.data(y).contains(ShopTrade.FOR_SALE_SINCE))) settleDisplayedFamilies(level, shop, candidates, true);
+                && HumanCommerce.data(y).getBoolean("FamilyStock")
+                && !HumanCommerce.data(y).contains(ShopTrade.FOR_SALE_SINCE))) settleFamilies(level, shop, candidates, waitingStock(level, shop));
         for (var y : candidates) {
             if (!y.isAlive() || !box.contains(y.position())) continue;
             var custody = Custody.view(y);
@@ -107,16 +110,41 @@ public final class ShopRestock {
         }
     }
 
-    private static void settleDisplayedFamilies(ServerLevel level, ShopRegistry.Entry shop, List<YukkuriEntity> stock, boolean newStock) {
+    private static List<CompoundTag> waitingStock(ServerLevel level, ShopRegistry.Entry shop) {
+        var custody = YukkuriWorldData.get(level);
+        return ShopRegistry.stockBaskets(level, shop).stream().map(custody::captiveSnapshot)
+                .filter(snapshot -> !ShopStaff.shipOut(snapshot)).toList();
+    }
+
+    private static List<BlockPos> settleFamilies(ServerLevel level, ShopRegistry.Entry shop, List<YukkuriEntity> stock,
+                                                 List<CompoundTag> waiting) {
+        var displayed = stock.stream().filter(y -> ShopTrade.stockOf(y, shop.id) && HumanCommerce.data(y).getBoolean("FamilyStock")
+                && !ShopStaff.shipOut(y)).toList();
+        var inTransit = waiting.stream().filter(ShopStaff::familyDelivery)
+                .map(tag -> (YukkuriEntity)EntityType.create(tag, level).orElseThrow()).toList();
+        var families = ShopLitter.groups(displayed, inTransit, y -> new ShopLitter(y.family().mother(), y.family().father()));
+        var free = new ArrayList<>(shop.familyNests);
+        var addresses = new HashMap<UUID,BlockPos>();
         for (var anchor : shop.familyNests) {
             var room = ShopAccess.petRoom(shop, anchor);
-            var litter = stock.stream().filter(y -> room.contains(y.position()) && ShopTrade.stockOf(y, shop.id)
-                    && HumanCommerce.data(y).getBoolean("FamilyStock")).toList();
-            if (litter.isEmpty() || newStock && litter.stream().allMatch(y -> HumanCommerce.data(y).contains(ShopTrade.FOR_SALE_SINCE))) continue;
-            var beds = ShopFamilyRoom.prepare(level, shop, anchor, litter);
-            if (beds.isEmpty()) continue;
+            for (var y : stock) {
+                if (!ShopTrade.stockOf(y, shop.id)) continue;
+                if (room != null && room.contains(y.position()) || y.life().home() != null && anchor.equals(shop.familyAnchor(y.life().home().pos()))) {
+                    addresses.put(y.getUUID(), anchor);
+                    free.remove(anchor);
+                }
+            }
+        }
+        for (var litter : families.values()) {
+            var atHome = litter.live().stream().map(YukkuriEntity::getUUID).filter(addresses::containsKey).map(addresses::get).findFirst();
+            var bodies = litter.all();
+            List<BlockPos> beds = List.of();
+            for (var anchor : atHome.map(List::of).orElseGet(() -> List.copyOf(free))) {
+                beds = ShopFamilyRoom.prepare(level, shop, anchor, bodies, 0);
+                if (!beds.isEmpty()) { free.remove(anchor); break; }
+            }
             var open = new ArrayList<>(beds);
-            for (var y : litter) {
+            for (var y : litter.live()) {
                 var held = open.stream().filter(p -> ((CareBlockEntity)level.getBlockEntity(p)).owns(y.getUUID())).findFirst();
                 if (held.isPresent()) {
                     if (beds.size() > 1) open.remove(held.get());
@@ -126,6 +154,7 @@ public final class ShopRestock {
                 if (beds.size() > 1) placed.ifPresent(open::remove);
             }
         }
+        return free;
     }
 
     private static void adoptLitter(YukkuriEntity animal, ShopLitter parents) {
@@ -187,7 +216,6 @@ public final class ShopRestock {
         registry.restocked(shop, level.getGameTime() + PERIOD);
         var custody = YukkuriWorldData.get(level);
         var stock = ShopRegistry.liveStock(level, shop);
-        settleDisplayedFamilies(level, shop, stock, false);
         var dock = level.getBlockEntity(shop.dock()) instanceof Container c ? c : null;
         int shipped = 0, waitingLand = 0;
         var departure = ShopRegistry.departure(level, shop);
@@ -217,12 +245,9 @@ public final class ShopRestock {
             GameplayLog.world(level, "shop", "action=restock result=shipped shop={} token={} species={}", shop.id, token, snapshot.getString("id"));
         }
         int waitingAdults = 0;
-        var waiting = new ArrayList<CompoundTag>();
-        for (var token : ShopRegistry.stockBaskets(level, shop)) {
-            var snapshot = custody.captiveSnapshot(token);
-            if (ShopStaff.shipOut(snapshot)) continue;
-            if (shop.kind == ShopKind.PET) waiting.add(snapshot);
-            else if (!ShopStaff.predator(snapshot)) waitingLand++;
+        var waiting = waitingStock(level, shop);
+        for (var snapshot : waiting) {
+            if (shop.kind == ShopKind.ONI && !ShopStaff.predator(snapshot)) waitingLand++;
             if ("adult".equals(FamilyLife.savedStageId(snapshot.getCompound("YukkuriFamily")))) waitingAdults++;
         }
         // Adults go out longest on the shelf first. Reservations, their grace period and current orders keep stock on sale.
@@ -237,6 +262,7 @@ public final class ShopRestock {
             marked++;
             GameplayLog.event(y, "shop", "action=restock result=ship_marked shop={} days={}", shop.id, CommodityLife.forSaleDays(y));
         }
+        var familyRooms = shop.familyNests.isEmpty() ? List.<BlockPos>of() : settleFamilies(level, shop, stock, waiting);
         ShopVacancy vacancies;
         if (shop.kind == ShopKind.PET) vacancies = ShopStaff.vacancies(level, shop, stock, waiting);
         else {
@@ -246,21 +272,16 @@ public final class ShopRestock {
         int land = vacancies.singles(), predators = vacancies.predators();
         int arrived = 0;
         var random = ModRandom.world(level);
-        var slots = dock == null ? List.<Integer>of() : ShopStaff.openDockSlots(dock);
-        var familyRooms = new ArrayList<>(shop.familyNests);
-        familyRooms.removeIf(anchor -> {
-            var room = ShopAccess.petRoom(shop, anchor);
-            return stock.stream().anyMatch(y -> room.contains(y.position()));
-        });
         deliveries:
-        for (int i = 0; i < land + predators + vacancies.families() && arrived < slots.size(); i++) {
+        for (int i = 0; dock != null && i < land + predators + vacancies.families(); i++) {
+            var slots = ShopStaff.openDockSlots(dock);
+            if (slots.isEmpty() && i < land + predators) continue;
             var species = i >= land && i < land + predators ? PREDATORS : LAND;
             FamilyDelivery litter = null;
             int count = 1;
             if (i >= land + predators) {
                 long age = youngAge(random, random.nextInt(8));
                 count = ShopLitter.size(age, random.nextBoolean());
-                if (slots.size() - arrived < count) break;
                 litter = new FamilyDelivery(new ShopLitter(ModRandom.identity(random), ModRandom.identity(random)), age);
             }
             var variant = species.get(random.nextInt(species.size()));
@@ -271,12 +292,14 @@ public final class ShopRestock {
                 arrivals.add(animal);
             }
             if (litter != null) {
-                var room = familyRooms.stream().filter(anchor -> !ShopFamilyRoom.prepare(level, shop, anchor, arrivals).isEmpty()).findFirst();
+                var room = familyRooms.stream().filter(anchor -> !ShopFamilyRoom.prepare(level, shop, anchor, arrivals, arrivals.size()).isEmpty()).findFirst();
                 if (room.isEmpty()) continue;
                 familyRooms.remove(room.get());
+                slots = ShopStaff.openDockSlots(dock);
             }
-            for (var animal : arrivals) {
-                int slot = slots.get(arrived);
+            for (int member = 0; member < arrivals.size(); member++) {
+                var animal = arrivals.get(member);
+                int slot = slots.get(member);
                 var returned = dock.getItem(slot);
                 if (!returned.isEmpty()) {
                     if (ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break deliveries;

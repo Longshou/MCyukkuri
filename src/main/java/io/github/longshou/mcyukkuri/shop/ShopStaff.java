@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
-import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -35,7 +34,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,6 +41,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -890,10 +889,9 @@ public final class ShopStaff {
         staff.swing(InteractionHand.MAIN_HAND);
         var tag = HumanCommerce.data(y).copy();
         if (!tag.contains(ShopTrade.FOR_SALE_SINCE)) { tag.putLong(ShopTrade.FOR_SALE_SINCE, level.getGameTime()); HumanCommerce.set(y, tag); }
-        boolean home = !pen && y.life().assignHome(GlobalPos.of(level.dimension(), nest));
         y.playAction("basket_out"); y.speak("basket_exit");
         GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} {}={} home={} staff={} stage={} age={}", shop.id, job.token,
-                pen ? "pen" : "nest", nest.toShortString(), home, staff.getUUID(), y.family().stageId(), y.family().age());
+                pen ? "pen" : "nest", nest.toShortString(), !pen, staff.getUUID(), y.family().stageId(), y.family().age());
         end(staff, job, "released");
     }
 
@@ -1192,7 +1190,7 @@ public final class ShopStaff {
         boolean predator = animal.profile().dangerToYukkuri();
         var near = animal.position();
         if (shop.kind == ShopKind.ONI) return predator ? null : freePen(level, shop, near);
-        return freeNest(level, shop, animal.getUUID(), NestOccupancy.stage(animal), predator, false, near);
+        return freeNest(level, shop, animal, false, near);
     }
     static int oniPlaces(ServerLevel level, ShopRegistry.Entry shop) { return pens(level, shop).size() * PEN_STOCK; }
 
@@ -1216,21 +1214,23 @@ public final class ShopStaff {
             else singles++;
         }
         int waitingSingles = 0, waitingPredators = 0;
-        var housedMothers = new HashSet<UUID>();
-        var waitingMothers = new HashSet<UUID>();
+        var housedLitters = new HashSet<ShopLitter>();
+        var waitingLitters = new HashSet<ShopLitter>();
         for (var animal : stock) {
             if (leaving.contains(animal.getUUID())) continue;
             if (HumanCommerce.data(animal).getBoolean("FamilyStock"))
-                (housed.contains(animal.getUUID()) ? housedMothers : waitingMothers).add(animal.family().mother());
+                (housed.contains(animal.getUUID()) ? housedLitters : waitingLitters).add(new ShopLitter(animal.family().mother(), animal.family().father()));
             else if (!housed.contains(animal.getUUID())) {
                 if (animal.profile().dangerToYukkuri()) waitingPredators++; else waitingSingles++;
             }
         }
         for (var snapshot : waiting) {
-            if (familyDelivery(snapshot)) waitingMothers.add(snapshot.getCompound("YukkuriFamily").getUUID("Mother"));
-            else if (predator(snapshot)) waitingPredators++; else waitingSingles++;
+            if (familyDelivery(snapshot)) {
+                var family = snapshot.getCompound("YukkuriFamily");
+                waitingLitters.add(new ShopLitter(family.getUUID("Mother"), family.getUUID("Father")));
+            } else if (predator(snapshot)) waitingPredators++; else waitingSingles++;
         }
-        return ShopVacancy.plan(singles, predators, familyRooms.size() - occupiedRooms.size(), waitingSingles, waitingPredators, waitingMothers, housedMothers);
+        return ShopVacancy.plan(singles, predators, familyRooms.size() - occupiedRooms.size(), waitingSingles, waitingPredators, waitingLitters, housedLitters);
     }
     /** The oni shop's pens, one bowl each (art/structures/human-world/author_street.py oni_shop). */
     private static List<BlockPos> pens(ServerLevel level, ShopRegistry.Entry shop) {
@@ -1264,14 +1264,15 @@ public final class ShopStaff {
     }
 
     /** Keep a litter together when a sibling has already been settled. */
-    private static BlockPos freeNest(ServerLevel level, ShopRegistry.Entry shop, UUID id, int stage, boolean predator,
-                                     boolean litter, Vec3 near) {
+    private static BlockPos freeNest(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity body, boolean litter, Vec3 near) {
         long now = level.getGameTime();
+        int stage = NestOccupancy.stage(body);
+        boolean predator = body.profile().dangerToYukkuri();
         boolean withKin = false;
         BlockPos best = null; double bestD = Double.MAX_VALUE;
         for (var be : blockEntities(level, shop)) {
             if (!(be instanceof CareBlockEntity nest) || nest.kind() != CareBlock.Kind.NEST || UNREACHABLE.active(nest.getBlockPos(), now)
-                    || !shop.acceptsStock(level, nest, id, stage, predator, litter)) continue;
+                    || !shop.acceptsStock(level, nest, body.getUUID(), stage, predator, litter) || nest.supportedPlace(body) == null) continue;
             boolean shared = nest.resident() != null;
             double d = nest.getBlockPos().getCenter().distanceToSqr(near);
             if (shared && !withKin || shared == withKin && d < bestD) { bestD = d; best = nest.getBlockPos(); withKin = shared; }
@@ -1286,12 +1287,8 @@ public final class ShopStaff {
         var snapshot = YukkuriWorldData.get(level).captiveSnapshot(token);
         if (shipOut(snapshot)) return shop.dock();
         if (shop.kind == ShopKind.ONI) return predator(snapshot) ? null : freePen(level, shop, near);
-        int stage = switch (FamilyLife.savedStageId(snapshot.getCompound("YukkuriFamily"))) {
-            case "baby" -> 0;
-            case "juvenile" -> 1;
-            default -> 2;
-        };
-        return freeNest(level, shop, snapshot.getUUID("UUID"), stage, predator(snapshot), familyDelivery(snapshot), near);
+        return EntityType.create(snapshot, level).orElse(null) instanceof YukkuriEntity body
+                ? freeNest(level, shop, body, familyDelivery(snapshot), near) : null;
     }
     static boolean familyDelivery(CompoundTag snapshot) {
         return snapshot.getCompound("NeoForgeData").getCompound("HumanCommerce").getBoolean("FamilyStock");
@@ -1323,9 +1320,12 @@ public final class ShopStaff {
         var slots = new ArrayList<Integer>();
         for (int slot = 0; slot < dock.getContainerSize(); slot++) {
             var item = dock.getItem(slot);
-            if (item.isEmpty() || item.is(ModItems.CARRIER.get()) && CarrierContents.tokens(item).isEmpty()) slots.add(slot);
+            if (openDockSlot(item)) slots.add(slot);
         }
         return slots;
+    }
+    static boolean openDockSlot(ItemStack item) {
+        return item.isEmpty() || item.is(ModItems.CARRIER.get()) && CarrierContents.tokens(item).isEmpty();
     }
 
     static boolean holdsBasket(ServerLevel level, UUID token) {
