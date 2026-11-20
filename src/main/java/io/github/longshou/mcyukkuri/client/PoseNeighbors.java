@@ -25,7 +25,7 @@ final class PoseNeighbors {
     static boolean complete, near;
 
     static void stage(RenderLevelStageEvent event) {
-        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) frame++;
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) YukkuriModel.expirePaperFits(++frame);
     }
 
     static void join(EntityJoinLevelEvent event) {

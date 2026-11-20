@@ -528,12 +528,14 @@ public final class YukkuriModel {
     private int wearBody;
     private float[] tentBodyBuf = new float[0], tentMeshBuf = new float[0], tentHatBuf = new float[0];
     private int tentBodyLen, tentMeshLen, tentHatLen;
-    private record PaperFit(long inputs, PaperTent.Grid grid) {}
-    private final DrawnBodyCache<YukkuriView,PaperFit> paperFits = new DrawnBodyCache<>(DrawnBodyCache.MAX_BODIES);
+    private final PaperFitSamples<YukkuriView> paperFits = new PaperFitSamples<>();
     private final Matrix4f tentToWall = new Matrix4f();
     private PaperTent.Grid paperTentGrid;
     static void clearPaperFits() {
         for(var model:models.values()){model.paperFits.clear();model.paperTentGrid=null;}
+    }
+    static void expirePaperFits(long frame) {
+        for(var model:models.values())model.paperFits.expireBefore(frame-1);
     }
     PaperTent.Grid takePaperTent() {
         var grid = paperTentGrid;
@@ -789,9 +791,9 @@ public final class YukkuriModel {
         }
         long frame = PoseNeighbors.frame;
         var fit = paperFits.get(entity, frame);
-        if (fit != null && fit.inputs() == inputs) return fit.grid();
+        if (fit != null && fit.inputs == inputs) return fit.grid;
         var grid = buildPaperTent(toWall, showHat, hairLoss, junk);
-        paperFits.put(entity, new PaperFit(inputs, grid), frame);
+        paperFits.put(entity, inputs, grid, frame);
         return grid;
     }
 
