@@ -17,7 +17,6 @@
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | 性能：伤口与穿戴渲染（首次受伤卡顿） | `.worktrees/wp-perf-wounds` | client/HairWoundRenderer.java, client/WoundRenderer.java |
 | 性能：住所与觅食搜索 | `.worktrees/wp-perf-settlement` | settlement/ShelterBlockEntity.java, settlement/NaturalShelter.java, settlement/ForageGoal.java |
-| 性能：路线与支撑探测复用 | `.worktrees/wp-perf-navigation` | life/SurfaceApproach.java, entity/YukkuriGroundNavigation.java |
 | 低通过率试玩场景在当前 main 上复验（FG-07、TN-30、MD-02、MD-28） | `.worktrees/wp-scene-verify` | smoke checkers only |
 | MD-25、FG-08、FG-09 初态复查 | `.worktrees/wp-stager-2` | scripts/museum_scenarios.py (MD-25, FG-08, FG-09 blocks) |
 | 启动时巢的碰撞形状构建过慢 | `.worktrees/wp-perf-startup-shapes` | life/CareBlock.java (turn, authoredShape), LargeNestBlock, PetNestBlock |
