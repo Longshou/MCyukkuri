@@ -1199,13 +1199,19 @@ public final class ShopStaff {
     static ShopVacancy vacancies(ServerLevel level, ShopRegistry.Entry shop, List<YukkuriEntity> stock, List<CompoundTag> waiting) {
         var leaving = new HashSet<UUID>();
         for (var animal : stock) if (shipOut(animal)) leaving.add(animal.getUUID());
-        int singles = 0, predators = 0, families = 0;
+        int singles = 0, predators = 0;
+        var familyRooms = new HashSet<BlockPos>();
+        var occupiedRooms = new HashSet<BlockPos>();
         var housed = new HashSet<UUID>();
         for (var be : blockEntities(level, shop)) {
             if (!(be instanceof CareBlockEntity nest) || nest.kind() != CareBlock.Kind.NEST) continue;
             var residents = nest.residentIds().stream().filter(id -> !leaving.contains(id)).toList();
-            if (!residents.isEmpty()) housed.addAll(residents);
-            else if (shop.familyNests.contains(nest.getBlockPos())) families++;
+            housed.addAll(residents);
+            var anchor = shop.familyAnchor(nest.getBlockPos());
+            if (anchor != null) {
+                familyRooms.add(anchor);
+                if (!residents.isEmpty()) occupiedRooms.add(anchor);
+            } else if (!residents.isEmpty()) continue;
             else if (nest.getBlockState().is(ModBlocks.PREDATOR_NEST.get())) predators++;
             else singles++;
         }
@@ -1224,7 +1230,7 @@ public final class ShopStaff {
             if (familyDelivery(snapshot)) waitingMothers.add(snapshot.getCompound("YukkuriFamily").getUUID("Mother"));
             else if (predator(snapshot)) waitingPredators++; else waitingSingles++;
         }
-        return ShopVacancy.plan(singles, predators, families, waitingSingles, waitingPredators, waitingMothers, housedMothers);
+        return ShopVacancy.plan(singles, predators, familyRooms.size() - occupiedRooms.size(), waitingSingles, waitingPredators, waitingMothers, housedMothers);
     }
     /** The oni shop's pens, one bowl each (art/structures/human-world/author_street.py oni_shop). */
     private static List<BlockPos> pens(ServerLevel level, ShopRegistry.Entry shop) {

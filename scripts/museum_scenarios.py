@@ -4278,10 +4278,10 @@ add('shop_water', 'shop', '饮水器：口渴的去喝，喝空后店员提水�
                                           criteria='从侧面看嘴贴住碟沿、水位降到零，再看店员补水。')}))
 
 _kin_room = (('kin_bold', 11.5, -3.5, 8.5, -2.0), ('kin_timid', 10.5, -3.5, 8.5, -3.4))
-add('shop_kin_room', 'shop', '同窝兄弟：护盆、等候和共用大编织窝',
-    '同窝兄弟：护盆、等候和共用大编织窝',
+add('shop_kin_room', 'shop', '同窝兄弟：护盆、等候和相邻的窝',
+    '同窝兄弟：护盆、等候和相邻的窝',
     '看右侧饮水器旁的两只同窝灵梦。胆大的抢先时会鼓脸，胆小的退开等空位，再走近喝水。'
-    '看过左侧食盆后等天黑，两只各走到同一个大编织窝里自己的睡位。',
+    '看过左侧食盆后等天黑，两只在家庭房相邻的软垫窝里各自睡下。',
     '约十几秒看护盆，约四十秒后入夜', [PET_SHOP,
         # Wholesale juvenile litters arrive in pairs. The template normally starts with three babies.
         'yukkuri clear ~8 ~2 ~-3 ~8 ~3 ~-3',
@@ -4291,10 +4291,10 @@ add('shop_kin_room', 'shop', '同窝兄弟：护盆、等候和共用大编织�
             set_status(name, 'needs.dryness', 55), set_status(name, 'needs.nutrition', 35),
         )],
         f'data merge block {YARD_WATER} {{Water:2}}',
-        f'data merge block {YARD_BOWL} {{Items:[{{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:1}}]}}',
+        f'data merge block {YARD_BOWL} {{Items:[{{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:4}}]}}',
     ], late=[Retry('time set midnight', sel('kin_bold'), tries=1, first=850)], env=DAY, vantage=(10, -5, 0, 22, 2),
     reads=[('读后院余水', f'data get block {YARD_WATER} Water'), ('读后院食盆', f'data get block {YARD_BOWL} Items'),
-           ('读家庭窝住户', f'data get block {YARD_NEST}'),
+           ('读家庭房第一只窝', f'data get block {YARD_NEST}'), ('读相邻的窝', 'data get block ~9 ~2 ~-3'),
            *[(f'读{label}的灵梦', f'yukkuri status {sel(name)} raw')
              for (name, *_), label in zip(_kin_room, ('胆大', '胆小'))]])
 
@@ -9317,7 +9317,8 @@ def _litter_problem(window, members):
 
 def _verify_shop_restock(window):
     arrivals = re.findall(r'\[shop\][^\n]* uuid=(\S+)[^\n]* action=restock result=arrival [^\n]* token=(\S+)', window)
-    releases = re.findall(rf'\[shop\][^\n]* uuid=(\S+)[^\n]* action=settle result=released [^\n]* token=(\S+) nest={_shop_cell(10, -2)} home=true\b', window)
+    beds = '|'.join(_shop_cell(dx, dz) for dx, dz in ((10, -2), (9, -3), (10, -3)))
+    releases = re.findall(rf'\[shop\][^\n]* uuid=(\S+)[^\n]* action=settle result=released [^\n]* token=(\S+) nest=(?:{beds}) home=true\b', window)
     if len(arrivals) < 2 or len(set(arrivals)) != len(arrivals) or sorted(arrivals) != sorted(releases):
         return f'Expected every litter basket to release a different resident at the family nest, got {arrivals} and {releases}'
     return _litter_problem(window, {animal for animal, _ in releases})
@@ -9358,11 +9359,16 @@ def _verify_shop_kin_room(window, trace):
     if problem:
         return problem
     x, z = BY_ID['shop'].anchor
-    bed = [x + 10, FEET + 2, z - 2]
-    at = rf'x={bed[0]}, y={bed[1]}, z={bed[2]}\}}'
-    claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*{at}', window))
-    if claims != siblings:
-        return f'Expected both juvenile littermates to claim the shared bed, got {claims}'
+    beds = [(x + 10, FEET + 2, z - 2), (x + 9, FEET + 2, z - 3)]
+    homes = {}
+    for bed in beds:
+        at = rf'x={bed[0]}, y={bed[1]}, z={bed[2]}\}}'
+        claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*{at}', window))
+        if len(claims) != 1 or not claims <= siblings:
+            return f'Expected one sibling to claim each adjacent bed, got {claims} at {bed}'
+        homes[claims.pop()] = bed
+    if homes.keys() != siblings:
+        return 'Expected different siblings to claim each adjacent bed'
     wait = re.search(rf'\[meal\][^\n]* supply guarded [^\n]* kind=water guard={bold} approacher={timid} reason=harsh', window)
     drink = re.search(rf'\[needs\][^\n]* uuid={timid} [^\n]* drink [^\n]* kind=waterer water=[1-8] -> [0-7] dryness=55\.0 -> 25\.0', window)
     if not wait or not drink or wait.start() >= drink.start():
@@ -9372,7 +9378,9 @@ def _verify_shop_kin_room(window, trace):
         row = json.loads(line.split('[trace] ', 1)[1])
         if row['k'] == 'st' and row['u'] in siblings:
             state = row['st']
-            if state.get('sleeping') and state.get('nest') == 'INSIDE_SUPPORTED' and state.get('home') == bed:
+            if state.get('sleeping'):
+                if state.get('nest') != 'INSIDE_SUPPORTED' or tuple(state.get('home') or ()) != homes[row['u']]:
+                    return f'Sibling {row["u"]} slept outside its own bed at tick {row["t"]}'
                 asleep.setdefault(row['t'], {})[row['u']] = state
     streak, previous = 0, None
     for tick, sleepers in sorted(asleep.items()):
@@ -9381,15 +9389,15 @@ def _verify_shop_kin_room(window, trace):
         a, b = sleepers[bold], sleepers[timid]
         dx, dz = abs(a['p'][0] - b['p'][0]), abs(a['p'][2] - b['p'][2])
         if max(dx, dz) < (a['sleepWidth'] + b['sleepWidth']) / 2 or math.hypot(dx, dz) < a['sleepReach'] + b['sleepReach']:
-            return f'Siblings overlap in the shared bed at tick {tick}'
+            return f'Siblings overlap in the adjacent beds at tick {tick}'
         streak = streak + 1 if previous == tick - 1 else 1
         previous = tick
         if streak >= 20:
             return None
-    return 'Expected 20 consecutive ticks asleep together inside the shared bed'
+    return 'Expected 20 consecutive ticks asleep together inside adjacent beds'
 
 
-_smoke('shop_kin_room', 2200, [r'\[shop\][^\n]* action=family_bed result=installed grade=woven ',
+_smoke('shop_kin_room', 2200, [r'\[shop\][^\n]* action=family_bed result=installed grade=adjacent ',
                               r'\[meal\][^\n]* supply guarded [^\n]* kind=water ',
                               r'\[meal\][^\n]* supply guarded [^\n]* kind=bowl ',
                               r'\[needs\][^\n]* drink [^\n]* kind=waterer '])

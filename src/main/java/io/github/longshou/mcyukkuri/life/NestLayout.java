@@ -1,17 +1,17 @@
 package io.github.longshou.mcyukkuri.life;
 
-import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 /** A sleeper's square body and the circle swept by its headwear when turning. */
 public final class NestLayout {
     public record Place(double x, double z, float width, double reach) {
         Place at(double x, double z) { return new Place(x, z, width, reach); }
-        double gap(Place other) {
+        public double gap(Place other) {
             double dx=Math.abs(x-other.x), dz=Math.abs(z-other.z);
             return Math.min(Math.max(dx,dz)-(width+other.width)*.5, Math.hypot(dx,dz)-reach-other.reach);
         }
@@ -19,14 +19,13 @@ public final class NestLayout {
     private NestLayout() {}
 
     /** Whether the empty bed's floor and the residents' turning clearance can accommodate the group. */
-    public static boolean fits(NestResting.Bed bed, List<Place> bodies, double arrival) {
+    public static boolean fits(NestResting.Bed bed, List<Place> bodies, double arrival, BiPredicate<Integer,Place> supported) {
         var places = new LinkedHashMap<UUID, Place>();
-        var floor = bed.floor();
         for (var body : bodies) {
-            var id = new UUID(0, places.size());
+            int index = places.size();
+            var id = new UUID(0, index);
             var place = choose(id, body, bed.levelHalf(), places,
-                    p -> OccupancyMath.classify(p.x(), p.z(), 0, p.width() * .5 + arrival, floor, 0, 0, true)
-                            == OccupancyMath.Result.INSIDE_SUPPORTED, false, bed.centreFirst(), arrival);
+                    p -> supported.test(index, p), false, bed.centreFirst(), arrival);
             if (place == null) return false;
             places.put(id, place);
         }

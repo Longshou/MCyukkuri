@@ -230,7 +230,7 @@ class ElopementScenes(unittest.TestCase):
 
 
 class ShopKinRoom(unittest.TestCase):
-    def test_requires_both_littermates_to_claim_and_sleep_inside_the_shared_bed(self):
+    def test_requires_both_littermates_to_claim_and_sleep_inside_adjacent_beds(self):
         scene = next(s for s in S if s.id == 'shop_kin_room')
         verify = scene.smoke['verify']
         actors = {'kin_bold': CHILD, 'kin_timid': OTHER_CHILD}
@@ -245,26 +245,28 @@ class ShopKinRoom(unittest.TestCase):
                  f'guard={CHILD} approacher={OTHER_CHILD} reason=harsh\n')
         drink = (f'[needs] reimu #2 uuid={OTHER_CHILD} t=4 drink source=waterer kind=waterer '
                  'water=1 -> 0 dryness=55.0 -> 25.0\n')
-        pair = claim + claim.replace(CHILD, OTHER_CHILD)
+        second = claim.replace(CHILD, OTHER_CHILD).replace(f'x={x + 10}', f'x={x + 9}').replace(f'z={z - 2}', f'z={z - 3}')
+        pair = claim + second
         log = litter + pair + guard + drink
         bed = [x + 10, FEET + 2, z - 2]
 
         def sleeping(actor, offset, nest='INSIDE_SUPPORTED'):
-            state = dict(sleeping=True, nest=nest, home=bed, p=[bed[0] + offset, bed[1], bed[2] + offset],
+            home = bed if actor == CHILD else [x + 9, FEET + 2, z - 3]
+            state = dict(sleeping=True, nest=nest, home=home, p=[home[0] + offset, home[1], home[2] + offset],
                          sleepWidth=.64, sleepReach=.55)
             return ['[trace] ' + json.dumps(dict(k='st', u=actor, t=tick, st=state)) for tick in range(21)]
 
-        bold = sleeping(CHILD, -.5)
+        bold = sleeping(CHILD, .5)
         timid = sleeping(OTHER_CHILD, .5)
         self.assertIsNone(verify(log, trace + bold + timid))
-        for wrong_claim in (claim, pair + claim.replace(CHILD, OTHER_PARENT)):
-            self.assertIn('claim the shared bed', verify(litter + wrong_claim + guard + drink, trace + bold + timid))
+        for wrong_claim in (claim, claim + claim.replace(CHILD, OTHER_CHILD), pair + claim.replace(CHILD, OTHER_PARENT)):
+            self.assertIn('claim each adjacent bed', verify(litter + wrong_claim + guard + drink, trace + bold + timid))
         self.assertIn('one parent pair', verify(log.replace('father=f', 'father=g', 1), trace + bold + timid))
         for wrong_order in (guard, drink, drink + guard):
             self.assertIn('wait for the bold one', verify(litter + pair + wrong_order, trace + bold + timid))
-        self.assertIn('asleep together', verify(log, trace + bold + sleeping(OTHER_CHILD, .5, 'OUTSIDE')))
+        self.assertIn('outside its own bed', verify(log, trace + bold + sleeping(OTHER_CHILD, .5, 'OUTSIDE')))
         self.assertIn('asleep together', verify(log, trace + bold + timid[:19]))
-        self.assertIn('overlap', verify(log, trace + bold + sleeping(OTHER_CHILD, -.4)))
+        self.assertIn('overlap', verify(log, trace + bold + sleeping(OTHER_CHILD, .8)))
 
 
 if __name__ == '__main__':

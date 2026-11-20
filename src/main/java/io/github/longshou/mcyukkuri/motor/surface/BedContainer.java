@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -24,13 +25,15 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 public final class BedContainer implements Container {
     private final Vec3 centre;
     private final YukkuriEntity body;
+    private final CollisionGetter collisions;
     private List<BedSpace.Box> space;
     private double reach, brim, top;
     private boolean yieldingBrim;
     private final FloorShape floor;
     private final double floorY,rimY;
 
-    private BedContainer(YukkuriEntity body,Vec3 centre,FloorShape floor,double floorY,double rimY){
+    private BedContainer(YukkuriEntity body,CollisionGetter collisions,Vec3 centre,FloorShape floor,double floorY,double rimY){
+        this.collisions=collisions;
         this.body=body;this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;
     }
 
@@ -45,7 +48,7 @@ public final class BedContainer implements Container {
             var hollow=care.bed();
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
-            return new BedContainer(e,centre,hollow.floor(),floorY,
+            return new BedContainer(e,level,centre,hollow.floor(),floorY,
                     Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())));
         }
         var shelter=ShelterBlock.shelter(level,bed);
@@ -54,7 +57,13 @@ public final class BedContainer implements Container {
         var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE:NestResting.LEAF_BED;
         var centre=shelter.restSpot(bed);
         double floorY=shelter.kind()==ShelterBlock.Kind.BURROW?centre.y:floorAt(e,centre,centre.y);
-        return new BedContainer(e,centre,hollow.floor(),floorY,floorY);
+        return new BedContainer(e,level,centre,hollow.floor(),floorY,floorY);
+    }
+
+    /** Probe a proposed bed against its installed shell and surroundings before changing any world blocks. */
+    public static BedContainer planned(YukkuriEntity body, CollisionGetter blocks, Vec3 centre, NestResting.Bed bed) {
+        var floor = SurfaceApproach.collisionTop(blocks, body, body.getBbWidth(), centre.add(0, .1, 0));
+        return new BedContainer(body, blocks, centre, bed.floor(), floor.y, floor.y);
     }
 
     /** Test floor support, the body and overhead headwear clearance at the proposed feet. Side walls press the brim. */
@@ -69,7 +78,7 @@ public final class BedContainer implements Container {
             double half=((FloorShape.RoundedRect)floor).half()+reach;
             var bounds=new AABB(centre.x-half,floorY-.001,centre.z-half,centre.x+half,floorY+top,centre.z+half);
             space=new ArrayList<>();
-            for(var shape:body.level().getBlockCollisions(body,bounds))for(var b:shape.toAabbs())
+            for(var shape:collisions.getBlockCollisions(body,bounds))for(var b:shape.toAabbs())
                 space.add(new BedSpace.Box(b.minX-centre.x,b.minY-floorY,b.minZ-centre.z,b.maxX-centre.x,b.maxY-floorY,b.maxZ-centre.z));
         }
         var level=body.level();

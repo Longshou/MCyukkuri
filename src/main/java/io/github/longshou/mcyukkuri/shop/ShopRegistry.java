@@ -88,14 +88,22 @@ public final class ShopRegistry extends SavedData {
         public BlockPos counter() { return counter == null ? pos : counter; }
         BlockPos dock() { return dock; }
         BlockPos trash() { return trash; }
+        BlockPos familyAnchor(BlockPos bed) {
+            for (var anchor : familyNests) {
+                if (anchor.equals(bed) || anchor.distSqr(bed) <= 2 && ShopFamilyRoom.cells(anchor, authoredRotation(this)).contains(bed)) return anchor;
+            }
+            return null;
+        }
         public boolean acceptsStock(ServerLevel level, CareBlockEntity nest, YukkuriEntity animal) {
             var tag = Custody.data(animal);
             return acceptsStock(level, nest, animal.getUUID(), NestOccupancy.stage(animal), animal.profile().dangerToYukkuri(),
                     tag.getBoolean("FamilyStock") || tag.contains("Litter"));
         }
         boolean acceptsStock(ServerLevel level, CareBlockEntity nest, UUID animal, int stage, boolean predator, boolean litter) {
-            if (nest.getBlockState().is(ModBlocks.PREDATOR_NEST.get()) != predator
-                    || familyNests.contains(nest.getBlockPos()) != litter) return false;
+            var anchor = familyAnchor(nest.getBlockPos());
+            if (nest.getBlockState().is(ModBlocks.PREDATOR_NEST.get()) != predator || (anchor != null) != litter) return false;
+            if (litter && nest.resident() != null && !nest.owns(animal)
+                    && level.getBlockState(ShopFamilyRoom.cells(anchor, authoredRotation(this)).get(1)).is(ModBlocks.NEST.get())) return false;
             Predicate<UUID> mayShare = resident -> litter && FamilyData.get(level).socialKin(animal, resident);
             if (!nest.fits(animal, stage, mayShare)) return false;
             var room = ShopAccess.petRoom(this, nest.getBlockPos());

@@ -5,19 +5,15 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.GrowthTiming;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
-import io.github.longshou.mcyukkuri.life.NestLayout;
-import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.random.ModRandom;
-import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -117,31 +113,19 @@ public final class ShopRestock {
             var litter = stock.stream().filter(y -> room.contains(y.position()) && ShopTrade.stockOf(y, shop.id)
                     && HumanCommerce.data(y).getBoolean("FamilyStock")).toList();
             if (litter.isEmpty() || newStock && litter.stream().allMatch(y -> HumanCommerce.data(y).contains(ShopTrade.FOR_SALE_SINCE))) continue;
-            if (prepareFamilyBed(level, shop, anchor, litter)) {
-                var home = GlobalPos.of(level.dimension(), anchor);
-                for (var y : litter) if (!home.equals(y.life().home())) y.life().assignHome(home);
+            var beds = ShopFamilyRoom.prepare(level, shop, anchor, litter);
+            if (beds.isEmpty()) continue;
+            var open = new ArrayList<>(beds);
+            for (var y : litter) {
+                var held = open.stream().filter(p -> ((CareBlockEntity)level.getBlockEntity(p)).owns(y.getUUID())).findFirst();
+                if (held.isPresent()) {
+                    if (beds.size() > 1) open.remove(held.get());
+                    continue;
+                }
+                var placed = open.stream().filter(p -> y.life().assignHome(GlobalPos.of(level.dimension(), p))).findFirst();
+                if (beds.size() > 1) placed.ifPresent(open::remove);
             }
         }
-    }
-
-    private static boolean prepareFamilyBed(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, List<YukkuriEntity> litter) {
-        if (!(level.getBlockEntity(anchor) instanceof CareBlockEntity nest)) return false;
-        var bodies = litter.stream().map(y -> new ShopFamilyBed.Member(NestOccupancy.stage(y),
-                new NestLayout.Place(0, 0, y.getBbWidth(), HeadTop.reach(y)))).toList();
-        var choice = ShopFamilyBed.choose(nest.bed(), nest.largeNest(), bodies);
-        if (choice == ShopFamilyBed.TOO_SMALL) {
-            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=litter_does_not_fit shop={} nest={} count={}", shop.id, anchor, bodies.size());
-            return false;
-        }
-        if (choice == ShopFamilyBed.CUSHION || nest.largeNest()) return true;
-        var reclaimed = new ItemStack(nest.getBlockState().getBlock());
-        if (!ModBlocks.LARGE_NEST.get().replaceCushion(level, anchor, ShopRegistry.authoredRotation(shop),
-                () -> ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), reclaimed) != null)) {
-            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=blocked_installation shop={} nest={} count={}", shop.id, anchor, bodies.size());
-            return false;
-        }
-        GameplayLog.world(level, "shop", "action=family_bed result=installed grade=woven shop={} nest={} count={}", shop.id, anchor, bodies.size());
-        return true;
     }
 
     private static void adoptLitter(YukkuriEntity animal, ShopLitter parents) {
@@ -287,7 +271,7 @@ public final class ShopRestock {
                 arrivals.add(animal);
             }
             if (litter != null) {
-                var room = familyRooms.stream().filter(anchor -> prepareFamilyBed(level, shop, anchor, arrivals)).findFirst();
+                var room = familyRooms.stream().filter(anchor -> !ShopFamilyRoom.prepare(level, shop, anchor, arrivals).isEmpty()).findFirst();
                 if (room.isEmpty()) continue;
                 familyRooms.remove(room.get());
             }

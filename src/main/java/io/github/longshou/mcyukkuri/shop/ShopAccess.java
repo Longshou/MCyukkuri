@@ -84,7 +84,7 @@ final class ShopAccess {
         if (shop.familyNests.isEmpty()) return null; // Earlier templates had multiple beds in one pen.
         var rotation = ShopRegistry.authoredRotation(shop);
         for (var area : PET) {
-            if (!area.pen() && !shop.familyNests.contains(nest)) continue;
+            if (!area.pen() && shop.familyAnchor(nest) == null) continue;
             var room = floor(shop, rotation, area);
             if (room.contains(nest.getCenter())) return room;
         }

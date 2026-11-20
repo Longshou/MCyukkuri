@@ -39,6 +39,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -180,6 +181,9 @@ public final class SurfaceApproach {
     }
     public static Vec3 top(LevelReader level, Entity actor, double width, Vec3 near) {
         if(!level.hasChunkAt(BlockPos.containing(near)))return null;
+        return collisionTop(level, actor, width, near);
+    }
+    public static Vec3 collisionTop(CollisionGetter level, Entity actor, double width, Vec3 near) {
         double half=width*.5-.005, top=Double.NEGATIVE_INFINITY;
         var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);
         for (var shape : level.getBlockCollisions(actor, probe)) {

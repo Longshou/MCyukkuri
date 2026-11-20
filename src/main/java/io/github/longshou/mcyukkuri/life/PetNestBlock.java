@@ -121,13 +121,16 @@ public final class PetNestBlock extends CareBlock {
      * diagonal cell. Null when no side can be the entrance.
      */
     private static BlockState fitted(BlockState state, LevelReader level, BlockPos pos, Direction preferred) {
-        for (Direction side : Direction.Plane.HORIZONTAL) state = state.setValue(side(side), blocks(level, pos, side));
+        return fitted(state, level, level, pos, preferred);
+    }
+    public static BlockState fitted(BlockState state, LevelReader level, BlockGetter neighbours, BlockPos pos, Direction preferred) {
+        for (Direction side : Direction.Plane.HORIZONTAL) state = state.setValue(side(side), blocks(neighbours, pos, side));
         int corners = 0;
         for (Direction side : Direction.Plane.HORIZONTAL)
-            if (blocksCorner(level, pos, side, side.getClockWise())) corners |= 1 << side.get2DDataValue();
+            if (blocksCorner(neighbours, pos, side, side.getClockWise())) corners |= 1 << side.get2DDataValue();
         Direction side = preferred;
         for (int k = 0; k < 4; k++, side = side.getClockWise()) {
-            if (state.getValue(side(side)) || !walkable(level, pos, side)) continue;
+            if (state.getValue(side(side)) || !walkable(neighbours, pos, side)) continue;
             var candidate = fitCorners(state.setValue(FACING, side), side, corners);
             if (NestDoorway.supportsAdult(level, pos, candidate)) return candidate;
         }
