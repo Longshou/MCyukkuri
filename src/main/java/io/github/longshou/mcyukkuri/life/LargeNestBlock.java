@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import java.util.function.BooleanSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -154,8 +155,9 @@ public final class LargeNestBlock extends CareBlock {
     }
 
     /** Install a shop's woven bed at its rotated template anchor, where an old cushion may be replaced. */
-    public boolean replaceCushion(ServerLevel level, BlockPos anchor, Rotation rotation) {
-        var state = rotate(defaultBlockState(), rotation);
+    public boolean replaceCushion(ServerLevel level, BlockPos anchor, Rotation rotation, BooleanSupplier recoverCushion) {
+        // In the shop template, the wider doorway reaches past the awning on the yard side.
+        var state = rotate(defaultBlockState().setValue(FACING, Direction.NORTH), rotation);
         var nw = northWest(state, anchor);
         for (int part = 0; part < 4; part++) {
             var cell = at(nw, part);
@@ -164,7 +166,7 @@ public final class LargeNestBlock extends CareBlock {
         }
         if (!level.getEntitiesOfClass(LivingEntity.class, AABB.encapsulatingFullBlocks(nw, nw.offset(1, 0, 1))).isEmpty()) return false;
         var target = fitted(level, nw, state);
-        if (target == null) return false;
+        if (target == null || !recoverCushion.getAsBoolean()) return false;
         for (int cell = 0; cell < 4; cell++) level.setBlock(at(nw, cell), cellState(target, cell), UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
         return true;
     }

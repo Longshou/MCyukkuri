@@ -33,7 +33,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
@@ -136,12 +135,11 @@ public final class ShopRestock {
         }
         if (choice == ShopFamilyBed.CUSHION || nest.largeNest()) return true;
         var reclaimed = new ItemStack(nest.getBlockState().getBlock());
-        if (!ModBlocks.LARGE_NEST.get().replaceCushion(level, anchor, ShopRegistry.authoredRotation(shop))) {
-            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=blocked_footprint_or_entrance shop={} nest={} count={}", shop.id, anchor, bodies.size());
+        if (!ModBlocks.LARGE_NEST.get().replaceCushion(level, anchor, ShopRegistry.authoredRotation(shop),
+                () -> ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), reclaimed) != null)) {
+            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=blocked_installation shop={} nest={} count={}", shop.id, anchor, bodies.size());
             return false;
         }
-        var returns = shop.dock().above();
-        Containers.dropItemStack(level, returns.getX() + .5, returns.getY(), returns.getZ() + .5, reclaimed);
         GameplayLog.world(level, "shop", "action=family_bed result=installed grade=woven shop={} nest={} count={}", shop.id, anchor, bodies.size());
         return true;
     }
