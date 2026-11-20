@@ -103,7 +103,7 @@ public final class AbilityMath {
      *  clears one block; a small or worn body falls short. Never less than the plain climb. */
     public static final double SCRAMBLE_SHARE = .8;
 
-    /** The highest ledge (blocks) a body can strain over from the foot or from the water: pure function of its hop and climb rises. */
+    /** The highest bank edge (blocks) a body can strain over out of the water: pure function of its hop and climb rises. */
     public static double scrambleRise(double hopHeight, double climbRise) {
         return Math.max(climbRise, SCRAMBLE_SHARE * (hopHeight + climbRise));
     }

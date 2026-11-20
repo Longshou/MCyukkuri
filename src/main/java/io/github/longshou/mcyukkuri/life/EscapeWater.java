@@ -44,7 +44,8 @@ import net.minecraft.world.phys.Vec3;
  * Out of the water by one's own means, the ways in order: its own hat floating upright in reach (stride into it with a braid
  * stroke when it lies within a beckoning reach, swim to the brim otherwise, climb in); its own hat lying capsized (the same closing, right it, let it settle, climb in); its own hat still worn, for a
  * species that uses its hat as a boat (set it down on the open water beside it, climb in); the nearest bank edge it can climb
- * (rise within its climb rise, an open landing, open water in front), approached head-on (swim out in front of the edge, then
+ * (rise within its climb rise, or a higher edge within its strained scramble rise for a body with the energy to spare; an open
+ * landing, open water in front), approached head-on (swim out in front of the edge, then
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
  * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
@@ -291,7 +292,7 @@ public final class EscapeWater implements Intent {
         return Feasibility.of(Reason.NO_ROOM, 0, "no_open_water_beside");
     }
 
-    /** The nearest edge the body can climb now: within its climb rise, landing clear, not avoided, reached through the water. */
+    /** The nearest edge the body can climb now: within its climb or strained scramble rise, landing clear, not avoided, reached through the water. */
     private Edge climbable() {
         var ability = BodyAbility.of(body);
         // An edge within the plain climb first; failing that, a higher one it can strain over (a hop and a hook of the braid, which
