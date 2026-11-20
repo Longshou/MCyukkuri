@@ -144,7 +144,8 @@ public final class YukkuriLife {
     /** Only rejected food destinations in reach of the present approach origin. */
     private final Map<BlockPos, Vec3> refusedServings = new HashMap<>();
     private Vec3 refusedServingFrom;
-    private BlockPos refusedBed;
+    private record RefusedBedRoute(BlockPos from, BlockPos bed) {}
+    private RefusedBedRoute refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private boolean useBowlNicely;
     private boolean warnedAtDish;
@@ -329,14 +330,16 @@ public final class YukkuriLife {
     }
     void deferHomeMaintenance() { homeWait = 200; }
     public void seekHomeNow() { homeWait = 0; }
-    public boolean mayReturnToBed(BlockPos bed) { return !bed.equals(refusedBed); }
+    public boolean mayReturnToBed(BlockPos bed) {
+        return refusedBed == null || !bed.equals(refusedBed.bed()) || !entity.blockPosition().equals(refusedBed.from());
+    }
 
     public boolean walkToBed(BlockPos bed, Vec3 position, double speed) {
         SurfaceApproach.walk(entity, position, speed);
         if (entity.childhood().shouldStayWithParents()
                 && SurfaceApproach.lastResult(entity, position) == SurfaceApproach.Result.BLOCKED
                 && SurfaceApproach.why(entity, position).startsWith("no_complete_surface_route")) {
-            refusedBed = bed;
+            refusedBed = new RefusedBedRoute(entity.blockPosition(), bed);
             return false;
         }
         return true;

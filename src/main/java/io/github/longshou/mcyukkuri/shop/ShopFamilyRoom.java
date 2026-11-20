@@ -93,7 +93,9 @@ final class ShopFamilyRoom extends PathNavigationRegion {
             for (var pos : beds) planned.put(pos, ModBlocks.NEST.get().defaultBlockState());
             for (var pos : beds) {
                 var old = server.getBlockState(pos);
-                var facing = old.is(ModBlocks.NEST.get()) ? old.getValue(PetNestBlock.FACING) : rotation.rotate(Direction.EAST);
+                // The two outside aisles lead to the food and water dishes. Keep the space between cushions clear.
+                var facing = rotation.rotate(pos.equals(cells.get(1)) ? Direction.EAST : Direction.WEST);
+                if (layout == ShopFamilyBed.CUSHION && old.is(ModBlocks.NEST.get())) facing = old.getValue(PetNestBlock.FACING);
                 var fitted = PetNestBlock.fitted(getBlockState(pos), server, this, pos, facing);
                 if (fitted == null) return List.of();
                 planned.put(pos, fitted);
