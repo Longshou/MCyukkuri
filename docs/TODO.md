@@ -12,6 +12,7 @@
 | PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
+| 补齐反应缺的台词并配音（求饶、拒绝、工具讨好等） | `.worktrees/wp-gap-lines` | dialogue sources, language files, speech selection, aquestalk audio |
 
 ## 玩法待办
 
