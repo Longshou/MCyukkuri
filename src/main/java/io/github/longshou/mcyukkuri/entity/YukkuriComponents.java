@@ -251,6 +251,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 50, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 20, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 50, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 20, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(WOUND_COMFORT, YukkuriEntity::woundComfort)
                 .tick(220, WoundComfort::clock)
@@ -301,6 +302,11 @@ public final class YukkuriComponents {
                 .tick(340, IndependenceLife::clock)
                 .save(300, (c, tag) -> tag.put("YukkuriIndependence", c.save()))
                 .load(290, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriIndependence")))
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 65, (c, ctx) -> c.interruptContact())
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 80, (c, ctx) -> c.interruptContact())
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 50, (c, ctx) -> c.interruptContact())
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 70, (c, ctx) -> c.interruptContact())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 45, (c, ctx) -> c.interruptContact())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 50, (c, ctx) -> c.abandon()).build(),
         ComponentSpec.ready(BODY, YukkuriEntity::body)
                 .tick(360, BodyLife::tick)

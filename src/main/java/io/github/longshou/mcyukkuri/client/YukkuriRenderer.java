@@ -263,7 +263,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             boolean adultPose = AgitationPresentation.selected(entity);
             boolean braidTransfer = braidClip != null || action.equals(ParentCarry.BRIM_LIFT) || action.equals(ParentCarry.BRIM_LOWER);
             // Brim hops and steps are carried draws too. A slide still owns contact even with a live clip.
-            var mode = PoseBridge.mode(preview, carried || hatCarrier || braidTransfer || !contact.equals("NONE") || adultPose,
+            var mode = PoseBridge.mode(preview, carried || hatCarrier || braidTransfer || !contact.equals("NONE") || adultPose || entity.pairedContact(),
                     entity.hurtTicks(), entity.deathTicks(), entity.waterDistressPhase(), entity.getBehaviorId());
             if (mode != PoseBridge.Mode.OFF) PoseNeighbors.collect(source, partialTick, start, pose.last().pose());
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,

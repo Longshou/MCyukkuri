@@ -621,7 +621,9 @@ public final class TraceRecorder {
         out.addProperty("behavior", entity.getBehaviorId());
         if (mode == Mode.DENSE) {
             out.addProperty("animation", entity.getAnimationId());
+            out.addProperty("animationStart", entity.getAnimationStartTick());
             out.addProperty("face", entity.getExpressionId());
+            if (entity.pairedContact()) out.addProperty("pairPeer", entity.nuzzlePartnerId());
         }
         if (mode == Mode.DENSE && entity.getBehaviorId().startsWith("window_")) {
             String moment = entity.getMomentId();

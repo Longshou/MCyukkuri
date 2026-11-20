@@ -28,6 +28,7 @@ import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.component.LoadContext;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationAccess;
+import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
@@ -86,6 +87,7 @@ import io.github.longshou.mcyukkuri.social.Cannibalism;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.social.GriefLife;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
+import io.github.longshou.mcyukkuri.social.PairContact;
 import io.github.longshou.mcyukkuri.social.SelfOffering;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
 import io.github.longshou.mcyukkuri.social.WoundComfort;
@@ -371,9 +373,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 : new HouseCrawlControl(this);
         Motor.velocity(this, getDeltaMovement().scale(.25), "predator_takeoff");
     }
-    public String getAnimationId() { return sync().getAnimationId(); }
-    public long getAnimationStartTick() { return sync().getAnimationStartTick(); }
-    public String getMomentId() { return sync().getMomentId(); }
+    public String getAnimationId() {
+        var pose = sync().pairedPose();
+        return pose == PairContact.Pose.NONE ? sync().getAnimationId() : pose.clip();
+    }
+    public long getAnimationStartTick() { return pairedContact() ? sync().pairStart() : sync().getAnimationStartTick(); }
+    public String getMomentId() {
+        String id = sync().getMomentId();
+        // A peer publication can replace the clip after this actor's moment was chosen.
+        return id.isEmpty() || Moments.clip(id).equals(getAnimationId()) ? id : "";
+    }
     public void setMoment(String id) { sync().moment(id); }
     public String getExpressionId() { return sync().getExpressionId(); }
     @Override public long leakTraceAt() { return sync().leakTraceAt(); }
@@ -381,11 +390,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public String identityTranslationKey() { return componentData(StatusLife.IDENTITY); }
     @Override public String outlookId() { return componentData(StatusLife.OUTLOOK); }
     @Override public CompoundTag moodReadout() { return componentData(StatusLife.MOOD); }
-    public String getBehaviorId() { return sync().getBehaviorId(); }
-    public long getBehaviorStartTick() { return sync().getBehaviorStartTick(); }
+    public String getBehaviorId() {
+        var pose = sync().pairedPose();
+        return pose == PairContact.Pose.NONE ? sync().getBehaviorId() : pose.behavior();
+    }
+    public long getBehaviorStartTick() { return pairedContact() ? sync().pairStart() : sync().getBehaviorStartTick(); }
     public int nuzzlePartnerId() { return sync().nuzzlePartnerId(); }
     public int peerRubTick() { return sync().peerRubTick(); }
-    public void showPeerRub(String clip, int frame, float spacing) { sync().showPeerRub(clip, frame, spacing); }
+    public boolean pairedContact() { return sync().pairedPose() != PairContact.Pose.NONE; }
+    public void showPairContact(YukkuriEntity peer, PairContact.Pose pose, long start, int frame, float spacing) {
+        sync().showPairContact(peer, pose, start, frame, spacing);
+    }
+    public void clearPairContact() { sync().clearPairContact(); }
     public float peerRubSpacing() { return sync().peerRubSpacing(); }
     public int carePartnerId() { return sync().carePartnerId(); }
     public float careContactProgress() { return sync().careContactProgress(); }

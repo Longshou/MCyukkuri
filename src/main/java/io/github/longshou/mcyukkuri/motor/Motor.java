@@ -9,6 +9,8 @@ import io.github.longshou.mcyukkuri.motor.action.Launch;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
+import io.github.longshou.mcyukkuri.motor.geom.SeparationStep;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -29,6 +31,8 @@ public final class Motor {
     public static final double NUDGE_MAX = 0.25;
     /** Invariant I4: a dismount may not move the body further than this on either side of the vehicle relation (blocks). */
     public static final double DISMOUNT_MAX = 0.25;
+    /** Covers the farewell line and the initial walking strides out of either contact stand. */
+    private static final int CONTACT_RELEASE_TICKS = 60;
 
     /** True only while {@link #dismount} runs: a host's {@code getDismountLocationForPassenger} then returns the passenger's own position, so vanilla cannot move it to the vehicle. */
     public static final ThreadLocal<Boolean> DISMOUNTING = ThreadLocal.withInitial(() -> Boolean.FALSE);
@@ -64,8 +68,30 @@ public final class Motor {
                         GameplayLog.at(to), GameplayLog.at(limited));
             }
         }
+        if (!body.level().isClientSide) limited = body.motor().departureStep(limited);
         if (limited != motion) body.setDeltaMovement(limited);
         return limited;
+    }
+
+    public static void separateAfterContact(YukkuriEntity first, YukkuriEntity second) {
+        long until = first.level().getGameTime() + CONTACT_RELEASE_TICKS;
+        first.motor().separatingFrom(second, until);
+        second.motor().separatingFrom(first, until);
+    }
+
+    static Vec3 departureStep(YukkuriEntity body, YukkuriEntity partner, Vec3 motion) {
+        var own = body.getBoundingBox();
+        var other = partner.getBoundingBox();
+        if (own.minY + Math.min(0, motion.y) >= other.maxY || own.maxY + Math.max(0, motion.y) <= other.minY)
+            return motion;
+        // The walking pose can extend past the collision box, as when each partner turns after a side press.
+        double clearance = GreetingStance.visualDistance(body, partner);
+        var wanted = new Vec(motion.x, motion.y, motion.z);
+        var step = SeparationStep.away(body.getX() - partner.getX(), body.getZ() - partner.getZ(), clearance, wanted);
+        if (step == wanted) return motion;
+        if (body.onGround() && !SurfaceApproach.canSteerOver(body, body.position().add(step.x(), 0, step.z())))
+            return new Vec3(0, motion.y, 0);
+        return new Vec3(step.x(), motion.y, step.z());
     }
 
     /** Path-node steering uses the same three-dimensional pace as a direct flight command. */

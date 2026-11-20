@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
+import io.github.longshou.mcyukkuri.social.PairContact.Pose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -41,6 +42,9 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> NUZZLE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> PEER_RUB_TICK = YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> PEER_RUB_SPACING = YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> PAIR_PEER = YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> PAIR_POSE = YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Long> PAIR_START = YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> CARE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> CARE_PROGRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> TOILET_VOLUME = YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
@@ -158,7 +162,21 @@ final class YukkuriSync {
     void leakTrace(long at) { owner.getEntityData().set(LEAK_TRACE_AT, at); }
     String getBehaviorId() { return owner.getEntityData().get(BEHAVIOR); }
     long getBehaviorStartTick() { return owner.getEntityData().get(BEHAVIOR_START); }
-    int nuzzlePartnerId() { return owner.getEntityData().get(NUZZLE_PARTNER); }
+    int nuzzlePartnerId() {
+        int peer = owner.getEntityData().get(PAIR_PEER);
+        return peer >= 0 ? peer : owner.getEntityData().get(NUZZLE_PARTNER);
+    }
+    long pairStart() { return owner.getEntityData().get(PAIR_START); }
+    Pose pairedPose() {
+        var data = owner.getEntityData();
+        var pose = Pose.of(data.get(PAIR_POSE));
+        if (pose == Pose.NONE || !owner.isAlive()
+                || !(owner.level().getEntity(data.get(PAIR_PEER)) instanceof YukkuriEntity peer) || !peer.isAlive()) return Pose.NONE;
+        var other = peer.getEntityData();
+        // Tracking packets can arrive separately. Both draws opt in from the same reciprocal publication.
+        return other.get(PAIR_PEER) == owner.getId() && other.get(PAIR_START).longValue() == pairStart()
+                && other.get(PAIR_POSE) == pose.opposite().ordinal() ? pose : Pose.NONE;
+    }
     int peerRubTick() { return owner.getEntityData().get(PEER_RUB_TICK); }
     float peerRubSpacing() { return owner.getEntityData().get(PEER_RUB_SPACING); }
     int carePartnerId() { return owner.getEntityData().get(CARE_PARTNER); }
@@ -347,18 +365,26 @@ final class YukkuriSync {
     void syncKanroken() { owner.getEntityData().set(KANROKEN, owner.myon().hasKanroken()); }
     void syncAgitation() { owner.getEntityData().set(AGITATION, owner.agitation().state()); }
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
-    /** Publish the resolved frame to either partner, including one whose ordinary tick already ran. */
-    void showPeerRub(String clip, int frame, float spacing) {
-        animationId(clip);
-        animationStart(owner.level().getGameTime() - frame);
-        owner.getEntityData().set(NUZZLE_PARTNER, owner.dailyLife().nuzzlePartnerId());
-        owner.getEntityData().set(PEER_RUB_TICK, frame);
-        owner.getEntityData().set(PEER_RUB_SPACING, spacing);
+    /** Releasing the contact layer reveals both bodies' ordinary poses immediately. */
+    void showPairContact(YukkuriEntity peer, Pose pose, long start, int frame, float spacing) {
+        var data = owner.getEntityData();
+        data.set(PAIR_PEER, peer.getId());
+        data.set(PAIR_POSE, pose.ordinal());
+        data.set(PAIR_START, start);
+        if (pose == Pose.RIGHT) {
+            data.set(PEER_RUB_TICK, frame);
+            data.set(PEER_RUB_SPACING, spacing);
+        }
+    }
+    void clearPairContact() {
+        var data = owner.getEntityData();
+        data.set(PAIR_PEER, -1);
+        data.set(PAIR_POSE, Pose.NONE.ordinal());
+        data.set(PEER_RUB_TICK, -1);
     }
     void syncCare() {
         setChanged(TOILET_VOLUME, owner.life().urinating() ? 0f : (float) DetachedItems.wasteAmount(owner));
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
-        if (owner.dailyLife().contactClip() == null) owner.getEntityData().set(PEER_RUB_TICK, -1);
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
         if (owner.childhood().active() && owner.childhood().careTargetId() != null) {
@@ -420,6 +446,7 @@ final class YukkuriSync {
         builder.define(SPEECH_START, 0L); builder.define(SPEECH_END, 0L); builder.define(SPEECH_SEQUENCE, 0);
         builder.define(BEHAVIOR_START, 0L);
         builder.define(NUZZLE_PARTNER, -1); builder.define(PEER_RUB_TICK, -1); builder.define(PEER_RUB_SPACING, 0f);
+        builder.define(PAIR_PEER, -1); builder.define(PAIR_POSE, Pose.NONE.ordinal()); builder.define(PAIR_START, -1L);
         builder.define(CARE_PARTNER, -1); builder.define(CARE_PROGRESS, 0f);
         builder.define(TOILET_VOLUME,0f);
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);

@@ -38,6 +38,8 @@ public final class BodyDriver {
     private static final ThreadLocal<Boolean> DECIDING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private final YukkuriEntity body;
+    private YukkuriEntity leavingPartner;
+    private long separationUntil;
     private Action current;
     private MotorOwner owner;
     private Outcome last, refusal;
@@ -55,6 +57,20 @@ public final class BodyDriver {
 
     public BodyDriver(YukkuriEntity body) {
         this.body = body;
+    }
+
+    void separatingFrom(YukkuriEntity partner, long until) {
+        leavingPartner = partner;
+        separationUntil = until;
+    }
+
+    Vec3 departureStep(Vec3 motion) {
+        if (leavingPartner == null) return motion;
+        if (body.level().getGameTime() >= separationUntil || !leavingPartner.isAlive() || leavingPartner.isPassenger()) {
+            leavingPartner = null;
+            return motion;
+        }
+        return motion.horizontalDistanceSqr() == 0 ? motion : Motor.departureStep(body, leavingPartner, motion);
     }
 
     /** True while {@code YukkuriEntity.aiStep} runs the goal decisions and the travel pass; {@link #run} refuses outside it, so a passive clock or a callback cannot start an action. */

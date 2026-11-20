@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.PairContact;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.*;
 import java.util.function.IntPredicate;
@@ -44,6 +45,7 @@ public final class ShopDate implements IntPredicate {
     private final String flourish;
     private final boolean fondBefore;
     private int phase, pt;
+    private PairContact nuzzle;
     private boolean paid = true, away, held, ok, fond, done;
     private ItemStack kept = ItemStack.EMPTY;
     private Object handLease;
@@ -102,6 +104,7 @@ public final class ShopDate implements IntPredicate {
         teleport(a, home); away = false; KeeperMenu.poof(level, a);
     }
     private void abort(YukkuriEntity a, YukkuriEntity b, HumanNpc k) {
+        releaseNuzzle();
         if (paid) { KeeperMenu.refund(level, buyer, origin); paid = false; }
         hold(k, false);
         if (a != null) { if (away && a.isAlive()) carryHome(a); release(a); }
@@ -110,6 +113,7 @@ public final class ShopDate implements IntPredicate {
 
     /** Museum cancellation releases the scene's locks and hand without replaying its return or refund. */
     public void cancelForReset() {
+        releaseNuzzle();
         var keeper = level.getEntity(keeperId) instanceof HumanNpc npc ? npc : null;
         hold(keeper, false);
         var pet = animal(petId); if (pet != null) release(pet);
@@ -149,10 +153,11 @@ public final class ShopDate implements IntPredicate {
                 }
             }
             case 3 -> { // nuzzle
-                if (pt == 1) { a.playAction("nuzzle"); b.playAction("nuzzle"); }
+                if (pt == 1) nuzzle = new PairContact(a, b, PairContact.Pose.DATE, 36);
+                if (nuzzle.finished()) { releaseNuzzle(); decide(a, b, k); next(); break; }
+                nuzzle.publish(0);
                 if (fondBefore && pt % 12 == 6) { var mid = a.position().add(b.position()).scale(.5); level.sendParticles(ParticleTypes.HEART, mid.x, mid.y + .7, mid.z, 2, .25, .15, .25, 0); }
                 if (pt % 10 == 0) face(a, b);
-                if (pt >= 36) { decide(a, b, k); next(); }
             }
             case 4 -> { if (pt >= 32) { a.playAction("idle"); b.playAction("idle"); next(); } } // let the result sink in
             default -> { // carried home
@@ -162,6 +167,12 @@ public final class ShopDate implements IntPredicate {
             }
         }
         return done;
+    }
+
+    private void releaseNuzzle() {
+        if (nuzzle == null) return;
+        nuzzle.release();
+        nuzzle = null;
     }
 
     /** The result: relationship, the conception check, the fee and the animals' reactions. */

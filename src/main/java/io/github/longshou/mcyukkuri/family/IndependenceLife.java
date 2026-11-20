@@ -14,6 +14,8 @@ import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.PairContact;
+import io.github.longshou.mcyukkuri.social.PairContact.Pose;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -68,6 +70,7 @@ public final class IndependenceLife extends Goal {
     // The exchange as decided at its first word, the walk away and its looks back. Transient.
     private boolean touching, teary;
     private int closeTicks, lookBacks, lookBackTicks, departTicks;
+    private PairContact pair;
     private Vec3 away;
     // The parent's side: the child it is seeing off and until when the request stands.
     private UUID seeing;
@@ -91,12 +94,11 @@ public final class IndependenceLife extends Goal {
         return switch (task) {
             case FAREWELL -> !said || contact >= ANSWER && contact < CLOSE ? Behaviors.INDEPENDENCE_SEE_OFF
                     : contact < ANSWER ? Behaviors.INDEPENDENCE_FAREWELL
-                    : contact < closeEnd() ? nuzzling() ? Behaviors.INDEPENDENCE_NUZZLE : Behaviors.INDEPENDENCE_BOW
+                    : contact < closeEnd() ? nuzzling() ? Behaviors.INDEPENDENCE_SEE_OFF : Behaviors.INDEPENDENCE_BOW
                     : Behaviors.INDEPENDENCE_FAREWELL;
             case DEPART -> lookBackTicks > 0 ? Behaviors.INDEPENDENCE_LOOK_BACK : Behaviors.INDEPENDENCE_SEE_OFF;
             case SEE_OFF -> sobbing ? Behaviors.INDEPENDENCE_SOB : seenBeat() >= ANSWER && seenBeat() < CLOSE
                     ? entity.life().personality().temperament().is(Gate.ATTACHED) ? Behaviors.INDEPENDENCE_SOB : Behaviors.INDEPENDENCE_ANSWER
-                    : seenBeat() >= CLOSE && seenBeat() < seenCloseEnd() && seenNuzzle() ? Behaviors.INDEPENDENCE_NUZZLE
                     : Behaviors.INDEPENDENCE_SEE_OFF;
             case NONE -> Behaviors.IDLE;
         };
@@ -108,8 +110,6 @@ public final class IndependenceLife extends Goal {
     private int beat() { return task == Task.FAREWELL ? said ? contact : -1 : task == Task.DEPART ? Integer.MAX_VALUE : -2; }
     private YukkuriEntity seen() { return seeing != null && level().getEntity(seeing) instanceof YukkuriEntity child ? child : null; }
     private int seenBeat() { var child = seen(); return child == null ? -2 : child.independence().beat(); }
-    private int seenCloseEnd() { var child = seen(); return child == null ? 0 : child.independence().closeEnd(); }
-    private boolean seenNuzzle() { var child = seen(); return child != null && child.independence().nuzzling(); }
     /** The old household chores no longer yield to a building project. */
     public boolean householdOuting() { return false; }
     /** True for the home this individual left: it does not move back into it. */
@@ -246,7 +246,7 @@ public final class IndependenceLife extends Goal {
     @Override public boolean canContinueToUse() {
         if (!active() || !steady()) return false;
         return switch (task) {
-            case FAREWELL -> !independent && elapsed < FAREWELL_LIMIT + closeEnd() + GO_LINE + 20;
+            case FAREWELL -> !independent;
             case DEPART -> departTicks < DEPART_LIMIT;
             case SEE_OFF -> seeOffValid();
             case NONE -> false;
@@ -298,8 +298,18 @@ public final class IndependenceLife extends Goal {
                 }
             }
         }
-        // Just before and during the nuzzle it closes the last gap to touch; otherwise it stands where it is.
         double touch = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .25;
+        if (pair != null) {
+            if (!pair.finished() && canNuzzle(parent, touch)) {
+                SurfaceApproach.halt(entity);
+                entity.getLookControl().setLookAt(parent, 25, 25);
+                pair.publish(0);
+                return;
+            }
+            releaseNuzzle();
+        }
+        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
+        // Close the last gap while the parent answers. The waiting window ends even if the parent stays busy.
         if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch) {
             if (target == null) target = standNear(parent, touch - .10, at -> Math.abs(at.y - parent.getY()) <= .35);
             if (target != null) approach(parent);
@@ -312,11 +322,45 @@ public final class IndependenceLife extends Goal {
             // A parent busy elsewhere still hears it: the old glad answer from where it is.
             if (!parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
         }
-        if (contact == CLOSE && nuzzling()) entity.showReaction(teary ? "teary_smile" : "closed_smile", "", closeTicks);
-        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
+        if (contact >= CLOSE && contact <= closeEnd() && nuzzling()) {
+            if (canNuzzle(parent, touch)) {
+                pair = new PairContact(entity, parent, Pose.FAREWELL, closeTicks);
+                pair.publish(0);
+                entity.showReaction(teary ? "teary_smile" : "closed_smile", "", closeTicks);
+                GameplayLog.event(entity, "independence", "farewell rub started parent={} ticks={} distance={}",
+                        parent.getUUID(), closeTicks, entity.distanceTo(parent));
+            } else if (contact == closeEnd()) {
+                GameplayLog.event(entity, "independence", "farewell rub unavailable parent={} seeingOff={} distance={}",
+                        parent.getUUID(), parent.independence().seeingOff(entity), entity.distanceTo(parent));
+                contact = CLOSE;
+                closeTicks = BOW_TICKS;
+            }
+        }
         if (contact >= closeEnd() + GO_LINE) {
             leave();
             beginDeparture(parent);
+        }
+    }
+
+    private boolean canNuzzle(YukkuriEntity parent, double touch) {
+        return parent.independence().seeingOff(entity) && parent.independence().parentFree()
+                && entity.onGround() && parent.onGround() && entity.distanceToSqr(parent) <= touch * touch
+                && entity.hasLineOfSight(parent);
+    }
+
+    private void releaseNuzzle() {
+        GameplayLog.event(entity, "independence", "farewell rub released parent={} ticks={} planned={}", visitor, pair.ticks(), closeTicks);
+        pair.release();
+        pair = null;
+        contact = closeEnd();
+    }
+
+    /** Either participant can release a rub if its body is taken over. */
+    public void interruptContact() {
+        if (pair != null) releaseNuzzle();
+        if (task == Task.SEE_OFF) {
+            var child = seen();
+            if (child != null && child.independence().pair != null) child.independence().releaseNuzzle();
         }
     }
 
@@ -519,6 +563,7 @@ public final class IndependenceLife extends Goal {
     @Override public void stop() {
         // The selector also stops a farewell that already ended itself during tick().
         if (task == Task.NONE) return;
+        interruptContact();
         if (task == Task.SEE_OFF) seeOffEnded();
         // A farewell that was already heard by the parent is not taken back by an interruption: the leaving goes ahead.
         if (task == Task.FAREWELL && said && contact >= ANSWER && !independent) leave();
@@ -547,6 +592,7 @@ public final class IndependenceLife extends Goal {
         return tag;
     }
     public void load(CompoundTag tag) {
+        interruptContact();
         origin = FamilyData.position(tag, "Origin");
         // Saves of the old construction project that had finished a new home count as left; unfinished projects are dropped.
         independent = tag.getBoolean("Independent") || tag.contains("EstablishedHome");
