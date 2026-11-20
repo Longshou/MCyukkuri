@@ -86,9 +86,9 @@ final class YukkuriDamage {
                         transaction.hit.healthBefore(),owner.getHealth(),result.loss());
             if(result.loss()>0&&!YukkuriLife.isWaterDamage(source)&&!source.is(DamageTypes.IN_WALL))
                 GameplayLog.limited(owner,"body","accepted_damage."+source.type().msgId(),200,
-                        "accepted damage cause={} health={} -> {} loss={}{}",
-                        source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss(),
-                        source.is(DamageTypes.STARVE)&&owner.body().stemDepleting()?" stem_depletion=true":"");
+                        "accepted damage cause={} health={} -> {} loss={}{}", () -> new Object[]{
+                            source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss(),
+                            source.is(DamageTypes.STARVE)&&owner.body().stemDepleting()?" stem_depletion=true":""});
             if(notify&&owner.isAlive()) {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
                 owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);

@@ -133,7 +133,7 @@ public final class Skills {
         var random = entity.getRandom();
         var result = SkillMath.attempt(grade, will, random.nextDouble(), random.nextDouble());
         GameplayLog.limited(entity, "skill", ability.key() + ".attempt", 100,
-                "attempt ability={} grade={} can={} will={} result={}", ability, grade, SkillMath.can(grade), will, result);
+                "attempt ability={} grade={} can={} will={} result={}", () -> new Object[]{ability, grade, SkillMath.can(grade), will, result});
         return result;
     }
 

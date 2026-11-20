@@ -276,7 +276,7 @@ public final class FlightPlanner {
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         route = navigation.getPath();
-        GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={}",
-                BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body)));
+        GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={}", () -> new Object[]{
+                    BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body))});
     }
 }

@@ -196,9 +196,9 @@ public final class CarrierItem extends Item {
     private static void refuse(ServerLevel level, Player player, YukkuriEntity entity, SocialDisposition.Contact contact,
                                float weakness, double resistance) {
         var custody = Custody.view(entity);
-        GameplayLog.limited(entity, "carrier", "unwilling", 40, "action=capture result=refused target={} player={} reason=unwilling weakness={} resistance={} trust={} fear={} spray_delay={} panic={} fire={} hurt_ticks={} predator_active={} owner={} role={}",
-                entity.getUUID(), player.getUUID(), weakness, resistance, contact.closeness(), contact.fear(), entity.life().sprayDelay(),
-                entity.isPanicking(), entity.isOnFire(), entity.hurtTime, entity.predator().active(), custody.owner(), custody.role());
+        GameplayLog.limited(entity, "carrier", "unwilling", 40, "action=capture result=refused target={} player={} reason=unwilling weakness={} resistance={} trust={} fear={} spray_delay={} panic={} fire={} hurt_ticks={} predator_active={} owner={} role={}", () -> new Object[]{
+                    entity.getUUID(), player.getUUID(), weakness, resistance, contact.closeness(), contact.fear(), entity.life().sprayDelay(),
+                    entity.isPanicking(), entity.isOnFire(), entity.hurtTime, entity.predator().active(), custody.owner(), custody.role()});
         var session = scene(level, entity.getUUID());
         if (session == null) {
             player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);

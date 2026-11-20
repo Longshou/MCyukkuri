@@ -161,9 +161,9 @@ public final class SelfOffering extends Goal {
             if (!willingState(target, t)) {
                 hungerScans = 0; lastReason = "own_state_or_willingness";
                 GameplayLog.limited(entity,"offering",lastReason,400,
-                        "offering refused recipient={} nutrition={} friendliness={} boldness={} affinity={} caring={} timid={}",target.getUUID(),
+                        "offering refused recipient={} nutrition={} friendliness={} boldness={} affinity={} caring={} timid={}", () -> new Object[]{target.getUUID(),
                         entity.life().nutrition(),t.friendliness(),t.boldness(),YukkuriWorldData.get(level()).affinity(entity.getUUID(),target.getUUID()),
-                        String.format(Locale.ROOT, "%.2f", t.caring()), String.format(Locale.ROOT, "%.2f", t.timid()));
+                        String.format(Locale.ROOT, "%.2f", t.caring()), String.format(Locale.ROOT, "%.2f", t.timid())});
                 return false;
             }
             if (++hungerScans < DESPERATE_SCANS) { lastReason = "desperate_scan_" + hungerScans; return false; }

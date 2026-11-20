@@ -44,7 +44,9 @@ public final class GraveBlockEntity extends BlockEntity {
                 species,Component.translatable(stage.isEmpty()?"grave.mcyukkuri.stage_unknown":"stage.mcyukkuri."+stage),
                 Component.translatable("remains.mcyukkuri.category."+category),remains.contains(BURIED_DAY)?remains.getLong(BURIED_DAY)+1:"?"),false);
         String identity=remains.hasUUID("Identity")?remains.getUUID("Identity").toString():"none";
-        GameplayLog.limited(player,"remains","grave_read:"+identity,100,"grave read grave={} identity={} variant={} stage={} category={} buried_day={} named={}",
+        int suppressed = GameplayLog.admit(player, "remains", "grave_read:"+identity, 100);
+        if (suppressed >= 0) GameplayLog.limitedEvent(player, "remains", suppressed,
+                "grave read grave={} identity={} variant={} stage={} category={} buried_day={} named={}",
                 worldPosition.toShortString(),identity,remains.getString("Variant"),stage.isEmpty()?"none":stage,category,
                 remains.contains(BURIED_DAY)?remains.getLong(BURIED_DAY):"none",name!=null);
     }

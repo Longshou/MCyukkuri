@@ -212,8 +212,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         }
         if (!animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID())
                 || animal.pet().busy() || animal.operations().active() || animal.isCommandPlaying() && reactWait == 0) {
-            GameplayLog.limited(animal,"predator","order_busy",20,"order refused; player={} order={} near={} owner={} pet_busy={} operation={} command_playing={}",
-                    player.getUUID(),requested,animal.pet().near(player),HumanCommerce.ownedBy(animal,player.getUUID()),animal.pet().busy(),animal.operations().active(),animal.isCommandPlaying());
+            GameplayLog.limited(animal,"predator","order_busy",20,"order refused; player={} order={} near={} owner={} pet_busy={} operation={} command_playing={}", () -> new Object[]{
+                        player.getUUID(),requested,animal.pet().near(player),HumanCommerce.ownedBy(animal,player.getUUID()),animal.pet().busy(),animal.operations().active(),animal.isCommandPlaying()});
             return false;
         } // its own bow/ignore reaction does not block the next order
         if (requested == Order.RETURN && animal.life().homeStand() == null) {
@@ -309,8 +309,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (!retaliationReady() || !visibleHuntable(attacker, true)
                 || !canFlyTo(attacker.blockPosition()) || !safeHuntDestination(attacker)) {
             GameplayLog.limited(animal,"predator","retaliation_refused",200,
-                    "retaliation refused; attacker={} health={}/{} energy={} order={} ready={}",
-                    attacker==null?"none":attacker.getUUID(),animal.getHealth(),animal.getMaxHealth(),animal.life().energy(),order(),retaliationReady());
+                    "retaliation refused; attacker={} health={}/{} energy={} order={} ready={}", () -> new Object[]{
+                        attacker==null?"none":attacker.getUUID(),animal.getHealth(),animal.getMaxHealth(),animal.life().energy(),order(),retaliationReady()});
             return false;
         }
         interruptFounding();
@@ -352,8 +352,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (!target.isInWaterOrBubble()) return true;
         if (biteApproach(target) == null) {
             GameplayLog.limited(animal, "predator", "water_prey_no_contact", 200,
-                    "water prey refused target={} reason=mouth_below_clearance preyFeet={} preyHeight={} mouthReach={}",
-                    target.getUUID(), target.position(), target.getBbHeight(), mouthReach());
+                    "water prey refused target={} reason=mouth_below_clearance preyFeet={} preyHeight={} mouthReach={}", () -> new Object[]{
+                        target.getUUID(), target.position(), target.getBbHeight(), mouthReach()});
             return false;
         }
         Landing escape = findDryLanding(target.blockPosition(), 24, null);
@@ -399,8 +399,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         // A den whose mouth is screened with twigs shelters everyone inside it, residents or not (settlement/DenSeal).
         var screened = DenBarrier.shielding(target);
         if (screened != null) {
-            GameplayLog.limited(animal, "predator", "barrier_reject", 200, "target rejected reason=barrier target={} den={} mouth={}",
-                    target.getUUID(), screened.getBlockPos().toShortString(), screened.entrance().toShortString());
+            GameplayLog.limited(animal, "predator", "barrier_reject", 200, "target rejected reason=barrier target={} den={} mouth={}", () -> new Object[]{
+                        target.getUUID(), screened.getBlockPos().toShortString(), screened.entrance().toShortString()});
             return false;
         }
         return true;
@@ -1925,8 +1925,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private void withdraw(String reason, YukkuriEntity target, Vec3 goal) {
         contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW);
         GameplayLog.limited(animal, "predator", "stoop." + reason, 100,
-                "stoop ended reason={} prey={} feet={} mouth={} contactGoal={} water={} energy={}", reason, target.getUUID(),
-                animal.position(), MouthPlacement.position(animal), goal, animal.isInWaterOrBubble(), animal.life().energy());
+                "stoop ended reason={} prey={} feet={} mouth={} contactGoal={} water={} energy={}", () -> new Object[]{reason, target.getUUID(),
+                animal.position(), MouthPlacement.position(animal), goal, animal.isInWaterOrBubble(), animal.life().energy()});
     }
     /** Chase and attack as repeated runs: climb above the target, stoop, bite once, pull away, circle back. */
     private void swoop() {

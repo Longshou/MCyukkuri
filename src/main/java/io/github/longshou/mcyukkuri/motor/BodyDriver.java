@@ -250,8 +250,11 @@ public final class BodyDriver {
     /** The HURT bridge: water damage (drowning, soaking) only takes health and stops nothing; a real hit interrupts. */
     public void hurt(DamageSource source) {
         if (source != null && YukkuriLife.isWaterDamage(source)) {
-            if (current != null) GameplayLog.limited(body, "action", "kept_through_water", REFUSED_WINDOW,
-                    "kept id={} owner={} through damage={}", current.id(), owner.ownerId(), source.getMsgId());
+            if (current != null) {
+                int suppressed = GameplayLog.admit(body, "action", "kept_through_water", REFUSED_WINDOW);
+                if (suppressed >= 0) GameplayLog.limitedEvent(body, "action", suppressed,
+                        "kept id={} owner={} through damage={}", current.id(), owner.ownerId(), source.getMsgId());
+            }
             return;
         }
         interrupt("hurt");
@@ -334,7 +337,8 @@ public final class BodyDriver {
 
     private void refused(MotorOwner requester, Action action, String reason) {
         startRefusal = new StartRefusal(requester, action, reason, owner == null ? "none" : owner.ownerId());
-        GameplayLog.limited(body, "action", "refused:" + reason, REFUSED_WINDOW,
+        int suppressed = GameplayLog.admit(body, "action", "refused:" + reason, REFUSED_WINDOW);
+        if (suppressed >= 0) GameplayLog.limitedEvent(body, "action", suppressed,
                 "refused id={} owner={} current={} reason={} detail={}",
                 action.id(), owner == null ? "none" : owner.ownerId(),
                 current == null ? "idle" : current.id(), reason, refusal == null ? "" : detailOf(refusal));

@@ -164,7 +164,7 @@ public final class Paddle implements Action {
             turning = false;
             startTick = body.level().getGameTime() - t;
             GameplayLog.limited(body, "action", "paddle.facing_ready", 200,
-                    "paddle facing ready bow_off={} turn_ticks={} stroke_tick={} pose={}", bowOff(body), turnTicks, t, drifting ? "drift" : "stroke");
+                    "paddle facing ready bow_off={} turn_ticks={} stroke_tick={} pose={}", () -> new Object[]{bowOff(body), turnTicks, t, drifting ? "drift" : "stroke"});
             turnTicks = 0;
             drifting = false;
         }

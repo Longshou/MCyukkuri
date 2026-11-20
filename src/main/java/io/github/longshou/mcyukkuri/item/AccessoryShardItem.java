@@ -31,7 +31,7 @@ public final class AccessoryShardItem extends Item {
         if (player.level().isClientSide) return InteractionResult.SUCCESS;
         if (!entity.headwear().takeShard(stack, player)) {
             GameplayLog.limited(entity,"headwear","shard_receive_refused",20,
-                    "shard receive refused reason={} player={}",entity.headwear().transferredShardRefusalReason(stack),player.getUUID());
+                    "shard receive refused reason={} player={}", () -> new Object[]{entity.headwear().transferredShardRefusalReason(stack),player.getUUID()});
             InteractionDispatch.refuse(player,entity,"repair_accessory","accessory_fit");
             return InteractionResult.FAIL;
         }

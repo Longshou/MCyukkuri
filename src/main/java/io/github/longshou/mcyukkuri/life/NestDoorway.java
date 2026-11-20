@@ -252,8 +252,8 @@ public final class NestDoorway {
         var shape = shape(bed);
         double room = shape.opening() - passFoot(actor) - SurfaceApproach.ARRIVAL;
         if (room < 0) {
-            GameplayLog.limited(actor, "home", "doorway.narrow", 400, "nest doorway too narrow nest={} opening={} foot={} width={}",
-                    bed.getBlockPos(), shape.opening(), passFoot(actor), actor.getBbWidth());
+            GameplayLog.limited(actor, "home", "doorway.narrow", 400, "nest doorway too narrow nest={} opening={} foot={} width={}", () -> new Object[]{
+                        bed.getBlockPos(), shape.opening(), passFoot(actor), actor.getBbWidth()});
             return null;
         }
         var origin = bed.centre();

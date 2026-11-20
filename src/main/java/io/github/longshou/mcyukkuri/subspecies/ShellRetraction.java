@@ -48,7 +48,7 @@ public final class ShellRetraction {
         if (entity.level().isClientSide) return;
         if (!available()) {
             if(active())GameplayLog.limited(entity,"shell","interrupted",1200,
-                    "retraction interrupted frame={} water={} fire={} passenger={}",frame,entity.isInWaterOrBubble(),entity.isOnFire(),entity.isPassenger());
+                    "retraction interrupted frame={} water={} fire={} passenger={}", () -> new Object[]{frame,entity.isInWaterOrBubble(),entity.isOnFire(),entity.isPassenger()});
             reset(); return;
         }
         boolean wasActive=active();

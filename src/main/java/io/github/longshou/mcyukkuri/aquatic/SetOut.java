@@ -220,8 +220,8 @@ final class SetOut implements Intent, FamilyRendezvous {
     private static List<Supplier<Step>> place(YukkuriEntity owner) {
         var edge = Waters.berth(owner);
         if (edge == null) {
-            GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_reach at={}",
-                    GameplayLog.at(owner.position()));
+            GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_reach at={}", () -> new Object[]{
+                        GameplayLog.at(owner.position())});
             return List.of(() -> new Step.Wait(() -> Waters.berth(owner) != null, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL));
         }
         GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
@@ -241,7 +241,9 @@ final class SetOut implements Intent, FamilyRendezvous {
      *  set out from it. */
     private List<Supplier<Step>> toShore(Waters.Edge shore) {
         var stand = shore.stand(owner.getBbWidth());
-        GameplayLog.limited(owner, "aquatic", "set_out.far_shore", 200, "set_out far shore stand={} water={} distance={} young={}",
+        int suppressed = GameplayLog.admit(owner, "aquatic", "set_out.far_shore", 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(owner, "aquatic", suppressed,
+                "set_out far shore stand={} water={} distance={} young={}",
                 GameplayLog.at(stand), shore.water().toShortString(), Math.round(Math.sqrt(owner.distanceToSqr(stand))), strays(owner).size());
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stride(stand))),
                 () -> {

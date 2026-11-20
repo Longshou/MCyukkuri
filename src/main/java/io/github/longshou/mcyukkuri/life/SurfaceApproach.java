@@ -1034,7 +1034,8 @@ public final class SurfaceApproach {
         var route=plan(actor,destination,body,!current.routed);
         if(route!=null&&route.path()!=null&&(retreat?startRetreat(actor,route.path(),speed):navigation.moveTo(route.path(),speed))){
             current.target=navigation.getTargetPos();
-            GameplayLog.limited(actor,"approach","route",200,
+            int suppressed = GameplayLog.admit(actor, "approach", "route", 200);
+            if (suppressed >= 0) GameplayLog.limitedEvent(actor, "approach", suppressed,
                     "surface route started peer={} destination={} nodes={} length={}",peer,destination,route.path().getNodeCount(),route.length());
             return observed(actor,Result.MOVING);
         }

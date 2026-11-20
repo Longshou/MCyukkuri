@@ -1509,7 +1509,7 @@ public final class ParentCarry {
             SurfaceApproach.halt(carrier);
             carrier.getLookControl().setLookAt(child, 30, 30);
             GameplayLog.limited(carrier, "family", "carry.landing", 200,
-                    "carry pickup waiting for landing child={} at={}", child.getUUID(), GameplayLog.at(child.position()));
+                    "carry pickup waiting for landing child={} at={}", () -> new Object[]{child.getUUID(), GameplayLog.at(child.position())});
             return Step.WORKING;
         }
         var feasibility = grab.check(carrier);

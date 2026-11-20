@@ -213,10 +213,10 @@ public final class SettlementLife {
 
     void logMarchDelay(SettlementData.Group group) {
         GameplayLog.limited(entity, "settlement", "march.due", 600,
-                "migration member still due group={} destination={} goals={} target={} refusal={} passenger={} nutrition={} energy={}",
-                groupId, group.migrateTo, entity.runningGoalIds(), target,
-                marchRefusal == null ? null : marchRefusal.reason(), entity.isPassenger(),
-                entity.life().nutrition(), entity.life().energy());
+                "migration member still due group={} destination={} goals={} target={} refusal={} passenger={} nutrition={} energy={}", () -> new Object[]{
+                    groupId, group.migrateTo, entity.runningGoalIds(), target,
+                    marchRefusal == null ? null : marchRefusal.reason(), entity.isPassenger(),
+                    entity.life().nutrition(), entity.life().energy()});
     }
     /** Plain tiredness does not stop a marching carrier from holding its child; every other urgent need does. */
     public boolean marchTiredOnly() { return Migration.underway(entity) && tiredOnlyUrgent(); }
@@ -693,9 +693,9 @@ public final class SettlementLife {
 
     public void stop() {
         if (marching && target != null) GameplayLog.limited(entity, "settlement", "march.stop", 1200,
-                "march stopped group={} target={} origin={} elapsed={} distanceSqr={} nutrition={} energy={} panic={} mealTicks={}",
-                groupId, target, origin, elapsed, entity.distanceToSqr(Vec3.atBottomCenterOf(target)),
-                entity.life().nutrition(), entity.life().energy(), entity.isPanicking(), entity.life().mealTicks());
+                "march stopped group={} target={} origin={} elapsed={} distanceSqr={} nutrition={} energy={} panic={} mealTicks={}", () -> new Object[]{
+                    groupId, target, origin, elapsed, entity.distanceToSqr(Vec3.atBottomCenterOf(target)),
+                    entity.life().nutrition(), entity.life().energy(), entity.isPanicking(), entity.life().mealTicks()});
         cancelNavigation();
         boolean wasMarching = marching;
         target = null;

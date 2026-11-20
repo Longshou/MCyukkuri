@@ -142,7 +142,7 @@ public final class CareApproach {
                 float facing=SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0);
                 if(faceOn(host,owner,facing)&&!session.touching()) {
                     if(session.kind==Kind.REAR)GameplayLog.limited(owner,"care","contact_lost."+session.owner.getUUID(),200,
-                            "contact lost parent={} child={} why={}",session.owner.getUUID(),owner.getUUID(),FamilyFeedingContact.rearRefusal(session.owner,owner));
+                            "contact lost parent={} child={} why={}", () -> new Object[]{session.owner.getUUID(),owner.getUUID(),FamilyFeedingContact.rearRefusal(session.owner,owner)});
                     session.fail("contact_not_reached");
                 }
             }
@@ -246,9 +246,9 @@ public final class CareApproach {
         if(!Floor.standing(owner)||!Floor.standing(child))return Result.APPROACHING;
         if(!touching())return Result.APPROACHING;
         GameplayLog.limited(owner,"care","aboard_contact."+kind,200,
-                "aboard contact child={} kind={} parentLocal={} childLocal={} parentYaw={} childYaw={} parentLocalYaw={}",
-                child.getUUID(),kind,host.riders().local(owner.getUUID()),host.riders().local(child.getUUID()),owner.yBodyRot,child.yBodyRot,
-                host.riders().yaw(owner.getUUID()));
+                "aboard contact child={} kind={} parentLocal={} childLocal={} parentYaw={} childYaw={} parentLocalYaw={}", () -> new Object[]{
+                    child.getUUID(),kind,host.riders().local(owner.getUUID()),host.riders().local(child.getUUID()),owner.yBodyRot,child.yBodyRot,
+                    host.riders().yaw(owner.getUUID())});
         return Result.CONTACT;
     }
     private static boolean faceOn(SurfaceHost host,YukkuriEntity body,float yaw) {
@@ -290,10 +290,10 @@ public final class CareApproach {
     }
     private void logBoundary(String boundary,String reason){
         GameplayLog.limited(owner,"care",boundary+"."+reason,200,
-                "approach {} child={} kind={} reason={} retries={} stalled={} bodyContacts={} parentStand={} childStand={} childPosition={} childNutrition={} childEnergy={} parentPosition={} parentYaw={} childYaw={}",
-                boundary,child==null?null:child.getUUID(),kind,reason,retries,stalled,bodyContacts,
-                places==null?null:places.parent(),places==null?null:places.child(),child==null?null:child.position(),
-                child==null?null:child.life().nutrition(),child==null?null:child.life().energy(),owner.position(),owner.getYHeadRot(),child==null?null:child.getYHeadRot());
+                "approach {} child={} kind={} reason={} retries={} stalled={} bodyContacts={} parentStand={} childStand={} childPosition={} childNutrition={} childEnergy={} parentPosition={} parentYaw={} childYaw={}", () -> new Object[]{
+                    boundary,child==null?null:child.getUUID(),kind,reason,retries,stalled,bodyContacts,
+                    places==null?null:places.parent(),places==null?null:places.child(),child==null?null:child.position(),
+                    child==null?null:child.life().nutrition(),child==null?null:child.life().energy(),owner.position(),owner.getYHeadRot(),child==null?null:child.getYHeadRot()});
     }
 
     private Places choosePlaces() {

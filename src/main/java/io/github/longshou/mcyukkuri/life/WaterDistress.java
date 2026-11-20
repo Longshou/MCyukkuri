@@ -69,7 +69,7 @@ public final class WaterDistress {
         if(entity.level().isClientSide)return;
         pendingPlunge=12;
         GameplayLog.limited(entity, "water", "plunge", 200,
-                "body fell immersed={} phase={}", entity.isInWaterOrBubble(), phase);
+                "body fell immersed={} phase={}", () -> new Object[]{entity.isInWaterOrBubble(), phase});
         if(entity.isInWaterOrBubble()&&(phase==Phase.IDLE||phase==Phase.RECOVER))enterWater();
     }
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
@@ -85,8 +85,8 @@ public final class WaterDistress {
             phase=next;phaseTicks=0;
             if(before==Phase.RECOVER&&next==Phase.IDLE)closedTick=entity.level().getGameTime();
             GameplayLog.limited(entity, "water", "phase." + next, 200,
-                    "phase={} -> {} previousTicks={} immersion={} energy={} air={} sheltered={}",
-                    before, next, elapsed, immersionTicks, entity.life().energy(), entity.getAirSupply(), Attach.sheltered(entity));
+                    "phase={} -> {} previousTicks={} immersion={} energy={} air={} sheltered={}", () -> new Object[]{
+                        before, next, elapsed, immersionTicks, entity.life().energy(), entity.getAirSupply(), Attach.sheltered(entity)});
         }
     }
     private void enterWater(){

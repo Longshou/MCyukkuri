@@ -192,7 +192,7 @@ public final class EmotionCourse {
         if (behavior == null) return;
         String phase = stage.name().toLowerCase(Locale.ROOT);
         GameplayLog.limited(entity, "emotion", "goal_" + phase + "_" + behavior, ONSET_TICKS,
-                "course goal behavior kind={} stage={} behavior={}", kind.name().toLowerCase(Locale.ROOT), phase, behavior);
+                "course goal behavior kind={} stage={} behavior={}", () -> new Object[]{kind.name().toLowerCase(Locale.ROOT), phase, behavior});
     }
 
     /** Ordinary errands give way over the attached range. The length of that peak already grows with attachment. */
@@ -257,8 +257,10 @@ public final class EmotionCourse {
         lineClock.begin(next, renewal);
         recallClock.schedule(0);
         String feeling = kind.name().toLowerCase(Locale.ROOT);
+        int suppressed = renewal ? GameplayLog.admit(entity, "emotion", "renew_" + feeling, ONSET_TICKS) : 0;
+        if (suppressed < 0) return true;
         float loggedStrength = Math.round(power * 100) / 100f;
-        if (renewal) GameplayLog.limited(entity, "emotion", "renew_" + feeling, ONSET_TICKS,
+        if (renewal) GameplayLog.limitedEvent(entity, "emotion", suppressed,
                 "course renewed kind={} strength={} length={} about={} at={}", feeling, loggedStrength, length, about, where);
         else GameplayLog.event(entity, "emotion", "course begun kind={} strength={} length={} about={} at={} attachment={} selfControl={} boldness={} unease={}",
                 feeling, loggedStrength, length, about, where, p.attachment(), p.selfControl(), p.boldness(), Math.round(entity.mind().unease()));

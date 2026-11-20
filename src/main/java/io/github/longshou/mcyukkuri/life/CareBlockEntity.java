@@ -155,8 +155,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         var container=BedContainer.of(entity,worldPosition);
         // Each canopy resident must fit the pad individually. The family roosts on real branches around it.
         var place=NestResting.choose(entity,bed(),canopyNest()?Map.of():resting,p->container.standsInside(p.x(),p.z()),expecting(entity));
-        if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
-                worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
+        if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}", () -> new Object[]{
+                    worldPosition,blockId(),entity.getBbWidth(),residents.size()});return false;}
         if(!place.equals(resting.put(id,place)))changed();
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;

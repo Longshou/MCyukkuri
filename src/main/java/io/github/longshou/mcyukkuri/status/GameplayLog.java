@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -18,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 
 /** Server-side event context and bounded throttling; never owns or changes gameplay state. */
 public final class GameplayLog {
-    private static final int MAX_KEYS = 64;
     private static final Map<Entity, Map<String, Window>> WINDOWS = new WeakHashMap<>();
     private static final Map<ServerLevel, Map<String, Window>> WORLD_WINDOWS = new WeakHashMap<>();
 
@@ -83,11 +83,18 @@ public final class GameplayLog {
         if (suppressed >= 0) limitedEvent(source, category, suppressed, message, values);
     }
 
+    /** Evaluates diagnostic-only values synchronously after admission. */
+    public static void limited(Entity source, String category, String key, int minTicks, String message, Supplier<Object[]> values) {
+        int suppressed = admit(source, category, key, minTicks);
+        Object[] arguments = Window.arguments(suppressed, values);
+        if (arguments != null) limitedEvent(source, category, suppressed, message, arguments);
+    }
+
     /** Checks the window before the caller builds expensive observation values. A negative result skips the line. */
     public static int admit(Entity source, String category, String key, int minTicks) {
         if (source == null || source.level().isClientSide) return -1;
         Map<String, Window> windows = WINDOWS.computeIfAbsent(source, ignored -> new HashMap<>());
-        return enter(windows, source.level().getGameTime(), category, key, minTicks);
+        return Window.enter(windows, source.level().getGameTime(), category, key, minTicks);
     }
 
     /** Emits once after a successful {@link #admit} for this source and category. */
@@ -111,23 +118,19 @@ public final class GameplayLog {
     }
 
     public static void worldLimited(ServerLevel level, String category, String key, int minTicks, String message, Object... values) {
-        Map<String, Window> windows = WORLD_WINDOWS.computeIfAbsent(level, ignored -> new HashMap<>());
-        int suppressed = enter(windows, level.getGameTime(), category, key, minTicks);
-        if (suppressed < 0) return;
-        world(level, category, message + suffix(suppressed), suppressed, values);
+        int suppressed = admitWorld(level, category, key, minTicks);
+        if (suppressed >= 0) world(level, category, message + suffix(suppressed), suppressed, values);
     }
 
-    private static int enter(Map<String, Window> windows, long now, String category, String key, int minTicks) {
-        String slot = category + ":" + key;
-        Window previous = windows.get(slot);
-        if (previous != null && now >= previous.tick && now - previous.tick < Math.max(1, minTicks)) {
-            if (previous.suppressed < Integer.MAX_VALUE) previous.suppressed++;
-            return -1;
-        }
-        int suppressed = previous == null ? 0 : previous.suppressed;
-        if (previous == null && windows.size() >= MAX_KEYS) windows.clear();
-        windows.put(slot, new Window(now));
-        return suppressed;
+    public static void worldLimited(ServerLevel level, String category, String key, int minTicks, String message, Supplier<Object[]> values) {
+        int suppressed = admitWorld(level, category, key, minTicks);
+        Object[] arguments = Window.arguments(suppressed, values);
+        if (arguments != null) world(level, category, message + suffix(suppressed), suppressed, arguments);
+    }
+
+    private static int admitWorld(ServerLevel level, String category, String key, int minTicks) {
+        Map<String, Window> windows = WORLD_WINDOWS.computeIfAbsent(level, ignored -> new HashMap<>());
+        return Window.enter(windows, level.getGameTime(), category, key, minTicks);
     }
 
     static String format(String message, Object... values) {
@@ -144,9 +147,27 @@ public final class GameplayLog {
 
     private static String suffix(int suppressed) { return suppressed == 0 ? "" : " (suppressed=" + suppressed + ")"; }
 
-    private static final class Window {
+    static final class Window {
+        private static final int MAX_KEYS = 64;
         private final long tick;
         private int suppressed;
         private Window(long tick) { this.tick = tick; }
+
+        static int enter(Map<String, Window> windows, long now, String category, String key, int minTicks) {
+            String slot = category + ":" + key;
+            Window previous = windows.get(slot);
+            if (previous != null && now >= previous.tick && now - previous.tick < Math.max(1, minTicks)) {
+                if (previous.suppressed < Integer.MAX_VALUE) previous.suppressed++;
+                return -1;
+            }
+            int suppressed = previous == null ? 0 : previous.suppressed;
+            if (previous == null && windows.size() >= MAX_KEYS) windows.clear();
+            windows.put(slot, new Window(now));
+            return suppressed;
+        }
+
+        static Object[] arguments(int suppressed, Supplier<Object[]> values) {
+            return suppressed < 0 ? null : values.get();
+        }
     }
 }

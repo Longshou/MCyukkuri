@@ -106,7 +106,9 @@ public final class ForageGoal extends Goal {
             if (entity.distanceToSqr(holder) > 2.25) entity.getNavigation().moveTo(holder, 1.15);
             else entity.getNavigation().stop();
             searchSpot = null;
-            GameplayLog.limited(entity, "forage", "player_food", 400, "search met player holding food player={} distance={} nutrition={}",
+            int suppressed = GameplayLog.admit(entity, "forage", "player_food", 400);
+            if (suppressed >= 0) GameplayLog.limitedEvent(entity, "forage", suppressed,
+                    "search met player holding food player={} distance={} nutrition={}",
                     holder.getGameProfile().getName(), Math.round(entity.distanceTo(holder) * 10) / 10.0, entity.life().nutrition());
             return true;
         }
@@ -114,8 +116,8 @@ public final class ForageGoal extends Goal {
                 item -> item.isAlive() && !item.hasPickUpDelay() && entity.life().seeksFood(item.getItem()));
         if (!items.isEmpty()) {
             entity.life().replanNow();
-            GameplayLog.limited(entity, "forage", "item_food", 400, "search saw loose food item={} count={} handoff=life nutrition={}",
-                    items.get(0).getItem().getHoverName().getString(), items.size(), entity.life().nutrition());
+            GameplayLog.limited(entity, "forage", "item_food", 400, "search saw loose food item={} count={} handoff=life nutrition={}", () -> new Object[]{
+                        items.get(0).getItem().getHoverName().getString(), items.size(), entity.life().nutrition()});
         }
         return false;
     }
@@ -207,8 +209,8 @@ public final class ForageGoal extends Goal {
                     }
                 }
                 GameplayLog.limited(entity,"forage","search_path",200,
-                        "search sweep destination={} moving={} nutrition={} rain={} elapsed={}",searchSpot,
-                        !entity.getNavigation().isDone(),entity.life().nutrition(),level().isRainingAt(entity.blockPosition()),elapsed);
+                        "search sweep destination={} moving={} nutrition={} rain={} elapsed={}", () -> new Object[]{searchSpot,
+                        !entity.getNavigation().isDone(),entity.life().nutrition(),level().isRainingAt(entity.blockPosition()),elapsed});
             }
             return;
         }

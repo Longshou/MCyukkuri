@@ -109,8 +109,8 @@ public final class HullLarder {
 
     private void refuse(PlacedHatEntity hat, ItemStack food, String actor, String reason) {
         refusals++;
-        GameplayLog.limited(hat, "hat", "stores." + reason, 20, "stores refused by={} kind={} reason={} total={}",
-                actor, food.getItem(), reason, count());
+        GameplayLog.limited(hat, "hat", "stores." + reason, 20, "stores refused by={} kind={} reason={} total={}", () -> new Object[]{
+                    actor, food.getItem(), reason, count()});
         var owner = hat.owner();
         if (owner != null) owner.showReaction("cheek_puff", "refuse", 40);
     }

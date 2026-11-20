@@ -484,8 +484,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
 
     private boolean spawnKit(ItemStack stack, Vec3 at, Vec3 v, String cause) {
         if (ItemContact.release(this, stack, at, v) == null) {
-            GameplayLog.limited(this, "hat", "kit_drop_refused", 200, "kit drop refused cause={} at={} item={}",
-                    cause, GameplayLog.at(at), stack.getItem());
+            GameplayLog.limited(this, "hat", "kit_drop_refused", 200, "kit drop refused cause={} at={} item={}", () -> new Object[]{
+                        cause, GameplayLog.at(at), stack.getItem()});
             return false;
         }
         GameplayLog.event(this, "hat", "kit dropped cause={} at={} spawned=true", cause, GameplayLog.at(at));
@@ -686,7 +686,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         Motor.velocity(drop, getDeltaMovement(), cause);
         drop.setDefaultPickUpDelay();
         if (!level().addFreshEntity(drop)) {
-            GameplayLog.limited(this, "hat", "refused.item_spawn", 200, "pickup refused reason=item_spawn_failed owner={}", ownerYukkuri());
+            GameplayLog.limited(this, "hat", "refused.item_spawn", 200, "pickup refused reason=item_spawn_failed owner={}", () -> new Object[]{ownerYukkuri()});
             return;
         }
         if (owner != null && ownsPhysicalHat(owner)) owner.life().removeAccessory(cause);
@@ -764,8 +764,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static PlacedHatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
         lastRefusal = detail.isEmpty() ? reason : reason + " " + detail;
         GameplayLog.limited(owner, "headwear", "hat.refused." + reason, 200,
-                "hat refused reason={} detail={} at={} distanceSquared={} accessory={} custody={}",
-                reason, detail, at, owner.distanceToSqr(at), owner.life().hasAccessory(), owner.life().custody().state());
+                "hat refused reason={} detail={} at={} distanceSquared={} accessory={} custody={}", () -> new Object[]{
+                    reason, detail, at, owner.distanceToSqr(at), owner.life().hasAccessory(), owner.life().custody().state()});
         return null;
     }
 
@@ -821,9 +821,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Record the executed branch and its real result, including consumed clicks that produced no physical change. */
     private InteractionResult playerInteractionResult(Player player,InteractionHand hand,String action,boolean applied,InteractionResult result){
         if(!level().isClientSide)GameplayLog.limited(this,"interaction","hat_use."+hand,20,
-                "hat use result player={} hand={} action={} applied={} result={} state={} empty={} distanceSqr={} passengers={}",
-                player.getUUID(),hand,action,applied,result,state(),player.getItemInHand(hand).isEmpty(),player.distanceToSqr(this),
-                getPassengers().size());
+                "hat use result player={} hand={} action={} applied={} result={} state={} empty={} distanceSqr={} passengers={}", () -> new Object[]{
+                    player.getUUID(),hand,action,applied,result,state(),player.getItemInHand(hand).isEmpty(),player.distanceToSqr(this),
+                    getPassengers().size()});
         return result;
     }
 
@@ -990,9 +990,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (clamped != clampedShoves) GameplayLog.limited(this, "hat", "squeeze_clamp", 100,
                 "squeeze clamp zeroed={} previous={} riders={}", clamped, clampedShoves, bodies.size());
         clampedShoves = clamped;
-        if (most != null || !pressed.isEmpty()) GameplayLog.limited(this, "hat", "squeeze", 100,
-                "squeeze pressed={} most={} step={} riders={} tilt={}/{} clamped={}", pressed.size(), most == null ? "none" : most.getUUID(),
-                String.format(Locale.ROOT, "%.3f", mostStep), bodies.size(), roll(), pitch(), clamped);
+        if (most != null || !pressed.isEmpty()) {
+            int suppressed = GameplayLog.admit(this, "hat", "squeeze", 100);
+            if (suppressed >= 0) GameplayLog.limitedEvent(this, "hat", suppressed,
+                    "squeeze pressed={} most={} step={} riders={} tilt={}/{} clamped={}", pressed.size(), most == null ? "none" : most.getUUID(),
+                    String.format(Locale.ROOT, "%.3f", mostStep), bodies.size(), roll(), pitch(), clamped);
+        }
     }
     /** A move that would take this foot off the hat: shortened to the farthest point its foot still touches it (false), or, with
      *  no way left toward it, the body is at the rim (true). Moves that stay on the hat are left alone (false). */
@@ -1062,7 +1065,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                     List.of(new Disc(0, 0, edge - foot + ROOM_SLACK)), ROOM_SLACK, 0, 0)[0];
             var step = pose.toWorld(new Vec3(local.x + move[0], local.y, local.z + move[1])).subtract(y.position()).multiply(1, 0, 1);
             var moved = Motor.move(y, step, "hat_under");
-            GameplayLog.limited(this, "hat", "under." + y.getUUID(), 100, "eased out from under body={} at={} step={} moved={} owner={}",
+            int suppressed = GameplayLog.admit(this, "hat", "under." + y.getUUID(), 100);
+            if (suppressed >= 0) GameplayLog.limitedEvent(this, "hat", suppressed, "eased out from under body={} at={} step={} moved={} owner={}",
                     y.getUUID(), GameplayLog.at(y.position()), GameplayLog.at(step), GameplayLog.at(moved), ownerYukkuri());
         }
     }

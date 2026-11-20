@@ -318,7 +318,7 @@ public final class Grab implements Action {
         // A jump queued on the admission tick may start before the first grip tick.
         if (clipStart < 0 && awaitingLanding()) {
             GameplayLog.limited(carrier, "action", "grab.landing", 200,
-                    "brim grab waiting for landing child={} at={}", target.getUUID(), GameplayLog.at(target.position()));
+                    "brim grab waiting for landing child={} at={}", () -> new Object[]{target.getUUID(), GameplayLog.at(target.position())});
             return new Running(lift + way + Math.abs(Mth.wrapDegrees(facing - carrier.bodyYaw())), TravelMode.CONSUMED);
         }
         gap = ParentCarry.brimGap(carrier, carrier.position(), target);

@@ -194,9 +194,9 @@ final class HomeWatch {
             boolean insideCheck = stance() == Stance.PATROL && station.inside();
             GameplayLog.limited(e, "family", (insideCheck ? "watch.inside." : "watch.station.") + stationIndex, 200,
                     insideCheck ? "home watch inside check index={} at={} mouthDistance={} result={}"
-                            : "home watch station index={} at={} mouthDistance={} result={}",
-                    stationIndex + 1, GameplayLog.at(station.stand()),
-                    Math.round(station.stand().subtract(mouth).horizontalDistance() * 10) / 10.0, result);
+                            : "home watch station index={} at={} mouthDistance={} result={}", () -> new Object[]{
+                        stationIndex + 1, GameplayLog.at(station.stand()),
+                        Math.round(station.stand().subtract(mouth).horizontalDistance() * 10) / 10.0, result});
         }
         var visible = family.level().getEntity(kin);
         var seen = family.absence().lastSeen(kin);

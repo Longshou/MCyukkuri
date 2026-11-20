@@ -135,10 +135,10 @@ public final class Release implements Action, MotorOwner {
         if (destination != null) {
             var places = destination.places(child, Integer.MAX_VALUE);
             GameplayLog.limited(carrier, "family", "release.places", 200,
-                    "release places child={} host={} cabin={} head={} brim={}", child.getUUID(), destination.entity().getUUID(),
+                    "release places child={} host={} cabin={} head={} brim={}", () -> new Object[]{child.getUUID(), destination.entity().getUUID(),
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.CABIN).count(),
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.HEAD).count(),
-                    places.stream().filter(p -> p.kind() == SeatTarget.Kind.BRIM).count());
+                    places.stream().filter(p -> p.kind() == SeatTarget.Kind.BRIM).count()});
             // A parent's own choice keeps the hull within its capacity (a young that boards itself is not weighed this way).
             String full = destination.loadRefusal(carrier, child);
             if (places.isEmpty() || full != null) return Feasibility.of(Reason.NO_ROOM, 0, full == null ? "no_seat" : "hull_full " + full);

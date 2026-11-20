@@ -240,8 +240,8 @@ public final class WoundComfort {
 
     private boolean begin(YukkuriEntity victim) {
         if (active() || victim.woundComfort().session != null || victim.life().personality().fear(entity.getUUID()) >= 60) {
-            GameplayLog.limited(entity,"comfort","begin_refused",200,"start refused; victim={} self_active={} victim_active={} victim_fear={}",
-                    victim.getUUID(),active(),victim.woundComfort().session!=null,victim.life().personality().fear(entity.getUUID()));return false;
+            GameplayLog.limited(entity,"comfort","begin_refused",200,"start refused; victim={} self_active={} victim_active={} victim_fear={}", () -> new Object[]{
+                        victim.getUUID(),active(),victim.woundComfort().session!=null,victim.life().personality().fear(entity.getUUID())});return false;
         }
         return open(new Session(entity, victim));
     }

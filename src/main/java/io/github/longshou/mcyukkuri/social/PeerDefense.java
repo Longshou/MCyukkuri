@@ -104,9 +104,9 @@ public final class PeerDefense extends Goal {
             entity.life().personality().decided("defend_self");
         } else stop();
         GameplayLog.limited(entity, "social", "defense_" + decision, 40,
-                "self defense decision={} attacker={} health={}/{} energy={} boldness={} fear={} ownPower={} attackerPower={} score={}",
-                decision, aggressor.getUUID(), entity.getHealth(), entity.getMaxHealth(), entity.life().energy(),
-                personality.boldness(), personality.fear(aggressor.getUUID()), ownPower, otherPower, score);
+                "self defense decision={} attacker={} health={}/{} energy={} boldness={} fear={} ownPower={} attackerPower={} score={}", () -> new Object[]{
+                    decision, aggressor.getUUID(), entity.getHealth(), entity.getMaxHealth(), entity.life().energy(),
+                    personality.boldness(), personality.fear(aggressor.getUUID()), ownPower, otherPower, score});
         return defend;
     }
 
@@ -180,7 +180,7 @@ public final class PeerDefense extends Goal {
             if (entity.tickCount % 10 == 0) {
                 boolean path = entity.life().navigate(target.blockPosition(), 1.2, false);
                 if (!path) GameplayLog.limited(entity, "social", "defense_path", 100,
-                        "self defense approach blocked attacker={} distanceSqr={}", target.getUUID(), entity.distanceToSqr(target));
+                        "self defense approach blocked attacker={} distanceSqr={}", () -> new Object[]{target.getUUID(), entity.distanceToSqr(target)});
             }
             return;
         }

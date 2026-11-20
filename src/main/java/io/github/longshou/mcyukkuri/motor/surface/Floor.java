@@ -56,12 +56,15 @@ public final class Floor {
                     float facing = (float) Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90 + facingOffset;
                     return route(host, body, grid, point(at), facing - host.entity().getYRot(), refusals);
                 });
-        if (path.isEmpty()) GameplayLog.limited(body,"care","floor_no_route",200,
-                "floor route unavailable from={} centre={} bearing={} facingOffset={} radius={}..{} width={} height={} yaw={} others={} rejected=support:{},room:{},turn:{},path:{},edge:{}",
-                host.riders().local(body.getUUID()),local,Math.toDegrees(Math.atan2(forward.z,forward.x)),facingOffset,
-                inner/host.frame().unit(),outer/host.frame().unit(),body.getBbWidth()/host.frame().unit(),body.getBbHeight()/host.frame().unit(),
-                host.riders().yaw(body.getUUID()),others(host,body).stream().map(p -> p.at()+"/"+p.body().width()+"/"+p.body().height()+"/"+Math.toDegrees(p.body().yaw())).toList(),
-                refusals[0],refusals[1],refusals[2],refusals[3],refusals[4]);
+        if (path.isEmpty()) {
+            int suppressed = GameplayLog.admit(body, "care", "floor_no_route", 200);
+            if (suppressed >= 0) GameplayLog.limitedEvent(body, "care", suppressed,
+                    "floor route unavailable from={} centre={} bearing={} facingOffset={} radius={}..{} width={} height={} yaw={} others={} rejected=support:{},room:{},turn:{},path:{},edge:{}",
+                    host.riders().local(body.getUUID()),local,Math.toDegrees(Math.atan2(forward.z,forward.x)),facingOffset,
+                    inner/host.frame().unit(),outer/host.frame().unit(),body.getBbWidth()/host.frame().unit(),body.getBbHeight()/host.frame().unit(),
+                    host.riders().yaw(body.getUUID()),others(host,body).stream().map(p -> p.at()+"/"+p.body().width()+"/"+p.body().height()+"/"+Math.toDegrees(p.body().yaw())).toList(),
+                    refusals[0],refusals[1],refusals[2],refusals[3],refusals[4]);
+        }
         return new ArrayList<>(path.stream().map(Floor::point).toList());
     }
 

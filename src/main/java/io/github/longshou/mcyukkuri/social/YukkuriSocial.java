@@ -409,8 +409,11 @@ public final class YukkuriSocial implements MotorOwner {
         target=entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->{
             if(!item.isAlive()||!AccessoryItem.matches(entity,item.getItem()))return false;
             boolean reachable=ContactGeometry.inMouthReach(entity,item)||SurfaceApproach.approach(entity,item)!=null;
-            if(!reachable)GameplayLog.limited(entity,"headwear","accessory_unreachable",200,
-                    "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),entity.hasLineOfSight(item),item.isInWater());
+            if (!reachable) {
+                int suppressed = GameplayLog.admit(entity, "headwear", "accessory_unreachable", 200);
+                if (suppressed >= 0) GameplayLog.limitedEvent(entity, "headwear", suppressed,
+                        "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),entity.hasLineOfSight(item),item.isInWater());
+            }
             return reachable;
         }).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if(target==null)return false;
@@ -690,8 +693,8 @@ public final class YukkuriSocial implements MotorOwner {
         greetingBody(visitor ? "bow" : "greet");
         entity.showReaction(wariness >= .18 ? "surprise" : "happy", line, 80);
         if (visitor) entity.pet().lessons().performed(Ability.GREETING, true);
-        GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}",
-                entity.status().identity().id(), target.getUUID(), line, wariness);
+        GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}", () -> new Object[]{
+                    entity.status().identity().id(), target.getUUID(), line, wariness});
     }
 
     private void tickOwnerWelcome(double wariness) {
@@ -896,8 +899,10 @@ public final class YukkuriSocial implements MotorOwner {
         entity.settlement().society().welcome(peer);
     }
     private void logGreet(YukkuriEntity other, String why) {
+        int suppressed = GameplayLog.admit(entity, "social", "greet." + other.getUUID(), 200);
+        if (suppressed < 0) return;
         double gap = entity.position().subtract(other.position()).horizontalDistance();
-        GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200,
+        GameplayLog.limitedEvent(entity, "social", suppressed,
                 "greet from={} to={} why={} spacing={} minimum={}", entity.getUUID(), other.getUUID(), why,
                 Math.round(gap * 1000) / 1000.0, Math.round(GreetingStance.visualDistance(entity, other) * 1000) / 1000.0);
     }
@@ -915,8 +920,8 @@ public final class YukkuriSocial implements MotorOwner {
         if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED) return true;
         if (entity.motor().current() instanceof Face) return false;
         GameplayLog.limited(entity, "social", "answer_face." + peer.getUUID(), ANSWER_EXPIRY,
-                "answer face turn to={} yaw={} bodyYaw={}", peer.getUUID(), Math.round(yaw * 10) / 10.0,
-                Math.round(entity.yBodyRot * 10) / 10.0);
+                "answer face turn to={} yaw={} bodyYaw={}", () -> new Object[]{peer.getUUID(), Math.round(yaw * 10) / 10.0,
+                Math.round(entity.yBodyRot * 10) / 10.0});
         entity.motor().run(this, new Face(yaw));
         return false;
     }
@@ -940,8 +945,8 @@ public final class YukkuriSocial implements MotorOwner {
         if (task != Task.NONE || !entity.childhood().canLearn() || !freeForSocial() || !entity.life().activity().equals(Behaviors.IDLE) || !freeToAnswer(from)) return;
         task = Task.ANSWER; target = from; elapsed = 0; greeted = false; answerScorn = false; answerWhy = null; answerDelay = 0;
         duration = ANSWER_EXPIRY; answerUntil = entity.level().getGameTime() + ANSWER_EXPIRY;
-        GameplayLog.limited(entity, "social", "noticed." + from.getUUID(), 200, "approach noticed from={} distance={}",
-                from.getUUID(), Math.round(entity.distanceTo(from) * 10) / 10.0);
+        GameplayLog.limited(entity, "social", "noticed." + from.getUUID(), 200, "approach noticed from={} distance={}", () -> new Object[]{
+                    from.getUUID(), Math.round(entity.distanceTo(from) * 10) / 10.0});
     }
     /** A greeted peer turns to the greeter and answers about a second later, from its own social goal; hatless greeters get scorn instead. */
     public boolean receiveGreeting(YukkuriEntity from, boolean scorn, String why) {
@@ -987,8 +992,8 @@ public final class YukkuriSocial implements MotorOwner {
     public void stop() {
         entity.motor().cancel(this,"social_stop");
         if(humanContact()||task==Task.PEER)GameplayLog.limited(entity,"social","contact.ended",200,
-                "social contact ended target={} greeted={} retreat={} elapsed={}/{} phase={}",
-                target.getUUID(),greeted,retreat,elapsed,duration,contactPhase());
+                "social contact ended target={} greeted={} retreat={} elapsed={}/{} phase={}", () -> new Object[]{
+                    target.getUUID(),greeted,retreat,elapsed,duration,contactPhase()});
         if(task==Task.TOY)GameplayLog.limited(entity,"social","toy.stopped",1200,
                 "toy session stopped toy={} elapsed={} contactTicks={} touches={}",
                 target==null?null:target.getUUID(),elapsed,toyContact,toyTouches);

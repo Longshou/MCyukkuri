@@ -339,7 +339,7 @@ public final class YukkuriLife {
     public void setPickiness(int value) {
         int before = pickiness();
         pickiness = Math.clamp(value, 0, 100);
-        GameplayLog.limited(entity, "meal", "taste.set", 200, "taste set pickiness={} -> {}", before, pickiness());
+        GameplayLog.limited(entity, "meal", "taste.set", 200, "taste set pickiness={} -> {}", () -> new Object[]{before, pickiness()});
     }
     public void adjustPickiness(int delta) { setPickiness(pickiness() + delta); }
     public float nutrition() { return nutrition; }
@@ -828,8 +828,8 @@ public final class YukkuriLife {
         garbage.stop();
         stallTheft.stop();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","interrupt",200,
-                "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}",
-                sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire());
+                "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}", () -> new Object[]{
+                    sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire()});
         meal.clearInterrupted(); doses.clearReturnBottle();
         doses.stopSedation();drinkTicks=0;
         endFoodGlass();
@@ -1038,7 +1038,8 @@ public final class YukkuriLife {
                 foodGlassStand = glassStand;
                 task = Task.FOOD_GLASS;
                 pursuitTicks = 0;
-                GameplayLog.limited(entity, "meal", "glass_food_planned", 400,
+                int suppressed = GameplayLog.admit(entity, "meal", "glass_food_planned", 400);
+                if (suppressed >= 0) GameplayLog.limitedEvent(entity, "meal", suppressed,
                         "food behind glass target={} kind={} stand={} nutrition={}",
                         glassFood.getUUID(), glassFood instanceof ItemEntity ? "loose" : "held", GameplayLog.at(glassStand), nutrition);
                 return true;
@@ -1904,8 +1905,8 @@ public final class YukkuriLife {
     public void stopGoal() {
         accountEnvironmentalWake();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","stop",200,
-                "stopped source=life ticks={} energy={} nutrition={} panic={} water={} rain={}",
-                sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition()));
+                "stopped source=life ticks={} energy={} nutrition={} panic={} water={} rain={}", () -> new Object[]{
+                    sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition())});
         temperature.stop();
         foundCover.stop();
         garbage.stop();

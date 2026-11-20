@@ -73,8 +73,8 @@ public final class ContactResolver {
             return new Hit(host,hit.fraction(),stands?spot:null);
         }
         if(envelope!=null&&body.isInWater())GameplayLog.limited(body,"body","wet_host_contact",200,
-                "wet flight missed host={} from={} to={} surface={} velocity={}",host.entity().getUUID(),
-                frame.toLocal(feet),frame.toLocal(next),surface(host,next,envelope.at(body,next)),body.getDeltaMovement());
+                "wet flight missed host={} from={} to={} surface={} velocity={}", () -> new Object[]{host.entity().getUUID(),
+                frame.toLocal(feet),frame.toLocal(next),surface(host,next,envelope.at(body,next)),body.getDeltaMovement()});
         return null;
     }
 

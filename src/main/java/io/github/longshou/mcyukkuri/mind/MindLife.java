@@ -259,8 +259,8 @@ public final class MindLife {
         if (entity.tickCount % 24000 == 23999) namings = Math.max(0, namings - 1); // one naming forgiven per game day
         Stage now = stage();
         if (now != reported) {
-            GameplayLog.limited(entity, "mind", "stage", 600, "stage {} -> {} (unease {}, sweetness {})",
-                    reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness));
+            GameplayLog.limited(entity, "mind", "stage", 600, "stage {} -> {} (unease {}, sweetness {})", () -> new Object[]{
+                        reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness)});
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
                 entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
                 if (entity.life().activity().equals(Behaviors.IDLE)) perform("droop", 80);

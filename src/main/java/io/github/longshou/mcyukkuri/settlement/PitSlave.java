@@ -102,14 +102,14 @@ public final class PitSlave {
             if (phase == Phase.EAT) SurfaceApproach.stopWalking(entity);
             phase = Phase.RETURN; destination = null; ticks = 0;
             var nearest = nearestCell();
-            GameplayLog.limited(entity, "settlement", "pit_return", 600, "pit slave return start pit={} distance={} cause=outside_pit nutrition={}",
-                    nearest, String.format("%.1f", Math.sqrt(nearest.distSqr(entity.blockPosition()))), entity.life().nutrition());
+            GameplayLog.limited(entity, "settlement", "pit_return", 600, "pit slave return start pit={} distance={} cause=outside_pit nutrition={}", () -> new Object[]{
+                        nearest, String.format("%.1f", Math.sqrt(nearest.distSqr(entity.blockPosition()))), entity.life().nutrition()});
         }
         if (destination == null || ticks % 100 == 0) destination = nearestCell();
         if (ticks % 10 == 1 && !entity.life().travel(destination, 1.0)) {
             retryAt = level().getGameTime() + RETRY_TICKS;
-            GameplayLog.limited(entity, "settlement", "pit_return_failed", 600, "pit slave return failed reason=no_path pit={} distance={}",
-                    destination, String.format("%.1f", Math.sqrt(destination.distSqr(entity.blockPosition()))));
+            GameplayLog.limited(entity, "settlement", "pit_return_failed", 600, "pit slave return failed reason=no_path pit={} distance={}", () -> new Object[]{
+                        destination, String.format("%.1f", Math.sqrt(destination.distSqr(entity.blockPosition())))});
         }
     }
     private BlockPos nearestCell() {

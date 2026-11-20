@@ -175,8 +175,8 @@ public final class LearnedFear {
 
         private void finish(String outcome) {
             var danger=holder==null?Vec3.atCenterOf(fire):holder.position();
-            GameplayLog.limited(body,"threat","learned_"+outcome,200,"learned retreat end result={} holder={} fire={} stand={} distance={}",
-                    outcome,holder==null?null:holder.getUUID(),fire,stand,body.position().distanceTo(danger));
+            GameplayLog.limited(body,"threat","learned_"+outcome,200,"learned retreat end result={} holder={} fire={} stand={} distance={}", () -> new Object[]{
+                        outcome,holder==null?null:holder.getUUID(),fire,stand,body.position().distanceTo(danger)});
             ticks=RETREAT_BUDGET;
         }
 

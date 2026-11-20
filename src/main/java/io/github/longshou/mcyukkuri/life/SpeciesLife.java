@@ -250,12 +250,12 @@ public final class SpeciesLife {
             if (!attribute.hasModifier(URGENCY_ID))
                 attribute.addTransientModifier(new AttributeModifier(URGENCY_ID, URGENCY_BOOST, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             if (urgency == null) GameplayLog.limited(entity, "urgency", "on", 100,
-                    "urgency speed on reason={} boost={} speed={} nutrition={} health={}", reason, URGENCY_BOOST,
-                    attribute.getValue(), entity.life().nutrition(), entity.getHealth());
+                    "urgency speed on reason={} boost={} speed={} nutrition={} health={}", () -> new Object[]{reason, URGENCY_BOOST,
+                    attribute.getValue(), entity.life().nutrition(), entity.getHealth()});
         } else if (urgency != null || attribute.hasModifier(URGENCY_ID)) {
             attribute.removeModifier(URGENCY_ID);
             if (urgency != null) GameplayLog.limited(entity, "urgency", "off", 100,
-                    "urgency speed off previous={} speed={}", urgency, attribute.getValue());
+                    "urgency speed off previous={} speed={}", () -> new Object[]{urgency, attribute.getValue()});
         }
         urgency = reason;
     }

@@ -369,7 +369,7 @@ final class Courtship {
         if(courtNearTicks==0){
             courtStart=o.level().getGameTime();courtLoopTicks=loopTicks(o.target());
             GameplayLog.limited(o.entity(),"family","court.accept",200,
-                    "courtship acceptance started partner={} requiredTicks={}",o.target().getUUID(),requiredTicks());
+                    "courtship acceptance started partner={} requiredTicks={}", () -> new Object[]{o.target().getUUID(),requiredTicks()});
         }
         courtNearTicks++;
         if(courtNearTicks<=COURT_ACCEPT_TICKS){o.entity().getNavigation().stop();facePartner();return;}
@@ -484,8 +484,8 @@ final class Courtship {
         if(off<=REFUSAL_NOTICE)sawNotice=true;
         // She looked at him, then turned her back: that whole turn is the answer, and he gives up on her for a while.
         if(sawNotice&&off>=REFUSAL_TURN) {
-            GameplayLog.limited(o.entity(),"family","court.giveup",200,"court gave up reason=partner_alive partner={} turnFromFacing={}",
-                    peer.getUUID(),Math.round(off));
+            GameplayLog.limited(o.entity(),"family","court.giveup",200,"court gave up reason=partner_alive partner={} turnFromFacing={}", () -> new Object[]{
+                        peer.getUUID(),Math.round(off)});
             o.entity().showReaction("confused","",80);
             o.stop();
         }
@@ -498,8 +498,8 @@ final class Courtship {
         if(declineTicks++==0) {
             me.showReaction("dull","",80);
             GameplayLog.limited(me,"family","court.refused.partner_alive",200,
-                    "court refused reason=partner_alive partner={} distance={}",
-                    him.getUUID(),Math.round(me.distanceTo(him)*10)/10.0);
+                    "court refused reason=partner_alive partner={} distance={}", () -> new Object[]{
+                        him.getUUID(),Math.round(me.distanceTo(him)*10)/10.0});
         }
         float toward=(float)(Mth.atan2(him.getZ()-me.getZ(),him.getX()-me.getX())*Mth.RAD_TO_DEG)-90;
         if(!refusalFaced) {
@@ -559,11 +559,11 @@ final class Courtship {
         var peer=o.target();
         var mother=peer==null?null:mother(o.entity(),peer);var father=mother==null?null:mother==o.entity()?peer:o.entity();
         GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
-                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={} receiverGoal={}",
-                reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,requiredTicks(),courtPathFailures,
-                peer==null?null:Math.round(o.entity().distanceTo(peer)*100)/100.0,
-                mother==null?null:Math.round(Math.sqrt(father.distanceToSqr(rearStand(mother,father)))*100)/100.0,
-                father==null?null:father.getNavigation().isDone(),peer==null?null:peer.competingMoveGoalId());
+                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={} receiverGoal={}", () -> new Object[]{
+                    reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,requiredTicks(),courtPathFailures,
+                    peer==null?null:Math.round(o.entity().distanceTo(peer)*100)/100.0,
+                    mother==null?null:Math.round(Math.sqrt(father.distanceToSqr(rearStand(mother,father)))*100)/100.0,
+                    father==null?null:father.getNavigation().isDone(),peer==null?null:peer.competingMoveGoalId()});
     }
 
     void tickReceiver() {

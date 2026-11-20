@@ -731,8 +731,8 @@ public final class Reactions {
             if (now < huddleAfter || pressing() || !Sky.sheltered(y.level(), y.blockPosition()) || !shaken()) return false;
             var busy = busy(y);
             if (busy != null) {
-                GameplayLog.limited(y, "weather", "huddle.busy." + busy, 1200, "sheltered and uneasy but busy={} unease={} cold={}",
-                        busy, Math.round(y.mind().unease()), y.life().temperature().cold());
+                GameplayLog.limited(y, "weather", "huddle.busy." + busy, 1200, "sheltered and uneasy but busy={} unease={} cold={}", () -> new Object[]{
+                            busy, Math.round(y.mind().unease()), y.life().temperature().cold()});
                 return false;
             }
             planned = Stage.HUDDLE;
@@ -750,8 +750,8 @@ public final class Reactions {
             ticks = 0;
             stage = planned;
             switch (stage) {
-                case SHAKE -> GameplayLog.limited(y, "weather", "shake.start", 600, "shaking water off wetness={} after={}",
-                        y.life().wetness(), y.waterDistress().closedWithin(200) ? "water" : y.level().isRaining() ? "rain" : "rain_stopped");
+                case SHAKE -> GameplayLog.limited(y, "weather", "shake.start", 600, "shaking water off wetness={} after={}", () -> new Object[]{
+                            y.life().wetness(), y.waterDistress().closedWithin(200) ? "water" : y.level().isRaining() ? "rain" : "rain_stopped"});
                 case HUDDLE -> beginHuddle();
                 default -> {
                     y.life().wakeForDanger("weather");
@@ -772,8 +772,8 @@ public final class Reactions {
             y.family().carry().endFlight();
             if (stage == Stage.SHAKE && ticks < SHAKE_TICKS) shakeAfter = y.level().getGameTime() + SHAKE_TICKS; // cut off: it shakes again soon
             if (stage == Stage.HUDDLE) {
-                GameplayLog.limited(y, "weather", "huddle.end", 600, "huddle ended partner={} pressed={} ticks={} unease={} cold={}",
-                        partner == null ? null : partner.getUUID(), pressedAt >= 0, ticks, Math.round(y.mind().unease()), y.life().temperature().cold());
+                GameplayLog.limited(y, "weather", "huddle.end", 600, "huddle ended partner={} pressed={} ticks={} unease={} cold={}", () -> new Object[]{
+                            partner == null ? null : partner.getUUID(), pressedAt >= 0, ticks, Math.round(y.mind().unease()), y.life().temperature().cold()});
                 huddleAfter = y.level().getGameTime() + HUDDLE_REST;
                 partner = null; pressedAt = -1;
             } else if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
@@ -955,9 +955,9 @@ public final class Reactions {
             var seek = seekPartner();
             partnerScanAfter = y.level().getGameTime() + PARTNER_SCAN;
             if (seek.partner() != null) { pair(seek.partner()); return; }
-            GameplayLog.limited(y, "weather", "hunker.start", 600, "sheltered alone pose={} unease={} cold={} boldness={} attachment={} nearest={}",
-                    Sky.open(y.level(), y.blockPosition()) == Sky.STORM ? "cower" : "tremble", Math.round(y.mind().unease()),
-                    y.life().temperature().cold(), y.life().personality().boldness(), y.life().personality().attachment(), seek.nearest());
+            GameplayLog.limited(y, "weather", "hunker.start", 600, "sheltered alone pose={} unease={} cold={} boldness={} attachment={} nearest={}", () -> new Object[]{
+                        Sky.open(y.level(), y.blockPosition()) == Sky.STORM ? "cower" : "tremble", Math.round(y.mind().unease()),
+                        y.life().temperature().cold(), y.life().personality().boldness(), y.life().personality().attachment(), seek.nearest()});
         }
         /** It goes to press beside {@code other}, who holds still for it. */
         private void pair(YukkuriEntity other) {
@@ -965,9 +965,9 @@ public final class Reactions {
             var theirs = other.status().reactions().weather;
             theirs.stage = Stage.HUDDLE; theirs.ticks = 0; theirs.partner = y; theirs.leads = false; theirs.pressedAt = -1;
             GameplayLog.limited(y, "weather", "huddle.start", 600,
-                    "huddle sought partner={} kin={} trust={} distance={} unease={} cold={} storm={}", other.getUUID(), kin(y, other),
+                    "huddle sought partner={} kin={} trust={} distance={} unease={} cold={} storm={}", () -> new Object[]{other.getUUID(), kin(y, other),
                     y.life().personality().trust(other.getUUID()), Math.round(y.distanceTo(other) * 10) / 10.0,
-                    Math.round(y.mind().unease()), y.life().temperature().cold(), Sky.open(y.level(), y.blockPosition()) == Sky.STORM);
+                    Math.round(y.mind().unease()), y.life().temperature().cold(), Sky.open(y.level(), y.blockPosition()) == Sky.STORM});
         }
         /** Both still hold each other as partners, close enough to keep it up. */
         private boolean paired() {
@@ -1011,8 +1011,8 @@ public final class Reactions {
                 if (stand == null || occupied(level, stand)) stand = chooseStand(level);
                 if (stand == null || ticks - approachFrom > HUDDLE_APPROACH) {
                     GameplayLog.limited(y, "weather", "huddle.stand", 600,
-                            "huddle stand unavailable partner={} reason={} ticks={} distance={} stand={}", partner.getUUID(),
-                            stand == null ? "no_free_side" : "not_reached", ticks - approachFrom, Math.round(y.distanceTo(partner) * 10) / 10.0, stand);
+                            "huddle stand unavailable partner={} reason={} ticks={} distance={} stand={}", () -> new Object[]{partner.getUUID(),
+                            stand == null ? "no_free_side" : "not_reached", ticks - approachFrom, Math.round(y.distanceTo(partner) * 10) / 10.0, stand});
                     // The other is released by its own next check; this one trembles alone and looks to someone else this time.
                     unreachable = partner; partner = null; stand = null;
                     SurfaceApproach.halt(y);
@@ -1045,8 +1045,8 @@ public final class Reactions {
             partnerLeft = onRight; theirs.partnerLeft = !onRight; theirs.facing = facing;
             pressedAt = theirs.pressedAt = now;
             var to = partner.position().subtract(y.position());
-            GameplayLog.limited(y, "weather", "huddle.pressed", 600, "huddle pressed partner={} side={} centres={} afterTicks={}",
-                    partner.getUUID(), partnerLeft ? "left" : "right", Math.round(to.horizontalDistance() * 100) / 100.0, ticks);
+            GameplayLog.limited(y, "weather", "huddle.pressed", 600, "huddle pressed partner={} side={} centres={} afterTicks={}", () -> new Object[]{
+                        partner.getUUID(), partnerLeft ? "left" : "right", Math.round(to.horizontalDistance() * 100) / 100.0, ticks});
         }
         /** A thunder clap it heard: it flinches; a pressed pair, startled together, nestles in again after it. */
         void clap(long now, double distance) {
@@ -1055,8 +1055,8 @@ public final class Reactions {
             y.mind().felt(EmotionEvent.FRIGHTENED, ExcitedLeak.Stimulus.LOUD_NOISE);
             if (pressedAt >= 0) pressedAt = now + STARTLE_TICKS;
             if (stage == Stage.NONE) y.showReaction("surprise", "thunder", STARTLE_TICKS);
-            GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} stage={} partner={}",
-                    Math.round(distance), stage, partner == null ? null : partner.getUUID());
+            GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} stage={} partner={}", () -> new Object[]{
+                        Math.round(distance), stage, partner == null ? null : partner.getUUID()});
         }
     }
 

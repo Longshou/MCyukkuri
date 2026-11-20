@@ -146,7 +146,9 @@ final class Rescue implements Intent {
             if ((gap <= 0 || mouth && ContactGeometry.inMouthReach(helper, at, faller))
                     && SurfaceApproach.supported(helper, at) && SurfaceApproach.canApproach(helper, at)) return at;
         }
-        GameplayLog.limited(helper, "aquatic", "rescue.bank_reach", 200, "rescue bank reach none faller={} edges={} holds={} braid_gap={}",
+        int suppressed = GameplayLog.admit(helper, "aquatic", "rescue.bank_reach", 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(helper, "aquatic", suppressed,
+                "rescue bank reach none faller={} edges={} holds={} braid_gap={}",
                 faller.getUUID(), edges, holds.stream().map(h -> h.reach()).toList(), best);
         return null;
     }

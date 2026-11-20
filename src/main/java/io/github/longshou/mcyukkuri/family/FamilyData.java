@@ -628,8 +628,8 @@ public final class FamilyData extends SavedData {
     private YukkuriEntity refuse(Brood brood,ServerLevel level,String why){
         refusals.put(brood.id,why);
         GameplayLog.worldLimited(level,"family","birth."+brood.id+"."+why,200,
-                "birth refused brood={} mother={} kind={} reason={} elapsed={}/{} unborn={} anchor={}",
-                brood.id,brood.mother,brood.kind,why,brood.elapsed,brood.duration,brood.unborn(),brood.anchor.pos());
+                "birth refused brood={} mother={} kind={} reason={} elapsed={}/{} unborn={} anchor={}", () -> new Object[]{
+                    brood.id,brood.mother,brood.kind,why,brood.elapsed,brood.duration,brood.unborn(),brood.anchor.pos()});
         return null;
     }
     /** Why the last birth attempt of this brood was refused (diagnostic; empty when none or since succeeded). */

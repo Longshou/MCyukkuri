@@ -347,8 +347,8 @@ public final class ShopWindow implements MotorOwner {
 
     private boolean walk(Walk move, Vec3 to, long now) {
         if (!entity.motor().run(this, move)) {
-            GameplayLog.limited(entity, "shop", "window_walk_refused", 200, "window walk refused mode={} to={} outcome={}",
-                    mode, GameplayLog.at(to), entity.motor().refusal());
+            GameplayLog.limited(entity, "shop", "window_walk_refused", 200, "window walk refused mode={} to={} outcome={}", () -> new Object[]{
+                        mode, GameplayLog.at(to), entity.motor().refusal()});
             return false;
         }
         action = move; lastRestand = now;

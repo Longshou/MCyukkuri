@@ -192,9 +192,12 @@ public final class SiteLife {
         if(lease==null)return Result.DEFERRED;
         Result result;
         try(lease;var scope=lease.bind(entity)){result=settleNow(entity,habitat,site,search);}
-        if(result==Result.NOT_FOUND)GameplayLog.limited(entity,"settlement","site_settle_failed",400,
-                "site settle found no home site={} slots={} occupied={} place_failed={} claim_refused={} attempts={} independent={} all_dwellings={}",
-                site.id,search.slots.size(),search.occupied,search.placeFailed,search.refused,search.attempts,independent(entity),search.allDwellings);
+        if (result == Result.NOT_FOUND) {
+            int suppressed = GameplayLog.admit(entity, "settlement", "site_settle_failed", 400);
+            if (suppressed >= 0) GameplayLog.limitedEvent(entity, "settlement", suppressed,
+                    "site settle found no home site={} slots={} occupied={} place_failed={} claim_refused={} attempts={} independent={} all_dwellings={}",
+                    site.id,search.slots.size(),search.occupied,search.placeFailed,search.refused,search.attempts,independent(entity),search.allDwellings);
+        }
         if(result!=Result.DEFERRED)clearSettle(level,entity);
         return result;
     }

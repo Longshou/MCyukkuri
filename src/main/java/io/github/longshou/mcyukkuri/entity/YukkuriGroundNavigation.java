@@ -134,8 +134,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         long millis=(System.nanoTime()-started)/1_000_000;
         if(millis>=50)GameplayLog.limited(mob,"move","path_slow",200,
-                "slow ground path search sampleTarget={} candidates={} accuracy={} elapsedMs={} reached={} nodes={} solid={}",
-                targets.iterator().next(),targets.size(),accuracy,millis,result!=null&&result.canReach(),result==null?0:result.getNodeCount(),solidPlanned);
+                "slow ground path search sampleTarget={} candidates={} accuracy={} elapsedMs={} reached={} nodes={} solid={}", () -> new Object[]{
+                    targets.iterator().next(),targets.size(),accuracy,millis,result!=null&&result.canReach(),result==null?0:result.getNodeCount(),solidPlanned});
         return result;
     }
 

@@ -278,7 +278,7 @@ public final class VillageBin {
     private static boolean untippable(HumanNpc resident, ServerLevel level, BlockPos at) {
         if (GarbageBinBlock.reachable(level, at)) return false;
         GameplayLog.limited(resident, "npc-care", "bin_skip", 600,
-                "action=bin_skip bin={} reason=untippable", at.toShortString());
+                "action=bin_skip bin={} reason=untippable", () -> new Object[]{at.toShortString()});
         return true;
     }
 

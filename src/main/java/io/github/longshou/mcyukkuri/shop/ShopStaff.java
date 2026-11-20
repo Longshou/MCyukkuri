@@ -938,9 +938,12 @@ public final class ShopStaff {
             if (obstruction != null || tendsSupply(job) && job.leg % 5 == 0) {
                 var inWay = obstruction != null ? obstruction : blocker(level, staff, toward);
                 if (inWay instanceof YukkuriEntity animal && !animal.getUUID().equals(job.animal)
-                        && ShopTrade.stockOf(animal, shop.id) && YukkuriGroundNavigation.giveWay(animal, staff, toward))
-                    GameplayLog.limited(staff, "shop", "give_way", 100, "action=job result=asked_way kind={} animal={} waypoint={}",
+                        && ShopTrade.stockOf(animal, shop.id) && YukkuriGroundNavigation.giveWay(animal, staff, toward)) {
+                    int suppressed = GameplayLog.admit(staff, "shop", "give_way", 100);
+                    if (suppressed >= 0) GameplayLog.limitedEvent(staff, "shop", suppressed,
+                            "action=job result=asked_way kind={} animal={} waypoint={}",
                             job.kind, animal.getUUID(), path.getNextNodePos().toShortString());
+                }
             }
             if (job.stall < STALL) return;
         }
@@ -976,9 +979,12 @@ public final class ShopStaff {
             path = staff.shopPath(occupiedByStock, obstacle);
         if (path != null && path.canReach() && navigation.moveTo(path, SPEED)) {
             job.approach = path.getTarget();
-            if (obstruction != null)
-                GameplayLog.limited(staff, "shop", "carry_detour", 100, "action=job result=detour kind={} phase={} blocker={} stand={}",
+            if (obstruction != null) {
+                int suppressed = GameplayLog.admit(staff, "shop", "carry_detour", 100);
+                if (suppressed >= 0) GameplayLog.limitedEvent(staff, "shop", suppressed,
+                        "action=job result=detour kind={} phase={} blocker={} stand={}",
                         job.kind, job.phase, obstruction.getUUID(), job.approach.toShortString());
+            }
             return;
         }
         if (obstruction != null || tendsSupply(job))

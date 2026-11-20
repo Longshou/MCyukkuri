@@ -377,7 +377,7 @@ public final class LeafSwaddle {
         if (gather && !plants.find(entity.blockPosition(), LEAF_RADIUS, pos -> entity.level().getBlockState(pos).is(BlockTags.LEAVES))) {
             if (!plants.refused()) {
                 GameplayLog.limited(entity, "family", "leaf_swaddle.no_leaves." + bare.getUUID(), 1200,
-                        "leaf swaddle refused child={} reason=no_reachable_leaf_block carried={}", bare.getUUID(), leafCount());
+                        "leaf swaddle refused child={} reason=no_reachable_leaf_block carried={}", () -> new Object[]{bare.getUUID(), leafCount()});
                 refusedUntil.put(bare.getUUID(), level.getGameTime() + REFUSAL_TICKS);
             }
             return false;
@@ -562,8 +562,8 @@ public final class LeafSwaddle {
 
     public void stop(String reason) {
         if (task != Task.NONE && !reason.equals("done")) GameplayLog.limited(entity, "family", "leaf_swaddle.stop." + reason, 200,
-                "leaf swaddle task stopped reason={} child={} task={} contact={} elapsed={} carried={} folded={}",
-                reason, target, task, contactTicks, taskTicks, leafCount(), folded);
+                "leaf swaddle task stopped reason={} child={} task={} contact={} elapsed={} carried={} folded={}", () -> new Object[]{
+                    reason, target, task, contactTicks, taskTicks, leafCount(), folded});
         if (task == Task.GATHER && reason.equals("timeout") && target != null)
             refusedUntil.put(target, entity.level().getGameTime() + REFUSAL_TICKS);
         if (task.ordinal() >= Task.WRAP.ordinal()) entity.careApproach().cancel();

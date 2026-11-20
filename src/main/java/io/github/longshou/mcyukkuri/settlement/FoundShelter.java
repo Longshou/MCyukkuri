@@ -944,7 +944,7 @@ public final class FoundShelter implements MotorOwner {
             if (now() < warnUntil) return Step.ACTIVE;
             if (now() >= deadline || walk() == SurfaceApproach.Result.BLOCKED) {
                 GameplayLog.limited(body, "habitat", "exit_blocked", 200,
-                        "found exit blocked shelter={} opening={}", target(), shelter.entrance());
+                        "found exit blocked shelter={} opening={}", () -> new Object[]{target(), shelter.entrance()});
                 nextScan = now() + 80;
                 stop();
                 return Step.ENDED;

@@ -162,8 +162,8 @@ final class StruckResponse implements MotorOwner {
             if (home != null && actor instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri())
                 for (var child : dependants(home))
                     if (predator.predator().divert(body, child)) break;
-            GameplayLog.limited(body, "threat", "lead_taunt", 60, "lead away taunt distance={} attacker={}",
-                    body.distanceTo(actor), actor.getUUID());
+            GameplayLog.limited(body, "threat", "lead_taunt", 60, "lead away taunt distance={} attacker={}", () -> new Object[]{
+                        body.distanceTo(actor), actor.getUUID()});
             nextTaunt = now + clip * 2L;
         } else if (now >= nextTaunt - clip) threat.flight().lead(actor, mouth);
         return true;

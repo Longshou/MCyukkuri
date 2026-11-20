@@ -524,8 +524,8 @@ public final class Headwear extends Goal implements MotorOwner {
         }
         gatherCheck=target!=null?"target_selected":candidates.isEmpty()?"no_compatible_fragments":"no_reachable_fragments";
         if(target==null&&!candidates.isEmpty())GameplayLog.limited(entity,"headwear","shard_scan_no_path",200,
-                "shard scan blocked reason=no_reachable_fragments candidates={} sampleDrop={} samplePosition={} held={} total={}",
-                gatherCandidates,candidates.getFirst().getUUID(),candidates.getFirst().blockPosition(),shardsHeld,shardsTotal);
+                "shard scan blocked reason=no_reachable_fragments candidates={} sampleDrop={} samplePosition={} held={} total={}", () -> new Object[]{
+                    gatherCandidates,candidates.getFirst().getUUID(),candidates.getFirst().blockPosition(),shardsHeld,shardsTotal});
         elapsed = lickTicks = 0;
         return target != null;
     }

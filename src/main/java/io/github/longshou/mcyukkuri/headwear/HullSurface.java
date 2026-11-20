@@ -148,9 +148,12 @@ public final class HullSurface implements HatSurface {
         return out.isEmpty() ? none(hat, body, "room") : out;
     }
     private static List<SeatTarget> none(PlacedHatEntity hat, YukkuriEntity body, String reason) {
-        double capacity = HullBounds.capacity(hat.hullScale() / HullBounds.SCALE);
-        GameplayLog.limited(hat, "hat", "rest_spot." + body.getUUID(), 1200,
-                "rest spot none body={} reason={} load={} capacity={}", body.getUUID(), reason, hat.loadRatio() * capacity, capacity);
+        int suppressed = GameplayLog.admit(hat, "hat", "rest_spot." + body.getUUID(), 1200);
+        if (suppressed >= 0) {
+            double capacity = HullBounds.capacity(hat.hullScale() / HullBounds.SCALE);
+            GameplayLog.limitedEvent(hat, "hat", suppressed,
+                    "rest spot none body={} reason={} load={} capacity={}", body.getUUID(), reason, hat.loadRatio() * capacity, capacity);
+        }
         return List.of();
     }
 }

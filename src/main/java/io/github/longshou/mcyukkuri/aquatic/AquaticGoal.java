@@ -219,8 +219,11 @@ final class AquaticGoal extends Goal {
         if (!aboard) {
             if (birth && hat != null) out.add(Desire.of("come_ashore", floor(birthWant), List.of(cell(hat), birth),
                     () -> "birth_lead", () -> Ashore.come(body)));
-            if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
-                    "set_out held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
+            if (nursery && AquaticLife.ashore(body)) {
+                int suppressed = GameplayLog.admit(body, "aquatic", "nursery.ashore", 1200);
+                if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
+                        "set_out held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
+            }
             // A missing stick never keeps her ashore: SetOut takes one lying (or afloat beside the bank) within reach first, and afloat
             // she goes for sticks on the water or comes ashore for one (fetch_stick, come_ashore).
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;
@@ -295,7 +298,8 @@ final class AquaticGoal extends Goal {
         // Newborns in her care on the water (in her hat, her mate's, or the water itself) hold her where she is; those ashore are young
         // left ashore like any other, and pull her to them (young_ashore).
         if (nursing.stream().anyMatch(AquaticGoal::onTheWater)) {
-            GameplayLog.limited(body, "aquatic", "nursery.aboard", 1200,
+            int suppressed = GameplayLog.admit(body, "aquatic", "nursery.aboard", 1200);
+            if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
                     "departure held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
             return;
         }
@@ -505,7 +509,7 @@ final class AquaticGoal extends Goal {
                 refusedBoarding = full == null ? null : load;
                 if (full == null && Ferry.canBoard(body, hat)) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
                 else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
-                        "board refused hat={} reason={} size={}", hat.getUUID(), full == null ? "no_boarding_stand" : "hull_full " + full, size);
+                        "board refused hat={} reason={} size={}", () -> new Object[]{hat.getUUID(), full == null ? "no_boarding_stand" : "hull_full " + full, size});
             }
         }
         // A young standing on the hull leaves it by itself; one her braid carries on her head goes with her and is set down there.

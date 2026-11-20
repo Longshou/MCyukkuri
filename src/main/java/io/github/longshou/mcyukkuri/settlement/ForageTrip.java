@@ -413,7 +413,7 @@ public final class ForageTrip extends Goal {
         ticks = 0;
         // Up to 45% faster for a hungry child, in the same range as the ordinary emergency pace.
         pace = hunting ? 1 : 1 + .45 * FamilyProvision.atHomeOf(entity).childFoodUrgency(entity);
-        GameplayLog.limited(entity,"forage","active",200,"goal active phase={} reason={} carried={} elapsed={} pace={}",phase,reason,load.getCount(),away(),pace);
+        GameplayLog.limited(entity,"forage","active",200,"goal active phase={} reason={} carried={} elapsed={} pace={}", () -> new Object[]{phase,reason,load.getCount(),away(),pace});
     }
     @Override public void stop() {
         SearchBudget.cancel(level(),entity,Purpose.FORAGE_TRIP,0);

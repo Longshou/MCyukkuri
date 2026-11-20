@@ -274,9 +274,9 @@ public final class DailyLife {
         if (kind == Kind.NUZZLE && !welcome) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
         GameplayLog.limited(entity,"daily","started."+kind,1200,
-                "session reserved kind={} companion={} distance={} affectionNeed={} boredom={} homeDistance={}",
-                kind,companion==null?null:companion.getUUID(),companion==null?0:Math.round(entity.distanceTo(companion)*10)/10.0,affection,boredom,
-                entity.life().homeStand()==null?"none":Math.round(Math.sqrt(entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand())))*10)/10.0);
+                "session reserved kind={} companion={} distance={} affectionNeed={} boredom={} homeDistance={}", () -> new Object[]{
+                    kind,companion==null?null:companion.getUUID(),companion==null?0:Math.round(entity.distanceTo(companion)*10)/10.0,affection,boredom,
+                    entity.life().homeStand()==null?"none":Math.round(Math.sqrt(entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand())))*10)/10.0});
     }
     private boolean room() {
         var pos = entity.blockPosition();
@@ -424,8 +424,8 @@ public final class DailyLife {
         if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED) return true;
         if (entity.motor().current() instanceof Face) return false;
         GameplayLog.limited(entity, "daily", "greet_face." + other.getUUID(), 200,
-                "greet face turn to={} yaw={} bodyYaw={}", other.getUUID(), Math.round(yaw * 10) / 10.0,
-                Math.round(entity.yBodyRot * 10) / 10.0);
+                "greet face turn to={} yaw={} bodyYaw={}", () -> new Object[]{other.getUUID(), Math.round(yaw * 10) / 10.0,
+                Math.round(entity.yBodyRot * 10) / 10.0});
         entity.motor().run(body, new Face(yaw));
         return false;
     }

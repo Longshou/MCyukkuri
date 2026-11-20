@@ -183,15 +183,15 @@ public class CareBlock extends Block implements EntityBlock {
         var target = CareStyles.forDye(block, dye);
         if (target == null) {
             player.displayClientMessage(Component.literal("这种染料没有对应款式；可用：" + CareStyles.hint(block)), true);
-            GameplayLog.limited(player, "interaction", "care_style_no_dye", 20, "care style refused; block={} at={} dye={} reason=no_style_for_dye",
-                    block, pos.toShortString(), dye.getName());
+            GameplayLog.limited(player, "interaction", "care_style_no_dye", 20, "care style refused; block={} at={} dye={} reason=no_style_for_dye", () -> new Object[]{
+                        block, pos.toShortString(), dye.getName()});
             return ItemInteractionResult.CONSUME;
         }
         String before = care.pattern();
         if (target.id().equals(before)) {
             player.displayClientMessage(Component.literal("已经是「" + target.label() + "」款式"), true);
-            GameplayLog.limited(player, "interaction", "care_style_same", 20, "care style refused; block={} at={} dye={} style={} reason=already_this_style",
-                    block, pos.toShortString(), dye.getName(), target.id().isEmpty() ? "default" : target.id());
+            GameplayLog.limited(player, "interaction", "care_style_same", 20, "care style refused; block={} at={} dye={} style={} reason=already_this_style", () -> new Object[]{
+                        block, pos.toShortString(), dye.getName(), target.id().isEmpty() ? "default" : target.id()});
             return ItemInteractionResult.CONSUME;
         }
         care.setPattern(target.id());

@@ -189,9 +189,9 @@ public final class Cannibalism extends Goal {
         decision = kind + (accepted ? "_accepted" : capable ? "_unwilling" : "_unfit");
         var p = entity.life().personality();
         GameplayLog.limited(entity, "cannibal", decision, 200,
-                "decision={} target={} score={} threshold={} nutrition={} health={} energy={} friendliness={} selfControl={} boldness={}",
-                decision, target.getUUID(), drive.score(), drive.threshold(), entity.life().nutrition(), entity.body().healthRatio(),
-                entity.life().energy(), p.friendliness(), p.selfControl(), p.boldness());
+                "decision={} target={} score={} threshold={} nutrition={} health={} energy={} friendliness={} selfControl={} boldness={}", () -> new Object[]{
+                    decision, target.getUUID(), drive.score(), drive.threshold(), entity.life().nutrition(), entity.body().healthRatio(),
+                    entity.life().energy(), p.friendliness(), p.selfControl(), p.boldness()});
         lastReason = decision;
         return accepted;
     }

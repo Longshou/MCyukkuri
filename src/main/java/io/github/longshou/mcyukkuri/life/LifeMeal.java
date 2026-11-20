@@ -258,8 +258,8 @@ final class LifeMeal {
         Verdict offered = verdict(food, giver);
         if (offered == Verdict.REFUSE) {
             GameplayLog.limited(o.entity(), "meal", "taste_refused/" + food.getItem().getDescriptionId(), 400,
-                    "declined serving item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste",
-                    food.getItem(), FoodTaste.grade(food).id(), o.pickiness(), tasteFor(giver), o.nutrition(), giver);
+                    "declined serving item={} grade={} pickiness={} taste={} nutrition={} giver={} reason=taste", () -> new Object[]{
+                        food.getItem(), FoodTaste.grade(food).id(), o.pickiness(), tasteFor(giver), o.nutrition(), giver});
             if (!transfersItem || !Taste.spitsBack(o.personality().selfControl(), SocialDisposition.selfEsteem(o.entity()),
                     o.personality().trust(giver))
                     || !ItemContact.hasReleaseSupport(o.entity(), MouthPlacement.position(o.entity()))) {

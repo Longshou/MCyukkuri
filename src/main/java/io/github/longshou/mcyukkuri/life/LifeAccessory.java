@@ -43,7 +43,7 @@ final class LifeAccessory {
     UUID takeAccessory(UUID player,UUID token) {
         if (!custody.worn() && !o.entity().headwear().reassembling()) {
             GameplayLog.limited(o.entity(), "headwear", "take.no_accessory", 20,
-                    "take refused reason=no_removable_accessory state={} player={}", o.entity().headwear().stateId(), player);
+                    "take refused reason=no_removable_accessory state={} player={}", () -> new Object[]{o.entity().headwear().stateId(), player});
             return null;
         }
         o.entity().headwear().detachReassembly();

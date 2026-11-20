@@ -144,8 +144,8 @@ final class PlantSweetening extends Goal {
                 }
                 if (level.getGameTime() < nextPressure || !visible(level, box, animal)) continue;
                 if (needsTreatment(animal) && GlassSight.sees(staff, animal)) {
-                    GameplayLog.limited(animal, "factory", "treat_later", 1200, "action=sweetening decision=treat_later staff={} health={} unease={}",
-                            staff.getUUID(), animal.body().healthRatio(), animal.mind().unease());
+                    GameplayLog.limited(animal, "factory", "treat_later", 1200, "action=sweetening decision=treat_later staff={} health={} unease={}", () -> new Object[]{
+                                staff.getUUID(), animal.body().healthRatio(), animal.mind().unease()});
                     continue;
                 }
                 double need = need(animal);

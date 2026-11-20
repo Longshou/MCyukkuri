@@ -363,9 +363,11 @@ final class LiveBirth extends Choreography {
     }
     private void deliveryReadout(String stage,String reason,PlacedHatEntity launchHat){
         var b=brood();if(b==null||!live)return;
+        int suppressed = GameplayLog.admit(o.entity(), "family", "birth."+stage+"."+reason, 200);
+        if (suppressed < 0) return;
         int delivery=b.elapsed-b.duration;var cabin=cabin();var hat=cabin==null?placedHat():cabin.hat();
         var out=cabin==null?LiveBirthGeometry.position(o.entity(),pushing):cabin.exit(pushing);
-        GameplayLog.limited(o.entity(),"family","birth."+stage+"."+reason,200,
+        GameplayLog.limitedEvent(o.entity(),"family",suppressed,
                 "birth delivery stage={} reason={} rejection={} beat={} child={} delivery={} phase={} host={} outlet={} aim={} launchHat={} forced={} unprotected={}",
                 stage,reason,rejection,beat(),pushing,delivery,delivery<LiveBirthGeometry.emergenceStart(pushing)?"before_emergence":"emerging",
                 hat==null?null:hat.getUUID(),hat==null?out:hat.frame().toLocal(out),exit==null?null:exit.aim(),launchHat==null?null:launchHat.getUUID(),forced,unprotected);
@@ -718,8 +720,8 @@ final class LiveBirth extends Choreography {
                 if(!facingWatch())return new Step.Do(new Face(SurfaceApproach.yaw(c.position(),look)));
                 if(!settled){
                     settled=true;
-                    GameplayLog.limited(c,"choreo","catcher_attending."+id,1200,"catcher attending yaw={} stand={} look={} beat={} hat={}",
-                            String.format(Locale.ROOT,"%.1f",c.yBodyRot),id,GameplayLog.at(look),beat(),hat.getUUID());
+                    GameplayLog.limited(c,"choreo","catcher_attending."+id,1200,"catcher attending yaw={} stand={} look={} beat={} hat={}", () -> new Object[]{
+                                String.format(Locale.ROOT,"%.1f",c.yBodyRot),id,GameplayLog.at(look),beat(),hat.getUUID()});
                 }
                 var hello=c.family().greetHop();
                 if(hello!=null&&!hello.equals(hopped)){hopped=hello;return new Step.Do(new Gesture(Gesture.Kind.HOP_SMALL));}

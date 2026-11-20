@@ -143,8 +143,8 @@ public enum JunkHeadwear {
         if (band == Band.HAUGHTY) animal.showReaction(YukkuriAction.PUFF, "cheek_puff", line(animal, "junk_indignant", "request_sulk"));
         else animal.showReaction(YukkuriAction.TREMBLE, "teary", line(animal, "junk_afraid", "afraid"));
         GameplayLog.limited(animal, "headwear", "junk_refusal", 40,
-                "junk refused player={} esteem={} chance={} band={}", giver == null ? null : giver.getUUID(),
-                contact.esteem(), chance(contact), band.id());
+                "junk refused player={} esteem={} chance={} band={}", () -> new Object[]{giver == null ? null : giver.getUUID(),
+                contact.esteem(), chance(contact), band.id()});
     }
 
     /** The player takes it off again: the lowly one struggles not to lose it, the haughty one says it never suited it. */
@@ -178,7 +178,7 @@ public enum JunkHeadwear {
     private static boolean wince(YukkuriEntity animal) {
         if (!animal.showReaction("teary", line(animal, "junk_afraid", "afraid"), 60)) return false;
         GameplayLog.limited(animal, "headwear", "junk_mock_wince", 600,
-                "junk mock wince variant={} esteem={}", animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal));
+                "junk mock wince variant={} esteem={}", () -> new Object[]{animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal)});
         return true;
     }
 
@@ -194,8 +194,8 @@ public enum JunkHeadwear {
         animal.getLookControl().setLookAt(watcher, 30, 30);
         animal.showReaction(YukkuriAction.PROUD, "happy", "");
         GameplayLog.limited(animal, "headwear", "junk_shown_off", 1200,
-                "junk shown off variant={} esteem={} to={}",
-                animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal), watcher.getUUID());
+                "junk shown off variant={} esteem={} to={}", () -> new Object[]{
+                    animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal), watcher.getUUID()});
         return true;
     }
 
