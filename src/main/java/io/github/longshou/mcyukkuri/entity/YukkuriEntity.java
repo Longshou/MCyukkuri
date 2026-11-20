@@ -83,6 +83,7 @@ import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.social.Cannibalism;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.social.GriefLife;
@@ -275,6 +276,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (level().isClientSide) return;
         Long seed = TraceRecorder.runSeedForFirstAdd(getUUID());
         if (seed != null) ModRandom.seedEntity(this);
+        VillageStrays.observe(this);
     }
 
 
@@ -527,7 +529,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public YukkuriLife life() { return life; }
     public PetLife pet() { return pet; }
     @Override public boolean removeWhenFarAway(double distance) {
-        return !pet.townRoots() && super.removeWhenFarAway(distance);
+        return !VillageStrays.rooted(this) && super.removeWhenFarAway(distance);
     }
     private PetOuting outing;
     public PetOuting outing() { if (outing == null) outing = new PetOuting(this); return outing; }

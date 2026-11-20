@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
@@ -292,7 +293,7 @@ public final class PetLife {
     /** An unkept individual still tied to human-town life, including offspring raised in it. */
     public boolean townRoots() { return townRoots; }
     public void markTownRoots() { townRoots = true; }
-    public void leaveTownLife() { townRoots = false; endVigil(); }
+    public void leaveTownLife() { townRoots = false; endVigil(); VillageStrays.forget(animal); }
 
     private void endVigil() { waits = false; vigilOffers.clear(); }
     /** Owner feeding, talking or caring for the pet, or merely being near it. Cruel actions refresh presence only. */
@@ -424,6 +425,7 @@ public final class PetLife {
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
+        VillageStrays.forget(animal);
         animal.outing().forget();
         care.ownerChanged(owner);
         lastContact = now(); neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
@@ -567,6 +569,7 @@ public final class PetLife {
         if (animal.level().isClientSide) return;
         // Run after all entity/NeoForge data has loaded, before ownership-dependent routines.
         if (animal.tickCount == 1) PetPrivileges.note(animal);
+        if (townRoots && animal.tickCount % 100 == 1) VillageStrays.observe(animal);
         if (examWildTag != null && !ExamSession.running(animal)) finishWildExam();
         if (cooldown > 0) cooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();

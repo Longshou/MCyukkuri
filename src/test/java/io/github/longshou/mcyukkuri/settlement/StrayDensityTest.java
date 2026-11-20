@@ -4,6 +4,35 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StrayDensityTest {
+    @Test void nightUsesOnlyTheSolarClockEvenDuringDaytimeThunder() {
+        for (long day : new long[]{0, 24000, 48000}) {
+            assertFalse(StrayDensity.night(day + 12999));
+            assertTrue(StrayDensity.night(day + 13000));
+            assertTrue(StrayDensity.night(day + 22999));
+            assertFalse(StrayDensity.night(day + 23000));
+            assertEquals(3, StrayDensity.target(8, StrayDensity.night(day + 6000), true));
+            assertEquals(2, StrayDensity.target(8, StrayDensity.night(day + 18000), true));
+        }
+    }
+
+    @Test void migrationReleasesResidenceInAnyDirectionOrDimension() {
+        assertTrue(StrayDensity.stillResident(true, -96, 0));
+        assertFalse(StrayDensity.stillResident(true, -96, 1));
+        assertFalse(StrayDensity.stillResident(true, 70, 70));
+        assertFalse(StrayDensity.stillResident(false, 0, 0));
+    }
+
+    @Test void bellsReuseTheirSurveyUntilExpiryAndEvictColdStreets() {
+        var survey = new VillageSurvey.Cache<Integer, Integer>();
+        assertEquals(9, survey.get(5, 100, () -> 9));
+        assertEquals(9, survey.get(5, 6099, () -> fail("unexpected bed survey")));
+        assertEquals(7, survey.get(5, 6100, () -> 7));
+        for (int i = 6; i <= 261; i++) survey.get(i, 6101, () -> 4);
+        assertEquals(8, survey.get(5, 6102, () -> 8));
+        assertNull(survey.get(0, 6103, () -> null));
+        assertNull(survey.get(0, 6104, () -> fail("empty street was rescanned")));
+    }
+
     @Test void homesUpTheVillageSlopeStillFrontItsStreets() {
         // Seed 123456789: the only bed stands 38 blocks above its bell.
         assertTrue(StrayDensity.inFootprint(-336 - (-276), 165 - 158));

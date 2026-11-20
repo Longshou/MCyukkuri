@@ -81,14 +81,15 @@ public final class HouseEggs {
         if(data.population(level,nest.getBlockPos())-(alreadyCounted?1:0)+1>FamilyConfig.POPULATION_CAP.get())return null;
         var child=entry.child();child.eggNest=GlobalPos.of(level.dimension(),nest.getBlockPos());
         child.eggNestId=nest.identity();child.eggToken=null;
-        if(person!=null)person.position=child.eggNest;
+        if(person!=null)data.locate(person, child.eggNest);
         data.setDirty();return new Ref(entry.brood().id,child.id);
     }
     public static void lose(ServerLevel level,Ref ref,HouseNestBlockEntity nest) {
         var entry=resolve(level,ref);if(!belongs(entry,nest))return;
         var child=entry.child();child.eggLost=true;child.eggNest=null;child.eggNestId=null;
-        var person=FamilyData.get(level).person(child.id);if(person!=null)person.status=FamilyData.Status.LOST;
-        FamilyData.get(level).setDirty();
+        var data=FamilyData.get(level);var person=data.person(child.id);
+        if(person!=null)data.endPopulation(person,FamilyData.Status.LOST);
+        data.setDirty();
     }
     /** A real loose egg was destroyed or expired. Pickup empties the stack; unloading does not destroy it. */
     public static void leaving(EntityLeaveLevelEvent event) {
@@ -99,7 +100,7 @@ public final class HouseEggs {
         var entry=ticket(level,item.getItem());if(entry==null)return;
         var child=entry.child();child.eggLost=true;child.eggToken=null;
         var data=FamilyData.get(level);var person=data.person(child.id);
-        if(person!=null)person.status=FamilyData.Status.LOST;
+        if(person!=null)data.endPopulation(person,FamilyData.Status.LOST);
         data.setDirty();
     }
     private HouseEggs(){}

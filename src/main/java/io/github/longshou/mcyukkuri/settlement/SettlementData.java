@@ -176,6 +176,7 @@ public final class SettlementData extends SavedData {
 
     private final Map<UUID, Group> groups = new HashMap<>();
     private final Map<UUID, Site> sites = new HashMap<>();
+    final VillageSurvey villageSurvey = new VillageSurvey();
     // Stable structural snapshots let callers remove entries while iterating; contained objects remain live.
     private List<Group> cachedGroups;
     private List<Site> cachedSites;

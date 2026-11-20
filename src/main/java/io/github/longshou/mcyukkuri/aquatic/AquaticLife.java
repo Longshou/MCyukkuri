@@ -8,11 +8,14 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 
 /**
  * The aquatic life on the water: registers its goals and the natural-spawn hook with the
@@ -189,12 +193,13 @@ public final class AquaticLife {
     public static void joined(EntityJoinLevelEvent event) {
         if (event.loadedFromDisk() || event.getLevel().isClientSide() || !(event.getEntity() instanceof YukkuriEntity body)) return;
         var cause = JOINING.remove(body);
-        if (cause != null) place(body, cause);
+        if (cause != null && "visible_arrival".equals(place(body, cause))) event.setCanceled(true);
     }
 
-    private static void place(YukkuriEntity body, String cause) {
+    private static String place(YukkuriEntity body, String cause) {
         String refused = seat(body, cause);
         if (refused != null) refuse(body, refused, cause);
+        return refused;
     }
 
     private static void refuse(YukkuriEntity body, String reason, String cause) {
@@ -213,7 +218,16 @@ public final class AquaticLife {
         if (!HatProp.usable(body) || !body.life().custody().worn()) return "no_hat";
         var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().filter(e -> Waters.floats(e, body)).findFirst().orElse(null);
         if (water == null) return "no_water";
-        var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
+        var at = Waters.hatAt(water, body);
+        if (body.pet().townRoots() && !body.isAddedToLevel()) {
+            // Both the hull and the rider at its real water berth must be out of sight before either is added.
+            double scale = HatScale.of(body) / HullBounds.SCALE;
+            double r = HullBounds.RADIUS * scale + body.getBbWidth();
+            var box = new AABB(at.x-r, at.y-1+HullBounds.KEEL*scale, at.z-r,
+                    at.x+r, at.y+1+HullBounds.BRIM*scale+body.getBbHeight(), at.z+r);
+            if (!VillageStrays.hidden((ServerLevel)body.level(), box)) return "visible_arrival";
+        }
+        var hat = PlacedHatEntity.setDown(body, at, water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
         Motor.placementFacing(body, hat.getYRot());
         return board(body, hat, hat.restSpot(body), cause, true);

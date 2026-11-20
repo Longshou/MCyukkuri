@@ -11,44 +11,66 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Stream;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiRecord;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class VillageStrays {
-    private record Village(List<BlockPos> beds, int vacancies) {}
-
-    private static Stream<BlockPos> nearby(PoiManager pois, ResourceKey<PoiType> kind, BlockPos centre) {
-        return pois.getInSquare(type -> type.is(kind), centre, StrayDensity.RADIUS, PoiManager.Occupancy.ANY)
-                .map(PoiRecord::getPos)
-                .filter(p -> StrayDensity.inFootprint(p.getX() - centre.getX(), p.getZ() - centre.getZ()));
+    private static int vacancies(ServerLevel level, VillageSurvey.Streets streets) {
+        if (streets == null || streets.beds().isEmpty()) return 0;
+        int target = StrayDensity.target(streets.beds().size(), StrayDensity.night(level.getDayTime()),
+                (level.isRaining() || level.isThundering()) && level.getBiome(streets.centre()).value().hasPrecipitation());
+        // Bell catchments that overlap share their saved residents, including unloaded families.
+        return target - FamilyData.get(level).villageResidents(level, streets.address(), 2 * StrayDensity.RADIUS);
     }
 
-    private static Village survey(ServerLevel level, BlockPos pos) {
-        var pois = level.getPoiManager();
-        var centre = nearby(pois, PoiTypes.MEETING, pos).min(Comparator.comparingDouble(pos::distSqr)).orElse(pos);
-        var beds = nearby(pois, PoiTypes.HOME, centre).toList();
-        int target = StrayDensity.target(beds.size(), level.isNight(),
-                level.isRaining() && level.getBiome(centre).value().hasPrecipitation());
-        var streets = new AABB(centre).inflate(StrayDensity.RADIUS + 12)
-                .setMinY(level.getMinBuildHeight()).setMaxY(level.getMaxBuildHeight());
-        int residents = level.getEntitiesOfClass(YukkuriEntity.class, streets,
-                y -> y.isAlive() && y.status().identity() == Identity.STRAY).size();
-        return new Village(beds, target - residents);
+    private static void settle(YukkuriEntity body, VillageSurvey.Streets streets) {
+        var level = (ServerLevel)body.level();
+        body.pet().markTownRoots();
+        var data = FamilyData.get(level);
+        data.village(data.register(body), GlobalPos.of(level.dimension(), streets.address()));
+    }
+
+    public static boolean rooted(YukkuriEntity body) {
+        if (!body.pet().townRoots() || !(body.level() instanceof ServerLevel level)) return false;
+        var person = FamilyData.get(level).person(body.getUUID());
+        return person != null && person.village() != null && withinVillage(body, person.village());
+    }
+
+    private static boolean withinVillage(YukkuriEntity body, GlobalPos root) {
+        return StrayDensity.stillResident(body.level().dimension().equals(root.dimension()),
+                body.getBlockX() - root.pos().getX(), body.getBlockZ() - root.pos().getZ());
+    }
+
+    public static void forget(YukkuriEntity body) {
+        if (!(body.level() instanceof ServerLevel level)) return;
+        var data = FamilyData.get(level);
+        var person = data.person(body.getUUID());
+        if (person != null) data.village(person, null);
+    }
+
+    public static void observe(YukkuriEntity body) {
+        if (!body.pet().townRoots() || !(body.level() instanceof ServerLevel level)) return;
+        var person = FamilyData.get(level).person(body.getUUID());
+        if (body.status().identity() != Identity.STRAY) { forget(body); return; }
+        if (person != null && person.village() != null) {
+            if (!withinVillage(body, person.village())) {
+                body.pet().leaveTownLife();
+                YukkuriStatus.identityChanged(body, Identity.STRAY, "village_emigration");
+            }
+        } else if (TownAware.inTown(level, body.blockPosition())) {
+            var streets = SettlementData.get(level).villageSurvey.at(level, body.blockPosition());
+            if (streets != null && !streets.beds().isEmpty() && streets.contains(body.blockPosition()))
+                settle(body, streets);
+        }
     }
 
     private static boolean admits(ServerLevel level, BlockPos pos, int vacancies, boolean existing) {
@@ -61,8 +83,10 @@ public final class VillageStrays {
     static void discover(YukkuriEntity seed) {
         var level = (ServerLevel) seed.level();
         var pos = seed.blockPosition();
-        if (SurfaceApproach.supported(seed, seed.position()) && admits(level, pos, survey(level, pos).vacancies(), true)) {
-            seed.pet().markTownRoots();
+        var streets = SettlementData.get(level).villageSurvey.at(level, pos);
+        if (streets != null && streets.contains(pos)
+                && SurfaceApproach.supported(seed, seed.position()) && admits(level, pos, vacancies(level, streets), true)) {
+            settle(seed, streets);
             GameplayLog.event(seed, "settlement", "village stray from natural discovery");
         }
     }
@@ -73,23 +97,32 @@ public final class VillageStrays {
                 || !YukkuriConfig.COMMUNITIES.get()) return 0;
         var player = level.getRandomPlayer();
         if (player == null || player.isSpectator() || !TownAware.inTown(level, player.blockPosition())) return 0;
-        var village = survey(level, player.blockPosition());
-        if (village.vacancies() <= 0) return 0;
+        var village = SettlementData.get(level).villageSurvey.at(level, player.blockPosition());
+        int vacancies = vacancies(level, village);
+        if (vacancies <= 0) return 0;
         var random = ModRandom.world(level);
+        var adult = SettlementSpawner.common(level);
+        if (adult == null) return 0;
         for (int i = 0; i < 8; i++) {
             var bed = village.beds().get(random.nextInt(village.beds().size()));
-            var pos = street(level, bed.offset(random.nextIntBetweenInclusive(-12, 12), 0, random.nextIntBetweenInclusive(-12, 12)));
+            var column = bed.offset(random.nextIntBetweenInclusive(-12, 12), 0, random.nextIntBetweenInclusive(-12, 12));
+            if (!village.contains(column)) continue;
+            if (i < 4 && VillageSurvey.horizontal(column, village.centre()) < VillageSurvey.horizontal(bed, village.centre())) continue;
+            var pos = street(level, column);
             if (pos == null) continue;
-            if (!admits(level, pos, village.vacancies(), false)) return 0;
-            var adult = SettlementSpawner.common(level);
-            if (adult == null || !arrive(level, adult, pos, null)) return 0;
-            if (village.vacancies() > 1 && random.nextInt(5) == 0) {
+            var feet = hiddenStand(level, adult, pos);
+            if (feet == null) continue;
+            if (!admits(level, pos, vacancies, false) || !arrive(level, adult, feet, null, village)) return 0;
+            if (vacancies > 1 && random.nextInt(5) == 0) {
                 var side = Direction.Plane.HORIZONTAL.getRandomDirection(random);
                 var beside = street(level, pos.relative(side));
-                if (beside != null && Math.abs(beside.getY() - pos.getY()) <= 1
-                        && admits(level, beside, village.vacancies() - 1, false)) {
+                if (beside != null && village.contains(beside) && Math.abs(beside.getY() - pos.getY()) <= 1) {
                     var child = ModEntities.forVariant(adult.getVariant()).create(level);
-                    if (child != null && arrive(level, child, beside, adult)) return 2;
+                    if (child != null) {
+                        var childFeet = hiddenStand(level, child, beside);
+                        if (childFeet != null && admits(level, beside, vacancies - 1, false)
+                                && arrive(level, child, childFeet, adult, village)) return 2;
+                    }
                 }
             }
             return 1;
@@ -106,17 +139,38 @@ public final class VillageStrays {
                 || ground.is(Blocks.GRAVEL) || ground.is(Blocks.SNOW_BLOCK) ? pos : null;
     }
 
-    private static boolean arrive(ServerLevel level, YukkuriEntity body, BlockPos pos, YukkuriEntity parent) {
+    public static boolean hidden(ServerLevel level, AABB box) {
+        var cursor = new BlockPos.MutableBlockPos();
+        StraySight.Terrain terrain = (x, y, z) -> {
+            var chunk = level.getChunkSource().getChunkNow(x >> 4, z >> 4);
+            if (chunk == null) return false;
+            cursor.set(x, y, z);
+            return chunk.getBlockState(cursor).isSolidRender(level, cursor);
+        };
+        var center = box.getCenter();
+        for (var player : level.players()) {
+            if (!StraySight.hidden(terrain, player.getX(), player.getEyeY(), player.getZ(),
+                    center.x, center.y, center.z, box.getXsize() / 2, box.getYsize() / 2)) return false;
+        }
+        return true;
+    }
+
+    private static Vec3 hiddenStand(ServerLevel level, YukkuriEntity body, BlockPos pos) {
         var feet = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(pos));
-        if (feet == null) return false;
+        return feet != null && hidden(level, body.getDimensions(body.getPose()).makeBoundingBox(feet)) ? feet : null;
+    }
+
+    private static boolean arrive(ServerLevel level, YukkuriEntity body, Vec3 feet, YukkuriEntity parent,
+                                  VillageSurvey.Streets village) {
         Motor.relocate(body, feet, body.getYRot(), "village_stray_arrival");
         body.pet().markTownRoots();
-        if (parent == null) body.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
-        if (!level.addFreshEntity(body)) return false;
-        if (parent != null) {
-            body.family().generatedChild(parent, null);
-            FamilyData.get(level).register(body);
+        if (parent == null) {
+            body.finalizeSpawn(level, level.getCurrentDifficultyAt(body.blockPosition()), MobSpawnType.NATURAL, null);
+            if (!hidden(level, body.getBoundingBox())) return false;
         }
+        if (!level.addFreshEntity(body)) return false;
+        if (parent != null) body.family().generatedChild(parent, null);
+        settle(body, village);
         GameplayLog.event(body, "settlement", "village stray arrived parent={}", parent == null ? "none" : parent.getUUID());
         return true;
     }

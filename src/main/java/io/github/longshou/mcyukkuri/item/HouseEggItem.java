@@ -40,7 +40,7 @@ public final class HouseEggItem extends Item {
             if(entry!=null){
                 var data=FamilyData.get(server);
                 var person=data.person(entry.child().id);
-                if(person!=null){person.position=GlobalPos.of(level.dimension(),carrier.blockPosition());data.setDirty();}
+                if(person!=null)data.locate(person,GlobalPos.of(level.dimension(),carrier.blockPosition()));
             }
         }
     }

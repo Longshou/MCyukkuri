@@ -39,6 +39,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -47,6 +48,7 @@ import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.settlement.Homes;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -81,6 +83,8 @@ public final class FamilyData extends SavedData {
         public UUID incidentSource;
         private Foster foster;
         public GlobalPos position;
+        private GlobalPos village;
+        public GlobalPos village() { return village; }
         public Status status = Status.ALIVE;
         public String variant;
         private String lastName = "", lastStage = "";
@@ -142,6 +146,53 @@ public final class FamilyData extends SavedData {
         int unpaidTicks() { return duration-elapsed/drawInterval()*drawInterval(); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
+    private final PopulationIndex<ResourceKey<Level>, Person> positions = new PopulationIndex<>();
+    private final PopulationIndex<ResourceKey<Level>, Person> roots = new PopulationIndex<>();
+
+    private static void index(PopulationIndex<ResourceKey<Level>, Person> index, Person person, GlobalPos pos) {
+        if (pos == null) index.remove(person);
+        else index.locate(person, pos.dimension(), pos.pos().getX(), pos.pos().getZ());
+    }
+
+    public void locate(Person person, GlobalPos position) {
+        person.position = position;
+        indexPosition(person);
+        setDirty();
+    }
+
+    private void indexPosition(Person person) {
+        index(positions, person, person.status == Status.ALIVE || person.status == Status.UNBORN ? person.position : null);
+    }
+
+    public void endPopulation(Person person, Status status) {
+        person.status = status;
+        positions.remove(person);
+        village(person, null);
+        setDirty();
+    }
+
+    public void village(Person person, GlobalPos village) {
+        if (Objects.equals(person.village, village)) return;
+        person.village = village;
+        index(roots, person, village);
+        setDirty();
+    }
+
+    public int villageResidents(ServerLevel level, BlockPos centre, int radius) {
+        var custody = YukkuriWorldData.get(level);
+        return roots.count(level.dimension(), centre.getX(), centre.getZ(), radius, person ->
+                person.status == Status.ALIVE && !custody.isCaptured(person.id)
+                        && PopulationIndex.within(person.village.pos().getX() - centre.getX(),
+                                person.village.pos().getZ() - centre.getZ(), radius));
+    }
+
+    private void forgetPerson(UUID id) {
+        var person = people.remove(id);
+        if (person != null) {
+            positions.remove(person);
+            roots.remove(person);
+        }
+    }
     /** Conservative, session-long retention: identities themselves are never compacted or removed here. */
     private final Set<UUID> cleanupRetained = new HashSet<>();
     final RelationshipCleanup cleanup = new RelationshipCleanup();
@@ -160,7 +211,10 @@ public final class FamilyData extends SavedData {
     private final Map<UUID, List<UUID>> childrenByParent = new HashMap<>();
     private boolean childrenIndexDirty = true;
     private void putPerson(Person person) {
+        forgetPerson(person.id);
         people.put(person.id, person);
+        indexPosition(person);
+        index(roots, person, person.village);
         retainPersonReferences(person);
         childrenIndexDirty = true;
         partnerIndexDirty = true;
@@ -237,9 +291,9 @@ public final class FamilyData extends SavedData {
     }
     /** Restore the seed's authority explicitly; loading its old entity mirror must never do this. */
     public void rollbackEncounter(Set<UUID> allocated, PartnerSnapshot seed) {
-        people.keySet().removeAll(allocated);
+        allocated.forEach(this::forgetPerson);
         if(seed!=null) {
-            if(!seed.existed)people.remove(seed.id);
+            if(!seed.existed)forgetPerson(seed.id);
             else {
                 Person person=people.get(seed.id);
                 if(person==null)throw new IllegalStateException("Encounter removed its pre-existing seed");
@@ -273,7 +327,7 @@ public final class FamilyData extends SavedData {
         childrenIndexDirty = true;
         Person record = people.computeIfAbsent(entity.getUUID(), id -> new Person(id,entity.getVariant().assetId(),position));
         if (record.status == Status.REMOVED) record.status = Status.ALIVE;
-        record.position=position;
+        locate(record, position);
         record.observeIdentity(entity);
         if (record.mother == null && entity.family().mother() != null) {
             record.mother=entity.family().mother(); record.father=entity.family().father(); record.brood=entity.family().birthId();
@@ -407,9 +461,9 @@ public final class FamilyData extends SavedData {
     public int population(ServerLevel level, BlockPos position) {
         for(var entity:level.getEntitiesOfClass(YukkuriEntity.class,new AABB(position).inflate(32))) register(entity);
         var custody=YukkuriWorldData.get(level);
-        return (int)people.values().stream().filter(p->(p.status==Status.ALIVE||p.status==Status.UNBORN)
-                && p.position!=null&&p.position.dimension().equals(level.dimension())&&p.position.pos().distSqr(position)<=32*32
-                && !custody.isCaptured(p.id)).count();
+        return positions.count(level.dimension(), position.getX(), position.getZ(), 32,
+                p -> p.position.pos().distSqr(position) <= 32*32
+                        && !custody.isCaptured(p.id));
     }
     public int reservedInside(ServerLevel level,Predicate<BlockPos> inside) {
         return (int)people.values().stream().filter(p->p.status==Status.UNBORN&&p.position!=null
@@ -621,7 +675,7 @@ public final class FamilyData extends SavedData {
                 .filter(p->p.position.dimension().equals(level.dimension())&&p.position.pos().distSqr(budget.center())<=32*32).count();
         if(population(level,budget.center())-own+brood.unborn()>budget.limit())return false;
         brood.anchor=GlobalPos.of(level.dimension(),destination);
-        for(Child child:brood.children)if(!child.born)people.get(child.id).position=brood.anchor;
+        for(Child child:brood.children)if(!child.born)locate(people.get(child.id), brood.anchor);
         setDirty();return true;
     }
     private final Map<UUID,String> refusals=new HashMap<>();
@@ -713,7 +767,7 @@ public final class FamilyData extends SavedData {
         boolean inheritedHome=actualMother!=null&&entity.habitat().inherit(actualMother);
         if(!inheritedHome&&actualFather!=null)entity.habitat().inherit(actualFather);
         refusals.remove(brood.id);
-        child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
+        child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;locate(person,GlobalPos.of(level.dimension(),entity.blockPosition()));
         trackStemCompletion(brood,level);
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
@@ -774,13 +828,13 @@ public final class FamilyData extends SavedData {
     public void cancel(Brood brood,Entity source,String reason) {
         if(brood==null||brood.cancelled)return;
         int unborn=brood.unborn();
-        brood.cancelled=true;for(Child child:brood.children)if(!child.born)people.get(child.id).status=Status.LOST;
+        brood.cancelled=true;for(Child child:brood.children)if(!child.born)endPopulation(people.get(child.id),Status.LOST);
         setDirty();
         GameplayLog.event(source,"family","brood cancelled brood={} kind={} mother={} unborn={} reason={}",
                 brood.id,brood.kind,brood.mother,unborn,reason);
     }
     public void died(YukkuriEntity entity) {
-        Person p=register(entity);p.status=Status.DEAD;
+        Person p=register(entity);endPopulation(p,Status.DEAD);
         for(Person person:people.values())if(p.id.equals(person.partner))normalizeWidow(person);
         for(Brood brood:broods.values())if(brood.kind!=BirthKind.EGG&&brood.detachedHolder==null&&brood.mother.equals(entity.getUUID())&&!brood.complete())cancel(brood,entity,"mother_died");
         setDirty();
@@ -803,8 +857,11 @@ public final class FamilyData extends SavedData {
         var person = data.person(entity.getUUID());
         if (person == null || person.status != Status.ALIVE) return;
         person.observeIdentity(entity);
+        data.locate(person, GlobalPos.of(level.dimension(), entity.blockPosition()));
+        if (person.village != null && !VillageStrays.rooted(entity))
+            entity.pet().leaveTownLife();
         if (entity.getRemovalReason() == Entity.RemovalReason.DISCARDED && !YukkuriWorldData.get(level).isCaptured(person.id))
-            person.status = Status.REMOVED;
+            data.endPopulation(person, Status.REMOVED);
         data.setDirty();
     }
     /** People and broods dropped by {@link #forgetPlayground}. */
@@ -832,7 +889,7 @@ public final class FamilyData extends SavedData {
                 for(Child child:brood.children)forget.add(child.id);
             }
         broods.keySet().removeAll(dropped);
-        people.keySet().removeAll(forget);
+        forget.forEach(this::forgetPerson);
         spawning.removeAll(forget);
         childrenIndexDirty=true;partnerIndexDirty=true;
         if(!forget.isEmpty()||!dropped.isEmpty())setDirty();
@@ -867,7 +924,7 @@ public final class FamilyData extends SavedData {
                 CompoundTag badge = new CompoundTag(); badge.putInt("Grade", acquisition.grade()); badge.putLong("AcquiredAt", acquisition.acquiredAt()); badges.add(badge);
             }
             value.put("BadgeAcquisitions", badges);
-            putPosition(value,"Position",person.position);persons.add(value);
+            putPosition(value,"Position",person.position);putPosition(value,"Village",person.village);persons.add(value);
         }
         for(Brood brood:broods.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",brood.id);value.putUUID("Mother",brood.mother);if(brood.father!=null)value.putUUID("Father",brood.father);
@@ -898,6 +955,7 @@ public final class FamilyData extends SavedData {
         for(Tag entry:tag.getList("People",Tag.TAG_COMPOUND)) {
             CompoundTag value=(CompoundTag)entry;if(!value.hasUUID("Id"))continue;
             Person person=new Person(value.getUUID("Id"),value.getString("Variant"),position(value,"Position"));
+            person.village=position(value,"Village");
             person.lastName = value.getString("LastName");
             person.lastStage = value.getString("LastStage");
             try { person.status=Status.valueOf(value.getString("Status")); }catch(IllegalArgumentException ignored){person.status=Status.REMOVED;}

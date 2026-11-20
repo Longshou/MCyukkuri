@@ -8,6 +8,15 @@ final class StrayDensity {
         return dx * dx + dz * dz <= RADIUS * RADIUS;
     }
 
+    static boolean stillResident(boolean sameDimension, double dx, double dz) {
+        return sameDimension && dx * dx + dz * dz <= 96 * 96;
+    }
+
+    static boolean night(long dayTime) {
+        long time = Math.floorMod(dayTime, 24000L);
+        return time >= 13000 && time < 23000;
+    }
+
     static int target(int beds, boolean night, boolean rain) {
         if (beds == 0) return 0;
         int fairDay = Math.min(6, 2 + beds / 4);
