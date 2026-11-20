@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
+import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,32 +35,51 @@ public final class ExamMenu extends AbstractContainerMenu {
 
     private final HumanNpc target;
     private final Player viewer;
+    private final TownMarkers.BadgeCounter counter;
     private final List<UUID> subjects = new ArrayList<>();
     private final SimpleContainerData data = new SimpleContainerData(Data.COUNT);
     private int selected, rescanClock;
 
     public ExamMenu(int id, Inventory inventory, int entityId) {
+        this(id, inventory, inventory.player.level().getEntity(entityId) instanceof HumanNpc npc ? npc : null, null);
+    }
+
+    private ExamMenu(int id, Inventory inventory, HumanNpc target, TownMarkers.BadgeCounter counter) {
         super(HumanWorld.EXAM_MENU.get(), id);
         viewer = inventory.player;
-        target = viewer.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
+        this.target = target;
+        this.counter = counter;
         addDataSlots(data);
         rescan();
         refresh();
     }
 
     public static void open(Player p, HumanNpc npc) {
-        if (!(p instanceof ServerPlayer server) || !HumanNpc.canServe(p, npc)) return;
-        if (!npc.beginTrade(p)) {
-            p.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse.busy"), true);
+        if (!(p instanceof ServerPlayer server) || !npc.examAuthority() || !HumanNpc.canServe(p, npc)) return;
+        var counter = npc.badgeCounter() ? ExamHall.counter(npc) : null;
+        String reason = npc.badgeCounter() && !npc.level().isDay() ? "night"
+                : ExamSession.active(npc) ? "busy"
+                : npc.badgeCounter() && !ExamHall.servesAtCounter(npc, p, counter) ? "counter" : null;
+        if (reason == null) {
+            if (p.containerMenu instanceof ExamMenu menu && menu.target() == npc) p.closeContainer();
+            if (!npc.beginTrade(p)) reason = "busy";
+        }
+        if (reason != null) {
+            p.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse." + reason), true);
             return;
         }
-        server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ExamMenu(id, inv, npc.getId()),
+        var opened = server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ExamMenu(id, inv, npc, counter),
                 npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
+        if (opened.isEmpty()) npc.endTrade(p);
+        else if (counter != null) GameplayLog.event(npc, "exam", "action=counter_menu player={}", p.getUUID());
     }
 
     public HumanNpc target() { return target; }
     public int value(int index) { return data.get(index); }
-    @Override public boolean stillValid(Player p) { return HumanNpc.canServe(p, target); }
+    @Override public boolean stillValid(Player p) {
+        return HumanNpc.canServe(p, target) && (p.level().isClientSide || !target.badgeCounter()
+                || p.level().isDay() && target.holdsCounterMenu(p) && ExamHall.servesAtCounter(target, p, counter));
+    }
     @Override public ItemStack quickMoveStack(Player p, int slot) { return ItemStack.EMPTY; }
     @Override public void removed(Player player) { super.removed(player); if (target != null) target.endTrade(player); }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
@@ -103,8 +123,8 @@ public final class ExamMenu extends AbstractContainerMenu {
             data.set(Data.LAST_OUTCOME, last.outcome() + 1);
             data.set(Data.LAST_GRADE, last.result().id());
         }
-        data.set(Data.CERTIFY_REFUSAL, refusalCode(ExamSession.refusal(target, viewer, y, false)));
-        data.set(Data.REISSUE_REFUSAL, refusalCode(ExamSession.refusal(target, viewer, y, true)));
+        data.set(Data.CERTIFY_REFUSAL, refusalCode(ExamSession.refusal(target, viewer, y, false, counter)));
+        data.set(Data.REISSUE_REFUSAL, refusalCode(ExamSession.refusal(target, viewer, y, true, counter)));
     }
 
     private static int refusalCode(String reason) { return reason == null ? 0 : ExamSession.REASONS.indexOf(reason); }
@@ -129,24 +149,28 @@ public final class ExamMenu extends AbstractContainerMenu {
             return true;
         }
         if (id == ButtonId.CERTIFY) {
-            var reason = ExamSession.start(target, p, y);
+            var reason = ExamSession.start(target, p, y, counter);
             if (reason != null) return refuse(p, reason);
             p.closeContainer();
             return true;
         }
-        var reason = ExamSession.refusal(target, p, y, true);
+        var reason = ExamSession.refusal(target, p, y, true, counter);
         if (reason != null) return refuse(p, reason);
+        var oldSerial = y.pet().serial();
         var token = y.pet().reissueToken();
         ExamSession.debit(p, ExamSession.REISSUE_FEE);
-        ExamSession.giveTo(p, token);
-        GameplayLog.event(y, "badge", "reissued examiner={} owner={} serial={} fee={}",
-                target.getUUID(), p.getUUID(), y.pet().serial(), ExamSession.REISSUE_FEE);
+        boolean deposited = ExamSession.giveTo(p, token);
+        GameplayLog.event(y, "badge", "reissued examiner={} owner={} serial={} fee={} old_serial={} grade={} destination={} remaining={}",
+                target.getUUID(), p.getUUID(), y.pet().serial(), ExamSession.REISSUE_FEE, oldSerial, y.pet().grade(),
+                deposited ? "inventory" : "ground", ExamSession.emeralds(p));
         p.displayClientMessage(Component.translatable("exam.mcyukkuri.reissued", y.getDisplayName()), true);
         broadcastChanges();
         return true;
     }
 
     private boolean refuse(Player player, String reason) {
+        if (counter != null) GameplayLog.limited(target, "exam", reason, 100,
+                "action=counter_refused player={} reason={}", player.getUUID(), reason);
         player.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse." + reason), true);
         broadcastChanges();
         return false;

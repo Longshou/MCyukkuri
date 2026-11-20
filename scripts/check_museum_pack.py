@@ -24,7 +24,7 @@ sys.path.insert(0, str(HERE))
 import build_museum_full as museum  # noqa: E402
 
 JAVA = ROOT / 'src/main/java'
-KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'item', 'summon', 'fill', 'clone', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
+KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'item', 'summon', 'fill', 'clone', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard', 'place',
                'forceload', 'gamerule', 'difficulty', 'time', 'weather', 'setworldspawn', 'tag', 'gamemode', 'say', 'fillbiome', 'yukkuri',
                'return', 'particle', 'tick', 'kill', 'damage', 'place'}
 

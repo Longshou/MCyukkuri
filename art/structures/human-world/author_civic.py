@@ -297,6 +297,7 @@ def badge_hall(p):
     for x in (12, 13):
         for z in range(20, 25): b.block(x, 3, z, 'red_carpet')
     for x0 in (5, 18): furniture(b, 'bench', 3, [(x, 22) for x in range(x0, x0 + 3)])
+    b.block(8, 3, 23, 'mcyukkuri:exam_podium', {'facing': 'south'})
     notice(b, 8, 4, 20, 'south'); notice(b, 17, 4, 20, 'south')
     for x, z in [(4, 20), (21, 20), (4, 24), (21, 24)]: b.block(x, 3, z, p.pot(x + z))
     # Reception counter across the hall: boards with a slab top (no lectern), the badge handbook and a bronze badge laid out on trays;
@@ -315,8 +316,12 @@ def badge_hall(p):
     for y, items in BADGES:
         x0 = 13 - len(items) // 2
         for i, item in enumerate(items): wall_item(b, x0 + i, y, 29, item, 'north', .45)
-    resident(b, 12, 27, 'caretaker_sister', 2, y=3)                      # the clerk: her home is behind the counter
+    b.entity(6.5, 3, 26.5, 'mcyukkuri:caretaker_sister',
+             {'HumanJob': integer(0), 'HumanAttitude': integer(2), 'SiteRole': string('badge_counter')})
     resident(b, 17, 28, 'caretaker_brother', 2, ['mcy_street_local', 'mcy_street_special'], y=3)   # the hall's caretaker
+    marker(b, 18.5, 1, 11.5, 'mcy_badge_hall', {
+        'Clerk': sequence(3, [-12, 2, 15]), 'Podium': sequence(3, [-10, 2, 12]), 'View': sequence(3, [-8, 2, 11]),
+    })
     for x, z in [(8, 22), (17, 22), (12, 27)]: b.block(x, 7, z, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     b.strict = False
     street_ends(b, W)

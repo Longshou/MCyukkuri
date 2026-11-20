@@ -17,9 +17,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 /** Rotated village markers bind a yard's inhabitants and place each park's shared facility. */
@@ -123,6 +125,32 @@ public final class TownMarkers {
         var xyz = data.getList(key, Tag.TAG_INT);
         var offset = new BlockPos(xyz.getInt(0), xyz.getInt(1), xyz.getInt(2));
         return marker.blockPosition().offset(offset.rotate(rotation(marker)));
+    }
+
+    public record BadgeCounter(Marker marker, BlockPos post, BlockPos podium, BlockPos view, Direction front) {
+        public boolean present(ServerLevel level) {
+            var desk = post.relative(front);
+            return !marker.isRemoved() && level.hasChunkAt(desk)
+                    && level.getBlockState(desk).isFaceSturdy(level, desk, Direction.UP, SupportType.FULL);
+        }
+
+        public boolean publicSide(Vec3 player) {
+            return player.subtract(post.getCenter()).dot(Vec3.atLowerCornerOf(front.getNormal())) > 1;
+        }
+    }
+
+    public static BadgeCounter badgeCounter(ServerLevel level, BlockPos post) {
+        return level.getEntitiesOfClass(Marker.class, new AABB(post).inflate(24, 4, 24),
+                        marker -> marker.getTags().contains("mcy_badge_hall")).stream()
+                .sorted(Comparator.comparingDouble((Marker marker) -> marker.distanceToSqr(post.getCenter()))
+                        .thenComparing(Marker::getUUID))
+                .map(marker -> {
+                    var data = data(marker);
+                    if (Stream.of("Clerk", "Podium", "View").anyMatch(key -> data.getList(key, Tag.TAG_INT).size() != 3)) return null;
+                    return new BadgeCounter(marker, offset(marker, data, "Clerk"), offset(marker, data, "Podium"),
+                            offset(marker, data, "View"), rotation(marker).rotate(Direction.NORTH));
+                })
+                .filter(site -> site != null && site.post().equals(post)).findFirst().orElse(null);
     }
 
     private static Rotation rotation(Marker marker) {

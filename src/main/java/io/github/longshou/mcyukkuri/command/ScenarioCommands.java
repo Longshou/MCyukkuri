@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
+import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
@@ -41,12 +42,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -69,7 +72,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.UUID;
+import java.util.function.Consumer;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.HumanSight;
@@ -119,6 +124,13 @@ public final class ScenarioCommands {
                 @Override protected void load(ServerAdvancementManager advancements) {}
             };
             @Override public PlayerAdvancements getAdvancements() { return progress; }
+            @Override public OptionalInt openMenu(MenuProvider provider, Consumer<RegistryFriendlyByteBuf> data) {
+                // The witness has no client. Its counter interaction still creates the real server container.
+                if (!(provider.createMenu(1, getInventory(), this) instanceof ExamMenu exam)) return OptionalInt.empty();
+                closeContainer();
+                containerMenu = exam;
+                return OptionalInt.of(exam.containerId);
+            }
         };
     }
 
@@ -234,6 +246,12 @@ public final class ScenarioCommands {
                         .executes(ScenarioCommands::shopStockClick)))
                 .then(Commands.literal("shop_rental_click").requires(source -> source.hasPermission(2))
                         .then(Commands.argument("staff", EntityArgument.entity()).executes(ScenarioCommands::shopRentalClick)))
+                .then(Commands.literal("exam_counter").requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("open").then(Commands.argument("staff", EntityArgument.entity())
+                                .executes(c -> examCounterOpen(c, EntityArgument.getEntity(c, "staff")))))
+                        .then(Commands.literal("certify").executes(c -> examCounterButton(c, ExamMenu.ButtonId.CERTIFY)))
+                        .then(Commands.literal("reissue").executes(c -> examCounterButton(c, ExamMenu.ButtonId.REISSUE)))
+                        .then(Commands.literal("close").executes(c -> examCounterButton(c, -1))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fear").then(Commands.argument("target", EntityArgument.entity())
@@ -551,6 +569,24 @@ public final class ScenarioCommands {
         // FakePlayer cannot open a network menu. Use the same server container and button handler.
         var menu = new ShopMenu(0, player.getInventory(), staff.getId());
         return menu.clickMenuButton(player, ShopMenu.ButtonId.RENT_TAB) && menu.clickMenuButton(player, ShopMenu.ButtonId.RENT) ? 1 : 0;
+    }
+
+    private static int examCounterOpen(CommandContext<CommandSourceStack> c, Entity target) {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)
+                || !player.canInteractWithEntity(target, 0) || !player.hasLineOfSight(target)) return 0;
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+        return player.interactOn(target, InteractionHand.MAIN_HAND).consumesAction()
+                && player.containerMenu instanceof ExamMenu exam && exam.target() == target ? 1 : 0;
+    }
+
+    private static int examCounterButton(CommandContext<CommandSourceStack> c, int button) {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)
+                || !(player.containerMenu instanceof ExamMenu exam)) return 0;
+        if (button >= 0) return exam.clickMenuButton(player, button) ? 1 : 0;
+        player.closeContainer();
+        return 1;
     }
 
     private static int toolClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

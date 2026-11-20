@@ -79,6 +79,7 @@ public final class HumanNpc extends PathfinderMob {
     private static final int YARD_COMPANION_CAP = 3;
     private BlockPos yardBowl, yardCrate;
     private int trades, careFood, medicine = 8, routineDelay;
+    private long counterClosesAt;
     private int nextBadgeGreeting;
     private YukkuriEntity attention;
     final HumanStreet street = new HumanStreet(this);
@@ -196,7 +197,16 @@ public final class HumanNpc extends PathfinderMob {
     public boolean showsStreetGrain() { return entityData.get(STREET_GRAIN); }
     public boolean kicking() { return street.kickPose > 0; }
     public boolean frowning() { return street.frownPose > 0; }
-    boolean streetResident() { return job() == Job.RESIDENT && siteRole.isEmpty(); }
+    public boolean badgeCounter() { return job() == Job.RESIDENT && siteRole.equals("badge_counter"); }
+    public boolean examAuthority() { return job() == Job.EXAMINER || badgeCounter(); }
+    boolean streetResident() { return job() == Job.RESIDENT && (siteRole.isEmpty() || badgeCounter()); }
+    public boolean atBadgeCounter() {
+        return home != null && onGround() && distanceToSqr(Vec3.atBottomCenterOf(home)) < .64;
+    }
+    public boolean counterWorking() {
+        return atBadgeCounter() && !isNoAi() && !avoidingStreet() && !walking()
+                && getNavigation().isDone() && !street.helping() && !street.shooingCrop();
+    }
     boolean avoidingStreet() { return routineDelay < 0; }
     boolean streetObservable() { return street.observable(); }
     boolean streetActive() {
@@ -250,16 +260,21 @@ public final class HumanNpc extends PathfinderMob {
     }
     public boolean beginTrade(Player player) {
         if (isTrading() && !player.getUUID().equals(customer)) return false;
+        if (badgeCounter()) counterClosesAt = level().getGameTime() + 2400;
         customer = player.getUUID(); getNavigation().stop(); return true;
     }
     public void endTrade(Player player) { if (player.getUUID().equals(customer)) customer = null; }
+    public boolean holdsCounterMenu(Player player) {
+        return player.getUUID().equals(customer) && level().getGameTime() < counterClosesAt;
+    }
     public boolean isTrading() {
         if (ExamSession.active(this)) return true;
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
         return player != null && (player.containerMenu instanceof ShopMenu shop && shop.target() == this
                 || player.containerMenu instanceof KeeperMenu keeper && keeper.target() == this
-                || player.containerMenu instanceof ExamMenu exam && exam.target() == this);
+                || player.containerMenu instanceof ExamMenu exam && exam.target() == this
+                && (!badgeCounter() || holdsCounterMenu(player)));
     }
     public List<YukkuriEntity> animals(Custody.Role role) {
         return animals(Objects.requireNonNull(role.id(), "UNKNOWN requires the original Use"));
@@ -306,6 +321,7 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, .65) {
             @Override public boolean canUse() { return job() != Job.SHOPKEEPER && job() != Job.FACTORY && !streetResident() && !resting() && !isTrading() && super.canUse(); }
         });
+        goalSelector.addGoal(5, new CounterReturnGoal());
         goalSelector.addGoal(5, stroll());
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
@@ -318,10 +334,40 @@ public final class HumanNpc extends PathfinderMob {
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) KeeperMenu.open(player, this); // the matchmaker with its studs, not shop staff
-            else if (job() == Job.EXAMINER) ExamMenu.open(player, this);
+            else if (examAuthority()) ExamMenu.open(player, this);
             else HumanFolk.interact(player, this);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
+    }
+
+    private final class CounterReturnGoal extends Goal {
+        private Path route;
+        private BlockPos failedFrom;
+
+        CounterReturnGoal() { setFlags(EnumSet.of(Flag.MOVE)); }
+
+        @Override public boolean canUse() {
+            if (!badgeCounter() || home == null || !onGround() || atBadgeCounter() || isTrading()
+                    || blockPosition().equals(failedFrom)) return false;
+            route = getNavigation().createPath(home(), 0);
+            if (route != null && route.canReach()) return true;
+            failedFrom = blockPosition();
+            GameplayLog.event(HumanNpc.this, "exam", "action=counter_return result=blocked post={}", home().toShortString());
+            return false;
+        }
+
+        @Override public void start() {
+            failedFrom = null;
+            getNavigation().moveTo(route, .8);
+        }
+
+        @Override public boolean canContinueToUse() { return !isTrading() && !atBadgeCounter() && !getNavigation().isDone(); }
+
+        @Override public void stop() {
+            if (atBadgeCounter()) GameplayLog.event(HumanNpc.this, "exam", "action=counter_return result=arrived post={}", home().toShortString());
+            else if (getNavigation().isDone()) failedFrom = blockPosition();
+            getNavigation().stop();
+        }
     }
     /** Shop staff on a job may route through their own shop's iron staff doors (ShopStaff.opensDoor); every other door is vanilla. */
     @Override protected PathNavigation createNavigation(Level level) {

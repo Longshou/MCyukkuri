@@ -7,6 +7,7 @@ from gzip import decompress
 from hashlib import sha256
 from itertools import product
 import json
+import math
 from pathlib import Path
 import re
 from struct import error as StructError, unpack_from
@@ -376,6 +377,61 @@ def walk(piece, start, height=2, doors=True):
                     seen.add(nxt)
                     todo.append(nxt)
     return seen
+
+
+def badge_hall_checks(piece):
+    clerks = [row for row in piece.entities if row['nbt'].get('SiteRole') == 'badge_counter']
+    markers = [row for row in piece.entities if 'mcy_badge_hall' in row['nbt'].get('Tags', [])]
+    if len(clerks) != 1 or len(markers) != 1:
+        return ['badge hall needs exactly one counter clerk and one hall marker']
+    clerk, marker = clerks[0], markers[0]
+    post, podium, view = (6, 3, 26), (8, 3, 23), (10, 3, 22)
+    if (tuple(clerk['blockPos']) != post or clerk['nbt']['id'] != 'mcyukkuri:caretaker_sister'
+            or clerk['nbt']['HumanJob'] != 0 or clerk['nbt']['HumanAttitude'] != 2):
+        return ['counter post must have a neutral resident sister']
+    if (marker['nbt']['id'] != 'minecraft:marker' or tuple(marker['blockPos']) != (18, 1, 11)
+            or marker['nbt']['Rotation'][0] != 180):
+        return ['badge hall marker must face north on its plaza cell']
+    for key, at in (('Clerk', post), ('Podium', podium), ('View', view)):
+        offset = marker['nbt'].get('data', {}).get(key, ())
+        if len(offset) != 3 or add(marker['blockPos'], offset) != at:
+            return [f'badge hall marker {key} must resolve to {at}']
+    if piece.state(podium)[:2] != ('mcyukkuri:exam_podium', {'facing': 'south'}):
+        return ['badge hall podium missing or facing away from the counter']
+
+    def ray(start, end):
+        for step in range(129):
+            point = tuple(a + (b - a) * step / 128 for a, b in zip(start, end))
+            cell = tuple(map(math.floor, point))
+            state = piece.state(cell)
+            if clear(state):
+                continue
+            height = point[1] - cell[1]
+            name, props, _ = state
+            if name.endswith('_slab') and props.get('type') == 'bottom' and height >= .5:
+                continue
+            if name == 'mcyukkuri:exam_podium' and height >= 7 / 16:
+                continue
+            return False
+        return True
+
+    def eyes(cell, height):
+        return add(cell, (.5, height, .5))
+
+    customer, staff_door, inspector, candidate = (6, 3, 23), (5, 3, 25), (6, 3, 24), (8, 3, 24)
+    reachable = walk(piece, post, doors='wood')
+    without_door = walk(piece, post, doors=False)
+    if (not piece.state(staff_door)[0].endswith('_door') or piece.state(staff_door)[1].get('open') != 'false'
+            or not {inspector, customer, view, staff_door}.issubset(reachable) or inspector in without_door):
+        return ['clerk needs a supported walking route through the closed wooden staff door']
+    if not ray(eyes(customer, 1.62), eyes(post, 1.53)):
+        return ['counter blocks the public interaction ray']
+    if (not stand(piece, candidate, 1, False) or math.dist(eyes(inspector, 0), eyes(candidate, .45)) > 2.5
+            or not ray(eyes(inspector, 1.53), eyes(candidate, .45))
+            or not all(ray(eyes(view, 1.62), eyes(at, height)) for at, height in
+                       ((inspector, 1.53), (candidate, .45), (inspector, 2.25), (candidate, 1.2)))):
+        return ['public aisle must see the candidate, inspector and cards at real inspection reach']
+    return []
 
 
 def light_checks(piece, gaps=()):
@@ -786,6 +842,8 @@ def inspect_town(entries):
         checks = stray_checks(piece, starts, targets, gaps) + walk_checks(piece, starts, targets) + light_checks(piece, gaps)
         # Shops keep the established service furnishings. Other legacy POIs are reported before restyling.
         checks += poi_checks(piece, parts[-1] not in ('pet_shop', 'yukkuri_shop', 'oni_shop'))
+        if parts[-1] == 'badge_hall':
+            checks += badge_hall_checks(piece)
         if new_status.get(id, False):
             for problem in dict.fromkeys(checks):
                 fail(id, problem)

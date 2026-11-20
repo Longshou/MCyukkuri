@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.life.Duty;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
@@ -47,7 +48,7 @@ public final class ExamSession {
     public static final int CERTIFY = 8, REISSUE_FEE = 1;
     public static final List<String> REASONS = List.of("", "busy", "far", "night", "not_owned", "not_ready", "labor",
             "sick", "uneasy", "scared", "cooldown", "no_accessory", "max_grade", "deficient", "too_late", "no_hall",
-            "no_fee", "occupied", "disqualified", "need_badge");
+            "no_fee", "occupied", "disqualified", "need_badge", "podium_area", "counter");
     private static final String LOCK = "exam";
     private static final int COOLDOWN = 1200;
     private static final int DUTY_TICKS = 600, APPROACH_TICKS = 180, LOOK_TICKS = 80, RESULT_TICKS = 90;
@@ -56,6 +57,7 @@ public final class ExamSession {
 
     private final ServerLevel level;
     private final HumanNpc examiner;
+    private final TownMarkers.BadgeCounter counter;
     private final YukkuriEntity candidate;
     private final UUID ownerId;
     private final FakePlayer fixtureOwner;
@@ -66,9 +68,10 @@ public final class ExamSession {
     private UUID sayCard, nameCard;
     private boolean passed;
 
-    private ExamSession(HumanNpc examiner, Player owner, YukkuriEntity candidate) {
+    private ExamSession(HumanNpc examiner, Player owner, YukkuriEntity candidate, TownMarkers.BadgeCounter counter) {
         this.level = (ServerLevel) examiner.level();
         this.examiner = examiner;
+        this.counter = counter;
         this.candidate = candidate;
         ownerId = owner.getUUID();
         fixtureOwner = owner instanceof FakePlayer fake ? fake : null;
@@ -131,7 +134,11 @@ public final class ExamSession {
             if (amount == 0) return;
         }
     }
-    public static void giveTo(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
+    public static boolean giveTo(Player p, ItemStack stack) {
+        if (p.getInventory().add(stack)) return true;
+        p.drop(stack, false);
+        return false;
+    }
 
     public static Need firstMissing(BadgeGrade target, YukkuriEntity y) {
         var s = y.skills();
@@ -148,8 +155,10 @@ public final class ExamSession {
                 && y.status().identity() != Identity.WILD_SETTLEMENT && WildEvents.canAdopt(y, p);
     }
 
-    public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, boolean reissue) {
-        if (examiner.job() != HumanNpc.Job.EXAMINER || active(examiner)) return "busy";
+    static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, boolean reissue, TownMarkers.BadgeCounter counter) {
+        if (!examiner.examAuthority() || active(examiner)) return "busy";
+        if (examiner.badgeCounter() && (!HumanNpc.canServe(p, examiner) || !ExamHall.servesAtCounter(examiner, p, counter)))
+            return "counter";
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
         if (running(y)) return "busy";
@@ -176,22 +185,31 @@ public final class ExamSession {
         if (!y.duty().mayTake(Duty.Kind.EXAM)) return "busy";
         long day = Math.floorMod(examiner.level().getDayTime(), 24000);
         if (day < 12000 && 12000 - day < DUTY_TICKS) return "too_late";
-        if (!ExamHall.of(examiner)) return "no_hall";
+        if (examiner.badgeCounter()) {
+            if (!ExamHall.hasPodium((ServerLevel) examiner.level(), counter)) return "no_hall";
+            if (!ExamHall.inPublicArea(counter, y)) return "podium_area";
+        } else if (!ExamHall.hasLegacyPodium(examiner)) return "no_hall";
         if (emeralds(p) < fee(grade.higher())) return "no_fee";
         return null;
     }
 
     public static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate) {
-        var why = refusal(examiner, owner, candidate, false);
+        return start(examiner, owner, candidate, examiner.badgeCounter() ? ExamHall.counter(examiner) : null);
+    }
+
+    static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate, TownMarkers.BadgeCounter counter) {
+        var why = refusal(examiner, owner, candidate, false, counter);
         if (why != null) return why;
         var pet = candidate.pet();
         pet.lock(LOCK, owner.getUUID());
         candidate.duty().take(Duty.Kind.EXAM, DUTY_TICKS, COOLDOWN, "certify");
-        var session = new ExamSession(examiner, owner, candidate);
+        var session = new ExamSession(examiner, owner, candidate, counter);
         ACTIVE.put(examiner.getUUID(), session);
         candidate.setPersistenceRequired();
         GameplayLog.event(candidate, "exam", "action=start examiner={} owner={} target={} need={} fee={} talent={}",
                 examiner.getUUID(), owner.getUUID(), session.target, firstMissing(session.target, candidate), fee(session.target), pet.talent());
+        if (counter != null) GameplayLog.event(examiner, "exam", "action=counter_depart candidate={} podium={}",
+                candidate.getUUID(), counter.podium().toShortString());
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
         return null;
     }
@@ -222,6 +240,8 @@ public final class ExamSession {
                     var need = firstMissing(target, candidate);
                     GameplayLog.event(candidate, "exam", "action=look target={} need={} fee={} talent={}",
                             target, need, fee(target), candidate.pet().talent());
+                    if (counter != null) GameplayLog.event(examiner, "exam", "action=counter_contact candidate={} podium={}",
+                            candidate.getUUID(), counter.podium().toShortString());
                 } else if (phaseTicks >= APPROACH_TICKS) interrupt("site");
             }
             case LOOK -> {
@@ -276,6 +296,10 @@ public final class ExamSession {
         if (phase != Phase.RESULT && candidate.pet().disqualified()) return "disqualified";
         if (phase != Phase.RESULT && (!eligibleOwner(candidate, owner) || candidate.pet().grade() != before
                 || candidate.pet().effectiveGrade() != before)) return "not_owned";
+        if (counter != null && phase != Phase.RESULT) {
+            if (!ExamHall.hasPodium(level, counter)) return "no_hall";
+            if (!ExamHall.inPublicArea(counter, candidate)) return "podium_area";
+        }
         if ((phase == Phase.VERDICT || phase == Phase.RESULT) && !inContact()) return "site";
         return null;
     }

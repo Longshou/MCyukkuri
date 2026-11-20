@@ -7792,6 +7792,8 @@
   "exam.mcyukkuri.refuse.busy": "審査員か候補のゆっくりが取り込み中です。",
   "exam.mcyukkuri.refuse.night": "認定は昼間に受け付けます。",
   "exam.mcyukkuri.refuse.no_hall": "認定には会館の演台が必要です。",
+  "exam.mcyukkuri.refuse.podium_area": "候補のゆっくりを会館の演台脇の乾いた待合スペースに連れてきてください。",
+  "exam.mcyukkuri.refuse.counter": "受付係が持ち場に戻ったら、カウンターの表側から声をかけてください。",
   "exam.mcyukkuri.refuse.far": "この子は遠すぎます。",
   "exam.mcyukkuri.refuse.not_owned": "あなたのゆっくりではありません。",
   "exam.mcyukkuri.refuse.not_ready": "候補のゆっくりが落ち着くまで待ってください。",

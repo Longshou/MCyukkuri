@@ -7904,6 +7904,8 @@
   "exam.mcyukkuri.refuse.busy": "考官或考生正忙。",
   "exam.mcyukkuri.refuse.night": "白天才办理认证。",
   "exam.mcyukkuri.refuse.no_hall": "认证需要会馆讲台。",
+  "exam.mcyukkuri.refuse.podium_area": "请把考生带到会馆讲台旁干燥的候客区。",
+  "exam.mcyukkuri.refuse.counter": "请在柜台外侧等接待员回到柜台办理。",
   "exam.mcyukkuri.refuse.far": "它离得太远了。",
   "exam.mcyukkuri.refuse.not_owned": "不是你的油库里。",
   "exam.mcyukkuri.refuse.not_ready": "请先让考生安顿好。",

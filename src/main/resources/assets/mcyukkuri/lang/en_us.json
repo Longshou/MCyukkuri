@@ -7906,6 +7906,8 @@
   "exam.mcyukkuri.refuse.busy": "The examiner or candidate is busy.",
   "exam.mcyukkuri.refuse.night": "Certification is available during daylight.",
   "exam.mcyukkuri.refuse.no_hall": "The examiner needs a hall podium.",
+  "exam.mcyukkuri.refuse.podium_area": "Bring the candidate to the dry public floor beside the hall podium.",
+  "exam.mcyukkuri.refuse.counter": "Meet the clerk at the public side of the counter when she is back at her post.",
   "exam.mcyukkuri.refuse.far": "It is too far away.",
   "exam.mcyukkuri.refuse.not_owned": "Not your animal.",
   "exam.mcyukkuri.refuse.not_ready": "The candidate needs to settle first.",
