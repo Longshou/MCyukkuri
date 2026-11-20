@@ -85,7 +85,7 @@ public final class NativeDialogue {
         return switch (event) {
             case "family_alarm_call", "family_alarm_answer" -> 4;
             case "wounded", "hurt_flee", "hurt_defy", "hurt_freeze", "hurt_endure", "hurt_tame_plea",
-                    "afraid", "lost_accessory", "family_died", "lost_parent", "birth", "non_yukkuri", "renamed_upset",
+                    "hurt_plea", "plea_spare", "afraid", "lost_accessory", "family_died", "lost_parent", "birth", "non_yukkuri", "renamed_upset",
                     "dying_kin", "kin_dying", "sacrifice",
                     "offer_ask", "offer_insist", "offer_give", "offer_refuse", "offer_eat", "offer_grief", "offer_spared",
                     "boat_rock_startle", "family_alarm_flee", "water_help",
@@ -110,8 +110,8 @@ public final class NativeDialogue {
                  "beg_robbed", "beg_chase", "beg_grudge", "beg_help", "beg_curse",
                  // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
                  "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
-                 "basket_refuse", "basket_refuse_guarded", "basket_refuse_defiant", "basket_enter", "basket_exit",
-                 "factory_receive_insult", "wild_plea_keep", "pet_report_owner",
+                 "basket_refuse", "basket_refuse_guarded", "basket_refuse_defiant", "basket_refuse_weary", "basket_enter", "basket_exit",
+                 "factory_receive_insult", "handover_plea", "tool_appease", "scorn_hurt", "refuse", "wild_plea_keep", "pet_report_owner",
                  "predator_restrain", "predator_obey", "predator_defy", "predator_screech",
                  // Badge social arcs: every beat's line must stay in step with its animation, so none may be swallowed by the quiet-gap rule.
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",

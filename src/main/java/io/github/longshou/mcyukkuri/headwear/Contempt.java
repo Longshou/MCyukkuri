@@ -187,10 +187,9 @@ public final class Contempt {
         boolean pitPressure = scorned && sameGroup;
         if (pitPressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
         if (!target.groupInteraction().defense().active() && !target.isPanicking() && target.showReaction(face, "", ticks)) {
-            String line = ReactionSpeech.contempt(sameGroup && (!scorned || target.getRandom().nextInt(3) == 0));
-            if (!line.isEmpty()) {
+            if (!scorned || target.getRandom().nextInt(3) == 0) {
                 target.getLookControl().setLookAt(source, 30, 30);
-                target.speak(line);
+                target.speak(ReactionSpeech.contempt(sameGroup));
             }
         }
         // An insult weighs less than being driven from a home (.5).

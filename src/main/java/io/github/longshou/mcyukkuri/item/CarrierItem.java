@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -213,7 +214,7 @@ public final class CarrierItem extends Item {
         if (mobile && !weary && response != SocialDisposition.Response.SULKY) {
             if (response == SocialDisposition.Response.GUARDED) entity.showReaction(YukkuriAction.TREMBLE, "teary", "basket_refuse_guarded");
             else entity.showReaction(YukkuriAction.STRUGGLE, "angry", "basket_refuse_defiant");
-        } else if (mobile) entity.showReaction("look_down", "basket_refuse", SCENE_WINDOW);
+        } else if (mobile) entity.showReaction("look_down", ReactionSpeech.basketRefusal(weary), SCENE_WINDOW);
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
         GameplayLog.event(entity, "carrier", "capture reaction player={} response={} esteem={} wariness={} insistence={} nutrition={} mobile={}",
                 player.getUUID(), !mobile ? "busy" : weary ? "weary" : response.id(),

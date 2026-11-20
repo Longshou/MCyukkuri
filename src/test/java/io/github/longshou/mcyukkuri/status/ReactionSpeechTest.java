@@ -23,14 +23,21 @@ class ReactionSpeechTest {
         assertEquals("puff", ReactionSpeech.leadTaunt(false));
     }
 
+    @Test void everyPleaHasItsOwnPool() {
+        assertEquals("hurt_plea", ReactionSpeech.struck(PLEAD, true, false, false));
+        assertEquals("plea_spare", ReactionSpeech.struck(PLEAD, false, false, false));
+        assertEquals("plea_spare", ReactionSpeech.struck(PLEAD, false, true, false));
+        assertEquals("basket_refuse_weary", ReactionSpeech.basketRefusal(true));
+        assertEquals("basket_refuse", ReactionSpeech.basketRefusal(false));
+    }
+
     @Test void treatmentLinesRequireInjuryAndATrustedKeeper() {
         for (var identity : Identity.values()) {
             boolean kept = identity.companion() || identity == Identity.OWNED || identity == Identity.STOCK;
-            assertEquals(kept ? "hurt_tame_plea" : "",
+            assertEquals(kept ? "hurt_tame_plea" : "hurt_plea",
                     ReactionSpeech.struck(PLEAD, true, ReactionSpeech.trustsCareFrom(identity, true), false));
-            assertEquals("", ReactionSpeech.struck(PLEAD, true, ReactionSpeech.trustsCareFrom(identity, false), false));
+            assertEquals("hurt_plea", ReactionSpeech.struck(PLEAD, true, ReactionSpeech.trustsCareFrom(identity, false), false));
         }
-        assertEquals("", ReactionSpeech.struck(PLEAD, false, true, false));
     }
 
     @Test void badgeSpeechUsesTheActualSubjectAndVisibleRanks() {
@@ -51,7 +58,7 @@ class ReactionSpeechTest {
 
     @Test void rejectionLinesMatchTheBondAndOustingAnswer() {
         assertEquals("settlement_hurt", ReactionSpeech.contempt(true));
-        assertEquals("", ReactionSpeech.contempt(false));
+        assertEquals("scorn_hurt", ReactionSpeech.contempt(false));
         assertEquals("driven_curse", ReactionSpeech.ousted(Answer.CURSE, false));
         assertEquals("child_curse_parent", ReactionSpeech.ousted(Answer.CURSE, true));
         assertEquals("driven_farewell", ReactionSpeech.ousted(Answer.FAREWELL, false));

@@ -22,7 +22,7 @@ public final class PunishmentReaction {
         DEFIANT(YukkuriAction.PUFF, "cheek_puff", "puff"),
         FREEZE(YukkuriAction.BRACE, "horrified", ""),
         ENDURE(YukkuriAction.BRACE, "endure", ""),
-        PLEAD(YukkuriAction.BEG, "teary", ""),
+        PLEAD(YukkuriAction.BEG, "teary", "plea_spare"),
         ESCAPE(YukkuriAction.TREMBLE, "afraid", "afraid"),
         SHRINK(YukkuriAction.DROOP, "teary_frown", ""),
         TURN_TO_KIN(YukkuriAction.BRACE, "teary", ""),
@@ -92,7 +92,12 @@ public final class PunishmentReaction {
         var response = insult > Math.max(freeze, plead) ? Response.DEFIANT : plead > freeze ? Response.PLEAD : Response.FREEZE;
         target.interruptSpeech();
         target.getLookControl().setLookAt(other, 30, 30);
-        target.forceReaction(response.action, response.face, response == Response.DEFIANT ? defiantLine : response.line);
+        // Being carried off is not a blow: a plea asks not to be taken away, not to be spared.
+        target.forceReaction(response.action, response.face, switch (response) {
+            case DEFIANT -> defiantLine;
+            case PLEAD -> "handover_plea";
+            default -> response.line;
+        });
         return response.name();
     }
 

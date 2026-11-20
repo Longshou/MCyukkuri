@@ -11,7 +11,7 @@ public final class ReactionSpeech {
             case FLEE -> hurt ? "hurt_flee" : "afraid";
             case FREEZE -> "hurt_freeze";
             case PUFF_FIGHT -> willStrike && hurt ? "hurt_defy" : "puff";
-            case PLEAD -> hurt && trustedKeeper ? "hurt_tame_plea" : "";
+            case PLEAD -> !hurt ? "plea_spare" : trustedKeeper ? "hurt_tame_plea" : "hurt_plea";
             case ENDURE, SEAL -> hurt ? "hurt_endure" : "";
             case LEAD_AWAY -> "";
         };
@@ -23,7 +23,11 @@ public final class ReactionSpeech {
 
     public static String leadTaunt(boolean dependants) { return dependants ? "protect_taunt" : "puff"; }
 
-    public static String contempt(boolean hurtByOwnGroup) { return hurtByOwnGroup ? "settlement_hurt" : ""; }
+    /** The scorned one's hurt: it wants to belong when the scorner is its own group, plain hurt when it is a stranger. */
+    public static String contempt(boolean byOwnGroup) { return byOwnGroup ? "settlement_hurt" : "scorn_hurt"; }
+
+    /** Only a weakened animal is too tired to do more than say no to the basket. */
+    public static String basketRefusal(boolean weary) { return weary ? "basket_refuse_weary" : "basket_refuse"; }
 
     public static String ousted(Answer answer, boolean byGuardian) {
         return switch (answer) {
