@@ -12,6 +12,7 @@
 | 加门的两格入口能斜着蹭出去（DN-06） | `.worktrees/wp-doorway-exit` | movement/path through doors (walker, path nodes) |
 | 演出放映室：手持道具、帽子与第二个演员 | `.worktrees/wp-player-effects-2` | preview/review, scripts/preview.py, pose/cli |
 | 两只接触动作同步开始结束，分开时身体不重叠 | `.worktrees/wp-pair-contact-sync` | shared pair contact clock (DailyLife/IndependenceLife/SocialContact), separation step |
+| 演出放映室：身体湿痕与伤口 | `.worktrees/wp-player-effects-3` | preview/review, pose/cli, client/WoundSurface (pure extract) |
 
 ## 玩法待办
 
