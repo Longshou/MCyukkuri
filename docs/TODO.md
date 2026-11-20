@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 放映室：实时播放器成为首页，清理过时拼帧页面（P11d） | `.worktrees/wp-hub-purge` | preview/hub, preview/review, scripts/build_preview_hub.py, scripts/build_preview_library.py |
 
 ## 玩法待办
 
