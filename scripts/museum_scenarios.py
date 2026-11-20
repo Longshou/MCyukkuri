@@ -2467,38 +2467,70 @@ add('pred_fledging', 'grove', '雏鸟学飞：扑翅、跳枝、首飞', '枝巢
                                 why='a real fledgling fall from the branch') for slot in ('bold', 'timid')]))
 
 _territory = 'pred_tree_territory'
-_territory_resident, _territory_intruder, _territory_forager, _territory_mate = (
-    uid(_territory, name) for name in ('resident', 'intruder', 'forager', 'mate'))
-_territory_x, _territory_z = BY_ID['grove'].spots['spawn']
-_territory_den, _ = den(_territory_x + 12, _territory_z + 18, half=1, length=4)
-_territory_unsafe = (8, 14)
-_territory_safe = (3, 15)
+_territory_resident = _uuid_text(_territory, 'resident')
+_territory_intruder = _uuid_text(_territory, 'intruder')
+_grove_pad = [
+    block(0, 8, 0, 'mcyukkuri:predator_nest'),
+    block(0, 7, -1, 'minecraft:oak_log[axis=z]'),
+    box(-1, 7, 0, 4, 7, 0, 'minecraft:oak_log[axis=x]'),
+    box(-1, 9, -1, 0, 9, 0, 'minecraft:oak_leaves[persistent=true]'),
+    block(0, 8, -1, 'minecraft:air'),
+    box(0, 4, 1, 0, 9, 3, 'minecraft:air', 'replace minecraft:oak_leaves'),
+]
+_grove_xz = r'BlockPos\{x=(-?\d+), y=-?\d+, z=(-?\d+)\}'
 
 
-def _verify_territory(window):
-    family = '|'.join(_uuid_text(_territory, slot) for slot in ('forager', 'mate'))
-    actor = rf'\[forage\] \w+ #\d+ uuid=({family}) [^\n]*?'
-    xz = r'BlockPos\{x=(-?\d+), y=-?\d+, z=(-?\d+)\}'
-    unsafe = (_territory_x + _territory_unsafe[0], _territory_z + _territory_unsafe[1])
-    safe = (_territory_x + _territory_safe[0], _territory_z + _territory_safe[1])
-    sightings = {}
-    gathered = False
-    for match in re.finditer(actor + rf'(?:forage skipped reason=threat_zone site={xz} sighting={xz}|'
-                             rf'gathered item=minecraft:short_grass count=\d+ source={xz})', window):
-        who, ux, uz, sx, sz, gx, gz = match.groups()
-        if sx is not None:
-            sighting = int(sx), int(sz)
-            if (int(ux), int(uz)) == unsafe and math.dist(sighting, unsafe) <= 10:
-                sightings[who] = sighting
-        elif who in sightings and (int(gx), int(gz)) == safe and math.dist(sightings[who], safe) > 10:
-            gathered = True
-    if not gathered:
-        return 'The same family member must skip the threatened tuft and gather the staged alternative outside the remembered zone'
-    intruder = _uuid_text(_territory, 'intruder')
-    departure = re.search(rf'\[predator\] flandre #\d+ uuid={intruder} [^\n]*? intruder left pad={xz}', window)
-    if not departure:
-        return 'Flandre did not leave the nest territory'
-    pad_x, pad_z = map(int, departure.groups())
+def _territory_sweeps_clear(states, sizes, start, end):
+    # Sweep the two body boxes together using their relative motion between dense trace samples.
+    for tick in range(start, end):
+        r0, r1 = states[_territory_resident][tick]['p'], states[_territory_resident][tick + 1]['p']
+        i0, i1 = states[_territory_intruder][tick]['p'], states[_territory_intruder][tick + 1]['p']
+        rw, rh, rd = sizes[_territory_resident]
+        iw, ih, id_ = sizes[_territory_intruder]
+        limits = ((-(rw+iw)/2, (rw+iw)/2), (-ih, rh), (-(rd+id_)/2, (rd+id_)/2))
+        first, last = 0, 1
+        for a, b, c, d, (lo, hi) in zip(r0, r1, i0, i1, limits):
+            origin, step = c - a, (d - c) - (b - a)
+            if step:
+                enter, leave = sorted(((lo - origin) / step, (hi - origin) / step))
+                first, last = max(first, enter), min(last, leave)
+            elif not lo < origin < hi:
+                break
+        else:
+            if first < last:
+                return False
+    return True
+
+
+def _verify_territory(window, trace):
+    resident, intruder = _territory_resident, _territory_intruder
+    log = rf'\[predator\] remilia #\d+ uuid={resident} t=(\d+) [^\n]*?'
+    warn = re.search(log + rf' territory screech target={intruder}\b', window)
+    pull = re.search(log + rf' territory pull-up target={intruder} feet=\([^,]+, ([^,]+), [^)]+\) target_top=(\S+)', window)
+    departure = re.search(rf'\[predator\] flandre #\d+ uuid={intruder} t=(\d+) [^\n]*? intruder left pad={_grove_xz}', window)
+    if not warn or not pull or not departure or not warn.start() < pull.start() < departure.start():
+        return 'Remilia must screech, pull up above Flandre, and send her out of the territory in that order'
+    if float(pull[2]) - float(pull[3]) < 1.5:
+        return 'The threat pass pulled up less than 1.5 blocks over Flandre'
+    start, end = int(warn[1]), int(pull[1])
+    states = {resident: {}, intruder: {}}
+    sizes = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] in states and start <= row['t'] <= end:
+            states[row['u']][row['t']] = row['st']
+    for match in re.finditer(r'MCYGEOMETRY (\{[^\n]+\})', window):
+        row = json.loads(match[1])
+        if row['uuid'] in states and row['uuid'] not in sizes:
+            sizes[row['uuid']] = tuple(row['box'][i + 3] - row['box'][i] for i in range(3))
+    if any(who not in sizes or set(samples) != set(range(start, end + 1)) for who, samples in states.items()):
+        return 'Missing dense trace or body dimensions for the warning and flight sweeps'
+    first = states[resident][start]
+    if first['face'] != 'angry' or first['animation'] != 'predator_flap':
+        return 'Remilia must show the angry face and flap her wings during the screech'
+    if not _territory_sweeps_clear(states, sizes, start, end):
+        return 'The warned body intersected Remilia’s takeoff or approach sweep'
+    pad_x, pad_z = int(departure[2]), int(departure[3])
     roof = None
     settled = False
     address = (rf'\[home\] flandre #\d+ uuid={intruder} [^\n]*? (?:assigned kind=roof [^\n]*?'
@@ -2519,70 +2551,118 @@ def _verify_territory(window):
                 settled = True
     if not settled:
         return 'Flandre must reach her claimed alternative roof on supported feet'
-    pushed = re.search(rf'\[predator\] remilia #\d+ uuid={_uuid_text(_territory, "resident")} [^\n]*?'
+
+
+add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：尖叫驱赶闯入的捕食种',
+    '看蕾米莉亚张翅尖叫，在芙兰上方拉起。芙兰飞出巢树，到领地外另一片叶檐下歇息',
+    '约半分钟', [
+        *_grove_pad,
+        box(4, 7, 1, 4, 7, 3, 'minecraft:oak_log[axis=z]'),
+        block(4, 12, 3, 'minecraft:oak_leaves[persistent=true]'),
+        box(13, 3, 4, 15, 3, 6, 'minecraft:oak_leaves[persistent=true]'),
+        yk('remilia', 0, -1, 'territory_resident', dy=8, lead=True, nutrition=100, energy=34,
+           boldness=65, uuid=uid(_territory, 'resident')),
+        f'yukkuri scenario home {sel("territory_resident")} ~ ~8 ~',
+    ],
+    late=[Retry(yk('flandre', 4, 3, 'territory_intruder', dy=8, nutrition=100, energy=32,
+                   boldness=25, uuid=uid(_territory, 'intruder')), sel('territory_resident'), first=1, tries=1)],
+    spot='spawn', vantage=(6, 8, 145, -25), env={'time': 'dawn'},
+    reads=[('读巢主', f'yukkuri status {sel("territory_resident")} raw'),
+           ('读闯入者', f'yukkuri status {sel("territory_intruder")} raw')],
+    smoke=dict(ticks=800, expect=[], forbid=[r'\[predator\] [^\n]* (?:combat strike|feeding bite) '],
+               verify=_verify_territory, verify_trace=True),
+    capture=dict(shots=(60, 90, 120, 160, 240, 400), sequences=((55, 400, 5),),
+                 views={'shelf': dict(position=(5, 10.5, 7), look_at=(1.5, 8.4, 1.5))}))
+
+_pad_cleanup = 'pred_pad_cleanup'
+
+
+def _verify_pad_cleanup(window):
+    resident = _uuid_text(_pad_cleanup, 'resident')
+    pushed = re.search(rf'\[predator\] remilia #\d+ uuid={resident} [^\n]*?'
                        r'leftovers pushed off pad=[^\n]*? remains=(\S+)', window)
     if pushed:
         for match in re.finditer(r'MCYGEOMETRY (\{[^\n]+\})', window[pushed.end():]):
             row = json.loads(match[1])
-            if (row['uuid'] == pushed[1] and 'scn_territory_leftovers' in row['tags']
+            if (row['uuid'] == pushed[1] and 'scn_pad_leftovers' in row['tags']
                     and row['supported'] and row['box'][1] == FEET):
                 return
-    return 'The same staged remains must reach supported ground below the nest after the push'
+    return 'Remilia must push the staged remains and the same body must land on supported ground below the nest'
 
 
-add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：尖叫驱赶闯入的捕食种',
-    '看蕾米莉亚张翅尖叫，在芙兰上方拉起。芙兰飞出巢树，林间觅食的一家绕开看到捕食种的地方。枝巢的空遗体会掉到树下',
-    '约一至两分钟', [
-        *_territory_den,
-        block(0, 8, 0, 'mcyukkuri:predator_nest'),
-        block(0, 7, -1, 'minecraft:oak_log[axis=z]'),
-        box(-1, 7, 0, 4, 7, 0, 'minecraft:oak_log[axis=x]'),
-        box(4, 7, 1, 4, 7, 3, 'minecraft:oak_log[axis=z]'),
-        box(-1, 9, -1, 0, 9, 0, 'minecraft:oak_leaves[persistent=true]'),
-        block(4, 12, 3, 'minecraft:oak_leaves[persistent=true]'),
-        block(0, 8, -1, 'minecraft:air'),
-        box(0, 4, 1, 0, 9, 3, 'minecraft:air', 'replace minecraft:oak_leaves'),
-        box(13, 3, 4, 15, 3, 6, 'minecraft:oak_leaves[persistent=true]'),
-        box(5, 0, 0, 18, 0, 12, 'minecraft:air', 'replace minecraft:short_grass'),
-        box(6, 0, 4, 8, 0, 6, 'minecraft:short_grass', 'keep'),
-        box(12, 0, 7, 16, 0, 10, 'minecraft:short_grass', 'keep'),
-        yk('remilia', 0, -1, 'territory_resident', dy=8, lead=True, nutrition=100, energy=34,
-           boldness=65, uuid=_territory_resident),
-        f'yukkuri scenario home {sel("territory_resident")} ~ ~8 ~',
-        yk('reimu', 9, 7, 'territory_forager', nutrition=35, boldness=25, uuid=_territory_forager,
-           kin=f'Partner:{uuid_nbt(_territory_mate)}', also=('territory_family',)),
-        yk('marisa', 12, 7, 'territory_mate', nutrition=78, uuid=_territory_mate,
-           kin=f'Partner:{uuid_nbt(_territory_forager)}', also=('territory_family',)),
-        f'yukkuri scenario community {sel("territory_mate")} {sel_all("territory_family")}',
-        *[f'yukkuri scenario home {sel(name)} ~12 ~ ~17' for name in ('territory_forager', 'territory_mate')],
+add(_pad_cleanup, 'grove', '清理枝巢：把空遗体推下树', '清理枝巢：把空遗体推下树',
+    '看蕾米莉亚从枝上绕到空遗体后面，把同一具遗体推出巢垫，遗体落到树下地面',
+    '约半分钟', [
+        *_grove_pad,
+        yk('remilia', 1, 0, 'pad_cleaner', dy=8, lead=True, nutrition=100, energy=100,
+           uuid=uid(_pad_cleanup, 'resident')),
+        f'yukkuri scenario home {sel("pad_cleaner")} ~ ~8 ~',
     ],
-    late=[
-        Retry(yk('flandre', 4, 3, 'territory_intruder', dy=8, nutrition=100, energy=32,
-                 boldness=25, uuid=_territory_intruder), sel('territory_resident'), first=1, tries=1),
-        Retry(remains(0, -.4, 'territory_leftovers', dy=8.15, food=0, scale=.4, dimensions=(.30, .138)),
-              sel('territory_resident'), first=240, tries=1),
-        # The archived sightings are around tick 300 from the start. Change the grass after that sighting,
-        # leaving the group's real memory and both animals' needs alone.
-        Retry(box(3, 0, 13, 18, 0, 18, 'minecraft:air', 'replace minecraft:short_grass'),
-              sel('territory_forager'), first=400, tries=1),
-        Retry(block(_territory_unsafe[0], 0, _territory_unsafe[1], 'minecraft:short_grass'),
-              sel('territory_forager'), first=401, tries=1),
-        Retry(block(_territory_safe[0], 0, _territory_safe[1], 'minecraft:short_grass'),
-              sel('territory_forager'), first=401, tries=1),
-    ],
+    late=[Retry(remains(0, -.4, 'pad_leftovers', dy=8.15, food=0, scale=.4, dimensions=(.30, .138)),
+                sel('pad_cleaner'), first=1, tries=1)],
     spot='spawn', vantage=(6, 8, 145, -25), env={'time': 'dawn'},
-    reads=[('读巢主', f'yukkuri status {sel("territory_resident")} raw'),
-           ('读闯入者', f'yukkuri status {sel("territory_intruder")} raw'),
-           ('读觅食者', f'yukkuri status {sel("territory_forager")} raw')],
-    smoke=dict(ticks=2100, expect=[
-        rf'\[predator\] remilia [^\n]* uuid={_uuid_text(_territory, "resident")} [^\n]* territory screech target={_uuid_text(_territory, "intruder")}',
-        rf'\[predator\] remilia [^\n]* territory pull-up target={_uuid_text(_territory, "intruder")}',
-        r'\[predator\] flandre [^\n]* intruder left pad=',
-        r'\[forage\] (?:reimu|marisa) [^\n]* forage skipped reason=threat_zone',
-        r'\[predator\] remilia [^\n]* leftovers pushed off pad=',
-    ], forbid=[r'\[predator\] [^\n]* (?:combat strike|feeding bite) '], verify=_verify_territory),
-    capture=dict(shots=(60, 90, 120, 160, 240, 400), sequences=((55, 400, 5),),
-                 views={'shelf': dict(position=(5, 10.5, 7), look_at=(1.5, 8.4, 1.5))}))
+    reads=[('读巢主', f'yukkuri status {sel("pad_cleaner")} raw')],
+    smoke=dict(ticks=650, expect=[], forbid=[], verify=_verify_pad_cleanup))
+
+_grove_forage = 'pred_forage_avoidance'
+_grove_forage_x, _grove_forage_z = BY_ID['grove'].spots['spawn']
+_grove_forage_den, _ = den(_grove_forage_x + 12, _grove_forage_z + 18, half=1, length=4)
+_grove_unsafe, _grove_safe = (8, 14), (5, 17)
+_grove_forager, _grove_mate = (uid(_grove_forage, slot) for slot in ('forager', 'mate'))
+
+
+def _verify_grove_forage(window):
+    family = '|'.join(_uuid_text(_grove_forage, slot) for slot in ('forager', 'mate'))
+    predator = _uuid_text(_grove_forage, 'predator')
+    seen = re.search(rf'\[settlement\] \w+ #\d+ uuid=(?:{family}) [^\n]*? predator sighted predator={predator} site={_grove_xz}', window)
+    if not seen:
+        return 'The family must see the staged predator and record the real sighting before choosing grass'
+    unsafe = (_grove_forage_x + _grove_unsafe[0], _grove_forage_z + _grove_unsafe[1])
+    safe = (_grove_forage_x + _grove_safe[0], _grove_forage_z + _grove_safe[1])
+    sighting = tuple(map(int, seen.groups()))
+    if math.dist(sighting, unsafe) > 10 or math.dist(sighting, safe) <= 10:
+        return 'The two staged tufts must fall on opposite sides of the real sighting’s threat zone'
+    skipped = set()
+    gathered = False
+    actor = rf'\[(?:forage|habitat)\] \w+ #\d+ uuid=({family}) [^\n]*?'
+    for match in re.finditer(actor + rf'(?:forage skipped reason=threat_zone site={_grove_xz} sighting={_grove_xz}|'
+                             rf'gathered item=minecraft:short_grass count=\d+ source={_grove_xz})', window[seen.end():]):
+        who, ux, uz, sx, sz, gx, gz = match.groups()
+        if sx is not None:
+            if (int(ux), int(uz)) == unsafe and (int(sx), int(sz)) == sighting:
+                skipped.add(who)
+        elif (int(gx), int(gz)) == unsafe:
+            return 'A family member harvested the threatened tuft after the sighting'
+        elif who in skipped and (int(gx), int(gz)) == safe:
+            gathered = True
+    if not gathered:
+        return 'The same family member must skip the threatened tuft and harvest the staged safe one'
+
+
+add(_grove_forage, 'grove', '林间采草：绕开目击捕食种的地方', '林间采草：绕开目击捕食种的地方',
+    '一家看见高枝上的蕾米莉亚后，觅食或采寝草时绕过靠近目击处的一簇草，采走安全处的一簇',
+    '约半分钟', [
+        *_grove_forage_den,
+        box(0, 0, 3, 21, 0, 23, 'minecraft:air', 'replace minecraft:short_grass'),
+        box(8, 0, 5, 8, 7, 5, 'minecraft:oak_log'),
+        block(8, 8, 5, 'mcyukkuri:predator_nest'),
+        block(7, 7, 5, 'minecraft:oak_log[axis=x]'),
+        box(7, 9, 4, 8, 9, 5, 'minecraft:oak_leaves[persistent=true]'),
+        yk('remilia', 7, 5, 'grass_predator', dy=8, yaw=0, nutrition=100, energy=34, uuid=uid(_grove_forage, 'predator')),
+        f'yukkuri scenario home {sel("grass_predator")} ~8 ~8 ~5',
+        yk('reimu', 8, 13, 'grass_forager', yaw=180, nutrition=35, lead=True, uuid=_grove_forager,
+           kin=kin_of(Partner=_grove_mate), also=('grass_family',)),
+        yk('marisa', 8, 15, 'grass_mate', yaw=180, nutrition=78, uuid=_grove_mate,
+           kin=kin_of(Partner=_grove_forager), also=('grass_family',)),
+        f'yukkuri scenario community {sel("grass_mate")} {sel_all("grass_family")}',
+        *[f'yukkuri scenario home {sel(name)} ~12 ~ ~17' for name in ('grass_forager', 'grass_mate')],
+    ],
+    late=[Retry(block(x, 0, z, 'minecraft:short_grass'), sel('grass_forager'), first=80, tries=1)
+          for x, z in (_grove_unsafe, _grove_safe)],
+    spot='spawn', vantage=(2, 20, -152, 0), env={'time': 'dawn'},
+    reads=[('读灵梦', f'yukkuri status {sel("grass_forager")} raw'),
+           ('读魔理沙', f'yukkuri status {sel("grass_mate")} raw')],
+    smoke=dict(ticks=700, expect=[], forbid=[], verify=_verify_grove_forage))
 
 add('pred_noon_shade', 'grove', '正午躲荫，傍晚出猎', '正午躲荫，傍晚出猎',
     '正午树下已有子油。看营养为 50 的蕾米莉亚站在叶荫下守望。用「实用」切到傍晚，再看它发现猎物后离枝',
@@ -7055,6 +7135,7 @@ TOPICS = {
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
     'pred_nest_feeding': 'R2', 'pred_fledging': 'R2', 'pred_tree_territory': 'R2',
+    'pred_pad_cleanup': 'R2', 'pred_forage_avoidance': 'R2',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3', 'pet_door_return': 'D1',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',

@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -133,15 +132,14 @@ public final class ForageGoal extends Goal {
             int top = level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
             for (int y = top; y <= top + 1; y++) {
                 var pos = new BlockPos(column.getX(), y, column.getZ());
-                if (edible(pos, seeksGrass) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos);
+                if (edible(pos, seeksGrass)) found.add(pos);
             }
         }
-        found.sort(Comparator.comparingDouble(pos -> entity.distanceToSqr(Vec3.atCenterOf(pos))));
         // A claim from an earlier offer that the goal selector never started would otherwise linger.
         ForageClaims.release(claim);
         claim = null; target = null; int tests = 0;
-        for (BlockPos pos : found) {
-            if (ForageClaims.threatZone(entity, pos)) continue;
+        for (var sites = ForageClaims.plantSites(entity, found).iterator(); sites.hasNext();) {
+            var pos = sites.next();
             if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos)
                     || !entity.family().allowsForageWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (pos.equals(stalledPlant)) continue;

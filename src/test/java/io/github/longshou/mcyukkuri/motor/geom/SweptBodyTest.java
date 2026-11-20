@@ -35,4 +35,17 @@ class SweptBodyTest {
         assertTrue(SweptBody.clear(resident, new Vec(-.1, 0, 0), peer, Vec.ZERO));
         assertFalse(SweptBody.clear(resident, new Vec(.1, 0, 0), peer, Vec.ZERO));
     }
+
+    @Test void padRouteOpensForPushContactAndStillBlocksAnotherBody() {
+        var from = new Vec(-307.42604089095136, 72.15000000596046, 492.5231473971469);
+        var stand = new Vec(-307.5, 72, 491.4999999880791);
+        var remains = at(new Vec(-307.5, 72.15, 492.1), .30, .138);
+        assertNull(ShelfApproach.next(from, stand, (a, b) ->
+                SweptBody.clear(at(a, .8, .6), b.sub(a), remains, Vec.ZERO)));
+        assertEquals(stand, ShelfApproach.next(from, stand, (a, b) -> true));
+
+        var bystander = at(new Vec(-307.5, 72, 491.5), .8, .6);
+        assertNull(ShelfApproach.next(from, stand, (a, b) ->
+                SweptBody.clear(at(a, .8, .6), b.sub(a), bystander, Vec.ZERO)));
+    }
 }

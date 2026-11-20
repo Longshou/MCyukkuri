@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -74,12 +73,10 @@ public final class PlantBedding {
         var plants=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(center.offset(-radius,-1,-radius),center.offset(radius,2,radius)))
             if(allowed.test(pos)&&entity.level().hasChunkAt(pos)&&!material(entity.level().getBlockState(pos)).isEmpty())plants.add(pos.immutable());
-        plants.sort(Comparator.comparingDouble(pos->entity.distanceToSqr(Vec3.atCenterOf(pos))));
         candidates=plants.size();
         int paths=0;
-        for(var plant:plants){
-            if(ForageClaims.taken(server,plant,entity.getUUID()))continue;
-            if(paths>=8)break;
+        for(var sites=ForageClaims.plantSites(entity,plants).iterator();paths<8&&sites.hasNext();){
+            var plant=sites.next();
             var state=entity.level().getBlockState(plant);
             for(var direction:Direction.Plane.HORIZONTAL)for(int down=0;down<=1;down++){
                 double reach=.5+entity.getBbWidth()*.5+.045;
@@ -105,7 +102,8 @@ public final class PlantBedding {
     public ItemStack tick(){
         if(target==null)return ItemStack.EMPTY;
         var level=(ServerLevel)entity.level();
-        if(++elapsed>300||!ForageClaims.owns(level,target.block(),claim)||!EventHooks.canEntityGrief(level,entity)||!level.hasChunkAt(target.block())
+        if(++elapsed>300||ForageClaims.threatZone(entity,target.block())||!ForageClaims.owns(level,target.block(),claim)
+                ||!EventHooks.canEntityGrief(level,entity)||!level.hasChunkAt(target.block())
                 ||!level.getBlockState(target.block()).equals(target.state())||!SurfaceApproach.supported(entity,target.stand())){stop();return ItemStack.EMPTY;}
         if(!SurfaceApproach.walk(entity,target.stand(),.65)){contactTicks=0;return ItemStack.EMPTY;}
         SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),target.touch()));

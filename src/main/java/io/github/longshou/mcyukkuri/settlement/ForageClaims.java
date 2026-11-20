@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.UUID;
 import java.util.Set;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -31,14 +32,20 @@ public final class ForageClaims {
     private static final int HOLD = 600;
     private static final LeaseTable<Key, Claim> CLAIMS = new LeaseTable<>(HOLD);
 
-    /** The group's latest sighting excludes forage sites within ten horizontal blocks while the threat is remembered. */
-    static boolean threatZone(YukkuriEntity forager, BlockPos site) {
+    /** The group's latest sighting excludes plant and forage sites while the threat is remembered. */
+    public static boolean threatZone(YukkuriEntity forager, BlockPos site) {
         var group = forager.settlement().group();
-        if (group == null || group.threat <= 0 || group.threatPos == null
-                || site.atY(group.threatPos.getY()).distSqr(group.threatPos) > 100) return false;
+        if (group == null || group.threatPos == null || !PlantSites.threatened(group.threat,
+                (double)site.getX() - group.threatPos.getX(), (double)site.getZ() - group.threatPos.getZ())) return false;
         GameplayLog.limited(forager, "forage", "threat_zone", 200,
                 "forage skipped reason=threat_zone site={} sighting={} threat={}", site, group.threatPos, group.threat);
         return true;
+    }
+
+    public static Stream<BlockPos> plantSites(YukkuriEntity forager, List<BlockPos> candidates) {
+        var level = (ServerLevel)forager.level();
+        return PlantSites.nearest(candidates, pos -> forager.distanceToSqr(Vec3.atCenterOf(pos)),
+                pos -> !taken(level, pos, forager.getUUID()) && !threatZone(forager, pos));
     }
 
     private static Key key(ServerLevel level, BlockPos pos) { return new Key(level.getServer(), level.dimension(), pos.asLong()); }

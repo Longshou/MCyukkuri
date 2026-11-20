@@ -280,6 +280,8 @@
     "pred_fledging": "PT-05",
     "pred_tree_territory": "PT-06",
     "pred_noon_shade": "PT-07",
+    "pred_pad_cleanup": "PT-08",
+    "pred_forage_avoidance": "PT-09",
     "rule_song_hold": "TN-47",
     "rule_song_sneak": "TN-48",
     "rule_eat_wait": "TN-49",

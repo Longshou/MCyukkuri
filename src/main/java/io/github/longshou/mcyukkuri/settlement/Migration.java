@@ -345,6 +345,8 @@ final class Migration {
             if (last != null && now - last < SIGHT_REPEAT) continue;
             group.sighted.put(predator.getUUID(), now);
             data.reportThreat(group, predator.blockPosition(), now);
+            GameplayLog.event(caller, "settlement", "predator sighted predator={} site={} threat={}",
+                    predator.getUUID(), group.threatPos, group.threat);
             return;
         }
         // A red-eyed Myon from outside the group is taken for a bringer of disaster (wiki species/myon, L05《赤い眼のみょん》).

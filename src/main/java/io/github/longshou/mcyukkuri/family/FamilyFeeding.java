@@ -309,12 +309,12 @@ final class FamilyFeeding {
         boolean outside=FamilyProvision.canFetchOutside(o.entity());
         var candidates=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8),o.entity().blockPosition().offset(8,2,8))) {
-            if(!o.level().hasChunkAt(pos)||!outside&&!FamilyProvision.nearHome(o.entity(),pos)||ForageClaims.taken(o.level(),pos,o.entity().getUUID()))continue;
+            if(!o.level().hasChunkAt(pos)||!outside&&!FamilyProvision.nearHome(o.entity(),pos))continue;
             var food=diet.yield(o.level().getBlockState(pos));
             if(!food.isEmpty()&&o.entity().life().acceptsFood(food)&&o.target().life().canReceiveCareFood(food))candidates.add(pos.immutable());
         }
-        candidates.sort(Comparator.comparingDouble(pos->o.entity().distanceToSqr(Vec3.atCenterOf(pos))));
-        for(var pos:candidates.stream().limit(3).toList()){
+        for(var sites=ForageClaims.plantSites(o.entity(),candidates).limit(3).iterator();sites.hasNext();){
+            var pos=sites.next();
             var stand=diet.stand(o.entity(),pos);
             if(stand==null||!o.entity().life().reachable(stand,false))continue;
             plantClaim=ForageClaims.claim(o.level(),pos,o.entity().getUUID());
@@ -480,7 +480,8 @@ final class FamilyFeeding {
             }
             if(plantSource!=null){
                 var diet=o.entity().profile().diet();
-                if(!EventHooks.canEntityGrief(o.level(),o.entity())||!ForageClaims.owns(o.level(),plantSource,plantClaim)
+                if(!EventHooks.canEntityGrief(o.level(),o.entity())||ForageClaims.threatZone(o.entity(),plantSource)
+                        ||!ForageClaims.owns(o.level(),plantSource,plantClaim)
                         ||!diet.edible(o.level().getBlockState(plantSource))){clearPlant();return;}
                 var at=Vec3.atCenterOf(plantSource);
                 boolean near=diet.reaches(o.entity(),plantStand,plantSource);

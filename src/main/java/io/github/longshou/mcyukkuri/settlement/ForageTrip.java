@@ -570,8 +570,7 @@ public final class ForageTrip extends Goal {
         if (load.getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;
-            if (!plants.find(dest, 9, pos -> Grazing.edible(level().getBlockState(pos))
-                    && (hunting || !ForageClaims.threatZone(entity, pos)))) {
+            if (!plants.find(dest, 9, pos -> Grazing.edible(level().getBlockState(pos)))) {
                 if (!plants.refused() && ++barren >= 4) recall(load.isEmpty() ? "barren" : "enough");
                 else if (ticks > 40 && !plants.refused() && horizontal(dest) > 5) travel(dest);
                 return;

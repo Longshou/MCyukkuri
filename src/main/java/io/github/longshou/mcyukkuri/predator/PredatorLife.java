@@ -913,7 +913,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 double contact = (animal.getBbWidth() + body.getBbWidth()) / 2;
                 var feet = SurfaceApproach.restingFloor(animal, body.position().relative(outward.getOpposite(), contact + .05));
                 if (feet == null || !freeStand(feet) || !ContactGeometry.inMouthReach(animal, feet, body)
-                        || !clearDrop(pad, body, feet) || !canDepart(feet) || shelfApproach(feet) == null) continue;
+                        || !clearDrop(pad, body, feet) || !canDepart(feet, body) || shelfApproach(feet, body) == null) continue;
                 corpse = body;
                 destination = feet;
                 task = Task.CLEAR_PAD;
@@ -1214,7 +1214,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         var pos = BlockPos.containing(feet);
         if (!animal.predatorFlying() && animal.onGround() && (needsSideExit(pos) || task == Task.FIRST_FLIGHT)
                 && (destination == null || !SurfaceApproach.at(animal, destination))) {
-            takeoffExit = sideExit(pos, feet, prey != null ? prey.position() : destination);
+            takeoffExit = sideExit(pos, feet, prey != null ? prey.position() : destination, flightContact());
             if (takeoffExit == null) {
                 GameplayLog.limited(animal, "predator", "takeoff_enclosed", 200, "takeoff refused reason=no_open_side stand={}", pos);
                 if (task == Task.VISIT_YOUNG) rememberBlockedVisit("no_open_side");
@@ -1230,11 +1230,15 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
 
     boolean canDepart(Vec3 feet) {
-        var pos = BlockPos.containing(feet);
-        return !needsSideExit(pos) || sideExit(pos, feet, null) != null;
+        return canDepart(feet, flightContact());
     }
 
-    private Vec3 sideExit(BlockPos pos, Vec3 feet, Vec3 toward) {
+    private boolean canDepart(Vec3 feet, Entity contact) {
+        var pos = BlockPos.containing(feet);
+        return !needsSideExit(pos) || sideExit(pos, feet, null, contact) != null;
+    }
+
+    private Vec3 sideExit(BlockPos pos, Vec3 feet, Vec3 toward, Entity contact) {
         var entrance = level().getBlockState(pos).is(ModBlocks.PREDATOR_NEST.get()) ? animal.life().homeEntrance(pos) : null;
         var aim = entrance == null ? toward : entrance;
         var directions = new ArrayList<Vec3>();
@@ -1245,16 +1249,20 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             double edge = .5 + Vec3.atBottomCenterOf(pos).subtract(feet).dot(dir);
             if (entrance != null) edge = Math.max(edge, entrance.subtract(feet).dot(dir));
             var exit = feet.add(dir.scale(edge + 1.5));
-            if (flightSweepClear(feet, exit) && flightSweepClear(exit, exit.add(0, 1.2, 0))) return exit;
+            if (flightSweepClear(feet, exit, contact) && flightSweepClear(exit, exit.add(0, 1.2, 0), contact)) return exit;
         }
         return null;
     }
     private void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
 
     private Vec3 shelfApproach(Vec3 feet) {
+        return shelfApproach(feet, flightContact());
+    }
+
+    private Vec3 shelfApproach(Vec3 feet, Entity contact) {
         if (animal.distanceToSqr(feet) > 64) return null;
         var leg = ShelfApproach.next(Floor.vec(animal.position()), Floor.vec(feet),
-                (a, b) -> flightSweepClear(Floor.point(a), Floor.point(b)));
+                (a, b) -> flightSweepClear(Floor.point(a), Floor.point(b), contact));
         return leg == null ? null : Floor.point(leg);
     }
 
@@ -1394,9 +1402,13 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         return true;
     }
     private boolean flightSweepClear(Vec3 from, Vec3 to) {
+        return flightSweepClear(from, to, flightContact());
+    }
+
+    private boolean flightSweepClear(Vec3 from, Vec3 to, Entity contact) {
         if (from.distanceToSqr(to) > 64) return false; // Longer trips belong to bounded path segments, never a remote body sweep.
         if (!blockSweepClear(from, to)) return false;
-        if (!flightBodiesClear(from, to)) return false;
+        if (!flightBodiesClear(from, to, contact)) return false;
         int count = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .15));
         for (int i = 1; i <= count; i++) {
             Vec3 feet = from.lerp(to, (double)i / count);
@@ -1405,16 +1417,19 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         return true;
     }
 
-    private boolean flightBodiesClear(Vec3 from, Vec3 to) {
+    private Entity flightContact() {
+        return switch (task) {
+            case DIVE -> prey;
+            case SCAVENGE, CLEAR_PAD -> corpse;
+            default -> null;
+        };
+    }
+
+    private boolean flightBodiesClear(Vec3 from, Vec3 to, Entity contact) {
         var box = bodyAt(from);
         var step = to.subtract(from);
         var moving = sweptBox(box);
         var travel = Floor.vec(step);
-        Entity contact = switch (task) {
-            case DIVE -> prey;
-            case SCAVENGE -> corpse;
-            default -> null;
-        };
         // A falling or flying warning target can enter the stroke from beyond the nearby-body search.
         if (territoryTarget != null && territoryTarget != contact && territoryTarget.level() == animal.level() && territoryTarget.isAlive()
                 && !territoryTarget.isSpectator() && !clearsBody(moving, travel, territoryTarget)) return false;
@@ -1441,8 +1456,9 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
 
     /** Path-node flight and direct flight both recheck the actual stroke as nearby bodies move. */
     public Vec3 clearTerritoryFlightStep(Vec3 step) {
-        if ((takeoffExit != null || task == Task.THREAT_APPROACH || task == Task.THREAT_DIVE || drivenFrom != null)
-                && !flightBodiesClear(animal.position(), animal.position().add(step))) return Vec3.ZERO;
+        if ((takeoffExit != null || task == Task.THREAT_APPROACH || task == Task.THREAT_DIVE
+                || task == Task.CLEAR_PAD || drivenFrom != null)
+                && !flightBodiesClear(animal.position(), animal.position().add(step), flightContact())) return Vec3.ZERO;
         return step;
     }
     /** A chase can cross the acquisition radius without ever asking vanilla's local pathfinder for an overlong route. */
