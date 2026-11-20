@@ -23,9 +23,9 @@ final class StrayDensity {
         return Math.max(1, fairDay - (night ? 1 : 0) - (rain ? 1 : 0));
     }
 
-    static boolean admits(int vacancies, int nearby, int known, int localCap, int familyCap, boolean existing) {
+    static boolean hasLocalRoom(int nearby, int known, int localCap, int familyCap, boolean existing) {
         int added = existing ? 0 : 1;
-        return vacancies > 0 && nearby + added <= localCap && known + added <= Math.min(localCap, familyCap);
+        return nearby + added <= localCap && known + added <= Math.min(localCap, familyCap);
     }
 
     private StrayDensity() {}

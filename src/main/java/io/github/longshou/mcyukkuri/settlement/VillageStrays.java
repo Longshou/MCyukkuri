@@ -73,10 +73,9 @@ public final class VillageStrays {
         }
     }
 
-    private static boolean admits(ServerLevel level, BlockPos pos, int vacancies, boolean existing) {
-        if (vacancies <= 0) return false;
+    public static boolean hasLocalRoom(ServerLevel level, BlockPos pos, boolean existing) {
         int nearby = level.getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(32)).size();
-        return StrayDensity.admits(vacancies, nearby, FamilyData.get(level).population(level, pos),
+        return StrayDensity.hasLocalRoom(nearby, FamilyData.get(level).population(level, pos),
                 YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get(), existing);
     }
 
@@ -85,7 +84,7 @@ public final class VillageStrays {
         var pos = seed.blockPosition();
         var streets = SettlementData.get(level).villageSurvey.at(level, pos);
         if (streets != null && streets.contains(pos)
-                && SurfaceApproach.supported(seed, seed.position()) && admits(level, pos, vacancies(level, streets), true)) {
+                && SurfaceApproach.supported(seed, seed.position()) && vacancies(level, streets) > 0 && hasLocalRoom(level, pos, true)) {
             settle(seed, streets);
             GameplayLog.event(seed, "settlement", "village stray from natural discovery");
         }
@@ -112,7 +111,7 @@ public final class VillageStrays {
             if (pos == null) continue;
             var feet = hiddenStand(level, adult, pos);
             if (feet == null) continue;
-            if (!admits(level, pos, vacancies, false) || !arrive(level, adult, feet, null, village)) return 0;
+            if (!hasLocalRoom(level, pos, false) || !arrive(level, adult, feet, null, village)) return 0;
             if (vacancies > 1 && random.nextInt(5) == 0) {
                 var side = Direction.Plane.HORIZONTAL.getRandomDirection(random);
                 var beside = street(level, pos.relative(side));
@@ -120,7 +119,7 @@ public final class VillageStrays {
                     var child = ModEntities.forVariant(adult.getVariant()).create(level);
                     if (child != null) {
                         var childFeet = hiddenStand(level, child, beside);
-                        if (childFeet != null && admits(level, beside, vacancies - 1, false)
+                        if (childFeet != null && hasLocalRoom(level, beside, false)
                                 && arrive(level, child, childFeet, adult, village)) return 2;
                     }
                 }
@@ -139,7 +138,7 @@ public final class VillageStrays {
                 || ground.is(Blocks.GRAVEL) || ground.is(Blocks.SNOW_BLOCK) ? pos : null;
     }
 
-    public static boolean hidden(ServerLevel level, AABB box) {
+    public static boolean hidden(ServerLevel level, AABB box, int trackingChunks) {
         var cursor = new BlockPos.MutableBlockPos();
         StraySight.Terrain terrain = (x, y, z) -> {
             var chunk = level.getChunkSource().getChunkNow(x >> 4, z >> 4);
@@ -148,8 +147,11 @@ public final class VillageStrays {
             return chunk.getBlockState(cursor).isSolidRender(level, cursor);
         };
         var center = box.getCenter();
+        int entityRange = level.getServer().getScaledTrackingDistance(trackingChunks * 16);
+        int viewChunks = level.getServer().getPlayerList().getViewDistance();
         for (var player : level.players()) {
-            if (!StraySight.hidden(terrain, player.getX(), player.getEyeY(), player.getZ(),
+            int range = StraySight.trackingRange(entityRange, viewChunks, player.requestedViewDistance());
+            if (!StraySight.hidden(terrain, range, player.getX(), player.getEyeY(), player.getZ(),
                     center.x, center.y, center.z, box.getXsize() / 2, box.getYsize() / 2)) return false;
         }
         return true;
@@ -157,7 +159,8 @@ public final class VillageStrays {
 
     private static Vec3 hiddenStand(ServerLevel level, YukkuriEntity body, BlockPos pos) {
         var feet = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(pos));
-        return feet != null && hidden(level, body.getDimensions(body.getPose()).makeBoundingBox(feet)) ? feet : null;
+        return feet != null && hidden(level, body.getDimensions(body.getPose()).makeBoundingBox(feet),
+                body.getType().clientTrackingRange()) ? feet : null;
     }
 
     private static boolean arrive(ServerLevel level, YukkuriEntity body, Vec3 feet, YukkuriEntity parent,
@@ -166,7 +169,7 @@ public final class VillageStrays {
         body.pet().markTownRoots();
         if (parent == null) {
             body.finalizeSpawn(level, level.getCurrentDifficultyAt(body.blockPosition()), MobSpawnType.NATURAL, null);
-            if (!hidden(level, body.getBoundingBox())) return false;
+            if (!hidden(level, body.getBoundingBox(), body.getType().clientTrackingRange())) return false;
         }
         if (!level.addFreshEntity(body)) return false;
         if (parent != null) body.family().generatedChild(parent, null);

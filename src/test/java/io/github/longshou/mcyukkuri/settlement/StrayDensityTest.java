@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,14 +59,22 @@ class StrayDensityTest {
     }
 
     @Test void conversionUsesTheExistingBodyAndBothCapsStillApply() {
-        assertTrue(StrayDensity.admits(1, 7, 7, 8, 12, false));
-        assertTrue(StrayDensity.admits(1, 8, 8, 8, 12, true));
-        assertFalse(StrayDensity.admits(1, 8, 7, 8, 12, false));
-        assertFalse(StrayDensity.admits(1, 6, 8, 8, 12, false));
-        assertFalse(StrayDensity.admits(1, 5, 6, 8, 6, false));
-        assertFalse(StrayDensity.admits(1, 9, 7, 8, 12, true));
-        assertFalse(StrayDensity.admits(1, 7, 9, 8, 12, true));
-        assertFalse(StrayDensity.admits(0, 1, 1, 8, 12, true));
-        assertFalse(StrayDensity.admits(-1, 1, 1, 8, 12, false));
+        assertTrue(StrayDensity.hasLocalRoom(7, 7, 8, 12, false));
+        assertTrue(StrayDensity.hasLocalRoom(8, 8, 8, 12, true));
+        assertFalse(StrayDensity.hasLocalRoom(8, 7, 8, 12, false));
+        assertFalse(StrayDensity.hasLocalRoom(6, 8, 8, 12, false));
+        assertFalse(StrayDensity.hasLocalRoom(5, 6, 8, 6, false));
+        assertFalse(StrayDensity.hasLocalRoom(9, 7, 8, 12, true));
+        assertFalse(StrayDensity.hasLocalRoom(7, 9, 8, 12, true));
+    }
+
+    @Test void aBerthFiveBlocksOffshoreCanBeFullWhenTheDryColumnHasRoom() {
+        int[] residents = {2, 4, 8, 12, 16, 20, 24, 37};
+        int atBank = (int)Arrays.stream(residents).filter(x -> Math.abs(x) <= 32).count();
+        int atBerth = (int)Arrays.stream(residents).filter(x -> Math.abs(x - 5) <= 32).count();
+        assertTrue(StrayDensity.hasLocalRoom(atBank, atBank, 8, 12, false));
+        assertFalse(StrayDensity.hasLocalRoom(atBerth, atBerth, 8, 12, false));
+        // Seven bodies plus an unloaded resident or unborn reservation also occupy the last place.
+        assertFalse(StrayDensity.hasLocalRoom(atBank, atBerth, 12, 8, false));
     }
 }

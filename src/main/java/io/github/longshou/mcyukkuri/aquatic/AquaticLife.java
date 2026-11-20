@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
+import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -193,7 +195,10 @@ public final class AquaticLife {
     public static void joined(EntityJoinLevelEvent event) {
         if (event.loadedFromDisk() || event.getLevel().isClientSide() || !(event.getEntity() instanceof YukkuriEntity body)) return;
         var cause = JOINING.remove(body);
-        if (cause != null && "visible_arrival".equals(place(body, cause))) event.setCanceled(true);
+        if (cause != null) {
+            var refusal = place(body, cause);
+            if ("visible_arrival".equals(refusal) || "population_limit".equals(refusal)) event.setCanceled(true);
+        }
     }
 
     private static String place(YukkuriEntity body, String cause) {
@@ -220,12 +225,14 @@ public final class AquaticLife {
         if (water == null) return "no_water";
         var at = Waters.hatAt(water, body);
         if (body.pet().townRoots() && !body.isAddedToLevel()) {
-            // Both the hull and the rider at its real water berth must be out of sight before either is added.
+            var level = (ServerLevel)body.level();
+            if (!VillageStrays.hasLocalRoom(level, BlockPos.containing(at), false)) return "population_limit";
             double scale = HatScale.of(body) / HullBounds.SCALE;
             double r = HullBounds.RADIUS * scale + body.getBbWidth();
             var box = new AABB(at.x-r, at.y-1+HullBounds.KEEL*scale, at.z-r,
                     at.x+r, at.y+1+HullBounds.BRIM*scale+body.getBbHeight(), at.z+r);
-            if (!VillageStrays.hidden((ServerLevel)body.level(), box)) return "visible_arrival";
+            int trackingChunks = Math.max(body.getType().clientTrackingRange(), ModEntities.PLACED_HAT.get().clientTrackingRange());
+            if (!VillageStrays.hidden(level, box, trackingChunks)) return "visible_arrival";
         }
         var hat = PlacedHatEntity.setDown(body, at, water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";

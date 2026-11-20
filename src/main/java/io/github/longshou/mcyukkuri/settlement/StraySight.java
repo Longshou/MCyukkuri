@@ -6,9 +6,15 @@ final class StraySight {
         boolean opaque(int x, int y, int z);
     }
 
-    static boolean hidden(Terrain terrain, double eyeX, double eyeY, double eyeZ,
+    static int trackingRange(int scaledEntityRange, int serverViewChunks, int requestedViewChunks) {
+        return Math.min(scaledEntityRange, 16 * Math.clamp(requestedViewChunks, 2, serverViewChunks));
+    }
+
+    static boolean hidden(Terrain terrain, int trackingRange, double eyeX, double eyeY, double eyeZ,
                           double x, double y, double z, double halfWidth, double halfHeight) {
         double dx = eyeX - x, dy = eyeY - y, dz = eyeZ - z;
+        // Entity tracking measures horizontal distance and includes the boundary.
+        if (dx * dx + dz * dz > (double)trackingRange * trackingRange) return true;
         int steps = (int)Math.ceil(2 * Math.max(Math.abs(dx), Math.max(Math.abs(dy), Math.abs(dz))));
         // Stop looking for cover after 128 blocks. An unproven sightline vetoes admission.
         for (int i = 1; i < steps && i <= 256; i++) {
