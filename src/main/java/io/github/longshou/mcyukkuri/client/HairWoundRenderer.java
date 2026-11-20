@@ -71,9 +71,9 @@ final class HairWoundRenderer {
         Entry(Key key,boolean weak){this.key=key;this.weak=weak;}
         Slot slot(boolean wantFull){return wantFull?full:simple;}
     }
-    private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8,MAX_DENT_STEPS=3;
-    private static final Map<Object,Entry> CACHE=new BoundedRenderCache<>(MAX_CACHED_BODIES);
-    static void clear(){CACHE.clear();}
+    private static final int MAX_VARIANTS=8,MAX_DENT_STEPS=3;
+    private static final Map<Object,Entry> CACHE=new BoundedRenderCache<>(BoundedRenderCache.MAX_BODIES);
+    static void clear(){CACHE.clear();WoundLod.clearOwners();}
     static Prepared prepare(Object owner,YukkuriModel model,String asset,String expression,List<BodyWound> wounds,
                             int signs,float health,int hairLoss,boolean accessory,int headwear,boolean corePresent,float distanceSquared){
         // Leakage clocks and hat regrowth percentages do not change topology.
@@ -735,11 +735,11 @@ final class HairWoundRenderer {
         boolean replaced(int first){return patches.containsKey(first);}
         boolean triangle(int first,PoseStack stack,VertexConsumer buffer,int light,int overlay){
             var triangles=patches.get(first);if(triangles==null)return false;
-            for(var tri:triangles)emit(tri,stack,buffer,light,overlay,false,false);return true;
+            for(int i=0;i<triangles.size();i++)emit(triangles.get(i),stack,buffer,light,overlay,false,false);return true;
         }
         boolean pregnancySurface(int first,PregnancyFaces.Surface surface){
             var triangles=patches.get(first);if(triangles==null)return false;
-            for(var tri:triangles){pose(tri.a,a,true);pose(tri.b,b,true);pose(tri.c,c,true);surface.add(posedTriangle);}return true;
+            for(int i=0;i<triangles.size();i++){var tri=triangles.get(i);pose(tri.a,a,true);pose(tri.b,b,true);pose(tri.c,c,true);surface.add(posedTriangle);}return true;
         }
         void render(Matrix4f[] world,float pregnancy,PoseStack stack,MultiBufferSource buffers,int light,int overlay){
             this.world=world;pregnancyAmount=pregnancy;
@@ -808,7 +808,8 @@ final class HairWoundRenderer {
                     var shade=smooth[i];
                     transform.transformNormal(shade.x,shade.y,shade.z,transformedNormal);
                 }
-                buffer.addVertex(transform.pose(),point.x/16,point.y/16,point.z/16)
+                transform.pose().transformPosition(point.x/16,point.y/16,point.z/16,edge);
+                buffer.addVertex(edge.x,edge.y,edge.z)
                         .setColor(Math.round(tri.red),Math.round(tri.green),Math.round(tri.blue),Math.round(Math.clamp(corner.alpha,0,1)*255))
                         .setUv(corner.u,corner.v).setOverlay(overlay).setLight(light)
                         .setNormal(transformedNormal.x,transformedNormal.y,transformedNormal.z);

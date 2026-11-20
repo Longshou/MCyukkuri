@@ -1629,7 +1629,7 @@ public final class YukkuriModel {
                 var lift=card==null?normal:card;
                 for(var point:triangle)point.fma(card==null?ExcitedLeak.STREAM_LIFT:CARD_LIFT+ExcitedLeak.STREAM_LIFT,lift);
                 WoundRenderer.emit(stack,out,light,overlay,triangle[0],triangle[1],triangle[2],
-                        triangleUv[0],triangleUv[1],triangleUv[2],triangleUv[3],triangleUv[4],triangleUv[5],lift,lift,lift,alpha);
+                        triangleUv[0],triangleUv[1],triangleUv[2],triangleUv[3],triangleUv[4],triangleUv[5],lift,lift,lift,alpha,edge);
             }
             return;
         }
@@ -1785,7 +1785,7 @@ public final class YukkuriModel {
                 // settles the fight with the skin, and the small lift stays below CARD_LIFT so the face cards win over the overlay.
                 if(!woundVertexNormal(first,na))na.set(n);if(!woundVertexNormal(first+1,nb))nb.set(n);if(!woundVertexNormal(first+2,nc))nc.set(n);
                 a.set(triangle[0]).fma(REMAINS_LIFT,na);b.set(triangle[1]).fma(REMAINS_LIFT,nb);c.set(triangle[2]).fma(REMAINS_LIFT,nc);
-                WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],na,nb,nc);
+                WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],na,nb,nc,255,e);
             }
         }
     }

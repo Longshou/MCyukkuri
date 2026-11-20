@@ -82,7 +82,7 @@ public final class ClientEvents {
     static void clearWoundDisplays(LevelEvent.Unload event) {
         if(event.getLevel().isClientSide()){
             HairWoundRenderer.clear();
-            WoundRenderer.clearOwners();
+            WoundRenderer.clearLevel();
             YukkuriModel.clearPaperFits();
         }
     }

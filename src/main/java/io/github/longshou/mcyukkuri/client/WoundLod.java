@@ -25,6 +25,12 @@ final class WoundLod {
     private static final Object[] FULL = new Object[FULL_COUNT];
     private static int fullBuilds;
 
+    static void clearOwners() {
+        SEEN.clear();
+        Arrays.fill(FULL, null);
+        fullBuilds = 0;
+    }
+
     // Readout state
     private static boolean measuring;
     static final int PREPARE = 0, BODY = 1, SURFACE = 2, DISPLAY = 3;

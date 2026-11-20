@@ -160,7 +160,7 @@ final class CavityRenderer {
             blend(sourceNormals[slots[triangle]],sourceNormals[slots[triangle+1]],sourceNormals[slots[triangle+2]],weights,3,nb).normalize();
             blend(sourceNormals[slots[triangle]],sourceNormals[slots[triangle+1]],sourceNormals[slots[triangle+2]],weights,6,nc).normalize();
             WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv(mesh,triangle,weights,0,3),uv(mesh,triangle,weights,0,4),
-                    uv(mesh,triangle,weights,3,3),uv(mesh,triangle,weights,3,4),uv(mesh,triangle,weights,6,3),uv(mesh,triangle,weights,6,4),na,nb,nc);
+                    uv(mesh,triangle,weights,3,3),uv(mesh,triangle,weights,3,4),uv(mesh,triangle,weights,6,3),uv(mesh,triangle,weights,6,4),na,nb,nc,255,temp);
         }
         return true;
     }

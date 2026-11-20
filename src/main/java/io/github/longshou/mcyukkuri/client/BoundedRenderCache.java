@@ -5,6 +5,7 @@ import java.util.Map;
 
 /** Access-ordered cache for render-thread state tied to the current assets or level. */
 final class BoundedRenderCache<K,V> extends LinkedHashMap<K,V> {
+    static final int MAX_BODIES=32;
     private final int capacity;
 
     BoundedRenderCache(int capacity) {
