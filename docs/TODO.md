@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 常驻捕食种把旧残骸推下自己的巢台（PT-08） | `.worktrees/wp-pad-cleanup` | predator/PredatorLife.java (canUse ordering), NestBuild |
 
 ## 玩法待办
 
