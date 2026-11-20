@@ -403,7 +403,10 @@ public final class TemperatureLife {
         if (taskTicks % 20 == 0) {
             if (waterTakesPriority()) return "lost_refuge";
             var at = sample(target, basking);
-            if (!refuge(at) || targetFire != null && (!targetFire.equals(at.fire()) || !fireStandFree(target))) return "lost_refuge";
+            // The projected stand footprint is for approaching bodies. A body already resting there keeps its actual place
+            // while another walks past, including a child passing to the warm side of its parent.
+            if (!refuge(at) || targetFire != null
+                    && (!targetFire.equals(at.fire()) || restTicks == 0 && !fireStandFree(target))) return "lost_refuge";
         }
         return null;
     }

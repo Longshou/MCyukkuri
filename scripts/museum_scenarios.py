@@ -1088,13 +1088,19 @@ add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进�
 _bold_paper = _uuid_text('stray_paper', 'bold_paper')
 _tired_paper = _uuid_text('stray_paper', 'tired_paper')
 _loose_paper_id = _uuid_text('stray_paper', 'loose_paper')
-def _no_sleep_before_stacks_empty(log):
-    """Only after both stacks are empty may the bold paper marisa hand off to sleep; before that a sleep means its chain stalled."""
+def _wearing_paper_at(log, wearer, sheets, drape, at):
+    covers = list(re.finditer(drape + rf'item=minecraft:paper count={sheets}\b', log[:at]))
+    return bool(covers) and not re.search(rf'uuid={wearer} [^\n]* paper cover drop', log[covers[-1].end():at])
+
+def _paper_sleep_phases(log):
+    """Marisa finishes collecting before sleeping. Reimu is covered at the start of its exhausted nap."""
     marker = log.find('MCYPAPER_STACKS_EMPTY')
-    if marker < 0:
-        return None
-    if re.search(rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin', log[:marker]):
+    if marker >= 0 and re.search(rf'\[sleep\][^\n]* uuid={_bold_paper} [^\n]* begin', log[:marker]):
         return 'bold paper slept before both stacks were empty'
+    nap = re.search(rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin', log)
+    drape = rf'uuid={_tired_paper} [^\n]* paper cover draped source=bedding '
+    if nap and not _wearing_paper_at(log, _tired_paper, 2, drape, nap.start()):
+        return 'tired Reimu lacked its two-sheet cover when it fell asleep'
     return None
 add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '流浪：抽报纸盖身',
     '雪原冬夜，疲倦的亚成灵梦从西边报纸堆取两张盖身，体力耗尽后睡着。东边魔理沙衔走散纸和最后一张报纸，两张只够垫身。看完盖纸，用打火石点亮东边篝火，观察魔理沙在火外一圈歇脚。',
@@ -1134,7 +1140,7 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                        r'\[temperature\][^\n]* cold complaint .*line=dialogue\.mcyukkuri\.',
                        rf'\[temperature\][^\n]* uuid={_bold_paper} [^\n]* fire rest .*ring=2\..*rate=-',
                        r'MCYPAPER_STACKS_EMPTY'],
-               verify=_no_sleep_before_stacks_empty))
+               verify=_paper_sleep_phases))
 
 _devoted_mother = uid('stray_paper_young', 'devoted_parent')
 _self_mother = uid('stray_paper_young', 'self_parent')
@@ -1150,8 +1156,7 @@ def _paper_young_fire_phases(log):
     for wearer, sheets in ((_devoted_parent_txt, 3), (_devoted_baby_txt, 1), (_self_parent_txt, 3)):
         drape = (rf'paper cover draped on child={wearer} ' if wearer == _devoted_baby_txt else
                  rf'uuid={wearer} [^\n]* paper cover draped source=bedding ')
-        covers = list(re.finditer(drape + rf'item=minecraft:paper count={sheets}\b', log[:lighting]))
-        if not covers or re.search(rf'uuid={wearer} [^\n]* paper cover drop', log[covers[-1].end():lighting]):
+        if not _wearing_paper_at(log, wearer, sheets, drape, lighting):
             return f'{wearer} lacked its {sheets}-sheet cover when the fire was lit'
     marker = re.search(rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* fire rest', log)
     if marker and re.search(rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin', log[:marker.start()]):
@@ -9853,14 +9858,14 @@ _scene_end('stray_wind', [('wind_stray', _ASHORE), ('wind_plain', _ASHORE)],
             ('wind_stray', 'seen:habitat:paper bedding placed'),
             ('wind_stray', 'seen:habitat:paper cover draped source=bedding.*count=1'),
             ('wind_stray', 'seen:habitat:paper cover drop item=minecraft:paper count=1')])
-_scene_end('stray_paper', [('bold_paper', _ASHORE),
-                           ('tired_paper', _ASHORE + ' and hold.cover.item=minecraft:paper and hold.cover.n=2')],
+_scene_end('stray_paper', [('bold_paper', _ASHORE), ('tired_paper', _ASHORE)],
            [('bold_paper', f'seen:habitat:gathered item=minecraft:paper count=1 source={_loose_paper_id} left=0'),
             ('bold_paper', 'seen:habitat:paper bedding placed')],
            [('tired_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=1'),
             ('tired_paper', 'seen:habitat:paper bedding placed'),
             ('tired_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=0'),
-            ('tired_paper', 'seen:habitat:paper cover draped source=bedding.*count=2')])
+            ('tired_paper', 'seen:habitat:paper cover draped source=bedding.*count=2'),
+            ('tired_paper', 'seen:sleep:begin source=life')])
 _scene_end('stray_paper_young',
            [(name, _ASHORE) for name in ('devoted_parent', 'devoted_baby', 'self_parent', 'self_baby')],
            [('devoted_parent', 'seen:habitat:wind cover paper approach'),
