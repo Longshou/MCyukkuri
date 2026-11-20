@@ -34,10 +34,9 @@ public final class DoorPassage {
         return positive ? 1 + distance : -distance;
     }
 
-    /** A body with its centre inside the frame goes first. Use stable ordering before either enters. */
-    public static boolean yields(double own, double other, boolean otherFirst) {
-        boolean inside = own >= 0 && own < 1, otherInside = other >= 0 && other < 1;
-        return inside == otherInside ? otherFirst : otherInside;
+    /** The occupant has priority until its trailing edge clears. Break ties by stable ordering. */
+    public static boolean yields(boolean inFrame, boolean otherInFrame, boolean otherFirst) {
+        return inFrame == otherInFrame ? otherFirst : otherInFrame;
     }
 
     public static boolean awaitingPassage(boolean approaching, boolean inFrame, boolean cleared) {

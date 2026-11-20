@@ -403,7 +403,6 @@ public final class HumanNpc extends PathfinderMob {
     record DoorExit(BlockPos door, Direction exit) {
         Direction.Axis axis() { return exit.getAxis(); }
         boolean positive() { return exit.getAxisDirection() == Direction.AxisDirection.POSITIVE; }
-        double along(Vec3 position) { return position.get(axis()) - axis().choose(door.getX(), door.getY(), door.getZ()); }
         boolean cleared(Entity body) {
             var box = body.getBoundingBox();
             double origin = axis().choose(door.getX(), door.getY(), door.getZ());
@@ -703,16 +702,17 @@ public final class HumanNpc extends PathfinderMob {
         private boolean giveWayAtDoor(DoorExit exit) {
             if (exit == null || mob.distanceToSqr(exit.stand(false)) > 9) return false;
             var frame = HumanDoors.frame(exit.door());
+            boolean inFrame = frame.intersects(mob.getBoundingBox());
             for (var other : level.getEntitiesOfClass(HumanNpc.class, frame.inflate(1.25, 0, 1.25),
                     candidate -> candidate != mob && candidate.isAlive())) {
                 var navigation = (HumanNavigation) other.getNavigation();
                 if (navigation.passing != null && navigation.passing.walker() == mob) continue;
                 var opposite = navigation.nearbyExit();
+                boolean otherInFrame = frame.intersects(other.getBoundingBox());
                 if (!(opposite != null && opposite.door().equals(exit.door()) && opposite.exit() == exit.exit().getOpposite())
-                        && !frame.intersects(other.getBoundingBox())) continue;
+                        && !otherInFrame) continue;
                 if (opposite != null && opposite.door().equals(exit.door()) && opposite.exit() == exit.exit()) continue;
-                if (!DoorPassage.yields(exit.along(mob.position()), exit.along(other.position()),
-                        other.getUUID().compareTo(mob.getUUID()) < 0)) continue;
+                if (!DoorPassage.yields(inFrame, otherInFrame, other.getUUID().compareTo(mob.getUUID()) < 0)) continue;
                 var from = mob.position();
                 var stand = aside(exit, other, from, this::clearStep);
                 if (stand == null) {

@@ -18,11 +18,20 @@ class DoorPassageTest {
     }
 
     @Test void doorwayOccupantHasPriorityEvenAgainstStableOrdering() {
-        assertTrue(DoorPassage.yields(-.1, .5, false));
-        assertFalse(DoorPassage.yields(.5, -.1, true));
-        assertTrue(DoorPassage.yields(1.1, .5, false));
-        assertTrue(DoorPassage.yields(-.1, 1.1, true));
-        assertFalse(DoorPassage.yields(1.1, -.1, false));
+        assertTrue(DoorPassage.yields(false, true, false));
+        assertFalse(DoorPassage.yields(true, false, true));
+        for (boolean occupied : new boolean[]{false, true}) {
+            assertTrue(DoorPassage.yields(occupied, occupied, true));
+            assertFalse(DoorPassage.yields(occupied, occupied, false));
+        }
+    }
+
+    @Test void kioskKeeperKeepsPriorityWhenHerCentrePassesTheJamb() {
+        // TN-21 at tick 1778. Both centres have passed Z 704, but only the keeper still occupies the frame.
+        boolean keeperInFrame = DoorPassage.overlaps(703.7254 - 703, 704.3254 - 703);
+        boolean brotherInFrame = DoorPassage.overlaps(704.2366 - 703, 704.8366 - 703);
+        assertFalse(DoorPassage.yields(keeperInFrame, brotherInFrame, true));
+        assertTrue(DoorPassage.yields(brotherInFrame, keeperInFrame, false));
     }
 
     @Test void keeperResumesWhenPetsClearOrTurnsBackAtTheLimit() {
