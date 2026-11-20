@@ -31,7 +31,7 @@ final class WoundRenderer {
             "mold_1","mold_2","mold_3","mold_4","char")
             .map(name->"textures/props/body_wounds/"+name+".png"), Stream.of(SurfaceMark.LEAK_WET_TEXTURE))
             .map(MCYukkuri::id).toArray(ResourceLocation[]::new);
-    private static final Map<Object,Geometry> CACHE=new BoundedRenderCache<>(BoundedRenderCache.MAX_BODIES);
+    private static final DrawnBodyCache<Object,Geometry> CACHE=new DrawnBodyCache<>(DrawnBodyCache.MAX_BODIES);
     private static final Map<TopologyKey,Topology> TOPOLOGIES=new BoundedRenderCache<>(MAX_TOPOLOGIES);
     static void clearLevel(){CACHE.clear();SIGNS.clear();TOPOLOGIES.clear();}
     static void clear(){clearLevel();CavityRenderer.clear();}
@@ -300,13 +300,14 @@ final class WoundRenderer {
             return true;
         }
     }
-    private static final Map<Object,Map.Entry<SignKey,List<SkinDecal>>> SIGNS=new BoundedRenderCache<>(BoundedRenderCache.MAX_BODIES);
+    private static final DrawnBodyCache<Object,Map.Entry<SignKey,List<SkinDecal>>> SIGNS=new DrawnBodyCache<>(DrawnBodyCache.MAX_BODIES);
     /** Derived body signs, recomputed only when the synced states change. */
     static List<SkinDecal> signs(Object key,UUID seed,String asset,int packed,float healthFraction,List<BodyWound> wounds){
-        boolean weak=healthFraction<=BodyLife.WEAK_HEALTH_RATIO;var cached=SIGNS.get(key);
+        long frame=PoseNeighbors.frame;
+        boolean weak=healthFraction<=BodyLife.WEAK_HEALTH_RATIO;var cached=SIGNS.get(key,frame);
         if(cached!=null&&cached.getKey().same(seed,packed,weak,wounds,asset))return cached.getValue();
         var id=new SignKey(seed,packed,weak,wounds.stream().map(HairWoundRenderer.VisibleWound::new).toList(),asset);
-        var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,healthFraction));SIGNS.put(key,Map.entry(id,result));return result;
+        var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,healthFraction));SIGNS.put(key,Map.entry(id,result),frame);return result;
     }
     static Contact render(YukkuriView e,String expression,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
         float health=e.getMaxHealth()<=0?1:Math.clamp(e.getHealth()/e.getMaxHealth(),0,1);
@@ -347,10 +348,11 @@ final class WoundRenderer {
         signs=drawnSigns(signs);
         boolean wet=leakOpacity>0,supineWet=wet&&supine;
         if(!wet&&signs.isEmpty()&&contact==null&&!projectsSurface(wounds)){CACHE.remove(key);return null;}
-        var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
+        long frame=PoseNeighbors.frame;
+        var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key,frame);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
         if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||geometry.wet!=wet||geometry.supineWet!=supineWet||!Objects.equals(geometry.contact,contact)||!geometry.same(wounds,signs)||!geometry.accepts(faceExpression)){
-            geometry=new Geometry(mesh,wounds,signs,faceExpression,corePresent,wet,supineWet,contact);CACHE.put(key,geometry);}
+            geometry=new Geometry(mesh,wounds,signs,faceExpression,corePresent,wet,supineWet,contact);CACHE.put(key,geometry,frame);}
         // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
         var temp=geometry.temp;for(int i:geometry.uniqueVertices){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;
                 k<w.length;k+=2){world[(int)w[k]].transformPosition(geometry.rest[i],temp);dest.fma(w[k+1],temp);}}

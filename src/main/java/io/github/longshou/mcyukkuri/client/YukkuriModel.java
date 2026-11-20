@@ -63,7 +63,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
@@ -530,7 +529,7 @@ public final class YukkuriModel {
     private float[] tentBodyBuf = new float[0], tentMeshBuf = new float[0], tentHatBuf = new float[0];
     private int tentBodyLen, tentMeshLen, tentHatLen;
     private record PaperFit(long inputs, PaperTent.Grid grid) {}
-    private final Map<YukkuriView, PaperFit> paperFits = new WeakHashMap<>();
+    private final DrawnBodyCache<YukkuriView,PaperFit> paperFits = new DrawnBodyCache<>(DrawnBodyCache.MAX_BODIES);
     private final Matrix4f tentToWall = new Matrix4f();
     private PaperTent.Grid paperTentGrid;
     static void clearPaperFits() {
@@ -788,10 +787,11 @@ public final class YukkuriModel {
             for (int column = 0; column < 4; column++) for (int row = 0; row < 3; row++)
                 inputs = 31 * inputs + Math.round(toWall.get(column, row) * 4096f);
         }
-        var fit = paperFits.get(entity);
+        long frame = PoseNeighbors.frame;
+        var fit = paperFits.get(entity, frame);
         if (fit != null && fit.inputs() == inputs) return fit.grid();
         var grid = buildPaperTent(toWall, showHat, hairLoss, junk);
-        paperFits.put(entity, new PaperFit(inputs, grid));
+        paperFits.put(entity, new PaperFit(inputs, grid), frame);
         return grid;
     }
 
