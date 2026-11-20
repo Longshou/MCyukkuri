@@ -1088,9 +1088,11 @@ public final class YukkuriLife {
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         }
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
-        if (!penned && !entity.settlement().underway() && !hasUrgentNeed()) {
-            targetBlock = home.unclaimedSingleBed();
-            if (targetBlock != null) {
+        if (!penned && !entity.settlement().underway() && !hasUrgentNeed() && !entity.social().canContinue()) {
+            var bed = home.unclaimedSingleBed();
+            if (bed != null && BedClaimDrive.prefersBed(energy, personality.boldness(), socialWait == 0,
+                    restTime() || rainOutside() && !covered(entity.blockPosition()), entity.distanceToSqr(Vec3.atCenterOf(bed)))) {
+                targetBlock = bed;
                 task = Task.CLAIM_BED; pursuitTicks = 0;
                 GameplayLog.event(entity,"home","approaching unclaimed bed nest={} side={}",targetBlock,
                         NestDoorway.bed(entity,targetBlock).entrance());
@@ -1978,7 +1980,7 @@ public final class YukkuriLife {
     private void approachUnclaimedBed() {
         var bed = NestDoorway.bed(entity, targetBlock);
         var stand = bed == null ? null : home.entrance(targetBlock);
-        if (bed == null || hasUrgentNeed() || home() != null && !naturalHome()) {
+        if (bed == null || hasUrgentNeed() || home() != null && !naturalHome() || entity.social().canContinue()) {
             stopGoal(); return;
         }
         if (stand == null || pursuitTicks > 600) {
