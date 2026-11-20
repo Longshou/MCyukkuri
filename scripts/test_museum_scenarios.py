@@ -1,7 +1,7 @@
 """Deliberate-break log fixtures for museum scenario verifiers; no game."""
 import unittest
 
-from museum_scenarios import S, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, elopement_result, sel, uid, uuid_nbt
+from museum_scenarios import S, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, elopement_result, sel, uid, uuid_nbt
 
 
 PARENT = '11111111-1111-1111-1111-111111111111'
@@ -9,6 +9,21 @@ OTHER_PARENT = '22222222-2222-2222-2222-222222222222'
 CHILD = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 OTHER_CHILD = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 PICKUP = f'[family] reimu #1 uuid={PARENT} t=1 carry pickup hold=mouth purpose=RETRIEVE child={CHILD}\n'
+
+
+class PondShakeStart(unittest.TestCase):
+    def test_wet_reimu_starts_in_the_last_flowing_cell_next_to_a_dry_bed(self):
+        scene = next(s for s in S if s.id == 'shake_ashore')
+        bank = bank_dx(0)
+        self.assertIn(f'fill ~{bank - 9} ~-1 ~0 ~{bank} ~-1 ~0 minecraft:air', scene.lines)
+        for level in range(1, 8):
+            self.assertIn(f'setblock ~{bank + 1 - level} ~-1 ~0 minecraft:water[level={level}]', scene.lines)
+        summon = next(line for line in scene.lines if line.startswith('summon mcyukkuri:reimu '))
+        feet_x = float(summon.split()[2][1:])
+        self.assertGreater(feet_x, bank - 6)
+        self.assertLess(feet_x + .75 / 2, bank - 6 + 1)
+        self.assertEqual(summon.split()[3:5], ['~-1', '~0.5'])
+        self.assertIn(f'yukkuri status set {sel("a")} needs.wetness 32', scene.lines)
 
 
 def event(tick, message, parent=PARENT):

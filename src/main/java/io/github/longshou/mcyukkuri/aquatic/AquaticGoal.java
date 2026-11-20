@@ -74,6 +74,7 @@ final class AquaticGoal extends Goal {
     private String fear;
     /** The brood whose late interval was already reported: the shore return is announced once per brood. */
     private UUID shoreBrood;
+    private BoardingLoad refusedBoarding;
 
     private AquaticGoal(YukkuriEntity body) {
         this.body = body;
@@ -496,13 +497,16 @@ final class AquaticGoal extends Goal {
                 && !body.childhood().needsNewbornCare() && AquaticLife.nursing(parent).isEmpty()
                 && !(running != null && running.intent() instanceof Ashore)
                 && parentOn) {
-            var full = hat.boardingRefusal(body);
-            // Only a boarding this young has a means for now: the hop admitted where it stands, or a dry stand near the hull to hop
-            // from. Without one it waits on the bank and her own fetch/ferry applies, instead of failing the same boarding over and over.
-            if (full == null && Ferry.canBoard(body, hat)) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
-            else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
-                    "board refused hat={} reason={} size={}", hat.getUUID(), full == null ? "no_boarding_stand" : "hull_full " + full,
-                    body.growthScale() * body.getScale());
+            double size = body.growthScale() * body.getScale();
+            var load = new BoardingLoad(hat.getUUID(), hat.loadRatio(), size / hat.hullScale(),
+                    ParentCarry.overloadKeeper(parent) ? Double.POSITIVE_INFINITY : hat.behavior().loadLimit(hat));
+            if (refusedBoarding == null || !refusedBoarding.stillFull(load)) {
+                var full = hat.boardingRefusal(body);
+                refusedBoarding = full == null ? null : load;
+                if (full == null && Ferry.canBoard(body, hat)) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
+                else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
+                        "board refused hat={} reason={} size={}", hat.getUUID(), full == null ? "no_boarding_stand" : "hull_full " + full, size);
+            }
         }
         // A young standing on the hull leaves it by itself; one her braid carries on her head goes with her and is set down there.
         // A hull with no dry stand in this young's hop reach has no way off for it, so nothing is offered: the young waits where it

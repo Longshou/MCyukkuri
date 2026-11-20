@@ -20,7 +20,13 @@ import net.minecraft.world.entity.monster.Enemy;
  * intent's ({@link #struggles}).
  */
 public final class WaterDistress {
-    public enum Phase { IDLE, IMPACT, STRUGGLE, EXHAUSTED, RECOVER }
+    public enum Phase {
+        IDLE, IMPACT, STRUGGLE, EXHAUSTED, RECOVER;
+
+        static Phase entry(boolean airborneDry, int pendingPlunge, boolean eyesUnder) {
+            return airborneDry || pendingPlunge > 0 || eyesUnder ? IMPACT : STRUGGLE;
+        }
+    }
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, callWait, pendingPlunge, drySupportTicks;
@@ -77,7 +83,7 @@ public final class WaterDistress {
         GameplayLog.event(entity,"water","entered at={} action={} owner={} last={} velocity={}",
                 GameplayLog.at(entity.position()),action==null?"none":action.id(),owner==null?"none":owner.ownerId(),
                 entity.motor().lastDetail(),GameplayLog.at(entity.getDeltaMovement()));
-        immersionTicks=0;pendingPlunge=0;set(Phase.IMPACT);
+        immersionTicks=0;set(Phase.entry(airborneDry,pendingPlunge,entity.isEyeInFluid(FluidTags.WATER)));pendingPlunge=0;
         if(!entity.isNoAi()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();}
     }
     /** Entity-owned server clock, including disabled AI. YukkuriLife alone applies immersion damage. */

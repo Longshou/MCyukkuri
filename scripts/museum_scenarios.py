@@ -6157,15 +6157,19 @@ pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的�
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
-# An ordinary land Reimu just fallen into the water two blocks off the bank: nobody fetches it, it gets out by itself and, wet on dry ground, shakes the water off.
+# A shallow runnel drains west from the pond onto a level bed. Reimu is wet and still in the last flowing cell.
 pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水',
-     '普通灵梦刚掉进岸边两格外的池水里：自己游回岸上（[intent] end id=escape_water），在干地上停下甩水（[weather] shaking water off … after=water，播甩水片段），甩完湿度减半（shook the water off wetness=A -> A/2）；之后自然晾干，不会反复甩',
+     '普通灵梦浑身湿透，还在池边浅水沟的末端。看它自己划上有实地承托的干岸，站稳喘匀后甩一次水，湿度减半。',
      '约 20–40 秒',
-     [yk('reimu', bank_dx(0) + 2, 0, 'a', dy=-1, yaw=90, lead=True, **pair_ready())], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
+     [box(bank_dx(0) - 9, -1, 0, bank_dx(0), -1, 0, 'minecraft:air'),
+      *[block(bank_dx(0) + 1 - level, -1, 0, f'minecraft:water[level={level}]') for level in range(1, 8)],
+      yk('reimu', bank_dx(0) - 6.45, 0, 'a', dy=-1, yaw=90, lead=True, **pair_ready()),
+      set_status('a', 'needs.wetness', 32)], note=NEW, vantage=(bank_dx(0) - 9, 3, -135, 15),
      reads=[('读湿度与甩水', f'yukkuri status {sel("a")} raw')],
      capture=dict(shots=(1, 40, 400, 800), sequences=((40, 800, 4),), observe=False,
                   follow='@e[tag=scn_a,limit=1]', offset=(-1.6, 1.0, 2.2)),
-     smoke=dict(ticks=1200, expect=[*_WATER_ESCAPE, r'\[weather\][^\n]* shaking water off wetness=[^\n]* after=water\b',
+     smoke=dict(ticks=1200, expect=[*_WATER_ESCAPE, r'\[water\][^\n]* escape done [^\n]*support=stand=',
+                                   r'\[weather\][^\n]* shaking water off wetness=[^\n]* after=water\b',
                                    r'\[weather\][^\n]* shook the water off wetness='],
                 forbid=_WATER_SMOKE_FORBID, readout=_water_readouts('a')))
 

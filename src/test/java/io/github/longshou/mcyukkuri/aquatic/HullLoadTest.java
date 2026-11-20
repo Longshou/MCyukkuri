@@ -2,10 +2,22 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HullLoadTest {
+    @Test void aFullHullReopensAdmissionOnlyWhenTheYoungMayFit() {
+        var hull = UUID.randomUUID();
+        var refused = new BoardingLoad(hull, .8, .3, .85);
+        assertTrue(refused.stillFull(refused));
+        assertTrue(refused.stillFull(new BoardingLoad(hull, .82, .31, .85)));
+        assertFalse(refused.stillFull(new BoardingLoad(hull, .4, .3, .85)));
+        assertFalse(refused.stillFull(new BoardingLoad(hull, .8, .2, .85)));
+        assertFalse(refused.stillFull(new BoardingLoad(hull, .8, .3, Double.POSITIVE_INFINITY)));
+        assertFalse(refused.stillFull(new BoardingLoad(UUID.randomUUID(), .8, .3, .85)));
+    }
+
     @Test void eachBodyContributesItsVolumeAndGrowthChangesTheLoad() {
         double capacity = HullBounds.capacity(1);
         assertEquals((Math.pow(.15, 3) + Math.pow(.2, 3) + Math.pow(.3, 3)) / capacity,
