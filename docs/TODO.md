@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
 | 性能：限频日志与实体同步 | `.worktrees/wp-perf-serverlog` | status/GameplayLog.java, entity/YukkuriSync.java, motor/BodyDriver.java |
-| 池塘场景溺水与循环（PD-15、PD-26、PD-09、PD-13） | `.worktrees/wp-pond-gates` | aquatic/* (water exit, boarding, shore hop, hull admission) |
 | 公园里等主人：本地流浪赠食并提供去处 | `.worktrees/wp-park-aid` | social/Kindness.java, pet/PetLife.java (waiting) |
 | 收容所志愿者给流浪放纸箱 | `.worktrees/wp-shelter-cartons` | human jobs, settlement/ShelterBlock.java |
 | 村会馆柜台：徽章登记、补发与讲台观看 | `.worktrees/wp-badge-counter` | human/HumanNpc.java (counter role), pet/exam/ExamMenu.java, pet/exam/ExamHall.java, author_civic.py |
