@@ -19,6 +19,7 @@
 | FG-14/15 普通纸可收集、篝火取暖、寒冷台词与掉帧 | `.worktrees/wp-paper-fire` | temperature layer, paper cover, client paper-fit |
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
+| 普通村庄里的流浪油无可见原因死于漏馅 | `.worktrees/wp-leak-death` | damage/leak source (TBD) |
 
 ## 玩法待办
 
