@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.NewspaperStackBlock;
@@ -39,6 +40,7 @@ import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.pose.PaperTent;
 import io.github.longshou.mcyukkuri.pose.LipGrip;
 import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -59,6 +61,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
@@ -79,6 +82,7 @@ import net.neoforged.neoforge.event.EventHooks;
 /** Temporary cover competes in the life plan. Only the shelter core records occupants. */
 public final class FoundShelter implements MotorOwner {
     private static final int RADIUS = 8, CONTEST_REST = 1200, BLOCKED_REST = 2400;
+    private static final int UPGRADE_SCAN_TICKS = 40;
     private static final float LEAVE_HUNGRY = 25, SEEK_HUNGRY = 30, EXHAUSTED_PAPER_SLEEP_ENERGY = 15;
     private static final double SNIFF_REACH = .4;
     // The mouth and brim can meet inside a much smaller interval than an ordinary walking step.
@@ -273,13 +277,82 @@ public final class FoundShelter implements MotorOwner {
         return true;
     }
 
-    private ShelterBlockEntity findUsableShelter(BlockPos here, boolean requireRoute) {
+    private ShelterBlockEntity findUsableShelter(BlockPos here, boolean upgrading) {
         var nearby = LoadedShelters.within(level(), here.offset(-RADIUS, -2, -RADIUS), here.offset(RADIUS, 2, RADIUS));
         return nearby.stream().filter(s -> s.kind().found() && s.foundUsable(body)
-                        && (canContest(body) || s.residentIds().stream().allMatch(id -> s.related(body.getUUID(), id)))
-                        && TravelRange.babyDestination(body, s.getBlockPos()) && !refusing(s.getBlockPos())
-                        && (!requireRoute || SurfaceApproach.canApproach(body, Vec3.atBottomCenterOf(s.entrance()))))
-                .min(Comparator.comparingDouble(s -> body.distanceToSqr(Vec3.atBottomCenterOf(s.entrance())))).orElse(null);
+                        && !refusing(s.getBlockPos()))
+                .sorted(Comparator.comparingDouble(s -> body.distanceToSqr(Vec3.atBottomCenterOf(s.entrance()))))
+                .filter(s -> acceptsCarton(s, upgrading)).findFirst().orElse(null);
+    }
+
+    private boolean acceptsCarton(ShelterBlockEntity carton, boolean upgrading) {
+        var core = carton.getBlockPos();
+        boolean ordinarySearch = !upgrading && TravelRange.babyDestination(body, core);
+        var residents = carton.residentIds();
+        if (!residents.isEmpty()) return ordinarySearch
+                && (canContest(body) || residents.stream().allMatch(id -> carton.related(body.getUUID(), id)));
+        if (!ordinarySearch && (!TravelRange.babyDestination(body, core, RADIUS) || !seesCarton(core))) return false;
+
+        var opening = Vec3.atBottomCenterOf(carton.entrance());
+        double wariness = warinessAt(opening);
+        if (ordinarySearch && wariness == 0) return true;
+        var life = body.life();
+        double need = ShelterPreference.need(life.energy(), life.isSleeping(), life.temperature().coldDeficit(), life.wetness());
+        boolean underCover = upgrading && life.covered(body.blockPosition());
+        double route = ordinarySearch ? body.position().distanceTo(opening) : SurfaceApproach.routeLength(body, opening, null);
+        return ShelterPreference.worthMoving(need, life.energy(), underCover, route, wariness);
+    }
+
+    private boolean seesCarton(BlockPos core) {
+        for (var pos : BlockPos.betweenClosed(body.blockPosition(), core)) if (!level().hasChunkAt(pos)) return false;
+        var hit = level().clip(new ClipContext(body.getEyePosition(), Vec3.atCenterOf(core),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body));
+        if (hit.getType() == HitResult.Type.MISS) return true;
+        var state = level().getBlockState(hit.getBlockPos());
+        return state.getBlock() instanceof ShelterBlock && ShelterBlock.root(hit.getBlockPos(), state).equals(core);
+    }
+
+    private double warinessAt(Vec3 opening) {
+        double wary = 0;
+        // The same three-block vicinity as a person standing beside a paper stack.
+        for (var person : level().getEntitiesOfClass(LivingEntity.class, AABB.ofSize(opening, 6, 6, 6), p ->
+                (p instanceof HumanNpc || p instanceof Player || p instanceof Villager) && p.isAlive() && !p.isSpectator())) {
+            double distance = person.position().distanceTo(opening);
+            if (distance >= 3 || !body.hasLineOfSight(person)) continue;
+            double presence = 1 - ramp(distance, 1, 3);
+            var relation = body.life().personality().relation(person.getUUID());
+            wary = Math.max(wary, presence * SocialDisposition.humanWariness(body, person, relation));
+        }
+        return wary;
+    }
+
+    private void approachCarton(ShelterBlockEntity carton) {
+        shelter = carton;
+        aim = Vec3.atBottomCenterOf(carton.entrance());
+        phase = Phase.APPROACH;
+        began = now();
+        GameplayLog.event(body, "habitat", "found approach shelter={} kind={}", carton.getBlockPos(), carton.kind());
+    }
+
+    /** An awake search or a light rest on the ground can give way to a better refuge in view. */
+    public boolean tryBetterCover() {
+        if (now() < nextScan || !body.onGround() || !canTakeFoundShelter(body) || body.isOnFire()
+                || body.isPanicking() || body.isCommandPlaying()
+                || body.operations().active() || body.life().nutrition() < SEEK_HUNGRY
+                || body.family().stemFoodUrgent() || body.family().followsShelterLead() || ParentCarry.awaitsCarrier(body)
+                || familyDutyPreempts(false)
+                || !wantsCover() && !body.life().isSleeping()) return false;
+        if (active() && (shelter != null || phase != Phase.REST && phase != Phase.ENTER
+                || streetSpot != null && streetSpot != StreetSpot.AWNING || holdingPaper()
+                || body.life().hasPaperCover())) return false;
+        nextScan = now() + UPGRADE_SCAN_TICKS;
+        if (active() && paperAt(gap)) return false;
+        var carton = findUsableShelter(body.blockPosition(), true);
+        if (carton == null) return false;
+        GameplayLog.event(body, "habitat", "found upgrading from={} shelter={}", target(), carton.getBlockPos());
+        stop();
+        approachCarton(carton);
+        return true;
     }
 
     public boolean plan() {
@@ -289,11 +362,7 @@ public final class FoundShelter implements MotorOwner {
         var here = body.blockPosition();
         var found = findUsableShelter(here, false);
         if (found != null) {
-            shelter = found;
-            aim = Vec3.atBottomCenterOf(found.entrance());
-            phase = Phase.APPROACH;
-            began = now();
-            GameplayLog.event(body, "habitat", "found approach shelter={} kind={}", found.getBlockPos(), found.kind());
+            approachCarton(found);
             return true;
         }
         if (now() >= streetAfter && streetUser(body) && planStreet(here)) return true;
@@ -904,6 +973,7 @@ public final class FoundShelter implements MotorOwner {
             }
             if (shelter != null && !facingOut()) SurfaceApproach.face(body, outward());
             if (!checkRest(false)) return exiting() ? Step.ACTIVE : Step.ENDED;
+            if (tryBetterCover()) return Step.ACTIVE;
             if (restingInPlainGap() && !body.life().isSleeping()) {
                 discoverPaperCover();
                 if (holdingPaper()) {
@@ -957,6 +1027,7 @@ public final class FoundShelter implements MotorOwner {
                 : streetSpot != null ? !streetSpotValid() : !gapAt(gap))) {
             stop(); return Step.ENDED;
         }
+        if (phase == Phase.ENTER && tryBetterCover()) return Step.ACTIVE;
         if (phase == Phase.PULL_PAPER) {
             if (pullAction != null) {
                 if (body.motor().current() == pullAction) return Step.ACTIVE;
@@ -1284,9 +1355,7 @@ public final class FoundShelter implements MotorOwner {
                 : streetSpot == null && gap != null && !gapAt(gap) ? "cover_gone"
                 : body.tickCount % 20 == 0 && !level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(5),
                         y -> y.isAlive() && y.profile().dangerToYukkuri() && body.hasLineOfSight(y)).isEmpty() ? "predator"
-                : restingInPlainGap() && familyDutyPreempts(body.tickCount % 20 == 0) ? "family_duty"
-                : restingInPlainGap() && body.life().temperature().cold() && body.tickCount % 40 == 0
-                        && findUsableShelter(here, true) != null ? "better_shelter" : null;
+                : restingInPlainGap() && familyDutyPreempts(body.tickCount % 20 == 0) ? "family_duty" : null;
         if (reason == null && (waking || body.life().isSleeping() || wantsCover() || streetSpot != null && level().isRaining())) return true;
         leave(reason == null ? "rested" : reason);
         return false;
@@ -1324,7 +1393,7 @@ public final class FoundShelter implements MotorOwner {
 
     private void leave(String reason) {
         GameplayLog.event(body, "habitat", "found leaving target={} reason={}", target(), reason);
-        nextScan = "better_shelter".equals(reason) ? 0 : now() + 100;
+        nextScan = now() + 100;
         if (shelter == null) { stop(); return; }
         phase = Phase.EXIT; deadline = now() + 140;
         aim = cartonLane(body.position());

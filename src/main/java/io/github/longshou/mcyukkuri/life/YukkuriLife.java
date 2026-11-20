@@ -231,6 +231,11 @@ public final class YukkuriLife {
         // An ended rest stays ended: the goal may still be ticked once before its continue check, and counting on from zero there
         // would start a nap of its own that no start ever logged and that never ends.
         if (fatigueTicks == 0) return;
+        if (!fullFatigueSleep && foundCover.tryBetterCover()) {
+            stopFatigueRest("better_shelter");
+            task = Task.FOUND_COVER;
+            return;
+        }
         SurfaceApproach.halt(entity);
         // A nap is leisure: real hunger ends it so the body can eat (a full sleep at energy 0 goes on to the end).
         if (!fullFatigueSleep && nutrition < 30) { stopFatigueRest("hunger"); return; }
@@ -897,6 +902,14 @@ public final class YukkuriLife {
         return nearestCare(kind, kind == CareBlock.Kind.BOWL) != null;
     }
 
+    private void seekBetterCoverFromSleep() {
+        if (drugSleep() > 0 || targetBlock != null || outingRest || temperature.hasTemporarySleepSite()
+                || !foundCover.tryBetterCover()) return;
+        if (sleepTicks >= 20) GameplayLog.event(entity, "sleep", "end source=life cause=better_shelter ticks={} energy={}", sleepTicks, energy);
+        resetSleep();
+        task = Task.FOUND_COVER;
+    }
+
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;
         if (task == Task.HOME && ParentCarry.awaitsCarrier(entity)) { stopGoal(); return false; }
@@ -923,7 +936,10 @@ public final class YukkuriLife {
                 foundCover.stop();
                 task = Task.TEMPERATURE; resetSleep(); return true;
             }
-            if (foundCover.checkRest(foundCover.restingAtBench() && wakeAt > 0)) return true;
+            if (foundCover.checkRest(foundCover.restingAtBench() && wakeAt > 0)) {
+                seekBetterCoverFromSleep();
+                return true;
+            }
             resetSleep();
             if (foundCover.exiting()) { task = Task.FOUND_COVER; return true; }
             stopGoal(); planWait = 0; return false;
@@ -938,6 +954,7 @@ public final class YukkuriLife {
             foundCover.stop();
             task = Task.TEMPERATURE; resetSleep(); return true;
         }
+        if (task == Task.SLEEP) seekBetterCoverFromSleep();
         if ((task == Task.FOOD || task == Task.FOOD_GLASS) && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
         if ((task == Task.NONE && planWait == 0 || task == Task.FOUND_COVER && foundCover.approachingPlainGap())
                 && entity.family().hearsColdCry()) {

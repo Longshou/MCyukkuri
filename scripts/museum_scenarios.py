@@ -3592,9 +3592,9 @@ add('shelter_cartons', 'town', '志愿者从货箱取出纸箱，放到棚下', 
         _shelter_template,
         street_stray('shelter_cartons', 'reimu', -8, -2, 'shelter_rest_north', energy=25, rest_wait=0, adult_scale=.78),
         street_stray('shelter_cartons', 'reimu', -8, 1, 'shelter_rest_south', energy=25, rest_wait=0, adult_scale=.78),
-        # The north side of the mouth is within the baby's range, beyond the low overhang beside the house.
-        street_stray('shelter_cartons', 'reimu', -1, -1, 'shelter_stray', stage='baby', energy=48, rest_wait=400, yaw=-45,
-                     childhood=CHILDHOOD_HOPPING, lead=True),
+        # Awake and drowsy on the north side, looking across the open bay away from the low overhang.
+        street_stray('shelter_cartons', 'reimu', -.8, -1.4, 'shelter_stray', stage='baby', energy=48, rest_wait=520, yaw=-45,
+                     boldness=70, childhood=CHILDHOOD_HOPPING, lead=True),
     ], env=DAY, vantage=(-4, -3, -53, 8), reads=_shelter_reads,
     smoke=dict(ticks=650, verify=_one_shelter_pickup,
                expect=[_shelter_pickup + r'[\s\S]*?' + _shelter_placed + r'[\s\S]*?'

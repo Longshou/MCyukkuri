@@ -68,6 +68,7 @@ public final class TemperatureLife {
         return ThermalComfort.exposureRate(felt, coldLimit(), ageRate);
     }
     public boolean cold() { return tooCold(current.felt()); }
+    public double coldDeficit() { return Math.max(0, coldLimit() - current.felt()); }
     public boolean needsKinWarmth() {
         return targetFire != null || (initialSample ? tooCold(sample(entity.blockPosition()).felt()) : cold());
     }

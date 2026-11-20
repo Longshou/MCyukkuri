@@ -43,9 +43,14 @@ public final class TravelRange {
     }
     /** A home limits voluntary baby errands, never escape, carrying or the family's march. */
     public static boolean babyDestination(YukkuriEntity animal, BlockPos destination) {
+        return babyDestination(animal, destination, BABY_RADIUS);
+    }
+
+    /** A visible refuge can draw a homeless baby farther than it would wander in search. */
+    public static boolean babyDestination(YukkuriEntity animal, BlockPos destination, int openRange) {
         if (animal.family().stage() != Stage.BABY || animal.family().emergencyForaging()) return true;
         BlockPos home = animal.life().homeStand();
-        if (home == null) return animal.distanceToSqr(Vec3.atBottomCenterOf(destination)) <= BABY_RADIUS * BABY_RADIUS;
+        if (home == null) return animal.distanceToSqr(Vec3.atBottomCenterOf(destination)) <= openRange * openRange;
         var shelter = animal.habitat().shelter();
         return shelter != null && shelter.contains(destination) || destination.distSqr(home) <= BABY_RADIUS * BABY_RADIUS;
     }
