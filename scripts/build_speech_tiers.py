@@ -624,6 +624,119 @@ PROTECTION_CHILD = {
     },
 }
 PROTECTION_ANGERED = ('うー！おまえを つかまえるよ！', '呜——！要抓住你！', 'Uu! I will catch you!')
+# The taunt a parent of any age and species calls from beside its young. Adults of the five non-tic species keep the line above.
+PROTECTION_TAUNT_TIERS = {
+    'baby': ('{p}ぷくー！ こっちー！ ちびちゃんに ちゃわらにゃいで！', '{p}噗咕——！这边！不许碰小贝比！', '{p}Puff! Over here! Do not touch the little one!'),
+    'juvenile': ('{p}ぷくー！ こっちらよ！ おちびちゃんに ちゃわらにゃいで！', '{p}噗咕——！看这边！不许碰小贝比酱！',
+                 '{p}Puff! Over here! Do not touch the little one!'),
+    'adult': ('{p}ぷくー！こっちだよ！おちびちゃんに さわらないでね！', '{p}噗咕——！看这边！不许碰小贝比酱！',
+              '{p}Puff! Over here! Leave the little one alone!'),
+}
+
+# Reaction pools that had no line: the response was silent. Each is a style-tagged triple per tier (NativeDialogue picks the tag that
+# matches the speaker's current style). Wording stays inside what the body knows: no tool, shop or factory names, no human-only
+# concepts; the speaker names only what it sees or feels.
+GAP_BASIS = 'wp-gap-lines: reaction pool with no line before; project-original wording, voiced'
+GAP = {
+    # A struck animal with no keeper it trusts asks the one who hit it to stop.
+    'hurt_plea': {
+        'baby': {
+            'proud': ('{c}！ いちゃい！ やめちぇ！', '{c}！好痛！别打！', '{c}! It hurts! Stop!'),
+            'timid': ('{c}……いちゃい……やめちぇ……', '{c}……好痛……别打……', '{c}... it hurts... stop...'),
+            'plain': ('{c}……いちゃいの、やーよ……', '{c}……痛痛，不要……', '{c}... no more ouchies...')},
+        'juvenile': {
+            'proud': ('{p}いちゃいよ！ もう やめちぇ！', '{p}好痛！别打了！', '{p}It hurts! Stop it!'),
+            'timid': ('{p}いちゃい……やめちぇ……', '{p}好痛……别打了……', '{p}It hurts... stop...'),
+            'plain': ('{p}いちゃいの……もう いやぁ……', '{p}好痛……不要了……', '{p}It hurts... no more...')},
+        'adult': {
+            'proud': ('{p}いたいよ！ もう やめて！', '{p}好痛！别打了！', '{p}It hurts! Stop it!'),
+            'timid': ('{p}いたい……やめて……', '{p}好痛……别打了……', '{p}It hurts... stop...'),
+            'plain': ('{p}いたいの、もう いや……やめてほしい{e}……', '{p}好痛，不要了……想让你停下{e}……', '{p}It hurts, no more... please stop...')}},
+    # Pleading before any injury (a threat, restraint or a blow that has not landed yet).
+    'plea_spare': {
+        'baby': {
+            'proud': ('{c}！ いじめにゃいで！', '{c}！不要欺负窝！', '{c}! No bullying!'),
+            'timid': ('{c}……こあい……ぶたにゃいで……', '{c}……好口怕……别打窝……', '{c}... scawy... do not hit...'),
+            'plain': ('{c}……やーの……やーの……', '{c}……不要……不要……', '{c}... no... no...')},
+        'juvenile': {
+            'proud': ('{p}ぶたにゃいで！ {n}、いいこ{e}！', '{p}别打{n}！{n}是乖孩子{e}！', "{p}Don't hit me! {N} is good!"),
+            'timid': ('{p}こあい……ぶたにゃいで……', '{p}好口怕……别打……', "{p}Scawy... don't hit me..."),
+            'plain': ('{p}おねがい……いじめにゃいで……', '{p}求求你……别欺负窝……', "{p}Please... don't be mean...")},
+        'adult': {
+            'proud': ('{p}ひどいことは やめて！ {n}は わるくない{e}！', '{p}别做过分的事！{n}没有做错{e}！', '{p}Stop that! {N} did nothing wrong!'),
+            'timid': ('{p}こわい……ひどいこと、しないで……', '{p}好可怕……别做过分的事……', "{p}Scary... please don't hurt me..."),
+            'plain': ('{p}おねがい……ゆるしてほしい{e}……', '{p}拜托……想被饶过{e}……', '{p}Please... let me off...')}},
+    # Carried off by a stranger: asks not to be taken away (a defiant one has the factory insult).
+    'handover_plea': {
+        'baby': {
+            'proud': ('{c}！ おろちて！ おろちて！', '{c}！放下窝！放下窝！', '{c}! Put me down! Put me down!'),
+            'timid': ('{c}……どこ いくの……こあい……', '{c}……要去哪……好口怕……', '{c}... where to... scawy...'),
+            'plain': ('{c}……つれてかにゃいで……', '{c}……别带窝走……', '{c}... do not take me...')},
+        'juvenile': {
+            'proud': ('{p}おろちちぇ！ いかにゃい{e}！', '{p}放下窝！窝不去{e}！', '{p}Put me down! I am not going!'),
+            'timid': ('{p}どこに いくの……こあい……', '{p}要去哪里……好口怕……', '{p}Where to... scawy...'),
+            'plain': ('{p}つれていかにゃいで……おねがい……', '{p}别带窝走……求求你……', '{p}Do not take me away... please...')},
+        'adult': {
+            'proud': ('{p}おろして！ いかない{e}！', '{p}放下！{n}不去{e}！', '{p}Put me down! I am not going!'),
+            'timid': ('{p}どこへ いくの……こわい……', '{p}要去哪儿……好可怕……', '{p}Where to... scary...'),
+            'plain': ('{p}つれていかないで……おねがい……', '{p}别带{n}走……拜托……', '{p}Do not take me away... please...')}},
+    # A human holds something up: the animal cannot know what it is and tries to be gentle and good.
+    'tool_appease': {
+        'baby': {
+            'proud': ('{c}♪ にんげんしゃ、にこにこ！', '{c}♪ 人类先森，笑笑！', '{c}! Mr. Human, smiley!'),
+            'timid': ('{c}……やしゃしく……ちて……', '{c}……温温柔柔……的……', '{c}... be gentle...'),
+            'plain': ('{c}……いいこ、いいこ……', '{c}……乖乖，乖乖……', '{c}... good, good...')},
+        'juvenile': {
+            'proud': ('{p}にんげんしゃん、{n}、いいこ{e}！ にこにこ{e}！', '{p}人类先生，{n}是乖孩子{e}！笑笑{e}！', '{p}Mr. Human, {N} is good! Smile!'),
+            'timid': ('{p}にんげんしゃん……やしゃしく ちてほちい{e}……', '{p}人类先生……想被温柔对待{e}……', '{p}Mr. Human... be gentle...'),
+            'plain': ('{p}にんげんしゃん……{n}、いいこに ちゅる{e}……', '{p}人类先生……{n}会乖乖的{e}……', '{p}Mr. Human... I will be good...')},
+        'adult': {
+            'proud': ('{p}にんげんさん、{n}は いいこ{e}！ にこにこ{e}！', '{p}人类先生，{n}是乖孩子{e}！笑笑{e}！', '{p}Mr. Human, {N} is good! Smile!'),
+            'timid': ('{p}にんげんさん……やさしく してほしい{e}……', '{p}人类先生……想被温柔对待{e}……', '{p}Mr. Human... please be gentle...'),
+            'plain': ('{p}にんげんさん……{n}、いいこに する{e}……', '{p}人类先生……{n}会乖乖的{e}……', '{p}Mr. Human... I will be good...')}},
+    # Scorned or bullied by a stranger it did nothing to (an own group says settlement_hurt instead).
+    'scorn_hurt': {
+        'baby': {
+            'proud': ('{c}！ いじわりゅ！', '{c}！坏心眼！', '{c}! Meanie!'),
+            'timid': ('{c}……いじわりゅ……ぐしゅ……', '{c}……坏心眼……呜……', '{c}... meanie... sniff...'),
+            'plain': ('{c}……なんで……？', '{c}……为什么……？', '{c}... why...?')},
+        'juvenile': {
+            'proud': ('{p}ひどい{e}！ {n}、なんにも ちてない{e}！', '{p}好过分{e}！{n}什么都没做{e}！', '{p}So mean! {N} did nothing!'),
+            'timid': ('{p}ひどい……{n}、なにも ちてないのに……', '{p}好过分……{n}什么都没做呀……', '{p}So mean... I did nothing...'),
+            'plain': ('{p}どうちて……いじわる しゅるの……', '{p}为什么……要欺负窝……', '{p}Why... are you so mean...')},
+        'adult': {
+            'proud': ('{p}ひどい{e}！ {n}は なにも してない{e}！', '{p}好过分{e}！{n}什么都没做{e}！', '{p}So mean! {N} did nothing!'),
+            'timid': ('{p}ひどいよ……{n}、なにもしてないのに……', '{p}好过分……{n}什么都没做呀……', '{p}So mean... I did nothing...'),
+            'plain': ('{p}どうして……そんなこと いうの……', '{p}为什么……要那样说……', '{p}Why... say such a thing...')}},
+    # Too weak to resist the basket, but it still says no.
+    'basket_refuse_weary': {
+        'baby': {
+            'proud': ('{c}……ちゅかれちゃ……でも、やーの……', '{c}……累累……可是，不要……', '{c}... tired... but no...'),
+            'timid': ('{c}……ふらふら……いやぁ……', '{c}……晃晃……不要啊……', '{c}... wobbly... no...'),
+            'plain': ('{c}……ちゅかれちゃ……うごけにゃい……', '{c}……累累……动不了……', '{c}... tired... cannot move...')},
+        'juvenile': {
+            'proud': ('{p}ふらふらでも、かごしゃんは いや{e}！', '{p}就算晃晃悠悠，也不要篮子鲜笋{e}！', '{p}Wobbly, but I still say no to the basket!'),
+            'timid': ('{p}ふらふら……かごしゃん、はいれにゃい……', '{p}晃晃悠悠……进不去篮子鲜笋……', '{p}Wobbly... cannot get in the basket...'),
+            'plain': ('{p}ちゅかれちゃ……もう うごけにゃい……', '{p}累累……动不了了……', '{p}Tired... cannot move any more...')},
+        'adult': {
+            'proud': ('{p}ふらふらでも、かごさんは いや{e}！', '{p}就算晃晃悠悠，也不要篮子先生{e}！', '{p}Wobbly, but I still say no to the basket!'),
+            'timid': ('{p}ふらふら……かごさん、もう むり{e}……', '{p}晃晃悠悠……篮子先生，已经不行了{e}……', '{p}Wobbly... the basket is too much...'),
+            'plain': ('{p}つかれた……うごけない{e}……', '{p}累了……动不了{e}……', '{p}Tired... cannot move...')}},
+    # A plain no: food it will not take, a dose, a wash, a hat it will not fill.
+    'refuse': {
+        'baby': {
+            'proud': ('{c}！ いやー！ いやいや！', '{c}！不要！不要不要！', '{c}! No! No no!'),
+            'timid': ('{c}……いや……いやぁ……', '{c}……不……不要啊……', '{c}... no... noo...'),
+            'plain': ('{c}……やーの……', '{c}……不要……', '{c}... no...')},
+        'juvenile': {
+            'proud': ('{p}いやー{e}！ いらにゃい{e}！', '{p}不要{e}！不需要{e}！', '{p}No! I do not want it!'),
+            'timid': ('{p}いや……いらにゃい……', '{p}不……不要……', '{p}No... do not want...'),
+            'plain': ('{p}……やーの。いらにゃい{e}。', '{p}……不要。不需要{e}。', '{p}... no. I do not want it.')},
+        'adult': {
+            'proud': ('{p}いや{e}！ いらない{e}！', '{p}不要{e}！不需要{e}！', '{p}No! I do not want it!'),
+            'timid': ('{p}いや……いらない……', '{p}不……不要……', '{p}No... do not want...'),
+            'plain': ('{p}ううん、いらない{e}。', '{p}不，不需要{e}。', '{p}No, I do not want it.')}},
+}
 
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
         'adult': ('たくさん、たくさん', '好多好多', 'lots and lots')}
@@ -764,6 +877,15 @@ def main():
                 make(sp, tier, event, frame, protection_context, lines, PROTECTION_BASIS, prefix='retest_')
     for sp in ('remilia', 'flandre'):
         make(sp, 'adult', 'protect_angered', PROTECTION_ANGERED, protection_context, lines, PROTECTION_BASIS, prefix='retest_')
+    for sp in SPECIES:
+        for event, tiers in GAP.items():
+            for tier, variants in tiers.items():
+                for i, (variant, frame) in enumerate(variants.items(), 1):
+                    make(sp, tier, event, frame, context(sp, tier), lines, GAP_BASIS, prefix=f'g{i}_', variant=variant)
+        for tier, frame in PROTECTION_TAUNT_TIERS.items():
+            if tier == 'adult' and sp in ('reimu', 'marisa', 'alice', 'chen', 'patchouli'):
+                continue  # their adult taunt is the older line above; the tic-bearing Myon keys and the two predators had none
+            make(sp, tier, 'protect_taunt', frame, context(sp, tier), lines, PROTECTION_BASIS, prefix='retest_')
     for sp in SPECIES:
         for tier, variants in FOOD_STYLED.items():
             ctx = context(sp, tier)
