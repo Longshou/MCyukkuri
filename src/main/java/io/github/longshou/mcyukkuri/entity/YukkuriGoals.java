@@ -170,6 +170,7 @@ final class YukkuriGoals {
         // Needs and duties can take the flags from a parent that is watching its child leave.
         goalSelector.addGoal(EmotionCourse.PARTING_PRIORITY, basicBinding(PresentationGoals.EMOTION,
                 new EmotionCourse.CourseGoal(owner, EmotionCourse.PARTING_PRIORITY)));
+        goalSelector.addGoal(8, landGoal(new PetLife.VigilGoal(owner), true));
         roaming = new RoamingGoal(owner);
         goalSelector.addGoal(9, basicBinding(PresentationGoals.ROAMING, roaming));
         goalSelector.addGoal(10, landGoal(new LookAtPlayerGoal(owner, Player.class, 6.0F), true));

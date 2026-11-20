@@ -369,13 +369,22 @@ public final class FoundShelter implements MotorOwner {
         var level = (ServerLevel) local.level();
         var here = local.blockPosition();
         return LoadedShelters.within(level, here.offset(-RADIUS, -2, -RADIUS), here.offset(RADIUS, 2, RADIUS)).stream()
-                .filter(home -> home.kind().found() && fresh.test(home) && visibleInvitation(local, guest, home))
+                .filter(home -> home.kind().found() && fresh.test(home) && visibleVacancy(local, guest, home))
+                .filter(home -> {
+                    if (fits(guest)) return true;
+                    GameplayLog.event(guest, "habitat", "carton too small for offer shelter={} local={}", home.getBlockPos(), local.getUUID());
+                    return false;
+                })
                 .min(Comparator.comparingDouble(home -> local.distanceToSqr(invitationOpening(home)))).orElse(null);
     }
 
     public static boolean visibleInvitation(YukkuriEntity local, YukkuriEntity guest, ShelterBlockEntity home) {
+        return visibleVacancy(local, guest, home) && fits(guest);
+    }
+
+    private static boolean visibleVacancy(YukkuriEntity local, YukkuriEntity guest, ShelterBlockEntity home) {
         var level = (ServerLevel) local.level();
-        return !home.isRemoved() && level.hasChunkAt(home.getBlockPos()) && home.foundUsable(guest)
+        return !home.isRemoved() && level.hasChunkAt(home.getBlockPos()) && home.foundHabitable(guest)
                 && home.vacantForInvitation(guest) && level.clip(new ClipContext(local.getEyePosition(), invitationOpening(home),
                         ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, local)).getType() == HitResult.Type.MISS;
     }
@@ -396,6 +405,7 @@ public final class FoundShelter implements MotorOwner {
         }
         inviter = local;
         approachCarton(home);
+        GameplayLog.event(body, "habitat", "invited cover approach shelter={} local={}", target(), inviter);
         return true;
     }
 

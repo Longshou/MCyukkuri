@@ -478,8 +478,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
 
     boolean foundUsable(YukkuriEntity entity) {
-        return rainStage == 0 && sound() && (dirt < 65 || entity.status().marks().dirt() >= 3 || entity.body().mold() > 0)
-                && FoundShelter.fits(entity);
+        return foundHabitable(entity) && FoundShelter.fits(entity);
+    }
+
+    boolean foundHabitable(YukkuriEntity entity) {
+        return rainStage == 0 && sound() && (dirt < 65 || entity.status().marks().dirt() >= 3 || entity.body().mold() > 0);
     }
 
     boolean vacantForInvitation(YukkuriEntity guest) {

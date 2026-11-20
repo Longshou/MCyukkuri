@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.social.Kindness.ShelterReply;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 
@@ -93,7 +94,8 @@ import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, CLAIM_BED, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE, FOUND_COVER, GARBAGE, CROP, STALL }
+    private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, CLAIM_BED, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE,
+        SHELTER_REPLY, SHELTER_DECLINED, FOUND_COVER, GARBAGE, CROP, STALL }
     private final YukkuriEntity entity;
     private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
@@ -917,6 +919,7 @@ public final class YukkuriLife {
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks() > 0) return true;
         if (BadgeArcs.running(entity) && (!hasUrgentNeed() || BadgeArcs.handlesFoodHunger(entity))) return false;
+        if (task == Task.SHELTER_DECLINED) return !hasUrgentNeed() && entity.reactionAction() == YukkuriAction.DROOP;
         if (task == Task.WINTER_FOOD) {
             if (entity.wintering().continueMeal()) {
                 if (pursuitTicks >= winterNeedCheckAt) {
@@ -970,9 +973,12 @@ public final class YukkuriLife {
             task = Task.FOUND_COVER;
             return true;
         }
-        // A look-back is brief and can coincide with the idle delay after a meal.
-        var invitation = entity.kindness().liveShelterOffer();
-        if (planWait > 0 && (invitation == null || !invitation.ready())) return false;
+        // Own MOVE while watching the live gesture so ordinary food searches cannot step away before the answer.
+        if (entity.kindness().liveShelterOffer() != null && freeToAnswerShelter()) {
+            task = Task.SHELTER_REPLY;
+            return true;
+        }
+        if (planWait > 0) return false;
         planWait = 20;
         if (needsDrink() || wantsStreetRinse()) {
             var water = home.nearestDrink(needsDrink());
@@ -1076,18 +1082,6 @@ public final class YukkuriLife {
             boolean freeToShelter = !ParentCarry.awaitsCarrier(entity);
             boolean rainFirst = freeToShelter && foundCover.seekingStreetRoof();
             if (rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
-            if (invitation != null && freeToShelter && !rainFirst && !entity.family().active()) {
-                if (!invitation.ready()) {
-                    var opening = FoundShelter.invitationOpening(invitation.carton());
-                    entity.getLookControl().setLookAt(opening.x, opening.y, opening.z);
-                    return false;
-                }
-                if (entity.kindness().acceptsShelter(invitation)
-                        && foundCover.planInvited(invitation.carton(), invitation.local().getUUID())) {
-                    task = Task.FOUND_COVER;
-                    return true;
-                }
-            }
             if (!entity.forageTrip().provisioningFirst() && stallTheft.plan()) { task = Task.STALL; return true; }
             if (EventHooks.canEntityGrief(level(), entity) && garbage.plan()) { task = Task.GARBAGE; return true; }
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
@@ -1259,6 +1253,8 @@ public final class YukkuriLife {
         if (guardingDish()) { SurfaceApproach.halt(entity); return; }
         pursuitTicks++;
         switch (task) {
+            case SHELTER_REPLY -> replyToShelter();
+            case SHELTER_DECLINED -> SurfaceApproach.halt(entity);
             case FOUND_COVER -> {
                 var step = foundCover.tick();
                 if (step == FoundShelter.Step.ENDED) stopGoal();
@@ -1461,6 +1457,27 @@ public final class YukkuriLife {
             }
             default -> { }
         }
+    }
+
+    private boolean freeToAnswerShelter() {
+        return !penned() && !ParentCarry.awaitsCarrier(entity) && !entity.family().active()
+                && !thirstUrgent() && !toiletUrgent() && !foundCover.seekingStreetRoof();
+    }
+
+    private void replyToShelter() {
+        var invitation = entity.kindness().liveShelterOffer();
+        if (invitation == null || !freeToAnswerShelter()) { stopGoal(); return; }
+        SurfaceApproach.halt(entity);
+        if (!invitation.ready()) {
+            var opening = FoundShelter.invitationOpening(invitation.carton());
+            entity.getLookControl().setLookAt(opening.x, opening.y, opening.z);
+            return;
+        }
+        var answer = entity.kindness().answerShelter(invitation);
+        if (answer == ShelterReply.STAY) task = Task.SHELTER_DECLINED;
+        else if (answer == ShelterReply.FOLLOW && foundCover.planInvited(invitation.carton(), invitation.local().getUUID()))
+            task = Task.FOUND_COVER;
+        else stopGoal();
     }
     /**
      * The pit trip's last steps: reach the bank cell, step to its brink and turn the back to the pit. False while still on the way

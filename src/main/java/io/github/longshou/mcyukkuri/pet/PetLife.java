@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -21,6 +22,7 @@ import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.rules.Conscience;
 import io.github.longshou.mcyukkuri.pet.rules.Discovery;
+import io.github.longshou.mcyukkuri.pet.rules.VigilOffers;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import io.github.longshou.mcyukkuri.pet.social.BadgeLedger;
 import io.github.longshou.mcyukkuri.pet.social.BadgePraise;
@@ -61,6 +63,8 @@ public final class PetLife {
     private UUID serial, issuer, lockedBy, formerOwner;
     private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay;
     private long lastContact, abandonedAt, dropPos;
+    private long nextVigilCheck;
+    private final VigilOffers vigilOffers = new VigilOffers();
     private boolean voidBadge, noticeSent, waits, townRoots;
     // Loaded ticks only: positive while away, negative during the welcome window.
     private int ownerAbsence;
@@ -280,14 +284,17 @@ public final class PetLife {
     public boolean waitingAfterAbandonment() { return abandoned() && waits && now() - abandonedAt <= VIGIL_TICKS; }
     public double vigilProgress() { return Math.clamp((now() - abandonedAt) / (double) VIGIL_TICKS, 0, 1); }
     public BlockPos abandonmentSite() { return BlockPos.of(dropPos); }
+    public VigilOffers vigilOffers() { return vigilOffers; }
     public void settledAfterInvitation(BlockPos carton, UUID local) {
-        waits = false;
+        endVigil();
         GameplayLog.event(animal, "pet", "vigil ended in invited cover shelter={} local={} former={}", carton, local, formerOwner);
     }
     /** An unkept individual still tied to human-town life, including offspring raised in it. */
     public boolean townRoots() { return townRoots; }
     public void markTownRoots() { townRoots = true; }
-    public void leaveTownLife() { townRoots = false; waits = false; }
+    public void leaveTownLife() { townRoots = false; endVigil(); }
+
+    private void endVigil() { waits = false; vigilOffers.clear(); }
     /** Owner feeding, talking or caring for the pet, or merely being near it. Cruel actions refresh presence only. */
     public void contact(UUID who, boolean care) {
         if (animal.level().isClientSide || !ownedBy(who) || !isPet()) return;
@@ -409,6 +416,8 @@ public final class PetLife {
         townRoots = true;
         care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
+        nextVigilCheck = 0;
+        vigilOffers.clear();
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
         waits = animal.life().personality().temperament().is(Gate.WAITS_FOR_OWNER) || !animal.family().adult();
         neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
@@ -420,7 +429,7 @@ public final class PetLife {
         lastContact = now(); neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
         if (formerOwner != null) {
             boolean same = formerOwner.equals(owner);
-            formerOwner = null; abandonStage = 0; waits = false;
+            formerOwner = null; abandonStage = 0; endVigil();
             if (same) { voidBadge = false; animal.playAction("tremble"); joyDelay = 30; }
         }
         PetPrivileges.note(animal);
@@ -449,19 +458,63 @@ public final class PetLife {
     }
     private void tickAbandoned() {
         if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
+        if (!vigilOffers.isEmpty() && !waitingAfterAbandonment()) vigilOffers.clear();
         if (!townRoots || !abandoned() || now() - abandonedAt < 240 || !calm()) return;
         if (abandonStage == 0) {
             abandonStage = 1;
-            if (!waits && !animal.life().personality().temperament().is(Gate.WARM)) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
+            if (!waits && !animal.life().personality().temperament().is(Gate.WARM)) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); }
         }
-        if (!waitingAfterAbandonment() || animal.life().usingFoundCover() || !animal.level().isDay()
-                || animal.status().reactions().threat().responding() || Reactions.Weather.rainAt(animal, animal.blockPosition())) return;
-        if (--searchClock > 0) return;
-        searchClock = (animal.family().adult() ? 500 : 250) + animal.getRandom().nextInt(300);
-        var drop = abandonmentSite();
-        if (animal.blockPosition().distSqr(drop) > 36 && animal.life().dryStand(drop)
-                && !Reactions.Weather.rainAt(animal, drop)) animal.life().navigate(drop, .6, false);
-        else { animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction(YukkuriAction.DROOP, "cry", "lost_parent", 100); }
+    }
+
+    /** Periodic return and watch while the body has no more pressing work. */
+    public static final class VigilGoal extends Goal {
+        private final YukkuriEntity animal;
+        private BlockPos destination;
+
+        public VigilGoal(YukkuriEntity animal) {
+            this.animal = animal;
+            setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        }
+
+        private boolean keepsVigil() {
+            var pet = animal.pet();
+            return pet.townRoots && pet.waitingAfterAbandonment() && pet.now() - pet.abandonedAt >= 240 && pet.calm()
+                    && !animal.isLeashed() && !animal.life().usingFoundCover() && animal.level().isDay()
+                    && !animal.status().reactions().threat().responding() && !Reactions.Weather.rainAt(animal, animal.blockPosition());
+        }
+
+        @Override public boolean canUse() { return animal.pet().now() >= animal.pet().nextVigilCheck && keepsVigil(); }
+
+        @Override public void start() {
+            var pet = animal.pet();
+            pet.nextVigilCheck = pet.now() + (animal.family().adult() ? 500 : 250) + animal.getRandom().nextInt(300);
+            var drop = pet.abandonmentSite();
+            if (animal.blockPosition().distSqr(drop) > 36 && animal.life().dryStand(drop) && !Reactions.Weather.rainAt(animal, drop)) {
+                if (animal.life().navigate(drop, .6, false)) {
+                    destination = drop;
+                    GameplayLog.event(animal, "pet", "vigil return started site={}", destination);
+                }
+            } else {
+                animal.mind().felt(EmotionEvent.SEPARATED);
+                animal.showReaction(YukkuriAction.DROOP, "cry", "lost_parent", 100);
+            }
+        }
+
+        @Override public boolean canContinueToUse() {
+            return ownsPath() && !animal.getNavigation().isDone() && keepsVigil()
+                    && animal.level().hasChunkAt(destination) && !Reactions.Weather.rainAt(animal, destination);
+        }
+
+        private boolean ownsPath() { return destination != null && destination.equals(animal.getNavigation().getTargetPos()); }
+
+        @Override public void stop() {
+            if (ownsPath()) {
+                SurfaceApproach.stopWalking(animal);
+                GameplayLog.event(animal, "pet", "vigil return released site={} day={} rain={}", destination,
+                        animal.level().isDay(), animal.level().isRaining());
+            }
+            destination = null;
+        }
     }
 
     // sessions
@@ -544,6 +597,16 @@ public final class PetLife {
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
+        if (!vigilOffers.isEmpty()) {
+            var answers = new ListTag();
+            vigilOffers.snapshot().forEach((site, evidence) -> {
+                var answer = new CompoundTag();
+                answer.putString("Dimension", site.dimension()); answer.putLong("Pos", site.position());
+                answer.putDouble("Need", evidence.need()); answer.putDouble("Bond", evidence.bond());
+                answers.add(answer);
+            });
+            tag.put("VigilAnswers", answers);
+        }
         tag.putBoolean("TownRoots", townRoots);
         tag.putInt("Obedience", obedienceShift);
         var learned = new ListTag();
@@ -574,6 +637,13 @@ public final class PetLife {
         neglect = Math.clamp(tag.getInt("Neglect"), 0, 100); lastContact = tag.getLong("LastContact"); noticeSent = tag.getBoolean("NoticeSent"); ownerAbsence = 0;
         voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = BadgeGrade.of(tag.getInt("AbandonedGrade")).id(); dropPos = tag.getLong("DropPos");
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
+        nextVigilCheck = 0;
+        vigilOffers.clear();
+        for (var raw : tag.getList("VigilAnswers", 10)) {
+            var answer = (CompoundTag) raw;
+            vigilOffers.answer(new VigilOffers.Site(answer.getString("Dimension"), answer.getLong("Pos")),
+                    new VigilOffers.Evidence(answer.getDouble("Need"), answer.getDouble("Bond")));
+        }
         townRoots = tag.contains("TownRoots") ? tag.getBoolean("TownRoots") : formerOwner != null;
         obedienceShift = RulesMath.capShift(tag.getInt("Obedience"));
         conscience.load(tag.getCompound("Conscience"));

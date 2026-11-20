@@ -3906,6 +3906,7 @@ _park_waiter = sel('park_waiter')
 _park_local = sel('park_local')
 _park_former = uuid_nbt(uid(_park_aid, 'former_owner'))
 _park_drop = _lot_pos(*_lot_spot('fountain', 7, -2))
+_park_carton_core = _lot_pos(*_lot_spot('fountain', 10, -4))
 add(_park_aid, 'park', '流浪油递来一口，回头指向空纸箱', '流浪油递来一口，回头指向空纸箱',
     '喷泉东侧，等主人的灵梦吃下一口苹果，看本地灵梦朝箱口走两步再回头。刚被留下、依恋强的会垂头留下，等得久又困的会自己进箱歇脚。重开可看另一种反应。',
     '约半分钟', [
@@ -7510,6 +7511,10 @@ def _verify_park_aid(window, trace):
     if staying and (settled or ended):
         return 'The waiter declined and then settled at the invited core'
     frames = [json.loads(line.split('[trace] ', 1)[1]) for line in trace]
+    offered_at = int(re.search(r'\bt=(\d+)', offer[0][0])[1])
+    if any(row['k'] == 'st' and row['u'] == _park_waiter_log and offered_at <= row['t'] < int(decision[1])
+           and 'ForageGoal@4' in row['st'].get('goals', ()) for row in frames):
+        return 'Ordinary foraging took MOVE before the waiter answered the live gesture'
     clips = [row['st']['animation'] for row in frames if row['k'] == 'st' and row['u'] == _park_waiter_log
              and row['t'] >= int(decision[1]) and 'animation' in row['st']]
     if staying:
@@ -7519,17 +7524,24 @@ def _verify_park_aid(window, trace):
 
 def _park_aid_vigil_readout(readout):
     values = re.findall(r'has the following entity data: (.+)', readout)
-    if len(values) != 4 or values[1].replace(' ', '') != _park_former:
+    if len(values) < 4 or values[1].replace(' ', '') != _park_former:
         return 'The surviving waiter needs its original former owner'
     attachment = int(values[2]) + int(values[3])
-    if values[0] != ('1b' if attachment >= 75 else '0b'):
+    staying = attachment >= 75
+    if values[0] != ('1b' if staying else '0b'):
         return 'The saved vigil must reflect the staged waiter’s choice and actual settlement'
+    if staying:
+        if len(values) != 5 or not re.search(rf'\bPos: {_park_carton_core}L\b', values[4]) or '"minecraft:overworld"' not in values[4]:
+            return 'The active vigil must save the declined carton’s dimension and core'
+    elif len(values) != 4:
+        return 'A completed vigil must clear its carton answers'
 
 
 _smoke(_park_aid, 500, [_park_bite, _park_swallow, _park_offer], readout=[
     f'data get entity {_park_waiter} YukkuriPet.Waits', f'data get entity {_park_waiter} YukkuriPet.FormerOwner',
     f'data get entity {_park_waiter} YukkuriLife.Personality.Innate[3]',
-    f'data get entity {_park_waiter} YukkuriLife.Personality.Experience[3]', 'data get block ~10 ~ ~-4 Residents',
+    f'data get entity {_park_waiter} YukkuriLife.Personality.Experience[3]',
+    f'data get entity {_park_waiter} YukkuriPet.VigilAnswers', 'data get block ~10 ~ ~-4 Residents',
 ])
 next(s for s in S if s.id == _park_aid).smoke.update(verify=_verify_park_aid, verify_trace=True,
                                                     verify_readout=_park_aid_vigil_readout, gating_checks=['END'])
